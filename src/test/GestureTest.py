@@ -26,6 +26,14 @@ from sets import Set
 from testcase import *
 
 class GestureTestCase(AVGTestCase):
+    
+    DETECTED = 1
+    MOVED = 2
+    UP = 3
+    ENDED = 4
+    POSSIBLE = 5
+    FAILED = 6
+    
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
@@ -485,51 +493,29 @@ class GestureTestCase(AVGTestCase):
 
     def testDragRecognizer(self):
 
-        EVENT_DETECTED = 1
-        EVENT_MOVED = 2
-        EVENT_UP = 3
-        EVENT_ENDED = 4
-        EVENT_POSSIBLE = 5
-        EVENT_FAILED = 6
         def onDetected(event):
-            self.__flags.add(EVENT_DETECTED)
+            self.__addEventFlag(GestureTestCase.DETECTED)
 
         def onMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (40,40))
-            self.__flags.add(EVENT_MOVED)
+            self.__addEventFlag(GestureTestCase.MOVED)
 
         def onUp(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (10,-10))
-            self.__flags.add(EVENT_UP)
+            self.__addEventFlag(GestureTestCase.UP)
 
         def onEnd(event):
-            self.__flags.add(EVENT_ENDED)
+            self.__addEventFlag(GestureTestCase.ENDED)
 
         def enable(isEnabled):
             dragRecognizer.enable(isEnabled)
-            initState()
+            self.__resetEventState()
 
         def abort():
             dragRecognizer.abort()
-            initState()
-
-        def initState():
-            self.__flags = Set()
-
-        def assertDragEvents(flags):
-            wantedFlags = Set(flags)
-            if wantedFlags != self.__flags:
-                print "State expected: ", wantedFlags
-                print "Actual state: ", self.__flags
-                self.assert_(False)
-
-        def checkMouseEvent(type, x, y, eventFlags):
-            return [
-                     lambda: self._sendMouseEvent(type, x, y),
-                     lambda: assertDragEvents(eventFlags)
-                    ]
+            self.__resetEventState()
 
         Player.setFakeFPS(100)
         for self.friction in (-1, 100):
@@ -538,31 +524,33 @@ class GestureTestCase(AVGTestCase):
             dragRecognizer = ui.DragRecognizer(image, 
                     detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp, 
                     endHandler=onEnd, friction=self.friction)
-            initState()
+            self.__resetEventState()
             self.start((
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
-                     checkMouseEvent(avg.CURSORMOTION, 70, 70, 
-                            [EVENT_DETECTED, EVENT_MOVED]),
-                     checkMouseEvent(avg.CURSORUP, 40, 20, 
-                            [EVENT_DETECTED, EVENT_MOVED, EVENT_UP, EVENT_ENDED]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
+                            [GestureTestCase.DETECTED]),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 70, 70, 
+                            [GestureTestCase.MOVED]),
+                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, 
+                            [GestureTestCase.UP, GestureTestCase.ENDED]),
                      lambda: enable(False),
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, []),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, []),
                      lambda: dragRecognizer.enable(True),
-                     checkMouseEvent(avg.CURSORUP, 30, 30, []),
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
+                     self.__checkMouseEvents(avg.CURSORUP, 30, 30, []),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
+                            [GestureTestCase.DETECTED]),
                     ))
 
         # Test with constraint.
         def onPossible(event):
-            self.__flags.add(EVENT_POSSIBLE)
+            self.__flags.add(GestureTestCase.POSSIBLE)
 
         def onFail(event):
-            self.__flags.add(EVENT_FAILED)
+            self.__flags.add(GestureTestCase.FAILED)
 
         def onVertMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (0,40))
-            self.__flags.add(EVENT_MOVED)
+            self.__flags.add(GestureTestCase.MOVED)
 
         for self.friction in (-1, 100):
             root = self.loadEmptyScene()
@@ -572,68 +560,67 @@ class GestureTestCase(AVGTestCase):
                     detectedHandler=onDetected, 
                     moveHandler=onVertMove, upHandler=onUp, endHandler=onEnd, 
                     friction=self.friction, direction=ui.DragRecognizer.VERTICAL)
-            initState()
+            self.__resetEventState()
             self.start((
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 30, 70, 
-                            [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORUP, 40, 20, 
-                            [EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
-                                    EVENT_ENDED, EVENT_POSSIBLE]),
-                     initState,
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
+                            [GestureTestCase.POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, 
+                            [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
+                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, 
+                            [GestureTestCase.UP, GestureTestCase.ENDED]),
                      # Wrong direction -> stop.
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 70, 30, 
-                            [EVENT_POSSIBLE, EVENT_FAILED]),
-                     checkMouseEvent(avg.CURSORUP, 70, 30, 
-                            [EVENT_POSSIBLE, EVENT_FAILED]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
+                            [GestureTestCase.POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 70, 30, 
+                            [GestureTestCase.FAILED]),
+                     self.__checkMouseEvents(avg.CURSORUP, 70, 30, []),
 
                      # No movement -> stop.
-                     initState,
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORUP, 30, 30, 
-                            [EVENT_POSSIBLE, EVENT_FAILED]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
+                            [GestureTestCase.POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORUP, 30, 30, 
+                            [GestureTestCase.FAILED]),
 
                      # Down, Abort, Motion, Motion, Up -> not recognized
-                     initState,
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
+                            [GestureTestCase.POSSIBLE]),
                      abort,
-                     checkMouseEvent(avg.CURSORMOTION, 35, 30, []),
-                     checkMouseEvent(avg.CURSORMOTION, 30, 70, []),
-                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, []),
+                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Abort, Motion, Up -> not Recognized
-                     initState,
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
+                            [GestureTestCase.POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
                      abort,
-                     checkMouseEvent(avg.CURSORMOTION, 30, 70, []),
-                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, []),
+                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Motion, Abort, Up -> not recognized
-                     initState,
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 30, 70,
-                            [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
+                            [GestureTestCase.POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70,
+                            [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
                      abort,
-                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
+                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Abort, Up, Down, Motion, Motion, Up -> Recognized
-                     initState,
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
+                            [GestureTestCase.POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
                      abort,
-                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
+                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
                      
-                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORMOTION, 30, 70,
-                            [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
-                     checkMouseEvent(avg.CURSORUP, 40, 20, 
-                            [EVENT_DETECTED, EVENT_MOVED, EVENT_UP, EVENT_ENDED,
-                             EVENT_POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
+                            [GestureTestCase.POSSIBLE]),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
+                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70,
+                            [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
+                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, 
+                            [GestureTestCase.UP, GestureTestCase.ENDED]),
                     ))
 
         # Test second down during inertia.
@@ -644,13 +631,14 @@ class GestureTestCase(AVGTestCase):
                 detectedHandler=onDetected, 
                 moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
                 friction=0.01)
-        initState()
+        self.__resetEventState()
         self.start((
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 40, 20, 
-                            [EVENT_ENDED, EVENT_DETECTED, EVENT_MOVED]),
+                 self.__resetEventState,
+                 self.__checkMouseEvents(avg.CURSORDOWN, 40, 20, 
+                            [GestureTestCase.ENDED, GestureTestCase.DETECTED, 
+                             GestureTestCase.MOVED]),
                  ))
 
         # Test second down during inertia, constrained recognizer
@@ -661,19 +649,19 @@ class GestureTestCase(AVGTestCase):
                 detectedHandler=onDetected, 
                 moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
                 friction=0.01, direction=ui.DragRecognizer.VERTICAL)
-        initState()
+        self.__resetEventState()
         self.start((
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 checkMouseEvent(avg.CURSORMOTION, 30, 70,
-                        [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 70,
-                        [EVENT_DETECTED, EVENT_MOVED, EVENT_UP, EVENT_POSSIBLE]),
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, 
-                        [EVENT_MOVED, EVENT_ENDED, EVENT_POSSIBLE]),
-                 initState,
-                 checkMouseEvent(avg.CURSORMOTION, 30, 70, 
-                        [EVENT_DETECTED, EVENT_MOVED]),
+                 self.__checkMouseEvents(avg.CURSORMOTION, 30, 70,
+                        [GestureTestCase.DETECTED, GestureTestCase.MOVED, 
+                         GestureTestCase.POSSIBLE]),
+                 self.__checkMouseEvents(avg.CURSORUP, 30, 70,
+                        [GestureTestCase.MOVED, GestureTestCase.UP]),
+                 self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
+                        [GestureTestCase.MOVED, GestureTestCase.ENDED, 
+                         GestureTestCase.POSSIBLE]),
+                 self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, 
+                        [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
                  ))
 
         Player.setFakeFPS(-1)
@@ -879,6 +867,26 @@ class GestureTestCase(AVGTestCase):
         self.assertAlmostEqual(image.pos, (10,20))
         self.assertAlmostEqual(image.size, (30,40))
         self.assertAlmostEqual(image.angle, 1.57)
+
+    def __checkMouseEvents(self, type, x, y, expectedEvents):
+        return [
+                 lambda: self._sendMouseEvent(type, x, y),
+                 lambda: self.__assertEvents(expectedEvents),
+                 self.__resetEventState
+                ]
+    
+    def __assertEvents(self, expectedFlags):
+        expectedFlags = Set(expectedFlags)
+        if expectedFlags != self.__flags:
+            print "State expected: ", expectedFlags
+            print "Actual state: ", self.__flags
+            self.assert_(False)
+
+    def __resetEventState(self):
+        self.__flags = Set()
+
+    def __addEventFlag(self, flag):
+        self.__flags.add(flag)
 
 
 def gestureTestSuite(tests):
