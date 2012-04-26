@@ -219,7 +219,7 @@ class DoubletapRecognizer(Recognizer):
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
 
-        self.__stateMachine = statemachine.StateMachine("TapRecognizer", "IDLE")
+        self.__stateMachine = statemachine.StateMachine("DoubletapRecognizer", "IDLE")
         self.__stateMachine.addState("IDLE", ("DOWN1",), enterFunc=self.__enterIdle)
         self.__stateMachine.addState("DOWN1", ("UP1", "IDLE"))
         self.__stateMachine.addState("UP1", ("DOWN2", "IDLE"))
