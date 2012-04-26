@@ -673,21 +673,27 @@ class UITestCase(AVGTestCase):
 
     def testDragRecognizer(self):
 
+        EVENT_DETECTED = 1
+        EVENT_MOVED = 2
+        EVENT_UP = 3
+        EVENT_ENDED = 4
+        EVENT_POSSIBLE = 5
+        EVENT_FAILED = 6
         def onDetected(event):
-            self.__detected = True
+            self.__flags.add(EVENT_DETECTED)
 
         def onMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (40,40))
-            self.__moved = True
+            self.__flags.add(EVENT_MOVED)
 
         def onUp(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (10,-10))
-            self.__up = True
+            self.__flags.add(EVENT_UP)
 
         def onEnd(event):
-            self.__ended = True
+            self.__flags.add(EVENT_ENDED)
 
         def enable(isEnabled):
             dragRecognizer.enable(isEnabled)
@@ -698,28 +704,14 @@ class UITestCase(AVGTestCase):
             initState()
 
         def initState():
-            self.__detected = False
-            self.__moved = False
-            self.__up = False
-            self.__ended = False
+            self.__flags = Set()
 
-            self.__possible = False
-            self.__failed = False
-
-        EVENT_DETECTED = 1
-        EVENT_MOVED = 2
-        EVENT_UP = 3
-        EVENT_ENDED = 4
-        EVENT_POSSIBLE = 5
-        EVENT_FAILED = 6
         def assertDragEvents(flags):
-            flags = Set(flags)
-            self.assert_((EVENT_DETECTED in flags) == self.__detected)
-            self.assert_((EVENT_MOVED in flags) == self.__moved)
-            self.assert_((EVENT_UP in flags) == self.__up)
-            self.assert_((EVENT_ENDED in flags) == self.__ended)
-            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
-            self.assert_((EVENT_FAILED in flags) == self.__failed)
+            wantedFlags = Set(flags)
+            if wantedFlags != self.__flags:
+                print "State expected: ", wantedFlags
+                print "Actual state: ", self.__flags
+                self.assert_(False)
 
         def checkMouseEvent(type, x, y, eventFlags):
             return [
@@ -750,15 +742,15 @@ class UITestCase(AVGTestCase):
 
         # Test with constraint.
         def onPossible(event):
-            self.__possible = True
+            self.__flags.add(EVENT_POSSIBLE)
 
         def onFail(event):
-            self.__failed = True
+            self.__flags.add(EVENT_FAILED)
 
         def onVertMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (0,40))
-            self.__moved = True
+            self.__flags.add(EVENT_MOVED)
 
         for self.friction in (-1, 100):
             root = self.loadEmptyScene()
@@ -846,7 +838,30 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
                  initState,
                  checkMouseEvent(avg.CURSORDOWN, 40, 20, 
-                            [EVENT_DETECTED, EVENT_MOVED]),
+                            [EVENT_ENDED, EVENT_DETECTED, EVENT_MOVED]),
+                 ))
+
+        # Test second down during inertia, constrained recognizer
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        dragRecognizer = ui.DragRecognizer(image, 
+                possibleHandler=onPossible, failHandler=onFail, 
+                detectedHandler=onDetected, 
+                moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
+                friction=0.01, direction=ui.DragRecognizer.VERTICAL)
+        initState()
+        self.start((
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 checkMouseEvent(avg.CURSORMOTION, 30, 70,
+                        [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
+                 checkMouseEvent(avg.CURSORUP, 30, 70,
+                        [EVENT_DETECTED, EVENT_MOVED, EVENT_UP, EVENT_POSSIBLE]),
+                 initState,
+                 checkMouseEvent(avg.CURSORDOWN, 30, 30, 
+                        [EVENT_MOVED, EVENT_ENDED, EVENT_POSSIBLE]),
+                 initState,
+                 checkMouseEvent(avg.CURSORMOTION, 30, 70, 
+                        [EVENT_DETECTED, EVENT_MOVED]),
                  ))
 
         Player.setFakeFPS(-1)

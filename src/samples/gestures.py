@@ -245,11 +245,11 @@ class GestureDemoApp(libavg.AVGApp):
 
         DragNode(text="DragRecognizer", pos=(200,20), parent=self._parentNode)
 
-        DragNode(text="DragRecognizer<br/>friction", pos=(200,70), friction=0.05,
+        DragNode(text="DragRecognizer<br/>friction", pos=(200,70), friction=0.01,
                 parent=self._parentNode)
 
         ConstrainedDragNode(text="DragRecognizer<br/>constrained", pos=(200,120), 
-                parent=self._parentNode)
+                friction=0.01, parent=self._parentNode)
 
         TapNode(text="TapRecognizer", pos=(380,20), isDoubleTap=False,
                 parent=self._parentNode)

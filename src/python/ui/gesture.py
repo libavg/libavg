@@ -370,7 +370,7 @@ class DragRecognizer(Recognizer):
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
-            super(DragRecognizer, self).abort()
+            self._setEnd(event)
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self._setDetected(event)
         else:
