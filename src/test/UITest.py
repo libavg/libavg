@@ -713,12 +713,19 @@ class UITestCase(AVGTestCase):
         EVENT_POSSIBLE = 5
         EVENT_FAILED = 6
         def assertDragEvents(flags):
+            flags = Set(flags)
             self.assert_((EVENT_DETECTED in flags) == self.__detected)
             self.assert_((EVENT_MOVED in flags) == self.__moved)
             self.assert_((EVENT_UP in flags) == self.__up)
             self.assert_((EVENT_ENDED in flags) == self.__ended)
             self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
             self.assert_((EVENT_FAILED in flags) == self.__failed)
+
+        def checkMouseEvent(type, x, y, eventFlags):
+            return [
+                     lambda: self._sendMouseEvent(type, x, y),
+                     lambda: assertDragEvents(eventFlags)
+                    ]
 
         Player.setFakeFPS(100)
         for self.friction in (-1, 100):
@@ -729,20 +736,16 @@ class UITestCase(AVGTestCase):
                     endHandler=onEnd, friction=self.friction)
             initState()
             self.start((
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED])),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
-                             EVENT_ENDED])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
+                     checkMouseEvent(avg.CURSORMOTION, 70, 70, 
+                            [EVENT_DETECTED, EVENT_MOVED]),
+                     checkMouseEvent(avg.CURSORUP, 40, 20, 
+                            [EVENT_DETECTED, EVENT_MOVED, EVENT_UP, EVENT_ENDED]),
                      lambda: enable(False),
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, []),
                      lambda: dragRecognizer.enable(True),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED])),
+                     checkMouseEvent(avg.CURSORUP, 30, 30, []),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
                     ))
 
         # Test with constraint.
@@ -767,85 +770,66 @@ class UITestCase(AVGTestCase):
                     friction=self.friction, direction=ui.DragRecognizer.VERTICAL)
             initState()
             self.start((
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED,
-                             EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
-                             EVENT_ENDED, EVENT_POSSIBLE])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 30, 70, 
+                            [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORUP, 40, 20, 
+                            [EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
+                                    EVENT_ENDED, EVENT_POSSIBLE]),
                      initState,
                      # Wrong direction -> stop.
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 70, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 70, 30, 
+                            [EVENT_POSSIBLE, EVENT_FAILED]),
+                     checkMouseEvent(avg.CURSORUP, 70, 30, 
+                            [EVENT_POSSIBLE, EVENT_FAILED]),
 
                      # No movement -> stop.
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                     initState,
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORUP, 30, 30, 
+                            [EVENT_POSSIBLE, EVENT_FAILED]),
 
                      # Down, Abort, Motion, Motion, Up -> not recognized
                      initState,
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                      abort,
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(Set([])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(Set([])),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(Set([])),
+                     checkMouseEvent(avg.CURSORMOTION, 35, 30, []),
+                     checkMouseEvent(avg.CURSORMOTION, 30, 70, []),
+                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Abort, Motion, Up -> not Recognized
                      initState,
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
                      abort,
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(Set([])),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(Set([])),
+                     checkMouseEvent(avg.CURSORMOTION, 30, 70, []),
+                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Motion, Abort, Up -> not recognized
                      initState,
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED,
-                             EVENT_POSSIBLE])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 30, 70,
+                            [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
                      abort,
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(Set([])),
+                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Abort, Up, Down, Motion, Motion, Up -> Recognized
                      initState,
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
                      abort,
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(Set([])),
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED,
-                             EVENT_POSSIBLE])),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
-                             EVENT_ENDED, EVENT_POSSIBLE])),
+                     checkMouseEvent(avg.CURSORUP, 40, 20, []),
+                     
+                     checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 35, 30, [EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORMOTION, 30, 70,
+                            [EVENT_DETECTED, EVENT_MOVED, EVENT_POSSIBLE]),
+                     checkMouseEvent(avg.CURSORUP, 40, 20, 
+                            [EVENT_DETECTED, EVENT_MOVED, EVENT_UP, EVENT_ENDED,
+                             EVENT_POSSIBLE]),
                     ))
 
         # Test second down during inertia.
@@ -861,8 +845,8 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
                  initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 40, 20),
-                 lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED]))
+                 checkMouseEvent(avg.CURSORDOWN, 40, 20, 
+                            [EVENT_DETECTED, EVENT_MOVED]),
                  ))
 
         Player.setFakeFPS(-1)
