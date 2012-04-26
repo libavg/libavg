@@ -303,7 +303,8 @@ class TextArea(avg.DivNode):
             else:
                 self.__loupe.size = (50,50)     
                 self.__loupe.elementoutlinecolor = "918e8e"
-                avg.RectNode(fillopacity=1, fillcolor="f5f5f5", color="ffffff", size=self.__loupe.size, parent=self.__loupe)
+                avg.RectNode(fillopacity=1, fillcolor="f5f5f5", color="ffffff",
+                        size=self.__loupe.size, parent=self.__loupe)
             self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1])  
             self.__zoomedImage = avg.ImageNode(parent=self.__loupe)   
             self.__loupe.unlink()
@@ -607,7 +608,8 @@ class TextArea(avg.DivNode):
         g_Player.clearInterval(self.__ID)
 
     def __updateLoupe(self, event):
-        self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * self.__loupeZoomFactor) + (self.__loupeOffset[0]*2.5,self.__loupeOffset[1]*1.5)
+        self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * \
+                self.__loupeZoomFactor) + (self.__loupeOffset[0]*2.0,self.__loupeOffset[1]*1.5)
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 
     def __updateZoomImage(self):
