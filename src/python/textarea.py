@@ -295,7 +295,7 @@ class TextArea(avg.DivNode):
                     moveHandler=self.__moveHandler, detectedHandler=self.__detectedHandler,
                     upHandler=self.__upHandler)
             self.__loupeZoomFactor = 0.3
-            self.__loupe = avg.DivNode(parent=self, crop=False)
+            self.__loupe = avg.DivNode(parent=self, crop=True)
 
             if loupeBackgroundNode != None:
                 self.__loupe.appendChild(loupeBackgroundNode)
