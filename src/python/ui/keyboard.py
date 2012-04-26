@@ -30,18 +30,19 @@ from libavg import avg
 g_Player = avg.Player.get()
 g_Logger = avg.Logger.get()
 
+FEEDBACK_ZOOM_FACTOR = 1.0
 
-class Key(avg.ImageNode):
+class Key(avg.DivNode):
     def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, 
             onOutCallback=lambda event, keyCode:None, sticky=False, parent=None, 
             **kwargs):
         kwargs['pos'] = keyDef[1]
         kwargs['size'] = keyDef[2]
-        kwargs['opacity'] = 0.0
         super(Key, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
 
+        self.__image = avg.ImageNode(parent=self, opacity=0.0)
         if ovlHref:
             self.__createImage(ovlHref)
         self.__keyCode = keyDef[0]
@@ -58,7 +59,7 @@ class Key(avg.ImageNode):
 
     def reset(self):
         if self.__sticky:
-            self.opacity = 0.0
+            self.__image.opacity = 0.0
             self.__stickyIsDown = False
 
     def __createImage(self, ovlHref):
@@ -76,7 +77,7 @@ class Key(avg.ImageNode):
           effectiveHref,
           str(-self.pos)))
         canvas.render()
-        self.setBitmap(canvas.screenshot())
+        self.__image.setBitmap(canvas.screenshot())
         g_Player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
@@ -102,20 +103,20 @@ class Key(avg.ImageNode):
             return
         if not(self.__sticky):
             self.__cursorID = None
-            self.opacity = 0.0
+            self.__image.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
 
-        self.opacity = 1.0
+        self.__image.opacity = 1.0
         if self.__onDownCallback:
             self.__onDownCallback(event, self.__keyCode)
        
     def __pseudoUp(self, event):
         self.__cursorID = None
 
-        self.opacity = 0.0
+        self.__image.opacity = 0.0
         if self.__onUpCallback:
             self.__onUpCallback(event, self.__keyCode)
         
