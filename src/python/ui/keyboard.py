@@ -259,4 +259,6 @@ class Keyboard(avg.DivNode):
             self.__upKeyHandler(event, None, keyCode)
 
     def __upHandler(self, event, keyCode, cmd):
+        if keyCode is None:
+            return
         self.__textarea.onKeyDown(ord(keyCode))
