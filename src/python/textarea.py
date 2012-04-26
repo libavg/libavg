@@ -231,7 +231,7 @@ class TextArea(avg.DivNode):
     lines.
     """
     def __init__(self, focusContext=None, disableMouseFocus=False, moveCoursorOnTouch=True,
-            loupeZoomFactor=0.3, textBackgroundNode=None, loupeBackgroundNode=None, parent=None, **kwargs):
+            textBackgroundNode=None, loupeBackgroundNode=None, parent=None, **kwargs):
         """
         @param parent: parent of the node
         @param focusContext: FocusContext object which directs focus for TextArea elements
@@ -294,8 +294,8 @@ class TextArea(avg.DivNode):
             self.__recognizer = ui.DragRecognizer(eventNode=self,
                     moveHandler=self.__moveHandler, detectedHandler=self.__detectedHandler,
                     upHandler=self.__upHandler)
-            self.__loupeZoomFactor = loupeZoomFactor
-            self.__loupe = avg.DivNode(parent=self, crop=True)
+            self.__loupeZoomFactor = 0.3
+            self.__loupe = avg.DivNode(parent=self, crop=False)
 
             if loupeBackgroundNode != None:
                 self.__loupe.appendChild(loupeBackgroundNode)
@@ -469,7 +469,8 @@ class TextArea(avg.DivNode):
         # NP/FF clears text
         elif keycode == KEYCODE_FORMFEED:
             self.clearText()
-        elif keycode in (KEYCODE_CRS_UP, KEYCODE_CRS_DOWN, KEYCODE_CRS_LEFT, KEYCODE_CRS_RIGHT):
+        elif keycode in (KEYCODE_CRS_UP, KEYCODE_CRS_DOWN, KEYCODE_CRS_LEFT,
+                KEYCODE_CRS_RIGHT):
             if keycode == KEYCODE_CRS_LEFT and self.__cursorPosition > 0:
                 self.__cursorPosition -= 1
                 self.__update()
@@ -556,7 +557,8 @@ class TextArea(avg.DivNode):
        
         xPos = self.__cursorNode.pos2.x
         if lastCharExtents[1] > 0:
-            self.__cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0))
+            self.__cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * \
+                    (1 - CURSOR_PADDING_PCT/100.0))
         else:
             self.__cursorNode.pos2 = Point2D(xPos, self.__textNode.fontsize)
         
@@ -609,7 +611,8 @@ class TextArea(avg.DivNode):
 
     def __updateLoupe(self, event):
         self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * \
-                self.__loupeZoomFactor) + (self.__loupeOffset[0]*2.0,self.__loupeOffset[1]*1.5)
+                self.__loupeZoomFactor) + \
+                (self.__loupeOffset[0]*2.0,self.__loupeOffset[1]*1.5)
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 
     def __updateZoomImage(self):
