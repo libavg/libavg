@@ -119,7 +119,7 @@ void VertexData::addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2
     appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
 
-void VertexData::appendVertexData(VertexDataPtr pVertexes)
+void VertexData::appendVertexData(const VertexDataPtr& pVertexes)
 {
     int oldNumVerts = m_NumVerts;
     int oldNumIndexes = m_NumIndexes;
