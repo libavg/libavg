@@ -33,17 +33,17 @@ g_Logger = avg.Logger.get()
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 class Key(avg.DivNode):
-    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, feedback,
+    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback,
             onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
             **kwargs):
-        kwargs['pos'] = keyDef[1]
-        kwargs['size'] = keyDef[2]
+        kwargs['pos'] = keyDef[2]
+        kwargs['size'] = keyDef[3]
         super(Key, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
 
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
-        self.__feedback = feedback
+        self.__feedback = keyDef[1]
         if ovlHref:
             self.__createImage(ovlHref)
         self.__keyCode = keyDef[0]
@@ -167,32 +167,40 @@ class Keyboard(avg.DivNode):
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                key = Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp, True,
+                key = Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
                         parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
                 key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
-                        True, self.__onCommandKeyUp, sticky=sticky, parent=self)
+                        self.__onCommandKeyUp, sticky=sticky, parent=self)
             self.__keys.append(key)
         if textarea != None:
             self.__textarea = textarea
             self.setKeyHandler(None, self.__upHandler)
 
     @classmethod
-    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
+    def makeRowKeyDefs(cls, startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
         keyDefs = []
         curPos = startPos
         offset = keySize[0]+spacing
         if altGrKeyStr:
-            for keyCode, shiftKeyCode, altGrKeyCode in (
-                    zip(keyStr, shiftKeyStr, altGrKeyStr)):
-                keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), curPos, keySize])
+            for feedbackCode, keyCode, shiftKeyCode, altGrKeyCode in (
+                    zip(feedbackStr, keyStr, shiftKeyStr, altGrKeyStr)):
+                if feedbackCode == 'f':
+                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), False,
+                            curPos, keySize])
+                else:
+                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), True,
+                            curPos, keySize])
                 curPos = (curPos[0]+offset, curPos[1])
         else:
-            for keyCode, shiftKeyCode in zip(keyStr, shiftKeyStr):
-                keyDefs.append([(keyCode, shiftKeyCode), curPos, keySize])
+            for feedbackCode, keyCode, shiftKeyCode in zip(feedbackStr, keyStr, shiftKeyStr):
+                if feedbackCode == 'f':
+                    keyDefs.append([(keyCode, shiftKeyCode), False, curPos, keySize])
+                else:
+                    keyDefs.append([(keyCode, shiftKeyCode), True, curPos, keySize])
                 curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 

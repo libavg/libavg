@@ -239,7 +239,7 @@ functionality
             :param downHandler: Callable to invoke on key down event or `None`.
             :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
-        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, keyStr, shiftKeyStr, [altGrKeyStr])
+        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
 
             Creates key definitions for a row of uniform keys. Useful for creating the 
             keyDefs parameter of the Keyboard constructor.
@@ -249,6 +249,11 @@ functionality
             :param avg.Point2D keySize: Size of each key.
 
             :param int spacing: Number of empty pixels between two keys.
+
+            :param string feedbackStr:
+
+                String containing if the key has a feedback use f for Fals and t for True (i.e. 
+                :samp:`"fttttttttttf"`)
 
             :param string keyStr: 
             
