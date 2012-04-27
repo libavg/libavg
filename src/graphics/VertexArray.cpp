@@ -120,7 +120,7 @@ void VertexArray::draw()
 void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
         unsigned numVertexes)
 {
-    glDrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, numIndexes, 
+    glproc::DrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, numIndexes, 
             GL_UNSIGNED_INT, (void *)(startIndex*sizeof(unsigned)));
     GLContext::checkError("VertexArray::draw()");
 }

@@ -30,8 +30,11 @@
 
 #include <vector>
 #include <map>
+#ifdef _WIN32
+#include <unordered_map>
+#else
 #include <tr1/unordered_map>
-
+#endif
 namespace avg {
 
 class ThreadProfiler;
@@ -64,7 +67,11 @@ private:
     ProfilingZonePtr addZone(const ProfilingZoneID& zoneID);
     std::string m_sName;
 
+#ifdef _WIN32
+    typedef std::unordered_map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
+#else
     typedef std::tr1::unordered_map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
+#endif
     typedef std::vector<ProfilingZonePtr> ZoneVector;
     ZoneMap m_ZoneMap;
     ZoneVector m_ActiveZones;
