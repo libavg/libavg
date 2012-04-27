@@ -53,7 +53,6 @@ public:
     bool isRunning();
     void startZone(const ProfilingZoneID& zoneID);
     void stopZone(const ProfilingZoneID& zoneID);
-    void dumpFrame();
     void dumpStatistics();
     void reset();
     int getNumZones();

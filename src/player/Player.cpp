@@ -1059,10 +1059,6 @@ void Player::doFrame(bool bFirstFrame)
             endFrame();
         }
     }
-    if (m_pDisplayEngine->wasFrameLate()) {
-        ThreadProfiler::get()->dumpFrame();
-    }
-
     ThreadProfiler::get()->reset();
 }
 

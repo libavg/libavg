@@ -168,9 +168,6 @@ void DisplayEngine::checkJitter()
         maxDelay = 6;
     }
     if ((frameTime - m_TargetTime)/1000 > maxDelay || m_bFrameLate) {
-        AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
-                "DisplayEngine: frame too late by " 
-                << (frameTime - m_TargetTime)/1000 << " ms.");
         m_bFrameLate = true;
         m_FramesTooLate++;
     }

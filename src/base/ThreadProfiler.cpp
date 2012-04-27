@@ -103,19 +103,6 @@ void ThreadProfiler::stopZone(const ProfilingZoneID& zoneID)
     m_ActiveZones.pop_back();
 }
 
-void ThreadProfiler::dumpFrame()
-{
-    AVG_TRACE(Logger::PROFILE_LATEFRAMES, "Frame Profile:");
-    ZoneVector::iterator it;
-    for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
-        AVG_TRACE(Logger::PROFILE_LATEFRAMES,
-                std::setw(35) << std::left 
-                << ((*it)->getIndentString() + (*it)->getName()) 
-                << std::setw(9) << std::right << (*it)->getUSecs());
-    }
-    AVG_TRACE(Logger::PROFILE_LATEFRAMES, "");
-}
-
 void ThreadProfiler::dumpStatistics()
 {
     if (!m_Zones.empty()) {

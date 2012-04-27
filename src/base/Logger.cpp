@@ -44,7 +44,6 @@ namespace avg {
 
 const long Logger::NONE=0;
 const long Logger::PROFILE=2;
-const long Logger::PROFILE_LATEFRAMES=4;
 const long Logger::PROFILE_VIDEO=8;
 const long Logger::EVENTS=16;
 const long Logger::EVENTS2=32;
@@ -148,7 +147,6 @@ const char * Logger::categoryToString(int category)
 {
     switch(category) {
         case PROFILE:
-        case PROFILE_LATEFRAMES:
         case PROFILE_VIDEO:
             return "PROFILE";
         case EVENTS:
@@ -177,8 +175,6 @@ int Logger::stringToCategory(const string& sCategory)
 {
     if (sCategory == "PROFILE") {
         return PROFILE;
-    } else if (sCategory == "PROFILE_LATEFRAMES") {
-        return PROFILE_LATEFRAMES;
     } else if (sCategory == "PROFILE_VIDEO") {
         return PROFILE_VIDEO;
     } else if (sCategory == "EVENTS") {
