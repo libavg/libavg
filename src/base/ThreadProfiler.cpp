@@ -96,9 +96,7 @@ void ThreadProfiler::startZone(const ProfilingZoneID& zoneID)
 void ThreadProfiler::stopZone(const ProfilingZoneID& zoneID)
 {
     ZoneMap::iterator it = m_ZoneMap.find(&zoneID);
-    AVG_ASSERT(it != m_ZoneMap.end());
     ProfilingZonePtr& pZone = it->second;
-    AVG_ASSERT(m_ActiveZones.back() == pZone);
     pZone->stop();
     m_ActiveZones.pop_back();
 }
