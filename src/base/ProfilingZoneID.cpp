@@ -26,8 +26,9 @@ using namespace std;
 
 namespace avg {
 
-ProfilingZoneID::ProfilingZoneID(const string& sName)
+ProfilingZoneID::ProfilingZoneID(const string& sName, bool bMultithreaded)
     : m_sName(sName),
+      m_bMultithreaded(bMultithreaded),
       m_pProfiler(0)
 {
 }
@@ -44,7 +45,11 @@ const string& ProfilingZoneID::getName() const
 ThreadProfiler* ProfilingZoneID::getProfiler()
 {
     if (!m_pProfiler) {
-        m_pProfiler = ThreadProfiler::get();
+        if (m_bMultithreaded) {
+            return ThreadProfiler::get();
+        } else {
+            m_pProfiler = ThreadProfiler::get();
+        }
     }
     return m_pProfiler;
 }

@@ -30,8 +30,6 @@
 
 namespace avg {
 
-static ProfilingZoneID ProfilingZoneLoadBitmap("BitmapManager loadBitmap");
-
 BitmapManagerThread::BitmapManagerThread(CQueue& cmdQ,
         BitmapManagerMsgQueue& MsgQueue)
         : WorkerThread<BitmapManagerThread>("BitmapManager", cmdQ),

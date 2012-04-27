@@ -271,7 +271,7 @@ PixelFormat AsyncVideoDecoder::getPixelFormat() const
     return m_PF;
 }
 
-static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU");
+static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU", true);
 
 FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         float timeWanted)

@@ -215,8 +215,6 @@ void FWCamera::startCapture()
 #endif
 }
 
-static ProfilingZoneID CameraConvertProfilingZone("FW Camera format conversion");
-
 BitmapPtr FWCamera::getImage(bool bWait)
 {
 #ifdef AVG_ENABLE_1394_2
