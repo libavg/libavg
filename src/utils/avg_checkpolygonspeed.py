@@ -46,9 +46,6 @@ Checks libavg performance by creating lots of polygon nodes. Displays a frame ti
     parser.add_option('--move', '-m', dest='move', action='store_true',
             default=False, 
             help='Move nodes every frame.')
-    parser.add_option('--color', dest='color', action='store_true',
-            default=False, 
-            help='Applies gamma to the nodes, causing the color correction shader to activate.')
     parser.add_option('--vsync', '-s', dest='vsync', action='store_true',
             default=False, 
             help='Sync output to vertical refresh.')
@@ -90,8 +87,6 @@ class SpeedApp(AVGApp):
                 holes = (self.__calPolyCords(pos, R/2), )
             node = avg.PolygonNode(parent=self._parentNode, pos=polyPos, fillopacity=1,
                     holes=holes)
-            if options.color:
-                node.gamma = (1.1, 1.1, 1.1)
             self.__nodes.append(node)
         if options.createNodes:
             g_Player.setTimeout(300, self.__deleteNodes)
