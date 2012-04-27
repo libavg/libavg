@@ -22,7 +22,7 @@
 
 #include "VideoWriterThread.h"
 
-#include "../base/ProfilingZone.h"
+#include "../base/ProfilingZoneID.h"
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
 

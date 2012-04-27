@@ -27,6 +27,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
+#include "../base/ProfilingZoneID.h"
 
 #include "../graphics/Filterflipuv.h"
 #include "../graphics/Filterfliprgba.h"
