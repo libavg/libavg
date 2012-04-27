@@ -37,7 +37,7 @@ g_Trigger = True
 def parseCmdLine():
     parser = optparse.OptionParser(usage=
 """%prog [option]. 
-Checks libavg performance by creating lots of polygon nodes. Displays a frame time graph, executes for 20 secs and dumps profile statistics at the end of program execution.""")
+Checks libavg performance by creating lots of polygon nodes. Displays a frame time graph and executes for 20 secs.""")
     parser.add_option('--hole-polygon', '-y', dest='hole', action='store_true', default=False,
             help='Equipped polygon with one hole. Attention the number of points in a polygon will dublicated.')
     parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
