@@ -73,7 +73,7 @@ StandardShader::StandardShader()
         m_pMinimalShader = getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("texture")->set(0);
-        m_pMinimalColorParam = m_pShader->getParam<glm::vec4>("color");
+        m_pMinimalColorParam = m_pMinimalShader->getParam<glm::vec4>("color");
     }
     
     generateWhiteTexture(); 
