@@ -830,6 +830,18 @@ class GestureTestCase(AVGTestCase):
             createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
             ))
 
+        root = self.loadEmptyScene()
+        div = avg.DivNode(parent=root, pos=(0,10))
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, friction=0.01,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start((
+                lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
+                lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
+               ))  
+
 
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]

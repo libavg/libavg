@@ -640,6 +640,7 @@ class TransformRecognizer(Recognizer):
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
+                self._setEnd(event)
             self._setDetected(event)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
