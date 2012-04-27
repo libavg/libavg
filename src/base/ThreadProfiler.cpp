@@ -24,6 +24,7 @@
 #include "Logger.h"
 #include "Exception.h"
 #include "ProfilingZone.h"
+#include "ScopeTimer.h"
 
 #include <sstream>
 #include <iomanip>
@@ -55,6 +56,7 @@ ThreadProfiler::ThreadProfiler()
       m_LogCategory(Logger::PROFILE)
 {
     m_bRunning = false;
+    ScopeTimer::enableTimers(Logger::get()->isFlagSet(Logger::PROFILE));
 }
 
 ThreadProfiler::~ThreadProfiler() 

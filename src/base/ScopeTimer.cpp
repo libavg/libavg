@@ -25,4 +25,11 @@ using namespace std;
 
 namespace avg {
 
+bool ScopeTimer::s_bTimersEnabled = false;
+
+void ScopeTimer::enableTimers(bool bEnable)
+{
+    s_bTimersEnabled = bEnable;
+}
+
 }

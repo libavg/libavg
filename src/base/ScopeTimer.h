@@ -26,25 +26,33 @@
 #include "ProfilingZoneID.h"
 #include "ThreadProfiler.h"
 
-#include <boost/shared_ptr.hpp>
-
 namespace avg {
 
 class AVG_API ScopeTimer {
 public:
     ScopeTimer(ProfilingZoneID& zoneID)
-        : m_ZoneID(zoneID)
     {
-        m_ZoneID.getProfiler()->startZone(zoneID);
+        if (s_bTimersEnabled) {
+            m_pZoneID = &zoneID;
+            m_pZoneID->getProfiler()->startZone(zoneID);
+        } else {
+            m_pZoneID = 0;
+        }
     };
 
     ~ScopeTimer()
     {
-        m_ZoneID.getProfiler()->stopZone(m_ZoneID);
+        if (m_pZoneID) {
+            m_pZoneID->getProfiler()->stopZone(*m_pZoneID);
+        }
     };
-   
+
+    static void enableTimers(bool bEnable);
+
 private:
-    ProfilingZoneID& m_ZoneID;
+    ProfilingZoneID* m_pZoneID;
+
+    static bool s_bTimersEnabled;
 };
 
 }

@@ -56,6 +56,9 @@ Checks libavg performance by creating lots of polygon nodes. Displays a frame ti
             help='Number of objects to create. Default is 200 images or 40 videos.')
     parser.add_option('--num-points', '-x', dest='numPoints', type='int', default=-1,
             help='Number of points in each polygon. Default is 10. Only even Numbers.')
+    parser.add_option('--profile', '-p', dest='profile', action='store_true',
+            default=False,
+            help='Enable profiling output. Note that profiling makes things slower.')
 
     (options, args) = parser.parse_args()
 
@@ -125,12 +128,17 @@ if not(options.vsync):
     g_Player.setFramerate(1000)
 if options.numObjs == -1:
     options.numObjs = 40 
+
 if options.numPoints < 10:
     options.numPoints = 10
 elif options.numPoints % 2 != 0:
     options.numPoints -= 1
 
 log = avg.Logger.get()
-log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+if options.profile:
+    log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+else:
+    log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
+
 SpeedApp.start(resolution=(800,600))
 
