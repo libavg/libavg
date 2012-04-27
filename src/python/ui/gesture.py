@@ -219,7 +219,7 @@ class DoubletapRecognizer(Recognizer):
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
 
-        self.__stateMachine = statemachine.StateMachine("TapRecognizer", "IDLE")
+        self.__stateMachine = statemachine.StateMachine("DoubletapRecognizer", "IDLE")
         self.__stateMachine.addState("IDLE", ("DOWN1",), enterFunc=self.__enterIdle)
         self.__stateMachine.addState("DOWN1", ("UP1", "IDLE"))
         self.__stateMachine.addState("UP1", ("DOWN2", "IDLE"))
@@ -370,7 +370,7 @@ class DragRecognizer(Recognizer):
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
-            super(DragRecognizer, self).abort()
+            self._setEnd(event)
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self._setDetected(event)
         else:
@@ -640,6 +640,7 @@ class TransformRecognizer(Recognizer):
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
+                self._setEnd(event)
             self._setDetected(event)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 

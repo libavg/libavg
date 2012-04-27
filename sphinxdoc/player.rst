@@ -243,7 +243,7 @@ Player & Canvas
 
             Returns the last event hook set using :py:meth:`setEventHook`.
 
-        .. py:method:: getFrameDuration() -> int
+        .. py:method:: getFrameDuration() -> float
 
             Returns the number of milliseconds that have elapsed since the last
             frame (i.e. the last display update).
