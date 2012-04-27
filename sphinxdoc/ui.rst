@@ -87,11 +87,16 @@ functionality
         :param avg.Node coordSysNode:    
 
             Used to determine the coordinate system for the offsets returned by the 
-            callbacks. If :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is 
-            used as default. The :py:class:`DragRecognizer` never modifies any nodes 
-            itself. :py:attr:`coordSysNode` can be used to separate the node that
+            callbacks. In general, this should be the parent of the node that is actually
+            moving. :py:attr:`coordSysNode` can be used to separate the node that
             is the 'handle' for the events from the node that is being moved - for 
-            instance, to allow moving a window by dragging the title bar.
+            instance, to allow moving a window by dragging the title bar. If
+            :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is used as
+            default.
+            
+            Note that the :py:class:`DragRecognizer` never modifies any nodes itself.
+            The callbacks just return appropriate offsets that allow the movement to be
+            implemented easily.
 
         :param direction:
 
@@ -174,7 +179,7 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift])
+    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
@@ -222,6 +227,10 @@ functionality
             behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
+
+        :param textarea textarea:
+
+            Connect the keyboard upHandler instant to the textarea input.
 
         .. py:method:: reset()
 
@@ -338,7 +347,7 @@ functionality
         :param maxTime: The maximum time that the tap may take in milliseconds.
 
 
-    .. autoclass:: TouchButton(upNode, downNode, disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+    .. autoclass:: TouchButton(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
 
         A button made specifically for touch input. Uses the :py:class:`TapRecognizer` to
         detect clicks.
@@ -379,7 +388,76 @@ functionality
             Factory method that creates a button from filenames of the images to be
             displayed for different states.
 
+
+    .. autoclass:: ToggleButton( uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
+
+        A button made specifically for toggle functionality and it's touch input optimized.
+        Uses the :py:class:`TapRecognizer` to detect clicks.
+
+        :param avg.Node uncheckedUpNode: The node displayed when the button is not unchecked and not pressed.
+
+        :param avg.Node uncheckedDownNode: The node displayed when the button is unchecked and pressed.
+
+        :param avg.Node checkedUpNode: The node displayed when the button is checked and not pressed.
+
+        :param avg.Node uncheckedDisabledNode: The node displayed when the button is unchecked and disabled.
+
+        :param avg.Node checkedDisabledNode: The node displayed when the button is checked and disabled.
+
+        :param avg.Node activeAreaNode: 
+        
+            A node that is used only to determine if a click is over the button. Usually,
+            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
+            buttons, where the active area should be larger than the visible button to
+            account for touch inaccuracies.
+
+        :param bool fatFingerEnlarge:
+
+            If this parameter is set to :py:const:`True`, the button generates it's own 
+            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
+            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
+            :py:attr:`activeAreaNode`.
+
+        :param bool checked:
+
+            If this parameter is set to :py:const:`True`, the button starts in the checked
+            state.
+
+        :param bool enabled:
+
+            If this parameter is set to :py:const:`True`, the button starts in the disabled
+            state.
+
+        Callbacks:
+
+            .. py:method:: checkedHandler(event)
+
+                Called when the button was checked.
+
+            .. py:method:: uncheckedHandler(event)
+
+                Called when the button was unchecked.
+
+        .. py:attribute:: enabled
+
+            :py:const:`True` if the button accepts input. If the button is disabled,
+            it shows the :py:attr:`uncheckedDisabledNode or checkedDisabledNode`.
+
+        .. py:attribute:: checked
+
+            :py:const:'True' the button switched in the checked state. If the button is
+            disabled, it switch in the disabled checked state.
+
+        .. py:method:: getState() -> String
+
+            Returns the state ("UNCHECKED_UP", "UNCHECKED_DOWN", "CHECKED_UP", "CHECKED_DOWN", "UNCHECKED_DISABLED" or "CHECKED_DISABLED") of the button.
+
+        .. py:classmethod:: fromSrc(uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc, [uncheckedDisabledSrc=None, checkedDisabledSrc=None **kwargs]) -> ToggleButton
+
+            Factory method that creates a togglebutton from filenames of the images to be
+            displayed for different states.
     
+
     .. autoclass:: Transform(trans, [rot=0, scale=1, pivot=(0,0)])
 
         Encapsulates a coordinate transformation and can be used to change the position,

@@ -34,10 +34,10 @@ class AVG_API Timeout
         Timeout (int time, PyObject * pyfunc, bool isInterval, long long startTime);
         virtual ~Timeout ();
 
-        bool IsReady(long long time) const;
-        bool IsInterval() const;
-        void Fire(long long curTime);
-        int GetID() const;
+        bool isReady(long long time) const;
+        bool isInterval() const;
+        void fire(long long curTime);
+        int getID() const;
         bool operator <(const Timeout& other) const;
 
     private:

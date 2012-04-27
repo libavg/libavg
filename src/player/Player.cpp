@@ -771,7 +771,7 @@ int Player::setInterval(int time, PyObject * pyfunc)
     } else {
         addTimeout(pTimeout);
     }
-    return pTimeout->GetID();
+    return pTimeout->getID();
 }
 
 int Player::setTimeout(int time, PyObject * pyfunc)
@@ -782,7 +782,7 @@ int Player::setTimeout(int time, PyObject * pyfunc)
     } else {
         addTimeout(pTimeout);
     }
-    return pTimeout->GetID();
+    return pTimeout->getID();
 }
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
@@ -794,7 +794,7 @@ bool Player::clearInterval(int id)
 {
     vector<Timeout*>::iterator it;
     for (it = m_PendingTimeouts.begin(); it != m_PendingTimeouts.end(); it++) {
-        if (id == (*it)->GetID()) {
+        if (id == (*it)->getID()) {
             if (it == m_PendingTimeouts.begin() && m_bInHandleTimers) {
                 m_bCurrentTimeoutDeleted = true;
             }
@@ -804,7 +804,7 @@ bool Player::clearInterval(int id)
         }
     }
     for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); it++) {
-        if (id == (*it)->GetID()) {
+        if (id == (*it)->getID()) {
             delete *it;
             m_NewTimeouts.erase(it);
             return true;
@@ -1548,14 +1548,14 @@ void Player::handleTimers()
     m_bInHandleTimers = true;
 
     it = m_PendingTimeouts.begin();
-    while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime())
+    while (it != m_PendingTimeouts.end() && (*it)->isReady(getFrameTime())
             && !m_bStopping)
     {
-        (*it)->Fire(getFrameTime());
+        (*it)->fire(getFrameTime());
         if (m_bCurrentTimeoutDeleted) {
             it = m_PendingTimeouts.begin();
         } else {
-            if ((*it)->IsInterval()) {
+            if ((*it)->isInterval()) {
                 Timeout* pTempTimeout = *it;
                 it = m_PendingTimeouts.erase(it);
                 m_NewTimeouts.insert(m_NewTimeouts.begin(), pTempTimeout);
@@ -1677,7 +1677,7 @@ int Player::addTimeout(Timeout* pTimeout)
         it++;
     }
     m_PendingTimeouts.insert(it, pTimeout);
-    return pTimeout->GetID();
+    return pTimeout->getID();
 }
 
 

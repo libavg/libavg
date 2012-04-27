@@ -25,7 +25,6 @@
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 #include "../base/Exception.h"
-#include "../base/ObjectCounter.h"
 
 #include "../graphics/GLContext.h"
 
@@ -40,12 +39,10 @@ DisplayEngine::DisplayEngine()
       m_bInitialized(false),
       m_EffFramerate(0)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 DisplayEngine::~DisplayEngine()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 
