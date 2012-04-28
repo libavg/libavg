@@ -22,6 +22,7 @@
 #include "GPUBandpassFilter.h"
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
+#include "OGLShader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"

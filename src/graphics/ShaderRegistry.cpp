@@ -22,6 +22,7 @@
 #include "ShaderRegistry.h"
 
 #include "GLContext.h"
+#include "OGLShader.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

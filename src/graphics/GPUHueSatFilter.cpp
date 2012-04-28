@@ -21,6 +21,7 @@
 
 #include "GPUHueSatFilter.h"
 #include "ShaderRegistry.h"
+#include "OGLShader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"

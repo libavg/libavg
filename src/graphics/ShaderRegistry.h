@@ -24,8 +24,6 @@
 
 #include "../api.h"
 
-#include "OGLShader.h"
-
 #include <boost/shared_ptr.hpp>
 
 #include <map>
@@ -34,6 +32,8 @@ namespace avg {
 
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
+class OGLShader;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
 
 class AVG_API ShaderRegistry {
 public:

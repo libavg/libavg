@@ -22,6 +22,7 @@
 #include "GPURGB2YUVFilter.h"
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
+#include "OGLShader.h"
 #include "ImagingProjection.h"
 
 #include "../base/ObjectCounter.h"
