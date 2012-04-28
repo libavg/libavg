@@ -55,6 +55,7 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
 
     m_hProgram = glproc::CreateProgramObject();
     glproc::AttachObject(m_hProgram, m_hFragmentShader);
+    glproc::AttachObject(m_hProgram, m_hVertexShader);
     glproc::LinkProgram(m_hProgram);
     GLContext::checkError("OGLShader::OGLShader: glLinkProgram()");
 
