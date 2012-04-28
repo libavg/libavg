@@ -37,22 +37,9 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
       m_sVertProgram(sVertProgram),
       m_sFragProgram(sFragProgram)
 {
-    const char * pProgramStrs[2];
-    pProgramStrs[0] = sDefines.c_str();
-    pProgramStrs[1] = m_sVertProgram.c_str();
-    m_hVertexShader = glproc::CreateShaderObject(GL_VERTEX_SHADER);
-    glproc::ShaderSource(m_hVertexShader, 2, pProgramStrs, 0);
-    glproc::CompileShader(m_hVertexShader);
-    GLContext::checkError("OGLShader::OGLShader: glCompileShader() 0");
-    dumpInfoLog(m_hVertexShader);
+    m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sDefines);
+    m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sDefines);
     
-    pProgramStrs[1] = m_sFragProgram.c_str();
-    m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
-    glproc::ShaderSource(m_hFragmentShader, 2, pProgramStrs, 0);
-    glproc::CompileShader(m_hFragmentShader);
-    GLContext::checkError("OGLShader::OGLShader: glCompileShader() 1");
-    dumpInfoLog(m_hFragmentShader);
-
     m_hProgram = glproc::CreateProgramObject();
     glproc::AttachObject(m_hProgram, m_hFragmentShader);
     glproc::AttachObject(m_hProgram, m_hVertexShader);
@@ -91,6 +78,20 @@ GLhandleARB OGLShader::getProgram()
 const std::string OGLShader::getName() const
 {
     return m_sName;
+}
+
+GLhandleARB OGLShader::compileShader(GLenum shaderType, const std::string& sProgram,
+        const std::string& sDefines)
+{
+    const char * pProgramStrs[2];
+    pProgramStrs[0] = sDefines.c_str();
+    pProgramStrs[1] = sProgram.c_str();
+    GLhandleARB hShader = glproc::CreateShaderObject(shaderType);
+    glproc::ShaderSource(hShader, 2, pProgramStrs, 0);
+    glproc::CompileShader(hShader);
+    GLContext::checkError("OGLShader::compileShader()");
+    dumpInfoLog(hShader);
+    return hShader;
 }
 
 bool OGLShader::findParam(const std::string& sName, unsigned& pos)

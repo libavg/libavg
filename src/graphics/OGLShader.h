@@ -67,9 +67,11 @@ class AVG_API OGLShader {
 
     private:
         OGLShader(const std::string& sName, const std::string& sVertProgram,
-                const std::string& sProgram, const std::string& sDefines);
+                const std::string& sFragProgram, const std::string& sDefines);
         friend class ShaderRegistry;
 
+        GLhandleARB compileShader(GLenum shaderType, const std::string& sProgram,
+                const std::string& sDefines);
         bool findParam(const std::string& sName, unsigned& pos);
         void dumpInfoLog(GLhandleARB hObj);
         std::string removeATIInfoLogSpam(const std::string& sLog);
