@@ -66,8 +66,8 @@ class AVG_API OGLShader {
         }
 
     private:
-        OGLShader(const std::string& sName, const std::string& sProgram, 
-                const std::string& sDefines);
+        OGLShader(const std::string& sName, const std::string& sVertProgram,
+                const std::string& sProgram, const std::string& sDefines);
         friend class ShaderRegistry;
 
         bool findParam(const std::string& sName, unsigned& pos);
@@ -75,9 +75,11 @@ class AVG_API OGLShader {
         std::string removeATIInfoLogSpam(const std::string& sLog);
 
         std::string m_sName;
+        GLhandleARB m_hVertexShader;
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
-        std::string m_sProgram;
+        std::string m_sVertProgram;
+        std::string m_sFragProgram;
 
         std::vector<GLShaderParamPtr> m_pParams;
 

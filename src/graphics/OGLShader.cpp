@@ -31,17 +31,26 @@ using namespace std;
 
 namespace avg {
 
-OGLShader::OGLShader(const string& sName, const string& sProgram, const string& sDefines)
+OGLShader::OGLShader(const string& sName, const string& sVertProgram, 
+        const string& sFragProgram, const string& sDefines)
     : m_sName(sName),
-      m_sProgram(sProgram)
+      m_sVertProgram(sVertProgram),
+      m_sFragProgram(sFragProgram)
 {
-    m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
     const char * pProgramStrs[2];
     pProgramStrs[0] = sDefines.c_str();
-    pProgramStrs[1] = m_sProgram.c_str();
+    pProgramStrs[1] = m_sVertProgram.c_str();
+    m_hVertexShader = glproc::CreateShaderObject(GL_VERTEX_SHADER);
+    glproc::ShaderSource(m_hVertexShader, 2, pProgramStrs, 0);
+    glproc::CompileShader(m_hVertexShader);
+    GLContext::checkError("OGLShader::OGLShader: glCompileShader() 0");
+    dumpInfoLog(m_hVertexShader);
+    
+    pProgramStrs[1] = m_sFragProgram.c_str();
+    m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
     glproc::ShaderSource(m_hFragmentShader, 2, pProgramStrs, 0);
     glproc::CompileShader(m_hFragmentShader);
-    GLContext::checkError("OGLShader::OGLShader: glCompileShader()");
+    GLContext::checkError("OGLShader::OGLShader: glCompileShader() 1");
     dumpInfoLog(m_hFragmentShader);
 
     m_hProgram = glproc::CreateProgramObject();
