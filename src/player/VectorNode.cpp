@@ -60,6 +60,7 @@ NodeDefinition VectorNode::createDefinition()
 }
 
 VectorNode::VectorNode(const ArgList& args)
+    : m_Transform(glm::mat4(0))
 {
     m_pShape = ShapePtr(createDefaultShape());
 
@@ -164,7 +165,7 @@ void VectorNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        glLoadMatrixf(glm::value_ptr(parentTransform));
+        m_Transform = parentTransform;
         GLContext::getMain()->setBlendMode(m_BlendMode);
         render();
     }
@@ -176,7 +177,7 @@ void VectorNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     float curOpacity = getEffectiveOpacity();
-    m_pShape->draw(curOpacity);
+    m_pShape->draw(m_Transform, curOpacity);
 }
 
 void VectorNode::setColor(const string& sColor)
@@ -506,6 +507,11 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
         }
     }
     return numPts;
+}
+
+const glm::mat4& VectorNode::getTransform() const
+{
+    return m_Transform;
 }
 
 Shape* VectorNode::createDefaultShape() const

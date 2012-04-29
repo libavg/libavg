@@ -106,7 +106,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
     private:
         virtual void render()=0;
-        void renderOutlines();
+        void renderOutlines(const glm::mat4& transform);
 
         void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);
         Player * m_pPlayer;

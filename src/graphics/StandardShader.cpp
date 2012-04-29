@@ -45,6 +45,7 @@ StandardShader::StandardShader()
 {
     avg::createShader(STANDARD_SHADER);
     m_pShader = getShader(STANDARD_SHADER);
+    m_pTransformParam = m_pShader->getParam<glm::mat4>("transform");
     m_pColorModelParam = m_pShader->getParam<int>("colorModel");
     m_pColorParam = m_pShader->getParam<glm::vec4>("color");
     m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("colorCoeff0");
@@ -71,6 +72,7 @@ StandardShader::StandardShader()
     if (GLContext::getMain()->useMinimalShader()) {
         avg::createShader(MINIMAL_SHADER);
         m_pMinimalShader = getShader(MINIMAL_SHADER);
+        m_pMinimalTransformParam = m_pMinimalShader->getParam<glm::mat4>("transform");
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("texture")->set(0);
         m_pMinimalColorParam = m_pMinimalShader->getParam<glm::vec4>("color");
@@ -94,9 +96,11 @@ void StandardShader::activate()
     }
     if (bActivateMinimal) {
         m_pMinimalShader->activate();
+        m_pMinimalTransformParam->set(m_Transform);
         m_pMinimalColorParam->set(m_Color);
     } else {
         m_pShader->activate();
+        m_pTransformParam->set(m_Transform);
         m_pColorModelParam->set(m_ColorModel);
         m_pColorParam->set(m_Color);
 
@@ -116,6 +120,11 @@ void StandardShader::activate()
             m_pMaskSizeParam->set(m_MaskSize);
         }
     }
+}
+
+void StandardShader::setTransform(const glm::mat4& transform)
+{
+    m_Transform = transform;
 }
 
 void StandardShader::setColorModel(int model)

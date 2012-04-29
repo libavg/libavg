@@ -78,4 +78,10 @@ void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, glm::vec4 v
     glproc::Uniform4f(location, val[0], val[1], val[2], val[3]);
 }
 
+template<>
+void GLShaderParamTemplate<glm::mat4>::uniformSet(unsigned location, glm::mat4 val)
+{
+    glproc::UniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(val));
+}
+
 }

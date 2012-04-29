@@ -497,6 +497,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     GLContext* pContext = GLContext::getMain();
     pContext->enableGLColorArray(false);
     FRect destRect;
+    
     StandardShaderPtr pShader = pContext->getStandardShader();
     if (m_pFXNode) {
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
@@ -508,7 +509,6 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         FRect relDestRect = m_pFXNode->getRelDestRect();
         destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
-        pShader->activate();
     } else {
         pShader->setColor(glm::vec4(color.getR()/256.f, color.getG()/256.f,
                 color.getB()/256.f, opacity));
@@ -516,12 +516,12 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         pContext->setBlendMode(mode, bPremultipliedAlpha);
         destRect = FRect(glm::vec2(0,0), destSize);
     }
-    glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
     glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);
     glm::vec3 scaleVec(destRect.size().x, destRect.size().y, 1);
     glm::mat4 localTransform = glm::translate(transform, pos);
     localTransform = glm::scale(localTransform, scaleVec);
-    glLoadMatrixf(glm::value_ptr(localTransform));
+    pShader->setTransform(localTransform);
+    pShader->activate();
 
     m_SubVA.draw();
 }

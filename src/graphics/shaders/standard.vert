@@ -19,9 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
+uniform mat4 transform;
+
 void main(void)
 {
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
+    gl_Position = transform * gl_Vertex;
     gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_FrontColor = gl_Color;
 }

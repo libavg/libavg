@@ -274,38 +274,30 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
     GLContext::checkError("Canvas::render: glViewport()");
-    glMatrixMode(GL_PROJECTION);
-    GLContext::checkError("Canvas::render: glMatrixMode()");
-    glLoadIdentity();
-    GLContext::checkError("Canvas::render: glLoadIdentity()");
     glm::vec2 size = m_pRootNode->getSize();
+    glm::mat4 projMat;
     if (bUpsideDown) {
-        gluOrtho2D(0, size.x, 0, size.y);
+        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
     } else {
-        gluOrtho2D(0, size.x, size.y, 0);
+        projMat = glm::ortho(0.f, size.x, size.y, 0.f);
     }
-    GLContext::checkError("Canvas::render: gluOrtho2D()");
-    
-    glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
         m_pVertexArray->activate();
-        static const glm::mat4 ident(1.0f);
-        m_pRootNode->maybeRender(ident);
+        m_pRootNode->maybeRender(projMat);
 
-        renderOutlines();
+        renderOutlines(projMat);
     }
 }
 
-void Canvas::renderOutlines()
+void Canvas::renderOutlines(const glm::mat4& transform)
 {
     GLContext* pContext = GLContext::getMain();
     VertexArrayPtr pVA(new VertexArray);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(glm::value_ptr(glm::mat4(1.0)));
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShaderPtr pShader = pContext->getStandardShader();
+    pShader->setTransform(transform);
     pShader->setUntextured();
     pShader->activate();
     if (pVA->getNumVerts() != 0) {
@@ -329,8 +321,8 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
 
     StandardShaderPtr pShader = GLContext::getMain()->getStandardShader();
     pShader->setUntextured();
+    pShader->setTransform(transform);
     pShader->activate();
-    glLoadMatrixf(glm::value_ptr(transform));
     va.draw();
 
     // Set stencil test to only let

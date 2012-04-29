@@ -104,11 +104,12 @@ void Shape::setVertexArray(const VertexArrayPtr& pVA)
 */
 }
 
-void Shape::draw(float opacity)
+void Shape::draw(const glm::mat4& transform, float opacity)
 {
     bool bIsTextured = isTextured();
     GLContext* pContext = GLContext::getMain();
     StandardShaderPtr pShader = pContext->getStandardShader();
+    pShader->setTransform(transform);
     pShader->setColor(glm::vec4(1.f, 1.f, 1.f, opacity));
     if (bIsTextured) {
         m_pSurface->activate();

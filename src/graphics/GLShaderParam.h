@@ -96,6 +96,8 @@ template<>
 void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, Pixel32 val);
 template<>
 void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, glm::vec4 val);
+template<>
+void GLShaderParamTemplate<glm::mat4>::uniformSet(unsigned location, glm::mat4 val);
 
 typedef boost::shared_ptr<GLShaderParam> GLShaderParamPtr;
 
@@ -113,6 +115,9 @@ typedef boost::shared_ptr<ColorGLShaderParam> ColorGLShaderParamPtr;
 
 typedef GLShaderParamTemplate<glm::vec4> Vec4fGLShaderParam; 
 typedef boost::shared_ptr<Vec4fGLShaderParam> Vec4fGLShaderParamPtr;
+
+typedef GLShaderParamTemplate<glm::mat4> Mat4fGLShaderParam; 
+typedef boost::shared_ptr<Mat4fGLShaderParam> Mat4fGLShaderParamPtr;
 
 }
 

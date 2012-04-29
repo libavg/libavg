@@ -47,6 +47,7 @@ public:
 
     void activate();
 
+    void setTransform(const glm::mat4& transform);
     void setColorModel(int model);
     void setColor(const glm::vec4& color);
     void setUntextured();
@@ -62,6 +63,7 @@ private:
 
     GLTexturePtr m_pWhiteTex;
 
+    glm::mat4 m_Transform;
     int m_ColorModel;
     glm::vec4 m_Color;
     bool m_bUseColorCoeff;
@@ -74,6 +76,8 @@ private:
 
     OGLShaderPtr m_pShader;
     OGLShaderPtr m_pMinimalShader;
+
+    Mat4fGLShaderParamPtr m_pTransformParam;
     IntGLShaderParamPtr m_pColorModelParam;
     Vec4fGLShaderParamPtr m_pColorParam;
 
@@ -89,6 +93,7 @@ private:
     Vec2fGLShaderParamPtr m_pMaskPosParam;
     Vec2fGLShaderParamPtr m_pMaskSizeParam;
 
+    Mat4fGLShaderParamPtr m_pMinimalTransformParam;
     Vec4fGLShaderParamPtr m_pMinimalColorParam;
 };
 
