@@ -41,34 +41,21 @@ class GestureTestCase(AVGTestCase):
     def testTapRecognizer(self):
 
         def onPossible(event):
-            self.__possible = True
+            self.__addEventFlag(EVENT_POSSIBLE)
 
         def onDetected(event):
-            self.__detected = True
+            self.__addEventFlag(EVENT_DETECTED)
 
         def onFail(event):
-            self.__failed = True
-
-        def initState():
-            self.__possible = False
-            self.__detected = False
-            self.__failed = False
+            self.__addEventFlag(EVENT_FAILED)
 
         def abort():
             self.__tapRecognizer.abort()
-            initState()
+            self.__resetEventState()
 
         def enable(isEnabled):
             self.__tapRecognizer.enable(isEnabled)
-            initState()
-
-        EVENT_POSSIBLE = 1
-        EVENT_DETECTED = 2
-        EVENT_FAILED = 3
-        def assertEvents(flags):
-            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
-            self.assert_((EVENT_DETECTED in flags) == self.__detected)
-            self.assert_((EVENT_FAILED in flags) == self.__failed)
+            self.__resetEventState()
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -76,115 +63,65 @@ class GestureTestCase(AVGTestCase):
                 possibleHandler=onPossible,
                 detectedHandler=onDetected,
                 failHandler=onFail)
-        initState()
+        self.__resetEventState()
         Player.setFakeFPS(10)
         self.start((
                  # Down-up: recognized as tap.
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-small move-up: recognized as tap.
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 31, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 31, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-big move-up: fail
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 1, 1),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 150, 50, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 1, 1, []),
                  # Down-delay: fail
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
                  lambda: self.delay(1000),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 lambda: self.__assertEvents([EVENT_FAILED]),
+                 self.__resetEventState,
+                 self.__genMouseEventFrames(avg.CURSORUP, 1, 1, []),
                  # Down-Abort-Up: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  # Abort-Down-Up: recognized as tap
-                 initState,
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-Abort-Up-Down-Up: recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Disable-Down-Up-Enable: not recognized as tap
-                 initState,
                  lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: enable(True),
-                 # Down-Disable-Up-Enable: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
                  # Down-Disable-Enable-Up: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: enable(False),
                  lambda: enable(True),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  # Down-Disable-Up-Enable-Down-Up: recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])), 
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
-                 # Down-Abort-Disable-Up-Enable: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 abort,
-                 lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: enable(True),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Abort-Disable-Abort-Enable-Abort-Down-Up: recognized as tap
-                 initState,
                  abort,
                  lambda: enable(False),
                  abort,
                  lambda: enable(True),
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                 ))
 
 
