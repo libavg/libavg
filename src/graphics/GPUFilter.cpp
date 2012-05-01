@@ -59,38 +59,6 @@ GPUFilter::~GPUFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUFilter::setDimensions(const IntPoint& srcSize)
-{
-    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
-}
-
-void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-        unsigned texMode)
-{
-    bool bProjectionChanged = false;
-    if (destRect != m_DestRect) {
-        m_pFBOs.clear();
-        for (unsigned i=0; i<m_NumTextures; ++i) {
-            FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
-                    m_bMipmap));
-            m_pFBOs.push_back(pFBO);
-        }
-        m_DestRect = destRect;
-        bProjectionChanged = true;
-    }
-    if (m_bStandalone && srcSize != m_SrcSize) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
-                texMode));
-        m_pSrcPBO = PBOPtr(new PBO(srcSize, m_PFSrc, GL_STREAM_DRAW));
-        bProjectionChanged = true;
-    }
-    m_SrcSize = srcSize;
-    if (bProjectionChanged) {
-        m_pProjection = ImagingProjectionPtr(
-                new ImagingProjection(srcSize, destRect, m_pShader));
-    }
-}
-  
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pSrcTex);
@@ -148,6 +116,38 @@ FRect GPUFilter::getRelDestRect() const
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
 }
 
+void GPUFilter::setDimensions(const IntPoint& srcSize)
+{
+    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
+}
+
+void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+        unsigned texMode)
+{
+    bool bProjectionChanged = false;
+    if (destRect != m_DestRect) {
+        m_pFBOs.clear();
+        for (unsigned i=0; i<m_NumTextures; ++i) {
+            FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
+                    m_bMipmap));
+            m_pFBOs.push_back(pFBO);
+        }
+        m_DestRect = destRect;
+        bProjectionChanged = true;
+    }
+    if (m_bStandalone && srcSize != m_SrcSize) {
+        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
+                texMode));
+        m_pSrcPBO = PBOPtr(new PBO(srcSize, m_PFSrc, GL_STREAM_DRAW));
+        bProjectionChanged = true;
+    }
+    m_SrcSize = srcSize;
+    if (bProjectionChanged) {
+        m_pProjection = ImagingProjectionPtr(
+                new ImagingProjection(srcSize, destRect, m_pShader));
+    }
+}
+  
 const OGLShaderPtr& GPUFilter::getShader() const
 {
     return m_pShader;

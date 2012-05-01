@@ -42,9 +42,6 @@ public:
     GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
             const std::string& sShaderID, unsigned numTextures=1, bool bMipmap=false);
     virtual ~GPUFilter();
-    void setDimensions(const IntPoint& srcSize);
-    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-            unsigned texMode);
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLTexturePtr pSrcTex);
@@ -58,6 +55,9 @@ public:
     FRect getRelDestRect() const;
     
 protected:
+    void setDimensions(const IntPoint& srcSize);
+    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+            unsigned texMode);
     const OGLShaderPtr& getShader() const;
 
     void draw(GLTexturePtr pTex);
