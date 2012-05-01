@@ -26,6 +26,7 @@
 #include "FXNode.h"
 
 #include "../graphics/ImagingProjection.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -485,7 +486,7 @@ void RasterNode::setupFX(bool bNewFX)
             GLTexturePtr pTex = m_pFBO->getTex();
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
-                    m_pSurface->getSize()));
+                    m_pSurface->getSize(), StandardShader::get()->getShader()));
         }
     }
 }
@@ -500,18 +501,22 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     
     StandardShaderPtr pShader = pContext->getStandardShader();
     if (m_pFXNode) {
+        pContext->setBlendMode(mode, true);
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
         pShader->setColorModel(0);
+        glBlendColor(1.0f, 1.0f, 1.0f, opacity);
         pShader->setColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
         pShader->disableColorspaceMatrix();
+        pShader->setGamma(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        pShader->setPremultipliedAlpha(true);
+        pShader->setMask(false);
 
-        pContext->setBlendMode(mode, true);
         FRect relDestRect = m_pFXNode->getRelDestRect();
         destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        pShader->setColor(glm::vec4(color.getR()/256.f, color.getG()/256.f,
-                color.getB()/256.f, opacity));
+        pShader->setColor(glm::vec4(color.getR()/255.f, color.getG()/255.f,
+                color.getB()/255.f, opacity));
         m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
         pContext->setBlendMode(mode, bPremultipliedAlpha);
         destRect = FRect(glm::vec2(0,0), destSize);

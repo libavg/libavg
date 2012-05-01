@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
+#include "ImagingProjection.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -38,7 +39,7 @@ namespace avg {
 
 GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf, 
         bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone, 2),
+    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_CHROMAKEY, 2),
       m_Color(0, 255, 0),
       m_HTolerance(0.0),
       m_STolerance(0.0),
@@ -50,8 +51,7 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    createShader(SHADERID_CHROMAKEY);
-    OGLShaderPtr pShader = getShader(SHADERID_CHROMAKEY);
+    OGLShaderPtr pShader = getShader();
     m_pTextureParam = pShader->getParam<int>("texture");
     
     m_pHKeyParam = pShader->getParam<float>("hKey");
@@ -70,9 +70,12 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     m_pIsLastParam = pShader->getParam<int>("bIsLast");
 
     createShader(SHADERID_EROSION);
-    pShader = getShader(SHADERID_EROSION);
+    pShader = avg::getShader(SHADERID_EROSION);
     m_pErosionTextureParam= pShader->getParam<int>("texture");
     m_pErosionIsLastParam = pShader->getParam<int>("bIsLast");
+    
+    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
+            size, avg::getShader(SHADERID_EROSION)));
 }
 
 GPUChromaKeyFilter::~GPUChromaKeyFilter()
@@ -101,8 +104,7 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
     // Set up double-buffering
     int curBufferIndex = m_Erosion%2;
     getFBO(curBufferIndex)->activate();
-    OGLShaderPtr pShader = getShader(SHADERID_CHROMAKEY);
-    pShader->activate();
+    getShader()->activate();
     m_pTextureParam->set(0);
 
     float h, s, l;
@@ -123,12 +125,12 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
     for (int i = 0; i < m_Erosion; ++i) {
         curBufferIndex = (curBufferIndex+1)%2;
         getFBO(curBufferIndex)->activate();
-        pShader = getShader(SHADERID_EROSION);
+        OGLShaderPtr pShader = avg::getShader(SHADERID_EROSION);
         pShader->activate();
         m_pErosionTextureParam->set(0);
         m_pErosionIsLastParam->set(int(i==m_Erosion-1));
-        GLTexturePtr pSrcTex;
-        draw(getDestTex((curBufferIndex+1)%2));
+        getDestTex((curBufferIndex+1)%2)->activate(GL_TEXTURE0);
+        m_pProjection2->draw();
     }
 }
 

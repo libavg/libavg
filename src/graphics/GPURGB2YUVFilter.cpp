@@ -39,12 +39,11 @@ using namespace std;
 namespace avg {
 
 GPURGB2YUVFilter::GPURGB2YUVFilter(const IntPoint& size)
-    : GPUFilter(B8G8R8X8, B8G8R8X8, false)
+    : GPUFilter(B8G8R8X8, B8G8R8X8, false, SHADERID)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    createShader(SHADERID);
 }
 
 GPURGB2YUVFilter::~GPURGB2YUVFilter()
@@ -54,8 +53,7 @@ GPURGB2YUVFilter::~GPURGB2YUVFilter()
 
 void GPURGB2YUVFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    OGLShaderPtr pShader = getShader(SHADERID);
-    pShader->activate();
+    getShader()->activate();
     draw(pSrcTex);
     GLContext::checkError("GPURGB2YUVFilter::applyOnGPU()");
 }

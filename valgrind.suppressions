@@ -619,6 +619,30 @@
    obj:*
 }
 {
+   python_12
+   Memcheck:Addr4
+   fun:*
+   obj:/usr/bin/python2.7
+}
+{
+   python_13
+   Memcheck:Cond
+   fun:*
+   fun:_PyObject_GC_Resize
+}
+{
+   python_14
+   Memcheck:Value8
+   fun:*
+   obj:/usr/bin/python2.7
+}
+{
+   python_15
+   Memcheck:Cond
+   fun:*
+   obj:/usr/bin/python2.7
+}
+{
    boost.python
    Memcheck:Leak
    fun:_Znwj

@@ -39,8 +39,6 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    static void initShader();
-
     float m_PostScale;
     bool m_bInvert;
 

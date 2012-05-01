@@ -99,5 +99,12 @@ void SubVertexArray::draw()
     m_pVA->draw(m_StartIndex, m_NumIndexes, m_StartVertex, m_StartIndex);
 }
 
+void SubVertexArray::dump() const
+{
+    cerr << "SubVertexArray: m_StartVertex=" << m_StartVertex << ", " 
+            << ", m_StartIndex=" << m_StartIndex << endl;
+    m_pVA->dump(m_StartVertex, m_NumVerts, m_StartIndex, m_NumIndexes);
+}
+
 }
 

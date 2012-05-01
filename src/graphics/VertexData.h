@@ -61,6 +61,8 @@ public:
     int getNumVerts() const;
     int getNumIndexes() const;
     void dump() const;
+    void dump(unsigned startVertex, int numVerts, unsigned startIndex, int numIndexes) 
+            const;
 
 protected:
     int getReserveVerts() const;

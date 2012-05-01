@@ -52,6 +52,7 @@ public:
     int getNumVerts() const;
 
     void draw();
+    void dump() const;
 
 private:
     VertexArray* m_pVA;
@@ -60,8 +61,6 @@ private:
     unsigned m_StartIndex;
     int m_NumVerts;
     int m_NumIndexes;
-
-
 };
 
 typedef boost::shared_ptr<SubVertexArray> SubVertexArrayPtr;

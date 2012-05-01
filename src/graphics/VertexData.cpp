@@ -167,13 +167,19 @@ int VertexData::getNumIndexes() const
 
 void VertexData::dump() const
 {
-    cerr << m_NumVerts << " vertexes: ";
-    for (int i=0; i<m_NumVerts; ++i) {
+    dump(0, m_NumVerts, 0, m_NumIndexes);
+}
+
+void VertexData::dump(unsigned startVertex, int numVerts, unsigned startIndex, 
+        int numIndexes) const
+{
+    cerr << numVerts << " vertexes: ";
+    for (unsigned i=startVertex; i<startVertex+numVerts; ++i) {
         cerr << m_pVertexData[i] << ", ";
     }
     cerr << endl;
-    cerr << m_NumIndexes << " indexes: ";
-    for (int i=0; i<m_NumIndexes; ++i) {
+    cerr << numIndexes << " indexes: ";
+    for (unsigned i=startIndex; i<startIndex+numIndexes; ++i) {
         cerr << m_pIndexData[i] << " ";
     }
     cerr << endl;

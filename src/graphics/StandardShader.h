@@ -58,6 +58,10 @@ public:
     void setMask(bool bUseMask, const glm::vec2& maskPos = glm::vec2(0,0),
         const glm::vec2& maskSize = glm::vec2(0,0));
 
+    const OGLShaderPtr& getShader() const;
+
+    void dump() const;
+
 private:
     void generateWhiteTexture();
 

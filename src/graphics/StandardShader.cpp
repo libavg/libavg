@@ -44,7 +44,7 @@ StandardShaderPtr StandardShader::get()
 StandardShader::StandardShader()
 {
     avg::createShader(STANDARD_SHADER);
-    m_pShader = getShader(STANDARD_SHADER);
+    m_pShader = avg::getShader(STANDARD_SHADER);
     m_pTransformParam = m_pShader->getParam<glm::mat4>("transform");
     m_pColorModelParam = m_pShader->getParam<int>("colorModel");
     m_pColorParam = m_pShader->getParam<glm::vec4>("color");
@@ -71,7 +71,7 @@ StandardShader::StandardShader()
 
     if (GLContext::getMain()->useMinimalShader()) {
         avg::createShader(MINIMAL_SHADER);
-        m_pMinimalShader = getShader(MINIMAL_SHADER);
+        m_pMinimalShader = avg::getShader(MINIMAL_SHADER);
         m_pMinimalTransformParam = m_pMinimalShader->getParam<glm::mat4>("transform");
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("texture")->set(0);
@@ -175,6 +175,27 @@ void StandardShader::setMask(bool bUseMask, const glm::vec2& maskPos,
     m_bUseMask = bUseMask;
     m_MaskPos = maskPos;
     m_MaskSize = maskSize;
+}
+
+const OGLShaderPtr& StandardShader::getShader() const
+{
+    return m_pShader;
+}
+
+void StandardShader::dump() const
+{
+    cerr << "---------Standard shader--------" << endl;
+    cerr << "  m_Transform: " << m_Transform << endl;
+    cerr << "  m_ColorModel: " << m_ColorModel << endl;
+    cerr << "  m_Color: " << m_Color << endl;
+    cerr << "  m_bUseColorCoeff: " << m_bUseColorCoeff << endl;
+    cerr << "  m_ColorMatrix: " << m_ColorMatrix << endl;
+    cerr << "  m_Gamma: " << m_Gamma << endl;
+    cerr << "  m_bPremultipliedAlpha: " << m_bPremultipliedAlpha << endl;
+    cerr << "  m_bUseMask: " << m_bUseMask << endl;
+    cerr << "  m_MaskPos: " << m_MaskPos << endl;
+    cerr << "  m_MaskSize: " << m_MaskSize << endl;
+    cerr << endl;
 }
 
 void StandardShader::generateWhiteTexture()

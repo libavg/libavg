@@ -25,6 +25,7 @@
 #include "VertexArray.h"
 #include "ImagingProjection.h"
 #include "GLContext.h"
+#include "ShaderRegistry.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -39,7 +40,7 @@ using namespace boost;
 namespace avg {
 
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
-        unsigned numTextures, bool bMipmap)
+        const std::string& sShaderID, unsigned numTextures, bool bMipmap)
     : m_PFSrc(pfSrc),
       m_PFDest(pfDest),
       m_bStandalone(bStandalone),
@@ -48,6 +49,8 @@ GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
       m_SrcSize(0,0),
       m_DestRect(0,0,0,0)
 {
+    createShader(sShaderID);
+    m_pShader = avg::getShader(sShaderID);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -83,7 +86,8 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
     }
     m_SrcSize = srcSize;
     if (bProjectionChanged) {
-        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
+        m_pProjection = ImagingProjectionPtr(
+                new ImagingProjection(srcSize, destRect, m_pShader));
     }
 }
   
@@ -142,6 +146,11 @@ FRect GPUFilter::getRelDestRect() const
     glm::vec2 srcSize(m_SrcSize);
     return FRect(m_DestRect.tl.x/srcSize.x, m_DestRect.tl.y/srcSize.y,
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
+}
+
+const OGLShaderPtr& GPUFilter::getShader() const
+{
+    return m_pShader;
 }
 
 void GPUFilter::draw(GLTexturePtr pTex)

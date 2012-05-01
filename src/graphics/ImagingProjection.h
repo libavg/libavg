@@ -25,15 +25,20 @@
 #include "../api.h"
 
 #include "VertexArray.h"
+#include "GLShaderParam.h"
+
 #include "../base/Rect.h"
 
 namespace avg {
 
+class OGLShader;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
+
 class AVG_API ImagingProjection
 {
 public:
-    ImagingProjection(IntPoint size);
-    ImagingProjection(IntPoint srcSize, IntRect destRect);
+    ImagingProjection(IntPoint size, const OGLShaderPtr& pShader);
+    ImagingProjection(IntPoint srcSize, IntRect destRect, const OGLShaderPtr& pShader);
     virtual ~ImagingProjection();
 
     void draw();
@@ -45,6 +50,9 @@ private:
     IntRect m_DestRect;
     IntPoint m_Offset;
     VertexArrayPtr m_pVA;
+    OGLShaderPtr m_pShader;
+    Mat4fGLShaderParamPtr m_pTransformParam;
+    glm::mat4 m_ProjMat;
 };
 
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;

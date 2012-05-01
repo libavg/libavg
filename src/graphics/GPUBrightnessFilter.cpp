@@ -37,14 +37,13 @@ namespace avg {
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         float alpha, bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone),
+    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID),
       m_Alpha(alpha)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    createShader(SHADERID);
 
-    OGLShaderPtr pShader = getShader(SHADERID);
+    OGLShaderPtr pShader = getShader();
     m_pTextureParam = pShader->getParam<int>("texture");
     m_pAlphaParam = pShader->getParam<float>("alpha");
 }
@@ -56,8 +55,7 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
 
 void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    OGLShaderPtr pShader = getShader(SHADERID);
-    pShader->activate();
+    getShader()->activate();
     m_pTextureParam->set(0);
     m_pAlphaParam->set(m_Alpha);
     draw(pSrcTex);

@@ -22,19 +22,23 @@
 #include "ImagingProjection.h"
 
 #include "GLContext.h"
+#include "OGLShader.h"
 
 #include "../base/Exception.h"
 
 namespace avg {
 
-ImagingProjection::ImagingProjection(IntPoint size)
-    : m_pVA(new VertexArray)
+ImagingProjection::ImagingProjection(IntPoint size, const OGLShaderPtr& pShader)
+    : m_pVA(new VertexArray),
+      m_pShader(pShader)
 {
     init(size, IntRect(IntPoint(0,0), size));
 }
 
-ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
-    : m_pVA(new VertexArray)
+ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect,
+        const OGLShaderPtr& pShader)
+    : m_pVA(new VertexArray),
+      m_pShader(pShader)
 {
     init(srcSize, destRect);
 }
@@ -48,23 +52,14 @@ void ImagingProjection::draw()
     IntPoint destSize = m_DestRect.size();
     glViewport(0, 0, destSize.x, destSize.y);
     
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, destSize.x, 0, destSize.y);
-    
-    glMatrixMode(GL_MODELVIEW);
-    glm::vec3 offset(-m_DestRect.tl.x, -m_DestRect.tl.y, 0);
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), offset);
-    glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
-    transform = glm::scale(transform, size);
-    glLoadMatrixf(glm::value_ptr(transform));
-    GLContext::checkError("ImagingProjection::draw()");
-
+    m_pTransformParam->set(m_ProjMat);
     m_pVA->draw();
 }
 
 void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
 {
+    m_pTransformParam = m_pShader->getParam<glm::mat4>("transform");
+
     m_SrcSize = srcSize;
     m_DestRect = destRect;
     FRect dest = destRect;
@@ -78,6 +73,14 @@ void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
     m_pVA->appendPos(p3, p3);
     m_pVA->appendPos(p4, p4);
     m_pVA->appendQuadIndexes(1,0,2,3);
+    
+    IntPoint destSize = m_DestRect.size();
+    glm::mat4 projMat(glm::ortho(0.f, float(destSize.x), 0.f, float(destSize.y)));
+    
+    glm::vec3 offset(-m_DestRect.tl.x, -m_DestRect.tl.y, 0);
+    glm::mat4 transform = glm::translate(projMat, offset);
+    glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
+    m_ProjMat = glm::scale(transform, size);
 }
 
 }

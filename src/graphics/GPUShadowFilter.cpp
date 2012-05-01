@@ -41,22 +41,21 @@ namespace avg {
 
 GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset, 
         float stdDev, float opacity, const Pixel32& color)
-    : GPUFilter(B8G8R8A8, B8G8R8A8, false, 2)
+    : GPUFilter(B8G8R8A8, B8G8R8A8, false, SHADERID_HORIZ, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size, stdDev, offset);
-    createShader(SHADERID_HORIZ);
     createShader(SHADERID_VERT);
     setParams(offset, stdDev, opacity, color);
-    OGLShaderPtr pShader = getShader(SHADERID_HORIZ);
+    OGLShaderPtr pShader = getShader();
     m_pHorizWidthParam = pShader->getParam<float>("width");
     m_pHorizRadiusParam = pShader->getParam<int>("radius");
     m_pHorizTextureParam = pShader->getParam<int>("texture");
     m_pHorizKernelTexParam = pShader->getParam<int>("kernelTex");
     m_pHorizOffsetParam = pShader->getParam<glm::vec2>("offset");
 
-    pShader = getShader(SHADERID_VERT);
+    pShader = avg::getShader(SHADERID_VERT);
     m_pVertWidthParam = pShader->getParam<float>("width");
     m_pVertRadiusParam = pShader->getParam<int>("radius");
     m_pVertTextureParam = pShader->getParam<int>("hBlurTex");
@@ -83,15 +82,14 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
     setDimensions(getSrcSize(), stdDev, offset);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
-            getDestRect().size(), destRect2));
+            getDestRect().size(), destRect2, avg::getShader(SHADERID_VERT)));
 }
 
 void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     int kernelWidth = m_pGaussCurveTex->getSize().x;
     getFBO(1)->activate();
-    OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
-    pHShader->activate();
+    getShader()->activate();
     m_pHorizWidthParam->set(float(kernelWidth));
     m_pHorizRadiusParam->set((kernelWidth-1)/2);
     m_pHorizTextureParam->set(0);
@@ -103,7 +101,7 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     draw(pSrcTex);
 
     getFBO(0)->activate();
-    OGLShaderPtr pVShader = getShader(SHADERID_VERT);
+    OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
     pVShader->activate();
     m_pVertWidthParam->set(float(kernelWidth));
     m_pVertRadiusParam->set((kernelWidth-1)/2);
