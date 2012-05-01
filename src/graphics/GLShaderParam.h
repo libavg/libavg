@@ -65,7 +65,7 @@ public:
           m_bValSet(false)
     {};
     
-    void set(VAL_TYPE val)
+    void set(const VAL_TYPE& val)
     {
         if (!m_bValSet || m_Val != val) {
             uniformSet(getLocation(), val);
