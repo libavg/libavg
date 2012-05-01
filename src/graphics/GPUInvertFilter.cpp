@@ -33,7 +33,7 @@ using namespace std;
 namespace avg {
 
 GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf, bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_INVERT_COLOR, 2)
+    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_INVERT_COLOR, 1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
