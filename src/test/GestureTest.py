@@ -25,14 +25,14 @@ import math
 from sets import Set
 from testcase import *
 
-class GestureTestCase(AVGTestCase):
+EVENT_DETECTED = 1
+EVENT_MOVED = 2
+EVENT_UP = 3
+EVENT_ENDED = 4
+EVENT_POSSIBLE = 5
+EVENT_FAILED = 6
     
-    DETECTED = 1
-    MOVED = 2
-    UP = 3
-    ENDED = 4
-    POSSIBLE = 5
-    FAILED = 6
+class GestureTestCase(AVGTestCase):
     
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
@@ -41,34 +41,21 @@ class GestureTestCase(AVGTestCase):
     def testTapRecognizer(self):
 
         def onPossible(event):
-            self.__possible = True
+            self.__addEventFlag(EVENT_POSSIBLE)
 
         def onDetected(event):
-            self.__detected = True
+            self.__addEventFlag(EVENT_DETECTED)
 
         def onFail(event):
-            self.__failed = True
-
-        def initState():
-            self.__possible = False
-            self.__detected = False
-            self.__failed = False
+            self.__addEventFlag(EVENT_FAILED)
 
         def abort():
             self.__tapRecognizer.abort()
-            initState()
+            self.__resetEventState()
 
         def enable(isEnabled):
             self.__tapRecognizer.enable(isEnabled)
-            initState()
-
-        EVENT_POSSIBLE = 1
-        EVENT_DETECTED = 2
-        EVENT_FAILED = 3
-        def assertEvents(flags):
-            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
-            self.assert_((EVENT_DETECTED in flags) == self.__detected)
-            self.assert_((EVENT_FAILED in flags) == self.__failed)
+            self.__resetEventState()
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -76,157 +63,91 @@ class GestureTestCase(AVGTestCase):
                 possibleHandler=onPossible,
                 detectedHandler=onDetected,
                 failHandler=onFail)
-        initState()
+        self.__resetEventState()
         Player.setFakeFPS(10)
         self.start((
                  # Down-up: recognized as tap.
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-small move-up: recognized as tap.
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 31, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 31, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-big move-up: fail
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 1, 1),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 150, 50, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 1, 1, []),
                  # Down-delay: fail
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
                  lambda: self.delay(1000),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 lambda: self.__assertEvents([EVENT_FAILED]),
+                 self.__resetEventState,
+                 self.__genMouseEventFrames(avg.CURSORUP, 1, 1, []),
                  # Down-Abort-Up: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  # Abort-Down-Up: recognized as tap
-                 initState,
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-Abort-Up-Down-Up: recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Disable-Down-Up-Enable: not recognized as tap
-                 initState,
                  lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: enable(True),
-                 # Down-Disable-Up-Enable: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
                  # Down-Disable-Enable-Up: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: enable(False),
                  lambda: enable(True),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  # Down-Disable-Up-Enable-Down-Up: recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])), 
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
-                 # Down-Abort-Disable-Up-Enable: not recognized as tap
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 abort,
-                 lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
-                 lambda: enable(True),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Abort-Disable-Abort-Enable-Abort-Down-Up: recognized as tap
-                 initState,
                  abort,
                  lambda: enable(False),
                  abort,
                  lambda: enable(True),
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                 ))
 
 
     def testHoldRecognizer(self):
 
         def onPossible(event):
-            self.__possible = True
+            self.__addEventFlag(EVENT_POSSIBLE)
 
         def onDetected(event):
-            self.__detected = True
+            self.__addEventFlag(EVENT_DETECTED)
 
         def onFail(event):
-            self.__failed = True
+            self.__addEventFlag(EVENT_FAILED)
 
         def onStop(event):
-            self.__stopped = True
-
-        def initState():
-            self.__possible = False
-            self.__detected = False
-            self.__failed = False
-            self.__stopped = False
+            self.__addEventFlag(EVENT_ENDED)
 
         def abort():
             self.__holdRecognizer.abort()
-            initState()
+            self.__resetEventState()
 
         def enable(isEnabled):
             self.__holdRecognizer.enable(isEnabled)
-            initState()
+            self.__resetEventState()
 
-        EVENT_POSSIBLE = 1
-        EVENT_DETECTED = 2
-        EVENT_FAILED = 3
-        EVENT_STOPPED = 4
-        def assertEvents(flags):
-            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
-            self.assert_((EVENT_DETECTED in flags) == self.__detected)
-            self.assert_((EVENT_FAILED in flags) == self.__failed)
-            self.assert_((EVENT_STOPPED in flags) == self.__stopped)
-
-        Player.setFakeFPS(2)
+        Player.setFakeFPS(20)
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__holdRecognizer = ui.HoldRecognizer(image,
@@ -235,118 +156,75 @@ class GestureTestCase(AVGTestCase):
                 detectedHandler=onDetected, 
                 failHandler=onFail, 
                 stopHandler=onStop)
-        initState()
+        self.__resetEventState()
         self.start((
                  # Standard down-hold-up sequence.
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 None,
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
-                 None,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED,
-                         EVENT_STOPPED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 lambda: self.delay(1100),
+                 lambda: self.__assertEvents([EVENT_DETECTED]),
+                 self.__resetEventState,
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_ENDED]),
 
                  # down-up sequence, hold not long enough.
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_FAILED]),
 
-                 # down-move-up sequence, should stop. 
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 150, 50),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 # down-move-up sequence, should fail. 
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 150, 50, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
 
-                 # down-hold-abort-up, should not recognized
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 None,
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
-                 None,
+                 # down-hold-abort-up, should be recognized, no end event.
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 lambda: self.delay(1100),
+                 lambda: self.__assertEvents([EVENT_DETECTED]),
                  abort,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
 
-                 # down-abort-hold-up, should not recognized
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 # down-abort-hold-up, should not be recognized
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
-                 None,
-                 lambda: assertEvents(Set([])),
-                 None,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 lambda: self.delay(1100),
+                 lambda: self.__assertEvents([]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
 
-                 # down-hold-disabled-up-enabled, should not recognized
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
-                 None,
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
-                 None,
+                 # down-hold-disabled-up-enabled, should be recognized, no end event.
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 lambda: self.delay(1100),
+                 lambda: self.__assertEvents([EVENT_DETECTED]),
                  lambda: enable(False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
 
-                 # down-disabled-enabled-hold-up, should not recognized
-                 initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
+                 # down-disabled-enabled-hold-up, should not be recognized
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: enable(False),
                  lambda: enable(True),
-                 None,
-                 lambda: assertEvents(Set([])),
-                 None,
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(Set([])),
+                 lambda: self.delay(1100),
+                 lambda: self.__assertEvents([]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                 ))
         Player.setFakeFPS(-1)
 
 
     def testDoubletapRecognizer(self):
 
-        EVENT_POSSIBLE = 1
-        EVENT_DETECTED = 2
-        EVENT_FAILED = 3
         def onPossible(event):
-            self.__flags.add(EVENT_POSSIBLE)
+            self.__addEventFlag(EVENT_POSSIBLE)
 
         def onDetected(event):
-            self.__flags.add(EVENT_DETECTED)
+            self.__addEventFlag(EVENT_DETECTED)
 
         def onFail(event):
-            self.__flags.add(EVENT_FAILED)
-
-        def initState():
-            self.__flags = Set()
-
-        def assertEvents(flags):
-            wantedFlags = Set(flags)
-            if wantedFlags != self.__flags:
-                print "State expected: ", wantedFlags
-                print "Actual state: ", self.__flags
-                self.assert_(False)
-
-        def checkMouseEvent(type, x, y, eventFlags):
-            return [
-                     lambda: self._sendMouseEvent(type, x, y),
-                     lambda: assertEvents(eventFlags)
-                    ]
+            self.__addEventFlag(EVENT_FAILED)
 
         def abort():
             self.__tapRecognizer.abort()
-            initState()
+            self.__resetEventState()
 
         def enable(isEnabled):
             self.__tapRecognizer.enable(isEnabled)
-            initState()
+            self.__resetEventState()
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png", size=(128,128))
@@ -354,160 +232,137 @@ class GestureTestCase(AVGTestCase):
                 possibleHandler=onPossible,
                 detectedHandler=onDetected,
                 failHandler=onFail)
-        initState()
+        self.__resetEventState()
         Player.setFakeFPS(20)
         self.start((
                  # Down, up, down, up: click
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE, EVENT_DETECTED]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down, move: stop
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 0, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORMOTION, 80, 30, 
-                        [EVENT_POSSIBLE, EVENT_FAILED]),
-                 checkMouseEvent(avg.CURSORUP, 0, 30, [EVENT_POSSIBLE, EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 0, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 80, 30, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 0, 30, []),
                  # Down, up, move: stop
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 0, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 0, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORMOTION, 80, 30, [EVENT_POSSIBLE]),
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 80, 30, [EVENT_FAILED]),
-                 initState,
-                 checkMouseEvent(avg.CURSORUP, 0, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 0, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 0, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 80, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 80, 30, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 0, 30, []),
                  # Down, up, down, move: stop
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 0, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 0, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORDOWN, 0, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORMOTION, 80, 30, 
-                        [EVENT_POSSIBLE, EVENT_FAILED]),
-                 checkMouseEvent(avg.CURSORUP, 0, 30, [EVENT_POSSIBLE, EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 0, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 0, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 0, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 80, 30, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 0, 30, []),
                  # Down,delay: stop
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 lambda: self.delay(600),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE, EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 lambda: self.delay(1000),
+                 lambda: self.__assertEvents([EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_FAILED]),
                  # Down, up, delay: stop
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 lambda: self.delay(600),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 lambda: self.delay(1000),
+                 lambda: self.__assertEvents([EVENT_FAILED]),
                  # Down, up, down, delay: stop
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 lambda: self.delay(600),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE, EVENT_FAILED]),
+                 self.__resetEventState,
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 lambda: self.delay(1000),
+                 lambda: self.__assertEvents([EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_FAILED]),
                  # Down, abort, up, down, up, delay: just one click
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 lambda: self.delay(600),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 lambda: self.delay(1000),
+                 lambda: self.__assertEvents([EVENT_FAILED]),
                  # Down, up, abort, down, up, delay: two clicks but no double-click
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
+                 self.__resetEventState,
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  abort,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 lambda: self.delay(600),
-                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 lambda: self.delay(1000),
+                 lambda: self.__assertEvents([EVENT_FAILED]),
                  # Down, up, down, abort, up: just one click
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__resetEventState,
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
                  abort,
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  # Down, abort, up, down, up, down up: first aborted then recognized
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE, EVENT_DETECTED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Disabled, down, up, down, up, enabled: nothing
-                 initState,
                  lambda: enable(False),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, []),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, []),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),                 
                  # Down, disabled up, down, up, enabled: just one down
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: enable(False),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, []),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
                  # Down, up, disabled, down, up, enabled: just one click
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(False),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, []),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
                  # Down, up, down, disabled, up, enabled: just one click
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
                  lambda: enable(False),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  lambda: enable(True),
-                 # Down, disabled, enabled, up, down, up: just one click
-                 initState,
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 lambda: enable(False),
-                 lambda: enable(True),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
                  # Down, disabled, enabled, up, down, up, down, up: recognized
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: enable(False),
                  lambda: enable(True),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, []),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
-                 checkMouseEvent(avg.CURSORUP, 30, 30, [EVENT_POSSIBLE, EVENT_DETECTED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                 ))
 
 
     def testDragRecognizer(self):
 
         def onDetected(event):
-            self.__addEventFlag(GestureTestCase.DETECTED)
+            self.__addEventFlag(EVENT_DETECTED)
 
         def onMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (40,40))
-            self.__addEventFlag(GestureTestCase.MOVED)
+            self.__addEventFlag(EVENT_MOVED)
 
         def onUp(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (10,-10))
-            self.__addEventFlag(GestureTestCase.UP)
+            self.__addEventFlag(EVENT_UP)
 
         def onEnd(event):
-            self.__addEventFlag(GestureTestCase.ENDED)
+            self.__addEventFlag(EVENT_ENDED)
 
         def enable(isEnabled):
             dragRecognizer.enable(isEnabled)
@@ -526,31 +381,28 @@ class GestureTestCase(AVGTestCase):
                     endHandler=onEnd, friction=self.friction)
             self.__resetEventState()
             self.start((
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
-                            [GestureTestCase.DETECTED]),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 70, 70, 
-                            [GestureTestCase.MOVED]),
-                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, 
-                            [GestureTestCase.UP, GestureTestCase.ENDED]),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 70, 70, [EVENT_MOVED]),
+                     self.__genMouseEventFrames(avg.CURSORUP, 40, 20, 
+                            [EVENT_UP, EVENT_ENDED]),
                      lambda: enable(False),
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
                      lambda: dragRecognizer.enable(True),
-                     self.__checkMouseEvents(avg.CURSORUP, 30, 30, []),
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
-                            [GestureTestCase.DETECTED]),
+                     self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
                     ))
 
         # Test with constraint.
         def onPossible(event):
-            self.__flags.add(GestureTestCase.POSSIBLE)
+            self.__flags.add(EVENT_POSSIBLE)
 
         def onFail(event):
-            self.__flags.add(GestureTestCase.FAILED)
+            self.__flags.add(EVENT_FAILED)
 
         def onVertMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (0,40))
-            self.__flags.add(GestureTestCase.MOVED)
+            self.__flags.add(EVENT_MOVED)
 
         for self.friction in (-1, 100):
             root = self.loadEmptyScene()
@@ -562,65 +414,55 @@ class GestureTestCase(AVGTestCase):
                     friction=self.friction, direction=ui.DragRecognizer.VERTICAL)
             self.__resetEventState()
             self.start((
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
-                            [GestureTestCase.POSSIBLE]),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, 
-                            [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
-                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, 
-                            [GestureTestCase.UP, GestureTestCase.ENDED]),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 35, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70, 
+                            [EVENT_DETECTED, EVENT_MOVED]),
+                     self.__genMouseEventFrames(avg.CURSORUP, 40, 20, 
+                            [EVENT_UP, EVENT_ENDED]),
                      # Wrong direction -> stop.
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
-                            [GestureTestCase.POSSIBLE]),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 70, 30, 
-                            [GestureTestCase.FAILED]),
-                     self.__checkMouseEvents(avg.CURSORUP, 70, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 70, 30, [EVENT_FAILED]),
+                     self.__genMouseEventFrames(avg.CURSORUP, 70, 30, []),
 
                      # No movement -> stop.
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
-                            [GestureTestCase.POSSIBLE]),
-                     self.__checkMouseEvents(avg.CURSORUP, 30, 30, 
-                            [GestureTestCase.FAILED]),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_FAILED]),
 
                      # Down, Abort, Motion, Motion, Up -> not recognized
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
-                            [GestureTestCase.POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                      abort,
-                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, []),
-                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 35, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70, []),
+                     self.__genMouseEventFrames(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Abort, Motion, Up -> not Recognized
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
-                            [GestureTestCase.POSSIBLE]),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 35, 30, []),
                      abort,
-                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, []),
-                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70, []),
+                     self.__genMouseEventFrames(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Motion, Abort, Up -> not recognized
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
-                            [GestureTestCase.POSSIBLE]),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70,
-                            [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 35, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70,
+                            [EVENT_DETECTED, EVENT_MOVED]),
                      abort,
-                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
+                     self.__genMouseEventFrames(avg.CURSORUP, 40, 20, []),
 
                      # Down, Motion, Abort, Up, Down, Motion, Motion, Up -> Recognized
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30,
-                            [GestureTestCase.POSSIBLE]),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 35, 30, []),
                      abort,
-                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, []),
+                     self.__genMouseEventFrames(avg.CURSORUP, 40, 20, []),
                      
-                     self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
-                            [GestureTestCase.POSSIBLE]),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 35, 30, []),
-                     self.__checkMouseEvents(avg.CURSORMOTION, 30, 70,
-                            [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
-                     self.__checkMouseEvents(avg.CURSORUP, 40, 20, 
-                            [GestureTestCase.UP, GestureTestCase.ENDED]),
+                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 35, 30, []),
+                     self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70,
+                            [EVENT_DETECTED, EVENT_MOVED]),
+                     self.__genMouseEventFrames(avg.CURSORUP, 40, 20, 
+                            [EVENT_UP, EVENT_ENDED]),
                     ))
 
         # Test second down during inertia.
@@ -636,9 +478,9 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
                  self.__resetEventState,
-                 self.__checkMouseEvents(avg.CURSORDOWN, 40, 20, 
-                            [GestureTestCase.ENDED, GestureTestCase.DETECTED, 
-                             GestureTestCase.MOVED]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 40, 20, 
+                            [EVENT_ENDED, EVENT_DETECTED, 
+                             EVENT_MOVED]),
                  ))
 
         # Test second down during inertia, constrained recognizer
@@ -652,16 +494,16 @@ class GestureTestCase(AVGTestCase):
         self.__resetEventState()
         self.start((
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 self.__checkMouseEvents(avg.CURSORMOTION, 30, 70,
-                        [GestureTestCase.DETECTED, GestureTestCase.MOVED, 
-                         GestureTestCase.POSSIBLE]),
-                 self.__checkMouseEvents(avg.CURSORUP, 30, 70,
-                        [GestureTestCase.MOVED, GestureTestCase.UP]),
-                 self.__checkMouseEvents(avg.CURSORDOWN, 30, 30, 
-                        [GestureTestCase.MOVED, GestureTestCase.ENDED, 
-                         GestureTestCase.POSSIBLE]),
-                 self.__checkMouseEvents(avg.CURSORMOTION, 30, 70, 
-                        [GestureTestCase.DETECTED, GestureTestCase.MOVED]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70,
+                        [EVENT_DETECTED, EVENT_MOVED, 
+                         EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 70,
+                        [EVENT_MOVED, EVENT_UP]),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, 
+                        [EVENT_MOVED, EVENT_ENDED, 
+                         EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70, 
+                        [EVENT_DETECTED, EVENT_MOVED]),
                  ))
 
         Player.setFakeFPS(-1)
@@ -868,7 +710,7 @@ class GestureTestCase(AVGTestCase):
         self.assertAlmostEqual(image.size, (30,40))
         self.assertAlmostEqual(image.angle, 1.57)
 
-    def __checkMouseEvents(self, type, x, y, expectedEvents):
+    def __genMouseEventFrames(self, type, x, y, expectedEvents):
         return [
                  lambda: self._sendMouseEvent(type, x, y),
                  lambda: self.__assertEvents(expectedEvents),
