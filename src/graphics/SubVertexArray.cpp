@@ -55,13 +55,6 @@ void SubVertexArray::init(VertexArray* pVertexArray, unsigned startVertex,
     m_NumIndexes = 0;
 }
 
-void SubVertexArray::appendPos(const glm::vec2& pos, const glm::vec2& texPos,
-        const Pixel32& color)
-{
-    m_pVA->appendPos(pos, texPos, color);
-    m_NumVerts++;
-}
-
 void SubVertexArray::appendTriIndexes(int v0, int v1, int v2)
 {
     m_pVA->appendTriIndexes(v0+m_StartVertex, v1+m_StartVertex, v2+m_StartVertex);

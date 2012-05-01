@@ -25,14 +25,13 @@
 #include "../api.h"
 #include "AreaNode.h"
 
+#include "../graphics/SubVertexArray.h"
+
 #include "../base/UTF8String.h"
-#include "../graphics/VertexArray.h"
 
 #include <string>
 
 namespace avg {
-
-class VertexArray;
 
 class AVG_API DivNode : public AreaNode
 {

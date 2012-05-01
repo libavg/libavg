@@ -34,15 +34,13 @@
 
 namespace avg {
 
-class VertexArray;
-
 class AVG_API SubVertexArray {
 public:
     SubVertexArray();
     ~SubVertexArray();
     void init(VertexArray* pVertexArray, unsigned startVertex, unsigned startIndex);
 
-    virtual void appendPos(const glm::vec2& pos, 
+    void appendPos(const glm::vec2& pos, 
             const glm::vec2& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     void appendTriIndexes(int v0, int v1, int v2);
     void appendQuadIndexes(int v0, int v1, int v2, int v3);
@@ -62,6 +60,13 @@ private:
     int m_NumVerts;
     int m_NumIndexes;
 };
+
+inline void SubVertexArray::appendPos(const glm::vec2& pos, 
+        const glm::vec2& texPos, const Pixel32& color)
+{
+    m_pVA->appendPos(pos, texPos, color);
+    m_NumVerts++;
+}
 
 typedef boost::shared_ptr<SubVertexArray> SubVertexArrayPtr;
 

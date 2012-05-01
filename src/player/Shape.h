@@ -28,7 +28,7 @@
 
 #include "../base/GLMHelper.h"
 #include "../graphics/Bitmap.h"
-#include "../graphics/VertexArray.h"
+#include "../graphics/SubVertexArray.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>

@@ -47,7 +47,7 @@ public:
     VertexData(int reserveVerts = 0, int reserveIndexes = 0);
     virtual ~VertexData();
 
-    virtual void appendPos(const glm::vec2& pos, 
+    void appendPos(const glm::vec2& pos, 
             const glm::vec2& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     void appendTriIndexes(int v0, int v1, int v2);
     void appendQuadIndexes(int v0, int v1, int v2, int v3);

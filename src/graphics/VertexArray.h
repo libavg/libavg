@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "VertexData.h"
-#include "SubVertexArray.h"
 #include "Pixel32.h"
 #include "OGLHelper.h"
 
@@ -35,7 +34,6 @@
 namespace avg {
 
 class SubVertexArray;
-typedef boost::shared_ptr<SubVertexArray> SubVertexArrayPtr;
 
 class AVG_API VertexArray: public VertexData {
 public:
