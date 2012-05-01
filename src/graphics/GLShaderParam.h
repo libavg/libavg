@@ -76,7 +76,7 @@ public:
     };
 
 private:
-    void uniformSet(unsigned location, VAL_TYPE val) 
+    void uniformSet(unsigned location, const VAL_TYPE& val) 
     {
         AVG_ASSERT_MSG(false, 
                 getName()+"GLShaderParam::uniformSet() called for unsupported type.");
@@ -87,17 +87,20 @@ private:
 };
 
 template<>
-void GLShaderParamTemplate<int>::uniformSet(unsigned location, int val);
+void GLShaderParamTemplate<int>::uniformSet(unsigned location, const int& val);
 template<>
-void GLShaderParamTemplate<float>::uniformSet(unsigned location, float val);
+void GLShaderParamTemplate<float>::uniformSet(unsigned location, const float& val);
 template<>
-void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, glm::vec2 val);
+void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, 
+        const glm::vec2& val);
 template<>
-void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, Pixel32 val);
+void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, const Pixel32& val);
 template<>
-void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, glm::vec4 val);
+void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, 
+        const glm::vec4& val);
 template<>
-void GLShaderParamTemplate<glm::mat4>::uniformSet(unsigned location, glm::mat4 val);
+void GLShaderParamTemplate<glm::mat4>::uniformSet(unsigned location, 
+        const glm::mat4& val);
 
 typedef boost::shared_ptr<GLShaderParam> GLShaderParamPtr;
 
