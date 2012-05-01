@@ -73,6 +73,7 @@ public:
 
     // GL state cache.
     void enableGLColorArray(bool bEnable);
+    void setBlendColor(const glm::vec4& color);
     enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
     void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
     void bindTexture(unsigned unit, unsigned texID);
@@ -138,6 +139,7 @@ private:
 
     // OpenGL state
     bool m_bEnableGLColorArray;
+    glm::vec4 m_BlendColor;
     BlendMode m_BlendMode;
     bool m_bPremultipliedAlpha;
     unsigned m_BoundTextures[16];

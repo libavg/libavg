@@ -500,7 +500,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     FRect destRect;
     
     StandardShaderPtr pShader = pContext->getStandardShader();
-    glBlendColor(1.0f, 1.0f, 1.0f, opacity);
+    pContext->setBlendColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
     if (m_pFXNode) {
         pContext->setBlendMode(mode, true);
         m_pFXNode->getTex()->activate(GL_TEXTURE0);

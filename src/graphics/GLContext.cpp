@@ -93,6 +93,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
       m_bEnableGLColorArray(true),
+      m_BlendColor(0.f, 0.f, 0.f, 0.f),
       m_BlendMode(BLEND_ADD)
 {
     if (bUseCurrent) {
@@ -321,6 +322,14 @@ void GLContext::enableGLColorArray(bool bEnable)
             glDisableClientState(GL_COLOR_ARRAY);
         }
         m_bEnableGLColorArray = bEnable;
+    }
+}
+
+void GLContext::setBlendColor(const glm::vec4& color)
+{
+    if (m_BlendColor != color) {
+        glBlendColor(color[0], color[1], color[2], color[3]);
+        m_BlendColor = color;
     }
 }
 
