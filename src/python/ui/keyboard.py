@@ -86,44 +86,51 @@ class Key(avg.DivNode):
             self.__feedbackImage.size = self.__feedbackImage.size + \
                     self.__feedbackImage.size * FEEDBACK_ZOOM_FACTOR
             self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
-                    self.__feedbackImage.size.y) # TODO make pos dynamic to image zoomfactor
+                    self.__feedbackImage.size.y)
             self.appendChild(self.__feedbackImage)
         g_Player.deleteCanvas('offscreen')
 
     def onDown(self, event):
         self.__feedbackImage.opacity = 0.95
-        if self.__cursorID:
-            return
-        self.__pseudoDown(event)
-
-    def onUp(self, event):
-        if not self.__cursorID == event.cursorid:
-            return
-        self.__feedbackImage.opacity = 0.0
         if self.__sticky:
             self.__stickyIsDown = not(self.__stickyIsDown)
             if self.__stickyIsDown:
                 self.__pseudoDown(event)
-        self.__pseudoUp(event)
+            else:
+                self.__pseudoUp(event)
+        else:
+            if self.__cursorID:
+                return
+            self.__pseudoDown(event)
+
+    def onUp(self, event):
+        self.__feedbackImage.opacity = 0.0
+        if not self.__cursorID == event.cursorid:
+            return
+        if not (self.__sticky):
+            self.__pseudoUp(event)
 
     def onOut(self, event):
         if not self.__cursorID == event.cursorid:
             return
-        self.__cursorID = None
-        self.__feedbackImage.opacity = 0.0
-        if not(self.__sticky) or (not self.__stickyIsDown):
+        if not(self.__sticky):
+            self.__cursorID = None
             self.__image.opacity = 0.0
+            self.__feedbackImage.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
+
+      #  self.__feedbackImage.opacity = 0.95
         self.__image.opacity = 1.0
         if self.__onDownCallback:
             self.__onDownCallback(event, self.__keyCode)
        
     def __pseudoUp(self, event):
-        if not self.__sticky or (self.__sticky and not self.__stickyIsDown):
-            self.__image.opacity = 0.0
+        self.__cursorID = None
+
+        self.__image.opacity = 0.0
         if self.__onUpCallback:
             self.__onUpCallback(event, self.__keyCode)
         
