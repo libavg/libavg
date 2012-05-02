@@ -26,6 +26,7 @@
 import os.path
 
 from libavg import avg
+from gesture import DragRecognizer
 
 g_Player = avg.Player.get()
 g_Logger = avg.Logger.get()
@@ -54,9 +55,9 @@ class Key(avg.DivNode):
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
-        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
-        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUp)
-        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onOut)
+#        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
+#        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUp)
+#        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onOut)
 
     def reset(self):
         if self.__sticky:
@@ -89,7 +90,7 @@ class Key(avg.DivNode):
             self.appendChild(self.__feedbackImage)
         g_Player.deleteCanvas('offscreen')
 
-    def __onDown(self, event):
+    def onDown(self, event):
         self.__feedbackImage.opacity = 0.95
         if self.__sticky:
             self.__stickyIsDown = not(self.__stickyIsDown)
@@ -102,14 +103,14 @@ class Key(avg.DivNode):
                 return
             self.__pseudoDown(event)
 
-    def __onUp(self, event):
+    def onUp(self, event):
         self.__feedbackImage.opacity = 0.0
         if not self.__cursorID == event.cursorid:
             return
         if not (self.__sticky):
             self.__pseudoUp(event)
 
-    def __onOut(self, event):
+    def onOut(self, event):
         if not self.__cursorID == event.cursorid:
             return
         if not(self.__sticky):
@@ -178,7 +179,26 @@ class Keyboard(avg.DivNode):
         if textarea != None:
             self.__textarea = textarea
             self.setKeyHandler(None, self.__upHandler)
+#        self.__recognizer = DragRecognizer(self, detectedHandler=self.__onDown,
+#                upHandler=self.__onUp, moveHandler=self.__onMove)
+        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
 
+    def __onDown(self, event):
+        self.__selectKey(event)
+        event.contact.connectListener(self.__selectKey, self.__selectKey)
+
+    def __selectKey(self, event):
+        for i in range(len(self.__keys)):
+            pos = self.__keys[i].getRelPos(event.pos)
+            if pos.x >= 0 and pos.y >= 0:
+                if pos.x <= self.__keys[i].size.x and pos.y <= self.__keys[i].size.y:
+                    if event.type == avg.CURSORUP:
+                        self.__keys[i].onUp(event)  
+                    else:                  
+                        self.__keys[i].onDown(event)
+                    return
+            self.__keys[i].onOut(event)
+        
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
