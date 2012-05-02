@@ -196,7 +196,7 @@ class Keyboard(avg.DivNode):
                         self.__keys[i].onUp(event)  
                     else:                  
                         self.__keys[i].onDown(event)
-                    return
+                    continue
             self.__keys[i].onOut(event)
         
     @classmethod
