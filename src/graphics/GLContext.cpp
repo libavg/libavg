@@ -233,6 +233,16 @@ void GLContext::init()
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
     }
+    if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
+        int majorVer;
+        int minorVer;
+        getGLVersion(majorVer, minorVer);
+        if (majorVer > 1) {
+            m_GLConfig.m_ShaderUsage = GLConfig::FULL;
+        } else {
+            m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+        }
+    }
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
     }
@@ -273,12 +283,16 @@ bool GLContext::useGPUYUVConversion() const
     return (majorVer > 1);
 }
 
-bool GLContext::useMinimalShader() const
+bool GLContext::useMinimalShader()
 {
-    int majorVer;
-    int minorVer;
-    getGLVersion(majorVer, minorVer);
-    return (majorVer <= 1);
+    if (m_GLConfig.m_ShaderUsage == GLConfig::FULL) {
+        return false;
+    } else if (m_GLConfig.m_ShaderUsage == GLConfig::MINIMAL) {
+        return true;
+    } else {
+        AVG_ASSERT(false);
+        return false; // Silence compiler warning.
+    }
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
@@ -431,12 +445,6 @@ void GLContext::logConfig()
         s = "no";
     }
     AVG_TRACE(Logger::CONFIG, string("  GPU-based YUV-RGB conversion: ")+s+".");
-    if (useMinimalShader()) {
-        s = "yes";
-    } else {
-        s = "no";
-    }
-    AVG_TRACE(Logger::CONFIG, string("  Minimal shader: ")+s+".");
     try {
         AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: " << 
                 getVideoMemInstalled()/(1024*1024) << " MB");

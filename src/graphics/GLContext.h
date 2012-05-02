@@ -53,7 +53,7 @@ typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 class AVG_API GLContext {
 public:
     GLContext(bool bUseCurrent=false, 
-            const GLConfig& glConfig=GLConfig(false, true, true, 1), 
+            const GLConfig& glConfig=GLConfig(false, true, true, 1, GLConfig::AUTO), 
             GLContext* pSharedContext=0);
     virtual ~GLContext();
     void init();
@@ -62,7 +62,7 @@ public:
     ShaderRegistryPtr getShaderRegistry() const;
     StandardShaderPtr getStandardShader();
     bool useGPUYUVConversion() const;
-    bool useMinimalShader() const;
+    bool useMinimalShader();
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();

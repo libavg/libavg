@@ -1153,6 +1153,21 @@ void Player::initConfig()
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
     m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
+
+    string sShaderUsage;
+    pMgr->getStringOption("scr", "shaderusage", "auto", sShaderUsage);
+    if (sShaderUsage == "full") {
+        m_GLConfig.m_ShaderUsage = GLConfig::FULL;
+    } else if (sShaderUsage == "minimal") {
+        m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+    } else if (sShaderUsage == "auto") {
+        m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
+    } else {
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "avgrc parameter shaderusage must be full, minimal or auto");
+    }
+
+
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 
