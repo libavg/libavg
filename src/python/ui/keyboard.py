@@ -55,9 +55,6 @@ class Key(avg.DivNode):
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
-#        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
-#        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUp)
-#        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onOut)
 
     def reset(self):
         if self.__sticky:
@@ -120,7 +117,6 @@ class Key(avg.DivNode):
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
 
-      #  self.__feedbackImage.opacity = 0.95
         self.__image.opacity = 1.0
         if self.__onDownCallback:
             self.__onDownCallback(event, self.__keyCode)
@@ -177,8 +173,6 @@ class Keyboard(avg.DivNode):
         if textarea != None:
             self.__textarea = textarea
             self.setKeyHandler(None, self.__upHandler)
-#        self.__recognizer = DragRecognizer(self, detectedHandler=self.__onDown,
-#                upHandler=self.__onUp, moveHandler=self.__onMove)
         self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
 
     def __onDown(self, event):
