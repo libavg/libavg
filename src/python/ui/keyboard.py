@@ -92,31 +92,29 @@ class Key(avg.DivNode):
 
     def onDown(self, event):
         self.__feedbackImage.opacity = 0.95
-        if self.__sticky:
-            self.__stickyIsDown = not(self.__stickyIsDown)
-            if self.__stickyIsDown:
-                self.__pseudoDown(event)
-            else:
-                self.__pseudoUp(event)
-        else:
-            if self.__cursorID:
-                return
-            self.__pseudoDown(event)
+        if self.__cursorID:
+            return
+        self.__pseudoDown(event)
 
     def onUp(self, event):
         self.__feedbackImage.opacity = 0.0
         if not self.__cursorID == event.cursorid:
             return
-        if not (self.__sticky):
+        if self.__sticky:
+            self.__stickyIsDown = not(self.__stickyIsDown)
+            if not self.__stickyIsDown:
+                self.__pseudoUp(event)
+        else:
             self.__pseudoUp(event)
+        
 
     def onOut(self, event):
+        self.__feedbackImage.opacity = 0.0
         if not self.__cursorID == event.cursorid:
             return
-        if not(self.__sticky):
+        if not(self.__sticky)  or (not self.__stickyIsDown):
             self.__cursorID = None
             self.__image.opacity = 0.0
-            self.__feedbackImage.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
 
     def __pseudoDown(self, event):
