@@ -268,7 +268,7 @@ class TextArea(avg.DivNode):
 
         self.__trueParent.appendChild(textNode)
         
-        cursorContainer = g_Player.createNode('div', {})
+        cursorContainer = avg.DivNode()
         cursorNode = avg.LineNode(color='000000')
         self.__trueParent.appendChild(cursorContainer)
         cursorContainer.appendChild(cursorNode)
