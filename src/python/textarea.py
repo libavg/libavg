@@ -294,7 +294,7 @@ class TextArea(avg.DivNode):
             self.__recognizer = ui.DragRecognizer(eventNode=self,
                     moveHandler=self.__moveHandler, detectedHandler=self.__detectedHandler,
                     upHandler=self.__upHandler)
-            self.__loupeZoomFactor = 0.3
+            self.__loupeZoomFactor = 0.5
             self.__loupe = avg.DivNode(parent=self, crop=True)
 
             if loupeBackgroundNode != None:
@@ -610,9 +610,13 @@ class TextArea(avg.DivNode):
         g_Player.clearInterval(self.__ID)
 
     def __updateLoupe(self, event):
-        self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * \
-                self.__loupeZoomFactor) + \
-                (self.__loupeOffset[0]*2.0,self.__loupeOffset[1]*1.5)
+#        self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * \
+#                self.__loupeZoomFactor) + \
+#                (self.__loupeOffset[0]*2.0,self.__loupeOffset[1]*1.5)
+#        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0  # setzt es mittig ueber das orginal | nur scrolen fehlt noch
+#        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 -( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) # add zoomfactor position
+        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 -( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) - \
+                self.getRelPos(event.pos)* self.__loupeZoomFactor   # add scrolling
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 
     def __updateZoomImage(self):
