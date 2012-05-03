@@ -621,10 +621,15 @@ class TextArea(avg.DivNode):
         self.__updateLoupe(event)
 
     def __updateLoupe(self, event):
-#        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0  # setzt es mittig ueber das orginal | nur scrolen fehlt noch
-#        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 -( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) # add zoomfactor position
-        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 -( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) - \
-                self.getRelPos(event.pos)* self.__loupeZoomFactor   # add scrolling
+        # setzt es mittig ueber das orginal
+#        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0
+        # add zoomfactor position
+#        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 -\
+#                ( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) 
+        # add scrolling
+        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 - \
+                ( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) - \
+                self.getRelPos(event.pos)* self.__loupeZoomFactor
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 
     def __updateZoomImage(self):
