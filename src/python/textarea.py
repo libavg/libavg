@@ -251,7 +251,7 @@ class TextArea(avg.DivNode):
         self.__cursorPosition = 0
         self.__trueParent = self
 
-        textNode = g_Player.createNode("words", {'rawtextmode':True})
+        textNode = avg.WordsNode(rawtextmode=True)
 
         if textBackgroundNode != None:
             self.appendChild(textBackgroundNode)
@@ -269,7 +269,7 @@ class TextArea(avg.DivNode):
         self.__trueParent.appendChild(textNode)
         
         cursorContainer = g_Player.createNode('div', {})
-        cursorNode = g_Player.createNode('line', {'color': '000000'})
+        cursorNode = avg.LineNode(color='000000')
         self.__trueParent.appendChild(cursorContainer)
         cursorContainer.appendChild(cursorNode)
         self.__flashingCursor = False
