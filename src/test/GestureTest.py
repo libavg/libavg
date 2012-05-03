@@ -394,15 +394,15 @@ class GestureTestCase(AVGTestCase):
 
         # Test with constraint.
         def onPossible(event):
-            self.__flags.add(EVENT_POSSIBLE)
+            self.__addEventFlag(EVENT_POSSIBLE)
 
         def onFail(event):
-            self.__flags.add(EVENT_FAILED)
+            self.__addEventFlag(EVENT_FAILED)
 
         def onVertMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (0,40))
-            self.__flags.add(EVENT_MOVED)
+            self.__addEventFlag(EVENT_MOVED)
 
         for self.friction in (-1, 100):
             root = self.loadEmptyScene()
