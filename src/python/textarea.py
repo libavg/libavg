@@ -581,33 +581,44 @@ class TextArea(avg.DivNode):
             self.__cursorContainer.opacity = 1
 
     def __moveHandler(self, event, offset):
+        self.__addLoupe()
         eventPos = self.getRelPos(event.pos)
-        self.__cursorPosition = 0
-        length = len(self.__data)
         if ( (eventPos[0] >= -1 and eventPos[0] <= self.size[0]) and
                 (eventPos[1] >= 0 and eventPos[1] <= self.size[1]) ):
-            if length > 0:      
-                for i in range(length):
-                    charPos = self.__textNode.getGlyphPos(i)
-                    if (self.__textNode.getGlyphPos(i)[0]<=eventPos[0]and
-                            (eventPos[1]<=charPos[1]+self.__textNode.fontsize and
-                            eventPos[1] >=charPos[1])):
-                        self.__cursorPosition = i
-                if eventPos[0] > self.__textNode.getGlyphPos(length-1)[0]:
-                    self.__cursorPosition += 1
-                self.__update()
-            self.__updateLoupe(event)
+            self.__updateCursorPosition(event)
         else:
             self.__upHandler(None,None)
 
     def __detectedHandler(self, event):
-        self.__ID = g_Player.setOnFrameHandler(self.__updateZoomImage)
-        self.__updateLoupe(event)
-        self.appendChild(self.__loupe)
+        self.__updateCursorPosition(event)
+        self.__timerID = g_Player.setTimeout(1000, self.__addLoupe)   
+
+    def __addLoupe(self):
+        if not self.__loupe.getParent():
+            self.__loupeID = g_Player.setOnFrameHandler(self.__updateZoomImage)
+            self.appendChild(self.__loupe)
 
     def __upHandler (self, event, offset):
-        self.__loupe.unlink()
-        g_Player.clearInterval(self.__ID)
+        g_Player.clearInterval(self.__timerID)
+        if self.__loupe.getParent():
+            self.__loupe.unlink()   
+            g_Player.clearInterval(self.__loupeID)
+
+    def __updateCursorPosition(self, event):
+        eventPos = self.getRelPos(event.pos)
+        self.__cursorPosition = 0
+        length = len(self.__data)
+        if length > 0:      
+            for i in range(length):
+                charPos = self.__textNode.getGlyphPos(i)
+                if (self.__textNode.getGlyphPos(i)[0]<=eventPos[0]and
+                        (eventPos[1]<=charPos[1]+self.__textNode.fontsize and
+                        eventPos[1] >=charPos[1])):
+                    self.__cursorPosition = i
+            if eventPos[0] > self.__textNode.getGlyphPos(length-1)[0]:
+                self.__cursorPosition += 1
+            self.__update()
+        self.__updateLoupe(event)
 
     def __updateLoupe(self, event):
 #        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0  # setzt es mittig ueber das orginal | nur scrolen fehlt noch
