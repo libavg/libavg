@@ -305,7 +305,7 @@ class TextArea(avg.DivNode):
                 self.__loupe.elementoutlinecolor = "918e8e"
                 avg.RectNode(fillopacity=1, fillcolor="f5f5f5", color="ffffff",
                         size=self.__loupe.size, parent=self.__loupe)
-            self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1])  
+            self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1]+10)  
             self.__zoomedImage = avg.ImageNode(parent=self.__loupe)   
             self.__loupe.unlink()
             
