@@ -626,9 +626,8 @@ class TextArea(avg.DivNode):
         # add zoomfactor position
 #        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 -\
 #                ( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) 
-        # add scrolling
+        # add scrolling | without zoom positioning
         self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 - \
-                ( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) - \
                 self.getRelPos(event.pos)* self.__loupeZoomFactor
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 
