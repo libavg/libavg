@@ -34,7 +34,7 @@ g_Logger = avg.Logger.get()
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 class Key(avg.DivNode):
-    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback,
+    def __init__(self, keyDef, ovlHref, selHref, onDownCallback, onUpCallback,
             onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
             **kwargs):
         kwargs['pos'] = keyDef[3]
@@ -46,7 +46,7 @@ class Key(avg.DivNode):
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
         self.__feedback = keyDef[1]
         if ovlHref:
-            self.__createImage(ovlHref)
+            self.__createImage(ovlHref, selHref)
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
@@ -62,31 +62,48 @@ class Key(avg.DivNode):
             self.__image.opacity = 0.0
             self.__stickyIsDown = False
 
-    def __createImage(self, ovlHref):
+    def __createImage(self, ovlHref, selHref):
         if os.path.isabs(ovlHref):
-            effectiveHref = ovlHref
+            effectiveOvlHref = ovlHref
         else:
-            effectiveHref = self.getParent().getEffectiveMediaDir() + ovlHref
-        canvas = g_Player.loadCanvasString(
+            effectiveOvlHref = self.getParent().getEffectiveMediaDir() + ovlHref
+        canvasOvl = g_Player.loadCanvasString(
         '''
-            <canvas id="offscreen" size="%s">
+            <canvas id="offscreenOvl" size="%s">
                 <image href="%s" pos="%s"/>
             </canvas>
         '''
         %(str(self.size), 
-          effectiveHref,
+          effectiveOvlHref,
           str(-self.pos)))
-        canvas.render()
-        self.__image.setBitmap(canvas.screenshot())
+
+        canvasOvl.render()
+        self.__image.setBitmap(canvasOvl.screenshot())
         self.__feedbackImage = avg.ImageNode(opacity=0.0)
-        if self.__feedback:
-            self.__feedbackImage.setBitmap(canvas.screenshot())
-            self.__feedbackImage.size = self.__feedbackImage.size + \
-                    self.__feedbackImage.size * FEEDBACK_ZOOM_FACTOR
+        if selHref and self.__feedback:
+            if os.path.isabs(selHref):
+                effectiveSelHref = selHref
+            else:
+                effectiveSelHref = self.getParent().getEffectiveMediaDir() + selHref
+            canvasSel = g_Player.loadCanvasString(
+            '''
+                <canvas id="offscreenSel" size="%s">
+                    <image href="%s" pos="%s"/>
+                </canvas>
+            '''
+            %(str(self.size * 2), 
+              effectiveSelHref,
+              str(-self.pos * 2)))
+
+            canvasSel.render()
+            self.__feedbackImage.setBitmap(canvasSel.screenshot())
             self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
                     self.__feedbackImage.size.y)
             self.appendChild(self.__feedbackImage)
-        g_Player.deleteCanvas('offscreen')
+            g_Player.deleteCanvas('offscreenSel')
+        else:
+            self.__feedback = False
+        g_Player.deleteCanvas('offscreenOvl')
 
     def onDown(self, event):
         self.__feedbackImage.opacity = 0.95
@@ -148,7 +165,7 @@ class Key(avg.DivNode):
 class Keyboard(avg.DivNode):
 
     def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
-            stickyShift=False, textarea=None, parent=None, **kwargs):
+            stickyShift=False, selHref=None, textarea=None, parent=None, **kwargs):
         # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(**kwargs)
         if parent:
@@ -178,13 +195,14 @@ class Keyboard(avg.DivNode):
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                key = Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
+                key = Key(kd, ovlHref, selHref, self.__onCharKeyDown, self.__onCharKeyUp,
                         parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
-                key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
-                        self.__onCommandKeyUp, sticky=sticky, parent=self)
+                key = Key(kd, ovlHref, selHref, self.__onCommandKeyDown,
+                        self.__onCommandKeyUp, self.__onCommandKeyUp, sticky=sticky,
+                        parent=self)
             self.__keys.append(key)
         if textarea != None:
             self.__textarea = textarea
