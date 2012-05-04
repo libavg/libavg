@@ -120,6 +120,9 @@ class Key(avg.DivNode):
             self.__cursorID = None
             self.__image.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
+            if self.__repeate:
+                g_Player.clearInterval(self.__repeateTimerID)
+                g_Player.clearInterval(self.__repeateID)
 
     def __pseudoRepeate(self, event):
         if self.__sticky or (not self.__cursorID == event.cursorid):
@@ -221,7 +224,7 @@ class Keyboard(avg.DivNode):
                             curPos, keySize])
                 curPos = (curPos[0]+offset, curPos[1])
         else:
-            for feedbackCode, keyCode, shiftKeyCode in
+            for feedbackCode, keyCode, shiftKeyCode in \
                     zip(feedbackStr, keyStr, shiftKeyStr):
                 if feedbackCode == 'f':
                     keyDefs.append([(keyCode, shiftKeyCode), False, False, curPos,
