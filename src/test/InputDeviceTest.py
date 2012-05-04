@@ -105,8 +105,8 @@ class EventTestCase(AVGTestCase):
         self.customInputDevice = CustomInputDevice()
         Player.addInputDevice(self.customInputDevice)
     
-        self.start(( 
-                 lambda: self.customInputDevice.feedEvent(
+        self.start(False,
+                (lambda: self.customInputDevice.feedEvent(
                          avg.Event(avg.CURSORDOWN, avg.NONE)),
                  lambda: self.assert_(checkAndResetResults()),
    
@@ -121,7 +121,7 @@ class EventTestCase(AVGTestCase):
                  lambda: self.customInputDevice.feedEvent(
                          avg.TouchEvent(300, avg.CURSORDOWN, (5, 5), avg.TOUCH, (10,10))),
                  lambda: self.assert_(checkAndResetResults())
-        ))
+                ))
     
     def testAnonymousInputDevice(self):
         root = self.loadEmptyScene()
@@ -142,11 +142,11 @@ class EventTestCase(AVGTestCase):
         root.setEventHandler(avg.CUSTOMEVENT, avg.CUSTOM, eventHandler)
         Player.addInputDevice(AnonymousInputDevice())
     
-        self.start(( 
-                 lambda: None,
+        self.start(False,
+                (lambda: None,
                  lambda: None,
                  lambda: self.assert_(checkAndResetResults())
-        ))
+                ))
 
     def testInputDeviceEventReceiverNode(self):
         root = self.loadEmptyScene()
@@ -159,8 +159,8 @@ class EventTestCase(AVGTestCase):
     
         handlerTester = NodeHandlerTester(self, divNode)
 
-        self.start(( 
-                 lambda: self.customInputDevice.feedEvent(
+        self.start(False,
+                (lambda: self.customInputDevice.feedEvent(
                         avg.MouseEvent(avg.CURSORDOWN, True, False, False, (10, 10), 1)),
                  lambda: handlerTester.assertState(
                         down=True, up=False, over=True, out=False, move=False),
