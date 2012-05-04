@@ -606,17 +606,37 @@ class TextArea(avg.DivNode):
 
     def __updateCursorPosition(self, event):
         eventPos = self.getRelPos(event.pos)
-        self.__cursorPosition = 0
         length = len(self.__data)
-        if length > 0:      
-            for i in range(length):
-                charPos = self.__textNode.getGlyphPos(i)
-                if (self.__textNode.getGlyphPos(i)[0]<=eventPos[0]and
-                        (eventPos[1]<=charPos[1]+self.__textNode.fontsize and
-                        eventPos[1] >=charPos[1])):
-                    self.__cursorPosition = i
-            if eventPos[0] > self.__textNode.getGlyphPos(length-1)[0]:
-                self.__cursorPosition += 1
+        if length > 0:
+            index = self.__textNode.getCharIndexFromPos(eventPos) # click on letter
+            if index == None: # click behind line
+                realLines = self.__textNode.getNumLines() - 1
+                for line in range(realLines + 1):
+                    curLine = self.__textNode.getLineExtents(line)
+                    minMaxHight = (curLine[1] * (line),curLine[1] * (line + 1) )
+                    if eventPos[1] >= minMaxHight[0] and eventPos[1] <= minMaxHight[1]:
+                        if curLine[0] != 0: # line with letters
+                            targetLine = (curLine[0] - 1, curLine[1] * line)
+                            index = self.__textNode.getCharIndexFromPos(
+                                    (targetLine[0],targetLine[1]) ) + 1
+                        else: # empty line
+                            count = 0
+                            for char in range(length-1):    
+                                if count < line:
+                                    if self.__textNode.text[char] == "\n":
+                                        count += 1
+                                else:
+                                    index = char
+                                    break
+                        break
+            if index == None: # click under text
+                curLine = self.__textNode.getLineExtents(realLines)
+                curLine *= realLines
+                index = self.__textNode.getCharIndexFromPos( (eventPos[0],curLine[1]) )
+            if index == None:
+                index = length
+            self.__cursorPosition = index
+
             self.__update()
         self.__updateLoupe(event)
 
