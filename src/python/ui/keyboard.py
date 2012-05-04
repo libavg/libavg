@@ -37,8 +37,8 @@ class Key(avg.DivNode):
     def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback,
             onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
             **kwargs):
-        kwargs['pos'] = keyDef[2]
-        kwargs['size'] = keyDef[3]
+        kwargs['pos'] = keyDef[3]
+        kwargs['size'] = keyDef[4]
         super(Key, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
@@ -52,6 +52,7 @@ class Key(avg.DivNode):
         self.__onUpCallback = onUpCallback
         self.__onOutCallback = onOutCallback
         self.__sticky = sticky
+        self.__repeate = keyDef[2]
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
@@ -92,6 +93,10 @@ class Key(avg.DivNode):
         if self.__cursorID:
             return
         self.__pseudoDown(event)
+        if self.__repeate:
+            self.__repeateID = 0
+            self.__repeateTimerID = g_Player.setTimeout(500,
+                    lambda event=event: self.__pseudoRepeate(event))
 
     def onUp(self, event):
         self.__feedbackImage.opacity = 0.0
@@ -103,7 +108,9 @@ class Key(avg.DivNode):
                 self.__pseudoUp(event)
         else:
             self.__pseudoUp(event)
-        
+            if self.__repeate:
+                g_Player.clearInterval(self.__repeateTimerID)
+                g_Player.clearInterval(self.__repeateID)
 
     def onOut(self, event):
         self.__feedbackImage.opacity = 0.0
@@ -113,6 +120,12 @@ class Key(avg.DivNode):
             self.__cursorID = None
             self.__image.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
+
+    def __pseudoRepeate(self, event):
+        if self.__sticky or (not self.__cursorID == event.cursorid):
+            return
+        self.__repeateID = g_Player.setInterval(100,
+                lambda event=event: self.__onUpCallback(event, self.__keyCode))
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
@@ -201,18 +214,21 @@ class Keyboard(avg.DivNode):
             for feedbackCode, keyCode, shiftKeyCode, altGrKeyCode in (
                     zip(feedbackStr, keyStr, shiftKeyStr, altGrKeyStr)):
                 if feedbackCode == 'f':
-                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), False,
+                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), False, False,
                             curPos, keySize])
                 else:
-                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), True,
+                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), True, False,
                             curPos, keySize])
                 curPos = (curPos[0]+offset, curPos[1])
         else:
-            for feedbackCode, keyCode, shiftKeyCode in zip(feedbackStr, keyStr, shiftKeyStr):
+            for feedbackCode, keyCode, shiftKeyCode in
+                    zip(feedbackStr, keyStr, shiftKeyStr):
                 if feedbackCode == 'f':
-                    keyDefs.append([(keyCode, shiftKeyCode), False, curPos, keySize])
+                    keyDefs.append([(keyCode, shiftKeyCode), False, False, curPos,
+                            keySize])
                 else:
-                    keyDefs.append([(keyCode, shiftKeyCode), True, curPos, keySize])
+                    keyDefs.append([(keyCode, shiftKeyCode), True, False, curPos,
+                            keySize])
                 curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 
