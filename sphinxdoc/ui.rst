@@ -174,7 +174,7 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, textarea])
+    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, selHref, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
@@ -196,11 +196,11 @@ functionality
 
             List of key definitions. Keys can be either character keys:
 
-                [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
+                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, <pos>, <size>]
 
             or command keys:
 
-                [<keycode>, <pos>, <size>]
+                [<keycode>, <feedback>, <repeat>, <pos>, <size>]
 
             For character keys, the shift and altgr keycodes are optional. To define
             entire rows of evenly-spaced keys, use :py:meth:`makeRowKeyDefs`.
@@ -223,6 +223,11 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
+        :param string selHref:
+
+            Filename of an image that contains the keyboard feedback by pressed keys.
+            If this parameter not set the feedback funktion is turned off.
+
         :param textarea textarea:
 
             Connect the keyboard upHandler instant to the textarea input.
@@ -242,7 +247,7 @@ functionality
         .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
 
             Creates key definitions for a row of uniform keys. Useful for creating the 
-            keyDefs parameter of the Keyboard constructor.
+            keyDefs parameter of the Keyboard constructor. All the keys get no repeat functionality.
 
             :param avg.Point2D startPos: Top left position of the row.
 
