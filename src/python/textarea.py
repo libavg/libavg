@@ -48,6 +48,8 @@ g_LastKeyRepeated = 0
 g_RepeatDelay = 0.2
 g_CharDelay = 0.1
 
+g_CanvasID = 0
+
 KEYCODE_TAB = 9
 KEYCODE_LINEFEED = 13
 KEYCODE_SHTAB = 25
@@ -243,6 +245,7 @@ class TextArea(avg.DivNode):
         if parent:
             parent.appendChild(self)
         global g_Player
+        global g_CanvasID
         g_Player = avg.Player.get()
         self.__focusContext = focusContext
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
@@ -261,10 +264,12 @@ class TextArea(avg.DivNode):
             self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
 
         if moveCoursorOnTouch:
-            self.__canvas = g_Player.createCanvas(id="textAreaCanvas", size=self.size)
+            self.__canvas = g_Player.createCanvas(id="textAreaCanvas_" + str(g_CanvasID),
+                    size=self.size)
             self.__canvasRoot = self.__canvas.getRootNode()
-            avg.ImageNode(parent=self, href="canvas:textAreaCanvas")
+            avg.ImageNode(parent=self, href="canvas:textAreaCanvas_" + str(g_CanvasID))
             self.__trueParent = self.__canvasRoot
+            g_CanvasID += 1
 
         self.__trueParent.appendChild(textNode)
         
