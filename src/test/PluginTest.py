@@ -57,13 +57,13 @@ class PluginTestCase(AVGTestCase):
             self.assertEqual(mynode.fillcolor, "0f3f7f")
 
         root = self.loadEmptyScene()
-        self.start(( 
-            loadPlugin,
-            usePlugin1,
-            lambda: self.compareImage("testplugin1", False),
-            usePlugin2,
-            lambda: self.compareImage("testplugin2", False),
-        ))
+        self.start(False,
+                (loadPlugin,
+                 usePlugin1,
+                 lambda: self.compareImage("testplugin1"),
+                 usePlugin2,
+                 lambda: self.compareImage("testplugin2"),
+                ))
 
 def pluginTestSuite (tests):
     availableTests = ("testColorNodePlugin",)
