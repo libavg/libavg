@@ -269,7 +269,6 @@ class TextArea(avg.DivNode):
             self.__canvasRoot = self.__canvas.getRootNode()
             avg.ImageNode(parent=self, href="canvas:textAreaCanvas_" + str(g_CanvasID))
             self.__trueParent = self.__canvasRoot
-            g_CanvasID += 1
 
         self.__trueParent.appendChild(textNode)
         
@@ -310,9 +309,13 @@ class TextArea(avg.DivNode):
                 self.__loupe.elementoutlinecolor = "918e8e"
                 avg.RectNode(fillopacity=1, fillcolor="f5f5f5", color="ffffff",
                         size=self.__loupe.size, parent=self.__loupe)
-            self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1]+10)  
-            self.__zoomedImage = avg.ImageNode(parent=self.__loupe)   
+            self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1]+10)
             self.__loupe.unlink()
+            self.__zoomedImage = avg.ImageNode(parent=self.__loupe,
+                    href="canvas:textAreaCanvas_" + str(g_CanvasID))
+            self.__zoomedImage.size = self.__zoomedImage.size + self.__zoomedImage.size * \
+                    self.__loupeZoomFactor
+            g_CanvasID += 1
             
     def clearText(self):
         """
@@ -600,14 +603,12 @@ class TextArea(avg.DivNode):
 
     def __addLoupe(self):
         if not self.__loupe.getParent():
-            self.__loupeID = g_Player.setOnFrameHandler(self.__updateZoomImage)
             self.appendChild(self.__loupe)
 
     def __upHandler (self, event, offset):
         g_Player.clearInterval(self.__timerID)
         if self.__loupe.getParent():
-            self.__loupe.unlink()   
-            g_Player.clearInterval(self.__loupeID)
+            self.__loupe.unlink()
 
     def __updateCursorPosition(self, event):
         eventPos = self.getRelPos(event.pos)
@@ -655,12 +656,6 @@ class TextArea(avg.DivNode):
         self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 - \
                 self.getRelPos(event.pos)* self.__loupeZoomFactor
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
-
-    def __updateZoomImage(self):
-        self.__zoomedImage.size = (0,0)
-        self.__zoomedImage.setBitmap(self.__canvas.screenshot())
-        self.__zoomedImage.size = self.__zoomedImage.size + self.__zoomedImage.size * \
-                self.__loupeZoomFactor
 ##################################
 # MODULE FUNCTIONS
 
