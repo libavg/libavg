@@ -105,6 +105,20 @@ class UITestCase(AVGTestCase):
                  lambda: self.assert_(self.__char == 1 and self.__cmd is None),
                  lambda: self._sendTouchEvent(1, avg.CURSORUP, 100, 80),
                  lambda: self.compareImage("testUIKeyboard"),
+                 # test drag over keys 
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 60, 80),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDown11"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 60, 50),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboard"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 100, 80),
+                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
+                 lambda: self.compareImage("testUIKeyboardDownA2S1"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 60, 80),
+                 lambda: self.compareImage("testUIKeyboardDown11"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 60, 80),
+                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
                 ))
 
     def testTextArea(self):
