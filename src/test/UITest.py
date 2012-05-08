@@ -117,7 +117,7 @@ class UITestCase(AVGTestCase):
 
             self.ta2 = textarea.TextArea(pos=(2,100), size=(156, 18), parent=root)
             self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=False, color='FFFFFF', cursorColor='FF0000', cursorWidth=2, flashingCursor=False)
+                fontsize=14, multiline=False, color='4b94ef', cursorColor='FF0000', flashingCursor=False)
             self.ta2.setText('sit dolor')
             self.ta2.showCursor(False)
             self.ta2.setFocus(True) # TODO: REMOVE
@@ -176,12 +176,14 @@ class UITestCase(AVGTestCase):
                  lambda: self.delay(200),
                  lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 30, 100),
                  lambda: self._sendTouchEvent(1, avg.CURSORUP, 30, 100),
-                 lambda: self.delay(10),
                  lambda: self.compareImage("testTextArea3"),
                  lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 130, 100),
                  lambda: self.delay(1100),
                  lambda: self.compareImage("testTextArea4"),
-                 lambda: self._sendTouchEvent(2, avg.CURSORUP, 130, 100),
+                 lambda: self._sendTouchEvent(2, avg.CURSORMOTION, 30, 100),
+                 lambda: self.compareImage("testTextArea5"),
+                 lambda: self._sendTouchEvent(2, avg.CURSORUP, 30, 100),
+                 lambda: self.compareImage("testTextArea3"),
                 ))
         Player.setFakeFPS(-1)
 
