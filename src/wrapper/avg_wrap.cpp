@@ -126,6 +126,13 @@ BOOST_PYTHON_MODULE(avg)
         .def("dumpObjects", &TestHelper::dumpObjects)
     ;
 
+    enum_<GLConfig::ShaderUsage>("ShaderUsage")
+        .value("SHADERUSAGE_FULL", GLConfig::FULL)
+        .value("SHADERUSAGE_MINIMAL", GLConfig::MINIMAL)
+        .value("SHADERUSAGE_AUTO", GLConfig::AUTO)
+        .export_values()
+    ;
+
     class_<Player>("Player") 
         .def("get", &Player::get, 
                 return_value_policy<reference_existing_object>())

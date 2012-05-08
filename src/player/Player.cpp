@@ -228,12 +228,13 @@ void Player::setWindowPos(int x, int y)
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
-        int multiSampleSamples)
+        int multiSampleSamples, GLConfig::ShaderUsage shaderUsage)
 {
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
+    m_GLConfig.m_ShaderUsage = shaderUsage;
 }
 
 void Player::setMultiSampleSamples(int multiSampleSamples)
