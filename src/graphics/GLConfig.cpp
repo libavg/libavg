@@ -33,8 +33,8 @@ GLConfig::GLConfig()
 {
 }
 
-GLConfig::GLConfig(bool bUsePOTTextures, bool bUseShaders, bool bUsePixelBuffers,
-            int multiSampleSamples, ShaderUsage shaderUsage)
+GLConfig::GLConfig(bool bUsePOTTextures, bool bUsePixelBuffers, int multiSampleSamples, 
+        ShaderUsage shaderUsage)
     : m_bUsePOTTextures(bUsePOTTextures),
       m_bUsePixelBuffers(bUsePixelBuffers),
       m_MultiSampleSamples(multiSampleSamples),
