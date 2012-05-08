@@ -74,9 +74,9 @@ class GestureTestCase(AVGTestCase):
                  self.__genMouseEventFrames(avg.CURSORMOTION, 31, 30, []),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-big move-up: fail
-                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
-                 self.__genMouseEventFrames(avg.CURSORMOTION, 150, 50, [EVENT_FAILED]),
-                 self.__genMouseEventFrames(avg.CURSORUP, 1, 1, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 80, 80, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  # Down-delay: fail
                  self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
                  lambda: self.delay(1000),
@@ -373,7 +373,12 @@ class GestureTestCase(AVGTestCase):
             self.__resetEventState()
 
         Player.setFakeFPS(100)
+        print
         for self.friction in (-1, 100):
+            if self.friction == -1:
+                print "  Simple drag, no inertia"
+            else:
+                print "  Simple drag, inertia"
             root = self.loadEmptyScene()
             image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, 
@@ -405,6 +410,10 @@ class GestureTestCase(AVGTestCase):
             self.__addEventFlag(EVENT_MOVED)
 
         for self.friction in (-1, 100):
+            if self.friction == -1:
+                print "  Drag with constraint, no inertia"
+            else:
+                print "  Drag with constraint, inertia"
             root = self.loadEmptyScene()
             image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, 
@@ -466,6 +475,7 @@ class GestureTestCase(AVGTestCase):
                     ))
 
         # Test second down during inertia.
+        print "  Down during inertia"
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         dragRecognizer = ui.DragRecognizer(image, 
@@ -484,6 +494,7 @@ class GestureTestCase(AVGTestCase):
                 ))
 
         # Test second down during inertia, constrained recognizer
+        print "  Down during inertia, constrained recognizer"
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         dragRecognizer = ui.DragRecognizer(image, 

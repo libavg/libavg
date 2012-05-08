@@ -97,6 +97,7 @@ void safeSetAttribute(SDL_GLattr attr, int value)
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
+      m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
       m_bMouseOverApp(true),
@@ -290,6 +291,7 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
         m_pGLContext = GLContextPtr();
+        m_PPMM = 0.f;
     }
 }
 
@@ -328,15 +330,15 @@ int SDLDisplayEngine::getKeyModifierState() const
 
 void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
-    if (dotsPerMM != 0) {
+    if (m_ScreenResolution.x == 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+    }
+    if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
     }
 
     if (m_PPMM == 0) {
-        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
 #ifdef WIN32
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
         m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;

@@ -183,8 +183,6 @@ class TapRecognizer(Recognizer):
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
 
-        self.__maxDistance = (
-                MAX_TAP_DIST*g_Player.getPixelsPerMM())
         super(TapRecognizer, self).__init__(node, False, eventSource, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler)
 
@@ -194,12 +192,12 @@ class TapRecognizer(Recognizer):
 
     def _handleMove(self, event):
         if self.getState() != "IDLE": 
-            if event.contact.distancefromstart > self.__maxDistance:
+            if event.contact.distancefromstart > MAX_TAP_DIST*g_Player.getPixelsPerMM():
                 self._setFail(event)
 
     def _handleUp(self, event):
         if self.getState() == "POSSIBLE":
-            if event.contact.distancefromstart > self.__maxDistance:
+            if event.contact.distancefromstart > MAX_TAP_DIST*g_Player.getPixelsPerMM():
                 self._setFail(event)
             else:
                 self._setDetected(event)
@@ -226,7 +224,6 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN2", ("IDLE",))
         #self.__stateMachine.traceChanges(True)
         self.__frameHandlerID = None
-        self.__maxDistance = MAX_TAP_DIST*g_Player.getPixelsPerMM()
         super(DoubletapRecognizer, self).__init__(node, False, eventSource, 1, 
                 initialEvent, possibleHandler, failHandler, detectedHandler)
 
@@ -248,7 +245,8 @@ class DoubletapRecognizer(Recognizer):
             self.__startPos = event.pos
             self._setPossible(event)
         elif self.__stateMachine.state == "UP1":
-            if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
+            if ((event.pos - self.__startPos).getNorm() > 
+                    MAX_TAP_DIST*g_Player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
             else:
@@ -258,7 +256,8 @@ class DoubletapRecognizer(Recognizer):
 
     def _handleMove(self, event):
         if self.__stateMachine.state != "IDLE": 
-            if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
+            if ((event.pos - self.__startPos).getNorm() > 
+                    MAX_TAP_DIST*g_Player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
 
@@ -267,7 +266,8 @@ class DoubletapRecognizer(Recognizer):
             self.__startTime = g_Player.getFrameTime()
             self.__stateMachine.changeState("UP1")
         elif self.__stateMachine.state == "DOWN2":
-            if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
+            if ((event.pos - self.__startPos).getNorm() >
+                    MAX_TAP_DIST*g_Player.getPixelsPerMM()):
                 self._setFail(event)
             else:
                 self._setDetected(event)
@@ -294,8 +294,6 @@ class HoldRecognizer(Recognizer):
             detectedHandler=None, stopHandler=None):
         self.__delay = delay
 
-        self.__maxDistance = (
-                MAX_TAP_DIST*g_Player.getPixelsPerMM())
         self.__lastEvent = None
         super(HoldRecognizer, self).__init__(node, True, eventSource, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler, stopHandler)
@@ -308,7 +306,7 @@ class HoldRecognizer(Recognizer):
     def _handleMove(self, event):
         self.__lastEvent = event
         if self.getState() == "POSSIBLE": 
-            if event.contact.distancefromstart > self.__maxDistance:
+            if event.contact.distancefromstart > MAX_TAP_DIST*g_Player.getPixelsPerMM():
                 self._setFail(event)
 
     def _handleUp(self, event):
