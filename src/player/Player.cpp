@@ -1172,6 +1172,8 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_pDisplayEngine->init(m_DP, m_GLConfig);
+    AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
+            << m_pDisplayEngine->getPixelsPerMM());
     GLContext::getCurrent()->enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
