@@ -275,6 +275,7 @@ glm::vec2 Player::getPhysicalScreenDimensions()
 
 void Player::assumePixelsPerMM(float ppmm)
 {
+    m_DP.m_DotsPerMM = ppmm;
     safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
 }
 

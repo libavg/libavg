@@ -291,7 +291,6 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
         m_pGLContext = GLContextPtr();
-        m_PPMM = 0.f;
     }
 }
 
