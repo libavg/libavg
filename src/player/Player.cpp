@@ -275,6 +275,7 @@ glm::vec2 Player::getPhysicalScreenDimensions()
 
 void Player::assumePixelsPerMM(float ppmm)
 {
+    m_DP.m_DotsPerMM = ppmm;
     safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
 }
 
@@ -1182,6 +1183,8 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_pDisplayEngine->init(m_DP, m_GLConfig);
+    AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
+            << m_pDisplayEngine->getPixelsPerMM());
     GLContext::enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);

@@ -48,21 +48,21 @@ class PythonTestCase(AVGTestCase):
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
-        self.start((
-                 startAnim,
-                 lambda: self.compareImage(imgBaseName+"1", False),
+        self.start(False,
+                (startAnim,
+                 lambda: self.compareImage(imgBaseName+"1"),
                  lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
                  None,
                  None,
                  lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(self.__anim.isDone()),
-                 lambda: self.compareImage(imgBaseName+"2", False),
+                 lambda: self.compareImage(imgBaseName+"2"),
                  lambda: self.assertEqual(Player.getElementByID("test").x, 100),
                  startAnim,
-                 lambda: self.compareImage(imgBaseName+"1", False),
+                 lambda: self.compareImage(imgBaseName+"1"),
                  abortAnim,
                  lambda: self.assertEqual(anim.getNumRunningAnims(), 0),
-                 lambda: self.compareImage(imgBaseName+"3", False),
+                 lambda: self.compareImage(imgBaseName+"3"),
                  lambda: self.assert_(self.__anim.isDone()),
                  None,
                  lambda: self.assert_(not(self.__onStopCalled)),
@@ -94,9 +94,9 @@ class PythonTestCase(AVGTestCase):
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
-        self.start((
-                 startAnim,
-                 lambda: self.compareImage("testLinearAnimZeroDuration1", False),
+        self.start(False,
+                (startAnim,
+                 lambda: self.compareImage("testLinearAnimZeroDuration1"),
                  lambda: self.assertEqual(anim.getNumRunningAnims(), 0),
                  lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(self.__anim.isDone())
@@ -118,13 +118,13 @@ class PythonTestCase(AVGTestCase):
     def testContinuousAnim(self):
         def onStart():
             Player.setTimeout(10,startAnim)
-            Player.setTimeout(100,lambda:self.compareImage("testContAnim1", False))
+            Player.setTimeout(100,lambda:self.compareImage("testContAnim1"))
             Player.setTimeout(200,startAnim2)
-            Player.setTimeout(400,lambda:self.compareImage("testContAnim2", False))
+            Player.setTimeout(400,lambda:self.compareImage("testContAnim2"))
             Player.setTimeout(450,startAnim3)
-            Player.setTimeout(700,lambda:self.compareImage("testContAnim3", False))
+            Player.setTimeout(700,lambda:self.compareImage("testContAnim3"))
             Player.setTimeout(800,stopAnim)
-            Player.setTimeout(900,lambda:self.compareImage("testContAnim4", False))
+            Player.setTimeout(900,lambda:self.compareImage("testContAnim4"))
             Player.setTimeout(1000,Player.stop)
 
         def startAnim():
@@ -168,8 +168,8 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(10)
         self.__endCalled = False
         self.initDefaultImageScene()
-        self.start((
-                 startAnim, 
+        self.start(False,
+                (startAnim, 
                  lambda: self.assert_(not(self.anim.isDone())),
                  None,
                  None,
@@ -193,20 +193,20 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(10)
         self.__state2CallbackCalled = False
         self.initDefaultImageScene()
-        self.start((
-                 makeAnim,
-                 lambda: self.compareImage("testStateAnim1", False),
+        self.start(False,
+                (makeAnim,
+                 lambda: self.compareImage("testStateAnim1"),
                  lambda: self.anim.setState("STATE1"),
                  None,
-                 lambda: self.compareImage("testStateAnim2", False),
+                 lambda: self.compareImage("testStateAnim2"),
                  lambda: self.anim.getState() == "STATE2",
-                 lambda: self.compareImage("testStateAnim3", False),
+                 lambda: self.compareImage("testStateAnim3"),
                  lambda: self.assert_(self.__state2CallbackCalled),
                  lambda: self.anim.getState() == "STATE3",
-                 lambda: self.compareImage("testStateAnim4", False),
+                 lambda: self.compareImage("testStateAnim4"),
                  lambda: self.anim.setState("STATE1"),
                  lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
-                 lambda: self.compareImage("testStateAnim5", False)
+                 lambda: self.compareImage("testStateAnim5")
                 ))
 
     def testParallelAnim(self):
@@ -227,14 +227,14 @@ class PythonTestCase(AVGTestCase):
         self.__endCalled = False
         Player.setFakeFPS(10)
         self.initDefaultImageScene()
-        self.start((
-                 startAnim,
+        self.start(False,
+                (startAnim,
                  lambda: self.assertEqual(anim.getNumRunningAnims(), 2),
                  lambda: self.assert_(not(self.anim.isDone())),
-                 lambda: self.compareImage("testParallelAnims1", False),
+                 lambda: self.compareImage("testParallelAnims1"),
                  None,
                  None,
-                 lambda: self.compareImage("testParallelAnims2", False),
+                 lambda: self.compareImage("testParallelAnims2"),
                  lambda: self.assert_(self.anim.isDone()),
                  lambda: self.assert_(self.__endCalled)
                 ))
@@ -263,18 +263,18 @@ class PythonTestCase(AVGTestCase):
         dragger = draggable.Draggable(Player.getElementByID("test1"),
                 onDragStart, onDragEnd)
         dragger.enable()
-        self.start((
-                 startDrag,
+        self.start(False, 
+                (startDrag,
                  lambda: self.assert_(self.__dragStartCalled),
                  move,
-                 lambda: self.compareImage("testDraggable1", False),
+                 lambda: self.compareImage("testDraggable1"),
                  stop,
                  lambda: self.assert_(self.__dragEndCalled),
-                 lambda: self.compareImage("testDraggable2", False),
+                 lambda: self.compareImage("testDraggable2"),
                  dragger.disable,
                  startDrag,
                  move,
-                 lambda: self.compareImage("testDraggable2", False)
+                 lambda: self.compareImage("testDraggable2")
                 ))
 
     def testRoundedRect(self):
@@ -300,18 +300,18 @@ class PythonTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.rect = geom.RoundedRect(parent=root, pos=(2.5,2.5), 
                 size=(64,64), radius=5, color="FF0000")
-        self.start((
-                 lambda: self.compareImage("testRoundedRect1", True),
+        self.start(False,
+                (lambda: self.compareImage("testRoundedRect1"),
                  setPos,
-                 lambda: self.compareImage("testRoundedRect2", True),
+                 lambda: self.compareImage("testRoundedRect2"),
                  setSize,
-                 lambda: self.compareImage("testRoundedRect3", True),
+                 lambda: self.compareImage("testRoundedRect3"),
                  lambda: setRadius(10),
-                 lambda: self.compareImage("testRoundedRect4", True),
+                 lambda: self.compareImage("testRoundedRect4"),
                  setFill,
-                 lambda: self.compareImage("testRoundedRect5", True),
+                 lambda: self.compareImage("testRoundedRect5"),
                  createDegenRect,
-                 lambda: self.compareImage("testRoundedRect6", True),
+                 lambda: self.compareImage("testRoundedRect6"),
                 ))
 
     def testPieSlice(self):
@@ -330,12 +330,12 @@ class PythonTestCase(AVGTestCase):
         self.pieSlice = geom.PieSlice(parent=root, pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
        
-        self.start((
-                 lambda: self.compareImage("testPieSlice1", True),
+        self.start(False,
+                (lambda: self.compareImage("testPieSlice1"),
                  changeAttrs,
-                 lambda: self.compareImage("testPieSlice2", True),
+                 lambda: self.compareImage("testPieSlice2"),
                  makeSmall,
-                 lambda: self.compareImage("testPieSlice3", True),
+                 lambda: self.compareImage("testPieSlice3"),
                 ))
 
     def testArc(self):
@@ -349,10 +349,10 @@ class PythonTestCase(AVGTestCase):
         self.arc = geom.Arc(parent=root, pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
        
-        self.start((
-                 lambda: self.compareImage("testArc1", True),
+        self.start(False,
+                (lambda: self.compareImage("testArc1"),
                  changeAttrs,
-                 lambda: self.compareImage("testArc2", True),
+                 lambda: self.compareImage("testArc2"),
                 ))
 
     def btoa(self):

@@ -100,12 +100,13 @@ class StateMachine(object):
     def makeDiagram(self, fName, showMethods=False):
         def writeState(stateName, state):
             label = stateName
-            if state.enterFunc.__name__ is not(None):
-                label += ('<br/><font point-size="10">entry/' + state.enterFunc.__name__
-                        + '</font>')
-            if state.leaveFunc.__name__ is not(None):
-                label += ('<br/><font point-size="10">exit/' + state.leaveFunc.__name__
-                        +   "</font>")
+            if showMethods:
+                if state.enterFunc.__name__ is not(None):
+                    label += ('<br/><font point-size="10">entry/' 
+                            + state.enterFunc.__name__ + '</font>')
+                if state.leaveFunc.__name__ is not(None):
+                    label += ('<br/><font point-size="10">exit/' 
+                            + state.leaveFunc.__name__ +  '</font>')
             dotFile.write('    "'+stateName+'" [label=<'+label+'>];\n')
 
         def writeTransition(origState, destState, func):

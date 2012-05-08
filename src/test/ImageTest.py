@@ -75,14 +75,14 @@ class ImageTestCase(AVGTestCase):
 
         def compareUnicode():
             if self._isCurrentDirWriteable():
-                self.compareImage("testImgHRef3", False)
+                self.compareImage("testImgHRef3")
 
         root = self.loadEmptyScene()
         addNodes(16)
-        self.start((
-                 lambda: self.compareImage("testImgHRef1", False),
+        self.start(False,
+                (lambda: self.compareImage("testImgHRef1"),
                  lambda: addNodes(48),
-                 lambda: self.compareImage("testImgHRef2", False),
+                 lambda: self.compareImage("testImgHRef2"),
                  setUnicodeHref,
                  compareUnicode
                 ))
@@ -114,10 +114,10 @@ class ImageTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         addNodes(16)
-        self.start((
-                 lambda: self.compareImage("testImgPos1", False),
+        self.start(False,
+                (lambda: self.compareImage("testImgPos1"),
                  lambda: addNodes(48),
-                 lambda: self.compareImage("testImgPos2", False),
+                 lambda: self.compareImage("testImgPos2"),
                 ))
 
     def testImageSize(self):
@@ -147,10 +147,10 @@ class ImageTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         addNodes(16)
-        self.start((
-                 lambda: self.compareImage("testImgSize1", False),
+        self.start(False,
+                (lambda: self.compareImage("testImgSize1"),
                  lambda: addNodes(48),
-                 lambda: self.compareImage("testImgSize2", False),
+                 lambda: self.compareImage("testImgSize2"),
                 ))
        
     def testImageWarp(self):
@@ -183,11 +183,11 @@ class ImageTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         testEarlyAccessException()
-        self.start((
-                 lambda: addNode(),
-                 lambda: self.compareImage("testImgWarp1", False),
+        self.start(False,
+                (lambda: addNode(),
+                 lambda: self.compareImage("testImgWarp1"),
                  lambda: changeHref(),
-                 lambda: self.compareImage("testImgWarp2", False),
+                 lambda: self.compareImage("testImgWarp2"),
                 ))
 
     def testBitmap(self):
@@ -249,11 +249,11 @@ class ImageTestCase(AVGTestCase):
         loadFromBitmap((64,0), "rgb24alpha-64x64.png")
         testStringConversion()
         testUnicode()
-        self.start((
-                 lambda: getBitmap(node),
+        self.start(False,
+                (lambda: getBitmap(node),
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
-                 lambda: self.compareImage("testBitmap1", False),
+                 lambda: self.compareImage("testBitmap1"),
                  testGetPixel,
                  lambda: self.assertException(setNullBitmap)
                 ))
@@ -328,10 +328,10 @@ class ImageTestCase(AVGTestCase):
         avg.ImageNode(pos=(48,48), opacity=1, href="rgb24-65x65.png", blendmode="max",
                 parent=root)
 
-        self.start((
-                 lambda: self.compareImage("testBlend1", False),
+        self.start(False,
+                (lambda: self.compareImage("testBlend1"),
                  setBlendMode,
-                 lambda: self.compareImage("testBlend2", False)
+                 lambda: self.compareImage("testBlend2")
                 ))
 
     def testImageMask(self):
@@ -364,15 +364,15 @@ class ImageTestCase(AVGTestCase):
         node = root.getChild(0)
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start((
-                 lambda: createNode((0, 32)),
+        self.start(False,
+                (lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMask1", False),
+                 lambda: self.compareImage("testImgMask1"),
                  changeHRef,
-                 lambda: self.compareImage("testImgMask2", False),
+                 lambda: self.compareImage("testImgMask2"),
                  changeBaseHRef,
-                 lambda: self.compareImage("testImgMask3", False),
+                 lambda: self.compareImage("testImgMask3"),
                  setMaskNotFound
                 ))
 
@@ -382,7 +382,8 @@ class ImageTestCase(AVGTestCase):
         avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
         avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
         avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
-        self.start([lambda: self.compareImage("testImgMaskCanvas", False)])
+        self.start(False,
+                (lambda: self.compareImage("testImgMaskCanvas"),))
 
     def testImageMaskPos(self):
         def createNode(p):
@@ -406,11 +407,11 @@ class ImageTestCase(AVGTestCase):
         createNode((0,0))
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start((
-                 lambda: createNode((0, 32)),
+        self.start(False,
+                (lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskPos", False)
+                 lambda: self.compareImage("testImgMaskPos")
                 ))
 
     def testImageMaskSize(self):
@@ -441,15 +442,15 @@ class ImageTestCase(AVGTestCase):
         node = root.getChild(0)
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start((
-                 lambda: createNode((0, 32)),
+        self.start(False,
+                (lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskSize1", False),
+                 lambda: self.compareImage("testImgMaskSize1"),
                  setPos,
-                 lambda: self.compareImage("testImgMaskSize2", False),
+                 lambda: self.compareImage("testImgMaskSize2"),
                  resetPos,
-                 lambda: self.compareImage("testImgMaskSize3", False)
+                 lambda: self.compareImage("testImgMaskSize3")
                 ))
 
     def testImageMipmap(self):
@@ -457,7 +458,8 @@ class ImageTestCase(AVGTestCase):
         avg.ImageNode(size=(64,64), href="checker.png", parent=root)
         avg.ImageNode(pos=(64,0), size=(64,64), href="checker.png", mipmap=True, 
                 parent=root)
-        self.start([lambda: self.compareImage("testMipmap", False)])
+        self.start(False,
+                (lambda: self.compareImage("testMipmap"),))
 
     def testImageCompression(self):
         def loadBitmap():
@@ -475,12 +477,12 @@ class ImageTestCase(AVGTestCase):
         self.image = avg.ImageNode(href="rgb24-64x64.png", compression="B5G6R5",
                 parent=root)
         self.assertEqual(self.image.compression, "B5G6R5")
-        self.start([
-                 lambda: self.compareImage("testTexCompression1", False),
+        self.start(False, 
+                [lambda: self.compareImage("testTexCompression1"),
                  loadBitmap,
-                 lambda: self.compareImage("testTexCompression2", False),
+                 lambda: self.compareImage("testTexCompression2"),
                  relink,
-                 lambda: self.compareImage("testTexCompression2", False),
+                 lambda: self.compareImage("testTexCompression2"),
                  checkAlpha,
                 ])
 

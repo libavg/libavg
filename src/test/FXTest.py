@@ -74,16 +74,16 @@ class FXTestCase(AVGTestCase):
                 opacity=0.6)
             configureNode(node, fx)
 
-        self.start((
-                 lambda: self.compareImage("testImageNullFX1", False),
+        self.start(False,
+                (lambda: self.compareImage("testImageNullFX1"),
                  addBgNode,
-                 lambda: self.compareImage("testImageNullFX2", False),
+                 lambda: self.compareImage("testImageNullFX2"),
                  activateFX,
-                 lambda: self.compareImage("testImageNullFX2", False),
+                 lambda: self.compareImage("testImageNullFX2"),
                  newNode,
-                 lambda: self.compareImage("testImageNullFX3", False),
+                 lambda: self.compareImage("testImageNullFX3"),
                  newFX,
-                 lambda: self.compareImage("testImageNullFX3", False),
+                 lambda: self.compareImage("testImageNullFX3"),
                  emptyImageFX,
                  lambda: utils.initFXCache(10),
                 ))
@@ -95,7 +95,7 @@ class FXTestCase(AVGTestCase):
                 threaded=False)
         node.setEffect(avg.NullFXNode())
         node.play()
-        self.start((lambda: self.compareImage("testVideoNullFX", False),))
+        self.start(False, (lambda: self.compareImage("testVideoNullFX"),))
 
     def testWordsNullFX(self):
         root = self.loadEmptyScene()
@@ -103,8 +103,8 @@ class FXTestCase(AVGTestCase):
         node.setEffect(avg.NullFXNode())
         node = avg.WordsNode(parent=root, text="testtext", pos=(0,20),
                 font="Bitstream Vera Sans")
-        self.start((
-                 lambda: self.compareImage("testWordsNullFX", True),
+        self.start(True,
+                (lambda: self.compareImage("testWordsNullFX"),
                 ))
 
     def testCanvasNullFX(self):
@@ -119,12 +119,12 @@ class FXTestCase(AVGTestCase):
         canvas = self.__createOffscreenCanvas()
         node = avg.ImageNode(parent=root, href="canvas:offscreen")
         node.setEffect(avg.NullFXNode())
-        self.start((
-                 lambda: self.compareImage("testCanvasNullFX1", False),
+        self.start(False,
+                (lambda: self.compareImage("testCanvasNullFX1"),
                  setOuterOpacity,
-                 lambda: self.compareImage("testCanvasNullFX2", False),
+                 lambda: self.compareImage("testCanvasNullFX2"),
                  setInnerOpacity,
-                 lambda: self.compareImage("testCanvasNullFX3", False),
+                 lambda: self.compareImage("testCanvasNullFX3"),
                 ))
 
     def testNodeInCanvasNullFX(self):
@@ -137,8 +137,8 @@ class FXTestCase(AVGTestCase):
                 fillopacity=1)
         canvas.getRootNode().insertChild(rect, 0)
         
-        self.start((
-                 lambda: self.compareImage("testNodeInCanvasNullFX1", False),
+        self.start(False,
+                (lambda: self.compareImage("testNodeInCanvasNullFX1"),
                 ))
 
     def testRenderPipeline(self):
@@ -167,8 +167,8 @@ class FXTestCase(AVGTestCase):
                             avg.ImageNode(href="canvas:dest", parent=root)
                         else:
                             root.appendChild(srcImg)
-                        self.start((
-                                lambda: self.compareImage("testRenderPipeline", False),
+                        self.start(False,
+                                (lambda: self.compareImage("testRenderPipeline"),
                                 ))
 
     def testBlurFX(self):
@@ -190,17 +190,17 @@ class FXTestCase(AVGTestCase):
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
         self.node.setEffect(self.effect)
-        self.start((
-                 lambda: self.compareImage("testBlurFX1", False),
+        self.start(False,
+                (lambda: self.compareImage("testBlurFX1"),
                  lambda: setRadius(8),
-                 lambda: self.compareImage("testBlurFX2", False),
+                 lambda: self.compareImage("testBlurFX2"),
                  removeFX,
-                 lambda: self.compareImage("testBlurFX3", False),
+                 lambda: self.compareImage("testBlurFX3"),
                  reAddFX,
-                 lambda: self.compareImage("testBlurFX2", False),
+                 lambda: self.compareImage("testBlurFX2"),
                  removeFX,
                  addNewFX,
-                 lambda: self.compareImage("testBlurFX2", False),
+                 lambda: self.compareImage("testBlurFX2"),
                  lambda: setRadius(300),
                 ))
 
@@ -217,20 +217,20 @@ class FXTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24alpha-64x64.png")
         resetFX()
-        self.start((
-                lambda: self.compareImage("testHueSatFX1", False),
-                lambda: setParam('saturation', -50),
-                lambda: self.compareImage("testHueSatFX2", False),
-                lambda: setParam('saturation', -100),
-                lambda: self.compareImage("testHueSatFX3", False),
-                lambda: setParam('saturation', -150),
-                lambda: self.compareImage("testHueSatFX3", False),
-                resetFX,
-                lambda: setParam('hue', 180),
-                lambda: self.compareImage("testHueSatFX4", False),
-                lambda: setParam('hue', -180),
-                lambda: self.compareImage("testHueSatFX4", False),
-        ))
+        self.start(False,
+                (lambda: self.compareImage("testHueSatFX1"),
+                 lambda: setParam('saturation', -50),
+                 lambda: self.compareImage("testHueSatFX2"),
+                 lambda: setParam('saturation', -100),
+                 lambda: self.compareImage("testHueSatFX3"),
+                 lambda: setParam('saturation', -150),
+                 lambda: self.compareImage("testHueSatFX3"),
+                 resetFX,
+                 lambda: setParam('hue', 180),
+                 lambda: self.compareImage("testHueSatFX4"),
+                 lambda: setParam('hue', -180),
+                 lambda: self.compareImage("testHueSatFX4"),
+                ))
 
     def testInvertFX(self):
 
@@ -248,11 +248,11 @@ class FXTestCase(AVGTestCase):
         self.root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=self.root, pos=(10,10), href="hsl.png")
         resetFX()
-        self.start((
-                lambda: self.compareImage("testInvertFX1", False),
-                redAlphaScene,
-                lambda: self.compareImage("testInvertFX2", False),
-        ))
+        self.start(False,
+                (lambda: self.compareImage("testInvertFX1"),
+                 redAlphaScene,
+                 lambda: self.compareImage("testInvertFX2"),
+                ))
 
     def testShadowFX(self):
         
@@ -268,18 +268,18 @@ class FXTestCase(AVGTestCase):
         rect.size = node.size + (1, 1)
         effect = avg.ShadowFXNode((0,0), 1, 1, "FFFFFF")
         node.setEffect(effect)
-        self.start((
-                 lambda: self.compareImage("testShadowFX1", False),
+        self.start(False,
+                (lambda: self.compareImage("testShadowFX1"),
                  lambda: setParams((0,0), 3, 2, "00FFFF"),
-                 lambda: self.compareImage("testShadowFX2", False),
+                 lambda: self.compareImage("testShadowFX2"),
                  lambda: setParams((2,2), 0.1, 1, "FFFFFF"),
-                 lambda: self.compareImage("testShadowFX3", False),
+                 lambda: self.compareImage("testShadowFX3"),
                  lambda: setParams((-2,-2), 0.1, 1, "FFFFFF"),
-                 lambda: self.compareImage("testShadowFX4", False),
+                 lambda: self.compareImage("testShadowFX4"),
                  lambda: setParams((-2,-2), 3, 1, "FFFFFF"),
-                 lambda: self.compareImage("testShadowFX5", False),
+                 lambda: self.compareImage("testShadowFX5"),
                  lambda: setParams((0,0), 0, 1, "FFFFFF"),
-                 lambda: self.compareImage("testShadowFX6", False),
+                 lambda: self.compareImage("testShadowFX6"),
                 ))
 
     def testWordsShadowFX(self):
@@ -296,10 +296,10 @@ class FXTestCase(AVGTestCase):
         effect = avg.ShadowFXNode()
         setParams((0,0), 1.5, 1.5, "FF0000")
         node.setEffect(effect)
-        self.start((
-                 lambda: self.compareImage("testWordsShadowFX1", True),
+        self.start(True,
+                (lambda: self.compareImage("testWordsShadowFX1"),
                  lambda: setParams((2,2), 2, 2, "00FFFF"),
-                 lambda: self.compareImage("testWordsShadowFX2", True),
+                 lambda: self.compareImage("testWordsShadowFX2"),
                 ))
 
     def testGamma(self):
@@ -309,11 +309,11 @@ class FXTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", gamma=(0.5,0.5,0.5))
         self.assertEqual(node.gamma, (0.5,0.5,0.5))
-        self.start((
-                 lambda: self.compareImage("testGamma1", False),
+        self.start(False,
+                (lambda: self.compareImage("testGamma1"),
                  lambda: setGamma((1.5,2.0,2.5)),
                  lambda: self.assertEqual(node.gamma, (1.5,2.0,2.5)),
-                 lambda: self.compareImage("testGamma2", False),
+                 lambda: self.compareImage("testGamma2"),
                 ))
 
     def testIntensity(self):
@@ -336,15 +336,15 @@ class FXTestCase(AVGTestCase):
         node = avg.ImageNode(parent=root, href="colorramp.png", intensity=(0.5,0.5,0.5))
         self.assertEqual(node.intensity, (0.5,0.5,0.5))
         Player.setFakeFPS(10)
-        self.start((
-                 lambda: self.compareImage("testIntensity1", False),
+        self.start(False,
+                (lambda: self.compareImage("testIntensity1"),
                  lambda: setIntensity((1.5,2.0,2.5)),
                  lambda: self.assertEqual(node.intensity, (1.5,2.0,2.5)),
-                 lambda: self.compareImage("testIntensity2", False),
+                 lambda: self.compareImage("testIntensity2"),
                  showVideo,
-                 lambda: self.compareImage("testIntensity3", False),
+                 lambda: self.compareImage("testIntensity3"),
                  showText,
-                 lambda: self.compareImage("testIntensity4", False),
+                 lambda: self.compareImage("testIntensity4"),
                 ))
         Player.setFakeFPS(-1)
         self.videoNode = None
@@ -363,13 +363,13 @@ class FXTestCase(AVGTestCase):
         node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
         self.assertEqual(node.contrast, (0.5,0.5,0.5))
         Player.setFakeFPS(10)
-        self.start((
-                 lambda: self.compareImage("testContrast1", False),
+        self.start(False,
+                (lambda: self.compareImage("testContrast1"),
                  lambda: setContrast((1.5,2.0,2.5)),
                  lambda: self.assertEqual(node.contrast, (1.5,2.0,2.5)),
-                 lambda: self.compareImage("testContrast2", False),
+                 lambda: self.compareImage("testContrast2"),
                  showVideo,
-                 lambda: self.compareImage("testContrast3", False),
+                 lambda: self.compareImage("testContrast3"),
                 ))
         Player.setFakeFPS(-1)
 
@@ -405,20 +405,20 @@ class FXTestCase(AVGTestCase):
         effect.radius = 0
         node.setEffect(effect)
         Player.setFakeFPS(25)
-        self.start((
-                 changeTexture,
-                 lambda: self.compareImage("testFXUpdateTex", False),
+        self.start(False,
+                (changeTexture,
+                 lambda: self.compareImage("testFXUpdateTex"),
                  addMaskTex,
-                 lambda: self.compareImage("testFXUpdateMaskTex1", False),
+                 lambda: self.compareImage("testFXUpdateMaskTex1"),
                  changeMaskTex,
-                 lambda: self.compareImage("testFXUpdateMaskTex2", False),
+                 lambda: self.compareImage("testFXUpdateMaskTex2"),
                  changeMaskPos,
-                 lambda: self.compareImage("testFXUpdateMaskPos", False),
+                 lambda: self.compareImage("testFXUpdateMaskPos"),
                  changeFX,
-                 lambda: self.compareImage("testFXUpdateFX", False),
+                 lambda: self.compareImage("testFXUpdateFX"),
                  addVideo,
                  None,
-                 lambda: self.compareImage("testFXUpdateVideo", False),
+                 lambda: self.compareImage("testFXUpdateVideo"),
                 ))
 
     def testChromaKeyFX(self):
@@ -433,14 +433,14 @@ class FXTestCase(AVGTestCase):
         effect = avg.ChromaKeyFXNode()
         setParams(0.01, 0.01, 0.01)
         node.setEffect(effect)
-        self.start((
-                 lambda: self.compareImage("testChromaKeyFX1", False),
+        self.start(False,
+                (lambda: self.compareImage("testChromaKeyFX1"),
                  lambda: setParams(0.2, 0.2, 0.2),
-                 lambda: self.compareImage("testChromaKeyFX2", False),
+                 lambda: self.compareImage("testChromaKeyFX2"),
                  lambda: effect.__setattr__("color", "FF0000"),
-                 lambda: self.compareImage("testChromaKeyFX3", False),
+                 lambda: self.compareImage("testChromaKeyFX3"),
                  lambda: effect.__setattr__("spillthreshold", 1),
-                 lambda: self.compareImage("testChromaKeyFX4", False),
+                 lambda: self.compareImage("testChromaKeyFX4"),
                 ))
 
     def __createOffscreenCanvas(self):

@@ -65,8 +65,8 @@ class GestureTestCase(AVGTestCase):
                 failHandler=onFail)
         self.__resetEventState()
         Player.setFakeFPS(10)
-        self.start((
-                 # Down-up: recognized as tap.
+        self.start(False,
+                (# Down-up: recognized as tap.
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-small move-up: recognized as tap.
@@ -74,9 +74,9 @@ class GestureTestCase(AVGTestCase):
                  self.__genMouseEventFrames(avg.CURSORMOTION, 31, 30, []),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
                  # Down-big move-up: fail
-                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
-                 self.__genMouseEventFrames(avg.CURSORMOTION, 150, 50, [EVENT_FAILED]),
-                 self.__genMouseEventFrames(avg.CURSORUP, 1, 1, []),
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 80, 80, [EVENT_FAILED]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  # Down-delay: fail
                  self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
                  lambda: self.delay(1000),
@@ -157,8 +157,8 @@ class GestureTestCase(AVGTestCase):
                 failHandler=onFail, 
                 stopHandler=onStop)
         self.__resetEventState()
-        self.start((
-                 # Standard down-hold-up sequence.
+        self.start(False,
+                (# Standard down-hold-up sequence.
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  lambda: self.delay(1100),
                  lambda: self.__assertEvents([EVENT_DETECTED]),
@@ -234,8 +234,8 @@ class GestureTestCase(AVGTestCase):
                 failHandler=onFail)
         self.__resetEventState()
         Player.setFakeFPS(20)
-        self.start((
-                 # Down, up, down, up: click
+        self.start(False,
+                (# Down, up, down, up: click
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, []),
@@ -373,15 +373,20 @@ class GestureTestCase(AVGTestCase):
             self.__resetEventState()
 
         Player.setFakeFPS(100)
+        print
         for self.friction in (-1, 100):
+            if self.friction == -1:
+                print "  Simple drag, no inertia"
+            else:
+                print "  Simple drag, inertia"
             root = self.loadEmptyScene()
             image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, 
                     detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp, 
                     endHandler=onEnd, friction=self.friction)
             self.__resetEventState()
-            self.start((
-                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
+            self.start(False,
+                    (self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
                      self.__genMouseEventFrames(avg.CURSORMOTION, 70, 70, [EVENT_MOVED]),
                      self.__genMouseEventFrames(avg.CURSORUP, 40, 20, 
                             [EVENT_UP, EVENT_ENDED]),
@@ -394,17 +399,21 @@ class GestureTestCase(AVGTestCase):
 
         # Test with constraint.
         def onPossible(event):
-            self.__flags.add(EVENT_POSSIBLE)
+            self.__addEventFlag(EVENT_POSSIBLE)
 
         def onFail(event):
-            self.__flags.add(EVENT_FAILED)
+            self.__addEventFlag(EVENT_FAILED)
 
         def onVertMove(event, offset):
             if self.friction == -1:
                 self.assertEqual(offset, (0,40))
-            self.__flags.add(EVENT_MOVED)
+            self.__addEventFlag(EVENT_MOVED)
 
         for self.friction in (-1, 100):
+            if self.friction == -1:
+                print "  Drag with constraint, no inertia"
+            else:
+                print "  Drag with constraint, inertia"
             root = self.loadEmptyScene()
             image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, 
@@ -413,8 +422,8 @@ class GestureTestCase(AVGTestCase):
                     moveHandler=onVertMove, upHandler=onUp, endHandler=onEnd, 
                     friction=self.friction, direction=ui.DragRecognizer.VERTICAL)
             self.__resetEventState()
-            self.start((
-                     self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+            self.start(False,
+                    (self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                      self.__genMouseEventFrames(avg.CURSORMOTION, 35, 30, []),
                      self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70, 
                             [EVENT_DETECTED, EVENT_MOVED]),
@@ -466,6 +475,7 @@ class GestureTestCase(AVGTestCase):
                     ))
 
         # Test second down during inertia.
+        print "  Down during inertia"
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         dragRecognizer = ui.DragRecognizer(image, 
@@ -474,16 +484,17 @@ class GestureTestCase(AVGTestCase):
                 moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
                 friction=0.01)
         self.__resetEventState()
-        self.start((
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
                  self.__resetEventState,
                  self.__genMouseEventFrames(avg.CURSORDOWN, 40, 20, 
                             [EVENT_ENDED, EVENT_DETECTED, 
                              EVENT_MOVED]),
-                 ))
+                ))
 
         # Test second down during inertia, constrained recognizer
+        print "  Down during inertia, constrained recognizer"
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         dragRecognizer = ui.DragRecognizer(image, 
@@ -492,8 +503,8 @@ class GestureTestCase(AVGTestCase):
                 moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
                 friction=0.01, direction=ui.DragRecognizer.VERTICAL)
         self.__resetEventState()
-        self.start((
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70,
                         [EVENT_DETECTED, EVENT_MOVED, 
                          EVENT_POSSIBLE]),
@@ -504,7 +515,7 @@ class GestureTestCase(AVGTestCase):
                          EVENT_POSSIBLE]),
                  self.__genMouseEventFrames(avg.CURSORMOTION, 30, 70, 
                         [EVENT_DETECTED, EVENT_MOVED]),
-                 ))
+                ))
 
         Player.setFakeFPS(-1)
 
@@ -520,8 +531,8 @@ class GestureTestCase(AVGTestCase):
             div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
             image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
             ui.DragRecognizer(image, moveHandler=onDrag, friction=self.friction)
-            self.start((
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+            self.start(False,
+                    (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 70),
                     ))
         Player.setFakeFPS(-1)
@@ -544,8 +555,8 @@ class GestureTestCase(AVGTestCase):
         self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
         self.__dragStartCalled = False
-        self.start((
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 40, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 30),
                 ))
@@ -561,8 +572,8 @@ class GestureTestCase(AVGTestCase):
         div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
         ui.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, friction=-1)
-        self.start((
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 70),
                 ))
 
@@ -593,7 +604,7 @@ class GestureTestCase(AVGTestCase):
                     lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
                     lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
                     lambda: checkTransform(ui.Transform((10,0))),
-                )
+                   )
 
         def createRotTestFrames(expectedTransform):
             return (
@@ -607,7 +618,7 @@ class GestureTestCase(AVGTestCase):
                     lambda: self._sendTouchEvents((
                             (1, avg.CURSORUP, 0, 20),
                             (2, avg.CURSORUP, 0, 10))),
-                )
+                   )
 
         def createScaleTestFrames(expectedTransform):
             return (
@@ -624,8 +635,8 @@ class GestureTestCase(AVGTestCase):
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, 
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
-        self.start((
-                 # Check up/down handling
+        self.start(False,
+                (# Check up/down handling
                  lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
                  lambda: checkTransform(ui.Transform((0,0))),
                  lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
@@ -654,11 +665,11 @@ class GestureTestCase(AVGTestCase):
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, 
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
-        self.start((
-            createTransTestFrames(),
-            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,5))),
-            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,10))),
-            ))
+        self.start(False,
+                (createTransTestFrames(),
+                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,5))),
+                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,10))),
+                ))
 
         # Test coordSysNode.
         root = self.loadEmptyScene()
@@ -666,12 +677,23 @@ class GestureTestCase(AVGTestCase):
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, coordSysNode=div,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
-        self.start((
-            createTransTestFrames(),
-            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
-            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
-            ))
+        self.start(False,
+                (createTransTestFrames(),
+                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
+                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
+                ))
 
+        root = self.loadEmptyScene()
+        div = avg.DivNode(parent=root, pos=(0,10))
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, friction=0.01,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
+                ))  
 
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]

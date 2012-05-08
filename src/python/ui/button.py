@@ -278,7 +278,7 @@ class TouchButton(avg.DivNode):
                 enterFunc=self.__enterUp, leaveFunc=self.__leaveUp)
         self.__stateMachine.addState("DOWN", ("UP", "DISABLED"),
                 enterFunc=self.__enterDown, leaveFunc=self.__leaveDown)
-        self.__stateMachine.addState("DISABLED", ("UP", "DOWN"),
+        self.__stateMachine.addState("DISABLED", ("UP",),
                 enterFunc=self.__enterDisabled, leaveFunc=self.__leaveDisabled)
 
         self.appendChild(self.__upNode)

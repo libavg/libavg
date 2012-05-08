@@ -76,6 +76,7 @@ class AVGTestCase(unittest.TestCase):
         self.__testFuncName = testFuncName
         self.__logger = avg.Logger.get()
         self.__skipped = False
+        self.__warnOnImageDiff = False
 
     def __setupPlayer(self):
         self.__player.setMultiSampleSamples(1)
@@ -102,16 +103,18 @@ class AVGTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-    def start(self, actions):
+    def start(self, warnOnImageDiff, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
         self.__delaying = False
+        self.__warnOnImageDiff = warnOnImageDiff
         
         self.assert_(self.__player.isPlaying() == 0)
         self.actions = flatten(actions)
         self.curFrame = 0
         self.__player.setOnFrameHandler(self.__nextAction)
         self.__player.setFramerate(10000)
+        self.__player.assumePixelsPerMM(1)
         self.__player.play()
         self.assert_(self.__player.isPlaying() == 0)
 
@@ -121,11 +124,11 @@ class AVGTestCase(unittest.TestCase):
         self.__delaying = True
         self.__player.setTimeout(time, timeout)
 
-    def compareImage(self, fileName, warn):
+    def compareImage(self, fileName):
         bmp = self.__player.screenshot()
-        self.compareBitmapToFile(bmp, fileName, warn)
+        self.compareBitmapToFile(bmp, fileName)
 
-    def compareBitmapToFile(self, bmp, fileName, warn):
+    def compareBitmapToFile(self, bmp, fileName):
         try:
             baselineBmp = avg.Bitmap(AVGTestCase.baselineImageResultDirectory + "/"
                     + fileName + ".png")
@@ -143,7 +146,7 @@ class AVGTestCase(unittest.TestCase):
                 msg = ("  "+fileName+
                         ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
                         {'avg':average, 'stddev':stdDev})
-                if warn:
+                if self.__warnOnImageDiff:
                     print msg
                 else:
                     self.fail(msg)
