@@ -48,8 +48,6 @@ g_LastKeyRepeated = 0
 g_RepeatDelay = 0.2
 g_CharDelay = 0.1
 
-g_CanvasID = 0
-
 KEYCODE_TAB = 9
 KEYCODE_LINEFEED = 13
 KEYCODE_SHTAB = 25
@@ -252,8 +250,7 @@ class TextArea(avg.DivNode):
         self.__border = 0
         self.__data = []
         self.__cursorPosition = 0
-        self.__trueParent = self
-
+        
         textNode = avg.WordsNode(rawtextmode=True)
 
         if textBackgroundNode != None:
@@ -263,18 +260,11 @@ class TextArea(avg.DivNode):
             self.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
             self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
 
-        if moveCoursorOnTouch:
-            self.__canvas = g_Player.createCanvas(id="textAreaCanvas_" + str(g_CanvasID),
-                    size=self.size)
-            self.__canvasRoot = self.__canvas.getRootNode()
-            avg.ImageNode(parent=self, href="canvas:textAreaCanvas_" + str(g_CanvasID))
-            self.__trueParent = self.__canvasRoot
-
-        self.__trueParent.appendChild(textNode)
+        self.appendChild(textNode)
         
         cursorContainer = avg.DivNode()
         cursorNode = avg.LineNode(color='000000')
-        self.__trueParent.appendChild(cursorContainer)
+        self.appendChild(cursorContainer)
         cursorContainer.appendChild(cursorNode)
         self.__flashingCursor = False
         
@@ -282,6 +272,7 @@ class TextArea(avg.DivNode):
         self.__cursorNode = cursorNode
         self.__textNode = textNode
         self.__charSize = -1
+        self.__loupe = None
         self.setStyle()
 
         if focusContext is not None:
@@ -311,11 +302,11 @@ class TextArea(avg.DivNode):
                         size=self.__loupe.size, parent=self.__loupe)
             self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1]+10)
             self.__loupe.unlink()
-            self.__zoomedImage = avg.ImageNode(parent=self.__loupe,
-                    href="canvas:textAreaCanvas_" + str(g_CanvasID))
-            self.__zoomedImage.size = self.__zoomedImage.size + self.__zoomedImage.size * \
-                    self.__loupeZoomFactor
-            g_CanvasID += 1
+            self.__zoomedImage = avg.DivNode(parent=self.__loupe)
+            self.__loupeTextNode = avg.WordsNode(rawtextmode=True, parent=self.__zoomedImage)
+            
+            self.__loupeCursorContainer = avg.DivNode(parent=self.__zoomedImage)
+            self.__loupeCursorNode = avg.LineNode(color='000000', parent=self.__loupeCursorContainer)
             
     def clearText(self):
         """
@@ -404,8 +395,39 @@ class TextArea(avg.DivNode):
         if not flashingCursor:
             self.__cursorContainer.opacity = 1
             
-        self.__updateCursor()
+        if self.__loupe:
+            zoomfactor = (1.0 + self.__loupeZoomFactor)
+            self.__loupeTextNode.font = font
+            self.__loupeTextNode.fontsize = int(fontsize) * zoomfactor
+            self.__loupeTextNode.alignment = alignment
+            self.__loupeTextNode.color = color
+            self.__loupeTextNode.variant = variant
+            self.__loupeTextNode.linespacing = lineSpacing
+            self.__loupeTextNode.letterspacing = letterSpacing * zoomfactor
+            if multiline:
+                self.__loupeTextNode.width = textNode.width * zoomfactor
+                self.__loupeTextNode.wrapmode = 'wordchar'
+            else:
+                self.__loupeTextNode.width = 0 
+                
+            self.__loupeTextNode.x = self.__border
+            self.__loupeTextNode.y = self.__border
 
+            self.__loupeCursorNode.color = cursorColor
+            if cursorWidth is not None:
+                self.__loupeCursorNode.strokewidth = cursorWidth * zoomfactor
+            else:
+                w = float(self.__loupeTextNode.fontsize) * CURSOR_WIDTH_PCT / 100.0
+                if w < 1:
+                    w = 1
+                self.__loupeCursorNode.strokewidth = w * zoomfactor
+            x  = self.__loupeCursorNode.strokewidth / 2.0
+            self.__loupeCursorNode.pos1 = Point2D(x, self.__loupeCursorNode.pos1.y)
+            self.__loupeCursorNode.pos2 = Point2D(x, self.__loupeCursorNode.pos2.y)
+            
+            if not flashingCursor:
+                self.__loupeursorContainer.opacity = 1
+        self.__updateCursors()
     
     def setMaxLength(self, maxlen):
         """
@@ -449,8 +471,12 @@ class TextArea(avg.DivNode):
     def showCursor(self, show):
         if show:
             avg.fadeIn(self.__cursorNode, 200)
+            if self.__loupe:
+                avg.fadeIn(self.__loupeCursorNode, 200)
         else:
             avg.fadeOut(self.__cursorNode, 200)
+            if self.__loupe:
+                avg.fadeOut(self.__loupeCursorNode, 200)
 
     def onKeyDown(self, keycode):
         """
@@ -469,11 +495,11 @@ class TextArea(avg.DivNode):
         if keycode in KEYCODES_BACKSPACE:
             self.__removeChar(left=True)
             self.__updateLastActivity()
-            self.__updateCursor()
+            self.__updateCursors()
         elif keycode == KEYCODES_DEL:
             self.__removeChar(left=False)
             self.__updateLastActivity()
-            self.__updateCursor()
+            self.__updateCursors()
         # NP/FF clears text
         elif keycode == KEYCODE_FORMFEED:
             self.clearText()
@@ -498,7 +524,7 @@ class TextArea(avg.DivNode):
         elif keycode not in (KEYCODE_LINEFEED, 0, 25, 63272):
             self.__appendKeycode(keycode)
             self.__updateLastActivity()
-            self.__updateCursor()
+            self.__updateCursors()
 
     def __onClick(self, e):
         if self.__focusContext is not None:
@@ -549,30 +575,37 @@ class TextArea(avg.DivNode):
 
     def __update(self):
         self.__textNode.text = self.__getUnicodeFromData()
-        self.__updateCursor()
+        self.__loupeTextNode.text = self.__getUnicodeFromData()
+        self.__updateCursors()
         
-    def __updateCursor(self):
+    def __updateCursors(self):
+        self.__updateCursor(self.__cursorNode, self.__cursorContainer, self.__textNode)
+        if self.__loupe:
+            self.__updateCursor(self.__loupeCursorNode, self.__loupeCursorContainer,
+                    self.__loupeTextNode)
+
+    def __updateCursor(self, cursorNode, cursorContainer, textNode):
         if self.__cursorPosition == 0:
             lastCharPos = (0,0)
             lastCharExtents = (0,0)
         else:
-            lastCharPos = self.__textNode.getGlyphPos(self.__cursorPosition - 1)
-            lastCharExtents = self.__textNode.getGlyphSize(self.__cursorPosition - 1)
+            lastCharPos = textNode.getGlyphPos(self.__cursorPosition - 1)
+            lastCharExtents = textNode.getGlyphSize(self.__cursorPosition - 1)
             
             if self.__data[self.__cursorPosition - 1] == '\n':
                 lastCharPos = (0, lastCharPos[1] + lastCharExtents[1])
                 lastCharExtents = (0, lastCharExtents[1])
        
-        xPos = self.__cursorNode.pos2.x
+        xPos = cursorNode.pos2.x
         if lastCharExtents[1] > 0:
-            self.__cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * \
+            cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * \
                     (1 - CURSOR_PADDING_PCT/100.0))
         else:
-            self.__cursorNode.pos2 = Point2D(xPos, self.__textNode.fontsize)
+            cursorNode.pos2 = Point2D(xPos, textNode.fontsize)
         
-        self.__cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
-        self.__cursorContainer.y = (lastCharPos[1] +
-            self.__cursorNode.pos2.y * CURSOR_PADDING_PCT/200.0 + self.__border)
+        cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
+        cursorContainer.y = (lastCharPos[1] +
+            cursorNode.pos2.y * CURSOR_PADDING_PCT/200.0 + self.__border)
         
     def __updateLastActivity(self):
         self.__lastActivity = time.time()
@@ -583,10 +616,16 @@ class TextArea(avg.DivNode):
             time.time() - self.__lastActivity > CURSOR_FLASH_AFTER_INACTIVITY/1000.0):
             if self.__cursorContainer.opacity == 0:
                 self.__cursorContainer.opacity = 1
+                if self.__loupe:
+                    self.__loupeCursorContainer.opacity = 1
             else:
                 self.__cursorContainer.opacity = 0
+                if self.__loupe:
+                    self.__loupeCursorContainer.opacity = 0
         elif self.__hasFocus:
             self.__cursorContainer.opacity = 1
+            if self.__loupe:
+                self.__loupeCursorContainer.opacity = 1
 
     def __moveHandler(self, event, offset):
         self.__addLoupe()
@@ -653,6 +692,7 @@ class TextArea(avg.DivNode):
 #        self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 -\
 #                ( 0.0,(self.__textNode.fontsize * self.__loupeZoomFactor)) 
         # add scrolling | without zoom positioning
+
         self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 - \
                 self.getRelPos(event.pos)* self.__loupeZoomFactor
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
