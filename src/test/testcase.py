@@ -114,6 +114,7 @@ class AVGTestCase(unittest.TestCase):
         self.curFrame = 0
         self.__player.setOnFrameHandler(self.__nextAction)
         self.__player.setFramerate(10000)
+        self.__player.assumePixelsPerMM(1)
         self.__player.play()
         self.assert_(self.__player.isPlaying() == 0)
 
