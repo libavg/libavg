@@ -270,7 +270,7 @@ class TextArea(avg.DivNode):
         self.__cursorContainer = cursorContainer
         self.__cursorNode = cursorNode
         self.__textNode = textNode
-        self.__charSize = -1
+
         self.__loupe = None
         self.setStyle()
 
@@ -377,6 +377,10 @@ class TextArea(avg.DivNode):
         self.__textNode.x = self.__border
         self.__textNode.y = self.__border
         
+        self.__textNode.text = u'W'
+        self.__textNode.realFontSize = self.__textNode.getGlyphSize(0)
+        self.__textNode.text = ''
+
         self.__cursorNode.color = cursorColor
         if cursorWidth is not None:
             self.__cursorNode.strokewidth = cursorWidth
@@ -410,6 +414,8 @@ class TextArea(avg.DivNode):
                 
             self.__loupeTextNode.x = self.__border
             self.__loupeTextNode.y = self.__border
+
+            self.__loupeTextNode.realFontSize = self.__textNode.realFontSize * zoomfactor
 
             self.__loupeCursorNode.color = cursorColor
             if cursorWidth is not None:
@@ -573,7 +579,8 @@ class TextArea(avg.DivNode):
 
     def __update(self):
         self.__textNode.text = self.__getUnicodeFromData()
-        self.__loupeTextNode.text = self.__getUnicodeFromData()
+        if self.__loupe:
+            self.__loupeTextNode.text = self.__getUnicodeFromData()
         self.__updateCursors()
         
     def __updateCursors(self):
@@ -599,7 +606,8 @@ class TextArea(avg.DivNode):
             cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * \
                     (1 - CURSOR_PADDING_PCT/100.0))
         else:
-            cursorNode.pos2 = Point2D(xPos, textNode.fontsize)
+            cursorNode.pos2 = Point2D(xPos, textNode.realFontSize.y * \
+                    (1 - CURSOR_PADDING_PCT/100.0))
         
         cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
         cursorContainer.y = (lastCharPos[1] +
