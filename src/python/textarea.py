@@ -243,7 +243,6 @@ class TextArea(avg.DivNode):
         if parent:
             parent.appendChild(self)
         global g_Player
-        global g_CanvasID
         g_Player = avg.Player.get()
         self.__focusContext = focusContext
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
