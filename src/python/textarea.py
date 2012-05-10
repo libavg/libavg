@@ -296,8 +296,7 @@ class TextArea(avg.DivNode):
                 self.__loupe.appendChild(loupeBackgroundNode)
                 self.__loupe.size = loupeBackgroundNode.size
             else:
-                self.__loupe.size = (50,50)     
-                self.__loupe.elementoutlinecolor = "918e8e"
+                self.__loupe.size = (50,50)
                 avg.RectNode(fillopacity=1, fillcolor="f5f5f5", color="ffffff",
                         size=self.__loupe.size, parent=self.__loupe)
             self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1]+10)
@@ -405,7 +404,7 @@ class TextArea(avg.DivNode):
             self.__loupeTextNode.linespacing = lineSpacing
             self.__loupeTextNode.letterspacing = letterSpacing * zoomfactor
             if multiline:
-                self.__loupeTextNode.width = textNode.width * zoomfactor
+                self.__loupeTextNode.width = self.__textNode.width * zoomfactor
                 self.__loupeTextNode.wrapmode = 'wordchar'
             else:
                 self.__loupeTextNode.width = 0 
@@ -426,7 +425,7 @@ class TextArea(avg.DivNode):
             self.__loupeCursorNode.pos2 = Point2D(x, self.__loupeCursorNode.pos2.y)
             
             if not flashingCursor:
-                self.__loupeursorContainer.opacity = 1
+                self.__loupeCursorContainer.opacity = 1
         self.__updateCursors()
     
     def setMaxLength(self, maxlen):
