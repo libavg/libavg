@@ -272,7 +272,6 @@ class TextArea(avg.DivNode):
         self.__textNode = textNode
 
         self.__loupe = None
-        self.setStyle()
 
         if focusContext is not None:
             focusContext.register(self)
@@ -305,6 +304,7 @@ class TextArea(avg.DivNode):
             
             self.__loupeCursorContainer = avg.DivNode(parent=self.__zoomedImage)
             self.__loupeCursorNode = avg.LineNode(color='000000', parent=self.__loupeCursorContainer)
+        self.setStyle()
             
     def clearText(self):
         """
@@ -335,7 +335,7 @@ class TextArea(avg.DivNode):
         return self.__getUnicodeFromData()
         
     def setStyle(self, font='Arial', fontsize=12, alignment='left', variant='Regular',
-                color='000000', multiline=True, cursorWidth=None, border=0,
+                color='000000', multiline=True, cursorWidth=None, border=(0,0),
                 blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False,
                 cursorColor='000000', lineSpacing=0, letterSpacing=0):
         """
@@ -369,17 +369,26 @@ class TextArea(avg.DivNode):
         self.__blurOpacity = blurOpacity
         
         if multiline:
-            self.__textNode.width = int(self.width) - self.__border * 2
+            self.__textNode.width = int(self.width) - self.__border[0] * 2
             self.__textNode.wrapmode = 'wordchar'
         else:
             self.__textNode.width = 0 
             
-        self.__textNode.x = self.__border
-        self.__textNode.y = self.__border
+        self.__textNode.x = self.__border[0]
+        self.__textNode.y = self.__border[1]
         
         self.__textNode.text = u'W'
         self.__textNode.realFontSize = self.__textNode.getGlyphSize(0)
         self.__textNode.text = ''
+        self.__textNode.alignmentOffset = Point2D(0,0)
+
+        if alignment != "left":
+            offset = Point2D(self.size.x / 2,0)
+            if alignment == "right":
+                offset = Point2D(self.size.x,0)
+            self.__textNode.pos += offset
+            self.__textNode.alignmentOffset = offset
+            self.__cursorContainer.pos = offset   
 
         self.__cursorNode.color = cursorColor
         if cursorWidth is not None:
@@ -412,10 +421,16 @@ class TextArea(avg.DivNode):
             else:
                 self.__loupeTextNode.width = 0 
                 
-            self.__loupeTextNode.x = self.__border
-            self.__loupeTextNode.y = self.__border
+            self.__loupeTextNode.x = self.__border[0] * 2
+            self.__loupeTextNode.y = self.__border[1] * 2
 
             self.__loupeTextNode.realFontSize = self.__textNode.realFontSize * zoomfactor
+
+            if alignment != "left":
+                self.__loupeTextNode.pos = self.__textNode.pos * zoomfactor 
+                self.__loupeTextNode.alignmentOffset = self.__textNode.alignmentOffset * \
+                        zoomfactor 
+                self.__loupeCursorContainer.pos = self.__cursorContainer.pos * zoomfactor 
 
             self.__loupeCursorNode.color = cursorColor
             if cursorWidth is not None:
@@ -553,15 +568,15 @@ class TextArea(avg.DivNode):
             maxCharDim = self.__textNode.fontsize
             lastCharPos = self.__textNode.getGlyphPos(len(self.__data) - 1)
             if (not self.__isMultiline and
-                 lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border * 2):
+                 lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border[0] * 2):
                 return
        
             if  (self.__isMultiline and 
-                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border * 2):
-                if (lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border * 2):
+                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border[1] * 2):
+                if (lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border[0] * 2):
                     return
                 if (ord(uchar) == 10 and
-                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border * 2):
+                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border[0] * 2):
                     return
 
         self.__data.insert(self.__cursorPosition, uchar)
@@ -608,10 +623,17 @@ class TextArea(avg.DivNode):
         else:
             cursorNode.pos2 = Point2D(xPos, textNode.realFontSize.y * \
                     (1 - CURSOR_PADDING_PCT/100.0))
-        
-        cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
+
+        if textNode.alignment != "left":
+            if textNode.alignment == "center":
+                cursorContainer.x = textNode.alignmentOffset.x + lastCharPos[0]/2 + \
+                        lastCharExtents[0]/2 + self.__border[0]
+            else:
+                cursorContainer.x = textNode.alignmentOffset.x + self.__border[0]
+        else:
+            cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border[0]
         cursorContainer.y = (lastCharPos[1] +
-            cursorNode.pos2.y * CURSOR_PADDING_PCT/200.0 + self.__border)
+                cursorNode.pos2.y * CURSOR_PADDING_PCT/200.0 + self.__border[1])
         
     def __updateLastActivity(self):
         self.__lastActivity = time.time()
