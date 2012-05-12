@@ -87,14 +87,7 @@ StandardShader::~StandardShader()
 
 void StandardShader::activate()
 {
-    bool bActivateMinimal = false;
-    if (GLContext::getMain()->useMinimalShader()) {
-        bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-        if (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask) {
-            bActivateMinimal = true;
-        }
-    }
-    if (bActivateMinimal) {
+    if (useMinimalShader()) {
         m_pMinimalShader->activate();
         m_pMinimalTransformParam->set(m_Transform);
         m_pMinimalColorParam->set(m_Color);
@@ -179,7 +172,11 @@ void StandardShader::setMask(bool bUseMask, const glm::vec2& maskPos,
 
 const OGLShaderPtr& StandardShader::getShader() const
 {
-    return m_pShader;
+    if (useMinimalShader()) {
+        return m_pMinimalShader;
+    } else {
+        return m_pShader;
+    }
 }
 
 void StandardShader::dump() const
@@ -204,6 +201,18 @@ void StandardShader::generateWhiteTexture()
     *(pBmp->getPixels()) = 255;
     m_pWhiteTex = GLTexturePtr(new GLTexture(IntPoint(1,1), I8));
     m_pWhiteTex->moveBmpToTexture(pBmp);
+}
+
+bool StandardShader::useMinimalShader() const
+{
+    bool bActivateMinimal = false;
+    if (GLContext::getMain()->useMinimalShader()) {
+        bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+        if (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask) {
+            bActivateMinimal = true;
+        }
+    }
+    return bActivateMinimal;
 }
 
 }

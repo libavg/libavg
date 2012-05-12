@@ -143,8 +143,7 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
     }
     m_SrcSize = srcSize;
     if (bProjectionChanged) {
-        m_pProjection = ImagingProjectionPtr(
-                new ImagingProjection(srcSize, destRect, m_pShader));
+        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
     }
 }
   
@@ -156,7 +155,7 @@ const OGLShaderPtr& GPUFilter::getShader() const
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
-    m_pProjection->draw();
+    m_pProjection->draw(m_pShader);
 }
 
 void dumpKernel(int width, float* pKernel)

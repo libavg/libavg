@@ -28,17 +28,13 @@
 
 namespace avg {
 
-ImagingProjection::ImagingProjection(IntPoint size, const OGLShaderPtr& pShader)
-    : m_pVA(new VertexArray),
-      m_pShader(pShader)
-{
+ImagingProjection::ImagingProjection(IntPoint size)
+    : m_pVA(new VertexArray){
     init(size, IntRect(IntPoint(0,0), size));
 }
 
-ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect,
-        const OGLShaderPtr& pShader)
-    : m_pVA(new VertexArray),
-      m_pShader(pShader)
+ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
+    : m_pVA(new VertexArray)
 {
     init(srcSize, destRect);
 }
@@ -47,19 +43,18 @@ ImagingProjection::~ImagingProjection()
 {
 }
 
-void ImagingProjection::draw()
+void ImagingProjection::draw(const OGLShaderPtr& pShader)
 {
     IntPoint destSize = m_DestRect.size();
     glViewport(0, 0, destSize.x, destSize.y);
     
-    m_pTransformParam->set(m_ProjMat);
+    Mat4fGLShaderParamPtr pTransformParam = pShader->getParam<glm::mat4>("transform");
+    pTransformParam->set(m_ProjMat);
     m_pVA->draw();
 }
 
 void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
 {
-    m_pTransformParam = m_pShader->getParam<glm::mat4>("transform");
-
     m_SrcSize = srcSize;
     m_DestRect = destRect;
     FRect dest = destRect;

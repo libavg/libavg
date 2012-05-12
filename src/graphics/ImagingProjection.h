@@ -37,11 +37,11 @@ typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
 class AVG_API ImagingProjection
 {
 public:
-    ImagingProjection(IntPoint size, const OGLShaderPtr& pShader);
-    ImagingProjection(IntPoint srcSize, IntRect destRect, const OGLShaderPtr& pShader);
+    ImagingProjection(IntPoint size);
+    ImagingProjection(IntPoint srcSize, IntRect destRect);
     virtual ~ImagingProjection();
 
-    void draw();
+    void draw(const OGLShaderPtr& pShader);
 
 private:
     void init(IntPoint srcSize, IntRect destRect);
@@ -50,7 +50,6 @@ private:
     IntRect m_DestRect;
     IntPoint m_Offset;
     VertexArrayPtr m_pVA;
-    OGLShaderPtr m_pShader;
     Mat4fGLShaderParamPtr m_pTransformParam;
     glm::mat4 m_ProjMat;
 };

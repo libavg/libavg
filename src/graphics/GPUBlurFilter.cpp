@@ -76,7 +76,7 @@ void GPUBlurFilter::setStdDev(float stdDev)
     setDimensions(getSrcSize(), stdDev, m_bClipBorders);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
-            getDestRect().size(), destRect2, avg::getShader(SHADERID_VERT)));
+            getDestRect().size(), destRect2));
 }
 
 void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -99,7 +99,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pVertTextureParam->set(0);
     m_pVertKernelTexParam->set(1);
     getDestTex(1)->activate(GL_TEXTURE0);
-    m_pProjection2->draw();
+    m_pProjection2->draw(pVShader);
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)

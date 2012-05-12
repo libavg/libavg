@@ -64,6 +64,7 @@ public:
 
 private:
     void generateWhiteTexture();
+    bool useMinimalShader() const;
 
     GLTexturePtr m_pWhiteTex;
 

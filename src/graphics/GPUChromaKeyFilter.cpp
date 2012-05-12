@@ -74,8 +74,7 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     m_pErosionTextureParam= pShader->getParam<int>("texture");
     m_pErosionIsLastParam = pShader->getParam<int>("bIsLast");
     
-    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
-            size, avg::getShader(SHADERID_EROSION)));
+    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(size));
 }
 
 GPUChromaKeyFilter::~GPUChromaKeyFilter()
@@ -130,7 +129,7 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
         m_pErosionTextureParam->set(0);
         m_pErosionIsLastParam->set(int(i==m_Erosion-1));
         getDestTex((curBufferIndex+1)%2)->activate(GL_TEXTURE0);
-        m_pProjection2->draw();
+        m_pProjection2->draw(avg::getShader(SHADERID_EROSION));
     }
 }
 

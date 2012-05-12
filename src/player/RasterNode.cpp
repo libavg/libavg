@@ -423,13 +423,12 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT);
 
-
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
 
-        m_pImagingProjection->draw();
+        m_pImagingProjection->draw(StandardShader::get()->getShader());
 
 /*
         static int i=0;
@@ -486,7 +485,7 @@ void RasterNode::setupFX(bool bNewFX)
             GLTexturePtr pTex = m_pFBO->getTex();
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
-                    m_pSurface->getSize(), StandardShader::get()->getShader()));
+                    m_pSurface->getSize()));
         }
     }
 }

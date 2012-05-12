@@ -82,7 +82,7 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
     setDimensions(getSrcSize(), stdDev, offset);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
-            getDestRect().size(), destRect2, avg::getShader(SHADERID_VERT)));
+            getDestRect().size(), destRect2));
 }
 
 void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -115,7 +115,7 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pVertDestPosParam->set(destRect.tl);
     m_pVertDestSizeParam->set(destRect.size());
     getDestTex(1)->activate(GL_TEXTURE0);
-    m_pProjection2->draw();
+    m_pProjection2->draw(avg::getShader(SHADERID_VERT));
 }
 
 void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2& offset)
