@@ -377,8 +377,10 @@ class TextArea(avg.DivNode):
         self.__textNode.x = self.__border[0]
         self.__textNode.y = self.__border[1]
 
-        self.__textNode.realFontSize = avg.WordsNode(text=u'W', font=font,
-                fontsize=int(fontsize), variant=variant).getGlyphSize(0)
+        tempNode = avg.WordsNode(text=u'W', font=font, fontsize=int(fontsize),
+                variant=variant)
+        self.__textNode.realFontSize = tempNode.getGlyphSize(0)
+        del tempNode
         self.__textNode.alignmentOffset = Point2D(0,0)
 
         if alignment != "left":
@@ -681,10 +683,14 @@ class TextArea(avg.DivNode):
             minMaxHight = (curLine[1] * (line),curLine[1] * (line + 1) )
             if pos[1] >= minMaxHight[0] and pos[1] <= minMaxHight[1]:
                 return line
+        return 0
 
     def __updateCursorPosition(self, event):
         eventPos = self.__textNode.getRelPos(event.pos)
-        lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos))
+        if len(self.__data) > 0:
+            lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos))
+        else:
+            lineWidth = Point2D(0,0)
         if self.__textNode.alignment != "left":
             if self.__textNode.alignment == "center":
                 eventPos = Point2D(eventPos.x + lineWidth.x/2, eventPos.y)
