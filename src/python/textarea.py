@@ -619,11 +619,14 @@ class TextArea(avg.DivNode):
                 (1 - CURSOR_PADDING_PCT/100.0))
 
         if textNode.alignment != "left":
-            if textNode.alignment == "center":
-                cursorContainer.x = textNode.alignmentOffset.x + lastCharPos[0]/2 + \
-                        lastCharExtents[0]/2 + self.__border[0]
+            if len(self.__data) > 0:
+                lineWidth = textNode.getLineExtents(self.__selectTextLine(lastCharPos))
             else:
-                cursorContainer.x = textNode.alignmentOffset.x + self.__border[0]
+                lineWidth = Point2D(0,0)
+            if textNode.alignment == "center":
+                lineWidth *= 0.5
+            cursorContainer.x = textNode.alignmentOffset.x - lineWidth.x + \
+                        lastCharPos[0] + lastCharExtents[0] + self.__border[0]
         else:
             cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border[0]
         cursorContainer.y = (lastCharPos[1] +
@@ -671,8 +674,21 @@ class TextArea(avg.DivNode):
         if self.__loupe.getParent():
             self.__loupe.unlink()
 
+    def __selectTextLine(self, pos):
+        for line in range(self.__textNode.getNumLines()):
+            curLine = self.__textNode.getLineExtents(line)
+            minMaxHight = (curLine[1] * (line),curLine[1] * (line + 1) )
+            if pos[1] >= minMaxHight[0] and pos[1] <= minMaxHight[1]:
+                return line
+
     def __updateCursorPosition(self, event):
-        eventPos = self.getRelPos(event.pos)
+        eventPos = self.__textNode.getRelPos(event.pos)
+        lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos))
+        if self.__textNode.alignment != "left":
+            if self.__textNode.alignment == "center":
+                eventPos = Point2D(eventPos.x + lineWidth.x/2, eventPos.y)
+            else:
+                eventPos = Point2D(eventPos.x + lineWidth.x, eventPos.y)
         length = len(self.__data)
         if length > 0:
             index = self.__textNode.getCharIndexFromPos(eventPos) # click on letter
