@@ -76,7 +76,7 @@ from avg import Point2D
 class FocusContext(object):
     """
     This class helps to group TextArea elements
-    
+
     TextArea elements that belong to the same FocusContext cycle focus among
     themselves. There can be several FocusContextes but only one active at once
     ( using the global function setActiveFocusContext() )
@@ -90,11 +90,11 @@ class FocusContext(object):
         Test if this FocusContext is currently active
         """
         return self.__isActive
-        
+
     def register(self, taElement):
         """
         Register a floating textarea on this FocusContext
-        
+
         @param taElement: a TextArea instance
         """
         self.__elements.append(taElement)
@@ -102,7 +102,7 @@ class FocusContext(object):
     def getFocused(self):
         """
         Query the TextArea element that currently has focus
-        
+
         @return: TextArea instance or None
         """
         for ob in self.__elements:
@@ -113,7 +113,7 @@ class FocusContext(object):
     def keyCharPressed(self, kchar):
         """
         Inject an utf-8 encoded characted into the flow
-        
+
         Shift a character (Unicode keycode) into the active (w/focus) TextArea
         @type kchar: string
         @param kchar: a single character (if more than one, the following are ignored)
@@ -124,7 +124,7 @@ class FocusContext(object):
     def keyUCodePressed(self, keycode):
         """
         Inject an Unicode code point into the flow
-        
+
         Shift a character (Unicode keycode) into the active (w/focus) TextArea
         @type keycode: int
         @param keycode: unicode code point of the character
@@ -147,7 +147,7 @@ class FocusContext(object):
         Emulate a backspace character keypress
         """
         self.keyUCodePressed(KEYCODES_BACKSPACE[0])
-    
+
     def delete(self):
         """
         Emulate a delete character keypress
@@ -166,33 +166,33 @@ class FocusContext(object):
         """
         for ob in self.__elements:
             ob.clearFocus()
-        
+
     def cycleFocus(self, backwards=False):
         """
         Force a focus cycle among instantiated textareas
-        
+
         TAB/Sh-TAB keypress is what is translated in a focus cycle.
         @param backwards: as default, the method cycles following the order
             that has been followed during the registration of TextArea
             instances. Setting this to True, the order is inverted.
         """
-        
+
         els = []
         els.extend(self.__elements)
         
         if len(els) == 0:
             return
-        
+
         if backwards:
             els.reverse()
-        
+
         elected = 0
         for ob in els:
             if not ob.hasFocus():
                 elected = elected + 1
             else:
                 break
-            
+
         # elects the first if no ta are in focus or if the
         # last one has it
         if elected in (len(els), len(els)-1):
@@ -204,7 +204,7 @@ class FocusContext(object):
             ob.setFocus(False)
 
         els[elected].setFocus(True)
-    
+
     def getRegistered(self):
         """
         Returns a list of TextArea currently registered within this FocusContext
@@ -249,7 +249,7 @@ class TextArea(avg.DivNode):
         self.__border = 0
         self.__data = []
         self.__cursorPosition = 0
-        
+
         textNode = avg.WordsNode(rawtextmode=True)
 
         if textBackgroundNode != None:
@@ -260,7 +260,7 @@ class TextArea(avg.DivNode):
             self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
 
         self.appendChild(textNode)
-        
+
         cursorContainer = avg.DivNode()
         cursorNode = avg.LineNode(color='000000')
         self.appendChild(cursorContainer)
@@ -301,7 +301,7 @@ class TextArea(avg.DivNode):
             self.__loupe.unlink()
             self.__zoomedImage = avg.DivNode(parent=self.__loupe)
             self.__loupeTextNode = avg.WordsNode(rawtextmode=True, parent=self.__zoomedImage)
-            
+
             self.__loupeCursorContainer = avg.DivNode(parent=self.__zoomedImage)
             self.__loupeCursorNode = avg.LineNode(color='000000', parent=self.__loupeCursorContainer)
         self.setStyle()
@@ -311,29 +311,29 @@ class TextArea(avg.DivNode):
         Clears the text
         """
         self.setText(u'')
-        
+
     def setText(self, uString):
         """
         Set the text on the TextArea
-        
+
         @param uString: an unicode string (or an utf-8 encoded string)
         """
         if not isinstance(uString, unicode):
             uString = unicode(uString, 'utf-8')
-            
+
         self.__data = []
         for c in uString:
             self.__data.append(c)
-            
+
         self.__cursorPosition = len(self.__data)
         self.__update()
-        
+
     def getText(self):
         """
         Get the text stored and displayed on the TextArea
         """
         return self.__getUnicodeFromData()
-        
+
     def setStyle(self, font='Arial', fontsize=12, alignment='left', variant='Regular',
                 color='000000', multiline=True, cursorWidth=None, border=(0,0),
                 blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False,
@@ -367,19 +367,17 @@ class TextArea(avg.DivNode):
         self.__border = border
         self.__maxLength = -1
         self.__blurOpacity = blurOpacity
-        
+
         if multiline:
             self.__textNode.width = int(self.width) - self.__border[0] * 2
             self.__textNode.wrapmode = 'wordchar'
         else:
-            self.__textNode.width = 0 
-            
+            self.__textNode.width = 0
+
         self.__textNode.x = self.__border[0]
         self.__textNode.y = self.__border[1]
-        
-        self.__textNode.text = u'W'
-        self.__textNode.realFontSize = self.__textNode.getGlyphSize(0)
-        self.__textNode.text = ''
+
+        self.__textNode.realFontSize = avg.WordsNode(text=u'W').getGlyphSize(0)
         self.__textNode.alignmentOffset = Point2D(0,0)
 
         if alignment != "left":
@@ -388,7 +386,7 @@ class TextArea(avg.DivNode):
                 offset = Point2D(self.size.x,0)
             self.__textNode.pos += offset
             self.__textNode.alignmentOffset = offset
-            self.__cursorContainer.pos = offset   
+            self.__cursorContainer.pos = offset
 
         self.__cursorNode.color = cursorColor
         if cursorWidth is not None:
@@ -401,11 +399,11 @@ class TextArea(avg.DivNode):
         x  = self.__cursorNode.strokewidth / 2.0
         self.__cursorNode.pos1 = Point2D(x, self.__cursorNode.pos1.y)
         self.__cursorNode.pos2 = Point2D(x, self.__cursorNode.pos2.y)
-        
+
         self.__flashingCursor = flashingCursor
         if not flashingCursor:
             self.__cursorContainer.opacity = 1
-            
+
         if self.__loupe:
             zoomfactor = (1.0 + self.__loupeZoomFactor)
             self.__loupeTextNode.font = font
@@ -419,18 +417,18 @@ class TextArea(avg.DivNode):
                 self.__loupeTextNode.width = self.__textNode.width * zoomfactor
                 self.__loupeTextNode.wrapmode = 'wordchar'
             else:
-                self.__loupeTextNode.width = 0 
-                
+                self.__loupeTextNode.width = 0
+
             self.__loupeTextNode.x = self.__border[0] * 2
             self.__loupeTextNode.y = self.__border[1] * 2
-
+            
             self.__loupeTextNode.realFontSize = self.__textNode.realFontSize * zoomfactor
 
             if alignment != "left":
                 self.__loupeTextNode.pos = self.__textNode.pos * zoomfactor 
                 self.__loupeTextNode.alignmentOffset = self.__textNode.alignmentOffset * \
                         zoomfactor 
-                self.__loupeCursorContainer.pos = self.__cursorContainer.pos * zoomfactor 
+                self.__loupeCursorContainer.pos = self.__cursorContainer.pos * zoomfactor
 
             self.__loupeCursorNode.color = cursorColor
             if cursorWidth is not None:
@@ -443,42 +441,42 @@ class TextArea(avg.DivNode):
             x  = self.__loupeCursorNode.strokewidth / 2.0
             self.__loupeCursorNode.pos1 = Point2D(x, self.__loupeCursorNode.pos1.y)
             self.__loupeCursorNode.pos2 = Point2D(x, self.__loupeCursorNode.pos2.y)
-            
+
             if not flashingCursor:
                 self.__loupeCursorContainer.opacity = 1
         self.__updateCursors()
-    
+
     def setMaxLength(self, maxlen):
         """
         Set character limit of the input
-        
+
         @param maxlen: max number of character allowed
         """
         self.__maxLength = maxlen
-        
+
     def clearFocus(self):
         """
         Compact form to blur the TextArea
         """
         self.opacity = self.__blurOpacity
         self.__hasFocus = False
-        
+
     def setFocus(self, hasFocus):
         """
         Force the focus (or blur) of this TextArea
-        
+
         @param hasFocus: boolean
         """
         if self.__focusContext is not None:
             self.__focusContext.resetFocuses()
-            
+
         if hasFocus:
             self.opacity = 1
             self.__cursorContainer.opacity = 1
         else:
             self.clearFocus()
             self.__cursorContainer.opacity = 0
-            
+
         self.__hasFocus = hasFocus
 
     def hasFocus(self):
@@ -500,7 +498,7 @@ class TextArea(avg.DivNode):
     def onKeyDown(self, keycode):
         """
         Inject a keycode into TextArea flow
-        
+
         Used mainly by FocusContext. It can be used directly, but the best option
         is always to use a FocusContext helper, which exposes convenience method for
         injection.
@@ -510,7 +508,7 @@ class TextArea(avg.DivNode):
         # Ensure that the cursor is shown
         if self.__flashingCursor:
             self.__cursorContainer.opacity = 1
-        
+
         if keycode in KEYCODES_BACKSPACE:
             self.__removeChar(left=True)
             self.__updateLastActivity()
@@ -551,18 +549,18 @@ class TextArea(avg.DivNode):
                 self.setFocus(True)
         else:
             self.setFocus(True)
-    
+
     def __getUnicodeFromData(self):
         return u''.join(self.__data)
-    
+
     def __appendKeycode(self, keycode):
         self.__appendUChar(unichr(keycode))
-        
+
     def __appendUChar(self, uchar):
         # if maximum number of char is specified, honour the limit
         if self.__maxLength > -1 and len(self.__data) > self.__maxLength:
             return
-        
+
         # Boundary control
         if len(self.__data) > 0:
             maxCharDim = self.__textNode.fontsize
@@ -570,7 +568,7 @@ class TextArea(avg.DivNode):
             if (not self.__isMultiline and
                  lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border[0] * 2):
                 return
-       
+
             if  (self.__isMultiline and 
                     lastCharPos[1] + maxCharDim * 2 > self.height - self.__border[1] * 2):
                 if (lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border[0] * 2):
@@ -582,7 +580,7 @@ class TextArea(avg.DivNode):
         self.__data.insert(self.__cursorPosition, uchar)
         self.__cursorPosition += 1
         self.__update()
-        
+
     def __removeChar(self, left=True):
         if left and self.__cursorPosition > 0:
             self.__cursorPosition -= 1
@@ -597,7 +595,7 @@ class TextArea(avg.DivNode):
         if self.__loupe:
             self.__loupeTextNode.text = self.__getUnicodeFromData()
         self.__updateCursors()
-        
+
     def __updateCursors(self):
         self.__updateCursor(self.__cursorNode, self.__cursorContainer, self.__textNode)
         if self.__loupe:
@@ -611,18 +609,14 @@ class TextArea(avg.DivNode):
         else:
             lastCharPos = textNode.getGlyphPos(self.__cursorPosition - 1)
             lastCharExtents = textNode.getGlyphSize(self.__cursorPosition - 1)
-            
+
             if self.__data[self.__cursorPosition - 1] == '\n':
                 lastCharPos = (0, lastCharPos[1] + lastCharExtents[1])
                 lastCharExtents = (0, lastCharExtents[1])
-       
+
         xPos = cursorNode.pos2.x
-        if lastCharExtents[1] > 0:
-            cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * \
-                    (1 - CURSOR_PADDING_PCT/100.0))
-        else:
-            cursorNode.pos2 = Point2D(xPos, textNode.realFontSize.y * \
-                    (1 - CURSOR_PADDING_PCT/100.0))
+        cursorNode.pos2 = Point2D(xPos, textNode.realFontSize.y * \
+                (1 - CURSOR_PADDING_PCT/100.0))
 
         if textNode.alignment != "left":
             if textNode.alignment == "center":
@@ -634,10 +628,10 @@ class TextArea(avg.DivNode):
             cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border[0]
         cursorContainer.y = (lastCharPos[1] +
                 cursorNode.pos2.y * CURSOR_PADDING_PCT/200.0 + self.__border[1])
-        
+
     def __updateLastActivity(self):
         self.__lastActivity = time.time()
-        
+
     def __tickFlashCursor(self):
         if (self.__flashingCursor and
             self.__hasFocus and
@@ -666,7 +660,7 @@ class TextArea(avg.DivNode):
 
     def __detectedHandler(self, event):
         self.__updateCursorPosition(event)
-        self.__timerID = g_Player.setTimeout(1000, self.__addLoupe)   
+        self.__timerID = g_Player.setTimeout(1000, self.__addLoupe)
 
     def __addLoupe(self):
         if not self.__loupe.getParent():
@@ -694,7 +688,7 @@ class TextArea(avg.DivNode):
                                     (targetLine[0],targetLine[1]) ) + 1
                         else: # empty line
                             count = 0
-                            for char in range(length-1):    
+                            for char in range(length-1):
                                 if count < line:
                                     if self.__textNode.text[char] == "\n":
                                         count += 1
@@ -730,7 +724,7 @@ class TextArea(avg.DivNode):
 def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     """
     Initialization routine for the module
-    
+
     This method should be called immediately after avg file
     load (Player.loadFile())
     @param g_avg: avg package
@@ -743,9 +737,9 @@ def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     avg = g_avg
     g_RepeatDelay = repeatDelay
     g_CharDelay = charDelay
-    
+
     avg.Player.get().setOnFrameHandler(_onFrame)
-    
+
     if catchKeyboard:
         avg.Player.get().getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, _onKeyDown)
         avg.Player.get().getRootNode().setEventHandler(avg.KEYUP, avg.NONE, _onKeyUp)
@@ -753,7 +747,7 @@ def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
 def setActiveFocusContext(focusContext):
     """
     Tell the module what FocusContext is presently active
-    
+
     Only one FocusContext at once can be set 'active' and therefore
     prepared to receive the flow of user events from keyboard.
     @param focusContext: set the active focusContext. If initialization has been
@@ -764,14 +758,14 @@ def setActiveFocusContext(focusContext):
     
     if g_FocusContext is not None:
         g_FocusContext._switchActive(False)
-        
+
     g_FocusContext = focusContext
     g_FocusContext._switchActive(True)
 
 def setActivityCallback(pyfunc):
     """
     Set a callback that is called at every keyboard's keypress
-    
+
     If a callback of user interaction is needed (eg: resetting idle timeout)
     just pass a function to this method, which is going to be called at each
     user intervention (keydown, keyup).
