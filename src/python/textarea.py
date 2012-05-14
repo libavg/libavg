@@ -377,7 +377,8 @@ class TextArea(avg.DivNode):
         self.__textNode.x = self.__border[0]
         self.__textNode.y = self.__border[1]
 
-        self.__textNode.realFontSize = avg.WordsNode(text=u'W').getGlyphSize(0)
+        self.__textNode.realFontSize = avg.WordsNode(text=u'W', font=font,
+                fontsize=int(fontsize), variant=variant).getGlyphSize(0)
         self.__textNode.alignmentOffset = Point2D(0,0)
 
         if alignment != "left":
