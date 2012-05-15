@@ -623,7 +623,7 @@ class TextArea(avg.DivNode):
 
         if textNode.alignment != "left":
             if len(self.__data) > 0:
-                lineWidth = textNode.getLineExtents(self.__selectTextLine(lastCharPos))
+                lineWidth = textNode.getLineExtents(self.__selectTextLine(lastCharPos, textNode))
             else:
                 lineWidth = Point2D(0,0)
             if textNode.alignment == "center":
@@ -677,23 +677,23 @@ class TextArea(avg.DivNode):
         if self.__loupe.getParent():
             self.__loupe.unlink()
 
-    def __selectTextLine(self, pos):
-        for line in range(self.__textNode.getNumLines()):
-            curLine = self.__textNode.getLineExtents(line)
-            minMaxHight = (curLine[1] * (line),curLine[1] * (line + 1) )
-            if pos[1] >= minMaxHight[0] and pos[1] <= minMaxHight[1]:
+    def __selectTextLine(self, pos, textNode):
+        for line in range(textNode.getNumLines()):
+            curLine = textNode.getLineExtents(line)
+            minMaxHight = (curLine[1] * line,curLine[1] * (line + 1) )
+            if pos[1] >= minMaxHight[0] and pos[1] < minMaxHight[1]:
                 return line
         return 0
 
     def __updateCursorPosition(self, event):
         eventPos = self.__textNode.getRelPos(event.pos)
         if len(self.__data) > 0:
-            lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos))
+            lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos, self.__textNode))
         else:
             lineWidth = Point2D(0,0)
         if self.__textNode.alignment != "left":
             if self.__textNode.alignment == "center":
-                eventPos = Point2D(eventPos.x + lineWidth.x/2, eventPos.y)
+                eventPos = Point2D(eventPos.x + lineWidth.x / 2, eventPos.y)
             else:
                 eventPos = Point2D(eventPos.x + lineWidth.x, eventPos.y)
         length = len(self.__data)
@@ -703,12 +703,11 @@ class TextArea(avg.DivNode):
                 realLines = self.__textNode.getNumLines() - 1
                 for line in range(realLines + 1):
                     curLine = self.__textNode.getLineExtents(line)
-                    minMaxHight = (curLine[1] * (line),curLine[1] * (line + 1) )
-                    if eventPos[1] >= minMaxHight[0] and eventPos[1] <= minMaxHight[1]:
+                    minMaxHight = (curLine[1] * line,curLine[1] * (line + 1) )
+                    if eventPos[1] >= minMaxHight[0] and eventPos[1] < minMaxHight[1]:
                         if curLine[0] != 0: # line with letters
                             targetLine = (curLine[0] - 1, curLine[1] * line)
-                            index = self.__textNode.getCharIndexFromPos(
-                                    (targetLine[0],targetLine[1]) ) + 1
+                            index = self.__textNode.getCharIndexFromPos(targetLine) + 1
                         else: # empty line
                             count = 0
                             for char in range(length-1):
