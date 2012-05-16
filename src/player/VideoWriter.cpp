@@ -194,7 +194,6 @@ void VideoWriter::getFrameFromFBO()
 {
     if (m_pFBO) {
         if (m_pFilter) {
-            glMatrixMode(GL_MODELVIEW);
             m_pFilter->apply(m_pFBO->getTex());
             FBOPtr pYUVFBO = m_pFilter->getFBO();
             pYUVFBO->moveToPBO();
