@@ -268,6 +268,11 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         setFramerate(dp.m_Framerate);
     }
     glproc::UseProgramObject(0);
+    if (m_pGLContext->useMinimalShader()) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+    }
 
     m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.

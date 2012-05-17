@@ -47,9 +47,7 @@ void ImagingProjection::draw(const OGLShaderPtr& pShader)
 {
     IntPoint destSize = m_DestRect.size();
     glViewport(0, 0, destSize.x, destSize.y);
-    
-    Mat4fGLShaderParamPtr pTransformParam = pShader->getParam<glm::mat4>("transform");
-    pTransformParam->set(m_ProjMat);
+    pShader->setTransform(m_ProjMat); 
     m_pVA->draw();
 }
 

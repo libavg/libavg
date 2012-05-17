@@ -47,6 +47,8 @@ class AVG_API OGLShader {
         GLhandleARB getProgram();
         const std::string getName() const;
 
+        void setTransform(const glm::mat4& transform);
+
         template<class VAL_TYPE>
         boost::shared_ptr<GLShaderParamTemplate<VAL_TYPE> > getParam(
                 const std::string& sName)
@@ -84,6 +86,7 @@ class AVG_API OGLShader {
         std::string m_sFragProgram;
 
         std::vector<GLShaderParamPtr> m_pParams;
+        Mat4fGLShaderParamPtr m_pTransformParam;
 
         ShaderRegistryPtr m_pShaderRegistry;
 };

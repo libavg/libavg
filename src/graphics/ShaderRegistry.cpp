@@ -91,7 +91,9 @@ void ShaderRegistry::createShader(const std::string& sID)
         string sShaderCode;
         string sFilename = m_sLibPath+"/"+sID+".frag";
         string sVertPreprocessed;
-        loadShaderString(m_sLibPath+"/standard.vert", sVertPreprocessed);
+        if (!GLContext::getCurrent()->useMinimalShader()) {
+            loadShaderString(m_sLibPath+"/standard.vert", sVertPreprocessed);
+        }
         string sFragPreprocessed;
         loadShaderString(sFilename, sFragPreprocessed);
         string sDefines = createDefinesString();

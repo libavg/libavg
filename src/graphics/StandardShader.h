@@ -82,7 +82,6 @@ private:
     OGLShaderPtr m_pShader;
     OGLShaderPtr m_pMinimalShader;
 
-    Mat4fGLShaderParamPtr m_pTransformParam;
     IntGLShaderParamPtr m_pColorModelParam;
     Vec4fGLShaderParamPtr m_pColorParam;
 
@@ -98,7 +97,6 @@ private:
     Vec2fGLShaderParamPtr m_pMaskPosParam;
     Vec2fGLShaderParamPtr m_pMaskSizeParam;
 
-    Mat4fGLShaderParamPtr m_pMinimalTransformParam;
     Vec4fGLShaderParamPtr m_pMinimalColorParam;
 };
 

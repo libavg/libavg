@@ -37,12 +37,16 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
       m_sVertProgram(sVertProgram),
       m_sFragProgram(sFragProgram)
 {
-    m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sDefines);
+    m_hProgram = glproc::CreateProgramObject();
+    if (sVertProgram == "") {
+        m_hVertexShader = 0;
+    } else {
+        m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sDefines);
+        glproc::AttachObject(m_hProgram, m_hVertexShader);
+    }
     m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sDefines);
     
-    m_hProgram = glproc::CreateProgramObject();
     glproc::AttachObject(m_hProgram, m_hFragmentShader);
-    glproc::AttachObject(m_hProgram, m_hVertexShader);
     glproc::LinkProgram(m_hProgram);
     GLContext::checkError("OGLShader::OGLShader: glLinkProgram()");
 
@@ -54,6 +58,9 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
         exit(-1);
     }
     m_pShaderRegistry = ShaderRegistry::get();
+    if (m_hVertexShader) {
+        m_pTransformParam = getParam<glm::mat4>("transform");
+    }
 }
 
 OGLShader::~OGLShader()
@@ -78,6 +85,15 @@ GLhandleARB OGLShader::getProgram()
 const std::string OGLShader::getName() const
 {
     return m_sName;
+}
+
+void OGLShader::setTransform(const glm::mat4& transform)
+{
+    if (m_hVertexShader) {
+        m_pTransformParam->set(transform);
+    } else {
+        glLoadMatrixf(glm::value_ptr(transform));
+    }
 }
 
 GLhandleARB OGLShader::compileShader(GLenum shaderType, const std::string& sProgram,
