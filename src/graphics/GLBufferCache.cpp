@@ -57,6 +57,11 @@ void GLBufferCache::returnBuffer(unsigned int bufferID)
     m_BufferIDs.push_back(bufferID);
 }
 
+unsigned int GLBufferCache::getNumBuffers() const
+{
+    return m_BufferIDs.size();
+}
+
 void GLBufferCache::deleteBuffers()
 {
     for (unsigned i=0; i<m_BufferIDs.size(); ++i) {

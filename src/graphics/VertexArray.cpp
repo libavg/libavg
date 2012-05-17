@@ -40,7 +40,7 @@ namespace avg {
 VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     : VertexData(reserveVerts, reserveIndexes)
 {
-    if (reserveVerts != MIN_VERTEXES || reserveIndexes != MIN_INDEXES) {
+    if (getReserveVerts() != MIN_VERTEXES || getReserveIndexes() != MIN_INDEXES) {
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
     } else {

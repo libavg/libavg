@@ -71,7 +71,6 @@ void PBO::activate()
 
 void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
 {
-
     AVG_ASSERT(pBmp->getSize() == tex.getSize());
     AVG_ASSERT(getSize() == pBmp->getSize());
     AVG_ASSERT(pBmp->getPixelFormat() == getPF());
