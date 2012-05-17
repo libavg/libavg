@@ -601,7 +601,7 @@ void WordsNode::updateLayout()
                 pango_attr_list_insert_before(pAttrList, pLetterSpacing);
 #endif            
                 pango_layout_set_text(m_pLayout, pText, -1);
-                g_free (pText);
+                g_free(pText);
             } else {
                 pAttrList = pango_attr_list_new();
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
@@ -826,8 +826,8 @@ void WordsNode::setParsedText(const UTF8String& sText)
     PangoAttrList * pAttrList = 0;
     char * pText = 0;
     parseString(&pAttrList, &pText);
-    pango_attr_list_unref (pAttrList);
-    g_free (pText);
+    pango_attr_list_unref(pAttrList);
+    g_free(pText);
     m_bParsedText = true;
 }
 
