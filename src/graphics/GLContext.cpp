@@ -342,7 +342,7 @@ void GLContext::enableGLColorArray(bool bEnable)
 void GLContext::setBlendColor(const glm::vec4& color)
 {
     if (m_BlendColor != color) {
-        glBlendColor(color[0], color[1], color[2], color[3]);
+        glproc::BlendColor(color[0], color[1], color[2], color[3]);
         m_BlendColor = color;
     }
 }
