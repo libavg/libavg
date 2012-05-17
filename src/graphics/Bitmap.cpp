@@ -618,7 +618,9 @@ void Bitmap::save(const UTF8String& sFilename)
     string sExt = getExtension(sFilename);
 
     GError* pError = 0;
-    gboolean bOk = gdk_pixbuf_save(pPixBuf, sFilename.c_str(), sExt.c_str(), &pError, NULL);
+    gboolean bOk = gdk_pixbuf_save(pPixBuf, sFilename.c_str(), sExt.c_str(), &pError, 
+            NULL);
+    g_object_unref(pPixBuf);
     if (!bOk) {
         string sErr = pError->message;
         g_error_free(pError);

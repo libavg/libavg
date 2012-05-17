@@ -41,6 +41,8 @@ public:
     unsigned int getBuffer();
     void returnBuffer(unsigned int);
 
+    unsigned int getNumBuffers() const;
+
 private:
     void deleteBuffers();
 

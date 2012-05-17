@@ -388,8 +388,7 @@ void Image::assertValid() const
     AVG_ASSERT((m_Source == SCENE) == bool(m_pCanvas));
     switch (m_State) {
         case CPU:
-            AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
-                    bool(m_pBmp));
+            AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
             AVG_ASSERT(!(m_pSurface->isCreated()));
             break;
         case GPU:
