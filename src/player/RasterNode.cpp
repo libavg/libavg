@@ -324,8 +324,6 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
 
 void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
 {
-    // TODO: Optimize for unchanged vertexes.
-    // if (m_bVertexArrayDirty) {
     if (isVisible() && m_pSurface->isCreated()) {
         pVA->startSubVA(m_SubVA);
         for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
