@@ -120,8 +120,11 @@ void VertexArray::draw()
 void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
         unsigned numVertexes)
 {
-    glproc::DrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, numIndexes, 
-            GL_UNSIGNED_INT, (void *)(startIndex*sizeof(unsigned)));
+    glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_INT, 
+            (void *)(startIndex*sizeof(unsigned)));
+//    XXX: Theoretically faster, but broken on Linux/Intel N10 graphics, Ubuntu 12/04
+//    glproc::DrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, 
+//            numIndexes, GL_UNSIGNED_INT, (void *)(startIndex*sizeof(unsigned)));
     GLContext::checkError("VertexArray::draw()");
 }
 
