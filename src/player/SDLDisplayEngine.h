@@ -44,7 +44,6 @@ class XInputMTInputDevice;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class GLContext;
-typedef boost::shared_ptr<class GLContext> GLContextPtr;
 
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
@@ -107,7 +106,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         static std::vector<long> KeyCodeTranslationTable;
         XInputMTInputDevice * m_pXIMTInputDevice;
 
-        GLContextPtr m_pGLContext;
+        GLContext* m_pGLContext;
 
         float m_Gamma[3];
 };

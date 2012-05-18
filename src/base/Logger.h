@@ -49,9 +49,7 @@ public:
     }
 
     static const long NONE;
-    static const long BLTS;
     static const long PROFILE;
-    static const long PROFILE_LATEFRAMES;
     static const long PROFILE_VIDEO;
     static const long EVENTS;
     static const long EVENTS2;

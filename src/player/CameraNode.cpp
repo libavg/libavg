@@ -299,6 +299,7 @@ void CameraNode::open()
     m_pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
     m_pTex->enableStreaming();
     getSurface()->create(pf, m_pTex);
+    newSurface();
 
     BitmapPtr pBmp = m_pTex->lockStreamingBmp();
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
@@ -330,9 +331,10 @@ int CameraNode::getFrameNum() const
 static ProfilingZoneID CameraFetchImage("Camera fetch image");
 static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
-void CameraNode::preRender()
+void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isAutoUpdateCameraImage()) {
         ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();
@@ -348,10 +350,10 @@ void CameraNode::preRender()
         AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
         pBmp->copyPixels(*m_pCurBmp);
         m_pTex->unlockStreamingBmp(true);
-        bind();
         renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
         m_bNewBmp = false;
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");

@@ -53,7 +53,7 @@ typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 class AVG_API GLContext {
 public:
     GLContext(bool bUseCurrent=false, 
-            const GLConfig& glConfig=GLConfig(false, true, true, 1), 
+            const GLConfig& glConfig=GLConfig(false, true, 1, GLConfig::AUTO), 
             GLContext* pSharedContext=0);
     virtual ~GLContext();
     void init();
@@ -62,7 +62,7 @@ public:
     ShaderRegistryPtr getShaderRegistry() const;
     StandardShaderPtr getStandardShader();
     bool useGPUYUVConversion() const;
-    bool useMinimalShader() const;
+    bool useMinimalShader();
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();
@@ -72,10 +72,11 @@ public:
     void returnFBOToCache(unsigned fboID);
 
     // GL state cache.
-    void enableTexture(bool bEnable);
     void enableGLColorArray(bool bEnable);
+    void setBlendColor(const glm::vec4& color);
     enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
     void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
+    void bindTexture(unsigned unit, unsigned texID);
 
     const GLConfig& getConfig();
     void logConfig();
@@ -86,13 +87,15 @@ public:
     OGLMemoryMode getMemoryModeSupported();
     bool initVBlank(int rate);
     
-    void enableErrorChecks(bool bEnable);
-    void checkError(const char* pszWhere);
-    void mandatoryCheckError(const char* pszWhere);
+    static void enableErrorChecks(bool bEnable);
+    static void checkError(const char* pszWhere);
+    static void mandatoryCheckError(const char* pszWhere);
 
     static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
+    static GLContext* getMain();
+    static void setMain(GLContext * pMainContext);
 
 private:
     void checkGPUMemInfoSupport();
@@ -135,15 +138,17 @@ private:
     OGLMemoryMode m_MemoryMode;
 
     // OpenGL state
-    bool m_bEnableTexture;
     bool m_bEnableGLColorArray;
+    glm::vec4 m_BlendColor;
     BlendMode m_BlendMode;
     bool m_bPremultipliedAlpha;
+    unsigned m_BoundTextures[16];
 
-    bool m_bErrorCheckEnabled;
+
+    static bool s_bErrorCheckEnabled;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
-
+    static GLContext* s_pMainContext;
 };
 
 }

@@ -461,7 +461,7 @@ void VideoNode::startDecoding()
     if (pAudioEngine) {
         pAP = pAudioEngine->getParams();
     }
-    m_pDecoder->startDecoding(GLContext::getCurrent()->useGPUYUVConversion(), pAP);
+    m_pDecoder->startDecoding(GLContext::getMain()->useGPUYUVConversion(), pAP);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
@@ -519,6 +519,7 @@ void VideoNode::createTextures(IntPoint size)
     } else {
         getSurface()->create(pf, m_pTextures[0]);
     }
+    newSurface();
 }
 
 void VideoNode::close()
@@ -614,10 +615,11 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 
 static ProfilingZoneID PrerenderProfilingZone("VideoNode::prerender");
 
-void VideoNode::preRender()
+void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
     ScopeTimer timer(PrerenderProfilingZone);
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
             if (m_VideoState == Playing) {
@@ -647,6 +649,7 @@ void VideoNode::preRender()
             }
         }
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
@@ -684,7 +687,6 @@ bool VideoNode::renderFrame()
         case FA_NEW_FRAME:
             m_FramesPlayed++;
             m_FramesInRowTooLate = 0;
-            bind();
             m_bSeekPending = false;
             setMaskCoords();
 //            AVG_TRACE(Logger::PROFILE, "New frame.");

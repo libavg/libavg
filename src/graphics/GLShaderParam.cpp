@@ -34,7 +34,7 @@ GLShaderParam::GLShaderParam(OGLShader* pShader, const std::string& sName)
     string sErr = std::string("Shader param '") + sName + "' not found in shader '" + 
             pShader->getName() + "'.";
     AVG_ASSERT_MSG(m_Location != -1, sErr.c_str());
-    GLContext::getCurrent()->checkError(sErr.c_str());
+    GLContext::checkError(sErr.c_str());
 };
 
 int GLShaderParam::getLocation() const
@@ -48,34 +48,40 @@ const string& GLShaderParam::getName() const
 }
 
 template<>
-void GLShaderParamTemplate<int>::uniformSet(unsigned location, int val)
+void GLShaderParamTemplate<int>::uniformSet(unsigned location, const int& val)
 {
     glproc::Uniform1i(location, val);
 }
 
 template<>
-void GLShaderParamTemplate<float>::uniformSet(unsigned location, float val)
+void GLShaderParamTemplate<float>::uniformSet(unsigned location, const float& val)
 {
     glproc::Uniform1f(location, val);
 }
 
 template<>
-void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, glm::vec2 val)
+void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, const glm::vec2& val)
 {
     glproc::Uniform2f(location, val.x, val.y);
 }
 
 template<>
-void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, Pixel32 val)
+void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, const Pixel32& val)
 {
     glproc::Uniform4f(location, val.getR()/255.f, val.getG()/255.f, val.getB()/255.f,
             val.getA()/255.f);
 }
 
 template<>
-void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, glm::vec4 val)
+void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, const glm::vec4& val)
 {
     glproc::Uniform4f(location, val[0], val[1], val[2], val[3]);
+}
+
+template<>
+void GLShaderParamTemplate<glm::mat4>::uniformSet(unsigned location, const glm::mat4& val)
+{
+    glproc::UniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(val));
 }
 
 }

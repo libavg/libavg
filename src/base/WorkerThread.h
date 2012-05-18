@@ -95,7 +95,7 @@ template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::operator()()
 {
     try {
-        ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+        ThreadProfiler* pProfiler = ThreadProfiler::get();
         pProfiler->setName(m_sName);
         pProfiler->setLogCategory(m_LogCategory);
         bool bOK;

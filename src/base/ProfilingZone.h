@@ -53,13 +53,12 @@ public:
     const std::string& getName() const;
 
 private:
-    const ProfilingZoneID& m_ZoneID;
     long long m_TimeSum;
     long long m_AvgTime;
     long long m_StartTime;
     int m_NumFrames;
     int m_Indent;
-    bool m_bIsRegistered;
+    const ProfilingZoneID& m_ZoneID;
 };
 
 typedef boost::shared_ptr<ProfilingZone> ProfilingZonePtr;

@@ -20,7 +20,6 @@
 //
 
 #include "FileHelper.h"
-#include "ConfigMgr.h"
 #include "Exception.h"
 
 #ifndef _WIN32
@@ -32,7 +31,9 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
+#include <vector>
 #include <map>
 #include <cstring>
 #include <iostream>

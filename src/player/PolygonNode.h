@@ -56,8 +56,8 @@ class AVG_API PolygonNode : public FilledVectorNode
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
 
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
-        virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
+        virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
+        virtual void calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
     private:
         std::vector<glm::vec2> m_Pts;

@@ -24,16 +24,35 @@
 
 #include "../api.h"
 #include "ProfilingZoneID.h"
+#include "ThreadProfiler.h"
 
 namespace avg {
-    
+
 class AVG_API ScopeTimer {
 public:
-    ScopeTimer(ProfilingZoneID& zoneID);
-    virtual ~ScopeTimer();
-   
+    ScopeTimer(ProfilingZoneID& zoneID)
+    {
+        if (s_bTimersEnabled) {
+            m_pZoneID = &zoneID;
+            m_pZoneID->getProfiler()->startZone(zoneID);
+        } else {
+            m_pZoneID = 0;
+        }
+    };
+
+    ~ScopeTimer()
+    {
+        if (m_pZoneID) {
+            m_pZoneID->getProfiler()->stopZone(*m_pZoneID);
+        }
+    };
+
+    static void enableTimers(bool bEnable);
+
 private:
-    ProfilingZoneID& m_ZoneID;
+    ProfilingZoneID* m_pZoneID;
+
+    static bool s_bTimersEnabled;
 };
 
 }

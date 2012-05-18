@@ -50,7 +50,8 @@ class AVG_API ImageNode : public RasterNode
         const std::string getCompression() const;
         void setBitmap(BitmapPtr pBmp);
         
-        virtual void preRender();
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+                float parentEffectiveOpacity);
         virtual void render();
         
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);

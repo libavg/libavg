@@ -38,13 +38,13 @@ namespace avg {
 
 StandardShaderPtr StandardShader::get() 
 {
-    return GLContext::getCurrent()->getStandardShader();
+    return GLContext::getMain()->getStandardShader();
 }
 
 StandardShader::StandardShader()
 {
     avg::createShader(STANDARD_SHADER);
-    m_pShader = getShader(STANDARD_SHADER);
+    m_pShader = avg::getShader(STANDARD_SHADER);
     m_pColorModelParam = m_pShader->getParam<int>("colorModel");
     m_pColorParam = m_pShader->getParam<glm::vec4>("color");
     m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("colorCoeff0");
@@ -61,19 +61,19 @@ StandardShader::StandardShader()
 
     m_pShader->activate();
     m_pShader->getParam<int>("texture")->set(0);
-    if (GLContext::getCurrent()->useGPUYUVConversion()) {
+    if (GLContext::getMain()->useGPUYUVConversion()) {
         m_pShader->getParam<int>("cbTexture")->set(1);
         m_pShader->getParam<int>("crTexture")->set(2);
         m_pShader->getParam<int>("aTexture")->set(3);
     }
     m_pShader->getParam<int>("maskTexture")->set(4);
 
-    if (GLContext::getCurrent()->useMinimalShader()) {
+    if (GLContext::getMain()->useMinimalShader()) {
         avg::createShader(MINIMAL_SHADER);
-        m_pMinimalShader = getShader(MINIMAL_SHADER);
+        m_pMinimalShader = avg::getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("texture")->set(0);
-        m_pMinimalColorParam = m_pShader->getParam<glm::vec4>("color");
+        m_pMinimalColorParam = m_pMinimalShader->getParam<glm::vec4>("color");
     }
     
     generateWhiteTexture(); 
@@ -85,14 +85,13 @@ StandardShader::~StandardShader()
 
 void StandardShader::activate()
 {
-    bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-    if (GLContext::getCurrent()->useMinimalShader() &&
-            (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask))
-    {
+    if (useMinimalShader()) {
         m_pMinimalShader->activate();
+        m_pMinimalShader->setTransform(m_Transform);
         m_pMinimalColorParam->set(m_Color);
     } else {
         m_pShader->activate();
+        m_pShader->setTransform(m_Transform);
         m_pColorModelParam->set(m_ColorModel);
         m_pColorParam->set(m_Color);
 
@@ -112,6 +111,11 @@ void StandardShader::activate()
             m_pMaskSizeParam->set(m_MaskSize);
         }
     }
+}
+
+void StandardShader::setTransform(const glm::mat4& transform)
+{
+    m_Transform = transform;
 }
 
 void StandardShader::setColorModel(int model)
@@ -164,12 +168,49 @@ void StandardShader::setMask(bool bUseMask, const glm::vec2& maskPos,
     m_MaskSize = maskSize;
 }
 
+const OGLShaderPtr& StandardShader::getShader() const
+{
+    if (useMinimalShader()) {
+        return m_pMinimalShader;
+    } else {
+        return m_pShader;
+    }
+}
+
+void StandardShader::dump() const
+{
+    cerr << "---------Standard shader--------" << endl;
+    cerr << "  m_Transform: " << m_Transform << endl;
+    cerr << "  m_ColorModel: " << m_ColorModel << endl;
+    cerr << "  m_Color: " << m_Color << endl;
+    cerr << "  m_bUseColorCoeff: " << m_bUseColorCoeff << endl;
+    cerr << "  m_ColorMatrix: " << m_ColorMatrix << endl;
+    cerr << "  m_Gamma: " << m_Gamma << endl;
+    cerr << "  m_bPremultipliedAlpha: " << m_bPremultipliedAlpha << endl;
+    cerr << "  m_bUseMask: " << m_bUseMask << endl;
+    cerr << "  m_MaskPos: " << m_MaskPos << endl;
+    cerr << "  m_MaskSize: " << m_MaskSize << endl;
+    cerr << endl;
+}
+
 void StandardShader::generateWhiteTexture()
 {
     BitmapPtr pBmp(new Bitmap(glm::vec2(1,1), I8));
     *(pBmp->getPixels()) = 255;
     m_pWhiteTex = GLTexturePtr(new GLTexture(IntPoint(1,1), I8));
     m_pWhiteTex->moveBmpToTexture(pBmp);
+}
+
+bool StandardShader::useMinimalShader() const
+{
+    bool bActivateMinimal = false;
+    if (GLContext::getMain()->useMinimalShader()) {
+        bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+        if (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask) {
+            bActivateMinimal = true;
+        }
+    }
+    return bActivateMinimal;
 }
 
 }

@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
 #include "ImagingProjection.h"
+#include "OGLShader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"
@@ -40,24 +41,23 @@ namespace avg {
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         float stdDev, bool bClipBorders, bool bStandalone, bool bUseFloatKernel)
-    : GPUFilter(pfSrc, pfDest, bStandalone, 2),
+    : GPUFilter(pfSrc, pfDest, bStandalone, SHADERID_HORIZ, 2),
       m_bClipBorders(bClipBorders),
       m_bUseFloatKernel(bUseFloatKernel)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size, stdDev, bClipBorders);
-    createShader(SHADERID_HORIZ);
     createShader(SHADERID_VERT);
     setStdDev(stdDev);
 
-    OGLShaderPtr pShader = getShader(SHADERID_HORIZ);
+    OGLShaderPtr pShader = getShader();
     m_pHorizWidthParam = pShader->getParam<float>("width");
     m_pHorizRadiusParam = pShader->getParam<int>("radius");
     m_pHorizTextureParam = pShader->getParam<int>("texture");
     m_pHorizKernelTexParam = pShader->getParam<int>("kernelTex");
 
-    pShader = getShader(SHADERID_VERT);
+    pShader = avg::getShader(SHADERID_VERT);
     m_pVertWidthParam = pShader->getParam<float>("width");
     m_pVertRadiusParam = pShader->getParam<int>("radius");
     m_pVertTextureParam = pShader->getParam<int>("texture");
@@ -83,8 +83,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     int kernelWidth = m_pGaussCurveTex->getSize().x;
     getFBO(1)->activate();
-    OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
-    pHShader->activate();
+    getShader()->activate();
     m_pHorizWidthParam->set(float(kernelWidth));
     m_pHorizRadiusParam->set((kernelWidth-1)/2);
     m_pHorizTextureParam->set(0);
@@ -93,14 +92,14 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     draw(pSrcTex);
 
     getFBO(0)->activate();
-    OGLShaderPtr pVShader = getShader(SHADERID_VERT);
+    OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
     pVShader->activate();
     m_pVertWidthParam->set(float(kernelWidth));
     m_pVertRadiusParam->set((kernelWidth-1)/2);
     m_pVertTextureParam->set(0);
     m_pVertKernelTexParam->set(1);
     getDestTex(1)->activate(GL_TEXTURE0);
-    m_pProjection2->draw();
+    m_pProjection2->draw(pVShader);
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)

@@ -25,6 +25,7 @@
 #include "VertexArray.h"
 #include "ImagingProjection.h"
 #include "GLContext.h"
+#include "ShaderRegistry.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -39,7 +40,7 @@ using namespace boost;
 namespace avg {
 
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
-        unsigned numTextures, bool bMipmap)
+        const std::string& sShaderID, unsigned numTextures, bool bMipmap)
     : m_PFSrc(pfSrc),
       m_PFDest(pfDest),
       m_bStandalone(bStandalone),
@@ -48,6 +49,8 @@ GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
       m_SrcSize(0,0),
       m_DestRect(0,0,0,0)
 {
+    createShader(sShaderID);
+    m_pShader = avg::getShader(sShaderID);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -56,37 +59,6 @@ GPUFilter::~GPUFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUFilter::setDimensions(const IntPoint& srcSize)
-{
-    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
-}
-
-void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-        unsigned texMode)
-{
-    bool bProjectionChanged = false;
-    if (destRect != m_DestRect) {
-        m_pFBOs.clear();
-        for (unsigned i=0; i<m_NumTextures; ++i) {
-            FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
-                    m_bMipmap));
-            m_pFBOs.push_back(pFBO);
-        }
-        m_DestRect = destRect;
-        bProjectionChanged = true;
-    }
-    if (m_bStandalone && srcSize != m_SrcSize) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
-                texMode));
-        m_pSrcPBO = PBOPtr(new PBO(srcSize, m_PFSrc, GL_STREAM_DRAW));
-        bProjectionChanged = true;
-    }
-    m_SrcSize = srcSize;
-    if (bProjectionChanged) {
-        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
-    }
-}
-  
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pSrcTex);
@@ -144,10 +116,46 @@ FRect GPUFilter::getRelDestRect() const
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
 }
 
+void GPUFilter::setDimensions(const IntPoint& srcSize)
+{
+    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
+}
+
+void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+        unsigned texMode)
+{
+    bool bProjectionChanged = false;
+    if (destRect != m_DestRect) {
+        m_pFBOs.clear();
+        for (unsigned i=0; i<m_NumTextures; ++i) {
+            FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
+                    m_bMipmap));
+            m_pFBOs.push_back(pFBO);
+        }
+        m_DestRect = destRect;
+        bProjectionChanged = true;
+    }
+    if (m_bStandalone && srcSize != m_SrcSize) {
+        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
+                texMode));
+        m_pSrcPBO = PBOPtr(new PBO(srcSize, m_PFSrc, GL_STREAM_DRAW));
+        bProjectionChanged = true;
+    }
+    m_SrcSize = srcSize;
+    if (bProjectionChanged) {
+        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
+    }
+}
+  
+const OGLShaderPtr& GPUFilter::getShader() const
+{
+    return m_pShader;
+}
+
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
-    m_pProjection->draw();
+    m_pProjection->draw(m_pShader);
 }
 
 void dumpKernel(int width, float* pKernel)
@@ -224,7 +232,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
     PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), pf, GL_STREAM_DRAW));
     pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-    GLContext::getCurrent()->checkError("GPUFilter::calcBlurKernelTex MapBuffer()");
+    GLContext::checkError("GPUFilter::calcBlurKernelTex MapBuffer()");
     if (bUseFloat) {
         float * pCurFloat = (float*)pPBOPixels;
         for (int i = 0; i < kernelWidth; ++i) {
@@ -241,7 +249,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
         }
     }
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-    GLContext::getCurrent()->checkError("GPUFilter::calcBlurKernelTex UnmapBuffer()");
+    GLContext::checkError("GPUFilter::calcBlurKernelTex UnmapBuffer()");
     pFilterKernelPBO->moveToTexture(*pTex);
 
     delete[] pKernel;

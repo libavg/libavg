@@ -23,13 +23,12 @@
 
 #include "Bitmap.h"
 #include "../base/Exception.h"
+#include "../base/ProfilingZoneID.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 namespace avg {
-
-static ProfilingZoneID ProfilingZoneLoadBitmap("BitmapManager loadBitmap");
 
 BitmapManagerThread::BitmapManagerThread(CQueue& cmdQ,
         BitmapManagerMsgQueue& MsgQueue)

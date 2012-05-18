@@ -24,6 +24,7 @@ import unittest
 
 import optparse
 import os
+import sys
 
 import libavg
 import testcase
@@ -106,25 +107,42 @@ class TestApp(object):
         self.__populateTestSuite()
 
     def __setupGlobalPlayerOptions(self):
+        if self.__commandlineOptions.shaderusage == "FULL":
+            shaderUsage = libavg.SHADERUSAGE_FULL
+        elif self.__commandlineOptions.shaderusage == "MINIMAL":
+            shaderUsage = libavg.SHADERUSAGE_MINIMAL
+        elif self.__commandlineOptions.shaderusage == "AUTO":
+            shaderUsage = libavg.SHADERUSAGE_AUTO
+        else:
+            print
+            print "Unknown value for --shaderusage command-line parameter."
+            print
+            self.__optionParser.print_help()
+            sys.exit(-1)
+
         self.__player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
-                self.__commandlineOptions.usepixelbuffers,
-                1)
+                self.__commandlineOptions.usepixelbuffers, 1, shaderUsage)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(
             usage = '%prog [options] [<suite> [testcase] [testcase] [...]]')
         
         self.__optionParser.add_option("--usepow2textures", 
-                                       dest = "usepow2textures", 
-                                       action = 'store_true',
-                                       default = False, 
-                                       help = "Use power of 2 textures")
+                dest = "usepow2textures", 
+                action = 'store_true',
+                default = False, 
+                help = "Use power of 2 textures")
         
         self.__optionParser.add_option("--nopixelbuffers", 
-                                       dest = "usepixelbuffers",
-                                       action = 'store_false',
-                                       default = True, 
-                                       help = "Use pixel buffers")
+                dest = "usepixelbuffers",
+                action = 'store_false',
+                default = True, 
+                help = "Use pixel buffers")
+
+        self.__optionParser.add_option("--shaderusage",
+                dest = "shaderusage",
+                default = "AUTO", 
+                help = "Configure usage of shaders. Valid values are FULL, MINIMAL and AUTO.")
         
     def __parseCommandline(self):
         self.__commandlineOptions, args = self.__optionParser.parse_args()

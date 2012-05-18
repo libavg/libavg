@@ -19,37 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GLBufferCache_H_
-#define _GLBufferCache_H_
+uniform mat4 transform;
 
-#include "../api.h"
-
-#include "../graphics/OGLHelper.h"
-
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/tss.hpp>
-
-namespace avg {
-
-class AVG_API GLBufferCache {
-public:
-    GLBufferCache();
-    virtual ~GLBufferCache();
-
-    unsigned int getBuffer();
-    void returnBuffer(unsigned int);
-
-    unsigned int getNumBuffers() const;
-
-private:
-    void deleteBuffers();
-
-    std::vector<unsigned int> m_BufferIDs;
-};
-
+void main(void)
+{
+    gl_Position = transform * gl_Vertex;
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+    gl_FrontColor = gl_Color;
 }
-
-#endif
 

@@ -69,6 +69,7 @@ void Canvas::initPlayback(int multiSampleSamples)
     m_bIsPlaying = true;
     m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
+    m_pVertexArray = VertexArrayPtr(new VertexArray(2000, 3000));
 }
 
 void Canvas::stopPlayback()
@@ -79,6 +80,7 @@ void Canvas::stopPlayback()
         m_pRootNode = CanvasNodePtr();
         m_IDMap.clear();
         m_bIsPlaying = false;
+        m_pVertexArray = VertexArrayPtr();
     }
 }
 
@@ -167,20 +169,20 @@ IntPoint Canvas::getSize() const
 }
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-void Canvas::pushClipRect(const glm::mat4& transform, VertexArrayPtr pVA)
+void Canvas::pushClipRect(const glm::mat4& transform, SubVertexArray& va)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
-    clip(transform, pVA, GL_INCR);
+    clip(transform, va, GL_INCR);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void Canvas::popClipRect(const glm::mat4& transform, VertexArrayPtr pVA)
+void Canvas::popClipRect(const glm::mat4& transform, SubVertexArray& va)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
-    clip(transform, pVA, GL_DECR);
+    clip(transform, va, GL_DECR);
 }
 
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -252,66 +254,61 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
 {
     {
         ScopeTimer Timer(PreRenderProfilingZone);
-        m_pRootNode->preRender();
+        m_pVertexArray->reset();
+        m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
+        m_pVertexArray->update();
     }
     if (pFBO) {
         pFBO->activate();
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-        GLContext::getCurrent()->checkError("Canvas::render: BindFramebuffer()");
+        GLContext::checkError("Canvas::render: BindFramebuffer()");
     }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
-        GLContext::getCurrent()->checkError( 
-                "Canvas::render: glEnable(GL_MULTISAMPLE)");
+        GLContext::checkError("Canvas::render: glEnable(GL_MULTISAMPLE)");
     } else {
         glDisable(GL_MULTISAMPLE);
-        GLContext::getCurrent()->checkError(
-                "Canvas::render: glDisable(GL_MULTISAMPLE)");
+        GLContext::checkError("Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
-    GLContext::getCurrent()->checkError("Canvas::render: glViewport()");
-    glMatrixMode(GL_PROJECTION);
-    GLContext::getCurrent()->checkError("Canvas::render: glMatrixMode()");
-    glLoadIdentity();
-    GLContext::getCurrent()->checkError("Canvas::render: glLoadIdentity()");
+    GLContext::checkError("Canvas::render: glViewport()");
     glm::vec2 size = m_pRootNode->getSize();
+    glm::mat4 projMat;
     if (bUpsideDown) {
-        gluOrtho2D(0, size.x, 0, size.y);
+        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
     } else {
-        gluOrtho2D(0, size.x, size.y, 0);
+        projMat = glm::ortho(0.f, size.x, size.y, 0.f);
     }
-    GLContext::getCurrent()->checkError("Canvas::render: gluOrtho2D()");
-    
-    glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
-        m_pRootNode->maybeRender();
+        m_pVertexArray->activate();
+        m_pRootNode->maybeRender(projMat);
 
-        renderOutlines();
+        renderOutlines(projMat);
     }
 }
 
-void Canvas::renderOutlines()
+void Canvas::renderOutlines(const glm::mat4& transform)
 {
-    GLContext* pContext = GLContext::getCurrent();
+    GLContext* pContext = GLContext::getMain();
     VertexArrayPtr pVA(new VertexArray);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(glm::value_ptr(glm::mat4(1.0)));
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
-    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    StandardShaderPtr pShader = pContext->getStandardShader();
+    pShader->setTransform(transform);
     pShader->setUntextured();
+    pShader->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     pShader->activate();
-    if (pVA->getCurVert() != 0) {
+    if (pVA->getNumVerts() != 0) {
         pVA->update();
         pContext->enableGLColorArray(true);
         pVA->draw();
     }
 }
 
-void Canvas::clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencilOp)
+void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp)
 {
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
@@ -323,11 +320,11 @@ void Canvas::clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    StandardShaderPtr pShader = GLContext::getMain()->getStandardShader();
     pShader->setUntextured();
+    pShader->setTransform(transform);
     pShader->activate();
-    glLoadMatrixf(glm::value_ptr(transform));
-    pVA->draw();
+    va.draw();
 
     // Set stencil test to only let
     glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);

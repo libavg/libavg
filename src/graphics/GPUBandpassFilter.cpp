@@ -22,6 +22,7 @@
 #include "GPUBandpassFilter.h"
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
+#include "OGLShader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -36,7 +37,7 @@ namespace avg {
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         float min, float max, float postScale, bool bInvert, bool bStandalone)
-    : GPUFilter(pfSrc, B8G8R8A8, bStandalone),
+    : GPUFilter(pfSrc, B8G8R8A8, bStandalone, SHADERID),
       m_PostScale(postScale),
       m_bInvert(bInvert),
       m_MinFilter(size, pfSrc, R32G32B32A32F, min, true, false, true),
@@ -44,9 +45,8 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    initShader();
     
-    OGLShaderPtr pShader = getShader(SHADERID);
+    OGLShaderPtr pShader = getShader();
     m_pMinTexParam = pShader->getParam<int>("minTex");
     m_pMaxTexParam = pShader->getParam<int>("maxTex");
     m_pPostScaleParam = pShader->getParam<float>("postScale");
@@ -64,19 +64,13 @@ void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_MaxFilter.apply(pSrcTex);
 
     getFBO()->activate();
-    OGLShaderPtr pShader = getShader(SHADERID);
-    pShader->activate();
+    getShader()->activate();
     m_pMinTexParam->set(0);
     m_pMaxTexParam->set(1);
     m_pPostScaleParam->set(float(m_PostScale));
     m_pInvertParam->set(m_bInvert);
     m_MaxFilter.getDestTex()->activate(GL_TEXTURE1);
     draw(m_MinFilter.getDestTex());
-}
-
-void GPUBandpassFilter::initShader()
-{
-    createShader(SHADERID);
 }
 
 }

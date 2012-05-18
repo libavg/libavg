@@ -49,7 +49,7 @@ class AVG_API LineNode : public VectorNode
         float getTexCoord2() const;
         void setTexCoord2(float tc);
 
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
+        virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
     private:
         glm::vec2 m_P1;

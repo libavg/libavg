@@ -49,6 +49,7 @@ class ProfilingZoneID;
 class Canvas;
 class FBO;
 class VertexArray;
+class SubVertexArray;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -77,8 +78,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
-        virtual void pushClipRect(const glm::mat4& transform, VertexArrayPtr pVA);
-        virtual void popClipRect(const glm::mat4& transform, VertexArrayPtr pVA);
+        virtual void pushClipRect(const glm::mat4& transform, SubVertexArray& va);
+        virtual void popClipRect(const glm::mat4& transform, SubVertexArray& va);
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
@@ -105,12 +106,13 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
     private:
         virtual void render()=0;
-        void renderOutlines();
+        void renderOutlines(const glm::mat4& transform);
 
-        void clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencilOp);
+        void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;
+        VertexArrayPtr m_pVertexArray;
        
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;

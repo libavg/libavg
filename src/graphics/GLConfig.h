@@ -26,17 +26,18 @@
 namespace avg {
 
 struct AVG_API GLConfig {
+    enum ShaderUsage {FULL, MINIMAL, AUTO};
+
     GLConfig();
-    GLConfig(bool bUsePOTTextures, bool bUseShaders, bool bUsePixelBuffers,
-            int multiSampleSamples);
+    GLConfig(bool bUsePOTTextures, bool bUsePixelBuffers, int multiSampleSamples, 
+            ShaderUsage shaderUsage);
 
     void log();
 
     bool m_bUsePOTTextures;
     bool m_bUsePixelBuffers;
     int m_MultiSampleSamples;
-
-//    OGLMemoryMode m_MemoryMode;
+    ShaderUsage m_ShaderUsage;
 };
 
 }

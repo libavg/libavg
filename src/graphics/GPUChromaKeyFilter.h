@@ -48,6 +48,7 @@ private:
     float m_Softness;
     int m_Erosion;
     float m_SpillThreshold;
+    ImagingProjectionPtr m_pProjection2;
     
     IntGLShaderParamPtr m_pTextureParam;
     FloatGLShaderParamPtr m_pHKeyParam;

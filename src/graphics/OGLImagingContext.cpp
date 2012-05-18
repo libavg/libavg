@@ -21,7 +21,6 @@
 
 #include "OGLImagingContext.h"
 #undef check
-#include "ShaderRegistry.h"
 
 #include "../base/Exception.h"
 
@@ -78,21 +77,21 @@ void OGLImagingContext::setStandardState()
 {
     // Shading etc.
     glDisable(GL_BLEND);
-    GLContext::getCurrent()->checkError("glDisable(GL_BLEND)");
+    GLContext::checkError("glDisable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    GLContext::getCurrent()->checkError("glShadeModel(GL_FLAT)");
+    GLContext::checkError("glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
-    GLContext::getCurrent()->checkError("glDisable(GL_DEPTH_TEST)");
+    GLContext::checkError("glDisable(GL_DEPTH_TEST)");
     glDisable(GL_STENCIL_TEST);
-    GLContext::getCurrent()->checkError("glDisable(GL_STENCIL_TEST)");
+    GLContext::checkError("glDisable(GL_STENCIL_TEST)");
 
     // Texturing
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); 
-    GLContext::getCurrent()->checkError("glTexEnvf()");
+    GLContext::checkError("glTexEnvf()");
     glBlendFunc(GL_ONE, GL_ZERO);
-    GLContext::getCurrent()->checkError("glBlendFunc()");
+    GLContext::checkError("glBlendFunc()");
     glDisable(GL_MULTISAMPLE);
-    GLContext::getCurrent()->checkError("glDisable(GL_MULTISAMPLE);");
+    GLContext::checkError("glDisable(GL_MULTISAMPLE);");
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);

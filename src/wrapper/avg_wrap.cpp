@@ -98,9 +98,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("popCategories", &Logger::popCategories)
         .def("trace", &Logger::trace)
         .def_readonly("NONE", &Logger::NONE)
-        .def_readonly("BLTS", &Logger::BLTS)
         .def_readonly("PROFILE", &Logger::PROFILE)
-        .def_readonly("PROFILE_LATEFRAMES", &Logger::PROFILE_LATEFRAMES)
         .def_readonly("PROFILE_VIDEO", &Logger::PROFILE_VIDEO)
         .def_readonly("EVENTS", &Logger::EVENTS)
         .def_readonly("EVENTS2", &Logger::EVENTS2)
@@ -126,6 +124,13 @@ BOOST_PYTHON_MODULE(avg)
                 TestHelper_fakeTouchEvent_overloads())
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent)
         .def("dumpObjects", &TestHelper::dumpObjects)
+    ;
+
+    enum_<GLConfig::ShaderUsage>("ShaderUsage")
+        .value("SHADERUSAGE_FULL", GLConfig::FULL)
+        .value("SHADERUSAGE_MINIMAL", GLConfig::MINIMAL)
+        .value("SHADERUSAGE_AUTO", GLConfig::AUTO)
+        .export_values()
     ;
 
     class_<Player>("Player") 

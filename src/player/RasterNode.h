@@ -30,6 +30,7 @@
 #include "../base/GLMHelper.h"
 #include "../base/UTF8String.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/SubVertexArray.h"
 
 #include <string>
 
@@ -57,7 +58,7 @@ class AVG_API RasterNode: public AreaNode
         virtual void setArgs(const ArgList& args);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
-        
+
         // Warping support.
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
@@ -93,6 +94,8 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
+         
+        void calcVertexArray(const VertexArrayPtr& pVA);
         void blt32(const glm::mat4& transform, const glm::vec2& destSize, float opacity,
                 GLContext::BlendMode mode, bool bPremultipliedAlpha = false);
         void blta8(const glm::mat4& transform, const glm::vec2& destSize, float opacity, 
@@ -102,11 +105,11 @@ class AVG_API RasterNode: public AreaNode
         const MaterialInfo& getMaterial() const;
         bool hasMask() const;
         void setMaskCoords();
-        void bind();
         void renderFX(const glm::vec2& destSize, const Pixel32& color, 
                 bool bPremultipliedAlpha, bool bForceRender=false);
 
     protected:
+        void newSurface();
         void setupFX(bool bNewFX);
 
     private:
@@ -135,12 +138,10 @@ class AVG_API RasterNode: public AreaNode
         glm::vec2 m_MaskPos;
         glm::vec2 m_MaskSize;
         
-        bool m_bBound;
-
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
         bool m_bVertexArrayDirty;
-        VertexArray * m_pVertexes;
+        SubVertexArray m_SubVA;
         std::vector<std::vector<glm::vec2> > m_TexCoords;
 
         glm::vec3 m_Gamma;

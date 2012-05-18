@@ -125,18 +125,18 @@ void CurveNode::setTexCoord2(float tc)
     setDrawNeeded();
 }
 
-void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     updateLines();
     
-    pVertexArray->appendPos(m_LeftCurve[0], glm::vec2(m_TC1,1), color);
-    pVertexArray->appendPos(m_RightCurve[0], glm::vec2(m_TC2,0), color);
+    pVertexData->appendPos(m_LeftCurve[0], glm::vec2(m_TC1,1), color);
+    pVertexData->appendPos(m_RightCurve[0], glm::vec2(m_TC2,0), color);
     for (unsigned i = 0; i < m_LeftCurve.size()-1; ++i) {
         float ratio = i/float(m_LeftCurve.size());
         float tc = (1-ratio)*m_TC1+ratio*m_TC2;
-        pVertexArray->appendPos(m_LeftCurve[i+1], glm::vec2(tc,1), color);
-        pVertexArray->appendPos(m_RightCurve[i+1], glm::vec2(tc,0), color);
-        pVertexArray->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
+        pVertexData->appendPos(m_LeftCurve[i+1], glm::vec2(tc,1), color);
+        pVertexData->appendPos(m_RightCurve[i+1], glm::vec2(tc,0), color);
+        pVertexData->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
     }
 }
 

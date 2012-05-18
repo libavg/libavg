@@ -47,6 +47,7 @@ public:
 
     void activate();
 
+    void setTransform(const glm::mat4& transform);
     void setColorModel(int model);
     void setColor(const glm::vec4& color);
     void setUntextured();
@@ -57,11 +58,17 @@ public:
     void setMask(bool bUseMask, const glm::vec2& maskPos = glm::vec2(0,0),
         const glm::vec2& maskSize = glm::vec2(0,0));
 
+    const OGLShaderPtr& getShader() const;
+
+    void dump() const;
+
 private:
     void generateWhiteTexture();
+    bool useMinimalShader() const;
 
     GLTexturePtr m_pWhiteTex;
 
+    glm::mat4 m_Transform;
     int m_ColorModel;
     glm::vec4 m_Color;
     bool m_bUseColorCoeff;
@@ -74,6 +81,7 @@ private:
 
     OGLShaderPtr m_pShader;
     OGLShaderPtr m_pMinimalShader;
+
     IntGLShaderParamPtr m_pColorModelParam;
     Vec4fGLShaderParamPtr m_pColorParam;
 

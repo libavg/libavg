@@ -25,7 +25,7 @@
 #include "Player.h"
 
 #include "../base/Exception.h"
-#include "../base/ProfilingZone.h"
+#include "../base/ProfilingZoneID.h"
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/FilterUnmultiplyAlpha.h"

@@ -23,7 +23,7 @@
 #define _VertexArray_H_
 
 #include "../api.h"
-
+#include "VertexData.h"
 #include "Pixel32.h"
 #include "OGLHelper.h"
 
@@ -33,44 +33,22 @@
 
 namespace avg {
 
-struct T2V3C4Vertex {
-    GLfloat m_Tex[2];
-    Pixel32 m_Color;
-    GLfloat m_Pos[3];
-};
+class SubVertexArray;
 
-class AVG_API VertexArray {
+class AVG_API VertexArray: public VertexData {
 public:
     VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
     virtual ~VertexArray();
 
-    virtual void appendPos(const glm::vec2& pos, 
-            const glm::vec2& texPos, const Pixel32& color = Pixel32(0,0,0,0));
-    void appendTriIndexes(int v0, int v1, int v2);
-    void appendQuadIndexes(int v0, int v1, int v2, int v3);
-    void addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2& p2, 
-            float width, float tc1=0, float tc2=1);
-    void reset();
-
     void update();
+    void activate();
     void draw();
+    void draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
+            unsigned numVertexes);
 
-    int getCurVert() const;
-    int getCurIndex() const;
-    void dump() const;
+    void startSubVA(SubVertexArray& subVA);
 
 private:
-    void grow();
-
-    int m_NumVerts;
-    int m_NumIndexes;
-    int m_ReserveVerts;
-    int m_ReserveIndexes;
-    T2V3C4Vertex * m_pVertexData;
-    unsigned int * m_pIndexData;
-
-    bool m_bDataChanged;
-
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
 };

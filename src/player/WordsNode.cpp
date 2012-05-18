@@ -672,7 +672,7 @@ void WordsNode::renderText()
     if (m_RedrawState == RENDER_NEEDED) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
-            int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+            int maxTexSize = GLContext::getMain()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 
                         "WordsNode size exceeded maximum (Size=" 
@@ -714,7 +714,7 @@ void WordsNode::renderText()
             pMover->unlock();
             pMover->moveToTexture(*pTex);
 
-            bind();
+            newSurface();
         }
         m_RedrawState = CLEAN;
     }
@@ -728,9 +728,10 @@ void WordsNode::redraw()
     renderText();
 }
 
-void WordsNode::preRender()
+void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         redraw();
     } else {
@@ -739,6 +740,7 @@ void WordsNode::preRender()
     if (m_sText.length() != 0 && isVisible()) {
         renderFX(getSize(), m_Color, false);
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");

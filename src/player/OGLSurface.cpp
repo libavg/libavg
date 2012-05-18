@@ -27,7 +27,6 @@
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 
-#include "../graphics/ShaderRegistry.h"
 #include "../graphics/GLContext.h"
 #include "../graphics/GLTexture.h"
 
@@ -104,7 +103,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
 {
     StandardShaderPtr pShader = StandardShader::get();
 
-    GLContext::getCurrent()->checkError("OGLSurface::activate()");
+    GLContext::checkError("OGLSurface::activate()");
     switch (m_pf) {
         case YCbCr420p:
         case YCbCrJ420p:
@@ -152,7 +151,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
         pShader->setMask(false);
     }
     pShader->activate();
-    GLContext::getCurrent()->checkError("OGLSurface::activate");
+    GLContext::checkError("OGLSurface::activate");
 }
 
 GLTexturePtr OGLSurface::getTex(int i) const

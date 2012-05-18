@@ -246,6 +246,19 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testRotatePivot3"),
                 ))
 
+    def testOpacity(self):
+        root = self.loadEmptyScene()
+        avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", opacity=0.5, parent=root)
+        avg.RectNode(pos=(0,64), size=(64,64), opacity=0.5, fillopacity=0.5,
+                fillcolor="FF0000", parent=root)
+        div = avg.DivNode(pos=(80,0), opacity=0.5, parent=root)
+        avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=div)
+        avg.RectNode(pos=(0,64), size=(64,64), opacity=1, fillopacity=1,
+                fillcolor="FF0000", parent=div)
+        self.start(False, 
+                (lambda: self.compareImage("testOpacity"),
+                )) 
+
     def testOutlines(self):
         root = self.__initDefaultRotateScene()
         root.elementoutlinecolor = "FFFFFF"
@@ -731,6 +744,7 @@ def playerTestSuite(tests):
             "testRotate",
             "testRotate2",
             "testRotatePivot",
+            "testOpacity",
             "testOutlines",
             "testError",
             "testExceptionInTimeout",
