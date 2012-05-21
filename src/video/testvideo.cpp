@@ -505,7 +505,7 @@ void deleteOldResultImages()
 
 int main(int nargs, char** args)
 {
-    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
 
     deleteOldResultImages();

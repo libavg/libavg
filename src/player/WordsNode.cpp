@@ -601,7 +601,7 @@ void WordsNode::updateLayout()
                 pango_attr_list_insert_before(pAttrList, pLetterSpacing);
 #endif            
                 pango_layout_set_text(m_pLayout, pText, -1);
-                g_free (pText);
+                g_free(pText);
             } else {
                 pAttrList = pango_attr_list_new();
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
@@ -672,7 +672,7 @@ void WordsNode::renderText()
     if (m_RedrawState == RENDER_NEEDED) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
-            int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+            int maxTexSize = GLContext::getMain()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 
                         "WordsNode size exceeded maximum (Size=" 
@@ -714,7 +714,7 @@ void WordsNode::renderText()
             pMover->unlock();
             pMover->moveToTexture(*pTex);
 
-            bind();
+            newSurface();
         }
         m_RedrawState = CLEAN;
     }
@@ -728,9 +728,10 @@ void WordsNode::redraw()
     renderText();
 }
 
-void WordsNode::preRender()
+void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         redraw();
     } else {
@@ -739,6 +740,7 @@ void WordsNode::preRender()
     if (m_sText.length() != 0 && isVisible()) {
         renderFX(getSize(), m_Color, false);
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
@@ -826,8 +828,8 @@ void WordsNode::setParsedText(const UTF8String& sText)
     PangoAttrList * pAttrList = 0;
     char * pText = 0;
     parseString(&pAttrList, &pText);
-    pango_attr_list_unref (pAttrList);
-    g_free (pText);
+    pango_attr_list_unref(pAttrList);
+    g_free(pText);
     m_bParsedText = true;
 }
 

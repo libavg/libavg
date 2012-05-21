@@ -6,6 +6,7 @@
     <usepixelbuffers>true</usepixelbuffers>
     <multisamplesamples>4</multisamplesamples>
     <dotspermm>0</dotspermm>
+    <shaderusage>auto</shaderusage>
   </scr>
   <aud>
     <channels>2</channels>

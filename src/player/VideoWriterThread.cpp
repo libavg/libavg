@@ -22,7 +22,7 @@
 
 #include "VideoWriterThread.h"
 
-#include "../base/ProfilingZone.h"
+#include "../base/ProfilingZoneID.h"
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
 
@@ -49,7 +49,7 @@ VideoWriterThread::~VideoWriterThread()
 {
 }
 
-static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame");
+static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame", true);
 
 void VideoWriterThread::encodeYUVFrame(BitmapPtr pBmp)
 {
@@ -229,7 +229,7 @@ AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat, IntPoint size
     return pPicture;
 }
 
-static ProfilingZoneID ProfilingZoneConvertImage(" Convert image");
+static ProfilingZoneID ProfilingZoneConvertImage(" Convert image", true);
 
 void VideoWriterThread::convertRGBImage(BitmapPtr pSrcBmp)
 {
@@ -280,7 +280,7 @@ void VideoWriterThread::convertYUVImage(BitmapPtr pSrcBmp)
 //    pUBmp->save("foo"+toString(m_FramesWritten)+".png");
 }
 
-static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame");
+static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame", true);
 
 void VideoWriterThread::writeFrame(AVFrame* pFrame)
 {

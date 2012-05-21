@@ -22,7 +22,6 @@
 #include "ChromaKeyFXNode.h"
 
 #include "../base/ObjectCounter.h"
-#include "../graphics/ShaderRegistry.h"
 
 #include <string>
 

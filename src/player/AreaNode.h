@@ -92,7 +92,7 @@ class AVG_API AreaNode: public Node
         virtual void getElementsByPos(const glm::vec2& pos, 
                 std::vector<NodeWeakPtr>& pElements);
 
-        virtual void maybeRender();
+        virtual void maybeRender(const glm::mat4& parentTransform);
         virtual void setViewport(float x, float y, float width, float height);
         virtual const FRect& getRelViewport() const;
 
@@ -109,7 +109,7 @@ class AVG_API AreaNode: public Node
         glm::vec2 getUserSize() const;
 
     private:
-        glm::mat4 calcTransform();
+        void calcTransform();
 
         FRect m_RelViewport;      // In coordinates relative to the parent.
         float m_Angle;
@@ -118,6 +118,8 @@ class AVG_API AreaNode: public Node
         
         glm::vec2 m_UserSize;
         glm::mat4 m_Transform;
+        glm::mat4 m_LocalTransform;
+        bool m_bTransformChanged;
 };
 
 }

@@ -45,7 +45,6 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
-#include "../graphics/ShaderRegistry.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -229,7 +228,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
-    m_pGLContext = GLContextPtr(new GLContext(true, glConfig));
+    m_pGLContext = new GLContext(true, glConfig);
+    GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
@@ -239,15 +239,15 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     calcRefreshRate();
 
     glEnable(GL_BLEND);
-    GLContext::getCurrent()->checkError("init: glEnable(GL_BLEND)");
+    GLContext::checkError("init: glEnable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    GLContext::getCurrent()->checkError("init: glShadeModel(GL_FLAT)");
+    GLContext::checkError("init: glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
-    GLContext::getCurrent()->checkError("init: glDisable(GL_DEPTH_TEST)");
+    GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
-    GLContext::getCurrent()->checkError("init: glEnable(GL_STENCIL_TEST)");
+    GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    GLContext::getCurrent()->checkError("init: glTexEnvf()");
+    GLContext::checkError("init: glTexEnvf()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
@@ -259,6 +259,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnable(GL_TEXTURE_2D);
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
     if (dp.m_Framerate == 0) {
@@ -267,6 +268,11 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         setFramerate(dp.m_Framerate);
     }
     glproc::UseProgramObject(0);
+    if (m_pGLContext->useMinimalShader()) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+    }
 
     m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
@@ -290,7 +296,8 @@ void SDLDisplayEngine::teardown()
         SDL_ShowCursor(SDL_ENABLE);
 #endif
         m_pScreen = 0;
-        m_pGLContext = GLContextPtr();
+        delete m_pGLContext;
+        GLContext::setMain(0);
     }
 }
 
@@ -374,8 +381,7 @@ void SDLDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
-    GLContext::getCurrent()->checkError("swapBuffers()");
-    AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
+    GLContext::checkError("swapBuffers()");
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)
@@ -412,10 +418,10 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
     }
     glReadBuffer(buf);
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
-    GLContext::getCurrent()->checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
+    GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    GLContext::getCurrent()->checkError("SDLDisplayEngine::screenshot:glReadPixels()");
+    GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }

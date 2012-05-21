@@ -65,18 +65,18 @@ public:
           m_bValSet(false)
     {};
     
-    void set(VAL_TYPE val)
+    void set(const VAL_TYPE& val)
     {
         if (!m_bValSet || m_Val != val) {
             uniformSet(getLocation(), val);
-            GLContext::getCurrent()->checkError("OGLShaderParam::set");
+            GLContext::checkError("OGLShaderParam::set");
             m_Val = val;
             m_bValSet = true;
         }
     };
 
 private:
-    void uniformSet(unsigned location, VAL_TYPE val) 
+    void uniformSet(unsigned location, const VAL_TYPE& val) 
     {
         AVG_ASSERT_MSG(false, 
                 getName()+"GLShaderParam::uniformSet() called for unsupported type.");
@@ -87,15 +87,20 @@ private:
 };
 
 template<>
-void GLShaderParamTemplate<int>::uniformSet(unsigned location, int val);
+void GLShaderParamTemplate<int>::uniformSet(unsigned location, const int& val);
 template<>
-void GLShaderParamTemplate<float>::uniformSet(unsigned location, float val);
+void GLShaderParamTemplate<float>::uniformSet(unsigned location, const float& val);
 template<>
-void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, glm::vec2 val);
+void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, 
+        const glm::vec2& val);
 template<>
-void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, Pixel32 val);
+void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, const Pixel32& val);
 template<>
-void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, glm::vec4 val);
+void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, 
+        const glm::vec4& val);
+template<>
+void GLShaderParamTemplate<glm::mat4>::uniformSet(unsigned location, 
+        const glm::mat4& val);
 
 typedef boost::shared_ptr<GLShaderParam> GLShaderParamPtr;
 
@@ -113,6 +118,9 @@ typedef boost::shared_ptr<ColorGLShaderParam> ColorGLShaderParamPtr;
 
 typedef GLShaderParamTemplate<glm::vec4> Vec4fGLShaderParam; 
 typedef boost::shared_ptr<Vec4fGLShaderParam> Vec4fGLShaderParamPtr;
+
+typedef GLShaderParamTemplate<glm::mat4> Mat4fGLShaderParam; 
+typedef boost::shared_ptr<Mat4fGLShaderParam> Mat4fGLShaderParamPtr;
 
 }
 

@@ -58,8 +58,7 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             tex.getGLFormat(getPF()), tex.getGLType(getPF()), 
             pStartPos);
-    GLContext::getCurrent()->checkError(
-            "BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
+    GLContext::checkError("BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
 }
 
 BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
@@ -80,8 +79,7 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     unsigned char * pStartPos = pBmp->getPixels();
     glGetTexImage(GL_TEXTURE_2D, mipmapLevel, GLTexture::getGLFormat(getPF()), 
             GLTexture::getGLType(getPF()), pStartPos);
-    GLContext::getCurrent()->checkError(
-            "BmpTextureMover::moveTextureToBmp: glGetTexImage()");
+    GLContext::checkError("BmpTextureMover::moveTextureToBmp: glGetTexImage()");
     
     if (activeSize != tex.getGLSize()) {
         BitmapPtr pTempBmp = pBmp;

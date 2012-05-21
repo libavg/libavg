@@ -74,6 +74,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "usepow2textures", "false");
     addOption("scr", "usepixelbuffers", "true");
     addOption("scr", "multisamplesamples", "8");
+    addOption("scr", "shaderusage", "auto");
     addOption("scr", "gamma", "-1,-1,-1");
     addOption("scr", "vsyncmode", "auto");
     
@@ -128,8 +129,8 @@ const string* ConfigMgr::getOption(const string& sSubsys,
     }
 }
 
-bool ConfigMgr::getBoolOption(const std::string& sSubsys, 
-            const std::string& sName, bool bDefault) const
+bool ConfigMgr::getBoolOption(const string& sSubsys, 
+            const string& sName, bool bDefault) const
 {
     const string * psOption = getOption(sSubsys, sName);
     if (psOption == 0) {
@@ -147,8 +148,8 @@ bool ConfigMgr::getBoolOption(const std::string& sSubsys,
     }
 }
 
-int ConfigMgr::getIntOption(const std::string& sSubsys, 
-        const std::string& sName, int Default) const
+int ConfigMgr::getIntOption(const string& sSubsys, 
+        const string& sName, int Default) const
 {
     errno = 0;
     const string * psOption = getOption(sSubsys, sName);
@@ -166,8 +167,8 @@ int ConfigMgr::getIntOption(const std::string& sSubsys,
     return Result;
 }
 
-void ConfigMgr::getGammaOption(const std::string& sSubsys, 
-            const std::string& sName, float* Val) const
+void ConfigMgr::getGammaOption(const string& sSubsys, 
+            const string& sName, float* Val) const
 {
     const string * psOption = getOption(sSubsys, sName);
     if (psOption == 0) {
@@ -181,6 +182,18 @@ void ConfigMgr::getGammaOption(const std::string& sSubsys,
         exit(-1);
     }
 }
+
+void ConfigMgr::getStringOption(const string& sSubsys, 
+        const string& sName, const string& sDefault, string& sVal) const
+{
+    const string * psOption = getOption(sSubsys, sName);
+    if (psOption == 0) {
+        sVal = sDefault;
+    } else {
+        sVal = *psOption;
+    }
+}
+
 
 bool ConfigMgr::loadFile(const std::string& sPath)
 {

@@ -52,7 +52,7 @@ class AVG_API MeshNode : public VectorNode
         const std::vector<glm::ivec3>& getTriangles() const;
         void setTriangles(const std::vector<glm::ivec3>& pts);
 
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
+        virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
     private:
         std::vector<glm::vec2> m_TexCoords;

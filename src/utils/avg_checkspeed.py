@@ -32,7 +32,7 @@ g_Player = avg.Player.get()
 def parseCmdLine():
     parser = optparse.OptionParser(usage=
 """%prog [option]. 
-Checks libavg performance by creating lots of nodes. Displays a frame time graph, executes for 20 secs and dumps profile statistics at the end of program execution.""")
+Checks libavg performance by creating lots of nodes. Displays a frame time graph and executes for 20 secs.""")
     parser.add_option('--use-fx', '-f', dest='useFX', action='store_true', default=False, 
             help='Display everything using a NullFX to test FX overhead.')
     parser.add_option('--video', '-v', dest='video',  action='store_true', default=False, 
@@ -52,6 +52,9 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
     parser.add_option('--vsync', '-s', dest='vsync', action='store_true',
             default=False, 
             help='Sync output to vertical refresh.')
+    parser.add_option('--profile', '-p', dest='profile', action='store_true',
+            default=False,
+            help='Enable profiling output. Note that profiling makes things slower.')
     parser.add_option('--num-objs', '-n', dest='numObjs', type='int', default=-1,
             help='Number of objects to create. Default is 200 images or 40 videos.')
 
@@ -114,6 +117,9 @@ if options.numObjs == -1:
         options.numObjs = 200 
 
 log = avg.Logger.get()
-log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+if options.profile:
+    log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+else:
+    log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
 SpeedApp.start(resolution=(800,600))
 

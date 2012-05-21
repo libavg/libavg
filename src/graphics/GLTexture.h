@@ -32,6 +32,7 @@ namespace avg {
 
 class TextureMover;
 typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+class GLContext;
 
 class AVG_API GLTexture {
 
@@ -77,9 +78,12 @@ private:
     bool m_bDeleteTex;
     bool m_bUsePOT;
 
+    static unsigned s_LastTexID;
     unsigned m_TexID;
     bool m_bIsDirty;
     TextureMoverPtr m_pMover;
+
+    GLContext* m_pGLContext;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;

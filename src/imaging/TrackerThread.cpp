@@ -23,7 +23,7 @@
 #include "FilterWipeBorder.h"
 
 #include "../base/Logger.h"
-#include "../base/ProfilingZone.h"
+#include "../base/ProfilingZoneID.h"
 #include "../base/TimeSource.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Exception.h"

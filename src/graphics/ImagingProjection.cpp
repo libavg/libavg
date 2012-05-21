@@ -22,14 +22,14 @@
 #include "ImagingProjection.h"
 
 #include "GLContext.h"
+#include "OGLShader.h"
 
 #include "../base/Exception.h"
 
 namespace avg {
 
 ImagingProjection::ImagingProjection(IntPoint size)
-    : m_pVA(new VertexArray)
-{
+    : m_pVA(new VertexArray){
     init(size, IntRect(IntPoint(0,0), size));
 }
 
@@ -43,23 +43,11 @@ ImagingProjection::~ImagingProjection()
 {
 }
 
-void ImagingProjection::draw()
+void ImagingProjection::draw(const OGLShaderPtr& pShader)
 {
     IntPoint destSize = m_DestRect.size();
     glViewport(0, 0, destSize.x, destSize.y);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, destSize.x, 0, destSize.y);
-    
-    glMatrixMode(GL_MODELVIEW);
-    glm::vec3 offset(-m_DestRect.tl.x, -m_DestRect.tl.y, 0);
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), offset);
-    glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
-    transform = glm::scale(transform, size);
-    glLoadMatrixf(glm::value_ptr(transform));
-    GLContext::getCurrent()->checkError("ImagingProjection::draw()");
-
+    pShader->setTransform(m_ProjMat); 
     m_pVA->draw();
 }
 
@@ -78,6 +66,14 @@ void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
     m_pVA->appendPos(p3, p3);
     m_pVA->appendPos(p4, p4);
     m_pVA->appendQuadIndexes(1,0,2,3);
+    
+    IntPoint destSize = m_DestRect.size();
+    glm::mat4 projMat(glm::ortho(0.f, float(destSize.x), 0.f, float(destSize.y)));
+    
+    glm::vec3 offset(-m_DestRect.tl.x, -m_DestRect.tl.y, 0);
+    glm::mat4 transform = glm::translate(projMat, offset);
+    glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
+    m_ProjMat = glm::scale(transform, size);
 }
 
 }

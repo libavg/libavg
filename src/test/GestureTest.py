@@ -695,7 +695,6 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
                 ))  
 
-
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
         means = ui.calcKMeans(pts)

@@ -145,20 +145,23 @@ void FilledVectorNode::setFillOpacity(float opacity)
     setDrawNeeded();
 }
 
-void FilledVectorNode::preRender()
+void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
-    float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
-    VertexArrayPtr pFillVA;
-    pFillVA = m_pFillShape->getVertexArray();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    float curOpacity = parentEffectiveOpacity*m_FillOpacity;
+
+    VertexDataPtr pShapeVD = m_pFillShape->getVertexData();
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
-        pFillVA->reset();
+        pShapeVD->reset();
         Pixel32 color = getFillColorVal();
-        calcFillVertexes(pFillVA, color);
-        pFillVA->update();
+        calcFillVertexes(pShapeVD, color);
         m_OldOpacity = curOpacity;
     }
-    VectorNode::preRender();
+    if (isVisible()) {
+        m_pFillShape->setVertexArray(pVA);
+    }
+    VectorNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
 }
 
 static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
@@ -168,7 +171,7 @@ void FilledVectorNode::render()
     ScopeTimer Timer(RenderProfilingZone);
     float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     if (curOpacity > 0.01) {
-        m_pFillShape->draw(getParentTransform(), curOpacity);
+        m_pFillShape->draw(getTransform(), curOpacity);
     }
     VectorNode::render();
 }
@@ -205,7 +208,7 @@ glm::vec2 FilledVectorNode::calcFillTexCoord(const glm::vec2& pt, const glm::vec
 
 bool FilledVectorNode::isVisible() const
 {
-    return getActive() && (getEffectiveOpacity() > 0.01 || 
+    return getEffectiveActive() && (getEffectiveOpacity() > 0.01 || 
             getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01);
 }
 

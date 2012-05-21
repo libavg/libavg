@@ -28,16 +28,21 @@
 
 namespace avg {
 
+class ThreadProfiler;
+
 class AVG_API ProfilingZoneID
 {
 public:
-    ProfilingZoneID(const std::string& sName);
-    virtual ~ProfilingZoneID();
+    ProfilingZoneID(const std::string& sName, bool bMultithreaded=false);
+    ~ProfilingZoneID();
     
     const std::string& getName() const;
+    ThreadProfiler* getProfiler();
 
 private:
     std::string m_sName;
+    bool m_bMultithreaded;
+    ThreadProfiler* m_pProfiler;
 };
 
 }

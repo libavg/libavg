@@ -35,7 +35,10 @@ namespace avg {
 
 using namespace std;
 using namespace boost;
+
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
+bool GLContext::s_bErrorCheckEnabled = false;
 
 #ifdef _WIN32
 LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -89,10 +92,9 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
-      m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
-      m_BlendMode(BLEND_ADD),
-      m_bErrorCheckEnabled(false)
+      m_BlendColor(0.f, 0.f, 0.f, 0.f),
+      m_BlendMode(BLEND_ADD)
 {
     if (bUseCurrent) {
         AVG_ASSERT(!pSharedContext);
@@ -231,6 +233,19 @@ void GLContext::init()
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
     }
+    if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
+        int majorVer;
+        int minorVer;
+        getGLVersion(majorVer, minorVer);
+        if (majorVer > 1) {
+            m_GLConfig.m_ShaderUsage = GLConfig::FULL;
+        } else {
+            m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+        }
+    }
+    for (int i=0; i<16; ++i) {
+        m_BoundTextures[i] = 0xFFFFFFFF;
+    }
 }
 
 void GLContext::activate()
@@ -268,12 +283,16 @@ bool GLContext::useGPUYUVConversion() const
     return (majorVer > 1);
 }
 
-bool GLContext::useMinimalShader() const
+bool GLContext::useMinimalShader()
 {
-    int majorVer;
-    int minorVer;
-    getGLVersion(majorVer, minorVer);
-    return (majorVer <= 1);
+    if (m_GLConfig.m_ShaderUsage == GLConfig::FULL) {
+        return false;
+    } else if (m_GLConfig.m_ShaderUsage == GLConfig::MINIMAL) {
+        return true;
+    } else {
+        AVG_ASSERT(false);
+        return false; // Silence compiler warning.
+    }
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
@@ -308,18 +327,6 @@ void GLContext::returnFBOToCache(unsigned fboID)
     m_FBOIDs.push_back(fboID);
 }
 
-void GLContext::enableTexture(bool bEnable)
-{
-    if (bEnable != m_bEnableTexture) {
-        if (bEnable) {
-            glEnable(GL_TEXTURE_2D);
-        } else {
-            glDisable(GL_TEXTURE_2D);
-        }
-        m_bEnableTexture = bEnable;
-    }
-}
-
 void GLContext::enableGLColorArray(bool bEnable)
 {
     if (bEnable != m_bEnableGLColorArray) {
@@ -329,6 +336,14 @@ void GLContext::enableGLColorArray(bool bEnable)
             glDisableClientState(GL_COLOR_ARRAY);
         }
         m_bEnableGLColorArray = bEnable;
+    }
+}
+
+void GLContext::setBlendColor(const glm::vec4& color)
+{
+    if (m_BlendColor != color) {
+        glproc::BlendColor(color[0], color[1], color[2], color[3]);
+        m_BlendColor = color;
     }
 }
 
@@ -391,6 +406,17 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
     }
 }
 
+void GLContext::bindTexture(unsigned unit, unsigned texID)
+{
+    if (m_BoundTextures[unit-GL_TEXTURE0] != texID) {
+        glproc::ActiveTexture(unit);
+        checkError("GLContext::bindTexture ActiveTexture()");
+        glBindTexture(GL_TEXTURE_2D, texID);
+        checkError("GLContext::bindTexture BindTexture()");
+        m_BoundTextures[unit-GL_TEXTURE0] = texID;
+    }
+}
+
 const GLConfig& GLContext::getConfig()
 {
     return m_GLConfig;
@@ -419,12 +445,6 @@ void GLContext::logConfig()
         s = "no";
     }
     AVG_TRACE(Logger::CONFIG, string("  GPU-based YUV-RGB conversion: ")+s+".");
-    if (useMinimalShader()) {
-        s = "yes";
-    } else {
-        s = "no";
-    }
-    AVG_TRACE(Logger::CONFIG, string("  Minimal shader: ")+s+".");
     try {
         AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: " << 
                 getVideoMemInstalled()/(1024*1024) << " MB");
@@ -555,13 +575,12 @@ bool GLContext::initVBlank(int rate)
 
 void GLContext::enableErrorChecks(bool bEnable)
 {
-    m_bErrorCheckEnabled = bEnable;
+    s_bErrorCheckEnabled = bEnable;
 }
     
 void GLContext::checkError(const char* pszWhere) 
 {
-    // If there's no GL context anymore, we just ignore the error check.
-    if (this && m_bErrorCheckEnabled) {
+    if (s_bErrorCheckEnabled) {
         mandatoryCheckError(pszWhere);
     }
 }
@@ -599,6 +618,16 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
+}
+
+GLContext* GLContext::getMain()
+{
+    return s_pMainContext;
+}
+
+void GLContext::setMain(GLContext * pMainContext)
+{
+    s_pMainContext = pMainContext;
 }
 
 void GLContext::checkGPUMemInfoSupport()

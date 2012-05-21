@@ -21,6 +21,7 @@
 
 #include "GPUInvertFilter.h"
 #include "ShaderRegistry.h"
+#include "OGLShader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
@@ -31,16 +32,12 @@ using namespace std;
 
 namespace avg {
 
-GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf,
-        bool bStandalone) :
-    GPUFilter(pf, B8G8R8A8, bStandalone, 2)
+GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf, bool bStandalone)
+    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_INVERT_COLOR, 1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    createShader(SHADERID_INVERT_COLOR);
-    OGLShaderPtr pShader = getShader(SHADERID_INVERT_COLOR);
-    m_pTextureParam = pShader->getParam<int>("texture");
-
+    m_pTextureParam = getShader()->getParam<int>("texture");
 }
 
 GPUInvertFilter::~GPUInvertFilter()
@@ -50,9 +47,8 @@ GPUInvertFilter::~GPUInvertFilter()
 
 void GPUInvertFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    OGLShaderPtr pShader = getShader(SHADERID_INVERT_COLOR);
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-    pShader->activate();
+    getShader()->activate();
     m_pTextureParam->set(0);
     draw(pSrcTex);
 }

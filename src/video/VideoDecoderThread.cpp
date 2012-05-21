@@ -48,8 +48,8 @@ VideoDecoderThread::~VideoDecoderThread()
 {
 }
 
-static ProfilingZoneID DecoderProfilingZone("DecoderThread");
-static ProfilingZoneID PushMsgProfilingZone("DecoderThread: push message");
+static ProfilingZoneID DecoderProfilingZone("DecoderThread", true);
+static ProfilingZoneID PushMsgProfilingZone("DecoderThread: push message", true);
 
 bool VideoDecoderThread::work() 
 {

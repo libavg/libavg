@@ -59,7 +59,7 @@ void Shape::setBitmap(BitmapPtr pBmp)
     if (m_pImage->getState() == Image::GPU) {
         if (prevState != Image::GPU) {
             // TODO: This shouldn't happen.
-            m_pVertexArray = VertexArrayPtr(new VertexArray());
+            m_pVertexData = VertexDataPtr(new VertexData());
         }
     }
 }
@@ -67,12 +67,12 @@ void Shape::setBitmap(BitmapPtr pBmp)
 void Shape::moveToGPU()
 {
     m_pImage->moveToGPU();
-    m_pVertexArray = VertexArrayPtr(new VertexArray());
+    m_pVertexData = VertexDataPtr(new VertexData());
 }
 
 void Shape::moveToCPU()
 {
-    m_pVertexArray = VertexArrayPtr();
+    m_pVertexData = VertexDataPtr();
     m_pImage->moveToCPU();
 }
 
@@ -86,16 +86,30 @@ bool Shape::isTextured() const
     return m_pImage->getSource() != Image::NONE;
 }
 
-VertexArrayPtr Shape::getVertexArray()
+VertexDataPtr Shape::getVertexData()
 {
-    return m_pVertexArray;
+    return m_pVertexData;
+}
+
+void Shape::setVertexArray(const VertexArrayPtr& pVA)
+{
+    pVA->startSubVA(m_SubVA);
+    m_SubVA.appendVertexData(m_pVertexData);
+/*
+    cerr << endl;
+    cerr << "Global VA: " << endl;
+    pVA->dump();
+    cerr << "Local vertex data: " << endl;
+    m_pVertexData->dump();
+*/
 }
 
 void Shape::draw(const glm::mat4& transform, float opacity)
 {
     bool bIsTextured = isTextured();
-    GLContext* pContext = GLContext::getCurrent();
+    GLContext* pContext = GLContext::getMain();
     StandardShaderPtr pShader = pContext->getStandardShader();
+    pShader->setTransform(transform);
     pShader->setColor(glm::vec4(1.f, 1.f, 1.f, opacity));
     if (bIsTextured) {
         m_pSurface->activate();
@@ -104,13 +118,12 @@ void Shape::draw(const glm::mat4& transform, float opacity)
         pShader->activate();
     }
     pContext->enableGLColorArray(!bIsTextured);
-    glLoadMatrixf(glm::value_ptr(transform));
-    m_pVertexArray->draw();
+    m_SubVA.draw();
 }
 
 void Shape::discard()
 {
-    m_pVertexArray = VertexArrayPtr();
+    m_pVertexData = VertexDataPtr();
     m_pImage->discard();
 }
 

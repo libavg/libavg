@@ -214,8 +214,6 @@ Misc. Classes
        
         :py:const:`NONE`
             No logging except for errors.
-        :py:const:`BLTS`
-            Display subsystem logging. Useful for timing/performance measurements.
         :py:const:`PROFILE`
             Outputs performance statistics on player termination.
         :py:const:`PROFILE_LATEFRAMES`

@@ -746,12 +746,14 @@ class InertiaHandler(object):
 
     def onDrag(self, transform):
         frameDuration = g_Player.getFrameDuration()
-        self.__transVel += 0.1*transform.trans/frameDuration
+        if frameDuration > 0:
+            self.__transVel += 0.1*transform.trans/frameDuration
         if transform.pivot != avg.Point2D(0,0):
             self.__curPivot = transform.pivot
         if transform.rot > pi:
             transform.rot -= 2*pi
-        self.__angVel += 0.1*transform.rot/frameDuration
+        if frameDuration > 0:
+            self.__angVel += 0.1*transform.rot/frameDuration
 
     def onUp(self):
         g_Player.clearInterval(self.__frameHandlerID)

@@ -77,7 +77,6 @@ void DivNode::connectDisplay()
     for (unsigned i = 0; i < getNumChildren(); ++i) {
         getChild(i)->connectDisplay();
     }
-    m_pClipVertexes = VertexArrayPtr(new VertexArray());
 }
 
 void DivNode::connect(CanvasPtr pCanvas)
@@ -92,9 +91,6 @@ void DivNode::disconnect(bool bKill)
 {
     for (unsigned i = 0; i < getNumChildren(); ++i) {
         getChild(i)->disconnect(bKill);
-    }
-    if (m_pClipVertexes) {
-        m_pClipVertexes = VertexArrayPtr();
     }
     AreaNode::disconnect(bKill);
 }
@@ -315,34 +311,36 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pEleme
     }
 }
 
-void DivNode::preRender()
+void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    if (getCrop()) {
+        pVA->startSubVA(m_ClipVA);
+        glm::vec2 viewport = getSize();
+        m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
+    }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->preRender();
+        getChild(i)->preRender(pVA, bIsParentActive, getEffectiveOpacity());
     }
 }
 
 void DivNode::render()
 {
-    glm::vec2 viewport = getSize();
-    
-    m_pClipVertexes->reset();
-    m_pClipVertexes->appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
-
+    const glm::mat4& transform = getTransform();
     if (getCrop()) {
-        getCanvas()->pushClipRect(getTransform(), m_pClipVertexes);
+        getCanvas()->pushClipRect(transform, m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->maybeRender();
+        getChild(i)->maybeRender(transform);
     }
     if (getCrop()) {
-        glLoadMatrixf(glm::value_ptr(getTransform()));
-        getCanvas()->popClipRect(getTransform(), m_pClipVertexes);
+        glLoadMatrixf(glm::value_ptr(transform));
+        getCanvas()->popClipRect(transform, m_ClipVA);
     }
 }
 

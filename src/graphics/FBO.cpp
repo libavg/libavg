@@ -93,14 +93,14 @@ FBO::~FBO()
             }
         }
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, oldFBOID);
-        GLContext::getCurrent()->checkError("~FBO");
+        GLContext::checkError("~FBO");
     }
 }
 
 void FBO::activate() const
 {
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
-    GLContext::getCurrent()->checkError("FBO::activate: BindFramebuffer()");
+    GLContext::checkError("FBO::activate: BindFramebuffer()");
     checkError("activate");
 }
 
@@ -151,29 +151,29 @@ void FBO::moveToPBO(int i) const
     IntPoint size = m_pOutputPBO->getSize(); 
  
     m_pOutputPBO->activate(); 
-    GLContext::getCurrent()->checkError("FBO::moveToPBO BindBuffer()"); 
+    GLContext::checkError("FBO::moveToPBO BindBuffer()"); 
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i); 
-    GLContext::getCurrent()->checkError("FBO::moveToPBO ReadBuffer()"); 
+    GLContext::checkError("FBO::moveToPBO ReadBuffer()"); 
  
     glReadPixels(0, 0, size.x, size.y, GLTexture::getGLFormat(pf),  
             GLTexture::getGLType(pf), 0); 
-    GLContext::getCurrent()->checkError("FBO::moveToPBO ReadPixels()");     
+    GLContext::checkError("FBO::moveToPBO ReadPixels()");     
 }
  
 BitmapPtr FBO::getImageFromPBO() const
 {
     m_pOutputPBO->activate(); 
-    GLContext::getCurrent()->checkError("FBO::getImageFromPBO BindBuffer()"); 
+    GLContext::checkError("FBO::getImageFromPBO BindBuffer()"); 
     PixelFormat pf = m_pOutputPBO->getPF(); 
     IntPoint size = m_pOutputPBO->getSize(); 
     BitmapPtr pBmp(new Bitmap(size, pf)); 
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY); 
-    GLContext::getCurrent()->checkError("FBO::getImageFromPBO MapBuffer()"); 
+    GLContext::checkError("FBO::getImageFromPBO MapBuffer()"); 
     Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels,  
             size.x*getBytesPerPixel(pf), false); 
     pBmp->copyPixels(PBOBitmap); 
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT); 
-    GLContext::getCurrent()->checkError("FBO::getImageFromPBO UnmapBuffer()"); 
+    GLContext::checkError("FBO::getImageFromPBO UnmapBuffer()"); 
     return pBmp; 
 }
 
@@ -199,10 +199,10 @@ void FBO::init()
     m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
 
     m_FBO = pContext->genFBO();
-    GLContext::getCurrent()->checkError("FBO::init: GenFramebuffers()");
+    GLContext::checkError("FBO::init: GenFramebuffers()");
 
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
-    GLContext::getCurrent()->checkError("FBO::init: BindFramebuffer()");
+    GLContext::checkError("FBO::init: BindFramebuffer()");
 
     if (m_MultisampleSamples == 1) {
         glDisable(GL_MULTISAMPLE);
@@ -210,7 +210,7 @@ void FBO::init()
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
                     GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_2D, 
                     m_pTextures[i]->getID(), 0);
-            GLContext::getCurrent()->checkError("FBO: glFramebufferTexture2D()");
+            GLContext::checkError("FBO: glFramebufferTexture2D()");
         }
         if (m_bUsePackedDepthStencil) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
@@ -221,8 +221,7 @@ void FBO::init()
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
-            GLContext::getCurrent()->checkError( 
-                    "FBO::init: FramebufferRenderbuffer(STENCIL)");
+            GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
     } else {
         glEnable(GL_MULTISAMPLE);
@@ -240,10 +239,10 @@ void FBO::init()
                     string("Unsupported value for number of multisample samples (")
                     + toString(m_MultisampleSamples) + ")."));
         }
-        GLContext::getCurrent()->checkError("FBO::init: RenderbufferStorageMultisample");
+        GLContext::checkError("FBO::init: RenderbufferStorageMultisample");
         glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                 GL_RENDERBUFFER_EXT, m_ColorBuffer);
-        GLContext::getCurrent()->checkError("FBO::init: FramebufferRenderbuffer");
+        GLContext::checkError("FBO::init: FramebufferRenderbuffer");
         if (m_bUsePackedDepthStencil) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_StencilBuffer);
@@ -253,8 +252,7 @@ void FBO::init()
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
-            GLContext::getCurrent()->checkError(
-                    "FBO::init: FramebufferRenderbuffer(STENCIL)");
+            GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
         checkError("init multisample");
         m_OutputFBO = pContext->genFBO();
@@ -262,7 +260,7 @@ void FBO::init()
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
                 GL_TEXTURE_2D, m_pTextures[0]->getID(), 0);
 
-        GLContext::getCurrent()->checkError("FBO::init: Multisample init");
+        GLContext::checkError("FBO::init: Multisample init");
     }
 
     checkError("init");

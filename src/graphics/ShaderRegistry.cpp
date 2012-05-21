@@ -22,6 +22,7 @@
 #include "ShaderRegistry.h"
 
 #include "GLContext.h"
+#include "OGLShader.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -85,15 +86,19 @@ void ShaderRegistry::setPreprocessorDefine(const std::string& sName,
 
 void ShaderRegistry::createShader(const std::string& sID)
 {
-    string sShaderCode;
-    string sFileName = m_sLibPath+"/"+sID+".frag";
-    readWholeFile(sFileName, sShaderCode);
-    string sPreprocessed;
-    preprocess(sShaderCode, sFileName, sPreprocessed);
-    string sDefines = createDefinesString();
     OGLShaderPtr pShader = getShader(sID);
     if (!pShader) {
-        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sID, sPreprocessed, sDefines));
+        string sShaderCode;
+        string sFilename = m_sLibPath+"/"+sID+".frag";
+        string sVertPreprocessed;
+        if (!GLContext::getCurrent()->useMinimalShader()) {
+            loadShaderString(m_sLibPath+"/standard.vert", sVertPreprocessed);
+        }
+        string sFragPreprocessed;
+        loadShaderString(sFilename, sFragPreprocessed);
+        string sDefines = createDefinesString();
+        m_ShaderMap[sID] = OGLShaderPtr(
+                new OGLShader(sID, sVertPreprocessed, sFragPreprocessed, sDefines));
     }
 }
 
@@ -119,6 +124,13 @@ void ShaderRegistry::setCurShader(const std::string& sID)
     } else {
         m_pCurShader = getShader(sID);
     }
+}
+
+void ShaderRegistry::loadShaderString(const string& sFilename, string& sPreprocessed)
+{
+    string sShaderCode;
+    readWholeFile(sFilename, sShaderCode);
+    preprocess(sShaderCode, sFilename, sPreprocessed);
 }
 
 void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileName, 

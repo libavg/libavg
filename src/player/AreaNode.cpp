@@ -66,7 +66,8 @@ NodeDefinition AreaNode::createDefinition()
 
 AreaNode::AreaNode()
     : m_RelViewport(0,0,0,0),
-      m_Transform(glm::mat4(0))
+      m_Transform(glm::mat4(0)),
+      m_bTransformChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -99,6 +100,7 @@ void AreaNode::connectDisplay()
     } else {
         m_RelViewport.setHeight(float(m_UserSize.y));
     }
+    m_bTransformChanged = true;
     Node::connectDisplay();
 }
 
@@ -173,6 +175,7 @@ float AreaNode::getAngle() const
 void AreaNode::setAngle(float angle)
 {
     m_Angle = fmod(angle, 2*PI);
+    m_bTransformChanged = true;
 }
 
 glm::vec2 AreaNode::getPivot() const
@@ -189,6 +192,7 @@ void AreaNode::setPivot(const glm::vec2& pt)
     m_Pivot.x = pt.x;
     m_Pivot.y = pt.y;
     m_bHasCustomPivot = true;
+    m_bTransformChanged = true;
 }
 
 glm::vec2 AreaNode::toLocal(const glm::vec2& globalPos) const
@@ -212,17 +216,12 @@ void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElem
     }
 }
 
-void AreaNode::maybeRender()
+void AreaNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        if (getID() != "") {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                    " with ID " << getID());
-        } else {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-        }
-        m_Transform = getParentTransform()*calcTransform();
+        calcTransform();
+        m_Transform = parentTransform*m_LocalTransform;
         render();
     }
 }
@@ -254,6 +253,7 @@ void AreaNode::setViewport(float x, float y, float width, float height)
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for a node.");
     }
     m_RelViewport = FRect(x, y, x+width, y+height);
+    m_bTransformChanged = true;
 }
 
 const FRect& AreaNode::getRelViewport() const
@@ -284,15 +284,17 @@ glm::vec2 AreaNode::getUserSize() const
     return m_UserSize;
 }
 
-glm::mat4 AreaNode::calcTransform()
+void AreaNode::calcTransform()
 {
-    glm::vec3 pos(m_RelViewport.tl.x, m_RelViewport.tl.y, 0);
-    glm::vec3 pivot(getPivot().x, getPivot().y, 0);
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos);
-    transform = glm::translate(transform, pivot);
-    transform = glm::rotate(transform, (180.f/PI)*m_Angle, glm::vec3(0,0,1));
-    transform = glm::translate(transform, -pivot);
-    return transform;
+    if (m_bTransformChanged) {
+        glm::vec3 pos(m_RelViewport.tl.x, m_RelViewport.tl.y, 0);
+        glm::vec3 pivot(getPivot().x, getPivot().y, 0);
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos);
+        transform = glm::translate(transform, pivot);
+        transform = glm::rotate(transform, (180.f/PI)*m_Angle, glm::vec3(0,0,1));
+        m_LocalTransform = glm::translate(transform, -pivot);
+        m_bTransformChanged = false;
+    }
 }
 
 }

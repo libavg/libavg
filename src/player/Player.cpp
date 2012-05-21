@@ -135,7 +135,7 @@ string sDummy;
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
     }
-    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
     initConfig();
 
@@ -228,12 +228,13 @@ void Player::setWindowPos(int x, int y)
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
-        int multiSampleSamples)
+        int multiSampleSamples, GLConfig::ShaderUsage shaderUsage)
 {
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
+    m_GLConfig.m_ShaderUsage = shaderUsage;
 }
 
 void Player::setMultiSampleSamples(int multiSampleSamples)
@@ -252,7 +253,7 @@ void Player::setAudioOptions(int samplerate, int channels)
 void Player::enableGLErrorChecks(bool bEnable)
 {
     if (m_bIsPlaying) {
-        GLContext::getCurrent()->enableErrorChecks(bEnable);
+        GLContext::enableErrorChecks(bEnable);
     } else {
         m_bCheckGLErrors = bEnable;
     }
@@ -1046,7 +1047,7 @@ void Player::doFrame(bool bFirstFrame)
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
-        GLContext::getCurrent()->mandatoryCheckError("End of frame");
+        GLContext::mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
@@ -1060,10 +1061,6 @@ void Player::doFrame(bool bFirstFrame)
             endFrame();
         }
     }
-    if (m_pDisplayEngine->wasFrameLate()) {
-        ThreadProfiler::get()->dumpFrame();
-    }
-
     ThreadProfiler::get()->reset();
 }
 
@@ -1096,7 +1093,7 @@ size_t Player::getVideoMemInstalled()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemInstalled must be called after Player.play().");
     }
-    return GLContext::getCurrent()->getVideoMemInstalled();
+    return GLContext::getMain()->getVideoMemInstalled();
 }
 
 size_t Player::getVideoMemUsed()
@@ -1105,7 +1102,7 @@ size_t Player::getVideoMemUsed()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemUsed must be called after Player.play().");
     }
-    return GLContext::getCurrent()->getVideoMemUsed();
+    return GLContext::getMain()->getVideoMemUsed();
 }
 
 void Player::setGamma(float red, float green, float blue)
@@ -1158,6 +1155,21 @@ void Player::initConfig()
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
     m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
+
+    string sShaderUsage;
+    pMgr->getStringOption("scr", "shaderusage", "auto", sShaderUsage);
+    if (sShaderUsage == "full") {
+        m_GLConfig.m_ShaderUsage = GLConfig::FULL;
+    } else if (sShaderUsage == "minimal") {
+        m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+    } else if (sShaderUsage == "auto") {
+        m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
+    } else {
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "avgrc parameter shaderusage must be full, minimal or auto");
+    }
+
+
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 
@@ -1174,7 +1186,7 @@ void Player::initGraphics(const string& sShaderPath)
     m_pDisplayEngine->init(m_DP, m_GLConfig);
     AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
             << m_pDisplayEngine->getPixelsPerMM());
-    GLContext::getCurrent()->enableErrorChecks(m_bCheckGLErrors);
+    GLContext::enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }

@@ -60,6 +60,7 @@ NodeDefinition VectorNode::createDefinition()
 }
 
 VectorNode::VectorNode(const ArgList& args)
+    : m_Transform(glm::mat4(0))
 {
     m_pShape = ShapePtr(createDefaultShape());
 
@@ -141,36 +142,31 @@ void VectorNode::setBlendModeStr(const string& sBlendMode)
 
 static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
 
-void VectorNode::preRender()
+void VectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
-
-    VertexArrayPtr pVA = m_pShape->getVertexArray();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     {
+        ScopeTimer timer(PrerenderProfilingZone);
+        VertexDataPtr pShapeVD = m_pShape->getVertexData();
         if (m_bDrawNeeded) {
-            ScopeTimer timer(PrerenderProfilingZone);
-            pVA->reset();
+            pShapeVD->reset();
             Pixel32 color = getColorVal();
-            calcVertexes(pVA, color);
-            pVA->update();
+            calcVertexes(pShapeVD, color);
             m_bDrawNeeded = false;
         }
+        if (isVisible()) {
+            m_pShape->setVertexArray(pVA);
+        }
     }
-    
 }
 
-void VectorNode::maybeRender()
+void VectorNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        if (getID() != "") {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                    " with ID " << getID());
-        } else {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-        }
-        glLoadMatrixf(glm::value_ptr(getParentTransform()));
-        GLContext::getCurrent()->setBlendMode(m_BlendMode);
+        m_Transform = parentTransform;
+        GLContext::getMain()->setBlendMode(m_BlendMode);
         render();
     }
 }
@@ -180,9 +176,8 @@ static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 void VectorNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     float curOpacity = getEffectiveOpacity();
-    m_pShape->draw(getParentTransform(), curOpacity);
+    m_pShape->draw(m_Transform, curOpacity);
 }
 
 void VectorNode::setColor(const string& sColor)
@@ -319,7 +314,7 @@ void VectorNode::calcEffPolyLineTexCoords(vector<float>& effTC,
 
 void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts, 
         const vector<float>& origTexCoords, bool bIsClosed, LineJoin lineJoin, 
-        VertexArrayPtr& pVertexArray, Pixel32 color)
+        const VertexDataPtr& pVertexData, Pixel32 color)
 {
     vector<glm::vec2> pts;
     pts.reserve(origPts.size());
@@ -374,16 +369,16 @@ void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts,
         float curTC = texCoords[0];
         switch (lineJoin) {
             case LJ_MITER:
-                pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
-                pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
+                pVertexData->appendPos(pli, glm::vec2(curTC,1), color);
+                pVertexData->appendPos(pri, glm::vec2(curTC,0), color);
                 break;
             case LJ_BEVEL: {
                     if (tri.isClockwise()) {
-                        pVertexArray->appendPos(lines[0].pl0, glm::vec2(curTC,1), color);
-                        pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
+                        pVertexData->appendPos(lines[0].pl0, glm::vec2(curTC,1), color);
+                        pVertexData->appendPos(pri, glm::vec2(curTC,0), color);
                     } else {
-                        pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
-                        pVertexArray->appendPos(lines[0].pr0, glm::vec2(curTC,0), color);
+                        pVertexData->appendPos(pli, glm::vec2(curTC,1), color);
+                        pVertexData->appendPos(lines[0].pr0, glm::vec2(curTC,0), color);
                     }
                 }
                 break;
@@ -392,8 +387,8 @@ void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts,
                 break;
         }
     } else {
-        pVertexArray->appendPos(lines[0].pl0, glm::vec2(texCoords[0],1), color);
-        pVertexArray->appendPos(lines[0].pr0, glm::vec2(texCoords[0],0), color);
+        pVertexData->appendPos(lines[0].pl0, glm::vec2(texCoords[0],1), color);
+        pVertexData->appendPos(lines[0].pr0, glm::vec2(texCoords[0],0), color);
     }
 
     // All complete line segments
@@ -430,13 +425,13 @@ void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts,
             }
         }
 
-        int curVertex = pVertexArray->getCurVert();
+        int curVertex = pVertexData->getNumVerts();
         float curTC = texCoords[i+1];
         switch (lineJoin) {
             case LJ_MITER:
-                pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
-                pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
-                pVertexArray->appendQuadIndexes(
+                pVertexData->appendPos(pli, glm::vec2(curTC,1), color);
+                pVertexData->appendPos(pri, glm::vec2(curTC,0), color);
+                pVertexData->appendQuadIndexes(
                         curVertex-1, curVertex-2, curVertex+1, curVertex);
                 break;
             case LJ_BEVEL:
@@ -445,21 +440,21 @@ void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts,
                     float TC1;
                     if (tri.isClockwise()) {
                         calcBevelTC(*pLine1, *pLine2, true, texCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(pLine1->pl1, glm::vec2(TC0,1), color);
-                        pVertexArray->appendPos(pLine2->pl0, glm::vec2(TC1,1), color);
-                        pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
-                        pVertexArray->appendQuadIndexes(
+                        pVertexData->appendPos(pLine1->pl1, glm::vec2(TC0,1), color);
+                        pVertexData->appendPos(pLine2->pl0, glm::vec2(TC1,1), color);
+                        pVertexData->appendPos(pri, glm::vec2(curTC,0), color);
+                        pVertexData->appendQuadIndexes(
                                 curVertex-1, curVertex-2, curVertex+2, curVertex);
-                        pVertexArray->appendTriIndexes(
+                        pVertexData->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     } else {
                         calcBevelTC(*pLine1, *pLine2, false,  texCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(pLine1->pr1, glm::vec2(TC0,0), color);
-                        pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
-                        pVertexArray->appendPos(pLine2->pr0, glm::vec2(TC1,0), color);
-                        pVertexArray->appendQuadIndexes(
+                        pVertexData->appendPos(pLine1->pr1, glm::vec2(TC0,0), color);
+                        pVertexData->appendPos(pli, glm::vec2(curTC,1), color);
+                        pVertexData->appendPos(pLine2->pr0, glm::vec2(TC1,0), color);
+                        pVertexData->appendQuadIndexes(
                                 curVertex-2, curVertex-1, curVertex+1, curVertex);
-                        pVertexArray->appendTriIndexes(
+                        pVertexData->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     }
                 }
@@ -471,11 +466,11 @@ void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts,
 
     // Last segment (PolyLine only)
     if (!bIsClosed) {
-        int curVertex = pVertexArray->getCurVert();
+        int curVertex = pVertexData->getNumVerts();
         float curTC = texCoords[numPts-1];
-        pVertexArray->appendPos(lines[numPts-2].pl1, glm::vec2(curTC,1), color);
-        pVertexArray->appendPos(lines[numPts-2].pr1, glm::vec2(curTC,0), color);
-        pVertexArray->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
+        pVertexData->appendPos(lines[numPts-2].pl1, glm::vec2(curTC,1), color);
+        pVertexData->appendPos(lines[numPts-2].pr1, glm::vec2(curTC,0), color);
+        pVertexData->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
     }
 }
 
@@ -512,6 +507,11 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
         }
     }
     return numPts;
+}
+
+const glm::mat4& VectorNode::getTransform() const
+{
+    return m_Transform;
 }
 
 Shape* VectorNode::createDefaultShape() const

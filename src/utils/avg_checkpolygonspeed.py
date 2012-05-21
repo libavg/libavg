@@ -37,7 +37,7 @@ g_Trigger = True
 def parseCmdLine():
     parser = optparse.OptionParser(usage=
 """%prog [option]. 
-Checks libavg performance by creating lots of polygon nodes. Displays a frame time graph, executes for 20 secs and dumps profile statistics at the end of program execution.""")
+Checks libavg performance by creating lots of polygon nodes. Displays a frame time graph and executes for 20 secs.""")
     parser.add_option('--hole-polygon', '-y', dest='hole', action='store_true', default=False,
             help='Equipped polygon with one hole. Attention the number of points in a polygon will dublicated.')
     parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
@@ -46,9 +46,6 @@ Checks libavg performance by creating lots of polygon nodes. Displays a frame ti
     parser.add_option('--move', '-m', dest='move', action='store_true',
             default=False, 
             help='Move nodes every frame.')
-    parser.add_option('--color', dest='color', action='store_true',
-            default=False, 
-            help='Applies gamma to the nodes, causing the color correction shader to activate.')
     parser.add_option('--vsync', '-s', dest='vsync', action='store_true',
             default=False, 
             help='Sync output to vertical refresh.')
@@ -56,6 +53,9 @@ Checks libavg performance by creating lots of polygon nodes. Displays a frame ti
             help='Number of objects to create. Default is 200 images or 40 videos.')
     parser.add_option('--num-points', '-x', dest='numPoints', type='int', default=-1,
             help='Number of points in each polygon. Default is 10. Only even Numbers.')
+    parser.add_option('--profile', '-p', dest='profile', action='store_true',
+            default=False,
+            help='Enable profiling output. Note that profiling makes things slower.')
 
     (options, args) = parser.parse_args()
 
@@ -87,8 +87,6 @@ class SpeedApp(AVGApp):
                 holes = (self.__calPolyCords(pos, R/2), )
             node = avg.PolygonNode(parent=self._parentNode, pos=polyPos, fillopacity=1,
                     holes=holes)
-            if options.color:
-                node.gamma = (1.1, 1.1, 1.1)
             self.__nodes.append(node)
         if options.createNodes:
             g_Player.setTimeout(300, self.__deleteNodes)
@@ -125,12 +123,17 @@ if not(options.vsync):
     g_Player.setFramerate(1000)
 if options.numObjs == -1:
     options.numObjs = 40 
+
 if options.numPoints < 10:
     options.numPoints = 10
 elif options.numPoints % 2 != 0:
     options.numPoints -= 1
 
 log = avg.Logger.get()
-log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+if options.profile:
+    log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+else:
+    log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
+
 SpeedApp.start(resolution=(800,600))
 

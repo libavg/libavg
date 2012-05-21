@@ -33,16 +33,15 @@ namespace avg {
 
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
+class OGLShader;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
 
 class AVG_API GPUFilter: public Filter
 {
 public:
     GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
-            unsigned numTextures=1, bool bMipmap=false);
+            const std::string& sShaderID, unsigned numTextures=1, bool bMipmap=false);
     virtual ~GPUFilter();
-    void setDimensions(const IntPoint& srcSize);
-    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-            unsigned texMode);
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLTexturePtr pSrcTex);
@@ -56,6 +55,11 @@ public:
     FRect getRelDestRect() const;
     
 protected:
+    void setDimensions(const IntPoint& srcSize);
+    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+            unsigned texMode);
+    const OGLShaderPtr& getShader() const;
+
     void draw(GLTexturePtr pTex);
     int getBlurKernelRadius(float stdDev) const;
     GLTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
@@ -72,11 +76,12 @@ private:
     std::vector<FBOPtr> m_pFBOs;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
+    OGLShaderPtr m_pShader;
     ImagingProjectionPtr m_pProjection;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;
 
-} // namespace
+}
 #endif
 

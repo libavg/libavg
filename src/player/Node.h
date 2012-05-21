@@ -126,8 +126,9 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
         virtual void getElementsByPos(const glm::vec2& pos, 
                 std::vector<NodeWeakPtr>& pElements);
 
-        virtual void preRender();
-        virtual void maybeRender() {};
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+                float parentEffectiveOpacity);
+        virtual void maybeRender(const glm::mat4& parentTransform) {};
         virtual void render() {};
 
         float getEffectiveOpacity() const;
@@ -156,11 +157,10 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
             
         void setState(NodeState state);
         void initFilename(std::string& sFilename);
-        void checkReload(const std::string& sHRef, const ImagePtr& pImage,
+        bool checkReload(const std::string& sHRef, const ImagePtr& pImage,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
-        virtual const glm::mat4& getParentTransform() const;
 
     private:
         std::string m_ID;
@@ -205,6 +205,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
         bool m_bActive;
         bool m_bSensitive;
         float m_EffectiveOpacity;
+        bool m_bEffectiveActive;
 };
 
 }

@@ -36,6 +36,9 @@
 
 namespace avg {
 
+class ShaderRegistry;
+typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
+
 class AVG_API OGLShader {
     public:
         virtual ~OGLShader();
@@ -43,6 +46,8 @@ class AVG_API OGLShader {
         void activate();
         GLhandleARB getProgram();
         const std::string getName() const;
+
+        void setTransform(const glm::mat4& transform);
 
         template<class VAL_TYPE>
         boost::shared_ptr<GLShaderParamTemplate<VAL_TYPE> > getParam(
@@ -63,20 +68,27 @@ class AVG_API OGLShader {
         }
 
     private:
-        OGLShader(const std::string& sName, const std::string& sProgram, 
-                const std::string& sDefines);
+        OGLShader(const std::string& sName, const std::string& sVertProgram,
+                const std::string& sFragProgram, const std::string& sDefines);
         friend class ShaderRegistry;
 
+        GLhandleARB compileShader(GLenum shaderType, const std::string& sProgram,
+                const std::string& sDefines);
         bool findParam(const std::string& sName, unsigned& pos);
         void dumpInfoLog(GLhandleARB hObj);
         std::string removeATIInfoLogSpam(const std::string& sLog);
 
         std::string m_sName;
+        GLhandleARB m_hVertexShader;
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
-        std::string m_sProgram;
+        std::string m_sVertProgram;
+        std::string m_sFragProgram;
 
         std::vector<GLShaderParamPtr> m_pParams;
+        Mat4fGLShaderParamPtr m_pTransformParam;
+
+        ShaderRegistryPtr m_pShaderRegistry;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;

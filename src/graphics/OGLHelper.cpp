@@ -92,6 +92,7 @@ namespace glproc {
     PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
     PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
     PFNGLDRAWBUFFERSPROC DrawBuffers;
+    PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
 #ifdef linux
     PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
@@ -239,7 +240,7 @@ void AVG_API clearGLBuffers(GLbitfield mask)
         glClearStencil(0);
     }
     glClear(mask);
-    GLContext::getCurrent()->checkError("clearGLBuffers()");
+    GLContext::checkError("clearGLBuffers()");
     if (mask & GL_STENCIL_BUFFER_BIT) {
         glStencilMask(0);
     }
@@ -425,6 +426,8 @@ namespace glproc {
                 getFuzzyProcAddress("glDeleteRenderbuffers");
         DrawBuffers = (PFNGLDRAWBUFFERSPROC)
                 getFuzzyProcAddress("glDrawBuffers");
+        DrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)
+                getFuzzyProcAddress("glDrawRangeElements");
 #ifdef linux
         SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
                 getglXProcAddress("glXSwapIntervalEXT");

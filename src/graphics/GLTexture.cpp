@@ -36,6 +36,8 @@ namespace avg {
 
 using namespace std;
 
+unsigned GLTexture::s_LastTexID = -1;
+
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
     : m_Size(size),
@@ -43,8 +45,9 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
       m_bMipmap(bMipmap),
       m_bDeleteTex(true)
 {
+    m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_bUsePOT = GLContext::getCurrent()->usePOTTextures() || bForcePOT;
+    m_bUsePOT = m_pGLContext->usePOTTextures() || bForcePOT;
     if (m_bUsePOT) {
         m_GLSize.x = nextpow2(m_Size.x);
         m_GLSize.y = nextpow2(m_Size.y);
@@ -52,7 +55,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         m_GLSize = m_Size;
     }
 
-    int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+    int maxTexSize = m_pGLContext->getMaxTexSize();
     if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large ("  + toString(m_Size)
                 + "). Maximum supported by graphics card is "
@@ -63,10 +66,9 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
                 "Float textures not supported by OpenGL configuration.");
     }
 
-    glGenTextures(1, &m_TexID);
-    GLContext::getCurrent()->checkError("GLTexture: glGenTextures()");
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    GLContext::getCurrent()->checkError("GLTexture: glBindTexture()");
+    s_LastTexID++;
+    m_TexID = s_LastTexID;
+    m_pGLContext->bindTexture(GL_TEXTURE0, m_TexID);
     if (bMipmap) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
@@ -77,7 +79,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
-    GLContext::getCurrent()->checkError("GLTexture: glTexImage2D()");
+    GLContext::checkError("GLTexture: glTexImage2D()");
 
     if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
@@ -88,7 +90,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
                 m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
                 pPixels);
-        GLContext::getCurrent()->checkError("PBOTexture::createTexture: glTexImage2D()");
+        GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
         delete[] pPixels;
     }
 }
@@ -109,19 +111,15 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
 GLTexture::~GLTexture()
 {
     if (m_bDeleteTex) {
-        glBindTexture(GL_TEXTURE_2D, 0);
         glDeleteTextures(1, &m_TexID);
-        GLContext::getCurrent()->checkError("GLTexture: DeleteTextures()");
+        GLContext::checkError("GLTexture: DeleteTextures()");
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void GLTexture::activate(int textureUnit)
 {
-    glproc::ActiveTexture(textureUnit);
-    GLContext::getCurrent()->checkError("GLTexture::activate ActiveTexture()");
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    GLContext::getCurrent()->checkError("GLTexture::activate BindTexture()");
+    m_pGLContext->bindTexture(textureUnit, m_TexID);
 }
 
 void GLTexture::generateMipmaps()
@@ -129,7 +127,7 @@ void GLTexture::generateMipmaps()
     if (m_bMipmap) {
         activate();
         glproc::GenerateMipmap(GL_TEXTURE_2D);
-        GLContext::getCurrent()->checkError("GLTexture::generateMipmaps()");
+        GLContext::checkError("GLTexture::generateMipmaps()");
     }
 }
 

@@ -83,7 +83,7 @@ class AVG_API Player
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
-                int multiSampleSamples);
+                int multiSampleSamples, GLConfig::ShaderUsage shaderUsage);
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
         void enableGLErrorChecks(bool bEnable);

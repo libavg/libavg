@@ -27,7 +27,6 @@
 #include "IDemuxer.h"
 
 #include "../audio/AudioParams.h"
-#include "../base/ProfilingZone.h"
 #include "../avgconfigwrapper.h"
 
 #include "WrapFFMpeg.h"
