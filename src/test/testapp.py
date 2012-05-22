@@ -94,7 +94,7 @@ class TestApp(object):
             for test in suite:
                 if test.skipped():
                     numSkipped += 1
-        print "Skipped", numSkipped, "tests."
+        sys.stderr.write("Skipped "+str(numSkipped)+" tests.\n")
 
         if testResult.wasSuccessful():
             self.__exitOk = TestApp.EXIT_OK
@@ -114,9 +114,7 @@ class TestApp(object):
         elif self.__commandlineOptions.shaderusage == "AUTO":
             shaderUsage = libavg.SHADERUSAGE_AUTO
         else:
-            print
-            print "Unknown value for --shaderusage command-line parameter."
-            print
+            sys.stderr.write("\nUnknown value for --shaderusage command-line parameter.\n")
             self.__optionParser.print_help()
             sys.exit(-1)
 
@@ -150,10 +148,10 @@ class TestApp(object):
         if len(args): # suite
             suiteFactory = args.pop(0)
             if not(self.isSuiteFactoryRegistered(suiteFactory)):
-                print "Unknown test suite, registered suites:"
+                sys.stderr.write("Unknown test suite, registered suites:\n")
                 for factory in self.getSuiteFactoryNames():
-                    print factory
-                print ''
+                    sys.stderr.write(factory+"\n")
+                sys.stderr.write("\n")
                 self.__optionParser.print_usage()
 
             self.__suitesToRun.append(self.getSuiteFactory(suiteFactory))

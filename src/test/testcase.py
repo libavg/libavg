@@ -147,7 +147,7 @@ class AVGTestCase(unittest.TestCase):
                         ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
                         {'avg':average, 'stddev':stdDev})
                 if self.__warnOnImageDiff:
-                    print msg
+                    sys.stderr.write("\n"+msg+"\n")
                 else:
                     self.fail(msg)
         except RuntimeError:
@@ -242,7 +242,7 @@ def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
             if testName in availableTests:
                 testNames.append(testName)
             else:
-                print "no test named %s" % testName
+                sys.stderr.write(("No test named %s"%testName) + "\n")
                 sys.exit(1)
     else:
         testNames = availableTests

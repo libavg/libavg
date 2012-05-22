@@ -36,7 +36,7 @@ import atexit
 
 def cleanup(folder):
     if os.path.isdir(folder):
-        print 'Wiping out directory: %s' % folder
+        sys.stderr.write('Wiping out directory: %s\n' % folder)
         shutil.rmtree(folder)
 
 def symtree(src, dest):

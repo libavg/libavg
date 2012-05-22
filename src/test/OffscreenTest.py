@@ -19,8 +19,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 from libavg import avg
 from testcase import *
 import gc
@@ -469,7 +467,7 @@ def offscreenTestSuite(tests):
                 )
         return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
     else:
-        print "Skipping offscreen tests - no canvas support with this graphics configuration."
+        sys.stderr.write("Skipping offscreen tests - no canvas support with this graphics configuration.\n")
         return lambda x: None
 
 

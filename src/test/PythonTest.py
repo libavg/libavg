@@ -396,8 +396,7 @@ class PythonTestCase(AVGTestCase):
         self.assert_(self.btocCalled)
         machine.changeState('A')
         self.assertEqual(machine.state, 'A')
-        print
-        machine.dump()
+#        machine.dump()
 
         self.assertException(lambda: machine.addState('illegal', {}))
 
