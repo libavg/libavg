@@ -349,7 +349,7 @@ void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 color)
     Pixel32 effColor = color;
     if (m_ElementOutlineColor != Pixel32(0,0,0,0)) {
         effColor = m_ElementOutlineColor;
-        effColor.setA(128);
+        effColor.setA(255);
     }
     if (effColor != Pixel32(0,0,0,0)) {
         glm::vec2 size = getSize();
