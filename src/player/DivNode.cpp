@@ -339,7 +339,6 @@ void DivNode::render()
         getChild(i)->maybeRender(transform);
     }
     if (getCrop()) {
-        glLoadMatrixf(glm::value_ptr(transform));
         getCanvas()->popClipRect(transform, m_ClipVA);
     }
 }
