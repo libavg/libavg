@@ -131,11 +131,11 @@ class AVTestCase(AVGTestCase):
                     ))
         videoFiles = ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264", "vp6a-yuva-48x48.flv"]
-        print
+        sys.stderr.write("\n")
         for filename in videoFiles:
-            print "  " + filename
+            sys.stderr.write("  "+filename+"\n")
             for isThreaded in [False, True]:
-                print "    threaded: ", isThreaded
+                sys.stderr.write("    threaded: "+str(isThreaded)+"\n")
                 testVideoFile(filename, isThreaded)
 
     def testPlayBeforeConnect(self):

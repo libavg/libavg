@@ -274,9 +274,6 @@ class UITestCase(AVGTestCase):
             self.__down = False
             self.__clicked = False
 
-        def printAddress(obj):
-            print obj
-
         def setObjectActive(obj, active):
             obj.active = active
 

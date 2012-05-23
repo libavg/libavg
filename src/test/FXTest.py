@@ -142,11 +142,13 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testRenderPipeline(self):
+        sys.stderr.write("\n")
         for useSrcCanvas in (False, True):
             for useDestCanvas in (False, True):
                 for useFX in (False, True):
                     for useColorConv in (False, True):
-                        print "  ", useSrcCanvas, useDestCanvas, useFX, useColorConv
+                        sys.stderr.write("  "+str(useSrcCanvas)+" "+str(useDestCanvas)+
+                                " "+str(useFX)+" "+str(useColorConv)+"\n")
                         root = self.loadEmptyScene()
                         if useSrcCanvas:
                             srcCanvas = Player.createCanvas(id="src", size=(160,120),
