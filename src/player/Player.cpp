@@ -44,7 +44,7 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
-#include "SDLDisplayEngine.h"
+#include "SFMLDisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
@@ -1179,7 +1179,7 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = SFMLDisplayEnginePtr(new SFMLDisplayEngine());
     }
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
@@ -1257,10 +1257,10 @@ NodePtr Player::internalLoad(const string& sAVG)
     }
 }
 
-SDLDisplayEnginePtr Player::safeGetDisplayEngine()
+SFMLDisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = SFMLDisplayEnginePtr(new SFMLDisplayEngine());
     }
     return m_pDisplayEngine;
 
@@ -1589,7 +1589,7 @@ void Player::handleTimers()
 
 }
 
-SDLDisplayEngine * Player::getDisplayEngine() const
+SFMLDisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }
@@ -1669,7 +1669,7 @@ void Player::cleanup()
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
         if (!m_bKeepWindowOpen) {
-            m_pDisplayEngine = SDLDisplayEnginePtr();
+            m_pDisplayEngine = SFMLDisplayEnginePtr();
         }
     }
     if (SDLAudioEngine::get()) {

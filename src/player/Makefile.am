@@ -34,8 +34,8 @@ else
 endif
 endif
 
-GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp
-GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h
+GL_SOURCES = OGLSurface.cpp SFMLDisplayEngine.cpp
+GL_INCLUDES = OGLSurface.h SFMLDisplayEngine.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
 

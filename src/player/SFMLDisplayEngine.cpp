@@ -1,26 +1,4 @@
-
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
-//
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2 of the License, or (at your option) any later version.
-//
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
-//  Current versions can be found at www.libavg.de
-//
-
-
-#include "SDLDisplayEngine.h"
+#include "SFMLDisplayEngine.h"
 #include "../avgconfigwrapper.h"
 
 #ifdef __APPLE__
@@ -49,13 +27,14 @@
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
 
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
+#include <SFML/Window.hpp>
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 #ifdef linux
-#include <SDL/SDL_syswm.h>
+//#include <SDL/SDL_syswm.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
 
@@ -80,21 +59,22 @@
 #endif
 
 using namespace std;
+using namespace sf;
 
 namespace avg {
 
-float SDLDisplayEngine::s_RefreshRate = 0.0;
+float SFMLDisplayEngine::s_RefreshRate = 0.0;
 
-void safeSetAttribute(SDL_GLattr attr, int value) 
+/**void safeSetAttribute(SDL_GLattr attr, int value) 
 {
     int err = SDL_GL_SetAttribute(attr, value);
     if (err == -1) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
     }
-}
+}**/
 
-SDLDisplayEngine::SDLDisplayEngine()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
+SFMLDisplayEngine::SFMLDisplayEngine()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SFMLDisplayEngine)),
       m_WindowSize(0,0),
       m_ScreenResolution(0,0),
       m_PPMM(0),
@@ -121,20 +101,20 @@ SDLDisplayEngine::SDLDisplayEngine()
     initTranslationTable();
 }
 
-SDLDisplayEngine::~SDLDisplayEngine()
+SFMLDisplayEngine::~SFMLDisplayEngine()
 {
 #ifndef _WIN32
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
 }
 
-void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
+void SFMLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
-        setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
+        setEnv("SFML_VIDEO_WINDOW_POS", ss.str().c_str());
     }
     float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
     if (dp.m_WindowSize == IntPoint(0, 0)) {
@@ -147,7 +127,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
-    switch (dp.m_BPP) {
+/**    switch (dp.m_BPP) {
         case 32:
             safeSetAttribute(SDL_GL_RED_SIZE, 8);
             safeSetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -180,15 +160,15 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); 
+    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); *//
     unsigned int Flags = SDL_OPENGL;
     if (dp.m_bFullscreen) {
-        Flags |= SDL_FULLSCREEN;
+        Flags |= Style::Fullscreen;
     }
     m_bIsFullscreen = dp.m_bFullscreen;
 
     if (!dp.m_bHasWindowFrame) {
-        Flags |= SDL_NOFRAME;
+        Flags |= Style::None;
     }
 
     bool bAllMultisampleValuesTested = false;
@@ -201,7 +181,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
-        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+        m_pScreen.Create(VideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP), "libavg", Flags);
+//        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
         if (!m_pScreen) {
             switch (glConfig.m_MultiSampleSamples) {
                 case 1:
@@ -228,6 +209,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
+    m_input = m_pScreen.GetInput();
     m_pGLContext = new GLContext(true, glConfig);
     GLContext::setMain(m_pGLContext);
 
@@ -279,13 +261,13 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
 
-    SDL_EnableUNICODE(1);
+//    SDL_EnableUNICODE(1);
 }
 
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
-void SDLDisplayEngine::teardown()
+void SFMLDisplayEngine::teardown()
 {
     if (m_pScreen) {
         if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
@@ -301,7 +283,7 @@ void SDLDisplayEngine::teardown()
     }
 }
 
-float SDLDisplayEngine::getRefreshRate() 
+float SFMLDisplayEngine::getRefreshRate() 
 {
     if (s_RefreshRate == 0.0) {
         calcRefreshRate();
@@ -309,7 +291,7 @@ float SDLDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void SDLDisplayEngine::setGamma(float red, float green, float blue)
+void SFMLDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", "
@@ -324,21 +306,55 @@ void SDLDisplayEngine::setGamma(float red, float green, float blue)
     }
 }
 
-void SDLDisplayEngine::setMousePos(const IntPoint& pos)
+void SFMLDisplayEngine::setMousePos(const IntPoint& pos)
 {
-    SDL_WarpMouse(pos.x, pos.y);
+    m_pScreen.SetCursorPosition(pos.x, pos.y);
 }
 
-int SDLDisplayEngine::getKeyModifierState() const
+int SFMLDisplayEngine::getKeyModifierState() const
 {
-    return SDL_GetModState();
+    int result = 0x0000;
+    m_input.IsKeyDown(Key::LShift){
+        result |= 0x0001;
+    }
+    m_input.IsKeyDown(Key::RShift){
+        result |= 0x0002;
+    }
+    m_input.IsKeyDown(Key::LControl){
+        result |= 0x0040;
+    }
+    m_input.IsKeyDown(Key::RControl){
+        result |= 0x0080;
+    }
+    m_input.IsKeyDown(Key::LAlt){
+        result |= 0x0100;
+    }
+    m_input.IsKeyDown(Key::RAlt){
+        result |= 0x0200;
+    }
+/*    m_input.IsKeyDown(Key::LMeta){
+        result |= 0x0400;
+    }
+    m_input.IsKeyDown(Key::RMeta){
+        result |= 0x0800;
+    }
+    m_input.IsKeyDown(Key::Num){
+        result |= 0x1000;
+    }
+    m_input.IsKeyDown(Key::Caps){
+        result |= 0x2000;
+    }
+    m_input.IsKeyDown(Key::Mode){
+        result |= 0x4000;
+    }*/
+    return result;
 }
 
-void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
+void SFMLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
-        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+//        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+        m_ScreenResolution = IntPoint(m_pScreen.GetWidth(), m_pScreen.GetHight());
     }
     if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
@@ -362,7 +378,7 @@ void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
     }
 }
 
-bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
+bool SFMLDisplayEngine::internalSetGamma(float red, float green, float blue)                // gamma kann man nicht setzen nur durch shader umsetzbar
 {
 #ifdef __APPLE__
     // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
@@ -377,32 +393,32 @@ bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
-void SDLDisplayEngine::swapBuffers()
+void SFMLDisplayEngine::swapBuffers()                                                       // SFML Swapt selber und es ist immer aktiviert
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
     GLContext::checkError("swapBuffers()");
 }
 
-void SDLDisplayEngine::showCursor(bool bShow)
+void SFMLDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
 #define MAX_CORE_POINTERS   6
     // Hack to fix a pointer issue with fullscreen, SDL and touchscreens
     // Refer to Mantis bug #140
     for (int i = 0; i < MAX_CORE_POINTERS; ++i) {
-        ShowCursor(bShow);
+        m_pScreen.ShowMouseCursor(bShow);
     }
 #else
     if (bShow) {
-        SDL_ShowCursor(SDL_ENABLE);
+        m_pScreen.ShowMouseCursor(true);
     } else {
-        SDL_ShowCursor(SDL_DISABLE);
+        m_pScreen.ShowMouseCursor(false);
     }
 #endif
 }
 
-BitmapPtr SDLDisplayEngine::screenshot(int buffer)
+BitmapPtr SFMLDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp (new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     string sTmp;
@@ -418,20 +434,20 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
     }
     glReadBuffer(buf);
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
-    GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
+    GLContext::checkError("SFMLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
+    GLContext::checkError("SFMLDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }
 
-IntPoint SDLDisplayEngine::getSize()
+IntPoint SFMLDisplayEngine::getSize()
 {
     return m_Size;
 }
 
-void SDLDisplayEngine::calcRefreshRate()
+void SFMLDisplayEngine::calcRefreshRate()
 {
     float lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
@@ -488,7 +504,7 @@ void SDLDisplayEngine::calcRefreshRate()
 
 }
 
-vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+vector<long> SFMLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 const char * getEventTypeName(unsigned char type) 
 {
@@ -526,17 +542,17 @@ const char * getEventTypeName(unsigned char type)
     }
 }
 
-vector<EventPtr> SDLDisplayEngine::pollEvents()
+vector<EventPtr> SFMLDisplayEngine::pollEvents()
 {
-    SDL_Event sdlEvent;
+    SFML_Event sfmlEvent;
     vector<EventPtr> events;
 
-    while (SDL_PollEvent(&sdlEvent)) {
+    while (m_pScreen.GetEvent(sfmlEvent&)) {
         EventPtr pNewEvent;
-        switch (sdlEvent.type) {
-            case SDL_MOUSEMOTION:
+        switch (sfmlEvent.type) {
+            case SFML_Event::MouseMoved:
                 if (m_bMouseOverApp) {
-                    pNewEvent = createMouseEvent(Event::CURSORMOTION, sdlEvent, 
+                    pNewEvent = createMouseEvent(Event::CURSORMOTION, sfmlEvent, 
                             MouseEvent::NO_BUTTON);
                     CursorEventPtr pNewCursorEvent = 
                             boost::dynamic_pointer_cast<CursorEvent>(pNewEvent);
@@ -549,33 +565,33 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                     }
                 }
                 break;
-            case SDL_MOUSEBUTTONDOWN:
-                pNewEvent = createMouseButtonEvent(Event::CURSORDOWN, sdlEvent);
+            case SFML_Event::MouseButtonPressed:
+                pNewEvent = createMouseButtonEvent(Event::CURSORDOWN, sfmlEvent);
                 break;
-            case SDL_MOUSEBUTTONUP:
-                pNewEvent = createMouseButtonEvent(Event::CURSORUP, sdlEvent);
+            case SFML_Event::MouseButtonReleased:
+                pNewEvent = createMouseButtonEvent(Event::CURSORUP, sfmlEvent);
                 break;
-            case SDL_JOYAXISMOTION:
-//                pNewEvent = createAxisEvent(sdlEvent));
+            case SFML_Event::JoyMoved:
+//                pNewEvent = createAxisEvent(sfmlEvent));
                 break;
-            case SDL_JOYBUTTONDOWN:
-//                pNewEvent = createButtonEvent(Event::BUTTON_DOWN, sdlEvent));
+            case SFML_Event::JoyButtonPressed:
+//                pNewEvent = createButtonEvent(Event::BUTTON_DOWN, sfmlEvent));
                 break;
-            case SDL_JOYBUTTONUP:
-//                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
+            case SFML_Event::JoyButtonReleased:
+//                pNewEvent = createButtonEvent(Event::BUTTON_UP, sfmlEvent));
                 break;
-            case SDL_KEYDOWN:
-                pNewEvent = createKeyEvent(Event::KEYDOWN, sdlEvent);
+            case SFML_Event::KeyPressed:
+                pNewEvent = createKeyEvent(Event::KEYDOWN, sfmlEvent);
                 break;
-            case SDL_KEYUP:
-                pNewEvent = createKeyEvent(Event::KEYUP, sdlEvent);
+            case SFML_Event::KeyReleased:
+                pNewEvent = createKeyEvent(Event::KEYUP, sfmlEvent);
                 break;
-            case SDL_QUIT:
+            case SFML_Event::Closed:
                 pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                 break;
-            case SDL_VIDEORESIZE:
+            case SFML_Event::Resized:
                 break;
-            case SDL_SYSWMEVENT:
+/*            case SDL_SYSWMEVENT:                                                       // generelle fehler events gibt es nciht in sfml
                 {
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
@@ -585,7 +601,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                     }
 #endif
                 }
-                break;
+                break; */
             default:
                 // Ignore unknown events.
                 break;
@@ -594,20 +610,22 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
             events.push_back(pNewEvent);
         }
     }
-    return events;
+    return  ;
 }
 
-void SDLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
+void SFMLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
 {
     AVG_ASSERT(!m_pXIMTInputDevice);
     m_pXIMTInputDevice = pInputDevice;
 }
 
-EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
+EventPtr SFMLDisplayEngine::createMouseEvent(Event::Type type, const SFML_Event& sfmlEvent,
         long button)
 {
-    int x, y;
-    Uint8 buttonState = SDL_GetMouseState(&x, &y);
+    int x = m_input.GetMouseX();
+    int y = m_input.GetMouseY();
+
+//    Uint8 buttonState = SDL_GetMouseState(&x, &y); //  ?? buttonState jetzt andaers abfragen
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
     glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
@@ -618,19 +636,19 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
         float lastFrameTime = 1000/getEffectiveFramerate();
         speed = glm::vec2(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
     }
-    MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
-            (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
+    MouseEventPtr pEvent(new MouseEvent(type, m_input.IsMouseButtonDown(sf::Mouse::Left),
+            m_input.IsMouseButtonDown(sf::Mouse::Middle), m_input.IsMouseButtonDown(sf::Mouse::Right),
             IntPoint(x, y), button, speed));
 
     m_pLastMouseEvent = pEvent;
     return pEvent; 
 }
 
-EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type, 
-        const SDL_Event& sdlEvent) 
+EventPtr SFMLDisplayEngine::createMouseButtonEvent(Event::Type type, 
+        const SFML_Event& sfmlEvent) 
 {
     long button = 0;
-    switch (sdlEvent.button.button) {
+    switch (sfmlEvent.button.button) {
         case SDL_BUTTON_LEFT:
             button = MouseEvent::LEFT_BUTTON;
             break;
@@ -647,19 +665,19 @@ EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type,
             button = MouseEvent::WHEELDOWN_BUTTON;
             break;
     }
-    return createMouseEvent(type, sdlEvent, button);
+    return createMouseEvent(type, sfmlEvent, button);
  
 }
 
 /*
-EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
+EventPtr SFMLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
 {
     return new AxisEvent(sdlEvent.jaxis.which, sdlEvent.jaxis.axis,
                 sdlEvent.jaxis.value);
 }
 
 
-EventPtr SDLDisplayEngine::createButtonEvent
+EventPtr SFMLDisplayEngine::createButtonEvent
         (Event::Type type, const SDL_Event & sdlEvent) 
 {
     return new ButtonEvent(type, sdlEvent.jbutton.which,
@@ -667,7 +685,7 @@ EventPtr SDLDisplayEngine::createButtonEvent
 }
 */
 
-EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
+EventPtr SFMLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
     long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
     unsigned int modifiers = key::KEYMOD_NONE;
@@ -703,7 +721,7 @@ EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdl
     return pEvent;
 }
 
-void SDLDisplayEngine::initTranslationTable()
+void SFMLDisplayEngine::initTranslationTable()
 {
 #define TRANSLATION_ENTRY(x) KeyCodeTranslationTable[SDLK_##x] = key::KEY_##x;
 
@@ -941,30 +959,30 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(UNDO);
 }
 
-const IntPoint& SDLDisplayEngine::getWindowSize() const
+const IntPoint& SFMLDisplayEngine::getWindowSize() const
 {
     return m_WindowSize;
 }
 
-bool SDLDisplayEngine::isFullscreen() const
+bool SFMLDisplayEngine::isFullscreen() const
 {
     return m_bIsFullscreen;
 }
 
-IntPoint SDLDisplayEngine::getScreenResolution()
+IntPoint SFMLDisplayEngine::getScreenResolution()
 {
     calcScreenDimensions();
     return m_ScreenResolution;
 }
 
-float SDLDisplayEngine::getPixelsPerMM()
+float SFMLDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
 
     return m_PPMM;
 }
 
-glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
+glm::vec2 SFMLDisplayEngine::getPhysicalScreenDimensions()
 {
     calcScreenDimensions();
     glm::vec2 size;
@@ -974,7 +992,7 @@ glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
     return size;
 }
 
-void SDLDisplayEngine::assumePixelsPerMM(float ppmm)
+void SFMLDisplayEngine::assumePixelsPerMM(float ppmm)
 {
     m_PPMM = ppmm;
 }

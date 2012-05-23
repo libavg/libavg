@@ -1,26 +1,5 @@
-//
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
-//
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2 of the License, or (at your option) any later version.
-//
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
-//  Current versions can be found at www.libavg.de
-//
-
-#ifndef _SDLDisplayEngine_H_
-#define _SDLDisplayEngine_H_
+#ifndef _SFMLDisplayEngine_H_
+#define _SFMLDisplayEngine_H_
 
 #include "../api.h"
 #include "IInputDevice.h"
@@ -35,21 +14,23 @@
 #include <string>
 #include <vector>
 
-struct SDL_Surface;
 union SDL_Event;
 
 namespace avg {
+
+class Input;
+class Window;
 
 class XInputMTInputDevice;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class GLContext;
 
-class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
+class AVG_API SFMLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
-        SDLDisplayEngine();
-        virtual ~SDLDisplayEngine();
+        SFMLDisplayEngine();
+        virtual ~SFMLDisplayEngine();
         virtual void init(const DisplayParams& dp, GLConfig glConfig);
 
         // From DisplayEngine
@@ -77,7 +58,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void swapBuffers();
 
     private:
-        void initSDL(int width, int height, bool isFullscreen, int bpp);
+        void initSFML(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);
 
@@ -94,7 +75,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_ScreenResolution;
         float m_PPMM;
 
-        SDL_Surface * m_pScreen;
+        Input& m_input;
+        Window* m_pScreen;
 
         static void calcRefreshRate();
         static float s_RefreshRate;
@@ -104,14 +86,15 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         MouseEventPtr m_pLastMouseEvent;
         int m_NumMouseButtonsDown;
         static std::vector<long> KeyCodeTranslationTable;
-        XInputMTInputDevice * m_pXIMTInputDevice;
+        XInputMTInputDevice* m_pXIMTInputDevice;
 
         GLContext* m_pGLContext;
 
         float m_Gamma[3];
 };
 
-typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+typedef boost::shared_ptr<SFMLDisplayEngine> SFMLDisplayEnginePtr;
+typedef sf::Event SFML_Event;
 
 }
 
