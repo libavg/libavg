@@ -373,12 +373,12 @@ class GestureTestCase(AVGTestCase):
             self.__resetEventState()
 
         Player.setFakeFPS(100)
-        print
+        sys.stderr.write("\n")
         for self.friction in (-1, 100):
             if self.friction == -1:
-                print "  Simple drag, no inertia"
+                sys.stderr.write("  Simple drag, no inertia\n")
             else:
-                print "  Simple drag, inertia"
+                sys.stderr.write("  Simple drag, inertia\n")
             root = self.loadEmptyScene()
             image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, 
@@ -411,9 +411,9 @@ class GestureTestCase(AVGTestCase):
 
         for self.friction in (-1, 100):
             if self.friction == -1:
-                print "  Drag with constraint, no inertia"
+                sys.stderr.write("  Drag with constraint, no inertia\n")
             else:
-                print "  Drag with constraint, inertia"
+                sys.stderr.write("  Drag with constraint, inertia\n")
             root = self.loadEmptyScene()
             image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, 
@@ -475,7 +475,7 @@ class GestureTestCase(AVGTestCase):
                     ))
 
         # Test second down during inertia.
-        print "  Down during inertia"
+        sys.stderr.write("  Down during inertia\n")
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         dragRecognizer = ui.DragRecognizer(image, 
@@ -494,7 +494,7 @@ class GestureTestCase(AVGTestCase):
                 ))
 
         # Test second down during inertia, constrained recognizer
-        print "  Down during inertia, constrained recognizer"
+        sys.stderr.write("  Down during inertia, constrained recognizer\n")
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         dragRecognizer = ui.DragRecognizer(image, 
@@ -742,8 +742,8 @@ class GestureTestCase(AVGTestCase):
     def __assertEvents(self, expectedFlags):
         expectedFlags = Set(expectedFlags)
         if expectedFlags != self.__flags:
-            print "State expected: ", expectedFlags
-            print "Actual state: ", self.__flags
+            sys.stderr.write("State expected: "+str(expectedFlags))
+            sys.stderr.write("Actual state: "+str(self.__flags))
             self.assert_(False)
 
     def __resetEventState(self):

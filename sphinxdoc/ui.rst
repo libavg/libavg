@@ -87,16 +87,11 @@ functionality
         :param avg.Node coordSysNode:    
 
             Used to determine the coordinate system for the offsets returned by the 
-            callbacks. In general, this should be the parent of the node that is actually
-            moving. :py:attr:`coordSysNode` can be used to separate the node that
+            callbacks. If :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is 
+            used as default. The :py:class:`DragRecognizer` never modifies any nodes 
+            itself. :py:attr:`coordSysNode` can be used to separate the node that
             is the 'handle' for the events from the node that is being moved - for 
-            instance, to allow moving a window by dragging the title bar. If
-            :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is used as
-            default.
-            
-            Note that the :py:class:`DragRecognizer` never modifies any nodes itself.
-            The callbacks just return appropriate offsets that allow the movement to be
-            implemented easily.
+            instance, to allow moving a window by dragging the title bar.
 
         :param direction:
 
@@ -179,7 +174,7 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, textarea])
+    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, selHref, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
@@ -201,11 +196,11 @@ functionality
 
             List of key definitions. Keys can be either character keys:
 
-                [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
+                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, <pos>, <size>]
 
             or command keys:
 
-                [<keycode>, <pos>, <size>]
+                [<keycode>, <feedback>, <repeat>, <pos>, <size>]
 
             For character keys, the shift and altgr keycodes are optional. To define
             entire rows of evenly-spaced keys, use :py:meth:`makeRowKeyDefs`.
@@ -228,6 +223,11 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
+        :param string selHref:
+
+            Filename of an image that contains the keyboard feedback by pressed keys.
+            If this parameter not set the feedback funktion is turned off.
+
         :param textarea textarea:
 
             Connect the keyboard upHandler instant to the textarea input.
@@ -244,16 +244,21 @@ functionality
             :param downHandler: Callable to invoke on key down event or `None`.
             :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
-        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, keyStr, shiftKeyStr, [altGrKeyStr])
+        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
 
             Creates key definitions for a row of uniform keys. Useful for creating the 
-            keyDefs parameter of the Keyboard constructor.
+            keyDefs parameter of the Keyboard constructor. All the keys get no repeat functionality.
 
             :param avg.Point2D startPos: Top left position of the row.
 
             :param avg.Point2D keySize: Size of each key.
 
             :param int spacing: Number of empty pixels between two keys.
+
+            :param string feedbackStr:
+
+                String containing if the key has a feedback use f for Fals and t for True (i.e. 
+                :samp:`"fttttttttttf"`)
 
             :param string keyStr: 
             

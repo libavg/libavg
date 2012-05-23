@@ -26,96 +26,138 @@
 import os.path
 
 from libavg import avg
+from gesture import DragRecognizer
 
 g_Player = avg.Player.get()
 g_Logger = avg.Logger.get()
 
+FEEDBACK_ZOOM_FACTOR = 1.0
 
-class Key(avg.ImageNode):
-    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, 
-            onOutCallback=lambda event, keyCode:None, sticky=False, parent=None, 
+class Key(avg.DivNode):
+    def __init__(self, keyDef, ovlHref, selHref, onDownCallback, onUpCallback,
+            onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
             **kwargs):
-        kwargs['pos'] = keyDef[1]
-        kwargs['size'] = keyDef[2]
-        kwargs['opacity'] = 0.0
+        kwargs['pos'] = keyDef[3]
+        kwargs['size'] = keyDef[4]
         super(Key, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
 
+        self.__image = avg.ImageNode(parent=self, opacity=0.0)
+        self.__feedback = keyDef[1]
         if ovlHref:
-            self.__createImage(ovlHref)
+            self.__createImage(ovlHref, selHref)
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
         self.__onOutCallback = onOutCallback
         self.__sticky = sticky
+        self.__repeate = keyDef[2]
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
-        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
-        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUp)
-        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onOut)
 
     def reset(self):
         if self.__sticky:
-            self.opacity = 0.0
+            self.__image.opacity = 0.0
             self.__stickyIsDown = False
 
-    def __createImage(self, ovlHref):
+    def __createImage(self, ovlHref, selHref):
         if os.path.isabs(ovlHref):
-            effectiveHref = ovlHref
+            effectiveOvlHref = ovlHref
         else:
-            effectiveHref = self.getParent().getEffectiveMediaDir() + ovlHref
-        canvas = g_Player.loadCanvasString(
+            effectiveOvlHref = self.getParent().getEffectiveMediaDir() + ovlHref
+        canvasOvl = g_Player.loadCanvasString(
         '''
-            <canvas id="offscreen" size="%s">
+            <canvas id="offscreenOvl" size="%s">
                 <image href="%s" pos="%s"/>
             </canvas>
         '''
         %(str(self.size), 
-          effectiveHref,
+          effectiveOvlHref,
           str(-self.pos)))
-        canvas.render()
-        self.setBitmap(canvas.screenshot())
-        g_Player.deleteCanvas('offscreen')
 
-    def __onDown(self, event):
+        canvasOvl.render()
+        self.__image.setBitmap(canvasOvl.screenshot())
+        self.__feedbackImage = avg.ImageNode(opacity=0.0)
+        if selHref and self.__feedback:
+            if os.path.isabs(selHref):
+                effectiveSelHref = selHref
+            else:
+                effectiveSelHref = self.getParent().getEffectiveMediaDir() + selHref
+            canvasSel = g_Player.loadCanvasString(
+            '''
+                <canvas id="offscreenSel" size="%s">
+                    <image href="%s" pos="%s"/>
+                </canvas>
+            '''
+            %(str(self.size * 2), 
+              effectiveSelHref,
+              str(-self.pos * 2)))
+
+            canvasSel.render()
+            self.__feedbackImage.setBitmap(canvasSel.screenshot())
+            self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
+                    self.__feedbackImage.size.y)
+            self.appendChild(self.__feedbackImage)
+            g_Player.deleteCanvas('offscreenSel')
+        else:
+            self.__feedback = False
+        g_Player.deleteCanvas('offscreenOvl')
+
+    def onDown(self, event):
+        self.__feedbackImage.opacity = 0.95
+        if self.__cursorID:
+            return
+        self.__pseudoDown(event)
+        if self.__repeate:
+            self.__repeateID = 0
+            self.__repeateTimerID = g_Player.setTimeout(500,
+                    lambda event=event: self.__pseudoRepeate(event))
+
+    def onUp(self, event):
+        self.__feedbackImage.opacity = 0.0
+        if not self.__cursorID == event.cursorid:
+            return
         if self.__sticky:
             self.__stickyIsDown = not(self.__stickyIsDown)
-            if self.__stickyIsDown:
-                self.__pseudoDown(event)
-            else:
+            if not self.__stickyIsDown:
                 self.__pseudoUp(event)
         else:
-            if self.__cursorID:
-                return
-            self.__pseudoDown(event)
-
-    def __onUp(self, event):
-        if not self.__cursorID == event.cursorid:
-            return
-        if not (self.__sticky):
             self.__pseudoUp(event)
+            if self.__repeate:
+                g_Player.clearInterval(self.__repeateTimerID)
+                g_Player.clearInterval(self.__repeateID)
 
-    def __onOut(self, event):
+    def onOut(self, event):
+        self.__feedbackImage.opacity = 0.0
         if not self.__cursorID == event.cursorid:
             return
-        if not(self.__sticky):
+        if not(self.__sticky)  or (not self.__stickyIsDown):
             self.__cursorID = None
-            self.opacity = 0.0
+            self.__image.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
+            if self.__repeate:
+                g_Player.clearInterval(self.__repeateTimerID)
+                g_Player.clearInterval(self.__repeateID)
+
+    def __pseudoRepeate(self, event):
+        if self.__sticky or (not self.__cursorID == event.cursorid):
+            return
+        self.__repeateID = g_Player.setInterval(100,
+                lambda event=event: self.__onUpCallback(event, self.__keyCode))
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
 
-        self.opacity = 1.0
+        self.__image.opacity = 1.0
         if self.__onDownCallback:
             self.__onDownCallback(event, self.__keyCode)
        
     def __pseudoUp(self, event):
         self.__cursorID = None
 
-        self.opacity = 0.0
+        self.__image.opacity = 0.0
         if self.__onUpCallback:
             self.__onUpCallback(event, self.__keyCode)
         
@@ -123,7 +165,7 @@ class Key(avg.ImageNode):
 class Keyboard(avg.DivNode):
 
     def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
-            stickyShift=False, parent=None, **kwargs):
+            stickyShift=False, selHref=None, textarea=None, parent=None, **kwargs):
         # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(**kwargs)
         if parent:
@@ -153,29 +195,61 @@ class Keyboard(avg.DivNode):
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                key = Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
+                key = Key(kd, ovlHref, selHref, self.__onCharKeyDown, self.__onCharKeyUp,
                         parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
-                key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
-                        self.__onCommandKeyUp, sticky=sticky, parent=self)
+                key = Key(kd, ovlHref, selHref, self.__onCommandKeyDown,
+                        self.__onCommandKeyUp, self.__onCommandKeyUp, sticky=sticky,
+                        parent=self)
             self.__keys.append(key)
+        if textarea != None:
+            self.__textarea = textarea
+            self.setKeyHandler(None, self.__upHandler)
+        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
 
+    def __onDown(self, event):
+        self.__selectKey(event)
+        event.contact.connectListener(self.__selectKey, self.__selectKey)
+
+    def __selectKey(self, event):
+        for i in range(len(self.__keys)):
+            pos = self.__keys[i].getRelPos(event.pos)
+            if pos.x >= 0 and pos.y >= 0:
+                if pos.x <= self.__keys[i].size.x and pos.y <= self.__keys[i].size.y:
+                    if event.type == avg.CURSORUP:
+                        self.__keys[i].onUp(event)  
+                    else:                  
+                        self.__keys[i].onDown(event)
+                    continue
+            self.__keys[i].onOut(event)
+        
     @classmethod
-    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
+    def makeRowKeyDefs(cls, startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
         keyDefs = []
         curPos = startPos
         offset = keySize[0]+spacing
         if altGrKeyStr:
-            for keyCode, shiftKeyCode, altGrKeyCode in (
-                    zip(keyStr, shiftKeyStr, altGrKeyStr)):
-                keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), curPos, keySize])
+            for feedbackCode, keyCode, shiftKeyCode, altGrKeyCode in (
+                    zip(feedbackStr, keyStr, shiftKeyStr, altGrKeyStr)):
+                if feedbackCode == 'f':
+                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), False, False,
+                            curPos, keySize])
+                else:
+                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), True, False,
+                            curPos, keySize])
                 curPos = (curPos[0]+offset, curPos[1])
         else:
-            for keyCode, shiftKeyCode in zip(keyStr, shiftKeyStr):
-                keyDefs.append([(keyCode, shiftKeyCode), curPos, keySize])
+            for feedbackCode, keyCode, shiftKeyCode in \
+                    zip(feedbackStr, keyStr, shiftKeyStr):
+                if feedbackCode == 'f':
+                    keyDefs.append([(keyCode, shiftKeyCode), False, False, curPos,
+                            keySize])
+                else:
+                    keyDefs.append([(keyCode, shiftKeyCode), True, False, curPos,
+                            keySize])
                 curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 
@@ -245,3 +319,7 @@ class Keyboard(avg.DivNode):
         if self.__upKeyHandler:
             self.__upKeyHandler(event, None, keyCode)
 
+    def __upHandler(self, event, keyCode, cmd):
+        if keyCode is None:
+            return
+        self.__textarea.onKeyDown(ord(keyCode))

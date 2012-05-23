@@ -135,8 +135,8 @@ class CameraTestCase(AVGTestCase):
         def checkCamImageChange(testCfg):
             
             def saveCamImages():
-                print
-                print "Average image brightnesses: ",minAverages, medAverages, maxAverages
+#                print
+#                print "Average image brightnesses: ",minAverages, medAverages, maxAverages
                 dir = AVGTestCase.getImageResultDir()
                 for (i, category) in enumerate(("min", "med", "max")):
                     self.camBmps[i].save(dir+"/cam"+testCfg.name+category+".png")
