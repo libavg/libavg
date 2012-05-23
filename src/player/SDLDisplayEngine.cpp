@@ -404,7 +404,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 
 BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 {
-    BitmapPtr pBmp (new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
+    BitmapPtr pBmp(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     string sTmp;
     bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
     GLenum buf = buffer;
@@ -416,9 +416,10 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
             buf = GL_FRONT;
         }
     }
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     glReadBuffer(buf);
-    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
     GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
