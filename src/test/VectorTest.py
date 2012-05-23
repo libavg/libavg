@@ -446,7 +446,7 @@ class VectorTestCase(AVGTestCase):
         def createLeftOpenPolygon():
             polygon.pos = ( (15,0), (35,0), (55,10), (65,30), (55,50), (35,60), (15,60),
                     (5,50), (15,40), (35,40), (35,30), (35,20), (15,20), (5,10) )
-            polygon.strokewidth = 1
+            polygon.strokewidth = 2
 
         def createUpOpenPolygon():
             polygon.pos = ( (15,0), (25,10), (25,30), (35,30), (45,30), (45,10), (55,0), 
