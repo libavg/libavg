@@ -30,14 +30,14 @@ class UITestCase(AVGTestCase):
     def testKeyboard(self):
         def setup():
             keyDefs = [
-                    [("a", "A"), ( 5, 5), (30, 30)],
-                    [(1, ),      (35, 5), (30, 30)],
-                    ["SHIFT",    (65, 5), (50, 30)]]
+                    [("a", "A"),True, False, ( 5, 5), (30, 30)],
+                    [(1, ),     True, False, (35, 5), (30, 30)],
+                    ["SHIFT",   False, False, (65, 5), (50, 30)]]
             kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, None,
                     pos=(10, 10), parent = root)
             kbNoShift.setKeyHandler(onKeyDown, onKeyUp)
             kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, "SHIFT",
-                    pos=(10, 60), parent = root)
+                    pos=(10, 60), selHref="keyboard_sel.png", parent = root)
             kbShift.setKeyHandler(onKeyDown, onKeyUp)
 
         def onKeyDown(event, char, cmd):
@@ -104,21 +104,36 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(3, avg.CURSORUP, 60, 80),
                  lambda: self.assert_(self.__char == 1 and self.__cmd is None),
                  lambda: self._sendTouchEvent(1, avg.CURSORUP, 100, 80),
-                 lambda: self.compareImage("testUIKeyboard")
+                 lambda: self.compareImage("testUIKeyboard"),
+                 # test drag over keys 
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 60, 80),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDown11"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 60, 50),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboard"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 100, 80),
+                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
+                 lambda: self.compareImage("testUIKeyboardDownA2S1"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 60, 80),
+                 lambda: self.compareImage("testUIKeyboardDown11"),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 60, 80),
+                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
                 ))
 
     def testTextArea(self):
         def setup():
-            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'), id='ta1')
+            self.ta1 = textarea.TextArea( pos=(2,2), size=(156, 96), parent=root)
             self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=16, multiline=True, color='FFFFFF')
             self.ta1.setText('Lorem ipsum')
             self.ta1.setFocus(True) # TODO: REMOVE
 
-            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'), id='ta2')
+            self.ta2 = textarea.TextArea(pos=(2,100), size=(156, 18), parent=root)
             self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=False, color='FFFFFF')
+                fontsize=14, multiline=False, color='4b94ef', cursorColor='FF0000', flashingCursor=False)
             self.ta2.setText('sit dolor')
+            self.ta2.showCursor(False)
             self.ta2.setFocus(True) # TODO: REMOVE
 
         def setAndCheck(ta, text):
@@ -157,12 +172,12 @@ class UITestCase(AVGTestCase):
                     break
 
         root = self.loadEmptyScene()
-        avg.DivNode(id="ph1", pos=(2,2), size=(156, 96), parent=root)
-        avg.DivNode(id="ph2", pos=(2,100), size=(156, 18), parent=root)
 
+        Player.setFakeFPS(20)
         textarea.init(avg, False)
         self.start(True,
                 (setup,
+                 lambda: self.delay(200),
                  lambda: self.assertEqual(self.ta1.getText(), 'Lorem ipsum'),
                  lambda: setAndCheck(self.ta1, ''),
                  lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
@@ -171,8 +186,20 @@ class UITestCase(AVGTestCase):
                  testSpecialChars,
                  checkSingleLine,
                  lambda: self.compareImage("testTextArea2"),
+                 lambda: self.ta2.showCursor(True),
+                 lambda: self.delay(200),
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 30, 100),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 30, 100),
+                 lambda: self.compareImage("testTextArea3"),
+                 lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 130, 100),
+                 lambda: self.delay(1100),
+                 lambda: self.compareImage("testTextArea4"),
+                 lambda: self._sendTouchEvent(2, avg.CURSORMOTION, 30, 100),
+                 lambda: self.compareImage("testTextArea5"),
+                 lambda: self._sendTouchEvent(2, avg.CURSORUP, 30, 100),
+                 lambda: self.compareImage("testTextArea3"),
                 ))
-
+        Player.setFakeFPS(-1)
 
     def testFocusContext(self):
         def setup():
@@ -180,20 +207,18 @@ class UITestCase(AVGTestCase):
             self.ctx1 = textarea.FocusContext()
             self.ctx2 = textarea.FocusContext()
 
-            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
-                self.ctx1, id='ta1')
+            self.ta1 = textarea.TextArea(self.ctx1, pos=(2,2), size=(156,54), parent=root)
             self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=16, multiline=True, color='FFFFFF')
             self.ta1.setText('Lorem ipsum')
 
-            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
-                self.ctx1, id='ta2')
+            self.ta2 = textarea.TextArea(self.ctx1, pos=(2,58), size=(76,54), parent=root)
             self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=14, multiline=False, color='FFFFFF')
             self.ta2.setText('dolor')
 
-            self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
-                self.ctx2, disableMouseFocus=True, id='ta3')
+            self.ta3 = textarea.TextArea(self.ctx2, disableMouseFocus=True, pos=(80,58),
+                size=(76,54), parent=div3)
             self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=14, multiline=True, color='FFFFFF')
             self.ta3.setText('dolor sit amet')
@@ -220,8 +245,6 @@ class UITestCase(AVGTestCase):
             self._sendMouseEvent(avg.CURSORUP, 20, 70)
 
         root = self.loadEmptyScene()
-        avg.DivNode(id="ph1", pos=(2,2), size=(156,54), parent=root)
-        avg.DivNode(id="ph2", pos=(2,58), size=(76,54), parent=root)
         div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
         avg.ImageNode(href="1x1_white.png", size=(76,54), parent=div3)
         self.start(True,
