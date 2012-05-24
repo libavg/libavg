@@ -203,8 +203,7 @@ void export_raster()
         .add_property("text", 
                 make_function(&WordsNode::getText,
                         return_value_policy<copy_const_reference>()),
-                make_function(&WordsNode::setText,
-                        return_value_policy<copy_const_reference>()))
+                &WordsNode::setText)
         .add_property("color", 
                 make_function(&WordsNode::getColor,
                         return_value_policy<copy_const_reference>()),
