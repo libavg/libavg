@@ -4,8 +4,6 @@
 from libavg import *
 import sys
 
-g_Player = avg.Player.get()
-
 FADE_DURATION = 2000
 
 class HDVideoApp(AVGApp):
@@ -32,7 +30,7 @@ class HDVideoApp(AVGApp):
                     fadeIn(self.videoNodes[1], FADE_DURATION)
                 else:
                     fadeOut(self.videoNodes[1], FADE_DURATION)
-                g_Player.setTimeout(FADE_DURATION, self.fadeEnd)
+                player.setTimeout(FADE_DURATION, self.fadeEnd)
                 self.runningVideo = (self.runningVideo+1)%2
                 self.isFading = True
             return True

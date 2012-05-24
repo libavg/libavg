@@ -20,20 +20,15 @@
 #
 #  Current versions can be found at www.libavg.de
 
-from libavg import avg, AVGApp
-from libavg.avg import ImageNode
-
-g_Player = avg.Player.get()
+from libavg import avg, AVGApp, player
 
 class InvertApp(AVGApp):
 
-    multiTouch = False
-
     def init(self):
-        rootNode = g_Player.getRootNode()
+        rootNode = player.getRootNode()
 
-        orig = ImageNode(parent = rootNode, href='../graphics/testfiles/hsl.png')
-        invert = ImageNode(parent = rootNode, href='../graphics/testfiles/hsl.png',
+        orig = avg.ImageNode(parent = rootNode, href='../test/media/hsl.png')
+        invert = avg.ImageNode(parent = rootNode, href='../test/media/hsl.png',
                 pos=(orig.size.x+10, 0))
         invert.setEffect(avg.InvertFXNode())
 

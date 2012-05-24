@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg
+from libavg import avg, player
 
 def onDiv(event):
     words.color = "FF8000"
 
 def onWords(event):
     words.color = "00FF00"
-
-player = avg.Player.get()
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()

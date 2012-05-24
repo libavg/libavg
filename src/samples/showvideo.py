@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import * 
+from libavg import avg, AVGApp
 import sys
-
-g_Player = avg.Player.get()
 
 class VideoApp(AVGApp):
     def init(self):
-        self.videoNode = VideoNode(
+        self.videoNode = avg.VideoNode(
                 href=sys.argv[1],
                 parent=self._parentNode)
         self.videoNode.play()
