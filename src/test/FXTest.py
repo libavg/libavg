@@ -20,10 +20,8 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, utils
+from libavg import avg, utils, player
 from testcase import *
-
-Player = avg.Player.get()
 
 
 class FXTestCase(AVGTestCase):
@@ -90,7 +88,7 @@ class FXTestCase(AVGTestCase):
 
     def testVideoNullFX(self):
         root = self.loadEmptyScene()
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         node = avg.VideoNode(parent=root, href="mjpeg-48x48.avi",
                 threaded=False)
         node.setEffect(avg.NullFXNode())
@@ -151,7 +149,7 @@ class FXTestCase(AVGTestCase):
                                 " "+str(useFX)+" "+str(useColorConv)+"\n")
                         root = self.loadEmptyScene()
                         if useSrcCanvas:
-                            srcCanvas = Player.createCanvas(id="src", size=(160,120),
+                            srcCanvas = player.createCanvas(id="src", size=(160,120),
                                     mediadir="media")
                             avg.ImageNode(href="rgb24alpha-64x64.png", 
                                     parent=srcCanvas.getRootNode())
@@ -163,8 +161,8 @@ class FXTestCase(AVGTestCase):
                         if useColorConv:
                             srcImg.contrast = (1.01, 1.0, 1.0)
                         if useDestCanvas:
-                            destCanvas = Player.createCanvas(id="dest", size=(160,120),
-                                    mediadir="media")
+                            destCanvas = player.createCanvas(id="dest",
+                                    size=(160,120), mediadir="media")
                             destCanvas.getRootNode().appendChild(srcImg)
                             avg.ImageNode(href="canvas:dest", parent=root)
                         else:
@@ -337,7 +335,7 @@ class FXTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", intensity=(0.5,0.5,0.5))
         self.assertEqual(node.intensity, (0.5,0.5,0.5))
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.start(False,
                 (lambda: self.compareImage("testIntensity1"),
                  lambda: setIntensity((1.5,2.0,2.5)),
@@ -348,7 +346,7 @@ class FXTestCase(AVGTestCase):
                  showText,
                  lambda: self.compareImage("testIntensity4"),
                 ))
-        Player.setFakeFPS(-1)
+        player.setFakeFPS(-1)
         self.videoNode = None
 
     def testContrast(self):
@@ -364,7 +362,7 @@ class FXTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
         self.assertEqual(node.contrast, (0.5,0.5,0.5))
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.start(False,
                 (lambda: self.compareImage("testContrast1"),
                  lambda: setContrast((1.5,2.0,2.5)),
@@ -373,7 +371,7 @@ class FXTestCase(AVGTestCase):
                  showVideo,
                  lambda: self.compareImage("testContrast3"),
                 ))
-        Player.setFakeFPS(-1)
+        player.setFakeFPS(-1)
 
     def testFXUpdate(self):
         # This tests if the FX render-on-demand functionality doesn't forget updates.
@@ -406,7 +404,7 @@ class FXTestCase(AVGTestCase):
         effect = avg.BlurFXNode()
         effect.radius = 0
         node.setEffect(effect)
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         self.start(False,
                 (changeTexture,
                  lambda: self.compareImage("testFXUpdateTex"),
@@ -446,7 +444,7 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def __createOffscreenCanvas(self):
-        canvas = Player.createCanvas(id="offscreen", size=(160,120), mediadir="media")
+        canvas = player.createCanvas(id="offscreen", size=(160,120), mediadir="media")
         root = canvas.getRootNode()
         avg.ImageNode(href="rgb24-32x32.png", parent=root)
         avg.ImageNode(id="test", pos=(32,0), href="rgb24alpha-32x32.png", parent=root)

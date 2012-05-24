@@ -26,7 +26,7 @@ import optparse
 import os
 import sys
 
-import libavg
+from libavg import avg, player
 import testcase
 
 
@@ -46,8 +46,7 @@ class TestApp(object):
         self.__testSuite = unittest.TestSuite()
         self.__optionParser = None
         self.__commandlineOptions = None
-        self.__player = libavg.avg.Player.get()
-        self.__player.keepWindowOpen()
+        player.keepWindowOpen()
             
     def getSuiteFactory(self, name):
         return self.__registerdSuiteFactoriesDict[name]
@@ -82,7 +81,7 @@ class TestApp(object):
             yield self.__RegisterdSuitesDict[name]
     
     def __runVideoTest(self):
-        self.__player.loadFile("image.avg")
+        player.loadFile("image.avg")
     
     def __run(self):
         testRunner = unittest.TextTestRunner(verbosity = 2)
@@ -108,17 +107,17 @@ class TestApp(object):
 
     def __setupGlobalPlayerOptions(self):
         if self.__commandlineOptions.shaderusage == "FULL":
-            shaderUsage = libavg.SHADERUSAGE_FULL
+            shaderUsage = avg.SHADERUSAGE_FULL
         elif self.__commandlineOptions.shaderusage == "MINIMAL":
-            shaderUsage = libavg.SHADERUSAGE_MINIMAL
+            shaderUsage = avg.SHADERUSAGE_MINIMAL
         elif self.__commandlineOptions.shaderusage == "AUTO":
-            shaderUsage = libavg.SHADERUSAGE_AUTO
+            shaderUsage = avg.SHADERUSAGE_AUTO
         else:
             sys.stderr.write("\nUnknown value for --shaderusage command-line parameter.\n")
             self.__optionParser.print_help()
             sys.exit(-1)
 
-        self.__player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
+        player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
                 self.__commandlineOptions.usepixelbuffers, 1, shaderUsage)
         
     def __setupCommandlineParser(self):
@@ -165,14 +164,14 @@ class TestApp(object):
             self.__testSuite.addTest(suite(self.__suitesTestSubsets))
         
     def __dumpConfig(self):
-        log = libavg.avg.Logger.get()
+        log = avg.Logger.get()
         log.pushCategories()
         log.setCategories(log.APP | log.WARNING | log.CONFIG  | 0)
-        self.__player.loadString("""
+        player.loadString("""
                 <avg id="avg" width="160" height="120">
                 </avg>
                 """)
-        self.__player.setTimeout(0, self.__player.stop)
-        self.__player.setFramerate(10000)
-        self.__player.play()
+        player.setTimeout(0, player.stop)
+        player.setFramerate(10000)
+        player.play()
         log.popCategories()

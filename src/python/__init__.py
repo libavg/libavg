@@ -17,3 +17,5 @@ from app import AVGApp, App
 from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
 import utils
 import gameapp
+
+player = avg.Player.get()

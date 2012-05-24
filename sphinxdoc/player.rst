@@ -96,7 +96,7 @@ Player & Canvas
 
         The class used to load and play avg files and the main interface to the avg
         renderer. Player is a singleton. There is only one instance, accessed by 
-        :py:meth:`get`.
+        :py:attr:`avg.player`.
 
         .. py:attribute:: pluginPath
 
@@ -566,7 +566,8 @@ Player & Canvas
 
         .. py:classmethod:: get() -> Player
 
+            .. deprecated:: 1.8
+                Use :attr:`avg.player` instead.
+
             This method gives access to the player instance. If no player has been 
             created yet, a player is created.
-
-    

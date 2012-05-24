@@ -23,7 +23,7 @@
 
 import shutil
 
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 g_IsMaskSupported = None
@@ -34,7 +34,7 @@ class ImageTestCase(AVGTestCase):
 
     def testImageHRef(self):
         def createXmlNode(pos):
-            node = Player.createNode(
+            node = player.createNode(
                     """<image pos="%s" href="rgb24-32x32.png"/>"""%str(pos))
             self.assertEqual(node.getMediaSize(), avg.Point2D(32, 32))
             return node
@@ -89,7 +89,7 @@ class ImageTestCase(AVGTestCase):
       
     def testImagePos(self):
         def createXmlNode(pos):
-            return Player.createNode(
+            return player.createNode(
                     """<image pos="%s" href="rgb24-32x32.png"/>"""%str(pos))        
 
         def createDictNode(root, p):
@@ -122,7 +122,7 @@ class ImageTestCase(AVGTestCase):
 
     def testImageSize(self):
         def createXmlNode(pos, size):
-            return Player.createNode(
+            return player.createNode(
                     """<image pos="%s" size="%s" href="rgb24-64x64.png"/>"""
                     %(str(pos), str(size))) 
 
@@ -270,7 +270,7 @@ class ImageTestCase(AVGTestCase):
         def loadValidBitmap():
             def validBitmapCb(bitmap):
                 self.assert_(not isinstance(bitmap, Exception))
-                Player.setTimeout(0, loadUnexistentBitmap)
+                player.setTimeout(0, loadUnexistentBitmap)
 
             avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
                     validBitmapCb)
@@ -279,7 +279,7 @@ class ImageTestCase(AVGTestCase):
             avg.BitmapManager.get().loadBitmap("nonexistent.png",
                     lambda bmp: expectException(
                             returnValue=bmp,
-                            nextAction=lambda: Player.setTimeout(0, loadBrokenImage)))
+                            nextAction=lambda: player.setTimeout(0, loadBrokenImage)))
 
         def loadBrokenImage():
             import tempfile
@@ -289,7 +289,7 @@ class ImageTestCase(AVGTestCase):
 
             def cleanupAndTestReturnValue(returnValue):
                 os.unlink(tempFileName)
-                expectException(returnValue=returnValue, nextAction=Player.stop)
+                expectException(returnValue=returnValue, nextAction=player.stop)
 
             avg.BitmapManager.get().loadBitmap(tempFileName,
                     cleanupAndTestReturnValue)
@@ -297,14 +297,14 @@ class ImageTestCase(AVGTestCase):
         def reportStuck():
             raise RuntimeError("BitmapManager didn't reply "
                     "within %dms timeout" % WAIT_TIMEOUT)
-            Player.stop()
+            player.stop()
             
         self.loadEmptyScene()
         
-        Player.setTimeout(WAIT_TIMEOUT, reportStuck)
-        Player.setResolution(0, 0, 0, 0)
+        player.setTimeout(WAIT_TIMEOUT, reportStuck)
+        player.setResolution(0, 0, 0, 0)
         loadValidBitmap()
-        Player.play()
+        player.play()
         
     def testBitmapManagerException(self):
         def bitmapCb(bitmap):
@@ -312,7 +312,7 @@ class ImageTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         avg.BitmapManager.get().loadBitmap("rgb24alpha-64x64.png", bitmapCb),
-        self.assertException(Player.play)
+        self.assertException(player.play)
 
     def testBlendMode(self):
         def setBlendMode():
@@ -378,7 +378,7 @@ class ImageTestCase(AVGTestCase):
 
     def testImageMaskCanvas(self):
         root = self.loadEmptyScene()
-        canvas = Player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
+        canvas = player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
         avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
         avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
         avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
@@ -521,6 +521,3 @@ def imageTestSuite(tests):
             "testSpline",
             )
     return createAVGTestSuite(availableTests, ImageTestCase, tests)
-
-Player = avg.Player.get()
-

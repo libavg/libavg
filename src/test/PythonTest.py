@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, anim, draggable, geom, statemachine
+from libavg import avg, anim, draggable, geom, statemachine, player
 
 from testcase import *
 
@@ -33,11 +33,11 @@ class PythonTestCase(AVGTestCase):
 
         def startAnim():
             self.__onStopCalled = False
-            node = Player.getElementByID("test")
+            node = player.getElementByID("test")
             self.__anim.start()
 
         def startKeepAttr():
-            node = Player.getElementByID("test")
+            node = player.getElementByID("test")
             node.x = 25
             self.__anim.start(keepAttr=True)
 
@@ -47,7 +47,7 @@ class PythonTestCase(AVGTestCase):
         self.__anim = curAnim
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.start(False,
                 (startAnim,
                  lambda: self.compareImage(imgBaseName+"1"),
@@ -57,7 +57,7 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(self.__anim.isDone()),
                  lambda: self.compareImage(imgBaseName+"2"),
-                 lambda: self.assertEqual(Player.getElementByID("test").x, 100),
+                 lambda: self.assertEqual(player.getElementByID("test").x, 100),
                  startAnim,
                  lambda: self.compareImage(imgBaseName+"1"),
                  abortAnim,
@@ -75,7 +75,7 @@ class PythonTestCase(AVGTestCase):
 
     def testLinearAnim(self):
         self.initDefaultImageScene()
-        node = Player.getElementByID("test")
+        node = player.getElementByID("test")
         curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False)
         self.testAnimType(curAnim, "testLinearAnim")
 
@@ -85,15 +85,15 @@ class PythonTestCase(AVGTestCase):
 
         def startAnim():
             self.__onStopCalled = False
-            node = Player.getElementByID("test")
+            node = player.getElementByID("test")
             self.__anim.start()
 
         self.initDefaultImageScene()
-        node = Player.getElementByID("test")
+        node = player.getElementByID("test")
         self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False)
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.start(False,
                 (startAnim,
                  lambda: self.compareImage("testLinearAnimZeroDuration1"),
@@ -105,40 +105,40 @@ class PythonTestCase(AVGTestCase):
 
     def testEaseInOutAnim(self):
         self.initDefaultImageScene()
-        node = Player.getElementByID("test")
+        node = player.getElementByID("test")
         curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False)
         self.testAnimType(curAnim, "testEaseInOutAnim")
 
     def testSplineAnim(self):
         self.initDefaultImageScene()
-        node = Player.getElementByID("test")
+        node = player.getElementByID("test")
         curAnim = anim.SplineAnim(node, "x", 300, 0, 0, 100, 0, False)
         self.testAnimType(curAnim, "testSplineAnim")
 
     def testContinuousAnim(self):
         def onStart():
-            Player.setTimeout(10,startAnim)
-            Player.setTimeout(100,lambda:self.compareImage("testContAnim1"))
-            Player.setTimeout(200,startAnim2)
-            Player.setTimeout(400,lambda:self.compareImage("testContAnim2"))
-            Player.setTimeout(450,startAnim3)
-            Player.setTimeout(700,lambda:self.compareImage("testContAnim3"))
-            Player.setTimeout(800,stopAnim)
-            Player.setTimeout(900,lambda:self.compareImage("testContAnim4"))
-            Player.setTimeout(1000,Player.stop)
+            player.setTimeout(10,startAnim)
+            player.setTimeout(100,lambda:self.compareImage("testContAnim1"))
+            player.setTimeout(200,startAnim2)
+            player.setTimeout(400,lambda:self.compareImage("testContAnim2"))
+            player.setTimeout(450,startAnim3)
+            player.setTimeout(700,lambda:self.compareImage("testContAnim3"))
+            player.setTimeout(800,stopAnim)
+            player.setTimeout(900,lambda:self.compareImage("testContAnim4"))
+            player.setTimeout(1000,player.stop)
 
         def startAnim():
-            node=Player.getElementByID("testtiles")
+            node=player.getElementByID("testtiles")
             self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
             self.anim.start()
 
         def startAnim2():
-            node=Player.getElementByID("test")
+            node=player.getElementByID("test")
             self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
             self.anim2.start()
 
         def startAnim3():
-            node=Player.getElementByID("test1")
+            node=player.getElementByID("test1")
             self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
             self.anim3.start()
 
@@ -150,11 +150,11 @@ class PythonTestCase(AVGTestCase):
             self.anim2 = None
             self.anim3 = None
 
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         anim.init(avg)
         self.initDefaultImageScene()
-        Player.setTimeout(1, onStart)
-        Player.play()
+        player.setTimeout(1, onStart)
+        player.play()
 
     def testWaitAnim(self):
         def animStopped():
@@ -165,7 +165,7 @@ class PythonTestCase(AVGTestCase):
             self.anim.start()
 
         anim.init(avg)
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.__endCalled = False
         self.initDefaultImageScene()
         self.start(False,
@@ -182,7 +182,7 @@ class PythonTestCase(AVGTestCase):
             self.__state2CallbackCalled = True
 
         def makeAnim():
-            node = Player.getElementByID("test")
+            node = player.getElementByID("test")
             self.anim = anim.StateAnim(
                     {"STATE1": anim.LinearAnim(node, "x", 200, 64, 128),
                      "STATE2": anim.LinearAnim(node, "x", 200, 128, 64),
@@ -190,7 +190,7 @@ class PythonTestCase(AVGTestCase):
                     {"STATE1": anim.AnimTransition("STATE2", state2Callback),
                      "STATE2": anim.AnimTransition("STATE3")})
         anim.init(avg)
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.__state2CallbackCalled = False
         self.initDefaultImageScene()
         self.start(False,
@@ -214,9 +214,9 @@ class PythonTestCase(AVGTestCase):
             self.__endCalled = True
 
         def startAnim():
-            node0 = Player.getElementByID("mainimg")
-            node1 = Player.getElementByID("test")
-            node2 = Player.getElementByID("test1")
+            node0 = player.getElementByID("mainimg")
+            node1 = player.getElementByID("test")
+            node2 = player.getElementByID("test1")
             self.anim = anim.ParallelAnim(
                     [ anim.SplineAnim(node1, "x", 400, 0, 40, 0, 0),
                       anim.EaseInOutAnim(node2, "x", 300, 129, 99, 100, 100)
@@ -225,7 +225,7 @@ class PythonTestCase(AVGTestCase):
         
         anim.init(avg)
         self.__endCalled = False
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.initDefaultImageScene()
         self.start(False,
                 (startAnim,
@@ -257,10 +257,10 @@ class PythonTestCase(AVGTestCase):
         
         self.__dragEndCalled = False
         self.__dragStartCalled = False
-        Helper = Player.getTestHelper()    
+        Helper = player.getTestHelper()    
         self.initDefaultImageScene()
         draggable.init(avg)
-        dragger = draggable.Draggable(Player.getElementByID("test1"),
+        dragger = draggable.Draggable(player.getElementByID("test1"),
                 onDragStart, onDragEnd)
         dragger.enable()
         self.start(False, 
@@ -452,5 +452,4 @@ def pythonTestSuite(tests):
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
 
-Player = avg.Player.get()
 anim.init(avg)

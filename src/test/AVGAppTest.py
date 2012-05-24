@@ -24,17 +24,16 @@ import os
 import time
 
 import libavg
-from libavg import avg, Point2D
+from libavg import avg, Point2D, player
 import testcase
 
-g_Player = avg.Player.get()
-g_helper = g_Player.getTestHelper()
+g_helper = player.getTestHelper()
 
 TEST_RESOLUTION = (160, 120)
 
 class TestAppBase(libavg.AVGApp):
     def requestStop(self, timeout=0):
-        g_Player.setTimeout(timeout, g_Player.stop)
+        player.setTimeout(timeout, player.stop)
 
     def singleKeyPress(self, char):
         g_helper.fakeKeyEvent(avg.KEYDOWN, ord(char), ord(char), char, ord(char), 
@@ -48,7 +47,7 @@ class AVGAppTestCase(testcase.AVGTestCase):
         class MinimalApp(TestAppBase):
             testInstance = self
             def init(self):
-                self.testInstance.assert_(not g_Player.isFullscreen())
+                self.testInstance.assert_(not player.isFullscreen())
                 self.requestStop()
 
         if 'AVG_DEPLOY' in os.environ:
@@ -59,12 +58,12 @@ class AVGAppTestCase(testcase.AVGTestCase):
         class FullscreenApp(TestAppBase):
             testInstance = self
             def init(self):
-                self.testInstance.assert_(g_Player.isFullscreen())
-                rootNodeSize = g_Player.getRootNode().size
+                self.testInstance.assert_(player.isFullscreen())
+                rootNodeSize = player.getRootNode().size
                 self.testInstance.assertEqual(rootNodeSize, resolution)
                 self.requestStop()
                 
-        resolution = g_Player.getScreenResolution()
+        resolution = player.getScreenResolution()
         os.environ['AVG_DEPLOY'] = '1'
         FullscreenApp.start(resolution=resolution)
         del os.environ['AVG_DEPLOY']
@@ -73,11 +72,11 @@ class AVGAppTestCase(testcase.AVGTestCase):
         class DebugwindowApp(TestAppBase):
             testInstance = self
             def init(self):
-                self.testInstance.assert_(not g_Player.isFullscreen())
-                rootNodeSize = g_Player.getRootNode().size
+                self.testInstance.assert_(not player.isFullscreen())
+                rootNodeSize = player.getRootNode().size
                 self.testInstance.assertEqual(rootNodeSize, TEST_RESOLUTION)
                 
-                # windowSize = g_Player.getWindowResolution()
+                # windowSize = player.getWindowResolution()
                 # self.testInstance.assertEqual(windowSize, Point2D(TEST_RESOLUTION)/2)
                 self.requestStop()
         
@@ -104,19 +103,19 @@ class AVGAppTestCase(testcase.AVGTestCase):
                     raise RuntimeError('Cannot find the expected '
                             'screenshot file %s' % screenshotFile)
             
-            g_Player.stop()
+            player.stop()
             
         class ScreenshotApp(TestAppBase):
             def init(self):
                 self.singleKeyPress('s')
                 self.singleKeyPress('s')
                 self.timeStarted = time.time()
-                self.timerId = g_Player.setOnFrameHandler(self.onFrame)
+                self.timerId = player.setOnFrameHandler(self.onFrame)
             
             def onFrame(self):
                 if (os.path.exists(expectedFiles[-1]) or
                         time.time() - self.timeStarted > 1):
-                    g_Player.clearInterval(self.timerId)
+                    player.clearInterval(self.timerId)
                     checkCallback()
         
         cleanup()
@@ -131,7 +130,7 @@ class AVGAppTestCase(testcase.AVGTestCase):
             def enableGraphs(self):
                 self.singleKeyPress('f')
                 self.singleKeyPress('m')
-                g_Player.setTimeout(500, self.disableGraphs)
+                player.setTimeout(500, self.disableGraphs)
                 
             def disableGraphs(self):
                 self.singleKeyPress('m')
@@ -145,15 +144,15 @@ class AVGAppTestCase(testcase.AVGTestCase):
         class ToggleKeysApp(TestAppBase):
             def init(self):
                 self.keys = TOGGLE_KEYS[:]
-                g_Player.setTimeout(0, self.nextKey)
+                player.setTimeout(0, self.nextKey)
             
             def nextKey(self):
                 if not self.keys:
-                    g_Player.stop()
+                    player.stop()
                 else:
                     key = self.keys.pop()
                     self.singleKeyPress(key)
-                    g_Player.setTimeout(0, self.nextKey)
+                    player.setTimeout(0, self.nextKey)
     
         ToggleKeysApp.start(resolution=TEST_RESOLUTION)
     
@@ -161,9 +160,9 @@ class AVGAppTestCase(testcase.AVGTestCase):
         class FakeFullscreenApp(TestAppBase):
             fakeFullscreen = True
             def init(self):
-                g_Player.setTimeout(0, g_Player.stop)
+                player.setTimeout(0, player.stop)
               
-        resolution = g_Player.getScreenResolution()
+        resolution = player.getScreenResolution()
         if os.name == 'nt':
             FakeFullscreenApp.start(resolution=resolution)
         else:

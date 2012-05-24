@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 class VectorTestCase(AVGTestCase):
@@ -34,7 +34,7 @@ class VectorTestCase(AVGTestCase):
     def testLine(self):
         def addLines():
             def addLine(attribs):
-                line = Player.createNode("line", attribs)
+                line = player.createNode("line", attribs)
                 canvas.appendChild(line)
 
             addLine({"pos1":(2, 2.5), "pos2":(100, 2.5)})
@@ -204,7 +204,7 @@ class VectorTestCase(AVGTestCase):
         
         def newRect():
             self.rect.unlink()
-            self.rect = Player.createNode(
+            self.rect = player.createNode(
                 """<rect pos="(20, 20)" size="(50, 40)" fillopacity="1"
                         filltexcoord1="(1,1)" filltexcoord2="(0,0)"
                         texcoords="(0, 0.25, 0.5, 0.75, 1)"
@@ -328,7 +328,7 @@ class VectorTestCase(AVGTestCase):
             polyline.linejoin = "miter"
         
         def addPolyLine2():
-            polyline2 = Player.createNode(
+            polyline2 = player.createNode(
                 """<polyline strokewidth="2" color="FF00FF"
                         pos="((110,10), (100,50), (110,70))" />""")
             canvas.insertChild(polyline2,0)
@@ -714,5 +714,3 @@ def vectorTestSuite(tests):
             "testInactiveVector"
             )
     return createAVGTestSuite(availableTests, VectorTestCase, tests)
-
-Player = avg.Player.get()

@@ -19,13 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
-import time
-import math
-import sys
-
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 def dumpMouseEvent(Event):
@@ -77,7 +71,7 @@ class EventTestCase(AVGTestCase):
 
     def testSimpleEvents(self):
         def getMouseState():
-            Event = Player.getMouseState()
+            Event = player.getMouseState()
             self.assertEqual(Event.pos, avg.Point2D(10,10))
         
         root = self.loadEmptyScene()
@@ -90,7 +84,7 @@ class EventTestCase(AVGTestCase):
         self.start(False,
                 (# down, getMouseState(), move, up.
                  # events are inside img1 but outside img2.
-                 lambda: self.assert_(not(Player.isMultitouchAvailable())),
+                 lambda: self.assert_(not(player.isMultitouchAvailable())),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: handlerTester1.assertState(
@@ -415,7 +409,7 @@ class EventTestCase(AVGTestCase):
             Parent = img1.parent
             Parent.removeChild(Parent.indexOf(img1))
         
-        Helper = Player.getTestHelper()
+        Helper = player.getTestHelper()
         root = self.loadEmptyScene()
         img1 = avg.ImageNode(href="rgb24-65x65.png", parent=root)
         div = avg.DivNode(pos=(65,0), parent=root)
@@ -524,7 +518,7 @@ class EventTestCase(AVGTestCase):
 
         def cleanup():
             resetState()
-            Player.setEventHook(None)
+            player.setEventHook(None)
             
         def handleEvent(event):
             if isinstance(event, avg.MouseEvent) and event.source == avg.MOUSE:
@@ -538,7 +532,7 @@ class EventTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         resetState()
 
-        Player.setEventHook(handleEvent)
+        player.setEventHook(handleEvent)
         self.start(False,
                 (lambda: self.fakeClick(10, 10),
                  lambda: self.assert_(self.ehookMouseEvent),
@@ -631,7 +625,7 @@ class EventTestCase(AVGTestCase):
         self.numOverCallbacks = 0
         rect.connectEventHandler(avg.CURSOROUT, avg.TOUCH, self, onOut)
         self.numOutCallbacks = 0
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         self.start(False,
                 (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
                  lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
@@ -674,7 +668,7 @@ class EventTestCase(AVGTestCase):
         self.numMotionCallbacks = 0
         root.connectEventHandler(avg.CURSORMOTION, avg.TOUCH, self, onMotion)
         self.numContactCallbacks = 0
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         self.start(False,
                 (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
                  lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
@@ -702,7 +696,7 @@ class EventTestCase(AVGTestCase):
         
         root = self.loadEmptyScene()
         root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         self.numContact1Callbacks = 0
         self.numContact2Callbacks = 0
         self.start(False,
@@ -736,5 +730,4 @@ def eventTestSuite(tests):
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 
-Player = avg.Player.get()
-Helper = Player.getTestHelper()
+Helper = player.getTestHelper()

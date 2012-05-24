@@ -21,7 +21,7 @@
 
 import unittest
 
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 
@@ -103,7 +103,7 @@ class EventTestCase(AVGTestCase):
         root.setEventHandler(avg.CUSTOMEVENT, avg.NONE, customEventEventHandler)
         
         self.customInputDevice = CustomInputDevice()
-        Player.addInputDevice(self.customInputDevice)
+        player.addInputDevice(self.customInputDevice)
     
         self.start(False,
                 (lambda: self.customInputDevice.feedEvent(
@@ -140,7 +140,7 @@ class EventTestCase(AVGTestCase):
             return True
         
         root.setEventHandler(avg.CUSTOMEVENT, avg.CUSTOM, eventHandler)
-        Player.addInputDevice(AnonymousInputDevice())
+        player.addInputDevice(AnonymousInputDevice())
     
         self.start(False,
                 (lambda: None,
@@ -155,7 +155,7 @@ class EventTestCase(AVGTestCase):
         rectNode = avg.RectNode(id="rect", size=(50, 50), parent=root)
         
         self.customInputDevice = CustomInputDevice(divNode)
-        Player.addInputDevice(self.customInputDevice)
+        player.addInputDevice(self.customInputDevice)
     
         handlerTester = NodeHandlerTester(self, divNode)
 
@@ -194,6 +194,3 @@ def inputDeviceTestSuite(tests):
             "testInputDeviceEventReceiverNode"
     )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
-
-Player = avg.Player.get()
-Helper = Player.getTestHelper()

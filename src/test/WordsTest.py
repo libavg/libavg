@@ -22,7 +22,7 @@
 
 import platform
 
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 class WordsTestCase(AVGTestCase):
@@ -148,7 +148,7 @@ class WordsTestCase(AVGTestCase):
                 node.maskhref = "mask1.png"
             except RuntimeError:
                 self.skip("no shader support")
-                Player.stop()
+                player.stop()
            
         def setColor():
             node.color = "FFFF00"
@@ -235,15 +235,15 @@ class WordsTestCase(AVGTestCase):
 
     def testSpanWords(self):
         def setTextAttrib():
-            self.baselineBmp = Player.screenshot()
-            Player.getElementByID("words").text = self.text
+            self.baselineBmp = player.screenshot()
+            player.getElementByID("words").text = self.text
         
         def checkSameImage():
-            bmp = Player.screenshot()
+            bmp = player.screenshot()
             self.assert_(self.areSimilarBmps(bmp, self.baselineBmp, 0, 0))
         
         def createUsingDict():
-            Player.getElementByID("words").unlink()
+            player.getElementByID("words").unlink()
             node = avg.WordsNode(id="words", pos=(1,1), fontsize=12, width=120,
                     font="Bitstream Vera Sans", variant="roman", text=self.text)
             root.appendChild(node)
@@ -254,7 +254,7 @@ class WordsTestCase(AVGTestCase):
               <i>italics</i>, <b>bold</b>
         """
         root = self.loadEmptyScene()
-        node = Player.createNode("""
+        node = player.createNode("""
             <words id="words" x="1" y="1" fontsize="12" width="120" 
                 font="Bitstream Vera Sans" variant="roman">
         """
@@ -337,7 +337,7 @@ class WordsTestCase(AVGTestCase):
         words = avg.WordsNode(pos=(1,24), fontsize=12, font="Bitstream Vera Sans",
                 text="foo", parent=root)
         root.appendChild(
-                Player.createNode("""
+                player.createNode("""
                     <words x="1" y="48" fontsize="12" font="Bitstream Vera Sans">
                             &amp;
                     </words>
@@ -360,7 +360,7 @@ class WordsTestCase(AVGTestCase):
                     variant='roman', fontsize=12)
             root.appendChild(self.dictdnode)
 
-            self.xmldnode = Player.createNode("""
+            self.xmldnode = player.createNode("""
                 <words text="&lt;test dynattr&amp;" fontsize="12" 
                         font="Bitstream Vera Sans" variant="roman" rawtextmode="true"
                         x="1" y="85"/>""")
@@ -388,11 +388,11 @@ class WordsTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         attribNode = avg.WordsNode(text="ùnicòdé <b>bold</b>",
                 fontsize=12, pos=(1,5), font="Bitstream Vera Sans", parent=root)
-        valNode = Player.createNode("""
+        valNode = player.createNode("""
             <words id="nodeval" fontsize="10" x="1" y="25" font="Bitstream Vera Sans"><b>bold</b> ùnicòdé  &lt;</words>""")
         root.appendChild(valNode)
         root.appendChild(
-                Player.createNode("""
+                player.createNode("""
                         <words x="1" y="45" fontsize="15" font="Bitstream Vera Sans">
                             &amp;
                         </words>"""))
@@ -417,8 +417,8 @@ class WordsTestCase(AVGTestCase):
 
     def testLetterSpacing(self):
         def setSpacing():
-            Player.getElementByID("words1").letterspacing=-2
-            Player.getElementByID("words2").letterspacing=-2
+            player.getElementByID("words1").letterspacing=-2
+            player.getElementByID("words2").letterspacing=-2
         
         root = self.loadEmptyScene()
         avg.WordsNode(id="words1", pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
@@ -467,12 +467,12 @@ class WordsTestCase(AVGTestCase):
                 font="Bitstream Vera Sans", variant="roman", text="Centered",
                 parent=root)
         for id in ["left", "center", "right"]:
-            Player.getElementByID(id).setEventHandler(avg.CURSORDOWN, avg.MOUSE,
+            player.getElementByID(id).setEventHandler(avg.CURSORDOWN, avg.MOUSE,
                     onMouse)
         self.clicked = False
-        leftWidth = Player.getElementByID("left").getMediaSize()[0]
-        centerWidth = Player.getElementByID("center").getMediaSize()[0]
-        rightWidth = Player.getElementByID("right").getMediaSize()[0]
+        leftWidth = player.getElementByID("left").getMediaSize()[0]
+        centerWidth = player.getElementByID("center").getMediaSize()[0]
+        rightWidth = player.getElementByID("right").getMediaSize()[0]
 
         self.start(True, 
                 (lambda: self.compareImage("testPositioning"),
@@ -644,5 +644,3 @@ def wordsTestSuite(tests):
             "testWordsGamma",
             )
     return createAVGTestSuite(availableTests, WordsTestCase, tests)
-
-Player = avg.Player.get()
