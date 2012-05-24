@@ -21,11 +21,11 @@
 
 from libavg import avg, statemachine, utils
 
-from helper import *
+import helper
 
 import weakref
 
-from math import *
+import math
 
 g_Player = avg.Player.get()
 
@@ -330,7 +330,7 @@ class DragRecognizer(Recognizer):
     VERTICAL=1
     HORIZONTAL=2
 
-    DIRECTION_TOLERANCE=pi/4
+    DIRECTION_TOLERANCE=math.pi/4
 
     def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE,
             initialEvent=None, 
@@ -439,11 +439,11 @@ class DragRecognizer(Recognizer):
         if angle < 0:
             angle = -angle
         if self.__direction == DragRecognizer.VERTICAL:
-            return (angle > pi/2-self.__directionTolerance 
-                    and angle < pi/2+self.__directionTolerance)
+            return (angle > math.pi/2-self.__directionTolerance 
+                    and angle < math.pi/2+self.__directionTolerance)
         elif self.__direction == DragRecognizer.HORIZONTAL:
             return (angle < self.__directionTolerance 
-                    or angle > pi-self.__directionTolerance)
+                    or angle > math.pi-self.__directionTolerance)
         else:
             assert(False)
 
@@ -460,8 +460,8 @@ class Mat3x3:
 
     @classmethod
     def rotate(cls, a):
-        return Mat3x3([cos(a), -sin(a), 0],
-                      [sin(a), cos(a), 0])
+        return Mat3x3([math.cos(a), -math.sin(a), 0],
+                      [math.sin(a), math.cos(a), 0])
 
     @classmethod
     def pivotRotate(cls, t, a):
@@ -750,8 +750,8 @@ class InertiaHandler(object):
             self.__transVel += 0.1*transform.trans/frameDuration
         if transform.pivot != avg.Point2D(0,0):
             self.__curPivot = transform.pivot
-        if transform.rot > pi:
-            transform.rot -= 2*pi
+        if transform.rot > math.pi:
+            transform.rot -= 2*math.pi
         if frameDuration > 0:
             self.__angVel += 0.1*transform.rot/frameDuration
 
@@ -773,9 +773,9 @@ class InertiaHandler(object):
             curTrans = avg.Point2D(0, 0)
 
         if self.__angVel != 0:
-            angSign = self.__angVel/fabs(self.__angVel)
+            angSign = self.__angVel/math.fabs(self.__angVel)
             self.__angVel = self.__angVel - angSign*self.__friction/200
-            newAngSign = self.__angVel/fabs(self.__angVel)
+            newAngSign = self.__angVel/math.fabs(self.__angVel)
             if newAngSign != angSign:
                 self.__angVel = 0
         curAng = self.__angVel * g_Player.getFrameDuration()
