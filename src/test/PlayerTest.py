@@ -262,8 +262,9 @@ class PlayerTestCase(AVGTestCase):
     def testOutlines(self):
         root = self.__initDefaultRotateScene()
         root.elementoutlinecolor = "FFFFFF"
-        Player.getElementByID("inner").width = 100000
-        Player.getElementByID("inner").height = 100000
+        innerDiv = Player.getElementByID("inner")
+        innerDiv.size = (100000, 100000)
+        innerDiv.getChild(0).elementoutlinecolor = "00FF00"
         self.start(False, [lambda: self.compareImage("testOutlines")])
 
     def testError(self):

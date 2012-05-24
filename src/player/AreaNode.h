@@ -86,6 +86,9 @@ class AVG_API AreaNode: public Node
         virtual glm::vec2 getPivot() const;
         void setPivot(const glm::vec2& pt);
         
+        const std::string& getElementOutlineColor() const;
+        void setElementOutlineColor(const std::string& sColor);
+
         virtual glm::vec2 toLocal(const glm::vec2& globalPos) const;
         virtual glm::vec2 toGlobal(const glm::vec2& localPos) const;
         
@@ -93,6 +96,7 @@ class AVG_API AreaNode: public Node
                 std::vector<NodeWeakPtr>& pElements);
 
         virtual void maybeRender(const glm::mat4& parentTransform);
+        virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor);
         virtual void setViewport(float x, float y, float width, float height);
         virtual const FRect& getRelViewport() const;
 
@@ -107,6 +111,7 @@ class AVG_API AreaNode: public Node
     protected:
         AreaNode();
         glm::vec2 getUserSize() const;
+        Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
 
     private:
         void calcTransform();
@@ -115,6 +120,8 @@ class AVG_API AreaNode: public Node
         float m_Angle;
         glm::vec2 m_Pivot;
         bool m_bHasCustomPivot;
+        std::string m_sElementOutlineColor;
+        Pixel32 m_ElementOutlineColor;
         
         glm::vec2 m_UserSize;
         glm::mat4 m_Transform;

@@ -137,6 +137,11 @@ void export_node()
                 &AreaNode::setPivot)
         .add_property("pivotx", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>)
         .add_property("pivoty", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>)
+        .add_property("elementoutlinecolor",
+                make_function(&AreaNode::getElementOutlineColor,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&AreaNode::setElementOutlineColor,
+                        return_value_policy<copy_const_reference>()))
         ;
     export_bitmap();
     export_fx();
@@ -145,11 +150,6 @@ void export_node()
     class_<DivNode, bases<AreaNode>, boost::noncopyable>("DivNode", no_init)
         .def("__init__", raw_constructor(createNode<divNodeName>))
         .add_property("crop", &DivNode::getCrop, &DivNode::setCrop)
-        .add_property("elementoutlinecolor",
-                make_function(&DivNode::getElementOutlineColor,
-                        return_value_policy<copy_const_reference>()),
-                make_function(&DivNode::setElementOutlineColor,
-                        return_value_policy<copy_const_reference>()))
         .def("getNumChildren", &DivNode::getNumChildren)
         .def("getChild", make_function(&DivNode::getChild,
                 return_value_policy<copy_const_reference>()))

@@ -54,15 +54,12 @@ NodeDefinition DivNode::createDefinition()
         .extendDefinition(AreaNode::createDefinition())
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
-        .addArg(Arg<string>("elementoutlinecolor", "", false, 
-                offsetof(DivNode, m_sElementOutlineColor)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
 DivNode::DivNode(const ArgList& args)
 {
     args.setMembers(this);
-    setElementOutlineColor(m_sElementOutlineColor);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -262,21 +259,6 @@ void DivNode::setCrop(bool bCrop)
     m_bCrop = bCrop;
 }
 
-const std::string& DivNode::getElementOutlineColor() const
-{
-    return m_sElementOutlineColor;
-}
-
-void DivNode::setElementOutlineColor(const std::string& sColor)
-{
-    m_sElementOutlineColor = sColor;
-    if (sColor == "") {
-        m_ElementOutlineColor = Pixel32(0,0,0,0);
-    } else {
-        m_ElementOutlineColor = colorStringToColor(m_sElementOutlineColor);
-    }
-}
-
 const UTF8String& DivNode::getMediaDir() const
 {
     return m_sMediaDir;
@@ -343,13 +325,9 @@ void DivNode::render()
     }
 }
 
-void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 color)
+void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor)
 {
-    Pixel32 effColor = color;
-    if (m_ElementOutlineColor != Pixel32(0,0,0,0)) {
-        effColor = m_ElementOutlineColor;
-        effColor.setA(255);
-    }
+    Pixel32 effColor = getEffectiveOutlineColor(parentColor);
     if (effColor != Pixel32(0,0,0,0)) {
         glm::vec2 size = getSize();
         if (size == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
@@ -360,14 +338,7 @@ void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 color)
             pVA->addLineData(effColor, p0, p1, 1);
             pVA->addLineData(effColor, p2, p3, 1);
         } else {
-            glm::vec2 p0 = getAbsPos(glm::vec2(0.5, 0.5));
-            glm::vec2 p1 = getAbsPos(glm::vec2(size.x+0.5,0.5));
-            glm::vec2 p2 = getAbsPos(glm::vec2(size.x+0.5,size.y+0.5));
-            glm::vec2 p3 = getAbsPos(glm::vec2(0.5,size.y+0.5));
-            pVA->addLineData(effColor, p0, p1, 1);
-            pVA->addLineData(effColor, p1, p2, 1);
-            pVA->addLineData(effColor, p2, p3, 1);
-            pVA->addLineData(effColor, p3, p0, 1);
+            AreaNode::renderOutlines(pVA, parentColor);
         }
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
