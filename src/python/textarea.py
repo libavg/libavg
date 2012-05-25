@@ -738,7 +738,7 @@ class TextArea(avg.DivNode):
         # add scrolling | without zoom positioning
 
         self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 - \
-                self.getRelPos(event.pos)* self.__loupeZoomFactor
+                self.getRelPos(event.pos)* self.__loupeZoomFactor + Point2D(0,5)
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 ##################################
 # MODULE FUNCTIONS
