@@ -8,6 +8,8 @@ if system() == 'Linux':
 del system
 
 from avg import *
+player = avg.Player.get()
+
 import anim
 import draggable
 import textarea
@@ -17,5 +19,3 @@ from app import AVGApp, App
 from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
 import utils
 import gameapp
-
-player = avg.Player.get()

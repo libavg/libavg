@@ -31,9 +31,8 @@ import sys
 import cPickle as pickle
 
 import libavg
-from libavg import avg
+from libavg import avg, player
 
-g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 
 
@@ -220,7 +219,7 @@ class GameApp(libavg.AVGApp):
             else:
                 kwargs['resolution'] = map(int, m.groups())
         elif not 'resolution' in kwargs:
-            kwargs['resolution'] = g_Player.getScreenResolution()
+            kwargs['resolution'] = player.getScreenResolution()
 
         if options.window:
             if options.resolution is None:
@@ -246,7 +245,7 @@ class GameApp(libavg.AVGApp):
         '''
         self.leave()
         if self.getStarter() is not None:
-            g_Player.get().stop()
+            player.get().stop()
 
     def getUserdataPath(self, fname):
         '''

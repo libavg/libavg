@@ -21,13 +21,12 @@
 #
 
 import sys, os
-from libavg import avg, AVGApp
+from libavg import avg, AVGApp, player
 
 import coordcalibrator
 import apphelpers
 
 mediadir = os.path.join(os.path.dirname(__file__), 'data')
-g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 g_KbManager = apphelpers.KeyboardManager.get()
 
@@ -165,7 +164,7 @@ class Calibrator(AVGApp):
         self.paramList = camera_setup(CameraType)
         self.parentNode=parentNode
         self.appStarter = appStarter
-        self.mainNode = g_Player.createNode(
+        self.mainNode = player.createNode(
         """
         <div active="False" opacity="0">
             <image width="1280" height="800" href="black.png"/>
@@ -251,7 +250,7 @@ class Calibrator(AVGApp):
         parentNode.insertChild(self.mainNode, 0)
 
         self.coordCal = None
-        self.tracker = g_Player.getTracker()
+        self.tracker = player.getTracker()
         self.curParam = 0
         self.saveIndex = 0
         self.hideMainNodeTimeout = None
@@ -287,13 +286,13 @@ class Calibrator(AVGApp):
         self.tracker.setDebugImages(True, True)
         avg.fadeIn(self.mainNode, 400, 1)
         Bitmap = self.tracker.getImage(avg.IMG_DISTORTED)  # Why is this needed?
-        self.__onFrameID=g_Player.setOnFrameHandler(self.__onFrame)
+        self.__onFrameID=player.setOnFrameHandler(self.__onFrame)
         #grandparent = self.parentNode.getParent()
         #if grandparent:
         #    grandparent.reorderChild(grandparent.indexOf(self.parentNode), grandparent.getNumChildren()-1)
         self.displayParams()
         if self.hideMainNodeTimeout:
-            g_Player.clearInterval(self.hideMainNodeTimeout)
+            player.clearInterval(self.hideMainNodeTimeout)
 
     def _leave(self):
         #unbind all calibrator keys - bind old keys
@@ -306,8 +305,8 @@ class Calibrator(AVGApp):
         #grandparent = self.parentNode.getParent()
         #if grandparent:
         #    grandparent.reorderChild(grandparent.indexOf(self.parentNode), 0)
-        self.hideMainNodeTimeout = g_Player.setTimeout(400, hideMainNode)
-        g_Player.clearInterval(self.__onFrameID)
+        self.hideMainNodeTimeout = player.setTimeout(400, hideMainNode)
+        player.clearInterval(self.__onFrameID)
 
     def reparent(self, newParent):
         """reparents the calibrator node; returns the old(!) parent node"""
@@ -321,7 +320,7 @@ class Calibrator(AVGApp):
         self.tracker.resetHistory()
         self.setNotification('')
         g_KbManager.pop()
-        g_Player.getElementByID('cal_params').opacity = 0.9
+        player.getElementByID('cal_params').opacity = 0.9
 
     def __clearNotification(self):
         self.__notificationTimer = None
@@ -329,12 +328,12 @@ class Calibrator(AVGApp):
 
     def __toggleGUI(self):
         self.__guiOpacity = 1 - self.__guiOpacity
-        g_Player.getElementByID('cal_gui').opacity = self.__guiOpacity
+        player.getElementByID('cal_gui').opacity = self.__guiOpacity
 
     def __onFrame(self):
         def showTrackerImage(trackerImageID, nodeID, size, pos=(0,0)):
             bitmap = self.tracker.getImage(trackerImageID)
-            node = g_Player.getElementByID(nodeID)
+            node = player.getElementByID(nodeID)
             node.setBitmap(bitmap)
             node.size = size
             if pos != (0,0):
@@ -354,8 +353,8 @@ class Calibrator(AVGApp):
         showTrackerImage(avg.IMG_CAMERA, "cal_camera", (160, 120))
         showTrackerImage(avg.IMG_NOHISTORY, "cal_nohistory", (160, 120))
         showTrackerImage(avg.IMG_HISTOGRAM, "cal_histogram", (160, 120))
-        fps = g_Player.getEffectiveFramerate()
-        g_Player.getElementByID("cal_fps").text = '%(val).2f' % {'val': fps} 
+        fps = player.getEffectiveFramerate()
+        player.getElementByID("cal_fps").text = '%(val).2f' % {'val': fps} 
         
     def __trackerSetDebugImages(self):
         self.appStarter.toggleTrackerImage()
@@ -432,24 +431,24 @@ class Calibrator(AVGApp):
         self.__onCalibrationSuccess = callback
 
     def deferredRefresh(self):
-        g_Player.setTimeout(1500, self.__deferredRefreshCB)
+        player.setTimeout(1500, self.__deferredRefreshCB)
         self.setNotification('Please wait for settlement')
         g_KbManager.push()
-        g_Player.getElementByID('cal_params').opacity = 0.3
+        player.getElementByID('cal_params').opacity = 0.3
 
     def setNotification(self, text, timeout=0):
-        g_Player.getElementByID('cal_notification').text = text
+        player.getElementByID('cal_notification').text = text
         if timeout:
             if self.__notificationTimer is not None:
-                g_Player.clearInterval(self.__notificationTimer)
+                player.clearInterval(self.__notificationTimer)
             
-            self.__notificationTimer = g_Player.setTimeout(timeout,
+            self.__notificationTimer = player.setTimeout(timeout,
                     self.__clearNotification)
 
     def displayParams(self):
         i = 0
         for Param in self.paramList:
-            Node = g_Player.getElementByID("cal_param"+str(i))
+            Node = player.getElementByID("cal_param"+str(i))
             Path = Param['path']
             Val = float(self.tracker.getParam(Path))
             Node.text = (Param['Name']+": "

@@ -21,9 +21,8 @@
 #
 
 import math
-from libavg import avg
+from libavg import player
 
-g_Player = avg.Player.get()
 
 class TrackerImageFlipper(object):
     def __init__(self):
@@ -32,7 +31,7 @@ class TrackerImageFlipper(object):
     def readConfig(self):
         global g_tracker
         print "reading tracker config"
-        g_tracker = g_Player.getTracker()
+        g_tracker = player.getTracker()
         trackerAngle = float(g_tracker.getParam('/transform/angle/@value'))
         self.angle = round(trackerAngle/math.pi) * math.pi
         self.flipX = 0 > float(g_tracker.getParam('/transform/displayscale/@x'))

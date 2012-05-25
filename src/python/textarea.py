@@ -40,7 +40,6 @@ textarea module provides two classes:
 
 """
 
-g_Player = None
 g_FocusContext = None
 g_LastKeyEvent = None
 g_activityCallback = None
@@ -69,7 +68,7 @@ DEFAULT_BLUR_OPACITY = 0.3
 
 import time
 
-from libavg import avg, ui
+from libavg import avg, ui, player
 from avg import Point2D
 
 
@@ -242,8 +241,6 @@ class TextArea(avg.DivNode):
         super(TextArea, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
-        global g_Player
-        g_Player = avg.Player.get()
         self.__focusContext = focusContext
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
         self.__border = 0
@@ -279,7 +276,7 @@ class TextArea(avg.DivNode):
         else:
             self.setFocus(True)
 
-        g_Player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
+        player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
         
         self.__lastActivity = 0
 
@@ -666,14 +663,14 @@ class TextArea(avg.DivNode):
 
     def __detectedHandler(self, event):
         self.__updateCursorPosition(event)
-        self.__timerID = g_Player.setTimeout(1000, self.__addLoupe)
+        self.__timerID = player.setTimeout(1000, self.__addLoupe)
 
     def __addLoupe(self):
         if not self.__loupe.getParent():
             self.appendChild(self.__loupe)
 
     def __upHandler (self, event, offset):
-        g_Player.clearInterval(self.__timerID)
+        player.clearInterval(self.__timerID)
         if self.__loupe.getParent():
             self.__loupe.unlink()
 
