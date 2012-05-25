@@ -19,225 +19,13 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, anim, geom, statemachine, player
+from libavg import geom, statemachine
 
 from testcase import *
 
 class PythonTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
-
-    def testAnimType(self, curAnim, imgBaseName):
-        def onStop():
-            self.__onStopCalled = True
-
-        def startAnim():
-            self.__onStopCalled = False
-            node = player.getElementByID("test")
-            self.__anim.start()
-
-        def startKeepAttr():
-            node = player.getElementByID("test")
-            node.x = 25
-            self.__anim.start(keepAttr=True)
-
-        def abortAnim():
-            self.__anim.abort()
-
-        self.__anim = curAnim
-        self.__anim.setHandler(onStop, None)
-        self.__onStopCalled = False
-        player.setFakeFPS(10)
-        self.start(False,
-                (startAnim,
-                 lambda: self.compareImage(imgBaseName+"1"),
-                 lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
-                 None,
-                 None,
-                 lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assert_(self.__anim.isDone()),
-                 lambda: self.compareImage(imgBaseName+"2"),
-                 lambda: self.assertEqual(player.getElementByID("test").x, 100),
-                 startAnim,
-                 lambda: self.compareImage(imgBaseName+"1"),
-                 abortAnim,
-                 lambda: self.assertEqual(anim.getNumRunningAnims(), 0),
-                 lambda: self.compareImage(imgBaseName+"3"),
-                 lambda: self.assert_(self.__anim.isDone()),
-                 None,
-                 lambda: self.assert_(not(self.__onStopCalled)),
-                 startAnim,
-                 startKeepAttr,
-                 lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
-                 abortAnim
-                ))
-        self.__anim = None
-
-    def testLinearAnim(self):
-        self.initDefaultImageScene()
-        node = player.getElementByID("test")
-        curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False)
-        self.testAnimType(curAnim, "testLinearAnim")
-
-    def testLinearAnimZeroDuration(self):
-        def onStop():
-            self.__onStopCalled = True
-
-        def startAnim():
-            self.__onStopCalled = False
-            node = player.getElementByID("test")
-            self.__anim.start()
-
-        self.initDefaultImageScene()
-        node = player.getElementByID("test")
-        self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False)
-        self.__anim.setHandler(onStop, None)
-        self.__onStopCalled = False
-        player.setFakeFPS(10)
-        self.start(False,
-                (startAnim,
-                 lambda: self.compareImage("testLinearAnimZeroDuration1"),
-                 lambda: self.assertEqual(anim.getNumRunningAnims(), 0),
-                 lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assert_(self.__anim.isDone())
-                ))
-        self.__anim = None
-
-    def testEaseInOutAnim(self):
-        self.initDefaultImageScene()
-        node = player.getElementByID("test")
-        curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False)
-        self.testAnimType(curAnim, "testEaseInOutAnim")
-
-    def testSplineAnim(self):
-        self.initDefaultImageScene()
-        node = player.getElementByID("test")
-        curAnim = anim.SplineAnim(node, "x", 300, 0, 0, 100, 0, False)
-        self.testAnimType(curAnim, "testSplineAnim")
-
-    def testContinuousAnim(self):
-        def onStart():
-            player.setTimeout(10,startAnim)
-            player.setTimeout(100,lambda:self.compareImage("testContAnim1"))
-            player.setTimeout(200,startAnim2)
-            player.setTimeout(400,lambda:self.compareImage("testContAnim2"))
-            player.setTimeout(450,startAnim3)
-            player.setTimeout(700,lambda:self.compareImage("testContAnim3"))
-            player.setTimeout(800,stopAnim)
-            player.setTimeout(900,lambda:self.compareImage("testContAnim4"))
-            player.setTimeout(1000,player.stop)
-
-        def startAnim():
-            node=player.getElementByID("testtiles")
-            self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
-            self.anim.start()
-
-        def startAnim2():
-            node=player.getElementByID("test")
-            self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
-            self.anim2.start()
-
-        def startAnim3():
-            node=player.getElementByID("test1")
-            self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
-            self.anim3.start()
-
-        def stopAnim():
-            self.anim.abort()
-            self.anim2.abort()
-            self.anim3.abort()
-            self.anim = None
-            self.anim2 = None
-            self.anim3 = None
-
-        player.setFakeFPS(25)
-        anim.init(avg)
-        self.initDefaultImageScene()
-        player.setTimeout(1, onStart)
-        player.play()
-
-    def testWaitAnim(self):
-        def animStopped():
-            self.__endCalled = True
-
-        def startAnim():
-            self.anim = anim.WaitAnim(200, animStopped, False)
-            self.anim.start()
-
-        anim.init(avg)
-        player.setFakeFPS(10)
-        self.__endCalled = False
-        self.initDefaultImageScene()
-        self.start(False,
-                (startAnim, 
-                 lambda: self.assert_(not(self.anim.isDone())),
-                 None,
-                 None,
-                 lambda: self.assert_(self.anim.isDone()),
-                 lambda: self.assert_(self.__endCalled)
-                ))
-
-    def testStateAnim(self):
-        def state2Callback():
-            self.__state2CallbackCalled = True
-
-        def makeAnim():
-            node = player.getElementByID("test")
-            self.anim = anim.StateAnim(
-                    {"STATE1": anim.LinearAnim(node, "x", 200, 64, 128),
-                     "STATE2": anim.LinearAnim(node, "x", 200, 128, 64),
-                     "STATE3": anim.WaitAnim()},
-                    {"STATE1": anim.AnimTransition("STATE2", state2Callback),
-                     "STATE2": anim.AnimTransition("STATE3")})
-        anim.init(avg)
-        player.setFakeFPS(10)
-        self.__state2CallbackCalled = False
-        self.initDefaultImageScene()
-        self.start(False,
-                (makeAnim,
-                 lambda: self.compareImage("testStateAnim1"),
-                 lambda: self.anim.setState("STATE1"),
-                 None,
-                 lambda: self.compareImage("testStateAnim2"),
-                 lambda: self.anim.getState() == "STATE2",
-                 lambda: self.compareImage("testStateAnim3"),
-                 lambda: self.assert_(self.__state2CallbackCalled),
-                 lambda: self.anim.getState() == "STATE3",
-                 lambda: self.compareImage("testStateAnim4"),
-                 lambda: self.anim.setState("STATE1"),
-                 lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
-                 lambda: self.compareImage("testStateAnim5")
-                ))
-
-    def testParallelAnim(self):
-        def animStopped():
-            self.__endCalled = True
-
-        def startAnim():
-            node0 = player.getElementByID("mainimg")
-            node1 = player.getElementByID("test")
-            node2 = player.getElementByID("test1")
-            self.anim = anim.ParallelAnim(
-                    [ anim.SplineAnim(node1, "x", 400, 0, 40, 0, 0),
-                      anim.EaseInOutAnim(node2, "x", 300, 129, 99, 100, 100)
-                    ], animStopped)
-            self.anim.start()
-        
-        anim.init(avg)
-        self.__endCalled = False
-        player.setFakeFPS(10)
-        self.initDefaultImageScene()
-        self.start(False,
-                (startAnim,
-                 lambda: self.assertEqual(anim.getNumRunningAnims(), 2),
-                 lambda: self.assert_(not(self.anim.isDone())),
-                 lambda: self.compareImage("testParallelAnims1"),
-                 None,
-                 None,
-                 lambda: self.compareImage("testParallelAnims2"),
-                 lambda: self.assert_(self.anim.isDone()),
-                 lambda: self.assert_(self.__endCalled)
-                ))
 
     def testRoundedRect(self):
         def setPos():
@@ -396,14 +184,6 @@ class PythonTestCase(AVGTestCase):
 
 def pythonTestSuite(tests):
     availableTests = (
-        "testLinearAnim",
-        "testLinearAnimZeroDuration",
-        "testEaseInOutAnim",
-        "testSplineAnim",
-        "testContinuousAnim",
-        "testWaitAnim",
-        "testParallelAnim",
-        "testStateAnim",
         "testRoundedRect",
         "testPieSlice",
         "testArc",
@@ -412,5 +192,3 @@ def pythonTestSuite(tests):
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
-
-anim.init(avg)

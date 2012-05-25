@@ -10,7 +10,6 @@ del system
 from avg import *
 player = avg.Player.get()
 
-import anim
 import textarea
 import statemachine
 from app import AVGApp, App
