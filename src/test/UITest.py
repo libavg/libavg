@@ -217,8 +217,9 @@ class UITestCase(AVGTestCase):
                 fontsize=14, multiline=False, color='FFFFFF')
             self.ta2.setText('dolor')
 
+            self.bgImage = avg.ImageNode(href="1x1_white.png", size=(76,54))
             self.ta3 = textarea.TextArea(self.ctx2, disableMouseFocus=True, pos=(80,58),
-                size=(76,54), parent=div3)
+                size=(76,54), textBackgroundNode=self.bgImage, parent=root)
             self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=14, multiline=True, color='FFFFFF')
             self.ta3.setText('dolor sit amet')
@@ -245,8 +246,6 @@ class UITestCase(AVGTestCase):
             self._sendMouseEvent(avg.CURSORUP, 20, 70)
 
         root = self.loadEmptyScene()
-        div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
-        avg.ImageNode(href="1x1_white.png", size=(76,54), parent=div3)
         self.start(True,
                 (setup,
                  lambda: self.compareImage("testFocusContext1"),
