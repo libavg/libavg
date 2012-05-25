@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, anim, draggable, geom, statemachine, player
+from libavg import avg, anim, geom, statemachine, player
 
 from testcase import *
 
@@ -239,44 +239,6 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.assert_(self.__endCalled)
                 ))
 
-    def testDraggable(self):
-        def onDragStart(event):
-            self.__dragStartCalled = True
-        
-        def onDragEnd(event):
-            self.__dragEndCalled = True
-        
-        def startDrag():
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 140, 40, 1)
-        
-        def move():
-            Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False, 150, 50, 1)
-        
-        def stop():
-            Helper.fakeMouseEvent(avg.CURSORUP, False, False, False, 140, 40, 1)
-        
-        self.__dragEndCalled = False
-        self.__dragStartCalled = False
-        Helper = player.getTestHelper()    
-        self.initDefaultImageScene()
-        draggable.init(avg)
-        dragger = draggable.Draggable(player.getElementByID("test1"),
-                onDragStart, onDragEnd)
-        dragger.enable()
-        self.start(False, 
-                (startDrag,
-                 lambda: self.assert_(self.__dragStartCalled),
-                 move,
-                 lambda: self.compareImage("testDraggable1"),
-                 stop,
-                 lambda: self.assert_(self.__dragEndCalled),
-                 lambda: self.compareImage("testDraggable2"),
-                 dragger.disable,
-                 startDrag,
-                 move,
-                 lambda: self.compareImage("testDraggable2")
-                ))
-
     def testRoundedRect(self):
         def setPos():
             self.rect.pos = (20.5, 3.5)
@@ -442,7 +404,6 @@ def pythonTestSuite(tests):
         "testWaitAnim",
         "testParallelAnim",
         "testStateAnim",
-        "testDraggable",
         "testRoundedRect",
         "testPieSlice",
         "testArc",
