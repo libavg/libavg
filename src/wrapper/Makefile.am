@@ -18,10 +18,9 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp \
         event_wrap.cpp fx_wrap.cpp \
-        device_wrap.cpp bitmap_wrap.cpp anim_wrap.cpp $(ALL_H) 
+        bitmap_wrap.cpp anim_wrap.cpp $(ALL_H) 
 avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker
-avg_la_LIBADD = ../conradrelais/libconradrelais.la \
-                ../player/libplayer.la \
+avg_la_LIBADD = ../player/libplayer.la \
                 ../audio/libaudio.la \
                 ../video/libvideo.la \
                 ../graphics/libgraphics.la \

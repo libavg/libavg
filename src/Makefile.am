@@ -1,4 +1,4 @@
-SUBDIRS = base graphics imaging lmfit oscpack audio video player conradrelais \
+SUBDIRS = base graphics imaging lmfit oscpack audio video player \
         anim wrapper python test utils samples
 
 EXTRA_DIST = avgrc avgconfigwrapper.h api.h avgconfig_win.h version.h \
