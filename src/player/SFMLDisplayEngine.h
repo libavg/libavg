@@ -14,7 +14,10 @@
 #include <string>
 #include <vector>
 
-union SDL_Event;
+#undef None     //Why is none defined?
+#include <SFML/Window.hpp>
+
+typedef sf::Event SFML_Event;
 
 namespace avg {
 
@@ -65,18 +68,19 @@ class AVG_API SFMLDisplayEngine: public DisplayEngine, public IInputDevice
         bool internalSetGamma(float red, float green, float blue);
 
         EventPtr createMouseEvent
-                (Event::Type Type, const SDL_Event & SDLEvent, long Button);
-        EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        
+                (Event::Type Type, const SFML_Event & sfmlEvent, long Button);
+        EventPtr createMouseButtonEvent(Event::Type Type, const SFML_Event & sfmlEvent);
+        EventPtr createMouseWheelEvent(const SFML_Event & sfmlEvent);
+        void createKeyEvent(Event::Type Type, const SFML_Event & sfmlEvent);
+
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
         float m_PPMM;
 
-        Input& m_input;
-        Window* m_pScreen;
+        const sf::Input* m_input;
+        sf::Window* m_pScreen;
 
         static void calcRefreshRate();
         static float s_RefreshRate;
@@ -94,7 +98,6 @@ class AVG_API SFMLDisplayEngine: public DisplayEngine, public IInputDevice
 };
 
 typedef boost::shared_ptr<SFMLDisplayEngine> SFMLDisplayEnginePtr;
-typedef sf::Event SFML_Event;
 
 }
 

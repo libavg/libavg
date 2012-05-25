@@ -28,7 +28,8 @@
 #include "OffscreenCanvas.h"
 
 //#include <SDL/SDL.h>
-#include <SFML/Window.hpp>
+//#undef None     //Why is none defined?
+//#include <SFML/Window.hpp>
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
@@ -59,7 +60,7 @@
 #endif
 
 using namespace std;
-using namespace sf;
+//typedef sf::Event SFML_Event;
 
 namespace avg {
 
@@ -83,7 +84,7 @@ SFMLDisplayEngine::SFMLDisplayEngine()
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0)
-{
+{/*
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
     if (!bSDLInitialized) {
@@ -94,7 +95,7 @@ SFMLDisplayEngine::SFMLDisplayEngine()
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);
-    }
+    }*/
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
@@ -104,7 +105,7 @@ SFMLDisplayEngine::SFMLDisplayEngine()
 SFMLDisplayEngine::~SFMLDisplayEngine()
 {
 #ifndef _WIN32
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+   // SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
 }
 
@@ -160,29 +161,24 @@ void SFMLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); *//
-    unsigned int Flags = SDL_OPENGL;
+    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); */
+    unsigned int Flags = 0;
     if (dp.m_bFullscreen) {
-        Flags |= Style::Fullscreen;
+        Flags |= sf::Style::Fullscreen;
     }
     m_bIsFullscreen = dp.m_bFullscreen;
 
     if (!dp.m_bHasWindowFrame) {
-        Flags |= Style::None;
+        Flags |= sf::Style::None;
     }
-
+    m_pScreen = new sf::Window();
     bool bAllMultisampleValuesTested = false;
-    m_pScreen = 0;
+    sf::WindowSettings wSettings = sf::WindowSettings();
     while (!bAllMultisampleValuesTested && !m_pScreen) {
         if (glConfig.m_MultiSampleSamples > 1) {
-            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, glConfig.m_MultiSampleSamples);
-        } else {
-            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+            wSettings.AntialiasingLevel = glConfig.m_MultiSampleSamples;
         }
-        m_pScreen.Create(VideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP), "libavg", Flags);
-//        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+        m_pScreen->Create(sf::VideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP), "libavg", Flags, wSettings);
         if (!m_pScreen) {
             switch (glConfig.m_MultiSampleSamples) {
                 case 1:
@@ -204,20 +200,20 @@ void SFMLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         }
     }
     if (!m_pScreen) {
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
-                + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SFML video mode failed: ")
+                /*+ SDL_GetError()*/ + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
-    m_input = m_pScreen.GetInput();
+    m_input = &m_pScreen->GetInput();
+    m_pScreen->SetActive();
     m_pGLContext = new GLContext(true, glConfig);
     GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+//    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE); rm
     m_pXIMTInputDevice = 0;
 #endif
-    SDL_WM_SetCaption("libavg", 0);
     calcRefreshRate();
 
     glEnable(GL_BLEND);
@@ -258,7 +254,7 @@ void SFMLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
-    signal(SIGSEGV, SIG_DFL);
+//    signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
 
 //    SDL_EnableUNICODE(1);
@@ -275,7 +271,7 @@ void SFMLDisplayEngine::teardown()
         }
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
-        SDL_ShowCursor(SDL_ENABLE);
+        m_pScreen->ShowMouseCursor(true);
 #endif
         m_pScreen = 0;
         delete m_pGLContext;
@@ -308,43 +304,43 @@ void SFMLDisplayEngine::setGamma(float red, float green, float blue)
 
 void SFMLDisplayEngine::setMousePos(const IntPoint& pos)
 {
-    m_pScreen.SetCursorPosition(pos.x, pos.y);
+    m_pScreen->SetCursorPosition(pos.x, pos.y);
 }
 
 int SFMLDisplayEngine::getKeyModifierState() const
 {
     int result = 0x0000;
-    m_input.IsKeyDown(Key::LShift){
+    if(m_input->IsKeyDown(sf::Key::LShift)){
         result |= 0x0001;
     }
-    m_input.IsKeyDown(Key::RShift){
+    if(m_input->IsKeyDown(sf::Key::RShift)){
         result |= 0x0002;
     }
-    m_input.IsKeyDown(Key::LControl){
+    if(m_input->IsKeyDown(sf::Key::LControl)){
         result |= 0x0040;
     }
-    m_input.IsKeyDown(Key::RControl){
+    if(m_input->IsKeyDown(sf::Key::RControl)){
         result |= 0x0080;
     }
-    m_input.IsKeyDown(Key::LAlt){
+    if(m_input->IsKeyDown(sf::Key::LAlt)){
         result |= 0x0100;
     }
-    m_input.IsKeyDown(Key::RAlt){
+    if(m_input->IsKeyDown(sf::Key::RAlt)){
         result |= 0x0200;
     }
-/*    m_input.IsKeyDown(Key::LMeta){
+/*   if(m_input->IsKeyDown(Key::LMeta)){
         result |= 0x0400;
     }
-    m_input.IsKeyDown(Key::RMeta){
+    if(m_input->IsKeyDown(Key::RMeta)){
         result |= 0x0800;
     }
-    m_input.IsKeyDown(Key::Num){
+    if(m_input->IsKeyDown(Key::Num)){
         result |= 0x1000;
     }
-    m_input.IsKeyDown(Key::Caps){
+    if(m_input->IsKeyDown(Key::Caps)){
         result |= 0x2000;
     }
-    m_input.IsKeyDown(Key::Mode){
+    if(m_input->IsKeyDown(Key::Mode)){
         result |= 0x4000;
     }*/
     return result;
@@ -353,8 +349,8 @@ int SFMLDisplayEngine::getKeyModifierState() const
 void SFMLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
-//        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        m_ScreenResolution = IntPoint(m_pScreen.GetWidth(), m_pScreen.GetHight());
+        sf::VideoMode mode = sf::VideoMode::GetDesktopMode();
+        m_ScreenResolution = IntPoint(mode.Width, mode.Height);
     }
     if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
@@ -379,7 +375,7 @@ void SFMLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 }
 
 bool SFMLDisplayEngine::internalSetGamma(float red, float green, float blue)                // gamma kann man nicht setzen nur durch shader umsetzbar
-{
+{/*
 #ifdef __APPLE__
     // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
     CGError err = CGSetDisplayTransferByFormula(kCGDirectMainDisplay, 0, 1, 1/red,
@@ -388,16 +384,17 @@ bool SFMLDisplayEngine::internalSetGamma(float red, float green, float blue)    
 #else
     int err = SDL_SetGamma(float(red), float(green), float(blue));
     return (err != -1);
-#endif
+#endif */
+    return true;
 }
 
-static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
+//static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
 void SFMLDisplayEngine::swapBuffers()                                                       // SFML Swapt selber und es ist immer aktiviert
-{
+{/*
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
-    GLContext::checkError("swapBuffers()");
+    GLContext::checkError("swapBuffers()");*/
 }
 
 void SFMLDisplayEngine::showCursor(bool bShow)
@@ -407,13 +404,13 @@ void SFMLDisplayEngine::showCursor(bool bShow)
     // Hack to fix a pointer issue with fullscreen, SDL and touchscreens
     // Refer to Mantis bug #140
     for (int i = 0; i < MAX_CORE_POINTERS; ++i) {
-        m_pScreen.ShowMouseCursor(bShow);
+        m_pScreen->ShowMouseCursor(bShow);
     }
 #else
     if (bShow) {
-        m_pScreen.ShowMouseCursor(true);
+        m_pScreen->ShowMouseCursor(true);
     } else {
-        m_pScreen.ShowMouseCursor(false);
+        m_pScreen->ShowMouseCursor(false);
     }
 #endif
 }
@@ -504,10 +501,10 @@ void SFMLDisplayEngine::calcRefreshRate()
 
 }
 
-vector<long> SFMLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+//vector<long> SFMLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
-const char * getEventTypeName(unsigned char type) 
-{
+const char * getEventTypeName(unsigned char type)                                   // scheint nie aufgerufen zu werden (svn check)
+{/*
     switch (type) {
             case SDL_ACTIVEEVENT:
                 return "SDL_ACTIVEEVENT";
@@ -539,7 +536,8 @@ const char * getEventTypeName(unsigned char type)
                 return "SDL_SYSWMEVENT";
             default:
                 return "Unknown SDL event type";
-    }
+    }*/
+    return "blaa";
 }
 
 vector<EventPtr> SFMLDisplayEngine::pollEvents()
@@ -547,9 +545,9 @@ vector<EventPtr> SFMLDisplayEngine::pollEvents()
     SFML_Event sfmlEvent;
     vector<EventPtr> events;
 
-    while (m_pScreen.GetEvent(sfmlEvent&)) {
+    while (m_pScreen->GetEvent(sfmlEvent)) {
         EventPtr pNewEvent;
-        switch (sfmlEvent.type) {
+        switch (sfmlEvent.Type) {
             case SFML_Event::MouseMoved:
                 if (m_bMouseOverApp) {
                     pNewEvent = createMouseEvent(Event::CURSORMOTION, sfmlEvent, 
@@ -571,6 +569,9 @@ vector<EventPtr> SFMLDisplayEngine::pollEvents()
             case SFML_Event::MouseButtonReleased:
                 pNewEvent = createMouseButtonEvent(Event::CURSORUP, sfmlEvent);
                 break;
+            case SFML_Event::MouseWheelMoved:
+                pNewEvent = createMouseWheelEvent(sfmlEvent);
+                break;
             case SFML_Event::JoyMoved:
 //                pNewEvent = createAxisEvent(sfmlEvent));
                 break;
@@ -581,17 +582,17 @@ vector<EventPtr> SFMLDisplayEngine::pollEvents()
 //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sfmlEvent));
                 break;
             case SFML_Event::KeyPressed:
-                pNewEvent = createKeyEvent(Event::KEYDOWN, sfmlEvent);
+            //    pNewEvent = createKeyEvent(Event::KEYDOWN, sfmlEvent);
                 break;
             case SFML_Event::KeyReleased:
-                pNewEvent = createKeyEvent(Event::KEYUP, sfmlEvent);
+            //    pNewEvent = createKeyEvent(Event::KEYUP, sfmlEvent);
                 break;
             case SFML_Event::Closed:
                 pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                 break;
             case SFML_Event::Resized:
                 break;
-/*            case SDL_SYSWMEVENT:                                                       // generelle fehler events gibt es nciht in sfml
+/*            case SDL_SYSWMEVENT:                                                       // generelle fehler events gibt es nicht in sfml
                 {
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
@@ -610,7 +611,7 @@ vector<EventPtr> SFMLDisplayEngine::pollEvents()
             events.push_back(pNewEvent);
         }
     }
-    return  ;
+    return events;
 }
 
 void SFMLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
@@ -622,10 +623,9 @@ void SFMLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
 EventPtr SFMLDisplayEngine::createMouseEvent(Event::Type type, const SFML_Event& sfmlEvent,
         long button)
 {
-    int x = m_input.GetMouseX();
-    int y = m_input.GetMouseY();
+    int x = m_input->GetMouseX();
+    int y = m_input->GetMouseY();
 
-//    Uint8 buttonState = SDL_GetMouseState(&x, &y); //  ?? buttonState jetzt andaers abfragen
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
     glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
@@ -636,37 +636,44 @@ EventPtr SFMLDisplayEngine::createMouseEvent(Event::Type type, const SFML_Event&
         float lastFrameTime = 1000/getEffectiveFramerate();
         speed = glm::vec2(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
     }
-    MouseEventPtr pEvent(new MouseEvent(type, m_input.IsMouseButtonDown(sf::Mouse::Left),
-            m_input.IsMouseButtonDown(sf::Mouse::Middle), m_input.IsMouseButtonDown(sf::Mouse::Right),
+    MouseEventPtr pEvent(new MouseEvent(type, m_input->IsMouseButtonDown(sf::Mouse::Left),
+            m_input->IsMouseButtonDown(sf::Mouse::Middle), m_input->IsMouseButtonDown(sf::Mouse::Right),
             IntPoint(x, y), button, speed));
 
     m_pLastMouseEvent = pEvent;
     return pEvent; 
 }
 
-EventPtr SFMLDisplayEngine::createMouseButtonEvent(Event::Type type, 
-        const SFML_Event& sfmlEvent) 
+EventPtr SFMLDisplayEngine::createMouseWheelEvent(const SFML_Event& sfmlEvent)
 {
     long button = 0;
-    switch (sfmlEvent.button.button) {
-        case SDL_BUTTON_LEFT:
+    if (sfmlEvent.MouseWheel.Delta > 0) {
+        button = MouseEvent::WHEELUP_BUTTON;
+    } else if (sfmlEvent.MouseWheel.Delta < 0) {
+        button = MouseEvent::WHEELDOWN_BUTTON;
+    }
+    return createMouseEvent(Event::CURSORDOWN, sfmlEvent, button);
+}
+
+EventPtr SFMLDisplayEngine::createMouseButtonEvent(Event::Type type,
+        const SFML_Event& sfmlEvent)
+{
+    long button = 0;
+    switch (sfmlEvent.MouseButton.Button) {
+        case sf::Mouse::Left:
             button = MouseEvent::LEFT_BUTTON;
             break;
-        case SDL_BUTTON_MIDDLE:
+        case sf::Mouse::Middle:
             button = MouseEvent::MIDDLE_BUTTON;
             break;
-        case SDL_BUTTON_RIGHT:
+        case sf::Mouse::Right:
             button = MouseEvent::RIGHT_BUTTON;
             break;
-        case SDL_BUTTON_WHEELUP:
-            button = MouseEvent::WHEELUP_BUTTON;
-            break;
-        case SDL_BUTTON_WHEELDOWN:
-            button = MouseEvent::WHEELDOWN_BUTTON;
+        default:
+            button = MouseEvent::LEFT_BUTTON;
             break;
     }
     return createMouseEvent(type, sfmlEvent, button);
- 
 }
 
 /*
@@ -685,8 +692,8 @@ EventPtr SFMLDisplayEngine::createButtonEvent
 }
 */
 
-EventPtr SFMLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
-{
+void /*EventPtr*/ SFMLDisplayEngine::createKeyEvent(Event::Type type, const SFML_Event& sfmlEvent)     //------------------------------------------------------------------
+{ /*
     long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
     unsigned int modifiers = key::KEYMOD_NONE;
 
@@ -717,14 +724,14 @@ EventPtr SFMLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sd
 
     KeyEventPtr pEvent(new KeyEvent(type,
             sdlEvent.key.keysym.scancode, keyCode,
-            SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode, modifiers));
-    return pEvent;
+            SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode, modifiers)); */
+  //  return pEvent;
 }
 
 void SFMLDisplayEngine::initTranslationTable()
 {
 #define TRANSLATION_ENTRY(x) KeyCodeTranslationTable[SDLK_##x] = key::KEY_##x;
-
+/*
     TRANSLATION_ENTRY(UNKNOWN);
     TRANSLATION_ENTRY(BACKSPACE);
     TRANSLATION_ENTRY(TAB);
@@ -956,7 +963,7 @@ void SFMLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(MENU);
     TRANSLATION_ENTRY(POWER);
     TRANSLATION_ENTRY(EURO);
-    TRANSLATION_ENTRY(UNDO);
+    TRANSLATION_ENTRY(UNDO);*/
 }
 
 const IntPoint& SFMLDisplayEngine::getWindowSize() const
