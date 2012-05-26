@@ -47,6 +47,8 @@
 #include <sstream>
 #include <cmath>
 
+#include <glib-object.h>
+
 using namespace avg;
 using namespace std;
 
@@ -505,6 +507,7 @@ void deleteOldResultImages()
 
 int main(int nargs, char** args)
 {
+    g_type_init();
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
 

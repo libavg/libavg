@@ -42,6 +42,8 @@
 #include <math.h>
 #include <iostream>
 
+#include <glib-object.h>
+
 using namespace avg;
 using namespace std;
 
@@ -404,6 +406,7 @@ public:
 
 int main(int nargs, char** args)
 {
+    g_type_init();
     bool bOK = true;
     try {
         OGLImagingContext context;

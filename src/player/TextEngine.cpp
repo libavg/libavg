@@ -78,7 +78,6 @@ TextEngine::~TextEngine()
 
 void TextEngine::init()
 {
-    g_type_init();
     m_pFontMap = PANGO_FT2_FONT_MAP(pango_ft2_font_map_new());
     pango_ft2_font_map_set_resolution(m_pFontMap, 72, 72);
     if (m_bHint) {
@@ -229,8 +228,6 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 
 void TextEngine::initFonts()
 {
-    g_type_init();
-
     std::vector<std::string> fontConfPathPrefixList;
 #ifndef WIN32
     fontConfPathPrefixList.push_back("/");

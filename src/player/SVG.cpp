@@ -48,17 +48,10 @@ using namespace std;
 
 namespace avg {
 
-bool SVG::s_RSVGInitialized = false;
-   
 SVG::SVG(const UTF8String& sFilename, bool bUnescapeIllustratorIDs)
     : m_sFilename(sFilename),
       m_bUnescapeIllustratorIDs(bUnescapeIllustratorIDs)
 {
-    if (!s_RSVGInitialized) {
-        rsvg_init();
-        s_RSVGInitialized = true;
-    }
-    
     GError* pErr = 0;
     m_pRSVG = rsvg_handle_new_from_file(m_sFilename.c_str(), &pErr);
     if (!m_pRSVG) {

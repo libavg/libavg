@@ -47,8 +47,6 @@ namespace avg {
 template<class Pixel>
 void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp);
 
-bool Bitmap::s_bGTKInitialized = false;
-
 Bitmap::Bitmap(glm::vec2 size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
       m_PF(pf),
@@ -132,11 +130,6 @@ Bitmap::Bitmap(const UTF8String& sName)
     : m_pBits(0),
       m_sName(sName)
 {
-    if (!s_bGTKInitialized) {
-        g_type_init();
-        s_bGTKInitialized = true;
-    }
-
     GError* pError = 0;
     GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_file(sName.c_str(), &pError);
     if (!pPixBuf) {
@@ -570,10 +563,6 @@ void Bitmap::copyYUVPixels(const Bitmap& yBmp, const Bitmap& uBmp, const Bitmap&
 
 void Bitmap::save(const UTF8String& sFilename)
 {
-    if (!s_bGTKInitialized) {
-        g_type_init();
-        s_bGTKInitialized = true;
-    }
     Bitmap* pTempBmp;
     switch (m_PF) {
         case B8G8R8X8:
