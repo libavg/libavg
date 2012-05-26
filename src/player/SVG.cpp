@@ -59,13 +59,13 @@ SVG::SVG(const UTF8String& sFilename, bool bUnescapeIllustratorIDs)
         s_RSVGInitialized = true;
     }
     
-    GError* pErr = new GError;
+    GError* pErr = 0;
     m_pRSVG = rsvg_handle_new_from_file(m_sFilename.c_str(), &pErr);
     if (!m_pRSVG) {
         throw Exception(AVG_ERR_INVALID_ARGS, 
                 string("Could not open svg file: ") + m_sFilename);
+        g_error_free(pErr);
     }
-    delete pErr;
 }
 
 SVG::~SVG()
