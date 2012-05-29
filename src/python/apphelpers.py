@@ -20,9 +20,7 @@
 
 import os
 
-from libavg import avg
-
-g_Player = avg.Player.get()
+from libavg import avg, player
 
 
 class BaseTouchVisualization(avg.DivNode):
@@ -35,7 +33,7 @@ class BaseTouchVisualization(avg.DivNode):
         self.contact = event.contact
         self.listenerid = event.contact.connectListener(self._onMotion, self._onUp)
         self.pos = avg.Point2D(event.pos)
-        self._fingerSize = 7*g_Player.getPixelsPerMM() # Assume 14mm width for a finger.
+        self._fingerSize = 7*player.getPixelsPerMM() # Assume 14mm width for a finger.
         self._radius = max(self._fingerSize, event.majoraxis.getNorm())
 
     def _abort(self):
@@ -137,7 +135,7 @@ class TouchVisualization(BaseTouchVisualization):
         avg.fadeIn(self.__circle, 100, 1)
         avg.LinearAnim(self.__circle, "size", 100, self.__circle.size, (4,4)).start()
         avg.LinearAnim(self.__circle, "pos", 100, self.__circle.pos, (-2,-2)).start()
-        g_Player.setTimeout(100, lambda: gone(self))
+        player.setTimeout(100, lambda: gone(self))
 
     def __setRadius(self, radius):
         self.__circle.pos = (-radius, -radius)
@@ -153,7 +151,7 @@ class TouchVisualizationOverlay(avg.DivNode):
         self.sensitive = False
         self.visClass = visClass
 
-        rootNode = g_Player.getRootNode()
+        rootNode = player.getRootNode()
         if isDebug:
             self.elementoutlinecolor='FFFFAA'
             avg.RectNode(parent=self, size=self.size, fillopacity=0.2, fillcolor='000000')
@@ -161,7 +159,7 @@ class TouchVisualizationOverlay(avg.DivNode):
                 self, self.__onTouchDown)
     
     def deinit(self):
-        rootNode = g_Player.getRootNode()
+        rootNode = player.getRootNode()
         rootNode.disconnectEventHandler(self, self.__onTouchDown)
 
     def __onTouchDown(self, event):
@@ -286,7 +284,7 @@ class KeyboardManager(object):
         return cls._instance
         
     def setup(self, onKeyDownCb, onKeyUpCb):
-        rootNode = g_Player.getRootNode()
+        rootNode = player.getRootNode()
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
         rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
         

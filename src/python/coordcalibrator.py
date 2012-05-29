@@ -19,30 +19,29 @@
 #
 # Released with permission from Archimedes-Solutions GmbH
 
-from libavg import avg
+from libavg import avg, player
 
 import apphelpers
 
 g_KbManager = apphelpers.KeyboardManager.get()
 
-g_Player = avg.Player.get()
 
 class CoordCalibrator(object):
     def __init__(self, calibrationTerminatedCb):
         self.__calibrationTerminatedCb = calibrationTerminatedCb
         self.__CurPointIndex = 0
-        self.__CPPCal = g_Player.getTracker().startCalibration()
+        self.__CPPCal = player.getTracker().startCalibration()
         self.__LastCenter = None
         self.__NumMessages = 0
         self._mycursor = None
-        mainNode = g_Player.getElementByID("cal_coordcalibrator")
+        mainNode = player.getElementByID("cal_coordcalibrator")
         mainNode.active = True
         mainNode.opacity = 1
         mainNode.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown)
         mainNode.setEventHandler(avg.CURSORMOTION, avg.TOUCH, self.__onTouchMove)
         mainNode.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onTouchUp)
-        self.__crosshair = g_Player.getElementByID("cal_crosshair")
-        self.__feedback = g_Player.getElementByID("cal_feedback")
+        self.__crosshair = player.getElementByID("cal_crosshair")
+        self.__feedback = player.getElementByID("cal_feedback")
         self.__feedback.opacity = 0
         self.__addMessage("Starting calibration.")
         self.__moveMarker()
@@ -52,9 +51,9 @@ class CoordCalibrator(object):
         g_KbManager.bindKey('a', self.__abortCalibration, 'abort calibration')
         
     def __endCalibration(self, isSuccessful):
-        g_Player.getElementByID("cal_coordcalibrator").active = False
-        g_Player.getElementByID("cal_coordcalibrator").opacity = 0
-        MsgsNode = g_Player.getElementByID("cal_messages")
+        player.getElementByID("cal_coordcalibrator").active = False
+        player.getElementByID("cal_coordcalibrator").opacity = 0
+        MsgsNode = player.getElementByID("cal_messages")
         for i in range(0, MsgsNode.getNumChildren()):
             MsgsNode.removeChild(0)
         
@@ -74,14 +73,14 @@ class CoordCalibrator(object):
         if not hasNextPoint:
             # Note: may raise RuntimeError. A rollback doesn't appear to be possible,
             # which means crashing here is safer than handling the exception
-            g_Player.getTracker().endCalibration()
+            player.getTracker().endCalibration()
             self.__endCalibration(True)
         else:
             self.__CurPointIndex += 1
             self.__moveMarker()
     
     def __abortCalibration(self):
-        g_Player.getTracker().abortCalibration()
+        player.getTracker().abortCalibration()
         self.__endCalibration(False)
         
     def __moveMarker(self):
@@ -91,14 +90,14 @@ class CoordCalibrator(object):
         self.__addMessage("Calibrating point "+str(self.__CurPointIndex))
 
     def __addMessage(self, text):
-        MsgsNode = g_Player.getElementByID("cal_messages")
+        MsgsNode = player.getElementByID("cal_messages")
         if self.__NumMessages > 38:
             for i in range(0, MsgsNode.getNumChildren()-1):
                 MsgsNode.getChild(i).text = MsgsNode.getChild(i+1).text
             MsgsNode.removeChild(MsgsNode.getNumChildren()-1)
         else:
             self.__NumMessages += 1
-        Node = g_Player.createNode(
+        Node = player.createNode(
                 "<words fontsize='10' font='Eurostile' color='00FF00'/>")
         Node.x = 0
         Node.y = self.__NumMessages*13

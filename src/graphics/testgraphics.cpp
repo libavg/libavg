@@ -65,6 +65,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <glib-object.h>
+
 using namespace avg;
 using namespace std;
 
@@ -1049,6 +1051,8 @@ public:
 
 int main(int nargs, char** args)
 {
+    g_type_init();
+
     GraphicsTest::createResultImgDir();
     GraphicsTestSuite suite;
     suite.runTests();

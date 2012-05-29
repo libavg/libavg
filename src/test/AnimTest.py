@@ -20,7 +20,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 class AnimTestCase(AVGTestCase):
@@ -31,7 +31,7 @@ class AnimTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.__node = avg.ImageNode(id="test", pos=(64,30), href="rgb24-65x65.png",
                 parent=root)
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
 
     def testAnimType(self, curAnim, imgBaseName):
         def onStop():
@@ -90,7 +90,7 @@ class AnimTestCase(AVGTestCase):
             self.__onStopBeforeOnStart = self.__onStopCalled
         
         self.initScene()
-        sameNode = Player.getElementByID("test")
+        sameNode = player.getElementByID("test")
         anim1 = avg.LinearAnim(self.__node, "x", 500, 0, 100,
                                False, None, on1Stop)
         anim2 = avg.LinearAnim(sameNode, "x", 300, 0, 100,
@@ -316,7 +316,7 @@ class AnimTestCase(AVGTestCase):
             node = avg.ImageNode(id=str(i), pos=(64, i*20), href="rgb24-64x64.png")
             root.appendChild(node)
             self.nodes.append(node)
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.__endCalled = False
         self.start(False,
                 (startFireForgetAnim,
@@ -402,7 +402,7 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assertEqual(avg.getNumRunningAnims(), 1),
                  lambda: self.compareImage("testStateAnimC5"),
                  killAnim,
-#                 lambda: Player.getTestHelper().dumpObjects()
+#                 lambda: player.getTestHelper().dumpObjects()
                 ))
 
     def testNonNodeAttrAnim(self):
@@ -418,7 +418,7 @@ class AnimTestCase(AVGTestCase):
             self.__onStopBeforeOnStart = self.__onStopCalled
 
         self.loadEmptyScene()
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         genericObject1 = GenericClass()
         genericObject2 = genericObject1
         genericObject3 = GenericClass()
@@ -482,4 +482,3 @@ def animTestSuite(tests):
         )
     return createAVGTestSuite(availableTests, AnimTestCase, tests)
 
-Player = avg.Player.get()

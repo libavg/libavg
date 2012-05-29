@@ -61,7 +61,9 @@ NodeDefinition AreaNode::createDefinition()
         .addArg(Arg<glm::vec2>("size", glm::vec2(0.0, 0.0)))
         .addArg(Arg<float>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
         .addArg(Arg<glm::vec2>("pivot", glm::vec2(-32767, -32767), false, 
-                offsetof(AreaNode, m_Pivot)));
+                offsetof(AreaNode, m_Pivot)))
+        .addArg(Arg<string>("elementoutlinecolor", "", false, 
+                offsetof(AreaNode, m_sElementOutlineColor)));
 }
 
 AreaNode::AreaNode()
@@ -85,6 +87,7 @@ void AreaNode::setArgs(const ArgList& args)
     m_RelViewport.setWidth(m_UserSize.x);
     m_RelViewport.setHeight(m_UserSize.y);
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
+    setElementOutlineColor(m_sElementOutlineColor);
 }
 
 void AreaNode::connectDisplay()
@@ -195,6 +198,21 @@ void AreaNode::setPivot(const glm::vec2& pt)
     m_bTransformChanged = true;
 }
 
+const std::string& AreaNode::getElementOutlineColor() const
+{
+    return m_sElementOutlineColor;
+}
+
+void AreaNode::setElementOutlineColor(const std::string& sColor)
+{
+    m_sElementOutlineColor = sColor;
+    if (sColor == "") {
+        m_ElementOutlineColor = Pixel32(0,0,0,0);
+    } else {
+        m_ElementOutlineColor = colorStringToColor(m_sElementOutlineColor);
+    }
+}
+
 glm::vec2 AreaNode::toLocal(const glm::vec2& globalPos) const
 {
     glm::vec2 localPos = globalPos-m_RelViewport.tl;
@@ -223,6 +241,22 @@ void AreaNode::maybeRender(const glm::mat4& parentTransform)
         calcTransform();
         m_Transform = parentTransform*m_LocalTransform;
         render();
+    }
+}
+
+void AreaNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor)
+{
+    Pixel32 effColor = getEffectiveOutlineColor(parentColor);
+    if (effColor != Pixel32(0,0,0,0)) {
+        glm::vec2 size = getSize();
+        glm::vec2 p0 = getAbsPos(glm::vec2(0.5, 0.5));
+        glm::vec2 p1 = getAbsPos(glm::vec2(size.x+0.5,0.5));
+        glm::vec2 p2 = getAbsPos(glm::vec2(size.x+0.5,size.y+0.5));
+        glm::vec2 p3 = getAbsPos(glm::vec2(0.5,size.y+0.5));
+        pVA->addLineData(effColor, p0, p1, 1);
+        pVA->addLineData(effColor, p1, p2, 1);
+        pVA->addLineData(effColor, p2, p3, 1);
+        pVA->addLineData(effColor, p3, p0, 1);
     }
 }
 
@@ -282,6 +316,15 @@ const glm::mat4& AreaNode::getTransform() const
 glm::vec2 AreaNode::getUserSize() const
 {
     return m_UserSize;
+}
+
+Pixel32 AreaNode::getEffectiveOutlineColor(Pixel32 parentColor) const
+{
+    if (m_ElementOutlineColor == Pixel32(0,0,0,0)) {
+        return parentColor;
+    } else {
+        return m_ElementOutlineColor;
+    }
 }
 
 void AreaNode::calcTransform()

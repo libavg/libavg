@@ -63,9 +63,6 @@ class AVG_API DivNode : public AreaNode
         bool getCrop() const;
         void setCrop(bool bCrop);
 
-        const std::string& getElementOutlineColor() const;
-        void setElementOutlineColor(const std::string& sColor);
-
         const UTF8String& getMediaDir() const;
         void setMediaDir(const UTF8String& mediaDir);
 
@@ -86,8 +83,6 @@ class AVG_API DivNode : public AreaNode
 
         UTF8String m_sMediaDir;
         bool m_bCrop;
-        std::string m_sElementOutlineColor;
-        Pixel32 m_ElementOutlineColor;
 
         SubVertexArray m_ClipVA;
 

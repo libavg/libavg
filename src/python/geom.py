@@ -19,7 +19,6 @@
 #
 
 from libavg import avg
-g_Player = None
 
 class RoundedRect(avg.PolygonNode):
     def __init__(self, size, radius, pos=(0,0), parent=None, **kwargs):

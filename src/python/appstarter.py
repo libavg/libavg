@@ -24,7 +24,7 @@ import os
 import gc
 import math
 
-from libavg import avg, Point2D
+from libavg import avg, Point2D, player
 import graph
 from mtemu import MTemu
 import apphelpers
@@ -32,7 +32,6 @@ import apphelpers
 
 DEFAULT_RESOLUTION = (640, 480)
 
-g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 g_KbManager = apphelpers.KeyboardManager.get()
 
@@ -51,7 +50,7 @@ class AppStarter(object):
 
         self._setupBaseDivs(resolution)
 
-        g_Player.showCursor(testMode)
+        player.showCursor(testMode)
 
         if fakeFullscreen:
             if os.name != 'nt':
@@ -63,7 +62,7 @@ class AppStarter(object):
         else:
             fullscreen = not testMode
 
-        g_Player.setResolution(
+        player.setResolution(
                 fullscreen,
                 int(debugWindowSize.x), int(debugWindowSize.y),
                 0 # color depth
@@ -73,7 +72,7 @@ class AppStarter(object):
 
     def _startApp(self, appClass):
         self._onBeforePlay()
-        g_Player.setTimeout(0, self._onStart)
+        player.setTimeout(0, self._onStart)
         self._appInstance = appClass(self._appNode)
         g_KbManager.setup(
                 self._appInstance.onKeyDown,
@@ -82,18 +81,18 @@ class AppStarter(object):
         self._setupDefaultKeys()
 
         self._appInstance.setStarter(self)
-        g_Player.play()
+        player.play()
         self._appInstance.exit()
         g_KbManager.teardown()
         
     def _setupBaseDivs(self, resolution):
-        g_Player.loadString('''
+        player.loadString('''
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
 <avg width="%s" height="%s">
 </avg>''' % (resolution.x, resolution.y))
 
-        rootNode = g_Player.getRootNode()
+        rootNode = player.getRootNode()
         self._appNode = avg.DivNode(opacity=0, sensitive=False,
                 size=rootNode.size, parent=rootNode)
 
@@ -111,8 +110,8 @@ class AppStarter(object):
         self._appInstance.enter()
 
     def __enableFakeFullscreen(self):
-        g_Player.setWindowPos(0, 0)
-        g_Player.setWindowFrame(False)
+        player.setWindowPos(0, 0)
+        player.setWindowFrame(False)
 
 
 class AVGAppStarter(AppStarter):
@@ -139,7 +138,7 @@ class AVGAppStarter(AppStarter):
     
     def _onStart(self):
         try:
-            g_Player.getVideoMemUsed()
+            player.getVideoMemUsed()
             g_KbManager.bindKey('v', self.showVideoMemoryUsage,
                     'Show video memory usage graph')
         except RuntimeError:
@@ -150,7 +149,7 @@ class AVGAppStarter(AppStarter):
 
     def __dumpObjects(self):
         gc.collect()
-        testHelper = g_Player.getTestHelper()
+        testHelper = player.getTestHelper()
         testHelper.dumpObjects()
         print 'Num anims: ', avg.getNumRunningAnims()
         print 'Num python objects: ', len(gc.get_objects())
@@ -173,7 +172,7 @@ class AVGAppStarter(AppStarter):
             self.__vidMemGraph = None
         else:
             self.__vidMemGraph = graph.AveragingGraph('Video Memory Usage', 
-                    getValue = g_Player.getVideoMemUsed)
+                    getValue = player.getVideoMemUsed)
             self.__graphs.append(self.__vidMemGraph)
         self.__positionGraphs()
 
@@ -184,7 +183,7 @@ class AVGAppStarter(AppStarter):
             self.__frGraph = None
         else:
             self.__frGraph = graph.SlidingGraph('Time per Frame', 
-                    getValue = g_Player.getFrameTime)
+                    getValue = player.getFrameTime)
             self.__graphs.append(self.__frGraph)
         self.__positionGraphs()
 
@@ -217,7 +216,7 @@ class AVGAppStarter(AppStarter):
 
     def __switchShowMTEvents(self):
         if self.__debugTouchVisOverlay is None:
-            rootNode = g_Player.getRootNode()
+            rootNode = player.getRootNode()
             self.__debugTouchVisOverlay = apphelpers.TouchVisualizationOverlay(
                     isDebug=True, visClass=apphelpers.DebugTouchVisualization,
                     size=self._appNode.size, parent=rootNode)
@@ -239,7 +238,7 @@ class AVGAppStarter(AppStarter):
             fnum += 1
 
         try:
-            g_Player.screenshot().save('screenshot-%03d.png' % fnum)
+            player.screenshot().save('screenshot-%03d.png' % fnum)
         except RuntimeError:
             text = 'Cannot save snapshot file'
         else:
@@ -248,11 +247,11 @@ class AVGAppStarter(AppStarter):
         self.__killNotifyNode()
 
         self.__notifyNode = avg.WordsNode(
-            text=text, x=g_Player.getRootNode().width - 50,
-            y=g_Player.getRootNode().height - 50, alignment='right', fontsize=20,
-            sensitive=False, parent=g_Player.getRootNode())
+            text=text, x=player.getRootNode().width - 50,
+            y=player.getRootNode().height - 50, alignment='right', fontsize=20,
+            sensitive=False, parent=player.getRootNode())
 
-        g_Player.setTimeout(2000, self.__killNotifyNode)
+        player.setTimeout(2000, self.__killNotifyNode)
 
 
 class AVGMTAppStarter(AVGAppStarter):
@@ -268,7 +267,7 @@ class AVGMTAppStarter(AVGAppStarter):
             del self.__touchVisOverlay
             self.__touchVisOverlay = None
         if not(visClass is None):
-            rootNode = g_Player.getRootNode()
+            rootNode = player.getRootNode()
             self.__touchVisOverlay = apphelpers.TouchVisualizationOverlay(
                     isDebug=False, visClass=visClass, size=self._appNode.size, 
                     parent=rootNode)
@@ -284,7 +283,7 @@ class AVGMTAppStarter(AVGAppStarter):
             return
         self.__showTrackerImage = True
         self.__updateTrackerImageInterval = \
-                g_Player.setOnFrameHandler(self.__updateTrackerImage)
+                player.setOnFrameHandler(self.__updateTrackerImage)
         self.__trackerImageNode.opacity = 1
         self.tracker.setDebugImages(False, True)
 
@@ -293,7 +292,7 @@ class AVGMTAppStarter(AVGAppStarter):
             return
         self.__showTrackerImage = False
         if self.__updateTrackerImageInterval:
-            g_Player.clearInterval(self.__updateTrackerImageInterval)
+            player.clearInterval(self.__updateTrackerImageInterval)
             self.__updateTrackerImageInterval = None
         self.__trackerImageNode.opacity = 0
         self.tracker.setDebugImages(False, False)
@@ -321,19 +320,19 @@ class AVGMTAppStarter(AVGAppStarter):
 
         # we must add the tracker first, calibrator depends on it
         try:
-            g_Player.enableMultitouch()
+            player.enableMultitouch()
         except RuntimeError, err:
             g_Log.trace(g_Log.WARNING, str(err))
 
-        self.tracker = g_Player.getTracker()
+        self.tracker = player.getTracker()
 
         if self.tracker:
             if Calibrator:
-                self.__calibratorNode = g_Player.createNode('div',{
+                self.__calibratorNode = player.createNode('div',{
                     'opacity': 0,
                     'active': False,
                     })
-                rootNode = g_Player.getRootNode()
+                rootNode = player.getRootNode()
                 rootNode.appendChild(self.__calibratorNode)
                 self.__calibratorNode.size = rootNode.size
                 self.__calibrator = Calibrator(self.__calibratorNode, appStarter=self)
@@ -344,8 +343,8 @@ class AVGMTAppStarter(AVGAppStarter):
 
             self.__showTrackerImage = False
             self.__updateTrackerImageInterval = None
-            self.__trackerImageNode = g_Player.createNode('image', {'sensitive': False})
-            g_Player.getRootNode().appendChild(self.__trackerImageNode)
+            self.__trackerImageNode = player.createNode('image', {'sensitive': False})
+            player.getRootNode().appendChild(self.__trackerImageNode)
 
             self.__updateTrackerImageFixup()
             

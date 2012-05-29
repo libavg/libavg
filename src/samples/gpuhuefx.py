@@ -20,25 +20,20 @@
 #
 #  Current versions can be found at www.libavg.de
 
-from libavg import avg, AVGApp
-from libavg.avg import ImageNode
-
-g_Player = avg.Player.get()
+from libavg import avg, AVGApp, player
 
 class HSL(AVGApp):
 
-    multiTouch = False
-
     def init(self):
-        rootNode = g_Player.getRootNode()
+        rootNode = player.getRootNode()
 
-        background = ImageNode(parent=rootNode, href='../graphics/testfiles/hsl.png',
+        background = avg.ImageNode(parent=rootNode, href='../test/media/hsl.png', 
                 size=(640,640))
         self.hsl_fx = avg.HueSatFXNode()
         background.setEffect(self.hsl_fx)
         self.sat = avg.WordsNode(pos=(800, 200), text="Sat: " +
                 str(self.hsl_fx.saturation), parent=rootNode)
-        self.light = avg.WordsNode(pos=(800, 250), text= "Bright" +
+        self.light = avg.WordsNode(pos=(800, 250), text= "Bright: " +
                 str(self.hsl_fx.lightness), parent=rootNode)
         self.colorize = avg.WordsNode(pos=(800, 300), text="Colorized: " +
                 str(self.hsl_fx.colorize), parent=rootNode)
@@ -46,7 +41,7 @@ class HSL(AVGApp):
                 str(self.hsl_fx.hue), parent=rootNode)
         rootNode.connectEventHandler(avg.KEYDOWN, avg.NONE, self,
                 self.__onKeyDown)
-        g_Player.setOnFrameHandler(self._increaseHue)
+        player.setOnFrameHandler(self._increaseHue)
 
     def __onKeyDown(self, event):
         if event.keystring == 'v':

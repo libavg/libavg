@@ -24,9 +24,8 @@ import os
 
 import weakref, new
 
-from libavg import avg, mathutil
+from libavg import avg, mathutil, player
 
-g_Player = avg.Player.get()
 
 def getMediaDir(_file_=None, subdir='media'):
     """call with _file_=__file__"""
@@ -49,7 +48,7 @@ def getMediaDirFromNode(node, path=''):
         return path
 
 def createImagePreviewNode(maxSize, absHref):
-    node =  g_Player.createNode('image', {'href': absHref})
+    node =  player.createNode('image', {'href': absHref})
     node.size = mathutil.getScaledDim(node.size, max = maxSize)
     return node
 
@@ -58,7 +57,7 @@ def initFXCache(numFXNodes):
     mediadir = os.path.join(os.path.dirname(__file__), 'data')
     for i in range(numFXNodes):
         node = avg.ImageNode(href=mediadir+"/black.png", 
-                parent=g_Player.getRootNode())
+                parent=player.getRootNode())
         node.setEffect(avg.NullFXNode())
         nodes.append(node)
     for node in nodes:

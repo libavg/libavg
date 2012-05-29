@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg
+from libavg import avg, player
 
 offset = None
 
@@ -24,8 +24,6 @@ def onMouseUp(event):
     if offset != None:
         node.releaseEventCapture()
         offset = None;
-
-player = avg.Player.get()
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()

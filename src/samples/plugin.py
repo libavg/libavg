@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg
-
-player = avg.Player.get()
+from libavg import player
 
 canvas = player.createMainCanvas(size=(160,120))
 # Change following line if the plugin is somewhere else.

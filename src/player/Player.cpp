@@ -95,6 +95,8 @@
 #include <fenv.h>
 #endif
 
+#include <glib-object.h>
+
 using namespace std;
 using namespace boost;
 
@@ -121,7 +123,7 @@ Player::Player()
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
-string sDummy;
+    string sDummy;
 #ifdef _WIN32
     if (getEnv("AVG_WIN_CRASH_SILENTLY", sDummy)) {
         DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
@@ -165,6 +167,8 @@ string sDummy;
     if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
         debugBreak();
     }
+
+    g_type_init();
 }
 
 void deletePlayer()

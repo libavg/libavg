@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, textarea, ui
+from libavg import avg, textarea, ui, player
 
 from testcase import *
 
@@ -173,7 +173,7 @@ class UITestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
 
-        Player.setFakeFPS(20)
+        player.setFakeFPS(20)
         textarea.init(avg, False)
         self.start(True,
                 (setup,
@@ -199,7 +199,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(2, avg.CURSORUP, 30, 100),
                  lambda: self.compareImage("testTextArea3"),
                 ))
-        Player.setFakeFPS(-1)
+        player.setFakeFPS(-1)
 
     def testFocusContext(self):
         def setup():
@@ -217,8 +217,9 @@ class UITestCase(AVGTestCase):
                 fontsize=14, multiline=False, color='FFFFFF')
             self.ta2.setText('dolor')
 
+            self.bgImage = avg.ImageNode(href="1x1_white.png", size=(76,54))
             self.ta3 = textarea.TextArea(self.ctx2, disableMouseFocus=True, pos=(80,58),
-                size=(76,54), parent=div3)
+                size=(76,54), textBackgroundNode=self.bgImage, parent=root)
             self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=14, multiline=True, color='FFFFFF')
             self.ta3.setText('dolor sit amet')
@@ -226,7 +227,7 @@ class UITestCase(AVGTestCase):
             textarea.setActiveFocusContext(self.ctx1)
 
         def writeChar():
-            helper = Player.getTestHelper()
+            helper = player.getTestHelper()
             helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
             helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
             helper.fakeKeyEvent(avg.KEYDOWN, 66, 66, "B", 66, 0)
@@ -245,8 +246,6 @@ class UITestCase(AVGTestCase):
             self._sendMouseEvent(avg.CURSORUP, 20, 70)
 
         root = self.loadEmptyScene()
-        div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
-        avg.ImageNode(href="1x1_white.png", size=(76,54), parent=div3)
         self.start(True,
                 (setup,
                  lambda: self.compareImage("testFocusContext1"),
@@ -962,6 +961,3 @@ def uiTestSuite(tests):
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)
-
-Player = avg.Player.get()
-

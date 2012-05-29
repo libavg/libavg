@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg
+from libavg import avg, player
 
 def moveText():
     global node
     if node.x < 200:
         node.x += 1
-
-player = avg.Player.get()
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()

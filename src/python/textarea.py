@@ -40,7 +40,6 @@ textarea module provides two classes:
 
 """
 
-g_Player = None
 g_FocusContext = None
 g_LastKeyEvent = None
 g_activityCallback = None
@@ -69,7 +68,7 @@ DEFAULT_BLUR_OPACITY = 0.3
 
 import time
 
-from libavg import avg, ui
+from libavg import avg, ui, player
 from avg import Point2D
 
 
@@ -242,8 +241,6 @@ class TextArea(avg.DivNode):
         super(TextArea, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
-        global g_Player
-        g_Player = avg.Player.get()
         self.__focusContext = focusContext
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
         self.__border = 0
@@ -279,7 +276,7 @@ class TextArea(avg.DivNode):
         else:
             self.setFocus(True)
 
-        g_Player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
+        player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
         
         self.__lastActivity = 0
 
@@ -623,7 +620,8 @@ class TextArea(avg.DivNode):
 
         if textNode.alignment != "left":
             if len(self.__data) > 0:
-                lineWidth = textNode.getLineExtents(self.__selectTextLine(lastCharPos, textNode))
+                lineWidth = textNode.getLineExtents(self.__selectTextLine(lastCharPos,
+                        textNode))
             else:
                 lineWidth = Point2D(0,0)
             if textNode.alignment == "center":
@@ -666,14 +664,14 @@ class TextArea(avg.DivNode):
 
     def __detectedHandler(self, event):
         self.__updateCursorPosition(event)
-        self.__timerID = g_Player.setTimeout(1000, self.__addLoupe)
+        self.__timerID = player.setTimeout(1000, self.__addLoupe)
 
     def __addLoupe(self):
         if not self.__loupe.getParent():
             self.appendChild(self.__loupe)
 
     def __upHandler (self, event, offset):
-        g_Player.clearInterval(self.__timerID)
+        player.clearInterval(self.__timerID)
         if self.__loupe.getParent():
             self.__loupe.unlink()
 
@@ -688,7 +686,8 @@ class TextArea(avg.DivNode):
     def __updateCursorPosition(self, event):
         eventPos = self.__textNode.getRelPos(event.pos)
         if len(self.__data) > 0:
-            lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos, self.__textNode))
+            lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos,
+                    self.__textNode))
         else:
             lineWidth = Point2D(0,0)
         if self.__textNode.alignment != "left":
@@ -706,8 +705,16 @@ class TextArea(avg.DivNode):
                     minMaxHight = (curLine[1] * line,curLine[1] * (line + 1) )
                     if eventPos[1] >= minMaxHight[0] and eventPos[1] < minMaxHight[1]:
                         if curLine[0] != 0: # line with letters
-                            targetLine = (curLine[0] - 1, curLine[1] * line)
-                            index = self.__textNode.getCharIndexFromPos(targetLine) + 1
+                            correction = 1
+                            if self.__textNode.alignment != "left":
+                                if eventPos[0] < 0:
+                                    targetLine = (1, curLine[1] * line)
+                                    correction = 0
+                                else:
+                                    targetLine = (curLine[0] - 1, curLine[1] * line)
+                            else:
+                                targetLine = (curLine[0] - 1, curLine[1] * line)
+                            index = self.__textNode.getCharIndexFromPos(targetLine) + correction
                         else: # empty line
                             count = 0
                             for char in range(length-1):
@@ -738,7 +745,7 @@ class TextArea(avg.DivNode):
         # add scrolling | without zoom positioning
 
         self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 - \
-                self.getRelPos(event.pos)* self.__loupeZoomFactor
+                self.getRelPos(event.pos)* self.__loupeZoomFactor + Point2D(0,5)
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 ##################################
 # MODULE FUNCTIONS

@@ -130,6 +130,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
                 float parentEffectiveOpacity);
         virtual void maybeRender(const glm::mat4& parentTransform) {};
         virtual void render() {};
+        virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color) {};
 
         float getEffectiveOpacity() const;
         virtual std::string dump(int indent = 0);
@@ -148,8 +149,6 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         virtual const NodeDefinition* getDefinition() const;
 
-        virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color) {};
-
     protected:
         Node();
 
@@ -161,6 +160,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
+        Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
 
     private:
         std::string m_ID;

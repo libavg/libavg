@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg
-
-player = avg.Player.get()
+from libavg import avg, player
 
 offscreenCanvas = player.createCanvas(id="londoncalling", size=(320,240))
 avg.WordsNode(pos=(10,10), text="London Calling", font="Arial", 

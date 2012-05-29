@@ -19,9 +19,8 @@
 
 import time
 
-from libavg import avg
+from libavg import avg, player
 
-g_Player = avg.Player.get()
 
 class Graph(object):
     def __init__(self, graph, getValue):
@@ -29,10 +28,10 @@ class Graph(object):
         self._xSkip = 2     
         self._curUsage = 0
          
-        self._rootNode = g_Player.getRootNode()
+        self._rootNode = player.getRootNode()
         size = avg.Point2D(self._rootNode.width-20, self._rootNode.height/6)
         
-        self._node = g_Player.createNode("""
+        self._node = player.createNode("""
             <div opacity="0" sensitive="False" x="10" y="10" size="%(size)s"> 
                 <rect strokewidth="0" fillopacity="0.6" fillcolor="FFFFFF" 
                         size="%(size)s"/>
@@ -69,13 +68,13 @@ class Graph(object):
         def kill():
             self._node.unlink()
         avg.LinearAnim(self._node, "opacity", 300, 1, 0, None, kill).start()
-        g_Player.clearInterval(self._interval)
+        player.clearInterval(self._interval)
         self._interval = None
      
 
 class AveragingGraph(Graph):
     def _setup(self):
-        self._interval = g_Player.setInterval(1000, self._nextMemSample)
+        self._interval = player.setInterval(1000, self._nextMemSample)
         self.__numSamples = 0
         self._usage = [0]
         self._maxUsage = [0]
@@ -126,7 +125,7 @@ class AveragingGraph(Graph):
 
 class SlidingGraph(Graph):
     def _setup(self):
-        self._interval = g_Player.setOnFrameHandler(self._nextFrameTimeSample) 
+        self._interval = player.setOnFrameHandler(self._nextFrameTimeSample) 
         self._numSamples = 0        
         self._lastCurUsage = 0
         self._maxFrameTime = 0

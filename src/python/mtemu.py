@@ -39,9 +39,8 @@ For example:
 source = avg.TOUCH parameter
 '''
 
-from libavg import avg, Point2D
+from libavg import avg, Point2D, player
 
-g_Player = avg.Player.get()
 
 class MTemu(object):
 
@@ -52,7 +51,7 @@ class MTemu(object):
     source = avg.TOUCH
 
     def __init__(self):
-        self.__rootNode = g_Player.getRootNode()
+        self.__rootNode = player.getRootNode()
         self.__rootNode.connectEventHandler(avg.CURSORUP, avg.MOUSE,
                 self, self.__onMouseUp)
         self.__rootNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE,
@@ -135,7 +134,7 @@ class MTemu(object):
         if mirror:
             pos = 2*(self._initialPos)-pos
             offset = -offset
-        g_Player.getTestHelper().fakeTouchEvent(cursorID,
+        player.getTestHelper().fakeTouchEvent(cursorID,
                 touchType, self.source, self.__clampPos(pos+offset))
 
     def __releaseTouch(self, cursorID):
@@ -146,9 +145,9 @@ class MTemu(object):
             pos[0] = 0
         if pos[1] < 0:
             pos[1] = 0
-        if pos[0] >= g_Player.getRootNode().size[0]:
-            pos[0] = g_Player.getRootNode().size[0]-1
-        if pos[1] >= g_Player.getRootNode().size[1]:
-            pos[1] = g_Player.getRootNode().size[1]-1
+        if pos[0] >= player.getRootNode().size[0]:
+            pos[0] = player.getRootNode().size[0]-1
+        if pos[1] >= player.getRootNode().size[1]:
+            pos[1] = player.getRootNode().size[1]-1
         return pos
 

@@ -298,7 +298,6 @@ struct UTF8String_from_unicode
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        UTF8String s;
         PyObject * pPyUTF8 = PyUnicode_AsUTF8String(obj_ptr);
         char * psz = PyString_AsString(pPyUTF8);
         void* storage = (
@@ -306,6 +305,7 @@ struct UTF8String_from_unicode
                         ->storage.bytes;
         new (storage) UTF8String(psz);
         data->convertible = storage;
+        Py_DECREF(pPyUTF8);
     }
 };
 
@@ -328,8 +328,7 @@ struct UTF8String_from_string
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        UTF8String s;
-        char * psz = PyString_AsString(obj_ptr);
+        const char * psz = PyString_AsString(obj_ptr);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
                         ->storage.bytes;

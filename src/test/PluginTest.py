@@ -22,7 +22,7 @@
 
 import platform
 
-from libavg import avg
+from libavg import player
 from testcase import *
 
 class PluginTestCase(AVGTestCase):
@@ -39,21 +39,21 @@ class PluginTestCase(AVGTestCase):
                     # make distcheck
                     addpth = '../../_build/src/test/'
 
-                Player.pluginPath += ":"+addpth+"plugin/.libs"
-            Player.loadPlugin("colorplugin")
+                player.pluginPath += ":"+addpth+"plugin/.libs"
+            player.loadPlugin("colorplugin")
             
         def usePlugin1():
             node = colorplugin.ColorNode(fillcolor="7f7f00", id="mynode1")
             root.appendChild(node)
             
-            mynode = Player.getElementByID("mynode1")
+            mynode = player.getElementByID("mynode1")
             self.assertEqual(mynode.fillcolor, "7f7f00")
  
         def usePlugin2():
-            node = Player.createNode('<colornode fillcolor="0f3f7f" id="mynode2" />')
+            node = player.createNode('<colornode fillcolor="0f3f7f" id="mynode2" />')
             root.appendChild(node)
 
-            mynode = Player.getElementByID("mynode2")
+            mynode = player.getElementByID("mynode2")
             self.assertEqual(mynode.fillcolor, "0f3f7f")
 
         root = self.loadEmptyScene()
@@ -68,5 +68,3 @@ class PluginTestCase(AVGTestCase):
 def pluginTestSuite (tests):
     availableTests = ("testColorNodePlugin",)
     return createAVGTestSuite(availableTests, PluginTestCase, tests)
-    
-Player = avg.Player.get()

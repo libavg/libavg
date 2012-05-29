@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg
+from libavg import avg, player
 
 def onMouseOver(event):
     global node
@@ -10,8 +10,6 @@ def onMouseOver(event):
 def onMouseOut(event):
     global node
     node.color = "FFFFFF"
-
-player = avg.Player.get()
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()

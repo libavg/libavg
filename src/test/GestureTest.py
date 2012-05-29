@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, ui
+from libavg import avg, ui, player
 
 import math
 from sets import Set
@@ -36,7 +36,6 @@ class GestureTestCase(AVGTestCase):
     
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
-
 
     def testTapRecognizer(self):
 
@@ -64,7 +63,7 @@ class GestureTestCase(AVGTestCase):
                 detectedHandler=onDetected,
                 failHandler=onFail)
         self.__resetEventState()
-        Player.setFakeFPS(10)
+        player.setFakeFPS(10)
         self.start(False,
                 (# Down-up: recognized as tap.
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
@@ -147,7 +146,7 @@ class GestureTestCase(AVGTestCase):
             self.__holdRecognizer.enable(isEnabled)
             self.__resetEventState()
 
-        Player.setFakeFPS(20)
+        player.setFakeFPS(20)
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__holdRecognizer = ui.HoldRecognizer(image,
@@ -204,7 +203,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.__assertEvents([]),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                 ))
-        Player.setFakeFPS(-1)
+        player.setFakeFPS(-1)
 
 
     def testDoubletapRecognizer(self):
@@ -233,7 +232,7 @@ class GestureTestCase(AVGTestCase):
                 detectedHandler=onDetected,
                 failHandler=onFail)
         self.__resetEventState()
-        Player.setFakeFPS(20)
+        player.setFakeFPS(20)
         self.start(False,
                 (# Down, up, down, up: click
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
@@ -372,7 +371,7 @@ class GestureTestCase(AVGTestCase):
             dragRecognizer.abort()
             self.__resetEventState()
 
-        Player.setFakeFPS(100)
+        player.setFakeFPS(100)
         sys.stderr.write("\n")
         for self.friction in (-1, 100):
             if self.friction == -1:
@@ -517,7 +516,7 @@ class GestureTestCase(AVGTestCase):
                         [EVENT_DETECTED, EVENT_MOVED]),
                 ))
 
-        Player.setFakeFPS(-1)
+        player.setFakeFPS(-1)
 
 
     def testDragRecognizerRelCoords(self):
@@ -525,7 +524,7 @@ class GestureTestCase(AVGTestCase):
         def onDrag(event, offset):
             self.assertAlmostEqual(offset, (-40,-40))
 
-        Player.setFakeFPS(100)
+        player.setFakeFPS(100)
         for self.friction in (-1, 100):
             root = self.loadEmptyScene()
             div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
@@ -535,7 +534,7 @@ class GestureTestCase(AVGTestCase):
                     (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 70),
                     ))
-        Player.setFakeFPS(-1)
+        player.setFakeFPS(-1)
 
 
     def testDragRecognizerInitialEvent(self):
@@ -768,6 +767,3 @@ def gestureTestSuite(tests):
         )
 
     return createAVGTestSuite(availableTests, GestureTestCase, tests)
-
-Player = avg.Player.get()
-

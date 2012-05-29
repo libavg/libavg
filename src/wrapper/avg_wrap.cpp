@@ -22,9 +22,6 @@
 void export_base();
 void export_node();
 void export_event();
-#ifndef WIN32
-void export_devices();
-#endif
 void export_anim();
 
 #include "WrapHelper.h"
@@ -111,9 +108,6 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLAYER", &Logger::PLAYER)
     ;
 
-#ifndef WIN32
-    export_devices();
-#endif
     export_event();
     export_node();
     export_anim();
@@ -254,7 +248,9 @@ BOOST_PYTHON_MODULE(avg)
     NodePtr (SVG::*createImageNode3)(const UTF8String&, const dict&, float) = 
             &SVG::createImageNode;
 
-    class_<SVG, boost::noncopyable>("SVG", init<const UTF8String&, bool>())
+    class_<SVG, boost::noncopyable>("SVG", no_init)
+        .def(init<const UTF8String&>())
+        .def(init<const UTF8String&, bool>())
         .def("renderElement", renderElement1)
         .def("renderElement", renderElement2)
         .def("renderElement", renderElement3)
