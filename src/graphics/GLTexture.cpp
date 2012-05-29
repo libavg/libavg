@@ -36,7 +36,7 @@ namespace avg {
 
 using namespace std;
 
-unsigned GLTexture::s_LastTexID = -1;
+unsigned GLTexture::s_LastTexID = 0;
 
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
