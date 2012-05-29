@@ -162,19 +162,20 @@ void SFMLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); */
-    unsigned int Flags = 0;
+    unsigned int Flags = sf::Style::Resize;
+    Flags |= sf::Style::Close;
     if (dp.m_bFullscreen) {
         Flags |= sf::Style::Fullscreen;
     }
     m_bIsFullscreen = dp.m_bFullscreen;
 
     if (!dp.m_bHasWindowFrame) {
-        Flags |= sf::Style::None;
+        Flags = sf::Style::None;
     }
-    m_pScreen = new sf::Window();
     bool bAllMultisampleValuesTested = false;
     sf::WindowSettings wSettings = sf::WindowSettings();
     while (!bAllMultisampleValuesTested && !m_pScreen) {
+        m_pScreen = new sf::Window();
         if (glConfig.m_MultiSampleSamples > 1) {
             wSettings.AntialiasingLevel = glConfig.m_MultiSampleSamples;
         }
@@ -205,8 +206,8 @@ void SFMLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
-    m_input = &m_pScreen->GetInput();
     m_pScreen->SetActive();
+    m_input = &m_pScreen->GetInput();
     m_pGLContext = new GLContext(true, glConfig);
     GLContext::setMain(m_pGLContext);
 
@@ -654,6 +655,11 @@ EventPtr SFMLDisplayEngine::createMouseWheelEvent(const SFML_Event& sfmlEvent)
         button = MouseEvent::WHEELDOWN_BUTTON;
     }
     return createMouseEvent(Event::CURSORDOWN, sfmlEvent, button);
+}
+
+void SFMLDisplayEngine::doFrame()
+{
+    m_pScreen->Display();
 }
 
 EventPtr SFMLDisplayEngine::createMouseButtonEvent(Event::Type type,

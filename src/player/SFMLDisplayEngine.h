@@ -59,6 +59,7 @@ class AVG_API SFMLDisplayEngine: public DisplayEngine, public IInputDevice
         glm::vec2 getPhysicalScreenDimensions();
         void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
+        void doFrame();
 
     private:
         void initSFML(int width, int height, bool isFullscreen, int bpp);

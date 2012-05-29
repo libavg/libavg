@@ -4,6 +4,7 @@ INCLUDES = -I. -I../player \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@
 
 ALL_H = WrapHelper.h raw_constructor.hpp
+SFML_LIBS = -lsfml-window -lsfml-system
 
 if APPLE
     XGL_LIBS =
@@ -13,7 +14,7 @@ else
     APPLE_LDFLAGS=
 endif
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
+ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) $(SFML_LIBS)
 
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp \
