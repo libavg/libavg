@@ -620,7 +620,8 @@ class TextArea(avg.DivNode):
 
         if textNode.alignment != "left":
             if len(self.__data) > 0:
-                lineWidth = textNode.getLineExtents(self.__selectTextLine(lastCharPos, textNode))
+                lineWidth = textNode.getLineExtents(self.__selectTextLine(lastCharPos,
+                        textNode))
             else:
                 lineWidth = Point2D(0,0)
             if textNode.alignment == "center":
@@ -685,7 +686,8 @@ class TextArea(avg.DivNode):
     def __updateCursorPosition(self, event):
         eventPos = self.__textNode.getRelPos(event.pos)
         if len(self.__data) > 0:
-            lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos, self.__textNode))
+            lineWidth = self.__textNode.getLineExtents(self.__selectTextLine(eventPos,
+                    self.__textNode))
         else:
             lineWidth = Point2D(0,0)
         if self.__textNode.alignment != "left":
@@ -703,8 +705,16 @@ class TextArea(avg.DivNode):
                     minMaxHight = (curLine[1] * line,curLine[1] * (line + 1) )
                     if eventPos[1] >= minMaxHight[0] and eventPos[1] < minMaxHight[1]:
                         if curLine[0] != 0: # line with letters
-                            targetLine = (curLine[0] - 1, curLine[1] * line)
-                            index = self.__textNode.getCharIndexFromPos(targetLine) + 1
+                            correction = 1
+                            if self.__textNode.alignment != "left":
+                                if eventPos[0] < 0:
+                                    targetLine = (1, curLine[1] * line)
+                                    correction = 0
+                                else:
+                                    targetLine = (curLine[0] - 1, curLine[1] * line)
+                            else:
+                                targetLine = (curLine[0] - 1, curLine[1] * line)
+                            index = self.__textNode.getCharIndexFromPos(targetLine) + correction
                         else: # empty line
                             count = 0
                             for char in range(length-1):
