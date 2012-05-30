@@ -311,8 +311,7 @@ class DynamicsTestCase(AVGTestCase):
             class CustomImageNode(avg.ImageNode):
                 def __init__(self, p, parent=None, **kwargs):
                     avg.ImageNode.__init__(self, pos=p, href="rgb24-64x64.png", **kwargs)
-                    if parent:
-                        parent.appendChild(self)
+                    self.registerInstance(self, parent)
 
                 def customMethod(self):
                     pass
@@ -320,8 +319,7 @@ class DynamicsTestCase(AVGTestCase):
             class CustomDivNode(avg.DivNode):
                 def __init__(self, parent=None, **kwargs):
                     avg.DivNode.__init__(self, **kwargs)
-                    if parent:
-                        parent.appendChild(self)
+                    self.registerInstance(self, parent)
                     CustomImageNode((23,42), parent=self)
 
 
@@ -339,9 +337,8 @@ class DynamicsTestCase(AVGTestCase):
             self.assertEqual(type(retrievedDiv), CustomDivNode)
             retrievedImage = retrievedDiv.getChild(0)
             self.assertEqual(type(retrievedImage), CustomImageNode)
-#            retrievedDiv = retrievedImage.parent
-#            print type(retrievedDiv)
-#            self.assertEqual(type(retrievedDiv), CustomDivNode)
+            retrievedDiv = retrievedImage.parent
+            self.assertEqual(type(retrievedDiv), CustomDivNode)
 
         root = self.loadEmptyScene()
         testNodePythonAttribute()

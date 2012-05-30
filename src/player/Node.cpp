@@ -72,6 +72,14 @@ void Node::setTypeInfo(const NodeDefinition * pDefinition)
     m_pDefinition = pDefinition;
 }
 
+void Node::registerInstance(const NodePtr& pSelf, const DivNodePtr& pParent)
+{
+    setSharedThis(pSelf);
+    if (pParent) {
+        pParent->appendChild(pSelf);
+    }
+}
+
 void Node::checkSetParentError(DivNodeWeakPtr pParent)
 {
     if (getParent() && !!(pParent.lock())) {
@@ -108,7 +116,7 @@ DivNodePtr Node::getParent() const
 vector<NodeWeakPtr> Node::getParentChain()
 {
     vector<NodeWeakPtr> pNodes;
-    boost::shared_ptr<Node> pCurNode = shared_from_this();
+    boost::shared_ptr<Node> pCurNode = getSharedThis();
     while (pCurNode) {
         pNodes.push_back(pCurNode);
         pCurNode = pCurNode->getParent();
@@ -142,7 +150,7 @@ void Node::unlink(bool bKill)
 {
     DivNodePtr pParent = getParent();
     if (pParent != DivNodePtr()) {
-        pParent->removeChild(shared_from_this(), bKill);
+        pParent->removeChild(getSharedThis(), bKill);
     }
 }
 
@@ -209,7 +217,7 @@ void Node::releaseMouseEventCapture()
 
 void Node::setEventCapture(int cursorID) 
 {
-    Player::get()->setEventCapture(shared_from_this(), cursorID);
+    Player::get()->setEventCapture(getSharedThis(), cursorID);
 }
 
 void Node::releaseEventCapture(int cursorID) 
@@ -465,6 +473,11 @@ bool Node::getEffectiveActive() const
     return m_bEffectiveActive;
 }
 
+NodePtr Node::getSharedThis() const
+{
+    return m_pThis.lock();
+}
+
 void Node::connectOneEventHandler(const EventID& id, PyObject * pObj, 
         PyObject * pFunc)
 {
@@ -538,6 +551,11 @@ bool Node::operator !=(const Node& other) const
 long Node::getHash() const
 {
     return long(this);
+}
+
+void Node::setSharedThis(const NodePtr& pThis)
+{
+    m_pThis = pThis;
 }
 
 const NodeDefinition* Node::getDefinition() const

@@ -96,6 +96,7 @@
 #endif
 
 #include <glib-object.h>
+#include <typeinfo>
 
 using namespace std;
 using namespace boost;
@@ -1291,7 +1292,8 @@ void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
     m_bDirtyDTD = true;
 }
 
-NodePtr Player::createNode(const string& sType, const boost::python::dict& params)
+NodePtr Player::createNode(const string& sType,
+        const boost::python::dict& params, const boost::python::object& self)
 {
     DivNodePtr pParentNode;
     boost::python::dict attrs = params;
@@ -1302,9 +1304,24 @@ NodePtr Player::createNode(const string& sType, const boost::python::dict& param
         pParentNode = boost::python::extract<DivNodePtr>(parent);
     }
     NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
-    if (pParentNode) {
-        pParentNode->appendChild(pNode);
-    }
+
+    // See if the class names of self and pNode match. If they don't, there is a
+    // python derived class that's being constructed and we can't set parent here.
+    string sSelfClassName = boost::python::extract<string>(
+            self.attr("__class__").attr("__name__"));
+    boost::python::object pythonClassName = 
+            (boost::python::object(pNode).attr("__class__").attr("__name__"));
+    string sThisClassName = boost::python::extract<string>(pythonClassName);
+    bool bHasDerivedClass = sSelfClassName != sThisClassName && 
+            sSelfClassName != "NoneType";
+    if (bHasDerivedClass) {
+        if (pParentNode) {
+            throw Exception(AVG_ERR_UNSUPPORTED,
+                    "Can't pass 'parent' parameter to C++ class constructor if there is a derived python class. Use Node.registerInstance() instead.");
+        }
+    } else {
+        pNode->registerInstance(pNode, pParentNode);
+    } 
     if (parent) {
         attrs["parent"] = parent;
     }
@@ -1353,6 +1370,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         return NodePtr();
     }
     pCurNode = m_NodeRegistry.createNode(nodeType, xmlNode);
+    pCurNode->setSharedThis(pCurNode);
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.

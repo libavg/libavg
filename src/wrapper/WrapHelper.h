@@ -310,14 +310,14 @@ public:
     //operator glm::vec2() const;
 };
 
-AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=0);
+AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=1);
 
 template<const char * pszType> 
 avg::NodePtr createNode(const boost::python::tuple &args,
         const boost::python::dict &attrs)
 {
     checkEmptyArgs(args);
-    return avg::Player::get()->createNode(pszType, attrs);
+    return avg::Player::get()->createNode(pszType, attrs, args[0]);
 }
 
 #endif

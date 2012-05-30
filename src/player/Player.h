@@ -120,7 +120,8 @@ class AVG_API Player
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
-        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
+        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict,
+                const boost::python::object& self=boost::python::object());
         NodePtr createNodeFromXmlString(const std::string& sXML);
         
         int setInterval(int time, PyObject * pyfunc);

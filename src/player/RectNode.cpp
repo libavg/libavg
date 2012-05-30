@@ -119,7 +119,7 @@ void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElem
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
-        pElements.push_back(shared_from_this());
+        pElements.push_back(getSharedThis());
     }
 }
 

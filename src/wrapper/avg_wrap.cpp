@@ -53,6 +53,8 @@ using namespace std;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
         fakeTouchEvent, 4, 5)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Player_createNode_overloads,
+        createNode, 2, 3)
 
 OffscreenCanvasPtr createCanvas(const boost::python::tuple &args,
                 const boost::python::dict& params)
@@ -163,7 +165,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getFrameTime", &Player::getFrameTime)
         .def("getFrameDuration", &Player::getFrameDuration)
         .def("createNode", &Player::createNodeFromXmlString)
-        .def("createNode", &Player::createNode)
+        .def("createNode", &Player::createNode, Player_createNode_overloads())
         .def("enableMultitouch", &Player::enableMultitouch)
         .def("isMultitouchAvailable", &Player::isMultitouchAvailable)
         .def("getTracker", &Player::getTracker,

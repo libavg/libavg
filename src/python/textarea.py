@@ -239,8 +239,8 @@ class TextArea(avg.DivNode):
         @param moveCoursorOnTouch: boolean, activate the coursor motion on touch events
         """
         super(TextArea, self).__init__(**kwargs)
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
+
         self.__focusContext = focusContext
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
         self.__border = 0

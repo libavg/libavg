@@ -27,8 +27,7 @@ class RoundedRect(avg.PolygonNode):
         self.__size = avg.Point2D(size)
         self.__radius = radius
         self.__calcPolygon()
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
         
     def getPos(self):
         return self.__pos
@@ -89,8 +88,7 @@ class PieSlice(avg.PolygonNode):
         self.__startangle = startangle
         self.__endangle = endangle
         self.__calcPolygon()
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
 
     def getPos(self):
         return self.__pos
@@ -153,8 +151,7 @@ class Arc(avg.PolyLineNode):
         self.__startangle = startangle
         self.__endangle = endangle
         self.__calcPolygon()
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
 
     def getPos(self):
         return self.__pos

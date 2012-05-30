@@ -69,7 +69,7 @@ class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 
-class AVG_API Node: public boost::enable_shared_from_this<Node>
+class AVG_API Node
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
@@ -81,6 +81,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
             return NodePtr(new NodeType(Args));
         }
         virtual void setTypeInfo(const NodeDefinition * pDefinition);
+        void registerInstance(const NodePtr& pSelf, const DivNodePtr& pParent);
         
         virtual ~Node();
         virtual void setArgs(const ArgList& args);
@@ -146,6 +147,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
         bool operator ==(const Node& other) const;
         bool operator !=(const Node& other) const;
         long getHash() const;
+        void setSharedThis(const NodePtr& pThis);
 
         virtual const NodeDefinition* getDefinition() const;
 
@@ -161,12 +163,14 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
         Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
+        NodePtr getSharedThis() const;
 
     private:
         std::string m_ID;
         const NodeDefinition* m_pDefinition;
 
         DivNodeWeakPtr m_pParent;
+        NodeWeakPtr m_pThis;
 
         struct EventID {
             EventID(Event::Type eventType, Event::Source source);

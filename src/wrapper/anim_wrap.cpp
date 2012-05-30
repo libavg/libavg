@@ -32,7 +32,6 @@
 #include "../player/BoostPython.h"
 
 using namespace boost::python;
-using namespace std;
 using namespace avg;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(start_overloads, start, 0, 1);
@@ -42,8 +41,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(fadeOut_overloads, fadeOut, 2, 3);
 
 void export_anim()
 {
-    from_python_sequence<vector<AnimPtr>, variable_capacity_policy>();
-    from_python_sequence<vector<AnimState>, variable_capacity_policy>();
+    from_python_sequence<std::vector<AnimPtr>, variable_capacity_policy>();
+    from_python_sequence<std::vector<AnimState>, variable_capacity_policy>();
     
     def("getNumRunningAnims", AttrAnim::getNumRunningAnims);
     
@@ -64,49 +63,67 @@ void export_anim()
         ;
 
     class_<LinearAnim, boost::shared_ptr<LinearAnim>, bases<SimpleAnim>, 
-            boost::noncopyable>
-            ("LinearAnim", init<const object&, const string&, long long, const object&, 
-                    const object&, optional<bool, const object&, const object&> >())
+            boost::noncopyable>("LinearAnim", no_init)
+        .def(init<const object&, const std::string&, long long, const object&, 
+                const object&, optional<bool, const object&, const object&> >
+                ((arg("node"), arg("attrName"), arg("duration"), 
+                 arg("startValue"), arg("endValue"), arg("useInt")=false,
+                 arg("startCallback")=object(), arg("stopCallback")=object())))
         ;
-   
+
     class_<EaseInOutAnim, boost::shared_ptr<EaseInOutAnim>, bases<SimpleAnim>, 
-            boost::noncopyable>
-            ("EaseInOutAnim", init<const object&, const string&, long long, const object&,
-                    const object&, long long, long long, 
-                    optional<bool, const object&, const object&> >())
+            boost::noncopyable>("EaseInOutAnim", no_init)
+        .def(init<const object&, const std::string&, long long, const object&,
+                const object&, long long, long long, 
+                optional<bool, const object&, const object&> >
+                ((arg("node"), arg("attrName"), arg("duration"), 
+                 arg("startValue"), arg("endValue"), arg("easeInDuration"), 
+                 arg("easeOutDuration"), arg("useInt")=false,
+                 arg("startCallback")=object(), arg("stopCallback")=object())))
         ;
    
     class_<ContinuousAnim, boost::shared_ptr<ContinuousAnim>, bases<AttrAnim>, 
-            boost::noncopyable>(
-                    "ContinuousAnim", init<const object&, const string&,
-                    const object&, const object&, 
-                    optional<bool, const object&, const object&> >())
+            boost::noncopyable>("ContinuousAnim", no_init)
+        .def(init<const object&, const std::string&, const object&, const object&, 
+                optional<bool, const object&, const object&> >
+                ((arg("node"), arg("attrName"), arg("duration"), 
+                 arg("startValue"), arg("speed"), arg("useInt")=false,
+                 arg("startCallback")=object(), arg("stopCallback")=object())))
         ;
 
     class_<WaitAnim, boost::shared_ptr<WaitAnim>, bases<Anim>, boost::noncopyable>(
-            "WaitAnim", init<optional<long long, const object&, const object&> >())
+            "WaitAnim", no_init)
+        .def(init<optional<long long, const object&, const object&> >
+                ((arg("duration")=-1, arg("startCallback")=object(),
+                 arg("stopCallback")=object())))
         .def("start", &WaitAnim::start, start_overloads(args("bKeepAttr")))
         ;
     
     class_<ParallelAnim, boost::shared_ptr<ParallelAnim>, bases<Anim>, 
-            boost::noncopyable>("ParallelAnim", init<const vector<AnimPtr>&,
-                    optional<const object&, const object&, long long> >())
+            boost::noncopyable>("ParallelAnim", no_init)
+        .def(init<const std::vector<AnimPtr>&,
+                optional<const object&, const object&, long long> >
+                ((arg("anims"), arg("startCallback")=object(),
+                 arg("stopCallback")=object(), arg("maxAge")=-1)))
         .def("start", &ParallelAnim::start, start_overloads(args("bKeepAttr")))
         ;
       
-    class_<AnimState, boost::noncopyable>("AnimState",
-            init<const string&, AnimPtr, optional<const string&> >())
+    class_<AnimState, boost::noncopyable>("AnimState", no_init)
+        .def(init<const std::string&, AnimPtr, optional<const std::string&> >
+                ((arg("name"), arg("anim"), arg("nextName")="")))
         ;
 
     class_<StateAnim, boost::shared_ptr<StateAnim>, bases<Anim>, 
-            boost::noncopyable>("StateAnim", init<const vector<AnimState>&>())
+            boost::noncopyable>("StateAnim", init<const std::vector<AnimState>&>())
         .def("setState", &StateAnim::setState, setState_overloads(args("bKeepAttr")))
         .def("getState", make_function(&StateAnim::getState,
                 return_value_policy<copy_const_reference>()))
         .def("setDebug", &StateAnim::setDebug) 
         ;
 
-    def("fadeIn", fadeIn, fadeIn_overloads(args("max", "stopCallback")));
+    def("fadeIn", fadeIn, (arg("node"), arg("duration"), arg("max")=1.0, 
+            arg("stopCallback")=object()));
 
-    def("fadeOut", fadeOut, fadeOut_overloads(args("stopCallback")));
+    def("fadeOut", fadeOut, (arg("node"), arg("duration"), arg("stopCallback")=object()));
+
 }
