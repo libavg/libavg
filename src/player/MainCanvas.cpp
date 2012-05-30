@@ -22,7 +22,7 @@
 #include "MainCanvas.h"
 
 #include "Player.h"
-#include "SDLDisplayEngine.h"
+#include "GTKDisplayEngine.h"
 #include "AVGNode.h"
 
 #include "../base/Exception.h"

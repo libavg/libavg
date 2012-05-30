@@ -20,7 +20,7 @@
 //
 
 
-#include "SDLDisplayEngine.h"
+#include "GTKDisplayEngine.h"
 #include "../avgconfigwrapper.h"
 
 #ifdef __APPLE__

@@ -44,7 +44,7 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
-#include "SDLDisplayEngine.h"
+#include "GTKDisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"

@@ -25,7 +25,7 @@
 #include "Player.h"
 #include "AVGNode.h"
 #include "TouchStatus.h"
-#include "SDLDisplayEngine.h"
+#include "GTKDisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
