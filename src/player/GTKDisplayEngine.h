@@ -45,11 +45,11 @@ class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class GLContext;
 
-class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
+class AVG_API GTKDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
-        SDLDisplayEngine();
-        virtual ~SDLDisplayEngine();
+        GTKDisplayEngine();
+        virtual ~GTKDisplayEngine();
         virtual void init(const DisplayParams& dp, GLConfig glConfig);
 
         // From DisplayEngine
@@ -111,7 +111,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         float m_Gamma[3];
 };
 
-typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+typedef boost::shared_ptr<GTKDisplayEngine> GTKDisplayEnginePtr;
 
 }
 

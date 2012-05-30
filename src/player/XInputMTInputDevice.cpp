@@ -68,7 +68,7 @@ XInputMTInputDevice::~XInputMTInputDevice()
 void XInputMTInputDevice::start()
 {
     Status status;
-    SDLDisplayEngine * pEngine = Player::get()->getDisplayEngine();
+    GTKDisplayEngine * pEngine = Player::get()->getDisplayEngine();
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);

@@ -56,7 +56,7 @@ void MainCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void MainCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
+void MainCanvas::initPlayback(const GTKDisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getMain()->getConfig().m_MultiSampleSamples);

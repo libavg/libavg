@@ -51,6 +51,9 @@
 
 #include <SDL/SDL.h>
 
+//#include <gtk/gtk.h>
+//#include <gdk/gdkgl.h>
+
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
@@ -83,7 +86,7 @@ using namespace std;
 
 namespace avg {
 
-float SDLDisplayEngine::s_RefreshRate = 0.0;
+float GTKDisplayEngine::s_RefreshRate = 0.0;
 
 void safeSetAttribute(SDL_GLattr attr, int value) 
 {
@@ -93,7 +96,7 @@ void safeSetAttribute(SDL_GLattr attr, int value)
     }
 }
 
-SDLDisplayEngine::SDLDisplayEngine()
+GTKDisplayEngine::GTKDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
       m_ScreenResolution(0,0),
@@ -121,14 +124,14 @@ SDLDisplayEngine::SDLDisplayEngine()
     initTranslationTable();
 }
 
-SDLDisplayEngine::~SDLDisplayEngine()
+GTKDisplayEngine::~GTKDisplayEngine()
 {
 #ifndef _WIN32
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
 }
 
-void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
+void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
@@ -285,7 +288,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
-void SDLDisplayEngine::teardown()
+void GTKDisplayEngine::teardown()
 {
     if (m_pScreen) {
         if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
@@ -301,7 +304,7 @@ void SDLDisplayEngine::teardown()
     }
 }
 
-float SDLDisplayEngine::getRefreshRate() 
+float GTKDisplayEngine::getRefreshRate() 
 {
     if (s_RefreshRate == 0.0) {
         calcRefreshRate();
@@ -309,7 +312,7 @@ float SDLDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void SDLDisplayEngine::setGamma(float red, float green, float blue)
+void GTKDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", "
@@ -324,17 +327,17 @@ void SDLDisplayEngine::setGamma(float red, float green, float blue)
     }
 }
 
-void SDLDisplayEngine::setMousePos(const IntPoint& pos)
+void GTKDisplayEngine::setMousePos(const IntPoint& pos)
 {
     SDL_WarpMouse(pos.x, pos.y);
 }
 
-int SDLDisplayEngine::getKeyModifierState() const
+int GTKDisplayEngine::getKeyModifierState() const
 {
     return SDL_GetModState();
 }
 
-void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
+void GTKDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
@@ -362,7 +365,7 @@ void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
     }
 }
 
-bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
+bool GTKDisplayEngine::internalSetGamma(float red, float green, float blue)
 {
 #ifdef __APPLE__
     // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
@@ -377,14 +380,14 @@ bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
-void SDLDisplayEngine::swapBuffers()
+void GTKDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
     GLContext::checkError("swapBuffers()");
 }
 
-void SDLDisplayEngine::showCursor(bool bShow)
+void GTKDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
 #define MAX_CORE_POINTERS   6
@@ -402,7 +405,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 #endif
 }
 
-BitmapPtr SDLDisplayEngine::screenshot(int buffer)
+BitmapPtr GTKDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     string sTmp;
@@ -427,12 +430,12 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
     return pBmp;
 }
 
-IntPoint SDLDisplayEngine::getSize()
+IntPoint GTKDisplayEngine::getSize()
 {
     return m_Size;
 }
 
-void SDLDisplayEngine::calcRefreshRate()
+void GTKDisplayEngine::calcRefreshRate()
 {
     float lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
@@ -489,7 +492,7 @@ void SDLDisplayEngine::calcRefreshRate()
 
 }
 
-vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+vector<long> GTKDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 const char * getEventTypeName(unsigned char type) 
 {
@@ -527,7 +530,7 @@ const char * getEventTypeName(unsigned char type)
     }
 }
 
-vector<EventPtr> SDLDisplayEngine::pollEvents()
+vector<EventPtr> GTKDisplayEngine::pollEvents()
 {
     SDL_Event sdlEvent;
     vector<EventPtr> events;
@@ -598,13 +601,13 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return events;
 }
 
-void SDLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
+void GTKDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
 {
     AVG_ASSERT(!m_pXIMTInputDevice);
     m_pXIMTInputDevice = pInputDevice;
 }
 
-EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
+EventPtr GTKDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
         long button)
 {
     int x, y;
@@ -627,7 +630,7 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     return pEvent; 
 }
 
-EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type, 
+EventPtr GTKDisplayEngine::createMouseButtonEvent(Event::Type type, 
         const SDL_Event& sdlEvent) 
 {
     long button = 0;
@@ -668,7 +671,7 @@ EventPtr SDLDisplayEngine::createButtonEvent
 }
 */
 
-EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
+EventPtr GTKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
     long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
     unsigned int modifiers = key::KEYMOD_NONE;
@@ -704,7 +707,7 @@ EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdl
     return pEvent;
 }
 
-void SDLDisplayEngine::initTranslationTable()
+void GTKDisplayEngine::initTranslationTable()
 {
 #define TRANSLATION_ENTRY(x) KeyCodeTranslationTable[SDLK_##x] = key::KEY_##x;
 
@@ -942,30 +945,30 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(UNDO);
 }
 
-const IntPoint& SDLDisplayEngine::getWindowSize() const
+const IntPoint& GTKDisplayEngine::getWindowSize() const
 {
     return m_WindowSize;
 }
 
-bool SDLDisplayEngine::isFullscreen() const
+bool GTKDisplayEngine::isFullscreen() const
 {
     return m_bIsFullscreen;
 }
 
-IntPoint SDLDisplayEngine::getScreenResolution()
+IntPoint GTKDisplayEngine::getScreenResolution()
 {
     calcScreenDimensions();
     return m_ScreenResolution;
 }
 
-float SDLDisplayEngine::getPixelsPerMM()
+float GTKDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
 
     return m_PPMM;
 }
 
-glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
+glm::vec2 GTKDisplayEngine::getPhysicalScreenDimensions()
 {
     calcScreenDimensions();
     glm::vec2 size;
@@ -975,7 +978,7 @@ glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
     return size;
 }
 
-void SDLDisplayEngine::assumePixelsPerMM(float ppmm)
+void GTKDisplayEngine::assumePixelsPerMM(float ppmm)
 {
     m_PPMM = ppmm;
 }

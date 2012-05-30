@@ -1183,7 +1183,7 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = GTKDisplayEnginePtr(new GTKDisplayEngine());
     }
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
@@ -1261,10 +1261,10 @@ NodePtr Player::internalLoad(const string& sAVG)
     }
 }
 
-SDLDisplayEnginePtr Player::safeGetDisplayEngine()
+GTKDisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = GTKDisplayEnginePtr(new GTKDisplayEngine());
     }
     return m_pDisplayEngine;
 
@@ -1593,7 +1593,7 @@ void Player::handleTimers()
 
 }
 
-SDLDisplayEngine * Player::getDisplayEngine() const
+GTKDisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }
@@ -1673,7 +1673,7 @@ void Player::cleanup()
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
         if (!m_bKeepWindowOpen) {
-            m_pDisplayEngine = SDLDisplayEnginePtr();
+            m_pDisplayEngine = GTKDisplayEnginePtr();
         }
     }
     if (SDLAudioEngine::get()) {
