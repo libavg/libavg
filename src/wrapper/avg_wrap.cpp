@@ -25,6 +25,7 @@ void export_event();
 void export_anim();
 
 #include "WrapHelper.h"
+#include "raw_constructor.hpp"
 
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
@@ -41,6 +42,7 @@ void export_anim();
 #include "../player/OffscreenCanvas.h"
 #include "../player/VideoWriter.h"
 #include "../player/SVG.h"
+#include "../player/Style.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -70,6 +72,20 @@ CanvasPtr createMainCanvas(const boost::python::tuple &args,
     return extract<Player&>(args[0])().createMainCanvas(params);
 }
 
+avg::StylePtr createStyle(const boost::python::tuple &args,
+        const boost::python::dict &attrs)
+{
+    checkEmptyArgs(args);
+    return StylePtr(new avg::Style(attrs));
+}
+
+struct Style_to_python_dict
+{
+    static PyObject* convert(const Style& style)
+    {
+        return boost::python::incref(style.getDict().ptr());
+    }
+};
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -261,6 +277,11 @@ BOOST_PYTHON_MODULE(avg)
         .def("createImageNode", createImageNode3)
         .def("getElementSize", &SVG::getElementSize)
         ;
+
+    class_<Style, boost::noncopyable>("SVG", no_init)
+        .def("__init__", raw_constructor(createStyle));
+
+    to_python_converter<Style, Style_to_python_dict>();
 
     class_<VersionInfo>("VersionInfo")
         .add_property("full", &VersionInfo::getFull)
