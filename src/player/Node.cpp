@@ -86,6 +86,10 @@ void Node::checkSetParentError(DivNodeWeakPtr pParent)
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 string("Can't change parent of node (") + getID() + ")."));
     }
+    if (getSharedThis() == NodePtr()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Node not registered. Please use Node.registerInstance() when deriving from libavg Nodes in python."));
+    }
 }
 
 void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState,

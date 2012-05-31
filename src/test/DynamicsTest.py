@@ -323,17 +323,16 @@ class DynamicsTestCase(AVGTestCase):
                     CustomImageNode((23,42), parent=self)
 
 
-            customNode = avg.ImageNode(id="foo")
-            self.assertEqual(customNode.id, "foo")
-            CustomImageNode((23, 42), parent=root)
+            customNode = CustomImageNode((23, 42), parent=root)
             retrievedImage = root.getChild(0)
             self.assertEqual(type(retrievedImage), CustomImageNode)
             self.assertEqual(retrievedImage.pos, (23,42))
             self.assertEqual(retrievedImage.href, "rgb24-64x64.png")
             retrievedImage.customMethod()
+            customNode.unlink(True)
             
             CustomDivNode(parent=player.getRootNode())
-            retrievedDiv = player.getRootNode().getChild(1)
+            retrievedDiv = player.getRootNode().getChild(0)
             self.assertEqual(type(retrievedDiv), CustomDivNode)
             retrievedImage = retrievedDiv.getChild(0)
             self.assertEqual(type(retrievedImage), CustomImageNode)
