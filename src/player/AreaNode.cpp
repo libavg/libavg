@@ -225,7 +225,7 @@ glm::vec2 AreaNode::toGlobal(const glm::vec2& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())

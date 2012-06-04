@@ -54,7 +54,7 @@ class AVG_API ImageNode : public RasterNode
                 float parentEffectiveOpacity);
         virtual void render();
         
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
 
         virtual BitmapPtr getBitmap();
         virtual IntPoint getMediaSize();

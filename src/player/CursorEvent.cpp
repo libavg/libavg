@@ -92,7 +92,7 @@ void CursorEvent::setNode(NodePtr pNode)
 
 NodePtr CursorEvent::getNode() const
 {
-    return m_pNode.lock();
+    return m_pNode;
 }
         
 void CursorEvent::setSpeed(glm::vec2 speed)
@@ -124,10 +124,10 @@ bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 void CursorEvent::trace()
 {
     string sType = typeStr();
-    if (m_pNode.expired()) {
+    if (!m_pNode) {
         AVG_TRACE(Logger::EVENTS, sType); 
     } else {
-        AVG_TRACE(Logger::EVENTS, m_pNode.lock()->getID()+", "+sType); 
+        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
     }
 }
 

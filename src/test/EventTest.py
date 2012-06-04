@@ -155,6 +155,32 @@ class EventTestCase(AVGTestCase):
                         down=False, up=True, over=False, out=False, move=False)
                 ))
 
+    def testUnlinkInHandler(self):
+        def onImgDown(event):
+            self.__imgDownCalled = True
+            self.div.unlink(True)
+
+        def onDivDown(event):
+            self.__divDownCalled = True
+
+        def checkState():
+            self.assert_(self.__imgDownCalled and not(self.__divDownCalled))
+
+        self.__imgDownCalled = False
+        self.__divDownCalled = False
+        root = self.loadEmptyScene()
+        self.div = avg.DivNode(pos=(0,0), parent=root)
+        self.div.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDivDown)
+
+        img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=self.div)
+        img.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onImgDown)
+        
+        self.start(False,
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 checkState))
+        
+
     def testConnectHandler(self):
         def onDown1(event):
             self.down1Called = True
@@ -715,6 +741,7 @@ def eventTestSuite(tests):
             "testSimpleEvents",
             "testTilted",
             "testDivEvents",
+            "testUnlinkInHandler",
             "testConnectHandler",
             "testObscuringEvents",
             "testSensitive",

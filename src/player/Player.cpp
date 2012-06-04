@@ -732,15 +732,17 @@ void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
-    if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {
+    if (it != m_EventCaptureInfoMap.end()) {
         EventCaptureInfoPtr pCaptureInfo = it->second;
-        NodePtr pOldNode = pCaptureInfo->m_pNode.lock();
-        if (pOldNode == pNode) {
-            pCaptureInfo->m_CaptureCount++;
-        } else {
-            throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
-                    + pNode->getID() + "', but cursor already captured by '"
-                    + pOldNode->getID() + "'.");
+        NodePtr pOldNode = pCaptureInfo->m_pNode;
+        if (pOldNode->getState() != Node::NS_UNCONNECTED) {
+            if (pOldNode == pNode) {
+                pCaptureInfo->m_CaptureCount++;
+            } else {
+                throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
+                        + pNode->getID() + "', but cursor already captured by '"
+                        + pOldNode->getID() + "'.");
+            }
         }
     } else {
         m_EventCaptureInfoMap[cursorID] = EventCaptureInfoPtr(
@@ -752,7 +754,9 @@ void Player::releaseEventCapture(int cursorID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
-    if (it == m_EventCaptureInfoMap.end() || (it->second->m_pNode.expired()) ) {
+    if (it == m_EventCaptureInfoMap.end() || 
+            (it->second->m_pNode->getState() == Node::NS_UNCONNECTED))
+    {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but cursor not captured.");
     } else {
@@ -768,6 +772,18 @@ bool Player::isCaptured(int cursorID)
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
     return (it != m_EventCaptureInfoMap.end());
+}
+
+void Player::removeDeadEventCaptures()
+{
+    std::map<int, EventCaptureInfoPtr>::iterator it;
+    for (it = m_EventCaptureInfoMap.begin(); it != m_EventCaptureInfoMap.end();) {
+        std::map<int, EventCaptureInfoPtr>::iterator lastIt = it;
+        it++;
+        if (lastIt->second->m_pNode->getState() == Node::NS_UNCONNECTED) {
+            m_EventCaptureInfoMap.erase(lastIt);
+        }
+    }
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)
@@ -979,7 +995,6 @@ void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
 bool Player::handleEvent(EventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
-
     PyObject * pEventHook = getEventHook();
     if (pEventHook != Py_None) {
         // If the catchall returns true, stop processing the event
@@ -1046,6 +1061,7 @@ void Player::doFrame(bool bFirstFrame)
                 ScopeTimer Timer(EventsProfilingZone);
                 m_pEventDispatcher->dispatch();
                 sendFakeEvents();
+                removeDeadEventCaptures();
             }
         }
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
@@ -1319,8 +1335,9 @@ NodePtr Player::createNode(const string& sType,
             throw Exception(AVG_ERR_UNSUPPORTED,
                     "Can't pass 'parent' parameter to C++ class constructor if there is a derived python class. Use Node.registerInstance() instead.");
         }
+        pNode->registerInstance(self.ptr(), pParentNode);
     } else {
-        pNode->registerInstance(pNode, pParentNode);
+        pNode->registerInstance(0, pParentNode);
     } 
     if (parent) {
         attrs["parent"] = parent;
@@ -1370,7 +1387,6 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         return NodePtr();
     }
     pCurNode = m_NodeRegistry.createNode(nodeType, xmlNode);
-    pCurNode->setSharedThis(pCurNode);
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
@@ -1445,7 +1461,7 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
 void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     // Find all nodes under the cursor.
-    vector<NodeWeakPtr> pCursorNodes;
+    vector<NodePtr> pCursorNodes;
     DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
     if (!pEventReceiverNode) {
         pEventReceiverNode = getRootNode();
@@ -1454,7 +1470,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     ContactPtr pContact = pEvent->getContact();
     if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
         if (!pCursorNodes.empty()) {
-            NodePtr pNode = pCursorNodes.begin()->lock();
+            NodePtr pNode = *(pCursorNodes.begin());
             pEvent->setNode(pNode);
         }
         pContact->sendEventToListeners(pEvent);
@@ -1463,7 +1479,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     int cursorID = pEvent->getCursorID();
 
     // Determine the nodes the event should be sent to.
-    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    vector<NodePtr> pDestNodes = pCursorNodes;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
         NodeWeakPtr pEventCaptureNode = 
                 m_EventCaptureInfoMap[cursorID]->m_pNode;
@@ -1474,7 +1490,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    vector<NodeWeakPtr> pLastCursorNodes;
+    vector<NodePtr> pLastCursorNodes;
     {
         map<int, CursorStatePtr>::iterator it;
         it = m_pLastCursorStates.find(cursorID);
@@ -1484,14 +1500,14 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     // Send out events.
-    vector<NodeWeakPtr>::const_iterator itLast;
-    vector<NodeWeakPtr>::iterator itCur;
+    vector<NodePtr>::const_iterator itLast;
+    vector<NodePtr>::iterator itCur;
     for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
             ++itLast)
     {
-        NodePtr pLastNode = itLast->lock();
+        NodePtr pLastNode = *itLast;
         for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-            if (itCur->lock() == pLastNode) {
+            if (*itCur == pLastNode) {
                 break;
             }
         }
@@ -1502,11 +1518,11 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     // Send over events.
     for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = itCur->lock();
+        NodePtr pCurNode = *itCur;
         for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
                 ++itLast)
         {
-            if (itLast->lock() == pCurNode) {
+            if (*itLast == pCurNode) {
                 break;
             }
         }
@@ -1517,10 +1533,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (!bOnlyCheckCursorOver) {
         // Iterate through the nodes and send the event to all of them.
-        vector<NodeWeakPtr>::iterator it;
+        vector<NodePtr>::iterator it;
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            NodePtr pNode = (*it).lock();
-            if (pNode) {
+            NodePtr pNode = *it;
+            if (pNode->getState() != Node::NS_UNCONNECTED) {
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
                 pNodeEvent->setNode(pNode);
@@ -1537,9 +1553,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
-        vector<NodeWeakPtr>::iterator it;
+        vector<NodePtr>::iterator it;
         for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-            NodePtr pNode = it->lock();
+            NodePtr pNode = *it;
             sendOver(pEvent, Event::CURSOROUT, pNode);
         }
         m_pLastCursorStates.erase(cursorID);
