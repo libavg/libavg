@@ -36,7 +36,12 @@ namespace avg {
 
 using namespace std;
 
-unsigned GLTexture::s_LastTexID = 0;
+// We assign our own texture ids and never reuse them instead of using glGenTextures.
+// That works very well, except that other components (e.g. Ogre3d) with shared gl 
+// contexts don't know anything about our ids and thus use the same ones.
+// Somewhat hackish solution: Assign ids starting with a very high id, so the id ranges
+// don't overlap.
+unsigned GLTexture::s_LastTexID = 10000000;
 
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
@@ -105,6 +110,7 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
       m_bUsePOT(false),
       m_TexID(glTexID)
 {
+    m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
