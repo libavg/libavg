@@ -13,7 +13,7 @@ else
     APPLE_LDFLAGS=
 endif
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
+ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) $(GTK_LIBS)
 
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp \

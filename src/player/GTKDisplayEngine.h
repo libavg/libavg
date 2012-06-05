@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SDLDisplayEngine_H_
-#define _SDLDisplayEngine_H_
+#ifndef _GDKDisplayEngine_H_
+#define _GDKDisplayEngine_H_
 
 #include "../api.h"
 #include "IInputDevice.h"
@@ -35,7 +35,9 @@
 #include <string>
 #include <vector>
 
-struct SDL_Surface;
+#include <gtk/gtk.h>
+#include <gdk/gdkx.h>
+
 union SDL_Event;
 
 namespace avg {
@@ -75,6 +77,7 @@ class AVG_API GTKDisplayEngine: public DisplayEngine, public IInputDevice
         glm::vec2 getPhysicalScreenDimensions();
         void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
+        void doFrame();
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
@@ -87,14 +90,20 @@ class AVG_API GTKDisplayEngine: public DisplayEngine, public IInputDevice
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
         EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        
+
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
         float m_PPMM;
 
-        SDL_Surface * m_pScreen;
+        GtkWidget* m_pScreen;       //fenster
+        GtkWidget* m_drawingArea;   //OpenGLContext
+
+        GdkVisual* m_visual;
+        GdkScreen* m_screen;
+        XVisualInfo *m_xvisual;
+        Display *m_display;
 
         static void calcRefreshRate();
         static float s_RefreshRate;
@@ -107,6 +116,7 @@ class AVG_API GTKDisplayEngine: public DisplayEngine, public IInputDevice
         XInputMTInputDevice * m_pXIMTInputDevice;
 
         GLContext* m_pGLContext;
+        GLXContext m_gtkGLContext;     // vieleichtz unnoetig
 
         float m_Gamma[3];
 };
