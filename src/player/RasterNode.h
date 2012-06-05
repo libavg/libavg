@@ -81,7 +81,7 @@ class AVG_API RasterNode: public AreaNode
         const glm::vec2& getMaskSize() const;
         void setMaskSize(const glm::vec2& size);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
 
         glm::vec3 getGamma() const;
         void setGamma(const glm::vec3& gamma);

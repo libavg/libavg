@@ -186,6 +186,11 @@ This section describes the base classes for all node classes that libavg provide
             Transforms a position in window coordinates to a position
             in coordinates relative to the node.
 
+        .. py:method:: registerInstance(self, parent)
+
+            Needs to be called when deriving from a Node class in python in the derived
+            classes :py:method:`__init__` method.
+
         .. py:method:: releaseEventCapture([cursorid])
 
             Restores normal cursor event handling after a call to 

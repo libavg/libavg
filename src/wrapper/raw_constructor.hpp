@@ -30,7 +30,7 @@ namespace detail {
               object(
                   f(
                       object(a[0])
-                    , object(a.slice(1, len(a)))
+                    , object(a.slice(0, len(a)))
                     , keywords ? dict(borrowed_reference(keywords)) : dict()
                   )
               ).ptr()

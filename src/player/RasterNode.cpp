@@ -261,7 +261,7 @@ void RasterNode::setMaskSize(const glm::vec2& size)
     setMaskCoords();
 }
 
-void RasterNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void RasterNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {

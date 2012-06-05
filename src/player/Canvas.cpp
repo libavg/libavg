@@ -59,8 +59,7 @@ void Canvas::setRoot(NodePtr pRootNode)
 {
     assert(!m_pRootNode);
     m_pRootNode = dynamic_pointer_cast<CanvasNode>(pRootNode);
-    m_pRootNode->setParent(DivNodeWeakPtr(), Node::NS_CONNECTED,
-            shared_from_this());
+    m_pRootNode->setParent(0, Node::NS_CONNECTED, shared_from_this());
     registerNode(m_pRootNode);
 }
 
@@ -240,9 +239,9 @@ Player* Canvas::getPlayer() const
     return m_pPlayer;
 }
 
-vector<NodeWeakPtr> Canvas::getElementsByPos(const glm::vec2& pos) const
+vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
 {
-    vector<NodeWeakPtr> elements;
+    vector<NodePtr> elements;
     m_pRootNode->getElementsByPos(pos, elements);
     return elements;
 }

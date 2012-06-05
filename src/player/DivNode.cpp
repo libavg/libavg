@@ -65,6 +65,9 @@ DivNode::DivNode(const ArgList& args)
 
 DivNode::~DivNode()
 {
+    for (unsigned i = 0; i < getNumChildren(); ++i) {
+        getChild(i)->removeParent();
+    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -155,8 +158,7 @@ void DivNode::insertChild(NodePtr pChild, unsigned i)
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getCanvas()->registerNode(pChild);
     }
-    DivNodePtr ptr = dynamic_pointer_cast<DivNode>(shared_from_this());
-    pChild->checkSetParentError(ptr); 
+    pChild->checkSetParentError(this); 
     if (!isChildTypeAllowed(pChild->getTypeStr())) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
                 "Can't insert a node of type "+pChild->getTypeStr()+
@@ -169,7 +171,7 @@ void DivNode::insertChild(NodePtr pChild, unsigned i)
     std::vector<NodePtr>::iterator pos = m_Children.begin()+i;
     m_Children.insert(pos, pChild);
     try {
-        pChild->setParent(ptr, getState(), getCanvas());
+        pChild->setParent(this, getState(), getCanvas());
     } catch (Exception&) {
         m_Children.erase(m_Children.begin()+i);
         throw;
@@ -270,7 +272,7 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (reactsToMouseEvents() &&
             ((getSize() == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE) ||
@@ -281,14 +283,14 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pEleme
             glm::vec2 relPos = pCurChild->toLocal(pos);
             pCurChild->getElementsByPos(relPos, pElements);
             if (!pElements.empty()) {
-                pElements.push_back(shared_from_this());
+                pElements.push_back(getSharedThis());
                 return;
             }
         }
         // pos isn't in any of the children.
         if (getSize() != glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
             // Explicit width/height given for div - div reacts on its own.
-            pElements.push_back(shared_from_this());
+            pElements.push_back(getSharedThis());
         }
     }
 }

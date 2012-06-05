@@ -114,6 +114,7 @@ void Contact::addEvent(CursorEventPtr pEvent)
     calcSpeed(pEvent, m_Events.back());
     updateDistanceTravelled(m_Events.back(), pEvent);
     m_Events.back()->removeBlob();
+    m_Events.back()->setNode(NodePtr());
     m_Events.push_back(pEvent);
 }
 

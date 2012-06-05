@@ -52,7 +52,6 @@ class VertexArray;
 class SubVertexArray;
 
 typedef boost::shared_ptr<Node> NodePtr;
-typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 typedef boost::shared_ptr<FBO> FBOPtr;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
@@ -88,7 +87,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        std::vector<NodeWeakPtr> getElementsByPos(const glm::vec2& Pos) const;
+        std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
 
         bool operator ==(const Canvas& other) const;
         bool operator !=(const Canvas& other) const;

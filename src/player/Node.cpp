@@ -50,7 +50,9 @@ NodeDefinition Node::createDefinition()
 }
 
 Node::Node()
-    : m_pCanvas(),
+    : m_pSelf(0),
+      m_pParent(0),
+      m_pCanvas(),
       m_State(NS_UNCONNECTED)
       
 {
@@ -72,16 +74,27 @@ void Node::setTypeInfo(const NodeDefinition * pDefinition)
     m_pDefinition = pDefinition;
 }
 
-void Node::checkSetParentError(DivNodeWeakPtr pParent)
+void Node::registerInstance(PyObject* pSelf, const DivNodePtr& pParent)
 {
-    if (getParent() && !!(pParent.lock())) {
-        throw(Exception(AVG_ERR_UNSUPPORTED,
-                string("Can't change parent of node (") + getID() + ")."));
+    m_pSelf = pSelf;
+    if (pParent) {
+        pParent->appendChild(getSharedThis());
     }
 }
 
-void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState,
-        CanvasPtr pCanvas)
+void Node::checkSetParentError(DivNode* pParent)
+{
+    if (getParent() && pParent != 0) {
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                string("Can't change parent of node (") + getID() + ")."));
+    }
+    if (getSharedThis() == NodePtr()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Node not registered. Please use Node.registerInstance() when deriving from libavg Nodes in python."));
+    }
+}
+
+void Node::setParent(DivNode* pParent, NodeState parentState, CanvasPtr pCanvas)
 {
     AVG_ASSERT(getState() == NS_UNCONNECTED);
     checkSetParentError(pParent);
@@ -93,22 +106,23 @@ void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState,
 
 void Node::removeParent()
 {
-    m_pParent = DivNodePtr();
+    m_pParent = 0;
 }
 
 DivNodePtr Node::getParent() const
 {
-    if (m_pParent.expired()) {
+    if (m_pParent == 0) {
         return DivNodePtr();
     } else {
-        return m_pParent.lock();
+        NodePtr pParent = m_pParent->getSharedThis();
+        return boost::dynamic_pointer_cast<DivNode>(pParent);
     }
 }
 
-vector<NodeWeakPtr> Node::getParentChain()
+vector<NodePtr> Node::getParentChain()
 {
-    vector<NodeWeakPtr> pNodes;
-    boost::shared_ptr<Node> pCurNode = shared_from_this();
+    vector<NodePtr> pNodes;
+    NodePtr pCurNode = getSharedThis();
     while (pCurNode) {
         pNodes.push_back(pCurNode);
         pCurNode = pCurNode->getParent();
@@ -142,7 +156,7 @@ void Node::unlink(bool bKill)
 {
     DivNodePtr pParent = getParent();
     if (pParent != DivNodePtr()) {
-        pParent->removeChild(shared_from_this(), bKill);
+        pParent->removeChild(getSharedThis(), bKill);
     }
 }
 
@@ -209,7 +223,7 @@ void Node::releaseMouseEventCapture()
 
 void Node::setEventCapture(int cursorID) 
 {
-    Player::get()->setEventCapture(shared_from_this(), cursorID);
+    Player::get()->setEventCapture(getSharedThis(), cursorID);
 }
 
 void Node::releaseEventCapture(int cursorID) 
@@ -287,10 +301,10 @@ bool Node::reactsToMouseEvents()
 glm::vec2 Node::getRelPos(const glm::vec2& absPos) const 
 {
     glm::vec2 parentPos;
-    if (m_pParent.expired()) {
+    if (m_pParent == 0) {
         parentPos = absPos;
     } else {
-        parentPos = m_pParent.lock()->getRelPos(absPos);
+        parentPos = m_pParent->getSharedThis()->getRelPos(absPos);
     }
     return toLocal(parentPos);
 }
@@ -299,10 +313,10 @@ glm::vec2 Node::getAbsPos(const glm::vec2& relPos) const
 {
     glm::vec2 thisPos = toGlobal(relPos);
     glm::vec2 parentPos;
-    if (m_pParent.expired()) {
+    if (m_pParent == 0) {
         parentPos = thisPos;
     } else {
-        parentPos = m_pParent.lock()->getAbsPos(thisPos);
+        parentPos = m_pParent->getSharedThis()->getAbsPos(thisPos);
     }
     return parentPos;
 }
@@ -319,17 +333,16 @@ glm::vec2 Node::toGlobal(const glm::vec2& localPos) const
 
 NodePtr Node::getElementByPos(const glm::vec2& pos)
 {
-    vector<NodeWeakPtr> elements;
+    vector<NodePtr> elements;
     getElementsByPos(pos, elements);
     if (elements.empty()) {
         return NodePtr();
     } else {
-        return elements[0].lock();
+        return elements[0];
     }
 }
 
-void Node::getElementsByPos(const glm::vec2& pos, 
-                vector<NodeWeakPtr>& pElements)
+void Node::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
 }
 
@@ -463,6 +476,20 @@ bool Node::isVisible() const
 bool Node::getEffectiveActive() const
 {
     return m_bEffectiveActive;
+}
+
+NodePtr Node::getSharedThis()
+{
+    // Just using shared_from_this causes strange behaviour when derived Node classes
+    // are written in python: The pointer returned by shared_from_this doesn't know
+    // about the python part of the object and cuts it off. Because of this, we remember
+    // a pointer to the python object in m_pSelf and use that to create a functioning
+    // and complete NodePtr if there is a python derived class.
+    if (m_pSelf) {
+        return boost::python::extract<NodePtr>(m_pSelf);
+    } else {
+        return shared_from_this();
+    }
 }
 
 void Node::connectOneEventHandler(const EventID& id, PyObject * pObj, 

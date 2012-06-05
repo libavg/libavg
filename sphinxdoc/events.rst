@@ -90,7 +90,10 @@ Input Handling
 
         .. py:attribute:: node
 
-            The :py:class:`Node` that the event occured in. Read-only.
+            The :py:class:`Node` that the event occured in. If this is :py:const:`None`,
+            the event happened outside of the application window and the cursor was 
+            captured by the application.
+            Read-only.
 
         .. py:attribute:: pos
 

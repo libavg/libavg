@@ -21,8 +21,6 @@
 
 from libavg import avg, statemachine, utils
 
-import helper
-
 import weakref
 
 import math

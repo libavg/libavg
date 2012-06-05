@@ -101,6 +101,7 @@ void export_node()
         .def("__hash__", &Node::getHash)
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()),  &Node::setID)
+        .def("registerInstance", &Node::registerInstance)
         .def("getParent", &Node::getParent)
         .def("unlink", &Node::unlink, unlink_overloads(args("bKill")))
         .def("setEventCapture", &Node::setMouseEventCapture)

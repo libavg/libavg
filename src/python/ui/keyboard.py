@@ -26,7 +26,6 @@
 import os.path
 
 from libavg import avg
-from gesture import DragRecognizer
 
 g_Player = avg.Player.get()
 g_Logger = avg.Logger.get()
@@ -40,8 +39,7 @@ class Key(avg.DivNode):
         kwargs['pos'] = keyDef[3]
         kwargs['size'] = keyDef[4]
         super(Key, self).__init__(**kwargs)
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
 
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
         self.__feedback = keyDef[1]
@@ -168,8 +166,7 @@ class Keyboard(avg.DivNode):
             stickyShift=False, selHref=None, textarea=None, parent=None, **kwargs):
         # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(**kwargs)
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
 
         self.__shiftKeyCode = shiftKeyCode
         self.__shiftDownCounter = 0
