@@ -56,7 +56,7 @@ class Contact;
 class EventDispatcher;
 class MouseEvent;
 class CursorEvent;
-class GTKDisplayEngine;
+class GDKDisplayEngine;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -67,7 +67,7 @@ typedef boost::shared_ptr<class Contact> ContactPtr;
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
-typedef boost::shared_ptr<GTKDisplayEngine> GTKDisplayEnginePtr;
+typedef boost::shared_ptr<GDKDisplayEngine> GDKDisplayEnginePtr;
 
 class AVG_API Player
 {
@@ -154,7 +154,7 @@ class AVG_API Player
         size_t getVideoMemInstalled();
         size_t getVideoMemUsed();
         void setGamma(float red, float green, float blue);
-        GTKDisplayEngine * getDisplayEngine() const;
+        GDKDisplayEngine * getDisplayEngine() const;
         void keepWindowOpen();
         void setStopOnEscape(bool bStop);
         bool getStopOnEscape() const;
@@ -195,7 +195,7 @@ class AVG_API Player
         NodePtr loadMainNodeFromFile(const std::string& sFilename);
         NodePtr loadMainNodeFromString(const std::string& sAVG);
         NodePtr internalLoad(const std::string& sAVG);
-        GTKDisplayEnginePtr safeGetDisplayEngine();
+        GDKDisplayEnginePtr safeGetDisplayEngine();
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,
                 const xmlNodePtr xmlNode);
@@ -213,7 +213,7 @@ class AVG_API Player
 
         MainCanvasPtr m_pMainCanvas;
 
-        GTKDisplayEnginePtr m_pDisplayEngine;
+        GDKDisplayEnginePtr m_pDisplayEngine;
         TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;

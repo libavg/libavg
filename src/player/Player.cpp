@@ -44,7 +44,7 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
-#include "GTKDisplayEngine.h"
+#include "GDKDisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
@@ -1201,7 +1201,7 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = GTKDisplayEnginePtr(new GTKDisplayEngine());
+        m_pDisplayEngine = GDKDisplayEnginePtr(new GDKDisplayEngine());
     }
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
@@ -1279,10 +1279,10 @@ NodePtr Player::internalLoad(const string& sAVG)
     }
 }
 
-GTKDisplayEnginePtr Player::safeGetDisplayEngine()
+GDKDisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = GTKDisplayEnginePtr(new GTKDisplayEngine());
+        m_pDisplayEngine = GDKDisplayEnginePtr(new GDKDisplayEngine());
     }
     return m_pDisplayEngine;
 
@@ -1628,7 +1628,7 @@ void Player::handleTimers()
 
 }
 
-GTKDisplayEngine * Player::getDisplayEngine() const
+GDKDisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }
@@ -1708,7 +1708,7 @@ void Player::cleanup()
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
         if (!m_bKeepWindowOpen) {
-            m_pDisplayEngine = GTKDisplayEnginePtr();
+            m_pDisplayEngine = GDKDisplayEnginePtr();
         }
     }
     if (SDLAudioEngine::get()) {

@@ -20,7 +20,7 @@
 //
 
 
-#include "GTKDisplayEngine.h"
+#include "GDKDisplayEngine.h"
 #include "../avgconfigwrapper.h"
 
 #ifdef __APPLE__
@@ -83,7 +83,7 @@ using namespace std;
 
 namespace avg {
 
-float GTKDisplayEngine::s_RefreshRate = 0.0;
+float GDKDisplayEngine::s_RefreshRate = 0.0;
 
 void safeSetAttribute(SDL_GLattr attr, int value) 
 {
@@ -93,8 +93,8 @@ void safeSetAttribute(SDL_GLattr attr, int value)
     } */
 }
 
-GTKDisplayEngine::GTKDisplayEngine()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(GTKDisplayEngine)),
+GDKDisplayEngine::GDKDisplayEngine()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(GDKDisplayEngine)),
       m_WindowSize(0,0),
       m_ScreenResolution(0,0),
       m_PPMM(0),
@@ -108,7 +108,7 @@ GTKDisplayEngine::GTKDisplayEngine()
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0),
-      m_gtkGLContext(0)
+      m_gdkGLContext(0)
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -127,14 +127,14 @@ GTKDisplayEngine::GTKDisplayEngine()
     initTranslationTable();
 }
 
-GTKDisplayEngine::~GTKDisplayEngine()
+GDKDisplayEngine::~GDKDisplayEngine()
 {
 #ifndef _WIN32
    // SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
 }
 
-void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
+void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     int xscreen;
     int attributes[] = {
@@ -153,7 +153,6 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     gdk_init(NULL, NULL);
 
-//    m_drawingArea = gtk_drawing_area_new();
     m_display = gdk_x11_get_default_xdisplay ();
     xscreen = DefaultScreen (m_display);
     m_screen = gdk_screen_get_default ();
@@ -234,25 +233,21 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             gdk_window_set_decorations(m_pScreen, GDK_DECOR_ALL);
         }
 
-//        gtk_widget_set_visual(m_drawingArea, m_visual); -----------------------------------------
-        m_gtkGLContext = glXCreateContext (m_display, m_xvisual, NULL, true);
+        m_gdkGLContext = glXCreateContext (m_display, m_xvisual, NULL, true);
 
         free (m_xvisual);
-//        gtk_container_add (GTK_CONTAINER (m_pScreen), m_drawingArea);
 
-//        gdk_window_show(m_drawingArea);
         gdk_window_show(m_pScreen);
 
-//        GdkWindow *t_window;
+//----------------------------------------------
         Display *t_display;
         int id;
 
-//        t_window = gtk_widget_get_window (m_drawingArea);
         t_display = GDK_WINDOW_XDISPLAY (m_pScreen);
         id = GDK_WINDOW_XID(m_pScreen);
 
-        glXMakeCurrent (t_display, id, m_gtkGLContext);
-
+        glXMakeCurrent (t_display, id, m_gdkGLContext);
+//---------------------------------------------------
         if (!m_pScreen) {
             switch (glConfig.m_MultiSampleSamples) {
                 case 1:
@@ -333,7 +328,7 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 //    SDL_EnableUNICODE(1);
 }
 
-void GTKDisplayEngine::doFrame()
+void GDKDisplayEngine::doFrame()
 {
     g_main_context_iteration(NULL,false);
 }
@@ -341,7 +336,7 @@ void GTKDisplayEngine::doFrame()
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
-void GTKDisplayEngine::teardown()
+void GDKDisplayEngine::teardown()
 {
     if (m_pScreen) {
         if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
@@ -357,7 +352,7 @@ void GTKDisplayEngine::teardown()
     }
 }
 
-float GTKDisplayEngine::getRefreshRate() 
+float GDKDisplayEngine::getRefreshRate() 
 {
     if (s_RefreshRate == 0.0) {
         calcRefreshRate();
@@ -365,7 +360,7 @@ float GTKDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void GTKDisplayEngine::setGamma(float red, float green, float blue)     //geht nicht
+void GDKDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", "
@@ -380,18 +375,18 @@ void GTKDisplayEngine::setGamma(float red, float green, float blue)     //geht n
     }
 }
 
-void GTKDisplayEngine::setMousePos(const IntPoint& pos)
+void GDKDisplayEngine::setMousePos(const IntPoint& pos)
 {
   //  SDL_WarpMouse(pos.x, pos.y);
 }
 
-int GTKDisplayEngine::getKeyModifierState() const
+int GDKDisplayEngine::getKeyModifierState() const
 {
   //  return SDL_GetModState();
     return 0;
 }
 
-void GTKDisplayEngine::calcScreenDimensions(float dotsPerMM)
+void GDKDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
         m_ScreenResolution = IntPoint(gdk_screen_get_width (m_screen), gdk_screen_get_height (m_screen));
@@ -418,7 +413,7 @@ void GTKDisplayEngine::calcScreenDimensions(float dotsPerMM)
     }
 }
 
-bool GTKDisplayEngine::internalSetGamma(float red, float green, float blue)
+bool GDKDisplayEngine::internalSetGamma(float red, float green, float blue)
 {
 #ifdef __APPLE__
     // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
@@ -434,7 +429,7 @@ bool GTKDisplayEngine::internalSetGamma(float red, float green, float blue)
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
-void GTKDisplayEngine::swapBuffers()
+void GDKDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
   //  SDL_GL_SwapBuffers();
@@ -451,7 +446,7 @@ void GTKDisplayEngine::swapBuffers()
     GLContext::checkError("swapBuffers()");
 }
 
-void GTKDisplayEngine::showCursor(bool bShow)
+void GDKDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
 #define MAX_CORE_POINTERS   6
@@ -469,7 +464,7 @@ void GTKDisplayEngine::showCursor(bool bShow)
 #endif
 }
 
-BitmapPtr GTKDisplayEngine::screenshot(int buffer)
+BitmapPtr GDKDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     string sTmp;
@@ -485,21 +480,21 @@ BitmapPtr GTKDisplayEngine::screenshot(int buffer)
     }
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     glReadBuffer(buf);
-    GLContext::checkError("GTKDisplayEngine::screenshot:glReadBuffer()");
+    GLContext::checkError("GDKDisplayEngine::screenshot:glReadBuffer()");
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    GLContext::checkError("GTKDisplayEngine::screenshot:glReadPixels()");
+    GLContext::checkError("GDKDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }
 
-IntPoint GTKDisplayEngine::getSize()
+IntPoint GDKDisplayEngine::getSize()
 {
     return m_Size;
 }
 
-void GTKDisplayEngine::calcRefreshRate()
+void GDKDisplayEngine::calcRefreshRate()
 {
     float lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
@@ -556,7 +551,7 @@ void GTKDisplayEngine::calcRefreshRate()
 
 }
 
-vector<long> GTKDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+vector<long> GDKDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 const char * getEventTypeName(unsigned char type) 
 {
@@ -595,7 +590,7 @@ const char * getEventTypeName(unsigned char type)
     return "bbB";
 }
 
-vector<EventPtr> GTKDisplayEngine::pollEvents()
+vector<EventPtr> GDKDisplayEngine::pollEvents()
 {
   //  SDL_Event sdlEvent;
     vector<EventPtr> events;
@@ -666,13 +661,13 @@ vector<EventPtr> GTKDisplayEngine::pollEvents()
     return events;
 }
 
-void GTKDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
+void GDKDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
 {
     AVG_ASSERT(!m_pXIMTInputDevice);
     m_pXIMTInputDevice = pInputDevice;
 }
 
-EventPtr GTKDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
+EventPtr GDKDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
         long button)
 {
     int x, y;
@@ -695,7 +690,7 @@ EventPtr GTKDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     return pEvent; 
 }
 
-EventPtr GTKDisplayEngine::createMouseButtonEvent(Event::Type type, 
+EventPtr GDKDisplayEngine::createMouseButtonEvent(Event::Type type, 
         const SDL_Event& sdlEvent) 
 {
     long button = 0;
@@ -736,7 +731,7 @@ EventPtr SDLDisplayEngine::createButtonEvent
 }
 */
 
-EventPtr GTKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
+EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
     long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
     unsigned int modifiers = key::KEYMOD_NONE;
@@ -772,7 +767,7 @@ EventPtr GTKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdl
     return pEvent;
 }
 
-void GTKDisplayEngine::initTranslationTable()
+void GDKDisplayEngine::initTranslationTable()
 {
 #define TRANSLATION_ENTRY(x) KeyCodeTranslationTable[SDLK_##x] = key::KEY_##x;
 /*
@@ -1010,30 +1005,30 @@ void GTKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(UNDO);*/
 }
 
-const IntPoint& GTKDisplayEngine::getWindowSize() const
+const IntPoint& GDKDisplayEngine::getWindowSize() const
 {
     return m_WindowSize;
 }
 
-bool GTKDisplayEngine::isFullscreen() const
+bool GDKDisplayEngine::isFullscreen() const
 {
     return m_bIsFullscreen;
 }
 
-IntPoint GTKDisplayEngine::getScreenResolution()
+IntPoint GDKDisplayEngine::getScreenResolution()
 {
     calcScreenDimensions();
     return m_ScreenResolution;
 }
 
-float GTKDisplayEngine::getPixelsPerMM()
+float GDKDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
 
     return m_PPMM;
 }
 
-glm::vec2 GTKDisplayEngine::getPhysicalScreenDimensions()
+glm::vec2 GDKDisplayEngine::getPhysicalScreenDimensions()
 {
     calcScreenDimensions();
     glm::vec2 size;
@@ -1043,7 +1038,7 @@ glm::vec2 GTKDisplayEngine::getPhysicalScreenDimensions()
     return size;
 }
 
-void GTKDisplayEngine::assumePixelsPerMM(float ppmm)
+void GDKDisplayEngine::assumePixelsPerMM(float ppmm)
 {
     m_PPMM = ppmm;
 }

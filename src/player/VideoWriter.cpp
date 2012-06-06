@@ -22,7 +22,7 @@
 #include "VideoWriter.h"
 #include "OffscreenCanvas.h"
 #include "Player.h"
-#include "GTKDisplayEngine.h"
+#include "GDKDisplayEngine.h"
 
 #include "../graphics/FBO.h"
 #include "../graphics/GPURGB2YUVFilter.h"

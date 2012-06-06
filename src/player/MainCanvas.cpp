@@ -22,7 +22,7 @@
 #include "MainCanvas.h"
 
 #include "Player.h"
-#include "GTKDisplayEngine.h"
+#include "GDKDisplayEngine.h"
 #include "AVGNode.h"
 
 #include "../base/Exception.h"
@@ -56,7 +56,7 @@ void MainCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void MainCanvas::initPlayback(const GTKDisplayEnginePtr& pDisplayEngine)
+void MainCanvas::initPlayback(const GDKDisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getMain()->getConfig().m_MultiSampleSamples);

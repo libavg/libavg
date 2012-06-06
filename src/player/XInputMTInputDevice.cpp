@@ -25,7 +25,7 @@
 #include "Player.h"
 #include "AVGNode.h"
 #include "TouchStatus.h"
-#include "GTKDisplayEngine.h"
+#include "GDKDisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -68,7 +68,7 @@ XInputMTInputDevice::~XInputMTInputDevice()
 void XInputMTInputDevice::start()
 {
     Status status;
-    GTKDisplayEngine * pEngine = Player::get()->getDisplayEngine();
+    GDKDisplayEngine * pEngine = Player::get()->getDisplayEngine();
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);

@@ -27,8 +27,8 @@
 
 namespace avg {
 
-class GTKDisplayEngine;
-typedef boost::shared_ptr<GTKDisplayEngine> GTKDisplayEnginePtr;
+class GDKDisplayEngine;
+typedef boost::shared_ptr<GDKDisplayEngine> GDKDisplayEnginePtr;
 
 class AVG_API MainCanvas: public Canvas
 {
@@ -36,14 +36,14 @@ class AVG_API MainCanvas: public Canvas
         MainCanvas(Player * pPlayer);
         virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
-        void initPlayback(const GTKDisplayEnginePtr& pDisplayEngine);
+        void initPlayback(const GDKDisplayEnginePtr& pDisplayEngine);
         
         virtual BitmapPtr screenshot() const;
 
     private:
         virtual void render();
 
-        GTKDisplayEnginePtr m_pDisplayEngine;
+        GDKDisplayEnginePtr m_pDisplayEngine;
 };
 
 }

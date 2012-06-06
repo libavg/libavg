@@ -34,8 +34,8 @@ else
 endif
 endif
 
-GL_SOURCES = OGLSurface.cpp GTKDisplayEngine.cpp
-GL_INCLUDES = OGLSurface.h GTKDisplayEngine.h
+GL_SOURCES = OGLSurface.cpp GDKDisplayEngine.cpp
+GL_INCLUDES = OGLSurface.h GDKDisplayEngine.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ @GTK_LIBS@ $(XGL_LIBS)
 
