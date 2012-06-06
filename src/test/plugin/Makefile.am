@@ -1,6 +1,7 @@
 
 INCLUDES = -I. -I../player \
-		@XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @DC1394_2_CFLAGS@
+		@XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ \
+        @DC1394_2_CFLAGS@ @GTK_CFLAGS@
 
 ALL_H =
 
@@ -12,7 +13,7 @@ else
     EXTRA_LDFLAGS=-XCClinker ../../wrapper/.libs/avg.so
 endif
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
+ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) @GTK_LIBS@
 
 pkgpyexec_LTLIBRARIES = colorplugin.la
 colorplugin_la_SOURCES = ColorNode.cpp 

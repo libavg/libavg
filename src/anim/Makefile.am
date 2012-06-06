@@ -1,4 +1,4 @@
-INCLUDES = -I.. @XML2_CFLAGS@ @PYTHON_INCLUDES@
+INCLUDES = -I.. @XML2_CFLAGS@ @PYTHON_INCLUDES@ @GTK_CFLAGS@
 
 ALL_H = Anim.h SimpleAnim.h LinearAnim.h AttrAnim.h ContinuousAnim.h EaseInOutAnim.h \
         WaitAnim.h ParallelAnim.h StateAnim.h

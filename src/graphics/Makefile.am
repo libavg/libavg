@@ -1,6 +1,6 @@
 SUBDIRS = shaders
 
-INCLUDES = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
+INCLUDES = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@ @GTK_CFLAGS@
 
 ALL_H = Bitmap.h Filter.h GLContext.h\
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
@@ -57,17 +57,17 @@ noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@ \
+        @GTK_LIBS@
 
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
 benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@ @GTK_LIBS@
 
 testgpu_SOURCES=testgpu.cpp $(ALL_H)
 testgpu_LDADD = ./libgraphics.la ../base/libbase.la -ldl \
         ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
-        @GDK_PIXBUF_LIBS@
-
+        @GDK_PIXBUF_LIBS@ @GTK_LIBS@

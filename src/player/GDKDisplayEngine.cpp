@@ -99,7 +99,6 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
-//      m_drawingArea(0),
       m_visual(0),
       m_screen(0),
       m_xvisual(0),
@@ -178,38 +177,7 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     windowAttr.width = m_WindowSize.x;
     windowAttr.height = m_WindowSize.y;
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
-/*    switch (dp.m_BPP) {
-        case 32:
-            safeSetAttribute(SDL_GL_RED_SIZE, 8);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 8);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 8);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 32);
-            break;
-        case 24:
-            safeSetAttribute(SDL_GL_RED_SIZE, 8);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 8);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 8);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 24);
-            break;
-        case 16:
-            safeSetAttribute(SDL_GL_RED_SIZE, 5);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 6);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 5);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 16);
-            break;
-        case 15:
-            safeSetAttribute(SDL_GL_RED_SIZE, 5);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 5);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 5);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 15);
-            break;
-        default:
-            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
-                    "in SDLDisplayEngine::init()");
-            exit(-1);
-    }*/
-/*    safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
-    safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);*/
+
   //  gtk_widget_set_double_buffered (m_drawingArea, false);
 
     bool bAllMultisampleValuesTested = false;
@@ -230,23 +198,23 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_bIsFullscreen = dp.m_bFullscreen;
 
         if (!dp.m_bHasWindowFrame) {
-            gdk_window_set_decorations(m_pScreen, GDK_DECOR_ALL);
+            gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
         }
 
-        m_gdkGLContext = glXCreateContext (m_display, m_xvisual, NULL, true);
+//        m_gdkGLContext = glXCreateContext (m_display, m_xvisual, NULL, true);
 
-        free (m_xvisual);
+        free(m_xvisual);
 
         gdk_window_show(m_pScreen);
 
 //----------------------------------------------
-        Display *t_display;
+/*        Display *t_display;
         int id;
 
         t_display = GDK_WINDOW_XDISPLAY (m_pScreen);
         id = GDK_WINDOW_XID(m_pScreen);
 
-        glXMakeCurrent (t_display, id, m_gdkGLContext);
+        glXMakeCurrent (t_display, id, m_gdkGLContext);*/
 //---------------------------------------------------
         if (!m_pScreen) {
             switch (glConfig.m_MultiSampleSamples) {
@@ -274,7 +242,7 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }*/
-    m_pGLContext = new GLContext(true, glConfig);
+    m_pGLContext = new GLContext(glConfig, m_pScreen, &dp);
     GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
@@ -377,7 +345,7 @@ void GDKDisplayEngine::setGamma(float red, float green, float blue)
 
 void GDKDisplayEngine::setMousePos(const IntPoint& pos)
 {
-  //  SDL_WarpMouse(pos.x, pos.y);
+    gdk_display_warp_pointer(gdk_window_get_display (m_pScreen), m_screen, pos.x, pos.y);
 }
 
 int GDKDisplayEngine::getKeyModifierState() const

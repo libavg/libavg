@@ -28,6 +28,10 @@
 
 #include "../base/GLMHelper.h"
 
+#include <gdk/gdk.h>
+#include <gdk/gdkx.h>
+#include "../player/DisplayParams.h"
+
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
 #undef check // Conflicts with boost
@@ -52,9 +56,8 @@ typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
 class AVG_API GLContext {
 public:
-    GLContext(bool bUseCurrent=false, 
-            const GLConfig& glConfig=GLConfig(false, true, 1, GLConfig::AUTO), 
-            GLContext* pSharedContext=0);
+    GLContext(const GLConfig& glConfig=GLConfig(false, true, 1, GLConfig::AUTO), 
+            GdkWindow* window=0, const DisplayParams* dp=0, GLContext* pSharedContext=0);
     virtual ~GLContext();
     void init();
 
@@ -120,7 +123,7 @@ private:
     HGLRC m_Context;
 #endif
  
-    bool m_bOwnsContext;
+    //bool m_bOwnsContext;
 
     ShaderRegistryPtr m_pShaderRegistry;
     StandardShaderPtr m_pStandardShader;

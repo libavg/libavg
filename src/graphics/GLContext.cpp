@@ -86,7 +86,7 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 
 GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
 
-GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig, 
+GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const DisplayParams* dp,
         GLContext* pSharedContext)
     : m_Context(0),
       m_MaxTexSize(0),
@@ -96,101 +96,130 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
       m_BlendColor(0.f, 0.f, 0.f, 0.f),
       m_BlendMode(BLEND_ADD)
 {
-    if (bUseCurrent) {
+/*    if (bUseCurrent) {
         AVG_ASSERT(!pSharedContext);
-    }
+    }*/
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
     m_GLConfig = glConfig;
-    m_bOwnsContext = !bUseCurrent;
-    if (bUseCurrent) {
-#if defined(__APPLE__)
-        m_Context = CGLGetCurrentContext();
-#elif defined(__linux__)
-        m_pDisplay = glXGetCurrentDisplay();
-        m_Drawable = glXGetCurrentDrawable();
-        m_Context = glXGetCurrentContext();
-#elif defined(_WIN32)
-        m_hDC = wglGetCurrentDC();
-        m_Context = wglGetCurrentContext();
-#endif
-        *s_pCurrentContext = this;
-    } else {
+//    m_bOwnsContext = !bUseCurrent;
 #ifdef __APPLE__
-        CGLPixelFormatObj   pixelFormatObj;
-        GLint               numPixelFormats;
+    CGLPixelFormatObj   pixelFormatObj;
+    GLint               numPixelFormats;
 
-        CGLPixelFormatAttribute attribs[] = {(CGLPixelFormatAttribute)NULL};
-        CGLContextObj cglSharedContext;
-        if (pSharedContext) {
-            cglSharedContext = pSharedContext->m_Context;
-            pixelFormatObj = CGLGetPixelFormat(cglSharedContext);
-        } else {
-            cglSharedContext = 0;
-            CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
-        }
-
-        CGLError err = CGLCreateContext(pixelFormatObj, cglSharedContext, &m_Context);
-        if (err) {
-            cerr << CGLErrorString(err) << endl;
-            AVG_ASSERT(false);
-        }
-        CGLDestroyPixelFormat(pixelFormatObj);
-#elif defined(__linux__)
-        m_pDisplay = XOpenDisplay(0);
-        if (!m_pDisplay) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
-        }
-        XVisualInfo *vi;
-        static int attributes[] = {GLX_RGBA,
-            GLX_RED_SIZE, 1,
-            GLX_GREEN_SIZE, 1,
-            GLX_BLUE_SIZE, 1,
-            0};
-        vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
-        m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
-        AVG_ASSERT(m_Context);
-        Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
-                8, 8, vi->depth);
-        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
-
-        s_bX11Error = false;
-        s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
-        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
-        XSetErrorHandler(s_DefaultErrorHandler);
-
-        if (s_bX11Error) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
-        }
-        m_Drawable = glXGetCurrentDrawable();
-#elif defined(_WIN32)
-        registerWindowClass();
-        m_hwnd = CreateWindow("GL", "GL",
-                WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
-        checkWinError(m_hwnd != 0, "CreateWindow");
-
-        m_hDC = GetDC(m_hwnd);
-        winOGLErrorCheck(m_hDC != 0, "GetDC");
-
-        PIXELFORMATDESCRIPTOR pfd;
-        ZeroMemory(&pfd, sizeof(pfd));
-        pfd.nSize = sizeof(pfd);
-        pfd.nVersion = 1;
-        pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-        pfd.iPixelType = PFD_TYPE_RGBA;
-        pfd.cColorBits = 32;
-        pfd.cDepthBits = 32;
-        pfd.iLayerType = PFD_MAIN_PLANE;
-
-        int iFormat = ChoosePixelFormat(m_hDC, &pfd);
-        checkWinError(iFormat != 0, "ChoosePixelFormat");
-        SetPixelFormat(m_hDC, iFormat, &pfd);
-        m_Context = wglCreateContext(m_hDC);
-        checkWinError(m_Context != 0, "wglCreateContext");
-#endif
+    CGLPixelFormatAttribute attribs[] = {(CGLPixelFormatAttribute)NULL};
+    CGLContextObj cglSharedContext;
+    if (pSharedContext) {
+        cglSharedContext = pSharedContext->m_Context;
+        pixelFormatObj = CGLGetPixelFormat(cglSharedContext);
+    } else {
+        cglSharedContext = 0;
+        CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
     }
+
+    CGLError err = CGLCreateContext(pixelFormatObj, cglSharedContext, &m_Context);
+    if (err) {
+        cerr << CGLErrorString(err) << endl;
+        AVG_ASSERT(false);
+    }
+    CGLDestroyPixelFormat(pixelFormatObj);
+#elif defined(__linux__)
+    m_pDisplay = XOpenDisplay(0);
+    if (!m_pDisplay) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
+    }
+    XVisualInfo *vi;
+    static int attributes [14];
+    attributes[0] = GLX_RGBA;
+    attributes[1] = GLX_DEPTH_SIZE; attributes[2] = 0;
+    attributes[3] = GLX_STENCIL_SIZE; attributes[4] = 8;
+    attributes[5] = GLX_DOUBLEBUFFER; attributes[6] = true;
+    if (window != 0 && dp != 0) {
+        switch (dp->m_BPP) {
+        case 32:
+            attributes[6] = GLX_RED_SIZE; attributes[7] = 8;
+            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 8;
+            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 8;
+            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 32;
+            break;
+        case 24:
+            attributes[6] = GLX_RED_SIZE; attributes[7] = 8;
+            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 8;
+            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 8;
+            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 24;
+            break;
+        case 16:
+            attributes[6] = GLX_RED_SIZE; attributes[7] = 5;
+            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 6;
+            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 5;
+            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 16;
+            break;
+        case 15:
+            attributes[6] = GLX_RED_SIZE; attributes[7] = 5;
+            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 5;
+            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 5;
+            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 15;
+            break;
+        default:
+            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp->m_BPP <<
+                    "in GDKDisplayEngine::init()");
+            exit(-1);
+        }
+    } else {
+        attributes[6] = GLX_RED_SIZE; attributes[7] = 1;
+        attributes[8] = GLX_GREEN_SIZE; attributes[9] = 1;
+        attributes[10] = GLX_BLUE_SIZE; attributes[11] = 1;
+        attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 0;
+    }
+    attributes[14] = None;
+    int id;
+    m_pDisplay = GDK_WINDOW_XDISPLAY(window);
+    id = GDK_WINDOW_XID(window);
+
+    vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
+    m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
+    AVG_ASSERT(m_Context);
+    Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
+            8, 8, vi->depth);
+//    GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
+
+    s_bX11Error = false;
+    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
+
+    glXMakeCurrent(m_pDisplay, id/*pixmap*/, m_Context);
+    XSetErrorHandler(s_DefaultErrorHandler);
+
+    if (s_bX11Error) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
+    }
+    m_Drawable = glXGetCurrentDrawable();
+#elif defined(_WIN32)
+    registerWindowClass();
+    m_hwnd = CreateWindow("GL", "GL",
+            WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+            0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
+    checkWinError(m_hwnd != 0, "CreateWindow");
+
+    m_hDC = GetDC(m_hwnd);
+    winOGLErrorCheck(m_hDC != 0, "GetDC");
+
+    PIXELFORMATDESCRIPTOR pfd;
+    ZeroMemory(&pfd, sizeof(pfd));
+    pfd.nSize = sizeof(pfd);
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 32;
+    pfd.cDepthBits = 32;
+    pfd.iLayerType = PFD_MAIN_PLANE;
+
+    int iFormat = ChoosePixelFormat(m_hDC, &pfd);
+    checkWinError(iFormat != 0, "ChoosePixelFormat");
+    SetPixelFormat(m_hDC, iFormat, &pfd);
+    m_Context = wglCreateContext(m_hDC);
+    checkWinError(m_Context != 0, "wglCreateContext");
+#endif
 
     init();
 }
@@ -205,7 +234,7 @@ GLContext::~GLContext()
     if (*s_pCurrentContext == this) {
         *s_pCurrentContext = 0;
     }
-    if (m_bOwnsContext && m_Context) {
+    if (/*m_bOwnsContext &&*/ m_Context) {
 #ifdef __APPLE__
         CGLSetCurrentContext(0);
         CGLDestroyContext(m_Context);

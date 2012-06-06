@@ -1,4 +1,4 @@
-INCLUDES = -I.. @PTHREAD_CFLAGS@ @XML2_CFLAGS@ @GDK_PIXBUF_CFLAGS@
+INCLUDES = -I.. @PTHREAD_CFLAGS@ @XML2_CFLAGS@ @GDK_PIXBUF_CFLAGS@ @GTK_CFLAGS@
 
 if ENABLE_V4L2
    V4L2_SOURCES = V4LCamera.cpp
@@ -39,4 +39,4 @@ noinst_PROGRAMS=testimaging
 testimaging_SOURCES=testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@ @GTK_LIBS@

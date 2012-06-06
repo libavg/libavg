@@ -81,7 +81,6 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         void doFrame();
 
     private:
-        void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);
 
