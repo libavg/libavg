@@ -35,7 +35,8 @@
 #include <string>
 #include <vector>
 
-#include <gtk/gtk.h>
+//#include <gtk/gtk.h>
+#include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 
 union SDL_Event;
@@ -97,8 +98,7 @@ class AVG_API GTKDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_ScreenResolution;
         float m_PPMM;
 
-        GtkWidget* m_pScreen;       //fenster
-        GtkWidget* m_drawingArea;   //OpenGLContext
+        GdkWindow* m_pScreen;       //fenster
 
         GdkVisual* m_visual;
         GdkScreen* m_screen;

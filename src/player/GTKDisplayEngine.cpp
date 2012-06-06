@@ -99,7 +99,7 @@ GTKDisplayEngine::GTKDisplayEngine()
       m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
-      m_drawingArea(0),
+//      m_drawingArea(0),
       m_visual(0),
       m_screen(0),
       m_xvisual(0),
@@ -146,9 +146,14 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             GLX_DEPTH_SIZE,    0,
             None };
 
-    gtk_init(NULL, NULL);
+    GdkWindowAttr windowAttr;
+    windowAttr.title = "libavg";
+    windowAttr.window_type = GDK_WINDOW_TOPLEVEL;
+    windowAttr.wclass = GDK_INPUT_OUTPUT;
 
-    m_drawingArea = gtk_drawing_area_new();
+    gdk_init(NULL, NULL);
+
+//    m_drawingArea = gtk_drawing_area_new();
     m_display = gdk_x11_get_default_xdisplay ();
     xscreen = DefaultScreen (m_display);
     m_screen = gdk_screen_get_default ();
@@ -171,6 +176,8 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.x = dp.m_WindowSize.x;
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
+    windowAttr.width = m_WindowSize.x;
+    windowAttr.height = m_WindowSize.y;
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
 /*    switch (dp.m_BPP) {
         case 32:
@@ -204,17 +211,7 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     }*/
 /*    safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);*/
-    gtk_widget_set_double_buffered (m_drawingArea, false);
-//    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); 
-/*    unsigned int Flags = SDL_OPENGL;
-    if (dp.m_bFullscreen) {
-        Flags |= SDL_FULLSCREEN;
-    }
-    m_bIsFullscreen = dp.m_bFullscreen;
-
-    if (!dp.m_bHasWindowFrame) {
-        Flags |= SDL_NOFRAME;
-    }*/
+  //  gtk_widget_set_double_buffered (m_drawingArea, false);
 
     bool bAllMultisampleValuesTested = false;
     m_pScreen = 0;
@@ -226,34 +223,35 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }*/
-//        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+        m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE);
 
-        m_pScreen = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-        gtk_window_set_title(GTK_WINDOW(m_pScreen), "libavg");
+        if (dp.m_bFullscreen) {
+            gdk_window_fullscreen(m_pScreen);
+        }
+        m_bIsFullscreen = dp.m_bFullscreen;
 
-        gtk_widget_set_visual(m_drawingArea, m_visual);
-        m_gtkGLContext = glXCreateContext (m_display, m_xvisual, NULL, TRUE);
+        if (!dp.m_bHasWindowFrame) {
+            gdk_window_set_decorations(m_pScreen, GDK_DECOR_ALL);
+        }
+
+//        gtk_widget_set_visual(m_drawingArea, m_visual); -----------------------------------------
+        m_gtkGLContext = glXCreateContext (m_display, m_xvisual, NULL, true);
 
         free (m_xvisual);
-        gtk_container_add (GTK_CONTAINER (m_pScreen), m_drawingArea);
-        gtk_widget_set_size_request(m_drawingArea, m_WindowSize.x, m_WindowSize.y);
+//        gtk_container_add (GTK_CONTAINER (m_pScreen), m_drawingArea);
 
-        gtk_widget_show(m_drawingArea);
-        gtk_widget_show(m_pScreen);
+//        gdk_window_show(m_drawingArea);
+        gdk_window_show(m_pScreen);
 
-
-
-        GdkWindow *t_window;
+//        GdkWindow *t_window;
         Display *t_display;
         int id;
 
-        t_window = gtk_widget_get_window (m_drawingArea);
-        t_display = GDK_WINDOW_XDISPLAY (t_window);
-        id = GDK_WINDOW_XID(t_window);
+//        t_window = gtk_widget_get_window (m_drawingArea);
+        t_display = GDK_WINDOW_XDISPLAY (m_pScreen);
+        id = GDK_WINDOW_XID(m_pScreen);
 
         glXMakeCurrent (t_display, id, m_gtkGLContext);
-
-
 
         if (!m_pScreen) {
             switch (glConfig.m_MultiSampleSamples) {
@@ -332,12 +330,12 @@ void GTKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
   //  signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
 
-    SDL_EnableUNICODE(1);
+//    SDL_EnableUNICODE(1);
 }
 
 void GTKDisplayEngine::doFrame()
 {
-    gtk_main_iteration_do(false);
+    g_main_context_iteration(NULL,false);
 }
 
 #ifdef _WIN32
@@ -367,7 +365,7 @@ float GTKDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void GTKDisplayEngine::setGamma(float red, float green, float blue)
+void GTKDisplayEngine::setGamma(float red, float green, float blue)     //geht nicht
 {
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", "
@@ -396,9 +394,7 @@ int GTKDisplayEngine::getKeyModifierState() const
 void GTKDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
-        GtkRequisition allocation;
-        gtk_widget_get_preferred_size(m_drawingArea, &allocation, NULL);
-        m_ScreenResolution = IntPoint(allocation.width, allocation.height);
+        m_ScreenResolution = IntPoint(gdk_screen_get_width (m_screen), gdk_screen_get_height (m_screen));
     }
     if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
@@ -443,13 +439,11 @@ void GTKDisplayEngine::swapBuffers()
     ScopeTimer timer(SwapBufferProfilingZone);
   //  SDL_GL_SwapBuffers();
 
-    GdkWindow *t_window;
     Display *t_display;
     int id;
 
-    t_window = gtk_widget_get_window (m_drawingArea);
-    t_display = GDK_WINDOW_XDISPLAY (t_window);
-    id = GDK_WINDOW_XID(t_window);
+    t_display = GDK_WINDOW_XDISPLAY (m_pScreen);
+    id = GDK_WINDOW_XID(m_pScreen);
 
     glXSwapBuffers (t_display, id);
 
