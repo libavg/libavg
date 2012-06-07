@@ -180,8 +180,8 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
     vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
     m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
     AVG_ASSERT(m_Context);
-    Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
-            8, 8, vi->depth);
+ //   Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
+ //           8, 8, vi->depth);
 //    GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
 
     s_bX11Error = false;

@@ -35,7 +35,6 @@
 #include <string>
 #include <vector>
 
-//#include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 
@@ -98,10 +97,7 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         float m_PPMM;
 
         GdkWindow* m_pScreen;       //fenster
-
-        GdkVisual* m_visual;
         GdkScreen* m_screen;
-        XVisualInfo *m_xvisual;
         Display *m_display;
 
         static void calcRefreshRate();
@@ -115,7 +111,6 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         XInputMTInputDevice * m_pXIMTInputDevice;
 
         GLContext* m_pGLContext;
-        GLXContext m_gdkGLContext;     // vieleichtz unnoetig
 
         float m_Gamma[3];
 };

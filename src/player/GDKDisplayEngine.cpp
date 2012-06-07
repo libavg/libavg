@@ -99,15 +99,12 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
-      m_visual(0),
       m_screen(0),
-      m_xvisual(0),
       m_display(0),
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_NumMouseButtonsDown(0),
-      m_gdkGLContext(0)
+      m_NumMouseButtonsDown(0)
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -155,8 +152,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     m_display = gdk_x11_get_default_xdisplay ();
     xscreen = DefaultScreen (m_display);
     m_screen = gdk_screen_get_default ();
-    m_xvisual = glXChooseVisual (m_display, xscreen, attributes);
-    m_visual = gdk_x11_screen_lookup_visual (m_screen, m_xvisual->visualid);
 
     calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
@@ -177,8 +172,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     windowAttr.width = m_WindowSize.x;
     windowAttr.height = m_WindowSize.y;
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
-
-  //  gtk_widget_set_double_buffered (m_drawingArea, false);
 
     bool bAllMultisampleValuesTested = false;
     m_pScreen = 0;
@@ -201,21 +194,8 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
         }
 
-//        m_gdkGLContext = glXCreateContext (m_display, m_xvisual, NULL, true);
-
-        free(m_xvisual);
-
         gdk_window_show(m_pScreen);
 
-//----------------------------------------------
-/*        Display *t_display;
-        int id;
-
-        t_display = GDK_WINDOW_XDISPLAY (m_pScreen);
-        id = GDK_WINDOW_XID(m_pScreen);
-
-        glXMakeCurrent (t_display, id, m_gdkGLContext);*/
-//---------------------------------------------------
         if (!m_pScreen) {
             switch (glConfig.m_MultiSampleSamples) {
                 case 1:
