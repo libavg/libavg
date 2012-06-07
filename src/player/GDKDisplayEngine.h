@@ -38,8 +38,6 @@
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 
-union SDL_Event;
-
 namespace avg {
 
 class XInputMTInputDevice;
@@ -77,7 +75,6 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         glm::vec2 getPhysicalScreenDimensions();
         void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
-        void doFrame();
 
     private:
         void initTranslationTable();
@@ -86,9 +83,10 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         bool internalSetGamma(float red, float green, float blue);
 
         EventPtr createMouseEvent
-                (Event::Type Type, const SDL_Event & SDLEvent, long Button);
-        EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
+                (Event::Type Type, const GdkEvent & GDKEvent, long Button);
+        EventPtr createMouseButtonEvent(Event::Type Type, const GdkEvent & GDKEvent);
+        EventPtr createMouseWheelEvent(Event::Type Type, const GdkEvent & GDKEvent);
+        EventPtr createKeyEvent(Event::Type Type, const GdkEvent & GDKEvent);
 
         IntPoint m_Size;
         bool m_bIsFullscreen;

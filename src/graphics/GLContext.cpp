@@ -89,6 +89,7 @@ GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
 GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const DisplayParams* dp,
         GLContext* pSharedContext)
     : m_Context(0),
+      m_id(0),
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
@@ -96,14 +97,10 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
       m_BlendColor(0.f, 0.f, 0.f, 0.f),
       m_BlendMode(BLEND_ADD)
 {
-/*    if (bUseCurrent) {
-        AVG_ASSERT(!pSharedContext);
-    }*/
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
     m_GLConfig = glConfig;
-//    m_bOwnsContext = !bUseCurrent;
 #ifdef __APPLE__
     CGLPixelFormatObj   pixelFormatObj;
     GLint               numPixelFormats;
@@ -130,7 +127,7 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
         throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
     }
     XVisualInfo *vi;
-    static int attributes [14];
+    static int attributes [16];
     attributes[0] = GLX_RGBA;
     attributes[1] = GLX_DEPTH_SIZE; attributes[2] = 0;
     attributes[3] = GLX_STENCIL_SIZE; attributes[4] = 8;
@@ -138,28 +135,28 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
     if (window != 0 && dp != 0) {
         switch (dp->m_BPP) {
         case 32:
-            attributes[6] = GLX_RED_SIZE; attributes[7] = 8;
-            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 8;
-            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 8;
-            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 32;
+            attributes[7] = GLX_RED_SIZE; attributes[8] = 8;
+            attributes[9] = GLX_GREEN_SIZE; attributes[10] = 8;
+            attributes[11] = GLX_BLUE_SIZE; attributes[12] = 8;
+            attributes[13] = GLX_BUFFER_SIZE; attributes[14] = 32;
             break;
         case 24:
-            attributes[6] = GLX_RED_SIZE; attributes[7] = 8;
-            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 8;
-            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 8;
-            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 24;
+            attributes[7] = GLX_RED_SIZE; attributes[8] = 8;
+            attributes[9] = GLX_GREEN_SIZE; attributes[10] = 8;
+            attributes[11] = GLX_BLUE_SIZE; attributes[12] = 8;
+            attributes[13] = GLX_BUFFER_SIZE; attributes[14] = 24;
             break;
         case 16:
-            attributes[6] = GLX_RED_SIZE; attributes[7] = 5;
-            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 6;
-            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 5;
-            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 16;
+            attributes[7] = GLX_RED_SIZE; attributes[8] = 5;
+            attributes[9] = GLX_GREEN_SIZE; attributes[10] = 6;
+            attributes[11] = GLX_BLUE_SIZE; attributes[12] = 5;
+            attributes[13] = GLX_BUFFER_SIZE; attributes[14] = 16;
             break;
         case 15:
-            attributes[6] = GLX_RED_SIZE; attributes[7] = 5;
-            attributes[8] = GLX_GREEN_SIZE; attributes[9] = 5;
-            attributes[10] = GLX_BLUE_SIZE; attributes[11] = 5;
-            attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 15;
+            attributes[7] = GLX_RED_SIZE; attributes[8] = 5;
+            attributes[9] = GLX_GREEN_SIZE; attributes[10] = 5;
+            attributes[11] = GLX_BLUE_SIZE; attributes[12] = 5;
+            attributes[13] = GLX_BUFFER_SIZE; attributes[14] = 15;
             break;
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp->m_BPP <<
@@ -167,15 +164,14 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
             exit(-1);
         }
     } else {
-        attributes[6] = GLX_RED_SIZE; attributes[7] = 1;
-        attributes[8] = GLX_GREEN_SIZE; attributes[9] = 1;
-        attributes[10] = GLX_BLUE_SIZE; attributes[11] = 1;
-        attributes[12] = GLX_BUFFER_SIZE; attributes[13] = 0;
+        attributes[7] = GLX_RED_SIZE; attributes[8] = 1;
+        attributes[9] = GLX_GREEN_SIZE; attributes[10] = 1;
+        attributes[11] = GLX_BLUE_SIZE; attributes[12] = 1;
+        attributes[13] = GLX_BUFFER_SIZE; attributes[14] = 0;
     }
-    attributes[14] = None;
-    int id;
+    attributes[15] = None;
     m_pDisplay = GDK_WINDOW_XDISPLAY(window);
-    id = GDK_WINDOW_XID(window);
+    m_id = GDK_WINDOW_XID(window);
 
     vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
     m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
@@ -187,7 +183,7 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
     s_bX11Error = false;
     s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
 
-    glXMakeCurrent(m_pDisplay, id/*pixmap*/, m_Context);
+    glXMakeCurrent(m_pDisplay, m_id/*pixmap*/, m_Context);
     XSetErrorHandler(s_DefaultErrorHandler);
 
     if (s_bX11Error) {
@@ -234,7 +230,7 @@ GLContext::~GLContext()
     if (*s_pCurrentContext == this) {
         *s_pCurrentContext = 0;
     }
-    if (/*m_bOwnsContext &&*/ m_Context) {
+    if (m_Context) {
 #ifdef __APPLE__
         CGLSetCurrentContext(0);
         CGLDestroyContext(m_Context);
@@ -600,6 +596,17 @@ bool GLContext::initVBlank(int rate)
             AVG_TRACE(Logger::WARNING, "  Illegal vblank enum value.");
     }
     return s_VBMethod != VB_NONE;
+}
+
+void GLContext::swapBuffers()
+{
+#ifdef __APPLE__
+
+#elif defined _WIN32
+
+#else
+    glXSwapBuffers (m_pDisplay, m_id);
+#endif
 }
 
 void GLContext::enableErrorChecks(bool bEnable)

@@ -181,6 +181,9 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
         }
 
+        gdk_window_set_events(m_pScreen, (GdkEventMask) (GDK_POINTER_MOTION_MASK |
+                GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+                GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK));
         gdk_window_show(m_pScreen);
 
         if (!m_pScreen) {
@@ -263,11 +266,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 //    SDL_EnableUNICODE(1);
 }
 
-void GDKDisplayEngine::doFrame()
-{
-    g_main_context_iteration(NULL,false);
-}
-
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
@@ -324,7 +322,8 @@ int GDKDisplayEngine::getKeyModifierState() const
 void GDKDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
-        m_ScreenResolution = IntPoint(gdk_screen_get_width (m_screen), gdk_screen_get_height (m_screen));
+        m_ScreenResolution = IntPoint(gdk_screen_get_width(m_screen),
+                gdk_screen_get_height(m_screen));
     }
     if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
@@ -367,17 +366,7 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 void GDKDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
-  //  SDL_GL_SwapBuffers();
-
-    Display *t_display;
-    int id;
-
-    t_display = GDK_WINDOW_XDISPLAY (m_pScreen);
-    id = GDK_WINDOW_XID(m_pScreen);
-
-    glXSwapBuffers (t_display, id);
-
-
+    m_pGLContext->swapBuffers();
     GLContext::checkError("swapBuffers()");
 }
 
@@ -527,72 +516,78 @@ const char * getEventTypeName(unsigned char type)
 
 vector<EventPtr> GDKDisplayEngine::pollEvents()
 {
-  //  SDL_Event sdlEvent;
+    GdkEvent* gdkEvent;
     vector<EventPtr> events;
-/*
-    while (SDL_PollEvent(&sdlEvent)) {
-        EventPtr pNewEvent;
-        switch (sdlEvent.type) {
-            case SDL_MOUSEMOTION:
-                if (m_bMouseOverApp) {
-                    pNewEvent = createMouseEvent(Event::CURSORMOTION, sdlEvent, 
-                            MouseEvent::NO_BUTTON);
-                    CursorEventPtr pNewCursorEvent = 
-                            boost::dynamic_pointer_cast<CursorEvent>(pNewEvent);
-                    if (!events.empty()) {
-                        CursorEventPtr pLastEvent = 
-                                boost::dynamic_pointer_cast<CursorEvent>(events.back());
-                        if (pLastEvent && *pNewCursorEvent == *pLastEvent) {
-                            pNewEvent = EventPtr();
+    while(gdk_events_pending()) {
+        gdkEvent = gdk_event_get();
+        if(gdkEvent != NULL) {
+            EventPtr pNewEvent;
+            switch (gdkEvent->type) {
+                case GDK_MOTION_NOTIFY:
+                    if (m_bMouseOverApp) {
+                        pNewEvent = createMouseEvent(Event::CURSORMOTION, *gdkEvent,
+                                MouseEvent::NO_BUTTON);
+                        CursorEventPtr pNewCursorEvent =
+                                boost::dynamic_pointer_cast<CursorEvent>(pNewEvent);
+                        if (!events.empty()) {
+                            CursorEventPtr pLastEvent =
+                                    boost::dynamic_pointer_cast<CursorEvent>(events.back());
+                            if (pLastEvent && *pNewCursorEvent == *pLastEvent) {
+                                pNewEvent = EventPtr();
+                            }
                         }
                     }
-                }
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                pNewEvent = createMouseButtonEvent(Event::CURSORDOWN, sdlEvent);
-                break;
-            case SDL_MOUSEBUTTONUP:
-                pNewEvent = createMouseButtonEvent(Event::CURSORUP, sdlEvent);
-                break;
-            case SDL_JOYAXISMOTION:
-//                pNewEvent = createAxisEvent(sdlEvent));
-                break;
-            case SDL_JOYBUTTONDOWN:
-//                pNewEvent = createButtonEvent(Event::BUTTON_DOWN, sdlEvent));
-                break;
-            case SDL_JOYBUTTONUP:
-//                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
-                break;
-            case SDL_KEYDOWN:
-                pNewEvent = createKeyEvent(Event::KEYDOWN, sdlEvent);
-                break;
-            case SDL_KEYUP:
-                pNewEvent = createKeyEvent(Event::KEYUP, sdlEvent);
-                break;
-            case SDL_QUIT:
-                pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
-                break;
-            case SDL_VIDEORESIZE:
-                break;
-            case SDL_SYSWMEVENT:
-                {
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-                    SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
-                    AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-                    if (m_pXIMTInputDevice) {
-                        m_pXIMTInputDevice->handleXIEvent(pMsg->event.xevent);
+                    break;
+                case GDK_BUTTON_PRESS:
+                    pNewEvent = createMouseButtonEvent(Event::CURSORDOWN, *gdkEvent);
+                    break;
+                case GDK_BUTTON_RELEASE:
+                    pNewEvent = createMouseButtonEvent(Event::CURSORUP, *gdkEvent);
+                    break;
+                case GDK_SCROLL:
+                    pNewEvent = createMouseWheelEvent(Event::CUSTOMEVENT, *gdkEvent);
+                    break;
+              /*  case SDL_JOYAXISMOTION:
+    //                pNewEvent = createAxisEvent(sdlEvent));
+                    break;
+                case SDL_JOYBUTTONDOWN:
+    //                pNewEvent = createButtonEvent(Event::BUTTON_DOWN, sdlEvent));
+                    break;
+                case SDL_JOYBUTTONUP:
+    //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
+                    break;
+                case SDL_KEYDOWN:
+                    pNewEvent = createKeyEvent(Event::KEYDOWN, sdlEvent);
+                    break;
+                case SDL_KEYUP:
+                    pNewEvent = createKeyEvent(Event::KEYUP, sdlEvent);
+                    break;
+                case SDL_QUIT:
+                    pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
+                    break;
+                case SDL_VIDEORESIZE:
+                    break;
+                case SDL_SYSWMEVENT:
+                    {
+    #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
+                        SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
+                        AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
+                        if (m_pXIMTInputDevice) {
+                            m_pXIMTInputDevice->handleXIEvent(pMsg->event.xevent);
+                        }
+    #endif
                     }
-#endif
-                }
-                break;
-            default:
-                // Ignore unknown events.
-                break;
+                    break;*/
+                default:
+                    // Ignore unknown events.
+                    break;
+            }
+            if (pNewEvent) {
+                events.push_back(pNewEvent);
+            } 
+            gdk_event_free(gdkEvent);
         }
-        if (pNewEvent) {
-            events.push_back(pNewEvent);
-        }
-    }*/
+    }
     return events;
 }
 
@@ -602,11 +597,11 @@ void GDKDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
     m_pXIMTInputDevice = pInputDevice;
 }
 
-EventPtr GDKDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
+EventPtr GDKDisplayEngine::createMouseEvent(Event::Type type, const GdkEvent& gdkEvent,
         long button)
 {
-    int x, y;
-    Uint8 buttonState = SDL_GetMouseState(&x, &y);
+    int x = ((GdkEventMotion&)gdkEvent).x;
+    int y = ((GdkEventMotion&)gdkEvent).y;
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
     glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
@@ -617,39 +612,50 @@ EventPtr GDKDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
         float lastFrameTime = 1000/getEffectiveFramerate();
         speed = glm::vec2(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
     }
-    MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
-            (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
-            IntPoint(x, y), button, speed));
-
+     MouseEventPtr pEvent;
+    if(gdkEvent.type == GDK_MOTION_NOTIFY) {
+        pEvent = MouseEventPtr(new MouseEvent(type, false, false, false, IntPoint(x, y), button, speed));
+        cout << "MOVE" << endl;
+    } else {
+        GdkEventButton event = (GdkEventButton&)gdkEvent;
+        pEvent = MouseEventPtr(new MouseEvent(type, event.button = 1, event.button = 3,
+                event.button = 2, IntPoint(x, y), button, speed));
+        cout << button << endl;
+    }
     m_pLastMouseEvent = pEvent;
     return pEvent; 
 }
 
-EventPtr GDKDisplayEngine::createMouseButtonEvent(Event::Type type, 
-        const SDL_Event& sdlEvent) 
+EventPtr GDKDisplayEngine::createMouseButtonEvent(Event::Type type,
+        const GdkEvent& gdkEvent)
 {
     long button = 0;
-    switch (sdlEvent.button.button) {
-        case SDL_BUTTON_LEFT:
+    switch (((GdkEventButton&)gdkEvent).button) {
+        case 1:
             button = MouseEvent::LEFT_BUTTON;
             break;
-        case SDL_BUTTON_MIDDLE:
-            button = MouseEvent::MIDDLE_BUTTON;
-            break;
-        case SDL_BUTTON_RIGHT:
+        case 2:
             button = MouseEvent::RIGHT_BUTTON;
             break;
-        case SDL_BUTTON_WHEELUP:
-            button = MouseEvent::WHEELUP_BUTTON;
-            break;
-        case SDL_BUTTON_WHEELDOWN:
-            button = MouseEvent::WHEELDOWN_BUTTON;
+        case 3:
+            button = MouseEvent::MIDDLE_BUTTON;
             break;
     }
-    return createMouseEvent(type, sdlEvent, button);
- 
+    return createMouseEvent(type, gdkEvent, button);
 }
 
+// to observe
+EventPtr GDKDisplayEngine::createMouseWheelEvent(Event::Type type,
+        const GdkEvent& gdkEvent)
+{
+    long button = 0;
+    if(((GdkEventScroll&)gdkEvent).delta_y > 0) {
+        button = MouseEvent::WHEELUP_BUTTON;
+    } else {
+        button = MouseEvent::WHEELDOWN_BUTTON;
+    }
+    return createMouseEvent(type, gdkEvent, button);
+}
 /*
 EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
 {
@@ -666,7 +672,7 @@ EventPtr SDLDisplayEngine::createButtonEvent
 }
 */
 
-EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
+/*EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
     long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
     unsigned int modifiers = key::KEYMOD_NONE;
@@ -700,7 +706,7 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdl
             sdlEvent.key.keysym.scancode, keyCode,
             SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode, modifiers));
     return pEvent;
-}
+}*/
 
 void GDKDisplayEngine::initTranslationTable()
 {

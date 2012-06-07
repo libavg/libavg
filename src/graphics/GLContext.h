@@ -89,7 +89,8 @@ public:
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
     bool initVBlank(int rate);
-    
+    void swapBuffers();
+
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
     static void mandatoryCheckError(const char* pszWhere);
@@ -122,8 +123,7 @@ private:
     HDC m_hDC;
     HGLRC m_Context;
 #endif
- 
-    //bool m_bOwnsContext;
+    int m_id;
 
     ShaderRegistryPtr m_pShaderRegistry;
     StandardShaderPtr m_pStandardShader;
