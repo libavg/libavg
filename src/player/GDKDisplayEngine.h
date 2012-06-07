@@ -98,7 +98,6 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
 
         GdkWindow* m_pScreen;       //fenster
         GdkScreen* m_screen;
-        Display *m_display;
 
         static void calcRefreshRate();
         static float s_RefreshRate;

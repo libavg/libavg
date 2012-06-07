@@ -100,7 +100,6 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_PPMM(0),
       m_pScreen(0),
       m_screen(0),
-      m_display(0),
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
@@ -132,16 +131,6 @@ GDKDisplayEngine::~GDKDisplayEngine()
 
 void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
-    int xscreen;
-    int attributes[] = {
-            GLX_RGBA,
-            GLX_RED_SIZE,      1,
-            GLX_GREEN_SIZE,    1,
-            GLX_BLUE_SIZE,     1,
-            GLX_DOUBLEBUFFER,  True,
-            GLX_DEPTH_SIZE,    0,
-            None };
-
     GdkWindowAttr windowAttr;
     windowAttr.title = "libavg";
     windowAttr.window_type = GDK_WINDOW_TOPLEVEL;
@@ -149,8 +138,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     gdk_init(NULL, NULL);
 
-    m_display = gdk_x11_get_default_xdisplay ();
-    xscreen = DefaultScreen (m_display);
     m_screen = gdk_screen_get_default ();
 
     calcScreenDimensions(dp.m_DotsPerMM);
