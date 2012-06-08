@@ -690,7 +690,10 @@ EventPtr GDKDisplayEngine::createButtonEvent
 EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkEvent)
 {
     GdkEventKey keyEvent = (GdkEventKey&) gdkEvent;
- //   long keyCode = KeyCodeTranslationTable[keyEvent.keyval];
+
+    unsigned int keyVal = gdk_keyval_to_lower(keyEvent.keyval);
+
+    long keyCode = KeyCodeTranslationTable[keyVal];
     unsigned int modifiers = key::KEYMOD_NONE;
 
     if (keyEvent.state & GDK_SHIFT_MASK) 
@@ -714,10 +717,11 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
     if (sdlEvent.key.keysym.mod & KMOD_RESERVED) 
         { modifiers |= key::KEYMOD_RESERVED; }*/
 
-    cout << type << " " << gdk_keyval_name(keyEvent.keyval) << endl;
+//    cout << type << " " << gdk_keyval_name(keyVal) << endl;
+//    cout << "code: " << keyCode << " | " << keyVal << endl;
 
-    KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyEvent.keyval,
-            gdk_keyval_name(keyEvent.keyval), gdk_keyval_to_unicode(keyEvent.keyval),
+    KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyCode,
+            gdk_keyval_name(keyVal), gdk_keyval_to_unicode(keyVal),
             modifiers));
     return pEvent;
 }
@@ -735,21 +739,21 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(Escape);
     TRANSLATION_ENTRY(space);
     TRANSLATION_ENTRY(Delete);
-/*
-    TRANSLATION_ENTRY(EXCLAIM);
-    TRANSLATION_ENTRY(QUOTEDBL);
-    TRANSLATION_ENTRY(HASH);
-    TRANSLATION_ENTRY(DOLLAR);
-    TRANSLATION_ENTRY(AMPERSAND);
-    TRANSLATION_ENTRY(QUOTE);
-    TRANSLATION_ENTRY(LEFTPAREN);
-    TRANSLATION_ENTRY(RIGHTPAREN);
-    TRANSLATION_ENTRY(ASTERISK);
-    TRANSLATION_ENTRY(PLUS);
-    TRANSLATION_ENTRY(COMMA);
-    TRANSLATION_ENTRY(MINUS);
-    TRANSLATION_ENTRY(PERIOD);
-    TRANSLATION_ENTRY(SLASH);
+
+    TRANSLATION_ENTRY(exclam);
+    TRANSLATION_ENTRY(quotedbl);
+    TRANSLATION_ENTRY(numbersign);
+    TRANSLATION_ENTRY(dollar);
+    TRANSLATION_ENTRY(ampersand);
+    TRANSLATION_ENTRY(apostrophe);
+    TRANSLATION_ENTRY(parenleft);
+    TRANSLATION_ENTRY(parenright);
+    TRANSLATION_ENTRY(asterisk);
+    TRANSLATION_ENTRY(plus);
+    TRANSLATION_ENTRY(comma);
+    TRANSLATION_ENTRY(minus);
+    TRANSLATION_ENTRY(period);
+    TRANSLATION_ENTRY(slash);
     TRANSLATION_ENTRY(0);
     TRANSLATION_ENTRY(1);
     TRANSLATION_ENTRY(2);
@@ -760,19 +764,19 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(7);
     TRANSLATION_ENTRY(8);
     TRANSLATION_ENTRY(9);
-    TRANSLATION_ENTRY(COLON);
-    TRANSLATION_ENTRY(SEMICOLON);
-    TRANSLATION_ENTRY(LESS);
-    TRANSLATION_ENTRY(EQUALS);
-    TRANSLATION_ENTRY(GREATER);
-    TRANSLATION_ENTRY(QUESTION);
-    TRANSLATION_ENTRY(AT);
-    TRANSLATION_ENTRY(LEFTBRACKET);
-    TRANSLATION_ENTRY(BACKSLASH);
-    TRANSLATION_ENTRY(RIGHTBRACKET);
-    TRANSLATION_ENTRY(CARET);
-    TRANSLATION_ENTRY(UNDERSCORE);
-    TRANSLATION_ENTRY(BACKQUOTE);
+    TRANSLATION_ENTRY(colon);
+    TRANSLATION_ENTRY(semicolon);
+    TRANSLATION_ENTRY(less);
+    TRANSLATION_ENTRY(equal);
+    TRANSLATION_ENTRY(greater);
+    TRANSLATION_ENTRY(question);
+    TRANSLATION_ENTRY(at);
+    TRANSLATION_ENTRY(bracketleft);
+    TRANSLATION_ENTRY(backslash);
+    TRANSLATION_ENTRY(bracketright);
+    TRANSLATION_ENTRY(caret);
+    TRANSLATION_ENTRY(underscore);
+    TRANSLATION_ENTRY(dead_grave);
     TRANSLATION_ENTRY(a);
     TRANSLATION_ENTRY(b);
     TRANSLATION_ENTRY(c);
@@ -799,7 +803,6 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(x);
     TRANSLATION_ENTRY(y);
     TRANSLATION_ENTRY(z);
-    TRANSLATION_ENTRY(DELETE);
     TRANSLATION_ENTRY(KP_0);
     TRANSLATION_ENTRY(KP_1);
     TRANSLATION_ENTRY(KP_2);
@@ -810,7 +813,7 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(KP_7);
     TRANSLATION_ENTRY(KP_8);
     TRANSLATION_ENTRY(KP_9);
-    TRANSLATION_ENTRY(KP_PERIOD);
+    TRANSLATION_ENTRY(KP_Separator);
     TRANSLATION_ENTRY(KP_Divide);
     TRANSLATION_ENTRY(KP_Multiply);
     TRANSLATION_ENTRY(KP_Subtract);
@@ -843,7 +846,7 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(F15);
     TRANSLATION_ENTRY(Num_Lock);
     TRANSLATION_ENTRY(Caps_Lock);
-    TRANSLATION_ENTRY(SCROLLOCK);
+    TRANSLATION_ENTRY(Scroll_Lock);
     TRANSLATION_ENTRY(Shift_R);
     TRANSLATION_ENTRY(Shift_L);
     TRANSLATION_ENTRY(Control_R);
@@ -854,16 +857,14 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(Meta_L);
     TRANSLATION_ENTRY(Super_L);
     TRANSLATION_ENTRY(Super_R);
-    TRANSLATION_ENTRY(MODE);
-    TRANSLATION_ENTRY(COMPOSE);
+    TRANSLATION_ENTRY(ISO_Level3_Shift);
     TRANSLATION_ENTRY(Help);
     TRANSLATION_ENTRY(Print);
     TRANSLATION_ENTRY(Sys_Req);
     TRANSLATION_ENTRY(Break);
     TRANSLATION_ENTRY(Menu);
-    TRANSLATION_ENTRY(POWER);
-    TRANSLATION_ENTRY(EURO);
-    TRANSLATION_ENTRY(Undo);*/
+    TRANSLATION_ENTRY(EuroSign);
+    TRANSLATION_ENTRY(Undo);
 }
 
 const IntPoint& GDKDisplayEngine::getWindowSize() const
