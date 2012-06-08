@@ -1021,7 +1021,7 @@ bool Player::handleEvent(EventPtr pEvent)
         pEvent->trace();
         getRootNode()->handleEvent(pKeyEvent);
         if (getStopOnEscape() && pEvent->getType() == Event::KEYDOWN
-                && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
+                && pKeyEvent->getKeyCode() == avg::key::KEY_Escape)
         {
             stop();
         }

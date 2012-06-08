@@ -49,7 +49,8 @@
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
 
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
+#include <gdk/gdkkeysyms.h>
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
@@ -84,14 +85,6 @@ using namespace std;
 namespace avg {
 
 float GDKDisplayEngine::s_RefreshRate = 0.0;
-
-void safeSetAttribute(SDL_GLattr attr, int value) 
-{
-/*    int err = SDL_GL_SetAttribute(attr, value);
-    if (err == -1) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
-    } */
-}
 
 GDKDisplayEngine::GDKDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(GDKDisplayEngine)),
@@ -310,13 +303,49 @@ void GDKDisplayEngine::setGamma(float red, float green, float blue)
 
 void GDKDisplayEngine::setMousePos(const IntPoint& pos)
 {
-    gdk_display_warp_pointer(gdk_window_get_display (m_pScreen), m_screen, pos.x, pos.y);
+   // gdk_display_warp_pointer(gdk_window_get_display (m_pScreen), m_screen, pos.x, pos.y);
 }
 
 int GDKDisplayEngine::getKeyModifierState() const
 {
-  //  return SDL_GetModState();
-    return 0;
+  int result = 0x0000;
+/*
+    if(m_input->IsKeyDown(sf::Key::LShift)){
+        result |= 0x0001;
+    }
+    if(m_input->IsKeyDown(sf::Key::RShift)){
+        result |= 0x0002;
+    }
+    if(m_input->IsKeyDown(sf::Key::LControl)){
+        result |= 0x0040;
+    }
+    if(m_input->IsKeyDown(sf::Key::RControl)){
+        result |= 0x0080;
+    }
+    if(m_input->IsKeyDown(sf::Key::LAlt)){
+        result |= 0x0100;
+    }
+    if(m_input->IsKeyDown(sf::Key::RAlt)){
+        result |= 0x0200;
+    }
+   if(m_input->IsKeyDown(Key::LMeta)){
+        result |= 0x0400;
+    }
+    if(m_input->IsKeyDown(Key::RMeta)){
+        result |= 0x0800;
+    }
+    if(m_input->IsKeyDown(Key::Num)){
+        result |= 0x1000;
+    }
+    if(m_input->IsKeyDown(Key::Caps)){
+        result |= 0x2000;
+    }
+    if(m_input->IsKeyDown(Key::Mode)){
+        result |= 0x4000;
+    }*/
+
+    return result;
+
 }
 
 void GDKDisplayEngine::calcScreenDimensions(float dotsPerMM)
@@ -475,7 +504,7 @@ void GDKDisplayEngine::calcRefreshRate()
 
 }
 
-vector<long> GDKDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+vector<long> GDKDisplayEngine::KeyCodeTranslationTable(GDK_KEY_VoidSymbol, key::KEY_UNKNOWN);
 
 const char * getEventTypeName(unsigned char type) 
 {
@@ -555,29 +584,16 @@ vector<EventPtr> GDKDisplayEngine::pollEvents()
                     break;
                 case SDL_JOYBUTTONUP:
     //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
+                    break;*/
+                case GDK_KEY_PRESS:
+                    pNewEvent = createKeyEvent(Event::KEYDOWN, *gdkEvent);
                     break;
-                case SDL_KEYDOWN:
-                    pNewEvent = createKeyEvent(Event::KEYDOWN, sdlEvent);
+                case GDK_KEY_RELEASE:
+                    pNewEvent = createKeyEvent(Event::KEYUP, *gdkEvent);
                     break;
-                case SDL_KEYUP:
-                    pNewEvent = createKeyEvent(Event::KEYUP, sdlEvent);
-                    break;
-                case SDL_QUIT:
+                case GDK_DESTROY:
                     pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                     break;
-                case SDL_VIDEORESIZE:
-                    break;
-                case SDL_SYSWMEVENT:
-                    {
-    #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-                        SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
-                        AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-                        if (m_pXIMTInputDevice) {
-                            m_pXIMTInputDevice->handleXIEvent(pMsg->event.xevent);
-                        }
-    #endif
-                    }
-                    break;*/
                 default:
                     // Ignore unknown events.
                     break;
@@ -615,12 +631,10 @@ EventPtr GDKDisplayEngine::createMouseEvent(Event::Type type, const GdkEvent& gd
      MouseEventPtr pEvent;
     if(gdkEvent.type == GDK_MOTION_NOTIFY) {
         pEvent = MouseEventPtr(new MouseEvent(type, false, false, false, IntPoint(x, y), button, speed));
-        cout << "MOVE" << endl;
     } else {
         GdkEventButton event = (GdkEventButton&)gdkEvent;
         pEvent = MouseEventPtr(new MouseEvent(type, event.button = 1, event.button = 3,
                 event.button = 2, IntPoint(x, y), button, speed));
-        cout << button << endl;
     }
     m_pLastMouseEvent = pEvent;
     return pEvent; 
@@ -656,6 +670,7 @@ EventPtr GDKDisplayEngine::createMouseWheelEvent(Event::Type type,
     }
     return createMouseEvent(type, gdkEvent, button);
 }
+
 /*
 EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
 {
@@ -664,62 +679,63 @@ EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
 }
 
 
-EventPtr SDLDisplayEngine::createButtonEvent
-        (Event::Type type, const SDL_Event & sdlEvent) 
+EventPtr GDKDisplayEngine::createButtonEvent
+        (Event::Type type, const GdkEvent& gdkEvent) 
 {
-    return new ButtonEvent(type, sdlEvent.jbutton.which,
-                sdlEvent.jbutton.button));
+    return new ButtonEvent(type, gdkEvent.jbutton.which,
+                gdkEvent.jbutton.button));
 }
 */
 
-/*EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
+EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkEvent)
 {
-    long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
+    GdkEventKey keyEvent = (GdkEventKey&) gdkEvent;
+ //   long keyCode = KeyCodeTranslationTable[keyEvent.keyval];
     unsigned int modifiers = key::KEYMOD_NONE;
 
-    if (sdlEvent.key.keysym.mod & KMOD_LSHIFT) 
-        { modifiers |= key::KEYMOD_LSHIFT; }
-    if (sdlEvent.key.keysym.mod & KMOD_RSHIFT) 
-        { modifiers |= key::KEYMOD_RSHIFT; }
-    if (sdlEvent.key.keysym.mod & KMOD_LCTRL) 
-        { modifiers |= key::KEYMOD_LCTRL; }
-    if (sdlEvent.key.keysym.mod & KMOD_RCTRL) 
-        { modifiers |= key::KEYMOD_RCTRL; }
-    if (sdlEvent.key.keysym.mod & KMOD_LALT) 
-        { modifiers |= key::KEYMOD_LALT; }
-    if (sdlEvent.key.keysym.mod & KMOD_RALT) 
-        { modifiers |= key::KEYMOD_RALT; }
-    if (sdlEvent.key.keysym.mod & KMOD_LMETA) 
-        { modifiers |= key::KEYMOD_LMETA; }
-    if (sdlEvent.key.keysym.mod & KMOD_RMETA) 
-        { modifiers |= key::KEYMOD_RMETA; }
-    if (sdlEvent.key.keysym.mod & KMOD_NUM) 
+    if (keyEvent.state & GDK_SHIFT_MASK) 
+        { modifiers |= key::KEYMOD_SHIFT; }
+
+    if (keyEvent.state & GDK_CONTROL_MASK) 
+        { modifiers |= key::KEYMOD_CTRL; }
+
+    if (keyEvent.state & GDK_MOD1_MASK) 
+        { modifiers |= key::KEYMOD_ALT; }
+
+    if (keyEvent.state & GDK_META_MASK) 
+        { modifiers |= key::KEYMOD_META; }
+
+/*    if (sdlEvent.key.keysym.mod & KMOD_NUM) 
         { modifiers |= key::KEYMOD_NUM; }
     if (sdlEvent.key.keysym.mod & KMOD_CAPS) 
         { modifiers |= key::KEYMOD_CAPS; }
     if (sdlEvent.key.keysym.mod & KMOD_MODE) 
         { modifiers |= key::KEYMOD_MODE; }
     if (sdlEvent.key.keysym.mod & KMOD_RESERVED) 
-        { modifiers |= key::KEYMOD_RESERVED; }
+        { modifiers |= key::KEYMOD_RESERVED; }*/
 
-    KeyEventPtr pEvent(new KeyEvent(type,
-            sdlEvent.key.keysym.scancode, keyCode,
-            SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode, modifiers));
+    cout << type << " " << gdk_keyval_name(keyEvent.keyval) << endl;
+
+    KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyEvent.keyval,
+            gdk_keyval_name(keyEvent.keyval), gdk_keyval_to_unicode(keyEvent.keyval),
+            modifiers));
     return pEvent;
-}*/
+}
 
 void GDKDisplayEngine::initTranslationTable()
 {
-#define TRANSLATION_ENTRY(x) KeyCodeTranslationTable[SDLK_##x] = key::KEY_##x;
+#define TRANSLATION_ENTRY(x) KeyCodeTranslationTable[GDK_KEY_##x] = key::KEY_##x;
+
+//    TRANSLATION_ENTRY(UNKNOWN);
+    TRANSLATION_ENTRY(BackSpace);
+    TRANSLATION_ENTRY(Tab);
+    TRANSLATION_ENTRY(Clear);
+    TRANSLATION_ENTRY(Return);
+    TRANSLATION_ENTRY(Pause);
+    TRANSLATION_ENTRY(Escape);
+    TRANSLATION_ENTRY(space);
+    TRANSLATION_ENTRY(Delete);
 /*
-    TRANSLATION_ENTRY(UNKNOWN);
-    TRANSLATION_ENTRY(BACKSPACE);
-    TRANSLATION_ENTRY(TAB);
-    TRANSLATION_ENTRY(CLEAR);
-    TRANSLATION_ENTRY(RETURN);
-    TRANSLATION_ENTRY(PAUSE);
-    TRANSLATION_ENTRY(ESCAPE);
-    TRANSLATION_ENTRY(SPACE);
     TRANSLATION_ENTRY(EXCLAIM);
     TRANSLATION_ENTRY(QUOTEDBL);
     TRANSLATION_ENTRY(HASH);
@@ -784,128 +800,32 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(y);
     TRANSLATION_ENTRY(z);
     TRANSLATION_ENTRY(DELETE);
-    TRANSLATION_ENTRY(WORLD_0);
-    TRANSLATION_ENTRY(WORLD_1);
-    TRANSLATION_ENTRY(WORLD_2);
-    TRANSLATION_ENTRY(WORLD_3);
-    TRANSLATION_ENTRY(WORLD_4);
-    TRANSLATION_ENTRY(WORLD_5);
-    TRANSLATION_ENTRY(WORLD_6);
-    TRANSLATION_ENTRY(WORLD_7);
-    TRANSLATION_ENTRY(WORLD_8);
-    TRANSLATION_ENTRY(WORLD_9);
-    TRANSLATION_ENTRY(WORLD_10);
-    TRANSLATION_ENTRY(WORLD_11);
-    TRANSLATION_ENTRY(WORLD_12);
-    TRANSLATION_ENTRY(WORLD_13);
-    TRANSLATION_ENTRY(WORLD_14);
-    TRANSLATION_ENTRY(WORLD_15);
-    TRANSLATION_ENTRY(WORLD_16);
-    TRANSLATION_ENTRY(WORLD_17);
-    TRANSLATION_ENTRY(WORLD_18);
-    TRANSLATION_ENTRY(WORLD_19);
-    TRANSLATION_ENTRY(WORLD_20);
-    TRANSLATION_ENTRY(WORLD_21);
-    TRANSLATION_ENTRY(WORLD_22);
-    TRANSLATION_ENTRY(WORLD_23);
-    TRANSLATION_ENTRY(WORLD_24);
-    TRANSLATION_ENTRY(WORLD_25);
-    TRANSLATION_ENTRY(WORLD_26);
-    TRANSLATION_ENTRY(WORLD_27);
-    TRANSLATION_ENTRY(WORLD_28);
-    TRANSLATION_ENTRY(WORLD_29);
-    TRANSLATION_ENTRY(WORLD_30);
-    TRANSLATION_ENTRY(WORLD_31);
-    TRANSLATION_ENTRY(WORLD_32);
-    TRANSLATION_ENTRY(WORLD_33);
-    TRANSLATION_ENTRY(WORLD_34);
-    TRANSLATION_ENTRY(WORLD_35);
-    TRANSLATION_ENTRY(WORLD_36);
-    TRANSLATION_ENTRY(WORLD_37);
-    TRANSLATION_ENTRY(WORLD_38);
-    TRANSLATION_ENTRY(WORLD_39);
-    TRANSLATION_ENTRY(WORLD_40);
-    TRANSLATION_ENTRY(WORLD_41);
-    TRANSLATION_ENTRY(WORLD_42);
-    TRANSLATION_ENTRY(WORLD_43);
-    TRANSLATION_ENTRY(WORLD_44);
-    TRANSLATION_ENTRY(WORLD_45);
-    TRANSLATION_ENTRY(WORLD_46);
-    TRANSLATION_ENTRY(WORLD_47);
-    TRANSLATION_ENTRY(WORLD_48);
-    TRANSLATION_ENTRY(WORLD_49);
-    TRANSLATION_ENTRY(WORLD_50);
-    TRANSLATION_ENTRY(WORLD_51);
-    TRANSLATION_ENTRY(WORLD_52);
-    TRANSLATION_ENTRY(WORLD_53);
-    TRANSLATION_ENTRY(WORLD_54);
-    TRANSLATION_ENTRY(WORLD_55);
-    TRANSLATION_ENTRY(WORLD_56);
-    TRANSLATION_ENTRY(WORLD_57);
-    TRANSLATION_ENTRY(WORLD_58);
-    TRANSLATION_ENTRY(WORLD_59);
-    TRANSLATION_ENTRY(WORLD_60);
-    TRANSLATION_ENTRY(WORLD_61);
-    TRANSLATION_ENTRY(WORLD_62);
-    TRANSLATION_ENTRY(WORLD_63);
-    TRANSLATION_ENTRY(WORLD_64);
-    TRANSLATION_ENTRY(WORLD_65);
-    TRANSLATION_ENTRY(WORLD_66);
-    TRANSLATION_ENTRY(WORLD_67);
-    TRANSLATION_ENTRY(WORLD_68);
-    TRANSLATION_ENTRY(WORLD_69);
-    TRANSLATION_ENTRY(WORLD_70);
-    TRANSLATION_ENTRY(WORLD_71);
-    TRANSLATION_ENTRY(WORLD_72);
-    TRANSLATION_ENTRY(WORLD_73);
-    TRANSLATION_ENTRY(WORLD_74);
-    TRANSLATION_ENTRY(WORLD_75);
-    TRANSLATION_ENTRY(WORLD_76);
-    TRANSLATION_ENTRY(WORLD_77);
-    TRANSLATION_ENTRY(WORLD_78);
-    TRANSLATION_ENTRY(WORLD_79);
-    TRANSLATION_ENTRY(WORLD_80);
-    TRANSLATION_ENTRY(WORLD_81);
-    TRANSLATION_ENTRY(WORLD_82);
-    TRANSLATION_ENTRY(WORLD_83);
-    TRANSLATION_ENTRY(WORLD_84);
-    TRANSLATION_ENTRY(WORLD_85);
-    TRANSLATION_ENTRY(WORLD_86);
-    TRANSLATION_ENTRY(WORLD_87);
-    TRANSLATION_ENTRY(WORLD_88);
-    TRANSLATION_ENTRY(WORLD_89);
-    TRANSLATION_ENTRY(WORLD_90);
-    TRANSLATION_ENTRY(WORLD_91);
-    TRANSLATION_ENTRY(WORLD_92);
-    TRANSLATION_ENTRY(WORLD_93);
-    TRANSLATION_ENTRY(WORLD_94);
-    TRANSLATION_ENTRY(WORLD_95);
-    TRANSLATION_ENTRY(KP0);
-    TRANSLATION_ENTRY(KP1);
-    TRANSLATION_ENTRY(KP2);
-    TRANSLATION_ENTRY(KP3);
-    TRANSLATION_ENTRY(KP4);
-    TRANSLATION_ENTRY(KP5);
-    TRANSLATION_ENTRY(KP6);
-    TRANSLATION_ENTRY(KP7);
-    TRANSLATION_ENTRY(KP8);
-    TRANSLATION_ENTRY(KP9);
+    TRANSLATION_ENTRY(KP_0);
+    TRANSLATION_ENTRY(KP_1);
+    TRANSLATION_ENTRY(KP_2);
+    TRANSLATION_ENTRY(KP_3);
+    TRANSLATION_ENTRY(KP_4);
+    TRANSLATION_ENTRY(KP_5);
+    TRANSLATION_ENTRY(KP_6);
+    TRANSLATION_ENTRY(KP_7);
+    TRANSLATION_ENTRY(KP_8);
+    TRANSLATION_ENTRY(KP_9);
     TRANSLATION_ENTRY(KP_PERIOD);
-    TRANSLATION_ENTRY(KP_DIVIDE);
-    TRANSLATION_ENTRY(KP_MULTIPLY);
-    TRANSLATION_ENTRY(KP_MINUS);
-    TRANSLATION_ENTRY(KP_PLUS);
-    TRANSLATION_ENTRY(KP_ENTER);
-    TRANSLATION_ENTRY(KP_EQUALS);
-    TRANSLATION_ENTRY(UP);
-    TRANSLATION_ENTRY(DOWN);
-    TRANSLATION_ENTRY(RIGHT);
-    TRANSLATION_ENTRY(LEFT);
-    TRANSLATION_ENTRY(INSERT);
-    TRANSLATION_ENTRY(HOME);
-    TRANSLATION_ENTRY(END);
-    TRANSLATION_ENTRY(PAGEUP);
-    TRANSLATION_ENTRY(PAGEDOWN);
+    TRANSLATION_ENTRY(KP_Divide);
+    TRANSLATION_ENTRY(KP_Multiply);
+    TRANSLATION_ENTRY(KP_Subtract);
+    TRANSLATION_ENTRY(KP_Add);
+    TRANSLATION_ENTRY(KP_Enter);
+    TRANSLATION_ENTRY(KP_Equal);
+    TRANSLATION_ENTRY(Up);
+    TRANSLATION_ENTRY(Down);
+    TRANSLATION_ENTRY(Right);
+    TRANSLATION_ENTRY(Left);
+    TRANSLATION_ENTRY(Insert);
+    TRANSLATION_ENTRY(Home);
+    TRANSLATION_ENTRY(End);
+    TRANSLATION_ENTRY(Page_Up);
+    TRANSLATION_ENTRY(Page_Down);
     TRANSLATION_ENTRY(F1);
     TRANSLATION_ENTRY(F2);
     TRANSLATION_ENTRY(F3);
@@ -921,29 +841,29 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(F13);
     TRANSLATION_ENTRY(F14);
     TRANSLATION_ENTRY(F15);
-    TRANSLATION_ENTRY(NUMLOCK);
-    TRANSLATION_ENTRY(CAPSLOCK);
+    TRANSLATION_ENTRY(Num_Lock);
+    TRANSLATION_ENTRY(Caps_Lock);
     TRANSLATION_ENTRY(SCROLLOCK);
-    TRANSLATION_ENTRY(RSHIFT);
-    TRANSLATION_ENTRY(LSHIFT);
-    TRANSLATION_ENTRY(RCTRL);
-    TRANSLATION_ENTRY(LCTRL);
-    TRANSLATION_ENTRY(RALT);
-    TRANSLATION_ENTRY(LALT);
-    TRANSLATION_ENTRY(RMETA);
-    TRANSLATION_ENTRY(LMETA);
-    TRANSLATION_ENTRY(LSUPER);
-    TRANSLATION_ENTRY(RSUPER);
+    TRANSLATION_ENTRY(Shift_R);
+    TRANSLATION_ENTRY(Shift_L);
+    TRANSLATION_ENTRY(Control_R);
+    TRANSLATION_ENTRY(Control_L);
+    TRANSLATION_ENTRY(Alt_R);
+    TRANSLATION_ENTRY(Alt_L);
+    TRANSLATION_ENTRY(Meta_R);
+    TRANSLATION_ENTRY(Meta_L);
+    TRANSLATION_ENTRY(Super_L);
+    TRANSLATION_ENTRY(Super_R);
     TRANSLATION_ENTRY(MODE);
     TRANSLATION_ENTRY(COMPOSE);
-    TRANSLATION_ENTRY(HELP);
-    TRANSLATION_ENTRY(PRINT);
-    TRANSLATION_ENTRY(SYSREQ);
-    TRANSLATION_ENTRY(BREAK);
-    TRANSLATION_ENTRY(MENU);
+    TRANSLATION_ENTRY(Help);
+    TRANSLATION_ENTRY(Print);
+    TRANSLATION_ENTRY(Sys_Req);
+    TRANSLATION_ENTRY(Break);
+    TRANSLATION_ENTRY(Menu);
     TRANSLATION_ENTRY(POWER);
     TRANSLATION_ENTRY(EURO);
-    TRANSLATION_ENTRY(UNDO);*/
+    TRANSLATION_ENTRY(Undo);*/
 }
 
 const IntPoint& GDKDisplayEngine::getWindowSize() const
