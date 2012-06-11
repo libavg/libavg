@@ -508,39 +508,30 @@ vector<long> GDKDisplayEngine::KeyCodeTranslationTable(GDK_KEY_VoidSymbol, key::
 
 const char * getEventTypeName(unsigned char type) 
 {
-  /*  switch (type) {
-            case SDL_ACTIVEEVENT:
-                return "SDL_ACTIVEEVENT";
-            case SDL_KEYDOWN:
-                return "SDL_KEYDOWN";
-            case SDL_KEYUP:
-                return "SDL_KEYUP";
-            case SDL_MOUSEMOTION:
-                return "SDL_MOUSEMOTION";
-            case SDL_MOUSEBUTTONDOWN:
-                return "SDL_MOUSEBUTTONDOWN";
-            case SDL_MOUSEBUTTONUP:
-                return "SDL_MOUSEBUTTONUP";
-            case SDL_JOYAXISMOTION:
-                return "SDL_JOYAXISMOTION";
-            case SDL_JOYBUTTONDOWN:
-                return "SDL_JOYBUTTONDOWN";
-            case SDL_JOYBUTTONUP:
-                return "SDL_JOYBUTTONUP";
-            case SDL_VIDEORESIZE:
-                return "SDL_VIDEORESIZE";
-            case SDL_VIDEOEXPOSE:
-                return "SDL_VIDEOEXPOSE";
-            case SDL_QUIT:
-                return "SDL_QUIT";
-            case SDL_USEREVENT:
-                return "SDL_USEREVENT";
-            case SDL_SYSWMEVENT:
-                return "SDL_SYSWMEVENT";
+    switch (type) {
+            case GDK_ENTER_NOTIFY:
+                return "GDK_ENTER_NOTIFY";
+            case GDK_LEAVE_NOTIFY:
+                return "GDK_LEAVE_NOTIFY";
+            case GDK_KEY_PRESS:
+                return "GDK_KEY_PRESS";
+            case GDK_KEY_RELEASE:
+                return "GDK_KEY_RELEASE";
+            case GDK_MOTION_NOTIFY:
+                return "GDK_MOTION_NOTIFY";
+            case GDK_BUTTON_PRESS:
+                return "GDK_BUTTON_PRESS";
+            case GDK_BUTTON_RELEASE:
+                return "GDK_BUTTON_RELEASE";
+            case GDK_SCROLL:
+                return "GDK_SCROLL";
+            case GDK_CONFIGURE:
+                return "GDK_CONFIGURE";
+            case GDK_DESTROY:
+                return "GDK_DESTROY";
             default:
-                return "Unknown SDL event type";
-    }*/
-    return "bbB";
+                return "Unknown GDK event type";
+    }
 }
 
 vector<EventPtr> GDKDisplayEngine::pollEvents()
@@ -576,15 +567,6 @@ vector<EventPtr> GDKDisplayEngine::pollEvents()
                 case GDK_SCROLL:
                     pNewEvent = createMouseWheelEvent(Event::CUSTOMEVENT, *gdkEvent);
                     break;
-              /*  case SDL_JOYAXISMOTION:
-    //                pNewEvent = createAxisEvent(sdlEvent));
-                    break;
-                case SDL_JOYBUTTONDOWN:
-    //                pNewEvent = createButtonEvent(Event::BUTTON_DOWN, sdlEvent));
-                    break;
-                case SDL_JOYBUTTONUP:
-    //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
-                    break;*/
                 case GDK_KEY_PRESS:
                     pNewEvent = createKeyEvent(Event::KEYDOWN, *gdkEvent);
                     break;
