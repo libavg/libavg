@@ -4,7 +4,7 @@ INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         @GTK_CFLAGS@ $(MTDEV_CFLAGS)
         
 if APPLE
-    APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
+    APPLE_SOURCES = AppleTrackpadInputDevice.cpp
     APPLE_LINKFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport
     XGL_LIBS =
 else
@@ -58,8 +58,6 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
-
-EXTRA_DIST = SDLMain.h
 
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testcalibrator testplayer

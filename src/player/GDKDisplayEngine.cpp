@@ -23,10 +23,6 @@
 #include "GDKDisplayEngine.h"
 #include "../avgconfigwrapper.h"
 
-#ifdef __APPLE__
-#include "SDLMain.h"
-#endif
-
 #include "Shape.h"
 
 #include "Event.h"
@@ -49,14 +45,12 @@
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
 
-//#include <SDL/SDL.h>
 #include <gdk/gdkkeysyms.h>
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 #ifdef linux
-//#include <SDL/SDL_syswm.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
 
@@ -100,13 +94,6 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_noneCursor(0),
       m_cursor(0)
 {
-#ifdef __APPLE__
-    static bool bSDLInitialized = false;
-    if (!bSDLInitialized) {
-//        CustomSDLMain();
-        bSDLInitialized = true;
-    }
-#endif
  /*   if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);
