@@ -96,7 +96,9 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_NumMouseButtonsDown(0)
+      m_NumMouseButtonsDown(0),
+      m_noneCursor(0),
+      m_cursor(0)
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -255,8 +257,7 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     // SDL sets up a signal handler we really don't want.
   //  signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
-
-//    SDL_EnableUNICODE(1);
+    m_noneCursor = gdk_cursor_new(GDK_BLANK_CURSOR);
 }
 
 #ifdef _WIN32
@@ -270,7 +271,7 @@ void GDKDisplayEngine::teardown()
         }
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
-    //    SDL_ShowCursor(SDL_ENABLE);
+        showCursor(true);
 #endif
         m_pScreen = 0;
         delete m_pGLContext;
@@ -308,7 +309,7 @@ void GDKDisplayEngine::setMousePos(const IntPoint& pos)
 
 int GDKDisplayEngine::getKeyModifierState() const
 {
-  int result = 0x0000;
+    int result = 0x0000;
 /*
     if(m_input->IsKeyDown(sf::Key::LShift)){
         result |= 0x0001;
@@ -399,6 +400,12 @@ void GDKDisplayEngine::swapBuffers()
     GLContext::checkError("swapBuffers()");
 }
 
+void GDKDisplayEngine::setCursor(GdkPixbuf *pixbuf, int x, int y)
+{
+    m_cursor = gdk_cursor_new_from_pixbuf(gdk_window_get_display(m_pScreen), pixbuf, x, y);
+    gdk_window_set_cursor(m_pScreen, m_cursor);
+}
+
 void GDKDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
@@ -410,9 +417,13 @@ void GDKDisplayEngine::showCursor(bool bShow)
     }
 #else
     if (bShow) {
-  //      SDL_ShowCursor(SDL_ENABLE);
+        if (m_cursor != 0){
+            gdk_window_set_cursor (m_pScreen, m_cursor);
+        } else {
+            gdk_window_set_cursor (m_pScreen, NULL);
+        }
     } else {
-  //      SDL_ShowCursor(SDL_DISABLE);
+        gdk_window_set_cursor (m_pScreen, m_noneCursor);
     }
 #endif
 }
@@ -653,27 +664,11 @@ EventPtr GDKDisplayEngine::createMouseWheelEvent(Event::Type type,
     return createMouseEvent(type, gdkEvent, button);
 }
 
-/*
-EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
-{
-    return new AxisEvent(sdlEvent.jaxis.which, sdlEvent.jaxis.axis,
-                sdlEvent.jaxis.value);
-}
-
-
-EventPtr GDKDisplayEngine::createButtonEvent
-        (Event::Type type, const GdkEvent& gdkEvent) 
-{
-    return new ButtonEvent(type, gdkEvent.jbutton.which,
-                gdkEvent.jbutton.button));
-}
-*/
-
 EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkEvent)
 {
     GdkEventKey keyEvent = (GdkEventKey&) gdkEvent;
 
-    unsigned int keyVal = gdk_keyval_to_lower(keyEvent.keyval);
+    unsigned int keyVal = /*gdk_keyval_to_lower*/(keyEvent.keyval);
 
     long keyCode = KeyCodeTranslationTable[keyVal];
     unsigned int modifiers = key::KEYMOD_NONE;
@@ -690,20 +685,26 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
     if (keyEvent.state & GDK_META_MASK) 
         { modifiers |= key::KEYMOD_META; }
 
-/*    if (sdlEvent.key.keysym.mod & KMOD_NUM) 
-        { modifiers |= key::KEYMOD_NUM; }
-    if (sdlEvent.key.keysym.mod & KMOD_CAPS) 
+    if (keyEvent.state & GDK_LOCK_MASK) 
         { modifiers |= key::KEYMOD_CAPS; }
-    if (sdlEvent.key.keysym.mod & KMOD_MODE) 
+
+/*    if (sdlEvent.key.keysym.mod & KMOD_NUM) 
+        { modifiers |= key::KEYMOD_NUM; } */
+/*    if (sdlEvent.key.keysym.mod & KMOD_MODE) 
         { modifiers |= key::KEYMOD_MODE; }
     if (sdlEvent.key.keysym.mod & KMOD_RESERVED) 
         { modifiers |= key::KEYMOD_RESERVED; }*/
 
-//    cout << type << " " << gdk_keyval_name(keyVal) << endl;
-//    cout << "code: " << keyCode << " | " << keyVal << endl;
+/*    cout << type << " " << gdk_keyval_name(keyVal) << endl;
+    cout << "hard|code:  " << keyEvent.hardware_keycode << "|" << keyCode << endl;
+    cout << "Mod: " << modifiers << endl;
+//    gchar* temp = 0;
+//    g_unichar_to_utf8( (guint32)gdk_keyval_to_unicode(keyVal),temp);
+//    cout << "Uni: " << temp << endl;
+    cout << endl;*/
 
     KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyCode,
-            gdk_keyval_name(keyVal), gdk_keyval_to_unicode(keyVal),
+            gdk_keyval_name(gdk_keyval_to_lower(keyVal)), gdk_keyval_to_unicode(keyVal),
             modifiers));
     return pEvent;
 }
@@ -847,6 +848,11 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(Menu);
     TRANSLATION_ENTRY(EuroSign);
     TRANSLATION_ENTRY(Undo);
+
+    TRANSLATION_ENTRY(ssharp);
+    TRANSLATION_ENTRY(adiaeresis);
+    TRANSLATION_ENTRY(odiaeresis);
+    TRANSLATION_ENTRY(udiaeresis);
 }
 
 const IntPoint& GDKDisplayEngine::getWindowSize() const

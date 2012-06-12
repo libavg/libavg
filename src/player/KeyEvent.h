@@ -230,6 +230,11 @@ typedef boost::shared_ptr<class KeyEvent> KeyEventPtr;
         const long KEY_EuroSign    = 321;      /* Some european keyboards */
         const long KEY_Undo        = 322;      /* Atari keyboard has Undo */
         // Add any other keys here
+        const long KEY_ssharp      = 323;
+        const long KEY_adiaeresis  = 324;
+        const long KEY_odiaeresis  = 325;
+        const long KEY_udiaeresis  = 326;
+
     }
 
 }

@@ -75,6 +75,7 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         glm::vec2 getPhysicalScreenDimensions();
         void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
+        void setCursor(GdkPixbuf *pixbuf, int x, int y);
 
     private:
         void initTranslationTable();
@@ -108,6 +109,8 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         XInputMTInputDevice * m_pXIMTInputDevice;
 
         GLContext* m_pGLContext;
+        GdkCursor* m_noneCursor;
+        GdkCursor* m_cursor;
 
         float m_Gamma[3];
 };
