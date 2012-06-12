@@ -291,7 +291,7 @@ void GDKDisplayEngine::setGamma(float red, float green, float blue)
 
 void GDKDisplayEngine::setMousePos(const IntPoint& pos)
 {
-   // gdk_display_warp_pointer(gdk_window_get_display (m_pScreen), m_screen, pos.x, pos.y);
+    gdk_display_warp_pointer(gdk_window_get_display (m_pScreen), m_screen, pos.x, pos.y);
 }
 
 int GDKDisplayEngine::getKeyModifierState() const
@@ -397,7 +397,7 @@ void GDKDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
 #define MAX_CORE_POINTERS   6
-    // Hack to fix a pointer issue with fullscreen, SDL and touchscreens
+    // Hack to fix a pointer issue with fullscreen and touchscreens
     // Refer to Mantis bug #140
     for (int i = 0; i < MAX_CORE_POINTERS; ++i) {
         ShowCursor(bShow);
@@ -571,7 +571,7 @@ vector<EventPtr> GDKDisplayEngine::pollEvents()
                 case GDK_KEY_RELEASE:
                     pNewEvent = createKeyEvent(Event::KEYUP, *gdkEvent);
                     break;
-                case GDK_DESTROY:
+                case GDK_DELETE:
                     pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                     break;
                 default:
@@ -685,9 +685,6 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
     cout << type << " " << gdk_keyval_name(keyVal) << endl;
     cout << "hard|code:  " << keyEvent.hardware_keycode << "|" << keyCode << endl;
     cout << "Mod: " << modifiers << endl;
-//    gchar* temp = 0;
-//    g_unichar_to_utf8( (guint32)gdk_keyval_to_unicode(keyVal),temp);
-//    cout << "Uni: " << temp << endl;
     cout << endl;
 
     KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyCode,
