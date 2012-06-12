@@ -526,7 +526,7 @@ const char * getEventTypeName(unsigned char type)
             case GDK_CONFIGURE:
                 return "GDK_CONFIGURE";
             case GDK_DESTROY:
-                return "GDK_DESTROY";
+                return "GDK_DELETE";
             default:
                 return "Unknown GDK event type";
     }
