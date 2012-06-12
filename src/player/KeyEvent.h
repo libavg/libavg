@@ -234,6 +234,12 @@ typedef boost::shared_ptr<class KeyEvent> KeyEventPtr;
         const long KEY_adiaeresis  = 324;
         const long KEY_odiaeresis  = 325;
         const long KEY_udiaeresis  = 326;
+        const long KEY_dead_circumflex = 327;
+        const long KEY_degree      = 328;
+        const long KEY_section     = 329;
+        const long KEY_percent     = 330;
+        const long KEY_dead_acute  = 331;
+        const long KEY_bar         = 332;
 
     }
 

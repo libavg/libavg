@@ -682,13 +682,13 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
     if (sdlEvent.key.keysym.mod & KMOD_RESERVED) 
         { modifiers |= key::KEYMOD_RESERVED; }*/
 
-/*    cout << type << " " << gdk_keyval_name(keyVal) << endl;
+    cout << type << " " << gdk_keyval_name(keyVal) << endl;
     cout << "hard|code:  " << keyEvent.hardware_keycode << "|" << keyCode << endl;
     cout << "Mod: " << modifiers << endl;
 //    gchar* temp = 0;
 //    g_unichar_to_utf8( (guint32)gdk_keyval_to_unicode(keyVal),temp);
 //    cout << "Uni: " << temp << endl;
-    cout << endl;*/
+    cout << endl;
 
     KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyCode,
             gdk_keyval_name(gdk_keyval_to_lower(keyVal)), gdk_keyval_to_unicode(keyVal),
@@ -840,6 +840,12 @@ void GDKDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(adiaeresis);
     TRANSLATION_ENTRY(odiaeresis);
     TRANSLATION_ENTRY(udiaeresis);
+    TRANSLATION_ENTRY(dead_circumflex);
+    TRANSLATION_ENTRY(degree);
+    TRANSLATION_ENTRY(section);
+    TRANSLATION_ENTRY(percent);
+    TRANSLATION_ENTRY(dead_acute);
+    TRANSLATION_ENTRY(bar);
 }
 
 const IntPoint& GDKDisplayEngine::getWindowSize() const
