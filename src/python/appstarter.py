@@ -196,20 +196,20 @@ class AVGAppStarter(AppStarter):
     def __switchMtemu(self):
         if self._mtEmu is None:
             self._mtEmu = MTemu()
-            g_KbManager.bindKey('left shift', self._mtEmu.toggleDualTouch,
+            g_KbManager.bindKey('Shift_L', self._mtEmu.toggleDualTouch,
                     'Toggle Multitouch Emulation')
-            g_KbManager.bindKey('right shift', self._mtEmu.toggleDualTouch,
+            g_KbManager.bindKey('Shift_R', self._mtEmu.toggleDualTouch,
                     'Toggle Multitouch Emulation')
-            g_KbManager.bindKey('left ctrl', self._mtEmu.toggleSource,
+            g_KbManager.bindKey('Control_L', self._mtEmu.toggleSource,
                     'Toggle Touch Source')
-            g_KbManager.bindKey('right ctrl', self._mtEmu.toggleSource,
+            g_KbManager.bindKey('Control_R', self._mtEmu.toggleSource,
                     'Toggle Touch Source')
         else:
             self._mtEmu.deinit()
-            g_KbManager.unbindKey('left ctrl')
-            g_KbManager.unbindKey('right ctrl')
-            g_KbManager.unbindKey('left shift')
-            g_KbManager.unbindKey('right shift')
+            g_KbManager.unbindKey('Control_L')
+            g_KbManager.unbindKey('Control_R')
+            g_KbManager.unbindKey('Shift_L')
+            g_KbManager.unbindKey('Shift_R')
 
             del self._mtEmu
             self._mtEmu = None
