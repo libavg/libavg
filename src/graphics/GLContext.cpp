@@ -127,7 +127,7 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
         throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
     }
     XVisualInfo *vi;
-    static int attributes [16];
+    static int attributes [20];
     attributes[0] = GLX_RGBA;
     attributes[1] = GLX_DEPTH_SIZE; attributes[2] = 0;
     attributes[3] = GLX_STENCIL_SIZE; attributes[4] = 8;
@@ -163,27 +163,48 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
                     "in GDKDisplayEngine::init()");
             exit(-1);
         }
+        m_pDisplay = GDK_WINDOW_XDISPLAY(window);
+        m_id = GDK_WINDOW_XID(window);
+
+        if(glConfig.m_MultiSampleSamples > 1) {
+            attributes[15] = GLX_SAMPLE_BUFFERS; attributes[16] = 1;
+            attributes[17] = GLX_SAMPLES; attributes[18] = glConfig.m_MultiSampleSamples;
+        } else {
+            attributes[15] = GLX_SAMPLE_BUFFERS; attributes[16] = 0;
+            attributes[17] = GLX_SAMPLES; attributes[18] = 0;
+        }
     } else {
         attributes[7] = GLX_RED_SIZE; attributes[8] = 1;
         attributes[9] = GLX_GREEN_SIZE; attributes[10] = 1;
         attributes[11] = GLX_BLUE_SIZE; attributes[12] = 1;
         attributes[13] = GLX_BUFFER_SIZE; attributes[14] = 0;
+        attributes[15] = GLX_SAMPLE_BUFFERS; attributes[16] = 0;
+        attributes[17] = GLX_SAMPLES; attributes[18] = 0;
+
+        m_pDisplay = XOpenDisplay(0);
     }
-    attributes[15] = None;
-    m_pDisplay = GDK_WINDOW_XDISPLAY(window);
-    m_id = GDK_WINDOW_XID(window);
+    attributes[19] = None;
 
     vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
+    if(vi == NULL) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "None supportet multisampling OpenGL context.");
+    }
     m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
+
+
     AVG_ASSERT(m_Context);
- //   Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
- //           8, 8, vi->depth);
-//    GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
 
     s_bX11Error = false;
     s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
 
-    glXMakeCurrent(m_pDisplay, m_id/*pixmap*/, m_Context);
+    if (window != 0 && dp != 0) {
+        glXMakeCurrent(m_pDisplay, m_id, m_Context);
+    } else {
+        Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
+                8, 8, vi->depth);
+        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
+        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
+    }
     XSetErrorHandler(s_DefaultErrorHandler);
 
     if (s_bX11Error) {

@@ -142,33 +142,32 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     windowAttr.height = m_WindowSize.y;
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
 
+    m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE);
+
+    if (dp.m_bFullscreen) {
+        gdk_window_fullscreen(m_pScreen);
+    }
+    m_bIsFullscreen = dp.m_bFullscreen;
+    if (!dp.m_bHasWindowFrame) {
+        gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
+    }
+
+    gdk_window_set_events(m_pScreen, (GdkEventMask) (GDK_POINTER_MOTION_MASK |
+            GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+            GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK));
+    gdk_window_show(m_pScreen);
+
     bool bAllMultisampleValuesTested = false;
-    m_pScreen = 0;
-    while (!bAllMultisampleValuesTested && !m_pScreen) {
-   /*     if (glConfig.m_MultiSampleSamples > 1) {
-            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, glConfig.m_MultiSampleSamples);
-        } else {
-            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-        }*/
-        m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE);
+    m_pGLContext = 0;
+    while (!bAllMultisampleValuesTested && !m_pGLContext) {
 
-        if (dp.m_bFullscreen) {
-            gdk_window_fullscreen(m_pScreen);
+        try {
+            m_pGLContext = new GLContext(glConfig, m_pScreen, &dp);
+            GLContext::setMain(m_pGLContext);
+        } catch (Exception& ex) {
+            m_pGLContext = 0;
         }
-        m_bIsFullscreen = dp.m_bFullscreen;
-
-        if (!dp.m_bHasWindowFrame) {
-            gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
-        }
-
-        gdk_window_set_events(m_pScreen, (GdkEventMask) (GDK_POINTER_MOTION_MASK |
-                GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-                GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK));
-        gdk_window_show(m_pScreen);
-
-        if (!m_pScreen) {
+        if (!m_pGLContext) {
             switch (glConfig.m_MultiSampleSamples) {
                 case 1:
                     bAllMultisampleValuesTested = true;
@@ -188,14 +187,12 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             }
         }
     }
-/*    if (!m_pScreen) {
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
-                + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
+    if (!m_pGLContext) {
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting GDK video mode failed: ")
+                + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
-    }*/
-    m_pGLContext = new GLContext(glConfig, m_pScreen, &dp);
-    GLContext::setMain(m_pGLContext);
+    }
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
   //  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
