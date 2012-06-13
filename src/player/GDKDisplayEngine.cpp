@@ -296,42 +296,24 @@ void GDKDisplayEngine::setMousePos(const IntPoint& pos)
 
 int GDKDisplayEngine::getKeyModifierState() const
 {
-    int result = 0x0000;
-/*
-    if(m_input->IsKeyDown(sf::Key::LShift)){
-        result |= 0x0001;
-    }
-    if(m_input->IsKeyDown(sf::Key::RShift)){
-        result |= 0x0002;
-    }
-    if(m_input->IsKeyDown(sf::Key::LControl)){
-        result |= 0x0040;
-    }
-    if(m_input->IsKeyDown(sf::Key::RControl)){
-        result |= 0x0080;
-    }
-    if(m_input->IsKeyDown(sf::Key::LAlt)){
-        result |= 0x0100;
-    }
-    if(m_input->IsKeyDown(sf::Key::RAlt)){
-        result |= 0x0200;
-    }
-   if(m_input->IsKeyDown(Key::LMeta)){
-        result |= 0x0400;
-    }
-    if(m_input->IsKeyDown(Key::RMeta)){
-        result |= 0x0800;
-    }
-    if(m_input->IsKeyDown(Key::Num)){
-        result |= 0x1000;
-    }
-    if(m_input->IsKeyDown(Key::Caps)){
-        result |= 0x2000;
-    }
-    if(m_input->IsKeyDown(Key::Mode)){
-        result |= 0x4000;
-    }*/
+    int result = key::KEYMOD_NONE;
+    unsigned int modi = gdk_keymap_get_modifier_state(gdk_keymap_get_default());
 
+    if (modi & GDK_SHIFT_MASK) {
+        result |= key::KEYMOD_SHIFT;
+    }
+    if (modi & GDK_CONTROL_MASK) {
+        result |= key::KEYMOD_CTRL;
+    }
+    if (modi & GDK_MOD1_MASK) {
+        result |= key::KEYMOD_ALT;
+    }
+    if (modi & GDK_META_MASK) {
+        result |= key::KEYMOD_META;
+    }
+    if (modi & GDK_LOCK_MASK) {
+        result |= key::KEYMOD_CAPS;
+    }
     return result;
 
 }
@@ -655,7 +637,7 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
 {
     GdkEventKey keyEvent = (GdkEventKey&) gdkEvent;
 
-    unsigned int keyVal = /*gdk_keyval_to_lower*/(keyEvent.keyval);
+    unsigned int keyVal = keyEvent.keyval;
 
     long keyCode = KeyCodeTranslationTable[keyVal];
     unsigned int modifiers = key::KEYMOD_NONE;
@@ -674,13 +656,6 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
 
     if (keyEvent.state & GDK_LOCK_MASK) 
         { modifiers |= key::KEYMOD_CAPS; }
-
-/*    if (sdlEvent.key.keysym.mod & KMOD_NUM) 
-        { modifiers |= key::KEYMOD_NUM; } */
-/*    if (sdlEvent.key.keysym.mod & KMOD_MODE) 
-        { modifiers |= key::KEYMOD_MODE; }
-    if (sdlEvent.key.keysym.mod & KMOD_RESERVED) 
-        { modifiers |= key::KEYMOD_RESERVED; }*/
 
     cout << type << " " << gdk_keyval_name(keyVal) << endl;
     cout << "hard|code:  " << keyEvent.hardware_keycode << "|" << keyCode << endl;
