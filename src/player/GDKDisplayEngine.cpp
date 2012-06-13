@@ -106,6 +106,9 @@ GDKDisplayEngine::GDKDisplayEngine()
 
 GDKDisplayEngine::~GDKDisplayEngine()
 {
+    if(m_pScreen) {
+        gdk_window_destroy(m_pScreen);
+    }
 #ifndef _WIN32
    // SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
