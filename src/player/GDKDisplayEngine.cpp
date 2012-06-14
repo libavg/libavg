@@ -120,6 +120,8 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     windowAttr.title = "libavg";
     windowAttr.window_type = GDK_WINDOW_TOPLEVEL;
     windowAttr.wclass = GDK_INPUT_OUTPUT;
+    windowAttr.x = dp.m_Pos.x;
+    windowAttr.y = dp.m_Pos.y;
 
     gdk_init(NULL, NULL);
 
@@ -127,10 +129,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
-    if (dp.m_Pos.x != -1) {
-        ss << dp.m_Pos.x << "," << dp.m_Pos.y;
-        setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
-    }
     float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
     if (dp.m_WindowSize == IntPoint(0, 0)) {
         m_WindowSize = dp.m_Size;
@@ -145,7 +143,7 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     windowAttr.height = m_WindowSize.y;
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
 
-    m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE);
+    m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE | GDK_WA_X | GDK_WA_Y);
 
     if (dp.m_bFullscreen) {
         gdk_window_fullscreen(m_pScreen);
@@ -329,7 +327,7 @@ void GDKDisplayEngine::calcScreenDimensions(float dotsPerMM)
     }
 
     if (m_PPMM == 0) {
-#ifdef WIN32
+#ifdef WIN32 // ToDo ersetzen durch gdk get dot/mm
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
         m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
