@@ -592,11 +592,12 @@ EventPtr GDKDisplayEngine::createMouseEvent(Event::Type type, const GdkEvent& gd
     }
      MouseEventPtr pEvent;
     if(gdkEvent.type == GDK_MOTION_NOTIFY) {
-        pEvent = MouseEventPtr(new MouseEvent(type, false, false, false, IntPoint(x, y), button, speed));
+        pEvent = MouseEventPtr(new MouseEvent(type, false, false, false, IntPoint(x, y),
+                button, speed));
     } else {
         GdkEventButton event = (GdkEventButton&)gdkEvent;
-        pEvent = MouseEventPtr(new MouseEvent(type, event.button = 1, event.button = 3,
-                event.button = 2, IntPoint(x, y), button, speed));
+        pEvent = MouseEventPtr(new MouseEvent(type, event.button == 1, event.button == 3,
+                event.button == 2, IntPoint(x, y), button, speed));
     }
     m_pLastMouseEvent = pEvent;
     return pEvent; 
