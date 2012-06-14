@@ -94,10 +94,6 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_noneCursor(0),
       m_cursor(0)
 {
- /*   if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
-        AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
-        exit(-1);
-    } */
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
@@ -128,9 +124,6 @@ GDKDisplayEngine::~GDKDisplayEngine()
     if(m_pScreen) {
         gdk_window_destroy(m_pScreen);
     }
-#ifndef _WIN32
-   // SDL_QuitSubSystem(SDL_INIT_VIDEO);
-#endif
 }
 
 void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
@@ -195,13 +188,10 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
-//    gdk_window_show(m_pScreen);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-  //  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     m_pXIMTInputDevice = 0;
 #endif
-//    SDL_WM_SetCaption("libavg", 0);
     calcRefreshRate();
 
     glEnable(GL_BLEND);
@@ -241,8 +231,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     }
 
     m_Size = dp.m_Size;
-    // SDL sets up a signal handler we really don't want.
-  //  signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
 }
 
@@ -324,7 +312,7 @@ void GDKDisplayEngine::calcScreenDimensions(float dotsPerMM)
     }
 
     if (m_PPMM == 0) {
-#ifdef WIN32 // ToDo ersetzen durch gdk get dot/mm
+#ifdef WIN32
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
         m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
@@ -343,12 +331,6 @@ void GDKDisplayEngine::calcScreenDimensions(float dotsPerMM)
 
 bool GDKDisplayEngine::internalSetGamma(float red, float green, float blue)
 {
-#ifdef __APPLE__
-    // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
-    CGError err = CGSetDisplayTransferByFormula(kCGDirectMainDisplay, 0, 1, 1/red,
-            0, 1, 1/green, 0, 1, 1/blue);
-    return (err == CGDisplayNoErr);
-#else
   //  int err = SDL_SetGamma(float(red), float(green), float(blue));
   //  return (err != -1);
     return true;
