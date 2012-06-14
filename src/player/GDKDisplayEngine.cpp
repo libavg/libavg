@@ -101,6 +101,25 @@ GDKDisplayEngine::GDKDisplayEngine()
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
+
+    GdkWindowAttr windowAttr;
+    windowAttr.title = "libavg";
+    windowAttr.window_type = GDK_WINDOW_TOPLEVEL;
+    windowAttr.wclass = GDK_INPUT_OUTPUT;
+    windowAttr.width = 100;
+    windowAttr.height = 100;
+
+    gdk_init(NULL, NULL);
+
+    m_screen = gdk_screen_get_default ();
+    m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE | GDK_WA_X | GDK_WA_Y);
+
+    gdk_window_set_events(m_pScreen, (GdkEventMask) (GDK_POINTER_MOTION_MASK |
+            GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+            GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK));
+
+    m_noneCursor = gdk_cursor_new(GDK_BLANK_CURSOR);
+    gdk_window_show(m_pScreen);
     initTranslationTable();
 }
 
@@ -116,19 +135,10 @@ GDKDisplayEngine::~GDKDisplayEngine()
 
 void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
-    GdkWindowAttr windowAttr;
-    windowAttr.title = "libavg";
-    windowAttr.window_type = GDK_WINDOW_TOPLEVEL;
-    windowAttr.wclass = GDK_INPUT_OUTPUT;
-    windowAttr.x = dp.m_Pos.x;
-    windowAttr.y = dp.m_Pos.y;
-
-    gdk_init(NULL, NULL);
-
-    m_screen = gdk_screen_get_default ();
+    gdk_window_move(m_pScreen, dp.m_Pos.x, dp.m_Pos.y);
 
     calcScreenDimensions(dp.m_DotsPerMM);
-    stringstream ss;
+
     float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
     if (dp.m_WindowSize == IntPoint(0, 0)) {
         m_WindowSize = dp.m_Size;
@@ -139,11 +149,8 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.x = dp.m_WindowSize.x;
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
-    windowAttr.width = m_WindowSize.x;
-    windowAttr.height = m_WindowSize.y;
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
-
-    m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE | GDK_WA_X | GDK_WA_Y);
+    gdk_window_resize(m_pScreen, m_WindowSize.x, m_WindowSize.y);
 
     if (dp.m_bFullscreen) {
         gdk_window_fullscreen(m_pScreen);
@@ -153,15 +160,9 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
     }
 
-    gdk_window_set_events(m_pScreen, (GdkEventMask) (GDK_POINTER_MOTION_MASK |
-            GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-            GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK));
-    gdk_window_show(m_pScreen);
-
     bool bAllMultisampleValuesTested = false;
     m_pGLContext = 0;
     while (!bAllMultisampleValuesTested && !m_pGLContext) {
-
         try {
             m_pGLContext = new GLContext(glConfig, m_pScreen, &dp);
             GLContext::setMain(m_pGLContext);
@@ -194,6 +195,7 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
+//    gdk_window_show(m_pScreen);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
   //  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
@@ -242,7 +244,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     // SDL sets up a signal handler we really don't want.
   //  signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
-    m_noneCursor = gdk_cursor_new(GDK_BLANK_CURSOR);
 }
 
 #ifdef _WIN32
@@ -254,12 +255,8 @@ void GDKDisplayEngine::teardown()
         if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
             internalSetGamma(1.0f, 1.0f, 1.0f);
         }
-#ifdef linux
-        // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
-        showCursor(true);
-#endif
-        m_pScreen = 0;
         delete m_pGLContext;
+        m_pGLContext = 0;
         GLContext::setMain(0);
     }
 }

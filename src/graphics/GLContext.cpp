@@ -122,10 +122,6 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
     }
     CGLDestroyPixelFormat(pixelFormatObj);
 #elif defined(__linux__)
-    m_pDisplay = XOpenDisplay(0);
-    if (!m_pDisplay) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
-    }
     XVisualInfo *vi;
     static int attributes [20];
     attributes[0] = GLX_RGBA;
@@ -184,7 +180,9 @@ GLContext::GLContext(const GLConfig& glConfig, GdkWindow* window,  const Display
         m_pDisplay = XOpenDisplay(0);
     }
     attributes[19] = None;
-
+    if (!m_pDisplay) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
+    }
     vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
     if(vi == NULL) {
         throw Exception(AVG_ERR_UNSUPPORTED, "None supportet multisampling OpenGL context.");
@@ -260,6 +258,9 @@ GLContext::~GLContext()
         wglDeleteContext(m_Context);
         DeleteDC(m_hDC);
         DestroyWindow(m_hwnd);
+#elif defined __linux__
+        glXDestroyContext(m_pDisplay, m_Context);
+        m_Context = 0;
 #endif
     }
 }
