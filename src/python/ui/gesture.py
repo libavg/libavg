@@ -20,6 +20,7 @@
 #
 
 from libavg import avg, statemachine, utils
+from libavg.ui import filter
 
 import weakref
 
@@ -607,6 +608,15 @@ class Transform():
 
 class TransformRecognizer(Recognizer):
 
+    lowpassConfig = {
+        'mincutoff': None,
+        'beta': None
+    }
+#    lowpassConfig = {
+#        'mincutoff': 0.1,
+#        'beta': 0.1 # Very hard filter, no visible effect. Effect starts appearing at 0.03
+#    }
+
     def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH,
             initialEvent=None, friction=-1, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
@@ -622,8 +632,14 @@ class TransformRecognizer(Recognizer):
         self.__lastPosns = []
         self.__posns = []
         self.__inertiaHandler = None
+        self.__filters = {}
         super(TransformRecognizer, self).__init__(eventNode, True, eventSource, None, 
                 initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
+
+    @classmethod
+    def setFilterConfig(cls, mincutoff=None, beta=None):
+        TransformRecognizer.lowpassConfig["mincutoff"] = mincutoff
+        TransformRecognizer.lowpassConfig["beta"] = beta
 
     def abort(self):
         if self.__inertiaHandler:
@@ -633,11 +649,16 @@ class TransformRecognizer(Recognizer):
     def _handleDown(self, event):
         numContacts = len(self._contacts)
         self.__newPhase()
+        if self.__isFiltered():
+            self.__filters[event.contact] = [
+                    filter.OneEuroFilter(**TransformRecognizer.lowpassConfig),
+                    filter.OneEuroFilter(**TransformRecognizer.lowpassConfig)]
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
                 self._setEnd(event)
             self._setDetected(event)
+            self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)
@@ -646,8 +667,10 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         if numContacts == 0:
             contact = event.contact
-            transform = Transform(self.__relContactPos(contact) - self.__lastPosns[0])
+            transform = Transform(self.__filteredRelContactPos(contact)
+                    - self.__lastPosns[0])
             utils.callWeakRef(self.__upHandler, transform)
+            g_Player.clearInterval(self.__frameHandlerID)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
                 self.__inertiaHandler.onUp()
@@ -657,19 +680,23 @@ class TransformRecognizer(Recognizer):
             self.__newPhase()
         else:
             self.__newPhase()
+        if self.__isFiltered():
+            del self.__filters[event.contact]
 
-    def _handleChange(self):
+    def __onFrame(self):
+        self.__move()
+
+    def __move(self):
         numContacts = len(self._contacts)
+        contactPosns = [self.__filteredRelContactPos(contact)
+                for contact in self._contacts.keys()]
         if numContacts == 1:
-            contact = self._contacts.keys()[0]
-            transform = Transform(self.__relContactPos(contact) - self.__lastPosns[0])
+            transform = Transform(contactPosns[0] - self.__lastPosns[0])
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
             utils.callWeakRef(self.__moveHandler, transform)
-            self.__lastPosns = [self.__relContactPos(contact)]
+            self.__lastPosns = contactPosns
         else:
-            contactPosns = [self.__relContactPos(contact)
-                    for contact in self._contacts.keys()]
             if numContacts == 2:
                 self.__posns = contactPosns
             else:
@@ -697,7 +724,6 @@ class TransformRecognizer(Recognizer):
             utils.callWeakRef(self.__moveHandler, transform)
             self.__lastPosns = self.__posns
 
-
     def __newPhase(self):
         self.__lastPosns = []
         numContacts = len(self._contacts)
@@ -721,8 +747,20 @@ class TransformRecognizer(Recognizer):
         self._setEnd(None)
         self.__inertiaHandler = None
 
+    def __filteredRelContactPos(self, contact):
+        rawPos = self.__relContactPos(contact)
+        if self.__isFiltered():
+            f = self.__filters[contact]
+            return avg.Point2D(f[0].apply(rawPos.x, g_Player.getFrameTime()),
+                    f[1].apply(rawPos.y, g_Player.getFrameTime()))
+        else:
+            return rawPos
+
     def __relContactPos(self, contact):
         return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
+
+    def __isFiltered(self):
+        return TransformRecognizer.lowpassConfig["mincutoff"] != None
 
 
 class InertiaHandler(object):

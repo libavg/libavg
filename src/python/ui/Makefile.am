@@ -1,2 +1,2 @@
 pkguidir = $(pkgpyexecdir)/ui
-pkgui_PYTHON = __init__.py button.py keyboard.py gesture.py helper.py simple.py
+pkgui_PYTHON = __init__.py button.py keyboard.py gesture.py helper.py simple.py filter.py
