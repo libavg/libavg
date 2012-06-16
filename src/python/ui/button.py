@@ -20,11 +20,9 @@
 #
 # Original author of this file is Henrik Thoms
 
-from libavg import avg, statemachine, utils
+from libavg import avg, statemachine, utils, player
 import gesture
 from helper import *
-
-g_Player = avg.Player.get()
 
 class Button(avg.DivNode):
     STATE_DISABLED = 1
@@ -293,7 +291,7 @@ class TouchButton(avg.DivNode):
                 raise(RuntimeError(
                     "TouchButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
             size = upNode.size
-            minSize = 20*g_Player.getPixelsPerMM()
+            minSize = 20*player.getPixelsPerMM()
             size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
             self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
         else:
@@ -429,7 +427,7 @@ class ToggleButton(avg.DivNode):
                 raise(RuntimeError(
                     "ToggleButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
             size = upNode.size
-            minSize = 20*g_Player.getPixelsPerMM()
+            minSize = 20*player.getPixelsPerMM()
             size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
             self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
         else:

@@ -19,14 +19,12 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, statemachine, utils
+from libavg import avg, statemachine, utils, player
 from libavg.ui import filter
 
 import weakref
 
 import math
-
-g_Player = avg.Player.get()
 
 MAX_TAP_DIST = 15 
 MAX_TAP_TIME = 900
@@ -121,7 +119,7 @@ class Recognizer(object):
             listenerid = event.contact.connectListener(self.__onMotion, self.__onUp)
             self._contacts[event.contact] = ContactData(listenerid)
             if len(self._contacts) == 1:
-                self.__frameHandlerID = g_Player.setOnFrameHandler(self._onFrame)
+                self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
             self.__dirty = True
             return self._handleDown(event)
 
@@ -135,7 +133,7 @@ class Recognizer(object):
         del self._contacts[event.contact]
         event.contact.disconnectListener(listenerid)
         if self._contacts == {}:
-            g_Player.clearInterval(self.__frameHandlerID)
+            player.clearInterval(self.__frameHandlerID)
         self._handleUp(event)
 
     def __abort(self):        
@@ -150,7 +148,7 @@ class Recognizer(object):
         for contact, contactData in self._contacts.iteritems():
             contact.disconnectListener(contactData.listenerid)
         self._contacts = {}
-        g_Player.clearInterval(self.__frameHandlerID)
+        player.clearInterval(self.__frameHandlerID)
 
     def _handleDown(self, event):
         pass
@@ -187,22 +185,22 @@ class TapRecognizer(Recognizer):
 
     def _handleDown(self, event):
         self._setPossible(event)
-        self.__startTime = g_Player.getFrameTime()
+        self.__startTime = player.getFrameTime()
 
     def _handleMove(self, event):
         if self.getState() != "IDLE": 
-            if event.contact.distancefromstart > MAX_TAP_DIST*g_Player.getPixelsPerMM():
+            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
                 self._setFail(event)
 
     def _handleUp(self, event):
         if self.getState() == "POSSIBLE":
-            if event.contact.distancefromstart > MAX_TAP_DIST*g_Player.getPixelsPerMM():
+            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
                 self._setFail(event)
             else:
                 self._setDetected(event)
 
     def _onFrame(self):
-        downTime = g_Player.getFrameTime() - self.__startTime
+        downTime = player.getFrameTime() - self.__startTime
         if self.getState() == "POSSIBLE":
             if downTime > self.__maxTime:
                 self._setFail(None)
@@ -237,15 +235,15 @@ class DoubletapRecognizer(Recognizer):
         super(DoubletapRecognizer, self).enable(isEnabled)
 
     def _handleDown(self, event):
-        self.__startTime = g_Player.getFrameTime()
+        self.__startTime = player.getFrameTime()
         if self.__stateMachine.state == "IDLE":
-            self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
+            self.__frameHandlerID = player.setOnFrameHandler(self.__onFrame)
             self.__stateMachine.changeState("DOWN1")
             self.__startPos = event.pos
             self._setPossible(event)
         elif self.__stateMachine.state == "UP1":
             if ((event.pos - self.__startPos).getNorm() > 
-                    MAX_TAP_DIST*g_Player.getPixelsPerMM()):
+                    MAX_TAP_DIST*player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
             else:
@@ -256,17 +254,17 @@ class DoubletapRecognizer(Recognizer):
     def _handleMove(self, event):
         if self.__stateMachine.state != "IDLE": 
             if ((event.pos - self.__startPos).getNorm() > 
-                    MAX_TAP_DIST*g_Player.getPixelsPerMM()):
+                    MAX_TAP_DIST*player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
 
     def _handleUp(self, event):
         if self.__stateMachine.state == "DOWN1":
-            self.__startTime = g_Player.getFrameTime()
+            self.__startTime = player.getFrameTime()
             self.__stateMachine.changeState("UP1")
         elif self.__stateMachine.state == "DOWN2":
             if ((event.pos - self.__startPos).getNorm() >
-                    MAX_TAP_DIST*g_Player.getPixelsPerMM()):
+                    MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
             else:
                 self._setDetected(event)
@@ -277,13 +275,13 @@ class DoubletapRecognizer(Recognizer):
             assert(False), self.__stateMachine.state
 
     def __onFrame(self):
-        downTime = g_Player.getFrameTime() - self.__startTime
+        downTime = player.getFrameTime() - self.__startTime
         if downTime > self.__maxTime:
             self._setFail(None)
             self.__stateMachine.changeState("IDLE")
 
     def __enterIdle(self):
-        g_Player.clearInterval(self.__frameHandlerID)
+        player.clearInterval(self.__frameHandlerID)
 
 
 class HoldRecognizer(Recognizer):
@@ -300,12 +298,12 @@ class HoldRecognizer(Recognizer):
     def _handleDown(self, event):
         self.__lastEvent = event
         self._setPossible(event)
-        self.__startTime = g_Player.getFrameTime()
+        self.__startTime = player.getFrameTime()
 
     def _handleMove(self, event):
         self.__lastEvent = event
         if self.getState() == "POSSIBLE": 
-            if event.contact.distancefromstart > MAX_TAP_DIST*g_Player.getPixelsPerMM():
+            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
                 self._setFail(event)
 
     def _handleUp(self, event):
@@ -316,7 +314,7 @@ class HoldRecognizer(Recognizer):
             self._setEnd(event)
 
     def _onFrame(self):
-        downTime = g_Player.getFrameTime() - self.__startTime
+        downTime = player.getFrameTime() - self.__startTime
         if self.getState() == "POSSIBLE":
             if downTime > self.__delay:
                 self._setDetected(self.__lastEvent)
@@ -386,7 +384,7 @@ class DragRecognizer(Recognizer):
             if self.getState() == "RUNNING":
                 utils.callWeakRef(self.__moveHandler, event, offset)
             else:
-                if offset.getNorm() > self.__minDist*g_Player.getPixelsPerMM():
+                if offset.getNorm() > self.__minDist*player.getPixelsPerMM():
                     if self.__angleFits(offset):
                         self._setDetected(event)
                         utils.callWeakRef(self.__moveHandler, event, offset)
@@ -658,7 +656,7 @@ class TransformRecognizer(Recognizer):
                 self.__inertiaHandler.abort()
                 self._setEnd(event)
             self._setDetected(event)
-            self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
+            self.__frameHandlerID = player.setOnFrameHandler(self.__onFrame)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)
@@ -670,7 +668,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(self.__filteredRelContactPos(contact)
                     - self.__lastPosns[0])
             utils.callWeakRef(self.__upHandler, transform)
-            g_Player.clearInterval(self.__frameHandlerID)
+            player.clearInterval(self.__frameHandlerID)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
                 self.__inertiaHandler.onUp()
@@ -751,8 +749,8 @@ class TransformRecognizer(Recognizer):
         rawPos = self.__relContactPos(contact)
         if self.__isFiltered():
             f = self.__filters[contact]
-            return avg.Point2D(f[0].apply(rawPos.x, g_Player.getFrameTime()),
-                    f[1].apply(rawPos.y, g_Player.getFrameTime()))
+            return avg.Point2D(f[0].apply(rawPos.x, player.getFrameTime()),
+                    f[1].apply(rawPos.y, player.getFrameTime()))
         else:
             return rawPos
 
@@ -773,15 +771,15 @@ class InertiaHandler(object):
         self.__curPivot = avg.Point2D(0, 0)
         self.__angVel = 0
         self.__sizeVel = avg.Point2D(0, 0)
-        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onDragFrame)
+        self.__frameHandlerID = player.setOnFrameHandler(self.__onDragFrame)
 
     def abort(self):
-        g_Player.clearInterval(self.__frameHandlerID)
+        player.clearInterval(self.__frameHandlerID)
         self.__stopHandler = None
         self.__moveHandler = None
 
     def onDrag(self, transform):
-        frameDuration = g_Player.getFrameDuration()
+        frameDuration = player.getFrameDuration()
         if frameDuration > 0:
             self.__transVel += 0.1*transform.trans/frameDuration
         if transform.pivot != avg.Point2D(0,0):
@@ -792,8 +790,8 @@ class InertiaHandler(object):
             self.__angVel += 0.1*transform.rot/frameDuration
 
     def onUp(self):
-        g_Player.clearInterval(self.__frameHandlerID)
-        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onInertiaFrame)
+        player.clearInterval(self.__frameHandlerID)
+        self.__frameHandlerID = player.setOnFrameHandler(self.__onInertiaFrame)
 
     def __onDragFrame(self):
         self.__transVel *= 0.9
@@ -804,7 +802,7 @@ class InertiaHandler(object):
         if transNorm - self.__friction > 0:
             direction = self.__transVel.getNormalized()
             self.__transVel = direction * (transNorm-self.__friction)
-            curTrans = self.__transVel * g_Player.getFrameDuration()
+            curTrans = self.__transVel * player.getFrameDuration()
         else:
             curTrans = avg.Point2D(0, 0)
 
@@ -814,7 +812,7 @@ class InertiaHandler(object):
             newAngSign = self.__angVel/math.fabs(self.__angVel)
             if newAngSign != angSign:
                 self.__angVel = 0
-        curAng = self.__angVel * g_Player.getFrameDuration()
+        curAng = self.__angVel * player.getFrameDuration()
         self.__curPivot += curTrans
 
         if transNorm - self.__friction > 0 or self.__angVel != 0:
@@ -824,7 +822,7 @@ class InertiaHandler(object):
             self.__stop()
 
     def __stop(self):
-        g_Player.clearInterval(self.__frameHandlerID)
+        player.clearInterval(self.__frameHandlerID)
         self.__stopHandler()
         self.__stopHandler = None
         self.__moveHandler = None
