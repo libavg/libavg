@@ -25,8 +25,6 @@ import optparse
 from libavg import avg, AVGApp, ui
 from libavg.ui import simple
 
-g_Player = avg.Player.get()
-
 class ControlPoint(avg.DivNode):
 
     def __init__(self, moveCallback, parent, *args, **kwargs):
