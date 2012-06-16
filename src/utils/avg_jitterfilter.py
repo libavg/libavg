@@ -24,6 +24,8 @@
 from libavg import avg, AVGApp, player
 from libavg.ui import filter, simple
 
+import os
+
 class LabledSlider(avg.DivNode):
     def __init__(self, label, min, max, formatStr, onChange, parent=None, **kwargs):
         super(LabledSlider, self).__init__(**kwargs)
@@ -47,9 +49,10 @@ class LabledSlider(avg.DivNode):
 
 
 class JitterFilter(AVGApp):
-    MULTITOUCH=True
+    multitouch=True
 
     def init(self):
+        player.showCursor(True)
         self.__minCutoffSlider = LabledSlider(label="Minimum Cutoff", min=0.3, max=8.0,
                 formatStr="%.1f", onChange=self.__onSliderMove, 
                 pos=(10,10), parent=self._parentNode)
@@ -97,7 +100,10 @@ class JitterFilter(AVGApp):
                 self.__filters[1].apply(rawPos.y, time))
         self.__filteredContactCircle.pos = filteredPos
 
+if 'AVG_DEPLOY' in os.environ:
+    resolution = player.getScreenResolution() 
+else:
+    resolution = (800, 600)
 
-
-JitterFilter.start(resolution=(800,600))
+JitterFilter.start(resolution=resolution)
 
