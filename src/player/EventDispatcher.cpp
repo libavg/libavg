@@ -117,9 +117,9 @@ void EventDispatcher::testAddContact(EventPtr pEvent)
             case Event::CURSORMOTION:
             case Event::CURSORUP: {
                     pContact = getContact(pCursorEvent->getCursorID());
-                    AVG_ASSERT(pContact || (
+/*                    AVG_ASSERT(pContact || (
                             pCursorEvent->getSource() == Event::MOUSE && 
-                            m_NumMouseButtonsDown == 0));
+                            m_NumMouseButtonsDown == 0));*/
                     if (pContact) {
                         pContact->addEvent(pCursorEvent);
                     }
@@ -151,7 +151,7 @@ void EventDispatcher::testRemoveContact(EventPtr pEvent)
         } else {
             int rc = m_ContactMap.erase(
                     dynamic_pointer_cast<CursorEvent>(pEvent)->getCursorID());
-            AVG_ASSERT(rc == 1);
+ //           AVG_ASSERT(rc == 1);
         }
     }
 }

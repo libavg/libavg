@@ -92,7 +92,8 @@ GDKDisplayEngine::GDKDisplayEngine()
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0),
       m_noneCursor(0),
-      m_cursor(0)
+      m_cursor(0),
+      m_touchID(0)
 {
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
@@ -112,7 +113,9 @@ GDKDisplayEngine::GDKDisplayEngine()
 
     gdk_window_set_events(m_pScreen, (GdkEventMask) (GDK_POINTER_MOTION_MASK |
             GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-            GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK));
+            GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK));
+
+    gdk_window_set_support_multidevice(m_pScreen, true);
 
     m_noneCursor = gdk_cursor_new(GDK_BLANK_CURSOR);
     gdk_window_show(m_pScreen);
@@ -334,7 +337,6 @@ bool GDKDisplayEngine::internalSetGamma(float red, float green, float blue)
   //  int err = SDL_SetGamma(float(red), float(green), float(blue));
   //  return (err != -1);
     return true;
-#endif
 }
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
@@ -533,6 +535,31 @@ vector<EventPtr> GDKDisplayEngine::pollEvents()
                 case GDK_DELETE:
                     pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                     break;
+
+                case GDK_TOUCH_BEGIN:
+                    {
+                    m_touchID++;
+                    pNewEvent = createTouchEvent(m_touchID, Event::CURSORDOWN, *gdkEvent);
+//                    GdkEventSequence seq = gdk_event_get_event_sequence(gdkEvent);
+//                    m_pXIMTInputDevice->addTouchStatus(*gdk_event_get_event_sequence(gdkEvent), touchEvent);
+                    break;
+                    }
+                case GDK_TOUCH_UPDATE:
+                    {
+                    pNewEvent = createTouchEvent(0, Event::CURSORMOTION, *gdkEvent);
+/*                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatus(*gdk_event_get_event_sequence(gdkEvent));
+                    pTouchStatus->pushEvent(touchEvent);*/
+                    break;
+                    }
+                case GDK_TOUCH_END:
+                    {
+                    pNewEvent = createTouchEvent(0, Event::CURSORUP, *gdkEvent);
+//                    TouchEventPtr touchEvent = createTouchEvent(0, Event::CURSORUP, *gdkEvent);
+/*                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatus(*gdk_event_get_event_sequence(gdkEvent));
+                    pTouchStatus->pushEvent(touchEvent);*/
+                    break;
+                    }
+
                 default:
                     // Ignore unknown events.
                     break;
@@ -643,6 +670,15 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
     KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyCode,
             gdk_keyval_name(gdk_keyval_to_lower(keyVal)), gdk_keyval_to_unicode(keyVal),
             modifiers));
+    return pEvent;
+}
+
+TouchEventPtr GDKDisplayEngine::createTouchEvent(int id, Event::Type type, const GdkEvent &gdkEvent)
+{
+    GdkEventTouch touchEvent = (GdkEventTouch&) gdkEvent;
+    IntPoint pos(touchEvent.x, touchEvent.y);
+
+    TouchEventPtr pEvent(new TouchEvent(id, type, pos, Event::TOUCH));
     return pEvent;
 }
 

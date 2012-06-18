@@ -38,6 +38,8 @@
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 
+#include "TouchEvent.h"
+#include "TouchStatus.h"
 namespace avg {
 
 class XInputMTInputDevice;
@@ -88,6 +90,7 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         EventPtr createMouseButtonEvent(Event::Type Type, const GdkEvent & GDKEvent);
         EventPtr createMouseWheelEvent(Event::Type Type, const GdkEvent & GDKEvent);
         EventPtr createKeyEvent(Event::Type Type, const GdkEvent & GDKEvent);
+        TouchEventPtr createTouchEvent(int ID, Event::Type Type, const GdkEvent & GDKEvent);
 
         IntPoint m_Size;
         bool m_bIsFullscreen;
@@ -111,6 +114,8 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         GLContext* m_pGLContext;
         GdkCursor* m_noneCursor;
         GdkCursor* m_cursor;
+
+        int m_touchID;
 
         float m_Gamma[3];
 };
