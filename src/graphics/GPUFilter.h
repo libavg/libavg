@@ -72,7 +72,7 @@ private:
     bool m_bMipmap;
 
     GLTexturePtr m_pSrcTex;
-    PBOPtr m_pSrcPBO;
+    TextureMoverPtr m_pSrcMover;
     std::vector<FBOPtr> m_pFBOs;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
