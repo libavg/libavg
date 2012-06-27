@@ -502,7 +502,8 @@ class ToggleButton(avg.DivNode):
                 self.__stateMachine.changeState("UNCHECKED_UP")
             if self.__stateMachine.state == "UNCHECKED_UP":
                 self.__stateMachine.changeState("UNCHECKED_DOWN")
-            self.__stateMachine.changeState("CHECKED_UP")
+            if self.__stateMachine.state != "CHECKED_UP":
+                self.__stateMachine.changeState("CHECKED_UP")
             if not oldEnabled:
                 self.__stateMachine.changeState("CHECKED_DISABLED")
         else:
@@ -510,7 +511,8 @@ class ToggleButton(avg.DivNode):
                 self.__stateMachine.changeState("CHECKED_UP")
             if self.__stateMachine.state == "CHECKED_UP":
                 self.__stateMachine.changeState("CHECKED_DOWN")
-            self.__stateMachine.changeState("UNCHECKED_UP")
+            if self.__stateMachine.state != "UNCHECKED_UP":
+                self.__stateMachine.changeState("UNCHECKED_UP")
             if not oldEnabled:
                 self.__stateMachine.changeState("UNCHECKED_DISABLED")
 
