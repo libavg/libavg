@@ -51,6 +51,62 @@ Style::~Style()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+boost::python::object Style::__getitem__(boost::python::object& key) const
+{
+    return m_Properties[key];
+}
+
+bool Style::__contains__(boost::python::object& key) const
+{
+    return m_Properties.has_key(key);
+}
+
+boost::python::list Style::keys() const
+{
+    return m_Properties.keys();
+}
+
+boost::python::list Style::values() const
+{
+    return m_Properties.values();
+}
+
+boost::python::list Style::items() const
+{
+    return m_Properties.items();
+}
+
+int Style::__len__() const
+{
+    return boost::python::len(m_Properties);
+}
+
+boost::python::object Style::__iter__() const
+{
+    return m_Properties.iterkeys();
+}
+
+boost::python::object Style::iteritems() const
+{
+    return m_Properties.iteritems();
+}
+
+boost::python::object Style::iterkeys() const
+{
+    return m_Properties.iterkeys();
+}
+
+boost::python::object Style::itervalues() const
+{
+    return m_Properties.itervalues();
+}
+
+string Style::__repr__() const
+{
+    string s;
+    return boost::python::extract<string>(m_Properties.attr("__repr__")())();
+}
+
 const boost::python::dict& Style::getDict() const
 {
     return m_Properties;

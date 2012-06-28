@@ -79,13 +79,6 @@ avg::StylePtr createStyle(const boost::python::tuple &args,
     return StylePtr(new avg::Style(attrs));
 }
 
-struct Style_to_python_dict
-{
-    static PyObject* convert(const Style& style)
-    {
-        return boost::python::incref(style.getDict().ptr());
-    }
-};
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -279,9 +272,20 @@ BOOST_PYTHON_MODULE(avg)
         ;
 
     class_<Style, boost::noncopyable>("Style", no_init)
-        .def("__init__", raw_constructor(createStyle));
-
-    to_python_converter<Style, Style_to_python_dict>();
+        .def("__init__", raw_constructor(createStyle))
+        .def("__getitem__", &Style::__getitem__)
+        .def("__contains__", &Style::__contains__)
+        .def("has_key", &Style::__contains__)
+        .def("keys", &Style::keys)
+        .def("values", &Style::values)
+        .def("items", &Style::items)
+        .def("__len__", &Style::__len__)
+        .def("__iter__", &Style::__iter__)
+        .def("iteritems", &Style::iteritems)
+        .def("iterkeys", &Style::iterkeys)
+        .def("itervalues", &Style::itervalues)
+        .def("__repr__", &Style::__repr__)
+        ;
 
     class_<VersionInfo>("VersionInfo")
         .add_property("full", &VersionInfo::getFull)

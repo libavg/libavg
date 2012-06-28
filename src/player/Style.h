@@ -42,6 +42,19 @@ class AVG_API Style
         Style(const boost::python::dict& params);
         virtual ~Style();
 
+        // python dict interface.
+        boost::python::object __getitem__(boost::python::object& key) const;
+        bool __contains__(boost::python::object& key) const;
+        boost::python::list keys() const;
+        boost::python::list values() const;
+        boost::python::list items() const;
+        int __len__() const;
+        boost::python::object __iter__() const;
+        boost::python::object iteritems() const;
+        boost::python::object iterkeys() const;
+        boost::python::object itervalues() const;
+        std::string __repr__() const;
+
         const boost::python::dict& getDict() const;
 
     private:
