@@ -25,9 +25,8 @@
 
 import os.path
 
-from libavg import avg
+from libavg import avg, player
 
-g_Player = avg.Player.get()
 g_Logger = avg.Logger.get()
 
 FEEDBACK_ZOOM_FACTOR = 1.0
@@ -65,7 +64,7 @@ class Key(avg.DivNode):
             effectiveOvlHref = ovlHref
         else:
             effectiveOvlHref = self.getParent().getEffectiveMediaDir() + ovlHref
-        canvasOvl = g_Player.loadCanvasString(
+        canvasOvl = player.loadCanvasString(
         '''
             <canvas id="offscreenOvl" size="%s">
                 <image href="%s" pos="%s"/>
@@ -83,7 +82,7 @@ class Key(avg.DivNode):
                 effectiveSelHref = selHref
             else:
                 effectiveSelHref = self.getParent().getEffectiveMediaDir() + selHref
-            canvasSel = g_Player.loadCanvasString(
+            canvasSel = player.loadCanvasString(
             '''
                 <canvas id="offscreenSel" size="%s">
                     <image href="%s" pos="%s"/>
@@ -98,10 +97,10 @@ class Key(avg.DivNode):
             self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
                     self.__feedbackImage.size.y)
             self.appendChild(self.__feedbackImage)
-            g_Player.deleteCanvas('offscreenSel')
+            player.deleteCanvas('offscreenSel')
         else:
             self.__feedback = False
-        g_Player.deleteCanvas('offscreenOvl')
+        player.deleteCanvas('offscreenOvl')
 
     def onDown(self, event):
         self.__feedbackImage.opacity = 0.95
@@ -110,7 +109,7 @@ class Key(avg.DivNode):
         self.__pseudoDown(event)
         if self.__repeate:
             self.__repeateID = 0
-            self.__repeateTimerID = g_Player.setTimeout(500,
+            self.__repeateTimerID = player.setTimeout(500,
                     lambda event=event: self.__pseudoRepeate(event))
 
     def onUp(self, event):
@@ -124,8 +123,8 @@ class Key(avg.DivNode):
         else:
             self.__pseudoUp(event)
             if self.__repeate:
-                g_Player.clearInterval(self.__repeateTimerID)
-                g_Player.clearInterval(self.__repeateID)
+                player.clearInterval(self.__repeateTimerID)
+                player.clearInterval(self.__repeateID)
 
     def onOut(self, event):
         self.__feedbackImage.opacity = 0.0
@@ -136,13 +135,13 @@ class Key(avg.DivNode):
             self.__image.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
             if self.__repeate:
-                g_Player.clearInterval(self.__repeateTimerID)
-                g_Player.clearInterval(self.__repeateID)
+                player.clearInterval(self.__repeateTimerID)
+                player.clearInterval(self.__repeateID)
 
     def __pseudoRepeate(self, event):
         if self.__sticky or (not self.__cursorID == event.cursorid):
             return
-        self.__repeateID = g_Player.setInterval(100,
+        self.__repeateID = player.setInterval(100,
                 lambda event=event: self.__onUpCallback(event, self.__keyCode))
 
     def __pseudoDown(self, event):

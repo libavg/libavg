@@ -28,8 +28,6 @@ from libavg import parsecamargs
 
 GUI_SIZE=(300, 200)
 
-g_Player = avg.Player.get()
-
 class FXSlider(avg.DivNode):
     def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, parent=None,
             **kwargs):

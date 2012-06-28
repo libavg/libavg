@@ -137,6 +137,7 @@ class AVG_API Player
         void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
         bool isCaptured(int cursorID);
+        void removeDeadEventCaptures();
         EventPtr getCurEvent() const;
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
@@ -263,7 +264,7 @@ class AVG_API Player
         struct EventCaptureInfo {
             EventCaptureInfo(const NodeWeakPtr& pNode);
 
-            NodeWeakPtr m_pNode;
+            NodePtr m_pNode;
             int m_CaptureCount;
         };
         typedef boost::shared_ptr<EventCaptureInfo> EventCaptureInfoPtr;

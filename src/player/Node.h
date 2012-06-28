@@ -48,19 +48,15 @@ namespace avg {
 
 class Node;
 typedef boost::shared_ptr<Node> NodePtr;
-typedef boost::weak_ptr<Node> NodeWeakPtr;
 class DivNode;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
-typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 class ArgList;
 class NodeDefinition;
 
 class CanvasNode;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
-typedef boost::weak_ptr<CanvasNode> CanvasNodeWeakPtr;
 class AVGNode;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
-typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 class Image;
 typedef boost::shared_ptr<Image> ImagePtr;
 class VertexArray;
@@ -69,7 +65,7 @@ class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 
-class AVG_API Node
+class AVG_API Node: public boost::enable_shared_from_this<Node>
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
@@ -81,16 +77,16 @@ class AVG_API Node
             return NodePtr(new NodeType(Args));
         }
         virtual void setTypeInfo(const NodeDefinition * pDefinition);
-        void registerInstance(const NodePtr& pSelf, const DivNodePtr& pParent);
+        void registerInstance(PyObject* pSelf, const DivNodePtr& pParent);
         
         virtual ~Node();
         virtual void setArgs(const ArgList& args);
-        virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
+        virtual void setParent(DivNode* pParent, NodeState parentState,
                 CanvasPtr pCanvas);
         virtual void removeParent();
-        void checkSetParentError(DivNodeWeakPtr pParent);
+        void checkSetParentError(DivNode* pParent);
         DivNodePtr getParent() const;
-        std::vector<NodeWeakPtr> getParentChain();
+        std::vector<NodePtr> getParentChain();
 
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
@@ -125,7 +121,7 @@ class AVG_API Node
         virtual glm::vec2 toGlobal(const glm::vec2& pos) const;
         NodePtr getElementByPos(const glm::vec2& pos);
         virtual void getElementsByPos(const glm::vec2& pos, 
-                std::vector<NodeWeakPtr>& pElements);
+                std::vector<NodePtr>& pElements);
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
@@ -147,7 +143,6 @@ class AVG_API Node
         bool operator ==(const Node& other) const;
         bool operator !=(const Node& other) const;
         long getHash() const;
-        void setSharedThis(const NodePtr& pThis);
 
         virtual const NodeDefinition* getDefinition() const;
 
@@ -163,14 +158,14 @@ class AVG_API Node
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
         Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
-        NodePtr getSharedThis() const;
+        NodePtr getSharedThis();
 
     private:
         std::string m_ID;
         const NodeDefinition* m_pDefinition;
+        PyObject* m_pSelf;
 
-        DivNodeWeakPtr m_pParent;
-        NodeWeakPtr m_pThis;
+        DivNode* m_pParent;
 
         struct EventID {
             EventID(Event::Type eventType, Event::Source source);

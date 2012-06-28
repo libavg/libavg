@@ -267,7 +267,7 @@ void WordsNode::setSize(const glm::vec2& pt)
     AreaNode::setSize(pt);
 }
 
-void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     updateLayout();
     glm::vec2 relPos = pos-glm::vec2(m_AlignOffset, 0);

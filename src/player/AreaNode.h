@@ -44,9 +44,6 @@ class DivNode;
 class ArgList;
 
 typedef boost::shared_ptr<AreaNode> AreaNodePtr;
-typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
-typedef boost::shared_ptr<DivNode> DivNodePtr;
-typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 
 class AVG_API AreaNode: public Node
 {
@@ -93,7 +90,7 @@ class AVG_API AreaNode: public Node
         virtual glm::vec2 toGlobal(const glm::vec2& localPos) const;
         
         virtual void getElementsByPos(const glm::vec2& pos, 
-                std::vector<NodeWeakPtr>& pElements);
+                std::vector<NodePtr>& pElements);
 
         virtual void maybeRender(const glm::mat4& parentTransform);
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor);

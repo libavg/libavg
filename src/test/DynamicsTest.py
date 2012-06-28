@@ -338,6 +338,12 @@ class DynamicsTestCase(AVGTestCase):
             self.assertEqual(type(retrievedImage), CustomImageNode)
             retrievedDiv = retrievedImage.parent
             self.assertEqual(type(retrievedDiv), CustomDivNode)
+            retrievedDiv.unlink(True)
+            
+            customNode = CustomImageNode((23,42))
+            root.appendChild(customNode)
+            retrievedImage = root.getChild(0)
+            self.assertEqual(type(retrievedImage), CustomImageNode)
 
         root = self.loadEmptyScene()
         testNodePythonAttribute()

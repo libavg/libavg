@@ -76,7 +76,7 @@ class AVG_API CursorEvent: public Event
         IntPoint m_Position;
         int m_ID;
         ContactWeakPtr m_pContact;
-        NodeWeakPtr m_pNode;
+        NodePtr m_pNode;
         glm::vec2 m_Speed;
 };
 

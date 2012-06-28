@@ -21,8 +21,6 @@
 from libavg import avg
 from libavg.ui import button
 
-g_Player = avg.Player.get()
-
 class Slider(avg.DivNode):
     def __init__(self, width, min, max, onChange, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)

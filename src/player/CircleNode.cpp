@@ -101,7 +101,7 @@ void CircleNode::setTexCoord2(float tc)
     setDrawNeeded();
 }
 
-void CircleNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void CircleNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (glm::length(pos-m_Pos) <= m_Radius && reactsToMouseEvents()) {
         pElements.push_back(getSharedThis());

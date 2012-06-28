@@ -27,8 +27,6 @@ from libavg import *
 import optparse
 import random
 
-g_Player = avg.Player.get()
-
 def parseCmdLine():
     parser = optparse.OptionParser(usage=
 """%prog [option]. 
@@ -69,12 +67,12 @@ class SpeedApp(AVGApp):
         self.__createNodes()
         self._starter.showFrameRate()
         if options.createNodes:
-            g_Player.setInterval(400, self.__createNodes)
+            player.setInterval(400, self.__createNodes)
         # Ignore the first frame for the 20 sec-limit so long startup times don't
         # break things.
-        g_Player.setTimeout(0, lambda: g_Player.setTimeout(20000, g_Player.stop))
+        player.setTimeout(0, lambda: player.setTimeout(20000, player.stop))
         if options.move:
-            g_Player.setOnFrameHandler(self.__moveNodes)
+            player.setOnFrameHandler(self.__moveNodes)
 
     def __createNodes(self):
         self.__nodes = []
@@ -95,7 +93,7 @@ class SpeedApp(AVGApp):
                 node.gamma = (1.1, 1.1, 1.1)
             self.__nodes.append(node)
         if options.createNodes:
-            g_Player.setTimeout(300, self.__deleteNodes)
+            player.setTimeout(300, self.__deleteNodes)
 
     def __deleteNodes(self):
         for node in self.__nodes:
@@ -109,7 +107,7 @@ class SpeedApp(AVGApp):
 
 options = parseCmdLine()
 if not(options.vsync):
-    g_Player.setFramerate(1000)
+    player.setFramerate(1000)
 if options.numObjs == -1:
     if options.video:
         options.numObjs = 40

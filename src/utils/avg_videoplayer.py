@@ -23,15 +23,13 @@
 
 import sys
 import optparse
-from libavg import avg, AVGApp
-
-g_Player = avg.Player.get()
+from libavg import avg, AVGApp, player
 
 class VideoPlayer(AVGApp):
 
     def __init__(self, parentNode):
         if options.fullscreen:
-            g_Player.setResolution(True, 1920, 1200, 0)
+            player.setResolution(True, 1920, 1200, 0)
         AVGApp.__init__(self, parentNode)
 
     def init(self):
@@ -48,7 +46,7 @@ class VideoPlayer(AVGApp):
         avg.WordsNode(parent=self._parentNode, id="framesqueued", pos=(10, 34), 
                 font="arial", fontsize=10)
 
-        g_Player.setOnFrameHandler(self.onFrame)
+        player.setOnFrameHandler(self.onFrame)
     
     def onKeyDown(self, event):
         curTime = self.node.getCurTime()
@@ -64,11 +62,11 @@ class VideoPlayer(AVGApp):
     def onFrame(self):
         curFrame = self.node.getCurFrame()
         numFrames = self.node.getNumFrames()
-        g_Player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
+        player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
         curVideoTime = self.node.getCurTime()
-        g_Player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
+        player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
         framesQueued = self.node.getNumFramesQueued()
-        g_Player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
+        player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
 
     def __makeAlphaBackground(self):
         SQUARESIZE=40

@@ -116,10 +116,6 @@ void TriangulationTriangle::clearDelunayEdges()
 Point* TriangulationTriangle::oppositePoint(TriangulationTriangle& t,
         Point& p) {
     Point *cw = t.pointCW(p);
-    double x = cw->m_X;
-    double y = cw->m_Y;
-    x = p.m_X;
-    y = p.m_Y;
     return pointCW(*cw);
 }
 

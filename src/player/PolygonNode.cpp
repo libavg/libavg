@@ -135,7 +135,7 @@ void PolygonNode::setLineJoin(const string& s)
     setDrawNeeded();
 }
 
-void PolygonNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void PolygonNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
         pElements.push_back(getSharedThis());

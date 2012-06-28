@@ -58,7 +58,7 @@ class AVG_API WordsNode : public RasterNode
         virtual glm::vec2 getSize() const;
         virtual void setSize(const glm::vec2& pt);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
         void setTextFromNodeValue(const std::string& sText);
 
         const std::string& getFont() const;
