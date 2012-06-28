@@ -278,7 +278,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getElementSize", &SVG::getElementSize)
         ;
 
-    class_<Style, boost::noncopyable>("SVG", no_init)
+    class_<Style, boost::noncopyable>("Style", no_init)
         .def("__init__", raw_constructor(createStyle));
 
     to_python_converter<Style, Style_to_python_dict>();
