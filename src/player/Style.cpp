@@ -40,7 +40,9 @@ Style::Style(const boost::python::dict& params)
         m_Properties = d.copy();
     }
     m_Properties.update(params);
-    m_Properties.attr("__delitem__")("basestyle");
+    if (params.has_key("basestyle")) {
+        m_Properties.attr("__delitem__")("basestyle");
+    }
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 

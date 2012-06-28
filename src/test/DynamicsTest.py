@@ -364,6 +364,10 @@ class DynamicsTestCase(AVGTestCase):
                  lambda: self.compareImage("testDynamicMediaDir2")
                 ))
 
+    def testStyle(self):
+        style = avg.Style(font="Arial", variant="bold", fontsize=12, linespacing=14)
+        derivedStyle = avg.Style(basestyle=style, fontsize=14)
+        print derivedStyle
 
 def dynamicsTestSuite(tests):
     availableTests = (
@@ -377,7 +381,8 @@ def dynamicsTestSuite(tests):
             "testDynamicEventCapture",
             "testComplexDiv",
             "testNodeCustomization",
-            "testDynamicMediaDir"
+            "testDynamicMediaDir",
+            "testStyle"
             )
 
     return createAVGTestSuite(availableTests, DynamicsTestCase, tests)
