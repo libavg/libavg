@@ -41,8 +41,9 @@ g_player = avg.Player.get()
 class Bullet(avg.VideoNode):
     __SPEED = 360 # px/s
 
-    def __init__(self, **kwargs):
+    def __init__(self, parent=None, **kwargs):
         super(Bullet, self).__init__(href='bullet.mov', loop=True, active=False, **kwargs)
+        self.registerInstance(self, parent)
         self.pause()
 
     def reset(self, pos):
@@ -64,8 +65,9 @@ class _Aircraft(avg.DivNode):
     __SHADOW_SCALE = 0.5
     __SHADOW_OFFSET = avg.Point2D(170, 170)
 
-    def __init__(self, mediabase, shadowdiv, **kwargs):
+    def __init__(self, mediabase, shadowdiv, parent=None, **kwargs):
         super(_Aircraft, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
         self.__aircraftVid = avg.VideoNode(href=mediabase+'.mov', loop=True, parent=self)
         self.__aircraftVid.pause()
         self.__destroyVid = avg.VideoNode(href='explosion.mov', active=False,
@@ -109,8 +111,8 @@ class PlayerAircraft(_Aircraft):
     __BULLET_OFFSET_L = avg.Point2D( 52, 16)
     __BULLET_OFFSET_R = avg.Point2D(140, 16)
 
-    def __init__(self, shadowdiv, gunCtrl, **kwargs):
-        super(PlayerAircraft, self).__init__('spitfire', shadowdiv, **kwargs)
+    def __init__(self, shadowdiv, gunCtrl, parent=None, **kwargs):
+        super(PlayerAircraft, self).__init__('spitfire', shadowdiv, parent, **kwargs)
         self.__gunCtrl = gunCtrl
         self.__bullets = [Bullet(parent=self.parent) for i in xrange(10)]
         self.__engineSnd = avg.SoundNode(href='flySound.mp3', loop=True, parent=self)
@@ -178,8 +180,8 @@ class PlayerAircraft(_Aircraft):
 
 
 class EnemyAircraft(_Aircraft):
-    def __init__(self, shadowdiv, **kwargs):
-        super(EnemyAircraft, self).__init__('enemy', shadowdiv, **kwargs)
+    def __init__(self, shadowdiv, parent=None, **kwargs):
+        super(EnemyAircraft, self).__init__('enemy', shadowdiv, parent, **kwargs)
         self.__destroySnd = avg.SoundNode(href='enemyDeath.mp3', volume=2.0, parent=self)
         self._hide()
 
@@ -223,8 +225,9 @@ class ScrollingBackground(object):
 class LiveCounter(avg.DivNode):
     __NUM_LIVES = 3
 
-    def __init__(self, **kwargs):
+    def __init__(self, parent=None, **kwargs):
         super(LiveCounter, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
         self.__numLives = 0
         self.__images = []
         x = 0
@@ -247,8 +250,9 @@ class LiveCounter(avg.DivNode):
 
 
 class ScoreCounter(avg.DivNode):
-    def __init__(self, **kwargs):
+    def __init__(self, parent=None, **kwargs):
         super(ScoreCounter, self).__init__(size=(3 * 34, 34), crop=True, **kwargs)
+        self.registerInstance(self, parent)
         self.__score = 0
         self.__images = [avg.ImageNode(href='gui_numbers.png', pos=((2 - i) * 34, 0),
                 parent=self) for i in xrange(3)]
@@ -274,8 +278,9 @@ class GunControl(avg.DivNode):
     __TEMPERATURE_INC = 30 # px/shot
     __TEMPERATURE_DEC = 60 # px/s
 
-    def __init__(self, **kwargs):
+    def __init__(self, parent=None, **kwargs):
         super(GunControl, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
         bg = avg.ImageNode(href='gui_heatbar_bg.png', parent=self)
         self.__heatbar = avg.DivNode(size=(1, bg.height), crop=True, parent=self)
         avg.ImageNode(href='gui_heatbar_fg.png', parent=self.__heatbar)
