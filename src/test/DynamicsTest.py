@@ -374,7 +374,15 @@ class DynamicsTestCase(AVGTestCase):
         self.assert_(derivedStyle.keys() == 
                 ['fontsize', 'linespacing', 'font', 'variant'])
         self.assert_(len(derivedStyle) == 4)
-        print derivedStyle
+
+        node = avg.WordsNode(text="foo", fontsize=18, style=style)
+        self.assert_(node.fontsize == 18)
+        self.assert_(node.text == "foo")
+        self.assert_(node.variant == "bold")
+        self.assert_(style["fontsize"] == 12)
+
+        brokenStyle = avg.Style(brokenAttr="foo")
+        self.assertException(lambda: avg.WordsNode(text="foo", style=brokenStyle))
 
 def dynamicsTestSuite(tests):
     availableTests = (

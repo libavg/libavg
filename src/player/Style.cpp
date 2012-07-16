@@ -107,6 +107,15 @@ string Style::__repr__() const
     return boost::python::extract<string>(m_Properties.attr("__repr__")())();
 }
 
+void Style::mergeParams(boost::python::dict& attrs)
+{
+    // Attrs are node constructor params. Use style as default values and merge the
+    // two dicts.
+    boost::python::dict newAttrs = m_Properties.copy();
+    newAttrs.update(attrs);
+    attrs = newAttrs.copy();
+}
+
 const boost::python::dict& Style::getDict() const
 {
     return m_Properties;

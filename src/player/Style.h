@@ -55,10 +55,14 @@ class AVG_API Style
         boost::python::object itervalues() const;
         std::string __repr__() const;
 
-        const boost::python::dict& getDict() const;
+        // C++ interface
+        void mergeParams(boost::python::dict& attrs);
+     
 
     private:
-         boost::python::dict m_Properties;
+        const boost::python::dict& getDict()const;
+
+        boost::python::dict m_Properties;
 };
 
 }
