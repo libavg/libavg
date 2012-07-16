@@ -146,42 +146,6 @@ Misc. Classes
 
             This method gives access to the BitmapManager instance.
 
-    .. autoclass:: ConradRelais(AVGPlayer, port)
-
-        Interface to one or more conrad relais cards connected to a serial port.
-        Per card, up to eight 220V devices can be connected.
-
-        .. deprecated:: 1.5
-
-            This is unsupported. I don't think you can even buy the hardware anymore.
-
-        :param port: 
-            
-            The port the device is connected to. The actual device file
-            opened is :file:`/dev/ttyS<port>`.
-
-        .. py:method:: get(card, index) -> value
-
-            Returns the state of one of the relais.
-
-            :param card: Zero-based index of the card to address.
-            :param index: Zero-based index of the relais on the card.
-
-        .. py:method:: getNumCards() -> int
-
-            Returns the number of cards connected to the serial port.
-
-        .. py:method:: set(card, index, value)
-
-            Sets or resets one of the relais.
-
-            :param card: Zero-based index of the card to address.
-            :param index: Zero-based index of the relais on the card.
-            :param value: 
-            
-                Whether to set (:py:const:`True`) or reset (:py:const:`False`)
-                the relais.
-
     .. autoclass:: CubicSpline(controlpoints)
 
         Class that generates a smooth curve between control points using cubic 
