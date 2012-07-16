@@ -385,6 +385,7 @@ class DynamicsTestCase(AVGTestCase):
         brokenStyle = avg.Style(brokenAttr="foo")
         self.assertException(lambda: avg.WordsNode(text="foo", style=brokenStyle))
 
+
 def dynamicsTestSuite(tests):
     availableTests = (
             "testImgDynamics",
