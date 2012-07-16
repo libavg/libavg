@@ -380,6 +380,7 @@ class DynamicsTestCase(AVGTestCase):
         self.assert_(node.text == "foo")
         self.assert_(node.variant == "bold")
         self.assert_(style["fontsize"] == 12)
+        self.assert_(node.style == style)
 
         brokenStyle = avg.Style(brokenAttr="foo")
         self.assertException(lambda: avg.WordsNode(text="foo", style=brokenStyle))

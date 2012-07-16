@@ -38,7 +38,6 @@
 #include "CircleNode.h"
 #include "MeshNode.h"
 #include "NodeDefinition.h"
-#include "Style.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
 #include "TestHelper.h"
@@ -1319,12 +1318,6 @@ NodePtr Player::createNode(const string& sType,
         parent = params["parent"];
         attrs.attr("__delitem__")("parent");
         pParentNode = boost::python::extract<DivNodePtr>(parent);
-    }
-    if (params.has_key("style")) {
-        boost::python::object param = params["style"];
-        attrs.attr("__delitem__")("style");
-        StylePtr pStyle = boost::python::extract<StylePtr>(param);
-        pStyle->mergeParams(attrs);
     }
     NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
 

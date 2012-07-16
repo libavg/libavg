@@ -56,8 +56,7 @@ class AVG_API Style
         std::string __repr__() const;
 
         // C++ interface
-        void mergeParams(boost::python::dict& attrs);
-     
+        boost::python::dict mergeParams(const boost::python::dict& attrs);
 
     private:
         const boost::python::dict& getDict()const;
