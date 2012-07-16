@@ -80,7 +80,7 @@ This section describes the base classes for all node classes that libavg provide
         :py:meth:`Player.loadCanvasString` are the equivalent methods for offscreen 
         canvases.
 
-    .. autoclass:: Node(id: string="", parent: DivNode=None, active=True, sensitive=True, opacity=1.0])
+    .. autoclass:: Node([id: string="", parent: DivNode=None, active=True, sensitive=True, opacity=1.0])
 
         Base class for everything that can be put into an avg tree.
 
@@ -189,7 +189,7 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: registerInstance(self, parent)
 
             Needs to be called when deriving from a Node class in python in the derived
-            classes :py:method:`__init__` method.
+            classes :py:func:`__init__` method.
 
         .. py:method:: releaseEventCapture([cursorid])
 
