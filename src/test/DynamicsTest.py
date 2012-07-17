@@ -364,6 +364,27 @@ class DynamicsTestCase(AVGTestCase):
                  lambda: self.compareImage("testDynamicMediaDir2")
                 ))
 
+    def testStyle(self):
+        style = avg.Style(font="Arial", variant="bold", fontsize=12, linespacing=14)
+        derivedStyle = avg.Style(basestyle=style, fontsize=14)
+        self.assert_(derivedStyle["font"] == "Arial")
+        self.assert_(derivedStyle["fontsize"] == 14)
+        self.assert_("fontsize" in derivedStyle)
+        self.assert_(not("foo" in derivedStyle))
+        self.assert_(derivedStyle.keys() == 
+                ['fontsize', 'linespacing', 'font', 'variant'])
+        self.assert_(len(derivedStyle) == 4)
+
+        node = avg.WordsNode(text="foo", fontsize=18, style=style)
+        self.assert_(node.fontsize == 18)
+        self.assert_(node.text == "foo")
+        self.assert_(node.variant == "bold")
+        self.assert_(style["fontsize"] == 12)
+        self.assert_(node.style == style)
+
+        brokenStyle = avg.Style(brokenAttr="foo")
+        self.assertException(lambda: avg.WordsNode(text="foo", style=brokenStyle))
+
 
 def dynamicsTestSuite(tests):
     availableTests = (
@@ -377,7 +398,8 @@ def dynamicsTestSuite(tests):
             "testDynamicEventCapture",
             "testComplexDiv",
             "testNodeCustomization",
-            "testDynamicMediaDir"
+            "testDynamicMediaDir",
+            "testStyle"
             )
 
     return createAVGTestSuite(availableTests, DynamicsTestCase, tests)

@@ -25,6 +25,7 @@ void export_event();
 void export_anim();
 
 #include "WrapHelper.h"
+#include "raw_constructor.hpp"
 
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
@@ -41,6 +42,7 @@ void export_anim();
 #include "../player/OffscreenCanvas.h"
 #include "../player/VideoWriter.h"
 #include "../player/SVG.h"
+#include "../player/Style.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -68,6 +70,13 @@ CanvasPtr createMainCanvas(const boost::python::tuple &args,
 {
     checkEmptyArgs(args, 1);
     return extract<Player&>(args[0])().createMainCanvas(params);
+}
+
+avg::StylePtr createStyle(const boost::python::tuple &args,
+        const boost::python::dict &attrs)
+{
+    checkEmptyArgs(args);
+    return StylePtr(new avg::Style(attrs));
 }
 
 
@@ -260,6 +269,22 @@ BOOST_PYTHON_MODULE(avg)
         .def("createImageNode", createImageNode2)
         .def("createImageNode", createImageNode3)
         .def("getElementSize", &SVG::getElementSize)
+        ;
+
+    class_<Style, StylePtr, boost::noncopyable>("Style", no_init)
+        .def("__init__", raw_constructor(createStyle))
+        .def("__getitem__", &Style::__getitem__)
+        .def("__contains__", &Style::__contains__)
+        .def("has_key", &Style::__contains__)
+        .def("keys", &Style::keys)
+        .def("values", &Style::values)
+        .def("items", &Style::items)
+        .def("__len__", &Style::__len__)
+        .def("__iter__", &Style::__iter__)
+        .def("iteritems", &Style::iteritems)
+        .def("iterkeys", &Style::iterkeys)
+        .def("itervalues", &Style::itervalues)
+        .def("__repr__", &Style::__repr__)
         ;
 
     class_<VersionInfo>("VersionInfo")
