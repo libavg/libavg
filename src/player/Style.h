@@ -36,6 +36,11 @@ namespace avg {
 class Style;
 typedef boost::shared_ptr<Style> StylePtr;
 
+#ifdef _WIN32
+// Silences warning about boost::python::dict not being exported.
+#pragma warning( disable: 4251 )
+#endif
+
 class AVG_API Style 
 {
     public:
