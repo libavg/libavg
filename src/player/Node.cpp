@@ -536,27 +536,6 @@ void Node::dumpEventHandlers()
     cerr << "-----" << endl;
 }
 
-PyObject * Node::findPythonFunc(const string& sCode)
-{
-    if (sCode.empty()) {
-        return 0;
-    } else {
-        PyObject * pModule = PyImport_AddModule("__main__");
-        if (!pModule) {
-            cerr << "Could not find module __main__." << endl;
-            exit(-1);
-        }
-        PyObject * pDict = PyModule_GetDict(pModule);
-        PyObject * pFunc = PyDict_GetItemString(pDict, sCode.c_str());
-        if (!pFunc) {
-            AVG_TRACE(Logger::ERROR, "Function \"" << sCode << 
-                    "\" not defined for node with id '"+getID()+"'. Aborting.");
-            exit(-1);
-        }
-        return pFunc;
-    }
-}
-
 bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
 {
     bool bOk = boost::python::call<bool>(pFunc, pEvent);

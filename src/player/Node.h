@@ -196,7 +196,6 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         void connectOneEventHandler(const EventID& id, PyObject * pObj, PyObject * pFunc);
         void dumpEventHandlers();
-        PyObject * findPythonFunc(const std::string& sCode);
         bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
 
         EventHandlerMap m_EventHandlerMap;
