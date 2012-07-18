@@ -195,7 +195,7 @@ class ToggleButton(avg.DivNode):
             if self.__activeAreaNode != None:
                 raise(RuntimeError(
                     "ToggleButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
-            size = upNode.size
+            size = uncheckedUpNode.size
             minSize = 20*player.getPixelsPerMM()
             size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
             self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
@@ -234,10 +234,12 @@ class ToggleButton(avg.DivNode):
             checkedDisabledNode = None
 
         return ToggleButton(uncheckedUpNode=uncheckedUpNode,
-                uncheckedDownNode=uncheckedDownNode, checkedUpNode=checkedUpNode,
+                uncheckedDownNode=uncheckedDownNode, 
+                checkedUpNode=checkedUpNode,
                 checkedDownNode=checkedDownNode,
                 uncheckedDisabledNode=uncheckedDisabledNode,
-                checkedDisabledNode=checkedDisabledNode, **kwargs)
+                checkedDisabledNode=checkedDisabledNode, 
+                **kwargs)
 
     def getEnabled(self):
         return (self.__stateMachine.state != "CHECKED_DISABLED" and

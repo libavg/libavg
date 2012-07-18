@@ -363,7 +363,7 @@ class UITestCase(AVGTestCase):
             self.checked = False
             self.unchecked = False
 
-        def createScene():
+        def createScene(**kwargs):
             root = self.loadEmptyScene()
             return ui.ToggleButton(
                     uncheckedUpNode = avg.ImageNode(href="toggle_unchecked_Up.png"),
@@ -376,11 +376,11 @@ class UITestCase(AVGTestCase):
                             avg.ImageNode(href="toggle_checked_Disabled.png"),
                     checkHandler=onCheck,
                     uncheckHandler=onUncheck,
-                    parent=root    
+                    parent=root,
+                    **kwargs
                    )
 
         def testToggle():
-            button = createScene()
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
@@ -399,7 +399,6 @@ class UITestCase(AVGTestCase):
                     ))
 
         def testToggleAbort():
-            button = createScene()
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
@@ -418,7 +417,6 @@ class UITestCase(AVGTestCase):
                     ))
 
         def testToggleDisable():
-            button = createScene()
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
@@ -463,7 +461,9 @@ class UITestCase(AVGTestCase):
                     checkedDownSrc="toggle_checked_Down.png",
                     uncheckedDisabledSrc="toggle_unchecked_Disabled.png",
                     checkedDisabledSrc="toggle_checked_Disabled.png",
-                    checkHandler=onCheck, uncheckHandler=onUncheck, parent=root)
+                    checkHandler=onCheck,
+                    uncheckHandler=onUncheck, 
+                    parent=root)
             self.start(False,
                     (lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),
@@ -474,10 +474,22 @@ class UITestCase(AVGTestCase):
                      lambda: button.setChecked(True),
                      lambda: self.compareImage("testUIToggleChecked_Disabled"),
                     ))
-
+ 
+        button = createScene()
         testToggle()
+        
+        button = createScene()
         testToggleAbort()
+        
+        button = createScene()
         testToggleDisable()
+
+        button = createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))
+        testToggle()
+        
+        button = createScene(fatFingerEnlarge = True)
+        testToggle()
+
         testFromSrc()
 
     def testScrollPane(self):
