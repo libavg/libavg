@@ -45,7 +45,6 @@ class Button(avg.DivNode):
                 enterFunc=self.__enterDown, leaveFunc=self.__leaveDown)
         self.__stateMachine.addState("DISABLED", ("UP",),
                 enterFunc=self.__enterDisabled, leaveFunc=self.__leaveDisabled)
-        self.__stateMachine.makeDiagram("ButtonStates.png")
 
         self.appendChild(self.__upNode)
         self.__upNode.active = True
@@ -172,11 +171,10 @@ class ToggleButton(avg.DivNode):
         self.__stateMachine.addState("CHECKED_DISABLED", ("CHECKED_UP", ),
                 enterFunc=self.__enterCheckedDisabled,
                 leaveFunc=self.__leaveCheckedDisabled)
-        self.__stateMachine.makeDiagram("ToggleButtonStates.png")
 
-        if(checkedDisabledNode == None):
+        if (checkedDisabledNode == None):
             self.__checkedDisabledNode = avg.ImageNode()             
-        if(uncheckedDisabledNode == None):
+        if (uncheckedDisabledNode == None):
             self.__uncheckedDisabledNode = avg.ImageNode()                   
 
         self.appendChild(self.__uncheckedUpNode)
