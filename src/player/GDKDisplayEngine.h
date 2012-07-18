@@ -80,6 +80,7 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         void setCursor(GdkPixbuf *pixbuf, int x, int y);
 
         GdkDisplay* getDisplay();
+        void enableGDKMultitouchHandling(bool value);
 
     private:
         void initTranslationTable();
@@ -118,6 +119,7 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         GdkCursor* m_cursor;
 
         int m_touchID;
+        bool m_multitouch;
 
         float m_Gamma[3];
 };

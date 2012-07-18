@@ -93,7 +93,8 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_NumMouseButtonsDown(0),
       m_noneCursor(0),
       m_cursor(0),
-      m_touchID(0)
+      m_touchID(0),
+      m_multitouch(false)
 {
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
@@ -359,6 +360,11 @@ GdkDisplay* GDKDisplayEngine::getDisplay()
     return gdk_window_get_display(m_pScreen);
 }
 
+void GDKDisplayEngine::enableGDKMultitouchHandling(bool value)
+{
+    m_multitouch = value;
+}
+
 void GDKDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
@@ -541,36 +547,42 @@ vector<EventPtr> GDKDisplayEngine::pollEvents()
                     pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                     break;
 
-                case GDK_TOUCH_BEGIN:
-                    {
-                    m_touchID++;
-                    TouchEventPtr newEvent = createTouchEvent(m_touchID, Event::CURSORDOWN, *gdkEvent);
-//                    GdkEventSequence seq = gdk_event_get_event_sequence(gdkEvent);
-                    m_pXIMTInputDevice->addTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent), newEvent);
-                    break;
-                    }
-                case GDK_TOUCH_UPDATE:
-                    {
-                    TouchEventPtr newEvent = createTouchEvent(0, Event::CURSORMOTION, *gdkEvent);
-                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent));
-                    AVG_ASSERT(pTouchStatus);
-                    pTouchStatus->pushEvent(newEvent);
-                    break;
-                    }
-                case GDK_TOUCH_END:
-                    {
-                    TouchEventPtr newEvent = createTouchEvent(0, Event::CURSORUP, *gdkEvent);
-                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent));
-                    pTouchStatus->pushEvent(newEvent);
-                    break;
-                    }
-                case GDK_TOUCH_CANCEL:
-                    AVG_ASSERT(False);
-                    break;
-
                 default:
                     // Ignore unknown events.
                     break;
+            }
+            if (m_multitouch) {
+                switch (gdkEvent->type) {
+                    case GDK_TOUCH_BEGIN:
+                        {
+                        m_touchID++;
+                        TouchEventPtr newEvent = createTouchEvent(m_touchID, Event::CURSORDOWN, *gdkEvent);
+                        m_pXIMTInputDevice->addTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent), newEvent);
+                        break;
+                        }
+                    case GDK_TOUCH_UPDATE:
+                        {
+                        TouchEventPtr newEvent = createTouchEvent(0, Event::CURSORMOTION, *gdkEvent);
+                        TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent));
+                        AVG_ASSERT(pTouchStatus);
+                        pTouchStatus->pushEvent(newEvent);
+                        break;
+                        }
+                    case GDK_TOUCH_END:
+                        {
+                        TouchEventPtr newEvent = createTouchEvent(0, Event::CURSORUP, *gdkEvent);
+                        TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent));
+                        pTouchStatus->pushEvent(newEvent);
+                        break;
+                        }
+                    case GDK_TOUCH_CANCEL:
+                        AVG_ASSERT(False);
+                        break;
+
+                    default:
+                    // Ignore unknown events.
+                    break;
+                }
             }
             if (pNewEvent) {
                 events.push_back(pNewEvent);
