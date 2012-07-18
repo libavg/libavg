@@ -193,7 +193,8 @@ functionality
 
             List of key definitions. Keys can be either character keys:
 
-                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, <pos>, <size>]
+                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, 
+                <pos>, <size>]
 
             or command keys:
 
@@ -244,7 +245,8 @@ functionality
         .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
 
             Creates key definitions for a row of uniform keys. Useful for creating the 
-            keyDefs parameter of the Keyboard constructor. All the keys get no repeat functionality.
+            keyDefs parameter of the Keyboard constructor. All the keys get no repeat 
+            functionality.
 
             :param avg.Point2D startPos: Top left position of the row.
 
@@ -254,8 +256,8 @@ functionality
 
             :param string feedbackStr:
 
-                String containing if the key has a feedback use f for Fals and t for True (i.e. 
-                :samp:`"fttttttttttf"`)
+                String containing if the key has a feedback use f for :py:const:`False`
+                and t for py:const:`True` (i.e. :samp:`"fttttttttttf"`)
 
             :param string keyStr: 
             
