@@ -263,7 +263,7 @@ class UITestCase(AVGTestCase):
                ))
 
 
-    def testTouchButton(self):
+    def testButton(self):
 
         def onClick(event):
             self.clicked = True
@@ -276,7 +276,7 @@ class UITestCase(AVGTestCase):
 
         def createScene(**kwargs):
             root = self.loadEmptyScene()
-            return ui.TouchButton(
+            return ui.Button(
                     parent = root,
                     upNode = avg.ImageNode(href="button_up.png"),
                     downNode = avg.ImageNode(href="button_down.png"),
@@ -342,7 +342,7 @@ class UITestCase(AVGTestCase):
         runTest()
 
         root = self.loadEmptyScene()
-        button = ui.TouchButton.fromSrc(
+        button = ui.Button.fromSrc(
                 parent = root,
                 upSrc = "button_up.png",
                 downSrc = "button_down.png",
@@ -493,7 +493,7 @@ def uiTestSuite(tests):
         "testKeyboard",
         "testTextArea",
         "testFocusContext",
-        "testTouchButton",
+        "testButton",
         "testToggleButton",
         "testScrollPane"
         )

@@ -10,15 +10,16 @@ functionality
     .. inheritance-diagram:: DragRecognizer TapRecognizer TransformRecognizer DoubletapRecognizer HoldRecognizer
         :parts: 1
 
-    .. inheritance-diagram:: Button TouchButton Keyboard
+    .. inheritance-diagram:: Button ToggleButton Keyboard
         :parts: 1
 
-    .. autoclass:: Button(upNode, downNode[, disabledNode=None, activeAreaNode=None, pressHandler=None, clickHandler=None, stateChangeHandler=None])
 
-        A generic button that shows different user-supplied nodes depending on it's
+    .. autoclass:: Button(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+
+        A button that shows different user-supplied nodes depending on it's
         state. Possible button states are up, down and disabled. The nodes are attached
         as children to the Button on construction. For a simple button, image nodes can 
-        be passed. Button behaviour corresponds to standard GUI buttons.
+        be passed. Uses the :py:class:`TapRecognizer` to detect clicks.
 
         :param avg.Node upNode: The node displayed when the button is not pressed.
 
@@ -31,36 +32,30 @@ functionality
             A node that is used only to determine if a click is over the button. Usually,
             this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
             buttons, where the active area should be larger than the visible button to
-            accout for touch inaccuracies.
+            account for touch inaccuracies.
+
+        :param bool fatFingerEnlarge:
+
+            If this parameter is set to :py:const:`True`, the button generates it's own 
+            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
+            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
+            :py:attr:`activeAreaNode`.
 
         Callbacks:
 
-            .. py:method:: pressHandler(event)
-
-                Called when the button is pressed. This happens on a down event.
-                
-                :param event: The corresponding cursor down event. 
-
             .. py:method:: clickHandler(event)
 
-                Called when the button is clicked. A click is generated when an up event
-                happens inside the button.
+                Called when the button is clicked.
 
-            .. py:method:: stateChangeHandler(state)
+        .. py:attribute:: enabled
 
-                Called whenever the button state changes.
+            :py:const:`True` if the button accepts input. If the button is disabled,
+            it shows the :py:attr:`disabledNode`.
 
-        .. py:method:: delete()
+        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None, **kwargs]) -> Button
 
-        .. py:method:: getUpNode() -> Node
-
-        .. py:method:: getDownNode() -> Node
-
-        .. py:method:: getDisabledNode() -> Node
-
-        .. py:method:: setEnabled(isEnabled)
-
-        .. py:method:: isEnabled()
+            Factory method that creates a button from filenames of the images to be
+            displayed for different states.
 
 
     .. autoclass:: DoubletapRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, maxTime=MAX_DOUBLETAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
@@ -350,48 +345,6 @@ functionality
         cursor position.
 
         :param maxTime: The maximum time that the tap may take in milliseconds.
-
-
-    .. autoclass:: TouchButton(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
-
-        A button made specifically for touch input. Uses the :py:class:`TapRecognizer` to
-        detect clicks.
-
-        :param avg.Node upNode: The node displayed when the button is not pressed.
-
-        :param avg.Node downNode: The node displayed when the button is pressed.
-
-        :param avg.Node disabledNode: The node displayed when the button is disabled.
-
-        :param avg.Node activeAreaNode: 
-        
-            A node that is used only to determine if a click is over the button. Usually,
-            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
-            buttons, where the active area should be larger than the visible button to
-            account for touch inaccuracies.
-
-        :param bool fatFingerEnlarge:
-
-            If this parameter is set to :py:const:`True`, the button generates it's own 
-            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
-            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
-            :py:attr:`activeAreaNode`.
-
-        Callbacks:
-
-            .. py:method:: clickHandler(event)
-
-                Called when the button is clicked.
-
-        .. py:attribute:: enabled
-
-            :py:const:`True` if the button accepts input. If the button is disabled,
-            it shows the :py:attr:`disabledNode`.
-
-        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None, **kwargs]) -> Button
-
-            Factory method that creates a button from filenames of the images to be
-            displayed for different states.
 
 
     .. autoclass:: ToggleButton( uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])

@@ -24,11 +24,11 @@ from libavg import avg, statemachine, utils, player
 import gesture
 
 
-class TouchButton(avg.DivNode):
+class Button(avg.DivNode):
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             fatFingerEnlarge=False, clickHandler=None, parent=None, **kwargs):
-        super(TouchButton, self).__init__(**kwargs)
+        super(Button, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.__upNode = upNode
@@ -38,7 +38,7 @@ class TouchButton(avg.DivNode):
         
         self.__clickHandler = utils.methodref(clickHandler)
 
-        self.__stateMachine = statemachine.StateMachine("TouchButton", "UP")
+        self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
                 enterFunc=self.__enterUp, leaveFunc=self.__leaveUp)
         self.__stateMachine.addState("DOWN", ("UP", "DISABLED"),
@@ -58,7 +58,7 @@ class TouchButton(avg.DivNode):
         if fatFingerEnlarge:
             if self.__activeAreaNode != None:
                 raise(RuntimeError(
-                    "TouchButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
+                    "Button: Can't specify both fatFingerEnlarge and activeAreaNode"))
             size = upNode.size
             minSize = 20*player.getPixelsPerMM()
             size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
@@ -82,7 +82,7 @@ class TouchButton(avg.DivNode):
             disabledNode = avg.ImageNode(href=disabledSrc)
         else:
             disabledNode = None
-        return TouchButton(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
+        return Button(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
                 **kwargs)
 
     def getEnabled(self):
