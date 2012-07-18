@@ -347,20 +347,44 @@ functionality
         :param maxTime: The maximum time that the tap may take in milliseconds.
 
 
-    .. autoclass:: ToggleButton( uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
+    .. autoclass:: ToggleButton(uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
 
-        A button made specifically for toggle functionality and it's touch input optimized.
+        A button that can be used to toggle between checked and unchecked states. 
+        Classical GUI checkboxes are an example of this kind of button.
+        
+        A :py:class:`ToggleButton` has a total of six visual states. In addition to the
+        distinction between checked and unchecked, a button can be enabled or disabled.
+        Buttons also change their appearance as soon as they are touched, leading to two
+        further states. For each visual state, a node is passed as constructor parameter.
+        The constructor attaches the nodes to the :py:class:`ToggleButton`. Simple
+        ToggleButtons can be constructed by passing image filenames to 
+        the :py:func:`fromSrc` factory function.
+
         Uses the :py:class:`TapRecognizer` to detect clicks.
 
-        :param avg.Node uncheckedUpNode: The node displayed when the button is not unchecked and not pressed.
+        :param avg.Node uncheckedUpNode: 
+        
+            The node displayed when the button is unchecked and not touched.
 
-        :param avg.Node uncheckedDownNode: The node displayed when the button is unchecked and pressed.
+        :param avg.Node uncheckedDownNode: 
+            
+            The node displayed when the button is unchecked and touched.
 
-        :param avg.Node checkedUpNode: The node displayed when the button is checked and not pressed.
+        :param avg.Node checkedUpNode: 
+        
+            The node displayed when the button is checked and not touched.
 
-        :param avg.Node uncheckedDisabledNode: The node displayed when the button is unchecked and disabled.
+        :param avg.Node checkedDownNode: 
+        
+            The node displayed when the button is checked and not touched.
 
-        :param avg.Node checkedDisabledNode: The node displayed when the button is checked and disabled.
+        :param avg.Node uncheckedDisabledNode: 
+        
+            The node displayed when the button is unchecked and disabled.
+
+        :param avg.Node checkedDisabledNode: 
+        
+            The node displayed when the button is checked and disabled.
 
         :param avg.Node activeAreaNode: 
         
@@ -383,32 +407,30 @@ functionality
 
         :param bool enabled:
 
-            If this parameter is set to :py:const:`True`, the button starts in the disabled
-            state.
+            If this parameter is set to :py:const:`True`, the button starts in the 
+            disabled state.
 
         Callbacks:
 
             .. py:method:: checkedHandler(event)
 
-                Called when the button was checked.
+                Called when the button is checked.
 
             .. py:method:: uncheckedHandler(event)
 
-                Called when the button was unchecked.
-
-        .. py:attribute:: enabled
-
-            :py:const:`True` if the button accepts input. If the button is disabled,
-            it shows the :py:attr:`uncheckedDisabledNode or checkedDisabledNode`.
+                Called when the button is unchecked.
 
         .. py:attribute:: checked
 
-            :py:const:'True' the button switched in the checked state. If the button is
-            disabled, it switch in the disabled checked state.
+            The state of the toggle.
+
+        .. py:attribute:: enabled
+
+            Determines whether the button accepts input.
 
         .. py:method:: getState() -> String
 
-            Returns the state ("UNCHECKED_UP", "UNCHECKED_DOWN", "CHECKED_UP", "CHECKED_DOWN", "UNCHECKED_DISABLED" or "CHECKED_DISABLED") of the button.
+            Returns the visual state of the button as a string.
 
         .. py:classmethod:: fromSrc(uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc, [uncheckedDisabledSrc=None, checkedDisabledSrc=None **kwargs]) -> ToggleButton
 
