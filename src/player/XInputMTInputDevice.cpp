@@ -21,23 +21,17 @@
 
 #include "XInputMTInputDevice.h"
 
-#include "TouchEvent.h"
 #include "Player.h"
-#include "AVGNode.h"
-#include "TouchStatus.h"
 #include "GDKDisplayEngine.h"
 
 #include "../base/Logger.h"
-#include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
-#include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
-
-#include <SDL/SDL_syswm.h>
-#include <SDL/SDL.h>
 
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XInput2.h>
+
+#include <boost/functional/hash.hpp>
 
 using namespace std;
 
@@ -45,49 +39,28 @@ namespace avg {
 
 Display* XInputMTInputDevice::s_pDisplay = 0;
 
-const char* cookieTypeToName(int evtype);
-string xEventTypeToName(int evtype);
-
 XInputMTInputDevice::XInputMTInputDevice()
-    : m_LastID(0),
-      m_DeviceID(-1)
 {
 }
 
 XInputMTInputDevice::~XInputMTInputDevice()
 {
-    if (m_DeviceID != -1 && m_OldMasterDeviceID != -1) {
-        XIAttachSlaveInfo atInfo;
-        atInfo.type = XIAttachSlave;
-        atInfo.deviceid = m_DeviceID;
-        atInfo.new_master = m_OldMasterDeviceID;
-        XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&atInfo, 1);
-    }
 }
 
 void XInputMTInputDevice::start()
 {
     Status status;
     GDKDisplayEngine * pEngine = Player::get()->getDisplayEngine();
+    s_pDisplay = gdk_x11_display_get_xdisplay(pEngine->getDisplay());
 
-    SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
-    int rc = SDL_GetWMInfo(&info);
-    AVG_ASSERT(rc != -1);
-    s_pDisplay = info.info.x11.display;
-    m_SDLLockFunc = info.info.x11.lock_func;
-    m_SDLUnlockFunc = info.info.x11.unlock_func;
-
-    m_SDLLockFunc();
     // XInput Extension available?
     int event, error;
-    bool bOk = XQueryExtension(s_pDisplay, "XInputExtension", &m_XIOpcode, 
+    bool bOk = XQueryExtension(s_pDisplay, "XInputExtension", &m_XIOpcode,
             &event, &error);
     if (!bOk) {
-        throw Exception(AVG_ERR_MT_INIT, 
-                "XInput multitouch event source: X Input extension not available.");
+        throw Exception(AVG_ERR_MT_INIT,
+                "XiInput mutiouch event source: X Input extension not avaiable.");
     }
-
     // Which version of XI2? 
     int major;
     int minor;
@@ -101,92 +74,32 @@ void XInputMTInputDevice::start()
                 "XInput multitouch event source: Supported version is "
                 +toString(major)+"."+toString(minor)+". At least 2.1 is needed.");
     }
+
     findMTDevice();
-
-    // SDL grabs the pointer in full screen mode. This breaks touchscreen usage.
-    // Can't use SDL_WM_GrabInput(SDL_GRAB_OFF) because it doesn't work in full
-    // screen mode. Get the display connection and do it manually.
-    XUngrabPointer(info.info.x11.display, CurrentTime);
-
-    XIEventMask mask;
-    mask.deviceid = m_DeviceID;
-    mask.mask_len = XIMaskLen(XI_LASTEVENT);
-    mask.mask = (unsigned char *)calloc(mask.mask_len, sizeof(char));
-    memset(mask.mask, 0, mask.mask_len);
-    XISetMask(mask.mask, XI_TouchBegin);
-    XISetMask(mask.mask, XI_TouchUpdate);
-    XISetMask(mask.mask, XI_TouchEnd);
-
-    status = XISelectEvents(s_pDisplay, info.info.x11.window, &mask, 1);
-    AVG_ASSERT(status == Success);
-
-    m_SDLUnlockFunc();
-
-    SDL_SetEventFilter(XInputMTInputDevice::filterEvent);
-  
-    
-    XIDetachSlaveInfo detInfo;
-    detInfo.type = XIDetachSlave;
-    detInfo.deviceid = m_DeviceID;
-    XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&detInfo, 1);
 
     pEngine->setXIMTInputDevice(this);
     MultitouchInputDevice::start();
     AVG_TRACE(Logger::CONFIG, "XInput Multitouch event source created.");
 }
 
-void XInputMTInputDevice::handleXIEvent(const XEvent& xEvent)
-{
-    m_SDLLockFunc();
-    XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
-    if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
-        XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
-        IntPoint pos(pDevEvent->event_x, pDevEvent->event_y);
-        int xid = pDevEvent->detail;
-        switch (pCookie->evtype) {
-            case XI_TouchBegin:
-                {
-//                    cerr << "TouchBegin " << xid << ", " << pos << endl;
-                    m_LastID++;
-                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos); 
-                    addTouchStatus(xid, pEvent);
-                }
-                break;
-            case XI_TouchUpdate:
-                {
-//                    cerr << "TouchUpdate " << xid << ", " << pos << endl;
-                    TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos); 
-                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
-                    AVG_ASSERT(pTouchStatus);
-                    pTouchStatus->pushEvent(pEvent);
-                }
-                break;
-            case XI_TouchEnd:
-                {
-//                    cerr << "TouchEnd " << xid << ", " << pos << endl;
-                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
-                    AVG_ASSERT(pTouchStatus);
-                    TouchEventPtr pEvent = createEvent(0, Event::CURSORUP, pos); 
-                    pTouchStatus->pushEvent(pEvent);
-                }
-                break;
-            default:
-                ;
-//                cerr << "Unhandled XInput event, type: " 
-//                        << cookieTypeToName(pCookie->evtype) << endl;
-        }
-    } else {
-//        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
-    }
-
-    XFreeEventData(s_pDisplay, pCookie);
-    m_SDLUnlockFunc();
-}
-
 std::vector<EventPtr> XInputMTInputDevice::pollEvents()
 {
-
     return MultitouchInputDevice::pollEvents();
+}
+
+TouchStatusPtr XInputMTInputDevice::getTouchStatusViaSeq(GdkEventSequence* id)
+{
+    return getTouchStatus(boost::hash<GdkEventSequence*>()(id));
+}
+
+void XInputMTInputDevice::addTouchStatusViaSeq(GdkEventSequence* id, TouchEventPtr pInitialEvent)
+{
+    addTouchStatus(boost::hash<GdkEventSequence*>()(id), pInitialEvent);
+}
+
+void XInputMTInputDevice::removeTouchStatusViaSeq(GdkEventSequence* id)
+{
+    removeTouchStatus(boost::hash<GdkEventSequence*>()(id));
 }
 
 void XInputMTInputDevice::findMTDevice()
@@ -201,8 +114,6 @@ void XInputMTInputDevice::findMTDevice()
     int maxTouches;
     for (int i = 0; i < ndevices && !pTouchClass; ++i) {
         pDevice = &pDevices[i];
-//        cerr << "Device " << pDevice->name << "(id: " << pDevice->deviceid << ")."
-//                << endl;
         if (pDevice->use == XISlavePointer || pDevice->use == XIFloatingSlave) {
             for (int j = 0; j < pDevice->num_classes; ++j) {
                 XIAnyClassInfo * pClass = pDevice->classes[j];
@@ -234,32 +145,6 @@ void XInputMTInputDevice::findMTDevice()
     XIFreeDeviceInfo(pDevices);
 }
 
-TouchEventPtr XInputMTInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
-{
-    return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH));
-}
-
-int XInputMTInputDevice::filterEvent(const SDL_Event * pEvent)
-{
-    // This is a hook into libsdl event processing. Since libsdl doesn't know about
-    // XInput 2, it doesn't call XGetEventData either. By the time the event arrives
-    // in handleXIEvent(), other events may have arrived and XGetEventData can't be 
-    // called anymore. Hence this function, which calls XGetEventData for each event
-    // that has a cookie.
-    if (pEvent->type == SDL_SYSWMEVENT) {
-        SDL_SysWMmsg* pMsg = pEvent->syswm.msg;
-        AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-        XEvent* pXEvent = &pMsg->event.xevent;
-        XGenericEventCookie* pCookie = (XGenericEventCookie*)&(pXEvent->xcookie);
-//        cerr << "---- filter xinput event: " << xEventTypeToName(pXEvent->type) << ", "
-//                << cookieTypeToName(pCookie->evtype) << endl;
-        XGetEventData(s_pDisplay, pCookie);
-    } else {
-//        cerr << "---- filter: " << int(pEvent->type) << endl;
-    }
-    return 1;
-}
-          
 // From xinput/test_xi2.c
 const char* cookieTypeToName(int evtype)
 {

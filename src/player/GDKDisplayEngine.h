@@ -79,6 +79,8 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void swapBuffers();
         void setCursor(GdkPixbuf *pixbuf, int x, int y);
 
+        GdkDisplay* getDisplay();
+
     private:
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);

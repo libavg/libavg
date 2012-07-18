@@ -64,7 +64,6 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
 
 
 class SpeedApp(AVGApp):
-    multitouch=True
     def init(self):
         self._parentNode.mediadir = utils.getMediaDir(None, "data")
         self.__createNodes()

@@ -26,15 +26,10 @@
 #include "../avgconfig.h"
 
 #include "MultitouchInputDevice.h"
-#include "Event.h"
 
-#include "../base/GLMHelper.h"
+#include <gdk/gdk.h>
 
 #include <X11/Xlib.h>
-#include <vector>
-#include <string>
-
-union SDL_Event;
 
 namespace avg {
 
@@ -44,21 +39,16 @@ public:
     XInputMTInputDevice();
     virtual ~XInputMTInputDevice();
     virtual void start();
-
-    void handleXIEvent(const XEvent& xEvent);
     std::vector<EventPtr> pollEvents();
     
+    TouchStatusPtr getTouchStatusViaSeq(GdkEventSequence* id);
+    void addTouchStatusViaSeq(GdkEventSequence* id, TouchEventPtr pInitialEvent);
+    void removeTouchStatusViaSeq(GdkEventSequence* id);
+
 private:
     void findMTDevice();
-    TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
-
-    static int filterEvent(const SDL_Event * pEvent);
-
-    int m_LastID;
 
     static Display* s_pDisplay;
-    void (*m_SDLLockFunc)(void);
-    void (*m_SDLUnlockFunc)(void);
 
     int m_XIOpcode;
 

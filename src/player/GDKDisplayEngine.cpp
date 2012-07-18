@@ -354,6 +354,11 @@ void GDKDisplayEngine::setCursor(GdkPixbuf *pixbuf, int x, int y)
     gdk_window_set_cursor(m_pScreen, m_cursor);
 }
 
+GdkDisplay* GDKDisplayEngine::getDisplay()
+{
+    return gdk_window_get_display(m_pScreen);
+}
+
 void GDKDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
@@ -539,26 +544,29 @@ vector<EventPtr> GDKDisplayEngine::pollEvents()
                 case GDK_TOUCH_BEGIN:
                     {
                     m_touchID++;
-                    pNewEvent = createTouchEvent(m_touchID, Event::CURSORDOWN, *gdkEvent);
+                    TouchEventPtr newEvent = createTouchEvent(m_touchID, Event::CURSORDOWN, *gdkEvent);
 //                    GdkEventSequence seq = gdk_event_get_event_sequence(gdkEvent);
-//                    m_pXIMTInputDevice->addTouchStatus(*gdk_event_get_event_sequence(gdkEvent), touchEvent);
+                    m_pXIMTInputDevice->addTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent), newEvent);
                     break;
                     }
                 case GDK_TOUCH_UPDATE:
                     {
-                    pNewEvent = createTouchEvent(0, Event::CURSORMOTION, *gdkEvent);
-/*                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatus(*gdk_event_get_event_sequence(gdkEvent));
-                    pTouchStatus->pushEvent(touchEvent);*/
+                    TouchEventPtr newEvent = createTouchEvent(0, Event::CURSORMOTION, *gdkEvent);
+                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent));
+                    AVG_ASSERT(pTouchStatus);
+                    pTouchStatus->pushEvent(newEvent);
                     break;
                     }
                 case GDK_TOUCH_END:
                     {
-                    pNewEvent = createTouchEvent(0, Event::CURSORUP, *gdkEvent);
-//                    TouchEventPtr touchEvent = createTouchEvent(0, Event::CURSORUP, *gdkEvent);
-/*                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatus(*gdk_event_get_event_sequence(gdkEvent));
-                    pTouchStatus->pushEvent(touchEvent);*/
+                    TouchEventPtr newEvent = createTouchEvent(0, Event::CURSORUP, *gdkEvent);
+                    TouchStatusPtr pTouchStatus = m_pXIMTInputDevice->getTouchStatusViaSeq(gdk_event_get_event_sequence(gdkEvent));
+                    pTouchStatus->pushEvent(newEvent);
                     break;
                     }
+                case GDK_TOUCH_CANCEL:
+                    AVG_ASSERT(False);
+                    break;
 
                 default:
                     // Ignore unknown events.
@@ -662,10 +670,10 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
     if (keyEvent.state & GDK_LOCK_MASK) 
         { modifiers |= key::KEYMOD_CAPS; }
 
-    cout << type << " " << gdk_keyval_name(keyVal) << endl;
+/*    cout << type << " " << gdk_keyval_name(keyVal) << endl;
     cout << "hard|code:  " << keyEvent.hardware_keycode << "|" << keyCode << endl;
     cout << "Mod: " << modifiers << endl;
-    cout << endl;
+    cout << endl; */
 
     KeyEventPtr pEvent(new KeyEvent(type, keyEvent.hardware_keycode, keyCode,
             gdk_keyval_name(gdk_keyval_to_lower(keyVal)), gdk_keyval_to_unicode(keyVal),
@@ -677,7 +685,7 @@ TouchEventPtr GDKDisplayEngine::createTouchEvent(int id, Event::Type type, const
 {
     GdkEventTouch touchEvent = (GdkEventTouch&) gdkEvent;
     IntPoint pos(touchEvent.x, touchEvent.y);
-
+//    cout << "POS: " << pos << endl;
     TouchEventPtr pEvent(new TouchEvent(id, type, pos, Event::TOUCH));
     return pEvent;
 }
