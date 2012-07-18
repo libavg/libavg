@@ -335,10 +335,10 @@ class UITestCase(AVGTestCase):
         button = createScene()
         runTest()
 
-        button = createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))
+        button = createScene(activeAreaNode=avg.CircleNode(r=5, opacity=0))
         runTest()
 
-        button = createScene(fatFingerEnlarge = True)
+        button = createScene(fatFingerEnlarge=True)
         runTest()
 
         root = self.loadEmptyScene()
@@ -350,7 +350,12 @@ class UITestCase(AVGTestCase):
                 clickHandler = onClick
                 )
         runTest()
-        
+       
+        button = createScene(enabled=False)
+        self.start(False,
+                (lambda: self.compareImage("testUIButtonDisabled"),
+                ))
+
     def testToggleButton(self):
 
         def onCheck(event):
@@ -419,8 +424,6 @@ class UITestCase(AVGTestCase):
         def testToggleDisable():
             self.start(False,
                     (reset,
-                     lambda: self.compareImage("testUIToggleUnchecked_Up"),
-                     lambda: button.setEnabled(False),
                      lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
                      lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
                      lambda: self._sendTouchEvent(1, avg.CURSORUP, 0, 0),
@@ -481,7 +484,7 @@ class UITestCase(AVGTestCase):
         button = createScene()
         testToggleAbort()
         
-        button = createScene()
+        button = createScene(enabled=False)
         testToggleDisable()
 
         button = createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))

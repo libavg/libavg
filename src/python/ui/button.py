@@ -27,7 +27,8 @@ import gesture
 class Button(avg.DivNode):
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
-            fatFingerEnlarge=False, clickHandler=None, parent=None, **kwargs):
+            enabled=True, fatFingerEnlarge=False, clickHandler=None, parent=None,
+            **kwargs):
         super(Button, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
@@ -73,6 +74,9 @@ class Button(avg.DivNode):
                 possibleHandler=self.__onDown, 
                 detectedHandler=self.__onTap, 
                 failHandler=self.__onTapFail)
+
+        if not(enabled):
+            self.setEnabled(False)
 
     @classmethod
     def fromSrc(cls, upSrc, downSrc, disabledSrc=None, **kwargs):
