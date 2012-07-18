@@ -20,6 +20,8 @@ functionality
         state. Possible button states are up, down and disabled. The nodes are attached
         as children to the Button on construction. For a simple button, image nodes can 
         be passed. Uses the :py:class:`TapRecognizer` to detect clicks.
+        
+        .. image:: ButtonStates.png
 
         :param avg.Node upNode: The node displayed when the button is not pressed.
 
@@ -361,6 +363,8 @@ functionality
         the :py:func:`fromSrc` factory function.
 
         Uses the :py:class:`TapRecognizer` to detect clicks.
+
+        .. image:: ToggleButtonStates.png
 
         :param avg.Node uncheckedUpNode: 
         
