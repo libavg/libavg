@@ -23,12 +23,11 @@
 
 import optparse
 import time
-from libavg import avg
+from libavg import avg, player
 from libavg import parsecamargs
 from libavg import AVGApp
 
 g_Log = avg.Logger.get()
-g_Player = avg.Player.get()
 
 usage = """%prog [options]
 
@@ -123,21 +122,21 @@ class ShowCamera(AVGApp):
                 framerate = g_options.framerate, capturewidth = g_options.width,
                 captureheight=g_options.height, pixelformat= g_options.pixelFormat)
 
-        g_Player.getRootNode().appendChild(self.camNode)
+        player.getRootNode().appendChild(self.camNode)
 
         if not g_options.noinfo:
             self.infoText = ("Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f"
                     %self.optdict)
             avg.WordsNode(text=self.infoText, color="ff3333", pos=(5,5), fontsize=14, rawtextmode=True,
-                    parent=g_Player.getRootNode())
+                    parent=player.getRootNode())
             frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
-                    parent=g_Player.getRootNode())
-            g_Player.setOnFrameHandler(lambda:self.updateFrameDisplay(frameText))
+                    parent=player.getRootNode())
+            player.setOnFrameHandler(lambda:self.updateFrameDisplay(frameText))
 
 
     def _enter(self):
         self.camNode.play()
-        g_Player.setTimeout(100, self.checkCamera)
+        player.setTimeout(100, self.checkCamera)
 
     def _leave(self):
         self.camNode.stop()

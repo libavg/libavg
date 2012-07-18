@@ -24,15 +24,13 @@
 
 from libavg import *
 
-g_Player = avg.Player.get()
-
 class VSyncApp(AVGApp):
     
     def init(self):
         self.__line = avg.LineNode(pos1=(0,0), pos2=(0,1199), color="FFFFFF",
                 parent=self._parentNode)
         self.__x = 0
-        g_Player.setOnFrameHandler(self.onFrame)
+        player.setOnFrameHandler(self.onFrame)
 
     def onFrame(self):
         self.__x += 1

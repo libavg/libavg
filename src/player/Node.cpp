@@ -27,6 +27,7 @@
 #include "DivNode.h"
 #include "Player.h"
 #include "CursorEvent.h"
+#include "Style.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -72,6 +73,11 @@ void Node::setArgs(const ArgList& args)
 void Node::setTypeInfo(const NodeDefinition * pDefinition)
 {
     m_pDefinition = pDefinition;
+}
+
+void Node::setStyle(const StylePtr& pStyle)
+{
+    m_pStyle = pStyle;
 }
 
 void Node::registerInstance(PyObject* pSelf, const DivNodePtr& pParent)
@@ -163,6 +169,11 @@ void Node::unlink(bool bKill)
 const string& Node::getID() const
 {
     return m_ID;
+}
+
+StylePtr Node::getStyle() const
+{
+    return m_pStyle;
 }
 
 void Node::setID(const std::string& id)
