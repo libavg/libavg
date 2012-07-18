@@ -102,6 +102,9 @@ class Button(avg.DivNode):
 
     enabled = property(getEnabled, setEnabled)
 
+    def _getState(self):
+        return self.__stateMachine.state
+
     def __onDown(self, event):
         self.__stateMachine.changeState("DOWN")
 
@@ -293,7 +296,7 @@ class ToggleButton(avg.DivNode):
 
     checked = property(getChecked, setChecked)
 
-    def getState(self):
+    def _getState(self):
         return self.__stateMachine.state
 
     def __enterUncheckedUp(self):
