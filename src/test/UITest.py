@@ -363,7 +363,7 @@ class UITestCase(AVGTestCase):
             self.checked = False
             self.unchecked = False
 
-        def createScene(**kwargs):
+        def createScene():
             root = self.loadEmptyScene()
             return ui.ToggleButton(
                     uncheckedUpNode = avg.ImageNode(href="toggle_unchecked_Up.png"),
@@ -374,11 +374,13 @@ class UITestCase(AVGTestCase):
                             avg.ImageNode(href="toggle_unchecked_Disabled.png"),
                     checkedDisabledNode =
                             avg.ImageNode(href="toggle_checked_Disabled.png"),
-                    checkHandler = onCheck, uncheckHandler = onUncheck, parent = root,
-                    **kwargs
-                    )
+                    checkHandler=onCheck,
+                    uncheckHandler=onUncheck,
+                    parent=root    
+                   )
 
         def testToggle():
+            button = createScene()
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
@@ -397,6 +399,7 @@ class UITestCase(AVGTestCase):
                     ))
 
         def testToggleAbort():
+            button = createScene()
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
@@ -415,6 +418,7 @@ class UITestCase(AVGTestCase):
                     ))
 
         def testToggleDisable():
+            button = createScene()
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
@@ -427,6 +431,7 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
                      lambda: button.setEnabled(False),
+                     lambda: self._sendTouchEvent(2, avg.CURSORUP, 0, 0),
                      lambda: self.assert_(not (self.checked)),
                      lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
                      
@@ -444,18 +449,36 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testUIToggleChecked_Up"),
                      lambda: self._sendTouchEvent(4, avg.CURSORDOWN, 0, 0),
                      lambda: button.setEnabled(False),
+                     lambda: self._sendTouchEvent(4, avg.CURSORUP, 0, 0),
                      lambda: self.assert_(not (self.unchecked)),
                      lambda: self.compareImage("testUIToggleChecked_Disabled"),
                     ))
-        
-        button = createScene()
-        testToggle()
-        
-        button = createScene()
-        testToggleAbort()
+       
+        def testFromSrc():
+            root = self.loadEmptyScene()
+            button = ui.ToggleButton.fromSrc(
+                    uncheckedUpSrc="toggle_unchecked_Up.png",
+                    uncheckedDownSrc="toggle_unchecked_Down.png",
+                    checkedUpSrc="toggle_checked_Up.png",
+                    checkedDownSrc="toggle_checked_Down.png",
+                    uncheckedDisabledSrc="toggle_unchecked_Disabled.png",
+                    checkedDisabledSrc="toggle_checked_Disabled.png",
+                    checkHandler=onCheck, uncheckHandler=onUncheck, parent=root)
+            self.start(False,
+                    (lambda: self.compareImage("testUIToggleUnchecked_Up"),
+                     lambda: button.setChecked(True),
+                     lambda: self.compareImage("testUIToggleChecked_Up"),
+                     lambda: button.setChecked(False),
+                     lambda: button.setEnabled(False),
+                     lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
+                     lambda: button.setChecked(True),
+                     lambda: self.compareImage("testUIToggleChecked_Disabled"),
+                    ))
 
-        button = createScene()
+        testToggle()
+        testToggleAbort()
         testToggleDisable()
+        testFromSrc()
 
     def testScrollPane(self):
         def scrollLarge():
