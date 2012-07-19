@@ -75,11 +75,11 @@ class Button(_ButtonBase):
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
-                enterFunc=self.__enterUp, leaveFunc=self.__leaveUp)
+                enterFunc=self._enterUp, leaveFunc=self._leaveUp)
         self.__stateMachine.addState("DOWN", ("UP", "DISABLED"),
-                enterFunc=self.__enterDown, leaveFunc=self.__leaveDown)
+                enterFunc=self._enterDown, leaveFunc=self._leaveDown)
         self.__stateMachine.addState("DISABLED", ("UP",),
-                enterFunc=self.__enterDisabled, leaveFunc=self.__leaveDisabled)
+                enterFunc=self._enterDisabled, leaveFunc=self._leaveDisabled)
 
         self.__setActiveNode("UP")
 
@@ -125,23 +125,23 @@ class Button(_ButtonBase):
     def _onTapFail(self, event):
         self.__stateMachine.changeState("UP")
 
-    def __enterUp(self):
+    def _enterUp(self):
         self.__setActiveNode()
 
-    def __leaveUp(self):
+    def _leaveUp(self):
         pass
 
-    def __enterDown(self):
+    def _enterDown(self):
         self.__setActiveNode()
 
-    def __leaveDown(self):
+    def _leaveDown(self):
         pass
 
-    def __enterDisabled(self):
+    def _enterDisabled(self):
         self.__setActiveNode()
         self._tapRecognizer.enable(False)
 
-    def __leaveDisabled(self):
+    def _leaveDisabled(self):
         self._tapRecognizer.enable(True)
 
     def __setActiveNode(self, state=None):
@@ -180,23 +180,22 @@ class ToggleButton(_ButtonBase):
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
-                "UNCHECKED_DISABLED"), enterFunc=self.__enterUncheckedUp,
-                leaveFunc=self.__leaveUncheckedUp)
+                "UNCHECKED_DISABLED"), enterFunc=self._enterUncheckedUp,
+                leaveFunc=self._leaveUncheckedUp)
         self.__stateMachine.addState("UNCHECKED_DOWN", ("UNCHECKED_UP",
-                "UNCHECKED_DISABLED", "CHECKED_UP"), enterFunc=self.__enterUncheckedDown,
-                leaveFunc=self.__leaveUncheckedDown)
+                "UNCHECKED_DISABLED", "CHECKED_UP"), enterFunc=self._enterUncheckedDown,
+                leaveFunc=self._leaveUncheckedDown)
         self.__stateMachine.addState("CHECKED_UP", ("CHECKED_DOWN", "CHECKED_DISABLED"),
-                enterFunc=self.__enterCheckedUp, leaveFunc=self.__leaveCheckedUp)
+                enterFunc=self._enterCheckedUp, leaveFunc=self._leaveCheckedUp)
         self.__stateMachine.addState("CHECKED_DOWN", ("CHECKED_UP", "UNCHECKED_UP",
-                "CHECKED_DISABLED"), enterFunc=self.__enterCheckedDown,
-                leaveFunc=self.__leaveCheckedDown)
-
+                "CHECKED_DISABLED"), enterFunc=self._enterCheckedDown,
+                leaveFunc=self._leaveCheckedDown)
         self.__stateMachine.addState("UNCHECKED_DISABLED", ("UNCHECKED_UP",),
-                enterFunc=self.__enterUncheckedDisabled,
-                leaveFunc=self.__leaveUncheckedDisabled)
+                enterFunc=self._enterUncheckedDisabled,
+                leaveFunc=self._leaveUncheckedDisabled)
         self.__stateMachine.addState("CHECKED_DISABLED", ("CHECKED_UP", ),
-                enterFunc=self.__enterCheckedDisabled,
-                leaveFunc=self.__leaveCheckedDisabled)
+                enterFunc=self._enterCheckedDisabled,
+                leaveFunc=self._leaveCheckedDisabled)
 
         self.__setActiveNode("UNCHECKED_UP")
 
@@ -284,42 +283,42 @@ class ToggleButton(_ButtonBase):
     def _getState(self):
         return self.__stateMachine.state
 
-    def __enterUncheckedUp(self):
+    def _enterUncheckedUp(self):
         self.__setActiveNode()
 
-    def __leaveUncheckedUp(self):
+    def _leaveUncheckedUp(self):
         pass
 
-    def __enterUncheckedDown(self):
+    def _enterUncheckedDown(self):
         self.__setActiveNode()
 
-    def __leaveUncheckedDown(self):
+    def _leaveUncheckedDown(self):
         pass
 
-    def __enterCheckedUp(self):
+    def _enterCheckedUp(self):
         self.__setActiveNode()
 
-    def __leaveCheckedUp(self):
+    def _leaveCheckedUp(self):
         pass
 
-    def __enterCheckedDown(self):
+    def _enterCheckedDown(self):
         self.__setActiveNode()
 
-    def __leaveCheckedDown(self):
+    def _leaveCheckedDown(self):
         pass
 
-    def __enterUncheckedDisabled(self):
+    def _enterUncheckedDisabled(self):
         self.__setActiveNode()
         self._tapRecognizer.enable(False)
 
-    def __leaveUncheckedDisabled(self):
+    def _leaveUncheckedDisabled(self):
         self._tapRecognizer.enable(True)
 
-    def __enterCheckedDisabled(self):
+    def _enterCheckedDisabled(self):
         self.__setActiveNode()
         self._tapRecognizer.enable(False)
 
-    def __leaveCheckedDisabled(self):
+    def _leaveCheckedDisabled(self):
         self._tapRecognizer.enable(True)
 
     def _onDown(self, event):
