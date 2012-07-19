@@ -142,7 +142,7 @@ class ToggleButton(avg.DivNode):
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
-            enabled=True, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None,
+            enabled=True, fatFingerEnlarge=False, checkHandler=None,
             checked=False, parent=None, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -157,7 +157,6 @@ class ToggleButton(avg.DivNode):
         self.__activeAreaNode = activeAreaNode
         
         self.__checkHandler = utils.methodref(checkHandler)
-        self.__uncheckHandler = utils.methodref(uncheckHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
@@ -348,10 +347,10 @@ class ToggleButton(avg.DivNode):
     def __onTap(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
-            utils.callWeakRef(self.__checkHandler, event)
+            utils.callWeakRef(self.__checkHandler, event, True)
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
-            utils.callWeakRef(self.__uncheckHandler, event)
+            utils.callWeakRef(self.__checkHandler, event, False)
 
     def __onTapFail(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
