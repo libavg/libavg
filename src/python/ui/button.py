@@ -32,11 +32,17 @@ class Button(avg.DivNode):
         super(Button, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        self.__upNode = upNode
-        self.__downNode = downNode
-        self.__disabledNode = disabledNode
         self.__activeAreaNode = activeAreaNode
         
+        self.__nodeMap = {
+            "UP": upNode, 
+            "DOWN": downNode, 
+            "DISABLED": disabledNode
+        }
+        for node in self.__nodeMap.itervalues():
+            if node:
+                self.appendChild(node)
+
         self.__clickHandler = utils.methodref(clickHandler)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
@@ -47,15 +53,8 @@ class Button(avg.DivNode):
         self.__stateMachine.addState("DISABLED", ("UP",),
                 enterFunc=self.__enterDisabled, leaveFunc=self.__leaveDisabled)
 
-        self.appendChild(self.__upNode)
-        self.__upNode.active = True
-        self.appendChild(self.__downNode)
-        self.__downNode.active = False
+        self.__setActiveNode("UP")
 
-        if self.__disabledNode:
-            self.appendChild(self.__disabledNode)
-            self.__disabledNode.active = False
-        
         if fatFingerEnlarge:
             if self.__activeAreaNode != None:
                 raise(RuntimeError(
@@ -66,7 +65,7 @@ class Button(avg.DivNode):
             self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
         else:
             if self.__activeAreaNode == None:
-                self.__activeAreaNode = self.__upNode
+                self.__activeAreaNode = upNode
             else:
                 self.appendChild(self.__activeAreaNode)
 
@@ -116,26 +115,32 @@ class Button(avg.DivNode):
         self.__stateMachine.changeState("UP")
 
     def __enterUp(self):
-        self.__upNode.active = True
+        self.__setActiveNode()
 
     def __leaveUp(self):
-        self.__upNode.active = False
+        pass
 
     def __enterDown(self):
-        self.__downNode.active = True
+        self.__setActiveNode()
 
     def __leaveDown(self):
-        self.__downNode.active = False
+        pass
 
     def __enterDisabled(self):
-        if self.__disabledNode:
-            self.__disabledNode.active = True
+        self.__setActiveNode()
         self.__tapRecognizer.enable(False)
 
     def __leaveDisabled(self):
-        if self.__disabledNode:
-            self.__disabledNode.active = False
         self.__tapRecognizer.enable(True)
+
+    def __setActiveNode(self, state=None):
+        if state == None:
+            state = self.__stateMachine.state
+        for node in self.__nodeMap.itervalues():
+            if node:
+                node.active = False
+        if node:
+            self.__nodeMap[state].active = True
 
 
 class ToggleButton(avg.DivNode):
