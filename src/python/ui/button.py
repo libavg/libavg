@@ -42,6 +42,8 @@ class Button(avg.DivNode):
         for node in self.__nodeMap.itervalues():
             if node:
                 self.appendChild(node)
+        if disabledNode == None:
+            self.__nodeMap["DISABLED"] = upNode
 
         self.__clickHandler = utils.methodref(clickHandler)
 
@@ -137,10 +139,8 @@ class Button(avg.DivNode):
         if state == None:
             state = self.__stateMachine.state
         for node in self.__nodeMap.itervalues():
-            if node:
-                node.active = False
-        if node:
-            self.__nodeMap[state].active = True
+            node.active = False
+        self.__nodeMap[state].active = True
 
 
 class ToggleButton(avg.DivNode):
@@ -152,12 +152,21 @@ class ToggleButton(avg.DivNode):
         super(ToggleButton, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        self.__uncheckedUpNode = uncheckedUpNode
-        self.__uncheckedDownNode = uncheckedDownNode
-        self.__checkedUpNode = checkedUpNode
-        self.__checkedDownNode = checkedDownNode
-        self.__uncheckedDisabledNode = uncheckedDisabledNode
-        self.__checkedDisabledNode = checkedDisabledNode
+        self.__nodeMap = {
+            "UNCHECKED_UP": uncheckedUpNode, 
+            "UNCHECKED_DOWN": uncheckedDownNode, 
+            "CHECKED_UP": checkedUpNode, 
+            "CHECKED_DOWN": checkedDownNode, 
+            "UNCHECKED_DISABLED": uncheckedDisabledNode, 
+            "CHECKED_DISABLED": checkedDisabledNode, 
+        }
+        for node in self.__nodeMap.itervalues():
+            if node:
+                self.appendChild(node)
+        if uncheckedDisabledNode == None:
+            self.__nodeMap["UNCHECKED_DISABLED"] = uncheckedUpNode
+        if checkedDisabledNode == None:
+            self.__nodeMap["CHECKED_DISABLED"] = checkedUpNode
 
         self.__activeAreaNode = activeAreaNode
         
@@ -183,25 +192,8 @@ class ToggleButton(avg.DivNode):
                 enterFunc=self.__enterCheckedDisabled,
                 leaveFunc=self.__leaveCheckedDisabled)
 
-        if (checkedDisabledNode == None):
-            self.__checkedDisabledNode = avg.ImageNode()             
-        if (uncheckedDisabledNode == None):
-            self.__uncheckedDisabledNode = avg.ImageNode()                   
+        self.__setActiveNode("UNCHECKED_UP")
 
-        self.appendChild(self.__uncheckedUpNode)
-        self.appendChild(self.__checkedUpNode)
-        self.appendChild(self.__uncheckedDownNode)
-        self.appendChild(self.__checkedDownNode)
-        self.appendChild(self.__uncheckedDisabledNode)
-        self.appendChild(self.__checkedDisabledNode)
-
-        self.__uncheckedUpNode.active = True
-        self.__checkedUpNode.active = False
-        self.__uncheckedDownNode.active = False
-        self.__checkedDownNode.active = False
-        self.__checkedDisabledNode.active = False
-        self.__uncheckedDisabledNode.active = False
-        
         if fatFingerEnlarge:
             if self.__activeAreaNode != None:
                 raise(RuntimeError(
@@ -304,43 +296,41 @@ class ToggleButton(avg.DivNode):
         return self.__stateMachine.state
 
     def __enterUncheckedUp(self):
-        self.__uncheckedUpNode.active = True
+        self.__setActiveNode()
 
     def __leaveUncheckedUp(self):
-        self.__uncheckedUpNode.active = False
+        pass
 
     def __enterUncheckedDown(self):
-        self.__uncheckedDownNode.active = True
+        self.__setActiveNode()
 
     def __leaveUncheckedDown(self):
-        self.__uncheckedDownNode.active = False
+        pass
 
     def __enterCheckedUp(self):
-        self.__checkedUpNode.active = True
+        self.__setActiveNode()
 
     def __leaveCheckedUp(self):
-        self.__checkedUpNode.active = False
+        pass
 
     def __enterCheckedDown(self):
-        self.__checkedDownNode.active = True
+        self.__setActiveNode()
 
     def __leaveCheckedDown(self):
-        self.__checkedDownNode.active = False
+        pass
 
     def __enterUncheckedDisabled(self):
-        self.__uncheckedDisabledNode.active = True
+        self.__setActiveNode()
         self.__tapRecognizer.enable(False)
 
     def __leaveUncheckedDisabled(self):
-        self.__uncheckedDisabledNode.active = False
         self.__tapRecognizer.enable(True)
 
     def __enterCheckedDisabled(self):
-        self.__checkedDisabledNode.active = True
+        self.__setActiveNode()
         self.__tapRecognizer.enable(False)
 
     def __leaveCheckedDisabled(self):
-        self.__checkedDisabledNode.active = False
         self.__tapRecognizer.enable(True)
 
     def __onDown(self, event):
@@ -362,3 +352,11 @@ class ToggleButton(avg.DivNode):
             self.__stateMachine.changeState("UNCHECKED_UP")
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
+    
+    def __setActiveNode(self, state=None):
+        if state == None:
+            state = self.__stateMachine.state
+        for node in self.__nodeMap.itervalues():
+            node.active = False
+        self.__nodeMap[state].active = True
+
