@@ -21,7 +21,7 @@ AC_DEFUN([AX_BOOST_THREAD],
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 CXXFLAGS_SAVE=$CXXFLAGS
-LDFLAGS_SAVE=$LDFLAGS
+LIBS_SAVE=$LIBS
 dnl FIXME: need to include a generic way to check for the flag
 dnl to turn on threading support.
 CXXFLAGS="-pthread $CXXFLAGS"
@@ -50,11 +50,11 @@ break])
   # OXullo 2012-07-18: since boost 1.50, boost::thread depends on boost::system
   AC_CACHE_CHECK(whether Boost::Thread needs Boost::System library,
   ax_cv_boost_thread_system,
-  [LDFLAGS="$LDFLAGS $BOOST_THREAD_LIBS"
+  [LIBS="$LIBS $BOOST_THREAD_LIBS"
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <boost/thread/thread.hpp>]],
             [[boost::thread_group thrds; return 0;]])],
             [ax_cv_boost_thread_system=no],
-            [LDFLAGS="$LDFLAGS $BOOST_THREAD_LIBS -lboost_system"
+            [LIBS="$LIBS $BOOST_THREAD_LIBS -lboost_system"
                 AC_LINK_IFELSE([
                     AC_LANG_PROGRAM([[#include <boost/thread/thread.hpp>]],
                         [[boost::thread_group thrds; return 0;]])
@@ -66,7 +66,7 @@ break])
   ])
   
   CXXFLAGS=$CXXFLAGS_SAVE
-  LDFLAGS=$LDFLAGS_SAVE
+  LIBS=$LIBS_SAVE
   AC_LANG_RESTORE
 
   AC_SUBST(BOOST_THREAD_LIBS)
