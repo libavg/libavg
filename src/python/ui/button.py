@@ -24,16 +24,42 @@ from libavg import avg, statemachine, utils, player
 import gesture
 
 
-class Button(avg.DivNode):
+class _ButtonBase(avg.DivNode):
+    
+    def __init__(self, parent=None, **kwargs):
+        super(_ButtonBase, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
+        
+    def _setActiveArea(self, upNode, activeAreaNode, fatFingerEnlarge):
+        self.__activeAreaNode = activeAreaNode
+
+        if fatFingerEnlarge:
+            if self.__activeAreaNode != None:
+                raise(RuntimeError(
+                    "Button: Can't specify both fatFingerEnlarge and activeAreaNode"))
+            size = upNode.size
+            minSize = 20*player.getPixelsPerMM()
+            size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
+            self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
+        else:
+            if self.__activeAreaNode == None:
+                self.__activeAreaNode = self
+            else:
+                self.appendChild(self.__activeAreaNode)
+
+        self._tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
+                possibleHandler=self._onDown, 
+                detectedHandler=self._onTap, 
+                failHandler=self._onTapFail)
+
+
+class Button(_ButtonBase):
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
-            enabled=True, fatFingerEnlarge=False, clickHandler=None, parent=None,
+            enabled=True, fatFingerEnlarge=False, clickHandler=None,
             **kwargs):
         super(Button, self).__init__(**kwargs)
-        self.registerInstance(self, parent)
 
-        self.__activeAreaNode = activeAreaNode
-        
         self.__nodeMap = {
             "UP": upNode, 
             "DOWN": downNode, 
@@ -57,24 +83,7 @@ class Button(avg.DivNode):
 
         self.__setActiveNode("UP")
 
-        if fatFingerEnlarge:
-            if self.__activeAreaNode != None:
-                raise(RuntimeError(
-                    "Button: Can't specify both fatFingerEnlarge and activeAreaNode"))
-            size = upNode.size
-            minSize = 20*player.getPixelsPerMM()
-            size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
-            self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
-        else:
-            if self.__activeAreaNode == None:
-                self.__activeAreaNode = upNode
-            else:
-                self.appendChild(self.__activeAreaNode)
-
-        self.__tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
-                possibleHandler=self.__onDown, 
-                detectedHandler=self.__onTap, 
-                failHandler=self.__onTapFail)
+        self._setActiveArea(upNode, activeAreaNode, fatFingerEnlarge)
 
         if not(enabled):
             self.setEnabled(False)
@@ -106,14 +115,14 @@ class Button(avg.DivNode):
     def _getState(self):
         return self.__stateMachine.state
 
-    def __onDown(self, event):
+    def _onDown(self, event):
         self.__stateMachine.changeState("DOWN")
 
-    def __onTap(self, event):
+    def _onTap(self, event):
         self.__stateMachine.changeState("UP")
         utils.callWeakRef(self.__clickHandler, event)
 
-    def __onTapFail(self, event):
+    def _onTapFail(self, event):
         self.__stateMachine.changeState("UP")
 
     def __enterUp(self):
@@ -130,10 +139,10 @@ class Button(avg.DivNode):
 
     def __enterDisabled(self):
         self.__setActiveNode()
-        self.__tapRecognizer.enable(False)
+        self._tapRecognizer.enable(False)
 
     def __leaveDisabled(self):
-        self.__tapRecognizer.enable(True)
+        self._tapRecognizer.enable(True)
 
     def __setActiveNode(self, state=None):
         if state == None:
@@ -143,14 +152,13 @@ class Button(avg.DivNode):
         self.__nodeMap[state].active = True
 
 
-class ToggleButton(avg.DivNode):
+class ToggleButton(_ButtonBase):
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
             enabled=True, fatFingerEnlarge=False, checkHandler=None,
-            checked=False, parent=None, **kwargs):
+            checked=False, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
-        self.registerInstance(self, parent)
 
         self.__nodeMap = {
             "UNCHECKED_UP": uncheckedUpNode, 
@@ -168,8 +176,6 @@ class ToggleButton(avg.DivNode):
         if checkedDisabledNode == None:
             self.__nodeMap["CHECKED_DISABLED"] = checkedUpNode
 
-        self.__activeAreaNode = activeAreaNode
-        
         self.__checkHandler = utils.methodref(checkHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
@@ -194,24 +200,7 @@ class ToggleButton(avg.DivNode):
 
         self.__setActiveNode("UNCHECKED_UP")
 
-        if fatFingerEnlarge:
-            if self.__activeAreaNode != None:
-                raise(RuntimeError(
-                    "ToggleButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
-            size = uncheckedUpNode.size
-            minSize = 20*player.getPixelsPerMM()
-            size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
-            self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
-        else:
-            if self.__activeAreaNode == None:
-                self.__activeAreaNode = self
-            else:
-                self.appendChild(self.__activeAreaNode)
-
-        self.__tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
-                possibleHandler=self.__onDown, 
-                detectedHandler=self.__onTap, 
-                failHandler=self.__onTapFail)
+        self._setActiveArea(uncheckedUpNode, activeAreaNode, fatFingerEnlarge)
 
         if not enabled:
             self.__stateMachine.changeState("UNCHECKED_DISABLED")
@@ -321,25 +310,25 @@ class ToggleButton(avg.DivNode):
 
     def __enterUncheckedDisabled(self):
         self.__setActiveNode()
-        self.__tapRecognizer.enable(False)
+        self._tapRecognizer.enable(False)
 
     def __leaveUncheckedDisabled(self):
-        self.__tapRecognizer.enable(True)
+        self._tapRecognizer.enable(True)
 
     def __enterCheckedDisabled(self):
         self.__setActiveNode()
-        self.__tapRecognizer.enable(False)
+        self._tapRecognizer.enable(False)
 
     def __leaveCheckedDisabled(self):
-        self.__tapRecognizer.enable(True)
+        self._tapRecognizer.enable(True)
 
-    def __onDown(self, event):
+    def _onDown(self, event):
         if self.__stateMachine.state == "UNCHECKED_UP":
             self.__stateMachine.changeState("UNCHECKED_DOWN")
         elif self.__stateMachine.state == "CHECKED_UP":
             self.__stateMachine.changeState("CHECKED_DOWN")
 
-    def __onTap(self, event):
+    def _onTap(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
             utils.callWeakRef(self.__checkHandler, event, True)
@@ -347,7 +336,7 @@ class ToggleButton(avg.DivNode):
             self.__stateMachine.changeState("UNCHECKED_UP")
             utils.callWeakRef(self.__checkHandler, event, False)
 
-    def __onTapFail(self, event):
+    def _onTapFail(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
         elif self.__stateMachine.state == "CHECKED_DOWN":
