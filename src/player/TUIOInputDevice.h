@@ -64,7 +64,7 @@ private:
 
     UdpListeningReceiveSocket* m_pSocket;
     int m_LastID;
-    std::set<int> m_LiveTUIOIDs;
+    std::set<int64> m_LiveTUIOIDs;
 #ifndef WIN32
     pthread_t m_Thread;
 #else

@@ -187,9 +187,9 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
     }
 
     // Create up events for all ids not in live list.
-    set<int> deadTUIOIDs;
+    set<int64> deadTUIOIDs;
     getDeadIDs(m_LiveTUIOIDs, deadTUIOIDs);
-    set<int>::iterator it;
+    set<int64>::iterator it;
     for (it = deadTUIOIDs.begin(); it != deadTUIOIDs.end(); ++it) {
         int id = *it;
         TouchStatusPtr pTouchStatus = getTouchStatus(id);

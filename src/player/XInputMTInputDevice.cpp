@@ -31,8 +31,6 @@
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XInput2.h>
 
-#include <boost/functional/hash.hpp>
-
 using namespace std;
 
 namespace avg {
@@ -89,17 +87,17 @@ std::vector<EventPtr> XInputMTInputDevice::pollEvents()
 
 TouchStatusPtr XInputMTInputDevice::getTouchStatusViaSeq(GdkEventSequence* id)
 {
-    return getTouchStatus(boost::hash<GdkEventSequence*>()(id));
+    return getTouchStatus((int64)id);
 }
 
 void XInputMTInputDevice::addTouchStatusViaSeq(GdkEventSequence* id, TouchEventPtr pInitialEvent)
 {
-    addTouchStatus(boost::hash<GdkEventSequence*>()(id), pInitialEvent);
+    addTouchStatus((int64)id, pInitialEvent);
 }
 
 void XInputMTInputDevice::removeTouchStatusViaSeq(GdkEventSequence* id)
 {
-    removeTouchStatus(boost::hash<GdkEventSequence*>()(id));
+    removeTouchStatus((int64)id);
 }
 
 void XInputMTInputDevice::findMTDevice()

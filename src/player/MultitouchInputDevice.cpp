@@ -85,9 +85,9 @@ int MultitouchInputDevice::getNumTouches() const
     return m_TouchIDMap.size();
 }
 
-TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
+TouchStatusPtr MultitouchInputDevice::getTouchStatus(int64 id)
 {
-    map<int, TouchStatusPtr>::iterator it = m_TouchIDMap.find(id);
+    map<int64, TouchStatusPtr>::iterator it = m_TouchIDMap.find(id);
     if (it == m_TouchIDMap.end()) {
         return TouchStatusPtr();
     } else {
@@ -95,25 +95,25 @@ TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
     }
 }
 
-void MultitouchInputDevice::addTouchStatus(int id, TouchEventPtr pInitialEvent)
+void MultitouchInputDevice::addTouchStatus(int64 id, TouchEventPtr pInitialEvent)
 {
     TouchStatusPtr pTouchStatus(new TouchStatus(pInitialEvent));
     m_TouchIDMap[id] = pTouchStatus;
     m_Touches.push_back(pTouchStatus);
 }
 
-void MultitouchInputDevice::removeTouchStatus(int id)
+void MultitouchInputDevice::removeTouchStatus(int64 id)
 {
     unsigned numRemoved = m_TouchIDMap.erase(id);
     AVG_ASSERT(numRemoved == 1);
 }
 
-void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
+void MultitouchInputDevice::getDeadIDs(const set<int64>& liveIDs, set<int64>& deadIDs)
 {
-    map<int, TouchStatusPtr>::iterator it;
+    map<int64, TouchStatusPtr>::iterator it;
     for (it = m_TouchIDMap.begin(); it != m_TouchIDMap.end(); ++it) {
-        int id = it->first;
-        set<int>::const_iterator foundIt = liveIDs.find(id);
+        int64 id = it->first;
+        set<int64>::const_iterator foundIt = liveIDs.find(id);
         if (foundIt == liveIDs.end()) {
             deadIDs.insert(id);
         }
