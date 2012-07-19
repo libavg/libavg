@@ -106,9 +106,7 @@ void MeshNode::setTriangles(const vector<glm::ivec3>& triangles)
 {
     for (unsigned int i = 0; i < triangles.size(); i++) {
         
-        if (static_cast<unsigned int>(triangles[i].x) < 0 ||
-                static_cast<unsigned int>(triangles[i].y) < 0 || 
-                static_cast<unsigned int>(triangles[i].z) < 0)
+        if (triangles[i].x < 0 || triangles[i].y < 0 || triangles[i].z < 0)
         {
             throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 "Triangle Index Out of Range < 0"));
@@ -126,14 +124,14 @@ void MeshNode::setTriangles(const vector<glm::ivec3>& triangles)
     setDrawNeeded();
 }
 
-void MeshNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void MeshNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     for (unsigned int i = 0; i < m_VertexCoords.size(); i++) {
-        pVertexArray->appendPos(m_VertexCoords[i],m_TexCoords[i], color);
+        pVertexData->appendPos(m_VertexCoords[i],m_TexCoords[i], color);
     }
 
     for (unsigned int i = 0; i < m_Triangles.size(); i++) {
-        pVertexArray->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, 
+        pVertexData->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, 
                 m_Triangles[i].z);
     }
 }

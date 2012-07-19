@@ -20,7 +20,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 class DynamicsTestCase(AVGTestCase):
@@ -41,25 +41,26 @@ class DynamicsTestCase(AVGTestCase):
             node.y = 20
             self.root.appendChild(node)
             self.assertException(setNodeID)
-            self.assertEqual(self.root.indexOf(Player.getElementByID("nodeid1")), 0)
+            self.assertEqual(self.root.indexOf(player.getElementByID("nodeid1")), 0)
+            self.assertException(lambda: self.root.indexOf(self.root))
 
         def createNode2(useXml):
             node = createFunc(useXml)
             node.id = "nodeid2"
-            oldNode = Player.getElementByID("nodeid1")
+            oldNode = player.getElementByID("nodeid1")
             self.root.insertChildBefore(node, oldNode)
 
         def reorderNode():
             self.root.reorderChild(0, 1)
-            node = Player.getElementByID("nodeid1")
+            node = player.getElementByID("nodeid1")
             self.root.reorderChild(node, 0)
         
         def removeNodes():
-            self.node = Player.getElementByID("nodeid1")
+            self.node = player.getElementByID("nodeid1")
             self.root.removeChild(self.root.indexOf(self.node))
-            node2 = Player.getElementByID("nodeid2")
+            node2 = player.getElementByID("nodeid2")
             self.root.removeChild(node2)
-            self.assertEqual(Player.getElementByID("nodeid1"), None)
+            self.assertEqual(player.getElementByID("nodeid1"), None)
         
         def reAddNode():
             self.root.appendChild(self.node)
@@ -68,34 +69,34 @@ class DynamicsTestCase(AVGTestCase):
             self.node = None
        
         def killNode():
-            self.node = Player.getElementByID("nodeid1")
+            self.node = player.getElementByID("nodeid1")
             self.node.unlink(True)
-            gone = Player.getElementByID("nodeid1")
+            gone = player.getElementByID("nodeid1")
             self.assertEqual(gone, None)
 
         def removeAgain():
-            node = Player.getElementByID("nodeid1")
+            node = player.getElementByID("nodeid1")
             node.unlink()
-            gone = Player.getElementByID("nodeid1")
+            gone = player.getElementByID("nodeid1")
             self.assertEqual(gone, None)
         
         def runTest(useXml):
             self.root = self.loadEmptyScene()
             createNode1(useXml)
-            Player.stop()
+            player.stop()
             self.root = self.loadEmptyScene()
-            Player.setFakeFPS(25)
-            self.start((
-                     lambda: createNode1(useXml),
-                     lambda: self.compareImage(testName+"1", warnOnImageDiff),
+            player.setFakeFPS(25)
+            self.start(warnOnImageDiff, 
+                    (lambda: createNode1(useXml),
+                     lambda: self.compareImage(testName+"1"),
                      lambda: createNode2(useXml),
-                     lambda: self.compareImage(testName+"2", warnOnImageDiff),
+                     lambda: self.compareImage(testName+"2"),
                      reorderNode,
-                     lambda: self.compareImage(testName+"3", warnOnImageDiff),
+                     lambda: self.compareImage(testName+"3"),
                      removeNodes,
-                     lambda: self.compareImage(testName+"4", warnOnImageDiff),
+                     lambda: self.compareImage(testName+"4"),
                      reAddNode,
-                     lambda: self.compareImage(testName+"5", warnOnImageDiff),
+                     lambda: self.compareImage(testName+"5"),
                      killNode,
                      reAddNode,
                      removeAgain
@@ -107,9 +108,9 @@ class DynamicsTestCase(AVGTestCase):
     def testImgDynamics(self):
         def createImg(useXml):
             if useXml:
-                node = Player.createNode("<image href='rgb24-64x64.png'/>")
+                node = player.createNode("<image href='rgb24-64x64.png'/>")
             else:
-                node = Player.createNode("image", {"href":"rgb24-64x64.png"})
+                node = player.createNode("image", {"href":"rgb24-64x64.png"})
             return node
 
         self.__runDynamicsTest(createImg, "testImgDynamics")
@@ -117,13 +118,11 @@ class DynamicsTestCase(AVGTestCase):
     def testVideoDynamics(self):
         def createVideo(useXml):
             if useXml:
-                node = Player.createNode(
-                        "<video href='../video/testfiles/mpeg1-48x48.mpg'"
-                        " threaded='false'/>")
+                node = player.createNode(
+                        "<video href='mpeg1-48x48.mpg' threaded='false'/>")
             else:
-                node = Player.createNode("video", 
-                        {"href":"../video/testfiles/mpeg1-48x48.mpg",
-                         "threaded":False})
+                node = player.createNode("video", 
+                        {"href":"mpeg1-48x48.mpg", "threaded":False})
             node.play()
             return node
 
@@ -132,9 +131,9 @@ class DynamicsTestCase(AVGTestCase):
     def testWordsDynamics(self):
         def createWords(useXml):
             if useXml:
-                node = Player.createNode("<words text='test'/>")
+                node = player.createNode("<words text='test'/>")
             else:
-                node = Player.createNode("words", {"text":"test"})
+                node = player.createNode("words", {"text":"test"})
             node.font="Bitstream Vera Sans"
             node.fontsize=12
             node.width=200
@@ -145,14 +144,14 @@ class DynamicsTestCase(AVGTestCase):
     def testDivDynamics(self):
         def createDiv(useXml):
             if useXml:
-                node = Player.createNode("""
+                node = player.createNode("""
                     <div>
                       <image href='rgb24-64x64.png'/>
                     </div>
                     """)
             else:
                 node = avg.DivNode()
-                imgNode = avg.ImageNode(href="rgb24-64x64.png", parent=node)
+                avg.ImageNode(href="rgb24-64x64.png", parent=node)
             return node
 
         self.__runDynamicsTest(createDiv, "testDivDynamics")
@@ -162,8 +161,8 @@ class DynamicsTestCase(AVGTestCase):
         avg.ImageNode(href="rgb24-64x64.png", id="testdup", parent=root)
         self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
                 id="testdup", parent=root))
-        self.start((
-                 self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
+        self.start(False,
+                (self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
                         id="testdup", parent=root)),
                 ))
        
@@ -175,23 +174,23 @@ class DynamicsTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         self.assertException(changeParent)
-        self.start((self.assertException(changeParent),))
+        self.start(False, (self.assertException(changeParent),))
 
     def testDynamicEventCapture(self):
         # Tests if deleting a node that has events captured works.
         def createImg():
             parentNode = root
-            node = Player.createNode("image", {"id": "img", "href":"rgb24-64x64.png"})
+            node = player.createNode("image", {"id": "img", "href":"rgb24-64x64.png"})
             parentNode.appendChild(node)
             node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, captureMouseDown)
             parentNode.setEventHandler(avg.CURSORUP, avg.MOUSE, mainMouseUp)
         
         def setEventCapture():
-            Player.getElementByID("img").setEventCapture()
+            player.getElementByID("img").setEventCapture()
         
         def deleteImg():
             parentNode = root
-            node = Player.getElementByID("img")
+            node = player.getElementByID("img")
             parentNode.removeChild(parentNode.indexOf(node))
         
         def captureMouseDown(event):
@@ -200,12 +199,12 @@ class DynamicsTestCase(AVGTestCase):
         def mainMouseUp(event):
             self.mainMouseUpCalled = True
         
-        Helper = Player.getTestHelper()
+        Helper = player.getTestHelper()
         self.captureMouseDownCalled = False
         self.mainMouseUpCalled = False
         root = self.loadEmptyScene()
-        self.start((
-                 createImg,
+        self.start(False,
+                (createImg,
                  setEventCapture,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         100, 10, 1),
@@ -230,17 +229,17 @@ class DynamicsTestCase(AVGTestCase):
                         lambda e: appendEventString(s) and swallow)
 
             parentNode = root
-            node = Player.createNode("div", {'x':0,'y':0,'width':50, 'height':50})
+            node = player.createNode("div", {'x':0,'y':0,'width':50, 'height':50})
             setHandler (node, 'a')
             parentNode.appendChild(node)
-            node = Player.createNode("div", {'x':0,'y':0,'width':100, 'height':100})
+            node = player.createNode("div", {'x':0,'y':0,'width':100, 'height':100})
             setHandler (node, 'b')
             parentNode.insertChild(node,0)
             parentNode = node
-            node = Player.createNode("div", {'x':40,'y':40,'width':30, 'height':30})
+            node = player.createNode("div", {'x':40,'y':40,'width':30, 'height':30})
             setHandler (node, 'c')
             parentNode.appendChild(node)
-            node = Player.createNode("div", {'x':60,'y':40,'width':30, 'height':30})
+            node = player.createNode("div", {'x':60,'y':40,'width':30, 'height':30})
             setHandler (node, 'd', True)
             parentNode.appendChild(node)
 
@@ -248,17 +247,17 @@ class DynamicsTestCase(AVGTestCase):
             self.__eventString = ''
 
         root = self.loadEmptyScene()
-        self.start((
-                createNodes,
-                resetEventString,
-                lambda: click (10,10),
-                lambda: self.assertEqual(self.__eventString, 'a'),
-                resetEventString,
-                lambda: click (55,55),
-                lambda: self.assertEqual(self.__eventString, 'cb'),
-                resetEventString,
-                lambda: click (65,55),
-                lambda: self.assertEqual(self.__eventString, 'd'),
+        self.start(False,
+                (createNodes,
+                 resetEventString,
+                 lambda: click (10,10),
+                 lambda: self.assertEqual(self.__eventString, 'a'),
+                 resetEventString,
+                 lambda: click (55,55),
+                 lambda: self.assertEqual(self.__eventString, 'cb'),
+                 resetEventString,
+                 lambda: click (65,55),
+                 lambda: self.assertEqual(self.__eventString, 'd'),
                 ))
 
     def testComplexDiv(self):
@@ -266,17 +265,17 @@ class DynamicsTestCase(AVGTestCase):
             imgNode.id = "imageid"
 
         def createDiv():
-            imgNode = Player.createNode("image", 
+            imgNode = player.createNode("image", 
                     {"id":"imageid", "href":"rgb24-64x64.png"})
-            node = Player.createNode("div", {"id":"divid"})
+            node = player.createNode("div", {"id":"divid"})
             node.appendChild(imgNode)
             imgNode.id = "imageid"
             root.appendChild(node)
             self.assertException(lambda: setImageID(imgNode))
   
         def removeDiv():
-            node = Player.getElementByID("divid")
-            imgNode = Player.getElementByID("imageid")
+            node = player.getElementByID("divid")
+            imgNode = player.getElementByID("imageid")
             node.unlink()
             imgNode.id = "imageid"
             imgNode.unlink()
@@ -287,22 +286,22 @@ class DynamicsTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         createDiv()
         removeDiv()
-        Player.stop()
+        player.stop()
         root = self.loadEmptyScene()
-        Player.setFakeFPS(25)
-        self.start((
-                 createDiv,
-                 lambda: self.compareImage("testComplexDiv1", False),
+        player.setFakeFPS(25)
+        self.start(False,
+                (createDiv,
+                 lambda: self.compareImage("testComplexDiv1"),
                  removeDiv,
-                 lambda: self.compareImage("testComplexDiv1", False),
+                 lambda: self.compareImage("testComplexDiv1"),
                 ))
 
     def testNodeCustomization(self):
         def testNodePythonAttribute():
-            node1 = Player.createNode("image", {"id":"foo", "pos":(23, 42)})
+            node1 = player.createNode("image", {"id":"foo", "pos":(23, 42)})
             root.appendChild(node1)
             node1.customAttribute = "bbb"
-            node2 = Player.getElementByID("foo")
+            node2 = player.getElementByID("foo")
             self.assertEqual(node1, node2)
             self.assertEqual(node2.customAttribute, "bbb")
             node1.unlink(True)
@@ -312,8 +311,7 @@ class DynamicsTestCase(AVGTestCase):
             class CustomImageNode(avg.ImageNode):
                 def __init__(self, p, parent=None, **kwargs):
                     avg.ImageNode.__init__(self, pos=p, href="rgb24-64x64.png", **kwargs)
-                    if parent:
-                        parent.appendChild(self)
+                    self.registerInstance(self, parent)
 
                 def customMethod(self):
                     pass
@@ -321,28 +319,31 @@ class DynamicsTestCase(AVGTestCase):
             class CustomDivNode(avg.DivNode):
                 def __init__(self, parent=None, **kwargs):
                     avg.DivNode.__init__(self, **kwargs)
-                    if parent:
-                        parent.appendChild(self)
+                    self.registerInstance(self, parent)
                     CustomImageNode((23,42), parent=self)
 
 
-            customNode = avg.ImageNode(id="foo")
-            self.assertEqual(customNode.id, "foo")
-            CustomImageNode((23, 42), parent=root)
+            customNode = CustomImageNode((23, 42), parent=root)
             retrievedImage = root.getChild(0)
             self.assertEqual(type(retrievedImage), CustomImageNode)
             self.assertEqual(retrievedImage.pos, (23,42))
             self.assertEqual(retrievedImage.href, "rgb24-64x64.png")
             retrievedImage.customMethod()
+            customNode.unlink(True)
             
-            CustomDivNode(parent=Player.getRootNode())
-            retrievedDiv = Player.getRootNode().getChild(1)
+            CustomDivNode(parent=player.getRootNode())
+            retrievedDiv = player.getRootNode().getChild(0)
             self.assertEqual(type(retrievedDiv), CustomDivNode)
             retrievedImage = retrievedDiv.getChild(0)
             self.assertEqual(type(retrievedImage), CustomImageNode)
-#            retrievedDiv = retrievedImage.getParent()
-#            print type(retrievedDiv)
-#            self.assertEqual(type(retrievedDiv), CustomDivNode)
+            retrievedDiv = retrievedImage.parent
+            self.assertEqual(type(retrievedDiv), CustomDivNode)
+            retrievedDiv.unlink(True)
+            
+            customNode = CustomImageNode((23,42))
+            root.appendChild(customNode)
+            retrievedImage = root.getChild(0)
+            self.assertEqual(type(retrievedImage), CustomImageNode)
 
         root = self.loadEmptyScene()
         testNodePythonAttribute()
@@ -354,14 +355,35 @@ class DynamicsTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         root.mediadir="testmediadir"
-        imageNode1 = Player.createNode("image", {"href": "rgb24-64x64a.png"})
-        imageNode2 = Player.createNode("image", {"href": "rgb24-64x64a.png", "x":30})
+        imageNode1 = player.createNode("image", {"href": "rgb24-64x64a.png"})
+        imageNode2 = player.createNode("image", {"href": "rgb24-64x64a.png", "x":30})
         root.appendChild(imageNode2)
-        self.start((
-                 lambda: self.compareImage("testDynamicMediaDir1", False),
+        self.start(False,
+                (lambda: self.compareImage("testDynamicMediaDir1"),
                  attachNode,
-                 lambda: self.compareImage("testDynamicMediaDir2", False)
+                 lambda: self.compareImage("testDynamicMediaDir2")
                 ))
+
+    def testStyle(self):
+        style = avg.Style(font="Arial", variant="bold", fontsize=12, linespacing=14)
+        derivedStyle = avg.Style(basestyle=style, fontsize=14)
+        self.assert_(derivedStyle["font"] == "Arial")
+        self.assert_(derivedStyle["fontsize"] == 14)
+        self.assert_("fontsize" in derivedStyle)
+        self.assert_(not("foo" in derivedStyle))
+        self.assert_(derivedStyle.keys() == 
+                ['fontsize', 'linespacing', 'font', 'variant'])
+        self.assert_(len(derivedStyle) == 4)
+
+        node = avg.WordsNode(text="foo", fontsize=18, style=style)
+        self.assert_(node.fontsize == 18)
+        self.assert_(node.text == "foo")
+        self.assert_(node.variant == "bold")
+        self.assert_(style["fontsize"] == 12)
+        self.assert_(node.style == style)
+
+        brokenStyle = avg.Style(brokenAttr="foo")
+        self.assertException(lambda: avg.WordsNode(text="foo", style=brokenStyle))
 
 
 def dynamicsTestSuite(tests):
@@ -376,9 +398,8 @@ def dynamicsTestSuite(tests):
             "testDynamicEventCapture",
             "testComplexDiv",
             "testNodeCustomization",
-            "testDynamicMediaDir"
+            "testDynamicMediaDir",
+            "testStyle"
             )
 
     return createAVGTestSuite(availableTests, DynamicsTestCase, tests)
-
-Player = avg.Player.get()

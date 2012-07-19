@@ -27,6 +27,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include "../audio/SDLAudioEngine.h"
 
@@ -58,6 +59,7 @@ NodeDefinition SoundNode::createDefinition()
 SoundNode::SoundNode(const ArgList& args)
     : m_Filename(""),
       m_pEOFCallback(0),
+      m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
       m_State(Unloaded)
@@ -154,6 +156,7 @@ void SoundNode::connectDisplay()
 
 void SoundNode::connect(CanvasPtr pCanvas)
 {
+    checkReload();
     AreaNode::connect(pCanvas);
     pCanvas->registerFrameEndListener(this);
 }
@@ -215,13 +218,12 @@ void SoundNode::checkReload()
     string fileName (m_href);
     if (m_href != "") {
         initFilename(fileName);
-        if (fileName != m_Filename) {
-            SoundState oldState = m_State;
+        if (fileName != m_Filename && m_State != Unloaded) {
             changeSoundState(Unloaded);
             m_Filename = fileName;
-            if (oldState != Unloaded) {
-                changeSoundState(Paused);
-            }
+            changeSoundState(Paused);
+        } else {
+            m_Filename = fileName;
         }
     } else {
         changeSoundState(Unloaded);
@@ -274,10 +276,16 @@ void SoundNode::changeSoundState(SoundState newSoundState)
 
 void SoundNode::seek(long long destTime) 
 {
-    m_pDecoder->seek(float(destTime)/1000);
-    m_StartTime = Player::get()->getFrameTime() - destTime;
-    m_PauseTime = 0;
-    m_PauseStartTime = Player::get()->getFrameTime();
+    if (getState() == NS_CANRENDER) {    
+        m_pDecoder->seek(float(destTime)/1000);
+        m_StartTime = Player::get()->getFrameTime() - destTime;
+        m_PauseTime = 0;
+        m_PauseStartTime = Player::get()->getFrameTime();
+    } else {
+        // If we get a seek command before decoding has really started, we need to defer 
+        // the actual seek until the decoder is ready.
+        m_SeekBeforeCanRenderTime = destTime;
+    }
 }
 
 void SoundNode::open()
@@ -297,6 +305,10 @@ void SoundNode::startDecoding()
     SDLAudioEngine* pEngine = SDLAudioEngine::get();
     m_pDecoder->startDecoding(false, pEngine->getParams());
     pEngine->addSource(this);
+    if (m_SeekBeforeCanRenderTime != 0) {
+        seek(m_SeekBeforeCanRenderTime);
+        m_SeekBeforeCanRenderTime = 0;
+    }
 }
 
 void SoundNode::close()

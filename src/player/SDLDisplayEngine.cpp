@@ -45,7 +45,6 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
-#include "../graphics/ShaderRegistry.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -97,6 +96,7 @@ void safeSetAttribute(SDL_GLattr attr, int value)
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
+      m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
       m_bMouseOverApp(true),
@@ -177,10 +177,10 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
-    safeSetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
+    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); 
     unsigned int Flags = SDL_OPENGL;
     if (dp.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
@@ -228,7 +228,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
-    m_pGLContext = GLContextPtr(new GLContext(true, glConfig));
+    m_pGLContext = new GLContext(true, glConfig);
+    GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
@@ -238,15 +239,15 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     calcRefreshRate();
 
     glEnable(GL_BLEND);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_BLEND)");
+    GLContext::checkError("init: glEnable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel(GL_FLAT)");
+    GLContext::checkError("init: glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
+    GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
+    GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glTexEnvf()");
+    GLContext::checkError("init: glTexEnvf()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
@@ -258,12 +259,19 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnable(GL_TEXTURE_2D);
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
     if (dp.m_Framerate == 0) {
         setVBlankRate(dp.m_VBRate);
     } else {
         setFramerate(dp.m_Framerate);
+    }
+    glproc::UseProgramObject(0);
+    if (m_pGLContext->useMinimalShader()) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
     }
 
     m_Size = dp.m_Size;
@@ -286,10 +294,10 @@ void SDLDisplayEngine::teardown()
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
         SDL_ShowCursor(SDL_ENABLE);
-//        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, 0);
 #endif
         m_pScreen = 0;
-        m_pGLContext = GLContextPtr();
+        delete m_pGLContext;
+        GLContext::setMain(0);
     }
 }
 
@@ -328,15 +336,15 @@ int SDLDisplayEngine::getKeyModifierState() const
 
 void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
-    if (dotsPerMM != 0) {
+    if (m_ScreenResolution.x == 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+    }
+    if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
     }
 
     if (m_PPMM == 0) {
-        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
 #ifdef WIN32
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
         m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
@@ -373,8 +381,7 @@ void SDLDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "swapBuffers()");
-    AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
+    GLContext::checkError("swapBuffers()");
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)
@@ -397,7 +404,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 
 BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 {
-    BitmapPtr pBmp (new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
+    BitmapPtr pBmp(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     string sTmp;
     bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
     GLenum buf = buffer;
@@ -409,12 +416,13 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
             buf = GL_FRONT;
         }
     }
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     glReadBuffer(buf);
+    GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadPixels()");
+    GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }

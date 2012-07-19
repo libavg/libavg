@@ -28,8 +28,6 @@ import math
 
 from libavg import avg
 
-g_HasShaderSupport = None
-
 def almostEqual(a, b, epsilon):
     try:
         bOk = True
@@ -55,6 +53,16 @@ def flatten(l):
         i += 1
     return ltype(l)
 
+# Should be used as a decorator
+def skipIf(func, condition, message):
+    def wrapper(self, *args, **kwargs):
+        if not(condition):
+            return func(self, *args, **kwargs)
+        else:
+            self.skip(message)
+            return
+    return wrapper
+
 
 class AVGTestCase(unittest.TestCase):
     imageResultDirectory = "resultimages"
@@ -64,9 +72,11 @@ class AVGTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, testFuncName)
 
         self.__player = avg.Player.get()
+        self.__player.enableGLErrorChecks(True)
         self.__testFuncName = testFuncName
         self.__logger = avg.Logger.get()
         self.__skipped = False
+        self.__warnOnImageDiff = False
 
     def __setupPlayer(self):
         self.__player.setMultiSampleSamples(1)
@@ -93,24 +103,18 @@ class AVGTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-    @staticmethod
-    def setBaselineImageDirectory(name):
-        AVGTestCase.baselineImageResultDirectory = name
-    
-    @staticmethod
-    def getBaselineImageDir():
-        return AVGTestCase.baselineImageResultDirectory
-    
-    def start(self, actions):
+    def start(self, warnOnImageDiff, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
         self.__delaying = False
+        self.__warnOnImageDiff = warnOnImageDiff
         
         self.assert_(self.__player.isPlaying() == 0)
         self.actions = flatten(actions)
         self.curFrame = 0
         self.__player.setOnFrameHandler(self.__nextAction)
         self.__player.setFramerate(10000)
+        self.__player.assumePixelsPerMM(1)
         self.__player.play()
         self.assert_(self.__player.isPlaying() == 0)
 
@@ -120,14 +124,14 @@ class AVGTestCase(unittest.TestCase):
         self.__delaying = True
         self.__player.setTimeout(time, timeout)
 
-    def compareImage(self, fileName, warn):
+    def compareImage(self, fileName):
         bmp = self.__player.screenshot()
-        self.compareBitmapToFile(bmp, fileName, warn)
+        self.compareBitmapToFile(bmp, fileName)
 
-    def compareBitmapToFile(self, bmp, fileName, warn):
+    def compareBitmapToFile(self, bmp, fileName):
         try:
-            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir() + "/" + fileName
-                    + ".png")
+            baselineBmp = avg.Bitmap(AVGTestCase.baselineImageResultDirectory + "/"
+                    + fileName + ".png")
             diffBmp = bmp.subtract(baselineBmp)
             average = diffBmp.getAvg()
             stdDev = diffBmp.getStdDev()
@@ -142,8 +146,8 @@ class AVGTestCase(unittest.TestCase):
                 msg = ("  "+fileName+
                         ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
                         {'avg':average, 'stddev':stdDev})
-                if warn:
-                    print msg
+                if self.__warnOnImageDiff:
+                    sys.stderr.write("\n"+msg+"\n")
                 else:
                     self.fail(msg)
         except RuntimeError:
@@ -173,7 +177,9 @@ class AVGTestCase(unittest.TestCase):
 
     def loadEmptyScene(self, resolution=(160,120)):
         self.__player.createMainCanvas(size=resolution)
-        return self.__player.getRootNode()
+        root = self.__player.getRootNode()
+        root.mediadir = "media"
+        return root
 
     def initDefaultImageScene(self):
         root = self.loadEmptyScene()
@@ -216,20 +222,6 @@ class AVGTestCase(unittest.TestCase):
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
     
-    def _hasShaderSupport(self):
-        # XXX Duplicated code with FXTest.areFXSupported()
-        def checkShaderSupport():
-            global g_HasShaderSupport
-            g_HasShaderSupport = self.__player.isUsingShaders()
-
-        global g_HasShaderSupport
-        if g_HasShaderSupport == None:
-            self.loadEmptyScene()
-            self.start([checkShaderSupport,])
-        if not(g_HasShaderSupport):
-            self.skip("no shader support")
-        return g_HasShaderSupport
-
     def __nextAction(self):
         if not(self.__delaying):
             if self.__dumpTestFrames:
@@ -250,7 +242,7 @@ def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
             if testName in availableTests:
                 testNames.append(testName)
             else:
-                print "no test named %s" % testName
+                sys.stderr.write(("No test named %s"%testName) + "\n")
                 sys.exit(1)
     else:
         testNames = availableTests

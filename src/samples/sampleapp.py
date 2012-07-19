@@ -3,10 +3,6 @@
 
 from libavg import avg, AVGApp, anim
 
-# usually you need the Player in many places, so it's useful
-# to keep it in a global variable (it's a singleton anyway).
-g_Player = avg.Player.get()
-
 class HelloWorld(AVGApp):
     def init(self):
         # Put all your nodes in the hierarchy below self._parentNode

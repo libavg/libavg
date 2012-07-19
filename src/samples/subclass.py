@@ -9,8 +9,7 @@ RESOLUTION = avg.Point2D(800, 600)
 class TextRect(avg.DivNode):
     def __init__(self, text, parent=None, **kwargs):
         super(TextRect, self).__init__(**kwargs)
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
         self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor="000000", 
                 color="FFFFFF", parent=self)
         self.words = avg.WordsNode(color="FFFFFF", text=text, alignment="center", 

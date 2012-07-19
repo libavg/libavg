@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -43,14 +43,14 @@ public:
 
 private:
     template<class PIXEL>
-    void convolveLine(const unsigned char * pSrc, unsigned char * pDest, 
+    void convolveLine(const unsigned char * pSrc, unsigned char * pDest,
             int lineLen, int stride) const;
     float m_Mat[3][3];
 };
 
 template<class PIXEL>
-void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest, 
-        int lineLen, int stride) const 
+void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest,
+        int lineLen, int stride) const
 {
     PIXEL * pSrcPixel = (PIXEL *)pSrc;
     PIXEL * pDestPixel = (PIXEL *)pDest;
@@ -60,17 +60,17 @@ void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest,
         float newB = 0;
 
         for (int i = 0; i < 3; i++) {
+            unsigned char * pLineStart = (unsigned char *)pSrcPixel+i*stride;
             for (int j = 0; j < 3; j++) {
-                unsigned char * pLineStart = (unsigned char *)pSrcPixel+i*stride;
                 PIXEL SrcPixel = *((PIXEL *)pLineStart+j);
                 newR += SrcPixel.getR()*m_Mat[i][j];
                 newG += SrcPixel.getG()*m_Mat[i][j];
                 newB += SrcPixel.getB()*m_Mat[i][j];
             }
         }
-        *pDestPixel = PIXEL((unsigned char)newR, (unsigned char)newG, 
+        *pDestPixel = PIXEL((unsigned char)newR, (unsigned char)newG,
                 (unsigned char)newB);
-        
+
         pSrcPixel++;
         pDestPixel++;
     }

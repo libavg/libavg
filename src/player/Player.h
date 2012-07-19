@@ -82,10 +82,11 @@ class AVG_API Player
         bool isFullscreen();
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
-        void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
-                bool bUsePixelBuffers, int multiSampleSamples);
+        void setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
+                int multiSampleSamples, GLConfig::ShaderUsage shaderUsage);
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
+        void enableGLErrorChecks(bool bEnable);
         glm::vec2 getScreenResolution();
         float getPixelsPerMM();
         glm::vec2 getPhysicalScreenDimensions();
@@ -119,7 +120,8 @@ class AVG_API Player
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
-        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
+        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict,
+                const boost::python::object& self=boost::python::object());
         NodePtr createNodeFromXmlString(const std::string& sXML);
         
         int setInterval(int time, PyObject * pyfunc);
@@ -135,6 +137,7 @@ class AVG_API Player
         void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
         bool isCaptured(int cursorID);
+        void removeDeadEventCaptures();
         EventPtr getCurEvent() const;
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
@@ -148,11 +151,11 @@ class AVG_API Player
         void doFrame(bool bFirstFrame);
         float getFramerate();
         float getVideoRefreshRate();
-        bool isUsingShaders();
         size_t getVideoMemInstalled();
         size_t getVideoMemUsed();
         void setGamma(float red, float green, float blue);
         SDLDisplayEngine * getDisplayEngine() const;
+        void keepWindowOpen();
         void setStopOnEscape(bool bStop);
         bool getStopOnEscape() const;
         void setVolume(float volume);
@@ -233,8 +236,10 @@ class AVG_API Player
         AudioParams m_AP;
         GLConfig m_GLConfig;
 
+        bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;
         bool m_bIsPlaying;
+        bool m_bCheckGLErrors;
 
         // Time calculation
         bool m_bFakeFPS;
@@ -259,7 +264,7 @@ class AVG_API Player
         struct EventCaptureInfo {
             EventCaptureInfo(const NodeWeakPtr& pNode);
 
-            NodeWeakPtr m_pNode;
+            NodePtr m_pNode;
             int m_CaptureCount;
         };
         typedef boost::shared_ptr<EventCaptureInfo> EventCaptureInfoPtr;

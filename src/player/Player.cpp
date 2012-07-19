@@ -95,6 +95,9 @@
 #include <fenv.h>
 #endif
 
+#include <glib-object.h>
+#include <typeinfo>
+
 using namespace std;
 using namespace boost;
 
@@ -107,8 +110,10 @@ Player::Player()
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
+      m_bKeepWindowOpen(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
+      m_bCheckGLErrors(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
@@ -119,7 +124,7 @@ Player::Player()
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
-string sDummy;
+    string sDummy;
 #ifdef _WIN32
     if (getEnv("AVG_WIN_CRASH_SILENTLY", sDummy)) {
         DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
@@ -133,7 +138,7 @@ string sDummy;
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
     }
-    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
     initConfig();
 
@@ -163,6 +168,8 @@ string sDummy;
     if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
         debugBreak();
     }
+
+    g_type_init();
 }
 
 void deletePlayer()
@@ -225,14 +232,14 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_Pos.y = y;
 }
 
-void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders,
-                bool bUsePixelBuffers, int multiSampleSamples)
+void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
+        int multiSampleSamples, GLConfig::ShaderUsage shaderUsage)
 {
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
-    m_GLConfig.m_bUseShaders = bUseShaders;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
+    m_GLConfig.m_ShaderUsage = shaderUsage;
 }
 
 void Player::setMultiSampleSamples(int multiSampleSamples)
@@ -248,6 +255,15 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
+void Player::enableGLErrorChecks(bool bEnable)
+{
+    if (m_bIsPlaying) {
+        GLContext::enableErrorChecks(bEnable);
+    } else {
+        m_bCheckGLErrors = bEnable;
+    }
+}
+        
 glm::vec2 Player::getScreenResolution()
 {
     return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
@@ -265,6 +281,7 @@ glm::vec2 Player::getPhysicalScreenDimensions()
 
 void Player::assumePixelsPerMM(float ppmm)
 {
+    m_DP.m_DotsPerMM = ppmm;
     safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
 }
 
@@ -715,15 +732,17 @@ void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
-    if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {
+    if (it != m_EventCaptureInfoMap.end()) {
         EventCaptureInfoPtr pCaptureInfo = it->second;
-        NodePtr pOldNode = pCaptureInfo->m_pNode.lock();
-        if (pOldNode == pNode) {
-            pCaptureInfo->m_CaptureCount++;
-        } else {
-            throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
-                    + pNode->getID() + "', but cursor already captured by '"
-                    + pOldNode->getID() + "'.");
+        NodePtr pOldNode = pCaptureInfo->m_pNode;
+        if (pOldNode->getState() != Node::NS_UNCONNECTED) {
+            if (pOldNode == pNode) {
+                pCaptureInfo->m_CaptureCount++;
+            } else {
+                throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
+                        + pNode->getID() + "', but cursor already captured by '"
+                        + pOldNode->getID() + "'.");
+            }
         }
     } else {
         m_EventCaptureInfoMap[cursorID] = EventCaptureInfoPtr(
@@ -735,7 +754,9 @@ void Player::releaseEventCapture(int cursorID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
-    if (it == m_EventCaptureInfoMap.end() || (it->second->m_pNode.expired()) ) {
+    if (it == m_EventCaptureInfoMap.end() || 
+            (it->second->m_pNode->getState() == Node::NS_UNCONNECTED))
+    {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but cursor not captured.");
     } else {
@@ -753,6 +774,18 @@ bool Player::isCaptured(int cursorID)
     return (it != m_EventCaptureInfoMap.end());
 }
 
+void Player::removeDeadEventCaptures()
+{
+    std::map<int, EventCaptureInfoPtr>::iterator it;
+    for (it = m_EventCaptureInfoMap.begin(); it != m_EventCaptureInfoMap.end();) {
+        std::map<int, EventCaptureInfoPtr>::iterator lastIt = it;
+        it++;
+        if (lastIt->second->m_pNode->getState() == Node::NS_UNCONNECTED) {
+            m_EventCaptureInfoMap.erase(lastIt);
+        }
+    }
+}
+
 int Player::setInterval(int time, PyObject * pyfunc)
 {
     Timeout* pTimeout = new Timeout(time, pyfunc, true, getFrameTime());
@@ -761,7 +794,7 @@ int Player::setInterval(int time, PyObject * pyfunc)
     } else {
         addTimeout(pTimeout);
     }
-    return pTimeout->GetID();
+    return pTimeout->getID();
 }
 
 int Player::setTimeout(int time, PyObject * pyfunc)
@@ -772,7 +805,7 @@ int Player::setTimeout(int time, PyObject * pyfunc)
     } else {
         addTimeout(pTimeout);
     }
-    return pTimeout->GetID();
+    return pTimeout->getID();
 }
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
@@ -784,7 +817,7 @@ bool Player::clearInterval(int id)
 {
     vector<Timeout*>::iterator it;
     for (it = m_PendingTimeouts.begin(); it != m_PendingTimeouts.end(); it++) {
-        if (id == (*it)->GetID()) {
+        if (id == (*it)->getID()) {
             if (it == m_PendingTimeouts.begin() && m_bInHandleTimers) {
                 m_bCurrentTimeoutDeleted = true;
             }
@@ -794,7 +827,7 @@ bool Player::clearInterval(int id)
         }
     }
     for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); it++) {
-        if (id == (*it)->GetID()) {
+        if (id == (*it)->getID()) {
             delete *it;
             m_NewTimeouts.erase(it);
             return true;
@@ -962,7 +995,6 @@ void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
 bool Player::handleEvent(EventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
-
     PyObject * pEventHook = getEventHook();
     if (pEventHook != Py_None) {
         // If the catchall returns true, stop processing the event
@@ -1029,12 +1061,14 @@ void Player::doFrame(bool bFirstFrame)
                 ScopeTimer Timer(EventsProfilingZone);
                 m_pEventDispatcher->dispatch();
                 sendFakeEvents();
+                removeDeadEventCaptures();
             }
         }
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
+        GLContext::mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
@@ -1048,10 +1082,6 @@ void Player::doFrame(bool bFirstFrame)
             endFrame();
         }
     }
-    if (m_pDisplayEngine->wasFrameLate()) {
-        ThreadProfiler::get()->dumpFrame();
-    }
-
     ThreadProfiler::get()->reset();
 }
 
@@ -1078,22 +1108,13 @@ float Player::getVideoRefreshRate()
     return m_pDisplayEngine->getRefreshRate();
 }
 
-bool Player::isUsingShaders()
-{
-    if (!m_pDisplayEngine) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Player.isUsingShaders must be called after Player.play().");
-    }
-    return GLContext::getCurrent()->isUsingShaders();
-}
-
 size_t Player::getVideoMemInstalled()
 {
     if (!m_pDisplayEngine) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemInstalled must be called after Player.play().");
     }
-    return GLContext::getCurrent()->getVideoMemInstalled();
+    return GLContext::getMain()->getVideoMemInstalled();
 }
 
 size_t Player::getVideoMemUsed()
@@ -1102,7 +1123,7 @@ size_t Player::getVideoMemUsed()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemUsed must be called after Player.play().");
     }
-    return GLContext::getCurrent()->getVideoMemUsed();
+    return GLContext::getMain()->getVideoMemUsed();
 }
 
 void Player::setGamma(float red, float green, float blue)
@@ -1152,10 +1173,24 @@ void Player::initConfig()
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
-    m_GLConfig.m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
-    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 4);
+    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
+
+    string sShaderUsage;
+    pMgr->getStringOption("scr", "shaderusage", "auto", sShaderUsage);
+    if (sShaderUsage == "full") {
+        m_GLConfig.m_ShaderUsage = GLConfig::FULL;
+    } else if (sShaderUsage == "minimal") {
+        m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+    } else if (sShaderUsage == "auto") {
+        m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
+    } else {
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "avgrc parameter shaderusage must be full, minimal or auto");
+    }
+
+
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 
@@ -1170,11 +1205,11 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_pDisplayEngine->init(m_DP, m_GLConfig);
+    AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
+            << m_pDisplayEngine->getPixelsPerMM());
+    GLContext::enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
-    }
-    if (GLContext::getCurrent()->isUsingShaders()) {
-        OGLSurface::createShader();
     }
 }
 
@@ -1273,7 +1308,8 @@ void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
     m_bDirtyDTD = true;
 }
 
-NodePtr Player::createNode(const string& sType, const boost::python::dict& params)
+NodePtr Player::createNode(const string& sType,
+        const boost::python::dict& params, const boost::python::object& self)
 {
     DivNodePtr pParentNode;
     boost::python::dict attrs = params;
@@ -1284,9 +1320,25 @@ NodePtr Player::createNode(const string& sType, const boost::python::dict& param
         pParentNode = boost::python::extract<DivNodePtr>(parent);
     }
     NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
-    if (pParentNode) {
-        pParentNode->appendChild(pNode);
-    }
+
+    // See if the class names of self and pNode match. If they don't, there is a
+    // python derived class that's being constructed and we can't set parent here.
+    string sSelfClassName = boost::python::extract<string>(
+            self.attr("__class__").attr("__name__"));
+    boost::python::object pythonClassName = 
+            (boost::python::object(pNode).attr("__class__").attr("__name__"));
+    string sThisClassName = boost::python::extract<string>(pythonClassName);
+    bool bHasDerivedClass = sSelfClassName != sThisClassName && 
+            sSelfClassName != "NoneType";
+    if (bHasDerivedClass) {
+        if (pParentNode) {
+            throw Exception(AVG_ERR_UNSUPPORTED,
+                    "Can't pass 'parent' parameter to C++ class constructor if there is a derived python class. Use Node.registerInstance() instead.");
+        }
+        pNode->registerInstance(self.ptr(), pParentNode);
+    } else {
+        pNode->registerInstance(0, pParentNode);
+    } 
     if (parent) {
         attrs["parent"] = parent;
     }
@@ -1409,7 +1461,7 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
 void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     // Find all nodes under the cursor.
-    vector<NodeWeakPtr> pCursorNodes;
+    vector<NodePtr> pCursorNodes;
     DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
     if (!pEventReceiverNode) {
         pEventReceiverNode = getRootNode();
@@ -1418,7 +1470,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     ContactPtr pContact = pEvent->getContact();
     if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
         if (!pCursorNodes.empty()) {
-            NodePtr pNode = pCursorNodes.begin()->lock();
+            NodePtr pNode = *(pCursorNodes.begin());
             pEvent->setNode(pNode);
         }
         pContact->sendEventToListeners(pEvent);
@@ -1427,7 +1479,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     int cursorID = pEvent->getCursorID();
 
     // Determine the nodes the event should be sent to.
-    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    vector<NodePtr> pDestNodes = pCursorNodes;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
         NodeWeakPtr pEventCaptureNode = 
                 m_EventCaptureInfoMap[cursorID]->m_pNode;
@@ -1438,7 +1490,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    vector<NodeWeakPtr> pLastCursorNodes;
+    vector<NodePtr> pLastCursorNodes;
     {
         map<int, CursorStatePtr>::iterator it;
         it = m_pLastCursorStates.find(cursorID);
@@ -1448,14 +1500,14 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     // Send out events.
-    vector<NodeWeakPtr>::const_iterator itLast;
-    vector<NodeWeakPtr>::iterator itCur;
+    vector<NodePtr>::const_iterator itLast;
+    vector<NodePtr>::iterator itCur;
     for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
             ++itLast)
     {
-        NodePtr pLastNode = itLast->lock();
+        NodePtr pLastNode = *itLast;
         for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-            if (itCur->lock() == pLastNode) {
+            if (*itCur == pLastNode) {
                 break;
             }
         }
@@ -1466,11 +1518,11 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     // Send over events.
     for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = itCur->lock();
+        NodePtr pCurNode = *itCur;
         for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
                 ++itLast)
         {
-            if (itLast->lock() == pCurNode) {
+            if (*itLast == pCurNode) {
                 break;
             }
         }
@@ -1481,10 +1533,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (!bOnlyCheckCursorOver) {
         // Iterate through the nodes and send the event to all of them.
-        vector<NodeWeakPtr>::iterator it;
+        vector<NodePtr>::iterator it;
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            NodePtr pNode = (*it).lock();
-            if (pNode) {
+            NodePtr pNode = *it;
+            if (pNode->getState() != Node::NS_UNCONNECTED) {
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
                 pNodeEvent->setNode(pNode);
@@ -1501,9 +1553,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
-        vector<NodeWeakPtr>::iterator it;
+        vector<NodePtr>::iterator it;
         for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-            NodePtr pNode = it->lock();
+            NodePtr pNode = *it;
             sendOver(pEvent, Event::CURSOROUT, pNode);
         }
         m_pLastCursorStates.erase(cursorID);
@@ -1549,14 +1601,14 @@ void Player::handleTimers()
     m_bInHandleTimers = true;
 
     it = m_PendingTimeouts.begin();
-    while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime())
+    while (it != m_PendingTimeouts.end() && (*it)->isReady(getFrameTime())
             && !m_bStopping)
     {
-        (*it)->Fire(getFrameTime());
+        (*it)->fire(getFrameTime());
         if (m_bCurrentTimeoutDeleted) {
             it = m_PendingTimeouts.begin();
         } else {
-            if ((*it)->IsInterval()) {
+            if ((*it)->isInterval()) {
                 Timeout* pTempTimeout = *it;
                 it = m_PendingTimeouts.erase(it);
                 m_NewTimeouts.insert(m_NewTimeouts.begin(), pTempTimeout);
@@ -1578,6 +1630,11 @@ void Player::handleTimers()
 SDLDisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
+}
+
+void Player::keepWindowOpen()
+{
+    m_bKeepWindowOpen = true;
 }
 
 void Player::setStopOnEscape(bool bStop)
@@ -1649,6 +1706,9 @@ void Player::cleanup()
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
+        if (!m_bKeepWindowOpen) {
+            m_pDisplayEngine = SDLDisplayEnginePtr();
+        }
     }
     if (SDLAudioEngine::get()) {
         SDLAudioEngine::get()->teardown();
@@ -1670,7 +1730,7 @@ int Player::addTimeout(Timeout* pTimeout)
         it++;
     }
     m_PendingTimeouts.insert(it, pTimeout);
-    return pTimeout->GetID();
+    return pTimeout->getID();
 }
 
 

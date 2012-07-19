@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg
-
-player = avg.Player.get()
+from libavg import avg, player
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()

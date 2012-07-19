@@ -20,11 +20,8 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
-from libavg import avg
 from appstarter import AppStarter
 
-g_Player = avg.Player.get()
-g_Log = avg.Logger.get()
 
 class App(object):
     _instances = {}

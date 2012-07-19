@@ -22,7 +22,7 @@
 
 #include "VideoWriterThread.h"
 
-#include "../base/ProfilingZone.h"
+#include "../base/ProfilingZoneID.h"
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
 
@@ -49,7 +49,7 @@ VideoWriterThread::~VideoWriterThread()
 {
 }
 
-static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame");
+static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame", true);
 
 void VideoWriterThread::encodeYUVFrame(BitmapPtr pBmp)
 {
@@ -139,9 +139,11 @@ void VideoWriterThread::open()
     av_set_parameters(m_pOutputFormatContext, NULL);
 #endif
 
+#if LIBAVFORMAT_VERSION_MAJOR < 54
     float muxPreload = 0.5;
-    float muxMaxDelay = 0.7;
     m_pOutputFormatContext->preload = int(muxPreload * AV_TIME_BASE);
+#endif
+    float muxMaxDelay = 0.7;
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
 
 //    av_dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
@@ -229,7 +231,7 @@ AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat, IntPoint size
     return pPicture;
 }
 
-static ProfilingZoneID ProfilingZoneConvertImage(" Convert image");
+static ProfilingZoneID ProfilingZoneConvertImage(" Convert image", true);
 
 void VideoWriterThread::convertRGBImage(BitmapPtr pSrcBmp)
 {
@@ -280,7 +282,7 @@ void VideoWriterThread::convertYUVImage(BitmapPtr pSrcBmp)
 //    pUBmp->save("foo"+toString(m_FramesWritten)+".png");
 }
 
-static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame");
+static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame", true);
 
 void VideoWriterThread::writeFrame(AVFrame* pFrame)
 {

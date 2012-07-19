@@ -27,6 +27,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
+#include "../base/ProfilingZoneID.h"
 
 #include "../graphics/Filterflipuv.h"
 #include "../graphics/Filterfliprgba.h"
@@ -544,9 +545,9 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride)
     }
 }
 
-static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp");
-static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
-static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy");
+static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
+static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
+static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
         float timeWanted)
@@ -862,9 +863,10 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
 }
 
 static ProfilingZoneID ConvertImageLibavgProfilingZone(
-            "FFMpeg: colorspace conv (libavg)");
-static ProfilingZoneID ConvertImageSWSProfilingZone("FFMpeg: colorspace conv (SWS)");
-static ProfilingZoneID SetAlphaProfilingZone("FFMpeg: set alpha channel");
+        "FFMpeg: colorspace conv (libavg)", true);
+static ProfilingZoneID ConvertImageSWSProfilingZone(
+        "FFMpeg: colorspace conv (SWS)", true);
+static ProfilingZoneID SetAlphaProfilingZone("FFMpeg: set alpha channel", true);
 
 void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
 {
@@ -1019,7 +1021,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
     return FA_NEW_FRAME;
 }
 
-static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode");
+static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
 
 float FFMpegDecoder::readFrame(AVFrame& frame)
 {

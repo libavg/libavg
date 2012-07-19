@@ -24,8 +24,6 @@
 
 #include "../api.h"
 
-#include "OGLShader.h"
-
 #include <boost/shared_ptr.hpp>
 
 #include <map>
@@ -34,6 +32,8 @@ namespace avg {
 
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
+class OGLShader;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
 
 class AVG_API ShaderRegistry {
 public:
@@ -42,16 +42,24 @@ public:
     virtual ~ShaderRegistry();
 
     void setShaderPath(const std::string& sLibPath);
+    void setPreprocessorDefine(const std::string& sName, const std::string& sValue);
 
     void createShader(const std::string& sID);
-    OGLShaderPtr getShader(const std::string& sID);
+    OGLShaderPtr getShader(const std::string& sID) const;
+
+    OGLShaderPtr getCurShader() const;
+    void setCurShader(const std::string& sID);
 
 private:
+    void loadShaderString(const std::string& sFilename, std::string& sPreprocessed);
     void preprocess(const std::string& sShaderCode, const std::string& sFileName, 
             std::string& sProcessed);
+    std::string createDefinesString();
     void throwParseError(const std::string& sFileName, int curLine);
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
+    OGLShaderPtr m_pCurShader;
+    std::map<std::string, std::string> m_PreprocessorDefinesMap;
 
     static std::string m_sLibPath;
 };

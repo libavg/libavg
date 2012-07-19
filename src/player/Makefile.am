@@ -49,7 +49,7 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
         TouchEvent.h Contact.h TouchStatus.h TrackerTouchStatus.h BoostPython.h \
-        SoundNode.h \
+        SoundNode.h Style.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h HueSatFXNode.h \
@@ -65,9 +65,10 @@ noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testcalibrator testplayer
 testplayer_SOURCES=testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
+        ../base/triangulate/libtriangulate.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) $(XI2_2_LIBS) \
         @LIBFFMPEG@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) @GDK_PIXBUF_LIBS@ \
         @FONTCONFIG_LIBS@
@@ -76,9 +77,10 @@ testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
 testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
+        ../base/triangulate/libtriangulate.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@
 
 libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
@@ -91,7 +93,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
         TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
-        SoundNode.cpp \
+        SoundNode.cpp Style.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         Contact.cpp TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \

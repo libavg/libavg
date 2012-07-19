@@ -41,8 +41,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sstream>
+
+#include <glib-object.h>
 
 using namespace avg;
 using namespace std;
@@ -224,6 +225,7 @@ public:
 
 int main(int nargs, char** args)
 {
+    g_type_init();
     ImagingTestSuite Suite;
     Suite.runTests();
     bool bOK = Suite.isOk();

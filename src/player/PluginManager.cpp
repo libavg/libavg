@@ -59,7 +59,7 @@ PluginManager& PluginManager::get()
 PluginManager::PluginManager()
 {
     setSearchPath(string("."PATH_DELIMITER) + "./plugin"PATH_DELIMITER + 
-            getAvgLibPath() + "plugin");
+            getPath(getAvgLibPath()) + "plugin");
 }
 
 void PluginManager::setSearchPath(const string& sNewPath)

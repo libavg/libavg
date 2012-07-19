@@ -41,7 +41,7 @@ public:
 template<class RECEIVER>
 void CmdQueue<RECEIVER>::pushCmd(typename Command<RECEIVER>::CmdFunc func)
 {
-    push(CmdPtr(new Command<RECEIVER>(func)));
+    this->push(CmdPtr(new Command<RECEIVER>(func)));
 }
 
 }

@@ -26,7 +26,7 @@
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
 #include "../base/GeomHelper.h"
-#include "../base/Triangulate.h"
+#include "../base/triangulate/Triangulate.h"
 
 #include "../glm/gtx/norm.hpp"
 
@@ -39,6 +39,7 @@ namespace avg {
 
 NodeDefinition PolygonNode::createDefinition()
 {
+    VectorVec2Vector cv;
     vector<glm::vec2> v;
     vector<float> vd;
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
@@ -47,6 +48,7 @@ NodeDefinition PolygonNode::createDefinition()
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolygonNode, m_TexCoords)))
+        .addArg(Arg<VectorVec2Vector>("holes", cv, false, offsetof(PolygonNode, m_Holes)))
         ;
 }
 
@@ -57,6 +59,18 @@ PolygonNode::PolygonNode(const ArgList& args)
     if (m_TexCoords.size() > m_Pts.size()+1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Too many texture coordinates in polygon"));
+    }
+    if (m_Pts.size() != 0 && m_Pts.size() < 3) {
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                "A polygon must have min. tree points."));
+    }
+    if (m_Holes.size() > 0) {
+        for (unsigned int i = 0; i < m_Holes.size(); i++) {
+            if (m_Holes[i].size() < 3) {
+                throw(Exception(AVG_ERR_UNSUPPORTED,
+                        "A hole of a polygon must have min. tree points."));
+            }
+        }
     }
     setLineJoin(args.getArgVal<string>("linejoin"));
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
@@ -73,6 +87,7 @@ const vector<glm::vec2>& PolygonNode::getPos() const
 
 void PolygonNode::setPos(const vector<glm::vec2>& pts) 
 {
+    m_Pts.clear();
     m_Pts = pts;
     m_TexCoords.clear();
     m_EffTexCoords.clear();
@@ -83,6 +98,19 @@ void PolygonNode::setPos(const vector<glm::vec2>& pts)
 const vector<float>& PolygonNode::getTexCoords() const
 {
     return m_TexCoords;
+}
+
+const VectorVec2Vector& PolygonNode::getHoles() const
+{
+    return m_Holes;
+}
+
+void PolygonNode::setHoles(const VectorVec2Vector& holes)
+{
+    m_Holes = holes;
+    m_TexCoords.clear();
+    m_EffTexCoords.clear();
+    setDrawNeeded();
 }
 
 void PolygonNode::setTexCoords(const vector<float>& coords)
@@ -107,14 +135,14 @@ void PolygonNode::setLineJoin(const string& s)
     setDrawNeeded();
 }
 
-void PolygonNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void PolygonNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
-        pElements.push_back(shared_from_this());
+        pElements.push_back(getSharedThis());
     }
 }
 
-void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void PolygonNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     if (getNumDifferentPts(m_Pts) < 3) {
         return;
@@ -122,16 +150,21 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (m_EffTexCoords.empty()) {
         calcEffPolyLineTexCoords(m_EffTexCoords, m_TexCoords, m_CumulDist);
     }
-    calcPolyLine(m_Pts, m_EffTexCoords, true, m_LineJoin, pVertexArray, color);
+    calcPolyLine(m_Pts, m_EffTexCoords, true, m_LineJoin, pVertexData, color);
+
+    for (unsigned i = 0; i < m_Holes.size(); i++) {
+        calcPolyLine(m_Holes[i], m_EffTexCoords, true, m_LineJoin, pVertexData, color);
+    }
 }
 
-void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     if (getNumDifferentPts(m_Pts) < 3) {
         return;
     }
     // Remove duplicate points
     vector<glm::vec2> pts;
+    vector<unsigned int> holeIndexes;
     pts.reserve(m_Pts.size());
 
     pts.push_back(m_Pts[0]);
@@ -141,6 +174,14 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
         }
     }
 
+    if (m_Holes.size() > 0) {
+        for (unsigned int i = 0; i < m_Holes.size(); i++) { //loop over collection
+            holeIndexes.push_back(pts.size());
+            for (unsigned int j = 0; j < m_Holes[i].size(); j++) { //loop over vector
+                pts.push_back(m_Holes[i][j]);
+            }
+        }
+    }
     if (color.getA() > 0) {
         glm::vec2 minCoord = pts[0];
         glm::vec2 maxCoord = pts[0];
@@ -158,14 +199,15 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
                 maxCoord.y = pts[i].y;
             }
         }
-        vector<int> triIndexes;
-        triangulatePolygon(pts, triIndexes);
+        vector<unsigned int> triIndexes;
+        triangulatePolygon(triIndexes, pts, holeIndexes);
+
         for (unsigned i = 0; i < pts.size(); ++i) {
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
-            pVertexArray->appendPos(pts[i], texCoord, color);
+            pVertexData->appendPos(pts[i], texCoord, color);
         }
         for (unsigned i = 0; i < triIndexes.size(); i+=3) {
-            pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], 
+            pVertexData->appendTriIndexes(triIndexes[i], triIndexes[i+1], 
                     triIndexes[i+2]);
         }
     }

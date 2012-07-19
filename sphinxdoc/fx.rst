@@ -7,7 +7,7 @@ Effect Nodes
     .. inheritance-diagram:: BlurFXNode ChromaKeyFXNode HueSatFXNode NullFXNode ShadowFXNode
         :parts: 1
 
-    .. autoclass:: BlurFXNode
+    .. autoclass:: BlurFXNode(radius=1.0)
 
         Blurs the node it is applied to. Corresponds to the Gaussian Blur effect in 
         Photoshop.
@@ -58,7 +58,7 @@ Effect Nodes
     .. autoclass:: FXNode
 
         Base class for GPU-based effects. These effects can be added to any 
-        :py:class:`Node` by calling :py:meth:`Node:setEffect`.
+        :py:class:`RasterNode` by calling :py:meth:`RasterNode.setEffect`.
 
     .. autoclass:: HueSatFXNode(hue=0.0, saturation=1.0, lightness=0.0, colorize=False)
 
@@ -95,7 +95,7 @@ Effect Nodes
 
         Do-nothing effect. Exists primarily as aid in debugging libavg.
 
-    .. autoclass:: ShadowFXNode
+    .. autoclass:: ShadowFXNode(offset=(0,0), radius=1.0, opacity=1.0, color="FFFFFF")
 
         Adds a shadow behind the node.
 

@@ -28,6 +28,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLTexture.h"
@@ -124,6 +125,7 @@ void VideoNode::connectDisplay()
 void VideoNode::connect(CanvasPtr pCanvas)
 {
     pCanvas->registerFrameEndListener(this);
+    checkReload();
     RasterNode::connect(pCanvas);
 }
 
@@ -364,7 +366,7 @@ void VideoNode::onFrameEnd()
     if (m_bEOFPending) {
         // If the VideoNode is unlinked by python in onEOF, the following line prevents
         // the object from being deleted until we return from this function.
-        NodePtr pTempThis = shared_from_this();
+        NodePtr pTempThis = getSharedThis();
         m_bEOFPending = false;
         onEOF();
     }
@@ -459,7 +461,7 @@ void VideoNode::startDecoding()
     if (pAudioEngine) {
         pAP = pAudioEngine->getParams();
     }
-    m_pDecoder->startDecoding(GLContext::getCurrent()->isUsingShaders(), pAP);
+    m_pDecoder->startDecoding(GLContext::getMain()->useGPUYUVConversion(), pAP);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
@@ -517,6 +519,7 @@ void VideoNode::createTextures(IntPoint size)
     } else {
         getSurface()->create(pf, m_pTextures[0]);
     }
+    newSurface();
 }
 
 void VideoNode::close()
@@ -612,10 +615,11 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 
 static ProfilingZoneID PrerenderProfilingZone("VideoNode::prerender");
 
-void VideoNode::preRender()
+void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
     ScopeTimer timer(PrerenderProfilingZone);
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
             if (m_VideoState == Playing) {
@@ -645,15 +649,16 @@ void VideoNode::preRender()
             }
         }
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
-void VideoNode::render(const FRect& rect)
+void VideoNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
-        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
@@ -682,7 +687,6 @@ bool VideoNode::renderFrame()
         case FA_NEW_FRAME:
             m_FramesPlayed++;
             m_FramesInRowTooLate = 0;
-            bind();
             m_bSeekPending = false;
             setMaskCoords();
 //            AVG_TRACE(Logger::PROFILE, "New frame.");

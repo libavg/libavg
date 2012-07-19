@@ -24,12 +24,13 @@ import os
 
 import weakref, new
 
-from libavg import avg, mathutil
+from libavg import avg, mathutil, player
 
-g_Player = avg.Player.get()
 
-def getMediaDir(_file_, subdir='media'):
+def getMediaDir(_file_=None, subdir='media'):
     """call with _file_=__file__"""
+    if _file_ == None:
+        _file_ = __file__
     myDir = os.path.dirname(_file_)
     mediaDir = os.path.join(myDir, subdir)
     return os.path.abspath(mediaDir)
@@ -47,7 +48,7 @@ def getMediaDirFromNode(node, path=''):
         return path
 
 def createImagePreviewNode(maxSize, absHref):
-    node =  g_Player.createNode('image', {'href': absHref})
+    node =  player.createNode('image', {'href': absHref})
     node.size = mathutil.getScaledDim(node.size, max = maxSize)
     return node
 
@@ -56,7 +57,7 @@ def initFXCache(numFXNodes):
     mediadir = os.path.join(os.path.dirname(__file__), 'data')
     for i in range(numFXNodes):
         node = avg.ImageNode(href=mediadir+"/black.png", 
-                parent=g_Player.getRootNode())
+                parent=player.getRootNode())
         node.setEffect(avg.NullFXNode())
         nodes.append(node)
     for node in nodes:
@@ -76,12 +77,18 @@ class methodref(object):
             self._obj = None
             self._func = fn
             self._clas = None
+            if fn:
+                self.__name__ =  fn.__name__
+            else:
+                self.__name__ = None
         else:
             # Bound method
             if o is None:        # ... actually UN-bound
                 self._obj = None
+                self.__name__ =  f.__name__
             else:
                 self._obj = weakref.ref(o)
+                self.__name__ =  fn.im_class.__name__ + "." + fn.__name__
             self._func = f
             self._clas = c
 

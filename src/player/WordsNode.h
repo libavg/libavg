@@ -45,8 +45,9 @@ class AVG_API WordsNode : public RasterNode
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
-        virtual void preRender();
-        virtual void render(const FRect& rect);
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+                float parentEffectiveOpacity);
+        virtual void render();
 
         virtual float getWidth() const;
         virtual void setWidth(float width);
@@ -57,7 +58,7 @@ class AVG_API WordsNode : public RasterNode
         virtual glm::vec2 getSize() const;
         virtual void setSize(const glm::vec2& pt);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
         void setTextFromNodeValue(const std::string& sText);
 
         const std::string& getFont() const;
@@ -72,6 +73,9 @@ class AVG_API WordsNode : public RasterNode
         const std::string& getColor() const;
         void setColor(const std::string& sColor);
         
+        virtual float getAAGamma() const;
+        virtual void setAAGamma(float gamma);
+
         float getFontSize() const;
         void setFontSize(float size);
         
@@ -135,6 +139,8 @@ class AVG_API WordsNode : public RasterNode
         UTF8String m_sRawText;
         std::string m_sColorName;
         Pixel32 m_Color;
+        float m_Gamma;
+
         float m_FontSize;
         int m_Indent;
         float m_LineSpacing;

@@ -146,42 +146,6 @@ Misc. Classes
 
             This method gives access to the BitmapManager instance.
 
-    .. autoclass:: ConradRelais(AVGPlayer, port)
-
-        Interface to one or more conrad relais cards connected to a serial port.
-        Per card, up to eight 220V devices can be connected.
-
-        .. deprecated:: 1.5
-
-            This is unsupported. I don't think you can even buy the hardware anymore.
-
-        :param port: 
-            
-            The port the device is connected to. The actual device file
-            opened is :file:`/dev/ttyS<port>`.
-
-        .. py:method:: get(card, index) -> value
-
-            Returns the state of one of the relais.
-
-            :param card: Zero-based index of the card to address.
-            :param index: Zero-based index of the relais on the card.
-
-        .. py:method:: getNumCards() -> int
-
-            Returns the number of cards connected to the serial port.
-
-        .. py:method:: set(card, index, value)
-
-            Sets or resets one of the relais.
-
-            :param card: Zero-based index of the card to address.
-            :param index: Zero-based index of the relais on the card.
-            :param value: 
-            
-                Whether to set (:py:const:`True`) or reset (:py:const:`False`)
-                the relais.
-
     .. autoclass:: CubicSpline(controlpoints)
 
         Class that generates a smooth curve between control points using cubic 
@@ -214,8 +178,6 @@ Misc. Classes
        
         :py:const:`NONE`
             No logging except for errors.
-        :py:const:`BLTS`
-            Display subsystem logging. Useful for timing/performance measurements.
         :py:const:`PROFILE`
             Outputs performance statistics on player termination.
         :py:const:`PROFILE_LATEFRAMES`
@@ -538,6 +500,13 @@ Misc. Classes
         .. py:method:: dump()
 
             Prints all states and transitions to the console.
+
+        .. py:method:: makeDiagram(imageFName, [showMethods=False])
+
+            Dumps a graph of the state machine to an image file using dot. graphvis must
+            be installed and in the path for this to work. Very useful for debugging. If
+            :py:attr:`showMethods` is true, names of enter, leave and transition
+            methods are included in the diagram.
 
         .. py:method:: traceChanges(trace)
 

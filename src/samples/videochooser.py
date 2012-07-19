@@ -4,14 +4,12 @@
 from libavg import * 
 import os, sys
 
-g_Player = avg.Player.get()
-
 THUMBNAIL_WIDTH = 320
 FADE_DURATION = 1000
 
 class VideoChooserApp(AVGApp):
     def init(self):
-        g_Player.showCursor(True)
+        player.showCursor(True)
         dir = sys.argv[1]
 
         self.videoListNode = DivNode(parent=self._parentNode)
@@ -24,6 +22,7 @@ class VideoChooserApp(AVGApp):
                         pos = (i*(THUMBNAIL_WIDTH+20), 0),
                         href = dir+"/"+fileName,
                         loop = True,
+                        mipmap=True,
                         parent = self.videoListNode)
                 videoNode.play()
                 self.videoNodes.append(videoNode)
@@ -32,18 +31,19 @@ class VideoChooserApp(AVGApp):
                 height = (THUMBNAIL_WIDTH*size.y)/size.x
                 videoNode.size = (THUMBNAIL_WIDTH, height)
 
-                videoNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE,
+                videoNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self,
                         lambda event, videoNode=videoNode: 
                                 self.chooseVideo(event, videoNode))
                 i += 1
             except RuntimeError:
                 pass
 
-        self._parentNode.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.onMouseMove)
+        self._parentNode.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self,
+                self.onMouseMove)
         self.bigVideoNode = None
 
     def onMouseMove(self, event):
-        windowWidth = g_Player.getRootNode().width
+        windowWidth = player.getRootNode().width
         ratio = event.x/float(windowWidth)
         self.videoListNode.x = -(ratio*(self.getTotalWidth()-windowWidth))
 

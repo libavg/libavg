@@ -22,13 +22,11 @@
 #
 
 import sys
-from libavg import avg, AVGApp
-
-g_Player = avg.Player.get()
+from libavg import avg, AVGApp, player
 
 def onFrame():
     curTime = node.getCurTime()
-    g_Player.getElementByID("curtime").text = "Time: "+str(curTime/1000.0)
+    player.getElementByID("curtime").text = "Time: "+str(curTime/1000.0)
 
 class AudioPlayer(AVGApp):
     def init(self):
@@ -37,10 +35,13 @@ class AudioPlayer(AVGApp):
         avg.WordsNode(parent=self._parentNode, id="curtime", pos=(10, 22), 
                 font="arial", fontsize=10)
 
-        g_Player.setOnFrameHandler(onFrame)
+        player.setOnFrameHandler(onFrame)
     
 
 if len(sys.argv) ==1:
+    print
+    print "avg_audioplayer.py plays back an audio file using libavg."
+    print
     print "Usage: avg_audioplayer.py <filename>"
     sys.exit(1)
 

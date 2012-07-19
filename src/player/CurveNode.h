@@ -55,7 +55,7 @@ class AVG_API CurveNode : public VectorNode
         float getTexCoord2() const;
         void setTexCoord2(float tc);
 
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
+        virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
     private:
         int getCurveLen();

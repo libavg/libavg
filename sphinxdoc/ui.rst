@@ -144,10 +144,15 @@ functionality
                     The current offset from the start of the drag in coordinates relative
                     to the :py:class:`coordSysNode`'s parent.
 
-            .. py:method:: endHandler()
+            .. py:method:: endHandler(event)
 
                 Called when movement stops. This is either directly after the up event
                 or when inertia has run its course.
+
+                :param event: 
+                
+                    The corresponding :py:const:`CURSORUP` event or :py:const:`None` in
+                    the case of inertia.
 
         .. py:method:: abort()
 
@@ -169,7 +174,7 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift])
+    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, selHref, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
@@ -191,11 +196,11 @@ functionality
 
             List of key definitions. Keys can be either character keys:
 
-                [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
+                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, <pos>, <size>]
 
             or command keys:
 
-                [<keycode>, <pos>, <size>]
+                [<keycode>, <feedback>, <repeat>, <pos>, <size>]
 
             For character keys, the shift and altgr keycodes are optional. To define
             entire rows of evenly-spaced keys, use :py:meth:`makeRowKeyDefs`.
@@ -218,6 +223,15 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
+        :param string selHref:
+
+            Filename of an image that contains the keyboard feedback by pressed keys.
+            If this parameter not set the feedback funktion is turned off.
+
+        :param textarea textarea:
+
+            Connect the keyboard upHandler instant to the textarea input.
+
         .. py:method:: reset()
 
             Resets any sticky keys (shift, altgr) to their default state.
@@ -230,16 +244,21 @@ functionality
             :param downHandler: Callable to invoke on key down event or `None`.
             :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
-        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, keyStr, shiftKeyStr, [altGrKeyStr])
+        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
 
             Creates key definitions for a row of uniform keys. Useful for creating the 
-            keyDefs parameter of the Keyboard constructor.
+            keyDefs parameter of the Keyboard constructor. All the keys get no repeat functionality.
 
             :param avg.Point2D startPos: Top left position of the row.
 
             :param avg.Point2D keySize: Size of each key.
 
             :param int spacing: Number of empty pixels between two keys.
+
+            :param string feedbackStr:
+
+                String containing if the key has a feedback use f for Fals and t for True (i.e. 
+                :samp:`"fttttttttttf"`)
 
             :param string keyStr: 
             
@@ -333,7 +352,7 @@ functionality
         :param maxTime: The maximum time that the tap may take in milliseconds.
 
 
-    .. autoclass:: TouchButton(upNode, downNode, disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+    .. autoclass:: TouchButton(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
 
         A button made specifically for touch input. Uses the :py:class:`TapRecognizer` to
         detect clicks.
@@ -374,7 +393,76 @@ functionality
             Factory method that creates a button from filenames of the images to be
             displayed for different states.
 
+
+    .. autoclass:: ToggleButton( uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
+
+        A button made specifically for toggle functionality and it's touch input optimized.
+        Uses the :py:class:`TapRecognizer` to detect clicks.
+
+        :param avg.Node uncheckedUpNode: The node displayed when the button is not unchecked and not pressed.
+
+        :param avg.Node uncheckedDownNode: The node displayed when the button is unchecked and pressed.
+
+        :param avg.Node checkedUpNode: The node displayed when the button is checked and not pressed.
+
+        :param avg.Node uncheckedDisabledNode: The node displayed when the button is unchecked and disabled.
+
+        :param avg.Node checkedDisabledNode: The node displayed when the button is checked and disabled.
+
+        :param avg.Node activeAreaNode: 
+        
+            A node that is used only to determine if a click is over the button. Usually,
+            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
+            buttons, where the active area should be larger than the visible button to
+            account for touch inaccuracies.
+
+        :param bool fatFingerEnlarge:
+
+            If this parameter is set to :py:const:`True`, the button generates it's own 
+            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
+            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
+            :py:attr:`activeAreaNode`.
+
+        :param bool checked:
+
+            If this parameter is set to :py:const:`True`, the button starts in the checked
+            state.
+
+        :param bool enabled:
+
+            If this parameter is set to :py:const:`True`, the button starts in the disabled
+            state.
+
+        Callbacks:
+
+            .. py:method:: checkedHandler(event)
+
+                Called when the button was checked.
+
+            .. py:method:: uncheckedHandler(event)
+
+                Called when the button was unchecked.
+
+        .. py:attribute:: enabled
+
+            :py:const:`True` if the button accepts input. If the button is disabled,
+            it shows the :py:attr:`uncheckedDisabledNode or checkedDisabledNode`.
+
+        .. py:attribute:: checked
+
+            :py:const:'True' the button switched in the checked state. If the button is
+            disabled, it switch in the disabled checked state.
+
+        .. py:method:: getState() -> String
+
+            Returns the state ("UNCHECKED_UP", "UNCHECKED_DOWN", "CHECKED_UP", "CHECKED_DOWN", "UNCHECKED_DISABLED" or "CHECKED_DISABLED") of the button.
+
+        .. py:classmethod:: fromSrc(uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc, [uncheckedDisabledSrc=None, checkedDisabledSrc=None **kwargs]) -> ToggleButton
+
+            Factory method that creates a togglebutton from filenames of the images to be
+            displayed for different states.
     
+
     .. autoclass:: Transform(trans, [rot=0, scale=1, pivot=(0,0)])
 
         Encapsulates a coordinate transformation and can be used to change the position,

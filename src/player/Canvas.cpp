@@ -30,6 +30,8 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 
+#include "../graphics/StandardShader.h"
+
 #include <iostream>
 
 using namespace std;
@@ -57,8 +59,7 @@ void Canvas::setRoot(NodePtr pRootNode)
 {
     assert(!m_pRootNode);
     m_pRootNode = dynamic_pointer_cast<CanvasNode>(pRootNode);
-    m_pRootNode->setParent(DivNodeWeakPtr(), Node::NS_CONNECTED,
-            shared_from_this());
+    m_pRootNode->setParent(0, Node::NS_CONNECTED, shared_from_this());
     registerNode(m_pRootNode);
 }
 
@@ -67,6 +68,7 @@ void Canvas::initPlayback(int multiSampleSamples)
     m_bIsPlaying = true;
     m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
+    m_pVertexArray = VertexArrayPtr(new VertexArray(2000, 3000));
 }
 
 void Canvas::stopPlayback()
@@ -77,6 +79,7 @@ void Canvas::stopPlayback()
         m_pRootNode = CanvasNodePtr();
         m_IDMap.clear();
         m_bIsPlaying = false;
+        m_pVertexArray = VertexArrayPtr();
     }
 }
 
@@ -165,20 +168,20 @@ IntPoint Canvas::getSize() const
 }
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-void Canvas::pushClipRect(VertexArrayPtr pVA)
+void Canvas::pushClipRect(const glm::mat4& transform, SubVertexArray& va)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
-    clip(pVA, GL_INCR);
+    clip(transform, va, GL_INCR);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void Canvas::popClipRect(VertexArrayPtr pVA)
+void Canvas::popClipRect(const glm::mat4& transform, SubVertexArray& va)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
-    clip(pVA, GL_DECR);
+    clip(transform, va, GL_DECR);
 }
 
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -236,9 +239,9 @@ Player* Canvas::getPlayer() const
     return m_pPlayer;
 }
 
-vector<NodeWeakPtr> Canvas::getElementsByPos(const glm::vec2& pos) const
+vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
 {
-    vector<NodeWeakPtr> elements;
+    vector<NodePtr> elements;
     m_pRootNode->getElementsByPos(pos, elements);
     return elements;
 }
@@ -250,63 +253,61 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
 {
     {
         ScopeTimer Timer(PreRenderProfilingZone);
-        m_pRootNode->preRender();
+        m_pVertexArray->reset();
+        m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
+        m_pVertexArray->update();
     }
     if (pFBO) {
         pFBO->activate();
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: BindFramebuffer()");
+        GLContext::checkError("Canvas::render: BindFramebuffer()");
     }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "Canvas::render: glEnable(GL_MULTISAMPLE)");
+        GLContext::checkError("Canvas::render: glEnable(GL_MULTISAMPLE)");
     } else {
         glDisable(GL_MULTISAMPLE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "Canvas::render: glDisable(GL_MULTISAMPLE)");
+        GLContext::checkError("Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glViewport()");
-    glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glMatrixMode()");
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glLoadIdentity()");
+    GLContext::checkError("Canvas::render: glViewport()");
     glm::vec2 size = m_pRootNode->getSize();
+    glm::mat4 projMat;
     if (bUpsideDown) {
-        gluOrtho2D(0, size.x, 0, size.y);
+        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
     } else {
-        gluOrtho2D(0, size.x, size.y, 0);
+        projMat = glm::ortho(0.f, size.x, size.y, 0.f);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: gluOrtho2D()");
-    
-    const FRect rc(0,0, size.x, size.y);
-    glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
-        m_pRootNode->maybeRender(rc);
+        m_pVertexArray->activate();
+        m_pRootNode->maybeRender(projMat);
 
-        renderOutlines();
+        renderOutlines(projMat);
     }
 }
 
-void Canvas::renderOutlines()
+void Canvas::renderOutlines(const glm::mat4& transform)
 {
-    GLContext* pContext = GLContext::getCurrent();
+    GLContext* pContext = GLContext::getMain();
     VertexArrayPtr pVA(new VertexArray);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
-    if (pVA->getCurVert() != 0) {
+    StandardShaderPtr pShader = pContext->getStandardShader();
+    pShader->setTransform(transform);
+    pShader->setUntextured();
+    pShader->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+    pShader->activate();
+    if (pVA->getNumVerts() != 0) {
         pVA->update();
-        pContext->enableTexture(false);
         pContext->enableGLColorArray(true);
         pVA->draw();
     }
 }
 
-void Canvas::clip(VertexArrayPtr pVA, GLenum stencilOp)
+void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp)
 {
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
@@ -318,7 +319,11 @@ void Canvas::clip(VertexArrayPtr pVA, GLenum stencilOp)
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    pVA->draw();
+    StandardShaderPtr pShader = GLContext::getMain()->getStandardShader();
+    pShader->setUntextured();
+    pShader->setTransform(transform);
+    pShader->activate();
+    va.draw();
 
     // Set stencil test to only let
     glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);

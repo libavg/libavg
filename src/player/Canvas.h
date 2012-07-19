@@ -28,6 +28,7 @@
 #include "../base/IFrameEndListener.h"
 #include "../base/IPreRenderListener.h"
 #include "../base/Signal.h"
+#include "../base/GLMHelper.h"
 
 #include "../graphics/OGLHelper.h"
 #include "../graphics/Bitmap.h"
@@ -48,9 +49,9 @@ class ProfilingZoneID;
 class Canvas;
 class FBO;
 class VertexArray;
+class SubVertexArray;
 
 typedef boost::shared_ptr<Node> NodePtr;
-typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 typedef boost::shared_ptr<FBO> FBOPtr;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
@@ -76,8 +77,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
-        virtual void pushClipRect(VertexArrayPtr pVA);
-        virtual void popClipRect(VertexArrayPtr pVA);
+        virtual void pushClipRect(const glm::mat4& transform, SubVertexArray& va);
+        virtual void popClipRect(const glm::mat4& transform, SubVertexArray& va);
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
@@ -86,7 +87,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        std::vector<NodeWeakPtr> getElementsByPos(const glm::vec2& Pos) const;
+        std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
 
         bool operator ==(const Canvas& other) const;
         bool operator !=(const Canvas& other) const;
@@ -104,12 +105,13 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
     private:
         virtual void render()=0;
-        void renderOutlines();
+        void renderOutlines(const glm::mat4& transform);
 
-        void clip(VertexArrayPtr pVA, GLenum stencilOp);
+        void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;
+        VertexArrayPtr m_pVertexArray;
        
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;

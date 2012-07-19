@@ -21,25 +21,29 @@
 #include "GLConfig.h"
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
+
+#include <string>
 
 namespace avg {
+
+using namespace std;
 
 GLConfig::GLConfig()
 {
 }
 
-GLConfig::GLConfig(bool bUsePOTTextures, bool bUseShaders, bool bUsePixelBuffers,
-            int multiSampleSamples)
+GLConfig::GLConfig(bool bUsePOTTextures, bool bUsePixelBuffers, int multiSampleSamples, 
+        ShaderUsage shaderUsage)
     : m_bUsePOTTextures(bUsePOTTextures),
-      m_bUseShaders(bUseShaders),
       m_bUsePixelBuffers(bUsePixelBuffers),
-      m_MultiSampleSamples(multiSampleSamples)
+      m_MultiSampleSamples(multiSampleSamples),
+      m_ShaderUsage(shaderUsage)
 {
 }
 
 void GLConfig::log()
 {
-    AVG_TRACE(Logger::CONFIG, "  Shader support: " << (m_bUseShaders?"true":"false"));
     AVG_TRACE(Logger::CONFIG, "  Pixel buffers: " << (m_bUsePixelBuffers?"true":"false"));
     AVG_TRACE(Logger::CONFIG, "  Power of 2 textures: " <<
             (m_bUsePOTTextures?"true":"false"));
@@ -49,6 +53,21 @@ void GLConfig::log()
         AVG_TRACE(Logger::CONFIG, "  Multisampling with " << m_MultiSampleSamples 
                 << " samples");
     }
+    string sShader;
+    switch(m_ShaderUsage) {
+        case FULL:
+            sShader = "full";
+            break;
+        case MINIMAL:
+            sShader = "minimal";
+            break;
+        case AUTO:
+            sShader = "auto";
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+    AVG_TRACE(Logger::CONFIG, "  Shader usage: " << sShader << endl);
 }
 
 }

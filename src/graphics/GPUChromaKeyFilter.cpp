@@ -22,6 +22,8 @@
 #include "GPUChromaKeyFilter.h"
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
+#include "OGLShader.h"
+#include "ImagingProjection.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -37,7 +39,7 @@ namespace avg {
 
 GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf, 
         bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone, 2),
+    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_CHROMAKEY, 2),
       m_Color(0, 255, 0),
       m_HTolerance(0.0),
       m_STolerance(0.0),
@@ -49,8 +51,30 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    createShader(SHADERID_CHROMAKEY);
+    OGLShaderPtr pShader = getShader();
+    m_pTextureParam = pShader->getParam<int>("texture");
+    
+    m_pHKeyParam = pShader->getParam<float>("hKey");
+    m_pHToleranceParam = pShader->getParam<float>("hTolerance");
+    m_pHSoftToleranceParam = pShader->getParam<float>("hSoftTolerance");
+    
+    m_pSKeyParam = pShader->getParam<float>("sKey");
+    m_pSToleranceParam = pShader->getParam<float>("sTolerance");
+    m_pSSoftToleranceParam = pShader->getParam<float>("sSoftTolerance");
+    
+    m_pLKeyParam = pShader->getParam<float>("lKey");
+    m_pLToleranceParam = pShader->getParam<float>("lTolerance");
+    m_pLSoftToleranceParam = pShader->getParam<float>("lSoftTolerance");
+    
+    m_pSpillThresholdParam = pShader->getParam<float>("spillThreshold");
+    m_pIsLastParam = pShader->getParam<int>("bIsLast");
+
     createShader(SHADERID_EROSION);
+    pShader = avg::getShader(SHADERID_EROSION);
+    m_pErosionTextureParam= pShader->getParam<int>("texture");
+    m_pErosionIsLastParam = pShader->getParam<int>("bIsLast");
+    
+    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(size));
 }
 
 GPUChromaKeyFilter::~GPUChromaKeyFilter()
@@ -78,36 +102,35 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     // Set up double-buffering
     int curBufferIndex = m_Erosion%2;
-    OGLShaderPtr pShader = getShader(SHADERID_CHROMAKEY);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT+curBufferIndex);
-    pShader->activate();
-    pShader->setUniformIntParam("texture", 0);
+    getFBO(curBufferIndex)->activate();
+    getShader()->activate();
+    m_pTextureParam->set(0);
 
     float h, s, l;
     m_Color.toHSL(h, s, l);
-    pShader->setUniformFloatParam("hKey", h);
-    pShader->setUniformFloatParam("hTolerance", m_HTolerance*360);
-    pShader->setUniformFloatParam("hSoftTolerance", (m_HTolerance+m_Softness)*360.0f);
-    pShader->setUniformFloatParam("sKey", s);
-    pShader->setUniformFloatParam("sTolerance", m_STolerance);
-    pShader->setUniformFloatParam("sSoftTolerance", m_STolerance+m_Softness);
-    pShader->setUniformFloatParam("lKey", l);
-    pShader->setUniformFloatParam("lTolerance", m_LTolerance);
-    pShader->setUniformFloatParam("lSoftTolerance", m_LTolerance+m_Softness);
-    pShader->setUniformFloatParam("spillThreshold", m_SpillThreshold*360);
-    pShader->setUniformIntParam("bIsLast", int(m_Erosion==0));
+    m_pHKeyParam->set(h);
+    m_pHToleranceParam->set(m_HTolerance*360);
+    m_pHSoftToleranceParam->set((m_HTolerance+m_Softness)*360.0f);
+    m_pSKeyParam->set(s);
+    m_pSToleranceParam->set(m_STolerance);
+    m_pSSoftToleranceParam->set(m_STolerance+m_Softness);
+    m_pLKeyParam->set(l);
+    m_pLToleranceParam->set(m_LTolerance);
+    m_pLSoftToleranceParam->set(m_LTolerance+m_Softness);
+    m_pSpillThresholdParam->set(m_SpillThreshold*360);
+    m_pIsLastParam->set(int(m_Erosion==0));
     draw(pSrcTex);
 
     for (int i = 0; i < m_Erosion; ++i) {
         curBufferIndex = (curBufferIndex+1)%2;
-        glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT+curBufferIndex);
-        pShader = getShader(SHADERID_EROSION);
+        getFBO(curBufferIndex)->activate();
+        OGLShaderPtr pShader = avg::getShader(SHADERID_EROSION);
         pShader->activate();
-        pShader->setUniformIntParam("texture", 0);
-        pShader->setUniformIntParam("bIsLast", int(i==m_Erosion-1));
-        draw(getDestTex((curBufferIndex+1)%2));
+        m_pErosionTextureParam->set(0);
+        m_pErosionIsLastParam->set(int(i==m_Erosion-1));
+        getDestTex((curBufferIndex+1)%2)->activate(GL_TEXTURE0);
+        m_pProjection2->draw(avg::getShader(SHADERID_EROSION));
     }
-    glproc::UseProgramObject(0);
 }
 
 }

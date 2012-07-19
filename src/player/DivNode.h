@@ -25,14 +25,13 @@
 #include "../api.h"
 #include "AreaNode.h"
 
+#include "../graphics/SubVertexArray.h"
+
 #include "../base/UTF8String.h"
-#include "../graphics/VertexArray.h"
 
 #include <string>
 
 namespace avg {
-
-class VertexArray;
 
 class AVG_API DivNode : public AreaNode
 {
@@ -64,15 +63,13 @@ class AVG_API DivNode : public AreaNode
         bool getCrop() const;
         void setCrop(bool bCrop);
 
-        const std::string& getElementOutlineColor() const;
-        void setElementOutlineColor(const std::string& sColor);
-
         const UTF8String& getMediaDir() const;
         void setMediaDir(const UTF8String& mediaDir);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
-        virtual void preRender();
-        virtual void render(const FRect& rect);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+                float parentEffectiveOpacity);
+        virtual void render();
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);
 
         virtual std::string getEffectiveMediaDir();
@@ -86,10 +83,8 @@ class AVG_API DivNode : public AreaNode
 
         UTF8String m_sMediaDir;
         bool m_bCrop;
-        std::string m_sElementOutlineColor;
-        Pixel32 m_ElementOutlineColor;
 
-        VertexArrayPtr m_pClipVertexes;
+        SubVertexArray m_ClipVA;
 
         std::vector<NodePtr> m_Children;
 };

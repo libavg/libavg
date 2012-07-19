@@ -39,15 +39,18 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    static void initShader();
-
     float m_PostScale;
     bool m_bInvert;
 
     GPUBlurFilter m_MinFilter;
     GPUBlurFilter m_MaxFilter;
+
+    IntGLShaderParamPtr m_pMinTexParam;
+    IntGLShaderParamPtr m_pMaxTexParam;
+    FloatGLShaderParamPtr m_pPostScaleParam;
+    IntGLShaderParamPtr m_pInvertParam;
 };
 
-} // namespace
+}
 #endif
 

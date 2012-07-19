@@ -20,7 +20,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 class AVTestCase(AVGTestCase):
@@ -32,7 +32,7 @@ class AVTestCase(AVGTestCase):
 
     def testEOF(self, node):
         def onEOF():
-            Player.stop()
+            player.stop()
 
         def onNoEOF():
             self.fail("No EOF")
@@ -41,8 +41,8 @@ class AVTestCase(AVGTestCase):
         root.appendChild(node)
         node.play()
         node.setEOFCallback(onEOF)
-        Player.setTimeout(100000, onNoEOF)
-        Player.play()
+        player.setTimeout(100000, onNoEOF)
+        player.play()
         
     def testVideoInfo(self):
         def checkInfo():
@@ -61,8 +61,7 @@ class AVTestCase(AVGTestCase):
                 self.assert_(node.getVideoDuration() >= 1000)
 
         def checkExceptions():
-            node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg",
-                    threaded=isThreaded)
+            node = avg.VideoNode(href="mpeg1-48x48.mpg", threaded=isThreaded)
             self.assertException(node.getDuration)
             self.assertException(node.getBitrate)
             self.assertException(node.getVideoCodec)
@@ -74,24 +73,23 @@ class AVTestCase(AVGTestCase):
             root.appendChild(node)
 
         def checkAudioFile():
-            node = avg.VideoNode(href="../video/testfiles/44.1kHz_16bit_stereo.wav",
-                    threaded=isThreaded, parent=root)
+            node = avg.VideoNode(href="44.1kHz_16bit_stereo.wav", threaded=isThreaded,
+                    parent=root)
             self.assertException(node.pause)
 
         for isThreaded in (False, True):
             root = self.loadEmptyScene()
-            node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48-sound.avi",
-                        threaded=isThreaded, parent=root)
+            node = avg.VideoNode(href="mpeg1-48x48-sound.avi", threaded=isThreaded,
+                    parent=root)
             checkInfo()
             checkExceptions()
-            self.start((
-                     checkInfo,
+            self.start(False,
+                    (checkInfo,
                      checkExceptions,
                      checkAudioFile,
                     ))
         root = self.loadEmptyScene()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48-sound.avi",
-                    queuelength=23, parent=root)
+        node = avg.VideoNode(href="mpeg1-48x48-sound.avi", queuelength=23, parent=root)
         self.assertEqual(node.queuelength, 23)
 
     def testVideoFiles(self):
@@ -104,7 +102,7 @@ class AVTestCase(AVGTestCase):
 
             def checkImage(filename):
                 if not(isThreaded):
-                    self.compareImage("testVideo-"+filename+"1", False)
+                    self.compareImage("testVideo-"+filename+"1")
 
             def testInfo():
                 if filename == "mpeg1-48x48-sound.avi" and isThreaded:
@@ -115,14 +113,14 @@ class AVTestCase(AVGTestCase):
                         filename == "vp6a-yuva-48x48.flv") == node.hasAlpha())
 
             root = self.loadEmptyScene()
-            node = avg.VideoNode(href="../video/testfiles/"+filename, volume=0.8,
-                        size=(96,96), threaded=isThreaded)
+            node = avg.VideoNode(href=filename, volume=0.8, size=(96,96), 
+                    threaded=isThreaded)
             self.assertEqual(node.threaded, isThreaded)
             setVolume(0.6)
             root.appendChild(node)
             self.assertException(node.hasAudio)
-            self.start((
-                     lambda: setVolume(0.5),
+            self.start(False,
+                    (lambda: setVolume(0.5),
                      lambda: testGetVolume(0.5),
                      lambda: node.play(),
                      lambda: checkImage(filename),
@@ -133,45 +131,46 @@ class AVTestCase(AVGTestCase):
                     ))
         videoFiles = ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264", "vp6a-yuva-48x48.flv"]
-        print
+        sys.stderr.write("\n")
         for filename in videoFiles:
-            print "  " + filename
+            sys.stderr.write("  "+filename+"\n")
             for isThreaded in [False, True]:
-                print "    threaded: ", isThreaded
+                sys.stderr.write("    threaded: "+str(isThreaded)+"\n")
                 testVideoFile(filename, isThreaded)
 
     def testPlayBeforeConnect(self):
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False)
+        node = avg.VideoNode(href="media/mpeg1-48x48.mpg", threaded=False)
         node.play()
-        root = self.loadEmptyScene()
+        player.createMainCanvas(size=(160,120))
+        root = player.getRootNode()
         root.insertChild(node, 0)
-        Player.setFakeFPS(25)
-        self.start((
-                 lambda: self.assertEqual(node.size, (48, 48)),
-                 lambda: self.compareImage("testPlayBeforeConnect", False),
+        player.setFakeFPS(25)
+        self.start(False,
+                (lambda: self.assertEqual(node.size, (48, 48)),
+                 lambda: self.compareImage("testPlayBeforeConnect"),
                 )) 
 
     def testVideoState(self):
         for accelerated in [True, False]:
             root = self.loadEmptyScene()
-            node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", size=(96,96), 
-                    threaded=False, accelerated=accelerated, parent=root)
-            Player.setFakeFPS(25)
-            self.start((
-                     lambda: node.play(),
-                     lambda: self.compareImage("testVideoState1", False),
+            node = avg.VideoNode(href="mpeg1-48x48.mpg", size=(96,96), threaded=False,
+                    accelerated=accelerated, parent=root)
+            player.setFakeFPS(25)
+            self.start(False,
+                    (lambda: node.play(),
+                     lambda: self.compareImage("testVideoState1"),
                      lambda: node.pause(),
-                     lambda: self.compareImage("testVideoState2", False),
-                     lambda: self.compareImage("testVideoState2", False),
+                     lambda: self.compareImage("testVideoState2"),
+                     lambda: self.compareImage("testVideoState2"),
                      lambda: node.play(),
-                     lambda: self.compareImage("testVideoState3", False),
+                     lambda: self.compareImage("testVideoState3"),
                      lambda: node.stop(),
-                     lambda: self.compareImage("testVideoState4", False),
+                     lambda: self.compareImage("testVideoState4"),
                      lambda: node.pause(),
-                     lambda: self.compareImage("testVideoState5", False),
-                     lambda: self.compareImage("testVideoState5", False),
+                     lambda: self.compareImage("testVideoState5"),
+                     lambda: self.compareImage("testVideoState5"),
                      lambda: node.stop(),
-                     lambda: self.compareImage("testVideoState4", False),
+                     lambda: self.compareImage("testVideoState4"),
                     ))
 
     def testVideoActive(self):
@@ -182,15 +181,15 @@ class AVTestCase(AVGTestCase):
             node.active=1
         
         root = self.loadEmptyScene()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", size=(96,96),
-                threaded=False, parent=root)
-        Player.setFakeFPS(25)
-        self.start((
-                 lambda: node.play(),
+        node = avg.VideoNode(href="mpeg1-48x48.mpg", size=(96,96), threaded=False,
+                parent=root)
+        player.setFakeFPS(25)
+        self.start(False,
+                (lambda: node.play(),
                  deactivate,
-                 lambda: self.compareImage("testVideoActive1", False),
+                 lambda: self.compareImage("testVideoActive1"),
                  activate,
-                 lambda: self.compareImage("testVideoActive2", False)
+                 lambda: self.compareImage("testVideoActive2")
                 ))
 
     def testVideoHRef(self):
@@ -198,11 +197,11 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getMediaSize(), (48, 48))
 
         def setHRefLoaded():
-            node.href = "../video/testfiles/h264-48x48.h264"
+            node.href = "h264-48x48.h264"
 
         def setHRefUnloaded():
             node = avg.VideoNode()
-            node.href = "../video/testfiles/h264-48x48.h264"
+            node.href = "h264-48x48.h264"
             node.play()
 
         def testVideoNotFound():
@@ -213,16 +212,15 @@ class AVTestCase(AVGTestCase):
             self.assertException(node.play)
 
         root = self.loadEmptyScene()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
-                parent=root)
-        Player.setFakeFPS(25)
+        node = avg.VideoNode(href="mpeg1-48x48.mpg", threaded=False, parent=root)
+        player.setFakeFPS(25)
         testVideoNotFound()
         setHRefUnloaded()
-        self.start((
-                 lambda: node.play(),
+        self.start(False,
+                (lambda: node.play(),
                  testGetMediaSize,
                  setHRefLoaded,
-                 lambda: self.compareImage("testVideoHRef1", False),
+                 lambda: self.compareImage("testVideoHRef1"),
                  testGetMediaSize,
                  testVideoNotFound
                 ))
@@ -235,22 +233,22 @@ class AVTestCase(AVGTestCase):
             def show():
                 self.videoNode.opacity=1
 
-            Player.setFakeFPS(25)
+            player.setFakeFPS(25)
             root = self.loadEmptyScene()
             self.videoNode = avg.VideoNode(href=filename, loop=True, threaded=False,
                     parent=root)
-            self.start((
-                     lambda: self.videoNode.play(),
+            self.start(False,
+                    (lambda: self.videoNode.play(),
                      None,
-                     lambda: self.compareImage(testImgName+"1", False),
+                     lambda: self.compareImage(testImgName+"1"),
                      hide,
                      None,
                      None,
                      show,
-                     lambda: self.compareImage(testImgName+"2", False)
+                     lambda: self.compareImage(testImgName+"2")
                     ))
-        testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoOpacityRGBA")
-        testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoOpacityYUV")
+        testWithFile("rgba-48x48.mov", "testVideoOpacityRGBA")
+        testWithFile("mpeg1-48x48.mpg", "testVideoOpacityYUV")
 
     def testVideoSeek(self):
         def seek(frame):
@@ -259,30 +257,30 @@ class AVTestCase(AVGTestCase):
         def checkCurFrame():
             self.assertEqual(videoNode.getCurFrame(), 26)
 
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         for useCustomFPS in [False, True]:
             root = self.loadEmptyScene()
             if useCustomFPS:
                 videoNode = avg.VideoNode(parent=root, loop=True, size=(96,96), fps=25,
-                        threaded=False, href="../video/testfiles/mjpeg-48x48.avi")
+                        threaded=False, href="mjpeg-48x48.avi")
             else:
                 videoNode = avg.VideoNode(parent=root, loop=True, size=(96,96), 
-                        threaded=False, href="../video/testfiles/mjpeg-48x48.avi")
+                        threaded=False, href="mjpeg-48x48.avi")
 
             videoNode.play()
             seek(26)
-            self.start((
-                     checkCurFrame,
-                     lambda: self.compareImage("testVideoSeek0", False),
+            self.start(False,
+                    (checkCurFrame,
+                     lambda: self.compareImage("testVideoSeek0"),
                      lambda: seek(100),
-                     lambda: self.compareImage("testVideoSeek1", False),
+                     lambda: self.compareImage("testVideoSeek1"),
                      lambda: videoNode.pause(),
                      lambda: seek(26),
                      None,
-                     lambda: self.compareImage("testVideoSeek2", False),
+                     lambda: self.compareImage("testVideoSeek2"),
                      lambda: videoNode.play(),
                      None,
-                     lambda: self.compareImage("testVideoSeek3", False)
+                     lambda: self.compareImage("testVideoSeek3")
                     ))
 
         def checkSeek():
@@ -291,21 +289,21 @@ class AVTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         videoNode = avg.VideoNode(parent=root, loop=True, fps=25,
-                href="../video/testfiles/mjpeg-48x48.avi")
+                href="mjpeg-48x48.avi")
         videoNode.play()
         seek(5)
-        self.start((checkSeek,))
+        self.start(False, (checkSeek,))
 
     def testVideoFPS(self):
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         root = self.loadEmptyScene()
         root = root
         videoNode = avg.VideoNode(size=(80,80), loop=True, threaded=False,
-                href="../video/testfiles/mjpeg-48x48.avi", fps=250, parent=root)
-        self.start((
-                 lambda: videoNode.play(),
+                href="mjpeg-48x48.avi", fps=250, parent=root)
+        self.start(False,
+                (lambda: videoNode.play(),
                  None,
-                 lambda: self.compareImage("testVideoFPS", False)
+                 lambda: self.compareImage("testVideoFPS")
                 ))
 
     def testVideoLoop(self):
@@ -315,19 +313,19 @@ class AVTestCase(AVGTestCase):
         def onFrame():
             if self.eof:
                 if not(threaded):
-                    self.compareImage("testVideoLoop", False)
-                Player.stop()
+                    self.compareImage("testVideoLoop")
+                player.stop()
 
         for threaded in [False, True]:
             self.eof = False
-            Player.setFakeFPS(25)
+            player.setFakeFPS(25)
             root = self.loadEmptyScene()
             videoNode = avg.VideoNode(parent=root, loop=True, fps=25, size=(96,96),
-                    threaded=threaded, href="../video/testfiles/mpeg1-48x48.mpg")
+                    threaded=threaded, href="mpeg1-48x48.mpg")
             videoNode.setEOFCallback(onEOF)
             videoNode.play()
-            Player.setOnFrameHandler(onFrame)
-            Player.play()
+            player.setOnFrameHandler(onFrame)
+            player.play()
 
     def testVideoMask(self):
         def testWithFile(filename, testImgName):
@@ -337,29 +335,26 @@ class AVTestCase(AVGTestCase):
             def setOpacity():
                 video.opacity = 0.5
 
-            Player.setFakeFPS(25)
+            player.setFakeFPS(25)
             root = self.loadEmptyScene()
             video = avg.VideoNode(href=filename, threaded=False,
                     parent=root)
             video.play()
-            self.start([
-                     lambda: setMask("mask.png"),
-                     lambda: self.compareImage(testImgName+"1", False),
+            self.start(False,
+                    (lambda: setMask("mask.png"),
+                     lambda: self.compareImage(testImgName+"1"),
                      lambda: video.seekToFrame(10),
                      lambda: setMask(""),
-                     lambda: self.compareImage(testImgName+"2", False),
+                     lambda: self.compareImage(testImgName+"2"),
                      lambda: setMask("mask2.png"),
-                     lambda: self.compareImage(testImgName+"3", False),
+                     lambda: self.compareImage(testImgName+"3"),
                      setOpacity,
-                     lambda: self.compareImage(testImgName+"4", False),
-                    ])
+                     lambda: self.compareImage(testImgName+"4"),
+                    ))
 
-        if not(self._hasShaderSupport()):
-            return
-        
-        testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
-        testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
-        testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoMaskRGBA")
+        testWithFile("mpeg1-48x48.mpg", "testVideoMaskYUV")
+        testWithFile("mjpeg-48x48.avi", "testVideoMaskYUVJ")
+        testWithFile("rgba-48x48.mov", "testVideoMaskRGBA")
 
     def testException(self):
         class TestException(Exception):
@@ -368,45 +363,46 @@ class AVTestCase(AVGTestCase):
         def throwException():
             raise TestException
         
-        Player.setFakeFPS(0.1)
+        player.setFakeFPS(0.1)
         videoNode = avg.VideoNode(threaded = False)
-        videoNode.href = "./testmediadir/mjpeg-48x48.avi"
+        videoNode.href = "../testmediadir/mjpeg-48x48.avi"
         videoNode.setEOFCallback(throwException)
         
         root = self.loadEmptyScene()
-        avg.Player.get().getRootNode().appendChild(videoNode)
+        player.getRootNode().appendChild(videoNode)
         
         self.__exceptionThrown = False
         try:
-            self.start((
-                 videoNode.pause,
-                 lambda: videoNode.seekToFrame(videoNode.getNumFrames()),
-                 videoNode.play,
-                 lambda: None))
+            self.start(False,
+                    (videoNode.pause,
+                     lambda: videoNode.seekToFrame(videoNode.getNumFrames()),
+                     videoNode.play,
+                     lambda: None
+                    ))
         except TestException:
             self.__exceptionThrown = True
             
         self.assert_(self.__exceptionThrown)
         
     def testVideoEOF(self):
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         for filename in ["mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi"]:
-            node = avg.VideoNode(href="../video/testfiles/"+filename)
+            node = avg.VideoNode(href=filename)
             self.testEOF(node)
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", opacity=0)
+        node = avg.VideoNode(href="mpeg1-48x48.mpg", opacity=0)
         self.testEOF(node)
 
         root = self.loadEmptyScene()
-        video = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
+        video = avg.VideoNode(href="mpeg1-48x48.mpg", threaded=False,
                 parent=root)
-        Player.setFakeFPS(0.1)
+        player.setFakeFPS(0.1)
 
         video.setEOFCallback(lambda: foo) # Should never be called
-        self.start([
-                 lambda: video.setEOFCallback(None), 
+        self.start(False,
+                (lambda: video.setEOFCallback(None), 
                  video.play,
                  None
-                ])
+                ))
 
 
     def testSound(self):
@@ -418,10 +414,9 @@ class AVTestCase(AVGTestCase):
                 self.assertAlmostEqual(node.volume, volume)
 
             root = self.loadEmptyScene()
-            node = avg.SoundNode(href="../video/testfiles/"+filename, 
-                    parent=root)
-            self.start((
-                     lambda: setVolume(0.5),
+            node = avg.SoundNode(href=filename, parent=root)
+            self.start(False,
+                    (lambda: setVolume(0.5),
                      lambda: testGetVolume(0.5),
                      lambda: node.play(),
                      None,
@@ -437,8 +432,8 @@ class AVTestCase(AVGTestCase):
                      lambda: testGetVolume(0.3),
                      lambda: node.pause()
                     ))
-        Player.setFakeFPS(-1)
-        Player.volume = 0 
+        player.setFakeFPS(-1)
+        player.volume = 0 
         for filename in ["22.050Hz_16bit_mono.wav", "44.1kHz_16bit_stereo.aif", 
                 "44.1kHz_16bit_stereo.wav", "44.1kHz_mono.ogg", "44.1kHz_stereo.mp3", 
                 "48kHz_24bit_stereo.wav"]:
@@ -452,40 +447,50 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getNumAudioChannels(), 2)
 
         def checkExceptions():
-            node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_stereo.wav")
+            node = avg.SoundNode(href="44.1kHz_16bit_stereo.wav")
             self.assertException(node.getAudioCodec)
             self.assertException(node.getAudioSampleRate)
             self.assertException(node.getNumAudioChannels)
 
         def checkVideoFile():
-            node = avg.SoundNode(href="../video/testfiles/mpeg1-48x48.mpg",
-                    parent=root)
+            node = avg.SoundNode(href="mpeg1-48x48.mpg", parent=root)
             self.assertException(node.pause)
 
         root = self.loadEmptyScene()
-        node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_stereo.wav",
-                    parent=root)
+        node = avg.SoundNode(href="44.1kHz_16bit_stereo.wav", parent=root)
         checkInfo()
         checkExceptions()
-        self.start((
-                 checkInfo,
+        self.start(False,
+                (checkInfo,
                  checkExceptions,
                  checkVideoFile,
                 ))
 
+    def testSoundSeek(self):
+        player.setFakeFPS(-1)
+        player.volume = 0 
+        root = self.loadEmptyScene()
+        soundNode = avg.SoundNode(parent=root, href="44.1kHz_16bit_stereo.wav")
+        soundNode.play()
+        soundNode.seekToTime(500)
+        self.start(False,
+                (None,
+                 lambda: soundNode.seekToTime(200),
+                ))
+
+
     def testBrokenSound(self):
         def openSound():
-            node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_6Chan.ogg",
-                    parent=root)
+            node = avg.SoundNode(href="44.1kHz_16bit_6Chan.ogg", parent=root)
             self.assertException(node.play)
 
         root = self.loadEmptyScene()
-        self.start([openSound])
+        self.start(False, [openSound])
 
     def testSoundEOF(self):
-        Player.setFakeFPS(-1)
-        Player.volume = 0 
-        node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_mono.wav")
+        player.setFakeFPS(-1)
+        player.volume = 0 
+        node = avg.SoundNode(href="44.1kHz_16bit_mono.wav")
         self.testEOF(node)
 
     def testVideoWriter(self):
@@ -513,15 +518,15 @@ class AVTestCase(AVGTestCase):
             videoNode.opacity = 1
 
         def checkVideo(numFrames):
-            savedVideoNode = avg.VideoNode(href="test.mov", pos=(48,0), threaded=False, 
-                    parent=root)
+            savedVideoNode = avg.VideoNode(href="../test.mov", pos=(48,0), 
+                    threaded=False, parent=root)
             savedVideoNode.pause()
             self.assertEqual(savedVideoNode.getVideoCodec(), "mjpeg")
             self.assertEqual(savedVideoNode.getNumFrames(), numFrames)
             self.assertEqual(savedVideoNode.getStreamPixelFormat(), "yuvj420p")
 
         def testCreateException():
-            self.assertException(lambda: avg.VideoWriter(Player.getMainCanvas(), 
+            self.assertException(lambda: avg.VideoWriter(player.getMainCanvas(), 
                     "nonexistentdir/test.mov", 30))
 
         if not(self._isCurrentDirWriteable()):
@@ -529,30 +534,30 @@ class AVTestCase(AVGTestCase):
             return
 
         for useCanvas in (False, True):
-            Player.setFakeFPS(30)
+            player.setFakeFPS(30)
             
             root = self.loadEmptyScene()
-            videoNode = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
-                    threaded=False)
+            videoNode = avg.VideoNode(href="mpeg1-48x48.mpg", threaded=False)
             if useCanvas:
-                canvas = Player.createCanvas(id="canvas", size=(48,48))
+                canvas = player.createCanvas(id="canvas", size=(48,48),
+                        mediadir="media")
                 canvas.getRootNode().appendChild(videoNode)
                 avg.ImageNode(parent=root, href="canvas:canvas")
                 testImageName = "testVideoWriterCanvas"
             else:
                 root.appendChild(videoNode)
-                canvas = Player.getMainCanvas()
+                canvas = player.getMainCanvas()
                 testImageName = "testVideoWriter"
 
-            self.start((
-                 videoNode.play,
+            self.start(False,
+                (videoNode.play,
                  lambda: startWriter(30, True),
                  lambda: self.delay(66),
                  stopWriter,
                  killWriter,
                  lambda: checkVideo(4),
                  hideVideo,
-                 lambda: self.compareImage(testImageName+"1", False),
+                 lambda: self.compareImage(testImageName+"1"),
                  showVideo,
                  testCreateException,
                  lambda: startWriter(15, False),
@@ -574,23 +579,24 @@ class AVTestCase(AVGTestCase):
             os.remove("test.mov")    
 
     def test2VideosAtOnce(self):
-        Player.setFakeFPS(25)
+        player.setFakeFPS(25)
         self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = player.getRootNode()
         for pos in ((0,0), (80,0)):
-            video = avg.VideoNode(pos=pos, threaded=False, 
-                    href="../video/testfiles/mpeg1-48x48.mpg", parent=root)
+            video = avg.VideoNode(pos=pos, threaded=False, href="mpeg1-48x48.mpg",
+                    parent=root)
             video.play()
-        self.start([lambda: self.compareImage("test2VideosAtOnce1", False),])
+        self.start(False,
+                [lambda: self.compareImage("test2VideosAtOnce1"),])
 
     def testVideoAccel(self):
         accelConfig = avg.VideoNode.getVideoAccelConfig()
         video = avg.VideoNode(threaded=False, accelerated=False, 
-                href="../video/testfiles/mpeg1-48x48.mpg")
+                href="media/mpeg1-48x48.mpg")
         video.play()
         self.assertEqual(video.accelerated, False)
         video = avg.VideoNode(threaded=False, accelerated=True, 
-                href="../video/testfiles/mpeg1-48x48.mpg")
+                href="media/mpeg1-48x48.mpg")
         video.play()
         self.assertEqual(video.accelerated, (accelConfig != avg.NO_ACCELERATION))
 
@@ -599,6 +605,7 @@ def AVTestSuite(tests):
     availableTests = [
             "testSound",
             "testSoundInfo",
+            "testSoundSeek",
             "testBrokenSound",
             "testSoundEOF",
             "testVideoInfo",
@@ -620,4 +627,3 @@ def AVTestSuite(tests):
             ]
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 
-Player = avg.Player.get()

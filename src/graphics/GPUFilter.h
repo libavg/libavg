@@ -33,32 +33,36 @@ namespace avg {
 
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
+class OGLShader;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
 
 class AVG_API GPUFilter: public Filter
 {
 public:
     GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
-            unsigned numTextures=1, bool bMipmap=false);
+            const std::string& sShaderID, unsigned numTextures=1, bool bMipmap=false);
     virtual ~GPUFilter();
-    void setDimensions(const IntPoint& srcSize);
-    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-            unsigned texMode);
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLTexturePtr pSrcTex);
     virtual void applyOnGPU(GLTexturePtr pSrcTex) = 0;
     GLTexturePtr getDestTex(int i=0) const;
     BitmapPtr getImage() const;
-    FBOPtr getFBO();
+    FBOPtr getFBO(int i=0);
 
     const IntRect& getDestRect() const;
     const IntPoint& getSrcSize() const;
     FRect getRelDestRect() const;
     
 protected:
+    void setDimensions(const IntPoint& srcSize);
+    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+            unsigned texMode);
+    const OGLShaderPtr& getShader() const;
+
     void draw(GLTexturePtr pTex);
     int getBlurKernelRadius(float stdDev) const;
-    GLTexturePtr calcBlurKernelTex(float stdDev, float opacity=1) const;
+    GLTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
 
 private:
     PixelFormat m_PFSrc;
@@ -68,15 +72,16 @@ private:
     bool m_bMipmap;
 
     GLTexturePtr m_pSrcTex;
-    PBOPtr m_pSrcPBO;
-    FBOPtr m_pFBO;
+    TextureMoverPtr m_pSrcMover;
+    std::vector<FBOPtr> m_pFBOs;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
+    OGLShaderPtr m_pShader;
     ImagingProjectionPtr m_pProjection;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;
 
-} // namespace
+}
 #endif
 

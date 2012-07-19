@@ -19,7 +19,8 @@ ALL_H = Bitmap.h Filter.h GLContext.h\
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
         ImagingProjection.h BitmapManager.h BitmapManagerThread.h \
         BitmapManagerMsg.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
-        GPURGB2YUVFilter.h
+        GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
+        VertexData.h
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
@@ -35,7 +36,10 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
         ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp \
         BitmapManagerMsg.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \
-        GPURGB2YUVFilter.cpp
+        GPURGB2YUVFilter.cpp GLShaderParam.cpp StandardShader.cpp SubVertexArray.cpp \
+        VertexData.cpp
+
+
 
 if APPLE
     X_LIBS =
@@ -45,22 +49,25 @@ endif
 
 TESTS=testgraphics testgpu
 
-EXTRA_DIST = $(wildcard baseline/*.png) $(wildcard testfiles/*.png) 
+EXTRA_DIST = $(wildcard baseline/*.png) 
 
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@
+        ../base/triangulate/libtriangulate.la \
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@
 
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
 benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
+        ../base/triangulate/libtriangulate.la \
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
 
 testgpu_SOURCES=testgpu.cpp $(ALL_H)
 testgpu_LDADD = ./libgraphics.la ../base/libbase.la -ldl \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) \
+        ../base/triangulate/libtriangulate.la \
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
         @GDK_PIXBUF_LIBS@
 

@@ -26,8 +26,8 @@ class ScrollPane(avg.DivNode):
     def __init__(self, contentDiv, parent=None, **kwargs):
 
         super(ScrollPane, self).__init__(crop=True, **kwargs)
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
+        
         self.appendChild(contentDiv)
         self.__contentDiv = contentDiv
 

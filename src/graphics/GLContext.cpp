@@ -22,6 +22,7 @@
 #include "GLContext.h"
 
 #include "ShaderRegistry.h"
+#include "StandardShader.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -34,7 +35,10 @@ namespace avg {
 
 using namespace std;
 using namespace boost;
+
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
+bool GLContext::s_bErrorCheckEnabled = false;
 
 #ifdef _WIN32
 LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -80,15 +84,16 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 }
 #endif
 
-GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig, 
+GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
+
+GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig, 
         GLContext* pSharedContext)
-    : m_VBMethod(VB_NONE),
-      m_Context(0),
+    : m_Context(0),
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
-      m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
+      m_BlendColor(0.f, 0.f, 0.f, 0.f),
       m_BlendMode(BLEND_ADD)
 {
     if (bUseCurrent) {
@@ -97,7 +102,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig,
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
-    m_GLConfig = GLConfig;
+    m_GLConfig = glConfig;
     m_bOwnsContext = !bUseCurrent;
     if (bUseCurrent) {
 #if defined(__APPLE__)
@@ -164,7 +169,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig,
         m_hwnd = CreateWindow("GL", "GL",
                 WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                 0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
-        winOGLErrorCheck(m_hDC != 0, "CreateWindow");
+        checkWinError(m_hwnd != 0, "CreateWindow");
 
         m_hDC = GetDC(m_hwnd);
         winOGLErrorCheck(m_hDC != 0, "GetDC");
@@ -180,10 +185,10 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig,
         pfd.iLayerType = PFD_MAIN_PLANE;
 
         int iFormat = ChoosePixelFormat(m_hDC, &pfd);
-        winOGLErrorCheck(iFormat != 0, "ChoosePixelFormat");
+        checkWinError(iFormat != 0, "ChoosePixelFormat");
         SetPixelFormat(m_hDC, iFormat, &pfd);
         m_Context = wglCreateContext(m_hDC);
-        winOGLErrorCheck(m_Context != 0, "wglCreateContext");
+        checkWinError(m_Context != 0, "wglCreateContext");
 #endif
     }
 
@@ -192,6 +197,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig,
 
 GLContext::~GLContext()
 {
+    m_pStandardShader = StandardShaderPtr();
     for (unsigned i=0; i<m_FBOIDs.size(); ++i) {
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
@@ -217,12 +223,28 @@ void GLContext::init()
     activate();
     glproc::init();
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
+    if (useGPUYUVConversion()) {
+        m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
+    }
     enableGLColorArray(false);
     setBlendMode(BLEND_BLEND, false);
-    checkShaderSupport();
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
+    }
+    if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
+        int majorVer;
+        int minorVer;
+        getGLVersion(majorVer, minorVer);
+        if (majorVer > 1) {
+            m_GLConfig.m_ShaderUsage = GLConfig::FULL;
+        } else {
+            m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+        }
+    }
+    for (int i=0; i<16; ++i) {
+        m_BoundTextures[i] = 0xFFFFFFFF;
     }
 }
 
@@ -235,7 +257,7 @@ void GLContext::activate()
     glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
 #elif defined _WIN32
     BOOL bOk = wglMakeCurrent(m_hDC, m_Context);
-    winOGLErrorCheck(bOk, "wglMakeCurrent");
+    checkWinError(bOk, "wglMakeCurrent");
 #endif
     *s_pCurrentContext = this;
 }
@@ -245,23 +267,32 @@ ShaderRegistryPtr GLContext::getShaderRegistry() const
     return m_pShaderRegistry;
 }
 
-void GLContext::pushTransform(const glm::vec2& translate, float angle, 
-        const glm::vec2& pivot)
+StandardShaderPtr GLContext::getStandardShader()
 {
-    glPushMatrix();
-    glTranslated(translate.x, translate.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-    glTranslated(pivot.x, pivot.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-    glRotated(angle*180.0f/PI, 0, 0, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glRotated");
-    glTranslated(-pivot.x, -pivot.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+    if (m_pStandardShader == StandardShaderPtr()) {
+        m_pStandardShader = StandardShaderPtr(new StandardShader());
+    }
+    return m_pStandardShader;
 }
 
-void GLContext::popTransform()
+bool GLContext::useGPUYUVConversion() const
 {
-    glPopMatrix();
+    int majorVer;
+    int minorVer;
+    getGLVersion(majorVer, minorVer);
+    return (majorVer > 1);
+}
+
+bool GLContext::useMinimalShader()
+{
+    if (m_GLConfig.m_ShaderUsage == GLConfig::FULL) {
+        return false;
+    } else if (m_GLConfig.m_ShaderUsage == GLConfig::MINIMAL) {
+        return true;
+    } else {
+        AVG_ASSERT(false);
+        return false; // Silence compiler warning.
+    }
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
@@ -296,18 +327,6 @@ void GLContext::returnFBOToCache(unsigned fboID)
     m_FBOIDs.push_back(fboID);
 }
 
-void GLContext::enableTexture(bool bEnable)
-{
-    if (bEnable != m_bEnableTexture) {
-        if (bEnable) {
-            glEnable(GL_TEXTURE_2D);
-        } else {
-            glDisable(GL_TEXTURE_2D);
-        }
-        m_bEnableTexture = bEnable;
-    }
-}
-
 void GLContext::enableGLColorArray(bool bEnable)
 {
     if (bEnable != m_bEnableGLColorArray) {
@@ -317,6 +336,14 @@ void GLContext::enableGLColorArray(bool bEnable)
             glDisableClientState(GL_COLOR_ARRAY);
         }
         m_bEnableGLColorArray = bEnable;
+    }
+}
+
+void GLContext::setBlendColor(const glm::vec4& color)
+{
+    if (m_BlendColor != color) {
+        glproc::BlendColor(color[0], color[1], color[2], color[3]);
+        m_BlendColor = color;
     }
 }
 
@@ -379,6 +406,17 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
     }
 }
 
+void GLContext::bindTexture(unsigned unit, unsigned texID)
+{
+    if (m_BoundTextures[unit-GL_TEXTURE0] != texID) {
+        glproc::ActiveTexture(unit);
+        checkError("GLContext::bindTexture ActiveTexture()");
+        glBindTexture(GL_TEXTURE_2D, texID);
+        checkError("GLContext::bindTexture BindTexture()");
+        m_BoundTextures[unit-GL_TEXTURE0] = texID;
+    }
+}
+
 const GLConfig& GLContext::getConfig()
 {
     return m_GLConfig;
@@ -400,6 +438,13 @@ void GLContext::logConfig()
             break;
     }
     AVG_TRACE(Logger::CONFIG, "  Max. texture size: " << getMaxTexSize());
+    string s;
+    if (useGPUYUVConversion()) {
+        s = "yes";
+    } else {
+        s = "no";
+    }
+    AVG_TRACE(Logger::CONFIG, string("  GPU-based YUV-RGB conversion: ")+s+".");
     try {
         AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: " << 
                 getVideoMemInstalled()/(1024*1024) << " MB");
@@ -448,11 +493,6 @@ OGLMemoryMode GLContext::getMemoryModeSupported()
     return m_MemoryMode;
 }
 
-bool GLContext::isUsingShaders() const
-{
-    return m_GLConfig.m_bUseShaders;
-}
-
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {
@@ -466,35 +506,35 @@ bool GLContext::initVBlank(int rate)
     if (rate > 0) {
 #ifdef __APPLE__
         initMacVBlank(rate);
-        m_VBMethod = VB_APPLE;
+        s_VBMethod = VB_APPLE;
 #elif defined _WIN32
         if (queryOGLExtension("WGL_EXT_swap_control")) {
             glproc::SwapIntervalEXT(rate);
-            m_VBMethod = VB_WIN;
+            s_VBMethod = VB_WIN;
         } else {
             AVG_TRACE(Logger::WARNING,
                     "Windows VBlank setup failed: OpenGL Extension not supported.");
-            m_VBMethod = VB_NONE;
+            s_VBMethod = VB_NONE;
         }
 #else
         if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
             AVG_TRACE(Logger::WARNING, 
                     "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
-            m_VBMethod = VB_NONE;
+            s_VBMethod = VB_NONE;
         } else {
             if (queryGLXExtension("GLX_EXT_swap_control")) {
-                m_VBMethod = VB_GLX;
+                s_VBMethod = VB_GLX;
                 glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
 
             } else {
                 AVG_TRACE(Logger::WARNING,
                         "Linux VBlank setup failed: OpenGL Extension not supported.");
-                m_VBMethod = VB_NONE;
+                s_VBMethod = VB_NONE;
             }
         }
 #endif
     } else {
-        switch (m_VBMethod) {
+        switch (s_VBMethod) {
             case VB_APPLE:
                 initMacVBlank(0);
                 break;
@@ -511,9 +551,9 @@ bool GLContext::initVBlank(int rate)
             default:
                 break;
         }
-        m_VBMethod = VB_NONE;
+        s_VBMethod = VB_NONE;
     }
-    switch(m_VBMethod) {
+    switch(s_VBMethod) {
         case VB_GLX:
             AVG_TRACE(Logger::CONFIG, 
                     "  Using SGI OpenGL extension for vertical blank support.");
@@ -530,7 +570,34 @@ bool GLContext::initVBlank(int rate)
         default:
             AVG_TRACE(Logger::WARNING, "  Illegal vblank enum value.");
     }
-    return m_VBMethod != VB_NONE;
+    return s_VBMethod != VB_NONE;
+}
+
+void GLContext::enableErrorChecks(bool bEnable)
+{
+    s_bErrorCheckEnabled = bEnable;
+}
+    
+void GLContext::checkError(const char* pszWhere) 
+{
+    if (s_bErrorCheckEnabled) {
+        mandatoryCheckError(pszWhere);
+    }
+}
+
+void GLContext::mandatoryCheckError(const char* pszWhere) 
+{
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        stringstream s;
+        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
+            << " (#" << err << ") ";
+        AVG_TRACE(Logger::ERROR, s.str());
+        if (err != GL_INVALID_OPERATION) {
+            checkError("  --");
+        }
+        AVG_ASSERT(false);
+    }
 }
 
 GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
@@ -553,17 +620,14 @@ GLContext* GLContext::getCurrent()
     return *s_pCurrentContext;
 }
 
-void GLContext::checkShaderSupport()
+GLContext* GLContext::getMain()
 {
-    int glMajorVer;
-    int glMinorVer;
-    getGLShadingLanguageVersion(glMajorVer, glMinorVer);
-    bool bShaderVersionOK = (glMajorVer >= 2 || glMinorVer >= 10);
-    m_GLConfig.m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
-            getMemoryModeSupported() == MM_PBO &&
-            !m_GLConfig.m_bUsePOTTextures &&
-            m_GLConfig.m_bUseShaders &&
-            bShaderVersionOK);
+    return s_pMainContext;
+}
+
+void GLContext::setMain(GLContext * pMainContext)
+{
+    s_pMainContext = pMainContext;
 }
 
 void GLContext::checkGPUMemInfoSupport()
@@ -577,6 +641,20 @@ void GLContext::checkGPUMemInfoSupport()
                 "Video memory query not supported on this system.");
     }
 }
+
+#ifdef _WIN32
+void GLContext::checkWinError(BOOL bOK, const string& sWhere) 
+{
+    if (!bOK) {
+        char szErr[512];
+        FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
+                0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                szErr, 512, 0);
+        AVG_TRACE(Logger::ERROR, sWhere+":"+szErr);
+        AVG_ASSERT(false);
+    }
+}
+#endif
 
 void GLContext::initMacVBlank(int rate)
 {

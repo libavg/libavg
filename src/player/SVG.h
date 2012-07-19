@@ -69,8 +69,6 @@ private:
     UTF8String m_sFilename;
     bool m_bUnescapeIllustratorIDs;
     RsvgHandle* m_pRSVG;
-    
-    static bool s_RSVGInitialized;
 };
 
 }

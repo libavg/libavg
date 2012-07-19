@@ -58,7 +58,7 @@ void GraphicsTest::createResultImgDir()
 BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
 {
     try {
-        BitmapPtr pBmp(new Bitmap(getSrcDirName()+"testfiles/"+sFName+".png"));
+        BitmapPtr pBmp(new Bitmap(getSrcDirName()+"../test/media/"+sFName+".png"));
         if (pf == I8) {
             return FilterGrayscale().apply(pBmp);
         }

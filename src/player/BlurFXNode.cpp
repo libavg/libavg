@@ -23,7 +23,6 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
-#include "../graphics/ShaderRegistry.h"
 
 #include <string>
 
@@ -31,9 +30,9 @@ using namespace std;
 
 namespace avg {
 
-BlurFXNode::BlurFXNode() 
+BlurFXNode::BlurFXNode(float radius) 
     : FXNode(),
-      m_StdDev(1)
+      m_StdDev(radius)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -45,10 +44,6 @@ BlurFXNode::~BlurFXNode()
 
 void BlurFXNode::connect()
 {
-    if (!GLTexture::isFloatFormatSupported()) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Cannot create BlurFX: OpenGL configuration doesn't support Blur (no float textures).");
-    }
     setDirty();
     FXNode::connect();
 }

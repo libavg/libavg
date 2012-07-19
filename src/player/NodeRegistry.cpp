@@ -23,6 +23,7 @@
 
 #include "NodeRegistry.h"
 #include "NodeDefinition.h"
+#include "Style.h"
 
 #include "../base/Exception.h"
 
@@ -63,10 +64,21 @@ NodePtr NodeRegistry::createNode(const string& sType, const xmlNodePtr xmlNode)
 NodePtr NodeRegistry::createNode(const string& sType, const boost::python::dict& pyDict)
 {
     const NodeDefinition& def = getNodeDef(sType);
-    ArgList args(def.getDefaultArgs(), pyDict);
+    boost::python::dict effParams;
+    StylePtr pStyle;
+    if (pyDict.has_key("style")) {
+        boost::python::object param = pyDict["style"];
+        pyDict.attr("__delitem__")("style");
+        pStyle = boost::python::extract<StylePtr>(param);
+        effParams = pStyle->mergeParams(pyDict);
+    } else {
+        effParams = pyDict;
+    }
+    ArgList args(def.getDefaultArgs(), effParams);
     NodeBuilder builder = def.getBuilder();
     NodePtr pNode = builder(args);
     pNode->setTypeInfo(&def);
+    pNode->setStyle(pStyle);
     return pNode;
 }
 

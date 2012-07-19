@@ -23,24 +23,30 @@
 #define _ThreadProfiler_H_
 
 #include "../api.h"
-#include "ProfilingZone.h"
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
-#include <list>
+#include <vector>
 #include <map>
-
+#ifdef _WIN32
+#include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 namespace avg {
 
 class ThreadProfiler;
 typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
+class ProfilingZone;
+typedef boost::shared_ptr<ProfilingZone> ProfilingZonePtr;
+class ProfilingZoneID;
 
 class AVG_API ThreadProfiler
 {
 public:
-    static ThreadProfilerPtr& get();
+    static ThreadProfiler* get();
     static void kill();
     ThreadProfiler();
     virtual ~ThreadProfiler();
@@ -50,7 +56,6 @@ public:
     bool isRunning();
     void startZone(const ProfilingZoneID& zoneID);
     void stopZone(const ProfilingZoneID& zoneID);
-    void dumpFrame();
     void dumpStatistics();
     void reset();
     int getNumZones();
@@ -62,15 +67,19 @@ private:
     ProfilingZonePtr addZone(const ProfilingZoneID& zoneID);
     std::string m_sName;
 
-    typedef std::map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
-    typedef std::list<ProfilingZonePtr> ZoneList;
+#ifdef _WIN32
+    typedef std::unordered_map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
+#else
+    typedef std::tr1::unordered_map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
+#endif
+    typedef std::vector<ProfilingZonePtr> ZoneVector;
     ZoneMap m_ZoneMap;
-    ZoneList m_ActiveZones;
-    ZoneList m_Zones;
+    ZoneVector m_ActiveZones;
+    ZoneVector m_Zones;
     bool m_bRunning;
     long m_LogCategory;
 
-    static boost::thread_specific_ptr<ThreadProfilerPtr> s_pInstance;
+    static boost::thread_specific_ptr<ThreadProfiler*> s_pInstance;
 };
 
 }

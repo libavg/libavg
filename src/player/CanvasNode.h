@@ -38,6 +38,7 @@ class AVG_API CanvasNode : public DivNode
         virtual ~CanvasNode();
 
         virtual std::string getEffectiveMediaDir();
+
 };
 
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;

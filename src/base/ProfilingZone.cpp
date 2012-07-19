@@ -30,12 +30,11 @@ using namespace std;
 namespace avg {
 
 ProfilingZone::ProfilingZone(const ProfilingZoneID& zoneID)
-    : m_ZoneID(zoneID),
-      m_TimeSum(0),
+    : m_TimeSum(0),
       m_AvgTime(0),
       m_NumFrames(0),
       m_Indent(0),
-      m_bIsRegistered(false)
+      m_ZoneID(zoneID)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }

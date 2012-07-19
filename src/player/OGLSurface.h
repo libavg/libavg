@@ -28,6 +28,7 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
+#include "../graphics/StandardShader.h"
 
 #include <vector>
 #include <string>
@@ -43,7 +44,6 @@ public:
     OGLSurface();
     virtual ~OGLSurface();
 
-    void attach();
     virtual void create(PixelFormat pf, GLTexturePtr pTex0, 
             GLTexturePtr pTex1 = GLTexturePtr(), GLTexturePtr pTex2 = GLTexturePtr(), 
             GLTexturePtr pTex3 = GLTexturePtr());
@@ -62,15 +62,13 @@ public:
 
     void setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,
             const glm::vec3& contrast);
-    static void createShader();
+    void setAlphaGamma(float gamma);
 
     bool isDirty() const;
     void resetDirty();
 
 private:
-    bool useShader() const;
     glm::mat4 calcColorspaceMatrix() const;
-    bool gammaIsModified() const;
     bool colorIsModified() const;
 
     GLTexturePtr m_pTextures[4];
@@ -83,8 +81,10 @@ private:
     glm::vec3 m_Gamma;
     glm::vec3 m_Brightness;
     glm::vec3 m_Contrast;
+    float m_AlphaGamma;
 
     bool m_bIsDirty;
+
 };
 
 }

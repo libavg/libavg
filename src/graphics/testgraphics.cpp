@@ -65,6 +65,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <glib-object.h>
+
 using namespace avg;
 using namespace std;
 
@@ -568,7 +570,7 @@ public:
             if (pSrcDir) {
                 sFilename = (string)pSrcDir+"/";
             }
-            sFilename += "../test/rgb24-64x64.png";
+            sFilename += "../test/media/rgb24-64x64.png";
             Bitmap tempBmp(sFilename);
             PixelFormat pf = R8G8B8;    
             BitmapPtr pBmp;
@@ -1049,6 +1051,8 @@ public:
 
 int main(int nargs, char** args)
 {
+    g_type_init();
+
     GraphicsTest::createResultImgDir();
     GraphicsTestSuite suite;
     suite.runTests();

@@ -25,13 +25,12 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
-CXXFLAGS="-Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body $CXXFLAGS"
-CFLAGS="$CFLAGS -Wall -pipe"
-case `uname -m` in
-  x86*|i?86*)
-    CXXFLAGS="-msse2 $CXXFLAGS"
-    CFLAGS="-msse2 $CFLAGS"
-esac
+CXXFLAGS="-O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body $CXXFLAGS"
+CFLAGS="-O3 -ffast-math -Wall -pipe $CFLAGS"
+if [[ $host_cpu == i386 ]] || [[ $host_cpu == i686 ]] || [[ $host_cpu == x86_64 ]]; then
+    CXXFLAGS="-msse2 -mfpmath=sse $CXXFLAGS"
+    CFLAGS="-msse2 -mfpmath=sse $CFLAGS"
+fi
 OBJC="gcc"
 OBJCFLAGS=""
 OBJCLDFLAGS="-lobjc"
@@ -88,7 +87,7 @@ then
 fi
     
 AX_BOOST_THREAD
-if test -z "$BOOST_THREAD_LIB"; then
+if test -z "$BOOST_THREAD_LIBS"; then
    AC_MSG_ERROR([boost.thread not found. Aborting.])
 fi
 
@@ -173,8 +172,8 @@ PREFIX=$prefix
 AC_SUBST(PREFIX)
 AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(Makefile src/Makefile src/test/Makefile src/test/plugin/Makefile
-    src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/wrapper/Makefile 
-    src/player/Makefile src/graphics/Makefile 
+    src/base/Makefile src/base/triangulate/Makefile
+    src/lmfit/Makefile src/wrapper/Makefile src/player/Makefile src/graphics/Makefile 
     src/graphics/shaders/Makefile src/python/Makefile
     src/imaging/Makefile src/video/Makefile src/audio/Makefile src/utils/Makefile 
     src/anim/Makefile src/python/data/Makefile src/samples/Makefile 

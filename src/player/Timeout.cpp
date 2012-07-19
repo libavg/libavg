@@ -54,17 +54,17 @@ Timeout::~Timeout()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-bool Timeout::IsReady(long long time) const
+bool Timeout::isReady(long long time) const
 {
     return m_NextTimeout <= time;
 }
 
-bool Timeout::IsInterval() const
+bool Timeout::isInterval() const
 {
     return m_IsInterval;
 }
 
-void Timeout::Fire(long long curTime)
+void Timeout::fire(long long curTime)
 {
     if (m_IsInterval) {
         m_NextTimeout = m_Interval + curTime;
@@ -80,7 +80,7 @@ void Timeout::Fire(long long curTime)
     Py_DECREF(result);
 }
 
-int Timeout::GetID() const
+int Timeout::getID() const
 {
     return m_ID;
 }

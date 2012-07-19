@@ -23,7 +23,6 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
-#include "../graphics/ShaderRegistry.h"
 
 #include <string>
 
@@ -31,18 +30,15 @@ using namespace std;
 
 namespace avg {
 
-ShadowFXNode::ShadowFXNode() 
+ShadowFXNode::ShadowFXNode(glm::vec2 offset, float radius, float opacity, string sColor) 
     : FXNode(),
-      m_Offset(0,0),
-      m_StdDev(1),
-      m_Opacity(1),
-      m_Color(255,255,255,255)
+      m_Offset(offset),
+      m_StdDev(radius),
+      m_Opacity(opacity)
 {
+    m_sColorName = sColor;
+    m_Color = colorStringToColor(sColor);
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (!GLTexture::isFloatFormatSupported()) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "OpenGL configuration doesn't support Shadow (no float textures).");
-    }
 }
 
 ShadowFXNode::~ShadowFXNode()
@@ -52,10 +48,6 @@ ShadowFXNode::~ShadowFXNode()
 
 void ShadowFXNode::connect()
 {
-    if (!GLTexture::isFloatFormatSupported()) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Cannot create ShadowFX: OpenGL configuration doesn't support Blur (no float textures).");
-    }
     FXNode::connect();
 }
 

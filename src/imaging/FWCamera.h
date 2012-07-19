@@ -38,9 +38,6 @@
 #ifndef AVG_ENABLE_1394_2
 typedef unsigned int dc1394feature_t;
 #endif
-#ifndef uint64_t
-#define uint64_t unsigned long long
-#endif
 
 #include <string>
 #include <map>
@@ -49,8 +46,8 @@ namespace avg {
 
 class AVG_API FWCamera: public Camera {
 public:
-    FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, PixelFormat camPF, 
-            PixelFormat destPF, float frameRate);
+    FWCamera(unsigned long long guid, int unit, bool bFW800, IntPoint size,
+            PixelFormat camPF, PixelFormat destPF, float frameRate);
     virtual ~FWCamera();
     virtual void startCapture();
 

@@ -73,7 +73,7 @@ vec4 getMedian(vec2 texCoord)
     v[3] = texture2D(texture, texCoord+vec2(-dx,0));
     v[4] = texture2D(texture, texCoord+vec2(dx,0));
     for (int i = 0; i < 5; ++i) {
-        v[i].a = (v[i].r+v[i].g+v[i].b)/3.0;
+        v[i].a = 0.2989 * v[i].r + 0.5870 * v[i].g + 0.1140 * v[i].b;
     }
 
     vec4 temp;
@@ -111,7 +111,9 @@ void main(void)
     } else {
         alpha = 1.0;
     }
+    tex = texture2D(texture, gl_TexCoord[0].st);
     if (alpha > 0.0 && hDiff < spillThreshold) {
+        rgb2hsl(tex, h, s, l);
         if (spillThreshold > hTolerance) {
             float factor = max(0.0, 1.0-(spillThreshold-hDiff)
                     /(spillThreshold-hTolerance));

@@ -8,11 +8,10 @@ if system() == 'Linux':
 del system
 
 from avg import *
-import anim
-import draggable
+player = avg.Player.get()
+
 import textarea
 import statemachine
-from grabbable import Grabbable
 from app import AVGApp, App
 from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
 import utils

@@ -61,11 +61,15 @@ NodeDefinition AreaNode::createDefinition()
         .addArg(Arg<glm::vec2>("size", glm::vec2(0.0, 0.0)))
         .addArg(Arg<float>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
         .addArg(Arg<glm::vec2>("pivot", glm::vec2(-32767, -32767), false, 
-                offsetof(AreaNode, m_Pivot)));
+                offsetof(AreaNode, m_Pivot)))
+        .addArg(Arg<string>("elementoutlinecolor", "", false, 
+                offsetof(AreaNode, m_sElementOutlineColor)));
 }
 
 AreaNode::AreaNode()
-    : m_RelViewport(0,0,0,0)
+    : m_RelViewport(0,0,0,0),
+      m_Transform(glm::mat4(0)),
+      m_bTransformChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -83,6 +87,7 @@ void AreaNode::setArgs(const ArgList& args)
     m_RelViewport.setWidth(m_UserSize.x);
     m_RelViewport.setHeight(m_UserSize.y);
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
+    setElementOutlineColor(m_sElementOutlineColor);
 }
 
 void AreaNode::connectDisplay()
@@ -98,6 +103,7 @@ void AreaNode::connectDisplay()
     } else {
         m_RelViewport.setHeight(float(m_UserSize.y));
     }
+    m_bTransformChanged = true;
     Node::connectDisplay();
 }
 
@@ -172,6 +178,7 @@ float AreaNode::getAngle() const
 void AreaNode::setAngle(float angle)
 {
     m_Angle = fmod(angle, 2*PI);
+    m_bTransformChanged = true;
 }
 
 glm::vec2 AreaNode::getPivot() const
@@ -188,6 +195,22 @@ void AreaNode::setPivot(const glm::vec2& pt)
     m_Pivot.x = pt.x;
     m_Pivot.y = pt.y;
     m_bHasCustomPivot = true;
+    m_bTransformChanged = true;
+}
+
+const std::string& AreaNode::getElementOutlineColor() const
+{
+    return m_sElementOutlineColor;
+}
+
+void AreaNode::setElementOutlineColor(const std::string& sColor)
+{
+    m_sElementOutlineColor = sColor;
+    if (sColor == "") {
+        m_ElementOutlineColor = Pixel32(0,0,0,0);
+    } else {
+        m_ElementOutlineColor = colorStringToColor(m_sElementOutlineColor);
+    }
 }
 
 glm::vec2 AreaNode::toLocal(const glm::vec2& globalPos) const
@@ -202,29 +225,38 @@ glm::vec2 AreaNode::toGlobal(const glm::vec2& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        pElements.push_back(shared_from_this());
+        pElements.push_back(getSharedThis());
     }
 }
 
-void AreaNode::maybeRender(const FRect& rect)
+void AreaNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        if (getID() != "") {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                    " with ID " << getID());
-        } else {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-        }
-        GLContext * pContext = GLContext::getCurrent();
-        pContext->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-        render(rect);
-        pContext->popTransform();
+        calcTransform();
+        m_Transform = parentTransform*m_LocalTransform;
+        render();
+    }
+}
+
+void AreaNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor)
+{
+    Pixel32 effColor = getEffectiveOutlineColor(parentColor);
+    if (effColor != Pixel32(0,0,0,0)) {
+        glm::vec2 size = getSize();
+        glm::vec2 p0 = getAbsPos(glm::vec2(0.5, 0.5));
+        glm::vec2 p1 = getAbsPos(glm::vec2(size.x+0.5,0.5));
+        glm::vec2 p2 = getAbsPos(glm::vec2(size.x+0.5,size.y+0.5));
+        glm::vec2 p3 = getAbsPos(glm::vec2(0.5,size.y+0.5));
+        pVA->addLineData(effColor, p0, p1, 1);
+        pVA->addLineData(effColor, p1, p2, 1);
+        pVA->addLineData(effColor, p2, p3, 1);
+        pVA->addLineData(effColor, p3, p0, 1);
     }
 }
 
@@ -255,6 +287,7 @@ void AreaNode::setViewport(float x, float y, float width, float height)
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for a node.");
     }
     m_RelViewport = FRect(x, y, x+width, y+height);
+    m_bTransformChanged = true;
 }
 
 const FRect& AreaNode::getRelViewport() const
@@ -275,9 +308,36 @@ string AreaNode::dump(int indent)
     return dumpStr; 
 }
 
+const glm::mat4& AreaNode::getTransform() const
+{
+    return m_Transform;
+}
+
 glm::vec2 AreaNode::getUserSize() const
 {
     return m_UserSize;
+}
+
+Pixel32 AreaNode::getEffectiveOutlineColor(Pixel32 parentColor) const
+{
+    if (m_ElementOutlineColor == Pixel32(0,0,0,0)) {
+        return parentColor;
+    } else {
+        return m_ElementOutlineColor;
+    }
+}
+
+void AreaNode::calcTransform()
+{
+    if (m_bTransformChanged) {
+        glm::vec3 pos(m_RelViewport.tl.x, m_RelViewport.tl.y, 0);
+        glm::vec3 pivot(getPivot().x, getPivot().y, 0);
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos);
+        transform = glm::translate(transform, pivot);
+        transform = glm::rotate(transform, (180.f/PI)*m_Angle, glm::vec3(0,0,1));
+        m_LocalTransform = glm::translate(transform, -pivot);
+        m_bTransformChanged = false;
+    }
 }
 
 }

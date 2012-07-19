@@ -77,7 +77,7 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
     if (pMainCanvas != m_pCanvas) {
         m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
-        if (GLContext::getCurrent()->isUsingShaders()) {
+        if (GLContext::getMain()->useGPUYUVConversion()) {
             m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
         }
     }
@@ -194,12 +194,9 @@ void VideoWriter::getFrameFromFBO()
 {
     if (m_pFBO) {
         if (m_pFilter) {
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
             m_pFilter->apply(m_pFBO->getTex());
             FBOPtr pYUVFBO = m_pFilter->getFBO();
             pYUVFBO->moveToPBO();
-            glPopMatrix();
         } else {
             m_pFBO->moveToPBO();
         }

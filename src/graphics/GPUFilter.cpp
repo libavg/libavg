@@ -24,6 +24,9 @@
 
 #include "VertexArray.h"
 #include "ImagingProjection.h"
+#include "GLContext.h"
+#include "ShaderRegistry.h"
+
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
@@ -37,7 +40,7 @@ using namespace boost;
 namespace avg {
 
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
-        unsigned numTextures, bool bMipmap)
+        const std::string& sShaderID, unsigned numTextures, bool bMipmap)
     : m_PFSrc(pfSrc),
       m_PFDest(pfDest),
       m_bStandalone(bStandalone),
@@ -46,6 +49,8 @@ GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
       m_SrcSize(0,0),
       m_DestRect(0,0,0,0)
 {
+    createShader(sShaderID);
+    m_pShader = avg::getShader(sShaderID);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -54,40 +59,13 @@ GPUFilter::~GPUFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUFilter::setDimensions(const IntPoint& srcSize)
-{
-    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
-}
-
-void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-        unsigned texMode)
-{
-    bool bProjectionChanged = false;
-    if (destRect != m_DestRect) {
-        m_pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, m_NumTextures, 1, false,
-                m_bMipmap));
-        m_DestRect = destRect;
-        bProjectionChanged = true;
-    }
-    if (m_bStandalone && srcSize != m_SrcSize) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
-                texMode));
-        m_pSrcPBO = PBOPtr(new PBO(srcSize, m_PFSrc, GL_STREAM_DRAW));
-        bProjectionChanged = true;
-    }
-    m_SrcSize = srcSize;
-    if (bProjectionChanged) {
-        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
-    }
-}
-  
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pSrcTex);
-    AVG_ASSERT(m_pFBO);
-    m_pSrcPBO->moveBmpToTexture(pBmpSource, *m_pSrcTex);
+    AVG_ASSERT(!(m_pFBOs.empty()));
+    m_pSrcMover->moveBmpToTexture(pBmpSource, *m_pSrcTex);
     apply(m_pSrcTex);
-    BitmapPtr pFilteredBmp = m_pFBO->getImage();
+    BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage();
     BitmapPtr pDestBmp;
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
         pDestBmp = BitmapPtr(new Bitmap(m_DestRect.size(),
@@ -101,25 +79,24 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 
 void GPUFilter::apply(GLTexturePtr pSrcTex)
 {
-    m_pFBO->activate();
-    m_pProjection->activate();
+    m_pFBOs[0]->activate();
     applyOnGPU(pSrcTex);
-    m_pFBO->copyToDestTexture();
+    m_pFBOs[0]->copyToDestTexture();
 }
 
 GLTexturePtr GPUFilter::getDestTex(int i) const
 {
-    return m_pFBO->getTex(i);
+    return m_pFBOs[i]->getTex();
 }
 
 BitmapPtr GPUFilter::getImage() const
 {
-    return m_pFBO->getImage();
+    return m_pFBOs[0]->getImage();
 }
 
-FBOPtr GPUFilter::getFBO()
+FBOPtr GPUFilter::getFBO(int i)
 {
-    return m_pFBO;
+    return m_pFBOs[i];
 }
 
 const IntRect& GPUFilter::getDestRect() const
@@ -139,10 +116,46 @@ FRect GPUFilter::getRelDestRect() const
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
 }
 
+void GPUFilter::setDimensions(const IntPoint& srcSize)
+{
+    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
+}
+
+void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+        unsigned texMode)
+{
+    bool bProjectionChanged = false;
+    if (destRect != m_DestRect) {
+        m_pFBOs.clear();
+        for (unsigned i=0; i<m_NumTextures; ++i) {
+            FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
+                    m_bMipmap));
+            m_pFBOs.push_back(pFBO);
+        }
+        m_DestRect = destRect;
+        bProjectionChanged = true;
+    }
+    if (m_bStandalone && srcSize != m_SrcSize) {
+        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
+                texMode));
+        m_pSrcMover = TextureMover::create(srcSize, m_PFSrc, GL_STREAM_DRAW);
+        bProjectionChanged = true;
+    }
+    m_SrcSize = srcSize;
+    if (bProjectionChanged) {
+        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
+    }
+}
+  
+const OGLShaderPtr& GPUFilter::getShader() const
+{
+    return m_pShader;
+}
+
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
-    m_pProjection->draw();
+    m_pProjection->draw(m_pShader);
 }
 
 void dumpKernel(int width, float* pKernel)
@@ -161,7 +174,8 @@ int GPUFilter::getBlurKernelRadius(float stdDev) const
     return int(ceil(stdDev*3));
 }
 
-GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity) const
+GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat)
+        const
 {
     AVG_ASSERT(opacity != -1);
     int kernelWidth;
@@ -179,43 +193,63 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity) const
                     *float(opacity);
             tempCoeffs[i] = coeff;
             i++;
-        } while (coeff > 0.005 && i < 1024);
-        int kernelCenter = i - 2;
-        kernelWidth = kernelCenter*2+1;
-        pKernel = new float[kernelWidth];
-        float sum = 0;
-        for (int i = 0; i <= kernelCenter; ++i) {
-            pKernel[kernelCenter+i] = tempCoeffs[i];
-            sum += tempCoeffs[i];
-            if (i != 0) {
-                pKernel[kernelCenter-i] = tempCoeffs[i];
+        } while (coeff > 0.003 && i < 1024);
+        if (i > 1) {
+            int kernelCenter = i - 2;
+            kernelWidth = kernelCenter*2+1;
+            pKernel = new float[kernelWidth];
+            float sum = 0;
+            for (int i = 0; i <= kernelCenter; ++i) {
+                pKernel[kernelCenter+i] = tempCoeffs[i];
                 sum += tempCoeffs[i];
+                if (i != 0) {
+                    pKernel[kernelCenter-i] = tempCoeffs[i];
+                    sum += tempCoeffs[i];
+                }
             }
-        }
-        // Make sure the sum of coefficients is opacity despite the inaccuracies
-        // introduced by using a kernel of finite size.
-        for (int i = 0; i < kernelWidth; ++i) {
-            pKernel[i] *= float(opacity)/sum;
+            // Make sure the sum of coefficients is opacity despite the inaccuracies
+            // introduced by using a kernel of finite size.
+            for (int i = 0; i < kernelWidth; ++i) {
+                pKernel[i] *= float(opacity)/sum;
+            }
+        } else {
+            // Blur is so wide that all pixels would be black at 8-bit precision
+            kernelWidth = 1;
+            pKernel = new float[1];
+            pKernel[0] = 0.;
         }
     }
 //    dumpKernel(kernelWidth, pKernel);
     
     IntPoint size(kernelWidth, 1);
-    GLTexturePtr pTex(new GLTexture(size, R32G32B32A32F));
-    PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), R32G32B32A32F, GL_STREAM_DRAW));
+    PixelFormat pf;
+    if (bUseFloat) {
+        pf = R32G32B32A32F;
+    } else {
+        pf = I8;
+    }
+    GLTexturePtr pTex(new GLTexture(size, pf));
+    PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), pf, GL_STREAM_DRAW));
     pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
-    float * pCurFloat = (float*)pPBOPixels;
-    for (int i = 0; i < kernelWidth; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            *pCurFloat = pKernel[i];
-            ++pCurFloat;
+    GLContext::checkError("GPUFilter::calcBlurKernelTex MapBuffer()");
+    if (bUseFloat) {
+        float * pCurFloat = (float*)pPBOPixels;
+        for (int i = 0; i < kernelWidth; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                *pCurFloat = pKernel[i];
+                ++pCurFloat;
+            }
+        }
+    } else {
+        unsigned char * pCurPixel = (unsigned char *)pPBOPixels;
+        for (int i = 0; i < kernelWidth; ++i) {
+            *pCurPixel = (unsigned char)(pKernel[i]*255+0.5);
+            ++pCurPixel;
         }
     }
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
-   
+    GLContext::checkError("GPUFilter::calcBlurKernelTex UnmapBuffer()");
     pFilterKernelPBO->moveToTexture(*pTex);
 
     delete[] pKernel;

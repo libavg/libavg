@@ -24,8 +24,9 @@ import unittest
 
 import optparse
 import os
+import sys
 
-import libavg
+from libavg import avg, player
 import testcase
 
 
@@ -45,7 +46,7 @@ class TestApp(object):
         self.__testSuite = unittest.TestSuite()
         self.__optionParser = None
         self.__commandlineOptions = None
-        self.__player = libavg.avg.Player.get()
+        player.keepWindowOpen()
             
     def getSuiteFactory(self, name):
         return self.__registerdSuiteFactoriesDict[name]
@@ -80,7 +81,7 @@ class TestApp(object):
             yield self.__RegisterdSuitesDict[name]
     
     def __runVideoTest(self):
-        self.__player.loadFile("image.avg")
+        player.loadFile("image.avg")
     
     def __run(self):
         testRunner = unittest.TextTestRunner(verbosity = 2)
@@ -92,7 +93,7 @@ class TestApp(object):
             for test in suite:
                 if test.skipped():
                     numSkipped += 1
-        print "Skipped", numSkipped, "tests."
+        sys.stderr.write("Skipped "+str(numSkipped)+" tests.\n")
 
         if testResult.wasSuccessful():
             self.__exitOk = TestApp.EXIT_OK
@@ -105,32 +106,40 @@ class TestApp(object):
         self.__populateTestSuite()
 
     def __setupGlobalPlayerOptions(self):
-        self.__player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
-                self.__commandlineOptions.useshaders,
-                self.__commandlineOptions.usepixelbuffers,
-                1)
+        if self.__commandlineOptions.shaderusage == "FULL":
+            shaderUsage = avg.SHADERUSAGE_FULL
+        elif self.__commandlineOptions.shaderusage == "MINIMAL":
+            shaderUsage = avg.SHADERUSAGE_MINIMAL
+        elif self.__commandlineOptions.shaderusage == "AUTO":
+            shaderUsage = avg.SHADERUSAGE_AUTO
+        else:
+            sys.stderr.write("\nUnknown value for --shaderusage command-line parameter.\n")
+            self.__optionParser.print_help()
+            sys.exit(-1)
+
+        player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
+                self.__commandlineOptions.usepixelbuffers, 1, shaderUsage)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(
             usage = '%prog [options] [<suite> [testcase] [testcase] [...]]')
         
         self.__optionParser.add_option("--usepow2textures", 
-                                       dest = "usepow2textures", 
-                                       action = 'store_true',
-                                       default = False, 
-                                       help = "Use power of 2 textures")
+                dest = "usepow2textures", 
+                action = 'store_true',
+                default = False, 
+                help = "Use power of 2 textures")
         
-        self.__optionParser.add_option("--noshaders", 
-                                       dest = "useshaders",
-                                       action = 'store_false',
-                                       default = True, 
-                                       help = "Use shaders")
-                
         self.__optionParser.add_option("--nopixelbuffers", 
-                                       dest = "usepixelbuffers",
-                                       action = 'store_false',
-                                       default = True, 
-                                       help = "Use pixel buffers")
+                dest = "usepixelbuffers",
+                action = 'store_false',
+                default = True, 
+                help = "Use pixel buffers")
+
+        self.__optionParser.add_option("--shaderusage",
+                dest = "shaderusage",
+                default = "AUTO", 
+                help = "Configure usage of shaders. Valid values are FULL, MINIMAL and AUTO.")
         
     def __parseCommandline(self):
         self.__commandlineOptions, args = self.__optionParser.parse_args()
@@ -138,10 +147,10 @@ class TestApp(object):
         if len(args): # suite
             suiteFactory = args.pop(0)
             if not(self.isSuiteFactoryRegistered(suiteFactory)):
-                print "Unknown test suite, registered suites:"
+                sys.stderr.write("Unknown test suite, registered suites:\n")
                 for factory in self.getSuiteFactoryNames():
-                    print factory
-                print ''
+                    sys.stderr.write(factory+"\n")
+                sys.stderr.write("\n")
                 self.__optionParser.print_usage()
 
             self.__suitesToRun.append(self.getSuiteFactory(suiteFactory))
@@ -155,14 +164,14 @@ class TestApp(object):
             self.__testSuite.addTest(suite(self.__suitesTestSubsets))
         
     def __dumpConfig(self):
-        log = libavg.avg.Logger.get()
+        log = avg.Logger.get()
         log.pushCategories()
         log.setCategories(log.APP | log.WARNING | log.CONFIG  | 0)
-        self.__player.loadString("""
+        player.loadString("""
                 <avg id="avg" width="160" height="120">
                 </avg>
                 """)
-        self.__player.setTimeout(0, self.__player.stop)
-        self.__player.setFramerate(10000)
-        self.__player.play()
+        player.setTimeout(0, player.stop)
+        player.setFramerate(10000)
+        player.play()
         log.popCategories()

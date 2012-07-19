@@ -30,6 +30,7 @@
 #include "../base/GLMHelper.h"
 #include "../base/UTF8String.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/SubVertexArray.h"
 
 #include <string>
 
@@ -57,7 +58,7 @@ class AVG_API RasterNode: public AreaNode
         virtual void setArgs(const ArgList& args);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
-        
+
         // Warping support.
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
@@ -80,7 +81,7 @@ class AVG_API RasterNode: public AreaNode
         const glm::vec2& getMaskSize() const;
         void setMaskSize(const glm::vec2& size);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
 
         glm::vec3 getGamma() const;
         void setGamma(const glm::vec3& gamma);
@@ -93,27 +94,31 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
-        void blt32(const glm::vec2& destSize, float opacity, GLContext::BlendMode mode,
-                bool bPremultipliedAlpha = false);
-        void blta8(const glm::vec2& destSize, float opacity, 
+         
+        void calcVertexArray(const VertexArrayPtr& pVA);
+        void blt32(const glm::mat4& transform, const glm::vec2& destSize, float opacity,
+                GLContext::BlendMode mode, bool bPremultipliedAlpha = false);
+        void blta8(const glm::mat4& transform, const glm::vec2& destSize, float opacity, 
                 const Pixel32& color, GLContext::BlendMode mode);
 
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
         bool hasMask() const;
         void setMaskCoords();
-        void bind();
         void renderFX(const glm::vec2& destSize, const Pixel32& color, 
-                bool bPremultipliedAlpha);
+                bool bPremultipliedAlpha, bool bForceRender=false);
+
+    protected:
+        void newSurface();
+        void setupFX(bool bNewFX);
 
     private:
         void downloadMask();
         virtual void calcMaskCoords();
-        void checkMaskSupport(const std::string& sHref);
         void checkDisplayAvailable(std::string sMsg);
-        void setupFX(bool bNewFX);
-        void blt(const glm::vec2& destSize, GLContext::BlendMode mode, 
-                float opacity, const Pixel32& color, bool bPremultipliedAlpha);
+        void blt(const glm::mat4& transform, const glm::vec2& destSize, 
+                GLContext::BlendMode mode, float opacity, const Pixel32& color,
+                bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
@@ -133,12 +138,10 @@ class AVG_API RasterNode: public AreaNode
         glm::vec2 m_MaskPos;
         glm::vec2 m_MaskSize;
         
-        bool m_bBound;
-
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
         bool m_bVertexArrayDirty;
-        VertexArray * m_pVertexes;
+        SubVertexArray m_SubVA;
         std::vector<std::vector<glm::vec2> > m_TexCoords;
 
         glm::vec3 m_Gamma;

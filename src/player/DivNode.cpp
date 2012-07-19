@@ -54,20 +54,20 @@ NodeDefinition DivNode::createDefinition()
         .extendDefinition(AreaNode::createDefinition())
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
-        .addArg(Arg<string>("elementoutlinecolor", "", false, 
-                offsetof(DivNode, m_sElementOutlineColor)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
 DivNode::DivNode(const ArgList& args)
 {
     args.setMembers(this);
-    setElementOutlineColor(m_sElementOutlineColor);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 DivNode::~DivNode()
 {
+    for (unsigned i = 0; i < getNumChildren(); ++i) {
+        getChild(i)->removeParent();
+    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -77,7 +77,6 @@ void DivNode::connectDisplay()
     for (unsigned i = 0; i < getNumChildren(); ++i) {
         getChild(i)->connectDisplay();
     }
-    m_pClipVertexes = VertexArrayPtr(new VertexArray());
 }
 
 void DivNode::connect(CanvasPtr pCanvas)
@@ -92,9 +91,6 @@ void DivNode::disconnect(bool bKill)
 {
     for (unsigned i = 0; i < getNumChildren(); ++i) {
         getChild(i)->disconnect(bKill);
-    }
-    if (m_pClipVertexes) {
-        m_pClipVertexes = VertexArrayPtr();
     }
     AreaNode::disconnect(bKill);
 }
@@ -162,8 +158,7 @@ void DivNode::insertChild(NodePtr pChild, unsigned i)
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getCanvas()->registerNode(pChild);
     }
-    DivNodePtr ptr = dynamic_pointer_cast<DivNode>(shared_from_this());
-    pChild->checkSetParentError(ptr); 
+    pChild->checkSetParentError(this); 
     if (!isChildTypeAllowed(pChild->getTypeStr())) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
                 "Can't insert a node of type "+pChild->getTypeStr()+
@@ -176,7 +171,7 @@ void DivNode::insertChild(NodePtr pChild, unsigned i)
     std::vector<NodePtr>::iterator pos = m_Children.begin()+i;
     m_Children.insert(pos, pChild);
     try {
-        pChild->setParent(ptr, getState(), getCanvas());
+        pChild->setParent(this, getState(), getCanvas());
     } catch (Exception&) {
         m_Children.erase(m_Children.begin()+i);
         throw;
@@ -266,21 +261,6 @@ void DivNode::setCrop(bool bCrop)
     m_bCrop = bCrop;
 }
 
-const std::string& DivNode::getElementOutlineColor() const
-{
-    return m_sElementOutlineColor;
-}
-
-void DivNode::setElementOutlineColor(const std::string& sColor)
-{
-    m_sElementOutlineColor = sColor;
-    if (sColor == "") {
-        m_ElementOutlineColor = Pixel32(0,0,0,0);
-    } else {
-        m_ElementOutlineColor = colorStringToColor(m_sElementOutlineColor);
-    }
-}
-
 const UTF8String& DivNode::getMediaDir() const
 {
     return m_sMediaDir;
@@ -292,7 +272,7 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (reactsToMouseEvents() &&
             ((getSize() == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE) ||
@@ -303,55 +283,53 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pEleme
             glm::vec2 relPos = pCurChild->toLocal(pos);
             pCurChild->getElementsByPos(relPos, pElements);
             if (!pElements.empty()) {
-                pElements.push_back(shared_from_this());
+                pElements.push_back(getSharedThis());
                 return;
             }
         }
         // pos isn't in any of the children.
         if (getSize() != glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
             // Explicit width/height given for div - div reacts on its own.
-            pElements.push_back(shared_from_this());
+            pElements.push_back(getSharedThis());
         }
     }
 }
 
-void DivNode::preRender()
+void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    if (getCrop()) {
+        pVA->startSubVA(m_ClipVA);
+        glm::vec2 viewport = getSize();
+        m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
+    }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->preRender();
+        getChild(i)->preRender(pVA, bIsParentActive, getEffectiveOpacity());
     }
 }
 
-void DivNode::render(const FRect& rect)
+void DivNode::render()
 {
-    glm::vec2 viewport = getSize();
-    
-    m_pClipVertexes->reset();
-    m_pClipVertexes->appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
-
+    const glm::mat4& transform = getTransform();
     if (getCrop()) {
-        getCanvas()->pushClipRect(m_pClipVertexes);
+        getCanvas()->pushClipRect(transform, m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->maybeRender(rect);
+        getChild(i)->maybeRender(transform);
     }
     if (getCrop()) {
-        getCanvas()->popClipRect(m_pClipVertexes);
+        getCanvas()->popClipRect(transform, m_ClipVA);
     }
 }
 
-void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 color)
+void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor)
 {
-    Pixel32 effColor = color;
-    if (m_ElementOutlineColor != Pixel32(0,0,0,0)) {
-        effColor = m_ElementOutlineColor;
-        effColor.setA(128);
-    }
+    Pixel32 effColor = getEffectiveOutlineColor(parentColor);
     if (effColor != Pixel32(0,0,0,0)) {
         glm::vec2 size = getSize();
         if (size == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
@@ -362,14 +340,7 @@ void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 color)
             pVA->addLineData(effColor, p0, p1, 1);
             pVA->addLineData(effColor, p2, p3, 1);
         } else {
-            glm::vec2 p0 = getAbsPos(glm::vec2(0.5, 0.5));
-            glm::vec2 p1 = getAbsPos(glm::vec2(size.x+0.5,0.5));
-            glm::vec2 p2 = getAbsPos(glm::vec2(size.x+0.5,size.y+0.5));
-            glm::vec2 p3 = getAbsPos(glm::vec2(0.5,size.y+0.5));
-            pVA->addLineData(effColor, p0, p1, 1);
-            pVA->addLineData(effColor, p1, p2, 1);
-            pVA->addLineData(effColor, p2, p3, 1);
-            pVA->addLineData(effColor, p3, p0, 1);
+            AreaNode::renderOutlines(pVA, parentColor);
         }
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {

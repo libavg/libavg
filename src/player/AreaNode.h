@@ -44,9 +44,6 @@ class DivNode;
 class ArgList;
 
 typedef boost::shared_ptr<AreaNode> AreaNodePtr;
-typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
-typedef boost::shared_ptr<DivNode> DivNodePtr;
-typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 
 class AVG_API AreaNode: public Node
 {
@@ -86,13 +83,17 @@ class AVG_API AreaNode: public Node
         virtual glm::vec2 getPivot() const;
         void setPivot(const glm::vec2& pt);
         
+        const std::string& getElementOutlineColor() const;
+        void setElementOutlineColor(const std::string& sColor);
+
         virtual glm::vec2 toLocal(const glm::vec2& globalPos) const;
         virtual glm::vec2 toGlobal(const glm::vec2& localPos) const;
         
         virtual void getElementsByPos(const glm::vec2& pos, 
-                std::vector<NodeWeakPtr>& pElements);
+                std::vector<NodePtr>& pElements);
 
-        virtual void maybeRender(const FRect& rect);
+        virtual void maybeRender(const glm::mat4& parentTransform);
+        virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor);
         virtual void setViewport(float x, float y, float width, float height);
         virtual const FRect& getRelViewport() const;
 
@@ -102,18 +103,27 @@ class AVG_API AreaNode: public Node
 
         virtual IntPoint getMediaSize() 
             { return IntPoint(0,0); };
+        const glm::mat4& getTransform() const;
 
     protected:
         AreaNode();
         glm::vec2 getUserSize() const;
+        Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
 
     private:
+        void calcTransform();
+
         FRect m_RelViewport;      // In coordinates relative to the parent.
         float m_Angle;
         glm::vec2 m_Pivot;
         bool m_bHasCustomPivot;
+        std::string m_sElementOutlineColor;
+        Pixel32 m_ElementOutlineColor;
         
         glm::vec2 m_UserSize;
+        glm::mat4 m_Transform;
+        glm::mat4 m_LocalTransform;
+        bool m_bTransformChanged;
 };
 
 }

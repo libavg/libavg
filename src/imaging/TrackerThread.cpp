@@ -23,7 +23,7 @@
 #include "FilterWipeBorder.h"
 
 #include "../base/Logger.h"
-#include "../base/ProfilingZone.h"
+#include "../base/ProfilingZoneID.h"
 #include "../base/TimeSource.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Exception.h"
@@ -138,7 +138,7 @@ bool TrackerThread::work()
         ScopeTimer timer(ProfilingZoneCapture);
         pCamBmp = m_pCamera->getImage(true);
         BitmapPtr pTempBmp1;
-        while (pTempBmp1 = m_pCamera->getImage(false)) {
+        while ((pTempBmp1 = m_pCamera->getImage(false))) {
             m_NumCamFramesDiscarded++;
             m_NumFrames++;
             pCamBmp = pTempBmp1;

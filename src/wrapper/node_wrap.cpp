@@ -44,6 +44,7 @@ void export_devices();
 #include "../player/PolygonNode.h"
 #include "../player/CircleNode.h"
 #include "../player/MeshNode.h"
+#include "../player/Style.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -91,13 +92,18 @@ char meshNodeName[] = "mesh";
 
 void export_node()
 {
+    // vector< vector<vec2> > PolygonNode
+    to_python_converter<VectorVec2Vector, to_list<VectorVec2Vector> >();
+    from_python_sequence<VectorVec2Vector, variable_capacity_policy>();
 
     class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node", no_init)
         .def(self == self)
         .def(self != self)
         .def("__hash__", &Node::getHash)
         .add_property("id", make_function(&Node::getID,
-                return_value_policy<copy_const_reference>()),  &Node::setID)
+                return_value_policy<copy_const_reference>()), &Node::setID)
+        .add_property("style", &Node::getStyle)
+        .def("registerInstance", &Node::registerInstance)
         .def("getParent", &Node::getParent)
         .def("unlink", &Node::unlink, unlink_overloads(args("bKill")))
         .def("setEventCapture", &Node::setMouseEventCapture)
@@ -111,6 +117,7 @@ void export_node()
         .def("getAbsPos", &Node::getAbsPos)
         .def("getRelPos", &Node::getRelPos)
         .def("getElementByPos", &Node::getElementByPos)
+        .add_property("parent", &Node::getParent)
         .add_property("active", &Node::getActive, &Node::setActive)
         .add_property("sensitive", &Node::getSensitive, &Node::setSensitive)
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
@@ -133,6 +140,11 @@ void export_node()
                 &AreaNode::setPivot)
         .add_property("pivotx", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>)
         .add_property("pivoty", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>)
+        .add_property("elementoutlinecolor",
+                make_function(&AreaNode::getElementOutlineColor,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&AreaNode::setElementOutlineColor,
+                        return_value_policy<copy_const_reference>()))
         ;
     export_bitmap();
     export_fx();
@@ -141,11 +153,6 @@ void export_node()
     class_<DivNode, bases<AreaNode>, boost::noncopyable>("DivNode", no_init)
         .def("__init__", raw_constructor(createNode<divNodeName>))
         .add_property("crop", &DivNode::getCrop, &DivNode::setCrop)
-        .add_property("elementoutlinecolor",
-                make_function(&DivNode::getElementOutlineColor,
-                        return_value_policy<copy_const_reference>()),
-                make_function(&DivNode::setElementOutlineColor,
-                        return_value_policy<copy_const_reference>()))
         .def("getNumChildren", &DivNode::getNumChildren)
         .def("getChild", make_function(&DivNode::getChild,
                 return_value_policy<copy_const_reference>()))
@@ -295,6 +302,8 @@ void export_node()
         .add_property("texcoords", make_function(&PolygonNode::getTexCoords, 
                 return_value_policy<copy_const_reference>()), &PolygonNode::setTexCoords)
         .add_property("linejoin", &PolygonNode::getLineJoin, &PolygonNode::setLineJoin)
+        .add_property("holes", make_function(&PolygonNode::getHoles, 
+                return_value_policy<copy_const_reference>()), &PolygonNode::setHoles)
     ;
 
     class_<CircleNode, bases<FilledVectorNode>, boost::noncopyable>("CircleNode", 

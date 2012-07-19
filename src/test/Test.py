@@ -36,7 +36,7 @@ import atexit
 
 def cleanup(folder):
     if os.path.isdir(folder):
-        print 'Wiping out directory: %s' % folder
+        sys.stderr.write('Wiping out directory: %s\n' % folder)
         shutil.rmtree(folder)
 
 def symtree(src, dest):
@@ -93,13 +93,15 @@ if sys.platform != 'win32':
     # Meaningful only for distcheck
     os.chdir(srcDir)
 
-    import libavg
-    libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
-            os.path.dirname(libavg.__file__))
+import libavg
+libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
+        os.path.dirname(libavg.__file__))
 
 
 import testapp   
-   
+
+libavg.Player.get().keepWindowOpen()
+
 import PluginTest
 import PlayerTest
 import OffscreenTest
@@ -115,6 +117,7 @@ import EventTest
 import InputDeviceTest
 import AVGAppTest
 import UITest
+import GestureTest
 
 app = testapp.TestApp()
 
@@ -132,6 +135,7 @@ app.registerSuiteFactory('anim', AnimTest.animTestSuite)
 app.registerSuiteFactory('event', EventTest.eventTestSuite)
 app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
 app.registerSuiteFactory('ui', UITest.uiTestSuite)
+app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
 app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 
 app.run()

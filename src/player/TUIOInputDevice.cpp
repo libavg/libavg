@@ -104,8 +104,8 @@ void TUIOInputDevice::ProcessPacket(const char* pData, int size,
         } else {
             processMessage(ReceivedMessage(packet), remoteEndpoint);
         }
-    } catch (MalformedBundleException& e) {
-        AVG_TRACE(Logger::WARNING, "Malformed OSC bundle received: " << e.what());
+    } catch (osc::Exception& e) {
+        AVG_TRACE(Logger::WARNING, "OSC exception: " << e.what());
     }
 }
 
@@ -122,8 +122,8 @@ void TUIOInputDevice::processBundle(const ReceivedBundle& bundle,
                 processMessage(ReceivedMessage(*it), remoteEndpoint);
             }
         }
-    } catch (MalformedBundleException& e) {
-        AVG_TRACE(Logger::WARNING, "Malformed OSC bundle received: " << e.what());
+    } catch (osc::Exception& e) {
+        AVG_TRACE(Logger::WARNING, "OSC exception: " << e.what());
     }
 }
 

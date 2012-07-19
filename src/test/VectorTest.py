@@ -19,9 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
-from libavg import avg
+from libavg import avg, player
 from testcase import *
 
 class VectorTestCase(AVGTestCase):
@@ -36,7 +34,7 @@ class VectorTestCase(AVGTestCase):
     def testLine(self):
         def addLines():
             def addLine(attribs):
-                line = Player.createNode("line", attribs)
+                line = player.createNode("line", attribs)
                 canvas.appendChild(line)
 
             addLine({"pos1":(2, 2.5), "pos2":(100, 2.5)})
@@ -65,14 +63,14 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         addLines()
         line = canvas.getChild(0)
-        self.start((
-                 lambda: self.compareImage("testline1", False), 
+        self.start(False,
+                (lambda: self.compareImage("testline1"), 
                  changeLine,
-                 lambda: self.compareImage("testline2", False),
+                 lambda: self.compareImage("testline2"),
                  moveLine,
-                 lambda: self.compareImage("testline3", False),
+                 lambda: self.compareImage("testline3"),
                  blendMode,
-                 lambda: self.compareImage("testline4", False)
+                 lambda: self.compareImage("testline4")
                 ))
 
     def testLotsOfLines(self):
@@ -83,9 +81,9 @@ class VectorTestCase(AVGTestCase):
                 canvas.appendChild(line)
        
         canvas = self.makeEmptyCanvas()
-        self.start((
-                 addLines,
-                 lambda: self.compareImage("testlotsoflines", False), 
+        self.start(False,
+                (addLines,
+                 lambda: self.compareImage("testlotsoflines"), 
                 ))
 
     def testTexturedLine(self):
@@ -106,7 +104,7 @@ class VectorTestCase(AVGTestCase):
             self.line.texcoord2 = 1.5
         
         def bmpTexture():
-            bmp = avg.Bitmap("rgb24alpha-64x64.png")
+            bmp = avg.Bitmap("media/rgb24alpha-64x64.png")
             self.line.setBitmap(bmp)
         
         def bmpNoTexture():
@@ -114,22 +112,22 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         addLine()
-        self.start((
-                 lambda: self.compareImage("testtexturedline1", False), 
+        self.start(False,
+                (lambda: self.compareImage("testtexturedline1"), 
                  removeLine,
-                 lambda: self.compareImage("testtexturedline2", False), 
+                 lambda: self.compareImage("testtexturedline2"), 
                  addLine,
-                 lambda: self.compareImage("testtexturedline1", False), 
+                 lambda: self.compareImage("testtexturedline1"), 
                  removeLine,
-                 lambda: self.compareImage("testtexturedline2", False), 
+                 lambda: self.compareImage("testtexturedline2"), 
                  reAddLine,
-                 lambda: self.compareImage("testtexturedline1", False),
+                 lambda: self.compareImage("testtexturedline1"),
                  moveTexture,
-                 lambda: self.compareImage("testtexturedline3", False),
+                 lambda: self.compareImage("testtexturedline3"),
                  bmpTexture,
-                 lambda: self.compareImage("testtexturedline4", False),
+                 lambda: self.compareImage("testtexturedline4"),
                  bmpNoTexture,
-                 lambda: self.compareImage("testtexturedline5", False),
+                 lambda: self.compareImage("testtexturedline5"),
                 ))
 
     def testLineOpacity(self):
@@ -142,11 +140,11 @@ class VectorTestCase(AVGTestCase):
             canvas.getChild(0).opacity = 0.25
         
         canvas = self.makeEmptyCanvas()
-        self.start((
-                 addLine,
-                 lambda: self.compareImage("testlineopacity1", False), 
+        self.start(False,
+                (addLine,
+                 lambda: self.compareImage("testlineopacity1"), 
                  changeCanvasOpacity,
-                 lambda: self.compareImage("testlineopacity2", False), 
+                 lambda: self.compareImage("testlineopacity2"), 
                 ))
 
     def testRect(self):
@@ -180,15 +178,14 @@ class VectorTestCase(AVGTestCase):
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         rect = addRect()
-        helper = Player.getTestHelper()
-        self.start((
-                 lambda: self.compareImage("testRect1", False),
+        self.start(False,
+                (lambda: self.compareImage("testRect1"),
                  moveRect,
-                 lambda: self.compareImage("testRect2", False),
+                 lambda: self.compareImage("testRect2"),
                  rotateRect,
-                 lambda: self.compareImage("testRect3", False),
+                 lambda: self.compareImage("testRect3"),
                  addRect2,
-                 lambda: self.compareImage("testRect4", False),
+                 lambda: self.compareImage("testRect4"),
                  lambda: self.fakeClick(100, 100),
                  lambda: self.assertEqual(self.__mouseDownCalled, False),
                  lambda: self.fakeClick(55, 50),
@@ -207,7 +204,7 @@ class VectorTestCase(AVGTestCase):
         
         def newRect():
             self.rect.unlink()
-            self.rect = Player.createNode(
+            self.rect = player.createNode(
                 """<rect pos="(20, 20)" size="(50, 40)" fillopacity="1"
                         filltexcoord1="(1,1)" filltexcoord2="(0,0)"
                         texcoords="(0, 0.25, 0.5, 0.75, 1)"
@@ -227,7 +224,7 @@ class VectorTestCase(AVGTestCase):
             self.rect.filltexcoord2 = (1.5, 1.5)
         
         def setFillBitmap():
-            bmp = avg.Bitmap("rgb24-64x64.png")
+            bmp = avg.Bitmap("media/rgb24-64x64.png")
             self.rect.setFillBitmap(bmp)
         
         def clearFillBitmap():
@@ -241,24 +238,24 @@ class VectorTestCase(AVGTestCase):
 
         canvas = self.makeEmptyCanvas()
         addRect()
-        self.start((
-                 lambda: self.compareImage("testTexturedRect1", False),
+        self.start(False,
+                (lambda: self.compareImage("testTexturedRect1"),
                  newRect,
-                 lambda: self.compareImage("testTexturedRect2", False),
+                 lambda: self.compareImage("testTexturedRect2"),
                  setTexCoords,
-                 lambda: self.compareImage("testTexturedRect3", False),
+                 lambda: self.compareImage("testTexturedRect3"),
                  setFillTex,
-                 lambda: self.compareImage("testTexturedRect4", False),
+                 lambda: self.compareImage("testTexturedRect4"),
                  setFillTexCoords,
-                 lambda: self.compareImage("testTexturedRect5", False),
+                 lambda: self.compareImage("testTexturedRect5"),
                  setFillBitmap,
-                 lambda: self.compareImage("testTexturedRect6", False),
+                 lambda: self.compareImage("testTexturedRect6"),
                  clearFillBitmap,
-                 lambda: self.compareImage("testTexturedRect7", False),
+                 lambda: self.compareImage("testTexturedRect7"),
                  setFillBitmap,
-                 lambda: self.compareImage("testTexturedRect6", False),
+                 lambda: self.compareImage("testTexturedRect6"),
 #                 setTransparentBorder,
-#                 lambda: self.compareImage("testTexturedRect8", False),
+#                 lambda: self.compareImage("testTexturedRect8"),
                 ))
 
     def testCurve(self):
@@ -284,14 +281,14 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         curve = addCurve()
-        self.start((
-                 lambda: self.compareImage("testCurve1", False),
+        self.start(False,
+                (lambda: self.compareImage("testCurve1"),
                  changeCurve,
-                 lambda: self.compareImage("testCurve2", False),
+                 lambda: self.compareImage("testCurve2"),
                  moveCurve,
-                 lambda: self.compareImage("testCurve3", False),
+                 lambda: self.compareImage("testCurve3"),
                  addCurve2,
-                 lambda: self.compareImage("testCurve4", False),
+                 lambda: self.compareImage("testCurve4"),
                 )) 
 
     def testTexturedCurve(self):
@@ -307,10 +304,10 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         curve = addCurve()
-        self.start((
-                 lambda: self.compareImage("testTexturedCurve1", False),
+        self.start(False,
+                (lambda: self.compareImage("testTexturedCurve1"),
                  setTexCoords,
-                 lambda: self.compareImage("testTexturedCurve2", False)
+                 lambda: self.compareImage("testTexturedCurve2")
                 )) 
 
     def testPolyLine(self):
@@ -331,7 +328,7 @@ class VectorTestCase(AVGTestCase):
             polyline.linejoin = "miter"
         
         def addPolyLine2():
-            polyline2 = Player.createNode(
+            polyline2 = player.createNode(
                 """<polyline strokewidth="2" color="FF00FF"
                         pos="((110,10), (100,50), (110,70))" />""")
             canvas.insertChild(polyline2,0)
@@ -353,20 +350,20 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         polyline = addPolyLine()
-        self.start((
-                 lambda: self.compareImage("testPolyLine1", False),
+        self.start(False,
+                (lambda: self.compareImage("testPolyLine1"),
                  changePolyLine,
-                 lambda: self.compareImage("testPolyLine2", False),
+                 lambda: self.compareImage("testPolyLine2"),
                  miterPolyLine,
-                 lambda: self.compareImage("testPolyLine3", False),
+                 lambda: self.compareImage("testPolyLine3"),
                  addPolyLine2,
-                 lambda: self.compareImage("testPolyLine4", False),
+                 lambda: self.compareImage("testPolyLine4"),
                  testEmptyPolyLine,
-                 lambda: self.compareImage("testPolyLine5", False),
+                 lambda: self.compareImage("testPolyLine5"),
                  testAlmostEmptyPolyLine,
-                 lambda: self.compareImage("testPolyLine5", False),
+                 lambda: self.compareImage("testPolyLine5"),
                  testAcutePolyLine,
-                 lambda: self.compareImage("testPolyLine6", False)
+                 lambda: self.compareImage("testPolyLine6")
                 ))
 
     def testTexturedPolyLine(self):
@@ -389,14 +386,14 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         polyline = texturePolyLine()
-        self.start((
-                 lambda: self.compareImage("testTexturedPolyLine1", False),
+        self.start(False,
+                (lambda: self.compareImage("testTexturedPolyLine1"),
                  miter,
-                 lambda: self.compareImage("testTexturedPolyLine2", False),
+                 lambda: self.compareImage("testTexturedPolyLine2"),
                  setTexCoords,
-                 lambda: self.compareImage("testTexturedPolyLine3", False),
+                 lambda: self.compareImage("testTexturedPolyLine3"),
                  repeatTexCoords,
-                 lambda: self.compareImage("testTexturedPolyLine4", False)
+                 lambda: self.compareImage("testTexturedPolyLine4")
                 ))
 
     def testPolygon(self):
@@ -446,38 +443,64 @@ class VectorTestCase(AVGTestCase):
         def addEmptyPolygon():
             avg.PolygonNode(parent=canvas, fillopacity=1)
 
+        def createLeftOpenPolygon():
+            polygon.pos = ( (15,0), (35,0), (55,10), (65,30), (55,50), (35,60), (15,60),
+                    (5,50), (15,40), (35,40), (35,30), (35,20), (15,20), (5,10) )
+            polygon.strokewidth = 2
+
+        def createUpOpenPolygon():
+            polygon.pos = ( (15,0), (25,10), (25,30), (35,30), (45,30), (45,10), (55,0), 
+                    (65,10), (65,30), (55,50), (35,60), (15,50), (5,30), (5,10) )
+
+        def createBottomOpenPolygon():
+            polygon.pos = ( (35,0), (55,10), (65,30), (65,50), (55,60), (45,50), (45,30),
+                    (35,30), (25,30), (25,50), (15,60), (5,50), (5,30), (15,10) )
+
+        def createOneHole():
+            polygon.holes = ( [(35,10), (40,15), (35,20), (30,15)], )
+
+        def createMoreHoles():
+            newHoles = ( polygon.holes[0], [(20,35), (20,45), (10,40)], 
+                    [(50,35), (50,45), (60,40)], )
+            polygon.holes = newHoles
+
+        def clearCanvas():
+            for i in xrange(canvas.getNumChildren()-1):
+                dell = canvas.getChild(i)
+                canvas.removeChild(dell)
+
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
-        helper = Player.getTestHelper()
-        self.start((
-                 lambda: self.compareImage("testPolygon1", True),
+        self.start(False,
+                (lambda: self.compareImage("testPolygon1"),
                  changePolygon,
-                 lambda: self.compareImage("testPolygon2", True),
+                 lambda: self.compareImage("testPolygon2"),
                  fillPolygon,
-                 lambda: self.compareImage("testPolygon3", True),
+                 lambda: self.compareImage("testPolygon3"),
                  addEmptyPoint,
-                 lambda: self.compareImage("testPolygon4", True),
+                 lambda: self.compareImage("testPolygon4"),
                  addPolygon2,
-                 lambda: self.compareImage("testPolygon5", True),
+                 lambda: self.compareImage("testPolygon5"),
                  miterPolygons,
-                 lambda: self.compareImage("testPolygon6", False),
+                 lambda: self.compareImage("testPolygon6"),
                  lambda: self.fakeClick(50, 50),
                  lambda: self.assertEqual(self.__mouseDownCalled, False),
                  lambda: self.fakeClick(20, 87),
                  lambda: self.assert_(self.__mouseDownCalled),
-                 addEmptyPolygon
+                 addEmptyPolygon,
+                 clearCanvas,
+                 createLeftOpenPolygon,
+                 lambda: self.compareImage("testPolygon7"),
+                 createUpOpenPolygon,
+                 lambda: self.compareImage("testPolygon8"),
+                 createBottomOpenPolygon,
+                 lambda: self.compareImage("testPolygon9"),
+                 createOneHole,
+                 lambda: self.compareImage("testPolygonHole1"),
+                 createMoreHoles,
+                 lambda: self.compareImage("testPolygonHole2")
                 ))
-
-    def testSelfIntersectPolygon(self):
-        def addPolygon():
-            polygon = avg.PolygonNode(strokewidth=3, color="FF00FF",
-                    pos=((100.5, 10.5), (100.5, 30.5), (120.5, 10.5), (120.5, 30.5)),
-                    fillcolor="00FFFF", fillopacity=0.5)
-            canvas.insertChild(polygon, 0)
-                
-        canvas = self.makeEmptyCanvas()
-        self.assertException(lambda: self.start([addPolygon]))
 
     def testTexturedPolygon(self):
         def texturePolygon():
@@ -507,18 +530,18 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         polygon = texturePolygon()
-        self.start((
-                 lambda: self.compareImage("testTexturedPolygon1", False),
+        self.start(False,
+                (lambda: self.compareImage("testTexturedPolygon1"),
                  miter,
-                 lambda: self.compareImage("testTexturedPolygon2", False),
+                 lambda: self.compareImage("testTexturedPolygon2"),
                  setTexCoords,
-                 lambda: self.compareImage("testTexturedPolygon3", False),
+                 lambda: self.compareImage("testTexturedPolygon3"),
                  repeatTexCoords,
-                 lambda: self.compareImage("testTexturedPolygon4", False),
+                 lambda: self.compareImage("testTexturedPolygon4"),
                  setFillTex,
-                 lambda: self.compareImage("testTexturedPolygon5", False),
+                 lambda: self.compareImage("testTexturedPolygon5"),
                  setFillTexCoords,
-                 lambda: self.compareImage("testTexturedPolygon6", False)
+                 lambda: self.compareImage("testTexturedPolygon6")
                 ))
 
     def testPointInPolygon(self):
@@ -562,17 +585,16 @@ class VectorTestCase(AVGTestCase):
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         circle = addCircle()
-        helper = Player.getTestHelper()
-        self.start((
-                 lambda: self.compareImage("testCircle1", False), 
+        self.start(False,
+                (lambda: self.compareImage("testCircle1"), 
                  changeCircle,
-                 lambda: self.compareImage("testCircle2", False),
+                 lambda: self.compareImage("testCircle2"),
                  textureCircle,
-                 lambda: self.compareImage("testCircle3", False),
+                 lambda: self.compareImage("testCircle3"),
                  setFillTex,
-                 lambda: self.compareImage("testCircle4", False),
+                 lambda: self.compareImage("testCircle4"),
                  setFillTexCoords,
-                 lambda: self.compareImage("testCircle5", False),
+                 lambda: self.compareImage("testCircle5"),
                  lambda: self.fakeClick(32, 32),
                  lambda: self.assert_(self.__mouseDownCalled == False),
                  lambda: self.fakeClick(67, 50),
@@ -627,18 +649,18 @@ class VectorTestCase(AVGTestCase):
         self.assertException(setIllegalVertexes)
         self.assertException(setIllegalTextures)
         self.assertException(setIllegalIndexes)
-        self.start((
-                 lambda: self.compareImage("testMesh1", False),
+        self.start(False,
+                (lambda: self.compareImage("testMesh1"),
                  setVertexCoords,
-                 lambda: self.compareImage("testMesh2", False),
+                 lambda: self.compareImage("testMesh2"),
                  setTexCoords,
-                 lambda: self.compareImage("testMesh3", False),
+                 lambda: self.compareImage("testMesh3"),
                  setTriangles,
-                 lambda: self.compareImage("testMesh4", False),
+                 lambda: self.compareImage("testMesh4"),
                  setHref,
-                 lambda: self.compareImage("testMesh5", False),
+                 lambda: self.compareImage("testMesh5"),
                  setTrianglesSameItem,
-                 lambda: self.compareImage("testMesh6", False)
+                 lambda: self.compareImage("testMesh6")
                 ))
 
     def testInactiveVector(self):
@@ -658,16 +680,15 @@ class VectorTestCase(AVGTestCase):
             fvNode.active = False
             self.onDownCalled = not self.onDownCalled
 
-        Helper = Player.getTestHelper()
         canvas = self.makeEmptyCanvas()
         vNode = addVectorNode()
         fvNode = addFilledVectorNode()
         self.onDownCalled = False
-        self.start((
-                 lambda: self.compareImage("testInactiveVector1", False),
+        self.start(False,
+                (lambda: self.compareImage("testInactiveVector1"),
                  lambda: self.fakeClick(20, 20),
                  lambda: self.assert_(self.onDownCalled),
-                 lambda: self.compareImage("testInactiveVector2", False),
+                 lambda: self.compareImage("testInactiveVector2"),
                  lambda: self.fakeClick(20, 20),
                  lambda: self.assert_(self.onDownCalled)
                 ))
@@ -686,7 +707,6 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
-            "testSelfIntersectPolygon",
             "testTexturedPolygon",
             "testPointInPolygon",
             "testCircle",
@@ -694,5 +714,3 @@ def vectorTestSuite(tests):
             "testInactiveVector"
             )
     return createAVGTestSuite(availableTests, VectorTestCase, tests)
-
-Player = avg.Player.get()

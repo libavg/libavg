@@ -50,8 +50,7 @@ public:
     void addOption(const std::string& sSubsys, const std::string& sName,
             const std::string& sDefault);
     
-    const ConfigOptionVector* getOptions(const std::string& sSubsys) 
-        const;
+    const ConfigOptionVector* getOptions(const std::string& sSubsys) const;
     const std::string* getOption(const std::string& sSubsys, 
             const std::string& sName) const;
     bool getBoolOption(const std::string& sSubsys, 
@@ -60,6 +59,9 @@ public:
             const std::string& sName, int Default) const;
     void getGammaOption(const std::string& sSubsys, 
             const std::string& sName, float* Val) const;
+    void getStringOption(const std::string& sSubsys, 
+            const std::string& sName, const std::string& sDefault, std::string& sVal) 
+            const;
 
     void dump() const;
 

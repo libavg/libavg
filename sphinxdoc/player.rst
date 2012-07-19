@@ -96,7 +96,7 @@ Player & Canvas
 
         The class used to load and play avg files and the main interface to the avg
         renderer. Player is a singleton. There is only one instance, accessed by 
-        :py:meth:`get`.
+        :py:attr:`avg.player`.
 
         .. py:attribute:: pluginPath
 
@@ -172,7 +172,14 @@ Player & Canvas
             canvases. It is an error to delete a canvas that is still referenced by
             an image node.
 
-        .. py:method:: enableMultitouch
+        .. py:method:: enableGLErrorChecks(enable)
+
+            Enables or disables checking for errors after each OpenGL call. By default,
+            this is :py:const:`False`, since it hurts performance in some setups. It is
+            enabled by the tests. You do not need this method unless you are looking for
+            errors inside libavg.
+
+        .. py:method:: enableMultitouch()
 
             Enables multitouch event handling. Several drivers are available that 
             generate multitouch events. To choose a driver, set the environment
@@ -236,7 +243,7 @@ Player & Canvas
 
             Returns the last event hook set using :py:meth:`setEventHook`.
 
-        .. py:method:: getFrameDuration() -> int
+        .. py:method:: getFrameDuration() -> float
 
             Returns the number of milliseconds that have elapsed since the last
             frame (i.e. the last display update).
@@ -327,6 +334,13 @@ Player & Canvas
             Returns :py:const:`True` if shader support is enabled and working,
             :py:const:`False` if not.
             May only be called after :py:meth:`play()` has been called.
+
+        .. py:method:: keepWindowOpen()
+
+            Tells the player to keep the playback window open after :py:meth:`play()`
+            has returned. This makes it possible to reuse the window with another scene
+            and :py:meth:`play()` call. It is used by the tests to keep flickering to a
+            minimum and increase speed.
 
         .. py:method:: loadCanvasFile(filename) -> OffscreenCanvas
 
@@ -552,7 +566,8 @@ Player & Canvas
 
         .. py:classmethod:: get() -> Player
 
+            .. deprecated:: 1.8
+                Use :attr:`avg.player` instead.
+
             This method gives access to the player instance. If no player has been 
             created yet, a player is created.
-
-    

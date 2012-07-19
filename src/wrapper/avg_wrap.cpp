@@ -22,12 +22,10 @@
 void export_base();
 void export_node();
 void export_event();
-#ifndef WIN32
-void export_devices();
-#endif
 void export_anim();
 
 #include "WrapHelper.h"
+#include "raw_constructor.hpp"
 
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
@@ -44,6 +42,7 @@ void export_anim();
 #include "../player/OffscreenCanvas.h"
 #include "../player/VideoWriter.h"
 #include "../player/SVG.h"
+#include "../player/Style.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -56,6 +55,8 @@ using namespace std;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
         fakeTouchEvent, 4, 5)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Player_createNode_overloads,
+        createNode, 2, 3)
 
 OffscreenCanvasPtr createCanvas(const boost::python::tuple &args,
                 const boost::python::dict& params)
@@ -69,6 +70,13 @@ CanvasPtr createMainCanvas(const boost::python::tuple &args,
 {
     checkEmptyArgs(args, 1);
     return extract<Player&>(args[0])().createMainCanvas(params);
+}
+
+avg::StylePtr createStyle(const boost::python::tuple &args,
+        const boost::python::dict &attrs)
+{
+    checkEmptyArgs(args);
+    return StylePtr(new avg::Style(attrs));
 }
 
 
@@ -98,9 +106,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("popCategories", &Logger::popCategories)
         .def("trace", &Logger::trace)
         .def_readonly("NONE", &Logger::NONE)
-        .def_readonly("BLTS", &Logger::BLTS)
         .def_readonly("PROFILE", &Logger::PROFILE)
-        .def_readonly("PROFILE_LATEFRAMES", &Logger::PROFILE_LATEFRAMES)
         .def_readonly("PROFILE_VIDEO", &Logger::PROFILE_VIDEO)
         .def_readonly("EVENTS", &Logger::EVENTS)
         .def_readonly("EVENTS2", &Logger::EVENTS2)
@@ -113,9 +119,6 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLAYER", &Logger::PLAYER)
     ;
 
-#ifndef WIN32
-    export_devices();
-#endif
     export_event();
     export_node();
     export_anim();
@@ -128,6 +131,13 @@ BOOST_PYTHON_MODULE(avg)
         .def("dumpObjects", &TestHelper::dumpObjects)
     ;
 
+    enum_<GLConfig::ShaderUsage>("ShaderUsage")
+        .value("SHADERUSAGE_FULL", GLConfig::FULL)
+        .value("SHADERUSAGE_MINIMAL", GLConfig::MINIMAL)
+        .value("SHADERUSAGE_AUTO", GLConfig::AUTO)
+        .export_values()
+    ;
+
     class_<Player>("Player") 
         .def("get", &Player::get, 
                 return_value_policy<reference_existing_object>())
@@ -138,6 +148,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("setWindowPos", &Player::setWindowPos)
         .def("setOGLOptions", &Player::setOGLOptions)
         .def("setMultiSampleSamples", &Player::setMultiSampleSamples)
+        .def("enableGLErrorChecks", &Player::enableGLErrorChecks)
         .def("getScreenResolution", &Player::getScreenResolution)
         .def("getPixelsPerMM", &Player::getPixelsPerMM)
         .def("getPhysicalScreenDimensions", &Player::getPhysicalScreenDimensions)
@@ -163,7 +174,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getFrameTime", &Player::getFrameTime)
         .def("getFrameDuration", &Player::getFrameDuration)
         .def("createNode", &Player::createNodeFromXmlString)
-        .def("createNode", &Player::createNode)
+        .def("createNode", &Player::createNode, Player_createNode_overloads())
         .def("enableMultitouch", &Player::enableMultitouch)
         .def("isMultitouchAvailable", &Player::isMultitouchAvailable)
         .def("getTracker", &Player::getTracker,
@@ -176,6 +187,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getMouseState", &Player::getMouseState)
         .def("getKeyModifierState", &Player::getKeyModifierState)
         .def("screenshot", &Player::screenshot)
+        .def("keepWindowOpen", &Player::keepWindowOpen)
         .def("stopOnEscape", &Player::setStopOnEscape)
         .def("showCursor", &Player::showCursor)
         .def("setCursor", &Player::setCursor)
@@ -183,7 +195,6 @@ BOOST_PYTHON_MODULE(avg)
         .def("getRootNode", &Player::getRootNode)
         .def("getFramerate", &Player::getFramerate)
         .def("getVideoRefreshRate", &Player::getVideoRefreshRate)
-        .def("isUsingShaders", &Player::isUsingShaders)
         .def("getVideoMemInstalled", &Player::getVideoMemInstalled)
         .def("getVideoMemUsed", &Player::getVideoMemUsed)
         .def("setGamma", &Player::setGamma)
@@ -248,7 +259,9 @@ BOOST_PYTHON_MODULE(avg)
     NodePtr (SVG::*createImageNode3)(const UTF8String&, const dict&, float) = 
             &SVG::createImageNode;
 
-    class_<SVG, boost::noncopyable>("SVG", init<const UTF8String&, bool>())
+    class_<SVG, boost::noncopyable>("SVG", no_init)
+        .def(init<const UTF8String&>())
+        .def(init<const UTF8String&, bool>())
         .def("renderElement", renderElement1)
         .def("renderElement", renderElement2)
         .def("renderElement", renderElement3)
@@ -256,6 +269,22 @@ BOOST_PYTHON_MODULE(avg)
         .def("createImageNode", createImageNode2)
         .def("createImageNode", createImageNode3)
         .def("getElementSize", &SVG::getElementSize)
+        ;
+
+    class_<Style, StylePtr, boost::noncopyable>("Style", no_init)
+        .def("__init__", raw_constructor(createStyle))
+        .def("__getitem__", &Style::__getitem__)
+        .def("__contains__", &Style::__contains__)
+        .def("has_key", &Style::__contains__)
+        .def("keys", &Style::keys)
+        .def("values", &Style::values)
+        .def("items", &Style::items)
+        .def("__len__", &Style::__len__)
+        .def("__iter__", &Style::__iter__)
+        .def("iteritems", &Style::iteritems)
+        .def("iterkeys", &Style::iterkeys)
+        .def("itervalues", &Style::itervalues)
+        .def("__repr__", &Style::__repr__)
         ;
 
     class_<VersionInfo>("VersionInfo")

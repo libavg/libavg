@@ -103,7 +103,7 @@ void PolyLineNode::setLineJoin(const string& s)
     setDrawNeeded();
 }
 
-void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void PolyLineNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     if (getNumDifferentPts(m_Pts) < 2) {
         return;
@@ -111,7 +111,7 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (m_EffTexCoords.empty()) {
         calcEffPolyLineTexCoords(m_EffTexCoords, m_TexCoords, m_CumulDist);
     }
-    calcPolyLine(m_Pts, m_EffTexCoords, false, m_LineJoin, pVertexArray, color);
+    calcPolyLine(m_Pts, m_EffTexCoords, false, m_LineJoin, pVertexData, color);
 }
 
 }

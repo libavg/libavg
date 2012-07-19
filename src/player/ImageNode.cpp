@@ -73,7 +73,6 @@ void ImageNode::connectDisplay()
     if (m_pImage->getSource() == Image::SCENE) {
         checkCanvasValid(m_pImage->getCanvas());
     }
-    getSurface()->attach();
     m_pImage->moveToGPU();
     RasterNode::connectDisplay();
     if (m_pImage->getSource() == Image::SCENE) {
@@ -141,27 +140,32 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
     }
     m_pImage->setBitmap(pBmp, m_Compression);
     if (getState() == Node::NS_CANRENDER) {
-        bind();
+        newSurface();
     }
     m_href = "";
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-void ImageNode::preRender()
+void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
-        renderFX(getSize(), Pixel32(255, 255, 255, 255), bool(m_pImage->getCanvas()));
+        bool bHasCanvas = bool(m_pImage->getCanvas());
+        if (m_pImage->getSource() != Image::NONE) {
+            renderFX(getSize(), Pixel32(255, 255, 255, 255), bHasCanvas, bHasCanvas);
+        }
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 
-void ImageNode::render(const FRect& Rect)
+void ImageNode::render()
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pImage->getSource() != Image::NONE) {
-        blt32(getSize(), getEffectiveOpacity(), getBlendMode(), 
+        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode(), 
                 bool(m_pImage->getCanvas()));
     }
 }
@@ -184,14 +188,18 @@ void ImageNode::checkReload()
         if (getState() == NS_CANRENDER) {
             pCanvas->addDependentCanvas(getCanvas());
         }
+        newSurface();
     } else {
-        Node::checkReload(m_href, m_pImage, m_Compression);
+        bool bNewImage = Node::checkReload(m_href, m_pImage, m_Compression);
+        if (bNewImage) {
+            newSurface();
+        }
     }
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
 }
 
-void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (reactsToMouseEvents()) {
         OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();

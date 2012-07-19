@@ -28,8 +28,6 @@ from libavg import parsecamargs
 
 GUI_SIZE=(300, 200)
 
-g_Player = avg.Player.get()
-
 class FXSlider(avg.DivNode):
     def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, parent=None,
             **kwargs):
@@ -151,7 +149,18 @@ class Chromakey(AVGApp):
         print "  erosion=", self.__filter.erosion
         print "  spillthreshold=", self.__filter.spillthreshold
 
-parser = optparse.OptionParser()
+usage = """%prog [options]
+
+avg_chromakey.py is a configuration utility for the libavg chromakey filter.
+The chromakey filter allows implementation of green- or bluescreens with
+libavg.
+
+This utility shows a camera image with chromakey applied to it and allows the
+user to adjust the camera and filter parameters. The parameters can be dumped
+to the console for easy inclusion in libavg scripts.
+"""
+
+parser = optparse.OptionParser(usage=usage)
 parsecamargs.addOptions(parser)
 
 (options, args) = parser.parse_args()

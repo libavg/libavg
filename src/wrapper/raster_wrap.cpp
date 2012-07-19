@@ -38,8 +38,6 @@ char wordsNodeName[] = "words";
 
 void export_raster()
 {
-    to_python_converter<VertexGrid, to_list<VertexGrid> >();    
-    from_python_sequence<VertexGrid, variable_capacity_policy>();
 
     class_<RasterNode, bases<AreaNode>, boost::noncopyable>("RasterNode", no_init) 
         .def("getOrigVertexCoords", &RasterNode::getOrigVertexCoords)
@@ -205,13 +203,13 @@ void export_raster()
         .add_property("text", 
                 make_function(&WordsNode::getText,
                         return_value_policy<copy_const_reference>()),
-                make_function(&WordsNode::setText,
-                        return_value_policy<copy_const_reference>()))
+                &WordsNode::setText)
         .add_property("color", 
                 make_function(&WordsNode::getColor,
                         return_value_policy<copy_const_reference>()),
                 make_function(&WordsNode::setColor,
                         return_value_policy<copy_const_reference>()))
+        .add_property("aagamma", &WordsNode::getAAGamma, &WordsNode::setAAGamma)
         .add_property("fontsize", &WordsNode::getFontSize, &WordsNode::setFontSize)
         .add_property("parawidth", &deprecatedGet<WordsNode>, &deprecatedSet<WordsNode>)
         .add_property("indent", &WordsNode::getIndent, &WordsNode::setIndent)

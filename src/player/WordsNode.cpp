@@ -92,6 +92,7 @@ NodeDefinition WordsNode::createDefinition()
         .addArg(Arg<string>("variant", "", false, offsetof(WordsNode, m_sFontVariant)))
         .addArg(Arg<UTF8String>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(WordsNode, m_sColorName)))
+        .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(WordsNode, m_Gamma)))
         .addArg(Arg<float>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
         .addArg(Arg<int>("indent", 0, false, offsetof(WordsNode, m_Indent)))
         .addArg(Arg<float>("linespacing", 0, false, offsetof(WordsNode, m_LineSpacing)))
@@ -146,6 +147,7 @@ void WordsNode::setTextFromNodeValue(const string& sText)
 void WordsNode::connectDisplay()
 {
     RasterNode::connectDisplay();
+    getSurface()->setAlphaGamma(m_Gamma);
     setDirty(FONT_CHANGED);
 }
 
@@ -265,7 +267,7 @@ void WordsNode::setSize(const glm::vec2& pt)
     AreaNode::setSize(pt);
 }
 
-void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     updateLayout();
     glm::vec2 relPos = pos-glm::vec2(m_AlignOffset, 0);
@@ -334,6 +336,19 @@ void WordsNode::setColor(const string& sColor)
     m_sColorName = sColor;
     m_Color = colorStringToColor(m_sColorName);
     setDirty(RENDER_NEEDED);
+}
+
+float WordsNode::getAAGamma() const
+{
+    return m_Gamma;
+}
+
+void WordsNode::setAAGamma(float gamma)
+{
+    m_Gamma = gamma;
+    if (getState() == Node::NS_CANRENDER) {
+        getSurface()->setAlphaGamma(m_Gamma);
+    }
 }
 
 float WordsNode::getFontSize() const
@@ -506,22 +521,14 @@ void WordsNode::calcMaskCoords()
     glm::vec2 mediaSize = glm::vec2(getMediaSize());
     glm::vec2 effMaskPos = getMaskPos()-glm::vec2(m_InkOffset);
     glm::vec2 maskSize = getMaskSize();
-    switch (m_Alignment) {
-        case PANGO_ALIGN_LEFT:
-            break;
-        case PANGO_ALIGN_CENTER:
-            effMaskPos.x -= m_AlignOffset+getSize().x/2;
-            break;
-        case PANGO_ALIGN_RIGHT:
-            effMaskPos.x -= m_AlignOffset+getSize().x;
-            break;
-    }
+    
     if (maskSize == glm::vec2(0,0)) {
         normMaskSize = glm::vec2(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
         normMaskPos = glm::vec2(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
     } else {
         normMaskSize = glm::vec2(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
-        normMaskPos = glm::vec2(effMaskPos.x/getMaskSize().x, effMaskPos.y/getMaskSize().y);
+        normMaskPos = glm::vec2(effMaskPos.x/getMaskSize().x, 
+                effMaskPos.y/getMaskSize().y);
     }
 /*    
     cerr << "calcMaskCoords" << endl;
@@ -594,7 +601,7 @@ void WordsNode::updateLayout()
                 pango_attr_list_insert_before(pAttrList, pLetterSpacing);
 #endif            
                 pango_layout_set_text(m_pLayout, pText, -1);
-                g_free (pText);
+                g_free(pText);
             } else {
                 pAttrList = pango_attr_list_new();
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
@@ -665,7 +672,7 @@ void WordsNode::renderText()
     if (m_RedrawState == RENDER_NEEDED) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
-            int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+            int maxTexSize = GLContext::getMain()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 
                         "WordsNode size exceeded maximum (Size=" 
@@ -707,7 +714,7 @@ void WordsNode::renderText()
             pMover->unlock();
             pMover->moveToTexture(*pTex);
 
-            bind();
+            newSurface();
         }
         m_RedrawState = CLEAN;
     }
@@ -721,9 +728,10 @@ void WordsNode::redraw()
     renderText();
 }
 
-void WordsNode::preRender()
+void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender();
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         redraw();
     } else {
@@ -732,24 +740,24 @@ void WordsNode::preRender()
     if (m_sText.length() != 0 && isVisible()) {
         renderFX(getSize(), m_Color, false);
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
 
-void WordsNode::render(const FRect& rect)
+void WordsNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && isVisible()) {
         IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
-        GLContext* pContext = GLContext::getCurrent();
-        if (offset != IntPoint(0,0)) {
-            pContext->pushTransform(glm::vec2(offset), 0, glm::vec2(0,0));
+        glm::mat4 transform;
+        if (offset == IntPoint(0,0)) {
+            transform = getTransform();
+        } else {
+            transform = glm::translate(getTransform(), glm::vec3(offset.x, offset.y, 0));
         }
-        blta8(glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
-                getBlendMode());
-        if (offset != IntPoint(0,0)) {
-            pContext->popTransform();
-        }
+        blta8(transform, glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), 
+                m_Color, getBlendMode());
     }
 }
 
@@ -820,8 +828,8 @@ void WordsNode::setParsedText(const UTF8String& sText)
     PangoAttrList * pAttrList = 0;
     char * pText = 0;
     parseString(&pAttrList, &pText);
-    pango_attr_list_unref (pAttrList);
-    g_free (pText);
+    pango_attr_list_unref(pAttrList);
+    g_free(pText);
     m_bParsedText = true;
 }
 

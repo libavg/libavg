@@ -28,7 +28,7 @@
 
 #include "../base/GLMHelper.h"
 #include "../graphics/Bitmap.h"
-#include "../graphics/VertexArray.h"
+#include "../graphics/SubVertexArray.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -47,15 +47,17 @@ class AVG_API Shape
         virtual void moveToCPU();
 
         ImagePtr getImage();
-        VertexArrayPtr getVertexArray();
-        void draw();
+        VertexDataPtr getVertexData();
+        void setVertexArray(const VertexArrayPtr& pVA);
+        void draw(const glm::mat4& transform, float opacity);
 
         void discard();
 
     private:
         bool isTextured() const;
 
-        VertexArrayPtr m_pVertexArray;
+        VertexDataPtr m_pVertexData;
+        SubVertexArray m_SubVA;
         OGLSurface * m_pSurface;
         ImagePtr m_pImage;
 };

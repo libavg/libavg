@@ -112,18 +112,18 @@ void RectNode::setAngle(float angle)
     setDrawNeeded();
 }
 
-void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
+void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     glm::vec2 pivot = m_Rect.tl + m_Rect.size()/2.f;
     glm::vec2 rpos = getRotatedPivot(pos, m_Angle, pivot);
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
-        pElements.push_back(shared_from_this());
+        pElements.push_back(getSharedThis());
     }
 }
 
-void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void RectNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     glm::vec2 pivot = m_Rect.tl+m_Rect.size()/2.f;
 
@@ -137,10 +137,10 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     pts.push_back(getRotatedPivot(p2, m_Angle, pivot));
     pts.push_back(getRotatedPivot(p3, m_Angle, pivot));
     pts.push_back(getRotatedPivot(p4, m_Angle, pivot));
-    calcPolyLine(pts, m_TexCoords, true, LJ_MITER, pVertexArray, color);
+    calcPolyLine(pts, m_TexCoords, true, LJ_MITER, pVertexData, color);
 }
 
-void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void RectNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     glm::vec2 pivot = m_Rect.tl+m_Rect.size()/2.f;
 
@@ -152,13 +152,13 @@ void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     glm::vec2 rp2 = getRotatedPivot(p2, m_Angle, pivot);
     glm::vec2 rp3 = getRotatedPivot(p3, m_Angle, pivot);
     glm::vec2 rp4 = getRotatedPivot(p4, m_Angle, pivot);
-    pVertexArray->appendPos(rp1, getFillTexCoord1(), color);
+    pVertexData->appendPos(rp1, getFillTexCoord1(), color);
     glm::vec2 blTexCoord = glm::vec2(getFillTexCoord1().x, getFillTexCoord2().y);
-    pVertexArray->appendPos(rp2, blTexCoord, color);
-    pVertexArray->appendPos(rp3, getFillTexCoord2(), color);
+    pVertexData->appendPos(rp2, blTexCoord, color);
+    pVertexData->appendPos(rp3, getFillTexCoord2(), color);
     glm::vec2 trTexCoord = glm::vec2(getFillTexCoord2().x, getFillTexCoord1().y);
-    pVertexArray->appendPos(rp4, trTexCoord, color);
-    pVertexArray->appendQuadIndexes(1, 0, 2, 3);
+    pVertexData->appendPos(rp4, trTexCoord, color);
+    pVertexData->appendQuadIndexes(1, 0, 2, 3);
 }
 
 }
