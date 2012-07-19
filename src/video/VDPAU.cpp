@@ -249,6 +249,7 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame,
     pFrame->data[0] = (uint8_t*)pRenderState;
     pFrame->type = FF_BUFFER_TYPE_USER;
 
+#if LIBAVFORMAT_VERSION_MAJOR <= 52
     if (pFrame->reference) { //I-P frame
         pFrame->age = pAge->m_IPAge0;
         pAge->m_IPAge0 = pAge->m_IPAge1;
@@ -260,6 +261,7 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame,
         pAge->m_IPAge1++;
         pAge->m_Age = 1;
     }
+#endif
     pRenderState->state |= FF_VDPAU_STATE_USED_FOR_REFERENCE;
 
     if (pVideoSurface->m_Size.x != pContext->width ||
