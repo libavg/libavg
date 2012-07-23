@@ -34,13 +34,11 @@
 #include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include <string>
-#include <vector>
-
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
 #include <string>
+#include <vector>
 #include <list>
 #include <map>
 
