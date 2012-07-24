@@ -31,26 +31,12 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
-#include <string>
 #include <vector>
 #include <map>
 
 namespace avg {
 
-class SubscriberInfo {
-public:
-    SubscriberInfo(int id, const boost::python::object& callable);
-    virtual ~SubscriberInfo();
-
-    void invoke(const std::vector<boost::python::object>& args) const;
-    int getID() const;
-
-private:
-    int m_ID;
-    boost::python::object m_Callable;
-    static boost::python::object s_MethodrefModule;
-};
-
+class SubscriberInfo;
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;
 
 class Publisher;
