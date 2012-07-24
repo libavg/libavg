@@ -229,14 +229,23 @@ class EventTestCase(AVGTestCase):
         def onDown(event):
             self.assert_(event.type == avg.CURSORDOWN)
             self.downCalled = True
+            
+        def unsubscribe():
+            self.img.unsubscribe(avg.Node.CURSORDOWN, subscriberID)
+            self.downCalled = False
 
         self.downCalled = False
         root = self.loadEmptyScene()
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
-        self.img.subscribe(avg.Node.CURSORDOWN, onDown)
+        subscriberID = self.img.subscribe(avg.Node.CURSORDOWN, onDown)
+        self.assertException(lambda: self.img.subscribe(23, onDown))
+        self.assertException(lambda: self.img.unsubscribe(avg.NODE.CURSORDOWN, 23))
         self.start(False,
                 (lambda: self.fakeClick(10,10),
                  lambda: self.assert_(self.downCalled),
+                 unsubscribe,
+                 lambda: self.fakeClick(10,10),
+                 lambda: self.assert_(not(self.downCalled)),
                 ))
 
 

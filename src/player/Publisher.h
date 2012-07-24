@@ -65,7 +65,8 @@ public:
     int subscribe(int messageID, const boost::python::object& callable);
     void unsubscribe(int messageID, int subscriberID);
 
-    // These should really be protected, but python derived classes need to call them too.
+    // The following methods should really be protected, but python derived classes need
+    // to call them too.
     void publish(int messageID);
     
     template<class ARG_TYPE>
