@@ -52,7 +52,7 @@ void SubscriberInfo::invoke(boost::python::list args) const
     boost::python::tuple argsTuple(args);
     PyObject * pResult = PyObject_CallObject(callWeakRef.ptr(), argsTuple.ptr());
     if (pResult == 0) {
-        PyErr_PrintEx(0);
+        throw boost::python::error_already_set();
     }
 }
 
