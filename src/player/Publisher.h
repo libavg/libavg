@@ -67,7 +67,11 @@ private:
     SubscriberInfoVector& safeFindSubscribers(int messageID);
 
     SignalMap m_SignalMap;
+    bool m_bIsInNotify;
     static int s_LastSubscriberID;
+
+    typedef std::pair<int, int> UnsubscribeDescription;
+    std::vector<UnsubscribeDescription> m_PendingUnsubscribes;
 };
 
 template<class ARG_TYPE>

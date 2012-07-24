@@ -33,6 +33,7 @@ namespace avg {
 int Publisher::s_LastSubscriberID = 0;
 
 Publisher::Publisher()
+    : m_bIsInNotify(false)
 {
 }
 
@@ -56,7 +57,12 @@ void Publisher::unsubscribe(int messageID, int subscriberID)
     SubscriberInfoVector::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->getID() == subscriberID) {
-            subscribers.erase(it);
+            if (m_bIsInNotify) {
+                m_PendingUnsubscribes.push_back(
+                        std::pair<int, int>(messageID, subscriberID));
+            } else {
+                subscribers.erase(it);
+            }
             bFound = true;
             break;
         }
@@ -90,11 +96,23 @@ void Publisher::notifySubscribersPy(int messageID, const boost::python::list& ar
 void Publisher::notifySubscribers(int messageID,
         const std::vector<boost::python::object>& args)
 {
+    m_bIsInNotify = true;
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoVector::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         (*it)->invoke(args);
     }
+    m_bIsInNotify = false;
+
+    // The subscribers can issue unsubscribes during the notification. We delay processing
+    // them so for loop above doesn't get messed up.
+    std::vector<UnsubscribeDescription>::iterator itUnsub;
+    for (itUnsub = m_PendingUnsubscribes.begin(); itUnsub != m_PendingUnsubscribes.end();
+            itUnsub++)
+    {
+        unsubscribe(itUnsub->first, itUnsub->second);
+    }
+    m_PendingUnsubscribes.clear();
 }
 
 Publisher::SubscriberInfoVector& Publisher::safeFindSubscribers(int messageID)
