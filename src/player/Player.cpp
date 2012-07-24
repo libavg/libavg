@@ -868,6 +868,11 @@ void Player::showCursor(bool bShow)
     m_DP.m_bShowCursor = bShow;
 }
 
+bool Player::isCursorShown()
+{
+    return m_DP.m_bShowCursor;
+}
+
 void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
 {
     IntPoint size = pBmp->getSize();

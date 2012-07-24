@@ -555,6 +555,10 @@ Player & Canvas
             
             :param bool show: :py:const:`True` if the mouse cursor should be visible.
 
+        .. py:method:: isCursorShown()
+
+            Returns True when the mouse cursor is shown.
+            
         .. py:method:: stop()
 
             Stops playback and resets the video mode if necessary.
