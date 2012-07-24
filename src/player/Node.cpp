@@ -499,7 +499,7 @@ NodePtr Node::getSharedThis()
     if (m_pSelf) {
         return boost::python::extract<NodePtr>(m_pSelf);
     } else {
-        return shared_from_this();
+        return boost::dynamic_pointer_cast<Node>(shared_from_this());
     }
 }
 

@@ -24,6 +24,7 @@
 
 #include "../api.h"
 
+#include "Publisher.h"
 #include "Event.h"
 #include "Image.h"
 
@@ -65,7 +66,7 @@ typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 class Style;
 typedef boost::shared_ptr<Style> StylePtr;
 
-class AVG_API Node: public boost::enable_shared_from_this<Node>
+class AVG_API Node: public Publisher
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
