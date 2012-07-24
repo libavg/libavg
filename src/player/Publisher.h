@@ -48,7 +48,7 @@ public:
 private:
     int m_ID;
     boost::python::object m_Callable;
-
+    static boost::python::object s_MethodrefModule;
 };
 
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;

@@ -28,11 +28,17 @@ using namespace std;
 
 namespace avg {
 
+boost::python::object SubscriberInfo::s_MethodrefModule;
+
 SubscriberInfo::SubscriberInfo(int id, const boost::python::object& callable)
-    : m_ID(id),
-      m_Callable(callable)
+    : m_ID(id)
 {
-    // TODO: callable needs to be weakref
+    if (s_MethodrefModule.ptr() == boost::python::object().ptr()) {
+        s_MethodrefModule = boost::python::import("libavg.methodref");
+    }
+    // Use the methodref module to manage the lifetime of the callables. This makes 
+    // sure that all callbacks are deleted when the publisher disappears.
+    m_Callable = boost::python::object(s_MethodrefModule.attr("methodref")(callable));
 }
 
 SubscriberInfo::~SubscriberInfo()
@@ -41,27 +47,28 @@ SubscriberInfo::~SubscriberInfo()
 
 void SubscriberInfo::invoke(const std::vector<boost::python::object>& args) const
 {
+    boost::python::object callWeakRef = s_MethodrefModule.attr("callWeakRef");
     switch (args.size()) {
         case 0:
-            m_Callable();
+            callWeakRef(m_Callable);
             break;
         case 1:
-            m_Callable(args[0]);
+            callWeakRef(m_Callable, args[0]);
             break;
         case 2:
-            m_Callable(args[0], args[1]);
+            callWeakRef(m_Callable, args[0], args[1]);
             break;
         case 3:
-            m_Callable(args[0], args[1], args[2]);
+            callWeakRef(m_Callable, args[0], args[1], args[2]);
             break;
         case 4:
-            m_Callable(args[0], args[1], args[2], args[3]);
+            callWeakRef(m_Callable, args[0], args[1], args[2], args[3]);
             break;
         case 5:
-            m_Callable(args[0], args[1], args[2], args[3], args[4]);
+            callWeakRef(m_Callable, args[0], args[1], args[2], args[3], args[4]);
             break;
         case 6:
-            m_Callable(args[0], args[1], args[2], args[3], args[4], args[5]);
+            callWeakRef(m_Callable, args[0], args[1], args[2], args[3], args[4], args[5]);
             break;
         default:
             AVG_ASSERT_MSG(false, "Messages with > 6 parameters not implemented yet. Please file a bug if you need this support.");

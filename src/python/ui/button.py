@@ -20,7 +20,7 @@
 #
 # Original author of this file is Henrik Thoms
 
-from libavg import avg, statemachine, utils, player
+from libavg import avg, statemachine, methodref, player
 import gesture
 
 
@@ -71,7 +71,7 @@ class Button(_ButtonBase):
         if disabledNode == None:
             self.__nodeMap["DISABLED"] = upNode
 
-        self.__clickHandler = utils.methodref(clickHandler)
+        self.__clickHandler = methodref.methodref(clickHandler)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -120,7 +120,7 @@ class Button(_ButtonBase):
 
     def _onTap(self, event):
         self.__stateMachine.changeState("UP")
-        utils.callWeakRef(self.__clickHandler, event)
+        methodref.callWeakRef(self.__clickHandler, event)
 
     def _onTapFail(self, event):
         self.__stateMachine.changeState("UP")
@@ -176,7 +176,7 @@ class ToggleButton(_ButtonBase):
         if checkedDisabledNode == None:
             self.__nodeMap["CHECKED_DISABLED"] = checkedUpNode
 
-        self.__checkHandler = utils.methodref(checkHandler)
+        self.__checkHandler = methodref.methodref(checkHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
@@ -330,10 +330,10 @@ class ToggleButton(_ButtonBase):
     def _onTap(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
-            utils.callWeakRef(self.__checkHandler, event, True)
+            methodref.callWeakRef(self.__checkHandler, event, True)
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
-            utils.callWeakRef(self.__checkHandler, event, False)
+            methodref.callWeakRef(self.__checkHandler, event, False)
 
     def _onTapFail(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":

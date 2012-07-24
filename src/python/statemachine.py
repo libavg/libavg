@@ -18,7 +18,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-import utils
+from methodref import methodref
 
 import subprocess
 import os
@@ -27,10 +27,10 @@ class State(object):
     def __init__(self, transitions, enterFunc, leaveFunc):
         self.transitions = {}
         for destState, transfunc in transitions.items():
-            ref = utils.methodref(transfunc)
+            ref = methodref(transfunc)
             self.transitions[destState] = ref
-        self.enterFunc = utils.methodref(enterFunc)
-        self.leaveFunc = utils.methodref(leaveFunc)
+        self.enterFunc = methodref(enterFunc)
+        self.leaveFunc = methodref(leaveFunc)
 
 class StateMachine(object):
     def __init__(self, name, startState):

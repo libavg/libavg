@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, statemachine, utils, player
+from libavg import avg, statemachine, methodref, player
 from libavg.ui import filter
 
 import weakref
@@ -51,10 +51,10 @@ class Recognizer(object):
         self.__eventSource = eventSource
         self.__maxContacts = maxContacts
 
-        self.__possibleHandler = utils.methodref(possibleHandler)
-        self.__failHandler = utils.methodref(failHandler)
-        self.__detectedHandler = utils.methodref(detectedHandler)
-        self.__endHandler = utils.methodref(endHandler)
+        self.__possibleHandler = methodref.methodref(possibleHandler)
+        self.__failHandler = methodref.methodref(failHandler)
+        self.__detectedHandler = methodref.methodref(detectedHandler)
+        self.__endHandler = methodref.methodref(endHandler)
 
         self.__setEventHandler() 
         self.__isEnabled = True
@@ -93,26 +93,26 @@ class Recognizer(object):
 
     def _setPossible(self, event):
         self.__stateMachine.changeState("POSSIBLE")
-        utils.callWeakRef(self.__possibleHandler, event)
+        methodref.callWeakRef(self.__possibleHandler, event)
 
     def _setFail(self, event):
         assert(self.__stateMachine.state != "RUNNING")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        utils.callWeakRef(self.__failHandler, event)
+        methodref.callWeakRef(self.__failHandler, event)
 
     def _setDetected(self, event):
         if self.__isContinuous:
             self.__stateMachine.changeState("RUNNING")
         else:
             self.__stateMachine.changeState("IDLE")
-        utils.callWeakRef(self.__detectedHandler, event)
+        methodref.callWeakRef(self.__detectedHandler, event)
 
     def _setEnd(self, event):
         assert(self.__stateMachine.state != "POSSIBLE")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        utils.callWeakRef(self.__endHandler, event)
+        methodref.callWeakRef(self.__endHandler, event)
 
     def __onDown(self, event):
         if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
@@ -340,8 +340,8 @@ class DragRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
-        self.__moveHandler = utils.methodref(moveHandler)
-        self.__upHandler = utils.methodref(upHandler)
+        self.__moveHandler = methodref.methodref(moveHandler)
+        self.__upHandler = methodref.methodref(upHandler)
         self.__direction = direction
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self.__minDist = 0
@@ -382,12 +382,12 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             offset = pos - self.__dragStartPos
             if self.getState() == "RUNNING":
-                utils.callWeakRef(self.__moveHandler, event, offset)
+                methodref.callWeakRef(self.__moveHandler, event, offset)
             else:
                 if offset.getNorm() > self.__minDist*player.getPixelsPerMM():
                     if self.__angleFits(offset):
                         self._setDetected(event)
-                        utils.callWeakRef(self.__moveHandler, event, offset)
+                        methodref.callWeakRef(self.__moveHandler, event, offset)
                     else:
                         self.__fail(event)
             if self.__inertiaHandler:
@@ -399,7 +399,7 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             if self.getState() == "RUNNING":
                 self.__offset = pos - self.__dragStartPos
-                utils.callWeakRef(self.__upHandler, event, self.__offset)
+                methodref.callWeakRef(self.__upHandler, event, self.__offset)
                 if self.__friction != -1:
                     self.__isSliding = True
                     self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -418,7 +418,7 @@ class DragRecognizer(Recognizer):
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        utils.callWeakRef(self.__moveHandler, None, self.__offset)
+        methodref.callWeakRef(self.__moveHandler, None, self.__offset)
 
     def __onInertiaStop(self):
         if self.getState() == "POSSIBLE":
@@ -622,8 +622,8 @@ class TransformRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
-        self.__moveHandler = utils.methodref(moveHandler)
-        self.__upHandler = utils.methodref(upHandler)
+        self.__moveHandler = methodref.methodref(moveHandler)
+        self.__upHandler = methodref.methodref(upHandler)
         self.__friction = friction
 
         self.__baseTransform = Mat3x3()
@@ -667,7 +667,7 @@ class TransformRecognizer(Recognizer):
             contact = event.contact
             transform = Transform(self.__filteredRelContactPos(contact)
                     - self.__lastPosns[0])
-            utils.callWeakRef(self.__upHandler, transform)
+            methodref.callWeakRef(self.__upHandler, transform)
             player.clearInterval(self.__frameHandlerID)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
@@ -692,7 +692,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(contactPosns[0] - self.__lastPosns[0])
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            utils.callWeakRef(self.__moveHandler, transform)
+            methodref.callWeakRef(self.__moveHandler, transform)
             self.__lastPosns = contactPosns
         else:
             if numContacts == 2:
@@ -719,7 +719,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(trans, rot, scale, pivot)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            utils.callWeakRef(self.__moveHandler, transform)
+            methodref.callWeakRef(self.__moveHandler, transform)
             self.__lastPosns = self.__posns
 
     def __newPhase(self):
@@ -739,7 +739,7 @@ class TransformRecognizer(Recognizer):
                         i in range(2)]
 
     def __onInertiaMove(self, transform):
-        utils.callWeakRef(self.__moveHandler, transform)
+        methodref.callWeakRef(self.__moveHandler, transform)
 
     def __onInertiaStop(self):
         self._setEnd(None)
