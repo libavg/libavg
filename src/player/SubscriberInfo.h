@@ -39,7 +39,7 @@ public:
     SubscriberInfo(int id, const boost::python::object& callable);
     virtual ~SubscriberInfo();
 
-    void invoke(const std::vector<boost::python::object>& args) const;
+    void invoke(boost::python::list args) const;
     int getID() const;
 
 private:

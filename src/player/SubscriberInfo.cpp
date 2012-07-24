@@ -45,33 +45,14 @@ SubscriberInfo::~SubscriberInfo()
 {
 }
 
-void SubscriberInfo::invoke(const std::vector<boost::python::object>& args) const
+void SubscriberInfo::invoke(boost::python::list args) const
 {
     boost::python::object callWeakRef = s_MethodrefModule.attr("callWeakRef");
-    switch (args.size()) {
-        case 0:
-            callWeakRef(m_Callable);
-            break;
-        case 1:
-            callWeakRef(m_Callable, args[0]);
-            break;
-        case 2:
-            callWeakRef(m_Callable, args[0], args[1]);
-            break;
-        case 3:
-            callWeakRef(m_Callable, args[0], args[1], args[2]);
-            break;
-        case 4:
-            callWeakRef(m_Callable, args[0], args[1], args[2], args[3]);
-            break;
-        case 5:
-            callWeakRef(m_Callable, args[0], args[1], args[2], args[3], args[4]);
-            break;
-        case 6:
-            callWeakRef(m_Callable, args[0], args[1], args[2], args[3], args[4], args[5]);
-            break;
-        default:
-            AVG_ASSERT_MSG(false, "Messages with > 6 parameters not implemented yet. Please file a bug if you need this support.");
+    args.insert(0, m_Callable);
+    boost::python::tuple argsTuple(args);
+    PyObject * pResult = PyObject_CallObject(callWeakRef.ptr(), argsTuple.ptr());
+    if (pResult == 0) {
+        PyErr_PrintEx(0);
     }
 }
 

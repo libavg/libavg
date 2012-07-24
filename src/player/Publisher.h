@@ -57,7 +57,6 @@ public:
     
     template<class ARG_TYPE>
     void notifySubscribers(int messageID, const ARG_TYPE& arg);
-    void notifySubscribers(int messageID, const std::vector<boost::python::object>& args);
     void notifySubscribersPy(int messageID, const boost::python::list& args);
 
 private:
@@ -77,10 +76,10 @@ private:
 template<class ARG_TYPE>
 void Publisher::notifySubscribers(int messageID, const ARG_TYPE& arg)
 {
-    std::vector<boost::python::object> args;
+    boost::python::list args;
     boost::python::object pyArg(arg);
-    args.push_back(pyArg);
-    notifySubscribers(messageID, args);
+    args.append(pyArg);
+    notifySubscribersPy(messageID, args);
 }
 
 

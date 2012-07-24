@@ -84,18 +84,6 @@ void Publisher::publish(int messageID)
 
 void Publisher::notifySubscribersPy(int messageID, const boost::python::list& args)
 {
-    /*
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
-    SubscriberInfoVector::iterator it;
-    for (it = subscribers.begin(); it != subscribers.end(); it++) {
-        (*it)->invoke(args);
-    }
-    */
-}
-
-void Publisher::notifySubscribers(int messageID,
-        const std::vector<boost::python::object>& args)
-{
     m_bIsInNotify = true;
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoVector::iterator it;
