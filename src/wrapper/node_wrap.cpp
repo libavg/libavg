@@ -96,7 +96,10 @@ void export_node()
     to_python_converter<VectorVec2Vector, to_list<VectorVec2Vector> >();
     from_python_sequence<VectorVec2Vector, variable_capacity_policy>();
 
-    class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node", no_init)
+    scope mainScope;
+
+    scope nodeScope = class_<Node, boost::shared_ptr<Node>, bases<Publisher>, 
+            boost::noncopyable>("Node", no_init)
         .def(self == self)
         .def(self != self)
         .def("__hash__", &Node::getHash)
@@ -123,9 +126,24 @@ void export_node()
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
         ;
 
+    enum_<Node::MessageID>("MessageID")
+        .value("CURSORDOWN", Node::CURSORDOWN)
+        .value("CURSORMOTION", Node::CURSORMOTION)
+        .value("CURSORUP", Node::CURSORUP)
+        .value("CURSOROVER", Node::CURSOROVER)
+        .value("CURSOROUT", Node::CURSOROUT)
+        .value("HOVERDOWN", Node::HOVERDOWN)
+        .value("HOVERMOTION", Node::HOVERMOTION)
+        .value("HOVERUP", Node::HOVERUP)
+        .value("HOVEROVER", Node::HOVEROVER)
+        .value("HOVEROUT", Node::HOVEROUT)
+        .export_values()
+        ;
+
+    scope oldScope(mainScope);
+
     class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
-            "AreaNode", 
-            no_init)
+            "AreaNode", no_init)
         .def("getMediaSize", &AreaNode_getMediaSize)
         .add_property("x", &AreaNode::getX, &AreaNode::setX)
         .add_property("y", &AreaNode::getY, &AreaNode::setY)

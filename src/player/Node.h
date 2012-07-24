@@ -70,7 +70,10 @@ class AVG_API Node: public Publisher
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
-        
+        enum MessageID {CURSORDOWN, CURSORMOTION, CURSORUP, CURSOROVER, CURSOROUT, 
+                HOVERDOWN, HOVERMOTION, HOVERUP, HOVEROVER, HOVEROUT, 
+                LAST_MESSAGEID};
+
         static NodeDefinition createDefinition();
         template<class NodeType>
         static NodePtr buildNode(const ArgList& Args)
@@ -195,6 +198,7 @@ class AVG_API Node: public Publisher
 
         void connectOneEventHandler(const EventID& id, PyObject * pObj, PyObject * pFunc);
         void dumpEventHandlers();
+        MessageID getEventMessageID(const EventPtr& pEvent);
         bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
 
         EventHandlerMap m_EventHandlerMap;

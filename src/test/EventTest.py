@@ -225,6 +225,21 @@ class EventTestCase(AVGTestCase):
                  lambda: self.fakeClick(10,10),
                 ))
 
+    def testPublisher(self):
+        def onDown(event):
+            self.assert_(event.type == avg.CURSORDOWN)
+            self.downCalled = True
+
+        self.downCalled = False
+        root = self.loadEmptyScene()
+        self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        self.img.subscribe(avg.Node.CURSORDOWN, onDown)
+        self.start(False,
+                (lambda: self.fakeClick(10,10),
+                 lambda: self.assert_(self.downCalled),
+                ))
+
+
     def testObscuringEvents(self):
         root = self.loadEmptyScene()
         img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
@@ -743,6 +758,7 @@ def eventTestSuite(tests):
             "testDivEvents",
             "testUnlinkInHandler",
             "testConnectHandler",
+            "testPublisher",
             "testObscuringEvents",
             "testSensitive",
             "testChangingHandlers",

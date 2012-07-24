@@ -26,6 +26,7 @@
 #include "../player/TouchEvent.h"
 #include "../player/Contact.h"
 #include "../player/TrackerInputDevice.h"
+#include "../player/Publisher.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>

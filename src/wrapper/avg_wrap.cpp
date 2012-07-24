@@ -119,6 +119,13 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLAYER", &Logger::PLAYER)
     ;
 
+    class_<Publisher, boost::noncopyable>("Publisher", no_init)
+        .def("subscribe", &Publisher::subscribe)
+        .def("unsubscribe", &Publisher::unsubscribe)
+        .def("publish", &Publisher::publish)
+        .def("notifySubscribers", &Publisher::notifySubscribersPy)
+    ;
+
     export_event();
     export_node();
     export_anim();

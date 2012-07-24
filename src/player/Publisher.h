@@ -42,7 +42,7 @@ public:
     SubscriberInfo(int id, const boost::python::object& callable);
     virtual ~SubscriberInfo();
 
-    void invoke(const boost::python::dict& args) const;
+    void invoke(const std::vector<boost::python::object>& args) const;
     int getID() const;
 
 private:
@@ -62,22 +62,36 @@ public:
     Publisher();
     virtual ~Publisher();
 
-    int subscribe(int signalID, const boost::python::object& callable);
-    void unsubscribe(int signalID, int subscriberID);
+    int subscribe(int messageID, const boost::python::object& callable);
+    void unsubscribe(int messageID, int subscriberID);
 
-protected:
-    void publish(int signalID);
-    void notifySubscribers(int signalID, const boost::python::dict& args);
+    // These should really be protected, but python derived classes need to call them too.
+    void publish(int messageID);
+    
+    template<class ARG_TYPE>
+    void notifySubscribers(int messageID, const ARG_TYPE& arg);
+    void notifySubscribers(int messageID, const std::vector<boost::python::object>& args);
+    void notifySubscribersPy(int messageID, const boost::python::list& args);
 
 private:
     typedef std::vector<SubscriberInfoPtr> SubscriberInfoVector;
     typedef std::map<int, SubscriberInfoVector> SignalMap;
     
-    SubscriberInfoVector& safeFindSubscribers(int signalID);
+    SubscriberInfoVector& safeFindSubscribers(int messageID);
 
     SignalMap m_SignalMap;
     static int s_LastSubscriberID;
 };
+
+template<class ARG_TYPE>
+void Publisher::notifySubscribers(int messageID, const ARG_TYPE& arg)
+{
+    std::vector<boost::python::object> args;
+    boost::python::object pyArg(arg);
+    args.push_back(pyArg);
+    notifySubscribers(messageID, args);
+}
+
 
 }
 

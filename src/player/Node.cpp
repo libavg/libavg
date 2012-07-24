@@ -58,6 +58,10 @@ Node::Node()
       
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    
+    for (int msgID = CURSORDOWN; msgID != LAST_MESSAGEID; msgID++) {
+        publish(msgID);
+    }
 }
 
 Node::~Node()
@@ -376,6 +380,8 @@ CanvasPtr Node::getCanvas() const
 
 bool Node::handleEvent(EventPtr pEvent)
 {
+    MessageID messageID = getEventMessageID(pEvent);
+    notifySubscribers(messageID, pEvent);
     EventID id(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
     if (it != m_EventHandlerMap.end()) {
@@ -534,6 +540,46 @@ void Node::dumpEventHandlers()
         }
     }
     cerr << "-----" << endl;
+}
+
+Node::MessageID Node::getEventMessageID(const EventPtr& pEvent)
+{
+    Event::Source source = pEvent->getSource();
+    if (source == Event::MOUSE || source == Event::TOUCH || source == Event::CUSTOM) {
+        switch (pEvent->getType()) {
+            case Event::CURSORDOWN:
+                return Node::CURSORDOWN;
+            case Event::CURSORMOTION:
+                return Node::CURSORMOTION;
+            case Event::CURSORUP:
+                return Node::CURSORUP;
+            case Event::CURSOROVER:
+                return Node::CURSOROVER;
+            case Event::CURSOROUT:
+                return Node::CURSOROUT;
+            default:
+                AVG_ASSERT_MSG(false, 
+                        (string("Unknown message type ")+pEvent->typeStr()).c_str());
+                return Node::CURSORDOWN;
+        }
+    } else {
+        switch (pEvent->getType()) {
+            case Event::CURSORDOWN:
+                return Node::HOVERDOWN;
+            case Event::CURSORMOTION:
+                return Node::HOVERMOTION;
+            case Event::CURSORUP:
+                return Node::HOVERUP;
+            case Event::CURSOROVER:
+                return Node::HOVEROVER;
+            case Event::CURSOROUT:
+                return Node::HOVEROUT;
+            default:
+                AVG_ASSERT_MSG(false, 
+                        (string("Unknown message type ")+pEvent->typeStr()).c_str());
+                return Node::CURSORDOWN;
+        }
+    }
 }
 
 bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
