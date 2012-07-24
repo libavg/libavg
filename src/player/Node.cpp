@@ -380,8 +380,11 @@ CanvasPtr Node::getCanvas() const
 
 bool Node::handleEvent(EventPtr pEvent)
 {
-    MessageID messageID = getEventMessageID(pEvent);
-    notifySubscribers(messageID, pEvent);
+    if (pEvent->getSource() != Event::NONE && pEvent->getSource() != Event::CUSTOM) {
+        MessageID messageID = getEventMessageID(pEvent);
+        notifySubscribers(messageID, pEvent);
+    }
+
     EventID id(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
     if (it != m_EventHandlerMap.end()) {
@@ -545,7 +548,7 @@ void Node::dumpEventHandlers()
 Node::MessageID Node::getEventMessageID(const EventPtr& pEvent)
 {
     Event::Source source = pEvent->getSource();
-    if (source == Event::MOUSE || source == Event::TOUCH || source == Event::CUSTOM) {
+    if (source == Event::MOUSE || source == Event::TOUCH) {
         switch (pEvent->getType()) {
             case Event::CURSORDOWN:
                 return Node::CURSORDOWN;
