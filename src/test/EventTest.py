@@ -232,6 +232,7 @@ class EventTestCase(AVGTestCase):
             
         def unsubscribe():
             self.img.unsubscribe(avg.Node.CURSORDOWN, self.subscriberID)
+            self.assert_(self.img.getNumSubscribers(avg.Node.CURSORDOWN) == 0)
             self.downCalled = False
 
         def initUnsubscribeInEvent():
@@ -260,6 +261,39 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.downCalled),
                 ))
 
+    def testPublisherAutoDelete(self):
+       
+        class TestSubscriber():
+            def __init__(self):
+                self.__downCalled = False
+
+            def subscribe(self, node):
+                node.subscribe(avg.Node.CURSORDOWN, self.onDown)
+
+            def subscribeLambda(self, node):
+                node.subscribe(avg.Node.CURSORDOWN, lambda event: self.onDown(event))
+
+            def onDown(self, event):
+                self.__downCalled = True
+
+            def hasClicked(self):
+                return self.__downCalled
+
+        def removeSubscriber():
+            del self.subscriber;
+
+        root = self.loadEmptyScene()
+        self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        self.subscriber = TestSubscriber()
+        self.subscriber.subscribe(self.img)
+        self.start(False,
+                (lambda: self.fakeClick(10,10),
+                 lambda: self.assert_(self.subscriber.hasClicked()),
+                 removeSubscriber,
+                 lambda: self.fakeClick(10,10),
+                 lambda: self.assert_(
+                        self.img.getNumSubscribers(avg.Node.CURSORDOWN) == 0)
+                ))
 
     def testObscuringEvents(self):
         root = self.loadEmptyScene()
@@ -780,6 +814,7 @@ def eventTestSuite(tests):
             "testUnlinkInHandler",
             "testConnectHandler",
             "testPublisher",
+            "testPublisherAutoDelete",
             "testObscuringEvents",
             "testSensitive",
             "testChangingHandlers",

@@ -122,6 +122,7 @@ BOOST_PYTHON_MODULE(avg)
     class_<Publisher, boost::noncopyable>("Publisher", no_init)
         .def("subscribe", &Publisher::subscribe)
         .def("unsubscribe", &Publisher::unsubscribe)
+        .def("getNumSubscribers", &Publisher::getNumSubscribers)
         .def("publish", &Publisher::publish)
         .def("notifySubscribers", &Publisher::notifySubscribersPy)
     ;

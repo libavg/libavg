@@ -50,6 +50,7 @@ public:
 
     int subscribe(int messageID, const boost::python::object& callable);
     void unsubscribe(int messageID, int subscriberID);
+    int getNumSubscribers(int messageID);
 
     // The following methods should really be protected, but python derived classes need
     // to call them too.

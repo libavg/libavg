@@ -73,6 +73,12 @@ void Publisher::unsubscribe(int messageID, int subscriberID)
     }
 }
 
+int Publisher::getNumSubscribers(int messageID)
+{
+    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    return subscribers.size(); 
+}
+
 void Publisher::publish(int messageID)
 {
     if (m_SignalMap.find(messageID) != m_SignalMap.end()) {
