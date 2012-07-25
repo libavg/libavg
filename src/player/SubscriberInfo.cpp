@@ -45,6 +45,12 @@ SubscriberInfo::~SubscriberInfo()
 {
 }
 
+bool SubscriberInfo::hasExpired() const
+{
+    boost::python::object func = m_Callable();
+    return (func.ptr() == boost::python::object().ptr());
+}
+
 void SubscriberInfo::invoke(boost::python::list args) const
 {
     boost::python::object callWeakRef = s_MethodrefModule.attr("callWeakRef");

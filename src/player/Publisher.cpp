@@ -87,8 +87,13 @@ void Publisher::notifySubscribersPy(int messageID, const boost::python::list& ar
     m_bIsInNotify = true;
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoVector::iterator it;
-    for (it = subscribers.begin(); it != subscribers.end(); it++) {
-        (*it)->invoke(args);
+    for (it = subscribers.begin(); it != subscribers.end();) {
+        if ((*it)->hasExpired()) {
+            it = subscribers.erase(it);
+        } else {
+            (*it)->invoke(args);
+            it++;
+        }
     }
     m_bIsInNotify = false;
 

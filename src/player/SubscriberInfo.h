@@ -39,6 +39,7 @@ public:
     SubscriberInfo(int id, const boost::python::object& callable);
     virtual ~SubscriberInfo();
 
+    bool hasExpired() const;
     void invoke(boost::python::list args) const;
     int getID() const;
 

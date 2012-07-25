@@ -153,15 +153,15 @@ class TouchVisualizationOverlay(avg.DivNode):
         if isDebug:
             self.elementoutlinecolor='FFFFAA'
             avg.RectNode(parent=self, size=self.size, fillopacity=0.2, fillcolor='000000')
-        rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,
-                self, self.__onTouchDown)
+        rootNode.subscribe(avg.Node.CURSORDOWN, self.__onTouchDown)
+        rootNode.subscribe(avg.Node.HOVERDOWN, self.__onTouchDown)
     
     def deinit(self):
-        rootNode = player.getRootNode()
-        rootNode.disconnectEventHandler(self, self.__onTouchDown)
+        pass
 
     def __onTouchDown(self, event):
-        self.visClass(event, parent=self)
+        if event.source == avg.TOUCH or event.source == avg.TRACK:
+            self.visClass(event, parent=self)
 
 
 class KeysCaptionNode(avg.DivNode):
