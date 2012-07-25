@@ -231,7 +231,7 @@ class EventTestCase(AVGTestCase):
             self.downCalled = True
             
         def unsubscribe():
-            self.img.unsubscribe(avg.Node.CURSORDOWN, self.subscriberID)
+            self.img.unsubscribe(avg.Node.CURSORDOWN, onDown)
             self.assert_(self.img.getNumSubscribers(avg.Node.CURSORDOWN) == 0)
             self.downCalled = False
 
@@ -245,7 +245,7 @@ class EventTestCase(AVGTestCase):
         self.downCalled = False
         root = self.loadEmptyScene()
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
-        self.subscriberID = self.img.subscribe(avg.Node.CURSORDOWN, onDown)
+        self.img.subscribe(avg.Node.CURSORDOWN, onDown)
         self.assertException(lambda: self.img.subscribe(23, onDown))
         self.assertException(lambda: self.img.unsubscribe(avg.Node.CURSORDOWN, 23))
         self.start(False,

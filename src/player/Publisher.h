@@ -50,6 +50,7 @@ public:
 
     int subscribe(int messageID, const py::object& callable);
     void unsubscribe(int messageID, int subscriberID);
+    void unsubscribeCallable(int messageID, const py::object& callable);
     int getNumSubscribers(int messageID);
 
     // The following methods should really be protected, but python derived classes need

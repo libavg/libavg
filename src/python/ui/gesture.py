@@ -141,7 +141,7 @@ class Recognizer(object):
         if self._contacts != {}:
             self._disconnectContacts()
         if self.__node and self.__node():
-            self.__node().unsubscribe(avg.Node.CURSORDOWN, self.__subscriberID)
+            self.__node().unsubscribe(avg.Node.CURSORDOWN, self.__onDown)
 
     def _disconnectContacts(self):
         for contact, contactData in self._contacts.iteritems():
@@ -168,8 +168,7 @@ class Recognizer(object):
 
     def __setEventHandler(self):
         if self.__node and self.__node():
-            self.__subscriberID = self.__node().subscribe(
-                    avg.Node.CURSORDOWN, self.__onDown)
+            self.__node().subscribe(avg.Node.CURSORDOWN, self.__onDown)
 
 
 class TapRecognizer(Recognizer):

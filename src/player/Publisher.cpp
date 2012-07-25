@@ -73,6 +73,30 @@ void Publisher::unsubscribe(int messageID, int subscriberID)
     }
 }
 
+void Publisher::unsubscribeCallable(int messageID, const py::object& callable)
+{
+    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    bool bFound = false;
+    SubscriberInfoVector::iterator it;
+    for (it = subscribers.begin(); it != subscribers.end(); it++) {
+        if ((*it)->isCallable(callable)) {
+            if (m_bIsInNotify) {
+                m_PendingUnsubscribes.push_back(
+                        std::pair<int, int>(messageID, (*it)->getID()));
+            } else {
+                subscribers.erase(it);
+            }
+            bFound = true;
+            break;
+        }
+    }
+    if (!bFound) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
+                " doesn't have a subscriber with the given callable.");
+    }
+
+}
+
 int Publisher::getNumSubscribers(int messageID)
 {
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);

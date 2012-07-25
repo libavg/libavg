@@ -42,6 +42,7 @@ public:
     bool hasExpired() const;
     void invoke(py::list args) const;
     int getID() const;
+    bool isCallable(const py::object& callable) const;
 
 private:
     int m_ID;

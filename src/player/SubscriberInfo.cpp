@@ -57,7 +57,7 @@ bool SubscriberInfo::hasExpired() const
 void SubscriberInfo::invoke(py::list args) const
 {
     py::object callWeakRef = s_MethodrefModule.attr("callWeakRef");
-    py::list argsCopy (args[py::slice()]);
+    py::list argsCopy(args[py::slice()]);
     argsCopy.insert(0, m_Callable);
     py::tuple argsTuple(argsCopy);
     PyObject * pResult = PyObject_CallObject(callWeakRef.ptr(), argsTuple.ptr());
@@ -69,6 +69,12 @@ void SubscriberInfo::invoke(py::list args) const
 int SubscriberInfo::getID() const
 {
     return m_ID;
+}
+    
+bool SubscriberInfo::isCallable(const py::object& callable) const
+{
+    bool bResult = py::call_method<bool>(m_Callable.ptr(), "isSameFunc", callable);
+    return bResult;
 }
 
 }

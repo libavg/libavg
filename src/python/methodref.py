@@ -48,6 +48,19 @@ class methodref(object):
             self._func = f
             self._clas = c
 
+    def isSameFunc(self, func):
+        if self._obj is None:
+            return func == self._func
+        elif self._obj() is None:
+            return func is None
+        else:
+            try:
+                o, f, c = func.im_self, func.im_func, func.im_class
+            except AttributeError:
+                return False
+            else:
+                return (o == self._obj() and f == self._func and c == self._clas)
+
     def __call__(self):
         if self._obj is None:
             return self._func
