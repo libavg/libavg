@@ -97,8 +97,8 @@ class AVG_API Player
 
         OffscreenCanvasPtr loadCanvasFile(const std::string& sFilename);
         OffscreenCanvasPtr loadCanvasString(const std::string& sAVG);
-        CanvasPtr createMainCanvas(const boost::python::dict& params);
-        OffscreenCanvasPtr createCanvas(const boost::python::dict& params);
+        CanvasPtr createMainCanvas(const py::dict& params);
+        OffscreenCanvasPtr createCanvas(const py::dict& params);
         void deleteCanvas(const std::string& sID);
         CanvasPtr getMainCanvas() const;
         OffscreenCanvasPtr getCanvas(const std::string& sID) const;
@@ -120,8 +120,8 @@ class AVG_API Player
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
-        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict,
-                const boost::python::object& self=boost::python::object());
+        NodePtr createNode(const std::string& sType, const py::dict& PyDict,
+                const py::object& self=py::object());
         NodePtr createNodeFromXmlString(const std::string& sXML);
         
         int setInterval(int time, PyObject * pyfunc);
@@ -169,7 +169,7 @@ class AVG_API Player
 
         void disablePython();
 
-        boost::python::object loadPlugin(const std::string& name);
+        py::object loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
         std::string getPluginPath() const;
         

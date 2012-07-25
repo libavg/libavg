@@ -30,18 +30,18 @@ using namespace std;
 
 namespace avg {
 
-boost::python::object SubscriberInfo::s_MethodrefModule;
+py::object SubscriberInfo::s_MethodrefModule;
 
-SubscriberInfo::SubscriberInfo(int id, const boost::python::object& callable)
+SubscriberInfo::SubscriberInfo(int id, const py::object& callable)
     : m_ID(id)
 {
-    if (s_MethodrefModule.ptr() == boost::python::object().ptr()) {
-        s_MethodrefModule = boost::python::import("libavg.methodref");
+    if (s_MethodrefModule.ptr() == py::object().ptr()) {
+        s_MethodrefModule = py::import("libavg.methodref");
     }
     // Use the methodref module to manage the lifetime of the callables. This makes 
     // sure that we can delete bound-method callbacks when the object they are bound
     // to disappears.
-    m_Callable = boost::python::object(s_MethodrefModule.attr("methodref")(callable));
+    m_Callable = py::object(s_MethodrefModule.attr("methodref")(callable));
 }
 
 SubscriberInfo::~SubscriberInfo()
@@ -50,19 +50,19 @@ SubscriberInfo::~SubscriberInfo()
 
 bool SubscriberInfo::hasExpired() const
 {
-    boost::python::object func = m_Callable();
-    return (func.ptr() == boost::python::object().ptr());
+    py::object func = m_Callable();
+    return (func.ptr() == py::object().ptr());
 }
 
-void SubscriberInfo::invoke(boost::python::list args) const
+void SubscriberInfo::invoke(py::list args) const
 {
-    boost::python::object callWeakRef = s_MethodrefModule.attr("callWeakRef");
-    boost::python::list argsCopy (args[boost::python::slice()]);
+    py::object callWeakRef = s_MethodrefModule.attr("callWeakRef");
+    py::list argsCopy (args[py::slice()]);
     argsCopy.insert(0, m_Callable);
-    boost::python::tuple argsTuple(argsCopy);
+    py::tuple argsTuple(argsCopy);
     PyObject * pResult = PyObject_CallObject(callWeakRef.ptr(), argsTuple.ptr());
     if (pResult == 0) {
-        throw boost::python::error_already_set();
+        throw py::error_already_set();
     }
 }
 

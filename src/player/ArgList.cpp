@@ -54,18 +54,18 @@ ArgList::ArgList(const ArgList& argTemplates, const xmlNodePtr xmlNode)
     }
 }
 
-ArgList::ArgList(const ArgList& argTemplates, const boost::python::dict& PyDict)
+ArgList::ArgList(const ArgList& argTemplates, const py::dict& PyDict)
 {
     // TODO: Check if all required args are being set.
     copyArgsFrom(argTemplates);
-    boost::python::list keys = PyDict.keys();
-    int nKeys = boost::python::len(keys);
+    py::list keys = PyDict.keys();
+    int nKeys = py::len(keys);
     for (int i = 0; i < nKeys; i++)
     {
-        boost::python::object keyObj = keys[i];
-        boost::python::object valObj = PyDict[keyObj];
+        py::object keyObj = keys[i];
+        py::object valObj = PyDict[keyObj];
         
-        boost::python::extract<string> keyStrProxy(keyObj);
+        py::extract<string> keyStrProxy(keyObj);
         if (!keyStrProxy.check()) {
             throw Exception(AVG_ERR_INVALID_ARGS, "Argument name must be a string.");
         }
@@ -135,10 +135,9 @@ void ArgList::setMembers(Node * pNode) const
 }
 
 template<class T>
-void setArgValue(Arg<T>* pArg, const std::string & sName, 
-        const boost::python::object& value)
+void setArgValue(Arg<T>* pArg, const std::string & sName, const py::object& value)
 {
-    boost::python::extract<T> valProxy(value);
+    py::extract<T> valProxy(value);
     if (!valProxy.check()) {
         string sTypeName = getFriendlyTypeName(pArg->getValue());
         throw Exception(AVG_ERR_INVALID_ARGS, "Type error in argument "+sName+": "
@@ -147,7 +146,7 @@ void setArgValue(Arg<T>* pArg, const std::string & sName,
     pArg->setValue(valProxy());
 }
 
-void ArgList::setArgValue(const std::string & sName, const boost::python::object& value)
+void ArgList::setArgValue(const std::string & sName, const py::object& value)
 {
     ArgBasePtr pArg = getArg(sName);
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);

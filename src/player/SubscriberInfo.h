@@ -36,17 +36,17 @@ namespace avg {
 
 class SubscriberInfo {
 public:
-    SubscriberInfo(int id, const boost::python::object& callable);
+    SubscriberInfo(int id, const py::object& callable);
     virtual ~SubscriberInfo();
 
     bool hasExpired() const;
-    void invoke(boost::python::list args) const;
+    void invoke(py::list args) const;
     int getID() const;
 
 private:
     int m_ID;
-    boost::python::object m_Callable;
-    static boost::python::object s_MethodrefModule;
+    py::object m_Callable;
+    static py::object s_MethodrefModule;
 };
 
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;

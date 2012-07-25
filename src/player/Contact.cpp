@@ -139,12 +139,12 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         switch (pCursorEvent->getType()) {
             case Event::CURSORMOTION:
                 if (listener.m_pMotionCallback != Py_None) {
-                    boost::python::call<void>(listener.m_pMotionCallback, pEvent);
+                    py::call<void>(listener.m_pMotionCallback, pEvent);
                 }
                 break;
             case Event::CURSORUP:
                 if (listener.m_pUpCallback != Py_None) {
-                    boost::python::call<void>(listener.m_pUpCallback, pEvent);
+                    py::call<void>(listener.m_pUpCallback, pEvent);
                 }
                 break;
             default:

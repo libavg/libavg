@@ -61,15 +61,15 @@ NodePtr NodeRegistry::createNode(const string& sType, const xmlNodePtr xmlNode)
     return pNode;
 }
 
-NodePtr NodeRegistry::createNode(const string& sType, const boost::python::dict& pyDict)
+NodePtr NodeRegistry::createNode(const string& sType, const py::dict& pyDict)
 {
     const NodeDefinition& def = getNodeDef(sType);
-    boost::python::dict effParams;
+    py::dict effParams;
     StylePtr pStyle;
     if (pyDict.has_key("style")) {
-        boost::python::object param = pyDict["style"];
+        py::object param = pyDict["style"];
         pyDict.attr("__delitem__")("style");
-        pStyle = boost::python::extract<StylePtr>(param);
+        pStyle = py::extract<StylePtr>(param);
         effParams = pStyle->mergeParams(pyDict);
     } else {
         effParams = pyDict;

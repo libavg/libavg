@@ -333,7 +333,7 @@ OffscreenCanvasPtr Player::loadCanvasString(const string& sAVG)
     return registerOffscreenCanvas(pNode);
 }
 
-CanvasPtr Player::createMainCanvas(const boost::python::dict& params)
+CanvasPtr Player::createMainCanvas(const py::dict& params)
 {
     errorIfPlaying("Player.createMainCanvas");
     if (m_pMainCanvas) {
@@ -352,7 +352,7 @@ CanvasPtr Player::createMainCanvas(const boost::python::dict& params)
     return m_pMainCanvas;
 }
 
-OffscreenCanvasPtr Player::createCanvas(const boost::python::dict& params)
+OffscreenCanvasPtr Player::createCanvas(const py::dict& params)
 {
     NodePtr pNode = createNode("canvas", params);
     return registerOffscreenCanvas(pNode);
@@ -998,7 +998,7 @@ bool Player::handleEvent(EventPtr pEvent)
     PyObject * pEventHook = getEventHook();
     if (pEventHook != Py_None) {
         // If the catchall returns true, stop processing the event
-        if (boost::python::call<bool>(pEventHook, pEvent)) {
+        if (py::call<bool>(pEventHook, pEvent)) {
             return true;
         }
     }
@@ -1309,25 +1309,25 @@ void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
 }
 
 NodePtr Player::createNode(const string& sType,
-        const boost::python::dict& params, const boost::python::object& self)
+        const py::dict& params, const boost::python::object& self)
 {
     DivNodePtr pParentNode;
-    boost::python::dict attrs = params;
-    boost::python::object parent;
+    py::dict attrs = params;
+    py::object parent;
     if (params.has_key("parent")) {
         parent = params["parent"];
         attrs.attr("__delitem__")("parent");
-        pParentNode = boost::python::extract<DivNodePtr>(parent);
+        pParentNode = py::extract<DivNodePtr>(parent);
     }
     NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
 
     // See if the class names of self and pNode match. If they don't, there is a
     // python derived class that's being constructed and we can't set parent here.
-    string sSelfClassName = boost::python::extract<string>(
+    string sSelfClassName = py::extract<string>(
             self.attr("__class__").attr("__name__"));
-    boost::python::object pythonClassName = 
-            (boost::python::object(pNode).attr("__class__").attr("__name__"));
-    string sThisClassName = boost::python::extract<string>(pythonClassName);
+    py::object pythonClassName = 
+            (py::object(pNode).attr("__class__").attr("__name__"));
+    string sThisClassName = py::extract<string>(pythonClassName);
     bool bHasDerivedClass = sSelfClassName != sThisClassName && 
             sSelfClassName != "NoneType";
     if (bHasDerivedClass) {
@@ -1754,7 +1754,7 @@ string Player::getPluginPath() const
     return  PluginManager::get().getSearchPath();
 }
 
-boost::python::object Player::loadPlugin(const std::string& name)
+py::object Player::loadPlugin(const std::string& name)
 {
     return PluginManager::get().loadPlugin(name);
 }

@@ -46,7 +46,7 @@ public:
     void updateNodeDefinition(const NodeDefinition& def);
     const NodeDefinition& getNodeDef(const std::string& Type);
     NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
+    NodePtr createNode(const std::string& Type, const py::dict& PyDict);
     
     std::string getDTD() const;
     

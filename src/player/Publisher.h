@@ -48,7 +48,7 @@ public:
     Publisher();
     virtual ~Publisher();
 
-    int subscribe(int messageID, const boost::python::object& callable);
+    int subscribe(int messageID, const py::object& callable);
     void unsubscribe(int messageID, int subscriberID);
     int getNumSubscribers(int messageID);
 
@@ -58,7 +58,7 @@ public:
     
     template<class ARG_TYPE>
     void notifySubscribers(int messageID, const ARG_TYPE& arg);
-    void notifySubscribersPy(int messageID, const boost::python::list& args);
+    void notifySubscribersPy(int messageID, const py::list& args);
 
 private:
     typedef std::vector<SubscriberInfoPtr> SubscriberInfoVector;
@@ -77,8 +77,8 @@ private:
 template<class ARG_TYPE>
 void Publisher::notifySubscribers(int messageID, const ARG_TYPE& arg)
 {
-    boost::python::list args;
-    boost::python::object pyArg(arg);
+    py::list args;
+    py::object pyArg(arg);
     args.append(pyArg);
     notifySubscribersPy(messageID, args);
 }

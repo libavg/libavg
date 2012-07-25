@@ -506,7 +506,7 @@ NodePtr Node::getSharedThis()
     // a pointer to the python object in m_pSelf and use that to create a functioning
     // and complete NodePtr if there is a python derived class.
     if (m_pSelf) {
-        return boost::python::extract<NodePtr>(m_pSelf);
+        return py::extract<NodePtr>(m_pSelf);
     } else {
         return boost::dynamic_pointer_cast<Node>(shared_from_this());
     }
@@ -587,7 +587,7 @@ Node::MessageID Node::getEventMessageID(const EventPtr& pEvent)
 
 bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
 {
-    bool bOk = boost::python::call<bool>(pFunc, pEvent);
+    bool bOk = py::call<bool>(pFunc, pEvent);
     return bOk;
 }
 

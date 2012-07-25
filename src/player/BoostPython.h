@@ -28,6 +28,8 @@
 #include "../api.h"
 #include <boost/python.hpp>
 
+namespace py = boost::python;
+
 #ifdef _WIN32
 #pragma warning(pop)
 #endif

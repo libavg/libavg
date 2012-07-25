@@ -51,18 +51,18 @@ public:
     BitmapPtr renderElement(const UTF8String& sElementID, const glm::vec2& size);
     BitmapPtr renderElement(const UTF8String& sElementID, float scale);
     NodePtr createImageNode(const UTF8String& sElementID,
-            const boost::python::dict& nodeAttrs);
+            const py::dict& nodeAttrs);
     NodePtr createImageNode(const UTF8String& sElementID,
-            const boost::python::dict& nodeAttrs, const glm::vec2& renderSize);
+            const py::dict& nodeAttrs, const glm::vec2& renderSize);
     NodePtr createImageNode(const UTF8String& sElementID,
-            const boost::python::dict& nodeAttrs, float scale);
+            const py::dict& nodeAttrs, float scale);
     glm::vec2 getElementSize(const UTF8String& sElementID);
 
 private:
     BitmapPtr internalRenderElement(const SVGElementPtr& pElement, 
         const glm::vec2& renderSize, const glm::vec2& size);
     NodePtr createImageNodeFromBitmap(BitmapPtr pBmp, 
-            const boost::python::dict& nodeAttrs);
+            const py::dict& nodeAttrs);
     SVGElementPtr getElement(const UTF8String& sElementID);
 
     std::map<UTF8String, SVGElementPtr> m_ElementMap;

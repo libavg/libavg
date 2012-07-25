@@ -46,7 +46,6 @@
 #include <unistd.h>
 #endif
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
@@ -775,7 +774,7 @@ void VideoNode::onEOF()
         PyObject * result = PyEval_CallObject(m_pEOFCallback, arglist);
         Py_DECREF(arglist);    
         if (!result) {
-            throw error_already_set();
+            throw py::error_already_set();
         }
         Py_DECREF(result);
     }

@@ -41,7 +41,7 @@ Publisher::~Publisher()
 {
 }
 
-int Publisher::subscribe(int messageID, const boost::python::object& callable)
+int Publisher::subscribe(int messageID, const py::object& callable)
 {
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     int subscriberID = s_LastSubscriberID;
@@ -88,7 +88,7 @@ void Publisher::publish(int messageID)
     m_SignalMap[messageID] = vector<SubscriberInfoPtr>();
 }
 
-void Publisher::notifySubscribersPy(int messageID, const boost::python::list& args)
+void Publisher::notifySubscribersPy(int messageID, const py::list& args)
 {
     m_bIsInNotify = true;
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);

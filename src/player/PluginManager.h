@@ -52,7 +52,7 @@ public:
     void setSearchPath(const std::string& aNewPath);
     std::string getSearchPath() const;
     
-    boost::python::object loadPlugin(const std::string& aPluginName);
+    py::object loadPlugin(const std::string& aPluginName);
 
 private:
     PluginManager();    
