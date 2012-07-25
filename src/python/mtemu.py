@@ -28,15 +28,6 @@ by pressing "ctrl left/right" the TOUCH events will be switched into TRACK event
 other way around.
 by pressing "shift left/right" a second event is created whenever the mousebutton (left) 
 is clicked. 
-
-Note: remove any mouse event handling from your application to avoid emulation issues
-
-For example:
-
-1) avg.MOUSE | avg.TOUCH filters can be safely reduced to avg.TOUCH
-2) the current libavg button module breaks the emulation
-3) the current libavg Grabbable class breaks the emulation, unless is created with 
-source = avg.TOUCH parameter
 '''
 
 from libavg import avg, Point2D, player
@@ -51,15 +42,12 @@ class MTemu(object):
     source = avg.TOUCH
 
     def __init__(self):
-        self.__rootNode = player.getRootNode()
-        self.__rootNode.connectEventHandler(avg.CURSORUP, avg.MOUSE,
-                self, self.__onMouseUp)
-        self.__rootNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE,
-                self, self.__onMouseDown)
-        self.__rootNode.connectEventHandler(avg.CURSORMOTION, avg.MOUSE,
-                self, self.__onMouseMotion)
-        posX = self.__rootNode.size.x - 15
-        posY = self.__rootNode.size.y - 20
+        self.__oldEventHook = player.getEventHook()
+        player.setEventHook(self.__onEvent)
+
+        root = player.getRootNode()
+        posX = root.size.x - 15
+        posY = root.size.y - 20
 
         self.__layer = avg.WordsNode(text='Multitouch emulation active',
                 pos=(posX, posY),
@@ -67,11 +55,10 @@ class MTemu(object):
                 color='DDDDDD',
                 sensitive=False,
                 fontsize=18,
-                parent=self.__rootNode)
+                parent=root)
 
     def deinit(self):
-        self.__rootNode.disconnectEventHandler(self)
-        self.__rootNode = None
+        player.setEventHook(self.__oldEventHook)
         self.__layer.unlink()
         if self.mouseState == 'Down':
             self.__releaseTouch(self.cursorID)
@@ -99,6 +86,18 @@ class MTemu(object):
                 self.__sendFakeTouch(self.cursorID+1, Point2D(0,0),
                         avg.CURSORDOWN, mirror=True)
             self.secondTouch = not(self.secondTouch)
+
+    def __onEvent(self, event):
+        if event.source == avg.MOUSE:
+            if event.type == avg.CURSORDOWN:
+                self.__onMouseDown(event)
+            elif event.type == avg.CURSORMOTION:
+                self.__onMouseMotion(event)
+            elif event.type == avg.CURSORUP:
+                self.__onMouseUp(event)
+            return True
+        else:
+            return False
 
     def __onMouseDown(self, event):
         self._initialPos = event.pos

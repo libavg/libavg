@@ -157,7 +157,6 @@ class TouchVisualizationOverlay(avg.DivNode):
         rootNode.subscribe(avg.Node.HOVERDOWN, self.__onTouchDown)
     
     def __onTouchDown(self, event):
-        print event.source
         if event.source == avg.TOUCH or event.source == avg.TRACK:
             self.visClass(event, parent=self)
 
