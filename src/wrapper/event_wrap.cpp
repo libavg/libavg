@@ -92,8 +92,6 @@ void export_event()
         .value("CURSOROVER", Event::CURSOROVER)
         .value("CURSOROUT", Event::CURSOROUT)
         .value("CUSTOMEVENT", Event::CUSTOMEVENT)
-        .value("RESIZE", Event::RESIZE)
-        .value("QUIT", Event::QUIT)
         .export_values()
     ;
 

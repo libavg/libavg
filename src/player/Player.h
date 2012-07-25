@@ -145,6 +145,7 @@ class AVG_API Player
         BitmapPtr screenshot();
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
+        bool isCursorShown();
 
         NodePtr getElementByID(const std::string& id);
         AVGNodePtr getRootNode();

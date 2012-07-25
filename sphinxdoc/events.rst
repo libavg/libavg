@@ -147,8 +147,8 @@ Input Handling
         .. py:attribute:: type
 
             One of :py:const:`KEYUP`, :py:const:`KEYDOWN`, :py:const:`CURSORMOTION`,
-            :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, :py:const:`CURSOROVER`, 
-            :py:const:`CURSOROUT` or :py:const:`QUIT`. Read-only.
+            :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, :py:const:`CURSOROVER` 
+            or :py:const:`CURSOROUT`. Read-only.
 
         .. py:attribute:: when
 

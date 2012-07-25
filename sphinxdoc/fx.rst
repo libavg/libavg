@@ -4,7 +4,7 @@ Effect Nodes
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: BlurFXNode ChromaKeyFXNode HueSatFXNode NullFXNode ShadowFXNode
+    .. inheritance-diagram:: BlurFXNode ChromaKeyFXNode HueSatFXNode InvertFXNode NullFXNode ShadowFXNode
         :parts: 1
 
     .. autoclass:: BlurFXNode(radius=1.0)
@@ -19,9 +19,18 @@ Effect Nodes
 
     .. autoclass:: ChromaKeyFXNode
 
-        A high-quality realtime chroma key (greenscreen or bluescreen) effect. Can be 
-        configured by using the :program:`avg_chromakey.py` script. The effect is carried 
-        out in the HSL colorspace (http://en.wikipedia.org/wiki/HSL_and_HSV).
+        Chroma keying is the process of removing a uniformly colored background from an
+        image. The background is then replaced with a different image or video.
+        Actors are filmed in front of a blue- or green-colored background and chroma 
+        keying is used to insert a different background.
+        
+        The :py:class:`ChromaKeyFXNode` implements a high-quality realtime chroma key
+        (greenscreen or bluescreen) effect. It replaces all pixels that are similar to a
+        configured key color with transparency and can account for noise in the 
+        background area as well as remove color spill from the background to the
+        foreground. All of the parameters can be manipulated for test purposes using the 
+        :program:`avg_chromakey.py` script. The effect is carried out in the HSL 
+        colorspace (http://en.wikipedia.org/wiki/HSL_and_HSV).
 
         .. py:attribute:: color
 
