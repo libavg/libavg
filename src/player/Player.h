@@ -23,6 +23,7 @@
 #define _Player_H_
 
 #include "../api.h"
+#include "Publisher.h"
 #include "Timeout.h"
 #include "NodeRegistry.h"
 #include "DisplayParams.h"
@@ -69,9 +70,11 @@ typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
 
-class AVG_API Player
+class AVG_API Player: public Publisher
 {
     public:
+        enum MessageID {KEYDOWN, KEYUP, LAST_MESSAGEID};
+
         Player();
         virtual ~Player();
         static Player* get();

@@ -168,6 +168,10 @@ Player::Player()
     if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
         debugBreak();
     }
+    
+    for (int msgID = KEYDOWN; msgID != LAST_MESSAGEID; msgID++) {
+        publish(msgID);
+    }
 
     g_type_init();
 }
@@ -1024,6 +1028,16 @@ bool Player::handleEvent(EventPtr pEvent)
     else if (KeyEventPtr pKeyEvent = boost::dynamic_pointer_cast<KeyEvent>(pEvent))
     {
         pEvent->trace();
+        switch (pEvent->getType()) {
+            case Event::KEYDOWN:
+                notifySubscribers(KEYDOWN, pEvent);
+                break;
+            case Event::KEYUP:
+                notifySubscribers(KEYUP, pEvent);
+                break;
+            default:
+                AVG_ASSERT(false);
+        }
         getRootNode()->handleEvent(pKeyEvent);
         if (getStopOnEscape() && pEvent->getType() == Event::KEYDOWN
                 && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
@@ -1726,6 +1740,8 @@ void Player::cleanup()
     m_bIsPlaying = false;
 
     m_CurDirName = getCWD();
+
+    removeSubscribers();
 }
 
 int Player::addTimeout(Timeout* pTimeout)

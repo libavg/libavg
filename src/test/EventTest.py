@@ -50,23 +50,31 @@ class EventTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
 
     def testKeyEvents(self):
-        def onKeyDown(Event):
-            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
+        def onKeyDown(event):
+            if event.keystring == 'A' and event.keycode == 65 and event.unicode == 65:
                 self.keyDownCalled = True
         
-        def onKeyUp(Event):
-            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
+        def onKeyUp(event):
+            if event.keystring == 'A' and event.keycode == 65 and event.unicode == 65:
                 self.keyUpCalled = True
-        
+       
+        def onSubscribeKeyDown(event):
+            self.subscribeKeyDownCalled = True
+
+        def onSubscribeKeyUp(event):
+            self.subscribeKeyUpCalled = True
+
         root = self.loadEmptyScene()
         root.setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
         root.setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
+        player.subscribe(avg.Player.KEYDOWN, onSubscribeKeyDown)
+        player.subscribe(avg.Player.KEYUP, onSubscribeKeyUp)
         self.start(False,
                 (lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 
                         avg.KEYMOD_NONE),
-                 lambda: self.assert_(self.keyDownCalled),
+                 lambda: self.assert_(self.keyDownCalled and self.subscribeKeyDownCalled),
                  lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, avg.KEYMOD_NONE),
-                 lambda: self.assert_(self.keyUpCalled)
+                 lambda: self.assert_(self.keyUpCalled and self.subscribeKeyUpCalled)
                 ))
 
     def testSimpleEvents(self):
@@ -625,7 +633,7 @@ class EventTestCase(AVGTestCase):
             else:
                 self.fail()
             
-        root = self.loadEmptyScene()
+        self.loadEmptyScene()
         resetState()
 
         player.setEventHook(handleEvent)

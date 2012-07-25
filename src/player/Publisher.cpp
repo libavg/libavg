@@ -112,6 +112,14 @@ void Publisher::publish(int messageID)
     m_SignalMap[messageID] = vector<SubscriberInfoPtr>();
 }
 
+void Publisher::removeSubscribers()
+{
+    SignalMap::iterator it;
+    for (it = m_SignalMap.begin(); it != m_SignalMap.end(); ++it) {
+        it->second = SubscriberInfoVector();
+    }
+}
+
 void Publisher::notifySubscribersPy(int messageID, const py::list& args)
 {
     m_bIsInNotify = true;

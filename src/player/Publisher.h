@@ -56,6 +56,7 @@ public:
     // The following methods should really be protected, but python derived classes need
     // to call them too.
     void publish(int messageID);
+    void removeSubscribers();
     
     template<class ARG_TYPE>
     void notifySubscribers(int messageID, const ARG_TYPE& arg);

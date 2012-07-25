@@ -147,7 +147,9 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
-    class_<Player>("Player") 
+    scope mainScope;
+
+    scope playerScope = class_<Player, bases<Publisher> >("Player") 
         .def("get", &Player::get, 
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
@@ -216,6 +218,14 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
 
+    enum_<Player::MessageID>("MessageID")
+        .value("KEYDOWN", Player::KEYDOWN)
+        .value("KEYUP", Player::KEYUP)
+        .export_values()
+        ;
+
+    scope oldScope(mainScope);
+    
     class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", no_init)
         .def(self == self)
         .def(self != self)
