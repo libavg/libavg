@@ -203,7 +203,7 @@ class Keyboard(avg.DivNode):
         if textarea != None:
             self.__textarea = textarea
             self.setKeyHandler(None, self.__upHandler)
-        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
+        self.subscribe(avg.Node.CURSORDOWN, self.__onDown)
 
     def __onDown(self, event):
         self.__selectKey(event)

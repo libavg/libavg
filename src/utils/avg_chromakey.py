@@ -91,8 +91,7 @@ class Chromakey(AVGApp):
         self.__colorRect = avg.RectNode(pos=(200,12), size=(20, 20), 
                 fillcolor=self.__filter.color, fillopacity=1, 
                 color="FFFFFF", parent=self.__guiDiv)
-        self.__camNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
-                self.__onColorDown)
+        self.__camNode.subscribe(avg.Node.CURSORDOWN, self.__onColorDown)
 
         FXSlider(1, 0.0, 1.0, self.__filter, "htolerance", "Hue Tolerance", 
                 False, parent=self.__guiDiv)

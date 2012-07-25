@@ -61,8 +61,7 @@ class JitterFilter(AVGApp):
                 pos=(10,50), parent=self._parentNode)
         self.__onSliderMove()
 
-        self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, 
-                self.__onDown)
+        self._parentNode.subscribe(avg.Node.CURSORDOWN, self.__onDown)
         self.__contact = None
         self.__rawContactCircle = avg.CircleNode(r=7*player.getPixelsPerMM(), 
                 color="FF0000", opacity=0, parent=self._parentNode)
