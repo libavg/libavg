@@ -24,6 +24,8 @@
 
 #include "../base/Exception.h"
 
+#include <boost/python/slice.hpp>
+
 using namespace std;
 
 namespace avg {
@@ -37,7 +39,8 @@ SubscriberInfo::SubscriberInfo(int id, const boost::python::object& callable)
         s_MethodrefModule = boost::python::import("libavg.methodref");
     }
     // Use the methodref module to manage the lifetime of the callables. This makes 
-    // sure that all callbacks are deleted when the publisher disappears.
+    // sure that we can delete bound-method callbacks when the object they are bound
+    // to disappears.
     m_Callable = boost::python::object(s_MethodrefModule.attr("methodref")(callable));
 }
 
@@ -54,8 +57,9 @@ bool SubscriberInfo::hasExpired() const
 void SubscriberInfo::invoke(boost::python::list args) const
 {
     boost::python::object callWeakRef = s_MethodrefModule.attr("callWeakRef");
-    args.insert(0, m_Callable);
-    boost::python::tuple argsTuple(args);
+    boost::python::list argsCopy (args[boost::python::slice()]);
+    argsCopy.insert(0, m_Callable);
+    boost::python::tuple argsTuple(argsCopy);
     PyObject * pResult = PyObject_CallObject(callWeakRef.ptr(), argsTuple.ptr());
     if (pResult == 0) {
         throw boost::python::error_already_set();
