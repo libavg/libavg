@@ -40,7 +40,7 @@ class ContactData:
 
 class Recognizer(object):
 
-    def __init__(self, node, isContinuous, eventSource, maxContacts, initialEvent,
+    def __init__(self, node, isContinuous, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             endHandler=None):
         if node:
@@ -48,7 +48,6 @@ class Recognizer(object):
         else:
             self.__node = None
         self.__isContinuous = isContinuous
-        self.__eventSource = eventSource
         self.__maxContacts = maxContacts
 
         self.__possibleHandler = methodref.methodref(possibleHandler)
@@ -142,7 +141,7 @@ class Recognizer(object):
         if self._contacts != {}:
             self._disconnectContacts()
         if self.__node and self.__node():
-            self.__node().disconnectEventHandler(self)
+            self.__node().unsubscribe(avg.Node.CURSORDOWN, self.__subscriberID)
 
     def _disconnectContacts(self):
         for contact, contactData in self._contacts.iteritems():
@@ -169,18 +168,17 @@ class Recognizer(object):
 
     def __setEventHandler(self):
         if self.__node and self.__node():
-            self.__node().connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
-                    self.__onDown)
+            self.__subscriberID = self.__node().subscribe(
+                    avg.Node.CURSORDOWN, self.__onDown)
 
 
 class TapRecognizer(Recognizer):
 
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, 
-            maxTime=MAX_TAP_TIME, initialEvent=None, 
+    def __init__(self, node, maxTime=MAX_TAP_TIME, initialEvent=None, 
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
 
-        super(TapRecognizer, self).__init__(node, False, eventSource, 1, initialEvent,
+        super(TapRecognizer, self).__init__(node, False, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler)
 
     def _handleDown(self, event):
@@ -209,8 +207,7 @@ class TapRecognizer(Recognizer):
 
 class DoubletapRecognizer(Recognizer):
 
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE,
-            maxTime=MAX_DOUBLETAP_TIME, initialEvent=None,
+    def __init__(self, node, maxTime=MAX_DOUBLETAP_TIME, initialEvent=None,
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
 
@@ -221,7 +218,7 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN2", ("IDLE",))
         #self.__stateMachine.traceChanges(True)
         self.__frameHandlerID = None
-        super(DoubletapRecognizer, self).__init__(node, False, eventSource, 1, 
+        super(DoubletapRecognizer, self).__init__(node, False, 1, 
                 initialEvent, possibleHandler, failHandler, detectedHandler)
 
     def abort(self):
@@ -286,13 +283,12 @@ class DoubletapRecognizer(Recognizer):
 
 class HoldRecognizer(Recognizer):
 
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, 
-            delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, 
-            detectedHandler=None, stopHandler=None):
+    def __init__(self, node, delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, 
+            failHandler=None, detectedHandler=None, stopHandler=None):
         self.__delay = delay
 
         self.__lastEvent = None
-        super(HoldRecognizer, self).__init__(node, True, eventSource, 1, initialEvent,
+        super(HoldRecognizer, self).__init__(node, True, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler, stopHandler)
 
     def _handleDown(self, event):
@@ -329,8 +325,7 @@ class DragRecognizer(Recognizer):
 
     DIRECTION_TOLERANCE=math.pi/4
 
-    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE,
-            initialEvent=None, 
+    def __init__(self, eventNode, coordSysNode=None, initialEvent=None, 
             direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE,
             friction=-1, 
             possibleHandler=None, failHandler=None, detectedHandler=None,
@@ -352,7 +347,7 @@ class DragRecognizer(Recognizer):
 
         self.__isSliding = False
         self.__inertiaHandler = None
-        super(DragRecognizer, self).__init__(eventNode, True, eventSource, 1, 
+        super(DragRecognizer, self).__init__(eventNode, True, 1, 
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
 
@@ -615,8 +610,7 @@ class TransformRecognizer(Recognizer):
 #        'beta': 0.1 # Very hard filter, no visible effect. Effect starts appearing at 0.03
 #    }
 
-    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH,
-            initialEvent=None, friction=-1, 
+    def __init__(self, eventNode, coordSysNode=None, initialEvent=None, friction=-1, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
         if coordSysNode != None:
             self.__coordSysNode = weakref.ref(coordSysNode)
@@ -631,7 +625,7 @@ class TransformRecognizer(Recognizer):
         self.__posns = []
         self.__inertiaHandler = None
         self.__filters = {}
-        super(TransformRecognizer, self).__init__(eventNode, True, eventSource, None, 
+        super(TransformRecognizer, self).__init__(eventNode, True, None, 
                 initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
 
     @classmethod
