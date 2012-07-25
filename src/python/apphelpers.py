@@ -278,14 +278,13 @@ class KeyboardManager(object):
         return cls._instance
         
     def setup(self, onKeyDownCb, onKeyUpCb):
-        rootNode = player.getRootNode()
-        rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
-        rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
+        player.subscribe(avg.Player.KEYDOWN, self.__onKeyDown)
+        player.subscribe(avg.Player.KEYUP, self.__onKeyUp)
         
         self.__onKeyDownCb = onKeyDownCb
         self.__onKeyUpCb = onKeyUpCb
 
-        self.__keyCaptionsNode = KeysCaptionNode(pos=(5,5), parent=rootNode)
+        self.__keyCaptionsNode = KeysCaptionNode(pos=(5,5), parent=player.getRootNode())
     
     def teardown(self):
         self.__keyBindings = []
