@@ -20,7 +20,7 @@
 #
 # Original author of this file is Henrik Thoms
 
-from libavg import avg, statemachine, methodref, player
+from libavg import avg, statemachine, player
 import gesture
 
 
@@ -55,10 +55,13 @@ class _ButtonBase(avg.DivNode):
 
 class Button(_ButtonBase):
 
+    CLICK = avg.Node.LAST_MESSAGEID
+
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             enabled=True, fatFingerEnlarge=False, clickHandler=None,
             **kwargs):
         super(Button, self).__init__(**kwargs)
+        self.publish(Button.CLICK)
 
         self.__nodeMap = {
             "UP": upNode, 
@@ -71,7 +74,7 @@ class Button(_ButtonBase):
         if disabledNode == None:
             self.__nodeMap["DISABLED"] = upNode
 
-        self.__clickHandler = methodref.methodref(clickHandler)
+        self.subscribe(Button.CLICK, clickHandler)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -120,7 +123,7 @@ class Button(_ButtonBase):
 
     def _onTap(self, event):
         self.__stateMachine.changeState("UP")
-        methodref.callWeakRef(self.__clickHandler, event)
+        self.notifySubscribers(Button.CLICK, [event])
 
     def _onTapFail(self, event):
         self.__stateMachine.changeState("UP")
@@ -153,12 +156,15 @@ class Button(_ButtonBase):
 
 
 class ToggleButton(_ButtonBase):
+    
+    TOGGLE = avg.Node.LAST_MESSAGEID
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
             enabled=True, fatFingerEnlarge=False, checkHandler=None,
             checked=False, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
+        self.publish(ToggleButton.TOGGLE)
 
         self.__nodeMap = {
             "UNCHECKED_UP": uncheckedUpNode, 
@@ -176,7 +182,7 @@ class ToggleButton(_ButtonBase):
         if checkedDisabledNode == None:
             self.__nodeMap["CHECKED_DISABLED"] = checkedUpNode
 
-        self.__checkHandler = methodref.methodref(checkHandler)
+        self.subscribe(ToggleButton.TOGGLE, checkHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
@@ -330,10 +336,10 @@ class ToggleButton(_ButtonBase):
     def _onTap(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
-            methodref.callWeakRef(self.__checkHandler, event, True)
+            self.notifySubscribers(ToggleButton.TOGGLE, [event, True])
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
-            methodref.callWeakRef(self.__checkHandler, event, False)
+            self.notifySubscribers(ToggleButton.TOGGLE, [event, False])
 
     def _onTapFail(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
