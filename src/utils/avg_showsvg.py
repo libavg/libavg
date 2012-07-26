@@ -25,7 +25,6 @@ import sys
 
 from libavg import avg, AVGApp
 
-g_player = avg.Player.get()
 g_log = avg.Logger.get()
 
 parser = optparse.OptionParser("Usage: %prog <svgFileName> <elementID> [options]")

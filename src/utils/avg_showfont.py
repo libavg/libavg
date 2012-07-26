@@ -22,11 +22,9 @@
 #
 
 import sys
-from libavg import avg
+from libavg import avg, player
 
-Player = avg.Player.get()
-
-Player.loadString("""
+player.loadString("""
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="640" height="480">
@@ -50,14 +48,14 @@ else:
         displayText=""
 variants = avg.WordsNode.getFontVariants(fontname)
 print variants
-rootNode = Player.getRootNode()
+rootNode = player.getRootNode()
 y = 10
 for variant in variants:
     if displayText == "":
         text = fontname+": "+variant
     else:
         text = displayText
-    node = Player.createNode("words", 
+    node = player.createNode("words", 
             { "text": text,
               "font": fontname,
               "variant": variant,
@@ -67,7 +65,7 @@ for variant in variants:
             })
     rootNode.appendChild(node)
     y += 50
-Player.setVBlankFramerate(1)
-Player.play()
+player.setVBlankFramerate(1)
+player.play()
 
 

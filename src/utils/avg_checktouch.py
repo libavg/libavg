@@ -22,8 +22,6 @@
 
 from libavg import *
 
-g_player = avg.Player.get()
-
 class TouchApp(AVGApp):
     multitouch = True
 
