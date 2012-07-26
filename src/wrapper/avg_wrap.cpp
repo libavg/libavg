@@ -119,7 +119,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLAYER", &Logger::PLAYER)
     ;
 
-    class_<Publisher, boost::noncopyable>("Publisher", no_init)
+    class_<Publisher, boost::noncopyable>("Publisher")
         .def("subscribe", &Publisher::subscribe)
         .def("unsubscribe", &Publisher::unsubscribeCallable)
         .def("unsubscribe", &Publisher::unsubscribe)

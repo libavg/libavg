@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, statemachine, methodref, player
+from libavg import avg, statemachine, player
 from libavg.ui import filter
 
 import sets
@@ -33,11 +33,20 @@ MAX_DOUBLETAP_TIME = 300
 MIN_DRAG_DIST = 5
 HOLD_DELAY = 900
 
-class Recognizer(object):
+class Recognizer(avg.Publisher):
+
+    POSSIBLE = 0
+    DETECTED = 1
+    FAILED = 2
+    MOTION = 3
+    UP = 4
+    END = 5
 
     def __init__(self, node, isContinuous, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             endHandler=None):
+        super(Recognizer, self).__init__()
+
         if node:
             self.__node = weakref.ref(node)
         else:
@@ -45,18 +54,19 @@ class Recognizer(object):
         self.__isContinuous = isContinuous
         self.__maxContacts = maxContacts
 
-        self.__possibleHandler = methodref.methodref(possibleHandler)
-        self.__failHandler = methodref.methodref(failHandler)
-        self.__detectedHandler = methodref.methodref(detectedHandler)
-        self.__endHandler = methodref.methodref(endHandler)
-
         self.__setEventHandler() 
         self.__isEnabled = True
         self._contacts = sets.Set() 
         self.__dirty = False
 
+        self.publish(Recognizer.POSSIBLE)
+        self.publish(Recognizer.DETECTED)
+        self.publish(Recognizer.FAILED)
+        self.publish(Recognizer.END)
         self.__stateMachine = statemachine.StateMachine(str(type(self)), "IDLE")
         if self.__isContinuous:
+            self.publish(Recognizer.MOTION)
+            self.publish(Recognizer.UP)
             self.__stateMachine.addState("IDLE", ("POSSIBLE", "RUNNING"))
             self.__stateMachine.addState("POSSIBLE", ("IDLE", "RUNNING"))
             self.__stateMachine.addState("RUNNING", ("IDLE",))
@@ -64,7 +74,11 @@ class Recognizer(object):
             self.__stateMachine.addState("IDLE", ("POSSIBLE",))
             self.__stateMachine.addState("POSSIBLE", ("IDLE",))
 
-        #self.__stateMachine.traceChanges(True)
+        self.subscribe(Recognizer.POSSIBLE, possibleHandler)
+        self.subscribe(Recognizer.FAILED, failHandler)
+        self.subscribe(Recognizer.DETECTED, detectedHandler)
+        self.subscribe(Recognizer.END, endHandler)
+        # self.__stateMachine.traceChanges(True)
 
         if initialEvent:
             self.__onDown(initialEvent)
@@ -87,26 +101,26 @@ class Recognizer(object):
 
     def _setPossible(self, event):
         self.__stateMachine.changeState("POSSIBLE")
-        methodref.callWeakRef(self.__possibleHandler, event)
+        self.notifySubscribers(Recognizer.POSSIBLE, [event])
 
     def _setFail(self, event):
         assert(self.__stateMachine.state != "RUNNING")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        methodref.callWeakRef(self.__failHandler, event)
+        self.notifySubscribers(Recognizer.FAILED, [event])
 
     def _setDetected(self, event):
         if self.__isContinuous:
             self.__stateMachine.changeState("RUNNING")
         else:
             self.__stateMachine.changeState("IDLE")
-        methodref.callWeakRef(self.__detectedHandler, event)
+        self.notifySubscribers(Recognizer.DETECTED, [event])
 
     def _setEnd(self, event):
         assert(self.__stateMachine.state != "POSSIBLE")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        methodref.callWeakRef(self.__endHandler, event)
+        self.notifySubscribers(Recognizer.END, [event])
 
     def __onDown(self, event):
         if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
@@ -329,8 +343,6 @@ class DragRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
-        self.__moveHandler = methodref.methodref(moveHandler)
-        self.__upHandler = methodref.methodref(upHandler)
         self.__direction = direction
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self.__minDist = 0
@@ -344,6 +356,8 @@ class DragRecognizer(Recognizer):
         super(DragRecognizer, self).__init__(eventNode, True, 1, 
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
+        self.subscribe(Recognizer.MOTION, moveHandler)
+        self.subscribe(Recognizer.UP, upHandler)
 
     def abort(self):
         if self.__inertiaHandler:
@@ -371,12 +385,12 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             offset = pos - self.__dragStartPos
             if self.getState() == "RUNNING":
-                methodref.callWeakRef(self.__moveHandler, event, offset)
+                self.notifySubscribers(Recognizer.MOTION, [event, offset]);
             else:
                 if offset.getNorm() > self.__minDist*player.getPixelsPerMM():
                     if self.__angleFits(offset):
                         self._setDetected(event)
-                        methodref.callWeakRef(self.__moveHandler, event, offset)
+                        self.notifySubscribers(Recognizer.MOTION, [event, offset]);
                     else:
                         self.__fail(event)
             if self.__inertiaHandler:
@@ -388,7 +402,7 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             if self.getState() == "RUNNING":
                 self.__offset = pos - self.__dragStartPos
-                methodref.callWeakRef(self.__upHandler, event, self.__offset)
+                self.notifySubscribers(Recognizer.UP, [event, self.__offset]);
                 if self.__friction != -1:
                     self.__isSliding = True
                     self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -407,7 +421,7 @@ class DragRecognizer(Recognizer):
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        methodref.callWeakRef(self.__moveHandler, None, self.__offset)
+        self.notifySubscribers(Recognizer.MOTION, [None, self.__offset]);
 
     def __onInertiaStop(self):
         if self.getState() == "POSSIBLE":
@@ -610,8 +624,6 @@ class TransformRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
-        self.__moveHandler = methodref.methodref(moveHandler)
-        self.__upHandler = methodref.methodref(upHandler)
         self.__friction = friction
 
         self.__baseTransform = Mat3x3()
@@ -621,6 +633,8 @@ class TransformRecognizer(Recognizer):
         self.__filters = {}
         super(TransformRecognizer, self).__init__(eventNode, True, None, 
                 initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
+        self.subscribe(Recognizer.MOTION, moveHandler)
+        self.subscribe(Recognizer.UP, upHandler)
 
     @classmethod
     def setFilterConfig(cls, mincutoff=None, beta=None):
@@ -655,7 +669,7 @@ class TransformRecognizer(Recognizer):
             contact = event.contact
             transform = Transform(self.__filteredRelContactPos(contact)
                     - self.__lastPosns[0])
-            methodref.callWeakRef(self.__upHandler, transform)
+            self.notifySubscribers(Recognizer.UP, [transform]);
             player.clearInterval(self.__frameHandlerID)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
@@ -680,7 +694,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(contactPosns[0] - self.__lastPosns[0])
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            methodref.callWeakRef(self.__moveHandler, transform)
+            self.notifySubscribers(Recognizer.MOTION, [transform]);
             self.__lastPosns = contactPosns
         else:
             if numContacts == 2:
@@ -707,7 +721,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(trans, rot, scale, pivot)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            methodref.callWeakRef(self.__moveHandler, transform)
+            self.notifySubscribers(Recognizer.MOTION, [transform]);
             self.__lastPosns = self.__posns
 
     def __newPhase(self):
@@ -726,7 +740,7 @@ class TransformRecognizer(Recognizer):
                         i in range(2)]
 
     def __onInertiaMove(self, transform):
-        methodref.callWeakRef(self.__moveHandler, transform)
+        self.notifySubscribers(Recognizer.MOTION, [transform]);
 
     def __onInertiaStop(self):
         self._setEnd(None)
