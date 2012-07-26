@@ -36,8 +36,6 @@ parser.add_option("-r", "--recursion", dest = "recursion", action = "store_true"
         help = "Input will be recursiv interpreted")
 options, args = parser.parse_args()
 
-Player = avg.Player.get()
-
 node = avg.VideoNode()
 impl = minidom.getDOMImplementation()
 doc = impl.createDocument(None, "videodict", None)
