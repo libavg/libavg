@@ -62,7 +62,6 @@ public:
     std::vector<CursorEventPtr> getEvents() const;
 
     void addEvent(CursorEventPtr pEvent);
-    bool hasListeners() const;
     void sendEventToListeners(CursorEventPtr pCursorEvent);
 
     int getID() const;

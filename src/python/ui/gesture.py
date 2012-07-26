@@ -22,6 +22,7 @@
 from libavg import avg, statemachine, methodref, player
 from libavg.ui import filter
 
+import sets
 import weakref
 
 import math
@@ -31,12 +32,6 @@ MAX_TAP_TIME = 900
 MAX_DOUBLETAP_TIME = 300
 MIN_DRAG_DIST = 5
 HOLD_DELAY = 900
-
-class ContactData:
-
-    def __init__(self, listenerid):
-        self.listenerid = listenerid
-
 
 class Recognizer(object):
 
@@ -57,7 +52,7 @@ class Recognizer(object):
 
         self.__setEventHandler() 
         self.__isEnabled = True
-        self._contacts = {}
+        self._contacts = sets.Set() 
         self.__dirty = False
 
         self.__stateMachine = statemachine.StateMachine(str(type(self)), "IDLE")
@@ -115,8 +110,9 @@ class Recognizer(object):
 
     def __onDown(self, event):
         if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
-            listenerid = event.contact.connectListener(self.__onMotion, self.__onUp)
-            self._contacts[event.contact] = ContactData(listenerid)
+            event.contact.subscribe(avg.Contact.CURSORMOTION, self.__onMotion)
+            event.contact.subscribe(avg.Contact.CURSORUP, self.__onUp)
+            self._contacts.add(event.contact)
             if len(self._contacts) == 1:
                 self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
             self.__dirty = True
@@ -128,25 +124,26 @@ class Recognizer(object):
 
     def __onUp(self, event):
         self.__dirty = True
-        listenerid = self._contacts[event.contact].listenerid
-        del self._contacts[event.contact]
-        event.contact.disconnectListener(listenerid)
-        if self._contacts == {}:
+        self._contacts.remove(event.contact)
+        event.contact.unsubscribe(avg.Contact.CURSORMOTION, self.__onMotion)
+        event.contact.unsubscribe(avg.Contact.CURSORUP, self.__onUp)
+        if len(self._contacts) == 0:
             player.clearInterval(self.__frameHandlerID)
         self._handleUp(event)
 
     def __abort(self):        
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        if self._contacts != {}:
+        if len(self._contacts) != 0:
             self._disconnectContacts()
         if self.__node and self.__node():
             self.__node().unsubscribe(avg.Node.CURSORDOWN, self.__onDown)
 
     def _disconnectContacts(self):
-        for contact, contactData in self._contacts.iteritems():
-            contact.disconnectListener(contactData.listenerid)
-        self._contacts = {}
+        for contact in self._contacts:
+            contact.unsubscribe(avg.Contact.CURSORMOTION, self.__onMotion)
+            contact.unsubscribe(avg.Contact.CURSORUP, self.__onUp)
+        self._contacts = sets.Set()
         player.clearInterval(self.__frameHandlerID)
 
     def _handleDown(self, event):
@@ -680,7 +677,7 @@ class TransformRecognizer(Recognizer):
     def __move(self):
         numContacts = len(self._contacts)
         contactPosns = [self.__filteredRelContactPos(contact)
-                for contact in self._contacts.keys()]
+                for contact in self._contacts]
         if numContacts == 1:
             transform = Transform(contactPosns[0] - self.__lastPosns[0])
             if self.__friction != -1:
@@ -718,12 +715,11 @@ class TransformRecognizer(Recognizer):
     def __newPhase(self):
         self.__lastPosns = []
         numContacts = len(self._contacts)
+        contactPosns = [self.__relContactPos(contact) 
+                for contact in self._contacts]
         if numContacts == 1:
-            contact = self._contacts.keys()[0]
-            self.__lastPosns.append(self.__relContactPos(contact))
+            self.__lastPosns.append(contactPosns[0])
         else:
-            contactPosns = [self.__relContactPos(contact) 
-                    for contact in self._contacts.keys()]
             if numContacts == 2:
                 self.__lastPosns = contactPosns
             else:

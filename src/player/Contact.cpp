@@ -122,15 +122,11 @@ void Contact::addEvent(CursorEventPtr pEvent)
     m_Events.push_back(pEvent);
 }
 
-bool Contact::hasListeners() const
-{
-    return !(m_ListenerMap.empty() || 
-            (m_ListenerMap.size() == 1 && m_bCurListenerIsDead));
-}
-
 void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
 {
     switch (pCursorEvent->getType()) {
+        case Event::CURSORDOWN:
+            break;
         case Event::CURSORMOTION:
             notifySubscribers(Contact::CURSORMOTION, pCursorEvent);
             break;
@@ -138,7 +134,7 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
             notifySubscribers(Contact::CURSORUP, pCursorEvent);
             break;
         default:
-            AVG_ASSERT(false);
+            AVG_ASSERT_MSG(false, pCursorEvent->typeStr().c_str());
     }
     m_bSendingEvents = true;
     AVG_ASSERT(pCursorEvent->getContact() == shared_from_this());
