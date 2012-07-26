@@ -132,6 +132,7 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
             break;
         case Event::CURSORUP:
             notifySubscribers(Contact::CURSORUP, pCursorEvent);
+            removeSubscribers();
             break;
         default:
             AVG_ASSERT_MSG(false, pCursorEvent->typeStr().c_str());

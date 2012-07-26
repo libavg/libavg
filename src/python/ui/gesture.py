@@ -125,8 +125,6 @@ class Recognizer(object):
     def __onUp(self, event):
         self.__dirty = True
         self._contacts.remove(event.contact)
-        event.contact.unsubscribe(avg.Contact.CURSORMOTION, self.__onMotion)
-        event.contact.unsubscribe(avg.Contact.CURSORUP, self.__onUp)
         if len(self._contacts) == 0:
             player.clearInterval(self.__frameHandlerID)
         self._handleUp(event)
