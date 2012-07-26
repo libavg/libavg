@@ -767,11 +767,11 @@ def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     g_RepeatDelay = repeatDelay
     g_CharDelay = charDelay
 
-    avg.Player.get().setOnFrameHandler(_onFrame)
+    player.setOnFrameHandler(_onFrame)
 
     if catchKeyboard:
-        avg.Player.get().getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, _onKeyDown)
-        avg.Player.get().getRootNode().setEventHandler(avg.KEYUP, avg.NONE, _onKeyUp)
+        player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, _onKeyDown)
+        player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, _onKeyUp)
 
 def setActiveFocusContext(focusContext):
     """
