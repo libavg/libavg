@@ -23,6 +23,7 @@
 #include "SubscriberInfo.h"
 
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
 
 #include <boost/python/slice.hpp>
 
@@ -35,6 +36,7 @@ py::object SubscriberInfo::s_MethodrefModule;
 SubscriberInfo::SubscriberInfo(int id, const py::object& callable)
     : m_ID(id)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     if (s_MethodrefModule.ptr() == py::object().ptr()) {
         s_MethodrefModule = py::import("libavg.methodref");
     }
@@ -46,6 +48,7 @@ SubscriberInfo::SubscriberInfo(int id, const py::object& callable)
 
 SubscriberInfo::~SubscriberInfo()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 bool SubscriberInfo::hasExpired() const
