@@ -43,6 +43,10 @@ Contact::Contact(CursorEventPtr pEvent)
       m_DistanceTravelled(0)
 {
     m_Events.push_back(pEvent);
+
+    for (int msgID = CURSORMOTION; msgID != LAST_MESSAGEID; msgID++) {
+        publish(msgID);
+    }
 }
 
 Contact::~Contact()
@@ -110,7 +114,7 @@ vector<CursorEventPtr> Contact::getEvents() const
 void Contact::addEvent(CursorEventPtr pEvent)
 {
     pEvent->setCursorID(m_CursorID);
-    pEvent->setContact(shared_from_this());
+    pEvent->setContact(boost::dynamic_pointer_cast<Contact>(shared_from_this()));
     calcSpeed(pEvent, m_Events.back());
     updateDistanceTravelled(m_Events.back(), pEvent);
     m_Events.back()->removeBlob();
@@ -126,6 +130,16 @@ bool Contact::hasListeners() const
 
 void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
 {
+    switch (pCursorEvent->getType()) {
+        case Event::CURSORMOTION:
+            notifySubscribers(Contact::CURSORMOTION, pCursorEvent);
+            break;
+        case Event::CURSORUP:
+            notifySubscribers(Contact::CURSORUP, pCursorEvent);
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
     m_bSendingEvents = true;
     AVG_ASSERT(pCursorEvent->getContact() == shared_from_this());
     EventPtr pEvent = boost::dynamic_pointer_cast<Event>(pCursorEvent);
