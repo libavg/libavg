@@ -69,7 +69,7 @@ Effect Nodes
         Base class for GPU-based effects. These effects can be added to any 
         :py:class:`RasterNode` by calling :py:meth:`RasterNode.setEffect`.
 
-    .. autoclass:: HueSatFXNode(hue=0.0, saturation=1.0, lightness=0.0, colorize=False)
+    .. autoclass:: HueSatFXNode(hue=0.0, saturation=0.0, lightness=0.0, colorize=False)
 
         Color correction filter that works by converting pixels to the hsl color space 
         (http://en.wikipedia.org/wiki/HSL_and_HSV), changing the values there and 
@@ -77,24 +77,28 @@ Effect Nodes
         saturation and lightness of a node. Corresponds to the Photoshop Hue/Saturation 
         dialog.
 
-        .. py:attribute:: hue
-
-           Used to get/set the color angle. Ranges depend on the current
-           colorize mode and are the same as in Photoshop.
-
-        .. py:attribute:: lightness
-           
-           Set :py:attr:`lightness` offset. Adds a per pixel offset in brightness.
-
-        .. py:attribute:: saturation
-           
-           Set :py:attr:`saturation` of Node. Valid values are the same as in Photoshop.
-
         .. py:attribute:: colorize
 
            If :py:attr:`colorize` is :py:const:`True`, all colors will be tinted 
            according to the current :py:attr:`hue` value. Otherwise, :py:attr:`hue` is
            treated as a difference value.
+
+        .. py:attribute:: hue
+
+           Used to get/set the color angle in degrees. Effective values are 0..360 or
+           -180..180, depending on the :py:attr:`colorize` value.
+
+        .. py:attribute:: lightness
+           
+           Set :py:attr:`lightness` offset. Adds a per pixel offset in brightness. Values
+           range from -100 to 100, with -100 being very dark and 100 very bright.
+
+        .. py:attribute:: saturation
+           
+           Set :py:attr:`saturation` of Node. In :py:attr:`colorize` mode, this is the
+           overall image saturation in the range 0..100, with 0 being greyscale and 100
+           very oversaturated. If :py:attr:`colorize` is false, the attribute is an
+           offset from -100 to 100.
 
     .. autoclass:: InvertFXNode
 
