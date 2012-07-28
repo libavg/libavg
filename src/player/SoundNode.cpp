@@ -69,6 +69,7 @@ SoundNode::SoundNode(const ArgList& args)
     initFilename(m_Filename);
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
     m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, 8);
+    publish(ENDOFFILE);
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -340,6 +341,7 @@ void SoundNode::onEOF()
         }
         Py_DECREF(result);
     }
+    notifySubscribers(ENDOFFILE);
 }
 
 }

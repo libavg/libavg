@@ -58,6 +58,7 @@ public:
     void publish(int messageID);
     void removeSubscribers();
     
+    void notifySubscribers(int messageID);
     template<class ARG_TYPE>
     void notifySubscribers(int messageID, const ARG_TYPE& arg);
     void notifySubscribersPy(int messageID, const py::list& args);

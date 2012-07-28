@@ -137,6 +137,7 @@ void export_node()
         .value("HOVERUP", Node::HOVERUP)
         .value("HOVEROVER", Node::HOVEROVER)
         .value("HOVEROUT", Node::HOVEROUT)
+        .value("ENDOFFILE", Node::ENDOFFILE)
         .value("LAST_MESSAGEID", Node::LAST_MESSAGEID)
         .export_values()
         ;

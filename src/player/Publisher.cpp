@@ -120,6 +120,12 @@ void Publisher::removeSubscribers()
     }
 }
 
+void Publisher::notifySubscribers(int messageID)
+{
+    py::list args;
+    notifySubscribersPy(messageID, args);
+}
+
 void Publisher::notifySubscribersPy(int messageID, const py::list& args)
 {
     m_bIsInNotify = true;
