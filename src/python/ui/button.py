@@ -91,17 +91,6 @@ class Button(_ButtonBase):
         if not(enabled):
             self.setEnabled(False)
 
-    @classmethod
-    def fromSrc(cls, upSrc, downSrc, disabledSrc=None, **kwargs):
-        upNode = avg.ImageNode(href=upSrc)
-        downNode = avg.ImageNode(href=downSrc)
-        if disabledSrc != None:
-            disabledNode = avg.ImageNode(href=disabledSrc)
-        else:
-            disabledNode = None
-        return Button(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
-                **kwargs)
-
     def getEnabled(self):
         return self.__stateMachine.state != "DISABLED"
 
@@ -153,6 +142,18 @@ class Button(_ButtonBase):
         for node in self.__nodeMap.itervalues():
             node.active = False
         self.__nodeMap[state].active = True
+
+
+class BmpButton(Button):
+    def __init__(self, upSrc, downSrc, disabledSrc=None, **kwargs):
+        upNode = avg.ImageNode(href=upSrc)
+        downNode = avg.ImageNode(href=downSrc)
+        if disabledSrc != None:
+            disabledNode = avg.ImageNode(href=disabledSrc)
+        else:
+            disabledNode = None
+        super(BmpButton, self).__init__(upNode=upNode, downNode=downNode, 
+                disabledNode=disabledNode, **kwargs)
 
 
 class ToggleButton(_ButtonBase):
@@ -211,32 +212,6 @@ class ToggleButton(_ButtonBase):
             self.__stateMachine.changeState("UNCHECKED_DISABLED")
         if checked:
             self.setChecked(True)
-
-    @classmethod
-    def fromSrc(cls, uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc,
-            uncheckedDisabledSrc=None, checkedDisabledSrc=None, **kwargs):
-
-        uncheckedUpNode = avg.ImageNode(href=uncheckedUpSrc)
-        uncheckedDownNode = avg.ImageNode(href=uncheckedDownSrc)
-        checkedUpNode = avg.ImageNode(href=checkedUpSrc)
-        checkedDownNode = avg.ImageNode(href=checkedDownSrc)
-
-        if uncheckedDisabledSrc != None:
-            uncheckedDisabledNode = avg.ImageNode(href=uncheckedDisabledSrc)
-        else:
-            uncheckedDisabledNode = None
-        if checkedDisabledSrc != None:
-            checkedDisabledNode = avg.ImageNode(href=checkedDisabledSrc)
-        else:
-            checkedDisabledNode = None
-
-        return ToggleButton(uncheckedUpNode=uncheckedUpNode,
-                uncheckedDownNode=uncheckedDownNode, 
-                checkedUpNode=checkedUpNode,
-                checkedDownNode=checkedDownNode,
-                uncheckedDisabledNode=uncheckedDisabledNode,
-                checkedDisabledNode=checkedDisabledNode, 
-                **kwargs)
 
     def getEnabled(self):
         return (self.__stateMachine.state != "CHECKED_DISABLED" and
@@ -353,4 +328,30 @@ class ToggleButton(_ButtonBase):
         for node in self.__nodeMap.itervalues():
             node.active = False
         self.__nodeMap[state].active = True
+
+
+class BmpToggleButton(ToggleButton):
+    def __init__(self, uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc,
+            uncheckedDisabledSrc=None, checkedDisabledSrc=None, **kwargs):
+        uncheckedUpNode = avg.ImageNode(href=uncheckedUpSrc)
+        uncheckedDownNode = avg.ImageNode(href=uncheckedDownSrc)
+        checkedUpNode = avg.ImageNode(href=checkedUpSrc)
+        checkedDownNode = avg.ImageNode(href=checkedDownSrc)
+
+        if uncheckedDisabledSrc != None:
+            uncheckedDisabledNode = avg.ImageNode(href=uncheckedDisabledSrc)
+        else:
+            uncheckedDisabledNode = None
+        if checkedDisabledSrc != None:
+            checkedDisabledNode = avg.ImageNode(href=checkedDisabledSrc)
+        else:
+            checkedDisabledNode = None
+
+        super(BmpToggleButton, self).__init__(uncheckedUpNode=uncheckedUpNode,
+                uncheckedDownNode=uncheckedDownNode, 
+                checkedUpNode=checkedUpNode,
+                checkedDownNode=checkedDownNode,
+                uncheckedDisabledNode=uncheckedDisabledNode,
+                checkedDisabledNode=checkedDisabledNode, 
+                **kwargs)
 

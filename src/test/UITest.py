@@ -342,7 +342,7 @@ class UITestCase(AVGTestCase):
         runTest()
 
         root = self.loadEmptyScene()
-        button = ui.Button.fromSrc(
+        button = ui.BmpButton(
                 parent = root,
                 upSrc = "button_up.png",
                 downSrc = "button_down.png",
@@ -453,7 +453,7 @@ class UITestCase(AVGTestCase):
        
         def testFromSrc():
             root = self.loadEmptyScene()
-            button = ui.ToggleButton.fromSrc(
+            button = ui.BmpToggleButton(
                     uncheckedUpSrc="toggle_unchecked_Up.png",
                     uncheckedDownSrc="toggle_unchecked_Down.png",
                     checkedUpSrc="toggle_checked_Up.png",
