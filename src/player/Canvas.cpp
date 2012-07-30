@@ -252,6 +252,9 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         ProfilingZoneID& renderProfilingZone)
 {
     {
+//        windowSize.x = 1280;
+//        windowSize.y = 800;
+//        cout << "(" << windowSize.x << "," << windowSize.y << ")" << endl;
         ScopeTimer Timer(PreRenderProfilingZone);
         m_pVertexArray->reset();
         m_pRootNode->preRender(m_pVertexArray, true, 1.0f);

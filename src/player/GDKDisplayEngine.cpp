@@ -132,8 +132,6 @@ GDKDisplayEngine::~GDKDisplayEngine()
 
 void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
-    gdk_window_move(m_pScreen, dp.m_Pos.x, dp.m_Pos.y);
-
     calcScreenDimensions(dp.m_DotsPerMM);
 
     float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
@@ -147,8 +145,8 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
-    gdk_window_resize(m_pScreen, m_WindowSize.x, m_WindowSize.y);
-
+    gdk_window_move_resize(m_pScreen, dp.m_Pos.x, dp.m_Pos.y,
+            m_WindowSize.x, m_WindowSize.y);
     if (dp.m_bFullscreen) {
         gdk_window_fullscreen(m_pScreen);
     }
@@ -156,7 +154,6 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     if (!dp.m_bHasWindowFrame) {
         gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
     }
-
     bool bAllMultisampleValuesTested = false;
     m_pGLContext = 0;
     while (!bAllMultisampleValuesTested && !m_pGLContext) {
@@ -697,7 +694,6 @@ TouchEventPtr GDKDisplayEngine::createTouchEvent(int id, Event::Type type, const
 {
     GdkEventTouch touchEvent = (GdkEventTouch&) gdkEvent;
     IntPoint pos(touchEvent.x, touchEvent.y);
-//    cout << "POS: " << pos << endl;
     TouchEventPtr pEvent(new TouchEvent(id, type, pos, Event::TOUCH));
     return pEvent;
 }
