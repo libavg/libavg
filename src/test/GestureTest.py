@@ -56,9 +56,8 @@ class GestureTestCase(AVGTestCase):
             self.__tapRecognizer.enable(isEnabled)
             self.__resetEventState()
 
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.__tapRecognizer = ui.TapRecognizer(image,
+        self.__initImageScene()
+        self.__tapRecognizer = ui.TapRecognizer(self.image,
                 possibleHandler=onPossible,
                 detectedHandler=onDetected,
                 failHandler=onFail)
@@ -121,6 +120,11 @@ class GestureTestCase(AVGTestCase):
                  abort,
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, [EVENT_DETECTED]),
+
+                 # Remove node while tap is in progress.
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__killImageNode,
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                 ))
 
 
@@ -147,9 +151,8 @@ class GestureTestCase(AVGTestCase):
             self.__resetEventState()
 
         player.setFakeFPS(20)
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.__holdRecognizer = ui.HoldRecognizer(image,
+        self.__initImageScene()
+        self.__holdRecognizer = ui.HoldRecognizer(self.image,
                 delay=1000,
                 possibleHandler=onPossible, 
                 detectedHandler=onDetected, 
@@ -201,6 +204,12 @@ class GestureTestCase(AVGTestCase):
                  lambda: enable(True),
                  lambda: self.delay(1100),
                  lambda: self.__assertEvents([]),
+                 self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
+                 
+                 # Remove node while hold is in progress.
+                 self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
+                 self.__killImageNode,
+                 self.delay(1100),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
                 ))
         player.setFakeFPS(-1)
@@ -741,8 +750,8 @@ class GestureTestCase(AVGTestCase):
     def __assertEvents(self, expectedFlags):
         expectedFlags = Set(expectedFlags)
         if expectedFlags != self.__flags:
-            sys.stderr.write("State expected: "+str(expectedFlags))
-            sys.stderr.write("Actual state: "+str(self.__flags))
+            sys.stderr.write("\nState expected: "+str(expectedFlags)+"\n")
+            sys.stderr.write("Actual state: "+str(self.__flags)+"\n")
             self.assert_(False)
 
     def __resetEventState(self):
@@ -750,6 +759,14 @@ class GestureTestCase(AVGTestCase):
 
     def __addEventFlag(self, flag):
         self.__flags.add(flag)
+
+    def __initImageScene(self):
+        root = self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+
+    def __killImageNode(self):
+        self.image.unlink(True)
+        self.image = None
 
 
 def gestureTestSuite(tests):

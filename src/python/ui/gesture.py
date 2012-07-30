@@ -70,7 +70,7 @@ class Recognizer(object):
             self.__stateMachine.addState("IDLE", ("POSSIBLE",))
             self.__stateMachine.addState("POSSIBLE", ("IDLE",))
 
-        #self.__stateMachine.traceChanges(True)
+#        self.__stateMachine.traceChanges(True)
 
         if initialEvent:
             self.__onDown(initialEvent)
@@ -115,26 +115,35 @@ class Recognizer(object):
         utils.callWeakRef(self.__endHandler, event)
 
     def __onDown(self, event):
-        if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
-            listenerid = event.contact.connectListener(self.__onMotion, self.__onUp)
-            self._contacts[event.contact] = ContactData(listenerid)
-            if len(self._contacts) == 1:
-                self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
-            self.__dirty = True
-            return self._handleDown(event)
+        if self.__node and not(self.__node()):
+            self.enable(False)
+        else:
+            if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
+                listenerid = event.contact.connectListener(self.__onMotion, self.__onUp)
+                self._contacts[event.contact] = ContactData(listenerid)
+                if len(self._contacts) == 1:
+                    self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
+                self.__dirty = True
+                return self._handleDown(event)
 
     def __onMotion(self, event):
-        self.__dirty = True
-        self._handleMove(event)
+        if self.__node and not(self.__node()):
+            self.enable(False)
+        else:
+            self.__dirty = True
+            self._handleMove(event)
 
     def __onUp(self, event):
-        self.__dirty = True
-        listenerid = self._contacts[event.contact].listenerid
-        del self._contacts[event.contact]
-        event.contact.disconnectListener(listenerid)
-        if self._contacts == {}:
-            player.clearInterval(self.__frameHandlerID)
-        self._handleUp(event)
+        if self.__node and not(self.__node()):
+            self.enable(False)
+        else:
+            self.__dirty = True
+            listenerid = self._contacts[event.contact].listenerid
+            del self._contacts[event.contact]
+            event.contact.disconnectListener(listenerid)
+            if self._contacts == {}:
+                player.clearInterval(self.__frameHandlerID)
+            self._handleUp(event)
 
     def __abort(self):        
         if self.__stateMachine.state != "IDLE":
