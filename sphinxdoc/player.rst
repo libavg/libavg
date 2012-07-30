@@ -45,7 +45,8 @@ Player & Canvas
         referenced in the href attribute of an image node. See 
         https://www.libavg.de/wiki/ProgrammersGuide/OffscreenRendering for an in-depth 
         explanation of using offscreen rendering. Offscreen canvases are created by
-        calling :py:meth:`Player.loadCanvasFile` and :py:meth:`Player.loadCanvasString`.
+        calling :py:meth:`Player.createCanvas`, :py:meth:`Player.loadCanvasFile` or
+        :py:meth:`Player.loadCanvasString`.
 
         .. py:attribute:: autorender
 

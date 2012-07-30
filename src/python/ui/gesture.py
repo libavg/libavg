@@ -123,25 +123,31 @@ class Recognizer(avg.Publisher):
         self.notifySubscribers(Recognizer.END, [event])
 
     def __onDown(self, event):
-        if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
-            event.contact.subscribe(avg.Contact.CURSORMOTION, self.__onMotion)
-            event.contact.subscribe(avg.Contact.CURSORUP, self.__onUp)
-            self._contacts.add(event.contact)
-            if len(self._contacts) == 1:
-                self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
-            self.__dirty = True
-            return self._handleDown(event)
+        nodeGone = self._handleNodeGone()
+        if not(nodeGone):
+            if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
+                event.contact.subscribe(avg.Contact.CURSORMOTION, self.__onMotion)
+                event.contact.subscribe(avg.Contact.CURSORUP, self.__onUp)
+                self._contacts.add(event.contact)
+                if len(self._contacts) == 1:
+                    self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
+                self.__dirty = True
+                return self._handleDown(event)
 
     def __onMotion(self, event):
-        self.__dirty = True
-        self._handleMove(event)
+        nodeGone = self._handleNodeGone()
+        if not(nodeGone):
+            self.__dirty = True
+            self._handleMove(event)
 
     def __onUp(self, event):
-        self.__dirty = True
-        self._contacts.remove(event.contact)
-        if len(self._contacts) == 0:
-            player.clearInterval(self.__frameHandlerID)
-        self._handleUp(event)
+        nodeGone = self._handleNodeGone()
+        if not(nodeGone):
+            self.__dirty = True
+            self._contacts.remove(event.contact)
+            if len(self._contacts) == 0:
+                player.clearInterval(self.__frameHandlerID)
+            self._handleUp(event)
 
     def __abort(self):        
         if self.__stateMachine.state != "IDLE":
@@ -174,6 +180,13 @@ class Recognizer(avg.Publisher):
         if self.__dirty:
             self._handleChange()
             self.__dirty = False
+
+    def _handleNodeGone(self):
+        if self.__node and not(self.__node()):
+            self.enable(False)
+            return True
+        else:
+            return False
 
     def __setEventHandler(self):
         if self.__node and self.__node():
@@ -683,8 +696,17 @@ class TransformRecognizer(Recognizer):
         if self.__isFiltered():
             del self.__filters[event.contact]
 
+    def _handleNodeGone(self):
+        if self.__coordSysNode and not(self.__coordSysNode()):
+            self.enable(False)
+            return True
+        else:
+            return super(TransformRecognizer, self)._handleNodeGone()
+
     def __onFrame(self):
-        self.__move()
+        nodeGone = self._handleNodeGone()
+        if not(nodeGone):
+            self.__move()
 
     def __move(self):
         numContacts = len(self._contacts)
