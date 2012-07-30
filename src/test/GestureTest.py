@@ -682,7 +682,16 @@ class GestureTestCase(AVGTestCase):
 
                  createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
 
-                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20)))
+                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
+
+                 # Delete node during transform
+                 lambda: self._sendTouchEvents((
+                        (1, avg.CURSORDOWN, 30, 10),
+                        (2, avg.CURSORDOWN, 30, 20))),
+                 self.__killImageNode,
+                 lambda: self._sendTouchEvents((
+                        (1, avg.CURSORUP, 30, 10),
+                        (2, avg.CURSORUP, 30, 20))),
                 ))
 
         # Test rel. coords.
