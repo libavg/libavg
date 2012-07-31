@@ -47,7 +47,6 @@ class AVG_API Event {
             CURSOROVER,  
             CURSOROUT,
             CUSTOMEVENT,
-            RESIZE,
             QUIT 
         };
         enum Source {MOUSE=1, TOUCH=2, TRACK=4, CUSTOM=8, NONE=16};

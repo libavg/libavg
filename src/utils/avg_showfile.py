@@ -22,9 +22,7 @@
 #
 
 import sys
-from libavg import avg
-
-Player = avg.Player.get()
+from libavg import player
 
 if len(sys.argv) ==1:
     print
@@ -34,8 +32,8 @@ if len(sys.argv) ==1:
     print
     sys.exit(1)
 
-Player.loadFile(sys.argv[1])
-Player.setVBlankFramerate(1)
-Player.play()
+player.loadFile(sys.argv[1])
+player.setVBlankFramerate(1)
+player.play()
 
 

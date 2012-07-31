@@ -87,7 +87,7 @@ then
 fi
     
 AX_BOOST_THREAD
-if test -z "$BOOST_THREAD_LIB"; then
+if test -z "$BOOST_THREAD_LIBS"; then
    AC_MSG_ERROR([boost.thread not found. Aborting.])
 fi
 

@@ -142,11 +142,14 @@ void EventDispatcher::testRemoveContact(EventPtr pEvent)
 {
     if (pEvent->getType() == Event::CURSORUP) {
         if (pEvent->getSource() == Event::MOUSE) {
-            AVG_ASSERT(m_NumMouseButtonsDown > 0);
-            m_NumMouseButtonsDown--;
-            if (m_NumMouseButtonsDown == 0) {
-                int rc = m_ContactMap.erase(MOUSECURSORID);
-                AVG_ASSERT(rc == 1);
+            // The following if is only false if the CURSORDOWN wasn't registered because
+            // it was outside the application window (or on the window border).
+            if (m_NumMouseButtonsDown > 0) {
+                m_NumMouseButtonsDown--;
+                if (m_NumMouseButtonsDown == 0) {
+                    int rc = m_ContactMap.erase(MOUSECURSORID);
+                    AVG_ASSERT(rc == 1);
+                }
             }
         } else {
             int rc = m_ContactMap.erase(

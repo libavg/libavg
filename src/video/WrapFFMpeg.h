@@ -55,6 +55,15 @@ extern "C" {
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #endif
 
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+  #define SAMPLE_FMT_S16  AV_SAMPLE_FMT_S16
+#endif
+
+#ifndef URL_WRONLY
+        #define url_fopen avio_open
+        #define url_fclose avio_close
+        #define URL_WRONLY AVIO_FLAG_WRITE
+#endif
 }
 
 #endif

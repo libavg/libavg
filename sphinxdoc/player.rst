@@ -45,7 +45,8 @@ Player & Canvas
         referenced in the href attribute of an image node. See 
         https://www.libavg.de/wiki/ProgrammersGuide/OffscreenRendering for an in-depth 
         explanation of using offscreen rendering. Offscreen canvases are created by
-        calling :py:meth:`Player.loadCanvasFile` and :py:meth:`Player.loadCanvasString`.
+        calling :py:meth:`Player.createCanvas`, :py:meth:`Player.loadCanvasFile` or
+        :py:meth:`Player.loadCanvasString`.
 
         .. py:attribute:: autorender
 
@@ -555,6 +556,10 @@ Player & Canvas
             
             :param bool show: :py:const:`True` if the mouse cursor should be visible.
 
+        .. py:method:: isCursorShown()
+
+            Returns True when the mouse cursor is shown.
+            
         .. py:method:: stop()
 
             Stops playback and resets the video mode if necessary.
