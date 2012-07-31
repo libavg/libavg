@@ -88,7 +88,7 @@ class SpeedApp(AVGApp):
             if options.useFX:
                 node.setEffect(avg.NullFXNode())
             if options.blur:
-                node.setEffect(avg.BlurFXNode(100))
+                node.setEffect(avg.BlurFXNode(10))
             if options.color:
                 node.gamma = (1.1, 1.1, 1.1)
             self.__nodes.append(node)
