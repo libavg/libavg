@@ -523,26 +523,28 @@ class UITestCase(AVGTestCase):
 
     def testAccordionNode(self):
         def createNode():
-            self.node = ui.AccordionNode(src="media/rgb24-32x32.png", endswidth=15, 
-                    parent=root)
+            self.node = ui.AccordionNode(src="media/rgb24-32x32.png", endsExtent=15, 
+                    orientation=orientation, parent=root)
             
-        def changeWidth():
-            self.node.width = 100
-            self.assert_(self.node.size.x == 100)
+        def changeExtent():
+            self.node.extent = 100
 
-        def minWidth():
-            self.node.width = 3
-            self.assert_(self.node.size.x == 31)
+        def minExtent():
+            self.node.extent = 3
+            self.assert_(self.node.extent == 31)
 
-        root = self.loadEmptyScene()
-        self.start(False,
-                (createNode,
-                 lambda: self.compareImage("testAccordionNode1"),
-                 changeWidth,
-                 lambda: self.compareImage("testAccordionNode2"),
-                 minWidth,
-                 lambda: self.compareImage("testAccordionNode1"),
-                ))
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
+            self.start(False,
+                    (createNode,
+                     lambda: self.compareImage("testAccordionNode"+orName+"1"),
+                     changeExtent,
+                     lambda: self.compareImage("testAccordionNode"+orName+"2"),
+                     minExtent,
+                     lambda: self.compareImage("testAccordionNode"+orName+"1"),
+                    ))
 
 
 

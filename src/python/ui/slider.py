@@ -21,69 +21,74 @@
 from libavg import avg, statemachine, player
 import gesture
 
-# TODO:
-# - assumes horizontal orientation for now.
+
+class Orientation():
+    VERTICAL = 0
+    HORIZONTAL = 1
+
 
 class AccordionNode(avg.DivNode):
     
-    def __init__(self, src, endswidth, orientation=0, minsize=-1, 
-            parent=None, **kwargs):
+    def __init__(self, src, endsExtent, orientation=Orientation.HORIZONTAL, extent=-1,
+            minExtent=-1, parent=None, **kwargs):
         super(AccordionNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
        
-        # Load src image, build startNode, centerNode, endNode using canvas.
         bmp = avg.Bitmap(src)
-        self.__startImg = self.__createImageNode(bmp, 0, endswidth)
-        self.__centerImg = self.__createImageNode(bmp, endswidth, 1)
-        endOffset = bmp.getSize().x - endswidth
-        self.__endImg = self.__createImageNode(bmp, endOffset, endswidth)
-        
-        self.__endsWidth = endswidth
-        if minsize == -1:
-            self.__minSize = self.__endsWidth*2+1
+        self.__orientation = orientation
+
+        # XXX: Check if bmp is smaller than min size
+
+        self.__startImg = self.__createImageNode(bmp, 0, endsExtent)
+        self.__centerImg = self.__createImageNode(bmp, endsExtent, 1)
+        if orientation == Orientation.HORIZONTAL:
+            endOffset = bmp.getSize().x - endsExtent
         else:
-            self.__minSize == minsize
+            endOffset = bmp.getSize().y - endsExtent
+        self.__endImg = self.__createImageNode(bmp, endOffset, endsExtent)
         
-        if self.__divSize.x == 100000:
-            # Default size, set to min. size.
-            self.__divSize = (self.__minSize, bmp.getSize().y)
+        self.__endsExtent = endsExtent
+        if minExtent == -1:
+            self.__minExtent = self.__endsExtent*2+1
+        else:
+            self.__minExtent == minExtent
+        
+        if extent == -1:
+            self.__extent = self.__minExtent
+        else:
+            self.__extent = extent
+        self.__positionNodes(self.__extent)
 
-        self.__positionNodes(self.__divSize.x)
+    def getExtent(self):
+        return self.__extent
 
-    def getSize(self):
-        return self.__divSize
+    def setExtent(self, extent):
+        if extent < self.__minExtent:
+            extent = self.__minExtent
+        self.__positionNodes(extent)
 
-    def setSize(self, size):
-        if size.x < self.__minSize:
-            size = avg.Point2D(self.__minSize, size.y)
-        self.__positionNodes(size.x)
-        self.__divSize = size
+    extent = property(getExtent, setExtent)
 
-    __divSize = avg.DivNode.size
-    size = property(getSize, setSize)
+    def __positionNodes(self, extent):
+        if self.__orientation == Orientation.HORIZONTAL:
+            self.__centerImg.x = self.__endsExtent
+            self.__centerImg.width = extent - self.__endsExtent*2
+            self.__endImg.x = extent - self.__endsExtent
+        else:
+            self.__centerImg.y = self.__endsExtent
+            self.__centerImg.height = extent - self.__endsExtent*2
+            self.__endImg.y = extent - self.__endsExtent
 
-    def getWidth(self):
-        return self.__divSize.x
-
-    def setWidth(self, width):
-        if width < self.__minSize:
-            width = self.__minSize
-        self.__positionNodes(width)
-        self.__divSize = (width, self.__divSize.y)
-
-    width = property(getWidth, setWidth)
-
-    def __positionNodes(self, width):
-        self.__startImg.x = 0
-        self.__centerImg.x = self.__endsWidth
-        self.__centerImg.width = width - self.__endsWidth*2
-        self.__endImg.x = width - self.__endsWidth
-
-    def __createImageNode(self, srcBmp, offset, width):
+    def __createImageNode(self, srcBmp, offset, extent):
         bmpSize = srcBmp.getSize()
-        endsSize = avg.Point2D(width, bmpSize.y)
+        if self.__orientation == Orientation.HORIZONTAL:
+            pos = (-offset,0)
+            endsSize = avg.Point2D(extent, bmpSize.y)
+        else:
+            pos = (0, -offset)
+            endsSize = avg.Point2D(bmpSize.x, extent)
         canvas = player.createCanvas(id="accordion_canvas", size=endsSize)
-        img = avg.ImageNode(pos=(-offset,0), parent=canvas.getRootNode())
+        img = avg.ImageNode(pos=pos, parent=canvas.getRootNode())
         img.setBitmap(srcBmp)
         canvas.render()
         resultImg = avg.ImageNode(parent=self)
