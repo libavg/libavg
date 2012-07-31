@@ -131,7 +131,8 @@ class UITestCase(AVGTestCase):
 
             self.ta2 = textarea.TextArea(pos=(2,100), size=(156, 18), parent=root)
             self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=False, color='4b94ef', cursorColor='FF0000', flashingCursor=False)
+                fontsize=14, multiline=False, color='4b94ef', cursorColor='FF0000', 
+                flashingCursor=False)
             self.ta2.setText('sit dolor')
             self.ta2.showCursor(False)
             self.ta2.setFocus(True) # TODO: REMOVE
@@ -520,6 +521,31 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testScrollPane4"),
                 ))
 
+    def testAccordionNode(self):
+        def createNode():
+            self.node = ui.AccordionNode(src="media/rgb24-32x32.png", endswidth=15, 
+                    parent=root)
+            
+        def changeWidth():
+            self.node.width = 100
+            self.assert_(self.node.size.x == 100)
+
+        def minWidth():
+            self.node.width = 3
+            self.assert_(self.node.size.x == 31)
+
+        root = self.loadEmptyScene()
+        self.start(False,
+                (createNode,
+                 lambda: self.compareImage("testAccordionNode1"),
+                 changeWidth,
+                 lambda: self.compareImage("testAccordionNode2"),
+                 minWidth,
+                 lambda: self.compareImage("testAccordionNode1"),
+                ))
+
+
+
 
 def uiTestSuite(tests):
     availableTests = (
@@ -528,7 +554,8 @@ def uiTestSuite(tests):
         "testFocusContext",
         "testButton",
         "testToggleButton",
-        "testScrollPane"
+        "testScrollPane",
+        "testAccordionNode"
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)
