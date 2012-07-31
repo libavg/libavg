@@ -746,7 +746,6 @@ class GestureTestCase(AVGTestCase):
         self.assertEqual(t.applyVec(v), [2,0,1])
         r = ui.Mat3x3.rotate(math.pi/2)
         self.assertAlmostEqual(r.applyVec(v), [0,1,1])
-        t2 = t.applyMat(t)
         self.assertAlmostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m)
         self.assertAlmostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m)
         self.assertAlmostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m)

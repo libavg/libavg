@@ -555,8 +555,11 @@ class UITestCase(AVGTestCase):
                     sliderDownSrc="media/scrollbar_slider_down.png",
                     sliderDisabledSrc="media/scrollbar_slider_disabled.png",
                     sliderEndsExtent=4,
-                    width=150,
+                    width=100,
                     parent=root)
+
+        def printSliderPos():
+            print self.node.sliderPos
 
         root = self.loadEmptyScene()
         self.start(False,
@@ -568,6 +571,19 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testScrollBarHoriz3"),
                      lambda: self.node.setSliderPos(1),
                      lambda: self.compareImage("testScrollBarHoriz4"),
+
+                     # User input
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 75, 10),
+                     lambda: self.compareImage("testScrollBarHoriz5"),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
+                     lambda: self.compareImage("testScrollBarHoriz6"),
+                     lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0.5),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 25, 10),
+                     lambda: self.compareImage("testScrollBarHoriz7"),
+                     lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 0, 10),
+                     lambda: self.compareImage("testScrollBarHoriz8"),
+                     lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
                     ))
 
 

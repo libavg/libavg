@@ -131,12 +131,13 @@ class ScrollBarBackground(SwitchNode):
     extent = property(getExtent, setExtent)
 
 
-class ScrollBarSlider(Button):
+class ScrollBarSlider(SwitchNode):
     
     def __init__(self, upSrc, downSrc, disabledSrc, endsExtent, 
             orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
             **kwargs):
       
+        super(ScrollBarSlider, self).__init__(nodeMap=None, **kwargs)
         self.__upNode = AccordionNode(src=upSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent)
         self.__downNode = AccordionNode(src=downSrc, endsExtent=endsExtent,
@@ -144,9 +145,13 @@ class ScrollBarSlider(Button):
         self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent)
 
-        super(ScrollBarSlider, self).__init__(upNode=self.__upNode, 
-                downNode=self.__downNode, disabledNode=self.__disabledNode,
-                **kwargs)
+        self.setNodeMap({
+            "UP": self.__upNode, 
+            "DOWN": self.__downNode, 
+            "DISABLED": self.__disabledNode
+        })
+        self.visibleID = "UP"
+        self.size = self.__upNode.size
         
     def getExtent(self):
         return self.__enabledNode.extent
@@ -180,13 +185,15 @@ class ScrollBar(avg.DivNode):
 
         self.__positionNodes()
 
+        self.__recognizer = gesture.DragRecognizer(self.__sliderNode, 
+                    detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
+                    upHandler=self.__onDrag)
+
     def getRange(self):
         return self.__range
 
     def setRange(self, range):
         self.__range = range
-        self.__sliderPos = max(self.__range[0], self.__sliderPos)
-        self.__sliderPos = min(self.__range[1]-self.__sliderExtent, self.__sliderPos)
         self.__positionNodes()
 
     range = property(getRange, setRange)
@@ -209,14 +216,31 @@ class ScrollBar(avg.DivNode):
 
     sliderExtent = property(getSliderExtent, setSliderExtent)
 
+    def __onDragStart(self, event):
+        self.__sliderNode.visibleID = "DOWN"
+        self.__dragStartPos = self.__sliderPos
+
+    def __onDrag(self, event, offset):
+        effectiveRange = self.__range[1] - self.__range[0]
+        scaledOffset = (offset.x/(self.size.x*(1-self.__sliderExtent)))*effectiveRange
+        self.__sliderPos = self.__dragStartPos + scaledOffset
+        self.__positionNodes()
+        if event.type == avg.CURSORUP:
+            self.__sliderNode.visibleID = "UP"
+
     def __positionNodes(self):
         self.__backgroundNode.extent = self.width
+        self.__constrainSliderPos()
 
         effectiveRange = self.__range[1] - self.__range[0]
         self.__sliderNode.x = ((self.__sliderPos/effectiveRange)*
                 (self.size.x*(1-self.__sliderExtent)))
         self.size = self.__backgroundNode.size
         self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.x
+
+    def __constrainSliderPos(self):
+        self.__sliderPos = max(self.__range[0], self.__sliderPos)
+        self.__sliderPos = min(self.__range[1], self.__sliderPos)
 
 
 class BmpScrollBar(ScrollBar):
