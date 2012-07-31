@@ -19,6 +19,7 @@
 # Current versions can be found at www.libavg.de
 
 from libavg import avg, statemachine, player
+from . import SwitchNode, Button
 import gesture
 
 
@@ -74,10 +75,12 @@ class AccordionNode(avg.DivNode):
             self.__centerImg.x = self.__endsExtent
             self.__centerImg.width = extent - self.__endsExtent*2
             self.__endImg.x = extent - self.__endsExtent
+            self.size = (extent, self.__startImg.height)
         else:
             self.__centerImg.y = self.__endsExtent
             self.__centerImg.height = extent - self.__endsExtent*2
             self.__endImg.y = extent - self.__endsExtent
+            self.size = (self.__startImg.width, extent)
 
     def __createImageNode(self, srcBmp, offset, extent):
         bmpSize = srcBmp.getSize()
@@ -95,4 +98,137 @@ class AccordionNode(avg.DivNode):
         resultImg.setBitmap(canvas.screenshot())
         player.deleteCanvas("accordion_canvas")
         return resultImg
+
+
+class ScrollBarBackground(SwitchNode):
+    
+    def __init__(self, enabledSrc, disabledSrc, endsExtent, 
+            orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
+            **kwargs):
+      
+        super(ScrollBarBackground, self).__init__(nodeMap=None, **kwargs)
+        self.__enabledNode = AccordionNode(src=enabledSrc, endsExtent=endsExtent,
+                orientation=orientation, extent=extent, minExtent=minExtent,
+                parent=self)
+        self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
+                orientation=orientation, extent=extent, minExtent=minExtent,
+                parent=self)
+
+        self.setNodeMap({
+            "ENABLED": self.__enabledNode, 
+            "DISABLED": self.__disabledNode
+        })
+        self.visibleID = "ENABLED"
+        
+    def getExtent(self):
+        return self.__enabledNode.extent
+
+    def setExtent(self, extent):
+        self.__enabledNode.extent = extent
+        self.__disabledNode.extent = extent
+        self.size = self.__enabledNode.size
+
+    extent = property(getExtent, setExtent)
+
+
+class ScrollBarSlider(Button):
+    
+    def __init__(self, upSrc, downSrc, disabledSrc, endsExtent, 
+            orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
+            **kwargs):
+      
+        self.__upNode = AccordionNode(src=upSrc, endsExtent=endsExtent,
+                orientation=orientation, extent=extent, minExtent=minExtent)
+        self.__downNode = AccordionNode(src=downSrc, endsExtent=endsExtent,
+                orientation=orientation, extent=extent, minExtent=minExtent)
+        self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
+                orientation=orientation, extent=extent, minExtent=minExtent)
+
+        super(ScrollBarSlider, self).__init__(upNode=self.__upNode, 
+                downNode=self.__downNode, disabledNode=self.__disabledNode,
+                **kwargs)
+        
+    def getExtent(self):
+        return self.__enabledNode.extent
+
+    def setExtent(self, extent):
+        self.__upNode.extent = extent
+        self.__downNode.extent = extent
+        self.__disabledNode.extent = extent
+        self.size = self.__upNode.size
+
+    extent = property(getExtent, setExtent)
+
+
+class ScrollBar(avg.DivNode):
+    
+    def __init__(self, backgroundNode, sliderNode, enabled=True, range=(0.,1.), 
+            sliderPos=0.0, sliderExtent=0.1,
+            parent=None, **kwargs):
+        super(ScrollBar, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
+
+        self.__backgroundNode = backgroundNode
+        self.appendChild(self.__backgroundNode)
+
+        self.__sliderNode = sliderNode
+        self.appendChild(self.__sliderNode)
+
+        self.__range = range
+        self.__sliderPos = sliderPos
+        self.__sliderExtent = sliderExtent
+
+        self.__positionNodes()
+
+    def getRange(self):
+        return self.__range
+
+    def setRange(self, range):
+        self.__range = range
+        self.__sliderPos = max(self.__range[0], self.__sliderPos)
+        self.__sliderPos = min(self.__range[1]-self.__sliderExtent, self.__sliderPos)
+        self.__positionNodes()
+
+    range = property(getRange, setRange)
+
+    def getSliderPos(self):
+        return self.__sliderPos
+
+    def setSliderPos(self, sliderPos):
+        self.__sliderPos = sliderPos
+        self.__positionNodes()
+
+    sliderPos = property(getSliderPos, setSliderPos)
+
+    def getSliderExtent(self):
+        return self.__sliderExtent
+
+    def setSliderExtent(self, sliderExtent):
+        self.__sliderExtent = sliderExtent
+        self.__positionNodes()
+
+    sliderExtent = property(getSliderExtent, setSliderExtent)
+
+    def __positionNodes(self):
+        self.__backgroundNode.extent = self.width
+
+        effectiveRange = self.__range[1] - self.__range[0]
+        self.__sliderNode.x = ((self.__sliderPos/effectiveRange)*
+                (self.size.x*(1-self.__sliderExtent)))
+        self.size = self.__backgroundNode.size
+        self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.x
+
+
+class BmpScrollBar(ScrollBar):
+
+    def __init__(self, bkgdSrc, bkgdDisabledSrc, bkgdEndsExtent,
+            sliderUpSrc, sliderDownSrc, sliderDisabledSrc, sliderEndsExtent,
+            **kwargs):
+        backgroundNode = ScrollBarBackground(enabledSrc=bkgdSrc, 
+                disabledSrc=bkgdDisabledSrc, endsExtent=bkgdEndsExtent)
+        sliderNode = ScrollBarSlider(upSrc=sliderUpSrc, downSrc=sliderDownSrc, 
+                disabledSrc=sliderDisabledSrc, endsExtent=sliderEndsExtent)
+        
+        super(BmpScrollBar, self).__init__(backgroundNode=backgroundNode, 
+                sliderNode=sliderNode, **kwargs)
 

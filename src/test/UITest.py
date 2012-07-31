@@ -546,7 +546,29 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testAccordionNode"+orName+"1"),
                     ))
 
+    def testScrollBar(self):
+        def createNode():
+            self.node = ui.BmpScrollBar(bkgdSrc="media/scrollbar_bkgd.png",
+                    bkgdDisabledSrc="media/scrollbar_bkgd_disabled.png",
+                    bkgdEndsExtent=2,
+                    sliderUpSrc="media/scrollbar_slider_up.png",
+                    sliderDownSrc="media/scrollbar_slider_down.png",
+                    sliderDisabledSrc="media/scrollbar_slider_disabled.png",
+                    sliderEndsExtent=4,
+                    width=150,
+                    parent=root)
 
+        root = self.loadEmptyScene()
+        self.start(False,
+                    (createNode,
+                     lambda: self.compareImage("testScrollBarHoriz1"),
+                     lambda: self.node.setSliderExtent(0.5),
+                     lambda: self.compareImage("testScrollBarHoriz2"),
+                     lambda: self.node.setSliderPos(0.5),
+                     lambda: self.compareImage("testScrollBarHoriz3"),
+                     lambda: self.node.setSliderPos(1),
+                     lambda: self.compareImage("testScrollBarHoriz4"),
+                    ))
 
 
 def uiTestSuite(tests):
@@ -557,7 +579,8 @@ def uiTestSuite(tests):
         "testButton",
         "testToggleButton",
         "testScrollPane",
-        "testAccordionNode"
+        "testAccordionNode",
+        "testScrollBar"
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)

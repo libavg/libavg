@@ -26,12 +26,19 @@ import gesture
 
 class SwitchNode(avg.DivNode):
 
-    def __init__(self, nodeMap, visibleID, parent=None, **kwargs):
+    def __init__(self, nodeMap, visibleID=None, parent=None, **kwargs):
         super(SwitchNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
    
         self.__nodeMap = nodeMap
 
+        if nodeMap:
+            self.setNodeMap(nodeMap)
+        if visibleID:
+            self.setVisibleID(visibleID)
+
+    def setNodeMap(self, nodeMap):
+        self.__nodeMap = nodeMap
         for node in self.__nodeMap.itervalues():
             if node:
                 # Only insert child if it hasn't been inserted yet.
@@ -39,7 +46,6 @@ class SwitchNode(avg.DivNode):
                     self.indexOf(node)
                 except RuntimeError:
                     self.appendChild(node)
-        self.setVisibleID(visibleID)
 
     def getVisibleID(self):
         return self.__visibleID
