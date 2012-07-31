@@ -249,12 +249,9 @@ vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
 
 void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
-        ProfilingZoneID& renderProfilingZone)
+        ProfilingZoneID& renderProfilingZone, IntPoint glOffset)
 {
     {
-//        windowSize.x = 1280;
-//        windowSize.y = 800;
-//        cout << "(" << windowSize.x << "," << windowSize.y << ")" << endl;
         ScopeTimer Timer(PreRenderProfilingZone);
         m_pVertexArray->reset();
         m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
@@ -274,7 +271,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         GLContext::checkError("Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, windowSize.x, windowSize.y);
+    glViewport(glOffset.x, glOffset.y, windowSize.x, windowSize.y);
     GLContext::checkError("Canvas::render: glViewport()");
     glm::vec2 size = m_pRootNode->getSize();
     glm::mat4 projMat;

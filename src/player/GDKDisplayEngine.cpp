@@ -93,6 +93,7 @@ GDKDisplayEngine::GDKDisplayEngine()
       m_NumMouseButtonsDown(0),
       m_noneCursor(0),
       m_cursor(0),
+      m_glFullscreenOffset(IntPoint(0,0)),
       m_touchID(0),
       m_multitouch(false)
 {
@@ -133,24 +134,39 @@ GDKDisplayEngine::~GDKDisplayEngine()
 void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     calcScreenDimensions(dp.m_DotsPerMM);
-
     float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
-    if (dp.m_WindowSize == IntPoint(0, 0)) {
-        m_WindowSize = dp.m_Size;
-    } else if (dp.m_WindowSize.x == 0) {
-        m_WindowSize.x = int(dp.m_WindowSize.y*aspectRatio);
-        m_WindowSize.y = dp.m_WindowSize.y;
+    if (dp.m_bFullscreen) {
+        int xMax = gdk_screen_get_width(m_screen);
+        int yMax =  gdk_screen_get_height(m_screen);
+        m_WindowSize.x = xMax;
+        m_WindowSize.y = yMax;
+        // try scale on x-axis
+        m_WindowSize.y = int(m_WindowSize.x / aspectRatio);
+        m_glFullscreenOffset.y = (gdk_screen_get_height(m_screen) - m_WindowSize.y) * 0.5;
+        if( m_WindowSize.y > yMax) { // test for out of screen
+            m_WindowSize.y = yMax;
+            m_WindowSize.x = int(m_WindowSize.y * aspectRatio);
+            m_glFullscreenOffset.y = 0;
+            m_glFullscreenOffset.x = (gdk_screen_get_width(m_screen) - m_WindowSize.x) * 0.5;
+        }
+        gdk_window_fullscreen(m_pScreen);
     } else {
-        m_WindowSize.x = dp.m_WindowSize.x;
-        m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
+        if (dp.m_WindowSize == IntPoint(0, 0)) {
+            m_WindowSize = dp.m_Size;
+        } else if (dp.m_WindowSize.x == 0) {
+            m_WindowSize.x = int(dp.m_WindowSize.y*aspectRatio);
+            m_WindowSize.y = dp.m_WindowSize.y;
+        } else {
+            m_WindowSize.x = dp.m_WindowSize.x;
+            m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
+        }
     }
+    
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
+    m_bIsFullscreen = dp.m_bFullscreen;
+
     gdk_window_move_resize(m_pScreen, dp.m_Pos.x, dp.m_Pos.y,
             m_WindowSize.x, m_WindowSize.y);
-    if (dp.m_bFullscreen) {
-        gdk_window_fullscreen(m_pScreen);
-    }
-    m_bIsFullscreen = dp.m_bFullscreen;
     if (!dp.m_bHasWindowFrame) {
         gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
     }
@@ -350,6 +366,11 @@ void GDKDisplayEngine::setCursor(GdkPixbuf *pixbuf, int x, int y)
 {
     m_cursor = gdk_cursor_new_from_pixbuf(gdk_window_get_display(m_pScreen), pixbuf, x, y);
     gdk_window_set_cursor(m_pScreen, m_cursor);
+}
+
+IntPoint GDKDisplayEngine::getGlFullscreenOffset()
+{
+    return m_glFullscreenOffset;
 }
 
 GdkDisplay* GDKDisplayEngine::getDisplay()
@@ -601,8 +622,8 @@ EventPtr GDKDisplayEngine::createMouseEvent(Event::Type type, const GdkEvent& gd
 {
     int x = ((GdkEventMotion&)gdkEvent).x;
     int y = ((GdkEventMotion&)gdkEvent).y;
-    x = int((x*m_Size.x)/m_WindowSize.x);
-    y = int((y*m_Size.y)/m_WindowSize.y);
+    x = int(((x-m_glFullscreenOffset.x)*m_Size.x)/m_WindowSize.x);
+    y = int(((y-m_glFullscreenOffset.y)*m_Size.y)/m_WindowSize.y);
     glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
     glm::vec2 speed;
     if (lastMousePos.x == -1) {
@@ -693,7 +714,9 @@ EventPtr GDKDisplayEngine::createKeyEvent(Event::Type type, const GdkEvent& gdkE
 TouchEventPtr GDKDisplayEngine::createTouchEvent(int id, Event::Type type, const GdkEvent &gdkEvent)
 {
     GdkEventTouch touchEvent = (GdkEventTouch&) gdkEvent;
-    IntPoint pos(touchEvent.x, touchEvent.y);
+    int x = int(((touchEvent.x-m_glFullscreenOffset.x)*m_Size.x)/m_WindowSize.x);
+    int y = int(((touchEvent.y-m_glFullscreenOffset.y)*m_Size.y)/m_WindowSize.y);
+    IntPoint pos(x,y);
     TouchEventPtr pEvent(new TouchEvent(id, type, pos, Event::TOUCH));
     return pEvent;
 }

@@ -78,6 +78,7 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
         void setCursor(GdkPixbuf *pixbuf, int x, int y);
+        IntPoint getGlFullscreenOffset();
 
         GdkDisplay* getDisplay();
         void enableGDKMultitouchHandling(bool value);
@@ -117,6 +118,7 @@ class AVG_API GDKDisplayEngine: public DisplayEngine, public IInputDevice
         GLContext* m_pGLContext;
         GdkCursor* m_noneCursor;
         GdkCursor* m_cursor;
+        IntPoint m_glFullscreenOffset;
 
         int m_touchID;
         bool m_multitouch;
