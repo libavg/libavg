@@ -24,8 +24,39 @@ from libavg import avg, statemachine, player
 import gesture
 
 
+class SwitchNode(avg.DivNode):
+
+    def __init__(self, nodeMap, visibleID, parent=None, **kwargs):
+        super(SwitchNode, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
+   
+        self.__nodeMap = nodeMap
+
+        for node in self.__nodeMap.itervalues():
+            if node:
+                # Only insert child if it hasn't been inserted yet.
+                try:
+                    self.indexOf(node)
+                except RuntimeError:
+                    self.appendChild(node)
+        self.setVisibleID(visibleID)
+
+    def getVisibleID(self):
+        return self.__visibleID
+
+    def setVisibleID(self, visibleID):
+        if not (visibleID in self.__nodeMap):
+            raise RuntimeError("'%s' is not a registered id." % visibleID)
+        self.__visibleID = visibleID
+        for node in self.__nodeMap.itervalues():
+            node.active = False
+        self.__nodeMap[visibleID].active = True
+
+    visibleID = property(getVisibleID, setVisibleID)
+
+
 class _ButtonBase(avg.DivNode):
-    
+
     def __init__(self, parent=None, **kwargs):
         super(_ButtonBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -61,20 +92,19 @@ class Button(_ButtonBase):
             enabled=True, fatFingerEnlarge=False, clickHandler=None,
             **kwargs):
         super(Button, self).__init__(**kwargs)
-        self.publish(Button.CLICK)
 
-        self.__nodeMap = {
+        if disabledNode == None:
+            disabledNode = upNode
+
+        nodeMap = {
             "UP": upNode, 
             "DOWN": downNode, 
             "DISABLED": disabledNode
         }
-        for node in self.__nodeMap.itervalues():
-            if node:
-                self.appendChild(node)
-        if disabledNode == None:
-            self.__nodeMap["DISABLED"] = upNode
-
-        self.subscribe(Button.CLICK, clickHandler)
+        self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleID="UP", parent=self)
+        self.publish(Button.CLICK)
+        if clickHandler:
+            self.subscribe(Button.CLICK, clickHandler)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -83,8 +113,6 @@ class Button(_ButtonBase):
                 enterFunc=self._enterDown, leaveFunc=self._leaveDown)
         self.__stateMachine.addState("DISABLED", ("UP",),
                 enterFunc=self._enterDisabled, leaveFunc=self._leaveDisabled)
-
-        self.__setActiveNode("UP")
 
         self._setActiveArea(upNode, activeAreaNode, fatFingerEnlarge)
 
@@ -136,12 +164,8 @@ class Button(_ButtonBase):
     def _leaveDisabled(self):
         self._tapRecognizer.enable(True)
 
-    def __setActiveNode(self, state=None):
-        if state == None:
-            state = self.__stateMachine.state
-        for node in self.__nodeMap.itervalues():
-            node.active = False
-        self.__nodeMap[state].active = True
+    def __setActiveNode(self):
+        self.__switchNode.visibleID = self.__stateMachine.state
 
 
 class BmpButton(Button):
@@ -165,9 +189,7 @@ class ToggleButton(_ButtonBase):
             enabled=True, fatFingerEnlarge=False, checkHandler=None,
             checked=False, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
-        self.publish(ToggleButton.TOGGLE)
-
-        self.__nodeMap = {
+        nodeMap = {
             "UNCHECKED_UP": uncheckedUpNode, 
             "UNCHECKED_DOWN": uncheckedDownNode, 
             "CHECKED_UP": checkedUpNode, 
@@ -175,15 +197,16 @@ class ToggleButton(_ButtonBase):
             "UNCHECKED_DISABLED": uncheckedDisabledNode, 
             "CHECKED_DISABLED": checkedDisabledNode, 
         }
-        for node in self.__nodeMap.itervalues():
-            if node:
-                self.appendChild(node)
         if uncheckedDisabledNode == None:
-            self.__nodeMap["UNCHECKED_DISABLED"] = uncheckedUpNode
+            nodeMap["UNCHECKED_DISABLED"] = uncheckedUpNode
         if checkedDisabledNode == None:
-            self.__nodeMap["CHECKED_DISABLED"] = checkedUpNode
+            nodeMap["CHECKED_DISABLED"] = checkedUpNode
+        self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleID="UNCHECKED_UP", 
+                parent=self)
 
-        self.subscribe(ToggleButton.TOGGLE, checkHandler)
+        self.publish(ToggleButton.TOGGLE)
+        if checkHandler:
+            self.subscribe(ToggleButton.TOGGLE, checkHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
@@ -203,8 +226,6 @@ class ToggleButton(_ButtonBase):
         self.__stateMachine.addState("CHECKED_DISABLED", ("CHECKED_UP", ),
                 enterFunc=self._enterCheckedDisabled,
                 leaveFunc=self._leaveCheckedDisabled)
-
-        self.__setActiveNode("UNCHECKED_UP")
 
         self._setActiveArea(uncheckedUpNode, activeAreaNode, fatFingerEnlarge)
 
@@ -322,12 +343,8 @@ class ToggleButton(_ButtonBase):
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
     
-    def __setActiveNode(self, state=None):
-        if state == None:
-            state = self.__stateMachine.state
-        for node in self.__nodeMap.itervalues():
-            node.active = False
-        self.__nodeMap[state].active = True
+    def __setActiveNode(self):
+        self.__switchNode.visibleID = self.__stateMachine.state
 
 
 class BmpToggleButton(ToggleButton):
