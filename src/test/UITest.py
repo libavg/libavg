@@ -548,67 +548,89 @@ class UITestCase(AVGTestCase):
 
     def testScrollBar(self):
         def createNode():
-            self.node = ui.BmpScrollBar(bkgdSrc="media/scrollbar_bkgd.png",
-                    bkgdDisabledSrc="media/scrollbar_bkgd_disabled.png",
-                    bkgdEndsExtent=2,
-                    sliderUpSrc="media/scrollbar_slider_up.png",
-                    sliderDownSrc="media/scrollbar_slider_down.png",
-                    sliderDisabledSrc="media/scrollbar_slider_disabled.png",
-                    sliderEndsExtent=4,
-                    width=100,
-                    parent=root)
+            if orientation == ui.Orientation.HORIZONTAL:
+                self.node = ui.BmpScrollBar(orientation=orientation,
+                        bkgdSrc="media/scrollbar_horiz_bkgd.png",
+                        bkgdDisabledSrc="media/scrollbar_horiz_bkgd_disabled.png",
+                        bkgdEndsExtent=2,
+                        sliderUpSrc="media/scrollbar_horiz_slider_up.png",
+                        sliderDownSrc="media/scrollbar_horiz_slider_down.png",
+                        sliderDisabledSrc="media/scrollbar_horiz_slider_disabled.png",
+                        sliderEndsExtent=4,
+                        width=100,
+                        parent=root)
+            else:
+                self.node = ui.BmpScrollBar(orientation=orientation,
+                        bkgdSrc="media/scrollbar_vert_bkgd.png",
+                        bkgdDisabledSrc="media/scrollbar_vert_bkgd_disabled.png",
+                        bkgdEndsExtent=2,
+                        sliderUpSrc="media/scrollbar_vert_slider_up.png",
+                        sliderDownSrc="media/scrollbar_vert_slider_down.png",
+                        sliderDisabledSrc="media/scrollbar_vert_slider_disabled.png",
+                        sliderEndsExtent=4,
+                        height=100,
+                        parent=root)
 
         def onSliderPosChanged(pos):
             self.sliderpos = pos
 
-        root = self.loadEmptyScene()
-        self.start(False,
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
+            self.start(False,
                     (createNode,
-                     lambda: self.compareImage("testScrollBarHoriz1"),
+                     lambda: self.compareImage("testScrollBar"+orName+"1"),
                      lambda: self.node.setSliderExtent(0.5),
-                     lambda: self.compareImage("testScrollBarHoriz2"),
+                     lambda: self.compareImage("testScrollBar"+orName+"2"),
                      lambda: self.node.setSliderPos(0.5),
-                     lambda: self.compareImage("testScrollBarHoriz3"),
+                     lambda: self.compareImage("testScrollBar"+orName+"3"),
                      lambda: self.node.setSliderPos(1),
-                     lambda: self.compareImage("testScrollBarHoriz4"),
-
-                     # User input
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 75, 10),
-                     lambda: self.compareImage("testScrollBarHoriz5"),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
-                     lambda: self.compareImage("testScrollBarHoriz6"),
-                     lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0.5),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 25, 10),
-                     lambda: self.compareImage("testScrollBarHoriz7"),
-                     lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 0, 10),
-                     lambda: self.compareImage("testScrollBarHoriz8"),
-                     lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
-
-                     # Publish/Subscribe interface
-                     lambda: self.node.subscribe(ui.ScrollBar.SLIDER_POS_CHANGED, 
-                            onSliderPosChanged),
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 50, 10),
-                     lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
-
-                     # Enable/disable
-                     lambda: self.node.setEnabled(False),
-                     lambda: self.compareImage("testScrollBarHoriz9"),
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
-                     lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
-                     lambda: self.node.setEnabled(True),
-                     lambda: self.compareImage("testScrollBarHoriz10"),
-
-                     # Disable after down: Drag aborted
-                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
-                     lambda: self.node.setEnabled(False),
-                     lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
-                     lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
-                     lambda: self.node.setEnabled(True),
-                     lambda: self.compareImage("testScrollBarHoriz10"),
+                     lambda: self.compareImage("testScrollBar"+orName+"4"),
                     ))
+
+        root = self.loadEmptyScene()
+        orientation = ui.Orientation.HORIZONTAL
+        self.start(False,
+                (createNode,
+                 lambda: self.node.setSliderExtent(0.5),
+                 # User input
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
+                 lambda: self.compareImage("testScrollBarHoriz5"),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
+                 lambda: self.compareImage("testScrollBarHoriz6"),
+                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0.5),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 25, 10),
+                 lambda: self.compareImage("testScrollBarHoriz7"),
+                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 0, 10),
+                 lambda: self.compareImage("testScrollBarHoriz8"),
+                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+
+                 # Publish/Subscribe interface
+                 lambda: self.node.subscribe(ui.ScrollBar.SLIDER_POS_CHANGED, 
+                        onSliderPosChanged),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 50, 10),
+                 lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+
+                 # Enable/disable
+                 lambda: self.node.setEnabled(False),
+                 lambda: self.compareImage("testScrollBarHoriz9"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
+                 lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+                 lambda: self.node.setEnabled(True),
+                 lambda: self.compareImage("testScrollBarHoriz10"),
+
+                 # Disable after down: Drag aborted
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
+                 lambda: self.node.setEnabled(False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
+                 lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+                 lambda: self.node.setEnabled(True),
+                 lambda: self.compareImage("testScrollBarHoriz10"),
+                ))
 
 
 def uiTestSuite(tests):

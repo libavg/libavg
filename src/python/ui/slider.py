@@ -169,11 +169,14 @@ class ScrollBar(avg.DivNode):
    
     SLIDER_POS_CHANGED = avg.Node.LAST_MESSAGEID
 
-    def __init__(self, backgroundNode, sliderNode, enabled=True, range=(0.,1.), 
+    def __init__(self, backgroundNode, sliderNode, enabled=True, 
+            orientation=Orientation.HORIZONTAL, range=(0.,1.), 
             sliderPos=0.0, sliderExtent=0.1, sliderPosChangedHandler=None,
             parent=None, **kwargs):
         super(ScrollBar, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+        
+        self.__orientation = orientation
 
         self.__backgroundNode = backgroundNode
         self.appendChild(self.__backgroundNode)
@@ -246,7 +249,10 @@ class ScrollBar(avg.DivNode):
 
     def __onDrag(self, event, offset):
         effectiveRange = self.__range[1] - self.__range[0]
-        scaledOffset = (offset.x/(self.size.x*(1-self.__sliderExtent)))*effectiveRange
+        if self.__orientation == Orientation.HORIZONTAL:
+            scaledOffset = (offset.x/(self.size.x*(1-self.__sliderExtent)))*effectiveRange
+        else:
+            scaledOffset = (offset.y/(self.size.y*(1-self.__sliderExtent)))*effectiveRange
         self.__positionNodes(self.__dragStartPos + scaledOffset)
         if event.type == avg.CURSORUP:
             self.__sliderNode.visibleID = "UP"
@@ -255,16 +261,24 @@ class ScrollBar(avg.DivNode):
         oldSliderPos = self.__sliderPos
         if newSliderPos is not None:
             self.__sliderPos = newSliderPos
-        self.__backgroundNode.extent = self.width
+        if self.__orientation == Orientation.HORIZONTAL:
+            self.__backgroundNode.extent = self.width
+        else:
+            self.__backgroundNode.extent = self.height
         self.__constrainSliderPos()
         if self.__sliderPos != oldSliderPos:
             self.notifySubscribers(ScrollBar.SLIDER_POS_CHANGED, [self.__sliderPos])
 
         effectiveRange = self.__range[1] - self.__range[0]
-        self.__sliderNode.x = ((self.__sliderPos/effectiveRange)*
-                (self.size.x*(1-self.__sliderExtent)))
+        if self.__orientation == Orientation.HORIZONTAL:
+            self.__sliderNode.x = ((self.__sliderPos/effectiveRange)*
+                    (self.size.x*(1-self.__sliderExtent)))
+            self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.x
+        else:
+            self.__sliderNode.y = ((self.__sliderPos/effectiveRange)*
+                    (self.size.y*(1-self.__sliderExtent)))
+            self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.y
         self.size = self.__backgroundNode.size
-        self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.x
 
     def __constrainSliderPos(self):
         self.__sliderPos = max(self.__range[0], self.__sliderPos)
@@ -275,12 +289,13 @@ class BmpScrollBar(ScrollBar):
 
     def __init__(self, bkgdSrc, bkgdDisabledSrc, bkgdEndsExtent,
             sliderUpSrc, sliderDownSrc, sliderDisabledSrc, sliderEndsExtent,
-            **kwargs):
-        backgroundNode = ScrollBarBackground(enabledSrc=bkgdSrc, 
+            orientation=Orientation.HORIZONTAL, **kwargs):
+        backgroundNode = ScrollBarBackground(orientation=orientation, enabledSrc=bkgdSrc, 
                 disabledSrc=bkgdDisabledSrc, endsExtent=bkgdEndsExtent)
-        sliderNode = ScrollBarSlider(upSrc=sliderUpSrc, downSrc=sliderDownSrc, 
+        sliderNode = ScrollBarSlider(orientation=orientation, 
+                upSrc=sliderUpSrc, downSrc=sliderDownSrc, 
                 disabledSrc=sliderDisabledSrc, endsExtent=sliderEndsExtent)
         
         super(BmpScrollBar, self).__init__(backgroundNode=backgroundNode, 
-                sliderNode=sliderNode, **kwargs)
+                orientation=orientation, sliderNode=sliderNode, **kwargs)
 
