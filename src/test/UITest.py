@@ -589,8 +589,25 @@ class UITestCase(AVGTestCase):
                      lambda: self.node.subscribe(ui.ScrollBar.SLIDER_POS_CHANGED, 
                             onSliderPosChanged),
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
-                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 50, 10),
                      lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+
+                     # Enable/disable
+                     lambda: self.node.setEnabled(False),
+                     lambda: self.compareImage("testScrollBarHoriz9"),
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
+                     lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+                     lambda: self.node.setEnabled(True),
+                     lambda: self.compareImage("testScrollBarHoriz10"),
+
+                     # Disable after down: Drag aborted
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
+                     lambda: self.node.setEnabled(False),
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
+                     lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+                     lambda: self.node.setEnabled(True),
+                     lambda: self.compareImage("testScrollBarHoriz10"),
                     ))
 
 

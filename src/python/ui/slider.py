@@ -194,6 +194,9 @@ class ScrollBar(avg.DivNode):
         if sliderPosChangedHandler:
             self.subscribe(ScrollBar.SLIDER_POS_CHANGED, sliderPosChangedHandler)
 
+        if not(enabled):
+            self.setEnabled(False)
+
     def getRange(self):
         return self.__range
 
@@ -219,6 +222,23 @@ class ScrollBar(avg.DivNode):
         self.__positionNodes()
 
     sliderExtent = property(getSliderExtent, setSliderExtent)
+
+    def getEnabled(self):
+        return self.__backgroundNode.visibleID != "DISABLED"
+
+    def setEnabled(self, enabled):
+        if enabled:
+            if self.__backgroundNode.visibleID == "DISABLED":
+                self.__backgroundNode.visibleID = "ENABLED"
+                self.__sliderNode.visibleID = "UP"
+                self.__recognizer.enable(True)
+        else:
+            if self.__backgroundNode.visibleID != "DISABLED":
+                self.__backgroundNode.visibleID = "DISABLED"
+                self.__sliderNode.visibleID = "DISABLED"
+                self.__recognizer.enable(False)
+
+    enabled = property(getEnabled, setEnabled)
 
     def __onDragStart(self, event):
         self.__sliderNode.visibleID = "DOWN"
