@@ -18,8 +18,8 @@
 #
 # Current versions can be found at www.libavg.de
 
-from libavg import avg, statemachine, player
-from . import SwitchNode, Button
+from libavg import avg, player
+from . import SwitchNode
 import gesture
 
 

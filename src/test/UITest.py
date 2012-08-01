@@ -20,6 +20,7 @@
 #
 
 from libavg import avg, textarea, ui, player
+from libavg.ui import simple
 
 from testcase import *
 
@@ -651,6 +652,17 @@ class UITestCase(AVGTestCase):
                  lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
                 ))
 
+    def testSimpleScrollBar(self):
+
+        def createNode():
+            self.node = ui.simple.ScrollBar(size=(100,20), parent=root)
+
+        root = self.loadEmptyScene()
+        self.start(False,
+                (lambda: createNode(),
+                 lambda: self.compareImage("testSimpleScrollBarHoriz1"),
+                ))
+
 def uiTestSuite(tests):
     availableTests = (
         "testKeyboard",
@@ -660,7 +672,8 @@ def uiTestSuite(tests):
         "testToggleButton",
         "testScrollPane",
         "testAccordionNode",
-        "testScrollBar"
+        "testScrollBar",
+        "testSimpleScrollBar"
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)

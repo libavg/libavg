@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 
 from libavg import avg
-from libavg.ui import button
+from libavg.ui import button, slider
 
 class Slider(avg.DivNode):
     def __init__(self, width, min, max, onChange, parent=None, **kwargs):
@@ -103,4 +103,81 @@ class TextButton(button.Button):
         kwargs["upNode"] = upNode
         kwargs["downNode"] = downNode
         super(TextButton, self).__init__(**kwargs)
+
+class ScrollBar(slider.ScrollBar):
+
+    class Background(button.SwitchNode):
+        def __init__(self, size, orientation=slider.Orientation.HORIZONTAL, **kwargs):
+            self.__orientation = orientation
+            self.__enabledNode = avg.RectNode(pos=(0.5,0.5), size=size, 
+                    fillcolor="000000", fillopacity=1, color="FFFFFF")
+            self.__disabledNode = avg.RectNode(pos=(0.5,0.5), size=size,
+                    fillcolor="404040", fillopacity=1, color="C0C0C0")
+            nodeMap = {
+                "ENABLED": self.__enabledNode,
+                "DISABLED": self.__disabledNode
+            }
+            super(ScrollBar.Background, self).__init__(
+                    nodeMap=nodeMap, visibleID="ENABLED", size=size)
+
+        def getExtent(self):
+            if self.__orientation == slider.Orientation.HORIZONTAL:
+                return self.__enabledNode.width
+            else:
+                return self.__enabledNode.height
+
+        def setExtent(self, extent):
+            if self.__orientation == slider.Orientation.HORIZONTAL:
+                height = self.__enabledNode.size.y
+                self.__enabledNode.size = (extent, height)
+                self.__disabledNode.size = (extent, height)
+            else:
+                width = self.__enabledNode.size.x
+                self.__enabledNode.size = (width, extent)
+                self.__disabledNode.size = (width, extent)
+            self.size = self.__enabledNode.size
+
+        extent = property(getExtent, setExtent)
+
+
+    class Slider(button.SwitchNode):
+        def __init__(self, size, orientation=slider.Orientation.HORIZONTAL, **kwargs):
+            self.__orientation = orientation
+            self.__upNode = avg.RectNode(pos=(0.5,0.5), size=size, fillcolor="808080", 
+                    fillopacity=1, color="808080")
+            self.__downNode = avg.RectNode(pos=(0.5,0.5), size=size, fillcolor="C0C0C0", 
+                    fillopacity=1, color="C0C0C0")
+            self.__disabledNode = avg.RectNode(pos=(0.5,0.5), size=size,
+                    fillcolor="404040", fillopacity=1, color="C0C0C0")
+            nodeMap = {
+                "UP": self.__upNode,
+                "DOWN": self.__downNode,
+                "DISABLED": self.__disabledNode
+            }
+            super(ScrollBar.Slider, self).__init__(
+                    nodeMap=nodeMap, visibleID="UP", size=size)
+
+        def getExtent(self):
+            if self.__orientation == slider.Orientation.HORIZONTAL:
+                return self.width
+            else:
+                return self.height
+
+        def setExtent(self, extent):
+            if self.__orientation == slider.Orientation.HORIZONTAL:
+                self.size = (extent, self.size.y)
+            else:
+                self.size = (self.size.x, extent)
+            for node in self.__upNode, self.__downNode, self.__disabledNode:
+                node.size = self.size
+
+        extent = property(getExtent, setExtent)
+
+
+    def __init__(self, **kwargs):
+        bkgdNode = ScrollBar.Background(kwargs["size"])
+        sliderNode = ScrollBar.Slider(kwargs["size"])
+
+        super(ScrollBar, self).__init__(backgroundNode=bkgdNode, sliderNode=sliderNode,
+                **kwargs)
 
