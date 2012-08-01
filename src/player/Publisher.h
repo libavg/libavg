@@ -80,10 +80,13 @@ private:
 template<class ARG_TYPE>
 void Publisher::notifySubscribers(int messageID, const ARG_TYPE& arg)
 {
-    py::list args;
-    py::object pyArg(arg);
-    args.append(pyArg);
-    notifySubscribersPy(messageID, args);
+    SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
+    if (!subscribers.empty()) {
+        py::list args;
+        py::object pyArg(arg);
+        args.append(pyArg);
+        notifySubscribersPy(messageID, args);
+    }
 }
 
 

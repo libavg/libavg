@@ -122,14 +122,17 @@ void Publisher::removeSubscribers()
 
 void Publisher::notifySubscribers(int messageID)
 {
-    py::list args;
-    notifySubscribersPy(messageID, args);
+    SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
+    if (!subscribers.empty()) {
+        py::list args;
+        notifySubscribersPy(messageID, args);
+    }
 }
 
 void Publisher::notifySubscribersPy(int messageID, const py::list& args)
 {
     m_bIsInNotify = true;
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoVector::iterator it;
     for (it = subscribers.begin(); it != subscribers.end();) {
         if ((*it)->hasExpired()) {
