@@ -69,8 +69,11 @@ void debugBreak()
     __asm int 3;
 #elif defined __arm__
     asm("swi 0x03");
-#else
+#elif defined __i386__
     asm("int $3");
+#else
+    //deliberately dereferencing a null pointer should break in most debuggers
+    *((char *)0) = 0;
 #endif
 }
 
