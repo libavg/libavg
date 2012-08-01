@@ -547,7 +547,7 @@ class UITestCase(AVGTestCase):
                     ))
 
     def testScrollBar(self):
-        def createNode():
+        def createNode(orientation):
             if orientation == ui.Orientation.HORIZONTAL:
                 self.node = ui.BmpScrollBar(orientation=orientation,
                         bkgdSrc="media/scrollbar_horiz_bkgd.png",
@@ -579,7 +579,7 @@ class UITestCase(AVGTestCase):
                 (ui.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
             self.start(False,
-                    (createNode,
+                    (lambda: createNode(orientation),
                      lambda: self.compareImage("testScrollBar"+orName+"1"),
                      lambda: self.node.setSliderExtent(0.5),
                      lambda: self.compareImage("testScrollBar"+orName+"2"),
@@ -589,10 +589,10 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testScrollBar"+orName+"4"),
                     ))
 
+        # Horizontal
         root = self.loadEmptyScene()
-        orientation = ui.Orientation.HORIZONTAL
         self.start(False,
-                (createNode,
+                (lambda: createNode(ui.Orientation.HORIZONTAL),
                  lambda: self.node.setSliderExtent(0.5),
                  # User input
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
@@ -632,6 +632,24 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testScrollBarHoriz10"),
                 ))
 
+        # Vertical
+        root = self.loadEmptyScene()
+        self.start(False,
+                (lambda: createNode(ui.Orientation.VERTICAL),
+                 lambda: self.node.setSliderExtent(0.5),
+                 # User input
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 25),
+                 lambda: self.compareImage("testScrollBarVert5"),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 50),
+                 lambda: self.compareImage("testScrollBarVert6"),
+                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0.5),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 25),
+                 lambda: self.compareImage("testScrollBarVert7"),
+                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 0),
+                 lambda: self.compareImage("testScrollBarVert8"),
+                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                ))
 
 def uiTestSuite(tests):
     availableTests = (
