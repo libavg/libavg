@@ -166,9 +166,11 @@ class ScrollBarSlider(SwitchNode):
 
 
 class ScrollBar(avg.DivNode):
-    
+   
+    SLIDER_POS_CHANGED = avg.Node.LAST_MESSAGEID
+
     def __init__(self, backgroundNode, sliderNode, enabled=True, range=(0.,1.), 
-            sliderPos=0.0, sliderExtent=0.1,
+            sliderPos=0.0, sliderExtent=0.1, sliderPosChangedHandler=None,
             parent=None, **kwargs):
         super(ScrollBar, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -188,6 +190,9 @@ class ScrollBar(avg.DivNode):
         self.__recognizer = gesture.DragRecognizer(self.__sliderNode, 
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onDrag)
+        self.publish(ScrollBar.SLIDER_POS_CHANGED)
+        if sliderPosChangedHandler:
+            self.subscribe(ScrollBar.SLIDER_POS_CHANGED, sliderPosChangedHandler)
 
     def getRange(self):
         return self.__range
@@ -202,8 +207,7 @@ class ScrollBar(avg.DivNode):
         return self.__sliderPos
 
     def setSliderPos(self, sliderPos):
-        self.__sliderPos = sliderPos
-        self.__positionNodes()
+        self.__positionNodes(sliderPos)
 
     sliderPos = property(getSliderPos, setSliderPos)
 
@@ -223,14 +227,18 @@ class ScrollBar(avg.DivNode):
     def __onDrag(self, event, offset):
         effectiveRange = self.__range[1] - self.__range[0]
         scaledOffset = (offset.x/(self.size.x*(1-self.__sliderExtent)))*effectiveRange
-        self.__sliderPos = self.__dragStartPos + scaledOffset
-        self.__positionNodes()
+        self.__positionNodes(self.__dragStartPos + scaledOffset)
         if event.type == avg.CURSORUP:
             self.__sliderNode.visibleID = "UP"
 
-    def __positionNodes(self):
+    def __positionNodes(self, newSliderPos=None):
+        oldSliderPos = self.__sliderPos
+        if newSliderPos is not None:
+            self.__sliderPos = newSliderPos
         self.__backgroundNode.extent = self.width
         self.__constrainSliderPos()
+        if self.__sliderPos != oldSliderPos:
+            self.notifySubscribers(ScrollBar.SLIDER_POS_CHANGED, [self.__sliderPos])
 
         effectiveRange = self.__range[1] - self.__range[0]
         self.__sliderNode.x = ((self.__sliderPos/effectiveRange)*

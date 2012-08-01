@@ -558,8 +558,8 @@ class UITestCase(AVGTestCase):
                     width=100,
                     parent=root)
 
-        def printSliderPos():
-            print self.node.sliderPos
+        def onSliderPosChanged(pos):
+            self.sliderpos = pos
 
         root = self.loadEmptyScene()
         self.start(False,
@@ -584,6 +584,13 @@ class UITestCase(AVGTestCase):
                      lambda: self._sendMouseEvent(avg.CURSORUP, 0, 10),
                      lambda: self.compareImage("testScrollBarHoriz8"),
                      lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+
+                     # Publish/Subscribe interface
+                     lambda: self.node.subscribe(ui.ScrollBar.SLIDER_POS_CHANGED, 
+                            onSliderPosChanged),
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
+                     lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
                     ))
 
 
