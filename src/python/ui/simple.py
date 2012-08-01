@@ -109,10 +109,11 @@ class ScrollBar(slider.ScrollBar):
     class Background(button.SwitchNode):
         def __init__(self, size, orientation=slider.Orientation.HORIZONTAL, **kwargs):
             self.__orientation = orientation
-            self.__enabledNode = avg.RectNode(pos=(0.5,0.5), size=size, 
-                    fillcolor="000000", fillopacity=1, color="FFFFFF")
-            self.__disabledNode = avg.RectNode(pos=(0.5,0.5), size=size,
-                    fillcolor="404040", fillopacity=1, color="C0C0C0")
+            style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
+            self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
+                    style=style)
+            self.__disabledNode = avg.RectNode(fillcolor="404040", color="C0C0C0",
+                    style=style)
             nodeMap = {
                 "ENABLED": self.__enabledNode,
                 "DISABLED": self.__disabledNode
@@ -143,12 +144,19 @@ class ScrollBar(slider.ScrollBar):
     class Slider(button.SwitchNode):
         def __init__(self, size, orientation=slider.Orientation.HORIZONTAL, **kwargs):
             self.__orientation = orientation
-            self.__upNode = avg.RectNode(pos=(0.5,0.5), size=size, fillcolor="808080", 
-                    fillopacity=1, color="808080")
-            self.__downNode = avg.RectNode(pos=(0.5,0.5), size=size, fillcolor="C0C0C0", 
-                    fillopacity=1, color="C0C0C0")
-            self.__disabledNode = avg.RectNode(pos=(0.5,0.5), size=size,
-                    fillcolor="404040", fillopacity=1, color="C0C0C0")
+            if orientation == slider.Orientation.HORIZONTAL:
+                childPos = (0.5, 1.5)
+                self.__sizeDiff = (0,-2)
+            else:
+                childPos=(1.5, 0.5)
+                self.__sizeDiff = (-2,0)
+            childSize = avg.Point2D(size) - self.__sizeDiff 
+            style = avg.Style(pos=childPos, size=childSize, fillopacity=1)
+            self.__upNode = avg.RectNode(fillcolor="808080", color="808080", style=style)
+            self.__downNode = avg.RectNode(fillcolor="C0C0C0", color="C0C0C0", 
+                    style=style)
+            self.__disabledNode = avg.RectNode(fillcolor="404040", color="C0C0C0",
+                    style=style)
             nodeMap = {
                 "UP": self.__upNode,
                 "DOWN": self.__downNode,
@@ -169,7 +177,7 @@ class ScrollBar(slider.ScrollBar):
             else:
                 self.size = (self.size.x, extent)
             for node in self.__upNode, self.__downNode, self.__disabledNode:
-                node.size = self.size
+                node.size = self.size + self.__sizeDiff
 
         extent = property(getExtent, setExtent)
 
