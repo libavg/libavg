@@ -107,7 +107,7 @@ class TextButton(button.Button):
 class ScrollBar(slider.ScrollBar):
 
     class Background(button.SwitchNode):
-        def __init__(self, size, orientation=slider.Orientation.HORIZONTAL, **kwargs):
+        def __init__(self, size, orientation, **kwargs):
             self.__orientation = orientation
             style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
             self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
@@ -139,7 +139,7 @@ class ScrollBar(slider.ScrollBar):
 
 
     class Slider(button.SwitchNode):
-        def __init__(self, size, orientation=slider.Orientation.HORIZONTAL, **kwargs):
+        def __init__(self, size, orientation, **kwargs):
             self.__orientation = orientation
             childSize = avg.Point2D(size) - (2,2)
             style = avg.Style(pos=(1.5,1.5), size=childSize, fillopacity=1)
@@ -173,10 +173,10 @@ class ScrollBar(slider.ScrollBar):
         extent = property(getExtent, setExtent)
 
 
-    def __init__(self, **kwargs):
-        bkgdNode = ScrollBar.Background(kwargs["size"])
-        sliderNode = ScrollBar.Slider(kwargs["size"])
+    def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
+        bkgdNode = ScrollBar.Background(kwargs["size"], orientation)
+        sliderNode = ScrollBar.Slider(kwargs["size"], orientation)
 
-        super(ScrollBar, self).__init__(backgroundNode=bkgdNode, sliderNode=sliderNode,
-                **kwargs)
+        super(ScrollBar, self).__init__(orientation=orientation, backgroundNode=bkgdNode,
+                sliderNode=sliderNode, **kwargs)
 
