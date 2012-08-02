@@ -106,7 +106,7 @@ class TextButton(button.Button):
 
 class ScrollBar(slider.ScrollBar):
 
-    class Background(button.SwitchNode):
+    class Track(button.SwitchNode):
         def __init__(self, size, orientation, **kwargs):
             self.__orientation = orientation
             style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
@@ -118,7 +118,7 @@ class ScrollBar(slider.ScrollBar):
                 "ENABLED": self.__enabledNode,
                 "DISABLED": self.__disabledNode
             }
-            super(ScrollBar.Background, self).__init__(
+            super(ScrollBar.Track, self).__init__(
                     nodeMap=nodeMap, visibleID="ENABLED", size=size)
 
         def getExtent(self):
@@ -174,9 +174,9 @@ class ScrollBar(slider.ScrollBar):
 
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
-        bkgdNode = ScrollBar.Background(kwargs["size"], orientation)
-        sliderNode = ScrollBar.Slider(kwargs["size"], orientation)
+        trackNode = ScrollBar.Track(kwargs["size"], orientation)
+        thumbNode = ScrollBar.Slider(kwargs["size"], orientation)
 
-        super(ScrollBar, self).__init__(orientation=orientation, backgroundNode=bkgdNode,
-                sliderNode=sliderNode, **kwargs)
+        super(ScrollBar, self).__init__(orientation=orientation, trackNode=trackNode,
+                thumbNode=thumbNode, **kwargs)
 

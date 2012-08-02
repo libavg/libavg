@@ -551,29 +551,29 @@ class UITestCase(AVGTestCase):
         def createNode(orientation):
             if orientation == ui.Orientation.HORIZONTAL:
                 self.node = ui.BmpScrollBar(orientation=orientation,
-                        bkgdSrc="media/scrollbar_horiz_bkgd.png",
-                        bkgdDisabledSrc="media/scrollbar_horiz_bkgd_disabled.png",
-                        bkgdEndsExtent=2,
-                        sliderUpSrc="media/scrollbar_horiz_slider_up.png",
-                        sliderDownSrc="media/scrollbar_horiz_slider_down.png",
-                        sliderDisabledSrc="media/scrollbar_horiz_slider_disabled.png",
-                        sliderEndsExtent=4,
+                        trackSrc="media/scrollbar_horiz_track.png",
+                        trackDisabledSrc="media/scrollbar_horiz_track_disabled.png",
+                        trackEndsExtent=2,
+                        thumbUpSrc="media/scrollbar_horiz_thumb_up.png",
+                        thumbDownSrc="media/scrollbar_horiz_thumb_down.png",
+                        thumbDisabledSrc="media/scrollbar_horiz_thumb_disabled.png",
+                        thumbEndsExtent=4,
                         width=100,
                         parent=root)
             else:
                 self.node = ui.BmpScrollBar(orientation=orientation,
-                        bkgdSrc="media/scrollbar_vert_bkgd.png",
-                        bkgdDisabledSrc="media/scrollbar_vert_bkgd_disabled.png",
-                        bkgdEndsExtent=2,
-                        sliderUpSrc="media/scrollbar_vert_slider_up.png",
-                        sliderDownSrc="media/scrollbar_vert_slider_down.png",
-                        sliderDisabledSrc="media/scrollbar_vert_slider_disabled.png",
-                        sliderEndsExtent=4,
+                        trackSrc="media/scrollbar_vert_track.png",
+                        trackDisabledSrc="media/scrollbar_vert_track_disabled.png",
+                        trackEndsExtent=2,
+                        thumbUpSrc="media/scrollbar_vert_thumb_up.png",
+                        thumbDownSrc="media/scrollbar_vert_thumb_down.png",
+                        thumbDisabledSrc="media/scrollbar_vert_thumb_disabled.png",
+                        thumbEndsExtent=4,
                         height=100,
                         parent=root)
 
-        def onSliderPosChanged(pos):
-            self.sliderpos = pos
+        def onThumbPosChanged(pos):
+            self.thumbpos = pos
 
         for orientation, orName in (
                 (ui.Orientation.HORIZONTAL,"Horiz"),
@@ -582,11 +582,11 @@ class UITestCase(AVGTestCase):
             self.start(False,
                     (lambda: createNode(orientation),
                      lambda: self.compareImage("testScrollBar"+orName+"1"),
-                     lambda: self.node.setSliderExtent(0.5),
+                     lambda: self.node.setThumbExtent(0.5),
                      lambda: self.compareImage("testScrollBar"+orName+"2"),
-                     lambda: self.node.setSliderPos(0.5),
+                     lambda: self.node.setThumbPos(0.5),
                      lambda: self.compareImage("testScrollBar"+orName+"3"),
-                     lambda: self.node.setSliderPos(1),
+                     lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testScrollBar"+orName+"4"),
                     ))
 
@@ -594,33 +594,33 @@ class UITestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.start(False,
                 (lambda: createNode(ui.Orientation.HORIZONTAL),
-                 lambda: self.node.setSliderExtent(0.5),
+                 lambda: self.node.setThumbExtent(0.5),
                  # User input
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
                  lambda: self.compareImage("testScrollBarHoriz5"),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
                  lambda: self.compareImage("testScrollBarHoriz6"),
-                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0.5),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.5),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 25, 10),
                  lambda: self.compareImage("testScrollBarHoriz7"),
-                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 10),
                  lambda: self.compareImage("testScrollBarHoriz8"),
-                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
 
                  # Publish/Subscribe interface
-                 lambda: self.node.subscribe(ui.ScrollBar.SLIDER_POS_CHANGED, 
-                        onSliderPosChanged),
+                 lambda: self.node.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, 
+                        onThumbPosChanged),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 50, 10),
-                 lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+                 lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
 
                  # Enable/disable
                  lambda: self.node.setEnabled(False),
                  lambda: self.compareImage("testScrollBarHoriz9"),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
-                 lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+                 lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
                  lambda: self.node.setEnabled(True),
                  lambda: self.compareImage("testScrollBarHoriz10"),
 
@@ -628,7 +628,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
                  lambda: self.node.setEnabled(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
-                 lambda: self.assertAlmostEqual(self.sliderpos, 0.5),
+                 lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
                  lambda: self.node.setEnabled(True),
                  lambda: self.compareImage("testScrollBarHoriz10"),
                 ))
@@ -637,19 +637,19 @@ class UITestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.start(False,
                 (lambda: createNode(ui.Orientation.VERTICAL),
-                 lambda: self.node.setSliderExtent(0.5),
+                 lambda: self.node.setThumbExtent(0.5),
                  # User input
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 25),
                  lambda: self.compareImage("testScrollBarVert5"),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 50),
                  lambda: self.compareImage("testScrollBarVert6"),
-                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0.5),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.5),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 25),
                  lambda: self.compareImage("testScrollBarVert7"),
-                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 10, 0),
                  lambda: self.compareImage("testScrollBarVert8"),
-                 lambda: self.assertAlmostEqual(self.node.getSliderPos(), 0),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                 ))
 
     def testSimpleScrollBar(self):
@@ -669,7 +669,7 @@ class UITestCase(AVGTestCase):
             self.start(False,
                     (lambda: createNode(),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"1"),
-                     lambda: self.node.setSliderPos(1),
+                     lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"2"),
                     ))
 

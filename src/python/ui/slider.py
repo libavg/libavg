@@ -71,6 +71,7 @@ class AccordionNode(avg.DivNode):
     extent = property(getExtent, setExtent)
 
     def __positionNodes(self, extent):
+        self.__extent = extent
         if self.__orientation == Orientation.HORIZONTAL:
             self.__centerImg.x = self.__endsExtent
             self.__centerImg.width = extent - self.__endsExtent*2
@@ -100,13 +101,13 @@ class AccordionNode(avg.DivNode):
         return resultImg
 
 
-class ScrollBarBackground(SwitchNode):
+class ScrollBarTrack(SwitchNode):
     
     def __init__(self, enabledSrc, disabledSrc, endsExtent, 
             orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
             **kwargs):
       
-        super(ScrollBarBackground, self).__init__(nodeMap=None, **kwargs)
+        super(ScrollBarTrack, self).__init__(nodeMap=None, **kwargs)
         self.__enabledNode = AccordionNode(src=enabledSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent,
                 parent=self)
@@ -131,13 +132,13 @@ class ScrollBarBackground(SwitchNode):
     extent = property(getExtent, setExtent)
 
 
-class ScrollBarSlider(SwitchNode):
+class ScrollBarThumb(SwitchNode):
     
     def __init__(self, upSrc, downSrc, disabledSrc, endsExtent, 
             orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
             **kwargs):
       
-        super(ScrollBarSlider, self).__init__(nodeMap=None, **kwargs)
+        super(ScrollBarThumb, self).__init__(nodeMap=None, **kwargs)
         self.__upNode = AccordionNode(src=upSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent)
         self.__downNode = AccordionNode(src=downSrc, endsExtent=endsExtent,
@@ -154,7 +155,7 @@ class ScrollBarSlider(SwitchNode):
         self.size = self.__upNode.size
         
     def getExtent(self):
-        return self.__enabledNode.extent
+        return self.__upNode.extent
 
     def setExtent(self, extent):
         self.__upNode.extent = extent
@@ -167,35 +168,35 @@ class ScrollBarSlider(SwitchNode):
 
 class ScrollBar(avg.DivNode):
    
-    SLIDER_POS_CHANGED = avg.Node.LAST_MESSAGEID
+    THUMB_POS_CHANGED = avg.Node.LAST_MESSAGEID
 
-    def __init__(self, backgroundNode, sliderNode, enabled=True, 
+    def __init__(self, trackNode, thumbNode, enabled=True, 
             orientation=Orientation.HORIZONTAL, range=(0.,1.), 
-            sliderPos=0.0, sliderExtent=0.1, sliderPosChangedHandler=None,
+            thumbPos=0.0, thumbExtent=0.1, thumbPosChangedHandler=None,
             parent=None, **kwargs):
         super(ScrollBar, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         
         self.__orientation = orientation
 
-        self.__backgroundNode = backgroundNode
-        self.appendChild(self.__backgroundNode)
+        self.__trackNode = trackNode
+        self.appendChild(self.__trackNode)
 
-        self.__sliderNode = sliderNode
-        self.appendChild(self.__sliderNode)
+        self.__thumbNode = thumbNode
+        self.appendChild(self.__thumbNode)
 
         self.__range = range
-        self.__sliderPos = sliderPos
-        self.__sliderExtent = sliderExtent
+        self.__thumbPos = thumbPos
+        self.__thumbExtent = thumbExtent
 
         self.__positionNodes()
 
-        self.__recognizer = gesture.DragRecognizer(self.__sliderNode, 
+        self.__recognizer = gesture.DragRecognizer(self.__thumbNode, 
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onDrag)
-        self.publish(ScrollBar.SLIDER_POS_CHANGED)
-        if sliderPosChangedHandler:
-            self.subscribe(ScrollBar.SLIDER_POS_CHANGED, sliderPosChangedHandler)
+        self.publish(ScrollBar.THUMB_POS_CHANGED)
+        if thumbPosChangedHandler:
+            self.subscribe(ScrollBar.THUMB_POS_CHANGED, thumbPosChangedHandler)
 
         if not(enabled):
             self.setEnabled(False)
@@ -209,93 +210,93 @@ class ScrollBar(avg.DivNode):
 
     range = property(getRange, setRange)
 
-    def getSliderPos(self):
-        return self.__sliderPos
+    def getThumbPos(self):
+        return self.__thumbPos
 
-    def setSliderPos(self, sliderPos):
-        self.__positionNodes(sliderPos)
+    def setThumbPos(self, thumbPos):
+        self.__positionNodes(thumbPos)
 
-    sliderPos = property(getSliderPos, setSliderPos)
+    thumbPos = property(getThumbPos, setThumbPos)
 
-    def getSliderExtent(self):
-        return self.__sliderExtent
+    def getThumbExtent(self):
+        return self.__thumbExtent
 
-    def setSliderExtent(self, sliderExtent):
-        self.__sliderExtent = float(sliderExtent)
+    def setThumbExtent(self, thumbExtent):
+        self.__thumbExtent = float(thumbExtent)
         self.__positionNodes()
 
-    sliderExtent = property(getSliderExtent, setSliderExtent)
+    thumbExtent = property(getThumbExtent, setThumbExtent)
 
     def getEnabled(self):
-        return self.__backgroundNode.visibleID != "DISABLED"
+        return self.__trackNode.visibleID != "DISABLED"
 
     def setEnabled(self, enabled):
         if enabled:
-            if self.__backgroundNode.visibleID == "DISABLED":
-                self.__backgroundNode.visibleID = "ENABLED"
-                self.__sliderNode.visibleID = "UP"
+            if self.__trackNode.visibleID == "DISABLED":
+                self.__trackNode.visibleID = "ENABLED"
+                self.__thumbNode.visibleID = "UP"
                 self.__recognizer.enable(True)
         else:
-            if self.__backgroundNode.visibleID != "DISABLED":
-                self.__backgroundNode.visibleID = "DISABLED"
-                self.__sliderNode.visibleID = "DISABLED"
+            if self.__trackNode.visibleID != "DISABLED":
+                self.__trackNode.visibleID = "DISABLED"
+                self.__thumbNode.visibleID = "DISABLED"
                 self.__recognizer.enable(False)
 
     enabled = property(getEnabled, setEnabled)
 
     def __onDragStart(self, event):
-        self.__sliderNode.visibleID = "DOWN"
-        self.__dragStartPos = self.__sliderPos
+        self.__thumbNode.visibleID = "DOWN"
+        self.__dragStartPos = self.__thumbPos
 
     def __onDrag(self, event, offset):
         effectiveRange = self.__range[1] - self.__range[0]
         if self.__orientation == Orientation.HORIZONTAL:
-            normalizedOffset = (offset.x/(self.size.x-self.__sliderNode.extent))
+            normalizedOffset = (offset.x/(self.size.x-self.__thumbNode.extent))
         else:
-            normalizedOffset = (offset.y/(self.size.y-self.__sliderNode.extent))
+            normalizedOffset = (offset.y/(self.size.y-self.__thumbNode.extent))
         self.__positionNodes(self.__dragStartPos + normalizedOffset*effectiveRange)
         if event.type == avg.CURSORUP:
-            self.__sliderNode.visibleID = "UP"
+            self.__thumbNode.visibleID = "UP"
 
     def __positionNodes(self, newSliderPos=None):
-        oldSliderPos = self.__sliderPos
+        oldThumbPos = self.__thumbPos
         if newSliderPos is not None:
-            self.__sliderPos = float(newSliderPos)
+            self.__thumbPos = float(newSliderPos)
         if self.__orientation == Orientation.HORIZONTAL:
-            self.__backgroundNode.extent = self.width
+            self.__trackNode.extent = self.width
         else:
-            self.__backgroundNode.extent = self.height
+            self.__trackNode.extent = self.height
         self.__constrainSliderPos()
-        if self.__sliderPos != oldSliderPos:
-            self.notifySubscribers(ScrollBar.SLIDER_POS_CHANGED, [self.__sliderPos])
+        if self.__thumbPos != oldThumbPos:
+            self.notifySubscribers(ScrollBar.THUMB_POS_CHANGED, [self.__thumbPos])
 
         effectiveRange = self.__range[1] - self.__range[0]
         if self.__orientation == Orientation.HORIZONTAL:
-            self.__sliderNode.x = ((self.__sliderPos/effectiveRange)*
-                    (self.size.x-self.__sliderNode.extent))
-            self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.x
+            self.__thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.x
+            self.__thumbNode.x = ((self.__thumbPos/effectiveRange)*
+                    (self.size.x-self.__thumbNode.extent))
         else:
-            self.__sliderNode.y = ((self.__sliderPos/effectiveRange)*
-                    (self.size.y-self.__sliderNode.extent))
-            self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.y
-        self.size = self.__backgroundNode.size
+            self.__thumbNode.y = ((self.__thumbPos/effectiveRange)*
+                    (self.size.y-self.__thumbNode.extent))
+            self.__thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.y
+        self.size = self.__trackNode.size
 
     def __constrainSliderPos(self):
-        self.__sliderPos = max(self.__range[0], self.__sliderPos)
-        self.__sliderPos = min(self.__range[1], self.__sliderPos)
+        self.__thumbPos = max(self.__range[0], self.__thumbPos)
+        self.__thumbPos = min(self.__range[1], self.__thumbPos)
 
 
 class BmpScrollBar(ScrollBar):
 
-    def __init__(self, bkgdSrc, bkgdDisabledSrc, bkgdEndsExtent,
-            sliderUpSrc, sliderDownSrc, sliderDisabledSrc, sliderEndsExtent,
+    def __init__(self, trackSrc, trackDisabledSrc, trackEndsExtent,
+            thumbUpSrc, thumbDownSrc, thumbDisabledSrc, thumbEndsExtent,
             orientation=Orientation.HORIZONTAL, **kwargs):
-        backgroundNode = ScrollBarBackground(orientation=orientation, enabledSrc=bkgdSrc, 
-                disabledSrc=bkgdDisabledSrc, endsExtent=bkgdEndsExtent)
-        sliderNode = ScrollBarSlider(orientation=orientation, 
-                upSrc=sliderUpSrc, downSrc=sliderDownSrc, 
-                disabledSrc=sliderDisabledSrc, endsExtent=sliderEndsExtent)
+        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
+                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
+        thumbNode = ScrollBarThumb(orientation=orientation, 
+                upSrc=thumbUpSrc, downSrc=thumbDownSrc, 
+                disabledSrc=thumbDisabledSrc, endsExtent=thumbEndsExtent)
         
-        super(BmpScrollBar, self).__init__(backgroundNode=backgroundNode, 
-                orientation=orientation, sliderNode=sliderNode, **kwargs)
+        super(BmpScrollBar, self).__init__(trackNode=trackNode, 
+                orientation=orientation, thumbNode=thumbNode, **kwargs)
 
