@@ -104,39 +104,81 @@ class TextButton(button.Button):
         kwargs["downNode"] = downNode
         super(TextButton, self).__init__(**kwargs)
 
-class ScrollBar(slider.ScrollBar):
 
-    class Track(button.SwitchNode):
-        def __init__(self, size, orientation, **kwargs):
-            self.__orientation = orientation
-            style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
-            self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
+class SliderTrack(button.SwitchNode):
+    def __init__(self, size, orientation, **kwargs):
+        self.__orientation = orientation
+        style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
+        self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
+                style=style)
+        self.__disabledNode = avg.RectNode(fillcolor="404040", color="C0C0C0",
+                style=style)
+        nodeMap = {
+            "ENABLED": self.__enabledNode,
+            "DISABLED": self.__disabledNode
+        }
+        super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleID="ENABLED", size=size,
+                **kwargs)
+
+    def getExtent(self):
+        if self.__orientation == slider.Orientation.HORIZONTAL:
+            return self.__enabledNode.width
+        else:
+            return self.__enabledNode.height
+
+    def setExtent(self, extent):
+        if self.__orientation == slider.Orientation.HORIZONTAL:
+            self.size = (extent, self.size.y)
+        else:
+            self.size = (self.size.x, extent)
+        for node in self.__enabledNode, self.__disabledNode:
+            node.size = self.size
+
+    extent = property(getExtent, setExtent)
+
+
+class Slider(slider.Slider):
+    
+    class Thumb(button.SwitchNode):
+
+        def __init__(self, orientation, **kwargs):
+            if orientation == slider.Orientation.HORIZONTAL:
+                pos=((1,0), (13,0), (7,18))
+            else:
+                pos=((18,1), (18,13), (1,7))
+            
+            style = avg.Style(pos=pos, fillopacity=1)
+            self.__upNode = avg.PolygonNode(fillcolor="808080", color="FFFFFF",
                     style=style)
-            self.__disabledNode = avg.RectNode(fillcolor="404040", color="C0C0C0",
+            self.__downNode = avg.PolygonNode(fillcolor="C0C0C0", color="FFFFFF",
+                    style=style)
+            self.__disabledNode = avg.PolygonNode(fillcolor="404040", color="C0C0C0",
                     style=style)
             nodeMap = {
-                "ENABLED": self.__enabledNode,
+                "UP": self.__upNode,
+                "DOWN": self.__downNode,
                 "DISABLED": self.__disabledNode
             }
-            super(ScrollBar.Track, self).__init__(
-                    nodeMap=nodeMap, visibleID="ENABLED", size=size)
+            super(Slider.Thumb, self).__init__(
+                    nodeMap=nodeMap, visibleID="UP", size=(14,20))
 
-        def getExtent(self):
-            if self.__orientation == slider.Orientation.HORIZONTAL:
-                return self.__enabledNode.width
-            else:
-                return self.__enabledNode.height
+    def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
+        
+        size = avg.Point2D(kwargs["size"])
+        if orientation == slider.Orientation.HORIZONTAL:
+            trackPos = (7, 10)
+            trackSize = (size.x, 4) 
+        else:
+            trackPos = (6, 7)
+            trackSize = (4, size.y) 
+        trackNode = SliderTrack(pos=trackPos, size=trackSize, orientation=orientation)
+        thumbNode = Slider.Thumb(orientation)
 
-        def setExtent(self, extent):
-            if self.__orientation == slider.Orientation.HORIZONTAL:
-                self.size = (extent, self.size.y)
-            else:
-                self.size = (self.size.x, extent)
-            for node in self.__enabledNode, self.__disabledNode:
-                node.size = self.size
+        super(Slider, self).__init__(orientation=orientation, trackNode=trackNode,
+                thumbNode=thumbNode, **kwargs)
 
-        extent = property(getExtent, setExtent)
 
+class ScrollBar(slider.ScrollBar):
 
     class Thumb(button.SwitchNode):
         def __init__(self, size, orientation, **kwargs):
@@ -174,7 +216,7 @@ class ScrollBar(slider.ScrollBar):
 
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
-        trackNode = ScrollBar.Track(kwargs["size"], orientation)
+        trackNode = SliderTrack(kwargs["size"], orientation)
         thumbNode = ScrollBar.Thumb(kwargs["size"], orientation)
 
         super(ScrollBar, self).__init__(orientation=orientation, trackNode=trackNode,

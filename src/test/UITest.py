@@ -676,6 +676,27 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"2"),
                     ))
 
+    def testSimpleSlider(self):
+
+        def createNode():
+            if orientation == ui.Orientation.HORIZONTAL:
+                size = (100, 20)
+            else:
+                size = (20, 100)
+            self.node = ui.simple.Slider(size=size, orientation=orientation,
+                    parent=root)
+
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
+            self.start(False,
+                    (lambda: createNode(),
+                     lambda: self.compareImage("testSimpleSlider"+orName+"1"),
+                     lambda: self.node.setThumbPos(1),
+                     lambda: self.compareImage("testSimpleSlider"+orName+"2"),
+                    ))
+
 def uiTestSuite(tests):
     availableTests = (
         "testKeyboard",
@@ -686,7 +707,8 @@ def uiTestSuite(tests):
         "testScrollPane",
         "testAccordionNode",
         "testScrollBar",
-        "testSimpleScrollBar"
+        "testSimpleScrollBar",
+        "testSimpleSlider"
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)
