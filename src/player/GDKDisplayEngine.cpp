@@ -110,7 +110,7 @@ GDKDisplayEngine::GDKDisplayEngine()
 
     gdk_init(NULL, NULL);
 
-    m_screen = gdk_screen_get_default ();
+    m_screen = gdk_screen_get_default();
     m_pScreen = gdk_window_new (NULL, &windowAttr, GDK_WA_TITLE | GDK_WA_X | GDK_WA_Y);
 
     gdk_window_set_events(m_pScreen, (GdkEventMask) (GDK_POINTER_MOTION_MASK |
@@ -149,7 +149,30 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             m_glFullscreenOffset.y = 0;
             m_glFullscreenOffset.x = (gdk_screen_get_width(m_screen) - m_WindowSize.x) * 0.5;
         }
+        AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
+        gdk_window_move_resize(m_pScreen, dp.m_Pos.x, dp.m_Pos.y,
+                m_WindowSize.x, m_WindowSize.y);
         gdk_window_fullscreen(m_pScreen);
+#ifdef __linux
+// Fix for broken fullscreen in gdk for mult monitor usage.
+        Display* display = gdk_x11_get_default_xdisplay();
+        XEvent xev;
+        memset(&xev, 0, sizeof(xev));
+        xev.type = ClientMessage;
+        xev.xclient.window = gdk_x11_window_get_xid(m_pScreen);
+        xev.xclient.message_type = XInternAtom(display, "_NET_WM_FULLSCREEN_MONITORS", False);
+        xev.xclient.format = 32;
+//ToDo: The monitor indices indicating the top, bottom, left, and right edges of the
+//      window are from the set returned by the Xinerama extension. 
+        xev.xclient.data.l[0] = 0; // your topmost monitor number 
+        xev.xclient.data.l[1] = 0; // bottommost 
+        xev.xclient.data.l[2] = 1; // leftmost 
+        xev.xclient.data.l[3] = 0; // rightmost 
+        xev.xclient.data.l[4] = 0; // source indication 
+
+        XSendEvent(display, DefaultRootWindow(display), False,
+        SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+#endif
     } else {
         if (dp.m_WindowSize == IntPoint(0, 0)) {
             m_WindowSize = dp.m_Size;
@@ -160,13 +183,13 @@ void GDKDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             m_WindowSize.x = dp.m_WindowSize.x;
             m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
         }
+        AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
+        gdk_window_move_resize(m_pScreen, dp.m_Pos.x, dp.m_Pos.y,
+                m_WindowSize.x, m_WindowSize.y);
     }
-    
-    AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
+
     m_bIsFullscreen = dp.m_bFullscreen;
 
-    gdk_window_move_resize(m_pScreen, dp.m_Pos.x, dp.m_Pos.y,
-            m_WindowSize.x, m_WindowSize.y);
     if (!dp.m_bHasWindowFrame) {
         gdk_window_set_decorations(m_pScreen, (GdkWMDecoration)0);
     }
