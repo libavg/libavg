@@ -138,7 +138,7 @@ class ScrollBar(slider.ScrollBar):
         extent = property(getExtent, setExtent)
 
 
-    class Slider(button.SwitchNode):
+    class Thumb(button.SwitchNode):
         def __init__(self, size, orientation, **kwargs):
             self.__orientation = orientation
             childSize = avg.Point2D(size) - (2,2)
@@ -153,7 +153,7 @@ class ScrollBar(slider.ScrollBar):
                 "DOWN": self.__downNode,
                 "DISABLED": self.__disabledNode
             }
-            super(ScrollBar.Slider, self).__init__(
+            super(ScrollBar.Thumb, self).__init__(
                     nodeMap=nodeMap, visibleID="UP", size=size)
 
         def getExtent(self):
@@ -175,7 +175,7 @@ class ScrollBar(slider.ScrollBar):
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
         trackNode = ScrollBar.Track(kwargs["size"], orientation)
-        thumbNode = ScrollBar.Slider(kwargs["size"], orientation)
+        thumbNode = ScrollBar.Thumb(kwargs["size"], orientation)
 
         super(ScrollBar, self).__init__(orientation=orientation, trackNode=trackNode,
                 thumbNode=thumbNode, **kwargs)
