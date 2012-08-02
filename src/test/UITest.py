@@ -661,6 +661,8 @@ class UITestCase(AVGTestCase):
         self.start(False,
                 (lambda: createNode(),
                  lambda: self.compareImage("testSimpleScrollBarHoriz1"),
+                 lambda: self.node.setSliderPos(1),
+                 lambda: self.compareImage("testSimpleScrollBarHoriz2"),
                 ))
 
 def uiTestSuite(tests):

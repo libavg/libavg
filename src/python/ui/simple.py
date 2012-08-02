@@ -129,14 +129,11 @@ class ScrollBar(slider.ScrollBar):
 
         def setExtent(self, extent):
             if self.__orientation == slider.Orientation.HORIZONTAL:
-                height = self.__enabledNode.size.y
-                self.__enabledNode.size = (extent, height)
-                self.__disabledNode.size = (extent, height)
+                self.size = (extent, self.size.y)
             else:
-                width = self.__enabledNode.size.x
-                self.__enabledNode.size = (width, extent)
-                self.__disabledNode.size = (width, extent)
-            self.size = self.__enabledNode.size
+                self.size = (self.size.x, extent)
+            for node in self.__enabledNode, self.__disabledNode:
+                node.size = self.size
 
         extent = property(getExtent, setExtent)
 
@@ -144,14 +141,8 @@ class ScrollBar(slider.ScrollBar):
     class Slider(button.SwitchNode):
         def __init__(self, size, orientation=slider.Orientation.HORIZONTAL, **kwargs):
             self.__orientation = orientation
-            if orientation == slider.Orientation.HORIZONTAL:
-                childPos = (0.5, 1.5)
-                self.__sizeDiff = (0,-2)
-            else:
-                childPos=(1.5, 0.5)
-                self.__sizeDiff = (-2,0)
-            childSize = avg.Point2D(size) - self.__sizeDiff 
-            style = avg.Style(pos=childPos, size=childSize, fillopacity=1)
+            childSize = avg.Point2D(size) - (2,2)
+            style = avg.Style(pos=(1.5,1.5), size=childSize, fillopacity=1)
             self.__upNode = avg.RectNode(fillcolor="808080", color="808080", style=style)
             self.__downNode = avg.RectNode(fillcolor="C0C0C0", color="C0C0C0", 
                     style=style)
@@ -177,7 +168,7 @@ class ScrollBar(slider.ScrollBar):
             else:
                 self.size = (self.size.x, extent)
             for node in self.__upNode, self.__downNode, self.__disabledNode:
-                node.size = self.size + self.__sizeDiff
+                node.size = self.size - (2,2)
 
         extent = property(getExtent, setExtent)
 
