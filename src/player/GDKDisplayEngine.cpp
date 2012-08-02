@@ -371,9 +371,16 @@ void GDKDisplayEngine::calcScreenDimensions(float dotsPerMM)
 
 bool GDKDisplayEngine::internalSetGamma(float red, float green, float blue)
 {
-  //  int err = SDL_SetGamma(float(red), float(green), float(blue));
-  //  return (err != -1);
-    return true;
+    bool err = false;
+#ifdef linux
+    XF86VidModeGamma gamma;
+    gamma.red = red;
+    gamma.green = green;
+    gamma.blue = blue;
+    err = XF86VidModeSetGamma(gdk_x11_get_default_xdisplay(), gdk_x11_screen_get_screen_number(m_screen), &gamma);
+    XF86VidModeGetGamma(gdk_x11_get_default_xdisplay(), gdk_x11_screen_get_screen_number(m_screen), &gamma);
+#endif
+    return err;
 }
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
