@@ -67,7 +67,7 @@ void GLConfig::log()
         default:
             AVG_ASSERT(false);
     }
-    AVG_TRACE(Logger::CONFIG, "  Shader usage: " << sShader << endl);
+    AVG_TRACE(Logger::CONFIG, "  Shader usage: " << sShader);
 }
 
 }
