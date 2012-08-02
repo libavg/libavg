@@ -588,6 +588,9 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testScrollBar"+orName+"3"),
                      lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testScrollBar"+orName+"4"),
+                     lambda: self.node.setRange((0,10)),
+                     lambda: self.node.setThumbPos(5),
+                     lambda: self.compareImage("testScrollBar"+orName+"5")
                     ))
 
         # Horizontal
@@ -597,15 +600,15 @@ class UITestCase(AVGTestCase):
                  lambda: self.node.setThumbExtent(0.5),
                  # User input
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
-                 lambda: self.compareImage("testScrollBarHoriz5"),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
                  lambda: self.compareImage("testScrollBarHoriz6"),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
+                 lambda: self.compareImage("testScrollBarHoriz7"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.5),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 25, 10),
-                 lambda: self.compareImage("testScrollBarHoriz7"),
+                 lambda: self.compareImage("testScrollBarHoriz8"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 10),
-                 lambda: self.compareImage("testScrollBarHoriz8"),
+                 lambda: self.compareImage("testScrollBarHoriz9"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
 
                  # Publish/Subscribe interface
@@ -617,12 +620,12 @@ class UITestCase(AVGTestCase):
 
                  # Enable/disable
                  lambda: self.node.setEnabled(False),
-                 lambda: self.compareImage("testScrollBarHoriz9"),
+                 lambda: self.compareImage("testScrollBarHoriz10"),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
                  lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
                  lambda: self.node.setEnabled(True),
-                 lambda: self.compareImage("testScrollBarHoriz10"),
+                 lambda: self.compareImage("testScrollBarHoriz11"),
 
                  # Disable after down: Drag aborted
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
@@ -630,7 +633,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
                  lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
                  lambda: self.node.setEnabled(True),
-                 lambda: self.compareImage("testScrollBarHoriz10"),
+                 lambda: self.compareImage("testScrollBarHoriz11"),
                 ))
 
         # Vertical
@@ -640,15 +643,15 @@ class UITestCase(AVGTestCase):
                  lambda: self.node.setThumbExtent(0.5),
                  # User input
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 25),
-                 lambda: self.compareImage("testScrollBarVert5"),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 50),
                  lambda: self.compareImage("testScrollBarVert6"),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 50),
+                 lambda: self.compareImage("testScrollBarVert7"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.5),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 25),
-                 lambda: self.compareImage("testScrollBarVert7"),
+                 lambda: self.compareImage("testScrollBarVert8"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 10, 0),
-                 lambda: self.compareImage("testScrollBarVert8"),
+                 lambda: self.compareImage("testScrollBarVert9"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                 ))
 
