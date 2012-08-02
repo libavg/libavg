@@ -655,15 +655,23 @@ class UITestCase(AVGTestCase):
     def testSimpleScrollBar(self):
 
         def createNode():
-            self.node = ui.simple.ScrollBar(size=(100,20), parent=root)
+            if orientation == ui.Orientation.HORIZONTAL:
+                size = (100, 20)
+            else:
+                size = (20, 100)
+            self.node = ui.simple.ScrollBar(size=size, orientation=orientation,
+                    parent=root)
 
-        root = self.loadEmptyScene()
-        self.start(False,
-                (lambda: createNode(),
-                 lambda: self.compareImage("testSimpleScrollBarHoriz1"),
-                 lambda: self.node.setSliderPos(1),
-                 lambda: self.compareImage("testSimpleScrollBarHoriz2"),
-                ))
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
+            self.start(False,
+                    (lambda: createNode(),
+                     lambda: self.compareImage("testSimpleScrollBar"+orName+"1"),
+                     lambda: self.node.setSliderPos(1),
+                     lambda: self.compareImage("testSimpleScrollBar"+orName+"2"),
+                    ))
 
 def uiTestSuite(tests):
     availableTests = (
