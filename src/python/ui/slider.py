@@ -204,7 +204,7 @@ class ScrollBar(avg.DivNode):
         return self.__range
 
     def setRange(self, range):
-        self.__range = range
+        self.__range = (float(range[0]), float(range[1]))
         self.__positionNodes()
 
     range = property(getRange, setRange)
@@ -221,7 +221,7 @@ class ScrollBar(avg.DivNode):
         return self.__sliderExtent
 
     def setSliderExtent(self, sliderExtent):
-        self.__sliderExtent = sliderExtent
+        self.__sliderExtent = float(sliderExtent)
         self.__positionNodes()
 
     sliderExtent = property(getSliderExtent, setSliderExtent)
@@ -250,17 +250,17 @@ class ScrollBar(avg.DivNode):
     def __onDrag(self, event, offset):
         effectiveRange = self.__range[1] - self.__range[0]
         if self.__orientation == Orientation.HORIZONTAL:
-            scaledOffset = (offset.x/(self.size.x*(1-self.__sliderExtent)))*effectiveRange
+            normalizedOffset = (offset.x/(self.size.x-self.__sliderNode.extent))
         else:
-            scaledOffset = (offset.y/(self.size.y*(1-self.__sliderExtent)))*effectiveRange
-        self.__positionNodes(self.__dragStartPos + scaledOffset)
+            normalizedOffset = (offset.y/(self.size.y-self.__sliderNode.extent))
+        self.__positionNodes(self.__dragStartPos + normalizedOffset*effectiveRange)
         if event.type == avg.CURSORUP:
             self.__sliderNode.visibleID = "UP"
 
     def __positionNodes(self, newSliderPos=None):
         oldSliderPos = self.__sliderPos
         if newSliderPos is not None:
-            self.__sliderPos = newSliderPos
+            self.__sliderPos = float(newSliderPos)
         if self.__orientation == Orientation.HORIZONTAL:
             self.__backgroundNode.extent = self.width
         else:
@@ -272,11 +272,11 @@ class ScrollBar(avg.DivNode):
         effectiveRange = self.__range[1] - self.__range[0]
         if self.__orientation == Orientation.HORIZONTAL:
             self.__sliderNode.x = ((self.__sliderPos/effectiveRange)*
-                    (self.size.x*(1-self.__sliderExtent)))
+                    (self.size.x-self.__sliderNode.extent))
             self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.x
         else:
             self.__sliderNode.y = ((self.__sliderPos/effectiveRange)*
-                    (self.size.y*(1-self.__sliderExtent)))
+                    (self.size.y-self.__sliderNode.extent))
             self.__sliderNode.extent = (self.__sliderExtent/effectiveRange)*self.size.y
         self.size = self.__backgroundNode.size
 
