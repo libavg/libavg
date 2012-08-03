@@ -21,8 +21,8 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _SDLAudioEngine_H_
-#define _SDLAudioEngine_H_
+#ifndef _AOAudioEngine_H_
+#define _AOAudioEngine_H_
 
 #include "../api.h"
 #include "AudioEngine.h"
@@ -35,12 +35,12 @@
 
 namespace avg {
 
-class AVG_API SDLAudioEngine : public AudioEngine
+class AVG_API AOAudioEngine : public AudioEngine
 {   
     public:
-        static SDLAudioEngine* get();
-        SDLAudioEngine();
-        virtual ~SDLAudioEngine();
+        static AOAudioEngine* get();
+        AOAudioEngine();
+        virtual ~AOAudioEngine();
         
         virtual int getChannels();
         virtual int getSampleRate();
@@ -70,7 +70,7 @@ class AVG_API SDLAudioEngine : public AudioEngine
         IProcessor<float>* m_pLimiter;
         boost::mutex m_Mutex;
 
-        static SDLAudioEngine* s_pInstance;
+        static AOAudioEngine* s_pInstance;
 };
 
 }

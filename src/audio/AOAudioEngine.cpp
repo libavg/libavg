@@ -21,7 +21,7 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#include "SDLAudioEngine.h"
+#include "AOAudioEngine.h"
 #include "Dynamics.h"
 
 #include "../base/Exception.h"
@@ -34,27 +34,27 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-SDLAudioEngine* SDLAudioEngine::s_pInstance = 0;
+AOAudioEngine* AOAudioEngine::s_pInstance = 0;
 
-SDLAudioEngine* SDLAudioEngine::get()
+AOAudioEngine* AOAudioEngine::get()
 {
     return s_pInstance;
 }
 
-SDLAudioEngine::SDLAudioEngine()
+AOAudioEngine::AOAudioEngine()
     : m_pTempBuffer(),
       m_pMixBuffer(0),
       m_pLimiter(0)
 {
     AVG_ASSERT(s_pInstance == 0);
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
-        AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
+        AVG_TRACE(Logger::ERROR, "Can't init AO audio subsystem.");
         exit(-1);
     }
     s_pInstance = this;
 }
 
-SDLAudioEngine::~SDLAudioEngine()
+AOAudioEngine::~AOAudioEngine()
 {
     if (m_pMixBuffer) {
         delete[] m_pMixBuffer;
@@ -62,17 +62,17 @@ SDLAudioEngine::~SDLAudioEngine()
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
-int SDLAudioEngine::getChannels()
+int AOAudioEngine::getChannels()
 {
     return m_AP.m_Channels;
 }
 
-int SDLAudioEngine::getSampleRate()
+int AOAudioEngine::getSampleRate()
 {
     return m_AP.m_SampleRate;
 }
 
-const AudioParams * SDLAudioEngine::getParams()
+const AudioParams * AOAudioEngine::getParams()
 {
     if (isEnabled()) {
         return &m_AP;
@@ -81,7 +81,7 @@ const AudioParams * SDLAudioEngine::getParams()
     }
 }
 
-void SDLAudioEngine::init(const AudioParams& ap, float volume) 
+void AOAudioEngine::init(const AudioParams& ap, float volume) 
 {
     AudioEngine::init(ap, volume);
     m_AP = ap;
@@ -108,7 +108,7 @@ void SDLAudioEngine::init(const AudioParams& ap, float volume)
     }
 }
 
-void SDLAudioEngine::teardown()
+void AOAudioEngine::teardown()
 {
     {
         mutex::scoped_lock Lock(m_Mutex);
@@ -124,7 +124,7 @@ void SDLAudioEngine::teardown()
     }
 }
 
-void SDLAudioEngine::setAudioEnabled(bool bEnabled)
+void AOAudioEngine::setAudioEnabled(bool bEnabled)
 {
     SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
@@ -132,17 +132,17 @@ void SDLAudioEngine::setAudioEnabled(bool bEnabled)
     SDL_UnlockAudio();
 }
 
-void SDLAudioEngine::play()
+void AOAudioEngine::play()
 {
     SDL_PauseAudio(0);
 }
 
-void SDLAudioEngine::pause()
+void AOAudioEngine::pause()
 {
     SDL_PauseAudio(1);
 }
 
-void SDLAudioEngine::addSource(IAudioSource* pSource)
+void AOAudioEngine::addSource(IAudioSource* pSource)
 {
     SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
@@ -150,7 +150,7 @@ void SDLAudioEngine::addSource(IAudioSource* pSource)
     SDL_UnlockAudio();
 }
 
-void SDLAudioEngine::removeSource(IAudioSource* pSource)
+void AOAudioEngine::removeSource(IAudioSource* pSource)
 {
     SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
@@ -158,7 +158,7 @@ void SDLAudioEngine::removeSource(IAudioSource* pSource)
     SDL_UnlockAudio();
 }
 
-void SDLAudioEngine::setVolume(float volume)
+void AOAudioEngine::setVolume(float volume)
 {
     SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
@@ -166,7 +166,7 @@ void SDLAudioEngine::setVolume(float volume)
     SDL_UnlockAudio();
 }
 
-void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
+void AOAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
 {
     int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
 
@@ -202,13 +202,13 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
     }
 }
 
-void SDLAudioEngine::audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen)
+void AOAudioEngine::audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen)
 {
-    SDLAudioEngine *pThis = (SDLAudioEngine*)userData;
+    AOAudioEngine *pThis = (AOAudioEngine*)userData;
     pThis->mixAudio(audioBuffer, audioBufferLen);
 }
 
-void SDLAudioEngine::addBuffers(float *pDest, AudioBufferPtr pSrc)
+void AOAudioEngine::addBuffers(float *pDest, AudioBufferPtr pSrc)
 {
     int numFrames = pSrc->getNumFrames();
     short * pData = pSrc->getData();
@@ -217,7 +217,7 @@ void SDLAudioEngine::addBuffers(float *pDest, AudioBufferPtr pSrc)
     }
 }
 
-void SDLAudioEngine::calcVolume(float *pBuffer, int numSamples, float volume)
+void AOAudioEngine::calcVolume(float *pBuffer, int numSamples, float volume)
 {
     // TODO: We need a VolumeFader class that keeps state.
     for(int i = 0; i < numSamples; ++i) {
