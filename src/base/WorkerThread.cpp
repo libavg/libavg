@@ -37,6 +37,9 @@ void printAffinityMask(cpu_set_t& mask)
 
 void setAffinityMask(bool bIsMainThread)
 {
+    // The main thread gets the first processor to itself. All other threads share the
+    // rest of the processors available, unless, of course, there is only one processor
+    // in the machine.
 #ifdef linux
     static cpu_set_t allProcessors;
     static bool bInitialized = false;
@@ -54,12 +57,12 @@ void setAffinityMask(bool bIsMainThread)
 //        cerr << "Main Thread: ";
     } else {
         mask = allProcessors;
-
-        CPU_CLR(0, &mask);
+        if (CPU_COUNT(&mask) > 1) {
+            CPU_CLR(0, &mask);
+        }
 //        cerr << "Aux Thread: ";
     }
 //    printAffinityMask(mask);
-
     int rc = sched_setaffinity(0, sizeof(mask), &mask);
     AVG_ASSERT(rc == 0);
 #endif
