@@ -25,15 +25,15 @@ namespace avg {
 
 using namespace std;
 
+#ifdef linux
 void printAffinityMask(cpu_set_t& mask)
 {
-#ifdef linux
     for (int i=0; i<32; ++i) {
         cerr << int(CPU_ISSET(i, &mask));
     }
     cerr << endl;
-#endif
 }
+#endif
 
 void setAffinityMask(bool bIsMainThread)
 {
