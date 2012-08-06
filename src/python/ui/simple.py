@@ -81,8 +81,10 @@ class Slider(slider.Slider):
         def __init__(self, orientation, **kwargs):
             if orientation == slider.Orientation.HORIZONTAL:
                 pos=((1,0), (13,0), (7,18))
+                size=(14,20)
             else:
                 pos=((18,1), (18,13), (1,7))
+                size=(20,14)
             
             style = avg.Style(pos=pos, fillopacity=1)
             self.__upNode = avg.PolygonNode(fillcolor="808080", color="FFFFFF",
@@ -97,7 +99,7 @@ class Slider(slider.Slider):
                 "DISABLED": self.__disabledNode
             }
             super(Slider.Thumb, self).__init__(
-                    nodeMap=nodeMap, visibleID="UP", size=(14,20), **kwargs)
+                    nodeMap=nodeMap, visibleID="UP", size=size, **kwargs)
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
         

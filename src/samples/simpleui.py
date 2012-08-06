@@ -9,7 +9,7 @@ class SimpleUIApp(AVGApp):
         hScrollBar = simple.ScrollBar(pos=(10,10), size=(150,20), parent=self._parentNode)
         self.__addValueDisplay(hScrollBar, (175,12))
 
-        vScrollBar = simple.ScrollBar(pos=(10,60), size=(20,150), 
+        vScrollBar = simple.ScrollBar(pos=(15,60), size=(20,150), 
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
         vScrollBar.thumbExtent = 2
         vScrollBar.range = (0,10)
@@ -17,6 +17,10 @@ class SimpleUIApp(AVGApp):
 
         hSlider = simple.Slider(pos=(10,35), size=(150,20), parent=self._parentNode)
         self.__addValueDisplay(hSlider, (175,38))
+
+        vSlider = simple.Slider(pos=(60.5,60), size=(20,150), 
+                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+        self.__addValueDisplay(vSlider, (55,220))
 
     def setText(self, pos, node):
         node.text = "%.2f"%pos
