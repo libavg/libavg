@@ -274,7 +274,7 @@ class Slider(avg.DivNode):
             self._thumbNode.x = (self._thumbPos/effectiveRange)*pixelRange
         else:
             self._thumbNode.y = (self._thumbPos/effectiveRange)*pixelRange
-        self.size = self._trackNode.size
+#        self.size = self._trackNode.size
 
     def __constrainSliderPos(self):
         self._thumbPos = max(self._range[0], self._thumbPos)

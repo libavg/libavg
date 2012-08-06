@@ -21,73 +21,6 @@
 from libavg import avg
 from libavg.ui import button, slider
 
-class Slider(avg.DivNode):
-    def __init__(self, width, min, max, onChange, parent=None, **kwargs):
-        super(Slider, self).__init__(**kwargs)
-        self.registerInstance(self, parent)
-        
-        self.__onChange = onChange
-        self.size = (width, 20)
-        self.__min = min
-        self.__max = max
-        self.__val = min
-        avg.LineNode(pos1=(7,14), pos2=(width-7,14), color="FFFFFF", strokewidth=2, 
-                parent=self)
-        self.__slider = avg.DivNode(pos=(0,0), size=(14,20), parent=self)
-        avg.PolygonNode(pos=((1,0), (13,0), (7,18)), fillopacity=1, fillcolor="FFFFFF",
-                color="808080", parent=self.__slider)
-        self.__slider.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
-                self.__onSliderDown)
-        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onBarDown)
-        self.__isDragging = False
-
-    def getVal(self):
-        return self.__val
-
-    def setVal(self, val):
-        self.__val = val
-        self.__positionSlider()
-
-    val = property(getVal, setVal)
-
-    def __onSliderDown(self, event):
-        self.__slider.setEventCapture()
-        self.__slider.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onSliderMove)
-        self.__slider.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onSliderUp)
-        self.__sliderDownPos = event.pos
-        self.__isDragging = True
-        self.__dragStartVal = self.__val
-
-    def __onSliderMove(self, event):
-        numPixelsMoved = float(event.pos.x-self.__sliderDownPos.x)
-        self.__val = (self.__dragStartVal+numPixelsMoved/(self.size.x-14)
-                *(self.__max-self.__min))
-        self.__positionSlider()
-
-    def __onSliderUp(self, event):
-        self.__onSliderMove(event)
-        self.__slider.releaseEventCapture()
-        self.__slider.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None)
-        self.__slider.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
-        self.__isDragging = False
-
-    def __onBarDown(self, event):
-        if not(self.__isDragging):
-            localPos = self.getRelPos(event.pos)
-            ratio = (localPos.x-7)/(self.size.x-14)
-            self.__val = self.__min+ratio*(self.__max-self.__min)
-            print localPos, ", ", ratio, ", ", self.__val
-            self.__positionSlider()
-
-    def __positionSlider(self):
-        if self.__val < self.__min:
-            self.__val = self.__min
-        elif self.__val > self.__max:
-            self.__val = self.__max
-        ratio = (float(self.__val-self.__min)/(self.__max-self.__min))
-        self.__slider.pos = (ratio*(self.size.x-14), 0)
-        self.__onChange()
-
 
 class TextButton(button.Button):
     def __init__(self, text, **kwargs):
@@ -106,7 +39,9 @@ class TextButton(button.Button):
 
 
 class SliderTrack(button.SwitchNode):
-    def __init__(self, size, orientation, **kwargs):
+    def __init__(self, size, inset=(0,0), orientation=slider.Orientation.HORIZONTAL,
+            **kwargs):
+        self.__inset = avg.Point2D(inset)
         self.__orientation = orientation
         style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
         self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
@@ -119,6 +54,8 @@ class SliderTrack(button.SwitchNode):
         }
         super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleID="ENABLED", size=size,
                 **kwargs)
+        self.pos = self.__inset
+        self.size -= 2*self.__inset
 
     def getExtent(self):
         if self.__orientation == slider.Orientation.HORIZONTAL:
@@ -128,9 +65,9 @@ class SliderTrack(button.SwitchNode):
 
     def setExtent(self, extent):
         if self.__orientation == slider.Orientation.HORIZONTAL:
-            self.size = (extent, self.size.y)
+            self.size = avg.Point2D(extent-2*self.__inset.x, self.size.y)
         else:
-            self.size = (self.size.x, extent)
+            self.size = avg.Point2D(self.size.x, extent-2*self.__inset.y)
         for node in self.__enabledNode, self.__disabledNode:
             node.size = self.size
 
@@ -160,22 +97,26 @@ class Slider(slider.Slider):
                 "DISABLED": self.__disabledNode
             }
             super(Slider.Thumb, self).__init__(
-                    nodeMap=nodeMap, visibleID="UP", size=(14,20))
+                    nodeMap=nodeMap, visibleID="UP", size=(14,20), **kwargs)
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
         
-        size = avg.Point2D(kwargs["size"])
         if orientation == slider.Orientation.HORIZONTAL:
-            trackPos = (7, 10)
-            trackSize = (size.x, 4) 
+            trackInset = (7, 8)
         else:
-            trackPos = (6, 7)
-            trackSize = (4, size.y) 
-        trackNode = SliderTrack(pos=trackPos, size=trackSize, orientation=orientation)
+            trackInset = (8, 7)
+        trackNode = SliderTrack(inset=trackInset, size=kwargs["size"],
+                orientation=orientation)
         thumbNode = Slider.Thumb(orientation)
 
         super(Slider, self).__init__(orientation=orientation, trackNode=trackNode,
                 thumbNode=thumbNode, **kwargs)
+
+    def _getScrollRangeInPixels(self):
+        if self._orientation == slider.Orientation.HORIZONTAL:
+            return self.size.x - 2*7
+        else:
+            return self.size.y - 2*7
 
 
 class ScrollBar(slider.ScrollBar):
@@ -216,7 +157,7 @@ class ScrollBar(slider.ScrollBar):
 
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
-        trackNode = SliderTrack(kwargs["size"], orientation)
+        trackNode = SliderTrack(size=kwargs["size"], orientation=orientation)
         thumbNode = ScrollBar.Thumb(kwargs["size"], orientation)
 
         super(ScrollBar, self).__init__(orientation=orientation, trackNode=trackNode,
