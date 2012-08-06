@@ -21,6 +21,12 @@
 
 #include "WorkerThread.h"
 
+#include "OSHelper.h"
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 namespace avg {
 
 using namespace std;
@@ -34,6 +40,18 @@ void printAffinityMask(cpu_set_t& mask)
     cerr << endl;
 }
 #endif
+
+unsigned getLowestBitSet(unsigned val)
+{
+    AVG_ASSERT(val != 0); // Doh
+
+    unsigned pos = 0;
+    while (!(val & 1)) {
+        val >>= 1;
+        ++pos;
+    }
+    return pos;
+}
 
 void setAffinityMask(bool bIsMainThread)
 {
@@ -65,6 +83,21 @@ void setAffinityMask(bool bIsMainThread)
 //    printAffinityMask(mask);
     int rc = sched_setaffinity(0, sizeof(mask), &mask);
     AVG_ASSERT(rc == 0);
+#elif defined _WIN32
+    DWORD processAffinityMask;
+    DWORD systemAffinityMask;
+    BOOL rc = GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, 
+            &systemAffinityMask);
+    AVG_ASSERT(rc == TRUE);
+    DWORD mainThreadMask = 1 << getLowestBitSet(processAffinityMask);
+    DWORD mask;
+    if (bIsMainThread) {
+        mask = mainThreadMask;
+    } else {
+        mask = processAffinityMask & ~mainThreadMask;
+    }
+    DWORD_PTR pPrevMask = SetThreadAffinityMask(GetCurrentThread(), mainThreadMask);
+    AVG_ASSERT_MSG(pPrevMask != 0, getWinErrMsg(GetLastError()).c_str());
 #endif
 }
 
