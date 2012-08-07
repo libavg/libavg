@@ -27,12 +27,6 @@ import weakref
 
 import math
 
-MAX_TAP_DIST = 15 
-MAX_TAP_TIME = 900
-MAX_DOUBLETAP_TIME = 300
-MIN_DRAG_DIST = 5
-HOLD_DELAY = 900
-
 class Recognizer(avg.Publisher):
 
     POSSIBLE = 0
@@ -195,7 +189,9 @@ class Recognizer(avg.Publisher):
 
 class TapRecognizer(Recognizer):
 
-    def __init__(self, node, maxTime=MAX_TAP_TIME, initialEvent=None, 
+    MAX_TAP_DIST = None 
+
+    def __init__(self, node, maxTime=None, initialEvent=None, 
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
 
@@ -208,12 +204,14 @@ class TapRecognizer(Recognizer):
 
     def _handleMove(self, event):
         if self.getState() != "IDLE": 
-            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
+            if (event.contact.distancefromstart > 
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
 
     def _handleUp(self, event):
         if self.getState() == "POSSIBLE":
-            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
+            if (event.contact.distancefromstart > 
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
             else:
                 self._setDetected(event)
@@ -221,17 +219,21 @@ class TapRecognizer(Recognizer):
     def _onFrame(self):
         downTime = player.getFrameTime() - self.__startTime
         if self.getState() == "POSSIBLE":
-            if downTime > self.__maxTime:
+            if self.__maxTime and downTime > self.__maxTime:
                 self._setFail(None)
         super(TapRecognizer, self)._onFrame()
 
 
 class DoubletapRecognizer(Recognizer):
+    
+    MAX_DOUBLETAP_TIME = None
 
-    def __init__(self, node, maxTime=MAX_DOUBLETAP_TIME, initialEvent=None,
-            possibleHandler=None, failHandler=None, detectedHandler=None):
+    def __init__(self, node, maxTime=None, 
+            initialEvent=None, possibleHandler=None, failHandler=None, 
+            detectedHandler=None):
+        if maxTime == None:
+            maxTime = DoubletapRecognizer.MAX_DOUBLETAP_TIME
         self.__maxTime = maxTime
-
         self.__stateMachine = statemachine.StateMachine("DoubletapRecognizer", "IDLE")
         self.__stateMachine.addState("IDLE", ("DOWN1",), enterFunc=self.__enterIdle)
         self.__stateMachine.addState("DOWN1", ("UP1", "IDLE"))
@@ -261,7 +263,7 @@ class DoubletapRecognizer(Recognizer):
             self._setPossible(event)
         elif self.__stateMachine.state == "UP1":
             if ((event.pos - self.__startPos).getNorm() > 
-                    MAX_TAP_DIST*player.getPixelsPerMM()):
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
             else:
@@ -272,7 +274,7 @@ class DoubletapRecognizer(Recognizer):
     def _handleMove(self, event):
         if self.__stateMachine.state != "IDLE": 
             if ((event.pos - self.__startPos).getNorm() > 
-                    MAX_TAP_DIST*player.getPixelsPerMM()):
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
 
@@ -282,7 +284,7 @@ class DoubletapRecognizer(Recognizer):
             self.__stateMachine.changeState("UP1")
         elif self.__stateMachine.state == "DOWN2":
             if ((event.pos - self.__startPos).getNorm() >
-                    MAX_TAP_DIST*player.getPixelsPerMM()):
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
             else:
                 self._setDetected(event)
@@ -304,8 +306,12 @@ class DoubletapRecognizer(Recognizer):
 
 class HoldRecognizer(Recognizer):
 
-    def __init__(self, node, delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, 
+    HOLD_DELAY = None
+
+    def __init__(self, node, delay=None, initialEvent=None, possibleHandler=None, 
             failHandler=None, detectedHandler=None, stopHandler=None):
+        if delay == None:
+            delay = HoldRecognizer.HOLD_DELAY
         self.__delay = delay
 
         self.__lastEvent = None
@@ -320,7 +326,8 @@ class HoldRecognizer(Recognizer):
     def _handleMove(self, event):
         self.__lastEvent = event
         if self.getState() == "POSSIBLE": 
-            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
+            if (event.contact.distancefromstart > 
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
 
     def _handleUp(self, event):
@@ -345,6 +352,7 @@ class DragRecognizer(Recognizer):
     HORIZONTAL=2
 
     DIRECTION_TOLERANCE=math.pi/4
+    MIN_DRAG_DIST = None
 
     def __init__(self, eventNode, coordSysNode=None, initialEvent=None, 
             direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE,
@@ -360,7 +368,7 @@ class DragRecognizer(Recognizer):
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self.__minDist = 0
         else:
-            self.__minDist = MIN_DRAG_DIST
+            self.__minDist = DragRecognizer.MIN_DRAG_DIST
         self.__directionTolerance = directionTolerance
         self.__friction = friction
 
@@ -622,14 +630,8 @@ class Transform():
 
 class TransformRecognizer(Recognizer):
 
-    lowpassConfig = {
-        'mincutoff': None,
-        'beta': None
-    }
-#    lowpassConfig = {
-#        'mincutoff': 0.1,
-#        'beta': 0.1 # Very hard filter, no visible effect. Effect starts appearing at 0.03
-#    }
+    FILTER_MIN_CUTOFF = None
+    FILTER_BETA = None
 
     def __init__(self, eventNode, coordSysNode=None, initialEvent=None, friction=-1, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
@@ -649,11 +651,6 @@ class TransformRecognizer(Recognizer):
         self.subscribe(Recognizer.MOTION, moveHandler)
         self.subscribe(Recognizer.UP, upHandler)
 
-    @classmethod
-    def setFilterConfig(cls, mincutoff=None, beta=None):
-        TransformRecognizer.lowpassConfig["mincutoff"] = mincutoff
-        TransformRecognizer.lowpassConfig["beta"] = beta
-
     def abort(self):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
@@ -664,8 +661,10 @@ class TransformRecognizer(Recognizer):
         self.__newPhase()
         if self.__isFiltered():
             self.__filters[event.contact] = [
-                    filter.OneEuroFilter(**TransformRecognizer.lowpassConfig),
-                    filter.OneEuroFilter(**TransformRecognizer.lowpassConfig)]
+                    filter.OneEuroFilter(mincutoff=TransformRecognizer.FILTER_MIN_CUTOFF, 
+                            beta=TransformRecognizer.FILTER_BETA),
+                    filter.OneEuroFilter(mincutoff=TransformRecognizer.FILTER_MIN_CUTOFF,
+                            beta=TransformRecognizer.FILTER_BETA)]
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
@@ -781,7 +780,7 @@ class TransformRecognizer(Recognizer):
         return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
 
     def __isFiltered(self):
-        return TransformRecognizer.lowpassConfig["mincutoff"] != None
+        return TransformRecognizer.FILTER_MIN_CUTOFF != None
 
 
 class InertiaHandler(object):
@@ -850,14 +849,19 @@ class InertiaHandler(object):
         self.__stopHandler = None
         self.__moveHandler = None
 
+    
 def initConfig():
+    TransformRecognizer.FILTER_MIN_CUTOFF = float(
+            player.getConfigOption("gesture", "filtermincutoff"))
+    TransformRecognizer.FILTER_BETA = float(
+            player.getConfigOption("gesture", "filterbeta"))
+    TapRecognizer.MAX_TAP_DIST = float(player.getConfigOption("gesture", "maxtapdist"))
+    DoubletapRecognizer.MAX_DOUBLETAP_TIME = float(
+            player.getConfigOption("gesture", "maxdoubletaptime"))
+    DragRecognizer.MIN_DRAG_DIST = float(
+            player.getConfigOption("gesture", "mindragdist"))
+    HoldRecognizer.HOLD_DELAY = float(
+            player.getConfigOption("gesture", "holddelay"))
 
-    filterMinCutoff = float(player.getConfigOption("gesture", "filtermincutoff"))
-    filterBeta = float(player.getConfigOption("gesture", "filterbeta"))
-
-    TransformRecognizer.lowpassConfig = {
-        'mincutoff': filterMinCutoff,
-        'beta': filterBeta
-    }
 
 initConfig()

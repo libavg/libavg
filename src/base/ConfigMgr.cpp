@@ -84,6 +84,10 @@ ConfigMgr::ConfigMgr()
     addOption("aud", "outputbuffersamples", "1024");
 
     addSubsys("gesture");
+    addOption("gesture", "maxtapdist", "15");
+    addOption("gesture", "maxdoubletaptime", "300");
+    addOption("gesture", "mindragdist", "5");
+    addOption("gesture", "holddelay", "500");
     addOption("gesture", "filtermincutoff", "0.1");
     addOption("gesture", "filterbeta", "0.03");
 

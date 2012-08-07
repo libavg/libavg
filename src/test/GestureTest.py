@@ -75,12 +75,6 @@ class GestureTestCase(AVGTestCase):
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  self.__genMouseEventFrames(avg.CURSORMOTION, 80, 80, [EVENT_FAILED]),
                  self.__genMouseEventFrames(avg.CURSORUP, 30, 30, []),
-                 # Down-delay: fail
-                 self.__genMouseEventFrames(avg.CURSORDOWN, 1, 1, [EVENT_POSSIBLE]),
-                 lambda: self.delay(1000),
-                 lambda: self.__assertEvents([EVENT_FAILED]),
-                 self.__resetEventState,
-                 self.__genMouseEventFrames(avg.CURSORUP, 1, 1, []),
                  # Down-Abort-Up: not recognized as tap
                  self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_POSSIBLE]),
                  abort,
@@ -659,11 +653,10 @@ class GestureTestCase(AVGTestCase):
                 )
 
         self.__initImageScene()
-        ui.TransformRecognizer.lowpassConfig= {
-            # Turn off the jitter filter.
-            'mincutoff': None,
-            'beta': None
-        }
+        # Turn off the jitter filter.
+        ui.TransformRecognizer.FILTER_MIN_CUTOFF = None
+        ui.TransformRecognizer.FILTER_BETA = None
+        
         self.__transformRecognizer = ui.TransformRecognizer(self.image, 
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
