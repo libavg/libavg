@@ -849,3 +849,15 @@ class InertiaHandler(object):
         self.__stopHandler()
         self.__stopHandler = None
         self.__moveHandler = None
+
+def initConfig():
+
+    filterMinCutoff = float(player.getConfigOption("gesture", "filtermincutoff"))
+    filterBeta = float(player.getConfigOption("gesture", "filterbeta"))
+
+    TransformRecognizer.lowpassConfig = {
+        'mincutoff': filterMinCutoff,
+        'beta': filterBeta
+    }
+
+initConfig()

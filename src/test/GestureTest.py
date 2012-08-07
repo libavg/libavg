@@ -659,6 +659,11 @@ class GestureTestCase(AVGTestCase):
                 )
 
         self.__initImageScene()
+        ui.TransformRecognizer.lowpassConfig= {
+            # Turn off the jitter filter.
+            'mincutoff': None,
+            'beta': None
+        }
         self.__transformRecognizer = ui.TransformRecognizer(self.image, 
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,

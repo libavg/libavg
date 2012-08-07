@@ -83,6 +83,10 @@ ConfigMgr::ConfigMgr()
     addOption("aud", "samplerate", "44100");
     addOption("aud", "outputbuffersamples", "1024");
 
+    addSubsys("gesture");
+    addOption("gesture", "filtermincutoff", "0.1");
+    addOption("gesture", "filterbeta", "0.03");
+
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
     char * pHome = getenv("HOME");
