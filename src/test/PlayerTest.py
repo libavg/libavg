@@ -654,6 +654,9 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.fail(),
                 ))
 
+    def testGetConfigOption(self):
+        self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
+
     # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):
         def revertWindowFrame():
@@ -763,6 +766,7 @@ def playerTestSuite(tests):
             "testStopOnEscape",
             "testScreenDimensions",
             "testSVG",
+            "testGetConfigOption",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

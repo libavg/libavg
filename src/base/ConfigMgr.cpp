@@ -142,7 +142,7 @@ bool ConfigMgr::getBoolOption(const string& sSubsys,
         return false;
     } else {
         AVG_TRACE(Logger::ERROR, 
-                m_sFName << ": Unrecognized value for option "<<sName<<": " 
+                m_sFName << ": Unrecognized value for option " << sName << ": " 
                 << *psOption << ". Must be true or false. Aborting.");
         exit(-1);
     }

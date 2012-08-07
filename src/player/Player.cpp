@@ -1682,6 +1682,16 @@ float Player::getVolume() const
     return m_Volume;
 }
 
+string Player::getConfigOption(const string& sSubsys, const string& sName) const
+{
+    const string* psValue = ConfigMgr::get()->getOption(sSubsys, sName);
+    if (!psValue) {
+        return "";
+    } else {
+        return *psValue;
+    }
+}
+
 OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
 {
     if (sURL.substr(0, 7) != "canvas:") {

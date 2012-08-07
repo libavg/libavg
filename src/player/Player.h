@@ -164,6 +164,8 @@ class AVG_API Player: public Publisher
         bool getStopOnEscape() const;
         void setVolume(float volume);
         float getVolume() const;
+        std::string getConfigOption(const std::string& sSubsys, const std::string& sName)
+                const;
 
         OffscreenCanvasPtr getCanvasFromURL(const std::string& sURL);
 

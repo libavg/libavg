@@ -214,6 +214,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadPlugin", &Player::loadPlugin)
         .def("setEventHook", &Player::setEventHook)
         .def("getEventHook", &Player::getEventHook)
+        .def("getConfigOption", &Player::getConfigOption)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
