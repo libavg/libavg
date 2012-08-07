@@ -22,7 +22,6 @@
 //
 
 #include "AOAudioEngine.h"
-#include "Dynamics.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -41,25 +40,26 @@ AOAudioEngine* AOAudioEngine::get()
     return s_pInstance;
 }
 
-AOAudioEngine::AOAudioEngine()
-    : m_pTempBuffer(),
-      m_pMixBuffer(0),
-      m_pLimiter(0)
+AOAudioEngine::AOAudioEngine(const AudioParams& ap, float volume)
+    : m_enabled(false),
+      m_AP(ap),
+      m_aoAudioThread(0)
 {
     AVG_ASSERT(s_pInstance == 0);
-    if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
-        AVG_TRACE(Logger::ERROR, "Can't init AO audio subsystem.");
-        exit(-1);
-    }
+    ao_initialize();
+
+    m_cmdQueue = AOAudioEngineThread::CQueuePtr(new AOAudioEngineThread::CQueue);
+    m_aoAudioThread = new boost::thread(AOAudioEngineThread(*m_cmdQueue, ap, volume));
     s_pInstance = this;
 }
 
 AOAudioEngine::~AOAudioEngine()
 {
-    if (m_pMixBuffer) {
-        delete[] m_pMixBuffer;
+    if (m_aoAudioThread) {
+        m_aoAudioThread->join();
+        delete m_aoAudioThread;
     }
-    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    ao_shutdown();
 }
 
 int AOAudioEngine::getChannels()
@@ -74,155 +74,41 @@ int AOAudioEngine::getSampleRate()
 
 const AudioParams * AOAudioEngine::getParams()
 {
-    if (isEnabled()) {
+    if (m_enabled) {
         return &m_AP;
     } else {
         return 0;
     }
 }
 
-void AOAudioEngine::init(const AudioParams& ap, float volume) 
-{
-    AudioEngine::init(ap, volume);
-    m_AP = ap;
-    Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
-    pLimiter->setThreshold(0.f); // in dB
-    pLimiter->setAttackTime(0.f); // in seconds
-    pLimiter->setReleaseTime(0.05f); // in seconds
-    pLimiter->setRmsTime(0.f); // in seconds
-    pLimiter->setRatio(std::numeric_limits<float>::infinity());
-    pLimiter->setMakeupGain(0.f); // in dB
-    m_pLimiter = pLimiter;
-    
-    SDL_AudioSpec desired;
-    desired.freq = m_AP.m_SampleRate;
-    desired.format = AUDIO_S16SYS;
-    desired.channels = m_AP.m_Channels;
-    desired.silence = 0;
-    desired.samples = m_AP.m_OutputBufferSamples;
-    desired.callback = audioCallback;
-    desired.userdata = this;
-
-    if (SDL_OpenAudio(&desired, 0) < 0) {
-      //throw new Exception("Cannot open audio device");
-    }
-}
-
 void AOAudioEngine::teardown()
 {
-    {
-        mutex::scoped_lock Lock(m_Mutex);
-        SDL_PauseAudio(1);
-    }
-    // Optimized away - takes too long.
-//    SDL_CloseAudio();
-
-    getSources().clear();
-    if (m_pLimiter) {
-        delete m_pLimiter;
-        m_pLimiter = 0;
-    }
+    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, false));
 }
 
 void AOAudioEngine::setAudioEnabled(bool bEnabled)
 {
-    SDL_LockAudio();
-    mutex::scoped_lock Lock(m_Mutex);
-    AudioEngine::setAudioEnabled(bEnabled);
-    SDL_UnlockAudio();
+    m_enabled = bEnabled;
 }
 
 void AOAudioEngine::play()
 {
-    SDL_PauseAudio(0);
-}
-
-void AOAudioEngine::pause()
-{
-    SDL_PauseAudio(1);
+    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, true));
 }
 
 void AOAudioEngine::addSource(IAudioSource* pSource)
 {
-    SDL_LockAudio();
-    mutex::scoped_lock Lock(m_Mutex);
-    AudioEngine::addSource(pSource);
-    SDL_UnlockAudio();
+    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::addSource, _1, pSource));
 }
 
 void AOAudioEngine::removeSource(IAudioSource* pSource)
 {
-    SDL_LockAudio();
-    mutex::scoped_lock Lock(m_Mutex);
-    AudioEngine::removeSource(pSource);
-    SDL_UnlockAudio();
+    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::removeSource, _1, pSource));
 }
 
 void AOAudioEngine::setVolume(float volume)
 {
-    SDL_LockAudio();
-    mutex::scoped_lock Lock(m_Mutex);
-    AudioEngine::setVolume(volume);
-    SDL_UnlockAudio();
-}
-
-void AOAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
-{
-    int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
-
-    if (getSources().size() == 0) {
-        return;
-    }
-    if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
-        if (m_pTempBuffer) {
-            delete[] m_pMixBuffer;
-        }
-        m_pTempBuffer = AudioBufferPtr(new AudioBuffer(numFrames, m_AP));
-        m_pMixBuffer = new float[getChannels()*numFrames];
-    }
-
-    for (int i = 0; i < getChannels()*numFrames; ++i) {
-        m_pMixBuffer[i]=0;
-    }
-    {
-        mutex::scoped_lock Lock(m_Mutex);
-        AudioSourceList::iterator it;
-        for(it = getSources().begin(); it != getSources().end(); it++) {
-            m_pTempBuffer->clear();
-            (*it)->fillAudioBuffer(m_pTempBuffer);
-            addBuffers(m_pMixBuffer, m_pTempBuffer);
-        }
-    }
-    calcVolume(m_pMixBuffer, numFrames*getChannels(), getVolume());
-    for (int i = 0; i < numFrames; ++i) {
-        m_pLimiter->process(m_pMixBuffer+i*getChannels());
-        for (int j = 0; j < getChannels(); ++j) {
-            ((short*)pDestBuffer)[i*2+j]=short(m_pMixBuffer[i*2+j]*32768);
-        }
-    }
-}
-
-void AOAudioEngine::audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen)
-{
-    AOAudioEngine *pThis = (AOAudioEngine*)userData;
-    pThis->mixAudio(audioBuffer, audioBufferLen);
-}
-
-void AOAudioEngine::addBuffers(float *pDest, AudioBufferPtr pSrc)
-{
-    int numFrames = pSrc->getNumFrames();
-    short * pData = pSrc->getData();
-    for(int i = 0; i < numFrames*getChannels(); ++i) {
-        pDest[i] += pData[i]/32768.0f;
-    }
-}
-
-void AOAudioEngine::calcVolume(float *pBuffer, int numSamples, float volume)
-{
-    // TODO: We need a VolumeFader class that keeps state.
-    for(int i = 0; i < numSamples; ++i) {
-        pBuffer[i] *= volume;
-    }
+    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::updateVolume, _1, volume));
 }
 
 }
