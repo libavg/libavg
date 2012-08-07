@@ -74,6 +74,7 @@
 #include "../base/XMLHelper.h"
 #include "../base/ScopeTimer.h"
 #include "../base/MathHelper.h"
+#include "../base/WorkerThread.h"
 
 #include "../graphics/BitmapManager.h"
 #include "../graphics/ShaderRegistry.h"
@@ -135,6 +136,8 @@ Player::Player()
 // Turning this on causes fp exceptions in the linux nvidia drivers.
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
+    setAffinityMask(true);
+
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
     }

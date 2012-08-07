@@ -187,6 +187,11 @@ const IntPoint& FBO::getSize() const
     return m_Size;
 }
 
+unsigned FBO::getID() const
+{
+    return m_FBO;
+}
+
 void FBO::init()
 {
     GLContext* pContext = GLContext::getCurrent();

@@ -54,6 +54,7 @@ public:
     BitmapPtr getImageFromPBO() const;
     GLTexturePtr getTex(int i=0) const;
     const IntPoint& getSize() const;
+    unsigned getID() const;
 
     static bool isFBOSupported();
     static bool isMultisampleFBOSupported();

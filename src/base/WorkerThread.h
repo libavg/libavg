@@ -36,6 +36,7 @@
 
 namespace avg {
 
+void setAffinityMask(bool bIsMainThread);
 
 template<class DERIVED_THREAD>
 class AVG_TEMPLATE_API WorkerThread {
@@ -95,6 +96,7 @@ template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::operator()()
 {
     try {
+        setAffinityMask(false);
         ThreadProfiler* pProfiler = ThreadProfiler::get();
         pProfiler->setName(m_sName);
         pProfiler->setLogCategory(m_LogCategory);

@@ -164,6 +164,7 @@
     <ClCompile Include="..\..\src\base\UTF8String.cpp" />
     <ClCompile Include="..\..\src\base\VersionInfo.cpp" />
     <ClCompile Include="..\..\src\base\WideLine.cpp" />
+    <ClCompile Include="..\..\src\base\WorkerThread.cpp" />
     <ClCompile Include="..\..\src\base\XMLHelper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

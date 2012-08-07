@@ -22,6 +22,7 @@ libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \
     StringHelper.cpp MathHelper.cpp GeomHelper.cpp CubicSpline.cpp \
     BezierCurve.cpp UTF8String.cpp Triangle.cpp WideLine.cpp \
     Backtrace.cpp ProfilingZoneID.cpp GLMHelper.cpp VersionInfo.cpp \
+    WorkerThread.cpp \
     $(ALL_H)
 libbase_a_CXXFLAGS = -Wno-format-y2k
 
