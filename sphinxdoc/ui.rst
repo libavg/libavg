@@ -43,7 +43,7 @@ functionality
             :py:attr:`fatFingerEnlarge` is incompatible with a custom 
             :py:attr:`activeAreaNode`.
 
-        Callbacks:
+        **Callbacks:**
 
             .. py:method:: clickHandler(event)
 
@@ -109,7 +109,7 @@ functionality
             If set, this parameter enables inertia processing. It describes how 
             quickly the drag comes to a stop after the cursor is released.
 
-        Callbacks:
+        **Callbacks:**
 
             .. py:method:: moveHandler(event, offset)
 
@@ -308,7 +308,7 @@ functionality
 
             A cursordown event to pass to the recognizer immediately.
 
-        Callbacks:
+        **Callbacks:**
 
             .. py:method:: possibleHandler(event)
 
@@ -416,7 +416,7 @@ functionality
             If this parameter is set to :py:const:`True`, the button starts in the 
             disabled state.
 
-        Callbacks:
+        **Callbacks:**
 
             .. py:method:: checkedHandler(event)
 
@@ -496,7 +496,7 @@ functionality
             If set, this parameter enables inertia processing. It describes how 
             quickly the transform comes to a stop after the cursor is released.
 
-        Callbacks:
+        **Callbacks:**
 
             .. py:method:: moveHandler(transform)
 

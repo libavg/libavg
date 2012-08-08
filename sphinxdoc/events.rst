@@ -181,7 +181,7 @@ Input Handling
             in your derived input device class. After registering 
             the input device, this method gets called on every frame.
 
-        .. py:method::  start()
+        .. py:method:: start()
 
             Initializes the input device if needed. By default this is an empty method.
         

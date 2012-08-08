@@ -88,6 +88,57 @@ This section describes the base classes for all node classes that libavg provide
         Base class for everything that can be put into an avg tree. This is an abstract
         class.
 
+        **Messages:**
+
+            All messages are emitted only if the cursor is above the :py:class:`Node` and
+            :py:attr:`active` as well as :py:attr:`sensitive` are True. All message
+            parameters are of type :py:class:`CursorEvent`. The CURSOR messages are 
+            emitted for mouse and touch events. The HOVER events are emitted for touch 
+            devices which can sense hands approaching the surface before the actual touch.
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: CURSORDOWN(cursorevent)
+            
+                Called whenever a mouse button is pressed or a new touch is registered.
+
+            .. py:method:: CURSORMOTION(cursorevent)
+            
+                Called whenever a mouse or a touch moves.
+
+            .. py:method:: CURSORUP(cursorevent)
+            
+                Called whenever a mouse button is released or a touch leaves the surface.
+
+            .. py:method:: CURSOROVER(cursorevent)
+            
+                Called whenever a mouse or a touch enters the :py:class:`Node`'s area.
+
+            .. py:method:: CURSOROUT(cursorevent)
+            
+                Called whenever a mouse or a touch leaves the :py:class:`Node`'s area.
+
+            .. py:method:: HOVERDOWN(cursorevent)
+            
+                Called whenever a new hover cursor is registered.
+
+            .. py:method:: HOVERMOTION(cursorevent)
+            
+                Called whenever a hover cursor moves.
+
+            .. py:method:: HOVERUP(cursorevent)
+            
+                Called whenever a hover cursor disappears.
+
+            .. py:method:: HOVEROVER(cursorevent)
+            
+                Called whenever a hover cursor enters the :py:class:`Node`'s area.
+
+            .. py:method:: HOVEROUT(cursorevent)
+            
+                Called whenever a hover cursor leaves the :py:class:`Node`'s area.
+
+
         .. py:attribute:: id
 
             A unique identifier that can be used to reference the node, for instance using
