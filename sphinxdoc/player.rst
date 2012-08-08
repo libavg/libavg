@@ -136,12 +136,12 @@ Player & Canvas
         .. py:method:: createCanvas(*params) -> OffscreenCanvas
 
             Creates an empty offscreen canvas. Parameters are given under 
-            :py:class:`OffscreenCanvas.`
+            :py:class:`OffscreenCanvas`.
 
         .. py:method:: createMainCanvas(*params) -> Canvas
 
             Creates an empty canvas with a render window and an AVGNode as root node. 
-            Parameters are given under :py:class:`AVGNode.`
+            Parameters are given under :py:class:`AVGNode`.
 
         .. py:method:: createNode(xml) -> Node
 
