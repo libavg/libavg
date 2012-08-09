@@ -59,7 +59,7 @@ Node::Node()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     
-    for (int msgID = CURSORDOWN; msgID != HOVEROUT; msgID++) {
+    for (int msgID = CURSORDOWN; msgID != ENDOFFILE; msgID++) {
         publish(msgID);
     }
 }
