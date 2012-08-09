@@ -129,6 +129,7 @@ bool SoundNode::getLoop() const
 
 void SoundNode::setEOFCallback(PyObject * pEOFCallback)
 {
+    AVG_DEPRECATION_WARNING("1.8", "SoundNode.setEOFCallback()", "Node.ENDOFFILE()");
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }

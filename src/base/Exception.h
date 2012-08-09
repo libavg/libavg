@@ -81,6 +81,20 @@ void AVG_API avgAssert(bool b, const char * pszFile, int line, const char * pszR
 #define AVG_ASSERT(b) avgAssert((b) != 0, __FILE__, __LINE__);
 #define AVG_ASSERT_MSG(b, pszReason) avgAssert((b) != 0, __FILE__, __LINE__, pszReason);
 
+#define AVG_DEPRECATION_WARNING(sVersion, sOldEntryPoint, sNewEntryPoint) \
+{ \
+    static bool bWarned = false; \
+    if (!bWarned) { \
+        bWarned = true; \
+        string sMsg = string(sOldEntryPoint) + " deprecated since version " + \
+                string(sVersion)+"."; \
+        if (sNewEntryPoint != string("")) { \
+            sMsg += " Use "+string(sNewEntryPoint) + " instead."; \
+        } \
+        AVG_TRACE(Logger::ERROR, sMsg); \
+    } \
+}
+
 }
 
 #endif

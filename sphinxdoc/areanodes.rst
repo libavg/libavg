@@ -440,6 +440,14 @@ Area Nodes
 
         A sound played from a file.
 
+        **Messages:**
+
+            To get this message, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: ENDOFFILE()
+            
+                Emitted when the end of the audio stream has been reached.
+
         .. py:attribute:: duration
 
             The duration of the sound file in milliseconds. Some file formats don't store
@@ -490,6 +498,9 @@ Area Nodes
             Moves the playback cursor to the time given in milliseconds.
 
         .. py:method:: setEOFCallback(pyfunc)
+
+            .. deprecated:: 1.8
+                Use the message interface instead.
 
             Sets a python callable to be invoked when the audio reaches end of file.
 

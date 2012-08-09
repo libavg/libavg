@@ -299,6 +299,7 @@ bool VideoNode::hasAlpha() const
 
 void VideoNode::setEOFCallback(PyObject * pEOFCallback)
 {
+    AVG_DEPRECATION_WARNING("1.8", "VideoNode.setEOFCallback()", "Node.ENDOFFILE()");
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }

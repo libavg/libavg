@@ -27,6 +27,7 @@
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/Logger.h"
 
 #include <iostream>
 
@@ -55,6 +56,7 @@ Contact::~Contact()
 
 int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 {
+    AVG_DEPRECATION_WARNING("1.8", "Contact.connectListener()", "Contact.subscribe()");
     s_LastListenerID++;
     pair<int, Listener> val = 
             pair<int, Listener>(s_LastListenerID, Listener(pMotionCallback, pUpCallback));
@@ -64,6 +66,8 @@ int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 
 void Contact::disconnectListener(int id)
 {
+    AVG_DEPRECATION_WARNING("1.8", "Contact.disconnectListener()", 
+            "Contact.unsubscribe()");
     map<int, Listener>::iterator it = m_ListenerMap.find(id);
     if (it == m_ListenerMap.end() || (m_CurListenerID == id && m_bCurListenerIsDead)) {
         throw Exception(AVG_ERR_INVALID_ARGS, 
