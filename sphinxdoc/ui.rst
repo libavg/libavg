@@ -121,6 +121,8 @@ functionality
 
         **Messages:**
 
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
             .. py:method:: Recognizer.MOTION(event, offset)
 
                 Emitted when the drag should cause a position change. This usually happens
@@ -328,6 +330,8 @@ functionality
             Gesture recognizers emit messages whenever they change state - see the state
             diagrams above. The messages have a parameter of type :py:class:`CursorEvent`.
 
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
             .. py:method:: POSSIBLE(event)
 
                 Emit when gesture recognition begins - usually after a cursordown event.
@@ -529,6 +533,8 @@ functionality
             :samp:`Recognizer.subscribe(Recognizer.UP, upHandler)`.
 
         **Messages:**
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
 
             .. py:method:: Recognizer.MOTION(transform)
 

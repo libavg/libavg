@@ -444,7 +444,7 @@ Area Nodes
 
             To get this message, call :py:meth:`Publisher.subscribe`.
 
-            .. py:method:: ENDOFFILE()
+            .. py:method:: Node.ENDOFFILE()
             
                 Emitted when the end of the audio stream has been reached.
 
@@ -518,7 +518,7 @@ Area Nodes
 
             To get this message, call :py:meth:`Publisher.subscribe`.
 
-            .. py:method:: ENDOFFILE()
+            .. py:method:: Node.ENDOFFILE()
             
                 Emitted when the end of the video stream has been reached.
 

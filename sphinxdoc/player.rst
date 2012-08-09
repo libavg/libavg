@@ -101,6 +101,8 @@ Player & Canvas
 
         **Messages:**
 
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
             .. py:method:: KEYDOWN(keyEvent)
             
                 Called whenever a key is pressed.
