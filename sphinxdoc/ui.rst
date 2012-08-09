@@ -60,7 +60,7 @@ functionality
             displayed for different states.
 
 
-    .. autoclass:: DoubletapRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, maxTime=MAX_DOUBLETAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+    .. autoclass:: DoubletapRecognizer(node, [maxTime=MAX_DOUBLETAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
 
         A :py:class:`DoubletapRecognizer` detects doubletaps: Two short touches in quick
         succession without a large change of the cursor position.
@@ -68,7 +68,7 @@ functionality
         :param maxTime: The maximum time that each phase of the tap may take.
 
 
-    .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, initialEvent=None, direction=ANY_DIRECTION, directionTolerance=pi/4, friction=-1, possibleHandler=None, failHandler=None, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
+    .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, initialEvent=None, direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE, friction=-1, possibleHandler=None, failHandler=None, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
 
         A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
         delivers higher-level callbacks that can be used to implement dragging or 
@@ -109,11 +109,21 @@ functionality
             If set, this parameter enables inertia processing. It describes how 
             quickly the drag comes to a stop after the cursor is released.
 
-        **Callbacks:**
+        :param moveHandler:
 
-            .. py:method:: moveHandler(event, offset)
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.MOTION, moveHandler)`.
 
-                Called when the drag should cause a position change. This usually happens
+        :param upHandler:
+
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.UP, upHandler)`.
+
+        **Messages:**
+
+            .. py:method:: Recognizer.MOTION(event, offset)
+
+                Emitted when the drag should cause a position change. This usually happens
                 in response to a :py:const:`CURSORMOTION` event, but may also happen
                 because of inertia.
 
@@ -127,9 +137,9 @@ functionality
                     The current offset from the start of the drag in coordinates relative
                     to the :py:attr:`coordSysNode`'s parent.
 
-            .. py:method:: upHandler(event, offset)
+            .. py:method:: Recognizer.UP(event, offset)
 
-                Called when the cursor is released. If inertia is enabled, there may be 
+                Emitted when the cursor is released. If inertia is enabled, there may be 
                 move events after the up event.
 
                 :param event: 
@@ -141,16 +151,6 @@ functionality
                     The current offset from the start of the drag in coordinates relative
                     to the :py:class:`coordSysNode`'s parent.
 
-            .. py:method:: endHandler(event)
-
-                Called when movement stops. This is either directly after the up event
-                or when inertia has run its course.
-
-                :param event: 
-                
-                    The corresponding :py:const:`CURSORUP` event or :py:const:`None` in
-                    the case of inertia.
-
         .. py:method:: abort()
 
             Aborts the present recognized gesture and sliding caused by inertia
@@ -160,7 +160,7 @@ functionality
             Causes inertia processing to end immediately.
 
 
-    .. autoclass:: HoldRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
+    .. autoclass:: HoldRecognizer(node, [delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
 
         A :py:class:`HoldRecognizer` detects if a touch is held for a certain amount of 
         time. Holds are continuous events: the :py:meth:`stopHandler` is called when the
@@ -239,7 +239,7 @@ functionality
             Set callbacks to invoke on key press and -release. Handlers take three 
             paramters: (event, char, cmd)
 
-            :param downHandler: Callable to invoke on key down event or `None`.
+            :param downHandler: Callable to invoke on key down event or :py:const:`None`.
             :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
         .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
@@ -274,7 +274,7 @@ functionality
                 Unicode string containing the keycodes when altgr is pressed.
     
     
-    .. autoclass:: Recognizer(node, isContinuous, eventSource, maxContacts, initialEvent[, possibleHandler=None, failHandler=None, detectedHandler=None, endHandler=None])
+    .. autoclass:: Recognizer(node, isContinuous, maxContacts, initialEvent[, possibleHandler=None, failHandler=None, detectedHandler=None, endHandler=None])
 
         Base class for gesture recognizers that attach to a node's cursor events and 
         emit higher-level events. Gesture recognizers have a standard set of states and
@@ -285,7 +285,9 @@ functionality
         .. image:: Recognizer.png
 
         A usage example for the recognizers can be found under
-        :samp:`src/samples/gestures.py`.
+        :samp:`src/samples/gestures.py`. Many of the recognizers have default timeouts 
+        and distance limits which can be changed by modifying :file:`avgrc`. The sample
+        file under :file:`src/avgrc` contains explanations.
 
         :param Node node: Node to attach to.
 
@@ -293,11 +295,6 @@ functionality
             
             :py:const:`True` if the gesture stays active after it has been detected.
         
-
-        :param eventSource: 
-        
-            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
-            etc.).
 
         :param maxContacts:
 
@@ -308,21 +305,21 @@ functionality
 
             A cursordown event to pass to the recognizer immediately.
             
-        :param possibleHandler
+        :param possibleHandler:
 
             A shortcut for 
             :samp:`Recognizer.subscribe(Recognizer.POSSIBLE, possibleHandler)`.
 
-        :param failHandler
+        :param failHandler:
 
             A shortcut for :samp:`Recognizer.subscribe(Recognizer.FAIL, failHandler)`.
 
-        :param detectedHandler(event)
+        :param detectedHandler:
 
             A shortcut for 
             :samp:`Recognizer.subscribe(Recognizer.DETECTED, detectedHandler)`.
 
-        :param endHandler(event)
+        :param endHandler:
 
             A shortcut for :samp:`Recognizer.subscribe(Recognizer.END, endHandler)`.
 
@@ -368,7 +365,7 @@ functionality
             Returns the state ("IDLE", "POSSIBLE" or "RUNNING") of the recognizer.
 
 
-    .. autoclass:: TapRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, maxTime=MAX_TAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+    .. autoclass:: TapRecognizer(node, [maxTime=MAX_TAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
 
         A :py:class:`TapRecognizer` detects short touches without a large change of the 
         cursor position.
@@ -495,7 +492,7 @@ functionality
             Changes a :py:attr:`node`'s pos, angle and size by applying the transform.
 
 
-    .. autoclass:: TransformRecognizer(eventNode, [coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, initialEvent=None, friction=-1, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
+    .. autoclass:: TransformRecognizer(eventNode, [coordSysNode=None, initialEvent=None, friction=-1, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
 
         A :py:class:`TransformRecognizer` is used to support drag/zoom/rotate 
         functionality. From any number of touches on a node, it calculates an aggregate
@@ -521,30 +518,38 @@ functionality
             If set, this parameter enables inertia processing. It describes how 
             quickly the transform comes to a stop after the cursor is released.
 
-        **Callbacks:**
+        :param moveHandler:
 
-            .. py:method:: moveHandler(transform)
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.MOTION, moveHandler)`.
 
-                Called whenever the transform changes.
+        :param upHandler:
+
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.UP, upHandler)`.
+
+        **Messages:**
+
+            .. py:method:: Recognizer.MOTION(transform)
+
+                Emitted whenever the transform changes. This usually happens
+                in response to one or more :py:const:`CURSORMOTION` events, but may also
+                happen because of inertia.
 
                 :param Transform transform:
                 
                     The change in transformation since the last call of move or up.
 
-            .. py:method:: upHandler(transform)
+            .. py:method:: Recognizer.UP(transform)
 
-                Called when the last touch is released.
+                Called when the last touch is released. If inertia is enabled, there may
+                be move events after the up event.
 
-                :param transform:
+                :param Transform transform:
                 
                     The change in transformation since the last call of move.
 
-            .. py:method:: endHandler()
-
-                Called when movement stops. This is either directly after the up event
-                or when inertia has run its course.
-
         .. py:method:: abort()
 
-            Aborts the present recognized gesture and sliding caused by inertia
+            Aborts the present recognized gesture and sliding caused by inertia.
 
