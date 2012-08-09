@@ -307,28 +307,53 @@ functionality
         :param initialEvent:
 
             A cursordown event to pass to the recognizer immediately.
+            
+        :param possibleHandler
 
-        **Callbacks:**
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.POSSIBLE, possibleHandler)`.
 
-            .. py:method:: possibleHandler(event)
+        :param failHandler
 
-                Called when gesture recognition begins - usually after a cursordown event.
-                Some continuous gestures (such as unconstrained drags) never invoke 
-                :py:meth:`possibleHandler` but call :py:meth:`detectedHandler` 
-                immediately.
+            A shortcut for :samp:`Recognizer.subscribe(Recognizer.FAIL, failHandler)`.
 
-            .. py:method:: failHandler(event) 
+        :param detectedHandler(event)
 
-                Called when gesture recognition is rejected.
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.DETECTED, detectedHandler)`.
 
-            .. py:method:: detectedHandler(event)
+        :param endHandler(event)
 
-                Called when the gesture is recognized. For discrete gestures, this 
+            A shortcut for :samp:`Recognizer.subscribe(Recognizer.END, endHandler)`.
+
+        **Messages:**
+
+            Gesture recognizers emit messages whenever they change state - see the state
+            diagrams above. The messages have a parameter of type :py:class:`CursorEvent`.
+
+            .. py:method:: POSSIBLE(event)
+
+                Emit when gesture recognition begins - usually after a cursordown event.
+                Some continuous gestures (such as unconstrained drags) never emit 
+                :py:meth:`POSSIBLE` but emit :py:meth:`DETECTED` immediately.
+
+            .. py:method:: FAILED(event) 
+
+                Emitted when gesture recognition is rejected. For instance, in the case 
+                of a :py:class:`DoubleTapRecognizer`, a :py:meth:`FAILED` message is
+                emitted if the touch stays on the surface for too long.
+
+            .. py:method:: DETECTED(event)
+
+                Emitted when the gesture is recognized. For discrete gestures, this 
                 signifies the end of gesture processing. 
 
-            .. py:method:: endHandler(event)
+            .. py:method:: END(event)
 
-                Called when a continuous gesture ends.
+                Emitted when a continuous gesture ends. This is often a result of an
+                up event, but e.g. in the case of inertia, :py:meth:`END` is emitted
+                when movement stops.
+                
 
         .. py:method:: abort()
 

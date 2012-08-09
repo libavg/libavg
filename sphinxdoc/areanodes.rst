@@ -503,6 +503,14 @@ Area Nodes
         are all formats that ffmpeg/libavcodec supports. Usage is described thoroughly
         in the libavg wiki: https://www.libavg.de/wiki/ProgrammersGuide/VideoNode.
 
+        **Messages:**
+
+            To get this message, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: ENDOFFILE()
+            
+                Emitted when the end of the video stream has been reached.
+
         .. py:attribute:: accelerated
 
             On construction, set to :py:const:`True` if hardware acceleration should be 
@@ -619,6 +627,9 @@ Area Nodes
             Moves the playback cursor to the time given.
 
         .. py:method:: setEOFCallback(pyfunc)
+
+            .. deprecated:: 1.8
+                Use the message interface instead.
 
             Sets a python callable to be invoked when the video reaches end of file.
         

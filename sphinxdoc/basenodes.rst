@@ -91,7 +91,7 @@ This section describes the base classes for all node classes that libavg provide
         **Messages:**
 
             All messages are emitted only if the cursor is above the :py:class:`Node` and
-            :py:attr:`active` as well as :py:attr:`sensitive` are True. All message
+            :py:attr:`active` as well as :py:attr:`sensitive` are True. The message
             parameters are of type :py:class:`CursorEvent`. The CURSOR messages are 
             emitted for mouse and touch events. The HOVER events are emitted for touch 
             devices which can sense hands approaching the surface before the actual touch.
@@ -100,43 +100,43 @@ This section describes the base classes for all node classes that libavg provide
 
             .. py:method:: CURSORDOWN(cursorevent)
             
-                Called whenever a mouse button is pressed or a new touch is registered.
+                Emitted whenever a mouse button is pressed or a new touch is registered.
 
             .. py:method:: CURSORMOTION(cursorevent)
             
-                Called whenever a mouse or a touch moves.
+                Emitted whenever a mouse or a touch moves.
 
             .. py:method:: CURSORUP(cursorevent)
             
-                Called whenever a mouse button is released or a touch leaves the surface.
+                Emitted whenever a mouse button is released or a touch leaves the surface.
 
             .. py:method:: CURSOROVER(cursorevent)
             
-                Called whenever a mouse or a touch enters the :py:class:`Node`'s area.
+                Emitted whenever a mouse or a touch enters the :py:class:`Node`'s area.
 
             .. py:method:: CURSOROUT(cursorevent)
             
-                Called whenever a mouse or a touch leaves the :py:class:`Node`'s area.
+                Emitted whenever a mouse or a touch leaves the :py:class:`Node`'s area.
 
             .. py:method:: HOVERDOWN(cursorevent)
             
-                Called whenever a new hover cursor is registered.
+                Emitted whenever a new hover cursor is registered.
 
             .. py:method:: HOVERMOTION(cursorevent)
             
-                Called whenever a hover cursor moves.
+                Emitted whenever a hover cursor moves.
 
             .. py:method:: HOVERUP(cursorevent)
             
-                Called whenever a hover cursor disappears.
+                Emitted whenever a hover cursor disappears.
 
             .. py:method:: HOVEROVER(cursorevent)
             
-                Called whenever a hover cursor enters the :py:class:`Node`'s area.
+                Emitted whenever a hover cursor enters the :py:class:`Node`'s area.
 
             .. py:method:: HOVEROUT(cursorevent)
             
-                Called whenever a hover cursor leaves the :py:class:`Node`'s area.
+                Emitted whenever a hover cursor leaves the :py:class:`Node`'s area.
 
 
         .. py:attribute:: id
@@ -172,6 +172,9 @@ This section describes the base classes for all node classes that libavg provide
 
         .. py:method:: connectEventHandler(type, source, pyobj, pyfunc)
 
+            .. deprecated:: 1.8
+                Use the message interface instead.
+
             Sets a callback function that is invoked whenever an event of the
             specified type from the specified source occurs. Unlike 
             :py:meth:`setEventHandler`, this method allows several handlers for one 
@@ -206,6 +209,9 @@ This section describes the base classes for all node classes that libavg provide
                 pyfunc may not be :py:const:`None`.
 
         .. py:method:: disconnectEventHandler(pyobj, [pyfunc])
+
+            .. deprecated:: 1.8
+                Use the message interface instead.
 
             Removes one or more event handlers from the node's table of event handlers.
             If several event handlers conform to the parameters given, all are removed.
@@ -271,7 +277,7 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: setEventHandler(type, source, pyfunc)
 
             .. deprecated:: 1.7
-                Use :meth:`connectEventHandler()` instead.
+                Use the message interface instead.
 
             Sets a callback function that is invoked whenever an event of the
             specified type from the specified source occurs. This method removes all 
