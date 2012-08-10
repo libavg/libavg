@@ -102,7 +102,7 @@ GDKDisplayEngine::GDKDisplayEngine()
     m_Gamma[2] = 1.0;
 
     GdkWindowAttr windowAttr;
-    windowAttr.title = "libavg";
+    windowAttr.title =  (char*)&"libavg";
     windowAttr.window_type = GDK_WINDOW_TOPLEVEL;
     windowAttr.wclass = GDK_INPUT_OUTPUT;
     windowAttr.width = 100;
@@ -314,7 +314,9 @@ void GDKDisplayEngine::setGamma(float red, float green, float blue)
 
 void GDKDisplayEngine::setMousePos(const IntPoint& pos)
 {
-    gdk_display_warp_pointer(gdk_window_get_display (m_pScreen), m_screen, pos.x, pos.y);
+//    gdk_display_warp_pointer(gdk_window_get_display (m_pScreen), m_screen, pos.x, pos.y);
+    gdk_device_warp (gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(
+            gdk_display_get_default())), m_screen, pos.x, pos.y);
 }
 
 int GDKDisplayEngine::getKeyModifierState() const
