@@ -44,6 +44,7 @@ class AVG_API AOAudioEngine
         virtual void setAudioEnabled(bool bEnabled);
         
         virtual void play();
+        virtual void pause();
         
         virtual void addSource(IAudioSource* pSource);
         virtual void removeSource(IAudioSource* pSource);
@@ -61,4 +62,4 @@ class AVG_API AOAudioEngine
 
 }
 
-#endif //_SDLAudioEngine_H_
+#endif

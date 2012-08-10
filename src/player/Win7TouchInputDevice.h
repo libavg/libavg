@@ -25,8 +25,8 @@
 #include "../api.h"
 #include "MultitouchInputDevice.h"
 
-#undef WIN32_LEAN_AND_MEAN
-#include <SDL/SDL_syswm.h>
+//#undef WIN32_LEAN_AND_MEAN
+//#include <SDL/SDL_syswm.h>
 
 namespace avg {
 

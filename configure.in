@@ -147,9 +147,6 @@ fi
 AX_CHECK_GL
 AX_CHECK_GLU
 
-AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
-
-# PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([GTK], [gdk-3.0])
 PKG_CHECK_MODULES([AO], [ao])
 

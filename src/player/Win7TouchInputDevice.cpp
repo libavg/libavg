@@ -25,7 +25,7 @@
 #include "AVGNode.h"
 #include "TouchStatus.h"
 #include "TouchEvent.h"
-#include "SDLDisplayEngine.h"
+//#include "SDLDisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -71,10 +71,10 @@ void Win7TouchInputDevice::start()
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
     if (multitouchCaps & NID_MULTI_INPUT) {
         MultitouchInputDevice::start();
-        SDL_SysWMinfo info;
+/*        SDL_SysWMinfo info;
         SDL_VERSION(&info.version);
         int err = SDL_GetWMInfo(&info);
-        AVG_ASSERT(err == 1);
+        AVG_ASSERT(err == 1);*/
         m_Hwnd = info.window;
         bool bOk = pRegisterTouchWindowProc(m_Hwnd, TWF_FINETOUCH | TWF_WANTPALM);
         AVG_ASSERT(bOk);

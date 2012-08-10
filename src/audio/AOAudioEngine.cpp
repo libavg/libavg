@@ -58,6 +58,7 @@ AOAudioEngine::~AOAudioEngine()
     if (m_aoAudioThread) {
         m_aoAudioThread->join();
         delete m_aoAudioThread;
+        m_aoAudioThread = 0;
     }
     ao_shutdown();
 }
@@ -94,6 +95,11 @@ void AOAudioEngine::setAudioEnabled(bool bEnabled)
 void AOAudioEngine::play()
 {
     m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, true));
+}
+
+void AOAudioEngine::pause()
+{
+    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, false));
 }
 
 void AOAudioEngine::addSource(IAudioSource* pSource)

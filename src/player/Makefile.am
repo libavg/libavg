@@ -37,7 +37,7 @@ endif
 GL_SOURCES = OGLSurface.cpp GDKDisplayEngine.cpp
 GL_INCLUDES = OGLSurface.h GDKDisplayEngine.h
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ @GTK_LIBS@ @AO_LIBS@ $(XGL_LIBS)
+ALL_GL_LIBS = @GL_LIBS@ @GTK_LIBS@ @AO_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \

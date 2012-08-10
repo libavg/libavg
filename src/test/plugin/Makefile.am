@@ -13,7 +13,7 @@ else
     EXTRA_LDFLAGS=-XCClinker ../../wrapper/.libs/avg.so
 endif
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) @GTK_LIBS@
+ALL_GL_LIBS = @GL_LIBS@ $(XGL_LIBS) @GTK_LIBS@
 
 pkgpyexec_LTLIBRARIES = colorplugin.la
 colorplugin_la_SOURCES = ColorNode.cpp 

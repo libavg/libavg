@@ -503,7 +503,7 @@ class TextArea(avg.DivNode):
         is always to use a FocusContext helper, which exposes convenience method for
         injection.
         @param keycode: characted to insert
-        @type keycode: int (SDL reference)
+        @type keycode: int (see keyEvent.h)
         """
         # Ensure that the cursor is shown
         if self.__flashingCursor:
