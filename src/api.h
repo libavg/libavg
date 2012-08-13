@@ -40,5 +40,9 @@
 #define AVG_PLUGIN_API extern "C"
 #endif
 
+#ifdef __APPLE__
+#include <iostream>
+#endif
+
 #endif
 
