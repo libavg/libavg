@@ -95,8 +95,11 @@ void setAffinityMask(bool bIsMainThread)
         mask = mainThreadMask;
     } else {
         mask = processAffinityMask & ~mainThreadMask;
+        if (mask == 0) {
+            mask = processAffinityMask;
+        }
     }
-    DWORD_PTR pPrevMask = SetThreadAffinityMask(GetCurrentThread(), mainThreadMask);
+    DWORD_PTR pPrevMask = SetThreadAffinityMask(GetCurrentThread(), mask);
     AVG_ASSERT_MSG(pPrevMask != 0, getWinErrMsg(GetLastError()).c_str());
 #endif
 }
