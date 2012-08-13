@@ -41,6 +41,8 @@
 #endif
 
 #ifdef __APPLE__
+// Workaround for snow leopard incompatibility between c++ headers and python headers:
+// <iostream> always needs to be included before Python.h.
 #include <iostream>
 #endif
 
