@@ -110,6 +110,7 @@
     <ClCompile Include="..\..\src\player\PluginManager.cpp" />
     <ClCompile Include="..\..\src\player\PolygonNode.cpp" />
     <ClCompile Include="..\..\src\player\PolyLineNode.cpp" />
+    <ClCompile Include="..\..\src\player\Publisher.cpp" />
     <ClCompile Include="..\..\src\player\RasterNode.cpp" />
     <ClCompile Include="..\..\src\player\RectNode.cpp" />
     <ClCompile Include="..\..\src\player\SDLDisplayEngine.cpp" />
@@ -117,6 +118,7 @@
     <ClCompile Include="..\..\src\player\Shape.cpp" />
     <ClCompile Include="..\..\src\player\SoundNode.cpp" />
     <ClCompile Include="..\..\src\player\Style.cpp" />
+    <ClCompile Include="..\..\src\player\SubscriberInfo.cpp" />
     <ClCompile Include="..\..\src\player\SVG.cpp" />
     <ClCompile Include="..\..\src\player\SVGElement.cpp" />
     <ClCompile Include="..\..\src\player\TestHelper.cpp" />
@@ -182,6 +184,7 @@
     <ClInclude Include="..\..\src\player\PluginManager.h" />
     <ClInclude Include="..\..\src\player\PolygonNode.h" />
     <ClInclude Include="..\..\src\player\PolyLineNode.h" />
+    <ClInclude Include="..\..\src\player\Publisher.h" />
     <ClInclude Include="..\..\src\player\RasterNode.h" />
     <ClInclude Include="..\..\src\player\RectNode.h" />
     <ClInclude Include="..\..\src\player\SDLDisplayEngine.h" />
@@ -190,6 +193,7 @@
     <ClInclude Include="..\..\src\player\Shape.h" />
     <ClInclude Include="..\..\src\player\SoundNode.h" />
     <ClInclude Include="..\..\src\player\Style.h" />
+    <ClInclude Include="..\..\src\player\SubscriberInfo.h" />
     <ClInclude Include="..\..\src\player\SVG.h" />
     <ClInclude Include="..\..\src\player\SVGElement.h" />
     <ClInclude Include="..\..\src\player\TestHelper.h" />
