@@ -58,7 +58,6 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     if (!pCanvas) {
         throw Exception(AVG_ERR_INVALID_ARGS, "VideoWriter needs a canvas to write to.");
     }
-    m_FrameSize = m_pCanvas->getSize();
 #ifdef WIN32
     int fd = _open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, _S_IREAD | _S_IWRITE);
 #elif defined linux
@@ -78,7 +77,10 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
 #endif
     remove(m_sOutFileName.c_str());
     CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
-    if (pMainCanvas != m_pCanvas) {
+    if (pMainCanvas == m_pCanvas) {
+        m_FrameSize = Player::get()->getDisplayEngine()->getWindowSize();
+    } else {
+        m_FrameSize = m_pCanvas->getSize();
         m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
         if (GLContext::getMain()->useGPUYUVConversion()) {
             m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
