@@ -133,8 +133,6 @@ class ScrollArea(avg.DivNode):
             self._hScrollBar.extent = self._scrollPane.width
             self._hScrollBar.range = (0, self._scrollPane.contentsize.x)
             self._hScrollBar.thumbExtent = self._scrollPane.width
-            print "_hScrollBar.range: ", self._hScrollBar.range
-            print "_hScrollBar.thumbExtent: ", self._hScrollBar.thumbExtent
 
         if self._vScrollBar:
             self._vScrollBar.pos = (self._scrollPane.width, 0)

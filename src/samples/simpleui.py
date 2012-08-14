@@ -36,7 +36,6 @@ class SimpleUIApp(AVGApp):
         node.text = "%.2f"%pos
 
     def setImageWidth(self, thumbPos):
-        print "thumbPos: ", thumbPos
         self.scrollArea.contentsize = (thumbPos,
             self.scrollArea.contentsize.y)
     

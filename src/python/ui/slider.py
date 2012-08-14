@@ -256,10 +256,13 @@ class Slider(avg.DivNode):
 
     def __onDrag(self, event, offset):
         pixelRange = self._getScrollRangeInPixels()
-        if self._orientation == Orientation.HORIZONTAL:
-            normalizedOffset = offset.x/pixelRange
+        if pixelRange == 0:
+            normalizedOffset = 0
         else:
-            normalizedOffset = offset.y/pixelRange
+            if self._orientation == Orientation.HORIZONTAL:
+                normalizedOffset = offset.x/pixelRange
+            else:
+                normalizedOffset = offset.y/pixelRange
         self._positionNodes(self.__dragStartPos + normalizedOffset*self._getSliderRange())
         if event.type == avg.CURSORUP:
             self._thumbNode.visibleID = "UP"
@@ -283,8 +286,11 @@ class Slider(avg.DivNode):
             self.notifySubscribers(ScrollBar.THUMB_POS_CHANGED, [self._thumbPos])
 
         pixelRange = self._getScrollRangeInPixels()
-        thumbPixelPos = (((self._thumbPos-self._range[0])/self._getSliderRange())*
-                pixelRange)
+        if self._getSliderRange() == 0:
+            thumbPixelPos = 0
+        else:
+            thumbPixelPos = (((self._thumbPos-self._range[0])/self._getSliderRange())*
+                    pixelRange)
         if self._orientation == Orientation.HORIZONTAL:
             self._thumbNode.x = thumbPixelPos
         else:
