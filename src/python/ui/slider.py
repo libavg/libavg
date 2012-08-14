@@ -201,6 +201,21 @@ class Slider(avg.DivNode):
         if not(enabled):
             self.setEnabled(False)
 
+    def getExtent(self):
+        if self._orientation == Orientation.HORIZONTAL:
+            return self.width
+        else:
+            return self.height
+
+    def setExtent(self, extent):
+        if self._orientation == Orientation.HORIZONTAL:
+            self.width = extent
+        else:
+            self.height = extent
+        self._positionNodes()
+
+    extent = property(getExtent, setExtent)
+
     def getRange(self):
         return self._range
 
@@ -274,6 +289,14 @@ class Slider(avg.DivNode):
             self._thumbNode.x = (self._thumbPos/effectiveRange)*pixelRange
         else:
             self._thumbNode.y = (self._thumbPos/effectiveRange)*pixelRange
+#        print "--------"
+#        print "range: ", self._range
+#        print "thumbPos: ", self._thumbPos
+#        print "self.size: ", self.size
+#        print "_thumbNode.pos: ", self._thumbNode.pos
+#        print "effectiveRange: ", effectiveRange
+#        print "pixelRange: ", pixelRange
+
 #        self.size = self._trackNode.size
 
     def __constrainSliderPos(self):
@@ -303,13 +326,12 @@ class ScrollBar(Slider):
             return self.size.y - self._thumbNode.extent
 
     def _positionNodes(self, newSliderPos=None):
-        super(ScrollBar, self)._positionNodes(newSliderPos)
-        
         effectiveRange = self._range[1] - self._range[0]
         if self._orientation == Orientation.HORIZONTAL:
             self._thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.x
         else:
             self._thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.y
+        super(ScrollBar, self)._positionNodes(newSliderPos)
 
 
 class BmpScrollBar(ScrollBar):
