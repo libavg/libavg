@@ -63,7 +63,8 @@ class ScrollPane(avg.DivNode):
         return self._contentNode.size
 
     def setContentSize(self, size):
-        pass
+        self._contentNode.size = size
+        self.setContentPos(self._contentNode.pos) # Recheck constraints. 
     contentsize = property(getContentSize, setContentSize)
 
     def getMaxContentPos(self):
@@ -88,26 +89,26 @@ class ScrollArea(avg.DivNode):
 
         scrollPane.size = self.size - (vScrollBar.width, hScrollBar.height)
 
+        self._positionScrollBars()
+        
         if hScrollBar:
-            hScrollBar.pos = (0, scrollPane.height)
-            hScrollBar.extent = scrollPane.width
-            hScrollBar.range = (0, scrollPane.contentsize.x)
-            hScrollBar.thumbExtent = self.size.x
             hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
-
         if vScrollBar:
-            vScrollBar.pos = (scrollPane.width, 0)
-            vScrollBar.extent = scrollPane.height
-            vScrollBar.range = (0, scrollPane.contentsize.y)
-            vScrollBar.thumbExtent = self.size.y
             vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
-
         self.recognizer = gesture.DragRecognizer(
                 eventNode=self._scrollPane, 
                 detectedHandler=self.__onDragStart,
                 moveHandler=self.__onDragMove,
                 upHandler=self.__onDragMove,
                 )
+
+    def getContentSize(self):
+        return self._scrollPane._contentNode.size
+
+    def setContentSize(self, size):
+        self._scrollPane.contentsize = size
+        self._positionScrollBars()
+    contentsize = property(getContentSize, setContentSize)
 
     def __onHThumbMove(self, thumbPos):
         self._scrollPane.contentpos = (-thumbPos, self._scrollPane.contentpos.y)
@@ -126,3 +127,18 @@ class ScrollArea(avg.DivNode):
         if self._vScrollBar:
             self._vScrollBar.thumbPos = -contentpos.y
 
+    def _positionScrollBars(self):
+        if self._hScrollBar:
+            self._hScrollBar.pos = (0, self._scrollPane.height)
+            self._hScrollBar.extent = self._scrollPane.width
+            self._hScrollBar.range = (0, self._scrollPane.contentsize.x)
+            self._hScrollBar.thumbExtent = self._scrollPane.width
+            print "_hScrollBar.range: ", self._hScrollBar.range
+            print "_hScrollBar.thumbExtent: ", self._hScrollBar.thumbExtent
+
+        if self._vScrollBar:
+            self._vScrollBar.pos = (self._scrollPane.width, 0)
+            self._vScrollBar.extent = self._scrollPane.height
+            self._vScrollBar.range = (0, self._scrollPane.contentsize.y)
+            self._vScrollBar.thumbExtent = self._scrollPane.height
+        

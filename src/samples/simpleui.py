@@ -23,13 +23,23 @@ class SimpleUIApp(AVGApp):
         self.__addValueDisplay(vSlider, (55,220))
 
         image = avg.ImageNode(href="rgb24-64x64.png", size=(1024, 1024))
-        scrollArea = simple.ScrollArea(contentNode=image, parent=self._parentNode,
+        self.scrollArea = simple.ScrollArea(contentNode=image, parent=self._parentNode,
                 pos=(220,10), size=(220,220))
 
+        imageWidthSlider = simple.Slider(pos=(220,240), size=(220,20), 
+                parent=self._parentNode)
+        imageWidthSlider.range = (0,1024)
+        imageWidthSlider.thumbPos = 1024
+        imageWidthSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, self.setImageWidth)
 
     def setText(self, pos, node):
         node.text = "%.2f"%pos
 
+    def setImageWidth(self, thumbPos):
+        print "thumbPos: ", thumbPos
+        self.scrollArea.contentsize = (thumbPos,
+            self.scrollArea.contentsize.y)
+    
     def __addValueDisplay(self, scrollBar, pos):
         textNode = avg.WordsNode(pos=pos, parent=self._parentNode)
         scrollBar.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, 
