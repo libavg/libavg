@@ -590,6 +590,9 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testScrollBar"+orName+"4"),
                      lambda: self.node.setRange((0,10)),
                      lambda: self.node.setThumbPos(4.75),
+                     lambda: self.compareImage("testScrollBar"+orName+"5"),
+                     lambda: self.node.setRange((10,20)),
+                     lambda: self.node.setThumbPos(14.75),
                      lambda: self.compareImage("testScrollBar"+orName+"5")
                     ))
 

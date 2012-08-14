@@ -283,10 +283,12 @@ class Slider(avg.DivNode):
             self.notifySubscribers(ScrollBar.THUMB_POS_CHANGED, [self._thumbPos])
 
         pixelRange = self._getScrollRangeInPixels()
+        thumbPixelPos = (((self._thumbPos-self._range[0])/self._getSliderRange())*
+                pixelRange)
         if self._orientation == Orientation.HORIZONTAL:
-            self._thumbNode.x = (self._thumbPos/self._getSliderRange())*pixelRange
+            self._thumbNode.x = thumbPixelPos
         else:
-            self._thumbNode.y = (self._thumbPos/self._getSliderRange())*pixelRange
+            self._thumbNode.y = thumbPixelPos
 #        print "--------"
 #        print "range: ", self._range
 #        print "thumbPos: ", self._thumbPos

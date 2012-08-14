@@ -28,7 +28,7 @@ class SimpleUIApp(AVGApp):
 
         imageWidthSlider = simple.Slider(pos=(220,240), size=(220,20), 
                 parent=self._parentNode)
-        imageWidthSlider.range = (0,1024)
+        imageWidthSlider.range = (205,1024)
         imageWidthSlider.thumbPos = 1024
         imageWidthSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, self.setImageWidth)
 
