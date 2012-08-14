@@ -22,6 +22,11 @@ class SimpleUIApp(AVGApp):
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
         self.__addValueDisplay(vSlider, (55,220))
 
+        image = avg.ImageNode(href="rgb24-64x64.png", size=(1024, 1024))
+        scrollArea = simple.ScrollArea(contentNode=image, parent=self._parentNode,
+                pos=(220,10), size=(220,220))
+
+
     def setText(self, pos, node):
         node.text = "%.2f"%pos
 
@@ -32,4 +37,6 @@ class SimpleUIApp(AVGApp):
         self.setText(scrollBar.thumbPos, textNode)
 
 
-SimpleUIApp.start(resolution=(640,480))
+
+
+SimpleUIApp.start(resolution=(1024, 768))

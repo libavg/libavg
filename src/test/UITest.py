@@ -510,7 +510,7 @@ class UITestCase(AVGTestCase):
         root = self.loadEmptyScene()
         contentArea = avg.DivNode(size=(64,64))
         image = avg.ImageNode(href="rgb24-64x64.png", parent=contentArea)
-        scrollPane = ui.ScrollPane(contentDiv=contentArea, size=(32,32), parent=root)
+        scrollPane = ui.ScrollPane(contentNode=contentArea, size=(32,32), parent=root)
 
         self.start(False,
                 (lambda: self.compareImage("testScrollPane1"),

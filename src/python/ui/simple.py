@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 
 from libavg import avg
-from libavg.ui import button, slider
+from libavg.ui import button, slider, scrollarea
 
 
 class TextButton(button.Button):
@@ -158,10 +158,22 @@ class ScrollBar(slider.ScrollBar):
         extent = property(getExtent, setExtent)
 
 
-    def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
-        trackNode = SliderTrack(size=kwargs["size"], orientation=orientation)
-        thumbNode = ScrollBar.Thumb(kwargs["size"], orientation)
+    def __init__(self, size=(15,15), orientation=slider.Orientation.HORIZONTAL, **kwargs):
+        trackNode = SliderTrack(size=size, orientation=orientation)
+        thumbNode = ScrollBar.Thumb(size=size, orientation=orientation)
 
         super(ScrollBar, self).__init__(orientation=orientation, trackNode=trackNode,
-                thumbNode=thumbNode, **kwargs)
+                thumbNode=thumbNode, size=size, **kwargs)
+
+
+class ScrollArea(scrollarea.ScrollArea):
+    
+    def __init__(self, contentNode, parent=None, **kwargs):
+        scrollPane = scrollarea.ScrollPane(contentNode)
+        hScrollBar = ScrollBar(orientation=slider.Orientation.HORIZONTAL)
+        vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL)
+
+        super(ScrollArea, self).__init__(scrollPane=scrollPane, hScrollBar=hScrollBar,
+                vScrollBar=vScrollBar, **kwargs)
+        self.registerInstance(self, parent)
 
