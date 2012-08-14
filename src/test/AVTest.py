@@ -533,6 +533,10 @@ class AVTestCase(AVGTestCase):
             self.skip("Current dir not writeable")
             return
 
+        self.assertException(lambda:
+                avg.VideoWriter(player.getMainCanvas(), "test.mov", 30, 3, 5, False))
+
+
         for useCanvas in (False, True):
             player.setFakeFPS(30)
             
