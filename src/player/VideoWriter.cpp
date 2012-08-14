@@ -94,8 +94,10 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
 VideoWriter::~VideoWriter()
 {
     stop();
-    m_pThread->join();
-    delete m_pThread;
+    if (m_pThread) {
+        m_pThread->join();
+        delete m_pThread;
+    }
 }
 
 void VideoWriter::stop()
@@ -238,6 +240,9 @@ void VideoWriter::sendFrameToEncoder(BitmapPtr pBitmap)
 void VideoWriter::onPlaybackEnd()
 {
     stop();
+    m_pThread->join();
+    delete m_pThread;
+    m_pThread = 0;
 }
 
 void VideoWriter::writeDummyFrame()
