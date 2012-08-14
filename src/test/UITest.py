@@ -584,12 +584,12 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testScrollBar"+orName+"1"),
                      lambda: self.node.setThumbExtent(0.5),
                      lambda: self.compareImage("testScrollBar"+orName+"2"),
-                     lambda: self.node.setThumbPos(0.5),
+                     lambda: self.node.setThumbPos(0.25),
                      lambda: self.compareImage("testScrollBar"+orName+"3"),
-                     lambda: self.node.setThumbPos(1),
+                     lambda: self.node.setThumbPos(5),
                      lambda: self.compareImage("testScrollBar"+orName+"4"),
                      lambda: self.node.setRange((0,10)),
-                     lambda: self.node.setThumbPos(5),
+                     lambda: self.node.setThumbPos(4.75),
                      lambda: self.compareImage("testScrollBar"+orName+"5")
                     ))
 
@@ -603,7 +603,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testScrollBarHoriz6"),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 50, 10),
                  lambda: self.compareImage("testScrollBarHoriz7"),
-                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.5),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.25),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 25, 10),
                  lambda: self.compareImage("testScrollBarHoriz8"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
@@ -616,14 +616,14 @@ class UITestCase(AVGTestCase):
                         onThumbPosChanged),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 50, 10),
-                 lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
+                 lambda: self.assertAlmostEqual(self.thumbpos, 0.25),
 
                  # Enable/disable
                  lambda: self.node.setEnabled(False),
                  lambda: self.compareImage("testScrollBarHoriz10"),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
-                 lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
+                 lambda: self.assertAlmostEqual(self.thumbpos, 0.25),
                  lambda: self.node.setEnabled(True),
                  lambda: self.compareImage("testScrollBarHoriz11"),
 
@@ -631,7 +631,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 50, 10),
                  lambda: self.node.setEnabled(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 25, 10),
-                 lambda: self.assertAlmostEqual(self.thumbpos, 0.5),
+                 lambda: self.assertAlmostEqual(self.thumbpos, 0.25),
                  lambda: self.node.setEnabled(True),
                  lambda: self.compareImage("testScrollBarHoriz11"),
                 ))
@@ -646,7 +646,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testScrollBarVert6"),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 50),
                  lambda: self.compareImage("testScrollBarVert7"),
-                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.5),
+                 lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0.25),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 25),
                  lambda: self.compareImage("testScrollBarVert8"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),

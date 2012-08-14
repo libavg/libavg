@@ -11,7 +11,7 @@ class SimpleUIApp(AVGApp):
 
         vScrollBar = simple.ScrollBar(pos=(15,60), size=(20,150), 
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
-        vScrollBar.thumbExtent = 2
+        vScrollBar.thumbExtent = 5
         vScrollBar.range = (0,10)
         self.__addValueDisplay(vScrollBar, (10,220))
 

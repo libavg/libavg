@@ -255,13 +255,12 @@ class Slider(avg.DivNode):
         self.__dragStartPos = self._thumbPos
 
     def __onDrag(self, event, offset):
-        effectiveRange = self._range[1] - self._range[0]
         pixelRange = self._getScrollRangeInPixels()
         if self._orientation == Orientation.HORIZONTAL:
             normalizedOffset = offset.x/pixelRange
         else:
             normalizedOffset = offset.y/pixelRange
-        self._positionNodes(self.__dragStartPos + normalizedOffset*effectiveRange)
+        self._positionNodes(self.__dragStartPos + normalizedOffset*self._getSliderRange())
         if event.type == avg.CURSORUP:
             self._thumbNode.visibleID = "UP"
 
@@ -279,16 +278,15 @@ class Slider(avg.DivNode):
             self._trackNode.extent = self.width
         else:
             self._trackNode.extent = self.height
-        self.__constrainSliderPos()
+        self._constrainSliderPos()
         if self._thumbPos != oldThumbPos:
             self.notifySubscribers(ScrollBar.THUMB_POS_CHANGED, [self._thumbPos])
 
-        effectiveRange = self._range[1] - self._range[0]
         pixelRange = self._getScrollRangeInPixels()
         if self._orientation == Orientation.HORIZONTAL:
-            self._thumbNode.x = (self._thumbPos/effectiveRange)*pixelRange
+            self._thumbNode.x = (self._thumbPos/self._getSliderRange())*pixelRange
         else:
-            self._thumbNode.y = (self._thumbPos/effectiveRange)*pixelRange
+            self._thumbNode.y = (self._thumbPos/self._getSliderRange())*pixelRange
 #        print "--------"
 #        print "range: ", self._range
 #        print "thumbPos: ", self._thumbPos
@@ -299,7 +297,10 @@ class Slider(avg.DivNode):
 
 #        self.size = self._trackNode.size
 
-    def __constrainSliderPos(self):
+    def _getSliderRange(self):
+        return self._range[1] - self._range[0]
+
+    def _constrainSliderPos(self):
         self._thumbPos = max(self._range[0], self._thumbPos)
         self._thumbPos = min(self._range[1], self._thumbPos)
 
@@ -332,6 +333,13 @@ class ScrollBar(Slider):
         else:
             self._thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.y
         super(ScrollBar, self)._positionNodes(newSliderPos)
+    
+    def _getSliderRange(self):
+        return self._range[1] - self._range[0] - self.__thumbExtent
+
+    def _constrainSliderPos(self):
+        self._thumbPos = max(self._range[0], self._thumbPos)
+        self._thumbPos = min(self._range[1]-self.__thumbExtent, self._thumbPos)
 
 
 class BmpScrollBar(ScrollBar):

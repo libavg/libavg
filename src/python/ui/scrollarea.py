@@ -91,14 +91,14 @@ class ScrollArea(avg.DivNode):
         if hScrollBar:
             hScrollBar.pos = (0, scrollPane.height)
             hScrollBar.extent = scrollPane.width
-            hScrollBar.range = (0, scrollPane.contentsize.x-scrollPane.size.x)
+            hScrollBar.range = (0, scrollPane.contentsize.x)
             hScrollBar.thumbExtent = self.size.x
             hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
 
         if vScrollBar:
             vScrollBar.pos = (scrollPane.width, 0)
             vScrollBar.extent = scrollPane.height
-            vScrollBar.range = (0, scrollPane.contentsize.y-scrollPane.size.y)
+            vScrollBar.range = (0, scrollPane.contentsize.y)
             vScrollBar.thumbExtent = self.size.y
             vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
 
