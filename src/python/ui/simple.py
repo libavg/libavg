@@ -46,7 +46,7 @@ class SliderTrack(button.SwitchNode):
         style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
         self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
                 style=style)
-        self.__disabledNode = avg.RectNode(fillcolor="404040", color="C0C0C0",
+        self.__disabledNode = avg.RectNode(fillcolor="000000", color="808080",
                 style=style)
         nodeMap = {
             "ENABLED": self.__enabledNode,
@@ -91,7 +91,7 @@ class Slider(slider.Slider):
                     style=style)
             self.__downNode = avg.PolygonNode(fillcolor="C0C0C0", color="FFFFFF",
                     style=style)
-            self.__disabledNode = avg.PolygonNode(fillcolor="404040", color="C0C0C0",
+            self.__disabledNode = avg.PolygonNode(fillcolor="404040", color="808080",
                     style=style)
             nodeMap = {
                 "UP": self.__upNode,
@@ -131,7 +131,7 @@ class ScrollBar(slider.ScrollBar):
             self.__upNode = avg.RectNode(fillcolor="808080", color="808080", style=style)
             self.__downNode = avg.RectNode(fillcolor="C0C0C0", color="C0C0C0", 
                     style=style)
-            self.__disabledNode = avg.RectNode(fillcolor="404040", color="C0C0C0",
+            self.__disabledNode = avg.RectNode(fillcolor="404040", color="404040",
                     style=style)
             nodeMap = {
                 "UP": self.__upNode,

@@ -681,6 +681,8 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"2"),
                      lambda: self.node.setExtent(50),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"3"),
+                     lambda: self.node.setEnabled(False),
+                     lambda: self.compareImage("testSimpleScrollBar"+orName+"4"),
                     ))
 
     def testSimpleSlider(self):
@@ -704,6 +706,8 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testSimpleSlider"+orName+"2"),
                      lambda: self.node.setExtent(50),
                      lambda: self.compareImage("testSimpleSlider"+orName+"3"),
+                     lambda: self.node.setEnabled(False),
+                     lambda: self.compareImage("testSimpleSlider"+orName+"4"),
                     ))
 
 
