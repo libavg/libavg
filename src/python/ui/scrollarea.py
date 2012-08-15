@@ -123,9 +123,9 @@ class ScrollArea(avg.DivNode):
         contentpos = self.__dragStartPos + offset
         self._scrollPane.contentpos = contentpos
         if self._hScrollBar:
-            self._hScrollBar.thumbPos = -contentpos.x
+            self._hScrollBar.thumbpos = -contentpos.x
         if self._vScrollBar:
-            self._vScrollBar.thumbPos = -contentpos.y
+            self._vScrollBar.thumbpos = -contentpos.y
 
     def _positionScrollBars(self):
         if self._hScrollBar:
@@ -138,7 +138,7 @@ class ScrollArea(avg.DivNode):
             else:
                 self._hScrollBar.range = (0, self._scrollPane.contentsize.x)
                 self._hScrollBar.enabled = True
-            self._hScrollBar.thumbExtent = self._scrollPane.width
+            self._hScrollBar.thumbextent = self._scrollPane.width
 
         if self._vScrollBar:
             self._vScrollBar.pos = (self._scrollPane.width, 0)
@@ -150,5 +150,5 @@ class ScrollArea(avg.DivNode):
             else:
                 self._vScrollBar.range = (0, self._scrollPane.contentsize.y)
                 self._vScrollBar.enabled = True
-            self._vScrollBar.thumbExtent = self._scrollPane.height
+            self._vScrollBar.thumbextent = self._scrollPane.height
         

@@ -26,7 +26,7 @@ import gesture
 
 class SwitchNode(avg.DivNode):
 
-    def __init__(self, nodeMap, visibleID=None, parent=None, **kwargs):
+    def __init__(self, nodeMap, visibleid=None, parent=None, **kwargs):
         super(SwitchNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
    
@@ -34,8 +34,8 @@ class SwitchNode(avg.DivNode):
 
         if nodeMap:
             self.setNodeMap(nodeMap)
-        if visibleID:
-            self.setVisibleID(visibleID)
+        if visibleid:
+            self.setVisibleID(visibleid)
 
     def setNodeMap(self, nodeMap):
         self.__nodeMap = nodeMap
@@ -48,17 +48,17 @@ class SwitchNode(avg.DivNode):
                     self.appendChild(node)
 
     def getVisibleID(self):
-        return self.__visibleID
+        return self.__visibleid
 
-    def setVisibleID(self, visibleID):
-        if not (visibleID in self.__nodeMap):
-            raise RuntimeError("'%s' is not a registered id." % visibleID)
-        self.__visibleID = visibleID
+    def setVisibleID(self, visibleid):
+        if not (visibleid in self.__nodeMap):
+            raise RuntimeError("'%s' is not a registered id." % visibleid)
+        self.__visibleid = visibleid
         for node in self.__nodeMap.itervalues():
             node.active = False
-        self.__nodeMap[visibleID].active = True
+        self.__nodeMap[visibleid].active = True
 
-    visibleID = property(getVisibleID, setVisibleID)
+    visibleid = property(getVisibleID, setVisibleID)
 
 
 class _ButtonBase(avg.DivNode):
@@ -107,7 +107,7 @@ class Button(_ButtonBase):
             "DOWN": downNode, 
             "DISABLED": disabledNode
         }
-        self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleID="UP", parent=self)
+        self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UP", parent=self)
         self.publish(Button.CLICK)
         if clickHandler:
             self.subscribe(Button.CLICK, clickHandler)
@@ -171,7 +171,7 @@ class Button(_ButtonBase):
         self._tapRecognizer.enable(True)
 
     def __setActiveNode(self):
-        self.__switchNode.visibleID = self.__stateMachine.state
+        self.__switchNode.visibleid = self.__stateMachine.state
 
 
 class BmpButton(Button):
@@ -207,7 +207,7 @@ class ToggleButton(_ButtonBase):
             nodeMap["UNCHECKED_DISABLED"] = uncheckedUpNode
         if checkedDisabledNode == None:
             nodeMap["CHECKED_DISABLED"] = checkedUpNode
-        self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleID="UNCHECKED_UP", 
+        self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UNCHECKED_UP", 
                 parent=self)
 
         self.publish(ToggleButton.TOGGLE)
@@ -350,7 +350,7 @@ class ToggleButton(_ButtonBase):
             self.__stateMachine.changeState("CHECKED_UP")
     
     def __setActiveNode(self):
-        self.__switchNode.visibleID = self.__stateMachine.state
+        self.__switchNode.visibleid = self.__stateMachine.state
 
 
 class BmpToggleButton(ToggleButton):

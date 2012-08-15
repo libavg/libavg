@@ -52,7 +52,7 @@ class SliderTrack(button.SwitchNode):
             "ENABLED": self.__enabledNode,
             "DISABLED": self.__disabledNode
         }
-        super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleID="ENABLED", size=size,
+        super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", size=size,
                 **kwargs)
         self.pos = self.__inset
         self.size -= 2*self.__inset
@@ -99,7 +99,7 @@ class Slider(slider.Slider):
                 "DISABLED": self.__disabledNode
             }
             super(Slider.Thumb, self).__init__(
-                    nodeMap=nodeMap, visibleID="UP", size=size, **kwargs)
+                    nodeMap=nodeMap, visibleid="UP", size=size, **kwargs)
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
         
@@ -139,7 +139,7 @@ class ScrollBar(slider.ScrollBar):
                 "DISABLED": self.__disabledNode
             }
             super(ScrollBar.Thumb, self).__init__(
-                    nodeMap=nodeMap, visibleID="UP", size=size)
+                    nodeMap=nodeMap, visibleid="UP", size=size)
 
         def getExtent(self):
             if self.__orientation == slider.Orientation.HORIZONTAL:

@@ -121,7 +121,7 @@ class ScrollBarTrack(SwitchNode):
             "ENABLED": self.__enabledNode, 
             "DISABLED": self.__disabledNode
         })
-        self.visibleID = "ENABLED"
+        self.visibleid = "ENABLED"
         
     def getExtent(self):
         return self.__enabledNode.extent
@@ -153,7 +153,7 @@ class ScrollBarThumb(SwitchNode):
             "DOWN": self.__downNode, 
             "DISABLED": self.__disabledNode
         })
-        self.visibleID = "UP"
+        self.visibleid = "UP"
         self.size = self.__upNode.size
         
     def getExtent(self):
@@ -173,7 +173,7 @@ class Slider(avg.DivNode):
     THUMB_POS_CHANGED = avg.Node.LAST_MESSAGEID
 
     def __init__(self, trackNode, thumbNode, enabled=True, 
-            orientation=Orientation.HORIZONTAL, range=(0.,1.), thumbPos=0.0, 
+            orientation=Orientation.HORIZONTAL, range=(0.,1.), thumbpos=0.0, 
             thumbPosChangedHandler=None, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -187,7 +187,7 @@ class Slider(avg.DivNode):
         self.appendChild(self._thumbNode)
 
         self._range = range
-        self._thumbPos = thumbPos
+        self._thumbPos = thumbpos
 
         self._positionNodes()
 
@@ -228,30 +228,30 @@ class Slider(avg.DivNode):
     def getThumbPos(self):
         return self._thumbPos
 
-    def setThumbPos(self, thumbPos):
-        self._positionNodes(thumbPos)
+    def setThumbPos(self, thumbpos):
+        self._positionNodes(thumbpos)
 
-    thumbPos = property(getThumbPos, setThumbPos)
+    thumbpos = property(getThumbPos, setThumbPos)
 
     def getEnabled(self):
-        return self._trackNode.visibleID != "DISABLED"
+        return self._trackNode.visibleid != "DISABLED"
 
     def setEnabled(self, enabled):
         if enabled:
-            if self._trackNode.visibleID == "DISABLED":
-                self._trackNode.visibleID = "ENABLED"
-                self._thumbNode.visibleID = "UP"
+            if self._trackNode.visibleid == "DISABLED":
+                self._trackNode.visibleid = "ENABLED"
+                self._thumbNode.visibleid = "UP"
                 self.__recognizer.enable(True)
         else:
-            if self._trackNode.visibleID != "DISABLED":
-                self._trackNode.visibleID = "DISABLED"
-                self._thumbNode.visibleID = "DISABLED"
+            if self._trackNode.visibleid != "DISABLED":
+                self._trackNode.visibleid = "DISABLED"
+                self._thumbNode.visibleid = "DISABLED"
                 self.__recognizer.enable(False)
 
     enabled = property(getEnabled, setEnabled)
 
     def __onDragStart(self, event):
-        self._thumbNode.visibleID = "DOWN"
+        self._thumbNode.visibleid = "DOWN"
         self.__dragStartPos = self._thumbPos
 
     def __onDrag(self, event, offset):
@@ -265,7 +265,7 @@ class Slider(avg.DivNode):
                 normalizedOffset = offset.y/pixelRange
         self._positionNodes(self.__dragStartPos + normalizedOffset*self._getSliderRange())
         if event.type == avg.CURSORUP:
-            self._thumbNode.visibleID = "UP"
+            self._thumbNode.visibleid = "UP"
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
@@ -315,8 +315,8 @@ class Slider(avg.DivNode):
 
 class ScrollBar(Slider):
    
-    def __init__(self, thumbExtent=0.1, **kwargs):
-        self.__thumbExtent = thumbExtent
+    def __init__(self, thumbextent=0.1, **kwargs):
+        self.__thumbExtent = thumbextent
         super(ScrollBar, self).__init__(**kwargs)
 
     def getThumbExtent(self):
@@ -326,7 +326,7 @@ class ScrollBar(Slider):
         self.__thumbExtent = float(thumbExtent)
         self._positionNodes()
 
-    thumbExtent = property(getThumbExtent, setThumbExtent)
+    thumbextent = property(getThumbExtent, setThumbExtent)
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
