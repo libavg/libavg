@@ -52,7 +52,7 @@ class AccordionNode(avg.DivNode):
         if minExtent == -1:
             self.__minExtent = self.__endsExtent*2+1
         else:
-            self.__minExtent == minExtent
+            self.__minExtent = minExtent
         
         if extent == -1:
             self.__extent = self.__minExtent

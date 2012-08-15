@@ -131,12 +131,24 @@ class ScrollArea(avg.DivNode):
         if self._hScrollBar:
             self._hScrollBar.pos = (0, self._scrollPane.height)
             self._hScrollBar.extent = self._scrollPane.width
-            self._hScrollBar.range = (0, self._scrollPane.contentsize.x)
+
+            if self._scrollPane.contentsize.x <= self._scrollPane.width:
+                self._hScrollBar.range = (0, self._scrollPane.width)
+                self._hScrollBar.enabled = False
+            else:
+                self._hScrollBar.range = (0, self._scrollPane.contentsize.x)
+                self._hScrollBar.enabled = True
             self._hScrollBar.thumbExtent = self._scrollPane.width
 
         if self._vScrollBar:
             self._vScrollBar.pos = (self._scrollPane.width, 0)
             self._vScrollBar.extent = self._scrollPane.height
-            self._vScrollBar.range = (0, self._scrollPane.contentsize.y)
+
+            if self._scrollPane.contentsize.y <= self._scrollPane.height:
+                self._vScrollBar.range = (0, self._scrollPane.height)
+                self._vScrollBar.enabled = False
+            else:
+                self._vScrollBar.range = (0, self._scrollPane.contentsize.y)
+                self._vScrollBar.enabled = True
             self._vScrollBar.thumbExtent = self._scrollPane.height
         
