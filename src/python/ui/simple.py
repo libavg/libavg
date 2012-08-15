@@ -57,6 +57,7 @@ class CheckBox(button.ToggleButton):
                 **kwargs)
 
         self._textNode = avg.WordsNode(pos=(19,0), text=text, parent=self)
+        self.__oldEnabled = self.enabled
 
     def __createNode(self, state, checked):
         if state == CheckBox.UP:
@@ -78,6 +79,38 @@ class CheckBox(button.ToggleButton):
             avg.LineNode(pos1=(2.5,12.5), pos2=(12.5,2.5), color=color, parent=node)
 
         return node
+
+    def _enterUncheckedUp(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterUncheckedUp()
+
+    def _enterUncheckedDown(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterUncheckedDown()
+
+    def _enterCheckedUp(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterCheckedUp()
+
+    def _enterCheckedDown(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterCheckedDown()
+
+    def _enterUncheckedDisabled(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterUncheckedDisabled()
+
+    def _enterCheckedDisabled(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterCheckedDisabled()
+
+    def __checkEnabledChange(self):
+        if self.__oldEnabled != self.enabled:
+            if self.enabled:
+                self._textNode.color = "FFFFFF"
+            else:
+                self._textNode.color = "808080"
+            self.__oldEnabled = self.enabled
 
 
 class SliderTrack(button.SwitchNode):
