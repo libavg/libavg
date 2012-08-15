@@ -710,6 +710,25 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testSimpleSlider"+orName+"4"),
                     ))
 
+    def testSimpleScrollArea(self):
+
+        def createNode():
+            image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
+            self.node = simple.ScrollArea(contentNode=image, size=(115,115),
+                    parent=root)
+
+        root = self.loadEmptyScene()
+        self.start(False,
+                (lambda: createNode(),
+                 lambda: self.compareImage("testSimpleScrollArea1"),
+                 lambda: self.node.setContentSize((400,200)),
+                 lambda: self.compareImage("testSimpleScrollArea2"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 90, 90),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 90),
+                 lambda: self.compareImage("testSimpleScrollArea3"),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 10),
+                 lambda: self.compareImage("testSimpleScrollArea4"),
+                ))
 
 def uiTestSuite(tests):
     availableTests = (
@@ -722,7 +741,8 @@ def uiTestSuite(tests):
         "testAccordionNode",
         "testScrollBar",
         "testSimpleScrollBar",
-        "testSimpleSlider"
+        "testSimpleSlider",
+        "testSimpleScrollArea"
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)
