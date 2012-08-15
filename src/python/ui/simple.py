@@ -38,6 +38,48 @@ class TextButton(button.Button):
         super(TextButton, self).__init__(**kwargs)
 
 
+class CheckBox(button.ToggleButton):
+
+    UP = 0
+    DOWN = 1
+    DISABLED = 2
+
+    def __init__(self, text, **kwargs):
+        uncheckedUpNode = self.__createNode(CheckBox.UP, checked=False)
+        uncheckedDownNode = self.__createNode(CheckBox.DOWN, checked=False)
+        checkedUpNode = self.__createNode(CheckBox.UP, checked=True)
+        checkedDownNode = self.__createNode(CheckBox.DOWN, checked=True)
+        uncheckedDisabledNode = self.__createNode(CheckBox.DISABLED, checked=False)
+        checkedDisabledNode = self.__createNode(CheckBox.DISABLED, checked=True)
+
+        super(CheckBox, self).__init__(uncheckedUpNode, uncheckedDownNode, checkedUpNode,
+                checkedDownNode, uncheckedDisabledNode, checkedDisabledNode,
+                **kwargs)
+
+        self._textNode = avg.WordsNode(pos=(19,0), text=text, parent=self)
+
+    def __createNode(self, state, checked):
+        if state == CheckBox.UP:
+            color = "FFFFFF"
+            fillcolor="000000"
+        elif state == CheckBox.DOWN:
+            color = "FFFFFF"
+            fillcolor = "808080"
+        elif state == CheckBox.DISABLED:
+            color = "C0C0C0"
+            fillcolor = "404040"
+
+        node = avg.DivNode(size=(15,15))
+        avg.RectNode(pos=(0.5,0.5), size=(14,14), color=color, fillcolor=fillcolor, 
+                fillopacity=1, parent=node)
+
+        if checked:
+            avg.LineNode(pos1=(2.5,2.5), pos2=(12.5,12.5), color=color, parent=node)
+            avg.LineNode(pos1=(2.5,12.5), pos2=(12.5,2.5), color=color, parent=node)
+
+        return node
+
+
 class SliderTrack(button.SwitchNode):
     def __init__(self, size, inset=(0,0), orientation=slider.Orientation.HORIZONTAL,
             sensitive=True, **kwargs):
@@ -186,4 +228,3 @@ class ScrollArea(scrollarea.ScrollArea):
         super(ScrollArea, self).__init__(scrollPane=scrollPane, hScrollBar=hScrollBar,
                 vScrollBar=vScrollBar, **kwargs)
         self.registerInstance(self, parent)
-
