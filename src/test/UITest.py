@@ -723,11 +723,19 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testSimpleScrollArea1"),
                  lambda: self.node.setContentSize((400,200)),
                  lambda: self.compareImage("testSimpleScrollArea2"),
+                 # Scroll via gesture
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 90, 90),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 90),
                  lambda: self.compareImage("testSimpleScrollArea3"),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 10),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
                  lambda: self.compareImage("testSimpleScrollArea4"),
+                 # Scroll using scroll bars
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 110, 70),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 110, 20),
+                 lambda: self.compareImage("testSimpleScrollArea3"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 40, 110),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 0, 110),
+                 lambda: self.compareImage("testSimpleScrollArea2"),
                 ))
 
 def uiTestSuite(tests):
