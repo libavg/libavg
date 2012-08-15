@@ -55,7 +55,9 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
       m_StartTime(-1),
       m_bFramePending(false)
 {
-    m_FrameSize = m_pCanvas->getSize();
+    if (!pCanvas) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "VideoWriter needs a canvas to write to.");
+    }
 #ifdef WIN32
     int fd = _open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, _S_IREAD | _S_IWRITE);
 #elif defined linux
@@ -75,7 +77,10 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
 #endif
     remove(m_sOutFileName.c_str());
     CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
-    if (pMainCanvas != m_pCanvas) {
+    if (pMainCanvas == m_pCanvas) {
+        m_FrameSize = Player::get()->getDisplayEngine()->getWindowSize();
+    } else {
+        m_FrameSize = m_pCanvas->getSize();
         m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
         if (GLContext::getMain()->useGPUYUVConversion()) {
             m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
@@ -91,8 +96,10 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
 VideoWriter::~VideoWriter()
 {
     stop();
-    m_pThread->join();
-    delete m_pThread;
+    if (m_pThread) {
+        m_pThread->join();
+        delete m_pThread;
+    }
 }
 
 void VideoWriter::stop()
@@ -235,6 +242,9 @@ void VideoWriter::sendFrameToEncoder(BitmapPtr pBitmap)
 void VideoWriter::onPlaybackEnd()
 {
     stop();
+    m_pThread->join();
+    delete m_pThread;
+    m_pThread = 0;
 }
 
 void VideoWriter::writeDummyFrame()

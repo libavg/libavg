@@ -116,9 +116,9 @@ void VideoWriterThread::open()
     av_register_all(); // TODO: make sure this is only done once. 
 //    av_log_set_level(AV_LOG_DEBUG);
 #if LIBAVFORMAT_VERSION_MAJOR > 52
-    m_pOutputFormat = av_guess_format("mov", NULL, NULL);
+    m_pOutputFormat = av_guess_format(0, m_sFilename.c_str(), 0);
 #else
-    m_pOutputFormat = guess_format("mov", NULL, NULL);
+    m_pOutputFormat = guess_format(0, m_sFilename.c_str(), 0);
 #endif
     m_pOutputFormat->video_codec = CODEC_ID_MJPEG;
 
