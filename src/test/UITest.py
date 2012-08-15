@@ -760,6 +760,13 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testSimpleCheckBox5"),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
                  lambda: self.compareImage("testSimpleCheckBox5"),
+                 lambda: checkBox.setEnabled(True),
+                 lambda: self.compareImage("testSimpleCheckBox1"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 10),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
+                 lambda: self.compareImage("testSimpleCheckBox3"),
+                 lambda: checkBox.setEnabled(False),
+                 lambda: self.compareImage("testSimpleCheckBox6"),
                 ))
 
 def uiTestSuite(tests):
