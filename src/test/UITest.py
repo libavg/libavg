@@ -494,15 +494,15 @@ class UITestCase(AVGTestCase):
 
     def testScrollPane(self):
         def scrollLarge():
-            scrollPane.contentpos = (-34, -34)
-            self.assertEqual(scrollPane.contentpos, (-32,-32))
+            scrollPane.contentpos = (34, 34)
+            self.assertEqual(scrollPane.contentpos, (32,32))
 
         def initSmallContent():
             scrollPane.size = (64, 64)
             contentArea.size = (32, 32)
             image.size = (32, 32)
             scrollPane.contentpos = (0, 0)
-            self.assertEqual(scrollPane.getMaxContentPos(), (32,32))
+            self.assertEqual(scrollPane.getMaxContentPos(), (0,0))
 
         def scrollSmall():
             scrollPane.contentpos = (32, 32)
@@ -519,7 +519,7 @@ class UITestCase(AVGTestCase):
                  initSmallContent,
                  lambda: self.compareImage("testScrollPane3"),
                  scrollSmall,
-                 lambda: self.compareImage("testScrollPane4"),
+                 lambda: self.compareImage("testScrollPane3"),
                 ))
 
     def testAccordionNode(self):
@@ -723,16 +723,19 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testSimpleScrollArea1"),
                  lambda: self.node.setContentSize((400,200)),
                  lambda: self.compareImage("testSimpleScrollArea2"),
+                 lambda: self.node.setContentPos((200,100)),
+                 lambda: self.compareImage("testSimpleScrollArea3"),
+                 lambda: self.node.setContentPos((0,0)),
                  # Scroll via gesture
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 90, 90),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 10, 90),
-                 lambda: self.compareImage("testSimpleScrollArea3"),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
                  lambda: self.compareImage("testSimpleScrollArea4"),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
+                 lambda: self.compareImage("testSimpleScrollArea5"),
                  # Scroll using scroll bars
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 110, 70),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 110, 20),
-                 lambda: self.compareImage("testSimpleScrollArea3"),
+                 lambda: self.compareImage("testSimpleScrollArea4"),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 40, 110),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 110),
                  lambda: self.compareImage("testSimpleScrollArea2"),

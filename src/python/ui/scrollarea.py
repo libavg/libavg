@@ -35,17 +35,17 @@ class ScrollPane(avg.DivNode):
     def setContentPos(self, pos):
 
         def constrain(pos, limit):
-            if limit < 0:
+            if limit > 0:
                 # Content larger than container
-                if pos < limit:
+                if pos > limit:
                     pos = limit
-                elif pos > 0:
+                elif pos < 0:
                     pos = 0
             else:
                 # Content smaller than container
-                if pos < 0:
+                if pos > 0:
                     pos = 0
-                elif pos > limit:
+                elif pos < limit:
                     pos = limit
             return pos
 
@@ -53,10 +53,10 @@ class ScrollPane(avg.DivNode):
         pos = avg.Point2D(pos)
         pos.x = constrain(pos.x, maxPos.x)
         pos.y = constrain(pos.y, maxPos.y)
-        self._contentNode.pos = pos
+        self._contentNode.pos = -pos
 
     def getContentPos(self):
-        return self._contentNode.pos
+        return -self._contentNode.pos
     contentpos = property(getContentPos, setContentPos)
 
     def getContentSize(self):
@@ -64,11 +64,15 @@ class ScrollPane(avg.DivNode):
 
     def setContentSize(self, size):
         self._contentNode.size = size
-        self.setContentPos(self._contentNode.pos) # Recheck constraints. 
+        self.setContentPos(-self._contentNode.pos) # Recheck constraints. 
     contentsize = property(getContentSize, setContentSize)
 
     def getMaxContentPos(self):
-        maxPos = self.size - self._contentNode.size
+        maxPos = avg.Point2D(self._contentNode.size - self.size)
+        if maxPos.x < 0:
+            maxPos.x = 0
+        if maxPos.y < 0:
+            maxPos.y = 0
         return maxPos
 
 
@@ -110,22 +114,30 @@ class ScrollArea(avg.DivNode):
         self._positionScrollBars()
     contentsize = property(getContentSize, setContentSize)
 
+    def getContentPos(self):
+        return self._scrollPane.contentpos
+
+    def setContentPos(self, pos):
+        self._scrollPane.contentpos = pos
+        self._positionScrollBars()
+    contentpos = property(getContentPos, setContentPos)
+
     def __onHThumbMove(self, thumbPos):
-        self._scrollPane.contentpos = (-thumbPos, self._scrollPane.contentpos.y)
+        self._scrollPane.contentpos = (thumbPos, self._scrollPane.contentpos.y)
 
     def __onVThumbMove(self, thumbPos):
-        self._scrollPane.contentpos = (self._scrollPane.contentpos.x, -thumbPos)
+        self._scrollPane.contentpos = (self._scrollPane.contentpos.x, thumbPos)
 
     def __onDragStart(self, event):
         self.__dragStartPos = self._scrollPane.contentpos
 
     def __onDragMove(self, event, offset):
-        contentpos = self.__dragStartPos + offset
+        contentpos = self.__dragStartPos - offset
         self._scrollPane.contentpos = contentpos
         if self._hScrollBar:
-            self._hScrollBar.thumbpos = -contentpos.x
+            self._hScrollBar.thumbpos = contentpos.x
         if self._vScrollBar:
-            self._vScrollBar.thumbpos = -contentpos.y
+            self._vScrollBar.thumbpos = contentpos.y
 
     def _positionScrollBars(self):
         if self._hScrollBar:
