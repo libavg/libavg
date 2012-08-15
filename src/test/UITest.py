@@ -741,6 +741,27 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testSimpleScrollArea2"),
                 ))
 
+    def testSimpleCheckBox(self):
+        
+        root = self.loadEmptyScene()
+        checkBox = simple.CheckBox(text="text", parent=root)
+        self.start(False,
+                (lambda: self.compareImage("testSimpleCheckBox1"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 10),
+                 lambda: self.compareImage("testSimpleCheckBox2"),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
+                 lambda: self.compareImage("testSimpleCheckBox3"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 10),
+                 lambda: self.compareImage("testSimpleCheckBox4"),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
+                 lambda: checkBox.setEnabled(False),
+                 lambda: self.compareImage("testSimpleCheckBox5"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 10),
+                 lambda: self.compareImage("testSimpleCheckBox5"),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
+                 lambda: self.compareImage("testSimpleCheckBox5"),
+                ))
+
 def uiTestSuite(tests):
     availableTests = (
         "testKeyboard",
@@ -753,7 +774,8 @@ def uiTestSuite(tests):
         "testScrollBar",
         "testSimpleScrollBar",
         "testSimpleSlider",
-        "testSimpleScrollArea"
+        "testSimpleScrollArea",
+        "testSimpleCheckBox"
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)

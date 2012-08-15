@@ -67,7 +67,7 @@ class CheckBox(button.ToggleButton):
             color = "FFFFFF"
             fillcolor = "808080"
         elif state == CheckBox.DISABLED:
-            color = "C0C0C0"
+            color = "808080"
             fillcolor = "404040"
 
         node = avg.DivNode(size=(15,15))
