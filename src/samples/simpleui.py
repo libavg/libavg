@@ -22,31 +22,39 @@ class SimpleUIApp(AVGApp):
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
         self.__addValueDisplay(vSlider, (55,220))
 
-        image = avg.ImageNode(href="rgb24-64x64.png", size=(1024, 1024))
-        self.scrollArea = simple.ScrollArea(contentNode=image, parent=self._parentNode,
-                pos=(220,10), size=(220,220))
-
-        imageWidthSlider = simple.Slider(pos=(220,240), size=(220,20), 
-                parent=self._parentNode)
-        imageWidthSlider.range = (100,1024)
-        imageWidthSlider.thumbpos = 1024
-        imageWidthSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, self.setImageWidth)
-
-        imageHeightSlider = simple.Slider(pos=(450,10), size=(20,220), 
-                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
-        imageHeightSlider.range = (100,1024)
-        imageHeightSlider.thumbpos = 1024
-        imageHeightSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, self.setImageHeight)
+        self.createScrollArea(avg.Point2D(220,10), True)
+        self.createScrollArea(avg.Point2D(500,10), False)
 
     def setText(self, pos, node):
         node.text = "%.2f"%pos
 
-    def setImageWidth(self, thumbPos):
-        self.scrollArea.contentsize = (thumbPos, self.scrollArea.contentsize.y)
+    def setImageWidth(self, scrollArea, thumbPos):
+        scrollArea.contentsize = (thumbPos, scrollArea.contentsize.y)
     
-    def setImageHeight(self, thumbPos):
-        self.scrollArea.contentsize = (self.scrollArea.contentsize.x, thumbPos)
-    
+    def setImageHeight(self, scrollArea, thumbPos):
+        scrollArea.contentsize = (scrollArea.contentsize.x, thumbPos)
+
+    def createScrollArea(self, pos, sensitiveScrollBars):
+        image = avg.ImageNode(href="rgb24-64x64.png", size=(1024, 1024))
+        scrollArea = simple.ScrollArea(contentNode=image, parent=self._parentNode,
+                pos=pos, size=(220,220), sensitiveScrollBars=sensitiveScrollBars)
+
+        imageWidthSlider = simple.Slider(pos=pos+(0,230), size=(220,20), 
+                parent=self._parentNode)
+        imageWidthSlider.range = (100,1024)
+        imageWidthSlider.thumbpos = 1024
+        imageWidthSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, 
+                lambda thumbPos, scrollArea=scrollArea: 
+                    self.setImageWidth(scrollArea, thumbPos))
+
+        imageHeightSlider = simple.Slider(pos=pos+(230,0), size=(20,220), 
+                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+        imageHeightSlider.range = (100,1024)
+        imageHeightSlider.thumbpos = 1024
+        imageHeightSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED,
+                lambda thumbPos, scrollArea=scrollArea: 
+                    self.setImageHeight(scrollArea, thumbPos))
+
     def __addValueDisplay(self, scrollBar, pos):
         textNode = avg.WordsNode(pos=pos, parent=self._parentNode)
         scrollBar.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, 

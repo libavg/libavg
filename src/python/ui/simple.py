@@ -40,20 +40,24 @@ class TextButton(button.Button):
 
 class SliderTrack(button.SwitchNode):
     def __init__(self, size, inset=(0,0), orientation=slider.Orientation.HORIZONTAL,
-            **kwargs):
+            sensitive=True, **kwargs):
         self.__inset = avg.Point2D(inset)
         self.__orientation = orientation
         style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
-        self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
-                style=style)
+        if sensitive:
+            self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
+                    style=style)
+        else:
+            self.__enabledNode = avg.RectNode(fillcolor="404040", strokewidth=0,
+                    style=style)
         self.__disabledNode = avg.RectNode(fillcolor="000000", color="808080",
                 style=style)
         nodeMap = {
             "ENABLED": self.__enabledNode,
             "DISABLED": self.__disabledNode
         }
-        super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", size=size,
-                **kwargs)
+        super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", 
+                sensitive=sensitive, size=size, **kwargs)
         self.pos = self.__inset
         self.size -= 2*self.__inset
 
@@ -157,21 +161,27 @@ class ScrollBar(slider.ScrollBar):
 
         extent = property(getExtent, setExtent)
 
-
-    def __init__(self, size=(15,15), orientation=slider.Orientation.HORIZONTAL, **kwargs):
-        trackNode = SliderTrack(size=size, orientation=orientation)
+    def __init__(self, size=(15,15), orientation=slider.Orientation.HORIZONTAL, 
+            sensitive=True, **kwargs):
+        trackNode = SliderTrack(size=size, orientation=orientation, sensitive=sensitive)
         thumbNode = ScrollBar.Thumb(size=size, orientation=orientation)
 
         super(ScrollBar, self).__init__(orientation=orientation, trackNode=trackNode,
-                thumbNode=thumbNode, size=size, **kwargs)
+                thumbNode=thumbNode, size=size, sensitive=sensitive, **kwargs)
 
 
 class ScrollArea(scrollarea.ScrollArea):
     
-    def __init__(self, contentNode, parent=None, **kwargs):
+    def __init__(self, contentNode, sensitiveScrollBars=True, parent=None, **kwargs):
         scrollPane = scrollarea.ScrollPane(contentNode)
-        hScrollBar = ScrollBar(orientation=slider.Orientation.HORIZONTAL)
-        vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL)
+        if sensitiveScrollBars:
+            hScrollBar = ScrollBar(orientation=slider.Orientation.HORIZONTAL)
+            vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL)
+        else:
+            hScrollBar = ScrollBar(orientation=slider.Orientation.HORIZONTAL, size=(3,3),
+                    sensitive=False)
+            vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL, size=(3,3),
+                    sensitive=False)
 
         super(ScrollArea, self).__init__(scrollPane=scrollPane, hScrollBar=hScrollBar,
                 vScrollBar=vScrollBar, **kwargs)
