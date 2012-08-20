@@ -90,13 +90,27 @@ This section describes the base classes for all node classes that libavg provide
 
         **Messages:**
 
-            All messages are emitted only if the cursor is above the :py:class:`Node` and
-            :py:attr:`active` as well as :py:attr:`sensitive` are True. The message
+            All cursor and hover messages are emitted only if the cursor is above the 
+            :py:class:`Node` and :py:attr:`active` as well as :py:attr:`sensitive` are 
+            :py:const:`True`. The message
             parameters are of type :py:class:`CursorEvent`. The CURSOR messages are 
             emitted for mouse and touch events. The HOVER events are emitted for touch 
             devices which can sense hands approaching the surface before the actual touch.
 
             To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: CONNECT(canvas)
+            
+                Emitted when a node is connected to a canvas directly or indirectly. Note
+                that this does not mean that it is possible to render yet - the event may
+                be emitted before :samp:`Player.play()`. When this message is emitted, 
+                the node has already been connected internally.
+
+            .. py:method:: CONNECTDISPLAY()
+
+                Emitted when a node can be rendered, that is, when the node is connected
+                to a canvas and after :samp:`Player.play()`. This always happens after 
+                :py:meth:`CONNECT`.
 
             .. py:method:: CURSORDOWN(cursorevent)
             
@@ -117,6 +131,14 @@ This section describes the base classes for all node classes that libavg provide
             .. py:method:: CURSOROUT(cursorevent)
             
                 Emitted whenever a mouse or a touch leaves the :py:class:`Node`'s area.
+
+            .. py:method:: DISCONNECT(kill)
+            
+                Emitted when a node loses its connection to a canvas. The node is
+                disconnected internally after the event has been processed. 
+                :py:attr:`kill` is :py:const:`True` if the disconnect is a result of 
+                :samp:`Node.unlink(True)`. In this case, all resources used by the 
+                :py:class:`Node` can be can be released.
 
             .. py:method:: HOVERDOWN(cursorevent)
             

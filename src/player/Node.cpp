@@ -157,7 +157,7 @@ void Node::connect(CanvasPtr pCanvas)
 void Node::disconnect(bool bKill)
 {
     AVG_ASSERT(getState() != NS_UNCONNECTED);
-    notifySubscribers(DISCONNECT);
+    notifySubscribers(DISCONNECT, bKill);
     m_pCanvas.lock()->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
