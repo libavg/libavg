@@ -35,18 +35,14 @@ class AccordionNode(avg.DivNode):
         super(AccordionNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
        
-        bmp = avg.Bitmap(src)
+        self.__bmp = avg.Bitmap(src)
         self._orientation = orientation
 
         # XXX: Check if bmp is smaller than min size
 
-        self.__startImg = self.__createImageNode(bmp, 0, endsExtent)
-        self.__centerImg = self.__createImageNode(bmp, endsExtent, 1)
-        if orientation == Orientation.HORIZONTAL:
-            endOffset = bmp.getSize().x - endsExtent
-        else:
-            endOffset = bmp.getSize().y - endsExtent
-        self.__endImg = self.__createImageNode(bmp, endOffset, endsExtent)
+        self.__startImg = self.__createImageNode(self.__bmp, endsExtent)
+        self.__centerImg = self.__createImageNode(self.__bmp, 1)
+        self.__endImg = self.__createImageNode(self.__bmp, endsExtent)
         
         self.__endsExtent = endsExtent
         if minExtent == -1:
@@ -59,6 +55,11 @@ class AccordionNode(avg.DivNode):
         else:
             self.__extent = extent
         self.__positionNodes(self.__extent)
+        try:
+            self.__renderImages()
+        except RuntimeError:
+            # We probably don't have a renderer yet - try again next frame.
+            avg.player.setTimeout(0, self.__renderImages)
 
     def getExtent(self):
         return self.__extent
@@ -83,22 +84,36 @@ class AccordionNode(avg.DivNode):
             self.__endImg.y = extent - self.__endsExtent
             self.size = (self.__startImg.width, extent)
 
-    def __createImageNode(self, srcBmp, offset, extent):
+    def __createImageNode(self, srcBmp, extent):
         bmpSize = srcBmp.getSize()
         if self._orientation == Orientation.HORIZONTAL:
-            pos = (-offset,0)
             endsSize = avg.Point2D(extent, bmpSize.y)
         else:
-            pos = (0, -offset)
             endsSize = avg.Point2D(bmpSize.x, extent)
-        canvas = player.createCanvas(id="accordion_canvas", size=endsSize)
+        resultImg = avg.ImageNode(parent=self, size=endsSize)
+        resultImg.setBitmap(srcBmp)
+        return resultImg
+
+    def __renderImages(self):
+        self.__renderImage(self.__bmp, self.__startImg, 0)
+        self.__renderImage(self.__bmp, self.__centerImg, self.__endsExtent)
+        if self._orientation == Orientation.HORIZONTAL:
+            endOffset = self.__bmp.getSize().x - self.__endsExtent
+        else:
+            endOffset = self.__bmp.getSize().y - self.__endsExtent
+        self.__renderImage(self.__bmp, self.__endImg, endOffset)
+
+    def __renderImage(self, srcBmp, node, offset):
+        if self._orientation == Orientation.HORIZONTAL:
+            pos = (-offset,0)
+        else:
+            pos = (0, -offset)
+        canvas = player.createCanvas(id="accordion_canvas", size=node.size)
         img = avg.ImageNode(pos=pos, parent=canvas.getRootNode())
         img.setBitmap(srcBmp)
         canvas.render()
-        resultImg = avg.ImageNode(parent=self)
-        resultImg.setBitmap(canvas.screenshot())
+        node.setBitmap(canvas.screenshot())
         player.deleteCanvas("accordion_canvas")
-        return resultImg
 
 
 class ScrollBarTrack(SwitchNode):
