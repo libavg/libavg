@@ -248,7 +248,6 @@ class ScrollBar(slider.ScrollBar):
 class ScrollArea(scrollarea.ScrollArea):
     
     def __init__(self, contentNode, sensitiveScrollBars=True, parent=None, **kwargs):
-        scrollPane = scrollarea.ScrollPane(contentNode)
         if sensitiveScrollBars:
             hScrollBar = ScrollBar(orientation=slider.Orientation.HORIZONTAL)
             vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL)
@@ -258,6 +257,6 @@ class ScrollArea(scrollarea.ScrollArea):
             vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL, size=(3,3),
                     sensitive=False)
 
-        super(ScrollArea, self).__init__(scrollPane=scrollPane, hScrollBar=hScrollBar,
+        super(ScrollArea, self).__init__(contentNode=contentNode, hScrollBar=hScrollBar,
                 vScrollBar=vScrollBar, **kwargs)
         self.registerInstance(self, parent)
