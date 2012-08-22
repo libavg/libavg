@@ -73,7 +73,9 @@ typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
 class AVG_API Player: public Publisher
 {
     public:
-        enum MessageID {KEYDOWN, KEYUP, LAST_MESSAGEID};
+        enum MessageID {KEYDOWN, KEYUP, 
+                PLAYBACKSTART, PLAYBACKEND,
+                LAST_MESSAGEID};
 
         Player();
         virtual ~Player();

@@ -509,12 +509,14 @@ void Player::play()
             throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
         }
         initPlayback();
+        notifySubscribers(PLAYBACKSTART);
         try {
             ThreadProfiler::get()->start();
             doFrame(true);
             while (!m_bStopping) {
                 doFrame(false);
             }
+            notifySubscribers(PLAYBACKEND);
         } catch (...) {
             cleanup();
             throw;

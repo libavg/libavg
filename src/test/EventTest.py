@@ -823,6 +823,24 @@ class EventTestCase(AVGTestCase):
         # The order of callbacks is unspecified, so onContact2 might be called once.
         self.assert_(self.numContact2Callbacks <= 1)
 
+    def testPlaybackMessages(self):
+
+        def onStart():
+            self.started = True
+
+        def onEnd():
+            self.ended = True
+
+        self.started = False
+        self.ended = False
+        self.loadEmptyScene()
+        player.subscribe(avg.Player.PLAYBACKSTART, onStart)
+        player.subscribe(avg.Player.PLAYBACKEND, onEnd)
+        self.start(False,
+                (lambda: self.assert_(self.started and not(self.ended)),
+                ))
+        self.assert_(self.started and self.ended)
+
 
 def eventTestSuite(tests):
     availableTests = (
@@ -845,6 +863,7 @@ def eventTestSuite(tests):
             "testContacts",
             "testContactRegistration",
             "testMultiContactRegistration",
+            "testPlaybackMessages",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 
