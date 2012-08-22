@@ -125,6 +125,10 @@ Player & Canvas
             amplify playback. A limiter prevents distortion when the volume
             is set to high.
 
+        .. py:method:: addInputDevice(inputDevice)
+
+            Registers an :py:class:`InputDevice` with the system.
+
         .. py:method:: assumePixelsPerMM(ppmm)
 
             Tells the system to assume a resolution for the physical screen, overriding 
@@ -283,10 +287,6 @@ Player & Canvas
 
             Returns the main canvas. This is the canvas loaded using :py:meth:`loadFile`
             or :py:meth:`loadString` and displayed on screen.
-
-        .. py:method:: addInputDevice(inputDevice)
-
-            Registers an :py:class:`InputDevice` with the system.
 
         .. py:method:: getMouseState() -> MouseEvent
 
