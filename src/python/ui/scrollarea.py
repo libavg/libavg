@@ -85,20 +85,23 @@ class ScrollArea(avg.DivNode):
         self.registerInstance(self, parent)
 
         self._hScrollBar = hScrollBar
-        self.appendChild(hScrollBar)
         self._vScrollBar = vScrollBar
-        self.appendChild(vScrollBar)
 
-        self.__scrollPane = ScrollPane(contentNode=contentNode, 
-                size=self.size - (vScrollBar.width, hScrollBar.height),
+        paneSize = self.size
+        if hScrollBar:
+            self.appendChild(hScrollBar)
+            hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
+            paneSize -= (0, hScrollBar.height)
+        if vScrollBar:
+            self.appendChild(vScrollBar)
+            vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
+            paneSize -= (vScrollBar.width, 0)
+
+        self.__scrollPane = ScrollPane(contentNode=contentNode, size=paneSize, 
                 parent=self)
 
         self._positionScrollBars()
         
-        if hScrollBar:
-            hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
-        if vScrollBar:
-            vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
         self.recognizer = gesture.DragRecognizer(
                 eventNode=self.__scrollPane, 
                 detectedHandler=self.__onDragStart,

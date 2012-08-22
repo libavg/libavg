@@ -658,6 +658,15 @@ class UITestCase(AVGTestCase):
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                 ))
 
+    def testScrollArea(self):
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
+        self.node = ui.ScrollArea(contentNode=image, size=(80,80),
+                parent=root)
+        self.start(False,
+                (lambda: self.compareImage("testScrollArea1"),
+                ))
+
     def testSimpleScrollBar(self):
 
         for orientation, orName in (
@@ -703,8 +712,6 @@ class UITestCase(AVGTestCase):
                     ))
 
     def testSimpleScrollArea(self):
-
-
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
         self.node = simple.ScrollArea(contentNode=image, size=(115,115),
@@ -732,7 +739,6 @@ class UITestCase(AVGTestCase):
                 ))
 
     def testSimpleCheckBox(self):
-        
         root = self.loadEmptyScene()
         checkBox = simple.CheckBox(text="text", parent=root)
         self.start(False,
@@ -769,6 +775,7 @@ def uiTestSuite(tests):
         "testScrollPane",
         "testAccordionNode",
         "testScrollBar",
+        "testScrollArea",
         "testSimpleScrollBar",
         "testSimpleSlider",
         "testSimpleScrollArea",
