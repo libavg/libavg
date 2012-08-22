@@ -656,6 +656,9 @@ class PlayerTestCase(AVGTestCase):
 
     def testGetConfigOption(self):
         self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
+        self.assertException(lambda: player.getConfigOption("scr", "illegalOption"))
+        self.assertException(lambda:
+                player.getConfigOption("illegalGroup", "illegalOption"))
 
     # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):

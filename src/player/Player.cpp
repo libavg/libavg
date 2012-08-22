@@ -1688,7 +1688,8 @@ string Player::getConfigOption(const string& sSubsys, const string& sName) const
 {
     const string* psValue = ConfigMgr::get()->getOption(sSubsys, sName);
     if (!psValue) {
-        return "";
+        throw Exception(AVG_ERR_INVALID_ARGS, string("Unknown config option ") + sSubsys
+                + ":" + sName);
     } else {
         return *psValue;
     }
