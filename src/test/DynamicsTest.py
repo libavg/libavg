@@ -385,43 +385,6 @@ class DynamicsTestCase(AVGTestCase):
         brokenStyle = avg.Style(brokenAttr="foo")
         self.assertException(lambda: avg.WordsNode(text="foo", style=brokenStyle))
 
-    def testConnectMessages(self):
-
-        def onConnect(canvas):
-            self.connectCalled = True
-
-        def onConnectDisplay():
-            self.connectDisplayCalled = True
-
-        def onDisconnect():
-            self.disconnectCalled = True
-
-        def callbacksCalled(connect, connectDisplay, disconnect):
-            return (connect == self.connectCalled and 
-                    connectDisplay == self.connectDisplayCalled and
-                    disconnect == self.disconnectCalled)
-
-        self.connectCalled = False
-        self.connectDisplayCalled = False
-        self.disconnectCalled = False
-
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(href="rgb24-64x64.png")
-        image.subscribe(avg.Node.CONNECT, onConnect)
-        image.subscribe(avg.Node.CONNECTDISPLAY, onConnectDisplay)
-        image.subscribe(avg.Node.DISCONNECT, onDisconnect)
-        
-        root.appendChild(image)
-        self.assert_(callbacksCalled(True, False, False))
-
-        self.start(False,
-                (lambda: self.assert_(callbacksCalled(True, True, False)),
-                 lambda: root.removeChild(image),
-                 lambda: self.assert_(callbacksCalled(True, True, True)),
-                ))
-
-
-
 
 def dynamicsTestSuite(tests):
     availableTests = (
@@ -436,8 +399,7 @@ def dynamicsTestSuite(tests):
             "testComplexDiv",
             "testNodeCustomization",
             "testDynamicMediaDir",
-            "testStyle",
-            "testConnectMessages"
+            "testStyle"
             )
 
     return createAVGTestSuite(availableTests, DynamicsTestCase, tests)

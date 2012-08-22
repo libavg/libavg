@@ -72,7 +72,6 @@ class AVG_API Node: public Publisher
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
         enum MessageID {CURSORDOWN, CURSORMOTION, CURSORUP, CURSOROVER, CURSOROUT, 
                 HOVERDOWN, HOVERMOTION, HOVERUP, HOVEROVER, HOVEROUT,
-                CONNECT, CONNECTDISPLAY, DISCONNECT,
                 ENDOFFILE, // Used by Video and Sound nodes.
                 LAST_MESSAGEID};
 

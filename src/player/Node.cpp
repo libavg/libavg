@@ -144,20 +144,17 @@ void Node::connectDisplay()
 {
     AVG_ASSERT(getState() == NS_CONNECTED);
     setState(NS_CANRENDER);
-    notifySubscribers(CONNECTDISPLAY);
 }
 
 void Node::connect(CanvasPtr pCanvas)
 {
     m_pCanvas = pCanvas;
     setState(NS_CONNECTED);
-    notifySubscribers(CONNECT, pCanvas);
 }
 
 void Node::disconnect(bool bKill)
 {
     AVG_ASSERT(getState() != NS_UNCONNECTED);
-    notifySubscribers(DISCONNECT, bKill);
     m_pCanvas.lock()->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
