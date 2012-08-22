@@ -78,7 +78,7 @@ class ScrollPane(avg.DivNode):
 
 class ScrollArea(avg.DivNode):
 
-    def __init__(self, contentNode, hScrollBar=None, vScrollBar=None, parent=None, 
+    def __init__(self, contentNode, size, hScrollBar=None, vScrollBar=None, parent=None, 
             **kwargs):
 
         super(ScrollArea, self).__init__(**kwargs)
@@ -87,20 +87,15 @@ class ScrollArea(avg.DivNode):
         self._hScrollBar = hScrollBar
         self._vScrollBar = vScrollBar
 
-        paneSize = self.size
         if hScrollBar:
             self.appendChild(hScrollBar)
             hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
-            paneSize -= (0, hScrollBar.height)
         if vScrollBar:
             self.appendChild(vScrollBar)
             vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
-            paneSize -= (vScrollBar.width, 0)
 
-        self.__scrollPane = ScrollPane(contentNode=contentNode, size=paneSize, 
-                parent=self)
-
-        self._positionScrollBars()
+        self.__scrollPane = ScrollPane(contentNode=contentNode, parent=self)
+        self.size = size
         
         self.recognizer = gesture.DragRecognizer(
                 eventNode=self.__scrollPane, 
@@ -114,7 +109,7 @@ class ScrollArea(avg.DivNode):
 
     def setContentSize(self, size):
         self.__scrollPane.contentsize = size
-        self._positionScrollBars()
+        self.__positionNodes()
     contentsize = property(getContentSize, setContentSize)
 
     def getContentPos(self):
@@ -122,8 +117,17 @@ class ScrollArea(avg.DivNode):
 
     def setContentPos(self, pos):
         self.__scrollPane.contentpos = pos
-        self._positionScrollBars()
+        self.__positionNodes()
     contentpos = property(getContentPos, setContentPos)
+
+    def getSize(self):
+        return self.__baseSize
+
+    def setSize(self, size):
+        self.__baseSize = size
+        self.__positionNodes()
+    __baseSize = avg.DivNode.size
+    size = property(getSize, setSize)   
 
     def __onHThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (thumbPos, self.__scrollPane.contentpos.y)
@@ -142,7 +146,14 @@ class ScrollArea(avg.DivNode):
         if self._vScrollBar:
             self._vScrollBar.thumbpos = contentpos.y
 
-    def _positionScrollBars(self):
+    def __positionNodes(self):
+        paneSize = self.__baseSize
+        if self._hScrollBar:
+            paneSize -= (0, self._hScrollBar.height)
+        if self._vScrollBar:
+            paneSize -= (self._vScrollBar.width, 0)
+        self.__scrollPane.size = paneSize
+
         if self._hScrollBar:
             self._hScrollBar.pos = (0, self.__scrollPane.height)
             self._hScrollBar.extent = self.__scrollPane.width

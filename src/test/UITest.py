@@ -665,6 +665,8 @@ class UITestCase(AVGTestCase):
                 parent=root)
         self.start(False,
                 (lambda: self.compareImage("testScrollArea1"),
+                 lambda: self.node.setSize((120,80)),
+                 lambda: self.compareImage("testScrollArea2"),
                 ))
 
     def testSimpleScrollBar(self):
