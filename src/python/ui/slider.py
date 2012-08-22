@@ -55,11 +55,10 @@ class AccordionNode(avg.DivNode):
         else:
             self.__extent = extent
         self.__positionNodes(self.__extent)
-        try:
+        if player.isPlaying():
             self.__renderImages()
-        except RuntimeError:
-            # We probably don't have a renderer yet - try again next frame.
-            avg.player.setTimeout(0, self.__renderImages)
+        else:
+            player.subscribe(avg.Player.PLAYBACKSTART, self.__renderImages)
 
     def getExtent(self):
         return self.__extent

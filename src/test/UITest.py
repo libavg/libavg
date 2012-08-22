@@ -523,9 +523,6 @@ class UITestCase(AVGTestCase):
                 ))
 
     def testAccordionNode(self):
-        def createNode():
-            self.node = ui.AccordionNode(src="media/rgb24-32x32.png", endsExtent=15, 
-                    orientation=orientation, parent=root)
             
         def changeExtent():
             self.node.extent = 100
@@ -538,9 +535,10 @@ class UITestCase(AVGTestCase):
                 (ui.Orientation.HORIZONTAL,"Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
+            self.node = ui.AccordionNode(src="media/rgb24-32x32.png", endsExtent=15, 
+                    orientation=orientation, parent=root)
             self.start(False,
-                    (createNode,
-                     lambda: self.compareImage("testAccordionNode"+orName+"1"),
+                    (lambda: self.compareImage("testAccordionNode"+orName+"1"),
                      changeExtent,
                      lambda: self.compareImage("testAccordionNode"+orName+"2"),
                      minExtent,
@@ -579,9 +577,9 @@ class UITestCase(AVGTestCase):
                 (ui.Orientation.HORIZONTAL,"Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
+            createNode(orientation)
             self.start(False,
-                    (lambda: createNode(orientation),
-                     lambda: self.compareImage("testScrollBar"+orName+"1"),
+                    (lambda: self.compareImage("testScrollBar"+orName+"1"),
                      lambda: self.node.setThumbExtent(0.5),
                      lambda: self.compareImage("testScrollBar"+orName+"2"),
                      lambda: self.node.setThumbPos(0.25),
@@ -600,9 +598,9 @@ class UITestCase(AVGTestCase):
 
         # Horizontal
         root = self.loadEmptyScene()
+        createNode(ui.Orientation.HORIZONTAL)
         self.start(False,
-                (lambda: createNode(ui.Orientation.HORIZONTAL),
-                 lambda: self.node.setThumbExtent(0.5),
+                (lambda: self.node.setThumbExtent(0.5),
                  # User input
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 25, 10),
                  lambda: self.compareImage("testScrollBarHoriz7"),
@@ -643,9 +641,9 @@ class UITestCase(AVGTestCase):
 
         # Vertical
         root = self.loadEmptyScene()
+        createNode(ui.Orientation.VERTICAL),
         self.start(False,
-                (lambda: createNode(ui.Orientation.VERTICAL),
-                 lambda: self.node.setThumbExtent(0.5),
+                (lambda: self.node.setThumbExtent(0.5),
                  # User input
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 10, 25),
                  lambda: self.compareImage("testScrollBarVert7"),
@@ -662,21 +660,18 @@ class UITestCase(AVGTestCase):
 
     def testSimpleScrollBar(self):
 
-        def createNode():
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
             if orientation == ui.Orientation.HORIZONTAL:
                 size = (100, 20)
             else:
                 size = (20, 100)
             self.node = ui.simple.ScrollBar(size=size, orientation=orientation,
                     parent=root)
-
-        for orientation, orName in (
-                (ui.Orientation.HORIZONTAL,"Horiz"),
-                (ui.Orientation.VERTICAL, "Vert")):
-            root = self.loadEmptyScene()
             self.start(False,
-                    (lambda: createNode(),
-                     lambda: self.compareImage("testSimpleScrollBar"+orName+"1"),
+                    (lambda: self.compareImage("testSimpleScrollBar"+orName+"1"),
                      lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"2"),
                      lambda: self.node.setExtent(50),
@@ -686,8 +681,10 @@ class UITestCase(AVGTestCase):
                     ))
 
     def testSimpleSlider(self):
-
-        def createNode():
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
             if orientation == ui.Orientation.HORIZONTAL:
                 size = (100, 20)
             else:
@@ -695,13 +692,8 @@ class UITestCase(AVGTestCase):
             self.node = ui.simple.Slider(size=size, orientation=orientation,
                     parent=root)
 
-        for orientation, orName in (
-                (ui.Orientation.HORIZONTAL,"Horiz"),
-                (ui.Orientation.VERTICAL, "Vert")):
-            root = self.loadEmptyScene()
             self.start(False,
-                    (lambda: createNode(),
-                     lambda: self.compareImage("testSimpleSlider"+orName+"1"),
+                    (lambda: self.compareImage("testSimpleSlider"+orName+"1"),
                      lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testSimpleSlider"+orName+"2"),
                      lambda: self.node.setExtent(50),
@@ -712,15 +704,13 @@ class UITestCase(AVGTestCase):
 
     def testSimpleScrollArea(self):
 
-        def createNode():
-            image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
-            self.node = simple.ScrollArea(contentNode=image, size=(115,115),
-                    parent=root)
 
         root = self.loadEmptyScene()
+        image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
+        self.node = simple.ScrollArea(contentNode=image, size=(115,115),
+                parent=root)
         self.start(False,
-                (lambda: createNode(),
-                 lambda: self.compareImage("testSimpleScrollArea1"),
+                (lambda: self.compareImage("testSimpleScrollArea1"),
                  lambda: self.node.setContentSize((400,200)),
                  lambda: self.compareImage("testSimpleScrollArea2"),
                  lambda: self.node.setContentPos((200,100)),
