@@ -565,7 +565,7 @@ class GestureTestCase(AVGTestCase):
         def onMotion(event):
             ui.DragRecognizer(self.image, 
                     detectedHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
-            self.image.disconnectEventHandler(self)
+            self.image.unsubscribe(avg.Node.CURSORMOTION, onMotion)
 
         def onDragStart(event):
             self.__dragStartCalled = True
@@ -574,7 +574,7 @@ class GestureTestCase(AVGTestCase):
             self.assertEqual(offset, (10,0))
 
         self.__initImageScene()
-        self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
+        self.image.subscribe(avg.Node.CURSORMOTION, onMotion)
         self.__dragStartCalled = False
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),

@@ -366,9 +366,9 @@ class DragRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(eventNode)
         self.__direction = direction
         if self.__direction == DragRecognizer.ANY_DIRECTION:
-            self.__minDist = 0
+            self.__minDragDist = 0
         else:
-            self.__minDist = DragRecognizer.MIN_DRAG_DIST
+            self.__minDragDist = DragRecognizer.MIN_DRAG_DIST
         self.__directionTolerance = directionTolerance
         self.__friction = friction
 
@@ -408,7 +408,7 @@ class DragRecognizer(Recognizer):
             if self.getState() == "RUNNING":
                 self.notifySubscribers(Recognizer.MOTION, [event, offset]);
             else:
-                if offset.getNorm() > self.__minDist*player.getPixelsPerMM():
+                if offset.getNorm() > self.__minDragDist*player.getPixelsPerMM():
                     if self.__angleFits(offset):
                         self._setDetected(event)
                         self.notifySubscribers(Recognizer.MOTION, [event, offset]);
