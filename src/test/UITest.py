@@ -59,9 +59,9 @@ class UITestCase(AVGTestCase):
         self.__keyUp   = True
         self.__char = "foo"
         self.__cmd = "bar"
+        setup()
         self.start(False,
-                (setup,
-                 lambda: self.compareImage("testUIKeyboard"),
+                (lambda: self.compareImage("testUIKeyboard"),
                  # test character key
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.assert_(self.__keyDown and not self.__keyUp),

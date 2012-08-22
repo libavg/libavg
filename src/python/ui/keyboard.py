@@ -42,8 +42,6 @@ class Key(avg.DivNode):
 
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
         self.__feedback = keyDef[1]
-        if ovlHref:
-            self.__createImage(ovlHref, selHref)
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
@@ -53,6 +51,12 @@ class Key(avg.DivNode):
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
+        if ovlHref:
+            if player.isPlaying():
+                self.__createImage(ovlHref, selHref)
+            else:
+                player.subscribe(avg.Player.PLAYBACKSTART, 
+                        lambda: self.__createImage(ovlHref, selHref))
 
     def reset(self):
         if self.__sticky:
