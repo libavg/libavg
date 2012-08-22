@@ -207,7 +207,8 @@ class Keyboard(avg.DivNode):
 
     def __onDown(self, event):
         self.__selectKey(event)
-        event.contact.connectListener(self.__selectKey, self.__selectKey)
+        for message in avg.Contact.CURSORMOTION, avg.Contact.CURSORUP:
+            event.contact.subscribe(message, self.__selectKey)
 
     def __selectKey(self, event):
         for i in range(len(self.__keys)):
