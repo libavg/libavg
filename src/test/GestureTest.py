@@ -384,7 +384,7 @@ class GestureTestCase(AVGTestCase):
             self.__initImageScene()
             dragRecognizer = ui.DragRecognizer(self.image, 
                     detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp, 
-                    endHandler=onEnd, friction=self.friction)
+                    endHandler=onEnd, minDragDist=0, friction=self.friction)
             self.__resetEventState()
             self.start(False,
                     (self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),
@@ -488,7 +488,7 @@ class GestureTestCase(AVGTestCase):
                 possibleHandler=onPossible, failHandler=onFail, 
                 detectedHandler=onDetected, 
                 moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
-                friction=0.01)
+                minDragDist=0, friction=0.01)
         self.__resetEventState()
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
@@ -506,7 +506,7 @@ class GestureTestCase(AVGTestCase):
                 possibleHandler=onPossible, failHandler=onFail, 
                 detectedHandler=onDetected, 
                 moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
-                friction=0.01)
+                minDragDist=0, friction=0.01)
         self.__resetEventState()
         self.start(False,
                 (self.__genMouseEventFrames(avg.CURSORDOWN, 30, 30, [EVENT_DETECTED]),

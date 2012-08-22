@@ -718,6 +718,7 @@ class UITestCase(AVGTestCase):
         image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
         self.node = simple.ScrollArea(contentNode=image, size=(115,115),
                 parent=root)
+        player.setFakeFPS(10)
         self.start(False,
                 (lambda: self.compareImage("testSimpleScrollArea1"),
                  lambda: self.node.setContentSize((400,200)),
@@ -731,14 +732,18 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testSimpleScrollArea4"),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 10, 10),
                  lambda: self.compareImage("testSimpleScrollArea5"),
+                 lambda: self.delay(1000), # Wait for end of inertia.
                  # Scroll using scroll bars
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 110, 70),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 110, 20),
-                 lambda: self.compareImage("testSimpleScrollArea4"),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 40, 110),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 0, 110),
+                 lambda: self.node.setContentPos((0,0)), 
                  lambda: self.compareImage("testSimpleScrollArea2"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 110, 0),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 110, 50),
+                 lambda: self.compareImage("testSimpleScrollArea6"),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 110),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 50, 110),
+                 lambda: self.compareImage("testSimpleScrollArea7"),
                 ))
+        player.setFakeFPS(-1)
 
     def testSimpleCheckBox(self):
         root = self.loadEmptyScene()

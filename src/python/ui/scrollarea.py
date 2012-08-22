@@ -101,7 +101,7 @@ class ScrollArea(avg.DivNode):
                 eventNode=self.__scrollPane, 
                 detectedHandler=self.__onDragStart,
                 moveHandler=self.__onDragMove,
-                upHandler=self.__onDragMove,
+                upHandler=self.__onDragMove
                 )
 
     def getContentSize(self):
@@ -118,6 +118,7 @@ class ScrollArea(avg.DivNode):
     def setContentPos(self, pos):
         self.__scrollPane.contentpos = pos
         self.__positionNodes()
+        self.__positionThumbs(avg.Point2D(pos))
     contentpos = property(getContentPos, setContentPos)
 
     def getSize(self):
@@ -141,10 +142,7 @@ class ScrollArea(avg.DivNode):
     def __onDragMove(self, event, offset):
         contentpos = self.__dragStartPos - offset
         self.__scrollPane.contentpos = contentpos
-        if self._hScrollBar:
-            self._hScrollBar.thumbpos = contentpos.x
-        if self._vScrollBar:
-            self._vScrollBar.thumbpos = contentpos.y
+        self.__positionThumbs(contentpos)
 
     def __positionNodes(self):
         paneSize = self.__baseSize
@@ -177,4 +175,10 @@ class ScrollArea(avg.DivNode):
                 self._vScrollBar.range = (0, self.__scrollPane.contentsize.y)
                 self._vScrollBar.enabled = True
             self._vScrollBar.thumbextent = self.__scrollPane.height
-        
+
+    def __positionThumbs(self, contentPos):
+        if self._hScrollBar:
+            self._hScrollBar.thumbpos = contentPos.x
+        if self._vScrollBar:
+            self._vScrollBar.thumbpos = contentPos.y
+

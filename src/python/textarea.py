@@ -281,7 +281,7 @@ class TextArea(avg.DivNode):
         self.__lastActivity = 0
 
         if moveCoursorOnTouch:
-            self.__recognizer = ui.DragRecognizer(eventNode=self,
+            self.__recognizer = ui.DragRecognizer(eventNode=self, friction=-1,
                     moveHandler=self.__moveHandler, detectedHandler=self.__detectedHandler,
                     upHandler=self.__upHandler)
             self.__loupeZoomFactor = 0.5

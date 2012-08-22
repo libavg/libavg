@@ -205,7 +205,7 @@ class Slider(avg.DivNode):
 
         self._positionNodes()
 
-        self.__recognizer = gesture.DragRecognizer(self._thumbNode, 
+        self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onDrag)
         self.publish(Slider.THUMB_POS_CHANGED)

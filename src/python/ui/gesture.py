@@ -347,16 +347,17 @@ class HoldRecognizer(Recognizer):
 
 class DragRecognizer(Recognizer):
 
-    ANY_DIRECTION=0
-    VERTICAL=1
-    HORIZONTAL=2
+    ANY_DIRECTION = 0
+    VERTICAL = 1
+    HORIZONTAL = 2
 
-    DIRECTION_TOLERANCE=math.pi/4
+    DIRECTION_TOLERANCE = math.pi/4
     MIN_DRAG_DIST = None
+    FRICTION = None
 
     def __init__(self, eventNode, coordSysNode=None, initialEvent=None, 
             direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE,
-            friction=-1, minDragDist=None,
+            friction=None, minDragDist=None,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             moveHandler=None, upHandler=None, endHandler=None):
 
@@ -365,6 +366,8 @@ class DragRecognizer(Recognizer):
         else:
             self.__coordSysNode = weakref.ref(eventNode)
         self.__direction = direction
+        self.__directionTolerance = directionTolerance
+
         if minDragDist != None:
             self.__minDragDist = minDragDist
         else:
@@ -372,8 +375,11 @@ class DragRecognizer(Recognizer):
                 self.__minDragDist = 0
             else:
                 self.__minDragDist = DragRecognizer.MIN_DRAG_DIST
-        self.__directionTolerance = directionTolerance
-        self.__friction = friction
+
+        if friction == None:
+            self.__friction = DragRecognizer.FRICTION
+        else:
+            self.__friction = friction
 
         self.__isSliding = False
         self.__inertiaHandler = None
@@ -861,10 +867,9 @@ def initConfig():
     TapRecognizer.MAX_TAP_DIST = float(player.getConfigOption("gesture", "maxtapdist"))
     DoubletapRecognizer.MAX_DOUBLETAP_TIME = float(
             player.getConfigOption("gesture", "maxdoubletaptime"))
-    DragRecognizer.MIN_DRAG_DIST = float(
-            player.getConfigOption("gesture", "mindragdist"))
-    HoldRecognizer.HOLD_DELAY = float(
-            player.getConfigOption("gesture", "holddelay"))
+    DragRecognizer.MIN_DRAG_DIST = float(player.getConfigOption("gesture", "mindragdist"))
+    DragRecognizer.FRICTION = float(player.getConfigOption("gesture", "friction"))
+    HoldRecognizer.HOLD_DELAY = float(player.getConfigOption("gesture", "holddelay"))
 
 
 initConfig()

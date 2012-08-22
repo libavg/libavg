@@ -90,6 +90,7 @@ ConfigMgr::ConfigMgr()
     addOption("gesture", "holddelay", "500");
     addOption("gesture", "filtermincutoff", "0.1");
     addOption("gesture", "filterbeta", "0.03");
+    addOption("gesture", "friction", "0.01");
 
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
