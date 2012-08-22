@@ -79,7 +79,7 @@ class ScrollPane(avg.DivNode):
 class ScrollArea(avg.DivNode):
 
     def __init__(self, contentNode, size, hScrollBar=None, vScrollBar=None, parent=None, 
-            **kwargs):
+            dragFriction=None, **kwargs):
 
         super(ScrollArea, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -101,7 +101,8 @@ class ScrollArea(avg.DivNode):
                 eventNode=self.__scrollPane, 
                 detectedHandler=self.__onDragStart,
                 moveHandler=self.__onDragMove,
-                upHandler=self.__onDragMove
+                upHandler=self.__onDragMove,
+                friction=dragFriction
                 )
 
     def getContentSize(self):
