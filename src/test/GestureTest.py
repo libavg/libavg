@@ -598,6 +598,27 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 70),
                 ))
 
+    def testDragRecognizerMinDist(self):
+
+        def onDetected(event):
+            self.__addEventFlag(EVENT_DETECTED)
+
+        def onMove(event, offset):
+            self.__addEventFlag(EVENT_MOVED)
+
+        self.__initImageScene()
+        dragRecognizer = ui.DragRecognizer(self.image, 
+                detectedHandler=onDetected, moveHandler=onMove, minDragDist=10,
+                friction=-1)
+        self.__resetEventState()
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 30, 35,
+                        []),
+                 self.__genMouseEventFrames(avg.CURSORMOTION, 30, 50,
+                        [EVENT_DETECTED, EVENT_MOVED]),
+                ))
+
 
     def testTransformRecognizer(self):
 
@@ -802,6 +823,7 @@ def gestureTestSuite(tests):
         "testDragRecognizerRelCoords",
         "testDragRecognizerInitialEvent",
         "testDragRecognizerCoordSysNode",
+        "testDragRecognizerMinDist",
         "testTransformRecognizer",
         "testKMeans",
         "testMat3x3",

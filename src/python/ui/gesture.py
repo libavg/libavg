@@ -356,7 +356,7 @@ class DragRecognizer(Recognizer):
 
     def __init__(self, eventNode, coordSysNode=None, initialEvent=None, 
             direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE,
-            friction=-1, 
+            friction=-1, minDragDist=None,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             moveHandler=None, upHandler=None, endHandler=None):
 
@@ -365,10 +365,13 @@ class DragRecognizer(Recognizer):
         else:
             self.__coordSysNode = weakref.ref(eventNode)
         self.__direction = direction
-        if self.__direction == DragRecognizer.ANY_DIRECTION:
-            self.__minDragDist = 0
+        if minDragDist != None:
+            self.__minDragDist = minDragDist
         else:
-            self.__minDragDist = DragRecognizer.MIN_DRAG_DIST
+            if self.__direction == DragRecognizer.ANY_DIRECTION:
+                self.__minDragDist = 0
+            else:
+                self.__minDragDist = DragRecognizer.MIN_DRAG_DIST
         self.__directionTolerance = directionTolerance
         self.__friction = friction
 
@@ -390,7 +393,7 @@ class DragRecognizer(Recognizer):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
             self._setEnd(event)
-        if self.__direction == DragRecognizer.ANY_DIRECTION:
+        if self.__minDragDist == 0:
             self._setDetected(event)
         else:
             self._setPossible(event)
@@ -466,7 +469,7 @@ class DragRecognizer(Recognizer):
             return (angle < self.__directionTolerance 
                     or angle > math.pi-self.__directionTolerance)
         else:
-            assert(False)
+            return True
 
 class Mat3x3:
     # Internal class. Will be removed again.
