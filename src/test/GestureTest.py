@@ -678,7 +678,8 @@ class GestureTestCase(AVGTestCase):
         ui.TransformRecognizer.FILTER_MIN_CUTOFF = None
         ui.TransformRecognizer.FILTER_BETA = None
         
-        self.__transformRecognizer = ui.TransformRecognizer(self.image, 
+        self.__transformRecognizer = ui.TransformRecognizer(self.image,
+                friction=-1,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (# Check up/down handling
@@ -717,7 +718,7 @@ class GestureTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, 
+        self.__transformRecognizer = ui.TransformRecognizer(image, friction=-1, 
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (createTransTestFrames(),
@@ -730,6 +731,7 @@ class GestureTestCase(AVGTestCase):
         div = avg.DivNode(parent=root, pos=(0,10))
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, coordSysNode=div,
+                friction=-1,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (createTransTestFrames(),
@@ -737,6 +739,7 @@ class GestureTestCase(AVGTestCase):
                  createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
                 ))
 
+        # Test friction
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")

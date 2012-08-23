@@ -642,13 +642,17 @@ class TransformRecognizer(Recognizer):
     FILTER_MIN_CUTOFF = None
     FILTER_BETA = None
 
-    def __init__(self, eventNode, coordSysNode=None, initialEvent=None, friction=-1, 
+    def __init__(self, eventNode, coordSysNode=None, initialEvent=None, friction=None, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
         if coordSysNode != None:
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
-        self.__friction = friction
+        
+        if friction == None:
+            self.__friction = DragRecognizer.FRICTION
+        else:
+            self.__friction = friction
 
         self.__baseTransform = Mat3x3()
         self.__lastPosns = []
