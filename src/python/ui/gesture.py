@@ -88,6 +88,9 @@ class Recognizer(object):
             else:
                 self.__abort()
 
+    def isEnabled(self):
+        return self.__isEnabled
+
     def getState(self):
         return self.__stateMachine.state
 
@@ -644,6 +647,7 @@ class TransformRecognizer(Recognizer):
         self.__posns = []
         self.__inertiaHandler = None
         self.__filters = {}
+        self.__frameHandlerID = None
         super(TransformRecognizer, self).__init__(eventNode, True, eventSource, None, 
                 initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
 
@@ -652,9 +656,13 @@ class TransformRecognizer(Recognizer):
         TransformRecognizer.lowpassConfig["mincutoff"] = mincutoff
         TransformRecognizer.lowpassConfig["beta"] = beta
 
+    def enable(self, isEnabled):
+        if isEnabled != self.isEnabled() and not(isEnabled):
+            self.__abort()
+        super(TransformRecognizer, self).enable(isEnabled)
+
     def abort(self):
-        if self.__inertiaHandler:
-            self.__inertiaHandler.abort()
+        self.__abort()
         super(TransformRecognizer, self).abort()
 
     def _handleDown(self, event):
@@ -682,6 +690,7 @@ class TransformRecognizer(Recognizer):
                     - self.__lastPosns[0])
             utils.callWeakRef(self.__upHandler, transform)
             player.clearInterval(self.__frameHandlerID)
+            self.__frameHandlerID = None
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
                 self.__inertiaHandler.onUp()
@@ -781,6 +790,14 @@ class TransformRecognizer(Recognizer):
 
     def __isFiltered(self):
         return TransformRecognizer.lowpassConfig["mincutoff"] != None
+
+    def __abort(self):
+        if self.__frameHandlerID:
+            player.clearInterval(self.__frameHandlerID)
+            self.__frameHandlerID = None
+        if self.__inertiaHandler:
+            self.__inertiaHandler.abort()
+            self.__inertiaHandler = None
 
 
 class InertiaHandler(object):

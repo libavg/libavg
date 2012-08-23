@@ -730,6 +730,44 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
                 ))  
 
+        # Test abort
+        self.__initImageScene()
+        self.__transformRecognizer = ui.TransformRecognizer(self.image, 
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (self.__transformRecognizer.abort,
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 self.__transformRecognizer.abort,
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 30, 10),
+                 lambda: checkTransform(ui.Transform((0,0))),
+                 self.__transformRecognizer.abort,
+                ))
+
+        # Test enable/disable
+        self.__initImageScene()
+        self.__transformRecognizer = ui.TransformRecognizer(self.image, 
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (# Regular disable
+                 lambda: self.__transformRecognizer.enable(False),
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 30, 10),
+                 lambda: checkTransform(ui.Transform((0,0))),
+                 # Re-enable
+                 lambda: self.__transformRecognizer.enable(True),
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
+                 lambda: checkTransform(ui.Transform((10,0))),
+                 # Disable during gesture
+                 lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: self.__transformRecognizer.enable(False),
+                 lambda: self._sendTouchEvent(1, avg.CURSORUP, 20, 10),
+                 lambda: checkTransform(ui.Transform((0,0))),
+                ))
+
+
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
         means = ui.calcKMeans(pts)
