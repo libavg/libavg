@@ -35,9 +35,7 @@ AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float vol
         m_pDevice(0),
         m_bPlaying(false),
         m_Volume(volume),
-        m_AP(ap),
-        m_pBuffer(0),
-        m_BufferLen(0)
+        m_AP(ap)
 {
     Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
     pLimiter->setThreshold(0.f); // in dB
@@ -54,8 +52,9 @@ AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float vol
     m_Format.rate = 44100;
     m_Format.byte_format = AO_FMT_LITTLE;
 
-    m_BufferLen = m_Format.bits/8 * m_Format.channels * m_AP.m_OutputBufferSamples;
-    m_pBuffer = (char*)malloc(m_BufferLen);
+    m_pOutputBuffer = AudioBufferPtr(new AudioBuffer(m_AP.m_OutputBufferSamples, m_AP));
+    m_pTempBuffer = AudioBufferPtr(new AudioBuffer(m_AP.m_OutputBufferSamples, m_AP));
+    m_pMixBuffer = new float[m_AP.m_Channels*m_AP.m_OutputBufferSamples];
 
     int driverID = ao_default_driver_id();
     m_pDevice = ao_open_live(driverID, &m_Format, NULL /* no options */);
@@ -79,8 +78,9 @@ AOAudioEngineThread::~AOAudioEngineThread()
 bool AOAudioEngineThread::work()
 {
     if (m_bPlaying) {
-        mixAudio(m_pBuffer, m_BufferLen);
-        ao_play(m_pDevice, m_pBuffer, m_BufferLen);
+        mixAudio(m_pOutputBuffer);
+        ao_play(m_pDevice, (char*)(m_pOutputBuffer->getData()), 
+                m_pOutputBuffer->getNumBytes());
     }
     return true;
 }
@@ -112,17 +112,9 @@ void AOAudioEngineThread::removeSource(IAudioSource* pSource)
     }
 }
 
-void AOAudioEngineThread::mixAudio(char* pDestBuffer, int destBufferLen)
+void AOAudioEngineThread::mixAudio(AudioBufferPtr pDestBuffer)
 {
-    int numFrames = destBufferLen/(2*m_Format.channels); // 16 bit samples.
-    if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
-        if (m_pTempBuffer) {
-            delete[] m_pMixBuffer;
-        }
-        m_pTempBuffer = AudioBufferPtr(new AudioBuffer(numFrames, m_AP));
-        m_pMixBuffer = new float[m_Format.channels*numFrames];
-    }
-
+    int numFrames = pDestBuffer->getNumFrames();
     for (int i = 0; i <m_Format.channels*numFrames; ++i) {
         m_pMixBuffer[i]=0;
     }
@@ -130,15 +122,16 @@ void AOAudioEngineThread::mixAudio(char* pDestBuffer, int destBufferLen)
         AudioSourceList::iterator it;
         for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
             m_pTempBuffer->clear();
-            int frames = (*it)->fillAudioBuffer(m_pTempBuffer);
+            (*it)->fillAudioBuffer(m_pTempBuffer);
             addBuffers(m_pMixBuffer, m_pTempBuffer);
         }
     }
     calcVolume(m_pMixBuffer, numFrames*m_Format.channels);
+    short* pDestData = pDestBuffer->getData();
     for (int i = 0; i < numFrames; ++i) {
 //        m_pLimiter->process(m_pMixBuffer+i*m_Format.channels);
         for (int j = 0; j < m_Format.channels; ++j) {
-            ((short*)pDestBuffer)[i*2+j] = int(m_pMixBuffer[i*2+j]*32768);
+            pDestData[i*2+j] = int(m_pMixBuffer[i*2+j]*32768);
         }
     }
 }

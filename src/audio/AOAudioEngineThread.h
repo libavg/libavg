@@ -49,7 +49,7 @@ public:
     void removeSource(IAudioSource* pSource);
 
 private:
-    void mixAudio(char* pDestBuffer, int destBufferLen);
+    void mixAudio(AudioBufferPtr pDestBuffer);
     void addBuffers(float* pDest, AudioBufferPtr pSrc);
     void calcVolume(float* pBuffer, int numSamples);
 
@@ -62,8 +62,8 @@ private:
     AudioParams m_AP;
     AudioBufferPtr m_pTempBuffer;
     float* m_pMixBuffer;
-    char* m_pBuffer;
-    int m_BufferLen;
+    AudioBufferPtr m_pOutputBuffer;
+    
     IProcessor<float>* m_pLimiter;
     AudioSourceList m_AudioSources;
 };
