@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//  Original author of this file is Benjamin Granzow (kontakt@bgranzow.de).
 //
 
 #ifndef _AOAudioEngine_H_
