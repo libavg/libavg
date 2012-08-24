@@ -54,7 +54,7 @@ AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float vol
     m_Format.rate = 44100;
     m_Format.byte_format = AO_FMT_LITTLE;
 
-    m_BufferLen = m_Format.bits/8 * m_Format.channels * m_Format.rate;
+    m_BufferLen = m_Format.bits/8 * m_Format.channels * m_AP.m_OutputBufferSamples;
     m_pBuffer = (char*)malloc(m_BufferLen);
 
     int driverID = ao_default_driver_id();
@@ -79,9 +79,8 @@ AOAudioEngineThread::~AOAudioEngineThread()
 bool AOAudioEngineThread::work()
 {
     if (m_bPlaying) {
-        int bufferLen;
-        mixAudio(m_pBuffer, m_BufferLen, &bufferLen);
-        ao_play(m_pDevice, m_pBuffer, bufferLen*4);
+        mixAudio(m_pBuffer, m_BufferLen);
+        ao_play(m_pDevice, m_pBuffer, m_BufferLen);
     }
     return true;
 }
@@ -113,14 +112,9 @@ void AOAudioEngineThread::removeSource(IAudioSource* pSource)
     }
 }
 
-void AOAudioEngineThread::mixAudio(char* pDestBuffer, int destBufferLen, 
-        int* m_pCurBufferLen)
+void AOAudioEngineThread::mixAudio(char* pDestBuffer, int destBufferLen)
 {
     int numFrames = destBufferLen/(2*m_Format.channels); // 16 bit samples.
-
-    if (m_AudioSources.size() == 0) {
-        return;
-    }
     if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
         if (m_pTempBuffer) {
             delete[] m_pMixBuffer;
@@ -136,7 +130,7 @@ void AOAudioEngineThread::mixAudio(char* pDestBuffer, int destBufferLen,
         AudioSourceList::iterator it;
         for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
             m_pTempBuffer->clear();
-            *m_pCurBufferLen = (*it)->fillAudioBuffer(m_pTempBuffer);
+            int frames = (*it)->fillAudioBuffer(m_pTempBuffer);
             addBuffers(m_pMixBuffer, m_pTempBuffer);
         }
     }
