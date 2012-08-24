@@ -54,8 +54,8 @@ class AVG_API AOAudioEngine
         bool m_enabled;
         AudioParams m_AP;
 
-        boost::thread* m_aoAudioThread;
-        AOAudioEngineThread::CQueuePtr m_cmdQueue;
+        boost::thread* m_pThread;
+        AOAudioEngineThread::CQueuePtr m_pCmdQueue;
 
         static AOAudioEngine* s_pInstance;
 };

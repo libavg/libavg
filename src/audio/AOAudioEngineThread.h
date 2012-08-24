@@ -39,36 +39,33 @@ typedef std::vector<IAudioSource*> AudioSourceList;
 class AOAudioEngineThread : public WorkerThread<AOAudioEngineThread>
 {
 public:
-    AOAudioEngineThread(CQueue& CmdQ, AudioParams ap, float volume);
+    AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float volume);
     ~AOAudioEngineThread();
 
     bool work();
-    void playAudio(bool startStop);
+    void playAudio(bool bPlay);
     void updateVolume(float volume);
-    void addSource(IAudioSource* source);
-    void removeSource(IAudioSource* source);
+    void addSource(IAudioSource* pSource);
+    void removeSource(IAudioSource* pSource);
 
 private:
-    void mixAudio(char *destBuffer, int destBufferLen, int* m_curBufferLen);
-    void addBuffers(float *dest, AudioBufferPtr pSrc);
-    void calcVolume(float *buffer, int numSamples);
+    void mixAudio(char* pDestBuffer, int destBufferLen, int* m_curBufferLen);
+    void addBuffers(float* pDest, AudioBufferPtr pSrc);
+    void calcVolume(float* pBuffer, int numSamples);
 
+    ao_device* m_pDevice;
+    ao_sample_format m_Format;
 
-    ao_device* m_device;
-    ao_sample_format m_format;
-    int m_default_driver;
+    bool m_bPlaying;
 
-    bool m_play;
-
-    float m_volume;
+    float m_Volume;
     AudioParams m_AP;
     AudioBufferPtr m_pTempBuffer;
     float* m_pMixBuffer;
-    char* m_buffer;
-    int m_bufferLen;
-    int* m_pCurBufferLen;
-    IProcessor<float>* m_limiter;
-    AudioSourceList m_audioSources;
+    char* m_pBuffer;
+    int m_BufferLen;
+    IProcessor<float>* m_pLimiter;
+    AudioSourceList m_AudioSources;
 };
 
 }

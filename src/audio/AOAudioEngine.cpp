@@ -43,22 +43,22 @@ AOAudioEngine* AOAudioEngine::get()
 AOAudioEngine::AOAudioEngine(const AudioParams& ap, float volume)
     : m_enabled(false),
       m_AP(ap),
-      m_aoAudioThread(0)
+      m_pThread(0)
 {
     AVG_ASSERT(s_pInstance == 0);
     ao_initialize();
 
-    m_cmdQueue = AOAudioEngineThread::CQueuePtr(new AOAudioEngineThread::CQueue);
-    m_aoAudioThread = new boost::thread(AOAudioEngineThread(*m_cmdQueue, ap, volume));
+    m_pCmdQueue = AOAudioEngineThread::CQueuePtr(new AOAudioEngineThread::CQueue);
+    m_pThread = new boost::thread(AOAudioEngineThread(*m_pCmdQueue, ap, volume));
     s_pInstance = this;
 }
 
 AOAudioEngine::~AOAudioEngine()
 {
-    if (m_aoAudioThread) {
-        m_aoAudioThread->join();
-        delete m_aoAudioThread;
-        m_aoAudioThread = 0;
+    if (m_pThread) {
+        m_pThread->join();
+        delete m_pThread;
+        m_pThread = 0;
     }
     ao_shutdown();
 }
@@ -84,7 +84,7 @@ const AudioParams * AOAudioEngine::getParams()
 
 void AOAudioEngine::teardown()
 {
-    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, false));
+    m_pCmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, false));
 }
 
 void AOAudioEngine::setAudioEnabled(bool bEnabled)
@@ -94,27 +94,27 @@ void AOAudioEngine::setAudioEnabled(bool bEnabled)
 
 void AOAudioEngine::play()
 {
-    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, true));
+    m_pCmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, true));
 }
 
 void AOAudioEngine::pause()
 {
-    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, false));
+    m_pCmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::playAudio, _1, false));
 }
 
 void AOAudioEngine::addSource(IAudioSource* pSource)
 {
-    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::addSource, _1, pSource));
+    m_pCmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::addSource, _1, pSource));
 }
 
 void AOAudioEngine::removeSource(IAudioSource* pSource)
 {
-    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::removeSource, _1, pSource));
+    m_pCmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::removeSource, _1, pSource));
 }
 
 void AOAudioEngine::setVolume(float volume)
 {
-    m_cmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::updateVolume, _1, volume));
+    m_pCmdQueue->pushCmd(boost::bind(&AOAudioEngineThread::updateVolume, _1, volume));
 }
 
 }
