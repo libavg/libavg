@@ -133,7 +133,7 @@ void AOAudioEngineThread::mixAudio(AudioBufferPtr pDestBuffer)
     calcVolume(m_pMixBuffer, numFrames*m_Format.channels);
     short* pDestData = pDestBuffer->getData();
     for (int i = 0; i < numFrames; ++i) {
-//        m_pLimiter->process(m_pMixBuffer+i*m_Format.channels);
+        m_pLimiter->process(m_pMixBuffer+i*m_Format.channels);
         for (int j = 0; j < m_Format.channels; ++j) {
             pDestData[i*2+j] = int(m_pMixBuffer[i*2+j]*32768);
         }
