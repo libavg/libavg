@@ -67,6 +67,12 @@ AOAudioEngineThread::~AOAudioEngineThread()
 {
 }
 
+bool AOAudioEngineThread::init()
+{
+    setRealtimePriority();
+    return true;
+}
+
 void AOAudioEngineThread::deinit()
 {
     m_AudioSources.clear();
