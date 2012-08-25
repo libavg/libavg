@@ -65,14 +65,18 @@ AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float vol
 
 AOAudioEngineThread::~AOAudioEngineThread()
 {
+}
+
+void AOAudioEngineThread::deinit()
+{
     m_AudioSources.clear();
-/*    if (m_pLimiter) {
+    if (m_pLimiter) {
         delete m_pLimiter;
         m_pLimiter = 0;
     }
     if (m_pDevice) {
         ao_close(m_pDevice);
-    }*/
+    }
 }
 
 bool AOAudioEngineThread::work()

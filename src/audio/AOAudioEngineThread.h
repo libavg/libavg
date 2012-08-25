@@ -41,6 +41,7 @@ class AOAudioEngineThread : public WorkerThread<AOAudioEngineThread>
 public:
     AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float volume);
     ~AOAudioEngineThread();
+    void deinit();
 
     bool work();
     void playAudio(bool bPlay);
