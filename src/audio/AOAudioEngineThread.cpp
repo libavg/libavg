@@ -85,6 +85,8 @@ bool AOAudioEngineThread::work()
         mixAudio(m_pOutputBuffer);
         ao_play(m_pDevice, (char*)(m_pOutputBuffer->getData()), 
                 m_pOutputBuffer->getNumBytes());
+    } else {
+        waitForCommand();
     }
     return true;
 }
