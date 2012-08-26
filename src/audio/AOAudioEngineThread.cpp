@@ -33,6 +33,7 @@ namespace avg{
 AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float volume):
         WorkerThread<AOAudioEngineThread>("AOAudioThread", cmdQ),
         m_pDevice(0),
+        m_bUsingNullDevice(false),
         m_bPlaying(false),
         m_Volume(volume),
         m_AP(ap)
@@ -57,6 +58,10 @@ AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float vol
     m_pMixBuffer = new float[m_AP.m_Channels*m_AP.m_OutputBufferSamples];
 
     int driverID = ao_default_driver_id();
+    if (driverID == -1) {
+        driverID = ao_driver_id("null");
+        m_bUsingNullDevice = true;
+    }
     m_pDevice = ao_open_live(driverID, &m_Format, NULL /* no options */);
     if (m_pDevice == NULL) {
         AVG_TRACE(Logger::ERROR, "Can't open AO audio device.");
@@ -76,13 +81,17 @@ bool AOAudioEngineThread::init()
 void AOAudioEngineThread::deinit()
 {
     m_AudioSources.clear();
-    if (m_pLimiter) {
-        delete m_pLimiter;
-        m_pLimiter = 0;
-    }
+    delete m_pLimiter;
+    m_pLimiter = 0;
+    
     if (m_pDevice) {
         ao_close(m_pDevice);
     }
+}
+
+bool AOAudioEngineThread::haveDevice()
+{
+    return !m_bUsingNullDevice;
 }
 
 bool AOAudioEngineThread::work()

@@ -43,6 +43,7 @@ public:
     ~AOAudioEngineThread();
     bool init();
     void deinit();
+    bool haveDevice();
 
     bool work();
     void playAudio(bool bPlay);
@@ -58,6 +59,7 @@ private:
     ao_device* m_pDevice;
     ao_sample_format m_Format;
 
+    bool m_bUsingNullDevice;
     bool m_bPlaying;
 
     float m_Volume;
