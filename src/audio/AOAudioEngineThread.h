@@ -39,11 +39,11 @@ typedef std::vector<IAudioSource*> AudioSourceList;
 class AOAudioEngineThread : public WorkerThread<AOAudioEngineThread>
 {
 public:
-    AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float volume);
+    AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float volume, 
+            std::string& sDriverName);
     ~AOAudioEngineThread();
     bool init();
     void deinit();
-    bool haveDevice();
 
     bool work();
     void playAudio(bool bPlay);
@@ -59,7 +59,6 @@ private:
     ao_device* m_pDevice;
     ao_sample_format m_Format;
 
-    bool m_bUsingNullDevice;
     bool m_bPlaying;
 
     float m_Volume;

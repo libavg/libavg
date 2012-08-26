@@ -41,7 +41,7 @@ AOAudioEngine* AOAudioEngine::get()
 }
 
 AOAudioEngine::AOAudioEngine(const AudioParams& ap, float volume)
-    : m_enabled(false),
+    : m_bEnabled(false),
       m_AP(ap),
       m_pThread(0)
 {
@@ -49,7 +49,10 @@ AOAudioEngine::AOAudioEngine(const AudioParams& ap, float volume)
     ao_initialize();
 
     m_pCmdQueue = AOAudioEngineThread::CQueuePtr(new AOAudioEngineThread::CQueue);
-    m_pThread = new boost::thread(AOAudioEngineThread(*m_pCmdQueue, ap, volume));
+    string sDriverName;
+    m_pThread = new boost::thread(AOAudioEngineThread(*m_pCmdQueue, ap, volume, 
+            sDriverName));
+    AVG_TRACE(Logger::CONFIG, "Sound driver: " << sDriverName);
     s_pInstance = this;
 }
 
@@ -75,7 +78,7 @@ int AOAudioEngine::getSampleRate()
 
 const AudioParams * AOAudioEngine::getParams()
 {
-    if (m_enabled) {
+    if (m_bEnabled) {
         return &m_AP;
     } else {
         return 0;
@@ -89,7 +92,7 @@ void AOAudioEngine::teardown()
 
 void AOAudioEngine::setAudioEnabled(bool bEnabled)
 {
-    m_enabled = bEnabled;
+    m_bEnabled = bEnabled;
 }
 
 void AOAudioEngine::play()

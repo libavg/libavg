@@ -51,7 +51,7 @@ class AVG_API AOAudioEngine
         virtual void setVolume(float volume);
         
     private:
-        bool m_enabled;
+        bool m_bEnabled;
         AudioParams m_AP;
 
         boost::thread* m_pThread;

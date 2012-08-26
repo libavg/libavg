@@ -30,13 +30,13 @@ using namespace std;
 
 namespace avg{
 
-AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float volume):
-        WorkerThread<AOAudioEngineThread>("AOAudioThread", cmdQ),
-        m_pDevice(0),
-        m_bUsingNullDevice(false),
-        m_bPlaying(false),
-        m_Volume(volume),
-        m_AP(ap)
+AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float volume,
+        std::string& sDriverName)
+    : WorkerThread<AOAudioEngineThread>("AOAudioThread", cmdQ),
+      m_pDevice(0),
+      m_bPlaying(false),
+      m_Volume(volume),
+      m_AP(ap)
 {
     Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
     pLimiter->setThreshold(0.f); // in dB
@@ -60,12 +60,13 @@ AOAudioEngineThread::AOAudioEngineThread(CQueue& cmdQ, AudioParams ap, float vol
     int driverID = ao_default_driver_id();
     if (driverID == -1) {
         driverID = ao_driver_id("null");
-        m_bUsingNullDevice = true;
     }
     m_pDevice = ao_open_live(driverID, &m_Format, NULL /* no options */);
     if (m_pDevice == NULL) {
-        AVG_TRACE(Logger::ERROR, "Can't open AO audio device.");
+        perror(0);
+        AVG_ASSERT(false);
     }
+    sDriverName = ao_driver_info(driverID)->name;
 }
 
 AOAudioEngineThread::~AOAudioEngineThread()
@@ -88,12 +89,7 @@ void AOAudioEngineThread::deinit()
         ao_close(m_pDevice);
     }
 }
-
-bool AOAudioEngineThread::haveDevice()
-{
-    return !m_bUsingNullDevice;
-}
-
+    
 bool AOAudioEngineThread::work()
 {
     if (m_bPlaying) {

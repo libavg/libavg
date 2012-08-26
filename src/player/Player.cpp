@@ -539,8 +539,8 @@ void Player::initPlayback(const std::string& sShaderPath)
 {
     m_bIsPlaying = true;
     AVG_TRACE(Logger::PLAYER, "Playback started.");
-    initGraphics(sShaderPath);
     initAudio();
+    initGraphics(sShaderPath);
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
             m_pCanvases[i]->initPlayback();
