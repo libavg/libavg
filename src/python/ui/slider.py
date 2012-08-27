@@ -298,9 +298,9 @@ class Slider(avg.DivNode):
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
-            return self.size.x
+            return self.size.x - self._thumbNode.size.x
         else:
-            return self.size.y
+            return self.size.y - self._thumbNode.size.y
 
     def _positionNodes(self, newSliderPos=None):
         oldThumbPos = self._thumbPos

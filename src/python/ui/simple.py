@@ -183,12 +183,6 @@ class Slider(slider.Slider):
         super(Slider, self).__init__(orientation=orientation, trackNode=trackNode,
                 trackMargin=trackMargin, thumbNode=thumbNode, **kwargs)
 
-    def _getScrollRangeInPixels(self):
-        if self._orientation == slider.Orientation.HORIZONTAL:
-            return self.size.x - 2*7
-        else:
-            return self.size.y - 2*7
-
 
 class ScrollBar(slider.ScrollBar):
 

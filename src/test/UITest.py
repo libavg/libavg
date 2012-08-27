@@ -575,6 +575,10 @@ class UITestCase(AVGTestCase):
             createNode(orientation)
             self.start(False,
                     (lambda: self.compareImage("testSlider"+orName+"1"),
+                     lambda: self.node.setThumbPos(0.25),
+                     lambda: self.compareImage("testSlider"+orName+"2"),
+                     lambda: self.node.setThumbPos(1),
+                     lambda: self.compareImage("testSlider"+orName+"3"),
                     )) 
 
     def testScrollBar(self):
