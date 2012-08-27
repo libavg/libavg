@@ -182,6 +182,19 @@ class ScrollBarThumb(SwitchNode):
     extent = property(getExtent, setExtent)
 
 
+class SliderThumb(SwitchNode):
+
+    def __init__(self, upSrc, downSrc, disabledSrc, **kwargs):
+        upNode = avg.ImageNode(href=upSrc)
+        nodeMap = {
+            "UP": upNode,
+            "DOWN": avg.ImageNode(href=downSrc),
+            "DISABLED": avg.ImageNode(href=disabledSrc)
+        }
+        super(SliderThumb, self).__init__(nodeMap=nodeMap, visibleid="UP", **kwargs)
+        self.size = upNode.size
+
+
 class Slider(avg.DivNode):
 
     THUMB_POS_CHANGED = avg.Node.LAST_MESSAGEID

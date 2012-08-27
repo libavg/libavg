@@ -114,9 +114,8 @@ class CheckBox(button.ToggleButton):
 
 
 class SliderTrack(button.SwitchNode):
-    def __init__(self, size, inset=(0,0), orientation=slider.Orientation.HORIZONTAL,
+    def __init__(self, size, orientation=slider.Orientation.HORIZONTAL,
             sensitive=True, **kwargs):
-        self.__inset = avg.Point2D(inset)
         self.__orientation = orientation
         style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
         if sensitive:
@@ -133,8 +132,6 @@ class SliderTrack(button.SwitchNode):
         }
         super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", 
                 sensitive=sensitive, size=size, **kwargs)
-        self.pos = self.__inset
-        self.size -= 2*self.__inset
 
     def getExtent(self):
         if self.__orientation == slider.Orientation.HORIZONTAL:
@@ -144,9 +141,9 @@ class SliderTrack(button.SwitchNode):
 
     def setExtent(self, extent):
         if self.__orientation == slider.Orientation.HORIZONTAL:
-            self.size = avg.Point2D(extent-2*self.__inset.x, self.size.y)
+            self.size = avg.Point2D(extent, self.size.y)
         else:
-            self.size = avg.Point2D(self.size.x, extent-2*self.__inset.y)
+            self.size = avg.Point2D(self.size.x, extent)
         for node in self.__enabledNode, self.__disabledNode:
             node.size = self.size
 
@@ -182,12 +179,13 @@ class Slider(slider.Slider):
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
         
+        size = avg.Point2D(kwargs["size"])
         if orientation == slider.Orientation.HORIZONTAL:
-            trackInset = (7, 8)
+            trackPos = avg.Point2D(7, 8)
         else:
-            trackInset = (8, 7)
-        trackNode = SliderTrack(inset=trackInset, size=kwargs["size"],
-                orientation=orientation)
+            trackPos = avg.Point2D(8, 7)
+        trackSize = size - 2*trackPos
+        trackNode = SliderTrack(pos=trackPos, size=trackSize, orientation=orientation)
         thumbNode = Slider.Thumb(orientation)
 
         super(Slider, self).__init__(orientation=orientation, trackNode=trackNode,
@@ -199,6 +197,14 @@ class Slider(slider.Slider):
         else:
             return self.size.y - 2*7
 
+    def _positionNodes(self, newSliderPos=None):
+        # Temporary - move to base class.
+        super(Slider, self)._positionNodes(newSliderPos)
+        if self._orientation == slider.Orientation.HORIZONTAL:
+            self._trackNode.extent = self.width - 2*7
+        else:
+            self._trackNode.extent = self.height - 2*7
+        
 
 class ScrollBar(slider.ScrollBar):
 
