@@ -86,32 +86,20 @@ using namespace std;
 namespace avg {
 
 float GLUTDisplayEngine::s_RefreshRate = 0.0;
-/*
-void safeSetAttribute(SDL_GLattr attr, int value) 
-{
-    int err = SDL_GL_SetAttribute(attr, value);
-    if (err == -1) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
-    }
-}
-*/
+
 GLUTDisplayEngine::GLUTDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(GLUTDisplayEngine)),
       m_WindowSize(0,0),
       m_ScreenResolution(0,0),
       m_PPMM(0),
-//      m_pScreen(0),
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0)
 {
-/*    
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
-        AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
-        exit(-1);
-    }
-    */
+    int argc = 1;
+    char * argv = "libavg";
+    glutInit(&argc, &argv);
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
@@ -146,6 +134,10 @@ void GLUTDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
+    glutInitWindowSize(m_WindowSize.x, m_WindowSize.y);
+    glutInitWindowPosition(dp.m_Pos.x, dp.m_Pos.y);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_STENCIL);
+    glutCreateWindow("libavg");
 /*
     switch (dp.m_BPP) {
         case 32:
@@ -228,15 +220,16 @@ void GLUTDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
+    */
     m_pGLContext = new GLContext(true, glConfig);
     GLContext::setMain(m_pGLContext);
-
+/*
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     m_pXIMTInputDevice = 0;
 #endif
     SDL_WM_SetCaption("libavg", 0);
-*/    
+  */  
     calcRefreshRate();
 
     glEnable(GL_BLEND);

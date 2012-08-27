@@ -90,8 +90,6 @@ class AVG_API GLUTDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_ScreenResolution;
         float m_PPMM;
 
-//        SDL_Surface * m_pScreen;
-
         static void calcRefreshRate();
         static float s_RefreshRate;
 
