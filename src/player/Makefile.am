@@ -1,7 +1,7 @@
 INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@ \
-        $(MTDEV_CFLAGS)
+        @AO_CFLAGS@ $(MTDEV_CFLAGS)
         
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
@@ -37,7 +37,7 @@ endif
 GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp
 GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
+ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ @AO_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \

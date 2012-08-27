@@ -94,7 +94,7 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
     
     if (m_VideoInfo.m_bHasAudio) {
         m_pACmdQ = AudioDecoderThread::CQueuePtr(new AudioDecoderThread::CQueue);
-        m_pAMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
+        m_pAMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(100));
         m_pADecoderThread = new boost::thread(
                  AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder, *pAP));
         m_AudioMsgData = 0;

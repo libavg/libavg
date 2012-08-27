@@ -18,59 +18,46 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//  Original author of this file is Benjamin Granzow (kontakt@bgranzow.de).
 //
 
-#ifndef _SDLAudioEngine_H_
-#define _SDLAudioEngine_H_
+#ifndef _AOAudioEngine_H_
+#define _AOAudioEngine_H_
 
-#include "../api.h"
-#include "AudioEngine.h"
-#include "AudioBuffer.h"
-#include "IProcessor.h"
-
-#include <SDL/SDL.h>
-
-#include <boost/thread/mutex.hpp>
+#include "AOAudioEngineThread.h"
 
 namespace avg {
 
-class AVG_API SDLAudioEngine : public AudioEngine
+class AVG_API AOAudioEngine
 {   
     public:
-        static SDLAudioEngine* get();
-        SDLAudioEngine();
-        virtual ~SDLAudioEngine();
+        static AOAudioEngine* get();
+        AOAudioEngine(const AudioParams& ap, float volume);
+        virtual ~AOAudioEngine();
         
         virtual int getChannels();
         virtual int getSampleRate();
         virtual const AudioParams * getParams();
         
-        virtual void init(const AudioParams& AP, float volume);
         virtual void teardown();
         
         virtual void setAudioEnabled(bool bEnabled);
         
         virtual void play();
         virtual void pause();
-        
+
         virtual void addSource(IAudioSource* pSource);
         virtual void removeSource(IAudioSource* pSource);
         virtual void setVolume(float volume);
         
     private:
-        void mixAudio(Uint8 *pDestBuffer, int destBufferLen);
-        static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
-        void addBuffers(float *pDest, AudioBufferPtr pSrc);
-        void calcVolume(float *pBuffer, int numSamples, float volume);
-        
+        bool m_bEnabled;
         AudioParams m_AP;
-        AudioBufferPtr m_pTempBuffer;
-        float * m_pMixBuffer;
-        IProcessor<float>* m_pLimiter;
-        boost::mutex m_Mutex;
 
-        static SDLAudioEngine* s_pInstance;
+        boost::thread* m_pThread;
+        AOAudioEngineThread::CQueuePtr m_pCmdQueue;
+
+        static AOAudioEngine* s_pInstance;
 };
 
 }

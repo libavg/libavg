@@ -33,6 +33,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include <iostream>
+#include <errno.h>
+#include <stdio.h>
 
 namespace avg {
 
@@ -54,6 +56,8 @@ public:
 
     void waitForCommand();
     void stop();
+
+    static void setRealtimePriority();
 
 private:
     virtual bool init();
@@ -118,23 +122,48 @@ void WorkerThread<DERIVED_THREAD>::operator()()
         pProfiler->dumpStatistics();
         pProfiler->kill();
     } catch (const Exception& e) {
-         AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
-                  << e.getStr());
-         throw;
+        AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
+                 << e.getStr());
+        throw;
     }
 }
 
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::waitForCommand() 
 {
-    CmdPtr pCmd = m_CmdQ.pop(true);
-    pCmd->execute(dynamic_cast<DERIVED_THREAD*>(this));
+    try {
+        CmdPtr pCmd = m_CmdQ.pop(true);
+        pCmd->execute(dynamic_cast<DERIVED_THREAD*>(this));
+    } catch (const Exception& e) {
+        AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
+                << m_sName << ": " << e.getStr());
+        throw;
+    }
 }
 
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::stop() 
 {
     m_bShouldStop = true;
+}
+
+template<class DERIVED_THREAD>
+void WorkerThread<DERIVED_THREAD>::setRealtimePriority()
+{
+#ifndef WIN32
+    sched_param param;
+    param.sched_priority = sched_get_priority_min(SCHED_RR);
+    int rc = pthread_setschedparam(pthread_self(), SCHED_RR, &param);
+    if (rc != EPERM) {
+        if (rc != 0) {
+            errno  = rc;
+            perror(0);
+        }
+        AVG_ASSERT(false);
+    }
+#else
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+#endif
 }
 
 template<class DERIVED_THREAD>
@@ -155,8 +184,8 @@ void WorkerThread<DERIVED_THREAD>::processCommands()
     } catch (const Exception& e) {
         AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
                 << m_sName << ": " << e.getStr());
+        throw;
     }
-   
 }
 
 }

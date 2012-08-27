@@ -29,7 +29,7 @@
 #include "../base/XMLHelper.h"
 #include "../base/ObjectCounter.h"
 
-#include "../audio/SDLAudioEngine.h"
+#include "../audio/AOAudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
@@ -137,7 +137,7 @@ void SoundNode::setEOFCallback(PyObject * pEOFCallback)
 
 void SoundNode::connectDisplay()
 {
-    if (!SDLAudioEngine::get()) {
+    if (!AOAudioEngine::get()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Sound nodes can only be created if audio is not disabled."); 
     }
@@ -302,7 +302,7 @@ void SoundNode::open()
 
 void SoundNode::startDecoding()
 {
-    SDLAudioEngine* pEngine = SDLAudioEngine::get();
+    AOAudioEngine* pEngine = AOAudioEngine::get();
     m_pDecoder->startDecoding(false, pEngine->getParams());
     pEngine->addSource(this);
     if (m_SeekBeforeCanRenderTime != 0) {
@@ -313,7 +313,7 @@ void SoundNode::startDecoding()
 
 void SoundNode::close()
 {
-    SDLAudioEngine::get()->removeSource(this);
+    AOAudioEngine::get()->removeSource(this);
     m_pDecoder->close();
 }
 

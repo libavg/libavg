@@ -50,7 +50,6 @@ class AVG_API AudioEngine
         virtual void teardown() = 0;
         
         virtual void play() = 0;
-        virtual void pause() = 0;
         
         AudioSourceList& getSources();
         virtual void addSource(IAudioSource* pSource);
