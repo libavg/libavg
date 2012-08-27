@@ -119,7 +119,7 @@ class AccordionNode(avg.DivNode):
 
 class ScrollBarTrack(SwitchNode):
     
-    def __init__(self, enabledSrc, disabledSrc, endsExtent, 
+    def __init__(self, enabledSrc, endsExtent, disabledSrc=None, 
             orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
             **kwargs):
       
@@ -127,6 +127,8 @@ class ScrollBarTrack(SwitchNode):
         self.__enabledNode = AccordionNode(src=enabledSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent,
                 parent=self)
+        if disabledSrc == None:
+            disabledSrc = enabledSrc
         self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent,
                 parent=self)
@@ -152,7 +154,7 @@ class ScrollBarTrack(SwitchNode):
 
 class ScrollBarThumb(SwitchNode):
     
-    def __init__(self, upSrc, downSrc, disabledSrc, endsExtent, 
+    def __init__(self, upSrc, downSrc, endsExtent, disabledSrc=None, 
             orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
             **kwargs):
       
@@ -161,6 +163,8 @@ class ScrollBarThumb(SwitchNode):
                 orientation=orientation, extent=extent, minExtent=minExtent)
         self.__downNode = AccordionNode(src=downSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent)
+        if disabledSrc == None:
+            disabledSrc = upSrc
         self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
                 orientation=orientation, extent=extent, minExtent=minExtent)
 
@@ -186,8 +190,10 @@ class ScrollBarThumb(SwitchNode):
 
 class SliderThumb(SwitchNode):
 
-    def __init__(self, upSrc, downSrc, disabledSrc, **kwargs):
+    def __init__(self, upSrc, downSrc, disabledSrc=None, **kwargs):
         upNode = avg.ImageNode(href=upSrc)
+        if disabledSrc == None:
+            disabledSrc = upSrc
         nodeMap = {
             "UP": upNode,
             "DOWN": avg.ImageNode(href=downSrc),
@@ -337,8 +343,8 @@ class Slider(avg.DivNode):
 
 class BmpSlider(Slider):
 
-    def __init__(self, trackSrc, trackDisabledSrc, trackEndsExtent, 
-            thumbUpSrc, thumbDownSrc, thumbDisabledSrc,
+    def __init__(self, trackSrc, trackEndsExtent, 
+            thumbUpSrc, thumbDownSrc, trackDisabledSrc=None, thumbDisabledSrc=None,
             orientation=Orientation.HORIZONTAL, **kwargs):
         trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
                 disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
@@ -396,8 +402,8 @@ class ScrollBar(Slider):
 
 class BmpScrollBar(ScrollBar):
 
-    def __init__(self, trackSrc, trackDisabledSrc, trackEndsExtent,
-            thumbUpSrc, thumbDownSrc, thumbDisabledSrc, thumbEndsExtent,
+    def __init__(self, trackSrc, trackEndsExtent, thumbUpSrc, thumbDownSrc, 
+            thumbEndsExtent, thumbDisabledSrc=None, trackDisabledSrc=None, 
             orientation=Orientation.HORIZONTAL, **kwargs):
         trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
                 disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
