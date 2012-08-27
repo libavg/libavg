@@ -1,12 +1,6 @@
 
 INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @GDK_PIXBUF_CFLAGS@
         
-if APPLE
-    X_LIBS = 
-else
-    X_LIBS = -lX11
-endif
-
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h VideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h \
         PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
@@ -38,6 +32,5 @@ testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@  @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ \
-        @LIBFFMPEG@ $(X_LIBS) \
-        @GDK_PIXBUF_LIBS@
+        @LIBFFMPEG@ @GDK_PIXBUF_LIBS@
 

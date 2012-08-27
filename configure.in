@@ -146,13 +146,18 @@ fi
 
 AX_CHECK_GL
 AX_CHECK_GLU
+AX_CHECK_GLUT
 
-AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
+#AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
 PKG_CHECK_MODULES([AO], [ao])
 
 if test x"$GL_LIBS" = x; then
     AC_MSG_ERROR([OpenGL not found. Aborting])
+fi
+
+if test x"$GLUT_LIBS" = x; then
+    AC_MSG_ERROR([GLUT not found. Aborting])
 fi
 
 AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)

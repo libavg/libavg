@@ -40,13 +40,6 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         VertexData.cpp
 
 
-
-if APPLE
-    X_LIBS =
-else
-    X_LIBS = -lX11
-endif
-
 TESTS=testgraphics testgpu
 
 EXTRA_DIST = $(wildcard baseline/*.png) 
@@ -57,7 +50,7 @@ noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@  @GDK_PIXBUF_LIBS@
 
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
 benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
@@ -67,7 +60,6 @@ benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
 testgpu_SOURCES=testgpu.cpp $(ALL_H)
 testgpu_LDADD = ./libgraphics.la ../base/libbase.la -ldl \
         ../base/triangulate/libtriangulate.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
-        @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
-        @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@  \
+        @GL_LIBS@ @GLU_LIBS@ @GLUT_LIBS@ @GDK_PIXBUF_LIBS@
 
