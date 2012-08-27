@@ -548,16 +548,16 @@ class UITestCase(AVGTestCase):
     def testSlider(self):
         def createNode(orientation):
             if orientation == ui.Orientation.HORIZONTAL:
-                trackSrc = "media/scrollbar_horiz_track.png"
+                trackSrc = "media/slider_horiz_track.png"
                 trackDisabledSrc = "media/scrollbar_horiz_track_disabled.png"
             else:
-                trackSrc = "media/scrollbar_vert_track.png"
+                trackSrc = "media/slider_vert_track.png"
                 trackDisabledSrc = "media/scrollbar_vert_track_disabled.png"
 
             self.node = ui.BmpSlider(orientation=orientation,
                     trackSrc=trackSrc,
                     trackDisabledSrc=trackDisabledSrc,
-                    trackEndsExtent=2,
+                    trackEndsExtent=12,
                     thumbUpSrc="slider_thumb_up.png",
                     thumbDownSrc="slider_thumb_down.png",
                     thumbDisabledSrc="slider_thumb_disabled.png",
