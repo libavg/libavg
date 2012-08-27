@@ -550,11 +550,9 @@ class UITestCase(AVGTestCase):
             if orientation == ui.Orientation.HORIZONTAL:
                 trackSrc = "media/scrollbar_horiz_track.png"
                 trackDisabledSrc = "media/scrollbar_horiz_track_disabled.png"
-                thumbMargin=(0,0,0,0)
             else:
                 trackSrc = "media/scrollbar_vert_track.png"
                 trackDisabledSrc = "media/scrollbar_vert_track_disabled.png"
-                thumbMargin=(3,0,0,0)
 
             self.node = ui.BmpSlider(orientation=orientation,
                     trackSrc=trackSrc,
@@ -565,7 +563,6 @@ class UITestCase(AVGTestCase):
                     thumbDisabledSrc="slider_thumb_disabled.png",
                     width=100,
                     height=100,
-                    thumbMargin=thumbMargin,
                     parent=root)
         
         def onThumbPosChanged(pos):

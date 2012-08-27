@@ -199,7 +199,7 @@ class Slider(avg.DivNode):
 
     THUMB_POS_CHANGED = avg.Node.LAST_MESSAGEID
 
-    def __init__(self, trackNode, thumbNode, trackMargin=(0,0,0,0), thumbMargin=(0,0,0,0),
+    def __init__(self, trackNode, thumbNode,
             enabled=True, orientation=Orientation.HORIZONTAL, range=(0.,1.), 
             thumbpos=0.0, thumbPosChangedHandler=None, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)
@@ -209,13 +209,9 @@ class Slider(avg.DivNode):
 
         self._trackNode = trackNode
         self.appendChild(self._trackNode)
-        self.__trackMargin = trackMargin
-        self._trackNode.pos = (trackMargin[0], trackMargin[1])
 
         self._thumbNode = thumbNode
         self.appendChild(self._thumbNode)
-        self.__thumbMargin = thumbMargin
-        self._thumbNode.pos = (thumbMargin[0], thumbMargin[1])
 
         self._range = range
         self._thumbPos = thumbpos
@@ -300,25 +296,19 @@ class Slider(avg.DivNode):
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
-            return (self.size.x - self._thumbNode.size.x 
-                    - self.__thumbMargin[0] - self.__thumbMargin[2])
+            return self.size.x - self._thumbNode.size.x
         else:
-            return (self.size.y - self._thumbNode.size.y
-                    - self.__thumbMargin[1] - self.__thumbMargin[3])
+            return self.size.y - self._thumbNode.size.y
 
     def _positionNodes(self, newSliderPos=None):
         oldThumbPos = self._thumbPos
         if newSliderPos is not None:
             self._thumbPos = float(newSliderPos)
-        self._trackNode.size = (self.size - 
-                (self.__trackMargin[0] + self.__trackMargin[2],
-                 self.__trackMargin[1] + self.__trackMargin[3]))
+        self._trackNode.size = self.size
         if self._orientation == Orientation.HORIZONTAL:
-            self._trackNode.extent = (
-                    self.size.x - self.__trackMargin[0] - self.__trackMargin[2])
+            self._trackNode.extent = self.size.x
         else:
-            self._trackNode.extent = (
-                    self.size.y - self.__trackMargin[1] - self.__trackMargin[3])
+            self._trackNode.extent = self.size.y
                  
         self._constrainSliderPos()
         if self._thumbPos != oldThumbPos:
@@ -335,7 +325,6 @@ class Slider(avg.DivNode):
         else:
             self._thumbNode.y = thumbPixelPos
 
-
     def _getSliderRange(self):
         return self._range[1] - self._range[0]
 
@@ -347,15 +336,14 @@ class Slider(avg.DivNode):
 class BmpSlider(Slider):
 
     def __init__(self, trackSrc, trackDisabledSrc, trackEndsExtent, 
-            thumbUpSrc, thumbDownSrc, thumbDisabledSrc, trackMargin=(0,0,0,0),
+            thumbUpSrc, thumbDownSrc, thumbDisabledSrc,
             orientation=Orientation.HORIZONTAL, **kwargs):
         trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
                 disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
         thumbNode = SliderThumb(upSrc=thumbUpSrc, 
                 downSrc=thumbDownSrc, disabledSrc=thumbDisabledSrc)
-        trackMargin = self.__calcTrackMargin(orientation, trackMargin, thumbNode.size)
 
-        super(BmpSlider, self).__init__(trackNode=trackNode, trackMargin=trackMargin, 
+        super(BmpSlider, self).__init__(trackNode=trackNode,
                 orientation=orientation, thumbNode=thumbNode, **kwargs)
     
     def __calcTrackMargin(self, orientation, margin, thumbSize):

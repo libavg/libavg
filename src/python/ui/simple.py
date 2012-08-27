@@ -114,10 +114,11 @@ class CheckBox(button.ToggleButton):
 
 
 class SliderTrack(button.SwitchNode):
-    def __init__(self, orientation=slider.Orientation.HORIZONTAL,
+    def __init__(self, size, margin=(0,0), orientation=slider.Orientation.HORIZONTAL,
             sensitive=True, **kwargs):
+        self.__margin = avg.Point2D(margin)
         self.__orientation = orientation
-        style = avg.Style(pos=(0.5,0.5), fillopacity=1)
+        style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
         if sensitive:
             self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
                     style=style)
@@ -131,13 +132,15 @@ class SliderTrack(button.SwitchNode):
             "DISABLED": self.__disabledNode
         }
         super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", 
-                sensitive=sensitive, **kwargs)
+                sensitive=sensitive, size=size, **kwargs)
+        self.pos = self.__margin
+        self.size -= 2*self.__margin
 
     def getSize(self):
-        return self.__enabledNode.size
+        return self.__enabledNode.size + 2*self.__margin
 
     def setSize(self, size):
-        self.__baseSize = size
+        self.__baseSize = size - 2*self.__margin
         for node in self.__enabledNode, self.__disabledNode:
             node.size = self.__baseSize
     __baseSize = button.SwitchNode.size
@@ -174,14 +177,15 @@ class Slider(slider.Slider):
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
         
         if orientation == slider.Orientation.HORIZONTAL:
-            trackMargin = (7, 8, 7, 8)
+            trackMargin = (7, 8)
         else:
-            trackMargin = (8, 7, 8, 7)
-        trackNode = SliderTrack(orientation=orientation)
+            trackMargin = (8, 7)
+        trackNode = SliderTrack(margin=trackMargin, size=kwargs["size"],
+                orientation=orientation)
         thumbNode = Slider.Thumb(orientation)
 
         super(Slider, self).__init__(orientation=orientation, trackNode=trackNode,
-                trackMargin=trackMargin, thumbNode=thumbNode, **kwargs)
+                thumbNode=thumbNode, **kwargs)
 
 
 class ScrollBar(slider.ScrollBar):
