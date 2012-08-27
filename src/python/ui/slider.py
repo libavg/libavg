@@ -200,8 +200,8 @@ class Slider(avg.DivNode):
     THUMB_POS_CHANGED = avg.Node.LAST_MESSAGEID
 
     def __init__(self, trackNode, thumbNode, enabled=True, 
-            orientation=Orientation.HORIZONTAL, range=(0.,1.), thumbpos=0.0, 
-            thumbPosChangedHandler=None, parent=None, **kwargs):
+            orientation=Orientation.HORIZONTAL, trackMargin=(0,0,0,0), range=(0.,1.), 
+            thumbpos=0.0, thumbPosChangedHandler=None, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         
@@ -209,6 +209,8 @@ class Slider(avg.DivNode):
 
         self._trackNode = trackNode
         self.appendChild(self._trackNode)
+        self.__trackMargin = trackMargin
+        self._trackNode.pos = (trackMargin[0], trackMargin[1])
 
         self._thumbNode = thumbNode
         self.appendChild(self._thumbNode)
@@ -304,10 +306,10 @@ class Slider(avg.DivNode):
         oldThumbPos = self._thumbPos
         if newSliderPos is not None:
             self._thumbPos = float(newSliderPos)
-        if self._orientation == Orientation.HORIZONTAL:
-            self._trackNode.extent = self.width
-        else:
-            self._trackNode.extent = self.height
+        self._trackNode.size = (self.size - 
+                (self.__trackMargin[0] + self.__trackMargin[2],
+                 self.__trackMargin[1] + self.__trackMargin[3]))
+                 
         self._constrainSliderPos()
         if self._thumbPos != oldThumbPos:
             self.notifySubscribers(ScrollBar.THUMB_POS_CHANGED, [self._thumbPos])

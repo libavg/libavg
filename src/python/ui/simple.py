@@ -114,10 +114,10 @@ class CheckBox(button.ToggleButton):
 
 
 class SliderTrack(button.SwitchNode):
-    def __init__(self, size, orientation=slider.Orientation.HORIZONTAL,
+    def __init__(self, orientation=slider.Orientation.HORIZONTAL,
             sensitive=True, **kwargs):
         self.__orientation = orientation
-        style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
+        style = avg.Style(pos=(0.5,0.5), fillopacity=1)
         if sensitive:
             self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
                     style=style)
@@ -131,23 +131,17 @@ class SliderTrack(button.SwitchNode):
             "DISABLED": self.__disabledNode
         }
         super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", 
-                sensitive=sensitive, size=size, **kwargs)
+                sensitive=sensitive, **kwargs)
 
-    def getExtent(self):
-        if self.__orientation == slider.Orientation.HORIZONTAL:
-            return self.__enabledNode.width
-        else:
-            return self.__enabledNode.height
+    def getSize(self):
+        return self.__enabledNode.size
 
-    def setExtent(self, extent):
-        if self.__orientation == slider.Orientation.HORIZONTAL:
-            self.size = avg.Point2D(extent, self.size.y)
-        else:
-            self.size = avg.Point2D(self.size.x, extent)
+    def setSize(self, size):
+        self.__baseSize = size
         for node in self.__enabledNode, self.__disabledNode:
-            node.size = self.size
-
-    extent = property(getExtent, setExtent)
+            node.size = self.__baseSize
+    __baseSize = button.SwitchNode.size
+    size = property(getSize, setSize)   
 
 
 class Slider(slider.Slider):
@@ -179,17 +173,15 @@ class Slider(slider.Slider):
 
     def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
         
-        size = avg.Point2D(kwargs["size"])
         if orientation == slider.Orientation.HORIZONTAL:
-            trackPos = avg.Point2D(7, 8)
+            trackMargin = (7, 8, 7, 8)
         else:
-            trackPos = avg.Point2D(8, 7)
-        trackSize = size - 2*trackPos
-        trackNode = SliderTrack(pos=trackPos, size=trackSize, orientation=orientation)
+            trackMargin = (8, 7, 8, 7)
+        trackNode = SliderTrack(orientation=orientation)
         thumbNode = Slider.Thumb(orientation)
 
         super(Slider, self).__init__(orientation=orientation, trackNode=trackNode,
-                thumbNode=thumbNode, **kwargs)
+                trackMargin=trackMargin, thumbNode=thumbNode, **kwargs)
 
     def _getScrollRangeInPixels(self):
         if self._orientation == slider.Orientation.HORIZONTAL:
@@ -197,14 +189,6 @@ class Slider(slider.Slider):
         else:
             return self.size.y - 2*7
 
-    def _positionNodes(self, newSliderPos=None):
-        # Temporary - move to base class.
-        super(Slider, self)._positionNodes(newSliderPos)
-        if self._orientation == slider.Orientation.HORIZONTAL:
-            self._trackNode.extent = self.width - 2*7
-        else:
-            self._trackNode.extent = self.height - 2*7
-        
 
 class ScrollBar(slider.ScrollBar):
 
