@@ -309,6 +309,12 @@ class Slider(avg.DivNode):
         self._trackNode.size = (self.size - 
                 (self.__trackMargin[0] + self.__trackMargin[2],
                  self.__trackMargin[1] + self.__trackMargin[3]))
+        if self._orientation == Orientation.HORIZONTAL:
+            self._trackNode.extent = (
+                    self.size.x - self.__trackMargin[0] - self.__trackMargin[2])
+        else:
+            self._trackNode.extent = (
+                    self.size.y - self.__trackMargin[1] - self.__trackMargin[3])
                  
         self._constrainSliderPos()
         if self._thumbPos != oldThumbPos:
@@ -324,15 +330,7 @@ class Slider(avg.DivNode):
             self._thumbNode.x = thumbPixelPos
         else:
             self._thumbNode.y = thumbPixelPos
-#        print "--------"
-#        print "range: ", self._range
-#        print "thumbPos: ", self._thumbPos
-#        print "self.size: ", self.size
-#        print "_thumbNode.pos: ", self._thumbNode.pos
-#        print "effectiveRange: ", effectiveRange
-#        print "pixelRange: ", pixelRange
 
-#        self.size = self._trackNode.size
 
     def _getSliderRange(self):
         return self._range[1] - self._range[0]
