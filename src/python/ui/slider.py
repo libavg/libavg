@@ -340,6 +340,29 @@ class Slider(avg.DivNode):
         self._thumbPos = min(self._range[1], self._thumbPos)
 
 
+class BmpSlider(Slider):
+
+    def __init__(self, trackSrc, trackDisabledSrc, trackEndsExtent, 
+            thumbUpSrc, thumbDownSrc, thumbDisabledSrc, trackMargin=(0,0,0,0),
+            orientation=Orientation.HORIZONTAL, **kwargs):
+        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
+                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
+        thumbNode = SliderThumb(upSrc=thumbUpSrc, 
+                downSrc=thumbDownSrc, disabledSrc=thumbDisabledSrc)
+        trackMargin = self.__calcTrackMargin(orientation, trackMargin, thumbNode.size)
+
+        super(BmpSlider, self).__init__(trackNode=trackNode, trackMargin=trackMargin, 
+                orientation=orientation, thumbNode=thumbNode, **kwargs)
+    
+    def __calcTrackMargin(self, orientation, margin, thumbSize):
+        if orientation == Orientation.HORIZONTAL:
+            if margin[0] == 0 and margin[2] == 0:
+                margin = (thumbSize.x/2, margin[1], thumbSize.x/2, margin[3])
+        else:
+            if margin[1] == 0 and margin[3] == 0:
+                margin = (margin[0], thumbSize.y/2, margin[2], thumbSize.y/2)
+        return margin
+
 class ScrollBar(Slider):
    
     def __init__(self, thumbextent=0.1, **kwargs):
