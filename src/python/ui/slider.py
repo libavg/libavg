@@ -199,8 +199,8 @@ class Slider(avg.DivNode):
 
     THUMB_POS_CHANGED = avg.Node.LAST_MESSAGEID
 
-    def __init__(self, trackNode, thumbNode, enabled=True, 
-            orientation=Orientation.HORIZONTAL, trackMargin=(0,0,0,0), range=(0.,1.), 
+    def __init__(self, trackNode, thumbNode, trackMargin=(0,0,0,0), thumbMargin=(0,0,0,0),
+            enabled=True, orientation=Orientation.HORIZONTAL, range=(0.,1.), 
             thumbpos=0.0, thumbPosChangedHandler=None, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -214,6 +214,8 @@ class Slider(avg.DivNode):
 
         self._thumbNode = thumbNode
         self.appendChild(self._thumbNode)
+        self.__thumbMargin = thumbMargin
+        self._thumbNode.pos = (thumbMargin[0], thumbMargin[1])
 
         self._range = range
         self._thumbPos = thumbpos
@@ -298,9 +300,11 @@ class Slider(avg.DivNode):
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
-            return self.size.x - self._thumbNode.size.x
+            return (self.size.x - self._thumbNode.size.x 
+                    - self.__thumbMargin[0] - self.__thumbMargin[2])
         else:
-            return self.size.y - self._thumbNode.size.y
+            return (self.size.y - self._thumbNode.size.y
+                    - self.__thumbMargin[1] - self.__thumbMargin[3])
 
     def _positionNodes(self, newSliderPos=None):
         oldThumbPos = self._thumbPos
