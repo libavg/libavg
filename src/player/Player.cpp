@@ -44,7 +44,7 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
-#include "SDLDisplayEngine.h"
+#include "GLUTDisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
@@ -84,7 +84,6 @@
 #include "../audio/AOAudioEngine.h"
 
 #include <libxml/xmlmemory.h>
-#include <SDL/SDL.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -911,9 +910,11 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
         }
         pLine += stride;
     }
+/*
     SDL_Cursor * pCursor = SDL_CreateCursor(pData, pMask, size.x, size.y,
             hotSpot.x, hotSpot.y);
     SDL_SetCursor(pCursor);
+*/    
     delete[] pData;
     delete[] pMask;
 }
@@ -1209,7 +1210,7 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = GLUTDisplayEnginePtr(new GLUTDisplayEngine());
     }
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
@@ -1286,10 +1287,10 @@ NodePtr Player::internalLoad(const string& sAVG)
     }
 }
 
-SDLDisplayEnginePtr Player::safeGetDisplayEngine()
+GLUTDisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = GLUTDisplayEnginePtr(new GLUTDisplayEngine());
     }
     return m_pDisplayEngine;
 
@@ -1635,7 +1636,7 @@ void Player::handleTimers()
 
 }
 
-SDLDisplayEngine * Player::getDisplayEngine() const
+GLUTDisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }
@@ -1715,7 +1716,7 @@ void Player::cleanup()
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
         if (!m_bKeepWindowOpen) {
-            m_pDisplayEngine = SDLDisplayEnginePtr();
+            m_pDisplayEngine = GLUTDisplayEnginePtr();
         }
     }
     if (AOAudioEngine::get()) {

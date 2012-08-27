@@ -20,12 +20,8 @@
 //
 
 
-#include "SDLDisplayEngine.h"
+#include "GLUTDisplayEngine.h"
 #include "../avgconfigwrapper.h"
-
-#ifdef __APPLE__
-#include "SDLMain.h"
-#endif
 
 #include "Shape.h"
 
@@ -49,13 +45,19 @@
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
 
-#include <SDL/SDL.h>
+#ifdef HAVE_GL_GLUT_H
+#  include <GL/glut.h>
+#elif defined(HAVE_GLUT_GLUT_H)
+#  include <GLUT/glut.h>
+#else
+// Something went wrong during configure
+#  error no glut.h
+#endif
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 #ifdef linux
-#include <SDL/SDL_syswm.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
 
@@ -83,8 +85,8 @@ using namespace std;
 
 namespace avg {
 
-float SDLDisplayEngine::s_RefreshRate = 0.0;
-
+float GLUTDisplayEngine::s_RefreshRate = 0.0;
+/*
 void safeSetAttribute(SDL_GLattr attr, int value) 
 {
     int err = SDL_GL_SetAttribute(attr, value);
@@ -92,49 +94,46 @@ void safeSetAttribute(SDL_GLattr attr, int value)
         throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
     }
 }
-
-SDLDisplayEngine::SDLDisplayEngine()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
+*/
+GLUTDisplayEngine::GLUTDisplayEngine()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(GLUTDisplayEngine)),
       m_WindowSize(0,0),
       m_ScreenResolution(0,0),
       m_PPMM(0),
-      m_pScreen(0),
+//      m_pScreen(0),
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0)
 {
-#ifdef __APPLE__
-    static bool bSDLInitialized = false;
-    if (!bSDLInitialized) {
-        CustomSDLMain();
-        bSDLInitialized = true;
-    }
-#endif
+/*    
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);
     }
+    */
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
-    initTranslationTable();
+//    initTranslationTable();
 }
 
-SDLDisplayEngine::~SDLDisplayEngine()
+GLUTDisplayEngine::~GLUTDisplayEngine()
 {
 #ifndef _WIN32
+/*    
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
+*/
 #endif
 }
 
-void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
+void GLUTDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
-        setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
+//        setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
     float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
     if (dp.m_WindowSize == IntPoint(0, 0)) {
@@ -147,6 +146,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
     AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
+/*
     switch (dp.m_BPP) {
         case 32:
             safeSetAttribute(SDL_GL_RED_SIZE, 8);
@@ -174,7 +174,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             break;
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
-                    "in SDLDisplayEngine::init()");
+                    "in GLUTDisplayEngine::init()");
             exit(-1);
     }
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
@@ -236,6 +236,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     m_pXIMTInputDevice = 0;
 #endif
     SDL_WM_SetCaption("libavg", 0);
+*/    
     calcRefreshRate();
 
     glEnable(GL_BLEND);
@@ -276,32 +277,30 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
-    signal(SIGSEGV, SIG_DFL);
+//    signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
 
-    SDL_EnableUNICODE(1);
+//    SDL_EnableUNICODE(1);
 }
 
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
-void SDLDisplayEngine::teardown()
+void GLUTDisplayEngine::teardown()
 {
+/*    
     if (m_pScreen) {
         if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
             internalSetGamma(1.0f, 1.0f, 1.0f);
         }
-#ifdef linux
-        // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
-        SDL_ShowCursor(SDL_ENABLE);
-#endif
         m_pScreen = 0;
         delete m_pGLContext;
         GLContext::setMain(0);
     }
+*/    
 }
 
-float SDLDisplayEngine::getRefreshRate() 
+float GLUTDisplayEngine::getRefreshRate() 
 {
     if (s_RefreshRate == 0.0) {
         calcRefreshRate();
@@ -309,7 +308,7 @@ float SDLDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void SDLDisplayEngine::setGamma(float red, float green, float blue)
+void GLUTDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", "
@@ -324,21 +323,21 @@ void SDLDisplayEngine::setGamma(float red, float green, float blue)
     }
 }
 
-void SDLDisplayEngine::setMousePos(const IntPoint& pos)
+void GLUTDisplayEngine::setMousePos(const IntPoint& pos)
 {
-    SDL_WarpMouse(pos.x, pos.y);
+//    SDL_WarpMouse(pos.x, pos.y);
 }
 
-int SDLDisplayEngine::getKeyModifierState() const
+int GLUTDisplayEngine::getKeyModifierState() const
 {
-    return SDL_GetModState();
+    return 0; //SDL_GetModState();
 }
 
-void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
+void GLUTDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
-        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+//        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+//        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
     }
     if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
@@ -362,7 +361,7 @@ void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
     }
 }
 
-bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
+bool GLUTDisplayEngine::internalSetGamma(float red, float green, float blue)
 {
 #ifdef __APPLE__
     // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
@@ -370,21 +369,21 @@ bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
             0, 1, 1/green, 0, 1, 1/blue);
     return (err == CGDisplayNoErr);
 #else
-    int err = SDL_SetGamma(float(red), float(green), float(blue));
-    return (err != -1);
+//    int err = SDL_SetGamma(float(red), float(green), float(blue));
+//    return (err != -1);
 #endif
 }
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
-void SDLDisplayEngine::swapBuffers()
+void GLUTDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
-    SDL_GL_SwapBuffers();
+//    SDL_GL_SwapBuffers();
     GLContext::checkError("swapBuffers()");
 }
 
-void SDLDisplayEngine::showCursor(bool bShow)
+void GLUTDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
 #define MAX_CORE_POINTERS   6
@@ -394,15 +393,17 @@ void SDLDisplayEngine::showCursor(bool bShow)
         ShowCursor(bShow);
     }
 #else
+/*    
     if (bShow) {
         SDL_ShowCursor(SDL_ENABLE);
     } else {
         SDL_ShowCursor(SDL_DISABLE);
     }
+*/    
 #endif
 }
 
-BitmapPtr SDLDisplayEngine::screenshot(int buffer)
+BitmapPtr GLUTDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     string sTmp;
@@ -418,21 +419,21 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
     }
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     glReadBuffer(buf);
-    GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
+    GLContext::checkError("GLUTDisplayEngine::screenshot:glReadBuffer()");
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
+    GLContext::checkError("GLUTDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }
 
-IntPoint SDLDisplayEngine::getSize()
+IntPoint GLUTDisplayEngine::getSize()
 {
     return m_Size;
 }
 
-void SDLDisplayEngine::calcRefreshRate()
+void GLUTDisplayEngine::calcRefreshRate()
 {
     float lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
@@ -489,8 +490,8 @@ void SDLDisplayEngine::calcRefreshRate()
 
 }
 
-vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
-
+//vector<long> GLUTDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+/*
 const char * getEventTypeName(unsigned char type) 
 {
     switch (type) {
@@ -526,12 +527,13 @@ const char * getEventTypeName(unsigned char type)
                 return "Unknown SDL event type";
     }
 }
-
-vector<EventPtr> SDLDisplayEngine::pollEvents()
+*/
+vector<EventPtr> GLUTDisplayEngine::pollEvents()
 {
-    SDL_Event sdlEvent;
+    
+//    SDL_Event sdlEvent;
     vector<EventPtr> events;
-
+/*
     while (SDL_PollEvent(&sdlEvent)) {
         EventPtr pNewEvent;
         switch (sdlEvent.type) {
@@ -595,16 +597,17 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
             events.push_back(pNewEvent);
         }
     }
+*/
     return events;
 }
 
-void SDLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
+void GLUTDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
 {
     AVG_ASSERT(!m_pXIMTInputDevice);
     m_pXIMTInputDevice = pInputDevice;
 }
-
-EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
+/*
+EventPtr GLUTDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
         long button)
 {
     int x, y;
@@ -627,7 +630,7 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     return pEvent; 
 }
 
-EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type, 
+EventPtr GLUTDisplayEngine::createMouseButtonEvent(Event::Type type, 
         const SDL_Event& sdlEvent) 
 {
     long button = 0;
@@ -652,23 +655,7 @@ EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type,
  
 }
 
-/*
-EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
-{
-    return new AxisEvent(sdlEvent.jaxis.which, sdlEvent.jaxis.axis,
-                sdlEvent.jaxis.value);
-}
-
-
-EventPtr SDLDisplayEngine::createButtonEvent
-        (Event::Type type, const SDL_Event & sdlEvent) 
-{
-    return new ButtonEvent(type, sdlEvent.jbutton.which,
-                sdlEvent.jbutton.button));
-}
-*/
-
-EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
+EventPtr GLUTDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
     long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
     unsigned int modifiers = key::KEYMOD_NONE;
@@ -703,8 +690,9 @@ EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdl
             SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode, modifiers));
     return pEvent;
 }
-
-void SDLDisplayEngine::initTranslationTable()
+*/
+/*
+void GLUTDisplayEngine::initTranslationTable()
 {
 #define TRANSLATION_ENTRY(x) KeyCodeTranslationTable[SDLK_##x] = key::KEY_##x;
 
@@ -941,31 +929,31 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(EURO);
     TRANSLATION_ENTRY(UNDO);
 }
-
-const IntPoint& SDLDisplayEngine::getWindowSize() const
+*/
+const IntPoint& GLUTDisplayEngine::getWindowSize() const
 {
     return m_WindowSize;
 }
 
-bool SDLDisplayEngine::isFullscreen() const
+bool GLUTDisplayEngine::isFullscreen() const
 {
     return m_bIsFullscreen;
 }
 
-IntPoint SDLDisplayEngine::getScreenResolution()
+IntPoint GLUTDisplayEngine::getScreenResolution()
 {
     calcScreenDimensions();
     return m_ScreenResolution;
 }
 
-float SDLDisplayEngine::getPixelsPerMM()
+float GLUTDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
 
     return m_PPMM;
 }
 
-glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
+glm::vec2 GLUTDisplayEngine::getPhysicalScreenDimensions()
 {
     calcScreenDimensions();
     glm::vec2 size;
@@ -975,7 +963,7 @@ glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
     return size;
 }
 
-void SDLDisplayEngine::assumePixelsPerMM(float ppmm)
+void GLUTDisplayEngine::assumePixelsPerMM(float ppmm)
 {
     m_PPMM = ppmm;
 }

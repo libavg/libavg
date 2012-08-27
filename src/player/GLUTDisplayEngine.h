@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SDLDisplayEngine_H_
-#define _SDLDisplayEngine_H_
+#ifndef _GLUTDisplayEngine_H_
+#define _GLUTDisplayEngine_H_
 
 #include "../api.h"
 #include "IInputDevice.h"
@@ -35,9 +35,6 @@
 #include <string>
 #include <vector>
 
-struct SDL_Surface;
-union SDL_Event;
-
 namespace avg {
 
 class XInputMTInputDevice;
@@ -45,11 +42,11 @@ class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class GLContext;
 
-class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
+class AVG_API GLUTDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
-        SDLDisplayEngine();
-        virtual ~SDLDisplayEngine();
+        GLUTDisplayEngine();
+        virtual ~GLUTDisplayEngine();
         virtual void init(const DisplayParams& dp, GLConfig glConfig);
 
         // From DisplayEngine
@@ -77,24 +74,23 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void swapBuffers();
 
     private:
-        void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);
 
         bool internalSetGamma(float red, float green, float blue);
-
+/*
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
         EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        
+*/        
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
         float m_PPMM;
 
-        SDL_Surface * m_pScreen;
+//        SDL_Surface * m_pScreen;
 
         static void calcRefreshRate();
         static float s_RefreshRate;
@@ -103,7 +99,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bMouseOverApp;
         MouseEventPtr m_pLastMouseEvent;
         int m_NumMouseButtonsDown;
-        static std::vector<long> KeyCodeTranslationTable;
+//        static std::vector<long> KeyCodeTranslationTable;
         XInputMTInputDevice * m_pXIMTInputDevice;
 
         GLContext* m_pGLContext;
@@ -111,7 +107,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         float m_Gamma[3];
 };
 
-typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+typedef boost::shared_ptr<GLUTDisplayEngine> GLUTDisplayEnginePtr;
 
 }
 

@@ -55,7 +55,7 @@ typedef boost::shared_ptr<class KeyEvent> KeyEventPtr;
 
     namespace key {
         // Plattform independent key codes and modifiers follow. 
-        // The constants are borrowed from SDL.
+        // The constants are borrowed from sdl.
 
         // Enumeration of valid key mods (possibly OR'd together).
         const long KEYMOD_NONE  = 0x0000;
@@ -78,7 +78,7 @@ typedef boost::shared_ptr<class KeyEvent> KeyEventPtr;
         const long KEYMOD_META    = (KEYMOD_LMETA|KEYMOD_RMETA); 
 
 
-        // Key syms. 'cleverly chosen to map to ASCII', sais SDL.
+        // Key syms. 'cleverly chosen to map to ASCII', sais sdl.
         const long KEY_UNKNOWN     = 0;
         const long KEY_FIRST       = 0;
         const long KEY_BACKSPACE       = 8;

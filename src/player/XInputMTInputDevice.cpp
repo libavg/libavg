@@ -25,16 +25,13 @@
 #include "Player.h"
 #include "AVGNode.h"
 #include "TouchStatus.h"
-#include "SDLDisplayEngine.h"
+#include "GLUTDisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
-
-#include <SDL/SDL_syswm.h>
-#include <SDL/SDL.h>
 
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XInput2.h>
@@ -68,8 +65,8 @@ XInputMTInputDevice::~XInputMTInputDevice()
 void XInputMTInputDevice::start()
 {
     Status status;
-    SDLDisplayEngine * pEngine = Player::get()->getDisplayEngine();
-
+    GLUTDisplayEngine * pEngine = Player::get()->getDisplayEngine();
+/*
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
     int rc = SDL_GetWMInfo(&info);
@@ -79,6 +76,7 @@ void XInputMTInputDevice::start()
     m_SDLUnlockFunc = info.info.x11.unlock_func;
 
     m_SDLLockFunc();
+*/    
     // XInput Extension available?
     int event, error;
     bool bOk = XQueryExtension(s_pDisplay, "XInputExtension", &m_XIOpcode, 
@@ -106,7 +104,7 @@ void XInputMTInputDevice::start()
     // SDL grabs the pointer in full screen mode. This breaks touchscreen usage.
     // Can't use SDL_WM_GrabInput(SDL_GRAB_OFF) because it doesn't work in full
     // screen mode. Get the display connection and do it manually.
-    XUngrabPointer(info.info.x11.display, CurrentTime);
+//    XUngrabPointer(info.info.x11.display, CurrentTime);
 
     XIEventMask mask;
     mask.deviceid = m_DeviceID;
@@ -117,12 +115,12 @@ void XInputMTInputDevice::start()
     XISetMask(mask.mask, XI_TouchUpdate);
     XISetMask(mask.mask, XI_TouchEnd);
 
-    status = XISelectEvents(s_pDisplay, info.info.x11.window, &mask, 1);
+//    status = XISelectEvents(s_pDisplay, info.info.x11.window, &mask, 1);
     AVG_ASSERT(status == Success);
 
-    m_SDLUnlockFunc();
+//    m_SDLUnlockFunc();
 
-    SDL_SetEventFilter(XInputMTInputDevice::filterEvent);
+//    SDL_SetEventFilter(XInputMTInputDevice::filterEvent);
   
     
     XIDetachSlaveInfo detInfo;
@@ -137,7 +135,7 @@ void XInputMTInputDevice::start()
 
 void XInputMTInputDevice::handleXIEvent(const XEvent& xEvent)
 {
-    m_SDLLockFunc();
+//    m_SDLLockFunc();
     XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
     if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
         XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
@@ -180,7 +178,7 @@ void XInputMTInputDevice::handleXIEvent(const XEvent& xEvent)
     }
 
     XFreeEventData(s_pDisplay, pCookie);
-    m_SDLUnlockFunc();
+//    m_SDLUnlockFunc();
 }
 
 std::vector<EventPtr> XInputMTInputDevice::pollEvents()
@@ -238,7 +236,7 @@ TouchEventPtr XInputMTInputDevice::createEvent(int id, Event::Type type, IntPoin
 {
     return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH));
 }
-
+/*
 int XInputMTInputDevice::filterEvent(const SDL_Event * pEvent)
 {
     // This is a hook into libsdl event processing. Since libsdl doesn't know about
@@ -259,7 +257,7 @@ int XInputMTInputDevice::filterEvent(const SDL_Event * pEvent)
     }
     return 1;
 }
-          
+*/    
 // From xinput/test_xi2.c
 const char* cookieTypeToName(int evtype)
 {

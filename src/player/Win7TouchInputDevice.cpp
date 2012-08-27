@@ -25,7 +25,7 @@
 #include "AVGNode.h"
 #include "TouchStatus.h"
 #include "TouchEvent.h"
-#include "SDLDisplayEngine.h"
+#include "GLUTDisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"

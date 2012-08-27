@@ -27,8 +27,8 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+class GLUTDisplayEngine;
+typedef boost::shared_ptr<GLUTDisplayEngine> GLUTDisplayEnginePtr;
 
 class AVG_API MainCanvas: public Canvas
 {
@@ -36,14 +36,14 @@ class AVG_API MainCanvas: public Canvas
         MainCanvas(Player * pPlayer);
         virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
-        void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
+        void initPlayback(const GLUTDisplayEnginePtr& pDisplayEngine);
         
         virtual BitmapPtr screenshot() const;
 
     private:
         virtual void render();
 
-        SDLDisplayEnginePtr m_pDisplayEngine;
+        GLUTDisplayEnginePtr m_pDisplayEngine;
 };
 
 }

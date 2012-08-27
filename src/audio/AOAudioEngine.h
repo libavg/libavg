@@ -62,4 +62,4 @@ class AVG_API AOAudioEngine
 
 }
 
-#endif //_SDLAudioEngine_H_
+#endif

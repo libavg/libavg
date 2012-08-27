@@ -34,7 +34,7 @@
 #include <vector>
 #include <string>
 
-union SDL_Event;
+//union SDL_Event;
 
 namespace avg {
 
@@ -52,14 +52,15 @@ private:
     void findMTDevice();
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
 
-    static int filterEvent(const SDL_Event * pEvent);
+//    static int filterEvent(const SDL_Event * pEvent);
 
     int m_LastID;
 
     static Display* s_pDisplay;
+/*    
     void (*m_SDLLockFunc)(void);
     void (*m_SDLUnlockFunc)(void);
-
+*/
     int m_XIOpcode;
 
     std::string m_sDeviceName;
