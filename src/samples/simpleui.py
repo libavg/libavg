@@ -21,12 +21,13 @@ class SimpleUIApp(AVGApp):
         vSlider = simple.Slider(pos=(60.5,60), size=(20,150), 
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
         self.__addValueDisplay(vSlider, (55,220))
+        self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
 
         self.createScrollArea(avg.Point2D(220,10), True)
         self.createScrollArea(avg.Point2D(500,10), False)
 
         checkBox = simple.CheckBox(pos=(10,270), text="Disable everything", 
-                parent=self._parentNode)
+                checkHandler=self.onCheck, parent=self._parentNode)
 
     def setText(self, pos, node):
         node.text = "%.2f"%pos
@@ -57,6 +58,11 @@ class SimpleUIApp(AVGApp):
         imageHeightSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED,
                 lambda thumbPos, scrollArea=scrollArea: 
                     self.setImageHeight(scrollArea, thumbPos))
+        self.controls.extend([scrollArea, imageWidthSlider, imageHeightSlider])
+
+    def onCheck(self, event, isChecked):
+        for node in self.controls:
+            node.enabled = not(isChecked)
 
     def __addValueDisplay(self, scrollBar, pos):
         textNode = avg.WordsNode(pos=pos, parent=self._parentNode)
