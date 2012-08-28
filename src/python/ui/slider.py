@@ -138,8 +138,6 @@ class ScrollBarTrack(SwitchNode):
                 orientation=orientation, extent=extent, minExtent=minExtent,
                 parent=self)
         
-        self.size = self.__enabledNode.size
-
         self.setNodeMap({
             "ENABLED": self.__enabledNode, 
             "DISABLED": self.__disabledNode
@@ -179,7 +177,6 @@ class ScrollBarThumb(SwitchNode):
             "DISABLED": self.__disabledNode
         })
         self.visibleid = "UP"
-        self.size = self.__upNode.size
         
     def getExtent(self):
         return self.__upNode.extent
@@ -205,7 +202,6 @@ class SliderThumb(SwitchNode):
             "DISABLED": avg.ImageNode(href=disabledSrc)
         }
         super(SliderThumb, self).__init__(nodeMap=nodeMap, visibleid="UP", **kwargs)
-        self.size = upNode.size
 
 
 class Slider(avg.DivNode):

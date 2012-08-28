@@ -26,12 +26,11 @@ import gesture
 
 class SwitchNode(avg.DivNode):
 
-    def __init__(self, nodeMap, visibleid=None, parent=None, **kwargs):
+    def __init__(self, nodeMap=None, visibleid=None, parent=None, **kwargs):
         super(SwitchNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-   
+  
         self.__nodeMap = nodeMap
-
         if nodeMap:
             self.setNodeMap(nodeMap)
         if visibleid:
@@ -46,6 +45,12 @@ class SwitchNode(avg.DivNode):
                     self.indexOf(node)
                 except RuntimeError:
                     self.appendChild(node)
+        if self.size != (0,0):
+            size = self.size
+        else:
+            key = list(self.__nodeMap.keys())[0]
+            size = self.__nodeMap[key].size
+        self.setSize(size)
 
     def getVisibleID(self):
         return self.__visibleid
@@ -59,6 +64,19 @@ class SwitchNode(avg.DivNode):
         self.__nodeMap[visibleid].active = True
 
     visibleid = property(getVisibleID, setVisibleID)
+
+    def getSize(self):
+        return self.__baseSize
+
+    def setSize(self, size):
+        self.__baseSize = size
+        if self.__nodeMap:
+            for node in self.__nodeMap.itervalues():
+                if node:
+                    node.size = size
+        
+    __baseSize = avg.DivNode.size
+    size = property(getSize, setSize)   
 
 
 class _ButtonBase(avg.DivNode):

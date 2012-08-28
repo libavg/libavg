@@ -114,11 +114,11 @@ class CheckBox(button.ToggleButton):
 
 
 class SliderTrack(button.SwitchNode):
-    def __init__(self, size, margin=(0,0), orientation=slider.Orientation.HORIZONTAL,
+    def __init__(self, margin=(0,0), orientation=slider.Orientation.HORIZONTAL,
             sensitive=True, **kwargs):
         self.__margin = avg.Point2D(margin)
         self.__orientation = orientation
-        style = avg.Style(pos=(0.5,0.5), size=size, fillopacity=1)
+        style = avg.Style(pos=(0.5,0.5), fillopacity=1)
         if sensitive:
             self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
                     style=style)
@@ -132,17 +132,15 @@ class SliderTrack(button.SwitchNode):
             "DISABLED": self.__disabledNode
         }
         super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", 
-                sensitive=sensitive, size=size, **kwargs)
+                sensitive=sensitive, **kwargs)
         self.pos = self.__margin
         self.size -= 2*self.__margin
 
     def getSize(self):
-        return self.__enabledNode.size + 2*self.__margin
+        return self.__baseSize + 2*self.__margin
 
     def setSize(self, size):
         self.__baseSize = size - 2*self.__margin
-        for node in self.__enabledNode, self.__disabledNode:
-            node.size = self.__baseSize
     __baseSize = button.SwitchNode.size
     size = property(getSize, setSize)   
 
@@ -206,7 +204,7 @@ class ScrollBar(slider.ScrollBar):
                 "DISABLED": self.__disabledNode
             }
             super(ScrollBar.Thumb, self).__init__(
-                    nodeMap=nodeMap, visibleid="UP", size=size)
+                    nodeMap=nodeMap, visibleid="UP", size=size, **kwargs)
 
         def getExtent(self):
             if self.__orientation == slider.Orientation.HORIZONTAL:
