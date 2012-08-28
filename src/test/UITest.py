@@ -716,6 +716,12 @@ class UITestCase(AVGTestCase):
 
     def testSimpleScrollBar(self):
 
+        def setExtent(x):
+            if orientation == ui.Orientation.HORIZONTAL:
+                self.node.width = x
+            else:
+                self.node.height = x
+
         for orientation, orName in (
                 (ui.Orientation.HORIZONTAL,"Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
@@ -730,7 +736,7 @@ class UITestCase(AVGTestCase):
                     (lambda: self.compareImage("testSimpleScrollBar"+orName+"1"),
                      lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"2"),
-                     lambda: self.node.setExtent(50),
+                     lambda: setExtent(50),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"3"),
                      lambda: self.node.setEnabled(False),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"4"),
@@ -740,6 +746,13 @@ class UITestCase(AVGTestCase):
                     ))
 
     def testSimpleSlider(self):
+        
+        def setExtent(x):
+            if orientation == ui.Orientation.HORIZONTAL:
+                self.node.width = x
+            else:
+                self.node.height = x
+
         for orientation, orName in (
                 (ui.Orientation.HORIZONTAL,"Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
@@ -755,7 +768,7 @@ class UITestCase(AVGTestCase):
                     (lambda: self.compareImage("testSimpleSlider"+orName+"1"),
                      lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testSimpleSlider"+orName+"2"),
-                     lambda: self.node.setExtent(50),
+                     lambda: setExtent(50),
                      lambda: self.compareImage("testSimpleSlider"+orName+"3"),
                      lambda: self.node.setEnabled(False),
                      lambda: self.compareImage("testSimpleSlider"+orName+"4"),

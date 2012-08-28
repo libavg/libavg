@@ -155,7 +155,7 @@ class ScrollArea(avg.DivNode):
 
         if self._hScrollBar:
             self._hScrollBar.pos = (0, self.__scrollPane.height)
-            self._hScrollBar.extent = self.__scrollPane.width
+            self._hScrollBar.width = self.__scrollPane.width
 
             if self.__scrollPane.contentsize.x <= self.__scrollPane.width:
                 self._hScrollBar.range = (0, self.__scrollPane.width)
@@ -167,7 +167,7 @@ class ScrollArea(avg.DivNode):
 
         if self._vScrollBar:
             self._vScrollBar.pos = (self.__scrollPane.width, 0)
-            self._vScrollBar.extent = self.__scrollPane.height
+            self._vScrollBar.height = self.__scrollPane.height
 
             if self.__scrollPane.contentsize.y <= self.__scrollPane.height:
                 self._vScrollBar.range = (0, self.__scrollPane.height)

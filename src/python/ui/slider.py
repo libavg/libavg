@@ -237,20 +237,35 @@ class Slider(avg.DivNode):
         if not(enabled):
             self.setEnabled(False)
 
-    def getExtent(self):
-        if self._orientation == Orientation.HORIZONTAL:
-            return self.width
-        else:
-            return self.height
+    def getWidth(self):
+        return self.__baseWidth
 
-    def setExtent(self, extent):
-        if self._orientation == Orientation.HORIZONTAL:
-            self.width = extent
-        else:
-            self.height = extent
+    def setWidth(self, width):
+        self.__baseWidth = width
         self._positionNodes()
 
-    extent = property(getExtent, setExtent)
+    __baseWidth = avg.DivNode.width
+    width = property(getWidth, setWidth)
+
+    def getHeight(self):
+        return self.__baseHeight
+
+    def setHeight(self, height):
+        self.__baseHeight = height
+        self._positionNodes()
+
+    __baseHeight = avg.DivNode.height
+    height = property(getHeight, setHeight)
+
+    def getSize(self):
+        return self.__baseSize
+
+    def setSize(self, size):
+        self.__baseSize = size
+        self._positionNodes()
+
+    __baseSize = avg.DivNode.size
+    size = property(getSize, setSize)
 
     def getRange(self):
         return self._range
