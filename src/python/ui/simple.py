@@ -191,8 +191,7 @@ class ScrollBar(slider.ScrollBar):
     class Thumb(button.SwitchNode):
         def __init__(self, size, orientation, **kwargs):
             self.__orientation = orientation
-            childSize = avg.Point2D(size) - (2,2)
-            style = avg.Style(pos=(1.5,1.5), size=childSize, fillopacity=1)
+            style = avg.Style(pos=(1.5,1.5), fillopacity=1)
             self.__upNode = avg.RectNode(fillcolor="808080", color="808080", style=style)
             self.__downNode = avg.RectNode(fillcolor="C0C0C0", color="C0C0C0", 
                     style=style)
@@ -205,22 +204,26 @@ class ScrollBar(slider.ScrollBar):
             }
             super(ScrollBar.Thumb, self).__init__(
                     nodeMap=nodeMap, visibleid="UP", size=size, **kwargs)
+            self.setWidth(size[0])
+            self.setHeight(size[1])
+        
+        def getWidth(self):
+            return self.__baseWidth+2
 
-        def getExtent(self):
-            if self.__orientation == slider.Orientation.HORIZONTAL:
-                return self.width
-            else:
-                return self.height
+        def setWidth(self, width):
+            self.__baseWidth = max(width-2, 0)
 
-        def setExtent(self, extent):
-            if self.__orientation == slider.Orientation.HORIZONTAL:
-                self.size = (extent, self.size.y)
-            else:
-                self.size = (self.size.x, extent)
-            for node in self.__upNode, self.__downNode, self.__disabledNode:
-                node.size = self.size - (2,2)
+        __baseWidth = button.SwitchNode.width
+        width = property(getWidth, setWidth)
 
-        extent = property(getExtent, setExtent)
+        def getHeight(self):
+            return self.__baseHeight+2
+
+        def setHeight(self, height):
+            self.__baseHeight = max(height-2, 0)
+
+        __baseHeight = button.SwitchNode.height
+        height = property(getHeight, setHeight)
 
     def __init__(self, size=(15,15), orientation=slider.Orientation.HORIZONTAL, 
             sensitive=True, **kwargs):

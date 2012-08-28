@@ -65,19 +65,43 @@ class SwitchNode(avg.DivNode):
 
     visibleid = property(getVisibleID, setVisibleID)
 
+    def getWidth(self):
+        return self.__baseWidth
+
+    def setWidth(self, width):
+        self.__baseWidth = width
+        self.__setChildSizes()
+
+    __baseWidth = avg.DivNode.width
+    width = property(getWidth, setWidth)
+
+    def getHeight(self):
+        return self.__baseHeight
+
+    def setHeight(self, height):
+        self.__baseHeight = height
+        self.__setChildSizes()
+
+    __baseHeight = avg.DivNode.height
+    height = property(getHeight, setHeight)
+
     def getSize(self):
         return self.__baseSize
 
     def setSize(self, size):
         self.__baseSize = size
-        if self.__nodeMap:
-            for node in self.__nodeMap.itervalues():
-                if node:
-                    node.size = size
+        self.__setChildSizes()
         
     __baseSize = avg.DivNode.size
     size = property(getSize, setSize)   
 
+    def __setChildSizes(self):
+        if self.__nodeMap:
+            for node in self.__nodeMap.itervalues():
+                if node:
+                    node.size = self.__baseSize
+                    # Hack to support min. size in AccordionNodes
+                    self.__baseSize = node.size
 
 class _ButtonBase(avg.DivNode):
 

@@ -31,7 +31,7 @@ class Orientation():
 
 class AccordionNode(avg.DivNode):
     
-    def __init__(self, src, endsExtent, orientation=Orientation.HORIZONTAL, extent=-1,
+    def __init__(self, src, endsExtent, orientation=Orientation.HORIZONTAL,
             minExtent=-1, parent=None, **kwargs):
         super(AccordionNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -57,38 +57,61 @@ class AccordionNode(avg.DivNode):
         else:
             self.__minExtent = minExtent
         
-        if extent == -1:
-            self.__extent = self.__minExtent
+        if orientation == Orientation.HORIZONTAL:
+            if self.__baseSize.x != 0:
+                self.__baseWidth = self.__baseSize.x
         else:
-            self.__extent = extent
-        self.__positionNodes(self.__extent)
+            if self.__baseSize.y != 0:
+                self.__baseHeight = self.__baseSize.y
+        self.__positionNodes(self.__baseSize)
+
         if player.isPlaying():
             self.__renderImages()
         else:
             player.subscribe(avg.Player.PLAYBACKSTART, self.__renderImages)
 
-    def getExtent(self):
-        return self.__extent
+    def getWidth(self):
+        return self.__baseWidth
 
-    def setExtent(self, extent):
-        if extent < self.__minExtent:
-            extent = self.__minExtent
-        self.__positionNodes(extent)
+    def setWidth(self, width):
+        self.__positionNodes(avg.Point2D(width, self.__baseHeight))
 
-    extent = property(getExtent, setExtent)
+    __baseWidth = avg.DivNode.width
+    width = property(getWidth, setWidth)
 
-    def __positionNodes(self, extent):
-        self.__extent = extent
+    def getHeight(self):
+        return self.__baseHeight
+
+    def setHeight(self, height):
+        self.__positionNodes(avg.Point2D(self.__baseWidth, height))
+
+    __baseHeight = avg.DivNode.height
+    height = property(getHeight, setHeight)
+
+    def getSize(self):
+        return self.__baseSize
+
+    def setSize(self, size):
+        self.__positionNodes(size)
+
+    __baseSize = avg.DivNode.size
+    size = property(getSize, setSize)
+
+    def __positionNodes(self, newSize):
+        if self._orientation == Orientation.HORIZONTAL and newSize.x < self.__minExtent:
+                newSize = avg.Point2D(self.__minExtent, newSize.y)
+        elif self._orientation == Orientation.VERTICAL and newSize.y < self.__minExtent:
+                newSize = avg.Point2D(newSize.x, self.__minExtent)
+        self.__baseSize = newSize
+
         if self._orientation == Orientation.HORIZONTAL:
             self.__centerImg.x = self.__endsExtent
-            self.__centerImg.width = extent - self.__endsExtent*2
-            self.__endImg.x = extent - self.__endsExtent
-            self.size = (extent, self.__startImg.height)
+            self.__centerImg.width = newSize.x - self.__endsExtent*2
+            self.__endImg.x = newSize.x - self.__endsExtent
         else:
             self.__centerImg.y = self.__endsExtent
-            self.__centerImg.height = extent - self.__endsExtent*2
-            self.__endImg.y = extent - self.__endsExtent
-            self.size = (self.__startImg.width, extent)
+            self.__centerImg.height = newSize.y - self.__endsExtent*2
+            self.__endImg.y = newSize.y - self.__endsExtent
 
     def __createImageNode(self, srcBmp, extent):
         bmpSize = srcBmp.getSize()
@@ -125,17 +148,17 @@ class AccordionNode(avg.DivNode):
 class ScrollBarTrack(SwitchNode):
     
     def __init__(self, enabledSrc, endsExtent, disabledSrc=None, 
-            orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
+            orientation=Orientation.HORIZONTAL, minExtent=-1, 
             **kwargs):
       
         super(ScrollBarTrack, self).__init__(nodeMap=None, **kwargs)
         self.__enabledNode = AccordionNode(src=enabledSrc, endsExtent=endsExtent,
-                orientation=orientation, extent=extent, minExtent=minExtent,
+                orientation=orientation, minExtent=minExtent,
                 parent=self)
         if disabledSrc == None:
             disabledSrc = enabledSrc
         self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
-                orientation=orientation, extent=extent, minExtent=minExtent,
+                orientation=orientation, minExtent=minExtent,
                 parent=self)
         
         self.setNodeMap({
@@ -144,32 +167,22 @@ class ScrollBarTrack(SwitchNode):
         })
         self.visibleid = "ENABLED"
         
-    def getExtent(self):
-        return self.__enabledNode.extent
-
-    def setExtent(self, extent):
-        self.__enabledNode.extent = extent
-        self.__disabledNode.extent = extent
-        self.size = self.__enabledNode.size
-
-    extent = property(getExtent, setExtent)
-
 
 class ScrollBarThumb(SwitchNode):
     
     def __init__(self, upSrc, downSrc, endsExtent, disabledSrc=None, 
-            orientation=Orientation.HORIZONTAL, extent=-1, minExtent=-1, 
+            orientation=Orientation.HORIZONTAL, minExtent=-1, 
             **kwargs):
       
         super(ScrollBarThumb, self).__init__(nodeMap=None, **kwargs)
         self.__upNode = AccordionNode(src=upSrc, endsExtent=endsExtent,
-                orientation=orientation, extent=extent, minExtent=minExtent)
+                orientation=orientation, minExtent=minExtent)
         self.__downNode = AccordionNode(src=downSrc, endsExtent=endsExtent,
-                orientation=orientation, extent=extent, minExtent=minExtent)
+                orientation=orientation, minExtent=minExtent)
         if disabledSrc == None:
             disabledSrc = upSrc
         self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
-                orientation=orientation, extent=extent, minExtent=minExtent)
+                orientation=orientation, minExtent=minExtent)
 
         self.setNodeMap({
             "UP": self.__upNode, 
@@ -178,17 +191,6 @@ class ScrollBarThumb(SwitchNode):
         })
         self.visibleid = "UP"
         
-    def getExtent(self):
-        return self.__upNode.extent
-
-    def setExtent(self, extent):
-        self.__upNode.extent = extent
-        self.__downNode.extent = extent
-        self.__disabledNode.extent = extent
-        self.size = self.__upNode.size
-
-    extent = property(getExtent, setExtent)
-
 
 class SliderThumb(SwitchNode):
 
@@ -330,10 +332,6 @@ class Slider(avg.DivNode):
         if newSliderPos is not None:
             self._thumbPos = float(newSliderPos)
         self._trackNode.size = self.size
-        if self._orientation == Orientation.HORIZONTAL:
-            self._trackNode.extent = self.size.x
-        else:
-            self._trackNode.extent = self.size.y
                  
         self._constrainSliderPos()
         if self._thumbPos != oldThumbPos:
@@ -399,17 +397,18 @@ class ScrollBar(Slider):
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
-            return self.size.x - self._thumbNode.extent
+            return self.size.x - self._thumbNode.width
         else:
-            return self.size.y - self._thumbNode.extent
+            return self.size.y - self._thumbNode.height
 
     def _positionNodes(self, newSliderPos=None):
         effectiveRange = math.fabs(self._range[1] - self._range[0])
         if self._orientation == Orientation.HORIZONTAL:
             thumbExtent = (self.__thumbExtent/effectiveRange)*self.size.x
+            self._thumbNode.width = thumbExtent
         else:
             thumbExtent = (self.__thumbExtent/effectiveRange)*self.size.y
-        self._thumbNode.extent = thumbExtent
+            self._thumbNode.height = thumbExtent
         super(ScrollBar, self)._positionNodes(newSliderPos)
         if self._range[1] < self._range[0]:
             # Reversed (upside-down) scrollbar

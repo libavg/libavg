@@ -525,18 +525,25 @@ class UITestCase(AVGTestCase):
     def testAccordionNode(self):
             
         def changeExtent():
-            self.node.extent = 100
+            if orientation == ui.Orientation.HORIZONTAL:
+                self.node.width = 100
+            else:
+                self.node.height = 100
 
         def minExtent():
-            self.node.extent = 3
-            self.assert_(self.node.extent == 31)
+            if orientation == ui.Orientation.HORIZONTAL:
+                self.node.width = 3
+                self.assert_(self.node.width == 31)
+            else:
+                self.node.height = 3
+                self.assert_(self.node.height == 31)
 
         for orientation, orName in (
                 (ui.Orientation.HORIZONTAL,"Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
             self.node = ui.AccordionNode(src="media/rgb24-32x32.png", endsExtent=15, 
-                    orientation=orientation, parent=root)
+                    size=(31,31), orientation=orientation, parent=root)
             self.start(False,
                     (lambda: self.compareImage("testAccordionNode"+orName+"1"),
                      changeExtent,
