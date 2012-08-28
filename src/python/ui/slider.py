@@ -395,16 +395,17 @@ class ScrollBar(Slider):
     def _positionNodes(self, newSliderPos=None):
         effectiveRange = math.fabs(self._range[1] - self._range[0])
         if self._orientation == Orientation.HORIZONTAL:
-            self._thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.x
+            thumbExtent = (self.__thumbExtent/effectiveRange)*self.size.x
         else:
-            self._thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.y
+            thumbExtent = (self.__thumbExtent/effectiveRange)*self.size.y
+        self._thumbNode.extent = thumbExtent
         super(ScrollBar, self)._positionNodes(newSliderPos)
         if self._range[1] < self._range[0]:
             # Reversed (upside-down) scrollbar
             if self._orientation == Orientation.HORIZONTAL:
-                self._thumbNode.x -= self._thumbNode.width
+                self._thumbNode.x -= thumbExtent
             else:
-                self._thumbNode.y -= self._thumbNode.height
+                self._thumbNode.y -= thumbExtent
     
     def _getSliderRange(self):
         if self._range[1] > self._range[0]:

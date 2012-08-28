@@ -635,11 +635,11 @@ class UITestCase(AVGTestCase):
                      lambda: self.node.setThumbExtent(10),
                      lambda: self.compareImage("testScrollBar"+orName+"6"),
                      lambda: self.node.setRange((10,0)),
-# Broken if thumb size < minimum
-#                     lambda: self.node.setThumbExtent(0.5),
-#                     lambda: self.node.setThumbPos(0),
-#                     lambda: self.compareImage("testScrollBar"+orName+"5"),
+                     lambda: self.node.setThumbExtent(0.5),
+                     lambda: self.node.setThumbPos(4.75),
+                     lambda: self.compareImage("testScrollBar"+orName+"5"),
                     ))
+        return
 
         # Horizontal
         root = self.loadEmptyScene()
