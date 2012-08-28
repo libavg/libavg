@@ -34,8 +34,12 @@ class AccordionNode(avg.DivNode):
             minExtent=-1, parent=None, **kwargs):
         super(AccordionNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-        if endsExtent <= 0:
-            raise RuntimeError("Illegal value for endsExtent: %i. Must be > 0"%endsExtent)
+        if endsExtent < 0:
+            raise RuntimeError(
+                    "Illegal value for endsExtent: %i. Must be >= 0"%endsExtent)
+        elif endsExtent == 0:
+            # 1 has same effect as 0 - we just create one-pixel wide start and end images.
+            endsExtent = 1
 
         self.__bmp = avg.Bitmap(src)
         self._orientation = orientation
