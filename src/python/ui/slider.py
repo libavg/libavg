@@ -22,6 +22,7 @@ from libavg import avg, player
 from . import SwitchNode
 import gesture
 
+import math
 
 class Orientation():
     VERTICAL = 0
@@ -262,6 +263,7 @@ class Slider(avg.DivNode):
         self._range = (float(range[0]), float(range[1]))
         self._positionNodes()
 
+    # range[1] > range[0]: Reversed scrollbar.
     range = property(getRange, setRange)
 
     def getThumbPos(self):
@@ -341,8 +343,10 @@ class Slider(avg.DivNode):
         return self._range[1] - self._range[0]
 
     def _constrainSliderPos(self):
-        self._thumbPos = max(self._range[0], self._thumbPos)
-        self._thumbPos = min(self._range[1], self._thumbPos)
+        rangeMin = min(self._range[0], self._range[1])
+        rangeMax = max(self._range[0], self._range[1])
+        self._thumbPos = max(rangeMin, self._thumbPos)
+        self._thumbPos = min(rangeMax, self._thumbPos)
 
 
 class BmpSlider(Slider):
@@ -389,19 +393,30 @@ class ScrollBar(Slider):
             return self.size.y - self._thumbNode.extent
 
     def _positionNodes(self, newSliderPos=None):
-        effectiveRange = self._range[1] - self._range[0]
+        effectiveRange = math.fabs(self._range[1] - self._range[0])
         if self._orientation == Orientation.HORIZONTAL:
             self._thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.x
         else:
             self._thumbNode.extent = (self.__thumbExtent/effectiveRange)*self.size.y
         super(ScrollBar, self)._positionNodes(newSliderPos)
+        if self._range[1] < self._range[0]:
+            # Reversed (upside-down) scrollbar
+            if self._orientation == Orientation.HORIZONTAL:
+                self._thumbNode.x -= self._thumbNode.width
+            else:
+                self._thumbNode.y -= self._thumbNode.height
     
     def _getSliderRange(self):
-        return self._range[1] - self._range[0] - self.__thumbExtent
+        if self._range[1] > self._range[0]:
+            return self._range[1] - self._range[0] - self.__thumbExtent
+        else:
+            return self._range[1] - self._range[0] + self.__thumbExtent
 
     def _constrainSliderPos(self):
-        self._thumbPos = max(self._range[0], self._thumbPos)
-        self._thumbPos = min(self._range[1]-self.__thumbExtent, self._thumbPos)
+        rangeMin = min(self._range[0], self._range[1])
+        rangeMax = max(self._range[0], self._range[1])
+        self._thumbPos = max(rangeMin, self._thumbPos)
+        self._thumbPos = min(rangeMax-self.__thumbExtent, self._thumbPos)
 
 
 class BmpScrollBar(ScrollBar):
