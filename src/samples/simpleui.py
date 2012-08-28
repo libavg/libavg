@@ -12,7 +12,7 @@ class SimpleUIApp(AVGApp):
         vScrollBar = simple.ScrollBar(pos=(15,60), size=(20,150), 
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
         vScrollBar.thumbextent = 5
-        vScrollBar.range = (0,10)
+        vScrollBar.range = (10,0)
         self.__addValueDisplay(vScrollBar, (10,220))
 
         hSlider = simple.Slider(pos=(10,35), size=(150,20), parent=self._parentNode)
@@ -20,6 +20,7 @@ class SimpleUIApp(AVGApp):
 
         vSlider = simple.Slider(pos=(60.5,60), size=(20,150), 
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+        vSlider.range = (1,0)
         self.__addValueDisplay(vSlider, (55,220))
         self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
 

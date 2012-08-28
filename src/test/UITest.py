@@ -579,6 +579,10 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testSlider"+orName+"2"),
                      lambda: self.node.setThumbPos(1),
                      lambda: self.compareImage("testSlider"+orName+"3"),
+                     lambda: self.node.setRange((1,10)),
+                     lambda: self.compareImage("testSlider"+orName+"1"),
+                     lambda: self.node.setRange((10,1)),
+                     lambda: self.compareImage("testSlider"+orName+"3"),
                     )) 
 
     def testScrollBar(self):
@@ -629,7 +633,12 @@ class UITestCase(AVGTestCase):
                      lambda: self.node.setThumbPos(14.75),
                      lambda: self.compareImage("testScrollBar"+orName+"5"),
                      lambda: self.node.setThumbExtent(10),
-                     lambda: self.compareImage("testScrollBar"+orName+"6")
+                     lambda: self.compareImage("testScrollBar"+orName+"6"),
+                     lambda: self.node.setRange((10,0)),
+# Broken if thumb size < minimum
+#                     lambda: self.node.setThumbExtent(0.5),
+#                     lambda: self.node.setThumbPos(0),
+#                     lambda: self.compareImage("testScrollBar"+orName+"5"),
                     ))
 
         # Horizontal
@@ -725,6 +734,9 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"3"),
                      lambda: self.node.setEnabled(False),
                      lambda: self.compareImage("testSimpleScrollBar"+orName+"4"),
+                     lambda: self.node.setRange((1,0)),
+                     lambda: self.node.setThumbPos(0),
+                     lambda: self.compareImage("testSimpleScrollBar"+orName+"5"),
                     ))
 
     def testSimpleSlider(self):
