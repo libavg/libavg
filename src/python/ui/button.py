@@ -45,11 +45,15 @@ class SwitchNode(avg.DivNode):
                     self.indexOf(node)
                 except RuntimeError:
                     self.appendChild(node)
+        print self.size
         if self.size != (0,0):
+            print "setting children from self."
             size = self.size
         else:
             key = list(self.__nodeMap.keys())[0]
+            print "setting size from child ", key
             size = self.__nodeMap[key].size
+        print "new size: ", size
         self.setSize(size)
 
     def getVisibleID(self):
