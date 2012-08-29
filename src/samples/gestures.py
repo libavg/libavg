@@ -59,7 +59,7 @@ class TransformNode(TextRect):
                 friction=friction
                 )
 
-    def __onDetected(self, event):
+    def __onDetected(self):
         moveNodeToTop(self)
 
     def __onMove(self, transform):
@@ -93,7 +93,7 @@ class TransformChildNode(avg.DivNode):
                 friction=0.05
                 )
 
-    def __onDetected(self, event):
+    def __onDetected(self):
         moveNodeToTop(self)
 
     def __onMove(self, transform):
@@ -116,15 +116,15 @@ class DragNode(TextRect):
                 friction=friction
                 )
 
-    def __onDetected(self, event):
+    def __onDetected(self):
         self.__dragStartPos = self.pos
         moveNodeToTop(self)
 
-    def __onMove(self, event, offset):
+    def __onMove(self, offset):
         self.pos = self.__dragStartPos + offset
         moveNodeOnScreen(self)
 
-    def __onEnd(self, event):
+    def __onEnd(self):
         pass
 
 
@@ -150,15 +150,15 @@ class ConstrainedDragNode(TextRect):
                 friction=0.05
                 )
 
-    def __onDetected(self, event):
+    def __onDetected(self):
         self.__dragStartPos = self.pos
         moveNodeToTop(self)
 
-    def __onHorizMove(self, event, offset):
+    def __onHorizMove(self, offset):
         self.pos = self.__dragStartPos + (offset.x, 0)
         moveNodeOnScreen(self)
 
-    def __onVertMove(self, event, offset):
+    def __onVertMove(self, offset):
         self.pos = self.__dragStartPos + (0, offset.y)
         moveNodeOnScreen(self)
 
@@ -176,16 +176,16 @@ class TapNode(TextRect):
                     possibleHandler=self.__onPossible, detectedHandler=self.__onDetected,
                     failHandler=self.__onFail)
 
-    def __onPossible(self, event):
+    def __onPossible(self):
         self.rect.fillcolor = "FFFFFF"
         self.words.color = "000000"
 
-    def __onDetected(self, event):
+    def __onDetected(self):
         self.rect.fillcolor = "000000"
         self.words.color = "FFFFFF"
         self.rect.color = "00FF00"
 
-    def __onFail(self, event):
+    def __onFail(self):
         self.rect.fillcolor = "000000"
         self.words.color = "FFFFFF"
         self.rect.color = "FF0000"
@@ -199,22 +199,22 @@ class HoldNode(TextRect):
                 detectedHandler=self.__onDetected, failHandler=self.__onFail,
                 stopHandler=self.__onStop)
 
-    def __onPossible(self, event):
+    def __onPossible(self):
         self.rect.fillcolor = "FFFFFF"
         self.rect.color = "FFFFFF"
         self.words.color = "000000"
 
-    def __onDetected(self, event):
+    def __onDetected(self):
         self.rect.fillcolor = "000000"
         self.words.color = "FFFFFF"
         self.rect.color = "00FF00"
 
-    def __onFail(self, event):
+    def __onFail(self):
         self.rect.fillcolor = "000000"
         self.words.color = "FFFFFF"
         self.rect.color = "FF0000"
 
-    def __onStop(self, event):
+    def __onStop(self):
         self.rect.fillcolor = "000000"
         self.rect.color = "FFFFFF"
         self.words.color = "FFFFFF"
