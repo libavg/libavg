@@ -231,7 +231,7 @@ class Slider(avg.DivNode):
 
         self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
-                    upHandler=self.__onDrag)
+                    upHandler=self.__onUp)
         self.publish(Slider.THUMB_POS_CHANGED)
         if thumbPosChangedHandler:
             self.subscribe(Slider.THUMB_POS_CHANGED, thumbPosChangedHandler)
@@ -304,11 +304,11 @@ class Slider(avg.DivNode):
 
     enabled = property(getEnabled, setEnabled)
 
-    def __onDragStart(self, event):
+    def __onDragStart(self):
         self._thumbNode.visibleid = "DOWN"
         self.__dragStartPos = self._thumbPos
 
-    def __onDrag(self, event, offset):
+    def __onDrag(self, offset):
         pixelRange = self._getScrollRangeInPixels()
         if pixelRange == 0:
             normalizedOffset = 0
@@ -318,8 +318,10 @@ class Slider(avg.DivNode):
             else:
                 normalizedOffset = offset.y/pixelRange
         self._positionNodes(self.__dragStartPos + normalizedOffset*self._getSliderRange())
-        if event.type == avg.Event.CURSOR_UP:
-            self._thumbNode.visibleid = "UP"
+
+    def __onUp(self, offset):
+        self.__onDrag(offset)
+        self._thumbNode.visibleid = "UP"
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:

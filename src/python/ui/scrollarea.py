@@ -137,10 +137,10 @@ class ScrollArea(avg.DivNode):
     def __onVThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (self.__scrollPane.contentpos.x, thumbPos)
 
-    def __onDragStart(self, event):
+    def __onDragStart(self):
         self.__dragStartPos = self.__scrollPane.contentpos
 
-    def __onDragMove(self, event, offset):
+    def __onDragMove(self, offset):
         contentpos = self.__dragStartPos - offset
         self.__scrollPane.contentpos = contentpos
         self.__positionThumbs(contentpos)

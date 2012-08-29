@@ -39,13 +39,13 @@ class GestureTestCase(AVGTestCase):
 
     def testTapRecognizer(self):
 
-        def onPossible(event):
+        def onPossible():
             self.__addEventFlag(EVENT_POSSIBLE)
 
-        def onDetected(event):
+        def onDetected():
             self.__addEventFlag(EVENT_DETECTED)
 
-        def onFail(event):
+        def onFail():
             self.__addEventFlag(EVENT_FAILED)
 
         def abort():
@@ -67,12 +67,14 @@ class GestureTestCase(AVGTestCase):
                 (# Down-up: recognized as tap.
                  self.__genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
                         [EVENT_POSSIBLE]),
-                 self.__genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, [EVENT_DETECTED]),
+                 self.__genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
+                        [EVENT_DETECTED]),
                  # Down-small move-up: recognized as tap.
                  self.__genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
                         [EVENT_POSSIBLE]),
                  self.__genMouseEventFrames(avg.Event.CURSOR_MOTION, 31, 30, []),
-                 self.__genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, [EVENT_DETECTED]),
+                 self.__genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
+                        [EVENT_DETECTED]),
                  # Down-big move-up: fail
                  self.__genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
                         [EVENT_POSSIBLE]),
@@ -141,16 +143,16 @@ class GestureTestCase(AVGTestCase):
 
     def testHoldRecognizer(self):
 
-        def onPossible(event):
+        def onPossible():
             self.__addEventFlag(EVENT_POSSIBLE)
 
-        def onDetected(event):
+        def onDetected():
             self.__addEventFlag(EVENT_DETECTED)
 
-        def onFail(event):
+        def onFail():
             self.__addEventFlag(EVENT_FAILED)
 
-        def onStop(event):
+        def onStop():
             self.__addEventFlag(EVENT_ENDED)
 
         def abort():
@@ -237,13 +239,13 @@ class GestureTestCase(AVGTestCase):
 
     def testDoubletapRecognizer(self):
 
-        def onPossible(event):
+        def onPossible():
             self.__addEventFlag(EVENT_POSSIBLE)
 
-        def onDetected(event):
+        def onDetected():
             self.__addEventFlag(EVENT_DETECTED)
 
-        def onFail(event):
+        def onFail():
             self.__addEventFlag(EVENT_FAILED)
 
         def abort():
@@ -401,20 +403,20 @@ class GestureTestCase(AVGTestCase):
 
     def testDragRecognizer(self):
 
-        def onDetected(event):
+        def onDetected():
             self.__addEventFlag(EVENT_DETECTED)
 
-        def onMove(event, offset):
+        def onMove(offset):
             if self.friction == -1:
                 self.assertEqual(offset, (40,40))
             self.__addEventFlag(EVENT_MOVED)
 
-        def onUp(event, offset):
+        def onUp(offset):
             if self.friction == -1:
                 self.assertEqual(offset, (10,-10))
             self.__addEventFlag(EVENT_UP)
 
-        def onEnd(event):
+        def onEnd():
             self.__addEventFlag(EVENT_ENDED)
 
         def enable(isEnabled):
@@ -461,13 +463,13 @@ class GestureTestCase(AVGTestCase):
                     ))
 
         # Test with constraint.
-        def onPossible(event):
+        def onPossible():
             self.__addEventFlag(EVENT_POSSIBLE)
 
-        def onFail(event):
+        def onFail():
             self.__addEventFlag(EVENT_FAILED)
 
-        def onVertMove(event, offset):
+        def onVertMove(offset):
             if self.friction == -1:
                 self.assertEqual(offset, (0,40))
             self.__addEventFlag(EVENT_MOVED)
@@ -610,7 +612,7 @@ class GestureTestCase(AVGTestCase):
 
     def testDragRecognizerRelCoords(self):
 
-        def onDrag(event, offset):
+        def onDrag(offset):
             self.assertAlmostEqual(offset, (-40,-40))
 
         player.setFakeFPS(100)
@@ -628,15 +630,16 @@ class GestureTestCase(AVGTestCase):
 
     def testDragRecognizerInitialEvent(self):
 
-        def onMotion(event):
+        def onMotion(offset):
             ui.DragRecognizer(self.image, 
-                    detectedHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
+                    detectedHandler=onDragStart, moveHandler=onDrag, 
+                    initialEvent=player.getCurrentEvent())
             self.image.unsubscribe(avg.Node.CURSOR_MOTION, onMotion)
 
-        def onDragStart(event):
+        def onDragStart():
             self.__dragStartCalled = True
 
-        def onDrag(event, offset):
+        def onDrag(offset):
             self.assertEqual(offset, (10,0))
 
         self.__initImageScene()
@@ -652,7 +655,7 @@ class GestureTestCase(AVGTestCase):
 
     def testDragRecognizerCoordSysNode(self):
 
-        def onDrag(event, offset):
+        def onDrag(offset):
             self.assertEqual(offset, (40,40))
 
         root = self.loadEmptyScene()
@@ -666,10 +669,10 @@ class GestureTestCase(AVGTestCase):
 
     def testDragRecognizerMinDist(self):
 
-        def onDetected(event):
+        def onDetected():
             self.__addEventFlag(EVENT_DETECTED)
 
-        def onMove(event, offset):
+        def onMove(offset):
             self.__addEventFlag(EVENT_MOVED)
 
         self.__initImageScene()
@@ -688,7 +691,7 @@ class GestureTestCase(AVGTestCase):
 
     def testTransformRecognizer(self):
 
-        def onDetected(event):
+        def onDetected():
             pass
 
         def onMove(transform):

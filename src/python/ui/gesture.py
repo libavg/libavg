@@ -98,26 +98,26 @@ class Recognizer(avg.Publisher):
 
     def _setPossible(self, event):
         self.__stateMachine.changeState("POSSIBLE")
-        self.notifySubscribers(Recognizer.POSSIBLE, [event])
+        self.notifySubscribers(Recognizer.POSSIBLE, [])
 
     def _setFail(self, event):
         assert(self.__stateMachine.state != "RUNNING")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        self.notifySubscribers(Recognizer.FAILED, [event])
+        self.notifySubscribers(Recognizer.FAILED, [])
 
     def _setDetected(self, event):
         if self.__isContinuous:
             self.__stateMachine.changeState("RUNNING")
         else:
             self.__stateMachine.changeState("IDLE")
-        self.notifySubscribers(Recognizer.DETECTED, [event])
+        self.notifySubscribers(Recognizer.DETECTED, [])
 
     def _setEnd(self, event):
         assert(self.__stateMachine.state != "POSSIBLE")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        self.notifySubscribers(Recognizer.END, [event])
+        self.notifySubscribers(Recognizer.END, [])
 
     def __onDown(self, event):
         nodeGone = self._handleNodeGone()
@@ -418,12 +418,12 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             offset = pos - self.__dragStartPos
             if self.getState() == "RUNNING":
-                self.notifySubscribers(Recognizer.MOTION, [event, offset]);
+                self.notifySubscribers(Recognizer.MOTION, [offset]);
             else:
                 if offset.getNorm() > self.__minDragDist*player.getPixelsPerMM():
                     if self.__angleFits(offset):
                         self._setDetected(event)
-                        self.notifySubscribers(Recognizer.MOTION, [event, offset]);
+                        self.notifySubscribers(Recognizer.MOTION, [offset]);
                     else:
                         self.__fail(event)
             if self.__inertiaHandler:
@@ -435,7 +435,7 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             if self.getState() == "RUNNING":
                 self.__offset = pos - self.__dragStartPos
-                self.notifySubscribers(Recognizer.UP, [event, self.__offset]);
+                self.notifySubscribers(Recognizer.UP, [self.__offset]);
                 if self.__friction != -1:
                     self.__isSliding = True
                     self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -454,7 +454,7 @@ class DragRecognizer(Recognizer):
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        self.notifySubscribers(Recognizer.MOTION, [None, self.__offset]);
+        self.notifySubscribers(Recognizer.MOTION, [self.__offset]);
 
     def __onInertiaStop(self):
         if self.getState() == "POSSIBLE":
