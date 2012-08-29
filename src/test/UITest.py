@@ -379,7 +379,7 @@ class UITestCase(AVGTestCase):
                             avg.ImageNode(href="toggle_unchecked_Disabled.png"),
                     checkedDisabledNode =
                             avg.ImageNode(href="toggle_checked_Disabled.png"),
-                    checkHandler=onCheck,
+                    toggleHandler=onCheck,
                     parent=root,
                     **kwargs
                    )
@@ -462,7 +462,7 @@ class UITestCase(AVGTestCase):
                     checkedDownSrc="toggle_checked_Down.png",
                     uncheckedDisabledSrc="toggle_unchecked_Disabled.png",
                     checkedDisabledSrc="toggle_checked_Disabled.png",
-                    checkHandler=onCheck,
+                    toggleHandler=onCheck,
                     parent=root)
             self.start(False,
                     (lambda: self.compareImage("testUIToggleUnchecked_Up"),

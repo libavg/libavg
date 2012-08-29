@@ -234,7 +234,7 @@ class ToggleButton(_ButtonBase):
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
-            enabled=True, fatFingerEnlarge=False, checkHandler=None,
+            enabled=True, fatFingerEnlarge=False, toggleHandler=None,
             checked=False, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
         nodeMap = {
@@ -253,8 +253,8 @@ class ToggleButton(_ButtonBase):
                 parent=self)
 
         self.publish(ToggleButton.TOGGLE)
-        if checkHandler:
-            self.subscribe(ToggleButton.TOGGLE, checkHandler)
+        if toggleHandler:
+            self.subscribe(ToggleButton.TOGGLE, toggleHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
