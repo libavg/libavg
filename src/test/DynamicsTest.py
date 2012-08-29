@@ -182,8 +182,8 @@ class DynamicsTestCase(AVGTestCase):
             parentNode = root
             node = player.createNode("image", {"id": "img", "href":"rgb24-64x64.png"})
             parentNode.appendChild(node)
-            node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, captureMouseDown)
-            parentNode.setEventHandler(avg.CURSORUP, avg.MOUSE, mainMouseUp)
+            node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, captureMouseDown)
+            parentNode.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, mainMouseUp)
         
         def setEventCapture():
             player.getElementByID("img").setEventCapture()
@@ -206,11 +206,11 @@ class DynamicsTestCase(AVGTestCase):
         self.start(False,
                 (createImg,
                  setEventCapture,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                 lambda: Helper.fakeMouseEvent(avg.Event.CURSOR_DOWN, True, False, False, 
                         100, 10, 1),
                  lambda: self.assert_(self.captureMouseDownCalled),
                  deleteImg,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 
+                 lambda: Helper.fakeMouseEvent(avg.Event.CURSOR_UP, True, False, False, 
                         100, 10, 1),
                  lambda: self.assert_(self.mainMouseUpCalled)
                 ))
@@ -225,7 +225,7 @@ class DynamicsTestCase(AVGTestCase):
                 return True
 
             def setHandler (node, s, swallow = False):
-                node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
+                node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, 
                         lambda e: appendEventString(s) and swallow)
 
             parentNode = root

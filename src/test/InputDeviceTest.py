@@ -19,8 +19,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 from libavg import avg, player
 from testcase import *
 
@@ -57,7 +55,7 @@ class AnonymousInputDevice(avg.InputDevice):
     def pollEvents(self):
         if self.__isInitialized: return []
         self.__isInitialized = True
-        return [ avg.Event(avg.CUSTOMEVENT, avg.CUSTOM) ]
+        return [ avg.Event(avg.Event.CUSTOM_EVENT, avg.Event.CUSTOM) ]
 
 
 class EventTestCase(AVGTestCase):
@@ -69,7 +67,7 @@ class EventTestCase(AVGTestCase):
 
         class DerivedEvent(avg.Event):
             def __init__(self):
-                super(DerivedEvent, self).__init__(avg.CUSTOMEVENT, avg.NONE)
+                super(DerivedEvent, self).__init__(avg.Event.CUSTOM_EVENT, avg.Event.NONE)
                 self.property = True
                 
         self.hasEventHandlerBeenCalled = False
@@ -97,17 +95,19 @@ class EventTestCase(AVGTestCase):
             return True
         
         rectNode = avg.RectNode(parent=root, pos=(0, 0), size=(50, 50))
-        rectNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE|avg.TOUCH, eventHandler)
+        rectNode.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE|avg.Event.TOUCH, 
+                eventHandler)
         
-        root.setEventHandler(avg.CURSORDOWN, avg.NONE, eventHandler)
-        root.setEventHandler(avg.CUSTOMEVENT, avg.NONE, customEventEventHandler)
+        root.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.NONE, eventHandler)
+        root.setEventHandler(avg.Event.CUSTOM_EVENT, avg.Event.NONE, 
+                customEventEventHandler)
         
         self.customInputDevice = CustomInputDevice()
         player.addInputDevice(self.customInputDevice)
     
         self.start(False,
                 (lambda: self.customInputDevice.feedEvent(
-                         avg.Event(avg.CURSORDOWN, avg.NONE)),
+                         avg.Event(avg.Event.CURSOR_DOWN, avg.Event.NONE)),
                  lambda: self.assert_(checkAndResetResults()),
    
                  lambda: self.customInputDevice.feedEvent(
@@ -115,11 +115,13 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.hasCustomEventProperty),
                  
                  lambda: self.customInputDevice.feedEvent(
-                         avg.MouseEvent(avg.CURSORDOWN, False, False, False, (5, 5), 0)),
+                         avg.MouseEvent(avg.Event.CURSOR_DOWN, False, False, False,
+                                (5, 5), 0)),
                  lambda: self.assert_(checkAndResetResults()),
                  
                  lambda: self.customInputDevice.feedEvent(
-                         avg.TouchEvent(300, avg.CURSORDOWN, (5, 5), avg.TOUCH, (10,10))),
+                         avg.TouchEvent(300, avg.Event.CURSOR_DOWN, (5, 5), 
+                                avg.Event.TOUCH, (10,10))),
                  lambda: self.assert_(checkAndResetResults())
                 ))
     
@@ -139,7 +141,7 @@ class EventTestCase(AVGTestCase):
             self.hasEventHandlerBeenCalled = False
             return True
         
-        root.setEventHandler(avg.CUSTOMEVENT, avg.CUSTOM, eventHandler)
+        root.setEventHandler(avg.Event.CUSTOM_EVENT, avg.Event.CUSTOM, eventHandler)
         player.addInputDevice(AnonymousInputDevice())
     
         self.start(False,
@@ -161,27 +163,28 @@ class EventTestCase(AVGTestCase):
 
         self.start(False,
                 (lambda: self.customInputDevice.feedEvent(
-                        avg.MouseEvent(avg.CURSORDOWN, True, False, False, (10, 10), 1)),
+                        avg.MouseEvent(avg.Event.CURSOR_DOWN, True, False, False,
+                                (10, 10), 1)),
                  lambda: handlerTester.assertState(
                         down=True, up=False, over=True, out=False, move=False),
                  
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORMOTION, True, False, False, (12, 12), 1)),
+                         avg.Event.CURSOR_MOTION, True, False, False, (12, 12), 1)),
                  lambda: handlerTester.assertState(
                         down=False, up=False, over=False, out=False, move=True),
                  
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORMOTION, True, False, False, (100, 100), 1)),
+                         avg.Event.CURSOR_MOTION, True, False, False, (100, 100), 1)),
                  lambda: handlerTester.assertState(
                         down=False, up=False, over=False, out=True, move=False),
                  
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORMOTION, True, False, False, (12, 12), 1)),
+                         avg.Event.CURSOR_MOTION, True, False, False, (12, 12), 1)),
                  lambda: handlerTester.assertState(
                         down=False, up=False, over=True, out=False, move=True),
                         
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORUP, False, False, False, (12, 12), 1)),
+                         avg.Event.CURSOR_UP, False, False, False, (12, 12), 1)),
                  lambda: handlerTester.assertState(
                         down=False, up=True, over=False, out=False, move=False)
                  

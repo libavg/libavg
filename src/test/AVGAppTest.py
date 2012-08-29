@@ -36,9 +36,9 @@ class TestAppBase(libavg.AVGApp):
         player.setTimeout(timeout, player.stop)
 
     def singleKeyPress(self, char):
-        g_helper.fakeKeyEvent(avg.KEYDOWN, ord(char), ord(char), char, ord(char), 
+        g_helper.fakeKeyEvent(avg.Event.KEY_DOWN, ord(char), ord(char), char, ord(char), 
                 avg.KEYMOD_NONE)
-        g_helper.fakeKeyEvent(avg.KEYUP, ord(char), ord(char), char, ord(char), 
+        g_helper.fakeKeyEvent(avg.Event.KEY_UP, ord(char), ord(char), char, ord(char), 
                 avg.KEYMOD_NONE)
 
 

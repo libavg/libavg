@@ -31,15 +31,15 @@ class VideoChooserApp(AVGApp):
                 height = (THUMBNAIL_WIDTH*size.y)/size.x
                 videoNode.size = (THUMBNAIL_WIDTH, height)
 
-                videoNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self,
-                        lambda event, videoNode=videoNode: 
+                videoNode.connectEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE,
+                        self, lambda event, videoNode=videoNode: 
                                 self.chooseVideo(event, videoNode))
                 i += 1
             except RuntimeError:
                 pass
 
-        self._parentNode.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self,
-                self.onMouseMove)
+        self._parentNode.connectEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE,
+                self, self.onMouseMove)
         self.bigVideoNode = None
 
     def onMouseMove(self, event):

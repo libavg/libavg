@@ -14,7 +14,7 @@ def onMouseOut(event):
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()
 node = avg.WordsNode(pos=(10,10), font="arial", text="Hello World", parent=rootNode)
-node.connectEventHandler(avg.CURSOROVER, avg.MOUSE, node, onMouseOver)
-node.connectEventHandler(avg.CURSOROUT, avg.MOUSE, node, onMouseOut)
+node.connectEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, node, onMouseOver)
+node.connectEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, node, onMouseOut)
 player.play()
 

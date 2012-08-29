@@ -28,9 +28,9 @@ def onMouseUp(event):
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()
 node = avg.WordsNode(pos=(10,10), font="arial", text="Hello World", parent=rootNode)
-node.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, node, onMouseDown)
-node.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, node, onMouseMove)
-node.connectEventHandler(avg.CURSORUP, avg.MOUSE, node, onMouseUp)
+node.connectEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, node, onMouseDown)
+node.connectEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, node, onMouseMove)
+node.connectEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, node, onMouseUp)
 
 player.play()
 
