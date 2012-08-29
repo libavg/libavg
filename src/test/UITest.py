@@ -267,7 +267,7 @@ class UITestCase(AVGTestCase):
 
     def testButton(self):
 
-        def onClick(event):
+        def onClick():
             self.clicked = True
 
         def reset():
@@ -360,7 +360,7 @@ class UITestCase(AVGTestCase):
 
     def testToggleButton(self):
 
-        def onCheck(event, isChecked):
+        def onCheck(isChecked):
             self.checked = isChecked
             self.checkedChanged = True
         

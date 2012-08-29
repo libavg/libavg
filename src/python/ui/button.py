@@ -188,7 +188,7 @@ class Button(_ButtonBase):
 
     def _onTap(self):
         self.__stateMachine.changeState("UP")
-        self.notifySubscribers(Button.CLICK, [player.getCurrentEvent()])
+        self.notifySubscribers(Button.CLICK, [])
 
     def _onTapFail(self):
         self.__stateMachine.changeState("UP")
@@ -378,13 +378,12 @@ class ToggleButton(_ButtonBase):
             self.__stateMachine.changeState("CHECKED_DOWN")
 
     def _onTap(self):
-        event = player.getCurrentEvent()
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
-            self.notifySubscribers(ToggleButton.TOGGLE, [event, True])
+            self.notifySubscribers(ToggleButton.TOGGLE, [True])
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
-            self.notifySubscribers(ToggleButton.TOGGLE, [event, False])
+            self.notifySubscribers(ToggleButton.TOGGLE, [False])
 
     def _onTapFail(self):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
