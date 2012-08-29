@@ -318,7 +318,7 @@ class Slider(avg.DivNode):
             else:
                 normalizedOffset = offset.y/pixelRange
         self._positionNodes(self.__dragStartPos + normalizedOffset*self._getSliderRange())
-        if event.type == avg.CURSORUP:
+        if event.type == avg.Event.CURSOR_UP:
             self._thumbNode.visibleid = "UP"
 
     def _getScrollRangeInPixels(self):

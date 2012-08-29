@@ -219,7 +219,7 @@ class Keyboard(avg.DivNode):
             pos = self.__keys[i].getRelPos(event.pos)
             if pos.x >= 0 and pos.y >= 0:
                 if pos.x <= self.__keys[i].size.x and pos.y <= self.__keys[i].size.y:
-                    if event.type == avg.CURSORUP:
+                    if event.type == avg.Event.CURSOR_UP:
                         self.__keys[i].onUp(event)  
                     else:                  
                         self.__keys[i].onDown(event)

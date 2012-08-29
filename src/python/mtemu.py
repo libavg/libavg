@@ -39,7 +39,7 @@ class MTemu(object):
     cursorID = 0
     dualTouch = False
     secondTouch = False
-    source = avg.TOUCH
+    source = avg.Event.TOUCH
 
     def __init__(self):
         self.__oldEventHook = player.getEventHook()
@@ -67,7 +67,7 @@ class MTemu(object):
 
     def toggleSource(self):
         '''
-        Switch between avg.TOUCH and avg.TRACK - source
+        Switch between avg.Event.TOUCH and avg.Event.TRACK - source
         '''
         if self.mouseState == 'Down':
             self.__releaseTouch(self.cursorID)
@@ -75,7 +75,7 @@ class MTemu(object):
                 self.__releaseTouch(self.cursorID+1)
             self.mouseState = 'Up'
             self.secondTouch = False
-        self.source = avg.TOUCH if self.source == avg.TRACK else avg.TRACK
+        self.source = avg.Event.TOUCH if self.source == avg.Event.TRACK else avg.Event.TRACK
 
     def toggleDualTouch(self):
         self.dualTouch = not(self.dualTouch)
@@ -84,16 +84,16 @@ class MTemu(object):
                 self.__releaseTouch(self.cursorID+1)
             else:
                 self.__sendFakeTouch(self.cursorID+1, Point2D(0,0),
-                        avg.CURSORDOWN, mirror=True)
+                        avg.Event.CURSOR_DOWN, mirror=True)
             self.secondTouch = not(self.secondTouch)
 
     def __onEvent(self, event):
-        if event.source == avg.MOUSE:
-            if event.type == avg.CURSORDOWN:
+        if event.source == avg.Event.MOUSE:
+            if event.type == avg.Event.CURSOR_DOWN:
                 self.__onMouseDown(event)
-            elif event.type == avg.CURSORMOTION:
+            elif event.type == avg.Event.CURSOR_MOTION:
                 self.__onMouseMotion(event)
-            elif event.type == avg.CURSORUP:
+            elif event.type == avg.Event.CURSOR_UP:
                 self.__onMouseUp(event)
             return True
         else:
@@ -137,7 +137,7 @@ class MTemu(object):
                 touchType, self.source, self.__clampPos(pos+offset))
 
     def __releaseTouch(self, cursorID):
-       self.__sendFakeTouch(cursorID, Point2D(0,0), avg.CURSORUP)
+       self.__sendFakeTouch(cursorID, Point2D(0,0), avg.Event.CURSOR_UP)
 
     def __clampPos(self, pos):
         if pos[0] < 0:

@@ -55,7 +55,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
         BaseTouchVisualization.__init__(self, event, **kwargs)
         self.positions = [event.pos]
 
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             color = 'e5d8d8'
         else:
             color = 'd8e5e5'
@@ -70,7 +70,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
                 color='FFFFFF', sensitive=False, parent=self)
         self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis,
                 color='FFFFFF', sensitive=False, parent=self)
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             self.__handAxis = avg.LineNode(pos1=(0,0), pos2=self.__getHandVector(event),
                     opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
@@ -95,7 +95,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
         self.motionVector.pos2 = -event.contact.motionvec
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             self.__handAxis.pos2 = self.__getHandVector(event)
         self.motionPath.pos = self.positions
 
@@ -111,7 +111,7 @@ class TouchVisualization(BaseTouchVisualization):
     def __init__(self, event, **kwargs):
         BaseTouchVisualization.__init__(self, event, **kwargs)
 
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             self.__circle = avg.ImageNode(parent=self)
             self.__circle.setBitmap(TouchVisualization.bmp)
             self.__setRadius(self._radius)
@@ -157,7 +157,7 @@ class TouchVisualizationOverlay(avg.DivNode):
         rootNode.subscribe(avg.Node.HOVERDOWN, self.__onTouchDown)
     
     def __onTouchDown(self, event):
-        if event.source == avg.TOUCH or event.source == avg.TRACK:
+        if event.source == avg.Event.TOUCH or event.source == avg.Event.TRACK:
             self.visClass(event, parent=self)
 
 

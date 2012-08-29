@@ -253,8 +253,8 @@ class TextArea(avg.DivNode):
             self.appendChild(textBackgroundNode)
 
         if not disableMouseFocus:
-            self.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
-            self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
+            self.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, self.__onClick)
+            self.setEventHandler(avg.Event.CURSOR_UP, avg.Event.TOUCH, self.__onClick)
 
         self.appendChild(textNode)
 
