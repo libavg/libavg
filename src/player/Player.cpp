@@ -850,6 +850,14 @@ MouseEventPtr Player::getMouseState() const
     return m_pLastMouseEvent;
 }
 
+EventPtr Player::getCurrentEvent() const
+{
+    if (!m_pCurrentEvent) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "No current event.");
+    }
+    return m_pCurrentEvent;
+}
+
 void Player::setMousePos(const IntPoint& pos)
 {
     m_pDisplayEngine->setMousePos(pos);
@@ -1016,6 +1024,8 @@ bool Player::handleEvent(EventPtr pEvent)
             return true;
         }
     }
+    EventPtr pLastEvent = m_pCurrentEvent;
+    m_pCurrentEvent = pEvent;
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
         m_pLastMouseEvent = pMouseEvent;
     }
@@ -1059,6 +1069,7 @@ bool Player::handleEvent(EventPtr pEvent)
             stop();
         }
     }
+    m_pCurrentEvent = pLastEvent;
     return true;
 }
 

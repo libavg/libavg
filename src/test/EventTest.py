@@ -242,6 +242,9 @@ class EventTestCase(AVGTestCase):
     def testPublisher(self):
         def onDown(event):
             self.assert_(event.type == avg.Event.CURSOR_DOWN)
+            curEvent = player.getCurrentEvent()
+            self.assert_(curEvent.type == avg.Event.CURSOR_DOWN)
+            self.assert_(curEvent.when == event.when)
             self.downCalled = True
             
         def unsubscribe():

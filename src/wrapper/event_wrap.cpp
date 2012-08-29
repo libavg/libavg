@@ -186,7 +186,8 @@ void export_event()
         .def("getContour", &TouchEvent::getContour)
         ;
 
-    scope contactScope = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >("Contact", no_init)
+    scope contactScope = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >
+            ("Contact", no_init)
         .add_property("id", &Contact::getID)
         .add_property("age", &Contact::getAge)
         .add_property("distancefromstart", &Contact::getDistanceFromStart)

@@ -136,6 +136,7 @@ class AVG_API Player: public Publisher
 
         void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
+        EventPtr getCurrentEvent() const;
         TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;
@@ -280,6 +281,7 @@ class AVG_API Player: public Publisher
         std::map<int, EventCaptureInfoPtr> m_EventCaptureInfoMap;
 
         MouseEventPtr m_pLastMouseEvent;
+        EventPtr m_pCurrentEvent;
 
         // The indexes of this map are cursorids.
         std::map<int, CursorStatePtr> m_pLastCursorStates;

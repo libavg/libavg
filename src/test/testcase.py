@@ -272,8 +272,10 @@ class NodeHandlerTester(object):
         self.__node.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, self.__onUp) 
         self.__node.setEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, self.__onOver) 
         self.__node.setEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, self.__onOut) 
-        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, self.__onMove) 
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, self.__onTouchDown) 
+        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, 
+                self.__onMove) 
+        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, 
+                self.__onTouchDown)
 
     def clearHandlers(self):
         self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, None) 
