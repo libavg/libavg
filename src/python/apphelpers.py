@@ -153,8 +153,8 @@ class TouchVisualizationOverlay(avg.DivNode):
         if isDebug:
             self.elementoutlinecolor='FFFFAA'
             avg.RectNode(parent=self, size=self.size, fillopacity=0.2, fillcolor='000000')
-        rootNode.subscribe(avg.Node.CURSORDOWN, self.__onTouchDown)
-        rootNode.subscribe(avg.Node.HOVERDOWN, self.__onTouchDown)
+        rootNode.subscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
+        rootNode.subscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
     
     def __onTouchDown(self, event):
         if event.source == avg.Event.TOUCH or event.source == avg.Event.TRACK:
@@ -278,8 +278,8 @@ class KeyboardManager(object):
         return cls._instance
         
     def setup(self, onKeyDownCb, onKeyUpCb):
-        player.subscribe(avg.Player.KEYDOWN, self.__onKeyDown)
-        player.subscribe(avg.Player.KEYUP, self.__onKeyUp)
+        player.subscribe(avg.Player.KEY_DOWN, self.__onKeyDown)
+        player.subscribe(avg.Player.KEY_UP, self.__onKeyUp)
         
         self.__onKeyDownCb = onKeyDownCb
         self.__onKeyUpCb = onKeyUpCb

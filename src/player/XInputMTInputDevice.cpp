@@ -148,14 +148,14 @@ void XInputMTInputDevice::handleXIEvent(const XEvent& xEvent)
                 {
 //                    cerr << "TouchBegin " << xid << ", " << pos << endl;
                     m_LastID++;
-                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos); 
+                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSOR_DOWN, pos);
                     addTouchStatus(xid, pEvent);
                 }
                 break;
             case XI_TouchUpdate:
                 {
 //                    cerr << "TouchUpdate " << xid << ", " << pos << endl;
-                    TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos); 
+                    TouchEventPtr pEvent = createEvent(0, Event::CURSOR_MOTION, pos); 
                     TouchStatusPtr pTouchStatus = getTouchStatus(xid);
                     AVG_ASSERT(pTouchStatus);
                     pTouchStatus->pushEvent(pEvent);
@@ -166,7 +166,7 @@ void XInputMTInputDevice::handleXIEvent(const XEvent& xEvent)
 //                    cerr << "TouchEnd " << xid << ", " << pos << endl;
                     TouchStatusPtr pTouchStatus = getTouchStatus(xid);
                     AVG_ASSERT(pTouchStatus);
-                    TouchEventPtr pEvent = createEvent(0, Event::CURSORUP, pos); 
+                    TouchEventPtr pEvent = createEvent(0, Event::CURSOR_UP, pos); 
                     pTouchStatus->pushEvent(pEvent);
                 }
                 break;

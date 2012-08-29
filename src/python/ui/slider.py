@@ -68,7 +68,7 @@ class AccordionNode(avg.DivNode):
         if player.isPlaying():
             self.__renderImages()
         else:
-            player.subscribe(avg.Player.PLAYBACKSTART, self.__renderImages)
+            player.subscribe(avg.Player.PLAYBACK_START, self.__renderImages)
 
     def getWidth(self):
         return self.__baseWidth

@@ -69,7 +69,7 @@ SoundNode::SoundNode(const ArgList& args)
     initFilename(m_Filename);
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
     m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, 8);
-    publish(ENDOFFILE);
+    publish(END_OF_FILE);
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -129,7 +129,8 @@ bool SoundNode::getLoop() const
 
 void SoundNode::setEOFCallback(PyObject * pEOFCallback)
 {
-    AVG_DEPRECATION_WARNING("1.8", "SoundNode.setEOFCallback()", "Node.ENDOFFILE()");
+    AVG_DEPRECATION_WARNING("1.8", "SoundNode.setEOFCallback()", 
+            "Node.subscribe(END_OF_FILE)");
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
@@ -342,7 +343,7 @@ void SoundNode::onEOF()
         }
         Py_DECREF(result);
     }
-    notifySubscribers(ENDOFFILE);
+    notifySubscribers(END_OF_FILE);
 }
 
 }

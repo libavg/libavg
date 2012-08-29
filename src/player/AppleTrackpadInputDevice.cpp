@@ -69,15 +69,15 @@ void AppleTrackpadInputDevice::onData(int device, Finger* pFingers, int numFinge
         TouchStatusPtr pTouchStatus = getTouchStatus(pFinger->identifier);
         if (!pTouchStatus) {
             m_LastID++;
-            TouchEventPtr pEvent = createEvent(m_LastID, pFinger, Event::CURSORDOWN);
+            TouchEventPtr pEvent = createEvent(m_LastID, pFinger, Event::CURSOR_DOWN);
             addTouchStatus(pFinger->identifier, pEvent);
         } else {
             Event::Type eventType;
             if (pFinger->state == 7) {
-                eventType = Event::CURSORUP;
+                eventType = Event::CURSOR_UP;
                 removeTouchStatus(pFinger->identifier);
             } else {
-                eventType = Event::CURSORMOTION;
+                eventType = Event::CURSOR_MOTION;
             }
             TouchEventPtr pEvent = createEvent(0, pFinger, eventType);
             pTouchStatus->pushEvent(pEvent);

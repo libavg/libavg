@@ -59,7 +59,7 @@ Node::Node()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     
-    for (int msgID = CURSORDOWN; msgID != ENDOFFILE; msgID++) {
+    for (int msgID = CURSOR_DOWN; msgID != END_OF_FILE; msgID++) {
         publish(msgID);
     }
 }
@@ -553,37 +553,37 @@ Node::MessageID Node::getEventMessageID(const EventPtr& pEvent)
     Event::Source source = pEvent->getSource();
     if (source == Event::MOUSE || source == Event::TOUCH) {
         switch (pEvent->getType()) {
-            case Event::CURSORDOWN:
-                return Node::CURSORDOWN;
-            case Event::CURSORMOTION:
-                return Node::CURSORMOTION;
-            case Event::CURSORUP:
-                return Node::CURSORUP;
-            case Event::CURSOROVER:
-                return Node::CURSOROVER;
-            case Event::CURSOROUT:
-                return Node::CURSOROUT;
+            case Event::CURSOR_DOWN:
+                return Node::CURSOR_DOWN;
+            case Event::CURSOR_MOTION:
+                return Node::CURSOR_MOTION;
+            case Event::CURSOR_UP:
+                return Node::CURSOR_UP;
+            case Event::CURSOR_OVER:
+                return Node::CURSOR_OVER;
+            case Event::CURSOR_OUT:
+                return Node::CURSOR_OUT;
             default:
                 AVG_ASSERT_MSG(false, 
                         (string("Unknown message type ")+pEvent->typeStr()).c_str());
-                return Node::CURSORDOWN;
+                return Node::CURSOR_DOWN;
         }
     } else {
         switch (pEvent->getType()) {
-            case Event::CURSORDOWN:
-                return Node::HOVERDOWN;
-            case Event::CURSORMOTION:
-                return Node::HOVERMOTION;
-            case Event::CURSORUP:
-                return Node::HOVERUP;
-            case Event::CURSOROVER:
-                return Node::HOVEROVER;
-            case Event::CURSOROUT:
-                return Node::HOVEROUT;
+            case Event::CURSOR_DOWN:
+                return Node::HOVER_DOWN;
+            case Event::CURSOR_MOTION:
+                return Node::HOVER_MOTION;
+            case Event::CURSOR_UP:
+                return Node::HOVER_UP;
+            case Event::CURSOR_OVER:
+                return Node::HOVER_OVER;
+            case Event::CURSOR_OUT:
+                return Node::HOVER_OUT;
             default:
                 AVG_ASSERT_MSG(false, 
                         (string("Unknown message type ")+pEvent->typeStr()).c_str());
-                return Node::CURSORDOWN;
+                return Node::CURSOR_DOWN;
         }
     }
 }

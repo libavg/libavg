@@ -53,14 +53,14 @@ void TouchStatus::pushEvent(TouchEventPtr pEvent, bool bCheckMotion)
 
     if (m_bFirstFrame) {
         // Ignore unless cursorup.
-        if (pEvent->getType() == Event::CURSORUP) {
+        if (pEvent->getType() == Event::CURSOR_UP) {
             // Down and up in the first frame. To avoid inconsistencies, both
             // messages must be delivered. This is the only time that m_pNewEvents
             // has more than one entry.
             m_pNewEvents.push_back(pEvent);
         }
     } else {
-        if (bCheckMotion && pEvent->getType() == Event::CURSORMOTION && 
+        if (bCheckMotion && pEvent->getType() == Event::CURSOR_MOTION && 
                 getLastEvent()->getPos() == pEvent->getPos())
         {
             // Ignore motion events without motion.

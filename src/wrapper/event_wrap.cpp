@@ -117,14 +117,14 @@ void export_event()
     ;
 
     enum_<Event::Type>("Type")
-        .value("KEY_UP", Event::KEYUP)
-        .value("KEY_DOWN", Event::KEYDOWN)
-        .value("CURSOR_MOTION", Event::CURSORMOTION)
-        .value("CURSOR_UP", Event::CURSORUP)
-        .value("CURSOR_DOWN", Event::CURSORDOWN)
-        .value("CURSOR_OVER", Event::CURSOROVER)
-        .value("CURSOR_OUT", Event::CURSOROUT)
-        .value("CUSTOM_EVENT", Event::CUSTOMEVENT)
+        .value("KEY_UP", Event::KEY_UP)
+        .value("KEY_DOWN", Event::KEY_DOWN)
+        .value("CURSOR_MOTION", Event::CURSOR_MOTION)
+        .value("CURSOR_UP", Event::CURSOR_UP)
+        .value("CURSOR_DOWN", Event::CURSOR_DOWN)
+        .value("CURSOR_OVER", Event::CURSOR_OVER)
+        .value("CURSOR_OUT", Event::CURSOR_OUT)
+        .value("CUSTOM_EVENT", Event::CUSTOM_EVENT)
         .export_values()
     ;
 
@@ -202,8 +202,8 @@ void export_event()
         ;
     
     enum_<Contact::MessageID>("MessageID")
-        .value("CURSORMOTION", Contact::CURSORMOTION)
-        .value("CURSORUP", Contact::CURSORUP)
+        .value("CURSOR_MOTION", Contact::CURSOR_MOTION)
+        .value("CURSOR_UP", Contact::CURSOR_UP)
         .export_values()
         ;
 

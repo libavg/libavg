@@ -431,7 +431,7 @@ void TrackerInputDevice::pollEventType(vector<EventPtr>& res, TouchStatusMap& Ev
         pEvent = pTouchStatus->pollEvent();
         if (pEvent) {
             res.push_back(pEvent);
-            if (pEvent->getType() == Event::CURSORUP) {
+            if (pEvent->getType() == Event::CURSOR_UP) {
                 Events.erase(it++);
             } else {
                 ++it;

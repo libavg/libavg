@@ -45,7 +45,7 @@ class AVTestCase(AVGTestCase):
         root.appendChild(node)
         node.play()
         node.setEOFCallback(onEOF)
-        node.subscribe(avg.Node.ENDOFFILE, onSubscribeEOF)
+        node.subscribe(avg.Node.END_OF_FILE, onSubscribeEOF)
         player.setTimeout(100000, onNoEOF)
         player.play()
         self.assert_(self.eofCalled)

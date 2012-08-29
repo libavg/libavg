@@ -770,8 +770,8 @@ def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     player.setOnFrameHandler(_onFrame)
 
     if catchKeyboard:
-        player.subscribe(avg.Player.KEYDOWN, _onKeyDown)
-        player.subscribe(avg.Player.KEYUP, _onKeyUp)
+        player.subscribe(avg.Player.KEY_DOWN, _onKeyDown)
+        player.subscribe(avg.Player.KEY_UP, _onKeyUp)
 
 def setActiveFocusContext(focusContext):
     """

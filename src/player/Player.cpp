@@ -121,7 +121,7 @@ Player::Player()
       m_Volume(1),
       m_dtd(0),
       m_bPythonAvailable(true),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
@@ -172,7 +172,7 @@ Player::Player()
         debugBreak();
     }
     
-    for (int msgID = KEYDOWN; msgID != LAST_MESSAGEID; msgID++) {
+    for (int msgID = KEY_DOWN; msgID != LAST_MESSAGEID; msgID++) {
         publish(msgID);
     }
 
@@ -509,14 +509,14 @@ void Player::play()
             throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
         }
         initPlayback();
-        notifySubscribers(PLAYBACKSTART);
+        notifySubscribers(PLAYBACK_START);
         try {
             ThreadProfiler::get()->start();
             doFrame(true);
             while (!m_bStopping) {
                 doFrame(false);
             }
-            notifySubscribers(PLAYBACKEND);
+            notifySubscribers(PLAYBACK_END);
         } catch (...) {
             cleanup();
             throw;
@@ -1021,8 +1021,8 @@ bool Player::handleEvent(EventPtr pEvent)
     }
 
     if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
-        if (pEvent->getType() == Event::CURSOROUT ||
-                pEvent->getType() == Event::CURSOROVER)
+        if (pEvent->getType() == Event::CURSOR_OUT ||
+                pEvent->getType() == Event::CURSOR_OVER)
         {
             pEvent->trace();
             pCursorEvent->getNode()->handleEvent(pEvent);
@@ -1034,17 +1034,17 @@ bool Player::handleEvent(EventPtr pEvent)
     {
         pEvent->trace();
         switch (pEvent->getType()) {
-            case Event::KEYDOWN:
-                notifySubscribers(KEYDOWN, pEvent);
+            case Event::KEY_DOWN:
+                notifySubscribers(KEY_DOWN, pEvent);
                 break;
-            case Event::KEYUP:
-                notifySubscribers(KEYUP, pEvent);
+            case Event::KEY_UP:
+                notifySubscribers(KEY_UP, pEvent);
                 break;
             default:
                 AVG_ASSERT(false);
         }
         getRootNode()->handleEvent(pKeyEvent);
-        if (getStopOnEscape() && pEvent->getType() == Event::KEYDOWN
+        if (getStopOnEscape() && pEvent->getType() == Event::KEY_DOWN
                 && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
         {
             stop();
@@ -1536,7 +1536,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             }
         }
         if (itCur == pCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOROUT, pLastNode);
+            sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
         }
     }
 
@@ -1551,7 +1551,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             }
         }
         if (itLast == pLastCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOROVER, pCurNode);
+            sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
         }
     }
 
@@ -1564,7 +1564,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
                 pNodeEvent->setNode(pNode);
-                if (pNodeEvent->getType() != Event::CURSORMOTION) {
+                if (pNodeEvent->getType() != Event::CURSOR_MOTION) {
                     pNodeEvent->trace();
                 }
                 if (pNode->handleEvent(pNodeEvent) == true) {
@@ -1575,12 +1575,12 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
+    if (pEvent->getType() == Event::CURSOR_UP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
         vector<NodePtr>::iterator it;
         for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
             NodePtr pNode = *it;
-            sendOver(pEvent, Event::CURSOROUT, pNode);
+            sendOver(pEvent, Event::CURSOR_OUT, pNode);
         }
         m_pLastCursorStates.erase(cursorID);
     } else {
@@ -1749,7 +1749,7 @@ void Player::cleanup()
         SDLAudioEngine::get()->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
-    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 
+    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSOR_MOTION, false, false, 
             false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0));
 
     m_FrameTime = 0;

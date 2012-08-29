@@ -45,7 +45,7 @@ Contact::Contact(CursorEventPtr pEvent)
 {
     m_Events.push_back(pEvent);
 
-    for (int msgID = CURSORMOTION; msgID != LAST_MESSAGEID; msgID++) {
+    for (int msgID = CURSOR_MOTION; msgID != LAST_MESSAGEID; msgID++) {
         publish(msgID);
     }
 }
@@ -129,13 +129,13 @@ void Contact::addEvent(CursorEventPtr pEvent)
 void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
 {
     switch (pCursorEvent->getType()) {
-        case Event::CURSORDOWN:
+        case Event::CURSOR_DOWN:
             break;
-        case Event::CURSORMOTION:
-            notifySubscribers(Contact::CURSORMOTION, pCursorEvent);
+        case Event::CURSOR_MOTION:
+            notifySubscribers(Contact::CURSOR_MOTION, pCursorEvent);
             break;
-        case Event::CURSORUP:
-            notifySubscribers(Contact::CURSORUP, pCursorEvent);
+        case Event::CURSOR_UP:
+            notifySubscribers(Contact::CURSOR_UP, pCursorEvent);
             removeSubscribers();
             break;
         default:
@@ -152,12 +152,12 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         m_CurListenerID = it->first;
         m_bCurListenerIsDead = false;
         switch (pCursorEvent->getType()) {
-            case Event::CURSORMOTION:
+            case Event::CURSOR_MOTION:
                 if (listener.m_pMotionCallback != Py_None) {
                     py::call<void>(listener.m_pMotionCallback, pEvent);
                 }
                 break;
-            case Event::CURSORUP:
+            case Event::CURSOR_UP:
                 if (listener.m_pUpCallback != Py_None) {
                     py::call<void>(listener.m_pUpCallback, pEvent);
                 }

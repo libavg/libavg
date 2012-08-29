@@ -62,7 +62,7 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
         CursorEventPtr pEvent = (*it)->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
-            if (pEvent->getType() == Event::CURSORUP) {
+            if (pEvent->getType() == Event::CURSOR_UP) {
                 it = m_Touches.erase(it);
             } else {
                 ++it;

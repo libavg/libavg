@@ -220,10 +220,10 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     enum_<Player::MessageID>("MessageID")
-        .value("KEYDOWN", Player::KEYDOWN)
-        .value("KEYUP", Player::KEYUP)
-        .value("PLAYBACKSTART", Player::PLAYBACKSTART)
-        .value("PLAYBACKEND", Player::PLAYBACKEND)
+        .value("KEY_DOWN", Player::KEY_DOWN)
+        .value("KEY_UP", Player::KEY_UP)
+        .value("PLAYBACK_START", Player::PLAYBACK_START)
+        .value("PLAYBACK_END", Player::PLAYBACK_END)
         .export_values()
         ;
 

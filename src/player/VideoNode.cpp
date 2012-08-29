@@ -93,7 +93,7 @@ VideoNode::VideoNode(const ArgList& args)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
-    publish(ENDOFFILE);
+    publish(END_OF_FILE);
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -299,7 +299,8 @@ bool VideoNode::hasAlpha() const
 
 void VideoNode::setEOFCallback(PyObject * pEOFCallback)
 {
-    AVG_DEPRECATION_WARNING("1.8", "VideoNode.setEOFCallback()", "Node.ENDOFFILE()");
+    AVG_DEPRECATION_WARNING("1.8", "VideoNode.setEOFCallback()", 
+            "Node.subscribe(END_OF_FILE)");
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
@@ -781,7 +782,7 @@ void VideoNode::onEOF()
         }
         Py_DECREF(result);
     }
-    notifySubscribers(ENDOFFILE);
+    notifySubscribers(END_OF_FILE);
 }
 
 

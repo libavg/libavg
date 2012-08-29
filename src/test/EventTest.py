@@ -67,8 +67,8 @@ class EventTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         root.setEventHandler(avg.Event.KEY_DOWN, avg.Event.NONE, onKeyDown)
         root.setEventHandler(avg.Event.KEY_UP, avg.Event.NONE, onKeyUp)
-        player.subscribe(avg.Player.KEYDOWN, onSubscribeKeyDown)
-        player.subscribe(avg.Player.KEYUP, onSubscribeKeyUp)
+        player.subscribe(avg.Player.KEY_DOWN, onSubscribeKeyDown)
+        player.subscribe(avg.Player.KEY_UP, onSubscribeKeyUp)
         self.start(False,
                 (lambda: Helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, 65, "A", 65, 
                         avg.KEYMOD_NONE),
@@ -245,23 +245,24 @@ class EventTestCase(AVGTestCase):
             self.downCalled = True
             
         def unsubscribe():
-            self.img.unsubscribe(avg.Node.CURSORDOWN, onDown)
-            self.assert_(self.img.getNumSubscribers(avg.Node.CURSORDOWN) == 0)
+            self.img.unsubscribe(avg.Node.CURSOR_DOWN, onDown)
+            self.assert_(self.img.getNumSubscribers(avg.Node.CURSOR_DOWN) == 0)
             self.downCalled = False
 
         def initUnsubscribeInEvent():
-            self.subscriberID = self.img.subscribe(avg.Node.CURSORDOWN, onDownUnsubscribe)
+            self.subscriberID = self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                    onDownUnsubscribe)
 
         def onDownUnsubscribe(event):
-            self.img.unsubscribe(avg.Node.CURSORDOWN, self.subscriberID)
+            self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID)
             self.downCalled = True
 
         self.downCalled = False
         root = self.loadEmptyScene()
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
-        self.img.subscribe(avg.Node.CURSORDOWN, onDown)
+        self.img.subscribe(avg.Node.CURSOR_DOWN, onDown)
         self.assertException(lambda: self.img.subscribe(23, onDown))
-        self.assertException(lambda: self.img.unsubscribe(avg.Node.CURSORDOWN, 23))
+        self.assertException(lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, 23))
         self.start(False,
                 (lambda: self.fakeClick(10,10),
                  lambda: self.assert_(self.downCalled),
@@ -282,10 +283,10 @@ class EventTestCase(AVGTestCase):
                 self.__downCalled = False
 
             def subscribe(self, node):
-                node.subscribe(avg.Node.CURSORDOWN, self.onDown)
+                node.subscribe(avg.Node.CURSOR_DOWN, self.onDown)
 
             def subscribeLambda(self, node):
-                node.subscribe(avg.Node.CURSORDOWN, lambda event: self.onDown(event))
+                node.subscribe(avg.Node.CURSOR_DOWN, lambda event: self.onDown(event))
 
             def onDown(self, event):
                 self.__downCalled = True
@@ -306,7 +307,7 @@ class EventTestCase(AVGTestCase):
                  removeSubscriber,
                  lambda: self.fakeClick(10,10),
                  lambda: self.assert_(
-                        self.img.getNumSubscribers(avg.Node.CURSORDOWN) == 0)
+                        self.img.getNumSubscribers(avg.Node.CURSOR_DOWN) == 0)
                 ))
 
     def testObscuringEvents(self):
@@ -695,8 +696,8 @@ class EventTestCase(AVGTestCase):
             self.assertEqual(contact.events[0].pos, event.pos)
             self.assertEqual(len(contact.events), 1)
             contact.connectListener(onMotion, onUp)
-            contact.subscribe(avg.Contact.CURSORMOTION, onMotionSubscribe)
-            contact.subscribe(avg.Contact.CURSORUP, onUpSubscribe)
+            contact.subscribe(avg.Contact.CURSOR_MOTION, onMotionSubscribe)
+            contact.subscribe(avg.Contact.CURSOR_UP, onUpSubscribe)
 
         def onMotion(event):
             contact = event.contact
@@ -852,8 +853,8 @@ class EventTestCase(AVGTestCase):
         self.started = False
         self.ended = False
         self.loadEmptyScene()
-        player.subscribe(avg.Player.PLAYBACKSTART, onStart)
-        player.subscribe(avg.Player.PLAYBACKEND, onEnd)
+        player.subscribe(avg.Player.PLAYBACK_START, onStart)
+        player.subscribe(avg.Player.PLAYBACK_END, onEnd)
         self.start(False,
                 (lambda: self.assert_(self.started and not(self.ended)),
                 ))

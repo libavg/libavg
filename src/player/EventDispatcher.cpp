@@ -101,7 +101,7 @@ void EventDispatcher::testAddContact(EventPtr pEvent)
     CursorEventPtr pCursorEvent = dynamic_pointer_cast<CursorEvent>(pEvent);
     if (pCursorEvent) {
         switch (pCursorEvent->getType()) {
-            case Event::CURSORDOWN:
+            case Event::CURSOR_DOWN:
                 if (pCursorEvent->getSource() == Event::MOUSE) {
                     m_NumMouseButtonsDown++;
                     if (m_NumMouseButtonsDown == 1) {
@@ -114,8 +114,8 @@ void EventDispatcher::testAddContact(EventPtr pEvent)
                     m_ContactMap[pCursorEvent->getCursorID()] = pContact;
                 }
                 break;
-            case Event::CURSORMOTION:
-            case Event::CURSORUP: {
+            case Event::CURSOR_MOTION:
+            case Event::CURSOR_UP: {
                     pContact = getContact(pCursorEvent->getCursorID());
                     AVG_ASSERT(pContact || (
                             pCursorEvent->getSource() == Event::MOUSE && 
@@ -125,7 +125,7 @@ void EventDispatcher::testAddContact(EventPtr pEvent)
                     }
                 }
                 break;
-            case Event::CUSTOMEVENT:
+            case Event::CUSTOM_EVENT:
                 break;
             default:
                 cerr << pCursorEvent->typeStr() << endl;
@@ -140,9 +140,9 @@ void EventDispatcher::testAddContact(EventPtr pEvent)
 
 void EventDispatcher::testRemoveContact(EventPtr pEvent)
 {
-    if (pEvent->getType() == Event::CURSORUP) {
+    if (pEvent->getType() == Event::CURSOR_UP) {
         if (pEvent->getSource() == Event::MOUSE) {
-            // The following if is only false if the CURSORDOWN wasn't registered because
+            // The following if is only false if the CURSOR_DOWN wasn't registered because
             // it was outside the application window (or on the window border).
             if (m_NumMouseButtonsDown > 0) {
                 m_NumMouseButtonsDown--;

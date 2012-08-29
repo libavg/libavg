@@ -55,7 +55,7 @@ class Key(avg.DivNode):
             if player.isPlaying():
                 self.__createImage(ovlHref, selHref)
             else:
-                player.subscribe(avg.Player.PLAYBACKSTART, 
+                player.subscribe(avg.Player.PLAYBACK_START, 
                         lambda: self.__createImage(ovlHref, selHref))
 
     def reset(self):
@@ -207,11 +207,11 @@ class Keyboard(avg.DivNode):
         if textarea != None:
             self.__textarea = textarea
             self.setKeyHandler(None, self.__upHandler)
-        self.subscribe(avg.Node.CURSORDOWN, self.__onDown)
+        self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
 
     def __onDown(self, event):
         self.__selectKey(event)
-        for message in avg.Contact.CURSORMOTION, avg.Contact.CURSORUP:
+        for message in avg.Contact.CURSOR_MOTION, avg.Contact.CURSOR_UP:
             event.contact.subscribe(message, self.__selectKey)
 
     def __selectKey(self, event):

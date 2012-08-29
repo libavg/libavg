@@ -46,7 +46,7 @@ typedef boost::shared_ptr<class Contact> ContactPtr;
 
 class AVG_API Contact: public Publisher {
 public:
-    enum MessageID {CURSORMOTION, CURSORUP, LAST_MESSAGEID};
+    enum MessageID {CURSOR_MOTION, CURSOR_UP, LAST_MESSAGEID};
 
     Contact(CursorEventPtr pEvent);
     virtual ~Contact();
