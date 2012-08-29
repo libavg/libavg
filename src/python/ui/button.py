@@ -45,7 +45,7 @@ class SwitchNode(avg.DivNode):
                     self.indexOf(node)
                 except RuntimeError:
                     self.appendChild(node)
-        if self.size != (0,0) and self.size != (100000, 100000):
+        if self.size != (0,0):
             size = self.size
         else:
             key = list(self.__nodeMap.keys())[0]
