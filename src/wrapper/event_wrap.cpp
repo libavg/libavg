@@ -83,27 +83,6 @@ void export_event()
     from_python_sequence<ContourSeq, variable_capacity_policy>();
     from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
 
-    enum_<Event::Type>("Type")
-        .value("KEYUP", Event::KEYUP)
-        .value("KEYDOWN", Event::KEYDOWN)
-        .value("CURSORMOTION", Event::CURSORMOTION)
-        .value("CURSORUP", Event::CURSORUP)
-        .value("CURSORDOWN", Event::CURSORDOWN)
-        .value("CURSOROVER", Event::CURSOROVER)
-        .value("CURSOROUT", Event::CURSOROUT)
-        .value("CUSTOMEVENT", Event::CUSTOMEVENT)
-        .export_values()
-    ;
-
-    enum_<CursorEvent::Source>("Source")
-        .value("MOUSE", CursorEvent::MOUSE)
-        .value("TOUCH", CursorEvent::TOUCH)
-        .value("TRACK", CursorEvent::TRACK)
-        .value("CUSTOM", Event::CUSTOM)
-        .value("NONE", Event::NONE)
-        .export_values()
-    ;
-
     enum_<int>("KeyModifier")
         .value("KEYMOD_NONE", key::KEYMOD_NONE)
         .value("KEYMOD_LSHIFT", key::KEYMOD_LSHIFT)
@@ -125,16 +104,40 @@ void export_event()
         .export_values()
     ;
 
-    class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source,
-            optional<int> >())
+    scope mainScope;
+
+    scope eventScope = class_<Event, boost::noncopyable>("Event", init<Event::Type,
+            Event::Source, optional<int> >())
         .add_property("type", &Event::getType)
         .add_property("source", &Event::getSource)
         .add_property("when", &Event::getWhen)
         .add_property("inputdevice", &Event::getInputDevice)
-        .add_property("inputdevicename",
-                      make_function(&Event::getInputDeviceName,
-                                    return_value_policy<copy_const_reference>()))
+        .add_property("inputdevicename", make_function(&Event::getInputDeviceName,
+                return_value_policy<copy_const_reference>()))
     ;
+
+    enum_<Event::Type>("Type")
+        .value("KEY_UP", Event::KEYUP)
+        .value("KEY_DOWN", Event::KEYDOWN)
+        .value("CURSOR_MOTION", Event::CURSORMOTION)
+        .value("CURSOR_UP", Event::CURSORUP)
+        .value("CURSOR_DOWN", Event::CURSORDOWN)
+        .value("CURSOR_OVER", Event::CURSOROVER)
+        .value("CURSOR_OUT", Event::CURSOROUT)
+        .value("CUSTOM_EVENT", Event::CUSTOMEVENT)
+        .export_values()
+    ;
+
+    enum_<CursorEvent::Source>("Source")
+        .value("MOUSE", CursorEvent::MOUSE)
+        .value("TOUCH", CursorEvent::TOUCH)
+        .value("TRACK", CursorEvent::TRACK)
+        .value("CUSTOM", Event::CUSTOM)
+        .value("NONE", Event::NONE)
+        .export_values()
+    ;
+
+    scope oldScope1(mainScope);
 
     class_<CursorEvent, boost::shared_ptr<CursorEvent>, bases<Event> >("CursorEvent", 
             no_init)
@@ -183,8 +186,6 @@ void export_event()
         .def("getContour", &TouchEvent::getContour)
         ;
 
-    scope mainScope;
-
     scope contactScope = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >("Contact", no_init)
         .add_property("id", &Contact::getID)
         .add_property("age", &Contact::getAge)
@@ -206,7 +207,7 @@ void export_event()
         .export_values()
         ;
 
-    scope oldScope(mainScope);
+    scope oldScope2(mainScope);
 
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
