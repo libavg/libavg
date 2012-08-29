@@ -38,8 +38,6 @@
 using namespace std;
 using namespace boost;
 
-#define DEFAULT_SIZE 100000
-
 namespace avg {
 
 
@@ -98,9 +96,6 @@ void DivNode::disconnect(bool bKill)
 glm::vec2 DivNode::getPivot() const
 {
     glm::vec2 pivot = AreaNode::getPivot();
-    if (pivot == glm::vec2(DEFAULT_SIZE / 2, DEFAULT_SIZE / 2)) {
-        return glm::vec2(0, 0);
-    }
     return pivot;
 }
 
@@ -275,7 +270,7 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
 void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (reactsToMouseEvents() &&
-            ((getSize() == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE) ||
+            ((getSize() == glm::vec2(0,0) ||
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i = getNumChildren()-1; i >= 0; i--) {
@@ -288,7 +283,7 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
             }
         }
         // pos isn't in any of the children.
-        if (getSize() != glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
+        if (getSize() != glm::vec2(0,0)) {
             // Explicit width/height given for div - div reacts on its own.
             pElements.push_back(getSharedThis());
         }
@@ -299,7 +294,7 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (getCrop()) {
+    if (getCrop() && getSize() != glm::vec2(0,0)) {
         pVA->startSubVA(m_ClipVA);
         glm::vec2 viewport = getSize();
         m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
@@ -316,13 +311,13 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 void DivNode::render()
 {
     const glm::mat4& transform = getTransform();
-    if (getCrop()) {
+    if (getCrop() && getSize() != glm::vec2(0,0)) {
         getCanvas()->pushClipRect(transform, m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getChild(i)->maybeRender(transform);
     }
-    if (getCrop()) {
+    if (getCrop() && getSize() != glm::vec2(0,0)) {
         getCanvas()->popClipRect(transform, m_ClipVA);
     }
 }
@@ -332,7 +327,7 @@ void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor)
     Pixel32 effColor = getEffectiveOutlineColor(parentColor);
     if (effColor != Pixel32(0,0,0,0)) {
         glm::vec2 size = getSize();
-        if (size == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
+        if (size == glm::vec2(0,0)) {
             glm::vec2 p0 = getAbsPos(glm::vec2(-4, 0.5));
             glm::vec2 p1 = getAbsPos(glm::vec2(5, 0.5));
             glm::vec2 p2 = getAbsPos(glm::vec2(0.5, -4));
@@ -384,7 +379,7 @@ string DivNode::dump(int indent)
 
 IntPoint DivNode::getMediaSize()
 {
-    return IntPoint(DEFAULT_SIZE, DEFAULT_SIZE);
+    return IntPoint(0, 0);
 }
  
 bool DivNode::isChildTypeAllowed(const string& sType)

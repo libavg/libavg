@@ -263,7 +263,7 @@ class PlayerTestCase(AVGTestCase):
         root = self.__initDefaultRotateScene()
         root.elementoutlinecolor = "FFFFFF"
         innerDiv = player.getElementByID("inner")
-        innerDiv.size = (100000, 100000)
+        innerDiv.size = (0, 0)
         innerDiv.getChild(0).elementoutlinecolor = "00FF00"
         self.start(False, [lambda: self.compareImage("testOutlines")])
 
