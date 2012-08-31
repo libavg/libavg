@@ -149,8 +149,8 @@ class EventTestCase(AVGTestCase):
                  lambda: imgHandlerTester.assertState(
                         down=True, up=False, over=True, out=False, move=False),
 
-                 lambda: Helper.fakeMouseEvent(avg.Event.CURSOR_MOTION, True, False, False,
-                        12, 12, 1),
+                 lambda: Helper.fakeMouseEvent(avg.Event.CURSOR_MOTION, True, False, 
+                        False, 12, 12, 1),
                  lambda: divHandlerTester.assertState(
                         down=False, up=False, over=False, out=False, move=True),
                  lambda: imgHandlerTester.assertState(
@@ -163,6 +163,24 @@ class EventTestCase(AVGTestCase):
                  lambda: imgHandlerTester.assertState(
                         down=False, up=True, over=False, out=False, move=False)
                 ))
+
+    def testDivNegativePos(self):
+        root = self.loadEmptyScene()
+        div = avg.DivNode(pos=(10,10), parent=root)
+        divHandlerTester = NodeHandlerTester(self, div)
+
+        img = avg.ImageNode(pos=(-10,-10), href="rgb24-65x65.png", parent=div)
+        imgHandlerTester = NodeHandlerTester(self, img)
+        
+        self.start(False,
+                (lambda: Helper.fakeMouseEvent(avg.Event.CURSOR_DOWN, True, False, False,
+                        1, 1, 1),
+                 lambda: divHandlerTester.assertState(
+                        down=True, up=False, over=True, out=False, move=False),
+                 lambda: imgHandlerTester.assertState(
+                        down=True, up=False, over=True, out=False, move=False),
+                ))
+
 
     def testUnlinkInHandler(self):
         def onImgDown(event):
@@ -870,6 +888,7 @@ def eventTestSuite(tests):
             "testSimpleEvents",
             "testTilted",
             "testDivEvents",
+            "testDivNegativePos",
             "testUnlinkInHandler",
             "testConnectHandler",
             "testPublisher",
