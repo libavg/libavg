@@ -21,18 +21,18 @@
 
 import avg
 print avg.Event.KEY_UP
-avg.Event.KEY_UP = avg.Event.KEY_UP
-avg.Event.KEY_DOWN = avg.Event.KEY_DOWN
-avg.Event.CURSOR_MOTION = avg.Event.CURSOR_MOTION
-avg.Event.CURSOR_UP = avg.Event.CURSOR_UP
-avg.Event.CURSOR_DOWN = avg.Event.CURSOR_DOWN
-avg.Event.CURSOR_OVER = avg.Event.CURSOR_OVER
-avg.Event.CURSOR_OUT = avg.Event.CURSOR_OUT
-avg.Event.CUSTOMEVENT = avg.Event.CUSTOM_EVENT
+avg.KEYUP = avg.Event.KEY_UP
+avg.KEYDOWN = avg.Event.KEY_DOWN
+avg.CURSORMOTION = avg.Event.CURSOR_MOTION
+avg.CURSORUP = avg.Event.CURSOR_UP
+avg.CURSORDOWN = avg.Event.CURSOR_DOWN
+avg.CURSOROVER = avg.Event.CURSOR_OVER
+avg.CURSOROUT = avg.Event.CURSOR_OUT
+avg.CUSTOMEVENT = avg.Event.CUSTOM_EVENT
 
-avg.Event.MOUSE = avg.Event.MOUSE
-avg.Event.TOUCH = avg.Event.TOUCH
-avg.Event.TRACK = avg.Event.TRACK
-avg.Event.CUSTOM = avg.Event.CUSTOM
-avg.Event.NONE = avg.Event.NONE
+avg.MOUSE = avg.Event.MOUSE
+avg.TOUCH = avg.Event.TOUCH
+avg.TRACK = avg.Event.TRACK
+avg.CUSTOM = avg.Event.CUSTOM
+avg.NONE = avg.Event.NONE
 
