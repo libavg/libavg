@@ -77,7 +77,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void swapBuffers();
 
     private:
-        void initSDL(int width, int height, bool isFullscreen, int bpp);
+        void initGLState();
+        IntPoint calcWindowSize(const DisplayParams& dp) const;
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);
 

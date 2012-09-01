@@ -41,6 +41,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
+struct SDL_SysWMinfo;
+
 namespace avg {
 
 class GLContext;
@@ -52,9 +54,8 @@ typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
 class AVG_API GLContext {
 public:
-    GLContext(bool bUseCurrent=false, 
-            const GLConfig& glConfig=GLConfig(false, true, 1, GLConfig::AUTO), 
-            GLContext* pSharedContext=0);
+    GLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+            const SDL_SysWMinfo* pSDLWMInfo=0, GLContext* pSharedContext=0);
     virtual ~GLContext();
     void init();
 
@@ -86,7 +87,8 @@ public:
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
     bool initVBlank(int rate);
-    
+    void swapBuffers();
+
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
     static void mandatoryCheckError(const char* pszWhere);
@@ -96,6 +98,8 @@ public:
     static GLContext* getCurrent();
     static GLContext* getMain();
     static void setMain(GLContext * pMainContext);
+
+    static int nextMultiSampleValue(int curSamples);
 
 private:
     void checkGPUMemInfoSupport();
@@ -111,6 +115,9 @@ private:
 #ifdef __APPLE__
     CGLContextObj m_Context;
 #elif defined linux
+    void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+            const SDL_SysWMinfo* pSDLWMInfo);
+
     Display* m_pDisplay;
     GLXDrawable m_Drawable;
     GLXContext m_Context;
@@ -121,7 +128,7 @@ private:
 #endif
  
     bool m_bOwnsContext;
-
+    
     ShaderRegistryPtr m_pShaderRegistry;
     StandardShaderPtr m_pStandardShader;
 

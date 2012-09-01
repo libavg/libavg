@@ -50,12 +50,12 @@
 #include "OffscreenCanvas.h"
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_syswm.h>
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 #ifdef linux
-#include <SDL/SDL_syswm.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
 
@@ -84,14 +84,6 @@ using namespace std;
 namespace avg {
 
 float SDLDisplayEngine::s_RefreshRate = 0.0;
-
-void safeSetAttribute(SDL_GLattr attr, int value) 
-{
-    int err = SDL_GL_SetAttribute(attr, value);
-    if (err == -1) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
-    }
-}
 
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
@@ -136,52 +128,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
-    float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
-    if (dp.m_WindowSize == IntPoint(0, 0)) {
-        m_WindowSize = dp.m_Size;
-    } else if (dp.m_WindowSize.x == 0) {
-        m_WindowSize.x = int(dp.m_WindowSize.y*aspectRatio);
-        m_WindowSize.y = dp.m_WindowSize.y;
-    } else {
-        m_WindowSize.x = dp.m_WindowSize.x;
-        m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
-    }
-    AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
-    switch (dp.m_BPP) {
-        case 32:
-            safeSetAttribute(SDL_GL_RED_SIZE, 8);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 8);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 8);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 32);
-            break;
-        case 24:
-            safeSetAttribute(SDL_GL_RED_SIZE, 8);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 8);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 8);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 24);
-            break;
-        case 16:
-            safeSetAttribute(SDL_GL_RED_SIZE, 5);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 6);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 5);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 16);
-            break;
-        case 15:
-            safeSetAttribute(SDL_GL_RED_SIZE, 5);
-            safeSetAttribute(SDL_GL_GREEN_SIZE, 5);
-            safeSetAttribute(SDL_GL_BLUE_SIZE, 5);
-            safeSetAttribute(SDL_GL_BUFFER_SIZE, 15);
-            break;
-        default:
-            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
-                    "in SDLDisplayEngine::init()");
-            exit(-1);
-    }
-    safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
-    safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); 
-    unsigned int Flags = SDL_OPENGL;
+    m_WindowSize = calcWindowSize(dp);
+    unsigned int Flags = 0;
     if (dp.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
     }
@@ -191,44 +139,60 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         Flags |= SDL_NOFRAME;
     }
 
-    bool bAllMultisampleValuesTested = false;
+#ifndef linux
+    switch (dp.m_BPP) {
+        case 24:
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
+            break;
+        case 16:
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
+            break;
+        default:
+            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
+                    "in SDLDisplayEngine::init()");
+            exit(-1);
+    }
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
+    Flags |= SDL_OPENGL;
+
     m_pScreen = 0;
-    while (!bAllMultisampleValuesTested && !m_pScreen) {
+    while (glConfig.m_MultiSampleSamples && !m_pScreen) {
         if (glConfig.m_MultiSampleSamples > 1) {
-            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, glConfig.m_MultiSampleSamples);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, glConfig.m_MultiSampleSamples);
         } else {
-            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
         m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
         if (!m_pScreen) {
-            switch (glConfig.m_MultiSampleSamples) {
-                case 1:
-                    bAllMultisampleValuesTested = true;
-                    break;
-                case 2:  
-                    glConfig.m_MultiSampleSamples = 1;
-                    break;
-                case 4:  
-                    glConfig.m_MultiSampleSamples = 2;
-                    break;
-                case 8:  
-                    glConfig.m_MultiSampleSamples = 4;
-                    break;
-                default:
-                    glConfig.m_MultiSampleSamples = 8;
-                    break;
-            }
+            glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
+                    glConfig.m_MultiSampleSamples);
         }
     }
+#else
+    // Linux version: Context created manually, not by SDL
+    m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+#endif
     if (!m_pScreen) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
                 + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
-                toString(dp.m_BPP) + ", multisamplesamples=" + 
-                toString(glConfig.m_MultiSampleSamples) + ").");
+                toString(dp.m_BPP) + ").");
     }
-    m_pGLContext = new GLContext(true, glConfig);
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    int rc = SDL_GetWMInfo(&info);
+    AVG_ASSERT(rc != -1);
+    m_pGLContext = new GLContext(glConfig, m_WindowSize, &info);
     GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
@@ -237,41 +201,14 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 #endif
     SDL_WM_SetCaption("libavg", 0);
     calcRefreshRate();
+    initGLState();
 
-    glEnable(GL_BLEND);
-    GLContext::checkError("init: glEnable(GL_BLEND)");
-    glShadeModel(GL_FLAT);
-    GLContext::checkError("init: glShadeModel(GL_FLAT)");
-    glDisable(GL_DEPTH_TEST);
-    GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
-    glEnable(GL_STENCIL_TEST);
-    GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    GLContext::checkError("init: glTexEnvf()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    if (!queryOGLExtension("GL_ARB_vertex_buffer_object")) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-            "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
-    }
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnable(GL_TEXTURE_2D);
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
     if (dp.m_Framerate == 0) {
         setVBlankRate(dp.m_VBRate);
     } else {
         setFramerate(dp.m_Framerate);
-    }
-    glproc::UseProgramObject(0);
-    if (m_pGLContext->useMinimalShader()) {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
     }
 
     m_Size = dp.m_Size;
@@ -380,7 +317,11 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 void SDLDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
+#ifdef linux    
+    m_pGLContext->swapBuffers();
+#else
     SDL_GL_SwapBuffers();
+#endif
     GLContext::checkError("swapBuffers()");
 }
 
@@ -437,25 +378,36 @@ void SDLDisplayEngine::calcRefreshRate()
     float lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
 #ifdef __APPLE__
-    CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
-    if (modeInfo) {
-        CFNumberRef value = (CFNumberRef) CFDictionaryGetValue(modeInfo, 
-                kCGDisplayRefreshRate);
-        if (value) {
-            CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
-            if (s_RefreshRate < 1.0) {
-                AVG_TRACE(Logger::CONFIG, 
-                        "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
-                s_RefreshRate = 60;
+    #if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+        CGDisplayModeRef mode = CGDisplayCopyDisplayMode(CGMainDisplayID());
+        s_RefreshRate = CGDisplayModeGetRefreshRate(mode);
+        if (s_RefreshRate < 1.0) {
+            AVG_TRACE(Logger::CONFIG, 
+                    "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
+            s_RefreshRate = 60;
+        }
+        CGDisplayModeRelease(mode);
+    #else
+        CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
+        if (modeInfo) {
+            CFNumberRef value = (CFNumberRef) CFDictionaryGetValue(modeInfo, 
+                    kCGDisplayRefreshRate);
+            if (value) {
+                CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
+                if (s_RefreshRate < 1.0) {
+                    AVG_TRACE(Logger::CONFIG, 
+                           "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
+                    s_RefreshRate = 60;
+                }
+            } else {
+                AVG_TRACE(Logger::WARNING, 
+                        "Apple refresh rate calculation (CFDictionaryGetValue) failed");
             }
         } else {
             AVG_TRACE(Logger::WARNING, 
-                    "Apple refresh rate calculation (CFDictionaryGetValue) failed");
+                    "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
         }
-    } else {
-        AVG_TRACE(Logger::WARNING, 
-                "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
-    }
+    #endif
 #elif defined _WIN32
     // This isn't correct for multi-monitor systems.
     HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
@@ -468,7 +420,7 @@ void SDLDisplayEngine::calcRefreshRate()
     Display * pDisplay = XOpenDisplay(0);
     int pixelClock;
     XF86VidModeModeLine modeLine;
-    bool bOK = XF86VidModeGetModeLine (pDisplay, DefaultScreen(pDisplay), 
+    bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
             &pixelClock, &modeLine);
     if (!bOK) {
         AVG_TRACE (Logger::WARNING, 
@@ -700,8 +652,59 @@ EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdl
 
     KeyEventPtr pEvent(new KeyEvent(type,
             sdlEvent.key.keysym.scancode, keyCode,
-            SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode, modifiers));
+            SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode,
+                    modifiers));
     return pEvent;
+}
+
+void SDLDisplayEngine::initGLState()
+{
+    glEnable(GL_BLEND);
+    GLContext::checkError("init: glEnable(GL_BLEND)");
+    glShadeModel(GL_FLAT);
+    GLContext::checkError("init: glShadeModel(GL_FLAT)");
+    glDisable(GL_DEPTH_TEST);
+    GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
+    glEnable(GL_STENCIL_TEST);
+    GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    GLContext::checkError("init: glTexEnvf()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    if (!queryOGLExtension("GL_ARB_vertex_buffer_object")) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+            "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
+    }
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnable(GL_TEXTURE_2D);
+    
+    glproc::UseProgramObject(0);
+    if (m_pGLContext->useMinimalShader()) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+    }
+}
+
+IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
+{
+    float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
+    IntPoint windowSize;
+    if (dp.m_WindowSize == IntPoint(0, 0)) {
+        windowSize = dp.m_Size;
+    } else if (dp.m_WindowSize.x == 0) {
+        windowSize.x = int(dp.m_WindowSize.y*aspectRatio);
+        windowSize.y = dp.m_WindowSize.y;
+    } else {
+        windowSize.x = dp.m_WindowSize.x;
+        windowSize.y = int(dp.m_WindowSize.x/aspectRatio);
+    }
+    AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
+    return windowSize;
 }
 
 void SDLDisplayEngine::initTranslationTable()
