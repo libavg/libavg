@@ -492,8 +492,8 @@ void VideoNode::createTextures(IntPoint size)
     if (pixelFormatIsPlanar(pf)) {
         m_pTextures[0] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap));
-        m_pTextures[2] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap));
+        m_pTextures[1] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap, 128));
+        m_pTextures[2] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap, 128));
         if (pixelFormatHasAlpha(pf)) {
             m_pTextures[3] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
         }
