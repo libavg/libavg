@@ -140,13 +140,24 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     pShader->setPremultipliedAlpha(bPremultipliedAlpha);
     if (m_pMaskTexture) {
         m_pMaskTexture->activate(GL_TEXTURE4);
-        // maskScale is (1,1) for everything excepting words nodes.
-        glm::vec2 maskScale(1,1);
+        // Special case for pot textures: 
+        //   The tex coords in the vertex array are scaled to fit the image texture. We 
+        //   need to undo this and fit to the mask texture. In the npot case, everything
+        //   evaluates to (1,1);
+        glm::vec2 texSize = glm::vec2(m_pTextures[0]->getGLSize());
+        glm::vec2 imgSize = glm::vec2(m_pTextures[0]->getSize());
+        glm::vec2 maskTexSize = glm::vec2(m_pMaskTexture->getGLSize());
+        glm::vec2 maskImgSize = glm::vec2(m_pMaskTexture->getSize());
+        glm::vec2 maskScale = glm::vec2(maskTexSize.x/maskImgSize.x, 
+                maskTexSize.y/maskImgSize.y);
+        glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
+        
+        // Special case for words nodes.
         if (logicalSize != IntPoint(0,0)) {
-            maskScale = glm::vec2((float)logicalSize.x/m_Size.x, 
+            maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 
                     (float)logicalSize.y/m_Size.y);
         }
-        pShader->setMask(true, m_MaskPos, m_MaskSize*maskScale);
+        pShader->setMask(true, m_MaskPos/maskScale, m_MaskSize*maskScale/imgScale);
     } else {
         pShader->setMask(false);
     }
