@@ -661,8 +661,6 @@ void SDLDisplayEngine::initGLState()
 {
     glEnable(GL_BLEND);
     GLContext::checkError("init: glEnable(GL_BLEND)");
-    glShadeModel(GL_FLAT);
-    GLContext::checkError("init: glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
     GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);

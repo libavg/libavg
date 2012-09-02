@@ -269,6 +269,12 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
         if (haveARBCreateContext()) {
             int contextAttribs[] =
             {
+/*
+                GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
+                GLX_CONTEXT_MINOR_VERSION_ARB, 0,
+                GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT,
+*/
+//                GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
                 None
             };
             PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
@@ -355,8 +361,10 @@ void GLContext::init()
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
     enableGLColorArray(false);
+    checkError("enableGLColorArray");
     setBlendMode(BLEND_BLEND, false);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    checkError("glColor4f");
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
@@ -475,19 +483,6 @@ void GLContext::setBlendColor(const glm::vec4& color)
     }
 }
 
-void checkBlendModeError(const char * sMode) 
-{    
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        static bool bErrorReported = false;
-        if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "<< sMode <<
-                    " not supported by OpenGL implementation.");
-            bErrorReported = true;
-        }
-    }
-}
-
 void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 {
     GLenum srcFunc;
@@ -502,28 +497,29 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
                 glproc::BlendEquation(GL_FUNC_ADD);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("blend");
+                checkError("setBlendMode: blend");
                 break;
             case BLEND_ADD:
                 glproc::BlendEquation(GL_FUNC_ADD);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE, GL_ONE, GL_ONE);
-                checkBlendModeError("add");
+                checkError("setBlendMode: add");
                 break;
             case BLEND_MIN:
                 glproc::BlendEquation(GL_MIN);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("min");
+                checkError("setBlendMode: min");
                 break;
             case BLEND_MAX:
                 glproc::BlendEquation(GL_MAX);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("max");
+                checkError("setBlendMode: max");
                 break;
             case BLEND_COPY:
                 glproc::BlendEquation(GL_FUNC_ADD);
                 glBlendFunc(GL_ONE, GL_ZERO);
+                checkError("setBlendMode: copy");
                 break;
             default:
                 AVG_ASSERT(false);
