@@ -119,6 +119,7 @@ private:
             const SDL_SysWMinfo* pSDLWMInfo);
 
     Display* m_pDisplay;
+    Colormap m_Colormap;
     GLXDrawable m_Drawable;
     GLXContext m_Context;
 #elif defined _WIN32
