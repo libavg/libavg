@@ -285,7 +285,7 @@ class UITestCase(AVGTestCase):
                     disabledNode = avg.ImageNode(href="button_disabled.png"),
                     **kwargs
                     )
-            button.subscribe(ui.Button.CLICK, onClick)
+            button.subscribe(ui.Button.CLICKED, onClick)
             return button
 
         def runTest():
@@ -351,7 +351,7 @@ class UITestCase(AVGTestCase):
                 downSrc = "button_down.png",
                 disabledSrc = "button_disabled.png",
                 )
-        button.subscribe(ui.Button.CLICK, onClick)
+        button.subscribe(ui.Button.CLICKED, onClick)
         runTest()
        
         button = createScene(enabled=False)
@@ -383,7 +383,7 @@ class UITestCase(AVGTestCase):
                     parent=root,
                     **kwargs
                    )
-            button.subscribe(ui.ToggleButton.TOGGLE, onCheck)
+            button.subscribe(ui.ToggleButton.TOGGLED, onCheck)
             return button
 
         def testToggle():
@@ -465,7 +465,7 @@ class UITestCase(AVGTestCase):
                     uncheckedDisabledSrc="toggle_unchecked_Disabled.png",
                     checkedDisabledSrc="toggle_checked_Disabled.png",
                     parent=root)
-            button.subscribe(ui.ToggleButton.TOGGLE, onCheck)
+            button.subscribe(ui.ToggleButton.TOGGLED, onCheck)
             self.start(False,
                     (lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),

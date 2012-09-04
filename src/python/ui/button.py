@@ -134,7 +134,7 @@ class _ButtonBase(avg.DivNode):
 
 class Button(_ButtonBase):
 
-    CLICK = _ButtonBase.LAST_MESSAGE_ID
+    CLICKED = _ButtonBase.LAST_MESSAGE_ID
     LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID + 1
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
@@ -150,7 +150,7 @@ class Button(_ButtonBase):
             "DISABLED": disabledNode
         }
         self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UP", parent=self)
-        self.publish(Button.CLICK)
+        self.publish(Button.CLICKED)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -186,7 +186,7 @@ class Button(_ButtonBase):
 
     def _onTap(self):
         self.__stateMachine.changeState("UP")
-        self.notifySubscribers(Button.CLICK, [])
+        self.notifySubscribers(Button.CLICKED, [])
 
     def _onTapFail(self):
         self.__stateMachine.changeState("UP")
@@ -228,7 +228,7 @@ class BmpButton(Button):
 
 class ToggleButton(_ButtonBase):
     
-    TOGGLE = _ButtonBase.LAST_MESSAGE_ID
+    TOGGLED = _ButtonBase.LAST_MESSAGE_ID
     LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID+1
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
@@ -250,7 +250,7 @@ class ToggleButton(_ButtonBase):
         self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UNCHECKED_UP", 
                 parent=self)
 
-        self.publish(ToggleButton.TOGGLE)
+        self.publish(ToggleButton.TOGGLED)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
@@ -376,10 +376,10 @@ class ToggleButton(_ButtonBase):
     def _onTap(self):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
-            self.notifySubscribers(ToggleButton.TOGGLE, [True])
+            self.notifySubscribers(ToggleButton.TOGGLED, [True])
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
-            self.notifySubscribers(ToggleButton.TOGGLE, [False])
+            self.notifySubscribers(ToggleButton.TOGGLED, [False])
 
     def _onTapFail(self):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
