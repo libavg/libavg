@@ -75,7 +75,7 @@ class AVG_API Player: public Publisher
     public:
         enum MessageID {KEY_DOWN, KEY_UP, 
                 PLAYBACK_START, PLAYBACK_END,
-                LAST_MESSAGEID};
+                LAST_MESSAGE_ID};
 
         Player();
         virtual ~Player();

@@ -134,7 +134,8 @@ class _ButtonBase(avg.DivNode):
 
 class Button(_ButtonBase):
 
-    CLICK = _ButtonBase.LAST_MESSAGEID
+    CLICKED = _ButtonBase.LAST_MESSAGE_ID
+    LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID + 1
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             enabled=True, fatFingerEnlarge=False, clickHandler=None,
@@ -150,9 +151,9 @@ class Button(_ButtonBase):
             "DISABLED": disabledNode
         }
         self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UP", parent=self)
-        self.publish(Button.CLICK)
+        self.publish(Button.CLICKED)
         if clickHandler:
-            self.subscribe(Button.CLICK, clickHandler)
+            self.subscribe(Button.CLICKED, clickHandler)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -188,7 +189,7 @@ class Button(_ButtonBase):
 
     def _onTap(self):
         self.__stateMachine.changeState("UP")
-        self.notifySubscribers(Button.CLICK, [])
+        self.notifySubscribers(Button.CLICKED, [])
 
     def _onTapFail(self):
         self.__stateMachine.changeState("UP")
@@ -230,8 +231,8 @@ class BmpButton(Button):
 
 class ToggleButton(_ButtonBase):
     
-    TOGGLE = _ButtonBase.LAST_MESSAGEID
-    LAST_MESSAGEID = _ButtonBase.LAST_MESSAGEID+1
+    TOGGLE = _ButtonBase.LAST_MESSAGE_ID
+    LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID+1
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,

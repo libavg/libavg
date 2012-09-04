@@ -73,7 +73,7 @@ class AVG_API Node: public Publisher
         enum MessageID {CURSOR_DOWN, CURSOR_MOTION, CURSOR_UP, CURSOR_OVER, CURSOR_OUT, 
                 HOVER_DOWN, HOVER_MOTION, HOVER_UP, HOVER_OVER, HOVER_OUT,
                 END_OF_FILE, // Used by Video and Sound nodes.
-                LAST_MESSAGEID};
+                LAST_MESSAGE_ID};
 
         static NodeDefinition createDefinition();
         template<class NodeType>

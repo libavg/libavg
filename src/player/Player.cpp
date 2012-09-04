@@ -172,7 +172,7 @@ Player::Player()
         debugBreak();
     }
     
-    for (int msgID = KEY_DOWN; msgID != LAST_MESSAGEID; msgID++) {
+    for (int msgID = KEY_DOWN; msgID != LAST_MESSAGE_ID; msgID++) {
         publish(msgID);
     }
 

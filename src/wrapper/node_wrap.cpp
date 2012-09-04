@@ -138,7 +138,7 @@ void export_node()
         .value("HOVER_OVER", Node::HOVER_OVER)
         .value("HOVER_OUT", Node::HOVER_OUT)
         .value("END_OF_FILE", Node::END_OF_FILE)
-        .value("LAST_MESSAGEID", Node::LAST_MESSAGEID)
+        .value("LAST_MESSAGE_ID", Node::LAST_MESSAGE_ID)
         .export_values()
         ;
 

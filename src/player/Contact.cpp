@@ -45,7 +45,7 @@ Contact::Contact(CursorEventPtr pEvent)
 {
     m_Events.push_back(pEvent);
 
-    for (int msgID = CURSOR_MOTION; msgID != LAST_MESSAGEID; msgID++) {
+    for (int msgID = CURSOR_MOTION; msgID != LAST_MESSAGE_ID; msgID++) {
         publish(msgID);
     }
 }
