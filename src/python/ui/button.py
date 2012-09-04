@@ -135,7 +135,9 @@ class _ButtonBase(avg.DivNode):
 class Button(_ButtonBase):
 
     CLICKED = _ButtonBase.LAST_MESSAGE_ID
-    LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID + 1
+    PRESSED = _ButtonBase.LAST_MESSAGE_ID + 1
+    RELEASED = _ButtonBase.LAST_MESSAGE_ID + 2
+    LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID + 3
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             enabled=True, fatFingerEnlarge=False, **kwargs):
@@ -151,6 +153,8 @@ class Button(_ButtonBase):
         }
         self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UP", parent=self)
         self.publish(Button.CLICKED)
+        self.publish(Button.PRESSED)
+        self.publish(Button.RELEASED)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -183,13 +187,16 @@ class Button(_ButtonBase):
 
     def _onDown(self):
         self.__stateMachine.changeState("DOWN")
+        self.notifySubscribers(Button.PRESSED, [])
 
     def _onTap(self):
         self.__stateMachine.changeState("UP")
         self.notifySubscribers(Button.CLICKED, [])
+        self.notifySubscribers(Button.RELEASED, [])
 
     def _onTapFail(self):
         self.__stateMachine.changeState("UP")
+        self.notifySubscribers(Button.RELEASED, [])
 
     def _enterUp(self):
         self.__setActiveNode()
