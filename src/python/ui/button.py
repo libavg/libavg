@@ -134,12 +134,11 @@ class _ButtonBase(avg.DivNode):
 
 class Button(_ButtonBase):
 
-    CLICKED = _ButtonBase.LAST_MESSAGE_ID
+    CLICK = _ButtonBase.LAST_MESSAGE_ID
     LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID + 1
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
-            enabled=True, fatFingerEnlarge=False, clickHandler=None,
-            **kwargs):
+            enabled=True, fatFingerEnlarge=False, **kwargs):
         super(Button, self).__init__(**kwargs)
 
         if disabledNode == None:
@@ -151,9 +150,7 @@ class Button(_ButtonBase):
             "DISABLED": disabledNode
         }
         self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UP", parent=self)
-        self.publish(Button.CLICKED)
-        if clickHandler:
-            self.subscribe(Button.CLICKED, clickHandler)
+        self.publish(Button.CLICK)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -189,7 +186,7 @@ class Button(_ButtonBase):
 
     def _onTap(self):
         self.__stateMachine.changeState("UP")
-        self.notifySubscribers(Button.CLICKED, [])
+        self.notifySubscribers(Button.CLICK, [])
 
     def _onTapFail(self):
         self.__stateMachine.changeState("UP")
@@ -236,8 +233,7 @@ class ToggleButton(_ButtonBase):
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
-            enabled=True, fatFingerEnlarge=False, toggleHandler=None,
-            checked=False, **kwargs):
+            enabled=True, fatFingerEnlarge=False, checked=False, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
         nodeMap = {
             "UNCHECKED_UP": uncheckedUpNode, 
@@ -255,8 +251,6 @@ class ToggleButton(_ButtonBase):
                 parent=self)
 
         self.publish(ToggleButton.TOGGLE)
-        if toggleHandler:
-            self.subscribe(ToggleButton.TOGGLE, toggleHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
         self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",

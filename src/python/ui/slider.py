@@ -213,7 +213,7 @@ class Slider(avg.DivNode):
 
     def __init__(self, trackNode, thumbNode,
             enabled=True, orientation=Orientation.HORIZONTAL, range=(0.,1.), 
-            thumbpos=0.0, thumbPosChangedHandler=None, parent=None, **kwargs):
+            thumbpos=0.0, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         
@@ -234,8 +234,6 @@ class Slider(avg.DivNode):
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onUp)
         self.publish(Slider.THUMB_POS_CHANGED)
-        if thumbPosChangedHandler:
-            self.subscribe(Slider.THUMB_POS_CHANGED, thumbPosChangedHandler)
 
         if not(enabled):
             self.setEnabled(False)
