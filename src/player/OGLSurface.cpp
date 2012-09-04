@@ -151,13 +151,13 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
         glm::vec2 maskScale = glm::vec2(maskTexSize.x/maskImgSize.x, 
                 maskTexSize.y/maskImgSize.y);
         glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
-        
+        glm::vec2 maskPos = m_MaskPos/maskScale;
         // Special case for words nodes.
         if (logicalSize != IntPoint(0,0)) {
             maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 
                     (float)logicalSize.y/m_Size.y);
         }
-        pShader->setMask(true, m_MaskPos/maskScale, m_MaskSize*maskScale/imgScale);
+        pShader->setMask(true, maskPos, m_MaskSize*maskScale/imgScale);
     } else {
         pShader->setMask(false);
     }
