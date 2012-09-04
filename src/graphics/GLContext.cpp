@@ -28,6 +28,9 @@
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_syswm.h>
+
 #include <iostream>
 
 
@@ -48,47 +51,35 @@ LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void registerWindowClass()
 {
-  static char * pClassName;
-  if (pClassName) {
-      return;
-  }
-  pClassName = "GL";
+    static char * pClassName;
+    if (pClassName) {
+        return;
+    }
+    pClassName = "GL";
 
-  HINSTANCE hInstance = GetModuleHandle(NULL);
-  WNDCLASS  wc;
-  memset(&wc, 0, sizeof(WNDCLASS));
-  wc.style = CS_OWNDC;
-  wc.lpfnWndProc = (WNDPROC)imagingWindowProc;
-  wc.hInstance = hInstance;
-  wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-  wc.hCursor = LoadCursor(hInstance, IDC_ARROW);
-  wc.hbrBackground = NULL;
-  wc.lpszMenuName = NULL;
-  wc.lpszClassName = pClassName;
-  
-  BOOL bOK = RegisterClass(&wc);
-  AVG_ASSERT(bOK);
-}
-#endif
+    HINSTANCE hInstance = GetModuleHandle(NULL);
+    WNDCLASS  wc;
+    memset(&wc, 0, sizeof(WNDCLASS));
+    wc.style = CS_OWNDC;
+    wc.lpfnWndProc = (WNDPROC)imagingWindowProc;
+    wc.hInstance = hInstance;
+    wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+    wc.hCursor = LoadCursor(hInstance, IDC_ARROW);
+    wc.hbrBackground = NULL;
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = pClassName;
 
-#ifdef linux
-static bool s_bX11Error;
-static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
-
-int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
-{
-    cerr << "X11 error creating offscreen context: " << (int)(pErrEvent->request_code)
-            << ", " << (int)(pErrEvent->minor_code) << endl;
-    s_bX11Error = true;
-    return 0;
+    BOOL bOK = RegisterClass(&wc);
+    AVG_ASSERT(bOK);
 }
 #endif
 
 GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
 
-GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig, 
-        GLContext* pSharedContext)
+GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+        const SDL_SysWMinfo* pSDLWMInfo, GLContext* pSharedContext)
     : m_Context(0),
+      m_bOwnsContext(true),
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
@@ -96,28 +87,16 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
       m_BlendColor(0.f, 0.f, 0.f, 0.f),
       m_BlendMode(BLEND_ADD)
 {
-    if (bUseCurrent) {
-        AVG_ASSERT(!pSharedContext);
-    }
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
     m_GLConfig = glConfig;
-    m_bOwnsContext = !bUseCurrent;
-    if (bUseCurrent) {
-#if defined(__APPLE__)
+#ifdef __APPLE__
+    if (pSDLWMInfo) {
         m_Context = CGLGetCurrentContext();
-#elif defined(__linux__)
-        m_pDisplay = glXGetCurrentDisplay();
-        m_Drawable = glXGetCurrentDrawable();
-        m_Context = glXGetCurrentContext();
-#elif defined(_WIN32)
-        m_hDC = wglGetCurrentDC();
-        m_Context = wglGetCurrentContext();
-#endif
+        m_bOwnsContext = false;
         *s_pCurrentContext = this;
     } else {
-#ifdef __APPLE__
         CGLPixelFormatObj   pixelFormatObj;
         GLint               numPixelFormats;
 
@@ -137,34 +116,16 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
             AVG_ASSERT(false);
         }
         CGLDestroyPixelFormat(pixelFormatObj);
+    }
 #elif defined(__linux__)
-        m_pDisplay = XOpenDisplay(0);
-        if (!m_pDisplay) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
-        }
-        XVisualInfo *vi;
-        static int attributes[] = {GLX_RGBA,
-            GLX_RED_SIZE, 1,
-            GLX_GREEN_SIZE, 1,
-            GLX_BLUE_SIZE, 1,
-            0};
-        vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
-        m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
-        AVG_ASSERT(m_Context);
-        Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
-                8, 8, vi->depth);
-        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
-
-        s_bX11Error = false;
-        s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
-        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
-        XSetErrorHandler(s_DefaultErrorHandler);
-
-        if (s_bX11Error) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
-        }
-        m_Drawable = glXGetCurrentDrawable();
+    createGLXContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined(_WIN32)
+    if (pSDLWMInfo) {
+        m_hDC = wglGetCurrentDC();
+        m_Context = wglGetCurrentContext();
+        *s_pCurrentContext = this;
+        m_bOwnsContext = false;
+    } else {
         registerWindowClass();
         m_hwnd = CreateWindow("GL", "GL",
                 WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -189,11 +150,178 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
         SetPixelFormat(m_hDC, iFormat, &pfd);
         m_Context = wglCreateContext(m_hDC);
         checkWinError(m_Context != 0, "wglCreateContext");
-#endif
     }
+#endif
 
     init();
 }
+
+#ifdef linux
+
+static bool s_bX11Error;
+static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
+
+int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
+{
+    cerr << "X11 error creating GL context: " << (int)(pErrEvent->request_code)
+            << ", " << (int)(pErrEvent->minor_code) << endl;
+    s_bX11Error = true;
+    return 0;
+}
+
+void appendGLXVisualAttribute(int* pNumAttributes, int* pAttributes, int newAttr, 
+        int newAttrVal=-1)
+{
+    pAttributes[(*pNumAttributes)++] = newAttr;
+    if (newAttrVal != -1) {
+        pAttributes[(*pNumAttributes)++] = newAttrVal;
+    }
+    pAttributes[*pNumAttributes] = 0;
+}
+
+bool haveARBCreateContext()
+{
+    static bool s_bExtensionChecked = false;
+    static bool s_bHaveExtension = false;
+    if (!s_bExtensionChecked) {
+        s_bExtensionChecked = true;
+        s_bHaveExtension = (queryGLXExtension("GLX_ARB_create_context"));
+    }
+    return s_bHaveExtension;
+}
+
+void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+        const SDL_SysWMinfo* pSDLWMInfo)
+{
+    XVisualInfo *pVisualInfo;
+    Window win = 0;
+    if (pSDLWMInfo) {
+        // SDL window exists, use it.
+        int attributes[50];
+        int numAttributes=0;
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_X_RENDERABLE, 1);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_DRAWABLE_TYPE, 
+                GLX_WINDOW_BIT);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_RENDER_TYPE, 
+                GLX_RGBA_BIT);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_X_VISUAL_TYPE, 
+                GLX_TRUE_COLOR);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_DEPTH_SIZE, 0);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_STENCIL_SIZE, 8);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_DOUBLEBUFFER, 1);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_RED_SIZE, 8);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_GREEN_SIZE, 8);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_BLUE_SIZE, 8);
+        appendGLXVisualAttribute(&numAttributes, attributes, GLX_ALPHA_SIZE, 0);
+
+        m_pDisplay = pSDLWMInfo->info.x11.display;
+        if (!m_pDisplay) {
+            throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
+        }
+        int fbCount;
+        GLXFBConfig* pFBConfig = glXChooseFBConfig(m_pDisplay, DefaultScreen(m_pDisplay), 
+                attributes, &fbCount);
+        if (!pFBConfig) {
+            throw Exception(AVG_ERR_UNSUPPORTED, "Creating OpenGL context failed.");
+        }
+    
+        // Find the config with the appropriate number of multisample samples.
+        int bestConfig = -1;
+        int bestSamples = -1;
+        for (int i=0; i<fbCount; ++i) {
+            XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, pFBConfig[i]);
+            if (pVisualInfo) {
+                int buffer;
+                int samples;
+                glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS,
+                        &buffer);
+                glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &samples);
+//                cerr << "ID: " << hex << pVisualInfo->visualid << " Config samples: " <<
+//                        samples << endl;
+                if (bestConfig < 0 || 
+                        (buffer == 1 && samples > bestSamples && 
+                         samples <= glConfig.m_MultiSampleSamples))
+                {
+                    bestConfig = i;
+                    bestSamples = samples;
+                }
+                XFree(pVisualInfo);
+            }
+        }
+//        cerr << "bestConfig: " << bestConfig << endl;
+        GLXFBConfig fbConfig = pFBConfig[bestConfig];
+        XFree(pFBConfig);
+        pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
+
+        // Create a child window with the required attributes to render into.
+        XSetWindowAttributes swa;
+        m_Colormap = XCreateColormap(m_pDisplay, 
+                RootWindow(m_pDisplay, pVisualInfo->screen), 
+                pVisualInfo->visual, AllocNone);
+        swa.colormap = m_Colormap;
+        swa.background_pixmap = None;
+        swa.event_mask = StructureNotifyMask; 
+        win = XCreateWindow(m_pDisplay, pSDLWMInfo->info.x11.window, 
+                0, 0, windowSize.x, windowSize.y, 0, pVisualInfo->depth, InputOutput, 
+                pVisualInfo->visual, CWColormap|CWEventMask, &swa);
+        AVG_ASSERT(win);
+        XMapWindow(m_pDisplay, win);
+        if (haveARBCreateContext()) {
+            int contextAttribs[] =
+            {
+/*
+                GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
+                GLX_CONTEXT_MINOR_VERSION_ARB, 0,
+                GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT,
+*/
+//                GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
+                None
+            };
+            PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
+                    (PFNGLXCREATECONTEXTATTRIBSARBPROC)
+                    getglXProcAddress("glXCreateContextAttribsARB");
+
+            m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0,
+                    1, contextAttribs);
+        } else {
+            m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
+        }
+        *s_pCurrentContext = this;
+    } else {
+        // Secondary context, no window necessary. Framebuffer is an X pixmap.
+        int attributes[] = {GLX_RGBA,
+            GLX_RED_SIZE, 1,
+            GLX_GREEN_SIZE, 1,
+            GLX_BLUE_SIZE, 1,
+            0};
+        m_pDisplay = XOpenDisplay(0);
+        pVisualInfo = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
+        if (!pVisualInfo) {
+            throw Exception(AVG_ERR_UNSUPPORTED, "Creating OpenGL context failed.");
+        }
+        m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
+    }
+
+    AVG_ASSERT(m_Context);
+    s_bX11Error = false;
+    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
+    if (pSDLWMInfo) {
+        glXMakeCurrent(m_pDisplay, win, m_Context);
+    } else { 
+        Pixmap pmp = XCreatePixmap(m_pDisplay, 
+                RootWindow(m_pDisplay, pVisualInfo->screen), 8, 8, pVisualInfo->depth);
+        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, pVisualInfo, pmp);
+
+        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
+    }
+    XSetErrorHandler(s_DefaultErrorHandler);
+
+    if (s_bX11Error) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
+    }
+    m_Drawable = glXGetCurrentDrawable();
+}
+#endif
 
 GLContext::~GLContext()
 {
@@ -205,7 +333,7 @@ GLContext::~GLContext()
     if (*s_pCurrentContext == this) {
         *s_pCurrentContext = 0;
     }
-    if (m_bOwnsContext && m_Context) {
+    if (m_Context && m_bOwnsContext) {
 #ifdef __APPLE__
         CGLSetCurrentContext(0);
         CGLDestroyContext(m_Context);
@@ -214,6 +342,12 @@ GLContext::~GLContext()
         wglDeleteContext(m_Context);
         DeleteDC(m_hDC);
         DestroyWindow(m_hwnd);
+#elif defined __linux__
+        glXMakeCurrent(m_pDisplay, 0, 0);
+        glXDestroyContext(m_pDisplay, m_Context);
+        m_Context = 0;
+        XDestroyWindow(m_pDisplay, m_Drawable);
+        XFreeColormap(m_pDisplay, m_Colormap);
 #endif
     }
 }
@@ -227,8 +361,10 @@ void GLContext::init()
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
     enableGLColorArray(false);
+    checkError("enableGLColorArray");
     setBlendMode(BLEND_BLEND, false);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    checkError("glColor4f");
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
@@ -347,19 +483,6 @@ void GLContext::setBlendColor(const glm::vec4& color)
     }
 }
 
-void checkBlendModeError(const char * sMode) 
-{    
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        static bool bErrorReported = false;
-        if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "<< sMode <<
-                    " not supported by OpenGL implementation.");
-            bErrorReported = true;
-        }
-    }
-}
-
 void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 {
     GLenum srcFunc;
@@ -374,28 +497,29 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
                 glproc::BlendEquation(GL_FUNC_ADD);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("blend");
+                checkError("setBlendMode: blend");
                 break;
             case BLEND_ADD:
                 glproc::BlendEquation(GL_FUNC_ADD);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE, GL_ONE, GL_ONE);
-                checkBlendModeError("add");
+                checkError("setBlendMode: add");
                 break;
             case BLEND_MIN:
                 glproc::BlendEquation(GL_MIN);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("min");
+                checkError("setBlendMode: min");
                 break;
             case BLEND_MAX:
                 glproc::BlendEquation(GL_MAX);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("max");
+                checkError("setBlendMode: max");
                 break;
             case BLEND_COPY:
                 glproc::BlendEquation(GL_FUNC_ADD);
                 glBlendFunc(GL_ONE, GL_ZERO);
+                checkError("setBlendMode: copy");
                 break;
             default:
                 AVG_ASSERT(false);
@@ -573,6 +697,15 @@ bool GLContext::initVBlank(int rate)
     return s_VBMethod != VB_NONE;
 }
 
+void GLContext::swapBuffers()
+{
+#ifdef linux
+    glXSwapBuffers(m_pDisplay, m_Drawable);
+#else
+    AVG_ASSERT(false);
+#endif
+}
+
 void GLContext::enableErrorChecks(bool bEnable)
 {
     s_bErrorCheckEnabled = bEnable;
@@ -628,6 +761,22 @@ GLContext* GLContext::getMain()
 void GLContext::setMain(GLContext * pMainContext)
 {
     s_pMainContext = pMainContext;
+}
+
+int GLContext::nextMultiSampleValue(int curSamples)
+{
+    switch (curSamples) {
+        case 1:
+            return 0;
+        case 2:  
+            return 1;
+        case 4:  
+            return 2;
+        case 8:  
+            return 4;
+        default:
+            return 8;
+    }
 }
 
 void GLContext::checkGPUMemInfoSupport()

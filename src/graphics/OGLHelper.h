@@ -85,6 +85,9 @@ void AVG_API clearGLBuffers(GLbitfield mask);
 
 typedef void (*GLfunction)();
 GLfunction AVG_API getFuzzyProcAddress(const char * psz);
+#ifdef linux
+GLfunction getglXProcAddress(const char * psz);
+#endif
 
 namespace glproc {
     extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;

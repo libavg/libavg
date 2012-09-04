@@ -38,8 +38,8 @@ class AVG_API GLTexture {
 
 public:
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
-            bool bForcePOT=false);
+            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
+            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
     GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             bool bDeleteTex=false);
     virtual ~GLTexture();

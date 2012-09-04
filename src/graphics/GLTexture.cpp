@@ -44,7 +44,7 @@ using namespace std;
 unsigned GLTexture::s_LastTexID = 10000000;
 
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
+        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
@@ -89,9 +89,10 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
+        // In the case of UV textures, we set the border color to 128...
         int TexMemNeeded = m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
         char * pPixels = new char[TexMemNeeded];
-        memset(pPixels, 0, TexMemNeeded);
+        memset(pPixels, potBorderColor, TexMemNeeded);
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
                 m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
                 pPixels);

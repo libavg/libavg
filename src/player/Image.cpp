@@ -179,7 +179,7 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
                 m_pSurface->getPixelFormat() != pf)
         {
             pTex = GLTexturePtr(new GLTexture(pBmp->getSize(), pf, 
-                    m_Material.getUseMipmaps(), m_Material.getWrapSMode(), 
+                    m_Material.getUseMipmaps(), 0, m_Material.getWrapSMode(), 
                     m_Material.getWrapTMode()));
             m_pSurface->create(pf, pTex);
         }
@@ -329,7 +329,7 @@ void Image::setupSurface()
 {
     PixelFormat pf = calcSurfacePF(*m_pBmp);
     GLTexturePtr pTex(new GLTexture(m_pBmp->getSize(), pf, m_Material.getUseMipmaps(), 
-            m_Material.getWrapSMode(), m_Material.getWrapTMode()));
+            0, m_Material.getWrapSMode(), m_Material.getWrapTMode()));
     m_pSurface->create(pf, pTex);
     TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
     BitmapPtr pMoverBmp = pMover->lock();

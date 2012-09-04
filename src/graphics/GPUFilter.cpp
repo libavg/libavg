@@ -136,7 +136,7 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
         bProjectionChanged = true;
     }
     if (m_bStandalone && srcSize != m_SrcSize) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
+        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, 0, texMode, 
                 texMode));
         m_pSrcMover = TextureMover::create(srcSize, m_PFSrc, GL_STREAM_DRAW);
         bProjectionChanged = true;
