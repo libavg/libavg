@@ -39,7 +39,8 @@ typedef boost::weak_ptr<class IInputDevice> IInputDeviceWeakPtr;
 class AVG_API Event {
     public:
         enum Type {
-            KEY_UP,
+            // XXX: Hack to make sure this enum can't be passed to Node.subscribe.
+            KEY_UP = 10000,
             KEY_DOWN,
             CURSOR_MOTION,
             CURSOR_UP,

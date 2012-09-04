@@ -134,7 +134,7 @@ class _ButtonBase(avg.DivNode):
 
 class Button(_ButtonBase):
 
-    CLICK = avg.Node.LAST_MESSAGEID
+    CLICK = _ButtonBase.LAST_MESSAGEID
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             enabled=True, fatFingerEnlarge=False, clickHandler=None,
@@ -230,7 +230,8 @@ class BmpButton(Button):
 
 class ToggleButton(_ButtonBase):
     
-    TOGGLE = avg.Node.LAST_MESSAGEID
+    TOGGLE = _ButtonBase.LAST_MESSAGEID
+    LAST_MESSAGEID = _ButtonBase.LAST_MESSAGEID+1
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
