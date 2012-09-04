@@ -105,9 +105,15 @@ class SwitchNode(avg.DivNode):
 
 class _ButtonBase(avg.DivNode):
 
+    PRESSED = avg.DivNode.LAST_MESSAGE_ID 
+    RELEASED = avg.DivNode.LAST_MESSAGE_ID + 1
+    LAST_MESSAGE_ID = avg.DivNode.LAST_MESSAGE_ID + 2
+
     def __init__(self, parent=None, **kwargs):
         super(_ButtonBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+        self.publish(_ButtonBase.PRESSED)
+        self.publish(_ButtonBase.RELEASED)
         
     def _setActiveArea(self, upNode, activeAreaNode, fatFingerEnlarge):
         self.__activeAreaNode = activeAreaNode
@@ -135,9 +141,7 @@ class _ButtonBase(avg.DivNode):
 class Button(_ButtonBase):
 
     CLICKED = _ButtonBase.LAST_MESSAGE_ID
-    PRESSED = _ButtonBase.LAST_MESSAGE_ID + 1
-    RELEASED = _ButtonBase.LAST_MESSAGE_ID + 2
-    LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID + 3
+    LAST_MESSAGE_ID = _ButtonBase.LAST_MESSAGE_ID + 1
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             enabled=True, fatFingerEnlarge=False, **kwargs):
@@ -153,8 +157,6 @@ class Button(_ButtonBase):
         }
         self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UP", parent=self)
         self.publish(Button.CLICKED)
-        self.publish(Button.PRESSED)
-        self.publish(Button.RELEASED)
 
         self.__stateMachine = statemachine.StateMachine("Button", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
@@ -379,6 +381,7 @@ class ToggleButton(_ButtonBase):
             self.__stateMachine.changeState("UNCHECKED_DOWN")
         elif self.__stateMachine.state == "CHECKED_UP":
             self.__stateMachine.changeState("CHECKED_DOWN")
+        self.notifySubscribers(ToggleButton.PRESSED, [])
 
     def _onTap(self):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
@@ -387,12 +390,14 @@ class ToggleButton(_ButtonBase):
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
             self.notifySubscribers(ToggleButton.TOGGLED, [False])
+        self.notifySubscribers(ToggleButton.RELEASED, [])
 
     def _onTapFail(self):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
+        self.notifySubscribers(ToggleButton.RELEASED, [])
     
     def __setActiveNode(self):
         self.__switchNode.visibleid = self.__stateMachine.state

@@ -381,12 +381,20 @@ class UITestCase(AVGTestCase):
 
     def testToggleButton(self):
 
-        def onCheck(isChecked):
+        def onToggled(isChecked):
             self.checked = isChecked
             self.checkedChanged = True
         
+        def onPressed():
+            self.pressed = True
+
+        def onReleased():
+            self.released = True
+
         def reset():
             self.checked = False
+            self.pressed = False
+            self.released = False
             self.checkedChanged = False
 
         def createScene(**kwargs):
@@ -403,7 +411,9 @@ class UITestCase(AVGTestCase):
                     parent=root,
                     **kwargs
                    )
-            button.subscribe(ui.ToggleButton.TOGGLED, onCheck)
+            button.subscribe(ui.ToggleButton.TOGGLED, onToggled)
+            button.subscribe(ui.ToggleButton.PRESSED, onPressed)
+            button.subscribe(ui.ToggleButton.RELEASED, onReleased)
             return button
 
         def testToggle():
@@ -411,10 +421,12 @@ class UITestCase(AVGTestCase):
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self.assert_(not(self.checked) and not(self.checkedChanged)),
+                     lambda: self.assert_(self.pressed and not(self.released) and
+                            not(self.checked) and not(self.checkedChanged)),
                      lambda: self.compareImage("testUIToggleUnchecked_Down"),
                      lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(self.checked and self.checkedChanged),
+                     lambda: self.assert_(self.pressed and self.released and
+                            self.checked and self.checkedChanged),
                      lambda: self.compareImage("testUIToggleChecked_Up"),
                      lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleChecked_Down"),
@@ -485,7 +497,7 @@ class UITestCase(AVGTestCase):
                     uncheckedDisabledSrc="toggle_unchecked_Disabled.png",
                     checkedDisabledSrc="toggle_checked_Disabled.png",
                     parent=root)
-            button.subscribe(ui.ToggleButton.TOGGLED, onCheck)
+            button.subscribe(ui.ToggleButton.TOGGLED, onToggled)
             self.start(False,
                     (lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),
