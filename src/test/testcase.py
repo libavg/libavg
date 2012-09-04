@@ -25,6 +25,7 @@ import unittest
 import sys
 import os
 import math
+from sets import Set
 
 from libavg import avg
 
@@ -307,4 +308,28 @@ class NodeHandlerTester(object):
     
     def __onTouchDown(self, Event):
         self.__touchDownCalled = True
+
+
+class MessageTester(object):
+
+    def __init__(self, publisher, messageIDs):
+        for messageID in messageIDs:
+            publisher.subscribe(messageID, 
+                    lambda messageID=messageID: self.setMessageReceived(messageID))
+        self.__messagesReceived = Set()
+
+    def isState(self, expectedMessages):
+        expectedMessages = Set(expectedMessages)
+        if expectedMessages != self.__messagesReceived:
+            sys.stderr.write("\nState expected: "+str(expectedMessages)+"\n")
+            sys.stderr.write("Actual state: "+str(self.__messagesReceived)+"\n")
+            return False
+        else:
+            return True
+
+    def setMessageReceived(self, messageID):
+        self.__messagesReceived.add(messageID)
+
+    def reset(self):
+        self.__messagesReceived = Set()
 
