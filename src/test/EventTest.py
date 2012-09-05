@@ -770,12 +770,9 @@ class EventTestCase(AVGTestCase):
         self.motionCalled = False
         self.upCalled = False
         self.start(False,
-                (lambda: Helper.fakeTouchEvent(1, avg.Event.CURSOR_DOWN,
-                        avg.Event.TOUCH, (10,10)),
-                 lambda: Helper.fakeTouchEvent(1, avg.Event.CURSOR_MOTION, 
-                        avg.Event.TOUCH, (20,10)),
-                 lambda: Helper.fakeTouchEvent(1, avg.Event.CURSOR_UP, 
-                        avg.Event.TOUCH, (10,10)),
+                (lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 20, 10),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
                 ))
         self.assertEqual(self.numContactCallbacks, 2)
         self.assertEqual(self.numOverCallbacks, 2)
@@ -865,21 +862,13 @@ class EventTestCase(AVGTestCase):
 
     def testPlaybackMessages(self):
 
-        def onStart():
-            self.started = True
-
-        def onEnd():
-            self.ended = True
-
-        self.started = False
-        self.ended = False
         self.loadEmptyScene()
-        player.subscribe(avg.Player.PLAYBACK_START, onStart)
-        player.subscribe(avg.Player.PLAYBACK_END, onEnd)
+        messageTester = MessageTester(player, 
+                [avg.Player.PLAYBACK_START, avg.Player.PLAYBACK_END], self)
         self.start(False,
-                (lambda: self.assert_(self.started and not(self.ended)),
+                (lambda: messageTester.assertState([avg.Player.PLAYBACK_START]),
                 ))
-        self.assert_(self.started and self.ended)
+        messageTester.assertState([avg.Player.PLAYBACK_START, avg.Player.PLAYBACK_END])
 
 
 def eventTestSuite(tests):
