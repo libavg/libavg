@@ -60,9 +60,13 @@ class AccordionNode(avg.DivNode):
         if orientation == Orientation.HORIZONTAL:
             if self.__baseSize.x != 0:
                 self.__baseWidth = self.__baseSize.x
+            if self.__baseSize.y == 0:
+                self.__baseHeight = self.__startImg.height
         else:
             if self.__baseSize.y != 0:
                 self.__baseHeight = self.__baseSize.y
+            if self.__baseSize.x == 0:
+                self.__baseWidth = self.__startImg.width
         self.__positionNodes(self.__baseSize)
 
         if player.isPlaying():
@@ -209,7 +213,9 @@ class SliderThumb(SwitchNode):
 class Slider(avg.DivNode):
 
     THUMB_POS_CHANGED = avg.DivNode.LAST_MESSAGE_ID
-    LAST_MESSAGE_ID = avg.DivNode.LAST_MESSAGE_ID+1
+    PRESSED = avg.DivNode.LAST_MESSAGE_ID + 1
+    RELEASED = avg.DivNode.LAST_MESSAGE_ID + 2
+    LAST_MESSAGE_ID = avg.DivNode.LAST_MESSAGE_ID + 3
 
     def __init__(self, trackNode, thumbNode,
             enabled=True, orientation=Orientation.HORIZONTAL, range=(0.,1.), 
@@ -234,6 +240,8 @@ class Slider(avg.DivNode):
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onUp)
         self.publish(Slider.THUMB_POS_CHANGED)
+        self.publish(Slider.PRESSED)
+        self.publish(Slider.RELEASED)
 
         if not(enabled):
             self.setEnabled(False)
@@ -306,6 +314,7 @@ class Slider(avg.DivNode):
     def __onDragStart(self):
         self._thumbNode.visibleid = "DOWN"
         self.__dragStartPos = self._thumbPos
+        self.notifySubscribers(Slider.PRESSED, [])
 
     def __onDrag(self, offset):
         pixelRange = self._getScrollRangeInPixels()
@@ -321,6 +330,7 @@ class Slider(avg.DivNode):
     def __onUp(self, offset):
         self.__onDrag(offset)
         self._thumbNode.visibleid = "UP"
+        self.notifySubscribers(Slider.RELEASED, [])
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
@@ -336,7 +346,7 @@ class Slider(avg.DivNode):
                  
         self._constrainSliderPos()
         if self._thumbPos != oldThumbPos:
-            self.notifySubscribers(ScrollBar.THUMB_POS_CHANGED, [self._thumbPos])
+            self.notifySubscribers(Slider.THUMB_POS_CHANGED, [self._thumbPos])
 
         pixelRange = self._getScrollRangeInPixels()
         if self._getSliderRange() == 0:
@@ -417,7 +427,7 @@ class ScrollBar(Slider):
                 self._thumbNode.x -= thumbExtent
             else:
                 self._thumbNode.y -= thumbExtent
-    
+
     def _getSliderRange(self):
         if self._range[1] > self._range[0]:
             return self._range[1] - self._range[0] - self.__thumbExtent
