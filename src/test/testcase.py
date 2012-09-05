@@ -208,6 +208,12 @@ class AVGTestCase(unittest.TestCase):
         for (id, type, x, y) in eventData:
             helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x, y))
 
+    def _genMouseEventFrames(self, type, x, y, expectedEvents):
+        return [
+                 lambda: self._sendMouseEvent(type, x, y),
+                 lambda: self.messageTester.assertState(expectedEvents),
+                 self.messageTester.reset,
+                ]
 
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
