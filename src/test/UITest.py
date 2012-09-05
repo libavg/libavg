@@ -287,51 +287,42 @@ class UITestCase(AVGTestCase):
         def runTest():
             self.start(False,
                     (# Standard down->up
-                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self.messageTester.assertState([ui.Button.PRESSED]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
+                            [ui.Button.PRESSED]),
                      lambda: self.compareImage("testUIButtonDown"),
-                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.messageTester.assertState(
-                            [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
+                            [ui.Button.CLICKED, ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Disable, down, up -> no click
-                     self.messageTester.reset,
                      lambda: self.assert_(button.enabled),
                      lambda: enable(False),
                      lambda: self.assert_(not(button.enabled)),
                      lambda: self.compareImage("testUIButtonDisabled"),
-                     lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.messageTester.assertState([]),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0, []),
                      lambda: enable(True),
                      lambda: self.assert_(button.enabled),
 
                      # Down, up further away -> no click
-                     self.messageTester.reset,
-                     lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self._sendTouchEvent(3, avg.Event.CURSOR_UP, 100, 0),
-                     lambda: self.messageTester.assertState([ui.Button.PRESSED,
-                            ui.Button.RELEASED]),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 100, 0,
+                            [ui.Button.PRESSED, ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Down, move further away, up -> no click
-                     self.messageTester.reset,
-                     lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self._sendTouchEvent(3, avg.Event.CURSOR_MOTION, 100, 0),
-                     lambda: self._sendTouchEvent(3, avg.Event.CURSOR_UP, 100, 0),
-                     lambda: self.messageTester.assertState([ui.Button.PRESSED, 
-                            ui.Button.RELEASED]),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 100, 0),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 100, 0,
+                            [ui.Button.PRESSED, ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Test if button still reacts after abort
-                     self.messageTester.reset,
-                     lambda: self._sendTouchEvent(4, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self.messageTester.assertState([ui.Button.PRESSED]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
+                            [ui.Button.PRESSED]),
                      lambda: self.compareImage("testUIButtonDown"),
-                     lambda: self._sendTouchEvent(4, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.messageTester.assertState([ui.Button.PRESSED, 
-                            ui.Button.CLICKED, ui.Button.RELEASED]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
+                            [ui.Button.CLICKED, ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
                     ))
 
@@ -386,7 +377,7 @@ class UITestCase(AVGTestCase):
                     **kwargs
                    )
             self.messageTester = MessageTester(button, 
-                    [ui.ToggleButton.PRESSED, ui.ToggleButton.RELEASED])
+                    [ui.ToggleButton.PRESSED, ui.ToggleButton.RELEASED], self)
 
             button.subscribe(ui.ToggleButton.TOGGLED, onToggled)
             return button
@@ -395,18 +386,17 @@ class UITestCase(AVGTestCase):
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
-                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self.assert_(not self.toggled and 
-                            self.messageTester.isState([ui.ToggleButton.PRESSED])),
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
+                             [ui.ToggleButton.PRESSED]),
+                     lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleUnchecked_Down"),
-                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(self.toggled and 
-                            self.messageTester.isState([ui.ToggleButton.PRESSED,
-                            ui.ToggleButton.RELEASED, ui.ToggleButton.TOGGLED])),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
+                            [ui.ToggleButton.RELEASED, ui.ToggleButton.TOGGLED]),
+                     lambda: self.assert_(self.toggled),
                      lambda: self.compareImage("testUIToggleChecked_Up"),
-                     lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 0, 0),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleChecked_Down"),
-                     lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 0, 0),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 0, 0),
                      lambda: self.assert_(not(self.toggled)),
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                     ))
@@ -415,18 +405,17 @@ class UITestCase(AVGTestCase):
             self.start(False,
                     (reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
-                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 0, 0),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleUnchecked_Down"),
-                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 100, 0),
-                     lambda: self.assert_(not(self.toggled) and 
-                            self.messageTester.isState([ui.ToggleButton.PRESSED,
-                            ui.ToggleButton.RELEASED])),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 100, 0,
+                             [ui.ToggleButton.PRESSED, ui.ToggleButton.RELEASED]),
+                     lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),
                      lambda: self.compareImage("testUIToggleChecked_Up"),
-                     lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 0, 0),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleChecked_Down"),
-                     lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 100, 0),
+                     lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 0),
                      lambda: self.assert_(not(self.toggled)), 
                      lambda: self.compareImage("testUIToggleChecked_Up"),
                     ))
