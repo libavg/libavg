@@ -28,7 +28,8 @@ class SimpleUIApp(AVGApp):
         self.createScrollArea(avg.Point2D(500,10), False)
 
         checkBox = simple.CheckBox(pos=(10,270), text="Disable everything", 
-                checkHandler=self.onCheck, parent=self._parentNode)
+                parent=self._parentNode)
+        checkBox.subscribe(simple.CheckBox.TOGGLED, self.onCheck)
 
     def setText(self, pos, node):
         node.text = "%.2f"%pos
