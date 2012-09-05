@@ -312,11 +312,15 @@ class NodeHandlerTester(object):
 
 class MessageTester(object):
 
-    def __init__(self, publisher, messageIDs):
+    def __init__(self, publisher, messageIDs, testCase=None):
         for messageID in messageIDs:
             publisher.subscribe(messageID, 
                     lambda messageID=messageID: self.setMessageReceived(messageID))
         self.__messagesReceived = Set()
+        self.__testCase = testCase
+
+    def assertState(self, expectedMessages):
+        self.__testCase.assert_(self.isState(expectedMessages))
 
     def isState(self, expectedMessages):
         expectedMessages = Set(expectedMessages)

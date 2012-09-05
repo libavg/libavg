@@ -267,20 +267,6 @@ class UITestCase(AVGTestCase):
 
     def testButton(self):
 
-        def onClicked():
-            self.clicked = True
-
-        def onPressed():
-            self.pressed = True
-
-        def onReleased():
-            self.released = True
-
-        def reset():
-            self.clicked = False
-            self.pressed = False
-            self.released = False
-
         def enable(enabled):
             button.enabled = enabled
 
@@ -293,63 +279,59 @@ class UITestCase(AVGTestCase):
                     disabledNode = avg.ImageNode(href="button_disabled.png"),
                     **kwargs
                     )
-            button.subscribe(ui.Button.CLICKED, onClicked)
-            button.subscribe(ui.Button.PRESSED, onPressed)
-            button.subscribe(ui.Button.RELEASED, onReleased)
+            self.messageTester = MessageTester(button, 
+                    [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED],
+                    self)
             return button
 
         def runTest():
-            reset()
             self.start(False,
                     (# Standard down->up
                      lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self.assert_(
-                            self.pressed and not(self.clicked) and not(self.released)),
+                     lambda: self.messageTester.assertState([ui.Button.PRESSED]),
                      lambda: self.compareImage("testUIButtonDown"),
                      lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(
-                            self.pressed and self.clicked and self.released),
+                     lambda: self.messageTester.assertState(
+                            [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Disable, down, up -> no click
-                     reset,
+                     self.messageTester.reset,
                      lambda: self.assert_(button.enabled),
                      lambda: enable(False),
                      lambda: self.assert_(not(button.enabled)),
                      lambda: self.compareImage("testUIButtonDisabled"),
                      lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(not(self.pressed) and not(self.clicked) 
-                            and not(self.released)),
+                     lambda: self.messageTester.assertState([]),
                      lambda: enable(True),
                      lambda: self.assert_(button.enabled),
 
                      # Down, up further away -> no click
-                     reset,
+                     self.messageTester.reset,
                      lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self._sendTouchEvent(3, avg.Event.CURSOR_UP, 100, 0),
-                     lambda: self.assert_(
-                            self.pressed and not(self.clicked) and self.released),
+                     lambda: self.messageTester.assertState([ui.Button.PRESSED,
+                            ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Down, move further away, up -> no click
-                     reset,
+                     self.messageTester.reset,
                      lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self._sendTouchEvent(3, avg.Event.CURSOR_MOTION, 100, 0),
                      lambda: self._sendTouchEvent(3, avg.Event.CURSOR_UP, 100, 0),
-                     lambda: self.assert_(
-                            self.pressed and not(self.clicked) and self.released),
+                     lambda: self.messageTester.assertState([ui.Button.PRESSED, 
+                            ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Test if button still reacts after abort
-                     reset,
+                     self.messageTester.reset,
                      lambda: self._sendTouchEvent(4, avg.Event.CURSOR_DOWN, 0, 0),
-                     lambda: self.assert_(
-                            self.pressed and not(self.clicked) and not(self.released)),
+                     lambda: self.messageTester.assertState([ui.Button.PRESSED]),
                      lambda: self.compareImage("testUIButtonDown"),
                      lambda: self._sendTouchEvent(4, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(
-                            self.pressed and self.clicked and self.released),
+                     lambda: self.messageTester.assertState([ui.Button.PRESSED, 
+                            ui.Button.CLICKED, ui.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
                     ))
 
@@ -369,9 +351,9 @@ class UITestCase(AVGTestCase):
                 downSrc = "button_down.png",
                 disabledSrc = "button_disabled.png",
                 )
-        button.subscribe(ui.Button.CLICKED, onClicked)
-        button.subscribe(ui.Button.PRESSED, onPressed)
-        button.subscribe(ui.Button.RELEASED, onReleased)
+        self.messageTester = MessageTester(button, 
+                [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED],
+                self)
         runTest()
        
         button = createScene(enabled=False)
