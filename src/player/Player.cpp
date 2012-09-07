@@ -114,7 +114,6 @@ Player::Player()
       m_bKeepWindowOpen(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
-      m_bCheckGLErrors(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
@@ -260,11 +259,7 @@ void Player::setAudioOptions(int samplerate, int channels)
 
 void Player::enableGLErrorChecks(bool bEnable)
 {
-    if (m_bIsPlaying) {
-        GLContext::enableErrorChecks(bEnable);
-    } else {
-        m_bCheckGLErrors = bEnable;
-    }
+    GLContext::enableErrorChecks(bEnable);
 }
         
 glm::vec2 Player::getScreenResolution()
@@ -1215,7 +1210,6 @@ void Player::initGraphics(const string& sShaderPath)
     m_pDisplayEngine->init(m_DP, m_GLConfig);
     AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
             << m_pDisplayEngine->getPixelsPerMM());
-    GLContext::enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }

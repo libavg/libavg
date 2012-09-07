@@ -164,6 +164,7 @@ class TestApp(object):
             self.__testSuite.addTest(suite(self.__suitesTestSubsets))
         
     def __dumpConfig(self):
+        player.enableGLErrorChecks(True)
         log = avg.Logger.get()
         log.pushCategories()
         log.setCategories(log.APP | log.WARNING | log.CONFIG  | 0)

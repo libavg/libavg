@@ -240,7 +240,6 @@ class AVG_API Player
         bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;
         bool m_bIsPlaying;
-        bool m_bCheckGLErrors;
 
         // Time calculation
         bool m_bFakeFPS;
