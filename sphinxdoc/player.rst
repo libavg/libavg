@@ -112,6 +112,10 @@ Player & Canvas
             amplify playback. A limiter prevents distortion when the volume
             is set to high.
 
+        .. py:method:: addInputDevice(inputDevice)
+
+            Registers an :py:class:`InputDevice` with the system.
+
         .. py:method:: assumePixelsPerMM(ppmm)
 
             Tells the system to assume a resolution for the physical screen, overriding 
@@ -271,10 +275,6 @@ Player & Canvas
             Returns the main canvas. This is the canvas loaded using :py:meth:`loadFile`
             or :py:meth:`loadString` and displayed on screen.
 
-        .. py:method:: addInputDevice(inputDevice)
-
-            Registers an :py:class:`InputDevice` with the system.
-
         .. py:method:: getMouseState() -> MouseEvent
 
             Returns the last mouse event generated.
@@ -320,6 +320,14 @@ Player & Canvas
             Returns the current hardware video refresh rate in number of
             refreshes per second.
 
+        .. py:method:: isCursorShown()
+
+            Returns :py:const:`True` if the mouse cursor is visible.
+            
+        .. py:method:: isFullscreen()
+
+            Returns :py:const:`True` if the player is running in fullscreen mode.
+            
         .. py:method:: isMultitouchAvailable() -> bool
 
             Returns :py:const:`True` if a multitouch device has been configured and is
@@ -513,10 +521,6 @@ Player & Canvas
                 Number of bits per pixel to use. Valid values are :samp:`15`, :samp:`16`,
                 :samp:`24` and :samp:`32`.
 
-        .. py:method:: isFullscreen()
-
-            Returns True when the player is running in fullscreen mode.
-            
         .. py:method:: setTimeout(time, pyfunc) -> int
 
             Sets a python callable object that should be executed after a set
@@ -556,10 +560,6 @@ Player & Canvas
             
             :param bool show: :py:const:`True` if the mouse cursor should be visible.
 
-        .. py:method:: isCursorShown()
-
-            Returns True when the mouse cursor is shown.
-            
         .. py:method:: stop()
 
             Stops playback and resets the video mode if necessary.
@@ -568,6 +568,13 @@ Player & Canvas
 
             Toggles player stop upon escape keystroke. If stop is :py:const:`True` 
             (the default), if player will halt playback when :kbd:`Esc` is pressed.
+
+        .. py:method:: useGLES(gles)
+
+            Chooses whether to use OpenGL ES or desktop OpenGL for rendering.
+            Must be called before :py:meth:`play`.
+
+            :param bool gles: :py:const:`True` if OpenGL ES should be used.
 
         .. py:classmethod:: get() -> Player
 
