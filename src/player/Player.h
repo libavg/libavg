@@ -82,6 +82,7 @@ class AVG_API Player
         bool isFullscreen();
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
+        void useGLES(bool bGLES);
         void setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
                 int multiSampleSamples, GLConfig::ShaderUsage shaderUsage);
         void setMultiSampleSamples(int multiSampleSamples);

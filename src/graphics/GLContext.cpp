@@ -267,22 +267,23 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
         AVG_ASSERT(win);
         XMapWindow(m_pDisplay, win);
         if (haveARBCreateContext()) {
-            int contextAttribs[] =
-            {
-/*
-                GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
-                GLX_CONTEXT_MINOR_VERSION_ARB, 0,
-                GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT,
-*/
-//                GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
-                None
-            };
+            int pContextAttribs[50];
+            int numContextAttribs = 0;
+            pContextAttribs[0] = 0;
+            if (m_GLConfig.m_bGLES) {
+                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+                        GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
+                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+                        GLX_CONTEXT_MINOR_VERSION_ARB, 0);
+                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+                        GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+            }
             PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
                     (PFNGLXCREATECONTEXTATTRIBSARBPROC)
                     getglXProcAddress("glXCreateContextAttribsARB");
 
             m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0,
-                    1, contextAttribs);
+                    1, pContextAttribs);
         } else {
             m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
         }

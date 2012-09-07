@@ -33,9 +33,10 @@ GLConfig::GLConfig()
 {
 }
 
-GLConfig::GLConfig(bool bUsePOTTextures, bool bUsePixelBuffers, int multiSampleSamples, 
-        ShaderUsage shaderUsage)
-    : m_bUsePOTTextures(bUsePOTTextures),
+GLConfig::GLConfig(bool bGLES, bool bUsePOTTextures, bool bUsePixelBuffers,
+        int multiSampleSamples, ShaderUsage shaderUsage)
+    : m_bGLES(bGLES),
+      m_bUsePOTTextures(bUsePOTTextures),
       m_bUsePixelBuffers(bUsePixelBuffers),
       m_MultiSampleSamples(multiSampleSamples),
       m_ShaderUsage(shaderUsage)
@@ -44,6 +45,7 @@ GLConfig::GLConfig(bool bUsePOTTextures, bool bUsePixelBuffers, int multiSampleS
 
 void GLConfig::log()
 {
+    AVG_TRACE(Logger::CONFIG, "  OpenGL flavor: " << (m_bGLES?"Mobile (ES)":"Desktop"));
     AVG_TRACE(Logger::CONFIG, "  Pixel buffers: " << (m_bUsePixelBuffers?"true":"false"));
     AVG_TRACE(Logger::CONFIG, "  Power of 2 textures: " <<
             (m_bUsePOTTextures?"true":"false"));

@@ -234,6 +234,12 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_Pos.y = y;
 }
 
+void Player::useGLES(bool bGLES)
+{
+    errorIfPlaying("Player.useGLES");
+    m_GLConfig.m_bGLES = bGLES;
+}
+
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
         int multiSampleSamples, GLConfig::ShaderUsage shaderUsage)
 {
@@ -1175,6 +1181,7 @@ void Player::initConfig()
     m_AP.m_OutputBufferSamples =
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
+    m_GLConfig.m_bGLES = pMgr->getBoolOption("scr", "gles", false);
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);

@@ -29,11 +29,12 @@ struct AVG_API GLConfig {
     enum ShaderUsage {FULL, MINIMAL, AUTO};
 
     GLConfig();
-    GLConfig(bool bUsePOTTextures, bool bUsePixelBuffers, int multiSampleSamples, 
-            ShaderUsage shaderUsage);
+    GLConfig(bool bGLES, bool bUsePOTTextures, bool bUsePixelBuffers,
+            int multiSampleSamples, ShaderUsage shaderUsage);
 
     void log();
 
+    bool m_bGLES;
     bool m_bUsePOTTextures;
     bool m_bUsePixelBuffers;
     int m_MultiSampleSamples;
