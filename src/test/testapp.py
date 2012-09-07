@@ -117,12 +117,19 @@ class TestApp(object):
             self.__optionParser.print_help()
             sys.exit(-1)
 
+        player.useGLES(self.__commandlineOptions.usegles)
         player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
                 self.__commandlineOptions.usepixelbuffers, 1, shaderUsage)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(
             usage = '%prog [options] [<suite> [testcase] [testcase] [...]]')
+        
+        self.__optionParser.add_option("--usegles", 
+                dest = "usegles", 
+                action = 'store_true',
+                default = False, 
+                help = "Use OpenGL ES")
         
         self.__optionParser.add_option("--usepow2textures", 
                 dest = "usepow2textures", 
