@@ -26,7 +26,7 @@ import sys
 import os
 import math
 
-from libavg import avg
+from libavg import avg, player
 
 def almostEqual(a, b, epsilon):
     try:
@@ -60,16 +60,15 @@ class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName):
         unittest.TestCase.__init__(self, testFuncName)
 
-        self.__player = avg.Player.get()
-        self.__player.enableGLErrorChecks(True)
+        player.enableGLErrorChecks(True)
         self.__testFuncName = testFuncName
         self.__logger = avg.Logger.get()
         self.__skipped = False
         self.__warnOnImageDiff = False
 
     def __setupPlayer(self):
-        self.__player.setMultiSampleSamples(1)
-        self.__player.setResolution(0, 0, 0, 0)
+        player.setMultiSampleSamples(1)
+        player.setResolution(0, 0, 0, 0)
     
     @staticmethod
     def setImageResultDirectory(name):
@@ -98,23 +97,23 @@ class AVGTestCase(unittest.TestCase):
         self.__delaying = False
         self.__warnOnImageDiff = warnOnImageDiff
         
-        self.assert_(self.__player.isPlaying() == 0)
+        self.assert_(player.isPlaying() == 0)
         self.actions = flatten(actions)
         self.curFrame = 0
-        self.__player.setOnFrameHandler(self.__nextAction)
-        self.__player.setFramerate(10000)
-        self.__player.assumePixelsPerMM(1)
-        self.__player.play()
-        self.assert_(self.__player.isPlaying() == 0)
+        player.setOnFrameHandler(self.__nextAction)
+        player.setFramerate(10000)
+        player.assumePixelsPerMM(1)
+        player.play()
+        self.assert_(player.isPlaying() == 0)
 
     def delay(self, time):
         def timeout():
             self.__delaying = False
         self.__delaying = True
-        self.__player.setTimeout(time, timeout)
+        player.setTimeout(time, timeout)
 
     def compareImage(self, fileName):
-        bmp = self.__player.screenshot()
+        bmp = player.screenshot()
         self.compareBitmapToFile(bmp, fileName)
 
     def compareBitmapToFile(self, bmp, fileName):
@@ -165,8 +164,8 @@ class AVGTestCase(unittest.TestCase):
             self.fail(msg)
 
     def loadEmptyScene(self, resolution=(160,120)):
-        self.__player.createMainCanvas(size=resolution)
-        root = self.__player.getRootNode()
+        player.createMainCanvas(size=resolution)
+        root = player.getRootNode()
         root.mediadir = "media"
         return root
 
@@ -179,7 +178,7 @@ class AVGTestCase(unittest.TestCase):
         avg.ImageNode(id="test1", pos=(129,30), href="rgb24-65x65.png", parent=root)
 
     def fakeClick(self, x, y):
-        helper = self.__player.getTestHelper()
+        helper = player.getTestHelper()
         helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, x, y, 1)
         helper.fakeMouseEvent(avg.CURSORUP, False, False, False, x, y, 1)
 
@@ -191,7 +190,7 @@ class AVGTestCase(unittest.TestCase):
         return self.__skipped
 
     def _sendMouseEvent(self, type, x, y):
-        helper = self.__player.getTestHelper()
+        helper = player.getTestHelper()
         if type == avg.CURSORUP:
             button = False
         else:
@@ -199,11 +198,11 @@ class AVGTestCase(unittest.TestCase):
         helper.fakeMouseEvent(type, button, False, False, x, y, 1)
 
     def _sendTouchEvent(self, id, type, x, y):
-        helper = self.__player.getTestHelper()
+        helper = player.getTestHelper()
         helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
       
     def _sendTouchEvents(self, eventData):
-        helper = self.__player.getTestHelper()
+        helper = player.getTestHelper()
         for (id, type, x, y) in eventData:
             helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
 
@@ -216,7 +215,7 @@ class AVGTestCase(unittest.TestCase):
             if self.__dumpTestFrames:
                 self.__logger.trace(self.__logger.APP, "Frame "+str(self.curFrame))
             if len(self.actions) == self.curFrame:
-                self.__player.stop()
+                player.stop()
             else:
                 action = self.actions[self.curFrame]
                 if action != None:
