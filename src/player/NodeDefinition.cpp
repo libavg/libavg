@@ -94,6 +94,11 @@ bool NodeDefinition::hasChildren() const
     return !m_sChildren.empty();
 }
 
+bool NodeDefinition::isAbstract() const
+{
+    return m_pBuilder == 0;
+}
+
 NodeDefinition& NodeDefinition::extendDefinition(const NodeDefinition& Def)
 {
     m_Args.copyArgsFrom(Def.m_Args);

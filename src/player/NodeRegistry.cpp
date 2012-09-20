@@ -104,14 +104,18 @@ string NodeRegistry::getDTD() const
             defIt != m_NodeDefs.end(); defIt++) 
     {
         const NodeDefinition& def = defIt->second;
-        writeNodeDTD(def, ss);
+        if (!def.isAbstract()) {
+            writeNodeDTD(def, ss);
+        }
     }
    
     for (NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); 
             defIt != m_NodeDefs.end(); defIt++) 
     {
         const NodeDefinition& def = defIt->second;
-        ss << def.getDTDElements();
+        if (!def.isAbstract()) {
+            ss << def.getDTDElements();
+        }
     }
    
     return ss.str();

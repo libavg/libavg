@@ -55,6 +55,7 @@ public:
     std::string getDTDChildrenString() const;
     bool isChildAllowed(const std::string& sChild) const;
     bool hasChildren() const;
+    bool isAbstract() const;
     
     NodeDefinition& extendDefinition(const NodeDefinition& Def);
     NodeDefinition& addArg(const ArgBase& newArg);
