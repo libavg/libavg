@@ -87,6 +87,7 @@ class AVG_API Player: public Publisher
         bool isFullscreen();
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
+        void useGLES(bool bGLES);
         void setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
                 int multiSampleSamples, GLConfig::ShaderUsage shaderUsage);
         void setMultiSampleSamples(int multiSampleSamples);
@@ -248,7 +249,6 @@ class AVG_API Player: public Publisher
         bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;
         bool m_bIsPlaying;
-        bool m_bCheckGLErrors;
 
         // Time calculation
         bool m_bFakeFPS;

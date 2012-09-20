@@ -66,6 +66,7 @@ ConfigMgr* ConfigMgr::get()
 ConfigMgr::ConfigMgr()
 {
     addSubsys("scr");
+    addOption("scr", "gles", "false");
     addOption("scr", "bpp", "24");
     addOption("scr", "fullscreen", "false");
     addOption("scr", "windowwidth", "0");

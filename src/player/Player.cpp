@@ -114,7 +114,6 @@ Player::Player()
       m_bKeepWindowOpen(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
-      m_bCheckGLErrors(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
@@ -239,6 +238,12 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_Pos.y = y;
 }
 
+void Player::useGLES(bool bGLES)
+{
+    errorIfPlaying("Player.useGLES");
+    m_GLConfig.m_bGLES = bGLES;
+}
+
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
         int multiSampleSamples, GLConfig::ShaderUsage shaderUsage)
 {
@@ -264,11 +269,7 @@ void Player::setAudioOptions(int samplerate, int channels)
 
 void Player::enableGLErrorChecks(bool bEnable)
 {
-    if (m_bIsPlaying) {
-        GLContext::enableErrorChecks(bEnable);
-    } else {
-        m_bCheckGLErrors = bEnable;
-    }
+    GLContext::enableErrorChecks(bEnable);
 }
         
 glm::vec2 Player::getScreenResolution()
@@ -1207,6 +1208,7 @@ void Player::initConfig()
     m_AP.m_OutputBufferSamples =
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
+    m_GLConfig.m_bGLES = pMgr->getBoolOption("scr", "gles", false);
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
@@ -1242,7 +1244,6 @@ void Player::initGraphics(const string& sShaderPath)
     m_pDisplayEngine->init(m_DP, m_GLConfig);
     AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
             << m_pDisplayEngine->getPixelsPerMM());
-    GLContext::enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
