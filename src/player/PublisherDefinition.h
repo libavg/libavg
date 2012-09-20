@@ -18,48 +18,42 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
-#ifndef _NodeRegistry_H_
-#define _NodeRegistry_H_
+#ifndef _PublisherDefinition_H_
+#define _PublisherDefinition_H_
 
 #include "../api.h"
-#include "WrapPython.h"
-#include "Node.h"
-#include "ArgList.h"
-#include "NodeDefinition.h"
 
-#include <map>
+#include <vector>
 #include <string>
-#include <sstream>
 
 namespace avg {
 
-class AVG_API NodeRegistry
+struct MessageID {
+    MessageID(const std::string& sName, int id);
+
+    std::string m_sName;
+    int m_ID;
+};
+
+class AVG_API PublisherDefinition
 {
 public:
-    virtual ~NodeRegistry();
-    static NodeRegistry* get();
+    PublisherDefinition();
+    virtual ~PublisherDefinition();
     
-    void registerNodeType(const NodeDefinition& def, const char* pParentNames[] = 0);
-    void updateNodeDefinition(const NodeDefinition& def);
-    const NodeDefinition& getNodeDef(const std::string& Type);
-    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    NodePtr createNode(const std::string& Type, const py::dict& PyDict);
-    
-    std::string getDTD() const;
-    
-private:
-    NodeRegistry();
-    void writeNodeDTD(const NodeDefinition& def, std::stringstream& ss) const;
-    
-    typedef std::map<std::string, NodeDefinition> NodeDefMap;
-    NodeDefMap m_NodeDefs;
+    void extendDefinition(const PublisherDefinition& def);
+    void addMessage(const std::string& sName);
+    const std::vector<MessageID> & getMessageIDs() const;
 
-    static NodeRegistry* s_pInstance;
+    static MessageID genMessageID(const std::string& sName=0);
+
+private:
+    std::vector<MessageID> m_MessageIDs;
+    static int s_LastMessageID;
 };
 
 }
 
 #endif
+

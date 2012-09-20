@@ -34,10 +34,16 @@ NodeDefinition::NodeDefinition() :
 {
 }
 
-NodeDefinition::NodeDefinition(const string& sName, NodeBuilder pBuilder)
+NodeDefinition::NodeDefinition(const string& sName, const string& sBaseName,
+        NodeBuilder pBuilder)
     : m_sName(sName),
       m_pBuilder(pBuilder)
 {
+    if (sBaseName != "") {
+        NodeDefinition baseDef = NodeRegistry::get()->getNodeDef(sBaseName);
+        m_Args.copyArgsFrom(baseDef.m_Args);
+        m_sChildren = baseDef.m_sChildren;
+    }
 }
 
 NodeDefinition::~NodeDefinition()
@@ -97,13 +103,6 @@ bool NodeDefinition::hasChildren() const
 bool NodeDefinition::isAbstract() const
 {
     return m_pBuilder == 0;
-}
-
-NodeDefinition& NodeDefinition::extendDefinition(const NodeDefinition& Def)
-{
-    m_Args.copyArgsFrom(Def.m_Args);
-    m_sChildren = Def.m_sChildren;
-    return *this;
 }
 
 NodeDefinition& NodeDefinition::addArg(const ArgBase& newArg)

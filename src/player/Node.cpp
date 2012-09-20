@@ -41,13 +41,14 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Node::createDefinition()
+void Node::createDefinition()
 {
-    return NodeDefinition("node")
+    NodeDefinition def = NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
         .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
         .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
         .addArg(Arg<float>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 Node::Node()

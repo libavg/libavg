@@ -46,14 +46,14 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition SoundNode::createDefinition()
+void SoundNode::createDefinition()
 {
-    return NodeDefinition("sound", Node::buildNode<SoundNode>)
-        .extendDefinition(NodeRegistry::get()->getNodeDef("areanode"))
+    NodeDefinition def = NodeDefinition("sound", "areanode", Node::buildNode<SoundNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))
         .addArg(Arg<float>("volume", 1.0, false, offsetof(SoundNode, m_Volume)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 SoundNode::SoundNode(const ArgList& args)

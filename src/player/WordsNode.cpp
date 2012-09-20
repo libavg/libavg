@@ -46,7 +46,7 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition WordsNode::createDefinition()
+void WordsNode::createDefinition()
 {
     static const string sDTDElements = 
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
@@ -84,8 +84,7 @@ NodeDefinition WordsNode::createDefinition()
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
-    return NodeDefinition("words", Node::buildNode<WordsNode>)
-        .extendDefinition(NodeRegistry::get()->getNodeDef("rasternode"))
+    NodeDefinition def = NodeDefinition("words", "rasternode", Node::buildNode<WordsNode>)
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(WordsNode, m_sFontName)))
@@ -105,6 +104,7 @@ NodeDefinition WordsNode::createDefinition()
                 offsetof(WordsNode, m_LetterSpacing)))
         .addArg(Arg<bool>("hint", true, false, offsetof(WordsNode, m_bHint)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 WordsNode::WordsNode(const ArgList& args)

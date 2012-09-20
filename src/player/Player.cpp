@@ -73,7 +73,6 @@
 #include "../base/ConfigMgr.h"
 #include "../base/XMLHelper.h"
 #include "../base/ScopeTimer.h"
-#include "../base/MathHelper.h"
 #include "../base/WorkerThread.h"
 
 #include "../graphics/BitmapManager.h"
@@ -145,28 +144,28 @@ Player::Player()
     initConfig();
 
     // Register all node types
-    registerNodeType(Node::createDefinition());
-    registerNodeType(AreaNode::createDefinition());
-    registerNodeType(RasterNode::createDefinition());
-    registerNodeType(VectorNode::createDefinition());
-    registerNodeType(FilledVectorNode::createDefinition());
+    Node::createDefinition();
+    AreaNode::createDefinition();
+    RasterNode::createDefinition();
+    VectorNode::createDefinition();
+    FilledVectorNode::createDefinition();
 
-    registerNodeType(DivNode::createDefinition());
-    registerNodeType(CanvasNode::createDefinition());
-    registerNodeType(OffscreenCanvasNode::createDefinition());
-    registerNodeType(AVGNode::createDefinition());
-    registerNodeType(ImageNode::createDefinition());
-    registerNodeType(WordsNode::createDefinition());
-    registerNodeType(VideoNode::createDefinition());
-    registerNodeType(CameraNode::createDefinition());
-    registerNodeType(SoundNode::createDefinition());
-    registerNodeType(LineNode::createDefinition());
-    registerNodeType(RectNode::createDefinition());
-    registerNodeType(CurveNode::createDefinition());
-    registerNodeType(PolyLineNode::createDefinition());
-    registerNodeType(PolygonNode::createDefinition());
-    registerNodeType(CircleNode::createDefinition());
-    registerNodeType(MeshNode::createDefinition());
+    DivNode::createDefinition();
+    CanvasNode::createDefinition();
+    OffscreenCanvasNode::createDefinition();
+    AVGNode::createDefinition();
+    ImageNode::createDefinition();
+    WordsNode::createDefinition();
+    VideoNode::createDefinition();
+    CameraNode::createDefinition();
+    SoundNode::createDefinition();
+    LineNode::createDefinition();
+    RectNode::createDefinition();
+    CurveNode::createDefinition();
+    PolyLineNode::createDefinition();
+    PolygonNode::createDefinition();
+    CircleNode::createDefinition();
+    MeshNode::createDefinition();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
 
@@ -1276,7 +1275,6 @@ void Player::updateDTD()
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     assert (m_dtd);
-    m_bDirtyDTD = false;
 }
 
 NodePtr Player::internalLoad(const string& sAVG)
@@ -1290,10 +1288,7 @@ NodePtr Player::internalLoad(const string& sAVG)
         if (!doc) {
             throw (Exception(AVG_ERR_XML_PARSE, ""));
         }
-
-        if (m_bDirtyDTD) {
-            updateDTD();
-        }
+        updateDTD();
 
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
@@ -1332,23 +1327,7 @@ SDLDisplayEnginePtr Player::safeGetDisplayEngine()
 void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
 {
     NodeRegistry* pRegistry = NodeRegistry::get();
-    pRegistry->registerNodeType(def);
-
-    if (pParentNames) {
-        string sChildArray[1];
-        sChildArray[0] = def.getName();
-        vector<string> sChildren = vectorFromCArray(1, sChildArray);
-        const char **ppCurParentName = pParentNames;
-
-        while (*ppCurParentName) {
-            NodeDefinition nodeDefinition = pRegistry->getNodeDef(*ppCurParentName);
-            nodeDefinition.addChildren(sChildren);
-            pRegistry->updateNodeDefinition(nodeDefinition);
-
-            ++ppCurParentName;
-        }
-    }
-    m_bDirtyDTD = true;
+    pRegistry->registerNodeType(def, pParentNames);
 }
 
 NodePtr Player::createNode(const string& sType,
@@ -1400,9 +1379,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
                     string("Error parsing xml:\n  ")+sXML));
     }
     NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc));
-
-    if (m_bDirtyDTD)
-        updateDTD();
+    updateDTD();
 
     xmlValidCtxtPtr cvp = xmlNewValidCtxt();
     cvp->error = xmlParserValidityError;

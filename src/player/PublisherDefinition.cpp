@@ -19,27 +19,49 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _AVGNode_H_
-#define _AVGNode_H_
+#include "PublisherDefinition.h"
 
-#include "../api.h"
-#include "CanvasNode.h"
-
-#include <string>
+using namespace std;
 
 namespace avg {
 
-class AVG_API AVGNode : public CanvasNode
+MessageID::MessageID(const std::string& sName, int id)
+    : m_sName(sName),
+      m_ID(id)
 {
-    public:
-        static void createDefinition();
-        
-        AVGNode(const ArgList& args);
-        virtual ~AVGNode();
-};
-
-typedef boost::shared_ptr<AVGNode> AVGNodePtr;
-
 }
 
-#endif
+
+int PublisherDefinition::s_LastMessageID = -1;
+
+PublisherDefinition::PublisherDefinition()
+{
+}
+
+PublisherDefinition::~PublisherDefinition()
+{
+}
+
+void PublisherDefinition::extendDefinition(const PublisherDefinition& def)
+{
+    m_MessageIDs = def.m_MessageIDs;
+}
+
+void PublisherDefinition::addMessage(const std::string& sName)
+{
+    m_MessageIDs.push_back(genMessageID(sName));
+}
+
+const std::vector<MessageID>& PublisherDefinition::getMessageIDs() const
+{
+    return m_MessageIDs;
+}
+
+
+MessageID PublisherDefinition::genMessageID(const std::string& sName)
+{
+    return MessageID(sName, ++s_LastMessageID);
+}
+
+
+}

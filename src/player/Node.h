@@ -75,7 +75,7 @@ class AVG_API Node: public Publisher
                 END_OF_FILE, // Used by Video and Sound nodes.
                 LAST_MESSAGE_ID};
 
-        static NodeDefinition createDefinition();
+        static void createDefinition();
         template<class NodeType>
         static NodePtr buildNode(const ArgList& Args)
         {

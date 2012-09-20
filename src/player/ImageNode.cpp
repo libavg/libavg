@@ -41,12 +41,12 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition ImageNode::createDefinition()
+void ImageNode::createDefinition()
 {
-    return NodeDefinition("image", Node::buildNode<ImageNode>)
-        .extendDefinition(NodeRegistry::get()->getNodeDef("rasternode"))
+    NodeDefinition def = NodeDefinition("image", "rasternode", Node::buildNode<ImageNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)))
         .addArg(Arg<string>("compression", "none"));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 ImageNode::ImageNode(const ArgList& args)

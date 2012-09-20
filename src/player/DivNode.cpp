@@ -41,18 +41,18 @@ using namespace boost;
 namespace avg {
 
 
-NodeDefinition DivNode::createDefinition()
+void DivNode::createDefinition()
 {
     string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
             "panoimage", "sound", "line", "rect", "curve", "polyline", "polygon",
             "circle", "mesh"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
-    return NodeDefinition("div", Node::buildNode<DivNode>)
-        .extendDefinition(NodeRegistry::get()->getNodeDef("areanode"))
+    NodeDefinition def = NodeDefinition("div", "areanode", Node::buildNode<DivNode>)
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 DivNode::DivNode(const ArgList& args)

@@ -258,7 +258,6 @@ class AVG_API Player: public Publisher
 
         float m_Volume;
 
-        bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
 
         bool m_bPythonAvailable;

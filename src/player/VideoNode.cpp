@@ -50,10 +50,9 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition VideoNode::createDefinition()
+void VideoNode::createDefinition()
 {
-    return NodeDefinition("video", Node::buildNode<VideoNode>)
-        .extendDefinition(NodeRegistry::get()->getNodeDef("rasternode"))
+    NodeDefinition def = NodeDefinition("video", "rasternode", Node::buildNode<VideoNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))
@@ -64,6 +63,7 @@ NodeDefinition VideoNode::createDefinition()
         .addArg(Arg<bool>("accelerated", false, false,
                 offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 VideoNode::VideoNode(const ArgList& args)

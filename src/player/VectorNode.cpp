@@ -47,16 +47,16 @@ using namespace boost;
 
 namespace avg {
 
-NodeDefinition VectorNode::createDefinition()
+void VectorNode::createDefinition()
 {
-    return NodeDefinition("vectornode")
-        .extendDefinition(NodeRegistry::get()->getNodeDef("node"))
+    NodeDefinition def = NodeDefinition("vectornode", "node")
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<float>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
         .addArg(Arg<string>("blendmode", "blend", false, 
                 offsetof(VectorNode, m_sBlendMode)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 VectorNode::VectorNode(const ArgList& args)

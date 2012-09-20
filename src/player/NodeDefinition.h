@@ -45,7 +45,8 @@ class AVG_API NodeDefinition
 {
 public:
     NodeDefinition();
-    NodeDefinition(const std::string& sName, NodeBuilder pBuilder = 0);
+    NodeDefinition(const std::string& sName, const std::string& sBaseName="",
+            NodeBuilder pBuilder = 0);
     virtual ~NodeDefinition();
     
     const std::string& getName() const;
@@ -57,7 +58,6 @@ public:
     bool hasChildren() const;
     bool isAbstract() const;
     
-    NodeDefinition& extendDefinition(const NodeDefinition& Def);
     NodeDefinition& addArg(const ArgBase& newArg);
     NodeDefinition& addDTDElements(const std::string& s);
     NodeDefinition& addChildren(const std::vector<std::string>& sChildren);

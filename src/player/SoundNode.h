@@ -37,7 +37,7 @@ class VideoDecoder;
 class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
 {
     public:
-        static NodeDefinition createDefinition();
+        static void createDefinition();
 
         SoundNode(const ArgList& args);
         virtual ~SoundNode();

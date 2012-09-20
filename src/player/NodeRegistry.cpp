@@ -25,6 +25,7 @@
 #include "NodeDefinition.h"
 #include "Style.h"
 
+#include "../base/MathHelper.h"
 #include "../base/Exception.h"
 
 #include <set>
@@ -51,9 +52,24 @@ NodeRegistry* NodeRegistry::get()
     return s_pInstance;
 }
 
-void NodeRegistry::registerNodeType(const NodeDefinition& def)
+void NodeRegistry::registerNodeType(const NodeDefinition& def, const char* pParentNames[])
 {
     m_NodeDefs.insert(NodeDefMap::value_type(def.getName(), def));
+
+    if (pParentNames) {
+        string sChildArray[1];
+        sChildArray[0] = def.getName();
+        vector<string> sChildren = vectorFromCArray(1, sChildArray);
+        const char **ppCurParentName = pParentNames;
+
+        while (*ppCurParentName) {
+            NodeDefinition nodeDefinition = getNodeDef(*ppCurParentName);
+            nodeDefinition.addChildren(sChildren);
+            updateNodeDefinition(nodeDefinition);
+
+            ++ppCurParentName;
+        }
+    }
 }
 
 void NodeRegistry::updateNodeDefinition(const NodeDefinition& def)

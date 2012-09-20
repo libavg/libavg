@@ -49,10 +49,9 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition AreaNode::createDefinition()
+void AreaNode::createDefinition()
 {
-    return NodeDefinition("areanode")
-        .extendDefinition(NodeRegistry::get()->getNodeDef("node"))
+    NodeDefinition def = NodeDefinition("areanode", "node")
         .addArg(Arg<float>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<float>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0.0, 0.0)))
@@ -64,6 +63,7 @@ NodeDefinition AreaNode::createDefinition()
                 offsetof(AreaNode, m_Pivot)))
         .addArg(Arg<string>("elementoutlinecolor", "", false, 
                 offsetof(AreaNode, m_sElementOutlineColor)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 AreaNode::AreaNode()

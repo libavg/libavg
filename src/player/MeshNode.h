@@ -36,7 +36,7 @@ namespace avg {
 class AVG_API MeshNode : public VectorNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void createDefinition();
         
         MeshNode(const ArgList& args);
         virtual ~MeshNode();
