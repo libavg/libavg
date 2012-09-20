@@ -49,7 +49,7 @@ NodeDefinition DivNode::createDefinition()
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
     return NodeDefinition("div", Node::buildNode<DivNode>)
-        .extendDefinition(AreaNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("areanode"))
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));

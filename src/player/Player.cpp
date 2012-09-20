@@ -145,10 +145,16 @@ Player::Player()
     initConfig();
 
     // Register all node types
-    registerNodeType(AVGNode::createDefinition());
-    registerNodeType(OffscreenCanvasNode::createDefinition());
-    registerNodeType(CanvasNode::createDefinition());
+    registerNodeType(Node::createDefinition());
+    registerNodeType(AreaNode::createDefinition());
+    registerNodeType(RasterNode::createDefinition());
+    registerNodeType(VectorNode::createDefinition());
+    registerNodeType(FilledVectorNode::createDefinition());
+
     registerNodeType(DivNode::createDefinition());
+    registerNodeType(CanvasNode::createDefinition());
+    registerNodeType(OffscreenCanvasNode::createDefinition());
+    registerNodeType(AVGNode::createDefinition());
     registerNodeType(ImageNode::createDefinition());
     registerNodeType(WordsNode::createDefinition());
     registerNodeType(VideoNode::createDefinition());

@@ -53,7 +53,7 @@ namespace avg {
 NodeDefinition VideoNode::createDefinition()
 {
     return NodeDefinition("video", Node::buildNode<VideoNode>)
-        .extendDefinition(RasterNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("rasternode"))
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))

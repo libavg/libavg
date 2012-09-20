@@ -33,7 +33,7 @@ namespace avg {
 NodeDefinition OffscreenCanvasNode::createDefinition()
 {
     return NodeDefinition("canvas", Node::buildNode<OffscreenCanvasNode>)
-        .extendDefinition(CanvasNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("canvasbase"))
         .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(OffscreenCanvasNode, m_bHandleEvents)))
         .addArg(Arg<int>("multisamplesamples", 1, false, 

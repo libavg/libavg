@@ -36,8 +36,8 @@ namespace avg {
 
 NodeDefinition FilledVectorNode::createDefinition()
 {
-    return NodeDefinition("filledvector")
-        .extendDefinition(VectorNode::createDefinition())
+    return NodeDefinition("filledvectornode")
+        .extendDefinition(NodeRegistry::get()->getNodeDef("vectornode"))
         .addArg(Arg<UTF8String>("filltexhref", "", false, 
                 offsetof(FilledVectorNode, m_FillTexHRef)))
         .addArg(Arg<float>("fillopacity", 0, false, 

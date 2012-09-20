@@ -27,6 +27,7 @@
 #include "../api.h"
 
 #include "ArgList.h"
+#include "NodeRegistry.h"
 
 #include <map>
 #include <string>

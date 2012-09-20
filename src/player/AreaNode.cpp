@@ -27,6 +27,7 @@
 #include "DivNode.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
+#include "NodeRegistry.h"
 #include "BoostPython.h"
 
 #include "../base/MathHelper.h"
@@ -51,7 +52,7 @@ namespace avg {
 NodeDefinition AreaNode::createDefinition()
 {
     return NodeDefinition("areanode")
-        .extendDefinition(Node::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("node"))
         .addArg(Arg<float>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<float>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0.0, 0.0)))

@@ -35,7 +35,7 @@ namespace avg {
 NodeDefinition LineNode::createDefinition()
 {
     return NodeDefinition("line", Node::buildNode<LineNode>)
-        .extendDefinition(VectorNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("vectornode"))
         .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(LineNode, m_P1)))
         .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(LineNode, m_P2)))
         .addArg(Arg<float>("texcoord1", 0, false, offsetof(LineNode, m_TC1)))

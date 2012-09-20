@@ -49,7 +49,7 @@ namespace avg {
 NodeDefinition CameraNode::createDefinition()
 {
     return NodeDefinition("camera", Node::buildNode<CameraNode>)
-        .extendDefinition(RasterNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("rasternode"))
         .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
         .addArg(Arg<int>("unit", -1))

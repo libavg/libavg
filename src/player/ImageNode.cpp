@@ -44,7 +44,7 @@ namespace avg {
 NodeDefinition ImageNode::createDefinition()
 {
     return NodeDefinition("image", Node::buildNode<ImageNode>)
-        .extendDefinition(RasterNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("rasternode"))
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)))
         .addArg(Arg<string>("compression", "none"));
 }

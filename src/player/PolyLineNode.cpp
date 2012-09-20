@@ -38,7 +38,7 @@ NodeDefinition PolyLineNode::createDefinition()
     vector<glm::vec2> v;
     vector<float> vd;
     return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
-        .extendDefinition(VectorNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("vectornode"))
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,

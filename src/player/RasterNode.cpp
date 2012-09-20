@@ -41,7 +41,7 @@ namespace avg {
 NodeDefinition RasterNode::createDefinition()
 {
     return NodeDefinition("rasternode")
-        .extendDefinition(AreaNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("areanode"))
         .addArg(Arg<int>("maxtilewidth", -1, false, 
                 offsetof(RasterNode, m_MaxTileSize.x)))
         .addArg(Arg<int>("maxtileheight", -1, false, 

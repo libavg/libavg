@@ -42,7 +42,7 @@ NodeDefinition MeshNode::createDefinition()
     vector<glm::ivec3> vTriangle;
 
     return NodeDefinition("mesh", (NodeBuilder)MeshNode::buildNode<MeshNode>)
-        .extendDefinition(VectorNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("vectornode"))
         .addArg(Arg<vector<glm::vec2> >("vertexcoords", vVert, false, 
                 offsetof(MeshNode, m_VertexCoords)))
         .addArg(Arg<vector<glm::vec2> >("texcoords", vTex, false, 

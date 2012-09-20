@@ -34,7 +34,7 @@ namespace avg {
 NodeDefinition CanvasNode::createDefinition()
 {
     return NodeDefinition("canvasbase", Node::buildNode<CanvasNode>)
-        .extendDefinition(DivNode::createDefinition());
+        .extendDefinition(NodeRegistry::get()->getNodeDef("div"));
 }
 
 CanvasNode::CanvasNode(const ArgList& args)

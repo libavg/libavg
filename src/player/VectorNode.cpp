@@ -49,8 +49,8 @@ namespace avg {
 
 NodeDefinition VectorNode::createDefinition()
 {
-    return NodeDefinition("vector")
-        .extendDefinition(Node::createDefinition())
+    return NodeDefinition("vectornode")
+        .extendDefinition(NodeRegistry::get()->getNodeDef("node"))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<float>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))

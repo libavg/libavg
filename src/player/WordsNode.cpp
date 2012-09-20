@@ -85,7 +85,7 @@ NodeDefinition WordsNode::createDefinition()
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
     return NodeDefinition("words", Node::buildNode<WordsNode>)
-        .extendDefinition(RasterNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("rasternode"))
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(WordsNode, m_sFontName)))

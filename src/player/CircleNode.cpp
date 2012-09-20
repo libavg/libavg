@@ -36,7 +36,7 @@ namespace avg {
 NodeDefinition CircleNode::createDefinition()
 {
     return NodeDefinition("circle", Node::buildNode<CircleNode>)
-        .extendDefinition(FilledVectorNode::createDefinition())
+        .extendDefinition(NodeRegistry::get()->getNodeDef("filledvectornode"))
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, offsetof(CircleNode, m_Pos)))
         .addArg(Arg<float>("r", 1, false, offsetof(CircleNode, m_Radius)))
         .addArg(Arg<float>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
