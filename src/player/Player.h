@@ -228,7 +228,6 @@ class AVG_API Player: public Publisher
        
         std::string m_CurDirName;
         bool m_bStopping;
-        NodeRegistry m_NodeRegistry;
 
         IInputDevicePtr m_pMultitouchInputDevice;
 

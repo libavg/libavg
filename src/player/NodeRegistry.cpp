@@ -33,12 +33,22 @@ using namespace std;
 
 namespace avg {
 
+NodeRegistry* NodeRegistry::s_pInstance = 0;
+
 NodeRegistry::NodeRegistry()
 {
 }
 
 NodeRegistry::~NodeRegistry()
 {
+}
+
+NodeRegistry* NodeRegistry::get()
+{
+    if (!s_pInstance) {
+        s_pInstance = new NodeRegistry();
+    }
+    return s_pInstance;
 }
 
 void NodeRegistry::registerNodeType(const NodeDefinition& def)

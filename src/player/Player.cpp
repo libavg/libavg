@@ -968,7 +968,7 @@ std::string Player::getRootMediaDir()
 
 const NodeDefinition& Player::getNodeDef(const std::string& sType)
 {
-    return m_NodeRegistry.getNodeDef(sType);
+    return NodeRegistry::get()->getNodeDef(sType);
 }
 
 void Player::disablePython()
@@ -1266,7 +1266,7 @@ void Player::updateDTD()
         xmlFreeDtd(m_dtd);
     }
     // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
+    registerDTDEntityLoader("avg.dtd", NodeRegistry::get()->getDTD().c_str());
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     assert (m_dtd);
@@ -1325,7 +1325,8 @@ SDLDisplayEnginePtr Player::safeGetDisplayEngine()
 
 void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
 {
-    m_NodeRegistry.registerNodeType(def);
+    NodeRegistry* pRegistry = NodeRegistry::get();
+    pRegistry->registerNodeType(def);
 
     if (pParentNames) {
         string sChildArray[1];
@@ -1334,9 +1335,9 @@ void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
         const char **ppCurParentName = pParentNames;
 
         while (*ppCurParentName) {
-            NodeDefinition nodeDefinition = m_NodeRegistry.getNodeDef(*ppCurParentName);
+            NodeDefinition nodeDefinition = pRegistry->getNodeDef(*ppCurParentName);
             nodeDefinition.addChildren(sChildren);
-            m_NodeRegistry.updateNodeDefinition(nodeDefinition);
+            pRegistry->updateNodeDefinition(nodeDefinition);
 
             ++ppCurParentName;
         }
@@ -1355,7 +1356,7 @@ NodePtr Player::createNode(const string& sType,
         attrs.attr("__delitem__")("parent");
         pParentNode = py::extract<DivNodePtr>(parent);
     }
-    NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
+    NodePtr pNode = NodeRegistry::get()->createNode(sType, attrs);
 
     // See if the class names of self and pNode match. If they don't, there is a
     // python derived class that's being constructed and we can't set parent here.
@@ -1422,7 +1423,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    pCurNode = m_NodeRegistry.createNode(nodeType, xmlNode);
+    pCurNode = NodeRegistry::get()->createNode(nodeType, xmlNode);
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.

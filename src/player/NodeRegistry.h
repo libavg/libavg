@@ -39,8 +39,8 @@ namespace avg {
 class AVG_API NodeRegistry
 {
 public:
-    NodeRegistry();
     virtual ~NodeRegistry();
+    static NodeRegistry* get();
     
     void registerNodeType(const NodeDefinition& def);
     void updateNodeDefinition(const NodeDefinition& def);
@@ -51,10 +51,13 @@ public:
     std::string getDTD() const;
     
 private:
+    NodeRegistry();
     void writeNodeDTD(const NodeDefinition& def, std::stringstream& ss) const;
     
     typedef std::map<std::string, NodeDefinition> NodeDefMap;
     NodeDefMap m_NodeDefs;
+
+    static NodeRegistry* s_pInstance;
 };
 
 }
