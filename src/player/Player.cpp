@@ -64,6 +64,7 @@
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "EventDispatcher.h"
+#include "PublisherDefinitionRegistry.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -166,6 +167,8 @@ Player::Player()
     PolygonNode::registerType();
     CircleNode::registerType();
     MeshNode::registerType();
+
+    PublisherDefinitionRegistry::get()->dump();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
 

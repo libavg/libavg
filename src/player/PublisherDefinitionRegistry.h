@@ -19,39 +19,50 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PublisherDefinition_H_
-#define _PublisherDefinition_H_
+#ifndef _PublisherDefinitionRegistry_H_
+#define _PublisherDefinitionRegistry_H_
 
 #include "../api.h"
 
-#include "PublisherDefinitionRegistry.h"
-
+#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <string>
 
 namespace avg {
 
-class AVG_API PublisherDefinition
-{
-public:
-    virtual ~PublisherDefinition();
-    static PublisherDefinitionPtr create(const std::string& sName, 
-            const std::string& sBaseName="");
+class PublisherDefinition;
+typedef boost::shared_ptr<PublisherDefinition> PublisherDefinitionPtr;
 
-    void addMessage(const std::string& sName);
-    const std::vector<MessageID> & getMessageIDs() const;
-
-    const std::string& getName() const;
-    void dump() const;
-
-private:
-    PublisherDefinition(const std::string& sName, const std::string& sBaseName);
+struct MessageID {
+    MessageID(const std::string& sName, int id);
 
     std::string m_sName;
-    std::vector<MessageID> m_MessageIDs;
+    int m_ID;
+};
+
+class AVG_API PublisherDefinitionRegistry
+{
+public:
+    static PublisherDefinitionRegistry* get();
+    virtual ~PublisherDefinitionRegistry();
+    
+    void registerDefinition(PublisherDefinitionPtr def);
+    PublisherDefinitionPtr getDefinition(const std::string& sName) const;
+
+    void dump() const;
+
+    MessageID genMessageID(const std::string& sName=0);
+
+private:
+    PublisherDefinitionRegistry();
+    std::vector<PublisherDefinitionPtr> m_Definitions;
+    int m_LastMessageID;
+    
+    static PublisherDefinitionRegistry* s_pInstance;
 };
 
 }
 
 #endif
+
 

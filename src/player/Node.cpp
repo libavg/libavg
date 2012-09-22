@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "CursorEvent.h"
 #include "Style.h"
+#include "PublisherDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -43,6 +44,9 @@ namespace avg {
 
 void Node::registerType()
 {
+    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Node");
+    pPubDef->addMessage("CURSOR_DOWN");
+
     NodeDefinition def = NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
         .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))

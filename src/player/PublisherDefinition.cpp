@@ -25,31 +25,31 @@ using namespace std;
 
 namespace avg {
 
-MessageID::MessageID(const std::string& sName, int id)
-    : m_sName(sName),
-      m_ID(id)
+PublisherDefinition::PublisherDefinition(const string& sName, const string& sBaseName)
+    : m_sName(sName)
 {
-}
-
-
-int PublisherDefinition::s_LastMessageID = -1;
-
-PublisherDefinition::PublisherDefinition()
-{
+    if (sBaseName != "") {
+        PublisherDefinitionPtr pBaseDef = 
+                PublisherDefinitionRegistry::get()->getDefinition(sBaseName);
+        m_MessageIDs = pBaseDef->m_MessageIDs;
+    }
 }
 
 PublisherDefinition::~PublisherDefinition()
 {
 }
 
-void PublisherDefinition::extendDefinition(const PublisherDefinition& def)
+PublisherDefinitionPtr PublisherDefinition::create(const std::string& sName, 
+            const std::string& sBaseName)
 {
-    m_MessageIDs = def.m_MessageIDs;
+    PublisherDefinitionPtr pDef(new PublisherDefinition(sName, sBaseName));
+    PublisherDefinitionRegistry::get()->registerDefinition(pDef);
+    return pDef;
 }
 
 void PublisherDefinition::addMessage(const std::string& sName)
 {
-    m_MessageIDs.push_back(genMessageID(sName));
+    m_MessageIDs.push_back(PublisherDefinitionRegistry::get()->genMessageID(sName));
 }
 
 const std::vector<MessageID>& PublisherDefinition::getMessageIDs() const
@@ -57,11 +57,17 @@ const std::vector<MessageID>& PublisherDefinition::getMessageIDs() const
     return m_MessageIDs;
 }
 
-
-MessageID PublisherDefinition::genMessageID(const std::string& sName)
+const std::string& PublisherDefinition::getName() const
 {
-    return MessageID(sName, ++s_LastMessageID);
+    return m_sName;
 }
-
+    
+void PublisherDefinition::dump() const
+{
+    cerr << m_sName << endl;
+    for (unsigned i=0; i<m_MessageIDs.size(); ++i) {
+        cerr << "  " << m_MessageIDs[i].m_sName << ": " << m_MessageIDs[i].m_ID << endl;
+    }
+}
 
 }
