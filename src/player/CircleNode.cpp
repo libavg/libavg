@@ -33,7 +33,7 @@ using namespace std;
 
 namespace avg {
 
-void CircleNode::createDefinition()
+void CircleNode::registerType()
 {
     NodeDefinition def = NodeDefinition("circle", "filledvectornode",
             Node::buildNode<CircleNode>)

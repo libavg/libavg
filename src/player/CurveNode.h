@@ -32,7 +32,7 @@ namespace avg {
 class AVG_API CurveNode : public VectorNode
 {
     public:
-        static void createDefinition();
+        static void registerType();
         
         CurveNode(const ArgList& args);
         virtual ~CurveNode();

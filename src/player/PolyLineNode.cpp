@@ -33,7 +33,7 @@ using namespace std;
 
 namespace avg {
 
-void PolyLineNode::createDefinition()
+void PolyLineNode::registerType()
 {
     vector<glm::vec2> v;
     vector<float> vd;

@@ -47,7 +47,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
     public:
         enum VideoAccelType {NONE, VDPAU};
 
-        static void createDefinition();
+        static void registerType();
         
         VideoNode(const ArgList& args);
         virtual ~VideoNode();

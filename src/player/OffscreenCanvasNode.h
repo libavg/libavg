@@ -32,7 +32,7 @@ namespace avg {
 class AVG_API OffscreenCanvasNode : public CanvasNode
 {
     public:
-        static void createDefinition();
+        static void registerType();
         
         OffscreenCanvasNode(const ArgList& args);
         virtual ~OffscreenCanvasNode();

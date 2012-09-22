@@ -44,7 +44,7 @@ typedef std::vector<CameraInfo> CamerasInfosVector;
 class AVG_API CameraNode : public RasterNode
 {
     public:
-        static void createDefinition();
+        static void registerType();
         
         CameraNode(const ArgList& args);
         virtual ~CameraNode();

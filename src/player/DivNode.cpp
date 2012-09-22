@@ -41,7 +41,7 @@ using namespace boost;
 namespace avg {
 
 
-void DivNode::createDefinition()
+void DivNode::registerType()
 {
     string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
             "panoimage", "sound", "line", "rect", "curve", "polyline", "polygon",

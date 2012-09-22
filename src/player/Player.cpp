@@ -144,28 +144,28 @@ Player::Player()
     initConfig();
 
     // Register all node types
-    Node::createDefinition();
-    AreaNode::createDefinition();
-    RasterNode::createDefinition();
-    VectorNode::createDefinition();
-    FilledVectorNode::createDefinition();
+    Node::registerType();
+    AreaNode::registerType();
+    RasterNode::registerType();
+    VectorNode::registerType();
+    FilledVectorNode::registerType();
 
-    DivNode::createDefinition();
-    CanvasNode::createDefinition();
-    OffscreenCanvasNode::createDefinition();
-    AVGNode::createDefinition();
-    ImageNode::createDefinition();
-    WordsNode::createDefinition();
-    VideoNode::createDefinition();
-    CameraNode::createDefinition();
-    SoundNode::createDefinition();
-    LineNode::createDefinition();
-    RectNode::createDefinition();
-    CurveNode::createDefinition();
-    PolyLineNode::createDefinition();
-    PolygonNode::createDefinition();
-    CircleNode::createDefinition();
-    MeshNode::createDefinition();
+    DivNode::registerType();
+    CanvasNode::registerType();
+    OffscreenCanvasNode::registerType();
+    AVGNode::registerType();
+    ImageNode::registerType();
+    WordsNode::registerType();
+    VideoNode::registerType();
+    CameraNode::registerType();
+    SoundNode::registerType();
+    LineNode::registerType();
+    RectNode::registerType();
+    CurveNode::registerType();
+    PolyLineNode::registerType();
+    PolygonNode::registerType();
+    CircleNode::registerType();
+    MeshNode::registerType();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
 

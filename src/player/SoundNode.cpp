@@ -46,7 +46,7 @@ using namespace std;
 
 namespace avg {
 
-void SoundNode::createDefinition()
+void SoundNode::registerType()
 {
     NodeDefinition def = NodeDefinition("sound", "areanode", Node::buildNode<SoundNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))

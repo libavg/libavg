@@ -32,7 +32,7 @@ using namespace std;
 
 namespace avg {
 
-void LineNode::createDefinition()
+void LineNode::registerType()
 {
     NodeDefinition def = NodeDefinition("line", "vectornode", Node::buildNode<LineNode>)
         .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(LineNode, m_P1)))

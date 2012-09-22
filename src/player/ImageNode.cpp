@@ -41,7 +41,7 @@ using namespace std;
 
 namespace avg {
 
-void ImageNode::createDefinition()
+void ImageNode::registerType()
 {
     NodeDefinition def = NodeDefinition("image", "rasternode", Node::buildNode<ImageNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)))

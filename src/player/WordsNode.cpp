@@ -46,7 +46,7 @@ using namespace std;
 
 namespace avg {
 
-void WordsNode::createDefinition()
+void WordsNode::registerType()
 {
     static const string sDTDElements = 
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"

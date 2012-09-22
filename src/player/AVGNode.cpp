@@ -33,7 +33,7 @@ using namespace std;
 
 namespace avg {
 
-void AVGNode::createDefinition()
+void AVGNode::registerType()
 {
     NodeDefinition def = NodeDefinition("avg", "canvasbase", Node::buildNode<AVGNode>);
     NodeRegistry::get()->registerNodeType(def);

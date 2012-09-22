@@ -38,7 +38,7 @@ using namespace std;
 
 namespace avg {
 
-void RasterNode::createDefinition()
+void RasterNode::registerType()
 {
     NodeDefinition def = NodeDefinition("rasternode", "areanode")
         .addArg(Arg<int>("maxtilewidth", -1, false, 

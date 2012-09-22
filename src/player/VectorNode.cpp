@@ -47,7 +47,7 @@ using namespace boost;
 
 namespace avg {
 
-void VectorNode::createDefinition()
+void VectorNode::registerType()
 {
     NodeDefinition def = NodeDefinition("vectornode", "node")
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))

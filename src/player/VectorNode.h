@@ -40,7 +40,7 @@ class AVG_API VectorNode : public Node
     public:
         enum LineJoin {LJ_MITER, LJ_BEVEL};
 
-        static void createDefinition();
+        static void registerType();
         
         VectorNode(const ArgList& args);
         virtual ~VectorNode();

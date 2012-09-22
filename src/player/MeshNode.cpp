@@ -35,7 +35,7 @@ using namespace std;
 
 namespace avg {
 
-void MeshNode::createDefinition()
+void MeshNode::registerType()
 {
     vector<glm::vec2> vVert;
     vector<glm::vec2> vTex;

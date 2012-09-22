@@ -41,7 +41,7 @@ using namespace std;
 
 namespace avg {
 
-void Node::createDefinition()
+void Node::registerType()
 {
     NodeDefinition def = NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))

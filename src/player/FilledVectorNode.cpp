@@ -34,7 +34,7 @@ using namespace boost;
 
 namespace avg {
 
-void FilledVectorNode::createDefinition()
+void FilledVectorNode::registerType()
 {
     NodeDefinition def = NodeDefinition("filledvectornode", "vectornode")
         .addArg(Arg<UTF8String>("filltexhref", "", false, 

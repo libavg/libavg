@@ -34,7 +34,7 @@ using namespace std;
 
 namespace avg {
 
-void RectNode::createDefinition()
+void RectNode::registerType()
 {
     float texCoords[] = {0, 0.25f, 0.5f, 0.75f, 1};
     NodeDefinition def = NodeDefinition("rect", "filledvectornode",

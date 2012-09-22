@@ -37,7 +37,7 @@ using namespace std;
 
 namespace avg {
 
-void CurveNode::createDefinition()
+void CurveNode::registerType()
 {
     NodeDefinition def = NodeDefinition("curve", "vectornode", Node::buildNode<CurveNode>)
         .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(CurveNode, m_P1)))

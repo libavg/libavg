@@ -46,7 +46,7 @@ using namespace std;
 
 namespace avg {
 
-void CameraNode::createDefinition()
+void CameraNode::registerType()
 {
     NodeDefinition def = NodeDefinition("camera", "rasternode", 
             Node::buildNode<CameraNode>)

@@ -50,7 +50,7 @@ using namespace std;
 
 namespace avg {
 
-void VideoNode::createDefinition()
+void VideoNode::registerType()
 {
     NodeDefinition def = NodeDefinition("video", "rasternode", Node::buildNode<VideoNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))

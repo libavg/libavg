@@ -37,7 +37,7 @@ namespace avg {
 class AVG_API WordsNode : public RasterNode
 {
     public:
-        static void createDefinition();
+        static void registerType();
         
         WordsNode(const ArgList& args);
         virtual ~WordsNode();

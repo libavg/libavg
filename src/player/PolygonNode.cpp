@@ -37,7 +37,7 @@ using namespace std;
 
 namespace avg {
 
-void PolygonNode::createDefinition()
+void PolygonNode::registerType()
 {
     VectorVec2Vector cv;
     vector<glm::vec2> v;

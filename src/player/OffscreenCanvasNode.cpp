@@ -30,7 +30,7 @@ using namespace std;
 
 namespace avg {
 
-void OffscreenCanvasNode::createDefinition()
+void OffscreenCanvasNode::registerType()
 {
     NodeDefinition def = NodeDefinition("canvas", "canvasbase",
             Node::buildNode<OffscreenCanvasNode>)

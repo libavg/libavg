@@ -31,7 +31,7 @@ using namespace std;
 
 namespace avg {
 
-void CanvasNode::createDefinition()
+void CanvasNode::registerType()
 {
     NodeDefinition def = NodeDefinition("canvasbase", "div", Node::buildNode<CanvasNode>);
     NodeRegistry::get()->registerNodeType(def);

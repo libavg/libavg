@@ -49,7 +49,7 @@ using namespace std;
 
 namespace avg {
 
-void AreaNode::createDefinition()
+void AreaNode::registerType()
 {
     NodeDefinition def = NodeDefinition("areanode", "node")
         .addArg(Arg<float>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
