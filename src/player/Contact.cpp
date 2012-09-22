@@ -24,6 +24,7 @@
 #include "CursorEvent.h"
 #include "BoostPython.h"
 #include "Player.h"
+#include "PublisherDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -36,6 +37,13 @@ using namespace std;
 namespace avg {
 
 int Contact::s_LastListenerID = 0;
+
+void Contact::registerType()
+{
+    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Contact");
+    pPubDef->addMessage("CURSOR_MOTION");
+    pPubDef->addMessage("CURSOR_UP");
+}
 
 Contact::Contact(CursorEventPtr pEvent)
     : m_bSendingEvents(false),

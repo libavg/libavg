@@ -64,6 +64,7 @@
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "EventDispatcher.h"
+#include "PublisherDefinition.h"
 #include "PublisherDefinitionRegistry.h"
 
 #include "../base/FileHelper.h"
@@ -167,6 +168,14 @@ Player::Player()
     PolygonNode::registerType();
     CircleNode::registerType();
     MeshNode::registerType();
+
+    // Register non-node publishers
+    Contact::registerType();
+    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Player");
+    pPubDef->addMessage("KEY_DOWN");
+    pPubDef->addMessage("KEY_UP");
+    pPubDef->addMessage("PLAYBACK_START");
+    pPubDef->addMessage("PLAYBACK_END");
 
     PublisherDefinitionRegistry::get()->dump();
 

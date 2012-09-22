@@ -46,6 +46,16 @@ void Node::registerType()
 {
     PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Node");
     pPubDef->addMessage("CURSOR_DOWN");
+    pPubDef->addMessage("CURSOR_MOTION");
+    pPubDef->addMessage("CURSOR_UP");
+    pPubDef->addMessage("CURSOR_OVER");
+    pPubDef->addMessage("CURSOR_OUT");
+    pPubDef->addMessage("HOVER_DOWN");
+    pPubDef->addMessage("HOVER_MOTION");
+    pPubDef->addMessage("HOVER_UP");
+    pPubDef->addMessage("HOVER_OVER");
+    pPubDef->addMessage("HOVER_OUT");
+    pPubDef->addMessage("END_OF_FILE");
 
     NodeDefinition def = NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
