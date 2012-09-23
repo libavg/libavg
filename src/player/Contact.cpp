@@ -46,16 +46,13 @@ void Contact::registerType()
 }
 
 Contact::Contact(CursorEventPtr pEvent)
-    : m_bSendingEvents(false),
+    : Publisher("Contact"),
+      m_bSendingEvents(false),
       m_bCurListenerIsDead(false),
       m_CursorID(pEvent->getCursorID()),
       m_DistanceTravelled(0)
 {
     m_Events.push_back(pEvent);
-
-    for (int msgID = CURSOR_MOTION; msgID != LAST_MESSAGE_ID; msgID++) {
-        publish(msgID);
-    }
 }
 
 Contact::~Contact()
@@ -140,10 +137,10 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         case Event::CURSOR_DOWN:
             break;
         case Event::CURSOR_MOTION:
-            notifySubscribers(Contact::CURSOR_MOTION, pCursorEvent);
+            notifySubscribers("CURSOR_MOTION", pCursorEvent);
             break;
         case Event::CURSOR_UP:
-            notifySubscribers(Contact::CURSOR_UP, pCursorEvent);
+            notifySubscribers("CURSOR_UP", pCursorEvent);
             removeSubscribers();
             break;
         default:

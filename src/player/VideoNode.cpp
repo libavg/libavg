@@ -93,7 +93,6 @@ VideoNode::VideoNode(const ArgList& args)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
-    publish(END_OF_FILE);
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -782,7 +781,7 @@ void VideoNode::onEOF()
         }
         Py_DECREF(result);
     }
-    notifySubscribers(END_OF_FILE);
+    notifySubscribers("END_OF_FILE");
 }
 
 

@@ -25,6 +25,8 @@
 #include "../api.h"
 
 #include "BoostPython.h"
+#include "PublisherDefinition.h"
+#include "PublisherDefinitionRegistry.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
@@ -45,43 +47,46 @@ typedef boost::shared_ptr<Publisher> PublisherPtr;
 class AVG_API Publisher: public boost::enable_shared_from_this<Publisher> 
 {
 public:
-    Publisher();
+    Publisher(const std::string& sTypeName);
     virtual ~Publisher();
 
-    int subscribe(int messageID, const py::object& callable);
-    void unsubscribe(int messageID, int subscriberID);
-    void unsubscribeCallable(int messageID, const py::object& callable);
-    int getNumSubscribers(int messageID);
+    int subscribe(MessageID messageID, const py::object& callable);
+    void unsubscribe(MessageID messageID, int subscriberID);
+    void unsubscribeCallable(MessageID messageID, const py::object& callable);
+    int getNumSubscribers(MessageID messageID);
 
     // The following methods should really be protected, but python derived classes need
     // to call them too.
-    void publish(int messageID);
+    void publish(MessageID messageID);
    
-    void notifySubscribers(int messageID);
+    void notifySubscribers(MessageID messageID);
+    void notifySubscribers(const std::string& sMsgName);
     template<class ARG_TYPE>
-    void notifySubscribers(int messageID, const ARG_TYPE& arg);
-    void notifySubscribersPy(int messageID, const py::list& args);
+    void notifySubscribers(const std::string& sMsgName, const ARG_TYPE& arg);
+    void notifySubscribersPy(MessageID messageID, const py::list& args);
 
 protected:
     void removeSubscribers();
 
 private:
     typedef std::vector<SubscriberInfoPtr> SubscriberInfoVector;
-    typedef std::map<int, SubscriberInfoVector> SignalMap;
+    typedef std::map<MessageID, SubscriberInfoVector> SignalMap;
     
-    SubscriberInfoVector& safeFindSubscribers(int messageID);
+    SubscriberInfoVector& safeFindSubscribers(MessageID messageID);
 
+    PublisherDefinitionPtr m_pPublisherDef;
     SignalMap m_SignalMap;
     bool m_bIsInNotify;
     static int s_LastSubscriberID;
 
-    typedef std::pair<int, int> UnsubscribeDescription;
+    typedef std::pair<MessageID, int> UnsubscribeDescription;
     std::vector<UnsubscribeDescription> m_PendingUnsubscribes;
 };
 
 template<class ARG_TYPE>
-void Publisher::notifySubscribers(int messageID, const ARG_TYPE& arg)
+void Publisher::notifySubscribers(const std::string& sMsgName, const ARG_TYPE& arg)
 {
+    MessageID messageID = m_pPublisherDef->getMessageID(sMsgName);
     SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
     if (!subscribers.empty()) {
         py::list args;

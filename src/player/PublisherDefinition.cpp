@@ -21,6 +21,8 @@
 
 #include "PublisherDefinition.h"
 
+#include "../base/Exception.h"
+
 using namespace std;
 
 namespace avg {
@@ -50,6 +52,19 @@ PublisherDefinitionPtr PublisherDefinition::create(const std::string& sName,
 void PublisherDefinition::addMessage(const std::string& sName)
 {
     m_MessageIDs.push_back(PublisherDefinitionRegistry::get()->genMessageID(sName));
+}
+
+const MessageID& PublisherDefinition::getMessageID(const std::string& sName) const
+{
+    for (unsigned i=0; i<m_MessageIDs.size(); ++i) {
+        if (m_MessageIDs[i].m_sName == sName) {
+            return m_MessageIDs[i];
+        }
+    }
+    AVG_ASSERT_MSG(false, (string("Message named '")+sName+("' unknown.")).c_str());
+    // Avoid compiler warning.
+    static MessageID nullMsg("", -1);
+    return nullMsg;
 }
 
 const std::vector<MessageID>& PublisherDefinition::getMessageIDs() const

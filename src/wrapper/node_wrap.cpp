@@ -48,9 +48,11 @@ void export_devices();
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
+#include <string>
 
 using namespace boost::python;
 using namespace avg;
+using namespace std;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(disconnectEventHandler_overloads, 
@@ -96,9 +98,7 @@ void export_node()
     to_python_converter<VectorVec2Vector, to_list<VectorVec2Vector> >();
     from_python_sequence<VectorVec2Vector, variable_capacity_policy>();
 
-    scope mainScope;
-
-    scope nodeScope = class_<Node, boost::shared_ptr<Node>, bases<Publisher>, 
+    object nodeClass = class_<Node, boost::shared_ptr<Node>, bases<Publisher>, 
             boost::noncopyable>("Node", no_init)
         .def(self == self)
         .def(self != self)
@@ -125,24 +125,7 @@ void export_node()
         .add_property("sensitive", &Node::getSensitive, &Node::setSensitive)
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
         ;
-
-    enum_<Node::MessageID>("MessageID")
-        .value("CURSOR_DOWN", Node::CURSOR_DOWN)
-        .value("CURSOR_MOTION", Node::CURSOR_MOTION)
-        .value("CURSOR_UP", Node::CURSOR_UP)
-        .value("CURSOR_OVER", Node::CURSOR_OVER)
-        .value("CURSOR_OUT", Node::CURSOR_OUT)
-        .value("HOVER_DOWN", Node::HOVER_DOWN)
-        .value("HOVER_MOTION", Node::HOVER_MOTION)
-        .value("HOVER_UP", Node::HOVER_UP)
-        .value("HOVER_OVER", Node::HOVER_OVER)
-        .value("HOVER_OUT", Node::HOVER_OUT)
-        .value("END_OF_FILE", Node::END_OF_FILE)
-        .value("LAST_MESSAGE_ID", Node::LAST_MESSAGE_ID)
-        .export_values()
-        ;
-
-    scope oldScope(mainScope);
+    exportMessages(nodeClass, "Node");
 
     class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
             "AreaNode", no_init)

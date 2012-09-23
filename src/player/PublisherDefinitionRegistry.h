@@ -36,9 +36,13 @@ typedef boost::shared_ptr<PublisherDefinition> PublisherDefinitionPtr;
 struct MessageID {
     MessageID(const std::string& sName, int id);
 
+    bool operator < (const MessageID& other) const;
+
     std::string m_sName;
     int m_ID;
 };
+
+AVG_API std::ostream& operator <<(std::ostream& os, const MessageID& id);
 
 class AVG_API PublisherDefinitionRegistry
 {

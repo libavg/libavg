@@ -70,10 +70,6 @@ class AVG_API Node: public Publisher
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
-        enum MessageID {CURSOR_DOWN, CURSOR_MOTION, CURSOR_UP, CURSOR_OVER, CURSOR_OUT, 
-                HOVER_DOWN, HOVER_MOTION, HOVER_UP, HOVER_OVER, HOVER_OUT,
-                END_OF_FILE, // Used by Video and Sound nodes.
-                LAST_MESSAGE_ID};
 
         static void registerType();
         template<class NodeType>
@@ -199,7 +195,7 @@ class AVG_API Node: public Publisher
 
         void connectOneEventHandler(const EventID& id, PyObject * pObj, PyObject * pFunc);
         void dumpEventHandlers();
-        MessageID getEventMessageID(const EventPtr& pEvent);
+        std::string getEventMessageID(const EventPtr& pEvent);
         bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
 
         EventHandlerMap m_EventHandlerMap;

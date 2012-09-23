@@ -38,10 +38,29 @@ MessageID::MessageID(const std::string& sName, int id)
 {
 }
 
+bool MessageID::operator < (const MessageID& other) const
+{
+    return m_ID < other.m_ID;
+}
+
+std::ostream& operator <<(std::ostream& os, const MessageID& id)
+{
+    os << "(" << id.m_sName << ", " << id.m_ID << ")";
+    return os;
+}
+
 
 PublisherDefinitionRegistry::PublisherDefinitionRegistry()
     : m_LastMessageID(-1)
 {
+    s_pInstance = this;
+    // The following should really happen in the player constructor, but the entries
+    // need to exist for the player to be constructed.
+    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Player");
+    pPubDef->addMessage("KEY_DOWN");
+    pPubDef->addMessage("KEY_UP");
+    pPubDef->addMessage("PLAYBACK_START");
+    pPubDef->addMessage("PLAYBACK_END");
 }
 
 PublisherDefinitionRegistry::~PublisherDefinitionRegistry()
@@ -51,7 +70,7 @@ PublisherDefinitionRegistry::~PublisherDefinitionRegistry()
 PublisherDefinitionRegistry* PublisherDefinitionRegistry::get()
 {
     if (!s_pInstance) {
-        s_pInstance = new PublisherDefinitionRegistry();
+        new PublisherDefinitionRegistry();
     }
     return s_pInstance;
 }

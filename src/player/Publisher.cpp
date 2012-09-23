@@ -32,16 +32,21 @@ namespace avg {
 
 int Publisher::s_LastSubscriberID = 0;
 
-Publisher::Publisher()
+Publisher::Publisher(const string& sTypeName)
     : m_bIsInNotify(false)
 {
+    m_pPublisherDef = PublisherDefinitionRegistry::get()->getDefinition(sTypeName);
+    vector<MessageID> messageIDs = m_pPublisherDef->getMessageIDs();
+    for (unsigned i=0; i<messageIDs.size(); ++i) {
+        m_SignalMap[messageIDs[i]] = vector<SubscriberInfoPtr>();
+    }
 }
 
 Publisher::~Publisher()
 {
 }
 
-int Publisher::subscribe(int messageID, const py::object& callable)
+int Publisher::subscribe(MessageID messageID, const py::object& callable)
 {
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     int subscriberID = s_LastSubscriberID;
@@ -50,7 +55,7 @@ int Publisher::subscribe(int messageID, const py::object& callable)
     return subscriberID;
 }
 
-void Publisher::unsubscribe(int messageID, int subscriberID)
+void Publisher::unsubscribe(MessageID messageID, int subscriberID)
 {
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     bool bFound = false;
@@ -59,7 +64,7 @@ void Publisher::unsubscribe(int messageID, int subscriberID)
         if ((*it)->getID() == subscriberID) {
             if (m_bIsInNotify) {
                 m_PendingUnsubscribes.push_back(
-                        std::pair<int, int>(messageID, subscriberID));
+                        std::pair<MessageID, int>(messageID, subscriberID));
             } else {
                 subscribers.erase(it);
             }
@@ -73,7 +78,7 @@ void Publisher::unsubscribe(int messageID, int subscriberID)
     }
 }
 
-void Publisher::unsubscribeCallable(int messageID, const py::object& callable)
+void Publisher::unsubscribeCallable(MessageID messageID, const py::object& callable)
 {
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     bool bFound = false;
@@ -82,7 +87,7 @@ void Publisher::unsubscribeCallable(int messageID, const py::object& callable)
         if ((*it)->isCallable(callable)) {
             if (m_bIsInNotify) {
                 m_PendingUnsubscribes.push_back(
-                        std::pair<int, int>(messageID, (*it)->getID()));
+                        std::pair<MessageID, int>(messageID, (*it)->getID()));
             } else {
                 subscribers.erase(it);
             }
@@ -97,13 +102,13 @@ void Publisher::unsubscribeCallable(int messageID, const py::object& callable)
 
 }
 
-int Publisher::getNumSubscribers(int messageID)
+int Publisher::getNumSubscribers(MessageID messageID)
 {
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     return subscribers.size(); 
 }
 
-void Publisher::publish(int messageID)
+void Publisher::publish(MessageID messageID)
 {
     if (m_SignalMap.find(messageID) != m_SignalMap.end()) {
         throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
@@ -120,7 +125,7 @@ void Publisher::removeSubscribers()
     }
 }
 
-void Publisher::notifySubscribers(int messageID)
+void Publisher::notifySubscribers(MessageID messageID)
 {
     SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
     if (!subscribers.empty()) {
@@ -128,8 +133,14 @@ void Publisher::notifySubscribers(int messageID)
         notifySubscribersPy(messageID, args);
     }
 }
+    
+void Publisher::notifySubscribers(const string& sMsgName)
+{
+    MessageID messageID = m_pPublisherDef->getMessageID(sMsgName);
+    notifySubscribers(messageID);
+}
 
-void Publisher::notifySubscribersPy(int messageID, const py::list& args)
+void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 {
     m_bIsInNotify = true;
     SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
@@ -155,7 +166,7 @@ void Publisher::notifySubscribersPy(int messageID, const py::list& args)
     m_PendingUnsubscribes.clear();
 }
 
-Publisher::SubscriberInfoVector& Publisher::safeFindSubscribers(int messageID)
+Publisher::SubscriberInfoVector& Publisher::safeFindSubscribers(MessageID messageID)
 {
     if (m_SignalMap.find(messageID) == m_SignalMap.end()) {
         throw Exception(AVG_ERR_INVALID_ARGS, "No signal with ID "+toString(messageID));

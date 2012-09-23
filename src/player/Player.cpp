@@ -108,7 +108,8 @@ namespace avg {
 Player * Player::s_pPlayer=0;
 
 Player::Player()
-    : m_pDisplayEngine(),
+    : Publisher("Player"),
+      m_pDisplayEngine(),
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -171,11 +172,6 @@ Player::Player()
 
     // Register non-node publishers
     Contact::registerType();
-    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Player");
-    pPubDef->addMessage("KEY_DOWN");
-    pPubDef->addMessage("KEY_UP");
-    pPubDef->addMessage("PLAYBACK_START");
-    pPubDef->addMessage("PLAYBACK_END");
 
     PublisherDefinitionRegistry::get()->dump();
 
@@ -188,10 +184,6 @@ Player::Player()
         debugBreak();
     }
     
-    for (int msgID = KEY_DOWN; msgID != LAST_MESSAGE_ID; msgID++) {
-        publish(msgID);
-    }
-
     g_type_init();
 }
 
@@ -527,14 +519,14 @@ void Player::play()
             throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
         }
         initPlayback();
-        notifySubscribers(PLAYBACK_START);
+        notifySubscribers("PLAYBACK_START");
         try {
             ThreadProfiler::get()->start();
             doFrame(true);
             while (!m_bStopping) {
                 doFrame(false);
             }
-            notifySubscribers(PLAYBACK_END);
+            notifySubscribers("PLAYBACK_END");
         } catch (...) {
             cleanup();
             throw;
@@ -1063,10 +1055,10 @@ bool Player::handleEvent(EventPtr pEvent)
         pEvent->trace();
         switch (pEvent->getType()) {
             case Event::KEY_DOWN:
-                notifySubscribers(KEY_DOWN, pEvent);
+                notifySubscribers("KEY_DOWN", pEvent);
                 break;
             case Event::KEY_UP:
-                notifySubscribers(KEY_UP, pEvent);
+                notifySubscribers("KEY_UP", pEvent);
                 break;
             default:
                 AVG_ASSERT(false);

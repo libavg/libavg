@@ -84,6 +84,7 @@ BOOST_PYTHON_MODULE(avg)
 {
     docstring_options doc_options(true, false);
 
+    Player::get();
     export_base();
 
     register_ptr_to_python<DivNodePtr>();
@@ -96,6 +97,8 @@ BOOST_PYTHON_MODULE(avg)
     def("getMemoryUsage", getMemoryUsage);
 
     def("pointInPolygon", pointInPolygon);
+
+    class_<MessageID>("MessageID", no_init);
 
     class_<Logger>("Logger", no_init)
         .def("get", &Logger::get, 
@@ -119,7 +122,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLAYER", &Logger::PLAYER)
     ;
 
-    class_<Publisher, boost::noncopyable>("Publisher")
+    class_<Publisher, boost::noncopyable>("Publisher", no_init)
         .def("subscribe", &Publisher::subscribe)
         .def("unsubscribe", &Publisher::unsubscribeCallable)
         .def("unsubscribe", &Publisher::unsubscribe)
@@ -220,7 +223,7 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
-
+/*
     enum_<Player::MessageID>("MessageID")
         .value("KEY_DOWN", Player::KEY_DOWN)
         .value("KEY_UP", Player::KEY_UP)
@@ -228,7 +231,7 @@ BOOST_PYTHON_MODULE(avg)
         .value("PLAYBACK_END", Player::PLAYBACK_END)
         .export_values()
         ;
-
+*/
     scope oldScope(mainScope);
     
     class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", no_init)

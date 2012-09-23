@@ -39,6 +39,7 @@ public:
             const std::string& sBaseName="");
 
     void addMessage(const std::string& sName);
+    const MessageID& getMessageID(const std::string& sName) const;
     const std::vector<MessageID> & getMessageIDs() const;
 
     const std::string& getName() const;
