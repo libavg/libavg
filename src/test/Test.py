@@ -116,7 +116,7 @@ import AnimTest
 import EventTest
 import InputDeviceTest
 import AVGAppTest
-#import UITest
+import UITest
 import GestureTest
 
 app = testapp.TestApp()
@@ -134,7 +134,7 @@ app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
 app.registerSuiteFactory('event', EventTest.eventTestSuite)
 app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
-#app.registerSuiteFactory('ui', UITest.uiTestSuite)
+app.registerSuiteFactory('ui', UITest.uiTestSuite)
 app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
 app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 

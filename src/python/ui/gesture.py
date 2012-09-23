@@ -29,12 +29,12 @@ import math
 
 class Recognizer(avg.Publisher):
 
-    POSSIBLE = 0
-    DETECTED = 1
-    FAILED = 2
-    MOTION = 3
-    UP = 4
-    END = 5
+    POSSIBLE = avg.Publisher.genMessageID("POSSIBLE")
+    DETECTED = avg.Publisher.genMessageID("DETECTED")
+    FAILED = avg.Publisher.genMessageID("FAILED")
+    MOTION = avg.Publisher.genMessageID("MOTION")
+    UP = avg.Publisher.genMessageID("UP")
+    END = avg.Publisher.genMessageID("END")
 
     def __init__(self, node, isContinuous, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,

@@ -47,6 +47,7 @@ typedef boost::shared_ptr<Publisher> PublisherPtr;
 class AVG_API Publisher: public boost::enable_shared_from_this<Publisher> 
 {
 public:
+    Publisher();
     Publisher(const std::string& sTypeName);
     virtual ~Publisher();
 
@@ -64,6 +65,8 @@ public:
     template<class ARG_TYPE>
     void notifySubscribers(const std::string& sMsgName, const ARG_TYPE& arg);
     void notifySubscribersPy(MessageID messageID, const py::list& args);
+
+    static MessageID genMessageID(const std::string& sName);
 
 protected:
     void removeSubscribers();

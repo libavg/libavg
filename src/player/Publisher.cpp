@@ -32,6 +32,13 @@ namespace avg {
 
 int Publisher::s_LastSubscriberID = 0;
 
+Publisher::Publisher()
+    : m_bIsInNotify(false)
+{
+    m_pPublisherDef = PublisherDefinition::create("");
+}
+
+
 Publisher::Publisher(const string& sTypeName)
     : m_bIsInNotify(false)
 {
@@ -164,6 +171,10 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
         unsubscribe(itUnsub->first, itUnsub->second);
     }
     m_PendingUnsubscribes.clear();
+}
+MessageID Publisher::genMessageID(const std::string& sName)
+{
+    return PublisherDefinitionRegistry::get()->genMessageID(sName);
 }
 
 Publisher::SubscriberInfoVector& Publisher::safeFindSubscribers(MessageID messageID)
