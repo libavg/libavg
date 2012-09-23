@@ -272,11 +272,11 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
             pContextAttribs[0] = 0;
             if (m_GLConfig.m_bGLES) {
                 appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+                        GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
                         GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
                 appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
                         GLX_CONTEXT_MINOR_VERSION_ARB, 0);
-                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-                        GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
             }
             PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
                     (PFNGLXCREATECONTEXTATTRIBSARBPROC)
@@ -361,11 +361,7 @@ void GLContext::init()
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
-    enableGLColorArray(false);
-    checkError("enableGLColorArray");
     setBlendMode(BLEND_BLEND, false);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    checkError("glColor4f");
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
