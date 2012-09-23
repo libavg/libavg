@@ -379,6 +379,10 @@ void GLContext::init()
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
     }
+    if (!m_GLConfig.m_bGLES && !queryOGLExtension("GL_ARB_vertex_buffer_object")) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+           "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
+    }
 }
 
 void GLContext::activate()
