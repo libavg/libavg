@@ -50,6 +50,9 @@ typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 #ifndef PFNGLXSWAPINTERVALEXTPROC
 typedef int ( * PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
 #endif
+#ifndef GLX_CONTEXT_ES2_PROFILE_BIT_EXT
+    #define GLX_CONTEXT_ES2_PROFILE_BIT_EXT 0x00000004
+#endif
 #endif
 
 // For NVX_gpu_memory_info
