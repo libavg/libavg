@@ -20,7 +20,7 @@
 #
 
 from libavg import avg, textarea, ui, player
-#from libavg.ui import simple
+from libavg.ui import simple
 
 from testcase import *
 

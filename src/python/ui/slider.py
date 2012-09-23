@@ -212,10 +212,9 @@ class SliderThumb(SwitchNode):
 
 class Slider(avg.DivNode):
 
-    THUMB_POS_CHANGED = avg.DivNode.LAST_MESSAGE_ID
-    PRESSED = avg.DivNode.LAST_MESSAGE_ID + 1
-    RELEASED = avg.DivNode.LAST_MESSAGE_ID + 2
-    LAST_MESSAGE_ID = avg.DivNode.LAST_MESSAGE_ID + 3
+    THUMB_POS_CHANGED = avg.Publisher.genMessageID("THUMB_POS_CHANGED")
+    PRESSED = avg.Publisher.genMessageID("PRESSED")
+    RELEASED = avg.Publisher.genMessageID("RELEASED")
 
     def __init__(self, trackNode, thumbNode,
             enabled=True, orientation=Orientation.HORIZONTAL, range=(0.,1.), 
