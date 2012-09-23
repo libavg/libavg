@@ -27,10 +27,14 @@
 #include <windows.h>
 #undef ERROR
 #undef WARNING
-#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glext.h>
+#else
+#include "GL/gl.h"
+#include "GL/glu.h"
+#include "GL/glext.h"
+#endif
 #ifdef linux
 #define GLX_GLXEXT_PROTOTYPES
 #include <GL/glx.h>
