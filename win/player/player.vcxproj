@@ -129,6 +129,7 @@
     <ClCompile Include="..\..\src\player\TrackerTouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TUIOInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\VectorNode.cpp" />
+    <ClCompile Include="..\..\src\player\VersionInfo.cpp" />
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="..\..\src\player\TrackerTouchStatus.h" />
     <ClInclude Include="..\..\src\player\TUIOInputDevice.h" />
     <ClInclude Include="..\..\src\player\VectorNode.h" />
+    <ClInclude Include="..\..\src\player\VersionInfo.h" />
     <ClInclude Include="..\..\src\player\VideoNode.h" />
     <ClInclude Include="..\..\src\player\VideoWriter.h" />
     <ClInclude Include="..\..\src\player\VideoWriterThread.h" />
