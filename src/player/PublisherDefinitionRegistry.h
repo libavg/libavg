@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "MessageID.h"
+
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <string>
@@ -32,17 +34,6 @@ namespace avg {
 
 class PublisherDefinition;
 typedef boost::shared_ptr<PublisherDefinition> PublisherDefinitionPtr;
-
-struct MessageID {
-    MessageID(const std::string& sName, int id);
-
-    bool operator < (const MessageID& other) const;
-
-    std::string m_sName;
-    int m_ID;
-};
-
-AVG_API std::ostream& operator <<(std::ostream& os, const MessageID& id);
 
 class AVG_API PublisherDefinitionRegistry
 {
@@ -55,7 +46,7 @@ public:
 
     void dump() const;
 
-    MessageID genMessageID(const std::string& sName=0);
+    MessageID genMessageID(const std::string& sName="");
 
 private:
     PublisherDefinitionRegistry();

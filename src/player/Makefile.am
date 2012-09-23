@@ -55,7 +55,7 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h HueSatFXNode.h \
         InvertFXNode.h TUIOInputDevice.h VideoWriter.h VideoWriterThread.h \
         SVG.h SVGElement.h Publisher.h SubscriberInfo.h PublisherDefinition.h \
-        PublisherDefinitionRegistry.h \
+        PublisherDefinitionRegistry.h MessageID.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -101,6 +101,6 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
         InvertFXNode.cpp HueSatFXNode.cpp VideoWriter.cpp VideoWriterThread.cpp \
         SVG.cpp SVGElement.cpp Publisher.cpp SubscriberInfo.cpp PublisherDefinition.cpp \
-        PublisherDefinitionRegistry.cpp \
+        PublisherDefinitionRegistry.cpp MessageID.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

@@ -65,7 +65,6 @@
 #include "MouseEvent.h"
 #include "EventDispatcher.h"
 #include "PublisherDefinition.h"
-#include "PublisherDefinitionRegistry.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -172,8 +171,6 @@ Player::Player()
 
     // Register non-node publishers
     Contact::registerType();
-
-//    PublisherDefinitionRegistry::get()->dump();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
 

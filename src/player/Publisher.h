@@ -26,7 +26,8 @@
 
 #include "BoostPython.h"
 #include "PublisherDefinition.h"
-#include "PublisherDefinitionRegistry.h"
+#include "MessageID.h"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 

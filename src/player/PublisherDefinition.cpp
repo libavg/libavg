@@ -21,6 +21,8 @@
 
 #include "PublisherDefinition.h"
 
+#include "PublisherDefinitionRegistry.h"
+
 #include "../base/Exception.h"
 
 using namespace std;

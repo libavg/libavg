@@ -19,44 +19,27 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PublisherDefinition_H_
-#define _PublisherDefinition_H_
+#ifndef _MessageID_H_
+#define _MessageID_H_
 
 #include "../api.h"
 
-#include "MessageID.h"
-
-#include <boost/shared_ptr.hpp>
-#include <vector>
 #include <string>
+#include <iostream>
 
 namespace avg {
 
-class PublisherDefinition;
-typedef boost::shared_ptr<PublisherDefinition> PublisherDefinitionPtr;
+struct MessageID {
+    MessageID(const std::string& sName, int id);
 
-class AVG_API PublisherDefinition
-{
-public:
-    virtual ~PublisherDefinition();
-    static PublisherDefinitionPtr create(const std::string& sName, 
-            const std::string& sBaseName="");
-
-    void addMessage(const std::string& sName);
-    const MessageID& getMessageID(const std::string& sName) const;
-    const std::vector<MessageID> & getMessageIDs() const;
-
-    const std::string& getName() const;
-    void dump() const;
-
-private:
-    PublisherDefinition(const std::string& sName, const std::string& sBaseName);
+    bool operator < (const MessageID& other) const;
 
     std::string m_sName;
-    std::vector<MessageID> m_MessageIDs;
+    int m_ID;
 };
+
+std::ostream& operator <<(std::ostream& os, const MessageID& id);
 
 }
 
 #endif
-

@@ -22,6 +22,7 @@
 #include "Publisher.h"
 
 #include "SubscriberInfo.h"
+#include "PublisherDefinitionRegistry.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -174,7 +175,7 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 }
 MessageID Publisher::genMessageID()
 {
-    return PublisherDefinitionRegistry::get()->genMessageID("");
+    return PublisherDefinitionRegistry::get()->genMessageID();
 }
 
 Publisher::SubscriberInfoVector& Publisher::safeFindSubscribers(MessageID messageID)

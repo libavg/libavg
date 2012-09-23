@@ -32,24 +32,6 @@ namespace avg {
 
 PublisherDefinitionRegistry* PublisherDefinitionRegistry::s_pInstance = 0;
 
-MessageID::MessageID(const std::string& sName, int id)
-    : m_sName(sName),
-      m_ID(id)
-{
-}
-
-bool MessageID::operator < (const MessageID& other) const
-{
-    return m_ID < other.m_ID;
-}
-
-std::ostream& operator <<(std::ostream& os, const MessageID& id)
-{
-    os << "(" << id.m_sName << ", " << id.m_ID << ")";
-    return os;
-}
-
-
 PublisherDefinitionRegistry::PublisherDefinitionRegistry()
     : m_LastMessageID(-1)
 {
