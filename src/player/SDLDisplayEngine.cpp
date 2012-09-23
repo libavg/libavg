@@ -122,101 +122,108 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
+    if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
+        internalSetGamma(1.0f, 1.0f, 1.0f);
+    }
     calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
-    m_WindowSize = calcWindowSize(dp);
-    unsigned int Flags = 0;
-    if (dp.m_bFullscreen) {
-        Flags |= SDL_FULLSCREEN;
-    }
-    m_bIsFullscreen = dp.m_bFullscreen;
+    IntPoint windowSize = calcWindowSize(dp);
+    if (windowSize != m_WindowSize) {
+        m_WindowSize = windowSize;
+        unsigned int Flags = 0;
+        if (dp.m_bFullscreen) {
+            Flags |= SDL_FULLSCREEN;
+        }
+        m_bIsFullscreen = dp.m_bFullscreen;
 
-    if (!dp.m_bHasWindowFrame) {
-        Flags |= SDL_NOFRAME;
-    }
+        if (!dp.m_bHasWindowFrame) {
+            Flags |= SDL_NOFRAME;
+        }
 
 #ifndef linux
-    switch (dp.m_BPP) {
-        case 24:
-            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
-            break;
-        case 16:
-            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
-            break;
-        default:
-            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
-                    "in SDLDisplayEngine::init()");
-            exit(-1);
-    }
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
-    Flags |= SDL_OPENGL;
+        switch (dp.m_BPP) {
+            case 24:
+                SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+                SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+                SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+                SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
+                break;
+            case 16:
+                SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+                SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+                SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+                SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
+                break;
+            default:
+                AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
+                        "in SDLDisplayEngine::init()");
+                exit(-1);
+        }
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
+        Flags |= SDL_OPENGL;
 
-    m_pScreen = 0;
-    while (glConfig.m_MultiSampleSamples && !m_pScreen) {
-        if (glConfig.m_MultiSampleSamples > 1) {
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, glConfig.m_MultiSampleSamples);
-        } else {
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+        m_pScreen = 0;
+        while (glConfig.m_MultiSampleSamples && !m_pScreen) {
+            if (glConfig.m_MultiSampleSamples > 1) {
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,
+                        glConfig.m_MultiSampleSamples);
+            } else {
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+            }
+            m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+            if (!m_pScreen) {
+                glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
+                        glConfig.m_MultiSampleSamples);
+            }
         }
-        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
-        if (!m_pScreen) {
-            glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
-                    glConfig.m_MultiSampleSamples);
-        }
-    }
 #else
-    // Linux version: Context created manually, not by SDL
-    m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+        // Linux version: Context created manually, not by SDL
+        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
 #endif
-    if (!m_pScreen) {
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
-                + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
-                toString(dp.m_BPP) + ").");
-    }
-    SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
-    int rc = SDL_GetWMInfo(&info);
-    AVG_ASSERT(rc != -1);
-    m_pGLContext = new GLContext(glConfig, m_WindowSize, &info);
-    GLContext::setMain(m_pGLContext);
+        if (!m_pScreen) {
+            throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
+                    + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
+                    toString(dp.m_BPP) + ").");
+        }
+        SDL_SysWMinfo info;
+        SDL_VERSION(&info.version);
+        int rc = SDL_GetWMInfo(&info);
+        AVG_ASSERT(rc != -1);
+        m_pGLContext = new GLContext(glConfig, m_WindowSize, &info);
+        GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    m_pXIMTInputDevice = 0;
+        SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+        m_pXIMTInputDevice = 0;
 #endif
-    SDL_WM_SetCaption("libavg", 0);
-    calcRefreshRate();
-    initGLState();
+        SDL_WM_SetCaption("libavg", 0);
+        calcRefreshRate();
+        initGLState();
 
-    setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
-    showCursor(dp.m_bShowCursor);
-    if (dp.m_Framerate == 0) {
-        setVBlankRate(dp.m_VBRate);
-    } else {
-        setFramerate(dp.m_Framerate);
+        setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
+        showCursor(dp.m_bShowCursor);
+        if (dp.m_Framerate == 0) {
+            setVBlankRate(dp.m_VBRate);
+        } else {
+            setFramerate(dp.m_Framerate);
+        }
+
+        m_Size = dp.m_Size;
+        // SDL sets up a signal handler we really don't want.
+        signal(SIGSEGV, SIG_DFL);
+        m_pGLContext->logConfig();
+
+        SDL_EnableUNICODE(1);
     }
-
-    m_Size = dp.m_Size;
-    // SDL sets up a signal handler we really don't want.
-    signal(SIGSEGV, SIG_DFL);
-    m_pGLContext->logConfig();
-
-    SDL_EnableUNICODE(1);
 }
 
 #ifdef _WIN32

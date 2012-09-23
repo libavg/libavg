@@ -1713,9 +1713,9 @@ void Player::cleanup()
     m_pCanvases.clear();
 
     if (m_pDisplayEngine) {
-        m_pDisplayEngine->deinitRender();
-        m_pDisplayEngine->teardown();
         if (!m_bKeepWindowOpen) {
+            m_pDisplayEngine->deinitRender();
+            m_pDisplayEngine->teardown();
             m_pDisplayEngine = SDLDisplayEnginePtr();
         }
     }
