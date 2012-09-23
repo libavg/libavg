@@ -173,7 +173,7 @@ Player::Player()
     // Register non-node publishers
     Contact::registerType();
 
-    PublisherDefinitionRegistry::get()->dump();
+//    PublisherDefinitionRegistry::get()->dump();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
 

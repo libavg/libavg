@@ -186,7 +186,7 @@ void export_event()
         .def("getContour", &TouchEvent::getContour)
         ;
 
-    scope contactScope = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >
+    object contactClass = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >
             ("Contact", no_init)
         .add_property("id", &Contact::getID)
         .add_property("age", &Contact::getAge)
@@ -201,14 +201,7 @@ void export_event()
         .def(self == self)
         .def(self != self)
         ;
-    
-    enum_<Contact::MessageID>("MessageID")
-        .value("CURSOR_MOTION", Contact::CURSOR_MOTION)
-        .value("CURSOR_UP", Contact::CURSOR_UP)
-        .export_values()
-        ;
-
-    scope oldScope2(mainScope);
+    exportMessages(contactClass, "Contact");
 
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)

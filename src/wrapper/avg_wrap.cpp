@@ -150,9 +150,7 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
-    scope mainScope;
-
-    scope playerScope = class_<Player, bases<Publisher> >("Player") 
+    object playerClass = class_<Player, bases<Publisher> >("Player") 
         .def("get", &Player::get, 
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
@@ -223,16 +221,7 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
-/*
-    enum_<Player::MessageID>("MessageID")
-        .value("KEY_DOWN", Player::KEY_DOWN)
-        .value("KEY_UP", Player::KEY_UP)
-        .value("PLAYBACK_START", Player::PLAYBACK_START)
-        .value("PLAYBACK_END", Player::PLAYBACK_END)
-        .export_values()
-        ;
-*/
-    scope oldScope(mainScope);
+    exportMessages(playerClass, "Player");
     
     class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", no_init)
         .def(self == self)
