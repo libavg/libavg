@@ -93,6 +93,7 @@ namespace glproc {
     PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
     PFNGLDRAWBUFFERSPROC DrawBuffers;
     PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
+    PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
 #ifdef linux
     PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
@@ -428,6 +429,8 @@ namespace glproc {
                 getFuzzyProcAddress("glDrawBuffers");
         DrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)
                 getFuzzyProcAddress("glDrawRangeElements");
+        DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKARBPROC)
+                getFuzzyProcAddress("glDebugMessageCallback");
 #ifdef linux
         SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
                 getglXProcAddress("glXSwapIntervalEXT");

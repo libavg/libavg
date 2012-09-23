@@ -27,13 +27,10 @@
 #include <windows.h>
 #undef ERROR
 #undef WARNING
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "GL/glext.h"
-#else
-#include "GL/gl.h"
-#include "GL/glu.h"
-#endif
+#include <GL/glext.h>
 #ifdef linux
 #define GLX_GLXEXT_PROTOTYPES
 #include <GL/glx.h>
@@ -141,6 +138,7 @@ namespace glproc {
     extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
+    extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
     
 #ifdef linux
     extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
