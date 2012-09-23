@@ -172,9 +172,9 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
     }
     m_PendingUnsubscribes.clear();
 }
-MessageID Publisher::genMessageID(const std::string& sName)
+MessageID Publisher::genMessageID()
 {
-    return PublisherDefinitionRegistry::get()->genMessageID(sName);
+    return PublisherDefinitionRegistry::get()->genMessageID("");
 }
 
 Publisher::SubscriberInfoVector& Publisher::safeFindSubscribers(MessageID messageID)

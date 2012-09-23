@@ -105,8 +105,8 @@ class SwitchNode(avg.DivNode):
 
 class _ButtonBase(avg.DivNode):
 
-    PRESSED = avg.Publisher.genMessageID("PRESSED")
-    RELEASED = avg.Publisher.genMessageID("RELEASED")
+    PRESSED = avg.Publisher.genMessageID()
+    RELEASED = avg.Publisher.genMessageID()
 
     def __init__(self, parent=None, **kwargs):
         super(_ButtonBase, self).__init__(**kwargs)
@@ -139,7 +139,7 @@ class _ButtonBase(avg.DivNode):
 
 class Button(_ButtonBase):
 
-    CLICKED = avg.Publisher.genMessageID("CLICKED")
+    CLICKED = avg.Publisher.genMessageID()
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             enabled=True, fatFingerEnlarge=False, **kwargs):
@@ -235,7 +235,7 @@ class BmpButton(Button):
 
 class ToggleButton(_ButtonBase):
     
-    TOGGLED = avg.Publisher.genMessageID("TOGGLED")
+    TOGGLED = avg.Publisher.genMessageID()
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,

@@ -66,7 +66,7 @@ public:
     void notifySubscribers(const std::string& sMsgName, const ARG_TYPE& arg);
     void notifySubscribersPy(MessageID messageID, const py::list& args);
 
-    static MessageID genMessageID(const std::string& sName);
+    static MessageID genMessageID();
 
 protected:
     void removeSubscribers();
