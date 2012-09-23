@@ -30,7 +30,6 @@ void export_anim();
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
 #include "../base/GeomHelper.h"
-#include "../base/VersionInfo.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -43,6 +42,7 @@ void export_anim();
 #include "../player/VideoWriter.h"
 #include "../player/SVG.h"
 #include "../player/Style.h"
+#include "../player/VersionInfo.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
