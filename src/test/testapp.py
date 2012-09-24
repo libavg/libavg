@@ -119,7 +119,7 @@ class TestApp(object):
 
         player.useGLES(self.__commandlineOptions.usegles)
         player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
-                self.__commandlineOptions.usepixelbuffers, 1, shaderUsage)
+                self.__commandlineOptions.usepixelbuffers, 1, shaderUsage, True)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(

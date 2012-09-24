@@ -242,13 +242,15 @@ void Player::useGLES(bool bGLES)
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
-        int multiSampleSamples, GLConfig::ShaderUsage shaderUsage)
+        int multiSampleSamples, GLConfig::ShaderUsage shaderUsage,
+        bool bUseDebugContext)
 {
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
     m_GLConfig.m_ShaderUsage = shaderUsage;
+    m_GLConfig.m_bUseDebugContext = bUseDebugContext;
 }
 
 void Player::setMultiSampleSamples(int multiSampleSamples)
@@ -1202,7 +1204,8 @@ void Player::initConfig()
         throw Exception(AVG_ERR_OUT_OF_RANGE,
                 "avgrc parameter shaderusage must be full, minimal or auto");
     }
-
+    string sDummy;
+    m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }

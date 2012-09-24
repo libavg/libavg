@@ -281,8 +281,10 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
                         GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
                 appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
                         GLX_CONTEXT_MINOR_VERSION_ARB, 0);
-//                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-//                        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
+                if (glConfig.m_bUseDebugContext) {
+                    appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+                            GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
+                }
             }
             PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
                     (PFNGLXCREATECONTEXTATTRIBSARBPROC)
@@ -363,7 +365,9 @@ void GLContext::init()
 {
     activate();
     glproc::init();
-//    glproc::DebugMessageCallback(debugLogCallback, 0);
+    if (m_GLConfig.m_bUseDebugContext) {
+        glproc::DebugMessageCallback(debugLogCallback, 0);
+    }
 
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {

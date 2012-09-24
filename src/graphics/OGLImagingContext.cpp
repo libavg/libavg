@@ -44,7 +44,7 @@ namespace avg {
 using namespace std;
 
 OGLImagingContext::OGLImagingContext()
-    : GLContext(GLConfig(false, false, true, 1, GLConfig::AUTO))
+    : GLContext(GLConfig(false, false, true, 1, GLConfig::AUTO, false))
 {
     init();
 

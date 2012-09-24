@@ -144,6 +144,9 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     }
 
 #ifndef linux
+    if (glConfig.m_bUseDebugContext) {
+        glConfig.m_bUseDebugContext = false;
+    }
     switch (dp.m_BPP) {
         case 24:
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
