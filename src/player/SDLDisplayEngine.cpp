@@ -94,7 +94,8 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_NumMouseButtonsDown(0)
+      m_NumMouseButtonsDown(0),
+      m_pGLContext(0)
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -131,99 +132,113 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
-    IntPoint windowSize = calcWindowSize(dp);
-    if (windowSize != m_WindowSize) {
-        m_WindowSize = windowSize;
-        unsigned int Flags = 0;
-        if (dp.m_bFullscreen) {
-            Flags |= SDL_FULLSCREEN;
-        }
-        m_bIsFullscreen = dp.m_bFullscreen;
+    m_WindowSize = dp.m_WindowSize;
+    unsigned int Flags = 0;
+    if (dp.m_bFullscreen) {
+        Flags |= SDL_FULLSCREEN;
+    }
+    m_bIsFullscreen = dp.m_bFullscreen;
 
-        if (!dp.m_bHasWindowFrame) {
-            Flags |= SDL_NOFRAME;
-        }
+    if (!dp.m_bHasWindowFrame) {
+        Flags |= SDL_NOFRAME;
+    }
 
 #ifndef linux
-        switch (dp.m_BPP) {
-            case 24:
-                SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-                SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-                SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-                SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
-                break;
-            case 16:
-                SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-                SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-                SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-                SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
-                break;
-            default:
-                AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
-                        "in SDLDisplayEngine::init()");
-                exit(-1);
-        }
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
-        Flags |= SDL_OPENGL;
+    switch (dp.m_BPP) {
+        case 24:
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
+            break;
+        case 16:
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
+            break;
+        default:
+            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
+                    "in SDLDisplayEngine::init()");
+            exit(-1);
+    }
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
+    Flags |= SDL_OPENGL;
 
-        m_pScreen = 0;
-        while (glConfig.m_MultiSampleSamples && !m_pScreen) {
-            if (glConfig.m_MultiSampleSamples > 1) {
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,
-                        glConfig.m_MultiSampleSamples);
-            } else {
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-            }
-            m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
-            if (!m_pScreen) {
-                glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
-                        glConfig.m_MultiSampleSamples);
-            }
+    m_pScreen = 0;
+    while (glConfig.m_MultiSampleSamples && !m_pScreen) {
+        if (glConfig.m_MultiSampleSamples > 1) {
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,
+                    glConfig.m_MultiSampleSamples);
+        } else {
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
-#else
-        // Linux version: Context created manually, not by SDL
         m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
-#endif
         if (!m_pScreen) {
-            throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
-                    + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
-                    toString(dp.m_BPP) + ").");
+            glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
+                    glConfig.m_MultiSampleSamples);
         }
-        SDL_SysWMinfo info;
-        SDL_VERSION(&info.version);
-        int rc = SDL_GetWMInfo(&info);
-        AVG_ASSERT(rc != -1);
-        m_pGLContext = new GLContext(glConfig, m_WindowSize, &info);
-        GLContext::setMain(m_pGLContext);
+    }
+#else
+    // Linux version: Context created manually, not by SDL
+    m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+#endif
+    if (!m_pScreen) {
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
+                + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
+                toString(dp.m_BPP) + ").");
+    }
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    int rc = SDL_GetWMInfo(&info);
+    AVG_ASSERT(rc != -1);
+    m_pGLContext = new GLContext(glConfig, m_WindowSize, &info);
+    GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-        m_pXIMTInputDevice = 0;
+    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+    m_pXIMTInputDevice = 0;
 #endif
-        SDL_WM_SetCaption("libavg", 0);
-        calcRefreshRate();
-        initGLState();
+    SDL_WM_SetCaption("libavg", 0);
+    calcRefreshRate();
+    initGLState();
 
-        setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
-        showCursor(dp.m_bShowCursor);
-        if (dp.m_Framerate == 0) {
-            setVBlankRate(dp.m_VBRate);
-        } else {
-            setFramerate(dp.m_Framerate);
-        }
-
-        m_Size = dp.m_Size;
-        // SDL sets up a signal handler we really don't want.
-        signal(SIGSEGV, SIG_DFL);
-        m_pGLContext->logConfig();
-
-        SDL_EnableUNICODE(1);
+    setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
+    showCursor(dp.m_bShowCursor);
+    if (dp.m_Framerate == 0) {
+        setVBlankRate(dp.m_VBRate);
+    } else {
+        setFramerate(dp.m_Framerate);
     }
+
+    m_Size = dp.m_Size;
+    // SDL sets up a signal handler we really don't want.
+    signal(SIGSEGV, SIG_DFL);
+    m_pGLContext->logConfig();
+
+    SDL_EnableUNICODE(1);
+}
+
+IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
+{
+    float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
+    IntPoint windowSize;
+    if (dp.m_WindowSize == IntPoint(0, 0)) {
+        windowSize = dp.m_Size;
+    } else if (dp.m_WindowSize.x == 0) {
+        windowSize.x = int(dp.m_WindowSize.y*aspectRatio);
+        windowSize.y = dp.m_WindowSize.y;
+    } else {
+        windowSize.x = dp.m_WindowSize.x;
+        windowSize.y = int(dp.m_WindowSize.x/aspectRatio);
+    }
+    AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
+    return windowSize;
 }
 
 #ifdef _WIN32
@@ -232,15 +247,15 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 void SDLDisplayEngine::teardown()
 {
     if (m_pScreen) {
-        if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
-            internalSetGamma(1.0f, 1.0f, 1.0f);
-        }
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
         SDL_ShowCursor(SDL_ENABLE);
 #endif
         m_pScreen = 0;
-        delete m_pGLContext;
+        if (m_pGLContext) {
+            delete m_pGLContext;
+            m_pGLContext = 0;
+        }
         GLContext::setMain(0);
     }
 }
@@ -256,8 +271,6 @@ float SDLDisplayEngine::getRefreshRate()
 void SDLDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
-        AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", "
-                << blue);
         bool bOk = internalSetGamma(red, green, blue);
         m_Gamma[0] = red;
         m_Gamma[1] = green;
@@ -687,23 +700,6 @@ void SDLDisplayEngine::initGLState()
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
     }
-}
-
-IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
-{
-    float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
-    IntPoint windowSize;
-    if (dp.m_WindowSize == IntPoint(0, 0)) {
-        windowSize = dp.m_Size;
-    } else if (dp.m_WindowSize.x == 0) {
-        windowSize.x = int(dp.m_WindowSize.y*aspectRatio);
-        windowSize.y = dp.m_WindowSize.y;
-    } else {
-        windowSize.x = dp.m_WindowSize.x;
-        windowSize.y = int(dp.m_WindowSize.x/aspectRatio);
-    }
-    AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
-    return windowSize;
 }
 
 void SDLDisplayEngine::initTranslationTable()

@@ -108,6 +108,7 @@ Player * Player::s_pPlayer=0;
 
 Player::Player()
     : m_pDisplayEngine(),
+      m_bDisplayEngineBroken(false),
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -514,6 +515,7 @@ void Player::play()
             }
         } catch (...) {
             cleanup();
+            m_bDisplayEngineBroken = true;
             throw;
         }
         cleanup();
@@ -552,6 +554,7 @@ void Player::initPlayback(const std::string& sShaderPath)
         m_pMainCanvas->initPlayback(m_pDisplayEngine);
     } catch (Exception&) {
         cleanup();
+        m_bDisplayEngineBroken = true;
         throw;
     }
     m_pEventDispatcher->addInputDevice(
@@ -1214,12 +1217,18 @@ void Player::initGraphics(const string& sShaderPath)
     }
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
-    m_pDisplayEngine->init(m_DP, m_GLConfig);
+    m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
+    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize || m_bDisplayEngineBroken) 
+    {
+        m_bDisplayEngineBroken = false;
+        m_pDisplayEngine->init(m_DP, m_GLConfig);
+    }
     AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
             << m_pDisplayEngine->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
+    m_pDisplayEngine->setGamma(1.0, 1.0, 1.0);
 }
 
 void Player::initAudio()

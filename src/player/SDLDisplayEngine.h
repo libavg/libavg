@@ -51,6 +51,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
         virtual void init(const DisplayParams& dp, GLConfig glConfig);
+        IntPoint calcWindowSize(const DisplayParams& dp) const;
 
         // From DisplayEngine
         virtual void teardown();
@@ -78,7 +79,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
     private:
         void initGLState();
-        IntPoint calcWindowSize(const DisplayParams& dp) const;
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);
 

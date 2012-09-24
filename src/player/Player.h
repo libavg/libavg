@@ -216,6 +216,7 @@ class AVG_API Player
         MainCanvasPtr m_pMainCanvas;
 
         SDLDisplayEnginePtr m_pDisplayEngine;
+        bool m_bDisplayEngineBroken;
         TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;
