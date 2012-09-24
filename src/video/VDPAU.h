@@ -23,10 +23,10 @@
 
 
 #include "../avgconfigwrapper.h"
-#include "../graphics/GL/glx.h"
+#include "../graphics/OGLHelper.h"
+#include "../base/GLMHelper.h"
 
 #include "WrapFFMpeg.h"
-#include "../base/GLMHelper.h"
 
 #include <vdpau/vdpau.h>
 #include <libavcodec/vdpau.h>

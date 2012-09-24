@@ -74,7 +74,14 @@ void registerWindowClass()
 }
 #endif
 
+void debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+        GLsizei length, const GLchar* message, void* userParam) 
+{
+    cerr << message << endl;
+}
+
 GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
+
 
 GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo, GLContext* pSharedContext)
@@ -236,8 +243,6 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
                 glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS,
                         &buffer);
                 glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &samples);
-//                cerr << "ID: " << hex << pVisualInfo->visualid << " Config samples: " <<
-//                        samples << endl;
                 if (bestConfig < 0 || 
                         (buffer == 1 && samples > bestSamples && 
                          samples <= glConfig.m_MultiSampleSamples))
@@ -248,7 +253,6 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
                 XFree(pVisualInfo);
             }
         }
-//        cerr << "bestConfig: " << bestConfig << endl;
         GLXFBConfig fbConfig = pFBConfig[bestConfig];
         XFree(pFBConfig);
         pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
@@ -272,11 +276,13 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
             pContextAttribs[0] = 0;
             if (m_GLConfig.m_bGLES) {
                 appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+                        GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
                         GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
                 appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
                         GLX_CONTEXT_MINOR_VERSION_ARB, 0);
-                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-                        GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+//                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+//                        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
             }
             PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
                     (PFNGLXCREATECONTEXTATTRIBSARBPROC)
@@ -357,15 +363,13 @@ void GLContext::init()
 {
     activate();
     glproc::init();
+//    glproc::DebugMessageCallback(debugLogCallback, 0);
+
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
-    enableGLColorArray(false);
-    checkError("enableGLColorArray");
     setBlendMode(BLEND_BLEND, false);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    checkError("glColor4f");
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
@@ -382,6 +386,10 @@ void GLContext::init()
     }
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
+    }
+    if (!m_GLConfig.m_bGLES && !queryOGLExtension("GL_ARB_vertex_buffer_object")) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+           "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
     }
 }
 

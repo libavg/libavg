@@ -33,6 +33,7 @@
 #else
 #include "GL/gl.h"
 #include "GL/glu.h"
+#include "GL/glext.h"
 #endif
 #ifdef linux
 #define GLX_GLXEXT_PROTOTYPES
@@ -141,6 +142,7 @@ namespace glproc {
     extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
+    extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
     
 #ifdef linux
     extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
