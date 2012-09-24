@@ -996,9 +996,9 @@ int FFMpegDecoder::getNumFrames() const
 bool FFMpegDecoder::isImageCodec(const AVCodecContext* pContext) const
 {
     int imageCodecIDs[] = {CODEC_ID_PNG, CODEC_ID_PPM, CODEC_ID_PBM, CODEC_ID_PGM,
-            CODEC_ID_PGMYUV, CODEC_ID_BMP, CODEC_ID_DPX, 
+            CODEC_ID_PGMYUV, CODEC_ID_BMP,
             CODEC_ID_JPEG2000, CODEC_ID_PAM, CODEC_ID_PCX,
-            CODEC_ID_PICTOR, CODEC_ID_PTX, CODEC_ID_SGI, CODEC_ID_SUNRAST, CODEC_ID_TIFF,
+            CODEC_ID_PTX, CODEC_ID_SGI, CODEC_ID_SUNRAST, CODEC_ID_TIFF,
             CODEC_ID_TARGA, -1};
 
     int i = 0;
