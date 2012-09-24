@@ -117,6 +117,9 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 {
     AVCodecContext* pContext;
     pContext = m_pFormatContext->streams[streamIndex]->codec;
+    if (isImageCodec(pContext)) {
+        return -1;
+    }
 //    pContext->debug = 0x0001; // see avcodec.h
 
     AVCodec * pCodec = 0;
@@ -988,6 +991,24 @@ int FFMpegDecoder::getNumFrames() const
     } else {
         return int(getDuration() * calcStreamFPS());
     }
+}
+
+bool FFMpegDecoder::isImageCodec(const AVCodecContext* pContext) const
+{
+    int imageCodecIDs[] = {CODEC_ID_PNG, CODEC_ID_PPM, CODEC_ID_PBM, CODEC_ID_PGM,
+            CODEC_ID_PGMYUV, CODEC_ID_BMP, CODEC_ID_DPX, 
+            CODEC_ID_JPEG2000, CODEC_ID_PAM, CODEC_ID_PCX,
+            CODEC_ID_PICTOR, CODEC_ID_PTX, CODEC_ID_SGI, CODEC_ID_SUNRAST, CODEC_ID_TIFF,
+            CODEC_ID_TARGA, -1};
+
+    int i = 0;
+    while (imageCodecIDs[i] != -1) {
+        if (imageCodecIDs[i] == pContext->codec_id) {
+            return true;
+        }
+        ++i;
+    }
+    return false;
 }
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
