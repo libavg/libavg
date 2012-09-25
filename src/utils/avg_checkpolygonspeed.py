@@ -36,8 +36,8 @@ def parseCmdLine():
     parser = optparse.OptionParser(usage=
 """%prog [option]. 
 Checks libavg performance by creating lots of polygon nodes. Displays a frame time graph and executes for 20 secs.""")
-    parser.add_option('--hole-polygon', '-y', dest='hole', action='store_true', default=False,
-            help='Equipped polygon with one hole. Attention the number of points in a polygon will dublicated.')
+    parser.add_option('--hole-polygon', '-y', dest='hole', action='store_true', 
+            default=False, help='Generate polygons with holes.')
     parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
             default=False, 
             help='Destroy and recreate all nodes every 400 ms.')
@@ -50,7 +50,7 @@ Checks libavg performance by creating lots of polygon nodes. Displays a frame ti
     parser.add_option('--num-objs', '-n', dest='numObjs', type='int', default=-1,
             help='Number of objects to create. Default is 200 images or 40 videos.')
     parser.add_option('--num-points', '-x', dest='numPoints', type='int', default=-1,
-            help='Number of points in each polygon. Default is 10. Only even Numbers.')
+            help='Number of points in each polygon. Default is 10.')
     parser.add_option('--profile', '-p', dest='profile', action='store_true',
             default=False,
             help='Enable profiling output. Note that profiling makes things slower.')
@@ -65,7 +65,7 @@ class SpeedApp(AVGApp):
         self._parentNode.mediadir = utils.getMediaDir(None, "data")
         tstart = time.time()
         self.__createNodes()
-        print 'Buildtime needed: %f' % (time.time()-tstart)
+        print 'Time to create nodes: %f' % (time.time()-tstart)
         self._starter.showFrameRate()
         if options.createNodes:
             player.setInterval(400, self.__createNodes)
@@ -112,8 +112,10 @@ class SpeedApp(AVGApp):
         beta = alpha/2
         result = []
         for i in xrange(options.numPoints/2):
-            result.append( (r*math.cos(i*alpha) + offset[0], r*math.sin(i*alpha) + offset[1]) )
-            result.append( (r2*math.cos(i*alpha+beta) + offset[0], r2*math.sin(i*alpha+beta) + offset[1]) )
+            result.append((r*math.cos(i*alpha) + offset[0],
+                    r*math.sin(i*alpha) + offset[1]))
+            result.append((r2*math.cos(i*alpha+beta) + offset[0],
+                    r2*math.sin(i*alpha+beta) + offset[1]))
         return result        
 
 options = parseCmdLine()
