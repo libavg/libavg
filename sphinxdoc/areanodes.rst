@@ -546,7 +546,7 @@ Area Nodes
 
         .. py:method:: getAudioCodec() -> string
 
-            Returns the audio codec used as a string such as :samp:`"mp2"`.
+            Returns the audio codec used as a string such as :samp:`mp2`.
 
         .. py:method:: getAudioSampleRate() -> int
 
@@ -555,6 +555,11 @@ Area Nodes
         .. py:method:: getBitrate() -> int
 
             Returns the number of bits in the file per second.
+
+        .. py:method:: getContainerFormat() -> string
+
+            Returns the video file format. This is a string such as :samp:`avi` or 
+            :samp:`mpeg`.
 
         .. py:method:: getCurFrame() -> int
 
@@ -589,7 +594,7 @@ Area Nodes
 
         .. py:method:: getVideoCodec() -> string
 
-            Returns the video codec used as a string such as :samp:`"mpeg4"`.
+            Returns the video codec used as a string such as :samp:`mpeg4`.
 
         .. py:method:: hasAlpha() -> bool
 
