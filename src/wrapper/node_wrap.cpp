@@ -127,8 +127,8 @@ void export_node()
         ;
     exportMessages(nodeClass, "Node");
 
-    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
-            "AreaNode", no_init)
+    object areaNodeClass = class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>,
+            boost::noncopyable>("AreaNode", no_init)
         .def("getMediaSize", &AreaNode_getMediaSize)
         .add_property("x", &AreaNode::getX, &AreaNode::setX)
         .add_property("y", &AreaNode::getY, &AreaNode::setY)
@@ -149,6 +149,8 @@ void export_node()
                 make_function(&AreaNode::setElementOutlineColor,
                         return_value_policy<copy_const_reference>()))
         ;
+    exportMessages(areaNodeClass, "AreaNode");
+
     export_bitmap();
     export_fx();
     export_raster();

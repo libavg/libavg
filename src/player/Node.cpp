@@ -65,8 +65,8 @@ void Node::registerType()
     NodeRegistry::get()->registerNodeType(def);
 }
 
-Node::Node()
-    : Publisher("Node"),
+Node::Node(const std::string& sPublisherName)
+    : Publisher(sPublisherName),
       m_pSelf(0),
       m_pParent(0),
       m_pCanvas(),

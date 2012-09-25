@@ -150,7 +150,7 @@ class AVG_API Node: public Publisher
         virtual const NodeDefinition* getDefinition() const;
 
     protected:
-        Node();
+        Node(const std::string& sPublisherName="Node");
 
         bool reactsToMouseEvents();
             
