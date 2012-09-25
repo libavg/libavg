@@ -222,6 +222,10 @@ class Slider(avg.DivNode):
         super(Slider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         
+        self.publish(Slider.THUMB_POS_CHANGED)
+        self.publish(Slider.PRESSED)
+        self.publish(Slider.RELEASED)
+
         self._orientation = orientation
 
         self._trackNode = trackNode
@@ -238,9 +242,6 @@ class Slider(avg.DivNode):
         self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onUp)
-        self.publish(Slider.THUMB_POS_CHANGED)
-        self.publish(Slider.PRESSED)
-        self.publish(Slider.RELEASED)
 
         if not(enabled):
             self.setEnabled(False)
