@@ -23,6 +23,7 @@
 
 #include "SubscriberInfo.h"
 #include "PublisherDefinitionRegistry.h"
+#include "Player.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -150,6 +151,7 @@ void Publisher::notifySubscribers(const string& sMsgName)
 
 void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 {
+    AVG_ASSERT(!(Player::get()->isTraversingTree()));
     m_bIsInNotify = true;
     SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoVector::iterator it;

@@ -870,7 +870,7 @@ class EventTestCase(AVGTestCase):
                 ))
         messageTester.assertState([avg.Player.PLAYBACK_START, avg.Player.PLAYBACK_END])
 
-    def testSizeChangedMessage(self):
+    def testImageSizeChanged(self):
         def onResize(newSize):
             self.assert_(newSize == self.sizeExpected)
             self.messageReceived = True
@@ -909,6 +909,26 @@ class EventTestCase(AVGTestCase):
                  move,
                 ))
         
+    def testWordsSizeChanged(self):
+        def onResize(newSize):
+            self.messageReceived = True
+
+        def checkMessageReceived():
+            self.assert_(self.messageReceived)
+            self.messageReceived = False
+
+        def changeText():
+            self.words.text="NewText"
+
+        root = self.loadEmptyScene()
+        self.words = avg.WordsNode(text="Test", parent=root)
+        self.words.subscribe(self.words.SIZE_CHANGED, onResize)
+        self.start(False,
+                (checkMessageReceived,
+#                 changeText,
+#                 checkMessageReceived,
+                ))
+
 
 def eventTestSuite(tests):
     availableTests = (
@@ -933,7 +953,8 @@ def eventTestSuite(tests):
             "testContactRegistration",
             "testMultiContactRegistration",
             "testPlaybackMessages",
-            "testSizeChangedMessage",
+            "testImageSizeChanged",
+            "testWordsSizeChanged",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 

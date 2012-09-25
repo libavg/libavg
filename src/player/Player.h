@@ -175,6 +175,9 @@ class AVG_API Player: public Publisher
         const NodeDefinition& getNodeDef(const std::string& sType);
 
         void disablePython();
+        void startTraversingTree();
+        void endTraversingTree();
+        bool isTraversingTree() const;
 
         py::object loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
@@ -225,6 +228,7 @@ class AVG_API Player: public Publisher
         TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;
+        bool m_bIsTraversingTree;
         bool m_bStopping;
 
         IInputDevicePtr m_pMultitouchInputDevice;

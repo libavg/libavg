@@ -110,6 +110,7 @@ Player::Player()
     : Publisher("Player"),
       m_pDisplayEngine(),
       m_bDisplayEngineBroken(false),
+      m_bIsTraversingTree(false),
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -985,6 +986,23 @@ const NodeDefinition& Player::getNodeDef(const std::string& sType)
 void Player::disablePython()
 {
     m_bPythonAvailable = false;
+}
+
+void Player::startTraversingTree()
+{
+    AVG_ASSERT(!m_bIsTraversingTree);
+    m_bIsTraversingTree = true;
+}
+
+void Player::endTraversingTree()
+{
+    AVG_ASSERT(m_bIsTraversingTree);
+    m_bIsTraversingTree = false;
+}
+
+bool Player::isTraversingTree() const
+{
+    return m_bIsTraversingTree;
 }
 
 void Player::registerFrameEndListener(IFrameEndListener* pListener)
