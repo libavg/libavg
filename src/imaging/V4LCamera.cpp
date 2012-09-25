@@ -599,8 +599,7 @@ void V4LCamera::initDevice()
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera image format: '")
                 +strerror(errno)
-                +"'. Try using avg_showcamera.py --dump to find out what\
-                        the device supports."));
+                +"'. Try using avg_showcamera.py --list to find out what the device supports."));
     }
 
     CLEAR(StreamParam);
@@ -613,8 +612,7 @@ void V4LCamera::initDevice()
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera framerate: '")
                 +strerror(errno)
-                +"'. Try using avg_showcamera.py --dump to find out what\
-                        the device supports."));
+                +"'. Try using avg_showcamera.py --list to find out what the device supports."));
     }
 
     initMMap();
