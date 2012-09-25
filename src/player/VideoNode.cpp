@@ -303,14 +303,14 @@ bool VideoNode::hasAlpha() const
 
 void VideoNode::setEOFCallback(PyObject * pEOFCallback)
 {
-    AVG_DEPRECATION_WARNING("1.8", "VideoNode.setEOFCallback()", 
-            "Node.subscribe(END_OF_FILE)");
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
     if (pEOFCallback == Py_None) {
         m_pEOFCallback = 0;
     } else {
+        AVG_DEPRECATION_WARNING("1.8", "VideoNode.setEOFCallback()", 
+                "Node.subscribe(END_OF_FILE)");
         Py_INCREF(pEOFCallback);
         m_pEOFCallback = pEOFCallback;
     }
@@ -459,6 +459,7 @@ void VideoNode::open()
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
     m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 void VideoNode::startDecoding()
@@ -483,7 +484,6 @@ void VideoNode::startDecoding()
     }
     m_bSeekPending = true;
     
-    setViewport(-32767, -32767, -32767, -32767);
     createTextures(videoInfo.m_Size);
    
     if (m_SeekBeforeCanRenderTime != 0) {
