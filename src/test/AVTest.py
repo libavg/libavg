@@ -53,6 +53,7 @@ class AVTestCase(AVGTestCase):
     def testVideoInfo(self):
         def checkInfo():
             node.pause()
+            self.assertEqual(node.getContainerFormat(), "avi")
             self.assertEqual(node.getCurFrame(), 0)
             self.assertEqual(node.getCurTime(), 0)
             self.assertEqual(node.getDuration(), 1000)
@@ -217,10 +218,15 @@ class AVTestCase(AVGTestCase):
             # Now libavg notices the missing file.
             self.assertException(node.play)
 
+        def testVideoBroken():
+            node = avg.VideoNode(href="rgb24-64x64.png")
+            self.assertException(node.play)
+
         root = self.loadEmptyScene()
         node = avg.VideoNode(href="mpeg1-48x48.mpg", threaded=False, parent=root)
         player.setFakeFPS(25)
         testVideoNotFound()
+        testVideoBroken()
         setHRefUnloaded()
         self.start(False,
                 (lambda: node.play(),
@@ -228,7 +234,8 @@ class AVTestCase(AVGTestCase):
                  setHRefLoaded,
                  lambda: self.compareImage("testVideoHRef1"),
                  testGetMediaSize,
-                 testVideoNotFound
+                 testVideoNotFound,
+                 testVideoBroken
                 ))
 
     def testVideoOpacity(self):

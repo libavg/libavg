@@ -109,6 +109,7 @@ Player * Player::s_pPlayer=0;
 Player::Player()
     : Publisher("Player"),
       m_pDisplayEngine(),
+      m_bDisplayEngineBroken(false),
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -251,13 +252,15 @@ void Player::useGLES(bool bGLES)
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
-        int multiSampleSamples, GLConfig::ShaderUsage shaderUsage)
+        int multiSampleSamples, GLConfig::ShaderUsage shaderUsage,
+        bool bUseDebugContext)
 {
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
     m_GLConfig.m_ShaderUsage = shaderUsage;
+    m_GLConfig.m_bUseDebugContext = bUseDebugContext;
 }
 
 void Player::setMultiSampleSamples(int multiSampleSamples)
@@ -526,6 +529,7 @@ void Player::play()
             notifySubscribers("PLAYBACK_END");
         } catch (...) {
             cleanup();
+            m_bDisplayEngineBroken = true;
             throw;
         }
         cleanup();
@@ -564,6 +568,7 @@ void Player::initPlayback(const std::string& sShaderPath)
         m_pMainCanvas->initPlayback(m_pDisplayEngine);
     } catch (Exception&) {
         cleanup();
+        m_bDisplayEngineBroken = true;
         throw;
     }
     m_pEventDispatcher->addInputDevice(
@@ -1232,7 +1237,8 @@ void Player::initConfig()
         throw Exception(AVG_ERR_OUT_OF_RANGE,
                 "avgrc parameter shaderusage must be full, minimal or auto");
     }
-
+    string sDummy;
+    m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
@@ -1247,12 +1253,18 @@ void Player::initGraphics(const string& sShaderPath)
     }
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
-    m_pDisplayEngine->init(m_DP, m_GLConfig);
+    m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
+    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize || m_bDisplayEngineBroken) 
+    {
+        m_bDisplayEngineBroken = false;
+        m_pDisplayEngine->init(m_DP, m_GLConfig);
+    }
     AVG_TRACE(Logger::CONFIG, "  Pixels per mm: " 
             << m_pDisplayEngine->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
+    m_pDisplayEngine->setGamma(1.0, 1.0, 1.0);
 }
 
 void Player::initAudio()

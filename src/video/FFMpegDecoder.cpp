@@ -167,7 +167,10 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + ": Could not find codec parameters.");
     }
-//    dump_format(m_pFormatContext, 0, sFilename.c_str(), false);
+    if (strcmp(m_pFormatContext->iformat->name, "image2") == 0) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                sFilename + ": Image files not supported as videos.");
+    }
     av_read_play(m_pFormatContext);
     
     // Find audio and video streams in the file
@@ -212,6 +215,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             m_VStreamIndex = -1;
             char szBuf[256];
             avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
+            m_pVStream = 0;
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": unsupported codec ("+szBuf+").");
         }
@@ -394,8 +398,8 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
     if (m_pVStream || m_pAStream) {
         duration = getDuration();
     }
-    VideoInfo info(duration, m_pFormatContext->bit_rate, m_pVStream != 0,
-            m_pAStream != 0);
+    VideoInfo info(m_pFormatContext->iformat->name, duration, m_pFormatContext->bit_rate,
+            m_pVStream != 0, m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
                 m_pVStream->codec->codec->name, usesVDPAU(), getDuration(SS_VIDEO));

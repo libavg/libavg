@@ -30,7 +30,7 @@ struct AVG_API GLConfig {
 
     GLConfig();
     GLConfig(bool bGLES, bool bUsePOTTextures, bool bUsePixelBuffers,
-            int multiSampleSamples, ShaderUsage shaderUsage);
+            int multiSampleSamples, ShaderUsage shaderUsage, bool bUseDebugContext);
 
     void log();
 
@@ -39,6 +39,7 @@ struct AVG_API GLConfig {
     bool m_bUsePixelBuffers;
     int m_MultiSampleSamples;
     ShaderUsage m_ShaderUsage;
+    bool m_bUseDebugContext;
 };
 
 }

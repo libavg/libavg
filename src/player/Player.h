@@ -85,7 +85,8 @@ class AVG_API Player: public Publisher
         void setWindowPos(int x=0, int y=0);
         void useGLES(bool bGLES);
         void setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
-                int multiSampleSamples, GLConfig::ShaderUsage shaderUsage);
+                int multiSampleSamples, GLConfig::ShaderUsage shaderUsage,
+                bool bUseDebugContext);
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
         void enableGLErrorChecks(bool bEnable);
@@ -220,6 +221,7 @@ class AVG_API Player: public Publisher
         MainCanvasPtr m_pMainCanvas;
 
         SDLDisplayEnginePtr m_pDisplayEngine;
+        bool m_bDisplayEngineBroken;
         TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;

@@ -34,12 +34,13 @@ GLConfig::GLConfig()
 }
 
 GLConfig::GLConfig(bool bGLES, bool bUsePOTTextures, bool bUsePixelBuffers,
-        int multiSampleSamples, ShaderUsage shaderUsage)
+        int multiSampleSamples, ShaderUsage shaderUsage, bool bUseDebugContext)
     : m_bGLES(bGLES),
       m_bUsePOTTextures(bUsePOTTextures),
       m_bUsePixelBuffers(bUsePixelBuffers),
       m_MultiSampleSamples(multiSampleSamples),
-      m_ShaderUsage(shaderUsage)
+      m_ShaderUsage(shaderUsage),
+      m_bUseDebugContext(bUseDebugContext)
 {
 }
 
@@ -70,6 +71,7 @@ void GLConfig::log()
             AVG_ASSERT(false);
     }
     AVG_TRACE(Logger::CONFIG, "  Shader usage: " << sShader);
+    AVG_TRACE(Logger::CONFIG, "  Debug context: " << (m_bUseDebugContext?"true":"false"));
 }
 
 }
