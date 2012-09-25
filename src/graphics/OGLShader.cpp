@@ -127,18 +127,20 @@ bool OGLShader::findParam(const std::string& sName, unsigned& pos)
 
 void OGLShader::dumpInfoLog(GLhandleARB hObj)
 {
-    int InfoLogLength;
+    int infoLogLength;
     GLcharARB * pInfoLog;
 
-    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
+    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
     GLContext::checkError("OGLShader::dumpInfoLog: glGetObjectParameteriv()");
-    if (InfoLogLength > 1) {
-        pInfoLog = (GLcharARB*)malloc(InfoLogLength);
+    if (infoLogLength > 1) {
+        pInfoLog = (GLcharARB*)malloc(infoLogLength);
         int CharsWritten;
-        glproc::GetInfoLog(hObj, InfoLogLength, &CharsWritten, pInfoLog);
+        glproc::GetInfoLog(hObj, infoLogLength, &CharsWritten, pInfoLog);
         string sLog = removeATIInfoLogSpam(pInfoLog);
         GLContext::checkError("OGLShader::dumpInfoLog: glGetInfoLog()");
-        AVG_TRACE(Logger::WARNING, sLog);
+        if (sLog.size() > 3) {
+            AVG_TRACE(Logger::WARNING, sLog);
+        }
         free(pInfoLog);
     }
 }
@@ -149,10 +151,10 @@ string OGLShader::removeATIInfoLogSpam(const string& sOrigLog)
     string sLog;
     string sCurLine;
     while(getline(stream, sCurLine)) {
-        if ((sCurLine.find(
-                "shader was successfully compiled to run on hardware.") == string::npos)
-                && (sCurLine.find("shader(s) linked.") == string::npos))
-        {
+        bool bLineBroken = (sCurLine.find(
+                "shader was successfully compiled to run on hardware.") != string::npos)
+                || (sCurLine.find("shader(s) linked.") != string::npos);
+        if (!bLineBroken) {
             sLog.append(sCurLine+"\n");
         }
     }
