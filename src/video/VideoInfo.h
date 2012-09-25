@@ -33,7 +33,8 @@ namespace avg {
 struct AVG_API VideoInfo
 {
     VideoInfo();
-    VideoInfo(float duration, int bitrate, bool bHasVideo, bool bHasAudio);
+    VideoInfo(std::string sContainerFormat, float duration, int bitrate, bool bHasVideo,
+            bool bHasAudio);
     void setVideoData(const IntPoint& size, const std::string& sPixelFormat,
             int numFrames, float streamFPS, float FPS, const std::string& sVCodec,
             bool bUsesVDPAU, float duration);
@@ -41,6 +42,7 @@ struct AVG_API VideoInfo
     void setAudioData(const std::string& sACodec, int sampleRate, int numAudioChannels,
             float duration);
 
+    std::string m_sContainerFormat;
     float m_Duration;
     int m_Bitrate;
 

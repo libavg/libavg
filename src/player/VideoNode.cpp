@@ -223,6 +223,11 @@ int VideoNode::getBitrate() const
     exceptionIfUnloaded("getBitrate");
     return m_pDecoder->getVideoInfo().m_Bitrate;
 }
+std::string VideoNode::getContainerFormat() const
+{
+    exceptionIfUnloaded("getContainerFormat");
+    return m_pDecoder->getVideoInfo().m_sContainerFormat;
+}
 
 string VideoNode::getVideoCodec() const
 {

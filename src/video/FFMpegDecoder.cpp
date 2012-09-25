@@ -117,9 +117,6 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 {
     AVCodecContext* pContext;
     pContext = m_pFormatContext->streams[streamIndex]->codec;
-    if (isImageCodec(pContext)) {
-        return -1;
-    }
 //    pContext->debug = 0x0001; // see avcodec.h
 
     AVCodec * pCodec = 0;
@@ -170,7 +167,10 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + ": Could not find codec parameters.");
     }
-//    dump_format(m_pFormatContext, 0, sFilename.c_str(), false);
+    if (strcmp(m_pFormatContext->iformat->name, "image2") == 0) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                sFilename + ": Image files not supported as videos.");
+    }
     av_read_play(m_pFormatContext);
     
     // Find audio and video streams in the file
@@ -398,8 +398,8 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
     if (m_pVStream || m_pAStream) {
         duration = getDuration();
     }
-    VideoInfo info(duration, m_pFormatContext->bit_rate, m_pVStream != 0,
-            m_pAStream != 0);
+    VideoInfo info(m_pFormatContext->iformat->name, duration, m_pFormatContext->bit_rate,
+            m_pVStream != 0, m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
                 m_pVStream->codec->codec->name, usesVDPAU(), getDuration(SS_VIDEO));
@@ -992,24 +992,6 @@ int FFMpegDecoder::getNumFrames() const
     } else {
         return int(getDuration() * calcStreamFPS());
     }
-}
-
-bool FFMpegDecoder::isImageCodec(const AVCodecContext* pContext) const
-{
-    int imageCodecIDs[] = {CODEC_ID_PNG, CODEC_ID_PPM, CODEC_ID_PBM, CODEC_ID_PGM,
-            CODEC_ID_PGMYUV, CODEC_ID_BMP,
-            CODEC_ID_JPEG2000, CODEC_ID_PAM, CODEC_ID_PCX,
-            CODEC_ID_PTX, CODEC_ID_SGI, CODEC_ID_SUNRAST, CODEC_ID_TIFF,
-            CODEC_ID_TARGA, -1};
-
-    int i = 0;
-    while (imageCodecIDs[i] != -1) {
-        if (imageCodecIDs[i] == pContext->codec_id) {
-            return true;
-        }
-        ++i;
-    }
-    return false;
 }
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)

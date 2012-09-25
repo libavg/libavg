@@ -90,7 +90,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         PixelFormat calcPixelFormat(bool bUseYCbCr);
         virtual float getDuration(StreamSelect streamSelect = SS_DEFAULT) const;
         virtual int getNumFrames() const;
-        bool isImageCodec(const AVCodecContext* pContext) const;
 
         DecoderState m_State;
         AVFormatContext * m_pFormatContext;

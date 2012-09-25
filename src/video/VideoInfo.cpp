@@ -31,8 +31,10 @@ VideoInfo::VideoInfo()
 {
 }
 
-VideoInfo::VideoInfo(float duration, int bitrate, bool bHasVideo, bool bHasAudio)
-    : m_Duration(duration),
+VideoInfo::VideoInfo(string sContainerFormat, float duration, int bitrate, bool bHasVideo,
+        bool bHasAudio)
+    : m_sContainerFormat(sContainerFormat), 
+      m_Duration(duration),
       m_Bitrate(bitrate),
       m_bHasVideo(bHasVideo),
       m_bHasAudio(bHasAudio)

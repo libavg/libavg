@@ -47,6 +47,7 @@ class AVTestCase(AVGTestCase):
     def testVideoInfo(self):
         def checkInfo():
             node.pause()
+            self.assertEqual(node.getContainerFormat(), "avi")
             self.assertEqual(node.getCurFrame(), 0)
             self.assertEqual(node.getCurTime(), 0)
             self.assertEqual(node.getDuration(), 1000)
