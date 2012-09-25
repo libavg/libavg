@@ -150,9 +150,8 @@ string OGLShader::removeATIInfoLogSpam(const string& sOrigLog)
     string sCurLine;
     while(getline(stream, sCurLine)) {
         if ((sCurLine.find(
-                "Fragment shader was successfully compiled to run on hardware.")
-                == string::npos) &&
-                (sCurLine.find("Fragment shader(s) linked.") == string::npos))
+                "shader was successfully compiled to run on hardware.") == string::npos)
+                && (sCurLine.find("shader(s) linked.") == string::npos))
         {
             sLog.append(sCurLine+"\n");
         }
