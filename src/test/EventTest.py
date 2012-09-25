@@ -919,14 +919,14 @@ class EventTestCase(AVGTestCase):
 
         def changeText():
             self.words.text="NewText"
+            checkMessageReceived()
 
         root = self.loadEmptyScene()
         self.words = avg.WordsNode(text="Test", parent=root)
         self.words.subscribe(self.words.SIZE_CHANGED, onResize)
         self.start(False,
                 (checkMessageReceived,
-#                 changeText,
-#                 checkMessageReceived,
+                 changeText,
                 ))
 
 
