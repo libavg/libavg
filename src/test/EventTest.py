@@ -872,13 +872,41 @@ class EventTestCase(AVGTestCase):
 
     def testSizeChangedMessage(self):
         def onResize(newSize):
-            print "new size: ", newSize
+            self.assert_(newSize == self.sizeExpected)
+            self.messageReceived = True
+
+        def changeHref():
+            self.messageReceived = False
+            self.sizeExpected = (32,32)
+            self.image.href="rgb24-32x32.png"
+            self.assert_(self.messageReceived)
+
+        def explicitChangeSize():
+            self.messageReceived = False
+            self.sizeExpected = (64,64)
+            self.image.size = self.sizeExpected
+            self.assert_(self.messageReceived)
+
+        def changeWidth():
+            self.messageReceived = False
+            self.sizeExpected = (32,64)
+            self.image.width = 32
+            self.assert_(self.messageReceived)
+
+        def move():
+            self.messageReceived = False
+            self.image.x = 4
+            self.assert_(not(self.messageReceived))
 
         root = self.loadEmptyScene()
         self.image = avg.ImageNode(href="rgb24-64x64.png", parent=root)
         self.image.subscribe(avg.AreaNode.SIZE_CHANGED, onResize)
+        self.sizeExpected = (64, 64)
         self.start(False,
-                (None,
+                (changeHref,
+                 explicitChangeSize,
+                 changeWidth,
+                 move,
                 ))
         
 

@@ -107,6 +107,9 @@ void AreaNode::connectDisplay()
     } else {
         m_RelViewport.setHeight(float(m_UserSize.y));
     }
+    if (m_UserSize.x == 0.0 || m_UserSize.y == 0) {
+        notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
+    }
     m_bTransformChanged = true;
     Node::connectDisplay();
 }
@@ -266,6 +269,7 @@ void AreaNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor)
 
 void AreaNode::setViewport(float x, float y, float width, float height)
 {
+    glm::vec2 oldSize = getRelViewport().size();
     if (x == -32767) {
         x = getRelViewport().tl.x;
     }
@@ -291,6 +295,9 @@ void AreaNode::setViewport(float x, float y, float width, float height)
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for a node.");
     }
     m_RelViewport = FRect(x, y, x+width, y+height);
+    if (oldSize != m_RelViewport.size()) {
+        notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
+    }
     m_bTransformChanged = true;
 }
 
