@@ -120,7 +120,6 @@ WordsNode::WordsNode(const ArgList& args)
     setWrapMode(args.getArgVal<string>("wrapmode"));
     setText(args.getArgVal<UTF8String>("text"));
     m_Color = colorStringToColor(m_sColorName);
-    setViewport(-32767, -32767, -32767, -32767);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -447,7 +446,7 @@ std::string WordsNode::getTextAsDisplayed()
 
 glm::vec2 WordsNode::getLineExtents(int line)
 {
-    if(line < 0 || line >= getNumLines()) {
+    if (line < 0 || line >= getNumLines()) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "WordsNode.getLineExtents: line index "
                 +toString(line)+" is out of range.");
     }
