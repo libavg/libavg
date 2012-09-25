@@ -74,7 +74,7 @@ void registerWindowClass()
 }
 #endif
 
-void debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
         GLsizei length, const GLchar* message, void* userParam) 
 {
     cerr << message << endl;

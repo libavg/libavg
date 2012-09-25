@@ -64,11 +64,19 @@ class WordsTestCase(AVGTestCase):
             node.text = newText 
             self.assertNotEqual(node.size, size)
 
+        def changeFont():
+            size = node.size
+            node.fontsize = 18
+            self.assertNotEqual(node.size, size)
+
         root = self.loadEmptyScene()
         node = avg.WordsNode(font="Bitstream Vera Sans", fontsize=12, text="foo", 
                 parent=root)
         changeText("foobar")
-        self.start(True, (lambda: changeText("bar"),))
+        self.start(True, 
+                (lambda: changeText("bar"),
+                 changeFont,
+                ))
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
