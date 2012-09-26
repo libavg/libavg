@@ -24,6 +24,7 @@
 #include "ShaderRegistry.h"
 #include "StandardShader.h"
 
+#include "../base/Backtrace.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
@@ -77,7 +78,73 @@ void registerWindowClass()
 void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
         GLsizei length, const GLchar* message, void* userParam) 
 {
-    cerr << message << endl;
+/*    
+    string sSource;
+    switch (source) {
+        case GL_DEBUG_SOURCE_API_ARB:
+            sSource = "API";
+            break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+            sSource = "Window System";
+            break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+            sSource = "Shader Compiler";
+            break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+            sSource = "Third Party";
+            break;
+        case GL_DEBUG_SOURCE_APPLICATION_ARB:
+            sSource = "Application";
+            break;
+        case GL_DEBUG_SOURCE_OTHER_ARB:
+            sSource = "Other";
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+
+    string sSeverity;
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH_ARB:
+            sSeverity = "High";
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+            sSeverity = "Medium";
+            break;
+        case GL_DEBUG_SEVERITY_LOW_ARB:
+            sSeverity = "Low";
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+
+    string sType;
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR_ARB:
+            sType = "Error";
+            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+            sType = "Deprecated Behaviour";
+            break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+            sType = "Undefined Behaviour";
+            break;
+        case GL_DEBUG_TYPE_PORTABILITY_ARB:
+            sType = "Portability Issue";
+            break;
+        case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+            sType = "Performance Issue";
+            break;
+        case GL_DEBUG_TYPE_OTHER_ARB:
+            sType = "Other";
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+*/
+    
+    AVG_TRACE(Logger::WARNING, message);
+//    dumpBacktrace();
 }
 
 GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
