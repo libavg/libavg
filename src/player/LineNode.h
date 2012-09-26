@@ -32,7 +32,7 @@ namespace avg {
 class AVG_API LineNode : public VectorNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         LineNode(const ArgList& args);
         virtual ~LineNode();

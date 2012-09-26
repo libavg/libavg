@@ -46,7 +46,7 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition WordsNode::createDefinition()
+void WordsNode::registerType()
 {
     static const string sDTDElements = 
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
@@ -84,8 +84,7 @@ NodeDefinition WordsNode::createDefinition()
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
-    return NodeDefinition("words", Node::buildNode<WordsNode>)
-        .extendDefinition(RasterNode::createDefinition())
+    NodeDefinition def = NodeDefinition("words", "rasternode", Node::buildNode<WordsNode>)
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(WordsNode, m_sFontName)))
@@ -105,22 +104,23 @@ NodeDefinition WordsNode::createDefinition()
                 offsetof(WordsNode, m_LetterSpacing)))
         .addArg(Arg<bool>("hint", true, false, offsetof(WordsNode, m_bHint)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 WordsNode::WordsNode(const ArgList& args)
     : m_LogicalSize(0,0),
       m_pFontDescription(0),
       m_pLayout(0),
-      m_RedrawState(FONT_CHANGED)
+      m_bRenderNeeded(true)
 {
     m_bParsedText = false;
 
     args.setMembers(this);
     setAlignment(args.getArgVal<string>("alignment"));
     setWrapMode(args.getArgVal<string>("wrapmode"));
+    updateFont();
     setText(args.getArgVal<UTF8String>("text"));
     m_Color = colorStringToColor(m_sColorName);
-    setViewport(-32767, -32767, -32767, -32767);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -148,7 +148,6 @@ void WordsNode::connectDisplay()
 {
     RasterNode::connectDisplay();
     getSurface()->setAlphaGamma(m_Gamma);
-    setDirty(FONT_CHANGED);
 }
 
 void WordsNode::connect(CanvasPtr pCanvas)
@@ -162,7 +161,7 @@ void WordsNode::disconnect(bool bKill)
     if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
         m_pFontDescription = 0;
-        setDirty(FONT_CHANGED);
+        updateFont();
     }
     RasterNode::disconnect(bKill);
 }
@@ -194,8 +193,7 @@ void WordsNode::setAlignment(const string& sAlign)
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "WordsNode alignment "+sAlign+" not supported."));
     }
-
-    setDirty(LAYOUT_CHANGED);
+    updateLayout();
 }
 
 bool WordsNode::getJustify() const
@@ -206,7 +204,7 @@ bool WordsNode::getJustify() const
 void WordsNode::setJustify(bool bJustify)
 {
     m_bJustify = bJustify;
-    setDirty(LAYOUT_CHANGED);
+    updateLayout();
 }
 
 float WordsNode::getLetterSpacing() const
@@ -217,7 +215,7 @@ float WordsNode::getLetterSpacing() const
 void WordsNode::setLetterSpacing(float letterSpacing)
 {
     m_LetterSpacing = letterSpacing;
-    setDirty(LAYOUT_CHANGED);
+    updateLayout();
 }
 
 bool WordsNode::getHint() const
@@ -227,49 +225,45 @@ bool WordsNode::getHint() const
 
 void WordsNode::setHint(bool bHint)
 {
-    setDirty(LAYOUT_CHANGED);
     m_bHint = bHint;
+    updateLayout();
 }
 
 float WordsNode::getWidth() const
 {
-    const_cast<WordsNode*>(this)->updateLayout();
     return AreaNode::getWidth();
 }
 
 void WordsNode::setWidth(float width)
 {
-    setDirty(LAYOUT_CHANGED);
     AreaNode::setWidth(width);
+    updateLayout();
 }
 
 float WordsNode::getHeight() const
 {
-    const_cast<WordsNode*>(this)->updateLayout();
     return AreaNode::getHeight();
 }
 
 void WordsNode::setHeight(float width)
 {
-    setDirty(LAYOUT_CHANGED);
     AreaNode::setHeight(width);
+    updateLayout();
 }
 
 glm::vec2 WordsNode::getSize() const
 {
-    const_cast<WordsNode*>(this)->updateLayout();
     return AreaNode::getSize();
 }
 
 void WordsNode::setSize(const glm::vec2& pt)
 {
-    setDirty(LAYOUT_CHANGED);
     AreaNode::setSize(pt);
+    updateLayout();
 }
 
 void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
-    updateLayout();
     glm::vec2 relPos = pos-glm::vec2(m_AlignOffset, 0);
     AreaNode::getElementsByPos(relPos, pElements);
 }
@@ -282,7 +276,7 @@ const std::string& WordsNode::getFont() const
 void WordsNode::setFont(const std::string& sName)
 {
     m_sFontName = sName;
-    setDirty(FONT_CHANGED);
+    updateFont();
 }
 
 const std::string& WordsNode::getFontVariant() const
@@ -299,7 +293,7 @@ void WordsNode::addFontDir(const std::string& sDir)
 void WordsNode::setFontVariant(const std::string& sVariant)
 {
     m_sFontVariant = sVariant;
-    setDirty(FONT_CHANGED);
+    updateFont();
 }
 
 const UTF8String& WordsNode::getText() const 
@@ -319,10 +313,10 @@ void WordsNode::setText(const UTF8String& sText)
         m_sText = m_sRawText;
         if (m_bRawTextMode) {
             m_bParsedText = false;
+            updateLayout();
         } else {
             setParsedText(sText);
         }
-        setDirty(LAYOUT_CHANGED);
     }
 }
 
@@ -335,7 +329,7 @@ void WordsNode::setColor(const string& sColor)
 {
     m_sColorName = sColor;
     m_Color = colorStringToColor(m_sColorName);
-    setDirty(RENDER_NEEDED);
+    m_bRenderNeeded = true;
 }
 
 float WordsNode::getAAGamma() const
@@ -362,7 +356,7 @@ void WordsNode::setFontSize(float size)
         throw Exception(AVG_ERR_INVALID_ARGS, "Words node: Font size < 1 is illegal.");
     } 
     m_FontSize = size;
-    setDirty(FONT_CHANGED);
+    updateFont();
 }
 
 int WordsNode::getIndent() const
@@ -373,7 +367,7 @@ int WordsNode::getIndent() const
 void WordsNode::setIndent(int indent)
 {
     m_Indent = indent;
-    setDirty(LAYOUT_CHANGED);
+    updateLayout();
 }
 
 float WordsNode::getLineSpacing() const
@@ -384,7 +378,7 @@ float WordsNode::getLineSpacing() const
 void WordsNode::setLineSpacing(float lineSpacing)
 {
     m_LineSpacing = lineSpacing;
-    setDirty(LAYOUT_CHANGED);
+    updateLayout();
 }
 
 bool WordsNode::getRawTextMode() const
@@ -402,7 +396,7 @@ void WordsNode::setRawTextMode(bool rawTextMode)
             setParsedText(m_sText);
         }
         m_bRawTextMode = rawTextMode;
-        setDirty(LAYOUT_CHANGED);
+        updateLayout();
     }
 }
 
@@ -420,7 +414,6 @@ glm::vec2 WordsNode::getGlyphSize(int i)
 
 int WordsNode::getNumLines()
 {
-    updateLayout();
     return pango_layout_get_line_count(m_pLayout);
 }
 
@@ -428,7 +421,6 @@ PyObject* WordsNode::getCharIndexFromPos(glm::vec2 p)
 {
     int index;
     int trailing;
-    updateLayout();
     gboolean bXyToIndex = pango_layout_xy_to_index(m_pLayout,
                 int(p.x*PANGO_SCALE), int(p.y*PANGO_SCALE), &index, &trailing);
     if (bXyToIndex) {
@@ -441,17 +433,15 @@ PyObject* WordsNode::getCharIndexFromPos(glm::vec2 p)
 
 std::string WordsNode::getTextAsDisplayed()
 {
-    updateLayout();
     return pango_layout_get_text(m_pLayout);
 }
 
 glm::vec2 WordsNode::getLineExtents(int line)
 {
-    if(line < 0 || line >= getNumLines()) {
+    if (line < 0 || line >= getNumLines()) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "WordsNode.getLineExtents: line index "
                 +toString(line)+" is out of range.");
     }
-    updateLayout();
     PangoRectangle logical_rect;
     PangoRectangle ink_rect;
     PangoLayoutLine *layoutLine = pango_layout_get_line_readonly(m_pLayout, line);
@@ -471,7 +461,7 @@ void WordsNode::setWrapMode(const string& sWrapMode)
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "WordsNode wrapping mode "+sWrapMode+" not supported."));
     }
-    setDirty(LAYOUT_CHANGED);
+    updateLayout();
 }
 
 string WordsNode::getWrapMode() const
@@ -512,8 +502,6 @@ void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 void WordsNode::calcMaskCoords()
 {
-    updateLayout();
-
     // Calculate texture coordinates for the mask texture, normalized to
     // the extents of the text.
     glm::vec2 normMaskSize;
@@ -542,18 +530,11 @@ void WordsNode::calcMaskCoords()
     getSurface()->setMaskCoords(normMaskPos, normMaskSize);
 }
 
-void WordsNode::setDirty(RedrawState newState)
-{
-    if (newState < m_RedrawState) {
-        m_RedrawState = newState;
-    }
-}
-
 static ProfilingZoneID UpdateFontProfilingZone("WordsNode: Update font");
 
 void WordsNode::updateFont()
 {
-    if (m_RedrawState == FONT_CHANGED) {
+    {
         ScopeTimer timer(UpdateFontProfilingZone);
 
         if (m_pFontDescription) {
@@ -563,100 +544,96 @@ void WordsNode::updateFont()
                 m_sFontVariant);
         pango_font_description_set_absolute_size(m_pFontDescription,
                 (int)(m_FontSize * PANGO_SCALE));
-
-        m_RedrawState = LAYOUT_CHANGED;
     }
+    updateLayout();
 }
 
 static ProfilingZoneID UpdateLayoutProfilingZone("WordsNode: Update layout");
 
 void WordsNode::updateLayout()
 {
-    updateFont();
-    if (m_RedrawState == LAYOUT_CHANGED) {
-        ScopeTimer timer(UpdateLayoutProfilingZone);
+    ScopeTimer timer(UpdateLayoutProfilingZone);
 
-        if (m_sText.length() == 0) {
-            m_LogicalSize = IntPoint(0,0);
-            m_RedrawState = RENDER_NEEDED;
-        } else {
-            PangoContext* pContext = TextEngine::get(m_bHint).getPangoContext();
-            pango_context_set_font_description(pContext, m_pFontDescription);
+    if (m_sText.length() == 0) {
+        m_LogicalSize = IntPoint(0,0);
+        m_bRenderNeeded = true;
+    } else {
+        PangoContext* pContext = TextEngine::get(m_bHint).getPangoContext();
+        pango_context_set_font_description(pContext, m_pFontDescription);
 
-            if (m_pLayout) {
-                g_object_unref(m_pLayout);
-            }
-            m_pLayout = pango_layout_new(pContext);
-
-            PangoAttrList * pAttrList = 0;
-#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
-            PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
-                    (int(m_LetterSpacing*1024));
-#endif
-            if (m_bParsedText) {
-                char * pText = 0;
-                parseString(&pAttrList, &pText);
-#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
-                // Workaround for pango bug.
-                pango_attr_list_insert_before(pAttrList, pLetterSpacing);
-#endif            
-                pango_layout_set_text(m_pLayout, pText, -1);
-                g_free(pText);
-            } else {
-                pAttrList = pango_attr_list_new();
-#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
-                pango_attr_list_insert_before(pAttrList, pLetterSpacing);
-#endif
-                pango_layout_set_text(m_pLayout, m_sText.c_str(), -1);
-            }
-            pango_layout_set_attributes(m_pLayout, pAttrList);
-            pango_attr_list_unref(pAttrList);
-
-            pango_layout_set_wrap(m_pLayout, m_WrapMode);
-            pango_layout_set_alignment(m_pLayout, m_Alignment);
-            pango_layout_set_justify(m_pLayout, m_bJustify);
-            if (getUserSize().x != 0) {
-                pango_layout_set_width(m_pLayout, int(getUserSize().x * PANGO_SCALE));
-            }
-            pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
-            if (m_Indent < 0) {
-                // For hanging indentation, we add a tabstop to support lists
-                PangoTabArray* pTabs = pango_tab_array_new_with_positions(1, false,
-                        PANGO_TAB_LEFT, -m_Indent * PANGO_SCALE);
-                pango_layout_set_tabs(m_pLayout, pTabs);
-                pango_tab_array_free(pTabs);
-            }
-            pango_layout_set_spacing(m_pLayout, (int)(m_LineSpacing*PANGO_SCALE));
-            PangoRectangle logical_rect;
-            PangoRectangle ink_rect;
-            pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
-            
-    /*        
-            cerr << getID() << endl;
-            cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
-                    << ink_rect.width << ", " << ink_rect.height << endl;
-            cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
-                    << logical_rect.width << ", " << logical_rect.height << endl;
-            cerr << "User Size: " << getUserSize() << endl;
-    */        
-            m_InkSize.y = ink_rect.height;
-            if (getUserSize().x == 0) {
-                m_InkSize.x = ink_rect.width;
-            } else {
-                m_InkSize.x = int(getUserSize().x);
-            }
-            if (m_InkSize.x == 0) {
-                m_InkSize.x = 1;
-            }
-            if (m_InkSize.y == 0) {
-                m_InkSize.y = 1;
-            }
-            m_LogicalSize.y = logical_rect.height;
-            m_LogicalSize.x = logical_rect.width;
-            m_InkOffset = IntPoint(ink_rect.x-logical_rect.x, ink_rect.y-logical_rect.y);
-            m_RedrawState = RENDER_NEEDED;
-            setViewport(-32767, -32767, -32767, -32767);
+        if (m_pLayout) {
+            g_object_unref(m_pLayout);
         }
+        m_pLayout = pango_layout_new(pContext);
+
+        PangoAttrList * pAttrList = 0;
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
+        PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
+            (int(m_LetterSpacing*1024));
+#endif
+        if (m_bParsedText) {
+            char * pText = 0;
+            parseString(&pAttrList, &pText);
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
+            // Workaround for pango bug.
+            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
+#endif            
+            pango_layout_set_text(m_pLayout, pText, -1);
+            g_free(pText);
+        } else {
+            pAttrList = pango_attr_list_new();
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
+            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
+#endif
+            pango_layout_set_text(m_pLayout, m_sText.c_str(), -1);
+        }
+        pango_layout_set_attributes(m_pLayout, pAttrList);
+        pango_attr_list_unref(pAttrList);
+
+        pango_layout_set_wrap(m_pLayout, m_WrapMode);
+        pango_layout_set_alignment(m_pLayout, m_Alignment);
+        pango_layout_set_justify(m_pLayout, m_bJustify);
+        if (getUserSize().x != 0) {
+            pango_layout_set_width(m_pLayout, int(getUserSize().x * PANGO_SCALE));
+        }
+        pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
+        if (m_Indent < 0) {
+            // For hanging indentation, we add a tabstop to support lists
+            PangoTabArray* pTabs = pango_tab_array_new_with_positions(1, false,
+                    PANGO_TAB_LEFT, -m_Indent * PANGO_SCALE);
+            pango_layout_set_tabs(m_pLayout, pTabs);
+            pango_tab_array_free(pTabs);
+        }
+        pango_layout_set_spacing(m_pLayout, (int)(m_LineSpacing*PANGO_SCALE));
+        PangoRectangle logical_rect;
+        PangoRectangle ink_rect;
+        pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
+
+        /*        
+                  cerr << getID() << endl;
+                  cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
+                  << ink_rect.width << ", " << ink_rect.height << endl;
+                  cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
+                  << logical_rect.width << ", " << logical_rect.height << endl;
+                  cerr << "User Size: " << getUserSize() << endl;
+                  */        
+        m_InkSize.y = ink_rect.height;
+        if (getUserSize().x == 0) {
+            m_InkSize.x = ink_rect.width;
+        } else {
+            m_InkSize.x = int(getUserSize().x);
+        }
+        if (m_InkSize.x == 0) {
+            m_InkSize.x = 1;
+        }
+        if (m_InkSize.y == 0) {
+            m_InkSize.y = 1;
+        }
+        m_LogicalSize.y = logical_rect.height;
+        m_LogicalSize.x = logical_rect.width;
+        m_InkOffset = IntPoint(ink_rect.x-logical_rect.x, ink_rect.y-logical_rect.y);
+        m_bRenderNeeded = true;
+        setViewport(-32767, -32767, -32767, -32767);
     }
 }
 
@@ -664,12 +641,10 @@ static ProfilingZoneID RenderTextProfilingZone("WordsNode: render text");
 
 void WordsNode::renderText()
 {
-    AVG_ASSERT(m_RedrawState == RENDER_NEEDED || m_RedrawState == CLEAN);
-
     if (!(getState() == NS_CANRENDER)) {
         return;
     }
-    if (m_RedrawState == RENDER_NEEDED) {
+    if (m_bRenderNeeded) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
             int maxTexSize = GLContext::getMain()->getMaxTexSize();
@@ -716,7 +691,7 @@ void WordsNode::renderText()
 
             newSurface();
         }
-        m_RedrawState = CLEAN;
+        m_bRenderNeeded = false;
     }
 }
 
@@ -724,7 +699,6 @@ void WordsNode::redraw()
 {
     AVG_ASSERT(m_sText.length() < 32767);
     
-    updateLayout();
     renderText();
 }
 
@@ -734,8 +708,6 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         redraw();
-    } else {
-        updateLayout();
     }
     if (m_sText.length() != 0 && isVisible()) {
         renderFX(getSize(), m_Color, false);
@@ -763,7 +735,6 @@ void WordsNode::render()
 
 IntPoint WordsNode::getMediaSize()
 {
-    updateLayout();
     return m_LogicalSize;
 }
 
@@ -801,7 +772,6 @@ PangoRectangle WordsNode::getGlyphRect(int i)
         throw(Exception(AVG_ERR_INVALID_ARGS, 
                 string("getGlyphRect: Index ") + toString(i) + " out of range."));
     }
-    updateLayout();
     const char* pText = pango_layout_get_text(m_pLayout);
     char * pChar = g_utf8_offset_to_pointer(pText, i);
     int byteOffset = pChar-pText;
@@ -821,7 +791,6 @@ PangoRectangle WordsNode::getGlyphRect(int i)
 void WordsNode::setParsedText(const UTF8String& sText)
 {
     m_sText = removeExcessSpaces(sText);
-    setDirty(LAYOUT_CHANGED);
 
     // This just does a syntax check and throws an exception if appropriate.
     // The results are discarded.
@@ -831,6 +800,7 @@ void WordsNode::setParsedText(const UTF8String& sText)
     pango_attr_list_unref(pAttrList);
     g_free(pText);
     m_bParsedText = true;
+    updateLayout();
 }
 
 UTF8String WordsNode::applyBR(const UTF8String& sText)

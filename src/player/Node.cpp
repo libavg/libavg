@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "CursorEvent.h"
 #include "Style.h"
+#include "PublisherDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -41,17 +42,32 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Node::createDefinition()
+void Node::registerType()
 {
-    return NodeDefinition("node")
+    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Node");
+    pPubDef->addMessage("CURSOR_DOWN");
+    pPubDef->addMessage("CURSOR_MOTION");
+    pPubDef->addMessage("CURSOR_UP");
+    pPubDef->addMessage("CURSOR_OVER");
+    pPubDef->addMessage("CURSOR_OUT");
+    pPubDef->addMessage("HOVER_DOWN");
+    pPubDef->addMessage("HOVER_MOTION");
+    pPubDef->addMessage("HOVER_UP");
+    pPubDef->addMessage("HOVER_OVER");
+    pPubDef->addMessage("HOVER_OUT");
+    pPubDef->addMessage("END_OF_FILE");
+
+    NodeDefinition def = NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
         .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
         .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
         .addArg(Arg<float>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
-Node::Node()
-    : m_pSelf(0),
+Node::Node(const std::string& sPublisherName)
+    : Publisher(sPublisherName),
+      m_pSelf(0),
       m_pParent(0),
       m_pCanvas(),
       m_State(NS_UNCONNECTED)
@@ -244,6 +260,7 @@ void Node::releaseEventCapture(int cursorID)
 
 void Node::setEventHandler(Event::Type type, int sources, PyObject * pFunc)
 {
+    AVG_DEPRECATION_WARNING("1.7", "Node.setEventHandler()", "Node.subscribe()");
     for (int source = 1; source <= Event::NONE; source *= 2) {
         if (source & sources) {
             EventID id(type, (Event::Source)source);
@@ -261,6 +278,7 @@ void Node::setEventHandler(Event::Type type, int sources, PyObject * pFunc)
 void Node::connectEventHandler(Event::Type type, int sources, 
         PyObject * pObj, PyObject * pFunc)
 {
+    AVG_DEPRECATION_WARNING("1.8", "Node.connectEventHandler()", "Node.subscribe()");
     for (int source = 1; source <= Event::NONE; source *= 2) {
         if (source & sources) {
             EventID id(type, (Event::Source)source);
@@ -273,6 +291,7 @@ void Node::connectEventHandler(Event::Type type, int sources,
 
 void Node::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
 {
+    AVG_DEPRECATION_WARNING("1.8", "Node.disconnectEventHandler()", "Node.unsubscribe()");
     int numDisconnected = 0;
     EventHandlerMap::iterator it;
     for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end();) {
@@ -376,6 +395,11 @@ CanvasPtr Node::getCanvas() const
 
 bool Node::handleEvent(EventPtr pEvent)
 {
+    if (pEvent->getSource() != Event::NONE && pEvent->getSource() != Event::CUSTOM) {
+        string messageID = getEventMessageID(pEvent);
+        notifySubscribers(messageID, pEvent);
+    }
+
     EventID id(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
     if (it != m_EventHandlerMap.end()) {
@@ -497,9 +521,9 @@ NodePtr Node::getSharedThis()
     // a pointer to the python object in m_pSelf and use that to create a functioning
     // and complete NodePtr if there is a python derived class.
     if (m_pSelf) {
-        return boost::python::extract<NodePtr>(m_pSelf);
+        return py::extract<NodePtr>(m_pSelf);
     } else {
-        return shared_from_this();
+        return boost::dynamic_pointer_cast<Node>(shared_from_this());
     }
 }
 
@@ -536,30 +560,49 @@ void Node::dumpEventHandlers()
     cerr << "-----" << endl;
 }
 
-PyObject * Node::findPythonFunc(const string& sCode)
+string Node::getEventMessageID(const EventPtr& pEvent)
 {
-    if (sCode.empty()) {
-        return 0;
+    Event::Source source = pEvent->getSource();
+    if (source == Event::MOUSE || source == Event::TOUCH) {
+        switch (pEvent->getType()) {
+            case Event::CURSOR_DOWN:
+                return "CURSOR_DOWN";
+            case Event::CURSOR_MOTION:
+                return "CURSOR_MOTION";
+            case Event::CURSOR_UP:
+                return "CURSOR_UP";
+            case Event::CURSOR_OVER:
+                return "CURSOR_OVER";
+            case Event::CURSOR_OUT:
+                return "CURSOR_OUT";
+            default:
+                AVG_ASSERT_MSG(false, 
+                        (string("Unknown message type ")+pEvent->typeStr()).c_str());
+                return "";
+        }
     } else {
-        PyObject * pModule = PyImport_AddModule("__main__");
-        if (!pModule) {
-            cerr << "Could not find module __main__." << endl;
-            exit(-1);
+        switch (pEvent->getType()) {
+            case Event::CURSOR_DOWN:
+                return "HOVER_DOWN";
+            case Event::CURSOR_MOTION:
+                return "HOVER_MOTION";
+            case Event::CURSOR_UP:
+                return "HOVER_UP";
+            case Event::CURSOR_OVER:
+                return "HOVER_OVER";
+            case Event::CURSOR_OUT:
+                return "HOVER_OUT";
+            default:
+                AVG_ASSERT_MSG(false, 
+                        (string("Unknown message type ")+pEvent->typeStr()).c_str());
+                return "";
         }
-        PyObject * pDict = PyModule_GetDict(pModule);
-        PyObject * pFunc = PyDict_GetItemString(pDict, sCode.c_str());
-        if (!pFunc) {
-            AVG_TRACE(Logger::ERROR, "Function \"" << sCode << 
-                    "\" not defined for node with id '"+getID()+"'. Aborting.");
-            exit(-1);
-        }
-        return pFunc;
     }
 }
 
 bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
 {
-    bool bOk = boost::python::call<bool>(pFunc, pEvent);
+    bool bOk = py::call<bool>(pFunc, pEvent);
     return bOk;
 }
 

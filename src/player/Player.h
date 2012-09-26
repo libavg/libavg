@@ -23,6 +23,7 @@
 #define _Player_H_
 
 #include "../api.h"
+#include "Publisher.h"
 #include "Timeout.h"
 #include "NodeRegistry.h"
 #include "DisplayParams.h"
@@ -69,7 +70,7 @@ typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
 
-class AVG_API Player
+class AVG_API Player: public Publisher
 {
     public:
         Player();
@@ -99,8 +100,8 @@ class AVG_API Player
 
         OffscreenCanvasPtr loadCanvasFile(const std::string& sFilename);
         OffscreenCanvasPtr loadCanvasString(const std::string& sAVG);
-        CanvasPtr createMainCanvas(const boost::python::dict& params);
-        OffscreenCanvasPtr createCanvas(const boost::python::dict& params);
+        CanvasPtr createMainCanvas(const py::dict& params);
+        OffscreenCanvasPtr createCanvas(const py::dict& params);
         void deleteCanvas(const std::string& sID);
         CanvasPtr getMainCanvas() const;
         OffscreenCanvasPtr getCanvas(const std::string& sID) const;
@@ -122,8 +123,8 @@ class AVG_API Player
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
-        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict,
-                const boost::python::object& self=boost::python::object());
+        NodePtr createNode(const std::string& sType, const py::dict& PyDict,
+                const py::object& self=py::object());
         NodePtr createNodeFromXmlString(const std::string& sXML);
         
         int setInterval(int time, PyObject * pyfunc);
@@ -133,6 +134,7 @@ class AVG_API Player
 
         void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
+        EventPtr getCurrentEvent() const;
         TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;
@@ -163,6 +165,8 @@ class AVG_API Player
         bool getStopOnEscape() const;
         void setVolume(float volume);
         float getVolume() const;
+        std::string getConfigOption(const std::string& sSubsys, const std::string& sName)
+                const;
 
         OffscreenCanvasPtr getCanvasFromURL(const std::string& sURL);
 
@@ -171,8 +175,11 @@ class AVG_API Player
         const NodeDefinition& getNodeDef(const std::string& sType);
 
         void disablePython();
+        void startTraversingTree();
+        void endTraversingTree();
+        bool isTraversingTree() const;
 
-        boost::python::object loadPlugin(const std::string& name);
+        py::object loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
         std::string getPluginPath() const;
         
@@ -221,8 +228,8 @@ class AVG_API Player
         TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;
+        bool m_bIsTraversingTree;
         bool m_bStopping;
-        NodeRegistry m_NodeRegistry;
 
         IInputDevicePtr m_pMultitouchInputDevice;
 
@@ -253,7 +260,6 @@ class AVG_API Player
 
         float m_Volume;
 
-        bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
 
         bool m_bPythonAvailable;
@@ -275,6 +281,7 @@ class AVG_API Player
         std::map<int, EventCaptureInfoPtr> m_EventCaptureInfoMap;
 
         MouseEventPtr m_pLastMouseEvent;
+        EventPtr m_pCurrentEvent;
 
         // The indexes of this map are cursorids.
         std::map<int, CursorStatePtr> m_pLastCursorStates;

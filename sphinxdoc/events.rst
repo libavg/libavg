@@ -25,6 +25,20 @@ Input Handling
         pressed without a complete release (e.g. LEFTDOWN-RIGHTDOWN-LEFTUP-RIGHTUP), the
         mouse contact exists for the complete sequence. 
 
+        **Messages:**
+
+            All message parameters are of type :py:class:`CursorEvent`.  
+            To get these messages, call :py:meth:`Publisher.subscribe`. All subscribers
+            are unsubscribed automatically after the up event.
+
+            .. py:method:: CURSORMOTION(cursorevent)
+            
+                Emitted whenever the contact moves.
+
+            .. py:method:: CURSORUP(cursorevent)
+            
+                Emitted when the mouse button is released or the touch leaves the surface.
+
         .. py:attribute:: age
 
             Time that has passed since the down event in milliseconds. Read-only.
@@ -63,12 +77,18 @@ Input Handling
 
         .. py:method:: connectListener(motionCallback, upCallback) -> id
 
+            .. deprecated:: 1.8
+                Use the message interface instead.
+
             Registers event handlers that get called when CURSORMOTION and CURSORUP 
             events for this :py:class:`Contact` occur. Event handlers can be unregistered
             using :py:meth:`disconnectListener`. They are automatically unregistered
             after the up event. The :py:attr:`id` returned is unique for this contact.
 
         .. py:method:: disconnectListener(id)
+
+            .. deprecated:: 1.8
+                Use the message interface instead.
 
             Unregisters an event handler. The parameter is the :py:attr:`id` returned in 
             :py:meth:`connectListener`. It is an error to call 
@@ -181,7 +201,7 @@ Input Handling
             in your derived input device class. After registering 
             the input device, this method gets called on every frame.
 
-        .. py:method::  start()
+        .. py:method:: start()
 
             Initializes the input device if needed. By default this is an empty method.
         

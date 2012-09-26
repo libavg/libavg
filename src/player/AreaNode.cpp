@@ -27,6 +27,7 @@
 #include "DivNode.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
+#include "NodeRegistry.h"
 #include "BoostPython.h"
 
 #include "../base/MathHelper.h"
@@ -43,16 +44,17 @@
 #include <iostream>
 
 using namespace boost;
-using namespace boost::python;
 
 using namespace std;
 
 namespace avg {
 
-NodeDefinition AreaNode::createDefinition()
+void AreaNode::registerType()
 {
-    return NodeDefinition("areanode")
-        .extendDefinition(Node::createDefinition())
+    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("AreaNode", "Node");
+    pPubDef->addMessage("SIZE_CHANGED");
+
+    NodeDefinition def = NodeDefinition("areanode", "node")
         .addArg(Arg<float>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<float>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0.0, 0.0)))
@@ -64,10 +66,12 @@ NodeDefinition AreaNode::createDefinition()
                 offsetof(AreaNode, m_Pivot)))
         .addArg(Arg<string>("elementoutlinecolor", "", false, 
                 offsetof(AreaNode, m_sElementOutlineColor)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 AreaNode::AreaNode()
-    : m_RelViewport(0,0,0,0),
+    : Node("AreaNode"),
+      m_RelViewport(0,0,0,0),
       m_Transform(glm::mat4(0)),
       m_bTransformChanged(true)
 {
@@ -102,6 +106,9 @@ void AreaNode::connectDisplay()
         m_RelViewport.setHeight(float(MediaSize.y));
     } else {
         m_RelViewport.setHeight(float(m_UserSize.y));
+    }
+    if (m_UserSize.x == 0.0 || m_UserSize.y == 0) {
+        notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
     }
     m_bTransformChanged = true;
     Node::connectDisplay();
@@ -262,6 +269,7 @@ void AreaNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor)
 
 void AreaNode::setViewport(float x, float y, float width, float height)
 {
+    glm::vec2 oldSize = getRelViewport().size();
     if (x == -32767) {
         x = getRelViewport().tl.x;
     }
@@ -287,6 +295,9 @@ void AreaNode::setViewport(float x, float y, float width, float height)
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for a node.");
     }
     m_RelViewport = FRect(x, y, x+width, y+height);
+    if (oldSize != m_RelViewport.size()) {
+        notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
+    }
     m_bTransformChanged = true;
 }
 

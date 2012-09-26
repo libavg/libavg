@@ -46,14 +46,14 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition SoundNode::createDefinition()
+void SoundNode::registerType()
 {
-    return NodeDefinition("sound", Node::buildNode<SoundNode>)
-        .extendDefinition(AreaNode::createDefinition())
+    NodeDefinition def = NodeDefinition("sound", "areanode", Node::buildNode<SoundNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))
         .addArg(Arg<float>("volume", 1.0, false, offsetof(SoundNode, m_Volume)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 SoundNode::SoundNode(const ArgList& args)
@@ -128,6 +128,8 @@ bool SoundNode::getLoop() const
 
 void SoundNode::setEOFCallback(PyObject * pEOFCallback)
 {
+    AVG_DEPRECATION_WARNING("1.8", "SoundNode.setEOFCallback()", 
+            "Node.subscribe(END_OF_FILE)");
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
@@ -340,6 +342,7 @@ void SoundNode::onEOF()
         }
         Py_DECREF(result);
     }
+    notifySubscribers("END_OF_FILE");
 }
 
 }

@@ -33,17 +33,18 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition PolyLineNode::createDefinition()
+void PolyLineNode::registerType()
 {
     vector<glm::vec2> v;
     vector<float> vd;
-    return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
-        .extendDefinition(VectorNode::createDefinition())
+    NodeDefinition def = NodeDefinition("polyline", "vectornode", 
+            Node::buildNode<PolyLineNode>)
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolyLineNode, m_TexCoords)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 PolyLineNode::PolyLineNode(const ArgList& args)

@@ -24,9 +24,11 @@
 #include "CursorEvent.h"
 #include "BoostPython.h"
 #include "Player.h"
+#include "PublisherDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/Logger.h"
 
 #include <iostream>
 
@@ -36,8 +38,16 @@ namespace avg {
 
 int Contact::s_LastListenerID = 0;
 
+void Contact::registerType()
+{
+    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Contact");
+    pPubDef->addMessage("CURSOR_MOTION");
+    pPubDef->addMessage("CURSOR_UP");
+}
+
 Contact::Contact(CursorEventPtr pEvent)
-    : m_bSendingEvents(false),
+    : Publisher("Contact"),
+      m_bSendingEvents(false),
       m_bCurListenerIsDead(false),
       m_CursorID(pEvent->getCursorID()),
       m_DistanceTravelled(0)
@@ -51,6 +61,7 @@ Contact::~Contact()
 
 int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 {
+    AVG_DEPRECATION_WARNING("1.8", "Contact.connectListener()", "Contact.subscribe()");
     s_LastListenerID++;
     pair<int, Listener> val = 
             pair<int, Listener>(s_LastListenerID, Listener(pMotionCallback, pUpCallback));
@@ -60,6 +71,8 @@ int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 
 void Contact::disconnectListener(int id)
 {
+    AVG_DEPRECATION_WARNING("1.8", "Contact.disconnectListener()", 
+            "Contact.unsubscribe()");
     map<int, Listener>::iterator it = m_ListenerMap.find(id);
     if (it == m_ListenerMap.end() || (m_CurListenerID == id && m_bCurListenerIsDead)) {
         throw Exception(AVG_ERR_INVALID_ARGS, 
@@ -110,7 +123,7 @@ vector<CursorEventPtr> Contact::getEvents() const
 void Contact::addEvent(CursorEventPtr pEvent)
 {
     pEvent->setCursorID(m_CursorID);
-    pEvent->setContact(shared_from_this());
+    pEvent->setContact(boost::dynamic_pointer_cast<Contact>(shared_from_this()));
     calcSpeed(pEvent, m_Events.back());
     updateDistanceTravelled(m_Events.back(), pEvent);
     m_Events.back()->removeBlob();
@@ -118,14 +131,21 @@ void Contact::addEvent(CursorEventPtr pEvent)
     m_Events.push_back(pEvent);
 }
 
-bool Contact::hasListeners() const
-{
-    return !(m_ListenerMap.empty() || 
-            (m_ListenerMap.size() == 1 && m_bCurListenerIsDead));
-}
-
 void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
 {
+    switch (pCursorEvent->getType()) {
+        case Event::CURSOR_DOWN:
+            break;
+        case Event::CURSOR_MOTION:
+            notifySubscribers("CURSOR_MOTION", pCursorEvent);
+            break;
+        case Event::CURSOR_UP:
+            notifySubscribers("CURSOR_UP", pCursorEvent);
+            removeSubscribers();
+            break;
+        default:
+            AVG_ASSERT_MSG(false, pCursorEvent->typeStr().c_str());
+    }
     m_bSendingEvents = true;
     AVG_ASSERT(pCursorEvent->getContact() == shared_from_this());
     EventPtr pEvent = boost::dynamic_pointer_cast<Event>(pCursorEvent);
@@ -137,14 +157,14 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         m_CurListenerID = it->first;
         m_bCurListenerIsDead = false;
         switch (pCursorEvent->getType()) {
-            case Event::CURSORMOTION:
+            case Event::CURSOR_MOTION:
                 if (listener.m_pMotionCallback != Py_None) {
-                    boost::python::call<void>(listener.m_pMotionCallback, pEvent);
+                    py::call<void>(listener.m_pMotionCallback, pEvent);
                 }
                 break;
-            case Event::CURSORUP:
+            case Event::CURSOR_UP:
                 if (listener.m_pUpCallback != Py_None) {
-                    boost::python::call<void>(listener.m_pUpCallback, pEvent);
+                    py::call<void>(listener.m_pUpCallback, pEvent);
                 }
                 break;
             default:

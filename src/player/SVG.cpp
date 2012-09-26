@@ -42,7 +42,6 @@
 
 #include <iostream>
 
-using namespace boost::python;
 using namespace std;
 
 
@@ -86,20 +85,20 @@ BitmapPtr SVG::renderElement(const UTF8String& sElementID, float scale)
     return internalRenderElement(pElement, renderSize, size);
 }
 
-NodePtr SVG::createImageNode(const UTF8String& sElementID, const dict& nodeAttrs)
+NodePtr SVG::createImageNode(const UTF8String& sElementID, const py::dict& nodeAttrs)
 {
     BitmapPtr pBmp = renderElement(sElementID);
     return createImageNodeFromBitmap(pBmp, nodeAttrs);
 }
 
-NodePtr SVG::createImageNode(const UTF8String& sElementID, const dict& nodeAttrs, 
+NodePtr SVG::createImageNode(const UTF8String& sElementID, const py::dict& nodeAttrs, 
         const glm::vec2& renderSize)
 {
     BitmapPtr pBmp = renderElement(sElementID, renderSize);
     return createImageNodeFromBitmap(pBmp, nodeAttrs);
 }
 
-NodePtr SVG::createImageNode(const UTF8String& sElementID, const dict& nodeAttrs, 
+NodePtr SVG::createImageNode(const UTF8String& sElementID, const py::dict& nodeAttrs, 
         float scale)
 {
     BitmapPtr pBmp = renderElement(sElementID, scale);
@@ -140,7 +139,7 @@ BitmapPtr SVG::internalRenderElement(const SVGElementPtr& pElement,
     return pBmp;
 }
 
-NodePtr SVG::createImageNodeFromBitmap(BitmapPtr pBmp, const dict& nodeAttrs)
+NodePtr SVG::createImageNodeFromBitmap(BitmapPtr pBmp, const py::dict& nodeAttrs)
 {
     ImageNodePtr pNode = boost::dynamic_pointer_cast<ImageNode>(
             Player::get()->createNode("image", nodeAttrs));

@@ -53,7 +53,7 @@ class AVG_API AreaNode: public Node
         {
             return NodePtr(new NodeType(args));
         }
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         virtual ~AreaNode() = 0;
         virtual void setArgs(const ArgList& args);

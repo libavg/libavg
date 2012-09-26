@@ -10,9 +10,11 @@ del system
 from avg import *
 player = avg.Player.get()
 
+from enumcompat import *
+
 import textarea
 import statemachine
 from app import AVGApp, App
 from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
-import utils
+import utils, methodref
 import gameapp

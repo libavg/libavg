@@ -26,8 +26,7 @@ class TouchApp(AVGApp):
     multitouch = True
 
     def init(self):
-        self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE|avg.TOUCH, self, 
-                self.__onDown)
+        self._parentNode.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         self.getStarter().setTouchVisualization(apphelpers.TouchVisualization)
     
     def __onDown(self, event):
@@ -36,7 +35,8 @@ class TouchApp(AVGApp):
 #        else:
 #            print event.type
         if (event.contact):
-            event.contact.connectListener(self.__onContact, self.__onContact)
+            event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onContact)
+            event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onContact)
             contact = event.contact
 #            print "new contact: ", contact.id, event.pos, contact.age, \
 #                    contact.distancefromstart, contact.motionangle, contact.motionvec, \

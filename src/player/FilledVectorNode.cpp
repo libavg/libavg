@@ -34,10 +34,9 @@ using namespace boost;
 
 namespace avg {
 
-NodeDefinition FilledVectorNode::createDefinition()
+void FilledVectorNode::registerType()
 {
-    return NodeDefinition("filledvector")
-        .extendDefinition(VectorNode::createDefinition())
+    NodeDefinition def = NodeDefinition("filledvectornode", "vectornode")
         .addArg(Arg<UTF8String>("filltexhref", "", false, 
                 offsetof(FilledVectorNode, m_FillTexHRef)))
         .addArg(Arg<float>("fillopacity", 0, false, 
@@ -49,6 +48,7 @@ NodeDefinition FilledVectorNode::createDefinition()
         .addArg(Arg<glm::vec2>("filltexcoord2", glm::vec2(1,1), false,
                 offsetof(FilledVectorNode, m_FillTexCoord2)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 FilledVectorNode::FilledVectorNode(const ArgList& args)

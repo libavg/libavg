@@ -31,10 +31,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition CanvasNode::createDefinition()
+void CanvasNode::registerType()
 {
-    return NodeDefinition("canvasbase", Node::buildNode<CanvasNode>)
-        .extendDefinition(DivNode::createDefinition());
+    NodeDefinition def = NodeDefinition("canvasbase", "div", Node::buildNode<CanvasNode>);
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 CanvasNode::CanvasNode(const ArgList& args)

@@ -37,12 +37,18 @@ class AVTestCase(AVGTestCase):
         def onNoEOF():
             self.fail("No EOF")
 
+        def onSubscribeEOF():
+            self.eofCalled = True
+
+        self.eofCalled = False
         root = self.loadEmptyScene()
         root.appendChild(node)
         node.play()
         node.setEOFCallback(onEOF)
+        node.subscribe(avg.Node.END_OF_FILE, onSubscribeEOF)
         player.setTimeout(100000, onNoEOF)
         player.play()
+        self.assert_(self.eofCalled)
         
     def testVideoInfo(self):
         def checkInfo():

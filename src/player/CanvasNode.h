@@ -32,7 +32,7 @@ namespace avg {
 class AVG_API CanvasNode : public DivNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         CanvasNode(const ArgList& args);
         virtual ~CanvasNode();

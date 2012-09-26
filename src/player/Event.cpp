@@ -106,22 +106,22 @@ string Event::typeStr() const
 string Event::typeStr(Event::Type type)
 {
     switch(type) {
-        case KEYUP:
-            return "KEYUP";
-        case KEYDOWN:
-            return "KEYDOWN";
-        case CURSORMOTION:
-            return "CURSORMOTION";
-        case CURSORUP:
-            return "CURSORUP";
-        case CURSORDOWN:
-            return "CURSORDOWN";
-        case CURSOROVER:
-            return "CURSOROVER";
-        case CURSOROUT:
-            return "CURSOROUT";
-        case CUSTOMEVENT:
-            return "CUSTOMEVENT";
+        case KEY_UP:
+            return "KEY_UP";
+        case KEY_DOWN:
+            return "KEY_DOWN";
+        case CURSOR_MOTION:
+            return "CURSOR_MOTION";
+        case CURSOR_UP:
+            return "CURSOR_UP";
+        case CURSOR_DOWN:
+            return "CURSOR_DOWN";
+        case CURSOR_OVER:
+            return "CURSOR_OVER";
+        case CURSOR_OUT:
+            return "CURSOR_OUT";
+        case CUSTOM_EVENT:
+            return "CUSTOM_EVENT";
         case QUIT:
             return "QUIT";
         default:

@@ -84,6 +84,7 @@ BOOST_PYTHON_MODULE(avg)
 {
     docstring_options doc_options(true, false);
 
+    Player::get();
     export_base();
 
     register_ptr_to_python<DivNodePtr>();
@@ -96,6 +97,8 @@ BOOST_PYTHON_MODULE(avg)
     def("getMemoryUsage", getMemoryUsage);
 
     def("pointInPolygon", pointInPolygon);
+
+    class_<MessageID>("MessageID", no_init);
 
     class_<Logger>("Logger", no_init)
         .def("get", &Logger::get, 
@@ -119,6 +122,17 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLAYER", &Logger::PLAYER)
     ;
 
+    class_<Publisher, boost::noncopyable>("Publisher")
+        .def("subscribe", &Publisher::subscribe)
+        .def("unsubscribe", &Publisher::unsubscribeCallable)
+        .def("unsubscribe", &Publisher::unsubscribe)
+        .def("getNumSubscribers", &Publisher::getNumSubscribers)
+        .def("publish", &Publisher::publish)
+        .def("notifySubscribers", &Publisher::notifySubscribersPy)
+        .def("genMessageID", &Publisher::genMessageID)
+        .staticmethod("genMessageID")
+    ;
+
     export_event();
     export_node();
     export_anim();
@@ -138,7 +152,7 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
-    class_<Player>("Player") 
+    object playerClass = class_<Player, bases<Publisher> >("Player") 
         .def("get", &Player::get, 
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
@@ -186,6 +200,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("clearInterval", &Player::clearInterval)
         .def("addInputDevice", &Player::addInputDevice)
         .def("getMouseState", &Player::getMouseState)
+        .def("getCurrentEvent", &Player::getCurrentEvent)
         .def("getKeyModifierState", &Player::getKeyModifierState)
         .def("screenshot", &Player::screenshot)
         .def("keepWindowOpen", &Player::keepWindowOpen)
@@ -204,10 +219,12 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadPlugin", &Player::loadPlugin)
         .def("setEventHook", &Player::setEventHook)
         .def("getEventHook", &Player::getEventHook)
+        .def("getConfigOption", &Player::getConfigOption)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
-
+    exportMessages(playerClass, "Player");
+    
     class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", no_init)
         .def(self == self)
         .def(self != self)

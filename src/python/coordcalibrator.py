@@ -37,9 +37,11 @@ class CoordCalibrator(object):
         mainNode = player.getElementByID("cal_coordcalibrator")
         mainNode.active = True
         mainNode.opacity = 1
-        mainNode.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown)
-        mainNode.setEventHandler(avg.CURSORMOTION, avg.TOUCH, self.__onTouchMove)
-        mainNode.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onTouchUp)
+        mainNode.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, 
+                self.__onTouchDown)
+        mainNode.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.TOUCH, 
+                self.__onTouchMove)
+        mainNode.setEventHandler(avg.Event.CURSOR_UP, avg.Event.TOUCH, self.__onTouchUp)
         self.__crosshair = player.getElementByID("cal_crosshair")
         self.__feedback = player.getElementByID("cal_feedback")
         self.__feedback.opacity = 0
@@ -105,7 +107,7 @@ class CoordCalibrator(object):
         MsgsNode.appendChild(Node)
 
     def __onTouchDown(self, Event):
-        if Event.source != avg.TOUCH:
+        if Event.source != avg.Event.TOUCH:
             return
         if not self._mycursor:
             self._mycursor = Event.cursorid
@@ -117,13 +119,13 @@ class CoordCalibrator(object):
         self.__feedback.opacity = 1
 
     def __onTouchMove(self,Event):
-        if Event.source != avg.TOUCH:
+        if Event.source != avg.Event.TOUCH:
             return
         if self._mycursor == Event.cursorid:
             self.__LastCenter = Event.center
 
     def __onTouchUp(self, Event):
-        if Event.source != avg.TOUCH:
+        if Event.source != avg.Event.TOUCH:
             return
         self.__addMessage("touchup")
         self.__feedback.opacity = 0

@@ -36,7 +36,7 @@ namespace avg {
 class AVG_API DivNode : public AreaNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         DivNode(const ArgList& args);
         virtual ~DivNode();

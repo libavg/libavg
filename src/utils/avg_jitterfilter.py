@@ -34,18 +34,19 @@ class LabledSlider(avg.DivNode):
         self.__formatStr = formatStr
 
         avg.WordsNode(text=label, parent=self)
-        self.__slider = simple.Slider(300, min, max, self.__onSliderMove, pos=(15,20),
-                parent=self)
+        self.__slider = simple.Slider(size=(300,25), range=(min, max), 
+                pos=(15,20), parent=self)
+        self.__slider.subscribe(self.__slider.THUMB_POS_CHANGED, self.__onSliderMove)
         self.__valueDisplay = avg.WordsNode(pos=(320, 24), parent=self)
-        self.__valueDisplay.text = self.__formatStr%self.__slider.val
+        self.__valueDisplay.text = self.__formatStr%self.__slider.thumbpos
 
-    def getVal(self):
-        return self.__slider.val
-    val = property(getVal)
+    def getThumbPos(self):
+        return self.__slider.thumbpos
+    thumbpos = property(getThumbPos)
 
-    def __onSliderMove(self):
+    def __onSliderMove(self, thumbPos):
         self.__onChange()
-        self.__valueDisplay.text = self.__formatStr%self.__slider.val
+        self.__valueDisplay.text = self.__formatStr%thumbPos
 
 
 class JitterFilter(AVGApp):
@@ -61,8 +62,7 @@ class JitterFilter(AVGApp):
                 pos=(10,50), parent=self._parentNode)
         self.__onSliderMove()
 
-        self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, 
-                self.__onDown)
+        self._parentNode.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         self.__contact = None
         self.__rawContactCircle = avg.CircleNode(r=7*player.getPixelsPerMM(), 
                 color="FF0000", opacity=0, parent=self._parentNode)
@@ -71,13 +71,13 @@ class JitterFilter(AVGApp):
         self.__filters = None
 
     def __onSliderMove(self):
-        self.__minCutoff = self.__minCutoffSlider.val
-        self.__cutoffSlope = self.__cutoffSlopeSlider.val
+        self.__minCutoff = self.__minCutoffSlider.thumbpos
+        self.__cutoffSlope = self.__cutoffSlopeSlider.thumbpos
 
     def __onDown(self, event):
         if self.__contact is None:
             self.__contact = event.contact
-            event.contact.connectListener(None, self.__onUp)
+            event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
             self.__rawContactCircle.opacity = 1
             self.__filteredContactCircle.opacity = 1
             self.__filters = [

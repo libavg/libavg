@@ -116,7 +116,7 @@ std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
                             TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
                             TouchEventPtr pUpEvent =
                                     boost::dynamic_pointer_cast<TouchEvent>(
-                                    pOldEvent->cloneAs(Event::CURSORUP));
+                                    pOldEvent->cloneAs(Event::CURSOR_UP));
                             pTouchStatus->pushEvent(pUpEvent);
                             removeTouchStatus(pTouch->id);
                         }
@@ -161,14 +161,15 @@ void LibMTDevInputDevice::processEvents(const set<int>& changedIDs)
                 if (!pTouchStatus) {
                     // Down
                     m_LastID++;
-                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN,
+                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSOR_DOWN,
                             touch.pos);
 //                    cerr << "down <" << touch.id << "> --> [" << m_LastID << "]" << endl;
                     addTouchStatus((long)touch.id, pEvent);
                 } else {
 //                    cerr << "move <" << touch.id << "> --> " << touch.pos << endl;
                     // Move
-                    TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, touch.pos);
+                    TouchEventPtr pEvent = createEvent(0, Event::CURSOR_MOTION, 
+                            touch.pos);
                     pTouchStatus->pushEvent(pEvent);
                 }
             }

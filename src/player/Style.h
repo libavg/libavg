@@ -37,36 +37,36 @@ class Style;
 typedef boost::shared_ptr<Style> StylePtr;
 
 #ifdef _WIN32
-// Silences warning about boost::python::dict not being exported.
+// Silences warning about py::dict not being exported.
 #pragma warning( disable: 4251 )
 #endif
 
 class AVG_API Style 
 {
     public:
-        Style(const boost::python::dict& params);
+        Style(const py::dict& params);
         virtual ~Style();
 
         // python dict interface.
-        boost::python::object __getitem__(boost::python::object& key) const;
-        bool __contains__(boost::python::object& key) const;
-        boost::python::list keys() const;
-        boost::python::list values() const;
-        boost::python::list items() const;
+        py::object __getitem__(py::object& key) const;
+        bool __contains__(py::object& key) const;
+        py::list keys() const;
+        py::list values() const;
+        py::list items() const;
         int __len__() const;
-        boost::python::object __iter__() const;
-        boost::python::object iteritems() const;
-        boost::python::object iterkeys() const;
-        boost::python::object itervalues() const;
+        py::object __iter__() const;
+        py::object iteritems() const;
+        py::object iterkeys() const;
+        py::object itervalues() const;
         std::string __repr__() const;
 
         // C++ interface
-        boost::python::dict mergeParams(const boost::python::dict& attrs);
+        py::dict mergeParams(const py::dict& attrs);
 
     private:
-        const boost::python::dict& getDict()const;
+        const py::dict& getDict()const;
 
-        boost::python::dict m_Properties;
+        py::dict m_Properties;
 };
 
 }

@@ -11,10 +11,11 @@ def onWords(event):
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()
-words = avg.WordsNode(pos=(10,10), font="arial", text="Should I stay or should I go?", parent=rootNode)
+words = avg.WordsNode(pos=(10,10), font="arial", text="Should I stay or should I go?", 
+        parent=rootNode)
 div = avg.DivNode(pos=(100,0), size=(80,200), parent=rootNode)
-words.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, words, onWords)
-div.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, div, onDiv)
+words.subscribe(words.CURSOR_MOTION, onWords)
+div.subscribe(div.CURSOR_MOTION, onDiv)
 
 player.play()
 

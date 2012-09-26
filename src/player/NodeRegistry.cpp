@@ -25,6 +25,7 @@
 #include "NodeDefinition.h"
 #include "Style.h"
 
+#include "../base/MathHelper.h"
 #include "../base/Exception.h"
 
 #include <set>
@@ -32,6 +33,8 @@
 using namespace std;
 
 namespace avg {
+
+NodeRegistry* NodeRegistry::s_pInstance = 0;
 
 NodeRegistry::NodeRegistry()
 {
@@ -41,9 +44,32 @@ NodeRegistry::~NodeRegistry()
 {
 }
 
-void NodeRegistry::registerNodeType(const NodeDefinition& def)
+NodeRegistry* NodeRegistry::get()
+{
+    if (!s_pInstance) {
+        s_pInstance = new NodeRegistry();
+    }
+    return s_pInstance;
+}
+
+void NodeRegistry::registerNodeType(const NodeDefinition& def, const char* pParentNames[])
 {
     m_NodeDefs.insert(NodeDefMap::value_type(def.getName(), def));
+
+    if (pParentNames) {
+        string sChildArray[1];
+        sChildArray[0] = def.getName();
+        vector<string> sChildren = vectorFromCArray(1, sChildArray);
+        const char **ppCurParentName = pParentNames;
+
+        while (*ppCurParentName) {
+            NodeDefinition nodeDefinition = getNodeDef(*ppCurParentName);
+            nodeDefinition.addChildren(sChildren);
+            updateNodeDefinition(nodeDefinition);
+
+            ++ppCurParentName;
+        }
+    }
 }
 
 void NodeRegistry::updateNodeDefinition(const NodeDefinition& def)
@@ -61,15 +87,15 @@ NodePtr NodeRegistry::createNode(const string& sType, const xmlNodePtr xmlNode)
     return pNode;
 }
 
-NodePtr NodeRegistry::createNode(const string& sType, const boost::python::dict& pyDict)
+NodePtr NodeRegistry::createNode(const string& sType, const py::dict& pyDict)
 {
     const NodeDefinition& def = getNodeDef(sType);
-    boost::python::dict effParams;
+    py::dict effParams;
     StylePtr pStyle;
     if (pyDict.has_key("style")) {
-        boost::python::object param = pyDict["style"];
+        py::object param = pyDict["style"];
         pyDict.attr("__delitem__")("style");
-        pStyle = boost::python::extract<StylePtr>(param);
+        pStyle = py::extract<StylePtr>(param);
         effParams = pStyle->mergeParams(pyDict);
     } else {
         effParams = pyDict;
@@ -94,14 +120,18 @@ string NodeRegistry::getDTD() const
             defIt != m_NodeDefs.end(); defIt++) 
     {
         const NodeDefinition& def = defIt->second;
-        writeNodeDTD(def, ss);
+        if (!def.isAbstract()) {
+            writeNodeDTD(def, ss);
+        }
     }
    
     for (NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); 
             defIt != m_NodeDefs.end(); defIt++) 
     {
         const NodeDefinition& def = defIt->second;
-        ss << def.getDTDElements();
+        if (!def.isAbstract()) {
+            ss << def.getDTDElements();
+        }
     }
    
     return ss.str();

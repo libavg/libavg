@@ -10,15 +10,18 @@ functionality
     .. inheritance-diagram:: DragRecognizer TapRecognizer TransformRecognizer DoubletapRecognizer HoldRecognizer
         :parts: 1
 
-    .. inheritance-diagram:: Button TouchButton Keyboard
+    .. inheritance-diagram:: Button ToggleButton Keyboard
         :parts: 1
 
-    .. autoclass:: Button(upNode, downNode[, disabledNode=None, activeAreaNode=None, pressHandler=None, clickHandler=None, stateChangeHandler=None])
 
-        A generic button that shows different user-supplied nodes depending on it's
+    .. autoclass:: Button(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+
+        A button that shows different user-supplied nodes depending on it's
         state. Possible button states are up, down and disabled. The nodes are attached
         as children to the Button on construction. For a simple button, image nodes can 
-        be passed. Button behaviour corresponds to standard GUI buttons.
+        be passed. Uses the :py:class:`TapRecognizer` to detect clicks.
+        
+        .. image:: ButtonStates.png
 
         :param avg.Node upNode: The node displayed when the button is not pressed.
 
@@ -31,39 +34,33 @@ functionality
             A node that is used only to determine if a click is over the button. Usually,
             this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
             buttons, where the active area should be larger than the visible button to
-            accout for touch inaccuracies.
+            account for touch inaccuracies.
 
-        Callbacks:
+        :param bool fatFingerEnlarge:
 
-            .. py:method:: pressHandler(event)
+            If this parameter is set to :py:const:`True`, the button generates it's own 
+            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
+            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
+            :py:attr:`activeAreaNode`.
 
-                Called when the button is pressed. This happens on a down event.
-                
-                :param event: The corresponding cursor down event. 
+        **Callbacks:**
 
             .. py:method:: clickHandler(event)
 
-                Called when the button is clicked. A click is generated when an up event
-                happens inside the button.
+                Called when the button is clicked.
 
-            .. py:method:: stateChangeHandler(state)
+        .. py:attribute:: enabled
 
-                Called whenever the button state changes.
+            :py:const:`True` if the button accepts input. If the button is disabled,
+            it shows the :py:attr:`disabledNode`.
 
-        .. py:method:: delete()
+        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None, **kwargs]) -> Button
 
-        .. py:method:: getUpNode() -> Node
-
-        .. py:method:: getDownNode() -> Node
-
-        .. py:method:: getDisabledNode() -> Node
-
-        .. py:method:: setEnabled(isEnabled)
-
-        .. py:method:: isEnabled()
+            Factory method that creates a button from filenames of the images to be
+            displayed for different states.
 
 
-    .. autoclass:: DoubletapRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, maxTime=MAX_DOUBLETAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+    .. autoclass:: DoubletapRecognizer(node, [maxTime=MAX_DOUBLETAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
 
         A :py:class:`DoubletapRecognizer` detects doubletaps: Two short touches in quick
         succession without a large change of the cursor position.
@@ -71,7 +68,7 @@ functionality
         :param maxTime: The maximum time that each phase of the tap may take.
 
 
-    .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, initialEvent=None, direction=ANY_DIRECTION, directionTolerance=pi/4, friction=-1, possibleHandler=None, failHandler=None, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
+    .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, initialEvent=None, direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE, friction=-1, possibleHandler=None, failHandler=None, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
 
         A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
         delivers higher-level callbacks that can be used to implement dragging or 
@@ -112,11 +109,23 @@ functionality
             If set, this parameter enables inertia processing. It describes how 
             quickly the drag comes to a stop after the cursor is released.
 
-        Callbacks:
+        :param moveHandler:
 
-            .. py:method:: moveHandler(event, offset)
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.MOTION, moveHandler)`.
 
-                Called when the drag should cause a position change. This usually happens
+        :param upHandler:
+
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.UP, upHandler)`.
+
+        **Messages:**
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: Recognizer.MOTION(event, offset)
+
+                Emitted when the drag should cause a position change. This usually happens
                 in response to a :py:const:`CURSORMOTION` event, but may also happen
                 because of inertia.
 
@@ -130,9 +139,9 @@ functionality
                     The current offset from the start of the drag in coordinates relative
                     to the :py:attr:`coordSysNode`'s parent.
 
-            .. py:method:: upHandler(event, offset)
+            .. py:method:: Recognizer.UP(event, offset)
 
-                Called when the cursor is released. If inertia is enabled, there may be 
+                Emitted when the cursor is released. If inertia is enabled, there may be 
                 move events after the up event.
 
                 :param event: 
@@ -144,16 +153,6 @@ functionality
                     The current offset from the start of the drag in coordinates relative
                     to the :py:class:`coordSysNode`'s parent.
 
-            .. py:method:: endHandler(event)
-
-                Called when movement stops. This is either directly after the up event
-                or when inertia has run its course.
-
-                :param event: 
-                
-                    The corresponding :py:const:`CURSORUP` event or :py:const:`None` in
-                    the case of inertia.
-
         .. py:method:: abort()
 
             Aborts the present recognized gesture and sliding caused by inertia
@@ -163,7 +162,7 @@ functionality
             Causes inertia processing to end immediately.
 
 
-    .. autoclass:: HoldRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
+    .. autoclass:: HoldRecognizer(node, [delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
 
         A :py:class:`HoldRecognizer` detects if a touch is held for a certain amount of 
         time. Holds are continuous events: the :py:meth:`stopHandler` is called when the
@@ -196,7 +195,8 @@ functionality
 
             List of key definitions. Keys can be either character keys:
 
-                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, <pos>, <size>]
+                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, 
+                <pos>, <size>]
 
             or command keys:
 
@@ -241,13 +241,14 @@ functionality
             Set callbacks to invoke on key press and -release. Handlers take three 
             paramters: (event, char, cmd)
 
-            :param downHandler: Callable to invoke on key down event or `None`.
+            :param downHandler: Callable to invoke on key down event or :py:const:`None`.
             :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
         .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
 
             Creates key definitions for a row of uniform keys. Useful for creating the 
-            keyDefs parameter of the Keyboard constructor. All the keys get no repeat functionality.
+            keyDefs parameter of the Keyboard constructor. All the keys get no repeat 
+            functionality.
 
             :param avg.Point2D startPos: Top left position of the row.
 
@@ -257,8 +258,8 @@ functionality
 
             :param string feedbackStr:
 
-                String containing if the key has a feedback use f for Fals and t for True (i.e. 
-                :samp:`"fttttttttttf"`)
+                String containing if the key has a feedback use f for :py:const:`False`
+                and t for py:const:`True` (i.e. :samp:`"fttttttttttf"`)
 
             :param string keyStr: 
             
@@ -275,7 +276,7 @@ functionality
                 Unicode string containing the keycodes when altgr is pressed.
     
     
-    .. autoclass:: Recognizer(node, isContinuous, eventSource, maxContacts, initialEvent[, possibleHandler=None, failHandler=None, detectedHandler=None, endHandler=None])
+    .. autoclass:: Recognizer(node, isContinuous, maxContacts, initialEvent[, possibleHandler=None, failHandler=None, detectedHandler=None, endHandler=None])
 
         Base class for gesture recognizers that attach to a node's cursor events and 
         emit higher-level events. Gesture recognizers have a standard set of states and
@@ -286,7 +287,9 @@ functionality
         .. image:: Recognizer.png
 
         A usage example for the recognizers can be found under
-        :samp:`src/samples/gestures.py`.
+        :samp:`src/samples/gestures.py`. Many of the recognizers have default timeouts 
+        and distance limits which can be changed by modifying :file:`avgrc`. The sample
+        file under :file:`src/avgrc` contains explanations.
 
         :param Node node: Node to attach to.
 
@@ -294,11 +297,6 @@ functionality
             
             :py:const:`True` if the gesture stays active after it has been detected.
         
-
-        :param eventSource: 
-        
-            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
-            etc.).
 
         :param maxContacts:
 
@@ -308,28 +306,55 @@ functionality
         :param initialEvent:
 
             A cursordown event to pass to the recognizer immediately.
+            
+        :param possibleHandler:
 
-        Callbacks:
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.POSSIBLE, possibleHandler)`.
 
-            .. py:method:: possibleHandler(event)
+        :param failHandler:
 
-                Called when gesture recognition begins - usually after a cursordown event.
-                Some continuous gestures (such as unconstrained drags) never invoke 
-                :py:meth:`possibleHandler` but call :py:meth:`detectedHandler` 
-                immediately.
+            A shortcut for :samp:`Recognizer.subscribe(Recognizer.FAIL, failHandler)`.
 
-            .. py:method:: failHandler(event) 
+        :param detectedHandler:
 
-                Called when gesture recognition is rejected.
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.DETECTED, detectedHandler)`.
 
-            .. py:method:: detectedHandler(event)
+        :param endHandler:
 
-                Called when the gesture is recognized. For discrete gestures, this 
+            A shortcut for :samp:`Recognizer.subscribe(Recognizer.END, endHandler)`.
+
+        **Messages:**
+
+            Gesture recognizers emit messages whenever they change state - see the state
+            diagrams above. The messages have a parameter of type :py:class:`CursorEvent`.
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: POSSIBLE(event)
+
+                Emit when gesture recognition begins - usually after a cursordown event.
+                Some continuous gestures (such as unconstrained drags) never emit 
+                :py:meth:`POSSIBLE` but emit :py:meth:`DETECTED` immediately.
+
+            .. py:method:: FAILED(event) 
+
+                Emitted when gesture recognition is rejected. For instance, in the case 
+                of a :py:class:`DoubleTapRecognizer`, a :py:meth:`FAILED` message is
+                emitted if the touch stays on the surface for too long.
+
+            .. py:method:: DETECTED(event)
+
+                Emitted when the gesture is recognized. For discrete gestures, this 
                 signifies the end of gesture processing. 
 
-            .. py:method:: endHandler(event)
+            .. py:method:: END(event)
 
-                Called when a continuous gesture ends.
+                Emitted when a continuous gesture ends. This is often a result of an
+                up event, but e.g. in the case of inertia, :py:meth:`END` is emitted
+                when movement stops.
+                
 
         .. py:method:: abort()
 
@@ -344,7 +369,7 @@ functionality
             Returns the state ("IDLE", "POSSIBLE" or "RUNNING") of the recognizer.
 
 
-    .. autoclass:: TapRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, maxTime=MAX_TAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+    .. autoclass:: TapRecognizer(node, [maxTime=MAX_TAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
 
         A :py:class:`TapRecognizer` detects short touches without a large change of the 
         cursor position.
@@ -352,62 +377,46 @@ functionality
         :param maxTime: The maximum time that the tap may take in milliseconds.
 
 
-    .. autoclass:: TouchButton(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+    .. autoclass:: ToggleButton(uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
 
-        A button made specifically for touch input. Uses the :py:class:`TapRecognizer` to
-        detect clicks.
-
-        :param avg.Node upNode: The node displayed when the button is not pressed.
-
-        :param avg.Node downNode: The node displayed when the button is pressed.
-
-        :param avg.Node disabledNode: The node displayed when the button is disabled.
-
-        :param avg.Node activeAreaNode: 
+        A button that can be used to toggle between checked and unchecked states. 
+        Classical GUI checkboxes are an example of this kind of button.
         
-            A node that is used only to determine if a click is over the button. Usually,
-            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
-            buttons, where the active area should be larger than the visible button to
-            account for touch inaccuracies.
+        A :py:class:`ToggleButton` has a total of six visual states. In addition to the
+        distinction between checked and unchecked, a button can be enabled or disabled.
+        Buttons also change their appearance as soon as they are touched, leading to two
+        further states. For each visual state, a node is passed as constructor parameter.
+        The constructor attaches the nodes to the :py:class:`ToggleButton`. Simple
+        ToggleButtons can be constructed by passing image filenames to 
+        the :py:func:`fromSrc` factory function.
 
-        :param bool fatFingerEnlarge:
-
-            If this parameter is set to :py:const:`True`, the button generates it's own 
-            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
-            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
-            :py:attr:`activeAreaNode`.
-
-        Callbacks:
-
-            .. py:method:: clickHandler(event)
-
-                Called when the button is clicked.
-
-        .. py:attribute:: enabled
-
-            :py:const:`True` if the button accepts input. If the button is disabled,
-            it shows the :py:attr:`disabledNode`.
-
-        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None, **kwargs]) -> Button
-
-            Factory method that creates a button from filenames of the images to be
-            displayed for different states.
-
-
-    .. autoclass:: ToggleButton( uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
-
-        A button made specifically for toggle functionality and it's touch input optimized.
         Uses the :py:class:`TapRecognizer` to detect clicks.
 
-        :param avg.Node uncheckedUpNode: The node displayed when the button is not unchecked and not pressed.
+        .. image:: ToggleButtonStates.png
 
-        :param avg.Node uncheckedDownNode: The node displayed when the button is unchecked and pressed.
+        :param avg.Node uncheckedUpNode: 
+        
+            The node displayed when the button is unchecked and not touched.
 
-        :param avg.Node checkedUpNode: The node displayed when the button is checked and not pressed.
+        :param avg.Node uncheckedDownNode: 
+            
+            The node displayed when the button is unchecked and touched.
 
-        :param avg.Node uncheckedDisabledNode: The node displayed when the button is unchecked and disabled.
+        :param avg.Node checkedUpNode: 
+        
+            The node displayed when the button is checked and not touched.
 
-        :param avg.Node checkedDisabledNode: The node displayed when the button is checked and disabled.
+        :param avg.Node checkedDownNode: 
+        
+            The node displayed when the button is checked and not touched.
+
+        :param avg.Node uncheckedDisabledNode: 
+        
+            The node displayed when the button is unchecked and disabled.
+
+        :param avg.Node checkedDisabledNode: 
+        
+            The node displayed when the button is checked and disabled.
 
         :param avg.Node activeAreaNode: 
         
@@ -430,32 +439,30 @@ functionality
 
         :param bool enabled:
 
-            If this parameter is set to :py:const:`True`, the button starts in the disabled
-            state.
+            If this parameter is set to :py:const:`True`, the button starts in the 
+            disabled state.
 
-        Callbacks:
+        **Callbacks:**
 
             .. py:method:: checkedHandler(event)
 
-                Called when the button was checked.
+                Called when the button is checked.
 
             .. py:method:: uncheckedHandler(event)
 
-                Called when the button was unchecked.
-
-        .. py:attribute:: enabled
-
-            :py:const:`True` if the button accepts input. If the button is disabled,
-            it shows the :py:attr:`uncheckedDisabledNode or checkedDisabledNode`.
+                Called when the button is unchecked.
 
         .. py:attribute:: checked
 
-            :py:const:'True' the button switched in the checked state. If the button is
-            disabled, it switch in the disabled checked state.
+            The state of the toggle.
+
+        .. py:attribute:: enabled
+
+            Determines whether the button accepts input.
 
         .. py:method:: getState() -> String
 
-            Returns the state ("UNCHECKED_UP", "UNCHECKED_DOWN", "CHECKED_UP", "CHECKED_DOWN", "UNCHECKED_DISABLED" or "CHECKED_DISABLED") of the button.
+            Returns the visual state of the button as a string.
 
         .. py:classmethod:: fromSrc(uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc, [uncheckedDisabledSrc=None, checkedDisabledSrc=None **kwargs]) -> ToggleButton
 
@@ -489,7 +496,7 @@ functionality
             Changes a :py:attr:`node`'s pos, angle and size by applying the transform.
 
 
-    .. autoclass:: TransformRecognizer(eventNode, [coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, initialEvent=None, friction=-1, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
+    .. autoclass:: TransformRecognizer(eventNode, [coordSysNode=None, initialEvent=None, friction=-1, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
 
         A :py:class:`TransformRecognizer` is used to support drag/zoom/rotate 
         functionality. From any number of touches on a node, it calculates an aggregate
@@ -515,30 +522,40 @@ functionality
             If set, this parameter enables inertia processing. It describes how 
             quickly the transform comes to a stop after the cursor is released.
 
-        Callbacks:
+        :param moveHandler:
 
-            .. py:method:: moveHandler(transform)
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.MOTION, moveHandler)`.
 
-                Called whenever the transform changes.
+        :param upHandler:
+
+            A shortcut for 
+            :samp:`Recognizer.subscribe(Recognizer.UP, upHandler)`.
+
+        **Messages:**
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: Recognizer.MOTION(transform)
+
+                Emitted whenever the transform changes. This usually happens
+                in response to one or more :py:const:`CURSORMOTION` events, but may also
+                happen because of inertia.
 
                 :param Transform transform:
                 
                     The change in transformation since the last call of move or up.
 
-            .. py:method:: upHandler(transform)
+            .. py:method:: Recognizer.UP(transform)
 
-                Called when the last touch is released.
+                Called when the last touch is released. If inertia is enabled, there may
+                be move events after the up event.
 
-                :param transform:
+                :param Transform transform:
                 
                     The change in transformation since the last call of move.
 
-            .. py:method:: endHandler()
-
-                Called when movement stops. This is either directly after the up event
-                or when inertia has run its course.
-
         .. py:method:: abort()
 
-            Aborts the present recognized gesture and sliding caused by inertia
+            Aborts the present recognized gesture and sliding caused by inertia.
 

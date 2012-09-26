@@ -38,10 +38,9 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition RasterNode::createDefinition()
+void RasterNode::registerType()
 {
-    return NodeDefinition("rasternode")
-        .extendDefinition(AreaNode::createDefinition())
+    NodeDefinition def = NodeDefinition("rasternode", "areanode")
         .addArg(Arg<int>("maxtilewidth", -1, false, 
                 offsetof(RasterNode, m_MaxTileSize.x)))
         .addArg(Arg<int>("maxtileheight", -1, false, 
@@ -60,6 +59,7 @@ NodeDefinition RasterNode::createDefinition()
                 offsetof(RasterNode, m_Contrast)))
         .addArg(Arg<glm::vec3>("intensity", glm::vec3(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Intensity)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 RasterNode::RasterNode()

@@ -34,11 +34,11 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition RectNode::createDefinition()
+void RectNode::registerType()
 {
     float texCoords[] = {0, 0.25f, 0.5f, 0.75f, 1};
-    return NodeDefinition("rect", Node::buildNode<RectNode>)
-        .extendDefinition(FilledVectorNode::createDefinition())
+    NodeDefinition def = NodeDefinition("rect", "filledvectornode",
+            Node::buildNode<RectNode>)
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, 
                 offsetof(RectNode, m_Rect.tl)))
         .addArg(Arg<glm::vec2>("size", glm::vec2(0,0)))
@@ -46,6 +46,7 @@ NodeDefinition RectNode::createDefinition()
         .addArg(Arg<vector<float> >("texcoords", vectorFromCArray(5, texCoords), false,
                 offsetof(RectNode, m_TexCoords)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 RectNode::RectNode(const ArgList& args)

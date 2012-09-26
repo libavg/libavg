@@ -37,7 +37,7 @@ typedef std::vector<std::vector<glm::vec2> > VectorVec2Vector;
 class AVG_API PolygonNode : public FilledVectorNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         PolygonNode(const ArgList& args);
         virtual ~PolygonNode();

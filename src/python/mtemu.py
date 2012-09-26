@@ -28,15 +28,6 @@ by pressing "ctrl left/right" the TOUCH events will be switched into TRACK event
 other way around.
 by pressing "shift left/right" a second event is created whenever the mousebutton (left) 
 is clicked. 
-
-Note: remove any mouse event handling from your application to avoid emulation issues
-
-For example:
-
-1) avg.MOUSE | avg.TOUCH filters can be safely reduced to avg.TOUCH
-2) the current libavg button module breaks the emulation
-3) the current libavg Grabbable class breaks the emulation, unless is created with 
-source = avg.TOUCH parameter
 '''
 
 from libavg import avg, Point2D, player
@@ -48,18 +39,15 @@ class MTemu(object):
     cursorID = 0
     dualTouch = False
     secondTouch = False
-    source = avg.TOUCH
+    source = avg.Event.TOUCH
 
     def __init__(self):
-        self.__rootNode = player.getRootNode()
-        self.__rootNode.connectEventHandler(avg.CURSORUP, avg.MOUSE,
-                self, self.__onMouseUp)
-        self.__rootNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE,
-                self, self.__onMouseDown)
-        self.__rootNode.connectEventHandler(avg.CURSORMOTION, avg.MOUSE,
-                self, self.__onMouseMotion)
-        posX = self.__rootNode.size.x - 15
-        posY = self.__rootNode.size.y - 20
+        self.__oldEventHook = player.getEventHook()
+        player.setEventHook(self.__onEvent)
+
+        root = player.getRootNode()
+        posX = root.size.x - 15
+        posY = root.size.y - 20
 
         self.__layer = avg.WordsNode(text='Multitouch emulation active',
                 pos=(posX, posY),
@@ -67,11 +55,10 @@ class MTemu(object):
                 color='DDDDDD',
                 sensitive=False,
                 fontsize=18,
-                parent=self.__rootNode)
+                parent=root)
 
     def deinit(self):
-        self.__rootNode.disconnectEventHandler(self)
-        self.__rootNode = None
+        player.setEventHook(self.__oldEventHook)
         self.__layer.unlink()
         if self.mouseState == 'Down':
             self.__releaseTouch(self.cursorID)
@@ -80,7 +67,7 @@ class MTemu(object):
 
     def toggleSource(self):
         '''
-        Switch between avg.TOUCH and avg.TRACK - source
+        Switch between avg.Event.TOUCH and avg.Event.TRACK - source
         '''
         if self.mouseState == 'Down':
             self.__releaseTouch(self.cursorID)
@@ -88,7 +75,7 @@ class MTemu(object):
                 self.__releaseTouch(self.cursorID+1)
             self.mouseState = 'Up'
             self.secondTouch = False
-        self.source = avg.TOUCH if self.source == avg.TRACK else avg.TRACK
+        self.source = avg.Event.TOUCH if self.source == avg.Event.TRACK else avg.Event.TRACK
 
     def toggleDualTouch(self):
         self.dualTouch = not(self.dualTouch)
@@ -97,8 +84,20 @@ class MTemu(object):
                 self.__releaseTouch(self.cursorID+1)
             else:
                 self.__sendFakeTouch(self.cursorID+1, Point2D(0,0),
-                        avg.CURSORDOWN, mirror=True)
+                        avg.Event.CURSOR_DOWN, mirror=True)
             self.secondTouch = not(self.secondTouch)
+
+    def __onEvent(self, event):
+        if event.source == avg.Event.MOUSE:
+            if event.type == avg.Event.CURSOR_DOWN:
+                self.__onMouseDown(event)
+            elif event.type == avg.Event.CURSOR_MOTION:
+                self.__onMouseMotion(event)
+            elif event.type == avg.Event.CURSOR_UP:
+                self.__onMouseUp(event)
+            return True
+        else:
+            return False
 
     def __onMouseDown(self, event):
         self._initialPos = event.pos
@@ -138,7 +137,7 @@ class MTemu(object):
                 touchType, self.source, self.__clampPos(pos+offset))
 
     def __releaseTouch(self, cursorID):
-       self.__sendFakeTouch(cursorID, Point2D(0,0), avg.CURSORUP)
+       self.__sendFakeTouch(cursorID, Point2D(0,0), avg.Event.CURSOR_UP)
 
     def __clampPos(self, pos):
         if pos[0] < 0:

@@ -201,6 +201,7 @@ if len(VideoList) == 1:
 elif len(VideoList) > 0:
     for video in VideoList:
         node.href = str(video)
+        node.play()
         curLen = len(video)
         if len_filename < curLen:
             len_filename = curLen

@@ -33,15 +33,16 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition CircleNode::createDefinition()
+void CircleNode::registerType()
 {
-    return NodeDefinition("circle", Node::buildNode<CircleNode>)
-        .extendDefinition(FilledVectorNode::createDefinition())
+    NodeDefinition def = NodeDefinition("circle", "filledvectornode",
+            Node::buildNode<CircleNode>)
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, offsetof(CircleNode, m_Pos)))
         .addArg(Arg<float>("r", 1, false, offsetof(CircleNode, m_Radius)))
         .addArg(Arg<float>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
         .addArg(Arg<float>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 CircleNode::CircleNode(const ArgList& args)

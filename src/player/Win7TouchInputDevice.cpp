@@ -152,7 +152,7 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
         if (pTouchInput->dwFlags & TOUCHEVENTF_DOWN) {
 //            cerr << "down: " << pos << endl; 
             m_LastID++;
-            TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSORDOWN, pos,
+            TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSOR_DOWN, pos,
                     Event::TOUCH));
             addTouchStatus((long)pTouchInput->dwID, pEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
@@ -160,11 +160,11 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
             TouchStatusPtr pTouchStatus = getTouchStatus(pTouchInput->dwID);
             TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
             TouchEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
-                    Event::CURSORUP, pos, Event::TOUCH));
+                    Event::CURSOR_UP, pos, Event::TOUCH));
             pTouchStatus->pushEvent(pUpEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_MOVE) {
 //            cerr << "motion: " << pos << endl; 
-            TouchEventPtr pEvent(new TouchEvent(0, Event::CURSORMOTION, pos,
+            TouchEventPtr pEvent(new TouchEvent(0, Event::CURSOR_MOTION, pos,
                     Event::TOUCH));
             TouchStatusPtr pTouchStatus = getTouchStatus((long)pTouchInput->dwID);
             AVG_ASSERT(pTouchStatus);

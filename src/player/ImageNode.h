@@ -36,7 +36,7 @@ namespace avg {
 class AVG_API ImageNode : public RasterNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         ImageNode(const ArgList& args);
         virtual ~ImageNode();

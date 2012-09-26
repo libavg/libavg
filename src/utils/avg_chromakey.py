@@ -26,7 +26,7 @@ from libavg import avg, AVGApp
 from libavg.ui import simple
 from libavg import parsecamargs
 
-GUI_SIZE=(300, 200)
+GUI_SIZE=(300, 526)
 
 class FXSlider(avg.DivNode):
     def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, parent=None,
@@ -41,22 +41,23 @@ class FXSlider(avg.DivNode):
         caption = avg.WordsNode(pos=(10,0), text=caption, parent=self)
         textBgRect.size = caption.getMediaSize()+(4, 2)
         self.__words = avg.WordsNode(pos=(240,23), parent=self)
-        self.__slider = simple.Slider(220, min, max, self.__onSliderMove, pos=(15,20),
+        self.__slider = simple.Slider(size=(220, 25), range=(min, max), pos=(15,20), 
                 parent=self)
+        self.__slider.subscribe(self.__slider.THUMB_POS_CHANGED, self.__onSliderMove)
         self.pos = (0, row*46)
         self.__fxNode = fxNode
         self.__fxAttrName = fxAttrName
         self.__caption = caption
         self.__isInt = isInt
-        self.__slider.val = getattr(self.__fxNode, fxAttrName)
+        self.__slider.thumbpos = getattr(self.__fxNode, fxAttrName)
 
-    def __onSliderMove(self):
+    def __onSliderMove(self, thumbPos):
         if self.__isInt:
-            setattr(self.__fxNode, self.__fxAttrName, int(self.__slider.val))
-            self.__words.text = "%i"%self.__slider.val
+            setattr(self.__fxNode, self.__fxAttrName, int(thumbPos))
+            self.__words.text = "%i"%thumbPos
         else:
-            setattr(self.__fxNode, self.__fxAttrName, self.__slider.val)
-            self.__words.text = "%.2f"%self.__slider.val
+            setattr(self.__fxNode, self.__fxAttrName, thumbPos)
+            self.__words.text = "%.2f"%thumbPos
 
 
 def colorToString(colorTuple):
@@ -91,8 +92,7 @@ class Chromakey(AVGApp):
         self.__colorRect = avg.RectNode(pos=(200,12), size=(20, 20), 
                 fillcolor=self.__filter.color, fillopacity=1, 
                 color="FFFFFF", parent=self.__guiDiv)
-        self.__camNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
-                self.__onColorDown)
+        self.__camNode.subscribe(avg.Node.CURSOR_DOWN, self.__onColorDown)
 
         FXSlider(1, 0.0, 1.0, self.__filter, "htolerance", "Hue Tolerance", 
                 False, parent=self.__guiDiv)
@@ -107,10 +107,12 @@ class Chromakey(AVGApp):
         FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression", 
                 False, parent=self.__guiDiv)
 
-        simple.TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
-                clickHandler=self.__onWhitebalance, parent=self.__guiDiv)
-        simple.TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
-                clickHandler=self.__dumpConfig, parent=self.__guiDiv)
+        button = simple.TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
+                parent=self.__guiDiv)
+        button.subscribe(button.CLICKED, self.__onWhitebalance)
+        button = simple.TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
+                parent=self.__guiDiv)
+        button.subscribe(button.CLICKED, self.__dumpConfig)
 
         FXSlider(9, 0, 500, self.__camNode, "shutter", "Shutter", 
                 True, parent=self.__guiDiv)
@@ -127,12 +129,12 @@ class Chromakey(AVGApp):
         self.__colorWords.text = "Key Color: "+colorString
         self.__colorRect.fillcolor = colorString
 
-    def __onWhitebalance(self, event):
+    def __onWhitebalance(self):
         self.__camNode.setWhitebalance(
                 self.__camNode.getWhitebalanceU(), self.__camNode.getWhitebalanceV())
         self.__camNode.doOneShotWhitebalance()
 
-    def __dumpConfig(self, event):
+    def __dumpConfig(self):
         print "Camera:"
         print "  device=", self.__camNode.device
         print "  shutter=", self.__camNode.shutter

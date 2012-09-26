@@ -42,8 +42,6 @@ class Key(avg.DivNode):
 
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
         self.__feedback = keyDef[1]
-        if ovlHref:
-            self.__createImage(ovlHref, selHref)
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
@@ -53,6 +51,12 @@ class Key(avg.DivNode):
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
+        if ovlHref:
+            if player.isPlaying():
+                self.__createImage(ovlHref, selHref)
+            else:
+                player.subscribe(avg.Player.PLAYBACK_START, 
+                        lambda: self.__createImage(ovlHref, selHref))
 
     def reset(self):
         if self.__sticky:
@@ -203,18 +207,19 @@ class Keyboard(avg.DivNode):
         if textarea != None:
             self.__textarea = textarea
             self.setKeyHandler(None, self.__upHandler)
-        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
+        self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
 
     def __onDown(self, event):
         self.__selectKey(event)
-        event.contact.connectListener(self.__selectKey, self.__selectKey)
+        for message in avg.Contact.CURSOR_MOTION, avg.Contact.CURSOR_UP:
+            event.contact.subscribe(message, self.__selectKey)
 
     def __selectKey(self, event):
         for i in range(len(self.__keys)):
             pos = self.__keys[i].getRelPos(event.pos)
             if pos.x >= 0 and pos.y >= 0:
                 if pos.x <= self.__keys[i].size.x and pos.y <= self.__keys[i].size.y:
-                    if event.type == avg.CURSORUP:
+                    if event.type == avg.Event.CURSOR_UP:
                         self.__keys[i].onUp(event)  
                     else:                  
                         self.__keys[i].onDown(event)

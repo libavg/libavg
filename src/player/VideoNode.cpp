@@ -46,15 +46,13 @@
 #include <unistd.h>
 #endif
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
 
-NodeDefinition VideoNode::createDefinition()
+void VideoNode::registerType()
 {
-    return NodeDefinition("video", Node::buildNode<VideoNode>)
-        .extendDefinition(RasterNode::createDefinition())
+    NodeDefinition def = NodeDefinition("video", "rasternode", Node::buildNode<VideoNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))
@@ -65,6 +63,7 @@ NodeDefinition VideoNode::createDefinition()
         .addArg(Arg<bool>("accelerated", false, false,
                 offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 VideoNode::VideoNode(const ArgList& args)
@@ -94,6 +93,7 @@ VideoNode::VideoNode(const ArgList& args)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
+
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -309,6 +309,8 @@ void VideoNode::setEOFCallback(PyObject * pEOFCallback)
     if (pEOFCallback == Py_None) {
         m_pEOFCallback = 0;
     } else {
+        AVG_DEPRECATION_WARNING("1.8", "VideoNode.setEOFCallback()", 
+                "Node.subscribe(END_OF_FILE)");
         Py_INCREF(pEOFCallback);
         m_pEOFCallback = pEOFCallback;
     }
@@ -457,6 +459,7 @@ void VideoNode::open()
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
     m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 void VideoNode::startDecoding()
@@ -481,7 +484,6 @@ void VideoNode::startDecoding()
     }
     m_bSeekPending = true;
     
-    setViewport(-32767, -32767, -32767, -32767);
     createTextures(videoInfo.m_Size);
    
     if (m_SeekBeforeCanRenderTime != 0) {
@@ -780,10 +782,11 @@ void VideoNode::onEOF()
         PyObject * result = PyEval_CallObject(m_pEOFCallback, arglist);
         Py_DECREF(arglist);    
         if (!result) {
-            throw error_already_set();
+            throw py::error_already_set();
         }
         Py_DECREF(result);
     }
+    notifySubscribers("END_OF_FILE");
 }
 
 

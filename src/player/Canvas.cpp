@@ -145,18 +145,21 @@ void Canvas::doFrame(bool bPythonAvailable)
     emitPreRenderSignal();
     if (!m_pPlayer->isStopping()) {
         ScopeTimer Timer(RenderProfilingZone);
+        Player::get()->startTraversingTree();
         if (bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
                 render();
             } catch(...) {
                 Py_BLOCK_THREADS;
+                Player::get()->endTraversingTree();
                 throw;
             }
             Py_END_ALLOW_THREADS;
         } else {
             render();
         }
+        Player::get()->endTraversingTree();
     }
     emitFrameEndSignal();
     s_pActiveCanvas = CanvasPtr();

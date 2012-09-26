@@ -92,7 +92,7 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_PPMM(0),
       m_pScreen(0),
       m_bMouseOverApp(true),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0),
       m_pGLContext(0)
@@ -512,7 +512,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
         switch (sdlEvent.type) {
             case SDL_MOUSEMOTION:
                 if (m_bMouseOverApp) {
-                    pNewEvent = createMouseEvent(Event::CURSORMOTION, sdlEvent, 
+                    pNewEvent = createMouseEvent(Event::CURSOR_MOTION, sdlEvent, 
                             MouseEvent::NO_BUTTON);
                     CursorEventPtr pNewCursorEvent = 
                             boost::dynamic_pointer_cast<CursorEvent>(pNewEvent);
@@ -526,10 +526,10 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                pNewEvent = createMouseButtonEvent(Event::CURSORDOWN, sdlEvent);
+                pNewEvent = createMouseButtonEvent(Event::CURSOR_DOWN, sdlEvent);
                 break;
             case SDL_MOUSEBUTTONUP:
-                pNewEvent = createMouseButtonEvent(Event::CURSORUP, sdlEvent);
+                pNewEvent = createMouseButtonEvent(Event::CURSOR_UP, sdlEvent);
                 break;
             case SDL_JOYAXISMOTION:
 //                pNewEvent = createAxisEvent(sdlEvent));
@@ -541,10 +541,10 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
 //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
                 break;
             case SDL_KEYDOWN:
-                pNewEvent = createKeyEvent(Event::KEYDOWN, sdlEvent);
+                pNewEvent = createKeyEvent(Event::KEY_DOWN, sdlEvent);
                 break;
             case SDL_KEYUP:
-                pNewEvent = createKeyEvent(Event::KEYUP, sdlEvent);
+                pNewEvent = createKeyEvent(Event::KEY_UP, sdlEvent);
                 break;
             case SDL_QUIT:
                 pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));

@@ -221,7 +221,6 @@ class AVGAppStarter(AppStarter):
                     isDebug=True, visClass=apphelpers.DebugTouchVisualization,
                     size=self._appNode.size, parent=rootNode)
         else:
-            self.__debugTouchVisOverlay.deinit()
             self.__debugTouchVisOverlay.unlink(True)
             del self.__debugTouchVisOverlay
             self.__debugTouchVisOverlay = None
@@ -262,7 +261,6 @@ class AVGMTAppStarter(AVGAppStarter):
 
     def setTouchVisualization(self, visClass):
         if not(self.__touchVisOverlay is None):
-            self.__touchVisOverlay.deinit()
             self.__touchVisOverlay.unlink(True)
             del self.__touchVisOverlay
             self.__touchVisOverlay = None

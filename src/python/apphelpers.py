@@ -29,15 +29,15 @@ class BaseTouchVisualization(avg.DivNode):
         avg.DivNode.__init__(self, **kwargs)
         self.registerInstance(self, parent)
 
-        self.contact = event.contact
-        self.listenerid = event.contact.connectListener(self._onMotion, self._onUp)
+        event.contact.subscribe(avg.Contact.CURSOR_MOTION, self._onMotion)
+        event.contact.subscribe(avg.Contact.CURSOR_UP, self._onUp)
         self.pos = avg.Point2D(event.pos)
         self._fingerSize = 7*player.getPixelsPerMM() # Assume 14mm width for a finger.
         self._radius = max(self._fingerSize, event.majoraxis.getNorm())
 
     def _abort(self):
-        self.contact.disconnectListener(self.listenerid)
-        self.contact = None
+        self.unlink(True)
+        del self
 
     def _onMotion(self, event):
         self.pos = event.pos
@@ -45,7 +45,6 @@ class BaseTouchVisualization(avg.DivNode):
 
     def _onUp(self, event):
         self.unlink(True)
-        self.contact = None
         del self
 
 
@@ -55,7 +54,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
         BaseTouchVisualization.__init__(self, event, **kwargs)
         self.positions = [event.pos]
 
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             color = 'e5d8d8'
         else:
             color = 'd8e5e5'
@@ -70,7 +69,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
                 color='FFFFFF', sensitive=False, parent=self)
         self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis,
                 color='FFFFFF', sensitive=False, parent=self)
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             self.__handAxis = avg.LineNode(pos1=(0,0), pos2=self.__getHandVector(event),
                     opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
@@ -95,7 +94,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
         self.motionVector.pos2 = -event.contact.motionvec
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             self.__handAxis.pos2 = self.__getHandVector(event)
         self.motionPath.pos = self.positions
 
@@ -111,7 +110,7 @@ class TouchVisualization(BaseTouchVisualization):
     def __init__(self, event, **kwargs):
         BaseTouchVisualization.__init__(self, event, **kwargs)
 
-        if event.source == avg.TOUCH:
+        if event.source == avg.Event.TOUCH:
             self.__circle = avg.ImageNode(parent=self)
             self.__circle.setBitmap(TouchVisualization.bmp)
             self.__setRadius(self._radius)
@@ -153,15 +152,12 @@ class TouchVisualizationOverlay(avg.DivNode):
         if isDebug:
             self.elementoutlinecolor='FFFFAA'
             avg.RectNode(parent=self, size=self.size, fillopacity=0.2, fillcolor='000000')
-        rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,
-                self, self.__onTouchDown)
+        rootNode.subscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
+        rootNode.subscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
     
-    def deinit(self):
-        rootNode = player.getRootNode()
-        rootNode.disconnectEventHandler(self, self.__onTouchDown)
-
     def __onTouchDown(self, event):
-        self.visClass(event, parent=self)
+        if event.source == avg.Event.TOUCH or event.source == avg.Event.TRACK:
+            self.visClass(event, parent=self)
 
 
 class KeysCaptionNode(avg.DivNode):
@@ -281,14 +277,13 @@ class KeyboardManager(object):
         return cls._instance
         
     def setup(self, onKeyDownCb, onKeyUpCb):
-        rootNode = player.getRootNode()
-        rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
-        rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
+        player.subscribe(avg.Player.KEY_DOWN, self.__onKeyDown)
+        player.subscribe(avg.Player.KEY_UP, self.__onKeyUp)
         
         self.__onKeyDownCb = onKeyDownCb
         self.__onKeyUpCb = onKeyUpCb
 
-        self.__keyCaptionsNode = KeysCaptionNode(pos=(5,5), parent=rootNode)
+        self.__keyCaptionsNode = KeysCaptionNode(pos=(5,5), parent=player.getRootNode())
     
     def teardown(self):
         self.__keyBindings = []

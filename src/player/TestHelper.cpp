@@ -73,14 +73,14 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
             IntPoint(pos), source, speed));
     map<int, TouchStatusPtr>::iterator it = m_Touches.find(pEvent->getCursorID());
     switch (pEvent->getType()) {
-        case Event::CURSORDOWN: {
+        case Event::CURSOR_DOWN: {
                 AVG_ASSERT(it == m_Touches.end());
                 TouchStatusPtr pTouchStatus(new TouchStatus(pEvent));
                 m_Touches[pEvent->getCursorID()] = pTouchStatus;
             }
             break;
-        case Event::CURSORMOTION:
-        case Event::CURSORUP: {
+        case Event::CURSOR_MOTION:
+        case Event::CURSOR_UP: {
                 if (it == m_Touches.end()) {
                     cerr << "borked: " << pEvent->getCursorID() << ", " << 
                             pEvent->typeStr() << endl;
@@ -120,7 +120,7 @@ std::vector<EventPtr> TestHelper::pollEvents()
         CursorEventPtr pEvent = pTouchStatus->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
-            if (pEvent->getType() == Event::CURSORUP) {
+            if (pEvent->getType() == Event::CURSOR_UP) {
                 m_Touches.erase(it++);
             } else {
                 ++it;
@@ -136,9 +136,9 @@ std::vector<EventPtr> TestHelper::pollEvents()
 
 void TestHelper::checkEventType(Event::Type eventType)
 {
-    if (eventType == Event::CURSOROVER || eventType == Event::CURSOROUT) {
+    if (eventType == Event::CURSOR_OVER || eventType == Event::CURSOR_OUT) {
         throw Exception(AVG_ERR_UNSUPPORTED, "TestHelper::fakeXxxEvent: Can't send "
-                "CURSOROVER and CURSOROUT events directly. They are generated "
+                "CURSOR_OVER and CURSOR_OUT events directly. They are generated "
                 "internally.");
     }
 }

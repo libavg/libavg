@@ -33,7 +33,6 @@ if len(sys.argv) ==1:
     sys.exit(1)
 
 player.loadFile(sys.argv[1])
-player.setVBlankFramerate(1)
 player.play()
 
 

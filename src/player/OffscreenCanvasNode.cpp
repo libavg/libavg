@@ -30,10 +30,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition OffscreenCanvasNode::createDefinition()
+void OffscreenCanvasNode::registerType()
 {
-    return NodeDefinition("canvas", Node::buildNode<OffscreenCanvasNode>)
-        .extendDefinition(CanvasNode::createDefinition())
+    NodeDefinition def = NodeDefinition("canvas", "canvasbase",
+            Node::buildNode<OffscreenCanvasNode>)
         .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(OffscreenCanvasNode, m_bHandleEvents)))
         .addArg(Arg<int>("multisamplesamples", 1, false, 
@@ -42,6 +42,7 @@ NodeDefinition OffscreenCanvasNode::createDefinition()
                 offsetof(OffscreenCanvasNode, m_bMipmap)))
         .addArg(Arg<bool>("autorender", true, false,
                 offsetof(OffscreenCanvasNode, m_bAutoRender)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& args)

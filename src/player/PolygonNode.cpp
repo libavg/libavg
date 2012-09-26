@@ -37,19 +37,20 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition PolygonNode::createDefinition()
+void PolygonNode::registerType()
 {
     VectorVec2Vector cv;
     vector<glm::vec2> v;
     vector<float> vd;
-    return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
-        .extendDefinition(FilledVectorNode::createDefinition())
+    NodeDefinition def = NodeDefinition("polygon", "filledvectornode",
+            Node::buildNode<PolygonNode>)
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolygonNode, m_TexCoords)))
         .addArg(Arg<VectorVec2Vector>("holes", cv, false, offsetof(PolygonNode, m_Holes)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 PolygonNode::PolygonNode(const ArgList& args)

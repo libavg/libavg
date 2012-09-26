@@ -36,7 +36,7 @@ int TrackerTouchStatus::s_LastID = 0;
 
 TrackerTouchStatus::TrackerTouchStatus(BlobPtr pFirstBlob, long long time, 
         DeDistortPtr pDeDistort, const FRect& displayROI, Event::Source source)
-    : TouchStatus(createEvent(source, Event::CURSORDOWN, ++s_LastID, pFirstBlob, time,
+    : TouchStatus(createEvent(source, Event::CURSOR_DOWN, ++s_LastID, pFirstBlob, time,
               pDeDistort, displayROI)),
       m_Source(source),
       m_pDeDistort(pDeDistort),
@@ -71,7 +71,7 @@ void TrackerTouchStatus::blobChanged(BlobPtr pNewBlob, long long time, bool bKee
         }
         if (bPosChanged) {
             m_LastCenter = pNewBlob->getCenter();
-            TouchEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
+            TouchEventPtr pEvent = createEvent(Event::CURSOR_MOTION, pNewBlob, time);
             pushEvent(pEvent, false);
         }
         m_pBlob = pNewBlob;
@@ -83,7 +83,7 @@ void TrackerTouchStatus::blobChanged(BlobPtr pNewBlob, long long time, bool bKee
 void TrackerTouchStatus::blobGone()
 {
     if (!m_bGone) {
-        TouchEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
+        TouchEventPtr pEvent = createEvent(Event::CURSOR_UP, m_pBlob, m_LastTime+1);
         pushEvent(pEvent, false);
         m_bGone = true;
     }

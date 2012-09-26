@@ -35,7 +35,7 @@ namespace avg {
 class AVG_API PolyLineNode : public VectorNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         PolyLineNode(const ArgList& args);
         virtual ~PolyLineNode();

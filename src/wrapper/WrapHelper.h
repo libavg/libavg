@@ -320,4 +320,6 @@ avg::NodePtr createNode(const boost::python::tuple &args,
     return avg::Player::get()->createNode(pszType, attrs, args[0]);
 }
 
+void exportMessages(boost::python::object& nodeClass, const std::string& sClassName);
+
 #endif

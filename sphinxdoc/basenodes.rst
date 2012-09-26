@@ -85,7 +85,60 @@ This section describes the base classes for all node classes that libavg provide
 
     .. autoclass:: Node([id: string="", parent: DivNode=None, active=True, sensitive=True, opacity=1.0, style=None])
 
-        Base class for everything that can be put into an avg tree.
+        Base class for everything that can be put into an avg tree. This is an abstract
+        class.
+
+        **Messages:**
+
+            All cursor and hover messages are emitted only if the cursor is above the
+            :py:class:`Node` and
+            :py:attr:`active` as well as :py:attr:`sensitive` are True. The message
+            parameters are of type :py:class:`CursorEvent`. The CURSOR messages are 
+            emitted for mouse and touch events. The HOVER events are emitted for touch 
+            devices which can sense hands approaching the surface before the actual touch.
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: CURSORDOWN(cursorevent)
+            
+                Emitted whenever a mouse button is pressed or a new touch is registered.
+
+            .. py:method:: CURSORMOTION(cursorevent)
+            
+                Emitted whenever a mouse or a touch moves.
+
+            .. py:method:: CURSORUP(cursorevent)
+            
+                Emitted whenever a mouse button is released or a touch leaves the surface.
+
+            .. py:method:: CURSOROVER(cursorevent)
+            
+                Emitted whenever a mouse or a touch enters the :py:class:`Node`'s area.
+
+            .. py:method:: CURSOROUT(cursorevent)
+            
+                Emitted whenever a mouse or a touch leaves the :py:class:`Node`'s area.
+
+            .. py:method:: HOVERDOWN(cursorevent)
+            
+                Emitted whenever a new hover cursor is registered.
+
+            .. py:method:: HOVERMOTION(cursorevent)
+            
+                Emitted whenever a hover cursor moves.
+
+            .. py:method:: HOVERUP(cursorevent)
+            
+                Emitted whenever a hover cursor disappears.
+
+            .. py:method:: HOVEROVER(cursorevent)
+            
+                Emitted whenever a hover cursor enters the :py:class:`Node`'s area.
+
+            .. py:method:: HOVEROUT(cursorevent)
+            
+                Emitted whenever a hover cursor leaves the :py:class:`Node`'s area.
+
 
         .. py:attribute:: id
 
@@ -119,6 +172,9 @@ This section describes the base classes for all node classes that libavg provide
             attributes.
 
         .. py:method:: connectEventHandler(type, source, pyobj, pyfunc)
+
+            .. deprecated:: 1.8
+                Use the message interface instead.
 
             Sets a callback function that is invoked whenever an event of the
             specified type from the specified source occurs. Unlike 
@@ -154,6 +210,9 @@ This section describes the base classes for all node classes that libavg provide
                 pyfunc may not be :py:const:`None`.
 
         .. py:method:: disconnectEventHandler(pyobj, [pyfunc])
+
+            .. deprecated:: 1.8
+                Use the message interface instead.
 
             Removes one or more event handlers from the node's table of event handlers.
             If several event handlers conform to the parameters given, all are removed.
@@ -196,12 +255,12 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: registerInstance(self, parent)
 
             Needs to be called when deriving from a Node class in python in the derived
-            classes :py:func:`__init__` method.
+            classes :py:meth:`__init__` method.
 
         .. py:method:: releaseEventCapture([cursorid])
 
             Restores normal cursor event handling after a call to 
-            :py:func:`setEventCapture()`. :py:attr:`cursorid` is the id of the
+            :py:meth:`setEventCapture()`. :py:attr:`cursorid` is the id of the
             cursor to release. If :py:attr:`cursorid` is not given, the mouse cursor is
             used.
 
@@ -214,12 +273,12 @@ This section describes the base classes for all node classes that libavg provide
             parent normally. This function is useful for the
             implementation of user interface elements such as scroll bars. Only one
             node can capture a cursor at any one time. Normal operation can
-            be restored by calling :py:func:`releaseEventCapture()`.
+            be restored by calling :py:meth:`releaseEventCapture()`.
         
         .. py:method:: setEventHandler(type, source, pyfunc)
 
             .. deprecated:: 1.7
-                Use :func:`connectEventHandler()` instead.
+                Use the message interface instead.
 
             Sets a callback function that is invoked whenever an event of the
             specified type from the specified source occurs. This method removes all 
@@ -250,7 +309,7 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: unlink([kill=False])
 
             Removes a node from it's parent container and optionally deletes all resources
-            the node holds. In the default case, :py:func:`unlink` is equivalent to
+            the node holds. In the default case, :py:meth:`unlink` is equivalent to
             :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
             except that if the node has no parent, unlink does nothing. Also in the 
             default case, textures are moved back to the CPU and event handlers are 
@@ -261,17 +320,71 @@ This section describes the base classes for all node classes that libavg provide
             to empty in this case, saving some time and making sure there are no 
             references to the node left on the libavg side. :py:attr:`kill` should always
             be set to :py:const:`True` if the node will not be used after the unlink.
-            
-.. autoclass:: Style([basestyle=None], attrs, ...)
+    
 
-            :py:class:`Style` objects are the libavg equivalent of html styles. They 
-            are constructed with any number of node attributes. When a node is constructed
-            using a style as a parameter, the style's attributes are used as defaults for
-            the node attributes. Once constructed, the attributes of the :py:class:`Style`
-            object can be accessed like a read-only dict.
-            
-            :param basestyle:
+    .. autoclass:: Publisher()
 
-                If this constructor parameter is given, the new style is constructed as
-                derived style. The attributes of :py:attr:`basestyle` are used as default
-                values for the style being constructed. 
+        libavg supports event handling and callbacks through a publish/subscribe 
+        interface. :py:class:`Publisher` is the base class for all classes that
+        send messages. Derived classes can send messages of arbitrary types. The base
+        class takes care of managing a list of subscribers for each message type and
+        sending the message to each subscriber.
+
+        Many libavg classes, including :py:class:`Node`, :py:class:`Player`, 
+        :py:class:`Contact` and the :py:class:`Recognizer` classes derive from publisher.
+        In addition, it is possible to derive from :py:class:`Publisher` in client code
+        by calling the methods in the protected interface.
+
+        .. py:method:: subscribe(messageID, callable) -> int
+
+            Registers a subscriber for the given :py:attr:`messageID`. The 
+            :py:attr:`callable` for all subscribers is invoked whenever the publisher 
+            sends out the message with this ID.
+            
+            :py:meth:`subscribe` returns a :py:attr:`subscriberID` that can be used to
+            unsubscribe if this becomes necessary. The subscription is also terminated if 
+            either the publisher or the subscriber is deleted. The :py:class:`Publisher` 
+            class works with weak references to subscribers when possible, so this should 
+            happen automatically in most cases. The exception is when :py:attr:`callable` 
+            is an anonymous function (a lambda expression). In this case, the
+            :py:class:`Publisher` needs to hold a reference to the callable to keep it 
+            from being deleted immediately and :py:meth:`unsubscribe` needs to be called 
+            manually.
+
+        .. py:method:: unsubscribe(messageID, subscriberID)
+                       unsubscribe(messageID, callable)
+
+            Removes a subscriber from the list of subscribers for :py:attr:`messageID`. 
+            The subscriber is either determined by the :py:attr:`subscriberID` returned
+            from :py:meth:`subscribe` or by the :py:attr:`callable` attached to the
+            subscription.
+
+        **Protected Interface:**
+
+            To be called from derived classes.
+
+            .. py:method:: publish(messageID)
+
+                Registers a :py:attr:`messageID` so that interested parties can subscribe
+                to this message.
+
+            .. py:method:: notifySubscribers(messageID, arg1, arg2,...)
+
+                Invokes all callables registered for this :py:attr:`messageID` using the 
+                args passed. Subscribers are called synchronously; the order of invokation
+                is undefined.
+
+
+    .. autoclass:: Style([basestyle=None], attrs, ...)
+
+        :py:class:`Style` objects are the libavg equivalent of html styles. They 
+        are constructed with any number of node attributes. When a node is constructed
+        using a style as a parameter, the style's attributes are used as defaults for
+        the node attributes. Once constructed, the attributes of the :py:class:`Style`
+        object can be accessed like a read-only dict.
+        
+        :param basestyle:
+
+            If this constructor parameter is given, the new style is constructed as
+            derived style. The attributes of :py:attr:`basestyle` are used as default
+            values for the style being constructed. 

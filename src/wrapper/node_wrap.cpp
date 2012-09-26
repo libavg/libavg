@@ -48,9 +48,11 @@ void export_devices();
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
+#include <string>
 
 using namespace boost::python;
 using namespace avg;
+using namespace std;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(disconnectEventHandler_overloads, 
@@ -96,7 +98,8 @@ void export_node()
     to_python_converter<VectorVec2Vector, to_list<VectorVec2Vector> >();
     from_python_sequence<VectorVec2Vector, variable_capacity_policy>();
 
-    class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node", no_init)
+    object nodeClass = class_<Node, boost::shared_ptr<Node>, bases<Publisher>, 
+            boost::noncopyable>("Node", no_init)
         .def(self == self)
         .def(self != self)
         .def("__hash__", &Node::getHash)
@@ -122,10 +125,10 @@ void export_node()
         .add_property("sensitive", &Node::getSensitive, &Node::setSensitive)
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
         ;
+    exportMessages(nodeClass, "Node");
 
-    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
-            "AreaNode", 
-            no_init)
+    object areaNodeClass = class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>,
+            boost::noncopyable>("AreaNode", no_init)
         .def("getMediaSize", &AreaNode_getMediaSize)
         .add_property("x", &AreaNode::getX, &AreaNode::setX)
         .add_property("y", &AreaNode::getY, &AreaNode::setY)
@@ -146,6 +149,8 @@ void export_node()
                 make_function(&AreaNode::setElementOutlineColor,
                         return_value_policy<copy_const_reference>()))
         ;
+    exportMessages(areaNodeClass, "AreaNode");
+
     export_bitmap();
     export_fx();
     export_raster();

@@ -1,5 +1,5 @@
 SUBDIRS = ui data
-pkgpyexec_PYTHON = camcalibrator.py textarea.py gameapp.py \
+pkgpyexec_PYTHON = enumcompat.py camcalibrator.py textarea.py gameapp.py \
        mathutil.py app.py appstarter.py utils.py \
-       mtemu.py geom.py parsecamargs.py apphelpers.py \
+       mtemu.py geom.py parsecamargs.py apphelpers.py methodref.py \
        statemachine.py coordcalibrator.py graph.py __init__.py

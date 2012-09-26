@@ -64,6 +64,7 @@
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "EventDispatcher.h"
+#include "PublisherDefinition.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -73,7 +74,6 @@
 #include "../base/ConfigMgr.h"
 #include "../base/XMLHelper.h"
 #include "../base/ScopeTimer.h"
-#include "../base/MathHelper.h"
 #include "../base/WorkerThread.h"
 
 #include "../graphics/BitmapManager.h"
@@ -107,8 +107,10 @@ namespace avg {
 Player * Player::s_pPlayer=0;
 
 Player::Player()
-    : m_pDisplayEngine(),
+    : Publisher("Player"),
+      m_pDisplayEngine(),
       m_bDisplayEngineBroken(false),
+      m_bIsTraversingTree(false),
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -121,7 +123,7 @@ Player::Player()
       m_Volume(1),
       m_dtd(0),
       m_bPythonAvailable(true),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
@@ -146,22 +148,31 @@ Player::Player()
     initConfig();
 
     // Register all node types
-    registerNodeType(AVGNode::createDefinition());
-    registerNodeType(OffscreenCanvasNode::createDefinition());
-    registerNodeType(CanvasNode::createDefinition());
-    registerNodeType(DivNode::createDefinition());
-    registerNodeType(ImageNode::createDefinition());
-    registerNodeType(WordsNode::createDefinition());
-    registerNodeType(VideoNode::createDefinition());
-    registerNodeType(CameraNode::createDefinition());
-    registerNodeType(SoundNode::createDefinition());
-    registerNodeType(LineNode::createDefinition());
-    registerNodeType(RectNode::createDefinition());
-    registerNodeType(CurveNode::createDefinition());
-    registerNodeType(PolyLineNode::createDefinition());
-    registerNodeType(PolygonNode::createDefinition());
-    registerNodeType(CircleNode::createDefinition());
-    registerNodeType(MeshNode::createDefinition());
+    Node::registerType();
+    AreaNode::registerType();
+    RasterNode::registerType();
+    VectorNode::registerType();
+    FilledVectorNode::registerType();
+
+    DivNode::registerType();
+    CanvasNode::registerType();
+    OffscreenCanvasNode::registerType();
+    AVGNode::registerType();
+    ImageNode::registerType();
+    WordsNode::registerType();
+    VideoNode::registerType();
+    CameraNode::registerType();
+    SoundNode::registerType();
+    LineNode::registerType();
+    RectNode::registerType();
+    CurveNode::registerType();
+    PolyLineNode::registerType();
+    PolygonNode::registerType();
+    CircleNode::registerType();
+    MeshNode::registerType();
+
+    // Register non-node publishers
+    Contact::registerType();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
 
@@ -171,7 +182,7 @@ Player::Player()
     if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
         debugBreak();
     }
-
+    
     g_type_init();
 }
 
@@ -340,7 +351,7 @@ OffscreenCanvasPtr Player::loadCanvasString(const string& sAVG)
     return registerOffscreenCanvas(pNode);
 }
 
-CanvasPtr Player::createMainCanvas(const boost::python::dict& params)
+CanvasPtr Player::createMainCanvas(const py::dict& params)
 {
     errorIfPlaying("Player.createMainCanvas");
     if (m_pMainCanvas) {
@@ -359,7 +370,7 @@ CanvasPtr Player::createMainCanvas(const boost::python::dict& params)
     return m_pMainCanvas;
 }
 
-OffscreenCanvasPtr Player::createCanvas(const boost::python::dict& params)
+OffscreenCanvasPtr Player::createCanvas(const py::dict& params)
 {
     NodePtr pNode = createNode("canvas", params);
     return registerOffscreenCanvas(pNode);
@@ -509,12 +520,14 @@ void Player::play()
             throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
         }
         initPlayback();
+        notifySubscribers("PLAYBACK_START");
         try {
             ThreadProfiler::get()->start();
             doFrame(true);
             while (!m_bStopping) {
                 doFrame(false);
             }
+            notifySubscribers("PLAYBACK_END");
         } catch (...) {
             cleanup();
             m_bDisplayEngineBroken = true;
@@ -850,6 +863,14 @@ MouseEventPtr Player::getMouseState() const
     return m_pLastMouseEvent;
 }
 
+EventPtr Player::getCurrentEvent() const
+{
+    if (!m_pCurrentEvent) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "No current event.");
+    }
+    return m_pCurrentEvent;
+}
+
 void Player::setMousePos(const IntPoint& pos)
 {
     m_pDisplayEngine->setMousePos(pos);
@@ -959,12 +980,29 @@ std::string Player::getRootMediaDir()
 
 const NodeDefinition& Player::getNodeDef(const std::string& sType)
 {
-    return m_NodeRegistry.getNodeDef(sType);
+    return NodeRegistry::get()->getNodeDef(sType);
 }
 
 void Player::disablePython()
 {
     m_bPythonAvailable = false;
+}
+
+void Player::startTraversingTree()
+{
+    AVG_ASSERT(!m_bIsTraversingTree);
+    m_bIsTraversingTree = true;
+}
+
+void Player::endTraversingTree()
+{
+    AVG_ASSERT(m_bIsTraversingTree);
+    m_bIsTraversingTree = false;
+}
+
+bool Player::isTraversingTree() const
+{
+    return m_bIsTraversingTree;
 }
 
 void Player::registerFrameEndListener(IFrameEndListener* pListener)
@@ -1012,17 +1050,19 @@ bool Player::handleEvent(EventPtr pEvent)
     PyObject * pEventHook = getEventHook();
     if (pEventHook != Py_None) {
         // If the catchall returns true, stop processing the event
-        if (boost::python::call<bool>(pEventHook, pEvent)) {
+        if (py::call<bool>(pEventHook, pEvent)) {
             return true;
         }
     }
+    EventPtr pLastEvent = m_pCurrentEvent;
+    m_pCurrentEvent = pEvent;
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
         m_pLastMouseEvent = pMouseEvent;
     }
 
     if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
-        if (pEvent->getType() == Event::CURSOROUT ||
-                pEvent->getType() == Event::CURSOROVER)
+        if (pEvent->getType() == Event::CURSOR_OUT ||
+                pEvent->getType() == Event::CURSOR_OVER)
         {
             pEvent->trace();
             pCursorEvent->getNode()->handleEvent(pEvent);
@@ -1033,8 +1073,18 @@ bool Player::handleEvent(EventPtr pEvent)
     else if (KeyEventPtr pKeyEvent = boost::dynamic_pointer_cast<KeyEvent>(pEvent))
     {
         pEvent->trace();
+        switch (pEvent->getType()) {
+            case Event::KEY_DOWN:
+                notifySubscribers("KEY_DOWN", pEvent);
+                break;
+            case Event::KEY_UP:
+                notifySubscribers("KEY_UP", pEvent);
+                break;
+            default:
+                AVG_ASSERT(false);
+        }
         getRootNode()->handleEvent(pKeyEvent);
-        if (getStopOnEscape() && pEvent->getType() == Event::KEYDOWN
+        if (getStopOnEscape() && pEvent->getType() == Event::KEY_DOWN
                 && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
         {
             stop();
@@ -1049,6 +1099,7 @@ bool Player::handleEvent(EventPtr pEvent)
             stop();
         }
     }
+    m_pCurrentEvent = pLastEvent;
     return true;
 }
 
@@ -1251,11 +1302,10 @@ void Player::updateDTD()
         xmlFreeDtd(m_dtd);
     }
     // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
+    registerDTDEntityLoader("avg.dtd", NodeRegistry::get()->getDTD().c_str());
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     assert (m_dtd);
-    m_bDirtyDTD = false;
 }
 
 NodePtr Player::internalLoad(const string& sAVG)
@@ -1269,10 +1319,7 @@ NodePtr Player::internalLoad(const string& sAVG)
         if (!doc) {
             throw (Exception(AVG_ERR_XML_PARSE, ""));
         }
-
-        if (m_bDirtyDTD) {
-            updateDTD();
-        }
+        updateDTD();
 
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
@@ -1310,45 +1357,30 @@ SDLDisplayEnginePtr Player::safeGetDisplayEngine()
 
 void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
 {
-    m_NodeRegistry.registerNodeType(def);
-
-    if (pParentNames) {
-        string sChildArray[1];
-        sChildArray[0] = def.getName();
-        vector<string> sChildren = vectorFromCArray(1, sChildArray);
-        const char **ppCurParentName = pParentNames;
-
-        while (*ppCurParentName) {
-            NodeDefinition nodeDefinition = m_NodeRegistry.getNodeDef(*ppCurParentName);
-            nodeDefinition.addChildren(sChildren);
-            m_NodeRegistry.updateNodeDefinition(nodeDefinition);
-
-            ++ppCurParentName;
-        }
-    }
-    m_bDirtyDTD = true;
+    NodeRegistry* pRegistry = NodeRegistry::get();
+    pRegistry->registerNodeType(def, pParentNames);
 }
 
 NodePtr Player::createNode(const string& sType,
-        const boost::python::dict& params, const boost::python::object& self)
+        const py::dict& params, const boost::python::object& self)
 {
     DivNodePtr pParentNode;
-    boost::python::dict attrs = params;
-    boost::python::object parent;
+    py::dict attrs = params;
+    py::object parent;
     if (params.has_key("parent")) {
         parent = params["parent"];
         attrs.attr("__delitem__")("parent");
-        pParentNode = boost::python::extract<DivNodePtr>(parent);
+        pParentNode = py::extract<DivNodePtr>(parent);
     }
-    NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
+    NodePtr pNode = NodeRegistry::get()->createNode(sType, attrs);
 
     // See if the class names of self and pNode match. If they don't, there is a
     // python derived class that's being constructed and we can't set parent here.
-    string sSelfClassName = boost::python::extract<string>(
+    string sSelfClassName = py::extract<string>(
             self.attr("__class__").attr("__name__"));
-    boost::python::object pythonClassName = 
-            (boost::python::object(pNode).attr("__class__").attr("__name__"));
-    string sThisClassName = boost::python::extract<string>(pythonClassName);
+    py::object pythonClassName = 
+            (py::object(pNode).attr("__class__").attr("__name__"));
+    string sThisClassName = py::extract<string>(pythonClassName);
     bool bHasDerivedClass = sSelfClassName != sThisClassName && 
             sSelfClassName != "NoneType";
     if (bHasDerivedClass) {
@@ -1378,9 +1410,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
                     string("Error parsing xml:\n  ")+sXML));
     }
     NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc));
-
-    if (m_bDirtyDTD)
-        updateDTD();
+    updateDTD();
 
     xmlValidCtxtPtr cvp = xmlNewValidCtxt();
     cvp->error = xmlParserValidityError;
@@ -1407,7 +1437,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    pCurNode = m_NodeRegistry.createNode(nodeType, xmlNode);
+    pCurNode = NodeRegistry::get()->createNode(nodeType, xmlNode);
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
@@ -1489,7 +1519,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
     pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
+    if (pContact && !bOnlyCheckCursorOver) {
         if (!pCursorNodes.empty()) {
             NodePtr pNode = *(pCursorNodes.begin());
             pEvent->setNode(pNode);
@@ -1533,7 +1563,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             }
         }
         if (itCur == pCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOROUT, pLastNode);
+            sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
         }
     }
 
@@ -1548,7 +1578,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             }
         }
         if (itLast == pLastCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOROVER, pCurNode);
+            sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
         }
     }
 
@@ -1561,7 +1591,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
                 pNodeEvent->setNode(pNode);
-                if (pNodeEvent->getType() != Event::CURSORMOTION) {
+                if (pNodeEvent->getType() != Event::CURSOR_MOTION) {
                     pNodeEvent->trace();
                 }
                 if (pNode->handleEvent(pNodeEvent) == true) {
@@ -1572,12 +1602,12 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
+    if (pEvent->getType() == Event::CURSOR_UP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
         vector<NodePtr>::iterator it;
         for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
             NodePtr pNode = *it;
-            sendOver(pEvent, Event::CURSOROUT, pNode);
+            sendOver(pEvent, Event::CURSOR_OUT, pNode);
         }
         m_pLastCursorStates.erase(cursorID);
     } else {
@@ -1681,6 +1711,17 @@ float Player::getVolume() const
     return m_Volume;
 }
 
+string Player::getConfigOption(const string& sSubsys, const string& sName) const
+{
+    const string* psValue = ConfigMgr::get()->getOption(sSubsys, sName);
+    if (!psValue) {
+        throw Exception(AVG_ERR_INVALID_ARGS, string("Unknown config option ") + sSubsys
+                + ":" + sName);
+    } else {
+        return *psValue;
+    }
+}
+
 OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
 {
     if (sURL.substr(0, 7) != "canvas:") {
@@ -1735,13 +1776,15 @@ void Player::cleanup()
         SDLAudioEngine::get()->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
-    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 
+    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSOR_MOTION, false, false, 
             false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0));
 
     m_FrameTime = 0;
     m_bIsPlaying = false;
 
     m_CurDirName = getCWD();
+
+    removeSubscribers();
 }
 
 int Player::addTimeout(Timeout* pTimeout)
@@ -1775,7 +1818,7 @@ string Player::getPluginPath() const
     return  PluginManager::get().getSearchPath();
 }
 
-boost::python::object Player::loadPlugin(const std::string& name)
+py::object Player::loadPlugin(const std::string& name)
 {
     return PluginManager::get().loadPlugin(name);
 }

@@ -19,50 +19,48 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, statemachine, utils, player
+from libavg import avg, statemachine, player
 from libavg.ui import filter
 
+import sets
 import weakref
 
 import math
 
-MAX_TAP_DIST = 15 
-MAX_TAP_TIME = 900
-MAX_DOUBLETAP_TIME = 300
-MIN_DRAG_DIST = 5
-HOLD_DELAY = 900
+class Recognizer(avg.Publisher):
 
-class ContactData:
+    POSSIBLE = avg.Publisher.genMessageID()
+    DETECTED = avg.Publisher.genMessageID()
+    FAILED = avg.Publisher.genMessageID()
+    MOTION = avg.Publisher.genMessageID()
+    UP = avg.Publisher.genMessageID()
+    END = avg.Publisher.genMessageID()
 
-    def __init__(self, listenerid):
-        self.listenerid = listenerid
-
-
-class Recognizer(object):
-
-    def __init__(self, node, isContinuous, eventSource, maxContacts, initialEvent,
+    def __init__(self, node, isContinuous, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             endHandler=None):
+        super(Recognizer, self).__init__()
+
         if node:
             self.__node = weakref.ref(node)
         else:
             self.__node = None
         self.__isContinuous = isContinuous
-        self.__eventSource = eventSource
         self.__maxContacts = maxContacts
-
-        self.__possibleHandler = utils.methodref(possibleHandler)
-        self.__failHandler = utils.methodref(failHandler)
-        self.__detectedHandler = utils.methodref(detectedHandler)
-        self.__endHandler = utils.methodref(endHandler)
 
         self.__setEventHandler() 
         self.__isEnabled = True
-        self._contacts = {}
+        self._contacts = sets.Set() 
         self.__dirty = False
 
+        self.publish(Recognizer.POSSIBLE)
+        self.publish(Recognizer.DETECTED)
+        self.publish(Recognizer.FAILED)
+        self.publish(Recognizer.END)
         self.__stateMachine = statemachine.StateMachine(str(type(self)), "IDLE")
         if self.__isContinuous:
+            self.publish(Recognizer.MOTION)
+            self.publish(Recognizer.UP)
             self.__stateMachine.addState("IDLE", ("POSSIBLE", "RUNNING"))
             self.__stateMachine.addState("POSSIBLE", ("IDLE", "RUNNING"))
             self.__stateMachine.addState("RUNNING", ("IDLE",))
@@ -70,7 +68,11 @@ class Recognizer(object):
             self.__stateMachine.addState("IDLE", ("POSSIBLE",))
             self.__stateMachine.addState("POSSIBLE", ("IDLE",))
 
-#        self.__stateMachine.traceChanges(True)
+        self.subscribe(Recognizer.POSSIBLE, possibleHandler)
+        self.subscribe(Recognizer.FAILED, failHandler)
+        self.subscribe(Recognizer.DETECTED, detectedHandler)
+        self.subscribe(Recognizer.END, endHandler)
+        # self.__stateMachine.traceChanges(True)
 
         if initialEvent:
             self.__onDown(initialEvent)
@@ -96,33 +98,34 @@ class Recognizer(object):
 
     def _setPossible(self, event):
         self.__stateMachine.changeState("POSSIBLE")
-        utils.callWeakRef(self.__possibleHandler, event)
+        self.notifySubscribers(Recognizer.POSSIBLE, [])
 
     def _setFail(self, event):
         assert(self.__stateMachine.state != "RUNNING")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        utils.callWeakRef(self.__failHandler, event)
+        self.notifySubscribers(Recognizer.FAILED, [])
 
     def _setDetected(self, event):
         if self.__isContinuous:
             self.__stateMachine.changeState("RUNNING")
         else:
             self.__stateMachine.changeState("IDLE")
-        utils.callWeakRef(self.__detectedHandler, event)
+        self.notifySubscribers(Recognizer.DETECTED, [])
 
     def _setEnd(self, event):
         assert(self.__stateMachine.state != "POSSIBLE")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        utils.callWeakRef(self.__endHandler, event)
+        self.notifySubscribers(Recognizer.END, [])
 
     def __onDown(self, event):
         nodeGone = self._handleNodeGone()
         if not(nodeGone):
             if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
-                listenerid = event.contact.connectListener(self.__onMotion, self.__onUp)
-                self._contacts[event.contact] = ContactData(listenerid)
+                event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
+                event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
+                self._contacts.add(event.contact)
                 if len(self._contacts) == 1:
                     self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
                 self.__dirty = True
@@ -138,25 +141,24 @@ class Recognizer(object):
         nodeGone = self._handleNodeGone()
         if not(nodeGone):
             self.__dirty = True
-            listenerid = self._contacts[event.contact].listenerid
-            del self._contacts[event.contact]
-            event.contact.disconnectListener(listenerid)
-            if self._contacts == {}:
+            self._contacts.remove(event.contact)
+            if len(self._contacts) == 0:
                 player.clearInterval(self.__frameHandlerID)
             self._handleUp(event)
 
     def __abort(self):        
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        if self._contacts != {}:
+        if len(self._contacts) != 0:
             self._disconnectContacts()
         if self.__node and self.__node():
-            self.__node().disconnectEventHandler(self)
+            self.__node().unsubscribe(avg.Node.CURSOR_DOWN, self.__onDown)
 
     def _disconnectContacts(self):
-        for contact, contactData in self._contacts.iteritems():
-            contact.disconnectListener(contactData.listenerid)
-        self._contacts = {}
+        for contact in self._contacts:
+            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
+            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
+        self._contacts = sets.Set()
         player.clearInterval(self.__frameHandlerID)
 
     def _handleDown(self, event):
@@ -185,18 +187,18 @@ class Recognizer(object):
 
     def __setEventHandler(self):
         if self.__node and self.__node():
-            self.__node().connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
-                    self.__onDown)
+            self.__node().subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
 
 
 class TapRecognizer(Recognizer):
 
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, 
-            maxTime=MAX_TAP_TIME, initialEvent=None, 
+    MAX_TAP_DIST = None 
+
+    def __init__(self, node, maxTime=None, initialEvent=None, 
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
 
-        super(TapRecognizer, self).__init__(node, False, eventSource, 1, initialEvent,
+        super(TapRecognizer, self).__init__(node, False, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler)
 
     def _handleDown(self, event):
@@ -205,12 +207,14 @@ class TapRecognizer(Recognizer):
 
     def _handleMove(self, event):
         if self.getState() != "IDLE": 
-            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
+            if (event.contact.distancefromstart > 
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
 
     def _handleUp(self, event):
         if self.getState() == "POSSIBLE":
-            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
+            if (event.contact.distancefromstart > 
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
             else:
                 self._setDetected(event)
@@ -218,18 +222,21 @@ class TapRecognizer(Recognizer):
     def _onFrame(self):
         downTime = player.getFrameTime() - self.__startTime
         if self.getState() == "POSSIBLE":
-            if downTime > self.__maxTime:
+            if self.__maxTime and downTime > self.__maxTime:
                 self._setFail(None)
         super(TapRecognizer, self)._onFrame()
 
 
 class DoubletapRecognizer(Recognizer):
+    
+    MAX_DOUBLETAP_TIME = None
 
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE,
-            maxTime=MAX_DOUBLETAP_TIME, initialEvent=None,
-            possibleHandler=None, failHandler=None, detectedHandler=None):
+    def __init__(self, node, maxTime=None, 
+            initialEvent=None, possibleHandler=None, failHandler=None, 
+            detectedHandler=None):
+        if maxTime == None:
+            maxTime = DoubletapRecognizer.MAX_DOUBLETAP_TIME
         self.__maxTime = maxTime
-
         self.__stateMachine = statemachine.StateMachine("DoubletapRecognizer", "IDLE")
         self.__stateMachine.addState("IDLE", ("DOWN1",), enterFunc=self.__enterIdle)
         self.__stateMachine.addState("DOWN1", ("UP1", "IDLE"))
@@ -237,7 +244,7 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN2", ("IDLE",))
         #self.__stateMachine.traceChanges(True)
         self.__frameHandlerID = None
-        super(DoubletapRecognizer, self).__init__(node, False, eventSource, 1, 
+        super(DoubletapRecognizer, self).__init__(node, False, 1, 
                 initialEvent, possibleHandler, failHandler, detectedHandler)
 
     def abort(self):
@@ -259,7 +266,7 @@ class DoubletapRecognizer(Recognizer):
             self._setPossible(event)
         elif self.__stateMachine.state == "UP1":
             if ((event.pos - self.__startPos).getNorm() > 
-                    MAX_TAP_DIST*player.getPixelsPerMM()):
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
             else:
@@ -270,7 +277,7 @@ class DoubletapRecognizer(Recognizer):
     def _handleMove(self, event):
         if self.__stateMachine.state != "IDLE": 
             if ((event.pos - self.__startPos).getNorm() > 
-                    MAX_TAP_DIST*player.getPixelsPerMM()):
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self.__stateMachine.changeState("IDLE")
                 self._setFail(event)
 
@@ -280,7 +287,7 @@ class DoubletapRecognizer(Recognizer):
             self.__stateMachine.changeState("UP1")
         elif self.__stateMachine.state == "DOWN2":
             if ((event.pos - self.__startPos).getNorm() >
-                    MAX_TAP_DIST*player.getPixelsPerMM()):
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
             else:
                 self._setDetected(event)
@@ -302,13 +309,16 @@ class DoubletapRecognizer(Recognizer):
 
 class HoldRecognizer(Recognizer):
 
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, 
-            delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, 
-            detectedHandler=None, stopHandler=None):
+    HOLD_DELAY = None
+
+    def __init__(self, node, delay=None, initialEvent=None, possibleHandler=None, 
+            failHandler=None, detectedHandler=None, stopHandler=None):
+        if delay == None:
+            delay = HoldRecognizer.HOLD_DELAY
         self.__delay = delay
 
         self.__lastEvent = None
-        super(HoldRecognizer, self).__init__(node, True, eventSource, 1, initialEvent,
+        super(HoldRecognizer, self).__init__(node, True, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler, stopHandler)
 
     def _handleDown(self, event):
@@ -319,7 +329,8 @@ class HoldRecognizer(Recognizer):
     def _handleMove(self, event):
         self.__lastEvent = event
         if self.getState() == "POSSIBLE": 
-            if event.contact.distancefromstart > MAX_TAP_DIST*player.getPixelsPerMM():
+            if (event.contact.distancefromstart > 
+                    TapRecognizer.MAX_TAP_DIST*player.getPixelsPerMM()):
                 self._setFail(event)
 
     def _handleUp(self, event):
@@ -339,16 +350,17 @@ class HoldRecognizer(Recognizer):
 
 class DragRecognizer(Recognizer):
 
-    ANY_DIRECTION=0
-    VERTICAL=1
-    HORIZONTAL=2
+    ANY_DIRECTION = 0
+    VERTICAL = 1
+    HORIZONTAL = 2
 
-    DIRECTION_TOLERANCE=math.pi/4
+    DIRECTION_TOLERANCE = math.pi/4
+    MIN_DRAG_DIST = None
+    FRICTION = None
 
-    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE,
-            initialEvent=None, 
+    def __init__(self, eventNode, coordSysNode=None, initialEvent=None, 
             direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE,
-            friction=-1, 
+            friction=None, minDragDist=None,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             moveHandler=None, upHandler=None, endHandler=None):
 
@@ -356,21 +368,29 @@ class DragRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
-        self.__moveHandler = utils.methodref(moveHandler)
-        self.__upHandler = utils.methodref(upHandler)
         self.__direction = direction
-        if self.__direction == DragRecognizer.ANY_DIRECTION:
-            self.__minDist = 0
-        else:
-            self.__minDist = MIN_DRAG_DIST
         self.__directionTolerance = directionTolerance
-        self.__friction = friction
+
+        if minDragDist != None:
+            self.__minDragDist = minDragDist
+        else:
+            if self.__direction == DragRecognizer.ANY_DIRECTION:
+                self.__minDragDist = 0
+            else:
+                self.__minDragDist = DragRecognizer.MIN_DRAG_DIST
+
+        if friction == None:
+            self.__friction = DragRecognizer.FRICTION
+        else:
+            self.__friction = friction
 
         self.__isSliding = False
         self.__inertiaHandler = None
-        super(DragRecognizer, self).__init__(eventNode, True, eventSource, 1, 
+        super(DragRecognizer, self).__init__(eventNode, True, 1, 
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
+        self.subscribe(Recognizer.MOTION, moveHandler)
+        self.subscribe(Recognizer.UP, upHandler)
 
     def abort(self):
         if self.__inertiaHandler:
@@ -382,7 +402,7 @@ class DragRecognizer(Recognizer):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
             self._setEnd(event)
-        if self.__direction == DragRecognizer.ANY_DIRECTION:
+        if self.__minDragDist == 0:
             self._setDetected(event)
         else:
             self._setPossible(event)
@@ -398,12 +418,12 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             offset = pos - self.__dragStartPos
             if self.getState() == "RUNNING":
-                utils.callWeakRef(self.__moveHandler, event, offset)
+                self.notifySubscribers(Recognizer.MOTION, [offset]);
             else:
-                if offset.getNorm() > self.__minDist*player.getPixelsPerMM():
+                if offset.getNorm() > self.__minDragDist*player.getPixelsPerMM():
                     if self.__angleFits(offset):
                         self._setDetected(event)
-                        utils.callWeakRef(self.__moveHandler, event, offset)
+                        self.notifySubscribers(Recognizer.MOTION, [offset]);
                     else:
                         self.__fail(event)
             if self.__inertiaHandler:
@@ -415,7 +435,7 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             if self.getState() == "RUNNING":
                 self.__offset = pos - self.__dragStartPos
-                utils.callWeakRef(self.__upHandler, event, self.__offset)
+                self.notifySubscribers(Recognizer.UP, [self.__offset]);
                 if self.__friction != -1:
                     self.__isSliding = True
                     self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -434,7 +454,7 @@ class DragRecognizer(Recognizer):
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        utils.callWeakRef(self.__moveHandler, None, self.__offset)
+        self.notifySubscribers(Recognizer.MOTION, [self.__offset]);
 
     def __onInertiaStop(self):
         if self.getState() == "POSSIBLE":
@@ -458,7 +478,7 @@ class DragRecognizer(Recognizer):
             return (angle < self.__directionTolerance 
                     or angle > math.pi-self.__directionTolerance)
         else:
-            assert(False)
+            return True
 
 class Mat3x3:
     # Internal class. Will be removed again.
@@ -622,25 +642,20 @@ class Transform():
 
 class TransformRecognizer(Recognizer):
 
-    lowpassConfig = {
-        'mincutoff': None,
-        'beta': None
-    }
-#    lowpassConfig = {
-#        'mincutoff': 0.1,
-#        'beta': 0.1 # Very hard filter, no visible effect. Effect starts appearing at 0.03
-#    }
+    FILTER_MIN_CUTOFF = None
+    FILTER_BETA = None
 
-    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH,
-            initialEvent=None, friction=-1, 
+    def __init__(self, eventNode, coordSysNode=None, initialEvent=None, friction=None, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
         if coordSysNode != None:
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
-        self.__moveHandler = utils.methodref(moveHandler)
-        self.__upHandler = utils.methodref(upHandler)
-        self.__friction = friction
+        
+        if friction == None:
+            self.__friction = DragRecognizer.FRICTION
+        else:
+            self.__friction = friction
 
         self.__baseTransform = Mat3x3()
         self.__lastPosns = []
@@ -648,13 +663,10 @@ class TransformRecognizer(Recognizer):
         self.__inertiaHandler = None
         self.__filters = {}
         self.__frameHandlerID = None
-        super(TransformRecognizer, self).__init__(eventNode, True, eventSource, None, 
+        super(TransformRecognizer, self).__init__(eventNode, True, None, 
                 initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
-
-    @classmethod
-    def setFilterConfig(cls, mincutoff=None, beta=None):
-        TransformRecognizer.lowpassConfig["mincutoff"] = mincutoff
-        TransformRecognizer.lowpassConfig["beta"] = beta
+        self.subscribe(Recognizer.MOTION, moveHandler)
+        self.subscribe(Recognizer.UP, upHandler)
 
     def enable(self, isEnabled):
         if isEnabled != self.isEnabled() and not(isEnabled):
@@ -670,8 +682,10 @@ class TransformRecognizer(Recognizer):
         self.__newPhase()
         if self.__isFiltered():
             self.__filters[event.contact] = [
-                    filter.OneEuroFilter(**TransformRecognizer.lowpassConfig),
-                    filter.OneEuroFilter(**TransformRecognizer.lowpassConfig)]
+                    filter.OneEuroFilter(mincutoff=TransformRecognizer.FILTER_MIN_CUTOFF, 
+                            beta=TransformRecognizer.FILTER_BETA),
+                    filter.OneEuroFilter(mincutoff=TransformRecognizer.FILTER_MIN_CUTOFF,
+                            beta=TransformRecognizer.FILTER_BETA)]
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
@@ -688,7 +702,7 @@ class TransformRecognizer(Recognizer):
             contact = event.contact
             transform = Transform(self.__filteredRelContactPos(contact)
                     - self.__lastPosns[0])
-            utils.callWeakRef(self.__upHandler, transform)
+            self.notifySubscribers(Recognizer.UP, [transform]);
             player.clearInterval(self.__frameHandlerID)
             self.__frameHandlerID = None
             if self.__friction != -1:
@@ -718,12 +732,12 @@ class TransformRecognizer(Recognizer):
     def __move(self):
         numContacts = len(self._contacts)
         contactPosns = [self.__filteredRelContactPos(contact)
-                for contact in self._contacts.keys()]
+                for contact in self._contacts]
         if numContacts == 1:
             transform = Transform(contactPosns[0] - self.__lastPosns[0])
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            utils.callWeakRef(self.__moveHandler, transform)
+            self.notifySubscribers(Recognizer.MOTION, [transform]);
             self.__lastPosns = contactPosns
         else:
             if numContacts == 2:
@@ -750,18 +764,17 @@ class TransformRecognizer(Recognizer):
             transform = Transform(trans, rot, scale, pivot)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            utils.callWeakRef(self.__moveHandler, transform)
+            self.notifySubscribers(Recognizer.MOTION, [transform]);
             self.__lastPosns = self.__posns
 
     def __newPhase(self):
         self.__lastPosns = []
         numContacts = len(self._contacts)
+        contactPosns = [self.__relContactPos(contact) 
+                for contact in self._contacts]
         if numContacts == 1:
-            contact = self._contacts.keys()[0]
-            self.__lastPosns.append(self.__relContactPos(contact))
+            self.__lastPosns.append(contactPosns[0])
         else:
-            contactPosns = [self.__relContactPos(contact) 
-                    for contact in self._contacts.keys()]
             if numContacts == 2:
                 self.__lastPosns = contactPosns
             else:
@@ -770,7 +783,7 @@ class TransformRecognizer(Recognizer):
                         i in range(2)]
 
     def __onInertiaMove(self, transform):
-        utils.callWeakRef(self.__moveHandler, transform)
+        self.notifySubscribers(Recognizer.MOTION, [transform]);
 
     def __onInertiaStop(self):
         self._setEnd(None)
@@ -789,7 +802,7 @@ class TransformRecognizer(Recognizer):
         return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
 
     def __isFiltered(self):
-        return TransformRecognizer.lowpassConfig["mincutoff"] != None
+        return TransformRecognizer.FILTER_MIN_CUTOFF != None
 
     def __abort(self):
         if self.__frameHandlerID:
@@ -865,3 +878,19 @@ class InertiaHandler(object):
         self.__stopHandler()
         self.__stopHandler = None
         self.__moveHandler = None
+
+    
+def initConfig():
+    TransformRecognizer.FILTER_MIN_CUTOFF = float(
+            player.getConfigOption("gesture", "filtermincutoff"))
+    TransformRecognizer.FILTER_BETA = float(
+            player.getConfigOption("gesture", "filterbeta"))
+    TapRecognizer.MAX_TAP_DIST = float(player.getConfigOption("gesture", "maxtapdist"))
+    DoubletapRecognizer.MAX_DOUBLETAP_TIME = float(
+            player.getConfigOption("gesture", "maxdoubletaptime"))
+    DragRecognizer.MIN_DRAG_DIST = float(player.getConfigOption("gesture", "mindragdist"))
+    DragRecognizer.FRICTION = float(player.getConfigOption("gesture", "friction"))
+    HoldRecognizer.HOLD_DELAY = float(player.getConfigOption("gesture", "holddelay"))
+
+
+initConfig()

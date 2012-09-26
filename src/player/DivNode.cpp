@@ -41,18 +41,18 @@ using namespace boost;
 namespace avg {
 
 
-NodeDefinition DivNode::createDefinition()
+void DivNode::registerType()
 {
     string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
             "panoimage", "sound", "line", "rect", "curve", "polyline", "polygon",
             "circle", "mesh"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
-    return NodeDefinition("div", Node::buildNode<DivNode>)
-        .extendDefinition(AreaNode::createDefinition())
+    NodeDefinition def = NodeDefinition("div", "areanode", Node::buildNode<DivNode>)
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 DivNode::DivNode(const ArgList& args)
@@ -263,6 +263,7 @@ const UTF8String& DivNode::getMediaDir() const
 
 void DivNode::setMediaDir(const UTF8String& sMediaDir)
 {
+    AVG_DEPRECATION_WARNING("1.7", "DivNode.mediadir", "");
     m_sMediaDir = sMediaDir;
     checkReload();
 }

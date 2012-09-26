@@ -21,14 +21,13 @@
 
 #include "Timeout.h"
 
+#include "BoostPython.h"
+
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
-#include "BoostPython.h"
-
 #include <iostream>
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
@@ -75,7 +74,7 @@ void Timeout::fire(long long curTime)
     // by a call to clearTimeout()!
     Py_DECREF(arglist);    
     if (!result) {
-        throw error_already_set();
+        throw py::error_already_set();
     }
     Py_DECREF(result);
 }

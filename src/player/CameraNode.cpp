@@ -46,10 +46,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition CameraNode::createDefinition()
+void CameraNode::registerType()
 {
-    return NodeDefinition("camera", Node::buildNode<CameraNode>)
-        .extendDefinition(RasterNode::createDefinition())
+    NodeDefinition def = NodeDefinition("camera", "rasternode", 
+            Node::buildNode<CameraNode>)
         .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
         .addArg(Arg<int>("unit", -1))
@@ -66,6 +66,7 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<int>("shutter", -1))
         .addArg(Arg<int>("gain", -1))
         .addArg(Arg<int>("strobeduration", -1));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 CameraNode::CameraNode(const ArgList& args)

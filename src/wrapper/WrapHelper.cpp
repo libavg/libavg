@@ -24,6 +24,8 @@
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
 
+#include "../player/PublisherDefinitionRegistry.h"
+
 #include <boost/version.hpp>
 
 using namespace avg;
@@ -336,6 +338,18 @@ struct UTF8String_from_string
         data->convertible = storage;
     }
 };
+
+void exportMessages(object& nodeClass, const string& sClassName)
+{
+    PublisherDefinitionPtr pPubDef = PublisherDefinitionRegistry::get()
+            ->getDefinition(sClassName);
+    const vector<MessageID>& messageIDs = pPubDef->getMessageIDs();
+    for (unsigned i=0; i<messageIDs.size(); ++i) {
+        string sName = messageIDs[i].m_sName;
+        nodeClass.attr(sName.c_str()) = messageIDs[i];
+    }
+}
+
 
 void export_base()
 {

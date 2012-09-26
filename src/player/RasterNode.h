@@ -51,7 +51,7 @@ typedef std::vector<std::vector<glm::vec2> > VertexGrid;
 class AVG_API RasterNode: public AreaNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         virtual ~RasterNode ();
         virtual void connectDisplay();

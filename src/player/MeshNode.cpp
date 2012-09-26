@@ -32,18 +32,17 @@
 #include <iostream>
 
 using namespace std;
-using namespace boost::python;
 
 namespace avg {
 
-NodeDefinition MeshNode::createDefinition()
+void MeshNode::registerType()
 {
     vector<glm::vec2> vVert;
     vector<glm::vec2> vTex;
     vector<glm::ivec3> vTriangle;
 
-    return NodeDefinition("mesh", (NodeBuilder)MeshNode::buildNode<MeshNode>)
-        .extendDefinition(VectorNode::createDefinition())
+    NodeDefinition def = NodeDefinition("mesh", "vectornode", 
+            (NodeBuilder)MeshNode::buildNode<MeshNode>)
         .addArg(Arg<vector<glm::vec2> >("vertexcoords", vVert, false, 
                 offsetof(MeshNode, m_VertexCoords)))
         .addArg(Arg<vector<glm::vec2> >("texcoords", vTex, false, 
@@ -51,6 +50,7 @@ NodeDefinition MeshNode::createDefinition()
         .addArg(Arg<vector<glm::ivec3> >("triangles", vTriangle, false, 
                 offsetof(MeshNode, m_Triangles)))
         ;
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 MeshNode::MeshNode(const ArgList& args)

@@ -73,7 +73,7 @@ string PluginManager::getSearchPath() const
     return m_sCurrentSearchPath;
 }
     
-boost::python::object PluginManager::loadPlugin(const std::string& sPluginName)
+py::object PluginManager::loadPlugin(const std::string& sPluginName)
 {
     // is it loaded aready?
     PluginMap::iterator i = m_LoadedPlugins.find(sPluginName);
@@ -89,7 +89,7 @@ boost::python::object PluginManager::loadPlugin(const std::string& sPluginName)
         ++referenceCount;
         m_LoadedPlugins[sPluginName] = make_pair(i->second.first, referenceCount);
     }
-    boost::python::object sysModule(boost::python::handle<>(PyImport_ImportModule("sys")));
+    py::object sysModule(py::handle<>(PyImport_ImportModule("sys")));
     return sysModule.attr("modules")[sPluginName];
 }
 

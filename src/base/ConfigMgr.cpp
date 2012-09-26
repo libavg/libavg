@@ -84,6 +84,15 @@ ConfigMgr::ConfigMgr()
     addOption("aud", "samplerate", "44100");
     addOption("aud", "outputbuffersamples", "1024");
 
+    addSubsys("gesture");
+    addOption("gesture", "maxtapdist", "15");
+    addOption("gesture", "maxdoubletaptime", "300");
+    addOption("gesture", "mindragdist", "5");
+    addOption("gesture", "holddelay", "500");
+    addOption("gesture", "filtermincutoff", "0.1");
+    addOption("gesture", "filterbeta", "0.03");
+    addOption("gesture", "friction", "0.01");
+
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
     char * pHome = getenv("HOME");
@@ -143,7 +152,7 @@ bool ConfigMgr::getBoolOption(const string& sSubsys,
         return false;
     } else {
         AVG_TRACE(Logger::ERROR, 
-                m_sFName << ": Unrecognized value for option "<<sName<<": " 
+                m_sFName << ": Unrecognized value for option " << sName << ": " 
                 << *psOption << ". Must be true or false. Aborting.");
         exit(-1);
     }

@@ -182,7 +182,7 @@ class PlayerTestCase(AVGTestCase):
         
         def sendEvent(type, x, y):
             Helper = player.getTestHelper()
-            if type == avg.CURSORUP:
+            if type == avg.Event.CURSOR_UP:
                 button = False
             else:
                 button = True
@@ -195,18 +195,18 @@ class PlayerTestCase(AVGTestCase):
            
         self.__initDefaultRotateScene()
         player.getElementByID("outer").setEventHandler(
-                avg.CURSORDOWN, avg.MOUSE, onOuterDown) 
+                avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onOuterDown) 
         self.onOuterDownCalled = False
         self.start(False,
                 (lambda: self.compareImage("testRotate1"),
                  testCoordConversions,
                  fakeRotate,
                  lambda: self.compareImage("testRotate1a"),
-                 lambda: sendEvent(avg.CURSORDOWN, 85, 70),
-                 lambda: sendEvent(avg.CURSORUP, 85, 70),
+                 lambda: sendEvent(avg.Event.CURSOR_DOWN, 85, 70),
+                 lambda: sendEvent(avg.Event.CURSOR_UP, 85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
-                 lambda: sendEvent(avg.CURSORDOWN, 85, 75),
-                 lambda: sendEvent(avg.CURSORUP, 85, 75),
+                 lambda: sendEvent(avg.Event.CURSOR_DOWN, 85, 75),
+                 lambda: sendEvent(avg.Event.CURSOR_UP, 85, 75),
                  lambda: self.assert_(self.onOuterDownCalled),
                  disableCrop,
                  lambda: self.compareImage("testRotate1b"),
@@ -619,9 +619,9 @@ class PlayerTestCase(AVGTestCase):
         def pressEscape():
             Helper = player.getTestHelper()
             escape = 27
-            Helper.fakeKeyEvent(avg.KEYDOWN, escape, escape, "escape", escape, 
+            Helper.fakeKeyEvent(avg.Event.KEY_DOWN, escape, escape, "escape", escape, 
                     avg.KEYMOD_NONE),
-            Helper.fakeKeyEvent(avg.KEYUP, escape, escape, "escape", escape, 
+            Helper.fakeKeyEvent(avg.Event.KEY_UP, escape, escape, "escape", escape, 
                     avg.KEYMOD_NONE),
         
         def testEscape1():
@@ -653,6 +653,12 @@ class PlayerTestCase(AVGTestCase):
                 (testEscape3, # this should exit the player
                  lambda: self.fail(),
                 ))
+
+    def testGetConfigOption(self):
+        self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
+        self.assertException(lambda: player.getConfigOption("scr", "illegalOption"))
+        self.assertException(lambda:
+                player.getConfigOption("illegalGroup", "illegalOption"))
 
     # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):
@@ -763,6 +769,7 @@ def playerTestSuite(tests):
             "testStopOnEscape",
             "testScreenDimensions",
             "testSVG",
+            "testGetConfigOption",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

@@ -22,6 +22,8 @@
 #ifndef _Contact_H_
 #define _Contact_H_
 
+#include "Publisher.h"
+
 #include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
@@ -41,10 +43,10 @@ class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
-//typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
-class AVG_API Contact: public boost::enable_shared_from_this<Contact> {
+class AVG_API Contact: public Publisher {
 public:
+    static void registerType();
     Contact(CursorEventPtr pEvent);
     virtual ~Contact();
 
@@ -59,7 +61,6 @@ public:
     std::vector<CursorEventPtr> getEvents() const;
 
     void addEvent(CursorEventPtr pEvent);
-    bool hasListeners() const;
     void sendEventToListeners(CursorEventPtr pCursorEvent);
 
     int getID() const;

@@ -25,6 +25,7 @@ import unittest
 import sys
 import os
 import math
+from sets import Set
 
 from libavg import avg, player
 
@@ -179,8 +180,8 @@ class AVGTestCase(unittest.TestCase):
 
     def fakeClick(self, x, y):
         helper = player.getTestHelper()
-        helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, x, y, 1)
-        helper.fakeMouseEvent(avg.CURSORUP, False, False, False, x, y, 1)
+        helper.fakeMouseEvent(avg.Event.CURSOR_DOWN, True, False, False, x, y, 1)
+        helper.fakeMouseEvent(avg.Event.CURSOR_UP, False, False, False, x, y, 1)
 
     def skip(self, message):
         sys.stderr.write("skipping: " + str(message) + " ... ")
@@ -191,7 +192,7 @@ class AVGTestCase(unittest.TestCase):
 
     def _sendMouseEvent(self, type, x, y):
         helper = player.getTestHelper()
-        if type == avg.CURSORUP:
+        if type == avg.Event.CURSOR_UP:
             button = False
         else:
             button = True
@@ -199,13 +200,19 @@ class AVGTestCase(unittest.TestCase):
 
     def _sendTouchEvent(self, id, type, x, y):
         helper = player.getTestHelper()
-        helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+        helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x, y))
       
     def _sendTouchEvents(self, eventData):
         helper = player.getTestHelper()
         for (id, type, x, y) in eventData:
-            helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+            helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x, y))
 
+    def _genMouseEventFrames(self, type, x, y, expectedEvents):
+        return [
+                 lambda: self._sendMouseEvent(type, x, y),
+                 lambda: self.messageTester.assertState(expectedEvents),
+                 self.messageTester.reset,
+                ]
 
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
@@ -267,41 +274,71 @@ class NodeHandlerTester(object):
         self.__touchDownCalled=False
 
     def setHandlers(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown) 
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp) 
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver) 
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut) 
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMove) 
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown) 
+        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, self.__onDown) 
+        self.__node.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, self.__onUp) 
+        self.__node.setEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, self.__onOver) 
+        self.__node.setEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, self.__onOut) 
+        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, 
+                self.__onMove) 
+        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, 
+                self.__onTouchDown)
 
     def clearHandlers(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, None) 
+        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, None) 
+        self.__node.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, None) 
+        self.__node.setEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, None) 
+        self.__node.setEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, None) 
+        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, None) 
+        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, None) 
 
     def __onDown(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORDOWN)
+        self.__testCase.assert_(Event.type == avg.Event.CURSOR_DOWN)
         self.__downCalled = True
     
     def __onUp(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORUP)
+        self.__testCase.assert_(Event.type == avg.Event.CURSOR_UP)
         self.__upCalled = True
 
     def __onOver(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSOROVER)
+        self.__testCase.assert_(Event.type == avg.Event.CURSOR_OVER)
         self.__overCalled = True
     
     def __onOut(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSOROUT)
+        self.__testCase.assert_(Event.type == avg.Event.CURSOR_OUT)
         self.__outCalled = True
     
     def __onMove(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORMOTION)
+        self.__testCase.assert_(Event.type == avg.Event.CURSOR_MOTION)
         self.__moveCalled = True
     
     def __onTouchDown(self, Event):
         self.__touchDownCalled = True
+
+
+class MessageTester(object):
+
+    def __init__(self, publisher, messageIDs, testCase=None):
+        for messageID in messageIDs:
+            publisher.subscribe(messageID, 
+                    lambda messageID=messageID: self.setMessageReceived(messageID))
+        self.__messagesReceived = Set()
+        self.__testCase = testCase
+
+    def assertState(self, expectedMessages):
+        self.__testCase.assert_(self.isState(expectedMessages))
+
+    def isState(self, expectedMessages):
+        expectedMessages = Set(expectedMessages)
+        if expectedMessages != self.__messagesReceived:
+            sys.stderr.write("\nState expected: "+str(expectedMessages)+"\n")
+            sys.stderr.write("Actual state: "+str(self.__messagesReceived)+"\n")
+            return False
+        else:
+            return True
+
+    def setMessageReceived(self, messageID):
+        self.__messagesReceived.add(messageID)
+
+    def reset(self):
+        self.__messagesReceived = Set()
 

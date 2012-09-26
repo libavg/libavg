@@ -14,4 +14,20 @@
     <samplerate>44100</samplerate>
     <outputbuffersamples>1024</outputbuffersamples>
   </aud>
+  <gesture>
+    <!-- Maximum duration of one phase of a doubletap in milliseconds. -->
+    <maxdoubletaptime>300</maxdoubletaptime> 
+    <!-- Max finger movement in millimeters for tap, doubletap and hold gestures. -->
+    <maxtapdist>15</maxtapdist>
+    <!-- Min. finger movement in millimeters for a drag. -->
+    <mindragdist>5</mindragdist>
+    <!-- Min. time in milliseconds for a hold gesture. -->
+    <holddelay>900</holddelay>
+    <!-- The following two parameters configure the jitter filter for transform 
+         gestures. Use avg_jitterfilter.py to find correct values for your hardware. -->
+    <filtermincutoff>0.1</filtermincutoff>
+    <filterbeta>0.03</filterbeta>
+    <!-- Friction for drag and transform gestures with inertia. -1 means no friction. -->
+    <friction>0.01</friction>
+  </gesture>
 </avgrc>  

@@ -39,22 +39,25 @@ namespace avg {
 class AVG_API NodeRegistry
 {
 public:
-    NodeRegistry();
     virtual ~NodeRegistry();
+    static NodeRegistry* get();
     
-    void registerNodeType(const NodeDefinition& def);
+    void registerNodeType(const NodeDefinition& def, const char* pParentNames[] = 0);
     void updateNodeDefinition(const NodeDefinition& def);
     const NodeDefinition& getNodeDef(const std::string& Type);
     NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
+    NodePtr createNode(const std::string& Type, const py::dict& PyDict);
     
     std::string getDTD() const;
     
 private:
+    NodeRegistry();
     void writeNodeDTD(const NodeDefinition& def, std::stringstream& ss) const;
     
     typedef std::map<std::string, NodeDefinition> NodeDefMap;
     NodeDefMap m_NodeDefs;
+
+    static NodeRegistry* s_pInstance;
 };
 
 }

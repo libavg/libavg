@@ -30,14 +30,14 @@ class TapButton(gestures.TextRect):
                     possibleHandler=self._onPossible, detectedHandler=self._onDetected,
                     failHandler=self._onFail)
 
-    def _onPossible(self, event):
+    def _onPossible(self):
         self.rect.fillcolor = "FFFFFF"
 
-    def _onDetected(self, event):
+    def _onDetected(self):
         self.rect.fillcolor = "000000"
         self.rect.color = "00FF00"
 
-    def _onFail(self, event):
+    def _onFail(self):
         self.rect.fillcolor = "000000"
         self.rect.color = "FF0000"
 
@@ -46,17 +46,17 @@ class AbortButton(TapButton):
     def __init__(self, text, **kwargs):
         super(AbortButton, self).__init__(text, **kwargs)
 
-    def _onPossible(self, event):
-        super(AbortButton, self)._onPossible(event)
+    def _onPossible(self):
+        super(AbortButton, self)._onPossible()
         self.words.color = "000000"
 
-    def _onDetected(self, event):
-        super(AbortButton, self)._onDetected(event)
+    def _onDetected(self):
+        super(AbortButton, self)._onDetected()
         abortAll()
         self.words.color = "FFFFFF"
 
-    def _onFail(self, event):
-        super(AbortButton, self)._onFail(event)
+    def _onFail(self):
+        super(AbortButton, self)._onFail()
         self.words.color = "FFFFFF"
 
 
@@ -74,8 +74,8 @@ class EnableButton(TapButton):
             self.words.text = "Enable all"
             self.words.color = "00FF00"
 
-    def _onDetected(self, event):
-        super(EnableButton, self)._onDetected(event)
+    def _onDetected(self):
+        super(EnableButton, self)._onDetected()
         switchNodesEnabled()
         self.changeText()
 

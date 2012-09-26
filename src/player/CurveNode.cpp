@@ -37,16 +37,16 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition CurveNode::createDefinition()
+void CurveNode::registerType()
 {
-    return NodeDefinition("curve", Node::buildNode<CurveNode>)
-        .extendDefinition(VectorNode::createDefinition())
+    NodeDefinition def = NodeDefinition("curve", "vectornode", Node::buildNode<CurveNode>)
         .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(CurveNode, m_P1)))
         .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(CurveNode, m_P2)))
         .addArg(Arg<glm::vec2>("pos3", glm::vec2(0,0), false, offsetof(CurveNode, m_P3)))
         .addArg(Arg<glm::vec2>("pos4", glm::vec2(0,0), false, offsetof(CurveNode, m_P4)))
         .addArg(Arg<float>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
         .addArg(Arg<float>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
+    NodeRegistry::get()->registerNodeType(def);
 }
 
 CurveNode::CurveNode(const ArgList& args)

@@ -168,11 +168,11 @@ void TUIOInputDevice::processSet(ReceivedMessageArgumentStream& args)
     if (!pTouchStatus) {
         // Down
         m_LastID++;
-        TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos, speed); 
+        TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSOR_DOWN, pos, speed); 
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
-        TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos, speed); 
+        TouchEventPtr pEvent = createEvent(0, Event::CURSOR_MOTION, pos, speed); 
         pTouchStatus->pushEvent(pEvent);
     }
 }
@@ -195,7 +195,7 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
         TouchStatusPtr pTouchStatus = getTouchStatus(id);
         TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
         TouchEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
-                pOldEvent->cloneAs(Event::CURSORUP));
+                pOldEvent->cloneAs(Event::CURSOR_UP));
         pTouchStatus->pushEvent(pUpEvent);
         removeTouchStatus(id);
     }

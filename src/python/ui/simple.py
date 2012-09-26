@@ -19,74 +19,7 @@
 # Current versions can be found at www.libavg.de
 
 from libavg import avg
-from libavg.ui import button
-
-class Slider(avg.DivNode):
-    def __init__(self, width, min, max, onChange, parent=None, **kwargs):
-        super(Slider, self).__init__(**kwargs)
-        self.registerInstance(self, parent)
-        
-        self.__onChange = onChange
-        self.size = (width, 20)
-        self.__min = min
-        self.__max = max
-        self.__val = min
-        avg.LineNode(pos1=(7,14), pos2=(width-7,14), color="FFFFFF", strokewidth=2, 
-                parent=self)
-        self.__slider = avg.DivNode(pos=(0,0), size=(14,20), parent=self)
-        avg.PolygonNode(pos=((1,0), (13,0), (7,18)), fillopacity=1, fillcolor="FFFFFF",
-                color="808080", parent=self.__slider)
-        self.__slider.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
-                self.__onSliderDown)
-        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onBarDown)
-        self.__isDragging = False
-
-    def getVal(self):
-        return self.__val
-
-    def setVal(self, val):
-        self.__val = val
-        self.__positionSlider()
-
-    val = property(getVal, setVal)
-
-    def __onSliderDown(self, event):
-        self.__slider.setEventCapture()
-        self.__slider.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onSliderMove)
-        self.__slider.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onSliderUp)
-        self.__sliderDownPos = event.pos
-        self.__isDragging = True
-        self.__dragStartVal = self.__val
-
-    def __onSliderMove(self, event):
-        numPixelsMoved = float(event.pos.x-self.__sliderDownPos.x)
-        self.__val = (self.__dragStartVal+numPixelsMoved/(self.size.x-14)
-                *(self.__max-self.__min))
-        self.__positionSlider()
-
-    def __onSliderUp(self, event):
-        self.__onSliderMove(event)
-        self.__slider.releaseEventCapture()
-        self.__slider.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None)
-        self.__slider.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
-        self.__isDragging = False
-
-    def __onBarDown(self, event):
-        if not(self.__isDragging):
-            localPos = self.getRelPos(event.pos)
-            ratio = (localPos.x-7)/(self.size.x-14)
-            self.__val = self.__min+ratio*(self.__max-self.__min)
-            print localPos, ", ", ratio, ", ", self.__val
-            self.__positionSlider()
-
-    def __positionSlider(self):
-        if self.__val < self.__min:
-            self.__val = self.__min
-        elif self.__val > self.__max:
-            self.__val = self.__max
-        ratio = (float(self.__val-self.__min)/(self.__max-self.__min))
-        self.__slider.pos = (ratio*(self.size.x-14), 0)
-        self.__onChange()
+from libavg.ui import button, slider, scrollarea
 
 
 class TextButton(button.Button):
@@ -104,3 +37,215 @@ class TextButton(button.Button):
         kwargs["downNode"] = downNode
         super(TextButton, self).__init__(**kwargs)
 
+
+class CheckBox(button.ToggleButton):
+
+    UP = 0
+    DOWN = 1
+    DISABLED = 2
+
+    def __init__(self, text, **kwargs):
+        uncheckedUpNode = self.__createNode(CheckBox.UP, checked=False)
+        uncheckedDownNode = self.__createNode(CheckBox.DOWN, checked=False)
+        checkedUpNode = self.__createNode(CheckBox.UP, checked=True)
+        checkedDownNode = self.__createNode(CheckBox.DOWN, checked=True)
+        uncheckedDisabledNode = self.__createNode(CheckBox.DISABLED, checked=False)
+        checkedDisabledNode = self.__createNode(CheckBox.DISABLED, checked=True)
+
+        super(CheckBox, self).__init__(uncheckedUpNode, uncheckedDownNode, checkedUpNode,
+                checkedDownNode, uncheckedDisabledNode, checkedDisabledNode,
+                **kwargs)
+
+        self._textNode = avg.WordsNode(pos=(19,0), text=text, parent=self)
+        self.__oldEnabled = self.enabled
+
+    def __createNode(self, state, checked):
+        if state == CheckBox.UP:
+            color = "FFFFFF"
+            fillcolor="000000"
+        elif state == CheckBox.DOWN:
+            color = "FFFFFF"
+            fillcolor = "808080"
+        elif state == CheckBox.DISABLED:
+            color = "808080"
+            fillcolor = "404040"
+
+        node = avg.DivNode(size=(15,15))
+        avg.RectNode(pos=(0.5,0.5), size=(14,14), color=color, fillcolor=fillcolor, 
+                fillopacity=1, parent=node)
+
+        if checked:
+            avg.LineNode(pos1=(2.5,2.5), pos2=(12.5,12.5), color=color, parent=node)
+            avg.LineNode(pos1=(2.5,12.5), pos2=(12.5,2.5), color=color, parent=node)
+
+        return node
+
+    def _enterUncheckedUp(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterUncheckedUp()
+
+    def _enterUncheckedDown(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterUncheckedDown()
+
+    def _enterCheckedUp(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterCheckedUp()
+
+    def _enterCheckedDown(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterCheckedDown()
+
+    def _enterUncheckedDisabled(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterUncheckedDisabled()
+
+    def _enterCheckedDisabled(self):
+        self.__checkEnabledChange()
+        super(CheckBox, self)._enterCheckedDisabled()
+
+    def __checkEnabledChange(self):
+        if self.__oldEnabled != self.enabled:
+            if self.enabled:
+                self._textNode.color = "FFFFFF"
+            else:
+                self._textNode.color = "808080"
+            self.__oldEnabled = self.enabled
+
+
+class SliderTrack(button.SwitchNode):
+    def __init__(self, margin=(0,0), orientation=slider.Orientation.HORIZONTAL,
+            sensitive=True, **kwargs):
+        self.__margin = avg.Point2D(margin)
+        self.__orientation = orientation
+        style = avg.Style(pos=(0.5,0.5), fillopacity=1)
+        if sensitive:
+            self.__enabledNode = avg.RectNode(fillcolor="000000", color="FFFFFF",
+                    style=style)
+        else:
+            self.__enabledNode = avg.RectNode(fillcolor="404040", strokewidth=0,
+                    style=style)
+        self.__disabledNode = avg.RectNode(fillcolor="000000", color="808080",
+                style=style)
+        nodeMap = {
+            "ENABLED": self.__enabledNode,
+            "DISABLED": self.__disabledNode
+        }
+        super(SliderTrack, self).__init__(nodeMap=nodeMap, visibleid="ENABLED", 
+                sensitive=sensitive, **kwargs)
+        self.pos = self.__margin
+        self.size -= 2*self.__margin
+
+    def getSize(self):
+        return self.__baseSize + 2*self.__margin
+
+    def setSize(self, size):
+        self.__baseSize = size - 2*self.__margin
+    __baseSize = button.SwitchNode.size
+    size = property(getSize, setSize)   
+
+
+class Slider(slider.Slider):
+    
+    class Thumb(button.SwitchNode):
+
+        def __init__(self, orientation, **kwargs):
+            if orientation == slider.Orientation.HORIZONTAL:
+                pos=((1,0), (13,0), (7,18))
+                size=(14,20)
+            else:
+                pos=((18,1), (18,13), (1,7))
+                size=(20,14)
+            
+            style = avg.Style(pos=pos, fillopacity=1)
+            self.__upNode = avg.PolygonNode(fillcolor="808080", color="FFFFFF",
+                    style=style)
+            self.__downNode = avg.PolygonNode(fillcolor="C0C0C0", color="FFFFFF",
+                    style=style)
+            self.__disabledNode = avg.PolygonNode(fillcolor="404040", color="808080",
+                    style=style)
+            nodeMap = {
+                "UP": self.__upNode,
+                "DOWN": self.__downNode,
+                "DISABLED": self.__disabledNode
+            }
+            super(Slider.Thumb, self).__init__(
+                    nodeMap=nodeMap, visibleid="UP", size=size, **kwargs)
+
+    def __init__(self, orientation=slider.Orientation.HORIZONTAL, **kwargs):
+        
+        if orientation == slider.Orientation.HORIZONTAL:
+            trackMargin = (7, 8)
+        else:
+            trackMargin = (8, 7)
+        trackNode = SliderTrack(margin=trackMargin, size=kwargs["size"],
+                orientation=orientation)
+        thumbNode = Slider.Thumb(orientation)
+
+        super(Slider, self).__init__(orientation=orientation, trackNode=trackNode,
+                thumbNode=thumbNode, **kwargs)
+
+
+class ScrollBar(slider.ScrollBar):
+
+    class Thumb(button.SwitchNode):
+        def __init__(self, size, orientation, **kwargs):
+            self.__orientation = orientation
+            style = avg.Style(pos=(1.5,1.5), fillopacity=1)
+            self.__upNode = avg.RectNode(fillcolor="808080", color="808080", style=style)
+            self.__downNode = avg.RectNode(fillcolor="C0C0C0", color="C0C0C0", 
+                    style=style)
+            self.__disabledNode = avg.RectNode(fillcolor="404040", color="404040",
+                    style=style)
+            nodeMap = {
+                "UP": self.__upNode,
+                "DOWN": self.__downNode,
+                "DISABLED": self.__disabledNode
+            }
+            super(ScrollBar.Thumb, self).__init__(
+                    nodeMap=nodeMap, visibleid="UP", size=size, **kwargs)
+            self.setWidth(size[0])
+            self.setHeight(size[1])
+        
+        def getWidth(self):
+            return self.__baseWidth+2
+
+        def setWidth(self, width):
+            self.__baseWidth = max(width-2, 0)
+
+        __baseWidth = button.SwitchNode.width
+        width = property(getWidth, setWidth)
+
+        def getHeight(self):
+            return self.__baseHeight+2
+
+        def setHeight(self, height):
+            self.__baseHeight = max(height-2, 0)
+
+        __baseHeight = button.SwitchNode.height
+        height = property(getHeight, setHeight)
+
+    def __init__(self, size=(15,15), orientation=slider.Orientation.HORIZONTAL, 
+            sensitive=True, **kwargs):
+        trackNode = SliderTrack(size=size, orientation=orientation, sensitive=sensitive)
+        thumbNode = ScrollBar.Thumb(size=size, orientation=orientation)
+
+        super(ScrollBar, self).__init__(orientation=orientation, trackNode=trackNode,
+                thumbNode=thumbNode, size=size, sensitive=sensitive, **kwargs)
+
+
+class ScrollArea(scrollarea.ScrollArea):
+    
+    def __init__(self, contentNode, sensitiveScrollBars=True, parent=None, **kwargs):
+        if sensitiveScrollBars:
+            hScrollBar = ScrollBar(orientation=slider.Orientation.HORIZONTAL)
+            vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL)
+        else:
+            hScrollBar = ScrollBar(orientation=slider.Orientation.HORIZONTAL, size=(3,3),
+                    sensitive=False)
+            vScrollBar = ScrollBar(orientation=slider.Orientation.VERTICAL, size=(3,3),
+                    sensitive=False)
+
+        super(ScrollArea, self).__init__(contentNode=contentNode, hScrollBar=hScrollBar,
+                vScrollBar=vScrollBar, **kwargs)
+        self.registerInstance(self, parent)

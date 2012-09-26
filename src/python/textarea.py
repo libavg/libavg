@@ -253,8 +253,8 @@ class TextArea(avg.DivNode):
             self.appendChild(textBackgroundNode)
 
         if not disableMouseFocus:
-            self.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
-            self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
+            self.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, self.__onClick)
+            self.setEventHandler(avg.Event.CURSOR_UP, avg.Event.TOUCH, self.__onClick)
 
         self.appendChild(textNode)
 
@@ -281,7 +281,7 @@ class TextArea(avg.DivNode):
         self.__lastActivity = 0
 
         if moveCoursorOnTouch:
-            self.__recognizer = ui.DragRecognizer(eventNode=self,
+            self.__recognizer = ui.DragRecognizer(eventNode=self, friction=-1,
                     moveHandler=self.__moveHandler, detectedHandler=self.__detectedHandler,
                     upHandler=self.__upHandler)
             self.__loupeZoomFactor = 0.5
@@ -653,16 +653,18 @@ class TextArea(avg.DivNode):
             if self.__loupe:
                 self.__loupeCursorContainer.opacity = 1
 
-    def __moveHandler(self, event, offset):
+    def __moveHandler(self, offset):
         self.__addLoupe()
+        event = player.getCurrentEvent()
         eventPos = self.getRelPos(event.pos)
         if ( (eventPos[0] >= -1 and eventPos[0] <= self.size[0]) and
                 (eventPos[1] >= 0 and eventPos[1] <= self.size[1]) ):
             self.__updateCursorPosition(event)
         else:
-            self.__upHandler(None,None)
+            self.__upHandler(None)
 
-    def __detectedHandler(self, event):
+    def __detectedHandler(self):
+        event = player.getCurrentEvent()
         self.__updateCursorPosition(event)
         self.__timerID = player.setTimeout(1000, self.__addLoupe)
 
@@ -670,7 +672,7 @@ class TextArea(avg.DivNode):
         if not self.__loupe.getParent():
             self.appendChild(self.__loupe)
 
-    def __upHandler (self, event, offset):
+    def __upHandler (self, offset):
         player.clearInterval(self.__timerID)
         if self.__loupe.getParent():
             self.__loupe.unlink()
@@ -714,7 +716,8 @@ class TextArea(avg.DivNode):
                                     targetLine = (curLine[0] - 1, curLine[1] * line)
                             else:
                                 targetLine = (curLine[0] - 1, curLine[1] * line)
-                            index = self.__textNode.getCharIndexFromPos(targetLine) + correction
+                            index = (self.__textNode.getCharIndexFromPos(targetLine) 
+                                    + correction)
                         else: # empty line
                             count = 0
                             for char in range(length-1):
@@ -770,8 +773,8 @@ def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     player.setOnFrameHandler(_onFrame)
 
     if catchKeyboard:
-        player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, _onKeyDown)
-        player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, _onKeyUp)
+        player.subscribe(avg.Player.KEY_DOWN, _onKeyDown)
+        player.subscribe(avg.Player.KEY_UP, _onKeyUp)
 
 def setActiveFocusContext(focusContext):
     """

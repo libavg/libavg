@@ -22,8 +22,6 @@
 
 import os
 
-import weakref, new
-
 from libavg import avg, mathutil, player
 
 
@@ -62,47 +60,4 @@ def initFXCache(numFXNodes):
         nodes.append(node)
     for node in nodes:
         node.unlink(True)
-
-class methodref(object):
-    # From Python Cookbook
-    """ Wraps any callable, most importantly a bound method, in a way that allows a bound
-        method's object to be GC'ed, while providing the same interface as a normal weak
-        reference."""
-    def __init__(self, fn):
-        try:
-            # Try getting object, function and class
-            o, f, c = fn.im_self, fn.im_func, fn.im_class
-        except AttributeError:
-            # It's not a bound method
-            self._obj = None
-            self._func = fn
-            self._clas = None
-            if fn:
-                self.__name__ =  fn.__name__
-            else:
-                self.__name__ = None
-        else:
-            # Bound method
-            if o is None:        # ... actually UN-bound
-                self._obj = None
-                self.__name__ =  f.__name__
-            else:
-                self._obj = weakref.ref(o)
-                self.__name__ =  fn.im_class.__name__ + "." + fn.__name__
-            self._func = f
-            self._clas = c
-
-    def __call__(self):
-        if self._obj is None:
-            return self._func
-        elif self._obj() is None:
-            return None
-        return new.instancemethod(self._func, self._obj(), self._clas)
-
-def callWeakRef(ref, *args, **kwargs):
-    func = ref()
-    if func is None:
-        return
-    else:
-        return func(*args, **kwargs)
 

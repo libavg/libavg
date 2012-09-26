@@ -99,6 +99,19 @@ Player & Canvas
         renderer. Player is a singleton. There is only one instance, accessed by 
         :py:attr:`avg.player`.
 
+        **Messages:**
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: KEYDOWN(keyEvent)
+            
+                Called whenever a key is pressed.
+            
+            .. py:method:: KEYUP(keyEvent)
+
+                Called whenever a key is released.
+
+
         .. py:attribute:: pluginPath
 
             A list of directories where the player searches for plugins when 

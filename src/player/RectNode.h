@@ -32,7 +32,7 @@ namespace avg {
 class AVG_API RectNode : public FilledVectorNode
 {
     public:
-        static NodeDefinition createDefinition();
+        static void registerType();
         
         RectNode(const ArgList& args);
         virtual ~RectNode();

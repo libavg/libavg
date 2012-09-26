@@ -24,6 +24,7 @@
 
 #include "../api.h"
 
+#include "Publisher.h"
 #include "Event.h"
 #include "Image.h"
 
@@ -34,13 +35,11 @@
 #include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include <string>
-#include <vector>
-
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
 #include <string>
+#include <vector>
 #include <list>
 #include <map>
 
@@ -67,12 +66,12 @@ typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 class Style;
 typedef boost::shared_ptr<Style> StylePtr;
 
-class AVG_API Node: public boost::enable_shared_from_this<Node>
+class AVG_API Node: public Publisher
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
-        
-        static NodeDefinition createDefinition();
+
+        static void registerType();
         template<class NodeType>
         static NodePtr buildNode(const ArgList& Args)
         {
@@ -151,7 +150,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
         virtual const NodeDefinition* getDefinition() const;
 
     protected:
-        Node();
+        Node(const std::string& sPublisherName="Node");
 
         bool reactsToMouseEvents();
             
@@ -196,7 +195,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         void connectOneEventHandler(const EventID& id, PyObject * pObj, PyObject * pFunc);
         void dumpEventHandlers();
-        PyObject * findPythonFunc(const std::string& sCode);
+        std::string getEventMessageID(const EventPtr& pEvent);
         bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
 
         EventHandlerMap m_EventHandlerMap;
