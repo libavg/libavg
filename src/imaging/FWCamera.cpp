@@ -439,7 +439,8 @@ void FWCamera::setStrobeDuration(int microsecs)
             int len = sizeof(regValues)/sizeof(*regValues);
             AVG_ASSERT(len == sizeof(realTimes)/sizeof(*realTimes));
             int i;
-            for (i = 1; realTimes[i] < targetMillisecs; ++i); 
+            for (i = 1; realTimes[i] < targetMillisecs; ++i) {
+            } 
             float ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
             durationRegValue = ratio*regValues[i-1]+(1-ratio)*regValues[i];
         } 
