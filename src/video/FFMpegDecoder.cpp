@@ -159,15 +159,20 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
 #endif
     if (err < 0) {
         m_sFilename = "";
+        m_pFormatContext = 0;
         avcodecError(sFilename, err);
     }
     
     err = av_find_stream_info(m_pFormatContext);
     if (err < 0) {
+        m_sFilename = "";
+        m_pFormatContext = 0;
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + ": Could not find codec parameters.");
     }
     if (strcmp(m_pFormatContext->iformat->name, "image2") == 0) {
+        m_sFilename = "";
+        m_pFormatContext = 0;
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + ": Image files not supported as videos.");
     }
