@@ -1797,17 +1797,6 @@ int Player::addTimeout(Timeout* pTimeout)
     return pTimeout->getID();
 }
 
-
-void Player::removeTimeout(Timeout* pTimeout)
-{
-    delete pTimeout;
-    vector<Timeout*>::iterator it = m_PendingTimeouts.begin();
-    while (*it != pTimeout) {
-        it++;
-    }
-    m_PendingTimeouts.erase(it);
-}
-
 void Player::setPluginPath(const string& newPath)
 {
     PluginManager::get().setSearchPath(newPath);

@@ -234,7 +234,6 @@ class AVG_API Player: public Publisher
         IInputDevicePtr m_pMultitouchInputDevice;
 
         int addTimeout(Timeout* pTimeout);
-        void removeTimeout(Timeout* pTimeout);
         void handleTimers();
         bool m_bInHandleTimers;
         bool m_bCurrentTimeoutDeleted;
