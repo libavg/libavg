@@ -22,7 +22,6 @@
 from libavg import avg, ui, player
 
 import math
-from sets import Set
 from testcase import *
 
 class GestureTestCase(AVGTestCase):

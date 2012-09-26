@@ -78,11 +78,18 @@ class ScrollPane(avg.DivNode):
 
 class ScrollArea(avg.DivNode):
 
+    PRESSED = avg.Publisher.genMessageID()
+    RELEASED = avg.Publisher.genMessageID()
+    CONTENT_POS_CHANGED = avg.Publisher.genMessageID()
+
     def __init__(self, contentNode, size, hScrollBar=None, vScrollBar=None, parent=None, 
             friction=None, **kwargs):
 
         super(ScrollArea, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+        self.publish(self.PRESSED)
+        self.publish(self.RELEASED)
+        self.publish(self.CONTENT_POS_CHANGED)
 
         self._hScrollBar = hScrollBar
         self._vScrollBar = vScrollBar
@@ -101,7 +108,7 @@ class ScrollArea(avg.DivNode):
                 eventNode=self.__scrollPane, 
                 detectedHandler=self.__onDragStart,
                 moveHandler=self.__onDragMove,
-                upHandler=self.__onDragMove,
+                upHandler=self.__onDragUp,
                 friction=friction
                 )
 
@@ -120,6 +127,7 @@ class ScrollArea(avg.DivNode):
         self.__scrollPane.contentpos = pos
         self.__positionNodes()
         self.__positionThumbs(avg.Point2D(pos))
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
     contentpos = property(getContentPos, setContentPos)
 
     def getSize(self):
@@ -133,17 +141,25 @@ class ScrollArea(avg.DivNode):
 
     def __onHThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (thumbPos, self.__scrollPane.contentpos.y)
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
 
     def __onVThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (self.__scrollPane.contentpos.x, thumbPos)
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
 
     def __onDragStart(self):
         self.__dragStartPos = self.__scrollPane.contentpos
+        self.notifySubscribers(self.PRESSED, [])
 
     def __onDragMove(self, offset):
         contentpos = self.__dragStartPos - offset
         self.__scrollPane.contentpos = contentpos
         self.__positionThumbs(contentpos)
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
+
+    def __onDragUp(self, offset):
+        self.__onDragMove(offset)
+        self.notifySubscribers(self.RELEASED, [])
 
     def __positionNodes(self):
         paneSize = self.__baseSize

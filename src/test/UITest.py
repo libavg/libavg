@@ -788,23 +788,30 @@ class UITestCase(AVGTestCase):
                     ))
 
     def testSimpleScrollArea(self):
+
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
         self.node = simple.ScrollArea(contentNode=image, size=(115,115),
-                parent=root)
+                friction=-1, parent=root)
+        self.messageTester = MessageTester(self.node, [self.node.PRESSED, 
+                self.node.RELEASED], self)
         player.setFakeFPS(10)
         self.start(False,
                 (lambda: self.compareImage("testSimpleScrollArea1"),
                  lambda: self.node.setContentSize((400,200)),
                  lambda: self.compareImage("testSimpleScrollArea2"),
                  lambda: self.node.setContentPos((200,100)),
+                 lambda: self.messageTester.assertState([]),
                  lambda: self.compareImage("testSimpleScrollArea3"),
                  lambda: self.node.setContentPos((0,0)),
                  # Scroll via gesture
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 90, 90),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 10, 90),
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 90, 90,
+                        [self.node.PRESSED,]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 10, 90,
+                        []),
                  lambda: self.compareImage("testSimpleScrollArea4"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10,
+                        [self.node.RELEASED,]),
                  lambda: self.compareImage("testSimpleScrollArea5"),
                  lambda: self.delay(1000), # Wait for end of inertia.
                  # Scroll using scroll bars
