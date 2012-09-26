@@ -62,7 +62,7 @@ class SimpleUIApp(AVGApp):
                     self.setImageHeight(scrollArea, thumbPos))
         self.controls.extend([scrollArea, imageWidthSlider, imageHeightSlider])
 
-    def onCheck(self, event, isChecked):
+    def onCheck(self, isChecked):
         for node in self.controls:
             node.enabled = not(isChecked)
 
