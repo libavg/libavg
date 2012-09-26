@@ -27,18 +27,22 @@ from libavg.ui import simple
 
 class ControlPoint(avg.DivNode):
 
-    def __init__(self, moveCallback, parent, *args, **kwargs):
+    def __init__(self, moveCallback, parent=None, *args, **kwargs):
         super(ControlPoint, self).__init__(**kwargs)
-        if parent:
-            parent.appendChild(self)
+        self.registerInstance(self, parent)
+        print self.pos, self.size
 
         self.__circle = avg.CircleNode(r=15, parent=self)
         self.__posText = avg.WordsNode(pos=(15,-15), parent=self)
         self.__updateLabel()
-        ui.DragRecognizer(eventNode=self, detectedHandler=self.__onDetected,
-                moveHandler=self.__onMove)
+        self.subscribe(self.CURSOR_DOWN, self.__onDown)
+        self.__recognizer = ui.DragRecognizer(eventNode=self, 
+                detectedHandler=self.__onDetected, moveHandler=self.__onMove)
         self.__moveCallback = moveCallback
-        
+    
+    def __onDown(self, event):
+        print "__onDown"
+
     def getPos(self):
         return self.__divPos
     
@@ -55,11 +59,11 @@ class ControlPoint(avg.DivNode):
         else:
             self.__circle.color = "FFFFFF"
         
-    def __onDetected(self, event):
+    def __onDetected(self):
         self.__dragStartPos = self.pos
         self.pos = self.__moveCallback(self)
         
-    def __onMove(self, event, offset):
+    def __onMove(self, offset):
         self.pos = self.__dragStartPos + offset
         self.pos = self.__moveCallback(self)
         self.__updateLabel()
@@ -74,12 +78,15 @@ class SplineEditor(AVGApp):
         global anchors
         self.__buttonDiv = avg.DivNode(pos=(630,20), parent=self._parentNode)
 
-        simple.TextButton(pos=(0,0), text="Add Point", size=(150,22), 
-                clickHandler=self.__onAddPoint, parent=self.__buttonDiv)
-        simple.TextButton(pos=(0,30), text="Delete Point", size=(150,22), 
-                clickHandler=self.__onDeletePoint, parent=self.__buttonDiv)
-        simple.TextButton(pos=(0,60), text="Dump to Console", size=(150,22), 
-                clickHandler=self.__onDump, parent=self.__buttonDiv)
+        button = simple.TextButton(pos=(0,0), text="Add Point", size=(150,22), 
+                parent=self.__buttonDiv)
+        button.subscribe(button.CLICKED, self.__onAddPoint)
+        button = simple.TextButton(pos=(0,30), text="Delete Point", size=(150,22), 
+                parent=self.__buttonDiv)
+        button.subscribe(button.CLICKED, self.__onDeletePoint)
+        button = simple.TextButton(pos=(0,60), text="Dump to Console", size=(150,22), 
+                parent=self.__buttonDiv)
+        button.subscribe(button.CLICKED, self.__onDump)
 
         self.__anchors = anchors
         self.__minY = 1e99
@@ -139,7 +146,7 @@ class SplineEditor(AVGApp):
             pts.append((x, y))
         self.__curve.pos = pts
 
-    def __onAddPoint(self, event):
+    def __onAddPoint(self):
         if self.__curCtlPt is not None:
             i = self.__curCtlPt
             if i == len(self.__anchors)-1:
@@ -151,7 +158,7 @@ class SplineEditor(AVGApp):
             self.__controlPoints.insert(i+1, controlPoint)
             self.__genCurve()
 
-    def __onDeletePoint(self, event):
+    def __onDeletePoint(self):
         i = self.__curCtlPt
         if i is not None and i != 0 and i != len(self.__anchors)-1:
             self.__anchors.pop(i)
@@ -160,7 +167,7 @@ class SplineEditor(AVGApp):
             self.__genCurve()
             self.__curCtlPt = None
     
-    def __onDump(self, event):
+    def __onDump(self):
         print "[",
         for anchor in self.__anchors:
             if anchor != self.__anchors[-1]:
@@ -220,7 +227,7 @@ if typeOk:
         typeOk = False
         
 if not(typeOk):
-    print "Can't parse anchor points. The points argument must be a quoted list of 2D coordinates."
+    print 'Can\'t parse anchor points. The points argument must be a quoted list of 2D coordinates (e.g. "[(0,1), (1,2)]").'
     print
     parser.print_help()
     exit(5)
