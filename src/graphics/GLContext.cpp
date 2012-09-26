@@ -365,14 +365,20 @@ void GLContext::init()
 {
     activate();
     glproc::init();
-    if (m_GLConfig.m_bUseDebugContext) {
-        glproc::DebugMessageCallback(debugLogCallback, 0);
-    }
 
+    if (m_GLConfig.m_bUseDebugContext) {
+        if (queryOGLExtension("GL_ARB_debug_output")) {
+            glproc::DebugMessageCallback(debugLogCallback, 0);
+        } else {
+            m_GLConfig.m_bUseDebugContext = false;
+        }
+    }
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
+    enableGLColorArray(false);
+    checkError("enableGLColorArray");
     setBlendMode(BLEND_BLEND, false);
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 

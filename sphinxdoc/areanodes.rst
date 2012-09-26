@@ -327,11 +327,11 @@ Area Nodes
 
     .. autoclass:: RasterNode([maxtilewidth, maxtileheight, blendmode, mipmap, maskhref, maskpos, masksize, gamma, contrast, intensity])
 
-        Base class for all nodes that have a direct 2d raster representation.
+        Base class for all nodes that have a direct 2D raster representation.
         This includes Image, Word, Camera, and Video nodes. The base class implements
         color controls (:py:attr:`contrast`, :py:attr:`intensity`, :py:attr:`gamma`),
         alpha masks (:py:attr:`maskhref`, :py:attr:`maskpos`, :py:attr:`masksize`), 
-        several blend modes that define how compositing is done and mipmapping suport.
+        several blend modes that define how compositing is done and mipmapping support.
 
         Any Raster Node can have a GPU-based effect added to it by using 
         :py:meth:`setEffect`.
