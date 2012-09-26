@@ -127,8 +127,8 @@ class ShowCamera(AVGApp):
         if not g_options.noinfo:
             self.infoText = ("Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f"
                     %self.optdict)
-            avg.WordsNode(text=self.infoText, color="ff3333", pos=(5,5), fontsize=14, rawtextmode=True,
-                    parent=player.getRootNode())
+            avg.WordsNode(text=self.infoText, color="ff3333", pos=(5,5), fontsize=14, 
+                    rawtextmode=True, parent=player.getRootNode())
             frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
                     parent=player.getRootNode())
             player.setOnFrameHandler(lambda:self.updateFrameDisplay(frameText))
