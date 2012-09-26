@@ -789,39 +789,48 @@ class UITestCase(AVGTestCase):
 
     def testSimpleScrollArea(self):
 
+        def onContentPosChanged(newPos):
+            self.messageTester.setMessageReceived(self.node.CONTENT_POS_CHANGED)
+
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
         self.node = simple.ScrollArea(contentNode=image, size=(115,115),
                 friction=-1, parent=root)
         self.messageTester = MessageTester(self.node, [self.node.PRESSED, 
                 self.node.RELEASED], self)
+        self.node.subscribe(self.node.CONTENT_POS_CHANGED, onContentPosChanged)
         player.setFakeFPS(10)
+
         self.start(False,
                 (lambda: self.compareImage("testSimpleScrollArea1"),
                  lambda: self.node.setContentSize((400,200)),
                  lambda: self.compareImage("testSimpleScrollArea2"),
                  lambda: self.node.setContentPos((200,100)),
-                 lambda: self.messageTester.assertState([]),
+                 lambda: self.messageTester.assertState([self.node.CONTENT_POS_CHANGED]),
                  lambda: self.compareImage("testSimpleScrollArea3"),
                  lambda: self.node.setContentPos((0,0)),
                  # Scroll via gesture
+                 self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 90, 90,
                         [self.node.PRESSED,]),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 10, 90,
-                        []),
+                        [self.node.CONTENT_POS_CHANGED]),
                  lambda: self.compareImage("testSimpleScrollArea4"),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10,
-                        [self.node.RELEASED,]),
+                        [self.node.RELEASED,self.node.CONTENT_POS_CHANGED]),
                  lambda: self.compareImage("testSimpleScrollArea5"),
                  lambda: self.delay(1000), # Wait for end of inertia.
-                 # Scroll using scroll bars
                  lambda: self.node.setContentPos((0,0)), 
+                 # Scroll using scroll bars
+                 self.messageTester.reset,
                  lambda: self.compareImage("testSimpleScrollArea2"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 110, 0),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 110, 50),
+                 lambda: self.messageTester.assertState([self.node.CONTENT_POS_CHANGED]),
                  lambda: self.compareImage("testSimpleScrollArea6"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 110),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 50, 110),
+                 lambda: self.messageTester.assertState([self.node.CONTENT_POS_CHANGED]),
                  lambda: self.compareImage("testSimpleScrollArea7"),
                 ))
         player.setFakeFPS(-1)

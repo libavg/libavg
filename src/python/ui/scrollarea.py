@@ -127,7 +127,7 @@ class ScrollArea(avg.DivNode):
         self.__scrollPane.contentpos = pos
         self.__positionNodes()
         self.__positionThumbs(avg.Point2D(pos))
-        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [self.__scrollPane.contentpos])
     contentpos = property(getContentPos, setContentPos)
 
     def getSize(self):
@@ -141,11 +141,11 @@ class ScrollArea(avg.DivNode):
 
     def __onHThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (thumbPos, self.__scrollPane.contentpos.y)
-        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [self.__scrollPane.contentpos])
 
     def __onVThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (self.__scrollPane.contentpos.x, thumbPos)
-        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [self.__scrollPane.contentpos])
 
     def __onDragStart(self):
         self.__dragStartPos = self.__scrollPane.contentpos
@@ -155,7 +155,7 @@ class ScrollArea(avg.DivNode):
         contentpos = self.__dragStartPos - offset
         self.__scrollPane.contentpos = contentpos
         self.__positionThumbs(contentpos)
-        self.notifySubscribers(self.CONTENT_POS_CHANGED, [])
+        self.notifySubscribers(self.CONTENT_POS_CHANGED, [self.__scrollPane.contentpos])
 
     def __onDragUp(self, offset):
         self.__onDragMove(offset)
