@@ -180,15 +180,6 @@ class PlayerTestCase(AVGTestCase):
             self.assertEqual(outerNode.getElementByPos((0, 10)), outerNode)
             self.assertEqual(outerNode.getElementByPos((-10, -110)), None)
         
-        def sendEvent(type, x, y):
-            Helper = player.getTestHelper()
-            if type == avg.Event.CURSOR_UP:
-                button = False
-            else:
-                button = True
-            Helper.fakeMouseEvent(type, button, False, False,
-                        x, y, 1)
-        
         def disableCrop():
             player.getElementByID("outer").crop = False
             player.getElementByID("inner").crop = False
@@ -202,11 +193,11 @@ class PlayerTestCase(AVGTestCase):
                  testCoordConversions,
                  fakeRotate,
                  lambda: self.compareImage("testRotate1a"),
-                 lambda: sendEvent(avg.Event.CURSOR_DOWN, 85, 70),
-                 lambda: sendEvent(avg.Event.CURSOR_UP, 85, 70),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 85, 70),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
-                 lambda: sendEvent(avg.Event.CURSOR_DOWN, 85, 75),
-                 lambda: sendEvent(avg.Event.CURSOR_UP, 85, 75),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 85, 75),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 85, 75),
                  lambda: self.assert_(self.onOuterDownCalled),
                  disableCrop,
                  lambda: self.compareImage("testRotate1b"),

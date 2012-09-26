@@ -205,13 +205,12 @@ class OffscreenTestCase(AVGTestCase):
 
         mainCanvas, offscreenCanvas = self.__setupCanvas(True)
         offscreenImage = offscreenCanvas.getElementByID("test1")
-        offscreenImage.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onOffscreenImageDown);
-        helper = player.getTestHelper()
+        offscreenImage.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, 
+                onOffscreenImageDown);
         self.__offscreenImageDownCalled = False
         offscreenImage.setEventCapture()
         self.start(False,
-                (lambda: helper.fakeMouseEvent(avg.Event.CURSOR_DOWN, True, False, False, 
-                        80, 10, 1),
+                (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 80, 10),
                  lambda: self.assert_(self.__offscreenImageDownCalled),
                 ))
                 

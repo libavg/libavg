@@ -199,19 +199,16 @@ class DynamicsTestCase(AVGTestCase):
         def mainMouseUp(event):
             self.mainMouseUpCalled = True
         
-        Helper = player.getTestHelper()
         self.captureMouseDownCalled = False
         self.mainMouseUpCalled = False
         root = self.loadEmptyScene()
         self.start(False,
                 (createImg,
                  setEventCapture,
-                 lambda: Helper.fakeMouseEvent(avg.Event.CURSOR_DOWN, True, False, False, 
-                        100, 10, 1),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 100, 10),
                  lambda: self.assert_(self.captureMouseDownCalled),
                  deleteImg,
-                 lambda: Helper.fakeMouseEvent(avg.Event.CURSOR_UP, True, False, False, 
-                        100, 10, 1),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 10),
                  lambda: self.assert_(self.mainMouseUpCalled)
                 ))
 
