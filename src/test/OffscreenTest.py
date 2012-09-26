@@ -173,8 +173,10 @@ class OffscreenTestCase(AVGTestCase):
 
         mainCanvas, offscreenCanvas = self.__setupCanvas(True)
         offscreenImage = offscreenCanvas.getElementByID("test1")
-        offscreenImage.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onOffscreenImageDown)
-        player.getRootNode().setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onMainDown)
+        offscreenImage.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE,
+                onOffscreenImageDown)
+        player.getRootNode().setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, 
+                onMainDown)
         self.__offscreenImageDownCalled = False
         self.__mainDownCalled = False
         self.start(False,
