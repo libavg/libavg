@@ -836,30 +836,40 @@ class UITestCase(AVGTestCase):
         player.setFakeFPS(-1)
 
     def testSimpleCheckBox(self):
+        def onToggled(isChecked):
+            self.assert_(self.expectedChecked == isChecked)
+            self.assert_(checkBox.checked == isChecked)
+            self.messageTester.setMessageReceived(simple.CheckBox.TOGGLED)
+
+        def setExpectedChecked(isChecked):
+            self.expectedChecked = isChecked
+
         root = self.loadEmptyScene()
         checkBox = simple.CheckBox(text="text", parent=root)
+        self.messageTester = MessageTester(checkBox, [checkBox.PRESSED, 
+                checkBox.RELEASED], self)
+        checkBox.subscribe(checkBox.TOGGLED, onToggled)
+        setExpectedChecked(False)
         self.start(False,
-                (lambda: self.compareImage("testSimpleCheckBox1"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: self.compareImage("testSimpleCheckBox2"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
-                 lambda: self.compareImage("testSimpleCheckBox3"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: self.compareImage("testSimpleCheckBox4"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
+                (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 10, 10,
+                        [checkBox.PRESSED,]),
+                 lambda: setExpectedChecked(True),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10,
+                        [checkBox.RELEASED, checkBox.TOGGLED,]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 10, 10,
+                        [checkBox.PRESSED,]),
+                 lambda: setExpectedChecked(False),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10,
+                        [checkBox.RELEASED, checkBox.TOGGLED,]),
+                 
+                 # Disabled node: No events.
                  lambda: checkBox.setEnabled(False),
-                 lambda: self.compareImage("testSimpleCheckBox5"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: self.compareImage("testSimpleCheckBox5"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
-                 lambda: self.compareImage("testSimpleCheckBox5"),
+                 lambda: self.assert_(not(checkBox.enabled)),
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 10, 10, []),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10, []),
+
                  lambda: checkBox.setEnabled(True),
-                 lambda: self.compareImage("testSimpleCheckBox1"),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
-                 lambda: self.compareImage("testSimpleCheckBox3"),
-                 lambda: checkBox.setEnabled(False),
-                 lambda: self.compareImage("testSimpleCheckBox6"),
+                 lambda: self.assert_(checkBox.enabled),
                 ))
 
 def uiTestSuite(tests):
