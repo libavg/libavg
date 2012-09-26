@@ -49,7 +49,7 @@ class FXSlider(avg.DivNode):
         self.__fxAttrName = fxAttrName
         self.__caption = caption
         self.__isInt = isInt
-        self.__slider.val = getattr(self.__fxNode, fxAttrName)
+        self.__slider.thumbpos = getattr(self.__fxNode, fxAttrName)
 
     def __onSliderMove(self, thumbPos):
         if self.__isInt:
