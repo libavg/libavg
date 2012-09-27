@@ -36,6 +36,7 @@
 
 #include <libxml/parser.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
 
 #include <string>
 #include <vector>
@@ -131,6 +132,7 @@ class AVG_API Player: public Publisher
         int setTimeout(int time, PyObject * pyfunc);
         int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
+        bool isInMainThread() const;
 
         void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
@@ -238,6 +240,8 @@ class AVG_API Player: public Publisher
         void handleTimers();
         bool m_bInHandleTimers;
         bool m_bCurrentTimeoutDeleted;
+        boost::thread::id m_MainThreadID;
+        boost::mutex m_TimeoutMutex;
 
         std::vector<Timeout *> m_PendingTimeouts;
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.

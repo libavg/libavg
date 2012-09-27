@@ -139,6 +139,7 @@ Player::Player()
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
     setAffinityMask(true);
+    m_MainThreadID = boost::this_thread::get_id();
 
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
@@ -820,30 +821,50 @@ int Player::setTimeout(int time, PyObject * pyfunc)
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
 {
-    return setInterval(0, pyfunc);
+    return internalSetTimeout(0, pyfunc, true);
 }
 
 bool Player::clearInterval(int id)
 {
     vector<Timeout*>::iterator it;
-    for (it = m_PendingTimeouts.begin(); it != m_PendingTimeouts.end(); it++) {
-        if (id == (*it)->getID()) {
-            if (it == m_PendingTimeouts.begin() && m_bInHandleTimers) {
-                m_bCurrentTimeoutDeleted = true;
+    if (isInMainThread()) {
+        for (it = m_PendingTimeouts.begin(); it != m_PendingTimeouts.end(); it++) {
+            if (id == (*it)->getID()) {
+                if (it == m_PendingTimeouts.begin() && m_bInHandleTimers) {
+                    m_bCurrentTimeoutDeleted = true;
+                }
+                delete *it;
+                m_PendingTimeouts.erase(it);
+                return true;
             }
-            delete *it;
-            m_PendingTimeouts.erase(it);
-            return true;
         }
-    }
-    for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); it++) {
-        if (id == (*it)->getID()) {
-            delete *it;
-            m_NewTimeouts.erase(it);
-            return true;
+        for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); it++) {
+            if (id == (*it)->getID()) {
+                delete *it;
+                m_NewTimeouts.erase(it);
+                return true;
+            }
         }
+    } else {
+        Py_BEGIN_ALLOW_THREADS;
+        {
+            boost::mutex::scoped_lock lock(m_TimeoutMutex);
+            for (it = m_PendingTimeouts.begin(); it != m_PendingTimeouts.end(); it++) {
+                if (id == (*it)->getID()) {
+                    delete *it;
+                    m_PendingTimeouts.erase(it);
+                    return true;
+                }
+            }
+        }
+        Py_END_ALLOW_THREADS;
     }
     return false;
+}
+
+bool Player::isInMainThread() const
+{
+    return (m_MainThreadID == boost::this_thread::get_id());
 }
 
 MouseEventPtr Player::getMouseState() const
@@ -1636,6 +1657,7 @@ void Player::errorIfPlaying(const std::string& sFunc) const
 
 void Player::handleTimers()
 {
+    boost::mutex::scoped_lock lock(m_TimeoutMutex);
     vector<Timeout *>::iterator it;
     m_bInHandleTimers = true;
 
@@ -1778,10 +1800,15 @@ void Player::cleanup()
 int Player::internalSetTimeout(int time, PyObject * pyfunc, bool bIsInterval)
 {
     Timeout* pTimeout = new Timeout(time, pyfunc, bIsInterval, getFrameTime());
-    if (m_bInHandleTimers) {
+    if (isInMainThread() && m_bInHandleTimers) {
         m_NewTimeouts.push_back(pTimeout);
     } else {
-        addTimeout(pTimeout);
+        Py_BEGIN_ALLOW_THREADS;
+        {
+            boost::mutex::scoped_lock lock(m_TimeoutMutex);
+            addTimeout(pTimeout);
+        }
+        Py_END_ALLOW_THREADS;
     }
     return pTimeout->getID();
 }

@@ -152,7 +152,7 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
-    object playerClass = class_<Player, bases<Publisher> >("Player") 
+    object playerClass = class_<Player, bases<Publisher>, boost::noncopyable>("Player") 
         .def("get", &Player::get, 
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
