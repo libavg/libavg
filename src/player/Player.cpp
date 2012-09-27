@@ -1671,16 +1671,18 @@ void Player::handleTimers()
     m_NewTimeouts.clear();
     m_bInHandleTimers = false;
 
-    std::vector<Timeout *> tempAsyncCalls;
-    Py_BEGIN_ALLOW_THREADS;
-    {
-        boost::mutex::scoped_lock lock(m_AsyncCallMutex);
-        tempAsyncCalls = m_AsyncCalls;
-        m_AsyncCalls.clear();
-    }
-    Py_END_ALLOW_THREADS;
-    for (it = tempAsyncCalls.begin(); it != tempAsyncCalls.end(); ++it) {
-        (*it)->fire(getFrameTime());
+    if (m_bPythonAvailable) {
+        std::vector<Timeout *> tempAsyncCalls;
+        Py_BEGIN_ALLOW_THREADS;
+        {
+            boost::mutex::scoped_lock lock(m_AsyncCallMutex);
+            tempAsyncCalls = m_AsyncCalls;
+            m_AsyncCalls.clear();
+        }
+        Py_END_ALLOW_THREADS;
+        for (it = tempAsyncCalls.begin(); it != tempAsyncCalls.end(); ++it) {
+            (*it)->fire(getFrameTime());
+        }
     }
 }
 
