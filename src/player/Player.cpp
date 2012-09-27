@@ -820,7 +820,7 @@ int Player::setTimeout(int time, PyObject * pyfunc)
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
 {
-    return setInterval(0, pyfunc);
+    return internalSetTimeout(0, pyfunc, true);
 }
 
 bool Player::clearInterval(int id)
@@ -844,6 +844,13 @@ bool Player::clearInterval(int id)
         }
     }
     return false;
+}
+
+void Player::callFromThread(PyObject * pyfunc)
+{
+    boost::mutex::scoped_lock lock(m_AsyncCallMutex);
+    Timeout* pTimeout = new Timeout(0, pyfunc, false, getFrameTime());
+    m_AsyncCalls.push_back(pTimeout);
 }
 
 MouseEventPtr Player::getMouseState() const
@@ -1664,6 +1671,17 @@ void Player::handleTimers()
     m_NewTimeouts.clear();
     m_bInHandleTimers = false;
 
+    std::vector<Timeout *> tempAsyncCalls;
+    Py_BEGIN_ALLOW_THREADS;
+    {
+        boost::mutex::scoped_lock lock(m_AsyncCallMutex);
+        tempAsyncCalls = m_AsyncCalls;
+        m_AsyncCalls.clear();
+    }
+    Py_END_ALLOW_THREADS;
+    for (it = tempAsyncCalls.begin(); it != tempAsyncCalls.end(); ++it) {
+        (*it)->fire(getFrameTime());
+    }
 }
 
 SDLDisplayEngine * Player::getDisplayEngine() const

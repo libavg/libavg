@@ -139,6 +139,13 @@ Player & Canvas
             projectors) and when the automatic functions return wrong values (which 
             happens, unfortunately, because of operating system deficiencies).
 
+        .. py:method:: callFromThread(pyfunc)
+
+            Executes :py:attr:`pyfunc` in the main thread of execution, in the next event
+            handling phase. This method is the only libavg method that is thread-safe and
+            can be called from secondary threads of execution. :py:attr:`pyfunc` can be 
+            any python callable, including any libavg methods.
+
         .. py:method:: clearInterval(id) -> bool
 
             Stops a timeout, an interval or an onFrameHandler from being called.
