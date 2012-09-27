@@ -20,7 +20,6 @@
 #
 
 import math
-import threading, time
 
 from libavg import avg, player
 from testcase import *
@@ -346,36 +345,13 @@ class PlayerTestCase(AVGTestCase):
                      lambda: self.assert_(not(self.timeout2called)),
                      lambda: self.assert_(self.numOnFramesCalled == 3),
                      lambda: initException(),
-                     lambda: self.delay(10),
+                     lambda: delay(10),
                     ))
         except TestException:
             self.__exceptionThrown = True
             
         self.assert_(self.__exceptionThrown)
         player.clearInterval(self.timeout3ID)
-    
-    def testMultiThreadTimeouts(self):
-       
-        def onTimeout():
-            print "timeout"
-            self.timeoutCalled = True
-
-        def threadFunc():
-            print "thread"
-            player.setTimeout(0, onTimeout)
-
-        def startThread():
-            self.thread = threading.Thread(target=threadFunc)
-            self.thread.start()
-
-        self.initDefaultImageScene()
-        self.timeoutCalled = False
-        player.setFakeFPS(-1)
-        self.start(False,
-                (startThread,
-                 lambda: self.delay(200),
-                 lambda: self.assert_(self.timeoutCalled),
-                ))
 
     def testAVGFile(self):
         player.loadFile("image.avg")
@@ -777,7 +753,6 @@ def playerTestSuite(tests):
             "testInvalidImageFilename",
             "testInvalidVideoFilename",
             "testTimeouts",
-            "testMultiThreadTimeouts",
             "testAVGFile",
             "testBroken",
             "testMove",
