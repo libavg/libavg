@@ -56,13 +56,13 @@ const long Logger::PLUGIN=2048;
 const long Logger::PLAYER=4096;
 
 Logger* Logger::m_pLogger = 0;
-boost::mutex log_Mutex;
+boost::mutex logMutex;
 
 Logger * Logger::get()
 {
 
     if (!m_pLogger) {
-        boost::mutex::scoped_lock Lock(log_Mutex);
+        boost::mutex::scoped_lock lock(logMutex);
         m_pLogger = new Logger;
     }
     return m_pLogger;
@@ -98,7 +98,7 @@ Logger::~Logger()
 
 void Logger::setCategories(int flags)
 {
-    boost::mutex::scoped_lock Lock(log_Mutex);
+    boost::mutex::scoped_lock lock(logMutex);
     m_Flags = flags | ERROR | WARNING;
 }
     
@@ -118,7 +118,7 @@ void Logger::popCategories()
 
 void Logger::trace(int category, const UTF8String& sMsg)
 {
-    boost::mutex::scoped_lock Lock(log_Mutex);
+    boost::mutex::scoped_lock lock(logMutex);
     if (category & m_Flags) {
         struct tm* pTime;
 #ifdef _WIN32
