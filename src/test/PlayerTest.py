@@ -333,15 +333,11 @@ class PlayerTestCase(AVGTestCase):
             self.initDefaultImageScene()
             self.start(False,
                     (setupTimeouts,
-                     wait,
+                     None,
                      lambda: self.assert_(self.timeout1called),
                      lambda: self.assert_(not(self.timeout2called)),
                      lambda: initException(),
-                     wait,
-                     wait,
-                     wait,
-                     wait,
-                     wait
+                     lambda: delay(10),
                     ))
         except TestException:
             self.__exceptionThrown = True
