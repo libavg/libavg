@@ -810,24 +810,12 @@ void Player::removeDeadEventCaptures()
 
 int Player::setInterval(int time, PyObject * pyfunc)
 {
-    Timeout* pTimeout = new Timeout(time, pyfunc, true, getFrameTime());
-    if (m_bInHandleTimers) {
-        m_NewTimeouts.push_back(pTimeout);
-    } else {
-        addTimeout(pTimeout);
-    }
-    return pTimeout->getID();
+    return internalSetTimeout(time, pyfunc, true);
 }
 
 int Player::setTimeout(int time, PyObject * pyfunc)
 {
-    Timeout* pTimeout = new Timeout(time, pyfunc, false, getFrameTime());
-    if (m_bInHandleTimers) {
-        m_NewTimeouts.push_back(pTimeout);
-    } else {
-        addTimeout(pTimeout);
-    }
-    return pTimeout->getID();
+    return internalSetTimeout(time, pyfunc, false);
 }
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
@@ -1786,6 +1774,18 @@ void Player::cleanup()
 
     removeSubscribers();
 }
+
+int Player::internalSetTimeout(int time, PyObject * pyfunc, bool bIsInterval)
+{
+    Timeout* pTimeout = new Timeout(time, pyfunc, bIsInterval, getFrameTime());
+    if (m_bInHandleTimers) {
+        m_NewTimeouts.push_back(pTimeout);
+    } else {
+        addTimeout(pTimeout);
+    }
+    return pTimeout->getID();
+}
+
 
 int Player::addTimeout(Timeout* pTimeout)
 {

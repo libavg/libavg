@@ -233,6 +233,7 @@ class AVG_API Player: public Publisher
 
         IInputDevicePtr m_pMultitouchInputDevice;
 
+        int internalSetTimeout(int time, PyObject * pyfunc, bool bIsInterval);
         int addTimeout(Timeout* pTimeout);
         void handleTimers();
         bool m_bInHandleTimers;
