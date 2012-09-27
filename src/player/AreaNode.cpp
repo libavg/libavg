@@ -51,9 +51,6 @@ namespace avg {
 
 void AreaNode::registerType()
 {
-    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("AreaNode", "Node");
-    pPubDef->addMessage("SIZE_CHANGED");
-
     NodeDefinition def = NodeDefinition("areanode", "node")
         .addArg(Arg<float>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<float>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
@@ -70,8 +67,7 @@ void AreaNode::registerType()
 }
 
 AreaNode::AreaNode()
-    : Node("AreaNode"),
-      m_RelViewport(0,0,0,0),
+    : m_RelViewport(0,0,0,0),
       m_Transform(glm::mat4(0)),
       m_bTransformChanged(true)
 {

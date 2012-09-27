@@ -56,6 +56,7 @@ void Node::registerType()
     pPubDef->addMessage("HOVER_OVER");
     pPubDef->addMessage("HOVER_OUT");
     pPubDef->addMessage("END_OF_FILE");
+    pPubDef->addMessage("SIZE_CHANGED");
 
     NodeDefinition def = NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
@@ -71,7 +72,6 @@ Node::Node(const std::string& sPublisherName)
       m_pParent(0),
       m_pCanvas(),
       m_State(NS_UNCONNECTED)
-      
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }

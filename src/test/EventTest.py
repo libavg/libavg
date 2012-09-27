@@ -887,17 +887,25 @@ class EventTestCase(AVGTestCase):
         def onResize(newSize):
             self.messageReceived = True
 
-        def checkMessageReceived():
-            self.assert_(self.messageReceived)
-            self.messageReceived = False
-
         self.messageReceived = False
         root = self.loadEmptyScene()
         self.video = avg.VideoNode(href="mpeg1-48x48.mpg", parent=root)
         self.video.subscribe(self.video.SIZE_CHANGED, onResize)
         self.video.play()
-        checkMessageReceived()
+        self.assert_(self.messageReceived)
 
+    def testRectSizeChanged(self):
+        
+        def onResize(newSize):
+            self.messageReceived = True
+
+        self.messageReceived = False
+        root = self.loadEmptyScene()
+        self.rect = avg.RectNode(size=(10,10), parent=root)
+        self.rect.subscribe(self.rect.SIZE_CHANGED, onResize)
+        self.rect.size=(100,100)
+        self.assert_(self.messageReceived)
+        
 
 def eventTestSuite(tests):
     availableTests = (
@@ -925,6 +933,7 @@ def eventTestSuite(tests):
             "testImageSizeChanged",
             "testWordsSizeChanged",
             "testVideoSizeChanged",
+            "testRectSizeChanged",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 

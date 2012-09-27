@@ -84,6 +84,7 @@ void RectNode::setSize(const glm::vec2& pt)
 {
     m_Rect.setWidth(pt.x);
     m_Rect.setHeight(pt.y);
+    notifySubscribers("SIZE_CHANGED", m_Rect.size());
     setDrawNeeded();
 }
 
