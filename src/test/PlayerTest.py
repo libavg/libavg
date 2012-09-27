@@ -312,7 +312,12 @@ class PlayerTestCase(AVGTestCase):
         
         def timeout2():
             self.timeout2called = True
-        
+       
+        def onFrame():
+            self.numOnFramesCalled += 1
+            if self.numOnFramesCalled == 3:
+                player.clearInterval(self.intervalID)
+
         def wait():
             pass
         
@@ -325,10 +330,12 @@ class PlayerTestCase(AVGTestCase):
         def setupTimeouts():
             self.timeout1ID = player.setTimeout(0, timeout1)
             self.timeout2ID = player.setTimeout(1, timeout2)
+            self.intervalID = player.setOnFrameHandler(onFrame)
             
         self.timeout1called = False
         self.timeout2called = False
         self.__exceptionThrown = False
+        self.numOnFramesCalled = 0
         try:
             self.initDefaultImageScene()
             self.start(False,
@@ -336,6 +343,7 @@ class PlayerTestCase(AVGTestCase):
                      None,
                      lambda: self.assert_(self.timeout1called),
                      lambda: self.assert_(not(self.timeout2called)),
+                     lambda: self.assert_(self.numOnFramesCalled == 3),
                      lambda: initException(),
                      lambda: delay(10),
                     ))
