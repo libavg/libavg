@@ -142,8 +142,11 @@ void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum sev
             AVG_ASSERT(false);
     }
 */
-    
-    AVG_TRACE(Logger::WARNING, message);
+
+    // XXX Temporary to clean up NVidia message spam.
+    if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB) {
+        AVG_TRACE(Logger::WARNING, message);
+    }
 //    dumpBacktrace();
 }
 
@@ -347,10 +350,10 @@ void GLContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windo
                         GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
                 appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
                         GLX_CONTEXT_MINOR_VERSION_ARB, 0);
-                if (glConfig.m_bUseDebugContext) {
-                    appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-                            GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
-                }
+            }
+            if (glConfig.m_bUseDebugContext) {
+                appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
+                        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
             }
             PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
                     (PFNGLXCREATECONTEXTATTRIBSARBPROC)
