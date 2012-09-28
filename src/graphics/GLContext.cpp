@@ -157,7 +157,6 @@ GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize,
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
-      m_bEnableGLColorArray(true),
       m_BlendColor(0.f, 0.f, 0.f, 0.f),
       m_BlendMode(BLEND_ADD)
 {
@@ -444,8 +443,8 @@ void GLContext::init()
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
-    enableGLColorArray(false);
-    checkError("enableGLColorArray");
+    glEnableClientState(GL_COLOR_ARRAY);
+    checkError("glEnableClientState(GL_COLOR_ARRAY)");
     setBlendMode(BLEND_BLEND, false);
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
@@ -547,18 +546,6 @@ unsigned GLContext::genFBO()
 void GLContext::returnFBOToCache(unsigned fboID) 
 {
     m_FBOIDs.push_back(fboID);
-}
-
-void GLContext::enableGLColorArray(bool bEnable)
-{
-    if (bEnable != m_bEnableGLColorArray) {
-        if (bEnable) {
-            glEnableClientState(GL_COLOR_ARRAY);
-        } else {
-            glDisableClientState(GL_COLOR_ARRAY);
-        }
-        m_bEnableGLColorArray = bEnable;
-    }
 }
 
 void GLContext::setBlendColor(const glm::vec4& color)

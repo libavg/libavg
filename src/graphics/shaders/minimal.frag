@@ -20,13 +20,13 @@
 //
 
 uniform sampler2D texture;
-uniform vec4 color;
+uniform vec4 alpha;
 
 // A minimal shader for use on low-end systems where the standard shader hurts 
 // performance.
 void main(void)
 {
     vec4 rgba = texture2D(texture, gl_TexCoord[0].st);
-    rgba.a *= color.a;
+    rgba.a *= alpha;
     gl_FragColor = rgba;
 }

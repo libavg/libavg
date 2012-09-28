@@ -322,17 +322,17 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
-void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
+void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color)
 {
     if (isVisible() && m_pSurface->isCreated()) {
         pVA->startSubVA(m_SubVA);
         for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
             for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
                 int curVertex = m_SubVA.getNumVerts();
-                m_SubVA.appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
-                m_SubVA.appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
-                m_SubVA.appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
-                m_SubVA.appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
+                m_SubVA.appendPos(m_TileVertices[y][x], m_TexCoords[y][x], color); 
+                m_SubVA.appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1], color); 
+                m_SubVA.appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1], color);
+                m_SubVA.appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x], color); 
                 m_SubVA.appendQuadIndexes(
                         curVertex+1, curVertex, curVertex+2, curVertex+3);
             }
@@ -413,9 +413,7 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
     {
         ScopeTimer Timer(FXProfilingZone);
         GLContext* pContext = GLContext::getMain();
-        pContext->enableGLColorArray(false);
-        StandardShader::get()->setColor(glm::vec4(color.getR()/256.f, color.getG()/256.f,
-                color.getB()/256.f, 1.f));
+        StandardShader::get()->setAlpha(1.0f);
         m_pSurface->activate(getMediaSize());
 
         m_pFBO->activate();
@@ -493,16 +491,15 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         bool bPremultipliedAlpha)
 {
     GLContext* pContext = GLContext::getMain();
-    pContext->enableGLColorArray(false);
     FRect destRect;
     
     StandardShaderPtr pShader = pContext->getStandardShader();
     pContext->setBlendColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
+    pShader->setAlpha(opacity);
     if (m_pFXNode) {
         pContext->setBlendMode(mode, true);
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
         pShader->setColorModel(0);
-        pShader->setColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
         pShader->disableColorspaceMatrix();
         pShader->setGamma(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         pShader->setPremultipliedAlpha(true);
@@ -512,8 +509,6 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        pShader->setColor(glm::vec4(color.getR()/255.f, color.getG()/255.f,
-                color.getB()/255.f, opacity));
         m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
         pContext->setBlendMode(mode, bPremultipliedAlpha);
         destRect = FRect(glm::vec2(0,0), destSize);

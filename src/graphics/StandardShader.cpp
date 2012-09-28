@@ -46,7 +46,7 @@ StandardShader::StandardShader()
     avg::createShader(STANDARD_SHADER);
     m_pShader = avg::getShader(STANDARD_SHADER);
     m_pColorModelParam = m_pShader->getParam<int>("colorModel");
-    m_pColorParam = m_pShader->getParam<glm::vec4>("color");
+    m_pAlphaParam = m_pShader->getParam<float>("alpha");
     m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("colorCoeff0");
     m_pColorCoeff1Param = m_pShader->getParam<glm::vec4>("colorCoeff1");
     m_pColorCoeff2Param = m_pShader->getParam<glm::vec4>("colorCoeff2");
@@ -73,7 +73,7 @@ StandardShader::StandardShader()
         m_pMinimalShader = avg::getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("texture")->set(0);
-        m_pMinimalColorParam = m_pMinimalShader->getParam<glm::vec4>("color");
+        m_pMinimalAlphaParam = m_pMinimalShader->getParam<float>("alpha");
     }
     
     generateWhiteTexture(); 
@@ -88,12 +88,12 @@ void StandardShader::activate()
     if (useMinimalShader()) {
         m_pMinimalShader->activate();
         m_pMinimalShader->setTransform(m_Transform);
-        m_pMinimalColorParam->set(m_Color);
+        m_pMinimalAlphaParam->set(m_Alpha);
     } else {
         m_pShader->activate();
         m_pShader->setTransform(m_Transform);
         m_pColorModelParam->set(m_ColorModel);
-        m_pColorParam->set(m_Color);
+        m_pAlphaParam->set(m_Alpha);
 
         m_pUseColorCoeffParam->set(m_bUseColorCoeff);
         const glm::mat4& mat = m_ColorMatrix;
@@ -123,9 +123,9 @@ void StandardShader::setColorModel(int model)
     m_ColorModel = model;
 }
 
-void StandardShader::setColor(const glm::vec4& color)
+void StandardShader::setAlpha(float alpha)
 {
-    m_Color = color;
+    m_Alpha = alpha;
 }
     
 void StandardShader::setUntextured()
@@ -182,7 +182,7 @@ void StandardShader::dump() const
     cerr << "---------Standard shader--------" << endl;
     cerr << "  m_Transform: " << m_Transform << endl;
     cerr << "  m_ColorModel: " << m_ColorModel << endl;
-    cerr << "  m_Color: " << m_Color << endl;
+    cerr << "  m_Alpha: " << m_Alpha << endl;
     cerr << "  m_bUseColorCoeff: " << m_bUseColorCoeff << endl;
     cerr << "  m_ColorMatrix: " << m_ColorMatrix << endl;
     cerr << "  m_Gamma: " << m_Gamma << endl;

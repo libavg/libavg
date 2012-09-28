@@ -26,7 +26,7 @@ uniform sampler2D crTexture;
 uniform sampler2D aTexture;
 uniform sampler2D maskTexture;
 uniform int colorModel;  // 0=rgb, 1=yuv, 2=alpha, 3=yuva
-uniform vec4 color;
+uniform float alpha;
 uniform vec4 colorCoeff0;
 uniform vec4 colorCoeff1;
 uniform vec4 colorCoeff2;
@@ -47,7 +47,7 @@ vec4 convertYCbCr(mat4 colorCoeff, vec4 tex)
                1.0);
     vec4 rgb;
     rgb = colorCoeff*yuv;
-    return vec4(rgb.rgb, color.a);
+    return vec4(rgb.rgb, alpha);
 }
 
 void main(void)
@@ -61,21 +61,21 @@ void main(void)
     vec4 tex = texture2D(texture, gl_TexCoord[0].st);
     if (colorModel == 0 || colorModel == 2) {
         float a;
-        if (colorModel == 0) {
+        if (colorModel == 0) { // 0 = rgb
             rgba = tex;
-            a = color.a;
-        } else {
-            rgba = gl_Color*color;
-            a = tex.a;
+            a = alpha;
+        } else {               // 2 = alpha
+            rgba = gl_Color;
+            a = tex.a*alpha;
         }
         if (bUseColorCoeff) {
             rgba = colorCoeff*rgba;
         }
         rgba.a *= a;
 #ifdef ENABLE_YUV_CONVERSION
-    } else if (colorModel == 1) {
+    } else if (colorModel == 1) { // yuv
         rgba = convertYCbCr(colorCoeff, tex);
-    } else if (colorModel == 3) {
+    } else if (colorModel == 3) { // yuva
         rgba = convertYCbCr(colorCoeff, tex);
         rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;
 #endif

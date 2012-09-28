@@ -712,7 +712,7 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     if (m_sText.length() != 0 && isVisible()) {
         renderFX(getSize(), m_Color, false);
     }
-    calcVertexArray(pVA);
+    calcVertexArray(pVA, m_Color);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");

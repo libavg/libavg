@@ -110,14 +110,13 @@ void Shape::draw(const glm::mat4& transform, float opacity)
     GLContext* pContext = GLContext::getMain();
     StandardShaderPtr pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
-    pShader->setColor(glm::vec4(1.f, 1.f, 1.f, opacity));
+    pShader->setAlpha(opacity);
     if (bIsTextured) {
         m_pSurface->activate();
     } else {
         pShader->setUntextured();
         pShader->activate();
     }
-    pContext->enableGLColorArray(!bIsTextured);
     m_SubVA.draw();
 }
 

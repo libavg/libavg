@@ -301,11 +301,10 @@ void Canvas::renderOutlines(const glm::mat4& transform)
     StandardShaderPtr pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
     pShader->setUntextured();
-    pShader->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+    pShader->setAlpha(0.5f);
     pShader->activate();
     if (pVA->getNumVerts() != 0) {
         pVA->update();
-        pContext->enableGLColorArray(true);
         pVA->draw();
     }
 }
