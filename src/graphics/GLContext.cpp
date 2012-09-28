@@ -444,7 +444,7 @@ void GLContext::init()
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
     glEnableClientState(GL_COLOR_ARRAY);
-    checkError("glEnableClientState(GL_COLOR_ARRAY)");
+//    checkError("glEnableClientState(GL_COLOR_ARRAY)");
     setBlendMode(BLEND_BLEND, false);
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
