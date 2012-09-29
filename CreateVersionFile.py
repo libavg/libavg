@@ -106,7 +106,7 @@ def getSvnBranch():
             if 'svn/trunk' in url:
                 branch = 'trunk'
             elif 'svn/branches/' in url:
-                match = re.search(r'svn\/branches\/([^\/]+)', url)
+                match = re.search(r'svn\/branches\/(.+)/?', url)
                 if match:
                     branch = match.group(1)
 
