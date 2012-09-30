@@ -78,7 +78,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void swapBuffers();
 
     private:
-        void initGLState();
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);
 

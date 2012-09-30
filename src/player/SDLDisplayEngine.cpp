@@ -209,7 +209,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 #endif
     SDL_WM_SetCaption("libavg", 0);
     calcRefreshRate();
-    initGLState();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
@@ -678,31 +677,6 @@ EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdl
             SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode,
                     modifiers));
     return pEvent;
-}
-
-void SDLDisplayEngine::initGLState()
-{
-    glEnable(GL_BLEND);
-    GLContext::checkError("init: glEnable(GL_BLEND)");
-    glDisable(GL_DEPTH_TEST);
-    GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
-    glEnable(GL_STENCIL_TEST);
-    GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnable(GL_TEXTURE_2D);
-    
-    glproc::UseProgramObject(0);
-    if (m_pGLContext->useMinimalShader()) {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-    }
 }
 
 void SDLDisplayEngine::initTranslationTable()
