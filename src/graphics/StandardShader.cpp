@@ -45,35 +45,35 @@ StandardShader::StandardShader()
 {
     avg::createShader(STANDARD_SHADER);
     m_pShader = avg::getShader(STANDARD_SHADER);
-    m_pColorModelParam = m_pShader->getParam<int>("colorModel");
-    m_pAlphaParam = m_pShader->getParam<float>("alpha");
-    m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("colorCoeff0");
-    m_pColorCoeff1Param = m_pShader->getParam<glm::vec4>("colorCoeff1");
-    m_pColorCoeff2Param = m_pShader->getParam<glm::vec4>("colorCoeff2");
-    m_pColorCoeff3Param = m_pShader->getParam<glm::vec4>("colorCoeff3");
-    m_pGammaParam = m_pShader->getParam<glm::vec4>("gamma");
+    m_pColorModelParam = m_pShader->getParam<int>("u_ColorModel");
+    m_pAlphaParam = m_pShader->getParam<float>("u_Alpha");
+    m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff0");
+    m_pColorCoeff1Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff1");
+    m_pColorCoeff2Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff2");
+    m_pColorCoeff3Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff3");
+    m_pGammaParam = m_pShader->getParam<glm::vec4>("u_Gamma");
  
-    m_pUseColorCoeffParam = m_pShader->getParam<int>("bUseColorCoeff");
-    m_pPremultipliedAlphaParam = m_pShader->getParam<int>("bPremultipliedAlpha");
-    m_pUseMaskParam = m_pShader->getParam<int>("bUseMask");
-    m_pMaskPosParam = m_pShader->getParam<glm::vec2>("maskPos");
-    m_pMaskSizeParam = m_pShader->getParam<glm::vec2>("maskSize");
+    m_pUseColorCoeffParam = m_pShader->getParam<int>("u_bUseColorCoeff");
+    m_pPremultipliedAlphaParam = m_pShader->getParam<int>("u_bPremultipliedAlpha");
+    m_pUseMaskParam = m_pShader->getParam<int>("u_bUseMask");
+    m_pMaskPosParam = m_pShader->getParam<glm::vec2>("u_MaskPos");
+    m_pMaskSizeParam = m_pShader->getParam<glm::vec2>("u_MaskSize");
 
     m_pShader->activate();
-    m_pShader->getParam<int>("texture")->set(0);
+    m_pShader->getParam<int>("u_Texture")->set(0);
     if (GLContext::getMain()->useGPUYUVConversion()) {
-        m_pShader->getParam<int>("cbTexture")->set(1);
-        m_pShader->getParam<int>("crTexture")->set(2);
-        m_pShader->getParam<int>("aTexture")->set(3);
+        m_pShader->getParam<int>("u_CBTexture")->set(1);
+        m_pShader->getParam<int>("u_CRTexture")->set(2);
+        m_pShader->getParam<int>("u_ATexture")->set(3);
     }
-    m_pShader->getParam<int>("maskTexture")->set(4);
+    m_pShader->getParam<int>("u_MaskTexture")->set(4);
 
     if (GLContext::getMain()->useMinimalShader()) {
         avg::createShader(MINIMAL_SHADER);
         m_pMinimalShader = avg::getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
-        m_pMinimalShader->getParam<int>("texture")->set(0);
-        m_pMinimalAlphaParam = m_pMinimalShader->getParam<float>("alpha");
+        m_pMinimalShader->getParam<int>("u_Texture")->set(0);
+        m_pMinimalAlphaParam = m_pMinimalShader->getParam<float>("u_Alpha");
     }
     
     generateWhiteTexture(); 

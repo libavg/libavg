@@ -19,19 +19,18 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform float alpha;
-uniform sampler2D texture;
-uniform float hKey;
-uniform float hTolerance;
-uniform float hSoftTolerance;
-uniform float sTolerance;
-uniform float sSoftTolerance;
-uniform float sKey;
-uniform float lTolerance;
-uniform float lSoftTolerance;
-uniform float spillThreshold;
-uniform float lKey;
-uniform bool bIsLast;
+uniform sampler2D u_Texture;
+uniform float u_HKey;
+uniform float u_HTolerance;
+uniform float u_HSoftTolerance;
+uniform float u_SKey;
+uniform float u_STolerance;
+uniform float u_SSoftTolerance;
+uniform float u_LKey;
+uniform float u_LTolerance;
+uniform float u_LSoftTolerance;
+uniform float u_SpillThreshold;
+uniform bool u_bIsLast;
        
 #include "helper.frag"
         
@@ -67,11 +66,11 @@ vec4 getMedian(vec2 texCoord)
     vec4 v[5];
     float dx = dFdx(texCoord.x);
     float dy = dFdy(texCoord.y);
-    v[0] = texture2D(texture, texCoord);
-    v[1] = texture2D(texture, texCoord+vec2(0,-dy));
-    v[2] = texture2D(texture, texCoord+vec2(0,dy));
-    v[3] = texture2D(texture, texCoord+vec2(-dx,0));
-    v[4] = texture2D(texture, texCoord+vec2(dx,0));
+    v[0] = texture2D(u_Texture, texCoord);
+    v[1] = texture2D(u_Texture, texCoord+vec2(0,-dy));
+    v[2] = texture2D(u_Texture, texCoord+vec2(0,dy));
+    v[3] = texture2D(u_Texture, texCoord+vec2(-dx,0));
+    v[4] = texture2D(u_Texture, texCoord+vec2(dx,0));
     for (int i = 0; i < 5; ++i) {
         v[i].a = 0.2989 * v[i].r + 0.5870 * v[i].g + 0.1140 * v[i].b;
     }
@@ -90,38 +89,38 @@ void main(void)
     float l;
     float alpha;
     rgb2hsl(tex, h, s, l);
-    float hDiff = abs(h-hKey);
-    float sDiff = abs(s-sKey);
-    float lDiff = abs(l-lKey);
-    if (hDiff < hSoftTolerance && sDiff < sSoftTolerance 
-            && lDiff < lSoftTolerance)
+    float hDiff = abs(h-u_HKey);
+    float sDiff = abs(s-u_SKey);
+    float lDiff = abs(l-u_LKey);
+    if (hDiff < u_HSoftTolerance && sDiff < u_SSoftTolerance 
+            && lDiff < u_LSoftTolerance)
     {
         alpha = 0.0;
-        if (hDiff > hTolerance) {
-            alpha = (hDiff-hTolerance)/(hSoftTolerance-hTolerance);
+        if (hDiff > u_HTolerance) {
+            alpha = (hDiff-u_HTolerance)/(u_HSoftTolerance-u_HTolerance);
         }        
-        if (sDiff > sTolerance) {
+        if (sDiff > u_STolerance) {
             alpha = max(alpha,
-                   (sDiff-sTolerance)/(sSoftTolerance-sTolerance));
+                   (sDiff-u_STolerance)/(u_SSoftTolerance-u_STolerance));
         }
-        if (lDiff > lTolerance) {
+        if (lDiff > u_LTolerance) {
             alpha = max(alpha,
-                   (lDiff-lTolerance)/(lSoftTolerance-lTolerance));
+                   (lDiff-u_LTolerance)/(u_LSoftTolerance-u_LTolerance));
         }
     } else {
         alpha = 1.0;
     }
-    tex = texture2D(texture, gl_TexCoord[0].st);
-    if (alpha > 0.0 && hDiff < spillThreshold) {
+    tex = texture2D(u_Texture, gl_TexCoord[0].st);
+    if (alpha > 0.0 && hDiff < u_SpillThreshold) {
         rgb2hsl(tex, h, s, l);
-        if (spillThreshold > hTolerance) {
-            float factor = max(0.0, 1.0-(spillThreshold-hDiff)
-                    /(spillThreshold-hTolerance));
+        if (u_SpillThreshold > u_HTolerance) {
+            float factor = max(0.0, 1.0-(u_SpillThreshold-hDiff)
+                    /(u_SpillThreshold-u_HTolerance));
             s = s*factor;
         }
         tex.rgb = hsl2rgb(h, s, l);
     }
-    if (bIsLast) {
+    if (u_bIsLast) {
        gl_FragColor = vec4(tex.rgb*alpha, alpha);
     } else {
        gl_FragColor = vec4(tex.rgb, alpha);

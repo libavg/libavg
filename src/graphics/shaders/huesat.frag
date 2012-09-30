@@ -22,11 +22,12 @@
 const vec3 lumCoeff = vec3(0.2125, 0.7154, 0.0721);
 const vec3 white = vec3(1.0, 1.0, 1.0);
 const vec3 black = vec3(0.0, 0.0, 0.0);
-uniform sampler2D texture;
-uniform float hue;
-uniform float sat;
-uniform float l_offset;
-uniform bool b_colorize;
+
+uniform sampler2D u_Texture;
+uniform float u_Hue;
+uniform float u_Sat;
+uniform float u_LightnessOffset;
+uniform bool u_bColorize;
 
 #include "helper.frag"            
 
@@ -36,29 +37,29 @@ void main(void)
     float s;
     float l;
     float h;
-    vec4 tex = texture2D(texture, gl_TexCoord[0].st);
+    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st);
     unPreMultiplyAlpha(tex);
     rgb2hsl(tex, tmp, s, l);
-    if (b_colorize) {
-       h = hue;
-       s = sat;
+    if (u_bColorize) {
+       h = u_Hue;
+       s = u_Sat;
     } else {
-       h = hue+tmp;
+       h = u_Hue+tmp;
     }
     vec4 rgbTex = vec4(hsl2rgb(mod(h, 360.0), s, l), tex.a);
 
     // Saturate in rgb - space to imitate photoshop filter
-    if (!b_colorize) { 
-      s = clamp(sat+s, 0.0, 2.0);
+    if (!u_bColorize) { 
+      s = clamp(u_Sat+s, 0.0, 2.0);
       vec3 intensity = vec3(dot(rgbTex.rgb, lumCoeff));
       rgbTex.rgb = mix(intensity, rgbTex.rgb, s);
     }
 
     // Brightness with black/white pixels to imitate photoshop lightness-offset
-    if (l_offset >= 0.0) { 
-       rgbTex = vec4(mix(rgbTex.rgb, white, l_offset), tex.a);
-    } else if (l_offset < 0.0) { 
-       rgbTex = vec4(mix(rgbTex.rgb, black, -l_offset), tex.a);
+    if (u_LightnessOffset >= 0.0) { 
+       rgbTex = vec4(mix(rgbTex.rgb, white, u_LightnessOffset), tex.a);
+    } else if (u_LightnessOffset < 0.0) { 
+       rgbTex = vec4(mix(rgbTex.rgb, black, -u_LightnessOffset), tex.a);
     }
 
     preMultiplyAlpha(rgbTex);

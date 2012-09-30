@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform float alpha;
-uniform sampler2D texture;
+uniform float u_Alpha;
+uniform sampler2D u_Texture;
 
 void main(void)
 {
-    vec4 tex = texture2D(texture, gl_TexCoord[0].st); 
-    gl_FragColor.rgb = tex.rgb*alpha;
+    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st); 
+    gl_FragColor.rgb = tex.rgb*u_Alpha;
     gl_FragColor.a = tex.a;
 }

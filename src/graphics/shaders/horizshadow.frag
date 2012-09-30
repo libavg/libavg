@@ -19,22 +19,20 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform float width;
-uniform int radius;
-uniform sampler2D kernelTex;
-//        + getStdShaderCode()
+uniform float u_Width;
+uniform int u_Radius;
+uniform sampler2D u_KernelTex;
+uniform sampler2D u_Texture;
+uniform vec2 u_Offset;
 
-uniform sampler2D texture;
-uniform vec2 offset;
 void main(void)
 {
     float sum = 0.;
     float dx = dFdx(gl_TexCoord[0].x);
-    for (int i=-radius; i<=radius; ++i) {
-        float a = texture2D(texture,
-                gl_TexCoord[0].st-offset+vec2(float(i)*dx,0)).a;
-        float coeff = 
-                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;
+    for (int i=-u_Radius; i<=u_Radius; ++i) {
+        float a = texture2D(u_Texture,
+                gl_TexCoord[0].st-u_Offset+vec2(float(i)*dx,0)).a;
+        float coeff = texture2D(u_KernelTex, vec2((float(i+u_Radius)+0.5)/u_Width,0)).r;
         sum += a*coeff;
     }
     gl_FragColor = vec4(sum, sum, sum, sum);

@@ -19,10 +19,10 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform sampler2D texture;
+uniform sampler2D u_Texture;
 
 void main(void)
 {
-  vec4 tex = texture2D(texture, gl_TexCoord[0].st); 
+  vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st); 
   gl_FragColor = tex;
 }
