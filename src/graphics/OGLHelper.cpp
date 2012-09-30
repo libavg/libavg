@@ -94,6 +94,9 @@ namespace glproc {
     PFNGLDRAWBUFFERSPROC DrawBuffers;
     PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
     PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
+    PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
+    PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
+    PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
 #ifdef linux
     PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
@@ -431,6 +434,12 @@ namespace glproc {
                 getFuzzyProcAddress("glDrawRangeElements");
         DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKARBPROC)
                 getFuzzyProcAddress("glDebugMessageCallback");
+        VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)
+                getFuzzyProcAddress("glVertexAttribPointer");
+        EnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)
+                getFuzzyProcAddress("glEnableVertexAttribArray");
+        BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)
+                getFuzzyProcAddress("glBindAttribLocation");
 #ifdef linux
         SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
                 getglXProcAddress("glXSwapIntervalEXT");

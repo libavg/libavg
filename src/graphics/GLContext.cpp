@@ -436,18 +436,16 @@ void GLContext::init()
     glproc::init();
 
     if (m_GLConfig.m_bUseDebugContext) {
-        if (queryOGLExtension("GL_ARB_debug_output")) {
+//        if (queryOGLExtension("GL_ARB_debug_output")) {
             glproc::DebugMessageCallback(debugLogCallback, 0);
-        } else {
-            m_GLConfig.m_bUseDebugContext = false;
-        }
+//        } else {
+//            m_GLConfig.m_bUseDebugContext = false;
+//        }
     }
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
     }
-    glEnableClientState(GL_COLOR_ARRAY);
-//    checkError("glEnableClientState(GL_COLOR_ARRAY)");
     setBlendMode(BLEND_BLEND, false);
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
@@ -481,8 +479,6 @@ void GLContext::init()
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnable(GL_TEXTURE_2D);
     
     glproc::UseProgramObject(0);

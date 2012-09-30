@@ -25,6 +25,8 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#include "../graphics/VertexArray.h"
+
 #include <iostream>
 
 using namespace std;
@@ -61,6 +63,9 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     if (m_hVertexShader) {
         m_pTransformParam = getParam<glm::mat4>("transform");
     }
+    glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
+    glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
+    glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
 }
 
 OGLShader::~OGLShader()

@@ -142,7 +142,11 @@ namespace glproc {
     extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
+
     extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
+    extern AVG_API PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
+    extern AVG_API PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
+    extern AVG_API PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
     
 #ifdef linux
     extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;

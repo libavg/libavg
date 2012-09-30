@@ -43,8 +43,8 @@ namespace avg {
 
 using namespace std;
 
-OGLImagingContext::OGLImagingContext()
-    : GLContext(GLConfig(false, false, true, 1, GLConfig::AUTO, false))
+OGLImagingContext::OGLImagingContext(bool bUseDebugContext)
+    : GLContext(GLConfig(false, false, true, 1, GLConfig::AUTO, bUseDebugContext))
 {
     init();
 
@@ -95,8 +95,6 @@ void OGLImagingContext::setStandardState()
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 }

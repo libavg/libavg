@@ -409,7 +409,7 @@ int main(int nargs, char** args)
     g_type_init();
     bool bOK = true;
     try {
-        OGLImagingContext context;
+        OGLImagingContext context(true);
         ShaderRegistry::get()->setShaderPath("./shaders");
         try {
             if (!queryOGLExtension("GL_ARB_fragment_shader")) {
