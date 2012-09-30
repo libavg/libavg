@@ -41,6 +41,7 @@ public:
     ImagingProjection(IntPoint srcSize, IntRect destRect);
     virtual ~ImagingProjection();
 
+    void setColor(const Pixel32& color);
     void draw(const OGLShaderPtr& pShader);
 
 private:
@@ -49,6 +50,7 @@ private:
     IntPoint m_SrcSize;
     IntRect m_DestRect;
     IntPoint m_Offset;
+    Pixel32 m_Color;
     VertexArrayPtr m_pVA;
     Mat4fGLShaderParamPtr m_pTransformParam;
     glm::mat4 m_ProjMat;

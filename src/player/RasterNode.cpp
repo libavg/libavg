@@ -423,21 +423,21 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
-
+        m_pImagingProjection->setColor(color);
         m_pImagingProjection->draw(StandardShader::get()->getShader());
 
 /*
         static int i=0;
         stringstream ss;
-        ss << "foo" << i << ".png";
+        ss << "node" << i << ".png";
         BitmapPtr pBmp = m_pFBO->getImage(0);
         pBmp->save(ss.str());
-  */  
+*/    
         m_pFXNode->apply(m_pFBO->getTex());
         
 /*        
         stringstream ss1;
-        ss1 << "bar" << ".png";
+        ss1 << "nodefx" << i << ".png";
         i++;
         m_pFXNode->getImage()->save(ss1.str());
 */

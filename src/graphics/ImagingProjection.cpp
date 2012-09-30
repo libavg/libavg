@@ -29,18 +29,29 @@
 namespace avg {
 
 ImagingProjection::ImagingProjection(IntPoint size)
-    : m_pVA(new VertexArray){
+    : m_Color(0, 0, 0, 0),
+      m_pVA(new VertexArray)
+{
     init(size, IntRect(IntPoint(0,0), size));
 }
 
 ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
-    : m_pVA(new VertexArray)
+    : m_Color(0, 0, 0, 0),
+      m_pVA(new VertexArray)
 {
     init(srcSize, destRect);
 }
 
 ImagingProjection::~ImagingProjection()
 {
+}
+
+void ImagingProjection::setColor(const Pixel32& color)
+{
+    if (color != m_Color) {
+        m_Color = color;
+        init(m_SrcSize, m_DestRect);
+    }
 }
 
 void ImagingProjection::draw(const OGLShaderPtr& pShader)
@@ -61,10 +72,10 @@ void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
     glm::vec2 p2(p1.x, p3.y);
     glm::vec2 p4(p3.x, p1.y);
     m_pVA->reset();
-    m_pVA->appendPos(p1, p1);
-    m_pVA->appendPos(p2, p2);
-    m_pVA->appendPos(p3, p3);
-    m_pVA->appendPos(p4, p4);
+    m_pVA->appendPos(p1, p1, m_Color);
+    m_pVA->appendPos(p2, p2, m_Color);
+    m_pVA->appendPos(p3, p3, m_Color);
+    m_pVA->appendPos(p4, p4, m_Color);
     m_pVA->appendQuadIndexes(1,0,2,3);
     
     IntPoint destSize = m_DestRect.size();
