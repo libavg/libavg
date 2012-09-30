@@ -148,6 +148,7 @@ void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum sev
         AVG_TRACE(Logger::WARNING, message);
     }
 //    dumpBacktrace();
+//    AVG_ASSERT(false);
 }
 
 GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
@@ -479,8 +480,6 @@ void GLContext::init()
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    glEnable(GL_TEXTURE_2D);
-    
     glproc::UseProgramObject(0);
     if (useMinimalShader()) {
         glMatrixMode(GL_PROJECTION);
