@@ -171,37 +171,6 @@ bool queryGLXExtension(const char *extName)
 #endif
 }
 
-void getGLVersion(int& major, int& minor)
-{
-    static int s_Major = -1;
-    static int s_Minor;
-    if (s_Major == -1) {
-        const char* pVersion = (const char*)glGetString(GL_VERSION);
-        sscanf(pVersion, "%d.%d", &s_Major, &s_Minor);
-    }
-    major = s_Major;
-    minor = s_Minor;
-}
-
-void getGLShadingLanguageVersion(int& major, int& minor)
-{
-    int glMajor = 0;
-    int glMinor = 0;
-    getGLVersion(glMajor, glMinor);
-
-    major = 0;
-    minor = 0;
-    if (glMajor == 1) {
-        if (queryOGLExtension("GL_ARB_shading_language_100")) {
-            major = 1;
-            minor = 0;
-        }
-    } else {
-        const char* pVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-        sscanf(pVersion, "%d.%d", &major, &minor);
-    }
-}
-
 string AVG_API oglModeToString(int mode)
 {
     switch (mode) {

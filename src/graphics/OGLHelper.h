@@ -74,8 +74,6 @@ void AVG_API winOGLErrorCheck(BOOL bOK, const std::string& sWhere);
 #endif
 bool AVG_API queryOGLExtension(const char* extName);
 bool AVG_API queryGLXExtension(const char* extName);
-void AVG_API getGLVersion(int& major, int& minor);
-void AVG_API getGLShadingLanguageVersion(int& major, int& minor);
 std::string AVG_API oglModeToString(int mode);
 
 enum OGLMemoryMode { 

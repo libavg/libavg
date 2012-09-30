@@ -100,6 +100,10 @@ public:
 
     static int nextMultiSampleValue(int curSamples);
 
+protected:
+    void getVersion(int& major, int& minor) const;
+
+
 private:
     void checkGPUMemInfoSupport();
 #ifdef _WIN32
@@ -150,6 +154,8 @@ private:
     bool m_bPremultipliedAlpha;
     unsigned m_BoundTextures[16];
 
+    int m_MajorGLVersion;
+    int m_MinorGLVersion;
 
     static bool s_bErrorCheckEnabled;
 

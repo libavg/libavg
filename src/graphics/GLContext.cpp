@@ -162,7 +162,8 @@ GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize,
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
       m_BlendColor(0.f, 0.f, 0.f, 0.f),
-      m_BlendMode(BLEND_ADD)
+      m_BlendMode(BLEND_ADD),
+      m_MajorGLVersion(-1)
 {
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
@@ -435,6 +436,13 @@ void GLContext::init()
 {
     activate();
     glproc::init();
+    if (m_GLConfig.m_bGLES) {
+        m_MajorGLVersion = 2;
+        m_MinorGLVersion = 0;
+    } else {
+        const char* pVersion = (const char*)glGetString(GL_VERSION);
+        sscanf(pVersion, "%d.%d", &m_MajorGLVersion, &m_MinorGLVersion);
+    }
 
     if (m_GLConfig.m_bUseDebugContext) {
 //        if (queryOGLExtension("GL_ARB_debug_output")) {
@@ -453,10 +461,7 @@ void GLContext::init()
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
     }
     if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
-        int majorVer;
-        int minorVer;
-        getGLVersion(majorVer, minorVer);
-        if (majorVer > 1) {
+        if (m_MajorGLVersion > 1) {
             m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         } else {
             m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
@@ -518,10 +523,7 @@ StandardShaderPtr GLContext::getStandardShader()
 
 bool GLContext::useGPUYUVConversion() const
 {
-    int majorVer;
-    int minorVer;
-    getGLVersion(majorVer, minorVer);
-    return (majorVer > 1);
+    return (m_MajorGLVersion > 1);
 }
 
 bool GLContext::useMinimalShader()
@@ -870,6 +872,12 @@ int GLContext::nextMultiSampleValue(int curSamples)
         default:
             return 8;
     }
+}
+
+void GLContext::getVersion(int& major, int& minor) const
+{
+    major = m_MajorGLVersion;
+    minor = m_MinorGLVersion;
 }
 
 void GLContext::checkGPUMemInfoSupport()

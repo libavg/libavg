@@ -64,10 +64,7 @@ bool OGLImagingContext::isSupported()
 {
     int glMajorVer;
     int glMinorVer;
-    int slMajorVer;
-    int slMinorVer;
-    getGLVersion(glMajorVer, glMinorVer);
-    getGLShadingLanguageVersion(slMajorVer, slMinorVer);
+    getVersion(glMajorVer, glMinorVer);
     return (glMajorVer > 1 && queryOGLExtension("GL_ARB_texture_rectangle") && 
             queryOGLExtension("GL_ARB_pixel_buffer_object") &&
             queryOGLExtension("GL_EXT_framebuffer_object"));
