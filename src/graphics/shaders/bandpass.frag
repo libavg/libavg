@@ -19,18 +19,18 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform sampler2D minTex;
-uniform sampler2D maxTex;
-uniform float postScale;
-uniform bool bInvert;
+uniform sampler2D u_MinTex;
+uniform sampler2D u_MaxTex;
+uniform float u_PostScale;
+uniform bool u_bInvert;
 
 void main(void)
 {
-  vec4 min = texture2D(minTex, gl_TexCoord[0].st); 
-  vec4 max = texture2D(maxTex, gl_TexCoord[0].st);
-  gl_FragColor = vec4(0.502, 0.502, 0.502, 0)+(max-min)*postScale;
-  if (bInvert) {
-    gl_FragColor = vec4(1.004,1.004,1.004,1)-gl_FragColor;
+  vec4 min = texture2D(u_MinTex, gl_TexCoord[0].st); 
+  vec4 max = texture2D(u_MaxTex, gl_TexCoord[0].st);
+  gl_FragColor = vec4(0.502, 0.502, 0.502, 0) + (max-min)*u_PostScale;
+  if (u_bInvert) {
+    gl_FragColor = vec4(1.004,1.004,1.004,1) - gl_FragColor;
   }
   gl_FragColor.a = 1.0;
 }

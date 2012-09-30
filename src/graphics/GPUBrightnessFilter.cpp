@@ -44,8 +44,8 @@ GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf,
     setDimensions(size);
 
     OGLShaderPtr pShader = getShader();
-    m_pTextureParam = pShader->getParam<int>("texture");
-    m_pAlphaParam = pShader->getParam<float>("alpha");
+    m_pTextureParam = pShader->getParam<int>("u_Texture");
+    m_pAlphaParam = pShader->getParam<float>("u_Alpha");
 }
 
 GPUBrightnessFilter::~GPUBrightnessFilter()

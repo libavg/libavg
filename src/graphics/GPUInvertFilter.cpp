@@ -37,7 +37,7 @@ GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf, bool bSta
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    m_pTextureParam = getShader()->getParam<int>("texture");
+    m_pTextureParam = getShader()->getParam<int>("u_Texture");
 }
 
 GPUInvertFilter::~GPUInvertFilter()

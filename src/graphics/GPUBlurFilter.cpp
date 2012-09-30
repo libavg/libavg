@@ -52,16 +52,16 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     setStdDev(stdDev);
 
     OGLShaderPtr pShader = getShader();
-    m_pHorizWidthParam = pShader->getParam<float>("width");
-    m_pHorizRadiusParam = pShader->getParam<int>("radius");
-    m_pHorizTextureParam = pShader->getParam<int>("texture");
-    m_pHorizKernelTexParam = pShader->getParam<int>("kernelTex");
+    m_pHorizWidthParam = pShader->getParam<float>("u_Width");
+    m_pHorizRadiusParam = pShader->getParam<int>("u_Radius");
+    m_pHorizTextureParam = pShader->getParam<int>("u_Texture");
+    m_pHorizKernelTexParam = pShader->getParam<int>("u_KernelTex");
 
     pShader = avg::getShader(SHADERID_VERT);
-    m_pVertWidthParam = pShader->getParam<float>("width");
-    m_pVertRadiusParam = pShader->getParam<int>("radius");
-    m_pVertTextureParam = pShader->getParam<int>("texture");
-    m_pVertKernelTexParam = pShader->getParam<int>("kernelTex");
+    m_pVertWidthParam = pShader->getParam<float>("u_Width");
+    m_pVertRadiusParam = pShader->getParam<int>("u_Radius");
+    m_pVertTextureParam = pShader->getParam<int>("u_Texture");
+    m_pVertKernelTexParam = pShader->getParam<int>("u_KernelTex");
 }
 
 GPUBlurFilter::~GPUBlurFilter()

@@ -19,14 +19,14 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform sampler2D texture;
-uniform vec4 alpha;
+uniform sampler2D u_Texture;
+uniform float u_Alpha;
 
 // A minimal shader for use on low-end systems where the standard shader hurts 
 // performance.
 void main(void)
 {
-    vec4 rgba = texture2D(texture, gl_TexCoord[0].st);
-    rgba.a *= alpha;
+    vec4 rgba = texture2D(u_Texture, gl_TexCoord[0].st);
+    rgba.a *= u_Alpha;
     gl_FragColor = rgba;
 }

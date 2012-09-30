@@ -41,7 +41,7 @@ GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    m_pTextureParam = getShader()->getParam<int>("texture");
+    m_pTextureParam = getShader()->getParam<int>("u_Texture");
 }
 
 GPUNullFilter::~GPUNullFilter()

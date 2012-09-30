@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform sampler2D texture;
-uniform bool bIsLast;
+uniform sampler2D u_Texture;
+uniform bool u_bIsLast;
 
 void main(void)
 {
@@ -29,12 +29,12 @@ void main(void)
     float dy = dFdy(gl_TexCoord[0].y);
     for (float y = -1.0; y <= 1.0; ++y) {
         for (float x = -1.0; x <= 1.0; ++x) {
-           float a = texture2D(texture, gl_TexCoord[0].st+vec2(x*dx,y*dy)).a;
+           float a = texture2D(u_Texture, gl_TexCoord[0].st+vec2(x*dx,y*dy)).a;
            minAlpha = min(minAlpha, a);
         }
     }
-    vec4 tex = texture2D(texture, gl_TexCoord[0].st);
-    if (bIsLast) {
+    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st);
+    if (u_bIsLast) {
        gl_FragColor = vec4(tex.rgb*minAlpha, minAlpha);
     } else {
        gl_FragColor = vec4(tex.rgb, minAlpha);

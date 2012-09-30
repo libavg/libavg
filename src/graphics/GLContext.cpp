@@ -470,6 +470,28 @@ void GLContext::init()
         throw Exception(AVG_ERR_UNSUPPORTED,
            "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
     }
+    glEnable(GL_BLEND);
+    checkError("init: glEnable(GL_BLEND)");
+    glDisable(GL_DEPTH_TEST);
+    checkError("init: glDisable(GL_DEPTH_TEST)");
+    glEnable(GL_STENCIL_TEST);
+    checkError("init: glEnable(GL_STENCIL_TEST)");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnable(GL_TEXTURE_2D);
+    
+    glproc::UseProgramObject(0);
+    if (useMinimalShader()) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+    }
+
 }
 
 void GLContext::activate()

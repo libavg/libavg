@@ -52,27 +52,27 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
 
     setDimensions(size);
     OGLShaderPtr pShader = getShader();
-    m_pTextureParam = pShader->getParam<int>("texture");
+    m_pTextureParam = pShader->getParam<int>("u_Texture");
     
-    m_pHKeyParam = pShader->getParam<float>("hKey");
-    m_pHToleranceParam = pShader->getParam<float>("hTolerance");
-    m_pHSoftToleranceParam = pShader->getParam<float>("hSoftTolerance");
+    m_pHKeyParam = pShader->getParam<float>("u_HKey");
+    m_pHToleranceParam = pShader->getParam<float>("u_HTolerance");
+    m_pHSoftToleranceParam = pShader->getParam<float>("u_HSoftTolerance");
     
-    m_pSKeyParam = pShader->getParam<float>("sKey");
-    m_pSToleranceParam = pShader->getParam<float>("sTolerance");
-    m_pSSoftToleranceParam = pShader->getParam<float>("sSoftTolerance");
+    m_pSKeyParam = pShader->getParam<float>("u_SKey");
+    m_pSToleranceParam = pShader->getParam<float>("u_STolerance");
+    m_pSSoftToleranceParam = pShader->getParam<float>("u_SSoftTolerance");
     
-    m_pLKeyParam = pShader->getParam<float>("lKey");
-    m_pLToleranceParam = pShader->getParam<float>("lTolerance");
-    m_pLSoftToleranceParam = pShader->getParam<float>("lSoftTolerance");
+    m_pLKeyParam = pShader->getParam<float>("u_LKey");
+    m_pLToleranceParam = pShader->getParam<float>("u_LTolerance");
+    m_pLSoftToleranceParam = pShader->getParam<float>("u_LSoftTolerance");
     
-    m_pSpillThresholdParam = pShader->getParam<float>("spillThreshold");
-    m_pIsLastParam = pShader->getParam<int>("bIsLast");
+    m_pSpillThresholdParam = pShader->getParam<float>("u_SpillThreshold");
+    m_pIsLastParam = pShader->getParam<int>("u_bIsLast");
 
     createShader(SHADERID_EROSION);
     pShader = avg::getShader(SHADERID_EROSION);
-    m_pErosionTextureParam= pShader->getParam<int>("texture");
-    m_pErosionIsLastParam = pShader->getParam<int>("bIsLast");
+    m_pErosionTextureParam= pShader->getParam<int>("u_Texture");
+    m_pErosionIsLastParam = pShader->getParam<int>("u_bIsLast");
     
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(size));
 }

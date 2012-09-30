@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-uniform sampler2D texture;
+uniform sampler2D u_Texture;
 
 void main(void)
 {
     // Uses jpeg coefficients.
-    vec4 tex = texture2D(texture, gl_TexCoord[0].st);
+    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st);
     float y =  0.299*tex.r + 0.587*tex.g + 0.114*tex.b;
     float u = -0.168*tex.r - 0.330*tex.g + 0.498*tex.b + 0.5;
     float v =  0.498*tex.r - 0.417*tex.g - 0.081*tex.b + 0.5;
