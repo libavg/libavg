@@ -820,6 +820,8 @@ int Player::setTimeout(int time, PyObject * pyfunc)
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
 {
+    AVG_DEPRECATION_WARNING("1.8", "Player.setOnFrameHandler", 
+            "Player.subscribe(ON_FRAME)");
     return internalSetTimeout(0, pyfunc, true);
 }
 
@@ -1684,6 +1686,8 @@ void Player::handleTimers()
             (*it)->fire(getFrameTime());
         }
     }
+
+    notifySubscribers("ON_FRAME");
 }
 
 SDLDisplayEngine * Player::getDisplayEngine() const
