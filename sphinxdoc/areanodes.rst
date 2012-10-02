@@ -444,7 +444,7 @@ Area Nodes
 
             To get this message, call :py:meth:`Publisher.subscribe`.
 
-            .. py:method:: Node.ENDOFFILE()
+            .. py:method:: Node.END_OF_FILE()
             
                 Emitted when the end of the audio stream has been reached.
 
