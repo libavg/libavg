@@ -103,11 +103,11 @@ Player & Canvas
 
             To get these messages, call :py:meth:`Publisher.subscribe`.
 
-            .. py:method:: KEYDOWN(keyEvent)
+            .. py:method:: KEY_DOWN(keyEvent)
             
                 Called whenever a key is pressed.
             
-            .. py:method:: KEYUP(keyEvent)
+            .. py:method:: KEY_UP(keyEvent)
 
                 Called whenever a key is released.
 
