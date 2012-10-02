@@ -382,14 +382,6 @@ class BmpSlider(Slider):
         super(BmpSlider, self).__init__(trackNode=trackNode,
                 orientation=orientation, thumbNode=thumbNode, **kwargs)
     
-    def __calcTrackMargin(self, orientation, margin, thumbSize):
-        if orientation == Orientation.HORIZONTAL:
-            if margin[0] == 0 and margin[2] == 0:
-                margin = (thumbSize.x/2, margin[1], thumbSize.x/2, margin[3])
-        else:
-            if margin[1] == 0 and margin[3] == 0:
-                margin = (margin[0], thumbSize.y/2, margin[2], thumbSize.y/2)
-        return margin
 
 class ScrollBar(Slider):
    
