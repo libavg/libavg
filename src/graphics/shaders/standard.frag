@@ -19,8 +19,6 @@
 //  Current versions can be found at www.libavg.de
 //
 
-precision mediump float;
-
 uniform sampler2D u_Texture;
 uniform sampler2D u_CBTexture;
 uniform sampler2D u_CRTexture;

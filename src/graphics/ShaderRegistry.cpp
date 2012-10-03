@@ -87,9 +87,9 @@ void ShaderRegistry::createShader(const std::string& sID)
         }
         string sFragPreprocessed;
         loadShaderString(sFilename, sFragPreprocessed);
-        string sDefines = createDefinesString();
+        string sPrefix = createPrefixString();
         m_ShaderMap[sID] = OGLShaderPtr(
-                new OGLShader(sID, sVertPreprocessed, sFragPreprocessed, sDefines));
+                new OGLShader(sID, sVertPreprocessed, sFragPreprocessed, sPrefix));
     }
 }
 
@@ -154,14 +154,18 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
     }
 }
 
-string ShaderRegistry::createDefinesString()
+string ShaderRegistry::createPrefixString()
 {
     stringstream ss;
     std::map<std::string, std::string>::iterator it;
-    for (it=m_PreprocessorDefinesMap.begin(); it != m_PreprocessorDefinesMap.end();
+    for (it = m_PreprocessorDefinesMap.begin(); it != m_PreprocessorDefinesMap.end();
             ++it)
     {
         ss << "#define " << it->first << " " << it->second << endl;
+    }
+    if (GLContext::getMain()->isGLES()) {
+        ss << endl;
+        ss << "precision mediump float;" << endl;
     }
     return ss.str();
 }

@@ -34,7 +34,7 @@ using namespace std;
 namespace avg {
 
 OGLShader::OGLShader(const string& sName, const string& sVertProgram, 
-        const string& sFragProgram, const string& sDefines)
+        const string& sFragProgram, const string& sPrefix)
     : m_sName(sName),
       m_sVertProgram(sVertProgram),
       m_sFragProgram(sFragProgram)
@@ -43,10 +43,10 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     if (sVertProgram == "") {
         m_hVertexShader = 0;
     } else {
-        m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sDefines);
+        m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sPrefix);
         glproc::AttachObject(m_hProgram, m_hVertexShader);
     }
-    m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sDefines);
+    m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sPrefix);
     
     glproc::AttachObject(m_hProgram, m_hFragmentShader);
     glproc::LinkProgram(m_hProgram);
@@ -102,10 +102,10 @@ void OGLShader::setTransform(const glm::mat4& transform)
 }
 
 GLhandleARB OGLShader::compileShader(GLenum shaderType, const std::string& sProgram,
-        const std::string& sDefines)
+        const std::string& sPrefix)
 {
     const char * pProgramStrs[2];
-    pProgramStrs[0] = sDefines.c_str();
+    pProgramStrs[0] = sPrefix.c_str();
     pProgramStrs[1] = sProgram.c_str();
     GLhandleARB hShader = glproc::CreateShaderObject(shaderType);
     glproc::ShaderSource(hShader, 2, pProgramStrs, 0);

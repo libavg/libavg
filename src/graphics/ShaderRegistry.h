@@ -54,7 +54,7 @@ private:
     void loadShaderString(const std::string& sFilename, std::string& sPreprocessed);
     void preprocess(const std::string& sShaderCode, const std::string& sFileName, 
             std::string& sProcessed);
-    std::string createDefinesString();
+    std::string createPrefixString();
     void throwParseError(const std::string& sFileName, int curLine);
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
