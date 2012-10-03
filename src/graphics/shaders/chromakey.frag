@@ -33,7 +33,10 @@ uniform float u_SpillThreshold;
 uniform bool u_bIsLast;
        
 #include "helper.frag"
-        
+
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+      
 vec4 alphaMin(vec4 v1, vec4 v2)
 {
     if (v1.a < v2.a) {
@@ -83,7 +86,7 @@ vec4 getMedian(vec2 texCoord)
 
 void main(void)
 {
-    vec4 tex = getMedian(gl_TexCoord[0].st);
+    vec4 tex = getMedian(v_TexCoord);
     float h;
     float s;
     float l;
@@ -110,7 +113,7 @@ void main(void)
     } else {
         alpha = 1.0;
     }
-    tex = texture2D(u_Texture, gl_TexCoord[0].st);
+    tex = texture2D(u_Texture, v_TexCoord);
     if (alpha > 0.0 && hDiff < u_SpillThreshold) {
         rgb2hsl(tex, h, s, l);
         if (u_SpillThreshold > u_HTolerance) {
