@@ -85,6 +85,8 @@ public:
     int getMaxTexSize();
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
+    bool isGLES() const;
+
     bool initVBlank(int rate);
     void swapBuffers();
 

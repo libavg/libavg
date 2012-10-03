@@ -711,6 +711,11 @@ OGLMemoryMode GLContext::getMemoryModeSupported()
     }
     return m_MemoryMode;
 }
+    
+bool GLContext::isGLES() const
+{
+    return m_GLConfig.m_bGLES;
+}
 
 int GLContext::getMaxTexSize() 
 {
