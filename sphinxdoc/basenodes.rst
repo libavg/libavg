@@ -99,45 +99,59 @@ This section describes the base classes for all node classes that libavg provide
 
             To get these messages, call :py:meth:`Publisher.subscribe`.
 
-            .. py:method:: CURSORDOWN(cursorevent)
+            .. py:method:: CURSOR_DOWN(cursorevent)
             
                 Emitted whenever a mouse button is pressed or a new touch is registered.
 
-            .. py:method:: CURSORMOTION(cursorevent)
+            .. py:method:: CURSOR_MOTION(cursorevent)
             
                 Emitted whenever a mouse or a touch moves.
 
-            .. py:method:: CURSORUP(cursorevent)
+            .. py:method:: CURSOR_UP(cursorevent)
             
                 Emitted whenever a mouse button is released or a touch leaves the surface.
 
-            .. py:method:: CURSOROVER(cursorevent)
+            .. py:method:: CURSOR_OVER(cursorevent)
             
                 Emitted whenever a mouse or a touch enters the :py:class:`Node`'s area.
 
-            .. py:method:: CURSOROUT(cursorevent)
+            .. py:method:: CURSOR_OUT(cursorevent)
             
                 Emitted whenever a mouse or a touch leaves the :py:class:`Node`'s area.
 
-            .. py:method:: HOVERDOWN(cursorevent)
+            .. py:method:: HOVER_DOWN(cursorevent)
             
                 Emitted whenever a new hover cursor is registered.
 
-            .. py:method:: HOVERMOTION(cursorevent)
+            .. py:method:: HOVER_MOTION(cursorevent)
             
                 Emitted whenever a hover cursor moves.
 
-            .. py:method:: HOVERUP(cursorevent)
+            .. py:method:: HOVER_UP(cursorevent)
             
                 Emitted whenever a hover cursor disappears.
 
-            .. py:method:: HOVEROVER(cursorevent)
+            .. py:method:: HOVER_OVER(cursorevent)
             
                 Emitted whenever a hover cursor enters the :py:class:`Node`'s area.
 
-            .. py:method:: HOVEROUT(cursorevent)
+            .. py:method:: HOVER_OUT(cursorevent)
             
                 Emitted whenever a hover cursor leaves the :py:class:`Node`'s area.
+
+            .. py:method:: SIZE_CHANGED(newSize)
+            
+                Emitted whenever the size of the node changes. This includes any python
+                calls that change the size. In addition, image loading (for 
+                :py:class:`ImageNode`), opening of video files (for 
+                :py:class:`VideoNode`) and changes in the text displayed (in the case of
+                :py:class:`WordsNode`) can trigger :py:meth:`SIZE_CHANGED` messages. Note
+                that changing the size of a node inside a :py:meth:`SIZE_CHANGED` handler
+                will lead to an additional recursive invocation of 
+                :py:meth:`SIZE_CHANGED`.
+                
+                :py:class:`RectNode` and all classes derived from :py:class:`AreaNode`
+                support this message.
 
 
         .. py:attribute:: id

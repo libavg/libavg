@@ -31,11 +31,11 @@ Input Handling
             To get these messages, call :py:meth:`Publisher.subscribe`. All subscribers
             are unsubscribed automatically after the up event.
 
-            .. py:method:: CURSORMOTION(cursorevent)
+            .. py:method:: CURSOR_MOTION(cursorevent)
             
                 Emitted whenever the contact moves.
 
-            .. py:method:: CURSORUP(cursorevent)
+            .. py:method:: CURSOR_UP(cursorevent)
             
                 Emitted when the mouse button is released or the touch leaves the surface.
 

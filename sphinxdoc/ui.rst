@@ -123,7 +123,7 @@ functionality
 
             To get these messages, call :py:meth:`Publisher.subscribe`.
 
-            .. py:method:: Recognizer.MOTION(event, offset)
+            .. py:method:: Recognizer.MOTION(offset)
 
                 Emitted when the drag should cause a position change. This usually happens
                 in response to a :py:const:`CURSORMOTION` event, but may also happen
@@ -139,7 +139,7 @@ functionality
                     The current offset from the start of the drag in coordinates relative
                     to the :py:attr:`coordSysNode`'s parent.
 
-            .. py:method:: Recognizer.UP(event, offset)
+            .. py:method:: Recognizer.UP(offset)
 
                 Emitted when the cursor is released. If inertia is enabled, there may be 
                 move events after the up event.
@@ -332,24 +332,24 @@ functionality
 
             To get these messages, call :py:meth:`Publisher.subscribe`.
 
-            .. py:method:: POSSIBLE(event)
+            .. py:method:: POSSIBLE()
 
                 Emit when gesture recognition begins - usually after a cursordown event.
                 Some continuous gestures (such as unconstrained drags) never emit 
                 :py:meth:`POSSIBLE` but emit :py:meth:`DETECTED` immediately.
 
-            .. py:method:: FAILED(event) 
+            .. py:method:: FAILED() 
 
                 Emitted when gesture recognition is rejected. For instance, in the case 
                 of a :py:class:`DoubleTapRecognizer`, a :py:meth:`FAILED` message is
                 emitted if the touch stays on the surface for too long.
 
-            .. py:method:: DETECTED(event)
+            .. py:method:: DETECTED()
 
                 Emitted when the gesture is recognized. For discrete gestures, this 
                 signifies the end of gesture processing. 
 
-            .. py:method:: END(event)
+            .. py:method:: END()
 
                 Emitted when a continuous gesture ends. This is often a result of an
                 up event, but e.g. in the case of inertia, :py:meth:`END` is emitted
