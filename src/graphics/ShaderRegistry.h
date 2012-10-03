@@ -61,7 +61,7 @@ private:
     OGLShaderPtr m_pCurShader;
     std::map<std::string, std::string> m_PreprocessorDefinesMap;
 
-    static std::string m_sLibPath;
+    static std::string s_sLibPath;
 };
 
 void createShader(const std::string& sID);
