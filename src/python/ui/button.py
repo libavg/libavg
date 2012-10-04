@@ -23,7 +23,8 @@
 from libavg import avg, statemachine, player
 import gesture
 
-from base import SwitchNode
+from base import SwitchNode, AccordionNode
+from . import skin
 
 class _ButtonBase(avg.DivNode):
 
@@ -144,6 +145,7 @@ class Button(_ButtonBase):
 
 
 class BmpButton(Button):
+
     def __init__(self, upSrc, downSrc, disabledSrc=None, **kwargs):
         upNode = avg.ImageNode(href=upSrc)
         downNode = avg.ImageNode(href=downSrc)
@@ -154,6 +156,47 @@ class BmpButton(Button):
         super(BmpButton, self).__init__(upNode=upNode, downNode=downNode, 
                 disabledNode=disabledNode, **kwargs)
 
+
+class TextButton(Button):
+
+    def __init__(self, text, skinObj=None, **kwargs):
+        if not(skinObj):
+            skinObj = skin.Skin.default
+        size = avg.Point2D(kwargs["size"])
+        cfg = skinObj.textButtonCfg
+
+        self.wordsNodes = []
+
+        upNode = self.__createStateNode(size, cfg, "upBmp", text, "font")
+        downNode = self.__createStateNode(size, cfg, "downBmp", text, "font")
+        if cfg["disabledBmp"] != None:
+            disabledNode = self.__createStateNode(size, cfg, "disabledBmp", text, 
+                    "disabledFont")
+        else:
+            disabledNode = None
+        
+        super(TextButton, self).__init__(upNode=upNode, downNode=downNode,
+                disabledNode=disabledNode, **kwargs)
+
+    def __createStateNode(self, size, cfg, bmpName, text, fontStyleName):
+        stateNode = avg.DivNode(size=size)
+        AccordionNode(size=size, srcBmp=cfg[bmpName], 
+                endsExtent=cfg["endsExtent"], parent=stateNode)
+        words = avg.WordsNode(text=text, style=cfg[fontStyleName], parent=stateNode)
+        words.pos = (size-words.size)/2
+        self.wordsNodes.append(words)
+        return stateNode
+
+    def getText(self):
+        return self.wordsNodes[0].text
+
+    def setText(self, text):
+        for node in self.wordsNodes:
+            node.text = text
+            node.pos = (self.size-node.size)/2
+    
+    text = property(getText, setText)
+    
 
 class ToggleButton(_ButtonBase):
     

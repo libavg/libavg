@@ -351,6 +351,37 @@ class UITestCase(AVGTestCase):
                 (lambda: self.compareImage("testUIButtonDisabled"),
                 ))
 
+    def testTextButton(self):
+        root = self.loadEmptyScene()
+        button = ui.TextButton("text", parent=root, size=(50,42))
+        self.messageTester = MessageTester(button, 
+                [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED],
+                self)
+        self.start(True,
+                (# Standard down->up
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
+                        [ui.Button.PRESSED]),
+                 lambda: self.compareImage("testTextButtonDown"),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
+                        [ui.Button.CLICKED, ui.Button.RELEASED]),
+                 lambda: self.compareImage("testTextButtonUp"),
+
+                 # Check disabled graphics
+                 lambda: self.assert_(button.enabled),
+                 lambda: button.setEnabled(False),
+                 lambda: self.assert_(not(button.enabled)),
+                 lambda: self.compareImage("testTextButtonDisabled"),
+                 lambda: button.setEnabled(True),
+
+                 # Change text
+                 lambda: button.setText("newText"),
+                 lambda: self.compareImage("testTextButtonUpNewText"),
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
+                        [ui.Button.PRESSED]),
+                 lambda: self.compareImage("testTextButtonDownNewText"),
+                ))
+
+
     def testToggleButton(self):
 
         def onToggled(isToggled):
@@ -877,6 +908,7 @@ def uiTestSuite(tests):
         "testTextArea",
         "testFocusContext",
         "testButton",
+        "testTextButton",
         "testToggleButton",
         "testScrollPane",
         "testAccordionNode",

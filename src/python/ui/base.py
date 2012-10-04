@@ -27,8 +27,8 @@ class Orientation():
 
 class AccordionNode(avg.DivNode):
     
-    def __init__(self, src, endsExtent, orientation=Orientation.HORIZONTAL,
-            minExtent=-1, parent=None, **kwargs):
+    def __init__(self, endsExtent, src=None, srcBmp=None,
+            orientation=Orientation.HORIZONTAL, minExtent=-1, parent=None, **kwargs):
         super(AccordionNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         if endsExtent < 0:
@@ -38,7 +38,12 @@ class AccordionNode(avg.DivNode):
             # 1 has same effect as 0 - we just create one-pixel wide start and end images.
             endsExtent = 1
 
-        self.__bmp = avg.Bitmap(src)
+        if src == None:
+            self.__bmp = srcBmp
+        else:
+            if (srcBmp != None):
+                raise RuntimeError("Can't specify both src and srcBmp for AccordionNode")
+            self.__bmp = avg.Bitmap(src)
         self._orientation = orientation
 
         # XXX: Check if bmp is smaller than min size
