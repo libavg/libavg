@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, AVGApp, anim
+from libavg import avg, AVGApp
 
 class HelloWorld(AVGApp):
     def init(self):
@@ -13,7 +13,7 @@ class HelloWorld(AVGApp):
         # You should start and stop all animations, intervals etc.
         # in _enter and _leave, so your application uses only
         # minimal resources while it is not running.
-        self.anim = anim.ContinuousAnim(self.node, 'angle', 0, 3.14)
+        self.anim = avg.ContinuousAnim(self.node, 'angle', 0, 3.14)
         self.anim.start()
 
     def _leave(self):
