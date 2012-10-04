@@ -25,12 +25,48 @@ class Orientation():
     HORIZONTAL = 1
 
 
-class StretchNode(avg.DivNode):
+class StretchNodeBase(avg.DivNode):
     
-    def __init__(self, endsExtent, src,
-            orientation=Orientation.HORIZONTAL, minExtent=-1, parent=None, **kwargs):
-        super(StretchNode, self).__init__(**kwargs)
+    def __init__(self, parent=None, **kwargs):
+        super(StretchNodeBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+        
+    def getWidth(self):
+        return self._baseWidth
+
+    def setWidth(self, width):
+        self._positionNodes(avg.Point2D(width, self._baseHeight))
+
+    _baseWidth = avg.DivNode.width
+    width = property(getWidth, setWidth)
+
+    def getHeight(self):
+        return self._baseHeight
+
+    def setHeight(self, height):
+        self._positionNodes(avg.Point2D(self._baseWidth, height))
+
+    _baseHeight = avg.DivNode.height
+    height = property(getHeight, setHeight)
+
+    def getSize(self):
+        return self._baseSize
+
+    def setSize(self, size):
+        self._positionNodes(size)
+
+    _baseSize = avg.DivNode.size
+    size = property(getSize, setSize)
+
+    def _bmpFromSrc(self, src):
+        if isinstance(src, basestring):
+            return avg.Bitmap(src)
+        elif isinstance(src, avg.Bitmap):
+            return src
+        else:
+            raise RuntimeError("src must be a string or a Bitmap.")
+
+    def _checkExtents(self, endsExtent, minExtent):
         if endsExtent < 0:
             raise RuntimeError(
                     "Illegal value for endsExtent: %i. Must be >= 0"%endsExtent)
@@ -38,118 +74,107 @@ class StretchNode(avg.DivNode):
             # 1 has same effect as 0 - we just create one-pixel wide start and end images.
             endsExtent = 1
 
-        if isinstance(src, basestring):
-            self.__bmp = avg.Bitmap(src)
-        elif isinstance(src, avg.Bitmap):
-            self.__bmp = src
-        else:
-            raise RuntimeError("StretchNode.src must be a string or a Bitmap.")
-
-        self._orientation = orientation
-
-        # XXX: Check if bmp is smaller than min size
-
-        self.__startImg = self.__createImageNode(self.__bmp, endsExtent)
-        self.__centerImg = self.__createImageNode(self.__bmp, 1)
-        self.__endImg = self.__createImageNode(self.__bmp, endsExtent)
-        
-        self.__endsExtent = endsExtent
         if minExtent == -1:
-            self.__minExtent = self.__endsExtent*2+1
+            minExtent = endsExtent*2+1
         else:
-            self.__minExtent = minExtent
-        
-        if orientation == Orientation.HORIZONTAL:
-            if self.__baseSize.x != 0:
-                self.__baseWidth = self.__baseSize.x
-            if self.__baseSize.y == 0:
-                self.__baseHeight = self.__startImg.height
-        else:
-            if self.__baseSize.y != 0:
-                self.__baseHeight = self.__baseSize.y
-            if self.__baseSize.x == 0:
-                self.__baseWidth = self.__startImg.width
-        self.__positionNodes(self.__baseSize)
+            minExtent = minExtent
+        return (endsExtent, minExtent)
 
-        if player.isPlaying():
-            self.__renderImages()
-        else:
-            player.subscribe(avg.Player.PLAYBACK_START, self.__renderImages)
-
-    def getWidth(self):
-        return self.__baseWidth
-
-    def setWidth(self, width):
-        self.__positionNodes(avg.Point2D(width, self.__baseHeight))
-
-    __baseWidth = avg.DivNode.width
-    width = property(getWidth, setWidth)
-
-    def getHeight(self):
-        return self.__baseHeight
-
-    def setHeight(self, height):
-        self.__positionNodes(avg.Point2D(self.__baseWidth, height))
-
-    __baseHeight = avg.DivNode.height
-    height = property(getHeight, setHeight)
-
-    def getSize(self):
-        return self.__baseSize
-
-    def setSize(self, size):
-        self.__positionNodes(size)
-
-    __baseSize = avg.DivNode.size
-    size = property(getSize, setSize)
-
-    def __positionNodes(self, newSize):
-        if self._orientation == Orientation.HORIZONTAL and newSize.x < self.__minExtent:
-                newSize = avg.Point2D(self.__minExtent, newSize.y)
-        elif self._orientation == Orientation.VERTICAL and newSize.y < self.__minExtent:
-                newSize = avg.Point2D(newSize.x, self.__minExtent)
-        self.__baseSize = newSize
-
-        if self._orientation == Orientation.HORIZONTAL:
-            self.__centerImg.x = self.__endsExtent
-            self.__centerImg.width = newSize.x - self.__endsExtent*2
-            self.__endImg.x = newSize.x - self.__endsExtent
-        else:
-            self.__centerImg.y = self.__endsExtent
-            self.__centerImg.height = newSize.y - self.__endsExtent*2
-            self.__endImg.y = newSize.y - self.__endsExtent
-
-    def __createImageNode(self, srcBmp, extent):
-        bmpSize = srcBmp.getSize()
-        if self._orientation == Orientation.HORIZONTAL:
-            endsSize = avg.Point2D(extent, bmpSize.y)
-        else:
-            endsSize = avg.Point2D(bmpSize.x, extent)
-        resultImg = avg.ImageNode(parent=self, size=endsSize)
+    def _createImageNode(self, srcBmp, size):
+        resultImg = avg.ImageNode(parent=self, size=size)
         resultImg.setBitmap(srcBmp)
         return resultImg
 
-    def __renderImages(self):
-        self.__renderImage(self.__bmp, self.__startImg, 0)
-        self.__renderImage(self.__bmp, self.__centerImg, self.__endsExtent)
-        if self._orientation == Orientation.HORIZONTAL:
-            endOffset = self.__bmp.getSize().x - self.__endsExtent
-        else:
-            endOffset = self.__bmp.getSize().y - self.__endsExtent
-        self.__renderImage(self.__bmp, self.__endImg, endOffset)
-
-    def __renderImage(self, srcBmp, node, offset):
-        if self._orientation == Orientation.HORIZONTAL:
-            pos = (-offset,0)
-        else:
-            pos = (0, -offset)
-        canvas = player.createCanvas(id="accordion_canvas", size=node.size)
+    def _renderImage(self, srcBmp, node, pos):
+        canvas = player.createCanvas(id="stretch_canvas", size=node.size)
         img = avg.ImageNode(pos=pos, parent=canvas.getRootNode())
         img.setBitmap(srcBmp)
         canvas.render()
         node.setBitmap(canvas.screenshot())
-        player.deleteCanvas("accordion_canvas")
+        player.deleteCanvas("stretch_canvas")
 
+
+class HStretchNode(StretchNodeBase):
+
+    def __init__(self, src, endsExtent, minExtent=-1, **kwargs):
+        super(HStretchNode, self).__init__(**kwargs)
+
+        (self.__endsExtent, self.__minExtent) = self._checkExtents(endsExtent, minExtent)
+
+        self.__bmp = self._bmpFromSrc(src)
+        height = self.__bmp.getSize().y
+        self.__startImg = self._createImageNode(self.__bmp, (self.__endsExtent, height))
+        self.__centerImg = self._createImageNode(self.__bmp, (1, height))
+        self.__endImg = self._createImageNode(self.__bmp, (self.__endsExtent, height))
+        
+        if self._baseSize.x != 0:
+            self._baseWidth = self._baseSize.x
+        if self._baseSize.y == 0:
+            self._baseHeight = self.__startImg.height
+        self._positionNodes(self._baseSize)
+
+        if player.isPlaying():
+            self._renderImages()
+        else:
+            player.subscribe(avg.Player.PLAYBACK_START, self._renderImages)
+    
+    def _positionNodes(self, newSize):
+        if newSize.x < self.__minExtent:
+            newSize = avg.Point2D(self.__minExtent, newSize.y)
+
+        self.__centerImg.x = self.__endsExtent
+        self.__centerImg.width = newSize.x - self.__endsExtent*2
+        self.__endImg.x = newSize.x - self.__endsExtent
+        
+        self._baseSize = newSize
+
+    def _renderImages(self):
+        self._renderImage(self.__bmp, self.__startImg, (0,0))
+        self._renderImage(self.__bmp, self.__centerImg, (-self.__endsExtent,0))
+        endOffset = self.__bmp.getSize().x - self.__endsExtent
+        self._renderImage(self.__bmp, self.__endImg, (-endOffset,0))
+    
+
+class VStretchNode(StretchNodeBase):
+
+    def __init__(self, src, endsExtent, minExtent=-1, **kwargs):
+        super(VStretchNode, self).__init__(**kwargs)
+
+        (self.__endsExtent, self.__minExtent) = self._checkExtents(endsExtent, minExtent)
+
+        self.__bmp = self._bmpFromSrc(src)
+        width = self.__bmp.getSize().x
+        self.__startImg = self._createImageNode(self.__bmp, (width, self.__endsExtent))
+        self.__centerImg = self._createImageNode(self.__bmp, (width, 1))
+        self.__endImg = self._createImageNode(self.__bmp, (width, self.__endsExtent))
+        
+        if self._baseSize.y != 0:
+            self._baseHeight = self._baseSize.y
+        if self._baseSize.x == 0:
+            self._baseWidth = self.__startImg.width
+        self._positionNodes(self._baseSize)
+
+        if player.isPlaying():
+            self._renderImages()
+        else:
+            player.subscribe(avg.Player.PLAYBACK_START, self._renderImages)
+    
+    def _positionNodes(self, newSize):
+        if newSize.y < self.__minExtent:
+            newSize = avg.Point2D(newSize.x, self.__minExtent)
+
+        self.__centerImg.y = self.__endsExtent
+        self.__centerImg.height = newSize.y - self.__endsExtent*2
+        self.__endImg.y = newSize.y - self.__endsExtent
+        
+        self._baseSize = newSize
+
+    def _renderImages(self):
+        self._renderImage(self.__bmp, self.__startImg, (0,0))
+        self._renderImage(self.__bmp, self.__centerImg, (0,-self.__endsExtent))
+        endOffset = self.__bmp.getSize().x - self.__endsExtent
+        self._renderImage(self.__bmp, self.__endImg, (0,-endOffset))
+    
 
 class SwitchNode(avg.DivNode):
 

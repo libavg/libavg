@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 
 from libavg import avg, player
-from base import SwitchNode, StretchNode, Orientation
+from base import SwitchNode, HStretchNode, VStretchNode, Orientation
 import gesture
 
 import math

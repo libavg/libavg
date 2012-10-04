@@ -573,8 +573,12 @@ class UITestCase(AVGTestCase):
                 (ui.Orientation.HORIZONTAL,"Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
-            self.node = ui.StretchNode(src="media/rgb24-32x32.png", endsExtent=15, 
-                    size=(31,31), orientation=orientation, parent=root)
+            if orientation == ui.Orientation.HORIZONTAL:
+                self.node = ui.HStretchNode(src="media/rgb24-32x32.png", endsExtent=15, 
+                        size=(31,31), parent=root)
+            else:
+                self.node = ui.VStretchNode(src="media/rgb24-32x32.png", endsExtent=15, 
+                        size=(31,31), parent=root)
             self.start(False,
                     (lambda: self.compareImage("testStretchNode"+orName+"1"),
                      changeExtent,
