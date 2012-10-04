@@ -65,6 +65,12 @@ class StretchNodeBase(avg.DivNode):
             return src
         else:
             raise RuntimeError("src must be a string or a Bitmap.")
+        
+    def _setSizeFromBmp(self, bmp):
+        if self._baseSize.x == 0:
+            self._baseWidth = bmp.width
+        if self._baseSize.y == 0:
+            self._baseHeight = bmp.height
 
     def _checkExtents(self, endsExtent, minExtent):
         if endsExtent < 0:
@@ -107,10 +113,7 @@ class HStretchNode(StretchNodeBase):
         self.__centerImg = self._createImageNode(self.__bmp, (1, height))
         self.__endImg = self._createImageNode(self.__bmp, (self.__endsExtent, height))
         
-        if self._baseSize.x != 0:
-            self._baseWidth = self._baseSize.x
-        if self._baseSize.y == 0:
-            self._baseHeight = self.__startImg.height
+        self._setSizeFromBmp(self.__bmp)
         self._positionNodes(self._baseSize)
 
         if player.isPlaying():
@@ -148,10 +151,7 @@ class VStretchNode(StretchNodeBase):
         self.__centerImg = self._createImageNode(self.__bmp, (width, 1))
         self.__endImg = self._createImageNode(self.__bmp, (width, self.__endsExtent))
         
-        if self._baseSize.y != 0:
-            self._baseHeight = self._baseSize.y
-        if self._baseSize.x == 0:
-            self._baseWidth = self.__startImg.width
+        self._setSizeFromBmp(self.__bmp)
         self._positionNodes(self._baseSize)
 
         if player.isPlaying():
@@ -174,7 +174,7 @@ class VStretchNode(StretchNodeBase):
         self._renderImage(self.__bmp, self.__centerImg, (0,-self.__endsExtent))
         endOffset = self.__bmp.getSize().x - self.__endsExtent
         self._renderImage(self.__bmp, self.__endImg, (0,-endOffset))
-    
+
 
 class SwitchNode(avg.DivNode):
 

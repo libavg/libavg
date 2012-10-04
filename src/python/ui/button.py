@@ -180,8 +180,8 @@ class TextButton(Button):
 
     def __createStateNode(self, size, cfg, bmpName, text, fontStyleName):
         stateNode = avg.DivNode(size=size)
-        HStretchNode(size=size, src=cfg[bmpName], 
-                endsExtent=cfg["endsExtent"], parent=stateNode)
+        HStretchNode(size=size, src=cfg[bmpName], endsExtent=cfg["endsExtent"], 
+                parent=stateNode)
         words = avg.WordsNode(text=text, style=cfg[fontStyleName], parent=stateNode)
         words.pos = (size-words.size)/2
         self.wordsNodes.append(words)
