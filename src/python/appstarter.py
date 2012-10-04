@@ -84,7 +84,7 @@ class AppStarter(object):
         player.play()
         self._appInstance.exit()
         g_KbManager.teardown()
-        
+
     def _setupBaseDivs(self, resolution):
         player.loadString('''
 <?xml version="1.0"?>
@@ -130,12 +130,12 @@ class AVGAppStarter(AppStarter):
         super(AVGAppStarter, self)._setupDefaultKeys()
         g_KbManager.bindKey('o', self.__dumpObjects, 'Dump objects')
         g_KbManager.bindKey('m', self.showMemoryUsage, 'Show memory usage graph')
-        
+
         g_KbManager.bindKey('f', self.showFrameRate, 'Show framerate graph')
         g_KbManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
         g_KbManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
         g_KbManager.bindKey('s', self.__screenshot, 'Take screenshot')
-    
+
     def _onStart(self):
         try:
             player.getVideoMemUsed()
@@ -160,8 +160,9 @@ class AVGAppStarter(AppStarter):
             self.__graphs.remove(self.__memGraph)
             self.__memGraph = None
         else:
-            self.__memGraph = graph.AveragingGraph('Memory Usage', 
-                    getValue = avg.getMemoryUsage)
+            size = (self._appNode.width, self._appNode.height/6.0)
+            self.__memGraph = graph.AveragingGraph(title = 'Memory Usage',
+                    getValue = avg.getMemoryUsage, parent = self._appNode, size=size)
             self.__graphs.append(self.__memGraph)
         self.__positionGraphs()
 
@@ -171,8 +172,10 @@ class AVGAppStarter(AppStarter):
             self.__graphs.remove(self.__vidMemGraph)
             self.__vidMemGraph = None
         else:
-            self.__vidMemGraph = graph.AveragingGraph('Video Memory Usage', 
-                    getValue = player.getVideoMemUsed)
+            size = (self._appNode.width, self._appNode.height/6.0)
+            print "SIZE: %s" % size
+            self.__vidMemGraph = graph.AveragingGraph(title='Video Memory Usage',
+                    getValue = player.getVideoMemUsed, parent=self._appNode, size=size)
             self.__graphs.append(self.__vidMemGraph)
         self.__positionGraphs()
 
@@ -182,16 +185,17 @@ class AVGAppStarter(AppStarter):
             self.__graphs.remove(self.__frGraph)
             self.__frGraph = None
         else:
-            self.__frGraph = graph.SlidingGraph('Time per Frame', 
-                    getValue = player.getFrameTime)
+            size = (self._appNode.width, self._appNode.height/6.0)
+            self.__frGraph = graph.SlidingGraph(title = 'Time per Frame',
+                    getValue = player.getFrameTime, parent = self._appNode, size=size)
             self.__graphs.append(self.__frGraph)
         self.__positionGraphs()
 
     def __positionGraphs(self):
         ypos = 10
         for gr in self.__graphs:
-            gr.setYPos(ypos)
-            ypos += gr.getHeight() + 10
+            gr.y = ypos
+            ypos += gr.height + 10
 
     def __switchMtemu(self):
         if self._mtEmu is None:
@@ -267,7 +271,7 @@ class AVGMTAppStarter(AVGAppStarter):
         if not(visClass is None):
             rootNode = player.getRootNode()
             self.__touchVisOverlay = apphelpers.TouchVisualizationOverlay(
-                    isDebug=False, visClass=visClass, size=self._appNode.size, 
+                    isDebug=False, visClass=visClass, size=self._appNode.size,
                     parent=rootNode)
 
     def toggleTrackerImage(self):
@@ -345,7 +349,7 @@ class AVGMTAppStarter(AVGAppStarter):
             player.getRootNode().appendChild(self.__trackerImageNode)
 
             self.__updateTrackerImageFixup()
-            
+
             g_KbManager.bindKey('h', self.tracker.resetHistory, 'RESET tracker history')
             g_KbManager.bindKey('d', self.toggleTrackerImage, 'toggle tracker image')
 
@@ -360,7 +364,7 @@ class AVGMTAppStarter(AVGAppStarter):
         self.__trackerImageNode.angle = angle
         self.trackerFlipX = (float(self.tracker.getParam('/transform/displayscale/@x'))
                 < 0)
-        self.trackerFlipY = (float(self.tracker.getParam('/transform/displayscale/@y')) 
+        self.trackerFlipY = (float(self.tracker.getParam('/transform/displayscale/@y'))
                 < 0)
 
     def __onCalibrationSuccess(self):
@@ -371,7 +375,7 @@ class AVGMTAppStarter(AVGAppStarter):
         def leaveCalibrator():
             g_KbManager.unbindKey('e')
             self._activeApp = self._appInstance
-            self._appInstance.enter()  
+            self._appInstance.enter()
             self.__calibrator.leave()
             self._appNode.opacity = 1
             self._appNode.active = True
@@ -381,9 +385,9 @@ class AVGMTAppStarter(AVGAppStarter):
         if self.__calibrator.isRunning():
             print "calibrator already running!"
             return
-      
+
         self._activeApp = self.__calibrator
-        self.__calibrator.enter()     
+        self.__calibrator.enter()
         g_KbManager.bindKey('e', leaveCalibrator, 'leave Calibrator')
         self._appInstance.leave()
         self.__calibratorNode.opacity = 1
