@@ -369,18 +369,18 @@ class Slider(avg.DivNode):
         self._thumbPos = min(rangeMax, self._thumbPos)
 
 
-class BmpSlider(Slider):
-
-    def __init__(self, trackSrc, trackEndsExtent, 
-            thumbUpSrc, thumbDownSrc, trackDisabledSrc=None, thumbDisabledSrc=None,
-            orientation=Orientation.HORIZONTAL, **kwargs):
-        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
-                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
-        thumbNode = SliderThumb(upSrc=thumbUpSrc, 
-                downSrc=thumbDownSrc, disabledSrc=thumbDisabledSrc)
-
-        super(BmpSlider, self).__init__(trackNode=trackNode,
-                orientation=orientation, thumbNode=thumbNode, **kwargs)
+#class BmpSlider(Slider):
+#
+#    def __init__(self, trackSrc, trackEndsExtent, 
+#            thumbUpSrc, thumbDownSrc, trackDisabledSrc=None, thumbDisabledSrc=None,
+#            orientation=Orientation.HORIZONTAL, **kwargs):
+#        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
+#                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
+#        thumbNode = SliderThumb(upSrc=thumbUpSrc, 
+#                downSrc=thumbDownSrc, disabledSrc=thumbDisabledSrc)
+#
+#        super(BmpSlider, self).__init__(trackNode=trackNode,
+#                orientation=orientation, thumbNode=thumbNode, **kwargs)
     
 
 class ScrollBar(Slider):
@@ -433,17 +433,17 @@ class ScrollBar(Slider):
         self._thumbPos = min(rangeMax-self.__thumbExtent, self._thumbPos)
 
 
-class BmpScrollBar(ScrollBar):
-
-    def __init__(self, trackSrc, trackEndsExtent, thumbUpSrc, thumbDownSrc, 
-            thumbEndsExtent, thumbDisabledSrc=None, trackDisabledSrc=None, 
-            orientation=Orientation.HORIZONTAL, **kwargs):
-        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
-                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
-        thumbNode = ScrollBarThumb(orientation=orientation, 
-                upSrc=thumbUpSrc, downSrc=thumbDownSrc, 
-                disabledSrc=thumbDisabledSrc, endsExtent=thumbEndsExtent)
-        
-        super(BmpScrollBar, self).__init__(trackNode=trackNode, 
-                orientation=orientation, thumbNode=thumbNode, **kwargs)
+#class BmpScrollBar(ScrollBar):
+#
+#    def __init__(self, trackSrc, trackEndsExtent, thumbUpSrc, thumbDownSrc, 
+#            thumbEndsExtent, thumbDisabledSrc=None, trackDisabledSrc=None, 
+#            orientation=Orientation.HORIZONTAL, **kwargs):
+#        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
+#                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
+#        thumbNode = ScrollBarThumb(orientation=orientation, 
+#                upSrc=thumbUpSrc, downSrc=thumbDownSrc, 
+#                disabledSrc=thumbDisabledSrc, endsExtent=thumbEndsExtent)
+#        
+#        super(BmpScrollBar, self).__init__(trackNode=trackNode, 
+#                orientation=orientation, thumbNode=thumbNode, **kwargs)
 
