@@ -1,4 +1,4 @@
-from base import SwitchNode, AccordionNode, Orientation
+from base import SwitchNode, StretchNode, Orientation
 from button import Button, BmpButton, TextButton, ToggleButton, BmpToggleButton
 from keyboard import Keyboard
 from gesture import Recognizer, TapRecognizer, DragRecognizer, DoubletapRecognizer, TransformRecognizer, calcKMeans, Mat3x3, Transform, HoldRecognizer

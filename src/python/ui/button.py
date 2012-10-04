@@ -23,7 +23,7 @@
 from libavg import avg, statemachine, player
 import gesture
 
-from base import SwitchNode, AccordionNode
+from base import SwitchNode, StretchNode
 from . import skin
 
 class _ButtonBase(avg.DivNode):
@@ -180,7 +180,7 @@ class TextButton(Button):
 
     def __createStateNode(self, size, cfg, bmpName, text, fontStyleName):
         stateNode = avg.DivNode(size=size)
-        AccordionNode(size=size, srcBmp=cfg[bmpName], 
+        StretchNode(size=size, srcBmp=cfg[bmpName], 
                 endsExtent=cfg["endsExtent"], parent=stateNode)
         words = avg.WordsNode(text=text, style=cfg[fontStyleName], parent=stateNode)
         words.pos = (size-words.size)/2

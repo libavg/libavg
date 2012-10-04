@@ -25,11 +25,11 @@ class Orientation():
     HORIZONTAL = 1
 
 
-class AccordionNode(avg.DivNode):
+class StretchNode(avg.DivNode):
     
     def __init__(self, endsExtent, src=None, srcBmp=None,
             orientation=Orientation.HORIZONTAL, minExtent=-1, parent=None, **kwargs):
-        super(AccordionNode, self).__init__(**kwargs)
+        super(StretchNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         if endsExtent < 0:
             raise RuntimeError(
@@ -42,7 +42,7 @@ class AccordionNode(avg.DivNode):
             self.__bmp = srcBmp
         else:
             if (srcBmp != None):
-                raise RuntimeError("Can't specify both src and srcBmp for AccordionNode")
+                raise RuntimeError("Can't specify both src and srcBmp for StretchNode")
             self.__bmp = avg.Bitmap(src)
         self._orientation = orientation
 
@@ -226,5 +226,5 @@ class SwitchNode(avg.DivNode):
             for node in self.__nodeMap.itervalues():
                 if node:
                     node.size = self.__baseSize
-                    # Hack to support min. size in AccordionNodes
+                    # Hack to support min. size in StretchNodes
                     self.__baseSize = node.size

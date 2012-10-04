@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 
 from libavg import avg, player
-from base import SwitchNode, AccordionNode, Orientation
+from base import SwitchNode, StretchNode, Orientation
 import gesture
 
 import math
@@ -32,12 +32,12 @@ class ScrollBarTrack(SwitchNode):
             **kwargs):
       
         super(ScrollBarTrack, self).__init__(nodeMap=None, **kwargs)
-        self.__enabledNode = AccordionNode(src=enabledSrc, endsExtent=endsExtent,
+        self.__enabledNode = StretchNode(src=enabledSrc, endsExtent=endsExtent,
                 orientation=orientation, minExtent=minExtent,
                 parent=self)
         if disabledSrc == None:
             disabledSrc = enabledSrc
-        self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
+        self.__disabledNode = StretchNode(src=disabledSrc, endsExtent=endsExtent,
                 orientation=orientation, minExtent=minExtent,
                 parent=self)
         
@@ -55,13 +55,13 @@ class ScrollBarThumb(SwitchNode):
             **kwargs):
       
         super(ScrollBarThumb, self).__init__(nodeMap=None, **kwargs)
-        self.__upNode = AccordionNode(src=upSrc, endsExtent=endsExtent,
+        self.__upNode = StretchNode(src=upSrc, endsExtent=endsExtent,
                 orientation=orientation, minExtent=minExtent)
-        self.__downNode = AccordionNode(src=downSrc, endsExtent=endsExtent,
+        self.__downNode = StretchNode(src=downSrc, endsExtent=endsExtent,
                 orientation=orientation, minExtent=minExtent)
         if disabledSrc == None:
             disabledSrc = upSrc
-        self.__disabledNode = AccordionNode(src=disabledSrc, endsExtent=endsExtent,
+        self.__disabledNode = StretchNode(src=disabledSrc, endsExtent=endsExtent,
                 orientation=orientation, minExtent=minExtent)
 
         self.setNodeMap({
