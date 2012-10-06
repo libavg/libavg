@@ -302,7 +302,8 @@ bool FBO::isMultisampleFBOSupported()
     
 bool FBO::isPackedDepthStencilSupported()
 {
-    return queryOGLExtension("GL_EXT_packed_depth_stencil");
+    return queryOGLExtension("GL_EXT_packed_depth_stencil") || 
+            queryOGLExtension("GL_OES_packed_depth_stencil");
 }
 
 void FBO::checkError(const string& sContext)
