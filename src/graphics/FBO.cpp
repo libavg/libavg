@@ -147,16 +147,14 @@ void FBO::moveToPBO(int i) const
     } else { 
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO); 
     } 
-    PixelFormat pf = m_pOutputPBO->getPF(); 
-    IntPoint size = m_pOutputPBO->getSize(); 
  
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::moveToPBO BindBuffer()"); 
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i); 
     GLContext::checkError("FBO::moveToPBO ReadBuffer()"); 
  
-    glReadPixels(0, 0, size.x, size.y, GLTexture::getGLFormat(pf),  
-            GLTexture::getGLType(pf), 0); 
+    glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
+            GLTexture::getGLType(m_PF), 0); 
     GLContext::checkError("FBO::moveToPBO ReadPixels()");     
 }
  
@@ -164,13 +162,12 @@ BitmapPtr FBO::getImageFromPBO() const
 {
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::getImageFromPBO BindBuffer()"); 
-    PixelFormat pf = m_pOutputPBO->getPF(); 
-    IntPoint size = m_pOutputPBO->getSize(); 
-    BitmapPtr pBmp(new Bitmap(size, pf)); 
+    
+    BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY); 
     GLContext::checkError("FBO::getImageFromPBO MapBuffer()"); 
-    Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels,  
-            size.x*getBytesPerPixel(pf), false); 
+    Bitmap PBOBitmap(m_Size, m_PF, (unsigned char *)pPBOPixels,  
+            m_Size.x*getBytesPerPixel(m_PF), false); 
     pBmp->copyPixels(PBOBitmap); 
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT); 
     GLContext::checkError("FBO::getImageFromPBO UnmapBuffer()"); 
