@@ -28,6 +28,9 @@
 
 #include "GLContext.h"
 #include "TextureMover.h"
+#include "PBO.h"
+#include "FBO.h"
+#include "Filterfliprgb.h"
 
 #include <string.h>
 #include <iostream>
@@ -173,8 +176,20 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 
 BitmapPtr GLTexture::moveTextureToBmp()
 {
-    TextureMoverPtr pMover = TextureMover::create(m_GLSize, m_pf, GL_DYNAMIC_READ);
-    return pMover->moveTextureToBmp(*this);
+    if (GLContext::getCurrent()->getMemoryModeSupported() == MM_PBO) {
+        return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this);
+    } else {
+        unsigned fbo = GLContext::getCurrent()->genFBO();
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, fbo);
+        glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                GL_TEXTURE_2D, m_TexID, 0);
+        FBO::checkError("moveTextureToBmp");
+        BitmapPtr pBmp(new Bitmap(m_Size, m_pf));
+        glReadPixels(0, 0, m_Size.x, m_Size.y, GL_RGBA, GL_UNSIGNED_BYTE, 
+                pBmp->getPixels());
+        FilterFlipRGB().applyInPlace(pBmp);
+        return pBmp;
+    }
 }
 
 const IntPoint& GLTexture::getSize() const

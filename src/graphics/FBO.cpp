@@ -305,7 +305,7 @@ bool FBO::isPackedDepthStencilSupported()
     return queryOGLExtension("GL_EXT_packed_depth_stencil");
 }
 
-void FBO::checkError(const string& sContext) const
+void FBO::checkError(const string& sContext)
 {
     GLenum status = glproc::CheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
     string sErr;

@@ -62,10 +62,10 @@ public:
 
     void initCache();
     static void deleteCache();
+    static void checkError(const std::string& sContext);
 
 private:
     void init();
-    void checkError(const std::string& sContext) const;
 
     IntPoint m_Size;
     PixelFormat m_PF;
