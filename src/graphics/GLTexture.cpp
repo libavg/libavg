@@ -188,9 +188,11 @@ BitmapPtr GLTexture::moveTextureToBmp()
                 GL_TEXTURE_2D, m_TexID, 0);
         FBO::checkError("moveTextureToBmp");
         BitmapPtr pBmp(new Bitmap(m_Size, m_pf));
-        glReadPixels(0, 0, m_Size.x, m_Size.y, GL_RGBA, GL_UNSIGNED_BYTE, 
+        glReadPixels(0, 0, m_Size.x, m_Size.y, getGLFormat(m_pf), getGLType(m_pf), 
                 pBmp->getPixels());
-        FilterFlipRGB().applyInPlace(pBmp);
+        if (m_pf == R8G8B8A8 || m_pf == R8G8B8) {
+            FilterFlipRGB().applyInPlace(pBmp);
+        }
         return pBmp;
     }
 }
