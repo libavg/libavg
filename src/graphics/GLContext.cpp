@@ -458,7 +458,7 @@ void GLContext::init()
     setBlendMode(BLEND_BLEND, false);
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
-                !queryOGLExtension("GL_ARB_texture_non_power_of_two");
+                !queryOGLExtension("GL_ARB_texture_non_power_of_two") && !isGLES();
     }
     if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
         if (m_MajorGLVersion > 1) {

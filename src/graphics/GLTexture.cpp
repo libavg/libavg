@@ -56,6 +56,9 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
     m_bUsePOT = m_pGLContext->usePOTTextures() || bForcePOT;
+    if (m_pGLContext->isGLES() && bMipmap) {
+        m_bUsePOT = true;
+    }
     if (m_bUsePOT) {
         m_GLSize.x = nextpow2(m_Size.x);
         m_GLSize.y = nextpow2(m_Size.y);
