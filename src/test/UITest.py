@@ -589,11 +589,18 @@ class UITestCase(AVGTestCase):
 
     def testHVStretchNode(self):
 
+        def changeSize():
+            self.node.size = (64, 64)
+            print "changeSize", self.node.size
+            self.assert_(self.node.size == (64,64))
+
         root = self.loadEmptyScene()
         self.node = ui.HVStretchNode(src="media/rgb24-32x32.png", endsExtent=(5,5), 
                 size=(31,31), parent=root)
         self.start(False,
                 (lambda: self.compareImage("testHVStretchNode1"),
+                 changeSize,
+                 lambda: self.compareImage("testHVStretchNode2"),
                 )) 
 
 

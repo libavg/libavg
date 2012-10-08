@@ -54,7 +54,7 @@ class StretchNodeBase(avg.DivNode):
         return self._baseSize
 
     def setSize(self, size):
-        self._positionNodes(size)
+        self._positionNodes(avg.Point2D(size))
 
     _baseSize = avg.DivNode.size
     size = property(getSize, setSize)
