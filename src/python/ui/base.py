@@ -59,6 +59,15 @@ class StretchNodeBase(avg.DivNode):
     _baseSize = avg.DivNode.size
     size = property(getSize, setSize)
 
+    def _initNodes(self):    
+        self._setSizeFromBmp(self._bmp)
+        self._positionNodes(self._baseSize)
+
+        if player.isPlaying():
+            self._renderImages()
+        else:
+            player.subscribe(avg.Player.PLAYBACK_START, self._renderImages)
+
     def _bmpFromSrc(self, src):
         if isinstance(src, basestring):
             return avg.Bitmap(src)
@@ -106,14 +115,8 @@ class HStretchNode(StretchNodeBase):
         self.__startImg = avg.ImageNode(parent=self)
         self.__centerImg = avg.ImageNode(parent=self)
         self.__endImg = avg.ImageNode(parent=self)
-        
-        self._setSizeFromBmp(self._bmp)
-        self._positionNodes(self._baseSize)
-
-        if player.isPlaying():
-            self._renderImages()
-        else:
-            player.subscribe(avg.Player.PLAYBACK_START, self._renderImages)
+       
+        self._initNodes()
     
     def _positionNodes(self, newSize):
         newSize = avg.Point2D(max(self.__minExtent, newSize.x), newSize.y)
@@ -145,13 +148,7 @@ class VStretchNode(StretchNodeBase):
         self.__centerImg = avg.ImageNode(parent=self)
         self.__endImg = avg.ImageNode(parent=self)
         
-        self._setSizeFromBmp(self._bmp)
-        self._positionNodes(self._baseSize)
-
-        if player.isPlaying():
-            self._renderImages()
-        else:
-            player.subscribe(avg.Player.PLAYBACK_START, self._renderImages)
+        self._initNodes()
     
     def _positionNodes(self, newSize):
         newSize = avg.Point2D(newSize.x, max(self.__minExtent, newSize.y))
@@ -184,13 +181,7 @@ class HVStretchNode(StretchNodeBase):
         
         self.__createNodes()
 
-        self._setSizeFromBmp(self._bmp)
-        self._positionNodes(self._baseSize)
-        
-        if player.isPlaying():
-            self._renderImages()
-        else:
-            player.subscribe(avg.Player.PLAYBACK_START, self._renderImages)
+        self._initNodes()
     
     def __calcNodePositions(self, newSize):
         xPosns = (0, self.__endsExtent[0], newSize.x-self.__endsExtent[0], newSize.x)
@@ -226,7 +217,6 @@ class HVStretchNode(StretchNodeBase):
                 node = self.__nodes[y][x]
                 node.pos = pos
                 node.size = size
-#                print pos, size
 
         self._baseSize = newSize
 
