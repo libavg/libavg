@@ -36,7 +36,7 @@ class Skin:
             "upBmp": avg.Bitmap("media/button_bg_up.png"),
             "downBmp": avg.Bitmap("media/button_bg_down.png"),
             "disabledBmp": None, #avg.Bitmap("media/button_bg_disabled.png"),
-            "endsExtent": 7,
+            "endsExtent": (7, 7),
             "font": self.fonts["stdfont"],
             "disabledFont": self.fonts["disabledFont"]
         }

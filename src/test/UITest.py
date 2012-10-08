@@ -591,7 +591,6 @@ class UITestCase(AVGTestCase):
 
         def changeSize():
             self.node.size = (64, 64)
-            print "changeSize", self.node.size
             self.assert_(self.node.size == (64,64))
 
         root = self.loadEmptyScene()

@@ -221,17 +221,19 @@ class HVStretchNode(StretchNodeBase):
         self._baseSize = newSize
 
     def _renderImages(self):
+        bmpSize = self._bmp.getSize()
+        xPosns = (0, self.__endsExtent[0], bmpSize.x-self.__endsExtent[0], bmpSize.x)
+        yPosns = (0, self.__endsExtent[1], bmpSize.y-self.__endsExtent[1], bmpSize.y)
         for y in range(3):
             for x in range(3):
                 node = self.__nodes[y][x]
-                pos = self.__nodePosns[y][x]
-                size = self.__nodePosns[y+1][x+1] - self.__nodePosns[y][x]
+                pos = avg.Point2D(xPosns[x], yPosns[y])
+                size = avg.Point2D(xPosns[x+1], yPosns[y+1]) - pos
                 if x == 1:
                     size.x = 1
                 if y == 1:
                     size.y = 1
                 self._renderImage(self._bmp, node, -pos, size)
-                node.getBitmap().save("foo"+str(y)+str(x)+".png")
 
 
 class SwitchNode(avg.DivNode):
