@@ -256,9 +256,13 @@ class EventTestCase(AVGTestCase):
             self.downCalled = True
             
         def unsubscribe():
+            self.assert_(self.img.isSubscribed(avg.Node.CURSOR_DOWN, onDown))
             self.img.unsubscribe(avg.Node.CURSOR_DOWN, onDown)
+            self.assert_(not(self.img.isSubscribed(avg.Node.CURSOR_DOWN, onDown)))
             self.assert_(self.img.getNumSubscribers(avg.Node.CURSOR_DOWN) == 0)
             self.downCalled = False
+            self.assertException(
+                    lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, onDown))
 
         def initUnsubscribeInEvent():
             self.subscriberID = self.img.subscribe(avg.Node.CURSOR_DOWN, 
@@ -266,10 +270,17 @@ class EventTestCase(AVGTestCase):
 
         def onDownUnsubscribe(event):
             self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID)
+            self.assertException(
+                    lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID))
             self.downCalled = True
 
+        def onFrame():
+            self.onFrameCalled = True
+
         self.downCalled = False
+        self.onFrameCalled = False
         root = self.loadEmptyScene()
+        player.subscribe(player.ON_FRAME, onFrame)
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
         self.img.subscribe(avg.Node.CURSOR_DOWN, onDown)
         self.assertException(lambda: self.img.subscribe(23, onDown))
@@ -277,7 +288,8 @@ class EventTestCase(AVGTestCase):
         self.start(False,
                 (lambda: self.fakeClick(10,10),
                  lambda: self.assert_(self.downCalled),
-
+                 lambda: self.assert_(self.onFrameCalled),
+                 
                  unsubscribe,
                  lambda: self.fakeClick(10,10),
                  lambda: self.assert_(not(self.downCalled)),

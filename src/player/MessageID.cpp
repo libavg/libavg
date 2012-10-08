@@ -36,6 +36,11 @@ bool MessageID::operator < (const MessageID& other) const
     return m_ID < other.m_ID;
 }
 
+bool MessageID::operator == (const MessageID& other) const
+{
+    return m_ID == other.m_ID;
+}
+
 std::ostream& operator <<(ostream& os, const MessageID& id)
 {
     os << "(" << id.m_sName << ", " << id.m_ID << ")";

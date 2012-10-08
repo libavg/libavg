@@ -38,11 +38,12 @@ PublisherDefinitionRegistry::PublisherDefinitionRegistry()
     s_pInstance = this;
     // The following should really happen in the player constructor, but the entries
     // need to exist for the player to be constructed.
-    PublisherDefinitionPtr pPubDef = PublisherDefinition::create("Player");
-    pPubDef->addMessage("KEY_DOWN");
-    pPubDef->addMessage("KEY_UP");
-    pPubDef->addMessage("PLAYBACK_START");
-    pPubDef->addMessage("PLAYBACK_END");
+    PublisherDefinitionPtr pPlayerDef = PublisherDefinition::create("Player");
+    pPlayerDef->addMessage("KEY_DOWN");
+    pPlayerDef->addMessage("KEY_UP");
+    pPlayerDef->addMessage("PLAYBACK_START");
+    pPlayerDef->addMessage("PLAYBACK_END");
+    pPlayerDef->addMessage("ON_FRAME");
 }
 
 PublisherDefinitionRegistry::~PublisherDefinitionRegistry()
