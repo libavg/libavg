@@ -30,7 +30,6 @@
 #include "MessageID.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
@@ -46,8 +45,7 @@ typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;
 class Publisher;
 typedef boost::shared_ptr<Publisher> PublisherPtr;
 
-class AVG_API Publisher: public boost::enable_shared_from_this<Publisher>, 
-        public ExportedType
+class AVG_API Publisher: public ExportedType
 {
 public:
     Publisher();

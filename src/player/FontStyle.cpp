@@ -24,31 +24,40 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
+#include "TypeDefinition.h"
+#include "Arg.h"
+
 using namespace std;
 
 namespace avg {
 
-
-FontStyle::FontStyle(const string& sName, const string& sVariant, 
-        const string& sColorName, float aaGamma, float size, int indent,
-        float lineSpacing, const string& sAlign, const string& sWrapMode, bool bJustify, 
-        float letterSpacing, bool bHint, FontStylePtr pBaseStyle)
-    : m_sName(sName),
-      m_sVariant(sVariant),
-      m_sColorName(sColorName),
-      m_AAGamma(aaGamma),
-      m_Size(size),
-      m_Indent(indent),
-      m_LineSpacing(lineSpacing),
-      m_bJustify(bJustify),
-      m_LetterSpacing(letterSpacing),
-      m_bHint(bHint)
+void FontStyle::registerType()
 {
+    TypeDefinition def = TypeDefinition("fontstyle", "",
+            ExportedType::buildObject<FontStyle>)
+        .addArg(Arg<string>("font", "arial", false, offsetof(FontStyle, m_sName)))
+        .addArg(Arg<string>("variant", "", false, offsetof(FontStyle, m_sVariant)))
+        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(FontStyle, m_sColorName)))
+        .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(FontStyle, m_AAGamma)))
+        .addArg(Arg<float>("fontsize", 15, false, offsetof(FontStyle, m_Size)))
+        .addArg(Arg<int>("indent", 0, false, offsetof(FontStyle, m_Indent)))
+        .addArg(Arg<float>("linespacing", 0, false, offsetof(FontStyle, m_LineSpacing)))
+        .addArg(Arg<string>("alignment", "left"))
+        .addArg(Arg<string>("wrapmode", "word"))
+        .addArg(Arg<bool>("justify", false, false, offsetof(FontStyle, m_bJustify)))
+        .addArg(Arg<float>("letterspacing", 0, false, 
+                offsetof(FontStyle, m_LetterSpacing)))
+        .addArg(Arg<bool>("hint", true, false, offsetof(FontStyle, m_bHint)))
+        ;
+    TypeRegistry::get()->registerType(def);
+}
+        
+FontStyle::FontStyle(const ArgList& args)
+{
+    args.setMembers(this);
+    setAlignment(args.getArgVal<string>("alignment"));
+    setWrapMode(args.getArgVal<string>("wrapmode"));
     m_Color = colorStringToColor(m_sColorName);
-    setAlignment(sAlign);
-    setWrapMode(sWrapMode);
-
-    // TODO: Support base style
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -171,7 +180,7 @@ void FontStyle::setWrapMode(const string& sWrapMode)
         m_WrapMode = PANGO_WRAP_WORD_CHAR;
     } else {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "WordsNode wrapping mode "+sWrapMode+" not supported."));
+                "FontStyle wrapping mode "+sWrapMode+" not supported."));
     }
 }
 

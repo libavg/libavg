@@ -32,7 +32,7 @@
 
 namespace avg {
 
-class Node;
+class ExportedType;
 
 class AVG_API ArgBase
 {
@@ -44,7 +44,7 @@ public:
     bool isDefault() const;
     bool isRequired() const;
     
-    virtual void setMember(Node * pNode) const = 0;
+    virtual void setMember(ExportedType * pObj) const = 0;
    
     virtual ArgBase* createCopy() const = 0;
 

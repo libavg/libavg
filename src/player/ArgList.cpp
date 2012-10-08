@@ -23,7 +23,7 @@
 
 #include "ArgList.h"
 
-#include "Node.h"
+#include "ExportedType.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -125,13 +125,13 @@ void ArgList::setArgs(const ArgList& args)
     }
 }
     
-void ArgList::setMembers(Node * pNode) const
+void ArgList::setMembers(ExportedType * pObj) const
 {
     for (ArgMap::const_iterator it = m_Args.begin(); it != m_Args.end(); it++) {
         const ArgBasePtr pCurArg = it->second;
-        pCurArg->setMember(pNode);
+        pCurArg->setMember(pObj);
     }
-    pNode->setArgs(*this);
+    pObj->setArgs(*this);
 }
 
 template<class T>

@@ -37,6 +37,7 @@
 #include "PolygonNode.h"
 #include "CircleNode.h"
 #include "MeshNode.h"
+#include "FontStyle.h"
 #include "TypeDefinition.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
@@ -147,7 +148,7 @@ Player::Player()
     pProfiler->setName("main");
     initConfig();
 
-    // Register all node types
+    // Register types
     Node::registerType();
     AreaNode::registerType();
     RasterNode::registerType();
@@ -171,7 +172,7 @@ Player::Player()
     CircleNode::registerType();
     MeshNode::registerType();
 
-    // Register non-node publishers
+    FontStyle::registerType();
     Contact::registerType();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());

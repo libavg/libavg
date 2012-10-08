@@ -23,6 +23,9 @@
 #define _FontStyle_H_
 
 #include "../api.h"
+
+#include "ExportedType.h"
+
 #include "../graphics/Pixel32.h"
 
 #include <pango/pango.h>
@@ -35,14 +38,12 @@ namespace avg {
 class FontStyle;
 typedef boost::shared_ptr<class FontStyle> FontStylePtr;
 
-class AVG_API FontStyle {
+class AVG_API FontStyle: public ExportedType
+{
     public:
-        FontStyle(const std::string& sName="arial", const std::string& sVariant="", 
-                const std::string& sColorName="FFFFFF", float aaGamma=1.0f, float size=15,
-                int indent=0, float lineSpacing=0, const std::string& sAlign="left",
-                const std::string& sWrapMode="word", bool bJustify=false, 
-                float letterSpacing=0, bool bHint=true,
-                FontStylePtr pBaseStyle=FontStylePtr());
+        static void registerType();
+        
+        FontStyle(const ArgList& args);
         virtual ~FontStyle();
 
         const std::string& getName() const;
