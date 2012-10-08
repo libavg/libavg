@@ -51,7 +51,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
-      m_bDeleteTex(true)
+      m_bDeleteTex(true),
+      m_bIsDirty(true)
 {
     m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -115,7 +116,8 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
       m_bMipmap(bMipmap),
       m_bDeleteTex(bDeleteTex),
       m_bUsePOT(false),
-      m_TexID(glTexID)
+      m_TexID(glTexID),
+      m_bIsDirty(true)
 {
     m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -168,6 +170,7 @@ void GLTexture::unlockStreamingBmp(bool bUpdated)
     m_pMover->unlock();
     if (bUpdated) {
         m_pMover->moveToTexture(*this);
+        m_bIsDirty = true;
     }
 }
 
@@ -175,6 +178,7 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
     TextureMoverPtr pMover = TextureMover::create(m_Size, m_pf, GL_DYNAMIC_DRAW);
     pMover->moveBmpToTexture(pBmp, *this);
+    m_bIsDirty = true;
 }
 
 BitmapPtr GLTexture::moveTextureToBmp()
