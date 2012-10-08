@@ -27,18 +27,18 @@ class Skin:
     def __init__(self):
         self.fonts = {}
 
-        self.fonts["stdfont"] = avg.Style(font="Bitstream Vera Sans", variant="Roman",
-                fontsize=12, color="808080", letterspacing=0, linespacing=-1)
-        self.fonts["disabledFont"] = avg.Style(basestyle=self.fonts["stdfont"],
-                color="444444")
+#        self.fonts["stdfont"] = avg.Style(font="Bitstream Vera Sans", variant="Roman",
+#                fontsize=12, color="808080", letterspacing=0, linespacing=-1)
+#        self.fonts["disabledFont"] = avg.Style(basestyle=self.fonts["stdfont"],
+#                color="444444")
 
         self.textButtonCfg = {
             "upBmp": avg.Bitmap("media/button_bg_up.png"),
             "downBmp": avg.Bitmap("media/button_bg_down.png"),
             "disabledBmp": None, #avg.Bitmap("media/button_bg_disabled.png"),
             "endsExtent": (7, 7),
-            "font": self.fonts["stdfont"],
-            "disabledFont": self.fonts["disabledFont"]
+#            "font": self.fonts["stdfont"],
+#            "disabledFont": self.fonts["disabledFont"]
         }
 
 Skin.default = Skin()

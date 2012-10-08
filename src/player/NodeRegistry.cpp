@@ -23,7 +23,6 @@
 
 #include "NodeRegistry.h"
 #include "NodeDefinition.h"
-#include "Style.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -91,20 +90,11 @@ NodePtr NodeRegistry::createNode(const string& sType, const py::dict& pyDict)
 {
     const NodeDefinition& def = getNodeDef(sType);
     py::dict effParams;
-    StylePtr pStyle;
-    if (pyDict.has_key("style")) {
-        py::object param = pyDict["style"];
-        pyDict.attr("__delitem__")("style");
-        pStyle = py::extract<StylePtr>(param);
-        effParams = pStyle->mergeParams(pyDict);
-    } else {
-        effParams = pyDict;
-    }
+    effParams = pyDict;
     ArgList args(def.getDefaultArgs(), effParams);
     NodeBuilder builder = def.getBuilder();
     NodePtr pNode = builder(args);
     pNode->setTypeInfo(&def);
-    pNode->setStyle(pStyle);
     return pNode;
 }
 

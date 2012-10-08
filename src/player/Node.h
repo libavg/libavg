@@ -63,8 +63,6 @@ typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
-class Style;
-typedef boost::shared_ptr<Style> StylePtr;
 
 class AVG_API Node: public Publisher
 {
@@ -78,7 +76,6 @@ class AVG_API Node: public Publisher
             return NodePtr(new NodeType(Args));
         }
         virtual void setTypeInfo(const NodeDefinition * pDefinition);
-        void setStyle(const StylePtr& pStyle);
         void registerInstance(PyObject* pSelf, const DivNodePtr& pParent);
         
         virtual ~Node();
@@ -140,7 +137,6 @@ class AVG_API Node: public Publisher
         virtual bool handleEvent(EventPtr pEvent); 
 
         virtual const std::string& getID() const;
-        StylePtr getStyle() const;
         std::string getTypeStr() const;
         
         bool operator ==(const Node& other) const;
@@ -166,7 +162,6 @@ class AVG_API Node: public Publisher
     private:
         std::string m_ID;
         const NodeDefinition* m_pDefinition;
-        StylePtr m_pStyle;
         PyObject* m_pSelf;
 
         DivNode* m_pParent;
