@@ -587,6 +587,16 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testStretchNode"+orName+"1"),
                     ))
 
+    def testHVStretchNode(self):
+
+        root = self.loadEmptyScene()
+        self.node = ui.HVStretchNode(src="media/rgb24-32x32.png", endsExtent=(5,5), 
+                size=(31,31), parent=root)
+        self.start(False,
+                (lambda: self.compareImage("testHVStretchNode1"),
+                )) 
+
+
 #    def testSlider(self):
 #        def createNode(orientation):
 #            if orientation == ui.Orientation.HORIZONTAL:
@@ -916,6 +926,7 @@ def uiTestSuite(tests):
         "testToggleButton",
         "testScrollPane",
         "testStretchNode",
+        "testHVStretchNode",
 #        "testSlider",
 #        "testScrollBar",
         "testScrollArea",
