@@ -161,6 +161,35 @@ void FontStyle::setAlignment(const string& sAlign)
     }
 }
 
+void FontStyle::setWrapMode(const string& sWrapMode)
+{
+    if (sWrapMode == "word") {
+        m_WrapMode = PANGO_WRAP_WORD;
+    } else if (sWrapMode == "char") {
+        m_WrapMode = PANGO_WRAP_CHAR;
+    } else if (sWrapMode == "wordchar") {
+        m_WrapMode = PANGO_WRAP_WORD_CHAR;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "WordsNode wrapping mode "+sWrapMode+" not supported."));
+    }
+}
+
+string FontStyle::getWrapMode() const
+{
+    switch(m_WrapMode) {
+        case PANGO_WRAP_WORD:
+            return "word";
+        case PANGO_WRAP_CHAR:
+            return "char";
+        case PANGO_WRAP_WORD_CHAR:
+            return "wordchar";
+        default:
+            AVG_ASSERT(false);
+            return "";
+    }
+}
+
 bool FontStyle::getJustify() const
 {
     return m_bJustify;

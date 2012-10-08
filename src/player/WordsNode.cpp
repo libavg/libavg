@@ -21,7 +21,7 @@
 
 #include "WordsNode.h"
 #include "OGLSurface.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "TextEngine.h"
 
 #include "../base/Logger.h"
@@ -84,7 +84,8 @@ void WordsNode::registerType()
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
-    NodeDefinition def = NodeDefinition("words", "rasternode", Node::buildNode<WordsNode>)
+    TypeDefinition def = TypeDefinition("words", "rasternode", 
+            ExportedType::buildObject<WordsNode>)
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(WordsNode, m_sFontName)))
@@ -104,7 +105,7 @@ void WordsNode::registerType()
                 offsetof(WordsNode, m_LetterSpacing)))
         .addArg(Arg<bool>("hint", true, false, offsetof(WordsNode, m_bHint)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 WordsNode::WordsNode(const ArgList& args)

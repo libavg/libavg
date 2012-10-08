@@ -24,6 +24,7 @@
 
 #include "../api.h"
 
+#include "ExportedType.h"
 #include "BoostPython.h"
 #include "PublisherDefinition.h"
 #include "MessageID.h"
@@ -45,7 +46,8 @@ typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;
 class Publisher;
 typedef boost::shared_ptr<Publisher> PublisherPtr;
 
-class AVG_API Publisher: public boost::enable_shared_from_this<Publisher> 
+class AVG_API Publisher: public boost::enable_shared_from_this<Publisher>, 
+        public ExportedType
 {
 public:
     Publisher();

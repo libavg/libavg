@@ -26,8 +26,8 @@
 #include "MouseEvent.h"
 #include "DivNode.h"
 #include "ArgList.h"
-#include "NodeDefinition.h"
-#include "NodeRegistry.h"
+#include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "BoostPython.h"
 
 #include "../base/MathHelper.h"
@@ -51,7 +51,7 @@ namespace avg {
 
 void AreaNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("areanode", "node")
+    TypeDefinition def = TypeDefinition("areanode", "node")
         .addArg(Arg<float>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<float>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0.0, 0.0)))
@@ -63,7 +63,7 @@ void AreaNode::registerType()
                 offsetof(AreaNode, m_Pivot)))
         .addArg(Arg<string>("elementoutlinecolor", "", false, 
                 offsetof(AreaNode, m_sElementOutlineColor)));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 AreaNode::AreaNode()

@@ -21,7 +21,7 @@
 #include "VideoNode.h"
 #include "Player.h"
 #include "OGLSurface.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "Canvas.h"
 
 #include "../base/Exception.h"
@@ -52,7 +52,8 @@ namespace avg {
 
 void VideoNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("video", "rasternode", Node::buildNode<VideoNode>)
+    TypeDefinition def = TypeDefinition("video", "rasternode", 
+            ExportedType::buildObject<VideoNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))
@@ -63,7 +64,7 @@ void VideoNode::registerType()
         .addArg(Arg<bool>("accelerated", false, false,
                 offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 VideoNode::VideoNode(const ArgList& args)

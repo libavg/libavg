@@ -21,8 +21,8 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#include "NodeRegistry.h"
-#include "NodeDefinition.h"
+#include "TypeRegistry.h"
+#include "TypeDefinition.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -33,27 +33,27 @@ using namespace std;
 
 namespace avg {
 
-NodeRegistry* NodeRegistry::s_pInstance = 0;
+TypeRegistry* TypeRegistry::s_pInstance = 0;
 
-NodeRegistry::NodeRegistry()
+TypeRegistry::TypeRegistry()
 {
 }
 
-NodeRegistry::~NodeRegistry()
+TypeRegistry::~TypeRegistry()
 {
 }
 
-NodeRegistry* NodeRegistry::get()
+TypeRegistry* TypeRegistry::get()
 {
     if (!s_pInstance) {
-        s_pInstance = new NodeRegistry();
+        s_pInstance = new TypeRegistry();
     }
     return s_pInstance;
 }
 
-void NodeRegistry::registerNodeType(const NodeDefinition& def, const char* pParentNames[])
+void TypeRegistry::registerType(const TypeDefinition& def, const char* pParentNames[])
 {
-    m_NodeDefs.insert(NodeDefMap::value_type(def.getName(), def));
+    m_TypeDefs.insert(TypeDefMap::value_type(def.getName(), def));
 
     if (pParentNames) {
         string sChildArray[1];
@@ -62,63 +62,63 @@ void NodeRegistry::registerNodeType(const NodeDefinition& def, const char* pPare
         const char **ppCurParentName = pParentNames;
 
         while (*ppCurParentName) {
-            NodeDefinition nodeDefinition = getNodeDef(*ppCurParentName);
-            nodeDefinition.addChildren(sChildren);
-            updateNodeDefinition(nodeDefinition);
+            TypeDefinition def = getTypeDef(*ppCurParentName);
+            def.addChildren(sChildren);
+            updateDefinition(def);
 
             ++ppCurParentName;
         }
     }
 }
 
-void NodeRegistry::updateNodeDefinition(const NodeDefinition& def)
+void TypeRegistry::updateDefinition(const TypeDefinition& def)
 {
-    m_NodeDefs[def.getName()] = def;
+    m_TypeDefs[def.getName()] = def;
 }
 
-NodePtr NodeRegistry::createNode(const string& sType, const xmlNodePtr xmlNode)
+ExportedTypePtr TypeRegistry::createObject(const string& sType, const xmlNodePtr xmlNode)
 {
-    const NodeDefinition& def = getNodeDef(sType);
+    const TypeDefinition& def = getTypeDef(sType);
     ArgList args(def.getDefaultArgs(), xmlNode);
-    NodeBuilder builder = def.getBuilder();
-    NodePtr pNode = builder(args);
-    pNode->setTypeInfo(&def);
-    return pNode;
+    ObjectBuilder builder = def.getBuilder();
+    ExportedTypePtr pObj = builder(args);
+    pObj->setTypeInfo(&def);
+    return pObj;
 }
 
-NodePtr NodeRegistry::createNode(const string& sType, const py::dict& pyDict)
+ExportedTypePtr TypeRegistry::createObject(const string& sType, const py::dict& pyDict)
 {
-    const NodeDefinition& def = getNodeDef(sType);
+    const TypeDefinition& def = getTypeDef(sType);
     py::dict effParams;
     effParams = pyDict;
     ArgList args(def.getDefaultArgs(), effParams);
-    NodeBuilder builder = def.getBuilder();
-    NodePtr pNode = builder(args);
-    pNode->setTypeInfo(&def);
-    return pNode;
+    ObjectBuilder builder = def.getBuilder();
+    ExportedTypePtr pObj = builder(args);
+    pObj->setTypeInfo(&def);
+    return pObj;
 }
 
-string NodeRegistry::getDTD() const
+string TypeRegistry::getDTD() const
 {
-    if (m_NodeDefs.empty()) {
+    if (m_TypeDefs.empty()) {
         return string("");
     }
     
     stringstream ss;
     
-    for (NodeDefMap::const_iterator defIt = m_NodeDefs.begin();
-            defIt != m_NodeDefs.end(); defIt++) 
+    for (TypeDefMap::const_iterator defIt = m_TypeDefs.begin();
+            defIt != m_TypeDefs.end(); defIt++) 
     {
-        const NodeDefinition& def = defIt->second;
+        const TypeDefinition& def = defIt->second;
         if (!def.isAbstract()) {
-            writeNodeDTD(def, ss);
+            writeTypeDTD(def, ss);
         }
     }
    
-    for (NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); 
-            defIt != m_NodeDefs.end(); defIt++) 
+    for (TypeDefMap::const_iterator defIt = m_TypeDefs.begin(); 
+            defIt != m_TypeDefs.end(); defIt++) 
     {
-        const NodeDefinition& def = defIt->second;
+        const TypeDefinition& def = defIt->second;
         if (!def.isAbstract()) {
             ss << def.getDTDElements();
         }
@@ -127,17 +127,17 @@ string NodeRegistry::getDTD() const
     return ss.str();
 }
 
-const NodeDefinition& NodeRegistry::getNodeDef(const string& sType)
+const TypeDefinition& TypeRegistry::getTypeDef(const string& sType)
 {
-    NodeDefMap::const_iterator it = m_NodeDefs.find(sType);
-    if (it == m_NodeDefs.end()) {
+    TypeDefMap::const_iterator it = m_TypeDefs.find(sType);
+    if (it == m_TypeDefs.end()) {
         throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
             string("Unknown node type ") + sType + " encountered."));
     }
     return it->second;
 }
 
-void NodeRegistry::writeNodeDTD(const NodeDefinition& def, stringstream& ss) const
+void TypeRegistry::writeTypeDTD(const TypeDefinition& def, stringstream& ss) const
 {
     ss << "<!ELEMENT " << def.getName() << " " << def.getDTDChildrenString() << " >\n";
     if (!def.getDefaultArgs().getArgMap().empty()) {

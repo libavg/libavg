@@ -21,7 +21,7 @@
 
 #include "Node.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "Arg.h"
 #include "Canvas.h"
 #include "DivNode.h"
@@ -57,12 +57,12 @@ void Node::registerType()
     pPubDef->addMessage("END_OF_FILE");
     pPubDef->addMessage("SIZE_CHANGED");
 
-    NodeDefinition def = NodeDefinition("node")
+    TypeDefinition def = TypeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
         .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
         .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
         .addArg(Arg<float>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 Node::Node(const std::string& sPublisherName)
@@ -79,15 +79,6 @@ Node::~Node()
 {
     m_EventHandlerMap.clear();
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void Node::setArgs(const ArgList& args)
-{
-}
-
-void Node::setTypeInfo(const NodeDefinition * pDefinition)
-{
-    m_pDefinition = pDefinition;
 }
 
 void Node::registerInstance(PyObject* pSelf, const DivNodePtr& pParent)
@@ -593,31 +584,6 @@ bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
 {
     bool bOk = py::call<bool>(pFunc, pEvent);
     return bOk;
-}
-
-bool Node::operator ==(const Node& other) const
-{
-    return this == &other;
-}
-
-bool Node::operator !=(const Node& other) const
-{
-    return this != &other;
-}
-
-long Node::getHash() const
-{
-    return long(this);
-}
-
-const NodeDefinition* Node::getDefinition() const
-{
-    return m_pDefinition;
-}
-
-string Node::getTypeStr() const
-{
-    return m_pDefinition->getName();
 }
 
 Node::EventID::EventID(Event::Type eventType, Event::Source source)

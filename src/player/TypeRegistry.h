@@ -21,14 +21,14 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _NodeRegistry_H_
-#define _NodeRegistry_H_
+#ifndef _TypeRegistry_H_
+#define _TypeRegistry_H_
 
 #include "../api.h"
 #include "WrapPython.h"
 #include "Node.h"
 #include "ArgList.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include <map>
 #include <string>
@@ -36,28 +36,28 @@
 
 namespace avg {
 
-class AVG_API NodeRegistry
+class AVG_API TypeRegistry
 {
 public:
-    virtual ~NodeRegistry();
-    static NodeRegistry* get();
+    virtual ~TypeRegistry();
+    static TypeRegistry* get();
     
-    void registerNodeType(const NodeDefinition& def, const char* pParentNames[] = 0);
-    void updateNodeDefinition(const NodeDefinition& def);
-    const NodeDefinition& getNodeDef(const std::string& Type);
-    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    NodePtr createNode(const std::string& Type, const py::dict& PyDict);
+    void registerType(const TypeDefinition& def, const char* pParentNames[] = 0);
+    void updateDefinition(const TypeDefinition& def);
+    const TypeDefinition& getTypeDef(const std::string& Type);
+    ExportedTypePtr createObject(const std::string& Type, const xmlNodePtr xmlNode);
+    ExportedTypePtr createObject(const std::string& Type, const py::dict& PyDict);
     
     std::string getDTD() const;
     
 private:
-    NodeRegistry();
-    void writeNodeDTD(const NodeDefinition& def, std::stringstream& ss) const;
+    TypeRegistry();
+    void writeTypeDTD(const TypeDefinition& def, std::stringstream& ss) const;
     
-    typedef std::map<std::string, NodeDefinition> NodeDefMap;
-    NodeDefMap m_NodeDefs;
+    typedef std::map<std::string, TypeDefinition> TypeDefMap;
+    TypeDefMap m_TypeDefs;
 
-    static NodeRegistry* s_pInstance;
+    static TypeRegistry* s_pInstance;
 };
 
 }

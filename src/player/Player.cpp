@@ -37,7 +37,7 @@
 #include "PolygonNode.h"
 #include "CircleNode.h"
 #include "MeshNode.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
 #include "TestHelper.h"
@@ -974,12 +974,12 @@ std::string Player::getRootMediaDir()
     }
     return sMediaDir;
 }
-
+/*
 const NodeDefinition& Player::getNodeDef(const std::string& sType)
 {
     return NodeRegistry::get()->getNodeDef(sType);
 }
-
+*/
 void Player::disablePython()
 {
     m_bPythonAvailable = false;
@@ -1299,7 +1299,7 @@ void Player::updateDTD()
         xmlFreeDtd(m_dtd);
     }
     // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", NodeRegistry::get()->getDTD().c_str());
+    registerDTDEntityLoader("avg.dtd", TypeRegistry::get()->getDTD().c_str());
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     assert (m_dtd);
@@ -1351,12 +1351,13 @@ SDLDisplayEnginePtr Player::safeGetDisplayEngine()
     return m_pDisplayEngine;
 
 }
-
+/*
 void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
 {
     NodeRegistry* pRegistry = NodeRegistry::get();
     pRegistry->registerNodeType(def, pParentNames);
 }
+*/
 
 NodePtr Player::createNode(const string& sType,
         const py::dict& params, const boost::python::object& self)
@@ -1369,7 +1370,8 @@ NodePtr Player::createNode(const string& sType,
         attrs.attr("__delitem__")("parent");
         pParentNode = py::extract<DivNodePtr>(parent);
     }
-    NodePtr pNode = NodeRegistry::get()->createNode(sType, attrs);
+    NodePtr pNode = dynamic_pointer_cast<Node>(
+            TypeRegistry::get()->createObject(sType, attrs));
 
     // See if the class names of self and pNode match. If they don't, there is a
     // python derived class that's being constructed and we can't set parent here.
@@ -1426,7 +1428,6 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
 NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         const xmlNodePtr xmlNode)
 {
-    NodePtr pCurNode;
     const char * nodeType = (const char *)xmlNode->name;
 
     if (!strcmp (nodeType, "text") ||
@@ -1434,7 +1435,8 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    pCurNode = NodeRegistry::get()->createNode(nodeType, xmlNode);
+    NodePtr pCurNode = dynamic_pointer_cast<Node>(
+            TypeRegistry::get()->createObject(nodeType, xmlNode));
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.

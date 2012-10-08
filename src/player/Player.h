@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "Publisher.h"
 #include "Timeout.h"
-#include "NodeRegistry.h"
+#include "TypeRegistry.h"
 #include "DisplayParams.h"
 #include "CursorState.h"
 #include "TestHelper.h"
@@ -122,7 +122,7 @@ class AVG_API Player: public Publisher
         long long getFrameTime();
         float getFrameDuration();
 
-        void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
+//        void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
         NodePtr createNode(const std::string& sType, const py::dict& PyDict,
                 const py::object& self=py::object());
@@ -174,7 +174,7 @@ class AVG_API Player: public Publisher
 
         std::string getCurDirName();
         std::string getRootMediaDir();
-        const NodeDefinition& getNodeDef(const std::string& sType);
+//        const NodeDefinition& getNodeDef(const std::string& sType);
 
         void disablePython();
         void startTraversingTree();

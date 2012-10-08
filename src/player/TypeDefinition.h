@@ -21,36 +21,36 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _NodeDefinition_H_
-#define _NodeDefinition_H_
+#ifndef _TypeDefinition_H_
+#define _TypeDefinition_H_
 
 #include "../api.h"
 
 #include "ArgList.h"
-#include "NodeRegistry.h"
+#include "TypeRegistry.h"
 
 #include <map>
 #include <string>
 
 namespace avg {
 
-class Node;
-typedef boost::shared_ptr<Node> NodePtr;
-class NodeDefinition;
+class ExportedType;
+typedef boost::shared_ptr<ExportedType> ExportedTypePtr;
+class TypeDefinition;
 
-typedef NodePtr (*NodeBuilder)(const ArgList& Args);
-typedef std::map<std::string, NodeDefinition> ChildMap;
+typedef ExportedTypePtr (*ObjectBuilder)(const ArgList& Args);
+typedef std::map<std::string, TypeDefinition> ChildMap;
 
-class AVG_API NodeDefinition
+class AVG_API TypeDefinition
 {
 public:
-    NodeDefinition();
-    NodeDefinition(const std::string& sName, const std::string& sBaseName="",
-            NodeBuilder pBuilder = 0);
-    virtual ~NodeDefinition();
+    TypeDefinition();
+    TypeDefinition(const std::string& sName, const std::string& sBaseName="",
+            ObjectBuilder pBuilder = 0);
+    virtual ~TypeDefinition();
     
     const std::string& getName() const;
-    NodeBuilder getBuilder() const;
+    ObjectBuilder getBuilder() const;
     const ArgList& getDefaultArgs() const;
     const std::string& getDTDElements() const;
     std::string getDTDChildrenString() const;
@@ -58,13 +58,13 @@ public:
     bool hasChildren() const;
     bool isAbstract() const;
     
-    NodeDefinition& addArg(const ArgBase& newArg);
-    NodeDefinition& addDTDElements(const std::string& s);
-    NodeDefinition& addChildren(const std::vector<std::string>& sChildren);
+    TypeDefinition& addArg(const ArgBase& newArg);
+    TypeDefinition& addDTDElements(const std::string& s);
+    TypeDefinition& addChildren(const std::vector<std::string>& sChildren);
 
 private:
     std::string m_sName;
-    NodeBuilder m_pBuilder;
+    ObjectBuilder m_pBuilder;
     ArgList m_Args;
     std::string m_sDTDElements;
     std::vector<std::string> m_sChildren;

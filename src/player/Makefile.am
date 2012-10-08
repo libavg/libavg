@@ -39,9 +39,9 @@ GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
 
-ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
-        DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \
-        Node.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
+ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedType.h \
+        DisplayEngine.h TypeRegistry.h Arg.h ArgBase.h ArgList.h \
+        Node.h AreaNode.h DisplayParams.h TypeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
@@ -85,11 +85,11 @@ testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
 
 libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
-        Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
-        Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
+        Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedType.cpp \
+        Player.cpp PluginManager.cpp TypeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
         MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp \
-        WordsNode.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
+        WordsNode.cpp CameraNode.cpp TypeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \

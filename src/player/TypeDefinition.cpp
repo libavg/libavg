@@ -21,7 +21,7 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../base/Logger.h"
 
@@ -29,48 +29,48 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition::NodeDefinition() :
+TypeDefinition::TypeDefinition() :
       m_pBuilder(0)
 {
 }
 
-NodeDefinition::NodeDefinition(const string& sName, const string& sBaseName,
-        NodeBuilder pBuilder)
+TypeDefinition::TypeDefinition(const string& sName, const string& sBaseName,
+        ObjectBuilder pBuilder)
     : m_sName(sName),
       m_pBuilder(pBuilder)
 {
     if (sBaseName != "") {
-        NodeDefinition baseDef = NodeRegistry::get()->getNodeDef(sBaseName);
+        TypeDefinition baseDef = TypeRegistry::get()->getTypeDef(sBaseName);
         m_Args.copyArgsFrom(baseDef.m_Args);
         m_sChildren = baseDef.m_sChildren;
     }
 }
 
-NodeDefinition::~NodeDefinition()
+TypeDefinition::~TypeDefinition()
 {
 }
 
-const std::string& NodeDefinition::getName() const
+const std::string& TypeDefinition::getName() const
 {
     return m_sName;
 }
 
-NodeBuilder NodeDefinition::getBuilder() const
+ObjectBuilder TypeDefinition::getBuilder() const
 {
     return m_pBuilder;
 }
 
-const ArgList& NodeDefinition::getDefaultArgs() const
+const ArgList& TypeDefinition::getDefaultArgs() const
 {
     return m_Args;
 }
 
-const string& NodeDefinition::getDTDElements() const
+const string& TypeDefinition::getDTDElements() const
 {
     return m_sDTDElements;
 }
 
-string NodeDefinition::getDTDChildrenString() const
+string TypeDefinition::getDTDChildrenString() const
 {
     if (m_sChildren.empty()) {
         return "EMPTY";
@@ -85,7 +85,7 @@ string NodeDefinition::getDTDChildrenString() const
     }
 }
 
-bool NodeDefinition::isChildAllowed(const string& sChild) const
+bool TypeDefinition::isChildAllowed(const string& sChild) const
 {
     for (unsigned i=0; i<m_sChildren.size(); ++i) {
         if (m_sChildren[i] == sChild) {
@@ -95,29 +95,29 @@ bool NodeDefinition::isChildAllowed(const string& sChild) const
     return false;
 }
 
-bool NodeDefinition::hasChildren() const
+bool TypeDefinition::hasChildren() const
 {
     return !m_sChildren.empty();
 }
 
-bool NodeDefinition::isAbstract() const
+bool TypeDefinition::isAbstract() const
 {
     return m_pBuilder == 0;
 }
 
-NodeDefinition& NodeDefinition::addArg(const ArgBase& newArg)
+TypeDefinition& TypeDefinition::addArg(const ArgBase& newArg)
 {
     m_Args.setArg(newArg);
     return *this;
 }
 
-NodeDefinition& NodeDefinition::addDTDElements(const string& s)
+TypeDefinition& TypeDefinition::addDTDElements(const string& s)
 {
     m_sDTDElements = s;
     return *this;
 }
 
-NodeDefinition& NodeDefinition::addChildren(const vector<string>& sChildren)
+TypeDefinition& TypeDefinition::addChildren(const vector<string>& sChildren)
 {
     m_sChildren.insert(m_sChildren.end(), sChildren.begin(), sChildren.end());
     return *this;
