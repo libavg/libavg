@@ -72,6 +72,17 @@ void Publisher::unsubscribe(MessageID messageID, int subscriberID)
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->getID() == subscriberID) {
             if (m_bIsInNotify) {
+                std::vector<UnsubscribeDescription>::iterator it2;
+                for (it2 = m_PendingUnsubscribes.begin(); 
+                        it2 != m_PendingUnsubscribes.end(); 
+                        it2++)
+                {
+                    if (it2->first == messageID) {
+                            throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "
+                            +toString(messageID)+" doesn't have a subscriber with ID "
+                            +toString(subscriberID));
+                    }
+                }
                 m_PendingUnsubscribes.push_back(
                         std::pair<MessageID, int>(messageID, subscriberID));
             } else {
@@ -115,6 +126,30 @@ int Publisher::getNumSubscribers(MessageID messageID)
 {
     vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     return subscribers.size(); 
+}
+    
+bool Publisher::isSubscribed(MessageID messageID, int subscriberID)
+{
+    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoVector::iterator it;
+    for (it = subscribers.begin(); it != subscribers.end(); it++) {
+        if ((*it)->getID() == subscriberID) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Publisher::isSubscribedCallable(MessageID messageID, const py::object& callable)
+{
+    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoVector::iterator it;
+    for (it = subscribers.begin(); it != subscribers.end(); it++) {
+        if ((*it)->isCallable(callable)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Publisher::publish(MessageID messageID)

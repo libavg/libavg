@@ -33,6 +33,7 @@ struct MessageID {
     MessageID(const std::string& sName, int id);
 
     bool operator < (const MessageID& other) const;
+    bool operator == (const MessageID& other) const;
 
     std::string m_sName;
     int m_ID;
