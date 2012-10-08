@@ -232,6 +232,7 @@ void Bitmap::copyPixels(const Bitmap& origBmp)
                         YCbCrtoBGR(origBmp);
                         break;
                     case I8:
+                    case A8:
                         YCbCrtoI8(origBmp);
                     default: {
                             Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
@@ -242,7 +243,7 @@ void Bitmap::copyPixels(const Bitmap& origBmp)
                 }
                 break;
             case I16:
-                if (m_PF == I8) {
+                if (m_PF == I8 || m_PF == A8) {
                     I16toI8(origBmp);
                 } else {
                     Bitmap TempBmp(getSize(), I8, "TempColorConversion");
@@ -251,6 +252,7 @@ void Bitmap::copyPixels(const Bitmap& origBmp)
                 }
                 break;
             case I8:
+            case A8:
                 switch(m_PF) {
                     case I16:
                         I8toI16(origBmp);
@@ -274,6 +276,7 @@ void Bitmap::copyPixels(const Bitmap& origBmp)
             case BAYER8_BGGR:
                 switch(m_PF) {
                     case I8:
+                    case A8:
                         {
                             // Bayer patterns are saved as I8 bitmaps. 
                             // So simply copy that.
@@ -339,6 +342,7 @@ void Bitmap::copyPixels(const Bitmap& origBmp)
                         createTrueColorCopy<Pixel16>(*this, origBmp);
                         break;
                     case I8:
+                    case A8:
                         createTrueColorCopy<Pixel8>(*this, origBmp);
                         break;
                     default:
@@ -702,7 +706,7 @@ bool Bitmap::hasAlpha() const
 
 HistogramPtr Bitmap::getHistogram(int stride) const
 {
-    AVG_ASSERT (m_PF == I8);
+    AVG_ASSERT (getBytesPerPixel() == 1);
     HistogramPtr pHist(new Histogram(256,0));
     const unsigned char * pSrcLine = m_pBits;
     for (int y = 0; y < m_Size.y; y += stride) {
@@ -718,7 +722,7 @@ HistogramPtr Bitmap::getHistogram(int stride) const
 
 void Bitmap::getMinMax(int stride, int& min, int& max) const
 {
-    AVG_ASSERT (m_PF == I8);
+    AVG_ASSERT (getBytesPerPixel() == 1);
     const unsigned char * pSrcLine = m_pBits;
     min = 255;
     max = 0;
@@ -740,7 +744,7 @@ void Bitmap::getMinMax(int stride, int& min, int& max) const
 void Bitmap::setAlpha(const Bitmap& alphaBmp)
 {
     AVG_ASSERT(hasAlpha());
-    AVG_ASSERT(alphaBmp.getPixelFormat() == I8);
+    AVG_ASSERT(alphaBmp.getBytesPerPixel() == 1);
     unsigned char * pLine = m_pBits;
     const unsigned char * pAlphaLine = alphaBmp.getPixels();
     for (int y = 0; y < m_Size.y; y++) {
@@ -774,6 +778,7 @@ Pixel32 Bitmap::getPythonPixel(const glm::vec2& pos)
         case B8G8R8:
             return Pixel32(pPixel[2], pPixel[1], pPixel[0]);
         case I8:
+        case A8:
             return Pixel32(pPixel[0], pPixel[0], pPixel[0]);
         default:
             cerr << getPixelFormat() << endl;
@@ -1088,9 +1093,6 @@ void Bitmap::dump(bool bDumpPixels) const
 void Bitmap::initWithData(unsigned char * pBits, int stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
-    if (m_PF == A8) {
-        m_PF = I8;
-    }
     if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
@@ -1131,9 +1133,6 @@ void Bitmap::allocBits(int stride)
         m_Stride = getLineLen();
     } else {
         m_Stride = stride;
-    }
-    if (m_PF == A8) {
-        m_PF = I8;
     }
     if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
@@ -1319,7 +1318,7 @@ void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char* pDestLine, int
  
 void Bitmap::YCbCrtoI8(const Bitmap& origBmp)
 {
-    AVG_ASSERT(m_PF==I8);
+    AVG_ASSERT(origBmp.getBytesPerPixel() == 1);
     const unsigned char * pSrc = origBmp.getPixels();
     unsigned char * pDest = m_pBits;
     int height = min(origBmp.getSize().y, m_Size.y);
@@ -1356,7 +1355,7 @@ void Bitmap::YCbCrtoI8(const Bitmap& origBmp)
 
 void Bitmap::I16toI8(const Bitmap& origBmp)
 {
-    AVG_ASSERT(m_PF == I8);
+    AVG_ASSERT(getBytesPerPixel() == 1);
     AVG_ASSERT(origBmp.getPixelFormat() == I16);
     const unsigned short * pSrc = (const unsigned short *)origBmp.getPixels();
     unsigned char * pDest = m_pBits;
@@ -1377,7 +1376,7 @@ void Bitmap::I16toI8(const Bitmap& origBmp)
 void Bitmap::I8toI16(const Bitmap& origBmp)
 {
     AVG_ASSERT(m_PF == I16);
-    AVG_ASSERT(origBmp.getPixelFormat() == I8);
+    AVG_ASSERT(origBmp.getBytesPerPixel() == 1);
     const unsigned char * pSrc = origBmp.getPixels();
     unsigned short * pDest = (unsigned short *)m_pBits;
     int height = min(origBmp.getSize().y, m_Size.y);
@@ -1397,7 +1396,7 @@ void Bitmap::I8toI16(const Bitmap& origBmp)
 void Bitmap::I8toRGB(const Bitmap& origBmp)
 {
     AVG_ASSERT(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
-    AVG_ASSERT(origBmp.getPixelFormat() == I8);
+    AVG_ASSERT(origBmp.getBytesPerPixel() == 1);
     const unsigned char * pSrc = origBmp.getPixels();
     int height = min(origBmp.getSize().y, m_Size.y);
     int width = min(origBmp.getSize().x, m_Size.x);
@@ -1799,6 +1798,7 @@ void createTrueColorCopy(Bitmap& destBmp, const Bitmap& srcBmp)
             createTrueColorCopy<PIXEL, Pixel16>(destBmp, srcBmp);
             break;
         case I8:
+        case A8:
         case BAYER8_RGGB:
         case BAYER8_GBRG:
         case BAYER8_GRBG:
