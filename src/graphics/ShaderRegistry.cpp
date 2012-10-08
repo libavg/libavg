@@ -166,6 +166,7 @@ string ShaderRegistry::createPrefixString()
     if (GLContext::getCurrent()->isGLES()) {
         ss << endl;
         ss << "precision mediump float;" << endl;
+        ss << "#extension GL_OES_standard_derivatives : enable" << endl;
     }
     return ss.str();
 }
