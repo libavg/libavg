@@ -163,7 +163,7 @@ string ShaderRegistry::createPrefixString()
     {
         ss << "#define " << it->first << " " << it->second << endl;
     }
-    if (GLContext::getMain()->isGLES()) {
+    if (GLContext::getCurrent()->isGLES()) {
         ss << endl;
         ss << "precision mediump float;" << endl;
     }
