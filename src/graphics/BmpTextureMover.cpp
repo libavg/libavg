@@ -51,6 +51,7 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
 {
     AVG_ASSERT(pBmp->getSize() == tex.getSize());
     AVG_ASSERT(getSize() == pBmp->getSize());
+    cerr << pBmp->getPixelFormat() << ", " << getPF() << endl;
     AVG_ASSERT(pBmp->getPixelFormat() == getPF());
     tex.activate();
     unsigned char * pStartPos = pBmp->getPixels();
