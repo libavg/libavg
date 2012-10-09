@@ -28,7 +28,6 @@
 
 #include "../graphics/GraphicsTest.h"
 #include "../graphics/Filtergrayscale.h"
-#include "../graphics/FilterId.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"

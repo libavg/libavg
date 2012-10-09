@@ -18,8 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
 #ifndef _TypeDefinition_H_
 #define _TypeDefinition_H_

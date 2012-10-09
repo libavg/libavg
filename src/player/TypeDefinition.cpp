@@ -18,8 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
 #include "TypeDefinition.h"
 
