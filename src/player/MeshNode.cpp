@@ -42,7 +42,7 @@ void MeshNode::registerType()
     vector<glm::ivec3> vTriangle;
 
     TypeDefinition def = TypeDefinition("mesh", "vectornode", 
-            ExportedType::buildObject<MeshNode>)
+            ExportedObject::buildObject<MeshNode>)
         .addArg(Arg<vector<glm::vec2> >("vertexcoords", vVert, false, 
                 offsetof(MeshNode, m_VertexCoords)))
         .addArg(Arg<vector<glm::vec2> >("texcoords", vTex, false, 

@@ -43,7 +43,7 @@ void PolygonNode::registerType()
     vector<glm::vec2> v;
     vector<float> vd;
     TypeDefinition def = TypeDefinition("polygon", "filledvectornode",
-            ExportedType::buildObject<PolygonNode>)
+            ExportedObject::buildObject<PolygonNode>)
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,

@@ -40,7 +40,7 @@ namespace avg {
 void CurveNode::registerType()
 {
     TypeDefinition def = TypeDefinition("curve", "vectornode", 
-            ExportedType::buildObject<CurveNode>)
+            ExportedObject::buildObject<CurveNode>)
         .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(CurveNode, m_P1)))
         .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(CurveNode, m_P2)))
         .addArg(Arg<glm::vec2>("pos3", glm::vec2(0,0), false, offsetof(CurveNode, m_P3)))

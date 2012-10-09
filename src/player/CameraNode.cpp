@@ -49,7 +49,7 @@ namespace avg {
 void CameraNode::registerType()
 {
     TypeDefinition def = TypeDefinition("camera", "rasternode", 
-            ExportedType::buildObject<CameraNode>)
+            ExportedObject::buildObject<CameraNode>)
         .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
         .addArg(Arg<int>("unit", -1))

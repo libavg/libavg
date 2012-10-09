@@ -36,7 +36,7 @@ namespace avg {
 void AVGNode::registerType()
 {
     TypeDefinition def = TypeDefinition("avg", "canvasbase", 
-            ExportedType::buildObject<AVGNode>);
+            ExportedObject::buildObject<AVGNode>);
     TypeRegistry::get()->registerType(def);
 }
 

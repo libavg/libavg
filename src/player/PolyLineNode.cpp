@@ -38,7 +38,7 @@ void PolyLineNode::registerType()
     vector<glm::vec2> v;
     vector<float> vd;
     TypeDefinition def = TypeDefinition("polyline", "vectornode", 
-            ExportedType::buildObject<PolyLineNode>)
+            ExportedObject::buildObject<PolyLineNode>)
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,

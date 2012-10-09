@@ -32,11 +32,11 @@
 
 namespace avg {
 
-class ExportedType;
-typedef boost::shared_ptr<ExportedType> ExportedTypePtr;
+class ExportedObject;
+typedef boost::shared_ptr<ExportedObject> ExportedObjectPtr;
 class TypeDefinition;
 
-typedef ExportedTypePtr (*ObjectBuilder)(const ArgList& Args);
+typedef ExportedObjectPtr (*ObjectBuilder)(const ArgList& Args);
 typedef std::map<std::string, TypeDefinition> ChildMap;
 
 class AVG_API TypeDefinition

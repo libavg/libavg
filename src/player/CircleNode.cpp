@@ -36,7 +36,7 @@ namespace avg {
 void CircleNode::registerType()
 {
     TypeDefinition def = TypeDefinition("circle", "filledvectornode",
-            ExportedType::buildObject<CircleNode>)
+            ExportedObject::buildObject<CircleNode>)
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, offsetof(CircleNode, m_Pos)))
         .addArg(Arg<float>("r", 1, false, offsetof(CircleNode, m_Radius)))
         .addArg(Arg<float>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))

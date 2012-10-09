@@ -49,7 +49,7 @@ void DivNode::registerType()
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
     TypeDefinition def = TypeDefinition("div", "areanode", 
-            ExportedType::buildObject<DivNode>)
+            ExportedObject::buildObject<DivNode>)
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));

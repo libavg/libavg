@@ -33,7 +33,7 @@ namespace avg {
 void OffscreenCanvasNode::registerType()
 {
     TypeDefinition def = TypeDefinition("canvas", "canvasbase",
-            ExportedType::buildObject<OffscreenCanvasNode>)
+            ExportedObject::buildObject<OffscreenCanvasNode>)
         .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(OffscreenCanvasNode, m_bHandleEvents)))
         .addArg(Arg<int>("multisamplesamples", 1, false, 

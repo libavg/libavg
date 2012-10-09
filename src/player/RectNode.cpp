@@ -38,7 +38,7 @@ void RectNode::registerType()
 {
     float texCoords[] = {0, 0.25f, 0.5f, 0.75f, 1};
     TypeDefinition def = TypeDefinition("rect", "filledvectornode",
-            ExportedType::buildObject<RectNode>)
+            ExportedObject::buildObject<RectNode>)
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, 
                 offsetof(RectNode, m_Rect.tl)))
         .addArg(Arg<glm::vec2>("size", glm::vec2(0,0)))

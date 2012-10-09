@@ -23,7 +23,7 @@
 
 #include "ArgList.h"
 
-#include "ExportedType.h"
+#include "ExportedObject.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -125,7 +125,7 @@ void ArgList::setArgs(const ArgList& args)
     }
 }
     
-void ArgList::setMembers(ExportedType * pObj) const
+void ArgList::setMembers(ExportedObject * pObj) const
 {
     for (ArgMap::const_iterator it = m_Args.begin(); it != m_Args.end(); it++) {
         const ArgBasePtr pCurArg = it->second;

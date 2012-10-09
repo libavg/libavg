@@ -44,7 +44,7 @@ namespace avg {
 void ImageNode::registerType()
 {
     TypeDefinition def = TypeDefinition("image", "rasternode", 
-            ExportedType::buildObject<ImageNode>)
+            ExportedObject::buildObject<ImageNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)))
         .addArg(Arg<string>("compression", "none"));
     TypeRegistry::get()->registerType(def);

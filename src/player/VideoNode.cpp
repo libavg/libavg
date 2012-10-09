@@ -53,7 +53,7 @@ namespace avg {
 void VideoNode::registerType()
 {
     TypeDefinition def = TypeDefinition("video", "rasternode", 
-            ExportedType::buildObject<VideoNode>)
+            ExportedObject::buildObject<VideoNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))

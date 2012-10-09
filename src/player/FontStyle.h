@@ -24,7 +24,7 @@
 
 #include "../api.h"
 
-#include "ExportedType.h"
+#include "ExportedObject.h"
 
 #include "../graphics/Pixel32.h"
 
@@ -38,7 +38,7 @@ namespace avg {
 class FontStyle;
 typedef boost::shared_ptr<class FontStyle> FontStylePtr;
 
-class AVG_API FontStyle: public ExportedType
+class AVG_API FontStyle: public ExportedObject
 {
     public:
         static void registerType();

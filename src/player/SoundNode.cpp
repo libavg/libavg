@@ -49,7 +49,7 @@ namespace avg {
 void SoundNode::registerType()
 {
     TypeDefinition def = TypeDefinition("sound", "areanode", 
-            ExportedType::buildObject<SoundNode>)
+            ExportedObject::buildObject<SoundNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))
         .addArg(Arg<float>("volume", 1.0, false, offsetof(SoundNode, m_Volume)))

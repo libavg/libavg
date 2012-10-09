@@ -76,24 +76,25 @@ void TypeRegistry::updateDefinition(const TypeDefinition& def)
     m_TypeDefs[def.getName()] = def;
 }
 
-ExportedTypePtr TypeRegistry::createObject(const string& sType, const xmlNodePtr xmlNode)
+ExportedObjectPtr TypeRegistry::createObject(const string& sType, 
+        const xmlNodePtr xmlNode)
 {
     const TypeDefinition& def = getTypeDef(sType);
     ArgList args(def.getDefaultArgs(), xmlNode);
     ObjectBuilder builder = def.getBuilder();
-    ExportedTypePtr pObj = builder(args);
+    ExportedObjectPtr pObj = builder(args);
     pObj->setTypeInfo(&def);
     return pObj;
 }
 
-ExportedTypePtr TypeRegistry::createObject(const string& sType, const py::dict& pyDict)
+ExportedObjectPtr TypeRegistry::createObject(const string& sType, const py::dict& pyDict)
 {
     const TypeDefinition& def = getTypeDef(sType);
     py::dict effParams;
     effParams = pyDict;
     ArgList args(def.getDefaultArgs(), effParams);
     ObjectBuilder builder = def.getBuilder();
-    ExportedTypePtr pObj = builder(args);
+    ExportedObjectPtr pObj = builder(args);
     pObj->setTypeInfo(&def);
     return pObj;
 }

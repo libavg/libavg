@@ -127,7 +127,7 @@ char colorNodeName[] = "colornode";
 void ColorNode::registerType()
 {
     avg::TypeDefinition def = avg::TypeDefinition("colornode", "areanode", 
-            ExportedType::buildObject<ColorNode>)
+            ExportedObject::buildObject<ColorNode>)
         .addArg(Arg<float>("floatparam", 0.0f, false,
                 offsetof(ColorNode, m_FloatParam)))
         .addArg(Arg<string>("fillcolor", "0F0F0F", false, 

@@ -34,7 +34,7 @@ namespace avg {
 void FontStyle::registerType()
 {
     TypeDefinition def = TypeDefinition("fontstyle", "",
-            ExportedType::buildObject<FontStyle>)
+            ExportedObject::buildObject<FontStyle>)
         .addArg(Arg<string>("font", "arial", false, offsetof(FontStyle, m_sName)))
         .addArg(Arg<string>("variant", "", false, offsetof(FontStyle, m_sVariant)))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(FontStyle, m_sColorName)))

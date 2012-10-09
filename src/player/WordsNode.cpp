@@ -85,7 +85,7 @@ void WordsNode::registerType()
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
     TypeDefinition def = TypeDefinition("words", "rasternode", 
-            ExportedType::buildObject<WordsNode>)
+            ExportedObject::buildObject<WordsNode>)
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(WordsNode, m_sFontName)))

@@ -19,49 +19,59 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "CanvasNode.h"
-#include "Player.h"
-
+#include "ExportedObject.h"
 #include "TypeDefinition.h"
+#include "Arg.h"
 
-#include "../base/FileHelper.h"
 #include "../base/Exception.h"
+#include "../base/Logger.h"
+#include "../base/ObjectCounter.h"
+
+#include <string>
 
 using namespace std;
 
 namespace avg {
 
-void CanvasNode::registerType()
+ExportedObject::ExportedObject()
 {
-    TypeDefinition def = TypeDefinition("canvasbase", "div", 
-            ExportedObject::buildObject<CanvasNode>);
-    TypeRegistry::get()->registerType(def);
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-CanvasNode::CanvasNode(const ArgList& args)
-    : DivNode(args)
+ExportedObject::~ExportedObject()
 {
-    args.setMembers(this);
-    if (getSize() == glm::vec2(0, 0)) {
-        throw (Exception(AVG_ERR_OUT_OF_RANGE,
-                "<avg> and <canvas> node width and height attributes are mandatory."));
-    }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-CanvasNode::~CanvasNode()
+void ExportedObject::setTypeInfo(const TypeDefinition * pDefinition)
 {
+    m_pDefinition = pDefinition;
 }
 
-string CanvasNode::getEffectiveMediaDir()
+const TypeDefinition* ExportedObject::getDefinition() const
 {
-    string sMediaDir = getMediaDir();
-    if (!isAbsPath(sMediaDir)) {
-        sMediaDir = Player::get()->getCurDirName()+sMediaDir;
-    }
-    if (sMediaDir[sMediaDir.length()-1] != '/') {
-        sMediaDir += '/';
-    }
-    return sMediaDir;
+    return m_pDefinition;
 }
+
+string ExportedObject::getTypeStr() const
+{
+    return m_pDefinition->getName();
+}
+
+bool ExportedObject::operator ==(const ExportedObject& other) const
+{
+    return this == &other;
+}
+
+bool ExportedObject::operator !=(const ExportedObject& other) const
+{
+    return this != &other;
+}
+
+long ExportedObject::getHash() const
+{
+    return long(this);
+}
+
 
 }
