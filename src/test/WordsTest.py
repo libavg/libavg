@@ -50,7 +50,7 @@ class WordsTestCase(AVGTestCase):
         node = avg.WordsNode (pos=(1,16), fontsize=12, font="Bitstream Vera Sans",
                 text="Bold", variant="bold", parent=root)
         self.assertNotEqual(node.size, (0,0))
-        pos = node.getGlyphPos(0)
+        node.getGlyphPos(0)
         self.start(True, 
                 (lambda: self.compareImage("testSimpleWords"),
                  checkFont,
@@ -79,8 +79,17 @@ class WordsTestCase(AVGTestCase):
                 ))
 
     def testFontStyle(self):
-        fontStyle = avg.FontStyle(font="foo")
-        self.assert_(fontStyle.font == "foo")
+        fontStyle = avg.FontStyle(font="Bitstream Vera Sans", variant="Roman",
+                fontsize=12)
+        self.assert_(fontStyle.font == "Bitstream Vera Sans")
+        root = self.loadEmptyScene()
+        avg.WordsNode(pos=(1,1), fontstyle=fontStyle, text="Bitstream Vera Sans", 
+                parent=root)
+        avg.WordsNode (pos=(1,16), fontstyle=fontStyle, variant="bold", text="Bold",
+                parent=root)
+        self.start(True, 
+                (lambda: self.compareImage("testSimpleWords"),
+                ))
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):

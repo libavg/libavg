@@ -148,7 +148,7 @@ Player::Player()
     pProfiler->setName("main");
     initConfig();
 
-    // Register types
+    FontStyle::registerType();
     Node::registerType();
     AreaNode::registerType();
     RasterNode::registerType();
@@ -172,7 +172,6 @@ Player::Player()
     CircleNode::registerType();
     MeshNode::registerType();
 
-    FontStyle::registerType();
     Contact::registerType();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());

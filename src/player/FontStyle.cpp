@@ -58,18 +58,50 @@ FontStyle::FontStyle(const ArgList& args)
     setAlignment(args.getArgVal<string>("alignment"));
     setWrapMode(args.getArgVal<string>("wrapmode"));
     m_Color = colorStringToColor(m_sColorName);
-
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 FontStyle::FontStyle()
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+    const ArgList& args = TypeRegistry::get()->getTypeDef("fontstyle").getDefaultArgs();
+    args.setMembers(this);
+    setAlignment(args.getArgVal<string>("alignment"));
+    setWrapMode(args.getArgVal<string>("wrapmode"));
+    m_Color = colorStringToColor(m_sColorName);
 }
 
 FontStyle::~FontStyle()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+template<class ARG>
+void setDefaultedArg(ARG& member, const string& sName, const ArgList& args)
+{
+    if (!args.getArg(sName)->isDefault()) {
+        member = args.getArgVal<ARG>(sName);
+    }
+}
+
+void FontStyle::setDefaultedArgs(const ArgList& args)
+{
+    // Warning: The ArgList here contains args that are for a different class originally,
+    // so the member offsets  are wrong.
+    setDefaultedArg(m_sName, "font", args);
+    setDefaultedArg(m_sVariant, "variant", args);
+    setDefaultedArg(m_sColorName, "color", args);
+    setColor(m_sColorName);
+    setDefaultedArg(m_AAGamma, "aagamma", args);
+    setDefaultedArg(m_Size, "fontsize", args);
+    setDefaultedArg(m_Indent, "indent", args);
+    setDefaultedArg(m_LineSpacing, "linespacing", args);
+    string s = getAlignment();
+    setDefaultedArg(s, "alignment", args);
+    setAlignment(s);
+    s = getWrapMode();
+    setDefaultedArg(s, "wrapmode", args);
+    setWrapMode(s);
+    setDefaultedArg(m_bJustify, "justify", args);
+    setDefaultedArg(m_LetterSpacing, "letterspacing", args);
+    setDefaultedArg(m_bHint, "hint", args);
 }
 
 const std::string& FontStyle::getFont() const

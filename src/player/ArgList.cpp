@@ -24,6 +24,7 @@
 #include "ArgList.h"
 
 #include "ExportedObject.h"
+#include "FontStyle.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -165,6 +166,7 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
             dynamic_cast<Arg<vector<glm::ivec3> >* >(&*pArg);
     Arg<CollVec2Vector>* pCollVec2VectorArg =
             dynamic_cast<Arg<CollVec2Vector>* >(&*pArg);
+    Arg<FontStyle>* pFontStyleArg = dynamic_cast<Arg<FontStyle>* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, value);
     } else if (pUTF8StringArg) {
@@ -191,6 +193,8 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
         avg::setArgValue(pIVec3VectorArg, sName, value);
     } else if (pCollVec2VectorArg) {
         avg::setArgValue(pCollVec2VectorArg, sName, value);
+    } else if (pFontStyleArg) {
+        avg::setArgValue(pFontStyleArg, sName, value);
     } else {
         AVG_ASSERT(false);
     }

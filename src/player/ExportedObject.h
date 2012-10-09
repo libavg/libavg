@@ -39,10 +39,10 @@ class ExportedObject;
 typedef boost::shared_ptr<ExportedObject> ExportedObjectPtr;
 
 class AVG_API ExportedObject: public boost::enable_shared_from_this<ExportedObject>
-
 {
     public:
         ExportedObject();
+        ExportedObject(const ExportedObject& other);
         virtual ~ExportedObject()=0;
 
         void registerInstance(PyObject* pSelf);

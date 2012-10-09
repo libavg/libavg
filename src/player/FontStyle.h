@@ -47,6 +47,8 @@ class AVG_API FontStyle: public ExportedObject
         FontStyle();
         virtual ~FontStyle();
 
+        void setDefaultedArgs(const ArgList& args);
+
         const std::string& getFont() const;
         void setFont(const std::string& sName);
 

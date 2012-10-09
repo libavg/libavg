@@ -39,6 +39,14 @@ ExportedObject::ExportedObject()
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
+ExportedObject::ExportedObject(const ExportedObject& other)
+    : m_pSelf(0)
+{
+    AVG_ASSERT(!other.m_pSelf);
+    m_pDefinition = other.m_pDefinition;
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
+
 ExportedObject::~ExportedObject()
 {
     ObjectCounter::get()->decRef(&typeid(*this));

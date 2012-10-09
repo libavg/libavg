@@ -103,6 +103,7 @@ void WordsNode::registerType()
                 offsetof(WordsNode, m_bRawTextMode)))
         .addArg(Arg<float>("letterspacing", 0))
         .addArg(Arg<bool>("hint", true))
+        .addArg(Arg<FontStyle>("fontstyle", FontStyle()))
         ;
     TypeRegistry::get()->registerType(def);
 }
@@ -116,18 +117,8 @@ WordsNode::WordsNode(const ArgList& args)
     m_bParsedText = false;
     args.setMembers(this);
 
-    m_FontStyle.setFont(args.getArgVal<string>("font"));
-    m_FontStyle.setFontVariant(args.getArgVal<string>("variant"));
-    m_FontStyle.setColor(args.getArgVal<string>("color"));
-    m_FontStyle.setAAGamma(args.getArgVal<float>("aagamma"));
-    m_FontStyle.setFontSize(args.getArgVal<float>("fontsize"));
-    m_FontStyle.setIndent(args.getArgVal<int>("indent"));
-    m_FontStyle.setLineSpacing(args.getArgVal<float>("linespacing"));
-    m_FontStyle.setAlignment(args.getArgVal<string>("alignment"));
-    m_FontStyle.setWrapMode(args.getArgVal<string>("wrapmode"));
-    m_FontStyle.setJustify(args.getArgVal<bool>("justify"));
-    m_FontStyle.setLetterSpacing(args.getArgVal<float>("letterspacing"));
-    m_FontStyle.setHint(args.getArgVal<bool>("hint"));
+    m_FontStyle = args.getArgVal<FontStyle>("fontstyle");
+    m_FontStyle.setDefaultedArgs(args);
 
     updateFont();
     setText(args.getArgVal<UTF8String>("text"));

@@ -22,6 +22,8 @@
 //
 
 #include "Arg.h"
+#include "FontStyle.h"
+
 #include <string>
 
 using namespace std;
@@ -40,5 +42,6 @@ template class Arg<std::vector<float> >;
 template class Arg<std::vector<int> >;
 template class Arg<vector<glm::vec2> >;
 template class Arg<vector<glm::ivec3> >;
+template class Arg<FontStyle>;
 #endif
 }
