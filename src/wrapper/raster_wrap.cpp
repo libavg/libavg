@@ -193,10 +193,10 @@ void export_raster()
 
     class_<FontStyle, bases<ExportedObject> >("FontStyle", no_init)
         .def("__init__", raw_constructor(createExportedObject<fontStyleName>))
-        .add_property("fontname", 
-                make_function(&FontStyle::getFontName,
+        .add_property("font", 
+                make_function(&FontStyle::getFont,
                         return_value_policy<copy_const_reference>()),
-                make_function(&FontStyle::setFontName,
+                make_function(&FontStyle::setFont,
                         return_value_policy<copy_const_reference>()))
         .add_property("variant", 
                 make_function(&FontStyle::getFontVariant,

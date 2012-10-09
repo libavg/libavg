@@ -44,10 +44,11 @@ class AVG_API FontStyle: public ExportedObject
         static void registerType();
         
         FontStyle(const ArgList& args);
+        FontStyle();
         virtual ~FontStyle();
 
-        const std::string& getFontName() const;
-        void setFontName(const std::string& sName);
+        const std::string& getFont() const;
+        void setFont(const std::string& sName);
 
         const std::string& getFontVariant() const;
         void setFontVariant(const std::string& sVariant);
@@ -84,6 +85,7 @@ class AVG_API FontStyle: public ExportedObject
 
         PangoAlignment getAlignmentVal() const;
         PangoWrapMode getWrapModeVal() const;
+        Pixel32 getColorVal() const;
 
     private:
         std::string m_sName;

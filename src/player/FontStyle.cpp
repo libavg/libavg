@@ -35,7 +35,7 @@ void FontStyle::registerType()
 {
     TypeDefinition def = TypeDefinition("fontstyle", "",
             ExportedObject::buildObject<FontStyle>)
-        .addArg(Arg<string>("fontname", "arial", false, offsetof(FontStyle, m_sName)))
+        .addArg(Arg<string>("font", "arial", false, offsetof(FontStyle, m_sName)))
         .addArg(Arg<string>("variant", "", false, offsetof(FontStyle, m_sVariant)))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(FontStyle, m_sColorName)))
         .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(FontStyle, m_AAGamma)))
@@ -62,17 +62,22 @@ FontStyle::FontStyle(const ArgList& args)
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
+FontStyle::FontStyle()
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
+
 FontStyle::~FontStyle()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-const std::string& FontStyle::getFontName() const
+const std::string& FontStyle::getFont() const
 {
     return m_sName;
 }
 
-void FontStyle::setFontName(const string& sName)
+void FontStyle::setFont(const string& sName)
 {
     m_sName = sName;
 }
@@ -228,5 +233,21 @@ void FontStyle::setHint(bool bHint)
 {
     m_bHint = bHint;
 }
+
+PangoAlignment FontStyle::getAlignmentVal() const
+{
+    return m_Alignment;
+}
+
+PangoWrapMode FontStyle::getWrapModeVal() const
+{
+    return m_WrapMode;
+}
+
+Pixel32 FontStyle::getColorVal() const
+{
+    return m_Color;
+}
+
 
 }

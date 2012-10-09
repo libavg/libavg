@@ -79,8 +79,8 @@ class WordsTestCase(AVGTestCase):
                 ))
 
     def testFontStyle(self):
-        fontStyle = avg.FontStyle(fontname="foo")
-        self.assert_(fontStyle.fontname == "foo")
+        fontStyle = avg.FontStyle(font="foo")
+        self.assert_(fontStyle.font == "foo")
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
