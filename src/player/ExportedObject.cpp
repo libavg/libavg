@@ -67,7 +67,7 @@ ExportedObjectPtr ExportedObject::getSharedThis()
     if (m_pSelf) {
         return py::extract<ExportedObjectPtr>(m_pSelf);
     } else {
-        return boost::dynamic_pointer_cast<ExportedObject>(shared_from_this());
+        return shared_from_this();
     }
 }
 
