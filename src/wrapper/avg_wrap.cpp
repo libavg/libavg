@@ -228,10 +228,8 @@ BOOST_PYTHON_MODULE(avg)
     ;
     exportMessages(playerClass, "Player");
     
-    class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", no_init)
-        .def(self == self)
-        .def(self != self)
-        .def("__hash__", &Canvas::getHash)
+    class_<Canvas, boost::shared_ptr<Canvas>, bases<ExportedObject>, 
+            boost::noncopyable>("Canvas", no_init)
         .def("getRootNode", &Canvas::getRootNode)
         .def("getElementByID", &Canvas::getElementByID)
         .def("screenshot", &Canvas::screenshot)

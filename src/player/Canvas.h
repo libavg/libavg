@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "FontStyle.h"
+
 #include "../base/IPlaybackEndListener.h"
 #include "../base/IFrameEndListener.h"
 #include "../base/IPreRenderListener.h"
@@ -60,7 +62,7 @@ class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 
-class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
+class AVG_API Canvas: public ExportedObject
 {
     public:
         Canvas(Player * pPlayer);
@@ -89,17 +91,12 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
         std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
 
-        bool operator ==(const Canvas& other) const;
-        bool operator !=(const Canvas& other) const;
-        long getHash() const;
-
     protected:
         Player * getPlayer() const;
         void render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
                 ProfilingZoneID& renderProfilingZone);
         void emitPreRenderSignal(); 
         void emitFrameEndSignal();
-
 
     private:
         virtual void render()=0;
