@@ -119,7 +119,7 @@ BOOST_PYTHON_MODULE(avg)
             ("ExportedObject", no_init)
         .def(self == self)
         .def(self != self)
-        .def("__hash__", &Node::getHash)
+        .def("__hash__", &ExportedObject::getHash)
     ;
 
     class_<Publisher, bases<ExportedObject>, boost::noncopyable>("Publisher")

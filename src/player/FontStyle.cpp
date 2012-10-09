@@ -84,7 +84,7 @@ void setDefaultedArg(ARG& member, const string& sName, const ArgList& args)
 void FontStyle::setDefaultedArgs(const ArgList& args)
 {
     // Warning: The ArgList here contains args that are for a different class originally,
-    // so the member offsets  are wrong.
+    // so the member offsets are wrong.
     setDefaultedArg(m_sName, "font", args);
     setDefaultedArg(m_sVariant, "variant", args);
     setDefaultedArg(m_sColorName, "color", args);
