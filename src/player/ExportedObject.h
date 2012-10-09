@@ -45,6 +45,9 @@ class AVG_API ExportedObject: public boost::enable_shared_from_this<ExportedObje
         ExportedObject();
         virtual ~ExportedObject()=0;
 
+        void registerInstance(PyObject* pSelf);
+        ExportedObjectPtr getSharedThis();
+
         template<class Type>
         static ExportedObjectPtr buildObject(const ArgList& Args)
         {
@@ -62,6 +65,7 @@ class AVG_API ExportedObject: public boost::enable_shared_from_this<ExportedObje
 
     private:
         const TypeDefinition* m_pDefinition;
+        PyObject* m_pSelf;
 };
 
 }

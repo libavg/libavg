@@ -34,6 +34,7 @@ using namespace std;
 namespace avg {
 
 ExportedObject::ExportedObject()
+    : m_pSelf(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -41,6 +42,25 @@ ExportedObject::ExportedObject()
 ExportedObject::~ExportedObject()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+void ExportedObject::registerInstance(PyObject* pSelf)
+{
+    m_pSelf = pSelf;
+}
+
+ExportedObjectPtr ExportedObject::getSharedThis()
+{
+    // Just using shared_from_this causes strange behaviour when derived classes
+    // are written in python: The pointer returned by shared_from_this doesn't know
+    // about the python part of the object and cuts it off. Because of this, we remember
+    // a pointer to the python object in m_pSelf and use that to create a functioning
+    // and complete ExportedObjectPtr if there is a python derived class.
+    if (m_pSelf) {
+        return py::extract<ExportedObjectPtr>(m_pSelf);
+    } else {
+        return boost::dynamic_pointer_cast<ExportedObject>(shared_from_this());
+    }
 }
 
 void ExportedObject::setTypeInfo(const TypeDefinition * pDefinition)

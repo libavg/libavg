@@ -99,9 +99,6 @@ void export_node()
 
     object nodeClass = class_<Node, boost::shared_ptr<Node>, bases<Publisher>, 
             boost::noncopyable>("Node", no_init)
-        .def(self == self)
-        .def(self != self)
-        .def("__hash__", &Node::getHash)
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID)
         .def("registerInstance", &Node::registerInstance)

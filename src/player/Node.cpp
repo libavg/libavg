@@ -38,6 +38,7 @@
 #include <string>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -67,7 +68,6 @@ void Node::registerType()
 
 Node::Node(const std::string& sPublisherName)
     : Publisher(sPublisherName),
-      m_pSelf(0),
       m_pParent(0),
       m_pCanvas(),
       m_State(NS_UNCONNECTED)
@@ -83,7 +83,7 @@ Node::~Node()
 
 void Node::registerInstance(PyObject* pSelf, const DivNodePtr& pParent)
 {
-    m_pSelf = pSelf;
+    ExportedObject::registerInstance(pSelf);
     if (pParent) {
         pParent->appendChild(getSharedThis());
     }
@@ -495,16 +495,7 @@ bool Node::getEffectiveActive() const
 
 NodePtr Node::getSharedThis()
 {
-    // Just using shared_from_this causes strange behaviour when derived Node classes
-    // are written in python: The pointer returned by shared_from_this doesn't know
-    // about the python part of the object and cuts it off. Because of this, we remember
-    // a pointer to the python object in m_pSelf and use that to create a functioning
-    // and complete NodePtr if there is a python derived class.
-    if (m_pSelf) {
-        return py::extract<NodePtr>(m_pSelf);
-    } else {
-        return boost::dynamic_pointer_cast<Node>(shared_from_this());
-    }
+    return dynamic_pointer_cast<Node>(ExportedObject::getSharedThis());
 }
 
 void Node::connectOneEventHandler(const EventID& id, PyObject * pObj, 

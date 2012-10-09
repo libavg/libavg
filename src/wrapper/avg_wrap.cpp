@@ -42,6 +42,7 @@ void export_anim();
 #include "../player/VideoWriter.h"
 #include "../player/SVG.h"
 #include "../player/VersionInfo.h"
+#include "../player/ExportedObject.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -114,7 +115,14 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLAYER", &Logger::PLAYER)
     ;
 
-    class_<Publisher, boost::noncopyable>("Publisher")
+    class_<ExportedObject, boost::shared_ptr<ExportedObject>, boost::noncopyable>
+            ("ExportedObject", no_init)
+        .def(self == self)
+        .def(self != self)
+        .def("__hash__", &Node::getHash)
+    ;
+
+    class_<Publisher, bases<ExportedObject>, boost::noncopyable>("Publisher")
         .def("subscribe", &Publisher::subscribe)
         .def("unsubscribe", &Publisher::unsubscribeCallable)
         .def("unsubscribe", &Publisher::unsubscribe)

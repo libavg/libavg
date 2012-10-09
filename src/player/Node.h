@@ -146,7 +146,6 @@ class AVG_API Node: public Publisher
 
     private:
         std::string m_ID;
-        PyObject* m_pSelf;
 
         DivNode* m_pParent;
 
