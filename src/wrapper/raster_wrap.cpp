@@ -25,6 +25,7 @@
 #include "../player/CameraNode.h"
 #include "../player/ImageNode.h"
 #include "../player/VideoNode.h"
+#include "../player/FontStyle.h"
 #include "../player/WordsNode.h"
 
 using namespace boost::python;
@@ -34,6 +35,7 @@ using namespace std;
 char imageNodeName[] = "image";
 char cameraNodeName[] = "camera";
 char videoNodeName[] = "video";
+char fontStyleName[] = "fontstyle";
 char wordsNodeName[] = "words";
 
 void export_raster()
@@ -187,6 +189,36 @@ void export_raster()
         .add_property("volume", &VideoNode::getVolume, &VideoNode::setVolume)
         .add_property("threaded", &VideoNode::isThreaded)
         .add_property("accelerated", &VideoNode::isAccelerated)
+    ;
+
+    class_<FontStyle, bases<ExportedObject> >("FontStyle", no_init)
+        .def("__init__", raw_constructor(createExportedObject<fontStyleName>))
+        .add_property("fontname", 
+                make_function(&FontStyle::getFontName,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&FontStyle::setFontName,
+                        return_value_policy<copy_const_reference>()))
+        .add_property("variant", 
+                make_function(&FontStyle::getFontVariant,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&FontStyle::setFontVariant,
+                        return_value_policy<copy_const_reference>()))
+        .add_property("color", 
+                make_function(&FontStyle::getColor,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&FontStyle::setColor,
+                        return_value_policy<copy_const_reference>()))
+        .add_property("aagamma", &FontStyle::getAAGamma, &FontStyle::setAAGamma)
+        .add_property("fontsize", &FontStyle::getFontSize, &FontStyle::setFontSize)
+        .add_property("indent", &FontStyle::getIndent, &FontStyle::setIndent)
+        .add_property("linespacing", &FontStyle::getLineSpacing, 
+                &FontStyle::setLineSpacing)
+        .add_property("alignment", &FontStyle::getAlignment, &FontStyle::setAlignment)
+        .add_property("wrapmode", &FontStyle::getWrapMode, &FontStyle::setWrapMode)
+        .add_property("justify", &FontStyle::getJustify, &FontStyle::setJustify)
+        .add_property("letterspacing", &FontStyle::getLetterSpacing, 
+                &FontStyle::setLetterSpacing)
+        .add_property("hint", &FontStyle::getHint, &FontStyle::setHint)
     ;
 
     class_<WordsNode, bases<RasterNode> >("WordsNode", no_init)

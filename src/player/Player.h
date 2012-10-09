@@ -122,8 +122,6 @@ class AVG_API Player: public Publisher
         long long getFrameTime();
         float getFrameDuration();
 
-//        void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
-        
         NodePtr createNode(const std::string& sType, const py::dict& PyDict,
                 const py::object& self=py::object());
         NodePtr createNodeFromXmlString(const std::string& sXML);
@@ -174,7 +172,6 @@ class AVG_API Player: public Publisher
 
         std::string getCurDirName();
         std::string getRootMediaDir();
-//        const NodeDefinition& getNodeDef(const std::string& sType);
 
         void disablePython();
         void startTraversingTree();

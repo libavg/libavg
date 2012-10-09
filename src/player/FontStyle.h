@@ -46,11 +46,11 @@ class AVG_API FontStyle: public ExportedObject
         FontStyle(const ArgList& args);
         virtual ~FontStyle();
 
-        const std::string& getName() const;
-        void setName(const std::string& sName);
+        const std::string& getFontName() const;
+        void setFontName(const std::string& sName);
 
-        const std::string& getVariant() const;
-        void setVariant(const std::string& sVariant);
+        const std::string& getFontVariant() const;
+        void setFontVariant(const std::string& sVariant);
         
         const std::string& getColor() const;
         void setColor(const std::string& sColor);
@@ -58,8 +58,8 @@ class AVG_API FontStyle: public ExportedObject
         virtual float getAAGamma() const;
         virtual void setAAGamma(float gamma);
 
-        float getSize() const;
-        void setSize(float size);
+        float getFontSize() const;
+        void setFontSize(float size);
         
         int getIndent() const;
         void setIndent(int indent);

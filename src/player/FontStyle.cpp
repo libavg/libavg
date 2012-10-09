@@ -35,7 +35,7 @@ void FontStyle::registerType()
 {
     TypeDefinition def = TypeDefinition("fontstyle", "",
             ExportedObject::buildObject<FontStyle>)
-        .addArg(Arg<string>("font", "arial", false, offsetof(FontStyle, m_sName)))
+        .addArg(Arg<string>("fontname", "arial", false, offsetof(FontStyle, m_sName)))
         .addArg(Arg<string>("variant", "", false, offsetof(FontStyle, m_sVariant)))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(FontStyle, m_sColorName)))
         .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(FontStyle, m_AAGamma)))
@@ -67,22 +67,22 @@ FontStyle::~FontStyle()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-const std::string& FontStyle::getName() const
+const std::string& FontStyle::getFontName() const
 {
     return m_sName;
 }
 
-void FontStyle::setName(const string& sName)
+void FontStyle::setFontName(const string& sName)
 {
     m_sName = sName;
 }
 
-const std::string& FontStyle::getVariant() const
+const std::string& FontStyle::getFontVariant() const
 {
     return m_sVariant;
 }
 
-void FontStyle::setVariant(const std::string& sVariant)
+void FontStyle::setFontVariant(const std::string& sVariant)
 {
     m_sVariant = sVariant;
 }
@@ -108,12 +108,12 @@ void FontStyle::setAAGamma(float gamma)
     m_AAGamma = gamma;
 }
 
-float FontStyle::getSize() const
+float FontStyle::getFontSize() const
 {
     return m_Size;
 }
 
-void FontStyle::setSize(float size)
+void FontStyle::setFontSize(float size)
 {
     if (size <= 1) {
         throw Exception(AVG_ERR_INVALID_ARGS, "Font size < 1 is illegal.");

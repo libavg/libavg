@@ -28,7 +28,7 @@ from testcase import *
 class WordsTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
-    
+   
     def testSimpleWords(self):
         def checkFont():
             self.assertEqual(node.variant, "bold")
@@ -77,6 +77,10 @@ class WordsTestCase(AVGTestCase):
                 (lambda: changeText("bar"),
                  changeFont,
                 ))
+
+    def testFontStyle(self):
+        fontStyle = avg.FontStyle(fontname="foo")
+        self.assert_(fontStyle.fontname == "foo")
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
@@ -628,6 +632,7 @@ def wordsTestSuite(tests):
     availableTests = (
             "testSimpleWords",
             "testRedrawOnDemand",
+            "testFontStyle",
             "testGlyphPos",
             "testParaWords",
             "testJustify",

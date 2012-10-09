@@ -28,6 +28,7 @@
 
 #include "../player/BoostPython.h"
 #include "../player/Player.h"
+#include "../player/TypeRegistry.h"
 
 #include <string>
 
@@ -311,6 +312,14 @@ public:
 };
 
 AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=1);
+
+template<const char * pszType> 
+avg::ExportedObjectPtr createExportedObject(const boost::python::tuple &args,
+        const boost::python::dict &attrs)
+{
+    checkEmptyArgs(args);
+    return avg::TypeRegistry::get()->createObject(pszType, attrs);
+}
 
 template<const char * pszType> 
 avg::NodePtr createNode(const boost::python::tuple &args,

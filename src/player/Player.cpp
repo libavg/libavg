@@ -975,12 +975,7 @@ std::string Player::getRootMediaDir()
     }
     return sMediaDir;
 }
-/*
-const NodeDefinition& Player::getNodeDef(const std::string& sType)
-{
-    return NodeRegistry::get()->getNodeDef(sType);
-}
-*/
+
 void Player::disablePython()
 {
     m_bPythonAvailable = false;
@@ -1352,13 +1347,6 @@ SDLDisplayEnginePtr Player::safeGetDisplayEngine()
     return m_pDisplayEngine;
 
 }
-/*
-void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
-{
-    NodeRegistry* pRegistry = NodeRegistry::get();
-    pRegistry->registerNodeType(def, pParentNames);
-}
-*/
 
 NodePtr Player::createNode(const string& sType,
         const py::dict& params, const boost::python::object& self)
