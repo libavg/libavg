@@ -69,6 +69,11 @@ void PBO::activate()
     GLContext::checkError("PBO::activate()");  
 }
 
+int PBO::getID() const
+{
+    return m_PBOID;
+}
+
 void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
 {
     AVG_ASSERT(pBmp->getSize() == tex.getSize());
