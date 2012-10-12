@@ -1734,6 +1734,11 @@ string Player::getConfigOption(const string& sSubsys, const string& sName) const
     }
 }
 
+bool Player::isUsingGLES() const
+{
+    return m_GLConfig.m_bGLES;
+}
+
 OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
 {
     if (sURL.substr(0, 7) != "canvas:") {

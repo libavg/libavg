@@ -169,6 +169,7 @@ class AVG_API Player: public Publisher
         float getVolume() const;
         std::string getConfigOption(const std::string& sSubsys, const std::string& sName)
                 const;
+        bool isUsingGLES() const;
 
         OffscreenCanvasPtr getCanvasFromURL(const std::string& sURL);
 

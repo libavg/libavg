@@ -223,6 +223,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("setEventHook", &Player::setEventHook)
         .def("getEventHook", &Player::getEventHook)
         .def("getConfigOption", &Player::getConfigOption)
+        .def("isUsingGLES", &Player::isUsingGLES)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
