@@ -138,9 +138,14 @@ BitmapPtr FBO::getImage(int i) const
         return getImageFromPBO();
     } else {
         BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
+        if (m_MultisampleSamples != 1) { 
+            glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO); 
+        } else { 
+            glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO); 
+        } 
         glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
                 GLTexture::getGLType(m_PF), pBmp->getPixels()); 
-        GLContext::checkError("FBO::moveToPBO ReadPixels()"); 
+        GLContext::checkError("FBO::getImage ReadPixels()"); 
         return pBmp;
     }
 }
