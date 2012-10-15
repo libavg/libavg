@@ -43,7 +43,7 @@ namespace avg {
 
 class AVG_API OGLImagingContext: public GLContext {
 public:
-    OGLImagingContext(bool bUseDebugContext=false);
+    OGLImagingContext(bool bGLES, bool bUseDebugContext=false);
     virtual ~OGLImagingContext();
 
     bool isSupported();

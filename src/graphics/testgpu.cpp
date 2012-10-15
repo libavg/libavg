@@ -404,24 +404,32 @@ public:
 };
 
 
+bool runTests(bool bGLES)
+{
+    OGLImagingContext context(bGLES, true);
+    ShaderRegistry::get()->setShaderPath("./shaders");
+    try {
+        if (!queryOGLExtension("GL_ARB_fragment_shader")) {
+            throw Exception(AVG_ERR_UNSUPPORTED, 
+                    "Fragment shaders not supported on this Machine. ");
+        }
+        GPUTestSuite suite;
+        suite.runTests();
+        return suite.isOk();
+    } catch (Exception& ex) {
+        cerr << "Exception: " << ex.getStr() << endl;
+        return false;
+    }
+}
+
+
 int main(int nargs, char** args)
 {
     g_type_init();
     bool bOK = true;
     try {
-        OGLImagingContext context(true);
-        ShaderRegistry::get()->setShaderPath("./shaders");
-        try {
-            if (!queryOGLExtension("GL_ARB_fragment_shader")) {
-                throw Exception(AVG_ERR_UNSUPPORTED, 
-                        "Fragment shaders not supported on this Machine. ");
-            }
-            GPUTestSuite suite;
-            suite.runTests();
-            bOK = suite.isOk();
-        } catch (Exception& ex) {
-            cerr << "Exception: " << ex.getStr() << endl;
-        }
+        bOK = runTests(false);
+        bOK &= runTests(true);
     } catch (Exception& ex) {
         if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
             cerr << ex.getStr() << endl;

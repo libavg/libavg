@@ -102,7 +102,7 @@ TrackerThread::~TrackerThread()
 bool TrackerThread::init()
 {
     try {
-        m_pImagingContext = new OGLImagingContext();
+        m_pImagingContext = new OGLImagingContext(false);
         createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& e) {
