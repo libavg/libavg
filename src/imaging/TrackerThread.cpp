@@ -102,8 +102,8 @@ TrackerThread::~TrackerThread()
 bool TrackerThread::init()
 {
     try {
-        m_pImagingContext = new GLContext(GLConfig(false, false, true, 1, GLConfig::AUTO,
-                false));
+        m_pImagingContext = GLContext::create(
+            GLConfig(false, false, true, 1, GLConfig::AUTO, false));
         createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& e) {

@@ -200,7 +200,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     SDL_VERSION(&info.version);
     int rc = SDL_GetWMInfo(&info);
     AVG_ASSERT(rc != -1);
-    m_pGLContext = new GLContext(glConfig, m_WindowSize, &info);
+    m_pGLContext = GLContext::create(glConfig, m_WindowSize, &info);
     GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
@@ -255,7 +255,6 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
         if (m_pGLContext) {
-            delete m_pGLContext;
             m_pGLContext = 0;
         }
         GLContext::setMain(0);

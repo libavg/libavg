@@ -18,8 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _GLContext_H_
-#define _GLContext_H_
+#ifndef _CGLContext_H_
+#define _CGLContext_H_
 #include "../api.h"
 
 #include "OGLHelper.h"
@@ -45,25 +45,21 @@ struct SDL_SysWMinfo;
 
 namespace avg {
 
-class GLContext;
-typedef boost::shared_ptr<GLContext> GLContextPtr;
+class CGLContext;
+typedef boost::shared_ptr<CGLContext> CGLContextPtr;
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 class StandardShader;
 typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
-class AVG_API GLContext {
+class AVG_API CGLContext {
 public:
-    enum VBMethod {VB_GLX, VB_APPLE, VB_WIN, VB_NONE};
+    CGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+            const SDL_SysWMinfo* pSDLWMInfo=0);
+    virtual ~CGLContext();
+    void init();
 
-    static GLContext* create(const GLConfig& glConfig, 
-            const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
-
-    GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
-    virtual ~GLContext() {};
-
-    virtual void activate()=0;
+    void activate();
     ShaderRegistryPtr getShaderRegistry() const;
     StandardShaderPtr getStandardShader();
     bool useGPUYUVConversion() const;
@@ -91,8 +87,8 @@ public:
     OGLMemoryMode getMemoryModeSupported();
     bool isGLES() const;
 
-    virtual bool initVBlank(int rate)=0;
-    virtual void swapBuffers();
+    bool initVBlank(int rate);
+    void swapBuffers();
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
@@ -100,30 +96,43 @@ public:
 
     static BlendMode stringToBlendMode(const std::string& s);
 
-    static GLContext* getCurrent();
-    static GLContext* getMain();
-    static void setMain(GLContext * pMainContext);
+    static CGLContext* getCurrent();
+    static CGLContext* getMain();
+    static void setMain(CGLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
 
 protected:
-    void init();
-    void deleteObjects();
-
     void getVersion(int& major, int& minor) const;
-    VBMethod getVBMethod() const;
-    void setVBMethod(VBMethod vbMethod);
-    bool ownsContext() const;
 
-    void setCurrent();
 
 private:
     void checkGPUMemInfoSupport();
+#ifdef _WIN32
+    void checkWinError(BOOL bOK, const std::string& sWhere);
+#endif
 
     // Vertical blank stuff.
     void initMacVBlank(int rate);
+    enum VBMethod {VB_GLX, VB_APPLE, VB_WIN, VB_NONE};
     static VBMethod s_VBMethod;
 
+#ifdef __APPLE__
+    CGLContextObj m_Context;
+#elif defined linux
+    void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+            const SDL_SysWMinfo* pSDLWMInfo);
+
+    Display* m_pDisplay;
+    Colormap m_Colormap;
+    GLXDrawable m_Drawable;
+    GLXContext m_Context;
+#elif defined _WIN32
+    HWND m_hwnd;
+    HDC m_hDC;
+    HGLRC m_Context;
+#endif
+ 
     bool m_bOwnsContext;
     
     ShaderRegistryPtr m_pShaderRegistry;
@@ -152,8 +161,8 @@ private:
 
     static bool s_bErrorCheckEnabled;
 
-    static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
-    static GLContext* s_pMainContext;
+    static boost::thread_specific_ptr<CGLContext*> s_pCurrentContext;
+    static CGLContext* s_pMainContext;
 };
 
 }

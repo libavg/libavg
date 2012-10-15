@@ -406,7 +406,8 @@ public:
 
 bool runTests(bool bGLES)
 {
-    GLContext context(GLConfig(bGLES, false, true, 1, GLConfig::AUTO, true));
+    GLContext* pContext = GLContext::create(
+            GLConfig(bGLES, false, true, 1, GLConfig::AUTO, true));
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
     ShaderRegistry::get()->setShaderPath("./shaders");
@@ -417,9 +418,11 @@ bool runTests(bool bGLES)
         }
         GPUTestSuite suite;
         suite.runTests();
+        delete pContext;
         return suite.isOk();
     } catch (Exception& ex) {
         cerr << "Exception: " << ex.getStr() << endl;
+        delete pContext;
         return false;
     }
 }
