@@ -106,9 +106,9 @@ void VertexArray::activate()
             sizeof(T2V3C4Vertex), (void *)(COLOR_OFFSET*sizeof(float)));
     glproc::VertexAttribPointer(POS_INDEX, 3, GL_FLOAT, GL_FALSE, 
             sizeof(T2V3C4Vertex), (void *)(POS_OFFSET*sizeof(float)));
-    glproc::EnableVertexAttribArray(0);
-    glproc::EnableVertexAttribArray(1);
-    glproc::EnableVertexAttribArray(2);
+    glproc::EnableVertexAttribArray(TEX_INDEX);
+    glproc::EnableVertexAttribArray(COLOR_INDEX);
+    glproc::EnableVertexAttribArray(POS_INDEX);
     GLContext::checkError("VertexArray::activate()");
 }
 

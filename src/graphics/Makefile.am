@@ -2,6 +2,14 @@ SUBDIRS = shaders
 
 INCLUDES = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
 
+if APPLE
+    GL_SOURCES = CGLContext.cpp
+    GL_INCLUDES = CGLContext.h
+else
+    GL_SOURCES = GLXContext.cpp
+    GL_INCLUDES = GLXContext.h
+endif
+
 ALL_H = Bitmap.h Filter.h GLContext.h\
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
@@ -20,7 +28,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h\
         ImagingProjection.h BitmapManager.h BitmapManagerThread.h \
         BitmapManagerMsg.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
         GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
-        VertexData.h GLXContext.h
+        VertexData.h $(GL_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
@@ -37,7 +45,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp \
         BitmapManagerMsg.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \
         GPURGB2YUVFilter.cpp GLShaderParam.cpp StandardShader.cpp SubVertexArray.cpp \
-        VertexData.cpp GLXContext.cpp
+        VertexData.cpp $(GL_SOURCES)
 
 
 

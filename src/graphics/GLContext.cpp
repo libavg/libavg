@@ -148,8 +148,7 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
 
 GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : m_bOwnsContext(true),
-      m_MaxTexSize(0),
+    : m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
       m_BlendColor(0.f, 0.f, 0.f, 0.f),
@@ -162,8 +161,9 @@ GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize,
     m_GLConfig = glConfig;
 }
 
-void GLContext::init()
+void GLContext::init(bool bOwnsContext)
 {
+    m_bOwnsContext = bOwnsContext;
     activate();
     glproc::init();
     if (m_GLConfig.m_bGLES) {
@@ -175,11 +175,11 @@ void GLContext::init()
     }
 
     if (m_GLConfig.m_bUseDebugContext) {
-//        if (queryOGLExtension("GL_ARB_debug_output")) {
+        if (queryOGLExtension("GL_ARB_debug_output")) {
             glproc::DebugMessageCallback(debugLogCallback, 0);
-//        } else {
-//            m_GLConfig.m_bUseDebugContext = false;
-//        }
+        } else {
+            m_GLConfig.m_bUseDebugContext = false;
+        }
     }
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {

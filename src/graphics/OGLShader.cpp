@@ -40,6 +40,9 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
       m_sFragProgram(sFragProgram)
 {
     m_hProgram = glproc::CreateProgramObject();
+    glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
+    glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
+    glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
     if (sVertProgram == "") {
         m_hVertexShader = 0;
     } else {
@@ -63,9 +66,6 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     if (m_hVertexShader) {
         m_pTransformParam = getParam<glm::mat4>("transform");
     }
-    glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
-    glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
-    glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
 }
 
 OGLShader::~OGLShader()

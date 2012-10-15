@@ -37,17 +37,17 @@ using namespace boost;
 
 CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize)
+    : GLContext(glConfig, windowSize, pSDLWMInfo)
 {
     if (pSDLWMInfo) {
         m_Context = CGLGetCurrentContext();
-        m_bOwnsContext = false;
-        *s_pCurrentContext = this;
+        setCurrent();
     } else {
-        CGLPixelFormatObj   pixelFormatObj;
-        GLint               numPixelFormats;
+        CGLPixelFormatObj pixelFormatObj;
+        GLint numPixelFormats;
 
         CGLPixelFormatAttribute attribs[] = {(CGLPixelFormatAttribute)NULL};
+        CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
 
         CGLError err = CGLCreateContext(pixelFormatObj, 0, &m_Context);
         if (err) {
@@ -56,13 +56,13 @@ CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         }
         CGLDestroyPixelFormat(pixelFormatObj);
     }
-    init();
+    init(!pSDLWMInfo);
 }
 
 CGLContext::~CGLContext()
 {
     deleteObjects();
-    if (m_Context && m_bOwnsContext) {
+    if (m_Context && ownsContext()) {
         CGLSetCurrentContext(0);
         CGLDestroyContext(m_Context);
         m_Context = 0;
@@ -80,16 +80,16 @@ bool CGLContext::initVBlank(int rate)
 {
     if (rate > 0) {
         initMacVBlank(rate);
-        s_VBMethod = VB_APPLE;
+        setVBMethod(VB_APPLE);
     } else {
-        switch (s_VBMethod) {
+        switch (getVBMethod()) {
             case VB_APPLE:
                 initMacVBlank(0);
                 break;
             default:
                 break;
         }
-        s_VBMethod = VB_NONE;
+        setVBMethod(VB_APPLE);
     }
     return getVBMethod() != VB_NONE;
 }

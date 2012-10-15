@@ -52,7 +52,8 @@ typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 class StandardShader;
 typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
-class AVG_API GLContext {
+class AVG_API GLContext
+{
 public:
     enum VBMethod {VB_GLX, VB_APPLE, VB_WIN, VB_NONE};
 
@@ -107,7 +108,7 @@ public:
     static int nextMultiSampleValue(int curSamples);
 
 protected:
-    void init();
+    void init(bool bOwnsContext);
     void deleteObjects();
 
     void getVersion(int& major, int& minor) const;
@@ -120,8 +121,6 @@ protected:
 private:
     void checkGPUMemInfoSupport();
 
-    // Vertical blank stuff.
-    void initMacVBlank(int rate);
     static VBMethod s_VBMethod;
 
     bool m_bOwnsContext;
