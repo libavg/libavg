@@ -29,7 +29,7 @@
 #include "GPUInvertFilter.h"
 #include "GPURGB2YUVFilter.h"
 #include "FilterResizeBilinear.h"
-#include "OGLImagingContext.h"
+#include "GLContext.h"
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
@@ -406,7 +406,9 @@ public:
 
 bool runTests(bool bGLES)
 {
-    OGLImagingContext context(bGLES, true);
+    GLContext context(GLConfig(bGLES, false, true, 1, GLConfig::AUTO, true));
+    glDisable(GL_BLEND);
+    GLContext::checkError("glDisable(GL_BLEND)");
     ShaderRegistry::get()->setShaderPath("./shaders");
     try {
         if (!queryOGLExtension("GL_ARB_fragment_shader")) {
@@ -429,7 +431,7 @@ int main(int nargs, char** args)
     bool bOK = true;
     try {
         bOK = runTests(false);
-        bOK &= runTests(true);
+//        bOK &= runTests(true);
     } catch (Exception& ex) {
         if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
             cerr << ex.getStr() << endl;
