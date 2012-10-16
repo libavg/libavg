@@ -24,6 +24,9 @@
 
 #include "GLContext.h"
 
+#include <OpenGL/OpenGL.h>
+#undef check // Conflicts with Boost
+
 #include <boost/shared_ptr.hpp>
 
 struct SDL_SysWMinfo;
