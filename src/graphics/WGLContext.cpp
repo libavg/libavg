@@ -68,11 +68,12 @@ WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(glConfig, windowSize, pSDLWMInfo)
 {
+        bool bOwnsContext;
     if (pSDLWMInfo) {
         m_hDC = wglGetCurrentDC();
         m_Context = wglGetCurrentContext();
-        *s_pCurrentContext = this;
-        m_bOwnsContext = false;
+        setCurrent();
+        bOwnsContext = false;
     } else {
         registerWindowClass();
         m_hwnd = CreateWindow("GL", "GL",
@@ -81,7 +82,7 @@ WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         checkWinError(m_hwnd != 0, "CreateWindow");
 
         m_hDC = GetDC(m_hwnd);
-        winOGLErrorCheck(m_hDC != 0, "GetDC");
+        checkWinError(m_hDC != 0, "GetDC");
 
         PIXELFORMATDESCRIPTOR pfd;
         ZeroMemory(&pfd, sizeof(pfd));
@@ -98,9 +99,10 @@ WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         SetPixelFormat(m_hDC, iFormat, &pfd);
         m_Context = wglCreateContext(m_hDC);
         checkWinError(m_Context != 0, "wglCreateContext");
+        bOwnsContext = true;
     }
 
-    init();
+    init(bOwnsContext);
 }
 
 WGLContext::~WGLContext()

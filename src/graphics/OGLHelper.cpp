@@ -107,20 +107,6 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-#ifdef _WIN32
-void winOGLErrorCheck(BOOL bOK, const string& sWhere) 
-{
-    if (!bOK) {
-        char szErr[512];
-        FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
-                0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                szErr, 512, 0);
-        AVG_TRACE(Logger::ERROR, sWhere+":"+szErr);
-        AVG_ASSERT(false);
-    }
-}
-#endif
-
 bool queryOGLExtension(const char *extName)
 {
     char *p;
