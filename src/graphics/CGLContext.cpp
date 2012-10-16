@@ -80,18 +80,11 @@ bool CGLContext::initVBlank(int rate)
 {
     if (rate > 0) {
         initMacVBlank(rate);
-        setVBMethod(VB_APPLE);
+        return true;
     } else {
-        switch (getVBMethod()) {
-            case VB_APPLE:
-                initMacVBlank(0);
-                break;
-            default:
-                break;
-        }
-        setVBMethod(VB_APPLE);
+        initMacVBlank(0);
+        return false;
     }
-    return getVBMethod() != VB_NONE;
 }
 
 void CGLContext::initMacVBlank(int rate)

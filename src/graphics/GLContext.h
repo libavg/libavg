@@ -55,8 +55,6 @@ typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 class AVG_API GLContext
 {
 public:
-    enum VBMethod {VB_GLX, VB_APPLE, VB_WIN, VB_NONE};
-
     static GLContext* create(const GLConfig& glConfig, 
             const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
 
@@ -112,16 +110,12 @@ protected:
     void deleteObjects();
 
     void getVersion(int& major, int& minor) const;
-    VBMethod getVBMethod() const;
-    void setVBMethod(VBMethod vbMethod);
     bool ownsContext() const;
 
     void setCurrent();
 
 private:
     void checkGPUMemInfoSupport();
-
-    static VBMethod s_VBMethod;
 
     bool m_bOwnsContext;
     

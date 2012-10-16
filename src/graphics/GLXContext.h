@@ -49,6 +49,7 @@ private:
     Colormap m_Colormap;
     GLXDrawable m_Drawable;
     ::GLXContext m_Context;
+
 };
 
 }

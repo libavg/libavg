@@ -129,8 +129,6 @@ void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum sev
 //    AVG_ASSERT(false);
 }
 
-GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
-
 GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
 {
@@ -240,16 +238,6 @@ void GLContext::getVersion(int& major, int& minor) const
 {
     major = m_MajorGLVersion;
     minor = m_MinorGLVersion;
-}
-
-GLContext::VBMethod GLContext::getVBMethod() const
-{
-    return s_VBMethod;
-}
-
-void GLContext::setVBMethod(VBMethod vbMethod)
-{
-    s_VBMethod = vbMethod;
 }
 
 bool GLContext::ownsContext() const

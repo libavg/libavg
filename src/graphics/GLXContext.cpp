@@ -229,35 +229,32 @@ void GLXContext::activate()
 
 bool GLXContext::initVBlank(int rate) 
 {
+    static bool s_bVBlankActive = false;
     if (rate > 0) {
         if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
             AVG_TRACE(Logger::WARNING, 
-                    "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
-            setVBMethod(VB_NONE);
-        } else {
-            if (queryGLXExtension("GLX_EXT_swap_control")) {
-                setVBMethod(VB_GLX);
-                glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
+                 "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+            s_bVBlankActive = false;
+            return false;
+        } 
+        if (!queryGLXExtension("GLX_EXT_swap_control")) {
+            AVG_TRACE(Logger::WARNING,
+                    "Linux VBlank setup failed: OpenGL Extension not supported.");
+            s_bVBlankActive = false;
+            return false;
+        }
 
-            } else {
-                AVG_TRACE(Logger::WARNING,
-                        "Linux VBlank setup failed: OpenGL Extension not supported.");
-                setVBMethod(VB_NONE);
-            }
-        }
+        glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
+        s_bVBlankActive = true;
+        return true;
+
     } else {
-        switch (getVBMethod()) {
-            case VB_GLX:
-                glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, 0);
-                break;
-            case VB_NONE:
-                break;
-            default:
-                AVG_ASSERT(false);
+        if (s_bVBlankActive) {
+            glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, 0);
+            s_bVBlankActive = false;
         }
-        setVBMethod(VB_NONE);
+        return false;
     }
-    return getVBMethod() != VB_NONE;
 }
 
 void GLXContext::swapBuffers()
