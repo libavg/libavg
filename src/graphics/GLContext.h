@@ -28,16 +28,6 @@
 
 #include "../base/GLMHelper.h"
 
-#ifdef __APPLE__
-#include <OpenGL/OpenGL.h>
-#undef check // Conflicts with boost
-#elif defined linux
-#include <GL/glx.h>
-#elif defined _WIN32
-#include <gl/gl.h>
-#include <gl/glu.h>
-#endif
-
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
