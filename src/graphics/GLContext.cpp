@@ -393,7 +393,7 @@ void GLContext::logConfig()
     AVG_TRACE(Logger::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
     AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
     m_GLConfig.log();
-    switch (getMemoryModeSupported()) {
+    switch (getMemoryMode()) {
         case MM_PBO:
             AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects");
             break;
@@ -447,7 +447,7 @@ bool GLContext::arePBOsSupported()
              queryOGLExtension("GL_EXT_pixel_buffer_object"));
 }
 
-OGLMemoryMode GLContext::getMemoryModeSupported()
+OGLMemoryMode GLContext::getMemoryMode()
 {
     if (!m_bCheckedMemoryMode) {
         if (arePBOsSupported() && m_GLConfig.m_bUsePixelBuffers) 

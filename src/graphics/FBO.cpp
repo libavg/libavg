@@ -133,7 +133,7 @@ void FBO::copyToDestTexture() const
 
 BitmapPtr FBO::getImage(int i) const
 {
-    if (GLContext::getCurrent()->getMemoryModeSupported() == MM_PBO) {
+    if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
         moveToPBO(i);
         return getImageFromPBO();
     } else {
@@ -152,7 +152,7 @@ BitmapPtr FBO::getImage(int i) const
 
 void FBO::moveToPBO(int i) const
 {
-    AVG_ASSERT(GLContext::getCurrent()->getMemoryModeSupported() == MM_PBO);
+    AVG_ASSERT(GLContext::getCurrent()->getMemoryMode() == MM_PBO);
     // Get data directly from the FBO using glReadBuffer. At least on NVidia/Linux, this 
     // is faster than reading stuff from the texture.
     copyToDestTexture();
@@ -174,7 +174,7 @@ void FBO::moveToPBO(int i) const
  
 BitmapPtr FBO::getImageFromPBO() const
 {
-    AVG_ASSERT(GLContext::getCurrent()->getMemoryModeSupported() == MM_PBO);
+    AVG_ASSERT(GLContext::getCurrent()->getMemoryMode() == MM_PBO);
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::getImageFromPBO BindBuffer()"); 
     
@@ -213,7 +213,7 @@ void FBO::init()
     if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
-    if (GLContext::getCurrent()->getMemoryModeSupported() == MM_PBO) {
+    if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
         m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
     }
 

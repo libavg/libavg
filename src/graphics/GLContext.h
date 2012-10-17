@@ -78,7 +78,7 @@ public:
     int getMaxTexSize();
     bool usePOTTextures();
     bool arePBOsSupported();
-    OGLMemoryMode getMemoryModeSupported();
+    OGLMemoryMode getMemoryMode();
     bool isGLES() const;
 
     virtual bool initVBlank(int rate)=0;

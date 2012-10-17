@@ -183,7 +183,7 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
-    if (GLContext::getCurrent()->getMemoryModeSupported() == MM_PBO) {
+    if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
         return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
     } else {
         unsigned fbo = GLContext::getCurrent()->genFBO();
