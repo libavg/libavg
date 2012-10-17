@@ -77,6 +77,7 @@ public:
     size_t getVideoMemUsed();
     int getMaxTexSize();
     bool usePOTTextures();
+    bool arePBOsSupported();
     OGLMemoryMode getMemoryModeSupported();
     bool isGLES() const;
 
@@ -94,6 +95,7 @@ public:
     static void setMain(GLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
+    static bool isGLESSupported();
 
 protected:
     void init(bool bOwnsContext);

@@ -41,6 +41,8 @@ public:
     bool initVBlank(int rate);
     void swapBuffers();
 
+    static bool haveARBCreateContext();
+
 private:
     void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo);

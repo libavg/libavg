@@ -132,6 +132,9 @@ void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum sev
 GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
 {
+    if (glConfig.m_bGLES) {
+        AVG_ASSERT(isGLESSupported());
+    }
 #ifdef __APPLE__
     return new CGLContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined linux
@@ -438,12 +441,16 @@ bool GLContext::usePOTTextures()
     return m_GLConfig.m_bUsePOTTextures;
 }
 
+bool GLContext::arePBOsSupported()
+{
+    return (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
+             queryOGLExtension("GL_EXT_pixel_buffer_object"));
+}
+
 OGLMemoryMode GLContext::getMemoryModeSupported()
 {
     if (!m_bCheckedMemoryMode) {
-        if ((queryOGLExtension("GL_ARB_pixel_buffer_object") || 
-             queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
-            m_GLConfig.m_bUsePixelBuffers) 
+        if (arePBOsSupported() && m_GLConfig.m_bUsePixelBuffers) 
         {
             m_MemoryMode = MM_PBO;
         } else {
@@ -544,6 +551,15 @@ int GLContext::nextMultiSampleValue(int curSamples)
         default:
             return 8;
     }
+}
+
+bool GLContext::isGLESSupported()
+{
+#if defined linux
+    return GLXContext::haveARBCreateContext();
+#else
+    return false;
+#endif
 }
 
 void GLContext::checkGPUMemInfoSupport()

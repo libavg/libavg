@@ -304,15 +304,19 @@ public:
     {
         for (int i=0; i<2; ++i) {
             bool bPOT = (i==1);
-            runImageTest(bPOT, MM_PBO, "rgb24-65x65");
+            if (GLContext::getCurrent()->arePBOsSupported()) {
+                runImageTest(bPOT, MM_PBO, "rgb24-65x65");
+                runImageTest(bPOT, MM_PBO, "rgb24alpha-64x64");
+            }
             runImageTest(bPOT, MM_OGL, "rgb24-65x65");
-            runImageTest(bPOT, MM_PBO, "rgb24alpha-64x64");
             runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
         }
+        if (GLContext::getCurrent()->arePBOsSupported()) {
+            runMipmapTest(MM_PBO, "rgb24alpha-64x64");
+            runMipmapTest(MM_PBO, "rgb24-65x65");
+        }
         runMipmapTest(MM_OGL, "rgb24alpha-64x64");
-        runMipmapTest(MM_PBO, "rgb24alpha-64x64");
         runMipmapTest(MM_OGL, "rgb24-65x65");
-        runMipmapTest(MM_PBO, "rgb24-65x65");
     }
 
 private:
@@ -412,10 +416,6 @@ bool runTests(bool bGLES)
     GLContext::checkError("glDisable(GL_BLEND)");
     ShaderRegistry::get()->setShaderPath("./shaders");
     try {
-        if (!queryOGLExtension("GL_ARB_fragment_shader")) {
-            throw Exception(AVG_ERR_UNSUPPORTED, 
-                    "Fragment shaders not supported on this Machine. ");
-        }
         GPUTestSuite suite;
         suite.runTests();
         delete pContext;
@@ -434,7 +434,9 @@ int main(int nargs, char** args)
     bool bOK = true;
     try {
         bOK = runTests(false);
-//        bOK &= runTests(true);
+        if (GLContext::isGLESSupported()) {
+            bOK &= runTests(true);
+        }
     } catch (Exception& ex) {
         if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
             cerr << ex.getStr() << endl;
