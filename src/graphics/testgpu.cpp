@@ -84,11 +84,10 @@ public:
 
     void runTests() 
     {
-        BitmapPtr pBmp;
-        BitmapPtr pDestBmp;
 /*
         // This has the effect of printing out all the brightness differences for
         //different kernel sizes.
+        BitmapPtr pDestBmp;
         pBmp = loadTestBmp("spike");
         for (float stddev = 0.5f; stddev < 5; stddev += 0.25f) {
             pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), stddev)
@@ -96,42 +95,60 @@ public:
             testEqualBrightness(*pDestBmp, *pBmp, 1);
         }
 */
-        pBmp = loadTestBmp("spike");
-        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 0.5f,
-                false);
-        runImageTest(pBmp, filter, 0.5f, "blur05_spike");
-        runImageTest(pBmp, filter, 1, "blur1_spike");
-        runImageTest(pBmp, filter, 3, "blur3_spike");
-
-        pBmp = loadTestBmp("flat");
-        filter = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 5,
-                false);
-        runImageTest(pBmp, filter, 5, "blur05_flat", true);
-
-        runImageTest("rgb24-64x64");
-        runImageTest("rgb24alpha-64x64");
+        runFilterTests(false);
+        if (GLTexture::isFloatFormatSupported()) {
+            runFilterTests(true);
+        }
     }
 
 private:
-    void runImageTest(const string& sFName)
+    void runFilterTests(bool bUseFloat)
     {
-        BitmapPtr pBmp = loadTestBmp(sFName);
-        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 2,
-                false);
-        runImageTest(pBmp, filter, 2, string("blur_")+sFName, true);
+        BitmapPtr pBmp;
+        GPUBlurFilterPtr pFilter;
+        pBmp = loadTestBmp("spike");
+        PixelFormat destPF;
+        if (bUseFloat) {
+            destPF = R32G32B32A32F;
+        } else {
+            destPF = B8G8R8A8;
+        }
+        pFilter = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(), 
+                pBmp->getPixelFormat(), destPF, 0.5f, false));
+        runImageTest(pBmp, pFilter, 0.5f, "blur05_spike");
+        runImageTest(pBmp, pFilter, 1, "blur1_spike");
+        runImageTest(pBmp, pFilter, 3, "blur3_spike");
+
+        pBmp = loadTestBmp("flat");
+        pFilter = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(), 
+                pBmp->getPixelFormat(), destPF, 5, false));
+        runImageTest(pBmp, pFilter, 5, "blur05_flat", true);
+
+        runImageTest("rgb24-64x64", destPF);
+        runImageTest("rgb24alpha-64x64", destPF);
+
     }
 
-    void runImageTest(BitmapPtr pBmp, GPUBlurFilter& filter, float stdDev, 
+    void runImageTest(const string& sFName, PixelFormat destPF)
+    {
+        BitmapPtr pBmp = loadTestBmp(sFName);
+        GPUBlurFilterPtr pFilter(new GPUBlurFilter(pBmp->getSize(), 
+                pBmp->getPixelFormat(), destPF, 2, false));
+        runImageTest(pBmp, pFilter, 2, string("blur_")+sFName, true);
+    }
+
+    void runImageTest(BitmapPtr pBmp, GPUBlurFilterPtr pFilter, float stdDev, 
             string sBmpName, bool bIgnoreBrightness = false)
     {
         cerr << "    Testing " << sBmpName << ", stddev " << stdDev << endl;
-        filter.setStdDev(stdDev);
-        BitmapPtr pDestBmp = filter.apply(pBmp);
+        pFilter->setStdDev(stdDev);
+        BitmapPtr pDestBmp = pFilter->apply(pBmp);
         if (!bIgnoreBrightness) {
             testEqualBrightness(*pDestBmp, *pBmp, 0.03);
         }
-        testEqual(*pDestBmp, sBmpName, B8G8R8X8, 0.01, 0.1);
+        testEqual(*pDestBmp, sBmpName, B8G8R8X8, 0.06, 0.3);
     }
+
 };
 
 
@@ -311,14 +328,12 @@ public:
             runImageTest(bPOT, MM_OGL, "rgb24-65x65");
             runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
         }
-/*        
         if (GLContext::getCurrent()->arePBOsSupported()) {
             runMipmapTest(MM_PBO, "rgb24alpha-64x64");
             runMipmapTest(MM_PBO, "rgb24-65x65");
         }
         runMipmapTest(MM_OGL, "rgb24alpha-64x64");
         runMipmapTest(MM_OGL, "rgb24-65x65");
-*/        
     }
 
 private:
@@ -369,14 +384,18 @@ private:
                     pOrigBmp->getPixelFormat(), true));
         pTex->moveBmpToTexture(pOrigBmp);
         pTex->generateMipmaps();
-        TextureMoverPtr pReadMover = TextureMover::create(memoryMode, 
-                pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
-        BitmapPtr pResultBmp; //= pReadMover->moveTextureToBmp(*pTex, 1);
+        BitmapPtr pResultBmp = pTex->moveTextureToBmp(1);
         IntPoint newSize(pOrigBmp->getSize()/2);
         TEST(pResultBmp->getSize() == newSize);
         FilterResizeBilinear resizer(newSize);
         BitmapPtr pBaselineBmp = resizer.apply(pOrigBmp);
-        testEqual(*pResultBmp, *pBaselineBmp, "pbo-mipmap", 2, 7);
+        string sName;
+        if (memoryMode == MM_PBO) {
+            sName = "pbo-mipmap";
+        } else {
+            sName = "ogl-mipmap";
+        }
+        testEqual(*pResultBmp, *pBaselineBmp, sName, 7, 15);
     }
 };
 
@@ -389,15 +408,12 @@ public:
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new RGB2YUVFilterTest));
+        addTest(TestPtr(new ChromaKeyFilterTest));
+        addTest(TestPtr(new HslColorFilterTest));
+        addTest(TestPtr(new InvertFilterTest));
+        addTest(TestPtr(new BlurFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
-            addTest(TestPtr(new ChromaKeyFilterTest));
-            addTest(TestPtr(new HslColorFilterTest));
-            addTest(TestPtr(new InvertFilterTest));
-            addTest(TestPtr(new BlurFilterTest));
             addTest(TestPtr(new BandpassFilterTest));
-        } else {
-            cerr << "Skipping some GPU tests since float textures are not supported by "
-                    << endl << "the OpenGL configuration." << endl;
         }
     }
 };

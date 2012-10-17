@@ -181,18 +181,19 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
     m_bIsDirty = true;
 }
 
-BitmapPtr GLTexture::moveTextureToBmp()
+BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
     if (GLContext::getCurrent()->getMemoryModeSupported() == MM_PBO) {
-        return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this);
+        return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
     } else {
         unsigned fbo = GLContext::getCurrent()->genFBO();
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, fbo);
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-                GL_TEXTURE_2D, m_TexID, 0);
+                GL_TEXTURE_2D, m_TexID, mipmapLevel);
         FBO::checkError("moveTextureToBmp");
-        BitmapPtr pBmp(new Bitmap(m_Size, m_pf));
-        glReadPixels(0, 0, m_Size.x, m_Size.y, getGLFormat(m_pf), getGLType(m_pf), 
+        IntPoint size = getMipmapSize(mipmapLevel);
+        BitmapPtr pBmp(new Bitmap(size, m_pf));
+        glReadPixels(0, 0, size.x, size.y, getGLFormat(m_pf), getGLType(m_pf), 
                 pBmp->getPixels());
         if (m_pf == R8G8B8A8 || m_pf == R8G8B8) {
             FilterFlipRGB().applyInPlace(pBmp);
@@ -223,7 +224,6 @@ unsigned GLTexture::getID() const
 
 IntPoint GLTexture::getMipmapSize(int level) const
 {
-    AVG_ASSERT(!m_bUsePOT);
     IntPoint size = m_Size;
     for (int i=0; i<level; ++i) {
         size.x = max(1, size.x >> 1);
