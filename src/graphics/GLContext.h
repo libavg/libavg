@@ -80,6 +80,7 @@ public:
     bool arePBOsSupported();
     OGLMemoryMode getMemoryMode();
     bool isGLES() const;
+    bool isVendor(const std::string& sWantedVendor) const;
 
     virtual bool initVBlank(int rate)=0;
     virtual void swapBuffers();
@@ -108,6 +109,7 @@ protected:
 
 private:
     void checkGPUMemInfoSupport();
+    bool isDebugContextSupported() const;
 
     bool m_bOwnsContext;
     

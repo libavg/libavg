@@ -114,7 +114,6 @@ bool queryOGLExtension(const char *extName)
 
     p = (char *)glGetString(GL_EXTENSIONS);
     AVG_ASSERT(p != 0);
-
     char * end = p + strlen(p);
 
     while (p < end) {

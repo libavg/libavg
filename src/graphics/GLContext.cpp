@@ -176,7 +176,7 @@ void GLContext::init(bool bOwnsContext)
     }
 
     if (m_GLConfig.m_bUseDebugContext) {
-        if (queryOGLExtension("GL_ARB_debug_output")) {
+        if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(debugLogCallback, 0);
         } else {
             m_GLConfig.m_bUseDebugContext = false;
@@ -466,6 +466,12 @@ bool GLContext::isGLES() const
     return m_GLConfig.m_bGLES;
 }
 
+bool GLContext::isVendor(const string& sWantedVendor) const
+{
+    string sVendor((const char *)glGetString(GL_VENDOR));
+    return (sVendor.find(sWantedVendor) != string::npos);
+}
+
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {
@@ -572,6 +578,19 @@ void GLContext::checkGPUMemInfoSupport()
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Video memory query not supported on this system.");
     }
+}
+
+bool GLContext::isDebugContextSupported() const
+{
+    if (queryOGLExtension("GL_ARB_debug_output")) {
+        return true;
+    }
+    if (isGLES() && isVendor("NVIDIA")) {
+        // There is no extension for debug output in gles 2.0, but Linux NVidia
+        // supports the functionality anyway. So we activate it :-).
+        return true;
+    }
+    return false;
 }
 
 }
