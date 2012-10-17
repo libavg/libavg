@@ -311,23 +311,26 @@ public:
             runImageTest(bPOT, MM_OGL, "rgb24-65x65");
             runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
         }
+/*        
         if (GLContext::getCurrent()->arePBOsSupported()) {
             runMipmapTest(MM_PBO, "rgb24alpha-64x64");
             runMipmapTest(MM_PBO, "rgb24-65x65");
         }
         runMipmapTest(MM_OGL, "rgb24alpha-64x64");
         runMipmapTest(MM_OGL, "rgb24-65x65");
+*/        
     }
 
 private:
     void runImageTest(bool bPOT, OGLMemoryMode memoryMode, const string& sFName)
     {
-        cerr << "    Testing " << sFName << ", " << oglMemoryMode2String(memoryMode);
+        string sResultFName = sFName + "-" + oglMemoryMode2String(memoryMode) + "-";
         if (bPOT) {
-            cerr << ", POT" << endl;
+            sResultFName += "pot";
         } else {
-            cerr << ", NPOT" << endl;
+            sResultFName += "npot";
         }
+        cerr << "    Testing " << sResultFName << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             cerr << "      move functions." << endl;
@@ -337,8 +340,8 @@ private:
             TextureMoverPtr pWriteMover = TextureMover::create(memoryMode, 
                     pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
             pWriteMover->moveBmpToTexture(pOrigBmp, *pTex);
-            BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
-            testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+            BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+            testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
         }
 
         {
@@ -352,8 +355,8 @@ private:
             pTransferBmp->copyPixels(*pOrigBmp);
             pMover->unlock();
             pMover->moveToTexture(*pTex);
-            BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
-            testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+            BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+            testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-lock", 0.01, 0.1);
         }
     }
 
@@ -368,20 +371,12 @@ private:
         pTex->generateMipmaps();
         TextureMoverPtr pReadMover = TextureMover::create(memoryMode, 
                 pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
-        BitmapPtr pResultBmp = pReadMover->moveTextureToBmp(*pTex, 1);
+        BitmapPtr pResultBmp; //= pReadMover->moveTextureToBmp(*pTex, 1);
         IntPoint newSize(pOrigBmp->getSize()/2);
         TEST(pResultBmp->getSize() == newSize);
         FilterResizeBilinear resizer(newSize);
         BitmapPtr pBaselineBmp = resizer.apply(pOrigBmp);
         testEqual(*pResultBmp, *pBaselineBmp, "pbo-mipmap", 2, 7);
-    }
-
-    BitmapPtr readback(OGLMemoryMode memoryMode, const BitmapPtr& pOrigBmp, 
-            const GLTexturePtr& pTex)
-    {
-        TextureMoverPtr pReadMover = TextureMover::create(memoryMode, 
-                pTex->getGLSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
-        return pReadMover->moveTextureToBmp(*pTex);
     }
 };
 
