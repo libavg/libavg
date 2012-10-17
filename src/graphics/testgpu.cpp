@@ -332,8 +332,8 @@ private:
         {
             cerr << "      move functions." << endl;
             GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
-                    pOrigBmp->getPixelFormat(), false, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
-                    bPOT));
+                    pOrigBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
+                    GL_CLAMP_TO_EDGE, bPOT));
             TextureMoverPtr pWriteMover = TextureMover::create(memoryMode, 
                     pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
             pWriteMover->moveBmpToTexture(pOrigBmp, *pTex);
@@ -344,8 +344,8 @@ private:
         {
             cerr << "      lock functions." << endl;
             GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
-                    pOrigBmp->getPixelFormat(), false, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
-                    bPOT));
+                    pOrigBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
+                    GL_CLAMP_TO_EDGE, bPOT));
             TextureMoverPtr pMover = TextureMover::create(memoryMode, 
                     pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
             BitmapPtr pTransferBmp = pMover->lock();
