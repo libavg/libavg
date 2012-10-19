@@ -37,9 +37,6 @@
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
-
 #include <iostream>
 
 
