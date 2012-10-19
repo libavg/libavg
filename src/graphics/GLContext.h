@@ -56,7 +56,7 @@ public:
     ShaderRegistryPtr getShaderRegistry() const;
     StandardShaderPtr getStandardShader();
     bool useGPUYUVConversion() const;
-    bool useMinimalShader();
+    GLConfig::ShaderUsage getShaderUsage() const;
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();

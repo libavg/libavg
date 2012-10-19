@@ -220,7 +220,7 @@ void GLContext::init(bool bOwnsContext)
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
     glproc::UseProgramObject(0);
-    if (useMinimalShader()) {
+    if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
@@ -274,16 +274,9 @@ bool GLContext::useGPUYUVConversion() const
     return (m_MajorGLVersion > 1);
 }
 
-bool GLContext::useMinimalShader()
+GLConfig::ShaderUsage GLContext::getShaderUsage() const
 {
-    if (m_GLConfig.m_ShaderUsage == GLConfig::FULL) {
-        return false;
-    } else if (m_GLConfig.m_ShaderUsage == GLConfig::MINIMAL) {
-        return true;
-    } else {
-        AVG_ASSERT(false);
-        return false; // Silence compiler warning.
-    }
+    return m_GLConfig.m_ShaderUsage;
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
