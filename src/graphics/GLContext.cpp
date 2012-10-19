@@ -38,6 +38,7 @@
 #include "../base/MathHelper.h"
 
 #include <iostream>
+#include <stdio.h>
 
 
 namespace avg {
