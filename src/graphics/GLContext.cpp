@@ -192,10 +192,13 @@ void GLContext::init(bool bOwnsContext)
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two") && !isGLES();
     }
     if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
+        if (isGLES()) {
+            m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+        }
         if (m_MajorGLVersion > 1) {
             m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         } else {
-            m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+            m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
         }
     }
     for (int i=0; i<16; ++i) {

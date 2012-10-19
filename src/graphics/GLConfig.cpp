@@ -64,6 +64,9 @@ void GLConfig::log()
         case MINIMAL:
             sShader = "minimal";
             break;
+        case FRAGMENT_ONLY:
+            sShader = "fragment only";
+            break;
         case AUTO:
             sShader = "auto";
             break;

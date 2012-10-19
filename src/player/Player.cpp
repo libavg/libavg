@@ -1246,11 +1246,13 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::FULL;
     } else if (sShaderUsage == "minimal") {
         m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+    } else if (sShaderUsage == "fragmentonly") {
+        m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
     } else if (sShaderUsage == "auto") {
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
-                "avgrc parameter shaderusage must be full, minimal or auto");
+                "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
