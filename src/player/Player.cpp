@@ -1271,7 +1271,8 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
-    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize || m_bDisplayEngineBroken) 
+    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
+            m_pDisplayEngine->isFullscreen() == true || m_bDisplayEngineBroken) 
     {
         m_bDisplayEngineBroken = false;
         m_pDisplayEngine->init(m_DP, m_GLConfig);
