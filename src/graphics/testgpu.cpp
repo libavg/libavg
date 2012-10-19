@@ -419,10 +419,13 @@ public:
 };
 
 
-bool runTests(bool bGLES)
+bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
-    GLContext* pContext = GLContext::create(
-            GLConfig(bGLES, false, true, 1, GLConfig::AUTO, true));
+    cerr << "---------------------------------------------------" << endl;
+    cerr << "GLES: " << toString(bGLES) << ", ShaderUsage: " 
+            << GLConfig::shaderUsageToString(su) << endl; 
+    cerr << "---------------------------------------------------" << endl;
+    GLContext* pContext = GLContext::create(GLConfig(bGLES, false, true, 1, su, true));
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
     ShaderRegistry::get()->setShaderPath("./shaders");
@@ -444,9 +447,11 @@ int main(int nargs, char** args)
     g_type_init();
     bool bOK = true;
     try {
-        bOK = runTests(false);
+        bOK = runTests(false, GLConfig::FULL);
+        bOK = runTests(false, GLConfig::MINIMAL);
+        bOK = runTests(false, GLConfig::FRAGMENT_ONLY);
         if (GLContext::isGLESSupported()) {
-            bOK &= runTests(true);
+            bOK &= runTests(true, GLConfig::MINIMAL);
         }
     } catch (Exception& ex) {
         if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {

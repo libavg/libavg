@@ -23,6 +23,8 @@
 
 #include "../api.h"
 
+#include <string>
+
 namespace avg {
 
 struct AVG_API GLConfig {
@@ -33,6 +35,8 @@ struct AVG_API GLConfig {
             int multiSampleSamples, ShaderUsage shaderUsage, bool bUseDebugContext);
 
     void log();
+
+    static std::string shaderUsageToString(ShaderUsage su);
 
     bool m_bGLES;
     bool m_bUsePOTTextures;
