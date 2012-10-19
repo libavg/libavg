@@ -120,6 +120,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("APP", &Logger::APP)
         .def_readonly("PLUGIN", &Logger::PLUGIN)
         .def_readonly("PLAYER", &Logger::PLAYER)
+        .def_readonly("SHADER", &Logger::SHADER)
     ;
 
     class_<Publisher, boost::noncopyable>("Publisher")

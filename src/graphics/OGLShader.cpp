@@ -57,10 +57,17 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
 
     GLint bLinked;
     glproc::GetObjectParameteriv(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
-    dumpInfoLog(m_hProgram);
     if (!bLinked) {
         AVG_TRACE(Logger::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
+        dumpInfoLog(m_hVertexShader, Logger::ERROR);
+        dumpInfoLog(m_hFragmentShader, Logger::ERROR);
+        dumpInfoLog(m_hProgram, Logger::ERROR);
         exit(-1);
+    } else {
+        AVG_TRACE(Logger::SHADER, "Linking shader program '"+sName+"'.");
+        dumpInfoLog(m_hVertexShader, Logger::SHADER);
+        dumpInfoLog(m_hFragmentShader, Logger::SHADER);
+        dumpInfoLog(m_hProgram, Logger::SHADER);
     }
     m_pShaderRegistry = ShaderRegistry::get();
     if (m_hVertexShader) {
@@ -111,7 +118,6 @@ GLhandleARB OGLShader::compileShader(GLenum shaderType, const std::string& sProg
     glproc::ShaderSource(hShader, 2, pProgramStrs, 0);
     glproc::CompileShader(hShader);
     GLContext::checkError("OGLShader::compileShader()");
-    dumpInfoLog(hShader);
     return hShader;
 }
 
@@ -130,7 +136,7 @@ bool OGLShader::findParam(const std::string& sName, unsigned& pos)
     return bFound;
 }
 
-void OGLShader::dumpInfoLog(GLhandleARB hObj)
+void OGLShader::dumpInfoLog(GLhandleARB hObj, int category)
 {
     int infoLogLength;
     GLcharARB * pInfoLog;
@@ -139,12 +145,12 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
     GLContext::checkError("OGLShader::dumpInfoLog: glGetObjectParameteriv()");
     if (infoLogLength > 1) {
         pInfoLog = (GLcharARB*)malloc(infoLogLength);
-        int CharsWritten;
-        glproc::GetInfoLog(hObj, infoLogLength, &CharsWritten, pInfoLog);
+        int charsWritten;
+        glproc::GetInfoLog(hObj, infoLogLength, &charsWritten, pInfoLog);
         string sLog = removeATIInfoLogSpam(pInfoLog);
         GLContext::checkError("OGLShader::dumpInfoLog: glGetInfoLog()");
         if (sLog.size() > 3) {
-            AVG_TRACE(Logger::WARNING, sLog);
+            AVG_TRACE(category, sLog);
         }
         free(pInfoLog);
     }
