@@ -141,6 +141,10 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj, int category)
     int infoLogLength;
     GLcharARB * pInfoLog;
 
+    if (!hObj) {
+        return;
+    }
+
     glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
     GLContext::checkError("OGLShader::dumpInfoLog: glGetObjectParameteriv()");
     if (infoLogLength > 1) {
