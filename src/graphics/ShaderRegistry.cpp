@@ -82,7 +82,9 @@ void ShaderRegistry::createShader(const std::string& sID)
         string sShaderCode;
         string sFilename = s_sLibPath+"/"+sID+".frag";
         string sVertPreprocessed;
-        loadShaderString(s_sLibPath+"/standard.vert", sVertPreprocessed);
+        if (GLContext::getCurrent()->getShaderUsage() != GLConfig::FRAGMENT_ONLY) {
+            loadShaderString(s_sLibPath+"/standard.vert", sVertPreprocessed);
+        }
         string sFragPreprocessed;
         loadShaderString(sFilename, sFragPreprocessed);
         string sPrefix = createPrefixString();
@@ -165,6 +167,11 @@ string ShaderRegistry::createPrefixString()
         ss << endl;
         ss << "precision mediump float;" << endl;
         ss << "#extension GL_OES_standard_derivatives : enable" << endl;
+    }
+    if (GLContext::getCurrent()->getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
+        ss << endl;
+        ss << "#define v_TexCoord gl_TexCoord[0].st" << endl;
+        ss << "#define v_Color gl_Color" << endl;
     }
     return ss.str();
 }

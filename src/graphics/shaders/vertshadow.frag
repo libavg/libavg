@@ -28,8 +28,10 @@ uniform vec4 u_Color;
 uniform vec2 u_DestPos;
 uniform vec2 u_DestSize;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
 
 void main(void)
 {

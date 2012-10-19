@@ -58,6 +58,8 @@ public:
 private:
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
+
+    bool m_bUseVertexShader;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;

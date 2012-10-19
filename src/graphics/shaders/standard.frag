@@ -37,8 +37,11 @@ uniform bool u_bUseMask;
 uniform vec2 u_MaskPos;
 uniform vec2 u_MaskSize;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
+
 
 vec4 convertYCbCr(mat4 colorCoeff, vec4 tex)
 {

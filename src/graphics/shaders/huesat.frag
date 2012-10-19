@@ -29,8 +29,10 @@ uniform float u_Sat;
 uniform float u_LightnessOffset;
 uniform bool u_bColorize;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
 
 #include "helper.frag"            
 

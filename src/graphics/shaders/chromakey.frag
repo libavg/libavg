@@ -34,8 +34,10 @@ uniform bool u_bIsLast;
        
 #include "helper.frag"
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
       
 vec4 alphaMin(vec4 v1, vec4 v2)
 {

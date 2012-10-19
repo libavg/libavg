@@ -22,8 +22,10 @@
 uniform sampler2D u_Texture;
 uniform float u_Alpha;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
 
 // A minimal shader for use on low-end systems where the standard shader hurts 
 // performance.

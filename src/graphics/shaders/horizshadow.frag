@@ -25,8 +25,10 @@ uniform sampler2D u_KernelTex;
 uniform sampler2D u_Texture;
 uniform vec2 u_Offset;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
 
 void main(void)
 {

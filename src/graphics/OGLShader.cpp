@@ -40,12 +40,12 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
       m_sFragProgram(sFragProgram)
 {
     m_hProgram = glproc::CreateProgramObject();
-    glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
-    glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
-    glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
     if (sVertProgram == "") {
         m_hVertexShader = 0;
     } else {
+        glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
+        glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
+        glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
         m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sPrefix);
         glproc::AttachObject(m_hProgram, m_hVertexShader);
     }

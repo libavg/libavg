@@ -24,8 +24,10 @@ uniform sampler2D u_MaxTex;
 uniform float u_PostScale;
 uniform bool u_bInvert;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
 
 void main(void)
 {

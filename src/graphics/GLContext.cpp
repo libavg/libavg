@@ -201,6 +201,9 @@ void GLContext::init(bool bOwnsContext)
             m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
         }
     }
+    if (m_GLConfig.m_ShaderUsage == GLConfig::FRAGMENT_ONLY) {
+        m_pShaderRegistry->setPreprocessorDefine("FRAGMENT_ONLY", "");
+    }
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
     }
@@ -224,6 +227,9 @@ void GLContext::init(bool bOwnsContext)
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
     }
 
 }

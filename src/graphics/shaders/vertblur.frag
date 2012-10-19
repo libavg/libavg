@@ -24,8 +24,10 @@ uniform float u_Width;
 uniform int u_Radius;
 uniform sampler2D u_KernelTex;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
 
 void main(void)
 {

@@ -22,8 +22,10 @@
 uniform sampler2D u_Texture;
 uniform bool u_bIsLast;
 
+#ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
+#endif
       
 void main(void)
 {
