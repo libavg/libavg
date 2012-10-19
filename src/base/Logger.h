@@ -60,6 +60,7 @@ public:
     static const long APP;
     static const long PLUGIN;
     static const long PLAYER;
+    static const long SHADER;
 
 private:
     Logger();

@@ -94,6 +94,9 @@ namespace glproc {
     PFNGLDRAWBUFFERSPROC DrawBuffers;
     PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
     PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
+    PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
+    PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
+    PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
 #ifdef linux
     PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
@@ -104,20 +107,6 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-#ifdef _WIN32
-void winOGLErrorCheck(BOOL bOK, const string& sWhere) 
-{
-    if (!bOK) {
-        char szErr[512];
-        FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
-                0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                szErr, 512, 0);
-        AVG_TRACE(Logger::ERROR, sWhere+":"+szErr);
-        AVG_ASSERT(false);
-    }
-}
-#endif
-
 bool queryOGLExtension(const char *extName)
 {
     char *p;
@@ -125,7 +114,6 @@ bool queryOGLExtension(const char *extName)
 
     p = (char *)glGetString(GL_EXTENSIONS);
     AVG_ASSERT(p != 0);
-
     char * end = p + strlen(p);
 
     while (p < end) {
@@ -166,37 +154,6 @@ bool queryGLXExtension(const char *extName)
 //    XCloseDisplay(display);
     return false;
 #endif
-}
-
-void getGLVersion(int& major, int& minor)
-{
-    static int s_Major = -1;
-    static int s_Minor;
-    if (s_Major == -1) {
-        const char* pVersion = (const char*)glGetString(GL_VERSION);
-        sscanf(pVersion, "%d.%d", &s_Major, &s_Minor);
-    }
-    major = s_Major;
-    minor = s_Minor;
-}
-
-void getGLShadingLanguageVersion(int& major, int& minor)
-{
-    int glMajor = 0;
-    int glMinor = 0;
-    getGLVersion(glMajor, glMinor);
-
-    major = 0;
-    minor = 0;
-    if (glMajor == 1) {
-        if (queryOGLExtension("GL_ARB_shading_language_100")) {
-            major = 1;
-            minor = 0;
-        }
-    } else {
-        const char* pVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-        sscanf(pVersion, "%d.%d", &major, &minor);
-    }
 }
 
 string AVG_API oglModeToString(int mode)
@@ -431,6 +388,12 @@ namespace glproc {
                 getFuzzyProcAddress("glDrawRangeElements");
         DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKARBPROC)
                 getFuzzyProcAddress("glDebugMessageCallback");
+        VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)
+                getFuzzyProcAddress("glVertexAttribPointer");
+        EnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)
+                getFuzzyProcAddress("glEnableVertexAttribArray");
+        BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)
+                getFuzzyProcAddress("glBindAttribLocation");
 #ifdef linux
         SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
                 getglXProcAddress("glXSwapIntervalEXT");

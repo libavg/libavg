@@ -24,12 +24,17 @@ uniform float u_Width;
 uniform int u_Radius;
 uniform sampler2D u_KernelTex;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+
 void main(void)
 {
     vec4 sum = vec4(0,0,0,0);
-    float dy = dFdy(gl_TexCoord[0].y);
+    float dy = dFdy(v_TexCoord.y);
     for (int i=-u_Radius; i<=u_Radius; ++i) {
-        vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st+vec2(0,float(i)*dy));
+        vec4 tex = texture2D(u_Texture, v_TexCoord+vec2(0,float(i)*dy));
         float coeff = texture2D(u_KernelTex, vec2((float(i+u_Radius)+0.5)/u_Width,0)).r;
         sum += tex*coeff;
     }

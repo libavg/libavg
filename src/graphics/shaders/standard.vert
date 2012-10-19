@@ -20,11 +20,17 @@
 //
 
 uniform mat4 transform;
+attribute vec2 a_TexCoord;
+attribute vec4 a_Color;
+attribute vec3 a_Pos;
+
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
 
 void main(void)
 {
-    gl_Position = transform * gl_Vertex;
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-    gl_FrontColor = gl_Color;
+    gl_Position = transform * vec4(a_Pos, 1);
+    v_TexCoord = a_TexCoord;
+    v_Color = a_Color;
 }
 

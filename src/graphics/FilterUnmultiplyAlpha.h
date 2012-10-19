@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Filterfliprgba_H
-#define _Filterfliprgba_H
+#ifndef _FilterUnmultiplyAlpha_H
+#define _FilterUnmultiplyAlpha_H
 
 #include "../api.h"
 #include "Filter.h"

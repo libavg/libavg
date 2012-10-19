@@ -25,13 +25,18 @@ uniform sampler2D u_KernelTex;
 uniform sampler2D u_Texture;
 uniform vec2 u_Offset;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+
 void main(void)
 {
     float sum = 0.;
-    float dx = dFdx(gl_TexCoord[0].x);
+    float dx = dFdx(v_TexCoord.x);
     for (int i=-u_Radius; i<=u_Radius; ++i) {
         float a = texture2D(u_Texture,
-                gl_TexCoord[0].st-u_Offset+vec2(float(i)*dx,0)).a;
+                v_TexCoord-u_Offset+vec2(float(i)*dx,0)).a;
         float coeff = texture2D(u_KernelTex, vec2((float(i+u_Radius)+0.5)/u_Width,0)).r;
         sum += a*coeff;
     }

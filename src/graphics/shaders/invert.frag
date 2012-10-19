@@ -23,10 +23,15 @@ uniform sampler2D u_Texture;
 
 #include "helper.frag"
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+
 void main(void)
 {
     float hue, s, l;
-    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st);
+    vec4 tex = texture2D(u_Texture, v_TexCoord);
     unPreMultiplyAlpha(tex);
     rgb2hsl(tex, hue, s, l);
     vec4 result = vec4(hsl2rgb(hue, s, 1.0-l), tex.a);

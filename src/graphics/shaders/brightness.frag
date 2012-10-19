@@ -22,9 +22,14 @@
 uniform float u_Alpha;
 uniform sampler2D u_Texture;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+      
 void main(void)
 {
-    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st); 
+    vec4 tex = texture2D(u_Texture, v_TexCoord); 
     gl_FragColor.rgb = tex.rgb*u_Alpha;
     gl_FragColor.a = tex.a;
 }

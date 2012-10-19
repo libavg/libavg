@@ -52,7 +52,7 @@ public:
     BitmapPtr lockStreamingBmp();
     void unlockStreamingBmp(bool bUpdated);
     void moveBmpToTexture(BitmapPtr pBmp);
-    BitmapPtr moveTextureToBmp();
+    BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
     const IntPoint& getSize() const;
     const IntPoint& getGLSize() const;

@@ -132,5 +132,14 @@ bool equalIgnoreCase(const string& s1, const string& s2)
     return sUpper1 == sUpper2;
 }
 
+string toString(const bool& b)
+{
+    if (b) {
+        return "true";
+    } else {
+        return "false";
+    }
+}
+
 }
 

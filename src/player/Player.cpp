@@ -1246,11 +1246,13 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::FULL;
     } else if (sShaderUsage == "minimal") {
         m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+    } else if (sShaderUsage == "fragmentonly") {
+        m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
     } else if (sShaderUsage == "auto") {
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
-                "avgrc parameter shaderusage must be full, minimal or auto");
+                "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
@@ -1269,7 +1271,8 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
-    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize || m_bDisplayEngineBroken) 
+    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
+            m_pDisplayEngine->isFullscreen() == true || m_bDisplayEngineBroken) 
     {
         m_bDisplayEngineBroken = false;
         m_pDisplayEngine->init(m_DP, m_GLConfig);
@@ -1732,6 +1735,11 @@ string Player::getConfigOption(const string& sSubsys, const string& sName) const
     } else {
         return *psValue;
     }
+}
+
+bool Player::isUsingGLES() const
+{
+    return m_GLConfig.m_bGLES;
 }
 
 OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)

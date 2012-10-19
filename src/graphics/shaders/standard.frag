@@ -37,12 +37,18 @@ uniform bool u_bUseMask;
 uniform vec2 u_MaskPos;
 uniform vec2 u_MaskSize;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+
+
 vec4 convertYCbCr(mat4 colorCoeff, vec4 tex)
 {
     vec4 yuv;
     yuv = vec4(tex.r,
-               texture2D(u_CBTexture, (gl_TexCoord[0].st)).r,
-               texture2D(u_CRTexture, (gl_TexCoord[0].st)).r,
+               texture2D(u_CBTexture, v_TexCoord).r,
+               texture2D(u_CRTexture, v_TexCoord).r,
                1.0);
     vec4 rgb;
     rgb = colorCoeff*yuv;
@@ -57,14 +63,14 @@ void main(void)
     colorCoeff[1] = u_ColorCoeff1;
     colorCoeff[2] = u_ColorCoeff2;
     colorCoeff[3] = u_ColorCoeff3;
-    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st);
+    vec4 tex = texture2D(u_Texture, v_TexCoord);
     if (u_ColorModel == 0 || u_ColorModel == 2) {
         float a;
         if (u_ColorModel == 0) { // 0 = rgb
             rgba = tex;
             a = u_Alpha;
         } else {               // 2 = alpha
-            rgba = gl_Color;
+            rgba = v_Color;
             a = tex.a*u_Alpha;
         }
         if (u_bUseColorCoeff) {
@@ -76,7 +82,7 @@ void main(void)
         rgba = convertYCbCr(colorCoeff, tex);
     } else if (u_ColorModel == 3) { // yuva
         rgba = convertYCbCr(colorCoeff, tex);
-        rgba.a *= texture2D(u_ATexture, gl_TexCoord[0].st).r;
+        rgba.a *= texture2D(u_ATexture, v_TexCoord).r;
 #endif
     } else {
         rgba = vec4(1,1,1,1);
@@ -84,7 +90,7 @@ void main(void)
     rgba = max(rgba, vec4(0.,0.,0.,0.));
     rgba = pow(rgba, u_Gamma);
     if (u_bUseMask) {
-        float mask = texture2D(u_MaskTexture, (gl_TexCoord[0].st/u_MaskSize)-u_MaskPos).r;
+        float mask = texture2D(u_MaskTexture, (v_TexCoord/u_MaskSize)-u_MaskPos).r;
         if (u_bPremultipliedAlpha) {
             rgba.rgb *= mask;
         }

@@ -21,10 +21,15 @@
 
 uniform sampler2D u_Texture;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+
 void main(void)
 {
     // Uses jpeg coefficients.
-    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st);
+    vec4 tex = texture2D(u_Texture, v_TexCoord);
     float y =  0.299*tex.r + 0.587*tex.g + 0.114*tex.b;
     float u = -0.168*tex.r - 0.330*tex.g + 0.498*tex.b + 0.5;
     float v =  0.498*tex.r - 0.417*tex.g - 0.081*tex.b + 0.5;

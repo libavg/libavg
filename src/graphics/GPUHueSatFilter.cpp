@@ -65,7 +65,6 @@ void GPUHueSatFilter::setParams(int hue, int saturation,
 
 void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     getShader()->activate();
     m_pHueParam->set(m_Hue);
     m_pSatParam->set(m_Saturation);

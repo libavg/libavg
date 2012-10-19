@@ -23,16 +23,20 @@
 
 #include "../api.h"
 
+#include <string>
+
 namespace avg {
 
 struct AVG_API GLConfig {
-    enum ShaderUsage {FULL, MINIMAL, AUTO};
+    enum ShaderUsage {FULL, MINIMAL, FRAGMENT_ONLY, AUTO};
 
     GLConfig();
     GLConfig(bool bGLES, bool bUsePOTTextures, bool bUsePixelBuffers,
             int multiSampleSamples, ShaderUsage shaderUsage, bool bUseDebugContext);
 
     void log();
+
+    static std::string shaderUsageToString(ShaderUsage su);
 
     bool m_bGLES;
     bool m_bUsePOTTextures;

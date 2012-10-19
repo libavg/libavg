@@ -543,12 +543,14 @@ class AVTestCase(AVGTestCase):
                     "nonexistentdir/test.mov", 30))
 
         if not(self._isCurrentDirWriteable()):
-            self.skip("Current dir not writeable")
+            self.skip("Current dir not writeable.")
+            return
+        if player.isUsingGLES():
+            self.skip("VideoWriter not supported under GLES.")
             return
 
         self.assertException(lambda:
                 avg.VideoWriter(player.getMainCanvas(), "test.mov", 30, 3, 5, False))
-
 
         for useCanvas in (False, True):
             player.setFakeFPS(30)

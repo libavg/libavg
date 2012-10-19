@@ -28,19 +28,24 @@ uniform vec4 u_Color;
 uniform vec2 u_DestPos;
 uniform vec2 u_DestSize;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+
 void main(void)
 {
     float sum = 0.;
-    float dy = dFdy(gl_TexCoord[0].y);
+    float dy = dFdy(v_TexCoord.y);
     for (int i=-u_Radius; i<=u_Radius; ++i) {
         float a = texture2D(u_HBlurTex,
-                gl_TexCoord[0].st+vec2(0,float(i)*dy)).a;
+                v_TexCoord+vec2(0,float(i)*dy)).a;
         float coeff = 
                 texture2D(u_KernelTex, vec2((float(i+u_Radius)+0.5)/u_Width,0)).r;
         sum += a*coeff;
     }
     sum = min(1., sum);
-    vec2 origCoord = gl_TexCoord[0].st;
+    vec2 origCoord = v_TexCoord;
     origCoord = u_DestPos + 
             vec2(origCoord.s*u_DestSize.x, origCoord.t*u_DestSize.y);
     vec4 origCol = texture2D(u_OrigTex, origCoord);

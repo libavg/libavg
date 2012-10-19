@@ -120,6 +120,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("APP", &Logger::APP)
         .def_readonly("PLUGIN", &Logger::PLUGIN)
         .def_readonly("PLAYER", &Logger::PLAYER)
+        .def_readonly("SHADER", &Logger::SHADER)
     ;
 
     class_<Publisher, boost::noncopyable>("Publisher")
@@ -150,6 +151,7 @@ BOOST_PYTHON_MODULE(avg)
     enum_<GLConfig::ShaderUsage>("ShaderUsage")
         .value("SHADERUSAGE_FULL", GLConfig::FULL)
         .value("SHADERUSAGE_MINIMAL", GLConfig::MINIMAL)
+        .value("SHADERUSAGE_FRAGMENT_ONLY", GLConfig::FRAGMENT_ONLY)
         .value("SHADERUSAGE_AUTO", GLConfig::AUTO)
         .export_values()
     ;
@@ -223,6 +225,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("setEventHook", &Player::setEventHook)
         .def("getEventHook", &Player::getEventHook)
         .def("getConfigOption", &Player::getConfigOption)
+        .def("isUsingGLES", &Player::isUsingGLES)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;

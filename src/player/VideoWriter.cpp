@@ -58,6 +58,9 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     if (!pCanvas) {
         throw Exception(AVG_ERR_INVALID_ARGS, "VideoWriter needs a canvas to write to.");
     }
+    if (GLContext::getCurrent()->isGLES()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "VideoWriter not supported under GLES.");
+    }
 #ifdef WIN32
     int fd = _open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, _S_IREAD | _S_IWRITE);
 #elif defined linux

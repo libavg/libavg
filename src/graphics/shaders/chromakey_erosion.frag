@@ -22,18 +22,23 @@
 uniform sampler2D u_Texture;
 uniform bool u_bIsLast;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+      
 void main(void)
 {
     float minAlpha = 1.0;
-    float dx = dFdx(gl_TexCoord[0].x);
-    float dy = dFdy(gl_TexCoord[0].y);
+    float dx = dFdx(v_TexCoord.x);
+    float dy = dFdy(v_TexCoord.y);
     for (float y = -1.0; y <= 1.0; ++y) {
         for (float x = -1.0; x <= 1.0; ++x) {
-           float a = texture2D(u_Texture, gl_TexCoord[0].st+vec2(x*dx,y*dy)).a;
+           float a = texture2D(u_Texture, v_TexCoord+vec2(x*dx,y*dy)).a;
            minAlpha = min(minAlpha, a);
         }
     }
-    vec4 tex = texture2D(u_Texture, gl_TexCoord[0].st);
+    vec4 tex = texture2D(u_Texture, v_TexCoord);
     if (u_bIsLast) {
        gl_FragColor = vec4(tex.rgb*minAlpha, minAlpha);
     } else {

@@ -37,7 +37,7 @@
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
 #include "../graphics/FilterMask.h"
-#include "../graphics/OGLImagingContext.h"
+#include "../graphics/GLContext.h"
 #include "../graphics/GPUBandpassFilter.h"
 #include "../graphics/GPUBlurFilter.h"
 
@@ -102,7 +102,8 @@ TrackerThread::~TrackerThread()
 bool TrackerThread::init()
 {
     try {
-        m_pImagingContext = new OGLImagingContext();
+        m_pImagingContext = GLContext::create(
+            GLConfig(false, false, true, 1, GLConfig::AUTO, false));
         createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& e) {
