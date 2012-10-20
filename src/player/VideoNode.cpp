@@ -672,7 +672,7 @@ void VideoNode::render()
 VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
 {
 #ifdef AVG_ENABLE_VDPAU
-    if (VDPAU::isAvailable()) {
+    if (VDPAUDecoder::isAvailable()) {
         return VDPAU;
     }
 #endif

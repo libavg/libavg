@@ -67,8 +67,8 @@ FFMpegDecoder::FFMpegDecoder()
       m_pVStream(0),
       m_pAStream(0),
 #ifdef AVG_ENABLE_VDPAU
-      m_VDPAU(),
-      m_Opaque(&m_VDPAU),
+      m_VDPAUDecoder(),
+      m_Opaque(&m_VDPAUDecoder),
 #endif
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
@@ -123,7 +123,7 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 #ifdef AVG_ENABLE_VDPAU
     if (bUseHardwareAcceleration) {
         pContext->opaque = &m_Opaque;
-        pCodec = m_VDPAU.openCodec(pContext);
+        pCodec = m_VDPAUDecoder.openCodec(pContext);
     } else {
         pCodec = avcodec_find_decoder(pContext->codec_id);
     }
@@ -265,7 +265,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
 void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
 #ifdef AVG_ENABLE_VDPAU
-    m_VDPAU.init();
+    m_VDPAUDecoder.init();
 #endif
     AVG_ASSERT(m_State == OPENED);
     if (m_VStreamIndex >= 0) {
@@ -1019,7 +1019,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
 #if AVG_ENABLE_VDPAU
             if (usesVDPAU() && bInvalidFrame && !m_bVideoEOF) {
                 vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-                VDPAU::unlockSurface(pRenderState);
+                VDPAUDecoder::unlockSurface(pRenderState);
             }
 #endif
 //            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
@@ -1207,7 +1207,7 @@ void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
     status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
             VDP_YCBCR_FORMAT_YV12, dest, pitches);
     AVG_ASSERT(status == VDP_STATUS_OK);
-    VDPAU::unlockSurface(pRenderState);
+    VDPAUDecoder::unlockSurface(pRenderState);
 }
 
 void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)

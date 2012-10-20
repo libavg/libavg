@@ -20,7 +20,7 @@
 //
 #include "FrameAge.h"
 
-namespace avg{
+namespace avg {
 
 FrameAge::FrameAge():
     m_Age(256*256*256*64),

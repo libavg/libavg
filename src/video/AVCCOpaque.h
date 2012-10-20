@@ -21,7 +21,7 @@
 #ifndef _AVCCOpaque_H_
 #define _AVCCOpaque_H_
 
-#include "VDPAU.h"
+#include "VDPAUDecoder.h"
 #include "FrameAge.h"
 
 namespace avg{
@@ -29,13 +29,13 @@ namespace avg{
 class AVCCOpaque
 {
 public:
-    AVCCOpaque(VDPAU* pVDPAU, FrameAge* pFrameAge = 0);
+    AVCCOpaque(VDPAUDecoder* pVDPAUDecoder, FrameAge* pFrameAge = 0);
     FrameAge* getFrameAge();
     void setFrameAge(FrameAge* pFrameAge);
-    VDPAU* getVDPAU();
+    VDPAUDecoder* getVDPAUDecoder();
 
 private: 
-    VDPAU* m_pVDPAU;
+    VDPAUDecoder* m_pVDPAUDecoder;
     FrameAge* m_pFrameAge;
 };
 

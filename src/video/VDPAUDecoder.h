@@ -18,8 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _VDPAU_H_
-#define _VDPAU_H_
+#ifndef _VDPAUDecoder_H_
+#define _VDPAUDecoder_H_
 
 
 #include "../avgconfigwrapper.h"
@@ -75,11 +75,11 @@ extern VdpPresentationQueueBlockUntilSurfaceIdle*
 extern VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 
-class VDPAU
+class VDPAUDecoder
 {
 public:
-    VDPAU();
-    ~VDPAU();
+    VDPAUDecoder();
+    ~VDPAUDecoder();
     AVCodec* openCodec(AVCodecContext* pCodec);
     void init();
     Display* getDisplay();

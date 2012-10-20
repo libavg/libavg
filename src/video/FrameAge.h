@@ -21,7 +21,7 @@
 #ifndef _FrameAge_H_
 #define _FrameAge_H_
 
-namespace avg{
+namespace avg {
 
 struct FrameAge
 {

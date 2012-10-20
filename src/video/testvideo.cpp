@@ -460,7 +460,7 @@ public:
         addAudioTests();
         addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
-        if (VDPAU::isAvailable()) {
+        if (VDPAUDecoder::isAvailable()) {
             addVideoTests(true);
         }
 #endif

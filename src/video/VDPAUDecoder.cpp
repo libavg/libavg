@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#include "VDPAU.h"
+#include "VDPAUDecoder.h"
 #include "FrameAge.h"
 #include "AVCCOpaque.h"
 #include "../base/Exception.h"
@@ -54,11 +54,11 @@ VdpPresentationQueueBlockUntilSurfaceIdle*
 VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 
-VdpDevice VDPAU::s_VDPDevice = 0;
-Display* VDPAU::s_pXDisplay = 0;
-bool VDPAU::s_bInitFailed = false;
+VdpDevice VDPAUDecoder::s_VDPDevice = 0;
+Display* VDPAUDecoder::s_pXDisplay = 0;
+bool VDPAUDecoder::s_bInitFailed = false;
 
-VDPAU::VDPAU()
+VDPAUDecoder::VDPAUDecoder()
     : m_VDPDecoder(VDP_INVALID_HANDLE),
       m_VDPMixer(VDP_INVALID_HANDLE),
       m_PixFmt(PIX_FMT_NONE),
@@ -69,7 +69,7 @@ VDPAU::VDPAU()
     }
 }
 
-VDPAU::~VDPAU()
+VDPAUDecoder::~VDPAUDecoder()
 {
     if (m_VDPMixer != VDP_INVALID_HANDLE) {
         vdp_video_mixer_destroy(m_VDPMixer);
@@ -84,19 +84,19 @@ VDPAU::~VDPAU()
     }
 }
 
-void VDPAU::safeGetProcAddress(VdpFuncId functionId, void** functionPointer)
+void VDPAUDecoder::safeGetProcAddress(VdpFuncId functionId, void** functionPointer)
 {
     VdpStatus status;
     status = vdp_get_proc_address(s_VDPDevice, functionId, functionPointer);
     AVG_ASSERT(status == VDP_STATUS_OK);
 }
 
-Display* VDPAU::getDisplay()
+Display* VDPAUDecoder::getDisplay()
 {
     return s_pXDisplay;
 }
 
-bool VDPAU::staticInit()
+bool VDPAUDecoder::staticInit()
 {
     if (s_VDPDevice) {
         return true;
@@ -163,7 +163,7 @@ bool VDPAU::staticInit()
     return true;
 }
 
-void VDPAU::init()
+void VDPAUDecoder::init()
 {
     if (!staticInit()) {
         return;
@@ -175,13 +175,13 @@ void VDPAU::init()
     }
 }
 
-bool VDPAU::isAvailable()
+bool VDPAUDecoder::isAvailable()
 {
     staticInit();
     return s_VDPDevice;
 }
 
-AVCodec* VDPAU::openCodec(AVCodecContext* pContext)
+AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
 {
     staticInit();
 
@@ -209,24 +209,24 @@ AVCodec* VDPAU::openCodec(AVCodecContext* pContext)
     if (!pCodec || !s_VDPDevice) {
         pCodec = avcodec_find_decoder(pContext->codec_id);
     } else {
-        pContext->get_buffer = VDPAU::getBuffer;
-        pContext->release_buffer = VDPAU::releaseBuffer;
-        pContext->draw_horiz_band = VDPAU::drawHorizBand;
-        pContext->get_format = VDPAU::getFormat;
+        pContext->get_buffer = VDPAUDecoder::getBuffer;
+        pContext->release_buffer = VDPAUDecoder::releaseBuffer;
+        pContext->draw_horiz_band = VDPAUDecoder::drawHorizBand;
+        pContext->get_format = VDPAUDecoder::getFormat;
         pContext->slice_flags = SLICE_FLAG_CODED_ORDER | SLICE_FLAG_ALLOW_FIELD;
     }
     return pCodec;
 }
 
-int VDPAU::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
+int VDPAUDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
     AVCCOpaque* pOpaque = (AVCCOpaque*)pContext->opaque;
     FrameAge* pAge = pOpaque->getFrameAge();
-    VDPAU* pVDPAU = pOpaque->getVDPAU();
-    return pVDPAU->getBufferInternal(pContext, pFrame, pAge);
+    VDPAUDecoder* pVDPAUDecoder = pOpaque->getVDPAUDecoder();
+    return pVDPAUDecoder->getBufferInternal(pContext, pFrame, pAge);
 }
 
-int VDPAU::getFreeSurfaceIndex()
+int VDPAUDecoder::getFreeSurfaceIndex()
 {
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         vdpau_render_state* pRenderState = &m_VideoSurfaces[i].m_RenderState;
@@ -238,7 +238,7 @@ int VDPAU::getFreeSurfaceIndex()
     return -1;
 }
 
-int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, 
+int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, 
         FrameAge* pAge)
 {
     VdpStatus status;
@@ -283,22 +283,22 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame,
 }
 
 // does not release the render structure, that will be unlocked after getting data
-void VDPAU::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
+void VDPAUDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
     pFrame->data[0] = 0;
 }
 
 
 // main rendering routine
-void VDPAU::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
+void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
         int offset[4], int y, int type, int height)
 {
     AVCCOpaque* pOpaque = (AVCCOpaque*)pContext->opaque;
-    VDPAU* pVDPAU = pOpaque->getVDPAU();
-    pVDPAU->render(pContext, src);
+    VDPAUDecoder* pVDPAUDecoder = pOpaque->getVDPAUDecoder();
+    pVDPAUDecoder->render(pContext, src);
 }
 
-::PixelFormat VDPAU::getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt)
+::PixelFormat VDPAUDecoder::getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt)
 {
     switch (pContext->codec_id) {
         case CODEC_ID_H264:
@@ -316,7 +316,7 @@ void VDPAU::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
     }
 }
 
-void VDPAU::render(AVCodecContext* pContext, const AVFrame* pFrame)
+void VDPAUDecoder::render(AVCodecContext* pContext, const AVFrame* pFrame)
 {
     vdpau_render_state* pRenderState = (vdpau_render_state*)pFrame->data[0];
     VdpStatus status;
@@ -385,7 +385,7 @@ void VDPAU::render(AVCodecContext* pContext, const AVFrame* pFrame)
     AVG_ASSERT(status == VDP_STATUS_OK);
 }
 
-void VDPAU::unlockSurface(vdpau_render_state* pRenderState)
+void VDPAUDecoder::unlockSurface(vdpau_render_state* pRenderState)
 {
     pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
 }
