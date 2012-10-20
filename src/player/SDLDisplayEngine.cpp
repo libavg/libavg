@@ -104,6 +104,12 @@ SDLDisplayEngine::SDLDisplayEngine()
         bSDLInitialized = true;
     }
 #endif
+#ifdef linux
+    Display * pDisplay = XOpenDisplay(0);
+    if (!pDisplay) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, "Failed to connect to X11 display.");
+    }
+#endif
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);
