@@ -57,18 +57,6 @@ VDPAUDecoder::~VDPAUDecoder()
     }
 }
 
-void VDPAUDecoder::init()
-{
-    if (!getVDPAUDevice()) {
-        return;
-    }
-    for (int i = 0; i < N_VIDEO_SURFACES; i++) {
-        memset(&m_VideoSurfaces[i].m_RenderState, 0, sizeof(vdpau_render_state));
-        m_VideoSurfaces[i].m_RenderState.surface = VDP_INVALID_HANDLE;
-        m_VideoSurfaces[i].m_Size = IntPoint(-1,-1);
-    }
-}
-
 bool VDPAUDecoder::isAvailable()
 {
     return getVDPAUDevice() != 0;
@@ -107,6 +95,11 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
         pContext->draw_horiz_band = VDPAUDecoder::drawHorizBand;
         pContext->get_format = VDPAUDecoder::getFormat;
         pContext->slice_flags = SLICE_FLAG_CODED_ORDER | SLICE_FLAG_ALLOW_FIELD;
+    }
+    for (int i = 0; i < N_VIDEO_SURFACES; i++) {
+        memset(&m_VideoSurfaces[i].m_RenderState, 0, sizeof(vdpau_render_state));
+        m_VideoSurfaces[i].m_RenderState.surface = VDP_INVALID_HANDLE;
+        m_VideoSurfaces[i].m_Size = IntPoint(-1,-1);
     }
     return pCodec;
 }

@@ -51,13 +51,11 @@ public:
     VDPAUDecoder();
     ~VDPAUDecoder();
     AVCodec* openCodec(AVCodecContext* pCodec);
-    void init();
     Display* getDisplay();
     static void unlockSurface(vdpau_render_state* pRenderState);
     static bool isAvailable();
 
 private:
-    static bool staticInit();
     static int getBuffer(AVCodecContext* pContext, AVFrame* pFrame);
     int getFreeSurfaceIndex();
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, FrameAge* pAge);
