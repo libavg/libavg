@@ -33,6 +33,7 @@
 
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
+#include "VDPAUHelper.h"
 #include "AVCCOpaque.h"
 #include "FrameAge.h"
 #include <libavcodec/vdpau.h>

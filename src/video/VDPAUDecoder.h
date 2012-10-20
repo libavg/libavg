@@ -23,7 +23,6 @@
 
 
 #include "../avgconfigwrapper.h"
-#include "../graphics/OGLHelper.h"
 #include "../base/GLMHelper.h"
 
 #include "WrapFFMpeg.h"
@@ -44,35 +43,6 @@ struct VideoSurface
     VdpVideoSurface m_Surface;
     IntPoint m_Size;
 };
-
-extern VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
-extern VdpVideoSurfaceGetBitsYCbCr* vdp_video_surface_get_bits_y_cb_cr;
-extern VdpOutputSurfaceDestroy* vdp_output_surface_destroy;
-extern VdpGetProcAddress* vdp_get_proc_address;
-extern VdpDeviceDestroy* vdp_device_destroy;
-extern VdpVideoSurfaceCreate* vdp_video_surface_create;
-extern VdpVideoSurfaceDestroy* vdp_video_surface_destroy;
-extern VdpDecoderCreate* vdp_decoder_create;
-extern VdpDecoderDestroy* vdp_decoder_destroy;
-extern VdpDecoderRender* vdp_decoder_render;
-extern VdpOutputSurfaceCreate* vdp_output_surface_create;
-extern VdpOutputSurfaceDestroy* vdp_output_surface_destroy;
-extern VdpOutputSurfaceGetBitsNative* vdp_output_surface_get_bits_native;
-extern VdpOutputSurfaceGetParameters* vdp_output_surface_get_parameters;
-extern VdpVideoSurfaceGetBitsYCbCr* vdp_video_surface_get_bits_y_cb_cr;
-extern VdpVideoMixerCreate* vdp_video_mixer_create;
-extern VdpVideoMixerDestroy* vdp_video_mixer_destroy;
-extern VdpVideoMixerRender* vdp_video_mixer_render;
-extern VdpPresentationQueueCreate* vdp_presentation_queue_create;
-extern VdpPresentationQueueDestroy* vdp_presentation_queue_destroy;
-extern VdpPresentationQueueGetTime* vdp_presentation_queue_get_time;
-extern VdpPresentationQueueTargetCreateX11* vdp_presentation_queue_target_create_x11;
-extern VdpPresentationQueueQuerySurfaceStatus*
-        vdp_presentation_queue_query_surface_status;
-extern VdpPresentationQueueDisplay* vdp_presentation_queue_display;
-extern VdpPresentationQueueBlockUntilSurfaceIdle*
-        vdp_presentation_queue_block_until_surface_idle;
-extern VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 
 class VDPAUDecoder
@@ -96,11 +66,6 @@ private:
             int offset[4], int y, int type, int height);
     static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
     void render(AVCodecContext* pContext, const AVFrame* pFrame);
-    static void safeGetProcAddress(VdpFuncId function_id, void** function_pointer);
-
-    static VdpDevice s_VDPDevice;
-    static Display* s_pXDisplay;
-    static bool s_bInitFailed;
 
     VdpDecoder m_VDPDecoder;
     VdpVideoMixer m_VDPMixer;
