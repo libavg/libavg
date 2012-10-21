@@ -52,11 +52,6 @@ VDPAUDecoder::~VDPAUDecoder()
     }
 }
 
-bool VDPAUDecoder::isAvailable()
-{
-    return getVDPAUDevice() != 0;
-}
-
 AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
 {
     getVDPAUDevice();
@@ -100,10 +95,48 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
     return pCodec;
 }
 
+bool VDPAUDecoder::isAvailable()
+{
+    return getVDPAUDevice() != 0;
+}
+
 int VDPAUDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
     VDPAUDecoder* pVDPAUDecoder = (VDPAUDecoder*)pContext->opaque;
     return pVDPAUDecoder->getBufferInternal(pContext, pFrame);
+}
+
+// does not release the render structure, that will be unlocked after getting data
+void VDPAUDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
+{
+    pFrame->data[0] = 0;
+}
+
+
+// main rendering routine
+void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
+        int offset[4], int y, int type, int height)
+{
+    VDPAUDecoder* pVDPAUDecoder = (VDPAUDecoder*)pContext->opaque;
+    pVDPAUDecoder->render(pContext, src);
+}
+
+::PixelFormat VDPAUDecoder::getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt)
+{
+    switch (pContext->codec_id) {
+        case CODEC_ID_H264:
+            return PIX_FMT_VDPAU_H264;
+        case CODEC_ID_MPEG1VIDEO:
+            return PIX_FMT_VDPAU_MPEG1;
+        case CODEC_ID_MPEG2VIDEO:
+            return PIX_FMT_VDPAU_MPEG2;
+        case CODEC_ID_WMV3:
+            return PIX_FMT_VDPAU_WMV3;
+        case CODEC_ID_VC1:
+            return PIX_FMT_VDPAU_VC1;
+        default:
+            return pFmt[0];
+    }
 }
 
 int VDPAUDecoder::getFreeSurfaceIndex()
@@ -148,106 +181,82 @@ int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
     return 0;
 }
 
-// does not release the render structure, that will be unlocked after getting data
-void VDPAUDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
-{
-    pFrame->data[0] = 0;
-}
-
-
-// main rendering routine
-void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
-        int offset[4], int y, int type, int height)
-{
-    VDPAUDecoder* pVDPAUDecoder = (VDPAUDecoder*)pContext->opaque;
-    pVDPAUDecoder->render(pContext, src);
-}
-
-::PixelFormat VDPAUDecoder::getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt)
-{
-    switch (pContext->codec_id) {
-        case CODEC_ID_H264:
-            return PIX_FMT_VDPAU_H264;
-        case CODEC_ID_MPEG1VIDEO:
-            return PIX_FMT_VDPAU_MPEG1;
-        case CODEC_ID_MPEG2VIDEO:
-            return PIX_FMT_VDPAU_MPEG2;
-        case CODEC_ID_WMV3:
-            return PIX_FMT_VDPAU_WMV3;
-        case CODEC_ID_VC1:
-            return PIX_FMT_VDPAU_VC1;
-        default:
-            return pFmt[0];
-    }
-}
-
 void VDPAUDecoder::render(AVCodecContext* pContext, const AVFrame* pFrame)
 {
     vdpau_render_state* pRenderState = (vdpau_render_state*)pFrame->data[0];
-    VdpStatus status;
     IntPoint size(pContext->width, pContext->height);
 
     if (pContext->pix_fmt != m_PixFmt || size != m_Size) {
-        VdpDecoderProfile profile = 0;
-        switch (pContext->pix_fmt) {
-            case PIX_FMT_VDPAU_MPEG1:
-                profile = VDP_DECODER_PROFILE_MPEG1;
-                break;
-            case PIX_FMT_VDPAU_MPEG2:
-                profile = VDP_DECODER_PROFILE_MPEG2_MAIN;
-                break;
-            case PIX_FMT_VDPAU_H264:
-                profile = VDP_DECODER_PROFILE_H264_HIGH;
-                break;
-            case PIX_FMT_VDPAU_WMV3:
-                profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
-                break;
-            case PIX_FMT_VDPAU_VC1:
-                profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
-                break;
-            default:
-                AVG_ASSERT(false);
-        }
-        if (m_VDPMixer != VDP_INVALID_HANDLE) {
-            status = vdp_video_mixer_destroy(m_VDPMixer);
-            AVG_ASSERT(status == VDP_STATUS_OK);
-            m_VDPMixer = VDP_INVALID_HANDLE;
-        }    
-        if (m_VDPDecoder != VDP_INVALID_HANDLE) {
-            status = vdp_decoder_destroy(m_VDPDecoder);
-            AVG_ASSERT(status == VDP_STATUS_OK);
-            m_VDPDecoder = VDP_INVALID_HANDLE;
-        }
-        status = vdp_decoder_create(getVDPAUDevice(), profile, size.x, size.y, 16,
-                &m_VDPDecoder);
-        AVG_ASSERT(status == VDP_STATUS_OK);
-        
-        m_PixFmt = pContext->pix_fmt;
-        m_Size = size;
-
-        VdpVideoMixerFeature features[] = {
-            VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL,
-            VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL_SPATIAL,
-        };
-        VdpVideoMixerParameter params[] = { 
-             VDP_VIDEO_MIXER_PARAMETER_VIDEO_SURFACE_WIDTH,
-             VDP_VIDEO_MIXER_PARAMETER_VIDEO_SURFACE_HEIGHT,
-             VDP_VIDEO_MIXER_PARAMETER_CHROMA_TYPE,
-             VDP_VIDEO_MIXER_PARAMETER_LAYERS
-        };
-        VdpChromaType chroma = VDP_CHROMA_TYPE_420;
-        int  numLayers = 0;
-        void const* paramValues [] = { &m_Size.x, &m_Size.y, &chroma, &numLayers };
-
-        status = vdp_video_mixer_create(getVDPAUDevice(), 2, features, 4, params, 
-                paramValues, &m_VDPMixer);
-        AVG_ASSERT(status == VDP_STATUS_OK);
+        setupDecoder(pContext, size);
     }
 
-    status = vdp_decoder_render(m_VDPDecoder, pRenderState->surface,
+    VdpStatus status = vdp_decoder_render(m_VDPDecoder, pRenderState->surface,
             (VdpPictureInfo const*)&(pRenderState->info),
             pRenderState->bitstream_buffers_used, pRenderState->bitstream_buffers);
     AVG_ASSERT(status == VDP_STATUS_OK);
+}
+
+void VDPAUDecoder::setupDecoder(AVCodecContext* pContext, const IntPoint& size)
+{
+    VdpStatus status;
+    // Destroy old decoders if they exist.
+    if (m_VDPMixer != VDP_INVALID_HANDLE) {
+        status = vdp_video_mixer_destroy(m_VDPMixer);
+        AVG_ASSERT(status == VDP_STATUS_OK);
+        m_VDPMixer = VDP_INVALID_HANDLE;
+    }    
+    if (m_VDPDecoder != VDP_INVALID_HANDLE) {
+        status = vdp_decoder_destroy(m_VDPDecoder);
+        AVG_ASSERT(status == VDP_STATUS_OK);
+        m_VDPDecoder = VDP_INVALID_HANDLE;
+    }
+
+    // Create new decoder and mixer.
+    VdpDecoderProfile profile = 0;
+    switch (pContext->pix_fmt) {
+        case PIX_FMT_VDPAU_MPEG1:
+            profile = VDP_DECODER_PROFILE_MPEG1;
+            break;
+        case PIX_FMT_VDPAU_MPEG2:
+            profile = VDP_DECODER_PROFILE_MPEG2_MAIN;
+            break;
+        case PIX_FMT_VDPAU_H264:
+            profile = VDP_DECODER_PROFILE_H264_HIGH;
+            break;
+        case PIX_FMT_VDPAU_WMV3:
+            profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
+            break;
+        case PIX_FMT_VDPAU_VC1:
+            profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+    status = vdp_decoder_create(getVDPAUDevice(), profile, size.x, size.y, 16,
+            &m_VDPDecoder);
+    AVG_ASSERT(status == VDP_STATUS_OK);
+
+    m_PixFmt = pContext->pix_fmt;
+    m_Size = size;
+
+    VdpVideoMixerFeature features[] = {
+        VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL,
+        VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL_SPATIAL,
+    };
+    VdpVideoMixerParameter params[] = { 
+        VDP_VIDEO_MIXER_PARAMETER_VIDEO_SURFACE_WIDTH,
+        VDP_VIDEO_MIXER_PARAMETER_VIDEO_SURFACE_HEIGHT,
+        VDP_VIDEO_MIXER_PARAMETER_CHROMA_TYPE,
+        VDP_VIDEO_MIXER_PARAMETER_LAYERS
+    };
+    VdpChromaType chroma = VDP_CHROMA_TYPE_420;
+    int  numLayers = 0;
+    void const* paramValues [] = { &m_Size.x, &m_Size.y, &chroma, &numLayers };
+
+    status = vdp_video_mixer_create(getVDPAUDevice(), 2, features, 4, params, 
+            paramValues, &m_VDPMixer);
+    AVG_ASSERT(status == VDP_STATUS_OK);
+
 }
 
 }

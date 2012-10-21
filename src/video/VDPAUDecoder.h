@@ -52,14 +52,17 @@ public:
     static bool isAvailable();
 
 private:
+    // Callbacks
     static int getBuffer(AVCodecContext* pContext, AVFrame* pFrame);
-    int getFreeSurfaceIndex();
-    int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     static void releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame);
     static void drawHorizBand(AVCodecContext* pContext, const AVFrame* pFrame, 
             int offset[4], int y, int type, int height);
     static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
+
+    int getFreeSurfaceIndex();
+    int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     void render(AVCodecContext* pContext, const AVFrame* pFrame);
+    void setupDecoder(AVCodecContext* pContext, const IntPoint& size);
 
     VdpDecoder m_VDPDecoder;
     VdpVideoMixer m_VDPMixer;
