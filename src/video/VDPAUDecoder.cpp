@@ -45,9 +45,9 @@ VDPAUDecoder::~VDPAUDecoder()
     if (m_VDPDecoder != VDP_INVALID_HANDLE) {
         vdp_decoder_destroy(m_VDPDecoder);
     }
-    for (unsigned i = 0; i < m_VideoSurfaces.size(); i++) {
-        vdp_video_surface_destroy(m_VideoSurfaces[i]->m_Surface);
-        delete m_VideoSurfaces[i];
+    for (unsigned i = 0; i < m_RenderStates.size(); i++) {
+        vdp_video_surface_destroy(m_RenderStates[i]->surface);
+        delete m_RenderStates[i];
     }
 }
 
@@ -133,34 +133,29 @@ void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame*
     }
 }
 
-VideoSurface* VDPAUDecoder::getFreeSurface()
+vdpau_render_state* VDPAUDecoder::getFreeRenderState()
 {
-    for (unsigned i = 0; i < m_VideoSurfaces.size(); i++) {
-        vdpau_render_state* pRenderState = &m_VideoSurfaces[i]->m_RenderState;
+    for (unsigned i = 0; i < m_RenderStates.size(); i++) {
+        vdpau_render_state* pRenderState = m_RenderStates[i];
         if (!(pRenderState->state & FF_VDPAU_STATE_USED_FOR_REFERENCE)) {
-            return m_VideoSurfaces[i];
+            return m_RenderStates[i];
         }
     }
     
     // No free surfaces available -> create new surface
-    VideoSurface* pSurface = new VideoSurface();
-    memset(&pSurface->m_RenderState, 0, sizeof(vdpau_render_state));
-    pSurface->m_Surface = VDP_INVALID_HANDLE;
+    vdpau_render_state* pRenderState = new vdpau_render_state;
+    memset(pRenderState, 0, sizeof(vdpau_render_state));
+    pRenderState->surface = VDP_INVALID_HANDLE;
     VdpStatus status = vdp_video_surface_create(getVDPAUDevice(), VDP_CHROMA_TYPE_420,
-            m_Size.x, m_Size.y, &pSurface->m_Surface);
+            m_Size.x, m_Size.y, &pRenderState->surface);
     AVG_ASSERT(status == VDP_STATUS_OK);
-    pSurface->m_Size.x = m_Size.x;
-    pSurface->m_Size.y = m_Size.y;
-    pSurface->m_RenderState.surface = pSurface->m_Surface;        
 
-    return pSurface;
+    return pRenderState;
 }
 
 int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    VideoSurface* pVideoSurface = getFreeSurface();
-    
-    vdpau_render_state* pRenderState = &pVideoSurface->m_RenderState;
+    vdpau_render_state* pRenderState = getFreeRenderState();
     pFrame->data[0] = (uint8_t*)pRenderState;
     pFrame->type = FF_BUFFER_TYPE_USER;
 
@@ -171,10 +166,9 @@ int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 void VDPAUDecoder::render(AVCodecContext* pContext, const AVFrame* pFrame)
 {
     vdpau_render_state* pRenderState = (vdpau_render_state*)pFrame->data[0];
-    IntPoint size(pContext->width, pContext->height);
 
-    if (pContext->pix_fmt != m_PixFmt || size != m_Size) {
-        setupDecoder(pContext, size);
+    if (m_VDPDecoder == VDP_INVALID_HANDLE) {
+        setupDecoder(pContext);
     }
 
     VdpStatus status = vdp_decoder_render(m_VDPDecoder, pRenderState->surface,
@@ -183,20 +177,9 @@ void VDPAUDecoder::render(AVCodecContext* pContext, const AVFrame* pFrame)
     AVG_ASSERT(status == VDP_STATUS_OK);
 }
 
-void VDPAUDecoder::setupDecoder(AVCodecContext* pContext, const IntPoint& size)
+void VDPAUDecoder::setupDecoder(AVCodecContext* pContext)
 {
     VdpStatus status;
-    // Destroy old decoders if they exist.
-    if (m_VDPMixer != VDP_INVALID_HANDLE) {
-        status = vdp_video_mixer_destroy(m_VDPMixer);
-        AVG_ASSERT(status == VDP_STATUS_OK);
-        m_VDPMixer = VDP_INVALID_HANDLE;
-    }    
-    if (m_VDPDecoder != VDP_INVALID_HANDLE) {
-        status = vdp_decoder_destroy(m_VDPDecoder);
-        AVG_ASSERT(status == VDP_STATUS_OK);
-        m_VDPDecoder = VDP_INVALID_HANDLE;
-    }
 
     // Create new decoder and mixer.
     VdpDecoderProfile profile = 0;
@@ -219,12 +202,11 @@ void VDPAUDecoder::setupDecoder(AVCodecContext* pContext, const IntPoint& size)
         default:
             AVG_ASSERT(false);
     }
-    status = vdp_decoder_create(getVDPAUDevice(), profile, size.x, size.y, 16,
+    status = vdp_decoder_create(getVDPAUDevice(), profile, m_Size.x, m_Size.y, 16,
             &m_VDPDecoder);
     AVG_ASSERT(status == VDP_STATUS_OK);
 
     m_PixFmt = pContext->pix_fmt;
-    m_Size = size;
 
     VdpVideoMixerFeature features[] = {
         VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL,
