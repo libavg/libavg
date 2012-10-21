@@ -34,8 +34,6 @@ namespace avg {
 
 #define N_VIDEO_SURFACES 64
 
-struct FrameAge;
-
 struct VideoSurface
 {
     struct vdpau_render_state m_RenderState;
@@ -50,9 +48,6 @@ public:
     VDPAUDecoder();
     ~VDPAUDecoder();
     AVCodec* openCodec(AVCodecContext* pCodec);
-    
-    FrameAge* getFrameAge();
-    void setFrameAge(FrameAge* pFrameAge);
 
     static void unlockSurface(vdpau_render_state* pRenderState);
     static bool isAvailable();
@@ -72,7 +67,6 @@ private:
     ::PixelFormat  m_PixFmt;
     IntPoint m_Size;
     VideoSurface m_VideoSurfaces[N_VIDEO_SURFACES];
-    FrameAge* m_pFrameAge;
 
 };
 

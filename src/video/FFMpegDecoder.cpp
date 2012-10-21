@@ -1055,12 +1055,6 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
-#ifdef AVG_ENABLE_VDPAU
-            if (m_pVDPAUDecoder) {
-                FrameAge age;
-                m_pVDPAUDecoder->setFrameAge(&age);
-            }
-#endif
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #else

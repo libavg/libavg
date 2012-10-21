@@ -20,7 +20,6 @@
 //
 #include "VDPAUDecoder.h"
 #include "VDPAUHelper.h"
-#include "FrameAge.h"
 
 #include "../base/Exception.h"
 
@@ -101,16 +100,6 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
     return pCodec;
 }
 
-FrameAge* VDPAUDecoder::getFrameAge()
-{
-    return m_pFrameAge;
-}
-
-void VDPAUDecoder::setFrameAge(FrameAge* pFrameAge)
-{
-    m_pFrameAge = pFrameAge;
-}
-
 int VDPAUDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
     VDPAUDecoder* pVDPAUDecoder = (VDPAUDecoder*)pContext->opaque;
@@ -139,19 +128,6 @@ int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
     pFrame->data[0] = (uint8_t*)pRenderState;
     pFrame->type = FF_BUFFER_TYPE_USER;
 
-#if LIBAVFORMAT_VERSION_MAJOR <= 52
-    if (pFrame->reference) { //I-P frame
-        pFrame->age = pFrameAge->m_IPAge0;
-        pFrameAge->m_IPAge0 = pFrameAge->m_IPAge1;
-        pFrameAge->m_IPAge1 = 1;
-        pFrameAge->m_Age++;
-    } else {
-        pFrame->age = pFrameAge->m_Age;
-        pFrameAge->m_IPAge0++;
-        pFrameAge->m_IPAge1++;
-        pFrameAge->m_Age = 1;
-    }
-#endif
     pRenderState->state |= FF_VDPAU_STATE_USED_FOR_REFERENCE;
 
     if (pVideoSurface->m_Size.x != pContext->width ||
