@@ -1024,7 +1024,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
 #if AVG_ENABLE_VDPAU
             if (usesVDPAU() && bInvalidFrame && !m_bVideoEOF) {
                 vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-                VDPAUDecoder::unlockSurface(pRenderState);
+                unlockVDPAUSurface(pRenderState);
             }
 #endif
 //            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
@@ -1189,39 +1189,6 @@ AVCodecContext* FFMpegDecoder::getCodecContext()
 {
     return m_pVStream->codec;
 }
-
-#ifdef AVG_ENABLE_VDPAU
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
-        BitmapPtr pBmpU, BitmapPtr pBmpV)
-{
-    VdpStatus status;
-    void *dest[3] = {
-        pBmpY->getPixels(),
-        pBmpV->getPixels(),
-        pBmpU->getPixels()
-    };
-    uint32_t pitches[3] = {
-        pBmpY->getStride(),
-        pBmpV->getStride(),
-        pBmpU->getStride()
-    };
-    status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
-            VDP_YCBCR_FORMAT_YV12, dest, pitches);
-    AVG_ASSERT(status == VDP_STATUS_OK);
-    VDPAUDecoder::unlockSurface(pRenderState);
-}
-
-void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
-{
-    IntPoint YSize = pBmpDest->getSize();
-    IntPoint UVSize(YSize.x>>1, YSize.y);
-    BitmapPtr pBmpY(new Bitmap(YSize, I8));
-    BitmapPtr pBmpU(new Bitmap(UVSize, I8));
-    BitmapPtr pBmpV(new Bitmap(UVSize, I8));
-    getPlanesFromVDPAU(pRenderState, pBmpY, pBmpU, pBmpV);
-    pBmpDest->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
-}   
-#endif
 
 }
 

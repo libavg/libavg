@@ -164,12 +164,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         static boost::mutex s_OpenMutex;   
 };
 
-#ifdef AVG_ENABLE_VDPAU
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
-        BitmapPtr pBmpU, BitmapPtr pBmpV);
-void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
-#endif
-
 }
 #endif 
 

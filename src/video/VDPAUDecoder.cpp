@@ -250,11 +250,6 @@ void VDPAUDecoder::render(AVCodecContext* pContext, const AVFrame* pFrame)
     AVG_ASSERT(status == VDP_STATUS_OK);
 }
 
-void VDPAUDecoder::unlockSurface(vdpau_render_state* pRenderState)
-{
-    pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
-}
-
 }
 
 

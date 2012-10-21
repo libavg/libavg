@@ -26,9 +26,12 @@
 
 #include <vdpau/vdpau.h>
 #include <libavcodec/vdpau.h>
-
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 extern VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 extern VdpVideoSurfaceGetBitsYCbCr* vdp_video_surface_get_bits_y_cb_cr;
@@ -61,6 +64,11 @@ extern VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 
 VdpDevice getVDPAUDevice();
+
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
+        BitmapPtr pBmpU, BitmapPtr pBmpV);
+void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
+void unlockVDPAUSurface(vdpau_render_state* pRenderState);
 
 }
 #endif

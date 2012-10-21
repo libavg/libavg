@@ -406,7 +406,8 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
                     } else {
 #if AVG_ENABLE_VDPAU
                         vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-                        VDPAUDecoder::unlockSurface(pRenderState);
+                        pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
+                        unlockVDPAUSurface(pRenderState);
 #endif
                     }
                 }

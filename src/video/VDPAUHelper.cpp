@@ -18,8 +18,11 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+
 #include "VDPAUHelper.h"
+
 #include "../base/Exception.h"
+#include "../graphics/Bitmap.h"
 
 using namespace std;
 
@@ -123,6 +126,42 @@ VdpDevice getVDPAUDevice()
     safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_GET_PARAMETERS,
             (void**)&vdp_output_surface_get_parameters);
     return vdpDevice;
+}
+
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
+        BitmapPtr pBmpU, BitmapPtr pBmpV)
+{
+    VdpStatus status;
+    void *dest[3] = {
+        pBmpY->getPixels(),
+        pBmpV->getPixels(),
+        pBmpU->getPixels()
+    };
+    uint32_t pitches[3] = {
+        pBmpY->getStride(),
+        pBmpV->getStride(),
+        pBmpU->getStride()
+    };
+    status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
+            VDP_YCBCR_FORMAT_YV12, dest, pitches);
+    AVG_ASSERT(status == VDP_STATUS_OK);
+    unlockVDPAUSurface(pRenderState);
+}
+
+void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
+{
+    IntPoint YSize = pBmpDest->getSize();
+    IntPoint UVSize(YSize.x>>1, YSize.y);
+    BitmapPtr pBmpY(new Bitmap(YSize, I8));
+    BitmapPtr pBmpU(new Bitmap(UVSize, I8));
+    BitmapPtr pBmpV(new Bitmap(UVSize, I8));
+    getPlanesFromVDPAU(pRenderState, pBmpY, pBmpU, pBmpV);
+    pBmpDest->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
+}   
+
+void unlockVDPAUSurface(vdpau_render_state* pRenderState)
+{
+    pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
 }
 
 }

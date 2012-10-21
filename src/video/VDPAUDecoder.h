@@ -49,7 +49,6 @@ public:
     ~VDPAUDecoder();
     AVCodec* openCodec(AVCodecContext* pCodec);
 
-    static void unlockSurface(vdpau_render_state* pRenderState);
     static bool isAvailable();
 
 private:
