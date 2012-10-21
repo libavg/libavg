@@ -51,14 +51,17 @@ public:
     VDPAUDecoder();
     ~VDPAUDecoder();
     AVCodec* openCodec(AVCodecContext* pCodec);
-    Display* getDisplay();
+    
+    FrameAge* getFrameAge();
+    void setFrameAge(FrameAge* pFrameAge);
+
     static void unlockSurface(vdpau_render_state* pRenderState);
     static bool isAvailable();
 
 private:
     static int getBuffer(AVCodecContext* pContext, AVFrame* pFrame);
     int getFreeSurfaceIndex();
-    int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, FrameAge* pAge);
+    int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     static void releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame);
     static void drawHorizBand(AVCodecContext* pContext, const AVFrame* pFrame, 
             int offset[4], int y, int type, int height);
@@ -70,6 +73,7 @@ private:
     ::PixelFormat  m_PixFmt;
     IntPoint m_Size;
     VideoSurface m_VideoSurfaces[N_VIDEO_SURFACES];
+    FrameAge* m_pFrameAge;
 
 };
 

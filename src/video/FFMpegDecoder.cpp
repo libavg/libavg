@@ -68,7 +68,6 @@ FFMpegDecoder::FFMpegDecoder()
       m_pAStream(0),
 #ifdef AVG_ENABLE_VDPAU
       m_VDPAUDecoder(),
-      m_Opaque(&m_VDPAUDecoder),
 #endif
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
@@ -122,7 +121,7 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
     AVCodec * pCodec = 0;
 #ifdef AVG_ENABLE_VDPAU
     if (bUseHardwareAcceleration) {
-        pContext->opaque = &m_Opaque;
+        pContext->opaque = &m_VDPAUDecoder;
         pCodec = m_VDPAUDecoder.openCodec(pContext);
     } else {
         pCodec = avcodec_find_decoder(pContext->codec_id);
@@ -1049,7 +1048,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         if (pPacket) {
 #ifdef AVG_ENABLE_VDPAU
             FrameAge age;
-            m_Opaque.setFrameAge(&age);
+            m_VDPAUDecoder.setFrameAge(&age);
 #endif
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);

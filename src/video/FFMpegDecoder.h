@@ -34,7 +34,6 @@
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #include "VDPAUHelper.h"
-#include "AVCCOpaque.h"
 #include "FrameAge.h"
 #include <libavcodec/vdpau.h>
 #endif
@@ -147,7 +146,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         AVStream * m_pAStream;
 #ifdef AVG_ENABLE_VDPAU
         VDPAUDecoder m_VDPAUDecoder;
-        AVCCOpaque m_Opaque;
 #endif
         int m_VStreamIndex;
         bool m_bEOFPending;

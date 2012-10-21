@@ -21,7 +21,6 @@
 #include "VDPAUDecoder.h"
 #include "VDPAUHelper.h"
 #include "FrameAge.h"
-#include "AVCCOpaque.h"
 
 #include "../base/Exception.h"
 
@@ -104,12 +103,20 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
     return pCodec;
 }
 
+FrameAge* VDPAUDecoder::getFrameAge()
+{
+    return m_pFrameAge;
+}
+
+void VDPAUDecoder::setFrameAge(FrameAge* pFrameAge)
+{
+    m_pFrameAge = pFrameAge;
+}
+
 int VDPAUDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    AVCCOpaque* pOpaque = (AVCCOpaque*)pContext->opaque;
-    FrameAge* pAge = pOpaque->getFrameAge();
-    VDPAUDecoder* pVDPAUDecoder = pOpaque->getVDPAUDecoder();
-    return pVDPAUDecoder->getBufferInternal(pContext, pFrame, pAge);
+    VDPAUDecoder* pVDPAUDecoder = (VDPAUDecoder*)pContext->opaque;
+    return pVDPAUDecoder->getBufferInternal(pContext, pFrame);
 }
 
 int VDPAUDecoder::getFreeSurfaceIndex()
@@ -124,8 +131,7 @@ int VDPAUDecoder::getFreeSurfaceIndex()
     return -1;
 }
 
-int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, 
-        FrameAge* pAge)
+int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 {
     VdpStatus status;
     int surfaceIndex = getFreeSurfaceIndex();
@@ -137,15 +143,15 @@ int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame,
 
 #if LIBAVFORMAT_VERSION_MAJOR <= 52
     if (pFrame->reference) { //I-P frame
-        pFrame->age = pAge->m_IPAge0;
-        pAge->m_IPAge0 = pAge->m_IPAge1;
-        pAge->m_IPAge1 = 1;
-        pAge->m_Age++;
+        pFrame->age = pFrameAge->m_IPAge0;
+        pFrameAge->m_IPAge0 = pFrameAge->m_IPAge1;
+        pFrameAge->m_IPAge1 = 1;
+        pFrameAge->m_Age++;
     } else {
-        pFrame->age = pAge->m_Age;
-        pAge->m_IPAge0++;
-        pAge->m_IPAge1++;
-        pAge->m_Age = 1;
+        pFrame->age = pFrameAge->m_Age;
+        pFrameAge->m_IPAge0++;
+        pFrameAge->m_IPAge1++;
+        pFrameAge->m_Age = 1;
     }
 #endif
     pRenderState->state |= FF_VDPAU_STATE_USED_FOR_REFERENCE;
@@ -179,8 +185,7 @@ void VDPAUDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFram
 void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
         int offset[4], int y, int type, int height)
 {
-    AVCCOpaque* pOpaque = (AVCCOpaque*)pContext->opaque;
-    VDPAUDecoder* pVDPAUDecoder = pOpaque->getVDPAUDecoder();
+    VDPAUDecoder* pVDPAUDecoder = (VDPAUDecoder*)pContext->opaque;
     pVDPAUDecoder->render(pContext, src);
 }
 
