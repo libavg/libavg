@@ -21,10 +21,14 @@
 
 #include "AsyncVideoDecoder.h"
 
+#include "FFMpegDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
+
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
-#include "FFMpegDecoder.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>

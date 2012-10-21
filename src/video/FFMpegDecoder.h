@@ -25,6 +25,7 @@
 #include "../avgconfigwrapper.h"
 #include "VideoDecoder.h"
 #include "IDemuxer.h"
+#include "FrameAge.h"
 
 #include "../audio/AudioParams.h"
 #include "../avgconfigwrapper.h"
@@ -32,9 +33,7 @@
 #include "WrapFFMpeg.h"
 
 #ifdef AVG_ENABLE_VDPAU
-#include "VDPAUDecoder.h"
 #include "VDPAUHelper.h"
-#include "FrameAge.h"
 #include <libavcodec/vdpau.h>
 #endif
 
@@ -43,6 +42,7 @@
 namespace avg {
 
 class AudioBuffer;
+class VDPAUDecoder;
 
 class AVG_API FFMpegDecoder: public VideoDecoder
 {
@@ -145,7 +145,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         AVStream * m_pVStream;
         AVStream * m_pAStream;
 #ifdef AVG_ENABLE_VDPAU
-        VDPAUDecoder m_VDPAUDecoder;
+        VDPAUDecoder* m_pVDPAUDecoder;
 #endif
         int m_VStreamIndex;
         bool m_bEOFPending;

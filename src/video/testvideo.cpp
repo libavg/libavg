@@ -30,6 +30,9 @@
 #endif
 
 #include "AsyncVideoDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
 
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"

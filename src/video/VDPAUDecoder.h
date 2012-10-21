@@ -30,7 +30,6 @@
 #include <vdpau/vdpau.h>
 #include <libavcodec/vdpau.h>
 
-
 namespace avg {
 
 #define N_VIDEO_SURFACES 64

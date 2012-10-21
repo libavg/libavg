@@ -38,6 +38,9 @@
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "../video/VDPAUDecoder.h"
+#endif
 
 #include <iostream>
 #include <sstream>

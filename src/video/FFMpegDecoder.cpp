@@ -22,6 +22,9 @@
 #include "FFMpegDecoder.h"
 #include "AsyncDemuxer.h"
 #include "FFMpegDemuxer.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -67,7 +70,7 @@ FFMpegDecoder::FFMpegDecoder()
       m_pVStream(0),
       m_pAStream(0),
 #ifdef AVG_ENABLE_VDPAU
-      m_VDPAUDecoder(),
+      m_pVDPAUDecoder(0),
 #endif
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
@@ -84,6 +87,11 @@ FFMpegDecoder::~FFMpegDecoder()
     if (m_pFormatContext) {
         close();
     }
+#ifdef AVG_ENABLE_VDPAU
+    if (m_pVDPAUDecoder) {
+        delete m_pVDPAUDecoder;
+    }
+#endif
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -121,8 +129,9 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
     AVCodec * pCodec = 0;
 #ifdef AVG_ENABLE_VDPAU
     if (bUseHardwareAcceleration) {
-        pContext->opaque = &m_VDPAUDecoder;
-        pCodec = m_VDPAUDecoder.openCodec(pContext);
+        m_pVDPAUDecoder = new VDPAUDecoder();
+        pContext->opaque = m_pVDPAUDecoder;
+        pCodec = m_pVDPAUDecoder->openCodec(pContext);
     } else {
         pCodec = avcodec_find_decoder(pContext->codec_id);
     }
@@ -1047,8 +1056,10 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         m_bFirstPacket = false;
         if (pPacket) {
 #ifdef AVG_ENABLE_VDPAU
-            FrameAge age;
-            m_VDPAUDecoder.setFrameAge(&age);
+            if (m_pVDPAUDecoder) {
+                FrameAge age;
+                m_pVDPAUDecoder->setFrameAge(&age);
+            }
 #endif
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);

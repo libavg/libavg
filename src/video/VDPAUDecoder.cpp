@@ -36,9 +36,6 @@ VDPAUDecoder::VDPAUDecoder()
       m_PixFmt(PIX_FMT_NONE),
       m_Size(-1,-1)
 {
-    for (int i = 0; i < N_VIDEO_SURFACES; i++) {
-        m_VideoSurfaces[i].m_Surface = VDP_INVALID_HANDLE;
-    }
 }
 
 VDPAUDecoder::~VDPAUDecoder()
@@ -97,6 +94,7 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
     }
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         memset(&m_VideoSurfaces[i].m_RenderState, 0, sizeof(vdpau_render_state));
+        m_VideoSurfaces[i].m_Surface = VDP_INVALID_HANDLE;
         m_VideoSurfaces[i].m_RenderState.surface = VDP_INVALID_HANDLE;
         m_VideoSurfaces[i].m_Size = IntPoint(-1,-1);
     }
