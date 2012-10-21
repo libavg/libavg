@@ -45,10 +45,9 @@ VDPAUDecoder::~VDPAUDecoder()
     if (m_VDPDecoder != VDP_INVALID_HANDLE) {
         vdp_decoder_destroy(m_VDPDecoder);
     }
-    for (int i = 0; i < N_VIDEO_SURFACES; i++) {
-        if (m_VideoSurfaces[i].m_Surface != VDP_INVALID_HANDLE) {
-            vdp_video_surface_destroy(m_VideoSurfaces[i].m_Surface);
-        }
+    for (unsigned i = 0; i < m_VideoSurfaces.size(); i++) {
+        vdp_video_surface_destroy(m_VideoSurfaces[i]->m_Surface);
+        delete m_VideoSurfaces[i];
     }
 }
 
@@ -85,12 +84,7 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
         pContext->draw_horiz_band = VDPAUDecoder::drawHorizBand;
         pContext->get_format = VDPAUDecoder::getFormat;
         pContext->slice_flags = SLICE_FLAG_CODED_ORDER | SLICE_FLAG_ALLOW_FIELD;
-    }
-    for (int i = 0; i < N_VIDEO_SURFACES; i++) {
-        memset(&m_VideoSurfaces[i].m_RenderState, 0, sizeof(vdpau_render_state));
-        m_VideoSurfaces[i].m_Surface = VDP_INVALID_HANDLE;
-        m_VideoSurfaces[i].m_RenderState.surface = VDP_INVALID_HANDLE;
-        m_VideoSurfaces[i].m_Size = IntPoint(-1,-1);
+        m_Size = IntPoint(pContext->width, pContext->height);
     }
     return pCodec;
 }
@@ -139,45 +133,38 @@ void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame*
     }
 }
 
-int VDPAUDecoder::getFreeSurfaceIndex()
+VideoSurface* VDPAUDecoder::getFreeSurface()
 {
-    for (int i = 0; i < N_VIDEO_SURFACES; i++) {
-        vdpau_render_state* pRenderState = &m_VideoSurfaces[i].m_RenderState;
+    for (unsigned i = 0; i < m_VideoSurfaces.size(); i++) {
+        vdpau_render_state* pRenderState = &m_VideoSurfaces[i]->m_RenderState;
         if (!(pRenderState->state & FF_VDPAU_STATE_USED_FOR_REFERENCE)) {
-            return i;
+            return m_VideoSurfaces[i];
         }
     }
-    AVG_ASSERT(false);
-    return -1;
+    
+    // No free surfaces available -> create new surface
+    VideoSurface* pSurface = new VideoSurface();
+    memset(&pSurface->m_RenderState, 0, sizeof(vdpau_render_state));
+    pSurface->m_Surface = VDP_INVALID_HANDLE;
+    VdpStatus status = vdp_video_surface_create(getVDPAUDevice(), VDP_CHROMA_TYPE_420,
+            m_Size.x, m_Size.y, &pSurface->m_Surface);
+    AVG_ASSERT(status == VDP_STATUS_OK);
+    pSurface->m_Size.x = m_Size.x;
+    pSurface->m_Size.y = m_Size.y;
+    pSurface->m_RenderState.surface = pSurface->m_Surface;        
+
+    return pSurface;
 }
 
 int VDPAUDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    VdpStatus status;
-    int surfaceIndex = getFreeSurfaceIndex();
+    VideoSurface* pVideoSurface = getFreeSurface();
     
-    VideoSurface* pVideoSurface = &m_VideoSurfaces[surfaceIndex];
     vdpau_render_state* pRenderState = &pVideoSurface->m_RenderState;
     pFrame->data[0] = (uint8_t*)pRenderState;
     pFrame->type = FF_BUFFER_TYPE_USER;
 
     pRenderState->state |= FF_VDPAU_STATE_USED_FOR_REFERENCE;
-
-    if (pVideoSurface->m_Size.x != pContext->width ||
-            pVideoSurface->m_Size.y != pContext->height)
-    {
-        // allocate a new surface, freeing the old one, if any
-        if (pVideoSurface->m_Surface != VDP_INVALID_HANDLE) {
-            status = vdp_video_surface_destroy(pVideoSurface->m_Surface);
-            AVG_ASSERT(status == VDP_STATUS_OK);
-        }
-        status = vdp_video_surface_create(getVDPAUDevice(), VDP_CHROMA_TYPE_420,
-                pContext->width, pContext->height, &pVideoSurface->m_Surface);
-        AVG_ASSERT(status == VDP_STATUS_OK);
-        pVideoSurface->m_Size.x = pContext->width;
-        pVideoSurface->m_Size.y = pContext->height;
-        pVideoSurface->m_RenderState.surface = pVideoSurface->m_Surface;
-    }
     return 0;
 }
 

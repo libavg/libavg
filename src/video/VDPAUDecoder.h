@@ -32,8 +32,6 @@
 
 namespace avg {
 
-#define N_VIDEO_SURFACES 64
-
 struct VideoSurface
 {
     struct vdpau_render_state m_RenderState;
@@ -59,7 +57,7 @@ private:
             int offset[4], int y, int type, int height);
     static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
 
-    int getFreeSurfaceIndex();
+    VideoSurface* getFreeSurface();
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     void render(AVCodecContext* pContext, const AVFrame* pFrame);
     void setupDecoder(AVCodecContext* pContext, const IntPoint& size);
@@ -68,7 +66,7 @@ private:
     VdpVideoMixer m_VDPMixer;
     ::PixelFormat  m_PixFmt;
     IntPoint m_Size;
-    VideoSurface m_VideoSurfaces[N_VIDEO_SURFACES];
+    std::vector<VideoSurface*> m_VideoSurfaces;
 
 };
 
