@@ -29,20 +29,27 @@ using namespace std;
 namespace avg {
 
 VdpGetProcAddress* vdp_get_proc_address;
-VdpDeviceDestroy* vdp_device_destroy;
+
+VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
+VdpVideoSurfaceGetBitsYCbCr* vdp_video_surface_get_bits_y_cb_cr;
 VdpVideoSurfaceCreate* vdp_video_surface_create;
 VdpVideoSurfaceDestroy* vdp_video_surface_destroy;
+
+VdpDeviceDestroy* vdp_device_destroy;
+
 VdpDecoderCreate* vdp_decoder_create;
 VdpDecoderDestroy* vdp_decoder_destroy;
 VdpDecoderRender* vdp_decoder_render;
+
 VdpOutputSurfaceCreate* vdp_output_surface_create;
 VdpOutputSurfaceDestroy* vdp_output_surface_destroy;
 VdpOutputSurfaceGetBitsNative* vdp_output_surface_get_bits_native;
 VdpOutputSurfaceGetParameters* vdp_output_surface_get_parameters;
-VdpVideoSurfaceGetBitsYCbCr* vdp_video_surface_get_bits_y_cb_cr;
+
 VdpVideoMixerCreate* vdp_video_mixer_create;
 VdpVideoMixerDestroy* vdp_video_mixer_destroy;
 VdpVideoMixerRender* vdp_video_mixer_render;
+
 VdpPresentationQueueCreate* vdp_presentation_queue_create;
 VdpPresentationQueueDestroy* vdp_presentation_queue_destroy;
 VdpPresentationQueueGetTime* vdp_presentation_queue_get_time;
@@ -51,7 +58,6 @@ VdpPresentationQueueQuerySurfaceStatus* vdp_presentation_queue_query_surface_sta
 VdpPresentationQueueDisplay* vdp_presentation_queue_display;
 VdpPresentationQueueBlockUntilSurfaceIdle*
         vdp_presentation_queue_block_until_surface_idle;
-VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 
 void safeGetProcAddress(VdpFuncId functionId, void** functionPointer)
