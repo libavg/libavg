@@ -23,7 +23,6 @@
 #include "Exception.h"
 
 #include <libxml/parserInternals.h>
-#include <libxml/xmlschemas.h>
 #include <cstring>
 #include <iostream>
 
@@ -77,52 +76,64 @@ void registerDTDEntityLoader(const string& sID, const string& sDTD)
     xmlSetExternalEntityLoader(DTDExternalEntityLoader);
 }
 
-void validateXml(const std::string sXML, const std::string sSchema)
+
+XmlValidator::XmlValidator(const std::string& sSchema)
+    : m_ParserCtxt(0),
+      m_Schema(0),
+      m_ValidCtxt(0)
 {
     xmlPedanticParserDefault(1);
 
     // Schema setup
-    xmlSchemaParserCtxtPtr parserCtxt = xmlSchemaNewMemParserCtxt(sSchema.c_str(),
-            sSchema.length());
-    if (!parserCtxt) {
+    m_ParserCtxt = xmlSchemaNewMemParserCtxt(sSchema.c_str(), sSchema.length());
+    if (!m_ParserCtxt) {
         throw (Exception(AVG_ERR_XML_PARSE, ""));
     }
-    xmlSchemaPtr schema = xmlSchemaParse(parserCtxt);
-    if (!schema) {
-        /* the schema itself is not valid */
-        xmlSchemaFreeParserCtxt(parserCtxt);
+    m_Schema = xmlSchemaParse(m_ParserCtxt);
+    if (!m_Schema) {
         throw (Exception(AVG_ERR_XML_PARSE, ""));
     }
 
-    xmlSchemaValidCtxtPtr validCtxt = xmlSchemaNewValidCtxt(schema);
-    if (!validCtxt) {
-        xmlSchemaFree(schema);
-        xmlSchemaFreeParserCtxt(parserCtxt);
+    m_ValidCtxt = xmlSchemaNewValidCtxt(m_Schema);
+    if (!m_ValidCtxt) {
         throw (Exception(AVG_ERR_XML_PARSE, ""));
     }
+}
 
-    // Actual validation
+XmlValidator::~XmlValidator()
+{
+    if (m_Schema) {
+        xmlSchemaFree(m_Schema);
+    }
+    if (m_ParserCtxt) {
+        xmlSchemaFreeParserCtxt(m_ParserCtxt);
+    }
+    if (m_ValidCtxt) {
+        xmlSchemaFreeValidCtxt(m_ValidCtxt);
+    }
+}
+
+void XmlValidator::validate(const std::string& sXML)
+{
     xmlDocPtr doc;
     doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
     if (!doc) {
-        xmlSchemaFreeValidCtxt(validCtxt);
-        xmlSchemaFreeParserCtxt(parserCtxt);
-        xmlSchemaFree(schema);
         throw (Exception(AVG_ERR_XML_PARSE, ""));
     }
-    int err = xmlSchemaValidateDoc(validCtxt, doc);
+    int err = xmlSchemaValidateDoc(m_ValidCtxt, doc);
     AVG_ASSERT(err != -1);
     if (err) {
-        xmlSchemaFreeValidCtxt(validCtxt);
-        xmlSchemaFreeParserCtxt(parserCtxt);
-        xmlSchemaFree(schema);
         xmlFreeDoc(doc);
         throw (Exception(AVG_ERR_XML_PARSE, ""));
     }
-    xmlSchemaFreeValidCtxt(validCtxt);
-    xmlSchemaFreeParserCtxt(parserCtxt);
-    xmlSchemaFree(schema);
     xmlFreeDoc(doc);
+}
+
+void validateXml(const std::string& sXML, const std::string& sSchema)
+{
+    XmlValidator validator(sSchema);
+
+    validator.validate(sXML);
 }
 
 }
