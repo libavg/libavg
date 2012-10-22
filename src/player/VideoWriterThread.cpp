@@ -82,7 +82,11 @@ void VideoWriterThread::close()
         }
 
         if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+            avio_close(m_pOutputFormatContext->pb);
+#else            
             url_fclose(m_pOutputFormatContext->pb);
+#endif
         }
 
         av_free(m_pOutputFormatContext);
@@ -139,10 +143,6 @@ void VideoWriterThread::open()
     av_set_parameters(m_pOutputFormatContext, NULL);
 #endif
 
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-    float muxPreload = 0.5;
-    m_pOutputFormatContext->preload = int(muxPreload * AV_TIME_BASE);
-#endif
     float muxMaxDelay = 0.7;
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
 
@@ -156,8 +156,13 @@ void VideoWriterThread::open()
     }
 
     if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+        int retVal = avio_open(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
+                URL_WRONLY);
+#else
         int retVal = url_fopen(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
                 URL_WRONLY);
+#endif
         if (retVal < 0) {
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     string("Could not open output file: '") + m_sFilename + "'");
@@ -179,7 +184,11 @@ void VideoWriterThread::open()
 
 void VideoWriterThread::setupVideoStream()
 {
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+    m_pVideoStream = avformat_new_stream(m_pOutputFormatContext, 0);
+#else
     m_pVideoStream = av_new_stream(m_pOutputFormatContext, 0);
+#endif
 
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     pCodecContext->codec_id = static_cast<CodecID>(m_pOutputFormat->video_codec);
@@ -213,7 +222,12 @@ void VideoWriterThread::openVideoCodec()
     AVCodec* videoCodec = avcodec_find_encoder(m_pVideoStream->codec->codec_id);
     AVG_ASSERT(videoCodec);
 
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+    int rc = avcodec_open2(m_pVideoStream->codec, videoCodec, 0);
+
+#else
     int rc = avcodec_open(m_pVideoStream->codec, videoCodec);
+#endif
     AVG_ASSERT(rc == 0);
 }
 
