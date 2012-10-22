@@ -20,11 +20,18 @@
 
 from libavg import avg, player
 
+import os
+
 class Skin: 
    
     default = None # Standard-Style wird im __init__ geladen, override möglich.
 
-    def __init__(self):
+    def __init__(self, skinXmlFName):
+        schemaFName = mediadir+"/skin.xsd"
+        schemaString = open(schemaFName, "r").read()
+        xmlString = open(skinXmlFName, "r").read()
+        avg.validateXml(xmlString, schemaString, skinXmlFName, schemaFName)
+
         self.fonts = {}
 
         self.fonts["stdfont"] = avg.FontStyle(font="Bitstream Vera Sans", variant="Roman",
@@ -41,4 +48,5 @@ class Skin:
             "disabledFont": self.fonts["disabledFont"]
         }
 
-Skin.default = Skin()
+mediadir = os.path.join(os.path.dirname(__file__), "..", 'data')
+Skin.default = Skin(mediadir+"/SimpleSkin.xml")

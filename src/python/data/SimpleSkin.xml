@@ -1,0 +1,29 @@
+<skin>
+    <fontdef id="stdfont" font="Bitstream Vera Sans" variant="Roman" fontsize="12" 
+            color="000000" letterspacing="0" linespacing="-1"/>
+<!--
+    <textbutton id="" 
+            upSrc="button_bg_up.png"
+            downSrc="button_bg_down.png" 
+            disabledSrc="button_bg_disabled.png"
+            fontid="stdfont"/>
+    <checkbox
+            uncheckedUpSrc="checkbox_unchecked_up.png"
+            uncheckedDownSrc="checkbox_unchecked_down.png"
+            uncheckedDisabledSrc="checkbox_unchecked_disabled.png"
+            checkedUpSrc="checkbox_checked_up.png"
+            checkedDownSrc="checkbox_checked_down.png"
+            checkedDisabledSrc="checkbox_checked_disabled.png"/>
+    <slider trackSrc="slider_track.png"
+            trackDisabledSrc="slider_track_disabled.png"
+            trackEndsExtent="4" 
+            thumbUpSrc="slider_thumb_up.png" 
+            thumbDownSrc="slider_thumb_down.png" 
+            thumbDisabledSrc="slider_thumb_disabled.png"/>
+    <scrollbar id="foo"
+            />
+    <scrollarea id="..."
+            scrollbarid="foo"
+            />
+            -->
+</skin>
