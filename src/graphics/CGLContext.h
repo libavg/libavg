@@ -18,52 +18,39 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
-#ifndef _VertexArray_H_
-#define _VertexArray_H_
-
+#ifndef _CGLContext_H_
+#define _CGLContext_H_
 #include "../api.h"
-#include "VertexData.h"
-#include "Pixel32.h"
-#include "OGLHelper.h"
 
-#include "../base/GLMHelper.h"
+#include "GLContext.h"
+
+#include <OpenGL/OpenGL.h>
+#undef check // Conflicts with Boost
 
 #include <boost/shared_ptr.hpp>
 
+struct SDL_SysWMinfo;
+
 namespace avg {
 
-class SubVertexArray;
-
-class AVG_API VertexArray: public VertexData {
+class AVG_API CGLContext: public GLContext
+{
 public:
-    static const unsigned TEX_INDEX;
-    static const unsigned TEX_OFFSET;
-    static const unsigned COLOR_INDEX;
-    static const unsigned COLOR_OFFSET;
-    static const unsigned POS_INDEX;
-    static const unsigned POS_OFFSET;
+    CGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+            const SDL_SysWMinfo* pSDLWMInfo=0);
+    virtual ~CGLContext();
 
-    VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
-    virtual ~VertexArray();
-
-    void update();
     void activate();
-    void draw();
-    void draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
-            unsigned numVertexes);
 
-    void startSubVA(SubVertexArray& subVA);
+    bool initVBlank(int rate);
 
 private:
-    unsigned int m_GLVertexBufferID;
-    unsigned int m_GLIndexBufferID;
+    void initMacVBlank(int rate);
 
-    bool m_bUseVertexShader;
+    CGLContextObj m_Context;
 };
 
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
-
 }
-
 #endif
+
+

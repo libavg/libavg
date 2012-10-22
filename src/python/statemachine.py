@@ -111,7 +111,7 @@ class StateMachine(object):
 
         def writeTransition(origState, destState, func):
             dotFile.write('    "'+origState+'" -> "'+destState+'"')
-            if func and func.__name__ is not(None):
+            if showMethods and func and func.__name__ is not(None):
                 dotFile.write(' [label="/'+func.__name__+'", fontsize=10]')
             dotFile.write(";\n")
             

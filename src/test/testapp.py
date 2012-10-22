@@ -110,6 +110,8 @@ class TestApp(object):
             shaderUsage = avg.SHADERUSAGE_FULL
         elif self.__commandlineOptions.shaderusage == "MINIMAL":
             shaderUsage = avg.SHADERUSAGE_MINIMAL
+        elif self.__commandlineOptions.shaderusage == "FRAGMENT_ONLY":
+            shaderUsage = avg.SHADERUSAGE_FRAGMENT_ONLY
         elif self.__commandlineOptions.shaderusage == "AUTO":
             shaderUsage = avg.SHADERUSAGE_AUTO
         else:
@@ -146,7 +148,7 @@ class TestApp(object):
         self.__optionParser.add_option("--shaderusage",
                 dest = "shaderusage",
                 default = "AUTO", 
-                help = "Configure usage of shaders. Valid values are FULL, MINIMAL and AUTO.")
+                help = "Configure usage of shaders. Valid values are FULL, MINIMAL, FRAGMENT_ONLY and AUTO.")
         
     def __parseCommandline(self):
         self.__commandlineOptions, args = self.__optionParser.parse_args()

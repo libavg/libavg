@@ -92,6 +92,8 @@ std::string toString(const T& i)
     return stream.str();
 }
 
+std::string toString(const bool& b);
+
 template<class T>
 std::string getFriendlyTypeName(const T& dummy)
 {

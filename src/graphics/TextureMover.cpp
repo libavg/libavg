@@ -50,7 +50,7 @@ TextureMoverPtr TextureMover::create(OGLMemoryMode memoryMode, IntPoint size,
 
 TextureMoverPtr TextureMover::create(IntPoint size, PixelFormat pf, unsigned usage)
 {
-    OGLMemoryMode memMode = GLContext::getCurrent()->getMemoryModeSupported();
+    OGLMemoryMode memMode = GLContext::getCurrent()->getMemoryMode();
     return create(memMode, size, pf, usage);
 }
 

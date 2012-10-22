@@ -24,10 +24,15 @@ uniform sampler2D u_MaxTex;
 uniform float u_PostScale;
 uniform bool u_bInvert;
 
+#ifndef FRAGMENT_ONLY
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+#endif
+
 void main(void)
 {
-  vec4 min = texture2D(u_MinTex, gl_TexCoord[0].st); 
-  vec4 max = texture2D(u_MaxTex, gl_TexCoord[0].st);
+  vec4 min = texture2D(u_MinTex, v_TexCoord); 
+  vec4 max = texture2D(u_MaxTex, v_TexCoord);
   gl_FragColor = vec4(0.502, 0.502, 0.502, 0) + (max-min)*u_PostScale;
   if (u_bInvert) {
     gl_FragColor = vec4(1.004,1.004,1.004,1) - gl_FragColor;

@@ -18,41 +18,38 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _OGLImagingContext_H_
-#define _OGLImagingContext_H_
+#ifndef _WGLContext_H_
+#define _WGLContext_H_
 #include "../api.h"
-#include "../base/GLMHelper.h"
 
-#include "OGLHelper.h"
 #include "GLContext.h"
 
-#ifdef __APPLE__
-#include <AGL/agl.h>
-#else
-#ifdef linux
-#include <GL/glx.h>
-#else
-#ifdef _WIN32
-#include <gl/gl.h>
-#include <gl/glu.h>
-#endif
-#endif
-#endif
+#include <boost/shared_ptr.hpp>
+
+struct SDL_SysWMinfo;
 
 namespace avg {
 
-class AVG_API OGLImagingContext: public GLContext {
+class AVG_API WGLContext: public GLContext
+{
 public:
-    OGLImagingContext();
-    virtual ~OGLImagingContext();
+    WGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+            const SDL_SysWMinfo* pSDLWMInfo=0);
+    virtual ~WGLContext();
 
-    bool isSupported();
+    void activate();
+
+    bool initVBlank(int rate);
 
 private:
-    void setStandardState();
+    void checkWinError(BOOL bOK, const std::string& sWhere);
 
-
+    HWND m_hwnd;
+    HDC m_hDC;
+    HGLRC m_Context;
 };
+
 }
 #endif
+
 

@@ -28,6 +28,9 @@
 
 #include "GLContext.h"
 #include "TextureMover.h"
+#include "PBO.h"
+#include "FBO.h"
+#include "Filterfliprgb.h"
 
 #include <string.h>
 #include <iostream>
@@ -48,11 +51,15 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
-      m_bDeleteTex(true)
+      m_bDeleteTex(true),
+      m_bIsDirty(true)
 {
     m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
     m_bUsePOT = m_pGLContext->usePOTTextures() || bForcePOT;
+    if (m_pGLContext->isGLES() && bMipmap) {
+        m_bUsePOT = true;
+    }
     if (m_bUsePOT) {
         m_GLSize.x = nextpow2(m_Size.x);
         m_GLSize.y = nextpow2(m_Size.y);
@@ -109,7 +116,8 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
       m_bMipmap(bMipmap),
       m_bDeleteTex(bDeleteTex),
       m_bUsePOT(false),
-      m_TexID(glTexID)
+      m_TexID(glTexID),
+      m_bIsDirty(true)
 {
     m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -162,6 +170,7 @@ void GLTexture::unlockStreamingBmp(bool bUpdated)
     m_pMover->unlock();
     if (bUpdated) {
         m_pMover->moveToTexture(*this);
+        m_bIsDirty = true;
     }
 }
 
@@ -169,12 +178,28 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
     TextureMoverPtr pMover = TextureMover::create(m_Size, m_pf, GL_DYNAMIC_DRAW);
     pMover->moveBmpToTexture(pBmp, *this);
+    m_bIsDirty = true;
 }
 
-BitmapPtr GLTexture::moveTextureToBmp()
+BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
-    TextureMoverPtr pMover = TextureMover::create(m_GLSize, m_pf, GL_DYNAMIC_READ);
-    return pMover->moveTextureToBmp(*this);
+    if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
+        return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
+    } else {
+        unsigned fbo = GLContext::getCurrent()->genFBO();
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, fbo);
+        glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                GL_TEXTURE_2D, m_TexID, mipmapLevel);
+        FBO::checkError("moveTextureToBmp");
+        IntPoint size = getMipmapSize(mipmapLevel);
+        BitmapPtr pBmp(new Bitmap(size, m_pf));
+        glReadPixels(0, 0, size.x, size.y, getGLFormat(m_pf), getGLType(m_pf), 
+                pBmp->getPixels());
+        if (m_pf == R8G8B8A8 || m_pf == R8G8B8) {
+            FilterFlipRGB().applyInPlace(pBmp);
+        }
+        return pBmp;
+    }
 }
 
 const IntPoint& GLTexture::getSize() const
@@ -199,7 +224,6 @@ unsigned GLTexture::getID() const
 
 IntPoint GLTexture::getMipmapSize(int level) const
 {
-    AVG_ASSERT(!m_bUsePOT);
     IntPoint size = m_Size;
     for (int i=0; i<level; ++i) {
         size.x = max(1, size.x >> 1);
@@ -210,13 +234,6 @@ IntPoint GLTexture::getMipmapSize(int level) const
 
 bool GLTexture::isFloatFormatSupported()
 {
-#ifdef __APPLE__
-    string sVendor ((const char*)glGetString(GL_VENDOR));
-    if (sVendor.find("Intel") != string::npos) {
-        // Avoid buggy Mac Book Air(Intel HD) issues under lion
-        return false;
-    }
-#endif
     return queryOGLExtension("GL_ARB_texture_float");
 }
 

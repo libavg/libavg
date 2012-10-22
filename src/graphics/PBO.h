@@ -52,6 +52,7 @@ public:
     BitmapPtr movePBOToBmp() const;
 
     bool isReadPBO() const;
+    int getID() const;
 
 private:
     unsigned getTarget() const;

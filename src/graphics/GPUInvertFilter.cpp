@@ -47,7 +47,6 @@ GPUInvertFilter::~GPUInvertFilter()
 
 void GPUInvertFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     getShader()->activate();
     m_pTextureParam->set(0);
     draw(pSrcTex);

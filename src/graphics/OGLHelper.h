@@ -23,37 +23,40 @@
 #define _OGLHelper_H_
 
 #include "../api.h"
+
 #ifdef _WIN32
-#include <windows.h>
-#undef ERROR
-#undef WARNING
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include "GL/glext.h"
+    #include <windows.h>
+    #undef ERROR
+    #undef WARNING
+    #include <GL/gl.h>
+    #include <GL/glu.h>
+    #include "GL/glext.h"
 #else
-#include "GL/gl.h"
-#include "GL/glu.h"
-#include "GL/glext.h"
+    #include "GL/gl.h"
+    #include "GL/glu.h"
+    #include "GL/glext.h"
 #endif
 #ifdef linux
-#define GLX_GLXEXT_PROTOTYPES
-#include <GL/glx.h>
+    #define GLX_GLXEXT_PROTOTYPES
+    #include <GL/glx.h>
 #endif
+
 #ifdef _WIN32
-//TODO: Does anyone know where these are declared?
-typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
-typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
+    //TODO: Does anyone know where these are declared?
+    typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
+    typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 #endif
 
 #ifdef linux
-// XXX: Hack for compatibility with Ogre3D. Ogre's current gl headers don't define
-// this function.
-#ifndef PFNGLXSWAPINTERVALEXTPROC
-typedef int ( * PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
-#endif
-#ifndef GLX_CONTEXT_ES2_PROFILE_BIT_EXT
-    #define GLX_CONTEXT_ES2_PROFILE_BIT_EXT 0x00000004
-#endif
+    // XXX: Hack for compatibility with Ogre3D. Ogre's current gl headers don't define
+    // this function.
+    #ifndef PFNGLXSWAPINTERVALEXTPROC
+        typedef int ( * PFNGLXSWAPINTERVALEXTPROC)
+                (Display *dpy, GLXDrawable drawable, int interval);
+    #endif
+    #ifndef GLX_CONTEXT_ES2_PROFILE_BIT_EXT
+        #define GLX_CONTEXT_ES2_PROFILE_BIT_EXT 0x00000004
+    #endif
 #endif
 
 // For NVX_gpu_memory_info
@@ -69,13 +72,8 @@ typedef int ( * PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, 
 
 namespace avg {
 
-#ifdef _WIN32
-void AVG_API winOGLErrorCheck(BOOL bOK, const std::string& sWhere);
-#endif
 bool AVG_API queryOGLExtension(const char* extName);
 bool AVG_API queryGLXExtension(const char* extName);
-void AVG_API getGLVersion(int& major, int& minor);
-void AVG_API getGLShadingLanguageVersion(int& major, int& minor);
 std::string AVG_API oglModeToString(int mode);
 
 enum OGLMemoryMode { 
@@ -142,7 +140,11 @@ namespace glproc {
     extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
+
     extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
+    extern AVG_API PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
+    extern AVG_API PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
+    extern AVG_API PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
     
 #ifdef linux
     extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;

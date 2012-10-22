@@ -37,7 +37,7 @@ using namespace boost;
 
 namespace avg {
 
-std::string ShaderRegistry::m_sLibPath;
+std::string ShaderRegistry::s_sLibPath;
     
 ShaderRegistryPtr ShaderRegistry::get() 
 {
@@ -46,17 +46,8 @@ ShaderRegistryPtr ShaderRegistry::get()
 
 ShaderRegistry::ShaderRegistry()
 {
-    if (m_sLibPath == "") {
-        m_sLibPath = getPath(getAvgLibPath())+"shaders";
-#ifdef __linux
-        // XXX: If we're running make distcheck, the shaders are in a different place than
-        // usual. Grrr.
-        char * pszSrcDir = getenv("srcdir");
-        if (pszSrcDir && string(pszSrcDir) != ".") {
-            m_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
-        }
-#endif
-        AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
+    if (s_sLibPath == "") {
+        setShaderPath(getPath(getAvgLibPath())+"shaders");
     }
 }
 
@@ -66,16 +57,16 @@ ShaderRegistry::~ShaderRegistry()
 
 void ShaderRegistry::setShaderPath(const std::string& sLibPath)
 {
-    m_sLibPath = sLibPath;
+    s_sLibPath = sLibPath;
 #ifdef __linux
     // XXX: If we're running make distcheck, the shaders are in a different place than
     // usual. Grrr.
     char * pszSrcDir = getenv("srcdir");
     if (pszSrcDir && string(pszSrcDir) != ".") {
-        m_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
+        s_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
     }
 #endif
-    AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
+    AVG_TRACE(Logger::CONFIG, "Loading shaders from "+s_sLibPath);
 }
 
 void ShaderRegistry::setPreprocessorDefine(const std::string& sName, 
@@ -89,16 +80,16 @@ void ShaderRegistry::createShader(const std::string& sID)
     OGLShaderPtr pShader = getShader(sID);
     if (!pShader) {
         string sShaderCode;
-        string sFilename = m_sLibPath+"/"+sID+".frag";
+        string sFilename = s_sLibPath+"/"+sID+".frag";
         string sVertPreprocessed;
-        if (!GLContext::getCurrent()->useMinimalShader()) {
-            loadShaderString(m_sLibPath+"/standard.vert", sVertPreprocessed);
+        if (GLContext::getCurrent()->getShaderUsage() != GLConfig::FRAGMENT_ONLY) {
+            loadShaderString(s_sLibPath+"/standard.vert", sVertPreprocessed);
         }
         string sFragPreprocessed;
         loadShaderString(sFilename, sFragPreprocessed);
-        string sDefines = createDefinesString();
+        string sPrefix = createPrefixString();
         m_ShaderMap[sID] = OGLShaderPtr(
-                new OGLShader(sID, sVertPreprocessed, sFragPreprocessed, sDefines));
+                new OGLShader(sID, sVertPreprocessed, sFragPreprocessed, sPrefix));
     }
 }
 
@@ -150,7 +141,7 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
                 throwParseError(sFileName, curLine);
             }
             string sIncFileName = sStripped.substr(startPos+1, endPos-startPos-1);
-            sIncFileName = m_sLibPath+"/"+sIncFileName;
+            sIncFileName = s_sLibPath+"/"+sIncFileName;
             string sIncludedFile;
             readWholeFile(sIncFileName, sIncludedFile);
             string sProcessedIncludedFile;
@@ -163,14 +154,24 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
     }
 }
 
-string ShaderRegistry::createDefinesString()
+string ShaderRegistry::createPrefixString()
 {
     stringstream ss;
     std::map<std::string, std::string>::iterator it;
-    for (it=m_PreprocessorDefinesMap.begin(); it != m_PreprocessorDefinesMap.end();
+    for (it = m_PreprocessorDefinesMap.begin(); it != m_PreprocessorDefinesMap.end();
             ++it)
     {
         ss << "#define " << it->first << " " << it->second << endl;
+    }
+    if (GLContext::getCurrent()->isGLES()) {
+        ss << endl;
+        ss << "precision mediump float;" << endl;
+        ss << "#extension GL_OES_standard_derivatives : enable" << endl;
+    }
+    if (GLContext::getCurrent()->getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
+        ss << endl;
+        ss << "#define v_TexCoord gl_TexCoord[0].st" << endl;
+        ss << "#define v_Color gl_Color" << endl;
     }
     return ss.str();
 }

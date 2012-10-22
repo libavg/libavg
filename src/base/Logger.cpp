@@ -54,6 +54,7 @@ const long Logger::MEMORY=512;
 const long Logger::APP=1024;
 const long Logger::PLUGIN=2048;
 const long Logger::PLAYER=4096;
+const long Logger::SHADER=8192;
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex logMutex;
@@ -166,6 +167,8 @@ const char * Logger::categoryToString(int category)
             return "PLUGIN";
         case PLAYER:
             return "PLAYER";
+        case SHADER:
+            return "SHADER";
         default:
             return "UNKNOWN";
     }
@@ -195,6 +198,8 @@ int Logger::stringToCategory(const string& sCategory)
         return PLUGIN;
     } else if (sCategory == "PLAYER") {
         return PLAYER;
+    } else if (sCategory == "SHADER") {
+        return SHADER;
     } else {
         throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logger category " + sCategory
                 + " set using AVG_LOG_CATEGORIES.");

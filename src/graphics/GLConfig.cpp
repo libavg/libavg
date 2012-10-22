@@ -56,22 +56,26 @@ void GLConfig::log()
         AVG_TRACE(Logger::CONFIG, "  Multisampling with " << m_MultiSampleSamples 
                 << " samples");
     }
-    string sShader;
-    switch(m_ShaderUsage) {
-        case FULL:
-            sShader = "full";
-            break;
-        case MINIMAL:
-            sShader = "minimal";
-            break;
-        case AUTO:
-            sShader = "auto";
-            break;
-        default:
-            AVG_ASSERT(false);
-    }
+    string sShader = shaderUsageToString(m_ShaderUsage);
     AVG_TRACE(Logger::CONFIG, "  Shader usage: " << sShader);
     AVG_TRACE(Logger::CONFIG, "  Debug context: " << (m_bUseDebugContext?"true":"false"));
+}
+
+std::string GLConfig::shaderUsageToString(ShaderUsage su)
+{
+    switch(su) {
+        case FULL:
+            return "full";
+        case MINIMAL:
+            return "minimal";
+        case FRAGMENT_ONLY:
+            return "fragment only";
+        case AUTO:
+            return "auto";
+        default:
+            AVG_ASSERT(false);
+            return "";
+    }
 }
 
 }

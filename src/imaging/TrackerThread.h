@@ -54,7 +54,7 @@ typedef enum {
 } TrackerImageID;
 
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
-class OGLImagingContext;
+class GLContext;
 
 class AVG_API IBlobTarget {
     public:
@@ -125,7 +125,7 @@ class AVG_API TrackerThread: public WorkerThread<TrackerThread>
         int m_NumFrames;
         int m_NumCamFramesDiscarded;
         
-        OGLImagingContext* m_pImagingContext;
+        GLContext* m_pImagingContext;
         FilterPtr m_pBandpassFilter;
 };
 

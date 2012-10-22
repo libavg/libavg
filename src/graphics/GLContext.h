@@ -28,16 +28,6 @@
 
 #include "../base/GLMHelper.h"
 
-#ifdef __APPLE__
-#include <OpenGL/OpenGL.h>
-#undef check // Conflicts with boost
-#elif defined linux
-#include <GL/glx.h>
-#elif defined _WIN32
-#include <gl/gl.h>
-#include <gl/glu.h>
-#endif
-
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
@@ -52,18 +42,21 @@ typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 class StandardShader;
 typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
-class AVG_API GLContext {
+class AVG_API GLContext
+{
 public:
-    GLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-            const SDL_SysWMinfo* pSDLWMInfo=0, GLContext* pSharedContext=0);
-    virtual ~GLContext();
-    void init();
+    static GLContext* create(const GLConfig& glConfig, 
+            const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
 
-    void activate();
+    GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+            const SDL_SysWMinfo* pSDLWMInfo);
+    virtual ~GLContext() {};
+
+    virtual void activate()=0;
     ShaderRegistryPtr getShaderRegistry() const;
     StandardShaderPtr getStandardShader();
     bool useGPUYUVConversion() const;
-    bool useMinimalShader();
+    GLConfig::ShaderUsage getShaderUsage() const;
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();
@@ -84,9 +77,13 @@ public:
     size_t getVideoMemUsed();
     int getMaxTexSize();
     bool usePOTTextures();
-    OGLMemoryMode getMemoryModeSupported();
-    bool initVBlank(int rate);
-    void swapBuffers();
+    bool arePBOsSupported();
+    OGLMemoryMode getMemoryMode();
+    bool isGLES() const;
+    bool isVendor(const std::string& sWantedVendor) const;
+
+    virtual bool initVBlank(int rate)=0;
+    virtual void swapBuffers();
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
@@ -99,34 +96,21 @@ public:
     static void setMain(GLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
+    static bool isGLESSupported();
+
+protected:
+    void init(bool bOwnsContext);
+    void deleteObjects();
+
+    void getVersion(int& major, int& minor) const;
+    bool ownsContext() const;
+
+    void setCurrent();
 
 private:
     void checkGPUMemInfoSupport();
-#ifdef _WIN32
-    void checkWinError(BOOL bOK, const std::string& sWhere);
-#endif
+    bool isDebugContextSupported() const;
 
-    // Vertical blank stuff.
-    void initMacVBlank(int rate);
-    enum VBMethod {VB_GLX, VB_APPLE, VB_WIN, VB_NONE};
-    static VBMethod s_VBMethod;
-
-#ifdef __APPLE__
-    CGLContextObj m_Context;
-#elif defined linux
-    void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
-
-    Display* m_pDisplay;
-    Colormap m_Colormap;
-    GLXDrawable m_Drawable;
-    GLXContext m_Context;
-#elif defined _WIN32
-    HWND m_hwnd;
-    HDC m_hDC;
-    HGLRC m_Context;
-#endif
- 
     bool m_bOwnsContext;
     
     ShaderRegistryPtr m_pShaderRegistry;
@@ -150,6 +134,8 @@ private:
     bool m_bPremultipliedAlpha;
     unsigned m_BoundTextures[16];
 
+    int m_MajorGLVersion;
+    int m_MinorGLVersion;
 
     static bool s_bErrorCheckEnabled;
 

@@ -68,7 +68,7 @@ StandardShader::StandardShader()
     }
     m_pShader->getParam<int>("u_MaskTexture")->set(4);
 
-    if (GLContext::getMain()->useMinimalShader()) {
+    if (GLContext::getMain()->getShaderUsage() != GLConfig::FULL) {
         avg::createShader(MINIMAL_SHADER);
         m_pMinimalShader = avg::getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
@@ -204,7 +204,7 @@ void StandardShader::generateWhiteTexture()
 bool StandardShader::useMinimalShader() const
 {
     bool bActivateMinimal = false;
-    if (GLContext::getMain()->useMinimalShader()) {
+    if (GLContext::getMain()->getShaderUsage() != GLConfig::FULL) {
         bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
         if (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask) {
             bActivateMinimal = true;

@@ -18,52 +18,43 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
-#ifndef _VertexArray_H_
-#define _VertexArray_H_
-
+#ifndef _GLXContext_H_
+#define _GLXContext_H_
 #include "../api.h"
-#include "VertexData.h"
-#include "Pixel32.h"
-#include "OGLHelper.h"
 
-#include "../base/GLMHelper.h"
+#include "GLContext.h"
 
 #include <boost/shared_ptr.hpp>
 
+struct SDL_SysWMinfo;
+
 namespace avg {
 
-class SubVertexArray;
-
-class AVG_API VertexArray: public VertexData {
+class AVG_API GLXContext: public GLContext
+{
 public:
-    static const unsigned TEX_INDEX;
-    static const unsigned TEX_OFFSET;
-    static const unsigned COLOR_INDEX;
-    static const unsigned COLOR_OFFSET;
-    static const unsigned POS_INDEX;
-    static const unsigned POS_OFFSET;
+    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+            const SDL_SysWMinfo* pSDLWMInfo=0);
+    virtual ~GLXContext();
 
-    VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
-    virtual ~VertexArray();
-
-    void update();
     void activate();
-    void draw();
-    void draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
-            unsigned numVertexes);
+    bool initVBlank(int rate);
+    void swapBuffers();
 
-    void startSubVA(SubVertexArray& subVA);
+    static bool haveARBCreateContext();
 
 private:
-    unsigned int m_GLVertexBufferID;
-    unsigned int m_GLIndexBufferID;
+    void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+            const SDL_SysWMinfo* pSDLWMInfo);
 
-    bool m_bUseVertexShader;
+    Display* m_pDisplay;
+    Colormap m_Colormap;
+    GLXDrawable m_Drawable;
+    ::GLXContext m_Context;
+
 };
 
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
-
 }
-
 #endif
+
+
