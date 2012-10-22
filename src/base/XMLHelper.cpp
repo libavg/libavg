@@ -21,6 +21,7 @@
 
 #include "XMLHelper.h"
 #include "Exception.h"
+#include "Logger.h"
 
 #include <libxml/parserInternals.h>
 #include <cstring>
@@ -77,27 +78,25 @@ void registerDTDEntityLoader(const string& sID, const string& sDTD)
 }
 
 
-XmlValidator::XmlValidator(const std::string& sSchema)
+XmlValidator::XmlValidator(const string& sSchema, bool bHideErrors)
     : m_ParserCtxt(0),
       m_Schema(0),
-      m_ValidCtxt(0)
+      m_ValidCtxt(0),
+      m_bHideErrors(bHideErrors)
 {
     xmlPedanticParserDefault(1);
+    if (m_bHideErrors) {
+        xmlSetGenericErrorFunc(this, errorOutputFunc);
+    }
 
-    // Schema setup
     m_ParserCtxt = xmlSchemaNewMemParserCtxt(sSchema.c_str(), sSchema.length());
-    if (!m_ParserCtxt) {
-        throw (Exception(AVG_ERR_XML_PARSE, ""));
-    }
+    checkError(!m_ParserCtxt);
+
     m_Schema = xmlSchemaParse(m_ParserCtxt);
-    if (!m_Schema) {
-        throw (Exception(AVG_ERR_XML_PARSE, ""));
-    }
+    checkError(!m_Schema);
 
     m_ValidCtxt = xmlSchemaNewValidCtxt(m_Schema);
-    if (!m_ValidCtxt) {
-        throw (Exception(AVG_ERR_XML_PARSE, ""));
-    }
+    checkError(!m_ValidCtxt);
 }
 
 XmlValidator::~XmlValidator()
@@ -113,13 +112,11 @@ XmlValidator::~XmlValidator()
     }
 }
 
-void XmlValidator::validate(const std::string& sXML)
+void XmlValidator::validate(const string& sXML)
 {
-    xmlDocPtr doc;
-    doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
-    if (!doc) {
-        throw (Exception(AVG_ERR_XML_PARSE, ""));
-    }
+    xmlDocPtr doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
+    checkError(!doc);
+
     int err = xmlSchemaValidateDoc(m_ValidCtxt, doc);
     AVG_ASSERT(err != -1);
     if (err) {
@@ -129,9 +126,33 @@ void XmlValidator::validate(const std::string& sXML)
     xmlFreeDoc(doc);
 }
 
-void validateXml(const std::string& sXML, const std::string& sSchema)
+void XmlValidator::errorOutputFunc(void * ctx, const char * msg, ...)
 {
-    XmlValidator validator(sSchema);
+    va_list args;
+    va_start(args, msg);
+    ((XmlValidator*)ctx)->internalErrorHandler(msg, args);
+    va_end(args);
+}
+
+void XmlValidator::internalErrorHandler(const char * msg, va_list args)
+{
+    char psz[1024];
+    vsnprintf(psz, 1024, msg, args);
+    m_sError += psz;
+}
+
+void XmlValidator::checkError(bool bError)
+{
+    if (bError) {
+        string sError = m_sError;
+        m_sError = "";
+        throw (Exception(AVG_ERR_XML_PARSE, sError));
+    }
+}
+
+void validateXml(const string& sXML, const string& sSchema)
+{
+    XmlValidator validator(sSchema, true);
 
     validator.validate(sXML);
 }
