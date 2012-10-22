@@ -20,7 +20,8 @@
 
 from libavg import avg, player
 
-import os
+import os, copy
+import xml.etree.ElementTree as ET
 
 class Skin: 
    
@@ -32,12 +33,29 @@ class Skin:
         xmlString = open(skinXmlFName, "r").read()
         avg.validateXml(xmlString, schemaString, skinXmlFName, schemaFName)
 
-        self.fonts = {}
+        xmlRoot = ET.fromstring(xmlString)
 
-        self.fonts["stdfont"] = avg.FontStyle(font="Bitstream Vera Sans", variant="Roman",
-                fontsize=12, color="808080", letterspacing=0, linespacing=-1)
-        self.fonts["disabledFont"] = self.fonts["stdfont"]
-        self.fonts["disabledFont"].color="444444"
+        self.fonts = {}
+        for fontNode in xmlRoot.findall("fontdef"):
+            attrs = fontNode.attrib
+            if "baseid" in attrs:
+                self.fonts[fontNode.get("id")] = copy.copy(self.fonts[attrs["baseid"]])
+                font = self.fonts[fontNode.get("id")]
+                del attrs["baseid"]
+                del attrs["id"]
+                for (key, value) in attrs.iteritems():
+                    setattr(font, key, value)
+            else:
+                kwargs = {}
+                attrs = fontNode.attrib
+                fontid = attrs["id"]
+                del attrs["id"]
+                for (key, value) in attrs.iteritems():
+                    if key in ("fontsize", "letterspacing", "linespacing"):
+                        kwargs[key] = float(value)
+                    else:
+                        kwargs[key] = value
+                self.fonts[fontid] = avg.FontStyle(**kwargs)
 
         self.textButtonCfg = {
             "upBmp": avg.Bitmap("media/button_bg_up.png"),
@@ -45,7 +63,7 @@ class Skin:
             "disabledBmp": None, #avg.Bitmap("media/button_bg_disabled.png"),
             "endsExtent": (7, 7),
             "font": self.fonts["stdfont"],
-            "disabledFont": self.fonts["disabledFont"]
+            "disabledFont": self.fonts["disabledfont"]
         }
 
 mediadir = os.path.join(os.path.dirname(__file__), "..", 'data')

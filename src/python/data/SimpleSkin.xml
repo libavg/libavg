@@ -1,6 +1,7 @@
 <skin>
     <fontdef id="stdfont" font="Bitstream Vera Sans" variant="Roman" fontsize="12" 
             color="000000" letterspacing="0" linespacing="-1"/>
+    <fontdef id="disabledfont" baseid="stdfont" color="444444"/>
 <!--
     <textbutton id="" 
             upSrc="button_bg_up.png"

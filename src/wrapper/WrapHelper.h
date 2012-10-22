@@ -32,6 +32,8 @@
 
 #include <string>
 
+template<typename T> const T copyObject(const T& v) { return v; }
+
 template <typename ContainerType>
 struct to_tuple
 {

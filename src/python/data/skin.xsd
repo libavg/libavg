@@ -3,9 +3,10 @@
   <xsd:element name="skin">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element name="fontdef">
+        <xsd:element name="fontdef" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:attribute name="id" type="xsd:ID" use="required"/>
+            <xsd:attribute name="baseid" type="xsd:IDREF"/>
             <xsd:attribute name="font" type="xsd:string"/>
             <xsd:attribute name="variant" type="xsd:string"/>
             <xsd:attribute name="color" type="xsd:string"/>
