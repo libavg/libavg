@@ -671,21 +671,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.fail(),
                 ))
 
-    def testGetConfigOption(self):
-        self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
-        self.assertException(lambda: player.getConfigOption("scr", "illegalOption"))
-        self.assertException(lambda:
-                player.getConfigOption("illegalGroup", "illegalOption"))
-
-    # Not executed due to bug #145 - hangs with some window managers.
-    def testWindowFrame(self):
-        def revertWindowFrame():
-            player.setWindowFrame(True)
-
-        player.setWindowFrame(False)
-        self.__initDefaultScene()
-        self.start(False, [revertWindowFrame])
-
     def testScreenDimensions(self):
         res = player.getScreenResolution()
         self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
@@ -733,6 +718,65 @@ class PlayerTestCase(AVGTestCase):
                         (40,40)),
                  lambda: self.compareImage("testSvgScaledNode2")
                 ))
+
+    def testGetConfigOption(self):
+        self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
+        self.assertException(lambda: player.getConfigOption("scr", "illegalOption"))
+        self.assertException(lambda:
+                player.getConfigOption("illegalGroup", "illegalOption"))
+
+    def testValidateXml(self):
+        schema = """<?xml version="1.0" encoding="UTF-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+        <xs:element name="shiporder">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="orderperson" type="xs:string"/>
+              <xs:element name="item" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="title" type="xs:string"/>
+                    <xs:element name="note" type="xs:string" minOccurs="0"/>
+                    <xs:element name="quantity" type="xs:positiveInteger"/>
+                    <xs:element name="price" type="xs:decimal"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="orderid" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+
+        </xs:schema>
+        """
+        xmlString = """<?xml version="1.0" encoding="UTF-8"?>
+
+        <shiporder orderid="889923">
+          <orderperson>John Smith</orderperson>
+          <item>
+            <title>Empire Burlesque</title>
+            <note>Special Edition</note>
+            <quantity>1</quantity>
+            <price>10.90</price>
+          </item>
+          <item>
+            <title>Hide your heart</title>
+            <quantity>1</quantity>
+            <price>9.90</price>
+          </item>
+        </shiporder>
+        """
+        avg.validateXml(xmlString, schema)
+
+    # Not executed due to bug #145 - hangs with some window managers.
+    def testWindowFrame(self):
+        def revertWindowFrame():
+            player.setWindowFrame(True)
+
+        player.setWindowFrame(False)
+        self.__initDefaultScene()
+        self.start(False, [revertWindowFrame])
 
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
@@ -788,6 +832,7 @@ def playerTestSuite(tests):
             "testScreenDimensions",
             "testSVG",
             "testGetConfigOption",
+            "testValidateXml",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

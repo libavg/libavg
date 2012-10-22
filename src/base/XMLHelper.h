@@ -37,7 +37,9 @@ std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xml
 
 void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
 
+void validateXml(const std::string sXML, const std::string sSchema);
+
 }
 
-#endif //_XMLHelper_H_
+#endif
 
