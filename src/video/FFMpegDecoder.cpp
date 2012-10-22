@@ -130,7 +130,16 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 #else
     pCodec = avcodec_find_decoder(pContext->codec_id);
 #endif
-    if (!pCodec || avcodec_open(pContext, pCodec) < 0) {
+    if (!pCodec) {
+        return -1;
+    }
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+    int rc = avcodec_open2(pContext, pCodec, 0);
+#else
+    int rc = avcodec_open(pContext, pCodec);
+#endif
+
+    if (rc < 0) {
         return -1;
     }
     return 0;
@@ -163,7 +172,12 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         avcodecError(sFilename, err);
     }
     
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+    err = avformat_find_stream_info(m_pFormatContext, 0);
+#else
     err = av_find_stream_info(m_pFormatContext);
+#endif
+
     if (err < 0) {
         m_sFilename = "";
         m_pFormatContext = 0;
@@ -380,8 +394,12 @@ void FFMpegDecoder::close()
         m_AStreamIndex = -1;
     }
     if (m_pFormatContext) {
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+        avformat_close_input(&m_pFormatContext);
+#else
         av_close_input_file(m_pFormatContext);
         m_pFormatContext = 0;
+#endif
     }
     
     if (m_pSwsContext) {
@@ -497,7 +515,7 @@ float FFMpegDecoder::getDuration(StreamSelect streamSelect) const
         duration = m_pAStream->duration;
         time_base = m_pAStream->time_base;
     }
-    if (duration == AV_NOPTS_VALUE) {
+    if ((unsigned long long)duration == AV_NOPTS_VALUE) {
         return 0;
     } else {
         return float(duration)*float(av_q2d(time_base));
