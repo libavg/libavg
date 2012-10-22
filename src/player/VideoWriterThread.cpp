@@ -184,7 +184,7 @@ void VideoWriterThread::open()
 
 void VideoWriterThread::setupVideoStream()
 {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 21, 0)
     m_pVideoStream = avformat_new_stream(m_pOutputFormatContext, 0);
 #else
     m_pVideoStream = av_new_stream(m_pOutputFormatContext, 0);
