@@ -107,6 +107,7 @@ XmlValidator::~XmlValidator()
     if (m_ValidCtxt) {
         xmlSchemaFreeValidCtxt(m_ValidCtxt);
     }
+    xmlSetGenericErrorFunc(0, 0);
 }
 
 void XmlValidator::validate(const string& sXML, const string& sXMLName)
