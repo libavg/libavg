@@ -733,16 +733,6 @@ class PlayerTestCase(AVGTestCase):
           <xs:complexType>
             <xs:sequence>
               <xs:element name="orderperson" type="xs:string"/>
-              <xs:element name="item" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="title" type="xs:string"/>
-                    <xs:element name="note" type="xs:string" minOccurs="0"/>
-                    <xs:element name="quantity" type="xs:positiveInteger"/>
-                    <xs:element name="price" type="xs:decimal"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
             </xs:sequence>
             <xs:attribute name="orderid" type="xs:string" use="required"/>
           </xs:complexType>
@@ -754,20 +744,15 @@ class PlayerTestCase(AVGTestCase):
 
         <shiporder orderid="889923">
           <orderperson>John Smith</orderperson>
-          <item>
-            <title>Empire Burlesque</title>
-            <note>Special Edition</note>
-            <quantity>1</quantity>
-            <price>10.90</price>
-          </item>
-          <item>
-            <title>Hide your heart</title>
-            <quantity>1</quantity>
-            <price>9.90</price>
-          </item>
         </shiporder>
         """
         avg.validateXml(xmlString, schema)
+       
+        brokenSchema = "ff"+schema
+        self.assertException(lambda: avg.validateXml(xmlString, brokenSchema))
+
+        brokenXml = xmlString+"ff"
+        self.assertException(lambda: avg.validateXml(brokenXml, schema))
 
     # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):
