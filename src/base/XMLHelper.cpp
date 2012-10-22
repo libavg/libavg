@@ -78,25 +78,22 @@ void registerDTDEntityLoader(const string& sID, const string& sDTD)
 }
 
 
-XmlValidator::XmlValidator(const string& sSchema, bool bHideErrors)
+XmlValidator::XmlValidator(const string& sSchema, const string& sSchemaName)
     : m_ParserCtxt(0),
       m_Schema(0),
-      m_ValidCtxt(0),
-      m_bHideErrors(bHideErrors)
+      m_ValidCtxt(0)
 {
     xmlPedanticParserDefault(1);
-    if (m_bHideErrors) {
-        xmlSetGenericErrorFunc(this, errorOutputFunc);
-    }
+    xmlSetGenericErrorFunc(this, errorOutputFunc);
 
     m_ParserCtxt = xmlSchemaNewMemParserCtxt(sSchema.c_str(), sSchema.length());
-    checkError(!m_ParserCtxt);
+    checkError(!m_ParserCtxt, sSchemaName);
 
     m_Schema = xmlSchemaParse(m_ParserCtxt);
-    checkError(!m_Schema);
+    checkError(!m_Schema, sSchemaName);
 
     m_ValidCtxt = xmlSchemaNewValidCtxt(m_Schema);
-    checkError(!m_ValidCtxt);
+    checkError(!m_ValidCtxt, sSchemaName);
 }
 
 XmlValidator::~XmlValidator()
@@ -112,16 +109,16 @@ XmlValidator::~XmlValidator()
     }
 }
 
-void XmlValidator::validate(const string& sXML)
+void XmlValidator::validate(const string& sXML, const string& sXMLName)
 {
     xmlDocPtr doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
-    checkError(!doc);
+    checkError(!doc, sXMLName);
 
     int err = xmlSchemaValidateDoc(m_ValidCtxt, doc);
     AVG_ASSERT(err != -1);
     if (err) {
         xmlFreeDoc(doc);
-        throw (Exception(AVG_ERR_XML_PARSE, ""));
+        checkError(true, sXMLName);
     }
     xmlFreeDoc(doc);
 }
@@ -141,20 +138,22 @@ void XmlValidator::internalErrorHandler(const char * msg, va_list args)
     m_sError += psz;
 }
 
-void XmlValidator::checkError(bool bError)
+void XmlValidator::checkError(bool bError, const string& sXMLName)
 {
     if (bError) {
-        string sError = m_sError;
+        string sError = "Error parsing "+sXMLName+".\n";
+        sError += m_sError;
         m_sError = "";
         throw (Exception(AVG_ERR_XML_PARSE, sError));
     }
 }
 
-void validateXml(const string& sXML, const string& sSchema)
+void validateXml(const string& sXML, const string& sSchema, const string& sXMLName,
+        const string& sSchemaName)
 {
-    XmlValidator validator(sSchema, true);
+    XmlValidator validator(sSchema, sSchemaName);
 
-    validator.validate(sXML);
+    validator.validate(sXML, sXMLName);
 }
 
 }

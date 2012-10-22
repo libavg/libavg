@@ -40,16 +40,16 @@ void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
 class XmlValidator
 {
 public:
-    XmlValidator(const std::string& sSchema, bool bHideErrors);
+    XmlValidator(const std::string& sSchema, const std::string& sSchemaName);
     virtual ~XmlValidator();
 
-    void validate(const std::string& sXML);
+    void validate(const std::string& sXML, const std::string& sXMLName);
 
 private:
     static void errorOutputFunc(void * ctx, const char * msg, ...);
     void internalErrorHandler(const char * msg, va_list args);
 
-    void checkError(bool bError);
+    void checkError(bool bError, const std::string& sXMLName);
 
     xmlSchemaParserCtxtPtr m_ParserCtxt;
     xmlSchemaPtr m_Schema;
@@ -59,7 +59,8 @@ private:
     bool m_bHideErrors;
 };
 
-void validateXml(const std::string& sXML, const std::string& sSchema);
+void validateXml(const std::string& sXML, const std::string& sSchema,
+        const std::string& sXMLName, const std::string& sSchemaName);
 
 }
 

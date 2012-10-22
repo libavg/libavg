@@ -746,13 +746,15 @@ class PlayerTestCase(AVGTestCase):
           <orderperson>John Smith</orderperson>
         </shiporder>
         """
-        avg.validateXml(xmlString, schema)
+        avg.validateXml(xmlString, schema, "shiporder.xml", "shiporder.xsd")
        
         brokenSchema = "ff"+schema
-        self.assertException(lambda: avg.validateXml(xmlString, brokenSchema))
+        self.assertException(lambda: avg.validateXml(xmlString, brokenSchema,
+                "shiporder.xml", "shiporder.xsd"))
 
         brokenXml = xmlString+"ff"
-        self.assertException(lambda: avg.validateXml(brokenXml, schema))
+        self.assertException(lambda: avg.validateXml(brokenXml, schema,
+                "shiporder.xml", "shiporder.xsd"))
 
     # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):
