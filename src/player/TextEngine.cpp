@@ -87,7 +87,11 @@ void TextEngine::init()
         pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_nohint, 
                 0, 0);
     }
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,22,0)
+    m_pPangoContext = pango_font_map_create_context(PANGO_FONT_MAP(m_pFontMap));
+#else
     m_pPangoContext = pango_ft2_font_map_create_context(m_pFontMap);
+#endif
 
     pango_context_set_language(m_pPangoContext,
             pango_language_from_string ("en_US"));
