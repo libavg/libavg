@@ -163,13 +163,13 @@ class TextButton(Button):
         if not(skinObj):
             skinObj = skin.Skin.default
         size = avg.Point2D(kwargs["size"])
-        cfg = skinObj.textButtonCfg
+        cfg = skinObj.defaultTextButtonCfg
 
         self.wordsNodes = []
 
         upNode = self.__createStateNode(size, cfg, "upBmp", text, "font")
         downNode = self.__createStateNode(size, cfg, "downBmp", text, "font")
-        if cfg["disabledBmp"] != None:
+        if "disabledBmp" in cfg:
             disabledNode = self.__createStateNode(size, cfg, "disabledBmp", text, 
                     "disabledFont")
         else:
@@ -180,7 +180,8 @@ class TextButton(Button):
 
     def __createStateNode(self, size, cfg, bmpName, text, fontStyleName):
         stateNode = avg.DivNode(size=size)
-        HVStretchNode(size=size, src=cfg[bmpName], endsExtent=cfg["endsExtent"], 
+        endsExtent = eval(cfg["endsExtent"], {}, {})
+        HVStretchNode(size=size, src=cfg[bmpName], endsExtent=endsExtent, 
                 parent=stateNode)
         words = avg.WordsNode(text=text, fontstyle=cfg[fontStyleName], parent=stateNode)
         words.pos = (size-words.size)/2

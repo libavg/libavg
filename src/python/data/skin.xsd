@@ -21,6 +21,18 @@
             <xsd:attribute name="hint" type="xsd:boolean"/>
           </xsd:complexType>
         </xsd:element>
+        <xsd:element name="textbutton" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="upsrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="downsrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="disabledsrc" type="xsd:string"/>
+            <xsd:attribute name="endsExtent" type="xsd:string"/>
+            <xsd:attribute name="font" type="xsd:IDREF" use="required"/>
+            <xsd:attribute name="downFont" type="xsd:IDREF"/>
+            <xsd:attribute name="disabledFont" type="xsd:IDREF"/>
+          </xsd:complexType>
+        </xsd:element>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

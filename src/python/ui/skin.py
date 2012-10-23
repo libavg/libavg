@@ -37,34 +37,64 @@ class Skin:
 
         self.fonts = {}
         for fontNode in xmlRoot.findall("fontdef"):
-            attrs = fontNode.attrib
+            fontid, attrs = self.__splitAttrs(fontNode)
             if "baseid" in attrs:
-                self.fonts[fontNode.get("id")] = copy.copy(self.fonts[attrs["baseid"]])
-                font = self.fonts[fontNode.get("id")]
+                self.fonts[fontid] = copy.copy(self.fonts[attrs["baseid"]])
+                font = self.fonts[fontid]
                 del attrs["baseid"]
-                del attrs["id"]
                 for (key, value) in attrs.iteritems():
                     setattr(font, key, value)
             else:
-                kwargs = {}
-                attrs = fontNode.attrib
-                fontid = attrs["id"]
-                del attrs["id"]
-                for (key, value) in attrs.iteritems():
-                    if key in ("fontsize", "letterspacing", "linespacing"):
-                        kwargs[key] = float(value)
-                    else:
-                        kwargs[key] = value
+                kwargs = self.__extractArgs(attrs, 
+                        ("fontsize", "letterspacing", "linespacing"))
                 self.fonts[fontid] = avg.FontStyle(**kwargs)
 
-        self.textButtonCfg = {
-            "upBmp": avg.Bitmap("media/button_bg_up.png"),
-            "downBmp": avg.Bitmap("media/button_bg_down.png"),
-            "disabledBmp": None, #avg.Bitmap("media/button_bg_disabled.png"),
-            "endsExtent": (7, 7),
-            "font": self.fonts["stdfont"],
-            "disabledFont": self.fonts["disabledfont"]
-        }
+        self.textButtonCfg = {}
+        self.defaultTextButtonCfg = None
+        for node in xmlRoot.findall("textbutton"):
+            nodeid, attrs = self.__splitAttrs(node)
+            kwargs = self.__extractArgs(attrs,
+                    bmpArgNames={"upsrc": "upBmp", "downsrc": "downBmp", 
+                            "disabledsrc": "disabledBmp"},
+                    fontArgNames=("font", "downFont", "disabledFont")
+                            )
+            self.textButtonCfg[nodeid] = kwargs
+            if self.defaultTextButtonCfg == None or nodeid == None:
+                self.defaultTextButtonCfg = kwargs
+        print self.defaultTextButtonCfg
+#        self.textButtonCfg = {
+#            "upBmp": avg.Bitmap("media/button_bg_up.png"),
+#            "downBmp": avg.Bitmap("media/button_bg_down.png"),
+#            "disabledBmp": None, #avg.Bitmap("media/button_bg_disabled.png"),
+#            "endsExtent": (7, 7),
+#            "font": self.fonts["stdfont"],
+#            "disabledFont": self.fonts["disabledfont"]
+#        }
+
+    def __splitAttrs(self, xmlNode):
+        attrs = xmlNode.attrib
+        if "id" in attrs:
+            nodeID = attrs["id"]
+            del attrs["id"]
+        else:
+            nodeID = None
+        return nodeID, attrs
+
+
+    def __extractArgs(self, attrs, floatArgNames=(), bmpArgNames={}, fontArgNames=()):
+        kwargs = {}
+        for (key, value) in attrs.iteritems():
+            if key in floatArgNames:
+                kwargs[key] = float(value)
+            elif key in bmpArgNames.iterkeys():
+                argkey = bmpArgNames[key]
+                kwargs[argkey] = avg.Bitmap("media/"+value)
+            elif key in fontArgNames:
+                kwargs[key] = self.fonts[value]
+            else:
+                kwargs[key] = value
+        return kwargs
+
 
 mediadir = os.path.join(os.path.dirname(__file__), "..", 'data')
 Skin.default = Skin(mediadir+"/SimpleSkin.xml")
