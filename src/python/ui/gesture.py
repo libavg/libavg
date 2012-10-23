@@ -22,7 +22,6 @@
 from libavg import avg, statemachine, player
 from libavg.ui import filter
 
-import sets
 import weakref
 
 import math
@@ -50,7 +49,7 @@ class Recognizer(avg.Publisher):
 
         self.__setEventHandler() 
         self.__isEnabled = True
-        self._contacts = sets.Set() 
+        self._contacts = set() 
         self.__dirty = False
 
         self.publish(Recognizer.POSSIBLE)
@@ -158,7 +157,7 @@ class Recognizer(avg.Publisher):
         for contact in self._contacts:
             contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
             contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
-        self._contacts = sets.Set()
+        self._contacts = set()
         player.clearInterval(self.__frameHandlerID)
 
     def _handleDown(self, event):

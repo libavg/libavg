@@ -25,7 +25,6 @@ import unittest
 import sys
 import os
 import math
-from sets import Set
 
 from libavg import avg, player
 
@@ -321,14 +320,14 @@ class MessageTester(object):
         for messageID in messageIDs:
             publisher.subscribe(messageID, 
                     lambda messageID=messageID: self.setMessageReceived(messageID))
-        self.__messagesReceived = Set()
+        self.__messagesReceived = set()
         self.__testCase = testCase
 
     def assertState(self, expectedMessages):
         self.__testCase.assert_(self.isState(expectedMessages))
 
     def isState(self, expectedMessages):
-        expectedMessages = Set(expectedMessages)
+        expectedMessages = set(expectedMessages)
         if expectedMessages != self.__messagesReceived:
             sys.stderr.write("\nState expected: "+str(expectedMessages)+"\n")
             sys.stderr.write("Actual state: "+str(self.__messagesReceived)+"\n")
@@ -340,5 +339,5 @@ class MessageTester(object):
         self.__messagesReceived.add(messageID)
 
     def reset(self):
-        self.__messagesReceived = Set()
+        self.__messagesReceived = set()
 
