@@ -362,9 +362,10 @@ class DynamicsTestCase(AVGTestCase):
                 ))
 
     def testStyle(self):
-        style = avg.Style(font="Arial", variant="bold", fontsize=12, linespacing=14)
+        style = avg.Style(font="Bitstream Vera Sans", variant="bold", fontsize=12,
+                linespacing=14)
         derivedStyle = avg.Style(basestyle=style, fontsize=14)
-        self.assert_(derivedStyle["font"] == "Arial")
+        self.assert_(derivedStyle["font"] == "Bitstream Vera Sans")
         self.assert_(derivedStyle["fontsize"] == 14)
         self.assert_("fontsize" in derivedStyle)
         self.assert_(not("foo" in derivedStyle))

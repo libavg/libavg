@@ -282,7 +282,8 @@ class TextArea(avg.DivNode):
 
         if moveCoursorOnTouch:
             self.__recognizer = ui.DragRecognizer(eventNode=self, friction=-1,
-                    moveHandler=self.__moveHandler, detectedHandler=self.__detectedHandler,
+                    moveHandler=self.__moveHandler, 
+                    detectedHandler=self.__detectedHandler,
                     upHandler=self.__upHandler)
             self.__loupeZoomFactor = 0.5
             self.__loupe = avg.DivNode(parent=self, crop=True)
@@ -297,10 +298,12 @@ class TextArea(avg.DivNode):
             self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1]+20)
             self.__loupe.unlink()
             self.__zoomedImage = avg.DivNode(parent=self.__loupe)
-            self.__loupeTextNode = avg.WordsNode(rawtextmode=True, parent=self.__zoomedImage)
+            self.__loupeTextNode = avg.WordsNode(rawtextmode=True, 
+                    parent=self.__zoomedImage)
 
             self.__loupeCursorContainer = avg.DivNode(parent=self.__zoomedImage)
-            self.__loupeCursorNode = avg.LineNode(color='000000', parent=self.__loupeCursorContainer)
+            self.__loupeCursorNode = avg.LineNode(color='000000', 
+                    parent=self.__loupeCursorContainer)
         self.setStyle()
             
     def clearText(self):
@@ -331,10 +334,10 @@ class TextArea(avg.DivNode):
         """
         return self.__getUnicodeFromData()
 
-    def setStyle(self, font='Arial', fontsize=12, alignment='left', variant='Regular',
-                color='000000', multiline=True, cursorWidth=None, border=(0,0),
-                blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False,
-                cursorColor='000000', lineSpacing=0, letterSpacing=0):
+    def setStyle(self, font='sans', fontsize=12, alignment='left', variant='Roman', 
+            color='000000', multiline=True, cursorWidth=None, border=(0,0), 
+            blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False, cursorColor='000000',
+            lineSpacing=0, letterSpacing=0):
         """
         Set TextArea's graphical appearance
         @param font: font face
