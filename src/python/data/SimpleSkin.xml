@@ -4,8 +4,8 @@
     <fontdef id="downFont" baseid="stdFont" color="CCCCCC"/>
     <fontdef id="disabledFont" baseid="stdFont" color="444444"/>
     <textbutton
-            upsrc="button_bg_up.png"
-            downsrc="button_bg_down.png" 
+            upSrc="button_bg_up.png"
+            downSrc="button_bg_down.png" 
             font="stdFont"
             downFont="downFont"
             disabledFont="disabledFont"

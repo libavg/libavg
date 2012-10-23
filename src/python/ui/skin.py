@@ -25,10 +25,12 @@ import xml.etree.ElementTree as ET
 
 class Skin: 
    
-    default = None # Standard-Style wird im __init__ geladen, override möglich.
+    default = None
 
-    def __init__(self, skinXmlFName):
-        schemaFName = mediadir+"/skin.xsd"
+    def __init__(self, skinXmlFName, mediaDir=""):
+        global defaultMediaDir
+        self.__mediaDir = defaultMediaDir
+        schemaFName = defaultMediaDir+"skin.xsd"
         schemaString = open(schemaFName, "r").read()
         xmlString = open(skinXmlFName, "r").read()
         avg.validateXml(xmlString, schemaString, skinXmlFName, schemaFName)
@@ -54,22 +56,13 @@ class Skin:
         for node in xmlRoot.findall("textbutton"):
             nodeid, attrs = self.__splitAttrs(node)
             kwargs = self.__extractArgs(attrs,
-                    bmpArgNames={"upsrc": "upBmp", "downsrc": "downBmp", 
-                            "disabledsrc": "disabledBmp"},
+                    bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp", 
+                            "disabledSrc": "disabledBmp"},
                     fontArgNames=("font", "downFont", "disabledFont")
                             )
             self.textButtonCfg[nodeid] = kwargs
             if self.defaultTextButtonCfg == None or nodeid == None:
                 self.defaultTextButtonCfg = kwargs
-
-#        self.textButtonCfg = {
-#            "upBmp": avg.Bitmap("media/button_bg_up.png"),
-#            "downBmp": avg.Bitmap("media/button_bg_down.png"),
-#            "disabledBmp": None, #avg.Bitmap("media/button_bg_disabled.png"),
-#            "endsExtent": (7, 7),
-#            "font": self.fonts["stdfont"],
-#            "disabledFont": self.fonts["disabledfont"]
-#        }
 
     def __splitAttrs(self, xmlNode):
         attrs = xmlNode.attrib
@@ -80,7 +73,6 @@ class Skin:
             nodeID = None
         return nodeID, attrs
 
-
     def __extractArgs(self, attrs, floatArgNames=(), bmpArgNames={}, fontArgNames=()):
         kwargs = {}
         for (key, value) in attrs.iteritems():
@@ -88,7 +80,7 @@ class Skin:
                 kwargs[key] = float(value)
             elif key in bmpArgNames.iterkeys():
                 argkey = bmpArgNames[key]
-                kwargs[argkey] = avg.Bitmap("media/"+value)
+                kwargs[argkey] = avg.Bitmap(self.__mediaDir+value)
             elif key in fontArgNames:
                 kwargs[key] = self.fonts[value]
             else:
@@ -96,5 +88,5 @@ class Skin:
         return kwargs
 
 
-mediadir = os.path.join(os.path.dirname(__file__), "..", 'data')
-Skin.default = Skin(mediadir+"/SimpleSkin.xml")
+defaultMediaDir = os.path.join(os.path.dirname(__file__), "..", 'data/')
+Skin.default = Skin(defaultMediaDir+"SimpleSkin.xml", defaultMediaDir)

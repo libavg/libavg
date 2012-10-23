@@ -24,10 +24,10 @@
         <xsd:element name="textbutton" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:attribute name="id" type="xsd:ID"/>
-            <xsd:attribute name="upsrc" type="xsd:string" use="required"/>
-            <xsd:attribute name="downsrc" type="xsd:string" use="required"/>
-            <xsd:attribute name="disabledsrc" type="xsd:string"/>
-            <xsd:attribute name="endsExtent" type="xsd:string"/>
+            <xsd:attribute name="upSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="downSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="disabledSrc" type="xsd:string"/>
+            <xsd:attribute name="endsExtent" type="xsd:string" use="required"/>
             <xsd:attribute name="font" type="xsd:IDREF" use="required"/>
             <xsd:attribute name="downFont" type="xsd:IDREF"/>
             <xsd:attribute name="disabledFont" type="xsd:IDREF"/>
