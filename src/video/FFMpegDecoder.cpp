@@ -251,7 +251,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_LastAudioFrameTime = 0;
         m_AudioStartTimestamp = 0;
         
-        if ((unsigned long long)m_pAStream->start_time != AV_NOPTS_VALUE) {
+        if (m_pAStream->start_time != (long long)AV_NOPTS_VALUE) {
             m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)
                     *m_pAStream->start_time);
         }
@@ -515,7 +515,7 @@ float FFMpegDecoder::getDuration(StreamSelect streamSelect) const
         duration = m_pAStream->duration;
         time_base = m_pAStream->time_base;
     }
-    if ((unsigned long long)duration == AV_NOPTS_VALUE) {
+    if (duration == (long long)AV_NOPTS_VALUE) {
         return 0;
     } else {
         return float(duration)*float(av_q2d(time_base));
@@ -1218,9 +1218,9 @@ void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
         pBmpU->getPixels()
     };
     uint32_t pitches[3] = {
-        pBmpY->getStride(),
-        pBmpV->getStride(),
-        pBmpU->getStride()
+        (uint32_t)pBmpY->getStride(),
+        (uint32_t)pBmpV->getStride(),
+        (uint32_t)pBmpU->getStride()
     };
     status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
             VDP_YCBCR_FORMAT_YV12, dest, pitches);

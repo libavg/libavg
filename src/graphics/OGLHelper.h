@@ -38,7 +38,7 @@
 #endif
 #ifdef linux
     #define GLX_GLXEXT_PROTOTYPES
-    #include <GL/glx.h>
+    #include "GL/glx.h"
 #endif
 
 #ifdef _WIN32
@@ -48,12 +48,6 @@
 #endif
 
 #ifdef linux
-    // XXX: Hack for compatibility with Ogre3D. Ogre's current gl headers don't define
-    // this function.
-    #ifndef PFNGLXSWAPINTERVALEXTPROC
-        typedef int ( * PFNGLXSWAPINTERVALEXTPROC)
-                (Display *dpy, GLXDrawable drawable, int interval);
-    #endif
     #ifndef GLX_CONTEXT_ES2_PROFILE_BIT_EXT
         #define GLX_CONTEXT_ES2_PROFILE_BIT_EXT 0x00000004
     #endif

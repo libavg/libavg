@@ -335,9 +335,9 @@ class AVTestCase(AVGTestCase):
             root = self.loadEmptyScene()
             videoNode = avg.VideoNode(parent=root, loop=True, fps=25, size=(96,96),
                     threaded=threaded, href="mpeg1-48x48.mpg")
-            videoNode.setEOFCallback(onEOF)
+            videoNode.subscribe(avg.Node.END_OF_FILE, onEOF)
             videoNode.play()
-            player.setOnFrameHandler(onFrame)
+            player.subscribe(player.ON_FRAME, onFrame)
             player.play()
 
     def testVideoMask(self):
@@ -379,10 +379,10 @@ class AVTestCase(AVGTestCase):
         player.setFakeFPS(0.1)
         videoNode = avg.VideoNode(threaded = False)
         videoNode.href = "../testmediadir/mjpeg-48x48.avi"
-        videoNode.setEOFCallback(throwException)
+        videoNode.subscribe(avg.Node.END_OF_FILE, throwException)
         
         root = self.loadEmptyScene()
-        player.getRootNode().appendChild(videoNode)
+        root.appendChild(videoNode)
         
         self.__exceptionThrown = False
         try:
@@ -409,10 +409,11 @@ class AVTestCase(AVGTestCase):
         video = avg.VideoNode(href="mpeg1-48x48.mpg", threaded=False,
                 parent=root)
         player.setFakeFPS(0.1)
-
-        video.setEOFCallback(lambda: foo) # Should never be called
+       
+        # Should never be called
+        eofID = video.subscribe(avg.Node.END_OF_FILE, lambda: self.assert_(False))   
         self.start(False,
-                (lambda: video.setEOFCallback(None), 
+                (lambda: video.unsubscribe(avg.Node.END_OF_FILE, eofID), 
                  video.play,
                  None
                 ))
@@ -571,7 +572,7 @@ class AVTestCase(AVGTestCase):
             self.start(False,
                 (videoNode.play,
                  lambda: startWriter(30, True),
-                 lambda: self.delay(66),
+                 lambda: self.delay(100),
                  stopWriter,
                  killWriter,
                  lambda: checkVideo(4),
@@ -580,7 +581,7 @@ class AVTestCase(AVGTestCase):
                  showVideo,
                  testCreateException,
                  lambda: startWriter(15, False),
-                 lambda: self.delay(100),
+                 lambda: self.delay(150),
                  stopWriter,
                  killWriter,
                  lambda: checkVideo(2),

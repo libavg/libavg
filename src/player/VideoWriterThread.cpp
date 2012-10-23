@@ -311,7 +311,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
         AVPacket packet;
         av_init_packet(&packet);
 
-        if ((unsigned long long)(pCodecContext->coded_frame->pts) != AV_NOPTS_VALUE) {
+        if ((pCodecContext->coded_frame->pts) != (long long)AV_NOPTS_VALUE) {
             packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
                     pCodecContext->time_base, m_pVideoStream->time_base);
         }

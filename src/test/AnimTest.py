@@ -205,9 +205,6 @@ class AnimTestCase(AVGTestCase):
                 ))
 
     def testIntAnim(self):
-        def startAnim():
-            self.__anim.start()
-
         self.initScene()
         self.__doubleAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100, True)
         self.__pointAnim = avg.LinearAnim(self.__node, "pos", 200, avg.Point2D(0,0), 

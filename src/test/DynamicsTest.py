@@ -182,8 +182,8 @@ class DynamicsTestCase(AVGTestCase):
             parentNode = root
             node = player.createNode("image", {"id": "img", "href":"rgb24-64x64.png"})
             parentNode.appendChild(node)
-            node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, captureMouseDown)
-            parentNode.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, mainMouseUp)
+            node.subscribe(avg.Node.CURSOR_DOWN, captureMouseDown)
+            parentNode.subscribe(avg.Node.CURSOR_UP, mainMouseUp)
         
         def setEventCapture():
             player.getElementByID("img").setEventCapture()

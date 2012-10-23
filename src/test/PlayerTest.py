@@ -186,8 +186,7 @@ class PlayerTestCase(AVGTestCase):
             player.getElementByID("inner").crop = False
            
         self.__initDefaultRotateScene()
-        player.getElementByID("outer").setEventHandler(
-                avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onOuterDown) 
+        player.getElementByID("outer").subscribe(avg.Node.CURSOR_DOWN, onOuterDown) 
         self.onOuterDownCalled = False
         self.start(False,
                 (lambda: self.compareImage("testRotate1"),
@@ -372,6 +371,7 @@ class PlayerTestCase(AVGTestCase):
         self.start(False,
                 (startThread,
                  lambda: self.thread.join(),
+                 None,
                  lambda: self.assert_(self.asyncCalled),
                 ))
 
