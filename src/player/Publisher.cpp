@@ -190,6 +190,7 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
     }
     m_PendingUnsubscribes.clear();
 }
+
 MessageID Publisher::genMessageID()
 {
     return PublisherDefinitionRegistry::get()->genMessageID();

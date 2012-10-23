@@ -1674,6 +1674,9 @@ void Player::handleTimers()
         addTimeout(*it);
     }
     m_NewTimeouts.clear();
+    
+    notifySubscribers("ON_FRAME");
+    
     m_bInHandleTimers = false;
 
     if (m_bPythonAvailable) {
@@ -1689,8 +1692,6 @@ void Player::handleTimers()
             (*it)->fire(getFrameTime());
         }
     }
-
-    notifySubscribers("ON_FRAME");
 }
 
 SDLDisplayEngine * Player::getDisplayEngine() const

@@ -110,7 +110,7 @@ class AVGAppTestCase(testcase.AVGTestCase):
                 self.singleKeyPress('s')
                 self.singleKeyPress('s')
                 self.timeStarted = time.time()
-                self.timerId = player.setOnFrameHandler(self.onFrame)
+                self.timerId = player.subscribe(player.ON_FRAME, self.onFrame)
             
             def onFrame(self):
                 if (os.path.exists(expectedFiles[-1]) or
