@@ -1,12 +1,14 @@
 <skin>
-    <fontdef id="stdfont" font="Bitstream Vera Sans" variant="Roman" fontsize="12" 
+    <fontdef id="stdFont" font="Bitstream Vera Sans" variant="Roman" fontsize="12" 
             color="000000" letterspacing="0" linespacing="-1"/>
-    <fontdef id="downfont" baseid="stdfont" color="CCCCCC"/>
-    <fontdef id="disabledfont" baseid="stdfont" color="444444"/>
+    <fontdef id="downFont" baseid="stdFont" color="CCCCCC"/>
+    <fontdef id="disabledFont" baseid="stdFont" color="444444"/>
     <textbutton
             upsrc="button_bg_up.png"
             downsrc="button_bg_down.png" 
-            font="stdfont"
+            font="stdFont"
+            downFont="downFont"
+            disabledFont="disabledFont"
             endsExtent="(7,7)"/>
 <!--
     <checkbox

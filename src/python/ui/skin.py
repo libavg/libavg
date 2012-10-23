@@ -61,7 +61,7 @@ class Skin:
             self.textButtonCfg[nodeid] = kwargs
             if self.defaultTextButtonCfg == None or nodeid == None:
                 self.defaultTextButtonCfg = kwargs
-        print self.defaultTextButtonCfg
+
 #        self.textButtonCfg = {
 #            "upBmp": avg.Bitmap("media/button_bg_up.png"),
 #            "downBmp": avg.Bitmap("media/button_bg_down.png"),

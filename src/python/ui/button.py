@@ -168,7 +168,7 @@ class TextButton(Button):
         self.wordsNodes = []
 
         upNode = self.__createStateNode(size, cfg, "upBmp", text, "font")
-        downNode = self.__createStateNode(size, cfg, "downBmp", text, "font")
+        downNode = self.__createStateNode(size, cfg, "downBmp", text, "downFont")
         if "disabledBmp" in cfg:
             disabledNode = self.__createStateNode(size, cfg, "disabledBmp", text, 
                     "disabledFont")
