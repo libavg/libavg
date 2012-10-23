@@ -337,7 +337,7 @@ class AVTestCase(AVGTestCase):
                     threaded=threaded, href="mpeg1-48x48.mpg")
             videoNode.setEOFCallback(onEOF)
             videoNode.play()
-            player.setOnFrameHandler(onFrame)
+            player.subscribe(player.ON_FRAME, onFrame)
             player.play()
 
     def testVideoMask(self):
