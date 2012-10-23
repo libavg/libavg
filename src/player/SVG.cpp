@@ -37,7 +37,11 @@
 #include "ImageNode.h"
 
 #include <glib-object.h>
+
+#ifndef RSVG_CAIRO_H
 #include <librsvg/rsvg-cairo.h>
+#endif
+
 #include <cairo.h>
 
 #include <iostream>
