@@ -372,6 +372,7 @@ class PlayerTestCase(AVGTestCase):
         self.start(False,
                 (startThread,
                  lambda: self.thread.join(),
+                 None,
                  lambda: self.assert_(self.asyncCalled),
                 ))
 
