@@ -776,7 +776,7 @@ def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     g_RepeatDelay = repeatDelay
     g_CharDelay = charDelay
 
-    player.setOnFrameHandler(_onFrame)
+    player.subscribe(player.ON_FRAME, _onFrame)
 
     if catchKeyboard:
         player.subscribe(avg.Player.KEY_DOWN, _onKeyDown)

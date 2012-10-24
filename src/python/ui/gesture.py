@@ -72,6 +72,7 @@ class Recognizer(avg.Publisher):
         self.subscribe(Recognizer.DETECTED, detectedHandler)
         self.subscribe(Recognizer.END, endHandler)
         # self.__stateMachine.traceChanges(True)
+        self.__frameHandlerID = None
 
         if initialEvent:
             self.__onDown(initialEvent)
@@ -126,7 +127,8 @@ class Recognizer(avg.Publisher):
                 event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
                 self._contacts.add(event.contact)
                 if len(self._contacts) == 1:
-                    self.__frameHandlerID = player.setOnFrameHandler(self._onFrame)
+                    self.__frameHandlerID = player.subscribe(player.ON_FRAME, 
+                            self._onFrame)
                 self.__dirty = True
                 return self._handleDown(event)
 
@@ -142,7 +144,8 @@ class Recognizer(avg.Publisher):
             self.__dirty = True
             self._contacts.remove(event.contact)
             if len(self._contacts) == 0:
-                player.clearInterval(self.__frameHandlerID)
+                player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
+                self.__frameHandlerID = None
             self._handleUp(event)
 
     def __abort(self):        
@@ -158,7 +161,9 @@ class Recognizer(avg.Publisher):
             contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
             contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
         self._contacts = set()
-        player.clearInterval(self.__frameHandlerID)
+        if self.__frameHandlerID:
+            player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
+            self.__frameHandlerID = None
 
     def _handleDown(self, event):
         pass
@@ -173,7 +178,8 @@ class Recognizer(avg.Publisher):
         pass
 
     def _onFrame(self):
-        if self.__dirty:
+        nodeGone = self._handleNodeGone()
+        if not(nodeGone) and self.__dirty:
             self._handleChange()
             self.__dirty = False
 
@@ -259,7 +265,7 @@ class DoubletapRecognizer(Recognizer):
     def _handleDown(self, event):
         self.__startTime = player.getFrameTime()
         if self.__stateMachine.state == "IDLE":
-            self.__frameHandlerID = player.setOnFrameHandler(self.__onFrame)
+            self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
             self.__stateMachine.changeState("DOWN1")
             self.__startPos = event.pos
             self._setPossible(event)
@@ -303,7 +309,7 @@ class DoubletapRecognizer(Recognizer):
             self.__stateMachine.changeState("IDLE")
 
     def __enterIdle(self):
-        player.clearInterval(self.__frameHandlerID)
+        player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
 
 
 class HoldRecognizer(Recognizer):
