@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:complexType name="SliderDef">
+    <xsd:attribute name="trackSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="trackDisabledSrc" type="xsd:string"/>
+    <xsd:attribute name="trackEndsExtent" type="xsd:integer"/>
+    <xsd:attribute name="thumbUpSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="thumbDownSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="thumbDisabledSrc" type="xsd:string"/>
+  </xsd:complexType>
   <xsd:element name="skin">
     <xsd:complexType>
       <xsd:sequence>
@@ -31,6 +39,15 @@
             <xsd:attribute name="font" type="xsd:IDREF" use="required"/>
             <xsd:attribute name="downFont" type="xsd:IDREF"/>
             <xsd:attribute name="disabledFont" type="xsd:IDREF"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="slider" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="vertical" type="SliderDef" minOccurs="1" maxOccurs="1"/>
+              <xsd:element name="horizontal" type="SliderDef" minOccurs="1" 
+                  maxOccurs="1"/>
+            </xsd:sequence>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>

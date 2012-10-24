@@ -10,6 +10,22 @@
             downFont="downFont"
             disabledFont="disabledFont"
             endsExtent="(7,7)"/>
+    <slider>
+      <vertical 
+            trackSrc="slider_horiz_track.png"
+            trackDisabledSrc="slider_horiz_track_disabled.png"
+            trackEndsExtent="4" 
+            thumbUpSrc="slider_thumb_up.png" 
+            thumbDownSrc="slider_thumb_down.png" 
+            thumbDisabledSrc="slider_thumb_disabled.png"/>
+      <horizontal
+            trackSrc="slider_vert_track.png"
+            trackDisabledSrc="slider_vert_track_disabled.png"
+            trackEndsExtent="4" 
+            thumbUpSrc="slider_thumb_up.png" 
+            thumbDownSrc="slider_thumb_down.png" 
+            thumbDisabledSrc="slider_thumb_disabled.png"/>
+    </slider>
 <!--
     <checkbox
             uncheckedUpSrc="checkbox_unchecked_up.png"

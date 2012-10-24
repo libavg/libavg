@@ -58,11 +58,28 @@ class Skin:
             kwargs = self.__extractArgs(attrs,
                     bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp", 
                             "disabledSrc": "disabledBmp"},
-                    fontArgNames=("font", "downFont", "disabledFont")
-                            )
+                    fontArgNames=("font", "downFont", "disabledFont"))
             self.textButtonCfg[nodeid] = kwargs
             if self.defaultTextButtonCfg == None or nodeid == None:
                 self.defaultTextButtonCfg = kwargs
+
+        self.sliderCfg = {}
+        self.defaultSliderCfg = None
+        for sliderXmlNode in xmlRoot.findall("slider"):
+            (nodeID, bogus) = self.__splitAttrs(sliderXmlNode)
+            self.sliderCfg[nodeID] = {}
+            if self.defaultSliderCfg == None or nodeID == None:
+                self.defaultSliderCfg = self.sliderCfg[nodeID]
+            for xmlNode in sliderXmlNode.iter():
+                # Loop through orientations (horiz, vert)
+                bogus, attrs = self.__splitAttrs(xmlNode)
+                kwargs = self.__extractArgs(attrs,
+                        bmpArgNames={"trackSrc": "trackBmp", 
+                                "trackDisabledSrc": "trackDisabledBmp", 
+                                "thumbUpSrc": "thumbUpBmp",
+                                "thumbDownSrc": "thumbDownBmp",
+                                "thumbDisabledSrc": "thumbDisabledBmp"})
+                self.sliderCfg[nodeID][node.tag] = kwargs
 
     def __splitAttrs(self, xmlNode):
         attrs = xmlNode.attrib
