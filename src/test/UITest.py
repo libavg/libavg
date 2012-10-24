@@ -587,6 +587,7 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testStretchNode"+orName+"1"),
                     ))
 
+
     def testHVStretchNode(self):
 
         def changeSize():
@@ -611,6 +612,12 @@ class UITestCase(AVGTestCase):
         def onThumbPosChanged(pos):
             self.thumbpos = pos
 
+        def setSize():
+            if orientation == ui.Orientation.HORIZONTAL:
+                self.node.width=140
+            else:
+                self.node.height=60
+
         for orientation, orName in (
                 (ui.Orientation.HORIZONTAL,"Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
@@ -626,7 +633,14 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testSlider"+orName+"1"),
                      lambda: self.node.setRange((10,1)),
                      lambda: self.compareImage("testSlider"+orName+"3"),
-                    )) 
+                     setSize,
+                     lambda: self.compareImage("testSlider"+orName+"4"),
+                     lambda: self.node.setEnabled(False),
+                     lambda: self.compareImage("testSlider"+orName+"5"),
+                     lambda: self.node.setEnabled(True),
+                     lambda: self.compareImage("testSlider"+orName+"4"),
+                    ))
+
 
 #    def testScrollBar(self):
 #        def createNode(orientation):
@@ -791,35 +805,6 @@ class UITestCase(AVGTestCase):
 #                     lambda: self.node.setRange((1,0)),
 #                     lambda: self.node.setThumbPos(0),
 #                     lambda: self.compareImage("testSimpleScrollBar"+orName+"5"),
-#                    ))
-#
-#    def testSimpleSlider(self):
-#        
-#        def setExtent(x):
-#            if orientation == ui.Orientation.HORIZONTAL:
-#                self.node.width = x
-#            else:
-#                self.node.height = x
-#
-#        for orientation, orName in (
-#                (ui.Orientation.HORIZONTAL,"Horiz"),
-#                (ui.Orientation.VERTICAL, "Vert")):
-#            root = self.loadEmptyScene()
-#            if orientation == ui.Orientation.HORIZONTAL:
-#                size = (100, 20)
-#            else:
-#                size = (20, 100)
-#            self.node = ui.simple.Slider(size=size, orientation=orientation,
-#                    parent=root)
-#
-#            self.start(False,
-#                    (lambda: self.compareImage("testSimpleSlider"+orName+"1"),
-#                     lambda: self.node.setThumbPos(1),
-#                     lambda: self.compareImage("testSimpleSlider"+orName+"2"),
-#                     lambda: setExtent(50),
-#                     lambda: self.compareImage("testSimpleSlider"+orName+"3"),
-#                     lambda: self.node.setEnabled(False),
-#                     lambda: self.compareImage("testSimpleSlider"+orName+"4"),
 #                    ))
 #
 #    def testSimpleScrollArea(self):

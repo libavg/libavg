@@ -125,9 +125,9 @@ class Slider(avg.DivNode):
             self.size = (width, trackBmp.getSize().y)
         else:
             self.size = (trackBmp.getSize().x, height)
-#        self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
-#                    detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
-#                    upHandler=self.__onUp)
+        self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
+                    detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
+                    upHandler=self.__onUp)
 
         if not(enabled):
             self.setEnabled(False)
@@ -254,20 +254,6 @@ class Slider(avg.DivNode):
         self._thumbPos = max(rangeMin, self._thumbPos)
         self._thumbPos = min(rangeMax, self._thumbPos)
 
-
-#class BmpSlider(Slider):
-#
-#    def __init__(self, trackSrc, trackEndsExtent, 
-#            thumbUpSrc, thumbDownSrc, trackDisabledSrc=None, thumbDisabledSrc=None,
-#            orientation=Orientation.HORIZONTAL, **kwargs):
-#        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
-#                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
-#        thumbNode = SliderThumb(upSrc=thumbUpSrc, 
-#                downSrc=thumbDownSrc, disabledSrc=thumbDisabledSrc)
-#
-#        super(BmpSlider, self).__init__(trackNode=trackNode,
-#                orientation=orientation, thumbNode=thumbNode, **kwargs)
-    
 
 class ScrollBar(Slider):
    
