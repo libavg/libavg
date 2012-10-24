@@ -335,7 +335,7 @@ class TextArea(avg.DivNode):
         """
         return self.__getUnicodeFromData()
 
-    def setStyle(self, font='sans', fontsize=12, alignment='left', variant='Roman', 
+    def setStyle(self, font='sans', fontsize=12, alignment='left', variant='Regular', 
             color='000000', multiline=True, cursorWidth=None, border=(0,0), 
             blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False, cursorColor='000000',
             lineSpacing=0, letterSpacing=0):
