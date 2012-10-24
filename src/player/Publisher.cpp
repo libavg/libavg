@@ -66,8 +66,8 @@ int Publisher::subscribe(MessageID messageID, const py::object& callable)
 
 void Publisher::unsubscribe(MessageID messageID, int subscriberID)
 {
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     bool bFound = false;
+    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoVector::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->getID() == subscriberID) {
@@ -209,7 +209,8 @@ void Publisher::tryUnsubscribeInNotify(MessageID messageID, int subscriberID)
 {
     std::vector<UnsubscribeDescription>::iterator it2;
     for (it2 = m_PendingUnsubscribes.begin(); it2 != m_PendingUnsubscribes.end(); it2++) {
-        checkSubscriberNotFound(!(it2->first == messageID), messageID, subscriberID);
+        checkSubscriberNotFound(!(it2->first == messageID && it2->second == subscriberID),
+                messageID, subscriberID);
     }
     m_PendingUnsubscribes.push_back(
             std::pair<MessageID, int>(messageID, subscriberID));
@@ -227,6 +228,16 @@ void Publisher::checkSubscriberNotFound(bool bFound, MessageID messageID,
                     " doesn't have a subscriber with ID "+toString(subscriberID));
         }
     }
+}
+
+void Publisher::dumpSubscribers(MessageID messageID)
+{
+    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoVector::iterator it;
+    for (it = subscribers.begin(); it != subscribers.end(); it++) {
+        cerr << (*it)->getID() << " ";
+    }
+    cerr << endl;
 }
 
 
