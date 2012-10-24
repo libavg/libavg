@@ -70,16 +70,17 @@ class Skin:
             self.sliderCfg[nodeID] = {}
             if self.defaultSliderCfg == None or nodeID == None:
                 self.defaultSliderCfg = self.sliderCfg[nodeID]
-            for xmlNode in sliderXmlNode.iter():
+            for xmlNode in sliderXmlNode.iterfind("*"):
                 # Loop through orientations (horiz, vert)
                 bogus, attrs = self.__splitAttrs(xmlNode)
                 kwargs = self.__extractArgs(attrs,
+                        floatArgNames=("trackEndsExtent",),
                         bmpArgNames={"trackSrc": "trackBmp", 
                                 "trackDisabledSrc": "trackDisabledBmp", 
                                 "thumbUpSrc": "thumbUpBmp",
                                 "thumbDownSrc": "thumbDownBmp",
                                 "thumbDisabledSrc": "thumbDisabledBmp"})
-                self.sliderCfg[nodeID][node.tag] = kwargs
+                self.sliderCfg[nodeID][xmlNode.tag] = kwargs
 
     def __splitAttrs(self, xmlNode):
         attrs = xmlNode.attrib

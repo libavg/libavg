@@ -11,16 +11,16 @@
             disabledFont="disabledFont"
             endsExtent="(7,7)"/>
     <slider>
-      <vertical 
+      <horizontal 
             trackSrc="slider_horiz_track.png"
             trackDisabledSrc="slider_horiz_track_disabled.png"
-            trackEndsExtent="4" 
+            trackEndsExtent="6" 
             thumbUpSrc="slider_thumb_up.png" 
             thumbDownSrc="slider_thumb_down.png"/>
-      <horizontal
+      <vertical
             trackSrc="slider_vert_track.png"
             trackDisabledSrc="slider_vert_track_disabled.png"
-            trackEndsExtent="4" 
+            trackEndsExtent="6" 
             thumbUpSrc="slider_thumb_up.png" 
             thumbDownSrc="slider_thumb_down.png"/>
     </slider>

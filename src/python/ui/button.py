@@ -159,9 +159,7 @@ class BmpButton(Button):
 
 class TextButton(Button):
 
-    def __init__(self, text, skinObj=None, **kwargs):
-        if not(skinObj):
-            skinObj = skin.Skin.default
+    def __init__(self, text, skinObj=skin.Skin.default, **kwargs):
         size = avg.Point2D(kwargs["size"])
         cfg = skinObj.defaultTextButtonCfg
 

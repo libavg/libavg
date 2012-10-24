@@ -603,45 +603,30 @@ class UITestCase(AVGTestCase):
                 )) 
 
 
-#    def testSlider(self):
-#        def createNode(orientation):
-#            if orientation == ui.Orientation.HORIZONTAL:
-#                trackSrc = "media/slider_horiz_track.png"
-#                trackDisabledSrc = "media/scrollbar_horiz_track_disabled.png"
-#            else:
-#                trackSrc = "media/slider_vert_track.png"
-#                trackDisabledSrc = "media/scrollbar_vert_track_disabled.png"
-#
-#            self.node = ui.BmpSlider(orientation=orientation,
-#                    trackSrc=trackSrc,
-#                    trackDisabledSrc=trackDisabledSrc,
-#                    trackEndsExtent=12,
-#                    thumbUpSrc="slider_thumb_up.png",
-#                    thumbDownSrc="slider_thumb_down.png",
-#                    thumbDisabledSrc="slider_thumb_disabled.png",
-#                    width=100,
-#                    height=100,
-#                    parent=root)
-#        
-#        def onThumbPosChanged(pos):
-#            self.thumbpos = pos
-#
-#        for orientation, orName in (
-#                (ui.Orientation.HORIZONTAL,"Horiz"),
-#                (ui.Orientation.VERTICAL, "Vert")):
-#            root = self.loadEmptyScene()
-#            createNode(orientation)
-#            self.start(False,
-#                    (lambda: self.compareImage("testSlider"+orName+"1"),
-#                     lambda: self.node.setThumbPos(0.25),
-#                     lambda: self.compareImage("testSlider"+orName+"2"),
-#                     lambda: self.node.setThumbPos(1),
-#                     lambda: self.compareImage("testSlider"+orName+"3"),
-#                     lambda: self.node.setRange((1,10)),
-#                     lambda: self.compareImage("testSlider"+orName+"1"),
-#                     lambda: self.node.setRange((10,1)),
-#                     lambda: self.compareImage("testSlider"+orName+"3"),
-#                    )) 
+    def testSlider(self):
+        def createNode(orientation):
+            self.node = ui.Slider(orientation=orientation, pos=(20,20), 
+                    width=100, height=100, parent=root)
+        
+        def onThumbPosChanged(pos):
+            self.thumbpos = pos
+
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
+            createNode(orientation)
+            self.start(False,
+                    (lambda: self.compareImage("testSlider"+orName+"1"),
+                     lambda: self.node.setThumbPos(0.25),
+                     lambda: self.compareImage("testSlider"+orName+"2"),
+                     lambda: self.node.setThumbPos(1),
+                     lambda: self.compareImage("testSlider"+orName+"3"),
+                     lambda: self.node.setRange((1,10)),
+                     lambda: self.compareImage("testSlider"+orName+"1"),
+                     lambda: self.node.setRange((10,1)),
+                     lambda: self.compareImage("testSlider"+orName+"3"),
+                    )) 
 
 #    def testScrollBar(self):
 #        def createNode(orientation):
@@ -933,7 +918,7 @@ def uiTestSuite(tests):
         "testScrollPane",
         "testStretchNode",
         "testHVStretchNode",
-#        "testSlider",
+        "testSlider",
 #        "testScrollBar",
         "testScrollArea",
 #        "testSimpleScrollBar",

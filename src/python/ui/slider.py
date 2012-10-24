@@ -20,6 +20,7 @@
 
 from libavg import avg, player
 from base import SwitchNode, HStretchNode, VStretchNode, Orientation
+from . import skin
 import gesture
 
 import math
@@ -27,18 +28,16 @@ import math
 
 class ScrollBarTrack(SwitchNode):
     
-    def __init__(self, enabledSrc, endsExtent, disabledSrc=None, 
-            orientation=Orientation.HORIZONTAL, minExtent=-1, 
+    def __init__(self, bmp, endsExtent, disabledBmp, orientation=Orientation.HORIZONTAL, 
             **kwargs):
       
         super(ScrollBarTrack, self).__init__(nodeMap=None, **kwargs)
-        self.__enabledNode = StretchNode(src=enabledSrc, endsExtent=endsExtent,
-                orientation=orientation, minExtent=minExtent,
-                parent=self)
-        if disabledSrc == None:
-            disabledSrc = enabledSrc
-        self.__disabledNode = StretchNode(src=disabledSrc, endsExtent=endsExtent,
-                orientation=orientation, minExtent=minExtent,
+        if orientation == Orientation.HORIZONTAL:
+            StretchNode = HStretchNode
+        else:
+            StretchNode = VStretchNode
+        self.__enabledNode = StretchNode(bmp=bmp, endsExtent=endsExtent, parent=self)
+        self.__disabledNode = StretchNode(bmp=disabledBmp, endsExtent=endsExtent,
                 parent=self)
         
         self.setNodeMap({
@@ -92,11 +91,14 @@ class Slider(avg.DivNode):
     PRESSED = avg.Publisher.genMessageID()
     RELEASED = avg.Publisher.genMessageID()
 
-    def __init__(self, trackNode, thumbNode,
-            enabled=True, orientation=Orientation.HORIZONTAL, range=(0.,1.), 
-            thumbpos=0.0, parent=None, **kwargs):
+    def __init__(self, enabled=True, height=0, width=0, orientation=Orientation.HORIZONTAL,
+            range=(0.,1.), thumbpos=0.0, skinObj=skin.Skin.default, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+        if orientation == Orientation.HORIZONTAL:
+            cfg = skinObj.defaultSliderCfg["horizontal"]
+        else:
+            cfg = skinObj.defaultSliderCfg["vertical"]
         
         self.publish(Slider.THUMB_POS_CHANGED)
         self.publish(Slider.PRESSED)
@@ -104,20 +106,28 @@ class Slider(avg.DivNode):
 
         self._orientation = orientation
 
-        self._trackNode = trackNode
+        trackBmp = cfg["trackBmp"]
+        if "trackDisabledBmp" in cfg:
+            trackDisabledBmp = cfg["trackDisabledBmp"]
+        else:
+            trackDisabledBmp = cfg["trackBmp"]
+        self._trackNode = ScrollBarTrack(bmp=trackBmp, endsExtent=cfg["trackEndsExtent"],
+                disabledBmp=trackDisabledBmp, orientation=self._orientation)
         self.appendChild(self._trackNode)
 
-        self._thumbNode = thumbNode
-        self.appendChild(self._thumbNode)
+#        self._thumbNode = thumbNode
+#        self.appendChild(self._thumbNode)
 
         self._range = range
         self._thumbPos = thumbpos
 
-        self._positionNodes()
-
-        self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
-                    detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
-                    upHandler=self.__onUp)
+        if orientation == Orientation.HORIZONTAL:
+            self.size = (width, trackBmp.getSize().y)
+        else:
+            self.size = (trackBmp.getSize().x, height)
+#        self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
+#                    detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
+#                    upHandler=self.__onUp)
 
         if not(enabled):
             self.setEnabled(False)
@@ -210,9 +220,9 @@ class Slider(avg.DivNode):
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
-            return self.size.x - self._thumbNode.size.x
+            return self.size.x #- self._thumbNode.size.x
         else:
-            return self.size.y - self._thumbNode.size.y
+            return self.size.y #- self._thumbNode.size.y
 
     def _positionNodes(self, newSliderPos=None):
         oldThumbPos = self._thumbPos
@@ -230,10 +240,10 @@ class Slider(avg.DivNode):
         else:
             thumbPixelPos = (((self._thumbPos-self._range[0])/self._getSliderRange())*
                     pixelRange)
-        if self._orientation == Orientation.HORIZONTAL:
-            self._thumbNode.x = thumbPixelPos
-        else:
-            self._thumbNode.y = thumbPixelPos
+#        if self._orientation == Orientation.HORIZONTAL:
+#            self._thumbNode.x = thumbPixelPos
+#        else:
+#            self._thumbNode.y = thumbPixelPos
 
     def _getSliderRange(self):
         return self._range[1] - self._range[0]

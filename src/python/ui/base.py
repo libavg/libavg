@@ -27,10 +27,13 @@ class Orientation():
 
 class StretchNodeBase(avg.DivNode):
     
-    def __init__(self, src, parent=None, **kwargs):
+    def __init__(self, src=None, bmp=None, parent=None, **kwargs):
         super(StretchNodeBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-        self._bmp = self._bmpFromSrc(src)
+        if src != None:
+            self._bmp = self._bmpFromSrc(src)
+        else:
+            self._bmp = bmp
         
     def getWidth(self):
         return self._baseWidth
@@ -77,10 +80,11 @@ class StretchNodeBase(avg.DivNode):
             raise RuntimeError("src must be a string or a Bitmap.")
         
     def _setSizeFromBmp(self, bmp):
+        size = bmp.getSize()
         if self._baseSize.x == 0:
-            self._baseWidth = bmp.width
+            self._baseWidth = size.x
         if self._baseSize.y == 0:
-            self._baseHeight = bmp.height
+            self._baseHeight = size.y
 
     def _checkExtents(self, endsExtent, minExtent):
         if endsExtent < 0:
