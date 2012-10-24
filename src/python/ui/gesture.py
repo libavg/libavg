@@ -828,10 +828,10 @@ class InertiaHandler(object):
         self.__curPivot = avg.Point2D(0, 0)
         self.__angVel = 0
         self.__sizeVel = avg.Point2D(0, 0)
-        self.__frameHandlerID = player.setOnFrameHandler(self.__onDragFrame)
+        self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onDragFrame)
 
     def abort(self):
-        player.clearInterval(self.__frameHandlerID)
+        player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
         self.__stopHandler = None
         self.__moveHandler = None
 
@@ -847,8 +847,9 @@ class InertiaHandler(object):
             self.__angVel += 0.1*transform.rot/frameDuration
 
     def onUp(self):
-        player.clearInterval(self.__frameHandlerID)
-        self.__frameHandlerID = player.setOnFrameHandler(self.__onInertiaFrame)
+        player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
+        self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onInertiaFrame)
+        self.__onInertiaFrame()
 
     def __onDragFrame(self):
         self.__transVel *= 0.9
@@ -879,7 +880,7 @@ class InertiaHandler(object):
             self.__stop()
 
     def __stop(self):
-        player.clearInterval(self.__frameHandlerID)
+        player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
         self.__stopHandler()
         self.__stopHandler = None
         self.__moveHandler = None
