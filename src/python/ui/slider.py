@@ -73,15 +73,14 @@ class ScrollBarThumb(SwitchNode):
 
 class SliderThumb(SwitchNode):
 
-    def __init__(self, upSrc, downSrc, disabledSrc=None, **kwargs):
-        upNode = avg.ImageNode(href=upSrc)
-        if disabledSrc == None:
-            disabledSrc = upSrc
-        nodeMap = {
-            "UP": upNode,
-            "DOWN": avg.ImageNode(href=downSrc),
-            "DISABLED": avg.ImageNode(href=disabledSrc)
-        }
+    def __init__(self, upBmp, downBmp, disabledBmp, **kwargs):
+        upNode = avg.ImageNode()
+        upNode.setBitmap(upBmp)
+        downNode = avg.ImageNode()
+        downNode.setBitmap(downBmp)
+        disabledNode = avg.ImageNode()
+        disabledNode.setBitmap(disabledBmp)
+        nodeMap = {"UP": upNode, "DOWN": downNode, "DISABLED": disabledNode}
         super(SliderThumb, self).__init__(nodeMap=nodeMap, visibleid="UP", **kwargs)
 
 
@@ -107,16 +106,17 @@ class Slider(avg.DivNode):
         self._orientation = orientation
 
         trackBmp = cfg["trackBmp"]
-        if "trackDisabledBmp" in cfg:
-            trackDisabledBmp = cfg["trackDisabledBmp"]
-        else:
-            trackDisabledBmp = cfg["trackBmp"]
+        trackDisabledBmp = skin.getBmpFromCfg(cfg, "trackDisabledBmp", "trackBmp")
         self._trackNode = ScrollBarTrack(bmp=trackBmp, endsExtent=cfg["trackEndsExtent"],
                 disabledBmp=trackDisabledBmp, orientation=self._orientation)
         self.appendChild(self._trackNode)
 
-#        self._thumbNode = thumbNode
-#        self.appendChild(self._thumbNode)
+        thumbUpBmp = cfg["thumbUpBmp"]
+        thumbDownBmp = skin.getBmpFromCfg(cfg, "thumbDownBmp", "thumbUpBmp")
+        thumbDisabledBmp = skin.getBmpFromCfg(cfg, "thumbDisabledBmp", "thumbUpBmp")
+        self._thumbNode = SliderThumb(upBmp=thumbUpBmp, downBmp=thumbDownBmp,
+                disabledBmp=thumbDisabledBmp)
+        self.appendChild(self._thumbNode)
 
         self._range = range
         self._thumbPos = thumbpos
@@ -220,9 +220,9 @@ class Slider(avg.DivNode):
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
-            return self.size.x #- self._thumbNode.size.x
+            return self.size.x - self._thumbNode.size.x
         else:
-            return self.size.y #- self._thumbNode.size.y
+            return self.size.y - self._thumbNode.size.y
 
     def _positionNodes(self, newSliderPos=None):
         oldThumbPos = self._thumbPos
@@ -240,10 +240,10 @@ class Slider(avg.DivNode):
         else:
             thumbPixelPos = (((self._thumbPos-self._range[0])/self._getSliderRange())*
                     pixelRange)
-#        if self._orientation == Orientation.HORIZONTAL:
-#            self._thumbNode.x = thumbPixelPos
-#        else:
-#            self._thumbNode.y = thumbPixelPos
+        if self._orientation == Orientation.HORIZONTAL:
+            self._thumbNode.x = thumbPixelPos
+        else:
+            self._thumbNode.y = thumbPixelPos
 
     def _getSliderRange(self):
         return self._range[1] - self._range[0]

@@ -105,6 +105,13 @@ class Skin:
                 kwargs[key] = value
         return kwargs
 
+def getBmpFromCfg(cfg, bmpName, defaultName):
+    if bmpName in cfg:
+        return cfg[bmpName]
+    else:
+        return cfg[defaultName]
+    
+
 
 defaultMediaDir = os.path.join(os.path.dirname(__file__), "..", 'data/')
 Skin.default = Skin(defaultMediaDir+"SimpleSkin.xml", defaultMediaDir)
