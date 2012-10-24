@@ -36,8 +36,8 @@ class ScrollBarTrack(SwitchNode):
             StretchNode = HStretchNode
         else:
             StretchNode = VStretchNode
-        self.__enabledNode = StretchNode(bmp=bmp, endsExtent=endsExtent, parent=self)
-        self.__disabledNode = StretchNode(bmp=disabledBmp, endsExtent=endsExtent,
+        self.__enabledNode = StretchNode(src=bmp, endsExtent=endsExtent, parent=self)
+        self.__disabledNode = StretchNode(src=disabledBmp, endsExtent=endsExtent,
                 parent=self)
         
         self.setNodeMap({

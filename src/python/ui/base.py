@@ -27,13 +27,13 @@ class Orientation():
 
 class StretchNodeBase(avg.DivNode):
     
-    def __init__(self, src=None, bmp=None, parent=None, **kwargs):
+    def __init__(self, src=None, parent=None, **kwargs):
         super(StretchNodeBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-        if src != None:
-            self._bmp = self._bmpFromSrc(src)
+        if isinstance(src, avg.Bitmap):
+            self._bmp = src
         else:
-            self._bmp = bmp
+            self._bmp = self._bmpFromSrc(src)
         
     def getWidth(self):
         return self._baseWidth
