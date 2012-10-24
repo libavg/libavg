@@ -173,6 +173,16 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
     for (it = subscribers.begin(); it != subscribers.end();) {
         if ((*it)->hasExpired()) {
             it = subscribers.erase(it);
+            // Remove from the 'pending unsubscribes' list as well.
+            std::vector<UnsubscribeDescription>::iterator itUnsub;
+            for (itUnsub = m_PendingUnsubscribes.begin();
+                    itUnsub != m_PendingUnsubscribes.end(); itUnsub++)
+            {
+                if (itUnsub->first == messageID && itUnsub->second == (*it)->getID()) {
+                    m_PendingUnsubscribes.erase(itUnsub);
+                    break;
+                }
+            }
         } else {
             (*it)->invoke(args);
             it++;
