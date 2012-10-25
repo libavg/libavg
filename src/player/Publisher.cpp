@@ -73,13 +73,7 @@ void Publisher::unsubscribe(MessageID messageID, int subscriberID)
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->getID() == subscriberID) {
-            if (m_bIsInNotify) {
-//                cerr << "  delayed" << endl;
-                tryUnsubscribeInNotify(messageID, subscriberID);
-            } else {
-//                cerr << "  removed" << endl;
-                subscribers.erase(it);
-            }
+            unsubscribeIterator(messageID, it);
             return;
         }
     }
@@ -96,14 +90,8 @@ void Publisher::unsubscribe1(int subscriberID)
         SubscriberInfoList::iterator it2;
         for (it2 = subscribers.begin(); it2 != subscribers.end(); it2++) {
             if ((*it2)->getID() == subscriberID) {
-                if (m_bIsInNotify) {
-//                    cerr << "  delayed" << endl;
-                    MessageID messageID = it->first;
-                    tryUnsubscribeInNotify(messageID, subscriberID);
-                } else {
-//                    cerr << "  removed" << endl;
-                    subscribers.erase(it2);
-                }
+                MessageID messageID = it->first;
+                unsubscribeIterator(messageID, it2);
                 return;
             }
         }
@@ -118,11 +106,7 @@ void Publisher::unsubscribeCallable(MessageID messageID, const py::object& calla
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->isCallable(callable)) {
-            if (m_bIsInNotify) {
-                tryUnsubscribeInNotify(messageID, (*it)->getID());
-            } else {
-                subscribers.erase(it);
-            }
+            unsubscribeIterator(messageID, it);
             return;
         }
     }
@@ -244,6 +228,16 @@ MessageID Publisher::genMessageID()
 {
     return PublisherDefinitionRegistry::get()->genMessageID();
 }
+
+void Publisher::unsubscribeIterator(MessageID messageID, SubscriberInfoList::iterator it)
+{
+    if (m_bIsInNotify) {
+        tryUnsubscribeInNotify(messageID, (*it)->getID());
+    } else {
+        m_SignalMap[messageID].erase(it);
+    }
+}
+
 
 Publisher::SubscriberInfoList& Publisher::safeFindSubscribers(MessageID messageID)
 {

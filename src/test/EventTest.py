@@ -264,14 +264,19 @@ class EventTestCase(AVGTestCase):
             self.assertException(
                     lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, onDown))
 
-        def initUnsubscribeInEvent():
+        def initUnsubscribeInEvent(useMessageID):
             self.subscriberID = self.img.subscribe(avg.Node.CURSOR_DOWN, 
-                    onDownUnsubscribe)
+                    lambda event: onDownUnsubscribe(event, useMessageID))
 
-        def onDownUnsubscribe(event):
-            self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID)
-            self.assertException(
-                    lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID))
+        def onDownUnsubscribe(event, useMessageID):
+            if useMessageID:
+                self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID)
+                self.assertException(lambda: 
+                        self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID))
+            else:
+                self.img.unsubscribe(self.subscriberID)
+                self.assertException(lambda: self.img.unsubscribe(self.subscriberID))
+
             self.downCalled = True
 
         def onFrame():
@@ -294,7 +299,11 @@ class EventTestCase(AVGTestCase):
                  lambda: self.fakeClick(10,10),
                  lambda: self.assert_(not(self.downCalled)),
                 
-                 initUnsubscribeInEvent,
+                 lambda: initUnsubscribeInEvent(True),
+                 lambda: self.fakeClick(10,10),
+                 lambda: self.assert_(self.downCalled),
+
+                 lambda: initUnsubscribeInEvent(False),
                  lambda: self.fakeClick(10,10),
                  lambda: self.assert_(self.downCalled),
                 ))
@@ -331,7 +340,6 @@ class EventTestCase(AVGTestCase):
             self.downCalled[1] = True
 
         def assertDownsCalled(expectedState):
-            print self.downCalled
             self.assert_(self.downCalled == expectedState)
 
         root = self.loadEmptyScene()

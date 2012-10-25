@@ -79,6 +79,7 @@ private:
     typedef std::list<SubscriberInfoPtr> SubscriberInfoList;
     typedef std::map<MessageID, SubscriberInfoList> SignalMap;
     
+    void unsubscribeIterator(MessageID messageID, SubscriberInfoList::iterator it);
     SubscriberInfoList& safeFindSubscribers(MessageID messageID);
     void tryUnsubscribeInNotify(MessageID messageID, int subscriberID);
     void throwSubscriberNotFound(MessageID messageID, int subscriberID);
