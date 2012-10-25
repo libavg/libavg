@@ -229,8 +229,9 @@ class TextArea(avg.DivNode):
     focus, keyboard for text input). Can be set as a single line or span to multiple
     lines.
     """
-    def __init__(self, focusContext=None, disableMouseFocus=False, moveCoursorOnTouch=True,
-            textBackgroundNode=None, loupeBackgroundNode=None, parent=None, **kwargs):
+    def __init__(self, focusContext=None, disableMouseFocus=False, 
+            moveCoursorOnTouch=True, textBackgroundNode=None, loupeBackgroundNode=None,
+            parent=None, **kwargs):
         """
         @param parent: parent of the node
         @param focusContext: FocusContext object which directs focus for TextArea elements
@@ -334,7 +335,7 @@ class TextArea(avg.DivNode):
         """
         return self.__getUnicodeFromData()
 
-    def setStyle(self, font='sans', fontsize=12, alignment='left', variant='Roman', 
+    def setStyle(self, font='sans', fontsize=12, alignment='left', variant='Regular', 
             color='000000', multiline=True, cursorWidth=None, border=(0,0), 
             blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False, cursorColor='000000',
             lineSpacing=0, letterSpacing=0):
@@ -528,13 +529,15 @@ class TextArea(avg.DivNode):
             if keycode == KEYCODE_CRS_LEFT and self.__cursorPosition > 0:
                 self.__cursorPosition -= 1
                 self.__update()
-            elif keycode == KEYCODE_CRS_RIGHT and self.__cursorPosition < len(self.__data):
+            elif (keycode == KEYCODE_CRS_RIGHT and 
+                    self.__cursorPosition < len(self.__data)):
                 self.__cursorPosition += 1
                 self.__update()
             elif keycode == KEYCODE_CRS_UP and self.__cursorPosition != 0:
                 self.__cursorPosition = 0
                 self.__update()
-            elif keycode == KEYCODE_CRS_DOWN and self.__cursorPosition != len(self.__data):
+            elif (keycode == KEYCODE_CRS_DOWN and 
+                    self.__cursorPosition != len(self.__data)):
                 self.__cursorPosition = len(self.__data)
                 self.__update()
         # add linefeed only on multiline textareas
@@ -569,15 +572,15 @@ class TextArea(avg.DivNode):
             maxCharDim = self.__textNode.fontsize
             lastCharPos = self.__textNode.getGlyphPos(len(self.__data) - 1)
             if (not self.__isMultiline and
-                 lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border[0] * 2):
+                 lastCharPos[0] + maxCharDim*1.5 > self.width - self.__border[0]*2):
                 return
 
             if  (self.__isMultiline and 
-                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border[1] * 2):
-                if (lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border[0] * 2):
+                    lastCharPos[1] + maxCharDim*2 > self.height - self.__border[1]*2):
+                if (lastCharPos[0] + maxCharDim*1.5 > self.width - self.__border[0]*2):
                     return
                 if (ord(uchar) == 10 and
-                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border[0] * 2):
+                    lastCharPos[1] + maxCharDim*2 > self.height - self.__border[0]*2):
                     return
 
         self.__data.insert(self.__cursorPosition, uchar)
@@ -773,7 +776,7 @@ def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     g_RepeatDelay = repeatDelay
     g_CharDelay = charDelay
 
-    player.setOnFrameHandler(_onFrame)
+    player.subscribe(player.ON_FRAME, _onFrame)
 
     if catchKeyboard:
         player.subscribe(avg.Player.KEY_DOWN, _onKeyDown)

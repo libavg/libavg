@@ -81,6 +81,7 @@ private:
     SubscriberInfoVector& safeFindSubscribers(MessageID messageID);
     void tryUnsubscribeInNotify(MessageID messageID, int subscriberID);
     void checkSubscriberNotFound(bool bFound, MessageID messageID, int subscriberID);
+    void dumpSubscribers(MessageID messageID);
 
     PublisherDefinitionPtr m_pPublisherDef;
     SignalMap m_SignalMap;
