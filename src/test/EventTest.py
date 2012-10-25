@@ -264,14 +264,19 @@ class EventTestCase(AVGTestCase):
             self.assertException(
                     lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, onDown))
 
-        def initUnsubscribeInEvent():
+        def initUnsubscribeInEvent(useMessageID):
             self.subscriberID = self.img.subscribe(avg.Node.CURSOR_DOWN, 
-                    onDownUnsubscribe)
+                    lambda event: onDownUnsubscribe(event, useMessageID))
 
-        def onDownUnsubscribe(event):
-            self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID)
-            self.assertException(
-                    lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID))
+        def onDownUnsubscribe(event, useMessageID):
+            if useMessageID:
+                self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID)
+                self.assertException(lambda: 
+                        self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID))
+            else:
+                self.img.unsubscribe(self.subscriberID)
+                self.assertException(lambda: self.img.unsubscribe(self.subscriberID))
+
             self.downCalled = True
 
         def onFrame():
@@ -294,9 +299,66 @@ class EventTestCase(AVGTestCase):
                  lambda: self.fakeClick(10,10),
                  lambda: self.assert_(not(self.downCalled)),
                 
-                 initUnsubscribeInEvent,
+                 lambda: initUnsubscribeInEvent(True),
                  lambda: self.fakeClick(10,10),
                  lambda: self.assert_(self.downCalled),
+
+                 lambda: initUnsubscribeInEvent(False),
+                 lambda: self.fakeClick(10,10),
+                 lambda: self.assert_(self.downCalled),
+                ))
+
+    def testComplexPublisher(self):
+        def setupUnsubscribe():
+            self.downCalled = [False, False]
+            self.msgIDs = []
+            for i in range(0,2):
+                self.msgIDs.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                        lambda event, i=i: onUnsubscribeDown(i)))
+            
+        def onUnsubscribeDown(i):
+            self.downCalled[i] = True
+            for j in range(0,2):
+                self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.msgIDs[j])
+
+        def assertCorrectUnsubscribe():
+            # Exactly one of the two callbacks should have been invoked
+            self.assert_(self.downCalled[0] != self.downCalled[1])
+
+        def setupSubscribe():
+            self.downCalled = [False, False]
+            self.msgIDs = []
+            self.msgIDs.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                    lambda event: onSubscribeDown()))
+
+        def onSubscribeDown():
+            self.downCalled[0] = True
+            self.msgIDs.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                    lambda event: onSecondSubscribeDown()))
+        
+        def onSecondSubscribeDown():
+            self.downCalled[1] = True
+
+        def assertDownsCalled(expectedState):
+            self.assert_(self.downCalled == expectedState)
+
+        root = self.loadEmptyScene()
+        self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        
+        self.start(False,
+                (# Subscribe twice to an event, unsubscribe both during processing of the 
+                 # first. Second shouldn't be called anymore.
+                 lambda: setupUnsubscribe(),
+                 lambda: self.fakeClick(10,10),
+                 assertCorrectUnsubscribe,
+
+                 # Subscribe to an event, subscribe again during event processing.
+                 # The second one shouldn't be called immediately.
+                 lambda: setupSubscribe(),
+                 lambda: self.fakeClick(10,10),
+                 lambda: assertDownsCalled([True, False]),
+                 lambda: self.fakeClick(10,10),
+                 lambda: assertDownsCalled([True, True]),
                 ))
 
     def testPublisherAutoDelete(self):
@@ -929,6 +991,7 @@ def eventTestSuite(tests):
             "testUnlinkInHandler",
             "testConnectHandler",
             "testPublisher",
+            "testComplexPublisher",
             "testPublisherAutoDelete",
             "testObscuringEvents",
             "testSensitive",
