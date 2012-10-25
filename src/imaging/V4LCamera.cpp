@@ -137,6 +137,12 @@ int V4LCamera::getV4LPF(PixelFormat pf)
     switch (pf) {
         case I8:
             return V4L2_PIX_FMT_GREY;
+        case BAYER8:
+        case BAYER8_BGGR:
+        case BAYER8_GBRG:
+        case BAYER8_GRBG:
+        case BAYER8_RGGB:
+            return V4L2_PIX_FMT_GREY;
         case YCbCr411:
             return V4L2_PIX_FMT_Y41P;
         case YCbCr422:
@@ -505,8 +511,6 @@ void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValu
     V4LCID_t v4lFeature = getFeatureID(feature);
     m_Features[v4lFeature] = value;
 
-//    AVG_TRACE(Logger::WARNING,"Setting feature " << sFeature <<
-//        " to " << value);
     if (m_bCameraAvailable) {
         setFeature(v4lFeature, value);
     }
