@@ -40,14 +40,13 @@ Publisher::Publisher()
     m_pPublisherDef = PublisherDefinition::create("");
 }
 
-
 Publisher::Publisher(const string& sTypeName)
     : m_bIsInNotify(false)
 {
     m_pPublisherDef = PublisherDefinitionRegistry::get()->getDefinition(sTypeName);
     vector<MessageID> messageIDs = m_pPublisherDef->getMessageIDs();
     for (unsigned i=0; i<messageIDs.size(); ++i) {
-        m_SignalMap[messageIDs[i]] = vector<SubscriberInfoPtr>();
+        m_SignalMap[messageIDs[i]] = list<SubscriberInfoPtr>();
     }
 }
 
@@ -57,37 +56,45 @@ Publisher::~Publisher()
 
 int Publisher::subscribe(MessageID messageID, const py::object& callable)
 {
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     int subscriberID = s_LastSubscriberID;
     s_LastSubscriberID++;
+//    cerr << this << " subscribe " << messageID << ", " << subscriberID << endl;
     subscribers.push_back(SubscriberInfoPtr(new SubscriberInfo(subscriberID, callable)));
     return subscriberID;
 }
 
 void Publisher::unsubscribe(MessageID messageID, int subscriberID)
 {
+//    cerr << this << " unsubscribe " << messageID << ", " << subscriberID << endl;
+//    cerr << "  ";
+//    dumpSubscribers(messageID);
     bool bFound = false;
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
-    SubscriberInfoVector::iterator it;
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->getID() == subscriberID) {
             if (m_bIsInNotify) {
+//                cerr << "  delayed" << endl;
                 tryUnsubscribeInNotify(messageID, subscriberID);
             } else {
+//                cerr << "  removed" << endl;
                 subscribers.erase(it);
             }
             bFound = true;
             break;
         }
     }
+//    cerr << "  End of unsubscribe: ";
+//    dumpSubscribers(messageID);
     checkSubscriberNotFound(bFound, messageID, subscriberID);
 }
 
 void Publisher::unsubscribeCallable(MessageID messageID, const py::object& callable)
 {
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     bool bFound = false;
-    SubscriberInfoVector::iterator it;
+    SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->isCallable(callable)) {
             if (m_bIsInNotify) {
@@ -104,14 +111,14 @@ void Publisher::unsubscribeCallable(MessageID messageID, const py::object& calla
 
 int Publisher::getNumSubscribers(MessageID messageID)
 {
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     return subscribers.size(); 
 }
     
 bool Publisher::isSubscribed(MessageID messageID, int subscriberID)
 {
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
-    SubscriberInfoVector::iterator it;
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->getID() == subscriberID) {
             return true;
@@ -122,8 +129,8 @@ bool Publisher::isSubscribed(MessageID messageID, int subscriberID)
 
 bool Publisher::isSubscribedCallable(MessageID messageID, const py::object& callable)
 {
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
-    SubscriberInfoVector::iterator it;
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->isCallable(callable)) {
             return true;
@@ -138,20 +145,20 @@ void Publisher::publish(MessageID messageID)
         throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
                 "already registered.");
     }
-    m_SignalMap[messageID] = vector<SubscriberInfoPtr>();
+    m_SignalMap[messageID] = SubscriberInfoList();
 }
 
 void Publisher::removeSubscribers()
 {
     SignalMap::iterator it;
     for (it = m_SignalMap.begin(); it != m_SignalMap.end(); ++it) {
-        it->second = SubscriberInfoVector();
+        it->second = SubscriberInfoList();
     }
 }
 
 void Publisher::notifySubscribers(MessageID messageID)
 {
-    SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     if (!subscribers.empty()) {
         py::list args;
         notifySubscribersPy(messageID, args);
@@ -166,24 +173,32 @@ void Publisher::notifySubscribers(const string& sMsgName)
 
 void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 {
+//    cerr << this << " notifySubscribers " << messageID << endl;
+//    cerr << "  ";
+//    dumpSubscribers(messageID);
     AVG_ASSERT(!(Player::get()->isTraversingTree()));
     m_bIsInNotify = true;
-    SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
-    SubscriberInfoVector::iterator it;
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end();) {
         if ((*it)->hasExpired()) {
-            it = subscribers.erase(it);
+//            cerr << "  expired: " << (*it)->getID() << endl;
+            SubscriberInfoPtr pSubscriberInfo = *it;
+            subscribers.erase(it++);
             // Remove from the 'pending unsubscribes' list as well.
             std::vector<UnsubscribeDescription>::iterator itUnsub;
             for (itUnsub = m_PendingUnsubscribes.begin();
                     itUnsub != m_PendingUnsubscribes.end(); itUnsub++)
             {
-                if (itUnsub->first == messageID && itUnsub->second == (*it)->getID()) {
+                if (itUnsub->first == messageID && 
+                        itUnsub->second == pSubscriberInfo->getID()) 
+                {
                     m_PendingUnsubscribes.erase(itUnsub);
                     break;
                 }
             }
         } else {
+//            cerr << "  invoke: " << (*it)->getID() << endl;
             (*it)->invoke(args);
             it++;
         }
@@ -192,12 +207,18 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 
     // The subscribers can issue unsubscribes during the notification. We delay processing
     // them so for loop above doesn't get messed up.
+//    cerr << "  process pending unsubscribes" << endl;
+//    cerr << "    ";
+//    dumpSubscribers(messageID);
     std::vector<UnsubscribeDescription>::iterator itUnsub;
     for (itUnsub = m_PendingUnsubscribes.begin(); itUnsub != m_PendingUnsubscribes.end();
             itUnsub++)
     {
+//        cerr << "    Unsubscribing: " << itUnsub->second << endl;
         unsubscribe(itUnsub->first, itUnsub->second);
     }
+//    cerr << "  ";
+//    dumpSubscribers(messageID);
     m_PendingUnsubscribes.clear();
 }
 
@@ -206,12 +227,12 @@ MessageID Publisher::genMessageID()
     return PublisherDefinitionRegistry::get()->genMessageID();
 }
 
-Publisher::SubscriberInfoVector& Publisher::safeFindSubscribers(MessageID messageID)
+Publisher::SubscriberInfoList& Publisher::safeFindSubscribers(MessageID messageID)
 {
     if (m_SignalMap.find(messageID) == m_SignalMap.end()) {
         throw Exception(AVG_ERR_INVALID_ARGS, "No signal with ID "+toString(messageID));
     }
-    vector<SubscriberInfoPtr>& subscribers = m_SignalMap[messageID];
+    SubscriberInfoList& subscribers = m_SignalMap[messageID];
     return subscribers;
 }
 
@@ -242,8 +263,8 @@ void Publisher::checkSubscriberNotFound(bool bFound, MessageID messageID,
 
 void Publisher::dumpSubscribers(MessageID messageID)
 {
-    vector<SubscriberInfoPtr>& subscribers = safeFindSubscribers(messageID);
-    SubscriberInfoVector::iterator it;
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         cerr << (*it)->getID() << " ";
     }

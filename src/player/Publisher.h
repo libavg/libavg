@@ -34,7 +34,7 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
-#include <vector>
+#include <list>
 #include <map>
 
 namespace avg {
@@ -75,10 +75,10 @@ protected:
     void removeSubscribers();
 
 private:
-    typedef std::vector<SubscriberInfoPtr> SubscriberInfoVector;
-    typedef std::map<MessageID, SubscriberInfoVector> SignalMap;
+    typedef std::list<SubscriberInfoPtr> SubscriberInfoList;
+    typedef std::map<MessageID, SubscriberInfoList> SignalMap;
     
-    SubscriberInfoVector& safeFindSubscribers(MessageID messageID);
+    SubscriberInfoList& safeFindSubscribers(MessageID messageID);
     void tryUnsubscribeInNotify(MessageID messageID, int subscriberID);
     void checkSubscriberNotFound(bool bFound, MessageID messageID, int subscriberID);
     void dumpSubscribers(MessageID messageID);
@@ -96,7 +96,7 @@ template<class ARG_TYPE>
 void Publisher::notifySubscribers(const std::string& sMsgName, const ARG_TYPE& arg)
 {
     MessageID messageID = m_pPublisherDef->getMessageID(sMsgName);
-    SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     if (!subscribers.empty()) {
         py::list args;
         py::object pyArg(arg);
