@@ -300,27 +300,57 @@ class EventTestCase(AVGTestCase):
                 ))
 
     def testComplexPublisher(self):
-        def onDown(i):
+        def setupUnsubscribe():
+            self.downCalled = [False, False]
+            self.msgIDs = []
+            for i in range(0,2):
+                self.msgIDs.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                        lambda event, i=i: onUnsubscribeDown(i)))
+            
+        def onUnsubscribeDown(i):
             self.downCalled[i] = True
-            self.img.unsubscribe(avg.Node.CURSOR_DOWN, msgID[1-i])
+            for j in range(0,2):
+                self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.msgIDs[j])
 
-        def assertCorrectCalls():
-            # Exactly one of the two events should have been called.
+        def assertCorrectUnsubscribe():
+            # Exactly one of the two callbacks should have been invoked
             self.assert_(self.downCalled[0] != self.downCalled[1])
 
-        # Subscribe twice to an event, unsubscribe the second during processing of the 
-        # first. Second shouldn't be called anymore.
-        self.downCalled = [False, False]
+        def setupSubscribe():
+            self.downCalled = [False, False]
+            self.msgIDs = []
+            self.msgIDs.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                    lambda event: onSubscribeDown()))
+
+        def onSubscribeDown():
+            self.downCalled[0] = True
+            self.msgIDs.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                    lambda event: onSecondSubscribeDown()))
+        
+        def onSecondSubscribeDown():
+            self.downCalled[1] = True
+
+        def assertDownsCalled(expectedState):
+            print self.downCalled
+            self.assert_(self.downCalled == expectedState)
+
         root = self.loadEmptyScene()
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
-        msgID = []
-        for i in range(0,2):
-            msgID.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
-                    lambda event, i=i: onDown(i)))
         
         self.start(False,
-                (lambda: self.fakeClick(10,10),
-                 assertCorrectCalls,
+                (# Subscribe twice to an event, unsubscribe both during processing of the 
+                 # first. Second shouldn't be called anymore.
+                 lambda: setupUnsubscribe(),
+                 lambda: self.fakeClick(10,10),
+                 assertCorrectUnsubscribe,
+
+                 # Subscribe to an event, subscribe again during event processing.
+                 # The second one shouldn't be called immediately.
+                 lambda: setupSubscribe(),
+                 lambda: self.fakeClick(10,10),
+                 lambda: assertDownsCalled([True, False]),
+                 lambda: self.fakeClick(10,10),
+                 lambda: assertDownsCalled([True, True]),
                 ))
 
     def testPublisherAutoDelete(self):

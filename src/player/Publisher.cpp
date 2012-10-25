@@ -60,7 +60,7 @@ int Publisher::subscribe(MessageID messageID, const py::object& callable)
     int subscriberID = s_LastSubscriberID;
     s_LastSubscriberID++;
 //    cerr << this << " subscribe " << messageID << ", " << subscriberID << endl;
-    subscribers.push_back(SubscriberInfoPtr(new SubscriberInfo(subscriberID, callable)));
+    subscribers.push_front(SubscriberInfoPtr(new SubscriberInfo(subscriberID, callable)));
     return subscriberID;
 }
 
@@ -180,14 +180,14 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end();) {
+//        cerr << "  next" << endl;
         if ((*it)->hasExpired()) {
 //            cerr << "  expired: " << (*it)->getID() << endl;
             subscribers.erase(it++);
         } else {
 //            cerr << "  invoke: " << (*it)->getID() << endl;
-            SubscriberInfoPtr pSubscriberInfo = *it;
             m_bIsInNotify = true;
-            pSubscriberInfo->invoke(args);
+            (*it)->invoke(args);
             m_bIsInNotify = false;
 
             // Process pending unsubscribe requests
@@ -198,8 +198,8 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
                     itUnsub++)
             {
 //                cerr << "    Unsubscribing: " << itUnsub->second << endl;
-                if (itUnsub->first == messageID && 
-                         itUnsub->second == pSubscriberInfo->getID())
+                if (it != subscribers.end() && itUnsub->first == messageID && 
+                         itUnsub->second == (*it)->getID())
                 {
 //                    cerr << "      current" << endl;
                     it++;
@@ -208,14 +208,16 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 //                cerr << "      ";
 //                dumpSubscribers(messageID);
                 unsubscribe(itUnsub->first, itUnsub->second);
+//                cerr << "      done" << endl;
             }
             m_PendingUnsubscribes.clear();
             if (!bCurrentIsUnsubscribed) {
                 it++;
             }
+//            cerr << "    end invoke" << endl;
         }
     }
-    m_bIsInNotify = false;
+//    cerr << "  end notify" << endl;
 }
 
 MessageID Publisher::genMessageID()
