@@ -69,7 +69,6 @@ void Publisher::unsubscribe(MessageID messageID, int subscriberID)
 //    cerr << this << " unsubscribe " << messageID << ", " << subscriberID << endl;
 //    cerr << "  ";
 //    dumpSubscribers(messageID);
-    bool bFound = false;
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
@@ -81,19 +80,41 @@ void Publisher::unsubscribe(MessageID messageID, int subscriberID)
 //                cerr << "  removed" << endl;
                 subscribers.erase(it);
             }
-            bFound = true;
-            break;
+            return;
         }
     }
 //    cerr << "  End of unsubscribe: ";
 //    dumpSubscribers(messageID);
-    checkSubscriberNotFound(bFound, messageID, subscriberID);
+    throwSubscriberNotFound(messageID, subscriberID);
+}
+
+void Publisher::unsubscribe1(int subscriberID)
+{
+    SignalMap::iterator it;
+    for (it = m_SignalMap.begin(); it != m_SignalMap.end(); ++it) {
+        SubscriberInfoList& subscribers = it->second;
+        SubscriberInfoList::iterator it2;
+        for (it2 = subscribers.begin(); it2 != subscribers.end(); it2++) {
+            if ((*it2)->getID() == subscriberID) {
+                if (m_bIsInNotify) {
+//                    cerr << "  delayed" << endl;
+                    MessageID messageID = it->first;
+                    tryUnsubscribeInNotify(messageID, subscriberID);
+                } else {
+//                    cerr << "  removed" << endl;
+                    subscribers.erase(it2);
+                }
+                return;
+            }
+        }
+    }
+    throw Exception(AVG_ERR_INVALID_ARGS, 
+            "Subscriber with ID "+toString(subscriberID)+" not found.");
 }
 
 void Publisher::unsubscribeCallable(MessageID messageID, const py::object& callable)
 {
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
-    bool bFound = false;
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->isCallable(callable)) {
@@ -102,11 +123,10 @@ void Publisher::unsubscribeCallable(MessageID messageID, const py::object& calla
             } else {
                 subscribers.erase(it);
             }
-            bFound = true;
-            break;
+            return;
         }
     }
-    checkSubscriberNotFound(bFound, messageID, -1);
+    throwSubscriberNotFound(messageID, -1);
 }
 
 int Publisher::getNumSubscribers(MessageID messageID)
@@ -238,24 +258,21 @@ void Publisher::tryUnsubscribeInNotify(MessageID messageID, int subscriberID)
 {
     std::vector<UnsubscribeDescription>::iterator it2;
     for (it2 = m_PendingUnsubscribes.begin(); it2 != m_PendingUnsubscribes.end(); it2++) {
-        checkSubscriberNotFound(!(it2->first == messageID && it2->second == subscriberID),
-                messageID, subscriberID);
+        if (it2->first == messageID && it2->second == subscriberID) {
+            throwSubscriberNotFound(messageID, subscriberID);
+        }
     }
-    m_PendingUnsubscribes.push_back(
-            std::pair<MessageID, int>(messageID, subscriberID));
+    m_PendingUnsubscribes.push_back(std::pair<MessageID, int>(messageID, subscriberID));
 }
 
-void Publisher::checkSubscriberNotFound(bool bFound, MessageID messageID,
-        int subscriberID)
+void Publisher::throwSubscriberNotFound(MessageID messageID, int subscriberID)
 {
-    if (!bFound) {
-        if (subscriberID == -1) {
-            throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
-                    " doesn't have a subscriber with the given callable.");
-        } else {
-            throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
-                    " doesn't have a subscriber with ID "+toString(subscriberID));
-        }
+    if (subscriberID == -1) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
+                " doesn't have a subscriber with the given callable.");
+    } else {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
+                " doesn't have a subscriber with ID "+toString(subscriberID));
     }
 }
 

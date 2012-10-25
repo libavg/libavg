@@ -54,6 +54,7 @@ public:
 
     int subscribe(MessageID messageID, const py::object& callable);
     void unsubscribe(MessageID messageID, int subscriberID);
+    void unsubscribe1(int subscriberID);
     void unsubscribeCallable(MessageID messageID, const py::object& callable);
     int getNumSubscribers(MessageID messageID);
     bool isSubscribed(MessageID messageID, int subscriberID);
@@ -80,7 +81,7 @@ private:
     
     SubscriberInfoList& safeFindSubscribers(MessageID messageID);
     void tryUnsubscribeInNotify(MessageID messageID, int subscriberID);
-    void checkSubscriberNotFound(bool bFound, MessageID messageID, int subscriberID);
+    void throwSubscriberNotFound(MessageID messageID, int subscriberID);
     void dumpSubscribers(MessageID messageID);
 
     PublisherDefinitionPtr m_pPublisherDef;
