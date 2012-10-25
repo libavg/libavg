@@ -299,6 +299,30 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.downCalled),
                 ))
 
+    def testComplexPublisher(self):
+        def onDown(i):
+            self.downCalled[i] = True
+            self.img.unsubscribe(avg.Node.CURSOR_DOWN, msgID[1-i])
+
+        def assertCorrectCalls():
+            # Exactly one of the two events should have been called.
+            self.assert_(self.downCalled[0] != self.downCalled[1])
+
+        # Subscribe twice to an event, unsubscribe the second during processing of the 
+        # first. Second shouldn't be called anymore.
+        self.downCalled = [False, False]
+        root = self.loadEmptyScene()
+        self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        msgID = []
+        for i in range(0,2):
+            msgID.append(self.img.subscribe(avg.Node.CURSOR_DOWN, 
+                    lambda event, i=i: onDown(i)))
+        
+        self.start(False,
+                (lambda: self.fakeClick(10,10),
+                 assertCorrectCalls,
+                ))
+
     def testPublisherAutoDelete(self):
        
         class TestSubscriber():
@@ -929,6 +953,7 @@ def eventTestSuite(tests):
             "testUnlinkInHandler",
             "testConnectHandler",
             "testPublisher",
+            "testComplexPublisher",
             "testPublisherAutoDelete",
             "testObscuringEvents",
             "testSensitive",

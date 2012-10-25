@@ -177,49 +177,45 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 //    cerr << "  ";
 //    dumpSubscribers(messageID);
     AVG_ASSERT(!(Player::get()->isTraversingTree()));
-    m_bIsInNotify = true;
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end();) {
         if ((*it)->hasExpired()) {
 //            cerr << "  expired: " << (*it)->getID() << endl;
-            SubscriberInfoPtr pSubscriberInfo = *it;
             subscribers.erase(it++);
-            // Remove from the 'pending unsubscribes' list as well.
-            std::vector<UnsubscribeDescription>::iterator itUnsub;
-            for (itUnsub = m_PendingUnsubscribes.begin();
-                    itUnsub != m_PendingUnsubscribes.end(); itUnsub++)
-            {
-                if (itUnsub->first == messageID && 
-                        itUnsub->second == pSubscriberInfo->getID()) 
-                {
-                    m_PendingUnsubscribes.erase(itUnsub);
-                    break;
-                }
-            }
         } else {
 //            cerr << "  invoke: " << (*it)->getID() << endl;
-            (*it)->invoke(args);
-            it++;
+            SubscriberInfoPtr pSubscriberInfo = *it;
+            m_bIsInNotify = true;
+            pSubscriberInfo->invoke(args);
+            m_bIsInNotify = false;
+
+            // Process pending unsubscribe requests
+            bool bCurrentIsUnsubscribed = false;
+            std::vector<UnsubscribeDescription>::iterator itUnsub;
+            for (itUnsub = m_PendingUnsubscribes.begin(); 
+                    itUnsub != m_PendingUnsubscribes.end();
+                    itUnsub++)
+            {
+//                cerr << "    Unsubscribing: " << itUnsub->second << endl;
+                if (itUnsub->first == messageID && 
+                         itUnsub->second == pSubscriberInfo->getID())
+                {
+//                    cerr << "      current" << endl;
+                    it++;
+                    bCurrentIsUnsubscribed = true;
+                }
+//                cerr << "      ";
+//                dumpSubscribers(messageID);
+                unsubscribe(itUnsub->first, itUnsub->second);
+            }
+            m_PendingUnsubscribes.clear();
+            if (!bCurrentIsUnsubscribed) {
+                it++;
+            }
         }
     }
     m_bIsInNotify = false;
-
-    // The subscribers can issue unsubscribes during the notification. We delay processing
-    // them so for loop above doesn't get messed up.
-//    cerr << "  process pending unsubscribes" << endl;
-//    cerr << "    ";
-//    dumpSubscribers(messageID);
-    std::vector<UnsubscribeDescription>::iterator itUnsub;
-    for (itUnsub = m_PendingUnsubscribes.begin(); itUnsub != m_PendingUnsubscribes.end();
-            itUnsub++)
-    {
-//        cerr << "    Unsubscribing: " << itUnsub->second << endl;
-        unsubscribe(itUnsub->first, itUnsub->second);
-    }
-//    cerr << "  ";
-//    dumpSubscribers(messageID);
-    m_PendingUnsubscribes.clear();
 }
 
 MessageID Publisher::genMessageID()
