@@ -124,7 +124,7 @@ class TestApp(object):
                 self.__commandlineOptions.usepixelbuffers, 1, shaderUsage, True)
 
         log = avg.Logger.get()
-#        cats = log.getCategories() & (~log.DEPRECATION)
+        cats = log.getCategories() & (~log.DEPRECATION)
         log.setCategories(cats)
         
     def __setupCommandlineParser(self):
