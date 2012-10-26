@@ -261,7 +261,6 @@ class NodeHandlerTester(object):
         self.__testCase.assert_(over == self.__overCalled)
         self.__testCase.assert_(out == self.__outCalled)
         self.__testCase.assert_(move == self.__moveCalled)
-        self.__testCase.assert_(not(self.__touchDownCalled))
         self.reset()
 
     def reset(self):
@@ -270,25 +269,20 @@ class NodeHandlerTester(object):
         self.__overCalled=False
         self.__outCalled=False
         self.__moveCalled=False
-        self.__touchDownCalled=False
 
     def setHandlers(self):
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, self.__onDown) 
-        self.__node.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, self.__onUp) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, self.__onOver) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, self.__onOut) 
-        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, 
-                self.__onMove) 
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, 
-                self.__onTouchDown)
+        self.__node.subscribe(avg.Node.CURSOR_DOWN, self.__onDown) 
+        self.__node.subscribe(avg.Node.CURSOR_UP, self.__onUp) 
+        self.__node.subscribe(avg.Node.CURSOR_OVER, self.__onOver) 
+        self.__node.subscribe(avg.Node.CURSOR_OUT, self.__onOut) 
+        self.__node.subscribe(avg.Node.CURSOR_MOTION, self.__onMove) 
 
     def clearHandlers(self):
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, None) 
+        self.__node.unsubscribe(avg.Node.CURSOR_DOWN, self.__onDown) 
+        self.__node.unsubscribe(avg.Node.CURSOR_UP, self.__onUp) 
+        self.__node.unsubscribe(avg.Node.CURSOR_OVER, self.__onOver) 
+        self.__node.unsubscribe(avg.Node.CURSOR_OUT, self.__onOut) 
+        self.__node.unsubscribe(avg.Node.CURSOR_MOTION, self.__onMove) 
 
     def __onDown(self, Event):
         self.__testCase.assert_(Event.type == avg.Event.CURSOR_DOWN)
@@ -310,9 +304,6 @@ class NodeHandlerTester(object):
         self.__testCase.assert_(Event.type == avg.Event.CURSOR_MOTION)
         self.__moveCalled = True
     
-    def __onTouchDown(self, Event):
-        self.__touchDownCalled = True
-
 
 class MessageTester(object):
 
