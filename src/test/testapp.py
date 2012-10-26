@@ -122,6 +122,10 @@ class TestApp(object):
         player.useGLES(self.__commandlineOptions.usegles)
         player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
                 self.__commandlineOptions.usepixelbuffers, 1, shaderUsage, True)
+
+        log = avg.Logger.get()
+#        cats = log.getCategories() & (~log.DEPRECATION)
+        log.setCategories(cats)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(
@@ -176,7 +180,7 @@ class TestApp(object):
         player.enableGLErrorChecks(True)
         log = avg.Logger.get()
         log.pushCategories()
-        log.setCategories(log.APP | log.WARNING | log.CONFIG  | 0)
+        log.setCategories(log.APP | log.WARNING | log.CONFIG | log.DEPRECATION)
         player.loadString("""
                 <avg id="avg" width="160" height="120">
                 </avg>

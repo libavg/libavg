@@ -40,6 +40,7 @@ public:
     static Logger* get();
     virtual ~Logger();
    
+    int getCategories() const;
     void setCategories(int flags);
     void pushCategories();
     void popCategories();
@@ -61,6 +62,7 @@ public:
     static const long PLUGIN;
     static const long PLAYER;
     static const long SHADER;
+    static const long DEPRECATION;
 
 private:
     Logger();
@@ -79,6 +81,20 @@ private:
         tmp << sMsg; \
         Logger::get()->trace(category, tmp.str()); \
     }\
+}
+
+#define AVG_DEPRECATION_WARNING(sVersion, sOldEntryPoint, sNewEntryPoint) \
+{ \
+    static bool bWarned = false; \
+    if (!bWarned) { \
+        bWarned = true; \
+        string sMsg = string(sOldEntryPoint) + " deprecated since version " + \
+                string(sVersion)+"."; \
+        if (sNewEntryPoint != string("")) { \
+            sMsg += " Use "+string(sNewEntryPoint) + " instead."; \
+        } \
+        AVG_TRACE(Logger::DEPRECATION, sMsg); \
+    } \
 }
 
 }

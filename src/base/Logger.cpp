@@ -55,6 +55,7 @@ const long Logger::APP=1024;
 const long Logger::PLUGIN=2048;
 const long Logger::PLAYER=4096;
 const long Logger::SHADER=8192;
+const long Logger::DEPRECATION=16384;
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex logMutex;
@@ -71,7 +72,7 @@ Logger * Logger::get()
 
 Logger::Logger()
 {
-    m_Flags = ERROR | WARNING | APP;
+    m_Flags = ERROR | WARNING | APP | DEPRECATION;
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
@@ -97,6 +98,12 @@ Logger::~Logger()
 {
 }
 
+int Logger::getCategories() const
+{
+    boost::mutex::scoped_lock lock(logMutex);
+    return m_Flags;
+}
+
 void Logger::setCategories(int flags)
 {
     boost::mutex::scoped_lock lock(logMutex);
@@ -105,11 +112,13 @@ void Logger::setCategories(int flags)
     
 void Logger::pushCategories()
 {
+    boost::mutex::scoped_lock lock(logMutex);
     m_FlagStack.push_back(m_Flags);
 }
 
 void Logger::popCategories()
 {
+    boost::mutex::scoped_lock lock(logMutex);
     if (m_FlagStack.empty()) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "popCategories: Nothing to pop.");
     }
@@ -169,6 +178,8 @@ const char * Logger::categoryToString(int category)
             return "PLAYER";
         case SHADER:
             return "SHADER";
+        case DEPRECATION:
+            return "DEPRECATION";
         default:
             return "UNKNOWN";
     }
@@ -200,6 +211,8 @@ int Logger::stringToCategory(const string& sCategory)
         return PLAYER;
     } else if (sCategory == "SHADER") {
         return SHADER;
+    } else if (sCategory == "DEPRECATION") {
+        return DEPRECATION;
     } else {
         throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logger category " + sCategory
                 + " set using AVG_LOG_CATEGORIES.");

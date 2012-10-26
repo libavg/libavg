@@ -204,9 +204,12 @@ Misc. Classes
             General libavg playback messages.
         :py:const:`SHADER`
             Shader compiler messages.
+        :py:const:`DEPRECATION`
+            Messages that warn of functionality that will be removed from libavg
+            in the future.
 
-        Default categories are :py:const:`ERROR`, :py:const:`WARNING` and 
-        :py:const:`APP`. 
+        Default categories are :py:const:`ERROR`, :py:const:`WARNING`,
+        :py:const:`APP` and  :py:const:`DEPRECATION`.
         
         Log output is sent to the console (:file:`stderr`).  Each log entry contains 
         the time the message was written, the category of the entry and the message 

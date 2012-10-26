@@ -104,6 +104,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("get", &Logger::get, 
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
+        .def("getCategories", &Logger::getCategories)
         .def("setCategories", &Logger::setCategories)
         .def("pushCategories", &Logger::pushCategories)
         .def("popCategories", &Logger::popCategories)
@@ -121,6 +122,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLUGIN", &Logger::PLUGIN)
         .def_readonly("PLAYER", &Logger::PLAYER)
         .def_readonly("SHADER", &Logger::SHADER)
+        .def_readonly("DEPRECATION", &Logger::DEPRECATION)
     ;
 
     class_<Publisher, boost::noncopyable>("Publisher")
