@@ -28,6 +28,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 #include "../base/ProfilingZoneID.h"
+#include "../base/StringHelper.h"
 
 #include "../graphics/Filterflipuv.h"
 #include "../graphics/Filterfliprgba.h"
@@ -236,7 +237,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
             m_pVStream = 0;
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported codec ("+szBuf+").");
+                    sFilename + ": unsupported video codec ("+szBuf+").");
         }
         m_PF = calcPixelFormat(true);
     }
@@ -262,14 +263,14 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             char szBuf[256];
             avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
             m_pAStream = 0; 
-            AVG_TRACE(Logger::WARNING, 
-                    sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": unsupported audio codec ("+szBuf+").");
         }
         if (m_pAStream->codec->sample_fmt != SAMPLE_FMT_S16) {
             m_AStreamIndex = -1;
             m_pAStream = 0; 
-            AVG_TRACE(Logger::WARNING, 
-                    sFilename + ": unsupported sample format (!= S16). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": unsupported sample format (!= S16).");
         }
     }
 
@@ -298,9 +299,9 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 
     if (m_AStreamIndex >= 0) {
         if (m_pAStream->codec->channels > m_AP.m_Channels) {
-            AVG_TRACE(Logger::WARNING, 
-                    m_sFilename << ": unsupported number of channels (" << 
-                            m_pAStream->codec->channels << "). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    m_sFilename + ": unsupported number of audio channels (" + 
+                            toString(m_pAStream->codec->channels) + ").");
             m_AStreamIndex = -1;
             m_pAStream = 0; 
         } else {
