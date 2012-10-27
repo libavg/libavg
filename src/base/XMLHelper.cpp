@@ -20,6 +20,8 @@
 //
 
 #include "XMLHelper.h"
+#include "Exception.h"
+#include "Logger.h"
 
 #include <libxml/parserInternals.h>
 #include <cstring>
@@ -73,6 +75,86 @@ void registerDTDEntityLoader(const string& sID, const string& sDTD)
         DefaultLoaderProc = xmlGetExternalEntityLoader();
     }
     xmlSetExternalEntityLoader(DTDExternalEntityLoader);
+}
+
+
+XmlValidator::XmlValidator(const string& sSchema, const string& sSchemaName)
+    : m_ParserCtxt(0),
+      m_Schema(0),
+      m_ValidCtxt(0)
+{
+    xmlPedanticParserDefault(1);
+    xmlSetGenericErrorFunc(this, errorOutputFunc);
+
+    m_ParserCtxt = xmlSchemaNewMemParserCtxt(sSchema.c_str(), sSchema.length());
+    checkError(!m_ParserCtxt, sSchemaName);
+
+    m_Schema = xmlSchemaParse(m_ParserCtxt);
+    checkError(!m_Schema, sSchemaName);
+
+    m_ValidCtxt = xmlSchemaNewValidCtxt(m_Schema);
+    checkError(!m_ValidCtxt, sSchemaName);
+}
+
+XmlValidator::~XmlValidator()
+{
+    if (m_Schema) {
+        xmlSchemaFree(m_Schema);
+    }
+    if (m_ParserCtxt) {
+        xmlSchemaFreeParserCtxt(m_ParserCtxt);
+    }
+    if (m_ValidCtxt) {
+        xmlSchemaFreeValidCtxt(m_ValidCtxt);
+    }
+    xmlSetGenericErrorFunc(0, 0);
+}
+
+void XmlValidator::validate(const string& sXML, const string& sXMLName)
+{
+    xmlDocPtr doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
+    checkError(!doc, sXMLName);
+
+    int err = xmlSchemaValidateDoc(m_ValidCtxt, doc);
+    AVG_ASSERT(err != -1);
+    if (err) {
+        xmlFreeDoc(doc);
+        checkError(true, sXMLName);
+    }
+    xmlFreeDoc(doc);
+}
+
+void XmlValidator::errorOutputFunc(void * ctx, const char * msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    ((XmlValidator*)ctx)->internalErrorHandler(msg, args);
+    va_end(args);
+}
+
+void XmlValidator::internalErrorHandler(const char * msg, va_list args)
+{
+    char psz[1024];
+    vsnprintf(psz, 1024, msg, args);
+    m_sError += psz;
+}
+
+void XmlValidator::checkError(bool bError, const string& sXMLName)
+{
+    if (bError) {
+        string sError = "Error parsing "+sXMLName+".\n";
+        sError += m_sError;
+        m_sError = "";
+        throw (Exception(AVG_ERR_XML_PARSE, sError));
+    }
+}
+
+void validateXml(const string& sXML, const string& sSchema, const string& sXMLName,
+        const string& sSchemaName)
+{
+    XmlValidator validator(sSchema, sSchemaName);
+
+    validator.validate(sXML, sXMLName);
 }
 
 }

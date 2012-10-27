@@ -215,7 +215,7 @@ bool ConfigMgr::loadFile(const std::string& sPath)
         if (err == -1) {
             if (errno == EACCES) {
                 AVG_TRACE(Logger::WARNING,
-                        sPath+": File exists, but process doesn't have read permissions!");
+                       sPath+": File exists, but process doesn't have read permissions!");
             }
             return false;
         }

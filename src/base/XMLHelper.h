@@ -26,6 +26,7 @@
 
 #include <libxml/parser.h>
 #include <libxml/xmlwriter.h>
+#include <libxml/xmlschemas.h>
 
 #include <string>
 #include <map>
@@ -36,8 +37,32 @@ namespace avg {
 std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xmlNode);
 
 void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
+class XmlValidator
+{
+public:
+    XmlValidator(const std::string& sSchema, const std::string& sSchemaName);
+    virtual ~XmlValidator();
+
+    void validate(const std::string& sXML, const std::string& sXMLName);
+
+private:
+    static void errorOutputFunc(void * ctx, const char * msg, ...);
+    void internalErrorHandler(const char * msg, va_list args);
+
+    void checkError(bool bError, const std::string& sXMLName);
+
+    xmlSchemaParserCtxtPtr m_ParserCtxt;
+    xmlSchemaPtr m_Schema;
+    xmlSchemaValidCtxtPtr m_ValidCtxt;
+
+    std::string m_sError;
+    bool m_bHideErrors;
+};
+
+void validateXml(const std::string& sXML, const std::string& sSchema,
+        const std::string& sXMLName, const std::string& sSchemaName);
 
 }
 
-#endif //_XMLHelper_H_
+#endif
 

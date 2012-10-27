@@ -30,6 +30,7 @@ void export_anim();
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
 #include "../base/GeomHelper.h"
+#include "../base/XMLHelper.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -97,6 +98,7 @@ BOOST_PYTHON_MODULE(avg)
     def("getMemoryUsage", getMemoryUsage);
 
     def("pointInPolygon", pointInPolygon);
+    def("validateXml", validateXml);
 
     class_<MessageID>("MessageID", no_init);
 

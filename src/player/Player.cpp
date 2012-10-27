@@ -1324,7 +1324,7 @@ NodePtr Player::internalLoad(const string& sAVG)
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
         cvp->warning = xmlParserValidityWarning;
-        int valid=xmlValidateDtd(cvp, doc, m_dtd);
+        int valid = xmlValidateDtd(cvp, doc, m_dtd);
         xmlFreeValidCtxt(cvp);
         if (!valid) {
             throw (Exception(AVG_ERR_XML_VALID, ""));
