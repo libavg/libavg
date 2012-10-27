@@ -207,20 +207,17 @@ class UITestCase(AVGTestCase):
             self.ctx2 = textarea.FocusContext()
 
             self.ta1 = textarea.TextArea(self.ctx1, pos=(2,2), size=(156,54), parent=root)
-            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=16, multiline=True, color='FFFFFF')
+            self.ta1.setStyle(fontsize=16, multiline=True, color='FFFFFF')
             self.ta1.setText('Lorem ipsum')
 
             self.ta2 = textarea.TextArea(self.ctx1, pos=(2,58), size=(76,54), parent=root)
-            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=False, color='FFFFFF')
+            self.ta2.setStyle(fontsize=14, multiline=False, color='FFFFFF')
             self.ta2.setText('dolor')
 
             self.bgImage = avg.ImageNode(href="1x1_white.png", size=(76,54))
             self.ta3 = textarea.TextArea(self.ctx2, disableMouseFocus=True, pos=(80,58),
                 size=(76,54), textBackgroundNode=self.bgImage, parent=root)
-            self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=True, color='FFFFFF')
+            self.ta3.setStyle(fontsize=14, multiline=True, color='FFFFFF')
             self.ta3.setText('dolor sit amet')
 
             textarea.setActiveFocusContext(self.ctx1)
