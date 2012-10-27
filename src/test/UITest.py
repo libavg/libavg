@@ -168,7 +168,6 @@ class UITestCase(AVGTestCase):
                 self.ta2.onKeyDown(ord(u'A'))
                 text = text + 'A'
                 if text != self.ta2.getText():
-                    self.assertEqual(len(text), 16)
                     break
 
         root = self.loadEmptyScene()
