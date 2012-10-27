@@ -43,7 +43,7 @@ public:
     AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength);
     virtual ~AsyncVideoDecoder();
     virtual void open(const std::string& sFilename, bool bSyncDemuxer,
-            bool bUseHardwareAccelleration);
+            bool bUseHardwareAcceleration, bool bEnableSound);
     virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
     virtual void close();
     virtual DecoderState getState() const;

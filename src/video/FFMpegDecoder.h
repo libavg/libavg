@@ -50,7 +50,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
         virtual void open(const std::string& sFilename, bool bThreadedDemuxer,
-                bool bUseHardwareAcceleration);
+                bool bUseHardwareAcceleration, bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
         virtual DecoderState getState() const;

@@ -158,7 +158,7 @@ class VideoDecoderTest: public DecoderTest {
 
                 VideoDecoderPtr pDecoder = createDecoder();
                 pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(), 
-                        useHardwareAcceleration());
+                        useHardwareAcceleration(), true);
                 IntPoint frameSize = pDecoder->getSize();
                 TEST(frameSize == IntPoint(48, 48));
                 TEST(pDecoder->getVideoInfo().m_bHasVideo);
@@ -189,7 +189,7 @@ class VideoDecoderTest: public DecoderTest {
 
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration());
+                    useHardwareAcceleration(), true);
             pDecoder->startDecoding(false, getAudioParams());
 
             // Seek forward
@@ -219,7 +219,7 @@ class VideoDecoderTest: public DecoderTest {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration());
+                    useHardwareAcceleration(), true);
             IntPoint frameSize = pDecoder->getSize();
             float timePerFrame = (1.0f/pDecoder->getFPS())*speedFactor;
             pDecoder->startDecoding(false, getAudioParams());
@@ -295,7 +295,7 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Reading complete file." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getMediaLoc(sFilename), 
-                            isDemuxerThreaded(), useHardwareAcceleration());
+                            isDemuxerThreaded(), useHardwareAcceleration(), true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
                     pDecoder->setVolume(0.5);
                     TEST(pDecoder->getVolume() == 0.5);
@@ -314,7 +314,7 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                            useHardwareAcceleration());
+                            useHardwareAcceleration(), true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
                     pDecoder->seek(duration/2);
@@ -389,7 +389,7 @@ class AVDecoderTest: public DecoderTest {
         {
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration());
+                    useHardwareAcceleration(), true);
             TEST(pDecoder->getVideoInfo().m_bHasVideo);
             TEST(pDecoder->getNominalFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());

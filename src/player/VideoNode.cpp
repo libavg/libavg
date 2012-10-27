@@ -62,6 +62,8 @@ void VideoNode::registerType()
         .addArg(Arg<float>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
         .addArg(Arg<bool>("accelerated", false, false,
                 offsetof(VideoNode, m_bUsesHardwareAcceleration)))
+        .addArg(Arg<bool>("enablesound", true, false,
+                offsetof(VideoNode, m_bEnableSound)))
         ;
     NodeRegistry::get()->registerNodeType(def);
 }
@@ -78,7 +80,8 @@ VideoNode::VideoNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_bUsesHardwareAcceleration(false)
+      m_bUsesHardwareAcceleration(false),
+      m_bEnableSound(true)
 {
     args.setMembers(this);
     m_Filename = m_href;
@@ -444,7 +447,8 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration);
+    m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration, 
+            m_bEnableSound);
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {

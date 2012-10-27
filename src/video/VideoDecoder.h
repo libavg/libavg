@@ -49,7 +49,7 @@ class AVG_API VideoDecoder
         enum DecoderState {CLOSED, OPENED, DECODING};
         virtual ~VideoDecoder() {};
         virtual void open(const std::string& sFilename, bool bSyncDemuxer,
-                bool bUseHardwareAcceleration = true) = 0;
+                bool bUseHardwareAcceleration, bool bEnableSound) = 0;
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP) = 0;
         virtual void close() = 0;
         virtual DecoderState getState() const = 0;

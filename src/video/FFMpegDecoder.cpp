@@ -146,7 +146,7 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 }
 
 void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
-        bool bUseHardwareAcceleration)
+        bool bUseHardwareAcceleration, bool bEnableSound)
 {
     mutex::scoped_lock lock(s_OpenMutex);
     m_bThreadedDemuxer = bThreadedDemuxer;
@@ -205,7 +205,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                 break;
             case AVMEDIA_TYPE_AUDIO:
                 // Ignore the audio stream if we're using sync demuxing. 
-                if (m_AStreamIndex < 0 && bThreadedDemuxer) {
+                if (m_AStreamIndex < 0 && bThreadedDemuxer && bEnableSound) {
                     m_AStreamIndex = i;
                 }
                 break;

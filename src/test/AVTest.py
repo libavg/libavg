@@ -67,6 +67,13 @@ class AVTestCase(AVGTestCase):
                 self.assertEqual(node.getNumAudioChannels(), 2)
                 self.assert_(node.getVideoDuration() >= 1000)
 
+        def checkEnableSound():
+            node = avg.VideoNode(href="mpeg1-48x48-sound.avi", threaded=isThreaded,
+                    enablesound=False, parent=root)
+            node.pause()
+            self.assertEqual(node.getVideoCodec(), "mpeg4")
+            self.assertException(node.getAudioCodec)
+
         def checkExceptions():
             node = avg.VideoNode(href="mpeg1-48x48.mpg", threaded=isThreaded)
             self.assertException(node.getDuration)
@@ -89,6 +96,7 @@ class AVTestCase(AVGTestCase):
             node = avg.VideoNode(href="mpeg1-48x48-sound.avi", threaded=isThreaded,
                     parent=root)
             checkInfo()
+            checkEnableSound()
             checkExceptions()
             self.start(False,
                     (checkInfo,

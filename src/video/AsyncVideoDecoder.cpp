@@ -63,14 +63,15 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 }
 
 void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer,
-        bool bUseHardwareAccelleration)
+        bool bUseHardwareAcceleration, bool bEnableSound)
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bSeekPending = false;
     m_sFilename = sFilename;
 
-    m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer, bUseHardwareAccelleration);
+    m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer, bUseHardwareAcceleration, 
+            bEnableSound);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
     // Temporary pf - always assumes shaders will be available.
     m_PF = m_pSyncDecoder->getPixelFormat();

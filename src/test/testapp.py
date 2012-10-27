@@ -125,7 +125,7 @@ class TestApp(object):
 
         log = avg.Logger.get()
         cats = log.getCategories() & (~log.DEPRECATION)
-        log.setCategories(cats)
+#        log.setCategories(cats)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(
