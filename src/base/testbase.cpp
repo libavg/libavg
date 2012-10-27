@@ -37,9 +37,9 @@
 #include "WideLine.h"
 #include "Rect.h"
 #include "Triangle.h"
-
 #include "TestSuite.h"
 #include "TimeSource.h"
+#include "XMLHelper.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -755,6 +755,38 @@ public:
 };
 
 
+class XmlParserTest: public Test
+{
+public:
+    XmlParserTest()
+      : Test("XmlParserTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        string sSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
+            "<xs:element name=\"shiporder\">"
+            "  <xs:complexType>"
+            "    <xs:sequence>"
+            "      <xs:element name=\"orderperson\" type=\"xs:string\"/>"
+            "    </xs:sequence>"
+            "    <xs:attribute name=\"orderid\" type=\"xs:string\" use=\"required\"/>"
+            "  </xs:complexType>"
+            "</xs:element>"
+            "</xs:schema>";
+
+        string sXmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            "<shiporder orderid=\"889923\">"
+            "  <orderperson>John Smith</orderperson>"
+            "</shiporder>";
+
+        XmlValidator parser(sSchema, "shiporder.xsd");
+        parser.validate(sXmlString, "shiporder.xml");
+    }
+};
+
 class BaseTestSuite: public TestSuite
 {
 public:
@@ -774,6 +806,7 @@ public:
         addTest(TestPtr(new SignalTest));
         addTest(TestPtr(new BacktraceTest));
         addTest(TestPtr(new PolygonTest));
+        addTest(TestPtr(new XmlParserTest));
     }
 };
 

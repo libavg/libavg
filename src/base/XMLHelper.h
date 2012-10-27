@@ -37,6 +37,7 @@ namespace avg {
 std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xmlNode);
 
 void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
+
 class XmlValidator
 {
 public:

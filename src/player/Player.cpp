@@ -1432,8 +1432,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
     NodePtr pCurNode;
     const char * nodeType = (const char *)xmlNode->name;
 
-    if (!strcmp (nodeType, "text") ||
-        !strcmp (nodeType, "comment")) {
+    if (!strcmp (nodeType, "text") || !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
         return NodePtr();
     }
