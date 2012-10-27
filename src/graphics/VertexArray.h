@@ -56,10 +56,14 @@ public:
     void startSubVA(SubVertexArray& subVA);
 
 private:
-    unsigned int m_GLVertexBufferID;
-    unsigned int m_GLIndexBufferID;
+    void transferBuffer(GLenum target, unsigned bufferID, unsigned reservedSize, 
+            unsigned usedSize, const void* pData);
+
+    unsigned m_GLVertexBufferID;
+    unsigned m_GLIndexBufferID;
 
     bool m_bUseVertexShader;
+    bool m_bUseMapBuffer;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
