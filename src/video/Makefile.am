@@ -13,7 +13,7 @@ ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h VideoDecoder.h \
         IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h
 
 if USE_VDPAU_SRC
-        ALL_H += VDPAU.h AVCCOpaque.h FrameAge.h
+        ALL_H += VDPAUDecoder.h VDPAUHelper.h
 endif
 
 TESTS=testvideo
@@ -29,7 +29,7 @@ libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp
         $(ALL_H)
 
 if USE_VDPAU_SRC
-        libvideo_la_SOURCES += AVCCOpaque.cpp FrameAge.cpp VDPAU.cpp
+        libvideo_la_SOURCES += VDPAUDecoder.cpp VDPAUHelper.cpp
 endif
 
 libvideo_la_LIBADD = @LIBVIDEO_LDADD@

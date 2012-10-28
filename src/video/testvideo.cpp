@@ -30,6 +30,9 @@
 #endif
 
 #include "AsyncVideoDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
 
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
@@ -460,7 +463,7 @@ public:
         addAudioTests();
         addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
-        if (VDPAU::isAvailable()) {
+        if (VDPAUDecoder::isAvailable()) {
             addVideoTests(true);
         }
 #endif

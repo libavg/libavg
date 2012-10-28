@@ -38,6 +38,9 @@
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "../video/VDPAUDecoder.h"
+#endif
 
 #include <iostream>
 #include <sstream>
@@ -676,7 +679,7 @@ void VideoNode::render()
 VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
 {
 #ifdef AVG_ENABLE_VDPAU
-    if (VDPAU::isAvailable()) {
+    if (VDPAUDecoder::isAvailable()) {
         return VDPAU;
     }
 #endif

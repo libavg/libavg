@@ -21,10 +21,14 @@
 
 #include "AsyncVideoDecoder.h"
 
+#include "FFMpegDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
+
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
-#include "FFMpegDecoder.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -403,7 +407,8 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
                     } else {
 #if AVG_ENABLE_VDPAU
                         vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-                        VDPAU::unlockSurface(pRenderState);
+                        pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
+                        unlockVDPAUSurface(pRenderState);
 #endif
                     }
                 }
