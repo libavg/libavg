@@ -154,6 +154,9 @@ void XMLParser::setDTD(const std::string& sDTD, const std::string& sDTDName)
 
 void XMLParser::parse(const string& sXML, const string& sXMLName)
 {
+    if (m_Doc) {
+        xmlFreeDoc(m_Doc);
+    }
     m_Doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
     checkError(!m_Doc, sXMLName);
 

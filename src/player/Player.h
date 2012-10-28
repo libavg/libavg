@@ -205,7 +205,7 @@ class AVG_API Player: public Publisher
 
         NodePtr loadMainNodeFromFile(const std::string& sFilename);
         NodePtr loadMainNodeFromString(const std::string& sAVG);
-        NodePtr internalLoad(const std::string& sAVG);
+        NodePtr internalLoad(const std::string& sAVG, const std::string& sFilename);
         SDLDisplayEnginePtr safeGetDisplayEngine();
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,

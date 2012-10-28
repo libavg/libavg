@@ -464,7 +464,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 
     string sAVG;
     readWholeFile(sRealFilename, sAVG);
-    NodePtr pNode = internalLoad(sAVG);
+    NodePtr pNode = internalLoad(sAVG, sRealFilename);
 
     // Reset the directory to load assets from to the current dir.
     m_CurDirName = string(pBuf)+"/";
@@ -476,7 +476,7 @@ NodePtr Player::loadMainNodeFromString(const string& sAVG)
     AVG_TRACE(Logger::MEMORY, "Player::loadString()");
 
     string sEffectiveDoc = removeStartEndSpaces(sAVG);
-    NodePtr pNode = internalLoad(sEffectiveDoc);
+    NodePtr pNode = internalLoad(sEffectiveDoc, "");
     return pNode;
 }
 
@@ -1263,11 +1263,11 @@ void Player::initAudio()
     pAudioEngine->play();
 }
 
-NodePtr Player::internalLoad(const string& sAVG)
+NodePtr Player::internalLoad(const string& sAVG, const string& sFilename)
 {
     XMLParser parser;
     parser.setDTD(NodeRegistry::get()->getDTD(), "avg.dtd");
-    parser.parse(sAVG, "");
+    parser.parse(sAVG, sFilename);
 
     xmlNodePtr xmlNode = parser.getRootNode();
     NodePtr pNode = createNodeFromXml(parser.getDoc(), xmlNode);
