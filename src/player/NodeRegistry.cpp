@@ -133,7 +133,6 @@ string NodeRegistry::getDTD() const
             ss << def.getDTDElements();
         }
     }
-   
     return ss.str();
 }
 

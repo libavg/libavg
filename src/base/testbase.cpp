@@ -765,25 +765,38 @@ public:
 
     void runTests()
     {
-        string sSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
-            "<xs:element name=\"shiporder\">"
-            "  <xs:complexType>"
-            "    <xs:sequence>"
-            "      <xs:element name=\"orderperson\" type=\"xs:string\"/>"
-            "    </xs:sequence>"
-            "    <xs:attribute name=\"orderid\" type=\"xs:string\" use=\"required\"/>"
-            "  </xs:complexType>"
-            "</xs:element>"
-            "</xs:schema>";
-
         string sXmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
             "<shiporder orderid=\"889923\">"
             "  <orderperson>John Smith</orderperson>"
             "</shiporder>";
 
-        XmlValidator parser(sSchema, "shiporder.xsd");
-        parser.validate(sXmlString, "shiporder.xml");
+        {
+            string sSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
+                "<xs:element name=\"shiporder\">"
+                "  <xs:complexType>"
+                "    <xs:sequence>"
+                "      <xs:element name=\"orderperson\" type=\"xs:string\"/>"
+                "    </xs:sequence>"
+                "    <xs:attribute name=\"orderid\" type=\"xs:string\" use=\"required\"/>"
+                "  </xs:complexType>"
+                "</xs:element>"
+                "</xs:schema>";
+
+            XMLParser parser;
+            parser.setSchema(sSchema, "shiporder.xsd");
+            parser.parse(sXmlString, "shiporder.xml");
+        }
+        {
+            string sDTD =
+                "<!ELEMENT shiporder (orderperson)* >"
+                "<!ATTLIST shiporder"
+                "    orderid CDATA #IMPLIED>"
+                "<!ELEMENT orderperson (#PCDATA) >";
+            XMLParser parser;
+            parser.setDTD(sDTD, "shiporder.dtd");
+            parser.parse(sXmlString, "shiporder.xml");
+        }
     }
 };
 

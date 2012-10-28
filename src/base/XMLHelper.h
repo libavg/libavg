@@ -38,13 +38,15 @@ std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xml
 
 void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
 
-class XmlValidator
+class XMLParser
 {
 public:
-    XmlValidator(const std::string& sSchema, const std::string& sSchemaName);
-    virtual ~XmlValidator();
+    XMLParser();
+    virtual ~XMLParser();
 
-    void validate(const std::string& sXML, const std::string& sXMLName);
+    void setSchema(const std::string& sSchema, const std::string& sSchemaName);
+    void setDTD(const std::string& sDTD, const std::string& sDTDName);
+    void parse(const std::string& sXML, const std::string& sXMLName);
 
 private:
     static void errorOutputFunc(void * ctx, const char * msg, ...);
@@ -52,9 +54,14 @@ private:
 
     void checkError(bool bError, const std::string& sXMLName);
 
-    xmlSchemaParserCtxtPtr m_ParserCtxt;
+    xmlSchemaParserCtxtPtr m_SchemaParserCtxt;
     xmlSchemaPtr m_Schema;
-    xmlSchemaValidCtxtPtr m_ValidCtxt;
+    xmlSchemaValidCtxtPtr m_SchemaValidCtxt;
+
+    xmlDtdPtr m_DTD;
+    xmlValidCtxtPtr m_DTDValidCtxt;
+    
+    xmlDocPtr m_Doc;
 
     std::string m_sError;
     bool m_bHideErrors;
