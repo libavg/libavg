@@ -131,7 +131,7 @@ class ShowCamera(AVGApp):
                     rawtextmode=True, parent=player.getRootNode())
             frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
                     parent=player.getRootNode())
-            player.setOnFrameHandler(lambda:self.updateFrameDisplay(frameText))
+            player.subscribe(player.ON_FRAME, lambda:self.updateFrameDisplay(frameText))
 
 
     def _enter(self):

@@ -83,14 +83,14 @@ class JitterFilter(AVGApp):
             self.__filters = [
                     filter.OneEuroFilter(self.__minCutoff,self.__cutoffSlope),
                     filter.OneEuroFilter(self.__minCutoff,self.__cutoffSlope)]
-            self.__onFrame = player.setOnFrameHandler(self.__moveContact)
+            self.__onFrame = player.subscribe(player.ON_FRAME, self.__moveContact)
 
     def __onUp(self, event):
         self.__rawContactCircle.opacity = 0
         self.__filteredContactCircle.opacity = 0
         self.__contact = None
         self.__filters = None
-        player.clearInterval(self.__onFrame)
+        player.unsubscribe(self.__onFrame)
 
     def __moveContact(self):
         time = player.getFrameTime()
