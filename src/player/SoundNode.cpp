@@ -128,13 +128,17 @@ bool SoundNode::getLoop() const
 
 void SoundNode::setEOFCallback(PyObject * pEOFCallback)
 {
-    AVG_DEPRECATION_WARNING("1.8", "SoundNode.setEOFCallback()", 
-            "Node.subscribe(END_OF_FILE)");
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
-    Py_INCREF(pEOFCallback);
-    m_pEOFCallback = pEOFCallback;
+    if (pEOFCallback == Py_None) {
+        m_pEOFCallback = 0;
+    } else {
+        AVG_DEPRECATION_WARNING("1.8", "SoundNode.setEOFCallback()", 
+                "Node.subscribe(END_OF_FILE)");
+        Py_INCREF(pEOFCallback);
+        m_pEOFCallback = pEOFCallback;
+    }
 }
 
 void SoundNode::connectDisplay()
