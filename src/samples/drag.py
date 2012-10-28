@@ -27,7 +27,7 @@ def onMouseUp(event):
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()
-node = avg.WordsNode(pos=(10,10), font="arial", text="Hello World", parent=rootNode)
+node = avg.WordsNode(pos=(10,10), text="Hello World", parent=rootNode)
 node.subscribe(node.CURSOR_DOWN, onMouseDown)
 node.subscribe(node.CURSOR_MOTION, onMouseMove)
 node.subscribe(node.CURSOR_UP, onMouseUp)
