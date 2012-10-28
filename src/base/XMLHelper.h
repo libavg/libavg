@@ -48,6 +48,9 @@ public:
     void setDTD(const std::string& sDTD, const std::string& sDTDName);
     void parse(const std::string& sXML, const std::string& sXMLName);
 
+    xmlDocPtr getDoc();
+    xmlNodePtr getRootNode();
+
 private:
     static void errorOutputFunc(void * ctx, const char * msg, ...);
     void internalErrorHandler(const char * msg, va_list args);

@@ -88,6 +88,7 @@ XMLParser::XMLParser()
 {
     xmlPedanticParserDefault(1);
     xmlSetGenericErrorFunc(this, errorOutputFunc);
+    xmlDoValidityCheckingDefaultValue = 0;
 
 }
 
@@ -147,6 +148,8 @@ void XMLParser::setDTD(const std::string& sDTD, const std::string& sDTDName)
 
     m_DTDValidCtxt = xmlNewValidCtxt();
     checkError(!m_DTDValidCtxt, sDTDName);
+    m_DTDValidCtxt->error = xmlParserValidityError;
+    m_DTDValidCtxt->warning = xmlParserValidityWarning;
 }
 
 void XMLParser::parse(const string& sXML, const string& sXMLName)
@@ -169,6 +172,18 @@ void XMLParser::parse(const string& sXML, const string& sXMLName)
         m_Doc = 0;
         checkError(true, sXMLName);
     }
+}
+
+xmlDocPtr XMLParser::getDoc()
+{
+    AVG_ASSERT(m_Doc);
+    return m_Doc;
+}
+
+xmlNodePtr XMLParser::getRootNode()
+{
+    AVG_ASSERT(m_Doc);
+    return xmlDocGetRootElement(m_Doc);
 }
 
 void XMLParser::errorOutputFunc(void * ctx, const char * msg, ...)

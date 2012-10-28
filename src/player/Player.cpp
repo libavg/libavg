@@ -121,7 +121,6 @@ Player::Player()
       m_FakeFPS(0),
       m_FrameTime(0),
       m_Volume(1),
-      m_dtd(0),
       m_bPythonAvailable(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
@@ -194,9 +193,6 @@ void deletePlayer()
 
 Player::~Player()
 {
-    if (m_dtd) {
-        xmlFreeDtd(m_dtd);
-    }
 }
 
 Player* Player::get()
@@ -451,66 +447,37 @@ void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
-    string RealFilename;
-    try {
-        AVG_TRACE(Logger::MEMORY, std::string("Player::loadFile(") + sFilename + ")");
+    string sRealFilename;
+    AVG_TRACE(Logger::MEMORY, std::string("Player::loadFile(") + sFilename + ")");
 
-        // When loading an avg file, assets are loaded from a directory relative
-        // to the file.
-        char szBuf[1024];
-        char * pBuf = getcwd(szBuf, 1024);
-        if (sFilename[0] == '/') {
-            RealFilename = sFilename;
-        } else {
-            m_CurDirName = string(pBuf)+"/";
-            RealFilename = m_CurDirName+sFilename;
-        }
-        m_CurDirName = RealFilename.substr(0, RealFilename.rfind('/')+1);
-
-        string sAVG;
-        readWholeFile(RealFilename, sAVG);
-        NodePtr pNode = internalLoad(sAVG);
-
-        // Reset the directory to load assets from to the current dir.
+    // When loading an avg file, assets are loaded from a directory relative
+    // to the file.
+    char szBuf[1024];
+    char * pBuf = getcwd(szBuf, 1024);
+    if (sFilename[0] == '/') {
+        sRealFilename = sFilename;
+    } else {
         m_CurDirName = string(pBuf)+"/";
-        return pNode;
-    } catch (Exception& ex) {
-        switch (ex.getCode()) {
-            case AVG_ERR_XML_PARSE:
-                throw (Exception(AVG_ERR_XML_PARSE,
-                        string("Error parsing xml document ")+RealFilename));
-                break;
-            case AVG_ERR_XML_VALID:
-                throw (Exception(AVG_ERR_XML_VALID,
-                        RealFilename + " does not validate."));
-                break;
-            default:
-                throw;
-        }
-        return NodePtr(); // Silence compiler warning
+        sRealFilename = m_CurDirName+sFilename;
     }
+    m_CurDirName = sRealFilename.substr(0, sRealFilename.rfind('/')+1);
+
+    string sAVG;
+    readWholeFile(sRealFilename, sAVG);
+    NodePtr pNode = internalLoad(sAVG);
+
+    // Reset the directory to load assets from to the current dir.
+    m_CurDirName = string(pBuf)+"/";
+    return pNode;
 }
 
 NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
-    try {
-        AVG_TRACE(Logger::MEMORY, "Player::loadString()");
+    AVG_TRACE(Logger::MEMORY, "Player::loadString()");
 
-        string sEffectiveDoc = removeStartEndSpaces(sAVG);
-        NodePtr pNode = internalLoad(sEffectiveDoc);
-        return pNode;
-    } catch (Exception& ex) {
-        switch (ex.getCode()) {
-            case AVG_ERR_XML_PARSE:
-                throw Exception(AVG_ERR_XML_PARSE, "Error parsing xml string.");
-                break;
-            case AVG_ERR_XML_VALID:
-                throw Exception(AVG_ERR_XML_VALID, "Error validating xml string.");
-                break;
-            default:
-                throw;
-        }
-    }
+    string sEffectiveDoc = removeStartEndSpaces(sAVG);
+    NodePtr pNode = internalLoad(sEffectiveDoc);
+    return pNode;
 }
 
 void Player::play()
@@ -1296,54 +1263,19 @@ void Player::initAudio()
     pAudioEngine->play();
 }
 
-void Player::updateDTD()
-{
-    if (m_dtd) {
-        xmlFreeDtd(m_dtd);
-    }
-    // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", NodeRegistry::get()->getDTD().c_str());
-    string sDTDFName = "avg.dtd";
-    m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
-    assert (m_dtd);
-}
-
 NodePtr Player::internalLoad(const string& sAVG)
 {
-    xmlDocPtr doc = 0;
-    try {
-        xmlPedanticParserDefault(1);
-        xmlDoValidityCheckingDefaultValue=0;
+    XMLParser parser;
+    parser.setDTD(NodeRegistry::get()->getDTD(), "avg.dtd");
+    parser.parse(sAVG, "");
 
-        doc = xmlParseMemory(sAVG.c_str(), sAVG.length());
-        if (!doc) {
-            throw (Exception(AVG_ERR_XML_PARSE, ""));
-        }
-        updateDTD();
-
-        xmlValidCtxtPtr cvp = xmlNewValidCtxt();
-        cvp->error = xmlParserValidityError;
-        cvp->warning = xmlParserValidityWarning;
-        int valid = xmlValidateDtd(cvp, doc, m_dtd);
-        xmlFreeValidCtxt(cvp);
-        if (!valid) {
-            throw (Exception(AVG_ERR_XML_VALID, ""));
-        }
-        xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
-        NodePtr pNode = createNodeFromXml(doc, xmlNode);
-        if (!pNode) {
-            throw (Exception(AVG_ERR_XML_PARSE,
-                    "Root node of an avg tree needs to be an <avg> node."));
-        }
-        xmlFreeDoc(doc);
-        return pNode;
-    } catch (Exception& ex) {
-        AVG_TRACE(Logger::ERROR, ex.getStr());
-        if (doc) {
-            xmlFreeDoc(doc);
-        }
-        throw;
+    xmlNodePtr xmlNode = parser.getRootNode();
+    NodePtr pNode = createNodeFromXml(parser.getDoc(), xmlNode);
+    if (!pNode) {
+        throw (Exception(AVG_ERR_XML_PARSE,
+                "Root node of an avg tree needs to be an <avg> node."));
     }
+    return pNode;
 }
 
 SDLDisplayEnginePtr Player::safeGetDisplayEngine()
@@ -1403,26 +1335,15 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
     xmlPedanticParserDefault(1);
     xmlDoValidityCheckingDefaultValue =0;
 
-    xmlDocPtr doc;
-    doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
-    if (!doc) {
-        throw (Exception(AVG_ERR_XML_PARSE,
-                    string("Error parsing xml:\n  ")+sXML));
-    }
-    NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc));
-    updateDTD();
+    XMLParser parser;
+    parser.setDTD(NodeRegistry::get()->getDTD(), "avg.dtd");
+    parser.parse(sXML, "");
 
-    xmlValidCtxtPtr cvp = xmlNewValidCtxt();
-    cvp->error = xmlParserValidityError;
-    cvp->warning = xmlParserValidityWarning;
-    int valid=xmlValidateDtd(cvp, doc, m_dtd);
-    xmlFreeValidCtxt(cvp);
-    if (!valid) {
-        throw (Exception(AVG_ERR_XML_PARSE,
-                    "Could not validate '"+sXML+"'"));
-    }
+//        cvp->error = xmlParserValidityError;
+//        cvp->warning = xmlParserValidityWarning;
+    xmlNodePtr xmlNode = parser.getRootNode();
+    NodePtr pNode = createNodeFromXml(parser.getDoc(), xmlNode);
 
-    xmlFreeDoc(doc);
     return pNode;
 }
 
