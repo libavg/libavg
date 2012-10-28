@@ -198,7 +198,6 @@ void XInputMTInputDevice::findMTDevice()
     pDevices = XIQueryDevice(s_pDisplay, XIAllDevices, &ndevices);
 
     XITouchClassInfo* pTouchClass = 0;
-    int maxTouches;
     for (int i = 0; i < ndevices && !pTouchClass; ++i) {
         pDevice = &pDevices[i];
 //        cerr << "Device " << pDevice->name << "(id: " << pDevice->deviceid << ")."
@@ -217,7 +216,6 @@ void XInputMTInputDevice::findMTDevice()
                         } else {
                             m_OldMasterDeviceID = -1;
                         }
-                        maxTouches = pTouchClass->num_touches;
                         break;
                     }
                 }
@@ -226,7 +224,7 @@ void XInputMTInputDevice::findMTDevice()
     }
     if (pTouchClass) {
         AVG_TRACE(Logger::CONFIG, "Using multitouch input device " << m_sDeviceName 
-                << ", max touches: " << maxTouches);
+                << ", max touches: " << pTouchClass->num_touches);
     } else {
         throw Exception(AVG_ERR_MT_INIT, 
                 "XInput multitouch event source: No multitouch device found.");

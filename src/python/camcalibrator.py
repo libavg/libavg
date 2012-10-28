@@ -172,69 +172,66 @@ class Calibrator(AVGApp):
                     sensitive="false" opacity="1"/>
             <words id="cal_fps" x="30" y="30" color="00FF00" text=""/>
             <words id="cal_notification" x="390" y="390" width="500" fontsize="18"
-                    font="Zurich Ex BT" color="ff3333" alignment="center" />
+                    color="ff3333" alignment="center" />
             <div id="cal_gui" x="30" y="540">
                 <image id="cal_shadow" x="0" y="13" width="500" height="150" 
                         href="black.png" opacity="0.6"/>
                 
-                <words x="2" y="13" text="camera" fontsize="16" font="Zurich Ex BT" 
-                        color="00FF00"/>
+                <words x="2" y="13" text="camera" fontsize="16" color="00FF00"/>
                 <image x="2" y="32" href="CamImgBorder.png"/>
                 <image id="cal_camera" x="4" y="34" width="160" height="120"/>
 
-                <words x="168" y="13" text="nohistory" fontsize="16" font="Zurich Ex BT" 
-                        color="00FF00"/>
+                <words x="168" y="13" text="nohistory" fontsize="16" color="00FF00"/>
                 <image x="168" y="32" href="CamImgBorder.png"/>
                 <image id="cal_nohistory" x="170" y="34" width="160" height="120"/>
                 
-                <words x="334" y="13" text="histogram" fontsize="16" font="Zurich Ex BT" 
-                        color="00FF00"/>
+                <words x="334" y="13" text="histogram" fontsize="16" color="00FF00"/>
                 <image x="334" y="32" href="CamImgBorder.png"/>
                 <image id="cal_histogram" x="336" y="34" width="160" height="120"/>
 
                 <div id="cal_params" y="170" opacity="0.9">
                 <image id="cal_shadow2" width="750" height="65" href="black.png" opacity="0.6"/>
                     <div id="cal_paramdiv0" x="2">
-                        <words text="camera" y="0" fontsize="10" font="Zurich Ex BT" color="00ff00" /> 
-                        <words id="cal_param0" y="12" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param1" y="24" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param2" y="36" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param3" y="48" fontsize="10" font="Zurich Ex BT" /> 
+                        <words text="camera" y="0" fontsize="10" color="00ff00" /> 
+                        <words id="cal_param0" y="12" fontsize="10"/> 
+                        <words id="cal_param1" y="24" fontsize="10"/> 
+                        <words id="cal_param2" y="36" fontsize="10"/> 
+                        <words id="cal_param3" y="48" fontsize="10"/> 
                     </div>
                     <div id="cal_paramdiv1" x="80">
-                        <words text="touch" y="0" fontsize="10" font="Zurich Ex BT" color="00ff00" /> 
-                        <words id="cal_param4" y="12" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param5" y="24" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param6" y="36" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param7" y="48" fontsize="10" font="Zurich Ex BT" /> 
+                        <words text="touch" y="0" fontsize="10" color="00ff00" /> 
+                        <words id="cal_param4" y="12" fontsize="10"/> 
+                        <words id="cal_param5" y="24" fontsize="10"/> 
+                        <words id="cal_param6" y="36" fontsize="10"/> 
+                        <words id="cal_param7" y="48" fontsize="10"/> 
                     </div>
                     <div id="cal_paramdiv2" x="200">
-                        <words id="cal_param8" y="0" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param9" y="12" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param10" y="24" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param11" y="36" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param12" y="48" fontsize="10" font="Zurich Ex BT" /> 
+                        <words id="cal_param8" y="0" fontsize="10"/> 
+                        <words id="cal_param9" y="12" fontsize="10"/> 
+                        <words id="cal_param10" y="24" fontsize="10"/> 
+                        <words id="cal_param11" y="36" fontsize="10"/> 
+                        <words id="cal_param12" y="48" fontsize="10"/> 
                     </div>
                     <div id="cal_paramdiv3" x="350">
-                        <words text="track" y="0" fontsize="10" font="Zurich Ex BT" color="00ff00" /> 
-                        <words id="cal_param13" y="12" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param14" y="24" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param15" y="36" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param16" y="48" fontsize="10" font="Zurich Ex BT" /> 
+                        <words text="track" y="0" fontsize="10" color="00ff00" /> 
+                        <words id="cal_param13" y="12" fontsize="10"/> 
+                        <words id="cal_param14" y="24" fontsize="10"/> 
+                        <words id="cal_param15" y="36" fontsize="10"/> 
+                        <words id="cal_param16" y="48" fontsize="10"/> 
                     </div>
                     <div id="cal_paramdiv4" x="500">
-                        <words id="cal_param17" y="0" fontsize="10" font="Zurich Ex BT" /> 
-                        <words text="distort" y="12" fontsize="10" font="Zurich Ex BT" color="00ff00" /> 
-                        <words id="cal_param18" y="24" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param19" y="36" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param20" y="48" fontsize="10" font="Zurich Ex BT" /> 
+                        <words id="cal_param17" y="0" fontsize="10"/> 
+                        <words text="distort" y="12" fontsize="10" color="00ff00"/> 
+                        <words id="cal_param18" y="24" fontsize="10"/> 
+                        <words id="cal_param19" y="36" fontsize="10"/> 
+                        <words id="cal_param20" y="48" fontsize="10"/> 
                     </div>
                     <div id="cal_paramdiv5" x="650">
-                        <words id="cal_param21" y="0" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param22" y="12" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param23" y="24" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param24" y="36" fontsize="10" font="Zurich Ex BT" /> 
-                        <words id="cal_param25" y="48" fontsize="10" font="Zurich Ex BT" /> 
+                        <words id="cal_param21" y="0" fontsize="10"/> 
+                        <words id="cal_param22" y="12" fontsize="10"/> 
+                        <words id="cal_param23" y="24" fontsize="10"/> 
+                        <words id="cal_param24" y="36" fontsize="10"/> 
+                        <words id="cal_param25" y="48" fontsize="10"/> 
                     </div>
                 </div>
             </div>
@@ -286,7 +283,7 @@ class Calibrator(AVGApp):
         self.tracker.setDebugImages(True, True)
         avg.fadeIn(self.mainNode, 400, 1)
         Bitmap = self.tracker.getImage(avg.IMG_DISTORTED)  # Why is this needed?
-        self.__onFrameID=player.setOnFrameHandler(self.__onFrame)
+        self.__onFrameID = player.subscribe(player.ON_FRAME, self.__onFrame)
         #grandparent = self.parentNode.getParent()
         #if grandparent:
         #    grandparent.reorderChild(grandparent.indexOf(self.parentNode), grandparent.getNumChildren()-1)

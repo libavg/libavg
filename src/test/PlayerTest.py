@@ -20,7 +20,7 @@
 #
 
 import math
-import threading, time
+import threading
 
 from libavg import avg, player
 from testcase import *
@@ -186,8 +186,7 @@ class PlayerTestCase(AVGTestCase):
             player.getElementByID("inner").crop = False
            
         self.__initDefaultRotateScene()
-        player.getElementByID("outer").setEventHandler(
-                avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onOuterDown) 
+        player.getElementByID("outer").subscribe(avg.Node.CURSOR_DOWN, onOuterDown) 
         self.onOuterDownCalled = False
         self.start(False,
                 (lambda: self.compareImage("testRotate1"),
@@ -372,6 +371,7 @@ class PlayerTestCase(AVGTestCase):
         self.start(False,
                 (startThread,
                  lambda: self.thread.join(),
+                 None,
                  lambda: self.assert_(self.asyncCalled),
                 ))
 
@@ -671,21 +671,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.fail(),
                 ))
 
-    def testGetConfigOption(self):
-        self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
-        self.assertException(lambda: player.getConfigOption("scr", "illegalOption"))
-        self.assertException(lambda:
-                player.getConfigOption("illegalGroup", "illegalOption"))
-
-    # Not executed due to bug #145 - hangs with some window managers.
-    def testWindowFrame(self):
-        def revertWindowFrame():
-            player.setWindowFrame(True)
-
-        player.setWindowFrame(False)
-        self.__initDefaultScene()
-        self.start(False, [revertWindowFrame])
-
     def testScreenDimensions(self):
         res = player.getScreenResolution()
         self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
@@ -733,6 +718,52 @@ class PlayerTestCase(AVGTestCase):
                         (40,40)),
                  lambda: self.compareImage("testSvgScaledNode2")
                 ))
+
+    def testGetConfigOption(self):
+        self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
+        self.assertException(lambda: player.getConfigOption("scr", "illegalOption"))
+        self.assertException(lambda:
+                player.getConfigOption("illegalGroup", "illegalOption"))
+
+    def testValidateXml(self):
+        schema = """<?xml version="1.0" encoding="UTF-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+        <xs:element name="shiporder">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="orderperson" type="xs:string"/>
+            </xs:sequence>
+            <xs:attribute name="orderid" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+
+        </xs:schema>
+        """
+        xmlString = """<?xml version="1.0" encoding="UTF-8"?>
+
+        <shiporder orderid="889923">
+          <orderperson>John Smith</orderperson>
+        </shiporder>
+        """
+        avg.validateXml(xmlString, schema, "shiporder.xml", "shiporder.xsd")
+       
+        brokenSchema = "ff"+schema
+        self.assertException(lambda: avg.validateXml(xmlString, brokenSchema,
+                "shiporder.xml", "shiporder.xsd"))
+
+        brokenXml = xmlString+"ff"
+        self.assertException(lambda: avg.validateXml(brokenXml, schema,
+                "shiporder.xml", "shiporder.xsd"))
+
+    # Not executed due to bug #145 - hangs with some window managers.
+    def testWindowFrame(self):
+        def revertWindowFrame():
+            player.setWindowFrame(True)
+
+        player.setWindowFrame(False)
+        self.__initDefaultScene()
+        self.start(False, [revertWindowFrame])
 
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
@@ -788,6 +819,7 @@ def playerTestSuite(tests):
             "testScreenDimensions",
             "testSVG",
             "testGetConfigOption",
+            "testValidateXml",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

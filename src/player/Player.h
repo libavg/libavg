@@ -203,11 +203,9 @@ class AVG_API Player: public Publisher
         void initGraphics(const std::string& sShaderPath);
         void initAudio();
 
-        void updateDTD();
-
         NodePtr loadMainNodeFromFile(const std::string& sFilename);
         NodePtr loadMainNodeFromString(const std::string& sAVG);
-        NodePtr internalLoad(const std::string& sAVG);
+        NodePtr internalLoad(const std::string& sAVG, const std::string& sFilename);
         SDLDisplayEnginePtr safeGetDisplayEngine();
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,
@@ -265,8 +263,6 @@ class AVG_API Player: public Publisher
         long long m_NumFrames;
 
         float m_Volume;
-
-        xmlDtdPtr m_dtd;
 
         bool m_bPythonAvailable;
 

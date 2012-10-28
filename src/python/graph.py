@@ -117,7 +117,7 @@ class SlidingGraph(Graph):
         self.registerInstance(self, None)
 
     def _setup(self):
-        self._interval = player.setOnFrameHandler(self._nextFrameTimeSample)
+        self._interval = player.subscribe(player.ON_FRAME, self._nextFrameTimeSample)
         self._numSamples = 0
         self._lastCurUsage = 0
         self._maxFrameTime = 0

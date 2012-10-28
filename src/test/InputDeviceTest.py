@@ -95,10 +95,9 @@ class EventTestCase(AVGTestCase):
             return True
         
         rectNode = avg.RectNode(parent=root, pos=(0, 0), size=(50, 50))
-        rectNode.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE|avg.Event.TOUCH, 
-                eventHandler)
+        rectNode.subscribe(avg.Node.CURSOR_DOWN, eventHandler)
         
-        root.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.NONE, eventHandler)
+        root.subscribe(avg.Node.CURSOR_DOWN, eventHandler)
         root.setEventHandler(avg.Event.CUSTOM_EVENT, avg.Event.NONE, 
                 customEventEventHandler)
         
@@ -107,7 +106,7 @@ class EventTestCase(AVGTestCase):
     
         self.start(False,
                 (lambda: self.customInputDevice.feedEvent(
-                         avg.Event(avg.Event.CURSOR_DOWN, avg.Event.NONE)),
+                         avg.Event(avg.Event.CURSOR_DOWN, avg.Event.MOUSE)),
                  lambda: self.assert_(checkAndResetResults()),
    
                  lambda: self.customInputDevice.feedEvent(

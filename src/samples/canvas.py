@@ -4,7 +4,7 @@
 from libavg import avg, player
 
 offscreenCanvas = player.createCanvas(id="londoncalling", size=(320,240))
-avg.WordsNode(pos=(10,10), text="London Calling", font="Arial", 
+avg.WordsNode(pos=(10,10), text="London Calling",
         parent=offscreenCanvas.getRootNode())
 
 mainCanvas = player.createMainCanvas(size=(640,480))

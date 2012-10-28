@@ -31,6 +31,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 #include "../base/ProfilingZoneID.h"
+#include "../base/StringHelper.h"
 
 #include "../graphics/Filterflipuv.h"
 #include "../graphics/Filterfliprgba.h"
@@ -138,14 +139,23 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 #else
     pCodec = avcodec_find_decoder(pContext->codec_id);
 #endif
-    if (!pCodec || avcodec_open(pContext, pCodec) < 0) {
+    if (!pCodec) {
+        return -1;
+    }
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+    int rc = avcodec_open2(pContext, pCodec, 0);
+#else
+    int rc = avcodec_open(pContext, pCodec);
+#endif
+
+    if (rc < 0) {
         return -1;
     }
     return 0;
 }
 
 void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
-        bool bUseHardwareAcceleration)
+        bool bUseHardwareAcceleration, bool bEnableSound)
 {
     mutex::scoped_lock lock(s_OpenMutex);
     m_bThreadedDemuxer = bThreadedDemuxer;
@@ -171,7 +181,12 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         avcodecError(sFilename, err);
     }
     
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
+    err = avformat_find_stream_info(m_pFormatContext, 0);
+#else
     err = av_find_stream_info(m_pFormatContext);
+#endif
+
     if (err < 0) {
         m_sFilename = "";
         m_pFormatContext = 0;
@@ -199,7 +214,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                 break;
             case AVMEDIA_TYPE_AUDIO:
                 // Ignore the audio stream if we're using sync demuxing. 
-                if (m_AStreamIndex < 0 && bThreadedDemuxer) {
+                if (m_AStreamIndex < 0 && bThreadedDemuxer && bEnableSound) {
                     m_AStreamIndex = i;
                 }
                 break;
@@ -230,7 +245,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
             m_pVStream = 0;
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported codec ("+szBuf+").");
+                    sFilename + ": unsupported video codec ("+szBuf+").");
         }
         m_PF = calcPixelFormat(true);
     }
@@ -245,7 +260,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_LastAudioFrameTime = 0;
         m_AudioStartTimestamp = 0;
         
-        if ((unsigned long long)m_pAStream->start_time != AV_NOPTS_VALUE) {
+        if (m_pAStream->start_time != (long long)AV_NOPTS_VALUE) {
             m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)
                     *m_pAStream->start_time);
         }
@@ -256,14 +271,14 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             char szBuf[256];
             avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
             m_pAStream = 0; 
-            AVG_TRACE(Logger::WARNING, 
-                    sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": unsupported audio codec ("+szBuf+").");
         }
         if (m_pAStream->codec->sample_fmt != SAMPLE_FMT_S16) {
             m_AStreamIndex = -1;
             m_pAStream = 0; 
-            AVG_TRACE(Logger::WARNING, 
-                    sFilename + ": unsupported sample format (!= S16). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": unsupported sample format (!= S16).");
         }
     }
 
@@ -289,9 +304,9 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 
     if (m_AStreamIndex >= 0) {
         if (m_pAStream->codec->channels > m_AP.m_Channels) {
-            AVG_TRACE(Logger::WARNING, 
-                    m_sFilename << ": unsupported number of channels (" << 
-                            m_pAStream->codec->channels << "). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    m_sFilename + ": unsupported number of audio channels (" + 
+                            toString(m_pAStream->codec->channels) + ").");
             m_AStreamIndex = -1;
             m_pAStream = 0; 
         } else {
@@ -385,8 +400,12 @@ void FFMpegDecoder::close()
         m_AStreamIndex = -1;
     }
     if (m_pFormatContext) {
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 21, 0)
+        avformat_close_input(&m_pFormatContext);
+#else
         av_close_input_file(m_pFormatContext);
         m_pFormatContext = 0;
+#endif
     }
     
     if (m_pSwsContext) {
@@ -502,7 +521,7 @@ float FFMpegDecoder::getDuration(StreamSelect streamSelect) const
         duration = m_pAStream->duration;
         time_base = m_pAStream->time_base;
     }
-    if (duration == AV_NOPTS_VALUE) {
+    if (duration == (long long)AV_NOPTS_VALUE) {
         return 0;
     } else {
         return float(duration)*float(av_q2d(time_base));

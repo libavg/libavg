@@ -25,7 +25,6 @@ import unittest
 import sys
 import os
 import math
-from sets import Set
 
 from libavg import avg, player
 
@@ -101,7 +100,7 @@ class AVGTestCase(unittest.TestCase):
         self.assert_(player.isPlaying() == 0)
         self.actions = flatten(actions)
         self.curFrame = 0
-        player.setOnFrameHandler(self.__nextAction)
+        player.subscribe(player.ON_FRAME, self.__nextAction)
         player.setFramerate(10000)
         player.assumePixelsPerMM(1)
         player.play()
@@ -262,7 +261,6 @@ class NodeHandlerTester(object):
         self.__testCase.assert_(over == self.__overCalled)
         self.__testCase.assert_(out == self.__outCalled)
         self.__testCase.assert_(move == self.__moveCalled)
-        self.__testCase.assert_(not(self.__touchDownCalled))
         self.reset()
 
     def reset(self):
@@ -271,25 +269,20 @@ class NodeHandlerTester(object):
         self.__overCalled=False
         self.__outCalled=False
         self.__moveCalled=False
-        self.__touchDownCalled=False
 
     def setHandlers(self):
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, self.__onDown) 
-        self.__node.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, self.__onUp) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, self.__onOver) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, self.__onOut) 
-        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, 
-                self.__onMove) 
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, 
-                self.__onTouchDown)
+        self.__node.subscribe(avg.Node.CURSOR_DOWN, self.__onDown) 
+        self.__node.subscribe(avg.Node.CURSOR_UP, self.__onUp) 
+        self.__node.subscribe(avg.Node.CURSOR_OVER, self.__onOver) 
+        self.__node.subscribe(avg.Node.CURSOR_OUT, self.__onOut) 
+        self.__node.subscribe(avg.Node.CURSOR_MOTION, self.__onMove) 
 
     def clearHandlers(self):
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OVER, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_OUT, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.MOUSE, None) 
-        self.__node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, None) 
+        self.__node.unsubscribe(avg.Node.CURSOR_DOWN, self.__onDown) 
+        self.__node.unsubscribe(avg.Node.CURSOR_UP, self.__onUp) 
+        self.__node.unsubscribe(avg.Node.CURSOR_OVER, self.__onOver) 
+        self.__node.unsubscribe(avg.Node.CURSOR_OUT, self.__onOut) 
+        self.__node.unsubscribe(avg.Node.CURSOR_MOTION, self.__onMove) 
 
     def __onDown(self, Event):
         self.__testCase.assert_(Event.type == avg.Event.CURSOR_DOWN)
@@ -311,9 +304,6 @@ class NodeHandlerTester(object):
         self.__testCase.assert_(Event.type == avg.Event.CURSOR_MOTION)
         self.__moveCalled = True
     
-    def __onTouchDown(self, Event):
-        self.__touchDownCalled = True
-
 
 class MessageTester(object):
 
@@ -321,14 +311,14 @@ class MessageTester(object):
         for messageID in messageIDs:
             publisher.subscribe(messageID, 
                     lambda messageID=messageID: self.setMessageReceived(messageID))
-        self.__messagesReceived = Set()
+        self.__messagesReceived = set()
         self.__testCase = testCase
 
     def assertState(self, expectedMessages):
         self.__testCase.assert_(self.isState(expectedMessages))
 
     def isState(self, expectedMessages):
-        expectedMessages = Set(expectedMessages)
+        expectedMessages = set(expectedMessages)
         if expectedMessages != self.__messagesReceived:
             sys.stderr.write("\nState expected: "+str(expectedMessages)+"\n")
             sys.stderr.write("Actual state: "+str(self.__messagesReceived)+"\n")
@@ -340,5 +330,5 @@ class MessageTester(object):
         self.__messagesReceived.add(messageID)
 
     def reset(self):
-        self.__messagesReceived = Set()
+        self.__messagesReceived = set()
 

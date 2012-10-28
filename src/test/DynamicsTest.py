@@ -182,8 +182,8 @@ class DynamicsTestCase(AVGTestCase):
             parentNode = root
             node = player.createNode("image", {"id": "img", "href":"rgb24-64x64.png"})
             parentNode.appendChild(node)
-            node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, captureMouseDown)
-            parentNode.setEventHandler(avg.Event.CURSOR_UP, avg.Event.MOUSE, mainMouseUp)
+            node.subscribe(avg.Node.CURSOR_DOWN, captureMouseDown)
+            parentNode.subscribe(avg.Node.CURSOR_UP, mainMouseUp)
         
         def setEventCapture():
             player.getElementByID("img").setEventCapture()
@@ -362,9 +362,10 @@ class DynamicsTestCase(AVGTestCase):
                 ))
 
     def testStyle(self):
-        style = avg.Style(font="Arial", variant="bold", fontsize=12, linespacing=14)
+        style = avg.Style(font="Bitstream Vera Sans", variant="bold", fontsize=12,
+                linespacing=14)
         derivedStyle = avg.Style(basestyle=style, fontsize=14)
-        self.assert_(derivedStyle["font"] == "Arial")
+        self.assert_(derivedStyle["font"] == "Bitstream Vera Sans")
         self.assert_(derivedStyle["fontsize"] == 14)
         self.assert_("fontsize" in derivedStyle)
         self.assert_(not("foo" in derivedStyle))

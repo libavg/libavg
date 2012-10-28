@@ -198,7 +198,7 @@ class GestureTestCase(AVGTestCase):
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
                         [ui.Recognizer.POSSIBLE]),
                  self.__killImageNode,
-                 self.delay(1100),
+                 lambda: self.delay(1100),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                 ))
         player.setFakeFPS(-1)

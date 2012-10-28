@@ -475,8 +475,7 @@ class WordsTestCase(AVGTestCase):
                 font="Bitstream Vera Sans", variant="roman", text="Centered",
                 parent=root)
         for id in ["left", "center", "right"]:
-            player.getElementByID(id).setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE,
-                    onMouse)
+            player.getElementByID(id).subscribe(avg.Node.CURSOR_DOWN, onMouse)
         self.clicked = False
         leftWidth = player.getElementByID("left").getMediaSize()[0]
         centerWidth = player.getElementByID("center").getMediaSize()[0]

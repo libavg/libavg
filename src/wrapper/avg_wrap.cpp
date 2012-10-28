@@ -30,6 +30,7 @@ void export_anim();
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
 #include "../base/GeomHelper.h"
+#include "../base/XMLHelper.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -97,6 +98,7 @@ BOOST_PYTHON_MODULE(avg)
     def("getMemoryUsage", getMemoryUsage);
 
     def("pointInPolygon", pointInPolygon);
+    def("validateXml", validateXml);
 
     class_<MessageID>("MessageID", no_init);
 
@@ -104,6 +106,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("get", &Logger::get, 
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
+        .def("getCategories", &Logger::getCategories)
         .def("setCategories", &Logger::setCategories)
         .def("pushCategories", &Logger::pushCategories)
         .def("popCategories", &Logger::popCategories)
@@ -121,12 +124,14 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("PLUGIN", &Logger::PLUGIN)
         .def_readonly("PLAYER", &Logger::PLAYER)
         .def_readonly("SHADER", &Logger::SHADER)
+        .def_readonly("DEPRECATION", &Logger::DEPRECATION)
     ;
 
     class_<Publisher, boost::noncopyable>("Publisher")
         .def("subscribe", &Publisher::subscribe)
         .def("unsubscribe", &Publisher::unsubscribeCallable)
         .def("unsubscribe", &Publisher::unsubscribe)
+        .def("unsubscribe", &Publisher::unsubscribe1)
         .def("isSubscribed", &Publisher::isSubscribedCallable)
         .def("isSubscribed", &Publisher::isSubscribed)
         .def("getNumSubscribers", &Publisher::getNumSubscribers)

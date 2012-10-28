@@ -152,7 +152,7 @@ class VectorTestCase(AVGTestCase):
             rect = avg.RectNode(pos=(2, 2), size=(50, 30), fillopacity=1, 
                     strokewidth=0)
             canvas.appendChild(rect)
-            rect.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onMouseDown)
+            rect.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             return rect
         
         def moveRect():
@@ -400,7 +400,7 @@ class VectorTestCase(AVGTestCase):
         def addPolygon():
             polygon = avg.PolygonNode(strokewidth=2, color="FF00FF",
                     pos=((10,10), (50,10), (90,50), (90, 90)))
-            polygon.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onMouseDown)
+            polygon.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             canvas.appendChild(polygon)
             return polygon
         
@@ -552,7 +552,7 @@ class VectorTestCase(AVGTestCase):
     def testCircle(self):
         def addCircle():
             circle = avg.CircleNode(pos=(30, 30), r=20)
-            circle.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onMouseDown)
+            circle.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             canvas.appendChild(circle)
             return circle
         
@@ -671,7 +671,7 @@ class VectorTestCase(AVGTestCase):
 
         def addFilledVectorNode():
             node = avg.RectNode(pos=(2, 6), size=(50, 30), strokewidth=2)
-            node.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onDown)
+            node.subscribe(avg.Node.CURSOR_DOWN, onDown)
             canvas.appendChild(node)
             return node
 

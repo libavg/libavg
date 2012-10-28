@@ -34,7 +34,7 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
-#include <vector>
+#include <list>
 #include <map>
 
 namespace avg {
@@ -54,6 +54,7 @@ public:
 
     int subscribe(MessageID messageID, const py::object& callable);
     void unsubscribe(MessageID messageID, int subscriberID);
+    void unsubscribe1(int subscriberID);
     void unsubscribeCallable(MessageID messageID, const py::object& callable);
     int getNumSubscribers(MessageID messageID);
     bool isSubscribed(MessageID messageID, int subscriberID);
@@ -75,12 +76,14 @@ protected:
     void removeSubscribers();
 
 private:
-    typedef std::vector<SubscriberInfoPtr> SubscriberInfoVector;
-    typedef std::map<MessageID, SubscriberInfoVector> SignalMap;
+    typedef std::list<SubscriberInfoPtr> SubscriberInfoList;
+    typedef std::map<MessageID, SubscriberInfoList> SignalMap;
     
-    SubscriberInfoVector& safeFindSubscribers(MessageID messageID);
+    void unsubscribeIterator(MessageID messageID, SubscriberInfoList::iterator it);
+    SubscriberInfoList& safeFindSubscribers(MessageID messageID);
     void tryUnsubscribeInNotify(MessageID messageID, int subscriberID);
-    void checkSubscriberNotFound(bool bFound, MessageID messageID, int subscriberID);
+    void throwSubscriberNotFound(MessageID messageID, int subscriberID);
+    void dumpSubscribers(MessageID messageID);
 
     PublisherDefinitionPtr m_pPublisherDef;
     SignalMap m_SignalMap;
@@ -95,7 +98,7 @@ template<class ARG_TYPE>
 void Publisher::notifySubscribers(const std::string& sMsgName, const ARG_TYPE& arg)
 {
     MessageID messageID = m_pPublisherDef->getMessageID(sMsgName);
-    SubscriberInfoVector& subscribers = safeFindSubscribers(messageID);
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     if (!subscribers.empty()) {
         py::list args;
         py::object pyArg(arg);

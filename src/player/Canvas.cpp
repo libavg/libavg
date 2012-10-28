@@ -88,7 +88,6 @@ NodePtr Canvas::getElementByID(const std::string& id)
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
     } else {
-        AVG_TRACE(Logger::WARNING, "getElementByID(\"" << id << "\") failed.");
         return NodePtr();
     }
 }

@@ -508,7 +508,7 @@ Area Nodes
 
             Stops audio playback. Closes the object and 'rewinds' the playback cursor.
 
-    .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0, accelerated=True])
+    .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0, accelerated=True, enableaudio=True])
 
         Video nodes display a video file. Video formats and codecs supported
         are all formats that ffmpeg/libavcodec supports. Usage is described thoroughly
@@ -526,7 +526,13 @@ Area Nodes
 
             On construction, set to :py:const:`True` if hardware acceleration should be 
             used to decode this video. Later queries of the attribute return 
-            :py:const:`True` if acceleration is actually being used.
+            :py:const:`True` if acceleration is actually being used. Read-only.
+
+        .. py:attribute:: enableaudio
+
+            On construction, set to :py:const:`True` if any audio present in the video
+            file should be played back as well. A value of :py:const:`False` ignores 
+            audio and just plays a silent video. 
 
         .. py:attribute:: fps
 

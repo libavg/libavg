@@ -30,7 +30,7 @@ class VSyncApp(AVGApp):
         self.__line = avg.LineNode(pos1=(0,0), pos2=(0,1199), color="FFFFFF",
                 parent=self._parentNode)
         self.__x = 0
-        player.setOnFrameHandler(self.onFrame)
+        player.subscribe(player.ON_FRAME, self.onFrame)
 
     def onFrame(self):
         self.__x += 1

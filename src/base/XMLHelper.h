@@ -26,6 +26,7 @@
 
 #include <libxml/parser.h>
 #include <libxml/xmlwriter.h>
+#include <libxml/xmlschemas.h>
 
 #include <string>
 #include <map>
@@ -37,7 +38,42 @@ std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xml
 
 void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
 
+class XMLParser
+{
+public:
+    XMLParser();
+    virtual ~XMLParser();
+
+    void setSchema(const std::string& sSchema, const std::string& sSchemaName);
+    void setDTD(const std::string& sDTD, const std::string& sDTDName);
+    void parse(const std::string& sXML, const std::string& sXMLName);
+
+    xmlDocPtr getDoc();
+    xmlNodePtr getRootNode();
+
+private:
+    static void errorOutputFunc(void * ctx, const char * msg, ...);
+    void internalErrorHandler(const char * msg, va_list args);
+
+    void checkError(bool bError, const std::string& sXMLName);
+
+    xmlSchemaParserCtxtPtr m_SchemaParserCtxt;
+    xmlSchemaPtr m_Schema;
+    xmlSchemaValidCtxtPtr m_SchemaValidCtxt;
+
+    xmlDtdPtr m_DTD;
+    xmlValidCtxtPtr m_DTDValidCtxt;
+    
+    xmlDocPtr m_Doc;
+
+    std::string m_sError;
+    bool m_bHideErrors;
+};
+
+void validateXml(const std::string& sXML, const std::string& sSchema,
+        const std::string& sXMLName, const std::string& sSchemaName);
+
 }
 
-#endif //_XMLHelper_H_
+#endif
 
