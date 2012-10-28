@@ -20,7 +20,7 @@
 #
 
 import math
-import threading, time
+import threading
 
 from libavg import avg, player
 from testcase import *
