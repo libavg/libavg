@@ -193,6 +193,7 @@ void deletePlayer()
 
 Player::~Player()
 {
+    m_pMainCanvas = MainCanvasPtr();
 }
 
 Player* Player::get()
