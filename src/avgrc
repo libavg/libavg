@@ -28,6 +28,6 @@
     <filtermincutoff>0.1</filtermincutoff>
     <filterbeta>0.03</filterbeta>
     <!-- Friction for drag and transform gestures with inertia. -1 means no friction. -->
-    <friction>0.01</friction>
+    <friction>-1</friction>
   </gesture>
 </avgrc>  
