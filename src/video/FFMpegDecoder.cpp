@@ -666,6 +666,19 @@ bool FFMpegDecoder::isEOF(StreamSelect stream) const
     }
 }
 
+void FFMpegDecoder::logConfig()
+{
+    bool bVDPAUAvailable = false;
+#ifdef AVG_ENABLE_VDPAU
+    bVDPAUAvailable = VDPAUDecoder::isAvailable();
+#endif
+    if (bVDPAUAvailable) {
+        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: VDPAU");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
+    }
+}
+
 int FFMpegDecoder::copyRawAudio(unsigned char* pBuffer, int size)
 {
     int bytesWritten = min(m_SampleBufferEnd - m_SampleBufferStart, size);

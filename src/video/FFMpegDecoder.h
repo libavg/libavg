@@ -82,6 +82,8 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         virtual void loop();
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
 
+        static void logConfig();
+
     private:
         void initVideoSupport();
         bool usesVDPAU() const;
