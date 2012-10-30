@@ -30,13 +30,14 @@ using namespace std;
 
 namespace avg {
 
-InvertFXNode::InvertFXNode():
-    FXNode()
+InvertFXNode::InvertFXNode()
+    : FXNode()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-InvertFXNode::~InvertFXNode() {
+InvertFXNode::~InvertFXNode()
+{
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
