@@ -26,6 +26,7 @@
 #include "CursorEvent.h"
 
 #include "../base/Exception.h"
+#include "../base/OSHelper.h"
 
 #include <string>
 
@@ -38,6 +39,8 @@ EventDispatcher::EventDispatcher(Player* pPlayer)
     : m_pPlayer(pPlayer),
       m_NumMouseButtonsDown(0)
 {
+    string sTmp;
+    m_bDisableMouse = getEnv("AVG_DISABLE_MOUSE", sTmp);
 }
 
 EventDispatcher::~EventDispatcher() 
@@ -64,9 +67,12 @@ void EventDispatcher::dispatch()
     for (it = events.begin(); it != events.end(); ++it) {
         EventPtr pEvent = *it;
 //        cerr << "  " << pEvent->typeStr() << ", " << pEvent->getSource() << endl;
-        testAddContact(pEvent);
-        handleEvent(*it);
-        testRemoveContact(pEvent);
+        bool bHookEatsEvent = processEventHook(pEvent);
+        if (!(m_bDisableMouse && pEvent->getSource() == Event::MOUSE) && !bHookEatsEvent) {
+            testAddContact(pEvent);
+            handleEvent(*it);
+            testRemoveContact(pEvent);
+        }
     }
 }
 
@@ -93,6 +99,18 @@ ContactPtr EventDispatcher::getContact(int id)
 void EventDispatcher::handleEvent(EventPtr pEvent)
 {
     m_pPlayer->handleEvent(pEvent);
+}
+
+bool EventDispatcher::processEventHook(EventPtr pEvent)
+{
+    PyObject * pEventHook = m_pPlayer->getEventHook();
+    if (pEventHook != Py_None) {
+        // If the hook returns true, stop processing the event
+        if (py::call<bool>(pEventHook, pEvent)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void EventDispatcher::testAddContact(EventPtr pEvent)

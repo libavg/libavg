@@ -1012,13 +1012,6 @@ void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
 bool Player::handleEvent(EventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
-    PyObject * pEventHook = getEventHook();
-    if (pEventHook != Py_None) {
-        // If the catchall returns true, stop processing the event
-        if (py::call<bool>(pEventHook, pEvent)) {
-            return true;
-        }
-    }
     EventPtr pLastEvent = m_pCurrentEvent;
     m_pCurrentEvent = pEvent;
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
