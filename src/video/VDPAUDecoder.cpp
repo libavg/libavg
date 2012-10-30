@@ -91,7 +91,11 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
 
 bool VDPAUDecoder::isAvailable()
 {
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 34, 0)
     return getVDPAUDevice() != 0;
+#else
+    return false;
+#endif
 }
 
 int VDPAUDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
