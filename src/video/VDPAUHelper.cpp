@@ -22,6 +22,8 @@
 #include "VDPAUHelper.h"
 
 #include "../base/Exception.h"
+#include "../base/ConfigMgr.h"
+
 #include "../graphics/Bitmap.h"
 
 using namespace std;
@@ -83,10 +85,15 @@ VdpDevice getVDPAUDevice()
     Display* pXDisplay = XOpenDisplay(0);
     AVG_ASSERT(pXDisplay);
 
+    if (!(ConfigMgr::get()->getBoolOption("scr", "videoaccel", true))) {
+        bInitFailed = true;
+        return 0;
+    }
     VdpStatus status;
     status = vdp_device_create_x11(pXDisplay, DefaultScreen(pXDisplay), &vdpDevice, 
             &vdp_get_proc_address);
-    if (status != VDP_STATUS_OK) {
+    if (status != VDP_STATUS_OK)
+    {
         bInitFailed = true;
         return 0;
     }

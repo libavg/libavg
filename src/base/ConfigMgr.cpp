@@ -78,6 +78,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "shaderusage", "auto");
     addOption("scr", "gamma", "-1,-1,-1");
     addOption("scr", "vsyncmode", "auto");
+    addOption("scr", "videoaccel", "true");
     
     addSubsys("aud");
     addOption("aud", "channels", "2");

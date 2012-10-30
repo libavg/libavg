@@ -133,12 +133,11 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
         m_pVDPAUDecoder = new VDPAUDecoder();
         pContext->opaque = m_pVDPAUDecoder;
         pCodec = m_pVDPAUDecoder->openCodec(pContext);
-    } else {
+    } 
+#endif
+    if (!pCodec) {
         pCodec = avcodec_find_decoder(pContext->codec_id);
     }
-#else
-    pCodec = avcodec_find_decoder(pContext->codec_id);
-#endif
     if (!pCodec) {
         return -1;
     }

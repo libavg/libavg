@@ -8,6 +8,7 @@
     <multisamplesamples>4</multisamplesamples>
     <dotspermm>0</dotspermm>
     <shaderusage>auto</shaderusage>
+    <videoaccel>true</videoaccel>
   </scr>
   <aud>
     <channels>2</channels>

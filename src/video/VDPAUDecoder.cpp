@@ -53,7 +53,9 @@ VDPAUDecoder::~VDPAUDecoder()
 
 AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
 {
-    getVDPAUDevice();
+    if (!isAvailable()) {
+        return 0;
+    }
 
     AVCodec* pCodec = 0;
     switch (pContext->codec_id) {
@@ -76,9 +78,7 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
         default:
             pCodec = 0;
     }
-    if (!pCodec || !getVDPAUDevice()) {
-        pCodec = avcodec_find_decoder(pContext->codec_id);
-    } else {
+    if (pCodec) {
         pContext->get_buffer = VDPAUDecoder::getBuffer;
         pContext->release_buffer = VDPAUDecoder::releaseBuffer;
         pContext->draw_horiz_band = VDPAUDecoder::drawHorizBand;
