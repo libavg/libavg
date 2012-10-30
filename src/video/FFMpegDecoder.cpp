@@ -615,7 +615,17 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
             }
 #endif
         } else {
+#ifdef AVG_ENABLE_VDPAU
+            if (usesVDPAU()) {
+                ScopeTimer timer(VDPAUCopyProfilingZone);
+                vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
+                getBitmapFromVDPAU(pRenderState, pBmps[0]);
+            } else {
+                convertFrameToBmp(frame, pBmps[0]);
+            }
+#else 
             convertFrameToBmp(frame, pBmps[0]);
+#endif
         }
         return FA_NEW_FRAME;
     }

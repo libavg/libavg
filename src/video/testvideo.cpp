@@ -60,7 +60,7 @@ class DecoderTest: public GraphicsTest {
         DecoderTest(const string& sClassName, bool bThreadedDecoder, 
                 bool bThreadedDemuxer, bool bUseHardwareAcceleration)
           : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, 
-                    bThreadedDemuxer), 2),
+                    bThreadedDemuxer, bUseHardwareAcceleration), 2),
             m_bThreadedDecoder(bThreadedDecoder),
             m_bThreadedDemuxer(bThreadedDemuxer),
             m_bUseHardwareAcceleration(bUseHardwareAcceleration)
@@ -118,7 +118,8 @@ class DecoderTest: public GraphicsTest {
         }
 
     private:
-        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer)
+        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer, 
+                bool bUseHardwareAcceleration)
         {
             string sName = "(";
             if (bThreadedDecoder) {
@@ -127,10 +128,16 @@ class DecoderTest: public GraphicsTest {
                 sName += "Sync decoder, ";
             }
             if (bThreadedDemuxer) {
-                return sName+string("Threaded demuxer)");
+                sName += "Threaded demuxer";
             } else {
-                return sName+string("Sync demuxer)");
+                sName += "Sync demuxer";
             }
+            if (bUseHardwareAcceleration) {
+                sName += ", VDPAU)";
+            } else {
+                sName += ")";
+            }
+            return sName;
         }
 
         bool m_bThreadedDecoder;
