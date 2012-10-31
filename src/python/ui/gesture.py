@@ -696,7 +696,7 @@ class TransformRecognizer(Recognizer):
                 self.__inertiaHandler.abort()
                 self._setEnd(event)
             self._setDetected(event)
-            self.__frameHandlerID = player.setOnFrameHandler(self.__onFrame)
+            self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)
@@ -708,7 +708,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(self.__filteredRelContactPos(contact)
                     - self.__lastPosns[0])
             self.notifySubscribers(Recognizer.UP, [transform]);
-            player.clearInterval(self.__frameHandlerID)
+            player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
             self.__frameHandlerID = None
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
@@ -811,7 +811,7 @@ class TransformRecognizer(Recognizer):
 
     def __abort(self):
         if self.__frameHandlerID:
-            player.clearInterval(self.__frameHandlerID)
+            player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
             self.__frameHandlerID = None
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()

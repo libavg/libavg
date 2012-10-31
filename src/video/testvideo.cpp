@@ -30,6 +30,9 @@
 #endif
 
 #include "AsyncVideoDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
 
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
@@ -57,7 +60,7 @@ class DecoderTest: public GraphicsTest {
         DecoderTest(const string& sClassName, bool bThreadedDecoder, 
                 bool bThreadedDemuxer, bool bUseHardwareAcceleration)
           : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, 
-                    bThreadedDemuxer), 2),
+                    bThreadedDemuxer, bUseHardwareAcceleration), 2),
             m_bThreadedDecoder(bThreadedDecoder),
             m_bThreadedDemuxer(bThreadedDemuxer),
             m_bUseHardwareAcceleration(bUseHardwareAcceleration)
@@ -115,7 +118,8 @@ class DecoderTest: public GraphicsTest {
         }
 
     private:
-        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer)
+        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer, 
+                bool bUseHardwareAcceleration)
         {
             string sName = "(";
             if (bThreadedDecoder) {
@@ -124,10 +128,16 @@ class DecoderTest: public GraphicsTest {
                 sName += "Sync decoder, ";
             }
             if (bThreadedDemuxer) {
-                return sName+string("Threaded demuxer)");
+                sName += "Threaded demuxer";
             } else {
-                return sName+string("Sync demuxer)");
+                sName += "Sync demuxer";
             }
+            if (bUseHardwareAcceleration) {
+                sName += ", VDPAU)";
+            } else {
+                sName += ")";
+            }
+            return sName;
         }
 
         bool m_bThreadedDecoder;
@@ -158,7 +168,7 @@ class VideoDecoderTest: public DecoderTest {
 
                 VideoDecoderPtr pDecoder = createDecoder();
                 pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(), 
-                        useHardwareAcceleration());
+                        useHardwareAcceleration(), true);
                 IntPoint frameSize = pDecoder->getSize();
                 TEST(frameSize == IntPoint(48, 48));
                 TEST(pDecoder->getVideoInfo().m_bHasVideo);
@@ -189,7 +199,7 @@ class VideoDecoderTest: public DecoderTest {
 
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration());
+                    useHardwareAcceleration(), true);
             pDecoder->startDecoding(false, getAudioParams());
 
             // Seek forward
@@ -219,7 +229,7 @@ class VideoDecoderTest: public DecoderTest {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration());
+                    useHardwareAcceleration(), true);
             IntPoint frameSize = pDecoder->getSize();
             float timePerFrame = (1.0f/pDecoder->getFPS())*speedFactor;
             pDecoder->startDecoding(false, getAudioParams());
@@ -295,7 +305,7 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Reading complete file." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getMediaLoc(sFilename), 
-                            isDemuxerThreaded(), useHardwareAcceleration());
+                            isDemuxerThreaded(), useHardwareAcceleration(), true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
                     pDecoder->setVolume(0.5);
                     TEST(pDecoder->getVolume() == 0.5);
@@ -314,7 +324,7 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                            useHardwareAcceleration());
+                            useHardwareAcceleration(), true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
                     pDecoder->seek(duration/2);
@@ -389,7 +399,7 @@ class AVDecoderTest: public DecoderTest {
         {
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration());
+                    useHardwareAcceleration(), true);
             TEST(pDecoder->getVideoInfo().m_bHasVideo);
             TEST(pDecoder->getNominalFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());
@@ -460,9 +470,13 @@ public:
         addAudioTests();
         addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
-        if (VDPAU::isAvailable()) {
+        if (VDPAUDecoder::isAvailable()) {
             addVideoTests(true);
+        } else {
+            cerr << "Skipping VDPAU tests: VDPAU configured but not available." << endl;
         }
+#else
+        cerr << "Skipping VDPAU tests: VDPAU not configured." << endl;
 #endif
     }
 private:

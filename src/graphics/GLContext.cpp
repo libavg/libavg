@@ -49,83 +49,8 @@ using namespace boost;
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
 bool GLContext::s_bErrorCheckEnabled = false;
+bool GLContext::s_bErrorLogEnabled = true;
 
-
-void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
-        GLsizei length, const GLchar* message, void* userParam) 
-{
-/*    
-    string sSource;
-    switch (source) {
-        case GL_DEBUG_SOURCE_API_ARB:
-            sSource = "API";
-            break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
-            sSource = "Window System";
-            break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
-            sSource = "Shader Compiler";
-            break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
-            sSource = "Third Party";
-            break;
-        case GL_DEBUG_SOURCE_APPLICATION_ARB:
-            sSource = "Application";
-            break;
-        case GL_DEBUG_SOURCE_OTHER_ARB:
-            sSource = "Other";
-            break;
-        default:
-            AVG_ASSERT(false);
-    }
-
-    string sSeverity;
-    switch (severity) {
-        case GL_DEBUG_SEVERITY_HIGH_ARB:
-            sSeverity = "High";
-            break;
-        case GL_DEBUG_SEVERITY_MEDIUM_ARB:
-            sSeverity = "Medium";
-            break;
-        case GL_DEBUG_SEVERITY_LOW_ARB:
-            sSeverity = "Low";
-            break;
-        default:
-            AVG_ASSERT(false);
-    }
-
-    string sType;
-    switch (type) {
-        case GL_DEBUG_TYPE_ERROR_ARB:
-            sType = "Error";
-            break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
-            sType = "Deprecated Behaviour";
-            break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
-            sType = "Undefined Behaviour";
-            break;
-        case GL_DEBUG_TYPE_PORTABILITY_ARB:
-            sType = "Portability Issue";
-            break;
-        case GL_DEBUG_TYPE_PERFORMANCE_ARB:
-            sType = "Performance Issue";
-            break;
-        case GL_DEBUG_TYPE_OTHER_ARB:
-            sType = "Other";
-            break;
-        default:
-            AVG_ASSERT(false);
-    }
-*/
-
-    // XXX Temporary to clean up NVidia message spam.
-    if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB) {
-        AVG_TRACE(Logger::WARNING, message);
-    }
-//    dumpBacktrace();
-//    AVG_ASSERT(false);
-}
 
 GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
@@ -175,7 +100,7 @@ void GLContext::init(bool bOwnsContext)
 
     if (m_GLConfig.m_bUseDebugContext) {
         if (isDebugContextSupported()) {
-            glproc::DebugMessageCallback(debugLogCallback, 0);
+            glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
         } else {
             m_GLConfig.m_bUseDebugContext = false;
         }
@@ -568,6 +493,11 @@ bool GLContext::isGLESSupported()
 #endif
 }
 
+void GLContext::enableErrorLog(bool bEnable)
+{
+    s_bErrorLogEnabled = bEnable;
+}
+
 void GLContext::checkGPUMemInfoSupport()
 {
     if (!m_bCheckedGPUMemInfoExtension) {
@@ -591,6 +521,82 @@ bool GLContext::isDebugContextSupported() const
         return true;
     }
     return false;
+}
+
+void APIENTRY GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id, 
+        GLenum severity, GLsizei length, const GLchar* message, void* userParam) 
+{
+/*    
+    string sSource;
+    switch (source) {
+        case GL_DEBUG_SOURCE_API_ARB:
+            sSource = "API";
+            break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+            sSource = "Window System";
+            break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+            sSource = "Shader Compiler";
+            break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+            sSource = "Third Party";
+            break;
+        case GL_DEBUG_SOURCE_APPLICATION_ARB:
+            sSource = "Application";
+            break;
+        case GL_DEBUG_SOURCE_OTHER_ARB:
+            sSource = "Other";
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+
+    string sSeverity;
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH_ARB:
+            sSeverity = "High";
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+            sSeverity = "Medium";
+            break;
+        case GL_DEBUG_SEVERITY_LOW_ARB:
+            sSeverity = "Low";
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+
+    string sType;
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR_ARB:
+            sType = "Error";
+            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+            sType = "Deprecated Behaviour";
+            break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+            sType = "Undefined Behaviour";
+            break;
+        case GL_DEBUG_TYPE_PORTABILITY_ARB:
+            sType = "Portability Issue";
+            break;
+        case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+            sType = "Performance Issue";
+            break;
+        case GL_DEBUG_TYPE_OTHER_ARB:
+            sType = "Other";
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+*/
+
+    // XXX Temporary to clean up NVidia message spam.
+    if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
+        AVG_TRACE(Logger::WARNING, message);
+//        dumpBacktrace();
+//        AVG_ASSERT(false);
+    }
 }
 
 }

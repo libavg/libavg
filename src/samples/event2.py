@@ -11,7 +11,7 @@ def onWords(event):
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()
-words = avg.WordsNode(pos=(10,10), font="arial", text="Should I stay or should I go?", 
+words = avg.WordsNode(pos=(10,10), text="Should I stay or should I go?", 
         parent=rootNode)
 div = avg.DivNode(pos=(100,0), size=(80,200), parent=rootNode)
 words.subscribe(words.CURSOR_MOTION, onWords)

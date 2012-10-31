@@ -32,9 +32,7 @@
 #include "WrapFFMpeg.h"
 
 #ifdef AVG_ENABLE_VDPAU
-#include "VDPAU.h"
-#include "AVCCOpaque.h"
-#include "FrameAge.h"
+#include "VDPAUHelper.h"
 #include <libavcodec/vdpau.h>
 #endif
 
@@ -43,6 +41,7 @@
 namespace avg {
 
 class AudioBuffer;
+class VDPAUDecoder;
 
 class AVG_API FFMpegDecoder: public VideoDecoder
 {
@@ -50,7 +49,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
         virtual void open(const std::string& sFilename, bool bThreadedDemuxer,
-                bool bUseHardwareAcceleration);
+                bool bUseHardwareAcceleration, bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
         virtual DecoderState getState() const;
@@ -82,6 +81,8 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         virtual void seek(float destTime);
         virtual void loop();
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
+
+        static void logConfig();
 
     private:
         void initVideoSupport();
@@ -145,8 +146,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         AVStream * m_pVStream;
         AVStream * m_pAStream;
 #ifdef AVG_ENABLE_VDPAU
-        VDPAU m_VDPAU;
-        AVCCOpaque m_Opaque;
+        VDPAUDecoder* m_pVDPAUDecoder;
 #endif
         int m_VStreamIndex;
         bool m_bEOFPending;
@@ -165,12 +165,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         // Prevents different decoder instances from executing open/close simultaneously
         static boost::mutex s_OpenMutex;   
 };
-
-#ifdef AVG_ENABLE_VDPAU
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
-        BitmapPtr pBmpU, BitmapPtr pBmpV);
-void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
-#endif
 
 }
 #endif 

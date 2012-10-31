@@ -21,10 +21,14 @@
 
 #include "AsyncVideoDecoder.h"
 
+#include "FFMpegDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
+
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
-#include "FFMpegDecoder.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -63,14 +67,15 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 }
 
 void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer,
-        bool bUseHardwareAccelleration)
+        bool bUseHardwareAcceleration, bool bEnableSound)
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bSeekPending = false;
     m_sFilename = sFilename;
 
-    m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer, bUseHardwareAccelleration);
+    m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer, bUseHardwareAcceleration, 
+            bEnableSound);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
     // Temporary pf - always assumes shaders will be available.
     m_PF = m_pSyncDecoder->getPixelFormat();
@@ -402,7 +407,8 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
                     } else {
 #if AVG_ENABLE_VDPAU
                         vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-                        VDPAU::unlockSurface(pRenderState);
+                        pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
+                        unlockVDPAUSurface(pRenderState);
 #endif
                     }
                 }

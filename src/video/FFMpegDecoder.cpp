@@ -22,12 +22,16 @@
 #include "FFMpegDecoder.h"
 #include "AsyncDemuxer.h"
 #include "FFMpegDemuxer.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 #include "../base/ProfilingZoneID.h"
+#include "../base/StringHelper.h"
 
 #include "../graphics/Filterflipuv.h"
 #include "../graphics/Filterfliprgba.h"
@@ -67,8 +71,7 @@ FFMpegDecoder::FFMpegDecoder()
       m_pVStream(0),
       m_pAStream(0),
 #ifdef AVG_ENABLE_VDPAU
-      m_VDPAU(),
-      m_Opaque(&m_VDPAU),
+      m_pVDPAUDecoder(0),
 #endif
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
@@ -85,6 +88,11 @@ FFMpegDecoder::~FFMpegDecoder()
     if (m_pFormatContext) {
         close();
     }
+#ifdef AVG_ENABLE_VDPAU
+    if (m_pVDPAUDecoder) {
+        delete m_pVDPAUDecoder;
+    }
+#endif
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -122,14 +130,14 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
     AVCodec * pCodec = 0;
 #ifdef AVG_ENABLE_VDPAU
     if (bUseHardwareAcceleration) {
-        pContext->opaque = &m_Opaque;
-        pCodec = m_VDPAU.openCodec(pContext);
-    } else {
+        m_pVDPAUDecoder = new VDPAUDecoder();
+        pContext->opaque = m_pVDPAUDecoder;
+        pCodec = m_pVDPAUDecoder->openCodec(pContext);
+    } 
+#endif
+    if (!pCodec) {
         pCodec = avcodec_find_decoder(pContext->codec_id);
     }
-#else
-    pCodec = avcodec_find_decoder(pContext->codec_id);
-#endif
     if (!pCodec) {
         return -1;
     }
@@ -146,7 +154,7 @@ int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 }
 
 void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
-        bool bUseHardwareAcceleration)
+        bool bUseHardwareAcceleration, bool bEnableSound)
 {
     mutex::scoped_lock lock(s_OpenMutex);
     m_bThreadedDemuxer = bThreadedDemuxer;
@@ -205,7 +213,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                 break;
             case AVMEDIA_TYPE_AUDIO:
                 // Ignore the audio stream if we're using sync demuxing. 
-                if (m_AStreamIndex < 0 && bThreadedDemuxer) {
+                if (m_AStreamIndex < 0 && bThreadedDemuxer && bEnableSound) {
                     m_AStreamIndex = i;
                 }
                 break;
@@ -236,7 +244,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
             m_pVStream = 0;
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported codec ("+szBuf+").");
+                    sFilename + ": unsupported video codec ("+szBuf+").");
         }
         m_PF = calcPixelFormat(true);
     }
@@ -262,14 +270,14 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             char szBuf[256];
             avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
             m_pAStream = 0; 
-            AVG_TRACE(Logger::WARNING, 
-                    sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": unsupported audio codec ("+szBuf+").");
         }
         if (m_pAStream->codec->sample_fmt != SAMPLE_FMT_S16) {
             m_AStreamIndex = -1;
             m_pAStream = 0; 
-            AVG_TRACE(Logger::WARNING, 
-                    sFilename + ": unsupported sample format (!= S16). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": unsupported sample format (!= S16).");
         }
     }
 
@@ -278,9 +286,6 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
 
 void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
-#ifdef AVG_ENABLE_VDPAU
-    m_VDPAU.init();
-#endif
     AVG_ASSERT(m_State == OPENED);
     if (m_VStreamIndex >= 0) {
         m_PF = calcPixelFormat(bDeliverYCbCr);
@@ -298,9 +303,9 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 
     if (m_AStreamIndex >= 0) {
         if (m_pAStream->codec->channels > m_AP.m_Channels) {
-            AVG_TRACE(Logger::WARNING, 
-                    m_sFilename << ": unsupported number of channels (" << 
-                            m_pAStream->codec->channels << "). Disabling audio.");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    m_sFilename + ": unsupported number of audio channels (" + 
+                            toString(m_pAStream->codec->channels) + ").");
             m_AStreamIndex = -1;
             m_pAStream = 0; 
         } else {
@@ -609,7 +614,17 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
             }
 #endif
         } else {
+#ifdef AVG_ENABLE_VDPAU
+            if (usesVDPAU()) {
+                ScopeTimer timer(VDPAUCopyProfilingZone);
+                vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
+                getBitmapFromVDPAU(pRenderState, pBmps[0]);
+            } else {
+                convertFrameToBmp(frame, pBmps[0]);
+            }
+#else 
             convertFrameToBmp(frame, pBmps[0]);
+#endif
         }
         return FA_NEW_FRAME;
     }
@@ -657,6 +672,19 @@ bool FFMpegDecoder::isEOF(StreamSelect stream) const
             return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
         default:
             return false;
+    }
+}
+
+void FFMpegDecoder::logConfig()
+{
+    bool bVDPAUAvailable = false;
+#ifdef AVG_ENABLE_VDPAU
+    bVDPAUAvailable = VDPAUDecoder::isAvailable();
+#endif
+    if (bVDPAUAvailable) {
+        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: VDPAU");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
     }
 }
 
@@ -1037,7 +1065,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
 #if AVG_ENABLE_VDPAU
             if (usesVDPAU() && bInvalidFrame && !m_bVideoEOF) {
                 vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-                VDPAU::unlockSurface(pRenderState);
+                unlockVDPAUSurface(pRenderState);
             }
 #endif
 //            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
@@ -1068,10 +1096,6 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
-#ifdef AVG_ENABLE_VDPAU
-            FrameAge age;
-            m_Opaque.setFrameAge(&age);
-#endif
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #else
@@ -1206,39 +1230,6 @@ AVCodecContext* FFMpegDecoder::getCodecContext()
 {
     return m_pVStream->codec;
 }
-
-#ifdef AVG_ENABLE_VDPAU
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
-        BitmapPtr pBmpU, BitmapPtr pBmpV)
-{
-    VdpStatus status;
-    void *dest[3] = {
-        pBmpY->getPixels(),
-        pBmpV->getPixels(),
-        pBmpU->getPixels()
-    };
-    uint32_t pitches[3] = {
-        (uint32_t)pBmpY->getStride(),
-        (uint32_t)pBmpV->getStride(),
-        (uint32_t)pBmpU->getStride()
-    };
-    status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
-            VDP_YCBCR_FORMAT_YV12, dest, pitches);
-    AVG_ASSERT(status == VDP_STATUS_OK);
-    VDPAU::unlockSurface(pRenderState);
-}
-
-void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
-{
-    IntPoint YSize = pBmpDest->getSize();
-    IntPoint UVSize(YSize.x>>1, YSize.y);
-    BitmapPtr pBmpY(new Bitmap(YSize, I8));
-    BitmapPtr pBmpU(new Bitmap(UVSize, I8));
-    BitmapPtr pBmpV(new Bitmap(UVSize, I8));
-    getPlanesFromVDPAU(pRenderState, pBmpY, pBmpU, pBmpV);
-    pBmpDest->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
-}   
-#endif
 
 }
 

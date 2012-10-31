@@ -78,68 +78,132 @@ void registerDTDEntityLoader(const string& sID, const string& sDTD)
 }
 
 
-XmlValidator::XmlValidator(const string& sSchema, const string& sSchemaName)
-    : m_ParserCtxt(0),
+XMLParser::XMLParser()
+    : m_SchemaParserCtxt(0),
       m_Schema(0),
-      m_ValidCtxt(0)
+      m_SchemaValidCtxt(0),
+      m_DTD(0),
+      m_DTDValidCtxt(0),
+      m_Doc(0)
 {
     xmlPedanticParserDefault(1);
     xmlSetGenericErrorFunc(this, errorOutputFunc);
-
-    m_ParserCtxt = xmlSchemaNewMemParserCtxt(sSchema.c_str(), sSchema.length());
-    checkError(!m_ParserCtxt, sSchemaName);
-
-    m_Schema = xmlSchemaParse(m_ParserCtxt);
-    checkError(!m_Schema, sSchemaName);
-
-    m_ValidCtxt = xmlSchemaNewValidCtxt(m_Schema);
-    checkError(!m_ValidCtxt, sSchemaName);
+    xmlDoValidityCheckingDefaultValue = 0;
 }
 
-XmlValidator::~XmlValidator()
+XMLParser::~XMLParser()
 {
     if (m_Schema) {
         xmlSchemaFree(m_Schema);
     }
-    if (m_ParserCtxt) {
-        xmlSchemaFreeParserCtxt(m_ParserCtxt);
+    if (m_SchemaParserCtxt) {
+        xmlSchemaFreeParserCtxt(m_SchemaParserCtxt);
     }
-    if (m_ValidCtxt) {
-        xmlSchemaFreeValidCtxt(m_ValidCtxt);
+    if (m_SchemaValidCtxt) {
+        xmlSchemaFreeValidCtxt(m_SchemaValidCtxt);
+    }
+    if (m_DTD) {
+        xmlFreeDtd(m_DTD);
+    }
+    if (m_DTDValidCtxt) {
+        xmlFreeValidCtxt(m_DTDValidCtxt);
+    }
+    if (m_Doc) {
+        xmlFreeDoc(m_Doc);
     }
     xmlSetGenericErrorFunc(0, 0);
 }
 
-void XmlValidator::validate(const string& sXML, const string& sXMLName)
+void XMLParser::setSchema(const string& sSchema, const string& sSchemaName)
 {
-    xmlDocPtr doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
-    checkError(!doc, sXMLName);
+    AVG_ASSERT(!m_SchemaParserCtxt);
+    AVG_ASSERT(!m_Schema);
+    AVG_ASSERT(!m_SchemaValidCtxt);
+    AVG_ASSERT(!m_DTD);
+    AVG_ASSERT(!m_DTDValidCtxt);
 
-    int err = xmlSchemaValidateDoc(m_ValidCtxt, doc);
-    AVG_ASSERT(err != -1);
-    if (err) {
-        xmlFreeDoc(doc);
-        checkError(true, sXMLName);
-    }
-    xmlFreeDoc(doc);
+    m_SchemaParserCtxt = xmlSchemaNewMemParserCtxt(sSchema.c_str(), sSchema.length());
+    checkError(!m_SchemaParserCtxt, sSchemaName);
+
+    m_Schema = xmlSchemaParse(m_SchemaParserCtxt);
+    checkError(!m_Schema, sSchemaName);
+
+    m_SchemaValidCtxt = xmlSchemaNewValidCtxt(m_Schema);
+    checkError(!m_SchemaValidCtxt, sSchemaName);
 }
 
-void XmlValidator::errorOutputFunc(void * ctx, const char * msg, ...)
+void XMLParser::setDTD(const std::string& sDTD, const std::string& sDTDName)
+{
+    AVG_ASSERT(!m_SchemaParserCtxt);
+    AVG_ASSERT(!m_Schema);
+    AVG_ASSERT(!m_SchemaValidCtxt);
+    AVG_ASSERT(!m_DTD);
+    AVG_ASSERT(!m_DTDValidCtxt);
+
+    registerDTDEntityLoader("memory.dtd", sDTD.c_str());
+    string sDTDFName = "memory.dtd";
+    m_DTD = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
+    checkError(!m_DTD, sDTDName);
+
+    m_DTDValidCtxt = xmlNewValidCtxt();
+    checkError(!m_DTDValidCtxt, sDTDName);
+    m_DTDValidCtxt->error = xmlParserValidityError;
+    m_DTDValidCtxt->warning = xmlParserValidityWarning;
+}
+
+void XMLParser::parse(const string& sXML, const string& sXMLName)
+{
+    if (m_Doc) {
+        xmlFreeDoc(m_Doc);
+    }
+    m_Doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
+    checkError(!m_Doc, sXMLName);
+
+    bool bOK = true;
+    if (m_SchemaValidCtxt) {
+        int err = xmlSchemaValidateDoc(m_SchemaValidCtxt, m_Doc);
+        AVG_ASSERT(err != -1);
+        bOK = (err == 0);
+    }
+    if (m_DTD) {
+        int err = xmlValidateDtd(m_DTDValidCtxt, m_Doc, m_DTD);
+        bOK = (err != 0);
+    }
+    if (!bOK) {
+        xmlFreeDoc(m_Doc);
+        m_Doc = 0;
+        checkError(true, sXMLName);
+    }
+}
+
+xmlDocPtr XMLParser::getDoc()
+{
+    AVG_ASSERT(m_Doc);
+    return m_Doc;
+}
+
+xmlNodePtr XMLParser::getRootNode()
+{
+    AVG_ASSERT(m_Doc);
+    return xmlDocGetRootElement(m_Doc);
+}
+
+void XMLParser::errorOutputFunc(void * ctx, const char * msg, ...)
 {
     va_list args;
     va_start(args, msg);
-    ((XmlValidator*)ctx)->internalErrorHandler(msg, args);
+    ((XMLParser*)ctx)->internalErrorHandler(msg, args);
     va_end(args);
 }
 
-void XmlValidator::internalErrorHandler(const char * msg, va_list args)
+void XMLParser::internalErrorHandler(const char * msg, va_list args)
 {
     char psz[1024];
     vsnprintf(psz, 1024, msg, args);
     m_sError += psz;
 }
 
-void XmlValidator::checkError(bool bError, const string& sXMLName)
+void XMLParser::checkError(bool bError, const string& sXMLName)
 {
     if (bError) {
         string sError = "Error parsing "+sXMLName+".\n";
@@ -152,9 +216,10 @@ void XmlValidator::checkError(bool bError, const string& sXMLName)
 void validateXml(const string& sXML, const string& sSchema, const string& sXMLName,
         const string& sSchemaName)
 {
-    XmlValidator validator(sSchema, sSchemaName);
+    XMLParser parser;
+    parser.setSchema(sSchema, sSchemaName);
 
-    validator.validate(sXML, sXMLName);
+    parser.parse(sXML, sXMLName);
 }
 
 }

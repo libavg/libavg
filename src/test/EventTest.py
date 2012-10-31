@@ -793,12 +793,12 @@ class EventTestCase(AVGTestCase):
             self.assertEqual(event.cursorid, event.contact.id)
 
         root = self.loadEmptyScene()
-        root.connectEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, self, onDown)
+        root.subscribe(avg.Node.CURSOR_DOWN, onDown)
         self.numContactCallbacks = 0
         rect = avg.RectNode(pos=(5,5), size=(10,10), parent=root)
-        rect.connectEventHandler(avg.Event.CURSOR_OVER, avg.Event.TOUCH, self, onOver)
+        rect.subscribe(avg.Node.CURSOR_OVER, onOver)
         self.numOverCallbacks = 0
-        rect.connectEventHandler(avg.Event.CURSOR_OUT, avg.Event.TOUCH, self, onOut)
+        rect.subscribe(avg.Node.CURSOR_OUT, onOut)
         self.numOutCallbacks = 0
         player.setFakeFPS(25)
         self.motionCalled = False
@@ -814,7 +814,7 @@ class EventTestCase(AVGTestCase):
         self.assert_(self.motionCalled and self.upCalled)
         
         root = self.loadEmptyScene()
-        root.connectEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, self, onDown)
+        root.subscribe(avg.Node.CURSOR_DOWN, onDown)
         self.numContactCallbacks = 0
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
@@ -831,20 +831,21 @@ class EventTestCase(AVGTestCase):
 
         def onMotion(event):
             contact = event.contact
-            self.contactID = contact.connectListener(onContactMotion, None)
+            self.contactID = contact.subscribe(avg.Contact.CURSOR_MOTION, onContactMotion)
             self.numMotionCallbacks += 1
-            root.disconnectEventHandler(self)
+            root.unsubscribe(avg.Node.CURSOR_DOWN, onDown)
+            root.unsubscribe(avg.Node.CURSOR_MOTION, onMotion)
 
         def onContactMotion(event):
             contact = event.contact
-            contact.disconnectListener(self.contactID)
-            self.assertException(lambda: contact.disconnectListener(self.contactID))
+            contact.unsubscribe(self.contactID)
+            self.assertException(lambda: contact.unsubscribe(self.contactID))
             self.numContactCallbacks += 1
        
         root = self.loadEmptyScene()
-        root.connectEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, self, onDown)
+        root.subscribe(avg.Node.CURSOR_DOWN, onDown)
         self.numMotionCallbacks = 0
-        root.connectEventHandler(avg.Event.CURSOR_MOTION, avg.Event.TOUCH, self, onMotion)
+        root.subscribe(avg.Node.CURSOR_MOTION, onMotion)
         self.numContactCallbacks = 0
         player.setFakeFPS(25)
         self.start(False,
@@ -860,12 +861,15 @@ class EventTestCase(AVGTestCase):
 
         def onDown(event):
             contact = event.contact
-            self.contactid = contact.connectListener(onContact2, onContact2)
-            contact.connectListener(onContact1, onContact1)
+            self.motionListenerID = contact.subscribe(avg.Contact.CURSOR_MOTION, onContact2)
+            self.upListenerID = contact.subscribe(avg.Contact.CURSOR_UP, onContact2)
+            contact.subscribe(avg.Contact.CURSOR_MOTION, onContact1)
+            contact.subscribe(avg.Contact.CURSOR_UP, onContact1)
 
         def onContact1(event):
             if self.numContact1Callbacks == 0:
-                event.contact.disconnectListener(self.contactid)
+                event.contact.unsubscribe(self.motionListenerID)
+                event.contact.unsubscribe(self.upListenerID)
             self.numContact1Callbacks += 1
 
         def onContact2(event):
@@ -873,7 +877,7 @@ class EventTestCase(AVGTestCase):
             self.numContact2Callbacks += 1
         
         root = self.loadEmptyScene()
-        root.connectEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, self, onDown)
+        root.subscribe(avg.Node.CURSOR_DOWN, onDown)
         player.setFakeFPS(25)
         self.numContact1Callbacks = 0
         self.numContact2Callbacks = 0

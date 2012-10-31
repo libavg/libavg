@@ -78,6 +78,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "shaderusage", "auto");
     addOption("scr", "gamma", "-1,-1,-1");
     addOption("scr", "vsyncmode", "auto");
+    addOption("scr", "videoaccel", "true");
     
     addSubsys("aud");
     addOption("aud", "channels", "2");
@@ -91,7 +92,7 @@ ConfigMgr::ConfigMgr()
     addOption("gesture", "holddelay", "500");
     addOption("gesture", "filtermincutoff", "0.1");
     addOption("gesture", "filterbeta", "0.03");
-    addOption("gesture", "friction", "0.01");
+    addOption("gesture", "friction", "-1");
 
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
@@ -215,7 +216,7 @@ bool ConfigMgr::loadFile(const std::string& sPath)
         if (err == -1) {
             if (errno == EACCES) {
                 AVG_TRACE(Logger::WARNING,
-                        sPath+": File exists, but process doesn't have read permissions!");
+                       sPath+": File exists, but process doesn't have read permissions!");
             }
             return false;
         }

@@ -56,6 +56,7 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
         m_GLIndexBufferID = pContext->getIndexBufferCache().getBuffer();
     }
     m_bUseVertexShader = (pContext->getShaderUsage() != GLConfig::FRAGMENT_ONLY);
+    m_bUseMapBuffer = (!pContext->isGLES());
 }
 
 VertexArray::~VertexArray()
@@ -78,20 +79,12 @@ VertexArray::~VertexArray()
 void VertexArray::update()
 {
     if (hasDataChanged()) {
-        glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
-        glproc::BufferData(GL_ARRAY_BUFFER, getReserveVerts()*sizeof(T2V3C4Vertex), 0, 
-                GL_DYNAMIC_DRAW);
-        void * pBuffer = glproc::MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(pBuffer, getVertexPointer(), getNumVerts()*sizeof(T2V3C4Vertex));
-        glproc::UnmapBuffer(GL_ARRAY_BUFFER);
-        
-        glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-        glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
-            getReserveIndexes()*sizeof(unsigned int), 0, GL_DYNAMIC_DRAW);
-        pBuffer = glproc::MapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(pBuffer, getIndexPointer(), getNumIndexes()*sizeof(unsigned int));
-        glproc::UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-        
+        transferBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID, 
+                getReserveVerts()*sizeof(T2V3C4Vertex), getNumVerts()*sizeof(T2V3C4Vertex),
+                getVertexPointer());
+        transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
+                getReserveIndexes()*sizeof(unsigned int),
+                getNumIndexes()*sizeof(unsigned int), getIndexPointer());
         GLContext::checkError("VertexArray::update()");
     }
     resetDataChanged();
@@ -144,6 +137,20 @@ void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startV
 void VertexArray::startSubVA(SubVertexArray& subVA)
 {
     subVA.init(this, getNumVerts(), getNumIndexes());
+}
+
+void VertexArray::transferBuffer(GLenum target, unsigned bufferID, unsigned reservedSize, 
+        unsigned usedSize, const void* pData)
+{
+    glproc::BindBuffer(target, bufferID);
+    if (m_bUseMapBuffer) {
+        glproc::BufferData(target, reservedSize, 0, GL_DYNAMIC_DRAW);
+        void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY);
+        memcpy(pBuffer, pData, usedSize);
+        glproc::UnmapBuffer(target);
+    } else {
+        glproc::BufferData(target, usedSize, pData, GL_DYNAMIC_DRAW);
+    }
 }
 
 }

@@ -285,7 +285,7 @@ class AVGMTAppStarter(AVGAppStarter):
             return
         self.__showTrackerImage = True
         self.__updateTrackerImageInterval = \
-                player.setOnFrameHandler(self.__updateTrackerImage)
+                player.subscribe(player.ON_FRAME, self.__updateTrackerImage)
         self.__trackerImageNode.opacity = 1
         self.tracker.setDebugImages(False, True)
 

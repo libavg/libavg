@@ -39,14 +39,14 @@ class VideoPlayer(AVGApp):
         if self.node.hasAlpha():
             self.__makeAlphaBackground()
         self._parentNode.appendChild(self.node)
-        avg.WordsNode(parent=self._parentNode, id="curframe", pos=(10, 10), 
-                font="arial", fontsize=10)
-        avg.WordsNode(parent=self._parentNode, id="curtime", pos=(10, 22), 
-                font="arial", fontsize=10)
-        avg.WordsNode(parent=self._parentNode, id="framesqueued", pos=(10, 34), 
-                font="arial", fontsize=10)
+        self.curFrameWords = avg.WordsNode(parent=self._parentNode, pos=(10, 10), 
+                fontsize=10)
+        self.curTimeWords = avg.WordsNode(parent=self._parentNode, pos=(10, 22), 
+                fontsize=10)
+        self.framesQueuedWords = avg.WordsNode(parent=self._parentNode, pos=(10, 34), 
+                fontsize=10)
 
-        player.setOnFrameHandler(self.onFrame)
+        player.subscribe(player.ON_FRAME, self.onFrame)
     
     def onKeyDown(self, event):
         curTime = self.node.getCurTime()
@@ -62,11 +62,11 @@ class VideoPlayer(AVGApp):
     def onFrame(self):
         curFrame = self.node.getCurFrame()
         numFrames = self.node.getNumFrames()
-        player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
+        self.curFrameWords.text = "Frame: %i/%i"%(curFrame, numFrames)
         curVideoTime = self.node.getCurTime()
-        player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
+        self.curTimeWords.text = "Time: "+str(curVideoTime/1000.0)
         framesQueued = self.node.getNumFramesQueued()
-        player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
+        self.framesQueuedWords.text = "Frames queued: "+str(framesQueued)
 
     def __makeAlphaBackground(self):
         SQUARESIZE=40

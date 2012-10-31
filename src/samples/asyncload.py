@@ -37,7 +37,7 @@ class AsyncLoadApp(libavg.AVGApp):
         
         self.__pics = sys.argv[1:]
         self.__currentPic = -1
-        player.setOnFrameHandler(self.__onFrame)
+        player.subscribe(player.ON_FRAME, self.__onFrame)
     
     def onKeyDown(self, event):
         '''

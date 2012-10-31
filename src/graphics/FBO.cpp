@@ -246,8 +246,10 @@ void FBO::init()
         glEnable(GL_MULTISAMPLE);
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_ColorBuffer);
+        GLContext::enableErrorLog(false);
         glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER_EXT, m_MultisampleSamples,
                 GL_RGBA8, m_Size.x, m_Size.y);
+        GLContext::enableErrorLog(true);
         GLenum err = glGetError();
         if (err == GL_INVALID_VALUE) {
             glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);

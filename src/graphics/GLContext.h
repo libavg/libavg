@@ -97,6 +97,7 @@ public:
 
     static int nextMultiSampleValue(int curSamples);
     static bool isGLESSupported();
+    static void enableErrorLog(bool bEnable);
 
 protected:
     void init(bool bOwnsContext);
@@ -110,6 +111,8 @@ protected:
 private:
     void checkGPUMemInfoSupport();
     bool isDebugContextSupported() const;
+    static void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, 
+        GLenum severity, GLsizei length, const GLchar* message, void* userParam);
 
     bool m_bOwnsContext;
     
@@ -138,6 +141,7 @@ private:
     int m_MinorGLVersion;
 
     static bool s_bErrorCheckEnabled;
+    static bool s_bErrorLogEnabled;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
     static GLContext* s_pMainContext;

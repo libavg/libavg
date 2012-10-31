@@ -24,19 +24,17 @@
 import sys
 from libavg import avg, AVGApp, player
 
-def onFrame():
-    curTime = node.getCurTime()
-    player.getElementByID("curtime").text = "Time: "+str(curTime/1000.0)
-
 class AudioPlayer(AVGApp):
     def init(self):
         global node
         self._parentNode.appendChild(node)
-        avg.WordsNode(parent=self._parentNode, id="curtime", pos=(10, 22), 
-                font="arial", fontsize=10)
-
-        player.setOnFrameHandler(onFrame)
+        self.words = avg.WordsNode(parent=self._parentNode, pos=(10, 22), fontsize=10)
+        player.subscribe(player.ON_FRAME, self.onFrame)
     
+    def onFrame(self):
+        curTime = node.getCurTime()
+        self.words.text = "Time: "+str(curTime/1000.0)
+
 
 if len(sys.argv) ==1:
     print
