@@ -164,7 +164,7 @@ void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
 void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
 {
     IntPoint YSize = pBmpDest->getSize();
-    IntPoint UVSize(YSize.x>>1, YSize.y);
+    IntPoint UVSize(YSize.x/2, YSize.y/2);
     BitmapPtr pBmpY(new Bitmap(YSize, I8));
     BitmapPtr pBmpU(new Bitmap(UVSize, I8));
     BitmapPtr pBmpV(new Bitmap(UVSize, I8));
