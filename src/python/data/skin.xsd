@@ -66,6 +66,13 @@
             </xsd:all>
           </xsd:complexType>
         </xsd:element>
+        <xsd:element name="scrollarea" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="scrollBarID" type="xsd:IDREF"/>
+            <xsd:attribute name="friction" type="xsd:string"/>
+          </xsd:complexType>
+        </xsd:element>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

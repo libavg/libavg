@@ -67,6 +67,16 @@ class Skin:
         self.scrollBarCfg, self.defaultScrollBarCfg = self.__initSliders(
                 xmlRoot, "scrollbar")
 
+        self.scrollAreaCfg = {}
+        self.defaultScrollAreaCfg = None
+        for node in xmlRoot.findall("scrollarea"):
+            nodeid, attrs = self.__splitAttrs(node)
+            kwargs = self.__extractArgs(attrs,
+                    floatArgNames=("friction",))
+            self.scrollAreaCfg[nodeid] = kwargs
+            if self.defaultScrollAreaCfg == None or nodeid == None:
+                self.defaultScrollAreaCfg = kwargs
+
     def __splitAttrs(self, xmlNode):
         attrs = xmlNode.attrib
         if "id" in attrs:

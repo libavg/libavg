@@ -38,6 +38,8 @@
             thumbDownSrc="scrollbar_vert_thumb_down.png"
             thumbEndsExtent="4"/>
     </scrollbar>
+    <scrollarea
+            friction="-1"/>
 <!--
     <checkbox
             uncheckedUpSrc="checkbox_unchecked_up.png"
@@ -46,10 +48,5 @@
             checkedUpSrc="checkbox_checked_up.png"
             checkedDownSrc="checkbox_checked_down.png"
             checkedDisabledSrc="checkbox_checked_disabled.png"/>
-    <scrollbar id="foo"
-            />
-    <scrollarea id="..."
-            scrollbarid="foo"
-            />
             -->
 </skin>
