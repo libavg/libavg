@@ -34,37 +34,12 @@ class StretchNodeBase(avg.DivNode):
             self._bmp = src
         else:
             self._bmp = self._bmpFromSrc(src)
-        
-    def getWidth(self):
-        return self._baseWidth
-
-    def setWidth(self, width):
-        self._positionNodes(avg.Point2D(width, self._baseHeight))
-
-    _baseWidth = avg.DivNode.width
-    width = property(getWidth, setWidth)
-
-    def getHeight(self):
-        return self._baseHeight
-
-    def setHeight(self, height):
-        self._positionNodes(avg.Point2D(self._baseWidth, height))
-
-    _baseHeight = avg.DivNode.height
-    height = property(getHeight, setHeight)
-
-    def getSize(self):
-        return self._baseSize
-
-    def setSize(self, size):
-        self._positionNodes(avg.Point2D(size))
-
-    _baseSize = avg.DivNode.size
-    size = property(getSize, setSize)
+       
+        self.subscribe(self.SIZE_CHANGED, self._positionNodes)
 
     def _initNodes(self):    
         self._setSizeFromBmp(self._bmp)
-        self._positionNodes(self._baseSize)
+        self._positionNodes(self.size)
 
         if player.isPlaying():
             self._renderImages()
@@ -81,10 +56,10 @@ class StretchNodeBase(avg.DivNode):
         
     def _setSizeFromBmp(self, bmp):
         size = bmp.getSize()
-        if self._baseSize.x == 0:
-            self._baseWidth = size.x
-        if self._baseSize.y == 0:
-            self._baseHeight = size.y
+        if self.width == 0:
+            self.width = size.x
+        if self.height == 0:
+            self.height = size.y
 
     def _checkExtents(self, endsExtent, minExtent):
         if endsExtent < 0:
@@ -123,13 +98,12 @@ class HStretchNode(StretchNodeBase):
         self._initNodes()
     
     def _positionNodes(self, newSize):
-        newSize = avg.Point2D(max(self.__minExtent, newSize.x), newSize.y)
-
-        self.__centerImg.x = self.__endsExtent
-        self.__centerImg.width = newSize.x - self.__endsExtent*2
-        self.__endImg.x = newSize.x - self.__endsExtent
-        
-        self._baseSize = newSize
+        if newSize.x < self.__minExtent:
+            self.width = self.__minExtent
+        else:
+            self.__centerImg.x = self.__endsExtent
+            self.__centerImg.width = newSize.x - self.__endsExtent*2
+            self.__endImg.x = newSize.x - self.__endsExtent
 
     def _renderImages(self):
         height = self._bmp.getSize().y
@@ -155,14 +129,13 @@ class VStretchNode(StretchNodeBase):
         self._initNodes()
    
     def _positionNodes(self, newSize):
-        newSize = avg.Point2D(newSize.x, max(self.__minExtent, newSize.y))
-
-        self.__centerImg.y = self.__endsExtent
-        self.__centerImg.height = newSize.y - self.__endsExtent*2
-        self.__endImg.y = newSize.y - self.__endsExtent
+        if newSize.y < self.__minExtent:
+            self.height = self.__minExtent
+        else:
+            self.__centerImg.y = self.__endsExtent
+            self.__centerImg.height = newSize.y - self.__endsExtent*2
+            self.__endImg.y = newSize.y - self.__endsExtent
         
-        self._baseSize = newSize
-
     def _renderImages(self):
         width = self._bmp.getSize().x
         self._renderImage(self._bmp, self.__startImg, (0,0), (width, self.__endsExtent))
@@ -222,8 +195,6 @@ class HVStretchNode(StretchNodeBase):
                 node.pos = pos
                 node.size = size
 
-        self._baseSize = newSize
-
     def _renderImages(self):
         bmpSize = self._bmp.getSize()
         xPosns = (0, self.__endsExtent[0], bmpSize.x-self.__endsExtent[0], bmpSize.x)
@@ -252,6 +223,8 @@ class SwitchNode(avg.DivNode):
         if visibleid:
             self.setVisibleID(visibleid)
 
+        self.subscribe(self.SIZE_CHANGED, self.__setChildSizes)
+
     def setNodeMap(self, nodeMap):
         self.__nodeMap = nodeMap
         for node in self.__nodeMap.itervalues():
@@ -266,7 +239,7 @@ class SwitchNode(avg.DivNode):
         else:
             key = list(self.__nodeMap.keys())[0]
             size = self.__nodeMap[key].size
-        self.setSize(size)
+        self.size = size
 
     def getVisibleID(self):
         return self.__visibleid
@@ -281,40 +254,12 @@ class SwitchNode(avg.DivNode):
 
     visibleid = property(getVisibleID, setVisibleID)
 
-    def getWidth(self):
-        return self.__baseWidth
-
-    def setWidth(self, width):
-        self.__baseWidth = width
-        self.__setChildSizes()
-
-    __baseWidth = avg.DivNode.width
-    width = property(getWidth, setWidth)
-
-    def getHeight(self):
-        return self.__baseHeight
-
-    def setHeight(self, height):
-        self.__baseHeight = height
-        self.__setChildSizes()
-
-    __baseHeight = avg.DivNode.height
-    height = property(getHeight, setHeight)
-
-    def getSize(self):
-        return self.__baseSize
-
-    def setSize(self, size):
-        self.__baseSize = size
-        self.__setChildSizes()
-        
-    __baseSize = avg.DivNode.size
-    size = property(getSize, setSize)   
-
-    def __setChildSizes(self):
+    def __setChildSizes(self, newSize):
         if self.__nodeMap:
             for node in self.__nodeMap.itervalues():
                 if node:
-                    node.size = self.__baseSize
-                    # Hack to support min. size in StretchNodes
-                    self.__baseSize = node.size
+                    node.size = newSize
+                    # Hack to support min. size in SwitchNodes containing StretchNodes 
+                    if node.size > newSize:
+                        self.size = node.size
+                        return
