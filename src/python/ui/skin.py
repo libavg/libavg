@@ -102,7 +102,7 @@ class Skin:
                 # Loop through orientations (horiz, vert)
                 bogus, attrs = self.__splitAttrs(xmlNode)
                 kwargs = self.__extractArgs(attrs,
-                        floatArgNames=("trackEndsExtent",),
+                        floatArgNames=("trackEndsExtent", "thumbEndsExtent"),
                         bmpArgNames={"trackSrc": "trackBmp", 
                                 "trackDisabledSrc": "trackDisabledBmp", 
                                 "thumbUpSrc": "thumbUpBmp",

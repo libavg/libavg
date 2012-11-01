@@ -5,8 +5,8 @@ from libavg import avg, AVGApp, ui
 
 class SimpleUIApp(AVGApp):
     def init(self):
-#        hScrollBar = simple.ScrollBar(pos=(10,10), size=(150,20), parent=self._parentNode)
-#        self.__addValueDisplay(hScrollBar, (175,12))
+        hScrollBar = ui.ScrollBar(pos=(10,10), width=150, parent=self._parentNode)
+        self.__addValueDisplay(hScrollBar, (175,12))
 #
 #        vScrollBar = simple.ScrollBar(pos=(15,60), size=(20,150), 
 #                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)

@@ -49,19 +49,20 @@ class ScrollBarTrack(SwitchNode):
 
 class ScrollBarThumb(SwitchNode):
     
-    def __init__(self, upSrc, downSrc, endsExtent, disabledSrc=None, 
+    def __init__(self, upBmp, downBmp, disabledBmp, endsExtent,
             orientation=Orientation.HORIZONTAL, minExtent=-1, 
             **kwargs):
       
         super(ScrollBarThumb, self).__init__(nodeMap=None, **kwargs)
-        self.__upNode = StretchNode(src=upSrc, endsExtent=endsExtent,
-                orientation=orientation, minExtent=minExtent)
-        self.__downNode = StretchNode(src=downSrc, endsExtent=endsExtent,
-                orientation=orientation, minExtent=minExtent)
-        if disabledSrc == None:
-            disabledSrc = upSrc
-        self.__disabledNode = StretchNode(src=disabledSrc, endsExtent=endsExtent,
-                orientation=orientation, minExtent=minExtent)
+        if orientation == Orientation.HORIZONTAL:
+            StretchNode = HStretchNode
+        else:
+            StretchNode = VStretchNode
+        self.__upNode = StretchNode(src=upBmp, endsExtent=endsExtent, minExtent=minExtent)
+        self.__downNode = StretchNode(src=downBmp, endsExtent=endsExtent,
+                minExtent=minExtent)
+        self.__disabledNode = StretchNode(src=disabledBmp, endsExtent=endsExtent,
+                minExtent=minExtent)
 
         self.setNodeMap({
             "UP": self.__upNode, 
@@ -188,6 +189,27 @@ class SliderBase(avg.DivNode):
 
     enabled = property(getEnabled, setEnabled)
 
+    def _positionNodes(self, newSliderPos=None):
+        oldThumbPos = self._thumbPos
+        if newSliderPos is not None:
+            self._thumbPos = float(newSliderPos)
+        self._trackNode.size = self.size
+                 
+        self._constrainSliderPos()
+        if self._thumbPos != oldThumbPos:
+            self.notifySubscribers(Slider.THUMB_POS_CHANGED, [self._thumbPos])
+
+        pixelRange = self._getScrollRangeInPixels()
+        if self._getSliderRange() == 0:
+            thumbPixelPos = 0
+        else:
+            thumbPixelPos = (((self._thumbPos-self._range[0])/self._getSliderRange())*
+                    pixelRange)
+        if self._orientation == Orientation.HORIZONTAL:
+            self._thumbNode.x = thumbPixelPos
+        else:
+            self._thumbNode.y = thumbPixelPos
+
     def __onDragStart(self):
         self._thumbNode.visibleid = "DOWN"
         self.__dragStartPos = self._thumbPos
@@ -234,27 +256,6 @@ class Slider(SliderBase):
         else:
             return self.size.y - self._thumbNode.size.y
 
-    def _positionNodes(self, newSliderPos=None):
-        oldThumbPos = self._thumbPos
-        if newSliderPos is not None:
-            self._thumbPos = float(newSliderPos)
-        self._trackNode.size = self.size
-                 
-        self._constrainSliderPos()
-        if self._thumbPos != oldThumbPos:
-            self.notifySubscribers(Slider.THUMB_POS_CHANGED, [self._thumbPos])
-
-        pixelRange = self._getScrollRangeInPixels()
-        if self._getSliderRange() == 0:
-            thumbPixelPos = 0
-        else:
-            thumbPixelPos = (((self._thumbPos-self._range[0])/self._getSliderRange())*
-                    pixelRange)
-        if self._orientation == Orientation.HORIZONTAL:
-            self._thumbNode.x = thumbPixelPos
-        else:
-            self._thumbNode.y = thumbPixelPos
-
     def _getSliderRange(self):
         return self._range[1] - self._range[0]
 
@@ -265,11 +266,27 @@ class Slider(SliderBase):
         self._thumbPos = min(rangeMax, self._thumbPos)
 
 
-class ScrollBar(Slider):
+class ScrollBar(SliderBase):
    
-    def __init__(self, thumbextent=0.1, **kwargs):
+    def __init__(self,  orientation=Orientation.HORIZONTAL, skinObj=skin.Skin.default,
+            thumbextent=0.1, **kwargs):
         self.__thumbExtent = thumbextent
-        super(ScrollBar, self).__init__(**kwargs)
+        if orientation == Orientation.HORIZONTAL:
+            cfg = skinObj.defaultScrollBarCfg["horizontal"]
+        else:
+            cfg = skinObj.defaultScrollBarCfg["vertical"]
+        super(ScrollBar, self).__init__(orientation=orientation, cfg=cfg, **kwargs)
+        
+    def _initThumb(self, cfg):
+        thumbUpBmp = cfg["thumbUpBmp"]
+        thumbDownBmp = skin.getBmpFromCfg(cfg, "thumbDownBmp", "thumbUpBmp")
+        thumbDisabledBmp = skin.getBmpFromCfg(cfg, "thumbDisabledBmp", "thumbUpBmp")
+        endsExtent=cfg["thumbEndsExtent"]
+
+        self._thumbNode = ScrollBarThumb(orientation=self._orientation, 
+                upBmp=thumbUpBmp, downBmp=thumbDownBmp, 
+                disabledBmp=thumbDisabledBmp, endsExtent=endsExtent)
+        self.appendChild(self._thumbNode)
 
     def getThumbExtent(self):
         return self.__thumbExtent
