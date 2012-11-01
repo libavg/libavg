@@ -32,9 +32,10 @@
             thumbDownSrc="scrollbar_horiz_thumb_down.png"
             thumbEndsExtent="4"/>
       <vertical 
-            trackSrc="scrollbar_horiz_track.png"
+            trackSrc="scrollbar_vert_track.png"
             trackEndsExtent="2" 
-            thumbUpSrc="scrollbar_horiz_thumb.png"
+            thumbUpSrc="scrollbar_vert_thumb_up.png"
+            thumbDownSrc="scrollbar_vert_thumb_down.png"
             thumbEndsExtent="4"/>
     </scrollbar>
 <!--

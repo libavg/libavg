@@ -153,7 +153,7 @@ class VStretchNode(StretchNodeBase):
         self.__endImg = avg.ImageNode(parent=self)
         
         self._initNodes()
-    
+   
     def _positionNodes(self, newSize):
         newSize = avg.Point2D(newSize.x, max(self.__minExtent, newSize.y))
 
@@ -168,7 +168,7 @@ class VStretchNode(StretchNodeBase):
         self._renderImage(self._bmp, self.__startImg, (0,0), (width, self.__endsExtent))
         self._renderImage(self._bmp, self.__centerImg, 
                 (0,-self.__endsExtent), (width, 1))
-        endOffset = self._bmp.getSize().x - self.__endsExtent
+        endOffset = self._bmp.getSize().y - self.__endsExtent
         self._renderImage(self._bmp, self.__endImg, (0,-endOffset), 
                 (width, self.__endsExtent))
 

@@ -54,6 +54,7 @@ class ScrollBarThumb(SwitchNode):
             **kwargs):
       
         super(ScrollBarThumb, self).__init__(nodeMap=None, **kwargs)
+
         if orientation == Orientation.HORIZONTAL:
             StretchNode = HStretchNode
         else:

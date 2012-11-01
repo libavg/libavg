@@ -7,13 +7,13 @@ class SimpleUIApp(AVGApp):
     def init(self):
         hScrollBar = ui.ScrollBar(pos=(10,10), width=150, parent=self._parentNode)
         self.__addValueDisplay(hScrollBar, (175,12))
-#
-#        vScrollBar = simple.ScrollBar(pos=(15,60), size=(20,150), 
-#                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
-#        vScrollBar.thumbextent = 5
-#        vScrollBar.range = (10,0)
-#        self.__addValueDisplay(vScrollBar, (10,220))
-#
+
+        vScrollBar = ui.ScrollBar(pos=(15,60), height=150, 
+                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+        vScrollBar.thumbextent = 5
+        vScrollBar.range = (10,0)
+        self.__addValueDisplay(vScrollBar, (10,220))
+
         hSlider = ui.Slider(pos=(10,35), width=150, parent=self._parentNode)
         self.__addValueDisplay(hSlider, (175,33))
 
