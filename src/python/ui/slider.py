@@ -90,8 +90,9 @@ class Slider(avg.DivNode):
     PRESSED = avg.Publisher.genMessageID()
     RELEASED = avg.Publisher.genMessageID()
 
-    def __init__(self, enabled=True, height=0, width=0, orientation=Orientation.HORIZONTAL,
-            range=(0.,1.), thumbpos=0.0, skinObj=skin.Skin.default, parent=None, **kwargs):
+    def __init__(self, enabled=True, height=0, width=0, 
+            orientation=Orientation.HORIZONTAL, range=(0.,1.), thumbpos=0.0, 
+            skinObj=skin.Skin.default, parent=None, **kwargs):
         super(Slider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         if orientation == Orientation.HORIZONTAL:

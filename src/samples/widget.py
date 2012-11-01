@@ -2,34 +2,33 @@
 # -*- coding: utf-8 -*-
 
 from libavg import avg, AVGApp, ui
-from libavg.ui import simple
 
 class SimpleUIApp(AVGApp):
     def init(self):
-        hScrollBar = simple.ScrollBar(pos=(10,10), size=(150,20), parent=self._parentNode)
-        self.__addValueDisplay(hScrollBar, (175,12))
-
-        vScrollBar = simple.ScrollBar(pos=(15,60), size=(20,150), 
-                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
-        vScrollBar.thumbextent = 5
-        vScrollBar.range = (10,0)
-        self.__addValueDisplay(vScrollBar, (10,220))
-
-        hSlider = simple.Slider(pos=(10,35), size=(150,20), parent=self._parentNode)
+#        hScrollBar = simple.ScrollBar(pos=(10,10), size=(150,20), parent=self._parentNode)
+#        self.__addValueDisplay(hScrollBar, (175,12))
+#
+#        vScrollBar = simple.ScrollBar(pos=(15,60), size=(20,150), 
+#                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+#        vScrollBar.thumbextent = 5
+#        vScrollBar.range = (10,0)
+#        self.__addValueDisplay(vScrollBar, (10,220))
+#
+        hSlider = ui.Slider(pos=(10,35), width=150, parent=self._parentNode)
         self.__addValueDisplay(hSlider, (175,38))
 
-        vSlider = simple.Slider(pos=(60.5,60), size=(20,150), 
-                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
-        vSlider.range = (1,0)
-        self.__addValueDisplay(vSlider, (55,220))
-        self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
-
-        self.createScrollArea(avg.Point2D(220,10), True)
-        self.createScrollArea(avg.Point2D(500,10), False)
-
-        checkBox = simple.CheckBox(pos=(10,270), text="Disable everything", 
-                parent=self._parentNode)
-        checkBox.subscribe(simple.CheckBox.TOGGLED, self.onCheck)
+#        vSlider = ui.Slider(pos=(60.5,60), size=(20,150), 
+#                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+#        vSlider.range = (1,0)
+#        self.__addValueDisplay(vSlider, (55,220))
+#        self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
+#
+#        self.createScrollArea(avg.Point2D(220,10), True)
+#        self.createScrollArea(avg.Point2D(500,10), False)
+#
+#        checkBox = simple.CheckBox(pos=(10,270), text="Disable everything", 
+#                parent=self._parentNode)
+#        checkBox.subscribe(simple.CheckBox.TOGGLED, self.onCheck)
 
     def setText(self, pos, node):
         node.text = "%.2f"%pos
