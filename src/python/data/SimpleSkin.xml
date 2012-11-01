@@ -24,6 +24,18 @@
             thumbUpSrc="slider_thumb_up.png" 
             thumbDownSrc="slider_thumb_down.png"/>
     </slider>
+    <scrollbar>
+      <horizontal 
+            trackSrc="scrollbar_horiz_track.png"
+            trackEndsExtent="10" 
+            thumbUpSrc="scrollbar_horiz_thumb.png"
+            thumbEndsExtent="4"/>
+      <vertical 
+            trackSrc="scrollbar_horiz_track.png"
+            trackEndsExtent="10" 
+            thumbUpSrc="scrollbar_horiz_thumb.png"
+            thumbEndsExtent="4"/>
+    </scrollbar>
 <!--
     <checkbox
             uncheckedUpSrc="checkbox_unchecked_up.png"
@@ -32,12 +44,6 @@
             checkedUpSrc="checkbox_checked_up.png"
             checkedDownSrc="checkbox_checked_down.png"
             checkedDisabledSrc="checkbox_checked_disabled.png"/>
-    <slider trackSrc="slider_track.png"
-            trackDisabledSrc="slider_track_disabled.png"
-            trackEndsExtent="4" 
-            thumbUpSrc="slider_thumb_up.png" 
-            thumbDownSrc="slider_thumb_down.png" 
-            thumbDisabledSrc="slider_thumb_disabled.png"/>
     <scrollbar id="foo"
             />
     <scrollarea id="..."

@@ -63,24 +63,9 @@ class Skin:
             if self.defaultTextButtonCfg == None or nodeid == None:
                 self.defaultTextButtonCfg = kwargs
 
-        self.sliderCfg = {}
-        self.defaultSliderCfg = None
-        for sliderXmlNode in xmlRoot.findall("slider"):
-            (nodeID, bogus) = self.__splitAttrs(sliderXmlNode)
-            self.sliderCfg[nodeID] = {}
-            if self.defaultSliderCfg == None or nodeID == None:
-                self.defaultSliderCfg = self.sliderCfg[nodeID]
-            for xmlNode in sliderXmlNode.iterfind("*"):
-                # Loop through orientations (horiz, vert)
-                bogus, attrs = self.__splitAttrs(xmlNode)
-                kwargs = self.__extractArgs(attrs,
-                        floatArgNames=("trackEndsExtent",),
-                        bmpArgNames={"trackSrc": "trackBmp", 
-                                "trackDisabledSrc": "trackDisabledBmp", 
-                                "thumbUpSrc": "thumbUpBmp",
-                                "thumbDownSrc": "thumbDownBmp",
-                                "thumbDisabledSrc": "thumbDisabledBmp"})
-                self.sliderCfg[nodeID][xmlNode.tag] = kwargs
+        self.sliderCfg, self.defaultSliderCfg = self.__initSliders(xmlRoot, "slider")
+        self.scrollBarCfg, self.defaultScrollBarCfg = self.__initSliders(
+                xmlRoot, "scrollbar")
 
     def __splitAttrs(self, xmlNode):
         attrs = xmlNode.attrib
@@ -104,6 +89,29 @@ class Skin:
             else:
                 kwargs[key] = value
         return kwargs
+
+    def __initSliders(self, xmlRoot, typeName):
+        sliderCfg = {}
+        defaultSliderCfg = None
+        for sliderXmlNode in xmlRoot.findall(typeName):
+            (nodeID, bogus) = self.__splitAttrs(sliderXmlNode)
+            sliderCfg[nodeID] = {}
+            if defaultSliderCfg == None or nodeID == None:
+                defaultSliderCfg = sliderCfg[nodeID]
+            for xmlNode in sliderXmlNode.iterfind("*"):
+                # Loop through orientations (horiz, vert)
+                bogus, attrs = self.__splitAttrs(xmlNode)
+                kwargs = self.__extractArgs(attrs,
+                        floatArgNames=("trackEndsExtent",),
+                        bmpArgNames={"trackSrc": "trackBmp", 
+                                "trackDisabledSrc": "trackDisabledBmp", 
+                                "thumbUpSrc": "thumbUpBmp",
+                                "thumbDownSrc": "thumbDownBmp",
+                                "thumbDisabledSrc": "thumbDisabledBmp"})
+                sliderCfg[nodeID][xmlNode.tag] = kwargs
+
+        return (sliderCfg, defaultSliderCfg)
+    
 
 def getBmpFromCfg(cfg, bmpName, defaultName):
     if bmpName in cfg:

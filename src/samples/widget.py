@@ -15,12 +15,12 @@ class SimpleUIApp(AVGApp):
 #        self.__addValueDisplay(vScrollBar, (10,220))
 #
         hSlider = ui.Slider(pos=(10,35), width=150, parent=self._parentNode)
-        self.__addValueDisplay(hSlider, (175,38))
+        self.__addValueDisplay(hSlider, (175,33))
 
-#        vSlider = ui.Slider(pos=(60.5,60), size=(20,150), 
-#                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
-#        vSlider.range = (1,0)
-#        self.__addValueDisplay(vSlider, (55,220))
+        vSlider = ui.Slider(pos=(60.5,60), height=150, 
+                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+        vSlider.range = (1,0)
+        self.__addValueDisplay(vSlider, (55,220))
 #        self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
 #
 #        self.createScrollArea(avg.Point2D(220,10), True)
