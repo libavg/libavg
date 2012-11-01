@@ -35,7 +35,7 @@ void FontStyle::registerType()
 {
     TypeDefinition def = TypeDefinition("fontstyle", "",
             ExportedObject::buildObject<FontStyle>)
-        .addArg(Arg<string>("font", "arial", false, offsetof(FontStyle, m_sName)))
+        .addArg(Arg<string>("font", "sans", false, offsetof(FontStyle, m_sName)))
         .addArg(Arg<string>("variant", "", false, offsetof(FontStyle, m_sVariant)))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(FontStyle, m_sColorName)))
         .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(FontStyle, m_AAGamma)))
