@@ -20,6 +20,11 @@
 //
 #ifndef _GLContext_H_
 #define _GLContext_H_
+
+/**********************************/
+#define USE_EGL = 1
+/**********************************/
+
 #include "../api.h"
 
 #include "OGLHelper.h"

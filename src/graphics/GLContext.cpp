@@ -19,6 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#define USE_EGL
+
 #include "GLContext.h"
 
 #include "ShaderRegistry.h"
@@ -27,7 +29,11 @@
 #ifdef __APPLE__
     #include "CGLContext.h"
 #elif defined linux
-    #include "GLXContext.h"
+    #ifdef USE_EGL
+        #include "EGLContext.h"
+    #else
+        #include "GLXContext.h"
+    #endif
 #elif defined _WIN32
     #include "WGLContext.h"
 #endif
@@ -61,7 +67,11 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
 #ifdef __APPLE__
     return new CGLContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined linux
-    return new GLXContext(glConfig, windowSize, pSDLWMInfo);
+    #ifdef USE_EGL
+        return new EGLContext(glConfig, windowSize, pSDLWMInfo);
+    #else
+        return new GLXContext(glConfig, windowSize, pSDLWMInfo);
+    #endif
 #elif defined _WIN32
     return new WGLContext(glConfig, windowSize, pSDLWMInfo);
 #else

@@ -22,6 +22,7 @@
 #ifndef _OGLHelper_H_
 #define _OGLHelper_H_
 
+#define USE_EGL
 #include "../api.h"
 
 #ifdef _WIN32
@@ -32,13 +33,20 @@
     #include <GL/glu.h>
     #include "GL/glext.h"
 #else
-    #include "GL/gl.h"
-    #include "GL/glu.h"
-    #include "GL/glext.h"
+        #include <EGL/egl.h>
+        #include <GLES2/gl2.h>
+        #include <GLES2/gl2ext.h>
+        #ifndef USE_EGL
+        #include "GL/gl.h"
+        #include "GL/glu.h"
+            #include "GL/glext.h"
+        #endif
 #endif
 #ifdef linux
-    #define GLX_GLXEXT_PROTOTYPES
-    #include "GL/glx.h"
+    #ifndef USE_EGL
+        #define GLX_GLXEXT_PROTOTYPES
+        #include "GL/glx.h"
+    #endif
 #endif
 
 #ifdef _WIN32
@@ -86,63 +94,67 @@ GLfunction getglXProcAddress(const char * psz);
 #endif
 
 namespace glproc {
-    extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;
-    extern AVG_API PFNGLBUFFERDATAPROC BufferData;
-    extern AVG_API PFNGLBUFFERSUBDATAPROC BufferSubData;
-    extern AVG_API PFNGLDELETEBUFFERSPROC DeleteBuffers;
-    extern AVG_API PFNGLBINDBUFFERPROC BindBuffer;
-    extern AVG_API PFNGLMAPBUFFERPROC MapBuffer;
-    extern AVG_API PFNGLUNMAPBUFFERPROC UnmapBuffer;
-    extern AVG_API PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
+    #ifndef USE_EGL
+        extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;
+        extern AVG_API PFNGLBUFFERDATAPROC BufferData;
+        extern AVG_API PFNGLBUFFERSUBDATAPROC BufferSubData;
+        extern AVG_API PFNGLDELETEBUFFERSPROC DeleteBuffers;
+        extern AVG_API PFNGLBINDBUFFERPROC BindBuffer;
+        extern AVG_API PFNGLMAPBUFFERPROC MapBuffer;
+        extern AVG_API PFNGLUNMAPBUFFERPROC UnmapBuffer;
+        extern AVG_API PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
 
-    extern AVG_API PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
-    extern AVG_API PFNGLSHADERSOURCEARBPROC ShaderSource;
-    extern AVG_API PFNGLCOMPILESHADERARBPROC CompileShader;
-    extern AVG_API PFNGLCREATEPROGRAMOBJECTARBPROC CreateProgramObject;
-    extern AVG_API PFNGLATTACHOBJECTARBPROC AttachObject;
-    extern AVG_API PFNGLLINKPROGRAMARBPROC LinkProgram;
-    extern AVG_API PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
-    extern AVG_API PFNGLGETINFOLOGARBPROC GetInfoLog;
-    extern AVG_API PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
-    extern AVG_API PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
-    extern AVG_API PFNGLUNIFORM1IARBPROC Uniform1i;
-    extern AVG_API PFNGLUNIFORM1FARBPROC Uniform1f;
-    extern AVG_API PFNGLUNIFORM2FARBPROC Uniform2f;
-    extern AVG_API PFNGLUNIFORM3FARBPROC Uniform3f;
-    extern AVG_API PFNGLUNIFORM4FARBPROC Uniform4f;
-    extern AVG_API PFNGLUNIFORM1FVARBPROC Uniform1fv;
-    extern AVG_API PFNGLUNIFORMMATRIX4FVARBPROC UniformMatrix4fv;
+        extern AVG_API PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
+        extern AVG_API PFNGLSHADERSOURCEARBPROC ShaderSource;
+        extern AVG_API PFNGLCOMPILESHADERARBPROC CompileShader;
+        extern AVG_API PFNGLCREATEPROGRAMOBJECTARBPROC CreateProgramObject;
+        extern AVG_API PFNGLATTACHOBJECTARBPROC AttachObject;
+        extern AVG_API PFNGLLINKPROGRAMARBPROC LinkProgram;
+        extern AVG_API PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
+        extern AVG_API PFNGLGETINFOLOGARBPROC GetInfoLog;
+        extern AVG_API PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
+        extern AVG_API PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
+        extern AVG_API PFNGLUNIFORM1IARBPROC Uniform1i;
+        extern AVG_API PFNGLUNIFORM1FARBPROC Uniform1f;
+        extern AVG_API PFNGLUNIFORM2FARBPROC Uniform2f;
+        extern AVG_API PFNGLUNIFORM3FARBPROC Uniform3f;
+        extern AVG_API PFNGLUNIFORM4FARBPROC Uniform4f;
+        extern AVG_API PFNGLUNIFORM1FVARBPROC Uniform1fv;
+        extern AVG_API PFNGLUNIFORMMATRIX4FVARBPROC UniformMatrix4fv;
 
-    extern AVG_API PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
-    extern AVG_API PFNGLBLENDEQUATIONPROC BlendEquation;
-    extern AVG_API PFNGLBLENDCOLORPROC BlendColor;
-    extern AVG_API PFNGLACTIVETEXTUREPROC ActiveTexture;
-    extern AVG_API PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
+        extern AVG_API PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
+        extern AVG_API PFNGLBLENDEQUATIONPROC BlendEquation;
+        extern AVG_API PFNGLBLENDCOLORPROC BlendColor;
+        extern AVG_API PFNGLACTIVETEXTUREPROC ActiveTexture;
+        extern AVG_API PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
 
-    extern AVG_API PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC CheckFramebufferStatus;
-    extern AVG_API PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
-    extern AVG_API PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
-    extern AVG_API PFNGLFRAMEBUFFERTEXTURE2DEXTPROC FramebufferTexture2D;
-    extern AVG_API PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
-    extern AVG_API PFNGLGENRENDERBUFFERSEXTPROC GenRenderbuffers;
-    extern AVG_API PFNGLBINDRENDERBUFFEREXTPROC BindRenderbuffer;
-    extern AVG_API PFNGLRENDERBUFFERSTORAGEEXTPROC RenderbufferStorage;
-    extern AVG_API PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC
-            RenderbufferStorageMultisample;
-    extern AVG_API PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
-    extern AVG_API PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
-    extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
-    extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
-    extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
+        extern AVG_API PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC CheckFramebufferStatus;
+        extern AVG_API PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
+        extern AVG_API PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
+        extern AVG_API PFNGLFRAMEBUFFERTEXTURE2DEXTPROC FramebufferTexture2D;
+        extern AVG_API PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
+        extern AVG_API PFNGLGENRENDERBUFFERSEXTPROC GenRenderbuffers;
+        extern AVG_API PFNGLBINDRENDERBUFFEREXTPROC BindRenderbuffer;
+        extern AVG_API PFNGLRENDERBUFFERSTORAGEEXTPROC RenderbufferStorage;
+        extern AVG_API PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC
+                RenderbufferStorageMultisample;
+        extern AVG_API PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
+        extern AVG_API PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
+        extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
+        extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
+        extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
 
-    extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
-    extern AVG_API PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
-    extern AVG_API PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
-    extern AVG_API PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
-    
-#ifdef linux
-    extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
-#endif
+        extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
+        extern AVG_API PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
+        extern AVG_API PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
+        extern AVG_API PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
+        #ifdef linux
+            extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
+        #endif
+    #else
+
+    #endif
+        
 #ifdef _WIN32
     extern AVG_API PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
 #endif

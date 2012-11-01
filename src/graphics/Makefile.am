@@ -52,7 +52,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
 if APPLE
     X_LIBS =
 else
-    X_LIBS = -lX11
+    X_LIBS = -lX11 -lGLESv2 -lEGL
 endif
 
 TESTS=testgraphics testgpu
