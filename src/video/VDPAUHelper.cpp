@@ -26,6 +26,8 @@
 
 #include "../graphics/Bitmap.h"
 
+#include <dlfcn.h>
+
 using namespace std;
 
 namespace avg {
@@ -90,6 +92,12 @@ VdpDevice getVDPAUDevice()
         return 0;
     }
     VdpStatus status;
+    void* dll = dlopen("libvdpau_nvidia.so", RTLD_LAZY);
+    if (!dll) {
+        bInitFailed = true;
+        return 0;
+    }
+    dlclose(dll);
     status = vdp_device_create_x11(pXDisplay, DefaultScreen(pXDisplay), &vdpDevice, 
             &vdp_get_proc_address);
     if (status != VDP_STATUS_OK)
