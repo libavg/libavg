@@ -84,25 +84,20 @@ class SliderThumb(SwitchNode):
         super(SliderThumb, self).__init__(nodeMap=nodeMap, visibleid="UP", **kwargs)
 
 
-class Slider(avg.DivNode):
+class SliderBase(avg.DivNode):
 
     THUMB_POS_CHANGED = avg.Publisher.genMessageID()
     PRESSED = avg.Publisher.genMessageID()
     RELEASED = avg.Publisher.genMessageID()
 
-    def __init__(self, enabled=True, height=0, width=0, 
-            orientation=Orientation.HORIZONTAL, range=(0.,1.), thumbpos=0.0, 
-            skinObj=skin.Skin.default, parent=None, **kwargs):
-        super(Slider, self).__init__(**kwargs)
+    def __init__(self, orientation, cfg, enabled=True, height=0, width=0, range=(0.,1.), 
+            thumbpos=0.0, parent=None, **kwargs):
+        super(SliderBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-        if orientation == Orientation.HORIZONTAL:
-            cfg = skinObj.defaultSliderCfg["horizontal"]
-        else:
-            cfg = skinObj.defaultSliderCfg["vertical"]
         
-        self.publish(Slider.THUMB_POS_CHANGED)
-        self.publish(Slider.PRESSED)
-        self.publish(Slider.RELEASED)
+        self.publish(SliderBase.THUMB_POS_CHANGED)
+        self.publish(SliderBase.PRESSED)
+        self.publish(SliderBase.RELEASED)
 
         self._orientation = orientation
 
@@ -112,12 +107,7 @@ class Slider(avg.DivNode):
                 disabledBmp=trackDisabledBmp, orientation=self._orientation)
         self.appendChild(self._trackNode)
 
-        thumbUpBmp = cfg["thumbUpBmp"]
-        thumbDownBmp = skin.getBmpFromCfg(cfg, "thumbDownBmp", "thumbUpBmp")
-        thumbDisabledBmp = skin.getBmpFromCfg(cfg, "thumbDisabledBmp", "thumbUpBmp")
-        self._thumbNode = SliderThumb(upBmp=thumbUpBmp, downBmp=thumbDownBmp,
-                disabledBmp=thumbDisabledBmp)
-        self.appendChild(self._thumbNode)
+        self._initThumb(cfg)
 
         self._range = range
         self._thumbPos = thumbpos
@@ -126,12 +116,12 @@ class Slider(avg.DivNode):
             self.size = (width, trackBmp.getSize().y)
         else:
             self.size = (trackBmp.getSize().x, height)
+        if not(enabled):
+            self.setEnabled(False)
+
         self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onUp)
-
-        if not(enabled):
-            self.setEnabled(False)
 
     def getWidth(self):
         return self.__baseWidth
@@ -219,6 +209,25 @@ class Slider(avg.DivNode):
         self._thumbNode.visibleid = "UP"
         self.notifySubscribers(Slider.RELEASED, [])
 
+
+class Slider(SliderBase):
+
+    def __init__(self, orientation=Orientation.HORIZONTAL, skinObj=skin.Skin.default,
+            **kwargs):
+        if orientation == Orientation.HORIZONTAL:
+            cfg = skinObj.defaultSliderCfg["horizontal"]
+        else:
+            cfg = skinObj.defaultSliderCfg["vertical"]
+        super(Slider, self).__init__(orientation, cfg, **kwargs)
+        
+    def _initThumb(self, cfg):
+        thumbUpBmp = cfg["thumbUpBmp"]
+        thumbDownBmp = skin.getBmpFromCfg(cfg, "thumbDownBmp", "thumbUpBmp")
+        thumbDisabledBmp = skin.getBmpFromCfg(cfg, "thumbDisabledBmp", "thumbUpBmp")
+        self._thumbNode = SliderThumb(upBmp=thumbUpBmp, downBmp=thumbDownBmp,
+                disabledBmp=thumbDisabledBmp)
+        self.appendChild(self._thumbNode)
+ 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
             return self.size.x - self._thumbNode.size.x
