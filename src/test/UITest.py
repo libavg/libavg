@@ -599,10 +599,6 @@ class UITestCase(AVGTestCase):
 
 
     def testSlider(self):
-        def createNode(orientation):
-            self.node = ui.Slider(orientation=orientation, pos=(20,20), 
-                    width=100, height=100, parent=root)
-        
         def onThumbPosChanged(pos):
             self.thumbpos = pos
 
@@ -613,10 +609,11 @@ class UITestCase(AVGTestCase):
                 self.node.height=60
 
         for orientation, orName in (
-                (ui.Orientation.HORIZONTAL,"Horiz"),
+                (ui.Orientation.HORIZONTAL, "Horiz"),
                 (ui.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
-            createNode(orientation)
+            self.node = ui.Slider(orientation=orientation, pos=(20,20), 
+                    width=100, height=100, parent=root)
             self.start(False,
                     (lambda: self.compareImage("testSlider"+orName+"1"),
                      lambda: self.node.setThumbPos(0.25),
@@ -636,61 +633,39 @@ class UITestCase(AVGTestCase):
                     ))
 
 
-#    def testScrollBar(self):
-#        def createNode(orientation):
-#            if orientation == ui.Orientation.HORIZONTAL:
-#                self.node = ui.BmpScrollBar(orientation=orientation,
-#                        trackSrc="media/scrollbar_horiz_track.png",
-#                        trackDisabledSrc="media/scrollbar_horiz_track_disabled.png",
-#                        trackEndsExtent=2,
-#                        thumbUpSrc="media/scrollbar_horiz_thumb_up.png",
-#                        thumbDownSrc="media/scrollbar_horiz_thumb_down.png",
-#                        thumbDisabledSrc="media/scrollbar_horiz_thumb_disabled.png",
-#                        thumbEndsExtent=4,
-#                        size=(100,15),
-#                        parent=root)
-#            else:
-#                self.node = ui.BmpScrollBar(orientation=orientation,
-#                        trackSrc="media/scrollbar_vert_track.png",
-#                        trackDisabledSrc="media/scrollbar_vert_track_disabled.png",
-#                        trackEndsExtent=2,
-#                        thumbUpSrc="media/scrollbar_vert_thumb_up.png",
-#                        thumbDownSrc="media/scrollbar_vert_thumb_down.png",
-#                        thumbDisabledSrc="media/scrollbar_vert_thumb_disabled.png",
-#                        thumbEndsExtent=4,
-#                        size=(15,100),
-#                        parent=root)
-#
-#        def onThumbPosChanged(pos):
-#            self.thumbpos = pos
-#
-#        for orientation, orName in (
-#                (ui.Orientation.HORIZONTAL,"Horiz"),
-#                (ui.Orientation.VERTICAL, "Vert")):
-#            root = self.loadEmptyScene()
-#            createNode(orientation)
-#            self.start(False,
-#                    (lambda: self.compareImage("testScrollBar"+orName+"1"),
-#                     lambda: self.node.setThumbExtent(0.5),
-#                     lambda: self.compareImage("testScrollBar"+orName+"2"),
-#                     lambda: self.node.setThumbPos(0.25),
-#                     lambda: self.compareImage("testScrollBar"+orName+"3"),
-#                     lambda: self.node.setThumbPos(5),
-#                     lambda: self.compareImage("testScrollBar"+orName+"4"),
-#                     lambda: self.node.setRange((0,10)),
-#                     lambda: self.node.setThumbPos(4.75),
-#                     lambda: self.compareImage("testScrollBar"+orName+"5"),
-#                     lambda: self.node.setRange((10,20)),
-#                     lambda: self.node.setThumbPos(14.75),
-#                     lambda: self.compareImage("testScrollBar"+orName+"5"),
-#                     lambda: self.node.setThumbExtent(10),
-#                     lambda: self.compareImage("testScrollBar"+orName+"6"),
-#                     lambda: self.node.setRange((10,0)),
-#                     lambda: self.node.setThumbExtent(0.5),
-#                     lambda: self.node.setThumbPos(4.75),
-#                     lambda: self.compareImage("testScrollBar"+orName+"5"),
-#                    ))
-#
+    def testScrollBar(self):
+        
+        def onThumbPosChanged(pos):
+            self.thumbpos = pos
+
+        for orientation, orName in (
+                (ui.Orientation.HORIZONTAL, "Horiz"),
+                (ui.Orientation.VERTICAL, "Vert")):
+            root = self.loadEmptyScene()
+            self.node = ui.ScrollBar(orientation=orientation, pos=(20,20), 
+                    width=100, height=100, parent=root)
+            self.start(False,
+                    (lambda: self.compareImage("testScrollBar"+orName+"1"),
+                     lambda: self.node.setThumbExtent(0.5),
+                     lambda: self.compareImage("testScrollBar"+orName+"2"),
+                     lambda: self.node.setThumbPos(0.25),
+                     lambda: self.compareImage("testScrollBar"+orName+"3"),
+                     lambda: self.node.setThumbPos(5),
+                     lambda: self.compareImage("testScrollBar"+orName+"4"),
+                     lambda: self.node.setRange((0,10)),
+                     lambda: self.node.setThumbPos(4.75),
+                     lambda: self.compareImage("testScrollBar"+orName+"5"),
+                     lambda: self.node.setRange((10,20)),
+                     lambda: self.node.setThumbPos(14.75),
+                     lambda: self.compareImage("testScrollBar"+orName+"5"),
+                     lambda: self.node.setThumbExtent(10),
+                     lambda: self.compareImage("testScrollBar"+orName+"6"),
+                     lambda: self.node.setRange((10,0)),
+                     lambda: self.node.setThumbExtent(0.5),
+                     lambda: self.node.setThumbPos(4.75),
+                     lambda: self.compareImage("testScrollBar"+orName+"5"),
+                    ))
+
 #        # Horizontal
 #        root = self.loadEmptyScene()
 #        createNode(ui.Orientation.HORIZONTAL)
@@ -898,7 +873,7 @@ def uiTestSuite(tests):
         "testStretchNode",
         "testHVStretchNode",
         "testSlider",
-#        "testScrollBar",
+        "testScrollBar",
         "testScrollArea",
 #        "testSimpleScrollBar",
 #        "testSimpleSlider",
