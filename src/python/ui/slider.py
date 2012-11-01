@@ -332,18 +332,3 @@ class ScrollBar(SliderBase):
         self._thumbPos = max(rangeMin, self._thumbPos)
         self._thumbPos = min(rangeMax-self.__thumbExtent, self._thumbPos)
 
-
-#class BmpScrollBar(ScrollBar):
-#
-#    def __init__(self, trackSrc, trackEndsExtent, thumbUpSrc, thumbDownSrc, 
-#            thumbEndsExtent, thumbDisabledSrc=None, trackDisabledSrc=None, 
-#            orientation=Orientation.HORIZONTAL, **kwargs):
-#        trackNode = ScrollBarTrack(orientation=orientation, enabledSrc=trackSrc, 
-#                disabledSrc=trackDisabledSrc, endsExtent=trackEndsExtent)
-#        thumbNode = ScrollBarThumb(orientation=orientation, 
-#                upSrc=thumbUpSrc, downSrc=thumbDownSrc, 
-#                disabledSrc=thumbDisabledSrc, endsExtent=thumbEndsExtent)
-#        
-#        super(BmpScrollBar, self).__init__(trackNode=trackNode, 
-#                orientation=orientation, thumbNode=thumbNode, **kwargs)
-
