@@ -114,6 +114,7 @@ class SliderBase(avg.DivNode):
         self._range = range
         self._thumbPos = thumbpos
 
+        self.subscribe(self.SIZE_CHANGED, lambda newSize: self._positionNodes())
         if orientation == Orientation.HORIZONTAL:
             self.size = (width, trackBmp.getSize().y)
         else:
@@ -124,36 +125,6 @@ class SliderBase(avg.DivNode):
         self.__recognizer = gesture.DragRecognizer(self._thumbNode, friction=-1,
                     detectedHandler=self.__onDragStart, moveHandler=self.__onDrag, 
                     upHandler=self.__onUp)
-
-    def getWidth(self):
-        return self.__baseWidth
-
-    def setWidth(self, width):
-        self.__baseWidth = width
-        self._positionNodes()
-
-    __baseWidth = avg.DivNode.width
-    width = property(getWidth, setWidth)
-
-    def getHeight(self):
-        return self.__baseHeight
-
-    def setHeight(self, height):
-        self.__baseHeight = height
-        self._positionNodes()
-
-    __baseHeight = avg.DivNode.height
-    height = property(getHeight, setHeight)
-
-    def getSize(self):
-        return self.__baseSize
-
-    def setSize(self, size):
-        self.__baseSize = size
-        self._positionNodes()
-
-    __baseSize = avg.DivNode.size
-    size = property(getSize, setSize)
 
     def getRange(self):
         return self._range

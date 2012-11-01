@@ -734,13 +734,16 @@ class UITestCase(AVGTestCase):
                 ))
 
     def testScrollArea(self):
+        def setSize(size):
+            self.node.size = size
+
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
         self.node = ui.ScrollArea(contentNode=image, size=(80,80), friction=-1, 
                 parent=root)
         self.start(False,
                 (lambda: self.compareImage("testScrollArea1"),
-                 lambda: self.node.setSize((120,80)),
+                 lambda: setSize((120,80)),
                  lambda: self.compareImage("testScrollArea2"),
                 ))
 
