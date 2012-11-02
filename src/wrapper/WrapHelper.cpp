@@ -23,6 +23,7 @@
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include "../player/PublisherDefinitionRegistry.h"
 
@@ -348,7 +349,15 @@ void exportMessages(object& nodeClass, const string& sClassName)
         string sName = messageIDs[i].m_sName;
         nodeClass.attr(sName.c_str()) = messageIDs[i];
     }
-}
+};
+
+struct type_info_to_string{
+    static PyObject* convert(const std::type_info& info)
+    {
+        boost::python::object result(ObjectCounter::get()->demangle(info.name()));
+        return boost::python::incref(result.ptr());
+    }
+};
 
 
 void export_base()
@@ -391,5 +400,8 @@ void export_base()
     from_python_sequence<vector<float>, variable_capacity_policy>();
     from_python_sequence<vector<int>, variable_capacity_policy>();
 
+    to_python_converter<std::type_info, type_info_to_string>();
+    //Maps
+    to_python_converter<TypeMap, to_dict<TypeMap> >();
 }
 

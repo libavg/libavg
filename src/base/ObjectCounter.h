@@ -29,6 +29,8 @@
 
 namespace avg {
 
+typedef std::map<const std::type_info *, int> TypeMap;
+
 class AVG_API ObjectCounter {
 public:
     static ObjectCounter* get();
@@ -38,14 +40,15 @@ public:
     void decRef(const std::type_info* pType);
 
     int getCount(const std::type_info* pType);
+
+    std::string demangle(std::string s);
     std::string dump();
+    TypeMap getObjectCount();
 
 private:
     ObjectCounter();
-    std::string demangle(std::string s);
     static void deleteSingleton();
 
-    typedef std::map<const std::type_info *, int> TypeMap;
     TypeMap m_TypeMap;
 
     static ObjectCounter* s_pObjectCounter;

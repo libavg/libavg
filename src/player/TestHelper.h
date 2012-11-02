@@ -23,6 +23,7 @@
 #define _TestHelper_H_
 
 #include "../api.h"
+#include "../base/ObjectCounter.h"
 #include "../graphics/Bitmap.h"
 #include "Event.h"
 #include "IInputDevice.h"
@@ -56,6 +57,7 @@ class AVG_API TestHelper : public IInputDevice
                 unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int unicode, int modifiers);
         void dumpObjects();
+        TypeMap getObjectCount();
 
         // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();

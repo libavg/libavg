@@ -110,6 +110,11 @@ void TestHelper::dumpObjects()
     cerr << ObjectCounter::get()->dump();
 }
 
+TypeMap TestHelper::getObjectCount()
+{
+    return ObjectCounter::get()->getObjectCount();
+}
+
 // From IInputDevice
 std::vector<EventPtr> TestHelper::pollEvents()
 {
