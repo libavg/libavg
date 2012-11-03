@@ -35,24 +35,14 @@ bool ispow2(int n)
 
 int nextpow2(int n)
 {
-    int ret=1;
-    while (ret < n) {
-        ret *= 2;
-    }
-    return ret;
-/* TODO: Fix this fast version :-).
-    int RetVal = 1;
-    __asm__ __volatile__(
-        "xorl %%ecx, %%ecx\n\t"
-        "bsrl %1, %%ecx\n\t"
-        "incl %%ecx\n\t"
-        "shlb %%cl, %0\n\t"
-        : "=m" (RetVal)
-        : "m" (n)
-        : "cc", "ecx"
-        );
-    return RetVal;
-*/    
+    n--;
+    n |= n >> 1;  // handle  2 bit numbers
+    n |= n >> 2;  // handle  4 bit numbers
+    n |= n >> 4;  // handle  8 bit numbers
+    n |= n >> 8;  // handle 16 bit numbers
+    n |= n >> 16; // handle 32 bit numbers
+    n++;
+    return n;
 }
 
 int safeCeil(float d) 
