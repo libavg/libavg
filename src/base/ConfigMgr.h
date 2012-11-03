@@ -23,7 +23,6 @@
 #define _ConfigMgr_H_
 
 #include "../api.h"
-#include "CmdLine.h"
 
 #include <libxml/parser.h>
 
