@@ -140,6 +140,7 @@
     <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
     <ClCompile Include="..\..\src\player\Win7TouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\WordsNode.cpp" />
+    <ClCompile Include="..\..\src\player\WrapPython.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\player\AreaNode.h" />
