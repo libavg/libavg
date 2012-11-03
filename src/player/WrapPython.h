@@ -47,3 +47,9 @@
 # define _DEBUG
 #endif
 
+namespace avg {
+
+void avgDeprecationWarning(const std::string& sVersion,const std::string& sOldEntryPoint,
+        const std::string& sNewEntryPoint);
+
+}

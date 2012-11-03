@@ -260,7 +260,7 @@ void Node::releaseEventCapture(int cursorID)
 
 void Node::setEventHandler(Event::Type type, int sources, PyObject * pFunc)
 {
-    AVG_DEPRECATION_WARNING("1.7", "Node.setEventHandler()", "Node.subscribe()");
+    avgDeprecationWarning("1.7", "Node.setEventHandler()", "Node.subscribe()");
     for (int source = 1; source <= Event::NONE; source *= 2) {
         if (source & sources) {
             EventID id(type, (Event::Source)source);
@@ -278,7 +278,7 @@ void Node::setEventHandler(Event::Type type, int sources, PyObject * pFunc)
 void Node::connectEventHandler(Event::Type type, int sources, 
         PyObject * pObj, PyObject * pFunc)
 {
-    AVG_DEPRECATION_WARNING("1.8", "Node.connectEventHandler()", "Node.subscribe()");
+    avgDeprecationWarning("1.8", "Node.connectEventHandler()", "Node.subscribe()");
     for (int source = 1; source <= Event::NONE; source *= 2) {
         if (source & sources) {
             EventID id(type, (Event::Source)source);
@@ -291,7 +291,7 @@ void Node::connectEventHandler(Event::Type type, int sources,
 
 void Node::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
 {
-    AVG_DEPRECATION_WARNING("1.8", "Node.disconnectEventHandler()", "Node.unsubscribe()");
+    avgDeprecationWarning("1.8", "Node.disconnectEventHandler()", "Node.unsubscribe()");
     int numDisconnected = 0;
     EventHandlerMap::iterator it;
     for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end();) {
