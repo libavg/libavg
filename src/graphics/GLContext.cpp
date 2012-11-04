@@ -19,8 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#define USE_EGL
-
+/**********************************/
+#ifndef USE_EGL
+    #define USE_EGL
+#endif
+/**********************************/
 #include "GLContext.h"
 
 #include "ShaderRegistry.h"
@@ -155,7 +158,7 @@ void GLContext::init(bool bOwnsContext)
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    glproc::UseProgramObject(0);
+    glproc::UseProgram(0);
     if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();

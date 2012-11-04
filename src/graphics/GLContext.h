@@ -22,7 +22,9 @@
 #define _GLContext_H_
 
 /**********************************/
-#define USE_EGL = 1
+#ifndef USE_EGL
+    #define USE_EGL
+#endif
 /**********************************/
 
 #include "../api.h"
@@ -116,7 +118,7 @@ protected:
 private:
     void checkGPUMemInfoSupport();
     bool isDebugContextSupported() const;
-    static void APIENTRY debugLogCallback(GLenum source, GLenum type, GLuint id, 
+    static void debugLogCallback(GLenum source, GLenum type, GLuint id, 
         GLenum severity, GLsizei length, const GLchar* message, void* userParam);
 
     bool m_bOwnsContext;

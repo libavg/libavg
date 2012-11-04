@@ -39,7 +39,7 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
       m_sVertProgram(sVertProgram),
       m_sFragProgram(sFragProgram)
 {
-    m_hProgram = glproc::CreateProgramObject();
+    m_hProgram = glproc::CreateProgram();
     if (sVertProgram == "") {
         m_hVertexShader = 0;
     } else {
@@ -47,16 +47,16 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
         glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
         glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
         m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sPrefix);
-        glproc::AttachObject(m_hProgram, m_hVertexShader);
+        glproc::AttachShader(m_hProgram, m_hVertexShader);
     }
     m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sPrefix);
     
-    glproc::AttachObject(m_hProgram, m_hFragmentShader);
+    glproc::AttachShader(m_hProgram, m_hFragmentShader);
     glproc::LinkProgram(m_hProgram);
     GLContext::checkError("OGLShader::OGLShader: glLinkProgram()");
 
     GLint bLinked;
-    glproc::GetObjectParameteriv(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
+    glproc::GetShaderiv(m_hProgram, GL_LINK_STATUS, &bLinked);
     if (!bLinked) {
         AVG_TRACE(Logger::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
         dumpInfoLog(m_hVertexShader, Logger::ERROR);
@@ -83,13 +83,13 @@ void OGLShader::activate()
 {
     OGLShaderPtr pCurShader = m_pShaderRegistry->getCurShader();
     if (!pCurShader || &*pCurShader != this) {
-        glproc::UseProgramObject(m_hProgram);
+        glproc::UseProgram(m_hProgram);
         m_pShaderRegistry->setCurShader(m_sName);
-        GLContext::checkError("OGLShader::activate: glUseProgramObject()");
+        GLContext::checkError("OGLShader::activate: glUseProgram()");
     }
 }
 
-GLhandleARB OGLShader::getProgram()
+GLuint OGLShader::getProgram()
 {
     return m_hProgram;
 }
@@ -108,13 +108,13 @@ void OGLShader::setTransform(const glm::mat4& transform)
     }
 }
 
-GLhandleARB OGLShader::compileShader(GLenum shaderType, const std::string& sProgram,
+GLuint OGLShader::compileShader(GLenum shaderType, const std::string& sProgram,
         const std::string& sPrefix)
 {
     const char * pProgramStrs[2];
     pProgramStrs[0] = sPrefix.c_str();
     pProgramStrs[1] = sProgram.c_str();
-    GLhandleARB hShader = glproc::CreateShaderObject(shaderType);
+    GLuint hShader = glproc::CreateShader(shaderType);
     glproc::ShaderSource(hShader, 2, pProgramStrs, 0);
     glproc::CompileShader(hShader);
     GLContext::checkError("OGLShader::compileShader()");
@@ -136,23 +136,23 @@ bool OGLShader::findParam(const std::string& sName, unsigned& pos)
     return bFound;
 }
 
-void OGLShader::dumpInfoLog(GLhandleARB hObj, int category)
+void OGLShader::dumpInfoLog(GLuint hObj, int category)
 {
     int infoLogLength;
-    GLcharARB * pInfoLog;
+    GLchar * pInfoLog;
 
     if (!hObj) {
         return;
     }
 
-    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
-    GLContext::checkError("OGLShader::dumpInfoLog: glGetObjectParameteriv()");
+    glproc::GetShaderiv(hObj, GL_INFO_LOG_LENGTH, &infoLogLength);
+    GLContext::checkError("OGLShader::dumpInfoLog: glGetShaderiv()");
     if (infoLogLength > 1) {
-        pInfoLog = (GLcharARB*)malloc(infoLogLength);
+        pInfoLog = (GLchar*)malloc(infoLogLength);
         int charsWritten;
-        glproc::GetInfoLog(hObj, infoLogLength, &charsWritten, pInfoLog);
+        glproc::GetShaderInfoLog(hObj, infoLogLength, &charsWritten, pInfoLog);
         string sLog = removeATIInfoLogSpam(pInfoLog);
-        GLContext::checkError("OGLShader::dumpInfoLog: glGetInfoLog()");
+        GLContext::checkError("OGLShader::dumpInfoLog: glGetShaderInfoLog()");
         if (sLog.size() > 3) {
             AVG_TRACE(category, sLog);
         }

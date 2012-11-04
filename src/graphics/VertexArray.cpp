@@ -94,7 +94,9 @@ void VertexArray::activate()
 {
     glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
+    #ifndef USE_GLESV2
     if (m_bUseVertexShader) {
+    #endif
         glproc::VertexAttribPointer(TEX_INDEX, 2, GL_FLOAT, GL_FALSE, 
                 sizeof(T2V3C4Vertex), (void *)(TEX_OFFSET*sizeof(float)));
         glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
@@ -104,6 +106,7 @@ void VertexArray::activate()
         glproc::EnableVertexAttribArray(TEX_INDEX);
         glproc::EnableVertexAttribArray(COLOR_INDEX);
         glproc::EnableVertexAttribArray(POS_INDEX);
+    #ifndef USE_GLESV2
     } else {
         glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 
                 (void *)(offsetof(T2V3C4Vertex, m_Tex)));
@@ -112,6 +115,7 @@ void VertexArray::activate()
         glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
                 (void *)(offsetof(T2V3C4Vertex, m_Pos)));
     }
+    #endif
     GLContext::checkError("VertexArray::activate()");
 }
 
