@@ -109,6 +109,7 @@ GLfunction getglXProcAddress(const char * psz);
         typedef void (GL_APIENTRYP PFNGLATTACHSHADERPROC) (GLuint program, GLuint shader);
         typedef void (GL_APIENTRYP PFNGLLINKPROGRAMPROC) (GLuint program);
         typedef void (GL_APIENTRYP PFNGLGETSHADERIVPROC) (GLuint shader, GLenum pname, GLint* params);
+        typedef void (GL_APIENTRYP PFNGLGETPROGRAMIVPROC) (GLuint program, GLenum pname, GLint* params);
         typedef void (GL_APIENTRYP PFNGLGETSHADERINFOLOGPROC) (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog);
         typedef void (GL_APIENTRYP PFNGLUSEPROGRAMPROC) (GLuint program);
         typedef int (GL_APIENTRYP PFNGLGETUNIFORMLOCATIONPROC) (GLuint program, const GLchar* name);
