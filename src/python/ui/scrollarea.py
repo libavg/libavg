@@ -21,7 +21,7 @@
 
 from libavg import avg
 from libavg.ui import slider, gesture
-from base import Orientation
+from base import HVStretchNode, Orientation
 from . import skin
 
 class ScrollPane(avg.DivNode):
@@ -90,7 +90,6 @@ class ScrollArea(avg.DivNode):
 
         super(ScrollArea, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-
         self.cfg = skinObj.defaultScrollAreaCfg
 
         self.publish(self.PRESSED)
@@ -98,6 +97,11 @@ class ScrollArea(avg.DivNode):
         self.publish(self.CONTENT_POS_CHANGED)
 
         self.__scrollPane = ScrollPane(contentNode=contentNode, parent=self)
+
+        if "borderBmp" in self.cfg:
+            endsExtent = self.cfg["borderEndsExtent"]
+            self._borderNode = HVStretchNode(src=self.cfg["borderBmp"], 
+                    endsExtent=endsExtent, parent=self)
 
         if Orientation.HORIZONTAL in scrollBars:
             self._hScrollBar = slider.ScrollBar(parent=self)
@@ -165,6 +169,8 @@ class ScrollArea(avg.DivNode):
 
     def __positionNodes(self, size):
         paneSize = size
+        self._borderNode.size = size
+
         margins = self.cfg["margins"]
         if self._hScrollBar:
             paneSize -= (0, margins[0]+margins[2])

@@ -70,6 +70,8 @@
           <xsd:complexType>
             <xsd:attribute name="id" type="xsd:ID"/>
             <xsd:attribute name="scrollBarID" type="xsd:IDREF"/>
+            <xsd:attribute name="borderSrc" type="xsd:string"/>
+            <xsd:attribute name="borderEndsExtent" type="xsd:string"/>
             <xsd:attribute name="margins" type="xsd:string"/>
             <xsd:attribute name="friction" type="xsd:string"/>
           </xsd:complexType>
