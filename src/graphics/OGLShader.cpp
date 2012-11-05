@@ -148,7 +148,11 @@ void OGLShader::dumpInfoLog(GLuint hObj, int category)
         return;
     }
 
+#ifdef AVG_ENABLE_EGL
     glproc::GetShaderiv(hObj, GL_INFO_LOG_LENGTH, &infoLogLength);
+#else
+    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
+#endif
     GLContext::checkError("OGLShader::dumpInfoLog: glGetShaderiv()");
     if (infoLogLength > 1) {
         pInfoLog = (GLchar*)malloc(infoLogLength);

@@ -53,6 +53,7 @@ namespace glproc {
         PFNGLDRAWBUFFERSPROC DrawBuffers;
         PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
         PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
+        PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
         #endif
         PFNGLGENBUFFERSPROC GenBuffers;
         PFNGLBUFFERDATAPROC BufferData;
@@ -347,6 +348,8 @@ namespace glproc {
         //TODO: This doesn't seem to be used anywhere, delete?
         GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress
                 ("glGetBufferSubData");
+        GetObjectParameteriv = (PFNGLGETOBJECTPARAMETERIVARBPROC)
+                getFuzzyProcAddress("glGetObjectParameteriv");
         #endif
 
         CreateShader = (PFNGLCREATESHADERPROC)

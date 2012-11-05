@@ -154,6 +154,7 @@ namespace glproc {
         extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
         extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
         extern AVG_API PFNGLBLITFRAMEBUFFERPROC BlitFramebuffer;
+        extern AVG_API PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
         #endif
         extern AVG_API PFNGLDELETEBUFFERSPROC DeleteBuffers;
         extern AVG_API PFNGLBINDBUFFERPROC BindBuffer;
