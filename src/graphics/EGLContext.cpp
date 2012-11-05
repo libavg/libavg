@@ -57,46 +57,74 @@ void EGContext::createEGContext(const GLConfig& glConfig, const IntPoint& window
         m_xDisplay = (EGLNativeDisplayType)XOpenDisplay(0);
     }
     if (!m_xDisplay) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X window display available.");
     }
-
-    eglWindow = 0;
-    if (pSDLWMInfo) {
-        XSetWindowAttributes swa;
-        eglWindow = XCreateWindow(m_xDisplay, pSDLWMInfo->info.x11.window, 
-                0, 0, windowSize.x, windowSize.y, 0, CopyFromParent, InputOutput, 
-                CopyFromParent, CWEventMask, &swa);
-        AVG_ASSERT(eglWindow);
-        XMapWindow(m_xDisplay, eglWindow);
-    }
- 
 
     m_Display = eglGetDisplay(m_xDisplay);
     if ( m_Display == EGL_NO_DISPLAY){
         throw Exception(AVG_ERR_VIDEO_GENERAL, "No EGL display available.");
     }
+
     if ( !eglInitialize(m_Display, NULL, NULL)){
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Unable to initialize EGL.");
-    }
-
-    if( !eglBindAPI(EGL_OPENGL_ES_API)){
-        cerr << "Failed to bind GLES API to EGL\n";
-        return;
     }
 
     if ( !eglChooseConfig(m_Display, attribute_list, &m_Config, 1, &m_num_FBConfig)){
         cerr << "Failed to choose config (eglError: " << eglGetError() << ")" << endl;
         return;
     }
+    assert(m_Config);
+    assert(m_num_FBConfig > 0);
+
+    EGLint vid;
+    if (!eglGetConfigAttrib(m_Display, m_Config, EGL_NATIVE_VISUAL_ID, &vid)) {
+      cerr << "Error: eglGetConfigAttrib() failed\n";
+      return;
+    }
+
+    XVisualInfo *visInfo, visTemplate;
+
+    visTemplate.visualid = vid;
+
+    int num_visuals;
+    visInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate, &num_visuals);
+    if (!visInfo) {
+        cerr << "Error: Could not get X Visual\n";
+        return;
+    }
+
+    unsigned long mask;
+    mask = CWBackPixel | CWBorderPixel | CWColormap;
+
+    m_xWindow = 0;
+    if (pSDLWMInfo) {
+        Window root = pSDLWMInfo->info.x11.window;
+
+        XSetWindowAttributes attr;
+        attr.background_pixel = 0;
+        attr.border_pixel = 0;
+        attr.colormap = XCreateColormap( m_xDisplay, root, visInfo->visual, AllocNone);
+
+
+        m_xWindow = XCreateWindow(m_xDisplay, root, 
+                0, 0, windowSize.x, windowSize.y, 0, visInfo->depth, InputOutput, 
+                visInfo->visual, mask, &attr);
+        AVG_ASSERT(m_xWindow);
+        XMapWindow(m_xDisplay, m_xWindow);
+    }
+ 
+    if( !eglBindAPI(EGL_OPENGL_ES_API)){
+        cerr << "Failed to bind GLES API to EGL\n";
+        return;
+    }
+
     if ( m_num_FBConfig != 1){
         cerr << "Didn't get exactly one config, but " << m_num_FBConfig << endl;
         return;
     }
-    if(eglWindow){
-        cout << "HAVE WINDOW\n";
-        m_Surface = eglCreateWindowSurface(m_Display, m_Config, eglWindow, NULL);
+    if(m_xWindow){
+        m_Surface = eglCreateWindowSurface(m_Display, m_Config, m_xWindow, NULL);
     }else{
-        cout << "DON'T have Window\n";
         XVisualInfo visTemplate, *results;
         visTemplate.screen = 0;
         int numVisuals;
