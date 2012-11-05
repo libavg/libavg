@@ -51,31 +51,31 @@ class Skin:
                         ("fontsize", "letterspacing", "linespacing"))
                 self.fonts[fontid] = avg.FontStyle(**kwargs)
 
-        self.textButtonCfg = {}
-        self.defaultTextButtonCfg = None
-        for node in xmlRoot.findall("textbutton"):
-            nodeid, attrs = self.__splitAttrs(node)
-            kwargs = self.__extractArgs(attrs,
-                    bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp", 
-                            "disabledSrc": "disabledBmp"},
-                    fontArgNames=("font", "downFont", "disabledFont"))
-            self.textButtonCfg[nodeid] = kwargs
-            if self.defaultTextButtonCfg == None or nodeid == None:
-                self.defaultTextButtonCfg = kwargs
+        self.textButtonCfg, self.defaultTextButtonCfg = self.__parseElement(
+                xmlRoot, "textbutton", 
+                bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp", 
+                        "disabledSrc": "disabledBmp"},
+                fontArgNames=("font", "downFont", "disabledFont"))
 
         self.sliderCfg, self.defaultSliderCfg = self.__initSliders(xmlRoot, "slider")
         self.scrollBarCfg, self.defaultScrollBarCfg = self.__initSliders(
                 xmlRoot, "scrollbar")
 
-        self.scrollAreaCfg = {}
-        self.defaultScrollAreaCfg = None
-        for node in xmlRoot.findall("scrollarea"):
+        self.scrollAreaCfg, self.defaultScrollAreaCfg = self.__parseElement(
+                xmlRoot, "scrollarea", floatArgNames=("friction",))
+
+    def __parseElement(self, xmlRoot, elementName, floatArgNames=(), bmpArgNames={}, 
+            fontArgNames=()):
+        cfgMap = {}
+        defaultCfg = None
+        for node in xmlRoot.findall(elementName):
             nodeid, attrs = self.__splitAttrs(node)
-            kwargs = self.__extractArgs(attrs,
-                    floatArgNames=("friction",))
-            self.scrollAreaCfg[nodeid] = kwargs
-            if self.defaultScrollAreaCfg == None or nodeid == None:
-                self.defaultScrollAreaCfg = kwargs
+            kwargs = self.__extractArgs(attrs, floatArgNames=floatArgNames, 
+                    bmpArgNames=bmpArgNames, fontArgNames=fontArgNames)
+            cfgMap[nodeid] = kwargs
+            if defaultCfg == None or nodeid == None:
+                defaultCfg = kwargs
+        return cfgMap, defaultCfg
 
     def __splitAttrs(self, xmlNode):
         attrs = xmlNode.attrib
