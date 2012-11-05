@@ -950,9 +950,8 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
             destFmt = PIX_FMT_YUYV422;
             break;
         default:
-            AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
-                    << pBmp->getPixelFormat() << " not supported.");
-            AVG_ASSERT(false);
+            AVG_ASSERT_MSG(false, (string("FFMpegDecoder: Dest format ") +
+                    toString(pBmp->getPixelFormat()) + " not supported.").c_str());
             destFmt = PIX_FMT_BGRA;
     }
     AVCodecContext const* pContext = getCodecContext();

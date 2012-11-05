@@ -83,19 +83,5 @@ private:
     }\
 }
 
-#define AVG_DEPRECATION_WARNING(sVersion, sOldEntryPoint, sNewEntryPoint) \
-{ \
-    static bool bWarned = false; \
-    if (!bWarned) { \
-        bWarned = true; \
-        string sMsg = string(sOldEntryPoint) + " deprecated since version " + \
-                string(sVersion)+"."; \
-        if (sNewEntryPoint != string("")) { \
-            sMsg += " Use "+string(sNewEntryPoint) + " instead."; \
-        } \
-        AVG_TRACE(Logger::DEPRECATION, sMsg); \
-    } \
-}
-
 }
 #endif

@@ -88,7 +88,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedObject.cpp \
         Player.cpp PluginManager.cpp TypeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
-        MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp \
+        MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp WrapPython.cpp\
         WordsNode.cpp CameraNode.cpp TypeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \

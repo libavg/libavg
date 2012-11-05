@@ -1,7 +1,7 @@
 SUBDIRS = triangulate
 
 INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
-ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
+ALL_H = FileHelper.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
         XMLHelper.h TimeSource.h ProfilingZone.h ThreadProfiler.h \
         ScopeTimer.h IFrameEndListener.h IPreRenderListener.h IPlaybackEndListener.h \
         Test.h TestSuite.h OSHelper.h Queue.h WorkerThread.h Command.h ObjectCounter.h \
@@ -15,7 +15,7 @@ TESTS=testbase
 EXTRA_DIST = DlfcnWrapper.cpp
 
 noinst_LTLIBRARIES = libbase.la
-libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \
+libbase_la_SOURCES = FileHelper.cpp Exception.cpp Logger.cpp \
     ConfigMgr.cpp XMLHelper.cpp TimeSource.cpp OSHelper.cpp \
     ProfilingZone.cpp ThreadProfiler.cpp ScopeTimer.cpp Test.cpp \
     TestSuite.cpp ObjectCounter.cpp Directory.cpp DirEntry.cpp \

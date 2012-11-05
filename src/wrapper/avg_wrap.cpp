@@ -151,6 +151,7 @@ BOOST_PYTHON_MODULE(avg)
                 TestHelper_fakeTouchEvent_overloads())
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent)
         .def("dumpObjects", &TestHelper::dumpObjects)
+        .def("getObjectCount", &TestHelper::getObjectCount)
     ;
 
     enum_<GLConfig::ShaderUsage>("ShaderUsage")

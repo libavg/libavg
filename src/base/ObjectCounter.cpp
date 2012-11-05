@@ -179,4 +179,8 @@ string ObjectCounter::demangle(string s)
     return sResult;
 }
 
+TypeMap ObjectCounter::getObjectCount(){
+    return m_TypeMap;
+}
+
 }
