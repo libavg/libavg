@@ -25,6 +25,8 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
+#include "../graphics/GLConfig.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -53,6 +55,8 @@ public:
         "      <words text=\"foo\"/>"
         "    </avg>"
         );
+        player.setOGLOptions(false, true, 1, GLConfig::AUTO, true);
+        GLContext::enableErrorChecks(true);
         player.disablePython();
         if (!getenv("AVG_CONSOLE_TEST")) {
 #ifdef WIN32
