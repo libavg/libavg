@@ -21,6 +21,8 @@
 
 from libavg import avg
 from libavg.ui import slider, gesture
+from base import Orientation
+from . import skin
 
 class ScrollPane(avg.DivNode):
 
@@ -82,26 +84,34 @@ class ScrollArea(avg.DivNode):
     RELEASED = avg.Publisher.genMessageID()
     CONTENT_POS_CHANGED = avg.Publisher.genMessageID()
 
-    def __init__(self, contentNode, size, hScrollBar=None, vScrollBar=None, parent=None, 
-            friction=None, **kwargs):
+    def __init__(self, contentNode, size, skinObj=skin.Skin.default,
+            scrollBars=(Orientation.HORIZONTAL, Orientation.VERTICAL),
+            parent=None, **kwargs):
 
         super(ScrollArea, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+
+        self.cfg = skinObj.defaultScrollAreaCfg
+
         self.publish(self.PRESSED)
         self.publish(self.RELEASED)
         self.publish(self.CONTENT_POS_CHANGED)
 
-        self._hScrollBar = hScrollBar
-        self._vScrollBar = vScrollBar
-
-        if hScrollBar:
-            self.appendChild(hScrollBar)
-            hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
-        if vScrollBar:
-            self.appendChild(vScrollBar)
-            vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
-
         self.__scrollPane = ScrollPane(contentNode=contentNode, parent=self)
+
+        if Orientation.HORIZONTAL in scrollBars:
+            self._hScrollBar = slider.ScrollBar(parent=self)
+            self._hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
+        else:
+            self._hScrollBar = None
+
+        if Orientation.VERTICAL in scrollBars:
+            self._vScrollBar = slider.ScrollBar(orientation=Orientation.VERTICAL,
+                    parent=self)
+            self._vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
+        else:
+            self._vScrollBar = None
+
         self.subscribe(self.SIZE_CHANGED, self.__positionNodes)
         self.size = size
         
@@ -110,7 +120,7 @@ class ScrollArea(avg.DivNode):
                 detectedHandler=self.__onDragStart,
                 moveHandler=self.__onDragMove,
                 upHandler=self.__onDragUp,
-                friction=friction
+                friction=self.cfg["friction"]
                 )
 
     def getContentSize(self):
@@ -153,16 +163,19 @@ class ScrollArea(avg.DivNode):
         self.__onDragMove(offset)
         self.notifySubscribers(self.RELEASED, [])
 
-    def __positionNodes(self, newSize):
-        paneSize = newSize
+    def __positionNodes(self, size):
+        paneSize = size
+        margins = self.cfg["margins"]
         if self._hScrollBar:
-            paneSize -= (0, self._hScrollBar.height)
+            paneSize -= (0, margins[0]+margins[2])
         if self._vScrollBar:
-            paneSize -= (self._vScrollBar.width, 0)
+            paneSize -= (margins[1]+margins[3], 0)
+        self.__scrollPane.pos = (margins[0], margins[1])
         self.__scrollPane.size = paneSize
 
+
         if self._hScrollBar:
-            self._hScrollBar.pos = (0, self.__scrollPane.height)
+            self._hScrollBar.pos = (0, size.y-self._hScrollBar.height)
             self._hScrollBar.width = self.__scrollPane.width
 
             if self.__scrollPane.contentsize.x <= self.__scrollPane.width:
@@ -174,7 +187,7 @@ class ScrollArea(avg.DivNode):
             self._hScrollBar.thumbextent = self.__scrollPane.width
 
         if self._vScrollBar:
-            self._vScrollBar.pos = (self.__scrollPane.width, 0)
+            self._vScrollBar.pos = (size.x-self._vScrollBar.width, 0)
             self._vScrollBar.height = self.__scrollPane.height
 
             if self.__scrollPane.contentsize.y <= self.__scrollPane.height:

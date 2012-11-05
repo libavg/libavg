@@ -39,6 +39,7 @@
             thumbEndsExtent="4"/>
     </scrollbar>
     <scrollarea
+            margins="(1,1,8,8)"
             friction="-1"/>
 <!--
     <checkbox

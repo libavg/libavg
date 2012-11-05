@@ -62,15 +62,15 @@ class Skin:
                 xmlRoot, "scrollbar")
 
         self.scrollAreaCfg, self.defaultScrollAreaCfg = self.__parseElement(
-                xmlRoot, "scrollarea", floatArgNames=("friction",))
+                xmlRoot, "scrollarea", pyArgNames=("friction","margins"))
 
-    def __parseElement(self, xmlRoot, elementName, floatArgNames=(), bmpArgNames={}, 
+    def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={}, 
             fontArgNames=()):
         cfgMap = {}
         defaultCfg = None
         for node in xmlRoot.findall(elementName):
             nodeid, attrs = self.__splitAttrs(node)
-            kwargs = self.__extractArgs(attrs, floatArgNames=floatArgNames, 
+            kwargs = self.__extractArgs(attrs, pyArgNames=pyArgNames, 
                     bmpArgNames=bmpArgNames, fontArgNames=fontArgNames)
             cfgMap[nodeid] = kwargs
             if defaultCfg == None or nodeid == None:
@@ -86,11 +86,11 @@ class Skin:
             nodeID = None
         return nodeID, attrs
 
-    def __extractArgs(self, attrs, floatArgNames=(), bmpArgNames={}, fontArgNames=()):
+    def __extractArgs(self, attrs, pyArgNames=(), bmpArgNames={}, fontArgNames=()):
         kwargs = {}
         for (key, value) in attrs.iteritems():
-            if key in floatArgNames:
-                kwargs[key] = float(value)
+            if key in pyArgNames:
+                kwargs[key] = eval(value)
             elif key in bmpArgNames.iterkeys():
                 argkey = bmpArgNames[key]
                 kwargs[argkey] = avg.Bitmap(self.__mediaDir+value)
@@ -112,7 +112,7 @@ class Skin:
                 # Loop through orientations (horiz, vert)
                 bogus, attrs = self.__splitAttrs(xmlNode)
                 kwargs = self.__extractArgs(attrs,
-                        floatArgNames=("trackEndsExtent", "thumbEndsExtent"),
+                        pyArgNames=("trackEndsExtent", "thumbEndsExtent"),
                         bmpArgNames={"trackSrc": "trackBmp", 
                                 "trackDisabledSrc": "trackDisabledBmp", 
                                 "thumbUpSrc": "thumbUpBmp",
@@ -129,7 +129,6 @@ def getBmpFromCfg(cfg, bmpName, defaultName):
     else:
         return cfg[defaultName]
     
-
 
 defaultMediaDir = os.path.join(os.path.dirname(__file__), "..", 'data/')
 Skin.default = Skin(defaultMediaDir+"SimpleSkin.xml", defaultMediaDir)

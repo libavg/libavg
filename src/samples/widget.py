@@ -21,9 +21,9 @@ class SimpleUIApp(AVGApp):
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
         vSlider.range = (1,0)
         self.__addValueDisplay(vSlider, (55,220))
-#        self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
-#
-#        self.createScrollArea(avg.Point2D(220,10), True)
+        self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
+
+        self.createScrollArea(avg.Point2D(220,10), True)
 #        self.createScrollArea(avg.Point2D(500,10), False)
 #
 #        checkBox = simple.CheckBox(pos=(10,270), text="Disable everything", 
@@ -41,10 +41,10 @@ class SimpleUIApp(AVGApp):
 
     def createScrollArea(self, pos, sensitiveScrollBars):
         image = avg.ImageNode(href="rgb24-64x64.png", size=(1024, 1024))
-        scrollArea = simple.ScrollArea(contentNode=image, parent=self._parentNode,
-                pos=pos, size=(220,220), sensitiveScrollBars=sensitiveScrollBars)
+        scrollArea = ui.ScrollArea(contentNode=image, parent=self._parentNode,
+                pos=pos, size=(220,220))
 
-        imageWidthSlider = simple.Slider(pos=pos+(0,230), size=(220,20), 
+        imageWidthSlider = ui.Slider(pos=pos+(0,230), width=220, 
                 parent=self._parentNode)
         imageWidthSlider.range = (100,1024)
         imageWidthSlider.thumbpos = 1024
@@ -52,7 +52,7 @@ class SimpleUIApp(AVGApp):
                 lambda thumbPos, scrollArea=scrollArea: 
                     self.setImageWidth(scrollArea, thumbPos))
 
-        imageHeightSlider = simple.Slider(pos=pos+(230,0), size=(20,220), 
+        imageHeightSlider = ui.Slider(pos=pos+(230,0), height=220,
                 orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
         imageHeightSlider.range = (100,1024)
         imageHeightSlider.thumbpos = 1024
