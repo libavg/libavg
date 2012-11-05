@@ -149,7 +149,11 @@ void VertexArray::transferBuffer(GLenum target, unsigned bufferID, unsigned rese
     glproc::BindBuffer(target, bufferID);
     if (m_bUseMapBuffer) {
         glproc::BufferData(target, reservedSize, 0, GL_DYNAMIC_DRAW);
-        void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY);
+        #ifndef USE_EGL
+            void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY);
+        #else
+            void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY_OES);
+        #endif
         memcpy(pBuffer, pData, usedSize);
         glproc::UnmapBuffer(target);
     } else {

@@ -26,7 +26,7 @@
 #include "Filter.h"
 #include "VertexArray.h"
 #include "Bitmap.h"
-#include "PBO.h"
+#include "TextureMover.h"
 #include "FBO.h"
 
 namespace avg {

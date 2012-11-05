@@ -26,6 +26,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/TextureMover.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"

@@ -19,13 +19,13 @@
 //  Current versions can be found at www.libavg.de
 //
 
-/**********************************/
-#ifndef USE_EGL
-    #define USE_EGL
-#endif
-/**********************************/
 #include "GLContext.h"
 
+/**********************************/
+#ifndef USE_EGL
+    #define USE_EGL 1
+#endif
+/**********************************/
 #include "ShaderRegistry.h"
 #include "StandardShader.h"
 
@@ -71,7 +71,7 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
     return new CGLContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined linux
     #ifdef USE_EGL
-        return new EGLContext(glConfig, windowSize, pSDLWMInfo);
+        return new EGContext(glConfig, windowSize, pSDLWMInfo);
     #else
         return new GLXContext(glConfig, windowSize, pSDLWMInfo);
     #endif
@@ -111,6 +111,7 @@ void GLContext::init(bool bOwnsContext)
         sscanf(pVersion, "%d.%d", &m_MajorGLVersion, &m_MinorGLVersion);
     }
 
+    #ifndef USE_EGL
     if (m_GLConfig.m_bUseDebugContext) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
@@ -118,6 +119,10 @@ void GLContext::init(bool bOwnsContext)
             m_GLConfig.m_bUseDebugContext = false;
         }
     }
+    #else
+        m_GLConfig.m_bUseDebugContext = false;
+    #endif
+
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
@@ -153,19 +158,23 @@ void GLContext::init(bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    #ifndef USE_EGL
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    #endif
 
     glproc::UseProgram(0);
     if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
+        #ifndef USE_EGL
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
+        #endif
     }
 
 }
@@ -283,13 +292,13 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
                 checkError("setBlendMode: add");
                 break;
             case BLEND_MIN:
-                glproc::BlendEquation(GL_MIN);
+                glproc::BlendEquation(GL_MIN_EXT);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkError("setBlendMode: min");
                 break;
             case BLEND_MAX:
-                glproc::BlendEquation(GL_MAX);
+                glproc::BlendEquation(GL_MAX_EXT);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkError("setBlendMode: max");
@@ -441,8 +450,12 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
+        #ifndef USE_EGL
         s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
+        #else
+        s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
+        #endif
         AVG_TRACE(Logger::ERROR, s.str());
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
@@ -500,7 +513,12 @@ int GLContext::nextMultiSampleValue(int curSamples)
 bool GLContext::isGLESSupported()
 {
 #if defined linux
+    #ifndef USE_EGL
     return GLXContext::haveARBCreateContext();
+    #else
+    //TODO: For now USE_EGL == OPENGLESV2
+    return true;
+    #endif
 #else
     return false;
 #endif
@@ -536,7 +554,7 @@ bool GLContext::isDebugContextSupported() const
     return false;
 }
 
-void APIENTRY GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id, 
+void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id, 
         GLenum severity, GLsizei length, const GLchar* message, void* userParam) 
 {
 /*    
@@ -605,11 +623,15 @@ void APIENTRY GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
 */
 
     // XXX Temporary to clean up NVidia message spam.
+    #ifndef USE_EGL
     if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
+    #endif
         AVG_TRACE(Logger::WARNING, message);
 //        dumpBacktrace();
 //        AVG_ASSERT(false);
+   #ifndef USE_EGL
     }
+   #endif
 }
 
 }

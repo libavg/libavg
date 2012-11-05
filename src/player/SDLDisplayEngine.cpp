@@ -376,7 +376,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp;
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     if (!m_pGLContext->isGLES()) {
         pBmp = BitmapPtr(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
         string sTmp;
@@ -390,11 +390,18 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
                 buf = GL_FRONT;
             }
         }
+        #ifndef USE_EGL
+        //TODO: glReadBuffer is a NV specific extension and not supported in GLES2
         glReadBuffer(buf);
         GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
         glproc::BindBuffer(GL_PIXEL_PACK_BUFFER, 0);
         glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
                 pBmp->getPixels());
+        #else
+        //ONLY RGB(A) is supported in GLES2
+        glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_RGBA, GL_UNSIGNED_BYTE, 
+                pBmp->getPixels());
+        #endif
         GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
     } else {
         pBmp = BitmapPtr(new Bitmap(m_WindowSize, R8G8B8X8, "screenshot"));

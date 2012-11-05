@@ -104,7 +104,10 @@ void OGLShader::setTransform(const glm::mat4& transform)
     if (m_hVertexShader) {
         m_pTransformParam->set(transform);
     } else {
-        glLoadMatrixf(glm::value_ptr(transform));
+        //TODO: OPENGLES2.0 has no gLoadMatrixf anymore
+        #ifndef USE_EGL
+            glLoadMatrixf(glm::value_ptr(transform));
+        #endif
     }
 }
 

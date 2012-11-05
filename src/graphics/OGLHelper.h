@@ -130,7 +130,7 @@ GLfunction getglXProcAddress(const char * psz);
         typedef void (GL_APIENTRYP PFNGLBLENDCOLORPROC) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
         typedef void (GL_APIENTRYP PFNGLACTIVETEXTUREPROC) (GLenum texture);
         typedef void (GL_APIENTRYP PFNGLGENERATEMIPMAPPROC) (GLenum target);
-        typedef void (GL_APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSPROC) (GLenum target);
+        typedef GLenum (GL_APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSPROC) (GLenum target);
         typedef void (GL_APIENTRYP PFNGLGENFRAMEBUFFERSPROC) (GLsizei n, GLuint* framebuffers);
         typedef void (GL_APIENTRYP PFNGLBINDFRAMEBUFFERPROC) (GLenum target, GLuint framebuffer);
         typedef void (GL_APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
@@ -163,6 +163,7 @@ namespace glproc {
         extern AVG_API PFNGLDELETEBUFFERSPROC DeleteBuffers;
         extern AVG_API PFNGLBINDBUFFERPROC BindBuffer;
         extern AVG_API PFNGLMAPBUFFERPROC MapBuffer;
+        extern AVG_API PFNGLUNMAPBUFFERPROC UnmapBuffer;
 
         extern AVG_API PFNGLCREATESHADERPROC CreateShader;
         extern AVG_API PFNGLSHADERSOURCEPROC ShaderSource;

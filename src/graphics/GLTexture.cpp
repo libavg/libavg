@@ -28,7 +28,9 @@
 
 #include "GLContext.h"
 #include "TextureMover.h"
-#include "PBO.h"
+#ifndef USE_EGL
+    #include "PBO.h"
+#endif
 #include "FBO.h"
 #include "Filterfliprgb.h"
 
@@ -184,11 +186,13 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
     if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
+        #ifndef USE_EGL
         return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
+        #endif
     } else {
         unsigned fbo = GLContext::getCurrent()->genFBO();
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, fbo);
-        glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+        glproc::BindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
                 GL_TEXTURE_2D, m_TexID, mipmapLevel);
         FBO::checkError("moveTextureToBmp");
         IntPoint size = getMipmapSize(mipmapLevel);
@@ -250,8 +254,10 @@ int GLTexture::getGLFormat(PixelFormat pf)
             return GL_RGBA;
         case B8G8R8A8:
         case B8G8R8X8:
+        #ifndef USE_EGL
         case R32G32B32A32F:
             return GL_BGRA;
+        #endif
         case B5G6R5:
             return GL_RGB;
         default:
@@ -291,8 +297,10 @@ int GLTexture::getGLInternalFormat() const
     switch (m_pf) {
         case I8:
             return GL_LUMINANCE;
+        #ifndef USE_EGL
         case I32F:
             return GL_LUMINANCE32F_ARB;
+        #endif
         case A8:
             return GL_ALPHA;
         case R8G8B8A8:
@@ -300,8 +308,10 @@ int GLTexture::getGLInternalFormat() const
         case B8G8R8A8:
         case B8G8R8X8:
             return GL_RGBA;
+        #ifndef USE_EGL
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
+        #endif
         case B5G6R5:
             return GL_RGB;
         default:

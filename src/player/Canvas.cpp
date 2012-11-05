@@ -253,9 +253,10 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     if (pFBO) {
         pFBO->activate();
     } else {
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+        glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
         GLContext::checkError("Canvas::render: BindFramebuffer()");
     }
+    #ifndef USE_EGL
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
         GLContext::checkError("Canvas::render: glEnable(GL_MULTISAMPLE)");
@@ -263,6 +264,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         glDisable(GL_MULTISAMPLE);
         GLContext::checkError("Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
+    #endif
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
     GLContext::checkError("Canvas::render: glViewport()");

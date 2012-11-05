@@ -25,7 +25,9 @@
 #include "../api.h"
 
 #include "GLTexture.h"
-#include "PBO.h"
+#ifndef USE_EGL
+    #include "PBO.h"
+#endif
 #include "VertexArray.h"
 
 #include "../base/GLMHelper.h"
@@ -73,7 +75,9 @@ private:
     bool m_bUsePackedDepthStencil;
     bool m_bMipmap;
 
+    #ifndef USE_EGL
     PBOPtr m_pOutputPBO;
+    #endif
     unsigned m_FBO;
     std::vector<GLTexturePtr> m_pTextures;
     unsigned m_StencilBuffer;
