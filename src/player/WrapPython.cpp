@@ -31,12 +31,20 @@ using namespace std;
 
 namespace avg {
 
-void avgDeprecationWarning(const string& sVersion,const string& sOldEntryPoint,
+void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
         const string& sNewEntryPoint)
 {
-    static bool bWarned = false; 
+    static vector<string> sWarningsIssued;
+    bool bWarned = false;
+    for (vector<string>::iterator it = sWarningsIssued.begin();
+            it != sWarningsIssued.end(); ++it)
+    {
+        if (*it == sOldEntryPoint) {
+            bWarned = true;
+        }
+    }
     if (!bWarned) { 
-        bWarned = true;
+        sWarningsIssued.push_back(sOldEntryPoint);
         
         PyFrameObject* pFrame = PyEval_GetFrame();
         int lineNo = PyCode_Addr2Line(pFrame->f_code, pFrame->f_lasti); 
