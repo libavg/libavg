@@ -126,7 +126,7 @@ void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2
     IntRect destRect(intOffset-radiusOffset, intOffset+size+radiusOffset+IntPoint(1,1));
     destRect.expand(IntRect(IntPoint(0,0), size));
     //TODO FIX OPENGLESV2
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
         GPUFilter::setDimensions(size, destRect, GL_CLAMP_TO_BORDER);
     #endif
 }

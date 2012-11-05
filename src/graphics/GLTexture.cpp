@@ -28,7 +28,7 @@
 
 #include "GLContext.h"
 #include "TextureMover.h"
-#ifndef USE_EGL
+#ifndef AVG_ENABLE_EGL
     #include "PBO.h"
 #endif
 #include "FBO.h"
@@ -186,7 +186,7 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
     if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
         #endif
     } else {
@@ -254,7 +254,7 @@ int GLTexture::getGLFormat(PixelFormat pf)
             return GL_RGBA;
         case B8G8R8A8:
         case B8G8R8X8:
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         case R32G32B32A32F:
             return GL_BGRA;
         #endif
@@ -297,7 +297,7 @@ int GLTexture::getGLInternalFormat() const
     switch (m_pf) {
         case I8:
             return GL_LUMINANCE;
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         case I32F:
             return GL_LUMINANCE32F_ARB;
         #endif
@@ -308,7 +308,7 @@ int GLTexture::getGLInternalFormat() const
         case B8G8R8A8:
         case B8G8R8X8:
             return GL_RGBA;
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
         #endif

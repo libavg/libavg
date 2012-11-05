@@ -22,13 +22,8 @@
 #ifndef _OGLHelper_H_
 #define _OGLHelper_H_
 
-#ifndef USE_EGL
-    #define USE_EGL
-#endif
-#ifndef USE_GLESV2
-    #define USE_GLESV2
-#endif
 #include "../api.h"
+#include "avgconfig.h"
 
 #ifdef _WIN32
     #include <windows.h>
@@ -38,7 +33,7 @@
     #include <GL/glu.h>
     #include "GL/glext.h"
 #else
-    #ifdef USE_EGL
+    #ifdef AVG_ENABLE_EGL
         #include <EGL/egl.h>
         #include <GLES2/gl2.h>
         #include <GLES2/gl2ext.h>
@@ -48,7 +43,7 @@
         #include "GL/glext.h"
     #endif
 #endif
-#if defined(linux) && !defined(USE_EGL)
+#if defined(linux) && !defined(AVG_ENABLE_EGL)
         #define GLX_GLXEXT_PROTOTYPES
         #include "GL/glx.h"
 #endif
@@ -97,7 +92,7 @@ GLfunction AVG_API getFuzzyProcAddress(const char * psz);
 GLfunction getglXProcAddress(const char * psz);
 #endif
 
-#ifdef USE_EGL
+#ifdef AVG_ENABLE_EGL
         typedef void (GL_APIENTRYP PFNGLGENBUFFERSPROC) (GLsizei n, GLuint *buffers);
         typedef void (GL_APIENTRYP PFNGLBUFFERDATAPROC) (GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
         /*
@@ -151,7 +146,7 @@ GLfunction getglXProcAddress(const char * psz);
 namespace glproc {
         extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;
         extern AVG_API PFNGLBUFFERDATAPROC BufferData;
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         extern AVG_API PFNGLBUFFERSUBDATAPROC BufferSubData;
         extern AVG_API PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
         extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
@@ -205,7 +200,7 @@ namespace glproc {
         extern AVG_API PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
         extern AVG_API PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
         #ifdef linux
-            #ifndef USE_EGL
+            #ifndef AVG_ENABLE_EGL
             extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
             #endif
         #endif

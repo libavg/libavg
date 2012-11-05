@@ -447,7 +447,7 @@ int main(int nargs, char** args)
     g_type_init();
     bool bOK = true;
     try {
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         bOK = runTests(false, GLConfig::FULL);
         bOK = runTests(false, GLConfig::MINIMAL);
         bOK = runTests(false, GLConfig::FRAGMENT_ONLY);

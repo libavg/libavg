@@ -479,7 +479,7 @@ void RasterNode::setupFX(bool bNewFX)
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
                     false, getMipmap()));
             GLTexturePtr pTex = m_pFBO->getTex();
-            #ifndef USE_EGL
+            #ifndef AVG_ENABLE_EGL
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
             #endif
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(

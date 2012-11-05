@@ -105,7 +105,7 @@ void OGLShader::setTransform(const glm::mat4& transform)
         m_pTransformParam->set(transform);
     } else {
         //TODO: OPENGLES2.0 has no gLoadMatrixf anymore
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
             glLoadMatrixf(glm::value_ptr(transform));
         #endif
     }

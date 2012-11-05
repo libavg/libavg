@@ -256,7 +256,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
         GLContext::checkError("Canvas::render: BindFramebuffer()");
     }
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
         GLContext::checkError("Canvas::render: glEnable(GL_MULTISAMPLE)");

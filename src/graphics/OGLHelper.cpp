@@ -46,7 +46,7 @@ using namespace std;
 namespace avg {
 
 namespace glproc {
-        #ifndef USE_GLESV2
+        #ifndef AVG_ENABLE_EGL
         PFNGLBUFFERSUBDATAPROC BufferSubData;
         PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
         PFNGLBLITFRAMEBUFFERPROC BlitFramebuffer;
@@ -100,7 +100,7 @@ namespace glproc {
         PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
         PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
 #ifdef linux
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
         PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
     #endif
 #endif
@@ -132,7 +132,7 @@ bool queryOGLExtension(const char *extName)
 
 bool queryGLXExtension(const char *extName)
 {
-#if (defined __APPLE__) || (defined _WIN32) || (defined USE_EGL)
+#if (defined __APPLE__) || (defined _WIN32) || (defined AVG_ENABLE_EGL)
     return false;
 #else
     int extNameLen = strlen(extName);
@@ -169,7 +169,7 @@ string AVG_API oglModeToString(int mode)
             return "GL_RGB";
         case GL_RGBA:
             return "GL_RGBA";
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
             case GL_BGR:
                 return "GL_BGR";
             case GL_BGRA:
@@ -237,7 +237,7 @@ void loadGLLibrary()
 #ifdef __APPLE__
     const char * pszFName = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
 #else
-    #ifdef USE_GLESV2
+    #ifdef AVG_ENABLE_EGL
         const char * pszFName = "libGLESv2.so";
     #else
         const char * pszFName = "libGL.so.1";
@@ -299,7 +299,7 @@ GLfunction getFuzzyProcAddress(const char * psz)
     return pProc;
 }
 #ifdef linux
-    #ifndef USE_GLESV2
+    #ifndef AVG_ENABLE_EGL
     GLfunction getglXProcAddress(const char * psz)
     {
         GLfunction pProc = (GLfunction)glXGetProcAddress((const GLubyte *)psz);
@@ -334,7 +334,7 @@ namespace glproc {
         
         GenBuffers = (PFNGLGENBUFFERSPROC)getFuzzyProcAddress("glGenBuffers");
         BufferData = (PFNGLBUFFERDATAPROC)getFuzzyProcAddress("glBufferData");
-        #ifndef USE_GLESV2
+        #ifndef AVG_ENABLE_EGL
         //TODO: This doesn't seem to be used anywhere, delete?
         BufferSubData = (PFNGLBUFFERSUBDATAPROC)getFuzzyProcAddress("glBufferSubData");
         #endif
@@ -342,7 +342,7 @@ namespace glproc {
         BindBuffer = (PFNGLBINDBUFFERPROC)getFuzzyProcAddress("glBindBuffer");
         MapBuffer = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
         UnmapBuffer = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
-        #ifndef USE_GLESV2
+        #ifndef AVG_ENABLE_EGL
         //TODO: This doesn't seem to be used anywhere, delete?
         GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress
                 ("glGetBufferSubData");
@@ -406,7 +406,7 @@ namespace glproc {
 
         DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)
                 getFuzzyProcAddress("glDeleteRenderbuffers");
-        #ifndef USE_GLESV2
+        #ifndef AVG_ENABLE_EGL
         //TODO: BILTFRAME OPENGLES2
         BlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)
                 getFuzzyProcAddress("glBlitFramebuffer");
@@ -416,10 +416,9 @@ namespace glproc {
         DrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)
                 getFuzzyProcAddress("glDrawRangeElements");
         #endif
-        #ifndef USE_GLESV2
+        #ifndef AVG_ENABLE_EGL
         DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKARBPROC)
                 getFuzzyProcAddress("glDebugMessageCallback");
-        #endifck
         #endif
         VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)
                 getFuzzyProcAddress("glVertexAttribPointer");
@@ -428,7 +427,7 @@ namespace glproc {
         BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)
                 getFuzzyProcAddress("glBindAttribLocation");
 #ifdef linux
-    #ifndef USE_GLESV2
+    #ifndef AVG_ENABLE_EGL
         SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
                 getglXProcAddress("glXSwapIntervalEXT");
     #endif

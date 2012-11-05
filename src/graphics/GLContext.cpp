@@ -27,7 +27,7 @@
 #ifdef __APPLE__
     #include "CGLContext.h"
 #elif defined linux
-    #ifdef USE_EGL
+    #ifdef AVG_ENABLE_EGL
         #include "EGLContext.h"
     #else
         #include "GLXContext.h"
@@ -65,7 +65,7 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
 #ifdef __APPLE__
     return new CGLContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined linux
-    #ifdef USE_EGL
+    #ifdef AVG_ENABLE_EGL
         return new EGContext(glConfig, windowSize, pSDLWMInfo);
     #else
         return new GLXContext(glConfig, windowSize, pSDLWMInfo);
@@ -106,7 +106,7 @@ void GLContext::init(bool bOwnsContext)
         sscanf(pVersion, "%d.%d", &m_MajorGLVersion, &m_MinorGLVersion);
     }
 
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     if (m_GLConfig.m_bUseDebugContext) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
@@ -154,7 +154,7 @@ void GLContext::init(bool bOwnsContext)
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glPixelStorei(GL_PACK_ROW_LENGTH, 0);
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -162,7 +162,7 @@ void GLContext::init(bool bOwnsContext)
 
     glproc::UseProgram(0);
     if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
@@ -445,7 +445,7 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
         #else
@@ -508,10 +508,10 @@ int GLContext::nextMultiSampleValue(int curSamples)
 bool GLContext::isGLESSupported()
 {
 #if defined linux
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     return GLXContext::haveARBCreateContext();
     #else
-    //TODO: For now USE_EGL == OPENGLESV2
+    //TODO: For now AVG_ENABLE_EGL == OPENGLESV2
     return true;
     #endif
 #else
@@ -618,13 +618,13 @@ void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
 */
 
     // XXX Temporary to clean up NVidia message spam.
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
     #endif
         AVG_TRACE(Logger::WARNING, message);
 //        dumpBacktrace();
 //        AVG_ASSERT(false);
-   #ifndef USE_EGL
+   #ifndef AVG_ENABLE_EGL
     }
    #endif
 }

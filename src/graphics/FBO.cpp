@@ -69,7 +69,7 @@ FBO::~FBO()
     ObjectCounter::get()->decRef(&typeid(*this));
     
     unsigned oldFBOID;
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (GLint*)&oldFBOID);
     #endif 
     glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO);
@@ -82,7 +82,7 @@ FBO::~FBO()
     GLContext* pContext = GLContext::getCurrent();
     if (pContext) {
         pContext->returnFBOToCache(m_FBO);
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         if (m_MultisampleSamples > 1) {
             glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
             pContext->returnFBOToCache(m_OutputFBO);
@@ -94,7 +94,7 @@ FBO::~FBO()
                     GL_RENDERBUFFER, 0);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, 0);
-            #ifndef USE_EGL
+            #ifndef AVG_ENABLE_EGL
             if (m_MultisampleSamples > 1) {
                 glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO);
                 glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -126,7 +126,7 @@ unsigned FBO::getNumTextures() const
 
 void FBO::copyToDestTexture() const
 {
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     if (m_MultisampleSamples != 1) {
         // Copy Multisample FBO to destination fbo
         glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
@@ -150,13 +150,13 @@ BitmapPtr FBO::getImage(int i) const
         return getImageFromPBO();
     } else {
         BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         if (m_MultisampleSamples != 1) { 
             glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
         } else { 
         #endif
             glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO); 
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         } 
         #endif
         glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
@@ -172,13 +172,13 @@ void FBO::moveToPBO(int i) const
     // Get data directly from the FBO using glReadBuffer. At least on NVidia/Linux, this 
     // is faster than reading stuff from the texture.
     copyToDestTexture();
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     if (m_MultisampleSamples != 1) { 
         glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
     } else { 
     #endif
         glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO); 
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     } 
  
     m_pOutputPBO->activate(); 
@@ -194,7 +194,7 @@ void FBO::moveToPBO(int i) const
  
 BitmapPtr FBO::getImageFromPBO() const
 {
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     AVG_ASSERT(GLContext::getCurrent()->getMemoryMode() == MM_PBO);
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::getImageFromPBO BindBuffer()"); 
@@ -235,7 +235,7 @@ void FBO::init()
     if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
         m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
     }
@@ -248,7 +248,7 @@ void FBO::init()
     GLContext::checkError("FBO::init: BindFramebuffer()");
 
     if (m_MultisampleSamples == 1) {
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         glDisable(GL_MULTISAMPLE);
         #endif
         for (unsigned i=0; i<m_pTextures.size(); ++i) {
@@ -260,7 +260,7 @@ void FBO::init()
         if (m_bUsePackedDepthStencil) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
-            #ifndef USE_EGL
+            #ifndef AVG_ENABLE_EGL
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL_EXT, 
                     m_Size.x, m_Size.y);
             #else
@@ -274,7 +274,7 @@ void FBO::init()
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
     } else {
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         glEnable(GL_MULTISAMPLE);
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER, m_ColorBuffer);
@@ -328,7 +328,7 @@ bool FBO::isFBOSupported()
 
 bool FBO::isMultisampleFBOSupported()
 {
-#ifdef USE_EGL
+#ifdef AVG_ENABLE_EGL
     return false;
 #else
     int maxSamples;
@@ -376,7 +376,7 @@ void FBO::checkError(const string& sContext)
             sErr = "GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT";
             break;
 #endif
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
             case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
                 sErr = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT";
                 break;

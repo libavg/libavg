@@ -390,7 +390,7 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
                 buf = GL_FRONT;
             }
         }
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         //TODO: glReadBuffer is a NV specific extension and not supported in GLES2
         glReadBuffer(buf);
         GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
@@ -462,7 +462,8 @@ void SDLDisplayEngine::calcRefreshRate()
         s_RefreshRate = 60;
     }
     DeleteDC(hDC);
-#else 
+#else
+#ifndef AVG_ENABLE_EGL
     Display * pDisplay = XOpenDisplay(0);
     int pixelClock;
     XF86VidModeModeLine modeLine;
@@ -477,6 +478,7 @@ void SDLDisplayEngine::calcRefreshRate()
     float HSyncRate = pixelClock*1000.0/modeLine.htotal;
     s_RefreshRate = HSyncRate/modeLine.vtotal;
     XCloseDisplay(pDisplay);
+#endif
 #endif
     if (s_RefreshRate == 0) {
         s_RefreshRate = 60;

@@ -105,7 +105,7 @@ void VertexArray::activate()
         glproc::EnableVertexAttribArray(COLOR_INDEX);
         glproc::EnableVertexAttribArray(POS_INDEX);
     } else {
-#ifndef USE_GLESV2
+#ifndef AVG_ENABLE_EGL
         glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 
                 (void *)(offsetof(T2V3C4Vertex, m_Tex)));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 
@@ -147,7 +147,7 @@ void VertexArray::transferBuffer(GLenum target, unsigned bufferID, unsigned rese
     glproc::BindBuffer(target, bufferID);
     if (m_bUseMapBuffer) {
         glproc::BufferData(target, reservedSize, 0, GL_DYNAMIC_DRAW);
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
             void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY);
         #else
             void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY_OES);

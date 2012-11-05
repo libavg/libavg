@@ -25,7 +25,7 @@
 #include "../api.h"
 
 #include "GLTexture.h"
-#ifndef USE_EGL
+#ifndef AVG_ENABLE_EGL
     #include "PBO.h"
 #endif
 #include "VertexArray.h"
@@ -75,7 +75,7 @@ private:
     bool m_bUsePackedDepthStencil;
     bool m_bMipmap;
 
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     PBOPtr m_pOutputPBO;
     #endif
     unsigned m_FBO;

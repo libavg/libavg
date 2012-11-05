@@ -106,7 +106,7 @@ void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders
 {
     
     //TODO: GLES2 Compatible Filter
-    #ifndef USE_EGL
+    #ifndef AVG_ENABLE_EGL
     if (bClipBorders) {
         GPUFilter::setDimensions(size);
     } else {

@@ -6,8 +6,13 @@ if APPLE
     GL_SOURCES = CGLContext.cpp
     GL_INCLUDES = CGLContext.h
 else
+if ENABLE_EGL
     GL_SOURCES = EGLContext.cpp
     GL_INCLUDES = EGLContext.h
+else
+    GL_SOURCES = GLXContext.cpp PBO.cpp
+    GL_INCLUDES = GLXContext.h PBO.h
+endif
 endif
 
 ALL_H = Bitmap.h Filter.h GLContext.h\
@@ -52,7 +57,11 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
 if APPLE
     X_LIBS =
 else
+if ENABLE_EGL
     X_LIBS = -lX11 -lGLESv2 -lEGL
+else
+    X_LIBS = -lX11
+endif
 endif
 
 TESTS=testgraphics testgpu

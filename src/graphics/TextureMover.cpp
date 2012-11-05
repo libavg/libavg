@@ -38,7 +38,7 @@ TextureMoverPtr TextureMover::create(OGLMemoryMode memoryMode, IntPoint size,
         PixelFormat pf, unsigned usage)
 {
     switch (memoryMode) {
-        #ifndef USE_EGL
+        #ifndef AVG_ENABLE_EGL
         case MM_PBO:
             return TextureMoverPtr(new PBO(size, pf, usage));
         #endif
