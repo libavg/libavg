@@ -21,11 +21,6 @@
 
 #include "GLContext.h"
 
-/**********************************/
-#ifndef USE_EGL
-    #define USE_EGL 1
-#endif
-/**********************************/
 #include "ShaderRegistry.h"
 #include "StandardShader.h"
 

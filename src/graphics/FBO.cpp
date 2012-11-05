@@ -35,6 +35,10 @@ using namespace boost;
 
 namespace avg {
 
+#ifndef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
+#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT
+#endif
+
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
         unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bMipmap)
     : m_Size(size),
@@ -324,6 +328,9 @@ bool FBO::isFBOSupported()
 
 bool FBO::isMultisampleFBOSupported()
 {
+#ifdef USE_EGL
+    return false;
+#else
     int maxSamples;
     glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
     // For some reason, this fails on Linux/i945 and similar setups. Multisample
@@ -334,8 +341,9 @@ bool FBO::isMultisampleFBOSupported()
     }
     return queryOGLExtension("GL_EXT_framebuffer_multisample") && 
             queryOGLExtension("GL_EXT_framebuffer_blit") && maxSamples > 1;
+#endif
 }
-    
+
 bool FBO::isPackedDepthStencilSupported()
 {
     return queryOGLExtension("GL_EXT_packed_depth_stencil") || 

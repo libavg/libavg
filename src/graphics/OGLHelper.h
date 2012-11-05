@@ -38,20 +38,19 @@
     #include <GL/glu.h>
     #include "GL/glext.h"
 #else
+    #ifdef USE_EGL
         #include <EGL/egl.h>
         #include <GLES2/gl2.h>
         #include <GLES2/gl2ext.h>
-        #ifndef USE_EGL
+    #else
         #include "GL/gl.h"
         #include "GL/glu.h"
-            #include "GL/glext.h"
-        #endif
+        #include "GL/glext.h"
+    #endif
 #endif
-#ifdef linux
-    #ifndef USE_EGL
+#if defined(linux) && !defined(USE_EGL)
         #define GLX_GLXEXT_PROTOTYPES
         #include "GL/glx.h"
-    #endif
 #endif
 
 #ifdef _WIN32
