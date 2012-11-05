@@ -68,6 +68,7 @@ namespace glproc {
         PFNGLATTACHSHADERPROC AttachShader;
         PFNGLLINKPROGRAMPROC LinkProgram;
         PFNGLGETSHADERIVPROC GetShaderiv;
+        PFNGLGETPROGRAMIVPROC GetProgramiv;
         PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
         PFNGLUSEPROGRAMPROC UseProgram;
         PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
@@ -361,6 +362,8 @@ namespace glproc {
         LinkProgram = (PFNGLLINKPROGRAMPROC)getFuzzyProcAddress("glLinkProgram");
         GetShaderiv = (PFNGLGETSHADERIVPROC)
                 getFuzzyProcAddress("glGetShaderiv");
+        GetProgramiv = (PFNGLGETPROGRAMIVPROC)
+                getFuzzyProcAddress("glGetProgramiv");
         GetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)getFuzzyProcAddress("glGetShaderInfoLog");
         UseProgram =(PFNGLUSEPROGRAMPROC) 
                 getFuzzyProcAddress("glUseProgram");

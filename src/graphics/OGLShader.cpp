@@ -56,7 +56,7 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     GLContext::checkError("OGLShader::OGLShader: glLinkProgram()");
 
     GLint bLinked;
-    glproc::GetShaderiv(m_hProgram, GL_LINK_STATUS, &bLinked);
+    glproc::GetProgramiv(m_hProgram, GL_LINK_STATUS, &bLinked);
     if (!bLinked) {
         AVG_TRACE(Logger::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
         dumpInfoLog(m_hVertexShader, Logger::ERROR);

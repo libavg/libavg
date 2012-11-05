@@ -166,6 +166,7 @@ namespace glproc {
         extern AVG_API PFNGLATTACHSHADERPROC AttachShader;
         extern AVG_API PFNGLLINKPROGRAMPROC LinkProgram;
         extern AVG_API PFNGLGETSHADERIVPROC GetShaderiv;
+        extern AVG_API PFNGLGETPROGRAMIVPROC GetProgramiv;
         extern AVG_API PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
         extern AVG_API PFNGLUSEPROGRAMPROC UseProgram;
         extern AVG_API PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
