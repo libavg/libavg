@@ -72,12 +72,13 @@ void EGContext::createEGContext(const GLConfig& glConfig, const IntPoint& window
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Unable to initialize EGL.");
     }
 
-    if ( !eglChooseConfig(m_Display, attribute_list, &m_Config, 1, &m_num_FBConfig)){
+    EGLint numFBConfig;
+    if ( !eglChooseConfig(m_Display, attribute_list, &m_Config, 1, &numFBConfig)){
         cerr << "Failed to choose config (eglError: " << eglGetError() << ")" << endl;
         return;
     }
     assert(m_Config);
-    assert(m_num_FBConfig > 0);
+    assert(numFBConfig > 0);
 
     EGLint vid;
     if (!eglGetConfigAttrib(m_Display, m_Config, EGL_NATIVE_VISUAL_ID, &vid)) {
@@ -121,8 +122,8 @@ void EGContext::createEGContext(const GLConfig& glConfig, const IntPoint& window
         return;
     }
 
-    if ( m_num_FBConfig != 1){
-        cerr << "Didn't get exactly one config, but " << m_num_FBConfig << endl;
+    if ( numFBConfig != 1){
+        cerr << "Didn't get exactly one config, but " << numFBConfig << endl;
         return;
     }
     if(m_xWindow){
@@ -152,7 +153,6 @@ void EGContext::createEGContext(const GLConfig& glConfig, const IntPoint& window
         cerr << "Unable to create EGL context (eglError: " << eglGetError() << ")" << endl;
         return;
     }
-    eglMakeCurrent( m_Display, m_Surface, m_Surface, m_Context);
 };
 
 bool EGContext::initVBlank(int rate){
@@ -171,4 +171,4 @@ void EGContext::swapBuffers()
     eglSwapBuffers(m_Display, m_Surface);
 };
 
-} /* avg */ 
+}

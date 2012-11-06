@@ -62,9 +62,8 @@ private:
     EGLConfig m_Config;
     EGLContext m_Context;
     EGLSurface m_Surface;
-    EGLint m_num_FBConfig;
 };
 
-} /* avg  */ 
+}
 
 #endif
