@@ -69,9 +69,7 @@ FBO::~FBO()
     ObjectCounter::get()->decRef(&typeid(*this));
     
     unsigned oldFBOID;
-    #ifndef AVG_ENABLE_EGL
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (GLint*)&oldFBOID);
-    #endif 
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&oldFBOID);
     glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO);
     
     for (unsigned i=0; i<m_pTextures.size(); ++i) {
@@ -135,12 +133,12 @@ void FBO::copyToDestTexture() const
                 GL_COLOR_BUFFER_BIT, GL_LINEAR);
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+    #endif
     if (m_bMipmap) {
         for (unsigned i=0; i< m_pTextures.size(); ++i) {
             m_pTextures[i]->generateMipmaps();
         }
     }
-    #endif
 }
 
 BitmapPtr FBO::getImage(int i) const
@@ -169,27 +167,25 @@ BitmapPtr FBO::getImage(int i) const
 void FBO::moveToPBO(int i) const
 {
     AVG_ASSERT(GLContext::getCurrent()->getMemoryMode() == MM_PBO);
+#ifndef AVG_ENABLE_EGL
     // Get data directly from the FBO using glReadBuffer. At least on NVidia/Linux, this 
     // is faster than reading stuff from the texture.
     copyToDestTexture();
-    #ifndef AVG_ENABLE_EGL
     if (m_MultisampleSamples != 1) { 
         glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
     } else { 
-    #endif
         glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO); 
-    #ifndef AVG_ENABLE_EGL
     } 
  
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::moveToPBO BindBuffer()"); 
     glReadBuffer(GL_COLOR_ATTACHMENT0+i); 
-    #endif
     GLContext::checkError("FBO::moveToPBO ReadBuffer()"); 
  
     glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
             GLTexture::getGLType(m_PF), 0); 
     GLContext::checkError("FBO::moveToPBO ReadPixels()");     
+#endif
 }
  
 BitmapPtr FBO::getImageFromPBO() const
@@ -274,7 +270,9 @@ void FBO::init()
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
     } else {
-        #ifndef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_EGL
+        AVG_ASSERT(false);
+#else        
         glEnable(GL_MULTISAMPLE);
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER, m_ColorBuffer);
@@ -314,7 +312,7 @@ void FBO::init()
                 GL_TEXTURE_2D, m_pTextures[0]->getID(), 0);
 
         GLContext::checkError("FBO::init: Multisample init");
-        #endif
+#endif
     }
 
     checkError("init");
