@@ -332,8 +332,11 @@ public:
             runMipmapTest(MM_PBO, "rgb24alpha-64x64");
             runMipmapTest(MM_PBO, "rgb24-65x65");
         }
+#ifndef AVG_ENABLE_EGL        
+        runMipmapTest(MM_OGL, "rgb24-64x64");
         runMipmapTest(MM_OGL, "rgb24alpha-64x64");
         runMipmapTest(MM_OGL, "rgb24-65x65");
+#endif
     }
 
 private:
@@ -428,6 +431,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
             << GLConfig::shaderUsageToString(su) << endl; 
     cerr << "---------------------------------------------------" << endl;
     GLContext* pContext = GLContext::create(GLConfig(bGLES, false, true, 1, su, true));
+    pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
     ShaderRegistry::get()->setShaderPath("./shaders");

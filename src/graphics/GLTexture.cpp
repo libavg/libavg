@@ -261,7 +261,7 @@ int GLTexture::getGLFormat(PixelFormat pf)
         case B8G8R8A8:
         case B8G8R8X8:
         #ifdef AVG_ENABLE_EGL
-            return GL_RGBA;
+            return GL_BGRA_EXT;
         #else
         case R32G32B32A32F:
             return GL_BGRA;
@@ -312,10 +312,15 @@ int GLTexture::getGLInternalFormat() const
         case A8:
             return GL_ALPHA;
         case R8G8B8A8:
-        case B8G8R8A8:
         case R8G8B8X8:
-        case B8G8R8X8:
             return GL_RGBA;
+        case B8G8R8A8:
+        case B8G8R8X8:
+        #ifdef AVG_ENABLE_EGL
+            return GL_BGRA_EXT;
+        #else
+            return GL_RGBA;
+        #endif
         #ifndef AVG_ENABLE_EGL
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
