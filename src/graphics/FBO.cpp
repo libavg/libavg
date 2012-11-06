@@ -23,6 +23,7 @@
 
 #include "OGLHelper.h"
 #include "GLContext.h"
+#include "Filterfliprgb.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -143,7 +144,8 @@ void FBO::copyToDestTexture() const
 
 BitmapPtr FBO::getImage(int i) const
 {
-    if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext->getMemoryMode() == MM_PBO) {
         moveToPBO(i);
         return getImageFromPBO();
     } else {
@@ -157,8 +159,11 @@ BitmapPtr FBO::getImage(int i) const
         #ifndef AVG_ENABLE_EGL
         } 
         #endif
-        glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
+        glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLReadFormat(m_PF),  
                 GLTexture::getGLType(m_PF), pBmp->getPixels()); 
+        if (pContext->isGLES()) {
+            FilterFlipRGB(!pContext->isGLES()).applyInPlace(pBmp);
+        }
         GLContext::checkError("FBO::getImage ReadPixels()"); 
         return pBmp;
     }

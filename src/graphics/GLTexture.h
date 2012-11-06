@@ -63,6 +63,7 @@ public:
 
     static bool isFloatFormatSupported();
     static int getGLFormat(PixelFormat pf);
+    static int getGLReadFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
     int getGLInternalFormat() const;
     

@@ -185,7 +185,8 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
-    if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext->getMemoryMode() == MM_PBO) {
 #ifdef AVG_ENABLE_EGL
         AVG_ASSERT(false);
         return BitmapPtr();
@@ -193,33 +194,23 @@ BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
         return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
 #endif
     } else {
-        unsigned fbo = GLContext::getCurrent()->genFBO();
+        unsigned fbo = pContext->genFBO();
         glproc::BindFramebuffer(GL_FRAMEBUFFER, fbo);
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
                 GL_TEXTURE_2D, m_TexID, mipmapLevel);
         FBO::checkError("moveTextureToBmp");
         IntPoint size = getMipmapSize(mipmapLevel);
         BitmapPtr pBmp(new Bitmap(size, m_pf));
-        int glPixelFormat = getGLFormat(m_pf);
-#ifdef AVG_ENABLE_EGL        
-        if (glPixelFormat == GL_BGRA_EXT) {
-            glPixelFormat = GL_RGBA;
-        }
+        int glPixelFormat = getGLReadFormat(m_pf);
         glReadPixels(0, 0, size.x, size.y, glPixelFormat, getGLType(m_pf), 
                 pBmp->getPixels());
-        FilterFlipRGB(false).applyInPlace(pBmp);
-#else        
-        glReadPixels(0, 0, size.x, size.y, glPixelFormat, getGLType(m_pf), 
-                pBmp->getPixels());
-        if (m_pf == R8G8B8A8 || m_pf == R8G8B8) {
-            cerr << "flip" << endl;
-            FilterFlipRGB().applyInPlace(pBmp);
+        if (m_pf == R8G8B8A8 || m_pf == R8G8B8 || pContext->isGLES()) {
+            FilterFlipRGB(!pContext->isGLES()).applyInPlace(pBmp);
         }
-#endif
         GLContext::checkError("GLTexture::moveTextureToBmp: glReadPixels()");
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
                 GL_TEXTURE_2D, 0, 0);
-        GLContext::getCurrent()->returnFBOToCache(fbo);
+        pContext->returnFBOToCache(fbo);
         return pBmp;
     }
 }
@@ -284,6 +275,17 @@ int GLTexture::getGLFormat(PixelFormat pf)
             AVG_ASSERT(false);
             return 0;
     }
+}
+
+int GLTexture::getGLReadFormat(PixelFormat pf)
+{
+    int glPixelFormat = getGLFormat(pf);
+#ifdef AVG_ENABLE_EGL        
+    if (glPixelFormat == GL_BGRA_EXT) {
+        glPixelFormat = GL_RGBA;
+    }
+#endif
+    return glPixelFormat;
 }
 
 int GLTexture::getGLType(PixelFormat pf)
