@@ -105,8 +105,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)
 {
     
-    //TODO: GLES2 Compatible Filter
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     if (bClipBorders) {
         GPUFilter::setDimensions(size);
     } else {
@@ -115,7 +114,7 @@ void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders
         //TODO: TO_BORDER DOES NOT EXIST IN GLESV2
         GPUFilter::setDimensions(size, IntRect(-offset, size+offset), GL_CLAMP_TO_BORDER);
     }
-    #endif
+#endif
 }
 
 }
