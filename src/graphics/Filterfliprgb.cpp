@@ -26,8 +26,9 @@
 
 namespace avg {
     
-FilterFlipRGB::FilterFlipRGB()
-  : Filter()
+FilterFlipRGB::FilterFlipRGB(bool bChangePF)
+    : Filter(),
+      m_bChangePF(bChangePF)
 {
 }
 
@@ -39,28 +40,30 @@ FilterFlipRGB::~FilterFlipRGB()
 void FilterFlipRGB::applyInPlace(BitmapPtr pBmp) 
 {
     PixelFormat PF = pBmp->getPixelFormat();
-    switch(PF) {
-        case B8G8R8A8:
-            pBmp->setPixelFormat(R8G8B8A8);
-            break;
-        case B8G8R8X8:
-            pBmp->setPixelFormat(R8G8B8X8);
-            break;
-        case R8G8B8A8:
-            pBmp->setPixelFormat(B8G8R8A8);
-            break;
-        case R8G8B8X8:
-            pBmp->setPixelFormat(B8G8R8X8);
-            break;
-        case R8G8B8:
-            pBmp->setPixelFormat(B8G8R8);
-            break;
-        case B8G8R8:
-            pBmp->setPixelFormat(R8G8B8);
-            break;
-        default:
-            // Only 24 and 32 bpp supported.
-            AVG_ASSERT(false);
+    if (m_bChangePF) {
+        switch(PF) {
+            case B8G8R8A8:
+                pBmp->setPixelFormat(R8G8B8A8);
+                break;
+            case B8G8R8X8:
+                pBmp->setPixelFormat(R8G8B8X8);
+                break;
+            case R8G8B8A8:
+                pBmp->setPixelFormat(B8G8R8A8);
+                break;
+            case R8G8B8X8:
+                pBmp->setPixelFormat(B8G8R8X8);
+                break;
+            case R8G8B8:
+                pBmp->setPixelFormat(B8G8R8);
+                break;
+            case B8G8R8:
+                pBmp->setPixelFormat(R8G8B8);
+                break;
+            default:
+                // Only 24 and 32 bpp supported.
+                AVG_ASSERT(false);
+        }
     }
     IntPoint size = pBmp->getSize();
     for (int y = 0; y < size.y; y++) {

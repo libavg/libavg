@@ -200,11 +200,23 @@ BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
         FBO::checkError("moveTextureToBmp");
         IntPoint size = getMipmapSize(mipmapLevel);
         BitmapPtr pBmp(new Bitmap(size, m_pf));
-        glReadPixels(0, 0, size.x, size.y, getGLFormat(m_pf), getGLType(m_pf), 
+        int glPixelFormat = getGLFormat(m_pf);
+#ifdef AVG_ENABLE_EGL        
+        if (glPixelFormat == GL_BGRA_EXT) {
+            glPixelFormat = GL_RGBA;
+        }
+        glReadPixels(0, 0, size.x, size.y, glPixelFormat, getGLType(m_pf), 
+                pBmp->getPixels());
+        FilterFlipRGB(false).applyInPlace(pBmp);
+#else        
+        glReadPixels(0, 0, size.x, size.y, glPixelFormat, getGLType(m_pf), 
                 pBmp->getPixels());
         if (m_pf == R8G8B8A8 || m_pf == R8G8B8) {
+            cerr << "flip" << endl;
             FilterFlipRGB().applyInPlace(pBmp);
         }
+#endif
+        GLContext::checkError("GLTexture::moveTextureToBmp: glReadPixels()");
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
                 GL_TEXTURE_2D, 0, 0);
         GLContext::getCurrent()->returnFBOToCache(fbo);

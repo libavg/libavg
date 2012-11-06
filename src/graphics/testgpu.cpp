@@ -336,7 +336,7 @@ public:
         runMipmapTest(MM_OGL, "rgb24-64x64");
         runMipmapTest(MM_OGL, "rgb24alpha-64x64");
         runMipmapTest(MM_OGL, "rgb24-65x65");
-#endif
+#endif        
     }
 
 private:
