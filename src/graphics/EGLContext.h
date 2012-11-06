@@ -41,26 +41,26 @@ static EGLint const attribute_list[] = {
     EGL_NONE
 };
 
-class AVG_API EGContext: public GLContext
+class AVG_API EGLContext: public GLContext
 {
 public:
-    EGContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+    EGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
             const SDL_SysWMinfo* pSDLWMInfo=0);
-    virtual ~EGContext();
+    virtual ~EGLContext();
 
     void activate();
     bool initVBlank(int rate);
     void swapBuffers();
 
 private:
-    void createEGContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+    void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo);
 
     EGLNativeDisplayType m_xDisplay;
     EGLNativeWindowType m_xWindow;
     EGLDisplay m_Display;
     EGLConfig m_Config;
-    EGLContext m_Context;
+    ::EGLContext m_Context;
     EGLSurface m_Surface;
 };
 

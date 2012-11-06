@@ -68,7 +68,7 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
     #ifdef AVG_ENABLE_EGL
         GLConfig tempConfig = glConfig;
         tempConfig.m_bGLES = true;
-        return new EGContext(tempConfig, windowSize, pSDLWMInfo);
+        return new EGLContext(tempConfig, windowSize, pSDLWMInfo);
     #else
         return new GLXContext(glConfig, windowSize, pSDLWMInfo);
     #endif

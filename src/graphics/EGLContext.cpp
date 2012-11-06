@@ -34,15 +34,15 @@ namespace avg{
 
 using namespace std;
 
-EGContext::EGContext(const GLConfig& glConfig, const IntPoint& windowSize,
+EGLContext::EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
             const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(glConfig, windowSize, pSDLWMInfo)
 {
-    createEGContext(glConfig, windowSize, pSDLWMInfo);
+    createEGLContext(glConfig, windowSize, pSDLWMInfo);
     init(true);
 }
 
-EGContext::~EGContext()
+EGLContext::~EGLContext()
 {
     getVertexBufferCache().deleteBuffers();
     getIndexBufferCache().deleteBuffers();
@@ -50,7 +50,7 @@ EGContext::~EGContext()
     eglTerminate(m_Display);
 }
 
-void EGContext::createEGContext(const GLConfig& glConfig, const IntPoint& windowSize,
+void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo){
 
     if (pSDLWMInfo) {
@@ -149,24 +149,24 @@ void EGContext::createEGContext(const GLConfig& glConfig, const IntPoint& window
     pi32ContextAttribs[2] = EGL_NONE;
 
     m_Context = eglCreateContext(m_Display, m_Config, NULL, pi32ContextAttribs);
-    if (m_Context == EGL_NO_CONTEXT ){
+    if (m_Context == 0) {
         cerr << "Unable to create EGL context (eglError: " << eglGetError() << ")" << endl;
         return;
     }
 };
 
-bool EGContext::initVBlank(int rate){
+bool EGLContext::initVBlank(int rate){
     static bool s_bVBlankActive = false;
     return false;
 };
 
-void EGContext::activate()
+void EGLContext::activate()
 {
     eglMakeCurrent( m_Display, m_Surface, m_Surface, m_Context);
     setCurrent();
 };
 
-void EGContext::swapBuffers()
+void EGLContext::swapBuffers()
 {
     eglSwapBuffers(m_Display, m_Surface);
 };
