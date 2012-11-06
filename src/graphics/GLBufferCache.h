@@ -43,9 +43,9 @@ public:
 
     unsigned int getNumBuffers() const;
 
-private:
     void deleteBuffers();
 
+private:
     std::vector<unsigned int> m_BufferIDs;
 };
 

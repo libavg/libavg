@@ -35,16 +35,19 @@ namespace avg{
 using namespace std;
 
 EGContext::EGContext(const GLConfig& glConfig, const IntPoint& windowSize,
-            const SDL_SysWMinfo* pSDLWMInfo):
-        GLContext(glConfig, windowSize, pSDLWMInfo)
-    {
-        createEGContext(glConfig, windowSize, pSDLWMInfo);
-        init(true);
-    };
+            const SDL_SysWMinfo* pSDLWMInfo)
+    : GLContext(glConfig, windowSize, pSDLWMInfo)
+{
+    createEGContext(glConfig, windowSize, pSDLWMInfo);
+    init(true);
+}
 
-EGContext::~EGContext(){
+EGContext::~EGContext()
+{
+    getVertexBufferCache().deleteBuffers();
+    getIndexBufferCache().deleteBuffers();
+    getPBOCache().deleteBuffers();
     eglTerminate(m_Display);
-
 }
 
 void EGContext::createEGContext(const GLConfig& glConfig, const IntPoint& windowSize,
