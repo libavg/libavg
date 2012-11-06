@@ -186,9 +186,12 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
     if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
-        #ifndef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_EGL
+        AVG_ASSERT(false);
+        return BitmapPtr();
+#else
         return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
-        #endif
+#endif
     } else {
         unsigned fbo = GLContext::getCurrent()->genFBO();
         glproc::BindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -202,6 +205,9 @@ BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
         if (m_pf == R8G8B8A8 || m_pf == R8G8B8) {
             FilterFlipRGB().applyInPlace(pBmp);
         }
+        glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+                GL_TEXTURE_2D, 0, 0);
+        GLContext::getCurrent()->returnFBOToCache(fbo);
         return pBmp;
     }
 }

@@ -407,14 +407,16 @@ public:
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
-        addTest(TestPtr(new RGB2YUVFilterTest));
-        addTest(TestPtr(new ChromaKeyFilterTest));
         addTest(TestPtr(new HslColorFilterTest));
         addTest(TestPtr(new InvertFilterTest));
+#ifndef AVG_ENABLE_EGL        
+        addTest(TestPtr(new RGB2YUVFilterTest));
+        addTest(TestPtr(new ChromaKeyFilterTest));
         addTest(TestPtr(new BlurFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new BandpassFilterTest));
         }
+#endif        
     }
 };
 
