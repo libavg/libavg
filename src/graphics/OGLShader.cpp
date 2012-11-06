@@ -61,13 +61,13 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
         AVG_TRACE(Logger::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
         dumpInfoLog(m_hVertexShader, Logger::ERROR);
         dumpInfoLog(m_hFragmentShader, Logger::ERROR);
-        dumpInfoLog(m_hProgram, Logger::ERROR);
+        dumpInfoLog(m_hProgram, Logger::ERROR, true);
         exit(-1);
     } else {
         AVG_TRACE(Logger::SHADER, "Linking shader program '"+sName+"'.");
         dumpInfoLog(m_hVertexShader, Logger::SHADER);
         dumpInfoLog(m_hFragmentShader, Logger::SHADER);
-        dumpInfoLog(m_hProgram, Logger::SHADER);
+        dumpInfoLog(m_hProgram, Logger::SHADER, true);
     }
     m_pShaderRegistry = ShaderRegistry::get();
     if (m_hVertexShader) {
@@ -139,7 +139,7 @@ bool OGLShader::findParam(const std::string& sName, unsigned& pos)
     return bFound;
 }
 
-void OGLShader::dumpInfoLog(GLuint hObj, int category)
+void OGLShader::dumpInfoLog(GLuint hObj, int category, bool bIsProgram)
 {
     int infoLogLength;
     GLchar * pInfoLog;
@@ -149,7 +149,11 @@ void OGLShader::dumpInfoLog(GLuint hObj, int category)
     }
 
 #ifdef AVG_ENABLE_EGL
-    glproc::GetShaderiv(hObj, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if (bIsProgram) {
+        glproc::GetProgramiv(hObj, GL_INFO_LOG_LENGTH, &infoLogLength);
+    } else {
+        glproc::GetShaderiv(hObj, GL_INFO_LOG_LENGTH, &infoLogLength);
+    }
 #else
     glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
 #endif
@@ -157,7 +161,11 @@ void OGLShader::dumpInfoLog(GLuint hObj, int category)
     if (infoLogLength > 1) {
         pInfoLog = (GLchar*)malloc(infoLogLength);
         int charsWritten;
-        glproc::GetShaderInfoLog(hObj, infoLogLength, &charsWritten, pInfoLog);
+        if (bIsProgram) {
+            glproc::GetProgramInfoLog(hObj, infoLogLength, &charsWritten, pInfoLog);
+        } else {
+            glproc::GetShaderInfoLog(hObj, infoLogLength, &charsWritten, pInfoLog);
+        }
         string sLog = removeATIInfoLogSpam(pInfoLog);
         GLContext::checkError("OGLShader::dumpInfoLog: glGetShaderInfoLog()");
         if (sLog.size() > 3) {

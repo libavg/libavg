@@ -111,6 +111,7 @@ GLfunction getglXProcAddress(const char * psz);
         typedef void (GL_APIENTRYP PFNGLGETSHADERIVPROC) (GLuint shader, GLenum pname, GLint* params);
         typedef void (GL_APIENTRYP PFNGLGETPROGRAMIVPROC) (GLuint program, GLenum pname, GLint* params);
         typedef void (GL_APIENTRYP PFNGLGETSHADERINFOLOGPROC) (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog);
+        typedef void (GL_APIENTRYP PFNGLGETPROGRAMINFOLOGPROC) (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog);
         typedef void (GL_APIENTRYP PFNGLUSEPROGRAMPROC) (GLuint program);
         typedef int (GL_APIENTRYP PFNGLGETUNIFORMLOCATIONPROC) (GLuint program, const GLchar* name);
         typedef void (GL_APIENTRYP PFNGLUNIFORM1IPROC) (GLint location, GLint x);
@@ -170,6 +171,7 @@ namespace glproc {
         extern AVG_API PFNGLGETSHADERIVPROC GetShaderiv;
         extern AVG_API PFNGLGETPROGRAMIVPROC GetProgramiv;
         extern AVG_API PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
+        extern AVG_API PFNGLGETPROGRAMINFOLOGPROC GetProgramInfoLog;
         extern AVG_API PFNGLUSEPROGRAMPROC UseProgram;
         extern AVG_API PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
         extern AVG_API PFNGLUNIFORM1IPROC Uniform1i;
