@@ -261,14 +261,17 @@ int GLTexture::getGLFormat(PixelFormat pf)
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
+#ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-        #ifdef AVG_ENABLE_EGL
             return GL_BGRA_EXT;
-        #else
+#else
+        case B8G8R8A8:
+        case B8G8R8X8:
+            return GL_BGRA;
         case R32G32B32A32F:
             return GL_BGRA;
-        #endif
+#endif
         case B5G6R5:
             return GL_RGB;
         default:
@@ -319,26 +322,24 @@ int GLTexture::getGLInternalFormat() const
     switch (m_pf) {
         case I8:
             return GL_LUMINANCE;
-        #ifndef AVG_ENABLE_EGL
-        case I32F:
-            return GL_LUMINANCE32F_ARB;
-        #endif
         case A8:
             return GL_ALPHA;
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
+#ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-        #ifdef AVG_ENABLE_EGL
             return GL_BGRA_EXT;
-        #else
+#else
+        case B8G8R8A8:
+        case B8G8R8X8:
             return GL_RGBA;
-        #endif
-        #ifndef AVG_ENABLE_EGL
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
-        #endif
+        case I32F:
+            return GL_LUMINANCE32F_ARB;
+#endif
         case B5G6R5:
             return GL_RGB;
         default:

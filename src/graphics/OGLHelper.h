@@ -93,6 +93,8 @@ GLfunction getglXProcAddress(const char * psz);
 #endif
 
 #ifdef AVG_ENABLE_EGL
+#define GL_WRITE_ONLY GL_WRITE_ONLY_OES
+
 typedef void (GL_APIENTRYP PFNGLGENBUFFERSPROC) (GLsizei n, GLuint *buffers);
 typedef void (GL_APIENTRYP PFNGLBUFFERDATAPROC) (GLenum target, GLsizeiptr size, 
         const GLvoid* data, GLenum usage);
@@ -165,7 +167,7 @@ typedef void (GL_APIENTRYP PFNGLBINDATTRIBLOCATIONPROC) (GLuint program, GLuint 
 namespace glproc {
     extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;
     extern AVG_API PFNGLBUFFERDATAPROC BufferData;
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     extern AVG_API PFNGLBUFFERSUBDATAPROC BufferSubData;
     extern AVG_API PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
@@ -173,7 +175,7 @@ namespace glproc {
     extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
     extern AVG_API PFNGLBLITFRAMEBUFFERPROC BlitFramebuffer;
     extern AVG_API PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
-    #endif
+#endif
     extern AVG_API PFNGLDELETEBUFFERSPROC DeleteBuffers;
     extern AVG_API PFNGLBINDBUFFERPROC BindBuffer;
     extern AVG_API PFNGLMAPBUFFERPROC MapBuffer;

@@ -108,7 +108,7 @@ void GLContext::init(bool bOwnsContext)
         sscanf(pVersion, "%d.%d", &m_MajorGLVersion, &m_MinorGLVersion);
     }
 
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     if (m_GLConfig.m_bUseDebugContext) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
@@ -116,9 +116,9 @@ void GLContext::init(bool bOwnsContext)
             m_GLConfig.m_bUseDebugContext = false;
         }
     }
-    #else
-        m_GLConfig.m_bUseDebugContext = false;
-    #endif
+#else
+    m_GLConfig.m_bUseDebugContext = false;
+#endif
 
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
@@ -156,22 +156,22 @@ void GLContext::init(bool bOwnsContext)
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    #ifndef AVG_ENABLE_EGL
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    #endif
+#ifndef AVG_ENABLE_EGL
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+#endif
 
     glproc::UseProgram(0);
     if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
-        #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
-        #endif
+#endif
     }
 
 }
@@ -510,11 +510,10 @@ int GLContext::nextMultiSampleValue(int curSamples)
 bool GLContext::isGLESSupported()
 {
 #if defined linux
-    #ifndef AVG_ENABLE_EGL
-    return GLXContext::haveARBCreateContext();
-    #else
-    //TODO: For now AVG_ENABLE_EGL == OPENGLESV2
+    #ifdef AVG_ENABLE_EGL
     return true;
+    #else
+    return GLXContext::haveARBCreateContext();
     #endif
 #else
     return false;
@@ -620,15 +619,15 @@ void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
 */
 
     // XXX Temporary to clean up NVidia message spam.
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
-    #endif
+#endif
         AVG_TRACE(Logger::WARNING, message);
-//        dumpBacktrace();
-//        AVG_ASSERT(false);
-   #ifndef AVG_ENABLE_EGL
+        //        dumpBacktrace();
+        //        AVG_ASSERT(false);
+#ifndef AVG_ENABLE_EGL
     }
-   #endif
+#endif
 }
 
 }
