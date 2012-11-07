@@ -115,7 +115,9 @@ void GLContext::init(bool bOwnsContext)
             m_GLConfig.m_bUseDebugContext = false;
         }
     }
-
+#ifndef AVG_ENABLE_EGL
+    glEnable(GL_MULTISAMPLE);
+#endif
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");

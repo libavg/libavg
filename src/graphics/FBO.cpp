@@ -243,9 +243,6 @@ void FBO::init()
     GLContext::checkError("FBO::init: BindFramebuffer()");
 
     if (m_MultisampleSamples == 1) {
-#ifndef AVG_ENABLE_EGL
-        glDisable(GL_MULTISAMPLE);
-#endif
         for (unsigned i=0; i<m_pTextures.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER,
                     GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, 
@@ -272,7 +269,6 @@ void FBO::init()
 #ifdef AVG_ENABLE_EGL
         AVG_ASSERT(false);
 #else        
-        glEnable(GL_MULTISAMPLE);
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER, m_ColorBuffer);
         GLContext::enableErrorLog(false);
