@@ -45,4 +45,24 @@ Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo)
     return pDisplay;
 }
 
+Window createChildWindow(const SDL_SysWMinfo* pSDLWMInfo, XVisualInfo* pVisualInfo,
+        const IntPoint& windowSize, Colormap& colormap)
+
+{
+    // Create a child window with the required attributes to render into.
+    XSetWindowAttributes swa;
+    Display* pDisplay = pSDLWMInfo->info.x11.display;
+    colormap = XCreateColormap(pDisplay, RootWindow(pDisplay, pVisualInfo->screen),
+            pVisualInfo->visual, AllocNone);
+    swa.colormap = colormap;
+    swa.background_pixmap = None;
+    swa.event_mask = StructureNotifyMask; 
+    Window win = XCreateWindow(pDisplay, pSDLWMInfo->info.x11.window, 
+            0, 0, windowSize.x, windowSize.y, 0, pVisualInfo->depth, InputOutput, 
+            pVisualInfo->visual, CWColormap|CWEventMask, &swa);
+    AVG_ASSERT(win);
+    XMapWindow(pDisplay, win);
+    return win;
+}
+
 }

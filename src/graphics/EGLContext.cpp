@@ -24,9 +24,8 @@
 #include "X11Display.h"
 
 #include "../base/Exception.h"
-#include "../base/Logger.h"
+#include "../base/StringHelper.h"
 
-#include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 #include <EGL/egl.h>
 
@@ -55,16 +54,15 @@ EGLContext::~EGLContext()
 void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
 {
+    bool bOk;
+    
     m_xDisplay = (EGLNativeDisplayType)getX11Display(pSDLWMInfo);
 
     m_Display = eglGetDisplay(m_xDisplay);
-    if (m_Display == EGL_NO_DISPLAY) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "No EGL display available.");
-    }
+    checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
 
-    if (!eglInitialize(m_Display, NULL, NULL)) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Unable to initialize EGL.");
-    }
+    bOk = eglInitialize(m_Display, NULL, NULL);
+    checkEGLError(!bOk, "eglInitialize failed");
 
     GLContextAttribs fbAttrs;
     fbAttrs.append(EGL_RED_SIZE, 1);
@@ -73,48 +71,27 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     fbAttrs.append(EGL_DEPTH_SIZE, 1);
     fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
     EGLint numFBConfig;
-    if (!eglChooseConfig(m_Display, fbAttrs.get(), &m_Config, 1, &numFBConfig)) {
-        cerr << "Failed to choose config (eglError: " << eglGetError() << ")" << endl;
-        return;
-    }
-    AVG_ASSERT(m_Config);
-    AVG_ASSERT(numFBConfig > 0);
+    bOk = eglChooseConfig(m_Display, fbAttrs.get(), &m_Config, 1, &numFBConfig);
+    checkEGLError(!bOk, "Failed to choose EGL config");
 
     EGLint vid;
-    if (!eglGetConfigAttrib(m_Display, m_Config, EGL_NATIVE_VISUAL_ID, &vid)) {
-        cerr << "Error: eglGetConfigAttrib() failed\n";
-        return;
-    }
+    bOk = eglGetConfigAttrib(m_Display, m_Config, EGL_NATIVE_VISUAL_ID, &vid);
+    AVG_ASSERT(bOk);
 
-    XVisualInfo *visInfo, visTemplate;
-
+    XVisualInfo visTemplate;
     visTemplate.visualid = vid;
-
     int num_visuals;
-    visInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate, &num_visuals);
-    if (!visInfo) {
-        cerr << "Error: Could not get X Visual\n";
-        return;
-    }
+    XVisualInfo* pVisualInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate,
+            &num_visuals);
+    AVG_ASSERT(pVisualInfo);
 
-    m_xWindow = 0;
+    EGLNativeWindowType xWindow = 0;
     if (pSDLWMInfo) {
-        Window root = pSDLWMInfo->info.x11.window;
-
-        XSetWindowAttributes attr;
-        attr.background_pixel = 0;
-        attr.border_pixel = 0;
-        attr.colormap = XCreateColormap( m_xDisplay, root, visInfo->visual, AllocNone);
-
-        unsigned long mask = CWBackPixel | CWBorderPixel | CWColormap;
-        m_xWindow = XCreateWindow(m_xDisplay, root, 
-                0, 0, windowSize.x, windowSize.y, 0, visInfo->depth, InputOutput, 
-                visInfo->visual, mask, &attr);
-        AVG_ASSERT(m_xWindow);
-        XMapWindow(m_xDisplay, m_xWindow);
+        Colormap colormap;
+        xWindow = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
     }
  
-    if(!eglBindAPI(EGL_OPENGL_ES_API)) {
+    if (!eglBindAPI(EGL_OPENGL_ES_API)) {
         cerr << "Failed to bind GLES API to EGL\n";
         return;
     }
@@ -123,8 +100,8 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
         cerr << "Didn't get exactly one config, but " << numFBConfig << endl;
         return;
     }
-    if (m_xWindow) {
-        m_Surface = eglCreateWindowSurface(m_Display, m_Config, m_xWindow, NULL);
+    if (xWindow) {
+        m_Surface = eglCreateWindowSurface(m_Display, m_Config, xWindow, NULL);
     } else {
         XVisualInfo visTemplate, *results;
         visTemplate.screen = 0;
@@ -136,18 +113,12 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
                 RootWindow(m_xDisplay, results[0].screen), 8, 8, results[0].depth);
         m_Surface = eglCreatePixmapSurface(m_Display, m_Config, pmp, NULL);
     }
-    if (m_Surface == EGL_NO_SURFACE) {
-        cerr << "Unable to create EGL surface (eglError: " << eglGetError() << ")" << endl;
-        return;
-    }
+    AVG_ASSERT(m_Surface);
+    
     GLContextAttribs attrs;
     attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
-
     m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
-    if (m_Context == 0) {
-        cerr << "Unable to create EGL context (eglError: " << eglGetError() << ")" << endl;
-        return;
-    }
+    checkEGLError(!m_Context, "Unable to create EGL context");
 }
 
 bool EGLContext::initVBlank(int rate)
@@ -169,6 +140,14 @@ void EGLContext::swapBuffers()
 float EGLContext::calcRefreshRate()
 {
     return 60;
+}
+
+void EGLContext::checkEGLError(bool bError, const std::string& sMsg)
+{
+    if (bError) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sMsg + " (EGL error: " + 
+                toString(eglGetError()) + ")");
+    }
 }
 
 }

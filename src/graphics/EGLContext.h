@@ -45,13 +45,14 @@ public:
 private:
     void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo);
+    void checkEGLError(bool bError, const std::string& sMsg);
 
     EGLNativeDisplayType m_xDisplay;
-    EGLNativeWindowType m_xWindow;
     EGLDisplay m_Display;
     EGLConfig m_Config;
     ::EGLContext m_Context;
     EGLSurface m_Surface;
+    
 };
 
 }

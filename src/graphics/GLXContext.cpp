@@ -111,19 +111,7 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
 
     if (pSDLWMInfo) {
-        // Create a child window with the required attributes to render into.
-        XSetWindowAttributes swa;
-        m_Colormap = XCreateColormap(m_pDisplay, 
-                RootWindow(m_pDisplay, pVisualInfo->screen), 
-                pVisualInfo->visual, AllocNone);
-        swa.colormap = m_Colormap;
-        swa.background_pixmap = None;
-        swa.event_mask = StructureNotifyMask; 
-        win = XCreateWindow(m_pDisplay, pSDLWMInfo->info.x11.window, 
-                0, 0, windowSize.x, windowSize.y, 0, pVisualInfo->depth, InputOutput, 
-                pVisualInfo->visual, CWColormap|CWEventMask, &swa);
-        AVG_ASSERT(win);
-        XMapWindow(m_pDisplay, win);
+        win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, m_Colormap);
     }
 
     if (haveARBCreateContext()) {
