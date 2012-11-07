@@ -40,6 +40,10 @@ namespace avg {
 #define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT
 #endif
 
+#ifdef AVG_ENABLE_EGL
+#define GL_DEPTH_STENCIL_EXT GL_DEPTH24_STENCIL8_OES
+#endif
+
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
         unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bMipmap)
     : m_Size(size),
@@ -146,13 +150,7 @@ BitmapPtr FBO::getImage(int i) const
         return getImageFromPBO();
     } else {
         BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
-        if (m_MultisampleSamples != 1) { 
-#ifndef AVG_ENABLE_EGL
-            glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
-#endif
-        } else { 
-            glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO); 
-        } 
+        glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
         glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLReadFormat(m_PF),  
                 GLTexture::getGLType(m_PF), pBmp->getPixels()); 
         if (pContext->isGLES()) {
@@ -170,11 +168,7 @@ void FBO::moveToPBO(int i) const
     // Get data directly from the FBO using glReadBuffer. At least on NVidia/Linux, this 
     // is faster than reading stuff from the texture.
     copyToDestTexture();
-    if (m_MultisampleSamples != 1) { 
-        glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
-    } else { 
-        glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO); 
-    } 
+    glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
  
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::moveToPBO BindBuffer()"); 
@@ -189,7 +183,10 @@ void FBO::moveToPBO(int i) const
  
 BitmapPtr FBO::getImageFromPBO() const
 {
-#ifndef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_EGL
+    AVG_ASSERT(false);
+    return BitmapPtr();
+#else
     AVG_ASSERT(GLContext::getCurrent()->getMemoryMode() == MM_PBO);
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::getImageFromPBO BindBuffer()"); 
@@ -252,19 +249,15 @@ void FBO::init()
         if (m_bUsePackedDepthStencil) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
-#ifndef AVG_ENABLE_EGL
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL_EXT, 
                     m_Size.x, m_Size.y);
-#else
-            glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, 
-                    m_Size.x, m_Size.y);
-#endif
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                     GL_RENDERBUFFER, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, m_StencilBuffer);
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
+        m_OutputFBO = m_FBO;
     } else {
 #ifdef AVG_ENABLE_EGL
         AVG_ASSERT(false);
