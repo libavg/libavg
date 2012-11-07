@@ -23,6 +23,8 @@
 
 #include "Bitmap.h"
 #include "GLTexture.h"
+#include "FBO.h"
+#include "Filterfliprgb.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -59,6 +61,29 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
             tex.getGLFormat(getPF()), tex.getGLType(getPF()), 
             pStartPos);
     GLContext::checkError("BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
+}
+
+BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
+{
+    GLContext* pContext = GLContext::getCurrent();
+    unsigned fbo = pContext->genFBO();
+    glproc::BindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+            tex.getID(), mipmapLevel);
+    FBO::checkError("BmpTextureMover::moveTextureToBmp");
+    IntPoint size = tex.getMipmapSize(mipmapLevel);
+    BitmapPtr pBmp(new Bitmap(size, getPF()));
+    int glPixelFormat = tex.getGLReadFormat(getPF());
+    glReadPixels(0, 0, size.x, size.y, glPixelFormat, tex.getGLType(getPF()), 
+            pBmp->getPixels());
+    if (getPF() == R8G8B8A8 || getPF() == R8G8B8 || pContext->isGLES()) {
+        FilterFlipRGB(!pContext->isGLES()).applyInPlace(pBmp);
+    }
+    GLContext::checkError("BmpTextureMover::moveTextureToBmp: glReadPixels()");
+    glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+    pContext->returnFBOToCache(fbo);
+    return pBmp;
+
 }
 
 BitmapPtr BmpTextureMover::lock()

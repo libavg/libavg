@@ -32,7 +32,6 @@
     #include "PBO.h"
 #endif
 #include "FBO.h"
-#include "Filterfliprgb.h"
 
 #include <string.h>
 #include <iostream>
@@ -185,34 +184,8 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
-    GLContext* pContext = GLContext::getCurrent();
-    if (pContext->getMemoryMode() == MM_PBO) {
-#ifdef AVG_ENABLE_EGL
-        AVG_ASSERT(false);
-        return BitmapPtr();
-#else
-        return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
-#endif
-    } else {
-        unsigned fbo = pContext->genFBO();
-        glproc::BindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
-                GL_TEXTURE_2D, m_TexID, mipmapLevel);
-        FBO::checkError("moveTextureToBmp");
-        IntPoint size = getMipmapSize(mipmapLevel);
-        BitmapPtr pBmp(new Bitmap(size, m_pf));
-        int glPixelFormat = getGLReadFormat(m_pf);
-        glReadPixels(0, 0, size.x, size.y, glPixelFormat, getGLType(m_pf), 
-                pBmp->getPixels());
-        if (m_pf == R8G8B8A8 || m_pf == R8G8B8 || pContext->isGLES()) {
-            FilterFlipRGB(!pContext->isGLES()).applyInPlace(pBmp);
-        }
-        GLContext::checkError("GLTexture::moveTextureToBmp: glReadPixels()");
-        glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
-                GL_TEXTURE_2D, 0, 0);
-        pContext->returnFBOToCache(fbo);
-        return pBmp;
-    }
+    TextureMoverPtr pMover = TextureMover::create(m_GLSize, m_pf, GL_DYNAMIC_READ);
+    return pMover->moveTextureToBmp(*this, mipmapLevel);
 }
 
 const IntPoint& GLTexture::getSize() const
