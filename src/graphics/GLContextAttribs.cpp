@@ -30,7 +30,11 @@ GLContextAttribs::GLContextAttribs()
 {
     m_pAttributes = new int[50];
     m_NumAttributes = 0;
+#ifdef AVG_ENABLE_EGL
     m_pAttributes[0] = EGL_NONE;
+#else
+    m_pAttributes[0] = 0;
+#endif
 }
 
 GLContextAttribs::~GLContextAttribs()

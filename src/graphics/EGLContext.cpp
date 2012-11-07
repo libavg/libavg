@@ -173,4 +173,9 @@ void EGLContext::swapBuffers()
     eglSwapBuffers(m_Display, m_Surface);
 }
 
+float EGLContext::calcRefreshRate()
+{
+    return 60;
+}
+
 }

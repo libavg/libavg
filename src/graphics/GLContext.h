@@ -85,6 +85,7 @@ public:
 
     virtual bool initVBlank(int rate)=0;
     virtual void swapBuffers();
+    static float getRefreshRate();
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
@@ -140,6 +141,8 @@ private:
 
     int m_MajorGLVersion;
     int m_MinorGLVersion;
+
+    static float s_RefreshRate;
 
     static bool s_bErrorCheckEnabled;
     static bool s_bErrorLogEnabled;

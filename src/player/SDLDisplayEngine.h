@@ -96,9 +96,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         SDL_Surface * m_pScreen;
 
-        static void calcRefreshRate();
-        static float s_RefreshRate;
-
         // Event handling.
         bool m_bMouseOverApp;
         MouseEventPtr m_pLastMouseEvent;
