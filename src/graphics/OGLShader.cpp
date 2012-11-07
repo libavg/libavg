@@ -104,10 +104,12 @@ void OGLShader::setTransform(const glm::mat4& transform)
     if (m_hVertexShader) {
         m_pTransformParam->set(transform);
     } else {
-        //TODO: OPENGLES2.0 has no gLoadMatrixf anymore
-        #ifndef AVG_ENABLE_EGL
-            glLoadMatrixf(glm::value_ptr(transform));
-        #endif
+#ifdef AVG_ENABLE_EGL
+        // No fixed-function vertex shader in gles
+        AVG_ASSERT(false);
+#else
+        glLoadMatrixf(glm::value_ptr(transform));
+#endif
     }
 }
 
@@ -148,15 +150,11 @@ void OGLShader::dumpInfoLog(GLuint hObj, int category, bool bIsProgram)
         return;
     }
 
-#ifdef AVG_ENABLE_EGL
     if (bIsProgram) {
         glproc::GetProgramiv(hObj, GL_INFO_LOG_LENGTH, &infoLogLength);
     } else {
         glproc::GetShaderiv(hObj, GL_INFO_LOG_LENGTH, &infoLogLength);
     }
-#else
-    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infoLogLength);
-#endif
     GLContext::checkError("OGLShader::dumpInfoLog: glGetShaderiv()");
     if (infoLogLength > 1) {
         pInfoLog = (GLchar*)malloc(infoLogLength);

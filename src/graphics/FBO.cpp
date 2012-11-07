@@ -81,25 +81,21 @@ FBO::~FBO()
     GLContext* pContext = GLContext::getCurrent();
     if (pContext) {
         pContext->returnFBOToCache(m_FBO);
-        #ifndef AVG_ENABLE_EGL
         if (m_MultisampleSamples > 1) {
             glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
             pContext->returnFBOToCache(m_OutputFBO);
         }
-        #endif
         if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
             glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                     GL_RENDERBUFFER, 0);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, 0);
-            #ifndef AVG_ENABLE_EGL
             if (m_MultisampleSamples > 1) {
                 glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO);
                 glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                         GL_TEXTURE_2D, 0, 0);
             }
-            #endif
         }
         glproc::BindFramebuffer(GL_FRAMEBUFFER, oldFBOID);
         GLContext::checkError("~FBO");
@@ -125,7 +121,7 @@ unsigned FBO::getNumTextures() const
 
 void FBO::copyToDestTexture() const
 {
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     if (m_MultisampleSamples != 1) {
         // Copy Multisample FBO to destination fbo
         glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
@@ -134,7 +130,7 @@ void FBO::copyToDestTexture() const
                 GL_COLOR_BUFFER_BIT, GL_LINEAR);
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    #endif
+#endif
     if (m_bMipmap) {
         for (unsigned i=0; i< m_pTextures.size(); ++i) {
             m_pTextures[i]->generateMipmaps();
@@ -150,15 +146,13 @@ BitmapPtr FBO::getImage(int i) const
         return getImageFromPBO();
     } else {
         BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
-        #ifndef AVG_ENABLE_EGL
         if (m_MultisampleSamples != 1) { 
+#ifndef AVG_ENABLE_EGL
             glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
+#endif
         } else { 
-        #endif
             glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO); 
-        #ifndef AVG_ENABLE_EGL
         } 
-        #endif
         glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLReadFormat(m_PF),  
                 GLTexture::getGLType(m_PF), pBmp->getPixels()); 
         if (pContext->isGLES()) {
@@ -195,11 +189,11 @@ void FBO::moveToPBO(int i) const
  
 BitmapPtr FBO::getImageFromPBO() const
 {
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     AVG_ASSERT(GLContext::getCurrent()->getMemoryMode() == MM_PBO);
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::getImageFromPBO BindBuffer()"); 
-    
+
     BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY); 
     GLContext::checkError("FBO::getImageFromPBO MapBuffer()"); 
@@ -209,7 +203,7 @@ BitmapPtr FBO::getImageFromPBO() const
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT); 
     GLContext::checkError("FBO::getImageFromPBO UnmapBuffer()"); 
     return pBmp; 
-    #endif
+#endif
 }
 
 GLTexturePtr FBO::getTex(int i) const
@@ -236,11 +230,11 @@ void FBO::init()
     if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
         m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
     }
-    #endif
+#endif
 
     m_FBO = pContext->genFBO();
     GLContext::checkError("FBO::init: GenFramebuffers()");
@@ -249,9 +243,9 @@ void FBO::init()
     GLContext::checkError("FBO::init: BindFramebuffer()");
 
     if (m_MultisampleSamples == 1) {
-        #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
         glDisable(GL_MULTISAMPLE);
-        #endif
+#endif
         for (unsigned i=0; i<m_pTextures.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER,
                     GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, 
@@ -261,13 +255,13 @@ void FBO::init()
         if (m_bUsePackedDepthStencil) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
-            #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL_EXT, 
                     m_Size.x, m_Size.y);
-            #else
+#else
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, 
                     m_Size.x, m_Size.y);
-            #endif
+#endif
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                     GL_RENDERBUFFER, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
@@ -379,20 +373,20 @@ void FBO::checkError(const string& sContext)
             sErr = "GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT";
             break;
 #endif
-        #ifndef AVG_ENABLE_EGL
-            case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-                sErr = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT";
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-                sErr = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT";
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-                sErr = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT";
-                break;
-            case GL_FRAMEBUFFER_BINDING_EXT:
-                sErr = "GL_FRAMEBUFFER_BINDING_EXT";
-                break;
-        #endif
+#ifndef AVG_ENABLE_EGL
+        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT";
+            break;
+        case GL_FRAMEBUFFER_BINDING_EXT:
+            sErr = "GL_FRAMEBUFFER_BINDING_EXT";
+            break;
+#endif
         default:
             sErr = "Unknown error";
             break;

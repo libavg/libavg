@@ -75,9 +75,9 @@ private:
     bool m_bUsePackedDepthStencil;
     bool m_bMipmap;
 
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     PBOPtr m_pOutputPBO;
-    #endif
+#endif
     unsigned m_FBO;
     std::vector<GLTexturePtr> m_pTextures;
     unsigned m_StencilBuffer;
