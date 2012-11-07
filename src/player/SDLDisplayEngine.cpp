@@ -370,6 +370,7 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
     BitmapPtr pBmp;
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     if (!m_pGLContext->isGLES()) {
+#ifndef AVG_ENABLE_EGL
         pBmp = BitmapPtr(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
         string sTmp;
         bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
@@ -382,7 +383,6 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
                 buf = GL_FRONT;
             }
         }
-#ifndef AVG_ENABLE_EGL
         glReadBuffer(buf);
         GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
         glproc::BindBuffer(GL_PIXEL_PACK_BUFFER, 0);
