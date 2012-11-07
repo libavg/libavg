@@ -63,6 +63,20 @@ struct to_list
     static const PyTypeObject* get_pytype() { return &PyList_Type; }
 };
 
+template <typename MapType>
+struct to_dict{
+    static PyObject* convert(MapType const& a)
+    {
+        boost::python::dict result;
+        typedef typename MapType::const_iterator const_iter;
+        for(const_iter p=a.begin();p!=a.end();p++){
+                result[p->first] = p->second;
+        }
+        return boost::python::incref(boost::python::dict(result).ptr());
+    }
+    static const PyTypeObject* get_pytype() { return &PyDict_Type; }
+};
+
 struct default_policy
 {
   static bool check_convertibility_per_element() { return false; }

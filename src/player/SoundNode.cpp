@@ -134,7 +134,7 @@ void SoundNode::setEOFCallback(PyObject * pEOFCallback)
     if (pEOFCallback == Py_None) {
         m_pEOFCallback = 0;
     } else {
-        AVG_DEPRECATION_WARNING("1.8", "SoundNode.setEOFCallback()", 
+        avgDeprecationWarning("1.8", "SoundNode.setEOFCallback()", 
                 "Node.subscribe(END_OF_FILE)");
         Py_INCREF(pEOFCallback);
         m_pEOFCallback = pEOFCallback;

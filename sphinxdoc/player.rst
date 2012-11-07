@@ -111,6 +111,9 @@ Player & Canvas
 
                 Called whenever a key is released.
 
+            .. py:method:: ON_FRAME()
+
+                Called each frame.
 
         .. py:attribute:: pluginPath
 
@@ -123,7 +126,7 @@ Player & Canvas
             Total audio playback volume. 0 is silence, 1 passes media file
             volume through unchanged. Values higher than 1 can be used to
             amplify playback. A limiter prevents distortion when the volume
-            is set to high.
+            is set too high.
 
         .. py:method:: addInputDevice(inputDevice)
 

@@ -33,7 +33,7 @@ class BaseTouchVisualization(avg.DivNode):
         event.contact.subscribe(avg.Contact.CURSOR_UP, self._onUp)
         self.pos = avg.Point2D(event.pos)
         self._fingerSize = 7*player.getPixelsPerMM() # Assume 14mm width for a finger.
-        self._radius = max(self._fingerSize, event.majoraxis.getNorm())
+        self._radius = self._getRadius(event)
 
     def _abort(self):
         self.unlink(True)
@@ -41,11 +41,18 @@ class BaseTouchVisualization(avg.DivNode):
 
     def _onMotion(self, event):
         self.pos = event.pos
-        self._radius = max(self._fingerSize, event.majoraxis.getNorm())
+        self._radius = self._getRadius(event)
 
     def _onUp(self, event):
         self.unlink(True)
         del self
+
+    def _getRadius(self, event):
+        if event.source in [avg.Event.MOUSE]:
+            return self._fingerSize
+        else:
+            return max(self._fingerSize, event.majoraxis.getNorm())
+
 
 
 class DebugTouchVisualization(BaseTouchVisualization):
@@ -65,10 +72,11 @@ class DebugTouchVisualization(BaseTouchVisualization):
         self.__pulsecircle = avg.CircleNode(r=self._radius, fillcolor=color, color=color,
                 fillopacity=0.5, opacity=0.5, strokewidth=1,
                 sensitive=False, parent=self)
-        self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis,
-                color='FFFFFF', sensitive=False, parent=self)
-        self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis,
-                color='FFFFFF', sensitive=False, parent=self)
+        if event.source in [avg.Event.TOUCH, avg.Event.TRACK]:
+            self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis,
+                    color='FFFFFF', sensitive=False, parent=self)
+            self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis,
+                    color='FFFFFF', sensitive=False, parent=self)
         if event.source == avg.Event.TOUCH:
             self.__handAxis = avg.LineNode(pos1=(0,0), pos2=self.__getHandVector(event),
                     opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
@@ -91,8 +99,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
             self.positions.pop(0)
        
         self.__pulsecircle.r = self._radius
-        self.__majorAxis.pos2 = event.majoraxis
-        self.__minorAxis.pos2 = event.minoraxis
+        self.setAxisSecondPos(event)
         self.motionVector.pos2 = -event.contact.motionvec
         if event.source == avg.Event.TOUCH:
             self.__handAxis.pos2 = self.__getHandVector(event)
@@ -100,6 +107,11 @@ class DebugTouchVisualization(BaseTouchVisualization):
 
     def __getHandVector(self, event):
         return -avg.Point2D.fromPolar(event.handorientation, 30)
+
+    def setAxisSecondPos(self, event):
+        if event.source not in [avg.Event.MOUSE]:
+            self.__majorAxis.pos2 = event.majoraxis
+            self.__minorAxis.pos2 = event.minoraxis
 
 
 class TouchVisualization(BaseTouchVisualization):
@@ -156,8 +168,7 @@ class TouchVisualizationOverlay(avg.DivNode):
         rootNode.subscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
     
     def __onTouchDown(self, event):
-        if event.source == avg.Event.TOUCH or event.source == avg.Event.TRACK:
-            self.visClass(event, parent=self)
+        self.visClass(event, parent=self)
 
 
 class KeysCaptionNode(avg.DivNode):

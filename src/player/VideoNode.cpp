@@ -315,7 +315,7 @@ void VideoNode::setEOFCallback(PyObject * pEOFCallback)
     if (pEOFCallback == Py_None) {
         m_pEOFCallback = 0;
     } else {
-        AVG_DEPRECATION_WARNING("1.8", "VideoNode.setEOFCallback()", 
+        avgDeprecationWarning("1.8", "VideoNode.setEOFCallback()", 
                 "Node.subscribe(END_OF_FILE)");
         Py_INCREF(pEOFCallback);
         m_pEOFCallback = pEOFCallback;

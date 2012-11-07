@@ -263,7 +263,7 @@ const UTF8String& DivNode::getMediaDir() const
 
 void DivNode::setMediaDir(const UTF8String& sMediaDir)
 {
-//    AVG_DEPRECATION_WARNING("1.7", "DivNode.mediadir", "");
+//    avgDeprecationWarning("1.7", "DivNode.mediadir", "");
     m_sMediaDir = sMediaDir;
     checkReload();
 }
