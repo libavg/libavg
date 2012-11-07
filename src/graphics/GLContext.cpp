@@ -108,7 +108,6 @@ void GLContext::init(bool bOwnsContext)
         sscanf(pVersion, "%d.%d", &m_MajorGLVersion, &m_MinorGLVersion);
     }
 
-#ifndef AVG_ENABLE_EGL
     if (m_GLConfig.m_bUseDebugContext) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
@@ -116,9 +115,6 @@ void GLContext::init(bool bOwnsContext)
             m_GLConfig.m_bUseDebugContext = false;
         }
     }
-#else
-    m_GLConfig.m_bUseDebugContext = false;
-#endif
 
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
@@ -156,13 +152,7 @@ void GLContext::init(bool bOwnsContext)
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-#ifndef AVG_ENABLE_EGL
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-#endif
 
-    glproc::UseProgram(0);
     if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
 #ifndef AVG_ENABLE_EGL
         glMatrixMode(GL_PROJECTION);
@@ -447,12 +437,12 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
-        #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
         s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
-        #else
+#else
         s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
-        #endif
+#endif
         AVG_TRACE(Logger::ERROR, s.str());
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
@@ -539,7 +529,7 @@ void GLContext::checkGPUMemInfoSupport()
 
 bool GLContext::isDebugContextSupported() const
 {
-    if (queryOGLExtension("GL_ARB_debug_output")) {
+    if (queryOGLExtension("GL_ARB_debug_output") || queryOGLExtension("GL_KHR_debug")) {
         return true;
     }
     if (isGLES() && isVendor("NVIDIA")) {

@@ -71,6 +71,10 @@
 
 #include <string>
 
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
 namespace avg {
 
 bool AVG_API queryOGLExtension(const char* extName);
@@ -98,6 +102,10 @@ GLfunction getglXProcAddress(const char * psz);
 typedef void (GL_APIENTRYP PFNGLGENBUFFERSPROC) (GLsizei n, GLuint *buffers);
 typedef void (GL_APIENTRYP PFNGLBUFFERDATAPROC) (GLenum target, GLsizeiptr size, 
         const GLvoid* data, GLenum usage);
+typedef void (APIENTRY* DEBUGCALLBACKPROC) (GLenum source, GLenum type, GLuint id,
+        GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam);
+typedef void (GL_APIENTRYP PFNGLDEBUGMESSAGECALLBACKPROC) (DEBUGCALLBACKPROC callback,
+        void* userParam);
 typedef void (GL_APIENTRYP PFNGLDELETEBUFFERSPROC) (GLsizei n, const GLuint* buffers);
 typedef void (GL_APIENTRYP PFNGLBINDBUFFERPROC) (GLenum target, GLuint buffer);
 typedef void* (GL_APIENTRYP PFNGLMAPBUFFERPROC) (GLenum target, GLenum access);
@@ -162,6 +170,8 @@ typedef void (GL_APIENTRYP PFNGLVERTEXATTRIBPOINTERPROC) (GLuint indx, GLint siz
 typedef void (GL_APIENTRYP PFNGLENABLEVERTEXATTRIBARRAYPROC) (GLuint index);
 typedef void (GL_APIENTRYP PFNGLBINDATTRIBLOCATIONPROC) (GLuint program, GLuint index, 
         const GLchar* name);
+#else
+#define PFNGLDEBUGMESSAGECALLBACKPROC PFNGLDEBUGMESSAGECALLBACKARBPROC
 #endif
 
 namespace glproc {
@@ -172,10 +182,10 @@ namespace glproc {
     extern AVG_API PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     extern AVG_API PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
-    extern AVG_API PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
     extern AVG_API PFNGLBLITFRAMEBUFFERPROC BlitFramebuffer;
     extern AVG_API PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
 #endif
+    extern AVG_API PFNGLDEBUGMESSAGECALLBACKPROC DebugMessageCallback;
     extern AVG_API PFNGLDELETEBUFFERSPROC DeleteBuffers;
     extern AVG_API PFNGLBINDBUFFERPROC BindBuffer;
     extern AVG_API PFNGLMAPBUFFERPROC MapBuffer;

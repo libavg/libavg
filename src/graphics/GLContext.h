@@ -43,10 +43,6 @@ typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 class StandardShader;
 typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
-#ifndef APIENTRY
-#define APIENTRY
-#endif
-
 class AVG_API GLContext
 {
 public:
