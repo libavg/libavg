@@ -265,7 +265,7 @@ void FBO::init()
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL_EXT, 
                     m_Size.x, m_Size.y);
             #else
-            glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL_OES, 
+            glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, 
                     m_Size.x, m_Size.y);
             #endif
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
