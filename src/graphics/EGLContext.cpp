@@ -21,6 +21,7 @@
 
 #include "EGLContext.h"
 #include "GLContextAttribs.h"
+#include "X11Display.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -54,15 +55,7 @@ EGLContext::~EGLContext()
 void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
 {
-    if (pSDLWMInfo) {
-        // SDL window exists, use it.
-        m_xDisplay = (EGLNativeDisplayType)pSDLWMInfo->info.x11.display;
-    } else {
-        m_xDisplay = (EGLNativeDisplayType)XOpenDisplay(0);
-    }
-    if (!m_xDisplay) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X window display available.");
-    }
+    m_xDisplay = (EGLNativeDisplayType)getX11Display(pSDLWMInfo);
 
     m_Display = eglGetDisplay(m_xDisplay);
     if (m_Display == EGL_NO_DISPLAY) {

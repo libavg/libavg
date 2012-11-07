@@ -21,6 +21,7 @@
 
 #include "GLXContext.h"
 #include "GLContextAttribs.h"
+#include "X11Display.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -60,18 +61,9 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
 {
-    XVisualInfo *pVisualInfo;
     Window win = 0;
 
-    if (pSDLWMInfo) {
-        // SDL window exists, use it.
-        m_pDisplay = pSDLWMInfo->info.x11.display;
-        if (!m_pDisplay) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
-        }
-    } else {
-        m_pDisplay = XOpenDisplay(0);
-    }
+    m_pDisplay = getX11Display(pSDLWMInfo);
 
     GLContextAttribs attrs;
     attrs.append(GLX_X_RENDERABLE, 1);
@@ -116,7 +108,7 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     }
     GLXFBConfig fbConfig = pFBConfig[bestConfig];
     XFree(pFBConfig);
-    pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
+    XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
 
     if (pSDLWMInfo) {
         // Create a child window with the required attributes to render into.

@@ -7,11 +7,11 @@ if APPLE
     GL_INCLUDES = CGLContext.h PBO.h
 else
 if ENABLE_EGL
-    GL_SOURCES = EGLContext.cpp
-    GL_INCLUDES = EGLContext.h
+    GL_SOURCES = EGLContext.cpp X11Display.cpp
+    GL_INCLUDES = EGLContext.h X11Display.h
 else
-    GL_SOURCES = GLXContext.cpp PBO.cpp
-    GL_INCLUDES = GLXContext.h PBO.h
+    GL_SOURCES = GLXContext.cpp PBO.cpp X11Display.cpp
+    GL_INCLUDES = GLXContext.h PBO.h X11Display.h
 endif
 endif
 
