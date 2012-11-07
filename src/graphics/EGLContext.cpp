@@ -20,6 +20,7 @@
 //
 
 #include "EGLContext.h"
+#include "GLContextAttribs.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -72,8 +73,14 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Unable to initialize EGL.");
     }
 
+    GLContextAttribs fbAttrs;
+    fbAttrs.append(EGL_RED_SIZE, 1);
+    fbAttrs.append(EGL_GREEN_SIZE, 1);
+    fbAttrs.append(EGL_BLUE_SIZE, 1);
+    fbAttrs.append(EGL_DEPTH_SIZE, 1);
+    fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
     EGLint numFBConfig;
-    if (!eglChooseConfig(m_Display, attribute_list, &m_Config, 1, &numFBConfig)) {
+    if (!eglChooseConfig(m_Display, fbAttrs.get(), &m_Config, 1, &numFBConfig)) {
         cerr << "Failed to choose config (eglError: " << eglGetError() << ")" << endl;
         return;
     }
@@ -140,12 +147,10 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
         cerr << "Unable to create EGL surface (eglError: " << eglGetError() << ")" << endl;
         return;
     }
-    EGLint pi32ContextAttribs[3];
-    pi32ContextAttribs[0] = EGL_CONTEXT_CLIENT_VERSION;
-    pi32ContextAttribs[1] = 2;
-    pi32ContextAttribs[2] = EGL_NONE;
+    GLContextAttribs attrs;
+    attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
 
-    m_Context = eglCreateContext(m_Display, m_Config, NULL, pi32ContextAttribs);
+    m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
     if (m_Context == 0) {
         cerr << "Unable to create EGL context (eglError: " << eglGetError() << ")" << endl;
         return;

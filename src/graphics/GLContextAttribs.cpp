@@ -20,6 +20,7 @@
 //
 
 #include "GLContextAttribs.h"
+#include "OGLHelper.h"
 
 #include "../base/Exception.h"
 
@@ -29,7 +30,7 @@ GLContextAttribs::GLContextAttribs()
 {
     m_pAttributes = new int[50];
     m_NumAttributes = 0;
-    m_pAttributes[0] = 0;
+    m_pAttributes[0] = EGL_NONE;
 }
 
 GLContextAttribs::~GLContextAttribs()
@@ -46,7 +47,11 @@ void GLContextAttribs::append(int newAttr, int newAttrVal)
     if (newAttrVal != -1) {
         m_pAttributes[m_NumAttributes++] = newAttrVal;
     }
+#ifdef AVG_ENABLE_EGL
+    m_pAttributes[m_NumAttributes] = EGL_NONE;
+#else
     m_pAttributes[m_NumAttributes] = 0;
+#endif
 }
 
 const int* GLContextAttribs::get() const

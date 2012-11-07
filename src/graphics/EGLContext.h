@@ -30,17 +30,6 @@ struct SDL_SysWMinfo;
 
 namespace avg {
     
-
-static EGLint const attribute_list[] = {
-    EGL_RED_SIZE, 1,
-    EGL_GREEN_SIZE, 1,
-    EGL_BLUE_SIZE, 1,
-    EGL_DEPTH_SIZE, 1,
-    EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-    //EGL_BUFFER_SIZE, 16,
-    EGL_NONE
-};
-
 class AVG_API EGLContext: public GLContext
 {
 public:
