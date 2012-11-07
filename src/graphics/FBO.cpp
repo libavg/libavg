@@ -351,17 +351,11 @@ void FBO::checkError(const string& sContext)
             sErr = "GL_INCOMPLETE_ATTACHMENT";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            sErr = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT";
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-            sErr = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT";
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
             break;
-#ifdef GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT
-            // Missing in some versions of glext.h
-        case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-            sErr = "GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT";
-            break;
-#endif
 #ifndef AVG_ENABLE_EGL
         case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
             sErr = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT";
