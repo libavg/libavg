@@ -283,11 +283,11 @@ int GLTexture::getGLFormat(PixelFormat pf)
 int GLTexture::getGLReadFormat(PixelFormat pf)
 {
     int glPixelFormat = getGLFormat(pf);
-#ifdef AVG_ENABLE_EGL        
-    if (glPixelFormat == GL_BGRA_EXT) {
-        glPixelFormat = GL_RGBA;
+    if (GLContext::getCurrent()->isGLES()) {
+        if (glPixelFormat == GL_BGRA_EXT) {
+            glPixelFormat = GL_RGBA;
+        }
     }
-#endif
     return glPixelFormat;
 }
 
