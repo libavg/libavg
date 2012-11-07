@@ -15,7 +15,7 @@ else
 endif
 endif
 
-ALL_H = Bitmap.h Filter.h GLContext.h\
+ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
@@ -40,7 +40,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp GPUChromaKeyFilter.cpp \
-        GPUHueSatFilter.cpp GPUInvertFilter.cpp VertexArray.cpp \
+        GPUHueSatFilter.cpp GPUInvertFilter.cpp VertexArray.cpp GLContextAttribs.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GPUShadowFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp GLContext.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \

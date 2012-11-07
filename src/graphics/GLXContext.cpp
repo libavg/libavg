@@ -20,6 +20,7 @@
 //
 
 #include "GLXContext.h"
+#include "GLContextAttribs.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -54,16 +55,6 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
     return 0;
 }
 
-void appendGLXVisualAttribute(int* pNumAttributes, int* pAttributes, int newAttr, 
-        int newAttrVal=-1)
-{
-    pAttributes[(*pNumAttributes)++] = newAttr;
-    if (newAttrVal != -1) {
-        pAttributes[(*pNumAttributes)++] = newAttrVal;
-    }
-    pAttributes[*pNumAttributes] = 0;
-}
-
 void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
 {
@@ -80,26 +71,22 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
         m_pDisplay = XOpenDisplay(0);
     }
 
-    int attributes[50];
-    int numAttributes=0;
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_X_RENDERABLE, 1);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_DRAWABLE_TYPE, 
-            GLX_WINDOW_BIT);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_RENDER_TYPE, 
-            GLX_RGBA_BIT);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_X_VISUAL_TYPE, 
-            GLX_TRUE_COLOR);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_DEPTH_SIZE, 0);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_STENCIL_SIZE, 8);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_DOUBLEBUFFER, 1);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_RED_SIZE, 8);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_GREEN_SIZE, 8);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_BLUE_SIZE, 8);
-    appendGLXVisualAttribute(&numAttributes, attributes, GLX_ALPHA_SIZE, 0);
+    GLContextAttribs attrs;
+    attrs.append(GLX_X_RENDERABLE, 1);
+    attrs.append(GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT);
+    attrs.append(GLX_RENDER_TYPE, GLX_RGBA_BIT);
+    attrs.append(GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR);
+    attrs.append(GLX_DEPTH_SIZE, 0);
+    attrs.append(GLX_STENCIL_SIZE, 8);
+    attrs.append(GLX_DOUBLEBUFFER, 1);
+    attrs.append(GLX_RED_SIZE, 8);
+    attrs.append(GLX_GREEN_SIZE, 8);
+    attrs.append(GLX_BLUE_SIZE, 8);
+    attrs.append(GLX_ALPHA_SIZE, 0);
 
     int fbCount;
     GLXFBConfig* pFBConfig = glXChooseFBConfig(m_pDisplay, DefaultScreen(m_pDisplay), 
-            attributes, &fbCount);
+            attrs.get(), &fbCount);
     if (!pFBConfig) {
         throw Exception(AVG_ERR_UNSUPPORTED, "Creating OpenGL context failed.");
     }
@@ -146,27 +133,20 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     }
 
     if (haveARBCreateContext()) {
-        int pContextAttribs[50];
-        int numContextAttribs = 0;
-        pContextAttribs[0] = 0;
+        GLContextAttribs attrs;
         if (isGLES()) {
-            appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-                    GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
-            appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-                    GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
-            appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-                    GLX_CONTEXT_MINOR_VERSION_ARB, 0);
+            attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+            attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
+            attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
         }
         if (glConfig.m_bUseDebugContext) {
-            appendGLXVisualAttribute(&numContextAttribs, pContextAttribs,
-                    GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
+            attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
         }
         PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
             (PFNGLXCREATECONTEXTATTRIBSARBPROC)
             getglXProcAddress("glXCreateContextAttribsARB");
 
-        m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0,
-                1, pContextAttribs);
+        m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
     } else {
         m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
     }
