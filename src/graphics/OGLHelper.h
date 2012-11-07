@@ -23,7 +23,7 @@
 #define _OGLHelper_H_
 
 #include "../api.h"
-#include "avgconfig.h"
+#include "../avgconfigwrapper.h"
 
 #ifdef _WIN32
     #include <windows.h>
