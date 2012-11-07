@@ -27,6 +27,10 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#endif
+
 #include <iostream>
 
 
