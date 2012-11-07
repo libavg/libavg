@@ -3,8 +3,8 @@ SUBDIRS = shaders
 INCLUDES = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
 
 if APPLE
-    GL_SOURCES = CGLContext.cpp
-    GL_INCLUDES = CGLContext.h
+    GL_SOURCES = CGLContext.cpp PBO.cpp
+    GL_INCLUDES = CGLContext.h PBO.h
 else
 if ENABLE_EGL
     GL_SOURCES = EGLContext.cpp
