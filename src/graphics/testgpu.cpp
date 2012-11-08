@@ -417,16 +417,15 @@ private:
                     pMoverBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
                     GL_CLAMP_TO_EDGE, false));
         pMover->moveToTexture(*pTex);
-        BitmapPtr pDestBmp = pTex->moveTextureToBmp();
-        pDestBmp->dump();
+        BitmapPtr pDestBmp = pMover->moveTextureToBmp(*pTex);
     }
 };
 
 
 class GPUTestSuite: public TestSuite {
 public:
-    GPUTestSuite() 
-        : TestSuite("GPUTestSuite")
+    GPUTestSuite(const string& sVariant) 
+        : TestSuite("GPUTestSuite ("+sVariant+")")
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
@@ -446,9 +445,10 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
+    string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
+            GLConfig::shaderUsageToString(su);
     cerr << "---------------------------------------------------" << endl;
-    cerr << "GLES: " << toString(bGLES) << ", ShaderUsage: " 
-            << GLConfig::shaderUsageToString(su) << endl; 
+    cerr << sVariant << endl; 
     cerr << "---------------------------------------------------" << endl;
     GLContext* pContext = GLContext::create(GLConfig(bGLES, false, true, 1, su, true));
     pContext->enableErrorChecks(true);
@@ -456,7 +456,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     GLContext::checkError("glDisable(GL_BLEND)");
     ShaderRegistry::get()->setShaderPath("./shaders");
     try {
-        GPUTestSuite suite;
+        GPUTestSuite suite(sVariant);
         suite.runTests();
         delete pContext;
         return suite.isOk();
@@ -493,8 +493,10 @@ int main(int nargs, char** args)
     }
 
     if (bOK) {
+        cerr << "testgpu succeeded" << endl;
         return 0;
     } else {
+        cerr << "testgpu failed" << endl;
         return 1;
     }
 }
