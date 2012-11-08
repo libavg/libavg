@@ -39,7 +39,7 @@ GLContextAttribs::GLContextAttribs()
 
 GLContextAttribs::~GLContextAttribs()
 {
-    delete m_pAttributes;
+    delete[] m_pAttributes;
 }
 
 
