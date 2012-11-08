@@ -44,7 +44,7 @@ Test::~Test()
 {
 }
 
-void Test::test (bool b, const char * pszFile, int line)
+void Test::test(bool b, const char * pszFile, int line)
 {
     if (b) {
         m_NumSucceeded++;
