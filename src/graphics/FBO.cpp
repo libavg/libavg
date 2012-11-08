@@ -64,6 +64,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
         // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
         // glGenerateMipmaps causes FBO creation to fail(?!).
         pTex->generateMipmaps();
+        GLContext::checkError("FBO::FBO: generateMipmaps");
         m_pTextures.push_back(pTex);
     }
     init();
@@ -239,18 +240,18 @@ void FBO::init()
     glproc::BindFramebuffer(GL_FRAMEBUFFER, m_FBO);
     GLContext::checkError("FBO::init: BindFramebuffer()");
 
+    IntPoint glSize = m_pTextures[0]->getGLSize();
     if (m_MultisampleSamples == 1) {
         for (unsigned i=0; i<m_pTextures.size(); ++i) {
-            glproc::FramebufferTexture2D(GL_FRAMEBUFFER,
-                    GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, 
-                    m_pTextures[i]->getID(), 0);
+            glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, 
+                    GL_TEXTURE_2D, m_pTextures[i]->getID(), 0);
             GLContext::checkError("FBO: glFramebufferTexture2D()");
         }
         if (m_bUsePackedDepthStencil) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL_EXT, 
-                    m_Size.x, m_Size.y);
+                    glSize.x, glSize.y);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                     GL_RENDERBUFFER, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
@@ -266,7 +267,7 @@ void FBO::init()
         glproc::BindRenderbuffer(GL_RENDERBUFFER, m_ColorBuffer);
         GLContext::enableErrorLog(false);
         glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, m_MultisampleSamples,
-                GL_RGBA8, m_Size.x, m_Size.y);
+                GL_RGBA8, glSize.x, glSize.y);
         GLContext::enableErrorLog(true);
         GLenum err = glGetError();
         if (err == GL_INVALID_VALUE) {
@@ -286,7 +287,7 @@ void FBO::init()
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
             glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, 
-                    m_MultisampleSamples, GL_DEPTH_STENCIL_EXT, m_Size.x, m_Size.y);
+                    m_MultisampleSamples, GL_DEPTH_STENCIL_EXT, glSize.x, glSize.y);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                     GL_RENDERBUFFER, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
