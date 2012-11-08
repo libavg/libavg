@@ -44,7 +44,8 @@ PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     unsigned target = getTarget();
     glproc::BindBuffer(target, m_PBOID);
     GLContext::checkError("PBO: BindBuffer()");
-    int memNeeded = size.x*size.y*getBytesPerPixel(pf);
+    int stride = ((size.x*getBytesPerPixel(pf)-1)/4+1)*4;
+    int memNeeded = stride*size.y;
     glproc::BufferData(target, memNeeded, 0, usage);
     GLContext::checkError("PBO: BufferData()");
     glproc::BindBuffer(target, 0);

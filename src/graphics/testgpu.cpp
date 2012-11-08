@@ -417,7 +417,7 @@ private:
                     pMoverBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
                     GL_CLAMP_TO_EDGE, false));
         pMover->moveToTexture(*pTex);
-        BitmapPtr pDestBmp = pMover->moveTextureToBmp(*pTex);
+        BitmapPtr pDestBmp = pTex->moveTextureToBmp();
     }
 };
 
