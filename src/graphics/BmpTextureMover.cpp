@@ -76,7 +76,9 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     int glPixelFormat = tex.getGLReadFormat(getPF());
     glReadPixels(0, 0, size.x, size.y, glPixelFormat, tex.getGLType(getPF()), 
             pBmp->getPixels());
-    if (getPF() == R8G8B8A8 || getPF() == R8G8B8 || pContext->isGLES()) {
+    if (getPF() == R8G8B8A8 || getPF() == R8G8B8 || 
+            (pContext->isGLES() && getBytesPerPixel(getPF()) >= 3))
+    {
         FilterFlipRGB(!pContext->isGLES()).applyInPlace(pBmp);
     }
     GLContext::checkError("BmpTextureMover::moveTextureToBmp: glReadPixels()");

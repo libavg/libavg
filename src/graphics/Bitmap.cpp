@@ -1130,7 +1130,7 @@ void Bitmap::allocBits(int stride)
     AVG_ASSERT(m_Size.x > 0 && m_Size.y > 0);
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     if (stride == 0) {
-        m_Stride = getLineLen();
+        m_Stride = ((getLineLen()-1)/4+1)*4;
     } else {
         m_Stride = stride;
     }

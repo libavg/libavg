@@ -328,7 +328,9 @@ public:
             runImageTest(bPOT, MM_OGL, "rgb24-65x65");
             runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
         }
+        runCompressionTest(MM_OGL, "rgb24-65x65");
         if (GLContext::getCurrent()->arePBOsSupported()) {
+            runCompressionTest(MM_PBO, "rgb24-65x65");
             runMipmapTest(MM_PBO, "rgb24alpha-64x64");
             runMipmapTest(MM_PBO, "rgb24-65x65");
         }
@@ -399,6 +401,24 @@ private:
             sName = "ogl-mipmap";
         }
         testEqual(*pResultBmp, *pBaselineBmp, sName, 7, 15);
+    }
+
+    void runCompressionTest(OGLMemoryMode memoryMode, const string& sFName)
+    {
+        cerr << "    Testing B5G6R5 compression, " << sFName << ", " << 
+                oglMemoryMode2String(memoryMode) << endl;
+        BitmapPtr pOrigBmp = loadTestBmp(sFName);
+        TextureMoverPtr pMover = TextureMover::create(memoryMode, pOrigBmp->getSize(),
+                B5G6R5, GL_STATIC_DRAW);
+        BitmapPtr pMoverBmp = pMover->lock();
+        pMoverBmp->copyPixels(*pOrigBmp);
+        pMover->unlock();
+        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pMoverBmp->getSize(), 
+                    pMoverBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
+                    GL_CLAMP_TO_EDGE, false));
+        pMover->moveToTexture(*pTex);
+        BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+        pDestBmp->dump();
     }
 };
 

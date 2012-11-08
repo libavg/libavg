@@ -39,6 +39,7 @@ FilterFlipRGB::~FilterFlipRGB()
 
 void FilterFlipRGB::applyInPlace(BitmapPtr pBmp) 
 {
+    AVG_ASSERT(pBmp->getBytesPerPixel() >= 3);
     PixelFormat PF = pBmp->getPixelFormat();
     if (m_bChangePF) {
         switch(PF) {

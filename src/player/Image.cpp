@@ -333,10 +333,7 @@ void Image::setupSurface()
             0, m_Material.getWrapSMode(), m_Material.getWrapTMode()));
     m_pSurface->create(pf, pTex);
     TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
-    BitmapPtr pMoverBmp = pMover->lock();
-    pMoverBmp->copyPixels(*m_pBmp);
-    pMover->unlock();
-    pMover->moveToTexture(*pTex);
+    pMover->moveBmpToTexture(m_pBmp, *pTex);
     m_pBmp = BitmapPtr();
 }
 
