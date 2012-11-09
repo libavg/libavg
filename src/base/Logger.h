@@ -25,6 +25,8 @@
 #include "../api.h"
 #include "UTF8String.h"
 
+#include "../player/WrapPython.h"
+
 #include <string>
 #include <vector>
 #include <sstream>
@@ -44,6 +46,7 @@ public:
     void setCategories(int flags);
     void pushCategories();
     void popCategories();
+    void setPythonLogger(PyObject* pyLogger);
     void trace(int category, const UTF8String& sMsg);
     inline bool isFlagSet(int category) {
         return (category & m_Flags) != 0;
@@ -70,6 +73,7 @@ private:
     int stringToCategory(const std::string& sCategory);
    
     static Logger* m_pLogger;
+    PyObject *m_pyLogger;
 
     int m_Flags;
     std::vector<int> m_FlagStack;

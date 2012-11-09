@@ -1,5 +1,5 @@
 
-INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
+INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @PYTHON_INCLUDES@
 
 ALL_H = AudioEngine.h AudioBuffer.h AudioParams.h IAudioSource.h SDLAudioEngine.h \
         Dynamics.h IProcessor.h
@@ -16,4 +16,4 @@ libaudio_la_SOURCES = AudioEngine.cpp AudioBuffer.cpp AudioParams.cpp \
 testlimiter_SOURCES = testlimiter.cpp $(ALL_H)
 testlimiter_LDADD = ./libaudio.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
-        @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@
+        @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@  @PYTHON_LIBS@

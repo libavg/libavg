@@ -70,7 +70,8 @@ Logger * Logger::get()
     return m_pLogger;
 }
 
-Logger::Logger()
+Logger::Logger():
+    m_pyLogger(0)
 {
     m_Flags = ERROR | WARNING | APP | DEPRECATION;
     string sEnvCategories;
@@ -126,6 +127,12 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
+void Logger::setPythonLogger(PyObject* pyLogger)
+{
+    m_pyLogger = pyLogger;
+    Py_INCREF(m_pyLogger);
+}
+
 void Logger::trace(int category, const UTF8String& sMsg)
 {
     boost::mutex::scoped_lock lock(logMutex);
@@ -143,13 +150,17 @@ void Logger::trace(int category, const UTF8String& sMsg)
         pTime = localtime(&time.tv_sec);
         unsigned millis = time.tv_usec/1000;
 #endif
-        char timeString[256];
-        strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
-        cerr << "[" << timeString << "." << 
-            setw(3) << setfill('0') << millis << setw(0) << "] ";
-        cerr << categoryToString(category) << ": ";
-        cerr << sMsg << endl;
-        cerr.flush();
+        if(m_pyLogger){
+            PyEval_CallMethod(m_pyLogger, "debug", "(s)", sMsg.c_str());
+        }else{
+            char timeString[256];
+            strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
+            cerr << "[" << timeString << "." << 
+                setw(3) << setfill('0') << millis << setw(0) << "] ";
+            cerr << categoryToString(category) << ": ";
+            cerr << sMsg << endl;
+            cerr.flush();
+        }
     }
 }
 

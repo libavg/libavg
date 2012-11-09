@@ -1,5 +1,6 @@
 
-INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @GDK_PIXBUF_CFLAGS@
+INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @GDK_PIXBUF_CFLAGS@ \
+		   		@PYTHON_INCLUDES@
         
 if APPLE
     X_LIBS = 
@@ -39,5 +40,6 @@ testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la 
         ../base/libbase.la ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@  @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ \
         @LIBFFMPEG@ $(X_LIBS) \
-        @GDK_PIXBUF_LIBS@
+        @GDK_PIXBUF_LIBS@ \
+		@PYTHON_LIBS@
 
