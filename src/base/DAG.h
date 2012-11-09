@@ -42,14 +42,14 @@ public:
     DAG();
     virtual ~DAG();
 
-    void addNode(void* pVertexID, const std::set<void *>& pOutgoingIDs);
-    void sort(std::vector<void*>& pResults);
+    void addNode(long vertexID, const std::set<long>& outgoingIDs);
+    void sort(std::vector<long>& pResults);
 
 private:
     friend class DAGNode;
 
     void resolveIDs();
-    DAGNodePtr findNode(void* pID);
+    DAGNodePtr findNode(long pID);
     void removeNode(DAGNodePtr pNode);
     DAGNodePtr findStartNode(DAGNodePtr pNode, unsigned depth=0);
 

@@ -106,7 +106,7 @@ class AVG_API Player: public Publisher
         void deleteCanvas(const std::string& sID);
         CanvasPtr getMainCanvas() const;
         OffscreenCanvasPtr getCanvas(const std::string& sID) const;
-        void newCanvasDependency(const OffscreenCanvasPtr pCanvas);
+        void newCanvasDependency();
 
         void play();
         void stop();
@@ -202,6 +202,7 @@ class AVG_API Player: public Publisher
         void initConfig();
         void initGraphics(const std::string& sShaderPath);
         void initAudio();
+        void initMainCanvas(NodePtr pRootNode);
 
         NodePtr loadMainNodeFromFile(const std::string& sFilename);
         NodePtr loadMainNodeFromString(const std::string& sAVG);

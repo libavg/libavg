@@ -66,6 +66,7 @@ class AVG_API OffscreenCanvas: public Canvas
         void addDependentCanvas(CanvasPtr pCanvas);
         void removeDependentCanvas(CanvasPtr pCanvas);
         bool hasDependentCanvas(CanvasPtr pCanvas) const;
+        const std::vector<CanvasPtr>& getDependentCanvases() const;
         unsigned getNumDependentCanvases() const;
 
         static bool isSupported();

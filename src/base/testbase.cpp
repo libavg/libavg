@@ -68,9 +68,9 @@ public:
         {
             DAG dag;
 
-            dag.addNode((void*)1, set<void*>());
+            dag.addNode(1, set<long>());
             long outgoing2[] = {1};
-            dag.addNode((void*)0, makeOutgoing(1, outgoing2));
+            dag.addNode(0, makeOutgoing(1, outgoing2));
             
             long expected[] = {0, 1};
             checkResults(&dag, expected);
@@ -78,11 +78,11 @@ public:
         {
             DAG dag;
 
-            dag.addNode((void*)2, set<void*>());
+            dag.addNode(2, set<long>());
             long outgoing2[] = {1};
-            dag.addNode((void*)0, makeOutgoing(1, outgoing2));
+            dag.addNode(0, makeOutgoing(1, outgoing2));
             long outgoing3[] = {2};
-            dag.addNode((void*)1, makeOutgoing(1, outgoing3));
+            dag.addNode(1, makeOutgoing(1, outgoing3));
 
             long expected[] = {0, 1, 2};
             checkResults(&dag, expected);
@@ -91,10 +91,10 @@ public:
             DAG dag;
 
             long outgoing2[] = {1};
-            dag.addNode((void*)0, makeOutgoing(1, outgoing2));
-            dag.addNode((void*)2, set<void*>());
+            dag.addNode(0, makeOutgoing(1, outgoing2));
+            dag.addNode(2, set<long>());
             long outgoing3[] = {2};
-            dag.addNode((void*)1, makeOutgoing(1, outgoing3));
+            dag.addNode(1, makeOutgoing(1, outgoing3));
 
             long expected[] = {0, 1, 2};
             checkResults(&dag, expected);
@@ -102,11 +102,11 @@ public:
         {
             DAG dag;
 
-            dag.addNode((void*)2, set<void*>());
+            dag.addNode(2, set<long>());
             long outgoing2[] = {1, 2};
-            dag.addNode((void*)0, makeOutgoing(1, outgoing2));
+            dag.addNode(0, makeOutgoing(1, outgoing2));
             long outgoing3[] = {2};
-            dag.addNode((void*)1, makeOutgoing(1, outgoing3));
+            dag.addNode(1, makeOutgoing(1, outgoing3));
 
             long expected[] = {0, 1, 2};
             checkResults(&dag, expected);
@@ -115,9 +115,9 @@ public:
             DAG dag;
 
             long outgoing2[] = {1};
-            dag.addNode((void*)0, makeOutgoing(1, outgoing2));
+            dag.addNode(0, makeOutgoing(1, outgoing2));
             long outgoing3[] = {0};
-            dag.addNode((void*)1, makeOutgoing(1, outgoing3));
+            dag.addNode(1, makeOutgoing(1, outgoing3));
 
             bool bExceptionThrown = false;
             long expected[] = {0, 1, 2};
@@ -131,22 +131,22 @@ public:
     }
 
 private:
-    set<void*> makeOutgoing(int n, long ids[])
+    set<long> makeOutgoing(int n, long ids[])
     {
-        set<void*> v;
+        set<long> v;
         for (int i=0; i<n; ++i) {
-            v.insert((void*)(ids[i]));
+            v.insert(ids[i]);
         }
         return v;
     }
 
     void checkResults(DAG* pDAG, long expected[])
     {
-        vector<void*> results;
+        vector<long> results;
         pDAG->sort(results);
 
         for (unsigned i=0; i<results.size(); ++i) {
-            QUIET_TEST(long(results[i]) == expected[i]);
+            QUIET_TEST(results[i] == expected[i]);
         }
     }
 };

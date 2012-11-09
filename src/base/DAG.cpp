@@ -32,32 +32,32 @@ namespace avg {
 class AVG_API DAGNode: public boost::enable_shared_from_this<DAGNode>
 {
 public:
-    DAGNode(void* pVertexID, const std::set<void *>& pOutgoingIDs);
+    DAGNode(long vertexID, const std::set<long>& outgoingIDs);
     void resolveIDs(DAG* pDAG);
 
-    void* m_pVertexID;
-    std::set<void*> m_pOutgoingIDs;
+    long m_VertexID;
+    std::set<long> m_OutgoingIDs;
     std::set<DAGNodePtr> m_pOutgoingNodes;
     std::set<DAGNodePtr> m_pIncomingNodes;
 };
 
 
-DAGNode::DAGNode(void* pVertexID, const set<void *>& pOutgoingIDs)
+DAGNode::DAGNode(long vertexID, const set<long>& outgoingIDs)
 {
-    m_pVertexID = pVertexID;
-    m_pOutgoingIDs = pOutgoingIDs;
+    m_VertexID = vertexID;
+    m_OutgoingIDs = outgoingIDs;
 }
 
 void DAGNode::resolveIDs(DAG* pDAG)
 {
-    set<void *>::iterator it;
-    for (it=m_pOutgoingIDs.begin(); it!=m_pOutgoingIDs.end(); ++it) {
-        void * pOutgoingID = *it;
-        DAGNodePtr pDestNode = pDAG->findNode(pOutgoingID);
+    set<long>::iterator it;
+    for (it=m_OutgoingIDs.begin(); it!=m_OutgoingIDs.end(); ++it) {
+        long outgoingID = *it;
+        DAGNodePtr pDestNode = pDAG->findNode(outgoingID);
         m_pOutgoingNodes.insert(pDestNode);
         pDestNode->m_pIncomingNodes.insert(shared_from_this());
     }
-    m_pOutgoingIDs.clear();
+    m_OutgoingIDs.clear();
 }
 
 
@@ -69,19 +69,19 @@ DAG::~DAG()
 {
 }
 
-void DAG::addNode(void* pVertexID, const set<void *>& pOutgoingIDs)
+void DAG::addNode(long vertexID, const set<long>& outgoingIDs)
 {
-    DAGNode* pNode = new DAGNode(pVertexID, pOutgoingIDs);
+    DAGNode* pNode = new DAGNode(vertexID, outgoingIDs);
     m_pNodes.insert(DAGNodePtr(pNode));
 }
 
-void DAG::sort(vector<void*>& pResults)
+void DAG::sort(vector<long>& pResults)
 {
     resolveIDs();
     while (!m_pNodes.empty()) {
         DAGNodePtr pCurNode = findStartNode(*m_pNodes.begin());
         removeNode(pCurNode);
-        pResults.push_back(pCurNode->m_pVertexID);
+        pResults.push_back(pCurNode->m_VertexID);
     }
 }
 
@@ -93,11 +93,11 @@ void DAG::resolveIDs()
     }
 }
 
-DAGNodePtr DAG::findNode(void* pID)
+DAGNodePtr DAG::findNode(long id)
 {
     set<DAGNodePtr>::iterator it;
     for (it=m_pNodes.begin(); it!=m_pNodes.end(); ++it) {
-        if ((*it)->m_pVertexID == pID) {
+        if ((*it)->m_VertexID == id) {
             return (*it);
         }
     }
