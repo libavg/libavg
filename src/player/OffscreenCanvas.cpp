@@ -205,16 +205,6 @@ void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
     AVG_ASSERT(false);
 }
 
-bool OffscreenCanvas::hasDependentCanvas(CanvasPtr pCanvas) const
-{
-    for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
-        if (pCanvas == m_pDependentCanvases[i]) {
-            return true;
-        }
-    }
-    return false;
-}
-
 const vector<CanvasPtr>& OffscreenCanvas::getDependentCanvases() const
 {
     return m_pDependentCanvases;
