@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "DAG.h"
 #include "Queue.h"
 #include "Command.h"
 #include "WorkerThread.h"
@@ -53,6 +54,102 @@
 using namespace avg;
 using namespace std;
 using namespace boost;
+
+class DAGTest: public Test
+{
+public:
+    DAGTest()
+        : Test("DAGTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        {
+            DAG dag;
+
+            dag.addNode(1, set<long>());
+            long outgoing2[] = {1};
+            dag.addNode(0, makeOutgoing(1, outgoing2));
+            
+            long expected[] = {0, 1};
+            checkResults(&dag, expected);
+        }
+        {
+            DAG dag;
+
+            dag.addNode(2, set<long>());
+            long outgoing2[] = {1};
+            dag.addNode(0, makeOutgoing(1, outgoing2));
+            long outgoing3[] = {2};
+            dag.addNode(1, makeOutgoing(1, outgoing3));
+
+            long expected[] = {0, 1, 2};
+            checkResults(&dag, expected);
+        }
+        {
+            DAG dag;
+
+            long outgoing2[] = {1};
+            dag.addNode(0, makeOutgoing(1, outgoing2));
+            dag.addNode(2, set<long>());
+            long outgoing3[] = {2};
+            dag.addNode(1, makeOutgoing(1, outgoing3));
+
+            long expected[] = {0, 1, 2};
+            checkResults(&dag, expected);
+        }
+        {
+            DAG dag;
+
+            dag.addNode(2, set<long>());
+            long outgoing2[] = {1, 2};
+            dag.addNode(0, makeOutgoing(1, outgoing2));
+            long outgoing3[] = {2};
+            dag.addNode(1, makeOutgoing(1, outgoing3));
+
+            long expected[] = {0, 1, 2};
+            checkResults(&dag, expected);
+        }
+        {
+            DAG dag;
+
+            long outgoing2[] = {1};
+            dag.addNode(0, makeOutgoing(1, outgoing2));
+            long outgoing3[] = {0};
+            dag.addNode(1, makeOutgoing(1, outgoing3));
+
+            bool bExceptionThrown = false;
+            long expected[] = {0, 1, 2};
+            try {
+                checkResults(&dag, expected);
+            } catch (const Exception& e) {
+                bExceptionThrown = true;
+            }
+            TEST(bExceptionThrown);
+        }
+    }
+
+private:
+    set<long> makeOutgoing(int n, long ids[])
+    {
+        set<long> v;
+        for (int i=0; i<n; ++i) {
+            v.insert(ids[i]);
+        }
+        return v;
+    }
+
+    void checkResults(DAG* pDAG, long expected[])
+    {
+        vector<long> results;
+        pDAG->sort(results);
+
+        for (unsigned i=0; i<results.size(); ++i) {
+            QUIET_TEST(results[i] == expected[i]);
+        }
+    }
+};
 
 class QueueTest: public Test
 {
@@ -806,6 +903,7 @@ public:
     BaseTestSuite() 
         : TestSuite("BaseTestSuite")
     {
+        addTest(TestPtr(new DAGTest));
         addTest(TestPtr(new QueueTest));
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));

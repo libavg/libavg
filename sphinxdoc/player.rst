@@ -361,12 +361,6 @@ Player & Canvas
             Returns :py:const:`True` if :py:meth:`play()` is currently executing, 
             :py:const:`False` if not.
 
-        .. py:method:: isUsingShaders() -> bool
-
-            Returns :py:const:`True` if shader support is enabled and working,
-            :py:const:`False` if not.
-            May only be called after :py:meth:`play()` has been called.
-
         .. py:method:: keepWindowOpen()
 
             Tells the player to keep the playback window open after :py:meth:`play()`

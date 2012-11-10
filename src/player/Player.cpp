@@ -75,6 +75,7 @@
 #include "../base/XMLHelper.h"
 #include "../base/ScopeTimer.h"
 #include "../base/WorkerThread.h"
+#include "../base/DAG.h"
 
 #include "../graphics/BitmapManager.h"
 #include "../graphics/ShaderRegistry.h"
@@ -304,16 +305,11 @@ CanvasPtr Player::loadFile(const string& sFilename)
 {
     errorIfPlaying("Player.loadFile");
     NodePtr pNode = loadMainNodeFromFile(sFilename);
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
     if (m_pMainCanvas) {
         cleanup();
     }
 
-    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
-    m_pMainCanvas->setRoot(pNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
-    registerFrameEndListener(BitmapManager::get());
+    initMainCanvas(pNode);
     
     return m_pMainCanvas;
 }
@@ -326,12 +322,7 @@ CanvasPtr Player::loadString(const string& sAVG)
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
-    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
-    m_pMainCanvas->setRoot(pNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
-    registerFrameEndListener(BitmapManager::get());
+    initMainCanvas(pNode);
 
     return m_pMainCanvas;
 }
@@ -356,13 +347,7 @@ CanvasPtr Player::createMainCanvas(const py::dict& params)
     }
 
     NodePtr pNode = createNode("avg", params);
-
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
-    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
-    m_pMainCanvas->setRoot(pNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
-    registerFrameEndListener(BitmapManager::get());
+    initMainCanvas(pNode);
 
     return m_pMainCanvas;
 }
@@ -408,42 +393,39 @@ OffscreenCanvasPtr Player::getCanvas(const string& sID) const
     }
 }
 
-void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
+void Player::newCanvasDependency()
 {
-    OffscreenCanvasPtr pNewCanvas;
-    unsigned i;
-    for (i = 0; i < m_pCanvases.size(); ++i) {
-        if (pCanvas == m_pCanvases[i]) {
-            pNewCanvas = m_pCanvases[i];
-            m_pCanvases.erase(m_pCanvases.begin()+i);
-            continue;
+    DAG dag;
+    for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
+        set<long> dependentCanvasSet;
+        OffscreenCanvasPtr pCanvas = m_pCanvases[i];
+        const vector<CanvasPtr>& pDependents = pCanvas->getDependentCanvases();
+        for (unsigned j = 0; j < pDependents.size(); ++j) {
+            dependentCanvasSet.insert(pDependents[j]->getHash());
         }
+        dag.addNode(pCanvas->getHash(), dependentCanvasSet);
     }
-    AVG_ASSERT(pNewCanvas);
-    bool bFound = false;
-    for (i = 0; i < m_pCanvases.size(); ++i) {
-        if (pNewCanvas->hasDependentCanvas(m_pCanvases[i])) {
-            bFound = true;
-            break;
-        }
+    dag.addNode(m_pMainCanvas->getHash(), set<long>());
+
+    vector<long> sortedCanvasIDs;
+    try {
+        dag.sort(sortedCanvasIDs);
+    } catch (Exception& e) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Circular dependency between canvases.");
     }
-    if (bFound) {
-        for (unsigned j = i; j < m_pCanvases.size(); ++j) {
-            if (m_pCanvases[j]->hasDependentCanvas(pNewCanvas)) {
-                throw Exception(AVG_ERR_INVALID_ARGS,
-                        "Circular dependency between canvases.");
+
+    vector<OffscreenCanvasPtr> pTempCanvases = m_pCanvases;
+    m_pCanvases.clear();
+    for (unsigned i = 0; i < sortedCanvasIDs.size(); ++i) {
+        long canvasID = sortedCanvasIDs[i];
+        for (unsigned j = 0; j < pTempCanvases.size(); ++j) {
+            OffscreenCanvasPtr pCandidateCanvas = pTempCanvases[j];
+            if (pCandidateCanvas->getHash() == canvasID) {
+                m_pCanvases.push_back(pCandidateCanvas);
+                break;
             }
         }
-        m_pCanvases.insert(m_pCanvases.begin()+i, pNewCanvas);
-    } else {
-        AVG_ASSERT(pNewCanvas->hasDependentCanvas(m_pMainCanvas));
-        m_pCanvases.push_back(pNewCanvas);
     }
-/*
-    for (unsigned k=0; k<m_pCanvases.size(); ++k) {
-        m_pCanvases[k]->dump();
-    }
-*/
 }
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
@@ -1255,6 +1237,16 @@ void Player::initAudio()
     pAudioEngine->init(m_AP, m_Volume);
     pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     pAudioEngine->play();
+}
+
+void Player::initMainCanvas(NodePtr pRootNode)
+{
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
+    m_pMainCanvas->setRoot(pRootNode);
+    m_DP.m_Size = m_pMainCanvas->getSize();
+
+    registerFrameEndListener(BitmapManager::get());
 }
 
 NodePtr Player::internalLoad(const string& sAVG, const string& sFilename)
