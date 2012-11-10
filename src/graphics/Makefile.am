@@ -6,12 +6,17 @@ if APPLE
     GL_SOURCES = CGLContext.cpp PBO.cpp
     GL_INCLUDES = CGLContext.h PBO.h
 else
+if ENABLE_RPI
+    GL_SOURCES = EGLContext.cpp BCMDisplay.cpp
+    GL_INCLUDES = EGLContext.h BCMDisplay.h
+else
 if ENABLE_EGL
     GL_SOURCES = EGLContext.cpp X11Display.cpp
     GL_INCLUDES = EGLContext.h X11Display.h
 else
     GL_SOURCES = GLXContext.cpp PBO.cpp X11Display.cpp
     GL_INCLUDES = GLXContext.h PBO.h X11Display.h
+endif
 endif
 endif
 

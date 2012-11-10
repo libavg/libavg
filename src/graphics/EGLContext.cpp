@@ -21,7 +21,11 @@
 
 #include "EGLContext.h"
 #include "GLContextAttribs.h"
-#include "X11Display.h"
+#ifdef AVG_ENABLE_RPI
+    #include "BCMDisplay.h"
+#else
+    #include "X11Display.h"
+#endif
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -55,10 +59,14 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
         const SDL_SysWMinfo* pSDLWMInfo)
 {
     bool bOk;
-    
-    m_xDisplay = (EGLNativeDisplayType)getX11Display(pSDLWMInfo);
 
-    m_Display = eglGetDisplay(m_xDisplay);
+    #ifdef AVG_ENABLE_RPI
+        m_xDisplay = (EGLNativeDisplayType)getBCMDisplay(pSDLWMInfo);
+        m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    #else
+        m_xDisplay = (EGLNativeDisplayType)getX11Display(pSDLWMInfo);
+        m_Display = eglGetDisplay(m_xDisplay);
+    #endif
     checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
 
     bOk = eglInitialize(m_Display, NULL, NULL);
@@ -78,19 +86,25 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     bOk = eglGetConfigAttrib(m_Display, m_Config, EGL_NATIVE_VISUAL_ID, &vid);
     AVG_ASSERT(bOk);
 
-    XVisualInfo visTemplate;
-    visTemplate.visualid = vid;
-    int num_visuals;
-    XVisualInfo* pVisualInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate,
-            &num_visuals);
-    AVG_ASSERT(pVisualInfo);
+    #ifndef AVG_ENABLE_RPI
+        XVisualInfo visTemplate;
+        visTemplate.visualid = vid;
+        int num_visuals;
+        XVisualInfo* pVisualInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate,
+                &num_visuals);
+        AVG_ASSERT(pVisualInfo);
+    #endif
 
     EGLNativeWindowType xWindow = 0;
     if (pSDLWMInfo) {
-        Colormap colormap;
-        xWindow = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
+        #ifdef AVG_ENABLE_RPI
+            xWindow = createChildWindow(pSDLWMInfo, windowSize);
+        #else
+            Colormap colormap;
+            xWindow = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
+        #endif
     }
- 
+
     if (!eglBindAPI(EGL_OPENGL_ES_API)) {
         cerr << "Failed to bind GLES API to EGL\n";
         return;
@@ -102,19 +116,21 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     }
     if (xWindow) {
         m_Surface = eglCreateWindowSurface(m_Display, m_Config, xWindow, NULL);
-    } else {
-        XVisualInfo visTemplate, *results;
-        visTemplate.screen = 0;
-        int numVisuals;
-        results = XGetVisualInfo(m_xDisplay, VisualScreenMask,
-                    &visTemplate, & numVisuals);
-        
-        Pixmap pmp = XCreatePixmap(m_xDisplay, 
-                RootWindow(m_xDisplay, results[0].screen), 8, 8, results[0].depth);
-        m_Surface = eglCreatePixmapSurface(m_Display, m_Config, pmp, NULL);
+    #ifndef AVG_ENABLE_RPI
+        } else {
+            XVisualInfo visTemplate, *results;
+            visTemplate.screen = 0;
+            int numVisuals;
+            results = XGetVisualInfo(m_xDisplay, VisualScreenMask,
+                        &visTemplate, & numVisuals);
+
+            Pixmap pmp = XCreatePixmap(m_xDisplay, 
+                    RootWindow(m_xDisplay, results[0].screen), 8, 8, results[0].depth);
+            m_Surface = eglCreatePixmapSurface(m_Display, m_Config, pmp, NULL);
+    #endif
     }
     AVG_ASSERT(m_Surface);
-    
+
     GLContextAttribs attrs;
     attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
     m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
