@@ -166,6 +166,8 @@ if test "$enable_rpi" = yes; then
     # suppress several hundreds "swp{b} use is deprecated for this architecture" assembler warnings
     CFLAGS="$CFLAGS -Wa,--no-warn"
     CXXFLAGS="$CXXFLAGS -Wa,--no-warn"
+else
+    AM_CONDITIONAL(ENABLE_RPI, false)
 fi
 
 if test "$enable_egl" = yes; then
