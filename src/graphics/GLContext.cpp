@@ -155,7 +155,6 @@ void GLContext::init(bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
 #ifndef AVG_ENABLE_EGL
