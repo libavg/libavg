@@ -1090,6 +1090,11 @@ void Bitmap::dump(bool bDumpPixels) const
     cerr << dec;
 }
 
+int Bitmap::getPreferredStride(int width, PixelFormat pf)
+{
+    return (((width*avg::getBytesPerPixel(pf))-1)/4+1)*4;
+}
+
 void Bitmap::initWithData(unsigned char * pBits, int stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
@@ -1130,7 +1135,7 @@ void Bitmap::allocBits(int stride)
     AVG_ASSERT(m_Size.x > 0 && m_Size.y > 0);
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     if (stride == 0) {
-        m_Stride = ((getLineLen()-1)/4+1)*4;
+        m_Stride = getPreferredStride(m_Size.x, m_PF);
     } else {
         m_Stride = stride;
     }

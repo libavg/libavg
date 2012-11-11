@@ -84,8 +84,8 @@ void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     GLContext::checkError("PBO::moveBmpToTexture BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     GLContext::checkError("PBO::moveBmpToTexture MapBuffer()");
-    Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, 
-            getSize().x*getBytesPerPixel(getPF()), false); 
+    int stride = Bitmap::getPreferredStride(getSize().x, getPF());
+    Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, stride, false); 
     PBOBitmap.copyPixels(*pBmp);
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     GLContext::checkError("PBO::setImage: UnmapBuffer()");
@@ -154,8 +154,8 @@ BitmapPtr PBO::lock()
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     GLContext::checkError("PBOTexture::lockBmp: glBindBuffer(0)");
 
-    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, 
-                getSize().x*getBytesPerPixel(getPF()), false));
+    int stride = Bitmap::getPreferredStride(getSize().x, getPF());
+    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, stride, false));
     return pBmp;
 }
 
@@ -211,7 +211,7 @@ bool PBO::isReadPBO() const
 unsigned PBO::getMemNeeded() const
 {
     IntPoint size = getSize();
-    int stride = ((size.x*getBytesPerPixel(getPF())-1)/4+1)*4;
+    int stride = Bitmap::getPreferredStride(size.x, getPF());
     return stride*size.y;
 }
 
