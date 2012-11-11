@@ -98,7 +98,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     EGLNativeWindowType xWindow = 0;
     if (pSDLWMInfo) {
         #ifdef AVG_ENABLE_RPI
-            xWindow = createChildWindow(pSDLWMInfo, windowSize);
+            xWindow = createChildWindow(pSDLWMInfo, m_xDisplay, windowSize);
         #else
             Colormap colormap;
             xWindow = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);

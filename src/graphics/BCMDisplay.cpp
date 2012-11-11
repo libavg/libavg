@@ -28,6 +28,19 @@
 
 namespace avg {
 
+IntPoint getX11WindowPosition(const SDL_SysWMinfo* pSDLWMInfo)
+{
+    int x, y;
+    Window dummy;
+    XWindowAttributes wAttribs;
+    pSDLWMInfo->info.x11.lock_func();
+    XGetWindowAttributes(pSDLWMInfo->info.x11.display, pSDLWMInfo->info.x11.window, &wAttribs);
+    XTranslateCoordinates(pSDLWMInfo->info.x11.display, pSDLWMInfo->info.x11.window, wAttribs.root,
+            0, 0, &x, &y, &dummy);
+    pSDLWMInfo->info.x11.unlock_func();
+    return IntPoint(x, y);
+}
+
 DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo)
 {
     bcm_host_init();
@@ -40,11 +53,41 @@ DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo)
 }
 
 EGL_DISPMANX_WINDOW_T* createChildWindow(const SDL_SysWMinfo* pSDLWMInfo,
-        const IntPoint& windowSize)
+        EGLNativeDisplayType bcmDisplay, const IntPoint& windowSize)
 {
-    // Create a child window with the required attributes to render into.
+    // Create a child (yet toplevel) window with the required attributes to render into.
+    IntPoint windowPos = getX11WindowPosition(pSDLWMInfo);
+    VC_RECT_T dstRect;
+    dstRect.x = windowPos.x;
+    dstRect.y = windowPos.y;
+    dstRect.width = windowSize.x;
+    dstRect.height = windowSize.y;
+    VC_RECT_T srcRect;
+    srcRect.x = 0;
+    srcRect.y = 0;
+    srcRect.width = windowSize.x << 16;
+    srcRect.height = windowSize.y << 16;
+    // start display update
+    DISPMANX_UPDATE_HANDLE_T update = vc_dispmanx_update_start(0);
+    if (update == DISPMANX_NO_HANDLE) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Failed to start BCM display update.");
+    }
+    // add element to display
+    DISPMANX_ELEMENT_HANDLE_T element = vc_dispmanx_element_add(update,
+            (DISPMANX_DISPLAY_HANDLE_T)bcmDisplay,
+            0 /* layer */, &dstRect, DISPMANX_NO_HANDLE /* src */, &srcRect,
+            (DISPMANX_PROTECTION_T) DISPMANX_PROTECTION_NONE,
+            0 /* alpha */, 0 /* clamp */, DISPMANX_NO_ROTATE);
+    if (element == DISPMANX_NO_HANDLE) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Failed to add element to BCM display.");
+    }
+    // finish display update
+    if (vc_dispmanx_update_submit_sync(update)) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Failed to finish BCM display update.");
+    }
+
     EGL_DISPMANX_WINDOW_T* pWin = new EGL_DISPMANX_WINDOW_T; // XXX: destroy
-    pWin->element = 0; // XXX: create BCM display element
+    pWin->element = element;
     pWin->width = windowSize.x;
     pWin->height = windowSize.y;
     return pWin;

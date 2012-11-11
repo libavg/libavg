@@ -36,7 +36,7 @@ namespace avg {
 DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo);
 
 EGL_DISPMANX_WINDOW_T* createChildWindow(const SDL_SysWMinfo* pSDLWMInfo,
-        const IntPoint& windowSize);
+        EGLNativeDisplayType bcmDisplay, const IntPoint& windowSize);
 
 }
 
