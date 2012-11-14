@@ -77,6 +77,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     fbAttrs.append(EGL_GREEN_SIZE, 1);
     fbAttrs.append(EGL_BLUE_SIZE, 1);
     fbAttrs.append(EGL_DEPTH_SIZE, 1);
+    fbAttrs.append(EGL_STENCIL_SIZE, 1);
     fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
     EGLint numFBConfig;
     bOk = eglChooseConfig(m_Display, fbAttrs.get(), &m_Config, 1, &numFBConfig);
