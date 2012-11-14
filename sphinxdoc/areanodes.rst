@@ -434,7 +434,12 @@ Area Nodes
         .. py:method:: setWarpedVertexCoords(grid)
 
             Changes the current coordinates of all vertices. :py:attr:`grid` is a list of
-            lists of coordinate tuples.
+            lists of coordinate tuples. :py:meth:`setWarpedVertexCoords` can only be called if
+            the node is in a renderable state. This means that :py:meth:`Player.play()` must have
+            been called and the node must be inserted in a Canvas. There must also be something to
+            render (for instance, :py:meth:`play()` must be called before 
+            :py:meth:`setWarpedVertexCoords` in the case of a :py:class:`CameraNode`). The grid
+            submitted is lost if the node loses renderable status.
 
     .. autoclass:: SoundNode([href, loop=False, volume=1.0])
 
