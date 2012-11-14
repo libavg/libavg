@@ -52,6 +52,10 @@ EGLContext::~EGLContext()
     getVertexBufferCache().deleteBuffers();
     getIndexBufferCache().deleteBuffers();
     getPBOCache().deleteBuffers();
+    deleteObjects();
+    eglMakeCurrent(m_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, 0);
+    eglDestroyContext(m_Display, m_Context);
+    eglDestroySurface(m_Display, m_Surface);
     eglTerminate(m_Display);
 }
 
@@ -145,7 +149,7 @@ bool EGLContext::initVBlank(int rate)
 
 void EGLContext::activate()
 {
-    eglMakeCurrent( m_Display, m_Surface, m_Surface, m_Context);
+    eglMakeCurrent(m_Display, m_Surface, m_Surface, m_Context);
     setCurrent();
 }
 

@@ -1208,6 +1208,12 @@ void Player::initGraphics(const string& sShaderPath)
     // Init display configuration.
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
+    if (m_bDisplayEngineBroken) {
+        m_bDisplayEngineBroken = false;
+        m_pDisplayEngine->teardown();
+        m_pDisplayEngine = SDLDisplayEnginePtr();
+    }
+
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
@@ -1215,9 +1221,8 @@ void Player::initGraphics(const string& sShaderPath)
     m_GLConfig.log();
     m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
     if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
-            m_pDisplayEngine->isFullscreen() == true || m_bDisplayEngineBroken) 
+            m_pDisplayEngine->isFullscreen() == true) 
     {
-        m_bDisplayEngineBroken = false;
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 

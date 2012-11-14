@@ -259,6 +259,7 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
         if (m_pGLContext) {
+            delete m_pGLContext;
             m_pGLContext = 0;
         }
         GLContext::setMain(0);
