@@ -71,6 +71,8 @@ public:
     bool isDirty() const;
     void resetDirty();
 
+    void dump(unsigned wrapSMode=-1, unsigned wrapTMode=-1) const;
+
 private:
     IntPoint m_Size;
     IntPoint m_GLSize;

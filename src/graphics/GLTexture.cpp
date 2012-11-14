@@ -107,6 +107,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
         delete[] pPixels;
     }
+//    dump(wrapSMode, wrapTMode);
 }
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
@@ -336,5 +337,16 @@ void GLTexture::resetDirty()
     m_bIsDirty = false;
 }
 
+void GLTexture::dump(unsigned wrapSMode, unsigned wrapTMode) const
+{
+    cerr << "GLTexture" << endl;
+    cerr << "m_Size: " << m_Size << endl;
+    cerr << "m_GLSize: " << m_Size << endl;
+    cerr << "m_pf: " << m_pf << endl;
+    cerr << "m_bMipmap: " << m_bMipmap << endl;
+    if (wrapSMode != -1) {
+        cerr << "Wrap modes: " << wrapSMode << ", " << wrapTMode << endl;
+    }
+}
 
 }
