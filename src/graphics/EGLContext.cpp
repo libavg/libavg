@@ -64,13 +64,13 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
 {
     bool bOk;
 
-    #ifdef AVG_ENABLE_RPI
-        m_xDisplay = (EGLNativeDisplayType)getBCMDisplay(pSDLWMInfo);
-        m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    #else
-        m_xDisplay = (EGLNativeDisplayType)getX11Display(pSDLWMInfo);
-        m_Display = eglGetDisplay(m_xDisplay);
-    #endif
+#ifdef AVG_ENABLE_RPI
+    m_xDisplay = (EGLNativeDisplayType)getBCMDisplay(pSDLWMInfo);
+    m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#else
+    m_xDisplay = (EGLNativeDisplayType)getX11Display(pSDLWMInfo);
+    m_Display = eglGetDisplay(m_xDisplay);
+#endif
     checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
 
     bOk = eglInitialize(m_Display, NULL, NULL);
@@ -91,23 +91,23 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     bOk = eglGetConfigAttrib(m_Display, m_Config, EGL_NATIVE_VISUAL_ID, &vid);
     AVG_ASSERT(bOk);
 
-    #ifndef AVG_ENABLE_RPI
-        XVisualInfo visTemplate;
-        visTemplate.visualid = vid;
-        int num_visuals;
-        XVisualInfo* pVisualInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate,
-                &num_visuals);
-        AVG_ASSERT(pVisualInfo);
-    #endif
+#ifndef AVG_ENABLE_RPI
+    XVisualInfo visTemplate;
+    visTemplate.visualid = vid;
+    int num_visuals;
+    XVisualInfo* pVisualInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate,
+            &num_visuals);
+    AVG_ASSERT(pVisualInfo);
+#endif
 
     EGLNativeWindowType xWindow = 0;
     if (pSDLWMInfo) {
-        #ifdef AVG_ENABLE_RPI
-            xWindow = createChildWindow(pSDLWMInfo, m_xDisplay, windowSize);
-        #else
-            Colormap colormap;
-            xWindow = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
-        #endif
+#ifdef AVG_ENABLE_RPI
+        xWindow = createChildWindow(pSDLWMInfo, m_xDisplay, windowSize);
+#else
+        Colormap colormap;
+        xWindow = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
+#endif
     }
 
     if (!eglBindAPI(EGL_OPENGL_ES_API)) {
