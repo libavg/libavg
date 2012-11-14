@@ -369,7 +369,13 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp;
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-    if (!m_pGLContext->isGLES()) {
+    if (m_pGLContext->isGLES()) {
+        pBmp = BitmapPtr(new Bitmap(m_WindowSize, R8G8B8X8, "screenshot"));
+        glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_RGBA, GL_UNSIGNED_BYTE, 
+                pBmp->getPixels());
+        GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
+        FilterFlipRGB().applyInPlace(pBmp);
+    } else {
 #ifndef AVG_ENABLE_EGL
         pBmp = BitmapPtr(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
         string sTmp;
@@ -390,12 +396,6 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
                 pBmp->getPixels());
         GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
 #endif
-    } else {
-        pBmp = BitmapPtr(new Bitmap(m_WindowSize, R8G8B8X8, "screenshot"));
-        glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_RGBA, GL_UNSIGNED_BYTE, 
-                pBmp->getPixels());
-        GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
-        FilterFlipRGB().applyInPlace(pBmp);
     }
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
