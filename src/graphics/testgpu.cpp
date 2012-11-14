@@ -334,11 +334,9 @@ public:
             runMipmapTest(MM_PBO, "rgb24alpha-64x64");
             runMipmapTest(MM_PBO, "rgb24-65x65");
         }
-#ifndef AVG_ENABLE_EGL        
         runMipmapTest(MM_OGL, "rgb24-64x64");
         runMipmapTest(MM_OGL, "rgb24alpha-64x64");
         runMipmapTest(MM_OGL, "rgb24-65x65");
-#endif        
     }
 
 private:
@@ -363,7 +361,6 @@ private:
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
         }
-
         {
             cerr << "      lock functions." << endl;
             GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 

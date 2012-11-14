@@ -344,7 +344,7 @@ void GLTexture::dump(unsigned wrapSMode, unsigned wrapTMode) const
     cerr << "m_GLSize: " << m_Size << endl;
     cerr << "m_pf: " << m_pf << endl;
     cerr << "m_bMipmap: " << m_bMipmap << endl;
-    if (wrapSMode != -1) {
+    if (wrapSMode != (unsigned)-1) {
         cerr << "Wrap modes: " << wrapSMode << ", " << wrapTMode << endl;
     }
 }

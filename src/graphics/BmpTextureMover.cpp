@@ -86,6 +86,7 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     GLContext::checkError("BmpTextureMover::moveTextureToBmp: glReadPixels()");
     glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
     pContext->returnFBOToCache(fbo);
+    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     return pBmp;
 
 }
