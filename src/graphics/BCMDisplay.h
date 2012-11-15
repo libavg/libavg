@@ -38,6 +38,8 @@ DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo);
 EGL_DISPMANX_WINDOW_T* createChildWindow(const SDL_SysWMinfo* pSDLWMInfo,
         EGLNativeDisplayType bcmDisplay, const IntPoint& windowSize);
 
+EGLSurface createBCMPixmapSurface(EGLDisplay display, EGLConfig config);
+
 }
 
 #endif

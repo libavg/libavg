@@ -82,7 +82,12 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     fbAttrs.append(EGL_BLUE_SIZE, 1);
     fbAttrs.append(EGL_DEPTH_SIZE, 1);
     fbAttrs.append(EGL_STENCIL_SIZE, 1);
-    fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
+    if (pSDLWMInfo) {
+        fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
+    } else {
+        fbAttrs.append(EGL_ALPHA_SIZE, 1);
+        fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_PIXMAP_BIT | EGL_OPENGL_ES2_BIT);
+    }
     EGLint numFBConfig;
     bOk = eglChooseConfig(m_Display, fbAttrs.get(), &m_Config, 1, &numFBConfig);
     checkEGLError(!bOk, "Failed to choose EGL config");
@@ -121,18 +126,20 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     }
     if (xWindow) {
         m_Surface = eglCreateWindowSurface(m_Display, m_Config, xWindow, NULL);
-    #ifndef AVG_ENABLE_RPI
-        } else {
-            XVisualInfo visTemplate, *results;
-            visTemplate.screen = 0;
-            int numVisuals;
-            results = XGetVisualInfo(m_xDisplay, VisualScreenMask,
-                        &visTemplate, & numVisuals);
+    } else {
+#ifdef AVG_ENABLE_RPI
+       m_Surface = createBCMPixmapSurface(m_Display, m_Config);
+#else
+        XVisualInfo visTemplate, *results;
+        visTemplate.screen = 0;
+        int numVisuals;
+        results = XGetVisualInfo(m_xDisplay, VisualScreenMask,
+                &visTemplate, & numVisuals);
 
-            Pixmap pmp = XCreatePixmap(m_xDisplay, 
-                    RootWindow(m_xDisplay, results[0].screen), 8, 8, results[0].depth);
-            m_Surface = eglCreatePixmapSurface(m_Display, m_Config, pmp, NULL);
-    #endif
+        Pixmap pmp = XCreatePixmap(m_xDisplay, 
+                RootWindow(m_xDisplay, results[0].screen), 8, 8, results[0].depth);
+        m_Surface = eglCreatePixmapSurface(m_Display, m_Config, pmp, NULL);
+#endif
     }
     AVG_ASSERT(m_Surface);
 

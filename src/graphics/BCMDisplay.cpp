@@ -26,6 +26,12 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 
+#include <EGL/eglext_brcm.h>
+
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
 IntPoint getX11WindowPosition(const SDL_SysWMinfo* pSDLWMInfo)
@@ -91,6 +97,45 @@ EGL_DISPMANX_WINDOW_T* createChildWindow(const SDL_SysWMinfo* pSDLWMInfo,
     pWin->width = windowSize.x;
     pWin->height = windowSize.y;
     return pWin;
+}
+
+EGLSurface createBCMPixmapSurface(EGLDisplay display, EGLConfig config)
+{
+    EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;
+    EGLint rt;
+    eglGetConfigAttrib(display, config, EGL_RENDERABLE_TYPE, &rt);
+
+    if (rt & EGL_OPENGL_ES_BIT) {
+        pixel_format |= EGL_PIXEL_FORMAT_RENDER_GLES_BRCM;
+        pixel_format |= EGL_PIXEL_FORMAT_GLES_TEXTURE_BRCM;
+    }
+    if (rt & EGL_OPENGL_ES2_BIT) {
+        pixel_format |= EGL_PIXEL_FORMAT_RENDER_GLES2_BRCM;
+        pixel_format |= EGL_PIXEL_FORMAT_GLES2_TEXTURE_BRCM;
+    }
+    if (rt & EGL_OPENVG_BIT) {
+        pixel_format |= EGL_PIXEL_FORMAT_RENDER_VG_BRCM;
+        pixel_format |= EGL_PIXEL_FORMAT_VG_IMAGE_BRCM;
+    }
+    if (rt & EGL_OPENGL_BIT) {
+        pixel_format |= EGL_PIXEL_FORMAT_RENDER_GL_BRCM;
+    }
+
+    EGLint pixmap[5];
+    pixmap[0] = 0;
+    pixmap[1] = 0;
+    pixmap[2] = 8;
+    pixmap[3] = 8;
+    pixmap[4] = pixel_format;
+
+    eglCreateGlobalImageBRCM(8, 8, pixel_format, 0, 8*4, pixmap);
+
+    EGLSurface surface = eglCreatePixmapSurface(display, config, pixmap, 0);
+    if ( surface == EGL_NO_SURFACE ) {
+        cerr << "Unable to create EGL surface (eglError: " << eglGetError() << ")" << endl;
+    }
+    return surface;
+
 }
 
 }

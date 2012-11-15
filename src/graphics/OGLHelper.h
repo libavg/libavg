@@ -34,6 +34,7 @@
     #include "GL/glext.h"
 #else
     #ifdef AVG_ENABLE_EGL
+        #define EGL_EGLEXT_PROTOTYPES
         #include <EGL/egl.h>
         #include <GLES2/gl2.h>
         #include <GLES2/gl2ext.h>
