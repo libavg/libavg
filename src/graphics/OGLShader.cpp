@@ -34,7 +34,7 @@ using namespace std;
 namespace avg {
 
 OGLShader::OGLShader(const string& sName, const string& sVertProgram, 
-        const string& sFragProgram, const string& sPrefix)
+        const string& sFragProgram, const string& sVertPrefix, const string& sFragPrefix)
     : m_sName(sName),
       m_sVertProgram(sVertProgram),
       m_sFragProgram(sFragProgram)
@@ -46,10 +46,10 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
         glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
         glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
         glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
-        m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sPrefix);
+        m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sVertPrefix);
         glproc::AttachShader(m_hProgram, m_hVertexShader);
     }
-    m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sPrefix);
+    m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sFragPrefix);
     
     glproc::AttachShader(m_hProgram, m_hFragmentShader);
     glproc::LinkProgram(m_hProgram);

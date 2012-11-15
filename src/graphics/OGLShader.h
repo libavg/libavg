@@ -68,8 +68,9 @@ class AVG_API OGLShader {
         }
 
     private:
-        OGLShader(const std::string& sName, const std::string& sVertProgram,
-                const std::string& sFragProgram, const std::string& sPrefix);
+        OGLShader(const std::string& sName, const std::string& sVertProgram, 
+                const std::string& sFragProgram, const std::string& sVertPrefix, 
+                const std::string& sFragPrefix);
         friend class ShaderRegistry;
 
         GLuint compileShader(GLenum shaderType, const std::string& sProgram,
