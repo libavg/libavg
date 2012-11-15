@@ -33,7 +33,7 @@ namespace avg {
 class AVG_API EGLContext: public GLContext
 {
 public:
-    EGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+    EGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0),
             const SDL_SysWMinfo* pSDLWMInfo=0);
     virtual ~EGLContext();
 
@@ -43,16 +43,18 @@ public:
     static float calcRefreshRate();
 
 private:
-    void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+    void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
             const SDL_SysWMinfo* pSDLWMInfo);
     void checkEGLError(bool bError, const std::string& sMsg);
+
+    void dumpEGLConfig() const;
+    void dumpEGLConfigAttrib(EGLint attrib, const std::string& name) const;
 
     EGLNativeDisplayType m_xDisplay;
     EGLDisplay m_Display;
     EGLConfig m_Config;
     ::EGLContext m_Context;
     EGLSurface m_Surface;
-    
 };
 
 }

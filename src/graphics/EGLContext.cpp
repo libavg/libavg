@@ -140,6 +140,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
     m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
     checkEGLError(!m_Context, "Unable to create EGL context");
+    //dumpEGLConfig();
 }
 
 bool EGLContext::initVBlank(int rate)
@@ -168,6 +169,29 @@ void EGLContext::checkEGLError(bool bError, const std::string& sMsg)
     if (bError) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sMsg + " (EGL error: " + 
                 toString(eglGetError()) + ")");
+    }
+}
+
+void EGLContext::dumpEGLConfig() const
+{
+    cout << "EGL configuration:" << endl;
+    dumpEGLConfigAttrib(EGL_RED_SIZE, "RED_SIZE");
+    dumpEGLConfigAttrib(EGL_GREEN_SIZE, "GREEN_SIZE");
+    dumpEGLConfigAttrib(EGL_BLUE_SIZE, "BLUE_SIZE");
+    dumpEGLConfigAttrib(EGL_ALPHA_SIZE, "ALPHA_SIZE");
+    dumpEGLConfigAttrib(EGL_BUFFER_SIZE, "BUFFER_SIZE");
+    dumpEGLConfigAttrib(EGL_DEPTH_SIZE, "DEPTH_SIZE");
+    dumpEGLConfigAttrib(EGL_STENCIL_SIZE, "STENCIL_SIZE");
+}
+
+void EGLContext::dumpEGLConfigAttrib(EGLint attrib, const string& name) const
+{
+    EGLint value;
+    if (eglGetConfigAttrib(m_Display, m_Config, attrib, &value)) {
+        cout << "  " << name << ": " << value << endl;
+    }
+    else {
+        cerr << "  Failed to get EGL config attribute " << name << endl;
     }
 }
 
