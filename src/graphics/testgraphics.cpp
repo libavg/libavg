@@ -40,7 +40,6 @@
 #include "FilterBandpass.h"
 #include "FilterFastDownscale.h"
 #include "FilterThreshold.h"
-#include "FilterFloodfill.h"
 #include "FilterDilation.h"
 #include "FilterErosion.h"
 #include "FilterGetAlpha.h"
@@ -849,23 +848,6 @@ public:
     }
 };
 
-class FilterFloodfillTest: public GraphicsTest {
-public:
-    FilterFloodfillTest()
-        : GraphicsTest("FilterFloodfillTest", 2)
-    {
-    }
-
-    void runTests()
-    {
-        BitmapPtr pBmp = loadTestBmp("floodfill");
-        BitmapPtr pDestBmp = FilterFloodfill<ColorTester>(
-                ColorTester(Pixel32(255,255,255,255)), IntPoint(4,3)).apply(pBmp);
-        testEqual(*pDestBmp, "FloodfillResult", B8G8R8A8, 0, 0);
-    }
-
-};
-
 class FilterDilationTest: public GraphicsTest {
 public:
     FilterDilationTest()
@@ -1000,7 +982,6 @@ public:
         addTest(TestPtr(new FilterFastBandpassTest));
         addTest(TestPtr(new FilterFastDownscaleTest));
         addTest(TestPtr(new FilterThresholdTest));
-        addTest(TestPtr(new FilterFloodfillTest));
         addTest(TestPtr(new FilterDilationTest));
         addTest(TestPtr(new FilterErosionTest));
         addTest(TestPtr(new FilterAlphaTest));

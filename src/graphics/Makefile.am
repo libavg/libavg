@@ -31,7 +31,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         VertexArray.h GPUNullFilter.h GPUChromaKeyFilter.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GPUShadowFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h GPUHueSatFilter.h GPUInvertFilter.h \
-        FilterIntensity.h FilterNormalize.h FilterFloodfill.h FilterDilation.h \
+        FilterIntensity.h FilterNormalize.h FilterDilation.h \
         FilterErosion.h FilterGetAlpha.h FBO.h GLTexture.h TextureMover.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
