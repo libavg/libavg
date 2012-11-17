@@ -36,6 +36,7 @@
 #include "../graphics/FilterNormalize.h"
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
+#include "../graphics/FilterMask.h"
 #include "../graphics/GLContext.h"
 #include "../graphics/GPUBandpassFilter.h"
 #include "../graphics/GPUBlurFilter.h"
@@ -148,6 +149,10 @@ bool TrackerThread::work()
     if (pCamBmp) {
         m_NumFrames++;
         ScopeTimer timer(ProfilingZoneTracker);
+        if (m_pCameraMaskBmp) {
+            ScopeTimer timer(ProfilingZoneMask);
+            FilterMask(m_pCameraMaskBmp).applyInPlace(pCamBmp);
+        }
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock lock(*m_pMutex);
             *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pCamBmp;
@@ -244,12 +249,15 @@ void TrackerThread::setConfig(TrackerConfig config, IntRect roi,
     int shutter = config.getIntParam("/camera/shutter/@value");
     int strobeDuration = config.getIntParam("/camera/strobeduration/@value");
     string sCameraMaskFName = config.getParam("/tracker/mask/@value");
+    bool bNewCameraMask = ((m_pCameraMaskBmp == BitmapPtr() && sCameraMaskFName != "") || 
+            m_pConfig->getParam("/tracker/mask/@value") != sCameraMaskFName);
     if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != brightness ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != gamma ||
              int(m_pCamera->getFeature(CAM_FEATURE_EXPOSURE)) != exposure ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != gain ||
              int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != shutter ||
-             int(m_pCamera->getFeature(CAM_FEATURE_STROBE_DURATION)) != strobeDuration)
+             int(m_pCamera->getFeature(CAM_FEATURE_STROBE_DURATION)) != strobeDuration ||
+             bNewCameraMask)
     {
         m_pHistoryPreProcessor->reset();
     }
@@ -261,6 +269,16 @@ void TrackerThread::setConfig(TrackerConfig config, IntRect roi,
     m_pCamera->setFeature(CAM_FEATURE_SHUTTER, shutter);
     m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION, strobeDuration, true);
 
+    if (bNewCameraMask) {
+        if (sCameraMaskFName == "") {
+            m_pCameraMaskBmp = BitmapPtr();
+        } else {
+            BitmapPtr pRGBXCameraMaskBmp = BitmapPtr(new Bitmap(sCameraMaskFName));
+            m_pCameraMaskBmp = BitmapPtr(
+                    new Bitmap(pRGBXCameraMaskBmp->getSize(), I8));
+            m_pCameraMaskBmp->copyPixels(*pRGBXCameraMaskBmp);        
+        }
+    }
     m_pConfig = TrackerConfigPtr(new TrackerConfig(config));
         
     setBitmaps(roi, ppBitmaps);

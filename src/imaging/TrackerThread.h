@@ -101,6 +101,7 @@ class AVG_API TrackerThread: public WorkerThread<TrackerThread>
         std::string m_sMode;
 
         TrackerConfigPtr m_pConfig;
+        BitmapPtr m_pCameraMaskBmp;
 
         int m_TouchThreshold; // 0 => no touch events.
         int m_TrackThreshold; // 0 => no generic tracking events.

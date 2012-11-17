@@ -39,7 +39,9 @@
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
 #include "FilterFastDownscale.h"
+#include "FilterMask.h"
 #include "FilterThreshold.h"
+#include "FilterFloodfill.h"
 #include "FilterDilation.h"
 #include "FilterErosion.h"
 #include "FilterGetAlpha.h"
@@ -826,6 +828,43 @@ public:
     }
 };
 
+class FilterMaskTest: public GraphicsTest {
+public:
+    FilterMaskTest()
+        : GraphicsTest("FilterMaskTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        runTestsWithBmp(initBmp(I8), "I8");
+        runTestsWithBmp(initBmp(B8G8R8), "B8G8R8");
+        runTestsWithBmp(initBmp(B8G8R8X8), "B8G8R8X8");
+    }
+
+private:
+    void runTestsWithBmp(BitmapPtr pBmp, const string& sName)
+    {
+        BitmapPtr pMaskBmp = BitmapPtr(new Bitmap(pBmp->getSize(), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pMaskBmp);
+        for (int y = 0; y < pBmp->getSize().y; y++) {
+            pMaskBmp->setPixel(IntPoint(1, y), Pixel8(128));
+            pMaskBmp->setPixel(IntPoint(2, y), Pixel8(255));
+            pMaskBmp->setPixel(IntPoint(3, y), Pixel8(255));
+        }
+
+        BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
+        string sFName = string("baseline/MaskResult")+sName+".png";
+//        pDestBmp->save(sFName);
+        sFName = getSrcDirName()+sFName;
+        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
+        BitmapPtr pBaselineBmp = BitmapPtr(
+                new Bitmap(pRGBXBaselineBmp->getSize(), pBmp->getPixelFormat()));
+        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
 class FilterThresholdTest: public GraphicsTest {
 public:
     FilterThresholdTest()
@@ -846,6 +885,23 @@ public:
         pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
         TEST(*pDestBmp == *pBaselineBmp);
     }
+};
+
+class FilterFloodfillTest: public GraphicsTest {
+public:
+    FilterFloodfillTest()
+        : GraphicsTest("FilterFloodfillTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = loadTestBmp("floodfill");
+        BitmapPtr pDestBmp = FilterFloodfill<ColorTester>(
+                ColorTester(Pixel32(255,255,255,255)), IntPoint(4,3)).apply(pBmp);
+        testEqual(*pDestBmp, "FloodfillResult", B8G8R8A8, 0, 0);
+    }
+
 };
 
 class FilterDilationTest: public GraphicsTest {
@@ -981,7 +1037,9 @@ public:
         addTest(TestPtr(new FilterBandpassTest));
         addTest(TestPtr(new FilterFastBandpassTest));
         addTest(TestPtr(new FilterFastDownscaleTest));
+        addTest(TestPtr(new FilterMaskTest));
         addTest(TestPtr(new FilterThresholdTest));
+        addTest(TestPtr(new FilterFloodfillTest));
         addTest(TestPtr(new FilterDilationTest));
         addTest(TestPtr(new FilterErosionTest));
         addTest(TestPtr(new FilterAlphaTest));
