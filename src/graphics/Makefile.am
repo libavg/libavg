@@ -26,7 +26,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
         FilterId.h HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
         FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
-        FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
+        FilterGauss.h FilterBandpass.h FilterBlur.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
         VertexArray.h GPUNullFilter.h GPUChromaKeyFilter.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GPUShadowFilter.h GraphicsTest.h\
@@ -43,7 +43,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
-        FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
+        FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp \
         OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp GPUChromaKeyFilter.cpp \
         GPUHueSatFilter.cpp GPUInvertFilter.cpp VertexArray.cpp GLContextAttribs.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GPUShadowFilter.cpp GraphicsTest.cpp \
