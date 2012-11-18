@@ -37,7 +37,7 @@ namespace avg {
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         float alpha, bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID),
+    : GPUFilter(pf, pf, bStandalone, SHADERID),
       m_Alpha(alpha)
 {
     ObjectCounter::get()->incRef(&typeid(*this));

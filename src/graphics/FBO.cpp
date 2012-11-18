@@ -152,11 +152,8 @@ BitmapPtr FBO::getImage(int i) const
     } else {
         BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
         glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
-        glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLReadFormat(m_PF),  
+        glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
                 GLTexture::getGLType(m_PF), pBmp->getPixels()); 
-        if (pContext->isGLES()) {
-            FilterFlipRGB(!pContext->isGLES()).applyInPlace(pBmp);
-        }
         GLContext::checkError("FBO::getImage ReadPixels()"); 
         return pBmp;
     }

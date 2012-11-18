@@ -267,23 +267,25 @@ IntPoint Image::getSize()
 
 PixelFormat Image::getPixelFormat()
 {
-    if (m_Source == NONE) {
-        return B8G8R8X8;
+    PixelFormat pf;
+    if (BitmapLoader::get()->isBlueFirst()) {
+        pf = B8G8R8X8;
     } else {
+        pf = R8G8B8X8;
+    }
+    if (m_Source != NONE) {
         switch (m_State) {
             case CPU:
-                if (m_Source == SCENE) {
-                    return B8G8R8X8;
-                } else {
-                    return m_pBmp->getPixelFormat();
+                if (m_Source != SCENE) {
+                    pf = m_pBmp->getPixelFormat();
                 }
             case GPU:
-                return m_pSurface->getPixelFormat();
+                pf = m_pSurface->getPixelFormat();
             default:
                 AVG_ASSERT(false);
-                return B8G8R8X8;
         }
     }
+    return pf;
 }
 
 OGLSurface* Image::getSurface()

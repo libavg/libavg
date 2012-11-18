@@ -19,38 +19,35 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GPUInvertFilter.h"
-#include "ShaderRegistry.h"
-#include "OGLShader.h"
+#ifndef _BitmapLoader_H_ 
+#define _BitmapLoader_H_
 
-#include "../base/ObjectCounter.h"
-#include "../base/Logger.h"
+#include "../api.h"
 
-#define SHADERID_INVERT_COLOR "invert"
+#include "Bitmap.h"
+#include "PixelFormat.h"
 
-using namespace std;
+#include <string>
 
 namespace avg {
 
-GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf, bool bStandalone)
-    : GPUFilter(pf, pf, bStandalone, SHADERID_INVERT_COLOR, 1)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-    setDimensions(size);
-    m_pTextureParam = getShader()->getParam<int>("u_Texture");
-}
+class AVG_API BitmapLoader {
+public:
+    static void init(bool bBlueFirst);
+    static BitmapLoader* get();
+    bool isBlueFirst() const;
+    BitmapPtr load(const UTF8String& sFName, PixelFormat pf=NO_PIXELFORMAT) const;
 
-GPUInvertFilter::~GPUInvertFilter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
+private:
+    BitmapLoader(bool bBlueFirst);
+    virtual ~BitmapLoader();
 
-void GPUInvertFilter::applyOnGPU(GLTexturePtr pSrcTex)
-{
-    getShader()->activate();
-    m_pTextureParam->set(0);
-    draw(pSrcTex);
-}
+    bool m_bBlueFirst;
+    static BitmapLoader * s_pBitmapLoader;
+};
+
+BitmapPtr loadBitmap(const UTF8String& sFName, PixelFormat pf=NO_PIXELFORMAT);
 
 }
 
+#endif

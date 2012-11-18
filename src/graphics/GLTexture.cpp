@@ -238,7 +238,8 @@ int GLTexture::getGLFormat(PixelFormat pf)
 #ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-            return GL_BGRA_EXT;
+            ASSERT(false);
+            return GL_BGRA;
 #else
         case B8G8R8A8:
         case B8G8R8X8:
@@ -252,17 +253,6 @@ int GLTexture::getGLFormat(PixelFormat pf)
             AVG_ASSERT(false);
             return 0;
     }
-}
-
-int GLTexture::getGLReadFormat(PixelFormat pf)
-{
-    int glPixelFormat = getGLFormat(pf);
-    if (GLContext::getCurrent()->isGLES()) {
-        if (glPixelFormat == GL_BGRA_EXT) {
-            glPixelFormat = GL_RGBA;
-        }
-    }
-    return glPixelFormat;
 }
 
 int GLTexture::getGLType(PixelFormat pf)
@@ -304,7 +294,8 @@ int GLTexture::getGLInternalFormat() const
 #ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-            return GL_BGRA_EXT;
+            ASSERT(false);
+            return GL_BGRA;
 #else
         case B8G8R8A8:
         case B8G8R8X8:

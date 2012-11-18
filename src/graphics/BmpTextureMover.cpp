@@ -75,7 +75,7 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     FBO::checkError("BmpTextureMover::moveTextureToBmp");
     IntPoint size = tex.getMipmapSize(mipmapLevel);
     BitmapPtr pBmp(new Bitmap(size, getPF()));
-    int glPixelFormat = tex.getGLReadFormat(getPF());
+    int glPixelFormat = tex.getGLFormat(getPF());
     glReadPixels(0, 0, size.x, size.y, glPixelFormat, tex.getGLType(getPF()), 
             pBmp->getPixels());
     GLContext::checkError("BmpTextureMover::moveTextureToBmp: glReadPixels()");
