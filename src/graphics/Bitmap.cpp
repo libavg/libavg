@@ -719,6 +719,12 @@ Pixel32 Bitmap::getPythonPixel(const glm::vec2& pos)
     }
     const unsigned char * pPixel = m_pBits+intPos.y*m_Stride+intPos.x*getBytesPerPixel();
     switch(getPixelFormat()) {
+        case R8G8B8A8:
+            return Pixel32(pPixel[0], pPixel[1], pPixel[2], pPixel[3]);
+        case R8G8B8X8:
+            return Pixel32(pPixel[0], pPixel[1], pPixel[2], 255);
+        case R8G8B8:
+            return Pixel32(pPixel[0], pPixel[1], pPixel[2]);
         case B8G8R8A8:
             return Pixel32(pPixel[2], pPixel[1], pPixel[0], pPixel[3]);
         case B8G8R8X8:

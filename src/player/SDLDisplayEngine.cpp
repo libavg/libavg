@@ -375,7 +375,6 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
         glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_RGBA, GL_UNSIGNED_BYTE, 
                 pBmp->getPixels());
         GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
-        FilterFlipRGB().applyInPlace(pBmp);
     } else {
 #ifndef AVG_ENABLE_EGL
         pBmp = BitmapPtr(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));

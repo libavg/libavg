@@ -29,6 +29,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/FilterUnmultiplyAlpha.h"
+#include "../graphics/BitmapLoader.h"
 
 #include <iostream>
 
@@ -62,7 +63,13 @@ void OffscreenCanvas::setRoot(NodePtr pRootNode)
 void OffscreenCanvas::initPlayback()
 {
     m_bUseMipmaps = getMipmap();
-    m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8A8, 1, getMultiSampleSamples(), true,
+    PixelFormat pf;
+    if (BitmapLoader::get()->isBlueFirst()) {
+        pf = B8G8R8A8;
+    } else {
+        pf = R8G8B8A8;
+    }
+    m_pFBO = FBOPtr(new FBO(getSize(), pf, 1, getMultiSampleSamples(), true,
             m_bUseMipmaps));
     Canvas::initPlayback(getMultiSampleSamples());
     m_bIsRendered = false;
@@ -77,23 +84,12 @@ void OffscreenCanvas::stopPlayback()
 
 BitmapPtr OffscreenCanvas::screenshot() const
 {
-    return screenshot(false);
-}
-
-static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
-
-BitmapPtr OffscreenCanvas::screenshot(bool bIgnoreAlpha) const
-{
     if (!isRunning() || !m_bIsRendered) {
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
     BitmapPtr pBmp = m_pFBO->getImage(0);
-    if (bIgnoreAlpha) {
-        pBmp->setPixelFormat(B8G8R8X8);
-    } else {
-        FilterUnmultiplyAlpha().applyInPlace(pBmp);
-    }
+    FilterUnmultiplyAlpha().applyInPlace(pBmp);
     return pBmp;
 }
 
@@ -242,6 +238,8 @@ void OffscreenCanvas::dump() const
         cerr << " " << m_pDependentCanvases[i]->getRootNode()->getID() << endl;
     }
 }
+
+static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
 
 void OffscreenCanvas::render()
 {
