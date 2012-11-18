@@ -138,6 +138,9 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
     switch (comp) {
         case TEXTURECOMPRESSION_B5G6R5:
             m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
+            if (!BitmapLoader::get()->isBlueFirst()) {
+                FilterFlipRGB().applyInPlace(pBmp);
+            }
             m_pBmp->copyPixels(*pBmp);
             break;
         case TEXTURECOMPRESSION_NONE:
@@ -171,6 +174,9 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
             break;
         case TEXTURECOMPRESSION_B5G6R5:
             pf = B5G6R5;
+            if (!BitmapLoader::get()->isBlueFirst()) {
+                FilterFlipRGB().applyInPlace(pBmp);
+            }
             break;
         default:
             assert(false);
