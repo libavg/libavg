@@ -60,7 +60,6 @@ public:
     Bitmap(const Bitmap& origBmp);
     Bitmap(const Bitmap& origBmp, bool bOwnsBits);
     Bitmap(Bitmap& origBmp, const IntRect& rect);
-    Bitmap(const UTF8String& sName);
     virtual ~Bitmap();
 
     Bitmap &operator =(const Bitmap & origBmp);

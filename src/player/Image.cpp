@@ -27,6 +27,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/TextureMover.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -124,7 +125,7 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
 {
     assertValid();
     AVG_TRACE(Logger::MEMORY, "Loading " << sFilename);
-    BitmapPtr pBmp(new Bitmap(sFilename));
+    BitmapPtr pBmp = loadBitmap(sFilename);
     if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");

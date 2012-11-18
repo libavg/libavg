@@ -25,6 +25,8 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapManager.h"
+#include "../graphics/BitmapLoader.h"
+
 #include "../base/CubicSpline.h"
 
 #include "../glm/gtx/vector_angle.hpp"
@@ -84,6 +86,11 @@ glm::vec2* createPoint()
     return new glm::vec2(0,0);
 }
 
+BitmapPtr createBitmapFromFile(const UTF8String& sFName)
+{
+    return loadBitmap(sFName);
+}
+
 void export_bitmap()
 {
     export_point<glm::vec2>("Point2D")
@@ -141,7 +148,7 @@ void export_bitmap()
     class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
         .def(init<glm::vec2, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
-        .def(init<UTF8String>())
+        .def("__init__", make_constructor(createBitmapFromFile))
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)

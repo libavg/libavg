@@ -126,58 +126,6 @@ Bitmap::Bitmap(Bitmap& origBmp, const IntRect& rect)
     initWithData(pRegionStart, origBmp.getStride(), false);
 }
 
-Bitmap::Bitmap(const UTF8String& sName)
-    : m_pBits(0),
-      m_sName(sName)
-{
-    GError* pError = 0;
-    GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_file(sName.c_str(), &pError);
-    if (!pPixBuf) {
-        string sErr = pError->message;
-        g_error_free(pError);
-        throw Exception(AVG_ERR_FILEIO, sErr);
-    }
-    m_Size = IntPoint(gdk_pixbuf_get_width(pPixBuf), gdk_pixbuf_get_height(pPixBuf));
-    if (gdk_pixbuf_get_has_alpha(pPixBuf)) {
-        m_PF = B8G8R8A8;
-    } else {
-        m_PF = B8G8R8X8;
-    }
-    int stride = gdk_pixbuf_get_rowstride(pPixBuf);
-    allocBits();
-    guchar* pSrc = gdk_pixbuf_get_pixels(pPixBuf);
-    for (int y = 0; y < m_Size.y; ++y) {
-        unsigned char* pDestLine = m_pBits+m_Stride*y;
-        guchar* pSrcLine = pSrc + y*stride;
-        if (m_PF == B8G8R8A8) {
-            unsigned char* pDestPixel = pDestLine;
-            guchar* pSrcPixel = pSrcLine;
-            for (int x = 0; x < m_Size.x; ++x) {
-                pDestPixel[0] = pSrcPixel[2];
-                pDestPixel[1] = pSrcPixel[1];
-                pDestPixel[2] = pSrcPixel[0];
-                pDestPixel[3] = pSrcPixel[3];
-                pDestPixel += 4;
-                pSrcPixel += 4;
-            }
-        } else {
-            unsigned char* pDestPixel = pDestLine;
-            guchar* pSrcPixel = pSrcLine;
-            for (int x = 0; x < m_Size.x; ++x) {
-                pDestPixel[0] = pSrcPixel[2];
-                pDestPixel[1] = pSrcPixel[1];
-                pDestPixel[2] = pSrcPixel[0];
-                pDestPixel[3] = 255;
-                pDestPixel += 4;
-                pSrcPixel += 3;
-           } 
-        }
-    }
-    m_bOwnsBits = true;
-    g_object_unref(pPixBuf);
-    ObjectCounter::get()->incRef(&typeid(*this));
-}
-
 Bitmap::~Bitmap()
 {
     ObjectCounter::get()->decRef(&typeid(*this));

@@ -27,6 +27,7 @@
 
 #include "../graphics/ImagingProjection.h"
 #include "../graphics/ShaderRegistry.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -136,12 +137,7 @@ void RasterNode::checkReload()
         try {
             if (m_sMaskFilename != "") {
                 AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
-                m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
-                if (m_pMaskBmp->getPixelFormat() != I8) {
-                    BitmapPtr pTempBmp = m_pMaskBmp;
-                    m_pMaskBmp = BitmapPtr(new Bitmap(m_pMaskBmp->getSize(), I8));
-                    m_pMaskBmp->copyPixels(*pTempBmp);
-                }
+                m_pMaskBmp = loadBitmap(m_sMaskFilename, I8);
                 setMaskCoords();
             }
         } catch (Exception & ex) {
