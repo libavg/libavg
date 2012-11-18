@@ -50,7 +50,7 @@ void BitmapManagerThread::loadBitmap(BitmapManagerMsgPtr pRequest)
     BitmapPtr pBmp;
 
     try {
-        pBmp =  BitmapLoader::get()->load(pRequest->getFilename());
+        pBmp = avg::loadBitmap(pRequest->getFilename());
         pRequest->setBitmap(pBmp);
     } catch (const Exception& ex) {
         pRequest->setError(ex);

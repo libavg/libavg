@@ -60,7 +60,7 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
 {
     try {
         string sFullName = getSrcDirName()+"../test/media/"+sFName+".png";
-        return BitmapLoader::get()->load(sFullName, pf);
+        return loadBitmap(sFullName, pf);
     } catch (Exception & ex) {
         cerr << ex.getStr() << endl;
         throw;
@@ -73,7 +73,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
     BitmapPtr pBaselineBmp;
     try {
         string sFullName = getSrcDirName()+"baseline/"+sFName+".png";
-        pBaselineBmp = BitmapLoader::get()->load(sFullName, pf);
+        pBaselineBmp = loadBitmap(sFullName, pf);
     } catch (Exception & ex) {
         cerr << ex.getStr() << endl;
         resultBmp.save("resultimages/"+sFName+".png");

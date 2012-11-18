@@ -296,7 +296,7 @@ private:
         cerr << "    Testing save for " << pf << endl;
         BitmapPtr pBmp = initBmp(pf);
         pBmp->save("test.png");
-        BitmapPtr pLoadedBmp = BitmapLoader::get()->load("test.png");
+        BitmapPtr pLoadedBmp = loadBitmap("test.png");
         ::remove("test.png");
         testEqual(*pLoadedBmp, *pBmp, "BmpSave");
     }
@@ -317,7 +317,7 @@ private:
         bmp.drawLine(IntPoint(7,7), IntPoint(14,12), color);
         string sFName = getSrcDirName() + "baseline/LineResult" + getPixelFormatString(pf)
                 + ".png";
-        BitmapPtr pBaselineBmp = BitmapLoader::get()->load(sFName, pf);
+        BitmapPtr pBaselineBmp = loadBitmap(sFName, pf);
         testEqual(bmp, *pBaselineBmp, "BmpLineDraw");
     }
     
@@ -570,7 +570,7 @@ public:
                 sFilename = (string)pSrcDir+"/";
             }
             sFilename += "../test/media/rgb24-64x64.png";
-            BitmapPtr pBmp = BitmapLoader::get()->load(sFilename, R8G8B8);
+            BitmapPtr pBmp = loadBitmap(sFilename, R8G8B8);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
         } catch (Exception & ex) {
@@ -852,7 +852,7 @@ private:
         string sFName = string("baseline/MaskResult")+sName+".png";
 //        pDestBmp->save(sFName);
         sFName = getSrcDirName()+sFName;
-        BitmapPtr pBaselineBmp = BitmapLoader::get()->load(sFName, pBmp->getPixelFormat());
+        BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
@@ -871,7 +871,7 @@ public:
         string sFName = "baseline/ThresholdResult.png";
 //        pDestBmp->save(sFName);
         sFName = getSrcDirName()+sFName;
-        BitmapPtr pBaselineBmp = BitmapLoader::get()->load(sFName, pBmp->getPixelFormat());
+        BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };

@@ -85,7 +85,7 @@ public:
 
     void run()
     {
-        BitmapPtr pBmp = BitmapLoader::get()->load("testfiles/rgb24alpha-64x64.png");
+        BitmapPtr pBmp = loadBitmap("testfiles/rgb24alpha-64x64.png");
     }
 };
 
