@@ -167,7 +167,7 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
     PixelFormat pf;
     switch (comp) {
         case TEXTURECOMPRESSION_NONE:
-            pf = calcSurfacePF(*pBmp);
+            pf = pBmp->getPixelFormat();
             break;
         case TEXTURECOMPRESSION_B5G6R5:
             pf = B5G6R5;
@@ -331,30 +331,13 @@ string Image::compression2String(TextureCompression compression)
 
 void Image::setupSurface()
 {
-    PixelFormat pf = calcSurfacePF(*m_pBmp);
+    PixelFormat pf = m_pBmp->getPixelFormat();
     GLTexturePtr pTex(new GLTexture(m_pBmp->getSize(), pf, m_Material.getUseMipmaps(), 
             0, m_Material.getWrapSMode(), m_Material.getWrapTMode()));
     m_pSurface->create(pf, pTex);
     TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
     pMover->moveBmpToTexture(m_pBmp, *pTex);
     m_pBmp = BitmapPtr();
-}
-
-PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
-{
-/*    PixelFormat pf;
-    pf = B8G8R8X8;
-    if (bmp.hasAlpha()) {
-        pf = B8G8R8A8;
-    }
-    if (bmp.getPixelFormat() == I8) {
-        pf = I8;
-    }
-    if (bmp.getPixelFormat() == B5G6R5) {
-        pf = B5G6R5;
-    }
-    */
-    return bmp.getPixelFormat();
 }
 
 bool Image::changeSource(Source newSource)
