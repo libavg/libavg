@@ -340,7 +340,7 @@ void Image::setupSurface()
 
 PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
 {
-    PixelFormat pf;
+/*    PixelFormat pf;
     pf = B8G8R8X8;
     if (bmp.hasAlpha()) {
         pf = B8G8R8A8;
@@ -351,7 +351,8 @@ PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
     if (bmp.getPixelFormat() == B5G6R5) {
         pf = B5G6R5;
     }
-    return pf;
+    */
+    return bmp.getPixelFormat();
 }
 
 bool Image::changeSource(Source newSource)
