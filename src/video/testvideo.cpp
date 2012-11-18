@@ -37,6 +37,7 @@
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/GraphicsTest.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../base/StringHelper.h"
 #include "../base/TimeSource.h"
@@ -527,6 +528,7 @@ int main(int nargs, char** args)
 
     deleteOldResultImages();
 
+    BitmapLoader::init(true);
     VideoTestSuite suite;
     bool bOk;
     

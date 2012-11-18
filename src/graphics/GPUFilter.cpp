@@ -26,6 +26,7 @@
 #include "ImagingProjection.h"
 #include "GLContext.h"
 #include "ShaderRegistry.h"
+#include "Filterfliprgb.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -66,13 +67,24 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
     m_pSrcMover->moveBmpToTexture(pBmpSource, *m_pSrcTex);
     apply(m_pSrcTex);
     BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage();
+
+    BitmapPtr pTmpBmp;
+    if (pixelFormatIsBlueFirst(pFilteredBmp->getPixelFormat()) !=
+            pixelFormatIsBlueFirst(pBmpSource->getPixelFormat()) &&
+        pFilteredBmp->getBytesPerPixel() <= 4)
+    {
+        pTmpBmp = FilterFlipRGB().apply(pFilteredBmp);
+    } else {
+        pTmpBmp = pFilteredBmp;
+    }
+
     BitmapPtr pDestBmp;
-    if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
+    if (pTmpBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
         pDestBmp = BitmapPtr(new Bitmap(m_DestRect.size(),
                 pBmpSource->getPixelFormat()));
-        pDestBmp->copyPixels(*pFilteredBmp);
+        pDestBmp->copyPixels(*pTmpBmp);
     } else {
-        pDestBmp = pFilteredBmp;
+        pDestBmp = pTmpBmp;
     }
     return pDestBmp;
 }

@@ -24,6 +24,10 @@
 
 #include "../base/Exception.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
     
 FilterFlipRGB::FilterFlipRGB(bool bChangePF)

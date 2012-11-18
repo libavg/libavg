@@ -58,8 +58,9 @@ bool AVG_API pixelFormatIsColored(PixelFormat pf);
 bool AVG_API pixelFormatIsBayer(PixelFormat pf);
 bool AVG_API pixelFormatHasAlpha(PixelFormat pf);
 bool AVG_API pixelFormatIsPlanar(PixelFormat pf);
+bool AVG_API pixelFormatIsBlueFirst(PixelFormat pf);
 unsigned AVG_API getNumPixelFormatPlanes(PixelFormat pf);
-unsigned getBytesPerPixel(PixelFormat pf);
+unsigned AVG_API getBytesPerPixel(PixelFormat pf);
 
 }
 #endif

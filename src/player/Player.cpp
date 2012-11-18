@@ -78,6 +78,7 @@
 #include "../base/DAG.h"
 
 #include "../graphics/BitmapManager.h"
+#include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
 
 #include "../imaging/Camera.h"
@@ -248,6 +249,7 @@ void Player::useGLES(bool bGLES)
 {
     errorIfPlaying("Player.useGLES");
     m_GLConfig.m_bGLES = bGLES;
+    BitmapLoader::init(true);
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
@@ -1199,6 +1201,7 @@ void Player::initConfig()
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
+    BitmapLoader::init(true);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
