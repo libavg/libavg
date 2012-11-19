@@ -912,17 +912,9 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
                 break;
         }
     }
-    if (BitmapLoader::get()->isBlueFirst()) {
-        if (pContext->pix_fmt == PIX_FMT_BGRA || pContext->pix_fmt == PIX_FMT_YUVA420P) {
-            return B8G8R8A8;
-        }
-        return B8G8R8X8;
-    } else {
-        if (pContext->pix_fmt == PIX_FMT_BGRA || pContext->pix_fmt == PIX_FMT_YUVA420P) {
-            return R8G8B8A8;
-        }
-        return R8G8B8X8;
-    }
+    bool bAlpha = (pContext->pix_fmt == PIX_FMT_BGRA ||
+            pContext->pix_fmt == PIX_FMT_YUVA420P);
+    return BitmapLoader::get()->getDefaultPixelFormat(bAlpha);
 }
 
 static ProfilingZoneID ConvertImageLibavgProfilingZone(

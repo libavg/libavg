@@ -37,6 +37,7 @@ public:
     static void init(bool bBlueFirst);
     static BitmapLoader* get();
     bool isBlueFirst() const;
+    PixelFormat getDefaultPixelFormat(bool bAlpha);
     BitmapPtr load(const UTF8String& sFName, PixelFormat pf=NO_PIXELFORMAT) const;
 
 private:

@@ -38,6 +38,8 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
+    PixelFormat getPF() const;
+
     IntGLShaderParamPtr m_pTextureParam;
 };
 

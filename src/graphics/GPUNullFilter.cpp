@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
+#include "BitmapLoader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -36,7 +37,7 @@ using namespace std;
 namespace avg {
 
 GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(B8G8R8A8, B8G8R8A8, bStandalone, SHADERID)
+    : GPUFilter(getPF(), getPF(), bStandalone, SHADERID)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -55,6 +56,11 @@ void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pTextureParam->set(0);
     draw(pSrcTex);
 
+}
+
+PixelFormat GPUNullFilter::getPF() const
+{
+    return BitmapLoader::get()->getDefaultPixelFormat(true);
 }
 
 }

@@ -68,6 +68,23 @@ bool BitmapLoader::isBlueFirst() const
     return m_bBlueFirst;
 }
 
+PixelFormat BitmapLoader::getDefaultPixelFormat(bool bAlpha)
+{
+    if (bAlpha) {
+        if (m_bBlueFirst) {
+            return B8G8R8A8;
+        } else {
+            return R8G8B8A8;
+        }
+    } else {
+        if (m_bBlueFirst) {
+            return B8G8R8X8;
+        } else {
+            return R8G8B8X8;
+        }
+    } 
+}
+
 BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
 {
     AVG_ASSERT(s_pBitmapLoader != 0);
