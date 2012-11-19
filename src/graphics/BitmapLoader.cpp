@@ -38,6 +38,9 @@ BitmapLoader * BitmapLoader::s_pBitmapLoader = 0;
     
 void BitmapLoader::init(bool bBlueFirst) 
 {
+#ifdef AVG_ENABLE_EGL
+    bBlueFirst = false;
+#endif
 //    cerr << "BitmapLoader::init(" << bBlueFirst << ")" << endl;
     if (s_pBitmapLoader != 0) {
         delete s_pBitmapLoader;

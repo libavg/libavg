@@ -235,7 +235,6 @@ class ImageTestCase(AVGTestCase):
             self.assertException(lambda: bmp.getPixel((64,0)))
 
         def setNullBitmap():
-            print "setNullBitmap"
             node.setBitmap(None)
 
         node = avg.ImageNode(href="media/rgb24-65x65.png", size=(32, 32))

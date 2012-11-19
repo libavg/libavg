@@ -338,6 +338,7 @@ string Image::compression2String(TextureCompression compression)
 void Image::setupSurface()
 {
     PixelFormat pf = m_pBmp->getPixelFormat();
+//    cerr << "setupSurface: " << pf << endl;
     GLTexturePtr pTex(new GLTexture(m_pBmp->getSize(), pf, m_Material.getUseMipmaps(), 
             0, m_Material.getWrapSMode(), m_Material.getWrapTMode()));
     m_pSurface->create(pf, pTex);
