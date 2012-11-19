@@ -216,10 +216,10 @@ public:
 };
 
 
-class HslColorFilterTest: public GraphicsTest {
+class HueSatFilterTest: public GraphicsTest {
 public:
-    HslColorFilterTest()
-        : GraphicsTest("HslColorFilterTest", 2)
+    HueSatFilterTest()
+        : GraphicsTest("HueSatFilterTest", 2)
     {
     }
 
@@ -428,7 +428,7 @@ public:
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
-        addTest(TestPtr(new HslColorFilterTest));
+        addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));
         if (!GLContext::getCurrent()->isGLES()) {
             addTest(TestPtr(new RGB2YUVFilterTest));
