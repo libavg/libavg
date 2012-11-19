@@ -100,6 +100,7 @@ GLfunction getglXProcAddress(const char * psz);
 #ifdef AVG_ENABLE_EGL
 #define GL_WRITE_ONLY GL_WRITE_ONLY_OES
 #define GL_DYNAMIC_READ 0x88E9
+#define GL_BGRA 0x80E1
 
 typedef void (GL_APIENTRYP PFNGLGENBUFFERSPROC) (GLsizei n, GLuint *buffers);
 typedef void (GL_APIENTRYP PFNGLBUFFERDATAPROC) (GLenum target, GLsizeiptr size, 

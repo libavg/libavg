@@ -235,15 +235,11 @@ int GLTexture::getGLFormat(PixelFormat pf)
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
-#ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-            AVG_ASSERT(false);
-            return GL_RGBA;
-#else
-        case B8G8R8A8:
-        case B8G8R8X8:
+            AVG_ASSERT(!GLContext::getMain()->isGLES());
             return GL_BGRA;
+#ifndef AVG_ENABLE_EGL            
         case R32G32B32A32F:
             return GL_BGRA;
 #endif
@@ -291,15 +287,11 @@ int GLTexture::getGLInternalFormat() const
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
-#ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-            AVG_ASSERT(false);
-            return GL_RGBA;
-#else
-        case B8G8R8A8:
-        case B8G8R8X8:
-            return GL_RGBA;
+            AVG_ASSERT(!GLContext::getMain()->isGLES());
+            return GL_BGRA;
+#ifndef AVG_ENABLE_EGL            
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
         case I32F:
