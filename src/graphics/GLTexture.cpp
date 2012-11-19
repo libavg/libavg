@@ -238,8 +238,8 @@ int GLTexture::getGLFormat(PixelFormat pf)
 #ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-            ASSERT(false);
-            return GL_BGRA;
+            AVG_ASSERT(false);
+            return GL_RGBA;
 #else
         case B8G8R8A8:
         case B8G8R8X8:
@@ -294,8 +294,8 @@ int GLTexture::getGLInternalFormat() const
 #ifdef AVG_ENABLE_EGL
         case B8G8R8A8:
         case B8G8R8X8:
-            ASSERT(false);
-            return GL_BGRA;
+            AVG_ASSERT(false);
+            return GL_RGBA;
 #else
         case B8G8R8A8:
         case B8G8R8X8:
