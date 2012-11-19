@@ -472,8 +472,9 @@ void RasterNode::setupFX(bool bNewFX)
             m_bFXDirty = true;
         }
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
-            m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
-                    false, getMipmap()));
+            PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
+            m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
+                    getMipmap()));
             GLTexturePtr pTex = m_pFBO->getTex();
             #ifndef AVG_ENABLE_EGL
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
