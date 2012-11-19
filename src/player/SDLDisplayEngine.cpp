@@ -131,6 +131,12 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
+    // This "fixes" the default behaviour of SDL under x11, avoiding it
+    // to report relative mouse coordinates when going fullscreen and
+    // the mouse cursor is hidden (grabbed). So far libavg and apps based
+    // on it don't use relative coordinates.
+    setEnv("SDL_MOUSE_RELATIVE", "0");
+
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
