@@ -82,11 +82,13 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     fbAttrs.append(EGL_BLUE_SIZE, 1);
     fbAttrs.append(EGL_DEPTH_SIZE, 1);
     fbAttrs.append(EGL_STENCIL_SIZE, 1);
+    int alphaSize = 0;
 #ifdef AVG_ENABLE_RPI
     if (!pSDLWMInfo) {
-        fbAttrs.append(EGL_ALPHA_SIZE, 1);
+        alphaSize = 1;
     }
 #endif
+    fbAttrs.append(EGL_ALPHA_SIZE, alphaSize);
     fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
     EGLint numFBConfig;
     bOk = eglChooseConfig(m_Display, fbAttrs.get(), &m_Config, 1, &numFBConfig);
