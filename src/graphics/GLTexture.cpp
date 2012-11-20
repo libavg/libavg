@@ -290,7 +290,7 @@ int GLTexture::getGLInternalFormat() const
         case B8G8R8A8:
         case B8G8R8X8:
             AVG_ASSERT(!GLContext::getMain()->isGLES());
-            return GL_BGRA;
+            return GL_RGBA;
 #ifndef AVG_ENABLE_EGL            
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
