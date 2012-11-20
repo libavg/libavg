@@ -116,8 +116,7 @@ void HueSatFXNode::setColorizing(bool colorize)
 
 GPUFilterPtr HueSatFXNode::createFilter(const IntPoint& size)
 {
-    PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
-    filterPtr = GPUHueSatFilterPtr(new GPUHueSatFilter(size, pf, false));
+    filterPtr = GPUHueSatFilterPtr(new GPUHueSatFilter(size, true, false));
     setFilterParams();
     return filterPtr;
 }

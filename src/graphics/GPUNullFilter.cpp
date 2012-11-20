@@ -37,7 +37,7 @@ using namespace std;
 namespace avg {
 
 GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(getPF(), getPF(), bStandalone, SHADERID)
+    : GPUFilter(SHADERID, true, bStandalone)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -56,11 +56,6 @@ void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pTextureParam->set(0);
     draw(pSrcTex);
 
-}
-
-PixelFormat GPUNullFilter::getPF() const
-{
-    return BitmapLoader::get()->getDefaultPixelFormat(true);
 }
 
 }

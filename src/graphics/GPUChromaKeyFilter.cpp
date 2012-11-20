@@ -37,9 +37,8 @@ using namespace std;
 
 namespace avg {
 
-GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf, 
-        bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_CHROMAKEY, 2),
+GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, bool bStandalone)
+    : GPUFilter(SHADERID_CHROMAKEY, true, bStandalone, 2),
       m_Color(0, 255, 0),
       m_HTolerance(0.0),
       m_STolerance(0.0),

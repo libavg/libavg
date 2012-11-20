@@ -41,7 +41,7 @@ namespace avg {
 
 GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset, 
         float stdDev, float opacity, const Pixel32& color)
-    : GPUFilter(B8G8R8A8, B8G8R8A8, false, SHADERID_HORIZ, 2)
+    : GPUFilter(SHADERID_HORIZ, true, false, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 

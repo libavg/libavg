@@ -32,7 +32,7 @@ namespace avg {
 class AVG_API GPUChromaKeyFilter: public GPUFilter
 {
 public:
-    GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf, bool bStandalone=true);
+    GPUChromaKeyFilter(const IntPoint& size, bool bStandalone=true);
     virtual ~GPUChromaKeyFilter();
 
     void setParams(const Pixel32& color, float hTolerance, float sTolerance, 

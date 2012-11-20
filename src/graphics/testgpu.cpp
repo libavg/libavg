@@ -171,9 +171,10 @@ private:
     {
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
-        cerr << "      Source Bmp: " << pBmp->getPixelFormat() << endl;
+        PixelFormat pf = pBmp->getPixelFormat();
+        cerr << "      Source Bmp: " << pf << endl;
         BitmapPtr pDestBmp;
-        pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1)
+        pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pixelFormatHasAlpha(pf), 1)
                 .apply(pBmp);
         testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName, 0.2, 0.5);
     }
@@ -191,7 +192,7 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("chromakey");
         BitmapPtr pDestBmp;
-        GPUChromaKeyFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
+        GPUChromaKeyFilter filter(pBmp->getSize());
         for (int erosion = 0; erosion < 3; ++erosion) {
             filter.setParams(Pixel32(0,255,0), 0.1, 0.2, 0.1, 0.1, erosion, 0);
             pDestBmp = filter.apply(pBmp);
@@ -227,7 +228,7 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("hsl");
         BitmapPtr pDestBmp;
-        GPUHueSatFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
+        GPUHueSatFilter filter(pBmp->getSize(), true);
         //Test hue functionality
         for (int run = 0; run < 3; run++) {
             filter.setParams(run*90);
@@ -262,8 +263,7 @@ private:
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
-        pDestBmp = GPUInvertFilter(pBmp->getSize(), pBmp->getPixelFormat())
-                .apply(pBmp);
+        pDestBmp = GPUInvertFilter(pBmp->getSize(), false).apply(pBmp);
         testEqual(*pDestBmp, string("invert_")+sFName, pBmp->getPixelFormat(), 0.0, 0.0);
     }
 };

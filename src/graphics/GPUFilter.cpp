@@ -27,6 +27,7 @@
 #include "GLContext.h"
 #include "ShaderRegistry.h"
 #include "Filterfliprgb.h"
+#include "BitmapLoader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -40,8 +41,24 @@ using namespace boost;
 
 namespace avg {
 
+GPUFilter::GPUFilter(const string& sShaderID, bool bUseAlpha,
+        bool bStandalone, unsigned numTextures, bool bMipmap)
+    : m_bStandalone(bStandalone),
+      m_NumTextures(numTextures),
+      m_bMipmap(bMipmap),
+      m_SrcSize(0,0),
+      m_DestRect(0,0,0,0)
+{
+    m_PFSrc = BitmapLoader::get()->getDefaultPixelFormat(bUseAlpha);
+    m_PFDest = m_PFSrc;
+    createShader(sShaderID);
+
+    m_pShader = avg::getShader(sShaderID);
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
+
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
-        const std::string& sShaderID, unsigned numTextures, bool bMipmap)
+        const string& sShaderID, unsigned numTextures, bool bMipmap)
     : m_PFSrc(pfSrc),
       m_PFDest(pfDest),
       m_bStandalone(bStandalone),

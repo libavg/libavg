@@ -39,6 +39,8 @@ typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
 class AVG_API GPUFilter: public Filter
 {
 public:
+    GPUFilter(const std::string& sShaderID, bool bUseAlpha, bool bStandalone=false,
+            unsigned numTextures=1, bool bMipmap=false);
     GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
             const std::string& sShaderID, unsigned numTextures=1, bool bMipmap=false);
     virtual ~GPUFilter();

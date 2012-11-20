@@ -51,8 +51,7 @@ void InvertFXNode::disconnect()
 
 GPUFilterPtr InvertFXNode::createFilter(const IntPoint& size)
 {
-    PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
-    filterPtr = GPUInvertFilterPtr(new GPUInvertFilter(size, pf, false));
+    filterPtr = GPUInvertFilterPtr(new GPUInvertFilter(size, true, false));
     setDirty();
     return filterPtr;
 }
