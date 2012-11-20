@@ -501,32 +501,13 @@ private:
 };
 
 
-void deleteOldResultImages() 
-{
-    string sDirName("resultimages");
-    Directory dir(sDirName);
-    int err = dir.open(true);
-    if (err) {
-        cerr << "Creating directory " << sDirName << " failed." << strerror(err) << endl;
-    } else {
-        cerr << "Deleting files in " << sDirName << endl;
-        DirEntryPtr pEntry = dir.getNextEntry();
-        while (pEntry) {
-            if (pEntry->getName()[0] != '.') {
-                pEntry->remove();
-            }
-            pEntry = dir.getNextEntry();
-        }
-    }
-}
-
 int main(int nargs, char** args)
 {
     g_type_init();
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
 
-    deleteOldResultImages();
+    GraphicsTest::createResultImgDir();
 
     BitmapLoader::init(true);
     VideoTestSuite suite;
