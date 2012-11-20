@@ -186,6 +186,10 @@ class FXTestCase(AVGTestCase):
             effect = avg.BlurFXNode(8)
             self.node.setEffect(effect)
 
+        if player.isUsingGLES():
+            self.skip("Not supported under GLES")
+            return
+
         root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
@@ -262,6 +266,10 @@ class FXTestCase(AVGTestCase):
             effect.opacity = opacity
             effect.color =  color
 
+        if player.isUsingGLES():
+            self.skip("Not supported under GLES")
+            return
+
         root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
         node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
@@ -289,6 +297,10 @@ class FXTestCase(AVGTestCase):
             effect.radius = radius
             effect.opacity = opacity
             effect.color =  color
+
+        if player.isUsingGLES():
+            self.skip("Not supported under GLES")
+            return
 
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, pos=(10,10), text="testtext", 
@@ -399,6 +411,10 @@ class FXTestCase(AVGTestCase):
             videoNode.setEffect(effect)
             videoNode.play()
 
+        if player.isUsingGLES():
+            self.skip("Not supported under GLES")
+            return
+
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24alpha-64x64.png")
         effect = avg.BlurFXNode()
@@ -428,6 +444,9 @@ class FXTestCase(AVGTestCase):
             effect.ltolerance = ltol
             effect.stolerance = stol
 
+        if player.isUsingGLES():
+            self.skip("Not supported under GLES")
+            return
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         effect = avg.ChromaKeyFXNode()
