@@ -836,6 +836,7 @@ BitmapPtr Player::screenshot()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
     }
+    m_pMainCanvas->doFrame(m_bPythonAvailable);
     return m_pDisplayEngine->screenshot();
 }
 
