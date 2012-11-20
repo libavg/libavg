@@ -112,7 +112,7 @@ private:
         if (bUseFloat) {
             destPF = R32G32B32A32F;
         } else {
-            destPF = B8G8R8A8;
+            destPF = BitmapLoader::get()->getDefaultPixelFormat(true);
         }
         pFilter = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(), 
                 pBmp->getPixelFormat(), destPF, 0.5f, false));
@@ -430,10 +430,10 @@ public:
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));
+        addTest(TestPtr(new BlurFilterTest));
         if (!GLContext::getCurrent()->isGLES()) {
             addTest(TestPtr(new RGB2YUVFilterTest));
             addTest(TestPtr(new ChromaKeyFilterTest));
-            addTest(TestPtr(new BlurFilterTest));
             if (GLTexture::isFloatFormatSupported()) {
                 addTest(TestPtr(new BandpassFilterTest));
             }

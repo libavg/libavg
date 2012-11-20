@@ -23,6 +23,7 @@ uniform sampler2D u_Texture;
 uniform float u_Width;
 uniform int u_Radius;
 uniform sampler2D u_KernelTex;
+uniform vec2 u_Deriv;
 
 #ifndef FRAGMENT_ONLY
 varying vec2 v_TexCoord;
@@ -32,7 +33,7 @@ varying vec4 v_Color;
 void main(void)
 {
     vec4 sum = vec4(0,0,0,0);
-    float dx = dFdx(v_TexCoord.x);
+    float dx = u_Deriv.x;
     for (int i=-u_Radius; i<=u_Radius; ++i) {
         vec4 tex = texture2D(u_Texture, v_TexCoord+vec2(float(i)*dx,0));
         float coeff = texture2D(u_KernelTex, vec2((float(i+u_Radius)+0.5)/u_Width,0)).r;

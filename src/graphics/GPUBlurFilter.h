@@ -46,6 +46,7 @@ private:
     float m_StdDev;
     bool m_bClipBorders;
     bool m_bUseFloatKernel;
+    glm::vec2 m_Deriv;
 
     GLTexturePtr m_pGaussCurveTex;
     ImagingProjectionPtr m_pProjection2;
@@ -54,11 +55,13 @@ private:
     IntGLShaderParamPtr m_pHorizRadiusParam;
     IntGLShaderParamPtr m_pHorizTextureParam;
     IntGLShaderParamPtr m_pHorizKernelTexParam;
+    Vec2fGLShaderParamPtr m_pHorizDerivParam;
 
     FloatGLShaderParamPtr m_pVertWidthParam;
     IntGLShaderParamPtr m_pVertRadiusParam;
     IntGLShaderParamPtr m_pVertTextureParam;
     IntGLShaderParamPtr m_pVertKernelTexParam;
+    Vec2fGLShaderParamPtr m_pVertDerivParam;
 };
 
 typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;
