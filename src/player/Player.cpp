@@ -249,6 +249,9 @@ void Player::useGLES(bool bGLES)
 {
     errorIfPlaying("Player.useGLES");
     m_GLConfig.m_bGLES = bGLES;
+#ifdef AVG_ENABLE_EGL
+    m_GLConfig.m_bGLES = true;
+#endif
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 }
 
@@ -1198,10 +1201,13 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
-                "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
+               "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
+#ifdef AVG_ENABLE_EGL
+    m_GLConfig.m_bGLES = true;
+#endif
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
