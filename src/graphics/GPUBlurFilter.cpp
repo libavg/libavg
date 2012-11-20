@@ -56,14 +56,12 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     m_pHorizRadiusParam = pShader->getParam<int>("u_Radius");
     m_pHorizTextureParam = pShader->getParam<int>("u_Texture");
     m_pHorizKernelTexParam = pShader->getParam<int>("u_KernelTex");
-    m_pHorizDerivParam = pShader->getParam<glm::vec2>("u_Deriv");
 
     pShader = avg::getShader(SHADERID_VERT);
     m_pVertWidthParam = pShader->getParam<float>("u_Width");
     m_pVertRadiusParam = pShader->getParam<int>("u_Radius");
     m_pVertTextureParam = pShader->getParam<int>("u_Texture");
     m_pVertKernelTexParam = pShader->getParam<int>("u_KernelTex");
-    m_pVertDerivParam = pShader->getParam<glm::vec2>("u_Deriv");
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -90,7 +88,6 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pHorizRadiusParam->set((kernelWidth-1)/2);
     m_pHorizTextureParam->set(0);
     m_pHorizKernelTexParam->set(1);
-    m_pHorizDerivParam->set(m_Deriv);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
@@ -101,24 +98,23 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pVertRadiusParam->set((kernelWidth-1)/2);
     m_pVertTextureParam->set(0);
     m_pVertKernelTexParam->set(1);
-    m_pVertDerivParam->set(m_Deriv);
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw(pVShader);
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)
 {
-    IntPoint destSize = size;
+    
+#ifndef AVG_ENABLE_EGL
     if (bClipBorders) {
         GPUFilter::setDimensions(size);
     } else {
         int radius = getBlurKernelRadius(stdDev);
         IntPoint offset(radius, radius);
-        destSize += glm::vec2(2*radius, 2*radius);
+        //TODO: TO_BORDER DOES NOT EXIST IN GLESV2
         GPUFilter::setDimensions(size, IntRect(-offset, size+offset), GL_CLAMP_TO_BORDER);
     }
-    // Precalculate dFd* because it's not generally available on GLES.
-    m_Deriv = glm::vec2(1.f/size.x, 1.f/destSize.y);
+#endif
 }
 
 }
