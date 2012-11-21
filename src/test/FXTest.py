@@ -338,12 +338,6 @@ class FXTestCase(AVGTestCase):
                     href="mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
             self.videoNode.play()
 
-        def showText():
-            self.videoNode.unlink(True)
-            avg.WordsNode(parent=root, fontsize=24, font="Bitstream Vera Sans",
-                    intensity=(0.5,0.5,0.5), text="Half-brightness text.",
-                    width=140)
-
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", intensity=(0.5,0.5,0.5))
         self.assertEqual(node.intensity, (0.5,0.5,0.5))
@@ -355,11 +349,19 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testIntensity2"),
                  showVideo,
                  lambda: self.compareImage("testIntensity3"),
-                 showText,
-                 lambda: self.compareImage("testIntensity4"),
                 ))
         player.setFakeFPS(-1)
         self.videoNode = None
+
+    def testWordsIntensity(self):
+        root = self.loadEmptyScene()
+        avg.WordsNode(parent=root, fontsize=24, font="Bitstream Vera Sans",
+                intensity=(0.5,0.5,0.5), text="Half-brightness text.",
+                width=140)
+        self.start(True,
+                (lambda: self.compareImage("testWordsIntensity"),
+                ))
+
 
     def testContrast(self):
         def setContrast(val):
@@ -485,6 +487,7 @@ def fxTestSuite(tests):
             "testWordsShadowFX",
             "testGamma",
             "testIntensity",
+            "testWordsIntensity",
             "testContrast",
             "testFXUpdate",
             "testChromaKeyFX",
