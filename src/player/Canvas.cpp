@@ -145,7 +145,7 @@ void Canvas::doFrame(bool bPythonAvailable)
         if (bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
-                render();
+                renderTree();
             } catch(...) {
                 Py_BLOCK_THREADS;
                 Player::get()->endTraversingTree();
@@ -153,7 +153,7 @@ void Canvas::doFrame(bool bPythonAvailable)
             }
             Py_END_ALLOW_THREADS;
         } else {
-            render();
+            renderTree();
         }
         Player::get()->endTraversingTree();
     }

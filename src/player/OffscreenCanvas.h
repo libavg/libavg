@@ -72,7 +72,7 @@ class AVG_API OffscreenCanvas: public Canvas
         void dump() const;
  
     protected:
-        virtual void render();
+        virtual void renderTree();
 
     private:
         FBOPtr m_pFBO;

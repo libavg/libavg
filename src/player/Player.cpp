@@ -839,7 +839,11 @@ BitmapPtr Player::screenshot()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
     }
-    m_pMainCanvas->doFrame(m_bPythonAvailable);
+    if (GLContext::getMain()->isGLES()) {
+        // Some GLES implementations invalidate the buffer after eglSwapBuffers.
+        // The only way we can get at the contents at this point is to rerender them.
+        m_pMainCanvas->render(m_pDisplayEngine->getWindowSize(), false);
+    }
     return m_pDisplayEngine->screenshot();
 }
 

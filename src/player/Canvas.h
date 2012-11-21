@@ -93,16 +93,17 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         bool operator !=(const Canvas& other) const;
         long getHash() const;
 
+        virtual void render(IntPoint windowSize, bool bUpsideDown);
+
     protected:
         Player * getPlayer() const;
         void preRender();
-        void render(IntPoint windowSize, bool bUpsideDown);
         void emitPreRenderSignal(); 
         void emitFrameEndSignal();
 
 
     private:
-        virtual void render()=0;
+        virtual void renderTree()=0;
         void renderOutlines(const glm::mat4& transform);
 
         void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);

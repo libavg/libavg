@@ -123,7 +123,7 @@ void OffscreenCanvas::setAutoRender(bool bAutoRender)
 void OffscreenCanvas::manualRender()
 {
     emitPreRenderSignal(); 
-    render(); 
+    renderTree(); 
     emitFrameEndSignal(); 
 }
 
@@ -242,11 +242,11 @@ void OffscreenCanvas::dump() const
 
 static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
 
-void OffscreenCanvas::render()
+void OffscreenCanvas::renderTree()
 {
     if (!isRunning()) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
+                "OffscreenCanvas::renderTree(): Player.play() needs to be called before rendering offscreen canvases."));
     }
     preRender();
     m_pFBO->activate();
