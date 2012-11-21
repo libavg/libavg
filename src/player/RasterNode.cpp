@@ -220,8 +220,15 @@ const std::string& RasterNode::getBlendModeStr() const
 
 void RasterNode::setBlendModeStr(const string& sBlendMode)
 {
+    GLContext::BlendMode blendMode = GLContext::stringToBlendMode(sBlendMode);
+    if (!GLContext::getMain()->isBlendModeSupported(blendMode)) {
+        m_sBlendMode = "blend";
+        m_BlendMode = GLContext::BLEND_BLEND;
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+              "Min and max blend modes are not supported in this OpenGL configuration.");
+    }
     m_sBlendMode = sBlendMode;
-    m_BlendMode = GLContext::stringToBlendMode(sBlendMode);
+    m_BlendMode = blendMode;
 }
 
 const UTF8String& RasterNode::getMaskHRef() const

@@ -315,9 +315,26 @@ class ImageTestCase(AVGTestCase):
         self.assertException(player.play)
 
     def testBlendMode(self):
+        def isBlendMinMaxSupported():
+            def tryInsertNode():
+                try:
+                    avg.ImageNode(href="rgb24-65x65.png", blendmode="min", parent=root)
+                except RuntimeError:
+                    self.supported = False
+            root = self.loadEmptyScene()
+            self.supported = True
+            self.start(False,
+                    (tryInsertNode,
+                    ))
+            return self.supported
+            
+
         def setBlendMode():
             blendNode.blendmode="add"
         
+        if not(isBlendMinMaxSupported()):
+            self.skip("Blend modes min and max not supported.")
+            return
         root = self.loadEmptyScene()
         avg.ImageNode(href="freidrehen.jpg", parent=root)
         blendNode = avg.ImageNode(opacity=0.6, href="rgb24-65x65.png", parent=root)

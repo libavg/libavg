@@ -262,6 +262,7 @@ void GLContext::setBlendColor(const glm::vec4& color)
 
 void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 {
+    AVG_ASSERT(isBlendModeSupported(mode));
     GLenum srcFunc;
     if (bPremultipliedAlpha) {
         srcFunc = GL_CONSTANT_ALPHA;
@@ -304,6 +305,15 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 
         m_BlendMode = mode;
         m_bPremultipliedAlpha = bPremultipliedAlpha;
+    }
+}
+
+bool GLContext::isBlendModeSupported(BlendMode mode) const
+{
+    if (isGLES() && (mode == BLEND_MIN || mode == BLEND_MAX)) {
+        return queryOGLExtension("GL_EXT_blend_minmax");
+    } else {
+        return true;
     }
 }
 

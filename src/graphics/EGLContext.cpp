@@ -149,7 +149,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
     m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
     checkEGLError(!m_Context, "Unable to create EGL context");
-    dumpEGLConfig();
+//    dumpEGLConfig();
 }
 
 bool EGLContext::initVBlank(int rate)
