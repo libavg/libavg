@@ -82,6 +82,7 @@ public:
     OGLMemoryMode getMemoryMode();
     bool isGLES() const;
     bool isVendor(const std::string& sWantedVendor) const;
+    bool useDepthBuffer() const;
 
     virtual bool initVBlank(int rate)=0;
     virtual void swapBuffers();

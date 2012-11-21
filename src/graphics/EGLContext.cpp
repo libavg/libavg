@@ -80,7 +80,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     fbAttrs.append(EGL_RED_SIZE, 1);
     fbAttrs.append(EGL_GREEN_SIZE, 1);
     fbAttrs.append(EGL_BLUE_SIZE, 1);
-    fbAttrs.append(EGL_DEPTH_SIZE, 1);
+    fbAttrs.append(EGL_DEPTH_SIZE, 0);
     fbAttrs.append(EGL_STENCIL_SIZE, 1);
     int alphaSize = 0;
 #ifdef AVG_ENABLE_RPI
@@ -149,7 +149,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
     m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
     checkEGLError(!m_Context, "Unable to create EGL context");
-    //dumpEGLConfig();
+    dumpEGLConfig();
 }
 
 bool EGLContext::initVBlank(int rate)

@@ -45,11 +45,13 @@ namespace avg {
 #endif
 
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
-        unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bMipmap)
+        unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bUseStencil,
+        bool bMipmap)
     : m_Size(size),
       m_PF(pf),
       m_MultisampleSamples(multisampleSamples),
       m_bUsePackedDepthStencil(bUsePackedDepthStencil),
+      m_bUseStencil(bUseStencil),
       m_bMipmap(bMipmap)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -254,6 +256,13 @@ void FBO::init()
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, m_StencilBuffer);
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
+        } else if (m_bUseStencil) {
+            glproc::GenRenderbuffers(1, &m_StencilBuffer);
+            glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
+            glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, 
+                    glSize.x, glSize.y);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+                    GL_RENDERBUFFER, m_StencilBuffer);
         }
         m_OutputFBO = m_FBO;
     } else {
@@ -290,6 +299,9 @@ void FBO::init()
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, m_StencilBuffer);
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
+        } else {
+            AVG_ASSERT_MSG(!m_bUseStencil, 
+                "Multisample FBO with stencil & not depth buffers not implemented yet.");
         }
         checkError("init multisample");
         m_OutputFBO = pContext->genFBO();

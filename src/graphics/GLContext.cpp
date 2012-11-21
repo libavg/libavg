@@ -409,6 +409,11 @@ bool GLContext::isVendor(const string& sWantedVendor) const
     return (sVendor.find(sWantedVendor) != string::npos);
 }
 
+bool GLContext::useDepthBuffer() const
+{
+    return !isGLES();
+}
+
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {

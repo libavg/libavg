@@ -70,8 +70,9 @@ void OffscreenCanvas::initPlayback()
     } else {
         pf = R8G8B8A8;
     }
-    m_pFBO = FBOPtr(new FBO(getSize(), pf, 1, getMultiSampleSamples(), true,
-            m_bUseMipmaps));
+    bool bUseDepthBuffer = GLContext::getMain()->useDepthBuffer();
+    m_pFBO = FBOPtr(new FBO(getSize(), pf, 1, getMultiSampleSamples(), bUseDepthBuffer,
+            true, m_bUseMipmaps));
     Canvas::initPlayback(getMultiSampleSamples());
     m_bIsRendered = false;
 }
