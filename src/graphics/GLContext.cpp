@@ -99,6 +99,7 @@ GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize,
 
 void GLContext::init(bool bOwnsContext)
 {
+    AVG_ASSERT(false);
     m_bOwnsContext = bOwnsContext;
     activate();
     glproc::init();
