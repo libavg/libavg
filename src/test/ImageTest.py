@@ -472,9 +472,7 @@ class ImageTestCase(AVGTestCase):
 
     def testImageMipmap(self):
         root = self.loadEmptyScene()
-        avg.ImageNode(size=(64,64), href="checker.png", parent=root)
-        avg.ImageNode(pos=(64,0), size=(64,64), href="checker.png", mipmap=True, 
-                parent=root)
+        avg.ImageNode(size=(64,64), href="checker.png", mipmap=True, parent=root)
         self.start(False,
                 (lambda: self.compareImage("testMipmap"),))
 
