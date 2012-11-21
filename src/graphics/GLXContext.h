@@ -39,6 +39,7 @@ public:
 
     void activate();
     bool initVBlank(int rate);
+    bool useDepthBuffer() const;
     void swapBuffers();
 
     static bool haveARBCreateContext();

@@ -103,6 +103,10 @@ FBO::~FBO()
                 glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                         GL_TEXTURE_2D, 0, 0);
             }
+        } else if (m_bUseStencil) {
+            glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+                    GL_RENDERBUFFER, 0);
         }
         glproc::BindFramebuffer(GL_FRAMEBUFFER, oldFBOID);
         GLContext::checkError("~FBO");
@@ -255,7 +259,7 @@ void FBO::init()
                     GL_RENDERBUFFER, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, m_StencilBuffer);
-            GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
+            GLContext::checkError("FBO::init: FramebufferRenderbuffer(DEPTH_STENCIL)");
         } else if (m_bUseStencil) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
@@ -263,6 +267,7 @@ void FBO::init()
                     glSize.x, glSize.y);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, m_StencilBuffer);
+            GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
         m_OutputFBO = m_FBO;
     } else {
