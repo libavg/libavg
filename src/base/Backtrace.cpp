@@ -68,6 +68,14 @@ string funcNameFromLine(const string& sLine)
     }
 }
 
+void consolidateRepeatedLines(vector<string>& sFuncs, unsigned& i, unsigned numSameLines)
+{
+    unsigned firstSameLine = i - numSameLines;
+    sFuncs[firstSameLine+1] = "    [...]";
+    sFuncs.erase(sFuncs.begin()+firstSameLine+2, sFuncs.begin()+i-1);
+    i = firstSameLine + 3;
+}
+
 void getBacktrace(vector<string>& sFuncs)
 {
 #ifndef _WIN32
@@ -90,19 +98,20 @@ void getBacktrace(vector<string>& sFuncs)
     }
     free(ppszLines);
 
-    int numSameLines = 1;
-    for (unsigned i = 1; i < sFuncs.size(); ++i) {
+    unsigned numSameLines = 1;
+    unsigned i = 1;
+    for (i = 1; i < sFuncs.size(); ++i) {
         if (sFuncs[i].substr(4, string::npos) == sFuncs[i-1].substr(4, string::npos)) {
             numSameLines++;
         } else {
             if (numSameLines > 3) {
-                unsigned firstSameLine = i - numSameLines;
-                sFuncs[firstSameLine+1] = "    [...]";
-                sFuncs.erase(sFuncs.begin()+firstSameLine+2, sFuncs.begin()+i-1);
-                i = firstSameLine + 3;
+                consolidateRepeatedLines(sFuncs, i, numSameLines);
             }
             numSameLines = 1;
         }
+    }
+    if (numSameLines > 2) {
+        consolidateRepeatedLines(sFuncs, i, numSameLines);
     }
 #endif
 }
