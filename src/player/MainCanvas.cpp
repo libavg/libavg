@@ -75,8 +75,13 @@ static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 
 void MainCanvas::render()
 {
-    Canvas::render(m_pDisplayEngine->getWindowSize(), false, FBOPtr(),
-            RootRenderProfilingZone);
+    preRender();
+    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+    GLContext::checkError("Canvas::render: BindFramebuffer()");
+    {
+        ScopeTimer Timer(RootRenderProfilingZone);
+        Canvas::render(m_pDisplayEngine->getWindowSize(), false);
+    }
 }
 
 }

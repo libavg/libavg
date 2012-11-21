@@ -241,21 +241,16 @@ vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
 
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
 
-void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
-        ProfilingZoneID& renderProfilingZone)
+void Canvas::preRender()
 {
-    {
-        ScopeTimer Timer(PreRenderProfilingZone);
-        m_pVertexArray->reset();
-        m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
-        m_pVertexArray->update();
-    }
-    if (pFBO) {
-        pFBO->activate();
-    } else {
-        glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-        GLContext::checkError("Canvas::render: BindFramebuffer()");
-    }
+    ScopeTimer Timer(PreRenderProfilingZone);
+    m_pVertexArray->reset();
+    m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
+    m_pVertexArray->update();
+}
+
+void Canvas::render(IntPoint windowSize, bool bUpsideDown)
+{
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
     GLContext::checkError("Canvas::render: glViewport()");
@@ -266,13 +261,10 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     } else {
         projMat = glm::ortho(0.f, size.x, size.y, 0.f);
     }
-    {
-        ScopeTimer Timer(renderProfilingZone);
-        m_pVertexArray->activate();
-        m_pRootNode->maybeRender(projMat);
+    m_pVertexArray->activate();
+    m_pRootNode->maybeRender(projMat);
 
-        renderOutlines(projMat);
-    }
+    renderOutlines(projMat);
 }
 
 void Canvas::renderOutlines(const glm::mat4& transform)

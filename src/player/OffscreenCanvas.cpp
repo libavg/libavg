@@ -27,6 +27,7 @@
 #include "../base/Exception.h"
 #include "../base/ProfilingZoneID.h"
 #include "../base/ObjectCounter.h"
+#include "../base/ScopeTimer.h"
 
 #include "../graphics/FilterUnmultiplyAlpha.h"
 #include "../graphics/BitmapLoader.h"
@@ -247,8 +248,12 @@ void OffscreenCanvas::render()
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
     }
-    Canvas::render(IntPoint(getRootNode()->getSize()), true, m_pFBO, 
-            OffscreenRenderProfilingZone);
+    preRender();
+    m_pFBO->activate();
+    {
+        ScopeTimer Timer(OffscreenRenderProfilingZone);
+        Canvas::render(IntPoint(getRootNode()->getSize()), true);
+    }
     m_pFBO->copyToDestTexture();
     m_bIsRendered = true;
 }

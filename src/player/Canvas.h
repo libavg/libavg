@@ -95,8 +95,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
     protected:
         Player * getPlayer() const;
-        void render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
-                ProfilingZoneID& renderProfilingZone);
+        void preRender();
+        void render(IntPoint windowSize, bool bUpsideDown);
         void emitPreRenderSignal(); 
         void emitFrameEndSignal();
 
