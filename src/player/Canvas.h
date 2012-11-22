@@ -93,7 +93,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         bool operator !=(const Canvas& other) const;
         long getHash() const;
 
-        virtual void render(IntPoint windowSize, bool bUpsideDown);
+        virtual void render(IntPoint windowSize, bool bOffscreen);
 
     protected:
         Player * getPlayer() const;

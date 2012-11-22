@@ -89,7 +89,7 @@ enum OGLMemoryMode {
 
 std::string oglMemoryMode2String(OGLMemoryMode mode);
 
-void AVG_API clearGLBuffers(GLbitfield mask);
+void AVG_API clearGLBuffers(GLbitfield mask, bool bOpaque);
 
 typedef void (*GLfunction)();
 GLfunction AVG_API getFuzzyProcAddress(const char * psz);

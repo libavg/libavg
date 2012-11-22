@@ -249,14 +249,15 @@ void Canvas::preRender()
     m_pVertexArray->update();
 }
 
-void Canvas::render(IntPoint windowSize, bool bUpsideDown)
+void Canvas::render(IntPoint windowSize, bool bOffscreen)
 {
-    clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+            !bOffscreen);
     glViewport(0, 0, windowSize.x, windowSize.y);
     GLContext::checkError("Canvas::render: glViewport()");
     glm::vec2 size = m_pRootNode->getSize();
     glm::mat4 projMat;
-    if (bUpsideDown) {
+    if (bOffscreen) {
         projMat = glm::ortho(0.f, size.x, 0.f, size.y);
     } else {
         projMat = glm::ortho(0.f, size.x, size.y, 0.f);

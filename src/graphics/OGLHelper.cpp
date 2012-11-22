@@ -200,9 +200,15 @@ string oglMemoryMode2String(OGLMemoryMode mode)
     }
 }
 
-void AVG_API clearGLBuffers(GLbitfield mask)
+void AVG_API clearGLBuffers(GLbitfield mask, bool bOpaque)
 {
-    glClearColor(0.0, 0.0, 0.0, 0.0); 
+    float alpha;
+    if (bOpaque) {
+        alpha = 1.0;
+    } else {
+        alpha = 0.0;
+    }
+    glClearColor(0.0, 0.0, 0.0, alpha); 
     if (mask & GL_STENCIL_BUFFER_BIT) {
         glStencilMask(~0);
         glClearStencil(0);

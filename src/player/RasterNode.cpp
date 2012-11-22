@@ -420,7 +420,7 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         m_pSurface->activate(getMediaSize());
 
         m_pFBO->activate();
-        clearGLBuffers(GL_COLOR_BUFFER_BIT);
+        clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
 
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
