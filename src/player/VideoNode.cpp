@@ -586,6 +586,7 @@ long long VideoNode::getNextFrameTime() const
         case Unloaded:
             return 0;
         case Paused:
+            AVG_ASSERT(m_PauseStartTime-m_StartTime >= 0);
             return m_PauseStartTime-m_StartTime;
         case Playing:
             {
@@ -748,7 +749,6 @@ bool VideoNode::renderFrame()
     }
 
     return (frameAvailable == FA_NEW_FRAME);
-    return false;
 }
 
 FrameAvailableCode VideoNode::renderToSurface()
@@ -802,6 +802,7 @@ void VideoNode::updateStatusDueToDecoderEOF()
     m_bEOFPending = true;
     if (m_bLoop) {
         m_StartTime = Player::get()->getFrameTime();
+        m_PauseStartTime = Player::get()->getFrameTime();
         m_JitterCompensation = 0.5;
         m_PauseTime = 0;
         m_FramesInRowTooLate = 0;
