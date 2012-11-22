@@ -145,9 +145,12 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
     setViewport(-32767, -32767, -32767, -32767);
 }
 
+static ProfilingZoneID PrerenderProfilingZone("ImageNode::prerender");
+
 void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
+    ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         bool bHasCanvas = bool(m_pImage->getCanvas());

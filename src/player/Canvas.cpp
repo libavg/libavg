@@ -240,13 +240,17 @@ vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
 }
 
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
+static ProfilingZoneID VATransferProfilingZone("VA Transfer");
 
 void Canvas::preRender()
 {
     ScopeTimer Timer(PreRenderProfilingZone);
     m_pVertexArray->reset();
     m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
-    m_pVertexArray->update();
+    {
+        ScopeTimer Timer(VATransferProfilingZone);
+        m_pVertexArray->update();
+    }
 }
 
 void Canvas::render(IntPoint windowSize, bool bOffscreen)
