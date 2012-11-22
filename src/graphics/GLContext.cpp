@@ -212,7 +212,7 @@ StandardShaderPtr GLContext::getStandardShader()
 
 bool GLContext::useGPUYUVConversion() const
 {
-    return (m_MajorGLVersion > 1);
+    return (m_MajorGLVersion > 1) || isGLES();
 }
 
 GLConfig::ShaderUsage GLContext::getShaderUsage() const
