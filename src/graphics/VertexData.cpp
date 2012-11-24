@@ -54,7 +54,7 @@ VertexData::VertexData(int reserveVerts, int reserveIndexes)
         m_ReserveIndexes = MIN_INDEXES;
     }
     m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
-    m_pIndexData = new unsigned int[m_ReserveIndexes];
+    m_pIndexData = new unsigned short[m_ReserveIndexes];
 
 }
 
@@ -207,9 +207,9 @@ void VertexData::grow()
         if (m_ReserveIndexes < m_NumIndexes) {
             m_ReserveIndexes = m_NumIndexes;
         }
-        unsigned int * pIndexData = m_pIndexData;
-        m_pIndexData = new unsigned int[m_ReserveIndexes];
-        memcpy(m_pIndexData, pIndexData, sizeof(unsigned int)*oldReserveIndexes);
+        unsigned short * pIndexData = m_pIndexData;
+        m_pIndexData = new unsigned short[m_ReserveIndexes];
+        memcpy(m_pIndexData, pIndexData, sizeof(unsigned short)*oldReserveIndexes);
         delete[] pIndexData;
     }
     if (bChanged) {
@@ -232,7 +232,7 @@ const T2V3C4Vertex * VertexData::getVertexPointer() const
     return m_pVertexData;
 }
 
-const unsigned int * VertexData::getIndexPointer() const
+const unsigned short * VertexData::getIndexPointer() const
 {
     return m_pIndexData;
 }

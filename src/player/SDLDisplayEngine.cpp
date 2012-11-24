@@ -57,9 +57,6 @@
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
-#ifdef linux
-#include <X11/extensions/xf86vmode.h>
-#endif
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
@@ -84,8 +81,6 @@
 using namespace std;
 
 namespace avg {
-
-float SDLDisplayEngine::s_RefreshRate = 0.0;
 
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
@@ -222,7 +217,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     m_pXIMTInputDevice = 0;
 #endif
     SDL_WM_SetCaption("libavg", 0);
-    calcRefreshRate();
+    GLContext::getRefreshRate();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
@@ -270,6 +265,7 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
         if (m_pGLContext) {
+            delete m_pGLContext;
             m_pGLContext = 0;
         }
         GLContext::setMain(0);
@@ -278,10 +274,7 @@ void SDLDisplayEngine::teardown()
 
 float SDLDisplayEngine::getRefreshRate() 
 {
-    if (s_RefreshRate == 0.0) {
-        calcRefreshRate();
-    }
-    return s_RefreshRate;
+    return GLContext::getRefreshRate();
 }
 
 void SDLDisplayEngine::setGamma(float red, float green, float blue)
@@ -382,8 +375,14 @@ void SDLDisplayEngine::showCursor(bool bShow)
 BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp;
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-    if (!m_pGLContext->isGLES()) {
+    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (m_pGLContext->isGLES()) {
+        pBmp = BitmapPtr(new Bitmap(m_WindowSize, R8G8B8X8, "screenshot"));
+        glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_RGBA, GL_UNSIGNED_BYTE, 
+                pBmp->getPixels());
+        GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
+    } else {
+#ifndef AVG_ENABLE_EGL
         pBmp = BitmapPtr(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
         string sTmp;
         bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
@@ -402,12 +401,7 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
         glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
                 pBmp->getPixels());
         GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
-    } else {
-        pBmp = BitmapPtr(new Bitmap(m_WindowSize, R8G8B8X8, "screenshot"));
-        glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_RGBA, GL_UNSIGNED_BYTE, 
-                pBmp->getPixels());
-        GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
-        FilterFlipRGB().applyInPlace(pBmp);
+#endif
     }
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
@@ -416,74 +410,6 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 IntPoint SDLDisplayEngine::getSize()
 {
     return m_Size;
-}
-
-void SDLDisplayEngine::calcRefreshRate()
-{
-    float lastRefreshRate = s_RefreshRate;
-    s_RefreshRate = 0;
-#ifdef __APPLE__
-    #if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
-        CGDisplayModeRef mode = CGDisplayCopyDisplayMode(CGMainDisplayID());
-        s_RefreshRate = CGDisplayModeGetRefreshRate(mode);
-        if (s_RefreshRate < 1.0) {
-            AVG_TRACE(Logger::CONFIG, 
-                    "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
-            s_RefreshRate = 60;
-        }
-        CGDisplayModeRelease(mode);
-    #else
-        CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
-        if (modeInfo) {
-            CFNumberRef value = (CFNumberRef) CFDictionaryGetValue(modeInfo, 
-                    kCGDisplayRefreshRate);
-            if (value) {
-                CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
-                if (s_RefreshRate < 1.0) {
-                    AVG_TRACE(Logger::CONFIG, 
-                           "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
-                    s_RefreshRate = 60;
-                }
-            } else {
-                AVG_TRACE(Logger::WARNING, 
-                        "Apple refresh rate calculation (CFDictionaryGetValue) failed");
-            }
-        } else {
-            AVG_TRACE(Logger::WARNING, 
-                    "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
-        }
-    #endif
-#elif defined _WIN32
-    // This isn't correct for multi-monitor systems.
-    HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
-    s_RefreshRate = float(GetDeviceCaps(hDC, VREFRESH));
-    if (s_RefreshRate < 2) {
-        s_RefreshRate = 60;
-    }
-    DeleteDC(hDC);
-#else 
-    Display * pDisplay = XOpenDisplay(0);
-    int pixelClock;
-    XF86VidModeModeLine modeLine;
-    bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
-            &pixelClock, &modeLine);
-    if (!bOK) {
-        AVG_TRACE (Logger::WARNING, 
-                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_TRACE (Logger::WARNING, 
-                "Defaulting to 60 Hz refresh rate.");
-    }
-    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
-    s_RefreshRate = HSyncRate/modeLine.vtotal;
-    XCloseDisplay(pDisplay);
-#endif
-    if (s_RefreshRate == 0) {
-        s_RefreshRate = 60;
-    }
-    if (lastRefreshRate != s_RefreshRate) {
-        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
-    }
-
 }
 
 vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);

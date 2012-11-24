@@ -35,9 +35,9 @@ using namespace std;
 
 namespace avg {
 
-GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
+GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, bool bUseAlpha, 
         float alpha, bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID),
+    : GPUFilter(SHADERID, bUseAlpha, bStandalone),
       m_Alpha(alpha)
 {
     ObjectCounter::get()->incRef(&typeid(*this));

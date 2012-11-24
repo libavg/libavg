@@ -87,9 +87,11 @@ void ShaderRegistry::createShader(const std::string& sID)
         }
         string sFragPreprocessed;
         loadShaderString(sFilename, sFragPreprocessed);
-        string sPrefix = createPrefixString();
+        string sVertPrefix = createPrefixString(false);
+        string sFragPrefix = createPrefixString(true);
         m_ShaderMap[sID] = OGLShaderPtr(
-                new OGLShader(sID, sVertPreprocessed, sFragPreprocessed, sPrefix));
+                new OGLShader(sID, sVertPreprocessed, sFragPreprocessed, sVertPrefix,
+                        sFragPrefix));
     }
 }
 
@@ -154,7 +156,7 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
     }
 }
 
-string ShaderRegistry::createPrefixString()
+string ShaderRegistry::createPrefixString(bool bFragment)
 {
     stringstream ss;
     std::map<std::string, std::string>::iterator it;
@@ -165,8 +167,10 @@ string ShaderRegistry::createPrefixString()
     }
     if (GLContext::getCurrent()->isGLES()) {
         ss << endl;
+        if (bFragment) {
+            ss << "#extension GL_OES_standard_derivatives : enable" << endl;
+        }
         ss << "precision mediump float;" << endl;
-        ss << "#extension GL_OES_standard_derivatives : enable" << endl;
     }
     if (GLContext::getCurrent()->getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
         ss << endl;

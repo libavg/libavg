@@ -134,8 +134,7 @@ const string ImageNode::getCompression() const
 
 void ImageNode::setBitmap(BitmapPtr pBmp)
 {
-    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER)
-    {
+    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER) {
         m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
     m_pImage->setBitmap(pBmp, m_Compression);
@@ -146,9 +145,12 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
     setViewport(-32767, -32767, -32767, -32767);
 }
 
+static ProfilingZoneID PrerenderProfilingZone("ImageNode::prerender");
+
 void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
+    ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         bool bHasCanvas = bool(m_pImage->getCanvas());

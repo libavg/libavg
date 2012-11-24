@@ -78,6 +78,7 @@
 #include "../base/DAG.h"
 
 #include "../graphics/BitmapManager.h"
+#include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
 
 #include "../imaging/Camera.h"
@@ -248,6 +249,10 @@ void Player::useGLES(bool bGLES)
 {
     errorIfPlaying("Player.useGLES");
     m_GLConfig.m_bGLES = bGLES;
+#ifdef AVG_ENABLE_EGL
+    m_GLConfig.m_bGLES = true;
+#endif
+    BitmapLoader::init(!m_GLConfig.m_bGLES);
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
@@ -834,6 +839,11 @@ BitmapPtr Player::screenshot()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
     }
+    if (GLContext::getMain()->isGLES()) {
+        // Some GLES implementations invalidate the buffer after eglSwapBuffers.
+        // The only way we can get at the contents at this point is to rerender them.
+        m_pMainCanvas->render(m_pDisplayEngine->getWindowSize(), false);
+    }
     return m_pDisplayEngine->screenshot();
 }
 
@@ -1195,10 +1205,14 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
-                "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
+               "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
+#ifdef AVG_ENABLE_EGL
+    m_GLConfig.m_bGLES = true;
+#endif
+    BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
@@ -1208,6 +1222,12 @@ void Player::initGraphics(const string& sShaderPath)
     // Init display configuration.
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
+    if (m_bDisplayEngineBroken) {
+        m_bDisplayEngineBroken = false;
+        m_pDisplayEngine->teardown();
+        m_pDisplayEngine = SDLDisplayEnginePtr();
+    }
+
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
@@ -1215,9 +1235,8 @@ void Player::initGraphics(const string& sShaderPath)
     m_GLConfig.log();
     m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
     if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
-            m_pDisplayEngine->isFullscreen() == true || m_bDisplayEngineBroken) 
+            m_pDisplayEngine->isFullscreen() == true) 
     {
-        m_bDisplayEngineBroken = false;
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 

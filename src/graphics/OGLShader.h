@@ -44,7 +44,7 @@ class AVG_API OGLShader {
         virtual ~OGLShader();
 
         void activate();
-        GLhandleARB getProgram();
+        GLuint getProgram();
         const std::string getName() const;
 
         void setTransform(const glm::mat4& transform);
@@ -68,20 +68,21 @@ class AVG_API OGLShader {
         }
 
     private:
-        OGLShader(const std::string& sName, const std::string& sVertProgram,
-                const std::string& sFragProgram, const std::string& sPrefix);
+        OGLShader(const std::string& sName, const std::string& sVertProgram, 
+                const std::string& sFragProgram, const std::string& sVertPrefix, 
+                const std::string& sFragPrefix);
         friend class ShaderRegistry;
 
-        GLhandleARB compileShader(GLenum shaderType, const std::string& sProgram,
+        GLuint compileShader(GLenum shaderType, const std::string& sProgram,
                 const std::string& sPrefix);
         bool findParam(const std::string& sName, unsigned& pos);
-        void dumpInfoLog(GLhandleARB hObj, int category);
+        void dumpInfoLog(GLuint hObj, int category, bool bIsProgram=false);
         std::string removeATIInfoLogSpam(const std::string& sLog);
 
         std::string m_sName;
-        GLhandleARB m_hVertexShader;
-        GLhandleARB m_hFragmentShader;
-        GLhandleARB m_hProgram;
+        GLuint m_hVertexShader;
+        GLuint m_hFragmentShader;
+        GLuint m_hProgram;
         std::string m_sVertProgram;
         std::string m_sFragProgram;
 

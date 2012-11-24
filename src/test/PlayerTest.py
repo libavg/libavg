@@ -97,8 +97,7 @@ class PlayerTestCase(AVGTestCase):
         player.showCursor(0)
         player.showCursor(1)
         root = self.loadEmptyScene()
-        node = player.createNode("""<image id="test1" href="rgb24-65x65.png"/>""")
-        root.appendChild(node)
+        avg.ImageNode(href="rgb24-65x65.png", parent=root)
         self.assertException(invalidCreateNode)
         self.start(False,
                 (getFramerate,

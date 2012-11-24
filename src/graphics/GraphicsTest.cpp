@@ -21,6 +21,7 @@
 
 #include "GraphicsTest.h"
 #include "Bitmap.h"
+#include "BitmapLoader.h"
 #include "Filterfliprgb.h"
 #include "Filtergrayscale.h"
 
@@ -58,11 +59,8 @@ void GraphicsTest::createResultImgDir()
 BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
 {
     try {
-        BitmapPtr pBmp(new Bitmap(getSrcDirName()+"../test/media/"+sFName+".png"));
-        if (pf == I8) {
-            return FilterGrayscale().apply(pBmp);
-        }
-        return pBmp;
+        string sFullName = getSrcDirName()+"../test/media/"+sFName+".png";
+        return loadBitmap(sFullName, pf);
     } catch (Exception & ex) {
         cerr << ex.getStr() << endl;
         throw;
@@ -74,14 +72,8 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
 {
     BitmapPtr pBaselineBmp;
     try {
-        pBaselineBmp = BitmapPtr(new Bitmap(getSrcDirName()+"baseline/"+sFName+".png"));
-        switch (pf) {
-            case I8:
-                FilterGrayscale().applyInPlace(pBaselineBmp);
-                break;
-            default:
-                break;
-        }
+        string sFullName = getSrcDirName()+"baseline/"+sFName+".png";
+        pBaselineBmp = loadBitmap(sFullName, pf);
     } catch (Exception & ex) {
         cerr << ex.getStr() << endl;
         resultBmp.save("resultimages/"+sFName+".png");

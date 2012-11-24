@@ -39,9 +39,11 @@ public:
 
     void activate();
     bool initVBlank(int rate);
+    bool useDepthBuffer() const;
     void swapBuffers();
 
     static bool haveARBCreateContext();
+    static float calcRefreshRate();
 
 private:
     void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 

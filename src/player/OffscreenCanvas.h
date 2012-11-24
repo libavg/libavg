@@ -44,7 +44,6 @@ class AVG_API OffscreenCanvas: public Canvas
         virtual void stopPlayback();
 
         virtual BitmapPtr screenshot() const;
-        virtual BitmapPtr screenshot(bool bIgnoreAlpha) const;
         bool getHandleEvents() const;
         int getMultiSampleSamples() const;
         bool getMipmap() const;
@@ -73,7 +72,7 @@ class AVG_API OffscreenCanvas: public Canvas
         void dump() const;
  
     protected:
-        virtual void render();
+        virtual void renderTree();
 
     private:
         FBOPtr m_pFBO;

@@ -144,14 +144,51 @@ if test "$enable_ParPort" = yes; then
     AC_DEFINE(AVG_ENABLE_PARPORT, 1, [Enable parallel port support])
 fi 
 
-AX_CHECK_GL
-AX_CHECK_GLU
+AC_ARG_ENABLE(egl,
+        AC_HELP_STRING([--enable-egl], [include EGL support [default=no]]),
+        ,
+        enable_egl=no)
+
+AC_ARG_ENABLE(rpi,
+        AC_HELP_STRING([--enable-rpi], [configure for RaspberryPi [default=no]]),
+        ,
+        enable_rpi=no)
+
+if test "$enable_rpi" = yes; then
+    CPPFLAGS="$CPPFLAGS -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads"
+    LDFLAGS="$LDFLAGS -L/opt/vc/lib"
+    AC_DEFINE(AVG_ENABLE_RPI, 1, [Build on RaspberryPi])
+    AM_CONDITIONAL(ENABLE_RPI, true)
+    if test "$enable_egl" = no; then
+        enable_egl=yes
+        AC_MSG_NOTICE([--enable-rpi requires --enable-egl, added --enable-egl])
+    fi
+    # suppress several hundreds "swp{b} use is deprecated for this architecture" assembler warnings
+    CFLAGS="$CFLAGS -Wa,--no-warn"
+    CXXFLAGS="$CXXFLAGS -Wa,--no-warn"
+else
+    AM_CONDITIONAL(ENABLE_RPI, false)
+fi
+
+if test "$enable_egl" = yes; then
+    AC_CHECK_HEADERS(["EGL/egl.h"], [egl_present=yes;])
+    AC_CHECK_HEADERS(["GLES2/gl2.h"], [gles2_present=yes;])
+    if [[ x"$egl_present" == x ]] || [[ x"$gles2_present" == x ]]; then
+        AC_MSG_ERROR([EGL not found. Aborting])
+    fi
+    AC_DEFINE(AVG_ENABLE_EGL, 1, [Enable EGL support])
+else
+    AX_CHECK_GL
+    AX_CHECK_GLU
+    if test x"$GL_LIBS" = x; then
+        AC_MSG_ERROR([OpenGL not found. Aborting])
+    fi
+    AC_DEFINE(AVG_ENABLE_OPENGL, 1, [Enable OpenGL support])
+fi
+AM_CONDITIONAL(ENABLE_EGL, test x"$egl_present" != x)
+AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
 AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
-
-if test x"$GL_LIBS" = x; then
-    AC_MSG_ERROR([OpenGL not found. Aborting])
-fi
 
 AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
 AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)

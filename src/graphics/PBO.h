@@ -55,6 +55,7 @@ public:
     int getID() const;
 
 private:
+    unsigned getMemNeeded() const;
     unsigned getTarget() const;
 
     unsigned m_Usage;

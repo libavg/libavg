@@ -25,6 +25,8 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
 
+#include "../graphics/BitmapLoader.h"
+
 #include<sstream>
 
 using namespace std;
@@ -114,7 +116,7 @@ void HueSatFXNode::setColorizing(bool colorize)
 
 GPUFilterPtr HueSatFXNode::createFilter(const IntPoint& size)
 {
-    filterPtr = GPUHueSatFilterPtr(new GPUHueSatFilter(size, B8G8R8A8, false));
+    filterPtr = GPUHueSatFilterPtr(new GPUHueSatFilter(size, true, false));
     setFilterParams();
     return filterPtr;
 }

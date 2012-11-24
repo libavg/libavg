@@ -44,8 +44,7 @@ PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     unsigned target = getTarget();
     glproc::BindBuffer(target, m_PBOID);
     GLContext::checkError("PBO: BindBuffer()");
-    int memNeeded = size.x*size.y*getBytesPerPixel(pf);
-    glproc::BufferData(target, memNeeded, 0, usage);
+    glproc::BufferData(target, getMemNeeded(), 0, usage);
     GLContext::checkError("PBO: BufferData()");
     glproc::BindBuffer(target, 0);
 }
@@ -85,8 +84,8 @@ void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     GLContext::checkError("PBO::moveBmpToTexture BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     GLContext::checkError("PBO::moveBmpToTexture MapBuffer()");
-    Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, 
-            getSize().x*getBytesPerPixel(getPF()), false); 
+    int stride = Bitmap::getPreferredStride(getSize().x, getPF());
+    Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, stride, false); 
     PBOBitmap.copyPixels(*pBmp);
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     GLContext::checkError("PBO::setImage: UnmapBuffer()");
@@ -147,8 +146,7 @@ BitmapPtr PBO::lock()
     BitmapPtr pBmp;
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     GLContext::checkError("PBOTexture::lockBmp: glBindBuffer()");
-    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
-            getSize().x*getSize().y*getBytesPerPixel(getPF()), 0, m_Usage);
+    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, getMemNeeded(), 0, m_Usage);
     GLContext::checkError("PBOTexture::lockBmp: glBufferData()");
     unsigned char * pBuffer = (unsigned char *)
         glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
@@ -156,8 +154,8 @@ BitmapPtr PBO::lock()
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     GLContext::checkError("PBOTexture::lockBmp: glBindBuffer(0)");
 
-    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, 
-                getSize().x*getBytesPerPixel(getPF()), false));
+    int stride = Bitmap::getPreferredStride(getSize().x, getPF());
+    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, stride, false));
     return pBmp;
 }
 
@@ -208,6 +206,13 @@ bool PBO::isReadPBO() const
             AVG_ASSERT(false);
             return false;
     }
+}
+
+unsigned PBO::getMemNeeded() const
+{
+    IntPoint size = getSize();
+    int stride = Bitmap::getPreferredStride(size.x, getPF());
+    return stride*size.y;
 }
 
 unsigned PBO::getTarget() const

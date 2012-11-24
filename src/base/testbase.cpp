@@ -123,7 +123,7 @@ public:
             long expected[] = {0, 1, 2};
             try {
                 checkResults(&dag, expected);
-            } catch (const Exception& e) {
+            } catch (const Exception&) {
                 bExceptionThrown = true;
             }
             TEST(bExceptionThrown);

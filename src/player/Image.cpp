@@ -26,6 +26,8 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/TextureMover.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -123,7 +125,7 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
 {
     assertValid();
     AVG_TRACE(Logger::MEMORY, "Loading " << sFilename);
-    BitmapPtr pBmp(new Bitmap(sFilename));
+    BitmapPtr pBmp = loadBitmap(sFilename);
     if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
@@ -136,6 +138,9 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
     switch (comp) {
         case TEXTURECOMPRESSION_B5G6R5:
             m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
+            if (!BitmapLoader::get()->isBlueFirst()) {
+                FilterFlipRGB().applyInPlace(pBmp);
+            }
             m_pBmp->copyPixels(*pBmp);
             break;
         case TEXTURECOMPRESSION_NONE:
@@ -165,10 +170,13 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
     PixelFormat pf;
     switch (comp) {
         case TEXTURECOMPRESSION_NONE:
-            pf = calcSurfacePF(*pBmp);
+            pf = pBmp->getPixelFormat();
             break;
         case TEXTURECOMPRESSION_B5G6R5:
             pf = B5G6R5;
+            if (!BitmapLoader::get()->isBlueFirst()) {
+                FilterFlipRGB().applyInPlace(pBmp);
+            }
             break;
         default:
             assert(false);
@@ -265,23 +273,25 @@ IntPoint Image::getSize()
 
 PixelFormat Image::getPixelFormat()
 {
-    if (m_Source == NONE) {
-        return B8G8R8X8;
+    PixelFormat pf;
+    if (BitmapLoader::get()->isBlueFirst()) {
+        pf = B8G8R8X8;
     } else {
+        pf = R8G8B8X8;
+    }
+    if (m_Source != NONE) {
         switch (m_State) {
             case CPU:
-                if (m_Source == SCENE) {
-                    return B8G8R8X8;
-                } else {
-                    return m_pBmp->getPixelFormat();
+                if (m_Source != SCENE) {
+                    pf = m_pBmp->getPixelFormat();
                 }
             case GPU:
-                return m_pSurface->getPixelFormat();
+                pf = m_pSurface->getPixelFormat();
             default:
                 AVG_ASSERT(false);
-                return B8G8R8X8;
         }
     }
+    return pf;
 }
 
 OGLSurface* Image::getSurface()
@@ -327,32 +337,14 @@ string Image::compression2String(TextureCompression compression)
 
 void Image::setupSurface()
 {
-    PixelFormat pf = calcSurfacePF(*m_pBmp);
+    PixelFormat pf = m_pBmp->getPixelFormat();
+//    cerr << "setupSurface: " << pf << endl;
     GLTexturePtr pTex(new GLTexture(m_pBmp->getSize(), pf, m_Material.getUseMipmaps(), 
             0, m_Material.getWrapSMode(), m_Material.getWrapTMode()));
     m_pSurface->create(pf, pTex);
     TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
-    BitmapPtr pMoverBmp = pMover->lock();
-    pMoverBmp->copyPixels(*m_pBmp);
-    pMover->unlock();
-    pMover->moveToTexture(*pTex);
+    pMover->moveBmpToTexture(m_pBmp, *pTex);
     m_pBmp = BitmapPtr();
-}
-
-PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
-{
-    PixelFormat pf;
-    pf = B8G8R8X8;
-    if (bmp.hasAlpha()) {
-        pf = B8G8R8A8;
-    }
-    if (bmp.getPixelFormat() == I8) {
-        pf = I8;
-    }
-    if (bmp.getPixelFormat() == B5G6R5) {
-        pf = B5G6R5;
-    }
-    return pf;
 }
 
 bool Image::changeSource(Source newSource)

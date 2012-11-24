@@ -33,8 +33,7 @@ namespace avg {
 class AVG_API GPUHueSatFilter: public GPUFilter
 {
 public:
-    GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
-            bool bStandalone=true);
+    GPUHueSatFilter(const IntPoint& size, bool bUseAlpha, bool bStandalone=true);
     virtual ~GPUHueSatFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);

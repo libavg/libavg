@@ -210,7 +210,7 @@ class ImageTestCase(AVGTestCase):
         def testStringConversion():
             bmp = avg.Bitmap('media/rgb24-65x65.png')
             s = bmp.getPixels()
-            bmp1 = avg.Bitmap(bmp.getSize(), avg.B8G8R8X8, "sample")
+            bmp1 = avg.Bitmap(bmp.getSize(), bmp.getFormat(), "sample")
             bmp1.setPixels(s)
             self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 
@@ -315,9 +315,26 @@ class ImageTestCase(AVGTestCase):
         self.assertException(player.play)
 
     def testBlendMode(self):
+        def isBlendMinMaxSupported():
+            def tryInsertNode():
+                try:
+                    avg.ImageNode(href="rgb24-65x65.png", blendmode="min", parent=root)
+                except RuntimeError:
+                    self.supported = False
+            root = self.loadEmptyScene()
+            self.supported = True
+            self.start(False,
+                    (tryInsertNode,
+                    ))
+            return self.supported
+            
+
         def setBlendMode():
             blendNode.blendmode="add"
         
+        if not(isBlendMinMaxSupported()):
+            self.skip("Blend modes min and max not supported.")
+            return
         root = self.loadEmptyScene()
         avg.ImageNode(href="freidrehen.jpg", parent=root)
         blendNode = avg.ImageNode(opacity=0.6, href="rgb24-65x65.png", parent=root)
@@ -455,9 +472,7 @@ class ImageTestCase(AVGTestCase):
 
     def testImageMipmap(self):
         root = self.loadEmptyScene()
-        avg.ImageNode(size=(64,64), href="checker.png", parent=root)
-        avg.ImageNode(pos=(64,0), size=(64,64), href="checker.png", mipmap=True, 
-                parent=root)
+        avg.ImageNode(size=(64,64), href="checker.png", mipmap=True, parent=root)
         self.start(False,
                 (lambda: self.compareImage("testMipmap"),))
 

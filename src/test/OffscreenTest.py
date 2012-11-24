@@ -468,4 +468,4 @@ def offscreenTestSuite(tests):
         return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
     else:
         sys.stderr.write("Skipping offscreen tests - no canvas support with this graphics configuration.\n")
-        return lambda x: None
+        return unittest.TestSuite()
