@@ -55,7 +55,7 @@ ShaderRegistry::~ShaderRegistry()
 {
 }
 
-void ShaderRegistry::setShaderPath(const std::string& sLibPath)
+void ShaderRegistry::setShaderPath(const string& sLibPath)
 {
     s_sLibPath = sLibPath;
 #ifdef __linux
@@ -69,8 +69,7 @@ void ShaderRegistry::setShaderPath(const std::string& sLibPath)
     AVG_TRACE(Logger::CONFIG, "Loading shaders from "+s_sLibPath);
 }
 
-void ShaderRegistry::setPreprocessorDefine(const std::string& sName, 
-        const std::string& sValue)
+void ShaderRegistry::setPreprocessorDefine(const string& sName, const string& sValue)
 {
     m_PreprocessorDefinesMap[sName] = sValue;
 }
