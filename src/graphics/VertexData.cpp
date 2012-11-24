@@ -53,7 +53,7 @@ VertexData::VertexData(int reserveVerts, int reserveIndexes)
     if (m_ReserveIndexes < MIN_INDEXES) {
         m_ReserveIndexes = MIN_INDEXES;
     }
-    m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
+    m_pVertexData = new T2C4P2Vertex[m_ReserveVerts];
     m_pIndexData = new unsigned short[m_ReserveIndexes];
 
 }
@@ -71,10 +71,9 @@ void VertexData::appendPos(const glm::vec2& pos, const glm::vec2& texPos,
     if (m_NumVerts >= m_ReserveVerts-1) {
         grow();
     }
-    T2V3C4Vertex* pVertex = &(m_pVertexData[m_NumVerts]);
+    T2C4P2Vertex* pVertex = &(m_pVertexData[m_NumVerts]);
     pVertex->m_Pos[0] = (GLfloat)pos.x;
     pVertex->m_Pos[1] = (GLfloat)pos.y;
-    pVertex->m_Pos[2] = 0.0;
     pVertex->m_Tex[0] = (GLfloat)texPos.x;
     pVertex->m_Tex[1] = (GLfloat)texPos.y;
     pVertex->m_Color = color;
@@ -130,7 +129,7 @@ void VertexData::appendVertexData(const VertexDataPtr& pVertexes)
     }
 
     memcpy(&(m_pVertexData[oldNumVerts]), pVertexes->m_pVertexData, 
-            pVertexes->getNumVerts()*sizeof(T2V3C4Vertex));
+            pVertexes->getNumVerts()*sizeof(T2C4P2Vertex));
 
     int numIndexes = pVertexes->getNumIndexes();
     for (int i=0; i<numIndexes; ++i) {
@@ -195,9 +194,9 @@ void VertexData::grow()
         if (m_ReserveVerts < m_NumVerts) {
             m_ReserveVerts = m_NumVerts;
         }
-        T2V3C4Vertex* pVertexData = m_pVertexData;
-        m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
-        memcpy(m_pVertexData, pVertexData, sizeof(T2V3C4Vertex)*oldReserveVerts);
+        T2C4P2Vertex* pVertexData = m_pVertexData;
+        m_pVertexData = new T2C4P2Vertex[m_ReserveVerts];
+        memcpy(m_pVertexData, pVertexData, sizeof(T2C4P2Vertex)*oldReserveVerts);
         delete[] pVertexData;
     }
     if (m_NumIndexes >= m_ReserveIndexes-6) {
@@ -227,7 +226,7 @@ int VertexData::getReserveIndexes() const
     return m_ReserveIndexes;
 }
 
-const T2V3C4Vertex * VertexData::getVertexPointer() const
+const T2C4P2Vertex * VertexData::getVertexPointer() const
 {
     return m_pVertexData;
 }
@@ -237,9 +236,9 @@ const unsigned short * VertexData::getIndexPointer() const
     return m_pIndexData;
 }
 
-std::ostream& operator<<(std::ostream& os, const T2V3C4Vertex& v)
+std::ostream& operator<<(std::ostream& os, const T2C4P2Vertex& v)
 {
-    os << "(" << v.m_Pos[0] << ", " << v.m_Pos[1] << ", " << v.m_Pos[2] << ")";
+    os << "(" << v.m_Pos[0] << ", " << v.m_Pos[1] << ")";
     return os;
 }
 

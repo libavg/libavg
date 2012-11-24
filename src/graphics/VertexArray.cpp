@@ -80,7 +80,7 @@ void VertexArray::update()
 {
     if (hasDataChanged()) {
         transferBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID, 
-                getReserveVerts()*sizeof(T2V3C4Vertex), getNumVerts()*sizeof(T2V3C4Vertex),
+                getReserveVerts()*sizeof(T2C4P2Vertex), getNumVerts()*sizeof(T2C4P2Vertex),
                 getVertexPointer());
         transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
                 getReserveIndexes()*sizeof(unsigned short),
@@ -96,22 +96,22 @@ void VertexArray::activate()
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
     if (m_bUseVertexShader) {
         glproc::VertexAttribPointer(TEX_INDEX, 2, GL_FLOAT, GL_FALSE, 
-                sizeof(T2V3C4Vertex), (void *)(TEX_OFFSET*sizeof(float)));
+                sizeof(T2C4P2Vertex), (void *)(TEX_OFFSET*sizeof(float)));
         glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
-                sizeof(T2V3C4Vertex), (void *)(COLOR_OFFSET*sizeof(float)));
-        glproc::VertexAttribPointer(POS_INDEX, 3, GL_FLOAT, GL_FALSE, 
-                sizeof(T2V3C4Vertex), (void *)(POS_OFFSET*sizeof(float)));
+                sizeof(T2C4P2Vertex), (void *)(COLOR_OFFSET*sizeof(float)));
+        glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE, 
+                sizeof(T2C4P2Vertex), (void *)(POS_OFFSET*sizeof(float)));
         glproc::EnableVertexAttribArray(TEX_INDEX);
         glproc::EnableVertexAttribArray(COLOR_INDEX);
         glproc::EnableVertexAttribArray(POS_INDEX);
     } else {
 #ifndef AVG_ENABLE_EGL
-        glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 
-                (void *)(offsetof(T2V3C4Vertex, m_Tex)));
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 
-                (void *)(offsetof(T2V3C4Vertex, m_Color)));
-        glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
-                (void *)(offsetof(T2V3C4Vertex, m_Pos)));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(T2C4P2Vertex), 
+                (void *)(offsetof(T2C4P2Vertex, m_Tex)));
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2C4P2Vertex), 
+                (void *)(offsetof(T2C4P2Vertex, m_Color)));
+        glVertexPointer(2, GL_FLOAT, sizeof(T2C4P2Vertex),
+                (void *)(offsetof(T2C4P2Vertex, m_Pos)));
 #endif
     }
     GLContext::checkError("VertexArray::activate()");
