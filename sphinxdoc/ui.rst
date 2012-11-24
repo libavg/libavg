@@ -129,11 +129,6 @@ functionality
                 in response to a :py:const:`CURSORMOTION` event, but may also happen
                 because of inertia.
 
-                :param event: 
-                
-                    The corresponding cursor motion event. If there was no event, 
-                    this parameter is :py:const:`None`.
-
                 :param avg.Point2D offset: 
                 
                     The current offset from the start of the drag in coordinates relative
@@ -143,10 +138,6 @@ functionality
 
                 Emitted when the cursor is released. If inertia is enabled, there may be 
                 move events after the up event.
-
-                :param event: 
-                
-                    The corresponding :py:const:`CURSORUP` event.
 
                 :param avg.Point2D offset: 
                 
