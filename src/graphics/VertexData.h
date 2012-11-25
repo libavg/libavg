@@ -33,13 +33,7 @@
 
 namespace avg {
 
-struct FloatVertex {
-    GLfloat m_Tex[2];
-    GLfloat m_Pos[2];
-    Pixel32 m_Color;
-};
-
-struct FixedVertex {
+struct Vertex {
     GLshort m_Tex[2];    // 4.12 fixed point.
     GLfloat m_Pos[2];
     Pixel32 m_Color;
@@ -71,13 +65,10 @@ public:
             const;
 
 protected:
-    bool useFixed() const;
-
     int getReserveVerts() const;
     int getReserveIndexes() const;
 
-    const FixedVertex * getFixedVertexPointer() const;
-    const FloatVertex * getFloatVertexPointer() const;
+    const Vertex * getVertexPointer() const;
     const unsigned short * getIndexPointer() const;
 
     static const int MIN_VERTEXES;
@@ -90,16 +81,13 @@ private:
     int m_NumIndexes;
     int m_ReserveVerts;
     int m_ReserveIndexes;
-    FixedVertex * m_pFixedVertexData;
-    FloatVertex * m_pFloatVertexData;
+    Vertex * m_pVertexData;
     unsigned short * m_pIndexData;
 
-    bool m_bUseFixed;
     bool m_bDataChanged;
 };
 
-std::ostream& operator<<(std::ostream& os, const FloatVertex& v);
-std::ostream& operator<<(std::ostream& os, const FixedVertex& v);
+std::ostream& operator<<(std::ostream& os, const Vertex& v);
 
 }
 

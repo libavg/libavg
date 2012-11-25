@@ -142,9 +142,6 @@ void GLContext::init(bool bOwnsContext)
     if (m_GLConfig.m_ShaderUsage == GLConfig::FRAGMENT_ONLY) {
         m_pShaderRegistry->setPreprocessorDefine("FRAGMENT_ONLY", "");
     }
-    if (m_GLConfig.m_bGLES) {
-        m_pShaderRegistry->setPreprocessorDefine("USE_FIXED_POINT_COORDS", "");
-    }
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
     }

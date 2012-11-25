@@ -53,25 +53,15 @@ VertexData::VertexData(int reserveVerts, int reserveIndexes)
     if (m_ReserveIndexes < MIN_INDEXES) {
         m_ReserveIndexes = MIN_INDEXES;
     }
-    m_bUseFixed = GLContext::getMain()->isGLES();
-    if (m_bUseFixed) {
-        m_pFixedVertexData = new FixedVertex[m_ReserveVerts];
-        m_pFloatVertexData = 0;
-    } else {
-        m_pFixedVertexData = 0;
-        m_pFloatVertexData = new FloatVertex[m_ReserveVerts];
-    }
+    
+    m_pVertexData = new Vertex[m_ReserveVerts];
     m_pIndexData = new unsigned short[m_ReserveIndexes];
 
 }
 
 VertexData::~VertexData()
 {
-    if (m_bUseFixed) {
-        delete[] m_pFixedVertexData;
-    } else {
-        delete[] m_pFloatVertexData;
-    }
+    delete[] m_pVertexData;
     delete[] m_pIndexData;
     ObjectCounter::get()->decRef(&typeid(*this));
 }
@@ -82,21 +72,12 @@ void VertexData::appendPos(const glm::vec2& pos, const glm::vec2& texPos,
     if (m_NumVerts >= m_ReserveVerts-1) {
         grow();
     }
-    if (m_bUseFixed) {
-        FixedVertex* pVertex = &(m_pFixedVertexData[m_NumVerts]);
-        pVertex->m_Pos[0] = (GLfloat)(pos.x);
-        pVertex->m_Pos[1] = (GLfloat)(pos.y);
-        pVertex->m_Tex[0] = (GLshort)(texPos.x*4096.f);
-        pVertex->m_Tex[1] = (GLshort)(texPos.y*4096.f);
-        pVertex->m_Color = color;
-    } else {
-        FloatVertex* pVertex = &(m_pFloatVertexData[m_NumVerts]);
-        pVertex->m_Pos[0] = (GLfloat)pos.x;
-        pVertex->m_Pos[1] = (GLfloat)pos.y;
-        pVertex->m_Tex[0] = (GLfloat)texPos.x;
-        pVertex->m_Tex[1] = (GLfloat)texPos.y;
-        pVertex->m_Color = color;
-    }
+    Vertex* pVertex = &(m_pVertexData[m_NumVerts]);
+    pVertex->m_Pos[0] = (GLfloat)(pos.x);
+    pVertex->m_Pos[1] = (GLfloat)(pos.y);
+    pVertex->m_Tex[0] = (GLshort)(texPos.x*4096.f);
+    pVertex->m_Tex[1] = (GLshort)(texPos.y*4096.f);
+    pVertex->m_Color = color;
     m_bDataChanged = true;
     m_NumVerts++;
 }
@@ -148,13 +129,8 @@ void VertexData::appendVertexData(const VertexDataPtr& pVertexes)
         grow();
     }
 
-    if (m_bUseFixed) {
-        memcpy(&(m_pFixedVertexData[oldNumVerts]), pVertexes->m_pFixedVertexData, 
-                pVertexes->getNumVerts()*sizeof(FixedVertex));
-    } else {
-        memcpy(&(m_pFloatVertexData[oldNumVerts]), pVertexes->m_pFloatVertexData, 
-                pVertexes->getNumVerts()*sizeof(FloatVertex));
-    }
+    memcpy(&(m_pVertexData[oldNumVerts]), pVertexes->m_pVertexData, 
+            pVertexes->getNumVerts()*sizeof(Vertex));
     int numIndexes = pVertexes->getNumIndexes();
     for (int i=0; i<numIndexes; ++i) {
         m_pIndexData[oldNumIndexes+i] = pVertexes->m_pIndexData[i]+oldNumVerts;
@@ -198,11 +174,7 @@ void VertexData::dump(unsigned startVertex, int numVerts, unsigned startIndex,
 {
     cerr << numVerts << " vertexes: ";
     for (unsigned i=startVertex; i<startVertex+numVerts; ++i) {
-        if (m_bUseFixed) {
-            cerr << m_pFixedVertexData[i] << endl;
-        } else {
-            cerr << m_pFloatVertexData[i] << endl;
-        }
+        cerr << m_pVertexData[i] << endl;
     }
     cerr << endl;
     cerr << numIndexes << " indexes: ";
@@ -222,17 +194,10 @@ void VertexData::grow()
         if (m_ReserveVerts < m_NumVerts) {
             m_ReserveVerts = m_NumVerts;
         }
-        if (m_bUseFixed) {
-            FixedVertex* pVertexData = m_pFixedVertexData;
-            m_pFixedVertexData = new FixedVertex[m_ReserveVerts];
-            memcpy(m_pFixedVertexData, pVertexData, sizeof(FixedVertex)*oldReserveVerts);
-            delete[] pVertexData;
-        } else {
-            FloatVertex* pVertexData = m_pFloatVertexData;
-            m_pFloatVertexData = new FloatVertex[m_ReserveVerts];
-            memcpy(m_pFloatVertexData, pVertexData, sizeof(FloatVertex)*oldReserveVerts);
-            delete[] pVertexData;
-        }
+        Vertex* pVertexData = m_pVertexData;
+        m_pVertexData = new Vertex[m_ReserveVerts];
+        memcpy(m_pVertexData, pVertexData, sizeof(Vertex)*oldReserveVerts);
+        delete[] pVertexData;
     }
     if (m_NumIndexes >= m_ReserveIndexes-6) {
         bChanged = true;
@@ -251,11 +216,6 @@ void VertexData::grow()
     }
 }
 
-bool VertexData::useFixed() const
-{
-    return m_bUseFixed;
-}
-
 int VertexData::getReserveVerts() const
 {
     return m_ReserveVerts;
@@ -266,16 +226,9 @@ int VertexData::getReserveIndexes() const
     return m_ReserveIndexes;
 }
 
-const FixedVertex * VertexData::getFixedVertexPointer() const
+const Vertex * VertexData::getVertexPointer() const
 {
-    AVG_ASSERT(m_bUseFixed);
-    return m_pFixedVertexData;
-}
-
-const FloatVertex * VertexData::getFloatVertexPointer() const
-{
-    AVG_ASSERT(!m_bUseFixed);
-    return m_pFloatVertexData;
+    return m_pVertexData;
 }
 
 const unsigned short * VertexData::getIndexPointer() const
@@ -283,14 +236,7 @@ const unsigned short * VertexData::getIndexPointer() const
     return m_pIndexData;
 }
 
-std::ostream& operator<<(std::ostream& os, const FloatVertex& v)
-{
-    os << "  ((" << v.m_Pos[0] << ", " << v.m_Pos[1] << "), (" 
-            << v.m_Tex[0] << ", " << v.m_Tex[1] << "))";
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const FixedVertex& v)
+std::ostream& operator<<(std::ostream& os, const Vertex& v)
 {
     os << "  ((" << v.m_Pos[0] << ", " << v.m_Pos[1] << "), (" 
             << v.m_Tex[0] << ", " << v.m_Tex[1] << "))";

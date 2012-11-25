@@ -29,13 +29,8 @@ varying vec4 v_Color;
 
 void main(void)
 {
-#ifdef USE_FIXED_POINT_COORDS
     gl_Position = transform * vec4(a_Pos, 0, 1);
     v_TexCoord = a_TexCoord/4096.;
-#else
-    gl_Position = transform * vec4(a_Pos, 0, 1);
-    v_TexCoord = a_TexCoord;
-#endif
     v_Color = a_Color;
 }
 
