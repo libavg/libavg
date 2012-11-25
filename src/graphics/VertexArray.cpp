@@ -100,18 +100,18 @@ void VertexArray::activate()
     if (m_bUseVertexShader) {
         if (useFixed()) {
             glproc::VertexAttribPointer(TEX_INDEX, 2, GL_SHORT, GL_FALSE,
-                    sizeof(FixedVertex), (void *)(0*sizeof(GLshort)));
+                    sizeof(FixedVertex), (void *)(offsetof(FixedVertex, m_Tex)));
             glproc::VertexAttribPointer(POS_INDEX, 2, GL_SHORT, GL_FALSE, 
-                    sizeof(FixedVertex), (void *)(2*sizeof(GLshort)));
+                    sizeof(FixedVertex), (void *)(offsetof(FixedVertex, m_Pos)));
             glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
-                    sizeof(FixedVertex), (void *)(4*sizeof(GLshort)));
+                    sizeof(FixedVertex), (void *)(offsetof(FixedVertex, m_Color)));
         } else {
             glproc::VertexAttribPointer(TEX_INDEX, 2, GL_FLOAT, GL_FALSE,
-                    sizeof(FloatVertex), (void *)(0*sizeof(float)));
+                    sizeof(FloatVertex), (void *)(offsetof(FloatVertex, m_Tex)));
             glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE,
-                    sizeof(FloatVertex), (void *)(2*sizeof(float)));
+                    sizeof(FloatVertex), (void *)(offsetof(FloatVertex, m_Pos)));
             glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
-                    sizeof(FloatVertex), (void *)(4*sizeof(float)));
+                    sizeof(FloatVertex), (void *)(offsetof(FloatVertex, m_Color)));
         }
         glproc::EnableVertexAttribArray(TEX_INDEX);
         glproc::EnableVertexAttribArray(POS_INDEX);
