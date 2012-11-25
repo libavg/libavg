@@ -77,10 +77,10 @@ void OffscreenCanvas::initPlayback()
     m_bIsRendered = false;
 }
 
-void OffscreenCanvas::stopPlayback()
+void OffscreenCanvas::stopPlayback(bool bIsAbort)
 {
     m_pFBO = FBOPtr();
-    Canvas::stopPlayback();
+    Canvas::stopPlayback(bIsAbort);
     m_bIsRendered = false;
 }
 

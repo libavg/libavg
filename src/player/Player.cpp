@@ -311,7 +311,7 @@ CanvasPtr Player::loadFile(const string& sFilename)
     errorIfPlaying("Player.loadFile");
     NodePtr pNode = loadMainNodeFromFile(sFilename);
     if (m_pMainCanvas) {
-        cleanup();
+        cleanup(false);
     }
 
     initMainCanvas(pNode);
@@ -323,7 +323,7 @@ CanvasPtr Player::loadString(const string& sAVG)
 {
     errorIfPlaying("Player.loadString");
     if (m_pMainCanvas) {
-        cleanup();
+        cleanup(false);
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
@@ -348,7 +348,7 @@ CanvasPtr Player::createMainCanvas(const py::dict& params)
 {
     errorIfPlaying("Player.createMainCanvas");
     if (m_pMainCanvas) {
-        cleanup();
+        cleanup(false);
     }
 
     NodePtr pNode = createNode("avg", params);
@@ -373,7 +373,7 @@ void Player::deleteCanvas(const string& sID)
                         string("deleteCanvas: Canvas with id ")+sID
                         +" is still referenced."));
             }
-            (*it)->stopPlayback();
+            (*it)->stopPlayback(false);
             m_pCanvases.erase(it);
             return;
         }
@@ -484,11 +484,11 @@ void Player::play()
             }
             notifySubscribers("PLAYBACK_END");
         } catch (...) {
-            cleanup();
+            cleanup(true);
             m_bDisplayEngineBroken = true;
             throw;
         }
-        cleanup();
+        cleanup(false);
         AVG_TRACE(Logger::PLAYER, "Playback ended.");
     } catch (Exception& ex) {
         m_bIsPlaying = false;
@@ -502,7 +502,7 @@ void Player::stop()
     if (m_bIsPlaying) {
         m_bStopping = true;
     } else {
-        cleanup();
+        cleanup(false);
     }
 }
 
@@ -523,7 +523,7 @@ void Player::initPlayback(const std::string& sShaderPath)
         }
         m_pMainCanvas->initPlayback(m_pDisplayEngine);
     } catch (Exception&) {
-        cleanup();
+        cleanup(true);
         m_bDisplayEngineBroken = true;
         throw;
     }
@@ -1684,7 +1684,7 @@ OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
             string("Canvas with url '")+sURL+"' not found.");
 }
 
-void Player::cleanup()
+void Player::cleanup(bool bIsAbort)
 {
     // Kill all timeouts.
     vector<Timeout*>::iterator it;
@@ -1699,7 +1699,7 @@ void Player::cleanup()
     if (m_pMainCanvas) {
         unregisterFrameEndListener(BitmapManager::get());
         delete BitmapManager::get();
-        m_pMainCanvas->stopPlayback();
+        m_pMainCanvas->stopPlayback(bIsAbort);
         m_pMainCanvas = MainCanvasPtr();
     }
 
@@ -1707,7 +1707,7 @@ void Player::cleanup()
         m_pMultitouchInputDevice = IInputDevicePtr();
     }
     for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-        m_pCanvases[i]->stopPlayback();
+        m_pCanvases[i]->stopPlayback(bIsAbort);
     }
     m_pCanvases.clear();
 

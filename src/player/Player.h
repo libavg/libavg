@@ -112,7 +112,7 @@ class AVG_API Player: public Publisher
         void stop();
         bool isStopping();
         void initPlayback(const std::string& sShaderPath = "");
-        void cleanup();
+        void cleanup(bool bIsAbort);
         bool isPlaying();
         void setFramerate(float rate);
         void setVBlankFramerate(int rate);

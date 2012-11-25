@@ -69,10 +69,12 @@ void Canvas::initPlayback(int multiSampleSamples)
     m_pVertexArray = VertexArrayPtr(new VertexArray(2000, 3000));
 }
 
-void Canvas::stopPlayback()
+void Canvas::stopPlayback(bool bIsAbort)
 {
     if (m_bIsPlaying) {
-        m_PlaybackEndSignal.emit();
+        if (!bIsAbort) {
+            m_PlaybackEndSignal.emit();
+        }
         m_pRootNode->disconnect(true);
         m_pRootNode = CanvasNodePtr();
         m_IDMap.clear();
