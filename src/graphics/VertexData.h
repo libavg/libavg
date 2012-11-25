@@ -41,7 +41,7 @@ struct FloatVertex {
 
 struct FixedVertex {
     GLshort m_Tex[2];    // 4.12 fixed point.
-    GLshort m_Pos[2];    // 12.4 fixed point.
+    GLfloat m_Pos[2];
     Pixel32 m_Color;
 };
 

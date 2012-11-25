@@ -84,8 +84,8 @@ void VertexData::appendPos(const glm::vec2& pos, const glm::vec2& texPos,
     }
     if (m_bUseFixed) {
         FixedVertex* pVertex = &(m_pFixedVertexData[m_NumVerts]);
-        pVertex->m_Pos[0] = (GLshort)(pos.x*16.f);
-        pVertex->m_Pos[1] = (GLshort)(pos.y*16.f);
+        pVertex->m_Pos[0] = (GLfloat)(pos.x);
+        pVertex->m_Pos[1] = (GLfloat)(pos.y);
         pVertex->m_Tex[0] = (GLshort)(texPos.x*4096.f);
         pVertex->m_Tex[1] = (GLshort)(texPos.y*4096.f);
         pVertex->m_Color = color;

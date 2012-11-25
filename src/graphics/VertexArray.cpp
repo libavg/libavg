@@ -101,7 +101,7 @@ void VertexArray::activate()
         if (useFixed()) {
             glproc::VertexAttribPointer(TEX_INDEX, 2, GL_SHORT, GL_FALSE,
                     sizeof(FixedVertex), (void *)(offsetof(FixedVertex, m_Tex)));
-            glproc::VertexAttribPointer(POS_INDEX, 2, GL_SHORT, GL_FALSE, 
+            glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE, 
                     sizeof(FixedVertex), (void *)(offsetof(FixedVertex, m_Pos)));
             glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
                     sizeof(FixedVertex), (void *)(offsetof(FixedVertex, m_Color)));
