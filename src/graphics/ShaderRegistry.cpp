@@ -62,7 +62,9 @@ void ShaderRegistry::setShaderPath(const std::string& sLibPath)
     // XXX: If we're running make distcheck, the shaders are in a different place than
     // usual. Grrr.
     char * pszSrcDir = getenv("srcdir");
-    if (pszSrcDir && string(pszSrcDir) != ".") {
+    if (!pszSrcDir) {
+        s_sLibPath = "../graphics/shaders";
+    } else {
         s_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
     }
 #endif

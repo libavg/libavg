@@ -99,6 +99,7 @@ class TestApp(object):
                 for test in suite:
                     if test.skipped():
                         print "  " + str(test) + ": " + test.skipReason()
+            print
 
         if testResult.wasSuccessful():
             self.__exitOk = TestApp.EXIT_OK

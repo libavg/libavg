@@ -64,8 +64,8 @@ if sys.platform != 'win32':
         cleanup(tempPackageDir)
         
         try:
+            sys.stderr.write('Symlinking libavg files\n')
             symtree('../python', 'libavg')
-            os.symlink('../../graphics/shaders', 'libavg/shaders')
         except OSError:
             pass
     else:
@@ -78,7 +78,7 @@ if sys.platform != 'win32':
     
     if os.path.exists('../wrapper/.libs/avg.so'):
         # Normal case: use the local version (not the installed one)
-        shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
+        os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
     elif os.path.exists('../../avg.so'):
         # Mac version after installer dmg
         pass
