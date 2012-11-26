@@ -183,11 +183,15 @@ class AVGTestCase(unittest.TestCase):
         helper.fakeMouseEvent(avg.Event.CURSOR_UP, False, False, False, x, y, 1)
 
     def skip(self, message):
+        self.__skipReason = str(message)
         sys.stderr.write("skipping: " + str(message) + " ... ")
         self.__skipped = True
 
     def skipped(self):
         return self.__skipped
+
+    def skipReason(self):
+        return self.__skipReason
 
     def _sendMouseEvent(self, type, x, y):
         helper = player.getTestHelper()
