@@ -454,6 +454,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
+    ShaderRegistry::get()->setShaderPath("./shaders");
     try {
         GPUTestSuite suite(sVariant);
         suite.runTests();

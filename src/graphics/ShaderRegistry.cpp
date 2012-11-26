@@ -47,33 +47,26 @@ ShaderRegistryPtr ShaderRegistry::get()
 ShaderRegistry::ShaderRegistry()
 {
     if (s_sLibPath == "") {
-        string sShaderPath = getPath(getAvgLibPath())+"shaders";
-#ifdef __linux
-        // XXX: Hack to make sure shaders are found during make distcheck under linux. 
-        char * pszSrcDir = getenv("srcdir");
-        if (pszSrcDir) {
-            sShaderPath =  string(pszSrcDir) + "/../graphics/shaders";
-        }
-#endif
-        setShaderPath(sShaderPath);
+        setShaderPath(getPath(getAvgLibPath())+"shaders");
     }
 }
 
 ShaderRegistry::~ShaderRegistry() 
 {
 }
-    
-std::string ShaderRegistry::getShaderPath()
-{
-    return s_sLibPath;
-}
 
-void ShaderRegistry::setShaderPath(const string& sLibPath)
+void ShaderRegistry::setShaderPath(const std::string& sLibPath)
 {
-    if (sLibPath != "") {
-        s_sLibPath = sLibPath;
-        AVG_TRACE(Logger::CONFIG, "Loading shaders from "+s_sLibPath);
+    s_sLibPath = sLibPath;
+#ifdef __linux
+    // XXX: If we're running make distcheck, the shaders are in a different place than
+    // usual. Grrr.
+    char * pszSrcDir = getenv("srcdir");
+    if (pszSrcDir && string(pszSrcDir) != ".") {
+        s_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
     }
+#endif
+    AVG_TRACE(Logger::CONFIG, "Loading shaders from "+s_sLibPath);
 }
 
 void ShaderRegistry::setPreprocessorDefine(const std::string& sName, 

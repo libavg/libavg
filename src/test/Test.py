@@ -49,7 +49,6 @@ def symtree(src, dest):
                 os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
 
-shaderPath = ""
 if sys.platform != 'win32':
     tempPackageDir = os.path.join(os.getcwd(), 'libavg')
     # Possible values for srcdir:
@@ -65,22 +64,21 @@ if sys.platform != 'win32':
         cleanup(tempPackageDir)
         
         try:
-            sys.stderr.write('Symlinking libavg files\n')
             symtree('../python', 'libavg')
+            os.symlink('../../graphics/shaders', 'libavg/shaders')
         except OSError:
             pass
-        shaderPath = '../graphics/shaders'
     else:
         # Running make distcheck
         symtree('../../../../src/python', 'libavg')
-        shaderPath = srcDir + '/../graphics/shaders'
+        os.symlink('../../../../../src/graphics/shaders', 'libavg/shaders')
 
         # distcheck doesn't want leftovers (.pyc files)
         atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
     
     if os.path.exists('../wrapper/.libs/avg.so'):
         # Normal case: use the local version (not the installed one)
-        os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
+        shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
     elif os.path.exists('../../avg.so'):
         # Mac version after installer dmg
         pass
@@ -98,7 +96,7 @@ if sys.platform != 'win32':
 import libavg
 libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
         os.path.dirname(libavg.__file__))
-libavg.player.shaderPath = shaderPath
+
 
 import testapp   
 

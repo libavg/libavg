@@ -511,11 +511,11 @@ bool Player::isStopping()
     return m_bStopping;
 }
 
-void Player::initPlayback()
+void Player::initPlayback(const std::string& sShaderPath)
 {
     m_bIsPlaying = true;
     AVG_TRACE(Logger::PLAYER, "Playback started.");
-    initGraphics();
+    initGraphics(sShaderPath);
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
@@ -1217,7 +1217,7 @@ void Player::initConfig()
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 
-void Player::initGraphics()
+void Player::initGraphics(const string& sShaderPath)
 {
     // Init display configuration.
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
@@ -1241,6 +1241,9 @@ void Player::initGraphics()
     }
     AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 
             << m_pDisplayEngine->getPixelsPerMM());
+    if (sShaderPath != "") {
+        ShaderRegistry::get()->setShaderPath(sShaderPath);
+    }
     m_pDisplayEngine->setGamma(1.0, 1.0, 1.0);
 }
 
@@ -1752,11 +1755,6 @@ int Player::addTimeout(Timeout* pTimeout)
     return pTimeout->getID();
 }
 
-py::object Player::loadPlugin(const std::string& name)
-{
-    return PluginManager::get().loadPlugin(name);
-}
-
 void Player::setPluginPath(const string& newPath)
 {
     PluginManager::get().setSearchPath(newPath);
@@ -1767,14 +1765,9 @@ string Player::getPluginPath() const
     return  PluginManager::get().getSearchPath();
 }
 
-void Player::setShaderPath(const string& sPath)
+py::object Player::loadPlugin(const std::string& name)
 {
-    ShaderRegistry::setShaderPath(sPath);
-}
-
-string Player::getShaderPath() const
-{
-    return ShaderRegistry::getShaderPath();
+    return PluginManager::get().loadPlugin(name);
 }
 
 void Player::setEventHook(PyObject * pyfunc)
