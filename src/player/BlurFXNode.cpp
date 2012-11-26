@@ -34,6 +34,7 @@ BlurFXNode::BlurFXNode(float radius)
     : FXNode(),
       m_StdDev(radius)
 {
+    errorIfGLES();
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 

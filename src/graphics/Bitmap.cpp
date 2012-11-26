@@ -163,10 +163,10 @@ void Bitmap::copyPixels(const Bitmap& origBmp)
         const unsigned char * pSrc = origBmp.getPixels();
         unsigned char * pDest = m_pBits;
         int height = min(origBmp.getSize().y, m_Size.y);
-        int LineLen = min(origBmp.getLineLen(), getLineLen());
+        int lineLen = min(origBmp.getLineLen(), getLineLen());
         int srcStride = origBmp.getStride();
         for (int y = 0; y < height; ++y) {
-            memcpy(pDest, pSrc, LineLen);
+            memcpy(pDest, pSrc, lineLen);
             pDest += m_Stride;
             pSrc += srcStride;
         }
@@ -752,7 +752,7 @@ bool Bitmap::operator ==(const Bitmap& otherBmp)
 
     const unsigned char * pSrc = otherBmp.getPixels();
     unsigned char * pDest = m_pBits;
-    int LineLen = getLineLen();
+    int lineLen = getLineLen();
     for (int y = 0; y < getSize().y; ++y) {
         switch(m_PF) {
             case R8G8B8X8:
@@ -766,7 +766,7 @@ bool Bitmap::operator ==(const Bitmap& otherBmp)
                 }
                 break;
             default:
-                if (memcmp(pDest, pSrc, LineLen) != 0) {
+                if (memcmp(pDest, pSrc, lineLen) != 0) {
                     return false;
                 }
         }

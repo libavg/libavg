@@ -40,6 +40,7 @@ ChromaKeyFXNode::ChromaKeyFXNode()
       m_Erosion(0),
       m_SpillThreshold(0.0)
 {
+    errorIfGLES();
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
