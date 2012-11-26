@@ -49,6 +49,7 @@ def symtree(src, dest):
                 os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
 
+shaderPath = ""
 if sys.platform != 'win32':
     tempPackageDir = os.path.join(os.getcwd(), 'libavg')
     # Possible values for srcdir:
@@ -68,10 +69,11 @@ if sys.platform != 'win32':
             symtree('../python', 'libavg')
         except OSError:
             pass
+        shaderPath = '../graphics/shaders'
     else:
         # Running make distcheck
         symtree('../../../../src/python', 'libavg')
-        os.symlink('../../../../../src/graphics/shaders', 'libavg/shaders')
+        shaderPath = srcDir + '/../graphics/shaders'
 
         # distcheck doesn't want leftovers (.pyc files)
         atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
@@ -96,7 +98,7 @@ if sys.platform != 'win32':
 import libavg
 libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
         os.path.dirname(libavg.__file__))
-
+libavg.player.shaderPath = shaderPath
 
 import testapp   
 

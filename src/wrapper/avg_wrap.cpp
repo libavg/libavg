@@ -233,6 +233,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getConfigOption", &Player::getConfigOption)
         .def("isUsingGLES", &Player::isUsingGLES)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
+        .add_property("shaderPath", &Player::getShaderPath, &Player::setShaderPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
     exportMessages(playerClass, "Player");

@@ -26,6 +26,7 @@
 #include "../base/Logger.h"
 
 #include "../graphics/GLConfig.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +65,7 @@ public:
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
 #endif
-            player.initPlayback("../graphics/shaders/");
+            player.initPlayback();
             player.doFrame(false);
             player.cleanup();
         }

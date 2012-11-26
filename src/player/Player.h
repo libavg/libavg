@@ -111,7 +111,7 @@ class AVG_API Player: public Publisher
         void play();
         void stop();
         bool isStopping();
-        void initPlayback(const std::string& sShaderPath = "");
+        void initPlayback();
         void cleanup();
         bool isPlaying();
         void setFramerate(float rate);
@@ -185,6 +185,8 @@ class AVG_API Player: public Publisher
         py::object loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
         std::string getPluginPath() const;
+        void setShaderPath(const std::string& sPath);
+        std::string getShaderPath() const;
         
         void setEventHook(PyObject * pyfunc);
         PyObject * getEventHook() const;
@@ -200,7 +202,7 @@ class AVG_API Player: public Publisher
 
     private:
         void initConfig();
-        void initGraphics(const std::string& sShaderPath);
+        void initGraphics();
         void initAudio();
         void initMainCanvas(NodePtr pRootNode);
 

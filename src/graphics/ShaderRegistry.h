@@ -41,7 +41,6 @@ public:
     ShaderRegistry();
     virtual ~ShaderRegistry();
 
-    void setShaderPath(const std::string& sLibPath);
     void setPreprocessorDefine(const std::string& sName, const std::string& sValue);
 
     void createShader(const std::string& sID);
@@ -49,6 +48,9 @@ public:
 
     OGLShaderPtr getCurShader() const;
     void setCurShader(const std::string& sID);
+
+    static std::string getShaderPath();
+    static void setShaderPath(const std::string& sLibPath);
 
 private:
     void loadShaderString(const std::string& sFilename, std::string& sPreprocessed);
