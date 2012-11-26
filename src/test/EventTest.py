@@ -395,6 +395,47 @@ class EventTestCase(AVGTestCase):
                         self.img.getNumSubscribers(avg.Node.CURSOR_DOWN) == 0)
                 ))
 
+
+    def testPublisherNestedUnsubscribe(self):
+
+        class TestPublisher(avg.Publisher):
+
+            OUTER_EVENT = avg.Publisher.genMessageID()
+            INNER_EVENT = avg.Publisher.genMessageID()
+
+            def __init__(self):
+                super(TestPublisher, self).__init__()
+                self.publish(TestPublisher.OUTER_EVENT)
+                self.publish(TestPublisher.INNER_EVENT)
+
+            def generateEvent(self):
+                self.notifySubscribers(TestPublisher.OUTER_EVENT, [])
+
+            def generateInnerEvent(self):
+                self.notifySubscribers(TestPublisher.INNER_EVENT, [])
+
+        def onEvent():
+            self.publisher.generateInnerEvent()
+          
+        def onEvent2():
+            self.event2Called = True;
+          
+        def onInnerEvent():
+            self.publisher.unsubscribe(TestPublisher.OUTER_EVENT, onEvent)
+            self.publisher.unsubscribe(TestPublisher.OUTER_EVENT, onEvent2)
+
+        self.loadEmptyScene()
+        self.publisher = TestPublisher()
+        self.publisher.subscribe(TestPublisher.OUTER_EVENT, onEvent2)
+        self.publisher.subscribe(TestPublisher.OUTER_EVENT, onEvent)
+        self.publisher.subscribe(TestPublisher.INNER_EVENT, onInnerEvent)
+        self.event2Called = False
+        self.start(False,
+                (self.publisher.generateEvent,
+                ))
+        self.assert_(not(self.event2Called))
+
+
     def testObscuringEvents(self):
         root = self.loadEmptyScene()
         img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
@@ -997,6 +1038,7 @@ def eventTestSuite(tests):
             "testPublisher",
             "testComplexPublisher",
             "testPublisherAutoDelete",
+            "testPublisherNestedUnsubscribe",
             "testObscuringEvents",
             "testSensitive",
             "testChangingHandlers",

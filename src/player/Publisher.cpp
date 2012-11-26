@@ -35,13 +35,11 @@ namespace avg {
 int Publisher::s_LastSubscriberID = 0;
 
 Publisher::Publisher()
-    : m_bIsInNotify(false)
 {
     m_pPublisherDef = PublisherDefinition::create("");
 }
 
 Publisher::Publisher(const string& sTypeName)
-    : m_bIsInNotify(false)
 {
     m_pPublisherDef = PublisherDefinitionRegistry::get()->getDefinition(sTypeName);
     vector<MessageID> messageIDs = m_pPublisherDef->getMessageIDs();
@@ -182,43 +180,24 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
 //    dumpSubscribers(messageID);
     AVG_ASSERT(!(Player::get()->isTraversingTree()));
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
-    SubscriberInfoList::iterator it;
-    for (it = subscribers.begin(); it != subscribers.end();) {
+    WeakSubscriberInfoList subRefs;
+    for (SubscriberInfoList::iterator it = subscribers.begin(); it != subscribers.end();
+            ++it)
+    {
+        subRefs.push_back(*it);
+    }
+    WeakSubscriberInfoList::iterator it;
+    for (it = subRefs.begin(); it != subRefs.end(); ++it) {
 //        cerr << "  next" << endl;
-        if ((*it)->hasExpired()) {
-//            cerr << "  expired: " << (*it)->getID() << endl;
-            subscribers.erase(it++);
-        } else {
-//            cerr << "  invoke: " << (*it)->getID() << endl;
-            m_bIsInNotify = true;
-            (*it)->invoke(args);
-            m_bIsInNotify = false;
-
-            // Process pending unsubscribe requests
-            bool bCurrentIsUnsubscribed = false;
-            std::vector<UnsubscribeDescription>::iterator itUnsub;
-            for (itUnsub = m_PendingUnsubscribes.begin(); 
-                    itUnsub != m_PendingUnsubscribes.end();
-                    itUnsub++)
-            {
-//                cerr << "    Unsubscribing: " << itUnsub->second << endl;
-                if (it != subscribers.end() && itUnsub->first == messageID && 
-                         itUnsub->second == (*it)->getID())
-                {
-//                    cerr << "      current" << endl;
-                    it++;
-                    bCurrentIsUnsubscribed = true;
-                }
-//                cerr << "      ";
-//                dumpSubscribers(messageID);
-                unsubscribe(itUnsub->first, itUnsub->second);
-//                cerr << "      done" << endl;
+        if (!(*it).expired()) {
+            SubscriberInfoPtr pSub = (*it).lock();
+            if (pSub->hasExpired()) {
+                // Python subscriber doesn't exist anymore -> auto-unsubscribe.
+                unsubscribe(messageID, pSub->getID());
+            } else {
+//              cerr << "  invoke: " << (*it)->getID() << endl;
+                pSub->invoke(args);
             }
-            m_PendingUnsubscribes.clear();
-            if (!bCurrentIsUnsubscribed) {
-                it++;
-            }
-//            cerr << "    end invoke" << endl;
         }
     }
 //    cerr << "  end notify" << endl;
@@ -231,11 +210,7 @@ MessageID Publisher::genMessageID()
 
 void Publisher::unsubscribeIterator(MessageID messageID, SubscriberInfoList::iterator it)
 {
-    if (m_bIsInNotify) {
-        tryUnsubscribeInNotify(messageID, (*it)->getID());
-    } else {
-        m_SignalMap[messageID].erase(it);
-    }
+    m_SignalMap[messageID].erase(it);
 }
 
 
@@ -246,17 +221,6 @@ Publisher::SubscriberInfoList& Publisher::safeFindSubscribers(MessageID messageI
     }
     SubscriberInfoList& subscribers = m_SignalMap[messageID];
     return subscribers;
-}
-
-void Publisher::tryUnsubscribeInNotify(MessageID messageID, int subscriberID)
-{
-    std::vector<UnsubscribeDescription>::iterator it2;
-    for (it2 = m_PendingUnsubscribes.begin(); it2 != m_PendingUnsubscribes.end(); it2++) {
-        if (it2->first == messageID && it2->second == subscriberID) {
-            throwSubscriberNotFound(messageID, subscriberID);
-        }
-    }
-    m_PendingUnsubscribes.push_back(std::pair<MessageID, int>(messageID, subscriberID));
 }
 
 void Publisher::throwSubscriberNotFound(MessageID messageID, int subscriberID)
