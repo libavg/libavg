@@ -34,11 +34,12 @@ class UITestCase(AVGTestCase):
                     [("a", "A"),True, False, ( 5, 5), (30, 30)],
                     [(1, ),     True, False, (35, 5), (30, 30)],
                     ["SHIFT",   False, False, (65, 5), (50, 30)]]
-            kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, None,
-                    pos=(10, 10), parent = root)
+            kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_down.png", keyDefs, None,
+                    pos=(10, 10), parent=root)
             kbNoShift.setKeyHandler(onKeyDown, onKeyUp)
-            kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, "SHIFT",
-                    pos=(10, 60), selHref="keyboard_sel.png", parent = root)
+            kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_down.png", keyDefs, 
+                    "SHIFT", pos=(10, 60), feedbackHref="keyboard_feedback.png", 
+                    parent=root)
             kbShift.setKeyHandler(onKeyDown, onKeyUp)
 
         def onKeyDown(event, char, cmd):

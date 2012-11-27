@@ -33,7 +33,7 @@ FEEDBACK_ZOOM_FACTOR = 1.0
 
 class Key(avg.DivNode):
     # Keydef is (keyCode, feedback, repeat, pos, size)
-    def __init__(self, keyDef, ovlHref, selHref, onDownCallback, onUpCallback,
+    def __init__(self, keyDef, downHref, feedbackHref, onDownCallback, onUpCallback,
             onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
             **kwargs):
         kwargs['pos'] = keyDef[3]
@@ -52,23 +52,23 @@ class Key(avg.DivNode):
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
-        if ovlHref:
+        if downHref:
             if player.isPlaying():
-                self.__createImage(ovlHref, selHref)
+                self.__createImage(downHref, feedbackHref)
             else:
                 player.subscribe(avg.Player.PLAYBACK_START, 
-                        lambda: self.__createImage(ovlHref, selHref))
+                        lambda: self.__createImage(downHref, feedbackHref))
 
     def reset(self):
         if self.__sticky:
             self.__image.opacity = 0.0
             self.__stickyIsDown = False
 
-    def __createImage(self, ovlHref, selHref):
-        if os.path.isabs(ovlHref):
-            effectiveOvlHref = ovlHref
+    def __createImage(self, downHref, feedbackHref):
+        if os.path.isabs(downHref):
+            effectiveDownHref = downHref
         else:
-            effectiveOvlHref = self.getParent().getEffectiveMediaDir() + ovlHref
+            effectiveDownHref = self.getParent().getEffectiveMediaDir() + downHref
         canvasOvl = player.loadCanvasString(
         '''
             <canvas id="offscreenOvl" size="%s">
@@ -76,17 +76,17 @@ class Key(avg.DivNode):
             </canvas>
         '''
         %(str(self.size), 
-          effectiveOvlHref,
+          effectiveDownHref,
           str(-self.pos)))
 
         canvasOvl.render()
         self.__image.setBitmap(canvasOvl.screenshot())
         self.__feedbackImage = avg.ImageNode(opacity=0.0)
-        if selHref and self.__feedback:
-            if os.path.isabs(selHref):
-                effectiveSelHref = selHref
+        if feedbackHref and self.__feedback:
+            if os.path.isabs(feedbackHref):
+                effectiveSelHref = feedbackHref
             else:
-                effectiveSelHref = self.getParent().getEffectiveMediaDir() + selHref
+                effectiveSelHref = self.getParent().getEffectiveMediaDir() + feedbackHref
             canvasSel = player.loadCanvasString(
             '''
                 <canvas id="offscreenSel" size="%s">
@@ -166,8 +166,8 @@ class Key(avg.DivNode):
 
 class Keyboard(avg.DivNode):
 
-    def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
-            stickyShift=False, selHref=None, textarea=None, parent=None, **kwargs):
+    def __init__(self, bgHref, downHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
+            stickyShift=False, feedbackHref=None, textarea=None, parent=None, **kwargs):
         # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -196,12 +196,12 @@ class Keyboard(avg.DivNode):
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                key = Key(kd, ovlHref, selHref, self.__onCharKeyDown, self.__onCharKeyUp,
-                        parent=self)
+                key = Key(kd, downHref, feedbackHref, self.__onCharKeyDown, 
+                        self.__onCharKeyUp, parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
-                key = Key(kd, ovlHref, selHref, self.__onCommandKeyDown,
+                key = Key(kd, downHref, feedbackHref, self.__onCommandKeyDown,
                         self.__onCommandKeyUp, self.__onCommandKeyUp, sticky=sticky,
                         parent=self)
             self.__keys.append(key)
@@ -216,6 +216,8 @@ class Keyboard(avg.DivNode):
             event.contact.subscribe(message, self.__selectKey)
 
     def __selectKey(self, event):
+        # TODO: This code sends onOut events to all keys not pressed. That's n-1 too many.
+        # The current key also gets multiple down events on every CURSOR_MOTION.
         for i in range(len(self.__keys)):
             pos = self.__keys[i].getRelPos(event.pos)
             if pos.x >= 0 and pos.y >= 0:
