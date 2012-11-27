@@ -41,7 +41,6 @@ class Key(avg.DivNode):
         super(Key, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        self.__image = avg.ImageNode(parent=self, opacity=0.0)
         self.__feedback = keyDef[1]
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
@@ -54,58 +53,39 @@ class Key(avg.DivNode):
         self.__cursorID = None
         if downHref:
             if player.isPlaying():
-                self.__createImage(downHref, feedbackHref)
+                self.__createImages(downHref, feedbackHref)
             else:
                 player.subscribe(avg.Player.PLAYBACK_START, 
-                        lambda: self.__createImage(downHref, feedbackHref))
+                        lambda: self.__createImages(downHref, feedbackHref))
 
     def reset(self):
         if self.__sticky:
             self.__image.opacity = 0.0
             self.__stickyIsDown = False
 
-    def __createImage(self, downHref, feedbackHref):
-        if os.path.isabs(downHref):
-            effectiveDownHref = downHref
-        else:
-            effectiveDownHref = self.getParent().getEffectiveMediaDir() + downHref
-        canvasOvl = player.loadCanvasString(
-        '''
-            <canvas id="offscreenOvl" size="%s">
-                <image href="%s" pos="%s"/>
-            </canvas>
-        '''
-        %(str(self.size), 
-          effectiveDownHref,
-          str(-self.pos)))
+    def __createImages(self, downHref, feedbackHref):
+        self.__image = avg.ImageNode(parent=self, opacity=0.0)
+        self.__createImage(self.__image, downHref, 1)
 
-        canvasOvl.render()
-        self.__image.setBitmap(canvasOvl.screenshot())
-        self.__feedbackImage = avg.ImageNode(opacity=0.0)
+        self.__feedbackImage = avg.ImageNode(parent=self, opacity=0.0)
         if feedbackHref and self.__feedback:
-            if os.path.isabs(feedbackHref):
-                effectiveSelHref = feedbackHref
-            else:
-                effectiveSelHref = self.getParent().getEffectiveMediaDir() + feedbackHref
-            canvasSel = player.loadCanvasString(
-            '''
-                <canvas id="offscreenSel" size="%s">
-                    <image href="%s" pos="%s"/>
-                </canvas>
-            '''
-            %(str(self.size * 2), 
-              effectiveSelHref,
-              str(-self.pos * 2)))
-
-            canvasSel.render()
-            self.__feedbackImage.setBitmap(canvasSel.screenshot())
+            self.__createImage(self.__feedbackImage, feedbackHref, 2)
             self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
                     self.__feedbackImage.size.y)
-            self.appendChild(self.__feedbackImage)
-            player.deleteCanvas('offscreenSel')
         else:
             self.__feedback = False
-        player.deleteCanvas('offscreenOvl')
+
+    def __createImage(self, node, href, sizeFactor):
+        if os.path.isabs(href):
+            effectiveHref = href
+        else:
+            effectiveHref = self.getParent().getEffectiveMediaDir() + href
+        canvas = player.createCanvas(id="keycanvas", size=self.size*sizeFactor)
+        avg.ImageNode(href=effectiveHref, pos=-self.pos*sizeFactor, 
+                parent=canvas.getRootNode())
+        canvas.render()
+        node.setBitmap(canvas.screenshot())
+        player.deleteCanvas('keycanvas')
 
     def onDown(self, event):
         self.__feedbackImage.opacity = 0.95
@@ -228,7 +208,7 @@ class Keyboard(avg.DivNode):
                         self.__keys[i].onDown(event)
                     continue
             self.__keys[i].onOut(event)
-        
+ 
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
