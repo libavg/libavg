@@ -236,32 +236,21 @@ class Keyboard(avg.DivNode):
         if (len(feedbackStr) != len(keyStr) or len(shiftKeyStr) != len(keyStr) or 
                 (altGrKeyStr and len(altGrKeyStr) != len(keyStr))):
             raise RuntimeError("makeRowKeyDefs string lengths must be identical.")
-        if altGrKeyStr:
-            for feedbackCode, keyCode, shiftKeyCode, altGrKeyCode in (
-                    zip(feedbackStr, keyStr, shiftKeyStr, altGrKeyStr)):
-                if feedbackCode == 'f':
-                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), False, False,
-                            curPos, keySize])
-                elif feedbackCode == 't':
-                    keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), True, False,
-                            curPos, keySize])
-                else:
-                    raise RuntimeError("Feedback codes must be 't' or 'f' (string was '"
-                            +feedbackStr+"').")
-                curPos = (curPos[0]+offset, curPos[1])
-        else:
-            for feedbackCode, keyCode, shiftKeyCode in \
-                    zip(feedbackStr, keyStr, shiftKeyStr):
-                if feedbackCode == 'f':
-                    keyDefs.append([(keyCode, shiftKeyCode), False, False, curPos,
-                            keySize])
-                elif feedbackCode == 't':
-                    keyDefs.append([(keyCode, shiftKeyCode), True, False, curPos,
-                            keySize])
-                else:
-                    raise RuntimeError("Feedback codes must be 't' or 'f' (string was '"
-                            +feedbackStr+"').")
-                curPos = (curPos[0]+offset, curPos[1])
+
+        for i in xrange(len(keyStr)):
+            if feedbackStr[i] == 'f':
+                showFeedback = False
+            elif feedbackStr[i] == 't':
+                showFeedback = True
+            else:
+                raise RuntimeError("Feedback codes must be 't' or 'f' (string was '"
+                        +feedbackStr+"').")
+            if altGrKeyStr:
+                codes = (keyStr[i], shiftKeyStr[i], altGrKeyStr[i])
+            else:
+                codes = (keyStr[i], shiftKeyStr[i])
+            keyDefs.append([codes, showFeedback, False, curPos, keySize])
+            curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 
     def setKeyHandler(self, downHandler, upHandler=None):
