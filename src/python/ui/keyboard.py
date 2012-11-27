@@ -34,7 +34,7 @@ FEEDBACK_ZOOM_FACTOR = 1.0
 class Key(avg.DivNode):
     # Keydef is (keyCode, feedback, repeat, pos, size)
     def __init__(self, keyDef, downHref, feedbackHref, onDownCallback, onUpCallback,
-            onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
+            onOutCallback=lambda keyCode:None, sticky=False, parent=None,
             **kwargs):
         kwargs['pos'] = keyDef[3]
         kwargs['size'] = keyDef[4]
@@ -91,7 +91,11 @@ class Key(avg.DivNode):
         self.__feedbackImage.opacity = 0.95
         if self.__cursorID:
             return
-        self.__pseudoDown(event)
+        self.__cursorID = event.cursorid
+        self.__image.opacity = 1.0
+        if self.__onDownCallback:
+            self.__onDownCallback(self.__keyCode)
+
         if self.__repeate:
             self.__repeateID = 0
             self.__repeateTimerID = player.setTimeout(500,
@@ -104,9 +108,9 @@ class Key(avg.DivNode):
         if self.__sticky:
             self.__stickyIsDown = not(self.__stickyIsDown)
             if not self.__stickyIsDown:
-                self.__pseudoUp(event)
+                self.__pseudoUp()
         else:
-            self.__pseudoUp(event)
+            self.__pseudoUp()
             if self.__repeate:
                 player.clearInterval(self.__repeateTimerID)
                 player.clearInterval(self.__repeateID)
@@ -118,7 +122,7 @@ class Key(avg.DivNode):
         if not(self.__sticky)  or (not self.__stickyIsDown):
             self.__cursorID = None
             self.__image.opacity = 0.0
-            self.__onOutCallback(event, self.__keyCode)
+            self.__onOutCallback(self.__keyCode)
             if self.__repeate:
                 player.clearInterval(self.__repeateTimerID)
                 player.clearInterval(self.__repeateID)
@@ -127,21 +131,14 @@ class Key(avg.DivNode):
         if self.__sticky or (not self.__cursorID == event.cursorid):
             return
         self.__repeateID = player.setInterval(100,
-                lambda event=event: self.__onUpCallback(event, self.__keyCode))
+                lambda: self.__onUpCallback(self.__keyCode))
 
-    def __pseudoDown(self, event):
-        self.__cursorID = event.cursorid
-
-        self.__image.opacity = 1.0
-        if self.__onDownCallback:
-            self.__onDownCallback(event, self.__keyCode)
-       
-    def __pseudoUp(self, event):
+    def __pseudoUp(self):
         self.__cursorID = None
 
         self.__image.opacity = 0.0
         if self.__onUpCallback:
-            self.__onUpCallback(event, self.__keyCode)
+            self.__onUpCallback(self.__keyCode)
         
 
 class Keyboard(avg.DivNode):
@@ -189,26 +186,47 @@ class Keyboard(avg.DivNode):
             self.__textarea = textarea
             self.setKeyHandler(None, self.__upHandler)
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+        self.__curKeys = {}
 
     def __onDown(self, event):
-        self.__selectKey(event)
-        for message in avg.Contact.CURSOR_MOTION, avg.Contact.CURSOR_UP:
-            event.contact.subscribe(message, self.__selectKey)
+        curKey = self.__findKey(event.pos)
+        self.__hideOldHighlights(event)
+        self.__curKeys[event.contact] = curKey
+        if curKey:
+            curKey.onDown(event)
+        event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
+        event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
 
-    def __selectKey(self, event):
-        # TODO: This code sends onOut events to all keys not pressed. That's n-1 too many.
-        # The current key also gets multiple down events on every CURSOR_MOTION.
-        for i in range(len(self.__keys)):
-            pos = self.__keys[i].getRelPos(event.pos)
-            if pos.x >= 0 and pos.y >= 0:
-                if pos.x <= self.__keys[i].size.x and pos.y <= self.__keys[i].size.y:
-                    if event.type == avg.Event.CURSOR_UP:
-                        self.__keys[i].onUp(event)  
-                    else:                  
-                        self.__keys[i].onDown(event)
-                    continue
-            self.__keys[i].onOut(event)
- 
+    def __onMotion(self, event):
+        newKey = self.__findKey(event.pos)
+        if newKey != self.__curKeys[event.contact]:
+            self.__hideOldHighlights(event)
+            self.__curKeys[event.contact] = newKey
+            if newKey:
+                newKey.onDown(event)
+
+    def __onUp(self, event):
+        self.__onMotion(event)
+        if self.__curKeys[event.contact]:
+            self.__curKeys[event.contact].onUp(event)
+        del self.__curKeys[event.contact]
+
+    def __hideOldHighlights(self, event):
+        for oldKey in self.__curKeys.itervalues():
+            if oldKey:
+                oldKey.onOut(event)
+
+    def __findKey(self, pos):
+        for key in self.__keys:
+            localPos = key.getRelPos(pos)
+            if self.__isInside(localPos, key):
+                return key
+        return None
+
+    def __isInside(self, pos, node):
+        return (pos.x >= 0 and pos.y >= 0 and 
+                pos.x <= node.size.x and pos.y <= node.size.y)
+
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
@@ -257,37 +275,37 @@ class Keyboard(avg.DivNode):
         else:
             return keyCodes[0]
 
-    def _onCommandKeyDown(self, event, keyCode):
+    def _onCommandKeyDown(self, keyCode):
         '''
         Overload this method to add command key functionality.
         '''
         pass
 
-    def _onCommandKeyUp(self, event, keyCode):
+    def _onCommandKeyUp(self, keyCode):
         '''
         Overload this method to add command key functionality.
         '''
         pass
 
-    def __onCharKeyDown(self, event, keyCodes):
+    def __onCharKeyDown(self, keyCodes):
         if self.__downKeyHandler:
-            self.__downKeyHandler(event, self._getCharKeyCode(keyCodes), None)
+            self.__downKeyHandler(self._getCharKeyCode(keyCodes), None)
 
-    def __onCharKeyUp(self, event, keyCodes):
+    def __onCharKeyUp(self, keyCodes):
         if self.__upKeyHandler:
-            self.__upKeyHandler(event, self._getCharKeyCode(keyCodes), None)
+            self.__upKeyHandler(self._getCharKeyCode(keyCodes), None)
 
-    def __onCommandKeyDown(self, event, keyCode):
-        self._onCommandKeyDown(event, keyCode)
+    def __onCommandKeyDown(self, keyCode):
+        self._onCommandKeyDown(keyCode)
         if keyCode == self.__shiftKeyCode:
             self.__shiftDownCounter += 1
         if keyCode == self.__altGrKeyCode:
             self.__altGrKeyCounter += 1
         if self.__downKeyHandler:
-            self.__downKeyHandler(event, None, keyCode)
+            self.__downKeyHandler(None, keyCode)
 
-    def __onCommandKeyUp(self, event, keyCode):
-        self._onCommandKeyUp(event, keyCode)
+    def __onCommandKeyUp(self, keyCode):
+        self._onCommandKeyUp(keyCode)
         if keyCode == self.__shiftKeyCode:
             if self.__shiftDownCounter > 0:
                 self.__shiftDownCounter -= 1
@@ -299,9 +317,9 @@ class Keyboard(avg.DivNode):
             if self.__altGrKeyCounter > 0:
                 self.__altGrKeyCounter -= 1
         if self.__upKeyHandler:
-            self.__upKeyHandler(event, None, keyCode)
+            self.__upKeyHandler(None, keyCode)
 
-    def __upHandler(self, event, keyCode, cmd):
+    def __upHandler(self, keyCode, cmd):
         if keyCode is None:
             return
         self.__textarea.onKeyDown(ord(keyCode))

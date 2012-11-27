@@ -42,13 +42,13 @@ class UITestCase(AVGTestCase):
                     parent=root)
             kbShift.setKeyHandler(onKeyDown, onKeyUp)
 
-        def onKeyDown(event, char, cmd):
+        def onKeyDown(char, cmd):
             self.__keyDown = True
             self.__keyUp   = False
             self.__char = char
             self.__cmd = cmd
 
-        def onKeyUp(event, char, cmd):
+        def onKeyUp(char, cmd):
             self.__keyDown = False
             self.__keyUp   = True
             self.__char = char
