@@ -32,6 +32,7 @@ g_Logger = avg.Logger.get()
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 class Key(avg.DivNode):
+    # Keydef is (keyCode, feedback, repeat, pos, size)
     def __init__(self, keyDef, ovlHref, selHref, onDownCallback, onUpCallback,
             onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
             **kwargs):
