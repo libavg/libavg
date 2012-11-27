@@ -120,29 +120,29 @@ class AVGTestCase(unittest.TestCase):
         try:
             baselineBmp = avg.Bitmap(AVGTestCase.baselineImageResultDirectory + "/"
                     + fileName + ".png")
-            diffBmp = bmp.subtract(baselineBmp)
-            average = diffBmp.getAvg()
-            stdDev = diffBmp.getStdDev()
-            if (average > 0.1 or stdDev > 0.5):
-                if self._isCurrentDirWriteable():
-                    bmp.save(AVGTestCase.getImageResultDir() + "/" + fileName + ".png")
-                    baselineBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
-                            + "_baseline.png")
-                    diffBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
-                            + "_diff.png")
-            if (average > 2 or stdDev > 6):
-                msg = ("  "+fileName+
-                        ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
-                        {'avg':average, 'stddev':stdDev})
-                if self.__warnOnImageDiff:
-                    sys.stderr.write("\n"+msg+"\n")
-                else:
-                    self.fail(msg)
         except RuntimeError:
             bmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+".png")
             self.__logger.trace(self.__logger.WARNING, 
                                 "Could not load image "+fileName+".png")
             raise
+        diffBmp = bmp.subtract(baselineBmp)
+        average = diffBmp.getAvg()
+        stdDev = diffBmp.getStdDev()
+        if (average > 0.1 or stdDev > 0.5):
+            if self._isCurrentDirWriteable():
+                bmp.save(AVGTestCase.getImageResultDir() + "/" + fileName + ".png")
+                baselineBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                        + "_baseline.png")
+                diffBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                        + "_diff.png")
+        if (average > 2 or stdDev > 6):
+            msg = ("  "+fileName+
+                    ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
+                    {'avg':average, 'stddev':stdDev})
+            if self.__warnOnImageDiff:
+                sys.stderr.write("\n"+msg+"\n")
+            else:
+                self.fail(msg)
 
     def areSimilarBmps(self, bmp1, bmp2, maxAvg, maxStdDev):
         diffBmp = bmp1.subtract(bmp2)
