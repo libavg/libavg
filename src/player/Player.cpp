@@ -1712,6 +1712,7 @@ void Player::cleanup()
     m_pCanvases.clear();
 
     if (m_pDisplayEngine) {
+        m_DP.m_WindowSize = IntPoint(0,0);
         if (!m_bKeepWindowOpen) {
             m_pDisplayEngine->deinitRender();
             m_pDisplayEngine->teardown();
