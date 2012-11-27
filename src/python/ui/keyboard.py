@@ -275,18 +275,6 @@ class Keyboard(avg.DivNode):
         else:
             return keyCodes[0]
 
-    def _onCommandKeyDown(self, keyCode):
-        '''
-        Overload this method to add command key functionality.
-        '''
-        pass
-
-    def _onCommandKeyUp(self, keyCode):
-        '''
-        Overload this method to add command key functionality.
-        '''
-        pass
-
     def __onCharKeyDown(self, keyCodes):
         if self.__downKeyHandler:
             self.__downKeyHandler(self._getCharKeyCode(keyCodes), None)
@@ -296,7 +284,6 @@ class Keyboard(avg.DivNode):
             self.__upKeyHandler(self._getCharKeyCode(keyCodes), None)
 
     def __onCommandKeyDown(self, keyCode):
-        self._onCommandKeyDown(keyCode)
         if keyCode == self.__shiftKeyCode:
             self.__shiftDownCounter += 1
         if keyCode == self.__altGrKeyCode:
@@ -305,7 +292,6 @@ class Keyboard(avg.DivNode):
             self.__downKeyHandler(None, keyCode)
 
     def __onCommandKeyUp(self, keyCode):
-        self._onCommandKeyUp(keyCode)
         if keyCode == self.__shiftKeyCode:
             if self.__shiftDownCounter > 0:
                 self.__shiftDownCounter -= 1
