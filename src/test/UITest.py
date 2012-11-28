@@ -44,23 +44,24 @@ class UITestCase(AVGTestCase):
 
         def onKeyDown(char, cmd):
             self.__keyDown = True
-            self.__keyUp   = False
             self.__char = char
             self.__cmd = cmd
 
         def onKeyUp(char, cmd):
-            self.__keyDown = False
             self.__keyUp   = True
             self.__char = char
             self.__cmd = cmd
 
+        def reset():
+            self.__keyDown = False
+            self.__keyUp = False
+
         root = self.loadEmptyScene()
 
-        self.__keyDown = False
-        self.__keyUp   = True
         self.__char = "foo"
         self.__cmd = "bar"
         setup()
+        reset()
         self.start(False,
                 (lambda: self.compareImage("testUIKeyboard"),
                  # test character key
@@ -69,16 +70,17 @@ class UITestCase(AVGTestCase):
                  lambda: self.assert_(self.__char == "a" and self.__cmd is None),
                  lambda: self.compareImage("testUIKeyboardDownA1"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 30, 30),
-                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
+                 lambda: self.assert_(self.__keyDown and self.__keyUp),
                  lambda: self.assert_(self.__char == "a" and self.__cmd is None),
                  lambda: self.compareImage("testUIKeyboard"),
+                 reset,
                  # test command key
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 100, 30),
                  lambda: self.assert_(self.__keyDown and not self.__keyUp),
                  lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
                  lambda: self.compareImage("testUIKeyboardDownS1"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 30),
-                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
+                 lambda: self.assert_(self.__keyDown and self.__keyUp),
                  lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
                  lambda: self.compareImage("testUIKeyboard"),
                  # test shift key (no shift key support)
@@ -107,6 +109,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.assert_(self.__char == 1 and self.__cmd is None),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 100, 80),
                  lambda: self.compareImage("testUIKeyboard"),
+                 reset,
                  # test drag over keys 
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 60, 80),
                  lambda: self.assert_(self.__char == 1 and self.__cmd is None),
@@ -120,7 +123,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 60, 80),
                  lambda: self.compareImage("testUIKeyboardDown11"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 60, 80),
-                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
+                 lambda: self.assert_(self.__keyDown and self.__keyUp),
                 ))
 
     def testTextArea(self):
