@@ -50,7 +50,6 @@ class Key(avg.DivNode):
         self.__onUpCallback = onUpCallback
         self.__onOutCallback = onOutCallback
         self.__sticky = sticky
-        self.__repeate = False   # XXX
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
@@ -96,11 +95,6 @@ class Key(avg.DivNode):
         if self.__onDownCallback:
             self.__onDownCallback(self.__keyCode)
 
-        if self.__repeate:
-            self.__repeateID = 0
-            self.__repeateTimerID = player.setTimeout(500,
-                    lambda event=event: self.__pseudoRepeate(event))
-
     def onUp(self, event):
         if not self.__cursorID == event.cursorid:
             return
@@ -110,30 +104,18 @@ class Key(avg.DivNode):
                 self.__pseudoUp()
         else:
             self.__pseudoUp()
-            if self.__repeate:
-                player.clearInterval(self.__repeateTimerID)
-                player.clearInterval(self.__repeateID)
 
     def onOut(self):
         if not(self.__sticky)  or (not self.__stickyIsDown):
             self.__cursorID = None
             self.__image.opacity = 0.0
             self.__onOutCallback(self.__keyCode)
-            if self.__repeate:
-                player.clearInterval(self.__repeateTimerID)
-                player.clearInterval(self.__repeateID)
 
     def showFeedback(self, show):
         if show:
             self.__feedbackImage.opacity = 0.95
         else:
             self.__feedbackImage.opacity = 0.0
-
-    def __pseudoRepeate(self, event):
-        if self.__sticky or (not self.__cursorID == event.cursorid):
-            return
-        self.__repeateID = player.setInterval(100,
-                lambda: self.__onUpCallback(self.__keyCode))
 
     def __pseudoUp(self):
         self.__cursorID = None
