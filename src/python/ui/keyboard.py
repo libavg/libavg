@@ -88,7 +88,6 @@ class Key(avg.DivNode):
         player.deleteCanvas('keycanvas')
 
     def onDown(self, event):
-        self.__feedbackImage.opacity = 0.95
         if self.__cursorID:
             return
         self.__cursorID = event.cursorid
@@ -102,7 +101,6 @@ class Key(avg.DivNode):
                     lambda event=event: self.__pseudoRepeate(event))
 
     def onUp(self, event):
-        self.__feedbackImage.opacity = 0.0
         if not self.__cursorID == event.cursorid:
             return
         if self.__sticky:
@@ -115,10 +113,7 @@ class Key(avg.DivNode):
                 player.clearInterval(self.__repeateTimerID)
                 player.clearInterval(self.__repeateID)
 
-    def onOut(self, event):
-        self.__feedbackImage.opacity = 0.0
-        if not self.__cursorID == event.cursorid:
-            return
+    def onOut(self):
         if not(self.__sticky)  or (not self.__stickyIsDown):
             self.__cursorID = None
             self.__image.opacity = 0.0
@@ -126,6 +121,12 @@ class Key(avg.DivNode):
             if self.__repeate:
                 player.clearInterval(self.__repeateTimerID)
                 player.clearInterval(self.__repeateID)
+
+    def showFeedback(self, show):
+        if show:
+            self.__feedbackImage.opacity = 0.95
+        else:
+            self.__feedbackImage.opacity = 0.0
 
     def __pseudoRepeate(self, event):
         if self.__sticky or (not self.__cursorID == event.cursorid):
@@ -187,10 +188,11 @@ class Keyboard(avg.DivNode):
             self.setKeyHandler(None, self.__upHandler)
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         self.__curKeys = {}
+        self.__feedbackKey = None
 
     def __onDown(self, event):
         curKey = self.__findKey(event.pos)
-        self.__hideOldHighlights(event)
+        self.__switchFeedbackKey(curKey)
         self.__curKeys[event.contact] = curKey
         if curKey:
             curKey.onDown(event)
@@ -200,21 +202,20 @@ class Keyboard(avg.DivNode):
     def __onMotion(self, event):
         newKey = self.__findKey(event.pos)
         if newKey != self.__curKeys[event.contact]:
-            self.__hideOldHighlights(event)
+            if self.__curKeys[event.contact]:
+                self.__curKeys[event.contact].onOut()
+            self.__switchFeedbackKey(newKey)
             self.__curKeys[event.contact] = newKey
             if newKey:
                 newKey.onDown(event)
 
     def __onUp(self, event):
         self.__onMotion(event)
-        if self.__curKeys[event.contact]:
-            self.__curKeys[event.contact].onUp(event)
+        key = self.__curKeys[event.contact]
+        if key:
+            key.onUp(event)
+        self.__switchFeedbackKey(key)
         del self.__curKeys[event.contact]
-
-    def __hideOldHighlights(self, event):
-        for oldKey in self.__curKeys.itervalues():
-            if oldKey:
-                oldKey.onOut(event)
 
     def __findKey(self, pos):
         for key in self.__keys:
@@ -226,6 +227,13 @@ class Keyboard(avg.DivNode):
     def __isInside(self, pos, node):
         return (pos.x >= 0 and pos.y >= 0 and 
                 pos.x <= node.size.x and pos.y <= node.size.y)
+
+    def __switchFeedbackKey(self, newKey):
+        if self.__feedbackKey:
+            self.__feedbackKey.showFeedback(False)
+        self.__feedbackKey = newKey
+        if self.__feedbackKey:
+            self.__feedbackKey.showFeedback(True)
 
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, 
