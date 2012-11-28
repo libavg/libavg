@@ -31,9 +31,9 @@ class UITestCase(AVGTestCase):
     def testKeyboard(self):
         def setup():
             keyDefs = [
-                    [("a", "A"),True, False, ( 5, 5), (30, 30)],
-                    [(1, ),     True, False, (35, 5), (30, 30)],
-                    ["SHIFT",   False, False, (65, 5), (50, 30)]]
+                    [("a", "A"), ( 5, 5), (30, 30), False],
+                    [(1, ),      (35, 5), (30, 30), False],
+                    ["SHIFT",    (65, 5), (50, 30), True]]
             kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_down.png", keyDefs, None,
                     pos=(10, 10), parent=root)
             kbNoShift.setKeyHandler(onKeyDown, onKeyUp)

@@ -32,22 +32,25 @@ g_Logger = avg.Logger.get()
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 class Key(avg.DivNode):
-    # Keydef is (keyCode, feedback, repeat, pos, size)
+    # KeyDef is (keyCode, pos, size, isCommandKey=False)
     def __init__(self, keyDef, downHref, feedbackHref, onDownCallback, onUpCallback,
             onOutCallback=lambda keyCode:None, sticky=False, parent=None,
             **kwargs):
-        kwargs['pos'] = keyDef[3]
-        kwargs['size'] = keyDef[4]
+        self.__keyCode = keyDef[0]
+        kwargs['pos'] = avg.Point2D(keyDef[1])
+        kwargs['size'] = avg.Point2D(keyDef[2])
+        if len(keyDef) == 4:
+            self.__isCommand = keyDef[3]
+        else:
+            self.__isCommand = False
         super(Key, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        self.__feedback = keyDef[1]
-        self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
         self.__onOutCallback = onOutCallback
         self.__sticky = sticky
-        self.__repeate = keyDef[2]
+        self.__repeate = False   # XXX
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
@@ -68,12 +71,10 @@ class Key(avg.DivNode):
         self.__createImage(self.__image, downHref, 1)
 
         self.__feedbackImage = avg.ImageNode(parent=self, opacity=0.0)
-        if feedbackHref and self.__feedback:
+        if feedbackHref and not(self.__isCommand):
             self.__createImage(self.__feedbackImage, feedbackHref, 2)
             self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
                     self.__feedbackImage.size.y)
-        else:
-            self.__feedback = False
 
     def __createImage(self, node, href, sizeFactor):
         if os.path.isabs(href):
@@ -236,28 +237,21 @@ class Keyboard(avg.DivNode):
             self.__feedbackKey.showFeedback(True)
 
     @classmethod
-    def makeRowKeyDefs(cls, startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, 
+    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
         keyDefs = []
         curPos = startPos
         offset = keySize[0]+spacing
-        if (len(feedbackStr) != len(keyStr) or len(shiftKeyStr) != len(keyStr) or 
+        if (len(shiftKeyStr) != len(keyStr) or 
                 (altGrKeyStr and len(altGrKeyStr) != len(keyStr))):
             raise RuntimeError("makeRowKeyDefs string lengths must be identical.")
 
         for i in xrange(len(keyStr)):
-            if feedbackStr[i] == 'f':
-                showFeedback = False
-            elif feedbackStr[i] == 't':
-                showFeedback = True
-            else:
-                raise RuntimeError("Feedback codes must be 't' or 'f' (string was '"
-                        +feedbackStr+"').")
             if altGrKeyStr:
                 codes = (keyStr[i], shiftKeyStr[i], altGrKeyStr[i])
             else:
                 codes = (keyStr[i], shiftKeyStr[i])
-            keyDefs.append([codes, showFeedback, False, curPos, keySize])
+            keyDefs.append([codes, curPos, keySize, False])
             curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 
