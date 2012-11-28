@@ -32,9 +32,8 @@ g_Logger = avg.Logger.get()
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 class Key(avg.DivNode):
-    # KeyDef is (keyCode, pos, size, isCommandKey=False)
-    def __init__(self, keyDef, downHref, feedbackHref, onDownCallback, onUpCallback,
-            onOutCallback=lambda keyCode:None, sticky=False, parent=None,
+    # KeyDef is (keyCode, pos, size, isCommand=False)
+    def __init__(self, keyDef, downHref, feedbackHref, sticky=False, parent=None,
             **kwargs):
         self.__keyCode = keyDef[0]
         kwargs['pos'] = avg.Point2D(keyDef[1])
@@ -46,12 +45,8 @@ class Key(avg.DivNode):
         super(Key, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        self.__onDownCallback = onDownCallback
-        self.__onUpCallback = onUpCallback
-        self.__onOutCallback = onOutCallback
         self.__sticky = sticky
-        if self.__sticky:
-            self.__stickyIsDown = False
+        self.__stickyIsDown = False
         self.__cursorID = None
         if downHref:
             if player.isPlaying():
@@ -64,6 +59,43 @@ class Key(avg.DivNode):
         if self.__sticky:
             self.__image.opacity = 0.0
             self.__stickyIsDown = False
+
+    def isCommand(self):
+        return self.__isCommand
+
+    def getCode(self):
+        return self.__keyCode
+
+    def isStickyDown(self):
+        return self.__sticky and self.__stickyIsDown
+
+    def onDown(self, event):
+        if self.__cursorID:
+            return
+        self.__cursorID = event.cursorid
+        self.__image.opacity = 1.0
+
+    def onUp(self, event):
+        if not self.__cursorID == event.cursorid:
+            return
+        if self.__sticky:
+            self.__stickyIsDown = not(self.__stickyIsDown)
+            if not self.__stickyIsDown:
+                self.__image.opacity = 0.0
+        else:
+            self.__image.opacity = 0.0
+        self.__cursorID = None
+
+    def onOut(self):
+        if not(self.__sticky)  or (not self.__stickyIsDown):
+            self.__cursorID = None
+            self.__image.opacity = 0.0
+
+    def showFeedback(self, show):
+        if show:
+            self.__feedbackImage.opacity = 0.95
+        else:
+            self.__feedbackImage.opacity = 0.0
 
     def __createImages(self, downHref, feedbackHref):
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
@@ -87,43 +119,6 @@ class Key(avg.DivNode):
         node.setBitmap(canvas.screenshot())
         player.deleteCanvas('keycanvas')
 
-    def onDown(self, event):
-        if self.__cursorID:
-            return
-        self.__cursorID = event.cursorid
-        self.__image.opacity = 1.0
-        if self.__onDownCallback:
-            self.__onDownCallback(self.__keyCode)
-
-    def onUp(self, event):
-        if not self.__cursorID == event.cursorid:
-            return
-        if self.__sticky:
-            self.__stickyIsDown = not(self.__stickyIsDown)
-            if not self.__stickyIsDown:
-                self.__pseudoUp()
-        else:
-            self.__pseudoUp()
-
-    def onOut(self):
-        if not(self.__sticky)  or (not self.__stickyIsDown):
-            self.__cursorID = None
-            self.__image.opacity = 0.0
-            self.__onOutCallback(self.__keyCode)
-
-    def showFeedback(self, show):
-        if show:
-            self.__feedbackImage.opacity = 0.95
-        else:
-            self.__feedbackImage.opacity = 0.0
-
-    def __pseudoUp(self):
-        self.__cursorID = None
-
-        self.__image.opacity = 0.0
-        if self.__onUpCallback:
-            self.__onUpCallback(self.__keyCode)
-        
 
 class Keyboard(avg.DivNode):
 
@@ -157,14 +152,11 @@ class Keyboard(avg.DivNode):
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                key = Key(kd, downHref, feedbackHref, self.__onCharKeyDown, 
-                        self.__onCharKeyUp, parent=self)
+                key = Key(kd, downHref, feedbackHref, parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
-                key = Key(kd, downHref, feedbackHref, self.__onCommandKeyDown,
-                        self.__onCommandKeyUp, self.__onCommandKeyUp, sticky=sticky,
-                        parent=self)
+                key = Key(kd, downHref, feedbackHref, sticky=sticky, parent=self)
             self.__keys.append(key)
         if textarea != None:
             self.__textarea = textarea
@@ -177,26 +169,31 @@ class Keyboard(avg.DivNode):
         curKey = self.__findKey(event.pos)
         self.__switchFeedbackKey(curKey)
         self.__curKeys[event.contact] = curKey
-        if curKey:
-            curKey.onDown(event)
+        self.__keyDown(curKey, event)
         event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
         event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
 
     def __onMotion(self, event):
         newKey = self.__findKey(event.pos)
-        if newKey != self.__curKeys[event.contact]:
-            if self.__curKeys[event.contact]:
-                self.__curKeys[event.contact].onOut()
+        oldKey = self.__curKeys[event.contact]
+        if newKey != oldKey:
+            if oldKey:
+                oldKey.onOut()
+                if oldKey.isCommand():
+                    self.__onCommandKeyUp(oldKey)
             self.__switchFeedbackKey(newKey)
             self.__curKeys[event.contact] = newKey
-            if newKey:
-                newKey.onDown(event)
+            self.__keyDown(newKey, event)
 
     def __onUp(self, event):
         self.__onMotion(event)
         key = self.__curKeys[event.contact]
         if key:
             key.onUp(event)
+            if key.isCommand():
+                self.__onCommandKeyUp(key)
+            else:
+                self.__onCharKeyUp(key.getCode())
         self.__switchFeedbackKey(key)
         del self.__curKeys[event.contact]
 
@@ -217,6 +214,14 @@ class Keyboard(avg.DivNode):
         self.__feedbackKey = newKey
         if self.__feedbackKey:
             self.__feedbackKey.showFeedback(True)
+
+    def __keyDown(self, key, event):
+        if key:
+            key.onDown(event)
+            if key.isCommand():
+                self.__onCommandKeyDown(key)
+            else:
+                self.__onCharKeyDown(key.getCode())
 
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
@@ -267,25 +272,29 @@ class Keyboard(avg.DivNode):
         if self.__upKeyHandler:
             self.__upKeyHandler(self._getCharKeyCode(keyCodes), None)
 
-    def __onCommandKeyDown(self, keyCode):
-        if keyCode == self.__shiftKeyCode:
-            self.__shiftDownCounter += 1
-        if keyCode == self.__altGrKeyCode:
-            self.__altGrKeyCounter += 1
+    def __onCommandKeyDown(self, key):
+        keyCode = key.getCode()
+        if not(key.isStickyDown()):
+            if keyCode == self.__shiftKeyCode:
+                self.__shiftDownCounter += 1
+            if keyCode == self.__altGrKeyCode:
+                self.__altGrKeyCounter += 1
         if self.__downKeyHandler:
             self.__downKeyHandler(None, keyCode)
 
-    def __onCommandKeyUp(self, keyCode):
-        if keyCode == self.__shiftKeyCode:
-            if self.__shiftDownCounter > 0:
-                self.__shiftDownCounter -= 1
-            else:
-                g_Logger.trace(g_Logger.WARNING,
-                        'Keyboard: ShiftDownCounter=0 on [%s] up' 
-                        %self.__shiftKeyCode)
-        elif keyCode == self.__altGrKeyCode:
-            if self.__altGrKeyCounter > 0:
-                self.__altGrKeyCounter -= 1
+    def __onCommandKeyUp(self, key):
+        keyCode = key.getCode()
+        if not(key.isStickyDown()):
+            if keyCode == self.__shiftKeyCode:
+                if self.__shiftDownCounter > 0:
+                    self.__shiftDownCounter -= 1
+                else:
+                    g_Logger.trace(g_Logger.WARNING,
+                            'Keyboard: ShiftDownCounter=0 on [%s] up' 
+                            %self.__shiftKeyCode)
+            elif keyCode == self.__altGrKeyCode:
+                if self.__altGrKeyCounter > 0:
+                    self.__altGrKeyCounter -= 1
         if self.__upKeyHandler:
             self.__upKeyHandler(None, keyCode)
 
