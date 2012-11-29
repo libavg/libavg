@@ -4,7 +4,7 @@ INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @GDK_PIXBUF_CFLAG
 if APPLE
     X_LIBS = 
 else
-    X_LIBS = -lX11
+    X_LIBS = -lXxf86vm -lX11
 endif
 
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h VideoDecoder.h \

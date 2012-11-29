@@ -32,8 +32,8 @@ using namespace std;
 
 namespace avg {
 
-GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf, bool bStandalone)
-    : GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_INVERT_COLOR, 1)
+GPUInvertFilter::GPUInvertFilter(const IntPoint& size, bool bUseAlpha, bool bStandalone)
+    : GPUFilter(SHADERID_INVERT_COLOR, bUseAlpha, bStandalone)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);

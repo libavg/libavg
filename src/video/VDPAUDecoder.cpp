@@ -148,6 +148,7 @@ vdpau_render_state* VDPAUDecoder::getFreeRenderState()
     
     // No free surfaces available -> create new surface
     vdpau_render_state* pRenderState = new vdpau_render_state;
+    m_RenderStates.push_back(pRenderState);
     memset(pRenderState, 0, sizeof(vdpau_render_state));
     pRenderState->surface = VDP_INVALID_HANDLE;
     VdpStatus status = vdp_video_surface_create(getVDPAUDevice(), VDP_CHROMA_TYPE_420,

@@ -105,4 +105,11 @@ void FXNode::setDirty()
     m_bDirty = true;
 }
 
+void FXNode::errorIfGLES() const
+{
+    if (GLContext::getCurrent()->isGLES()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "This effect is unsupported under OpenGL ES.");
+    }
+}
+
 }

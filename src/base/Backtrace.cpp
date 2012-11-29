@@ -21,6 +21,8 @@
 
 #include "Backtrace.h"
 
+#include "StringHelper.h"
+
 #ifndef _WIN32
 #include <execinfo.h>
 #include <cxxabi.h>
@@ -28,6 +30,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -38,12 +41,10 @@ void dumpBacktrace()
 #ifndef _WIN32
     vector<string> sFuncs;
     getBacktrace(sFuncs);
-    int i=0;
     vector<string>::iterator it = sFuncs.begin();
     ++it;
     for (; it != sFuncs.end(); ++it) {
-        cerr << "  " << i << ": " << *it << endl;
-        i++;
+        cerr << "  " << *it << endl;
     }
 #endif
 }
@@ -67,7 +68,15 @@ string funcNameFromLine(const string& sLine)
     }
 }
 
-void getBacktrace(std::vector<std::string>& sFuncs)
+void consolidateRepeatedLines(vector<string>& sFuncs, unsigned& i, unsigned numSameLines)
+{
+    unsigned firstSameLine = i - numSameLines;
+    sFuncs[firstSameLine+1] = "    [...]";
+    sFuncs.erase(sFuncs.begin()+firstSameLine+2, sFuncs.begin()+i-1);
+    i = firstSameLine + 3;
+}
+
+void getBacktrace(vector<string>& sFuncs)
 {
 #ifndef _WIN32
     void* callstack[128];
@@ -83,9 +92,27 @@ void getBacktrace(std::vector<std::string>& sFuncs)
             sFuncName = pszDemangledFuncName;
             free(pszDemangledFuncName);
         }
-        sFuncs.push_back(sFuncName);
+        char szLineNum[10];
+        sprintf(szLineNum, "%3d", i);
+        sFuncs.push_back(string(szLineNum)+" "+sFuncName);
     }
     free(ppszLines);
+
+    unsigned numSameLines = 1;
+    unsigned i = 1;
+    for (i = 1; i < sFuncs.size(); ++i) {
+        if (sFuncs[i].substr(4, string::npos) == sFuncs[i-1].substr(4, string::npos)) {
+            numSameLines++;
+        } else {
+            if (numSameLines > 3) {
+                consolidateRepeatedLines(sFuncs, i, numSameLines);
+            }
+            numSameLines = 1;
+        }
+    }
+    if (numSameLines > 2) {
+        consolidateRepeatedLines(sFuncs, i, numSameLines);
+    }
 #endif
 }
 

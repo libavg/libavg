@@ -91,6 +91,7 @@
     <ClInclude Include="..\..\src\base\Command.h" />
     <ClInclude Include="..\..\src\base\ConfigMgr.h" />
     <ClInclude Include="..\..\src\base\CubicSpline.h" />
+    <ClInclude Include="..\..\src\base\DAG.h" />
     <ClInclude Include="..\..\src\base\Directory.h" />
     <ClInclude Include="..\..\src\base\DirEntry.h" />
     <ClInclude Include="..\..\src\base\DlfcnWrapper.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="..\..\src\base\BezierCurve.cpp" />
     <ClCompile Include="..\..\src\base\ConfigMgr.cpp" />
     <ClCompile Include="..\..\src\base\CubicSpline.cpp" />
+    <ClCompile Include="..\..\src\base\DAG.cpp" />
     <ClCompile Include="..\..\src\base\Directory.cpp" />
     <ClCompile Include="..\..\src\base\DirEntry.cpp" />
     <ClCompile Include="..\..\src\base\DlfcnWrapper.cpp" />

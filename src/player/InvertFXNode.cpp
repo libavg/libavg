@@ -24,6 +24,8 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
 
+#include "../graphics/BitmapLoader.h"
+
 #include <sstream>
 
 using namespace std;
@@ -49,8 +51,7 @@ void InvertFXNode::disconnect()
 
 GPUFilterPtr InvertFXNode::createFilter(const IntPoint& size)
 {
-    filterPtr = GPUInvertFilterPtr(new GPUInvertFilter(size, B8G8R8A8,
-            false));
+    filterPtr = GPUInvertFilterPtr(new GPUInvertFilter(size, true, false));
     setDirty();
     return filterPtr;
 }

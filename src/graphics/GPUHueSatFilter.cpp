@@ -32,12 +32,11 @@ using namespace std;
 
 namespace avg {
 
-GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
-        bool bStandalone) :
-    GPUFilter(pf, B8G8R8A8, bStandalone, SHADERID_HSL_COLOR, 1),
-    m_LightnessOffset(0.0),
-    m_Hue(0.0),
-    m_Saturation(0.0)
+GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, bool bUseAlpha, bool bStandalone)
+    : GPUFilter(SHADERID_HSL_COLOR, bUseAlpha, bStandalone),
+      m_LightnessOffset(0.0),
+      m_Hue(0.0),
+      m_Saturation(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);

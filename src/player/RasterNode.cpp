@@ -27,6 +27,7 @@
 
 #include "../graphics/ImagingProjection.h"
 #include "../graphics/ShaderRegistry.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -136,12 +137,7 @@ void RasterNode::checkReload()
         try {
             if (m_sMaskFilename != "") {
                 AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
-                m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
-                if (m_pMaskBmp->getPixelFormat() != I8) {
-                    BitmapPtr pTempBmp = m_pMaskBmp;
-                    m_pMaskBmp = BitmapPtr(new Bitmap(m_pMaskBmp->getSize(), I8));
-                    m_pMaskBmp->copyPixels(*pTempBmp);
-                }
+                m_pMaskBmp = loadBitmap(m_sMaskFilename, I8);
                 setMaskCoords();
             }
         } catch (Exception & ex) {
@@ -224,8 +220,15 @@ const std::string& RasterNode::getBlendModeStr() const
 
 void RasterNode::setBlendModeStr(const string& sBlendMode)
 {
+    GLContext::BlendMode blendMode = GLContext::stringToBlendMode(sBlendMode);
+    if (!GLContext::getMain()->isBlendModeSupported(blendMode)) {
+        m_sBlendMode = "blend";
+        m_BlendMode = GLContext::BLEND_BLEND;
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+              "Min and max blend modes are not supported in this OpenGL configuration.");
+    }
     m_sBlendMode = sBlendMode;
-    m_BlendMode = GLContext::stringToBlendMode(sBlendMode);
+    m_BlendMode = blendMode;
 }
 
 const UTF8String& RasterNode::getMaskHRef() const
@@ -417,7 +420,7 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         m_pSurface->activate(getMediaSize());
 
         m_pFBO->activate();
-        clearGLBuffers(GL_COLOR_BUFFER_BIT);
+        clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
 
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -476,10 +479,13 @@ void RasterNode::setupFX(bool bNewFX)
             m_bFXDirty = true;
         }
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
-            m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
-                    false, getMipmap()));
+            PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
+            m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
+                    getMipmap()));
             GLTexturePtr pTex = m_pFBO->getTex();
+            #ifndef AVG_ENABLE_EGL
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+            #endif
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
                     m_pSurface->getSize()));
         }

@@ -20,6 +20,7 @@
 //
 #ifndef _GLContext_H_
 #define _GLContext_H_
+
 #include "../api.h"
 
 #include "OGLHelper.h"
@@ -69,6 +70,7 @@ public:
     void setBlendColor(const glm::vec4& color);
     enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
     void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
+    bool isBlendModeSupported(BlendMode mode) const;
     void bindTexture(unsigned unit, unsigned texID);
 
     const GLConfig& getConfig();
@@ -81,9 +83,11 @@ public:
     OGLMemoryMode getMemoryMode();
     bool isGLES() const;
     bool isVendor(const std::string& sWantedVendor) const;
+    virtual bool useDepthBuffer() const;
 
     virtual bool initVBlank(int rate)=0;
     virtual void swapBuffers();
+    static float getRefreshRate();
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
@@ -139,6 +143,8 @@ private:
 
     int m_MajorGLVersion;
     int m_MinorGLVersion;
+
+    static float s_RefreshRate;
 
     static bool s_bErrorCheckEnabled;
     static bool s_bErrorLogEnabled;

@@ -21,6 +21,7 @@
 
 
 #include "Bitmap.h"
+#include "BitmapLoader.h"
 #include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
@@ -84,7 +85,7 @@ public:
 
     void run()
     {
-        BitmapPtr pBmp(new Bitmap("testfiles/rgb24alpha-64x64.png"));
+        BitmapPtr pBmp = loadBitmap("testfiles/rgb24alpha-64x64.png");
     }
 };
 

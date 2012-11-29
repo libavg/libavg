@@ -28,6 +28,7 @@
 
 #include "../graphics/GraphicsTest.h"
 #include "../graphics/Filtergrayscale.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -226,6 +227,7 @@ int main(int nargs, char** args)
 {
     g_type_init();
     ImagingTestSuite Suite;
+    BitmapLoader::init(true);
     Suite.runTests();
     bool bOK = Suite.isOk();
 

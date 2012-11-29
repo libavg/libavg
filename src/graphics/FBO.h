@@ -25,7 +25,9 @@
 #include "../api.h"
 
 #include "GLTexture.h"
-#include "PBO.h"
+#ifndef AVG_ENABLE_EGL
+    #include "PBO.h"
+#endif
 #include "VertexArray.h"
 
 #include "../base/GLMHelper.h"
@@ -40,8 +42,8 @@ class AVG_API FBO
 {
 public:
     FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
-            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false, 
-            bool bMipmap=false);
+            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
+            bool bUseStencil=false, bool bMipmap=false);
     virtual ~FBO();
 
     void activate() const;
@@ -71,9 +73,12 @@ private:
     PixelFormat m_PF;
     unsigned m_MultisampleSamples;
     bool m_bUsePackedDepthStencil;
+    bool m_bUseStencil;
     bool m_bMipmap;
 
+#ifndef AVG_ENABLE_EGL
     PBOPtr m_pOutputPBO;
+#endif
     unsigned m_FBO;
     std::vector<GLTexturePtr> m_pTextures;
     unsigned m_StencilBuffer;

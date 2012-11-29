@@ -571,16 +571,14 @@ class TextArea(avg.DivNode):
         if len(self.__data) > 0:
             maxCharDim = self.__textNode.fontsize
             lastCharPos = self.__textNode.getGlyphPos(len(self.__data) - 1)
-            if (not self.__isMultiline and
-                 lastCharPos[0] + maxCharDim*1.5 > self.width - self.__border[0]*2):
-                return
-
-            if  (self.__isMultiline and 
-                    lastCharPos[1] + maxCharDim*2 > self.height - self.__border[1]*2):
-                if (lastCharPos[0] + maxCharDim*1.5 > self.width - self.__border[0]*2):
-                    return
-                if (ord(uchar) == 10 and
-                    lastCharPos[1] + maxCharDim*2 > self.height - self.__border[0]*2):
+            if self.__isMultiline:
+                if lastCharPos[1] + maxCharDim*2 > self.height - self.__border[1]*2:
+                    if lastCharPos[0] + maxCharDim*1.5 > self.width - self.__border[0]*2:
+                        return
+                    if ord(uchar) == 10:
+                        return
+            else:
+                if lastCharPos[0] + maxCharDim*1.5 > self.width - self.__border[0]*2:
                     return
 
         self.__data.insert(self.__cursorPosition, uchar)

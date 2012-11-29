@@ -111,6 +111,9 @@ Player & Canvas
 
                 Called whenever a key is released.
 
+            .. py:method:: ON_FRAME()
+
+                Called each frame.
 
         .. py:attribute:: pluginPath
 
@@ -123,7 +126,7 @@ Player & Canvas
             Total audio playback volume. 0 is silence, 1 passes media file
             volume through unchanged. Values higher than 1 can be used to
             amplify playback. A limiter prevents distortion when the volume
-            is set to high.
+            is set too high.
 
         .. py:method:: addInputDevice(inputDevice)
 
@@ -253,6 +256,11 @@ Player & Canvas
 
             Returns the offscreen canvas with the :py:attr:`id` given.
 
+        .. py:method:: getCurrentEvent() -> Event
+
+            Must be called inside an event handler and returns the event that's being
+            processed. Throws an exception if called outside an event handler.
+
         .. py:method:: getEffectiveFramerate() -> float
 
             Returns the framerate that the player is actually achieving. The
@@ -357,12 +365,6 @@ Player & Canvas
 
             Returns :py:const:`True` if :py:meth:`play()` is currently executing, 
             :py:const:`False` if not.
-
-        .. py:method:: isUsingShaders() -> bool
-
-            Returns :py:const:`True` if shader support is enabled and working,
-            :py:const:`False` if not.
-            May only be called after :py:meth:`play()` has been called.
 
         .. py:method:: keepWindowOpen()
 

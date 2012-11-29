@@ -226,6 +226,11 @@ bool pixelFormatIsPlanar(PixelFormat pf)
     return pf == YCbCr420p || pf == YCbCrJ420p || pf == YCbCrA420p;
 }
 
+bool AVG_API pixelFormatIsBlueFirst(PixelFormat pf)
+{
+    return pf == B5G6R5 || pf == B8G8R8 || pf == B8G8R8X8 || pf == B8G8R8A8;
+}
+
 unsigned getNumPixelFormatPlanes(PixelFormat pf)
 {
     switch (pf) {

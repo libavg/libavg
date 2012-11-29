@@ -40,6 +40,7 @@ public:
     void activate();
 
     bool initVBlank(int rate);
+    static float calcRefreshRate();
 
 private:
     void checkWinError(BOOL bOK, const std::string& sWhere);

@@ -129,11 +129,6 @@ functionality
                 in response to a :py:const:`CURSORMOTION` event, but may also happen
                 because of inertia.
 
-                :param event: 
-                
-                    The corresponding cursor motion event. If there was no event, 
-                    this parameter is :py:const:`None`.
-
                 :param avg.Point2D offset: 
                 
                     The current offset from the start of the drag in coordinates relative
@@ -143,10 +138,6 @@ functionality
 
                 Emitted when the cursor is released. If inertia is enabled, there may be 
                 move events after the up event.
-
-                :param event: 
-                
-                    The corresponding :py:const:`CURSORUP` event.
 
                 :param avg.Point2D offset: 
                 
@@ -173,11 +164,11 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, selHref, textarea])
+    .. autoclass:: Keyboard(bgHref, downHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, feedbackHref, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
-        by the two image files in bgHref and ovlHref. Keys can be defined as rectangles 
+        by the two image files in bgHref and downHref. Keys can be defined as rectangles 
         anywhere on these images. Works for both single-touch and multitouch devices. 
         When a key is pressed, a callback function is invoked.
 
@@ -187,7 +178,7 @@ functionality
         
             Filename of an image that contains the keyboard with unpressed keys.
 
-        :param string ovlHref:
+        :param string downHref:
         
             Filename of an image that contains the keyboard with pressed keys.
 
@@ -223,7 +214,7 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
-        :param string selHref:
+        :param string feedbackHref:
 
             Filename of an image that contains the keyboard feedback by pressed keys.
             If this parameter not set the feedback funktion is turned off.

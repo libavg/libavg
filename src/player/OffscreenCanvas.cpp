@@ -27,8 +27,10 @@
 #include "../base/Exception.h"
 #include "../base/ProfilingZoneID.h"
 #include "../base/ObjectCounter.h"
+#include "../base/ScopeTimer.h"
 
 #include "../graphics/FilterUnmultiplyAlpha.h"
+#include "../graphics/BitmapLoader.h"
 
 #include <iostream>
 
@@ -62,8 +64,15 @@ void OffscreenCanvas::setRoot(NodePtr pRootNode)
 void OffscreenCanvas::initPlayback()
 {
     m_bUseMipmaps = getMipmap();
-    m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8A8, 1, getMultiSampleSamples(), true,
-            m_bUseMipmaps));
+    PixelFormat pf;
+    if (BitmapLoader::get()->isBlueFirst()) {
+        pf = B8G8R8A8;
+    } else {
+        pf = R8G8B8A8;
+    }
+    bool bUseDepthBuffer = GLContext::getMain()->useDepthBuffer();
+    m_pFBO = FBOPtr(new FBO(getSize(), pf, 1, getMultiSampleSamples(), bUseDepthBuffer,
+            true, m_bUseMipmaps));
     Canvas::initPlayback(getMultiSampleSamples());
     m_bIsRendered = false;
 }
@@ -77,23 +86,12 @@ void OffscreenCanvas::stopPlayback()
 
 BitmapPtr OffscreenCanvas::screenshot() const
 {
-    return screenshot(false);
-}
-
-static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
-
-BitmapPtr OffscreenCanvas::screenshot(bool bIgnoreAlpha) const
-{
     if (!isRunning() || !m_bIsRendered) {
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
     BitmapPtr pBmp = m_pFBO->getImage(0);
-    if (bIgnoreAlpha) {
-        pBmp->setPixelFormat(B8G8R8X8);
-    } else {
-        FilterUnmultiplyAlpha().applyInPlace(pBmp);
-    }
+    FilterUnmultiplyAlpha().applyInPlace(pBmp);
     return pBmp;
 }
 
@@ -126,7 +124,7 @@ void OffscreenCanvas::setAutoRender(bool bAutoRender)
 void OffscreenCanvas::manualRender()
 {
     emitPreRenderSignal(); 
-    render(); 
+    renderTree(); 
     emitFrameEndSignal(); 
 }
 
@@ -184,10 +182,13 @@ bool OffscreenCanvas::isCameraImageAvailable() const
 
 void OffscreenCanvas::addDependentCanvas(CanvasPtr pCanvas)
 {
-    AVG_ASSERT(!(pCanvas == shared_from_this()));
     m_pDependentCanvases.push_back(pCanvas);
-    Player::get()->newCanvasDependency(
-            dynamic_pointer_cast<OffscreenCanvas>(shared_from_this()));
+    try {
+        Player::get()->newCanvasDependency();
+    } catch (Exception& e) {
+        m_pDependentCanvases.pop_back();
+        throw;
+    }
 }
 
 void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
@@ -202,14 +203,9 @@ void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
     AVG_ASSERT(false);
 }
 
-bool OffscreenCanvas::hasDependentCanvas(CanvasPtr pCanvas) const
+const vector<CanvasPtr>& OffscreenCanvas::getDependentCanvases() const
 {
-    for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
-        if (pCanvas == m_pDependentCanvases[i]) {
-            return true;
-        }
-    }
-    return false;
+    return m_pDependentCanvases;
 }
 
 unsigned OffscreenCanvas::getNumDependentCanvases() const
@@ -223,8 +219,11 @@ bool OffscreenCanvas::isSupported()
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::isSupported(): Player.play() needs to be called before support can be queried."));
     }
-
-    return FBO::isFBOSupported() && FBO::isPackedDepthStencilSupported();
+    if (GLContext::getMain()->isGLES()) {
+        return true;
+    } else {
+        return FBO::isFBOSupported() && FBO::isPackedDepthStencilSupported();
+    }
 }
 
 bool OffscreenCanvas::isMultisampleSupported()
@@ -245,14 +244,20 @@ void OffscreenCanvas::dump() const
     }
 }
 
-void OffscreenCanvas::render()
+static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
+
+void OffscreenCanvas::renderTree()
 {
     if (!isRunning()) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
+                "OffscreenCanvas::renderTree(): Player.play() needs to be called before rendering offscreen canvases."));
     }
-    Canvas::render(IntPoint(getRootNode()->getSize()), true, m_pFBO, 
-            OffscreenRenderProfilingZone);
+    preRender();
+    m_pFBO->activate();
+    {
+        ScopeTimer Timer(OffscreenRenderProfilingZone);
+        Canvas::render(IntPoint(getRootNode()->getSize()), true);
+    }
     m_pFBO->copyToDestTexture();
     m_bIsRendered = true;
 }

@@ -31,11 +31,12 @@ namespace avg {
 class AVG_API FilterFlipRGB : public Filter
 {
 public:
-  FilterFlipRGB();
-  virtual ~FilterFlipRGB();
-  virtual void applyInPlace(BitmapPtr pBmp) ;
+    FilterFlipRGB(bool bChangePF = true);
+    virtual ~FilterFlipRGB();
+    virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
+    bool m_bChangePF;
 };
 
 }

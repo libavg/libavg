@@ -41,6 +41,7 @@ namespace avg {
 
 class SubscriberInfo;
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;
+typedef boost::weak_ptr<SubscriberInfo> SubscriberInfoWeakPtr;
 
 class Publisher;
 typedef boost::shared_ptr<Publisher> PublisherPtr;
@@ -76,22 +77,20 @@ protected:
     void removeSubscribers();
 
 private:
+    typedef std::list<SubscriberInfoWeakPtr> WeakSubscriberInfoList;
     typedef std::list<SubscriberInfoPtr> SubscriberInfoList;
     typedef std::map<MessageID, SubscriberInfoList> SignalMap;
     
     void unsubscribeIterator(MessageID messageID, SubscriberInfoList::iterator it);
     SubscriberInfoList& safeFindSubscribers(MessageID messageID);
-    void tryUnsubscribeInNotify(MessageID messageID, int subscriberID);
     void throwSubscriberNotFound(MessageID messageID, int subscriberID);
     void dumpSubscribers(MessageID messageID);
 
     PublisherDefinitionPtr m_pPublisherDef;
     SignalMap m_SignalMap;
-    bool m_bIsInNotify;
     static int s_LastSubscriberID;
 
     typedef std::pair<MessageID, int> UnsubscribeDescription;
-    std::vector<UnsubscribeDescription> m_PendingUnsubscribes;
 };
 
 template<class ARG_TYPE>
