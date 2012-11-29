@@ -127,7 +127,7 @@ class Keyboard(avg.DivNode):
     CHAR = avg.Publisher.genMessageID()
 
     def __init__(self, bgHref, downHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
-            stickyShift=False, feedbackHref=None, textarea=None, parent=None, **kwargs):
+            stickyShift=False, feedbackHref=None, parent=None, **kwargs):
         super(Keyboard, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
@@ -158,8 +158,6 @@ class Keyboard(avg.DivNode):
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
                 key = Key(kd, downHref, feedbackHref, sticky=sticky, parent=self)
             self.__keys.append(key)
-        if textarea != None:
-            self.__textarea = textarea
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         self.__curKeys = {}
         self.__feedbackKey = None
@@ -287,8 +285,3 @@ class Keyboard(avg.DivNode):
             elif keyCode == self.__altGrKeyCode:
                 if self.__altGrKeyCounter > 0:
                     self.__altGrKeyCounter -= 1
-
-    def __upHandler(self, keyCode, cmd):
-        if keyCode is None:
-            return
-        self.__textarea.onKeyDown(ord(keyCode))
