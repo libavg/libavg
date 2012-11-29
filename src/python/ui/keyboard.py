@@ -277,7 +277,7 @@ class Keyboard(avg.DivNode):
         self.notifySubscribers(Keyboard.DOWN, [keyCode])
 
     def __onCommandKeyUp(self, key):
-        keyCode = key.getCode()
+        keyCode = key.getCode()[0]
         if not(key.isStickyDown()):
             if keyCode == self.__shiftKeyCode:
                 if self.__shiftDownCounter > 0:
