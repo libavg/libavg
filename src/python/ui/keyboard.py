@@ -36,6 +36,8 @@ class Key(avg.DivNode):
     def __init__(self, keyDef, downHref, feedbackHref, sticky=False, parent=None,
             **kwargs):
         self.__keyCode = keyDef[0]
+        if not(isinstance(self.__keyCode, tuple)):
+            self.__keyCode = (self.__keyCode,)
         kwargs['pos'] = avg.Point2D(keyDef[1])
         kwargs['size'] = avg.Point2D(keyDef[2])
         if len(keyDef) == 4:
@@ -86,7 +88,9 @@ class Key(avg.DivNode):
             self.__image.opacity = 0.0
         self.__cursorID = None
 
-    def onOut(self):
+    def onOut(self, event):
+        if not self.__cursorID == event.cursorid:
+            return
         if not(self.__sticky)  or (not self.__stickyIsDown):
             self.__cursorID = None
             self.__image.opacity = 0.0
@@ -202,7 +206,8 @@ class Keyboard(avg.DivNode):
         oldKey = self.__curKeys[event.contact]
         if newKey != oldKey:
             if oldKey:
-                oldKey.onOut()
+                oldKey.onOut(event)
+                self.notifySubscribers(Keyboard.UP, [oldKey.getCode()[0]])
                 if oldKey.isCommand():
                     self.__onCommandKeyUp(oldKey)
             self.__keyDown(newKey, event)
@@ -212,6 +217,7 @@ class Keyboard(avg.DivNode):
         key = self.__curKeys[event.contact]
         if key:
             key.onUp(event)
+            self.notifySubscribers(Keyboard.UP, [key.getCode()[0]])
             if key.isCommand():
                 self.__onCommandKeyUp(key)
             else:
@@ -262,7 +268,7 @@ class Keyboard(avg.DivNode):
         self.notifySubscribers(Keyboard.CHAR, [self.__getCharKeyCode(keyCodes)])
 
     def __onCommandKeyDown(self, key):
-        keyCode = key.getCode()
+        keyCode = key.getCode()[0]
         if not(key.isStickyDown()):
             if keyCode == self.__shiftKeyCode:
                 self.__shiftDownCounter += 1
