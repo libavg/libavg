@@ -49,6 +49,7 @@ class UITestCase(AVGTestCase):
             self.__messageTester.assertState(msgs)
             self.assert_(self.__keyCode == keyCode)
             self.compareImage(imageSrc)
+            self.__messageTester.reset()
 
         root = self.loadEmptyScene()
         self.__keyCode = ""
@@ -64,15 +65,14 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  lambda: assertState((ui.Keyboard.DOWN,), "a", "testUIKeyboardA"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 30, 30),
-                 lambda: assertState((ui.Keyboard.DOWN,ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "a", "testUIKeyboard"),
                  self.__messageTester.reset,
                  # test command key
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 100, 30),
                  lambda: assertState((ui.Keyboard.DOWN,), "SHIFT", "testUIKeyboardS"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 30),
-                 lambda: assertState((ui.Keyboard.DOWN,ui.Keyboard.UP),
-                        "SHIFT", "testUIKeyboard"),
+                 lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
                  self.__messageTester.reset,
                  # test multiple keys
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 100, 30),
@@ -80,14 +80,12 @@ class UITestCase(AVGTestCase):
                  lambda: assertState((ui.Keyboard.DOWN,), "a", "testUIKeyboardAS"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 60, 30),
                  lambda: assertState((ui.Keyboard.DOWN,), "1", "testUIKeyboardA1S"),
-                 self.__messageTester.reset,
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 30, 30),
                  lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "a", "testUIKeyboard1S"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_UP, 60, 30),
                  lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "1", "testUIKeyboardS"),
-                 self.__messageTester.reset,
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 100, 30),
                  lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
                 ))
@@ -98,7 +96,6 @@ class UITestCase(AVGTestCase):
         # Keyboard with shift support, feedback image.
         kbd = createKbd((10, 60), "SHIFT", "keyboard_feedback.png")
         self.__messageTester = MessageTester(kbd, [], self)
-        self.__messageTester.reset()
 
         self.start(False,
                  # test shift key
@@ -108,7 +105,6 @@ class UITestCase(AVGTestCase):
                  lambda: assertState((ui.Keyboard.DOWN,), "a", "testUIKeyboardFBAS"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 60, 80),
                  lambda: assertState((ui.Keyboard.DOWN,), "1", "testUIKeyboardFBA1S"),
-                 self.__messageTester.reset,
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 30, 80),
                  lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "A", "testUIKeyboardNoFB1S"),
@@ -116,22 +112,19 @@ class UITestCase(AVGTestCase):
                  lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "1", "testUIKeyboardFBS"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 100, 80),
-                 lambda: self.compareImage("testUIKeyboardFB"),
-                 self.__messageTester.reset,
+                 lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboardFB"),
                  # test drag over keys 
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 60, 80),
                  lambda: assertState((ui.Keyboard.DOWN,), "1", "testUIKeyboardFB1"),
-                 self.__messageTester.reset,
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 60, 50),
                  lambda: assertState((ui.Keyboard.UP,), "1", "testUIKeyboardFB"),
-                 self.__messageTester.reset,
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 100, 80),
                  lambda: assertState((ui.Keyboard.DOWN,), "SHIFT", "testUIKeyboardFBS"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 60, 80),
                  lambda: assertState((ui.Keyboard.DOWN,ui.Keyboard.UP),
                         "1", "testUIKeyboardFB1"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 60, 80),
-                 lambda: assertState((ui.Keyboard.DOWN,ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "1", "testUIKeyboardFB"),
                 ))           
 
