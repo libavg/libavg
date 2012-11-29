@@ -122,9 +122,12 @@ class Key(avg.DivNode):
 
 class Keyboard(avg.DivNode):
 
+    DOWN = avg.Publisher.genMessageID()
+    UP = avg.Publisher.genMessageID()
+    CHAR = avg.Publisher.genMessageID()
+
     def __init__(self, bgHref, downHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
             stickyShift=False, feedbackHref=None, textarea=None, parent=None, **kwargs):
-        # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
@@ -142,9 +145,6 @@ class Keyboard(avg.DivNode):
         if self.__altGrKeyCode:
             self.__codesPerKey = 3
         
-        self.__downKeyHandler = None
-        self.__upKeyHandler = None
-
         self.__keys = []
         if bgHref:
             avg.ImageNode(href=bgHref, parent=self)
@@ -160,10 +160,13 @@ class Keyboard(avg.DivNode):
             self.__keys.append(key)
         if textarea != None:
             self.__textarea = textarea
-            self.setKeyHandler(None, self.__upHandler)
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         self.__curKeys = {}
         self.__feedbackKey = None
+
+        self.publish(Keyboard.DOWN)
+        self.publish(Keyboard.UP)
+        self.publish(Keyboard.CHAR)
 
     def __onDown(self, event):
         curKey = self.__findKey(event.pos)
@@ -194,7 +197,7 @@ class Keyboard(avg.DivNode):
                 self.__onCommandKeyUp(key)
             else:
                 self.__onCharKeyUp(key.getCode())
-        self.__switchFeedbackKey(key)
+        self.__switchFeedbackKey(None)
         del self.__curKeys[event.contact]
 
     def __findKey(self, pos):
@@ -242,10 +245,6 @@ class Keyboard(avg.DivNode):
             curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 
-    def setKeyHandler(self, downHandler, upHandler=None):
-        self.__downKeyHandler = downHandler
-        self.__upKeyHandler = upHandler
-
     def reset(self):
         for key in self.__keys:
             key.reset()
@@ -265,12 +264,10 @@ class Keyboard(avg.DivNode):
             return keyCodes[0]
 
     def __onCharKeyDown(self, keyCodes):
-        if self.__downKeyHandler:
-            self.__downKeyHandler(self._getCharKeyCode(keyCodes), None)
+        self.notifySubscribers(Keyboard.DOWN, [self._getCharKeyCode(keyCodes)])
 
     def __onCharKeyUp(self, keyCodes):
-        if self.__upKeyHandler:
-            self.__upKeyHandler(self._getCharKeyCode(keyCodes), None)
+        self.notifySubscribers(Keyboard.CHAR, [self._getCharKeyCode(keyCodes)])
 
     def __onCommandKeyDown(self, key):
         keyCode = key.getCode()
@@ -279,8 +276,7 @@ class Keyboard(avg.DivNode):
                 self.__shiftDownCounter += 1
             if keyCode == self.__altGrKeyCode:
                 self.__altGrKeyCounter += 1
-        if self.__downKeyHandler:
-            self.__downKeyHandler(None, keyCode)
+        self.notifySubscribers(Keyboard.DOWN, [keyCode])
 
     def __onCommandKeyUp(self, key):
         keyCode = key.getCode()
@@ -295,8 +291,6 @@ class Keyboard(avg.DivNode):
             elif keyCode == self.__altGrKeyCode:
                 if self.__altGrKeyCounter > 0:
                     self.__altGrKeyCounter -= 1
-        if self.__upKeyHandler:
-            self.__upKeyHandler(None, keyCode)
 
     def __upHandler(self, keyCode, cmd):
         if keyCode is None:
