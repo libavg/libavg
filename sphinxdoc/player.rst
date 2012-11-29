@@ -256,6 +256,11 @@ Player & Canvas
 
             Returns the offscreen canvas with the :py:attr:`id` given.
 
+        .. py:method:: getCurrentEvent() -> Event
+
+            Must be called inside an event handler and returns the event that's being
+            processed. Throws an exception if called outside an event handler.
+
         .. py:method:: getEffectiveFramerate() -> float
 
             Returns the framerate that the player is actually achieving. The

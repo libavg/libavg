@@ -93,7 +93,12 @@ class TestApp(object):
             for test in suite:
                 if test.skipped():
                     numSkipped += 1
-        sys.stderr.write("Skipped "+str(numSkipped)+" tests.\n")
+        if numSkipped > 0:
+            sys.stderr.write("Skipped "+str(numSkipped)+" tests:\n")
+            for suite in self.__testSuite:
+                for test in suite:
+                    if test.skipped():
+                        print "  " + str(test) + ": " + test.skipReason()
 
         if testResult.wasSuccessful():
             self.__exitOk = TestApp.EXIT_OK

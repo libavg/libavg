@@ -65,7 +65,7 @@ else
 if ENABLE_EGL
     X_LIBS = -lX11 -lGLESv2 -lEGL
 else
-    X_LIBS = -lX11
+    X_LIBS = -lXxf86vm -lX11
 endif
 endif
 

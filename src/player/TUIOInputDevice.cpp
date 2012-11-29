@@ -48,7 +48,8 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
 };
 
 TUIOInputDevice::TUIOInputDevice()
-    : m_LastID(0)
+    : m_pSocket(0),
+      m_LastID(0)
 {
 }
 

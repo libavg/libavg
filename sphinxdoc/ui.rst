@@ -164,11 +164,11 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, selHref, textarea])
+    .. autoclass:: Keyboard(bgHref, downHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, feedbackHref, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
-        by the two image files in bgHref and ovlHref. Keys can be defined as rectangles 
+        by the two image files in bgHref and downHref. Keys can be defined as rectangles 
         anywhere on these images. Works for both single-touch and multitouch devices. 
         When a key is pressed, a callback function is invoked.
 
@@ -178,7 +178,7 @@ functionality
         
             Filename of an image that contains the keyboard with unpressed keys.
 
-        :param string ovlHref:
+        :param string downHref:
         
             Filename of an image that contains the keyboard with pressed keys.
 
@@ -214,7 +214,7 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
-        :param string selHref:
+        :param string feedbackHref:
 
             Filename of an image that contains the keyboard feedback by pressed keys.
             If this parameter not set the feedback funktion is turned off.
