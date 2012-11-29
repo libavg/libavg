@@ -168,6 +168,31 @@ class Keyboard(avg.DivNode):
         self.publish(Keyboard.UP)
         self.publish(Keyboard.CHAR)
 
+    @classmethod
+    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
+            altGrKeyStr=None):
+        keyDefs = []
+        curPos = startPos
+        offset = keySize[0]+spacing
+        if (len(shiftKeyStr) != len(keyStr) or 
+                (altGrKeyStr and len(altGrKeyStr) != len(keyStr))):
+            raise RuntimeError("makeRowKeyDefs string lengths must be identical.")
+
+        for i in xrange(len(keyStr)):
+            if altGrKeyStr:
+                codes = (keyStr[i], shiftKeyStr[i], altGrKeyStr[i])
+            else:
+                codes = (keyStr[i], shiftKeyStr[i])
+            keyDefs.append([codes, curPos, keySize, False])
+            curPos = (curPos[0]+offset, curPos[1])
+        return keyDefs
+
+    def reset(self):
+        for key in self.__keys:
+            key.reset()
+        self.__shiftDownCounter = 0
+        self.__altGrKeyCounter = 0
+
     def __onDown(self, event):
         curKey = self.__findKey(event.pos)
         self.__switchFeedbackKey(curKey)
@@ -226,36 +251,7 @@ class Keyboard(avg.DivNode):
             else:
                 self.__onCharKeyDown(key.getCode())
 
-    @classmethod
-    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
-            altGrKeyStr=None):
-        keyDefs = []
-        curPos = startPos
-        offset = keySize[0]+spacing
-        if (len(shiftKeyStr) != len(keyStr) or 
-                (altGrKeyStr and len(altGrKeyStr) != len(keyStr))):
-            raise RuntimeError("makeRowKeyDefs string lengths must be identical.")
-
-        for i in xrange(len(keyStr)):
-            if altGrKeyStr:
-                codes = (keyStr[i], shiftKeyStr[i], altGrKeyStr[i])
-            else:
-                codes = (keyStr[i], shiftKeyStr[i])
-            keyDefs.append([codes, curPos, keySize, False])
-            curPos = (curPos[0]+offset, curPos[1])
-        return keyDefs
-
-    def reset(self):
-        for key in self.__keys:
-            key.reset()
-        self.__shiftDownCounter = 0
-        self.__altGrKeyCounter = 0
-
-    def _getCharKeyCode(self, keyCodes):
-        '''
-        Return one of a character key's keycodes depending on shift key(s) status.
-        Overload this method to change character key keycode handling.
-        '''
+    def __getCharKeyCode(self, keyCodes):
         if self.__shiftDownCounter:
             return keyCodes[1]
         elif self.__altGrKeyCounter:
@@ -264,10 +260,10 @@ class Keyboard(avg.DivNode):
             return keyCodes[0]
 
     def __onCharKeyDown(self, keyCodes):
-        self.notifySubscribers(Keyboard.DOWN, [self._getCharKeyCode(keyCodes)])
+        self.notifySubscribers(Keyboard.DOWN, [self.__getCharKeyCode(keyCodes)])
 
     def __onCharKeyUp(self, keyCodes):
-        self.notifySubscribers(Keyboard.CHAR, [self._getCharKeyCode(keyCodes)])
+        self.notifySubscribers(Keyboard.CHAR, [self.__getCharKeyCode(keyCodes)])
 
     def __onCommandKeyDown(self, key):
         keyCode = key.getCode()
