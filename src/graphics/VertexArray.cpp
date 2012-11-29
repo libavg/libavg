@@ -52,7 +52,6 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
         m_GLVertexBufferID = pContext->getVertexBufferCache().getBuffer();
         m_GLIndexBufferID = pContext->getIndexBufferCache().getBuffer();
     }
-    m_bUseVertexShader = (pContext->getShaderUsage() != GLConfig::FRAGMENT_ONLY);
     m_bUseMapBuffer = (!pContext->isGLES());
 }
 
@@ -91,24 +90,15 @@ void VertexArray::activate()
 {
     glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-    if (m_bUseVertexShader) {
-        glproc::VertexAttribPointer(TEX_INDEX, 2, GL_SHORT, GL_FALSE,
-                sizeof(Vertex), (void *)(offsetof(Vertex, m_Tex)));
-        glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE, 
-                sizeof(Vertex), (void *)(offsetof(Vertex, m_Pos)));
-        glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
-                sizeof(Vertex), (void *)(offsetof(Vertex, m_Color)));
-        glproc::EnableVertexAttribArray(TEX_INDEX);
-        glproc::EnableVertexAttribArray(POS_INDEX);
-        glproc::EnableVertexAttribArray(COLOR_INDEX);
-    } else {
-#ifndef AVG_ENABLE_EGL
-        glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), (void *)(offsetof(Vertex, m_Tex)));
-        glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (void *)(offsetof(Vertex, m_Pos)));
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), 
-                (void *)(offsetof(Vertex, m_Color)));
-#endif
-    }
+    glproc::VertexAttribPointer(TEX_INDEX, 2, GL_SHORT, GL_FALSE,
+            sizeof(Vertex), (void *)(offsetof(Vertex, m_Tex)));
+    glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE, 
+            sizeof(Vertex), (void *)(offsetof(Vertex, m_Pos)));
+    glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
+            sizeof(Vertex), (void *)(offsetof(Vertex, m_Color)));
+    glproc::EnableVertexAttribArray(TEX_INDEX);
+    glproc::EnableVertexAttribArray(POS_INDEX);
+    glproc::EnableVertexAttribArray(COLOR_INDEX);
     GLContext::checkError("VertexArray::activate()");
 }
 

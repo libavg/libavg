@@ -1199,8 +1199,6 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::FULL;
     } else if (sShaderUsage == "minimal") {
         m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
-    } else if (sShaderUsage == "fragmentonly") {
-        m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
     } else if (sShaderUsage == "auto") {
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {

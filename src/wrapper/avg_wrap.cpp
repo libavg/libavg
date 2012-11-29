@@ -157,7 +157,6 @@ BOOST_PYTHON_MODULE(avg)
     enum_<GLConfig::ShaderUsage>("ShaderUsage")
         .value("SHADERUSAGE_FULL", GLConfig::FULL)
         .value("SHADERUSAGE_MINIMAL", GLConfig::MINIMAL)
-        .value("SHADERUSAGE_FRAGMENT_ONLY", GLConfig::FRAGMENT_ONLY)
         .value("SHADERUSAGE_AUTO", GLConfig::AUTO)
         .export_values()
     ;

@@ -132,15 +132,9 @@ void GLContext::init(bool bOwnsContext)
     if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
         if (isGLES()) {
             m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
-        }
-        if (m_MajorGLVersion > 1) {
-            m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         } else {
-            m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
+            m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         }
-    }
-    if (m_GLConfig.m_ShaderUsage == GLConfig::FRAGMENT_ONLY) {
-        m_pShaderRegistry->setPreprocessorDefine("FRAGMENT_ONLY", "");
     }
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
@@ -155,18 +149,6 @@ void GLContext::init(bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
-
-    if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
-#ifndef AVG_ENABLE_EGL
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-#endif
-    }
-
 }
 
 void GLContext::deleteObjects()

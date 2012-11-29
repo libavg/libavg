@@ -59,7 +59,6 @@ private:
     unsigned m_GLVertexBufferID;
     unsigned m_GLIndexBufferID;
 
-    bool m_bUseVertexShader;
     bool m_bUseMapBuffer;
 };
 
