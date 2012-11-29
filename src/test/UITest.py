@@ -102,7 +102,7 @@ class UITestCase(AVGTestCase):
                 (lambda: self.compareImage("testUIKeyboardFB"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 100, 80),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 30, 80),
-                 lambda: assertState((ui.Keyboard.DOWN,), "A", "testUIKeyboardFBAS"),
+                 lambda: assertState((ui.Keyboard.DOWN,), "a", "testUIKeyboardFBAS"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 60, 80),
                  lambda: assertState((ui.Keyboard.DOWN,), "1", "testUIKeyboardFBA1S"),
                  self.__messageTester.reset,

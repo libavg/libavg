@@ -158,7 +158,7 @@ class Keyboard(avg.DivNode):
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
                 key = Key(kd, downHref, feedbackHref, sticky=sticky, parent=self)
             self.__keys.append(key)
-        self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+        self.subscribe(avg.Node.CURSOR_DOWN, self.__onCursorDown)
         self.__curKeys = {}
         self.__feedbackKey = None
 
@@ -191,15 +191,13 @@ class Keyboard(avg.DivNode):
         self.__shiftDownCounter = 0
         self.__altGrKeyCounter = 0
 
-    def __onDown(self, event):
+    def __onCursorDown(self, event):
         curKey = self.__findKey(event.pos)
-        self.__switchFeedbackKey(curKey)
-        self.__curKeys[event.contact] = curKey
         self.__keyDown(curKey, event)
-        event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
-        event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
+        event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onCursorMotion)
+        event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onCursorUp)
 
-    def __onMotion(self, event):
+    def __onCursorMotion(self, event):
         newKey = self.__findKey(event.pos)
         oldKey = self.__curKeys[event.contact]
         if newKey != oldKey:
@@ -207,12 +205,10 @@ class Keyboard(avg.DivNode):
                 oldKey.onOut()
                 if oldKey.isCommand():
                     self.__onCommandKeyUp(oldKey)
-            self.__switchFeedbackKey(newKey)
-            self.__curKeys[event.contact] = newKey
             self.__keyDown(newKey, event)
 
-    def __onUp(self, event):
-        self.__onMotion(event)
+    def __onCursorUp(self, event):
+        self.__onCursorMotion(event)
         key = self.__curKeys[event.contact]
         if key:
             key.onUp(event)
@@ -242,6 +238,8 @@ class Keyboard(avg.DivNode):
             self.__feedbackKey.showFeedback(True)
 
     def __keyDown(self, key, event):
+        self.__switchFeedbackKey(key)
+        self.__curKeys[event.contact] = key
         if key:
             key.onDown(event)
             if key.isCommand():
@@ -258,7 +256,7 @@ class Keyboard(avg.DivNode):
             return keyCodes[0]
 
     def __onCharKeyDown(self, keyCodes):
-        self.notifySubscribers(Keyboard.DOWN, [self.__getCharKeyCode(keyCodes)])
+        self.notifySubscribers(Keyboard.DOWN, [keyCodes[0]])
 
     def __onCharKeyUp(self, keyCodes):
         self.notifySubscribers(Keyboard.CHAR, [self.__getCharKeyCode(keyCodes)])
