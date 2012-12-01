@@ -33,8 +33,6 @@ from libavg import avg, player
 from libavg.gameapp import GameApp
 from libavg.utils import getMediaDir
 
-g_player = avg.Player.get()
-
 
 def playVideo(video):
     if not(player.isUsingGLES()):
@@ -374,13 +372,13 @@ class FireBirdsApp(GameApp):
         self.__liveCounter.reset()
         self.__scoreCounter.reset()
         self.__player.reset()
-        self.__frameHandlerId = g_player.setOnFrameHandler(self.__onFrame)
-        self.__spawnTimeoutId = g_player.setInterval(FireBirdsApp.ENEMY_SPAWN_TIMEOUT,
+        self.__frameHandlerId = player.setOnFrameHandler(self.__onFrame)
+        self.__spawnTimeoutId = player.setInterval(FireBirdsApp.ENEMY_SPAWN_TIMEOUT,
                 self.__spawnEnemy)
 
     def __stop(self):
         assert(self.__frameHandlerId and self.__spawnTimeoutId)
-        g_player.clearInterval(self.__spawnTimeoutId)
+        player.clearInterval(self.__spawnTimeoutId)
         self.__spawnTimeoutId = None
 
     def __spawnEnemy(self):
@@ -396,7 +394,7 @@ class FireBirdsApp(GameApp):
         enemy.reset()
 
     def __onFrame(self):
-        dt = g_player.getFrameDuration() / 1000.0
+        dt = player.getFrameDuration() / 1000.0
         self.__scrollingBg.update(dt)
         enemiesAlive = False
         for e in self.__enemies:
@@ -407,7 +405,7 @@ class FireBirdsApp(GameApp):
             self.__player.update(dt, self.__keyStates)
         elif not self.__player.updateBullets(dt) and not enemiesAlive:
             # player dead, all bullets and enemies left the screen
-            g_player.clearInterval(self.__frameHandlerId)
+            player.clearInterval(self.__frameHandlerId)
             self.__frameHandlerId = None
 
 
