@@ -29,12 +29,16 @@
 
 from random import randint
 
-from libavg import avg
+from libavg import avg, player
 from libavg.gameapp import GameApp
 from libavg.utils import getMediaDir
 
 g_player = avg.Player.get()
 
+
+def playVideo(video):
+    if not(player.isUsingGLES()):
+        video.play()
 
 ### game elements ###
 
@@ -49,7 +53,7 @@ class Bullet(avg.VideoNode):
     def reset(self, pos):
         self.pos = pos
         self.active = True
-        self.play()
+        playVideo(self)
 
     def update(self, dt):
         y = self.y - Bullet.__SPEED * dt
@@ -76,13 +80,14 @@ class _Aircraft(avg.DivNode):
         self.__shadowImg = avg.ImageNode(href=mediabase+'.gif', opacity=0.5,
                 pos=self.pos + _Aircraft.__SHADOW_OFFSET, parent=shadowdiv)
         self.__shadowImg.size *= _Aircraft.__SHADOW_SCALE
-        self.__shadowImg.setEffect(avg.BlurFXNode(6.0))
+        if not(player.isUsingGLES()):
+            self.__shadowImg.setEffect(avg.BlurFXNode(6.0))
         self.size = self.__aircraftVid.size
 
     def reset(self):
         self.active = True
         self.__aircraftVid.active = True
-        self.__aircraftVid.play()
+        playVideo(self.__aircraftVid)
         self.__destroyVid.active = False
         self.__destroyVid.pause()
         self.__shadowImg.active = True
@@ -91,7 +96,7 @@ class _Aircraft(avg.DivNode):
         self.__aircraftVid.active = False
         self.__aircraftVid.pause()
         self.__destroyVid.active = True
-        self.__destroyVid.play()
+        playVideo(self.__destroyVid)
         self.__destroyVid.seekToFrame(0)
         self.__shadowImg.active = False
 
