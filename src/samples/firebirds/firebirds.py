@@ -372,7 +372,7 @@ class FireBirdsApp(GameApp):
         self.__liveCounter.reset()
         self.__scoreCounter.reset()
         self.__player.reset()
-        self.__frameHandlerId = player.setOnFrameHandler(self.__onFrame)
+        self.__frameHandlerId = player.subscribe(player.ON_FRAME, self.__onFrame)
         self.__spawnTimeoutId = player.setInterval(FireBirdsApp.ENEMY_SPAWN_TIMEOUT,
                 self.__spawnEnemy)
 
