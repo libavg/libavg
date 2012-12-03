@@ -99,6 +99,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         // Event handling.
         bool m_bMouseOverApp;
         MouseEventPtr m_pLastMouseEvent;
+        bool m_bDisableMouse;
         int m_NumMouseButtonsDown;
         static std::vector<long> KeyCodeTranslationTable;
         XInputMTInputDevice * m_pXIMTInputDevice;

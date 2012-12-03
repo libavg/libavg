@@ -57,7 +57,6 @@ class AVG_API EventDispatcher {
         Player* m_pPlayer;
         std::map<int, ContactPtr> m_ContactMap;
         int m_NumMouseButtonsDown;
-        bool m_bDisableMouse;
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 
