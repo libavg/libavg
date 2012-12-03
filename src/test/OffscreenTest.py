@@ -317,9 +317,9 @@ class OffscreenTestCase(AVGTestCase):
         self.start(False, (lambda: self.compareImage("testCanvasBlendModes"),))
 
     def testCanvasMultisampling(self):
-        def testIllegalSamples():
+        def testIllegalSamples(numSamples):
             self.canvas = player.createCanvas(id="brokencanvas", size=(160,120), 
-                            multisamplesamples=42)
+                            multisamplesamples=numSamples)
 
         def screenshot():
             bmp = self.canvas.screenshot()
@@ -348,7 +348,8 @@ class OffscreenTestCase(AVGTestCase):
                 (createCanvas,
                  lambda: self.compareImage("testCanvasMultisample"),
                  screenshot,
-                 lambda: self.assertException(testIllegalSamples),
+                 lambda: self.assertException(lambda: testIllegalSamples(42)),
+                 lambda: self.assertException(lambda: testIllegalSamples(0)),
                 ))
         self.canvas = None
        
