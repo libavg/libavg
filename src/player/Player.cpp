@@ -262,7 +262,7 @@ void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
-    m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
+    setMultiSampleSamples(multiSampleSamples);
     m_GLConfig.m_ShaderUsage = shaderUsage;
     m_GLConfig.m_bUseDebugContext = bUseDebugContext;
 }
@@ -270,6 +270,11 @@ void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
 void Player::setMultiSampleSamples(int multiSampleSamples)
 {
     errorIfPlaying("Player.setMultiSampleSamples");
+    if (multiSampleSamples < 1) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "MultiSampleSamples must be 1 or greater (was " +
+                toString(multiSampleSamples) + ").");
+    }
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 }
 
@@ -1191,7 +1196,12 @@ void Player::initConfig()
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
-    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
+    int multiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
+    if (multiSampleSamples < 1) {
+        AVG_TRACE(Logger::ERROR, "multisamplesamples must be >= 1. Aborting")
+        exit(-1);
+    }
+    m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 
     string sShaderUsage;
     pMgr->getStringOption("scr", "shaderusage", "auto", sShaderUsage);
