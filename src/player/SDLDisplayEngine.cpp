@@ -318,13 +318,15 @@ void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
             int numHeads = 0;
             XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
             AVG_ASSERT(numHeads >= 1);
+/*
             cerr << "Num heads: " << numHeads << endl;
             for (int x=0; x<numHeads; ++x) {
                 cout << "Head " << x+1 << ": " <<
                     pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
                     pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
             }
-            m_ScreenResolution = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);
+            */
+            m_ScreenResolution = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
             XFree(pScreenInfo);
         } else {
             const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
