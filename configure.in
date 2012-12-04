@@ -190,11 +190,14 @@ AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
 AC_CHECK_LIB([Xinerama],[main],let xinerama_lib=1,let xinerama_lib=0)
 AC_CHECK_HEADERS([X11/extensions/Xinerama.h],let xinerama_h=1,let xinerama_h=0)
-if [[ $xinerama_lib -eq 1 ]] && [[ $xinerama_h -eq 1 ]]; then
+if [[ $target_vendor != apple ]] && [[ $xinerama_lib -eq 1 ]] && [[ $xinerama_h -eq 1 ]];
+then
+  AC_MSG_NOTICE([Using Xinerama])
   AC_DEFINE(AVG_ENABLE_XINERAMA, 1, [Enable Xinerama support])
   LIBXINERAMA_LDADD="-lXinerama"
   AM_CONDITIONAL(USE_XINERAMA_SRC, true)
 else
+  AC_MSG_NOTICE([Not using Xinerama])
   LIBXINERAMA_LDADD=""
   AM_CONDITIONAL(USE_XINERAMA_SRC, false)
 fi
