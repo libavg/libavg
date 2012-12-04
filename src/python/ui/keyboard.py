@@ -174,7 +174,7 @@ class Keyboard(avg.DivNode):
     def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
         keyDefs = []
-        curPos = startPos
+        curPos = avg.Point2D(startPos)
         offset = keySize[0]+spacing
         if (len(shiftKeyStr) != len(keyStr) or 
                 (altGrKeyStr and len(altGrKeyStr) != len(keyStr))):
@@ -185,7 +185,7 @@ class Keyboard(avg.DivNode):
                 codes = (keyStr[i], shiftKeyStr[i], altGrKeyStr[i])
             else:
                 codes = (keyStr[i], shiftKeyStr[i])
-            keyDefs.append([codes, curPos, keySize, False])
+            keyDefs.append([codes, curPos, avg.Point2D(keySize), False])
             curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 
