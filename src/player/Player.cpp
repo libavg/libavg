@@ -1061,6 +1061,8 @@ bool Player::handleEvent(EventPtr pEvent)
 static ProfilingZoneID MainProfilingZone("Player - Total frame time");
 static ProfilingZoneID TimersProfilingZone("Player - handleTimers");
 static ProfilingZoneID EventsProfilingZone("Dispatch events");
+static ProfilingZoneID MainCanvasProfilingZone("Main canvas rendering");
+static ProfilingZoneID OffscreenProfilingZone("Offscreen rendering");
 
 void Player::doFrame(bool bFirstFrame)
 {
@@ -1085,9 +1087,13 @@ void Player::doFrame(bool bFirstFrame)
             }
         }
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
+            ScopeTimer Timer(OffscreenProfilingZone);
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
-        m_pMainCanvas->doFrame(m_bPythonAvailable);
+        {
+            ScopeTimer Timer(MainCanvasProfilingZone);
+            m_pMainCanvas->doFrame(m_bPythonAvailable);
+        }
         GLContext::mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
