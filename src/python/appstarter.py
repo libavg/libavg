@@ -162,7 +162,7 @@ class AVGAppStarter(AppStarter):
         else:
             size = (self._appNode.width, self._appNode.height/6.0)
             self.__memGraph = graph.AveragingGraph(title = 'Memory Usage',
-                    getValue = avg.getMemoryUsage, parent = self._appNode, size=size)
+                    getValue = avg.getMemoryUsage, parent=player.getRootNode(), size=size)
             self.__graphs.append(self.__memGraph)
         self.__positionGraphs()
 
@@ -174,7 +174,8 @@ class AVGAppStarter(AppStarter):
         else:
             size = (self._appNode.width, self._appNode.height/6.0)
             self.__vidMemGraph = graph.AveragingGraph(title='Video Memory Usage',
-                    getValue = player.getVideoMemUsed, parent=self._appNode, size=size)
+                    getValue=player.getVideoMemUsed, parent=player.getRootNode(),
+                    size=size)
             self.__graphs.append(self.__vidMemGraph)
         self.__positionGraphs()
 
