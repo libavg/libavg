@@ -63,9 +63,11 @@
 #endif
 
 #ifdef linux
-#include <X11/extensions/Xinerama.h>
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
+#endif
+#ifdef AVG_ENABLE_XINERAMA
+#include <X11/extensions/Xinerama.h>
 #endif
 
 #include <signal.h>
