@@ -35,7 +35,7 @@ class UITestCase(AVGTestCase):
                     [("1", ),      (35, 5), (30, 30), False],
                     ["SHIFT",    (65, 5), (50, 30), True]]
             kbd = ui.Keyboard("keyboard_bg.png", "keyboard_down.png", keyDefs, shiftKey,
-                    feedbackHref=feedbackImage, pos=pos, parent=root)
+                    feedbackSrc=feedbackImage, pos=pos, parent=root)
 
             for msg in (ui.Keyboard.DOWN, ui.Keyboard.UP, ui.Keyboard.CHAR):
                 kbd.subscribe(msg, lambda keyCode, msg=msg: onMessage(msg, keyCode))
