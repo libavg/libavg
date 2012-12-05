@@ -173,7 +173,6 @@ class AVGAppStarter(AppStarter):
             self.__vidMemGraph = None
         else:
             size = (self._appNode.width, self._appNode.height/6.0)
-            print "SIZE: %s" % size
             self.__vidMemGraph = graph.AveragingGraph(title='Video Memory Usage',
                     getValue = player.getVideoMemUsed, parent=self._appNode, size=size)
             self.__graphs.append(self.__vidMemGraph)
