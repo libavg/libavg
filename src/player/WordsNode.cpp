@@ -688,7 +688,6 @@ void WordsNode::renderText()
 
             pMover->unlock();
             pMover->moveToTexture(*pTex);
-
             newSurface();
         }
         m_bRenderNeeded = false;

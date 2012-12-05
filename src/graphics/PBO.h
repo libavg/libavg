@@ -56,6 +56,7 @@ public:
 
 private:
     unsigned getMemNeeded() const;
+    unsigned getStride() const;
     unsigned getTarget() const;
 
     unsigned m_Usage;

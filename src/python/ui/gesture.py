@@ -462,12 +462,12 @@ class DragRecognizer(Recognizer):
         self.notifySubscribers(Recognizer.MOTION, [self.__offset]);
 
     def __onInertiaStop(self):
+        self.__inertiaHandler = None
+        self.__isSliding = False
         if self.getState() == "POSSIBLE":
             self._setFail(None)
         else:
             self._setEnd(None)
-        self.__inertiaHandler = None
-        self.__isSliding = False
 
     def __relEventPos(self, event):
         return self.__coordSysNode().getParent().getRelPos(event.pos)
@@ -791,8 +791,8 @@ class TransformRecognizer(Recognizer):
         self.notifySubscribers(Recognizer.MOTION, [transform]);
 
     def __onInertiaStop(self):
-        self._setEnd(None)
         self.__inertiaHandler = None
+        self._setEnd(None)
 
     def __filteredRelContactPos(self, contact):
         rawPos = self.__relContactPos(contact)

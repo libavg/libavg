@@ -265,7 +265,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                     *m_pAStream->start_time);
         }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
-        int rc = openCodec(m_AStreamIndex, bUseHardwareAcceleration);
+        int rc = openCodec(m_AStreamIndex, false);
         if (rc == -1) {
             m_AStreamIndex = -1;
             char szBuf[256];

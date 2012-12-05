@@ -39,8 +39,6 @@ EventDispatcher::EventDispatcher(Player* pPlayer)
     : m_pPlayer(pPlayer),
       m_NumMouseButtonsDown(0)
 {
-    string sTmp;
-    m_bDisableMouse = getEnv("AVG_DISABLE_MOUSE", sTmp);
 }
 
 EventDispatcher::~EventDispatcher() 
@@ -68,7 +66,7 @@ void EventDispatcher::dispatch()
         EventPtr pEvent = *it;
 //        cerr << "  " << pEvent->typeStr() << ", " << pEvent->getSource() << endl;
         bool bHookEatsEvent = processEventHook(pEvent);
-        if (!(m_bDisableMouse && pEvent->getSource() == Event::MOUSE) && !bHookEatsEvent) {
+        if (!bHookEatsEvent) {
             testAddContact(pEvent);
             handleEvent(*it);
             testRemoveContact(pEvent);

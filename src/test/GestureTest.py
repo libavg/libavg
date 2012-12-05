@@ -799,7 +799,25 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.__transformRecognizer.enable(False),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
                  lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: self.__transformRecognizer.enable(True),
                 ))
+
+        # Test enable/disable, friction
+        def disableDuringEnd():
+            self.__transformRecognizer.enable(False)
+
+        self.__initImageScene()
+        self.__transformRecognizer = ui.TransformRecognizer(self.image, friction=1,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (# Disable during end event
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self.__transformRecognizer.subscribe(ui.Recognizer.END,
+                        disableDuringEnd),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
+                 None,
+                ))
+
 
 
     def testKMeans(self):
