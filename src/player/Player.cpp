@@ -1625,6 +1625,7 @@ void Player::handleTimers()
         Py_END_ALLOW_THREADS;
         for (it = tempAsyncCalls.begin(); it != tempAsyncCalls.end(); ++it) {
             (*it)->fire(getFrameTime());
+            delete *it;
         }
     }
 }
