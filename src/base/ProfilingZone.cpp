@@ -44,6 +44,13 @@ ProfilingZone::~ProfilingZone()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+void ProfilingZone::restart()
+{
+    m_NumFrames = 0;
+    m_AvgTime = 0;
+    m_TimeSum = 0;
+}
+
 void ProfilingZone::reset()
 {
     m_NumFrames++;

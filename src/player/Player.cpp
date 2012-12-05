@@ -1067,8 +1067,8 @@ void Player::doFrame(bool bFirstFrame)
     {
         ScopeTimer Timer(MainProfilingZone);
         if (!bFirstFrame) {
+            m_NumFrames++;
             if (m_bFakeFPS) {
-                m_NumFrames++;
                 m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
             } else {
                 m_FrameTime = m_pDisplayEngine->getDisplayTime();
@@ -1103,6 +1103,9 @@ void Player::doFrame(bool bFirstFrame)
         }
     }
     ThreadProfiler::get()->reset();
+    if (m_NumFrames == 5) {
+        ThreadProfiler::get()->restart();
+    }
 }
 
 void Player::endFrame()
