@@ -405,7 +405,7 @@ class FireBirdsApp(GameApp):
             self.__player.update(dt, self.__keyStates)
         elif not self.__player.updateBullets(dt) and not enemiesAlive:
             # player dead, all bullets and enemies left the screen
-            player.clearInterval(self.__frameHandlerId)
+            player.unsubscribe(player.ON_FRAME, self.__frameHandlerId)
             self.__frameHandlerId = None
 
 
