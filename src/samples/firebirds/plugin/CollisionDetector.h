@@ -3,7 +3,7 @@
 
 #define AVG_PLUGIN
 
-#include <graphics/Bitmap.h>
+#include "../../../graphics/Bitmap.h"
 
 
 namespace avg {

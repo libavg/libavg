@@ -1,6 +1,7 @@
 #include "CollisionDetector.h"
-#include <base/ScopeTimer.h>
-#include <wrapper/WrapHelper.h>
+
+#include "../../../base/ScopeTimer.h"
+#include "../../../wrapper/WrapHelper.h"
 
 namespace avg {
 
