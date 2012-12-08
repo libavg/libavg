@@ -1,3 +1,3 @@
-pkgtutorialdir = $(pkgpyexecdir)/samples/tutorial
+pkgtutorialdir = $(pkgpyexecdir)/samples/firebirds
 pkgtutorial_PYTHON = $(wildcard *.py)
-SUBDIRS = media 
+SUBDIRS = media
