@@ -312,6 +312,65 @@ class DoubletapRecognizer(Recognizer):
         player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
 
 
+class SwipeRecognizer(Recognizer):
+
+    LEFT = 1
+    RIGHT = 2
+    UP = 3
+    DOWN = 4
+
+    DIRECTION_TOLERANCE = math.pi/8
+    MIN_DIST = 50
+
+    def __init__(self, node, direction, numFingers=1, 
+            directionTolerance=DIRECTION_TOLERANCE, initialEvent=None, minDist=MIN_DIST,
+            possibleHandler=None, failHandler=None, detectedHandler=None):
+
+        self.__angleWanted = self.__angleFromDirection(direction)
+        self.__directionTolerance = directionTolerance
+        self.__minDist = minDist*player.getPixelsPerMM()
+        super(SwipeRecognizer, self).__init__(node, False, numFingers, 
+                initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
+                detectedHandler=detectedHandler)
+
+    def _handleDown(self, event):
+        self._setPossible(event)
+
+    def _handleMove(self, event):
+        pass
+
+    def _handleUp(self, event):
+        assert(self.getState() == "POSSIBLE")
+        if (event.contact.distancefromstart > self.__minDist and
+                self.__isValidAngle(event.contact.motionangle)):
+            self._setDetected(event)
+        else:
+            self._setFail(event)
+
+    def __angleFromDirection(self, direction):
+        if direction == SwipeRecognizer.RIGHT:
+            return 0
+        elif direction == SwipeRecognizer.DOWN:
+            return math.pi/2
+        elif direction == SwipeRecognizer.LEFT:
+            return math.pi
+        elif direction == SwipeRecognizer.UP:
+            return 3*math.pi/2
+        else:
+            raise RuntimeError("%s is not a valid direction."%direction)
+
+    def __isValidAngle(self, angle):
+        if angle < 0:
+            angle += 2*math.pi
+        minAngle = self.__angleWanted - self.__directionTolerance
+        maxAngle = self.__angleWanted + self.__directionTolerance
+        if minAngle >= 0:
+            return angle > minAngle and angle < maxAngle
+        else:
+            # Valid range spans 0
+            return angle > minAngle+2*math.pi or angle < maxAngle
+
+
 class HoldRecognizer(Recognizer):
 
     HOLD_DELAY = None
