@@ -126,7 +126,8 @@ Player::Player()
       m_bPythonAvailable(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_EventHookPyFunc(Py_None)
+      m_EventHookPyFunc(Py_None),
+      m_bMouseEnabled(true)
 {
     string sDummy;
 #ifdef _WIN32
@@ -698,6 +699,15 @@ void Player::enableMultitouch()
         }
     }
     addInputDevice(m_pMultitouchInputDevice);
+}
+
+void Player::enableMouse(bool enabled)
+{
+    m_bMouseEnabled = enabled;
+    
+    if (m_pEventDispatcher) {
+        m_pEventDispatcher->enableMouse(enabled);
+    }
 }
 
 bool Player::isMultitouchAvailable() const
@@ -1273,7 +1283,7 @@ void Player::initAudio()
 
 void Player::initMainCanvas(NodePtr pRootNode)
 {
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
     m_DP.m_Size = m_pMainCanvas->getSize();

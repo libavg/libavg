@@ -709,6 +709,44 @@ class EventTestCase(AVGTestCase):
                         not(self.img1MouseOverCalled))
                 ))
 
+    def testMouseDisableBeforePlay(self):
+        root = self.loadEmptyScene()
+        img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        handlerTester = NodeHandlerTester(self, img)
+        player.enableMouse(False)
+        
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: handlerTester.assertState(
+                        down=False, up=False, over=False, out=False, move=False),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
+                 lambda: handlerTester.assertState(
+                        down=False, up=False, over=False, out=False, move=False),
+                 lambda: player.enableMouse(True),
+                ))
+
+    def testMouseDisableDuringPlay(self):
+        root = self.loadEmptyScene()
+        img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        handlerTester = NodeHandlerTester(self, img)
+
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: handlerTester.assertState(
+                        down=True, up=False, over=True, out=False, move=False),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
+                 lambda: handlerTester.assertState(
+                        down=False, up=True, over=False, out=False, move=False),
+                 lambda: player.enableMouse(False),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: handlerTester.assertState(
+                        down=False, up=False, over=False, out=False, move=False),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 10, 10),
+                 lambda: handlerTester.assertState(
+                        down=False, up=False, over=False, out=False, move=False),
+                 lambda: player.enableMouse(True),
+                ))
+
     def testEventErr(self):
         def onErrMouseOver(Event):
             undefinedFunction()
@@ -1044,6 +1082,8 @@ def eventTestSuite(tests):
             "testChangingHandlers",
             "testEventCapture",
             "testMouseOver",
+            "testMouseDisableBeforePlay",
+            "testMouseDisableDuringPlay",
             "testEventErr",
             "testEventHook",
             "testException",

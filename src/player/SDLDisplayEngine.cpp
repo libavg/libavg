@@ -133,9 +133,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     // on it don't use relative coordinates.
     setEnv("SDL_MOUSE_RELATIVE", "0");
 
-    string sTmp;
-    m_bDisableMouse = getEnv("AVG_DISABLE_MOUSE", sTmp);
-
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
@@ -489,12 +486,6 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
 
     while (SDL_PollEvent(&sdlEvent)) {
         EventPtr pNewEvent;
-        if (m_bDisableMouse &&
-                (sdlEvent.type == SDL_MOUSEMOTION || sdlEvent.type == SDL_MOUSEBUTTONDOWN ||
-                sdlEvent.type == SDL_MOUSEBUTTONUP))
-        {
-            continue;
-        }
         switch (sdlEvent.type) {
             case SDL_MOUSEMOTION:
                 if (m_bMouseOverApp) {
