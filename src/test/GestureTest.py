@@ -362,45 +362,44 @@ class GestureTestCase(AVGTestCase):
 
     def testSwipeRecognizer(self):
 
-        # - Swipe left, right
-        # - Distance check ok? 
-        # - Angle check ok in both directions?
-
-        self.__initImageScene()
-        swipeRecognizer = ui.SwipeRecognizer(self.image, minDist=20,
-                direction=ui.SwipeRecognizer.RIGHT)
-        self.messageTester = MessageTester(swipeRecognizer,
-                [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED, ui.Recognizer.FAILED], 
-                self)
-        self.start(False,
-                (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 60, 30,
-                        [ui.Recognizer.DETECTED]),
-                 # Check angle tolerance
-                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 60, 25,
-                        [ui.Recognizer.DETECTED]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 60, 35,
-                        [ui.Recognizer.DETECTED]),
-                 # Not far enough -> fail
-                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 30,
-                        [ui.Recognizer.FAILED]),
-                 # Wrong direction -> fail
-                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 60, 60,
-                        [ui.Recognizer.FAILED]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 60, 5,
-                        [ui.Recognizer.FAILED]),
-                ))
+        for direction, xdir in (
+                (ui.SwipeRecognizer.RIGHT, 1), (ui.SwipeRecognizer.LEFT, -1)):
+            self.__initImageScene()
+            swipeRecognizer = ui.SwipeRecognizer(self.image, minDist=20,
+                    direction=direction)
+            self.messageTester = MessageTester(swipeRecognizer,
+                    [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED,
+                    ui.Recognizer.FAILED], 
+                    self)
+            self.start(False,
+                    (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [ui.Recognizer.POSSIBLE]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 30,
+                            [ui.Recognizer.DETECTED]),
+                     # Check angle tolerance
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [ui.Recognizer.POSSIBLE]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 25,
+                            [ui.Recognizer.DETECTED]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [ui.Recognizer.POSSIBLE]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 35,
+                            [ui.Recognizer.DETECTED]),
+                     # Not far enough -> fail
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [ui.Recognizer.POSSIBLE]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*10, 30,
+                            [ui.Recognizer.FAILED]),
+                     # Wrong direction -> fail
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [ui.Recognizer.POSSIBLE]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 60,
+                            [ui.Recognizer.FAILED]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [ui.Recognizer.POSSIBLE]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 5,
+                            [ui.Recognizer.FAILED]),
+                    ))
 
 
     def testDragRecognizer(self):
