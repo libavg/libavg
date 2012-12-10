@@ -406,7 +406,7 @@ class GestureTestCase(AVGTestCase):
     def testSwipeRecognizerTwoFingers(self):
         self.__initImageScene()
         swipeRecognizer = ui.SwipeRecognizer(self.image, minDist=20, numFingers=2,
-                direction=ui.SwipeRecognizer.RIGHT)
+                maxInterFingerDist=15, direction=ui.SwipeRecognizer.RIGHT)
         self.messageTester = MessageTester(swipeRecognizer,
                 [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED, ui.Recognizer.FAILED], 
                 self)
@@ -456,6 +456,17 @@ class GestureTestCase(AVGTestCase):
                  self._genTouchEventFrames(
                         [(0, avg.Event.CURSOR_UP, 35, 30,),],
                         [ui.Recognizer.FAILED]),
+                 # Fingers too far apart
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_DOWN, 30, 30,),],
+                        []), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_DOWN, 50, 30,),],
+                        [ui.Recognizer.FAILED]), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_UP, 70, 30,),
+                         (0, avg.Event.CURSOR_UP, 60, 30,),],
+                        []),
                 ))
 
     def testDragRecognizer(self):
