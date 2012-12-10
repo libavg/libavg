@@ -326,6 +326,7 @@ class SwipeRecognizer(Recognizer):
             directionTolerance=DIRECTION_TOLERANCE, initialEvent=None, minDist=MIN_DIST,
             possibleHandler=None, failHandler=None, detectedHandler=None):
 
+        self.__numFingers = numFingers
         self.__angleWanted = self.__angleFromDirection(direction)
         self.__directionTolerance = directionTolerance
         self.__minDist = minDist*player.getPixelsPerMM()
@@ -334,18 +335,19 @@ class SwipeRecognizer(Recognizer):
                 detectedHandler=detectedHandler)
 
     def _handleDown(self, event):
-        self._setPossible(event)
+        if len(self._contacts) == self.__numFingers:
+            self._setPossible(event)
 
     def _handleMove(self, event):
         pass
 
     def _handleUp(self, event):
-        assert(self.getState() == "POSSIBLE")
-        if (event.contact.distancefromstart > self.__minDist and
-                self.__isValidAngle(event.contact.motionangle)):
-            self._setDetected(event)
-        else:
-            self._setFail(event)
+        if self.getState() == "POSSIBLE":
+            if (event.contact.distancefromstart < self.__minDist or
+                    not(self.__isValidAngle(event.contact.motionangle))):
+                self._setFail(event)
+            elif len(self._contacts) == 0:
+                self._setDetected(event)
 
     def __angleFromDirection(self, direction):
         if direction == SwipeRecognizer.RIGHT:

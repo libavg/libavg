@@ -217,6 +217,13 @@ class AVGTestCase(unittest.TestCase):
                  self.messageTester.reset,
                 ]
 
+    def _genTouchEventFrames(self, eventData, expectedEvents):
+        return [
+                 lambda: self._sendTouchEvents(eventData),
+                 lambda: self.messageTester.assertState(expectedEvents),
+                 self.messageTester.reset,
+                ]
+
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
     

@@ -362,6 +362,7 @@ class GestureTestCase(AVGTestCase):
 
     def testSwipeRecognizer(self):
 
+        # One finger
         for direction, xdir in (
                 (ui.SwipeRecognizer.RIGHT, 1), (ui.SwipeRecognizer.LEFT, -1)):
             self.__initImageScene()
@@ -401,6 +402,61 @@ class GestureTestCase(AVGTestCase):
                             [ui.Recognizer.FAILED]),
                     ))
 
+
+    def testSwipeRecognizerTwoFingers(self):
+        self.__initImageScene()
+        swipeRecognizer = ui.SwipeRecognizer(self.image, minDist=20, numFingers=2,
+                direction=ui.SwipeRecognizer.RIGHT)
+        self.messageTester = MessageTester(swipeRecognizer,
+                [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED, ui.Recognizer.FAILED], 
+                self)
+        self.start(False,
+                (self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_DOWN, 30, 30,),],
+                        []), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_DOWN, 40, 30,),],
+                        [ui.Recognizer.POSSIBLE]), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_UP, 70, 30,),],
+                        []), 
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_UP, 60, 30,),],
+                        [ui.Recognizer.DETECTED]),
+                 # Not enough fingers -> not recognized
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_DOWN, 30, 30,),],
+                        []), 
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_UP, 60, 30,),],
+                        []),
+                 # Fail first finger
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_DOWN, 30, 30,),],
+                        []), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_DOWN, 40, 30,),],
+                        [ui.Recognizer.POSSIBLE]), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_UP, 35, 30,),],
+                        [ui.Recognizer.FAILED]), 
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_UP, 60, 30,),],
+                        []),
+                 # Fail second finger
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_DOWN, 30, 30,),],
+                        []), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_DOWN, 40, 30,),],
+                        [ui.Recognizer.POSSIBLE]), 
+                 self._genTouchEventFrames(
+                        [(1, avg.Event.CURSOR_UP, 70, 30,),],
+                        []), 
+                 self._genTouchEventFrames(
+                        [(0, avg.Event.CURSOR_UP, 35, 30,),],
+                        [ui.Recognizer.FAILED]),
+                ))
 
     def testDragRecognizer(self):
 
@@ -913,6 +969,7 @@ def gestureTestSuite(tests):
         "testHoldRecognizer",
         "testDoubletapRecognizer",
         "testSwipeRecognizer",
+        "testSwipeRecognizerTwoFingers",
         "testDragRecognizer",
         "testDragRecognizerRelCoords",
         "testDragRecognizerInitialEvent",
