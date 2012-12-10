@@ -266,7 +266,7 @@ class NodeHandlerTester(object):
         self.__node = node
         self.setHandlers()
 
-    def assertState(self, down, up, over, out, move):
+    def assertState(self, down=False, up=False, over=False, out=False, move=False):
         self.__testCase.assert_(down == self.__downCalled)
         self.__testCase.assert_(up == self.__upCalled)
         self.__testCase.assert_(over == self.__overCalled)
