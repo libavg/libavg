@@ -40,6 +40,8 @@ class AppStarter(object):
     '''Starts an AVGApp'''
     def __init__(self, appClass, resolution=DEFAULT_RESOLUTION,
             debugWindowSize=None, fakeFullscreen=False):
+        player.enableMouse(not 'AVG_DISABLE_MOUSE' in os.environ)
+
         resolution = Point2D(resolution)
         testMode = not 'AVG_DEPLOY' in os.environ
 
