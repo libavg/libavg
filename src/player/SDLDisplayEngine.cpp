@@ -89,7 +89,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
-      m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0),
@@ -488,7 +487,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
         EventPtr pNewEvent;
         switch (sdlEvent.type) {
             case SDL_MOUSEMOTION:
-                if (m_bMouseOverApp) {
+                {
                     pNewEvent = createMouseEvent(Event::CURSOR_MOTION, sdlEvent, 
                             MouseEvent::NO_BUTTON);
                     CursorEventPtr pNewCursorEvent = 
