@@ -556,20 +556,18 @@ void Player::setFramerate(float rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
-    } else {
-        m_DP.m_Framerate = rate;
-        m_DP.m_VBRate = 0;
     }
+    m_DP.m_Framerate = rate;
+    m_DP.m_VBRate = 0;
 }
 
 void Player::setVBlankFramerate(int rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setVBlankRate(rate);
-    } else {
-        m_DP.m_Framerate = 0;
-        m_DP.m_VBRate = rate;
     }
+    m_DP.m_Framerate = 0;
+    m_DP.m_VBRate = rate;
 }
 
 float Player::getEffectiveFramerate()
@@ -1163,11 +1161,10 @@ void Player::setGamma(float red, float green, float blue)
 {
     if (m_pDisplayEngine) {
         m_pDisplayEngine->setGamma(red, green, blue);
-    } else {
-        m_DP.m_Gamma[0] = red;
-        m_DP.m_Gamma[1] = green;
-        m_DP.m_Gamma[2] = blue;
     }
+    m_DP.m_Gamma[0] = red;
+    m_DP.m_Gamma[1] = green;
+    m_DP.m_Gamma[2] = blue;
 }
 
 void Player::initConfig()
