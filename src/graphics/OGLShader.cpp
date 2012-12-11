@@ -24,15 +24,12 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/OSHelper.h"
 
 #include "../graphics/VertexArray.h"
 
 #include <iostream>
 #include <sstream>
-
-#ifdef __APPLE__
-#include <sys/utsname.h>
-#endif
 
 using namespace std;
 
@@ -84,34 +81,12 @@ OGLShader::~OGLShader()
 {
 }
 
-bool isMountainLion()
-{
-#ifdef __APPLE__
-    utsname sysInfo;
-    int rc = uname(&sysInfo);
-    AVG_ASSERT(rc == 0);
-//    cerr << sysInfo.sysname << ", " << sysInfo.nodename << ", " << sysInfo.release <<
-//            ", " << sysInfo.version << ", " << sysInfo.machine << endl;
-    istringstream ss(sysInfo.release);
-    int major;
-    int minor;
-    int dot;
-    char c;
-    ss >> major >> c >> minor >> c >> dot;
-//    cerr << major << ", " << minor << ", " << dot << endl;
-    return major == 12;
-#else
-    return false;
-#endif
-}
-
 void OGLShader::activate()
 {
     // If we're running on OS X mountain lion, we need to disable shader activation 
     // caching (See bug #355).
-    static bool bIsMountainLion = isMountainLion();
     OGLShaderPtr pCurShader = m_pShaderRegistry->getCurShader();
-    if (bIsMountainLion || !pCurShader || &*pCurShader != this) {
+    if (getOSXMajorVersion() == 12 || !pCurShader || &*pCurShader != this) {
         glproc::UseProgram(m_hProgram);
         m_pShaderRegistry->setCurShader(m_sName);
         GLContext::checkError("OGLShader::activate: glUseProgram()");

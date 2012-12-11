@@ -42,6 +42,10 @@ size_t getMemoryUsage();
 // Under other operating systems, returns the input string.
 AVG_API std::string convertUTF8ToFilename(const std::string & sName);
 
+#ifdef __APPLE__
+int getOSXMajorVersion();
+#endif
+
 }
 
 #endif 
