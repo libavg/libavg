@@ -165,28 +165,24 @@ class EventTestCase(AVGTestCase):
                         avg.MouseEvent(avg.Event.CURSOR_DOWN, True, False, False,
                                 (10, 10), 1)),
                  lambda: handlerTester.assertState(
-                        down=True, up=False, over=True, out=False, move=False),
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER)),
                  
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
                          avg.Event.CURSOR_MOTION, True, False, False, (12, 12), 1)),
-                 lambda: handlerTester.assertState(
-                        down=False, up=False, over=False, out=False, move=True),
+                 lambda: handlerTester.assertState((avg.Node.CURSOR_MOTION,)),
                  
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
                          avg.Event.CURSOR_MOTION, True, False, False, (100, 100), 1)),
-                 lambda: handlerTester.assertState(
-                        down=False, up=False, over=False, out=True, move=False),
+                 lambda: handlerTester.assertState((avg.Node.CURSOR_OUT,)),
                  
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
                          avg.Event.CURSOR_MOTION, True, False, False, (12, 12), 1)),
                  lambda: handlerTester.assertState(
-                        down=False, up=False, over=True, out=False, move=True),
+                        (avg.Node.CURSOR_OVER, avg.Node.CURSOR_MOTION)),
                         
                  lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
                          avg.Event.CURSOR_UP, False, False, False, (12, 12), 1)),
-                 lambda: handlerTester.assertState(
-                        down=False, up=True, over=False, out=False, move=False)
-                 
+                 lambda: handlerTester.assertState((avg.Node.CURSOR_UP,)),
                 ))
 
 def inputDeviceTestSuite(tests):
