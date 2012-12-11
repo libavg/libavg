@@ -135,7 +135,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
-    calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -234,6 +233,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     FFMpegDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
+    m_ScreenResolution = IntPoint(0,0);
+    calcScreenDimensions(dp.m_DotsPerMM);
 }
 
 IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
