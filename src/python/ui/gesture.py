@@ -325,18 +325,19 @@ class SwipeRecognizer(Recognizer):
 
     DIRECTION_TOLERANCE = math.pi/8
     MIN_DIST = 50
+    MAX_INTER_CONTACT_DIST = 100
 
-    def __init__(self, node, direction, numFingers=1, initialEvent=None, 
+    def __init__(self, node, direction, numContacts=1, initialEvent=None, 
             directionTolerance=DIRECTION_TOLERANCE, minDist=MIN_DIST, 
-            maxInterFingerDist=100,
+            maxInterContactDist=MAX_INTER_CONTACT_DIST,
             possibleHandler=None, failHandler=None, detectedHandler=None):
 
-        self.__numFingers = numFingers
+        self.__numContacts = numContacts
         self.__angleWanted = self.__angleFromDirection(direction)
         self.__directionTolerance = directionTolerance
         self.__minDist = minDist*player.getPixelsPerMM()
-        self.__maxInterFingerDist = maxInterFingerDist*player.getPixelsPerMM()
-        super(SwipeRecognizer, self).__init__(node, False, numFingers, 
+        self.__maxInterContactDist = maxInterContactDist*player.getPixelsPerMM()
+        super(SwipeRecognizer, self).__init__(node, False, numContacts, 
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler)
 
@@ -344,10 +345,10 @@ class SwipeRecognizer(Recognizer):
         if len(self._contacts) == 1:
             self.__startPos = event.pos
         else:
-            if (event.pos-self.__startPos).getNorm() > self.__maxInterFingerDist:
+            if (event.pos-self.__startPos).getNorm() > self.__maxInterContactDist:
                 self._setFail(event)
                 return
-        if len(self._contacts) == self.__numFingers:
+        if len(self._contacts) == self.__numContacts:
             self._setPossible(event)
 
     def _handleMove(self, event):
