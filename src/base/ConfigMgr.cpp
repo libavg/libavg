@@ -88,8 +88,11 @@ ConfigMgr::ConfigMgr()
     addSubsys("gesture");
     addOption("gesture", "maxtapdist", "15");
     addOption("gesture", "maxdoubletaptime", "300");
-    addOption("gesture", "mindragdist", "5");
+    addOption("gesture", "minswipedist", "50");
+    addOption("gesture", "swipedirectiontolerance", "0.393"); // pi/8
+    addOption("gesture", "maxswipecontactdist", "100");
     addOption("gesture", "holddelay", "500");
+    addOption("gesture", "mindragdist", "5");
     addOption("gesture", "filtermincutoff", "0.1");
     addOption("gesture", "filterbeta", "0.03");
     addOption("gesture", "friction", "-1");

@@ -360,7 +360,7 @@ functionality
             Returns the state ("IDLE", "POSSIBLE" or "RUNNING") of the recognizer.
 
 
-    .. autoclass:: SwipeRecognizer(node, direction, [numContacts=1, directionTolerance=DIRECTION_TOLERANCE, minDist=MIN_DIST, maxInterContactDist=MAX_INTER_CONTACT_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+    .. autoclass:: SwipeRecognizer(node, direction, [numContacts=1, directionTolerance=SWIPE_DIRECTION_TOLERANCE, minDist=MIN_SWIPE_DIST, maxContactDist=MAX_SWIPE_CONTACT_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
 
         A :py:class:`SwipeRecognizer` detects movement of one or more contacts in a
         specified direction and with a minimal distance. Whether the gesture is recognized

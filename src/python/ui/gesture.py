@@ -323,20 +323,20 @@ class SwipeRecognizer(Recognizer):
     UP = 3
     DOWN = 4
 
-    DIRECTION_TOLERANCE = math.pi/8
-    MIN_DIST = 50
-    MAX_INTER_CONTACT_DIST = 100
+    SWIPE_DIRECTION_TOLERANCE = math.pi/8
+    MIN_SWIPE_DIST = 50
+    MAX_SWIPE_CONTACT_DIST = 100
 
     def __init__(self, node, direction, numContacts=1, initialEvent=None, 
-            directionTolerance=DIRECTION_TOLERANCE, minDist=MIN_DIST, 
-            maxInterContactDist=MAX_INTER_CONTACT_DIST,
+            directionTolerance=SWIPE_DIRECTION_TOLERANCE, minDist=MIN_SWIPE_DIST, 
+            maxContactDist=MAX_SWIPE_CONTACT_DIST,
             possibleHandler=None, failHandler=None, detectedHandler=None):
 
         self.__numContacts = numContacts
         self.__angleWanted = self.__angleFromDirection(direction)
         self.__directionTolerance = directionTolerance
         self.__minDist = minDist*player.getPixelsPerMM()
-        self.__maxInterContactDist = maxInterContactDist*player.getPixelsPerMM()
+        self.__maxInterContactDist = maxContactDist*player.getPixelsPerMM()
         super(SwipeRecognizer, self).__init__(node, False, numContacts, 
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler)
@@ -964,13 +964,16 @@ def initConfig():
     def getFloatOption(name):
         return float(player.getConfigOption("gesture", name))
 
-    TransformRecognizer.FILTER_MIN_CUTOFF = getFloatOption("filtermincutoff")
-    TransformRecognizer.FILTER_BETA = getFloatOption("filterbeta")
     TapRecognizer.MAX_TAP_DIST = getFloatOption("maxtapdist")
     DoubletapRecognizer.MAX_DOUBLETAP_TIME = getFloatOption("maxdoubletaptime")
+    SwipeRecognizer.MIN_SWIPE_DIST = getFloatOption("minswipedist")
+    SwipeRecognizer.SWIPE_DIRECTION_TOLERANCE = getFloatOption("swipedirectiontolerance")
+    SwipeRecognizer.MAX_SWIPE_CONTACT_DIST = getFloatOption("maxswipecontactdist")
+    HoldRecognizer.HOLD_DELAY = getFloatOption("holddelay")
     DragRecognizer.MIN_DRAG_DIST = getFloatOption("mindragdist")
     DragRecognizer.FRICTION = getFloatOption("friction")
-    HoldRecognizer.HOLD_DELAY = getFloatOption("holddelay")
+    TransformRecognizer.FILTER_MIN_CUTOFF = getFloatOption("filtermincutoff")
+    TransformRecognizer.FILTER_BETA = getFloatOption("filterbeta")
 
 
 initConfig()

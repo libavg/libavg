@@ -398,7 +398,7 @@ class GestureTestCase(AVGTestCase):
     def testSwipeRecognizerTwoFingers(self):
         self.__initImageScene()
         swipeRecognizer = ui.SwipeRecognizer(self.image, minDist=20, numContacts=2,
-                maxInterContactDist=15, direction=ui.SwipeRecognizer.RIGHT)
+                maxContactDist=15, direction=ui.SwipeRecognizer.RIGHT)
         self.messageTester = MessageTester(swipeRecognizer,
                 [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED, ui.Recognizer.FAILED], 
                 self)
