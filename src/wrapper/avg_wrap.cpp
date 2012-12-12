@@ -99,8 +99,10 @@ BOOST_PYTHON_MODULE(avg)
 
     def("pointInPolygon", pointInPolygon);
     def("validateXml", validateXml);
-
-    class_<MessageID>("MessageID", no_init);
+    
+    class_<MessageID>("MessageID", no_init)
+        .def("__repr__", &MessageID::getRepr)
+    ;
 
     class_<Logger>("Logger", no_init)
         .def("get", &Logger::get, 
