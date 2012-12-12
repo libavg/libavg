@@ -961,16 +961,16 @@ class InertiaHandler(object):
 
     
 def initConfig():
-    TransformRecognizer.FILTER_MIN_CUTOFF = float(
-            player.getConfigOption("gesture", "filtermincutoff"))
-    TransformRecognizer.FILTER_BETA = float(
-            player.getConfigOption("gesture", "filterbeta"))
-    TapRecognizer.MAX_TAP_DIST = float(player.getConfigOption("gesture", "maxtapdist"))
-    DoubletapRecognizer.MAX_DOUBLETAP_TIME = float(
-            player.getConfigOption("gesture", "maxdoubletaptime"))
-    DragRecognizer.MIN_DRAG_DIST = float(player.getConfigOption("gesture", "mindragdist"))
-    DragRecognizer.FRICTION = float(player.getConfigOption("gesture", "friction"))
-    HoldRecognizer.HOLD_DELAY = float(player.getConfigOption("gesture", "holddelay"))
+    def getFloatOption(name):
+        return float(player.getConfigOption("gesture", name))
+
+    TransformRecognizer.FILTER_MIN_CUTOFF = getFloatOption("filtermincutoff")
+    TransformRecognizer.FILTER_BETA = getFloatOption("filterbeta")
+    TapRecognizer.MAX_TAP_DIST = getFloatOption("maxtapdist")
+    DoubletapRecognizer.MAX_DOUBLETAP_TIME = getFloatOption("maxdoubletaptime")
+    DragRecognizer.MIN_DRAG_DIST = getFloatOption("mindragdist")
+    DragRecognizer.FRICTION = getFloatOption("friction")
+    HoldRecognizer.HOLD_DELAY = getFloatOption("holddelay")
 
 
 initConfig()
