@@ -124,11 +124,9 @@ class GestureTestCase(AVGTestCase):
 
         def abort():
             self.__holdRecognizer.abort()
-            self.messageTester.reset()
 
         def enable(isEnabled):
             self.__holdRecognizer.enable(isEnabled)
-            self.messageTester.reset()
 
         player.setFakeFPS(20)
         self.__initImageScene()
@@ -143,7 +141,6 @@ class GestureTestCase(AVGTestCase):
                         [ui.Recognizer.POSSIBLE]),
                  lambda: self.delay(1100),
                  lambda: self.messageTester.assertState([ui.Recognizer.DETECTED]),
-                 self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
                         [ui.Recognizer.END]),
 
@@ -208,11 +205,9 @@ class GestureTestCase(AVGTestCase):
 
         def abort():
             self.__tapRecognizer.abort()
-            self.messageTester.reset()
 
         def enable(isEnabled):
             self.__tapRecognizer.enable(isEnabled)
-            self.messageTester.reset()
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png", size=(128,128))
@@ -480,11 +475,9 @@ class GestureTestCase(AVGTestCase):
 
         def enable(isEnabled):
             dragRecognizer.enable(isEnabled)
-            self.messageTester.reset()
 
         def abort():
             dragRecognizer.abort()
-            self.messageTester.reset()
 
         player.setFakeFPS(100)
         sys.stderr.write("\n")
@@ -539,7 +532,6 @@ class GestureTestCase(AVGTestCase):
             self.messageTester = MessageTester(dragRecognizer, [ui.Recognizer.POSSIBLE, 
                     ui.Recognizer.DETECTED, ui.Recognizer.FAILED, ui.Recognizer.END], 
                     self)
-            self.messageTester.reset()
             self.start(False,
                     (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
                             [ui.Recognizer.POSSIBLE]),
