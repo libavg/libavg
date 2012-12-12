@@ -214,14 +214,12 @@ class AVGTestCase(unittest.TestCase):
         return [
                  lambda: self._sendMouseEvent(type, x, y),
                  lambda: self.messageTester.assertState(expectedEvents),
-                 self.messageTester.reset,
                 ]
 
     def _genTouchEventFrames(self, eventData, expectedEvents):
         return [
                  lambda: self._sendTouchEvents(eventData),
                  lambda: self.messageTester.assertState(expectedEvents),
-                 self.messageTester.reset,
                 ]
 
     def _isCurrentDirWriteable(self):
@@ -313,6 +311,7 @@ class MessageTester(object):
 
     def assertState(self, expectedMessages):
         self.__testCase.assert_(self.isState(expectedMessages))
+        self.reset()
 
     def isState(self, expectedMessages):
         expectedMessages = set(expectedMessages)

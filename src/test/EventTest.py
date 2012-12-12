@@ -952,7 +952,7 @@ class EventTestCase(AVGTestCase):
         self.start(False,
                 (lambda: messageTester.assertState([avg.Player.PLAYBACK_START]),
                 ))
-        messageTester.assertState([avg.Player.PLAYBACK_START, avg.Player.PLAYBACK_END])
+        messageTester.assertState([avg.Player.PLAYBACK_END])
 
     def testImageSizeChanged(self):
         def onResize(newSize):

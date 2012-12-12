@@ -257,7 +257,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.delay(1000),
                  lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
-                        [ui.Recognizer.FAILED]),
+                        []),
                  # Down, up, delay: stop
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
                         [ui.Recognizer.POSSIBLE]),
@@ -265,7 +265,6 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.delay(1000),
                  lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
                  # Down, up, down, delay: stop
-                 self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
                         [ui.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
@@ -273,7 +272,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.delay(1000),
                  lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.FAILED]),
+                        []),
                  # Down, abort, up, down, up, delay: just one click
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
                         [ui.Recognizer.POSSIBLE]),
@@ -285,7 +284,6 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.delay(1000),
                  lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
                  # Down, up, abort, down, up, delay: two clicks but no double-click
-                 self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
                         [ui.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
@@ -296,7 +294,6 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.delay(1000),
                  lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
                  # Down, up, down, abort, up: just one click
-                 self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
                         [ui.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),

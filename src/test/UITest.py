@@ -49,7 +49,6 @@ class UITestCase(AVGTestCase):
             self.__messageTester.assertState(msgs)
             self.assert_(self.__keyCode == keyCode)
             self.compareImage(imageSrc)
-            self.__messageTester.reset()
 
         root = self.loadEmptyScene()
         self.__keyCode = ""
@@ -67,13 +66,11 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 30, 30),
                  lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "a", "testUIKeyboard"),
-                 self.__messageTester.reset,
                  # test command key
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 100, 30),
                  lambda: assertState((ui.Keyboard.DOWN,), "SHIFT", "testUIKeyboardS"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 30),
                  lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
-                 self.__messageTester.reset,
                  # test multiple keys
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 100, 30),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 30, 30),
