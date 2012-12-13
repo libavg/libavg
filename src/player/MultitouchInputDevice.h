@@ -52,7 +52,7 @@ public:
     std::vector<EventPtr> pollEvents();
 
 protected:
-    const glm::vec2& getWindowSize() const;
+    const glm::vec2& getScreenResolution() const;
     int getNumTouches() const;
     // Note that the id used here is not the libavg cursor id but a touch-driver-specific
     // id handed up from the driver level.
@@ -65,7 +65,7 @@ protected:
 private:
     std::map<int, TouchStatusPtr> m_TouchIDMap;
     std::vector<TouchStatusPtr> m_Touches;
-    glm::vec2 m_WindowSize;
+    glm::vec2 m_ScreenResolution;
     MutexPtr m_pMutex;
 };
 

@@ -68,6 +68,7 @@ public:
 
 private:
     void init();
+    void throwMultisampleError();
 
     IntPoint m_Size;
     PixelFormat m_PF;

@@ -141,7 +141,6 @@ class AVG_API Node: public Publisher
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
-        Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
         NodePtr getSharedThis();
 
     private:

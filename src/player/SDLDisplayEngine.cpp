@@ -63,6 +63,7 @@
 #endif
 
 #ifdef linux
+#include <X11/extensions/Xinerama.h>
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
 #endif
@@ -88,7 +89,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
-      m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0),
@@ -135,7 +135,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
-    calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -234,6 +233,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     FFMpegDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
+    m_ScreenResolution = IntPoint(0,0);
+    calcScreenDimensions(dp.m_DotsPerMM);
 }
 
 IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
@@ -303,8 +304,36 @@ int SDLDisplayEngine::getKeyModifierState() const
 void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (m_ScreenResolution.x == 0) {
+#ifdef AVG_ENABLE_XINERAMA
+        Display * pDisplay = XOpenDisplay(0);
+        int dummy1, dummy2;
+        Bool bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
+        if (bXinerama) {
+            bXinerama = XineramaIsActive(pDisplay);
+        }
+        if (bXinerama) {
+            int numHeads = 0;
+            XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
+            AVG_ASSERT(numHeads >= 1);
+/*
+            cerr << "Num heads: " << numHeads << endl;
+            for (int x=0; x<numHeads; ++x) {
+                cout << "Head " << x+1 << ": " <<
+                    pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
+                    pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
+            }
+            */
+            m_ScreenResolution = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
+            XFree(pScreenInfo);
+        } else {
+            const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+            m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+        }
+        XCloseDisplay(pDisplay);
+#else
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+#endif
     }
     if (dotsPerMM != 0) {
         m_PPMM = dotsPerMM;
@@ -459,7 +488,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
         EventPtr pNewEvent;
         switch (sdlEvent.type) {
             case SDL_MOUSEMOTION:
-                if (m_bMouseOverApp) {
+                {
                     pNewEvent = createMouseEvent(Event::CURSOR_MOTION, sdlEvent, 
                             MouseEvent::NO_BUTTON);
                     CursorEventPtr pNewCursorEvent = 

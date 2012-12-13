@@ -33,6 +33,7 @@
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
+#include <sys/utsname.h>
 #elif defined(__linux)
 #include <fstream>
 #include <unistd.h>
@@ -283,4 +284,27 @@ std::string convertUTF8ToFilename(const std::string & sName)
 #endif
 }
 
+#ifdef __APPLE__
+int reallyGetOSXMajorVersion()
+{
+    utsname sysInfo;
+    int rc = uname(&sysInfo);
+    AVG_ASSERT(rc == 0);
+//    cerr << sysInfo.sysname << ", " << sysInfo.nodename << ", " << sysInfo.release <<
+//            ", " << sysInfo.version << ", " << sysInfo.machine << endl;
+    istringstream ss(sysInfo.release);
+    int major;
+    int minor;
+    int dot;
+    char c;
+    ss >> major >> c >> minor >> c >> dot;
+    return major;    
+}
+
+int getOSXMajorVersion()
+{
+    static int major = reallyGetOSXMajorVersion(); // only called once for speed reasons.
+    return major;
+}
+#endif
 }

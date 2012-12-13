@@ -60,7 +60,9 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
     }
-
+    if (multisampleSamples < 1) {
+        throwMultisampleError();
+    }
     for (unsigned i=0; i<numTextures; ++i) {
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
         // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
@@ -286,9 +288,7 @@ void FBO::init()
             glproc::DeleteFramebuffers(1, &m_FBO);
             glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
             m_pOutputPBO = PBOPtr();
-            throw(Exception(AVG_ERR_UNSUPPORTED, 
-                    string("Unsupported value for number of multisample samples (")
-                    + toString(m_MultisampleSamples) + ")."));
+            throwMultisampleError();
         }
         GLContext::checkError("FBO::init: RenderbufferStorageMultisample");
         glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -320,6 +320,13 @@ void FBO::init()
 
     checkError("init");
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void FBO::throwMultisampleError()
+{
+    throw(Exception(AVG_ERR_UNSUPPORTED, 
+                string("Unsupported value for number of multisample samples (")
+                + toString(m_MultisampleSamples) + ")."));
 }
 
 bool FBO::isFBOSupported()

@@ -207,6 +207,10 @@ Player & Canvas
             enabled by the tests. You do not need this method unless you are looking for
             errors inside libavg.
 
+        .. py:method:: enableMouse(enable)
+        
+            Enables or disable mouse event handling.
+            
         .. py:method:: enableMultitouch()
 
             Enables multitouch event handling. Several drivers are available that 

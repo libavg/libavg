@@ -31,9 +31,25 @@ g_Logger = avg.Logger.get()
 
 FEEDBACK_ZOOM_FACTOR = 1.0
 
+# XXX Needs to be moved to a more general place 
+# (see uilib2 branch: ui/base.py/StretchNodeBase/_bmpFromSrc()).
+def _bmpFromSrc(node, src):
+    if isinstance(src, basestring):
+        if os.path.isabs(src):
+            effectiveSrc = src
+        else:
+            effectiveSrc = node.getParent().getEffectiveMediaDir() + src
+        return avg.Bitmap(effectiveSrc)
+    elif isinstance(src, avg.Bitmap):
+        return src
+    elif src is None:
+        return None
+    else:
+        raise RuntimeError("src must be a string or a Bitmap.")
+
 class Key(avg.DivNode):
     # KeyDef is (keyCode, pos, size, isCommand=False)
-    def __init__(self, keyDef, downHref, feedbackHref, sticky=False, parent=None,
+    def __init__(self, keyDef, downBmp, feedbackBmp, sticky=False, parent=None,
             **kwargs):
         self.__keyCode = keyDef[0]
         if not(isinstance(self.__keyCode, tuple)):
@@ -50,12 +66,12 @@ class Key(avg.DivNode):
         self.__sticky = sticky
         self.__stickyIsDown = False
         self.__cursorID = None
-        if downHref:
+        if downBmp:
             if player.isPlaying():
-                self.__createImages(downHref, feedbackHref)
+                self.__createImages(downBmp, feedbackBmp)
             else:
                 player.subscribe(avg.Player.PLAYBACK_START, 
-                        lambda: self.__createImages(downHref, feedbackHref))
+                        lambda: self.__createImages(downBmp, feedbackBmp))
 
     def reset(self):
         if self.__sticky:
@@ -101,24 +117,20 @@ class Key(avg.DivNode):
         else:
             self.__feedbackImage.opacity = 0.0
 
-    def __createImages(self, downHref, feedbackHref):
+    def __createImages(self, downBmp, feedbackBmp):
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
-        self.__createImage(self.__image, downHref, 1)
-
+        self.__createImage(self.__image, downBmp, 1)
+ 
         self.__feedbackImage = avg.ImageNode(parent=self, opacity=0.0)
-        if feedbackHref and not(self.__isCommand):
-            self.__createImage(self.__feedbackImage, feedbackHref, 2)
+        if feedbackBmp and not(self.__isCommand):
+            self.__createImage(self.__feedbackImage, feedbackBmp, 2)
             self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
                     self.__feedbackImage.size.y)
 
-    def __createImage(self, node, href, sizeFactor):
-        if os.path.isabs(href):
-            effectiveHref = href
-        else:
-            effectiveHref = self.getParent().getEffectiveMediaDir() + href
+    def __createImage(self, node, bmp, sizeFactor):
         canvas = player.createCanvas(id="keycanvas", size=self.size*sizeFactor)
-        avg.ImageNode(href=effectiveHref, pos=-self.pos*sizeFactor, 
-                parent=canvas.getRootNode())
+        canvasImage = avg.ImageNode(pos=-self.pos*sizeFactor, parent=canvas.getRootNode())
+        canvasImage.setBitmap(bmp)
         canvas.render()
         node.setBitmap(canvas.screenshot())
         player.deleteCanvas('keycanvas')
@@ -130,8 +142,8 @@ class Keyboard(avg.DivNode):
     UP = avg.Publisher.genMessageID()
     CHAR = avg.Publisher.genMessageID()
 
-    def __init__(self, bgHref, downHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
-            stickyShift=False, feedbackHref=None, parent=None, **kwargs):
+    def __init__(self, bgSrc, downSrc, keyDefs, shiftKeyCode, altGrKeyCode=None,
+            stickyShift=False, feedbackSrc=None, parent=None, **kwargs):
         super(Keyboard, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
@@ -150,17 +162,20 @@ class Keyboard(avg.DivNode):
             self.__codesPerKey = 3
         
         self.__keys = []
-        if bgHref:
-            avg.ImageNode(href=bgHref, parent=self)
+        if bgSrc:
+            bgNode = avg.ImageNode(parent=self)
+            bgNode.setBitmap(_bmpFromSrc(self, bgSrc))
         for kd in keyDefs:
+            downBmp = _bmpFromSrc(self, downSrc)
+            feedbackBmp = _bmpFromSrc(self, feedbackSrc)
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                key = Key(kd, downHref, feedbackHref, parent=self)
+                key = Key(kd, downBmp, feedbackBmp, parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
-                key = Key(kd, downHref, feedbackHref, sticky=sticky, parent=self)
+                key = Key(kd, downBmp, feedbackBmp, sticky=sticky, parent=self)
             self.__keys.append(key)
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onCursorDown)
         self.__curKeys = {}
@@ -174,7 +189,7 @@ class Keyboard(avg.DivNode):
     def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
         keyDefs = []
-        curPos = startPos
+        curPos = avg.Point2D(startPos)
         offset = keySize[0]+spacing
         if (len(shiftKeyStr) != len(keyStr) or 
                 (altGrKeyStr and len(altGrKeyStr) != len(keyStr))):
@@ -185,7 +200,7 @@ class Keyboard(avg.DivNode):
                 codes = (keyStr[i], shiftKeyStr[i], altGrKeyStr[i])
             else:
                 codes = (keyStr[i], shiftKeyStr[i])
-            keyDefs.append([codes, curPos, keySize, False])
+            keyDefs.append([codes, curPos, avg.Point2D(keySize), False])
             curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 

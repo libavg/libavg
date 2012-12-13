@@ -137,6 +137,7 @@ class AVG_API Player: public Publisher
         EventPtr getCurrentEvent() const;
         TrackerInputDevice * getTracker();
         void enableMultitouch();
+        void enableMouse(bool enabled);
         bool isMultitouchAvailable() const;
         void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
@@ -287,6 +288,7 @@ class AVG_API Player: public Publisher
         std::map<int, CursorStatePtr> m_pLastCursorStates;
 
         PyObject * m_EventHookPyFunc;
+        bool m_bMouseEnabled;
 };
 
 }
