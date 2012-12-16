@@ -99,8 +99,10 @@ BOOST_PYTHON_MODULE(avg)
 
     def("pointInPolygon", pointInPolygon);
     def("validateXml", validateXml);
-
-    class_<MessageID>("MessageID", no_init);
+    
+    class_<MessageID>("MessageID", no_init)
+        .def("__repr__", &MessageID::getRepr)
+    ;
 
     class_<Logger>("Logger", no_init)
         .def("get", &Logger::get, 
@@ -200,6 +202,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("createNode", &Player::createNodeFromXmlString)
         .def("createNode", &Player::createNode, Player_createNode_overloads())
         .def("enableMultitouch", &Player::enableMultitouch)
+        .def("enableMouse", &Player::enableMouse)
         .def("isMultitouchAvailable", &Player::isMultitouchAvailable)
         .def("getTracker", &Player::getTracker,
                 return_value_policy<reference_existing_object>())

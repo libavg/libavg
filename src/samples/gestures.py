@@ -191,6 +191,29 @@ class TapNode(TextRect):
         self.rect.color = "FF0000"
 
 
+class SwipeNode(TextRect):
+    def __init__(self, text, numFingers, **kwargs):
+        super(SwipeNode, self).__init__(text, **kwargs)
+
+        self.recognizer = ui.SwipeRecognizer(node=self, minDist=25, numFingers=numFingers,
+                direction=ui.SwipeRecognizer.RIGHT, possibleHandler=self.__onPossible, 
+                detectedHandler=self.__onDetected, failHandler=self.__onFail)
+
+    def __onPossible(self):
+        self.rect.fillcolor = "FFFFFF"
+        self.words.color = "000000"
+
+    def __onDetected(self):
+        self.rect.fillcolor = "000000"
+        self.words.color = "FFFFFF"
+        self.rect.color = "00FF00"
+
+    def __onFail(self):
+        self.rect.fillcolor = "000000"
+        self.words.color = "FFFFFF"
+        self.rect.color = "FF0000"
+
+
 class HoldNode(TextRect):
     def __init__(self, text, **kwargs):
         super(HoldNode, self).__init__(text, **kwargs)
@@ -258,6 +281,12 @@ class GestureDemoApp(libavg.AVGApp):
                 parent=self._parentNode)
 
         HoldNode(text="HoldRecognizer", pos=(380,120), parent=self._parentNode)
+
+        SwipeNode(text="SwipeRecognizer<br/>(Right)", pos=(380,170), 
+                numFingers=1, parent=self._parentNode)
+
+        SwipeNode(text="SwipeRecognizer<br/>(Right, 2 fingers)", pos=(380,220), 
+                numFingers=2, parent=self._parentNode)
 
 
 if __name__ == '__main__':

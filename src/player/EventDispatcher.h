@@ -38,13 +38,14 @@ class Player;
 
 class AVG_API EventDispatcher {
     public:
-        EventDispatcher(Player* pPlayer);
+        EventDispatcher(Player* pPlayer, bool bMouseEnabled);
         virtual ~EventDispatcher();
         void dispatch();
         
         void addInputDevice(IInputDevicePtr pInputDevice);
 
         void sendEvent(EventPtr pEvent);
+        void enableMouse(bool bEnabled);
         ContactPtr getContact(int id);
 
     private:
@@ -57,6 +58,7 @@ class AVG_API EventDispatcher {
         Player* m_pPlayer;
         std::map<int, ContactPtr> m_ContactMap;
         int m_NumMouseButtonsDown;
+        bool m_bMouseEnabled;
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 

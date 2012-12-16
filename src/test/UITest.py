@@ -49,7 +49,6 @@ class UITestCase(AVGTestCase):
             self.__messageTester.assertState(msgs)
             self.assert_(self.__keyCode == keyCode)
             self.compareImage(imageSrc)
-            self.__messageTester.reset()
 
         root = self.loadEmptyScene()
         self.__keyCode = ""
@@ -57,7 +56,6 @@ class UITestCase(AVGTestCase):
         # Keyboard without shift support, no feedback image.
         kbNoShift = createKbd((10, 10))
         self.__messageTester = MessageTester(kbNoShift, [], self)
-        self.__messageTester.reset()
 
         self.start(False,
                 (lambda: self.compareImage("testUIKeyboard"),
@@ -67,13 +65,11 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 30, 30),
                  lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
                         "a", "testUIKeyboard"),
-                 self.__messageTester.reset,
                  # test command key
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 100, 30),
                  lambda: assertState((ui.Keyboard.DOWN,), "SHIFT", "testUIKeyboardS"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 30),
                  lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
-                 self.__messageTester.reset,
                  # test multiple keys
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 100, 30),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 30, 30),
@@ -358,10 +354,6 @@ class UITestCase(AVGTestCase):
             self.messageTester.setMessageReceived(ui.ToggleButton.TOGGLED)
             self.toggled = isToggled
         
-        def reset():
-            self.messageTester.reset()
-            self.toggled = False
-
         def createScene(**kwargs):
             root = self.loadEmptyScene()
             button = ui.ToggleButton(
@@ -384,8 +376,7 @@ class UITestCase(AVGTestCase):
 
         def testToggle():
             self.start(False,
-                    (reset,
-                     lambda: self.compareImage("testUIToggleUnchecked_Up"),
+                    (lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
                              [ui.ToggleButton.PRESSED]),
                      lambda: self.assert_(not self.toggled),
@@ -403,8 +394,7 @@ class UITestCase(AVGTestCase):
 
         def testToggleAbort():
             self.start(False,
-                    (reset,
-                     lambda: self.compareImage("testUIToggleUnchecked_Up"),
+                    (lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleUnchecked_Down"),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 100, 0,
@@ -422,8 +412,7 @@ class UITestCase(AVGTestCase):
 
         def testToggleDisable():
             self.start(False,
-                    (reset,
-                     lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
+                    (lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
                      lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 0, 0),
                      lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
@@ -436,7 +425,6 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
                      
                      lambda: button.setEnabled(True),
-                     reset,
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),
                      lambda: self.compareImage("testUIToggleChecked_Up"),
@@ -476,6 +464,7 @@ class UITestCase(AVGTestCase):
                      lambda: self.compareImage("testUIToggleChecked_Disabled"),
                     ))
  
+        self.toggled = False
         button = createScene()
         testToggle()
         

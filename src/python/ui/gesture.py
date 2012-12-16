@@ -104,6 +104,10 @@ class Recognizer(avg.Publisher):
         assert(self.__stateMachine.state != "RUNNING")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
+        for contact in self._contacts:
+            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
+            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
+        self._contacts = set()
         self.notifySubscribers(Recognizer.FAILED, [])
 
     def _setDetected(self, event):
@@ -310,6 +314,76 @@ class DoubletapRecognizer(Recognizer):
 
     def __enterIdle(self):
         player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
+
+
+class SwipeRecognizer(Recognizer):
+
+    LEFT = 1
+    RIGHT = 2
+    UP = 3
+    DOWN = 4
+
+    SWIPE_DIRECTION_TOLERANCE = math.pi/8
+    MIN_SWIPE_DIST = 50
+    MAX_SWIPE_CONTACT_DIST = 100
+
+    def __init__(self, node, direction, numContacts=1, initialEvent=None, 
+            directionTolerance=SWIPE_DIRECTION_TOLERANCE, minDist=MIN_SWIPE_DIST, 
+            maxContactDist=MAX_SWIPE_CONTACT_DIST,
+            possibleHandler=None, failHandler=None, detectedHandler=None):
+
+        self.__numContacts = numContacts
+        self.__angleWanted = self.__angleFromDirection(direction)
+        self.__directionTolerance = directionTolerance
+        self.__minDist = minDist*player.getPixelsPerMM()
+        self.__maxInterContactDist = maxContactDist*player.getPixelsPerMM()
+        super(SwipeRecognizer, self).__init__(node, False, numContacts, 
+                initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
+                detectedHandler=detectedHandler)
+
+    def _handleDown(self, event):
+        if len(self._contacts) == 1:
+            self.__startPos = event.pos
+        else:
+            if (event.pos-self.__startPos).getNorm() > self.__maxInterContactDist:
+                self._setFail(event)
+                return
+        if len(self._contacts) == self.__numContacts:
+            self._setPossible(event)
+
+    def _handleMove(self, event):
+        pass
+
+    def _handleUp(self, event):
+        if self.getState() == "POSSIBLE":
+            if (event.contact.distancefromstart < self.__minDist or
+                    not(self.__isValidAngle(event.contact.motionangle))):
+                self._setFail(event)
+            elif len(self._contacts) == 0:
+                self._setDetected(event)
+
+    def __angleFromDirection(self, direction):
+        if direction == SwipeRecognizer.RIGHT:
+            return 0
+        elif direction == SwipeRecognizer.DOWN:
+            return math.pi/2
+        elif direction == SwipeRecognizer.LEFT:
+            return math.pi
+        elif direction == SwipeRecognizer.UP:
+            return 3*math.pi/2
+        else:
+            raise RuntimeError("%s is not a valid direction."%direction)
+
+    def __isValidAngle(self, angle):
+        if angle < 0:
+            angle += 2*math.pi
+        minAngle = self.__angleWanted - self.__directionTolerance
+        maxAngle = self.__angleWanted + self.__directionTolerance
+        if minAngle >= 0:
+            return angle > minAngle and angle < maxAngle
+        else:
+            # Valid range spans 0
+            return angle > minAngle+2*math.pi or angle < maxAngle
 
 
 class HoldRecognizer(Recognizer):
@@ -887,16 +961,19 @@ class InertiaHandler(object):
 
     
 def initConfig():
-    TransformRecognizer.FILTER_MIN_CUTOFF = float(
-            player.getConfigOption("gesture", "filtermincutoff"))
-    TransformRecognizer.FILTER_BETA = float(
-            player.getConfigOption("gesture", "filterbeta"))
-    TapRecognizer.MAX_TAP_DIST = float(player.getConfigOption("gesture", "maxtapdist"))
-    DoubletapRecognizer.MAX_DOUBLETAP_TIME = float(
-            player.getConfigOption("gesture", "maxdoubletaptime"))
-    DragRecognizer.MIN_DRAG_DIST = float(player.getConfigOption("gesture", "mindragdist"))
-    DragRecognizer.FRICTION = float(player.getConfigOption("gesture", "friction"))
-    HoldRecognizer.HOLD_DELAY = float(player.getConfigOption("gesture", "holddelay"))
+    def getFloatOption(name):
+        return float(player.getConfigOption("gesture", name))
+
+    TapRecognizer.MAX_TAP_DIST = getFloatOption("maxtapdist")
+    DoubletapRecognizer.MAX_DOUBLETAP_TIME = getFloatOption("maxdoubletaptime")
+    SwipeRecognizer.MIN_SWIPE_DIST = getFloatOption("minswipedist")
+    SwipeRecognizer.SWIPE_DIRECTION_TOLERANCE = getFloatOption("swipedirectiontolerance")
+    SwipeRecognizer.MAX_SWIPE_CONTACT_DIST = getFloatOption("maxswipecontactdist")
+    HoldRecognizer.HOLD_DELAY = getFloatOption("holddelay")
+    DragRecognizer.MIN_DRAG_DIST = getFloatOption("mindragdist")
+    DragRecognizer.FRICTION = getFloatOption("friction")
+    TransformRecognizer.FILTER_MIN_CUTOFF = getFloatOption("filtermincutoff")
+    TransformRecognizer.FILTER_BETA = getFloatOption("filterbeta")
 
 
 initConfig()

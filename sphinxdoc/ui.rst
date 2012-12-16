@@ -7,7 +7,7 @@ functionality
 .. automodule:: libavg.ui
     :no-members:
 
-    .. inheritance-diagram:: DragRecognizer TapRecognizer TransformRecognizer DoubletapRecognizer HoldRecognizer
+    .. inheritance-diagram:: DragRecognizer SwipeRecognizer TapRecognizer TransformRecognizer DoubletapRecognizer HoldRecognizer
         :parts: 1
 
     .. inheritance-diagram:: Button ToggleButton Keyboard
@@ -358,6 +358,34 @@ functionality
         .. py:method:: getState() -> String
 
             Returns the state ("IDLE", "POSSIBLE" or "RUNNING") of the recognizer.
+
+
+    .. autoclass:: SwipeRecognizer(node, direction, [numContacts=1, directionTolerance=SWIPE_DIRECTION_TOLERANCE, minDist=MIN_SWIPE_DIST, maxContactDist=MAX_SWIPE_CONTACT_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+
+        A :py:class:`SwipeRecognizer` detects movement of one or more contacts in a
+        specified direction and with a minimal distance. Whether the gesture is recognized
+        is determined when an up event occurs.
+
+        :param direction: 
+        
+            One of :py:const:`SwipeRecognizer.UP`, :py:const:`DOWN`, :py:const:`LEFT` or 
+            :py:const:`RIGHT`.
+
+        :param numContacts: The minimum number of contacts for the swipe.
+
+        :param directionTolerance: 
+        
+            Maximum deviation from the ideal direction that the touch(es) may have in
+            radians.
+
+        :param minDist: 
+        
+            Minimum distance between start position and end position of each contact in 
+            millimeters.
+
+        :param maxInterContactDist:
+
+            Maximum distance between the start positions of the different contacts.
 
 
     .. autoclass:: TapRecognizer(node, [maxTime=MAX_TAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])

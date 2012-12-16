@@ -327,7 +327,7 @@ void SoundNode::exceptionIfUnloaded(const std::string& sFuncName) const
 {
     if (m_State == Unloaded) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                string("SoundNode.")+sFuncName+" failed: video not loaded.");
+                string("SoundNode.")+sFuncName+" failed: sound not loaded.");
     }
 }
 

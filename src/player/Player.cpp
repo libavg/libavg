@@ -126,7 +126,8 @@ Player::Player()
       m_bPythonAvailable(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_EventHookPyFunc(Py_None)
+      m_EventHookPyFunc(Py_None),
+      m_bMouseEnabled(true)
 {
     string sDummy;
 #ifdef _WIN32
@@ -555,20 +556,18 @@ void Player::setFramerate(float rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
-    } else {
-        m_DP.m_Framerate = rate;
-        m_DP.m_VBRate = 0;
     }
+    m_DP.m_Framerate = rate;
+    m_DP.m_VBRate = 0;
 }
 
 void Player::setVBlankFramerate(int rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setVBlankRate(rate);
-    } else {
-        m_DP.m_Framerate = 0;
-        m_DP.m_VBRate = rate;
     }
+    m_DP.m_Framerate = 0;
+    m_DP.m_VBRate = rate;
 }
 
 float Player::getEffectiveFramerate()
@@ -698,6 +697,15 @@ void Player::enableMultitouch()
         }
     }
     addInputDevice(m_pMultitouchInputDevice);
+}
+
+void Player::enableMouse(bool enabled)
+{
+    m_bMouseEnabled = enabled;
+    
+    if (m_pEventDispatcher) {
+        m_pEventDispatcher->enableMouse(enabled);
+    }
 }
 
 bool Player::isMultitouchAvailable() const
@@ -1159,11 +1167,10 @@ void Player::setGamma(float red, float green, float blue)
 {
     if (m_pDisplayEngine) {
         m_pDisplayEngine->setGamma(red, green, blue);
-    } else {
-        m_DP.m_Gamma[0] = red;
-        m_DP.m_Gamma[1] = green;
-        m_DP.m_Gamma[2] = blue;
     }
+    m_DP.m_Gamma[0] = red;
+    m_DP.m_Gamma[1] = green;
+    m_DP.m_Gamma[2] = blue;
 }
 
 void Player::initConfig()
@@ -1277,7 +1284,7 @@ void Player::initAudio()
 
 void Player::initMainCanvas(NodePtr pRootNode)
 {
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
     m_DP.m_Size = m_pMainCanvas->getSize();

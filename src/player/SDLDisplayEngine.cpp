@@ -91,7 +91,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_ScreenResolution(0,0),
       m_PPMM(0),
       m_pScreen(0),
-      m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0),
@@ -135,13 +134,9 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     // on it don't use relative coordinates.
     setEnv("SDL_MOUSE_RELATIVE", "0");
 
-    string sTmp;
-    m_bDisableMouse = getEnv("AVG_DISABLE_MOUSE", sTmp);
-
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
-    calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -240,6 +235,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     FFMpegDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
+    m_ScreenResolution = IntPoint(0,0);
+    calcScreenDimensions(dp.m_DotsPerMM);
 }
 
 IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
@@ -491,15 +488,9 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
 
     while (SDL_PollEvent(&sdlEvent)) {
         EventPtr pNewEvent;
-        if (m_bDisableMouse &&
-                (sdlEvent.type == SDL_MOUSEMOTION || sdlEvent.type == SDL_MOUSEBUTTONDOWN ||
-                sdlEvent.type == SDL_MOUSEBUTTONUP))
-        {
-            continue;
-        }
         switch (sdlEvent.type) {
             case SDL_MOUSEMOTION:
-                if (m_bMouseOverApp) {
+                {
                     pNewEvent = createMouseEvent(Event::CURSOR_MOTION, sdlEvent, 
                             MouseEvent::NO_BUTTON);
                     CursorEventPtr pNewCursorEvent = 
