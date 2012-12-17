@@ -200,12 +200,12 @@ bool GLXContext::initVBlank(int rate)
         return false;
     }
 }
+
 bool GLXContext::useDepthBuffer() const
 {
     // NVidia GLX GLES doesn't allow framebuffer stencil without depth.
     return true;
 }
-
 
 void GLXContext::swapBuffers()
 {

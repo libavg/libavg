@@ -31,6 +31,7 @@
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
 #include "../graphics/FBO.h"
+#include "../graphics/DisplayInfo.h"
 
 #include <string>
 #include <vector>
@@ -78,7 +79,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
     private:
         void initTranslationTable();
-        void calcScreenDimensions(float dotsPerMM=0);
 
         bool internalSetGamma(float red, float green, float blue);
 
@@ -90,8 +90,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
-        IntPoint m_ScreenResolution;
-        float m_PPMM;
+        DisplayInfoPtr m_pDisplayInfo;
 
         SDL_Surface * m_pScreen;
 
