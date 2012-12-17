@@ -231,9 +231,9 @@ float GLXContext::calcRefreshRate()
     bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
             &pixelClock, &modeLine);
     if (!bOK) {
-        AVG_TRACE (Logger::WARNING, 
+        AVG_TRACE(Logger::WARNING, 
                 "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_TRACE (Logger::WARNING, 
+        AVG_TRACE(Logger::WARNING, 
                 "Defaulting to 60 Hz refresh rate.");
     }
     float HSyncRate = pixelClock*1000.0/modeLine.htotal;

@@ -1139,10 +1139,7 @@ float Player::getFramerate()
 
 float Player::getVideoRefreshRate()
 {
-    if (!m_pDisplayEngine) {
-        return 0;
-    }
-    return m_pDisplayEngine->getRefreshRate();
+    return GLContext::getRefreshRate();
 }
 
 size_t Player::getVideoMemInstalled()

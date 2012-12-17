@@ -55,7 +55,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         // From DisplayEngine
         virtual void teardown();
-        virtual float getRefreshRate();
         virtual void setGamma(float red, float green, float blue);
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;

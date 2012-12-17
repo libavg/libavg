@@ -275,11 +275,6 @@ void SDLDisplayEngine::teardown()
     }
 }
 
-float SDLDisplayEngine::getRefreshRate() 
-{
-    return GLContext::getRefreshRate();
-}
-
 void SDLDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
