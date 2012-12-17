@@ -76,6 +76,7 @@
     <ClInclude Include="..\..\src\graphics\BitmapManagerThread.h" />
     <ClInclude Include="..\..\src\graphics\BmpTextureMover.h" />
     <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
+    <ClInclude Include="..\..\src\graphics\DisplayInfo.h" />
     <ClInclude Include="..\..\src\graphics\FBO.h" />
     <ClInclude Include="..\..\src\graphics\Filter.h" />
     <ClInclude Include="..\..\src\graphics\Filter3x3.h" />
@@ -150,6 +151,7 @@
     <ClCompile Include="..\..\src\graphics\BitmapManagerMsg.cpp" />
     <ClCompile Include="..\..\src\graphics\BitmapManagerThread.cpp" />
     <ClCompile Include="..\..\src\graphics\BmpTextureMover.cpp" />
+    <ClCompile Include="..\..\src\graphics\DisplayInfo.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter3x3.cpp" />
