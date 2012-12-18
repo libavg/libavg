@@ -542,6 +542,7 @@ void Player::initPlayback(const std::string& sShaderPath)
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
 
     m_pDisplayEngine->initRender();
+    m_pDisplayInfo->rereadScreenResolution();
     m_bStopping = false;
     if (m_pMultitouchInputDevice) {
         m_pMultitouchInputDevice->start();

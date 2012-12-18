@@ -55,6 +55,11 @@ DisplayInfo::~DisplayInfo()
 {
 }
 
+void DisplayInfo::rereadScreenResolution()
+{
+    m_ScreenResolution = queryScreenResolution();
+}
+
 IntPoint DisplayInfo::getScreenResolution()
 {
     return m_ScreenResolution;

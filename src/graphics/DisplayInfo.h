@@ -36,6 +36,7 @@ class AVG_API DisplayInfo
 public:
     DisplayInfo();
     virtual ~DisplayInfo();
+    void rereadScreenResolution();
  
     IntPoint getScreenResolution();
     float getPixelsPerMM();
