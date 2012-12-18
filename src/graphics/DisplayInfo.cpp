@@ -67,7 +67,9 @@ float DisplayInfo::getPixelsPerMM()
 
 void DisplayInfo::assumePixelsPerMM(float ppmm)
 {
-    m_PPMM = ppmm;
+    if (ppmm != 0) {
+        m_PPMM = ppmm;
+    }
 }
 
 glm::vec2 DisplayInfo::getPhysicalScreenDimensions()
