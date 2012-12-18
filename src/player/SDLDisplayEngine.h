@@ -48,6 +48,7 @@ class GLContext;
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
+        static void initSDL();
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
         virtual void init(const DisplayParams& dp, GLConfig glConfig);

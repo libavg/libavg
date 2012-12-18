@@ -148,6 +148,8 @@ Player::Player()
     }
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
+
+    SDLDisplayEngine::initSDL();
     m_pDisplayInfo = DisplayInfoPtr(new DisplayInfo());
     initConfig();
 

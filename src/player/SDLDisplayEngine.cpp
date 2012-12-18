@@ -85,14 +85,7 @@ using namespace std;
 
 namespace avg {
 
-SDLDisplayEngine::SDLDisplayEngine()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
-      m_WindowSize(0,0),
-      m_pScreen(0),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_NumMouseButtonsDown(0),
-      m_pGLContext(0)
+void SDLDisplayEngine::initSDL()
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -111,6 +104,19 @@ SDLDisplayEngine::SDLDisplayEngine()
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);
     }
+}
+
+SDLDisplayEngine::SDLDisplayEngine()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
+      m_WindowSize(0,0),
+      m_pScreen(0),
+      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
+      m_NumMouseButtonsDown(0),
+      m_pGLContext(0)
+{
+    initSDL();
+
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
