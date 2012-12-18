@@ -101,10 +101,13 @@ float DisplayInfo::queryPPMM()
 
 IntPoint DisplayInfo::queryScreenResolution()
 {
-#ifdef AVG_ENABLE_XINERAMA
+    IntPoint size;
+#ifdef __linux__
+    bool bXinerama = false;
     Display * pDisplay = XOpenDisplay(0);
+#ifdef AVG_ENABLE_XINERAMA
     int dummy1, dummy2;
-    Bool bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
+    bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
     if (bXinerama) {
         bXinerama = XineramaIsActive(pDisplay);
     }
@@ -120,17 +123,21 @@ IntPoint DisplayInfo::queryScreenResolution()
                 pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
         }
         */
-        return IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
+        size = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
         XFree(pScreenInfo);
-    } else {
-        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        return IntPoint(pInfo->current_w, pInfo->current_h);
+    }
+#endif
+    if (!bXinerama) {
+        Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
+        AVG_ASSERT(pScreen);
+        size = IntPoint(pScreen->width, pScreen->height);
     }
     XCloseDisplay(pDisplay);
 #else
     const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-    return IntPoint(pInfo->current_w, pInfo->current_h);
+    size = IntPoint(pInfo->current_w, pInfo->current_h);
 #endif
+    return size;
 }
 
 }
