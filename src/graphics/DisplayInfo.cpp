@@ -45,11 +45,10 @@ using namespace std;
 
 namespace avg {
 
-DisplayInfo::DisplayInfo(float ppmm)
-    : m_ScreenResolution(0,0),
-      m_PPMM(0)
+DisplayInfo::DisplayInfo()
 {
-    calcScreenDimensions(ppmm);
+    m_ScreenResolution = queryScreenResolution();
+    m_PPMM = queryPPMM();
 }
 
 DisplayInfo::~DisplayInfo()
@@ -58,14 +57,11 @@ DisplayInfo::~DisplayInfo()
 
 IntPoint DisplayInfo::getScreenResolution()
 {
-    calcScreenDimensions();
     return m_ScreenResolution;
 }
 
 float DisplayInfo::getPixelsPerMM()
 {
-    calcScreenDimensions();
-
     return m_PPMM;
 }
 
@@ -76,7 +72,6 @@ void DisplayInfo::assumePixelsPerMM(float ppmm)
 
 glm::vec2 DisplayInfo::getPhysicalScreenDimensions()
 {
-    calcScreenDimensions();
     glm::vec2 size;
     glm::vec2 screenRes = glm::vec2(getScreenResolution());
     size.x = screenRes.x/m_PPMM;
@@ -84,60 +79,56 @@ glm::vec2 DisplayInfo::getPhysicalScreenDimensions()
     return size;
 }
 
-void DisplayInfo::calcScreenDimensions(float ppmm)
+float DisplayInfo::queryPPMM()
 {
-    if (m_ScreenResolution.x == 0) {
-#ifdef AVG_ENABLE_XINERAMA
-        Display * pDisplay = XOpenDisplay(0);
-        int dummy1, dummy2;
-        Bool bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
-        if (bXinerama) {
-            bXinerama = XineramaIsActive(pDisplay);
-        }
-        if (bXinerama) {
-            int numHeads = 0;
-            XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
-            AVG_ASSERT(numHeads >= 1);
-/*
-            cerr << "Num heads: " << numHeads << endl;
-            for (int x=0; x<numHeads; ++x) {
-                cout << "Head " << x+1 << ": " <<
-                    pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
-                    pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
-            }
-            */
-            m_ScreenResolution = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
-            XFree(pScreenInfo);
-        } else {
-            const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-            m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-        }
-        XCloseDisplay(pDisplay);
-#else
-        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-#endif
-    }
-    if (ppmm != 0) {
-        m_PPMM = ppmm;
-    }
-
-    if (m_PPMM == 0) {
 #ifdef WIN32
-        HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-        m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
+    HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+    return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
-    #ifdef linux
-        Display * pDisplay = XOpenDisplay(0);
-        glm::vec2 displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
-    #elif defined __APPLE__
-        CGSize size = CGDisplayScreenSize(CGMainDisplayID());
-        glm::vec2 displayMM(size.width, size.height);
-    #endif
-        // Non-Square pixels cause errors here. We'll fix that when it happens.
-        m_PPMM = m_ScreenResolution.x/displayMM.x;
+#ifdef linux
+    Display * pDisplay = XOpenDisplay(0);
+    glm::vec2 displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
+#elif defined __APPLE__
+    CGSize size = CGDisplayScreenSize(CGMainDisplayID());
+    glm::vec2 displayMM(size.width, size.height);
 #endif
+    // Non-Square pixels cause errors here. We'll fix that when it happens.
+    return m_ScreenResolution.x/displayMM.x;
+#endif
+}
+
+IntPoint DisplayInfo::queryScreenResolution()
+{
+#ifdef AVG_ENABLE_XINERAMA
+    Display * pDisplay = XOpenDisplay(0);
+    int dummy1, dummy2;
+    Bool bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
+    if (bXinerama) {
+        bXinerama = XineramaIsActive(pDisplay);
     }
+    if (bXinerama) {
+        int numHeads = 0;
+        XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
+        AVG_ASSERT(numHeads >= 1);
+        /*
+        cerr << "Num heads: " << numHeads << endl;
+        for (int x=0; x<numHeads; ++x) {
+            cout << "Head " << x+1 << ": " <<
+                pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
+                pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
+        }
+        */
+        return IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
+        XFree(pScreenInfo);
+    } else {
+        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+        return IntPoint(pInfo->current_w, pInfo->current_h);
+    }
+    XCloseDisplay(pDisplay);
+#else
+    const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+    return IntPoint(pInfo->current_w, pInfo->current_h);
+#endif
 }
 
 }

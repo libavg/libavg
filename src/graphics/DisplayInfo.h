@@ -34,7 +34,7 @@ namespace avg {
 class AVG_API DisplayInfo
 {
 public:
-    DisplayInfo(float ppmm);
+    DisplayInfo();
     virtual ~DisplayInfo();
  
     IntPoint getScreenResolution();
@@ -43,7 +43,8 @@ public:
     glm::vec2 getPhysicalScreenDimensions();
     
 private:
-    void calcScreenDimensions(float ppmm=0);
+    float queryPPMM();
+    IntPoint queryScreenResolution();
 
     IntPoint m_ScreenResolution;
     float m_PPMM;

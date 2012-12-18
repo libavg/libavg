@@ -233,7 +233,10 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     FFMpegDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
-    m_pDisplayInfo = DisplayInfoPtr(new DisplayInfo(dp.m_DotsPerMM));
+    m_pDisplayInfo = DisplayInfoPtr(new DisplayInfo());
+    if (dp.m_DotsPerMM != 0) {
+        m_pDisplayInfo->assumePixelsPerMM(dp.m_DotsPerMM);
+    }
 }
 
 IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
