@@ -185,7 +185,7 @@ void OffscreenCanvas::addDependentCanvas(CanvasPtr pCanvas)
     m_pDependentCanvases.push_back(pCanvas);
     try {
         Player::get()->newCanvasDependency();
-    } catch (Exception& e) {
+    } catch (Exception&) {
         m_pDependentCanvases.pop_back();
         throw;
     }
