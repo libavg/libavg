@@ -31,7 +31,6 @@
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
 #include "../graphics/FBO.h"
-#include "../graphics/DisplayInfo.h"
 
 #include <string>
 #include <vector>
@@ -71,10 +70,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
-        IntPoint getScreenResolution();
-        float getPixelsPerMM();
-        glm::vec2 getPhysicalScreenDimensions();
-        void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
 
     private:
@@ -90,7 +85,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
-        DisplayInfoPtr m_pDisplayInfo;
 
         SDL_Surface * m_pScreen;
 

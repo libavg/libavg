@@ -80,6 +80,7 @@
 #include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
+#include "../graphics/DisplayInfo.h"
 
 #include "../imaging/Camera.h"
 
@@ -147,6 +148,7 @@ Player::Player()
     }
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
+    m_pDisplayInfo = DisplayInfoPtr(new DisplayInfo());
     initConfig();
 
     // Register all node types
@@ -293,23 +295,23 @@ void Player::enableGLErrorChecks(bool bEnable)
         
 glm::vec2 Player::getScreenResolution()
 {
-    return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
+    return glm::vec2(m_pDisplayInfo->getScreenResolution());
 }
 
 float Player::getPixelsPerMM()
 {
-    return safeGetDisplayEngine()->getPixelsPerMM();
+    return m_pDisplayInfo->getPixelsPerMM();
 }
 
 glm::vec2 Player::getPhysicalScreenDimensions()
 {
-    return safeGetDisplayEngine()->getPhysicalScreenDimensions();
+    return m_pDisplayInfo->getPhysicalScreenDimensions();
 }
 
 void Player::assumePixelsPerMM(float ppmm)
 {
     m_DP.m_DotsPerMM = ppmm;
-    safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
+    m_pDisplayInfo->assumePixelsPerMM(m_DP.m_DotsPerMM);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -1236,6 +1238,7 @@ void Player::initConfig()
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
+    m_pDisplayInfo->assumePixelsPerMM(m_DP.m_DotsPerMM);
 }
 
 void Player::initGraphics(const string& sShaderPath)
@@ -1261,7 +1264,7 @@ void Player::initGraphics(const string& sShaderPath)
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 
-            << m_pDisplayEngine->getPixelsPerMM());
+            << m_pDisplayInfo->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }

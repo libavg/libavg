@@ -59,6 +59,7 @@ class EventDispatcher;
 class MouseEvent;
 class CursorEvent;
 class SDLDisplayEngine;
+class DisplayInfo;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -70,6 +71,7 @@ typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+typedef boost::shared_ptr<DisplayInfo> DisplayInfoPtr;
 
 class AVG_API Player: public Publisher
 {
@@ -252,6 +254,7 @@ class AVG_API Player: public Publisher
         DisplayParams m_DP;
         AudioParams m_AP;
         GLConfig m_GLConfig;
+        DisplayInfoPtr m_pDisplayInfo;
 
         bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;

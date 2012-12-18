@@ -233,10 +233,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     FFMpegDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
-    m_pDisplayInfo = DisplayInfoPtr(new DisplayInfo());
-    if (dp.m_DotsPerMM != 0) {
-        m_pDisplayInfo->assumePixelsPerMM(dp.m_DotsPerMM);
-    }
 }
 
 IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
@@ -844,26 +840,6 @@ const IntPoint& SDLDisplayEngine::getWindowSize() const
 bool SDLDisplayEngine::isFullscreen() const
 {
     return m_bIsFullscreen;
-}
-
-IntPoint SDLDisplayEngine::getScreenResolution()
-{
-    return m_pDisplayInfo->getScreenResolution();
-}
-
-float SDLDisplayEngine::getPixelsPerMM()
-{
-    return m_pDisplayInfo->getPixelsPerMM();
-}
-
-glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
-{
-    return m_pDisplayInfo->getPhysicalScreenDimensions();
-}
-
-void SDLDisplayEngine::assumePixelsPerMM(float ppmm)
-{
-    m_pDisplayInfo->assumePixelsPerMM(ppmm);
 }
 
 }
