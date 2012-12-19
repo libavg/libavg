@@ -56,7 +56,7 @@ private:
 
     int m_LastID;
 
-    static Display* s_pDisplay;
+    static ::Display* s_pDisplay;
     void (*m_SDLLockFunc)(void);
     void (*m_SDLUnlockFunc)(void);
 

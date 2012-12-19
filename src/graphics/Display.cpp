@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DisplayInfo.h"
+#include "Display.h"
 #include "Bitmap.h"
 
 #include "../base/Exception.h"
@@ -45,18 +45,18 @@ using namespace std;
 
 namespace avg {
 
-DisplayInfo::DisplayInfo()
+Display::Display()
 {
     m_bAutoPPMM = true;
     m_ScreenResolution = queryScreenResolution();
     m_PPMM = queryPPMM();
 }
 
-DisplayInfo::~DisplayInfo()
+Display::~Display()
 {
 }
 
-void DisplayInfo::rereadScreenResolution()
+void Display::rereadScreenResolution()
 {
     m_ScreenResolution = queryScreenResolution();
     if (m_bAutoPPMM) {
@@ -64,17 +64,17 @@ void DisplayInfo::rereadScreenResolution()
     }
 }
 
-IntPoint DisplayInfo::getScreenResolution()
+IntPoint Display::getScreenResolution()
 {
     return m_ScreenResolution;
 }
 
-float DisplayInfo::getPixelsPerMM()
+float Display::getPixelsPerMM()
 {
     return m_PPMM;
 }
 
-void DisplayInfo::assumePixelsPerMM(float ppmm)
+void Display::assumePixelsPerMM(float ppmm)
 {
     if (ppmm != 0) {
         m_PPMM = ppmm;
@@ -82,7 +82,7 @@ void DisplayInfo::assumePixelsPerMM(float ppmm)
     }
 }
 
-glm::vec2 DisplayInfo::getPhysicalScreenDimensions()
+glm::vec2 Display::getPhysicalScreenDimensions()
 {
     glm::vec2 size;
     glm::vec2 screenRes = glm::vec2(getScreenResolution());
@@ -91,14 +91,14 @@ glm::vec2 DisplayInfo::getPhysicalScreenDimensions()
     return size;
 }
 
-float DisplayInfo::queryPPMM()
+float Display::queryPPMM()
 {
 #ifdef WIN32
     HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
     return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
 #ifdef linux
-    Display * pDisplay = XOpenDisplay(0);
+    ::Display * pDisplay = XOpenDisplay(0);
     glm::vec2 displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
 #elif defined __APPLE__
     CGSize size = CGDisplayScreenSize(CGMainDisplayID());
@@ -109,12 +109,12 @@ float DisplayInfo::queryPPMM()
 #endif
 }
 
-IntPoint DisplayInfo::queryScreenResolution()
+IntPoint Display::queryScreenResolution()
 {
     IntPoint size;
 #ifdef __linux__
     bool bXinerama = false;
-    Display * pDisplay = XOpenDisplay(0);
+    ::Display * pDisplay = XOpenDisplay(0);
 #ifdef AVG_ENABLE_XINERAMA
     int dummy1, dummy2;
     bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);

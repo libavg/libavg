@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _DisplayInfo_H_
-#define _DisplayInfo_H_
+#ifndef _Display_H_
+#define _Display_H_
 
 #include "../api.h"
 #include "../avgconfigwrapper.h"
@@ -31,11 +31,11 @@
 
 namespace avg {
 
-class AVG_API DisplayInfo
+class AVG_API Display
 {
 public:
-    DisplayInfo();
-    virtual ~DisplayInfo();
+    Display();
+    virtual ~Display();
     void rereadScreenResolution();
  
     IntPoint getScreenResolution();
@@ -52,7 +52,7 @@ private:
     bool m_bAutoPPMM; // true if assumePixelsPerMM hasn't been called.
 };
 
-typedef boost::shared_ptr<DisplayInfo> DisplayInfoPtr;
+typedef boost::shared_ptr<Display> DisplayPtr;
 
 }
  

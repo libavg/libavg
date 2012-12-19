@@ -80,7 +80,7 @@
 #include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
-#include "../graphics/DisplayInfo.h"
+#include "../graphics/Display.h"
 
 #include "../imaging/Camera.h"
 
@@ -150,7 +150,7 @@ Player::Player()
     pProfiler->setName("main");
 
     SDLDisplayEngine::initSDL();
-    m_pDisplayInfo = DisplayInfoPtr(new DisplayInfo());
+    m_pDisplay = DisplayPtr(new Display());
     initConfig();
 
     // Register all node types
@@ -297,22 +297,22 @@ void Player::enableGLErrorChecks(bool bEnable)
         
 glm::vec2 Player::getScreenResolution()
 {
-    return glm::vec2(m_pDisplayInfo->getScreenResolution());
+    return glm::vec2(m_pDisplay->getScreenResolution());
 }
 
 float Player::getPixelsPerMM()
 {
-    return m_pDisplayInfo->getPixelsPerMM();
+    return m_pDisplay->getPixelsPerMM();
 }
 
 glm::vec2 Player::getPhysicalScreenDimensions()
 {
-    return m_pDisplayInfo->getPhysicalScreenDimensions();
+    return m_pDisplay->getPhysicalScreenDimensions();
 }
 
 void Player::assumePixelsPerMM(float ppmm)
 {
-    m_pDisplayInfo->assumePixelsPerMM(ppmm);
+    m_pDisplay->assumePixelsPerMM(ppmm);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -541,7 +541,7 @@ void Player::initPlayback(const std::string& sShaderPath)
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
 
     m_pDisplayEngine->initRender();
-    m_pDisplayInfo->rereadScreenResolution();
+    m_pDisplay->rereadScreenResolution();
     m_bStopping = false;
     if (m_pMultitouchInputDevice) {
         m_pMultitouchInputDevice->start();
@@ -1240,7 +1240,7 @@ void Player::initConfig()
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
     float dotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
-    m_pDisplayInfo->assumePixelsPerMM(dotsPerMM);
+    m_pDisplay->assumePixelsPerMM(dotsPerMM);
 }
 
 void Player::initGraphics(const string& sShaderPath)
@@ -1265,8 +1265,7 @@ void Player::initGraphics(const string& sShaderPath)
     {
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
-    AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 
-            << m_pDisplayInfo->getPixelsPerMM());
+    AVG_TRACE(Logger::CONFIG, "Pixels per mm: " << m_pDisplay->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
