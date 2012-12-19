@@ -312,8 +312,7 @@ glm::vec2 Player::getPhysicalScreenDimensions()
 
 void Player::assumePixelsPerMM(float ppmm)
 {
-    m_DP.m_DotsPerMM = ppmm;
-    m_pDisplayInfo->assumePixelsPerMM(m_DP.m_DotsPerMM);
+    m_pDisplayInfo->assumePixelsPerMM(ppmm);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -1191,7 +1190,6 @@ void Player::initConfig()
 
     m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
-    m_DP.m_DotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
         AVG_TRACE(Logger::ERROR,
@@ -1241,7 +1239,8 @@ void Player::initConfig()
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
-    m_pDisplayInfo->assumePixelsPerMM(m_DP.m_DotsPerMM);
+    float dotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
+    m_pDisplayInfo->assumePixelsPerMM(dotsPerMM);
 }
 
 void Player::initGraphics(const string& sShaderPath)
