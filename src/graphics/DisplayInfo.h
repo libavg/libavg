@@ -49,6 +49,7 @@ private:
 
     IntPoint m_ScreenResolution;
     float m_PPMM;
+    bool m_bAutoPPMM; // true if assumePixelsPerMM hasn't been called.
 };
 
 typedef boost::shared_ptr<DisplayInfo> DisplayInfoPtr;

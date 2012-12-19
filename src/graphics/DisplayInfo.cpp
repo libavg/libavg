@@ -47,6 +47,7 @@ namespace avg {
 
 DisplayInfo::DisplayInfo()
 {
+    m_bAutoPPMM = true;
     m_ScreenResolution = queryScreenResolution();
     m_PPMM = queryPPMM();
 }
@@ -58,6 +59,9 @@ DisplayInfo::~DisplayInfo()
 void DisplayInfo::rereadScreenResolution()
 {
     m_ScreenResolution = queryScreenResolution();
+    if (m_bAutoPPMM) {
+        m_PPMM = queryPPMM();
+    }
 }
 
 IntPoint DisplayInfo::getScreenResolution()
@@ -74,6 +78,7 @@ void DisplayInfo::assumePixelsPerMM(float ppmm)
 {
     if (ppmm != 0) {
         m_PPMM = ppmm;
+        m_bAutoPPMM = false;
     }
 }
 
