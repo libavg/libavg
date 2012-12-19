@@ -31,11 +31,15 @@
 
 namespace avg {
 
+class Display;
+typedef boost::shared_ptr<Display> DisplayPtr;
+
 class AVG_API Display
 {
 public:
-    Display();
+    static DisplayPtr create();
     virtual ~Display();
+    void init();
     void rereadScreenResolution();
  
     IntPoint getScreenResolution();
@@ -43,16 +47,17 @@ public:
     void assumePixelsPerMM(float ppmm);
     glm::vec2 getPhysicalScreenDimensions();
     
-private:
-    float queryPPMM();
-    IntPoint queryScreenResolution();
+protected:
+    Display();
 
+    virtual float queryPPMM();
+    virtual IntPoint queryScreenResolution();
+
+private:
     IntPoint m_ScreenResolution;
     float m_PPMM;
     bool m_bAutoPPMM; // true if assumePixelsPerMM hasn't been called.
 };
-
-typedef boost::shared_ptr<Display> DisplayPtr;
 
 }
  

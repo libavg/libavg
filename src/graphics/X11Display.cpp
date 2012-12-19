@@ -30,9 +30,24 @@
 
 namespace avg {
 
-Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo)
+X11Display::X11Display()
 {
-    Display* pDisplay;
+}
+
+X11Display::~X11Display()
+{
+}
+ 
+float X11Display::queryPPMM()
+{
+    ::Display * pDisplay = XOpenDisplay(0);
+    return getScreenResolution().x/DisplayWidthMM(pDisplay, 0);
+}
+
+
+::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo)
+{
+    ::Display* pDisplay;
     if (pSDLWMInfo) {
         // SDL window exists, use it.
         pDisplay = pSDLWMInfo->info.x11.display;
@@ -51,7 +66,7 @@ Window createChildWindow(const SDL_SysWMinfo* pSDLWMInfo, XVisualInfo* pVisualIn
 {
     // Create a child window with the required attributes to render into.
     XSetWindowAttributes swa;
-    Display* pDisplay = pSDLWMInfo->info.x11.display;
+    ::Display* pDisplay = pSDLWMInfo->info.x11.display;
     colormap = XCreateColormap(pDisplay, RootWindow(pDisplay, pVisualInfo->screen),
             pVisualInfo->visual, AllocNone);
     swa.colormap = colormap;

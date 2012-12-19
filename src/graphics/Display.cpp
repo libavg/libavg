@@ -20,6 +20,7 @@
 //
 
 #include "Display.h"
+#include "X11Display.h"
 #include "Bitmap.h"
 
 #include "../base/Exception.h"
@@ -45,15 +46,30 @@ using namespace std;
 
 namespace avg {
 
+DisplayPtr Display::create()
+{
+#ifdef __linux__
+    DisplayPtr pDisplay = DisplayPtr(new X11Display());
+#else
+    DisplayPtr pDisplay = DisplayPtr(new Display());
+#endif
+    pDisplay->init();
+    return pDisplay;
+}
+
 Display::Display()
 {
     m_bAutoPPMM = true;
-    m_ScreenResolution = queryScreenResolution();
-    m_PPMM = queryPPMM();
 }
 
 Display::~Display()
 {
+}
+
+void Display::init()
+{
+    m_ScreenResolution = queryScreenResolution();
+    m_PPMM = queryPPMM();
 }
 
 void Display::rereadScreenResolution()
@@ -97,15 +113,14 @@ float Display::queryPPMM()
     HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
     return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
-#ifdef linux
-    ::Display * pDisplay = XOpenDisplay(0);
-    glm::vec2 displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
-#elif defined __APPLE__
+#ifdef __APPLE__
     CGSize size = CGDisplayScreenSize(CGMainDisplayID());
     glm::vec2 displayMM(size.width, size.height);
-#endif
-    // Non-Square pixels cause errors here. We'll fix that when it happens.
     return m_ScreenResolution.x/displayMM.x;
+#else
+    AVG_ASSERT(false);
+    return 0;
+#endif
 #endif
 }
 

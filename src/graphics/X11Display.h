@@ -22,6 +22,8 @@
 #define _X11Display_H_
 #include "../api.h"
 
+#include "Display.h"
+
 #include "../base/GLMHelper.h"
 
 #include "OGLHelper.h"
@@ -30,7 +32,17 @@ struct SDL_SysWMinfo;
 
 namespace avg {
 
-Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo);
+class AVG_API X11Display: public Display
+{
+public:
+    X11Display();
+    virtual ~X11Display();
+ 
+protected:
+    virtual float queryPPMM();
+};
+
+::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo);
 
 Window createChildWindow(const SDL_SysWMinfo* pSDLWMInfo, XVisualInfo* pVisualInfo,
         const IntPoint& windowSize, Colormap& colormap);

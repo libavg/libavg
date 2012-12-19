@@ -150,7 +150,7 @@ Player::Player()
     pProfiler->setName("main");
 
     SDLDisplayEngine::initSDL();
-    m_pDisplay = DisplayPtr(new Display());
+    m_pDisplay = Display::create();
     initConfig();
 
     // Register all node types

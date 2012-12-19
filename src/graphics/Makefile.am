@@ -93,5 +93,5 @@ testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
         ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
-        @GDK_PIXBUF_LIBS@
+        @GDK_PIXBUF_LIBS@ @LIBXINERAMA_LDADD@
 

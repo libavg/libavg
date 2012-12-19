@@ -48,9 +48,9 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
 }
 
 static bool s_bX11Error;
-static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
+static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
-int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
+int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
 {
     cerr << "X11 error creating GL context: " << (int)(pErrEvent->request_code)
             << ", " << (int)(pErrEvent->minor_code) << endl;
@@ -225,7 +225,7 @@ bool GLXContext::haveARBCreateContext()
 
 float GLXContext::calcRefreshRate()
 {
-    Display * pDisplay = XOpenDisplay(0);
+    ::Display * pDisplay = XOpenDisplay(0);
     int pixelClock;
     XF86VidModeModeLine modeLine;
     bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
