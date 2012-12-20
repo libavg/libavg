@@ -27,6 +27,10 @@
 #include <SDL/SDL_syswm.h>
 
 #include <X11/extensions/xf86vmode.h>
+#ifdef AVG_ENABLE_XINERAMA
+#include <X11/extensions/Xinerama.h>
+#endif
+
 
 namespace avg {
 
@@ -41,7 +45,43 @@ X11Display::~X11Display()
 float X11Display::queryPPMM()
 {
     ::Display * pDisplay = XOpenDisplay(0);
-    return getScreenResolution().x/DisplayWidthMM(pDisplay, 0);
+    return getScreenResolution().x/float(DisplayWidthMM(pDisplay, 0));
+}
+
+IntPoint X11Display::queryScreenResolution()
+{
+    IntPoint size;
+    bool bXinerama = false;
+    ::Display * pDisplay = XOpenDisplay(0);
+#ifdef AVG_ENABLE_XINERAMA
+    int dummy1, dummy2;
+    bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
+    if (bXinerama) {
+        bXinerama = XineramaIsActive(pDisplay);
+    }
+    if (bXinerama) {
+        int numHeads = 0;
+        XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
+        AVG_ASSERT(numHeads >= 1);
+        /*
+        cerr << "Num heads: " << numHeads << endl;
+        for (int x=0; x<numHeads; ++x) {
+            cout << "Head " << x+1 << ": " <<
+                pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
+                pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
+        }
+        */
+        size = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
+        XFree(pScreenInfo);
+    }
+#endif
+    if (!bXinerama) {
+        Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
+        AVG_ASSERT(pScreen);
+        size = IntPoint(pScreen->width, pScreen->height);
+    }
+    XCloseDisplay(pDisplay);
+    return size;
 }
 
 

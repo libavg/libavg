@@ -40,6 +40,7 @@ public:
  
 protected:
     virtual float queryPPMM();
+    virtual IntPoint queryScreenResolution();
 };
 
 ::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo);
