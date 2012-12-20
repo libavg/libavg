@@ -26,24 +26,15 @@
 #ifdef __APPLE__
 #include "AppleDisplay.h"
 #endif
+#ifdef _WIN32
+#include "WinDisplay.h"
+#endif
 #include "Bitmap.h"
 
-#include "../base/Exception.h"
 #include "../base/Logger.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
-// Temp for queryRefreshRate
-#ifdef __APPLE__
-    #include "CGLContext.h"
-#elif defined _WIN32
-    #include "WGLContext.h"
-#endif
 
 #include <iostream>
 
@@ -59,8 +50,10 @@ DisplayPtr Display::get()
         s_pDisplay = DisplayPtr(new X11Display());
 #elif defined __APPLE__
         s_pDisplay = DisplayPtr(new AppleDisplay());
+#elif defined _WIN32
+        s_pDisplay = DisplayPtr(new WinDisplay());
 #else
-        s_pDisplay = DisplayPtr(new Display());
+        AVG_ASSERT(false);
 #endif
         s_pDisplay->init();
     }
@@ -118,17 +111,6 @@ glm::vec2 Display::getPhysicalScreenDimensions()
     return size;
 }
 
-float Display::queryPPMM()
-{
-#ifdef WIN32
-    HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-    return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
-#else
-    AVG_ASSERT(false);
-    return 0;
-#endif
-}
-
 IntPoint Display::queryScreenResolution()
 {
     const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
@@ -142,16 +124,6 @@ float Display::getRefreshRate()
         AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << m_RefreshRate);
     }
     return m_RefreshRate;
-}
-
-float Display::queryRefreshRate()
-{
-#ifdef _WIN32
-    return WGLContext::calcRefreshRate();
-#else
-    AVG_ASSERT(false);
-    return 0.0;
-#endif
 }
 
 }

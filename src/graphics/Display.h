@@ -50,10 +50,10 @@ public:
     
 protected:
     Display();
-
-    virtual float queryPPMM();
+    
+    virtual float queryPPMM()=0;
     virtual IntPoint queryScreenResolution();
-    virtual float queryRefreshRate();
+    virtual float queryRefreshRate()=0;
 
 private:
     IntPoint m_ScreenResolution;

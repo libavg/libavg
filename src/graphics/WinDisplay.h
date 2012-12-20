@@ -18,38 +18,28 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _WGLContext_H_
-#define _WGLContext_H_
+
+#ifndef _WinDisplay_H_
+#define _WinDisplay_H_
+
 #include "../api.h"
+#include "../avgconfigwrapper.h"
 
-#include "GLContext.h"
-
-#include <boost/shared_ptr.hpp>
-
-struct SDL_SysWMinfo;
+#include "Display.h"
 
 namespace avg {
 
-class AVG_API WGLContext: public GLContext
+class AVG_API WinDisplay: public Display
 {
 public:
-    WGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-            const SDL_SysWMinfo* pSDLWMInfo=0);
-    virtual ~WGLContext();
-
-    void activate();
-
-    bool initVBlank(int rate);
-
-private:
-    void checkWinError(BOOL bOK, const std::string& sWhere);
-
-    HWND m_hwnd;
-    HDC m_hDC;
-    HGLRC m_Context;
+    WinDisplay();
+    virtual ~WinDisplay();
+    
+protected:
+    virtual float queryPPMM();
+    virtual float queryRefreshRate();
 };
 
 }
+ 
 #endif
-
-

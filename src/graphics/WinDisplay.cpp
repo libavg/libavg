@@ -18,38 +18,44 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _WGLContext_H_
-#define _WGLContext_H_
-#include "../api.h"
 
-#include "GLContext.h"
+#include "WinDisplay.h"
 
-#include <boost/shared_ptr.hpp>
+#include <windows.h>
 
-struct SDL_SysWMinfo;
+using namespace std;
 
 namespace avg {
 
-class AVG_API WGLContext: public GLContext
+
+
+WinDisplay::WinDisplay()
 {
-public:
-    WGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-            const SDL_SysWMinfo* pSDLWMInfo=0);
-    virtual ~WGLContext();
+}
 
-    void activate();
+WinDisplay::~WinDisplay()
+{
+}
 
-    bool initVBlank(int rate);
 
-private:
-    void checkWinError(BOOL bOK, const std::string& sWhere);
 
-    HWND m_hwnd;
-    HDC m_hDC;
-    HGLRC m_Context;
-};
+float WinDisplay::queryPPMM()
+{
+    HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+    return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
+}
+
+float WinDisplay::queryRefreshRate()
+{
+    float refreshRate;
+    // This isn't correct for multi-monitor systems.
+    HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
+    refreshRate = float(GetDeviceCaps(hDC, VREFRESH));
+    if (refreshRate < 2) {
+        refreshRate = 60;
+    }
+    DeleteDC(hDC);
+    return refreshRate;
+}
 
 }
-#endif
-
-
