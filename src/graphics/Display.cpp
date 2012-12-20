@@ -23,6 +23,9 @@
 #ifdef __linux__
 #include "X11Display.h"
 #endif
+#ifdef __APPLE__
+#include "AppleDisplay.h"
+#endif
 #include "Bitmap.h"
 
 #include "../base/Exception.h"
@@ -33,10 +36,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#endif
-
-#ifdef __APPLE__
-#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 // Temp for queryRefreshRate
@@ -58,6 +57,8 @@ DisplayPtr Display::get()
     if (!s_pDisplay) {
 #ifdef __linux__
         s_pDisplay = DisplayPtr(new X11Display());
+#elif defined __APPLE__
+        s_pDisplay = DisplayPtr(new AppleDisplay());
 #else
         s_pDisplay = DisplayPtr(new Display());
 #endif
@@ -123,14 +124,8 @@ float Display::queryPPMM()
     HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
     return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
-#ifdef __APPLE__
-    CGSize size = CGDisplayScreenSize(CGMainDisplayID());
-    glm::vec2 displayMM(size.width, size.height);
-    return m_ScreenResolution.x/displayMM.x;
-#else
     AVG_ASSERT(false);
     return 0;
-#endif
 #endif
 }
 
@@ -151,9 +146,7 @@ float Display::getRefreshRate()
 
 float Display::queryRefreshRate()
 {
-#ifdef __APPLE__
-    return CGLContext::calcRefreshRate();
-#elif defined _WIN32
+#ifdef _WIN32
     return WGLContext::calcRefreshRate();
 #else
     AVG_ASSERT(false);
