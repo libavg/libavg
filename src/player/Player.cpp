@@ -150,7 +150,7 @@ Player::Player()
     pProfiler->setName("main");
 
     SDLDisplayEngine::initSDL();
-    m_pDisplay = Display::create();
+    Display::get();
     initConfig();
 
     // Register all node types
@@ -297,22 +297,22 @@ void Player::enableGLErrorChecks(bool bEnable)
         
 glm::vec2 Player::getScreenResolution()
 {
-    return glm::vec2(m_pDisplay->getScreenResolution());
+    return glm::vec2(Display::get()->getScreenResolution());
 }
 
 float Player::getPixelsPerMM()
 {
-    return m_pDisplay->getPixelsPerMM();
+    return Display::get()->getPixelsPerMM();
 }
 
 glm::vec2 Player::getPhysicalScreenDimensions()
 {
-    return m_pDisplay->getPhysicalScreenDimensions();
+    return Display::get()->getPhysicalScreenDimensions();
 }
 
 void Player::assumePixelsPerMM(float ppmm)
 {
-    m_pDisplay->assumePixelsPerMM(ppmm);
+    Display::get()->assumePixelsPerMM(ppmm);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -541,7 +541,7 @@ void Player::initPlayback(const std::string& sShaderPath)
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
 
     m_pDisplayEngine->initRender();
-    m_pDisplay->rereadScreenResolution();
+    Display::get()->rereadScreenResolution();
     m_bStopping = false;
     if (m_pMultitouchInputDevice) {
         m_pMultitouchInputDevice->start();
@@ -1240,7 +1240,7 @@ void Player::initConfig()
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
     float dotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
-    m_pDisplay->assumePixelsPerMM(dotsPerMM);
+    Display::get()->assumePixelsPerMM(dotsPerMM);
 }
 
 void Player::initGraphics(const string& sShaderPath)
@@ -1265,7 +1265,7 @@ void Player::initGraphics(const string& sShaderPath)
     {
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
-    AVG_TRACE(Logger::CONFIG, "Pixels per mm: " << m_pDisplay->getPixelsPerMM());
+    AVG_TRACE(Logger::CONFIG, "Pixels per mm: " << Display::get()->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }

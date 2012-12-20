@@ -254,7 +254,6 @@ class AVG_API Player: public Publisher
         DisplayParams m_DP;
         AudioParams m_AP;
         GLConfig m_GLConfig;
-        DisplayPtr m_pDisplay;
 
         bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;

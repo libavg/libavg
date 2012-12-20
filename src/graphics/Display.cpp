@@ -42,15 +42,18 @@ using namespace std;
 
 namespace avg {
 
-DisplayPtr Display::create()
+DisplayPtr Display::get()
 {
+    static DisplayPtr s_pDisplay;
+    if (!s_pDisplay) {
 #ifdef __linux__
-    DisplayPtr pDisplay = DisplayPtr(new X11Display());
+        s_pDisplay = DisplayPtr(new X11Display());
 #else
-    DisplayPtr pDisplay = DisplayPtr(new Display());
+        s_DisplayPtr pDisplay = DisplayPtr(new Display());
 #endif
-    pDisplay->init();
-    return pDisplay;
+        s_pDisplay->init();
+    }
+    return s_pDisplay;
 }
 
 Display::Display()

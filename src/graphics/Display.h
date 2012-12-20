@@ -37,7 +37,7 @@ typedef boost::shared_ptr<Display> DisplayPtr;
 class AVG_API Display
 {
 public:
-    static DisplayPtr create();
+    static DisplayPtr get();
     virtual ~Display();
     void init();
     void rereadScreenResolution();
@@ -57,6 +57,7 @@ private:
     IntPoint m_ScreenResolution;
     float m_PPMM;
     bool m_bAutoPPMM; // true if assumePixelsPerMM hasn't been called.
+
 };
 
 }
