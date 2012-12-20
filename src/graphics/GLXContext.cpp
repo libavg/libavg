@@ -223,23 +223,4 @@ bool GLXContext::haveARBCreateContext()
     return s_bHaveExtension;
 }
 
-float GLXContext::calcRefreshRate()
-{
-    ::Display * pDisplay = XOpenDisplay(0);
-    int pixelClock;
-    XF86VidModeModeLine modeLine;
-    bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
-            &pixelClock, &modeLine);
-    if (!bOK) {
-        AVG_TRACE(Logger::WARNING, 
-                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_TRACE(Logger::WARNING, 
-                "Defaulting to 60 Hz refresh rate.");
-    }
-    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
-    float refreshRate = HSyncRate/modeLine.vtotal;
-    XCloseDisplay(pDisplay);
-    return refreshRate;
-}
-
 }

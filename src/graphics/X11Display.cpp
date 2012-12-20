@@ -22,6 +22,7 @@
 #include "X11Display.h"
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
@@ -82,6 +83,29 @@ IntPoint X11Display::queryScreenResolution()
     }
     XCloseDisplay(pDisplay);
     return size;
+}
+
+float X11Display::queryRefreshRate()
+{
+#ifdef AVG_ENABLE_EGL
+    return 60;
+#else
+    ::Display * pDisplay = XOpenDisplay(0);
+    int pixelClock;
+    XF86VidModeModeLine modeLine;
+    bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
+            &pixelClock, &modeLine);
+    if (!bOK) {
+        AVG_TRACE(Logger::WARNING, 
+                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
+        AVG_TRACE(Logger::WARNING, 
+                "Defaulting to 60 Hz refresh rate.");
+    }
+    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
+    float refreshRate = HSyncRate/modeLine.vtotal;
+    XCloseDisplay(pDisplay);
+    return refreshRate;
+#endif
 }
 
 

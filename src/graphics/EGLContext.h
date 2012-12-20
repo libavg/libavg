@@ -40,7 +40,6 @@ public:
     void activate();
     bool initVBlank(int rate);
     void swapBuffers();
-    static float calcRefreshRate();
 
 private:
     void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize,

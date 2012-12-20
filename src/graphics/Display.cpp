@@ -24,6 +24,7 @@
 #include "Bitmap.h"
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
@@ -34,6 +35,13 @@
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
+#endif
+
+// Temp for queryRefreshRate
+#ifdef __APPLE__
+    #include "CGLContext.h"
+#elif defined _WIN32
+    #include "WGLContext.h"
 #endif
 
 #include <iostream>
@@ -57,8 +65,9 @@ DisplayPtr Display::get()
 }
 
 Display::Display()
+    : m_bAutoPPMM(true),
+      m_RefreshRate(0.0f)
 {
-    m_bAutoPPMM = true;
 }
 
 Display::~Display()
@@ -127,6 +136,27 @@ IntPoint Display::queryScreenResolution()
 {
     const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
     return IntPoint(pInfo->current_w, pInfo->current_h);
+}
+
+float Display::getRefreshRate()
+{
+    if (m_RefreshRate == 0.0) {
+        m_RefreshRate = queryRefreshRate();
+        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << m_RefreshRate);
+    }
+    return m_RefreshRate;
+}
+
+float Display::queryRefreshRate()
+{
+#ifdef __APPLE__
+    return CGLContext::calcRefreshRate();
+#elif defined _WIN32
+    return WGLContext::calcRefreshRate();
+#else
+    AVG_ASSERT(false);
+    return 0.0;
+#endif
 }
 
 }

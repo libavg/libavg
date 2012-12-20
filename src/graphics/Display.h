@@ -46,18 +46,21 @@ public:
     float getPixelsPerMM();
     void assumePixelsPerMM(float ppmm);
     glm::vec2 getPhysicalScreenDimensions();
+    float getRefreshRate();
     
 protected:
     Display();
 
     virtual float queryPPMM();
     virtual IntPoint queryScreenResolution();
+    virtual float queryRefreshRate();
 
 private:
     IntPoint m_ScreenResolution;
     float m_PPMM;
     bool m_bAutoPPMM; // true if assumePixelsPerMM hasn't been called.
 
+    float m_RefreshRate;
 };
 
 }

@@ -50,8 +50,6 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-float GLContext::s_RefreshRate = 0.0;
-
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
 bool GLContext::s_bErrorCheckEnabled = false;
@@ -418,27 +416,6 @@ int GLContext::getMaxTexSize()
 void GLContext::swapBuffers()
 {
     AVG_ASSERT(false);
-}
-
-float GLContext::getRefreshRate()
-{
-    if (s_RefreshRate == 0.0) {
-#ifdef __APPLE__
-        s_RefreshRate = CGLContext::calcRefreshRate();
-#elif defined linux
-#ifdef AVG_ENABLE_EGL
-        s_RefreshRate = EGLContext::calcRefreshRate();
-#else
-        s_RefreshRate = GLXContext::calcRefreshRate();
-#endif
-#elif defined _WIN32
-        s_RefreshRate = WGLContext::calcRefreshRate();
-#else
-        AVG_ASSERT(false);
-#endif
-        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
-    }
-    return s_RefreshRate;
 }
 
 void GLContext::enableErrorChecks(bool bEnable)

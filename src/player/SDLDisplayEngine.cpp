@@ -45,6 +45,7 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/Display.h"
 
 #include "../video/FFMpegDecoder.h"
 
@@ -95,7 +96,7 @@ void SDLDisplayEngine::initSDL()
     }
 #endif
 #ifdef linux
-    Display * pDisplay = XOpenDisplay(0);
+    ::Display * pDisplay = XOpenDisplay(0);
     if (!pDisplay) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, "Failed to connect to X11 display.");
     }
@@ -222,7 +223,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     m_pXIMTInputDevice = 0;
 #endif
     SDL_WM_SetCaption("libavg", 0);
-    GLContext::getRefreshRate();
+    Display::get()->getRefreshRate();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
