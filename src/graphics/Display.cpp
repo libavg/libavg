@@ -20,7 +20,9 @@
 //
 
 #include "Display.h"
+#ifdef __linux__
 #include "X11Display.h"
+#endif
 #include "Bitmap.h"
 
 #include "../base/Exception.h"
@@ -57,7 +59,7 @@ DisplayPtr Display::get()
 #ifdef __linux__
         s_pDisplay = DisplayPtr(new X11Display());
 #else
-        s_DisplayPtr pDisplay = DisplayPtr(new Display());
+        s_pDisplay = DisplayPtr(new Display());
 #endif
         s_pDisplay->init();
     }
