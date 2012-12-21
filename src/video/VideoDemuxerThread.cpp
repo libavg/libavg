@@ -62,7 +62,7 @@ bool VideoDemuxerThread::init()
 
 bool VideoDemuxerThread::work() 
 {
-    if (m_PacketQs.empty() || m_bEOF) {
+    if (m_bEOF) {
         waitForCommand();
     } else {
         map<int, VideoPacketQueuePtr>::iterator it;

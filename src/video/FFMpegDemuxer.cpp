@@ -56,18 +56,22 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
         dump();
         AVG_ASSERT(false);
     }
-    PacketList & CurPacketList = m_PacketLists.find(streamIndex)->second;
+    PacketList & curPacketList = m_PacketLists.find(streamIndex)->second;
     AVPacket * pPacket;
-    if (!CurPacketList.empty()) {
-        pPacket = CurPacketList.front();
-        CurPacketList.pop_front();
+    if (!curPacketList.empty()) {
+        // The stream has packets queued already.
+        pPacket = curPacketList.front();
+        curPacketList.pop_front();
     } else {
+        // No packets queued for this stream -> read and queue packets until we get one
+        // that is meant for this stream.
         do {
             pPacket = new AVPacket;
             memset(pPacket, 0, sizeof(AVPacket));
             int err = av_read_frame(m_pFormatContext, pPacket);
             // TODO: Check url_ferror here too.
             if (err < 0) {
+                // EOF
                 av_free_packet(pPacket);
                 delete pPacket;
                 pPacket = 0;
@@ -75,16 +79,19 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
             }
             if (pPacket->stream_index != streamIndex) {
                 if (m_PacketLists.find(pPacket->stream_index) != m_PacketLists.end()) {
+                    // Relevant stream, but not ours
                     av_dup_packet(pPacket);
                     PacketList& OtherPacketList = 
                             m_PacketLists.find(pPacket->stream_index)->second;
                     OtherPacketList.push_back(pPacket);
                 } else {
+                    // Disabled stream
                     av_free_packet(pPacket);
                     delete pPacket;
                     pPacket = 0;
                 } 
             } else {
+                // Our stream
                 av_dup_packet(pPacket);
             }
         } while (!pPacket || pPacket->stream_index != streamIndex);
