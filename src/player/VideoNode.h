@@ -97,7 +97,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         virtual void render();
         virtual void onFrameEnd();
         
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
+        virtual void fillAudioBuffer(AudioBufferPtr pBuffer);
         virtual IntPoint getMediaSize();
 
         static VideoAccelType getVideoAccelConfig();

@@ -36,7 +36,7 @@ class AVG_API IAudioSource
 {
     public:
         virtual ~IAudioSource() {};
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
+        virtual void fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 
 typedef boost::weak_ptr<IAudioSource> IAudioSourceWeakPtr;

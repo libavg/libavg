@@ -244,13 +244,9 @@ void SoundNode::onFrameEnd()
     }
 }
 
-int SoundNode::fillAudioBuffer(AudioBufferPtr pBuffer)
+void SoundNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    if (m_State == Playing) {
-        return m_pDecoder->fillAudioBuffer(pBuffer);
-    } else {
-        return 0;
-    }
+    m_pDecoder->fillAudioBuffer(pBuffer);
 }
 
 void SoundNode::changeSoundState(SoundState newSoundState)

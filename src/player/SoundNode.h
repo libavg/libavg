@@ -68,7 +68,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
 
         virtual void onFrameEnd();
 
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
+        virtual void fillAudioBuffer(AudioBufferPtr pBuffer);
 
     private:
         void seek(long long destTime);

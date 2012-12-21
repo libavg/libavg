@@ -385,14 +385,10 @@ void VideoNode::onFrameEnd()
     }
 }
 
-int VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
+void VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     AVG_ASSERT(m_bThreaded);
-    if (m_VideoState == Playing) {
-        return m_pDecoder->fillAudioBuffer(pBuffer);
-    } else {
-        return 0;
-    }
+    m_pDecoder->fillAudioBuffer(pBuffer);
 }
 
 void VideoNode::changeVideoState(VideoState NewVideoState)
