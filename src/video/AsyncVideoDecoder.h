@@ -87,9 +87,8 @@ private:
     boost::mutex m_AudioMutex;
     AudioDecoderThread::CQueuePtr m_pACmdQ;
     VideoMsgQueuePtr m_pAMsgQ;
-    VideoMsgPtr m_pAudioMsg;
-    unsigned char* m_AudioMsgData;
-    int m_AudioMsgSize;
+    AudioBufferPtr m_pInputAudioBuffer;
+    int m_CurInputAudioPos;
 
     VideoInfo m_VideoInfo;
 

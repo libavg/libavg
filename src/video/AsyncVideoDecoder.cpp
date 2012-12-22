@@ -102,8 +102,6 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_pAMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(100));
         m_pADecoderThread = new boost::thread(
                  AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder, *pAP));
-        m_AudioMsgData = 0;
-        m_AudioMsgSize = 0;
         m_LastAudioFrameTime = 0;
     }
     m_State = DECODING;
@@ -339,38 +337,43 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     waitForSeekDone();
 
     unsigned char* pDest = (unsigned char *)(pBuffer->getData());
-    int bufferLeftToFill = pBuffer->getNumBytes();
+    int framesLeftToFill = pBuffer->getNumFrames();
     VideoMsgPtr pMsg;
-    while (bufferLeftToFill > 0) {
-        while (m_AudioMsgSize > 0 && bufferLeftToFill > 0) {
-            int copyBytes = min(bufferLeftToFill, m_AudioMsgSize);
-            memcpy(pDest, m_AudioMsgData, copyBytes);
-            m_AudioMsgSize -= copyBytes;
-            m_AudioMsgData += copyBytes;
-            bufferLeftToFill -= copyBytes;
-            pDest += copyBytes;
+    while (framesLeftToFill > 0) {
+        int framesLeftInBuffer = 0;
+        if (m_pInputAudioBuffer) {
+            framesLeftInBuffer = m_pInputAudioBuffer->getNumFrames() - m_CurInputAudioPos;
+        }
+        while (framesLeftInBuffer > 0 && framesLeftToFill > 0) {
+            int framesToCopy = min(framesLeftToFill, framesLeftInBuffer);
+//            cerr << "framesToCopy: " << framesToCopy << endl;
+            char * pInputPos = (char*)m_pInputAudioBuffer->getData() + 
+                    m_CurInputAudioPos*pBuffer->getFrameSize();
+            int bytesToCopy = framesToCopy*pBuffer->getFrameSize();
+            memcpy(pDest, pInputPos, bytesToCopy);
+            m_CurInputAudioPos += framesToCopy;
+            framesLeftToFill -= framesToCopy;
+            framesLeftInBuffer -= framesToCopy;
+            pDest += bytesToCopy;
 
-            m_LastAudioFrameTime += float(copyBytes) / 
-                    (pBuffer->getFrameSize() * pBuffer->getRate());
+            m_LastAudioFrameTime += float(framesToCopy) / pBuffer->getRate();
 //            cerr << "  " << m_LastAudioFrameTime << endl;
         }
-        if (bufferLeftToFill != 0) {
+        if (framesLeftToFill != 0) {
             pMsg = m_pAMsgQ->pop(false);
             if (pMsg) {
                 if (pMsg->getType() == VideoMsg::END_OF_FILE) {
                     m_bAudioEOF = true;
-                    return pBuffer->getNumFrames()-bufferLeftToFill/
-                        pBuffer->getFrameSize();
+                    return pBuffer->getNumFrames()-framesLeftToFill;
                 }
                 AVG_ASSERT(pMsg->getType() == VideoMsg::AUDIO);
-
-                m_AudioMsgSize = pMsg->getAudioBuffer()->getNumFrames()
-                    *pBuffer->getFrameSize();
-                m_AudioMsgData = (unsigned char *)(pMsg->getAudioBuffer()->getData());
+                m_pInputAudioBuffer = pMsg->getAudioBuffer();
+                m_CurInputAudioPos = 0;
                 m_LastAudioFrameTime = pMsg->getAudioTime();
-//                cerr << "  New buffer: " << m_LastAudioFrameTime << endl;
+//                cerr << "  New buffer: " << m_pInputAudioBuffer->getNumFrames() << endl;
             } else {
-                return pBuffer->getNumFrames()-bufferLeftToFill/pBuffer->getFrameSize();
+//                cerr << "no pop" << endl;
+                return pBuffer->getNumFrames()-framesLeftToFill;
             }
         }
     }
