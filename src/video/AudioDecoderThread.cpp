@@ -52,10 +52,11 @@ bool AudioDecoderThread::work()
         // replace this with waitForMessage()
         msleep(10);
     } else {
+        float curTime = m_pDecoder->getCurTime(SS_AUDIO);
         AudioBufferPtr pBuffer = m_pDecoder->getAudioBuffer();
         VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
         if (pBuffer) {
-            pVMsg->setAudio(pBuffer, m_pDecoder->getCurTime(SS_AUDIO));
+            pVMsg->setAudio(pBuffer, curTime);
         } else {
             AVG_ASSERT(m_pDecoder->isEOF(SS_AUDIO));
             pVMsg->setEOF();

@@ -282,11 +282,11 @@ class AudioDecoderTest: public DecoderTest {
 
         void runTests()
         {
-//            testOneFile("22.050Hz_16bit_mono.wav");
 
-//            testOneFile("44.1kHz_16bit_mono.wav");
+            testOneFile("22.050Hz_16bit_mono.wav");
+
+            testOneFile("44.1kHz_16bit_mono.wav");
             testOneFile("44.1kHz_16bit_stereo.wav");
-/*            
             testOneFile("44.1kHz_24bit_mono.wav");
             testOneFile("44.1kHz_24bit_stereo.wav");
 
@@ -297,7 +297,6 @@ class AudioDecoderTest: public DecoderTest {
 
             testOneFile("44.1kHz_16bit_stereo.aif");
             testOneFile("44.1kHz_stereo.mp3");
-*/            
         }
 
     private:
@@ -316,16 +315,15 @@ class AudioDecoderTest: public DecoderTest {
                     TEST(pDecoder->getVolume() == 0.5);
                     pDecoder->startDecoding(false, getAudioParams());
                     int totalFramesDecoded = 0;
-                    bool bCheckTimestamps = (sFilename.find(".ogg") == string::npos &&
-                            sFilename.find(".mp3") == string::npos);
-                    readAudioToEOF(pDecoder, totalFramesDecoded, bCheckTimestamps);
+                    readAudioToEOF(pDecoder, totalFramesDecoded, true);
 
                     // Check if we've decoded the whole file.
                     int framesInDuration = int(pDecoder->getVideoInfo().m_Duration*44100);
-                    cerr << "framesInDuration: " << framesInDuration << endl;
-                    cerr << "framesDecoded: " << totalFramesDecoded << endl;
+//                    cerr << "framesInDuration: " << framesInDuration << endl;
+//                    cerr << "framesDecoded: " << totalFramesDecoded << endl;
                     TEST(abs(totalFramesDecoded-framesInDuration) < 65);
                 }
+                
                 {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
@@ -351,7 +349,6 @@ class AudioDecoderTest: public DecoderTest {
 //                        cerr << "framesInDuration: " << framesInDuration << endl;
                         TEST(abs(totalFramesDecoded-framesInDuration/2) < 65);
                     }
-
                 }
 
             } catch (Exception & ex) {
@@ -374,10 +371,11 @@ class AudioDecoderTest: public DecoderTest {
                 }
                 totalFramesDecoded += framesDecoded;
                 float curTime = float(totalFramesDecoded)/44100;
+//                cerr << curTime << "->" << pDecoder->getCurTime(SS_AUDIO) << endl;
                 if (abs(curTime-pDecoder->getCurTime(SS_AUDIO)) > 0.02f) {
                     numWrongTimestamps++;
+//                    cerr << "   xxx" << endl;
                 }
-//                cerr << curTime << "->" << pDecoder->getCurTime(SS_AUDIO) << endl;
             }
             if (bCheckTimestamps) {
                 if (numWrongTimestamps>0) {
@@ -474,14 +472,13 @@ public:
         : TestSuite("VideoTestSuite")
     {
         addAudioTests();
-//        addVideoTests(false);
+        addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
-/*        if (VDPAUDecoder::isAvailable()) {
+        if (VDPAUDecoder::isAvailable()) {
             addVideoTests(true);
         } else {
             cerr << "Skipping VDPAU tests: VDPAU configured but not available." << endl;
         }
-*/        
 #else
         cerr << "Skipping VDPAU tests: VDPAU not configured." << endl;
 #endif
@@ -496,11 +493,9 @@ private:
     void addVideoTests(bool bUseHardwareAcceleration)
     {
         addTest(TestPtr(new VideoDecoderTest(false, false, bUseHardwareAcceleration)));
-        addTest(TestPtr(new VideoDecoderTest(false, true, bUseHardwareAcceleration)));
         addTest(TestPtr(new VideoDecoderTest(true, true, bUseHardwareAcceleration)));
 
         addTest(TestPtr(new AVDecoderTest(false, false, bUseHardwareAcceleration)));
-        addTest(TestPtr(new AVDecoderTest(false, true, bUseHardwareAcceleration)));
         addTest(TestPtr(new AVDecoderTest(true, true, bUseHardwareAcceleration)));
     }
 };

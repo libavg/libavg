@@ -114,30 +114,13 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool m_bUseStreamFPS;
 
         // Used from audio thread.
-/*        
-        int copyRawAudio(unsigned char* buf, int size);
-        int copyResampledAudio(unsigned char* buf, int size);
-        void resampleAudio();
-        int decodeAudio();
-*/        
+        AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
         void volumize(AudioBufferPtr pBuffer);
 
         int m_AStreamIndex;
         AudioParams m_AP;
         AVPacket * m_pCurAudioPacket;
         AVPacket * m_pTempAudioPacket;
-/*
-        unsigned char * m_AudioPacketData;
-        int m_AudioPacketSize;
-        char * m_pSampleBuffer;
-        int m_SampleBufferStart;
-        int m_SampleBufferEnd;
-        int m_SampleBufferLeft;
-        char * m_pResampleBuffer;
-        int m_ResampleBufferEnd;
-        int m_ResampleBufferStart;
-        int m_ResampleBufferSize;
-*/
         int m_EffectiveSampleRate;
         ReSampleContext * m_pAudioResampleContext;
         float m_Volume;

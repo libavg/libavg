@@ -350,8 +350,9 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
             bufferLeftToFill -= copyBytes;
             pDest += copyBytes;
 
-            m_LastAudioFrameTime += copyBytes / 
+            m_LastAudioFrameTime += float(copyBytes) / 
                     (pBuffer->getFrameSize() * pBuffer->getRate());
+//            cerr << "  " << m_LastAudioFrameTime << endl;
         }
         if (bufferLeftToFill != 0) {
             pMsg = m_pAMsgQ->pop(false);
@@ -367,6 +368,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                     *pBuffer->getFrameSize();
                 m_AudioMsgData = (unsigned char *)(pMsg->getAudioBuffer()->getData());
                 m_LastAudioFrameTime = pMsg->getAudioTime();
+//                cerr << "  New buffer: " << m_LastAudioFrameTime << endl;
             } else {
                 return pBuffer->getNumFrames()-bufferLeftToFill/pBuffer->getFrameSize();
             }
