@@ -681,6 +681,7 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
             }
 //            cerr << "packet size: " << m_pCurAudioPacket->size << endl;
             m_pTempAudioPacket = new AVPacket;
+            av_init_packet(m_pTempAudioPacket);
             m_pTempAudioPacket->data = m_pCurAudioPacket->data;
             m_pTempAudioPacket->size = m_pCurAudioPacket->size;
         }
