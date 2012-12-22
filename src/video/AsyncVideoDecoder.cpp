@@ -41,7 +41,7 @@ using namespace std;
 
 namespace avg {
 
-AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength)
+AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLength)
     : m_State(CLOSED),
       m_pSyncDecoder(pSyncDecoder),
       m_QueueLength(queueLength),

@@ -55,6 +55,7 @@
 
 using namespace avg;
 using namespace std;
+using namespace boost;
 
 class DecoderTest: public GraphicsTest {
     public:
@@ -83,7 +84,8 @@ class DecoderTest: public GraphicsTest {
             VideoDecoderPtr pDecoder;
             pDecoder = VideoDecoderPtr(new FFMpegDecoder());
             if (m_bThreadedDecoder) {
-                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pDecoder, 8));
+                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(
+                        dynamic_pointer_cast<FFMpegDecoder>(pDecoder), 8));
             }
             return pDecoder;
         }
@@ -280,10 +282,11 @@ class AudioDecoderTest: public DecoderTest {
 
         void runTests()
         {
-            testOneFile("22.050Hz_16bit_mono.wav");
+//            testOneFile("22.050Hz_16bit_mono.wav");
 
-            testOneFile("44.1kHz_16bit_mono.wav");
+//            testOneFile("44.1kHz_16bit_mono.wav");
             testOneFile("44.1kHz_16bit_stereo.wav");
+/*            
             testOneFile("44.1kHz_24bit_mono.wav");
             testOneFile("44.1kHz_24bit_stereo.wav");
 
@@ -294,6 +297,7 @@ class AudioDecoderTest: public DecoderTest {
 
             testOneFile("44.1kHz_16bit_stereo.aif");
             testOneFile("44.1kHz_stereo.mp3");
+*/            
         }
 
     private:
@@ -318,7 +322,8 @@ class AudioDecoderTest: public DecoderTest {
 
                     // Check if we've decoded the whole file.
                     int framesInDuration = int(pDecoder->getVideoInfo().m_Duration*44100);
-//                    cerr << "framesInDuration: " << framesInDuration << endl;
+                    cerr << "framesInDuration: " << framesInDuration << endl;
+                    cerr << "framesDecoded: " << totalFramesDecoded << endl;
                     TEST(abs(totalFramesDecoded-framesInDuration) < 65);
                 }
                 {
@@ -469,13 +474,14 @@ public:
         : TestSuite("VideoTestSuite")
     {
         addAudioTests();
-        addVideoTests(false);
+//        addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
-        if (VDPAUDecoder::isAvailable()) {
+/*        if (VDPAUDecoder::isAvailable()) {
             addVideoTests(true);
         } else {
             cerr << "Skipping VDPAU tests: VDPAU configured but not available." << endl;
         }
+*/        
 #else
         cerr << "Skipping VDPAU tests: VDPAU not configured." << endl;
 #endif
@@ -484,7 +490,6 @@ private:
 
     void addAudioTests()
     {
-        addTest(TestPtr(new AudioDecoderTest(false, true)));
         addTest(TestPtr(new AudioDecoderTest(true, true)));
     }
 

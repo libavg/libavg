@@ -94,7 +94,7 @@ VideoNode::VideoNode(const ArgList& args)
                 "Can't set queue length for unthreaded videos because there is no decoder queue in this case.");
     }
     if (m_bThreaded) {
-        VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
+        FFMpegDecoderPtr pSyncDecoder(new FFMpegDecoder());
         m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, m_QueueLength);
     } else {
         m_pDecoder = new FFMpegDecoder();

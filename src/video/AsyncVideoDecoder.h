@@ -23,7 +23,7 @@
 #define _AsyncVideoDecoder_H_
 
 #include "../api.h"
-#include "VideoDecoder.h"
+#include "FFMpegDecoder.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
 #include "VideoMsg.h"
@@ -40,7 +40,7 @@ namespace avg {
 class AVG_API AsyncVideoDecoder: public VideoDecoder
 {
 public:
-    AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength);
+    AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLength);
     virtual ~AsyncVideoDecoder();
     virtual void open(const std::string& sFilename, bool bSyncDemuxer,
             bool bUseHardwareAcceleration, bool bEnableSound);
@@ -75,7 +75,7 @@ private:
     void returnFrame(VideoMsgPtr& pFrameMsg);
 
     DecoderState m_State;
-    VideoDecoderPtr m_pSyncDecoder;
+    FFMpegDecoderPtr m_pSyncDecoder;
     std::string m_sFilename;
     int m_QueueLength;
 

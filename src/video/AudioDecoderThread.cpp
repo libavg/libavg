@@ -34,7 +34,7 @@ using namespace std;
 namespace avg {
 
 AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-        VideoDecoderPtr pDecoder, const AudioParams& ap)
+        FFMpegDecoderPtr pDecoder, const AudioParams& ap)
     : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), cmdQ),
       m_MsgQ(msgQ),
       m_pDecoder(pDecoder),
@@ -52,22 +52,15 @@ bool AudioDecoderThread::work()
         // replace this with waitForMessage()
         msleep(10);
     } else {
-        AudioBufferPtr pBuffer(new AudioBuffer(AUDIO_BUFFER_SIZE, m_AP));
-        int framesWritten = m_pDecoder->fillAudioBuffer(pBuffer);
-        if (framesWritten != AUDIO_BUFFER_SIZE) {
-            AudioBufferPtr pOldBuffer = pBuffer;
-            pBuffer = AudioBufferPtr(new AudioBuffer(framesWritten, m_AP));
-            memcpy(pBuffer->getData(), pOldBuffer->getData(),
-                    framesWritten*m_AP.m_Channels*sizeof(short));
-        }
+        AudioBufferPtr pBuffer = m_pDecoder->getAudioBuffer();
         VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
-        pVMsg->setAudio(pBuffer, m_pDecoder->getCurTime(SS_AUDIO));
-        m_MsgQ.push(pVMsg);
-        if (m_pDecoder->isEOF(SS_AUDIO)) {
-            VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
+        if (pBuffer) {
+            pVMsg->setAudio(pBuffer, m_pDecoder->getCurTime(SS_AUDIO));
+        } else {
+            AVG_ASSERT(m_pDecoder->isEOF(SS_AUDIO));
             pVMsg->setEOF();
-            m_MsgQ.push(pVMsg); 
         }
+        m_MsgQ.push(pVMsg);
         ThreadProfiler::get()->reset();
     }
     return true;

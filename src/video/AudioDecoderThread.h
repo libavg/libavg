@@ -25,7 +25,7 @@
 #define _AudioDecoderThread_H_
 
 #include "../avgconfigwrapper.h"
-#include "VideoDecoder.h"
+#include "FFMpegDecoder.h"
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"
@@ -41,7 +41,7 @@ namespace avg {
 class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
         AudioDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-                VideoDecoderPtr pDecoder, const AudioParams& ap);
+                FFMpegDecoderPtr pDecoder, const AudioParams& ap);
         virtual ~AudioDecoderThread();
         
         bool work();
@@ -50,7 +50,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
 
     private:
         VideoMsgQueue& m_MsgQ;
-        VideoDecoderPtr m_pDecoder;
+        FFMpegDecoderPtr m_pDecoder;
         AudioParams m_AP;
 };
 

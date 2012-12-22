@@ -75,6 +75,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         
         // Called from audio decoder thread
         virtual void setVolume(float volume);
+        AudioBufferPtr getAudioBuffer();
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
         // Called from video and audio threads
@@ -113,15 +114,19 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool m_bUseStreamFPS;
 
         // Used from audio thread.
+/*        
         int copyRawAudio(unsigned char* buf, int size);
         int copyResampledAudio(unsigned char* buf, int size);
         void resampleAudio();
         int decodeAudio();
+*/        
         void volumize(AudioBufferPtr pBuffer);
 
         int m_AStreamIndex;
         AudioParams m_AP;
-        AVPacket * m_AudioPacket;
+        AVPacket * m_pCurAudioPacket;
+        AVPacket * m_pTempAudioPacket;
+/*
         unsigned char * m_AudioPacketData;
         int m_AudioPacketSize;
         char * m_pSampleBuffer;
@@ -132,6 +137,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         int m_ResampleBufferEnd;
         int m_ResampleBufferStart;
         int m_ResampleBufferSize;
+*/
         int m_EffectiveSampleRate;
         ReSampleContext * m_pAudioResampleContext;
         float m_Volume;
@@ -165,6 +171,8 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         // Prevents different decoder instances from executing open/close simultaneously
         static boost::mutex s_OpenMutex;   
 };
+
+typedef boost::shared_ptr<FFMpegDecoder> FFMpegDecoderPtr;
 
 }
 #endif 
