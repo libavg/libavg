@@ -21,14 +21,6 @@
 
 #include "FFMpegDecoder.h"
 
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable:4251)
-#endif
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
-
 #include "AsyncVideoDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"

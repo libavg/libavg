@@ -26,14 +26,17 @@
 
 #include "VideoInfo.h"
 
-#include "../graphics/Bitmap.h"
 #include "../audio/IAudioSource.h"
+#include "../graphics/PixelFormat.h"
 
 #include <string>
 
 struct vdpau_render_state;
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING

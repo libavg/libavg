@@ -33,8 +33,6 @@
 #include "../base/ProfilingZoneID.h"
 #include "../base/StringHelper.h"
 
-#include "../graphics/Filterflipuv.h"
-#include "../graphics/Filterfliprgba.h"
 #include "../graphics/BitmapLoader.h"
 
 #include <iostream>
@@ -42,7 +40,6 @@
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-#include <errno.h>
 
 using namespace std;
 using namespace boost;

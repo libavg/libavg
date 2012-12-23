@@ -20,7 +20,9 @@
 //
 
 #include "VideoDecoder.h"
+
 #include "../base/Exception.h"
+#include "../graphics/Bitmap.h"
 
 namespace avg {
 

@@ -21,7 +21,6 @@
 
 #include "AsyncVideoDecoder.h"
 
-#include "FFMpegDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
