@@ -307,7 +307,8 @@ class AudioDecoderTest: public DecoderTest {
                 
                 {
                     cerr << "      Reading complete file." << endl;
-                    VideoDecoderPtr pDecoder = createDecoder();
+                    AsyncVideoDecoderPtr pDecoder = 
+                            dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
                     pDecoder->open(getMediaLoc(sFilename), 
                             isDemuxerThreaded(), useHardwareAcceleration(), true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
@@ -326,7 +327,8 @@ class AudioDecoderTest: public DecoderTest {
                 
                 {
                     cerr << "      Seek test." << endl;
-                    VideoDecoderPtr pDecoder = createDecoder();
+                    AsyncVideoDecoderPtr pDecoder = 
+                            dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
                     pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
                             useHardwareAcceleration(), true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
@@ -357,7 +359,7 @@ class AudioDecoderTest: public DecoderTest {
             }
         }
 
-        void readAudioToEOF(VideoDecoderPtr pDecoder, int& totalFramesDecoded,
+        void readAudioToEOF(AsyncVideoDecoderPtr pDecoder, int& totalFramesDecoded,
                 bool bCheckTimestamps) 
         {
             int numWrongTimestamps = 0;
@@ -432,7 +434,8 @@ class AVDecoderTest: public DecoderTest {
                     AudioBufferPtr pBuffer = createAudioBuffer(256);
                     int framesDecoded = 0;
                     while (framesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
-                        framesDecoded = pDecoder->fillAudioBuffer(pBuffer);
+                        framesDecoded = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                                ->fillAudioBuffer(pBuffer);
                         msleep(0);
                     }
                     totalFramesDecoded += framesDecoded;

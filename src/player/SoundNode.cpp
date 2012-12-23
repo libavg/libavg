@@ -41,7 +41,7 @@
 #include <unistd.h>
 #endif
 
-using namespace boost::python;
+using namespace boost;
 using namespace std;
 
 namespace avg {
@@ -246,7 +246,7 @@ void SoundNode::onFrameEnd()
 
 void SoundNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    m_pDecoder->fillAudioBuffer(pBuffer);
+    dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->fillAudioBuffer(pBuffer);
 }
 
 void SoundNode::changeSoundState(SoundState newSoundState)
@@ -338,7 +338,7 @@ void SoundNode::onEOF()
         PyObject * result = PyEval_CallObject(m_pEOFCallback, arglist);
         Py_DECREF(arglist);
         if (!result) {
-            throw error_already_set();
+            throw py::error_already_set();
         }
         Py_DECREF(result);
     }

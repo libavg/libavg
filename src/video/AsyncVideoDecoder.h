@@ -109,6 +109,8 @@ private:
     bool m_bUsesVDPAU;
 };
 
+typedef boost::shared_ptr<AsyncVideoDecoder> AsyncVideoDecoderPtr;
+
 }
 #endif 
 

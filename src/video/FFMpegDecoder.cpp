@@ -649,11 +649,6 @@ void FFMpegDecoder::logConfig()
     }
 }
 
-int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
-{
-    AVG_ASSERT(false);
-}
-
 AudioBufferPtr FFMpegDecoder::getAudioBuffer()
 {
     AVG_ASSERT(m_State == DECODING);

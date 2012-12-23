@@ -75,8 +75,6 @@ class AVG_API VideoDecoder
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
         virtual bool isEOF(StreamSelect stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(float timeWanted) = 0;
-        
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 
 typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;

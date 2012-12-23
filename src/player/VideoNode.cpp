@@ -49,6 +49,7 @@
 #include <unistd.h>
 #endif
 
+using namespace boost;
 using namespace std;
 
 namespace avg {
@@ -388,7 +389,7 @@ void VideoNode::onFrameEnd()
 void VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     AVG_ASSERT(m_bThreaded);
-    m_pDecoder->fillAudioBuffer(pBuffer);
+    dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->fillAudioBuffer(pBuffer);
 }
 
 void VideoNode::changeVideoState(VideoState NewVideoState)

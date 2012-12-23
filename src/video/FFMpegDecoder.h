@@ -76,7 +76,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         // Called from audio decoder thread
         virtual void setVolume(float volume);
         AudioBufferPtr getAudioBuffer();
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
         // Called from video and audio threads
         virtual void seek(float destTime);
