@@ -48,7 +48,6 @@ using namespace std;
 using namespace boost;
 
 #define SAMPLE_BUFFER_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE*3))
-#define VOLUME_FADE_SAMPLES 100
 
 namespace avg {
 
@@ -723,7 +722,8 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
     }
     m_LastAudioFrameTime += float(pBuffer->getNumFrames())/m_AP.m_SampleRate;
 //    cerr << "Decoder time: " << m_LastAudioFrameTime << endl;
-    // TODO: Volumize
+    pBuffer->volumize(m_LastVolume, m_Volume);
+    m_LastVolume = m_Volume;
     return pBuffer;
 }
 
@@ -1050,34 +1050,6 @@ AudioBufferPtr FFMpegDecoder::resampleAudio(short* pDecodedData, int framesDecod
             framesResampled*m_AP.m_Channels*sizeof(short));
 //    cerr << "Resample: " << framesDecoded << "->" << framesResampled << endl;
     return pBuffer;
-}
-
-void FFMpegDecoder::volumize(AudioBufferPtr pBuffer)
-{
-    float curVol = m_Volume;
-    float volDiff = m_LastVolume - curVol;
-    
-    if (curVol == 1.0f && volDiff == 0.0f) {
-        return;
-    }
-   
-    short * pData = pBuffer->getData();
-    for (int i = 0; i < pBuffer->getNumFrames()*pBuffer->getNumChannels(); i++) {
-        float fadeVol = 0;
-        if (volDiff != 0 && i < VOLUME_FADE_SAMPLES) {
-            fadeVol = volDiff * (VOLUME_FADE_SAMPLES - i) / VOLUME_FADE_SAMPLES;
-        }
-        
-        int s = int(pData[i] * (curVol + fadeVol));
-        
-        if (s < -32768)
-            s = -32768;
-        if (s >  32767)
-            s = 32767;
-        
-        pData[i] = s;
-    }
-    m_LastVolume = curVol;
 }
 
 AVCodecContext const* FFMpegDecoder::getCodecContext() const

@@ -26,6 +26,8 @@
 #include <string>
 #include <cstring>
 
+#define VOLUME_FADE_SAMPLES 100
+
 namespace avg {
 
 AudioBuffer::AudioBuffer(int numFrames, AudioParams ap)
@@ -73,6 +75,31 @@ int AudioBuffer::getRate()
 void AudioBuffer::clear()
 {
     memset(m_pData, 0, m_NumFrames*sizeof(short)*m_AP.m_Channels);
+}
+
+void AudioBuffer::volumize(float lastVol, float curVol)
+{
+    float volDiff = lastVol - curVol;
+    
+    if (curVol == 1.0f && volDiff == 0.0f) {
+        return;
+    }
+   
+    for (int i = 0; i < m_NumFrames*m_AP.m_Channels; i++) {
+        float fadeVol = 0;
+        if (volDiff != 0 && i < VOLUME_FADE_SAMPLES) {
+            fadeVol = volDiff * (VOLUME_FADE_SAMPLES - i) / VOLUME_FADE_SAMPLES;
+        }
+        
+        int s = int(m_pData[i] * (curVol + fadeVol));
+        
+        if (s < -32768)
+            s = -32768;
+        if (s >  32767)
+            s = 32767;
+        
+        m_pData[i] = s;
+    }
 }
 
 }

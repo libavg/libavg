@@ -46,6 +46,8 @@ class AVG_API AudioBuffer
         int getRate();
         void clear();
 
+        void volumize(float lastVol, float curVol);
+
     private:
         int m_NumFrames;
         short* m_pData;
@@ -56,4 +58,4 @@ typedef boost::shared_ptr<AudioBuffer> AudioBufferPtr;
 
 }
 
-#endif /*AUDIOFRAME_H_*/
+#endif
