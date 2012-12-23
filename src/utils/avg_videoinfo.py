@@ -148,7 +148,7 @@ class ConsoleOutputHandler(OutputHandler):
 
     def __outputTableHeader(self):
         vFile = "Filename".ljust(self.__filenameLen+1)
-        vDuration = "Duration[s]".ljust(12)
+        vDuration = "Duration".ljust(9)
         vBitrate = "Bitrate [b/s]".ljust(15)
         vVideoCodec = "Codec".ljust(self.__videoCodecLen +1)
         vVideoSize = "Size".ljust(13)
@@ -157,22 +157,21 @@ class ConsoleOutputHandler(OutputHandler):
         vAudioCodec = "Codec".ljust(self.__audioCodecLen+1)
         vSampleRate = "Samples".ljust(9)
         vChannels = "Channels".ljust(8)
-        
-        headtitel = ("| ".rjust(self.__filenameLen + 3) +
-                "Video properties".rjust((self.__videoFormatLen+self.__videoCodecLen+49)/
-                       2) +
-                "| ".rjust(17) +
-                "Audio properties".rjust((self.__audioCodecLen+18)/2+8))
-        seperators = ("\n" + "| ".rjust(self.__filenameLen+3) +
-                "|".rjust((self.__videoFormatLen + self.__videoCodecLen + 49) / 2 + 16) )
-        title = ("\n" + vFile + "| " + vDuration + vVideoCodec +
+       
+        videoPropWidth = self.__videoFormatLen+self.__videoCodecLen+30
+        print ("| ".rjust(self.__filenameLen + 3) +
+                "Video properties".center(videoPropWidth) +
+                "| " +
+                "Audio properties".center((self.__audioCodecLen+17)))
+        print (vFile + "| " + vDuration + vVideoCodec +
                 vVideoSize + vPixel + vFPS + "| " + vAudioCodec +
                 vSampleRate + vChannels )
-        print headtitel,seperators,title,seperators
+        print ("| ".rjust(self.__filenameLen+3) +
+                "|".rjust(videoPropWidth+1))
 
     def __outputTableLine(self, node):
         vFile = node.href.ljust(self.__filenameLen + 1)
-        vDuration = str(node.getDuration()/1000.).ljust(12)
+        vDuration = str(node.getDuration()/1000.).ljust(9)
         vBitrate = str(node.getBitrate()).ljust(15) 
         vVideoCodec = str(node.getVideoCodec()).ljust(self.__videoCodecLen + 1)
         vVideoSize = str(node.getMediaSize()).ljust(13)
