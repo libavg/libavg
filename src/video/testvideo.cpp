@@ -51,19 +51,18 @@ using namespace boost;
 
 class DecoderTest: public GraphicsTest {
     public:
-        DecoderTest(const string& sClassName, bool bThreadedDecoder, 
-                bool bThreadedDemuxer, bool bUseHardwareAcceleration)
-          : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, 
-                    bThreadedDemuxer, bUseHardwareAcceleration), 2),
-            m_bThreadedDecoder(bThreadedDecoder),
-            m_bThreadedDemuxer(bThreadedDemuxer),
+        DecoderTest(const string& sClassName, bool bThreaded, 
+                bool bUseHardwareAcceleration)
+          : GraphicsTest(sClassName+getDecoderName(bThreaded, bUseHardwareAcceleration),
+                2),
+            m_bThreaded(bThreaded),
             m_bUseHardwareAcceleration(bUseHardwareAcceleration)
         {}
 
     protected:
         bool isDemuxerThreaded() 
         {
-            return m_bThreadedDemuxer;
+            return m_bThreaded;
         }
 
         bool useHardwareAcceleration()
@@ -75,7 +74,7 @@ class DecoderTest: public GraphicsTest {
         {
             VideoDecoderPtr pDecoder;
             pDecoder = VideoDecoderPtr(new FFMpegDecoder());
-            if (m_bThreadedDecoder) {
+            if (m_bThreaded) {
                 pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(
                         dynamic_pointer_cast<FFMpegDecoder>(pDecoder), 8));
             }
@@ -113,19 +112,13 @@ class DecoderTest: public GraphicsTest {
         }
 
     private:
-        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer, 
-                bool bUseHardwareAcceleration)
+        string getDecoderName(bool bThreaded, bool bUseHardwareAcceleration)
         {
             string sName = "(";
-            if (bThreadedDecoder) {
-                sName += "Threaded decoder, ";
+            if (bThreaded) {
+                sName += "Threaded";
             } else {
-                sName += "Sync decoder, ";
-            }
-            if (bThreadedDemuxer) {
-                sName += "Threaded demuxer";
-            } else {
-                sName += "Sync demuxer";
+                sName += "Sync";
             }
             if (bUseHardwareAcceleration) {
                 sName += ", VDPAU)";
@@ -135,17 +128,14 @@ class DecoderTest: public GraphicsTest {
             return sName;
         }
 
-        bool m_bThreadedDecoder;
-        bool m_bThreadedDemuxer;
+        bool m_bThreaded;
         bool m_bUseHardwareAcceleration;
 };
 
 class VideoDecoderTest: public DecoderTest {
     public:
-        VideoDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer,
-                bool bUseHardwareAcceleration)
-            : DecoderTest("VideoDecoderTest", bThreadedDecoder, bThreadedDemuxer,
-                      bUseHardwareAcceleration)
+        VideoDecoderTest(bool bThreaded, bool bUseHardwareAcceleration)
+            : DecoderTest("VideoDecoderTest", bThreaded, bUseHardwareAcceleration)
         {}
 
         void runTests()
@@ -268,8 +258,8 @@ class VideoDecoderTest: public DecoderTest {
 
 class AudioDecoderTest: public DecoderTest {
     public:
-        AudioDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer)
-          : DecoderTest("AudioDecoderTest", bThreadedDecoder, bThreadedDemuxer, true)
+        AudioDecoderTest()
+          : DecoderTest("AudioDecoderTest", true, true)
         {}
 
         void runTests()
@@ -381,10 +371,8 @@ class AudioDecoderTest: public DecoderTest {
 
 class AVDecoderTest: public DecoderTest {
     public:
-        AVDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer,
-                bool bUseHardwareAcceleration)
-          : DecoderTest("AVDecoderTest", bThreadedDecoder, bThreadedDemuxer,
-                    bUseHardwareAcceleration)
+        AVDecoderTest(bool bThreaded, bool bUseHardwareAcceleration)
+          : DecoderTest("AVDecoderTest", bThreaded, bUseHardwareAcceleration)
         {}
 
         void runTests()
@@ -482,16 +470,16 @@ private:
 
     void addAudioTests()
     {
-        addTest(TestPtr(new AudioDecoderTest(true, true)));
+        addTest(TestPtr(new AudioDecoderTest()));
     }
 
     void addVideoTests(bool bUseHardwareAcceleration)
     {
-        addTest(TestPtr(new VideoDecoderTest(false, false, bUseHardwareAcceleration)));
-        addTest(TestPtr(new VideoDecoderTest(true, true, bUseHardwareAcceleration)));
+        addTest(TestPtr(new VideoDecoderTest(false, bUseHardwareAcceleration)));
+        addTest(TestPtr(new VideoDecoderTest(true, bUseHardwareAcceleration)));
 
-        addTest(TestPtr(new AVDecoderTest(false, false, bUseHardwareAcceleration)));
-        addTest(TestPtr(new AVDecoderTest(true, true, bUseHardwareAcceleration)));
+        addTest(TestPtr(new AVDecoderTest(false, bUseHardwareAcceleration)));
+        addTest(TestPtr(new AVDecoderTest(true, bUseHardwareAcceleration)));
     }
 };
 
