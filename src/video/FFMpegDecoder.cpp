@@ -348,11 +348,7 @@ void FFMpegDecoder::close()
     if (m_pAStream) {
         avcodec_close(m_pAStream->codec);
         if (m_pCurAudioPacket) {
-            av_free_packet(m_pCurAudioPacket);
-            delete m_pCurAudioPacket;
-            m_pCurAudioPacket = 0;
-            delete m_pTempAudioPacket;
-            m_pTempAudioPacket = 0;
+            deleteCurAudioPacket();
         }
         if (m_pAudioResampleContext) {
             audio_resample_close(m_pAudioResampleContext);
@@ -422,11 +418,7 @@ void FFMpegDecoder::seek(float destTime)
         mutex::scoped_lock lock(m_AudioMutex);
         m_LastAudioFrameTime = destTime;
         
-        av_free_packet(m_pCurAudioPacket);
-        delete m_pCurAudioPacket;
-        m_pCurAudioPacket = 0;
-        delete m_pTempAudioPacket;
-        m_pTempAudioPacket = 0;
+        deleteCurAudioPacket();
     }
     m_bVideoEOF = false;
     m_bAudioEOF = false;
@@ -703,11 +695,7 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
         m_pTempAudioPacket->size -= bytesConsumed;
 
         if (m_pTempAudioPacket->size == 0) {
-            av_free_packet(m_pCurAudioPacket);
-            delete m_pCurAudioPacket;
-            m_pCurAudioPacket = 0;
-            delete m_pTempAudioPacket;
-            m_pTempAudioPacket = 0;
+            deleteCurAudioPacket();
         }
     }
     int framesDecoded = bytesDecoded/(m_pAStream->codec->channels*sizeof(short));
@@ -1050,6 +1038,15 @@ AudioBufferPtr FFMpegDecoder::resampleAudio(short* pDecodedData, int framesDecod
             framesResampled*m_AP.m_Channels*sizeof(short));
 //    cerr << "Resample: " << framesDecoded << "->" << framesResampled << endl;
     return pBuffer;
+}
+
+void FFMpegDecoder::deleteCurAudioPacket()
+{
+    av_free_packet(m_pCurAudioPacket);
+    delete m_pCurAudioPacket;
+    m_pCurAudioPacket = 0;
+    delete m_pTempAudioPacket;
+    m_pTempAudioPacket = 0;
 }
 
 AVCodecContext const* FFMpegDecoder::getCodecContext() const

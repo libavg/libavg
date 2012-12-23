@@ -115,7 +115,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
 
         // Used from audio thread.
         AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
-        void volumize(AudioBufferPtr pBuffer);
+        void deleteCurAudioPacket();
 
         int m_AStreamIndex;
         AudioParams m_AP;
