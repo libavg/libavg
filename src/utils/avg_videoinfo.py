@@ -27,13 +27,13 @@ from libavg import avg
 from xml.dom import minidom
 import os
 
-parser = OptionParser(usage="%prog <videofilename(s) folder(s)> [options]")
+parser = OptionParser(usage="%prog filename(s) [options]")
 parser.add_option("-x", "--xml", dest = "xml", action = "store_true",
         help = "Output in XML format")
 parser.add_option("-c", "--csv", dest = "csv", action = "store_true",
         help = "Output in csv format")
 parser.add_option("-r", "--recursion", dest = "recursion", action = "store_true",
-        help = "Input will be recursiv interpreted")
+        help = "Recurse into subdirectories")
 options, args = parser.parse_args()
 
 def sortByName(a, b):
@@ -47,9 +47,6 @@ class OutputHandler(object):
     def __init__(self, args):
         self._node = avg.VideoNode()
         self.__getFileNames(args)
-        if self._fileNameList == []:
-            print "No valid video files found."
-            printHelp()
 
     def __getFileNames(self, args):
         self._fileNameList = []
@@ -96,11 +93,9 @@ class ConsoleOutputHandler(OutputHandler):
     
     def __init__(self, args):
         super(ConsoleOutputHandler, self).__init__(args)
-        self.__filenameLen = 8
-        self.__videoCodecLen = 5
-        self.__videoFormatLen = 6
-        self.__audioCodecLen = 5
-
+        if self._fileNameList == []:
+            print "No valid video files found."
+            printHelp()
 
     def output(self):
         if len(self._fileNameList) == 1:
@@ -128,6 +123,11 @@ class ConsoleOutputHandler(OutputHandler):
             print "  Duration: " + str(self._node.getAudioDuration()/1000.) + " s"
 
     def __outputTable(self):
+        self.__filenameLen = 8
+        self.__videoCodecLen = 5
+        self.__videoFormatLen = 6
+        self.__audioCodecLen = 5
+
         for filename in self._fileNameList:
             self._node.href = str(filename)
             self._node.play()
@@ -174,7 +174,10 @@ class ConsoleOutputHandler(OutputHandler):
         vVideoCodec = str(node.getVideoCodec()).ljust(self.__videoCodecLen + 1)
         vVideoSize = str(node.getMediaSize()).ljust(13)
         vPixel = str(node.getStreamPixelFormat()).ljust(self.__videoFormatLen + 1)
-        vFPS = str(round(node.fps, 2)).ljust(6)
+        if node.fps%1 < 0.0000001:
+            vFPS = str(int(node.fps)).ljust(6)
+        else:
+            vFPS = str(round(node.fps, 2)).ljust(6)
 
         if node.hasAudio():   
             vAudioCodec = str(node.getAudioCodec()).ljust(self.__audioCodecLen + 1)
