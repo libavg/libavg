@@ -34,7 +34,7 @@
 #include "../graphics/GLTexture.h"
 #include "../graphics/TextureMover.h"
 
-#include "../audio/SDLAudioEngine.h"
+#include "../audio/AudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
@@ -469,7 +469,7 @@ void VideoNode::open()
 void VideoNode::startDecoding()
 {
     const AudioParams * pAP = 0;
-    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    AudioEngine* pAudioEngine = AudioEngine::get();
     if (pAudioEngine) {
         pAP = pAudioEngine->getParams();
     }
@@ -535,7 +535,7 @@ void VideoNode::createTextures(IntPoint size)
 
 void VideoNode::close()
 {
-    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    AudioEngine* pAudioEngine = AudioEngine::get();
     if (hasAudio() && pAudioEngine) {
         pAudioEngine->removeSource(this);
     }

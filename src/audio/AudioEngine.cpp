@@ -23,25 +23,115 @@
 
 #include "AudioEngine.h"
 
+#include "Dynamics.h"
+
 #include "../base/Exception.h"
+#include "../base/Logger.h"
+
+#include <iostream>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
+AudioEngine* AudioEngine::s_pInstance = 0;
+
+AudioEngine* AudioEngine::get()
+{
+    return s_pInstance;
+}
+
 AudioEngine::AudioEngine()
-    : m_bEnabled(true),
+    : m_pTempBuffer(),
+      m_pMixBuffer(0),
+      m_pLimiter(0),
+      m_bEnabled(true),
       m_Volume(1)
 {
+    AVG_ASSERT(s_pInstance == 0);
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
+        AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
+        exit(-1);
+    }
+    s_pInstance = this;
 }
 
 AudioEngine::~AudioEngine()
 {
+    if (m_pMixBuffer) {
+        delete[] m_pMixBuffer;
+    }
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
     m_AudioSources.clear();
+}
+
+int AudioEngine::getChannels()
+{
+    return m_AP.m_Channels;
+}
+
+int AudioEngine::getSampleRate()
+{
+    return m_AP.m_SampleRate;
+}
+
+const AudioParams * AudioEngine::getParams()
+{
+    if (isEnabled()) {
+        return &m_AP;
+    } else {
+        return 0;
+    }
+}
+
+void AudioEngine::init(const AudioParams& ap, float volume) 
+{
+    m_Volume = volume;
+    m_AP = ap;
+    Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
+    pLimiter->setThreshold(0.f); // in dB
+    pLimiter->setAttackTime(0.f); // in seconds
+    pLimiter->setReleaseTime(0.05f); // in seconds
+    pLimiter->setRmsTime(0.f); // in seconds
+    pLimiter->setRatio(std::numeric_limits<float>::infinity());
+    pLimiter->setMakeupGain(0.f); // in dB
+    m_pLimiter = pLimiter;
+    
+    SDL_AudioSpec desired;
+    desired.freq = m_AP.m_SampleRate;
+    desired.format = AUDIO_S16SYS;
+    desired.channels = m_AP.m_Channels;
+    desired.silence = 0;
+    desired.samples = m_AP.m_OutputBufferSamples;
+    desired.callback = audioCallback;
+    desired.userdata = this;
+
+    if (SDL_OpenAudio(&desired, 0) < 0) {
+      //throw new Exception("Cannot open audio device");
+    }
+}
+
+void AudioEngine::teardown()
+{
+    {
+        mutex::scoped_lock Lock(m_Mutex);
+        SDL_PauseAudio(1);
+    }
+    // Optimized away - takes too long.
+//    SDL_CloseAudio();
+
+    m_AudioSources.clear();
+    if (m_pLimiter) {
+        delete m_pLimiter;
+        m_pLimiter = 0;
+    }
 }
 
 void AudioEngine::setAudioEnabled(bool bEnabled)
 {
+    SDL_LockAudio();
+    mutex::scoped_lock Lock(m_Mutex);
     AVG_ASSERT(m_AudioSources.empty());
     m_bEnabled = bEnabled;
     if (m_bEnabled) {
@@ -49,48 +139,116 @@ void AudioEngine::setAudioEnabled(bool bEnabled)
     } else {
         pause();
     }
+    SDL_UnlockAudio();
 }
 
-void AudioEngine::init(const AudioParams& ap, float volume)
+void AudioEngine::play()
 {
-    m_Volume = volume;
+    SDL_PauseAudio(0);
 }
 
-AudioSourceList& AudioEngine::getSources()
+void AudioEngine::pause()
 {
-    return m_AudioSources;
+    SDL_PauseAudio(1);
 }
 
 void AudioEngine::addSource(IAudioSource* pSource)
 {
+    SDL_LockAudio();
+    mutex::scoped_lock Lock(m_Mutex);
     m_AudioSources.push_back(pSource);
+    SDL_UnlockAudio();
 }
 
 void AudioEngine::removeSource(IAudioSource* pSource)
 {
+    SDL_LockAudio();
+    mutex::scoped_lock Lock(m_Mutex);
     AudioSourceList::iterator it;
-    for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++)
-    {
+    for (it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
         if (*it == pSource) {
             m_AudioSources.erase(it);
             break;
         }
     }
+    SDL_UnlockAudio();
 }
 
 void AudioEngine::setVolume(float volume)
 {
+    SDL_LockAudio();
+    mutex::scoped_lock Lock(m_Mutex);
     m_Volume = volume;
+    SDL_UnlockAudio();
 }
 
 float AudioEngine::getVolume() const
 {
     return m_Volume;
 }
-        
+
 bool AudioEngine::isEnabled() const
 {
     return m_bEnabled;
+}
+        
+void AudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
+{
+    int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
+
+    if (m_AudioSources.size() == 0) {
+        return;
+    }
+    if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
+        if (m_pTempBuffer) {
+            delete[] m_pMixBuffer;
+        }
+        m_pTempBuffer = AudioBufferPtr(new AudioBuffer(numFrames, m_AP));
+        m_pMixBuffer = new float[getChannels()*numFrames];
+    }
+
+    for (int i = 0; i < getChannels()*numFrames; ++i) {
+        m_pMixBuffer[i]=0;
+    }
+    {
+        mutex::scoped_lock Lock(m_Mutex);
+        AudioSourceList::iterator it;
+        for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
+            m_pTempBuffer->clear();
+            (*it)->fillAudioBuffer(m_pTempBuffer);
+            addBuffers(m_pMixBuffer, m_pTempBuffer);
+        }
+    }
+    calcVolume(m_pMixBuffer, numFrames*getChannels(), getVolume());
+    for (int i = 0; i < numFrames; ++i) {
+        m_pLimiter->process(m_pMixBuffer+i*getChannels());
+        for (int j = 0; j < getChannels(); ++j) {
+            ((short*)pDestBuffer)[i*2+j]=short(m_pMixBuffer[i*2+j]*32768);
+        }
+    }
+}
+
+void AudioEngine::audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen)
+{
+    AudioEngine *pThis = (AudioEngine*)userData;
+    pThis->mixAudio(audioBuffer, audioBufferLen);
+}
+
+void AudioEngine::addBuffers(float *pDest, AudioBufferPtr pSrc)
+{
+    int numFrames = pSrc->getNumFrames();
+    short * pData = pSrc->getData();
+    for(int i = 0; i < numFrames*getChannels(); ++i) {
+        pDest[i] += pData[i]/32768.0f;
+    }
+}
+
+void AudioEngine::calcVolume(float *pBuffer, int numSamples, float volume)
+{
+    // TODO: We need a VolumeFader class that keeps state.
+    for(int i = 0; i < numSamples; ++i) {
+        pBuffer[i] *= volume;
+    }
 }
 
 }
