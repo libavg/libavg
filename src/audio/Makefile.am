@@ -2,14 +2,14 @@
 INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
 
 ALL_H = AudioEngine.h AudioBuffer.h AudioParams.h IAudioSource.h \
-        Dynamics.h IProcessor.h
+        Dynamics.h IProcessor.h AudioMsg.h
 
 TESTS=testlimiter
 
 noinst_LTLIBRARIES = libaudio.la
 noinst_PROGRAMS=testlimiter
 
-libaudio_la_SOURCES = AudioEngine.cpp AudioBuffer.cpp AudioParams.cpp \
+libaudio_la_SOURCES = AudioEngine.cpp AudioBuffer.cpp AudioParams.cpp AudioMsg.cpp \
         $(ALL_H)
 
 testlimiter_SOURCES = testlimiter.cpp $(ALL_H)

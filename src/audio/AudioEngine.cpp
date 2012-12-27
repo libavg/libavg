@@ -213,7 +213,7 @@ void AudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
     {
         mutex::scoped_lock Lock(m_Mutex);
         AudioSourceList::iterator it;
-        for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
+        for (it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
             m_pTempBuffer->clear();
             (*it)->fillAudioBuffer(m_pTempBuffer);
             addBuffers(m_pMixBuffer, m_pTempBuffer);

@@ -63,10 +63,14 @@ public:
 
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
             float timeWanted);
+    void updateAudioStatus();
     virtual bool isEOF(StreamSelect stream = SS_ALL) const;
     virtual void throwAwayFrame(float timeWanted);
-    
-    virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
+   
+    VideoMsgQueuePtr getAudioMsgQ() const;
+    VideoMsgQueuePtr getAudioStatusQ() const;
+
+//    virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
     
 private:
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
@@ -87,8 +91,7 @@ private:
     boost::mutex m_AudioMutex;
     AudioDecoderThread::CQueuePtr m_pACmdQ;
     VideoMsgQueuePtr m_pAMsgQ;
-    AudioBufferPtr m_pInputAudioBuffer;
-    int m_CurInputAudioPos;
+    VideoMsgQueuePtr m_pAStatusQ;
 
     VideoInfo m_VideoInfo;
 
