@@ -33,11 +33,11 @@ class Graph(avg.DivNode):
         self.sensitive = False
 
         avg.RectNode(parent=self, strokewidth=0, fillopacity=0.6, fillcolor="FFFFFF",
-                size=self.size)
+                     size=self.size)
         self._textNode0 = avg.WordsNode(parent=self, x=10, y=self.size.y - 22,
-                    color="000080")
+                                        color="000080")
         self._textNode1 = avg.WordsNode(parent=self, x=10, y=self.size.y - 39,
-                    color="000080")
+                                        color="000080")
         self._maxLineNode = avg.PolyLineNode(parent=self, color="880000")
         self._lineNode = avg.PolyLineNode(parent=self, color="008000")
         self.__graphText = avg.WordsNode(parent=self, x=10, y=0, color="000080")
@@ -78,8 +78,8 @@ class AveragingGraph(Graph):
             maxUsage = curUsage
             lastMaxChangeTime = time.time()
             self._textNode1.text = ("Last increase in maximum: "
-                    + time.strftime("%d.%m.%Y %H:%M:%S",
-                      time.localtime(lastMaxChangeTime)))
+                                    + time.strftime("%d.%m.%Y %H:%M:%S",
+                                    time.localtime(lastMaxChangeTime)))
         self._maxUsage.append(maxUsage)
         self.__numSamples += 1
 
@@ -95,8 +95,8 @@ class AveragingGraph(Graph):
             self._plotLine(self._minutesUsage, self._lineNode, maxUsage)
             self._plotLine(self._minutesMaxUsage, self._maxLineNode, maxUsage)
 
-        self._textNode0.text = ("Max. memory usage: %(size).2f MB"
-                % {"size": maxUsage / (1024 * 1024.0)})
+        self._textNode0.text = ("Max. memory usage: %(size).2f MB" %
+                                {"size": maxUsage / (1024 * 1024.0)})
 
         if self.__numSamples % 3600 == 0:
             del self._usage[0:3600]
@@ -108,7 +108,7 @@ class AveragingGraph(Graph):
         yfactor = (self.size.y - 10.0) / float(maxy)
         xfactor = (self.size.x - 10.0) / float(len(data) - 1)
         node.pos = [(pos[0] * xfactor + 10, (maxy - pos[1]) * yfactor + 10.0)
-                for pos in enumerate(data)]
+                    for pos in enumerate(data)]
 
 
 class SlidingGraph(Graph):
@@ -146,8 +146,8 @@ class SlidingGraph(Graph):
             lastMaxChangeTime = time.time()
             self._maxFrameTime = diff
             self._textNode0.text = ("Max FrameTime: %.f" % self._maxFrameTime + " ms" +
-                "   Time: " + time.strftime("%d.%m.%Y %H:%M:%S",
-                time.localtime(lastMaxChangeTime)))
+                                    "   Time: " + time.strftime("%d.%m.%Y %H:%M:%S",
+                                    time.localtime(lastMaxChangeTime)))
 
         self._lastCurUsage = frameTime
         self._textNode1.text = ("Current FrameTime: %.f" % diff + " ms")
@@ -157,5 +157,4 @@ class SlidingGraph(Graph):
         self._lineNode.pos = self._getCoords()
 
     def _getCoords(self):
-        return zip(xrange(0, len(self._values) * self._xSkip, self._xSkip),
-                    self._values)
+        return zip(xrange(0, len(self._values) * self._xSkip, self._xSkip), self._values)
