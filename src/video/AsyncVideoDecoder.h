@@ -67,16 +67,14 @@ public:
     virtual bool isEOF(StreamSelect stream = SS_ALL) const;
     virtual void throwAwayFrame(float timeWanted);
    
-    VideoMsgQueuePtr getAudioMsgQ() const;
-    VideoMsgQueuePtr getAudioStatusQ() const;
+    AudioMsgQueuePtr getAudioMsgQ();
+    AudioMsgQueuePtr getAudioStatusQ() const;
 
-//    virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
-    
 private:
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
     void waitForSeekDone();
-    void returnFrame(VideoMsgPtr& pFrameMsg);
+    void returnFrame(VideoMsgPtr pFrameMsg);
 
     DecoderState m_State;
     FFMpegDecoderPtr m_pSyncDecoder;
@@ -90,8 +88,9 @@ private:
     boost::thread* m_pADecoderThread;
     boost::mutex m_AudioMutex;
     AudioDecoderThread::CQueuePtr m_pACmdQ;
-    VideoMsgQueuePtr m_pAMsgQ;
-    VideoMsgQueuePtr m_pAStatusQ;
+    AudioMsgQueuePtr m_pAMsgQ;
+    AudioMsgQueuePtr m_pAStatusQ;
+    AudioParams m_AP;
 
     VideoInfo m_VideoInfo;
 

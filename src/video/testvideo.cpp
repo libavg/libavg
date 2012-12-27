@@ -87,25 +87,25 @@ class DecoderTest: public GraphicsTest {
             return &AP;
         }
 
-        int processAudioMsg(VideoMsgQueuePtr pMsgQ, VideoMsgQueuePtr pStatusQ)
+        int processAudioMsg(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ)
         {
-            VideoMsgPtr pMsg = pMsgQ->pop(false);
+            AudioMsgPtr pMsg = pMsgQ->pop(false);
             if (pMsg) {
                 switch (pMsg->getType()) {
-                    case VideoMsg::AUDIO: {
+                    case AudioMsg::AUDIO: {
                         AudioBufferPtr pBuffer = pMsg->getAudioBuffer();
 //                        cerr << "framesDecoded: " << pBuffer->getNumFrames() << endl;
-                        VideoMsgPtr pStatusMsg(new VideoMsg);
+                        AudioMsgPtr pStatusMsg(new AudioMsg);
                         pStatusMsg->setAudioTime(pMsg->getAudioTime());
-                        pStatusQ->push(VideoMsgPtr(pStatusMsg));
+                        pStatusQ->push(AudioMsgPtr(pStatusMsg));
                         return pBuffer->getNumFrames();
                     }
-                    case VideoMsg::SEEK_DONE: {
-                        VideoMsgPtr pStatusMsg(new VideoMsg);
-                        int seekAudioFrame = pMsg->getSeekAudioFrameTime()*44100;
+                    case AudioMsg::SEEK_DONE: {
+                        AudioMsgPtr pStatusMsg(new AudioMsg);
+                        int seekAudioFrame = pMsg->getSeekAudioFrameTime();
 //                        cerr << "seek: " << seekAudioFrame << endl;
                         pStatusMsg->setAudioTime(seekAudioFrame);
-                        pStatusQ->push(VideoMsgPtr(pStatusMsg));
+                        pStatusQ->push(AudioMsgPtr(pStatusMsg));
                         return -1;
                     }
                     default:
@@ -322,8 +322,8 @@ class AudioDecoderTest: public DecoderTest {
                     pDecoder->setVolume(0.5);
                     TEST(pDecoder->getVolume() == 0.5);
                     pDecoder->startDecoding(false, getAudioParams());
-                    VideoMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
-                    VideoMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
+                    AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
+                    AudioMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
                     int totalFramesDecoded = 0;
                     readAudioToEOF(pDecoder, pMsgQ, pStatusQ, totalFramesDecoded, true);
 
@@ -341,8 +341,8 @@ class AudioDecoderTest: public DecoderTest {
                             useHardwareAcceleration(), true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
-                    VideoMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
-                    VideoMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
+                    AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
+                    AudioMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
                     pDecoder->seek(duration/2);
                     int totalFramesDecoded = 0;
 
@@ -365,8 +365,8 @@ class AudioDecoderTest: public DecoderTest {
             }
         }
 
-        void readAudioToEOF(AsyncVideoDecoderPtr pDecoder, VideoMsgQueuePtr pMsgQ, 
-                VideoMsgQueuePtr pStatusQ, int& totalFramesDecoded,
+        void readAudioToEOF(AsyncVideoDecoderPtr pDecoder, AudioMsgQueuePtr pMsgQ, 
+                AudioMsgQueuePtr pStatusQ, int& totalFramesDecoded,
                 bool bCheckTimestamps) 
         {
             int numWrongTimestamps = 0;
@@ -419,8 +419,8 @@ class AVDecoderTest: public DecoderTest {
             TEST(pDecoder->getVideoInfo().m_bHasVideo);
             TEST(pDecoder->getNominalFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());
-            VideoMsgQueuePtr pMsgQ;
-            VideoMsgQueuePtr pStatusQ;
+            AudioMsgQueuePtr pMsgQ;
+            AudioMsgQueuePtr pStatusQ;
             if (isDemuxerThreaded()) {
                 pMsgQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
                         ->getAudioMsgQ();

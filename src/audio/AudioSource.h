@@ -21,39 +21,38 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _AudioDecoderThread_H_
-#define _AudioDecoderThread_H_
+#ifndef _AudioSource_H_
+#define _AudioSource_H_
 
-#include "../avgconfigwrapper.h"
-#include "FFMpegDecoder.h"
-#include "VideoMsg.h"
+#include "../api.h"
 
-#include "../base/WorkerThread.h"
-#include "../base/Command.h"
-#include "../audio/AudioParams.h"
+#include "AudioMsg.h"
 
-#include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include <string>
+namespace avg
+{
 
-namespace avg {
+class AVG_API AudioSource
+{
+public:
+    AudioSource(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ, int sampleRate);
+    virtual ~AudioSource();
+    void fillAudioBuffer(AudioBufferPtr pBuffer);
 
-class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
-    public:
-        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, 
-                FFMpegDecoderPtr pDecoder, const AudioParams& ap);
-        virtual ~AudioDecoderThread();
-        
-        bool work();
-        void seek(float destTime);
-        void setVolume(float volume);
+private:
+    bool processNextMsg();
 
-    private:
-        AudioMsgQueue& m_MsgQ;
-        FFMpegDecoderPtr m_pDecoder;
-        AudioParams m_AP;
+    AudioMsgQueuePtr m_pMsgQ;    
+    AudioMsgQueuePtr m_pStatusQ;
+    int m_SampleRate;
+    AudioBufferPtr m_pInputAudioBuffer;
+    int m_LastAudioFrameTime;
+    int m_CurInputAudioPos;
 };
 
-}
-#endif 
+typedef boost::shared_ptr<AudioSource> AudioSourcePtr;
 
+}
+
+#endif
