@@ -152,25 +152,24 @@ void AudioEngine::pause()
     SDL_PauseAudio(1);
 }
 
-void AudioEngine::addSource(IAudioSource* pSource)
+int AudioEngine::addSource(AudioMsgQueue& dataQ, AudioMsgQueue& statusQ)
 {
     SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
-    m_AudioSources.push_back(pSource);
+    static int nextID = -1;
+    nextID++;
+    AudioSourcePtr pSrc(new AudioSource(dataQ, statusQ, m_AP.m_SampleRate));
+    m_AudioSources[nextID] = pSrc;
     SDL_UnlockAudio();
+    return nextID;
 }
 
-void AudioEngine::removeSource(IAudioSource* pSource)
+void AudioEngine::removeSource(int id)
 {
     SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
-    AudioSourceList::iterator it;
-    for (it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
-        if (*it == pSource) {
-            m_AudioSources.erase(it);
-            break;
-        }
-    }
+    int numErased = m_AudioSources.erase(id);
+    AVG_ASSERT(numErased == 1);
     SDL_UnlockAudio();
 }
 
@@ -212,10 +211,10 @@ void AudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
     }
     {
         mutex::scoped_lock Lock(m_Mutex);
-        AudioSourceList::iterator it;
+        AudioSourceMap::iterator it;
         for (it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
             m_pTempBuffer->clear();
-            (*it)->fillAudioBuffer(m_pTempBuffer);
+            it->second->fillAudioBuffer(m_pTempBuffer);
             addBuffers(m_pMixBuffer, m_pTempBuffer);
         }
     }

@@ -85,7 +85,8 @@ VideoNode::VideoNode(const ArgList& args)
       m_pDecoder(0),
       m_Volume(1.0),
       m_bUsesHardwareAcceleration(false),
-      m_bEnableSound(true)
+      m_bEnableSound(true),
+      m_AudioID(-1)
 {
     args.setMembers(this);
     m_Filename = m_href;
@@ -377,6 +378,10 @@ void VideoNode::checkReload()
 
 void VideoNode::onFrameEnd()
 {
+    AsyncVideoDecoder* pAsyncDecoder = dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
+    if (pAsyncDecoder) {
+        pAsyncDecoder->updateAudioStatus();
+    }
     if (m_bEOFPending) {
         // If the VideoNode is unlinked by python in onEOF, the following line prevents
         // the object from being deleted until we return from this function.
@@ -384,12 +389,6 @@ void VideoNode::onFrameEnd()
         m_bEOFPending = false;
         onEOF();
     }
-}
-
-void VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
-{
-    AVG_ASSERT(m_bThreaded);
-    dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->fillAudioBuffer(pBuffer);
 }
 
 void VideoNode::changeVideoState(VideoState NewVideoState)
@@ -484,7 +483,10 @@ void VideoNode::startDecoding()
         }
     }
     if (videoInfo.m_bHasAudio && pAudioEngine) {
-        pAudioEngine->addSource(this);
+        AsyncVideoDecoder* pAsyncDecoder = 
+                dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
+        m_AudioID = pAudioEngine->addSource(*pAsyncDecoder->getAudioMsgQ(), 
+                *pAsyncDecoder->getAudioStatusQ());
     }
     m_bSeekPending = true;
     
@@ -537,7 +539,7 @@ void VideoNode::close()
 {
     AudioEngine* pAudioEngine = AudioEngine::get();
     if (hasAudio() && pAudioEngine) {
-        pAudioEngine->removeSource(this);
+        pAudioEngine->removeSource(m_AudioID);
     }
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {

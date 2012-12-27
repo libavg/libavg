@@ -28,13 +28,12 @@
 
 #include "../base/IFrameEndListener.h"
 #include "../base/UTF8String.h"
-#include "../audio/IAudioSource.h"
 
 namespace avg {
 
 class VideoDecoder;
 
-class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
+class AVG_API SoundNode : public AreaNode, IFrameEndListener
 {
     public:
         static void registerType();
@@ -68,8 +67,6 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
 
         virtual void onFrameEnd();
 
-        virtual void fillAudioBuffer(AudioBufferPtr pBuffer);
-
     private:
         void seek(long long destTime);
         void onEOF();
@@ -95,6 +92,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
         VideoDecoder * m_pDecoder;
         float m_Volume;
         SoundState m_State;
+        int m_AudioID;
 };
 
 }

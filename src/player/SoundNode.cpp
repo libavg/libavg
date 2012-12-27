@@ -62,7 +62,8 @@ SoundNode::SoundNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_State(Unloaded)
+      m_State(Unloaded),
+      m_AudioID(-1)
 {
     args.setMembers(this);
     m_Filename = m_href;
@@ -239,14 +240,11 @@ void SoundNode::checkReload()
 
 void SoundNode::onFrameEnd()
 {
+    dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->updateAudioStatus();
     if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
+        NodePtr pTempThis = getSharedThis();
         onEOF();
     }
-}
-
-void SoundNode::fillAudioBuffer(AudioBufferPtr pBuffer)
-{
-    dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->fillAudioBuffer(pBuffer);
 }
 
 void SoundNode::changeSoundState(SoundState newSoundState)
@@ -306,7 +304,9 @@ void SoundNode::startDecoding()
 {
     AudioEngine* pEngine = AudioEngine::get();
     m_pDecoder->startDecoding(false, pEngine->getParams());
-    pEngine->addSource(this);
+    AsyncVideoDecoder* pAsyncDecoder = dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
+    m_AudioID = pEngine->addSource(*pAsyncDecoder->getAudioMsgQ(), 
+            *pAsyncDecoder->getAudioStatusQ());
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
@@ -315,7 +315,7 @@ void SoundNode::startDecoding()
 
 void SoundNode::close()
 {
-    AudioEngine::get()->removeSource(this);
+    AudioEngine::get()->removeSource(m_AudioID);
     m_pDecoder->close();
 }
 

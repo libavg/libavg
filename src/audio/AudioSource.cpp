@@ -18,8 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
 #include "AudioSource.h"
 #include "AudioEngine.h"
@@ -31,10 +29,10 @@ using namespace std;
 
 namespace avg {
 
-AudioSource::AudioSource(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ, 
+AudioSource::AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, 
         int sampleRate)
-    : m_pMsgQ(pMsgQ),
-      m_pStatusQ(pStatusQ),
+    : m_MsgQ(msgQ),
+      m_StatusQ(statusQ),
       m_SampleRate(sampleRate)
 {
 }
@@ -77,12 +75,12 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
     }
     AudioMsgPtr pStatusMsg(new AudioMsg);
     pStatusMsg->setAudioTime(m_LastAudioFrameTime);
-    m_pStatusQ->push(pStatusMsg);
+    m_StatusQ.push(pStatusMsg);
 }
     
 bool AudioSource::processNextMsg()
 {
-    AudioMsgPtr pMsg = m_pMsgQ->pop(false);
+    AudioMsgPtr pMsg = m_MsgQ.pop(false);
     if (pMsg) {
         switch (pMsg->getType()) {
             case AudioMsg::AUDIO:
@@ -94,7 +92,7 @@ bool AudioSource::processNextMsg()
             case AudioMsg::END_OF_FILE: {
                 AudioMsgPtr pStatusMsg(new AudioMsg);
                 pStatusMsg->setEOF();
-                m_pStatusQ->push(pStatusMsg);
+                m_StatusQ.push(pStatusMsg);
                 return false;
             }
             case AudioMsg::SEEK_DONE:

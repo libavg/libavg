@@ -18,8 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
 #ifndef _AudioSource_H_
 #define _AudioSource_H_
@@ -36,15 +34,15 @@ namespace avg
 class AVG_API AudioSource
 {
 public:
-    AudioSource(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ, int sampleRate);
+    AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, int sampleRate);
     virtual ~AudioSource();
     void fillAudioBuffer(AudioBufferPtr pBuffer);
 
 private:
     bool processNextMsg();
 
-    AudioMsgQueuePtr m_pMsgQ;    
-    AudioMsgQueuePtr m_pStatusQ;
+    AudioMsgQueue& m_MsgQ;    
+    AudioMsgQueue& m_StatusQ;
     int m_SampleRate;
     AudioBufferPtr m_pInputAudioBuffer;
     int m_LastAudioFrameTime;

@@ -25,7 +25,7 @@
 #define _AudioEngine_H_
 
 #include "../api.h"
-#include "IAudioSource.h"
+#include "AudioSource.h"
 #include "AudioParams.h"
 #include "AudioBuffer.h"
 #include "IProcessor.h"
@@ -34,11 +34,11 @@
 
 #include <boost/thread/mutex.hpp>
 
-#include <vector>
+#include <map>
 
 namespace avg {
 
-typedef std::vector<IAudioSource*> AudioSourceList;
+typedef std::map<int, AudioSourcePtr> AudioSourceMap;
 
 class AVG_API AudioEngine
 {
@@ -47,21 +47,21 @@ class AVG_API AudioEngine
         AudioEngine();
         virtual ~AudioEngine();
 
-        virtual int getChannels();
-        virtual int getSampleRate();
-        virtual const AudioParams * getParams();
+        int getChannels();
+        int getSampleRate();
+        const AudioParams * getParams();
 
-        virtual void setAudioEnabled(bool bEnabled);
+        void setAudioEnabled(bool bEnabled);
         
-        virtual void init(const AudioParams& ap, float volume);
-        virtual void teardown();
+        void init(const AudioParams& ap, float volume);
+        void teardown();
         
-        virtual void play();
-        virtual void pause();
+        void play();
+        void pause();
         
-        virtual void addSource(IAudioSource* pSource);
-        virtual void removeSource(IAudioSource* pSource);
-        virtual void setVolume(float volume);
+        int addSource(AudioMsgQueue& dataQ, AudioMsgQueue& statusQ);
+        void removeSource(int id);
+        void setVolume(float volume);
         float getVolume() const;
         bool isEnabled() const;
         
@@ -78,7 +78,7 @@ class AVG_API AudioEngine
         boost::mutex m_Mutex;
 
         bool m_bEnabled;
-        AudioSourceList m_AudioSources;
+        AudioSourceMap m_AudioSources;
         float m_Volume;
         
         static AudioEngine* s_pInstance;

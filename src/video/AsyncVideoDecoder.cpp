@@ -123,11 +123,13 @@ void AsyncVideoDecoder::close()
         scoped_lock lock1(m_AudioMutex);
         if (m_pADecoderThread) {
             m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::stop, _1));
+            m_pAMsgQ->clear();
             m_pAStatusQ->clear();
             m_pADecoderThread->join();
             delete m_pADecoderThread;
             m_pADecoderThread = 0;
             m_pAStatusQ = AudioMsgQueuePtr();
+            m_pAMsgQ = AudioMsgQueuePtr();
         }
         m_pSyncDecoder->close();
     }        
@@ -349,11 +351,7 @@ void AsyncVideoDecoder::throwAwayFrame(float timeWanted)
     
 AudioMsgQueuePtr AsyncVideoDecoder::getAudioMsgQ()
 {
-    // Call only once during setup
-    AVG_ASSERT(m_pAMsgQ);
-    AudioMsgQueuePtr pAMsgQ = m_pAMsgQ;
-    m_pAMsgQ = AudioMsgQueuePtr();
-    return pAMsgQ;
+    return m_pAMsgQ;
 }
 
 AudioMsgQueuePtr AsyncVideoDecoder::getAudioStatusQ() const
