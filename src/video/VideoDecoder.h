@@ -26,10 +26,11 @@
 
 #include "VideoInfo.h"
 
-#include "../audio/IAudioSource.h"
+#include "../audio/AudioParams.h"
 #include "../graphics/PixelFormat.h"
 
 #include <string>
+#include <boost/shared_ptr.hpp>
 
 struct vdpau_render_state;
 

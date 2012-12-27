@@ -40,6 +40,7 @@
 namespace avg {
 
 class AudioBuffer;
+typedef boost::shared_ptr<AudioBuffer> AudioBufferPtr;
 class VDPAUDecoder;
 
 class AVG_API FFMpegDecoder: public VideoDecoder

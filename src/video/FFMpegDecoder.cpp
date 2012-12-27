@@ -33,6 +33,8 @@
 #include "../base/ProfilingZoneID.h"
 #include "../base/StringHelper.h"
 
+#include "../audio/AudioBuffer.h"
+
 #include "../graphics/BitmapLoader.h"
 
 #include <iostream>
