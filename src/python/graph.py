@@ -112,9 +112,10 @@ class AveragingGraph(Graph):
 
 
 class SlidingGraph(Graph):
-    def __init__(self, title, getValue, parent=None, **kwargs):
+    def __init__(self, title, getValue, limit=120.0, parent=None, **kwargs):
         super(SlidingGraph, self).__init__(title, getValue, parent, **kwargs)
         self.registerInstance(self, None)
+        self._limitValue = float(limit)
 
     def _setup(self):
         self._interval = player.setOnFrameHandler(self._nextFrameTimeSample)
@@ -129,8 +130,10 @@ class SlidingGraph(Graph):
         self._numSamples += 1
 
     def _appendValue(self, value):
-        y = value + self.height / 2.0
-        numValues = int(self.width / self._xSkip) - 10
+        maxValue = min(self._limitValue, value)
+        y = self.height - (self.height * (maxValue / self._limitValue))
+        y = max(0, y)
+        numValues = int(self.width / self._xSkip)
         self._values = (self._values + [y])[-numValues:]
         self._plotGraph()
 
@@ -148,11 +151,11 @@ class SlidingGraph(Graph):
 
         self._lastCurUsage = frameTime
         self._textNode1.text = ("Current FrameTime: %.f" % diff + " ms")
-        return -diff
+        return diff
 
     def _plotGraph(self):
         self._lineNode.pos = self._getCoords()
 
     def _getCoords(self):
-        return zip(xrange(10, len(self._values) * self._xSkip, self._xSkip),
+        return zip(xrange(0, len(self._values) * self._xSkip, self._xSkip),
                     self._values)
