@@ -379,7 +379,7 @@ void VideoNode::checkReload()
 void VideoNode::onFrameEnd()
 {
     AsyncVideoDecoder* pAsyncDecoder = dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
-    if (pAsyncDecoder) {
+    if (m_VideoState == Playing && pAsyncDecoder) {
         pAsyncDecoder->updateAudioStatus();
     }
     if (m_bEOFPending) {

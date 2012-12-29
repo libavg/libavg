@@ -240,7 +240,9 @@ void SoundNode::checkReload()
 
 void SoundNode::onFrameEnd()
 {
-    dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->updateAudioStatus();
+    if (m_State == Playing) {
+        dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->updateAudioStatus();
+    }
     if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
         NodePtr pTempThis = getSharedThis();
         onEOF();
