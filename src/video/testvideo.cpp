@@ -534,11 +534,6 @@ int main(int nargs, char** args)
     
     suite.runTests();
     bOk = suite.isOk();
-    if (bOk) {
-        return 0;
-    } else {
-        return 1;
-    }
 /*    
     while(true) {
         suite.runTests();
@@ -548,5 +543,10 @@ int main(int nargs, char** args)
         }
     }
 */    
+    if (bOk) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 

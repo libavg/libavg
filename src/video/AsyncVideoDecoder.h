@@ -90,7 +90,6 @@ private:
     AudioDecoderThread::CQueuePtr m_pACmdQ;
     AudioMsgQueuePtr m_pAMsgQ;
     AudioMsgQueuePtr m_pAStatusQ;
-    AudioParams m_AP;
 
     VideoInfo m_VideoInfo;
 
