@@ -72,6 +72,7 @@ class OutputHandler(object):
                     self._fileNameList.append(self._node.href)   
             except RuntimeError, err:
                 sys.stderr.write(str(err) + "\n")
+                self._node = avg.VideoNode()
         self._fileNameList.sort(cmp=sortByName)
 
     def __getFilesInFolder(self, folder):
