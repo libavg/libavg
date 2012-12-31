@@ -683,13 +683,15 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
         if (bytesConsumed < 0) {
             // Error decoding -> throw away current packet.
             bytesDecoded = 0;
-        }
-
-        m_pTempAudioPacket->data += bytesConsumed;
-        m_pTempAudioPacket->size -= bytesConsumed;
-
-        if (m_pTempAudioPacket->size == 0) {
             deleteCurAudioPacket();
+//            cerr << "error decoding" << endl;
+        } else {
+            m_pTempAudioPacket->data += bytesConsumed;
+            m_pTempAudioPacket->size -= bytesConsumed;
+
+            if (m_pTempAudioPacket->size == 0) {
+                deleteCurAudioPacket();
+            }
         }
     }
     int framesDecoded = bytesDecoded/(m_pAStream->codec->channels*sizeof(short));
