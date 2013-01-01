@@ -37,6 +37,7 @@ FFMpegDemuxer::FFMpegDemuxer(AVFormatContext * pFormatContext, vector<int> strea
     ObjectCounter::get()->incRef(&typeid(*this));
     for (unsigned i = 0; i < streamIndexes.size(); ++i) {
         m_PacketLists[streamIndexes[i]] = PacketList();
+        m_bSeekDoneMap[streamIndexes[i]] = false;
     }
 }
 
@@ -46,12 +47,13 @@ FFMpegDemuxer::~FFMpegDemuxer()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
+AVPacket * FFMpegDemuxer::getPacket(int streamIndex, bool& bSeekDone)
 {
 //    cerr << "FFMpegDemuxer::getPacket" << streamIndex << endl;
     // Make sure enableStream was called on streamIndex.
     AVG_ASSERT(m_PacketLists.size() > 0);
     AVG_ASSERT(streamIndex > -1 && streamIndex < 10);
+
     if (m_PacketLists.find(streamIndex) == m_PacketLists.end()) {
         cerr << this << ": getPacket: Stream " << streamIndex << " not found." << endl;
         dump();
@@ -76,6 +78,7 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
                 av_free_packet(pPacket);
                 delete pPacket;
                 pPacket = 0;
+                bSeekDone = false;
                 return 0;
             }
             if (pPacket->stream_index != streamIndex) {
@@ -100,6 +103,9 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
 
 //    float timeBase = av_q2d(m_pFormatContext->streams[streamIndex]->time_base);
 //    cerr << "  FFMpegDemuxer::getPacket: " << streamIndex << ": " << pPacket->dts*timeBase << endl;
+    bSeekDone = m_bSeekDoneMap[streamIndex];
+    m_bSeekDoneMap[streamIndex] = false;
+
     return pPacket;
 }
 
@@ -121,6 +127,7 @@ void FFMpegDemuxer::seek(float destTime)
         int curStreamIndex = it->first;
         AVStream * pStream = m_pFormatContext->streams[curStreamIndex];
         avcodec_flush_buffers(pStream->codec);
+        m_bSeekDoneMap[curStreamIndex] = true;
     }
 }
 

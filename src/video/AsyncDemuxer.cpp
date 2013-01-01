@@ -80,11 +80,13 @@ AsyncDemuxer::~AsyncDemuxer()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-AVPacket * AsyncDemuxer::getPacket(int streamIndex)
+AVPacket * AsyncDemuxer::getPacket(int streamIndex, bool& bSeekDone)
 {
     scoped_lock lock(m_SeekMutex);
     waitForSeekDone();
-    // TODO: This blocks if there is no packet. Is that ok?
+    bSeekDone = m_bSeekDoneMap[streamIndex];
+    m_bSeekDoneMap[streamIndex] = false;
+
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
     AVG_ASSERT(!pPacketMsg->isSeekDone());
 
@@ -96,13 +98,11 @@ void AsyncDemuxer::seek(float destTime)
     scoped_lock lock(m_SeekMutex);
     waitForSeekDone();
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
-    m_bSeekPending = true;
-    bool bAllSeeksDone = true;
     map<int, VideoPacketQueuePtr>::iterator it;
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoPacketQueuePtr pPacketQ = it->second;
         PacketVideoMsgPtr pPacketMsg;
-        map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
+        map<int, bool>::iterator itSeekDone = m_bSeekDoneMap.find(it->first);
         itSeekDone->second = false;
         pPacketMsg = pPacketQ->pop(false);
         while (pPacketMsg && !itSeekDone->second) {
@@ -113,11 +113,8 @@ void AsyncDemuxer::seek(float destTime)
             }
         }
         if (!itSeekDone->second) {
-            bAllSeeksDone = false;
+            m_bSeekPending = true;
         }
-    }
-    if (bAllSeeksDone) {
-        m_bSeekPending = false;
     }
 }
 
@@ -125,7 +122,7 @@ void AsyncDemuxer::enableStream(int streamIndex)
 {
     VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
     m_PacketQs[streamIndex] = pPacketQ;
-    m_bSeekDone[streamIndex] = true;
+    m_bSeekDoneMap[streamIndex] = false;
 }
 
 void AsyncDemuxer::waitForSeekDone()
@@ -136,7 +133,7 @@ void AsyncDemuxer::waitForSeekDone()
         for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             VideoPacketQueuePtr pPacketQ = it->second;
             PacketVideoMsgPtr pPacketMsg;
-            map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
+            map<int, bool>::iterator itSeekDone = m_bSeekDoneMap.find(it->first);
             while (!itSeekDone->second) {
                 pPacketMsg = pPacketQ->pop(true);
                 itSeekDone->second = pPacketMsg->isSeekDone();

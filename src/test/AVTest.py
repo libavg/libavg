@@ -308,13 +308,6 @@ class AVTestCase(AVGTestCase):
             seek(26)
             self.assertNotEqual(videoNode.getCurFrame(), 0)
 
-        root = self.loadEmptyScene()
-        videoNode = avg.VideoNode(parent=root, loop=True, fps=25,
-                href="mjpeg-48x48.avi")
-        videoNode.play()
-        seek(5)
-        self.start(False, (checkSeek,))
-
     def testVideoFPS(self):
         player.setFakeFPS(25)
         root = self.loadEmptyScene()

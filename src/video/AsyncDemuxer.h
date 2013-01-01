@@ -40,7 +40,7 @@ namespace avg {
                     std::vector<int> streamIndexes);
             virtual ~AsyncDemuxer();
            
-            AVPacket * getPacket(int streamIndex);
+            AVPacket * getPacket(int streamIndex, bool& bSeekDone);
             void seek(float destTime);
             
         private:
@@ -51,7 +51,7 @@ namespace avg {
 
             VideoDemuxerThread::CQueuePtr m_pCmdQ;
             std::map<int, VideoPacketQueuePtr> m_PacketQs;
-            std::map<int, bool> m_bSeekDone;
+            std::map<int, bool> m_bSeekDoneMap;
 
             bool m_bSeekPending;
             AVFormatContext * m_pFormatContext;

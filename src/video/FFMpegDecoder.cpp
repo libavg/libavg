@@ -326,6 +326,7 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
     }
     
     m_State = DECODING;
+    m_SeekTime = -1;
 }
 
 void FFMpegDecoder::close() 
@@ -408,12 +409,7 @@ void FFMpegDecoder::seek(float destTime)
         readFrame(frame);
     }
     m_pDemuxer->seek(destTime + getStartTime());
-    if (m_pVStream) {
-        m_LastVideoFrameTime = destTime - 1.0f/m_FPS;
-    }
-    if (m_pAStream) {
-        m_LastAudioFrameTime = destTime;
-    }
+    m_SeekTime = destTime;
     m_bVideoEOF = false;
     m_bAudioEOF = false;
 }
@@ -653,11 +649,16 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
     while (bytesDecoded == 0) {
         if (!m_pCurAudioPacket) {
 //            cerr << "                  get new packet" << endl;
-            m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
+            bool bSeekDone;
+            m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
             if (!m_pCurAudioPacket) {
 //                cerr << "                  eof" << endl;
                 m_bAudioEOF = true;
                 return AudioBufferPtr();
+            }
+            if (bSeekDone) {
+                m_LastAudioFrameTime = m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base)
+                        - m_AudioStartTimestamp;
             }
 //            cerr << "                  packet size: " << m_pCurAudioPacket->size << endl;
             m_pTempAudioPacket = new AVPacket;
@@ -869,7 +870,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
 //            << endl;
     AVG_ASSERT(timeWanted != -1);
     float timePerFrame = 1.0f/m_FPS;
-    if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) {
+    if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame && m_SeekTime == -1) {
 //        cerr << "DISPLAY AGAIN." << endl;
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
@@ -909,7 +910,12 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
     AVPacket* pPacket = 0;
     float frameTime = -1;
     while (!bGotPicture && !m_bVideoEOF) {
-        pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
+        bool bSeekDone;
+        pPacket = m_pDemuxer->getPacket(m_VStreamIndex, bSeekDone);
+        if (bSeekDone) {
+            m_LastVideoFrameTime = m_SeekTime-1.0f/m_FPS;
+            m_SeekTime = -1;
+        }
         m_bFirstPacket = false;
         if (pPacket) {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
