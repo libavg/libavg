@@ -82,7 +82,7 @@ AsyncDemuxer::~AsyncDemuxer()
 
 AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 {
-    scoped_lock Lock(m_SeekMutex);
+    scoped_lock lock(m_SeekMutex);
     waitForSeekDone();
     // TODO: This blocks if there is no packet. Is that ok?
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
@@ -93,7 +93,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 
 void AsyncDemuxer::seek(float destTime)
 {
-    scoped_lock Lock(m_SeekMutex);
+    scoped_lock lock(m_SeekMutex);
     waitForSeekDone();
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
     m_bSeekPending = true;

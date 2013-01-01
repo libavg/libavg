@@ -115,18 +115,18 @@ void VideoDecoderThread::seek(float destTime)
         m_MsgQ.pop(false);
     }
 
-    float VideoFrameTime = -1;
-    float AudioFrameTime = -1;
+    float videoFrameTime = -1;
+    float audioFrameTime = -1;
     m_pDecoder->seek(destTime);
     if (m_pDecoder->getVideoInfo().m_bHasVideo) {
-        VideoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
+        videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
     }
     if (m_pDecoder->getVideoInfo().m_bHasAudio) {
-        AudioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
+        audioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
     }
     
     VideoMsgPtr pMsg(new VideoMsg());
-    pMsg->setSeekDone(VideoFrameTime, AudioFrameTime);
+    pMsg->setSeekDone(videoFrameTime, audioFrameTime);
     m_MsgQ.push(pMsg);
 }
 
