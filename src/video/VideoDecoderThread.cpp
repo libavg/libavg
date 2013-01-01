@@ -34,7 +34,7 @@ using namespace std;
 namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-        VideoDecoderPtr pDecoder)
+        FFMpegDecoderPtr pDecoder)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
             Logger::PROFILE_VIDEO),
       m_MsgQ(msgQ),
@@ -54,12 +54,8 @@ static ProfilingZoneID PushMsgProfilingZone("DecoderThread: push message", true)
 bool VideoDecoderThread::work() 
 {
     if (m_pDecoder->isEOF(SS_VIDEO)) {
-        if (!m_pDecoder->getVideoInfo().m_bHasAudio) {
-            m_pDecoder->seek(0);
-        } else {
-            // TODO: Replace this with waitForMessage()
-            msleep(10);
-        }
+        // TODO: Replace this with waitForMessage()
+        msleep(10);
     } else {
         ScopeTimer timer(DecoderProfilingZone);
         vdpau_render_state* pRenderState = 0;
@@ -88,6 +84,12 @@ bool VideoDecoderThread::work()
             }
             frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
         }
+        if (m_pDecoder->isVideoSeekDone()) {
+            VideoMsgPtr pMsg(new VideoMsg());
+            float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
+            pMsg->setSeekDone(videoFrameTime, -1);
+            m_MsgQ.push(pMsg);
+        }
         if (m_pDecoder->isEOF(SS_VIDEO)) {
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setEOF();
@@ -115,19 +117,7 @@ void VideoDecoderThread::seek(float destTime)
         m_MsgQ.pop(false);
     }
 
-    float videoFrameTime = -1;
-    float audioFrameTime = -1;
     m_pDecoder->seek(destTime);
-    if (m_pDecoder->getVideoInfo().m_bHasVideo) {
-        videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
-    }
-    if (m_pDecoder->getVideoInfo().m_bHasAudio) {
-        audioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
-    }
-    
-    VideoMsgPtr pMsg(new VideoMsg());
-    pMsg->setSeekDone(videoFrameTime, audioFrameTime);
-    m_MsgQ.push(pMsg);
 }
 
 void VideoDecoderThread::setFPS(float fps)

@@ -72,7 +72,9 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
 #endif
         virtual void throwAwayFrame(float timeWanted);
-        
+        bool isVideoSeekDone();
+
+
         // Called from audio decoder thread
         virtual void setVolume(float volume);
         AudioBufferPtr getAudioBuffer();
@@ -111,6 +113,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         IntPoint m_Size;
         float m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;
+        bool m_bVideoSeekDone;
 
         // Used from audio thread.
         AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);

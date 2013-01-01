@@ -23,7 +23,7 @@
 #define _VideoDecoderThread_H_
 
 #include "../api.h"
-#include "VideoDecoder.h"
+#include "FFMpegDecoder.h"
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"
@@ -42,7 +42,7 @@ typedef boost::shared_ptr<BitmapQueue> BitmapQueuePtr;
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
         VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-                VideoDecoderPtr pDecoder);
+                FFMpegDecoderPtr pDecoder);
         virtual ~VideoDecoderThread();
         
         bool work();
@@ -54,7 +54,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 
                 PixelFormat pf);
         VideoMsgQueue& m_MsgQ;
-        VideoDecoderPtr m_pDecoder;
+        FFMpegDecoderPtr m_pDecoder;
 
         BitmapQueuePtr m_pBmpQ;
         BitmapQueuePtr m_pHalfBmpQ;

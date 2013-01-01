@@ -244,6 +244,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                     sFilename + ": unsupported video codec ("+szBuf+").");
         }
         m_PF = calcPixelFormat(true);
+        m_bVideoSeekDone = false;
     }
     // Enable audio stream demuxing.
     if (m_AStreamIndex >= 0) {
@@ -611,6 +612,13 @@ void FFMpegDecoder::throwAwayFrame(float timeWanted)
     readFrameForTime(frame, timeWanted);
 }
 
+bool FFMpegDecoder::isVideoSeekDone()
+{
+    bool bSeekDone = m_bVideoSeekDone;
+    m_bVideoSeekDone = false;
+    return bSeekDone;
+}
+
 bool FFMpegDecoder::isEOF(StreamSelect stream) const
 {
     AVG_ASSERT(m_State == DECODING);
@@ -915,6 +923,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         if (bSeekDone) {
             m_LastVideoFrameTime = m_SeekTime-1.0f/m_FPS;
             m_SeekTime = -1;
+            m_bVideoSeekDone = true;
         }
         m_bFirstPacket = false;
         if (pPacket) {
