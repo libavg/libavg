@@ -331,7 +331,6 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 void FFMpegDecoder::close() 
 {
     mutex::scoped_lock lock(s_OpenMutex);
-    mutex::scoped_lock lock2(m_AudioMutex);
     AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
     
     delete m_pDemuxer;
@@ -346,9 +345,8 @@ void FFMpegDecoder::close()
 
     if (m_pAStream) {
         avcodec_close(m_pAStream->codec);
-        if (m_pCurAudioPacket) {
-            deleteCurAudioPacket();
-        }
+        deleteCurAudioPacket();
+        
         if (m_pAudioResampleContext) {
             audio_resample_close(m_pAudioResampleContext);
             m_pAudioResampleContext = 0;
@@ -414,10 +412,7 @@ void FFMpegDecoder::seek(float destTime)
         m_LastVideoFrameTime = destTime - 1.0f/m_FPS;
     }
     if (m_pAStream) {
-        mutex::scoped_lock lock(m_AudioMutex);
         m_LastAudioFrameTime = destTime;
-        
-        deleteCurAudioPacket();
     }
     m_bVideoEOF = false;
     m_bAudioEOF = false;
@@ -657,14 +652,14 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
     int bytesDecoded = 0;
     while (bytesDecoded == 0) {
         if (!m_pCurAudioPacket) {
-//            cerr << "get new packet" << endl;
+//            cerr << "                  get new packet" << endl;
             m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
             if (!m_pCurAudioPacket) {
-//                cerr << "eof" << endl;
+//                cerr << "                  eof" << endl;
                 m_bAudioEOF = true;
                 return AudioBufferPtr();
             }
-//            cerr << "packet size: " << m_pCurAudioPacket->size << endl;
+//            cerr << "                  packet size: " << m_pCurAudioPacket->size << endl;
             m_pTempAudioPacket = new AVPacket;
             av_init_packet(m_pTempAudioPacket);
             m_pTempAudioPacket->data = m_pCurAudioPacket->data;
@@ -678,18 +673,18 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
         bytesConsumed = avcodec_decode_audio2(m_pAStream->codec, pDecodedData,
                 &bytesDecoded, m_pTempAudioPacket->data, m_pTempAudioPacket->size);
 #endif
-//        cerr << "avcodec_decode_audio: bytesConsumed=" << bytesConsumed << 
-//                ", bytesDecoded=" << bytesDecoded << endl;
+//        cerr << "                  avcodec_decode_audio: bytesConsumed=" <<
+//                  bytesConsumed << ", bytesDecoded=" << bytesDecoded << endl;
         if (bytesConsumed < 0) {
             // Error decoding -> throw away current packet.
             bytesDecoded = 0;
             deleteCurAudioPacket();
-//            cerr << "error decoding" << endl;
+//            cerr << "                  error decoding" << endl;
         } else {
             m_pTempAudioPacket->data += bytesConsumed;
             m_pTempAudioPacket->size -= bytesConsumed;
 
-            if (m_pTempAudioPacket->size == 0) {
+            if (m_pTempAudioPacket->size <= 0) {
                 deleteCurAudioPacket();
             }
         }
@@ -705,9 +700,10 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
         memcpy(pBuffer->getData(), pDecodedData, bytesDecoded);
     }
     m_LastAudioFrameTime += float(pBuffer->getNumFrames())/m_AP.m_SampleRate;
-//    cerr << "Decoder time: " << m_LastAudioFrameTime << endl;
+//    cerr << "                  Decoder time: " << m_LastAudioFrameTime << endl;
     pBuffer->volumize(m_LastVolume, m_Volume);
     m_LastVolume = m_Volume;
+//    cerr << "                FFMpegDecoder::getAudioBuffer() end" << endl;
     return pBuffer;
 }
 
@@ -1038,11 +1034,13 @@ AudioBufferPtr FFMpegDecoder::resampleAudio(short* pDecodedData, int framesDecod
 
 void FFMpegDecoder::deleteCurAudioPacket()
 {
-    av_free_packet(m_pCurAudioPacket);
-    delete m_pCurAudioPacket;
-    m_pCurAudioPacket = 0;
-    delete m_pTempAudioPacket;
-    m_pTempAudioPacket = 0;
+    if (m_pCurAudioPacket) {
+        av_free_packet(m_pCurAudioPacket);
+        delete m_pCurAudioPacket;
+        m_pCurAudioPacket = 0;
+        delete m_pTempAudioPacket;
+        m_pTempAudioPacket = 0;
+    }
 }
 
 AVCodecContext const* FFMpegDecoder::getCodecContext() const

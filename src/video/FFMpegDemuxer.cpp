@@ -48,6 +48,7 @@ FFMpegDemuxer::~FFMpegDemuxer()
 
 AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
 {
+//    cerr << "FFMpegDemuxer::getPacket" << streamIndex << endl;
     // Make sure enableStream was called on streamIndex.
     AVG_ASSERT(m_PacketLists.size() > 0);
     AVG_ASSERT(streamIndex > -1 && streamIndex < 10);
@@ -98,7 +99,7 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
     }
 
 //    float timeBase = av_q2d(m_pFormatContext->streams[streamIndex]->time_base);
-//    cerr << "FFMpegDemuxer: " << streamIndex << ": " << pPacket->dts*timeBase << endl;
+//    cerr << "  FFMpegDemuxer::getPacket: " << streamIndex << ": " << pPacket->dts*timeBase << endl;
     return pPacket;
 }
 
@@ -116,8 +117,8 @@ void FFMpegDemuxer::seek(float destTime)
     clearPacketCache();
     map<int, PacketList>::iterator it;
     for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
-        int CurStreamIndex = it->first;
-        AVStream * pStream = m_pFormatContext->streams[CurStreamIndex];
+        int curStreamIndex = it->first;
+        AVStream * pStream = m_pFormatContext->streams[curStreamIndex];
         avcodec_flush_buffers(pStream->codec);
     }
 }
@@ -127,12 +128,12 @@ void FFMpegDemuxer::clearPacketCache()
     map<int, PacketList>::iterator it;
     for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         PacketList::iterator it2;
-        PacketList* thePacketList = &(it->second);
-        for (it2 = thePacketList->begin(); it2 != thePacketList->end(); ++it2) {
+        PacketList* pPacketList = &(it->second);
+        for (it2 = pPacketList->begin(); it2 != pPacketList->end(); ++it2) {
             av_free_packet(*it2);
             delete *it2;
         }
-        thePacketList->clear();
+        pPacketList->clear();
     }
 }
 
