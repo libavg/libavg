@@ -459,6 +459,7 @@ void VideoNode::open()
     m_JitterCompensation = 0.5;
     m_PauseTime = 0;
 
+    m_bSeekPending = false;
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
     m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
@@ -650,7 +651,7 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
             }
         }
     } else {
-        if (m_bSeekPending && m_bFirstFrameDecoded && m_VideoState != Unloaded) {
+        if (m_VideoState != Unloaded && m_bSeekPending && m_bFirstFrameDecoded) {
             renderFrame();
         }
         if (m_VideoState == Playing) {
