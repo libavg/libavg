@@ -82,6 +82,7 @@ AsyncDemuxer::~AsyncDemuxer()
 
 AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 {
+    scoped_lock Lock(m_SeekMutex);
     waitForSeekDone();
     // TODO: This blocks if there is no packet. Is that ok?
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
@@ -92,11 +93,8 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 
 void AsyncDemuxer::seek(float destTime)
 {
-    // TODO: There is a (theoretical) race condition here - getPacket() and seek() can
-    // be called from different threads. Among other things, this can cause the assert in 
-    // getPacket() to trigger.
-    waitForSeekDone();
     scoped_lock Lock(m_SeekMutex);
+    waitForSeekDone();
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
     m_bSeekPending = true;
     bool bAllSeeksDone = true;
@@ -132,7 +130,6 @@ void AsyncDemuxer::enableStream(int streamIndex)
 
 void AsyncDemuxer::waitForSeekDone()
 {
-    scoped_lock Lock(m_SeekMutex);
     if (m_bSeekPending) {
         m_bSeekPending = false;
         map<int, VideoPacketQueuePtr>::iterator it;
