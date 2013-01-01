@@ -54,6 +54,8 @@ public:
     float getSeekVideoFrameTime();
     float getSeekAudioFrameTime();
 
+    virtual void dump();
+
 protected:
     void setType(MsgType msgType);
 

@@ -24,6 +24,10 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
 AudioMsg::AudioMsg()
@@ -102,6 +106,39 @@ float AudioMsg::getSeekAudioFrameTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekAudioFrameTime;
+}
+    
+void AudioMsg::dump()
+{
+    switch (m_MsgType) {
+        case NONE:
+            cerr << "NONE" << endl;
+            break;
+        case AUDIO:
+            cerr << "AUDIO" << endl;
+            break;
+        case AUDIO_TIME:
+            cerr << "AUDIO_TIME" << endl;
+            break;
+        case END_OF_FILE:
+            cerr << "END_OF_FILE" << endl;
+            break;
+        case ERROR:
+            cerr << "ERROR" << endl;
+            break;
+        case FRAME:
+            cerr << "FRAME" << endl;
+            break;
+        case VDPAU_FRAME:
+            cerr << "VDPAU_FRAME" << endl;
+            break;
+        case SEEK_DONE:
+            cerr << "SEEK_DONE" << endl;
+            break;
+        default:
+            AVG_ASSERT(false);
+            break;
+    }
 }
     
 void AudioMsg::setType(MsgType msgType)
