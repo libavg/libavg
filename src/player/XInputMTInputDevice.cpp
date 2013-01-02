@@ -52,6 +52,11 @@ XInputMTInputDevice::XInputMTInputDevice()
     : m_LastID(0),
       m_DeviceID(-1)
 {
+    SDLDisplayEngine* pDisplayEngine = Player::get()->getDisplayEngine();
+    glm::vec2 size(pDisplayEngine->getSize());
+    glm::vec2 windowSize(pDisplayEngine->getWindowSize());
+    m_DisplayScale.x = size.x/windowSize.x;
+    m_DisplayScale.y = size.y/windowSize.y;
 }
 
 XInputMTInputDevice::~XInputMTInputDevice()
@@ -234,6 +239,8 @@ void XInputMTInputDevice::findMTDevice()
 
 TouchEventPtr XInputMTInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
 {
+    pos.x *= m_DisplayScale.x;
+    pos.y *= m_DisplayScale.y;
     return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH));
 }
 
