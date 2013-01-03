@@ -119,7 +119,6 @@ void AsyncVideoDecoder::close()
         m_pVMsgQ = VideoMsgQueuePtr();
     }
     {
-        scoped_lock lock1(m_AudioMutex);
         if (m_pADecoderThread) {
             m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::stop, _1));
             m_pAMsgQ->clear();
@@ -149,8 +148,7 @@ void AsyncVideoDecoder::seek(float destTime)
 {
     AVG_ASSERT(m_State == DECODING);
     waitForSeekDone();
-    scoped_lock lock1(m_AudioMutex);
-    scoped_lock Lock2(m_SeekMutex);
+    scoped_lock lock(m_SeekMutex);
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     if (m_pVCmdQ) {
@@ -167,7 +165,6 @@ void AsyncVideoDecoder::seek(float destTime)
                 case VideoMsg::SEEK_DONE:
                     m_bSeekPending = false;
                     m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
-                    m_LastAudioFrameTime = pMsg->getSeekAudioFrameTime();
                     break;
                 case VideoMsg::FRAME:
                     returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
@@ -367,8 +364,10 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
         frameAvailable = FA_NEW_FRAME;
     } else {
         float timePerFrame = 1.0f/getFPS();
-        if (fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
-                m_LastVideoFrameTime > timeWanted+timePerFrame) {
+        if (!m_bSeekPending && 
+                (fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
+                 m_LastVideoFrameTime > timeWanted+timePerFrame)) 
+        {
             // The last frame is still current. Display it again.
             frameAvailable = FA_USE_LAST_FRAME;
             return VideoMsgPtr();
@@ -414,7 +413,6 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
 
 VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 {
-    waitForSeekDone();
     VideoMsgPtr pMsg = m_pVMsgQ->pop(bWait);
     if (pMsg) {
         switch (pMsg->getType()) {
@@ -426,6 +424,10 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 return VideoMsgPtr();
             case VideoMsg::ERROR:
                 m_bVideoEOF = true;
+                return VideoMsgPtr();
+            case AudioMsg::SEEK_DONE:
+                m_bSeekPending = false;
+                m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
                 return VideoMsgPtr();
             default:
                 // Unhandled message type.
@@ -447,7 +449,6 @@ void AsyncVideoDecoder::waitForSeekDone()
                 case AudioMsg::SEEK_DONE:
                     m_bSeekPending = false;
                     m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
-                    m_LastAudioFrameTime = pMsg->getSeekAudioFrameTime();
                     break;
                 case VideoMsg::FRAME:
                     returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));

@@ -86,7 +86,6 @@ private:
     VideoMsgQueuePtr m_pVMsgQ;
 
     boost::thread* m_pADecoderThread;
-    boost::mutex m_AudioMutex;
     AudioDecoderThread::CQueuePtr m_pACmdQ;
     AudioMsgQueuePtr m_pAMsgQ;
     AudioMsgQueuePtr m_pAStatusQ;

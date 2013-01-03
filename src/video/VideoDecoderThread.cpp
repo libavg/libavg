@@ -85,6 +85,7 @@ bool VideoDecoderThread::work()
             frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
         }
         if (m_pDecoder->isVideoSeekDone()) {
+            cerr << "VideoDecoderThread::work: seek done" << endl;
             VideoMsgPtr pMsg(new VideoMsg());
             float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
             pMsg->setSeekDone(videoFrameTime, -1);
