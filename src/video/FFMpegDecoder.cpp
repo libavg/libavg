@@ -274,6 +274,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": unsupported sample format (!= S16).");
         }
+        m_bAudioSeekDone = false;
     }
 
     m_State = OPENED;
@@ -619,6 +620,13 @@ bool FFMpegDecoder::isVideoSeekDone()
     return bSeekDone;
 }
 
+bool FFMpegDecoder::isAudioSeekDone()
+{
+    bool bSeekDone = m_bAudioSeekDone;
+    m_bAudioSeekDone = false;
+    return bSeekDone;
+}
+
 bool FFMpegDecoder::isEOF(StreamSelect stream) const
 {
     AVG_ASSERT(m_State == DECODING);
@@ -667,6 +675,7 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
             if (bSeekDone) {
                 m_LastAudioFrameTime = m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base)
                         - m_AudioStartTimestamp;
+                m_bAudioSeekDone = true;
             }
 //            cerr << "                  packet size: " << m_pCurAudioPacket->size << endl;
             m_pTempAudioPacket = new AVPacket;

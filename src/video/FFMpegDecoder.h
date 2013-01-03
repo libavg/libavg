@@ -78,6 +78,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         // Called from audio decoder thread
         virtual void setVolume(float volume);
         AudioBufferPtr getAudioBuffer();
+        bool isAudioSeekDone();
 
         // Called from video and audio threads
         virtual void seek(float destTime);
@@ -128,6 +129,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         float m_Volume;
         float m_LastVolume;
         float m_AudioStartTimestamp;
+        bool m_bAudioSeekDone;
 
         // Used from video and audio threads.
         float readFrame(AVFrame& frame);

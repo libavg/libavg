@@ -53,6 +53,12 @@ bool AudioDecoderThread::work()
         msleep(10);
     } else {
         AudioBufferPtr pBuffer = m_pDecoder->getAudioBuffer();
+        if (m_pDecoder->isAudioSeekDone()) {
+            VideoMsgPtr pMsg(new VideoMsg());
+            float time = m_pDecoder->getCurTime(SS_AUDIO);
+            pMsg->setSeekDone(-1, time);
+            m_MsgQ.push(pMsg);
+        }
         VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
         if (pBuffer) {
             float curTime = m_pDecoder->getCurTime(SS_AUDIO);
@@ -70,11 +76,7 @@ bool AudioDecoderThread::work()
 void AudioDecoderThread::seek(float destTime)
 {
     m_MsgQ.clear();
-    
     m_pDecoder->seek(destTime);
-    VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
-    pVMsg->setSeekDone(-1, m_pDecoder->getCurTime(SS_AUDIO));
-    m_MsgQ.push(pVMsg);
 }
 
 void AudioDecoderThread::setVolume(float volume)
