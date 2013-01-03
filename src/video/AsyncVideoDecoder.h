@@ -73,6 +73,7 @@ public:
 private:
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
+    void checkSeekDone();
     void waitForSeekDone();
     void returnFrame(VideoMsgPtr pFrameMsg);
 

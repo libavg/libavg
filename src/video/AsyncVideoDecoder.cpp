@@ -157,25 +157,7 @@ void AsyncVideoDecoder::seek(float destTime)
     } else {
         m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::seek, _1, destTime));
     }
-    bool bDone = false;
-    while (!bDone && m_bSeekPending) {
-        VideoMsgPtr pMsg = m_pVMsgQ->pop(false);
-        if (pMsg) {
-            switch (pMsg->getType()) {
-                case VideoMsg::SEEK_DONE:
-                    m_bSeekPending = false;
-                    m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
-                    break;
-                case VideoMsg::FRAME:
-                    returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            bDone = true;
-        }
-    }
+    checkSeekDone();
 }
 
 void AsyncVideoDecoder::loop()
@@ -360,6 +342,7 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
     float frameTime = -1;
     VideoMsgPtr pFrameMsg;
     if (timeWanted == -1) {
+        waitForSeekDone();
         pFrameMsg = getNextBmps(true);
         frameAvailable = FA_NEW_FRAME;
     } else {
@@ -390,6 +373,11 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
                 }
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
+                    if (m_bSeekPending) {
+                        frameAvailable = FA_STILL_DECODING;
+                        returnFrame(dynamic_pointer_cast<VideoMsg>(pFrameMsg));
+                        return VideoMsgPtr();
+                    }
                     frameTime = pFrameMsg->getFrameTime();
                 } else {
                     frameAvailable = FA_STILL_DECODING;
@@ -428,7 +416,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             case AudioMsg::SEEK_DONE:
                 m_bSeekPending = false;
                 m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
-                return VideoMsgPtr();
+                return getNextBmps(bWait);
             default:
                 // Unhandled message type.
                 AVG_ASSERT(false);
@@ -436,6 +424,29 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
         }
     } else {
         return pMsg;
+    }
+}
+
+void AsyncVideoDecoder::checkSeekDone()
+{
+    bool bDone = false;
+    while (!bDone && m_bSeekPending) {
+        VideoMsgPtr pMsg = m_pVMsgQ->pop(false);
+        if (pMsg) {
+            switch (pMsg->getType()) {
+                case VideoMsg::SEEK_DONE:
+                    m_bSeekPending = false;
+                    m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
+                    break;
+                case VideoMsg::FRAME:
+                    returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            bDone = true;
+        }
     }
 }
 
