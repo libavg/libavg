@@ -38,10 +38,12 @@
 
 namespace avg {
 
+class AsyncDemuxer;
+
 class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
-        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, 
-                FFMpegDecoderPtr pDecoder, const AudioParams& ap);
+        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, FFMpegDecoderPtr pDecoder,
+                const AudioParams& ap);
         virtual ~AudioDecoderThread();
         
         bool work();
@@ -49,9 +51,28 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         void setVolume(float volume);
 
     private:
+        AudioBufferPtr getAudioBuffer();
+        // Used from audio thread.
+        AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
+        void deleteCurAudioPacket();
+
         AudioMsgQueue& m_MsgQ;
         FFMpegDecoderPtr m_pDecoder;
+        AsyncDemuxer* m_pDemuxer;
         AudioParams m_AP;
+
+        AVStream * m_pAStream;
+        int m_AStreamIndex;
+        AVPacket * m_pCurAudioPacket;
+        AVPacket * m_pTempAudioPacket;
+        int m_EffectiveSampleRate;
+        ReSampleContext * m_pAudioResampleContext;
+        float m_Volume;
+        float m_LastVolume;
+        float m_AudioStartTimestamp;
+        float m_LastFrameTime;
+        bool m_bSeekDone;
+        bool m_bEOF;
 };
 
 }

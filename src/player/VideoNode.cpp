@@ -353,7 +353,7 @@ void VideoNode::setVolume(float Volume)
     }
     m_Volume = Volume;
     if (m_VideoState != Unloaded && hasAudio()) {
-        m_pDecoder->setVolume(Volume);
+        dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->setVolume(Volume);
     }
 }
 
@@ -454,8 +454,10 @@ void VideoNode::open()
     m_FramesPlayed = 0;
     m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration, 
             m_bEnableSound);
-    m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
+    if (videoInfo.m_bHasAudio) {
+        dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->setVolume(m_Volume);
+    }
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();
         throw Exception(AVG_ERR_VIDEO_GENERAL, 

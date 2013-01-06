@@ -57,7 +57,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
 
         virtual float getNominalFPS() const;
         virtual float getFPS() const;
-        virtual float getVolume() const;
         virtual PixelFormat getPixelFormat() const;
 
         // Called from video thread.
@@ -74,16 +73,13 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         virtual void throwAwayFrame(float timeWanted);
         bool isVideoSeekDone();
 
-
-        // Called from audio decoder thread
-        virtual void setVolume(float volume);
-        AudioBufferPtr getAudioBuffer();
-        bool isAudioSeekDone();
-
-        // Called from video and audio threads
         virtual void seek(float destTime);
         virtual void loop();
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
+        
+        AVStream* getAudioStream() const;
+        int getAStreamIndex() const;
+        IDemuxer* getDemuxer() const;
 
         static void logConfig();
 
@@ -116,24 +112,10 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool m_bUseStreamFPS;
         bool m_bVideoSeekDone;
 
-        // Used from audio thread.
-        AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
-        void deleteCurAudioPacket();
-
         int m_AStreamIndex;
         AudioParams m_AP;
-        AVPacket * m_pCurAudioPacket;
-        AVPacket * m_pTempAudioPacket;
-        int m_EffectiveSampleRate;
-        ReSampleContext * m_pAudioResampleContext;
-        float m_Volume;
-        float m_LastVolume;
-        float m_AudioStartTimestamp;
-        bool m_bAudioSeekDone;
 
-        // Used from video and audio threads.
         float readFrame(AVFrame& frame);
-        float getStartTime();
 
         IDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
@@ -144,8 +126,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         int m_VStreamIndex;
         bool m_bEOFPending;
         bool m_bVideoEOF;
-        bool m_bAudioEOF;
-        float m_LastAudioFrameTime;
         bool m_bFirstPacket;
         long long m_VideoStartTimestamp;
         float m_LastVideoFrameTime;

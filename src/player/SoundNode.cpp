@@ -241,7 +241,7 @@ void SoundNode::checkReload()
 void SoundNode::onFrameEnd()
 {
     if (m_State == Playing) {
-        dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->updateAudioStatus();
+        m_pDecoder->updateAudioStatus();
     }
     if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
         NodePtr pTempThis = getSharedThis();
@@ -308,9 +308,8 @@ void SoundNode::startDecoding()
 {
     AudioEngine* pEngine = AudioEngine::get();
     m_pDecoder->startDecoding(false, pEngine->getParams());
-    AsyncVideoDecoder* pAsyncDecoder = dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
-    m_AudioID = pEngine->addSource(*pAsyncDecoder->getAudioMsgQ(), 
-            *pAsyncDecoder->getAudioStatusQ());
+    m_AudioID = pEngine->addSource(*m_pDecoder->getAudioMsgQ(), 
+            *m_pDecoder->getAudioStatusQ());
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;

@@ -61,9 +61,6 @@ FFMpegDecoder::FFMpegDecoder()
       m_Size(0,0),
       m_bUseStreamFPS(true),
       m_AStreamIndex(-1),
-      m_pAudioResampleContext(0),
-      m_Volume(1.0),
-      m_LastVolume(1.0),
       m_pDemuxer(0),
       m_pVStream(0),
       m_pAStream(0),
@@ -155,7 +152,6 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
 {
     mutex::scoped_lock lock(s_OpenMutex);
     m_bThreadedDemuxer = bThreadedDemuxer;
-    m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bEOFPending = false;
     m_VideoStartTimestamp = -1;
@@ -249,16 +245,6 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
     // Enable audio stream demuxing.
     if (m_AStreamIndex >= 0) {
         m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
-        m_pCurAudioPacket = 0;
-        m_pTempAudioPacket = 0;
-        m_LastAudioFrameTime = 0;
-        m_AudioStartTimestamp = 0;
-        
-        if (m_pAStream->start_time != (long long)AV_NOPTS_VALUE) {
-            m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)
-                    *m_pAStream->start_time);
-        }
-        m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
         int rc = openCodec(m_AStreamIndex, false);
         if (rc == -1) {
             m_AStreamIndex = -1;
@@ -274,7 +260,6 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": unsupported sample format (!= S16).");
         }
-        m_bAudioSeekDone = false;
     }
 
     m_State = OPENED;
@@ -348,16 +333,6 @@ void FFMpegDecoder::close()
 
     if (m_pAStream) {
         avcodec_close(m_pAStream->codec);
-        deleteCurAudioPacket();
-        
-        if (m_pAudioResampleContext) {
-            audio_resample_close(m_pAudioResampleContext);
-            m_pAudioResampleContext = 0;
-        }
-
-        m_LastAudioFrameTime = 0;
-        m_AudioStartTimestamp = 0;
-        
         m_pAStream = 0;
         m_AStreamIndex = -1;
     }
@@ -406,14 +381,14 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
 void FFMpegDecoder::seek(float destTime) 
 {
     AVG_ASSERT(m_State == DECODING);
-    if (m_bFirstPacket && m_pVStream) {
+    AVG_ASSERT(m_pVStream);
+    if (m_bFirstPacket) {
         AVFrame frame;
         readFrame(frame);
     }
-    m_pDemuxer->seek(destTime + getStartTime());
+    m_pDemuxer->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
     m_SeekTime = destTime;
     m_bVideoEOF = false;
-    m_bAudioEOF = false;
 }
 
 void FFMpegDecoder::loop()
@@ -441,17 +416,8 @@ int FFMpegDecoder::getNumFramesQueued() const
 float FFMpegDecoder::getCurTime(StreamSelect stream) const
 {
     AVG_ASSERT(m_State != CLOSED);
-    switch(stream) {
-        case SS_DEFAULT:
-        case SS_VIDEO:
-            AVG_ASSERT(m_pVStream);
-            return m_LastVideoFrameTime;
-        case SS_AUDIO:
-            AVG_ASSERT(m_pAStream);
-            return m_LastAudioFrameTime;
-        default:
-            return -1;
-    }
+    AVG_ASSERT(stream != SS_AUDIO);
+    return m_LastVideoFrameTime;
 }
 
 float FFMpegDecoder::getDuration(StreamSelect streamSelect) const
@@ -499,20 +465,6 @@ void FFMpegDecoder::setFPS(float fps)
         m_FPS = calcStreamFPS();
     } else {
         m_FPS = fps;
-    }
-}
-
-float FFMpegDecoder::getVolume() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return m_Volume;
-}
-
-void FFMpegDecoder::setVolume(float volume)
-{
-    m_Volume = volume;
-    if (m_State != DECODING) {
-        m_LastVolume = volume;
     }
 }
 
@@ -620,26 +572,26 @@ bool FFMpegDecoder::isVideoSeekDone()
     return bSeekDone;
 }
 
-bool FFMpegDecoder::isAudioSeekDone()
-{
-    bool bSeekDone = m_bAudioSeekDone;
-    m_bAudioSeekDone = false;
-    return bSeekDone;
-}
-
 bool FFMpegDecoder::isEOF(StreamSelect stream) const
 {
     AVG_ASSERT(m_State == DECODING);
-    switch(stream) {
-        case SS_AUDIO:
-            return (!m_pAStream || m_bAudioEOF);
-        case SS_VIDEO:
-            return (!m_pVStream || m_bVideoEOF);
-        case SS_ALL:
-            return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
-        default:
-            return false;
-    }
+    AVG_ASSERT(stream != SS_AUDIO);
+    return m_bVideoEOF;
+}
+
+AVStream* FFMpegDecoder::getAudioStream() const
+{
+    return m_pAStream;
+}
+
+int FFMpegDecoder::getAStreamIndex() const
+{
+    return m_AStreamIndex;
+}
+
+IDemuxer* FFMpegDecoder::getDemuxer() const
+{
+    return m_pDemuxer;
 }
 
 void FFMpegDecoder::logConfig()
@@ -653,77 +605,6 @@ void FFMpegDecoder::logConfig()
     } else {
         AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
     }
-}
-
-AudioBufferPtr FFMpegDecoder::getAudioBuffer()
-{
-    AVG_ASSERT(m_State == DECODING);
-    short pDecodedData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
-
-    int bytesConsumed = 0;
-    int bytesDecoded = 0;
-    while (bytesDecoded == 0) {
-        if (!m_pCurAudioPacket) {
-//            cerr << "                  get new packet" << endl;
-            bool bSeekDone;
-            m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
-            if (!m_pCurAudioPacket) {
-//                cerr << "                  eof" << endl;
-                m_bAudioEOF = true;
-                return AudioBufferPtr();
-            }
-            if (bSeekDone) {
-                m_LastAudioFrameTime =
-                        float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
-                        - m_AudioStartTimestamp;
-                m_bAudioSeekDone = true;
-            }
-//            cerr << "                  packet size: " << m_pCurAudioPacket->size << endl;
-            m_pTempAudioPacket = new AVPacket;
-            av_init_packet(m_pTempAudioPacket);
-            m_pTempAudioPacket->data = m_pCurAudioPacket->data;
-            m_pTempAudioPacket->size = m_pCurAudioPacket->size;
-        }
-        bytesDecoded = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
-        bytesConsumed = avcodec_decode_audio3(m_pAStream->codec, pDecodedData,
-                &bytesDecoded, m_pTempAudioPacket);
-#else
-        bytesConsumed = avcodec_decode_audio2(m_pAStream->codec, pDecodedData,
-                &bytesDecoded, m_pTempAudioPacket->data, m_pTempAudioPacket->size);
-#endif
-//        cerr << "                  avcodec_decode_audio: bytesConsumed=" <<
-//                  bytesConsumed << ", bytesDecoded=" << bytesDecoded << endl;
-        if (bytesConsumed < 0) {
-            // Error decoding -> throw away current packet.
-            bytesDecoded = 0;
-            deleteCurAudioPacket();
-//            cerr << "                  error decoding" << endl;
-        } else {
-            m_pTempAudioPacket->data += bytesConsumed;
-            m_pTempAudioPacket->size -= bytesConsumed;
-
-            if (m_pTempAudioPacket->size <= 0) {
-                deleteCurAudioPacket();
-            }
-        }
-    }
-    int framesDecoded = bytesDecoded/(m_pAStream->codec->channels*sizeof(short));
-    AudioBufferPtr pBuffer;
-    bool bNeedsResample = (m_EffectiveSampleRate != m_AP.m_SampleRate || 
-            m_pAStream->codec->channels != m_AP.m_Channels);
-    if (bNeedsResample) {
-        pBuffer = resampleAudio(pDecodedData, framesDecoded);
-    } else {
-        pBuffer = AudioBufferPtr(new AudioBuffer(framesDecoded, m_AP));
-        memcpy(pBuffer->getData(), pDecodedData, bytesDecoded);
-    }
-    m_LastAudioFrameTime += float(pBuffer->getNumFrames())/m_AP.m_SampleRate;
-//    cerr << "                  Decoder time: " << m_LastAudioFrameTime << endl;
-    pBuffer->volumize(m_LastVolume, m_Volume);
-    m_LastVolume = m_Volume;
-//    cerr << "                FFMpegDecoder::getAudioBuffer() end" << endl;
-    return pBuffer;
 }
 
 PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
@@ -1007,15 +888,6 @@ float FFMpegDecoder::getFrameTime(long long dts)
     return frameTime;
 }
 
-float FFMpegDecoder::getStartTime()
-{
-    if (m_pVStream) {
-        return m_VideoStartTimestamp/m_TimeUnitsPerSecond;
-    } else {
-        return m_AudioStartTimestamp;
-    }
-}
-
 float FFMpegDecoder::calcStreamFPS() const
 {
     return (float(m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den);
@@ -1031,41 +903,6 @@ string FFMpegDecoder::getStreamPF() const
         s = psz;
     } 
     return s;
-}
-
-AudioBufferPtr FFMpegDecoder::resampleAudio(short* pDecodedData, int framesDecoded)
-{
-    if (!m_pAudioResampleContext) {
-//        cerr << "init resample" << endl;
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
-        m_pAudioResampleContext = av_audio_resample_init(m_AP.m_Channels, 
-                m_pAStream->codec->channels, m_AP.m_SampleRate, m_EffectiveSampleRate,
-                SAMPLE_FMT_S16, SAMPLE_FMT_S16, 16, 10, 0, 0.8);
-#else
-        m_pAudioResampleContext = audio_resample_init(m_AP.m_Channels, 
-                m_pAStream->codec->channels, m_AP.m_SampleRate, m_EffectiveSampleRate);
-#endif        
-    }
-
-    short pResampledData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
-    int framesResampled = audio_resample(m_pAudioResampleContext, pResampledData,
-            pDecodedData, framesDecoded);
-    AudioBufferPtr pBuffer(new AudioBuffer(framesResampled, m_AP));
-    memcpy(pBuffer->getData(), pResampledData, 
-            framesResampled*m_AP.m_Channels*sizeof(short));
-//    cerr << "Resample: " << framesDecoded << "->" << framesResampled << endl;
-    return pBuffer;
-}
-
-void FFMpegDecoder::deleteCurAudioPacket()
-{
-    if (m_pCurAudioPacket) {
-        av_free_packet(m_pCurAudioPacket);
-        delete m_pCurAudioPacket;
-        m_pCurAudioPacket = 0;
-        delete m_pTempAudioPacket;
-        m_pTempAudioPacket = 0;
-    }
 }
 
 AVCodecContext const* FFMpegDecoder::getCodecContext() const

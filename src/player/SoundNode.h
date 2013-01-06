@@ -31,7 +31,7 @@
 
 namespace avg {
 
-class VideoDecoder;
+class AsyncVideoDecoder;
 
 class AVG_API SoundNode : public AreaNode, IFrameEndListener
 {
@@ -88,7 +88,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener
         long long m_PauseTime;
         long long m_PauseStartTime;
 
-        VideoDecoder * m_pDecoder;
+        AsyncVideoDecoder* m_pDecoder;
         float m_Volume;
         SoundState m_State;
         int m_AudioID;

@@ -68,8 +68,6 @@ class AVG_API VideoDecoder
         virtual float getNominalFPS() const = 0;
         virtual float getFPS() const = 0;
         virtual void setFPS(float fps) = 0;
-        virtual float getVolume() const = 0;
-        virtual void setVolume(float volume) = 0;
         virtual PixelFormat getPixelFormat() const = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
