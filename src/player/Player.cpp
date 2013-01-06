@@ -421,7 +421,7 @@ void Player::newCanvasDependency()
     vector<long> sortedCanvasIDs;
     try {
         dag.sort(sortedCanvasIDs);
-    } catch (Exception& e) {
+    } catch (Exception&) {
         throw Exception(AVG_ERR_INVALID_ARGS, "Circular dependency between canvases.");
     }
 

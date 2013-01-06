@@ -102,7 +102,7 @@ class DecoderTest: public GraphicsTest {
                     }
                     case AudioMsg::SEEK_DONE: {
                         AudioMsgPtr pStatusMsg(new AudioMsg);
-                        int seekAudioFrame = pMsg->getSeekAudioFrameTime();
+                        float seekAudioFrame = pMsg->getSeekAudioFrameTime();
 //                        cerr << "seek: " << seekAudioFrame << endl;
                         pStatusMsg->setAudioTime(seekAudioFrame);
                         pStatusQ->push(AudioMsgPtr(pStatusMsg));

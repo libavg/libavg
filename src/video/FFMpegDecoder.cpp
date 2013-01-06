@@ -673,7 +673,8 @@ AudioBufferPtr FFMpegDecoder::getAudioBuffer()
                 return AudioBufferPtr();
             }
             if (bSeekDone) {
-                m_LastAudioFrameTime = m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base)
+                m_LastAudioFrameTime =
+                        float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
                         - m_AudioStartTimestamp;
                 m_bAudioSeekDone = true;
             }
