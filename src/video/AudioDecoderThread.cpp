@@ -84,7 +84,7 @@ bool AudioDecoderThread::work()
         AudioBufferPtr pBuffer = getAudioBuffer();
         if (m_bSeekDone) {
             VideoMsgPtr pMsg(new VideoMsg());
-            pMsg->setSeekDone(-1, m_LastFrameTime);
+            pMsg->setSeekDone(m_LastFrameTime);
             m_MsgQ.push(pMsg);
             m_bSeekDone = false;
         }

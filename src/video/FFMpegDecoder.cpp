@@ -901,7 +901,7 @@ string FFMpegDecoder::getStreamPF() const
     string s;
     if (psz) {
         s = psz;
-    } 
+    }
     return s;
 }
 

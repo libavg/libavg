@@ -87,7 +87,7 @@ bool VideoDecoderThread::work()
         if (m_pDecoder->isVideoSeekDone()) {
             VideoMsgPtr pMsg(new VideoMsg());
             float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
-            pMsg->setSeekDone(videoFrameTime, -1);
+            pMsg->setSeekDone(videoFrameTime);
             m_MsgQ.push(pMsg);
         }
         if (m_pDecoder->isEOF(SS_VIDEO)) {

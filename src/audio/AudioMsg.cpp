@@ -66,11 +66,10 @@ void AudioMsg::setError(const Exception& ex)
     m_pEx = new Exception(ex);
 }
 
-void AudioMsg::setSeekDone(float seekVideoFrameTime, float seekAudioFrameTime)
+void AudioMsg::setSeekDone(float seekTime)
 {
     setType(SEEK_DONE);
-    m_SeekVideoFrameTime = seekVideoFrameTime;
-    m_SeekAudioFrameTime = seekAudioFrameTime;
+    m_SeekTime = seekTime;
 }
 
 AudioMsg::MsgType AudioMsg::getType()
@@ -96,16 +95,10 @@ const Exception& AudioMsg::getException() const
     return *m_pEx;
 }
 
-float AudioMsg::getSeekVideoFrameTime()
+float AudioMsg::getSeekTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
-    return m_SeekVideoFrameTime;
-}
-
-float AudioMsg::getSeekAudioFrameTime()
-{
-    AVG_ASSERT(m_MsgType == SEEK_DONE);
-    return m_SeekAudioFrameTime;
+    return m_SeekTime;
 }
     
 void AudioMsg::dump()

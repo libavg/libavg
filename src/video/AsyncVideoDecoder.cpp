@@ -415,7 +415,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 return VideoMsgPtr();
             case AudioMsg::SEEK_DONE:
                 m_bSeekPending = false;
-                m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
+                m_LastVideoFrameTime = pMsg->getSeekTime();
                 return getNextBmps(bWait);
             default:
                 // Unhandled message type.
@@ -436,7 +436,7 @@ void AsyncVideoDecoder::checkSeekDone()
             switch (pMsg->getType()) {
                 case VideoMsg::SEEK_DONE:
                     m_bSeekPending = false;
-                    m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
+                    m_LastVideoFrameTime = pMsg->getSeekTime();
                     break;
                 case VideoMsg::FRAME:
                     returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
@@ -459,7 +459,7 @@ void AsyncVideoDecoder::waitForSeekDone()
             switch (pMsg->getType()) {
                 case AudioMsg::SEEK_DONE:
                     m_bSeekPending = false;
-                    m_LastVideoFrameTime = pMsg->getSeekVideoFrameTime();
+                    m_LastVideoFrameTime = pMsg->getSeekTime();
                     break;
                 case VideoMsg::FRAME:
                     returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
