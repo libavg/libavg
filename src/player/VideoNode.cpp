@@ -391,26 +391,26 @@ void VideoNode::onFrameEnd()
     }
 }
 
-void VideoNode::changeVideoState(VideoState NewVideoState)
+void VideoNode::changeVideoState(VideoState newVideoState)
 {
     long long curTime = Player::get()->getFrameTime(); 
-    if (m_VideoState == NewVideoState) {
+    if (m_VideoState == newVideoState) {
         return;
     }
     if (m_VideoState == Unloaded) {
         m_PauseStartTime = curTime;
         open();
     }
-    if (NewVideoState == Unloaded) {
+    if (newVideoState == Unloaded) {
         close();
     }
     if (getState() == NS_CANRENDER) {
         if (m_VideoState == Unloaded) {
             startDecoding();
         }
-        if (NewVideoState == Paused) {
+        if (newVideoState == Paused) {
             m_PauseStartTime = curTime;
-        } else if (NewVideoState == Playing && m_VideoState == Paused) {
+        } else if (newVideoState == Playing && m_VideoState == Paused) {
 /*            
             cerr << "Play after pause:" << endl;
             cerr << "  getFrameTime()=" << curTime << endl;
@@ -421,7 +421,7 @@ void VideoNode::changeVideoState(VideoState NewVideoState)
                     - (long long)(1000.0/m_pDecoder->getFPS()));
         }
     }
-    m_VideoState = NewVideoState;
+    m_VideoState = newVideoState;
 }
 
 void VideoNode::seek(long long destTime) 
