@@ -33,7 +33,8 @@ AudioSource::AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ,
         int sampleRate)
     : m_MsgQ(msgQ),
       m_StatusQ(statusQ),
-      m_SampleRate(sampleRate)
+      m_SampleRate(sampleRate),
+      m_bPaused(false)
 {
 }
 
@@ -41,41 +42,56 @@ AudioSource::~AudioSource()
 {
 }
 
+void AudioSource::pause()
+{
+    m_bPaused = true;
+}
+
+void AudioSource::play()
+{
+    m_bPaused = false;
+}
+
 void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    unsigned char* pDest = (unsigned char *)(pBuffer->getData());
-    int framesLeftToFill = pBuffer->getNumFrames();
-    AudioMsgPtr pMsg;
-    while (framesLeftToFill > 0) {
-        int framesLeftInBuffer = 0;
-        if (m_pInputAudioBuffer) {
-            framesLeftInBuffer = m_pInputAudioBuffer->getNumFrames() - m_CurInputAudioPos;
-        }
-        while (framesLeftInBuffer > 0 && framesLeftToFill > 0) {
-            int framesToCopy = min(framesLeftToFill, framesLeftInBuffer);
-//            cerr << "framesToCopy: " << framesToCopy << endl;
-            char * pInputPos = (char*)m_pInputAudioBuffer->getData() + 
-                    m_CurInputAudioPos*pBuffer->getFrameSize();
-            int bytesToCopy = framesToCopy*pBuffer->getFrameSize();
-            memcpy(pDest, pInputPos, bytesToCopy);
-            m_CurInputAudioPos += framesToCopy;
-            framesLeftToFill -= framesToCopy;
-            framesLeftInBuffer -= framesToCopy;
-            pDest += bytesToCopy;
+    if (m_bPaused) {
+        return;
+    } else {
+        unsigned char* pDest = (unsigned char *)(pBuffer->getData());
+        int framesLeftToFill = pBuffer->getNumFrames();
+        AudioMsgPtr pMsg;
+        while (framesLeftToFill > 0) {
+            int framesLeftInBuffer = 0;
+            if (m_pInputAudioBuffer) {
+                framesLeftInBuffer = m_pInputAudioBuffer->getNumFrames()
+                        - m_CurInputAudioPos;
+            }
+            while (framesLeftInBuffer > 0 && framesLeftToFill > 0) {
+                int framesToCopy = min(framesLeftToFill, framesLeftInBuffer);
+    //            cerr << "framesToCopy: " << framesToCopy << endl;
+                char * pInputPos = (char*)m_pInputAudioBuffer->getData() + 
+                        m_CurInputAudioPos*pBuffer->getFrameSize();
+                int bytesToCopy = framesToCopy*pBuffer->getFrameSize();
+                memcpy(pDest, pInputPos, bytesToCopy);
+                m_CurInputAudioPos += framesToCopy;
+                framesLeftToFill -= framesToCopy;
+                framesLeftInBuffer -= framesToCopy;
+                pDest += bytesToCopy;
 
-            m_LastAudioFrameTime += float(framesToCopy);
-//            cerr << "  " << m_LastAudioFrameTime << endl;
-        }
-        if (framesLeftToFill != 0) {
-            bool bContinue = processNextMsg();
-            if (!bContinue) {
-                framesLeftToFill = 0;
+                m_LastAudioFrameTime += float(framesToCopy);
+    //            cerr << "  " << m_LastAudioFrameTime << endl;
+            }
+            if (framesLeftToFill != 0) {
+                bool bContinue = processNextMsg();
+                if (!bContinue) {
+                    framesLeftToFill = 0;
+                }
             }
         }
+        AudioMsgPtr pStatusMsg(new AudioMsg);
+        pStatusMsg->setAudioTime(m_LastAudioFrameTime);
+        m_StatusQ.push(pStatusMsg);
     }
-    AudioMsgPtr pStatusMsg(new AudioMsg);
-    pStatusMsg->setAudioTime(m_LastAudioFrameTime);
-    m_StatusQ.push(pStatusMsg);
 }
     
 bool AudioSource::processNextMsg()

@@ -410,6 +410,9 @@ void VideoNode::changeVideoState(VideoState newVideoState)
         }
         if (newVideoState == Paused) {
             m_PauseStartTime = curTime;
+            if (m_AudioID != -1) {
+                AudioEngine::get()->pauseSource(m_AudioID);
+            }
         } else if (newVideoState == Playing && m_VideoState == Paused) {
 /*            
             cerr << "Play after pause:" << endl;
@@ -417,6 +420,9 @@ void VideoNode::changeVideoState(VideoState newVideoState)
             cerr << "  m_PauseStartTime=" << m_PauseStartTime << endl;
             cerr << "  offset=" << (1000.0/m_pDecoder->getFPS()) << endl;
 */
+            if (m_AudioID != -1) {
+                AudioEngine::get()->playSource(m_AudioID);
+            }
             m_PauseTime += (curTime-m_PauseStartTime
                     - (long long)(1000.0/m_pDecoder->getFPS()));
         }
@@ -539,7 +545,7 @@ void VideoNode::createTextures(IntPoint size)
 void VideoNode::close()
 {
     AudioEngine* pAudioEngine = AudioEngine::get();
-    if (hasAudio() && pAudioEngine) {
+    if (m_AudioID != -1) {
         pAudioEngine->removeSource(m_AudioID);
     }
     m_pDecoder->close();

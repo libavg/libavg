@@ -82,7 +82,6 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener
         std::string m_Filename;
         bool m_bLoop;
         PyObject * m_pEOFCallback;
-        bool m_bAudioEnabled;
         long long m_SeekBeforeCanRenderTime;
 
         long long m_StartTime;

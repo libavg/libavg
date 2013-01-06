@@ -269,8 +269,10 @@ void SoundNode::changeSoundState(SoundState newSoundState)
         }
         if (newSoundState == Paused) {
             m_PauseStartTime = curTime;
+            AudioEngine::get()->pauseSource(m_AudioID);
         } else if (newSoundState == Playing && m_State == Paused) {
             m_PauseTime += curTime-m_PauseStartTime;
+            AudioEngine::get()->playSource(m_AudioID);
         }
     }
     m_State = newSoundState;

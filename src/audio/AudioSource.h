@@ -36,6 +36,10 @@ class AVG_API AudioSource
 public:
     AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, int sampleRate);
     virtual ~AudioSource();
+
+    void pause();
+    void play();
+
     void fillAudioBuffer(AudioBufferPtr pBuffer);
 
 private:
@@ -47,6 +51,7 @@ private:
     AudioBufferPtr m_pInputAudioBuffer;
     int m_LastAudioFrameTime;
     int m_CurInputAudioPos;
+    bool m_bPaused;
 };
 
 typedef boost::shared_ptr<AudioSource> AudioSourcePtr;

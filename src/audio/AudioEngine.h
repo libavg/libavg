@@ -61,6 +61,9 @@ class AVG_API AudioEngine
         
         int addSource(AudioMsgQueue& dataQ, AudioMsgQueue& statusQ);
         void removeSource(int id);
+        void pauseSource(int id);
+        void playSource(int id);
+
         void setVolume(float volume);
         float getVolume() const;
         bool isEnabled() const;
