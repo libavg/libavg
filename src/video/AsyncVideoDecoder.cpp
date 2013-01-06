@@ -197,7 +197,7 @@ float AsyncVideoDecoder::getCurTime(StreamSelect stream) const
             break;
         case SS_AUDIO:
             AVG_ASSERT(m_VideoInfo.m_bHasAudio);
-            return float(m_LastAudioFrameTime);
+            return m_LastAudioFrameTime;
             break;
         default:
             AVG_ASSERT(false);

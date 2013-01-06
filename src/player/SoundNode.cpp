@@ -319,7 +319,9 @@ void SoundNode::startDecoding()
 
 void SoundNode::close()
 {
-    AudioEngine::get()->removeSource(m_AudioID);
+    if (m_AudioID != -1) {
+        AudioEngine::get()->removeSource(m_AudioID);
+    }
     m_pDecoder->close();
 }
 
