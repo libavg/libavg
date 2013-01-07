@@ -113,10 +113,7 @@ bool VideoDecoderThread::work()
 
 void VideoDecoderThread::seek(float destTime)
 {
-    while (!m_MsgQ.empty()) {
-        m_MsgQ.pop(false);
-    }
-
+    m_MsgQ.clear();
     m_pDecoder->seek(destTime);
 }
 

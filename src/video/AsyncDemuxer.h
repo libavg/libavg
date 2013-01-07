@@ -55,7 +55,6 @@ namespace avg {
 
             bool m_bSeekPending;
             AVFormatContext * m_pFormatContext;
-            boost::mutex m_SeekMutex;
     };
     typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
 }

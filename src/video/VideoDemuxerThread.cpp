@@ -90,8 +90,7 @@ bool VideoDemuxerThread::work()
         }
        
         // On EOF, we send a message which has pPacket=0
-        m_PacketQs[shortestQ]->push(PacketVideoMsgPtr(
-                new PacketVideoMsg(pPacket, false)));
+        m_PacketQs[shortestQ]->push(PacketVideoMsgPtr(new PacketVideoMsg(pPacket, false)));
         msleep(0);
     }
     return true;
@@ -107,6 +106,7 @@ void VideoDemuxerThread::seek(float destTime)
     m_pDemuxer->seek(destTime);
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoPacketQueuePtr pPacketQ = it->second;
+//        cerr << "    VideoDemuxerThread::seek: Q " << it->first << endl; 
         pPacketQ->push(PacketVideoMsgPtr(new PacketVideoMsg(0, true)));
         m_PacketQbEOF[it->first] = false;
     }
