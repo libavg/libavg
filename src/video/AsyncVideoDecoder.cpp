@@ -288,6 +288,9 @@ void AsyncVideoDecoder::updateAudioStatus()
                     break;
                 case AudioMsg::AUDIO_TIME:
                     m_LastAudioFrameTime = pMsg->getAudioTime();
+//                    cerr << "Audio: " << m_LastAudioFrameTime << ", Video: " 
+//                            << m_LastVideoFrameTime << ", diff: " << 
+//                            m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
                     break;
                 default:
                     // Unhandled message type.

@@ -49,7 +49,7 @@ private:
     AudioMsgQueue& m_StatusQ;
     int m_SampleRate;
     AudioBufferPtr m_pInputAudioBuffer;
-    int m_LastTime;
+    float m_LastTime;
     int m_CurInputAudioPos;
     bool m_bPaused;
 };

@@ -78,7 +78,7 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
                 framesLeftInBuffer -= framesToCopy;
                 pDest += bytesToCopy;
 
-                m_LastTime += framesToCopy;
+                m_LastTime += framesToCopy/m_SampleRate;
     //            cerr << "  " << m_LastTime << endl;
             }
             if (framesLeftToFill != 0) {
@@ -89,7 +89,7 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
             }
         }
         AudioMsgPtr pStatusMsg(new AudioMsg);
-        pStatusMsg->setAudioTime(float(m_LastTime));
+        pStatusMsg->setAudioTime(m_LastTime);
         m_StatusQ.push(pStatusMsg);
     }
 }
@@ -102,8 +102,8 @@ bool AudioSource::processNextMsg()
             case AudioMsg::AUDIO:
                 m_pInputAudioBuffer = pMsg->getAudioBuffer();
                 m_CurInputAudioPos = 0;
-                m_LastTime = int(pMsg->getAudioTime());
-//                cerr << "  New buffer: " << m_pInputAudioBuffer->getNumFrames() << endl;
+                m_LastTime = pMsg->getAudioTime();
+//                cerr << "  New buffer: " << m_LastTime << endl;
                 return true;
             case AudioMsg::END_OF_FILE: {
                 AudioMsgPtr pStatusMsg(new AudioMsg);
@@ -112,7 +112,7 @@ bool AudioSource::processNextMsg()
                 return false;
             }
             case AudioMsg::SEEK_DONE:
-                m_LastTime = int(pMsg->getSeekTime()*m_SampleRate);
+                m_LastTime = pMsg->getSeekTime();
                 return true;
             default:
                 AVG_ASSERT(false);
