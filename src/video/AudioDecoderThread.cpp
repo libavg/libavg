@@ -127,16 +127,18 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer(bool& bSeekDone)
 //            cerr << "                  get new packet" << endl;
             bool bNewSeekDone;
             m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bNewSeekDone);
+            if (bNewSeekDone) {
+                bSeekDone = true;
+                avcodec_flush_buffers(m_pAStream->codec);
+                m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bNewSeekDone);
+                m_LastFrameTime =
+                        float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
+                        - m_AudioStartTimestamp;
+            }
             if (!m_pCurAudioPacket) {
 //                cerr << "                  eof" << endl;
                 m_bEOF = true;
                 return AudioBufferPtr();
-            }
-            if (bNewSeekDone) {
-                bSeekDone = true;
-                m_LastFrameTime =
-                        float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
-                        - m_AudioStartTimestamp;
             }
 //            cerr << "                  packet size: " << m_pCurAudioPacket->size << endl;
             m_pTempAudioPacket = new AVPacket;

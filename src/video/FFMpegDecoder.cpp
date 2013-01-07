@@ -815,6 +815,8 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             m_LastVideoFrameTime = m_SeekTime-1.0f/m_FPS;
             m_SeekTime = -1;
             m_bVideoSeekDone = true;
+            avcodec_flush_buffers(pContext);
+            pPacket = m_pDemuxer->getPacket(m_VStreamIndex, bSeekDone);
         }
         m_bFirstPacket = false;
         if (pPacket) {

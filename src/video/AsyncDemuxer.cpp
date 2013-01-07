@@ -85,7 +85,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex, bool& bSeekDone)
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
     bSeekDone = pPacketMsg->isSeekDone();
     if (bSeekDone) {
-        pPacketMsg = m_PacketQs[streamIndex]->pop(true);
+        AVG_ASSERT(!pPacketMsg->getPacket());
     }
     return pPacketMsg->getPacket();
 }

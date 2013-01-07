@@ -85,13 +85,16 @@ bool VideoDemuxerThread::work()
         }
         bool bSeekDone;
         AVPacket * pPacket = m_pDemuxer->getPacket(shortestQ, bSeekDone);
-        if (pPacket == 0) {
-            onStreamEOF(shortestQ);
+        if (!bSeekDone) {
+            if (pPacket == 0) {
+                onStreamEOF(shortestQ);
+            }
+           
+            // On EOF, we send a message which has pPacket=0
+            m_PacketQs[shortestQ]->push(PacketVideoMsgPtr(
+                    new PacketVideoMsg(pPacket, false)));
+            msleep(0);
         }
-       
-        // On EOF, we send a message which has pPacket=0
-        m_PacketQs[shortestQ]->push(PacketVideoMsgPtr(new PacketVideoMsg(pPacket, false)));
-        msleep(0);
     }
     return true;
 }
