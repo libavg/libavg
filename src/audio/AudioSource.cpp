@@ -111,9 +111,13 @@ bool AudioSource::processNextMsg()
                 m_StatusQ.push(pStatusMsg);
                 return false;
             }
-            case AudioMsg::SEEK_DONE:
+            case AudioMsg::SEEK_DONE: {
                 m_LastTime = pMsg->getSeekTime();
+                AudioMsgPtr pStatusMsg(new AudioMsg);
+                pStatusMsg->setSeekDone(m_LastTime);
+                m_StatusQ.push(pStatusMsg);
                 return true;
+            }
             default:
                 AVG_ASSERT(false);
                 return false;

@@ -116,6 +116,7 @@ void AudioDecoderThread::setVolume(float volume)
 
 AudioBufferPtr AudioDecoderThread::getAudioBuffer(bool& bSeekDone)
 {
+    bSeekDone = false;
 //    cerr << "          AudioDecoderThread::getAudioBuffer" << endl;
     short pDecodedData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
 
@@ -124,13 +125,15 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer(bool& bSeekDone)
     while (bytesDecoded == 0) {
         if (!m_pCurAudioPacket) {
 //            cerr << "                  get new packet" << endl;
-            m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
+            bool bNewSeekDone;
+            m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bNewSeekDone);
             if (!m_pCurAudioPacket) {
 //                cerr << "                  eof" << endl;
                 m_bEOF = true;
                 return AudioBufferPtr();
             }
-            if (bSeekDone) {
+            if (bNewSeekDone) {
+                bSeekDone = true;
                 m_LastFrameTime =
                         float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
                         - m_AudioStartTimestamp;

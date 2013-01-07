@@ -159,6 +159,7 @@ void AsyncVideoDecoder::seek(float destTime)
         m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::seek, _1, destTime,
                 !(bool(m_pVCmdQ))));
     }
+//    cerr << "AsyncVideoDecoder::seek destTime=" << destTime << endl;
     checkSeekDone();
 }
 
@@ -287,6 +288,12 @@ void AsyncVideoDecoder::updateAudioStatus()
                 case AudioMsg::END_OF_FILE:
                 case AudioMsg::ERROR:
                     m_bAudioEOF = true;
+                    break;
+                case AudioMsg::SEEK_DONE:
+                    m_LastAudioFrameTime = pMsg->getSeekTime();
+//                    cerr << "Audio SEEK_DONE: " << m_LastAudioFrameTime << ", Video: " 
+//                            << m_LastVideoFrameTime << ", diff: " << 
+//                            m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
                     break;
                 case AudioMsg::AUDIO_TIME:
                     m_LastAudioFrameTime = pMsg->getAudioTime();
