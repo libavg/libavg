@@ -47,7 +47,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         virtual ~AudioDecoderThread();
         
         bool work();
-        void seek(float destTime);
+        void seek(float destTime, bool bSeekDemuxer);
         void setVolume(float volume);
 
     private:
@@ -72,6 +72,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         float m_AudioStartTimestamp;
         float m_LastFrameTime;
         bool m_bSeekDone;
+        bool m_bSeekPending;
         bool m_bEOF;
 };
 

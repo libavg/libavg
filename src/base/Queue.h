@@ -97,7 +97,7 @@ void Queue<QElement>::clear()
 {
     QElementPtr pElem;
     do {
-        pop(false);
+        pElem = pop(false);
     } while (pElem);
 }
 

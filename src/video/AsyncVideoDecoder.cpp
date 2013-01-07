@@ -154,8 +154,10 @@ void AsyncVideoDecoder::seek(float destTime)
     if (m_pVCmdQ) {
         m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::seek, _1, destTime));
         m_bSeekPending = true;
-    } else {
-        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::seek, _1, destTime));
+    }
+    if (m_pACmdQ) {
+        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::seek, _1, destTime,
+                !(bool(m_pVCmdQ))));
     }
     checkSeekDone();
 }

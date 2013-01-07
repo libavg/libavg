@@ -59,6 +59,7 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
     }
     m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
     m_bSeekDone = false;
+    m_bSeekPending = false;
 }
 
 AudioDecoderThread::~AudioDecoderThread()
@@ -101,11 +102,13 @@ bool AudioDecoderThread::work()
     return true;
 }
 
-void AudioDecoderThread::seek(float destTime)
+void AudioDecoderThread::seek(float destTime, bool bSeekDemuxer)
 {
-//    cerr << "          AudioDecoderThread::seek" << endl;
     m_MsgQ.clear();
-    m_pDemuxer->seek(destTime + m_AudioStartTimestamp);
+    if (bSeekDemuxer) {
+        m_pDemuxer->seek(destTime + m_AudioStartTimestamp);
+    }
+    m_bSeekPending = true;
     m_bEOF = false;
 }
 
