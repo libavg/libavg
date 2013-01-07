@@ -58,8 +58,6 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
         m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)*m_pAStream->start_time);
     }
     m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
-    m_bSeekDone = false;
-    m_bSeekPending = false;
 }
 
 AudioDecoderThread::~AudioDecoderThread()
@@ -82,12 +80,12 @@ bool AudioDecoderThread::work()
         // replace this with waitForMessage()
         msleep(10);
     } else {
-        AudioBufferPtr pBuffer = getAudioBuffer();
-        if (m_bSeekDone) {
+        bool bSeekDone;
+        AudioBufferPtr pBuffer = getAudioBuffer(bSeekDone);
+        if (bSeekDone) {
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setSeekDone(m_LastFrameTime);
             m_MsgQ.push(pMsg);
-            m_bSeekDone = false;
         }
         VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
         if (pBuffer) {
@@ -108,7 +106,6 @@ void AudioDecoderThread::seek(float destTime, bool bSeekDemuxer)
     if (bSeekDemuxer) {
         m_pDemuxer->seek(destTime + m_AudioStartTimestamp);
     }
-    m_bSeekPending = true;
     m_bEOF = false;
 }
 
@@ -117,7 +114,7 @@ void AudioDecoderThread::setVolume(float volume)
     m_Volume = volume;
 }
 
-AudioBufferPtr AudioDecoderThread::getAudioBuffer()
+AudioBufferPtr AudioDecoderThread::getAudioBuffer(bool& bSeekDone)
 {
 //    cerr << "          AudioDecoderThread::getAudioBuffer" << endl;
     short pDecodedData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
@@ -127,7 +124,6 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer()
     while (bytesDecoded == 0) {
         if (!m_pCurAudioPacket) {
 //            cerr << "                  get new packet" << endl;
-            bool bSeekDone;
             m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
             if (!m_pCurAudioPacket) {
 //                cerr << "                  eof" << endl;
@@ -138,7 +134,6 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer()
                 m_LastFrameTime =
                         float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
                         - m_AudioStartTimestamp;
-                m_bSeekDone = true;
             }
 //            cerr << "                  packet size: " << m_pCurAudioPacket->size << endl;
             m_pTempAudioPacket = new AVPacket;
