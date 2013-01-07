@@ -96,7 +96,13 @@ void AsyncDemuxer::seek(float destTime)
     map<int, VideoPacketQueuePtr>::iterator it;
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoPacketQueuePtr pPacketQ = it->second;
-        pPacketQ->clear();
+        PacketVideoMsgPtr pElem;
+        do {
+            pElem = pPacketQ->pop(false);
+            if (pElem) {
+                pElem->freePacket();
+            }
+        } while (pElem);
     }
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
 //    cerr << "  AsyncDemuxer::seek end" << endl;
