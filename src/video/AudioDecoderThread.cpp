@@ -129,11 +129,7 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer(bool& bSeekDone)
             m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bNewSeekDone);
             if (bNewSeekDone) {
                 bSeekDone = true;
-                avcodec_flush_buffers(m_pAStream->codec);
-                m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bNewSeekDone);
-                m_LastFrameTime =
-                        float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
-                        - m_AudioStartTimestamp;
+                handleSeekDone();
             }
             if (!m_pCurAudioPacket) {
 //                cerr << "                  eof" << endl;
@@ -210,6 +206,16 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(short* pDecodedData, int frames
             framesResampled*m_AP.m_Channels*sizeof(short));
 //    cerr << "Resample: " << framesDecoded << "->" << framesResampled << endl;
     return pBuffer;
+}
+
+void AudioDecoderThread::handleSeekDone()
+{
+    avcodec_flush_buffers(m_pAStream->codec);
+    bool bSeekDone;
+    m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
+    AVG_ASSERT(m_pCurAudioPacket && !bSeekDone);
+    m_LastFrameTime = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
+            - m_AudioStartTimestamp;
 }
 
 void AudioDecoderThread::deleteCurAudioPacket()
