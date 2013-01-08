@@ -256,9 +256,17 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 {
     AVG_ASSERT(m_State == DECODING);
     FrameAvailableCode frameAvailable;
-    VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
+    VideoMsgPtr pFrameMsg;
+    if (timeWanted == -1) {
+        waitForSeekDone();
+        pFrameMsg = getNextBmps(true);
+        frameAvailable = FA_NEW_FRAME;
+    } else {
+        pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
+    }
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
+        m_LastVideoFrameTime = pFrameMsg->getFrameTime();
         if (pFrameMsg->getType() == VideoMsg::VDPAU_FRAME) {
 #ifdef AVG_ENABLE_VDPAU
             ScopeTimer timer(VDPAUDecodeProfilingZone);
@@ -346,67 +354,55 @@ AudioMsgQueuePtr AsyncVideoDecoder::getAudioStatusQ() const
 VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted, 
         FrameAvailableCode& frameAvailable)
 {
-    if (timeWanted < 0 && timeWanted != -1) {
+    if (timeWanted < 0) {
         cerr << "Illegal timeWanted: " << timeWanted << endl;
         AVG_ASSERT(false);
     }
     // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
     float frameTime = -1;
     VideoMsgPtr pFrameMsg;
-    if (timeWanted == -1) {
-        waitForSeekDone();
-        pFrameMsg = getNextBmps(true);
-        frameAvailable = FA_NEW_FRAME;
+    float timePerFrame = 1.0f/getFPS();
+    if (!m_bSeekPending && 
+            (fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
+             m_LastVideoFrameTime > timeWanted+timePerFrame ||
+             m_bVideoEOF)) 
+    {
+        // The last frame is still current. Display it again.
+        frameAvailable = FA_USE_LAST_FRAME;
+        return VideoMsgPtr();
     } else {
-        float timePerFrame = 1.0f/getFPS();
-        if (!m_bSeekPending && 
-                (fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
-                 m_LastVideoFrameTime > timeWanted+timePerFrame)) 
-        {
-            // The last frame is still current. Display it again.
-            frameAvailable = FA_USE_LAST_FRAME;
-            return VideoMsgPtr();
-        } else {
-            if (m_bVideoEOF) {
-                frameAvailable = FA_USE_LAST_FRAME;
-                return VideoMsgPtr();
-            }
-            while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
-                if (pFrameMsg) {
-                    if (pFrameMsg->getType() == VideoMsg::FRAME) {
-                        returnFrame(pFrameMsg);
-                    } else {
-#if AVG_ENABLE_VDPAU
-                        vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-                        pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
-                        unlockVDPAUSurface(pRenderState);
-#endif
-                    }
-                }
-                pFrameMsg = getNextBmps(false);
-                if (pFrameMsg) {
-                    if (m_bSeekPending) {
-                        frameAvailable = FA_STILL_DECODING;
-                        returnFrame(dynamic_pointer_cast<VideoMsg>(pFrameMsg));
-                        return VideoMsgPtr();
-                    }
-                    frameTime = pFrameMsg->getFrameTime();
+        while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
+            if (pFrameMsg) {
+                if (pFrameMsg->getType() == VideoMsg::FRAME) {
+                    returnFrame(pFrameMsg);
                 } else {
+#if AVG_ENABLE_VDPAU
+                    vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
+                    pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
+                    unlockVDPAUSurface(pRenderState);
+#endif
+                }
+            }
+            pFrameMsg = getNextBmps(false);
+            if (pFrameMsg) {
+                if (m_bSeekPending) {
                     frameAvailable = FA_STILL_DECODING;
+                    returnFrame(dynamic_pointer_cast<VideoMsg>(pFrameMsg));
                     return VideoMsgPtr();
                 }
+                frameTime = pFrameMsg->getFrameTime();
+            } else {
+                frameAvailable = FA_STILL_DECODING;
+                return VideoMsgPtr();
             }
-            if (!pFrameMsg) {
-                cerr << "frameTime=" << frameTime << ", timeWanted=" << timeWanted 
-                        << ", timePerFrame=" << timePerFrame << ", m_bVideoEOF=" 
-                        << m_bVideoEOF << endl;
-                AVG_ASSERT(false);
-            }
-            frameAvailable = FA_NEW_FRAME;
         }
-    }
-    if (pFrameMsg) {
-        m_LastVideoFrameTime = pFrameMsg->getFrameTime();
+        if (!pFrameMsg) {
+            cerr << "frameTime=" << frameTime << ", timeWanted=" << timeWanted 
+                    << ", timePerFrame=" << timePerFrame << ", m_bVideoEOF=" 
+                    << m_bVideoEOF << endl;
+            AVG_ASSERT(false);
+        }
+        frameAvailable = FA_NEW_FRAME;
     }
     return pFrameMsg;
 }
@@ -452,6 +448,8 @@ void AsyncVideoDecoder::checkSeekDone()
                     break;
                 case VideoMsg::FRAME:
                     returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
+                    break;
+                case VideoMsg::VDPAU_FRAME:
                     break;
                 default:
                     break;
