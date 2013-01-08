@@ -73,6 +73,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         float m_AudioStartTimestamp;
         float m_LastFrameTime;
         bool m_bEOF;
+        float m_SeekDestTime;
 };
 
 }

@@ -43,7 +43,8 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
       m_pAudioResampleContext(0),
       m_Volume(1.0),
       m_LastVolume(1.0),
-      m_bEOF(false)
+      m_bEOF(false),
+      m_SeekDestTime(-1)
 {
 //    cerr << "        AudioDecoderThread" << endl;
     m_pCurAudioPacket = 0;
@@ -103,6 +104,7 @@ bool AudioDecoderThread::work()
 void AudioDecoderThread::seek(float destTime, bool bSeekDemuxer)
 {
     m_MsgQ.clear();
+    m_SeekDestTime = destTime;
     if (bSeekDemuxer) {
         m_pDemuxer->seek(destTime + m_AudioStartTimestamp);
     }
@@ -216,6 +218,14 @@ void AudioDecoderThread::handleSeekDone()
     AVG_ASSERT(m_pCurAudioPacket && !bSeekDone);
     m_LastFrameTime = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
             - m_AudioStartTimestamp;
+//    cerr << "AudioDecoderThread: wanted " << m_SeekDestTime << ", got " << 
+//            m_LastFrameTime << endl;
+    while (m_LastFrameTime+0.01 < m_SeekDestTime) {
+        m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
+        m_LastFrameTime = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
+                - m_AudioStartTimestamp;
+//        cerr << "  ... got " << m_LastFrameTime << endl;
+    }
 }
 
 void AudioDecoderThread::deleteCurAudioPacket()
