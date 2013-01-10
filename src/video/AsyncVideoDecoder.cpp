@@ -437,13 +437,13 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 
 void AsyncVideoDecoder::checkSeekDone()
 {
-    bool bDone = false;
-    while (!bDone && m_bSeekPending) {
+    if (m_pVMsgQ) {
         VideoMsgPtr pMsg = m_pVMsgQ->pop(false);
-        if (pMsg) {
-            handleSeekMsg(pMsg);
-        } else {
-            bDone = true;
+        while (pMsg && m_bSeekPending) {
+            m_bSeekPending = handleSeekMsg(pMsg);
+            if (m_bSeekPending) {
+                pMsg = m_pVMsgQ->pop(false);
+            }
         }
     }
 }
@@ -454,27 +454,27 @@ void AsyncVideoDecoder::waitForSeekDone()
     if (m_bSeekPending && m_pVCmdQ) {
         do {
             VideoMsgPtr pMsg = m_pVMsgQ->pop(true);
-            handleSeekMsg(pMsg);
+            m_bSeekPending = handleSeekMsg(pMsg);
         } while (m_bSeekPending);
     }
 }
 
-void AsyncVideoDecoder::handleSeekMsg(VideoMsgPtr pMsg)
+bool AsyncVideoDecoder::handleSeekMsg(VideoMsgPtr pMsg)
 {
     switch (pMsg->getType()) {
         case AudioMsg::SEEK_DONE:
-            m_bSeekPending = false;
             m_LastVideoFrameTime = pMsg->getSeekTime();
-            break;
+            return false;
         case VideoMsg::FRAME:
             returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
-            break;
+            return true;
         case VideoMsg::VDPAU_FRAME:
-            break;
+        case VideoMsg::END_OF_FILE:
+            return true;
         default:
             // TODO: Handle ERROR messages here.
             AVG_ASSERT(false);
-            break;
+            return true;
     }
 }
 
