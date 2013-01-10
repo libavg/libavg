@@ -100,7 +100,6 @@ void AudioDecoderThread::seek(float destTime, bool bSeekDemuxer)
 //    cerr << "  AudioDecoderThread::seek" << endl;
     m_MsgQ.clear();
     m_SeekDestTime = destTime;
-    deleteCurAudioPacket();
     if (bSeekDemuxer) {
         m_pDemuxer->seek(destTime + m_AudioStartTimestamp);
     }
@@ -109,20 +108,12 @@ void AudioDecoderThread::seek(float destTime, bool bSeekDemuxer)
     // Discard packets until we get a SEEK_DONE
     bool bSeekDone;
     do {
-        m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
-        if (!bSeekDone) {
-//            float time = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
-//                    - m_AudioStartTimestamp;
-//            cerr << time << endl;
-            AVG_ASSERT(m_pCurAudioPacket);
-            av_free_packet(m_pCurAudioPacket);
-            delete m_pCurAudioPacket;
-        }
+        getNextAudioPacket(bSeekDone);
     } while (!bSeekDone);
 //    cerr << "  got SeekDone" << endl;
 
     avcodec_flush_buffers(m_pAStream->codec);
-    m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
+    getNextAudioPacket(bSeekDone);
     AVG_ASSERT(m_pCurAudioPacket && !bSeekDone);
     m_LastFrameTime = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
             - m_AudioStartTimestamp;
@@ -135,7 +126,7 @@ void AudioDecoderThread::seek(float destTime, bool bSeekDemuxer)
             // until the time is correct.
 //            cerr << "   early" << endl;
             while (m_LastFrameTime-0.05f < m_SeekDestTime) {
-                m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
+                getNextAudioPacket(bSeekDone);
                 if (!m_pCurAudioPacket) {
 //                    cerr << "eof" << endl;
                     // Early out: EOF during seek
@@ -263,12 +254,20 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(short* pDecodedData, int frames
     return pBuffer;
 }
 
+void AudioDecoderThread::getNextAudioPacket(bool& bSeekDone)
+{
+    deleteCurAudioPacket();
+    m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
+}
+
 void AudioDecoderThread::deleteCurAudioPacket()
 {
     if (m_pCurAudioPacket) {
         av_free_packet(m_pCurAudioPacket);
         delete m_pCurAudioPacket;
         m_pCurAudioPacket = 0;
+    }
+    if (m_pTempAudioPacket) {
         delete m_pTempAudioPacket;
         m_pTempAudioPacket = 0;
     }
