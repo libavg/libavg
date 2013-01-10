@@ -51,14 +51,12 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         void setVolume(float volume);
 
     private:
-        AudioBufferPtr getAudioBuffer(bool& bSeekDone);
+        AudioBufferPtr getAudioBuffer();
         // Used from audio thread.
         AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
-        void handleSeekDone();
         void deleteCurAudioPacket();
 
         AudioMsgQueue& m_MsgQ;
-        FFMpegDecoderPtr m_pDecoder;
         AsyncDemuxer* m_pDemuxer;
         AudioParams m_AP;
 

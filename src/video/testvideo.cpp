@@ -119,7 +119,7 @@ class DecoderTest: public GraphicsTest {
         void processAudioSeek(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ)
         {
             int framesDecoded = 0;
-            while(framesDecoded != -1) {
+            while (framesDecoded != -1) {
                 // The real AudioSource blocks on pMsgQ->pop()
                 msleep(10);
                 framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
@@ -353,6 +353,7 @@ class AudioDecoderTest: public DecoderTest {
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
                     AudioMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
                     pDecoder->seek(duration/2);
+                    processAudioSeek(pMsgQ, pStatusQ);
                     int totalFramesDecoded = 0;
 
                     readAudioToEOF(pDecoder, pMsgQ, pStatusQ, totalFramesDecoded, false);
@@ -383,11 +384,8 @@ class AudioDecoderTest: public DecoderTest {
                 int framesDecoded = 0;
                 while (framesDecoded == 0 && !pDecoder->isEOF()) {
                     framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
-                    if (framesDecoded == -1) {
-                        // Seek
-                        totalFramesDecoded = 0;
-                        framesDecoded = 0;
-                    }
+                    AVG_ASSERT(framesDecoded != -1);
+//                    cerr << framesDecoded << endl;
                     pDecoder->updateAudioStatus();
                     msleep(0);
                 }
