@@ -39,7 +39,6 @@ namespace avg {
 
 AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext, vector<int> streamIndexes)
     : m_pCmdQ(new VideoDemuxerThread::CQueue),
-      m_bSeekPending(false),
       m_pFormatContext(pFormatContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));

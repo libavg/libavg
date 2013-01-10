@@ -53,7 +53,6 @@ namespace avg {
             std::map<int, VideoPacketQueuePtr> m_PacketQs;
             std::map<int, bool> m_bSeekDoneMap;
 
-            bool m_bSeekPending;
             AVFormatContext * m_pFormatContext;
     };
     typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
