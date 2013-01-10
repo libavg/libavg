@@ -75,6 +75,7 @@ private:
     VideoMsgPtr getNextBmps(bool bWait);
     void checkSeekDone();
     void waitForSeekDone();
+    void handleSeekMsg(VideoMsgPtr pMsg);
     void returnFrame(VideoMsgPtr pFrameMsg);
 
     DecoderState m_State;

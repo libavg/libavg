@@ -441,19 +441,7 @@ void AsyncVideoDecoder::checkSeekDone()
     while (!bDone && m_bSeekPending) {
         VideoMsgPtr pMsg = m_pVMsgQ->pop(false);
         if (pMsg) {
-            switch (pMsg->getType()) {
-                case VideoMsg::SEEK_DONE:
-                    m_bSeekPending = false;
-                    m_LastVideoFrameTime = pMsg->getSeekTime();
-                    break;
-                case VideoMsg::FRAME:
-                    returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
-                    break;
-                case VideoMsg::VDPAU_FRAME:
-                    break;
-                default:
-                    break;
-            }
+            handleSeekMsg(pMsg);
         } else {
             bDone = true;
         }
@@ -466,21 +454,27 @@ void AsyncVideoDecoder::waitForSeekDone()
     if (m_bSeekPending && m_pVCmdQ) {
         do {
             VideoMsgPtr pMsg = m_pVMsgQ->pop(true);
-            switch (pMsg->getType()) {
-                case AudioMsg::SEEK_DONE:
-                    m_bSeekPending = false;
-                    m_LastVideoFrameTime = pMsg->getSeekTime();
-                    break;
-                case VideoMsg::FRAME:
-                    returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
-                    break;
-                case VideoMsg::VDPAU_FRAME:
-                    break;
-                default:
-                    // TODO: Handle ERROR messages here.
-                    break;
-            }
+            handleSeekMsg(pMsg);
         } while (m_bSeekPending);
+    }
+}
+
+void AsyncVideoDecoder::handleSeekMsg(VideoMsgPtr pMsg)
+{
+    switch (pMsg->getType()) {
+        case AudioMsg::SEEK_DONE:
+            m_bSeekPending = false;
+            m_LastVideoFrameTime = pMsg->getSeekTime();
+            break;
+        case VideoMsg::FRAME:
+            returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
+            break;
+        case VideoMsg::VDPAU_FRAME:
+            break;
+        default:
+            // TODO: Handle ERROR messages here.
+            AVG_ASSERT(false);
+            break;
     }
 }
 
