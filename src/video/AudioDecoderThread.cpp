@@ -84,6 +84,7 @@ bool AudioDecoderThread::work()
         bool bSeekDone;
         AudioBufferPtr pBuffer = getAudioBuffer(bSeekDone);
         if (bSeekDone) {
+//            cerr << "  AudioDecoderThread: send SeekDone" << endl;
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setSeekDone(m_LastFrameTime);
             m_MsgQ.push(pMsg);
@@ -103,6 +104,7 @@ bool AudioDecoderThread::work()
 
 void AudioDecoderThread::seek(float destTime, bool bSeekDemuxer)
 {
+//    cerr << "  AudioDecoderThread::seek" << endl;
     m_MsgQ.clear();
     m_SeekDestTime = destTime;
     if (bSeekDemuxer) {
@@ -182,7 +184,7 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer(bool& bSeekDone)
 //    cerr << "                  Decoder time: " << m_LastFrameTime << endl;
     pBuffer->volumize(m_LastVolume, m_Volume);
     m_LastVolume = m_Volume;
-//    cerr << "                FFMpegDecoder::getAudioBuffer() end" << endl;
+//    cerr << "                AudioDecoderThread::getAudioBuffer() end" << endl;
     return pBuffer;
 }
 
@@ -212,20 +214,20 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(short* pDecodedData, int frames
 
 void AudioDecoderThread::handleSeekDone()
 {
+//    cerr << "  AudioDecoderThread::handleSeekDone" << endl;
     avcodec_flush_buffers(m_pAStream->codec);
     bool bSeekDone;
     m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
     AVG_ASSERT(m_pCurAudioPacket && !bSeekDone);
     m_LastFrameTime = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
             - m_AudioStartTimestamp;
-//    cerr << "AudioDecoderThread: wanted " << m_SeekDestTime << ", got " << 
-//            m_LastFrameTime << endl;
     while (m_LastFrameTime+0.01 < m_SeekDestTime) {
         m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex, bSeekDone);
         m_LastFrameTime = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
                 - m_AudioStartTimestamp;
 //        cerr << "  ... got " << m_LastFrameTime << endl;
     }
+//    cerr << "  AudioDecoderThread::handleSeekDone end" << endl;
 }
 
 void AudioDecoderThread::deleteCurAudioPacket()

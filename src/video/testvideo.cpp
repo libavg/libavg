@@ -102,9 +102,8 @@ class DecoderTest: public GraphicsTest {
                     }
                     case AudioMsg::SEEK_DONE: {
                         AudioMsgPtr pStatusMsg(new AudioMsg);
-                        float seekAudioFrame = pMsg->getSeekTime();
-//                        cerr << "seek: " << seekAudioFrame << endl;
-                        pStatusMsg->setAudioTime(seekAudioFrame);
+//                        cerr << "seek: " << pMsg->getSeekTime() << endl;
+                        pStatusMsg->setSeekDone(pMsg->getSeekTime());
                         pStatusQ->push(AudioMsgPtr(pStatusMsg));
                         return -1;
                     }
@@ -114,6 +113,16 @@ class DecoderTest: public GraphicsTest {
                 }
             } else {
                 return 0;
+            }
+        }
+
+        void processAudioSeek(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ)
+        {
+            int framesDecoded = 0;
+            while(framesDecoded != -1) {
+                // The real AudioSource blocks on pMsgQ->pop()
+                msleep(10);
+                framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
             }
         }
 
@@ -401,8 +410,8 @@ class AudioDecoderTest: public DecoderTest {
 
 class AVDecoderTest: public DecoderTest {
     public:
-        AVDecoderTest(bool bThreaded, bool bUseHardwareAcceleration)
-          : DecoderTest("AVDecoderTest", bThreaded, bUseHardwareAcceleration)
+        AVDecoderTest(bool bUseHardwareAcceleration)
+          : DecoderTest("AVDecoderTest", true, bUseHardwareAcceleration)
         {}
 
         void runTests()
@@ -477,6 +486,7 @@ class AVDecoderTest: public DecoderTest {
 
             // Test loop.
             pDecoder->seek(0);
+            processAudioSeek(pMsgQ, pStatusQ);
             pDecoder->renderToBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
 
@@ -514,8 +524,7 @@ private:
         addTest(TestPtr(new VideoDecoderTest(false, bUseHardwareAcceleration)));
         addTest(TestPtr(new VideoDecoderTest(true, bUseHardwareAcceleration)));
 
-        addTest(TestPtr(new AVDecoderTest(false, bUseHardwareAcceleration)));
-        addTest(TestPtr(new AVDecoderTest(true, bUseHardwareAcceleration)));
+        addTest(TestPtr(new AVDecoderTest(bUseHardwareAcceleration)));
     }
 };
 

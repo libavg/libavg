@@ -49,7 +49,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLen
       m_PF(NO_PIXELFORMAT),
       m_bAudioEOF(false),
       m_bVideoEOF(false),
-      m_bSeekPending(false),
+      m_bASeekPending(false),
+      m_bVSeekPending(false),
       m_Volume(1.0),
       m_LastVideoFrameTime(-1),
       m_LastAudioFrameTime(-1)
@@ -70,7 +71,8 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
-    m_bSeekPending = false;
+    m_bASeekPending = false;
+    m_bVSeekPending = false;
     m_sFilename = sFilename;
 
     m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer, bUseHardwareAcceleration, 
@@ -146,6 +148,7 @@ VideoInfo AsyncVideoDecoder::getVideoInfo() const
 
 void AsyncVideoDecoder::seek(float destTime)
 {
+//    cerr << "AsyncVideoDecoder::seek" << endl;
     AVG_ASSERT(m_State == DECODING);
     waitForSeekDone();
     scoped_lock lock(m_SeekMutex);
@@ -153,11 +156,12 @@ void AsyncVideoDecoder::seek(float destTime)
     m_bVideoEOF = false;
     if (m_pVCmdQ) {
         m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::seek, _1, destTime));
-        m_bSeekPending = true;
+        m_bVSeekPending = true;
     }
     if (m_pACmdQ) {
         m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::seek, _1, destTime,
                 !(bool(m_pVCmdQ))));
+        m_bASeekPending = true;
     }
 //    cerr << "AsyncVideoDecoder::seek destTime=" << destTime << endl;
     checkSeekDone();
@@ -292,28 +296,7 @@ void AsyncVideoDecoder::updateAudioStatus()
     if (m_pAStatusQ) {
         AudioMsgPtr pMsg = m_pAStatusQ->pop(false);
         while (pMsg) {
-            switch (pMsg->getType()) {
-                case AudioMsg::END_OF_FILE:
-                case AudioMsg::ERROR:
-                    m_bAudioEOF = true;
-                    break;
-                case AudioMsg::SEEK_DONE:
-                    m_LastAudioFrameTime = pMsg->getSeekTime();
-//                    cerr << "Audio SEEK_DONE: " << m_LastAudioFrameTime << ", Video: " 
-//                            << m_LastVideoFrameTime << ", diff: " << 
-//                            m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
-                    break;
-                case AudioMsg::AUDIO_TIME:
-                    m_LastAudioFrameTime = pMsg->getAudioTime();
-//                    cerr << "Audio: " << m_LastAudioFrameTime << ", Video: " 
-//                            << m_LastVideoFrameTime << ", diff: " << 
-//                            m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
-                    break;
-                default:
-                    // Unhandled message type.
-                    AVG_ASSERT(false);
-            
-            }
+            handleAudioMsg(pMsg);
             pMsg = m_pAStatusQ->pop(false);
         }
     }
@@ -362,7 +345,7 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
     float frameTime = -1;
     VideoMsgPtr pFrameMsg;
     float timePerFrame = 1.0f/getFPS();
-    if (!m_bSeekPending && 
+    if (!m_bVSeekPending && 
             (fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
              m_LastVideoFrameTime > timeWanted+timePerFrame ||
              m_bVideoEOF)) 
@@ -385,7 +368,7 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
             }
             pFrameMsg = getNextBmps(false);
             if (pFrameMsg) {
-                if (m_bSeekPending) {
+                if (m_bVSeekPending) {
                     frameAvailable = FA_STILL_DECODING;
                     returnFrame(dynamic_pointer_cast<VideoMsg>(pFrameMsg));
                     return VideoMsgPtr();
@@ -422,7 +405,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 m_bVideoEOF = true;
                 return VideoMsgPtr();
             case AudioMsg::SEEK_DONE:
-                m_bSeekPending = false;
+                m_bVSeekPending = false;
                 m_LastVideoFrameTime = pMsg->getSeekTime();
                 return getNextBmps(bWait);
             default:
@@ -439,9 +422,9 @@ void AsyncVideoDecoder::checkSeekDone()
 {
     if (m_pVMsgQ) {
         VideoMsgPtr pMsg = m_pVMsgQ->pop(false);
-        while (pMsg && m_bSeekPending) {
-            m_bSeekPending = handleSeekMsg(pMsg);
-            if (m_bSeekPending) {
+        while (pMsg && m_bVSeekPending) {
+            m_bVSeekPending = handleVSeekMsg(pMsg);
+            if (m_bVSeekPending) {
                 pMsg = m_pVMsgQ->pop(false);
             }
         }
@@ -450,16 +433,27 @@ void AsyncVideoDecoder::checkSeekDone()
 
 void AsyncVideoDecoder::waitForSeekDone()
 {
+//    cerr << "AsyncVideoDecoder::waitForSeekDone" << endl;
     scoped_lock lock(m_SeekMutex);
-    if (m_bSeekPending && m_pVCmdQ) {
+    if (m_bVSeekPending) {
+//        cerr << "AsyncVideoDecoder::waitForSeekDone: V pending" << endl;
         do {
             VideoMsgPtr pMsg = m_pVMsgQ->pop(true);
-            m_bSeekPending = handleSeekMsg(pMsg);
-        } while (m_bSeekPending);
+            m_bVSeekPending = handleVSeekMsg(pMsg);
+        } while (m_bVSeekPending);
     }
+//    cerr << "AsyncVideoDecoder::waitForSeekDone 1" << endl;
+    if (m_bASeekPending) {
+//        cerr << "AsyncVideoDecoder::waitForSeekDone: A pending" << endl;
+        do {
+            AudioMsgPtr pMsg = m_pAStatusQ->pop(true);
+            handleAudioMsg(pMsg);
+        } while (m_bASeekPending);
+    }
+//    cerr << "AsyncVideoDecoder::waitForSeekDone end" << endl;
 }
 
-bool AsyncVideoDecoder::handleSeekMsg(VideoMsgPtr pMsg)
+bool AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
 {
     switch (pMsg->getType()) {
         case AudioMsg::SEEK_DONE:
@@ -475,6 +469,35 @@ bool AsyncVideoDecoder::handleSeekMsg(VideoMsgPtr pMsg)
             // TODO: Handle ERROR messages here.
             AVG_ASSERT(false);
             return true;
+    }
+}
+
+void AsyncVideoDecoder::handleAudioMsg(AudioMsgPtr pMsg)
+{
+//    pMsg->dump();
+    switch (pMsg->getType()) {
+        case AudioMsg::END_OF_FILE:
+        case AudioMsg::ERROR:
+            m_bAudioEOF = true;
+            break;
+        case AudioMsg::SEEK_DONE:
+            m_bASeekPending = false;
+            m_bAudioEOF = false;
+            m_LastAudioFrameTime = pMsg->getSeekTime();
+//            cerr << "Audio SEEK_DONE: " << m_LastAudioFrameTime << ", Video: " 
+//                    << m_LastVideoFrameTime << ", diff: " << 
+//                    m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
+            break;
+        case AudioMsg::AUDIO_TIME:
+            m_LastAudioFrameTime = pMsg->getAudioTime();
+//          cerr << "Audio: " << m_LastAudioFrameTime << ", Video: " 
+//                  << m_LastVideoFrameTime << ", diff: " << 
+//                  m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
+            break;
+        default:
+            // Unhandled message type.
+            pMsg->dump();
+            AVG_ASSERT(false);
     }
 }
 

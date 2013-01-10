@@ -75,7 +75,8 @@ private:
     VideoMsgPtr getNextBmps(bool bWait);
     void checkSeekDone();
     void waitForSeekDone();
-    bool handleSeekMsg(VideoMsgPtr pMsg);
+    bool handleVSeekMsg(VideoMsgPtr pMsg);
+    void handleAudioMsg(AudioMsgPtr pMsg);
     void returnFrame(VideoMsgPtr pFrameMsg);
 
     DecoderState m_State;
@@ -101,7 +102,8 @@ private:
     
     bool m_bAudioEOF;
     bool m_bVideoEOF;
-    bool m_bSeekPending;
+    bool m_bASeekPending;
+    bool m_bVSeekPending;
     boost::mutex m_SeekMutex;
     float m_Volume;
 

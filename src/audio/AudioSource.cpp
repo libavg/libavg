@@ -29,8 +29,7 @@ using namespace std;
 
 namespace avg {
 
-AudioSource::AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, 
-        int sampleRate)
+AudioSource::AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, int sampleRate)
     : m_MsgQ(msgQ),
       m_StatusQ(statusQ),
       m_SampleRate(sampleRate),
