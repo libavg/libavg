@@ -86,13 +86,13 @@ bool VideoDemuxerThread::work()
         m_pDemuxer->isSeekDone(shortestQ); // Ignore here - handled in seek() 
 
         AVPacket * pPacket = m_pDemuxer->getPacket(shortestQ);
+        VideoMsgPtr pMsg(new VideoMsg);
         if (pPacket == 0) {
             onStreamEOF(shortestQ);
+            pMsg->setEOF();
+        } else {
+            pMsg->setPacket(pPacket);
         }
-
-        // On EOF, we send a message which has pPacket=0
-        VideoMsgPtr pMsg(new VideoMsg);
-        pMsg->setPacket(pPacket);
         m_PacketQs[shortestQ]->push(pMsg);
         msleep(0);
     }

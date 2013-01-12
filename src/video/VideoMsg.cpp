@@ -53,6 +53,7 @@ void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime)
 void VideoMsg::setPacket(AVPacket* pPacket)
 {
     setType(PACKET);
+    AVG_ASSERT(pPacket);
     m_pPacket = pPacket;
 }
 

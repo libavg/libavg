@@ -409,9 +409,9 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             case AudioMsg::SEEK_DONE:
                 m_bVSeekPending = false;
                 m_LastVideoFrameTime = pMsg->getSeekTime();
-                cerr << "Video SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
-                        << m_LastVideoFrameTime << ", diff: " << 
-                        m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
+//                cerr << "Video SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
+//                        << m_LastVideoFrameTime << ", diff: " << 
+//                        m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
                 return getNextBmps(bWait);
             default:
                 // Unhandled message type.
@@ -463,9 +463,9 @@ bool AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
     switch (pMsg->getType()) {
         case AudioMsg::SEEK_DONE:
             m_LastVideoFrameTime = pMsg->getSeekTime();
-            cerr << "Video SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
-                    << m_LastVideoFrameTime << ", diff: " << 
-                    m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
+//            cerr << "Video SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
+//                    << m_LastVideoFrameTime << ", diff: " << 
+//                    m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
             return false;
         case VideoMsg::FRAME:
             returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
@@ -492,9 +492,9 @@ void AsyncVideoDecoder::handleAudioMsg(AudioMsgPtr pMsg)
             m_bASeekPending = false;
             m_bAudioEOF = false;
             m_LastAudioFrameTime = pMsg->getSeekTime();
-            cerr << "Audio SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
-                    << m_LastVideoFrameTime << ", diff: " << 
-                    m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
+//            cerr << "Audio SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
+//                    << m_LastVideoFrameTime << ", diff: " << 
+//                    m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
             break;
         case AudioMsg::AUDIO_TIME:
             m_LastAudioFrameTime = pMsg->getAudioTime();

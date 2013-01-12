@@ -86,8 +86,10 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
     m_pCurMsgs[streamIndex] = VideoMsgPtr();
     switch(pMsg->getType()) {
         case VideoMsg::PACKET:
+//            cerr << "PACKET " << pMsg->getPacket() << endl;
             return pMsg->getPacket();
         case VideoMsg::END_OF_FILE:
+//            cerr << "END_OF_FILE" << endl;
             return 0;
         default:
             AVG_ASSERT(false);
