@@ -31,6 +31,7 @@
 #include <boost/shared_ptr.hpp>
 
 struct vdpau_render_state;
+struct AVPacket;
 
 namespace avg {
 
@@ -39,11 +40,14 @@ public:
     VideoMsg();
     void setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime);
     void setVDPAUFrame(vdpau_render_state* m_pRenderState, float frameTime);
+    void setPacket(AVPacket* pPacket);
 
     virtual ~VideoMsg();
 
     BitmapPtr getFrameBitmap(int i);
     float getFrameTime();
+    AVPacket* getPacket();
+    void freePacket();
 
     vdpau_render_state* getRenderState();
 
@@ -54,6 +58,9 @@ private:
 
     // VDPAU_FRAME
     vdpau_render_state* m_pRenderState;
+    
+    // PACKET
+    AVPacket * m_pPacket;
 };
 
 typedef boost::shared_ptr<VideoMsg> VideoMsgPtr;

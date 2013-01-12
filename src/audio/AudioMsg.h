@@ -34,7 +34,7 @@ namespace avg {
 class AVG_API AudioMsg {
 public:
     enum MsgType {NONE, AUDIO, AUDIO_TIME, END_OF_FILE, ERROR, FRAME, VDPAU_FRAME, 
-            SEEK_DONE};
+            SEEK_DONE, PACKET};
     AudioMsg();
     void setAudio(AudioBufferPtr pAudioBuffer, float audioTime);
     void setAudioTime(float audioTime);

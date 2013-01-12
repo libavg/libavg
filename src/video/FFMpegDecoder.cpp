@@ -809,15 +809,14 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
     AVPacket* pPacket = 0;
     float frameTime = -1;
     while (!bGotPicture && !m_bVideoEOF) {
-        bool bSeekDone;
-        pPacket = m_pDemuxer->getPacket(m_VStreamIndex, bSeekDone);
-        if (bSeekDone) {
+        float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex);
+        if (seekTime != -1) {
             m_LastVideoFrameTime = m_SeekTime-1.0f/m_FPS;
             m_SeekTime = -1;
             m_bVideoSeekDone = true;
             avcodec_flush_buffers(pContext);
-            pPacket = m_pDemuxer->getPacket(m_VStreamIndex, bSeekDone);
         }
+        pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)

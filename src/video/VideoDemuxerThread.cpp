@@ -31,14 +31,14 @@ using namespace std;
 namespace avg {
 
 VideoDemuxerThread::VideoDemuxerThread(CQueue& cmdQ, AVFormatContext * pFormatContext,
-        const map<int, VideoPacketQueuePtr>& packetQs)
+        const map<int, VideoMsgQueuePtr>& packetQs)
     : WorkerThread<VideoDemuxerThread>("VideoDemuxer", cmdQ),
       m_PacketQs(packetQs),
       m_bEOF(false),
       m_pFormatContext(pFormatContext),
       m_pDemuxer()
 {
-    map<int, VideoPacketQueuePtr>::iterator it;
+    map<int, VideoMsgQueuePtr>::iterator it;
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         int streamIndex = it->first;
         m_PacketQbEOF[streamIndex] = false;
@@ -51,7 +51,7 @@ VideoDemuxerThread::~VideoDemuxerThread()
 
 bool VideoDemuxerThread::init()
 {
-    map<int, VideoPacketQueuePtr>::iterator it;
+    map<int, VideoMsgQueuePtr>::iterator it;
     vector<int> streamIndexes;
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         streamIndexes.push_back(it->first);
@@ -65,7 +65,7 @@ bool VideoDemuxerThread::work()
     if (m_bEOF) {
         waitForCommand();
     } else {
-        map<int, VideoPacketQueuePtr>::iterator it;
+        map<int, VideoMsgQueuePtr>::iterator it;
         int shortestQ = -1;
         int shortestLength = INT_MAX;
         for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
@@ -83,18 +83,18 @@ bool VideoDemuxerThread::work()
             msleep(10);
             return true;
         }
-        bool bSeekDone;
-        AVPacket * pPacket = m_pDemuxer->getPacket(shortestQ, bSeekDone);
-        if (!bSeekDone) {
-            if (pPacket == 0) {
-                onStreamEOF(shortestQ);
-            }
-           
-            // On EOF, we send a message which has pPacket=0
-            m_PacketQs[shortestQ]->push(PacketVideoMsgPtr(
-                    new PacketVideoMsg(pPacket, false)));
-            msleep(0);
+        m_pDemuxer->isSeekDone(shortestQ); // Ignore here - handled in seek() 
+
+        AVPacket * pPacket = m_pDemuxer->getPacket(shortestQ);
+        if (pPacket == 0) {
+            onStreamEOF(shortestQ);
         }
+
+        // On EOF, we send a message which has pPacket=0
+        VideoMsgPtr pMsg(new VideoMsg);
+        pMsg->setPacket(pPacket);
+        m_PacketQs[shortestQ]->push(pMsg);
+        msleep(0);
     }
     return true;
 }
@@ -105,12 +105,14 @@ void VideoDemuxerThread::deinit()
 
 void VideoDemuxerThread::seek(float destTime)
 {
-    map<int, VideoPacketQueuePtr>::iterator it;
+    map<int, VideoMsgQueuePtr>::iterator it;
     m_pDemuxer->seek(destTime);
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-        VideoPacketQueuePtr pPacketQ = it->second;
-//        cerr << "    VideoDemuxerThread::seek: Q " << it->first << endl; 
-        pPacketQ->push(PacketVideoMsgPtr(new PacketVideoMsg(0, true)));
+        VideoMsgQueuePtr pPacketQ = it->second;
+//        cerr << "    ---- VideoDemuxerThread::seek: Q " << it->first << endl;
+        VideoMsgPtr pMsg(new VideoMsg);
+        pMsg->setSeekDone(destTime);
+        pPacketQ->push(pMsg);
         m_PacketQbEOF[it->first] = false;
     }
     m_bEOF = false;

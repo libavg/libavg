@@ -128,6 +128,9 @@ void AudioMsg::dump()
         case SEEK_DONE:
             cerr << "SEEK_DONE" << endl;
             break;
+        case PACKET:
+            cerr << "PACKET" << endl;
+            break;
         default:
             AVG_ASSERT(false);
             break;

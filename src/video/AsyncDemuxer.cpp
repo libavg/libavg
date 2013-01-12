@@ -53,10 +53,10 @@ AsyncDemuxer::~AsyncDemuxer()
 {
     if (m_pDemuxThread) {
         m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::stop, _1));
-        map<int, VideoPacketQueuePtr>::iterator it;
+        map<int, VideoMsgQueuePtr>::iterator it;
         for (it = m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
             // If the Queue is full, this breaks the lock in the thread.
-            PacketVideoMsgPtr pPacketMsg;
+            VideoMsgPtr pPacketMsg;
             pPacketMsg = it->second->pop(false);
             if (pPacketMsg) {
                 pPacketMsg->freePacket();
@@ -66,8 +66,8 @@ AsyncDemuxer::~AsyncDemuxer()
         delete m_pDemuxThread;
         m_pDemuxThread = 0;
         for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-            VideoPacketQueuePtr pPacketQ = it->second;
-            PacketVideoMsgPtr pPacketMsg;
+            VideoMsgQueuePtr pPacketQ = it->second;
+            VideoMsgPtr pPacketMsg;
             pPacketMsg = pPacketQ->pop(false);
             while (pPacketMsg) {
                 pPacketMsg->freePacket();
@@ -78,30 +78,51 @@ AsyncDemuxer::~AsyncDemuxer()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-AVPacket * AsyncDemuxer::getPacket(int streamIndex, bool& bSeekDone)
+AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 {
 //    cerr << "  AsyncDemuxer::getPacket" << endl;
-    PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
-    bSeekDone = pPacketMsg->isSeekDone();
-    if (bSeekDone) {
-        AVG_ASSERT(!pPacketMsg->getPacket());
+    VideoMsgPtr pMsg = m_pCurMsgs[streamIndex];
+    AVG_ASSERT(pMsg);
+    m_pCurMsgs[streamIndex] = VideoMsgPtr();
+    switch(pMsg->getType()) {
+        case VideoMsg::PACKET:
+            return pMsg->getPacket();
+        case VideoMsg::END_OF_FILE:
+            return 0;
+        default:
+            AVG_ASSERT(false);
+            return 0;
     }
-    return pPacketMsg->getPacket();
+
+}
+            
+float AsyncDemuxer::isSeekDone(int streamIndex, bool bWait)
+{
+    m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(bWait);
+    if (m_pCurMsgs[streamIndex] &&
+        m_pCurMsgs[streamIndex]->getType() == VideoMsg::SEEK_DONE)
+    {
+        float seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
+        m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(true);
+        return seekTime;
+    } else {
+        return -1;
+    }
 }
 
 void AsyncDemuxer::seek(float destTime)
 {
-//    cerr << "  AsyncDemuxer::seek" << endl;
-    map<int, VideoPacketQueuePtr>::iterator it;
+//    cerr << "  ---- AsyncDemuxer::seek" << endl;
+    map<int, VideoMsgQueuePtr>::iterator it;
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-        VideoPacketQueuePtr pPacketQ = it->second;
-        PacketVideoMsgPtr pElem;
+        VideoMsgQueuePtr pPacketQ = it->second;
+        VideoMsgPtr pMsg;
         do {
-            pElem = pPacketQ->pop(false);
-            if (pElem) {
-                pElem->freePacket();
+            pMsg = pPacketQ->pop(false);
+            if (pMsg) {
+                pMsg->freePacket();
             }
-        } while (pElem);
+        } while (pMsg);
     }
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
 //    cerr << "  AsyncDemuxer::seek end" << endl;
@@ -109,9 +130,9 @@ void AsyncDemuxer::seek(float destTime)
 
 void AsyncDemuxer::enableStream(int streamIndex)
 {
-    VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
+    VideoMsgQueuePtr pPacketQ(new VideoMsgQueue(PACKET_QUEUE_LENGTH));
     m_PacketQs[streamIndex] = pPacketQ;
-    m_bSeekDoneMap[streamIndex] = false;
+    m_pCurMsgs[streamIndex] = VideoMsgPtr();
 }
 
 }

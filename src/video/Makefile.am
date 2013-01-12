@@ -9,7 +9,7 @@ endif
 
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h VideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h \
-        PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
+        AsyncVideoDecoder.h VideoDecoderThread.h \
         IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h
 
 if USE_VDPAU_SRC
@@ -25,7 +25,7 @@ noinst_PROGRAMS=testvideo
 
 libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp \
         VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp VideoDecoder.cpp \
-        PacketVideoMsg.cpp AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp \
+        AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp \
         $(ALL_H)
 
 if USE_VDPAU_SRC

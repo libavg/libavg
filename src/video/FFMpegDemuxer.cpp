@@ -37,7 +37,7 @@ FFMpegDemuxer::FFMpegDemuxer(AVFormatContext * pFormatContext, vector<int> strea
     ObjectCounter::get()->incRef(&typeid(*this));
     for (unsigned i = 0; i < streamIndexes.size(); ++i) {
         m_PacketLists[streamIndexes[i]] = PacketList();
-        m_bSeekDoneMap[streamIndexes[i]] = false;
+        m_seekDoneMap[streamIndexes[i]] = -1;
     }
 }
 
@@ -47,7 +47,7 @@ FFMpegDemuxer::~FFMpegDemuxer()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-AVPacket * FFMpegDemuxer::getPacket(int streamIndex, bool& bSeekDone)
+AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
 {
 //    cerr << "FFMpegDemuxer::getPacket" << streamIndex << endl;
     // Make sure enableStream was called on streamIndex.
@@ -59,58 +59,61 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex, bool& bSeekDone)
         dump();
         AVG_ASSERT(false);
     }
-    bSeekDone = m_bSeekDoneMap[streamIndex];
-    m_bSeekDoneMap[streamIndex] = false;
 
-    if (bSeekDone) {
-        return 0;
+    // isSeekDone should have been called before this function.
+    AVG_ASSERT(m_seekDoneMap[streamIndex] == -1);
+
+    PacketList & curPacketList = m_PacketLists.find(streamIndex)->second;
+    AVPacket * pPacket;
+    if (!curPacketList.empty()) {
+        // The stream has packets queued already.
+        pPacket = curPacketList.front();
+        curPacketList.pop_front();
     } else {
-        PacketList & curPacketList = m_PacketLists.find(streamIndex)->second;
-        AVPacket * pPacket;
-        if (!curPacketList.empty()) {
-            // The stream has packets queued already.
-            pPacket = curPacketList.front();
-            curPacketList.pop_front();
-        } else {
-            // No packets queued for this stream -> read and queue packets until we get one
-            // that is meant for this stream.
-            do {
-                pPacket = new AVPacket;
-                memset(pPacket, 0, sizeof(AVPacket));
-                int err = av_read_frame(m_pFormatContext, pPacket);
-                // TODO: Check url_ferror here too.
-                if (err < 0) {
-                    // EOF
+        // No packets queued for this stream -> read and queue packets until we get one
+        // that is meant for this stream.
+        do {
+            pPacket = new AVPacket;
+            memset(pPacket, 0, sizeof(AVPacket));
+            int err = av_read_frame(m_pFormatContext, pPacket);
+            // TODO: Check url_ferror here too.
+            if (err < 0) {
+                // EOF
+                av_free_packet(pPacket);
+                delete pPacket;
+                pPacket = 0;
+                return 0;
+            }
+            if (pPacket->stream_index != streamIndex) {
+                if (m_PacketLists.find(pPacket->stream_index) != m_PacketLists.end()) {
+                    // Relevant stream, but not ours
+                    av_dup_packet(pPacket);
+                    PacketList& OtherPacketList = 
+                            m_PacketLists.find(pPacket->stream_index)->second;
+                    OtherPacketList.push_back(pPacket);
+                } else {
+                    // Disabled stream
                     av_free_packet(pPacket);
                     delete pPacket;
                     pPacket = 0;
-                    bSeekDone = false;
-                    return 0;
-                }
-                if (pPacket->stream_index != streamIndex) {
-                    if (m_PacketLists.find(pPacket->stream_index) != m_PacketLists.end()) {
-                        // Relevant stream, but not ours
-                        av_dup_packet(pPacket);
-                        PacketList& OtherPacketList = 
-                                m_PacketLists.find(pPacket->stream_index)->second;
-                        OtherPacketList.push_back(pPacket);
-                    } else {
-                        // Disabled stream
-                        av_free_packet(pPacket);
-                        delete pPacket;
-                        pPacket = 0;
-                    } 
-                } else {
-                    // Our stream
-                    av_dup_packet(pPacket);
-                }
-            } while (!pPacket || pPacket->stream_index != streamIndex);
-        }
+                } 
+            } else {
+                // Our stream
+                av_dup_packet(pPacket);
+            }
+        } while (!pPacket || pPacket->stream_index != streamIndex);
+    }
 
     //    float timeBase = av_q2d(m_pFormatContext->streams[streamIndex]->time_base);
     //    cerr << "  FFMpegDemuxer::getPacket: " << streamIndex << ": " << pPacket->dts*timeBase << endl;
-        return pPacket;
-    }
+    return pPacket;
+}
+        
+float FFMpegDemuxer::isSeekDone(int streamIndex, bool bWait)
+{
+    float seekTime = m_seekDoneMap[streamIndex];
+    m_seekDoneMap[streamIndex] = -1;
+    return seekTime;
 }
 
 void FFMpegDemuxer::seek(float destTime)
@@ -129,7 +132,7 @@ void FFMpegDemuxer::seek(float destTime)
     map<int, PacketList>::iterator it;
     for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         int curStreamIndex = it->first;
-        m_bSeekDoneMap[curStreamIndex] = true;
+        m_seekDoneMap[curStreamIndex] = destTime;
     }
 }
 

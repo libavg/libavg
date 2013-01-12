@@ -20,6 +20,7 @@
 //
 
 #include "VideoMsg.h"
+#include "WrapFFMpeg.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -47,6 +48,27 @@ void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime)
     setType(VDPAU_FRAME);
     m_pRenderState = pRenderState;
     m_FrameTime = frameTime;
+}
+    
+void VideoMsg::setPacket(AVPacket* pPacket)
+{
+    setType(PACKET);
+    m_pPacket = pPacket;
+}
+
+AVPacket * VideoMsg::getPacket()
+{
+    AVG_ASSERT(getType() == PACKET);
+    return m_pPacket;
+}
+
+void VideoMsg::freePacket()
+{
+    if (getType() == PACKET) {
+        av_free_packet(m_pPacket);
+        delete m_pPacket;
+        m_pPacket = 0;
+    }
 }
 
 BitmapPtr VideoMsg::getFrameBitmap(int i)
