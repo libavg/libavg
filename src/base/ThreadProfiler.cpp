@@ -48,6 +48,7 @@ ThreadProfiler* ThreadProfiler::get()
 
 void ThreadProfiler::kill()
 {
+    delete *s_pInstance;
     s_pInstance.reset();
 }
 
