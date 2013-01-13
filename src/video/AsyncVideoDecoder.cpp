@@ -151,7 +151,6 @@ void AsyncVideoDecoder::seek(float destTime)
 //    cerr << "AsyncVideoDecoder::seek " << destTime << endl;
     AVG_ASSERT(m_State == DECODING);
     waitForSeekDone();
-    scoped_lock lock(m_SeekMutex);
     m_bAudioEOF = false;
     m_bVideoEOF = false;
 
@@ -439,7 +438,6 @@ void AsyncVideoDecoder::checkSeekDone()
 void AsyncVideoDecoder::waitForSeekDone()
 {
 //    cerr << "AsyncVideoDecoder::waitForSeekDone" << endl;
-    scoped_lock lock(m_SeekMutex);
     if (m_bVSeekPending) {
 //        cerr << "AsyncVideoDecoder::waitForSeekDone: V pending" << endl;
         do {

@@ -104,7 +104,6 @@ private:
     bool m_bVideoEOF;
     bool m_bASeekPending;
     bool m_bVSeekPending;
-    boost::mutex m_SeekMutex;
     float m_Volume;
 
     float m_LastVideoFrameTime;
