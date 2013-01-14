@@ -38,6 +38,9 @@
 using namespace boost;
 using namespace std;
 
+#define AUDIO_MSG_QUEUE_LENGTH  50
+#define AUDIO_STATUS_QUEUE_LENGTH -1
+
 namespace avg {
 
 AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLength)
@@ -99,8 +102,8 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
     
     if (m_VideoInfo.m_bHasAudio) {
         m_pACmdQ = AudioDecoderThread::CQueuePtr(new AudioDecoderThread::CQueue);
-        m_pAMsgQ = AudioMsgQueuePtr(new AudioMsgQueue(100));
-        m_pAStatusQ = AudioMsgQueuePtr(new AudioMsgQueue(100));
+        m_pAMsgQ = AudioMsgQueuePtr(new AudioMsgQueue(AUDIO_MSG_QUEUE_LENGTH));
+        m_pAStatusQ = AudioMsgQueuePtr(new AudioMsgQueue(AUDIO_STATUS_QUEUE_LENGTH));
         m_pADecoderThread = new boost::thread(
                  AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder, *pAP));
         m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::setVolume, _1, m_Volume));
