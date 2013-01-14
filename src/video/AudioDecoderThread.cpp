@@ -116,7 +116,8 @@ void AudioDecoderThread::setVolume(float volume)
 AudioBufferPtr AudioDecoderThread::getAudioBuffer()
 {
 //    cerr << "          AudioDecoderThread::getAudioBuffer" << endl;
-    short pDecodedData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
+    short* pDecodedData = (short*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
+            FF_INPUT_BUFFER_PADDING_SIZE);
 
     int bytesConsumed = 0;
     int bytesDecoded = 0;
@@ -178,6 +179,7 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer()
     pBuffer->volumize(m_LastVolume, m_Volume);
     m_LastVolume = m_Volume;
 //    cerr << "                AudioDecoderThread::getAudioBuffer() end" << endl;
+    av_free(pDecodedData);
     return pBuffer;
 }
 
