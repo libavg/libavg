@@ -126,12 +126,14 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer()
 //            cerr << "                  get new packet" << endl;
             m_SeekTime = m_pDemuxer->isSeekDone(m_AStreamIndex);
             if (m_SeekTime != -1) {
+                av_free(pDecodedData);
                 return AudioBufferPtr();
             }
             m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
             if (!m_pCurAudioPacket) {
 //                cerr << "                  eof" << endl;
                 m_bEOF = true;
+                av_free(pDecodedData);
                 return AudioBufferPtr();
             }
 //            cerr << "                  packet size: " << m_pCurAudioPacket->size << endl;
