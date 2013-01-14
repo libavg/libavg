@@ -86,18 +86,15 @@ bool AudioDecoderThread::work()
         }
     } else {
         AudioBufferPtr pBuffer = getAudioBuffer();
-        VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
         if (pBuffer) {
-            pVMsg->setAudio(pBuffer, m_LastFrameTime);
-            m_MsgQ.push(pVMsg);
+            pushAudioMsg(pBuffer, m_LastFrameTime);
         } else {
             if (m_SeekTime != -1) {
                 handleSeekDone(m_SeekTime);
                 m_SeekTime = -1;
             } else {
                 AVG_ASSERT(m_bEOF);
-                pVMsg->setEOF();
-                m_MsgQ.push(pVMsg);
+                pushEOF();
             }
         }
         ThreadProfiler::get()->reset();
@@ -224,10 +221,7 @@ void AudioDecoderThread::handleSeekDone(float seekTime)
 //    cerr << "   wanted " << seekTime << ", got " << m_LastFrameTime << endl;
     if (fabs(m_LastFrameTime - seekTime) < 0.05) {
 //        cerr << "  -> time is ok." << endl;
-        // Send SEEK_DONE
-        VideoMsgPtr pMsg(new VideoMsg());
-        pMsg->setSeekDone(m_LastFrameTime);
-        m_MsgQ.push(pMsg);
+        pushSeekDone(m_LastFrameTime);
     } else { 
         if (m_LastFrameTime-0.05f < seekTime) {
             // Received frame that's earlier than the destination, so throw away frames
@@ -242,9 +236,7 @@ void AudioDecoderThread::handleSeekDone(float seekTime)
 //                    cerr << "eof" << endl;
                     // Early out: EOF during seek
                     m_bEOF = true;
-                    VideoMsgPtr pMsg(new VideoMsg());
-                    pMsg->setEOF();
-                    m_MsgQ.push(pMsg);
+                    pushEOF();
                     return;
                 }
                 AVG_ASSERT(m_pCurAudioPacket);
@@ -254,26 +246,18 @@ void AudioDecoderThread::handleSeekDone(float seekTime)
 //                cerr << "  ... got " << m_LastFrameTime << endl;
             }
     
-            // Send SEEK_DONE
-            VideoMsgPtr pMsg(new VideoMsg());
-            pMsg->setSeekDone(m_LastFrameTime);
-            m_MsgQ.push(pMsg);
+            pushSeekDone(m_LastFrameTime);
         } else {
-            int numDelaySamples = (m_LastFrameTime - seekTime)*m_AP.m_SampleRate;
+            // Received frame that's too late, so insert a buffer of silence to compensate.
 //            cerr << "   late " << numDelaySamples << endl;
-
-            // Send SEEK_DONE
-            VideoMsgPtr pMsg(new VideoMsg());
-            pMsg->setSeekDone(m_LastFrameTime);
-            m_MsgQ.push(pMsg);
+            pushSeekDone(m_LastFrameTime);
 
             // send empty buffer 
+            int numDelaySamples = (m_LastFrameTime - seekTime)*m_AP.m_SampleRate;
             AudioBufferPtr pBuffer(new AudioBuffer(numDelaySamples, m_AP));
             pBuffer->clear();
             m_LastFrameTime = seekTime;
-            pMsg = VideoMsgPtr(new VideoMsg());
-            pMsg->setAudio(pBuffer, m_LastFrameTime);
-            m_MsgQ.push(pMsg);
+            pushAudioMsg(pBuffer, m_LastFrameTime);
         }
     }
 
@@ -282,6 +266,27 @@ void AudioDecoderThread::handleSeekDone(float seekTime)
     av_init_packet(m_pTempAudioPacket);
     m_pTempAudioPacket->data = m_pCurAudioPacket->data;
     m_pTempAudioPacket->size = m_pCurAudioPacket->size;
+}
+
+void AudioDecoderThread::pushAudioMsg(AudioBufferPtr pBuffer, float time)
+{
+    VideoMsgPtr pMsg(new VideoMsg());
+    pMsg->setAudio(pBuffer, time);
+    m_MsgQ.push(pMsg);
+}
+
+void AudioDecoderThread::pushSeekDone(float time)
+{
+    VideoMsgPtr pMsg(new VideoMsg());
+    pMsg->setSeekDone(time);
+    m_MsgQ.push(pMsg);
+}
+
+void AudioDecoderThread::pushEOF()
+{
+    VideoMsgPtr pMsg(new VideoMsg());
+    pMsg->setEOF();
+    m_MsgQ.push(pMsg);
 }
 
 void AudioDecoderThread::deleteCurAudioPacket()
