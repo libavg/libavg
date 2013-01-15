@@ -222,7 +222,7 @@ AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 
 PREFIX=$prefix
 AC_SUBST(PREFIX)
-AM_CONFIG_HEADER(src/avgconfig.h)
+AC_CONFIG_HEADERS(src/avgconfig.h)
 AC_OUTPUT(Makefile src/Makefile src/test/Makefile src/test/plugin/Makefile
     src/base/Makefile src/base/triangulate/Makefile
     src/lmfit/Makefile src/wrapper/Makefile src/player/Makefile src/graphics/Makefile 
