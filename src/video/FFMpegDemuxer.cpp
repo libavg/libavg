@@ -88,9 +88,9 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
                 if (m_PacketLists.find(pPacket->stream_index) != m_PacketLists.end()) {
                     // Relevant stream, but not ours
                     av_dup_packet(pPacket);
-                    PacketList& OtherPacketList = 
+                    PacketList& otherPacketList = 
                             m_PacketLists.find(pPacket->stream_index)->second;
-                    OtherPacketList.push_back(pPacket);
+                    otherPacketList.push_back(pPacket);
                 } else {
                     // Disabled stream
                     av_free_packet(pPacket);
@@ -124,8 +124,9 @@ void FFMpegDemuxer::seek(float destTime)
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     av_seek_frame(m_pFormatContext, -1, destTime*1000000, 0);
 #else
-    av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE),
+    int err = av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE),
             AVSEEK_FLAG_BACKWARD);
+    AVG_ASSERT(err >= 0);
 #endif
 #endif
     clearPacketCache();
