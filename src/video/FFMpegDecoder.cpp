@@ -646,7 +646,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
     unsigned char * pDestBits = pBmp->getPixels();
     destPict.data[0] = pDestBits;
     destPict.linesize[0] = pBmp->getStride();
-    ::PixelFormat destFmt;
+    AVPixelFormat destFmt;
     switch (pBmp->getPixelFormat()) {
         case R8G8B8X8:
         case R8G8B8A8:
@@ -897,7 +897,7 @@ float FFMpegDecoder::calcStreamFPS() const
 string FFMpegDecoder::getStreamPF() const
 {
     AVCodecContext const* pCodec = getCodecContext();
-    ::PixelFormat pf = pCodec->pix_fmt;
+    AVPixelFormat pf = pCodec->pix_fmt;
     const char* psz = av_get_pix_fmt_name(pf);
     string s;
     if (psz) {
