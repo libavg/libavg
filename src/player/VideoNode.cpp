@@ -433,6 +433,9 @@ void VideoNode::changeVideoState(VideoState newVideoState)
 void VideoNode::seek(long long destTime) 
 {
     if (getState() == NS_CANRENDER) {    
+        if (m_AudioID != -1) {
+            AudioEngine::get()->notifySeek(m_AudioID);
+        }
         m_pDecoder->seek(float(destTime)/1000.0f);
         m_StartTime = Player::get()->getFrameTime() - destTime;
         m_JitterCompensation = 0.5;

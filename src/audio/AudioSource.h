@@ -39,6 +39,7 @@ public:
 
     void pause();
     void play();
+    void notifySeek();
 
     void fillAudioBuffer(AudioBufferPtr pBuffer);
 
@@ -52,6 +53,7 @@ private:
     float m_LastTime;
     int m_CurInputAudioPos;
     bool m_bPaused;
+    bool m_bSeeking;
 };
 
 typedef boost::shared_ptr<AudioSource> AudioSourcePtr;

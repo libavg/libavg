@@ -281,6 +281,7 @@ void SoundNode::changeSoundState(SoundState newSoundState)
 void SoundNode::seek(long long destTime) 
 {
     if (getState() == NS_CANRENDER) {    
+        AudioEngine::get()->notifySeek(m_AudioID);
         m_pDecoder->seek(float(destTime)/1000);
         m_StartTime = Player::get()->getFrameTime() - destTime;
         m_PauseTime = 0;

@@ -51,11 +51,18 @@ void AudioSource::play()
     m_bPaused = false;
 }
 
+void AudioSource::notifySeek()
+{
+    m_bSeeking = true;
+}
+
 void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    if (m_bPaused) {
-        return;
-    } else {
+    bool bContinue = true;
+    while (bContinue && m_bSeeking) {
+        bContinue = processNextMsg();
+    }
+    if (!m_bPaused) {
         unsigned char* pDest = (unsigned char *)(pBuffer->getData());
         int framesLeftToFill = pBuffer->getNumFrames();
         AudioMsgPtr pMsg;
@@ -111,6 +118,8 @@ bool AudioSource::processNextMsg()
                 return false;
             }
             case AudioMsg::SEEK_DONE: {
+                m_bSeeking = false;
+                m_pInputAudioBuffer = AudioBufferPtr();
                 m_LastTime = pMsg->getSeekTime();
                 AudioMsgPtr pStatusMsg(new AudioMsg);
                 pStatusMsg->setSeekDone(m_LastTime);
