@@ -218,6 +218,14 @@ void AudioDecoderThread::handleSeekDone(float seekTime)
     // Get the next packet so we know at what time we actually arrived.
     deleteCurAudioPacket();
     m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
+    if (!m_pCurAudioPacket) {
+        cerr << "eof" << endl;
+        // Early out: EOF during seek
+        m_bEOF = true;
+        pushSeekDone(m_LastFrameTime);
+        pushEOF();
+        return;
+    }
     AVG_ASSERT(m_pCurAudioPacket);
     m_LastFrameTime = float(m_pCurAudioPacket->dts*av_q2d(m_pAStream->time_base))
             - m_AudioStartTimestamp;
@@ -240,6 +248,7 @@ void AudioDecoderThread::handleSeekDone(float seekTime)
 //                    cerr << "eof" << endl;
                     // Early out: EOF during seek
                     m_bEOF = true;
+                    pushSeekDone(m_LastFrameTime);
                     pushEOF();
                     return;
                 }
