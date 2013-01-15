@@ -77,7 +77,6 @@
     <ClInclude Include="..\..\src\video\FFMpegDemuxer.h" />
     <ClInclude Include="..\..\src\video\IDemuxer.h" />
     <ClInclude Include="..\..\src\video\IVideoDecoder.h" />
-    <ClInclude Include="..\..\src\video\PacketVideoMsg.h" />
     <ClInclude Include="..\..\src\video\VideoDecoder.h" />
     <ClInclude Include="..\..\src\video\VideoDecoderThread.h" />
     <ClInclude Include="..\..\src\video\VideoDemuxerThread.h" />
@@ -91,7 +90,6 @@
     <ClCompile Include="..\..\src\video\AudioDecoderThread.cpp" />
     <ClCompile Include="..\..\src\video\FFMpegDecoder.cpp" />
     <ClCompile Include="..\..\src\video\FFMpegDemuxer.cpp" />
-    <ClCompile Include="..\..\src\video\PacketVideoMsg.cpp" />
     <ClCompile Include="..\..\src\video\VideoDecoder.cpp" />
     <ClCompile Include="..\..\src\video\VideoDecoderThread.cpp" />
     <ClCompile Include="..\..\src\video\VideoDemuxerThread.cpp" />
