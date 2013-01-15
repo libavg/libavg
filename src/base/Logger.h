@@ -25,17 +25,18 @@
 #include "../api.h"
 #include "UTF8String.h"
 
-#include "../player/WrapPython.h"
-
 #include <string>
 #include <vector>
 #include <sstream>
+
 
 namespace avg {
 
 #ifdef ERROR
 #undef ERROR
 #endif
+
+class PyObject;
 
 class AVG_API Logger {
 public:

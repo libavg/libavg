@@ -129,8 +129,10 @@ void Logger::popCategories()
 
 void Logger::setPythonLogger(PyObject* pyLogger)
 {
+    /*
     m_pyLogger = pyLogger;
     Py_INCREF(m_pyLogger);
+    */
 }
 
 void Logger::trace(int category, const UTF8String& sMsg)
@@ -151,7 +153,7 @@ void Logger::trace(int category, const UTF8String& sMsg)
         unsigned millis = time.tv_usec/1000;
 #endif
         if(m_pyLogger){
-            PyEval_CallMethod(m_pyLogger, "debug", "(s)", sMsg.c_str());
+            //PyEval_CallMethod(m_pyLogger, "debug", "(s)", sMsg.c_str());
         }else{
             char timeString[256];
             strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
