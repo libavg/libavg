@@ -1,5 +1,4 @@
-
-INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
+AM_CPPFLAGS = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
 
 ALL_H = AudioEngine.h AudioBuffer.h AudioParams.h IAudioSource.h SDLAudioEngine.h \
         Dynamics.h IProcessor.h
