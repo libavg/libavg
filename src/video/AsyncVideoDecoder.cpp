@@ -117,7 +117,11 @@ void AsyncVideoDecoder::close()
     AVG_ASSERT(m_State != CLOSED);
     if (m_pVDecoderThread) {
         m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::stop, _1));
-        getNextBmps(false); // If the Queue is full, this breaks the lock in the thread.
+        // Empty the queue to make sure the decoder thread isn't hung on a full queue.
+        VideoMsgPtr pMsg;
+        do {
+            pMsg = getNextBmps(false);
+        } while(pMsg);
         m_pVDecoderThread->join();
         delete m_pVDecoderThread;
         m_pVDecoderThread = 0;
