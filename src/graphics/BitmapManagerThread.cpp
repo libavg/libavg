@@ -22,6 +22,8 @@
 #include "BitmapManagerThread.h"
 
 #include "Bitmap.h"
+#include "BitmapLoader.h"
+
 #include "../base/Exception.h"
 #include "../base/ProfilingZoneID.h"
 
@@ -48,7 +50,7 @@ void BitmapManagerThread::loadBitmap(BitmapManagerMsgPtr pRequest)
     BitmapPtr pBmp;
 
     try {
-        pBmp = BitmapPtr(new Bitmap(pRequest->getFilename()));
+        pBmp = avg::loadBitmap(pRequest->getFilename());
         pRequest->setBitmap(pBmp);
     } catch (const Exception& ex) {
         pRequest->setError(ex);

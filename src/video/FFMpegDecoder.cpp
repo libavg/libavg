@@ -35,6 +35,7 @@
 
 #include "../graphics/Filterflipuv.h"
 #include "../graphics/Filterfliprgba.h"
+#include "../graphics/BitmapLoader.h"
 
 #include <iostream>
 #include <sstream>
@@ -264,7 +265,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                     *m_pAStream->start_time);
         }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
-        int rc = openCodec(m_AStreamIndex, bUseHardwareAcceleration);
+        int rc = openCodec(m_AStreamIndex, false);
         if (rc == -1) {
             m_AStreamIndex = -1;
             char szBuf[256];
@@ -911,10 +912,9 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
                 break;
         }
     }
-    if (pContext->pix_fmt == PIX_FMT_BGRA || pContext->pix_fmt == PIX_FMT_YUVA420P) {
-        return B8G8R8A8;
-    }
-    return B8G8R8X8;
+    bool bAlpha = (pContext->pix_fmt == PIX_FMT_BGRA ||
+            pContext->pix_fmt == PIX_FMT_YUVA420P);
+    return BitmapLoader::get()->getDefaultPixelFormat(bAlpha);
 }
 
 static ProfilingZoneID ConvertImageLibavgProfilingZone(
@@ -933,8 +933,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
     switch (pBmp->getPixelFormat()) {
         case R8G8B8X8:
         case R8G8B8A8:
-            // XXX: Unused and broken.
-            destFmt = PIX_FMT_BGRA;
+            destFmt = PIX_FMT_RGBA;
             break;
         case B8G8R8X8:
         case B8G8R8A8:
@@ -985,7 +984,8 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
                 sws_scale(m_pSwsContext, frame.data, frame.linesize, 0, 
                     pContext->height, destPict.data, destPict.linesize);
             }
-            if (pBmp->getPixelFormat() == B8G8R8X8) {
+            if (pBmp->getPixelFormat() == B8G8R8X8 || pBmp->getPixelFormat() == R8G8B8X8)
+            {
                 ScopeTimer timer(SetAlphaProfilingZone);
                 // Make sure the alpha channel is white.
                 // TODO: This is slow. Make OpenGL do it.

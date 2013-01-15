@@ -35,6 +35,7 @@ class AVG_API ProfilingZone
 public:
     ProfilingZone(const ProfilingZoneID& zoneID);
     virtual ~ProfilingZone();
+    void restart();
     
     void start() 
     {

@@ -21,6 +21,7 @@
 
 #include "GraphicsTest.h"
 #include "Bitmap.h"
+#include "BitmapLoader.h"
 #include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
@@ -295,9 +296,9 @@ private:
         cerr << "    Testing save for " << pf << endl;
         BitmapPtr pBmp = initBmp(pf);
         pBmp->save("test.png");
-        Bitmap LoadedBmp("test.png");
+        BitmapPtr pLoadedBmp = loadBitmap("test.png");
         ::remove("test.png");
-        testEqual(LoadedBmp, *pBmp, "BmpSave");
+        testEqual(*pLoadedBmp, *pBmp, "BmpSave");
     }
 
     template<class PIXEL>
@@ -316,10 +317,8 @@ private:
         bmp.drawLine(IntPoint(7,7), IntPoint(14,12), color);
         string sFName = getSrcDirName() + "baseline/LineResult" + getPixelFormatString(pf)
                 + ".png";
-        Bitmap baselineBmp(sFName);
-        Bitmap baselineBmp2(IntPoint(15,15), pf);
-        baselineBmp2.copyPixels(baselineBmp);
-        testEqual(bmp, baselineBmp2, "BmpLineDraw");
+        BitmapPtr pBaselineBmp = loadBitmap(sFName, pf);
+        testEqual(bmp, *pBaselineBmp, "BmpLineDraw");
     }
     
     void testCopyToGreyscale(PixelFormat pf)
@@ -571,11 +570,7 @@ public:
                 sFilename = (string)pSrcDir+"/";
             }
             sFilename += "../test/media/rgb24-64x64.png";
-            Bitmap tempBmp(sFilename);
-            PixelFormat pf = R8G8B8;    
-            BitmapPtr pBmp;
-            pBmp = createBmp(tempBmp.getSize(), pf);
-            pBmp->copyPixels(tempBmp);
+            BitmapPtr pBmp = loadBitmap(sFilename, R8G8B8);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
         } catch (Exception & ex) {
@@ -857,10 +852,7 @@ private:
         string sFName = string("baseline/MaskResult")+sName+".png";
 //        pDestBmp->save(sFName);
         sFName = getSrcDirName()+sFName;
-        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
-        BitmapPtr pBaselineBmp = BitmapPtr(
-                new Bitmap(pRGBXBaselineBmp->getSize(), pBmp->getPixelFormat()));
-        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
+        BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
@@ -879,10 +871,7 @@ public:
         string sFName = "baseline/ThresholdResult.png";
 //        pDestBmp->save(sFName);
         sFName = getSrcDirName()+sFName;
-        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
-        BitmapPtr pBaselineBmp = BitmapPtr(
-                new Bitmap(pRGBXBaselineBmp->getSize(), pBmp->getPixelFormat()));
-        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
+        BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
@@ -1052,7 +1041,7 @@ public:
 int main(int nargs, char** args)
 {
     g_type_init();
-
+    BitmapLoader::init(true);
     GraphicsTest::createResultImgDir();
     GraphicsTestSuite suite;
     suite.runTests();

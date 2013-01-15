@@ -21,6 +21,8 @@
 
 #include "MessageID.h"
 
+#include "../base/StringHelper.h"
+
 using namespace std;
 
 namespace avg {
@@ -39,6 +41,15 @@ bool MessageID::operator < (const MessageID& other) const
 bool MessageID::operator == (const MessageID& other) const
 {
     return m_ID == other.m_ID;
+}
+
+std::string MessageID::getRepr()
+{
+    if (m_sName != "") {
+        return m_sName;
+    } else {
+        return toString(m_ID);
+    }
 }
 
 std::ostream& operator <<(ostream& os, const MessageID& id)

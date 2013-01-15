@@ -35,12 +35,11 @@ using namespace boost;
 
 namespace avg {
 
-EventDispatcher::EventDispatcher(Player* pPlayer)
+EventDispatcher::EventDispatcher(Player* pPlayer, bool bMouseEnabled)
     : m_pPlayer(pPlayer),
-      m_NumMouseButtonsDown(0)
+      m_NumMouseButtonsDown(0),
+      m_bMouseEnabled(bMouseEnabled)
 {
-    string sTmp;
-    m_bDisableMouse = getEnv("AVG_DISABLE_MOUSE", sTmp);
 }
 
 EventDispatcher::~EventDispatcher() 
@@ -68,7 +67,8 @@ void EventDispatcher::dispatch()
         EventPtr pEvent = *it;
 //        cerr << "  " << pEvent->typeStr() << ", " << pEvent->getSource() << endl;
         bool bHookEatsEvent = processEventHook(pEvent);
-        if (!(m_bDisableMouse && pEvent->getSource() == Event::MOUSE) && !bHookEatsEvent) {
+        if (!(!m_bMouseEnabled && pEvent->getSource() == Event::MOUSE) &&
+                !bHookEatsEvent) {
             testAddContact(pEvent);
             handleEvent(*it);
             testRemoveContact(pEvent);
@@ -84,6 +84,11 @@ void EventDispatcher::addInputDevice(IInputDevicePtr pInputDevice)
 void EventDispatcher::sendEvent(EventPtr pEvent)
 {
     handleEvent(pEvent);
+}
+
+void EventDispatcher::enableMouse(bool bEnabled)
+{
+    m_bMouseEnabled = bEnabled;
 }
 
 ContactPtr EventDispatcher::getContact(int id)

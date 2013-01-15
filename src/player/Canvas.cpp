@@ -145,7 +145,7 @@ void Canvas::doFrame(bool bPythonAvailable)
         if (bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
-                render();
+                renderTree();
             } catch(...) {
                 Py_BLOCK_THREADS;
                 Player::get()->endTraversingTree();
@@ -153,7 +153,7 @@ void Canvas::doFrame(bool bPythonAvailable)
             }
             Py_END_ALLOW_THREADS;
         } else {
-            render();
+            renderTree();
         }
         Player::get()->endTraversingTree();
     }
@@ -240,46 +240,36 @@ vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
 }
 
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
+static ProfilingZoneID VATransferProfilingZone("VA Transfer");
 
-void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
-        ProfilingZoneID& renderProfilingZone)
+void Canvas::preRender()
 {
+    ScopeTimer Timer(PreRenderProfilingZone);
+    m_pVertexArray->reset();
+    m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
     {
-        ScopeTimer Timer(PreRenderProfilingZone);
-        m_pVertexArray->reset();
-        m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
+        ScopeTimer Timer(VATransferProfilingZone);
         m_pVertexArray->update();
     }
-    if (pFBO) {
-        pFBO->activate();
-    } else {
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-        GLContext::checkError("Canvas::render: BindFramebuffer()");
-    }
-    if (m_MultiSampleSamples > 1) {
-        glEnable(GL_MULTISAMPLE);
-        GLContext::checkError("Canvas::render: glEnable(GL_MULTISAMPLE)");
-    } else {
-        glDisable(GL_MULTISAMPLE);
-        GLContext::checkError("Canvas::render: glDisable(GL_MULTISAMPLE)");
-    }
-    clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Canvas::render(IntPoint windowSize, bool bOffscreen)
+{
+    clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+            !bOffscreen);
     glViewport(0, 0, windowSize.x, windowSize.y);
     GLContext::checkError("Canvas::render: glViewport()");
     glm::vec2 size = m_pRootNode->getSize();
     glm::mat4 projMat;
-    if (bUpsideDown) {
+    if (bOffscreen) {
         projMat = glm::ortho(0.f, size.x, 0.f, size.y);
     } else {
         projMat = glm::ortho(0.f, size.x, size.y, 0.f);
     }
-    {
-        ScopeTimer Timer(renderProfilingZone);
-        m_pVertexArray->activate();
-        m_pRootNode->maybeRender(projMat);
+    m_pVertexArray->activate();
+    m_pRootNode->maybeRender(projMat);
 
-        renderOutlines(projMat);
-    }
+    renderOutlines(projMat);
 }
 
 void Canvas::renderOutlines(const glm::mat4& transform)

@@ -75,8 +75,10 @@
 #include "../base/XMLHelper.h"
 #include "../base/ScopeTimer.h"
 #include "../base/WorkerThread.h"
+#include "../base/DAG.h"
 
 #include "../graphics/BitmapManager.h"
+#include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
 
 #include "../imaging/Camera.h"
@@ -124,7 +126,8 @@ Player::Player()
       m_bPythonAvailable(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_EventHookPyFunc(Py_None)
+      m_EventHookPyFunc(Py_None),
+      m_bMouseEnabled(true)
 {
     string sDummy;
 #ifdef _WIN32
@@ -247,6 +250,10 @@ void Player::useGLES(bool bGLES)
 {
     errorIfPlaying("Player.useGLES");
     m_GLConfig.m_bGLES = bGLES;
+#ifdef AVG_ENABLE_EGL
+    m_GLConfig.m_bGLES = true;
+#endif
+    BitmapLoader::init(!m_GLConfig.m_bGLES);
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
@@ -256,7 +263,7 @@ void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
-    m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
+    setMultiSampleSamples(multiSampleSamples);
     m_GLConfig.m_ShaderUsage = shaderUsage;
     m_GLConfig.m_bUseDebugContext = bUseDebugContext;
 }
@@ -264,6 +271,11 @@ void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
 void Player::setMultiSampleSamples(int multiSampleSamples)
 {
     errorIfPlaying("Player.setMultiSampleSamples");
+    if (multiSampleSamples < 1) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "MultiSampleSamples must be 1 or greater (was " +
+                toString(multiSampleSamples) + ").");
+    }
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 }
 
@@ -304,16 +316,11 @@ CanvasPtr Player::loadFile(const string& sFilename)
 {
     errorIfPlaying("Player.loadFile");
     NodePtr pNode = loadMainNodeFromFile(sFilename);
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
     if (m_pMainCanvas) {
         cleanup();
     }
 
-    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
-    m_pMainCanvas->setRoot(pNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
-    registerFrameEndListener(BitmapManager::get());
+    initMainCanvas(pNode);
     
     return m_pMainCanvas;
 }
@@ -326,12 +333,7 @@ CanvasPtr Player::loadString(const string& sAVG)
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
-    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
-    m_pMainCanvas->setRoot(pNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
-    registerFrameEndListener(BitmapManager::get());
+    initMainCanvas(pNode);
 
     return m_pMainCanvas;
 }
@@ -356,13 +358,7 @@ CanvasPtr Player::createMainCanvas(const py::dict& params)
     }
 
     NodePtr pNode = createNode("avg", params);
-
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
-    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
-    m_pMainCanvas->setRoot(pNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
-    registerFrameEndListener(BitmapManager::get());
+    initMainCanvas(pNode);
 
     return m_pMainCanvas;
 }
@@ -408,42 +404,39 @@ OffscreenCanvasPtr Player::getCanvas(const string& sID) const
     }
 }
 
-void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
+void Player::newCanvasDependency()
 {
-    OffscreenCanvasPtr pNewCanvas;
-    unsigned i;
-    for (i = 0; i < m_pCanvases.size(); ++i) {
-        if (pCanvas == m_pCanvases[i]) {
-            pNewCanvas = m_pCanvases[i];
-            m_pCanvases.erase(m_pCanvases.begin()+i);
-            continue;
+    DAG dag;
+    for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
+        set<long> dependentCanvasSet;
+        OffscreenCanvasPtr pCanvas = m_pCanvases[i];
+        const vector<CanvasPtr>& pDependents = pCanvas->getDependentCanvases();
+        for (unsigned j = 0; j < pDependents.size(); ++j) {
+            dependentCanvasSet.insert(pDependents[j]->getHash());
         }
+        dag.addNode(pCanvas->getHash(), dependentCanvasSet);
     }
-    AVG_ASSERT(pNewCanvas);
-    bool bFound = false;
-    for (i = 0; i < m_pCanvases.size(); ++i) {
-        if (pNewCanvas->hasDependentCanvas(m_pCanvases[i])) {
-            bFound = true;
-            break;
-        }
+    dag.addNode(m_pMainCanvas->getHash(), set<long>());
+
+    vector<long> sortedCanvasIDs;
+    try {
+        dag.sort(sortedCanvasIDs);
+    } catch (Exception& e) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Circular dependency between canvases.");
     }
-    if (bFound) {
-        for (unsigned j = i; j < m_pCanvases.size(); ++j) {
-            if (m_pCanvases[j]->hasDependentCanvas(pNewCanvas)) {
-                throw Exception(AVG_ERR_INVALID_ARGS,
-                        "Circular dependency between canvases.");
+
+    vector<OffscreenCanvasPtr> pTempCanvases = m_pCanvases;
+    m_pCanvases.clear();
+    for (unsigned i = 0; i < sortedCanvasIDs.size(); ++i) {
+        long canvasID = sortedCanvasIDs[i];
+        for (unsigned j = 0; j < pTempCanvases.size(); ++j) {
+            OffscreenCanvasPtr pCandidateCanvas = pTempCanvases[j];
+            if (pCandidateCanvas->getHash() == canvasID) {
+                m_pCanvases.push_back(pCandidateCanvas);
+                break;
             }
         }
-        m_pCanvases.insert(m_pCanvases.begin()+i, pNewCanvas);
-    } else {
-        AVG_ASSERT(pNewCanvas->hasDependentCanvas(m_pMainCanvas));
-        m_pCanvases.push_back(pNewCanvas);
     }
-/*
-    for (unsigned k=0; k<m_pCanvases.size(); ++k) {
-        m_pCanvases[k]->dump();
-    }
-*/
 }
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
@@ -563,20 +556,18 @@ void Player::setFramerate(float rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
-    } else {
-        m_DP.m_Framerate = rate;
-        m_DP.m_VBRate = 0;
     }
+    m_DP.m_Framerate = rate;
+    m_DP.m_VBRate = 0;
 }
 
 void Player::setVBlankFramerate(int rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setVBlankRate(rate);
-    } else {
-        m_DP.m_Framerate = 0;
-        m_DP.m_VBRate = rate;
     }
+    m_DP.m_Framerate = 0;
+    m_DP.m_VBRate = rate;
 }
 
 float Player::getEffectiveFramerate()
@@ -706,6 +697,15 @@ void Player::enableMultitouch()
         }
     }
     addInputDevice(m_pMultitouchInputDevice);
+}
+
+void Player::enableMouse(bool enabled)
+{
+    m_bMouseEnabled = enabled;
+    
+    if (m_pEventDispatcher) {
+        m_pEventDispatcher->enableMouse(enabled);
+    }
 }
 
 bool Player::isMultitouchAvailable() const
@@ -851,6 +851,11 @@ BitmapPtr Player::screenshot()
     if (!m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
+    }
+    if (GLContext::getMain()->isGLES()) {
+        // Some GLES implementations invalidate the buffer after eglSwapBuffers.
+        // The only way we can get at the contents at this point is to rerender them.
+        m_pMainCanvas->render(m_pDisplayEngine->getWindowSize(), false);
     }
     return m_pDisplayEngine->screenshot();
 }
@@ -1070,8 +1075,8 @@ void Player::doFrame(bool bFirstFrame)
     {
         ScopeTimer Timer(MainProfilingZone);
         if (!bFirstFrame) {
+            m_NumFrames++;
             if (m_bFakeFPS) {
-                m_NumFrames++;
                 m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
             } else {
                 m_FrameTime = m_pDisplayEngine->getDisplayTime();
@@ -1106,6 +1111,9 @@ void Player::doFrame(bool bFirstFrame)
         }
     }
     ThreadProfiler::get()->reset();
+    if (m_NumFrames == 5) {
+        ThreadProfiler::get()->restart();
+    }
 }
 
 void Player::endFrame()
@@ -1153,11 +1161,10 @@ void Player::setGamma(float red, float green, float blue)
 {
     if (m_pDisplayEngine) {
         m_pDisplayEngine->setGamma(red, green, blue);
-    } else {
-        m_DP.m_Gamma[0] = red;
-        m_DP.m_Gamma[1] = green;
-        m_DP.m_Gamma[2] = blue;
     }
+    m_DP.m_Gamma[0] = red;
+    m_DP.m_Gamma[1] = green;
+    m_DP.m_Gamma[2] = blue;
 }
 
 void Player::initConfig()
@@ -1199,7 +1206,12 @@ void Player::initConfig()
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
-    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
+    int multiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
+    if (multiSampleSamples < 1) {
+        AVG_TRACE(Logger::ERROR, "multisamplesamples must be >= 1. Aborting")
+        exit(-1);
+    }
+    m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 
     string sShaderUsage;
     pMgr->getStringOption("scr", "shaderusage", "auto", sShaderUsage);
@@ -1213,10 +1225,14 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
-                "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
+               "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
+#ifdef AVG_ENABLE_EGL
+    m_GLConfig.m_bGLES = true;
+#endif
+    BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
@@ -1226,6 +1242,12 @@ void Player::initGraphics(const string& sShaderPath)
     // Init display configuration.
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
+    if (m_bDisplayEngineBroken) {
+        m_bDisplayEngineBroken = false;
+        m_pDisplayEngine->teardown();
+        m_pDisplayEngine = SDLDisplayEnginePtr();
+    }
+
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
@@ -1233,9 +1255,8 @@ void Player::initGraphics(const string& sShaderPath)
     m_GLConfig.log();
     m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
     if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
-            m_pDisplayEngine->isFullscreen() == true || m_bDisplayEngineBroken) 
+            m_pDisplayEngine->isFullscreen() == true) 
     {
-        m_bDisplayEngineBroken = false;
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 
@@ -1255,6 +1276,16 @@ void Player::initAudio()
     pAudioEngine->init(m_AP, m_Volume);
     pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     pAudioEngine->play();
+}
+
+void Player::initMainCanvas(NodePtr pRootNode)
+{
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
+    m_pMainCanvas->setRoot(pRootNode);
+    m_DP.m_Size = m_pMainCanvas->getSize();
+
+    registerFrameEndListener(BitmapManager::get());
 }
 
 NodePtr Player::internalLoad(const string& sAVG, const string& sFilename)
@@ -1604,6 +1635,7 @@ void Player::handleTimers()
         Py_END_ALLOW_THREADS;
         for (it = tempAsyncCalls.begin(); it != tempAsyncCalls.end(); ++it) {
             (*it)->fire(getFrameTime());
+            delete *it;
         }
     }
 }
@@ -1701,6 +1733,7 @@ void Player::cleanup()
     m_pCanvases.clear();
 
     if (m_pDisplayEngine) {
+        m_DP.m_WindowSize = IntPoint(0,0);
         if (!m_bKeepWindowOpen) {
             m_pDisplayEngine->deinitRender();
             m_pDisplayEngine->teardown();

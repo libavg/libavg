@@ -39,7 +39,7 @@ using namespace std;
 namespace avg {
 
 GPURGB2YUVFilter::GPURGB2YUVFilter(const IntPoint& size)
-    : GPUFilter(B8G8R8X8, B8G8R8X8, false, SHADERID)
+    : GPUFilter(SHADERID, false, false)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 

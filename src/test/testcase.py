@@ -120,29 +120,29 @@ class AVGTestCase(unittest.TestCase):
         try:
             baselineBmp = avg.Bitmap(AVGTestCase.baselineImageResultDirectory + "/"
                     + fileName + ".png")
-            diffBmp = bmp.subtract(baselineBmp)
-            average = diffBmp.getAvg()
-            stdDev = diffBmp.getStdDev()
-            if (average > 0.1 or stdDev > 0.5):
-                if self._isCurrentDirWriteable():
-                    bmp.save(AVGTestCase.getImageResultDir() + "/" + fileName + ".png")
-                    baselineBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
-                            + "_baseline.png")
-                    diffBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
-                            + "_diff.png")
-            if (average > 2 or stdDev > 6):
-                msg = ("  "+fileName+
-                        ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
-                        {'avg':average, 'stddev':stdDev})
-                if self.__warnOnImageDiff:
-                    sys.stderr.write("\n"+msg+"\n")
-                else:
-                    self.fail(msg)
         except RuntimeError:
             bmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+".png")
             self.__logger.trace(self.__logger.WARNING, 
                                 "Could not load image "+fileName+".png")
             raise
+        diffBmp = bmp.subtract(baselineBmp)
+        average = diffBmp.getAvg()
+        stdDev = diffBmp.getStdDev()
+        if (average > 0.1 or stdDev > 0.5):
+            if self._isCurrentDirWriteable():
+                bmp.save(AVGTestCase.getImageResultDir() + "/" + fileName + ".png")
+                baselineBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                        + "_baseline.png")
+                diffBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                        + "_diff.png")
+        if (average > 2 or stdDev > 6):
+            msg = ("  "+fileName+
+                    ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
+                    {'avg':average, 'stddev':stdDev})
+            if self.__warnOnImageDiff:
+                sys.stderr.write("\n"+msg+"\n")
+            else:
+                self.fail(msg)
 
     def areSimilarBmps(self, bmp1, bmp2, maxAvg, maxStdDev):
         diffBmp = bmp1.subtract(bmp2)
@@ -183,11 +183,15 @@ class AVGTestCase(unittest.TestCase):
         helper.fakeMouseEvent(avg.Event.CURSOR_UP, False, False, False, x, y, 1)
 
     def skip(self, message):
+        self.__skipReason = str(message)
         sys.stderr.write("skipping: " + str(message) + " ... ")
         self.__skipped = True
 
     def skipped(self):
         return self.__skipped
+
+    def skipReason(self):
+        return self.__skipReason
 
     def _sendMouseEvent(self, type, x, y):
         helper = player.getTestHelper()
@@ -210,7 +214,12 @@ class AVGTestCase(unittest.TestCase):
         return [
                  lambda: self._sendMouseEvent(type, x, y),
                  lambda: self.messageTester.assertState(expectedEvents),
-                 self.messageTester.reset,
+                ]
+
+    def _genTouchEventFrames(self, eventData, expectedEvents):
+        return [
+                 lambda: self._sendTouchEvents(eventData),
+                 lambda: self.messageTester.assertState(expectedEvents),
                 ]
 
     def _isCurrentDirWriteable(self):
@@ -250,59 +259,45 @@ def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
 
 class NodeHandlerTester(object):
     def __init__(self, testCase, node):
-        self.__testCase=testCase
+        self.__testCase = testCase
         self.reset()
         self.__node = node
+        self.__subscriberIDs = set()
         self.setHandlers()
+        self.__messagesReceived = set()
 
-    def assertState(self, down, up, over, out, move):
-        self.__testCase.assert_(down == self.__downCalled)
-        self.__testCase.assert_(up == self.__upCalled)
-        self.__testCase.assert_(over == self.__overCalled)
-        self.__testCase.assert_(out == self.__outCalled)
-        self.__testCase.assert_(move == self.__moveCalled)
+    def assertState(self, expectedMessages):
+        self.__testCase.assert_(self.isState(expectedMessages))
         self.reset()
 
+    def isState(self, expectedMessages):
+        expectedMessages = set(expectedMessages)
+        if expectedMessages != self.__messagesReceived:
+            sys.stderr.write("\nState expected: "+str(expectedMessages)+"\n")
+            sys.stderr.write("Actual state: "+str(self.__messagesReceived)+"\n")
+            return False
+        else:
+            return True
+
     def reset(self):
-        self.__upCalled=False
-        self.__downCalled=False
-        self.__overCalled=False
-        self.__outCalled=False
-        self.__moveCalled=False
+        self.__messagesReceived = set()
 
     def setHandlers(self):
-        self.__node.subscribe(avg.Node.CURSOR_DOWN, self.__onDown) 
-        self.__node.subscribe(avg.Node.CURSOR_UP, self.__onUp) 
-        self.__node.subscribe(avg.Node.CURSOR_OVER, self.__onOver) 
-        self.__node.subscribe(avg.Node.CURSOR_OUT, self.__onOut) 
-        self.__node.subscribe(avg.Node.CURSOR_MOTION, self.__onMove) 
+        messageIDs = [avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP, avg.Node.CURSOR_OVER, 
+                avg.Node.CURSOR_OUT, avg.Node.CURSOR_MOTION]
+        for messageID in messageIDs:
+            subscriberID = self.__node.subscribe(messageID, 
+                    lambda event, messageID=messageID: 
+                            self.setMessageReceived(messageID, event))
+            self.__subscriberIDs.add(subscriberID)
 
     def clearHandlers(self):
-        self.__node.unsubscribe(avg.Node.CURSOR_DOWN, self.__onDown) 
-        self.__node.unsubscribe(avg.Node.CURSOR_UP, self.__onUp) 
-        self.__node.unsubscribe(avg.Node.CURSOR_OVER, self.__onOver) 
-        self.__node.unsubscribe(avg.Node.CURSOR_OUT, self.__onOut) 
-        self.__node.unsubscribe(avg.Node.CURSOR_MOTION, self.__onMove) 
+        for subscriber in self.__subscriberIDs:
+            self.__node.unsubscribe(subscriber)
+        self.__subscriberIDs = set()
 
-    def __onDown(self, Event):
-        self.__testCase.assert_(Event.type == avg.Event.CURSOR_DOWN)
-        self.__downCalled = True
-    
-    def __onUp(self, Event):
-        self.__testCase.assert_(Event.type == avg.Event.CURSOR_UP)
-        self.__upCalled = True
-
-    def __onOver(self, Event):
-        self.__testCase.assert_(Event.type == avg.Event.CURSOR_OVER)
-        self.__overCalled = True
-    
-    def __onOut(self, Event):
-        self.__testCase.assert_(Event.type == avg.Event.CURSOR_OUT)
-        self.__outCalled = True
-    
-    def __onMove(self, Event):
-        self.__testCase.assert_(Event.type == avg.Event.CURSOR_MOTION)
-        self.__moveCalled = True
+    def setMessageReceived(self, messageID, event):
+        self.__messagesReceived.add(messageID)
     
 
 class MessageTester(object):
@@ -316,6 +311,7 @@ class MessageTester(object):
 
     def assertState(self, expectedMessages):
         self.__testCase.assert_(self.isState(expectedMessages))
+        self.reset()
 
     def isState(self, expectedMessages):
         expectedMessages = set(expectedMessages)

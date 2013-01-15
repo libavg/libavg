@@ -69,7 +69,7 @@ protected:
     int getReserveIndexes() const;
 
     const T2V3C4Vertex * getVertexPointer() const;
-    const unsigned int * getIndexPointer() const;
+    const unsigned short * getIndexPointer() const;
 
     static const int MIN_VERTEXES;
     static const int MIN_INDEXES;
@@ -82,7 +82,7 @@ private:
     int m_ReserveVerts;
     int m_ReserveIndexes;
     T2V3C4Vertex * m_pVertexData;
-    unsigned int * m_pIndexData;
+    unsigned short * m_pIndexData;
 
     bool m_bDataChanged;
 };

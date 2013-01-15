@@ -105,13 +105,16 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)
 {
     
+#ifndef AVG_ENABLE_EGL
     if (bClipBorders) {
         GPUFilter::setDimensions(size);
     } else {
         int radius = getBlurKernelRadius(stdDev);
         IntPoint offset(radius, radius);
+        //TODO: TO_BORDER DOES NOT EXIST IN GLESV2
         GPUFilter::setDimensions(size, IntRect(-offset, size+offset), GL_CLAMP_TO_BORDER);
     }
+#endif
 }
 
 }

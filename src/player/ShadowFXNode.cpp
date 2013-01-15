@@ -36,6 +36,7 @@ ShadowFXNode::ShadowFXNode(glm::vec2 offset, float radius, float opacity, string
       m_StdDev(radius),
       m_Opacity(opacity)
 {
+    errorIfGLES();
     m_sColorName = sColor;
     m_Color = colorStringToColor(sColor);
     ObjectCounter::get()->incRef(&typeid(*this));

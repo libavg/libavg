@@ -21,6 +21,7 @@
 
 #include "GraphicsTest.h"
 #include "GLTexture.h"
+#include "BitmapLoader.h"
 #include "GPUBrightnessFilter.h"
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
@@ -146,7 +147,7 @@ private:
         if (!bIgnoreBrightness) {
             testEqualBrightness(*pDestBmp, *pBmp, 0.03);
         }
-        testEqual(*pDestBmp, sBmpName, B8G8R8X8, 0.06, 0.3);
+        testEqual(*pDestBmp, sBmpName, pDestBmp->getPixelFormat(), 0.06, 0.3);
     }
 
 };
@@ -170,8 +171,10 @@ private:
     {
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
+        PixelFormat pf = pBmp->getPixelFormat();
+        cerr << "      Source Bmp: " << pf << endl;
         BitmapPtr pDestBmp;
-        pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1)
+        pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pixelFormatHasAlpha(pf), 1)
                 .apply(pBmp);
         testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName, 0.2, 0.5);
     }
@@ -189,35 +192,35 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("chromakey");
         BitmapPtr pDestBmp;
-        GPUChromaKeyFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
+        GPUChromaKeyFilter filter(pBmp->getSize());
         for (int erosion = 0; erosion < 3; ++erosion) {
             filter.setParams(Pixel32(0,255,0), 0.1, 0.2, 0.1, 0.1, erosion, 0);
             pDestBmp = filter.apply(pBmp);
-            testEqual(*pDestBmp, "ChromaKeyResult"+toString(erosion), R8G8B8X8, 0.3, 
+            testEqual(*pDestBmp, "ChromaKeyResult"+toString(erosion), B8G8R8A8, 0.3, 
                     0.7);
         }
         filter.setParams(Pixel32(0,255,0), 0.0, 0.0, 0.0, 0.0, 0, 0.1);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeySpillResult1", R8G8B8X8, 0.3, 0.7);
+        testEqual(*pDestBmp, "ChromaKeySpillResult1", B8G8R8A8, 0.3, 0.7);
         filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.1);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeySpillResult2", R8G8B8X8, 0.3, 0.7);
+        testEqual(*pDestBmp, "ChromaKeySpillResult2", B8G8R8A8, 0.3, 0.7);
         filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.2);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeySpillResult3", R8G8B8X8, 0.3, 0.7);
+        testEqual(*pDestBmp, "ChromaKeySpillResult3", B8G8R8A8, 0.3, 0.7);
 
         pBmp = loadTestBmp("chromakey-median");
         filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.0);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeyMedianResult", R8G8B8X8, 1, 6);
+        testEqual(*pDestBmp, "ChromaKeyMedianResult", B8G8R8A8, 1, 6);
     }
 };
 
 
-class HslColorFilterTest: public GraphicsTest {
+class HueSatFilterTest: public GraphicsTest {
 public:
-    HslColorFilterTest()
-        : GraphicsTest("HslColorFilterTest", 2)
+    HueSatFilterTest()
+        : GraphicsTest("HueSatFilterTest", 2)
     {
     }
 
@@ -225,18 +228,18 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("hsl");
         BitmapPtr pDestBmp;
-        GPUHueSatFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
+        GPUHueSatFilter filter(pBmp->getSize(), true);
         //Test hue functionality
         for (int run = 0; run < 3; run++) {
             filter.setParams(run*90);
             pDestBmp = filter.apply(pBmp);
-            testEqual(*pDestBmp, "HslHueResult"+toString(run), R8G8B8X8, 0, 0);
+            testEqual(*pDestBmp, "HslHueResult"+toString(run), NO_PIXELFORMAT, 0, 0);
         }
         //Test colorize functionality
         for (int run = 0; run < 3; run++) {
             filter.setParams(run*90, 1, 0, true);
             pDestBmp = filter.apply(pBmp);
-            testEqual(*pDestBmp, "HslColorizeResult"+toString(run), R8G8B8X8, 0, 0);
+            testEqual(*pDestBmp, "HslColorizeResult"+toString(run), NO_PIXELFORMAT, 0, 0);
         }
     }
 };
@@ -260,8 +263,7 @@ private:
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
-        pDestBmp = GPUInvertFilter(pBmp->getSize(), pBmp->getPixelFormat())
-                .apply(pBmp);
+        pDestBmp = GPUInvertFilter(pBmp->getSize(), false).apply(pBmp);
         testEqual(*pDestBmp, string("invert_")+sFName, pBmp->getPixelFormat(), 0.0, 0.0);
     }
 };
@@ -319,7 +321,7 @@ public:
 
     void runTests() 
     {
-        for (int i=0; i<2; ++i) {
+        for (int i=1; i<2; ++i) {
             bool bPOT = (i==1);
             if (GLContext::getCurrent()->arePBOsSupported()) {
                 runImageTest(bPOT, MM_PBO, "rgb24-65x65");
@@ -328,10 +330,13 @@ public:
             runImageTest(bPOT, MM_OGL, "rgb24-65x65");
             runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
         }
+        runCompressionTest(MM_OGL, "rgb24-65x65");
         if (GLContext::getCurrent()->arePBOsSupported()) {
+            runCompressionTest(MM_PBO, "rgb24-65x65");
             runMipmapTest(MM_PBO, "rgb24alpha-64x64");
             runMipmapTest(MM_PBO, "rgb24-65x65");
         }
+        runMipmapTest(MM_OGL, "rgb24-64x64");
         runMipmapTest(MM_OGL, "rgb24alpha-64x64");
         runMipmapTest(MM_OGL, "rgb24-65x65");
     }
@@ -358,7 +363,6 @@ private:
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
         }
-
         {
             cerr << "      lock functions." << endl;
             GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
@@ -397,23 +401,42 @@ private:
         }
         testEqual(*pResultBmp, *pBaselineBmp, sName, 7, 15);
     }
+
+    void runCompressionTest(OGLMemoryMode memoryMode, const string& sFName)
+    {
+        cerr << "    Testing B5G6R5 compression, " << sFName << ", " << 
+                oglMemoryMode2String(memoryMode) << endl;
+        BitmapPtr pOrigBmp = loadTestBmp(sFName);
+        TextureMoverPtr pMover = TextureMover::create(memoryMode, pOrigBmp->getSize(),
+                B5G6R5, GL_STATIC_DRAW);
+        BitmapPtr pMoverBmp = pMover->lock();
+        pMoverBmp->copyPixels(*pOrigBmp);
+        pMover->unlock();
+        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pMoverBmp->getSize(), 
+                    pMoverBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
+                    GL_CLAMP_TO_EDGE, false));
+        pMover->moveToTexture(*pTex);
+        BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+    }
 };
 
 
 class GPUTestSuite: public TestSuite {
 public:
-    GPUTestSuite() 
-        : TestSuite("GPUTestSuite")
+    GPUTestSuite(const string& sVariant) 
+        : TestSuite("GPUTestSuite ("+sVariant+")")
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
-        addTest(TestPtr(new RGB2YUVFilterTest));
-        addTest(TestPtr(new ChromaKeyFilterTest));
-        addTest(TestPtr(new HslColorFilterTest));
+        addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));
-        addTest(TestPtr(new BlurFilterTest));
-        if (GLTexture::isFloatFormatSupported()) {
-            addTest(TestPtr(new BandpassFilterTest));
+        if (!GLContext::getCurrent()->isGLES()) {
+            addTest(TestPtr(new RGB2YUVFilterTest));
+            addTest(TestPtr(new ChromaKeyFilterTest));
+            addTest(TestPtr(new BlurFilterTest));
+            if (GLTexture::isFloatFormatSupported()) {
+                addTest(TestPtr(new BandpassFilterTest));
+            }
         }
     }
 };
@@ -421,16 +444,19 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
+    string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
+            GLConfig::shaderUsageToString(su);
     cerr << "---------------------------------------------------" << endl;
-    cerr << "GLES: " << toString(bGLES) << ", ShaderUsage: " 
-            << GLConfig::shaderUsageToString(su) << endl; 
+    cerr << sVariant << endl; 
     cerr << "---------------------------------------------------" << endl;
     GLContext* pContext = GLContext::create(GLConfig(bGLES, false, true, 1, su, true));
+    GLContext::setMain(pContext);
+    pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
     ShaderRegistry::get()->setShaderPath("./shaders");
     try {
-        GPUTestSuite suite;
+        GPUTestSuite suite(sVariant);
         suite.runTests();
         delete pContext;
         return suite.isOk();
@@ -447,10 +473,14 @@ int main(int nargs, char** args)
     g_type_init();
     bool bOK = true;
     try {
+#ifndef AVG_ENABLE_EGL
+        BitmapLoader::init(true);
         bOK = runTests(false, GLConfig::FULL);
-        bOK = runTests(false, GLConfig::MINIMAL);
-        bOK = runTests(false, GLConfig::FRAGMENT_ONLY);
+        bOK &= runTests(false, GLConfig::MINIMAL);
+        bOK &= runTests(false, GLConfig::FRAGMENT_ONLY);
+#endif
         if (GLContext::isGLESSupported()) {
+            BitmapLoader::init(false);
             bOK &= runTests(true, GLConfig::MINIMAL);
         }
     } catch (Exception& ex) {
@@ -465,8 +495,10 @@ int main(int nargs, char** args)
     }
 
     if (bOK) {
+        cerr << "testgpu succeeded" << endl;
         return 0;
     } else {
+        cerr << "testgpu failed" << endl;
         return 1;
     }
 }

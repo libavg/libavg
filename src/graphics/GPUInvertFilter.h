@@ -33,7 +33,7 @@ namespace avg {
 class AVG_API GPUInvertFilter : public GPUFilter
 {
 public:
-    GPUInvertFilter(const IntPoint& size, PixelFormat pf, bool bStandalone=true);
+    GPUInvertFilter(const IntPoint& size, bool bUseAlpha, bool bStandalone=true);
     virtual ~GPUInvertFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);

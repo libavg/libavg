@@ -40,6 +40,7 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/GPUBandpassFilter.h"
 #include "../graphics/GPUBlurFilter.h"
+#include "../graphics/BitmapLoader.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -273,10 +274,7 @@ void TrackerThread::setConfig(TrackerConfig config, IntRect roi,
         if (sCameraMaskFName == "") {
             m_pCameraMaskBmp = BitmapPtr();
         } else {
-            BitmapPtr pRGBXCameraMaskBmp = BitmapPtr(new Bitmap(sCameraMaskFName));
-            m_pCameraMaskBmp = BitmapPtr(
-                    new Bitmap(pRGBXCameraMaskBmp->getSize(), I8));
-            m_pCameraMaskBmp->copyPixels(*pRGBXCameraMaskBmp);        
+            BitmapPtr pRGBXCameraMaskBmp = loadBitmap(sCameraMaskFName, I8);
         }
     }
     m_pConfig = TrackerConfigPtr(new TrackerConfig(config));

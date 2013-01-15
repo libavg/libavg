@@ -60,7 +60,6 @@ public:
     Bitmap(const Bitmap& origBmp);
     Bitmap(const Bitmap& origBmp, bool bOwnsBits);
     Bitmap(Bitmap& origBmp, const IntRect& rect);
-    Bitmap(const UTF8String& sName);
     virtual ~Bitmap();
 
     Bitmap &operator =(const Bitmap & origBmp);
@@ -104,6 +103,8 @@ public:
 
     bool operator ==(const Bitmap& otherBmp);
     void dump(bool bDumpPixels=false) const;
+
+    static int getPreferredStride(int width, PixelFormat pf);
 
 private:
     void initWithData(unsigned char* pBits, int stride, bool bCopyBits);

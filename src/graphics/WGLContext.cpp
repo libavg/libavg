@@ -145,6 +145,19 @@ bool WGLContext::initVBlank(int rate)
     }
 }
 
+float WGLContext::calcRefreshRate()
+{
+    float refreshRate;
+    // This isn't correct for multi-monitor systems.
+    HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
+    refreshRate = float(GetDeviceCaps(hDC, VREFRESH));
+    if (refreshRate < 2) {
+        refreshRate = 60;
+    }
+    DeleteDC(hDC);
+    return refreshRate;
+}
+
 void WGLContext::checkWinError(BOOL bOK, const string& sWhere) 
 {
     if (!bOK) {

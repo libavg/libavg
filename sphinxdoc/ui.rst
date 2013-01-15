@@ -7,7 +7,7 @@ functionality
 .. automodule:: libavg.ui
     :no-members:
 
-    .. inheritance-diagram:: DragRecognizer TapRecognizer TransformRecognizer DoubletapRecognizer HoldRecognizer
+    .. inheritance-diagram:: DragRecognizer SwipeRecognizer TapRecognizer TransformRecognizer DoubletapRecognizer HoldRecognizer
         :parts: 1
 
     .. inheritance-diagram:: Button ToggleButton Keyboard
@@ -129,11 +129,6 @@ functionality
                 in response to a :py:const:`CURSORMOTION` event, but may also happen
                 because of inertia.
 
-                :param event: 
-                
-                    The corresponding cursor motion event. If there was no event, 
-                    this parameter is :py:const:`None`.
-
                 :param avg.Point2D offset: 
                 
                     The current offset from the start of the drag in coordinates relative
@@ -143,10 +138,6 @@ functionality
 
                 Emitted when the cursor is released. If inertia is enabled, there may be 
                 move events after the up event.
-
-                :param event: 
-                
-                    The corresponding :py:const:`CURSORUP` event.
 
                 :param avg.Point2D offset: 
                 
@@ -173,11 +164,11 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, selHref, textarea])
+    .. autoclass:: Keyboard(bgHref, downHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, feedbackHref, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
-        by the two image files in bgHref and ovlHref. Keys can be defined as rectangles 
+        by the two image files in bgHref and downHref. Keys can be defined as rectangles 
         anywhere on these images. Works for both single-touch and multitouch devices. 
         When a key is pressed, a callback function is invoked.
 
@@ -187,7 +178,7 @@ functionality
         
             Filename of an image that contains the keyboard with unpressed keys.
 
-        :param string ovlHref:
+        :param string downHref:
         
             Filename of an image that contains the keyboard with pressed keys.
 
@@ -223,7 +214,7 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
-        :param string selHref:
+        :param string feedbackHref:
 
             Filename of an image that contains the keyboard feedback by pressed keys.
             If this parameter not set the feedback funktion is turned off.
@@ -367,6 +358,34 @@ functionality
         .. py:method:: getState() -> String
 
             Returns the state ("IDLE", "POSSIBLE" or "RUNNING") of the recognizer.
+
+
+    .. autoclass:: SwipeRecognizer(node, direction, [numContacts=1, directionTolerance=SWIPE_DIRECTION_TOLERANCE, minDist=MIN_SWIPE_DIST, maxContactDist=MAX_SWIPE_CONTACT_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+
+        A :py:class:`SwipeRecognizer` detects movement of one or more contacts in a
+        specified direction and with a minimal distance. Whether the gesture is recognized
+        is determined when an up event occurs.
+
+        :param direction: 
+        
+            One of :py:const:`SwipeRecognizer.UP`, :py:const:`DOWN`, :py:const:`LEFT` or 
+            :py:const:`RIGHT`.
+
+        :param numContacts: The minimum number of contacts for the swipe.
+
+        :param directionTolerance: 
+        
+            Maximum deviation from the ideal direction that the touch(es) may have in
+            radians.
+
+        :param minDist: 
+        
+            Minimum distance between start position and end position of each contact in 
+            millimeters.
+
+        :param maxInterContactDist:
+
+            Maximum distance between the start positions of the different contacts.
 
 
     .. autoclass:: TapRecognizer(node, [maxTime=MAX_TAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])

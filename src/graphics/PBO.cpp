@@ -44,8 +44,7 @@ PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     unsigned target = getTarget();
     glproc::BindBuffer(target, m_PBOID);
     GLContext::checkError("PBO: BindBuffer()");
-    int memNeeded = size.x*size.y*getBytesPerPixel(pf);
-    glproc::BufferData(target, memNeeded, 0, usage);
+    glproc::BufferData(target, getMemNeeded(), 0, usage);
     GLContext::checkError("PBO: BufferData()");
     glproc::BindBuffer(target, 0);
 }
@@ -85,8 +84,7 @@ void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     GLContext::checkError("PBO::moveBmpToTexture BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     GLContext::checkError("PBO::moveBmpToTexture MapBuffer()");
-    Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, 
-            getSize().x*getBytesPerPixel(getPF()), false); 
+    Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, getStride(), false);
     PBOBitmap.copyPixels(*pBmp);
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     GLContext::checkError("PBO::setImage: UnmapBuffer()");
@@ -147,8 +145,7 @@ BitmapPtr PBO::lock()
     BitmapPtr pBmp;
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     GLContext::checkError("PBOTexture::lockBmp: glBindBuffer()");
-    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
-            getSize().x*getSize().y*getBytesPerPixel(getPF()), 0, m_Usage);
+    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, getMemNeeded(), 0, m_Usage);
     GLContext::checkError("PBOTexture::lockBmp: glBufferData()");
     unsigned char * pBuffer = (unsigned char *)
         glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
@@ -156,8 +153,7 @@ BitmapPtr PBO::lock()
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     GLContext::checkError("PBOTexture::lockBmp: glBindBuffer(0)");
 
-    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, 
-                getSize().x*getBytesPerPixel(getPF()), false));
+    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, getStride(), false));
     return pBmp;
 }
 
@@ -185,6 +181,14 @@ void PBO::moveToTexture(GLTexture& tex)
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     GLContext::checkError("PBOTexture::lockBmp: glBindBuffer()");
     tex.activate(GL_TEXTURE0);
+#ifdef __APPLE__
+    // See getStride()
+    if (getPF() == A8) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    } else {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+#endif
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             GLTexture::getGLFormat(getPF()), GLTexture::getGLType(getPF()), 0);
     GLContext::checkError("PBO::setImage: glTexSubImage2D()");
@@ -208,6 +212,25 @@ bool PBO::isReadPBO() const
             AVG_ASSERT(false);
             return false;
     }
+}
+
+unsigned PBO::getMemNeeded() const
+{
+    return getStride()*getSize().y;
+}
+
+unsigned PBO::getStride() const
+{
+    IntPoint size = getSize();
+    unsigned stride = Bitmap::getPreferredStride(size.x, getPF());
+#ifdef __APPLE__
+    if (getPF() == A8) {
+        // Workaround for apparent bug in Apple/NVidia drivers (Verified on OS X 10.6.8,
+        // MBP early 2011): GL_UNPACK_ALIGNMENT != 1 causes broken A8 textures.
+        stride = size.x;
+    }
+#endif
+    return stride;
 }
 
 unsigned PBO::getTarget() const

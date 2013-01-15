@@ -73,10 +73,15 @@ BitmapPtr MainCanvas::screenshot() const
 
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 
-void MainCanvas::render()
+void MainCanvas::renderTree()
 {
-    Canvas::render(m_pDisplayEngine->getWindowSize(), false, FBOPtr(),
-            RootRenderProfilingZone);
+    preRender();
+    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+    GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
+    {
+        ScopeTimer Timer(RootRenderProfilingZone);
+        Canvas::render(m_pDisplayEngine->getWindowSize(), false);
+    }
 }
 
 }

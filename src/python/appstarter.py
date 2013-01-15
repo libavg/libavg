@@ -40,6 +40,8 @@ class AppStarter(object):
     '''Starts an AVGApp'''
     def __init__(self, appClass, resolution=DEFAULT_RESOLUTION,
             debugWindowSize=None, fakeFullscreen=False):
+        player.enableMouse(not 'AVG_DISABLE_MOUSE' in os.environ)
+
         resolution = Point2D(resolution)
         testMode = not 'AVG_DEPLOY' in os.environ
 
@@ -162,7 +164,7 @@ class AVGAppStarter(AppStarter):
         else:
             size = (self._appNode.width, self._appNode.height/6.0)
             self.__memGraph = graph.AveragingGraph(title = 'Memory Usage',
-                    getValue = avg.getMemoryUsage, parent = self._appNode, size=size)
+                    getValue = avg.getMemoryUsage, parent=player.getRootNode(), size=size)
             self.__graphs.append(self.__memGraph)
         self.__positionGraphs()
 
@@ -173,9 +175,9 @@ class AVGAppStarter(AppStarter):
             self.__vidMemGraph = None
         else:
             size = (self._appNode.width, self._appNode.height/6.0)
-            print "SIZE: %s" % size
             self.__vidMemGraph = graph.AveragingGraph(title='Video Memory Usage',
-                    getValue = player.getVideoMemUsed, parent=self._appNode, size=size)
+                    getValue=player.getVideoMemUsed, parent=player.getRootNode(),
+                    size=size)
             self.__graphs.append(self.__vidMemGraph)
         self.__positionGraphs()
 

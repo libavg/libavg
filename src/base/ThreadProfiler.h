@@ -53,7 +53,7 @@ public:
     void setLogCategory(long category);
  
     void start();
-    bool isRunning();
+    void restart();
     void startZone(const ProfilingZoneID& zoneID);
     void stopZone(const ProfilingZoneID& zoneID);
     void dumpStatistics();

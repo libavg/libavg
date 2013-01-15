@@ -32,7 +32,8 @@ using namespace std;
 
 namespace avg {
 
-int Timeout::s_LastID = 0;
+// Hack to make sure ids don't overlap with publisher/subsriber ids
+int Timeout::s_LastID = 100000;  
 
 Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval, long long startTime)
     : m_Interval(time),

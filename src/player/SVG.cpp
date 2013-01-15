@@ -30,7 +30,9 @@
 
 #include "../graphics/PixelFormat.h"
 #include "../graphics/Filterfill.h"
+#include "../graphics/Filterfliprgb.h"
 #include "../graphics/FilterUnmultiplyAlpha.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "OGLSurface.h"
 #include "Player.h"
@@ -139,7 +141,11 @@ BitmapPtr SVG::internalRenderElement(const SVGElementPtr& pElement,
 
     cairo_surface_destroy(pSurface);
     cairo_destroy(pCairo);
-    
+   
+    if (!BitmapLoader::get()->isBlueFirst()) {
+        FilterFlipRGB().applyInPlace(pBmp);
+    }
+
     return pBmp;
 }
 

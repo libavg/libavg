@@ -41,7 +41,7 @@ class AVG_API MainCanvas: public Canvas
         virtual BitmapPtr screenshot() const;
 
     private:
-        virtual void render();
+        virtual void renderTree();
 
         SDLDisplayEnginePtr m_pDisplayEngine;
 };

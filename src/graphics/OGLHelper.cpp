@@ -46,58 +46,63 @@ using namespace std;
 namespace avg {
 
 namespace glproc {
+#ifndef AVG_ENABLE_EGL
+    PFNGLBUFFERSUBDATAPROC BufferSubData;
+    PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
+    PFNGLBLITFRAMEBUFFERPROC BlitFramebuffer;
+    PFNGLDRAWBUFFERSPROC DrawBuffers;
+    PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
+    PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
+#endif
     PFNGLGENBUFFERSPROC GenBuffers;
     PFNGLBUFFERDATAPROC BufferData;
-    PFNGLBUFFERSUBDATAPROC BufferSubData;
+    PFNGLDEBUGMESSAGECALLBACKPROC DebugMessageCallback;
     PFNGLDELETEBUFFERSPROC DeleteBuffers;
     PFNGLBINDBUFFERPROC BindBuffer;
     PFNGLMAPBUFFERPROC MapBuffer;
     PFNGLUNMAPBUFFERPROC UnmapBuffer;
-    PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
 
-    PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
-    PFNGLSHADERSOURCEARBPROC ShaderSource;
-    PFNGLCOMPILESHADERARBPROC CompileShader;
-    PFNGLCREATEPROGRAMOBJECTARBPROC CreateProgramObject;
-    PFNGLATTACHOBJECTARBPROC AttachObject;
-    PFNGLLINKPROGRAMARBPROC LinkProgram;
-    PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
-    PFNGLGETINFOLOGARBPROC GetInfoLog;
-    PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
-    PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
-    PFNGLUNIFORM1IARBPROC Uniform1i;
-    PFNGLUNIFORM1FARBPROC Uniform1f;
-    PFNGLUNIFORM2FARBPROC Uniform2f;
-    PFNGLUNIFORM3FARBPROC Uniform3f;
-    PFNGLUNIFORM4FARBPROC Uniform4f;
-    PFNGLUNIFORM1FVARBPROC Uniform1fv;
-    PFNGLUNIFORMMATRIX4FVARBPROC UniformMatrix4fv;
+    PFNGLCREATESHADERPROC CreateShader;
+    PFNGLSHADERSOURCEPROC ShaderSource;
+    PFNGLCOMPILESHADERPROC CompileShader;
+    PFNGLCREATEPROGRAMPROC CreateProgram;
+    PFNGLATTACHSHADERPROC AttachShader;
+    PFNGLLINKPROGRAMPROC LinkProgram;
+    PFNGLGETSHADERIVPROC GetShaderiv;
+    PFNGLGETPROGRAMIVPROC GetProgramiv;
+    PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
+    PFNGLGETPROGRAMINFOLOGPROC GetProgramInfoLog;
+    PFNGLUSEPROGRAMPROC UseProgram;
+    PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
+    PFNGLUNIFORM1IPROC Uniform1i;
+    PFNGLUNIFORM1FPROC Uniform1f;
+    PFNGLUNIFORM2FPROC Uniform2f;
+    PFNGLUNIFORM3FPROC Uniform3f;
+    PFNGLUNIFORM4FPROC Uniform4f;
+    PFNGLUNIFORM1FVPROC Uniform1fv;
+    PFNGLUNIFORMMATRIX4FVPROC UniformMatrix4fv;
 
     PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLBLENDCOLORPROC BlendColor;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
-    PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
+    PFNGLGENERATEMIPMAPPROC GenerateMipmap;
 
-    PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC CheckFramebufferStatus;
-    PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
-    PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
-    PFNGLFRAMEBUFFERTEXTURE2DEXTPROC FramebufferTexture2D;
-    PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
-    PFNGLGENRENDERBUFFERSEXTPROC GenRenderbuffers;
-    PFNGLBINDRENDERBUFFEREXTPROC BindRenderbuffer;
-    PFNGLRENDERBUFFERSTORAGEEXTPROC RenderbufferStorage;
-    PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC RenderbufferStorageMultisample;
-    PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
-    PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
-    PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
-    PFNGLDRAWBUFFERSPROC DrawBuffers;
-    PFNGLDRAWRANGEELEMENTSPROC DrawRangeElements;
-    PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback;
+    PFNGLCHECKFRAMEBUFFERSTATUSPROC CheckFramebufferStatus;
+    PFNGLGENFRAMEBUFFERSPROC GenFramebuffers;
+    PFNGLBINDFRAMEBUFFERPROC BindFramebuffer;
+    PFNGLFRAMEBUFFERTEXTURE2DPROC FramebufferTexture2D;
+    PFNGLDELETEFRAMEBUFFERSPROC DeleteFramebuffers;
+    PFNGLGENRENDERBUFFERSPROC GenRenderbuffers;
+    PFNGLBINDRENDERBUFFERPROC BindRenderbuffer;
+    PFNGLRENDERBUFFERSTORAGEPROC RenderbufferStorage;
+    PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC RenderbufferStorageMultisample;
+    PFNGLFRAMEBUFFERRENDERBUFFERPROC FramebufferRenderbuffer;
+    PFNGLDELETERENDERBUFFERSPROC DeleteRenderbuffers;
     PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
     PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
     PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
-#ifdef linux
+#if defined(linux) && !defined(AVG_ENABLE_EGL)
     PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32
@@ -128,7 +133,7 @@ bool queryOGLExtension(const char *extName)
 
 bool queryGLXExtension(const char *extName)
 {
-#if (defined __APPLE__) || (defined _WIN32)
+#if (defined __APPLE__) || (defined _WIN32) || (defined AVG_ENABLE_EGL)
     return false;
 #else
     int extNameLen = strlen(extName);
@@ -165,10 +170,15 @@ string AVG_API oglModeToString(int mode)
             return "GL_RGB";
         case GL_RGBA:
             return "GL_RGBA";
+#ifdef AVG_ENABLE_EGL
+        case GL_BGRA_EXT:
+            return "GL_BGRA_EXT";
+#else
         case GL_BGR:
             return "GL_BGR";
         case GL_BGRA:
             return "GL_BGRA";
+#endif
         default:
             return "UNKNOWN";
     }
@@ -190,9 +200,15 @@ string oglMemoryMode2String(OGLMemoryMode mode)
     }
 }
 
-void AVG_API clearGLBuffers(GLbitfield mask)
+void AVG_API clearGLBuffers(GLbitfield mask, bool bOpaque)
 {
-    glClearColor(0.0, 0.0, 0.0, 0.0); 
+    float alpha;
+    if (bOpaque) {
+        alpha = 1.0;
+    } else {
+        alpha = 0.0;
+    }
+    glClearColor(0.0, 0.0, 0.0, alpha); 
     if (mask & GL_STENCIL_BUFFER_BIT) {
         glStencilMask(~0);
         glClearStencil(0);
@@ -228,7 +244,11 @@ void loadGLLibrary()
 #ifdef __APPLE__
     const char * pszFName = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
 #else
+#ifdef AVG_ENABLE_EGL
+    const char * pszFName = "libGLESv2.so";
+#else
     const char * pszFName = "libGL.so.1";
+#endif
 #endif
     glproc::s_hGLLib = dlopen(pszFName, RTLD_NOW);
     if (glproc::s_hGLLib == 0) {
@@ -277,11 +297,16 @@ GLfunction getFuzzyProcAddress(const char * psz)
         pProc = getProcAddress(s);
     }
     if (!pProc) {
+        string s = string(psz)+"OES";
+        pProc = getProcAddress(s);
+    }
+    if (!pProc) {
         pProc = invalidGLCall;
     }
     return pProc;
 }
-#ifdef linux
+
+#if defined(linux) && !defined(AVG_ENABLE_EGL)
 GLfunction getglXProcAddress(const char * psz)
 {
     GLfunction pProc = (GLfunction)glXGetProcAddress((const GLubyte *)psz);
@@ -315,39 +340,33 @@ namespace glproc {
         
         GenBuffers = (PFNGLGENBUFFERSPROC)getFuzzyProcAddress("glGenBuffers");
         BufferData = (PFNGLBUFFERDATAPROC)getFuzzyProcAddress("glBufferData");
-        BufferSubData = (PFNGLBUFFERSUBDATAPROC)getFuzzyProcAddress("glBufferSubData");
         DeleteBuffers = (PFNGLDELETEBUFFERSPROC)getFuzzyProcAddress("glDeleteBuffers");
         BindBuffer = (PFNGLBINDBUFFERPROC)getFuzzyProcAddress("glBindBuffer");
         MapBuffer = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
         UnmapBuffer = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
-        GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress
-                ("glGetBufferSubData");
 
-        CreateShaderObject = (PFNGLCREATESHADEROBJECTARBPROC)
-                getFuzzyProcAddress("glCreateShaderObject");
-        ShaderSource = (PFNGLSHADERSOURCEARBPROC)
-                getFuzzyProcAddress("glShaderSource");
-        CompileShader = (PFNGLCOMPILESHADERARBPROC)
-                getFuzzyProcAddress("glCompileShader");
-        CreateProgramObject = (PFNGLCREATEPROGRAMOBJECTARBPROC)
-                getFuzzyProcAddress("glCreateProgramObject");
-        AttachObject = (PFNGLATTACHOBJECTARBPROC)
-                getFuzzyProcAddress("glAttachObject");
-        LinkProgram = (PFNGLLINKPROGRAMARBPROC)getFuzzyProcAddress("glLinkProgram");
-        GetObjectParameteriv = (PFNGLGETOBJECTPARAMETERIVARBPROC)
-                getFuzzyProcAddress("glGetObjectParameteriv");
-        GetInfoLog = (PFNGLGETINFOLOGARBPROC)getFuzzyProcAddress("glGetInfoLog");
-        UseProgramObject =(PFNGLUSEPROGRAMOBJECTARBPROC) 
-                getFuzzyProcAddress("glUseProgramObject");
-        GetUniformLocation = (PFNGLGETUNIFORMLOCATIONARBPROC)
+        CreateShader = (PFNGLCREATESHADERPROC)getFuzzyProcAddress("glCreateShader");
+        ShaderSource = (PFNGLSHADERSOURCEPROC)getFuzzyProcAddress("glShaderSource");
+        CompileShader = (PFNGLCOMPILESHADERPROC)getFuzzyProcAddress("glCompileShader");
+        CreateProgram= (PFNGLCREATEPROGRAMPROC)getFuzzyProcAddress("glCreateProgram");
+        AttachShader = (PFNGLATTACHSHADERPROC)getFuzzyProcAddress("glAttachShader");
+        LinkProgram = (PFNGLLINKPROGRAMPROC)getFuzzyProcAddress("glLinkProgram");
+        GetShaderiv = (PFNGLGETSHADERIVPROC)getFuzzyProcAddress("glGetShaderiv");
+        GetProgramiv = (PFNGLGETPROGRAMIVPROC)getFuzzyProcAddress("glGetProgramiv");
+        GetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)
+                getFuzzyProcAddress("glGetShaderInfoLog");
+        GetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)
+                getFuzzyProcAddress("glGetProgramInfoLog");
+        UseProgram =(PFNGLUSEPROGRAMPROC) getFuzzyProcAddress("glUseProgram");
+        GetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)
                 getFuzzyProcAddress("glGetUniformLocation");
-        Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
-        Uniform1f = (PFNGLUNIFORM1FARBPROC)getFuzzyProcAddress("glUniform1f");
-        Uniform2f = (PFNGLUNIFORM2FARBPROC)getFuzzyProcAddress("glUniform2f");
-        Uniform3f = (PFNGLUNIFORM3FARBPROC)getFuzzyProcAddress("glUniform3f");
-        Uniform4f = (PFNGLUNIFORM4FARBPROC)getFuzzyProcAddress("glUniform4f");
-        Uniform1fv = (PFNGLUNIFORM1FVARBPROC)getFuzzyProcAddress("glUniform1fv");
-        UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVARBPROC)
+        Uniform1i = (PFNGLUNIFORM1IPROC)getFuzzyProcAddress("glUniform1i");
+        Uniform1f = (PFNGLUNIFORM1FPROC)getFuzzyProcAddress("glUniform1f");
+        Uniform2f = (PFNGLUNIFORM2FPROC)getFuzzyProcAddress("glUniform2f");
+        Uniform3f = (PFNGLUNIFORM3FPROC)getFuzzyProcAddress("glUniform3f");
+        Uniform4f = (PFNGLUNIFORM4FPROC)getFuzzyProcAddress("glUniform4f");
+        Uniform1fv = (PFNGLUNIFORM1FVPROC)getFuzzyProcAddress("glUniform1fv");
+        UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)
                 getFuzzyProcAddress("glUniformMatrix4fv");
         
         BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)
@@ -355,50 +374,57 @@ namespace glproc {
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         BlendColor = (PFNGLBLENDCOLORPROC)getFuzzyProcAddress("glBlendColor");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
-        GenerateMipmap = (PFNGLGENERATEMIPMAPEXTPROC)getFuzzyProcAddress
+        GenerateMipmap = (PFNGLGENERATEMIPMAPPROC)getFuzzyProcAddress
                 ("glGenerateMipmap");
         
-        CheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)
+        CheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)
                 getFuzzyProcAddress("glCheckFramebufferStatus");
-        GenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)
+        GenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)
                 getFuzzyProcAddress("glGenFramebuffers");
-        BindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)
+        BindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)
                 getFuzzyProcAddress("glBindFramebuffer");
-        FramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)
+        FramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC)
                 getFuzzyProcAddress("glFramebufferTexture2D");
-        DeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)
+        DeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC)
                 getFuzzyProcAddress("glDeleteFramebuffers");
-        GenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)
+        GenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC)
                 getFuzzyProcAddress("glGenRenderbuffers");
-        BindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)
+        BindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)
                 getFuzzyProcAddress("glBindRenderbuffer");
-        RenderbufferStorage= (PFNGLRENDERBUFFERSTORAGEEXTPROC)
+        RenderbufferStorage= (PFNGLRENDERBUFFERSTORAGEPROC)
                 getFuzzyProcAddress("glRenderbufferStorage");
-        RenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)
+        RenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC)
                 getFuzzyProcAddress("glRenderbufferStorageMultisample");
-        FramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)
+        FramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)
                 getFuzzyProcAddress("glFramebufferRenderbuffer");
-        BlitFramebuffer = (PFNGLBLITFRAMEBUFFEREXTPROC)
-                getFuzzyProcAddress("glBlitFramebuffer");
-        DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSEXTPROC)
+
+        DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)
                 getFuzzyProcAddress("glDeleteRenderbuffers");
-        DrawBuffers = (PFNGLDRAWBUFFERSPROC)
-                getFuzzyProcAddress("glDrawBuffers");
+#ifndef AVG_ENABLE_EGL
+        BufferSubData = (PFNGLBUFFERSUBDATAPROC)getFuzzyProcAddress("glBufferSubData");
+        GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress
+            ("glGetBufferSubData");
+        GetObjectParameteriv = (PFNGLGETOBJECTPARAMETERIVARBPROC)
+            getFuzzyProcAddress("glGetObjectParameteriv");
+
+        BlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)
+                getFuzzyProcAddress("glBlitFramebuffer");
+        DrawBuffers = (PFNGLDRAWBUFFERSPROC)getFuzzyProcAddress("glDrawBuffers");
         DrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)
                 getFuzzyProcAddress("glDrawRangeElements");
         DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKARBPROC)
                 getFuzzyProcAddress("glDebugMessageCallback");
+#endif
         VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)
                 getFuzzyProcAddress("glVertexAttribPointer");
         EnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)
                 getFuzzyProcAddress("glEnableVertexAttribArray");
         BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)
                 getFuzzyProcAddress("glBindAttribLocation");
-#ifdef linux
+#if defined(linux) && !defined(AVG_ENABLE_EGL)
         SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
                 getglXProcAddress("glXSwapIntervalEXT");
 #endif
-
 #ifdef _WIN32
         SwapIntervalEXT = (PFNWGLEXTSWAPCONTROLPROC) 
                 getwglProcAddress("wglSwapIntervalEXT");

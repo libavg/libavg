@@ -28,9 +28,10 @@
 
 #include "GLContext.h"
 #include "TextureMover.h"
-#include "PBO.h"
+#ifndef AVG_ENABLE_EGL
+    #include "PBO.h"
+#endif
 #include "FBO.h"
-#include "Filterfliprgb.h"
 
 #include <string.h>
 #include <iostream>
@@ -106,6 +107,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
         delete[] pPixels;
     }
+//    dump(wrapSMode, wrapTMode);
 }
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
@@ -183,23 +185,8 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
-    if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
-        return PBO(m_GLSize, m_pf, GL_DYNAMIC_READ).moveTextureToBmp(*this, mipmapLevel);
-    } else {
-        unsigned fbo = GLContext::getCurrent()->genFBO();
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, fbo);
-        glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-                GL_TEXTURE_2D, m_TexID, mipmapLevel);
-        FBO::checkError("moveTextureToBmp");
-        IntPoint size = getMipmapSize(mipmapLevel);
-        BitmapPtr pBmp(new Bitmap(size, m_pf));
-        glReadPixels(0, 0, size.x, size.y, getGLFormat(m_pf), getGLType(m_pf), 
-                pBmp->getPixels());
-        if (m_pf == R8G8B8A8 || m_pf == R8G8B8) {
-            FilterFlipRGB().applyInPlace(pBmp);
-        }
-        return pBmp;
-    }
+    TextureMoverPtr pMover = TextureMover::create(m_GLSize, m_pf, GL_DYNAMIC_READ);
+    return pMover->moveTextureToBmp(*this, mipmapLevel);
 }
 
 const IntPoint& GLTexture::getSize() const
@@ -250,8 +237,12 @@ int GLTexture::getGLFormat(PixelFormat pf)
             return GL_RGBA;
         case B8G8R8A8:
         case B8G8R8X8:
+            AVG_ASSERT(!GLContext::getMain()->isGLES());
+            return GL_BGRA;
+#ifndef AVG_ENABLE_EGL            
         case R32G32B32A32F:
             return GL_BGRA;
+#endif
         case B5G6R5:
             return GL_RGB;
         default:
@@ -291,17 +282,21 @@ int GLTexture::getGLInternalFormat() const
     switch (m_pf) {
         case I8:
             return GL_LUMINANCE;
-        case I32F:
-            return GL_LUMINANCE32F_ARB;
         case A8:
             return GL_ALPHA;
         case R8G8B8A8:
         case R8G8B8X8:
+            return GL_RGBA;
         case B8G8R8A8:
         case B8G8R8X8:
+            AVG_ASSERT(!GLContext::getMain()->isGLES());
             return GL_RGBA;
+#ifndef AVG_ENABLE_EGL            
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
+        case I32F:
+            return GL_LUMINANCE32F_ARB;
+#endif
         case B5G6R5:
             return GL_RGB;
         default:
@@ -325,5 +320,16 @@ void GLTexture::resetDirty()
     m_bIsDirty = false;
 }
 
+void GLTexture::dump(unsigned wrapSMode, unsigned wrapTMode) const
+{
+    cerr << "GLTexture" << endl;
+    cerr << "m_Size: " << m_Size << endl;
+    cerr << "m_GLSize: " << m_Size << endl;
+    cerr << "m_pf: " << m_pf << endl;
+    cerr << "m_bMipmap: " << m_bMipmap << endl;
+    if (wrapSMode != (unsigned)-1) {
+        cerr << "Wrap modes: " << wrapSMode << ", " << wrapTMode << endl;
+    }
+}
 
 }

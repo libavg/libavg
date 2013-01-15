@@ -382,11 +382,11 @@ This section describes the base classes for all node classes that libavg provide
                 Registers a :py:attr:`messageID` so that interested parties can subscribe
                 to this message.
 
-            .. py:method:: notifySubscribers(messageID, arg1, arg2,...)
+            .. py:method:: notifySubscribers(messageID, argsList)
 
-                Invokes all callables registered for this :py:attr:`messageID` using the 
-                args passed. Subscribers are called synchronously; the order of invokation
-                is undefined.
+                Invokes all callables registered for this :py:attr:`messageID` using the
+                list of args passed. Subscribers are called synchronously; the order of
+                invokation is undefined.
 
 
     .. autoclass:: Style([basestyle=None], attrs, ...)

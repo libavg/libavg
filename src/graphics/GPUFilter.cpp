@@ -26,6 +26,8 @@
 #include "ImagingProjection.h"
 #include "GLContext.h"
 #include "ShaderRegistry.h"
+#include "Filterfliprgb.h"
+#include "BitmapLoader.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -39,8 +41,24 @@ using namespace boost;
 
 namespace avg {
 
+GPUFilter::GPUFilter(const string& sShaderID, bool bUseAlpha,
+        bool bStandalone, unsigned numTextures, bool bMipmap)
+    : m_bStandalone(bStandalone),
+      m_NumTextures(numTextures),
+      m_bMipmap(bMipmap),
+      m_SrcSize(0,0),
+      m_DestRect(0,0,0,0)
+{
+    m_PFSrc = BitmapLoader::get()->getDefaultPixelFormat(bUseAlpha);
+    m_PFDest = m_PFSrc;
+    createShader(sShaderID);
+
+    m_pShader = avg::getShader(sShaderID);
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
+
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
-        const std::string& sShaderID, unsigned numTextures, bool bMipmap)
+        const string& sShaderID, unsigned numTextures, bool bMipmap)
     : m_PFSrc(pfSrc),
       m_PFDest(pfDest),
       m_bStandalone(bStandalone),
@@ -66,13 +84,24 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
     m_pSrcMover->moveBmpToTexture(pBmpSource, *m_pSrcTex);
     apply(m_pSrcTex);
     BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage();
+
+    BitmapPtr pTmpBmp;
+    if (pixelFormatIsBlueFirst(pFilteredBmp->getPixelFormat()) !=
+            pixelFormatIsBlueFirst(pBmpSource->getPixelFormat()) &&
+        pFilteredBmp->getBytesPerPixel() <= 4)
+    {
+        pTmpBmp = FilterFlipRGB().apply(pFilteredBmp);
+    } else {
+        pTmpBmp = pFilteredBmp;
+    }
+
     BitmapPtr pDestBmp;
-    if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
+    if (pTmpBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
         pDestBmp = BitmapPtr(new Bitmap(m_DestRect.size(),
                 pBmpSource->getPixelFormat()));
-        pDestBmp->copyPixels(*pFilteredBmp);
+        pDestBmp->copyPixels(*pTmpBmp);
     } else {
-        pDestBmp = pFilteredBmp;
+        pDestBmp = pTmpBmp;
     }
     return pDestBmp;
 }

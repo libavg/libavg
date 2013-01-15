@@ -10,7 +10,11 @@ if APPLE
 else
     APPLE_SOURCES =
     APPLE_LINKFLAGS=
+if ENABLE_EGL
+    XGL_LIBS = -lX11 -lGLESv2 -lEGL
+else
     XGL_LIBS = -lXxf86vm -lX11
+endif
 endif
 
 if ENABLE_MTDEV
@@ -83,7 +87,7 @@ testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@
 
-libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS)
+libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS) @LIBXINERAMA_LDADD@
 libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \

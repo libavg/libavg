@@ -48,6 +48,7 @@ ThreadProfiler* ThreadProfiler::get()
 
 void ThreadProfiler::kill()
 {
+    delete *s_pInstance;
     s_pInstance.reset();
 }
 
@@ -74,9 +75,12 @@ void ThreadProfiler::start()
     m_bRunning = true;
 }
 
-bool ThreadProfiler::isRunning()
+void ThreadProfiler::restart()
 {
-    return m_bRunning;
+    ZoneVector::iterator it;
+    for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
+        (*it)->restart();
+    }
 }
 
 void ThreadProfiler::startZone(const ProfilingZoneID& zoneID)

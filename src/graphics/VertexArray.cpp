@@ -83,8 +83,8 @@ void VertexArray::update()
                 getReserveVerts()*sizeof(T2V3C4Vertex), getNumVerts()*sizeof(T2V3C4Vertex),
                 getVertexPointer());
         transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
-                getReserveIndexes()*sizeof(unsigned int),
-                getNumIndexes()*sizeof(unsigned int), getIndexPointer());
+                getReserveIndexes()*sizeof(unsigned short),
+                getNumIndexes()*sizeof(unsigned short), getIndexPointer());
         GLContext::checkError("VertexArray::update()");
     }
     resetDataChanged();
@@ -105,12 +105,14 @@ void VertexArray::activate()
         glproc::EnableVertexAttribArray(COLOR_INDEX);
         glproc::EnableVertexAttribArray(POS_INDEX);
     } else {
+#ifndef AVG_ENABLE_EGL
         glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 
                 (void *)(offsetof(T2V3C4Vertex, m_Tex)));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 
                 (void *)(offsetof(T2V3C4Vertex, m_Color)));
         glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
                 (void *)(offsetof(T2V3C4Vertex, m_Pos)));
+#endif
     }
     GLContext::checkError("VertexArray::activate()");
 }
@@ -119,18 +121,18 @@ void VertexArray::draw()
 {
     update();
     activate();
-    glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_SHORT, 0);
     GLContext::checkError("VertexArray::draw()");
 }
 
 void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
         unsigned numVertexes)
 {
-    glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_INT, 
-            (void *)(startIndex*sizeof(unsigned)));
+    glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_SHORT, 
+            (void *)(startIndex*sizeof(unsigned short)));
 //    XXX: Theoretically faster, but broken on Linux/Intel N10 graphics, Ubuntu 12/04
 //    glproc::DrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, 
-//            numIndexes, GL_UNSIGNED_INT, (void *)(startIndex*sizeof(unsigned)));
+//            numIndexes, GL_UNSIGNED_SHORT, (void *)(startIndex*sizeof(unsigned short)));
     GLContext::checkError("VertexArray::draw()");
 }
 

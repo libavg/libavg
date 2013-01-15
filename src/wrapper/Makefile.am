@@ -9,7 +9,11 @@ if APPLE
     XGL_LIBS =
     APPLE_LDFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport 
 else
-    XGL_LIBS = -lXxf86vm
+if ENABLE_EGL
+    XGL_LIBS = -lX11 -lGLESv2 -lEGL
+else
+    XGL_LIBS = -lXxf86vm -lX11
+endif
     APPLE_LDFLAGS=
 endif
 

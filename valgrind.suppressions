@@ -794,4 +794,16 @@
    Memcheck:Cond
    obj:/usr/lib/i686/cmov/libavcodec.so.52.72.2
 }
+{
+   drm_intel
+   Memcheck:Cond
+   fun:drm_intel_bufmgr_gem_init
+   obj:/usr/lib/x86_64-linux-gnu/dri/i965_dri.so
+}
+{
+   mesa
+   Memcheck:Cond
+   fun:_ZN22_mesa_glsl_parse_stateC1EP10gl_contextjPv
+   obj:/usr/lib/x86_64-linux-gnu/dri/libglsl.so
+}
 

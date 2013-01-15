@@ -25,6 +25,7 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/Filterfillrect.h"
 #include "../graphics/Filtergrayscale.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Exception.h"
@@ -49,7 +50,7 @@ FakeCamera::FakeCamera(std::vector<std::string>& pictures)
 {
     for (vector<string>::iterator it = pictures.begin(); it != pictures.end(); ++it) {
         try {
-            BitmapPtr pBmp (new Bitmap(*it));
+            BitmapPtr pBmp = loadBitmap(*it);
             FilterGrayscale().applyInPlace(pBmp);
             setImgSize(pBmp->getSize());
             m_pBmpQ->push(pBmp);

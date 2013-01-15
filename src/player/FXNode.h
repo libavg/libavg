@@ -52,6 +52,8 @@ protected:
     FBOPtr getFBO();
     void setDirty();
 
+    void errorIfGLES() const;
+
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size) = 0;
 

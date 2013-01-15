@@ -27,7 +27,11 @@
 #ifdef __APPLE__
     #include "CGLContext.h"
 #elif defined linux
-    #include "GLXContext.h"
+    #ifdef AVG_ENABLE_EGL
+        #include "EGLContext.h"
+    #else
+        #include "GLXContext.h"
+    #endif
 #elif defined _WIN32
     #include "WGLContext.h"
 #endif
@@ -46,6 +50,8 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
+float GLContext::s_RefreshRate = 0.0;
+
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
 bool GLContext::s_bErrorCheckEnabled = false;
@@ -61,7 +67,13 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
 #ifdef __APPLE__
     return new CGLContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined linux
-    return new GLXContext(glConfig, windowSize, pSDLWMInfo);
+    #ifdef AVG_ENABLE_EGL
+        GLConfig tempConfig = glConfig;
+        tempConfig.m_bGLES = true;
+        return new EGLContext(tempConfig, windowSize, pSDLWMInfo);
+    #else
+        return new GLXContext(glConfig, windowSize, pSDLWMInfo);
+    #endif
 #elif defined _WIN32
     return new WGLContext(glConfig, windowSize, pSDLWMInfo);
 #else
@@ -105,6 +117,9 @@ void GLContext::init(bool bOwnsContext)
             m_GLConfig.m_bUseDebugContext = false;
         }
     }
+#ifndef AVG_ENABLE_EGL
+    glEnable(GL_MULTISAMPLE);
+#endif
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
         m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
@@ -140,19 +155,16 @@ void GLContext::init(bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-    glproc::UseProgramObject(0);
     if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
+#ifndef AVG_ENABLE_EGL
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
+#endif
     }
 
 }
@@ -200,7 +212,7 @@ StandardShaderPtr GLContext::getStandardShader()
 
 bool GLContext::useGPUYUVConversion() const
 {
-    return (m_MajorGLVersion > 1);
+    return (m_MajorGLVersion > 1) || isGLES();
 }
 
 GLConfig::ShaderUsage GLContext::getShaderUsage() const
@@ -250,6 +262,7 @@ void GLContext::setBlendColor(const glm::vec4& color)
 
 void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 {
+    AVG_ASSERT(isBlendModeSupported(mode));
     GLenum srcFunc;
     if (bPremultipliedAlpha) {
         srcFunc = GL_CONSTANT_ALPHA;
@@ -270,13 +283,13 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
                 checkError("setBlendMode: add");
                 break;
             case BLEND_MIN:
-                glproc::BlendEquation(GL_MIN);
+                glproc::BlendEquation(GL_MIN_EXT);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkError("setBlendMode: min");
                 break;
             case BLEND_MAX:
-                glproc::BlendEquation(GL_MAX);
+                glproc::BlendEquation(GL_MAX_EXT);
                 glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkError("setBlendMode: max");
@@ -292,6 +305,15 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 
         m_BlendMode = mode;
         m_bPremultipliedAlpha = bPremultipliedAlpha;
+    }
+}
+
+bool GLContext::isBlendModeSupported(BlendMode mode) const
+{
+    if (isGLES() && (mode == BLEND_MIN || mode == BLEND_MAX)) {
+        return queryOGLExtension("GL_EXT_blend_minmax");
+    } else {
+        return true;
     }
 }
 
@@ -397,6 +419,11 @@ bool GLContext::isVendor(const string& sWantedVendor) const
     return (sVendor.find(sWantedVendor) != string::npos);
 }
 
+bool GLContext::useDepthBuffer() const
+{
+    return !isGLES();
+}
+
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {
@@ -409,6 +436,27 @@ int GLContext::getMaxTexSize()
 void GLContext::swapBuffers()
 {
     AVG_ASSERT(false);
+}
+
+float GLContext::getRefreshRate()
+{
+    if (s_RefreshRate == 0.0) {
+#ifdef __APPLE__
+        s_RefreshRate = CGLContext::calcRefreshRate();
+#elif defined linux
+#ifdef AVG_ENABLE_EGL
+        s_RefreshRate = EGLContext::calcRefreshRate();
+#else
+        s_RefreshRate = GLXContext::calcRefreshRate();
+#endif
+#elif defined _WIN32
+        s_RefreshRate = WGLContext::calcRefreshRate();
+#else
+        AVG_ASSERT(false);
+#endif
+        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
+    }
+    return s_RefreshRate;
 }
 
 void GLContext::enableErrorChecks(bool bEnable)
@@ -428,8 +476,12 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
+#ifndef AVG_ENABLE_EGL
         s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
+#else
+        s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
+#endif
         AVG_TRACE(Logger::ERROR, s.str());
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
@@ -487,7 +539,11 @@ int GLContext::nextMultiSampleValue(int curSamples)
 bool GLContext::isGLESSupported()
 {
 #if defined linux
+    #ifdef AVG_ENABLE_EGL
+    return true;
+    #else
     return GLXContext::haveARBCreateContext();
+    #endif
 #else
     return false;
 #endif
@@ -512,7 +568,7 @@ void GLContext::checkGPUMemInfoSupport()
 
 bool GLContext::isDebugContextSupported() const
 {
-    if (queryOGLExtension("GL_ARB_debug_output")) {
+    if (queryOGLExtension("GL_ARB_debug_output") || queryOGLExtension("GL_KHR_debug")) {
         return true;
     }
     if (isGLES() && isVendor("NVIDIA")) {
@@ -523,7 +579,7 @@ bool GLContext::isDebugContextSupported() const
     return false;
 }
 
-void APIENTRY GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id, 
+void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id, 
         GLenum severity, GLsizei length, const GLchar* message, void* userParam) 
 {
 /*    
@@ -592,11 +648,15 @@ void APIENTRY GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
 */
 
     // XXX Temporary to clean up NVidia message spam.
+#ifndef AVG_ENABLE_EGL
     if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
+#endif
         AVG_TRACE(Logger::WARNING, message);
-//        dumpBacktrace();
-//        AVG_ASSERT(false);
+        //        dumpBacktrace();
+        //        AVG_ASSERT(false);
+#ifndef AVG_ENABLE_EGL
     }
+#endif
 }
 
 }
