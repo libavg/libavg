@@ -81,8 +81,8 @@ bool AudioDecoderThread::work()
         msleep(10);
         float seekTime = m_pDemuxer->isSeekDone(m_AStreamIndex, false);
         if (seekTime != -1) {
-            handleSeekDone(seekTime);
             m_bEOF = false;
+            handleSeekDone(seekTime);
         }
     } else {
         AudioBufferPtr pBuffer = getAudioBuffer();

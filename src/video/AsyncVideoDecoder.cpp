@@ -127,19 +127,17 @@ void AsyncVideoDecoder::close()
         m_pVDecoderThread = 0;
         m_pVMsgQ = VideoMsgQueuePtr();
     }
-    {
-        if (m_pADecoderThread) {
-            m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::stop, _1));
-            m_pAMsgQ->clear();
-            m_pAStatusQ->clear();
-            m_pADecoderThread->join();
-            delete m_pADecoderThread;
-            m_pADecoderThread = 0;
-            m_pAStatusQ = AudioMsgQueuePtr();
-            m_pAMsgQ = AudioMsgQueuePtr();
-        }
-        m_pSyncDecoder->close();
-    }        
+    if (m_pADecoderThread) {
+        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::stop, _1));
+        m_pAMsgQ->clear();
+        m_pAStatusQ->clear();
+        m_pADecoderThread->join();
+        delete m_pADecoderThread;
+        m_pADecoderThread = 0;
+        m_pAStatusQ = AudioMsgQueuePtr();
+        m_pAMsgQ = AudioMsgQueuePtr();
+    }
+    m_pSyncDecoder->close();
 }
 
 VideoDecoder::DecoderState AsyncVideoDecoder::getState() const
@@ -517,6 +515,7 @@ void AsyncVideoDecoder::handleAudioMsg(AudioMsgPtr pMsg)
 void AsyncVideoDecoder::returnFrame(VideoMsgPtr pFrameMsg)
 {
     if (pFrameMsg) {
+        AVG_ASSERT(pFrameMsg->getType() == VideoMsg::FRAME);
         m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::returnFrame, _1, pFrameMsg));
     }
 }
