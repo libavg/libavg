@@ -33,7 +33,8 @@ AudioSource::AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, int sample
     : m_MsgQ(msgQ),
       m_StatusQ(statusQ),
       m_SampleRate(sampleRate),
-      m_bPaused(false)
+      m_bPaused(false),
+      m_bSeeking(false)
 {
 }
 
@@ -53,6 +54,9 @@ void AudioSource::play()
 
 void AudioSource::notifySeek()
 {
+    while (m_bSeeking) {
+        processNextMsg(true);
+    }
     m_bSeeking = true;
 }
 
@@ -60,7 +64,7 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     bool bContinue = true;
     while (bContinue && m_bSeeking) {
-        bContinue = processNextMsg();
+        bContinue = processNextMsg(false);
     }
     if (!m_bPaused) {
         unsigned char* pDest = (unsigned char *)(pBuffer->getData());
@@ -88,7 +92,7 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
     //            cerr << "  " << m_LastTime << endl;
             }
             if (framesLeftToFill != 0) {
-                bool bContinue = processNextMsg();
+                bool bContinue = processNextMsg(false);
                 if (!bContinue) {
                     framesLeftToFill = 0;
                 }
@@ -100,9 +104,9 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
     }
 }
     
-bool AudioSource::processNextMsg()
+bool AudioSource::processNextMsg(bool bWait)
 {
-    AudioMsgPtr pMsg = m_MsgQ.pop(false);
+    AudioMsgPtr pMsg = m_MsgQ.pop(bWait);
     if (pMsg) {
         switch (pMsg->getType()) {
             case AudioMsg::AUDIO:
@@ -112,12 +116,14 @@ bool AudioSource::processNextMsg()
 //                cerr << "  New buffer: " << m_LastTime << endl;
                 return true;
             case AudioMsg::END_OF_FILE: {
+//                cerr << "        AudioSource: EOF" << endl;
                 AudioMsgPtr pStatusMsg(new AudioMsg);
                 pStatusMsg->setEOF();
                 m_StatusQ.push(pStatusMsg);
                 return false;
             }
             case AudioMsg::SEEK_DONE: {
+//                cerr << "        AudioSource: SEEK_DONE" << endl;
                 m_bSeeking = false;
                 m_pInputAudioBuffer = AudioBufferPtr();
                 m_LastTime = pMsg->getSeekTime();

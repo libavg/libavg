@@ -379,7 +379,7 @@ void VideoNode::checkReload()
 void VideoNode::onFrameEnd()
 {
     AsyncVideoDecoder* pAsyncDecoder = dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
-    if (m_VideoState == Playing && pAsyncDecoder) {
+    if (pAsyncDecoder && (m_VideoState == Playing || m_VideoState == Paused)) {
         pAsyncDecoder->updateAudioStatus();
     }
     if (m_bEOFPending) {
@@ -818,6 +818,9 @@ void VideoNode::updateStatusDueToDecoderEOF()
         m_PauseTime = 0;
         m_FramesInRowTooLate = 0;
         m_bFrameAvailable = false;
+        if (m_AudioID != -1) {
+            AudioEngine::get()->notifySeek(m_AudioID);
+        }
         m_pDecoder->loop();
     } else {
         changeVideoState(Paused);

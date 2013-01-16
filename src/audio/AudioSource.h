@@ -44,7 +44,7 @@ public:
     void fillAudioBuffer(AudioBufferPtr pBuffer);
 
 private:
-    bool processNextMsg();
+    bool processNextMsg(bool bWait);
 
     AudioMsgQueue& m_MsgQ;    
     AudioMsgQueue& m_StatusQ;
