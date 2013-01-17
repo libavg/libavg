@@ -41,6 +41,7 @@
 #include "TestSuite.h"
 #include "TimeSource.h"
 #include "XMLHelper.h"
+#include "Logger.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -897,6 +898,36 @@ public:
     }
 };
 
+
+class StandardLoggerTest: public Test
+{
+public:
+    StandardLoggerTest()
+      : Test("StandardLoggerTest", 2)
+    {
+    }
+
+    void runTests(){
+        //Redirect cerr stream to string buffer
+        std::stringstream buffer;
+        std::streambuf *sbuf = std::cerr.rdbuf();
+        std::cerr.rdbuf(buffer.rdbuf());
+
+        //Log a test message
+        Logger* logger = Logger::get();
+        string result("Test log message");
+        string result2("Test log2 message");
+        logger->trace(Logger::ERROR, UTF8String(result));
+
+        //reset cerr stream to standard buffer
+        std::cerr.rdbuf(sbuf);
+
+        //Compare result
+        TEST(buffer.str().find(result) != string::npos);
+    }
+};
+ 
+
 class BaseTestSuite: public TestSuite
 {
 public:
@@ -918,6 +949,7 @@ public:
         addTest(TestPtr(new BacktraceTest));
         addTest(TestPtr(new PolygonTest));
         addTest(TestPtr(new XmlParserTest));
+        addTest(TestPtr(new StandardLoggerTest));
     }
 };
 

@@ -8,7 +8,7 @@ ALL_H = FileHelper.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
         Rect.h Directory.h DirEntry.h StringHelper.h MathHelper.h GeomHelper.h \
         CubicSpline.h BezierCurve.h UTF8String.h Triangle.h DAG.h \
         WideLine.h DlfcnWrapper.h Signal.h Backtrace.h \
-        CmdQueue.h ProfilingZoneID.h GLMHelper.h
+        CmdQueue.h ProfilingZoneID.h GLMHelper.h StandardLoggingHandler.h
 
 TESTS=testbase
 
@@ -22,7 +22,7 @@ libbase_la_SOURCES = FileHelper.cpp Exception.cpp Logger.cpp \
     StringHelper.cpp MathHelper.cpp GeomHelper.cpp CubicSpline.cpp \
     BezierCurve.cpp UTF8String.cpp Triangle.cpp DAG.cpp WideLine.cpp \
     Backtrace.cpp ProfilingZoneID.cpp GLMHelper.cpp \
-    WorkerThread.cpp \
+    WorkerThread.cpp StandardLoggingHandler.cpp \
     $(ALL_H)
 libbase_a_CXXFLAGS = -Wno-format-y2k
 

@@ -23,6 +23,7 @@
 
 #include "OSHelper.h"
 #include "Exception.h"
+#include "StandardLoggingHandler.h"
 
 #ifdef _WIN32
 #include <Winsock2.h>
@@ -66,12 +67,12 @@ Logger * Logger::get()
     if (!m_pLogger) {
         boost::mutex::scoped_lock lock(logMutex);
         m_pLogger = new Logger;
+        m_pLogger->addLogHandler(LogHandlerPtr(new StandardLoggingHandler()));
     }
     return m_pLogger;
 }
 
-Logger::Logger():
-    m_pyLogger(0)
+Logger::Logger()
 {
     m_Flags = ERROR | WARNING | APP | DEPRECATION;
     string sEnvCategories;
@@ -127,12 +128,8 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
-void Logger::setPythonLogger(PyObject* pyLogger)
-{
-    /*
-    m_pyLogger = pyLogger;
-    Py_INCREF(m_pyLogger);
-    */
+void Logger::addLogHandler(LogHandlerPtr logHandler){
+    m_Handlers.push_back(logHandler);
 }
 
 void Logger::trace(int category, const UTF8String& sMsg)
@@ -152,16 +149,8 @@ void Logger::trace(int category, const UTF8String& sMsg)
         pTime = localtime(&time.tv_sec);
         unsigned millis = time.tv_usec/1000;
 #endif
-        if(m_pyLogger){
-            //PyEval_CallMethod(m_pyLogger, "debug", "(s)", sMsg.c_str());
-        }else{
-            char timeString[256];
-            strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
-            cerr << "[" << timeString << "." << 
-                setw(3) << setfill('0') << millis << setw(0) << "] ";
-            cerr << categoryToString(category) << ": ";
-            cerr << sMsg << endl;
-            cerr.flush();
+        for(unsigned int i=0; i < m_Handlers.size(); ++i){
+            m_Handlers.at(i)->logMessage(pTime, millis, category, sMsg);
         }
     }
 }
@@ -198,7 +187,7 @@ const char * Logger::categoryToString(int category)
     }
 }
 
-int Logger::stringToCategory(const string& sCategory)
+int Logger::stringToCategory(const string& sCategory) const
 {
     if (sCategory == "PROFILE") {
         return PROFILE;

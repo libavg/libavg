@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "UTF8String.h"
+#include "ILogHandler.h"
 
 #include <string>
 #include <vector>
@@ -36,18 +37,17 @@ namespace avg {
 #undef ERROR
 #endif
 
-class PyObject;
-
 class AVG_API Logger {
 public:
     static Logger* get();
     virtual ~Logger();
    
+    void addLogHandler(LogHandlerPtr logHandler);
+    static const char * categoryToString(int category);
     int getCategories() const;
     void setCategories(int flags);
     void pushCategories();
     void popCategories();
-    void setPythonLogger(PyObject* pyLogger);
     void trace(int category, const UTF8String& sMsg);
     inline bool isFlagSet(int category) {
         return (category & m_Flags) != 0;
@@ -70,14 +70,13 @@ public:
 
 private:
     Logger();
-    static const char * categoryToString(int category);
-    int stringToCategory(const std::string& sCategory);
+    int stringToCategory(const std::string& sCategory) const;
    
     static Logger* m_pLogger;
-    PyObject *m_pyLogger;
 
     int m_Flags;
     std::vector<int> m_FlagStack;
+    std::vector<LogHandlerPtr> m_Handlers;
 };
 
 #define AVG_TRACE(category, sMsg) { \
