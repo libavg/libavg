@@ -29,15 +29,19 @@ using namespace std;
 namespace avg
 {
 
-StandardLoggingHandler::StandardLoggingHandler(){
+StandardLoggingHandler::StandardLoggingHandler()
+{
 
 }
 
-StandardLoggingHandler::~StandardLoggingHandler(){
+StandardLoggingHandler::~StandardLoggingHandler()
+{
 
 }
 
-void StandardLoggingHandler::logMessage(tm* pTime, unsigned millis, int category, const UTF8String& sMsg){
+void StandardLoggingHandler::logMessage(tm* pTime, unsigned millis, int category,
+        const UTF8String& sMsg)
+{
     char timeString[256];
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
     cerr << "[" << timeString << "." << 

@@ -18,8 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#ifndef _ILogHandler_H_
-#define _ILogHandler_H_
+#ifndef _ILOGHANDLER_H_
+#define _ILOGHANDLER_H_
 
 #include "UTF8String.h"
 
@@ -35,9 +35,11 @@ using namespace std;
 
 namespace avg{
 
-class AVG_API ILogHandler {
+class AVG_API ILogHandler
+{
 public:
-    virtual void logMessage(tm* pTime,unsigned millis, int category, const UTF8String& sMsg) = 0;
+    virtual void logMessage(tm* pTime, unsigned millis, int category,
+            const UTF8String& sMsg) = 0;
 };
 
 typedef boost::shared_ptr<ILogHandler> LogHandlerPtr;

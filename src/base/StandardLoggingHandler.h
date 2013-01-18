@@ -31,7 +31,8 @@ public:
     StandardLoggingHandler();
     virtual ~StandardLoggingHandler ();
 
-    virtual void logMessage(tm* pTime, unsigned millis, int category, const UTF8String& sMsg);
+    virtual void logMessage(tm* pTime, unsigned millis, int category,
+            const UTF8String& sMsg);
 };
 
 }

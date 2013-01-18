@@ -48,6 +48,7 @@
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
+#include "PythonLogHandler.h"
 #ifdef __APPLE__
     #include "AppleTrackpadInputDevice.h"
 #endif
@@ -1808,6 +1809,12 @@ void Player::setEventHook(PyObject * pyfunc)
 PyObject * Player::getEventHook() const
 {
     return m_EventHookPyFunc;
+}
+
+void Player::addPythonLogger(PyObject * pyLogger){
+    LogHandlerPtr logHandler(new PythonLogHandler(pyLogger));
+    Logger * logger = Logger::get();
+    logger->addLogHandler(logHandler);
 }
 
 Player::EventCaptureInfo::EventCaptureInfo(const NodeWeakPtr& pNode)
