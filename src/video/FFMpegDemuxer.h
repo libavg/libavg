@@ -41,7 +41,7 @@ class AVG_API FFMpegDemuxer: public IDemuxer {
         virtual ~FFMpegDemuxer();
        
         AVPacket * getPacket(int streamIndex);
-        float isSeekDone(int streamIndex, bool bWait=true);
+        float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
         void seek(float destTime);
         void dump();
         

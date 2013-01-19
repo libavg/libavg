@@ -40,7 +40,7 @@ public:
     void setAudioTime(float audioTime);
     void setEOF();
     void setError(const Exception& ex);
-    void setSeekDone(float seekTime);
+    void setSeekDone(int seqNum, float seekTime);
 
     virtual ~AudioMsg();
 
@@ -51,6 +51,7 @@ public:
 
     const Exception& getException() const;
 
+    int getSeekSeqNum();
     float getSeekTime();
 
     virtual void dump();
@@ -69,6 +70,7 @@ private:
     Exception* m_pEx;
 
     // SEEK_DONE
+    int m_SeekSeqNum;
     float m_SeekTime;
 
 };

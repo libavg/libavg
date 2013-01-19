@@ -72,9 +72,11 @@ public:
 private:
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
-    bool handleVSeekMsg(VideoMsgPtr pMsg);
+    void waitForSeekDone();
+    void handleVSeekMsg(VideoMsgPtr pMsg);
     void handleAudioMsg(AudioMsgPtr pMsg);
     void returnFrame(VideoMsgPtr pFrameMsg);
+    bool isSeeking() const;
 
     DecoderState m_State;
     FFMpegDecoderPtr m_pSyncDecoder;
@@ -99,6 +101,9 @@ private:
     bool m_bUseStreamFPS;
     PixelFormat m_PF;
     
+    int m_NumSeeksSent;
+    int m_NumVSeeksDone;
+
     bool m_bAudioEOF;
     bool m_bVideoEOF;
     bool m_bASeekPending;

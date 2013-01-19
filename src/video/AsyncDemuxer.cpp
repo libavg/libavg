@@ -98,7 +98,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 
 }
             
-float AsyncDemuxer::isSeekDone(int streamIndex, bool bWait)
+float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
 {
     m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(bWait);
     if (m_pCurMsgs[streamIndex] &&
@@ -106,6 +106,8 @@ float AsyncDemuxer::isSeekDone(int streamIndex, bool bWait)
     {
         cerr << "  AsyncDemuxer::isSeekDone: true" << endl;
         float seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
+        seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
+ 
         m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(true);
         return seekTime;
     } else {
@@ -113,23 +115,11 @@ float AsyncDemuxer::isSeekDone(int streamIndex, bool bWait)
     }
 }
 
-void AsyncDemuxer::seek(float destTime)
+void AsyncDemuxer::seek(int seqNum, float destTime)
 {
     cerr << "AsyncDemuxer::seek" << endl;
-/*    
-    map<int, VideoMsgQueuePtr>::iterator it;
-    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-        VideoMsgQueuePtr pPacketQ = it->second;
-        VideoMsgPtr pMsg;
-        do {
-            pMsg = pPacketQ->pop(false);
-            if (pMsg) {
-                pMsg->freePacket();
-            }
-        } while (pMsg);
-    }
-*/    
-    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
+    AVG_ASSERT(seqNum != -1); //TODO: Remove when audio works.
+    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, seqNum, destTime));
 //    cerr << "  AsyncDemuxer::seek end" << endl;
 }
 

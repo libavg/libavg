@@ -109,10 +109,11 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
     return pPacket;
 }
         
-float FFMpegDemuxer::isSeekDone(int streamIndex, bool bWait)
+float FFMpegDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
 {
     float seekTime = m_seekDoneMap[streamIndex];
     m_seekDoneMap[streamIndex] = -1;
+    seqNum = -1;
     return seekTime;
 }
 

@@ -83,7 +83,8 @@ bool VideoDemuxerThread::work()
             msleep(10);
             return true;
         }
-        m_pDemuxer->isSeekDone(shortestQ); // Ignore here - handled in seek() 
+        int dummy;
+        m_pDemuxer->isSeekDone(shortestQ, dummy); // Ignore here - handled in seek() 
 
         AVPacket * pPacket = m_pDemuxer->getPacket(shortestQ);
         VideoMsgPtr pMsg(new VideoMsg);
@@ -103,7 +104,7 @@ void VideoDemuxerThread::deinit()
 {
 }
 
-void VideoDemuxerThread::seek(float destTime)
+void VideoDemuxerThread::seek(int seqNum, float destTime)
 {
     cerr << "    VideoDemuxerThread::seek" << endl;
     map<int, VideoMsgQueuePtr>::iterator it;
@@ -123,7 +124,7 @@ void VideoDemuxerThread::seek(float destTime)
         // send SEEK_DONE
         cerr << "    VideoDemuxerThread::send SEEK_DONE" << endl;
         pMsg = VideoMsgPtr(new VideoMsg);
-        pMsg->setSeekDone(destTime);
+        pMsg->setSeekDone(seqNum, destTime);
         pPacketQ->push(pMsg);
         m_PacketQbEOF[it->first] = false;
     }

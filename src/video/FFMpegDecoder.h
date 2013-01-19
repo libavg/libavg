@@ -72,6 +72,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
 #endif
         virtual void throwAwayFrame(float timeWanted);
         bool isVideoSeekDone();
+        int getSeekSeqNum();
 
         virtual void seek(float destTime);
         virtual void loop();
@@ -97,7 +98,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         std::string m_sFilename;
         bool m_bThreadedDemuxer;
 
-        // Used from video thread.
         FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
         void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
         float getFrameTime(long long dts);
@@ -111,6 +111,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         float m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;
         bool m_bVideoSeekDone;
+        int m_SeekSeqNum;
 
         int m_AStreamIndex;
 

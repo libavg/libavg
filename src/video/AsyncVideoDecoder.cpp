@@ -50,9 +50,6 @@ AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLen
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
       m_PF(NO_PIXELFORMAT),
-      m_bAudioEOF(false),
-      m_bVideoEOF(false),
-      m_bASeekPending(false),
       m_LastVideoFrameTime(-1),
       m_LastAudioFrameTime(-1)
 {
@@ -70,6 +67,8 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer,
         bool bUseHardwareAcceleration, bool bEnableSound)
 {
+    m_NumSeeksSent = 0;
+    m_NumVSeeksDone = 0;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bASeekPending = false;
@@ -152,7 +151,8 @@ void AsyncVideoDecoder::seek(float destTime)
 {
 //    cerr << "AsyncVideoDecoder::seek " << destTime << endl;
     AVG_ASSERT(m_State == DECODING);
-    m_pDemuxer->seek(destTime);
+    m_NumSeeksSent++;
+    m_pDemuxer->seek(m_NumSeeksSent, destTime);
 }
 
 void AsyncVideoDecoder::loop()
@@ -237,6 +237,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     FrameAvailableCode frameAvailable;
     VideoMsgPtr pFrameMsg;
     if (timeWanted == -1) {
+        waitForSeekDone();
         pFrameMsg = getNextBmps(true);
         frameAvailable = FA_NEW_FRAME;
     } else {
@@ -367,6 +368,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             case VideoMsg::VDPAU_FRAME:
                 return pMsg;
             case VideoMsg::END_OF_FILE:
+                m_NumVSeeksDone = m_NumSeeksSent;
                 m_bVideoEOF = true;
                 return VideoMsgPtr();
             case VideoMsg::ERROR:
@@ -374,7 +376,10 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 return VideoMsgPtr();
             case AudioMsg::SEEK_DONE:
                 m_LastVideoFrameTime = pMsg->getSeekTime();
-                cerr << "Video SEEK_DONE " << m_LastVideoFrameTime << endl;
+                AVG_ASSERT(m_NumVSeeksDone < pMsg->getSeekSeqNum());
+                m_NumVSeeksDone = pMsg->getSeekSeqNum();
+                cerr << "Video SEEK_DONE " << m_NumVSeeksDone << ", " <<
+                        m_LastVideoFrameTime << endl;
                 return getNextBmps(bWait);
             default:
                 // Unhandled message type.
@@ -385,26 +390,35 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
         return pMsg;
     }
 }
+void AsyncVideoDecoder::waitForSeekDone()
+{
+    while (isSeeking()) {
+        VideoMsgPtr pMsg = m_pVMsgQ->pop(true);
+        handleVSeekMsg(pMsg);
+    }
+}
 
-bool AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
+void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
 {
     switch (pMsg->getType()) {
         case AudioMsg::SEEK_DONE:
             m_LastVideoFrameTime = pMsg->getSeekTime();
-//            cerr << "Video SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
-//                    << m_LastVideoFrameTime << ", diff: " << 
-//                    m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
-            return false;
+            AVG_ASSERT(m_NumVSeeksDone < pMsg->getSeekSeqNum());
+            m_NumVSeeksDone = pMsg->getSeekSeqNum();
+            cerr << "Video SEEK_DONE " << m_NumVSeeksDone << ", " <<
+                    m_LastVideoFrameTime << endl;
+            break;
         case VideoMsg::FRAME:
             returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
-            return true;
+            break;
         case VideoMsg::VDPAU_FRAME:
+            break;
         case VideoMsg::END_OF_FILE:
-            return true;
+            m_NumVSeeksDone = m_NumSeeksSent;
+            break;
         default:
             // TODO: Handle ERROR messages here.
             AVG_ASSERT(false);
-            return true;
     }
 }
 
@@ -443,6 +457,11 @@ void AsyncVideoDecoder::returnFrame(VideoMsgPtr pFrameMsg)
         AVG_ASSERT(pFrameMsg->getType() == VideoMsg::FRAME);
         m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::returnFrame, _1, pFrameMsg));
     }
+}
+
+bool AsyncVideoDecoder::isSeeking() const
+{
+    return m_NumSeeksSent > m_NumVSeeksDone;
 }
 
 }

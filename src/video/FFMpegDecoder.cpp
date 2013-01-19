@@ -384,7 +384,8 @@ void FFMpegDecoder::seek(float destTime)
         AVFrame frame;
         readFrame(frame);
     }
-    m_pDemuxer->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
+    dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)
+            ->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
 }
 
 void FFMpegDecoder::loop()
@@ -566,6 +567,11 @@ bool FFMpegDecoder::isVideoSeekDone()
     bool bSeekDone = m_bVideoSeekDone;
     m_bVideoSeekDone = false;
     return bSeekDone;
+}
+
+int FFMpegDecoder::getSeekSeqNum()
+{
+    return m_SeekSeqNum;
 }
 
 bool FFMpegDecoder::isEOF(StreamSelect stream) const
@@ -807,10 +813,12 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
     float frameTime = -1;
     bool bDone = false;
     while (!bGotPicture && !bDone) {
-        float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex);
+        int seqNum;
+        float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex, seqNum);
         if (seekTime != -1) {
             cerr << "  FFMpegDecoder::isSeekDone: true" << endl;
             m_LastVideoFrameTime = -1.0f;
+            m_SeekSeqNum = seqNum;
             avcodec_flush_buffers(pContext);
             m_bVideoSeekDone = true;
             m_bVideoEOF = false;

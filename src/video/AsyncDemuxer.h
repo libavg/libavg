@@ -41,8 +41,8 @@ namespace avg {
             virtual ~AsyncDemuxer();
            
             AVPacket * getPacket(int streamIndex);
-            float isSeekDone(int streamIndex, bool bWait=true);
-            void seek(float destTime);
+            float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
+            void seek(int seqNum, float destTime);
             
             VideoDemuxerThread::CQueuePtr getCmdQ();
 

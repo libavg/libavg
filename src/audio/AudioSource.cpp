@@ -138,7 +138,7 @@ bool AudioSource::processNextMsg(bool bWait)
                 m_pInputAudioBuffer = AudioBufferPtr();
                 m_LastTime = pMsg->getSeekTime();
                 AudioMsgPtr pStatusMsg(new AudioMsg);
-                pStatusMsg->setSeekDone(m_LastTime);
+                pStatusMsg->setSeekDone(-1, m_LastTime);
                 m_StatusQ.push(pStatusMsg);
                 return true;
             }
