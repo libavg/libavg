@@ -44,6 +44,8 @@ namespace avg {
             float isSeekDone(int streamIndex, bool bWait=true);
             void seek(float destTime);
             
+            VideoDemuxerThread::CQueuePtr getCmdQ();
+
         private:
             void enableStream(int streamIndex);
             void waitForSeekDone();

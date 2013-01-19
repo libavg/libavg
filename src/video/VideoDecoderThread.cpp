@@ -53,68 +53,58 @@ static ProfilingZoneID PushMsgProfilingZone("DecoderThread: push message", true)
 
 bool VideoDecoderThread::work() 
 {
-    if (m_pDecoder->isEOF(SS_VIDEO)) {
-        // TODO: Replace this with waitForMessage()
-        msleep(10);
-    } else {
-        ScopeTimer timer(DecoderProfilingZone);
-        vdpau_render_state* pRenderState = 0;
-        FrameAvailableCode frameAvailable;
-        vector<BitmapPtr> pBmps;
-        bool usesVDPAU = m_pDecoder->getVideoInfo().m_bUsesVDPAU;
-        if (usesVDPAU) {
+    ScopeTimer timer(DecoderProfilingZone);
+    vdpau_render_state* pRenderState = 0;
+    FrameAvailableCode frameAvailable;
+    vector<BitmapPtr> pBmps;
+    bool usesVDPAU = m_pDecoder->getVideoInfo().m_bUsesVDPAU;
+    if (usesVDPAU) {
 #ifdef AVG_ENABLE_VDPAU
-            frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
+        frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
 #else
-            frameAvailable = FA_NEW_FRAME; // Never executed - silences compiler warning.
+        frameAvailable = FA_NEW_FRAME; // Never executed - silences compiler warning.
 #endif
-        } else {
-            IntPoint size = m_pDecoder->getSize();
-            IntPoint halfSize(size.x/2, size.y/2);
-            PixelFormat pf = m_pDecoder->getPixelFormat();
-            if (pixelFormatIsPlanar(pf)) {
+    } else {
+        IntPoint size = m_pDecoder->getSize();
+        IntPoint halfSize(size.x/2, size.y/2);
+        PixelFormat pf = m_pDecoder->getPixelFormat();
+        if (pixelFormatIsPlanar(pf)) {
+            pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+            if (pf == YCbCrA420p) {
                 pBmps.push_back(getBmp(m_pBmpQ, size, I8));
-                pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-                pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-                if (pf == YCbCrA420p) {
-                    pBmps.push_back(getBmp(m_pBmpQ, size, I8));
-                }
-            } else {
-                pBmps.push_back(getBmp(m_pBmpQ, size, pf));
             }
-            frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
-        }
-        if (m_pDecoder->isVideoSeekDone()) {
-            VideoMsgPtr pMsg(new VideoMsg());
-            float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
-            pMsg->setSeekDone(videoFrameTime);
-            m_MsgQ.push(pMsg);
-        }
-        if (m_pDecoder->isEOF(SS_VIDEO)) {
-            VideoMsgPtr pMsg(new VideoMsg());
-            pMsg->setEOF();
-            m_MsgQ.push(pMsg);
         } else {
-            ScopeTimer timer(PushMsgProfilingZone);
-            AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
-            VideoMsgPtr pMsg(new VideoMsg());
-            if (usesVDPAU) {
-                pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
-            } else {
-                pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
-            }
-            m_MsgQ.push(pMsg);
-            msleep(0);
+            pBmps.push_back(getBmp(m_pBmpQ, size, pf));
         }
-        ThreadProfiler::get()->reset();
+        frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
     }
+    if (m_pDecoder->isVideoSeekDone()) {
+        m_MsgQ.clear();
+        VideoMsgPtr pMsg(new VideoMsg());
+        float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
+        pMsg->setSeekDone(videoFrameTime);
+        m_MsgQ.push(pMsg);
+    }
+    if (m_pDecoder->isEOF(SS_VIDEO)) {
+        VideoMsgPtr pMsg(new VideoMsg());
+        pMsg->setEOF();
+        m_MsgQ.push(pMsg);
+    } else {
+        ScopeTimer timer(PushMsgProfilingZone);
+        AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
+        VideoMsgPtr pMsg(new VideoMsg());
+        if (usesVDPAU) {
+            pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
+        } else {
+            pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+        }
+        m_MsgQ.push(pMsg);
+        msleep(0);
+    }
+    ThreadProfiler::get()->reset();
     return true;
-}
-
-void VideoDecoderThread::seek(float destTime)
-{
-    m_MsgQ.clear();
-    m_pDecoder->seek(destTime);
 }
 
 void VideoDecoderThread::setFPS(float fps)

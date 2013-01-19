@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "FFMpegDecoder.h"
+#include "AsyncDemuxer.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
 #include "VideoMsg.h"
@@ -71,8 +72,6 @@ public:
 private:
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
-    void checkSeekDone();
-    void waitForSeekDone();
     bool handleVSeekMsg(VideoMsgPtr pMsg);
     void handleAudioMsg(AudioMsgPtr pMsg);
     void returnFrame(VideoMsgPtr pFrameMsg);
@@ -81,6 +80,8 @@ private:
     FFMpegDecoderPtr m_pSyncDecoder;
     std::string m_sFilename;
     int m_QueueLength;
+
+    AsyncDemuxer* m_pDemuxer;
 
     boost::thread* m_pVDecoderThread;
     VideoDecoderThread::CQueuePtr m_pVCmdQ;
@@ -101,7 +102,6 @@ private:
     bool m_bAudioEOF;
     bool m_bVideoEOF;
     bool m_bASeekPending;
-    bool m_bVSeekPending;
 
     float m_LastVideoFrameTime;
     float m_LastAudioFrameTime;

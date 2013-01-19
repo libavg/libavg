@@ -311,7 +311,6 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
     }
     
     m_State = DECODING;
-    m_SeekTime = -1;
 }
 
 void FFMpegDecoder::close() 
@@ -379,14 +378,13 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
 void FFMpegDecoder::seek(float destTime) 
 {
     AVG_ASSERT(m_State == DECODING);
-    AVG_ASSERT(m_pVStream);
+    AVG_ASSERT(!m_bThreadedDemuxer);
+
     if (m_bFirstPacket) {
         AVFrame frame;
         readFrame(frame);
     }
     m_pDemuxer->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
-    m_SeekTime = destTime;
-    m_bVideoEOF = false;
 }
 
 void FFMpegDecoder::loop()
@@ -589,6 +587,7 @@ int FFMpegDecoder::getAStreamIndex() const
 
 IDemuxer* FFMpegDecoder::getDemuxer() const
 {
+    AVG_ASSERT(m_pDemuxer);
     return m_pDemuxer;
 }
 
@@ -767,7 +766,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
 //            << endl;
     AVG_ASSERT(timeWanted != -1);
     float timePerFrame = 1.0f/m_FPS;
-    if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame && m_SeekTime == -1) {
+    if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) {
 //        cerr << "DISPLAY AGAIN." << endl;
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
@@ -806,13 +805,15 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
     float frameTime = -1;
-    while (!bGotPicture && !m_bVideoEOF) {
+    bool bDone = false;
+    while (!bGotPicture && !bDone) {
         float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex);
         if (seekTime != -1) {
-            m_LastVideoFrameTime = m_SeekTime-1.0f/m_FPS;
-            m_SeekTime = -1;
-            m_bVideoSeekDone = true;
+            cerr << "  FFMpegDecoder::isSeekDone: true" << endl;
+            m_LastVideoFrameTime = -1.0f;
             avcodec_flush_buffers(pContext);
+            m_bVideoSeekDone = true;
+            m_bVideoEOF = false;
         }
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
@@ -852,6 +853,9 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             // calculate it based on the frame before.
             frameTime = m_LastVideoFrameTime+1.0f/m_FPS;
             m_LastVideoFrameTime = frameTime;
+        }
+        if (m_bVideoEOF) {
+            bDone = true;
         }
     }
     AVG_ASSERT(frameTime != -1)

@@ -105,12 +105,24 @@ void VideoDemuxerThread::deinit()
 
 void VideoDemuxerThread::seek(float destTime)
 {
+    cerr << "    VideoDemuxerThread::seek" << endl;
     map<int, VideoMsgQueuePtr>::iterator it;
     m_pDemuxer->seek(destTime);
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-        VideoMsgQueuePtr pPacketQ = it->second;
 //        cerr << "    ---- VideoDemuxerThread::seek: Q " << it->first << endl;
-        VideoMsgPtr pMsg(new VideoMsg);
+        VideoMsgQueuePtr pPacketQ = it->second;
+        VideoMsgPtr pMsg;
+        // Clear Queue
+        do {
+            pMsg = pPacketQ->pop(false);
+            if (pMsg) {
+                pMsg->freePacket();
+            }
+        } while (pMsg);
+
+        // send SEEK_DONE
+        cerr << "    VideoDemuxerThread::send SEEK_DONE" << endl;
+        pMsg = VideoMsgPtr(new VideoMsg);
         pMsg->setSeekDone(destTime);
         pPacketQ->push(pMsg);
         m_PacketQbEOF[it->first] = false;

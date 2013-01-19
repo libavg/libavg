@@ -496,11 +496,11 @@ public:
     VideoTestSuite() 
         : TestSuite("VideoTestSuite")
     {
-        addAudioTests();
+//        addAudioTests();
         addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
         if (VDPAUDecoder::isAvailable()) {
-            addVideoTests(true);
+//            addVideoTests(true);
         } else {
             cerr << "Skipping VDPAU tests: VDPAU configured but not available." << endl;
         }
@@ -520,7 +520,7 @@ private:
         addTest(TestPtr(new VideoDecoderTest(false, bUseHardwareAcceleration)));
         addTest(TestPtr(new VideoDecoderTest(true, bUseHardwareAcceleration)));
 
-        addTest(TestPtr(new AVDecoderTest(bUseHardwareAcceleration)));
+//        addTest(TestPtr(new AVDecoderTest(bUseHardwareAcceleration)));
     }
 };
 
