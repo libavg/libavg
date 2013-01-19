@@ -113,7 +113,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool m_bVideoSeekDone;
 
         int m_AStreamIndex;
-        AudioParams m_AP;
 
         float readFrame(AVFrame& frame);
 

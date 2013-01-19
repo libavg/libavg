@@ -272,9 +272,7 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
         m_PF = calcPixelFormat(bDeliverYCbCr);
     }
     bool bAudioEnabled = (pAP && m_bThreadedDemuxer);
-    if (bAudioEnabled) {
-        m_AP = *pAP;
-    } else {
+    if (!bAudioEnabled) {
         m_AStreamIndex = -1;
         if (m_pAStream) {
             avcodec_close(m_pAStream->codec);
@@ -283,7 +281,7 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
     }
 
     if (m_AStreamIndex >= 0) {
-        if (m_pAStream->codec->channels > m_AP.m_Channels) {
+        if (m_pAStream->codec->channels > pAP->m_Channels) {
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     m_sFilename + ": unsupported number of audio channels (" + 
                             toString(m_pAStream->codec->channels) + ").");
