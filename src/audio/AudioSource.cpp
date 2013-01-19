@@ -34,7 +34,9 @@ AudioSource::AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, int sample
       m_StatusQ(statusQ),
       m_SampleRate(sampleRate),
       m_bPaused(false),
-      m_bSeeking(false)
+      m_bSeeking(false),
+      m_Volume(1.0),
+      m_LastVolume(1.0)
 {
 }
 
@@ -58,6 +60,11 @@ void AudioSource::notifySeek()
         processNextMsg(true);
     }
     m_bSeeking = true;
+}
+    
+void AudioSource::setVolume(float volume)
+{
+    m_Volume = volume;
 }
 
 void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
@@ -98,6 +105,9 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
                 }
             }
         }
+        pBuffer->volumize(m_LastVolume, m_Volume);
+        m_LastVolume = m_Volume;
+
         AudioMsgPtr pStatusMsg(new AudioMsg);
         pStatusMsg->setAudioTime(m_LastTime);
         m_StatusQ.push(pStatusMsg);

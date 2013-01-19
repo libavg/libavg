@@ -40,6 +40,7 @@ public:
     void pause();
     void play();
     void notifySeek();
+    void setVolume(float volume);
 
     void fillAudioBuffer(AudioBufferPtr pBuffer);
 
@@ -54,6 +55,8 @@ private:
     int m_CurInputAudioPos;
     bool m_bPaused;
     bool m_bSeeking;
+    float m_Volume;
+    float m_LastVolume;
 };
 
 typedef boost::shared_ptr<AudioSource> AudioSourcePtr;

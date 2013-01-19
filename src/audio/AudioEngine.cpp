@@ -200,6 +200,15 @@ void AudioEngine::notifySeek(int id)
     pSource->notifySeek();
 }
 
+void AudioEngine::setSourceVolume(int id, float volume)
+{
+    mutex::scoped_lock lock(m_Mutex);
+    AudioSourceMap::iterator itSource = m_AudioSources.find(id);
+    AVG_ASSERT(itSource != m_AudioSources.end());
+    AudioSourcePtr pSource = itSource->second;
+    pSource->setVolume(volume);
+}
+
 void AudioEngine::setVolume(float volume)
 {
     SDL_LockAudio();

@@ -54,7 +54,6 @@ AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLen
       m_bVideoEOF(false),
       m_bASeekPending(false),
       m_bVSeekPending(false),
-      m_Volume(1.0),
       m_LastVideoFrameTime(-1),
       m_LastAudioFrameTime(-1)
 {
@@ -106,7 +105,6 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_pAStatusQ = AudioMsgQueuePtr(new AudioMsgQueue(AUDIO_STATUS_QUEUE_LENGTH));
         m_pADecoderThread = new boost::thread(
                  AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder, *pAP));
-        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::setVolume, _1, m_Volume));
         m_LastAudioFrameTime = 0;
     }
     m_State = DECODING;
@@ -236,20 +234,6 @@ void AsyncVideoDecoder::setFPS(float fps)
     m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::setFPS, _1, fps));
     if (fps != 0) {
         m_VideoInfo.m_FPS = fps;
-    }
-}
-
-float AsyncVideoDecoder::getVolume() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return m_Volume;
-}
-
-void AsyncVideoDecoder::setVolume(float volume)
-{
-    m_Volume = volume;
-    if (m_State != CLOSED && m_VideoInfo.m_bHasAudio && m_pACmdQ) {
-        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::setVolume, _1, volume));
     }
 }
 

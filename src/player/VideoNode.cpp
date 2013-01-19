@@ -346,14 +346,14 @@ float VideoNode::getVolume()
     return m_Volume;
 }
 
-void VideoNode::setVolume(float Volume)
+void VideoNode::setVolume(float volume)
 {
-    if (Volume < 0) {
-        Volume = 0;
+    if (volume < 0) {
+        volume = 0;
     }
-    m_Volume = Volume;
-    if (m_VideoState != Unloaded && hasAudio()) {
-        dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->setVolume(Volume);
+    m_Volume = volume;
+    if (m_AudioID != -1) {
+        AudioEngine::get()->setSourceVolume(m_AudioID, volume);
     }
 }
 
@@ -458,9 +458,6 @@ void VideoNode::open()
     m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration, 
             m_bEnableSound);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
-    if (videoInfo.m_bHasAudio) {
-        dynamic_cast<AsyncVideoDecoder*>(m_pDecoder)->setVolume(m_Volume);
-    }
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
@@ -499,6 +496,7 @@ void VideoNode::startDecoding()
                 dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
         m_AudioID = pAudioEngine->addSource(*pAsyncDecoder->getAudioMsgQ(), 
                 *pAsyncDecoder->getAudioStatusQ());
+        pAudioEngine->setSourceVolume(m_AudioID, m_Volume);
     }
     m_bSeekPending = true;
     
@@ -552,6 +550,7 @@ void VideoNode::close()
     AudioEngine* pAudioEngine = AudioEngine::get();
     if (m_AudioID != -1) {
         pAudioEngine->removeSource(m_AudioID);
+        m_AudioID = -1;
     }
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {

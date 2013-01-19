@@ -64,6 +64,7 @@ class AVG_API AudioEngine
         void pauseSource(int id);
         void playSource(int id);
         void notifySeek(int id);
+        void setSourceVolume(int id, float volume);
 
         void setVolume(float volume);
         float getVolume() const;

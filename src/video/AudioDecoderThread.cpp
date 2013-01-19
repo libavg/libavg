@@ -41,8 +41,6 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
       m_MsgQ(msgQ),
       m_AP(ap),
       m_pAudioResampleContext(0),
-      m_Volume(1.0),
-      m_LastVolume(1.0),
       m_bEOF(false)
 {
 //    cerr << "        AudioDecoderThread" << endl;
@@ -106,11 +104,6 @@ void AudioDecoderThread::seek(float destTime)
 {
 //    cerr << "  AudioDecoderThread::seek" << endl;
     m_pDemuxer->seek(destTime + m_AudioStartTimestamp);
-}
-
-void AudioDecoderThread::setVolume(float volume)
-{
-    m_Volume = volume;
 }
 
 AudioBufferPtr AudioDecoderThread::getAudioBuffer()
@@ -178,8 +171,6 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer()
     }
     m_LastFrameTime += float(pBuffer->getNumFrames())/m_AP.m_SampleRate;
 //    cerr << "                  Decoder time: " << m_LastFrameTime << endl;
-    pBuffer->volumize(m_LastVolume, m_Volume);
-    m_LastVolume = m_Volume;
 //    cerr << "                AudioDecoderThread::getAudioBuffer() end" << endl;
     av_free(pDecodedData);
     return pBuffer;

@@ -71,8 +71,6 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         AVPacket * m_pTempAudioPacket;
         int m_EffectiveSampleRate;
         ReSampleContext * m_pAudioResampleContext;
-        float m_Volume;
-        float m_LastVolume;
         float m_AudioStartTimestamp;
         float m_LastFrameTime;
         bool m_bEOF;

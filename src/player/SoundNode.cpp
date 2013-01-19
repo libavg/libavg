@@ -215,8 +215,8 @@ void SoundNode::setVolume(float volume)
         volume = 0;
     }
     m_Volume = volume;
-    if (m_pDecoder) {
-        m_pDecoder->setVolume(volume);
+    if (m_AudioID != -1) {
+        AudioEngine::get()->setSourceVolume(m_AudioID, volume);
     }
 }
 
@@ -295,7 +295,6 @@ void SoundNode::seek(long long destTime)
 
 void SoundNode::open()
 {
-    m_pDecoder->setVolume(m_Volume);
     m_pDecoder->open(m_Filename, true, false, true);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {
@@ -311,6 +310,7 @@ void SoundNode::startDecoding()
     m_pDecoder->startDecoding(false, pEngine->getParams());
     m_AudioID = pEngine->addSource(*m_pDecoder->getAudioMsgQ(), 
             *m_pDecoder->getAudioStatusQ());
+    pEngine->setSourceVolume(m_AudioID, m_Volume);
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
@@ -321,6 +321,7 @@ void SoundNode::close()
 {
     if (m_AudioID != -1) {
         AudioEngine::get()->removeSource(m_AudioID);
+        m_AudioID = -1;
     }
     m_pDecoder->close();
 }

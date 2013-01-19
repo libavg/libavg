@@ -57,8 +57,6 @@ public:
     virtual float getNominalFPS() const;
     virtual float getFPS() const;
     virtual void setFPS(float fps);
-    virtual float getVolume() const;
-    virtual void setVolume(float volume);
     virtual PixelFormat getPixelFormat() const;
 
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
@@ -104,7 +102,6 @@ private:
     bool m_bVideoEOF;
     bool m_bASeekPending;
     bool m_bVSeekPending;
-    float m_Volume;
 
     float m_LastVideoFrameTime;
     float m_LastAudioFrameTime;

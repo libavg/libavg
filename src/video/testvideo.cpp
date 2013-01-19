@@ -328,8 +328,6 @@ class AudioDecoderTest: public DecoderTest {
                     pDecoder->open(getMediaLoc(sFilename), 
                             isDemuxerThreaded(), useHardwareAcceleration(), true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
-                    pDecoder->setVolume(0.5);
-                    TEST(pDecoder->getVolume() == 0.5);
                     pDecoder->startDecoding(false, getAudioParams());
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
                     AudioMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
