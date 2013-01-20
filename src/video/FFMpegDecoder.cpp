@@ -501,42 +501,42 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
         cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
         return FA_CLOSED;
-    }
-    if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
-        if (pixelFormatIsPlanar(m_PF)) {
+    } else {
+        if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
+            if (pixelFormatIsPlanar(m_PF)) {
 #ifdef AVG_ENABLE_VDPAU
-            if (usesVDPAU()) {
-                ScopeTimer timer(VDPAUCopyProfilingZone);
-                vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
-                getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
-            } else {
+                if (usesVDPAU()) {
+                    ScopeTimer timer(VDPAUCopyProfilingZone);
+                    vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
+                    getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
+                } else {
+                    ScopeTimer timer(CopyImageProfilingZone);
+                    for (unsigned i = 0; i < pBmps.size(); ++i) {
+                        copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
+                    }
+                }
+#else 
                 ScopeTimer timer(CopyImageProfilingZone);
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
                     copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
                 }
-            }
-#else 
-            ScopeTimer timer(CopyImageProfilingZone);
-            for (unsigned i = 0; i < pBmps.size(); ++i) {
-                copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
-            }
 #endif
-        } else {
-#ifdef AVG_ENABLE_VDPAU
-            if (usesVDPAU()) {
-                ScopeTimer timer(VDPAUCopyProfilingZone);
-                vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
-                getBitmapFromVDPAU(pRenderState, pBmps[0]);
             } else {
-                convertFrameToBmp(frame, pBmps[0]);
-            }
+#ifdef AVG_ENABLE_VDPAU
+                if (usesVDPAU()) {
+                    ScopeTimer timer(VDPAUCopyProfilingZone);
+                    vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
+                    getBitmapFromVDPAU(pRenderState, pBmps[0]);
+                } else {
+                    convertFrameToBmp(frame, pBmps[0]);
+                }
 #else 
-            convertFrameToBmp(frame, pBmps[0]);
+                convertFrameToBmp(frame, pBmps[0]);
 #endif
+            }
+            return FA_NEW_FRAME;
         }
-        return FA_NEW_FRAME;
     }
-
     // TODO: clean this up.
     return FA_USE_LAST_FRAME;
 }
@@ -550,16 +550,22 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
     AVFrame frame;
     FrameAvailableCode frameAvailable;
     readFrame(frame);
-    frameAvailable = FA_NEW_FRAME;
-    if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
-        if (usesVDPAU()) {
-            ScopeTimer timer(VDPAUCopyProfilingZone);
-            vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-            *ppRenderState = pRenderState;
+    AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
+    if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
+        cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
+        return FA_CLOSED;
+    } else {
+        frameAvailable = FA_NEW_FRAME;
+        if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
+            if (usesVDPAU()) {
+                ScopeTimer timer(VDPAUCopyProfilingZone);
+                vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+                *ppRenderState = pRenderState;
+            }
+            return FA_NEW_FRAME;
         }
-        return FA_NEW_FRAME;
+        return FA_USE_LAST_FRAME;
     }
-    return FA_USE_LAST_FRAME;
 }
 #endif
 

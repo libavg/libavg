@@ -500,7 +500,7 @@ public:
         addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
         if (VDPAUDecoder::isAvailable()) {
-//            addVideoTests(true);
+            addVideoTests(true);
         } else {
             cerr << "Skipping VDPAU tests: VDPAU configured but not available." << endl;
         }
