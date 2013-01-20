@@ -486,6 +486,7 @@ static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
         float timeWanted)
 {
+    cerr << "FFMpegDecoder::renderToBmps " << timeWanted << endl;
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
     AVFrame frame;
@@ -495,6 +496,11 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         frameAvailable = FA_NEW_FRAME;
     } else {
         frameAvailable = readFrameForTime(frame, timeWanted);
+    }
+    AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
+    if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
+        cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
+        return FA_CLOSED;
     }
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
@@ -530,6 +536,8 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         }
         return FA_NEW_FRAME;
     }
+
+    // TODO: clean this up.
     return FA_USE_LAST_FRAME;
 }
 
@@ -766,6 +774,7 @@ int FFMpegDecoder::getNumFrames() const
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
+    cerr << "  FFMpegDecoder::readFrameForTime" << endl;
     AVG_ASSERT(m_State == DECODING);
 //    cerr << "        readFrameForTime " << timeWanted << ", LastFrameTime= " 
 //            << m_LastVideoFrameTime << ", diff= " << m_LastVideoFrameTime-timeWanted 

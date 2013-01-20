@@ -46,10 +46,11 @@ class AVG_API VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
         void deinit();
 
         void seek(int seqNum, float DestTime);
+        void close();
 
     private:
         void onStreamEOF(int streamIndex);
-       
+        void clearQueue(VideoMsgQueuePtr pPacketQ);
         std::map<int, VideoMsgQueuePtr> m_PacketQs;
         std::map<int, bool> m_PacketQbEOF;
         bool m_bEOF;

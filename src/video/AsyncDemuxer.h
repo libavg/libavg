@@ -42,8 +42,10 @@ namespace avg {
            
             AVPacket * getPacket(int streamIndex);
             float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
+            bool isClosed(int streamIndex);
             void seek(int seqNum, float destTime);
-            
+            void close();
+
             VideoDemuxerThread::CQueuePtr getCmdQ();
 
         private:
@@ -55,6 +57,7 @@ namespace avg {
             VideoDemuxerThread::CQueuePtr m_pCmdQ;
             std::map<int, VideoMsgQueuePtr> m_PacketQs;
             std::map<int, VideoMsgPtr> m_pCurMsgs;
+            std::map<int, bool> m_bStreamClosed;
 
             AVFormatContext * m_pFormatContext;
     };

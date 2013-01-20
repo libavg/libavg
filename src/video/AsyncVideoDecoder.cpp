@@ -111,19 +111,18 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
 void AsyncVideoDecoder::close()
 {
     AVG_ASSERT(m_State != CLOSED);
+
+//    m_pVMsgQ->clear();
+    m_pDemuxer->close();
+
     if (m_pVDecoderThread) {
-        m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::stop, _1));
-        // Empty the queue to make sure the decoder thread isn't hung on a full queue.
-        VideoMsgPtr pMsg;
-        do {
-            pMsg = getNextBmps(false);
-        } while(pMsg);
         m_pVDecoderThread->join();
         delete m_pVDecoderThread;
         m_pVDecoderThread = 0;
         m_pVMsgQ = VideoMsgQueuePtr();
     }
     if (m_pADecoderThread) {
+        AVG_ASSERT(false);
         m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::stop, _1));
         m_pAMsgQ->clear();
         m_pAStatusQ->clear();

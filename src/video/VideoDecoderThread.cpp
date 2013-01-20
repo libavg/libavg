@@ -80,28 +80,32 @@ bool VideoDecoderThread::work()
         }
         frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
     }
-    if (m_pDecoder->isVideoSeekDone()) {
-        m_MsgQ.clear();
-        VideoMsgPtr pMsg(new VideoMsg());
-        float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
-        pMsg->setSeekDone(m_pDecoder->getSeekSeqNum(), videoFrameTime);
-        m_MsgQ.push(pMsg);
-    }
-    if (m_pDecoder->isEOF(SS_VIDEO)) {
-        VideoMsgPtr pMsg(new VideoMsg());
-        pMsg->setEOF();
-        m_MsgQ.push(pMsg);
+    if (frameAvailable == FA_CLOSED) {
+        close();
     } else {
-        ScopeTimer timer(PushMsgProfilingZone);
-        AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
-        VideoMsgPtr pMsg(new VideoMsg());
-        if (usesVDPAU) {
-            pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
-        } else {
-            pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+        if (m_pDecoder->isVideoSeekDone()) {
+            m_MsgQ.clear();
+            VideoMsgPtr pMsg(new VideoMsg());
+            float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
+            pMsg->setSeekDone(m_pDecoder->getSeekSeqNum(), videoFrameTime);
+            m_MsgQ.push(pMsg);
         }
-        m_MsgQ.push(pMsg);
-        msleep(0);
+        if (m_pDecoder->isEOF(SS_VIDEO)) {
+            VideoMsgPtr pMsg(new VideoMsg());
+            pMsg->setEOF();
+            m_MsgQ.push(pMsg);
+        } else {
+            ScopeTimer timer(PushMsgProfilingZone);
+            AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
+            VideoMsgPtr pMsg(new VideoMsg());
+            if (usesVDPAU) {
+                pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
+            } else {
+                pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+            }
+            m_MsgQ.push(pMsg);
+            msleep(0);
+        }
     }
     ThreadProfiler::get()->reset();
     return true;
@@ -123,6 +127,12 @@ void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
             m_pBmpQ->push(pMsg->getFrameBitmap(3));
         }
     }
+}
+        
+void VideoDecoderThread::close()
+{
+    m_MsgQ.clear();
+    stop();
 }
 
 BitmapPtr VideoDecoderThread::getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 

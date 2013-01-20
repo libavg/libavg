@@ -112,25 +112,34 @@ void VideoDemuxerThread::seek(int seqNum, float destTime)
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
 //        cerr << "    ---- VideoDemuxerThread::seek: Q " << it->first << endl;
         VideoMsgQueuePtr pPacketQ = it->second;
-        VideoMsgPtr pMsg;
-        // Clear Queue
-        do {
-            pMsg = pPacketQ->pop(false);
-            if (pMsg) {
-                pMsg->freePacket();
-            }
-        } while (pMsg);
+        clearQueue(pPacketQ);
 
         // send SEEK_DONE
         cerr << "    VideoDemuxerThread::send SEEK_DONE" << endl;
-        pMsg = VideoMsgPtr(new VideoMsg);
+        VideoMsgPtr pMsg(new VideoMsg);
         pMsg->setSeekDone(seqNum, destTime);
         pPacketQ->push(pMsg);
         m_PacketQbEOF[it->first] = false;
     }
     m_bEOF = false;
 }
+       
+void VideoDemuxerThread::close()
+{
+    cerr << "    VideoDemuxerThread::close" << endl;
+    map<int, VideoMsgQueuePtr>::iterator it;
+    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        VideoMsgQueuePtr pPacketQ = it->second;
+        clearQueue(pPacketQ);
 
+        VideoMsgPtr pMsg(new VideoMsg);
+        pMsg->setClosed();
+        pPacketQ->push(pMsg);
+        m_PacketQbEOF[it->first] = false;
+    }
+    stop();
+}
+        
 void VideoDemuxerThread::onStreamEOF(int streamIndex)
 {
     m_PacketQbEOF[streamIndex] = true;
@@ -143,6 +152,17 @@ void VideoDemuxerThread::onStreamEOF(int streamIndex)
             break;
         }
     }
+}
+        
+void VideoDemuxerThread::clearQueue(VideoMsgQueuePtr pPacketQ)
+{
+    VideoMsgPtr pMsg;
+    do {
+        pMsg = pPacketQ->pop(false);
+        if (pMsg) {
+            pMsg->freePacket();
+        }
+    } while (pMsg);
 }
 
 }

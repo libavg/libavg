@@ -51,6 +51,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         void returnFrame(VideoMsgPtr pMsg);
 
     private:
+        void close();
         BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 
                 PixelFormat pf);
         VideoMsgQueue& m_MsgQ;

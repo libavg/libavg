@@ -72,6 +72,11 @@ void AudioMsg::setSeekDone(int seqNum, float seekTime)
     m_SeekSeqNum = seqNum;
     m_SeekTime = seekTime;
 }
+    
+void AudioMsg::setClosed()
+{
+    setType(CLOSED);
+}
 
 AudioMsg::MsgType AudioMsg::getType()
 {
