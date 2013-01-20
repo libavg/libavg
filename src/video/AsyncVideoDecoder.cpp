@@ -113,11 +113,11 @@ void AsyncVideoDecoder::close()
     AVG_ASSERT(m_State != CLOSED);
 
     if (m_pDemuxer) {
-//        m_pVMsgQ->clear();
         m_pDemuxer->close();
     }
 
     if (m_pVDecoderThread) {
+        m_pVMsgQ->clear();
         m_pVDecoderThread->join();
         delete m_pVDecoderThread;
         m_pVDecoderThread = 0;

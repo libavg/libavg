@@ -96,6 +96,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
             m_bStreamClosed[streamIndex] = true;
             return 0;
         default:
+            pMsg->dump();
             AVG_ASSERT(false);
             return 0;
     }
@@ -106,13 +107,18 @@ float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
 {
     m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(bWait);
     if (m_pCurMsgs[streamIndex] &&
-        m_pCurMsgs[streamIndex]->getType() == VideoMsg::SEEK_DONE)
+            m_pCurMsgs[streamIndex]->getType() == VideoMsg::SEEK_DONE)
     {
-        cerr << "  AsyncDemuxer::isSeekDone: true" << endl;
-        float seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
-        seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
- 
-        m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(true);
+        float seekTime = -1;
+        while (m_pCurMsgs[streamIndex] &&
+                m_pCurMsgs[streamIndex]->getType() == VideoMsg::SEEK_DONE)
+        {
+            cerr << "  AsyncDemuxer::isSeekDone: true" << endl;
+            seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
+            seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
+     
+            m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(bWait);
+        }
         return seekTime;
     } else {
         return -1;
