@@ -384,6 +384,7 @@ void FFMpegDecoder::seek(float destTime)
         AVFrame frame;
         readFrame(frame);
     }
+    cerr << "seek: " << destTime << ", " << m_VideoStartTimestamp << ", " << m_TimeUnitsPerSecond << endl;
     dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)
             ->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
     m_bVideoSeekDone = true;
@@ -497,7 +498,8 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     } else {
         frameAvailable = readFrameForTime(frame, timeWanted);
     }
-    cerr << "FFMpegDecoder::renderToBmps " << timeWanted << "-->" << frameAvailable << endl;
+    cerr << "FFMpegDecoder::renderToBmps " << timeWanted << "-->" << getCurTime() << ", "
+            << frameAvailable << endl;
     AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
     if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
         cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
@@ -791,7 +793,6 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
     bool bSyncSeekDone = false;
     if (!m_bThreadedDemuxer && m_bVideoSeekDone) {
         bSyncSeekDone = true;
-        m_bVideoSeekDone = false;
     }
     if (!bSyncSeekDone && timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) 
     {
@@ -809,10 +810,13 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
                 unlockVDPAUSurface(pRenderState);
             }
 #endif
-//            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
-//                    frameTime-timeWanted <<  endl;
+            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
+                    frameTime-timeWanted <<  endl;
         }
-//        cerr << "NEW FRAME." << endl;
+        cerr << "NEW FRAME." << endl;
+    }
+    if (!m_bThreadedDemuxer && m_bVideoSeekDone) {
+        m_bVideoSeekDone = false;
     }
     return FA_NEW_FRAME;
 }
@@ -908,7 +912,7 @@ float FFMpegDecoder::getFrameTime(long long dts)
         m_VideoStartTimestamp = dts;
     }
     float frameTime;
-    if (m_bUseStreamFPS) {
+    if (m_bUseStreamFPS || m_bVideoSeekDone) {
         frameTime = float(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
     } else {
         if (m_LastVideoFrameTime == -1) {

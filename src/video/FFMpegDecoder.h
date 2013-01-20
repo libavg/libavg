@@ -131,7 +131,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         float m_LastVideoFrameTime;
 
         float m_FPS;
-        float m_StreamTimeOffset;
 
         static bool s_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously
