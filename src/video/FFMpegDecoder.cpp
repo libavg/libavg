@@ -386,6 +386,7 @@ void FFMpegDecoder::seek(float destTime)
     }
     dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)
             ->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
+    m_bVideoSeekDone = true;
 }
 
 void FFMpegDecoder::loop()
@@ -486,7 +487,6 @@ static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
         float timeWanted)
 {
-    cerr << "FFMpegDecoder::renderToBmps " << timeWanted << endl;
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
     AVFrame frame;
@@ -497,6 +497,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     } else {
         frameAvailable = readFrameForTime(frame, timeWanted);
     }
+    cerr << "FFMpegDecoder::renderToBmps " << timeWanted << "-->" << frameAvailable << endl;
     AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
     if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
         cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
@@ -787,7 +788,13 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
 //            << endl;
     AVG_ASSERT(timeWanted != -1);
     float timePerFrame = 1.0f/m_FPS;
-    if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) {
+    bool bSyncSeekDone = false;
+    if (!m_bThreadedDemuxer && m_bVideoSeekDone) {
+        bSyncSeekDone = true;
+        m_bVideoSeekDone = false;
+    }
+    if (!bSyncSeekDone && timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) 
+    {
 //        cerr << "DISPLAY AGAIN." << endl;
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
