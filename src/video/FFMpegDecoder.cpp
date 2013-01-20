@@ -388,6 +388,7 @@ void FFMpegDecoder::seek(float destTime)
     dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)
             ->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
     m_bVideoSeekDone = true;
+    m_bVideoEOF = false;
 }
 
 void FFMpegDecoder::loop()
