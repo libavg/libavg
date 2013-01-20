@@ -127,7 +127,6 @@ float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
 
 bool AsyncDemuxer::isClosed(int streamIndex)
 {
-    cerr << "  AsyncDemuxer::isClosed: " << m_bStreamClosed[streamIndex] << endl;
     return m_bStreamClosed[streamIndex];
 }
 

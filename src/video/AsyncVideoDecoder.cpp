@@ -71,6 +71,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer
     m_NumVSeeksDone = 0;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
+    m_bWasSeeking = false;
     m_bASeekPending = false;
     m_sFilename = sFilename;
 
@@ -317,18 +318,24 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
         cerr << "Illegal timeWanted: " << timeWanted << endl;
         AVG_ASSERT(false);
     }
-    // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
-    float frameTime = -1;
     VideoMsgPtr pFrameMsg;
     float timePerFrame = 1.0f/getFPS();
-    if ((fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
-             m_LastVideoFrameTime > timeWanted+timePerFrame ||
-             m_bVideoEOF)) 
+
+    checkForSeekDone();
+    bool bSeekDone = (!isSeeking() && m_bWasSeeking);
+    m_bWasSeeking = isSeeking();
+
+    if ((!bSeekDone &&
+            (isSeeking() ||
+             fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
+             m_LastVideoFrameTime > timeWanted+timePerFrame)) ||
+         m_bVideoEOF) 
     {
         // The last frame is still current. Display it again.
         frameAvailable = FA_USE_LAST_FRAME;
         return VideoMsgPtr();
     } else {
+        float frameTime = -1;
         while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
             if (pFrameMsg) {
                 if (pFrameMsg->getType() == VideoMsg::FRAME) {
@@ -399,6 +406,19 @@ void AsyncVideoDecoder::waitForSeekDone()
     }
 }
 
+void AsyncVideoDecoder::checkForSeekDone()
+{
+    if (isSeeking()) {
+        VideoMsgPtr pMsg;
+        do {
+            pMsg = m_pVMsgQ->pop(false);
+            if (pMsg) {
+                handleVSeekMsg(pMsg);
+            }
+        } while (pMsg && isSeeking());
+    }
+}
+
 void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
 {
     switch (pMsg->getType()) {
@@ -416,6 +436,7 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
             break;
         case VideoMsg::END_OF_FILE:
             m_NumVSeeksDone = m_NumSeeksSent;
+            m_bVideoEOF = true;
             break;
         default:
             // TODO: Handle ERROR messages here.

@@ -73,6 +73,7 @@ private:
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
     void waitForSeekDone();
+    void checkForSeekDone();
     void handleVSeekMsg(VideoMsgPtr pMsg);
     void handleAudioMsg(AudioMsgPtr pMsg);
     void returnFrame(VideoMsgPtr pFrameMsg);
@@ -103,6 +104,7 @@ private:
     
     int m_NumSeeksSent;
     int m_NumVSeeksDone;
+    bool m_bWasSeeking;
 
     bool m_bAudioEOF;
     bool m_bVideoEOF;

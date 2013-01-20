@@ -499,8 +499,6 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     } else {
         frameAvailable = readFrameForTime(frame, timeWanted);
     }
-    cerr << "FFMpegDecoder::renderToBmps " << timeWanted << "-->" << getCurTime() << ", "
-            << frameAvailable << endl;
     AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
     if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
         cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
