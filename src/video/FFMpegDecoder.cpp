@@ -69,7 +69,6 @@ FFMpegDecoder::FFMpegDecoder()
 #endif
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
-      m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
       m_FPS(0)
 {
@@ -154,7 +153,6 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
     m_bThreadedDemuxer = bThreadedDemuxer;
     m_bVideoEOF = false;
     m_bEOFPending = false;
-    m_VideoStartTimestamp = -1;
     int err;
     m_sFilename = sFilename;
 
@@ -384,9 +382,9 @@ void FFMpegDecoder::seek(float destTime)
         AVFrame frame;
         readFrame(frame);
     }
-    cerr << "seek: " << destTime << ", " << m_VideoStartTimestamp << ", " << m_TimeUnitsPerSecond << endl;
+    cerr << "seek: " << destTime << ", " << m_TimeUnitsPerSecond << endl;
     dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)
-            ->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
+            ->seek(destTime/m_TimeUnitsPerSecond);
     m_bVideoSeekDone = true;
     m_bVideoEOF = false;
 }
@@ -835,7 +833,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
     AVCodecContext* pContext = getCodecContext();
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
-    float frameTime = -1;
+    float frameTime = -32767;
     bool bDone = false;
     while (!bGotPicture && !bDone) {
         int seqNum;
@@ -891,7 +889,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             bDone = true;
         }
     }
-    AVG_ASSERT(frameTime != -1)
+    AVG_ASSERT(frameTime != -32767)
     return frameTime;
 /*
     cerr << "coded_picture_number: " << frame.coded_picture_number <<
@@ -907,15 +905,12 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
 
 float FFMpegDecoder::getFrameTime(long long dts)
 {
-    if (dts == (long long)AV_NOPTS_VALUE) {
+    if (dts == -1) {
         dts = 0;
-    }
-    if (m_VideoStartTimestamp == -1) {
-        m_VideoStartTimestamp = dts;
     }
     float frameTime;
     if (m_bUseStreamFPS || m_bVideoSeekDone) {
-        frameTime = float(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
+        frameTime = float(dts)/m_TimeUnitsPerSecond;
     } else {
         if (m_LastVideoFrameTime == -1) {
             frameTime = 0;
@@ -924,7 +919,6 @@ float FFMpegDecoder::getFrameTime(long long dts)
         }
     }
     m_LastVideoFrameTime = frameTime;
-    AVG_ASSERT(frameTime != -1);
     return frameTime;
 }
 

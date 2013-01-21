@@ -127,7 +127,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool m_bEOFPending;
         bool m_bVideoEOF;
         bool m_bFirstPacket;
-        long long m_VideoStartTimestamp;
         float m_LastVideoFrameTime;
 
         float m_FPS;
