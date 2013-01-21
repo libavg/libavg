@@ -275,7 +275,7 @@ class VideoDecoderTest: public DecoderTest {
             }
 //            cerr << "numFrames: " << numFrames << 
 //                    ", expectedNumFrames: " << expectedNumFrames << endl;
-            TEST(numFrames == expectedNumFrames);
+            TEST(abs(numFrames-expectedNumFrames) <= 1);
             if (speedFactor == 1) {
                 testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
             }
