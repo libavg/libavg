@@ -119,7 +119,7 @@ float FFMpegDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
 
 void FFMpegDemuxer::seek(float destTime)
 {
-    cerr << "    FFMpegDemuxer::seek" << endl;
+//    cerr << "    FFMpegDemuxer::seek" << endl;
 #if LIBAVFORMAT_BUILD <= 4616
     av_seek_frame(m_pFormatContext, -1, destTime*1000000);
 #else

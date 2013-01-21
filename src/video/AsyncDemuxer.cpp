@@ -92,7 +92,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 //            cerr << "END_OF_FILE" << endl;
             return 0;
         case VideoMsg::CLOSED:
-            cerr << "  AsyncDemuxer::CLOSED" << endl;
+//            cerr << "  AsyncDemuxer::CLOSED" << endl;
             m_bStreamClosed[streamIndex] = true;
             return 0;
         default:
@@ -113,7 +113,7 @@ float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
         while (m_pCurMsgs[streamIndex] &&
                 m_pCurMsgs[streamIndex]->getType() == VideoMsg::SEEK_DONE)
         {
-            cerr << "  AsyncDemuxer::isSeekDone: true" << endl;
+//            cerr << "  AsyncDemuxer::isSeekDone: true" << endl;
             seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
             seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
      
@@ -139,7 +139,7 @@ void AsyncDemuxer::seek(int seqNum, float destTime)
             
 void AsyncDemuxer::close()
 {
-    cerr << "AsyncDemuxer::close" << endl;
+//    cerr << "AsyncDemuxer::close" << endl;
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::close, _1));
     m_pDemuxThread->join();
 }

@@ -376,6 +376,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             case VideoMsg::VDPAU_FRAME:
                 return pMsg;
             case VideoMsg::END_OF_FILE:
+                cerr << "AsyncVideoDecoder::handleVSeekMsg: END_OF_FILE" << endl;
                 m_NumVSeeksDone = m_NumSeeksSent;
                 m_bVideoEOF = true;
                 return VideoMsgPtr();
@@ -435,6 +436,7 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
         case VideoMsg::VDPAU_FRAME:
             break;
         case VideoMsg::END_OF_FILE:
+            cerr << "AsyncVideoDecoder::handleVSeekMsg: END_OF_FILE" << endl;
             m_NumVSeeksDone = m_NumSeeksSent;
             m_bVideoEOF = true;
             break;

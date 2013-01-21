@@ -501,7 +501,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     }
     AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
     if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
-        cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
+//        cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
         return FA_CLOSED;
     } else {
         if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
@@ -841,7 +841,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         int seqNum;
         float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex, seqNum);
         if (seekTime != -1) {
-            cerr << "  FFMpegDecoder::isSeekDone: true" << endl;
+            cerr << "  FFMpegDecoder: isSeekDone == true" << endl;
             m_LastVideoFrameTime = -1.0f;
             m_SeekSeqNum = seqNum;
             avcodec_flush_buffers(pContext);
@@ -860,14 +860,13 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             if (len1 > 0) {
                 AVG_ASSERT(len1 == pPacket->size);
             }
-            else {
-            }
             if (bGotPicture) {
                 frameTime = getFrameTime(pPacket->dts);
             }
             av_free_packet(pPacket);
             delete pPacket;
         } else {
+            cerr << "  FFMpegDecoder: no packet" << endl;
             // No more packets -> EOF. Decode the last data we got.
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             AVPacket packet;
@@ -888,6 +887,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             m_LastVideoFrameTime = frameTime;
         }
         if (m_bVideoEOF) {
+            cerr << "  FFMpegDecoder: EOF done" << endl;
             bDone = true;
         }
     }
@@ -907,6 +907,9 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
 
 float FFMpegDecoder::getFrameTime(long long dts)
 {
+    if (dts == AV_NOPTS_VALUE) {
+        dts = 0;
+    }
     if (m_VideoStartTimestamp == -1) {
         m_VideoStartTimestamp = dts;
     }
@@ -921,6 +924,7 @@ float FFMpegDecoder::getFrameTime(long long dts)
         }
     }
     m_LastVideoFrameTime = frameTime;
+    AVG_ASSERT(frameTime != -1);
     return frameTime;
 }
 
