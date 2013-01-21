@@ -47,10 +47,10 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         virtual ~AudioDecoderThread();
         
         bool work();
-        void seek(float destTime);
         void setVolume(float volume);
 
     private:
+        void close();
         AudioBufferPtr getAudioBuffer();
         // Used from audio thread.
         AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);

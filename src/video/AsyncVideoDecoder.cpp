@@ -124,8 +124,6 @@ void AsyncVideoDecoder::close()
         m_pVMsgQ = VideoMsgQueuePtr();
     }
     if (m_pADecoderThread) {
-        AVG_ASSERT(false);
-        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::stop, _1));
         m_pAMsgQ->clear();
         m_pAStatusQ->clear();
         m_pADecoderThread->join();

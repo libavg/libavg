@@ -75,7 +75,6 @@ AudioDecoderThread::~AudioDecoderThread()
 bool AudioDecoderThread::work() 
 {
     if (m_bEOF) {
-        // replace this with waitForMessage()
         msleep(10);
         int seqNum;
         float seekTime = m_pDemuxer->isSeekDone(m_AStreamIndex, seqNum, false);
@@ -83,28 +82,37 @@ bool AudioDecoderThread::work()
             m_bEOF = false;
             handleSeekDone(seqNum, seekTime);
         }
+        AVPacket* pPacket = m_pDemuxer->getPacket(m_AStreamIndex);
+        AVG_ASSERT(!pPacket);
+        if (m_pDemuxer->isClosed(m_AStreamIndex)) {
+            close();
+        }
     } else {
         AudioBufferPtr pBuffer = getAudioBuffer();
-        if (pBuffer) {
-            pushAudioMsg(pBuffer, m_LastFrameTime);
+        if (m_pDemuxer->isClosed(m_AStreamIndex)) {
+            close();
         } else {
-            if (m_SeekTime != -1) {
-                handleSeekDone(-1, m_SeekTime);
-                m_SeekTime = -1;
+            if (pBuffer) {
+                pushAudioMsg(pBuffer, m_LastFrameTime);
             } else {
-                AVG_ASSERT(m_bEOF);
-                pushEOF();
+                if (m_SeekTime != -1) {
+                    handleSeekDone(-1, m_SeekTime);
+                    m_SeekTime = -1;
+                } else {
+                    AVG_ASSERT(m_bEOF);
+                    pushEOF();
+                }
             }
         }
-        ThreadProfiler::get()->reset();
     }
+    ThreadProfiler::get()->reset();
     return true;
 }
 
-void AudioDecoderThread::seek(float destTime)
+void AudioDecoderThread::close()
 {
-//    cerr << "  AudioDecoderThread::seek" << endl;
-    m_pDemuxer->seek(-1, destTime + m_AudioStartTimestamp);
+    m_MsgQ.clear();
+    stop();
 }
 
 AudioBufferPtr AudioDecoderThread::getAudioBuffer()

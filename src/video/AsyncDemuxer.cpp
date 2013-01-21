@@ -92,7 +92,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 //            cerr << "END_OF_FILE" << endl;
             return 0;
         case VideoMsg::CLOSED:
-//            cerr << "  AsyncDemuxer::CLOSED" << endl;
+            cerr << "  AsyncDemuxer::CLOSED" << endl;
             m_bStreamClosed[streamIndex] = true;
             return 0;
         default:
