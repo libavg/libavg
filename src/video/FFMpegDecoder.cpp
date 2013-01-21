@@ -907,7 +907,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
 
 float FFMpegDecoder::getFrameTime(long long dts)
 {
-    if (dts == AV_NOPTS_VALUE) {
+    if (dts == (long long)AV_NOPTS_VALUE) {
         dts = 0;
     }
     if (m_VideoStartTimestamp == -1) {

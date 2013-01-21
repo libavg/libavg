@@ -76,6 +76,7 @@ private:
     void checkForSeekDone();
     void handleVSeekMsg(VideoMsgPtr pMsg);
     void handleAudioMsg(AudioMsgPtr pMsg);
+    void handleSeekDone(AudioMsgPtr pMsg);
     void returnFrame(VideoMsgPtr pFrameMsg);
     bool isSeeking() const;
 
