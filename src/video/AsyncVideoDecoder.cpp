@@ -49,9 +49,7 @@ AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLen
       m_QueueLength(queueLength),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
-      m_PF(NO_PIXELFORMAT),
-      m_LastVideoFrameTime(-1),
-      m_LastAudioFrameTime(-1)
+      m_PF(NO_PIXELFORMAT)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -90,6 +88,7 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
     if (m_VideoInfo.m_bHasVideo) {
         m_LastVideoFrameTime = -1;
+        m_CurVideoFrameTime = -1;
         m_PF = m_pSyncDecoder->getPixelFormat();
         m_pVCmdQ = VideoDecoderThread::CQueuePtr(new VideoDecoderThread::CQueue);
         m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(m_QueueLength));
@@ -191,7 +190,7 @@ float AsyncVideoDecoder::getCurTime(StreamSelect stream) const
         case SS_DEFAULT:
         case SS_VIDEO:
             AVG_ASSERT(m_VideoInfo.m_bHasVideo);
-            return m_LastVideoFrameTime;
+            return m_CurVideoFrameTime;
             break;
         case SS_AUDIO:
             AVG_ASSERT(m_VideoInfo.m_bHasAudio);
@@ -248,6 +247,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
         m_LastVideoFrameTime = pFrameMsg->getFrameTime();
+        m_CurVideoFrameTime = m_LastVideoFrameTime;
         if (pFrameMsg->getType() == VideoMsg::VDPAU_FRAME) {
 #ifdef AVG_ENABLE_VDPAU
             ScopeTimer timer(VDPAUDecodeProfilingZone);

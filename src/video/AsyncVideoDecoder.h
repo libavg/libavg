@@ -112,6 +112,7 @@ private:
     bool m_bASeekPending;
 
     float m_LastVideoFrameTime;
+    float m_CurVideoFrameTime;
     float m_LastAudioFrameTime;
 
     bool m_bUsesVDPAU;
