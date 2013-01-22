@@ -81,26 +81,35 @@ AsyncDemuxer::~AsyncDemuxer()
 AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 {
 //    cerr << "  AsyncDemuxer::getPacket" << endl;
+    AVG_ASSERT(m_pCurMsgs[streamIndex]);
+    return checkPacket(streamIndex);
+}
+            
+AVPacket * AsyncDemuxer::checkPacket(int streamIndex)
+{
+//    cerr << "  AsyncDemuxer::checkPacket" << endl;
     VideoMsgPtr pMsg = m_pCurMsgs[streamIndex];
-    AVG_ASSERT(pMsg);
-    m_pCurMsgs[streamIndex] = VideoMsgPtr();
-    switch(pMsg->getType()) {
-        case VideoMsg::PACKET:
-//            cerr << "PACKET " << pMsg->getPacket() << endl;
-            return pMsg->getPacket();
-        case VideoMsg::END_OF_FILE:
-//            cerr << "END_OF_FILE" << endl;
-            return 0;
-        case VideoMsg::CLOSED:
-            cerr << "  AsyncDemuxer::CLOSED" << endl;
-            m_bStreamClosed[streamIndex] = true;
-            return 0;
-        default:
-            pMsg->dump();
-            AVG_ASSERT(false);
-            return 0;
+    if (!pMsg) {
+        return 0;
+    } else {
+        m_pCurMsgs[streamIndex] = VideoMsgPtr();
+        switch(pMsg->getType()) {
+            case VideoMsg::PACKET:
+    //            cerr << "PACKET " << pMsg->getPacket() << endl;
+                return pMsg->getPacket();
+            case VideoMsg::END_OF_FILE:
+    //            cerr << "END_OF_FILE" << endl;
+                return 0;
+            case VideoMsg::CLOSED:
+                cerr << "  AsyncDemuxer::CLOSED" << endl;
+                m_bStreamClosed[streamIndex] = true;
+                return 0;
+            default:
+                pMsg->dump();
+                AVG_ASSERT(false);
+                return 0;
+        }
     }
-
 }
             
 float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)

@@ -41,6 +41,7 @@ namespace avg {
             virtual ~AsyncDemuxer();
            
             AVPacket * getPacket(int streamIndex);
+            AVPacket * checkPacket(int streamIndex);
             float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
             bool isClosed(int streamIndex);
             void seek(int seqNum, float destTime);
