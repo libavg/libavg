@@ -82,24 +82,20 @@ bool AudioDecoderThread::work()
             m_bEOF = false;
             handleSeekDone(seqNum, seekTime);
         }
-        //XXX: We might not have a packet here -> don't get packet, just check if close.
-        AVPacket* pPacket = m_pDemuxer->checkPacket(m_AStreamIndex);
-        AVG_ASSERT(!pPacket);
         if (m_pDemuxer->isClosed(m_AStreamIndex)) {
             close();
         }
     } else {
         AudioBufferPtr pBuffer = getAudioBuffer();
-        if (m_pDemuxer->isClosed(m_AStreamIndex)) {
-            close();
+        if (pBuffer) {
+            pushAudioMsg(pBuffer, m_LastFrameTime);
         } else {
-            if (pBuffer) {
-                pushAudioMsg(pBuffer, m_LastFrameTime);
-            } else {
-                if (m_SeekTime != -1) {
-                    handleSeekDone(-1, m_SeekTime);
-                    m_SeekTime = -1;
-                }
+            if (m_SeekTime != -1) {
+                handleSeekDone(-1, m_SeekTime);
+                m_SeekTime = -1;
+            }
+            if (m_pDemuxer->isClosed(m_AStreamIndex)) {
+                close();
             }
         }
     }
@@ -109,6 +105,7 @@ bool AudioDecoderThread::work()
 
 void AudioDecoderThread::close()
 {
+    cerr << "                  AudioDecoderThread::close" << endl;
     m_MsgQ.clear();
     stop();
 }
@@ -123,15 +120,18 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer()
     int bytesDecoded = 0;
     while (bytesDecoded == 0) {
         if (!m_pCurAudioPacket) {
-//            cerr << "                  get new packet" << endl;
+//            cerr << "                  AudioDecoderThread::getAudioBuffer: get new packet "
+//                    << m_AStreamIndex << endl;
             int seqNum;
             m_SeekTime = m_pDemuxer->isSeekDone(m_AStreamIndex, seqNum);
             if (m_SeekTime != -1) {
+            cerr << "                  AudioDecoderThread::getAudioBuffer: m_SeekTime != -1" << endl;
                 av_free(pDecodedData);
                 return AudioBufferPtr();
             }
             m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
             if (!m_pCurAudioPacket) {
+                cerr << "                  AudioDecoderThread::getAudioBuffer: no packet" << endl;
                 handleNoPacketMsg();
                 av_free(pDecodedData);
                 return AudioBufferPtr();
@@ -209,7 +209,7 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(short* pDecodedData, int frames
 
 void AudioDecoderThread::handleSeekDone(int seqNum, float seekTime)
 {
-    cerr << "---- AudioDecoderThread::handleSeekDone " << seekTime << endl;
+    cerr << "                  AudioDecoderThread::handleSeekDone " << seekTime << endl;
     avcodec_flush_buffers(m_pAStream->codec);
     m_MsgQ.clear();
 

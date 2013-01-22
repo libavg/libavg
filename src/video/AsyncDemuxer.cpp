@@ -101,8 +101,6 @@ AVPacket * AsyncDemuxer::checkPacket(int streamIndex)
     //            cerr << "END_OF_FILE" << endl;
                 return 0;
             case VideoMsg::CLOSED:
-                cerr << "  AsyncDemuxer::CLOSED" << endl;
-                m_bStreamClosed[streamIndex] = true;
                 return 0;
             default:
                 pMsg->dump();
@@ -114,23 +112,32 @@ AVPacket * AsyncDemuxer::checkPacket(int streamIndex)
             
 float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
 {
-    m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(bWait);
-    if (m_pCurMsgs[streamIndex] &&
-            m_pCurMsgs[streamIndex]->getType() == VideoMsg::SEEK_DONE)
-    {
-        float seekTime = -1;
-        while (m_pCurMsgs[streamIndex] &&
-                m_pCurMsgs[streamIndex]->getType() == VideoMsg::SEEK_DONE)
-        {
-//            cerr << "  AsyncDemuxer::isSeekDone: true" << endl;
-            seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
-            seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
-     
-            m_pCurMsgs[streamIndex] = m_PacketQs[streamIndex]->pop(bWait);
-        }
-        return seekTime;
-    } else {
+    VideoMsgPtr pCurMsg = m_PacketQs[streamIndex]->pop(bWait);
+    if (!pCurMsg) {
+        cerr << "  AsyncDemuxer::isSeekDone: no msg" << streamIndex << endl;
         return -1;
+    } else {
+        m_pCurMsgs[streamIndex] = pCurMsg;
+        switch (m_pCurMsgs[streamIndex]->getType()) {
+            case VideoMsg::SEEK_DONE: {
+                cerr << "  AsyncDemuxer::isSeekDone: SEEK_DONE" << streamIndex << endl;
+                float seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
+                seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
+
+                float newSeekTime = isSeekDone(streamIndex, seqNum, bWait);
+                if (newSeekTime != -1 || m_bStreamClosed[streamIndex]) {
+                    return newSeekTime;
+                } else {
+                    return seekTime;
+                }
+            }
+            case VideoMsg::CLOSED:
+                cerr << "  AsyncDemuxer::isSeekDone: CLOSED" << streamIndex << endl;
+                m_bStreamClosed[streamIndex] = true;
+                return -1;
+            default:
+                return -1;
+        }
     }
 }
 

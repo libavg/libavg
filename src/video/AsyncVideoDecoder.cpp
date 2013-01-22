@@ -47,6 +47,7 @@ AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLen
     : m_State(CLOSED),
       m_pSyncDecoder(pSyncDecoder),
       m_QueueLength(queueLength),
+      m_pDemuxer(0),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
       m_PF(NO_PIXELFORMAT)
