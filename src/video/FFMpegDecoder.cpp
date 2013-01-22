@@ -69,6 +69,7 @@ FFMpegDecoder::FFMpegDecoder()
 #endif
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
+      m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
       m_FPS(0)
 {
@@ -153,6 +154,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
     m_bThreadedDemuxer = bThreadedDemuxer;
     m_bVideoEOF = false;
     m_bEOFPending = false;
+    m_VideoStartTimestamp = -1;
     int err;
     m_sFilename = sFilename;
 
@@ -382,8 +384,9 @@ void FFMpegDecoder::seek(float destTime)
         AVFrame frame;
         readFrame(frame);
     }
-    cerr << "seek: " << destTime << endl;
-    dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)->seek(destTime);
+    cerr << "seek: " << destTime << ", " << m_VideoStartTimestamp << ", " << m_TimeUnitsPerSecond << endl;
+    dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)
+            ->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
     m_bVideoSeekDone = true;
     m_bVideoEOF = false;
 }
@@ -779,6 +782,7 @@ int FFMpegDecoder::getNumFrames() const
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
+    cerr << "  FFMpegDecoder::readFrameForTime" << endl;
     AVG_ASSERT(m_State == DECODING);
 //    cerr << "        readFrameForTime " << timeWanted << ", LastFrameTime= " 
 //            << m_LastVideoFrameTime << ", diff= " << m_LastVideoFrameTime-timeWanted 
@@ -805,7 +809,10 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
                 unlockVDPAUSurface(pRenderState);
             }
 #endif
+            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
+                    frameTime-timeWanted <<  endl;
         }
+        cerr << "NEW FRAME." << endl;
     }
     if (!m_bThreadedDemuxer && m_bVideoSeekDone) {
         m_bVideoSeekDone = false;
@@ -828,13 +835,13 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
     AVCodecContext* pContext = getCodecContext();
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
-    float frameTime = -32767;
+    float frameTime = -32768;
     bool bDone = false;
     while (!bGotPicture && !bDone) {
         int seqNum;
         float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex, seqNum);
         if (seekTime != -1) {
-            cerr << "  FFMpegDecoder: isSeekDone == true, seekTime =" << seekTime << endl;
+            cerr << "  FFMpegDecoder: isSeekDone == true" << endl;
             m_LastVideoFrameTime = -1.0f;
             m_SeekSeqNum = seqNum;
             avcodec_flush_buffers(pContext);
@@ -884,7 +891,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             bDone = true;
         }
     }
-    AVG_ASSERT(frameTime != -32767)
+    AVG_ASSERT(frameTime != -32768);
     return frameTime;
 /*
     cerr << "coded_picture_number: " << frame.coded_picture_number <<
@@ -900,12 +907,15 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
 
 float FFMpegDecoder::getFrameTime(long long dts)
 {
-    if (dts == -1) {
+    if (dts == (long long)AV_NOPTS_VALUE) {
         dts = 0;
+    }
+    if (m_VideoStartTimestamp == -1) {
+        m_VideoStartTimestamp = dts;
     }
     float frameTime;
     if (m_bUseStreamFPS || m_bVideoSeekDone) {
-        frameTime = float(dts)/m_TimeUnitsPerSecond;
+        frameTime = float(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
     } else {
         if (m_LastVideoFrameTime == -1) {
             frameTime = 0;
@@ -914,6 +924,7 @@ float FFMpegDecoder::getFrameTime(long long dts)
         }
     }
     m_LastVideoFrameTime = frameTime;
+    AVG_ASSERT(frameTime != -1);
     return frameTime;
 }
 
