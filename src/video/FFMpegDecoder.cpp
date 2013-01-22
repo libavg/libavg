@@ -486,8 +486,7 @@ static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
 static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 
-FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
-        float timeWanted)
+FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
@@ -690,51 +689,48 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
             destFmt = PIX_FMT_BGRA;
     }
     AVCodecContext const* pContext = getCodecContext();
-    {
-        if (destFmt == PIX_FMT_BGRA && (pContext->pix_fmt == PIX_FMT_YUV420P || 
+    if (destFmt == PIX_FMT_BGRA && (pContext->pix_fmt == PIX_FMT_YUV420P || 
                 pContext->pix_fmt == PIX_FMT_YUVJ420P))
-        {
-            ScopeTimer timer(ConvertImageLibavgProfilingZone);
-            BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, frame.data[0],
+    {
+        ScopeTimer timer(ConvertImageLibavgProfilingZone);
+        BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, frame.data[0],
                     frame.linesize[0], false));
-            BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, frame.data[1],
+        BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, frame.data[1],
                     frame.linesize[1], false));
-            BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
+        BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
                     frame.linesize[2], false));
-            pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
-                    pContext->pix_fmt == PIX_FMT_YUVJ420P);
+        pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
+                pContext->pix_fmt == PIX_FMT_YUVJ420P);
 #ifdef AVG_ENABLE_VDPAU
-        } else if (destFmt == PIX_FMT_BGRA && usesVDPAU()) {
-            vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-            getBitmapFromVDPAU(pRenderState, pBmp);
+    } else if (destFmt == PIX_FMT_BGRA && usesVDPAU()) {
+        vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+        getBitmapFromVDPAU(pRenderState, pBmp);
 #endif
-        } else {
-            if (!m_pSwsContext) {
-                m_pSwsContext = sws_getContext(pContext->width, pContext->height, 
-                        pContext->pix_fmt, pContext->width, pContext->height, destFmt, 
-                        SWS_BICUBIC, 0, 0, 0);
-                AVG_ASSERT(m_pSwsContext);
-            }
-            {
-                ScopeTimer timer(ConvertImageSWSProfilingZone);
-                sws_scale(m_pSwsContext, frame.data, frame.linesize, 0, 
+    } else {
+        if (!m_pSwsContext) {
+            m_pSwsContext = sws_getContext(pContext->width, pContext->height, 
+                    pContext->pix_fmt, pContext->width, pContext->height, destFmt, 
+                    SWS_BICUBIC, 0, 0, 0);
+            AVG_ASSERT(m_pSwsContext);
+        }
+        {
+            ScopeTimer timer(ConvertImageSWSProfilingZone);
+            sws_scale(m_pSwsContext, frame.data, frame.linesize, 0, 
                     pContext->height, destPict.data, destPict.linesize);
-            }
-            if (pBmp->getPixelFormat() == B8G8R8X8 || pBmp->getPixelFormat() == R8G8B8X8)
-            {
-                ScopeTimer timer(SetAlphaProfilingZone);
-                // Make sure the alpha channel is white.
-                // TODO: This is slow. Make OpenGL do it.
-                unsigned char * pLine = pBmp->getPixels();
-                IntPoint size = pBmp->getSize();
-                for (int y = 0; y < size.y; ++y) {
-                    unsigned char * pPixel = pLine;
-                    for (int x = 0; x < size.x; ++x) {
-                        pPixel[3] = 0xFF;
-                        pPixel += 4;
-                    }
-                    pLine = pLine + pBmp->getStride();
+        }
+        if (pBmp->getPixelFormat() == B8G8R8X8 || pBmp->getPixelFormat() == R8G8B8X8) {
+            ScopeTimer timer(SetAlphaProfilingZone);
+            // Make sure the alpha channel is white.
+            // TODO: This is slow. Make OpenGL do it.
+            unsigned char * pLine = pBmp->getPixels();
+            IntPoint size = pBmp->getSize();
+            for (int y = 0; y < size.y; ++y) {
+                unsigned char * pPixel = pLine;
+                for (int x = 0; x < size.x; ++x) {
+                    pPixel[3] = 0xFF;
+                    pPixel += 4;
                 }
+                pLine = pLine + pBmp->getStride();
             }
         }
     }
