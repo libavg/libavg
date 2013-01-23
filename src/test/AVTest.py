@@ -626,12 +626,12 @@ class AVTestCase(AVGTestCase):
 
 def AVTestSuite(tests):
     availableTests = [
-#            "testSound",
-#            "testSoundInfo",
-#            "testSoundSeek",
-#            "testBrokenSound",
-#            "testSoundEOF",
-#            "testVideoInfo",
+            "testSound",
+            "testSoundInfo",
+            "testSoundSeek",
+            "testBrokenSound",
+            "testSoundEOF",
+            "testVideoInfo",
             "testVideoFiles",
             "testPlayBeforeConnect",
             "testVideoState",

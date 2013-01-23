@@ -149,7 +149,6 @@ VideoInfo AsyncVideoDecoder::getVideoInfo() const
 
 void AsyncVideoDecoder::seek(float destTime)
 {
-//    cerr << "AsyncVideoDecoder::seek " << destTime << endl;
     AVG_ASSERT(m_State == DECODING);
     m_NumSeeksSent++;
     m_pDemuxer->seek(m_NumSeeksSent, destTime);
@@ -157,7 +156,6 @@ void AsyncVideoDecoder::seek(float destTime)
 
 void AsyncVideoDecoder::loop()
 {
-    cerr << "AsyncVideoDecoder::loop" << endl;
     m_LastVideoFrameTime = -1;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
@@ -375,7 +373,6 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             case VideoMsg::VDPAU_FRAME:
                 return pMsg;
             case VideoMsg::END_OF_FILE:
-                cerr << "AsyncVideoDecoder::handleVSeekMsg: END_OF_FILE" << endl;
                 m_NumVSeeksDone = m_NumSeeksSent;
                 m_bVideoEOF = true;
                 return VideoMsgPtr();
@@ -427,7 +424,6 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
         case VideoMsg::VDPAU_FRAME:
             break;
         case VideoMsg::END_OF_FILE:
-            cerr << "AsyncVideoDecoder::handleVSeekMsg: END_OF_FILE" << endl;
             m_NumVSeeksDone = m_NumSeeksSent;
             m_bVideoEOF = true;
             break;
@@ -449,15 +445,9 @@ void AsyncVideoDecoder::handleAudioMsg(AudioMsgPtr pMsg)
             m_bASeekPending = false;
             m_bAudioEOF = false;
             m_LastAudioFrameTime = pMsg->getSeekTime();
-//            cerr << "Audio SEEK_DONE Audio: " << m_LastAudioFrameTime << ", Video: " 
-//                    << m_LastVideoFrameTime << ", diff: " << 
-//                    m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
             break;
         case AudioMsg::AUDIO_TIME:
             m_LastAudioFrameTime = pMsg->getAudioTime();
-//          cerr << "Audio: " << m_LastAudioFrameTime << ", Video: " 
-//                  << m_LastVideoFrameTime << ", diff: " << 
-//                  m_LastAudioFrameTime - m_LastVideoFrameTime << endl;
             break;
         default:
             // Unhandled message type.
@@ -469,8 +459,6 @@ void AsyncVideoDecoder::handleAudioMsg(AudioMsgPtr pMsg)
 void AsyncVideoDecoder::handleSeekDone(AudioMsgPtr pMsg)
 {
     m_LastVideoFrameTime = pMsg->getSeekTime();
-    cerr << "Video SEEK_DONE " << pMsg->getSeekSeqNum() << ", prev: " <<
-        m_NumVSeeksDone << ", " << m_LastVideoFrameTime << endl;
     if (m_NumVSeeksDone < pMsg->getSeekSeqNum()) {
         m_NumVSeeksDone = pMsg->getSeekSeqNum();
     }

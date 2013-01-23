@@ -94,7 +94,6 @@ class DecoderTest: public GraphicsTest {
                 switch (pMsg->getType()) {
                     case AudioMsg::AUDIO: {
                         AudioBufferPtr pBuffer = pMsg->getAudioBuffer();
-//                        cerr << "framesDecoded: " << pBuffer->getNumFrames() << endl;
                         AudioMsgPtr pStatusMsg(new AudioMsg);
                         pStatusMsg->setAudioTime(pMsg->getAudioTime());
                         pStatusQ->push(AudioMsgPtr(pStatusMsg));
@@ -102,7 +101,6 @@ class DecoderTest: public GraphicsTest {
                     }
                     case AudioMsg::SEEK_DONE: {
                         AudioMsgPtr pStatusMsg(new AudioMsg);
-//                        cerr << "seek: " << pMsg->getSeekTime() << endl;
                         pStatusMsg->setSeekDone(pMsg->getSeekSeqNum(), pMsg->getSeekTime());
                         pStatusQ->push(AudioMsgPtr(pStatusMsg));
                         return -1;
@@ -383,16 +381,13 @@ class AudioDecoderTest: public DecoderTest {
                 while (framesDecoded == 0 && !pDecoder->isEOF()) {
                     framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
                     AVG_ASSERT(framesDecoded != -1);
-//                    cerr << framesDecoded << endl;
                     pDecoder->updateAudioStatus();
                     msleep(0);
                 }
                 totalFramesDecoded += framesDecoded;
                 float curTime = float(totalFramesDecoded)/44100;
-//                cerr << curTime << "->" << pDecoder->getCurTime(SS_AUDIO) << endl;
                 if (abs(curTime-pDecoder->getCurTime(SS_AUDIO)) > 0.02f) {
                     numWrongTimestamps++;
-//                    cerr << "   xxx" << endl;
                 }
             }
             if (bCheckTimestamps) {
@@ -460,12 +455,10 @@ class AVDecoderTest: public DecoderTest {
                         msleep(0);
                     }
                     totalFramesDecoded += framesDecoded;
-//                    cerr << "framesDecoded: " << framesDecoded << endl;
                 }
                 curTime += 1.0f/pDecoder->getFPS();
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
-//            cerr << "numFrames: " << numFrames << endl;
             // TODO: Commented out because the last frames aren't decoded with newer
             // ffmpeg (circa >= 0.8)
             // TEST(numFrames == expectedNumFrames);
@@ -500,7 +493,7 @@ public:
         addVideoTests(false);
 #ifdef AVG_ENABLE_VDPAU
         if (VDPAUDecoder::isAvailable()) {
-//            addVideoTests(true);
+            addVideoTests(true);
         } else {
             cerr << "Skipping VDPAU tests: VDPAU configured but not available." << endl;
         }

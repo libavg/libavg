@@ -384,7 +384,6 @@ void FFMpegDecoder::seek(float destTime)
         AVFrame frame;
         readFrame(frame);
     }
-    cerr << "seek: " << destTime << ", " << m_VideoStartTimestamp << ", " << m_TimeUnitsPerSecond << endl;
     dynamic_cast<FFMpegDemuxer*>(m_pDemuxer)
             ->seek(destTime + m_VideoStartTimestamp/m_TimeUnitsPerSecond);
     m_bVideoSeekDone = true;
@@ -500,7 +499,6 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float t
     }
     AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
     if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
-//        cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
         return FA_CLOSED;
     } else {
         if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
@@ -553,7 +551,6 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
     readFrame(frame);
     AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
     if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
-        cerr << "  FFMpegDecoder::renderToBmps: FA_CLOSED" << endl;
         return FA_CLOSED;
     } else {
         frameAvailable = FA_NEW_FRAME;
@@ -778,11 +775,7 @@ int FFMpegDecoder::getNumFrames() const
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
-    cerr << "  FFMpegDecoder::readFrameForTime" << endl;
     AVG_ASSERT(m_State == DECODING);
-//    cerr << "        readFrameForTime " << timeWanted << ", LastFrameTime= " 
-//            << m_LastVideoFrameTime << ", diff= " << m_LastVideoFrameTime-timeWanted 
-//            << endl;
     AVG_ASSERT(timeWanted != -1);
     float timePerFrame = 1.0f/m_FPS;
     bool bSyncSeekDone = false;
@@ -791,7 +784,6 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
     }
     if (!bSyncSeekDone && timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) 
     {
-//        cerr << "DISPLAY AGAIN." << endl;
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
     } else {
@@ -805,10 +797,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
                 unlockVDPAUSurface(pRenderState);
             }
 #endif
-            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
-                    frameTime-timeWanted <<  endl;
         }
-        cerr << "NEW FRAME." << endl;
     }
     if (!m_bThreadedDemuxer && m_bVideoSeekDone) {
         m_bVideoSeekDone = false;
@@ -837,7 +826,6 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         int seqNum;
         float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex, seqNum);
         if (seekTime != -1) {
-            cerr << "  FFMpegDecoder: isSeekDone == true" << endl;
             m_LastVideoFrameTime = -1.0f;
             m_SeekSeqNum = seqNum;
             avcodec_flush_buffers(pContext);
@@ -862,7 +850,6 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             av_free_packet(pPacket);
             delete pPacket;
         } else {
-            cerr << "  FFMpegDecoder: no packet" << endl;
             // No more packets -> EOF. Decode the last data we got.
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             AVPacket packet;
@@ -883,7 +870,6 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             m_LastVideoFrameTime = frameTime;
         }
         if (m_bVideoEOF) {
-            cerr << "  FFMpegDecoder: EOF done" << endl;
             bDone = true;
         }
     }

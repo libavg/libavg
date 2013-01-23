@@ -80,14 +80,12 @@ AsyncDemuxer::~AsyncDemuxer()
 
 AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 {
-//    cerr << "  AsyncDemuxer::getPacket" << endl;
     AVG_ASSERT(m_pCurMsgs[streamIndex]);
     return checkPacket(streamIndex);
 }
             
 AVPacket * AsyncDemuxer::checkPacket(int streamIndex)
 {
-//    cerr << "  AsyncDemuxer::checkPacket" << endl;
     VideoMsgPtr pMsg = m_pCurMsgs[streamIndex];
     if (!pMsg) {
         return 0;
@@ -95,10 +93,8 @@ AVPacket * AsyncDemuxer::checkPacket(int streamIndex)
         m_pCurMsgs[streamIndex] = VideoMsgPtr();
         switch(pMsg->getType()) {
             case VideoMsg::PACKET:
-    //            cerr << "PACKET " << pMsg->getPacket() << endl;
                 return pMsg->getPacket();
             case VideoMsg::END_OF_FILE:
-    //            cerr << "END_OF_FILE" << endl;
                 return 0;
             case VideoMsg::CLOSED:
                 return 0;
@@ -114,13 +110,11 @@ float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
 {
     VideoMsgPtr pCurMsg = m_PacketQs[streamIndex]->pop(bWait);
     if (!pCurMsg) {
-        cerr << "  AsyncDemuxer::isSeekDone: no msg" << streamIndex << endl;
         return -1;
     } else {
         m_pCurMsgs[streamIndex] = pCurMsg;
         switch (m_pCurMsgs[streamIndex]->getType()) {
             case VideoMsg::SEEK_DONE: {
-                cerr << "  AsyncDemuxer::isSeekDone: SEEK_DONE" << streamIndex << endl;
                 float seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
                 seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
 
@@ -132,7 +126,6 @@ float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
                 }
             }
             case VideoMsg::CLOSED:
-                cerr << "  AsyncDemuxer::isSeekDone: CLOSED" << streamIndex << endl;
                 m_bStreamClosed[streamIndex] = true;
                 return -1;
             default:
@@ -150,12 +143,10 @@ void AsyncDemuxer::seek(int seqNum, float destTime)
 {
     AVG_ASSERT(seqNum != -1); //TODO: Remove when audio works.
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, seqNum, destTime));
-//    cerr << "  AsyncDemuxer::seek end" << endl;
 }
             
 void AsyncDemuxer::close()
 {
-//    cerr << "AsyncDemuxer::close" << endl;
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::close, _1));
     m_pDemuxThread->join();
 }
