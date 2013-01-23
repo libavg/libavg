@@ -7,8 +7,8 @@ if APPLE
     GL_INCLUDES = CGLContext.h PBO.h AppleDisplay.h
 else
 if ENABLE_RPI
-    GL_SOURCES = EGLContext.cpp BCMDisplay.cpp
-    GL_INCLUDES = EGLContext.h BCMDisplay.h
+    GL_SOURCES = EGLContext.cpp BCMDisplay.cpp X11Display.cpp
+    GL_INCLUDES = EGLContext.h BCMDisplay.h X11Display.h
 else
 if ENABLE_EGL
     GL_SOURCES = EGLContext.cpp X11Display.cpp

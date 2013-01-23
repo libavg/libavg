@@ -28,6 +28,10 @@
 
 #include "OGLHelper.h"
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/xf86vmode.h>
+
 struct SDL_SysWMinfo;
 
 namespace avg {

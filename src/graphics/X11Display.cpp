@@ -27,7 +27,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 
-#include <X11/extensions/xf86vmode.h>
 #ifdef AVG_ENABLE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
