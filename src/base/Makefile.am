@@ -1,6 +1,6 @@
 SUBDIRS = triangulate
 
-INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
+AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
 ALL_H = FileHelper.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
         XMLHelper.h TimeSource.h ProfilingZone.h ThreadProfiler.h \
         ScopeTimer.h IFrameEndListener.h IPreRenderListener.h IPlaybackEndListener.h \
