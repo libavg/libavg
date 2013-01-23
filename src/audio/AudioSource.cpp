@@ -127,6 +127,7 @@ bool AudioSource::processNextMsg(bool bWait)
                 return true;
             case AudioMsg::END_OF_FILE: {
 //                cerr << "        AudioSource: EOF" << endl;
+                m_bSeeking = false;
                 AudioMsgPtr pStatusMsg(new AudioMsg);
                 pStatusMsg->setEOF();
                 m_StatusQ.push(pStatusMsg);
