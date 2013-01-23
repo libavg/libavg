@@ -232,7 +232,7 @@ void AudioDecoderThread::handleSeekDone(int seqNum, float seekTime)
                 pushSeekDone(m_LastFrameTime, seqNum);
 
                 // send empty buffer 
-                int numDelaySamples = (m_LastFrameTime - seekTime)*m_AP.m_SampleRate;
+                int numDelaySamples = int((m_LastFrameTime - seekTime)*m_AP.m_SampleRate);
                 AudioBufferPtr pBuffer(new AudioBuffer(numDelaySamples, m_AP));
                 pBuffer->clear();
                 m_LastFrameTime = seekTime;
