@@ -906,7 +906,6 @@ float FFMpegDecoder::getFrameTime(long long dts)
         }
     }
     m_LastVideoFrameTime = frameTime;
-    AVG_ASSERT(frameTime != -1);
     return frameTime;
 }
 
