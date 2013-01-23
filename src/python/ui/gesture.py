@@ -480,11 +480,11 @@ class DragRecognizer(Recognizer):
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
-            self._setEnd(event)
-        if self.__minDragDist == 0:
-            self._setDetected(event)
-        else:
-            self._setPossible(event)
+        if self.getState() != "RUNNING":
+            if self.__minDragDist == 0:
+                self._setDetected(event)
+            else:
+                self._setPossible(event)
         pos = self.__relEventPos(event)
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,

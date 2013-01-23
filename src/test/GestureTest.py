@@ -605,8 +605,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 40, 20),
                  self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 40, 20, 
-                            [ui.Recognizer.END, ui.Recognizer.DETECTED, 
-                             ui.Recognizer.MOTION]),
+                            [ui.Recognizer.MOTION]),
                 ))
 
         # Test node delete during inertia
@@ -634,10 +633,7 @@ class GestureTestCase(AVGTestCase):
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 70,
                         [ui.Recognizer.MOTION, ui.Recognizer.UP]),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.MOTION, ui.Recognizer.END, 
-                         ui.Recognizer.POSSIBLE]),
-                 self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70, 
-                        [ui.Recognizer.DETECTED, ui.Recognizer.MOTION]),
+                        [ui.Recognizer.MOTION]),
                 ))
 
         player.setFakeFPS(-1)
