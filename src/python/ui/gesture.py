@@ -768,9 +768,10 @@ class TransformRecognizer(Recognizer):
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
-                self._setEnd(event)
-            self._setDetected(event)
-            self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
+            if self.getState() != "RUNNING":
+                self._setDetected(event)
+            if not(self.__frameHandlerID):
+                self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)

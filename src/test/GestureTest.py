@@ -901,7 +901,20 @@ class GestureTestCase(AVGTestCase):
                  None,
                 ))
 
+        def onEnd():
+            self.assert_(False)
 
+        # Test second down during inertia.
+        self.__initImageScene()
+        self.__transformRecognizer = ui.TransformRecognizer(self.image, friction=0.01,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp,
+                endHandler=onEnd)
+        self.start(False,
+                (
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 30, 10),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 30, 10),
+                ))
 
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
