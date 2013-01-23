@@ -118,7 +118,7 @@ float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
                 float seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
                 seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
 
-                float newSeekTime = isSeekDone(streamIndex, seqNum, bWait);
+                float newSeekTime = isSeekDone(streamIndex, seqNum, true);
                 if (newSeekTime != -1 || m_bStreamClosed[streamIndex]) {
                     return newSeekTime;
                 } else {
