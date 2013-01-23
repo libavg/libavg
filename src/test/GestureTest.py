@@ -479,6 +479,17 @@ class GestureTestCase(AVGTestCase):
         def abort():
             dragRecognizer.abort()
 
+        def setupRecognizer(friction, moveHandler=onMove, minDragDist=0, 
+                direction=ui.DragRecognizer.ANY_DIRECTION):
+            self.__initImageScene()
+            dragRecognizer = ui.DragRecognizer(self.image, moveHandler=moveHandler, 
+                    upHandler=onUp, friction=friction, minDragDist=minDragDist, 
+                    direction=direction)
+            messageTester = MessageTester(dragRecognizer, [ui.Recognizer.POSSIBLE, 
+                    ui.Recognizer.DETECTED, ui.Recognizer.FAILED, ui.Recognizer.END], 
+                    self)
+            return (dragRecognizer, messageTester)
+
         player.setFakeFPS(100)
         sys.stderr.write("\n")
         for self.friction in (-1, 100):
@@ -486,11 +497,7 @@ class GestureTestCase(AVGTestCase):
                 sys.stderr.write("  Simple drag, no inertia\n")
             else:
                 sys.stderr.write("  Simple drag, inertia\n")
-            self.__initImageScene()
-            dragRecognizer = ui.DragRecognizer(self.image, moveHandler=onMove,
-                    upHandler=onUp, minDragDist=0, friction=self.friction)
-            self.messageTester = MessageTester(dragRecognizer, 
-                    [ui.Recognizer.DETECTED, ui.Recognizer.END], self)
+            dragRecognizer, self.messageTester = setupRecognizer(friction=self.friction)
             self.start(False,
                     (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
                             [ui.Recognizer.DETECTED]),
@@ -525,13 +532,9 @@ class GestureTestCase(AVGTestCase):
                 sys.stderr.write("  Drag with constraint, no inertia\n")
             else:
                 sys.stderr.write("  Drag with constraint, inertia\n")
-            self.__initImageScene()
-            dragRecognizer = ui.DragRecognizer(self.image, moveHandler=onVertMove, 
-                    upHandler=onUp, friction=self.friction, 
-                    direction=ui.DragRecognizer.VERTICAL)
-            self.messageTester = MessageTester(dragRecognizer, [ui.Recognizer.POSSIBLE, 
-                    ui.Recognizer.DETECTED, ui.Recognizer.FAILED, ui.Recognizer.END], 
-                    self)
+            dragRecognizer, self.messageTester = setupRecognizer(moveHandler=onVertMove, 
+                    friction=self.friction, direction=ui.DragRecognizer.VERTICAL,
+                    minDragDist=5)
             self.start(False,
                     (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
                             [ui.Recognizer.POSSIBLE]),
@@ -596,12 +599,7 @@ class GestureTestCase(AVGTestCase):
 
         # Test second down during inertia.
         sys.stderr.write("  Down during inertia\n")
-        self.__initImageScene()
-        dragRecognizer = ui.DragRecognizer(self.image, moveHandler=onMove, upHandler=onUp,
-                minDragDist=0, friction=0.01)
-        self.messageTester = MessageTester(dragRecognizer, [ui.Recognizer.POSSIBLE, 
-                ui.Recognizer.DETECTED, ui.Recognizer.FAILED, ui.Recognizer.END], 
-                self)
+        dragRecognizer, self.messageTester = setupRecognizer(friction=0.01)
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 40, 20),
@@ -613,12 +611,7 @@ class GestureTestCase(AVGTestCase):
 
         # Test node delete during inertia
         sys.stderr.write("  Delete during inertia\n")
-        self.__initImageScene()
-        dragRecognizer = ui.DragRecognizer(self.image, moveHandler=onMove, upHandler=onUp,
-                minDragDist=0, friction=0.01)
-        self.messageTester = MessageTester(dragRecognizer, [ui.Recognizer.POSSIBLE, 
-                ui.Recognizer.DETECTED, ui.Recognizer.FAILED, ui.Recognizer.END], 
-                self)
+        dragRecognizer, self.messageTester = setupRecognizer(friction=0.01)
         self.start(False,
                 (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
                         [ui.Recognizer.DETECTED]),
@@ -631,12 +624,8 @@ class GestureTestCase(AVGTestCase):
 
         # Test second down during inertia, constrained recognizer
         sys.stderr.write("  Down during inertia, constrained recognizer\n")
-        self.__initImageScene()
-        dragRecognizer = ui.DragRecognizer(self.image, moveHandler=onMove, upHandler=onUp,
-                friction=0.01, direction=ui.DragRecognizer.VERTICAL)
-        self.messageTester = MessageTester(dragRecognizer, [ui.Recognizer.POSSIBLE, 
-                ui.Recognizer.DETECTED, ui.Recognizer.FAILED, ui.Recognizer.END], 
-                self)
+        dragRecognizer, self.messageTester = setupRecognizer(friction=0.01,
+                direction=ui.DragRecognizer.VERTICAL, minDragDist=5)
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70,
