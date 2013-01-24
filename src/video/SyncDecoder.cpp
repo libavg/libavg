@@ -255,7 +255,7 @@ VideoInfo SyncDecoder::getVideoInfo() const
     }
     VideoInfo info(m_pFormatContext->iformat->name, duration, m_pFormatContext->bit_rate,
             true, false);
-    info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
+    info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(),
             m_pVStream->codec->codec->name, false, getDuration(SS_VIDEO));
     return info;
 }

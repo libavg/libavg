@@ -99,8 +99,8 @@ private:
     VideoInfo m_VideoInfo;
 
     IntPoint m_Size;
-    int m_NumFrames;
     bool m_bUseStreamFPS;
+    float m_FPS;
     PixelFormat m_PF;
     
     int m_NumSeeksSent;

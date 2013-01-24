@@ -331,7 +331,7 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
     VideoInfo info(m_pFormatContext->iformat->name, duration, m_pFormatContext->bit_rate,
             m_pVStream != 0, m_pAStream != 0);
     if (m_pVStream) {
-        info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
+        info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(),
                 m_pVStream->codec->codec->name, usesVDPAU(), getDuration(SS_VIDEO));
     }
     if (m_pAStream) {

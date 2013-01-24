@@ -50,6 +50,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLen
       m_pDemuxer(0),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
+      m_bUseStreamFPS(true),
+      m_FPS(0),
       m_PF(NO_PIXELFORMAT)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -77,6 +79,9 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcce
 
     m_pSyncDecoder->open(m_sFilename, bUseHardwareAcceleration, bEnableSound);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
+    if (m_bUseStreamFPS) {
+        m_FPS = m_VideoInfo.m_StreamFPS;
+    }
     // Temporary pf - always assumes shaders will be available.
     m_PF = m_pSyncDecoder->getPixelFormat();
     m_State = OPENED;
@@ -90,6 +95,9 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
     if (m_VideoInfo.m_bHasVideo) {
         m_LastVideoFrameTime = -1;
         m_CurVideoFrameTime = -1;
+        if (m_bUseStreamFPS) {
+            m_FPS = m_VideoInfo.m_StreamFPS;
+        }
         m_PF = m_pSyncDecoder->getPixelFormat();
         m_pVCmdQ = VideoDecoderThread::CQueuePtr(new VideoDecoderThread::CQueue);
         m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(m_QueueLength));
@@ -208,15 +216,18 @@ float AsyncVideoDecoder::getNominalFPS() const
 float AsyncVideoDecoder::getFPS() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    return m_VideoInfo.m_FPS;
+    return m_FPS;
 }
 
 void AsyncVideoDecoder::setFPS(float fps)
 {
     AVG_ASSERT(!m_pADecoderThread);
     m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::setFPS, _1, fps));
-    if (fps != 0) {
-        m_VideoInfo.m_FPS = fps;
+    m_bUseStreamFPS = (fps == 0);
+    if (m_bUseStreamFPS) {
+        m_FPS = m_VideoInfo.m_StreamFPS;
+    } else {
+        m_FPS = fps;
     }
 }
 
