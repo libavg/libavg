@@ -91,7 +91,9 @@ class AVTestCase(AVGTestCase):
                     parent=root)
             self.assertException(node.pause)
 
+        sys.stderr.write("\n")
         for isThreaded in (False, True):
+            sys.stderr.write("  Threaded: " + str(isThreaded) + "\n")
             root = self.loadEmptyScene()
             node = avg.VideoNode(href="mpeg1-48x48-sound.avi", threaded=isThreaded,
                     parent=root)
@@ -103,6 +105,7 @@ class AVTestCase(AVGTestCase):
                      checkExceptions,
                      checkAudioFile,
                     ))
+        sys.stderr.write("  Nonstandard queue length\n")
         root = self.loadEmptyScene()
         node = avg.VideoNode(href="mpeg1-48x48-sound.avi", queuelength=23, parent=root)
         self.assertEqual(node.queuelength, 23)
@@ -614,12 +617,10 @@ class AVTestCase(AVGTestCase):
 
     def testVideoAccel(self):
         accelConfig = avg.VideoNode.getVideoAccelConfig()
-        video = avg.VideoNode(threaded=False, accelerated=False, 
-                href="media/mpeg1-48x48.mpg")
+        video = avg.VideoNode(accelerated=False, href="media/mpeg1-48x48.mpg")
         video.play()
         self.assertEqual(video.accelerated, False)
-        video = avg.VideoNode(threaded=False, accelerated=True, 
-                href="media/mpeg1-48x48.mpg")
+        video = avg.VideoNode(accelerated=True, href="media/mpeg1-48x48.mpg")
         video.play()
         self.assertEqual(video.accelerated, (accelConfig != avg.NO_ACCELERATION))
 
