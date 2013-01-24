@@ -73,7 +73,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcce
     m_bWasSeeking = false;
     m_bASeekPending = false;
     m_sFilename = sFilename;
-    m_CurVideoFrameTime = 0;
+    m_CurVideoFrameTime = -1;
 
     m_pSyncDecoder->open(m_sFilename, bUseHardwareAcceleration, bEnableSound);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();

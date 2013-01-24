@@ -191,7 +191,9 @@ class VideoDecoderTest: public DecoderTest {
                 IntPoint frameSize = pDecoder->getSize();
                 TEST(frameSize == IntPoint(48, 48));
                 TEST(pDecoder->getVideoInfo().m_bHasVideo);
+                TEST(pDecoder->getVideoInfo().m_Duration != 0);
                 TEST(pDecoder->getNominalFPS() != 0);
+                TEST(pDecoder->getFPS() != 0);
                 pDecoder->startDecoding(false, getAudioParams());
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
                 BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
@@ -199,6 +201,9 @@ class VideoDecoderTest: public DecoderTest {
                 // Test first two frames.
                 pDecoder->renderToBmp(pBmp, -1);
                 testEqual(*pBmp, sFilename+"_1", B8G8R8X8);
+                TEST(pDecoder->getCurFrame() == 0);
+                TEST(pDecoder->getCurTime() == 0);
+
                 pDecoder->renderToBmp(pBmp, -1);
                 testEqual(*pBmp, sFilename+"_2", B8G8R8X8);
                 pDecoder->close();
