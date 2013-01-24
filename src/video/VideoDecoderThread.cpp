@@ -34,13 +34,16 @@ using namespace std;
 namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-        FFMpegDecoderPtr pDecoder)
+        FFMpegDecoderPtr pDecoder, const IntPoint& size, PixelFormat pf, bool bUseVDPAU)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
             Logger::PROFILE_VIDEO),
       m_MsgQ(msgQ),
       m_pDecoder(pDecoder),
       m_pBmpQ(new BitmapQueue()),
-      m_pHalfBmpQ(new BitmapQueue())
+      m_pHalfBmpQ(new BitmapQueue()),
+      m_Size(size),
+      m_PF(pf),
+      m_bUseVDPAU(bUseVDPAU)
 {
 }
 
@@ -57,26 +60,23 @@ bool VideoDecoderThread::work()
     vdpau_render_state* pRenderState = 0;
     FrameAvailableCode frameAvailable;
     vector<BitmapPtr> pBmps;
-    bool usesVDPAU = m_pDecoder->getVideoInfo().m_bUsesVDPAU;
-    if (usesVDPAU) {
+    if (m_bUseVDPAU) {
 #ifdef AVG_ENABLE_VDPAU
         frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
 #else
         frameAvailable = FA_NEW_FRAME; // Never executed - silences compiler warning.
 #endif
     } else {
-        IntPoint size = m_pDecoder->getSize();
-        IntPoint halfSize(size.x/2, size.y/2);
-        PixelFormat pf = m_pDecoder->getPixelFormat();
-        if (pixelFormatIsPlanar(pf)) {
-            pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+        IntPoint halfSize(m_Size.x/2, m_Size.y/2);
+        if (pixelFormatIsPlanar(m_PF)) {
+            pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
             pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
             pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            if (pf == YCbCrA420p) {
-                pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+            if (m_PF == YCbCrA420p) {
+                pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
             }
         } else {
-            pBmps.push_back(getBmp(m_pBmpQ, size, pf));
+            pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
         }
         frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
     }
@@ -86,7 +86,7 @@ bool VideoDecoderThread::work()
         if (m_pDecoder->isVideoSeekDone()) {
             m_MsgQ.clear();
             VideoMsgPtr pMsg(new VideoMsg());
-            float videoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
+            float videoFrameTime = m_pDecoder->getCurTime();
             pMsg->setSeekDone(m_pDecoder->getSeekSeqNum(), videoFrameTime);
             m_MsgQ.push(pMsg);
         }
@@ -98,10 +98,10 @@ bool VideoDecoderThread::work()
             ScopeTimer timer(PushMsgProfilingZone);
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
-            if (usesVDPAU) {
-                pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
+            if (m_bUseVDPAU) {
+                pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime());
             } else {
-                pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+                pMsg->setFrame(pBmps, m_pDecoder->getCurTime());
             }
             m_MsgQ.push(pMsg);
             msleep(0);
@@ -119,11 +119,10 @@ void VideoDecoderThread::setFPS(float fps)
 void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
 {
     m_pBmpQ->push(pMsg->getFrameBitmap(0));
-    PixelFormat pf = m_pDecoder->getPixelFormat();
-    if (pixelFormatIsPlanar(pf)) {
+    if (pixelFormatIsPlanar(m_PF)) {
         m_pHalfBmpQ->push(pMsg->getFrameBitmap(1));
         m_pHalfBmpQ->push(pMsg->getFrameBitmap(2));
-        if (pf == YCbCrA420p) {
+        if (m_PF == YCbCrA420p) {
             m_pBmpQ->push(pMsg->getFrameBitmap(3));
         }
     }

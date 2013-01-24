@@ -97,8 +97,7 @@ VideoNode::VideoNode(const ArgList& args)
                 "Can't set queue length for unthreaded videos because there is no decoder queue in this case.");
     }
     if (m_bThreaded) {
-        FFMpegDecoderPtr pLowLevelDecoder(new FFMpegDecoder());
-        m_pDecoder = new AsyncVideoDecoder(pLowLevelDecoder, m_QueueLength);
+        m_pDecoder = new AsyncVideoDecoder(m_QueueLength);
     } else {
         m_pDecoder = new SyncDecoder();
     }
@@ -194,7 +193,7 @@ void VideoNode::seekToFrame(int frameNum)
     }
     exceptionIfUnloaded("seekToFrame");
     if (getCurFrame() != frameNum) {
-        long long destTime = (long long)(frameNum*1000.0/m_pDecoder->getNominalFPS());
+        long long destTime = (long long)(frameNum*1000.0/m_pDecoder->getStreamFPS());
         seek(destTime);
     }
 }

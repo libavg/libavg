@@ -37,14 +37,9 @@ class AVG_API SyncDecoder: public VideoDecoder
                 bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
-        virtual DecoderState getState() const;
-        virtual VideoInfo getVideoInfo() const;
 
-        virtual float getNominalFPS() const;
         virtual float getFPS() const;
-        virtual PixelFormat getPixelFormat() const;
 
-        virtual IntPoint getSize() const;
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;
         virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
@@ -58,26 +53,11 @@ class AVG_API SyncDecoder: public VideoDecoder
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
         
     private:
-        int openCodec(int streamIndex);
-        PixelFormat calcPixelFormat(bool bUseYCbCr);
-        virtual float getDuration(StreamSelect streamSelect = SS_DEFAULT) const;
-        virtual int getNumFrames() const;
-
-        DecoderState m_State;
-        AVFormatContext * m_pFormatContext;
-        PixelFormat m_PF;
-        std::string m_sFilename;
-
         FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
         void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
         float getFrameTime(long long dts);
-        float calcStreamFPS() const;
-        std::string getStreamPF() const;
-        AVCodecContext const * getCodecContext() const;
-        AVCodecContext * getCodecContext();
 
         SwsContext * m_pSwsContext;
-        IntPoint m_Size;
         float m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;
         bool m_bVideoSeekDone;
@@ -85,9 +65,7 @@ class AVG_API SyncDecoder: public VideoDecoder
         float readFrame(AVFrame& frame);
 
         FFMpegDemuxer * m_pDemuxer;
-        AVStream * m_pVStream;
         
-        int m_VStreamIndex;
         bool m_bEOFPending;
         bool m_bVideoEOF;
         bool m_bFirstPacket;

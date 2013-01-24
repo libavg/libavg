@@ -42,8 +42,8 @@ class AsyncDemuxer;
 
 class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
-        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, FFMpegDecoderPtr pDecoder,
-                const AudioParams& ap);
+        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, AsyncDemuxer* pDemuxer, 
+                AVStream* pStream, int streamIndex, const AudioParams& ap);
         virtual ~AudioDecoderThread();
         
         bool work();

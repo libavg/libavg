@@ -35,8 +35,6 @@
 
 #include "../audio/AudioBuffer.h"
 
-#include "../graphics/BitmapLoader.h"
-
 #include <iostream>
 #include <sstream>
 #ifndef _WIN32
@@ -48,377 +46,93 @@ using namespace boost;
 
 namespace avg {
 
-FFMpegDecoder::FFMpegDecoder()
-    : m_State(CLOSED),
-      m_pFormatContext(0),
-      m_PF(NO_PIXELFORMAT),
-      m_pSwsContext(0),
-      m_Size(0,0),
+FFMpegDecoder::FFMpegDecoder(AsyncDemuxer* pDemuxer, AVStream* pStream, int streamIndex, 
+        PixelFormat pf, bool bUseVDPAU)
+    : m_pSwsContext(0),
       m_bUseStreamFPS(true),
-      m_AStreamIndex(-1),
-      m_pDemuxer(0),
-      m_pVStream(0),
-      m_pAStream(0),
-#ifdef AVG_ENABLE_VDPAU
-      m_pVDPAUDecoder(0),
-#endif
-      m_VStreamIndex(-1),
-      m_bFirstPacket(false),
+      m_bVideoSeekDone(false),
+      m_pDemuxer(pDemuxer),
+      m_pStream(pStream),
+      m_StreamIndex(streamIndex),
+      m_PF(pf),
+      m_bUseVDPAU(bUseVDPAU),
+      m_bEOFPending(false),
+      m_bVideoEOF(false),
+      m_bFirstPacket(true),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
       m_FPS(0)
 {
+    m_TimeUnitsPerSecond = float(1.0/av_q2d(pStream->time_base));
+    m_FPS = float(av_q2d(pStream->r_frame_rate));
     ObjectCounter::get()->incRef(&typeid(*this));
-    initVideoSupport();
 }
 
 FFMpegDecoder::~FFMpegDecoder()
 {
-    if (m_pFormatContext) {
-        close();
-    }
-#ifdef AVG_ENABLE_VDPAU
-    if (m_pVDPAUDecoder) {
-        delete m_pVDPAUDecoder;
-    }
-#endif
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
-{
-    AVCodecContext* pContext;
-    pContext = m_pFormatContext->streams[streamIndex]->codec;
-//    pContext->debug = 0x0001; // see avcodec.h
-
-    AVCodec * pCodec = 0;
-#ifdef AVG_ENABLE_VDPAU
-    if (bUseHardwareAcceleration) {
-        m_pVDPAUDecoder = new VDPAUDecoder();
-        pContext->opaque = m_pVDPAUDecoder;
-        pCodec = m_pVDPAUDecoder->openCodec(pContext);
-    } 
-#endif
-    if (!pCodec) {
-        pCodec = avcodec_find_decoder(pContext->codec_id);
-    }
-    if (!pCodec) {
-        return -1;
-    }
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
-    int rc = avcodec_open2(pContext, pCodec, 0);
-#else
-    int rc = avcodec_open(pContext, pCodec);
-#endif
-
-    if (rc < 0) {
-        return -1;
-    }
-    return 0;
-}
-
-void FFMpegDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
-{
-    mutex::scoped_lock lock(s_OpenMutex);
-    m_bVideoEOF = false;
-    m_bEOFPending = false;
-    m_VideoStartTimestamp = -1;
-    int err;
-    m_sFilename = sFilename;
-
-    AVG_TRACE(Logger::MEMORY, "Opening " << sFilename);
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
-    err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
-#else
-    AVFormatParameters params;
-    memset(&params, 0, sizeof(params));
-    err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 
-            0, 0, &params);
-#endif
-    if (err < 0) {
-        m_sFilename = "";
-        m_pFormatContext = 0;
-        avcodecError(sFilename, err);
-    }
-    
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
-    err = avformat_find_stream_info(m_pFormatContext, 0);
-#else
-    err = av_find_stream_info(m_pFormatContext);
-#endif
-
-    if (err < 0) {
-        m_sFilename = "";
-        m_pFormatContext = 0;
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + ": Could not find codec parameters.");
-    }
-    if (strcmp(m_pFormatContext->iformat->name, "image2") == 0) {
-        m_sFilename = "";
-        m_pFormatContext = 0;
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + ": Image files not supported as videos.");
-    }
-    av_read_play(m_pFormatContext);
-    
-    // Find audio and video streams in the file
-    m_VStreamIndex = -1;
-    m_AStreamIndex = -1;
-    for (unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
-        AVCodecContext* pContext = m_pFormatContext->streams[i]->codec;
-        switch (pContext->codec_type) {
-            case AVMEDIA_TYPE_VIDEO:
-                if (m_VStreamIndex < 0) {
-                    m_VStreamIndex = i;
-                }
-                break;
-            case AVMEDIA_TYPE_AUDIO:
-                if (m_AStreamIndex < 0 && bEnableSound) {
-                    m_AStreamIndex = i;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    
-    // Enable video stream demuxing
-    if (m_VStreamIndex >= 0) {
-        m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
-        m_State = OPENED;
-        
-        // Set video parameters
-        m_TimeUnitsPerSecond = float(1.0/av_q2d(m_pVStream->time_base));
-        if (m_bUseStreamFPS) {
-            m_FPS = getNominalFPS();
-        }
-        m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
-        m_bFirstPacket = true;
-        m_sFilename = sFilename;
-        m_LastVideoFrameTime = -1;
-
-        int rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
-        if (rc == -1) {
-            m_VStreamIndex = -1;
-            char szBuf[256];
-            avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
-            m_pVStream = 0;
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported video codec ("+szBuf+").");
-        }
-        m_PF = calcPixelFormat(true);
-        m_bVideoSeekDone = false;
-    }
-    // Enable audio stream demuxing.
-    if (m_AStreamIndex >= 0) {
-        m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
-        int rc = openCodec(m_AStreamIndex, false);
-        if (rc == -1) {
-            m_AStreamIndex = -1;
-            char szBuf[256];
-            avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
-            m_pAStream = 0; 
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported audio codec ("+szBuf+").");
-        }
-        if (m_pAStream->codec->sample_fmt != SAMPLE_FMT_S16) {
-            m_AStreamIndex = -1;
-            m_pAStream = 0; 
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported sample format (!= S16).");
-        }
-    }
-    if (!m_pVStream && !m_pAStream) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + ": no usable streams found.");
-    }
-
-    m_State = OPENED;
-}
-
-void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
-{
-    AVG_ASSERT(m_State == OPENED);
-    if (m_VStreamIndex >= 0) {
-        m_PF = calcPixelFormat(bDeliverYCbCr);
-    }
-    bool bAudioEnabled = pAP;
-    if (!bAudioEnabled) {
-        m_AStreamIndex = -1;
-        if (m_pAStream) {
-            avcodec_close(m_pAStream->codec);
-        }
-        m_pAStream = 0;
-    }
-
-    if (m_AStreamIndex >= 0) {
-        if (m_pAStream->codec->channels > pAP->m_Channels) {
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    m_sFilename + ": unsupported number of audio channels (" + 
-                            toString(m_pAStream->codec->channels) + ").");
-            m_AStreamIndex = -1;
-            m_pAStream = 0; 
-        }
-    }
-
-    if (m_VStreamIndex < 0 && m_AStreamIndex < 0) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                m_sFilename + " does not contain any valid audio or video streams.");
-    }
-
-    // Create demuxer
-    AVG_ASSERT(!m_pDemuxer);
-    vector<int> streamIndexes;
-    if (m_VStreamIndex >= 0) {
-        streamIndexes.push_back(m_VStreamIndex);
-    }
-    if (m_AStreamIndex >= 0) {
-        streamIndexes.push_back(m_AStreamIndex);
-    }
-    m_pDemuxer = new AsyncDemuxer(m_pFormatContext, streamIndexes);
-    
-    m_State = DECODING;
-}
-
-void FFMpegDecoder::close() 
-{
-    mutex::scoped_lock lock(s_OpenMutex);
-    AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
-    
-    delete m_pDemuxer;
-    m_pDemuxer = 0;
-    
-    // Close audio and video codecs
-    if (m_pVStream) {
-        avcodec_close(m_pVStream->codec);
-        m_pVStream = 0;
-        m_VStreamIndex = -1;
-    }
-
-    if (m_pAStream) {
-        avcodec_close(m_pAStream->codec);
-        m_pAStream = 0;
-        m_AStreamIndex = -1;
-    }
-    if (m_pFormatContext) {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 21, 0)
-        avformat_close_input(&m_pFormatContext);
-#else
-        av_close_input_file(m_pFormatContext);
-        m_pFormatContext = 0;
-#endif
-    }
-    
     if (m_pSwsContext) {
         sws_freeContext(m_pSwsContext);
         m_pSwsContext = 0;
     }
-    m_State = CLOSED;
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
-
-VideoDecoder::DecoderState FFMpegDecoder::getState() const
+/*
+void FFMpegDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
+        bool bEnableSound)
 {
-    return m_State;
-}
-
-VideoInfo FFMpegDecoder::getVideoInfo() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    AVG_ASSERT(m_pVStream || m_pAStream);
-    float duration = getDuration();
-    
-    VideoInfo info(m_pFormatContext->iformat->name, duration, m_pFormatContext->bit_rate,
-            m_pVStream != 0, m_pAStream != 0);
-    if (m_pVStream) {
-        info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(),
-                m_pVStream->codec->codec->name, usesVDPAU(), getDuration(SS_VIDEO));
+    VideoDecoder::open(sFilename, bUseHardwareAcceleration, bEnableSound);
+   
+    if (getVStreamIndex() >= 0) {
+        // Set video parameters
+        m_TimeUnitsPerSecond = float(1.0/av_q2d(getVideoStream()->time_base));
+        if (m_bUseStreamFPS) {
+            m_FPS = getNominalFPS();
+        }
+        m_bFirstPacket = true;
+        m_LastVideoFrameTime = -1;
+        m_bVideoSeekDone = false;
     }
-    if (m_pAStream) {
-        AVCodecContext * pACodec = m_pAStream->codec;
-        info.setAudioData(pACodec->codec->name, pACodec->sample_rate,
-                pACodec->channels, getDuration(SS_AUDIO));
+}
+
+void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
+{
+    VideoDecoder::startDecoding(bDeliverYCbCr, pAP);
+
+    // Create demuxer
+    AVG_ASSERT(!m_pDemuxer);
+    vector<int> streamIndexes;
+    if (getVStreamIndex() >= 0) {
+        streamIndexes.push_back(getVStreamIndex());
     }
-    return info;
+    if (getAStreamIndex() >= 0) {
+        streamIndexes.push_back(getAStreamIndex());
+    }
+    m_pDemuxer = new AsyncDemuxer(getFormatContext(), streamIndexes);
 }
 
-void FFMpegDecoder::seek(float destTime) 
+void FFMpegDecoder::close() 
 {
-    AVG_ASSERT(false);
-}
+    delete m_pDemuxer;
+    m_pDemuxer = 0;
 
-void FFMpegDecoder::loop()
-{
-    AVG_ASSERT(false);
+    VideoDecoder::close();
 }
-
-IntPoint FFMpegDecoder::getSize() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return m_Size;
-}
-
+*/
 int FFMpegDecoder::getCurFrame() const
 {
-    AVG_ASSERT(m_State != CLOSED);
-    return int(m_LastVideoFrameTime*getNominalFPS()+0.5);
+    return int(m_LastVideoFrameTime*float(av_q2d(m_pStream->r_frame_rate))+0.5);
 }
 
-int FFMpegDecoder::getNumFramesQueued() const
+float FFMpegDecoder::getCurTime() const
 {
-    return 0;
-}
-
-float FFMpegDecoder::getCurTime(StreamSelect stream) const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    AVG_ASSERT(stream != SS_AUDIO);
     return m_LastVideoFrameTime;
-}
-
-float FFMpegDecoder::getDuration(StreamSelect streamSelect) const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    long long duration;
-    AVRational time_base;
-    if (streamSelect == SS_DEFAULT) {
-        if (m_pVStream) {
-            streamSelect = SS_VIDEO;
-        } else {
-            streamSelect = SS_AUDIO;
-        }
-    }
-    if (streamSelect == SS_VIDEO) {
-        duration = m_pVStream->duration;
-        time_base = m_pVStream->time_base;
-    } else {
-        duration = m_pAStream->duration;
-        time_base = m_pAStream->time_base;
-    }
-    if (duration == (long long)AV_NOPTS_VALUE) {
-        return 0;
-    } else {
-        return float(duration)*float(av_q2d(time_base));
-    }
-}
-
-float FFMpegDecoder::getNominalFPS() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return float(av_q2d(m_pVStream->r_frame_rate));
-}
-
-float FFMpegDecoder::getFPS() const
-{
-    AVG_ASSERT(false);
-    return m_FPS;
 }
 
 void FFMpegDecoder::setFPS(float fps)
 {
     m_bUseStreamFPS = (fps == 0);
     if (fps == 0) {
-        m_FPS = calcStreamFPS();
+        m_FPS = float(av_q2d(m_pStream->r_frame_rate));
     } else {
         m_FPS = fps;
     }
@@ -430,7 +144,6 @@ static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float timeWanted)
 {
-    AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
     AVFrame frame;
     FrameAvailableCode frameAvailable;
@@ -440,13 +153,13 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float t
     } else {
         frameAvailable = readFrameForTime(frame, timeWanted);
     }
-    if (m_pDemuxer->isClosed(m_VStreamIndex)) {
+    if (m_pDemuxer->isClosed(m_StreamIndex)) {
         return FA_CLOSED;
     } else {
         if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
             if (pixelFormatIsPlanar(m_PF)) {
 #ifdef AVG_ENABLE_VDPAU
-                if (usesVDPAU()) {
+                if (m_bUseVDPAU) {
                     ScopeTimer timer(VDPAUCopyProfilingZone);
                     vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
                     getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
@@ -464,7 +177,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float t
 #endif
             } else {
 #ifdef AVG_ENABLE_VDPAU
-                if (usesVDPAU()) {
+                if (m_bUseVDPAU) {
                     ScopeTimer timer(VDPAUCopyProfilingZone);
                     vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
                     getBitmapFromVDPAU(pRenderState, pBmps[0]);
@@ -486,17 +199,16 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float t
 #ifdef AVG_ENABLE_VDPAU
 FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
 {
-    AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
     AVFrame frame;
     FrameAvailableCode frameAvailable;
     readFrame(frame);
-    if (m_pDemuxer->isClosed(m_VStreamIndex)) {
+    if (m_pDemuxer->isClosed(m_StreamIndex)) {
         return FA_CLOSED;
     } else {
         frameAvailable = FA_NEW_FRAME;
         if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
-            if (usesVDPAU()) {
+            if (m_bUseVDPAU) {
                 ScopeTimer timer(VDPAUCopyProfilingZone);
                 vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
                 *ppRenderState = pRenderState;
@@ -510,7 +222,6 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
 
 void FFMpegDecoder::throwAwayFrame(float timeWanted)
 {
-    AVG_ASSERT(m_State == DECODING);
     AVFrame frame;
     readFrameForTime(frame, timeWanted);
 }
@@ -529,65 +240,8 @@ int FFMpegDecoder::getSeekSeqNum()
 
 bool FFMpegDecoder::isEOF(StreamSelect stream) const
 {
-    AVG_ASSERT(m_State == DECODING);
     AVG_ASSERT(stream != SS_AUDIO);
     return m_bVideoEOF;
-}
-
-AVStream* FFMpegDecoder::getAudioStream() const
-{
-    return m_pAStream;
-}
-
-int FFMpegDecoder::getAStreamIndex() const
-{
-    return m_AStreamIndex;
-}
-
-AsyncDemuxer* FFMpegDecoder::getDemuxer() const
-{
-    AVG_ASSERT(m_pDemuxer);
-    return m_pDemuxer;
-}
-
-void FFMpegDecoder::logConfig()
-{
-    bool bVDPAUAvailable = false;
-#ifdef AVG_ENABLE_VDPAU
-    bVDPAUAvailable = VDPAUDecoder::isAvailable();
-#endif
-    if (bVDPAUAvailable) {
-        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: VDPAU");
-    } else {
-        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
-    }
-}
-
-PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
-{
-    AVCodecContext const* pContext = getCodecContext();
-    if (bUseYCbCr) {
-        switch(pContext->pix_fmt) {
-            case PIX_FMT_YUV420P:
-#ifdef AVG_ENABLE_VDPAU
-            case PIX_FMT_VDPAU_H264:
-            case PIX_FMT_VDPAU_MPEG1:
-            case PIX_FMT_VDPAU_MPEG2:
-            case PIX_FMT_VDPAU_WMV3:
-            case PIX_FMT_VDPAU_VC1:
-#endif
-                return YCbCr420p;
-            case PIX_FMT_YUVJ420P:
-                return YCbCrJ420p;
-            case PIX_FMT_YUVA420P:
-                return YCbCrA420p;
-            default:
-                break;
-        }
-    }
-    bool bAlpha = (pContext->pix_fmt == PIX_FMT_BGRA ||
-            pContext->pix_fmt == PIX_FMT_YUVA420P);
-    return BitmapLoader::get()->getDefaultPixelFormat(bAlpha);
 }
 
 static ProfilingZoneID ConvertImageLibavgProfilingZone(
@@ -626,7 +280,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
                     toString(pBmp->getPixelFormat()) + " not supported.").c_str());
             destFmt = PIX_FMT_BGRA;
     }
-    AVCodecContext const* pContext = getCodecContext();
+    AVCodecContext const* pContext = m_pStream->codec;
     if (destFmt == PIX_FMT_BGRA && (pContext->pix_fmt == PIX_FMT_YUV420P || 
                 pContext->pix_fmt == PIX_FMT_YUVJ420P))
     {
@@ -640,7 +294,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
         pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
                 pContext->pix_fmt == PIX_FMT_YUVJ420P);
 #ifdef AVG_ENABLE_VDPAU
-    } else if (destFmt == PIX_FMT_BGRA && usesVDPAU()) {
+    } else if (destFmt == PIX_FMT_BGRA && m_bUseVDPAU) {
         vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
         getBitmapFromVDPAU(pRenderState, pBmp);
 #endif
@@ -674,38 +328,8 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
     }
 }
        
-PixelFormat FFMpegDecoder::getPixelFormat() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return m_PF;
-}
-
-bool FFMpegDecoder::usesVDPAU() const
-{
-#ifdef AVG_ENABLE_VDPAU
-    AVCodecContext const* pContext = getCodecContext();
-    return pContext->codec && (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU);
-#else
-    return false;
-#endif
-}
-
-int FFMpegDecoder::getNumFrames() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    // This is broken for some videos, but the code here is correct.
-    // So fix ffmpeg :-).
-    int numFrames =  int(m_pVStream->nb_frames);
-    if (numFrames > 0) {
-        return numFrames;
-    } else {
-        return int(getDuration() * calcStreamFPS());
-    }
-}
-
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
-    AVG_ASSERT(m_State == DECODING);
     AVG_ASSERT(timeWanted != -1);
     float timePerFrame = 1.0f/m_FPS;
     if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) 
@@ -718,7 +342,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWan
             float frameTime = readFrame(frame);
             bInvalidFrame = frameTime-timeWanted < -0.5f*timePerFrame;
 #if AVG_ENABLE_VDPAU
-            if (usesVDPAU() && bInvalidFrame && !m_bVideoEOF) {
+            if (m_bUseVDPAU && bInvalidFrame && !m_bVideoEOF) {
                 vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
                 unlockVDPAUSurface(pRenderState);
             }
@@ -732,7 +356,6 @@ static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
 
 float FFMpegDecoder::readFrame(AVFrame& frame)
 {
-    AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(DecodeProfilingZone); 
 
     if (m_bEOFPending) {
@@ -740,14 +363,14 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
         m_bEOFPending = false;
         return m_LastVideoFrameTime;
     }
-    AVCodecContext* pContext = getCodecContext();
+    AVCodecContext* pContext = m_pStream->codec;
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
     float frameTime = -32768;
     bool bDone = false;
     while (!bGotPicture && !bDone) {
         int seqNum;
-        float seekTime = m_pDemuxer->isSeekDone(m_VStreamIndex, seqNum);
+        float seekTime = m_pDemuxer->isSeekDone(m_StreamIndex, seqNum);
         if (seekTime != -1) {
             m_LastVideoFrameTime = -1.0f;
             m_SeekSeqNum = seqNum;
@@ -755,7 +378,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             m_bVideoSeekDone = true;
             m_bVideoEOF = false;
         }
-        pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
+        pPacket = m_pDemuxer->getPacket(m_StreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
@@ -830,33 +453,6 @@ float FFMpegDecoder::getFrameTime(long long dts)
     }
     m_LastVideoFrameTime = frameTime;
     return frameTime;
-}
-
-float FFMpegDecoder::calcStreamFPS() const
-{
-    return (float(m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den);
-}
-
-string FFMpegDecoder::getStreamPF() const
-{
-    AVCodecContext const* pCodec = getCodecContext();
-    AVPixelFormat pf = pCodec->pix_fmt;
-    const char* psz = av_get_pix_fmt_name(pf);
-    string s;
-    if (psz) {
-        s = psz;
-    }
-    return s;
-}
-
-AVCodecContext const* FFMpegDecoder::getCodecContext() const
-{
-    return m_pVStream->codec;
-}
-
-AVCodecContext* FFMpegDecoder::getCodecContext()
-{
-    return m_pVStream->codec;
 }
 
 }

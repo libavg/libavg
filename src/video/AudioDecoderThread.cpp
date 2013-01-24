@@ -36,10 +36,13 @@ using namespace std;
 namespace avg {
 
 AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, 
-        FFMpegDecoderPtr pDecoder, const AudioParams& ap)
+        AsyncDemuxer* pDemuxer, AVStream* pStream, int streamIndex, const AudioParams& ap)
     : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), cmdQ),
       m_MsgQ(msgQ),
+      m_pDemuxer(pDemuxer),
       m_AP(ap),
+      m_pAStream(pStream),
+      m_AStreamIndex(streamIndex),
       m_pAudioResampleContext(0),
       m_bEOF(false)
 {
@@ -48,9 +51,6 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
     m_LastFrameTime = 0;
     m_AudioStartTimestamp = 0;
 
-    m_pAStream = pDecoder->getAudioStream(); 
-    m_AStreamIndex = pDecoder->getAStreamIndex();
-    m_pDemuxer = dynamic_cast<AsyncDemuxer*>(pDecoder->getDemuxer());
     if (m_pAStream->start_time != (long long)AV_NOPTS_VALUE) {
         m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)*m_pAStream->start_time);
     }

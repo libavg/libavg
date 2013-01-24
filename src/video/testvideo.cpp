@@ -75,8 +75,7 @@ class DecoderTest: public GraphicsTest {
         {
             VideoDecoderPtr pDecoder;
             if (m_bThreaded) {
-                FFMpegDecoderPtr pLowLevelDecoder(new FFMpegDecoder());
-                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pLowLevelDecoder, 8));
+                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(8));
             } else {
                 pDecoder = VideoDecoderPtr(new SyncDecoder());
             }
@@ -192,7 +191,7 @@ class VideoDecoderTest: public DecoderTest {
                 TEST(frameSize == IntPoint(48, 48));
                 TEST(pDecoder->getVideoInfo().m_bHasVideo);
                 TEST(pDecoder->getVideoInfo().m_Duration != 0);
-                TEST(pDecoder->getNominalFPS() != 0);
+                TEST(pDecoder->getStreamFPS() != 0);
                 TEST(pDecoder->getFPS() != 0);
                 pDecoder->startDecoding(false, getAudioParams());
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -240,7 +239,7 @@ class VideoDecoderTest: public DecoderTest {
             IntPoint frameSize = pDecoder->getSize();
 
             BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
-            pDecoder->seek(float(frameNum)/pDecoder->getNominalFPS());
+            pDecoder->seek(float(frameNum)/pDecoder->getStreamFPS());
             pDecoder->renderToBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_"+toString(frameNum), B8G8R8X8);
 
@@ -419,7 +418,7 @@ class AVDecoderTest: public DecoderTest {
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
             TEST(pDecoder->getVideoInfo().m_bHasVideo);
-            TEST(pDecoder->getNominalFPS() != 0);
+            TEST(pDecoder->getStreamFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());
             AudioMsgQueuePtr pMsgQ;
             AudioMsgQueuePtr pStatusQ;

@@ -46,223 +46,68 @@ using namespace boost;
 namespace avg {
 
 SyncDecoder::SyncDecoder()
-    : m_State(CLOSED),
-      m_pFormatContext(0),
-      m_PF(NO_PIXELFORMAT),
-      m_pSwsContext(0),
-      m_Size(0,0),
+    : m_pSwsContext(0),
       m_bUseStreamFPS(true),
       m_pDemuxer(0),
-      m_pVStream(0),
-      m_VStreamIndex(-1),
       m_bFirstPacket(false),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
       m_FPS(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    initVideoSupport();
 }
 
 SyncDecoder::~SyncDecoder()
 {
-    if (m_pFormatContext) {
-        close();
-    }
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-int SyncDecoder::openCodec(int streamIndex)
-{
-    AVCodecContext* pContext;
-    pContext = m_pFormatContext->streams[streamIndex]->codec;
-//    pContext->debug = 0x0001; // see avcodec.h
-
-    AVCodec * pCodec = 0;
-
-    if (!pCodec) {
-        pCodec = avcodec_find_decoder(pContext->codec_id);
-    }
-    if (!pCodec) {
-        return -1;
-    }
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
-    int rc = avcodec_open2(pContext, pCodec, 0);
-#else
-    int rc = avcodec_open(pContext, pCodec);
-#endif
-
-    if (rc < 0) {
-        return -1;
-    }
-    return 0;
 }
 
 void SyncDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
         bool bEnableSound)
 {
-    mutex::scoped_lock lock(s_OpenMutex);
     m_bVideoEOF = false;
     m_bEOFPending = false;
     m_VideoStartTimestamp = -1;
-    int err;
-    m_sFilename = sFilename;
+    VideoDecoder::open(sFilename, false, false);
 
-    AVG_TRACE(Logger::MEMORY, "Opening " << sFilename);
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
-    err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
-#else
-    AVFormatParameters params;
-    memset(&params, 0, sizeof(params));
-    err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 
-            0, 0, &params);
-#endif
-    if (err < 0) {
-        m_sFilename = "";
-        m_pFormatContext = 0;
-        avcodecError(sFilename, err);
-    }
-    
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
-    err = avformat_find_stream_info(m_pFormatContext, 0);
-#else
-    err = av_find_stream_info(m_pFormatContext);
-#endif
-
-    if (err < 0) {
-        m_sFilename = "";
-        m_pFormatContext = 0;
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + ": Could not find codec parameters.");
-    }
-    if (strcmp(m_pFormatContext->iformat->name, "image2") == 0) {
-        m_sFilename = "";
-        m_pFormatContext = 0;
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + ": Image files not supported as videos.");
-    }
-    av_read_play(m_pFormatContext);
-    
-    // Find audio and video streams in the file
-    m_VStreamIndex = -1;
-    for (unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
-        AVCodecContext* pContext = m_pFormatContext->streams[i]->codec;
-        switch (pContext->codec_type) {
-            case AVMEDIA_TYPE_VIDEO:
-                if (m_VStreamIndex < 0) {
-                    m_VStreamIndex = i;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    
-    // Enable video stream demuxing
-    if (m_VStreamIndex >= 0) {
-        m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
-        m_State = OPENED;
+    if (getVStreamIndex() >= 0) {
         
         // Set video parameters
-        m_TimeUnitsPerSecond = float(1.0/av_q2d(m_pVStream->time_base));
+        m_TimeUnitsPerSecond = float(1.0/av_q2d(getVideoStream()->time_base));
         if (m_bUseStreamFPS) {
-            m_FPS = getNominalFPS();
+            m_FPS = getStreamFPS();
         }
-        m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
         m_bFirstPacket = true;
-        m_sFilename = sFilename;
         m_LastVideoFrameTime = -1;
-
-        int rc = openCodec(m_VStreamIndex);
-        if (rc == -1) {
-            m_VStreamIndex = -1;
-            char szBuf[256];
-            avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
-            m_pVStream = 0;
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported video codec ("+szBuf+").");
-        }
-        m_PF = calcPixelFormat(true);
         m_bVideoSeekDone = false;
     }
-    if (!m_pVStream) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": no video streams found.");
-    }
-
-    m_State = OPENED;
 }
 
 void SyncDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
-    AVG_ASSERT(m_State == OPENED);
-
-    if (m_VStreamIndex < 0) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                m_sFilename + " does not contain any valid audio or video streams.");
-    }
-    m_PF = calcPixelFormat(bDeliverYCbCr);
+    VideoDecoder::startDecoding(bDeliverYCbCr, 0);
 
     AVG_ASSERT(!m_pDemuxer);
     vector<int> streamIndexes;
-    streamIndexes.push_back(m_VStreamIndex);
-    m_pDemuxer = new FFMpegDemuxer(m_pFormatContext, streamIndexes);
-    
-    m_State = DECODING;
+    streamIndexes.push_back(getVStreamIndex());
+    m_pDemuxer = new FFMpegDemuxer(getFormatContext(), streamIndexes);
 }
 
 void SyncDecoder::close() 
 {
-    mutex::scoped_lock lock(s_OpenMutex);
-    AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
-    
     delete m_pDemuxer;
     m_pDemuxer = 0;
-    
-    // Close audio and video codecs
-    if (m_pVStream) {
-        avcodec_close(m_pVStream->codec);
-        m_pVStream = 0;
-        m_VStreamIndex = -1;
-    }
-
-    if (m_pFormatContext) {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 21, 0)
-        avformat_close_input(&m_pFormatContext);
-#else
-        av_close_input_file(m_pFormatContext);
-        m_pFormatContext = 0;
-#endif
-    }
     
     if (m_pSwsContext) {
         sws_freeContext(m_pSwsContext);
         m_pSwsContext = 0;
     }
-    m_State = CLOSED;
-}
-
-VideoDecoder::DecoderState SyncDecoder::getState() const
-{
-    return m_State;
-}
-
-VideoInfo SyncDecoder::getVideoInfo() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    float duration = 0;
-    if (m_pVStream) {
-        duration = getDuration();
-    }
-    VideoInfo info(m_pFormatContext->iformat->name, duration, m_pFormatContext->bit_rate,
-            true, false);
-    info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(),
-            m_pVStream->codec->codec->name, false, getDuration(SS_VIDEO));
-    return info;
+    VideoDecoder::close();
 }
 
 void SyncDecoder::seek(float destTime) 
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(getState() == DECODING);
 
     if (m_bFirstPacket) {
         AVFrame frame;
@@ -281,16 +126,10 @@ void SyncDecoder::loop()
     seek(0);
 }
 
-IntPoint SyncDecoder::getSize() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return m_Size;
-}
-
 int SyncDecoder::getCurFrame() const
 {
-    AVG_ASSERT(m_State != CLOSED);
-    return int(m_LastVideoFrameTime*getNominalFPS()+0.5);
+    AVG_ASSERT(getState() != CLOSED);
+    return int(m_LastVideoFrameTime*getStreamFPS()+0.5);
 }
 
 int SyncDecoder::getNumFramesQueued() const
@@ -300,36 +139,14 @@ int SyncDecoder::getNumFramesQueued() const
 
 float SyncDecoder::getCurTime(StreamSelect stream) const
 {
-    AVG_ASSERT(m_State != CLOSED);
+    AVG_ASSERT(getState() != CLOSED);
     AVG_ASSERT(stream != SS_AUDIO);
     return m_LastVideoFrameTime;
 }
 
-float SyncDecoder::getDuration(StreamSelect streamSelect) const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    AVG_ASSERT(streamSelect != SS_AUDIO);
-    long long duration;
-    AVRational time_base;
-    duration = m_pVStream->duration;
-    time_base = m_pVStream->time_base;
-
-    if (duration == (long long)AV_NOPTS_VALUE) {
-        return 0;
-    } else {
-        return float(duration)*float(av_q2d(time_base));
-    }
-}
-
-float SyncDecoder::getNominalFPS() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return float(av_q2d(m_pVStream->r_frame_rate));
-}
-
 float SyncDecoder::getFPS() const
 {
-    AVG_ASSERT(m_State != CLOSED);
+    AVG_ASSERT(getState() != CLOSED);
     return m_FPS;
 }
 
@@ -337,7 +154,7 @@ void SyncDecoder::setFPS(float fps)
 {
     m_bUseStreamFPS = (fps == 0);
     if (fps == 0) {
-        m_FPS = calcStreamFPS();
+        m_FPS = getStreamFPS();
     } else {
         m_FPS = fps;
     }
@@ -349,7 +166,7 @@ static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 
 FrameAvailableCode SyncDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float timeWanted)
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(getState() == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
     AVFrame frame;
     FrameAvailableCode frameAvailable;
@@ -360,7 +177,7 @@ FrameAvailableCode SyncDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float tim
         frameAvailable = readFrameForTime(frame, timeWanted);
     }
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
-        if (pixelFormatIsPlanar(m_PF)) {
+        if (pixelFormatIsPlanar(getPixelFormat())) {
             ScopeTimer timer(CopyImageProfilingZone);
             for (unsigned i = 0; i < pBmps.size(); ++i) {
                 copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
@@ -376,43 +193,16 @@ FrameAvailableCode SyncDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float tim
 
 void SyncDecoder::throwAwayFrame(float timeWanted)
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(getState() == DECODING);
     AVFrame frame;
     readFrameForTime(frame, timeWanted);
 }
 
 bool SyncDecoder::isEOF(StreamSelect stream) const
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(getState() == DECODING);
     AVG_ASSERT(stream != SS_AUDIO);
     return m_bVideoEOF;
-}
-
-PixelFormat SyncDecoder::calcPixelFormat(bool bUseYCbCr)
-{
-    AVCodecContext const* pContext = getCodecContext();
-    if (bUseYCbCr) {
-        switch(pContext->pix_fmt) {
-            case PIX_FMT_YUV420P:
-#ifdef AVG_ENABLE_VDPAU
-            case PIX_FMT_VDPAU_H264:
-            case PIX_FMT_VDPAU_MPEG1:
-            case PIX_FMT_VDPAU_MPEG2:
-            case PIX_FMT_VDPAU_WMV3:
-            case PIX_FMT_VDPAU_VC1:
-#endif
-                return YCbCr420p;
-            case PIX_FMT_YUVJ420P:
-                return YCbCrJ420p;
-            case PIX_FMT_YUVA420P:
-                return YCbCrA420p;
-            default:
-                break;
-        }
-    }
-    bool bAlpha = (pContext->pix_fmt == PIX_FMT_BGRA ||
-            pContext->pix_fmt == PIX_FMT_YUVA420P);
-    return BitmapLoader::get()->getDefaultPixelFormat(bAlpha);
 }
 
 static ProfilingZoneID ConvertImageLibavgProfilingZone(
@@ -494,27 +284,9 @@ void SyncDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
     }
 }
        
-PixelFormat SyncDecoder::getPixelFormat() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    return m_PF;
-}
-
-int SyncDecoder::getNumFrames() const
-{
-    AVG_ASSERT(m_State != CLOSED);
-    // This is broken for some videos.
-    int numFrames =  int(m_pVStream->nb_frames);
-    if (numFrames > 0) {
-        return numFrames;
-    } else {
-        return int(getDuration() * calcStreamFPS());
-    }
-}
-
 FrameAvailableCode SyncDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(getState() == DECODING);
     AVG_ASSERT(timeWanted != -1);
     float timePerFrame = 1.0f/m_FPS;
     if (!m_bVideoSeekDone && timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) {
@@ -537,7 +309,7 @@ static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
 
 float SyncDecoder::readFrame(AVFrame& frame)
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(getState() == DECODING);
     ScopeTimer timer(DecodeProfilingZone); 
 
     if (m_bEOFPending) {
@@ -551,7 +323,7 @@ float SyncDecoder::readFrame(AVFrame& frame)
     float frameTime = -32768;
     bool bDone = false;
     while (!bGotPicture && !bDone) {
-        pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
+        pPacket = m_pDemuxer->getPacket(getVStreamIndex());
         m_bFirstPacket = false;
         if (pPacket) {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
@@ -626,33 +398,6 @@ float SyncDecoder::getFrameTime(long long dts)
     }
     m_LastVideoFrameTime = frameTime;
     return frameTime;
-}
-
-float SyncDecoder::calcStreamFPS() const
-{
-    return (float(m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den);
-}
-
-string SyncDecoder::getStreamPF() const
-{
-    AVCodecContext const* pCodec = getCodecContext();
-    AVPixelFormat pf = pCodec->pix_fmt;
-    const char* psz = av_get_pix_fmt_name(pf);
-    string s;
-    if (psz) {
-        s = psz;
-    }
-    return s;
-}
-
-AVCodecContext const* SyncDecoder::getCodecContext() const
-{
-    return m_pVStream->codec;
-}
-
-AVCodecContext* SyncDecoder::getCodecContext()
-{
-    return m_pVStream->codec;
 }
 
 }

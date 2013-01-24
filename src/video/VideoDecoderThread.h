@@ -41,8 +41,8 @@ typedef boost::shared_ptr<BitmapQueue> BitmapQueuePtr;
 
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
-        VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-                FFMpegDecoderPtr pDecoder);
+        VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, FFMpegDecoderPtr pDecoder,
+                const IntPoint& size, PixelFormat pf, bool bUseVDPAU);
         virtual ~VideoDecoderThread();
         
         bool work();
@@ -60,7 +60,9 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         BitmapQueuePtr m_pBmpQ;
         BitmapQueuePtr m_pHalfBmpQ;
         
-//        ProfilingZone * m_pPushMsgProfilingZone;
+        IntPoint m_Size;
+        PixelFormat m_PF;
+        bool m_bUseVDPAU;
 };
 
 }

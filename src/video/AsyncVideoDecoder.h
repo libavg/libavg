@@ -41,24 +41,19 @@ namespace avg {
 class AVG_API AsyncVideoDecoder: public VideoDecoder
 {
 public:
-    AsyncVideoDecoder(FFMpegDecoderPtr pSyncDecoder, int queueLength);
+    AsyncVideoDecoder(int queueLength);
     virtual ~AsyncVideoDecoder();
     virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
             bool bEnableSound);
     virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
     virtual void close();
-    virtual DecoderState getState() const;
-    virtual VideoInfo getVideoInfo() const;
     virtual void seek(float destTime);
     virtual void loop();
-    virtual IntPoint getSize() const;
     virtual int getCurFrame() const;
     virtual int getNumFramesQueued() const;
     virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
-    virtual float getNominalFPS() const;
     virtual float getFPS() const;
     virtual void setFPS(float fps);
-    virtual PixelFormat getPixelFormat() const;
 
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
             float timeWanted);
@@ -80,9 +75,7 @@ private:
     void returnFrame(VideoMsgPtr pFrameMsg);
     bool isSeeking() const;
 
-    DecoderState m_State;
     FFMpegDecoderPtr m_pSyncDecoder;
-    std::string m_sFilename;
     int m_QueueLength;
 
     AsyncDemuxer* m_pDemuxer;
@@ -96,12 +89,8 @@ private:
     AudioMsgQueuePtr m_pAMsgQ;
     AudioMsgQueuePtr m_pAStatusQ;
 
-    VideoInfo m_VideoInfo;
-
-    IntPoint m_Size;
     bool m_bUseStreamFPS;
     float m_FPS;
-    PixelFormat m_PF;
     
     int m_NumSeeksSent;
     int m_NumVSeeksDone;
@@ -114,8 +103,6 @@ private:
     float m_LastVideoFrameTime;
     float m_CurVideoFrameTime;
     float m_LastAudioFrameTime;
-
-    bool m_bUsesVDPAU;
 };
 
 typedef boost::shared_ptr<AsyncVideoDecoder> AsyncVideoDecoderPtr;
