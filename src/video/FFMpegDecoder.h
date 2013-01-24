@@ -49,33 +49,27 @@ class AVG_API FFMpegDecoder
                 PixelFormat pf, bool bUseVDPAU);
         virtual ~FFMpegDecoder();
 
-        virtual int getCurFrame() const;
         virtual float getCurTime() const;
         virtual void setFPS(float fps);
-        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
-                float timeWanted);
+        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps);
 #ifdef AVG_ENABLE_VDPAU
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
 #endif
-        virtual void throwAwayFrame(float timeWanted);
         bool isVideoSeekDone();
         int getSeekSeqNum();
 
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
         
     private:
-        FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
         void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
         float getFrameTime(long long dts);
-        std::string getStreamPF() const;
+        float readFrame(AVFrame& frame);
 
         SwsContext * m_pSwsContext;
         float m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;
         bool m_bVideoSeekDone;
         int m_SeekSeqNum;
-
-        float readFrame(AVFrame& frame);
 
         AsyncDemuxer* m_pDemuxer;
         AVStream* m_pStream;

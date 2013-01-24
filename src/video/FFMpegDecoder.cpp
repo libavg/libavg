@@ -76,52 +76,6 @@ FFMpegDecoder::~FFMpegDecoder()
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
-/*
-void FFMpegDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
-{
-    VideoDecoder::open(sFilename, bUseHardwareAcceleration, bEnableSound);
-   
-    if (getVStreamIndex() >= 0) {
-        // Set video parameters
-        m_TimeUnitsPerSecond = float(1.0/av_q2d(getVideoStream()->time_base));
-        if (m_bUseStreamFPS) {
-            m_FPS = getNominalFPS();
-        }
-        m_bFirstPacket = true;
-        m_LastVideoFrameTime = -1;
-        m_bVideoSeekDone = false;
-    }
-}
-
-void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
-{
-    VideoDecoder::startDecoding(bDeliverYCbCr, pAP);
-
-    // Create demuxer
-    AVG_ASSERT(!m_pDemuxer);
-    vector<int> streamIndexes;
-    if (getVStreamIndex() >= 0) {
-        streamIndexes.push_back(getVStreamIndex());
-    }
-    if (getAStreamIndex() >= 0) {
-        streamIndexes.push_back(getAStreamIndex());
-    }
-    m_pDemuxer = new AsyncDemuxer(getFormatContext(), streamIndexes);
-}
-
-void FFMpegDecoder::close() 
-{
-    delete m_pDemuxer;
-    m_pDemuxer = 0;
-
-    VideoDecoder::close();
-}
-*/
-int FFMpegDecoder::getCurFrame() const
-{
-    return int(m_LastVideoFrameTime*float(av_q2d(m_pStream->r_frame_rate))+0.5);
-}
 
 float FFMpegDecoder::getCurTime() const
 {
@@ -142,21 +96,18 @@ static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
 static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 
-FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float timeWanted)
+FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps)
 {
     ScopeTimer timer(RenderToBmpProfilingZone);
     AVFrame frame;
-    FrameAvailableCode frameAvailable;
-    if (timeWanted == -1) {
-        readFrame(frame);
-        frameAvailable = FA_NEW_FRAME;
-    } else {
-        frameAvailable = readFrameForTime(frame, timeWanted);
-    }
+    readFrame(frame);
+
     if (m_pDemuxer->isClosed(m_StreamIndex)) {
         return FA_CLOSED;
     } else {
-        if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
+        if (m_bVideoEOF) {
+            return FA_USE_LAST_FRAME;
+        } else {
             if (pixelFormatIsPlanar(m_PF)) {
 #ifdef AVG_ENABLE_VDPAU
                 if (m_bUseVDPAU) {
@@ -191,8 +142,6 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float t
             return FA_NEW_FRAME;
         }
     }
-    // TODO: clean this up.
-    return FA_USE_LAST_FRAME;
 }
 
 
@@ -219,12 +168,6 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
     }
 }
 #endif
-
-void FFMpegDecoder::throwAwayFrame(float timeWanted)
-{
-    AVFrame frame;
-    readFrameForTime(frame, timeWanted);
-}
 
 bool FFMpegDecoder::isVideoSeekDone()
 {
@@ -328,30 +271,6 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
     }
 }
        
-FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
-{
-    AVG_ASSERT(timeWanted != -1);
-    float timePerFrame = 1.0f/m_FPS;
-    if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) 
-    {
-        // The last frame is still current. Display it again.
-        return FA_USE_LAST_FRAME;
-    } else {
-        bool bInvalidFrame = true;
-        while (bInvalidFrame && !m_bVideoEOF) {
-            float frameTime = readFrame(frame);
-            bInvalidFrame = frameTime-timeWanted < -0.5f*timePerFrame;
-#if AVG_ENABLE_VDPAU
-            if (m_bUseVDPAU && bInvalidFrame && !m_bVideoEOF) {
-                vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-                unlockVDPAUSurface(pRenderState);
-            }
-#endif
-        }
-    }
-    return FA_NEW_FRAME;
-}
-
 static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
 
 float FFMpegDecoder::readFrame(AVFrame& frame)

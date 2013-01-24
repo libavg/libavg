@@ -78,7 +78,7 @@ bool VideoDecoderThread::work()
         } else {
             pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
         }
-        frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
+        frameAvailable = m_pDecoder->renderToBmps(pBmps);
     }
     if (frameAvailable == FA_CLOSED) {
         close();
