@@ -45,9 +45,6 @@ using namespace boost;
 
 namespace avg {
 
-bool SyncDecoder::s_bInitialized = false;
-mutex SyncDecoder::s_OpenMutex;
-
 SyncDecoder::SyncDecoder()
     : m_State(CLOSED),
       m_pFormatContext(0),
@@ -501,17 +498,6 @@ PixelFormat SyncDecoder::getPixelFormat() const
 {
     AVG_ASSERT(m_State != CLOSED);
     return m_PF;
-}
-
-void SyncDecoder::initVideoSupport()
-{
-    if (!s_bInitialized) {
-        av_register_all();
-        s_bInitialized = true;
-        // Tune libavcodec console spam.
-//        av_log_set_level(AV_LOG_DEBUG);
-        av_log_set_level(AV_LOG_QUIET);
-    }
 }
 
 int SyncDecoder::getNumFrames() const

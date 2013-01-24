@@ -35,8 +35,6 @@
 #include <libavcodec/vdpau.h>
 #endif
 
-#include <boost/thread/mutex.hpp>
-
 namespace avg {
 
 class AudioBuffer;
@@ -85,7 +83,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         static void logConfig();
 
     private:
-        void initVideoSupport();
         bool usesVDPAU() const;
         int openCodec(int streamIndex, bool bUseHardwareAcceleration);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
@@ -130,10 +127,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         float m_LastVideoFrameTime;
 
         float m_FPS;
-
-        static bool s_bInitialized;
-        // Prevents different decoder instances from executing open/close simultaneously
-        static boost::mutex s_OpenMutex;   
 };
 
 typedef boost::shared_ptr<FFMpegDecoder> FFMpegDecoderPtr;

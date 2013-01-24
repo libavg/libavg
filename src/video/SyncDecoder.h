@@ -26,8 +26,6 @@
 #include "VideoDecoder.h"
 #include "FFMpegDemuxer.h"
 
-#include <boost/thread/mutex.hpp>
-
 namespace avg {
 
 class AVG_API SyncDecoder: public VideoDecoder
@@ -60,7 +58,6 @@ class AVG_API SyncDecoder: public VideoDecoder
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
         
     private:
-        void initVideoSupport();
         int openCodec(int streamIndex);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
         virtual float getDuration(StreamSelect streamSelect = SS_DEFAULT) const;
@@ -98,10 +95,6 @@ class AVG_API SyncDecoder: public VideoDecoder
         float m_LastVideoFrameTime;
 
         float m_FPS;
-
-        static bool s_bInitialized;
-        // Prevents different decoder instances from executing open/close simultaneously
-        static boost::mutex s_OpenMutex;   
 };
 
 typedef boost::shared_ptr<SyncDecoder> SyncDecoderPtr;

@@ -34,8 +34,12 @@
 #include "WrapFFMpeg.h"
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
+
+bool VideoDecoder::s_bInitialized = false;
+mutex VideoDecoder::s_OpenMutex;
 
 FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
 {
@@ -60,6 +64,17 @@ void VideoDecoder::logConfig()
         AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: VDPAU");
     } else {
         AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
+    }
+}
+
+void VideoDecoder::initVideoSupport()
+{
+    if (!s_bInitialized) {
+        av_register_all();
+        s_bInitialized = true;
+        // Tune libavcodec console spam.
+//        av_log_set_level(AV_LOG_DEBUG);
+        av_log_set_level(AV_LOG_QUIET);
     }
 }
 

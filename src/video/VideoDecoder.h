@@ -32,6 +32,7 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 
 struct vdpau_render_state;
 
@@ -80,6 +81,14 @@ class AVG_API VideoDecoder
         virtual void throwAwayFrame(float timeWanted) = 0;
 
         static void logConfig();
+
+protected:
+        void initVideoSupport();
+        // Prevents different decoder instances from executing open/close simultaneously
+        static boost::mutex s_OpenMutex;   
+
+private:
+        static bool s_bInitialized;
 };
 
 typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;

@@ -48,9 +48,6 @@ using namespace boost;
 
 namespace avg {
 
-bool FFMpegDecoder::s_bInitialized = false;
-mutex FFMpegDecoder::s_OpenMutex;
-
 FFMpegDecoder::FFMpegDecoder()
     : m_State(CLOSED),
       m_pFormatContext(0),
@@ -683,17 +680,6 @@ PixelFormat FFMpegDecoder::getPixelFormat() const
 {
     AVG_ASSERT(m_State != CLOSED);
     return m_PF;
-}
-
-void FFMpegDecoder::initVideoSupport()
-{
-    if (!s_bInitialized) {
-        av_register_all();
-        s_bInitialized = true;
-        // Tune libavcodec console spam.
-//        av_log_set_level(AV_LOG_DEBUG);
-        av_log_set_level(AV_LOG_QUIET);
-    }
 }
 
 bool FFMpegDecoder::usesVDPAU() const
