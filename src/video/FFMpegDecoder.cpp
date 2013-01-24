@@ -440,8 +440,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float t
     } else {
         frameAvailable = readFrameForTime(frame, timeWanted);
     }
-    AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
-    if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
+    if (m_pDemuxer->isClosed(m_VStreamIndex)) {
         return FA_CLOSED;
     } else {
         if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
@@ -492,8 +491,7 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
     AVFrame frame;
     FrameAvailableCode frameAvailable;
     readFrame(frame);
-    AsyncDemuxer* pAsyncDemuxer(dynamic_cast<AsyncDemuxer*>(m_pDemuxer));
-    if (pAsyncDemuxer && pAsyncDemuxer->isClosed(m_VStreamIndex)) {
+    if (m_pDemuxer->isClosed(m_VStreamIndex)) {
         return FA_CLOSED;
     } else {
         frameAvailable = FA_NEW_FRAME;
@@ -546,7 +544,7 @@ int FFMpegDecoder::getAStreamIndex() const
     return m_AStreamIndex;
 }
 
-IDemuxer* FFMpegDecoder::getDemuxer() const
+AsyncDemuxer* FFMpegDecoder::getDemuxer() const
 {
     AVG_ASSERT(m_pDemuxer);
     return m_pDemuxer;

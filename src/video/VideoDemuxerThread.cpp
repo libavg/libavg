@@ -83,8 +83,6 @@ bool VideoDemuxerThread::work()
             msleep(10);
             return true;
         }
-        int dummy;
-        m_pDemuxer->isSeekDone(shortestQ, dummy); // Ignore here - handled in seek() 
 
         AVPacket * pPacket = m_pDemuxer->getPacket(shortestQ);
         VideoMsgPtr pMsg(new VideoMsg);

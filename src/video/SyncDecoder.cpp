@@ -551,8 +551,6 @@ float SyncDecoder::readFrame(AVFrame& frame)
     float frameTime = -32768;
     bool bDone = false;
     while (!bGotPicture && !bDone) {
-        int seqNum;
-        m_pDemuxer->isSeekDone(m_VStreamIndex, seqNum);
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {

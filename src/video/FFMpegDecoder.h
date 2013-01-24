@@ -40,6 +40,7 @@ namespace avg {
 class AudioBuffer;
 typedef boost::shared_ptr<AudioBuffer> AudioBufferPtr;
 class VDPAUDecoder;
+class AsyncDemuxer;
 
 class AVG_API FFMpegDecoder: public VideoDecoder
 {
@@ -78,7 +79,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         
         AVStream* getAudioStream() const;
         int getAStreamIndex() const;
-        IDemuxer* getDemuxer() const;
+        AsyncDemuxer* getDemuxer() const;
 
         static void logConfig();
 
@@ -113,7 +114,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
 
         float readFrame(AVFrame& frame);
 
-        IDemuxer * m_pDemuxer;
+        AsyncDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
         AVStream * m_pAStream;
 #ifdef AVG_ENABLE_VDPAU

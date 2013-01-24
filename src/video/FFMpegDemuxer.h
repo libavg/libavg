@@ -41,7 +41,6 @@ class AVG_API FFMpegDemuxer: public IDemuxer {
         virtual ~FFMpegDemuxer();
        
         AVPacket * getPacket(int streamIndex);
-        float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
         void seek(float destTime);
         void dump();
         
@@ -51,7 +50,6 @@ class AVG_API FFMpegDemuxer: public IDemuxer {
         // Packets that haven't been delivered yet.
         typedef std::list<AVPacket *> PacketList;
         std::map<int, PacketList> m_PacketLists;
-        std::map<int, float> m_seekDoneMap;
        
         AVFormatContext * m_pFormatContext;
 };

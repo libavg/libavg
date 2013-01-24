@@ -37,7 +37,6 @@ FFMpegDemuxer::FFMpegDemuxer(AVFormatContext * pFormatContext, vector<int> strea
     ObjectCounter::get()->incRef(&typeid(*this));
     for (unsigned i = 0; i < streamIndexes.size(); ++i) {
         m_PacketLists[streamIndexes[i]] = PacketList();
-        m_seekDoneMap[streamIndexes[i]] = -1;
     }
 }
 
@@ -58,9 +57,6 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
         dump();
         AVG_ASSERT(false);
     }
-
-    // isSeekDone should have been called before this function.
-    AVG_ASSERT(m_seekDoneMap[streamIndex] == -1);
 
     PacketList & curPacketList = m_PacketLists.find(streamIndex)->second;
     AVPacket * pPacket;
@@ -106,14 +102,6 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
     return pPacket;
 }
         
-float FFMpegDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
-{
-    float seekTime = m_seekDoneMap[streamIndex];
-    m_seekDoneMap[streamIndex] = -1;
-    seqNum = -1;
-    return seekTime;
-}
-
 void FFMpegDemuxer::seek(float destTime)
 {
 #if LIBAVFORMAT_BUILD <= 4616
@@ -128,11 +116,6 @@ void FFMpegDemuxer::seek(float destTime)
 #endif
 #endif
     clearPacketCache();
-    map<int, PacketList>::iterator it;
-    for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
-        int curStreamIndex = it->first;
-        m_seekDoneMap[curStreamIndex] = destTime;
-    }
 }
 
 void FFMpegDemuxer::clearPacketCache()
