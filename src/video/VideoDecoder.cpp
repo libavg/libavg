@@ -20,9 +20,20 @@
 //
 
 #include "VideoDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUDecoder.h"
+#endif
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
+
 #include "../graphics/Bitmap.h"
+
+#include <string>
+
+#include "WrapFFMpeg.h"
+
+using namespace std;
 
 namespace avg {
 
@@ -37,6 +48,58 @@ FrameAvailableCode VideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderStat
 {
     AVG_ASSERT(false);
     return FA_NEW_FRAME; // Silence compiler warning.
+}
+
+void VideoDecoder::logConfig()
+{
+    bool bVDPAUAvailable = false;
+#ifdef AVG_ENABLE_VDPAU
+    bVDPAUAvailable = VDPAUDecoder::isAvailable();
+#endif
+    if (bVDPAUAvailable) {
+        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: VDPAU");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
+    }
+}
+
+void avcodecError(const string& sFilename, int err)
+{
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+        char buf[256];
+        av_strerror(err, buf, 256);
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": " + buf);
+#else
+    switch(err) {
+        case AVERROR_NUMEXPECTED:
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": Incorrect image filename syntax (use %%d to specify the image number:");
+        case AVERROR_INVALIDDATA:
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": Error while parsing header");
+        case AVERROR_NOFMT:
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": Unknown format");
+        default:
+            stringstream s;
+            s << "'" << sFilename <<  "': Error while opening file (Num:" << err << ")";
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, s.str());
+    }
+#endif
+}
+
+void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride)
+{
+    unsigned char * pSrc=pData;
+    unsigned char * pDest= pBmp->getPixels();
+    int destStride = pBmp->getStride();
+    int height = pBmp->getSize().y;
+    int width = pBmp->getSize().x;
+    for (int y = 0; y < height; y++) {
+        memcpy(pDest, pSrc, width);
+        pSrc += stride;
+        pDest += destStride;
+    }
 }
 
 }

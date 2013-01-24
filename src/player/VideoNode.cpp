@@ -38,6 +38,7 @@
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
+#include "../video/SyncDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "../video/VDPAUDecoder.h"
 #endif
@@ -96,10 +97,10 @@ VideoNode::VideoNode(const ArgList& args)
                 "Can't set queue length for unthreaded videos because there is no decoder queue in this case.");
     }
     if (m_bThreaded) {
-        FFMpegDecoderPtr pSyncDecoder(new FFMpegDecoder());
-        m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, m_QueueLength);
+        FFMpegDecoderPtr pLowLevelDecoder(new FFMpegDecoder());
+        m_pDecoder = new AsyncVideoDecoder(pLowLevelDecoder, m_QueueLength);
     } else {
-        m_pDecoder = new FFMpegDecoder();
+        m_pDecoder = new SyncDecoder();
     }
 
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -455,8 +456,7 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration, 
-            m_bEnableSound);
+    m_pDecoder->open(m_Filename, m_bUsesHardwareAcceleration, m_bEnableSound);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();

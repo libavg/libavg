@@ -19,35 +19,22 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FFMpegDecoder_H_
-#define _FFMpegDecoder_H_
+#ifndef _SyncDecoder_H_
+#define _SyncDecoder_H_
 
 #include "../avgconfigwrapper.h"
 #include "VideoDecoder.h"
-#include "IDemuxer.h"
-
-#include "../audio/AudioParams.h"
-
-#include "WrapFFMpeg.h"
-
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUHelper.h"
-#include <libavcodec/vdpau.h>
-#endif
+#include "FFMpegDemuxer.h"
 
 #include <boost/thread/mutex.hpp>
 
 namespace avg {
 
-class AudioBuffer;
-typedef boost::shared_ptr<AudioBuffer> AudioBufferPtr;
-class VDPAUDecoder;
-
-class AVG_API FFMpegDecoder: public VideoDecoder
+class AVG_API SyncDecoder: public VideoDecoder
 {
     public:
-        FFMpegDecoder();
-        virtual ~FFMpegDecoder();
+        SyncDecoder();
+        virtual ~SyncDecoder();
         virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
                 bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
@@ -59,7 +46,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         virtual float getFPS() const;
         virtual PixelFormat getPixelFormat() const;
 
-        // Called from video thread.
         virtual IntPoint getSize() const;
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;
@@ -67,27 +53,15 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         virtual void setFPS(float fps);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted);
-#ifdef AVG_ENABLE_VDPAU
-        virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
-#endif
         virtual void throwAwayFrame(float timeWanted);
-        bool isVideoSeekDone();
-        int getSeekSeqNum();
 
         virtual void seek(float destTime);
         virtual void loop();
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
         
-        AVStream* getAudioStream() const;
-        int getAStreamIndex() const;
-        IDemuxer* getDemuxer() const;
-
-        static void logConfig();
-
     private:
         void initVideoSupport();
-        bool usesVDPAU() const;
-        int openCodec(int streamIndex, bool bUseHardwareAcceleration);
+        int openCodec(int streamIndex);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
         virtual float getDuration(StreamSelect streamSelect = SS_DEFAULT) const;
         virtual int getNumFrames() const;
@@ -110,18 +84,12 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         float m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;
         bool m_bVideoSeekDone;
-        int m_SeekSeqNum;
-
-        int m_AStreamIndex;
 
         float readFrame(AVFrame& frame);
 
-        IDemuxer * m_pDemuxer;
+        FFMpegDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
-        AVStream * m_pAStream;
-#ifdef AVG_ENABLE_VDPAU
-        VDPAUDecoder* m_pVDPAUDecoder;
-#endif
+        
         int m_VStreamIndex;
         bool m_bEOFPending;
         bool m_bVideoEOF;
@@ -136,7 +104,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         static boost::mutex s_OpenMutex;   
 };
 
-typedef boost::shared_ptr<FFMpegDecoder> FFMpegDecoderPtr;
+typedef boost::shared_ptr<SyncDecoder> SyncDecoderPtr;
 
 }
 #endif 

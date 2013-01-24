@@ -23,6 +23,7 @@
 #define _VideoDecoder_H_
 
 #include "../api.h"
+#include "../avgconfigwrapper.h"
 
 #include "VideoInfo.h"
 
@@ -52,8 +53,8 @@ class AVG_API VideoDecoder
     public:
         enum DecoderState {CLOSED, OPENED, DECODING};
         virtual ~VideoDecoder() {};
-        virtual void open(const std::string& sFilename, bool bSyncDemuxer,
-                bool bUseHardwareAcceleration, bool bEnableSound) = 0;
+        virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
+                bool bEnableSound) = 0;
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP) = 0;
         virtual void close() = 0;
         virtual DecoderState getState() const = 0;
@@ -77,9 +78,15 @@ class AVG_API VideoDecoder
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
         virtual bool isEOF(StreamSelect stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(float timeWanted) = 0;
+
+        static void logConfig();
 };
 
 typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;
+
+void avcodecError(const std::string& sFilename, int err);
+
+void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride);
 
 }
 #endif 
