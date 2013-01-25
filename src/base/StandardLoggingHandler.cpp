@@ -28,6 +28,7 @@ using namespace std;
 
 namespace avg
 {
+using namespace logging;
 
 StandardLoggingHandler::StandardLoggingHandler()
 {

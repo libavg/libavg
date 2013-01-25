@@ -336,4 +336,6 @@ avg::NodePtr createNode(const boost::python::tuple &args,
 
 void exportMessages(boost::python::object& nodeClass, const std::string& sClassName);
 
+void addPythonLogger(PyObject * self, PyObject * pyLogger);
+
 #endif

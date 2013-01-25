@@ -104,7 +104,7 @@ V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat cam
     }
 
     initDevice();
-    AVG_TRACE(Logger::CONFIG, "V4L2 Camera opened");
+    AVG_TRACE(logging::subsystem::CONFIG, "V4L2 Camera opened");
 }
 
 V4LCamera::~V4LCamera()
@@ -117,7 +117,7 @@ void V4LCamera::close()
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     int rc = xioctl(m_Fd, VIDIOC_STREAMOFF, &type);
     if (rc == -1) {
-        AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
+        AVG_TRACE(logging::subsystem::ERROR, "VIDIOC_STREAMOFF");
     }
     vector<Buffer>::iterator it;
     for (it = m_vBuffers.begin(); it != m_vBuffers.end(); ++it) {
@@ -127,7 +127,7 @@ void V4LCamera::close()
     m_vBuffers.clear();
 
     ::close(m_Fd);
-    AVG_TRACE(Logger::CONFIG, "V4L2 Camera closed");
+    AVG_TRACE(logging::subsystem::CONFIG, "V4L2 Camera closed");
 
     m_Fd = -1;
 }
@@ -182,12 +182,12 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
         // caught signal or something else
         if (rc == -1) {
-            AVG_TRACE(Logger::WARNING, "V4L2: select failed.");
+            AVG_TRACE(logging::subsystem::WARNING, "V4L2: select failed.");
             return BitmapPtr();
         }
         // timeout
         if (rc == 0) {
-            AVG_TRACE(Logger::WARNING, "V4L2: Timeout while waiting for image data");
+            AVG_TRACE(logging::subsystem::WARNING, "V4L2: Timeout while waiting for image data");
             return BitmapPtr();
         }
     }
@@ -273,7 +273,7 @@ V4LCID_t V4LCamera::getFeatureID(CameraFeature feature) const
     } else if (feature == CAM_FEATURE_SATURATION) {
         v4lFeature = V4L2_CID_SATURATION;
     } else {
-        AVG_TRACE(Logger::WARNING, "feature " << cameraFeatureToString(feature)
+        AVG_TRACE(logging::subsystem::WARNING, "feature " << cameraFeatureToString(feature)
                 << " not supported for V4L2.");
         return -1;
     }
@@ -319,12 +319,12 @@ int V4LCamera::getFeature(CameraFeature feature) const
 void V4LCamera::setFeature(V4LCID_t v4lFeature, int value)
 {
     if (!m_bCameraAvailable) {
-        AVG_TRACE(Logger::WARNING, "setFeature() called before opening device: ignored");
+        AVG_TRACE(logging::subsystem::WARNING, "setFeature() called before opening device: ignored");
         return;
     }
 
     if (!isFeatureSupported(v4lFeature)) {
-        AVG_TRACE(Logger::WARNING, "Camera feature " << getFeatureName(v4lFeature) <<
+        AVG_TRACE(logging::subsystem::WARNING, "Camera feature " << getFeatureName(v4lFeature) <<
             " is not supported by hardware");
         return;
     }
@@ -335,29 +335,29 @@ void V4LCamera::setFeature(V4LCID_t v4lFeature, int value)
     control.id = v4lFeature;
     control.value = value;
 
-//    AVG_TRACE(Logger::APP, "Setting feature " << getFeatureName(v4lFeature) <<
+//    AVG_TRACE(logging::subsystem::APP, "Setting feature " << getFeatureName(v4lFeature) <<
 //      " to "<< value);
 
     if (ioctl(m_Fd, VIDIOC_S_CTRL, &control) == -1) {
-        AVG_TRACE(Logger::ERROR, "Cannot set feature " <<
+        AVG_TRACE(logging::subsystem::ERROR, "Cannot set feature " <<
             m_FeaturesNames[v4lFeature]);
     }
 }
 
 void V4LCamera::setFeatureOneShot(CameraFeature feature)
 {
-    AVG_TRACE(Logger::WARNING, "setFeatureOneShot is not supported by V4L cameras.");
+    AVG_TRACE(logging::subsystem::WARNING, "setFeatureOneShot is not supported by V4L cameras.");
 }
 
 int V4LCamera::getWhitebalanceU() const
 {
-    AVG_TRACE(Logger::WARNING, "getWhitebalance is not supported by V4L cameras.");
+    AVG_TRACE(logging::subsystem::WARNING, "getWhitebalance is not supported by V4L cameras.");
     return 0;
 }
 
 int V4LCamera::getWhitebalanceV() const
 {
-    AVG_TRACE(Logger::WARNING, "getWhitebalance is not supported by V4L cameras.");
+    AVG_TRACE(logging::subsystem::WARNING, "getWhitebalance is not supported by V4L cameras.");
     return 0;
 }
 
@@ -518,7 +518,7 @@ void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValu
 
 void V4LCamera::startCapture()
 {
-//  AVG_TRACE(Logger::APP, "Entering startCapture()...");
+//  AVG_TRACE(logging::subsystem::APP, "Entering startCapture()...");
 
     unsigned int i;
     enum v4l2_buf_type type;
@@ -543,7 +543,7 @@ void V4LCamera::startCapture()
 
 void V4LCamera::initDevice()
 {
-//  AVG_TRACE(Logger::APP, "Entering initDevice()...");
+//  AVG_TRACE(logging::subsystem::APP, "Entering initDevice()...");
 
     struct v4l2_capability cap;
     struct v4l2_cropcap CropCap;

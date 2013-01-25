@@ -48,7 +48,6 @@
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
-#include "PythonLogHandler.h"
 #ifdef __APPLE__
     #include "AppleTrackpadInputDevice.h"
 #endif
@@ -443,7 +442,7 @@ void Player::newCanvasDependency()
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string sRealFilename;
-    AVG_TRACE(Logger::MEMORY, std::string("Player::loadFile(") + sFilename + ")");
+    AVG_TRACE(logging::subsystem::MEMORY, std::string("Player::loadFile(") + sFilename + ")");
 
     // When loading an avg file, assets are loaded from a directory relative
     // to the file.
@@ -468,7 +467,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 
 NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
-    AVG_TRACE(Logger::MEMORY, "Player::loadString()");
+    AVG_TRACE(logging::subsystem::MEMORY, "Player::loadString()");
 
     string sEffectiveDoc = removeStartEndSpaces(sAVG);
     NodePtr pNode = internalLoad(sEffectiveDoc, "");
@@ -496,10 +495,10 @@ void Player::play()
             throw;
         }
         cleanup();
-        AVG_TRACE(Logger::PLAYER, "Playback ended.");
+        AVG_TRACE(logging::subsystem::PLAYER, "Playback ended.");
     } catch (Exception& ex) {
         m_bIsPlaying = false;
-        AVG_TRACE(Logger::ERROR, ex.getStr());
+        AVG_TRACE(logging::subsystem::ERROR, ex.getStr());
         throw;
     }
 }
@@ -521,7 +520,7 @@ bool Player::isStopping()
 void Player::initPlayback(const std::string& sShaderPath)
 {
     m_bIsPlaying = true;
-    AVG_TRACE(Logger::PLAYER, "Playback started.");
+    AVG_TRACE(logging::subsystem::PLAYER, "Playback started.");
     initGraphics(sShaderPath);
     initAudio();
     try {
@@ -656,7 +655,7 @@ void Player::enableMultitouch()
 #elif defined (AVG_ENABLE_MTDEV)
         sDriver = "LINUXMTDEV";
 #else
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_TRACE(logging::subsystem::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
 #endif
@@ -685,7 +684,7 @@ void Player::enableMultitouch()
     } else if (sDriver == "TRACKER") {
         m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
     } else {
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_TRACE(logging::subsystem::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }
@@ -1175,7 +1174,7 @@ void Player::initConfig()
 
     m_DP.m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
     if (m_DP.m_BPP != 15 && m_DP.m_BPP != 16 && m_DP.m_BPP != 24 && m_DP.m_BPP != 32) {
-        AVG_TRACE(Logger::ERROR,
+        AVG_TRACE(logging::subsystem::ERROR,
                 "BPP must be 15, 16, 24 or 32. Current value is "
                 << m_DP.m_BPP << ". Aborting." );
         exit(-1);
@@ -1187,13 +1186,13 @@ void Player::initConfig()
     m_DP.m_DotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
-        AVG_TRACE(Logger::ERROR,
+        AVG_TRACE(logging::subsystem::ERROR,
                 "Can't set fullscreen and window size at once. Aborting.");
         exit(-1);
     }
     if (m_DP.m_WindowSize.x != 0 && m_DP.m_WindowSize.y != 0) {
-        AVG_TRACE(Logger::ERROR, "Can't set window width and height at once");
-        AVG_TRACE(Logger::ERROR,
+        AVG_TRACE(logging::subsystem::ERROR, "Can't set window width and height at once");
+        AVG_TRACE(logging::subsystem::ERROR,
                 "(aspect ratio is determined by avg file). Aborting.");
         exit(-1);
     }
@@ -1209,7 +1208,7 @@ void Player::initConfig()
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
     int multiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
     if (multiSampleSamples < 1) {
-        AVG_TRACE(Logger::ERROR, "multisamplesamples must be >= 1. Aborting")
+        AVG_TRACE(logging::subsystem::ERROR, "multisamplesamples must be >= 1. Aborting")
         exit(-1);
     }
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
@@ -1241,7 +1240,7 @@ void Player::initConfig()
 void Player::initGraphics(const string& sShaderPath)
 {
     // Init display configuration.
-    AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
+    AVG_TRACE(logging::subsystem::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (m_bDisplayEngineBroken) {
         m_bDisplayEngineBroken = false;
@@ -1252,7 +1251,7 @@ void Player::initGraphics(const string& sShaderPath)
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
-    AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
+    AVG_TRACE(logging::subsystem::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
     if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
@@ -1260,7 +1259,7 @@ void Player::initGraphics(const string& sShaderPath)
     {
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
-    AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 
+    AVG_TRACE(logging::subsystem::CONFIG, "Pixels per mm: " 
             << m_pDisplayEngine->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
@@ -1809,12 +1808,6 @@ void Player::setEventHook(PyObject * pyfunc)
 PyObject * Player::getEventHook() const
 {
     return m_EventHookPyFunc;
-}
-
-void Player::addPythonLogger(PyObject * pyLogger){
-    LogHandlerPtr logHandler(new PythonLogHandler(pyLogger));
-    Logger * logger = Logger::get();
-    logger->addLogHandler(logHandler);
 }
 
 Player::EventCaptureInfo::EventCaptureInfo(const NodeWeakPtr& pNode)

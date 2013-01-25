@@ -51,6 +51,7 @@ void export_anim();
 
 using namespace boost::python;
 using namespace avg;
+using namespace avg::logging;
 using namespace std;
 
 
@@ -108,26 +109,26 @@ BOOST_PYTHON_MODULE(avg)
         .def("get", &Logger::get, 
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
+        .def("addLogger", addPythonLogger)
         .def("getCategories", &Logger::getCategories)
         .def("setCategories", &Logger::setCategories)
         .def("pushCategories", &Logger::pushCategories)
         .def("popCategories", &Logger::popCategories)
-        //.def("setPythonLogger", &Logger::setPythonLogger)
         .def("trace", &Logger::trace)
-        .def_readonly("NONE", &Logger::NONE)
-        .def_readonly("PROFILE", &Logger::PROFILE)
-        .def_readonly("PROFILE_VIDEO", &Logger::PROFILE_VIDEO)
-        .def_readonly("EVENTS", &Logger::EVENTS)
-        .def_readonly("EVENTS2", &Logger::EVENTS2)
-        .def_readonly("CONFIG", &Logger::CONFIG)
-        .def_readonly("WARNING", &Logger::WARNING)
-        .def_readonly("ERROR", &Logger::ERROR)
-        .def_readonly("MEMORY", &Logger::MEMORY)
-        .def_readonly("APP", &Logger::APP)
-        .def_readonly("PLUGIN", &Logger::PLUGIN)
-        .def_readonly("PLAYER", &Logger::PLAYER)
-        .def_readonly("SHADER", &Logger::SHADER)
-        .def_readonly("DEPRECATION", &Logger::DEPRECATION)
+        .def_readonly("NONE", &logging::subsystem::NONE)
+        .def_readonly("PROFILE", &logging::subsystem::PROFILE)
+        .def_readonly("PROFILE_VIDEO", &logging::subsystem::PROFILE_VIDEO)
+        .def_readonly("EVENTS", &logging::subsystem::EVENTS)
+        .def_readonly("EVENTS2", &logging::subsystem::EVENTS2)
+        .def_readonly("CONFIG", &logging::subsystem::CONFIG)
+        .def_readonly("WARNING", &logging::subsystem::WARNING)
+        .def_readonly("ERROR", &logging::subsystem::ERROR)
+        .def_readonly("MEMORY", &logging::subsystem::MEMORY)
+        .def_readonly("APP", &logging::subsystem::APP)
+        .def_readonly("PLUGIN", &logging::subsystem::PLUGIN)
+        .def_readonly("PLAYER", &logging::subsystem::PLAYER)
+        .def_readonly("SHADER", &logging::subsystem::SHADER)
+        .def_readonly("DEPRECATION", &logging::subsystem::DEPRECATION)
     ;
 
     class_<Publisher, boost::noncopyable>("Publisher")
@@ -236,7 +237,6 @@ BOOST_PYTHON_MODULE(avg)
         .def("getEventHook", &Player::getEventHook)
         .def("getConfigOption", &Player::getConfigOption)
         .def("isUsingGLES", &Player::isUsingGLES)
-        .def("addLogger", &Player::addPythonLogger)
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
         .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;

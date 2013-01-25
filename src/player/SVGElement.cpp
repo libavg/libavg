@@ -94,7 +94,7 @@ UTF8String SVGElement::unescapeID(RsvgHandle* pRSVG, const UTF8String& sFilename
             throwIDNotFound(sFilename, sElementID);
         }
         if (numFound > 1) {
-            AVG_TRACE(Logger::WARNING,
+            AVG_TRACE(logging::subsystem::WARNING,
                     "svg file '" << sFilename << 
                     "' has more than one element with id '" << sElementID << "'.");
         }

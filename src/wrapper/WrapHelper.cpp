@@ -21,10 +21,12 @@
 
 #include "WrapHelper.h"
 
+#include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
 #include "../base/ObjectCounter.h"
 
+#include "../player/PythonLogHandler.h"
 #include "../player/PublisherDefinitionRegistry.h"
 
 #include <boost/version.hpp>
@@ -405,3 +407,7 @@ void export_base()
     to_python_converter<TypeMap, to_dict<TypeMap> >();
 }
 
+void addPythonLogger(PyObject *self, PyObject * pyLogger){
+    LogHandlerPtr logHandler(new PythonLogHandler(pyLogger));
+    logging::Logger::get()->addLogHandler(logHandler);
+}

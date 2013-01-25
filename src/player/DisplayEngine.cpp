@@ -63,21 +63,21 @@ void DisplayEngine::initRender()
 
 void DisplayEngine::deinitRender()
 {
-    AVG_TRACE(Logger::PROFILE, "Framerate statistics: ");
-    AVG_TRACE(Logger::PROFILE, "  Total frames: " << m_NumFrames);
+    AVG_TRACE(logging::subsystem::PROFILE, "Framerate statistics: ");
+    AVG_TRACE(logging::subsystem::PROFILE, "  Total frames: " << m_NumFrames);
     float TotalTime = float(TimeSource::get()->getCurrentMicrosecs()
             -m_StartTime)/1000000;
-    AVG_TRACE(Logger::PROFILE, "  Total time: " << TotalTime << " seconds");
+    AVG_TRACE(logging::subsystem::PROFILE, "  Total time: " << TotalTime << " seconds");
     float actualFramerate = (m_NumFrames+1)/TotalTime;
-    AVG_TRACE(Logger::PROFILE, "  Framerate achieved: " 
+    AVG_TRACE(logging::subsystem::PROFILE, "  Framerate achieved: " 
             << actualFramerate);
-    AVG_TRACE(Logger::PROFILE, "  Frames too late: " << m_FramesTooLate);
-    AVG_TRACE(Logger::PROFILE, "  Percent of time spent waiting: " 
+    AVG_TRACE(logging::subsystem::PROFILE, "  Frames too late: " << m_FramesTooLate);
+    AVG_TRACE(logging::subsystem::PROFILE, "  Percent of time spent waiting: " 
             << float (m_TimeSpentWaiting)/(10000*TotalTime));
     if (m_Framerate != 0) {
-        AVG_TRACE(Logger::PROFILE, "  Framerate goal was: " << m_Framerate);
+        AVG_TRACE(logging::subsystem::PROFILE, "  Framerate goal was: " << m_Framerate);
         if (m_Framerate*2 < actualFramerate && m_NumFrames > 10) {
-            AVG_TRACE(Logger::WARNING, 
+            AVG_TRACE(logging::subsystem::WARNING, 
                     "Actual framerate was a lot higher than framerate goal. Is vblank sync forced off?");
         }
     }
@@ -110,7 +110,7 @@ void DisplayEngine::setVBlankRate(int rate)
         bool bOK = GLContext::getMain()->initVBlank(rate);
         m_Framerate = getRefreshRate()/m_VBRate;
         if (!bOK || rate == 0) { 
-            AVG_TRACE(Logger::WARNING, "Using framerate of " << m_Framerate << 
+            AVG_TRACE(logging::subsystem::WARNING, "Using framerate of " << m_Framerate << 
                     " instead of VBRate of " << m_VBRate);
             m_VBRate = 0;
         }
@@ -137,7 +137,7 @@ void DisplayEngine::frameWait()
         if (m_FrameWaitStartTime <= m_TargetTime) {
             long long WaitTime = (m_TargetTime-m_FrameWaitStartTime)/1000;
             if (WaitTime > 5000) {
-                AVG_TRACE (Logger::WARNING, 
+                AVG_TRACE (logging::subsystem::WARNING, 
                         "DisplayEngine: waiting " << WaitTime << " ms.");
             }
             TimeSource::get()->sleepUntil(m_TargetTime/1000);

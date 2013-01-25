@@ -54,10 +54,10 @@ void ThreadProfiler::kill()
 
 ThreadProfiler::ThreadProfiler()
     : m_sName(""),
-      m_LogCategory(Logger::PROFILE)
+      m_LogCategory(logging::subsystem::PROFILE)
 {
     m_bRunning = false;
-    ScopeTimer::enableTimers(Logger::get()->isFlagSet(Logger::PROFILE));
+    ScopeTimer::enableTimers(logging::Logger::get()->isFlagSet(logging::subsystem::PROFILE));
 }
 
 ThreadProfiler::~ThreadProfiler() 

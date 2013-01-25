@@ -492,9 +492,9 @@ bool Node::checkReload(const std::string& sHRef, const ImagePtr& pImage,
         } catch (Exception& ex) {
             pImage->setEmpty();
             if (getState() != Node::NS_UNCONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.getStr());
+                AVG_TRACE(logging::subsystem::ERROR, ex.getStr());
             } else {
-                AVG_TRACE(Logger::MEMORY, ex.getStr());
+                AVG_TRACE(logging::subsystem::MEMORY, ex.getStr());
             }
         }
         return true;

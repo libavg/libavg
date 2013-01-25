@@ -54,7 +54,7 @@ typedef bool (WINAPI* PRTWPROC)(HWND, ULONG);
 void Win7TouchInputDevice::start()
 {
 #ifdef SM_DIGITIZER
-    AVG_TRACE(Logger::CONFIG, "Using Windows 7 Touch driver.");
+    AVG_TRACE(logging::subsystem::CONFIG, "Using Windows 7 Touch driver.");
     // We need to do runtime dynamic linking for the Win7 touch functions because they 
     // aren't present on pre-Win7 systems.
     HMODULE hUser32 = GetModuleHandle(TEXT("user32.dll"));

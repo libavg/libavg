@@ -190,8 +190,6 @@ class AVG_API Player: public Publisher
         void setEventHook(PyObject * pyfunc);
         PyObject * getEventHook() const;
 
-        void addPythonLogger(PyObject * pyLogger);
-
         void registerFrameEndListener(IFrameEndListener* pListener);
         void unregisterFrameEndListener(IFrameEndListener* pListener);
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);

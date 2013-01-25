@@ -59,7 +59,7 @@ const string& Exception::getStr() const
 
 void fatalError(const string& sMsg)
 {
-    AVG_TRACE(Logger::ERROR, "Internal error: "+sMsg+" Aborting.");
+    AVG_TRACE(logging::subsystem::ERROR, "Internal error: "+sMsg+" Aborting.");
     exit(-1);
 }
 

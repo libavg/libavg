@@ -205,7 +205,7 @@ void DSCamera::setCaptureFormat()
         }
     }
     if (bFormatFound) {
-        AVG_TRACE(Logger::CONFIG, "Camera image format: "
+        AVG_TRACE(logging::subsystem::CONFIG, "Camera image format: "
                 << camImageFormatToString(pmtConfig));
         int height = ((VIDEOINFOHEADER*)(pmtConfig->pbFormat))->bmiHeader.biHeight;
         m_bUpsideDown = (height > 0);
@@ -222,17 +222,17 @@ void DSCamera::setCaptureFormat()
             m_bUpsideDown = (height > 0);
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
-            AVG_TRACE(Logger::CONFIG, "Camera image format: " 
+            AVG_TRACE(logging::subsystem::CONFIG, "Camera image format: " 
                     << camImageFormatToString(pmtCloseConfig));
             CoTaskMemFree((PVOID)pmtCloseConfig->pbFormat);
             CoTaskMemFree(pmtCloseConfig);
 
             // TODO: Check if framerate is actually attained.
         } else {
-            AVG_TRACE(Logger::WARNING, 
+            AVG_TRACE(logging::subsystem::WARNING, 
                 "Possibly incomplete list of camera image formats: ");
             for (unsigned i = 0; i < sImageFormats.size(); i++) {
-                AVG_TRACE(Logger::WARNING, "  " << sImageFormats[i]);
+                AVG_TRACE(logging::subsystem::WARNING, "  " << sImageFormats[i]);
             }
             throw Exception(AVG_ERR_CAMERA_NONFATAL, 
                     "Could not find requested camera image format.");
@@ -265,7 +265,7 @@ int DSCamera::getFeature(CameraFeature feature) const
         hr = m_pCameraPropControl->Get(prop, &val, &flags);
     }
     if (!SUCCEEDED(hr)) {
-        AVG_TRACE(Logger::WARNING, "DSCamera::getFeature "
+        AVG_TRACE(logging::subsystem::WARNING, "DSCamera::getFeature "
                 + cameraFeatureToString(feature)+" failed.");
         return 0;
     }
@@ -293,12 +293,12 @@ void DSCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
     switch (hr) {
         case E_INVALIDARG:
             // TODO: Throw exception
-            AVG_TRACE(Logger::ERROR, "DSCamera::setFeature(" 
+            AVG_TRACE(logging::subsystem::ERROR, "DSCamera::setFeature(" 
                     << cameraFeatureToString(feature) << ", " << value << ") failed.");
             break;
         case E_PROP_ID_UNSUPPORTED:  
         case E_PROP_SET_UNSUPPORTED:
-            AVG_TRACE(Logger::ERROR, "DSCamera::setFeature(" 
+            AVG_TRACE(logging::subsystem::ERROR, "DSCamera::setFeature(" 
                 << cameraFeatureToString(feature)
                 << ") failed: Feature not supported by camera.");
             break;
@@ -309,27 +309,27 @@ void DSCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
 
 void DSCamera::setFeatureOneShot(CameraFeature feature)
 {
-    AVG_TRACE(Logger::WARNING, 
+    AVG_TRACE(logging::subsystem::WARNING, 
             "OneShot feature setting not implemented for DirectShow camera driver.");
 }
 
 int DSCamera::getWhitebalanceU() const
 {
-    AVG_TRACE(Logger::WARNING, 
+    AVG_TRACE(logging::subsystem::WARNING, 
             "Whitebalance not implemented for DirectShow camera driver.");
     return 0;
 }
 
 int DSCamera::getWhitebalanceV() const
 {
-    AVG_TRACE(Logger::WARNING, 
+    AVG_TRACE(logging::subsystem::WARNING, 
             "Whitebalance not implemented for DirectShow camera driver.");
     return 0;
 }
 
 void DSCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
-    AVG_TRACE(Logger::WARNING, 
+    AVG_TRACE(logging::subsystem::WARNING, 
             "Whitebalance not implemented for DirectShow camera driver.");
 }
 
@@ -641,7 +641,7 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
     if (!bFound) {
         pClassEnum->Reset();
         if (pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
-            AVG_TRACE(Logger::WARNING, string("Camera ") + m_sDevice
+            AVG_TRACE(logging::subsystem::WARNING, string("Camera ") + m_sDevice
                     + " not found. Using first camera.");
             bFound = true;
             IPropertyBag *pPropBag;

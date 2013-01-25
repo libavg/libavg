@@ -211,11 +211,11 @@ bool isDSFeatureCamControl(CameraFeature feature)
         case CAM_FEATURE_CAPTURE_SIZE:
         case CAM_FEATURE_CAPTURE_QUALITY:
         case CAM_FEATURE_CONTRAST:
-            AVG_TRACE(Logger::WARNING, "isDSFeatureCamControl: "
+            AVG_TRACE(logging::subsystem::WARNING, "isDSFeatureCamControl: "
                     + cameraFeatureToString(feature) + " not supported by DirectShow.");
             return false;
         default:
-            AVG_TRACE(Logger::WARNING, "isDSFeatureCamControl: "
+            AVG_TRACE(logging::subsystem::WARNING, "isDSFeatureCamControl: "
                     + cameraFeatureToString(feature) + " unknown.");
             return false;
     }
@@ -257,11 +257,11 @@ long getDSFeatureID(CameraFeature feature)
         case CAM_FEATURE_CAPTURE_SIZE:
         case CAM_FEATURE_CAPTURE_QUALITY:
         case CAM_FEATURE_CONTRAST:
-            AVG_TRACE(Logger::WARNING, "getDSFeatureID: "+cameraFeatureToString(feature)
+            AVG_TRACE(logging::subsystem::WARNING, "getDSFeatureID: "+cameraFeatureToString(feature)
                     +" not supported by DirectShow.");
             return 0;
         default:
-            AVG_TRACE(Logger::WARNING, "getDSFeatureID: "+cameraFeatureToString(feature)+" unknown.");
+            AVG_TRACE(logging::subsystem::WARNING, "getDSFeatureID: "+cameraFeatureToString(feature)+" unknown.");
             return -1;
     }
 }

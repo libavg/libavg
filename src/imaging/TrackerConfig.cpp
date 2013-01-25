@@ -70,7 +70,7 @@ void TrackerConfig::loadConfigFile(const string& sFilename)
     string sDTDFName = "trackerconfig.dtd";
     dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     if (!dtd) {
-        AVG_TRACE(Logger::WARNING, 
+        AVG_TRACE(logging::subsystem::WARNING, 
                 "DTD not found at " << sDTDFName 
                 << ". Not validating trackerconfig files.");
     }
@@ -80,7 +80,7 @@ void TrackerConfig::loadConfigFile(const string& sFilename)
     readWholeFile(sFilename, sFileContents);
     m_Doc = xmlParseMemory(sFileContents.c_str(), sFileContents.length());
     if (!m_Doc) {
-        AVG_TRACE(Logger::ERROR, "Could not open tracker config file " 
+        AVG_TRACE(logging::subsystem::ERROR, "Could not open tracker config file " 
                 << sFilename << ". Using defaults which will probably not work.");
         return;
     }
@@ -98,7 +98,7 @@ void TrackerConfig::loadConfigFile(const string& sFilename)
     xmlFreeDtd(dtd);
     m_sFilename = sFilename;
 
-    AVG_TRACE(Logger::CONFIG, "Reading Tracker config file from " << sFilename);
+    AVG_TRACE(logging::subsystem::CONFIG, "Reading Tracker config file from " << sFilename);
 }
 
 void TrackerConfig::load()
@@ -120,13 +120,13 @@ xmlXPathObjectPtr TrackerConfig::findConfigNodes(const string& sXPathExpr) const
 
     xpCtx = xmlXPathNewContext(m_Doc);
     if(!xpCtx) {
-        AVG_TRACE(Logger::ERROR, "Unable to create new XPath context");
+        AVG_TRACE(logging::subsystem::ERROR, "Unable to create new XPath context");
         return NULL;
     }
 
     xpElement = xmlXPathEvalExpression(BAD_CAST sFullPath.c_str(), xpCtx);
     if(!xpElement) {
-        AVG_TRACE(Logger::ERROR, "Unable to evaluate XPath expression '"
+        AVG_TRACE(logging::subsystem::ERROR, "Unable to evaluate XPath expression '"
             << sFullPath << "'");
         xmlXPathFreeContext(xpCtx);
         return NULL;
@@ -166,7 +166,7 @@ string TrackerConfig::getParam(const string& sXPathExpr) const
         throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
                     string("getParam(): cannot find requested element ")+sXPathExpr));
     } else if (nodes->nodeNr > 1) {
-        AVG_TRACE(Logger::WARNING,
+        AVG_TRACE(logging::subsystem::WARNING,
             "getParam(): expression selects more than one node. Returning the first.");
     }
 
@@ -217,7 +217,7 @@ xmlNodePtr TrackerConfig::getXmlNode(const std::string& sXPathExpr) const
         throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
                 string("getParam(): cannot find requested element ")+sXPathExpr));
     } else if (nodes->nodeNr > 1) {
-        AVG_TRACE(Logger::WARNING,
+        AVG_TRACE(logging::subsystem::WARNING,
             "getXmlNode(): expression selects more than one node. Returning the first.");
     }
     return nodes->nodeTab[0];
@@ -246,7 +246,7 @@ void TrackerConfig::dump() const
 
 void TrackerConfig::save()
 {
-    AVG_TRACE(Logger::CONFIG, "Saving tracker configuration to " 
+    AVG_TRACE(logging::subsystem::CONFIG, "Saving tracker configuration to " 
             << m_sFilename << ".");
 
     if (m_Doc) {
@@ -254,7 +254,7 @@ void TrackerConfig::save()
             string sBakFile = m_sFilename + ".bak";
             unlink(sBakFile.c_str());
             if (rename(m_sFilename.c_str(), sBakFile.c_str())) {
-                AVG_TRACE(Logger::WARNING, "Cannot create tracker config backup. Backing "
+                AVG_TRACE(logging::subsystem::WARNING, "Cannot create tracker config backup. Backing "
                         "it up on current workdir.");
                 copyFile(m_sFilename, "avgtrackerrc.bak");
             }

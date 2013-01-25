@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -42,28 +42,14 @@
 using namespace std;
 
 namespace avg {
-
-const long Logger::NONE=0;
-const long Logger::PROFILE=2;
-const long Logger::PROFILE_VIDEO=8;
-const long Logger::EVENTS=16;
-const long Logger::EVENTS2=32;
-const long Logger::CONFIG=64;  
-const long Logger::WARNING=128;
-const long Logger::ERROR=256;  
-const long Logger::MEMORY=512;
-const long Logger::APP=1024;
-const long Logger::PLUGIN=2048;
-const long Logger::PLAYER=4096;
-const long Logger::SHADER=8192;
-const long Logger::DEPRECATION=16384;
+namespace logging{
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex logMutex;
 
+
 Logger * Logger::get()
 {
-
     if (!m_pLogger) {
         boost::mutex::scoped_lock lock(logMutex);
         m_pLogger = new Logger;
@@ -74,11 +60,11 @@ Logger * Logger::get()
 
 Logger::Logger()
 {
-    m_Flags = ERROR | WARNING | APP | DEPRECATION;
+    m_Flags = subsystem::ERROR | subsystem::WARNING | subsystem::APP | subsystem::DEPRECATION;
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
-        m_Flags = ERROR | APP;
+        m_Flags = subsystem::ERROR | subsystem::APP;
         bool bDone = false;
         string sCategory;
         do {
@@ -92,7 +78,7 @@ Logger::Logger()
             }
             long category = stringToCategory(sCategory);
             m_Flags |= category;
-        } while (!bDone);
+            } while (!bDone);
     }
 }
 
@@ -109,9 +95,9 @@ int Logger::getCategories() const
 void Logger::setCategories(int flags)
 {
     boost::mutex::scoped_lock lock(logMutex);
-    m_Flags = flags | ERROR | WARNING;
+    m_Flags = flags | subsystem::ERROR | subsystem::WARNING;
 }
-    
+
 void Logger::pushCategories()
 {
     boost::mutex::scoped_lock lock(logMutex);
@@ -158,29 +144,29 @@ void Logger::trace(int category, const UTF8String& sMsg)
 const char * Logger::categoryToString(int category)
 {
     switch(category) {
-        case PROFILE:
-        case PROFILE_VIDEO:
+        case subsystem::PROFILE:
+        case subsystem::PROFILE_VIDEO:
             return "PROFILE";
-        case EVENTS:
-        case EVENTS2:
+        case subsystem::EVENTS:
+        case subsystem::EVENTS2:
             return "EVENTS";
-        case CONFIG:
+        case subsystem::CONFIG:
             return "CONFIG";
-        case WARNING:
+        case subsystem::WARNING:
             return "WARNING";
-        case ERROR:
+        case subsystem::ERROR:
             return "ERROR";
-        case MEMORY:
+        case subsystem::MEMORY:
             return "MEMORY";
-        case APP:
+        case subsystem::APP:
             return "APP";
-        case PLUGIN:
+        case subsystem::PLUGIN:
             return "PLUGIN";
-        case PLAYER:
+        case subsystem::PLAYER:
             return "PLAYER";
-        case SHADER:
+        case subsystem::SHADER:
             return "SHADER";
-        case DEPRECATION:
+        case subsystem::DEPRECATION:
             return "DEPRECATION";
         default:
             return "UNKNOWN";
@@ -190,35 +176,36 @@ const char * Logger::categoryToString(int category)
 int Logger::stringToCategory(const string& sCategory) const
 {
     if (sCategory == "PROFILE") {
-        return PROFILE;
+        return subsystem::PROFILE;
     } else if (sCategory == "PROFILE_VIDEO") {
-        return PROFILE_VIDEO;
+        return subsystem::PROFILE_VIDEO;
     } else if (sCategory == "EVENTS") {
-        return EVENTS;
+        return subsystem::EVENTS;
     } else if (sCategory == "EVENTS2") {
-        return EVENTS2;
+        return subsystem::EVENTS2;
     } else if (sCategory == "CONFIG") {
-        return CONFIG;
+        return subsystem::CONFIG;
     } else if (sCategory == "WARNING") {
-        return WARNING;
+        return subsystem::WARNING;
     } else if (sCategory == "ERROR") {
-        return ERROR;
+        return subsystem::ERROR;
     } else if (sCategory == "MEMORY") {
-        return MEMORY;
+        return subsystem::MEMORY;
     } else if (sCategory == "APP") {
-        return APP;
+        return subsystem::APP;
     } else if (sCategory == "PLUGIN") {
-        return PLUGIN;
+        return subsystem::PLUGIN;
     } else if (sCategory == "PLAYER") {
-        return PLAYER;
+        return subsystem::PLAYER;
     } else if (sCategory == "SHADER") {
-        return SHADER;
+        return subsystem::SHADER;
     } else if (sCategory == "DEPRECATION") {
-        return DEPRECATION;
+        return subsystem::DEPRECATION;
     } else {
-        throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logger category " + sCategory
+        throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logging category " + sCategory
                 + " set using AVG_LOG_CATEGORIES.");
     }
 }
 
+}
 }

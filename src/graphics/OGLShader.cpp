@@ -60,16 +60,16 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     GLint bLinked;
     glproc::GetProgramiv(m_hProgram, GL_LINK_STATUS, &bLinked);
     if (!bLinked) {
-        AVG_TRACE(Logger::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
-        dumpInfoLog(m_hVertexShader, Logger::ERROR);
-        dumpInfoLog(m_hFragmentShader, Logger::ERROR);
-        dumpInfoLog(m_hProgram, Logger::ERROR, true);
+        AVG_TRACE(logging::subsystem::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
+        dumpInfoLog(m_hVertexShader, logging::subsystem::ERROR);
+        dumpInfoLog(m_hFragmentShader, logging::subsystem::ERROR);
+        dumpInfoLog(m_hProgram, logging::subsystem::ERROR, true);
         exit(-1);
     } else {
-        AVG_TRACE(Logger::SHADER, "Linking shader program '"+sName+"'.");
-        dumpInfoLog(m_hVertexShader, Logger::SHADER);
-        dumpInfoLog(m_hFragmentShader, Logger::SHADER);
-        dumpInfoLog(m_hProgram, Logger::SHADER, true);
+        AVG_TRACE(logging::subsystem::SHADER, "Linking shader program '"+sName+"'.");
+        dumpInfoLog(m_hVertexShader, logging::subsystem::SHADER);
+        dumpInfoLog(m_hFragmentShader, logging::subsystem::SHADER);
+        dumpInfoLog(m_hProgram, logging::subsystem::SHADER, true);
     }
     m_pShaderRegistry = ShaderRegistry::get();
     if (m_hVertexShader) {

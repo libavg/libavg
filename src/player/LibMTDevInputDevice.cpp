@@ -85,7 +85,7 @@ void LibMTDevInputDevice::start()
     m_Dimensions.br.y = pAbsInfo->maximum;
 
     MultitouchInputDevice::start();
-    AVG_TRACE(Logger::CONFIG, "Linux MTDev Multitouch event source created.");
+    AVG_TRACE(logging::subsystem::CONFIG, "Linux MTDev Multitouch event source created.");
 }
 
 std::vector<EventPtr> LibMTDevInputDevice::pollEvents()

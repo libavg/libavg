@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Logger_H_ 
+#ifndef _Logger_H_
 #define _Logger_H_
 
 #include "../api.h"
@@ -37,11 +37,40 @@ namespace avg {
 #undef ERROR
 #endif
 
+namespace logging {
+    namespace subsystem {
+        const long NONE=0;
+        const long PROFILE=2;
+        const long PROFILE_VIDEO=8;
+        const long EVENTS=16;
+        const long EVENTS2=32;
+        const long CONFIG=64;
+        const long WARNING=128;
+        const long ERROR=256;
+        const long MEMORY=512;
+        const long APP=1024;
+        const long PLUGIN=2048;
+        const long PLAYER=4096;
+        const long SHADER=8192;
+        const long DEPRECATION=16384;
+    }
+
+    namespace level {
+        const long CRITICAL = 50;
+        const long FATAL = 50;
+        const long ERROR = 40; 
+        const long WARNING = 30; 
+        const long INFO = 20; 
+        const long DEBUG = 10; 
+        const long NOTSET = 0; 
+    }
+
+
 class AVG_API Logger {
 public:
     static Logger* get();
     virtual ~Logger();
-   
+
     void addLogHandler(LogHandlerPtr logHandler);
     static const char * categoryToString(int category);
     int getCategories() const;
@@ -53,25 +82,10 @@ public:
         return (category & m_Flags) != 0;
     }
 
-    static const long NONE;
-    static const long PROFILE;
-    static const long PROFILE_VIDEO;
-    static const long EVENTS;
-    static const long EVENTS2;
-    static const long CONFIG;  
-    static const long WARNING;
-    static const long ERROR;  
-    static const long MEMORY;
-    static const long APP;
-    static const long PLUGIN;
-    static const long PLAYER;
-    static const long SHADER;
-    static const long DEPRECATION;
-
 private:
     Logger();
     int stringToCategory(const std::string& sCategory) const;
-   
+
     static Logger* m_pLogger;
 
     int m_Flags;
@@ -79,13 +93,15 @@ private:
     std::vector<LogHandlerPtr> m_Handlers;
 };
 
-#define AVG_TRACE(category, sMsg) { \
-    if (Logger::get()->isFlagSet(category)) { \
-        std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
-        tmp << sMsg; \
-        Logger::get()->trace(category, tmp.str()); \
-    }\
 }
+
+#define AVG_TRACE(category, sMsg) { \
+if (logging::Logger::get()->isFlagSet(category)) { \
+    std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
+    tmp << sMsg; \
+    logging::Logger::get()->trace(category, tmp.str()); \
+    }\
+}\
 
 }
 #endif

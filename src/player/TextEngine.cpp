@@ -163,7 +163,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
             pFamily = getFontFamily(sFamily);
         } catch (Exception&) {
             if (m_sFontsNotFound.find(sFamily) == m_sFontsNotFound.end()) {
-                AVG_TRACE(Logger::WARNING, "Could not find font face " << sFamily << 
+                AVG_TRACE(logging::subsystem::WARNING, "Could not find font face " << sFamily << 
                         ". Using sans instead.");
                 m_sFontsNotFound.insert(sFamily);
             }
@@ -189,7 +189,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
                 pair<string, string> variant(sFamily, sVariant);
                 if (m_VariantsNotFound.find(variant) == m_VariantsNotFound.end()) {
                     m_VariantsNotFound.insert(variant);
-                    AVG_TRACE(Logger::WARNING, "Could not find font variant " 
+                    AVG_TRACE(logging::subsystem::WARNING, "Could not find font variant " 
                             << sFamily << ":" << sVariant << ". Using " <<
                             pango_font_face_get_face_name(pFace) << " instead.");
                 }
@@ -214,7 +214,7 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
         s += "error: ";
     } else if (log_level & G_LOG_LEVEL_CRITICAL) {
         s += string("critical: ")+message;
-        AVG_TRACE(Logger::ERROR, s);
+        AVG_TRACE(logging::subsystem::ERROR, s);
         AVG_ASSERT(false);
     } else if (log_level & G_LOG_LEVEL_WARNING) {
         s += "warning: ";
@@ -226,7 +226,7 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
         s += "debug: ";
     }
     s += message;
-    AVG_TRACE(Logger::WARNING, s);
+    AVG_TRACE(logging::subsystem::WARNING, s);
 #endif
 }
 

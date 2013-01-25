@@ -914,10 +914,9 @@ public:
         std::cerr.rdbuf(buffer.rdbuf());
 
         //Log a test message
-        Logger* logger = Logger::get();
         string result("Test log message");
         string result2("Test log2 message");
-        logger->trace(Logger::ERROR, UTF8String(result));
+        AVG_TRACE(logging::subsystem::ERROR, UTF8String(result));
 
         //reset cerr stream to standard buffer
         std::cerr.rdbuf(sbuf);

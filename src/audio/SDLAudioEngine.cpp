@@ -48,7 +48,7 @@ SDLAudioEngine::SDLAudioEngine()
 {
     AVG_ASSERT(s_pInstance == 0);
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
-        AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
+        AVG_TRACE(logging::subsystem::ERROR, "Can't init SDL audio subsystem.");
         exit(-1);
     }
     s_pInstance = this;
