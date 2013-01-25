@@ -915,14 +915,22 @@ public:
 
         //Log a test message
         string result("Test log message");
-        string result2("Test log2 message");
         AVG_TRACE(logging::subsystem::ERROR, UTF8String(result));
-
-        //reset cerr stream to standard buffer
-        std::cerr.rdbuf(sbuf);
 
         //Compare result
         TEST(buffer.str().find(result) != string::npos);
+
+        //Test custom category registration
+        logging::Logger *logger = logging::Logger::get();
+        int AWESOME_CAT = logger->registerCategory("AWESOME");
+        int cats = logger->getCategories();
+        logger->setCategories(cats | logger->stringToCategory("AWESOME"));
+        string msg("AWESOME LOG");
+        AVG_TRACE(AWESOME_CAT, msg);
+        TEST(buffer.str().find(msg) != string::npos);
+
+        //reset cerr stream to standard buffer
+        std::cerr.rdbuf(sbuf);
     }
 };
  

@@ -60,6 +60,7 @@ Logger * Logger::get()
 
 Logger::Logger()
 {
+    setupSubsystem();
     m_Flags = subsystem::ERROR | subsystem::WARNING | subsystem::APP | subsystem::DEPRECATION;
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
@@ -80,6 +81,7 @@ Logger::Logger()
             m_Flags |= category;
             } while (!bDone);
     }
+    m_MaxSubsystemNum = subsystem::DEPRECATION;
 }
 
 Logger::~Logger()
@@ -141,69 +143,77 @@ void Logger::trace(int category, const UTF8String& sMsg)
     }
 }
 
-const char * Logger::categoryToString(int category)
+const char * Logger::categoryToString(unsigned long category) const
 {
-    switch(category) {
-        case subsystem::PROFILE:
-        case subsystem::PROFILE_VIDEO:
-            return "PROFILE";
-        case subsystem::EVENTS:
-        case subsystem::EVENTS2:
-            return "EVENTS";
-        case subsystem::CONFIG:
-            return "CONFIG";
-        case subsystem::WARNING:
-            return "WARNING";
-        case subsystem::ERROR:
-            return "ERROR";
-        case subsystem::MEMORY:
-            return "MEMORY";
-        case subsystem::APP:
-            return "APP";
-        case subsystem::PLUGIN:
-            return "PLUGIN";
-        case subsystem::PLAYER:
-            return "PLAYER";
-        case subsystem::SHADER:
-            return "SHADER";
-        case subsystem::DEPRECATION:
-            return "DEPRECATION";
-        default:
-            return "UNKNOWN";
+    std::map< unsigned long, string >::const_iterator it;
+    it = m_SubsystemToString.find(category);
+    if(it != m_SubsystemToString.end()){
+        return (it->second).c_str();
+    }else{
+        return "UNKNOWN";
     }
 }
 
 int Logger::stringToCategory(const string& sCategory) const
 {
-    if (sCategory == "PROFILE") {
-        return subsystem::PROFILE;
-    } else if (sCategory == "PROFILE_VIDEO") {
-        return subsystem::PROFILE_VIDEO;
-    } else if (sCategory == "EVENTS") {
-        return subsystem::EVENTS;
-    } else if (sCategory == "EVENTS2") {
-        return subsystem::EVENTS2;
-    } else if (sCategory == "CONFIG") {
-        return subsystem::CONFIG;
-    } else if (sCategory == "WARNING") {
-        return subsystem::WARNING;
-    } else if (sCategory == "ERROR") {
-        return subsystem::ERROR;
-    } else if (sCategory == "MEMORY") {
-        return subsystem::MEMORY;
-    } else if (sCategory == "APP") {
-        return subsystem::APP;
-    } else if (sCategory == "PLUGIN") {
-        return subsystem::PLUGIN;
-    } else if (sCategory == "PLAYER") {
-        return subsystem::PLAYER;
-    } else if (sCategory == "SHADER") {
-        return subsystem::SHADER;
-    } else if (sCategory == "DEPRECATION") {
-        return subsystem::DEPRECATION;
-    } else {
+    std::map< string , unsigned long >::const_iterator it;
+    it = m_StringToSubsystem.find(sCategory);
+    if(it != m_StringToSubsystem.end()){
+        return it->second;
+    }else{
         throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logging category " + sCategory
                 + " set using AVG_LOG_CATEGORIES.");
+    }
+}
+
+void Logger::setupSubsystem(){
+    m_SubsystemToString[subsystem::NONE] = "NONE";
+    m_StringToSubsystem["NONE"] = subsystem::NONE;
+
+    m_SubsystemToString[subsystem::PROFILE] = "PROFILE",
+    m_StringToSubsystem["PROFILE"] = subsystem::PROFILE;
+
+    m_SubsystemToString[subsystem::PROFILE_VIDEO] = "PROFILE_VIDEO";
+    m_StringToSubsystem["PROFILE_VIDEO"] = subsystem::PROFILE_VIDEO;
+
+    m_SubsystemToString[subsystem::EVENTS] = "EVENTS";
+    m_StringToSubsystem["EVENTS"] = subsystem::EVENTS;
+
+    m_SubsystemToString[subsystem::EVENTS2] = "EVENTS2";
+    m_StringToSubsystem["EVENTS2"] = subsystem::EVENTS2;
+
+    m_SubsystemToString[subsystem::CONFIG] = "CONFIG";
+    m_StringToSubsystem["CONFIG"] = subsystem::CONFIG;
+
+    m_SubsystemToString[subsystem::MEMORY] = "MEMORY";
+    m_StringToSubsystem["MEMORY"] = subsystem::MEMORY;
+
+    m_SubsystemToString[subsystem::APP] = "APP";
+    m_StringToSubsystem["APP"] = subsystem::APP;
+
+    m_SubsystemToString[subsystem::PLUGIN] = "PLUGIN";
+    m_StringToSubsystem["PLUGIN"] = subsystem::PLUGIN;
+
+    m_SubsystemToString[subsystem::PLAYER] = "PLAYER";
+    m_StringToSubsystem["PLAYER"] = subsystem::PLAYER;
+
+    m_SubsystemToString[subsystem::SHADER] = "SHADER";
+    m_StringToSubsystem["SHADER"] = subsystem::SHADER;
+
+    m_SubsystemToString[subsystem::DEPRECATION] = "DEPRECATION";
+    m_StringToSubsystem["DEPRECATION"] = subsystem::DEPRECATION;
+}
+
+unsigned long Logger::registerCategory(const string cat){
+    std::map< string, unsigned long >::iterator it;
+    it = m_StringToSubsystem.find(cat);
+    if(it != m_StringToSubsystem.end()){
+        return it->second;
+    }else{
+        m_MaxSubsystemNum *= 2;
+        m_SubsystemToString[m_MaxSubsystemNum] = cat;
+        m_StringToSubsystem[cat] = m_MaxSubsystemNum;
+        return m_MaxSubsystemNum;
     }
 }
 

@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <map>
 
 
 namespace avg {
@@ -39,20 +40,20 @@ namespace avg {
 
 namespace logging {
     namespace subsystem {
-        const long NONE=0;
-        const long PROFILE=2;
-        const long PROFILE_VIDEO=8;
-        const long EVENTS=16;
-        const long EVENTS2=32;
-        const long CONFIG=64;
-        const long WARNING=128;
-        const long ERROR=256;
-        const long MEMORY=512;
-        const long APP=1024;
-        const long PLUGIN=2048;
-        const long PLAYER=4096;
-        const long SHADER=8192;
-        const long DEPRECATION=16384;
+        const unsigned long NONE=0;
+        const unsigned long PROFILE=2;
+        const unsigned long PROFILE_VIDEO=8;
+        const unsigned long EVENTS=16;
+        const unsigned long EVENTS2=32;
+        const unsigned long CONFIG=64;
+        const unsigned long WARNING=128;
+        const unsigned long ERROR=256;
+        const unsigned long MEMORY=512;
+        const unsigned long APP=1024;
+        const unsigned long PLUGIN=2048;
+        const unsigned long PLAYER=4096;
+        const unsigned long SHADER=8192;
+        const unsigned long DEPRECATION=16384;
     }
 
     namespace level {
@@ -72,25 +73,31 @@ public:
     virtual ~Logger();
 
     void addLogHandler(LogHandlerPtr logHandler);
-    static const char * categoryToString(int category);
     int getCategories() const;
     void setCategories(int flags);
     void pushCategories();
     void popCategories();
+    const char * categoryToString(unsigned long category) const;
+    int stringToCategory(const std::string& sCategory) const;
     void trace(int category, const UTF8String& sMsg);
-    inline bool isFlagSet(int category) {
+    inline bool isFlagSet(int category) const {
         return (category & m_Flags) != 0;
     }
+    unsigned long registerCategory(const string cat);
 
 private:
     Logger();
-    int stringToCategory(const std::string& sCategory) const;
+    void setupSubsystem();
 
     static Logger* m_pLogger;
 
     int m_Flags;
     std::vector<int> m_FlagStack;
     std::vector<LogHandlerPtr> m_Handlers;
+    std::map< unsigned long, string > m_SubsystemToString;
+    std::map< const string , unsigned long > m_StringToSubsystem;
+
+    unsigned long m_MaxSubsystemNum;
 };
 
 }

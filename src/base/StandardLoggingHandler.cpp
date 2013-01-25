@@ -47,7 +47,7 @@ void StandardLoggingHandler::logMessage(tm* pTime, unsigned millis, int category
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
     cerr << "[" << timeString << "." << 
         setw(3) << setfill('0') << millis << setw(0) << "] ";
-    cerr << Logger::categoryToString(category) << ": ";
+    cerr << logging::Logger::get()->categoryToString(category) << ": ";
     cerr << sMsg << endl;
     cerr.flush();
 }
