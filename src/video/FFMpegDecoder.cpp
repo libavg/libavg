@@ -296,6 +296,9 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             avcodec_flush_buffers(pContext);
             m_bVideoSeekDone = true;
             m_bVideoEOF = false;
+            if (m_VideoStartTimestamp == -1) {
+                m_VideoStartTimestamp = 0;
+            }
         }
         pPacket = m_pDemuxer->getPacket(m_StreamIndex);
         m_bFirstPacket = false;
