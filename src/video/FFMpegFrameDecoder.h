@@ -38,6 +38,8 @@ class AVG_API FFMpegFrameDecoder
 
         bool decodePacket(AVPacket* pPacket, AVFrame& frame, bool bFrameAfterSeek);
         void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
+        void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride);
+
         void handleSeek();
 
         virtual float getCurTime() const;

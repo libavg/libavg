@@ -173,7 +173,7 @@ FrameAvailableCode SyncDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float tim
         if (pixelFormatIsPlanar(getPixelFormat())) {
             ScopeTimer timer(CopyImageProfilingZone);
             for (unsigned i = 0; i < pBmps.size(); ++i) {
-                copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
+                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
             }
         } else {
             m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);

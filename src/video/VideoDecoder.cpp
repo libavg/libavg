@@ -505,20 +505,6 @@ void avcodecError(const string& sFilename, int err)
 #endif
 }
 
-void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride)
-{
-    unsigned char * pSrc=pData;
-    unsigned char * pDest= pBmp->getPixels();
-    int destStride = pBmp->getStride();
-    int height = pBmp->getSize().y;
-    int width = pBmp->getSize().x;
-    for (int y = 0; y < height; y++) {
-        memcpy(pDest, pSrc, width);
-        pSrc += stride;
-        pDest += destStride;
-    }
-}
-
 }
 
 

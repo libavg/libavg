@@ -131,8 +131,6 @@ typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;
 
 void avcodecError(const std::string& sFilename, int err);
 
-void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride);
-
 }
 #endif 
 

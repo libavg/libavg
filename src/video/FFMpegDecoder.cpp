@@ -97,13 +97,15 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps)
                 } else {
                     ScopeTimer timer(CopyImageProfilingZone);
                     for (unsigned i = 0; i < pBmps.size(); ++i) {
-                        copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
+                        m_pFrameDecoder->copyPlaneToBmp(pBmps[i],
+                                frame.data[i], frame.linesize[i]);
                     }
                 }
 #else 
                 ScopeTimer timer(CopyImageProfilingZone);
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
-                    copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
+                    m_pFrameDecoder->copyPlaneToBmp(pBmps[i],
+                            frame.data[i], frame.linesize[i]);
                 }
 #endif
             } else {
