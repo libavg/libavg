@@ -69,10 +69,11 @@ private:
     void waitForSeekDone();
     void checkForSeekDone();
     void handleVSeekMsg(VideoMsgPtr pMsg);
+    void handleVSeekDone(AudioMsgPtr pMsg);
     void handleAudioMsg(AudioMsgPtr pMsg);
-    void handleSeekDone(AudioMsgPtr pMsg);
     void returnFrame(VideoMsgPtr pFrameMsg);
     bool isSeeking() const;
+    bool isVSeeking() const;
 
     int m_QueueLength;
 
@@ -92,11 +93,12 @@ private:
     
     int m_NumSeeksSent;
     int m_NumVSeeksDone;
+    int m_NumASeeksDone;
+    bool m_bWasVSeeking;
     bool m_bWasSeeking;
 
     bool m_bAudioEOF;
     bool m_bVideoEOF;
-    bool m_bASeekPending;
 
     float m_LastVideoFrameTime;
     float m_CurVideoFrameTime;

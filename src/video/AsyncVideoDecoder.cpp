@@ -68,10 +68,11 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcce
 {
     m_NumSeeksSent = 0;
     m_NumVSeeksDone = 0;
+    m_NumASeeksDone = 0;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
+    m_bWasVSeeking = false;
     m_bWasSeeking = false;
-    m_bASeekPending = false;
     m_CurVideoFrameTime = -1;
     
     VideoDecoder::open(sFilename, bUseHardwareAcceleration, bEnableSound);
@@ -305,11 +306,17 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
     float timePerFrame = 1.0f/getFPS();
 
     checkForSeekDone();
-    bool bSeekDone = (!isSeeking() && m_bWasSeeking);
+    bool bVSeekDone = (!isVSeeking() && m_bWasVSeeking);
+    m_bWasVSeeking = isVSeeking();
+    
+    if (!isSeeking() && m_bWasSeeking) {
+//        cerr << "timeWanted: " << timeWanted << ", audio: " << m_LastAudioFrameTime
+//                << ", diff: " << timeWanted-m_LastAudioFrameTime << endl;
+    }
     m_bWasSeeking = isSeeking();
 
-    if ((!bSeekDone &&
-            (isSeeking() ||
+    if ((!bVSeekDone &&
+            (isVSeeking() ||
              fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
              m_LastVideoFrameTime > timeWanted+timePerFrame)) ||
          m_bVideoEOF) 
@@ -366,7 +373,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 m_bVideoEOF = true;
                 return VideoMsgPtr();
             case AudioMsg::SEEK_DONE:
-                handleSeekDone(pMsg);
+                handleVSeekDone(pMsg);
                 return getNextBmps(bWait);
             default:
                 // Unhandled message type.
@@ -379,7 +386,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 }
 void AsyncVideoDecoder::waitForSeekDone()
 {
-    while (isSeeking()) {
+    while (isVSeeking()) {
         VideoMsgPtr pMsg = m_pVMsgQ->pop(true);
         handleVSeekMsg(pMsg);
     }
@@ -387,14 +394,14 @@ void AsyncVideoDecoder::waitForSeekDone()
 
 void AsyncVideoDecoder::checkForSeekDone()
 {
-    if (isSeeking()) {
+    if (isVSeeking()) {
         VideoMsgPtr pMsg;
         do {
             pMsg = m_pVMsgQ->pop(false);
             if (pMsg) {
                 handleVSeekMsg(pMsg);
             }
-        } while (pMsg && isSeeking());
+        } while (pMsg && isVSeeking());
     }
 }
 
@@ -402,7 +409,7 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
 {
     switch (pMsg->getType()) {
         case AudioMsg::SEEK_DONE:
-            handleSeekDone(pMsg);
+            handleVSeekDone(pMsg);
             break;
         case VideoMsg::FRAME:
             returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
@@ -419,18 +426,28 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
     }
 }
 
+void AsyncVideoDecoder::handleVSeekDone(AudioMsgPtr pMsg)
+{
+    m_LastVideoFrameTime = pMsg->getSeekTime();
+    if (m_NumVSeeksDone < pMsg->getSeekSeqNum()) {
+        m_NumVSeeksDone = pMsg->getSeekSeqNum();
+    }
+}
+
 void AsyncVideoDecoder::handleAudioMsg(AudioMsgPtr pMsg)
 {
-//    pMsg->dump();
     switch (pMsg->getType()) {
         case AudioMsg::END_OF_FILE:
         case AudioMsg::ERROR:
             m_bAudioEOF = true;
             break;
         case AudioMsg::SEEK_DONE:
-            m_bASeekPending = false;
+//            pMsg->dump();
             m_bAudioEOF = false;
             m_LastAudioFrameTime = pMsg->getSeekTime();
+            if (m_NumASeeksDone < pMsg->getSeekSeqNum()) {
+                m_NumASeeksDone = pMsg->getSeekSeqNum();
+            }
             break;
         case AudioMsg::AUDIO_TIME:
             m_LastAudioFrameTime = pMsg->getAudioTime();
@@ -439,14 +456,6 @@ void AsyncVideoDecoder::handleAudioMsg(AudioMsgPtr pMsg)
             // Unhandled message type.
             pMsg->dump();
             AVG_ASSERT(false);
-    }
-}
-
-void AsyncVideoDecoder::handleSeekDone(AudioMsgPtr pMsg)
-{
-    m_LastVideoFrameTime = pMsg->getSeekTime();
-    if (m_NumVSeeksDone < pMsg->getSeekSeqNum()) {
-        m_NumVSeeksDone = pMsg->getSeekSeqNum();
     }
 }
 
@@ -459,6 +468,11 @@ void AsyncVideoDecoder::returnFrame(VideoMsgPtr pFrameMsg)
 }
 
 bool AsyncVideoDecoder::isSeeking() const
+{
+    return (m_NumSeeksSent > m_NumVSeeksDone || m_NumSeeksSent > m_NumASeeksDone);
+}
+
+bool AsyncVideoDecoder::isVSeeking() const
 {
     return m_NumSeeksSent > m_NumVSeeksDone;
 }

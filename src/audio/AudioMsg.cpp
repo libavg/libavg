@@ -69,6 +69,7 @@ void AudioMsg::setError(const Exception& ex)
 void AudioMsg::setSeekDone(int seqNum, float seekTime)
 {
     setType(SEEK_DONE);
+    AVG_ASSERT(seqNum != -1);
     m_SeekSeqNum = seqNum;
     m_SeekTime = seekTime;
 }
