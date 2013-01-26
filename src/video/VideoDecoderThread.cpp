@@ -90,7 +90,7 @@ bool VideoDecoderThread::work()
             pMsg->setSeekDone(m_pDecoder->getSeekSeqNum(), videoFrameTime);
             m_MsgQ.push(pMsg);
         }
-        if (m_pDecoder->isEOF(SS_VIDEO)) {
+        if (m_pDecoder->isEOF()) {
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setEOF();
             m_MsgQ.push(pMsg);

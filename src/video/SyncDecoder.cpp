@@ -30,8 +30,6 @@
 #include "../base/ProfilingZoneID.h"
 #include "../base/StringHelper.h"
 
-#include "../audio/AudioBuffer.h"
-
 #include "../graphics/BitmapLoader.h"
 
 #include <iostream>
@@ -162,7 +160,6 @@ void SyncDecoder::setFPS(float fps)
 
 static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
-static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
 
 FrameAvailableCode SyncDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float timeWanted)
 {

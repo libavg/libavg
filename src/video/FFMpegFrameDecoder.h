@@ -19,59 +19,51 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FFMpegDecoder_H_
-#define _FFMpegDecoder_H_
+#ifndef _FFMpegFrameDecoder_H_
+#define _FFMpegFrameDecoder_H_
 
 #include "../avgconfigwrapper.h"
 
-#include "VideoDecoder.h"
-#include "FFMpegFrameDecoder.h"
-#include "WrapFFMpeg.h"
+#include "../graphics/Bitmap.h"
 
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUHelper.h"
-#include <libavcodec/vdpau.h>
-#endif
+#include "WrapFFMpeg.h"
 
 namespace avg {
 
-class AsyncDemuxer;
-
-class AVG_API FFMpegDecoder
+class AVG_API FFMpegFrameDecoder
 {
     public:
-        FFMpegDecoder(AsyncDemuxer* pDemuxer, AVStream* pStream, int streamIndex, 
-                PixelFormat pf, bool bUseVDPAU);
-        virtual ~FFMpegDecoder();
+        FFMpegFrameDecoder(AVStream* pStream);
+        virtual ~FFMpegFrameDecoder();
+
+        bool decodePacket(AVPacket* pPacket, AVFrame& frame, bool bFrameAfterSeek);
+        void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
+        void handleSeek();
 
         virtual float getCurTime() const;
+        virtual float getFPS() const;
         virtual void setFPS(float fps);
-        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps);
-#ifdef AVG_ENABLE_VDPAU
-        virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
-#endif
-        bool isVideoSeekDone();
-        int getSeekSeqNum();
 
         virtual bool isEOF() const;
         
     private:
-        void readFrame(AVFrame& frame);
+        float getFrameTime(long long dts, bool bFrameAfterSeek);
 
-        FFMpegFrameDecoderPtr m_pFrameDecoder;
-        bool m_bVideoSeekDone;
-        int m_SeekSeqNum;
-
-        AsyncDemuxer* m_pDemuxer;
+        SwsContext * m_pSwsContext;
         AVStream* m_pStream;
-        int m_StreamIndex;
-        PixelFormat m_PF;
-        bool m_bUseVDPAU;
 
         bool m_bEOFPending;
+        bool m_bVideoEOF;
+        
+        float m_TimeUnitsPerSecond;
+        long long m_VideoStartTimestamp;
+        float m_LastVideoFrameTime;
+
+        bool m_bUseStreamFPS;
+        float m_FPS;
 };
 
-typedef boost::shared_ptr<FFMpegDecoder> FFMpegDecoderPtr;
+typedef boost::shared_ptr<FFMpegFrameDecoder> FFMpegFrameDecoderPtr;
 
 }
 #endif 
