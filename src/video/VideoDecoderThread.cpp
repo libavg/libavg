@@ -22,9 +22,6 @@
 #include "VideoDecoderThread.h"
 #include "AsyncDemuxer.h"
 #include "FFMpegFrameDecoder.h"
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUHelper.h"
-#endif
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -162,43 +159,18 @@ FrameAvailableCode VideoDecoderThread::renderToBmps(vector<BitmapPtr>& pBmps)
             return FA_USE_LAST_FRAME;
         } else {
             if (pixelFormatIsPlanar(m_PF)) {
-#ifdef AVG_ENABLE_VDPAU
-                if (m_bUseVDPAU) {
-                    ScopeTimer timer(VDPAUCopyProfilingZone);
-                    vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
-                    getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
-                } else {
-                    ScopeTimer timer(CopyImageProfilingZone);
-                    for (unsigned i = 0; i < pBmps.size(); ++i) {
-                        m_pFrameDecoder->copyPlaneToBmp(pBmps[i],
-                                frame.data[i], frame.linesize[i]);
-                    }
-                }
-#else 
                 ScopeTimer timer(CopyImageProfilingZone);
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
                     m_pFrameDecoder->copyPlaneToBmp(pBmps[i],
                             frame.data[i], frame.linesize[i]);
                 }
-#endif
             } else {
-#ifdef AVG_ENABLE_VDPAU
-                if (m_bUseVDPAU) {
-                    ScopeTimer timer(VDPAUCopyProfilingZone);
-                    vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
-                    getBitmapFromVDPAU(pRenderState, pBmps[0]);
-                } else {
-                    m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
-                }
-#else 
                 m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
-#endif
             }
             return FA_NEW_FRAME;
         }
     }
 }
-
 
 #ifdef AVG_ENABLE_VDPAU
 FrameAvailableCode VideoDecoderThread::renderToVDPAU(vdpau_render_state** ppRenderState)
