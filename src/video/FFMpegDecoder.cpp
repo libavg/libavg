@@ -116,7 +116,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps)
                     m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
                 }
 #else 
-                convertFrameToBmp(frame, pBmps[0]);
+                m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
 #endif
             }
             return FA_NEW_FRAME;

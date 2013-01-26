@@ -25,6 +25,7 @@
 #include "../avgconfigwrapper.h"
 #include "VideoDecoder.h"
 #include "FFMpegDemuxer.h"
+#include "FFMpegFrameDecoder.h"
 
 namespace avg {
 
@@ -38,11 +39,11 @@ class AVG_API SyncDecoder: public VideoDecoder
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
 
-        virtual float getFPS() const;
 
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;
         virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
+        virtual float getFPS() const;
         virtual void setFPS(float fps);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted);
@@ -54,24 +55,17 @@ class AVG_API SyncDecoder: public VideoDecoder
         
     private:
         FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
-        void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
-        float getFrameTime(long long dts);
+        void readFrame(AVFrame& frame);
 
-        SwsContext * m_pSwsContext;
-        float m_TimeUnitsPerSecond;
-        bool m_bUseStreamFPS;
+        FFMpegFrameDecoderPtr m_pFrameDecoder;
         bool m_bVideoSeekDone;
-
-        float readFrame(AVFrame& frame);
 
         FFMpegDemuxer * m_pDemuxer;
         
         bool m_bEOFPending;
-        bool m_bVideoEOF;
         bool m_bFirstPacket;
-        long long m_VideoStartTimestamp;
-        float m_LastVideoFrameTime;
 
+        bool m_bUseStreamFPS;
         float m_FPS;
 };
 
