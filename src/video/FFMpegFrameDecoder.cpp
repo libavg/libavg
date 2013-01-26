@@ -48,7 +48,7 @@ FFMpegFrameDecoder::FFMpegFrameDecoder(AVStream* pStream)
     : m_pSwsContext(0),
       m_pStream(pStream),
       m_bEOFPending(false),
-      m_bVideoEOF(false),
+      m_bEOF(false),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
       m_bUseStreamFPS(true)
@@ -97,14 +97,7 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
 #else
         avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
 #endif
-        m_bVideoEOF = true;
-/*        
-        if (bGotPicture) {
-            m_bEOFPending = true;
-        } else {
-            m_bVideoEOF = true;
-        }
-*/
+        m_bEOF = true;
 
         // We don't have a timestamp for the last frame, so we'll
         // calculate it based on the frame before.
@@ -210,7 +203,7 @@ void FFMpegFrameDecoder::handleSeek()
 {
     m_LastVideoFrameTime = -1.0f;
     avcodec_flush_buffers(m_pStream->codec);
-    m_bVideoEOF = false;
+    m_bEOF = false;
     if (m_VideoStartTimestamp == -1) {
         m_VideoStartTimestamp = 0;
     }
@@ -238,7 +231,7 @@ void FFMpegFrameDecoder::setFPS(float fps)
 
 bool FFMpegFrameDecoder::isEOF() const
 {
-    return m_bVideoEOF;
+    return m_bEOF;
 }
 
 float FFMpegFrameDecoder::getFrameTime(long long dts, bool bFrameAfterSeek)

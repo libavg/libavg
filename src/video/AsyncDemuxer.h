@@ -34,35 +34,34 @@
 
 namespace avg {
 
-    class AVG_API AsyncDemuxer: public IDemuxer {
-        public:
-            AsyncDemuxer(AVFormatContext * pFormatContext, 
-                    std::vector<int> streamIndexes);
-            virtual ~AsyncDemuxer();
-           
-            AVPacket * getPacket(int streamIndex);
-            float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
-            bool isClosed(int streamIndex);
-            void seek(int seqNum, float destTime);
-            void close();
+class AVG_API AsyncDemuxer: public IDemuxer {
+    public:
+        AsyncDemuxer(AVFormatContext * pFormatContext, std::vector<int> streamIndexes);
+        virtual ~AsyncDemuxer();
+       
+        AVPacket * getPacket(int streamIndex);
+        float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
+        bool isClosed(int streamIndex);
+        void seek(int seqNum, float destTime);
+        void close();
 
-            VideoDemuxerThread::CQueuePtr getCmdQ();
+        VideoDemuxerThread::CQueuePtr getCmdQ();
 
-        private:
-            AVPacket * checkPacket(int streamIndex);
-            void enableStream(int streamIndex);
-            void waitForSeekDone();
+    private:
+        AVPacket * checkPacket(int streamIndex);
+        void enableStream(int streamIndex);
+        void waitForSeekDone();
 
-            boost::thread* m_pDemuxThread;
+        boost::thread* m_pDemuxThread;
 
-            VideoDemuxerThread::CQueuePtr m_pCmdQ;
-            std::map<int, VideoMsgQueuePtr> m_PacketQs;
-            std::map<int, VideoMsgPtr> m_pCurMsgs;
-            std::map<int, bool> m_bStreamClosed;
+        VideoDemuxerThread::CQueuePtr m_pCmdQ;
+        std::map<int, VideoMsgQueuePtr> m_PacketQs;
+        std::map<int, VideoMsgPtr> m_pCurMsgs;
+        std::map<int, bool> m_bStreamClosed;
 
-            AVFormatContext * m_pFormatContext;
-    };
-    typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
+        AVFormatContext * m_pFormatContext;
+};
+typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
 }
 
 #endif

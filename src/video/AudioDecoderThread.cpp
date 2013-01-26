@@ -54,7 +54,7 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
     if (m_pAStream->start_time != (long long)AV_NOPTS_VALUE) {
         m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)*m_pAStream->start_time);
     }
-    m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
+    m_InputSampleRate = (int)(m_pAStream->codec->sample_rate);
 }
 
 AudioDecoderThread::~AudioDecoderThread()
@@ -156,7 +156,7 @@ AudioBufferPtr AudioDecoderThread::getAudioBuffer()
     }
     int framesDecoded = bytesDecoded/(m_pAStream->codec->channels*sizeof(short));
     AudioBufferPtr pBuffer;
-    bool bNeedsResample = (m_EffectiveSampleRate != m_AP.m_SampleRate || 
+    bool bNeedsResample = (m_InputSampleRate != m_AP.m_SampleRate || 
             m_pAStream->codec->channels != m_AP.m_Channels);
     if (bNeedsResample) {
         pBuffer = resampleAudio(pDecodedData, framesDecoded);
@@ -174,11 +174,11 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(short* pDecodedData, int frames
     if (!m_pAudioResampleContext) {
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
         m_pAudioResampleContext = av_audio_resample_init(m_AP.m_Channels, 
-                m_pAStream->codec->channels, m_AP.m_SampleRate, m_EffectiveSampleRate,
+                m_pAStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
                 SAMPLE_FMT_S16, SAMPLE_FMT_S16, 16, 10, 0, 0.8);
 #else
         m_pAudioResampleContext = audio_resample_init(m_AP.m_Channels, 
-                m_pAStream->codec->channels, m_AP.m_SampleRate, m_EffectiveSampleRate);
+                m_pAStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate);
 #endif        
     }
 
@@ -228,7 +228,8 @@ void AudioDecoderThread::handleSeekDone(int seqNum, float seekTime)
         
                 pushSeekDone(m_LastFrameTime, seqNum);
             } else {
-                // Received frame that's too late, so insert a buffer of silence to compensate.
+                // Received frame that's too late, so insert a buffer of silence to 
+                // compensate.
                 pushSeekDone(m_LastFrameTime, seqNum);
 
                 // send empty buffer 

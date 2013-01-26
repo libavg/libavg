@@ -53,7 +53,6 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     private:
         void close();
         AudioBufferPtr getAudioBuffer();
-        // Used from audio thread.
         AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
         void getNextAudioPacket(bool& bSeekDone);
         void handleSeekDone(int seqNum, float seekTime);
@@ -71,7 +70,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         int m_AStreamIndex;
         AVPacket * m_pCurAudioPacket;
         AVPacket * m_pTempAudioPacket;
-        int m_EffectiveSampleRate;
+        int m_InputSampleRate;
         ReSampleContext * m_pAudioResampleContext;
         float m_AudioStartTimestamp;
         float m_LastFrameTime;

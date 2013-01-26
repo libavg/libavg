@@ -63,7 +63,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
 #ifdef AVG_ENABLE_VDPAU
         FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
 #endif
-        bool isVideoSeekDone();
+        bool isSeekDone();
         bool isEOF() const;
         BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, PixelFormat pf);
         void readFrame(AVFrame& frame);
@@ -81,7 +81,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         PixelFormat m_PF;
         bool m_bUseVDPAU;
 
-        bool m_bVideoSeekDone;
+        bool m_bSeekDone;
         int m_SeekSeqNum;
 
         bool m_bEOFPending;

@@ -55,7 +55,7 @@ class AVG_API FFMpegFrameDecoder
         AVStream* m_pStream;
 
         bool m_bEOFPending;
-        bool m_bVideoEOF;
+        bool m_bEOF;
         
         float m_TimeUnitsPerSecond;
         long long m_VideoStartTimestamp;

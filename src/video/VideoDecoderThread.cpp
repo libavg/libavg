@@ -49,7 +49,7 @@ VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ,
       m_Size(size),
       m_PF(pf),
       m_bUseVDPAU(bUseVDPAU),
-      m_bVideoSeekDone(false),
+      m_bSeekDone(false),
       m_bEOFPending(false)
 {
     m_pFrameDecoder = FFMpegFrameDecoderPtr(new FFMpegFrameDecoder(pStream));
@@ -91,7 +91,7 @@ bool VideoDecoderThread::work()
     if (frameAvailable == FA_CLOSED) {
         close();
     } else {
-        if (isVideoSeekDone()) {
+        if (isSeekDone()) {
             m_MsgQ.clear();
             VideoMsgPtr pMsg(new VideoMsg());
             float videoFrameTime = m_pFrameDecoder->getCurTime();
@@ -194,10 +194,10 @@ FrameAvailableCode VideoDecoderThread::renderToVDPAU(vdpau_render_state** ppRend
 }
 #endif
 
-bool VideoDecoderThread::isVideoSeekDone()
+bool VideoDecoderThread::isSeekDone()
 {
-    bool bSeekDone = m_bVideoSeekDone;
-    m_bVideoSeekDone = false;
+    bool bSeekDone = m_bSeekDone;
+    m_bSeekDone = false;
     return bSeekDone;
 }
 
@@ -235,10 +235,10 @@ void VideoDecoderThread::readFrame(AVFrame& frame)
         if (seekTime != -1) {
             m_pFrameDecoder->handleSeek();
             m_SeekSeqNum = seqNum;
-            m_bVideoSeekDone = true;
+            m_bSeekDone = true;
         }
         AVPacket* pPacket = m_pDemuxer->getPacket(m_StreamIndex);
-        bool bGotPicture = m_pFrameDecoder->decodePacket(pPacket, frame, m_bVideoSeekDone);
+        bool bGotPicture = m_pFrameDecoder->decodePacket(pPacket, frame, m_bSeekDone);
         if (bGotPicture && m_pFrameDecoder->isEOF()) {
             m_bEOFPending = true;
         }

@@ -88,8 +88,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
 #else
     AVFormatParameters params;
     memset(&params, 0, sizeof(params));
-    err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 
-            0, 0, &params);
+    err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 0, 0, &params);
 #endif
     if (err < 0) {
         m_sFilename = "";
@@ -207,9 +206,9 @@ void VideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
         }
     }
 
-    if (m_VStreamIndex < 0 && m_AStreamIndex < 0) {
+    if (!m_pVStream && !m_pAStream) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                m_sFilename + " does not contain any valid audio or video streams.");
+                m_sFilename + ": no usable streams found.");
     }
 
     m_State = DECODING;
@@ -316,8 +315,6 @@ void VideoDecoder::logConfig()
 int VideoDecoder::getNumFrames() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    // This is broken for some videos, but the code here is correct.
-    // So fix ffmpeg :-).
     int numFrames =  int(m_pVStream->nb_frames);
     if (numFrames > 0) {
         return numFrames;
