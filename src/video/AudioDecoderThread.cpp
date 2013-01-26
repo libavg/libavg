@@ -209,7 +209,7 @@ void AudioDecoderThread::handleSeekDone(int seqNum, float seekTime)
             if (m_LastFrameTime-0.01f < seekTime) {
                 // Received frame that's earlier than the destination, so throw away frames
                 // until the time is correct.
-                while (m_LastFrameTime-0.05f < seekTime) {
+                while (m_LastFrameTime-0.01f < seekTime) {
                     deleteCurAudioPacket();
                     float seekTime = m_pDemuxer->isSeekDone(m_AStreamIndex, m_SeekSeqNum);
                     AVG_ASSERT(seekTime == -1);
