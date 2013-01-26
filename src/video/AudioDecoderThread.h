@@ -25,12 +25,13 @@
 #define _AudioDecoderThread_H_
 
 #include "../avgconfigwrapper.h"
-#include "FFMpegDecoder.h"
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
 #include "../audio/AudioParams.h"
+
+#include "WrapFFMpeg.h"
 
 #include <boost/thread.hpp>
 

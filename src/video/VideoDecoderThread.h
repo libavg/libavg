@@ -23,12 +23,14 @@
 #define _VideoDecoderThread_H_
 
 #include "../api.h"
-#include "FFMpegDecoder.h"
 #include "VideoMsg.h"
+#include "VideoDecoder.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
 #include "../base/Queue.h"
+
+#include "WrapFFMpeg.h"
 
 #include <boost/thread.hpp>
 
@@ -39,9 +41,14 @@ namespace avg {
 typedef Queue<Bitmap> BitmapQueue;
 typedef boost::shared_ptr<BitmapQueue> BitmapQueuePtr;
 
+class AsyncDemuxer;
+class FFMpegFrameDecoder;
+typedef boost::shared_ptr<FFMpegFrameDecoder> FFMpegFrameDecoderPtr;
+
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
-        VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, FFMpegDecoderPtr pDecoder,
+        VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
+                AsyncDemuxer* pDemuxer, AVStream* pStream, int streamIndex, 
                 const IntPoint& size, PixelFormat pf, bool bUseVDPAU);
         virtual ~VideoDecoderThread();
         
@@ -52,10 +59,20 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
 
     private:
         void close();
-        BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 
-                PixelFormat pf);
+        FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps);
+#ifdef AVG_ENABLE_VDPAU
+        FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
+#endif
+        bool isVideoSeekDone();
+        bool isEOF() const;
+        BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, PixelFormat pf);
+        void readFrame(AVFrame& frame);
+
         VideoMsgQueue& m_MsgQ;
-        FFMpegDecoderPtr m_pDecoder;
+        FFMpegFrameDecoderPtr m_pFrameDecoder;
+        AsyncDemuxer* m_pDemuxer;
+        AVStream* m_pStream;
+        int m_StreamIndex;
 
         BitmapQueuePtr m_pBmpQ;
         BitmapQueuePtr m_pHalfBmpQ;
@@ -63,6 +80,11 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         IntPoint m_Size;
         PixelFormat m_PF;
         bool m_bUseVDPAU;
+
+        bool m_bVideoSeekDone;
+        int m_SeekSeqNum;
+
+        bool m_bEOFPending;
 };
 
 }

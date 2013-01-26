@@ -23,6 +23,7 @@
 
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
+#include "VDPAUHelper.h"
 #endif
 
 #include "../base/ObjectCounter.h"
@@ -103,11 +104,9 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_pVCmdQ = VideoDecoderThread::CQueuePtr(new VideoDecoderThread::CQueue);
         m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(m_QueueLength));
 
-        m_pSyncDecoder = FFMpegDecoderPtr(new FFMpegDecoder(m_pDemuxer, getVideoStream(),
-                getVStreamIndex(), getPixelFormat(), usesVDPAU()));
         m_pVDecoderThread = new boost::thread(VideoDecoderThread(
-                *m_pVCmdQ, *m_pVMsgQ, m_pSyncDecoder, getSize(), getPixelFormat(), 
-                usesVDPAU()));
+                *m_pVCmdQ, *m_pVMsgQ, m_pDemuxer, getVideoStream(), getVStreamIndex(),
+                getSize(), getPixelFormat(), usesVDPAU()));
     }
     
     if (getVideoInfo().m_bHasAudio) {
@@ -147,8 +146,6 @@ void AsyncVideoDecoder::close()
         m_pAMsgQ = AudioMsgQueuePtr();
     }
     VideoDecoder::close();
-
-    m_pSyncDecoder = FFMpegDecoderPtr();
 }
 
 void AsyncVideoDecoder::seek(float destTime)

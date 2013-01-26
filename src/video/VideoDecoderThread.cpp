@@ -20,6 +20,11 @@
 //
 
 #include "VideoDecoderThread.h"
+#include "AsyncDemuxer.h"
+#include "FFMpegFrameDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUHelper.h"
+#endif
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -34,17 +39,23 @@ using namespace std;
 namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-        FFMpegDecoderPtr pDecoder, const IntPoint& size, PixelFormat pf, bool bUseVDPAU)
+        AsyncDemuxer* pDemuxer, AVStream* pStream, int streamIndex,
+        const IntPoint& size, PixelFormat pf, bool bUseVDPAU)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
             Logger::PROFILE_VIDEO),
       m_MsgQ(msgQ),
-      m_pDecoder(pDecoder),
+      m_pDemuxer(pDemuxer),
+      m_pStream(pStream),
+      m_StreamIndex(streamIndex),
       m_pBmpQ(new BitmapQueue()),
       m_pHalfBmpQ(new BitmapQueue()),
       m_Size(size),
       m_PF(pf),
-      m_bUseVDPAU(bUseVDPAU)
+      m_bUseVDPAU(bUseVDPAU),
+      m_bVideoSeekDone(false),
+      m_bEOFPending(false)
 {
+    m_pFrameDecoder = FFMpegFrameDecoderPtr(new FFMpegFrameDecoder(pStream));
 }
 
 VideoDecoderThread::~VideoDecoderThread()
@@ -62,7 +73,7 @@ bool VideoDecoderThread::work()
     vector<BitmapPtr> pBmps;
     if (m_bUseVDPAU) {
 #ifdef AVG_ENABLE_VDPAU
-        frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
+        frameAvailable = renderToVDPAU(&pRenderState);
 #else
         frameAvailable = FA_NEW_FRAME; // Never executed - silences compiler warning.
 #endif
@@ -78,19 +89,19 @@ bool VideoDecoderThread::work()
         } else {
             pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
         }
-        frameAvailable = m_pDecoder->renderToBmps(pBmps);
+        frameAvailable = renderToBmps(pBmps);
     }
     if (frameAvailable == FA_CLOSED) {
         close();
     } else {
-        if (m_pDecoder->isVideoSeekDone()) {
+        if (isVideoSeekDone()) {
             m_MsgQ.clear();
             VideoMsgPtr pMsg(new VideoMsg());
-            float videoFrameTime = m_pDecoder->getCurTime();
-            pMsg->setSeekDone(m_pDecoder->getSeekSeqNum(), videoFrameTime);
+            float videoFrameTime = m_pFrameDecoder->getCurTime();
+            pMsg->setSeekDone(m_SeekSeqNum, videoFrameTime);
             m_MsgQ.push(pMsg);
         }
-        if (m_pDecoder->isEOF()) {
+        if (isEOF()) {
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setEOF();
             m_MsgQ.push(pMsg);
@@ -99,9 +110,9 @@ bool VideoDecoderThread::work()
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
             if (m_bUseVDPAU) {
-                pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime());
+                pMsg->setVDPAUFrame(pRenderState, m_pFrameDecoder->getCurTime());
             } else {
-                pMsg->setFrame(pBmps, m_pDecoder->getCurTime());
+                pMsg->setFrame(pBmps, m_pFrameDecoder->getCurTime());
             }
             m_MsgQ.push(pMsg);
             msleep(0);
@@ -113,7 +124,7 @@ bool VideoDecoderThread::work()
 
 void VideoDecoderThread::setFPS(float fps)
 {
-    m_pDecoder->setFPS(fps);
+    m_pFrameDecoder->setFPS(fps);
 }
 
 void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
@@ -134,6 +145,95 @@ void VideoDecoderThread::close()
     stop();
 }
 
+static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
+static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
+static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy", true);
+
+FrameAvailableCode VideoDecoderThread::renderToBmps(vector<BitmapPtr>& pBmps)
+{
+    ScopeTimer timer(RenderToBmpProfilingZone);
+    AVFrame frame;
+    readFrame(frame);
+
+    if (m_pDemuxer->isClosed(m_StreamIndex)) {
+        return FA_CLOSED;
+    } else {
+        if (isEOF()) {
+            return FA_USE_LAST_FRAME;
+        } else {
+            if (pixelFormatIsPlanar(m_PF)) {
+#ifdef AVG_ENABLE_VDPAU
+                if (m_bUseVDPAU) {
+                    ScopeTimer timer(VDPAUCopyProfilingZone);
+                    vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
+                    getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
+                } else {
+                    ScopeTimer timer(CopyImageProfilingZone);
+                    for (unsigned i = 0; i < pBmps.size(); ++i) {
+                        m_pFrameDecoder->copyPlaneToBmp(pBmps[i],
+                                frame.data[i], frame.linesize[i]);
+                    }
+                }
+#else 
+                ScopeTimer timer(CopyImageProfilingZone);
+                for (unsigned i = 0; i < pBmps.size(); ++i) {
+                    m_pFrameDecoder->copyPlaneToBmp(pBmps[i],
+                            frame.data[i], frame.linesize[i]);
+                }
+#endif
+            } else {
+#ifdef AVG_ENABLE_VDPAU
+                if (m_bUseVDPAU) {
+                    ScopeTimer timer(VDPAUCopyProfilingZone);
+                    vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
+                    getBitmapFromVDPAU(pRenderState, pBmps[0]);
+                } else {
+                    m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
+                }
+#else 
+                m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
+#endif
+            }
+            return FA_NEW_FRAME;
+        }
+    }
+}
+
+
+#ifdef AVG_ENABLE_VDPAU
+FrameAvailableCode VideoDecoderThread::renderToVDPAU(vdpau_render_state** ppRenderState)
+{
+    AVG_ASSERT(m_bUseVDPAU);
+    ScopeTimer timer(RenderToBmpProfilingZone);
+    AVFrame frame;
+    readFrame(frame);
+    if (m_pDemuxer->isClosed(m_StreamIndex)) {
+        return FA_CLOSED;
+    } else {
+        if (isEOF()) {
+            return FA_USE_LAST_FRAME;
+        } else {
+            ScopeTimer timer(VDPAUCopyProfilingZone);
+            vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+            *ppRenderState = pRenderState;
+            return FA_NEW_FRAME;
+        }
+    }
+}
+#endif
+
+bool VideoDecoderThread::isVideoSeekDone()
+{
+    bool bSeekDone = m_bVideoSeekDone;
+    m_bVideoSeekDone = false;
+    return bSeekDone;
+}
+
+bool VideoDecoderThread::isEOF() const
+{
+    return m_pFrameDecoder->isEOF() && !m_bEOFPending;
+}
+
 BitmapPtr VideoDecoderThread::getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 
         PixelFormat pf)
 {
@@ -143,6 +243,36 @@ BitmapPtr VideoDecoderThread::getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size,
         return pBmp;
     } else {
         return BitmapPtr(new Bitmap(size, pf)); 
+    }
+}
+
+static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
+
+void VideoDecoderThread::readFrame(AVFrame& frame)
+{
+    ScopeTimer timer(DecodeProfilingZone); 
+
+    if (m_bEOFPending) {
+        m_bEOFPending = false;
+        return;
+    }
+    bool bDone = false;
+    while (!bDone) {
+        int seqNum;
+        float seekTime = m_pDemuxer->isSeekDone(m_StreamIndex, seqNum);
+        if (seekTime != -1) {
+            m_pFrameDecoder->handleSeek();
+            m_SeekSeqNum = seqNum;
+            m_bVideoSeekDone = true;
+        }
+        AVPacket* pPacket = m_pDemuxer->getPacket(m_StreamIndex);
+        bool bGotPicture = m_pFrameDecoder->decodePacket(pPacket, frame, m_bVideoSeekDone);
+        if (bGotPicture && m_pFrameDecoder->isEOF()) {
+            m_bEOFPending = true;
+        }
+        if (bGotPicture || m_pFrameDecoder->isEOF()) {
+            bDone = true;
+        }
     }
 }
 

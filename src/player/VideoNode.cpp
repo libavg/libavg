@@ -37,7 +37,6 @@
 #include "../audio/AudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
-#include "../video/FFMpegDecoder.h"
 #include "../video/SyncDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "../video/VDPAUDecoder.h"

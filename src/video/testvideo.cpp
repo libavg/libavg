@@ -19,8 +19,6 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "FFMpegDecoder.h"
-
 #include "AsyncVideoDecoder.h"
 #include "SyncDecoder.h"
 #ifdef AVG_ENABLE_VDPAU

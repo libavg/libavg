@@ -23,7 +23,6 @@
 #define _AsyncVideoDecoder_H_
 
 #include "../api.h"
-#include "FFMpegDecoder.h"
 #include "AsyncDemuxer.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
@@ -75,7 +74,6 @@ private:
     void returnFrame(VideoMsgPtr pFrameMsg);
     bool isSeeking() const;
 
-    FFMpegDecoderPtr m_pSyncDecoder;
     int m_QueueLength;
 
     AsyncDemuxer* m_pDemuxer;

@@ -46,7 +46,7 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
-#include "../video/FFMpegDecoder.h"
+#include "../video/VideoDecoder.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
