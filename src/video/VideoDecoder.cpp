@@ -187,7 +187,7 @@ void VideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
     if (m_VStreamIndex >= 0) {
         m_PF = calcPixelFormat(bDeliverYCbCr);
     }
-    bool bAudioEnabled = pAP;
+    bool bAudioEnabled = (pAP!=0);
     if (!bAudioEnabled) {
         m_AStreamIndex = -1;
         if (m_pAStream) {
