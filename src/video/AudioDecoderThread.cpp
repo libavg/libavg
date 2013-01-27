@@ -212,7 +212,10 @@ void AudioDecoderThread::handleSeekDone(int seqNum, float seekTime)
                 while (m_LastFrameTime-0.01f < seekTime) {
                     deleteCurAudioPacket();
                     float seekTime = m_pDemuxer->isSeekDone(m_AStreamIndex, m_SeekSeqNum);
-                    AVG_ASSERT(seekTime == -1);
+                    if (seekTime != -1) {
+                        handleSeekDone(m_SeekSeqNum, seekTime);
+                        return;
+                    }
                     m_pCurAudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
                     if (!m_pCurAudioPacket) {
                         handleNoPacketMsg();
