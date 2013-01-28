@@ -20,6 +20,7 @@
 //
 
 #include "VideoMsg.h"
+#include "WrapFFMpeg.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -27,113 +28,65 @@
 namespace avg {
 
 VideoMsg::VideoMsg()
-    : m_MsgType(NONE)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 VideoMsg::~VideoMsg()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, float audioTime)
-{
-    AVG_ASSERT(m_MsgType == NONE);
-    AVG_ASSERT(pAudioBuffer);
-    m_MsgType = AUDIO;
-    m_pAudioBuffer = pAudioBuffer;
-    m_AudioTime = audioTime;
-}
-
-void VideoMsg::setEOF()
-{
-    AVG_ASSERT(m_MsgType == NONE);
-    m_MsgType = END_OF_FILE;
-}
-
-void VideoMsg::setError(const Exception& ex)
-{
-    AVG_ASSERT(m_MsgType == NONE);
-    m_MsgType = ERROR;
-    m_pEx = new Exception(ex);
 }
 
 void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime)
 {
-    AVG_ASSERT(m_MsgType == NONE);
     AVG_ASSERT(pBmps.size() == 1 || pBmps.size() == 3 || pBmps.size() == 4);
-    m_MsgType = FRAME;
+    setType(FRAME);
     m_pBmps = pBmps;
     m_FrameTime = frameTime;
 }
 
 void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime)
 {
-    AVG_ASSERT(m_MsgType == NONE);
-    m_MsgType = VDPAU_FRAME;
+    setType(VDPAU_FRAME);
     m_pRenderState = pRenderState;
     m_FrameTime = frameTime;
 }
-
-void VideoMsg::setSeekDone(float seekVideoFrameTime, float seekAudioFrameTime)
+    
+void VideoMsg::setPacket(AVPacket* pPacket)
 {
-    AVG_ASSERT(m_MsgType == NONE);
-    m_MsgType = SEEK_DONE;
-    m_SeekVideoFrameTime = seekVideoFrameTime;
-    m_SeekAudioFrameTime = seekAudioFrameTime;
+    setType(PACKET);
+    AVG_ASSERT(pPacket);
+    m_pPacket = pPacket;
 }
 
-VideoMsg::MsgType VideoMsg::getType()
+AVPacket * VideoMsg::getPacket()
 {
-    return m_MsgType;
+    AVG_ASSERT(getType() == PACKET);
+    return m_pPacket;
 }
 
-AudioBufferPtr VideoMsg::getAudioBuffer() const
+void VideoMsg::freePacket()
 {
-    AVG_ASSERT(m_MsgType == AUDIO);
-    return m_pAudioBuffer;
-}
-
-float VideoMsg::getAudioTime() const
-{
-    AVG_ASSERT(m_MsgType == AUDIO);
-    return m_AudioTime;
-}
-
-const Exception& VideoMsg::getException() const
-{
-    AVG_ASSERT(m_MsgType == ERROR);
-    return *m_pEx;
+    if (getType() == PACKET) {
+        av_free_packet(m_pPacket);
+        delete m_pPacket;
+        m_pPacket = 0;
+    }
 }
 
 BitmapPtr VideoMsg::getFrameBitmap(int i)
 {
-    AVG_ASSERT(m_MsgType == FRAME);
+    AVG_ASSERT(getType() == FRAME);
     return m_pBmps[i];
 }
 
 float VideoMsg::getFrameTime()
 {
-    AVG_ASSERT(m_MsgType == FRAME || m_MsgType == VDPAU_FRAME);
+    AVG_ASSERT(getType() == FRAME || getType() == VDPAU_FRAME);
     return m_FrameTime;
-}
-
-float VideoMsg::getSeekVideoFrameTime()
-{
-    AVG_ASSERT(m_MsgType == SEEK_DONE);
-    return m_SeekVideoFrameTime;
-}
-
-float VideoMsg::getSeekAudioFrameTime()
-{
-    AVG_ASSERT(m_MsgType == SEEK_DONE);
-    return m_SeekAudioFrameTime;
 }
 
 vdpau_render_state* VideoMsg::getRenderState()
 {
-    AVG_ASSERT(m_MsgType == VDPAU_FRAME);
+    AVG_ASSERT(getType() == VDPAU_FRAME);
     return m_pRenderState;
 }
 

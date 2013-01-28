@@ -34,30 +34,34 @@
 
 namespace avg {
 
-    class AVG_API AsyncDemuxer: public IDemuxer {
-        public:
-            AsyncDemuxer(AVFormatContext * pFormatContext, 
-                    std::vector<int> streamIndexes);
-            virtual ~AsyncDemuxer();
-           
-            AVPacket * getPacket(int streamIndex);
-            void seek(float destTime);
-            
-        private:
-            void enableStream(int streamIndex);
-            void waitForSeekDone();
+class AVG_API AsyncDemuxer: public IDemuxer {
+    public:
+        AsyncDemuxer(AVFormatContext * pFormatContext, std::vector<int> streamIndexes);
+        virtual ~AsyncDemuxer();
+       
+        AVPacket * getPacket(int streamIndex);
+        float isSeekDone(int streamIndex, int& seqNum, bool bWait=true);
+        bool isClosed(int streamIndex);
+        void seek(int seqNum, float destTime);
+        void close();
 
-            boost::thread* m_pDemuxThread;
+        VideoDemuxerThread::CQueuePtr getCmdQ();
 
-            VideoDemuxerThread::CQueuePtr m_pCmdQ;
-            std::map<int, VideoPacketQueuePtr> m_PacketQs;
-            std::map<int, bool> m_bSeekDone;
+    private:
+        AVPacket * checkPacket(int streamIndex);
+        void enableStream(int streamIndex);
+        void waitForSeekDone();
 
-            bool m_bSeekPending;
-            AVFormatContext * m_pFormatContext;
-            boost::mutex m_SeekMutex;
-    };
-    typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
+        boost::thread* m_pDemuxThread;
+
+        VideoDemuxerThread::CQueuePtr m_pCmdQ;
+        std::map<int, VideoMsgQueuePtr> m_PacketQs;
+        std::map<int, VideoMsgPtr> m_pCurMsgs;
+        std::map<int, bool> m_bStreamClosed;
+
+        AVFormatContext * m_pFormatContext;
+};
+typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
 }
 
 #endif

@@ -39,7 +39,6 @@ namespace avg {
 
 AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext, vector<int> streamIndexes)
     : m_pCmdQ(new VideoDemuxerThread::CQueue),
-      m_bSeekPending(false),
       m_pFormatContext(pFormatContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -53,12 +52,11 @@ AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext, vector<int> streamI
 AsyncDemuxer::~AsyncDemuxer()
 {
     if (m_pDemuxThread) {
-        waitForSeekDone();
         m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::stop, _1));
-        map<int, VideoPacketQueuePtr>::iterator it;
+        map<int, VideoMsgQueuePtr>::iterator it;
         for (it = m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
             // If the Queue is full, this breaks the lock in the thread.
-            PacketVideoMsgPtr pPacketMsg;
+            VideoMsgPtr pPacketMsg;
             pPacketMsg = it->second->pop(false);
             if (pPacketMsg) {
                 pPacketMsg->freePacket();
@@ -68,8 +66,8 @@ AsyncDemuxer::~AsyncDemuxer()
         delete m_pDemuxThread;
         m_pDemuxThread = 0;
         for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-            VideoPacketQueuePtr pPacketQ = it->second;
-            PacketVideoMsgPtr pPacketMsg;
+            VideoMsgQueuePtr pPacketQ = it->second;
+            VideoMsgPtr pPacketMsg;
             pPacketMsg = pPacketQ->pop(false);
             while (pPacketMsg) {
                 pPacketMsg->freePacket();
@@ -82,71 +80,88 @@ AsyncDemuxer::~AsyncDemuxer()
 
 AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 {
-    waitForSeekDone();
-    // TODO: This blocks if there is no packet. Is that ok?
-    PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
-    AVG_ASSERT(!pPacketMsg->isSeekDone());
+    AVG_ASSERT(m_pCurMsgs[streamIndex]);
+    return checkPacket(streamIndex);
+}
+            
+AVPacket * AsyncDemuxer::checkPacket(int streamIndex)
+{
+    VideoMsgPtr pMsg = m_pCurMsgs[streamIndex];
+    if (!pMsg) {
+        return 0;
+    } else {
+        m_pCurMsgs[streamIndex] = VideoMsgPtr();
+        switch(pMsg->getType()) {
+            case VideoMsg::PACKET:
+                return pMsg->getPacket();
+            case VideoMsg::END_OF_FILE:
+                return 0;
+            case VideoMsg::CLOSED:
+                return 0;
+            default:
+                pMsg->dump();
+                AVG_ASSERT(false);
+                return 0;
+        }
+    }
+}
+            
+float AsyncDemuxer::isSeekDone(int streamIndex, int& seqNum, bool bWait)
+{
+    VideoMsgPtr pCurMsg = m_PacketQs[streamIndex]->pop(bWait);
+    if (!pCurMsg) {
+        return -1;
+    } else {
+        m_pCurMsgs[streamIndex] = pCurMsg;
+        switch (m_pCurMsgs[streamIndex]->getType()) {
+            case VideoMsg::SEEK_DONE: {
+                float seekTime = m_pCurMsgs[streamIndex]->getSeekTime();
+                seqNum = m_pCurMsgs[streamIndex]->getSeekSeqNum();
 
-    return pPacketMsg->getPacket();
+                float newSeekTime = isSeekDone(streamIndex, seqNum, true);
+                if (newSeekTime != -1 || m_bStreamClosed[streamIndex]) {
+                    return newSeekTime;
+                } else {
+                    return seekTime;
+                }
+            }
+            case VideoMsg::CLOSED:
+                m_bStreamClosed[streamIndex] = true;
+                return -1;
+            default:
+                return -1;
+        }
+    }
 }
 
-void AsyncDemuxer::seek(float destTime)
+bool AsyncDemuxer::isClosed(int streamIndex)
 {
-    // TODO: There is a (theoretical) race condition here - getPacket() and seek() can
-    // be called from different threads. Among other things, this can cause the assert in 
-    // getPacket() to trigger.
-    waitForSeekDone();
-    scoped_lock Lock(m_SeekMutex);
-    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
-    m_bSeekPending = true;
-    bool bAllSeeksDone = true;
-    map<int, VideoPacketQueuePtr>::iterator it;
-    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-        VideoPacketQueuePtr pPacketQ = it->second;
-        PacketVideoMsgPtr pPacketMsg;
-        map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
-        itSeekDone->second = false;
-        pPacketMsg = pPacketQ->pop(false);
-        while (pPacketMsg && !itSeekDone->second) {
-            itSeekDone->second = pPacketMsg->isSeekDone();
-            pPacketMsg->freePacket();
-            if (!itSeekDone->second) {
-                pPacketMsg = pPacketQ->pop(false);
-            }
-        }
-        if (!itSeekDone->second) {
-            bAllSeeksDone = false;
-        }
-    }
-    if (bAllSeeksDone) {
-        m_bSeekPending = false;
-    }
+    return m_bStreamClosed[streamIndex];
+}
+
+void AsyncDemuxer::seek(int seqNum, float destTime)
+{
+    AVG_ASSERT(seqNum != -1); //TODO: Remove when audio works.
+    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, seqNum, destTime));
+}
+            
+void AsyncDemuxer::close()
+{
+    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::close, _1));
+    m_pDemuxThread->join();
+}
+
+VideoDemuxerThread::CQueuePtr AsyncDemuxer::getCmdQ()
+{
+    return m_pCmdQ;
 }
 
 void AsyncDemuxer::enableStream(int streamIndex)
 {
-    VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
+    VideoMsgQueuePtr pPacketQ(new VideoMsgQueue(PACKET_QUEUE_LENGTH));
     m_PacketQs[streamIndex] = pPacketQ;
-    m_bSeekDone[streamIndex] = true;
-}
-
-void AsyncDemuxer::waitForSeekDone()
-{
-    scoped_lock Lock(m_SeekMutex);
-    if (m_bSeekPending) {
-        m_bSeekPending = false;
-        map<int, VideoPacketQueuePtr>::iterator it;
-        for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-            VideoPacketQueuePtr pPacketQ = it->second;
-            PacketVideoMsgPtr pPacketMsg;
-            map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
-            while (!itSeekDone->second) {
-                pPacketMsg = pPacketQ->pop(true);
-                itSeekDone->second = pPacketMsg->isSeekDone();
-                pPacketMsg->freePacket();
-            }
-        }
-    }
+    m_pCurMsgs[streamIndex] = VideoMsgPtr();
+    m_bStreamClosed[streamIndex] = false;
 }
 
 }

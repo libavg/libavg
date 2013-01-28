@@ -51,23 +51,29 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
     // Make sure enableStream was called on streamIndex.
     AVG_ASSERT(m_PacketLists.size() > 0);
     AVG_ASSERT(streamIndex > -1 && streamIndex < 10);
+
     if (m_PacketLists.find(streamIndex) == m_PacketLists.end()) {
         cerr << this << ": getPacket: Stream " << streamIndex << " not found." << endl;
         dump();
         AVG_ASSERT(false);
     }
-    PacketList & CurPacketList = m_PacketLists.find(streamIndex)->second;
+
+    PacketList & curPacketList = m_PacketLists.find(streamIndex)->second;
     AVPacket * pPacket;
-    if (!CurPacketList.empty()) {
-        pPacket = CurPacketList.front();
-        CurPacketList.pop_front();
+    if (!curPacketList.empty()) {
+        // The stream has packets queued already.
+        pPacket = curPacketList.front();
+        curPacketList.pop_front();
     } else {
+        // No packets queued for this stream -> read and queue packets until we get one
+        // that is meant for this stream.
         do {
             pPacket = new AVPacket;
             memset(pPacket, 0, sizeof(AVPacket));
             int err = av_read_frame(m_pFormatContext, pPacket);
             // TODO: Check url_ferror here too.
             if (err < 0) {
+                // EOF
                 av_free_packet(pPacket);
                 delete pPacket;
                 pPacket = 0;
@@ -75,26 +81,27 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
             }
             if (pPacket->stream_index != streamIndex) {
                 if (m_PacketLists.find(pPacket->stream_index) != m_PacketLists.end()) {
+                    // Relevant stream, but not ours
                     av_dup_packet(pPacket);
-                    PacketList& OtherPacketList = 
+                    PacketList& otherPacketList = 
                             m_PacketLists.find(pPacket->stream_index)->second;
-                    OtherPacketList.push_back(pPacket);
+                    otherPacketList.push_back(pPacket);
                 } else {
+                    // Disabled stream
                     av_free_packet(pPacket);
                     delete pPacket;
                     pPacket = 0;
                 } 
             } else {
+                // Our stream
                 av_dup_packet(pPacket);
             }
         } while (!pPacket || pPacket->stream_index != streamIndex);
     }
 
-//    float timeBase = av_q2d(m_pFormatContext->streams[streamIndex]->time_base);
-//    cerr << "FFMpegDemuxer: " << streamIndex << ": " << pPacket->dts*timeBase << endl;
     return pPacket;
 }
-
+        
 void FFMpegDemuxer::seek(float destTime)
 {
 #if LIBAVFORMAT_BUILD <= 4616
@@ -103,16 +110,12 @@ void FFMpegDemuxer::seek(float destTime)
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     av_seek_frame(m_pFormatContext, -1, destTime*1000000, 0);
 #else
-    av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE), AVSEEK_FLAG_BACKWARD);
+    int err = av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE),
+            AVSEEK_FLAG_BACKWARD);
+    AVG_ASSERT(err >= 0);
 #endif
 #endif
     clearPacketCache();
-    map<int, PacketList>::iterator it;
-    for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
-        int CurStreamIndex = it->first;
-        AVStream * pStream = m_pFormatContext->streams[CurStreamIndex];
-        avcodec_flush_buffers(pStream->codec);
-    }
 }
 
 void FFMpegDemuxer::clearPacketCache()
@@ -120,12 +123,12 @@ void FFMpegDemuxer::clearPacketCache()
     map<int, PacketList>::iterator it;
     for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         PacketList::iterator it2;
-        PacketList* thePacketList = &(it->second);
-        for (it2 = thePacketList->begin(); it2 != thePacketList->end(); ++it2) {
+        PacketList* pPacketList = &(it->second);
+        for (it2 = pPacketList->begin(); it2 != pPacketList->end(); ++it2) {
             av_free_packet(*it2);
             delete *it2;
         }
-        thePacketList->clear();
+        pPacketList->clear();
     }
 }
 

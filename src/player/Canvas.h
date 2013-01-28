@@ -21,7 +21,7 @@
 
 #ifndef _Canvas_H_
 #define _Canvas_H_
-
+ 
 #include "../api.h"
 
 #include "../base/IPlaybackEndListener.h"

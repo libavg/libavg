@@ -19,36 +19,53 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PacketVideoMsg_H_
-#define _PacketVideoMsg_H_
+#ifndef _FFMpegFrameDecoder_H_
+#define _FFMpegFrameDecoder_H_
 
 #include "../avgconfigwrapper.h"
-#include "../base/Queue.h"
+
 #include "../graphics/Bitmap.h"
 
 #include "WrapFFMpeg.h"
 
-#include <vector>
-
 namespace avg {
 
-class AVG_API PacketVideoMsg {
+class AVG_API FFMpegFrameDecoder
+{
     public:
-        PacketVideoMsg(AVPacket * pPacket, bool bSeekDone);
-        virtual ~PacketVideoMsg();
+        FFMpegFrameDecoder(AVStream* pStream);
+        virtual ~FFMpegFrameDecoder();
 
-        void freePacket();
-        AVPacket * getPacket();
-        bool isSeekDone();
+        bool decodePacket(AVPacket* pPacket, AVFrame& frame, bool bFrameAfterSeek);
+        void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
+        void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride);
 
+        void handleSeek();
+
+        virtual float getCurTime() const;
+        virtual float getFPS() const;
+        virtual void setFPS(float fps);
+
+        virtual bool isEOF() const;
+        
     private:
-        AVPacket * m_pPacket;
-        bool m_bSeekDone;
+        float getFrameTime(long long dts, bool bFrameAfterSeek);
+
+        SwsContext * m_pSwsContext;
+        AVStream* m_pStream;
+
+        bool m_bEOFPending;
+        bool m_bEOF;
+        
+        float m_TimeUnitsPerSecond;
+        long long m_VideoStartTimestamp;
+        float m_LastVideoFrameTime;
+
+        bool m_bUseStreamFPS;
+        float m_FPS;
 };
 
-typedef boost::shared_ptr<PacketVideoMsg> PacketVideoMsgPtr;
-typedef Queue<PacketVideoMsg> VideoPacketQueue;
-typedef boost::shared_ptr<VideoPacketQueue> VideoPacketQueuePtr;
+typedef boost::shared_ptr<FFMpegFrameDecoder> FFMpegFrameDecoderPtr;
 
 }
 #endif 

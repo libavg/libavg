@@ -167,6 +167,8 @@ public:
     }
 
 private:
+    typedef Queue<int>::QElementPtr ElemPtr;
+    
     void runSingleThreadTests()
     {
         Queue<string> q;
@@ -192,7 +194,7 @@ private:
     void runMultiThreadTests()
     {
         {
-            Queue<string> q(10);
+            Queue<int> q(10);
             thread pusher(boost::bind(&pushThread, &q, 100));
             thread popper(boost::bind(&popThread, &q, 100));
             pusher.join();
@@ -200,7 +202,7 @@ private:
             TEST(q.empty());
         }
         {
-            Queue<string> q(10);
+            Queue<int> q(10);
             thread pusher1(boost::bind(&pushThread, &q, 100));
             thread pusher2(boost::bind(&pushThread, &q, 100));
             thread popper(boost::bind(&popThread, &q, 200));
@@ -209,27 +211,52 @@ private:
             popper.join();
             TEST(q.empty());
         }
+        {
+            Queue<int> q(10);
+            thread pusher(boost::bind(&pushClearThread, &q, 100));
+            thread popper(boost::bind(&popClearThread, &q));
+            pusher.join();
+            popper.join();
+            TEST(q.empty());
+        }
     }
 
-    static void pushThread(Queue<string>* pq, int numPushes)
+    static void pushThread(Queue<int>* pq, int numPushes)
     {
-        typedef Queue<string>::QElementPtr ElemPtr;
         for (int i=0; i<numPushes; ++i) {
-            stringstream ss;
-            ss << i;
-            string s = ss.str();
-            pq->push(ElemPtr(new string(s)));
+            pq->push(ElemPtr(new int(i)));
             msleep(1);
         }
     }
 
-    static void popThread(Queue<string>* pq, int numPops)
+    static void popThread(Queue<int>* pq, int numPops)
     {
         for (int i=0; i<numPops; ++i) {
             pq->peek();
             pq->pop();
             msleep(3);
         }
+    }
+
+    static void pushClearThread(Queue<int>* pq, int numPushes)
+    {
+        typedef Queue<int>::QElementPtr ElemPtr;
+        for (int i=0; i<numPushes; ++i) {
+            pq->push(ElemPtr(new int(i)));
+            if (i%7 == 0) {
+                pq->clear();
+            }
+            msleep(1);
+        }
+        pq->push(ElemPtr(new int(-1)));
+    }
+
+    static void popClearThread(Queue<int>* pq)
+    {
+        ElemPtr pElem;
+        do {
+            pElem = pq->pop();
+        } while (*pElem != -1);
     }
 };
 

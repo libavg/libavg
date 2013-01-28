@@ -28,13 +28,12 @@
 
 #include "../base/IFrameEndListener.h"
 #include "../base/UTF8String.h"
-#include "../audio/IAudioSource.h"
 
 namespace avg {
 
-class VideoDecoder;
+class AsyncVideoDecoder;
 
-class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
+class AVG_API SoundNode : public AreaNode, IFrameEndListener
 {
     public:
         static void registerType();
@@ -68,8 +67,6 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
 
         virtual void onFrameEnd();
 
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
-
     private:
         void seek(long long destTime);
         void onEOF();
@@ -85,16 +82,16 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
         std::string m_Filename;
         bool m_bLoop;
         PyObject * m_pEOFCallback;
-        bool m_bAudioEnabled;
         long long m_SeekBeforeCanRenderTime;
 
         long long m_StartTime;
         long long m_PauseTime;
         long long m_PauseStartTime;
 
-        VideoDecoder * m_pDecoder;
+        AsyncVideoDecoder* m_pDecoder;
         float m_Volume;
         SoundState m_State;
+        int m_AudioID;
 };
 
 }
