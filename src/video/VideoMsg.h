@@ -26,63 +26,41 @@
 #include "../base/Queue.h"
 #include "../graphics/Bitmap.h"
 
-#include "../audio/AudioBuffer.h"
+#include "../audio/AudioMsg.h"
 
 #include <boost/shared_ptr.hpp>
 
 struct vdpau_render_state;
+struct AVPacket;
 
 namespace avg {
 
-class AVG_API VideoMsg {
+class AVG_API VideoMsg: public AudioMsg {
 public:
-    enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE, VDPAU_FRAME};
     VideoMsg();
-    void setAudio(AudioBufferPtr pAudioBuffer, float audioTime);
-    void setEOF();
-    void setError(const Exception& ex);
     void setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime);
     void setVDPAUFrame(vdpau_render_state* m_pRenderState, float frameTime);
-    void setSeekDone(float seekVideoFrameTime, float seekAudioFrameTime);
+    void setPacket(AVPacket* pPacket);
 
     virtual ~VideoMsg();
 
-    MsgType getType();
-
-    AudioBufferPtr getAudioBuffer() const;
-    float getAudioTime() const;
-
-    const Exception& getException() const;
-
     BitmapPtr getFrameBitmap(int i);
     float getFrameTime();
-
-    float getSeekVideoFrameTime();
-    float getSeekAudioFrameTime();
+    AVPacket* getPacket();
+    void freePacket();
 
     vdpau_render_state* getRenderState();
 
 private:
-    MsgType m_MsgType;
-
-    // AUDIO
-    AudioBufferPtr m_pAudioBuffer;
-    float m_AudioTime;
-
-    // ERROR
-    Exception* m_pEx;
-
     // FRAME
     std::vector<BitmapPtr> m_pBmps;
     float m_FrameTime;
 
     // VDPAU_FRAME
     vdpau_render_state* m_pRenderState;
-
-    // SEEK_DONE
-    float m_SeekVideoFrameTime;
-    float m_SeekAudioFrameTime;
-
+    
+    // PACKET
+    AVPacket * m_pPacket;
 };
 
 typedef boost::shared_ptr<VideoMsg> VideoMsgPtr;

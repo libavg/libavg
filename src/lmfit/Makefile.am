@@ -1,5 +1,5 @@
 
-INCLUDES = -I.
+AM_CPPFLAGS = -I.
 CPPFLAGS=-DBUG
 ALL_H = lmmin.h lm_eval.h 
 noinst_LTLIBRARIES = liblmfit.la

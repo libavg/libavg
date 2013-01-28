@@ -68,7 +68,7 @@ functionality
         :param maxTime: The maximum time that each phase of the tap may take.
 
 
-    .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, initialEvent=None, direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE, friction=-1, possibleHandler=None, failHandler=None, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
+    .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, initialEvent=None, direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE, friction=-1, minDragDist=None, possibleHandler=None, failHandler=None, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
 
         A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
         delivers higher-level callbacks that can be used to implement dragging or 
@@ -76,11 +76,6 @@ functionality
 
         :py:class:`DragRecognizer` supports inertia after the node is released.
         
-        :param avg.Node eventNode: 
-        
-            The node to attach to. The :py:class:`DragRecognizer` registers an event 
-            handler to react to any contacts for this node. 
-            
         :param avg.Node coordSysNode:    
 
             Used to determine the coordinate system for the offsets returned by the 
@@ -104,10 +99,22 @@ functionality
             A tolerance angle in radians for the detection of horizontal and vertical
             drags.
 
+        :param avg.Node eventNode: 
+        
+            The node to attach to. The :py:class:`DragRecognizer` registers an event 
+            handler to react to any contacts for this node. 
+            
         :param float friction:
 
             If set, this parameter enables inertia processing. It describes how 
             quickly the drag comes to a stop after the cursor is released.
+
+        :param float minDragDist:
+
+            Minimum distance in mm that the cursor must move for the recognizer to switch
+            from :py:const:`POSSIBLE` to :py:const:`DETECTED`. Default is either 0 (for 
+            :py:const:`ANY_DIRECTION` recognizers) or :py:const:`MIN_DRAG_DIST` (for
+            constrained recognizers).
 
         :param moveHandler:
 

@@ -23,20 +23,29 @@
 #define _VideoDecoder_H_
 
 #include "../api.h"
+#include "../avgconfigwrapper.h"
 
 #include "VideoInfo.h"
 
-#include "../graphics/Bitmap.h"
-#include "../audio/IAudioSource.h"
+#include "../audio/AudioParams.h"
+#include "../graphics/PixelFormat.h"
+
+#include "WrapFFMpeg.h"
 
 #include <string>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 
 struct vdpau_render_state;
 
 namespace avg {
 
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class VDPAUDecoder;
+
 enum FrameAvailableCode {
-    FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
+    FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING, FA_CLOSED
 };
 
 enum StreamSelect {
@@ -47,26 +56,25 @@ class AVG_API VideoDecoder
 {
     public:
         enum DecoderState {CLOSED, OPENED, DECODING};
-        virtual ~VideoDecoder() {};
-        virtual void open(const std::string& sFilename, bool bSyncDemuxer,
-                bool bUseHardwareAcceleration, bool bEnableSound) = 0;
-        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP) = 0;
-        virtual void close() = 0;
-        virtual DecoderState getState() const = 0;
-        virtual VideoInfo getVideoInfo() const = 0;
+        VideoDecoder();
+        virtual ~VideoDecoder();
+        virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
+                bool bEnableSound);
+        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
+        virtual void close();
+        virtual DecoderState getState() const;
+        VideoInfo getVideoInfo() const;
+        PixelFormat getPixelFormat() const;
+        IntPoint getSize() const;
+        float getStreamFPS() const;
 
         virtual void seek(float destTime) = 0;
         virtual void loop() = 0;
-        virtual IntPoint getSize() const = 0;
         virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() const = 0;
         virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const = 0;
-        virtual float getNominalFPS() const = 0;
         virtual float getFPS() const = 0;
         virtual void setFPS(float fps) = 0;
-        virtual float getVolume() const = 0;
-        virtual void setVolume(float volume) = 0;
-        virtual PixelFormat getPixelFormat() const = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
                 float timeWanted);
@@ -75,11 +83,53 @@ class AVG_API VideoDecoder
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
         virtual bool isEOF(StreamSelect stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(float timeWanted) = 0;
+
+        static void logConfig();
+
+    protected:
+        int getNumFrames() const;
+        AVFormatContext* getFormatContext();
+        bool usesVDPAU() const;
+        AVCodecContext const * getCodecContext() const;
+        AVCodecContext * getCodecContext();
+
+        int getVStreamIndex() const;
+        AVStream* getVideoStream() const;
+        int getAStreamIndex() const;
+        AVStream* getAudioStream() const;
+
+    private:
+        void initVideoSupport();
+        int openCodec(int streamIndex, bool bUseHardwareAcceleration);
+        float getDuration(StreamSelect streamSelect) const;
+        PixelFormat calcPixelFormat(bool bUseYCbCr);
+        std::string getStreamPF() const;
+
+        DecoderState m_State;
+        AVFormatContext * m_pFormatContext;
+        std::string m_sFilename;
+
+        // Video
+        int m_VStreamIndex;
+        AVStream * m_pVStream;
+        PixelFormat m_PF;
+        IntPoint m_Size;
+#ifdef AVG_ENABLE_VDPAU
+        VDPAUDecoder* m_pVDPAUDecoder;
+#endif
         
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
+        // Audio
+        int m_AStreamIndex;
+        AVStream * m_pAStream;
+        
+        static bool s_bInitialized;
+        // Prevents different decoder instances from executing open/close simultaneously
+        static boost::mutex s_OpenMutex;   
 };
 
 typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;
+
+void avcodecError(const std::string& sFilename, int err);
 
 }
 #endif 

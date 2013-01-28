@@ -47,6 +47,7 @@ public:
 
     bool empty() const;
     QElementPtr pop(bool bBlock = true);
+    void clear();
     void push(const QElementPtr& Elem);
     QElementPtr peek(bool bBlock = true) const;
     int size() const;
@@ -89,6 +90,15 @@ typename Queue<QElement>::QElementPtr Queue<QElement>::pop(bool bBlock)
         m_Cond.notify_one();
     }
     return pElem;
+}
+
+template<class QElement>
+void Queue<QElement>::clear()
+{
+    QElementPtr pElem;
+    do {
+        pElem = pop(false);
+    } while (pElem);
 }
 
 template<class QElement>

@@ -73,17 +73,17 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\audio\AudioBuffer.cpp" />
     <ClCompile Include="..\..\src\audio\AudioEngine.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioMsg.cpp" />
     <ClCompile Include="..\..\src\audio\AudioParams.cpp" />
-    <ClCompile Include="..\..\src\audio\SDLAudioEngine.cpp" />
+    <ClCompile Include="..\..\src\audio\AudioSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\audio\AudioBuffer.h" />
     <ClInclude Include="..\..\src\audio\AudioEngine.h" />
+    <ClInclude Include="..\..\src\audio\AudioMsg.h" />
     <ClInclude Include="..\..\src\audio\AudioParams.h" />
     <ClInclude Include="..\..\src\audio\Dynamics.h" />
-    <ClInclude Include="..\..\src\audio\IAudioSource.h" />
     <ClInclude Include="..\..\src\audio\IProcessor.h" />
-    <ClInclude Include="..\..\src\audio\SDLAudioEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

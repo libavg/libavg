@@ -84,7 +84,7 @@
 
 #include "../imaging/Camera.h"
 
-#include "../audio/SDLAudioEngine.h"
+#include "../audio/AudioEngine.h"
 
 #include <libxml/xmlmemory.h>
 
@@ -602,8 +602,8 @@ void Player::setFakeFPS(float fps)
         m_FakeFPS = fps;
     }
 
-    if (SDLAudioEngine::get()) {
-        SDLAudioEngine::get()->setAudioEnabled(!m_bFakeFPS);
+    if (AudioEngine::get()) {
+        AudioEngine::get()->setAudioEnabled(!m_bFakeFPS);
     }
 }
 
@@ -1274,9 +1274,9 @@ void Player::initGraphics(const string& sShaderPath)
 
 void Player::initAudio()
 {
-    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    AudioEngine* pAudioEngine = AudioEngine::get();
     if (!pAudioEngine) {
-        pAudioEngine = new SDLAudioEngine();
+        pAudioEngine = new AudioEngine();
     }
     pAudioEngine->init(m_AP, m_Volume);
     pAudioEngine->setAudioEnabled(!m_bFakeFPS);
@@ -1668,8 +1668,8 @@ bool Player::getStopOnEscape() const
 void Player::setVolume(float volume)
 {
     m_Volume = volume;
-    if (SDLAudioEngine::get()) {
-        SDLAudioEngine::get()->setVolume(m_Volume);
+    if (AudioEngine::get()) {
+        AudioEngine::get()->setVolume(m_Volume);
     }
 }
 
@@ -1745,8 +1745,8 @@ void Player::cleanup(bool bIsAbort)
             m_pDisplayEngine = SDLDisplayEnginePtr();
         }
     }
-    if (SDLAudioEngine::get()) {
-        SDLAudioEngine::get()->teardown();
+    if (AudioEngine::get()) {
+        AudioEngine::get()->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
     m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSOR_MOTION, false, false, 
