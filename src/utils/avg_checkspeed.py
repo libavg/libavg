@@ -35,6 +35,8 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
             help='Display everything using a NullFX to test FX overhead.')
     parser.add_option('--video', '-v', dest='video',  action='store_true', default=False, 
             help='Show videos instead of images.')
+    parser.add_option('--audio', '-a', dest='audio',  action='store_true', default=False, 
+            help='When showing videos, use videos with an audio channel')
     parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
             default=False, 
             help='Destroy and recreate all nodes every 400 ms.')
@@ -79,8 +81,12 @@ class SpeedApp(AVGApp):
         for i in xrange(options.numObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
             if options.video:
-                node = avg.VideoNode(pos=pos, href="mpeg1-48x48.mpg",
-                        loop=True, parent=self._parentNode)
+                if options.audio:
+                    fname = "mpeg1-48x48-sound.avi"
+                else:
+                    fname = "mpeg1-48x48.mpg"
+                node = avg.VideoNode(pos=pos, href=fname, loop=True, 
+                        parent=self._parentNode)
                 node.play()
             else:
                 node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png", 

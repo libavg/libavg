@@ -25,44 +25,68 @@
 #define _AudioEngine_H_
 
 #include "../api.h"
-#include "IAudioSource.h"
+#include "AudioSource.h"
 #include "AudioParams.h"
+#include "AudioBuffer.h"
+#include "IProcessor.h"
 
-#include <vector>
+#include <SDL/SDL.h>
+
+#include <boost/thread/mutex.hpp>
+
+#include <map>
 
 namespace avg {
 
-typedef std::vector<IAudioSource*> AudioSourceList;
+typedef std::map<int, AudioSourcePtr> AudioSourceMap;
 
 class AVG_API AudioEngine
 {
     public:
+        static AudioEngine* get();
         AudioEngine();
         virtual ~AudioEngine();
 
-        virtual int getChannels() = 0;
-        virtual int getSampleRate() = 0;
-        virtual const AudioParams * getParams() = 0;
+        int getChannels();
+        int getSampleRate();
+        const AudioParams * getParams();
 
-        virtual void setAudioEnabled(bool bEnabled);
+        void setAudioEnabled(bool bEnabled);
         
-        virtual void init(const AudioParams& ap, float volume);
-        virtual void teardown() = 0;
+        void init(const AudioParams& ap, float volume);
+        void teardown();
         
-        virtual void play() = 0;
-        virtual void pause() = 0;
+        void play();
+        void pause();
         
-        AudioSourceList& getSources();
-        virtual void addSource(IAudioSource* pSource);
-        virtual void removeSource(IAudioSource* pSource);
-        virtual void setVolume(float volume);
+        int addSource(AudioMsgQueue& dataQ, AudioMsgQueue& statusQ);
+        void removeSource(int id);
+        void pauseSource(int id);
+        void playSource(int id);
+        void notifySeek(int id);
+        void setSourceVolume(int id, float volume);
+
+        void setVolume(float volume);
         float getVolume() const;
         bool isEnabled() const;
         
     private:
+        void mixAudio(Uint8 *pDestBuffer, int destBufferLen);
+        static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
+        void addBuffers(float *pDest, AudioBufferPtr pSrc);
+        void calcVolume(float *pBuffer, int numSamples, float volume);
+        
+        AudioParams m_AP;
+        AudioBufferPtr m_pTempBuffer;
+        float * m_pMixBuffer;
+        IProcessor<float>* m_pLimiter;
+        boost::mutex m_Mutex;
+
         bool m_bEnabled;
-        AudioSourceList m_AudioSources;
+        AudioSourceMap m_AudioSources;
         float m_Volume;
+        
+        static AudioEngine* s_pInstance;
 };
 
 }

@@ -46,7 +46,7 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
-#include "../video/FFMpegDecoder.h"
+#include "../video/VideoDecoder.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -230,7 +230,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
     m_pGLContext->logConfig();
-    FFMpegDecoder::logConfig();
+    VideoDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
     m_ScreenResolution = IntPoint(0,0);

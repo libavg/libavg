@@ -35,25 +35,25 @@
 
 namespace avg {
 
-    class AVG_API FFMpegDemuxer: public IDemuxer {
-        public:
-            FFMpegDemuxer(AVFormatContext * pFormatContext, 
-                    std::vector<int> streamIndexes);
-            virtual ~FFMpegDemuxer();
-           
-            AVPacket * getPacket(int streamIndex);
-            void seek(float destTime);
-            void dump();
-            
-        private:
-            void clearPacketCache();
+class AVG_API FFMpegDemuxer: public IDemuxer {
+    public:
+        FFMpegDemuxer(AVFormatContext * pFormatContext, std::vector<int> streamIndexes);
+        virtual ~FFMpegDemuxer();
+       
+        AVPacket * getPacket(int streamIndex);
+        void seek(float destTime);
+        void dump();
+        
+    private:
+        void clearPacketCache();
 
-            typedef std::list<AVPacket *> PacketList;
-            std::map<int, PacketList> m_PacketLists;
-           
-            AVFormatContext * m_pFormatContext;
-    };
-    typedef boost::shared_ptr<FFMpegDemuxer> FFMpegDemuxerPtr;
+        // Packets that haven't been delivered yet.
+        typedef std::list<AVPacket *> PacketList;
+        std::map<int, PacketList> m_PacketLists;
+       
+        AVFormatContext * m_pFormatContext;
+};
+typedef boost::shared_ptr<FFMpegDemuxer> FFMpegDemuxerPtr;
 }
 
 #endif

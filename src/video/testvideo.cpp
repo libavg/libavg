@@ -19,17 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "FFMpegDecoder.h"
-
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable:4251)
-#endif
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
-
 #include "AsyncVideoDecoder.h"
+#include "SyncDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
@@ -55,22 +46,22 @@
 
 using namespace avg;
 using namespace std;
+using namespace boost;
 
 class DecoderTest: public GraphicsTest {
     public:
-        DecoderTest(const string& sClassName, bool bThreadedDecoder, 
-                bool bThreadedDemuxer, bool bUseHardwareAcceleration)
-          : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, 
-                    bThreadedDemuxer, bUseHardwareAcceleration), 2),
-            m_bThreadedDecoder(bThreadedDecoder),
-            m_bThreadedDemuxer(bThreadedDemuxer),
+        DecoderTest(const string& sClassName, bool bThreaded, 
+                bool bUseHardwareAcceleration)
+          : GraphicsTest(sClassName+getDecoderName(bThreaded, bUseHardwareAcceleration),
+                2),
+            m_bThreaded(bThreaded),
             m_bUseHardwareAcceleration(bUseHardwareAcceleration)
         {}
 
     protected:
-        bool isDemuxerThreaded() 
+        bool isThreaded() 
         {
-            return m_bThreadedDemuxer;
+            return m_bThreaded;
         }
 
         bool useHardwareAcceleration()
@@ -81,22 +72,56 @@ class DecoderTest: public GraphicsTest {
         VideoDecoderPtr createDecoder() 
         {
             VideoDecoderPtr pDecoder;
-            pDecoder = VideoDecoderPtr(new FFMpegDecoder());
-            if (m_bThreadedDecoder) {
-                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pDecoder, 8));
+            if (m_bThreaded) {
+                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(8));
+            } else {
+                pDecoder = VideoDecoderPtr(new SyncDecoder());
             }
-            return pDecoder;
-        }
 
-        AudioBufferPtr createAudioBuffer(int numFrames)
-        {
-            return AudioBufferPtr(new AudioBuffer(numFrames, *getAudioParams()));
+            return pDecoder;
         }
 
         const AudioParams* getAudioParams()
         {
             static AudioParams AP(44100, 2, 256);
             return &AP;
+        }
+
+        int processAudioMsg(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ)
+        {
+            AudioMsgPtr pMsg = pMsgQ->pop(false);
+            if (pMsg) {
+                switch (pMsg->getType()) {
+                    case AudioMsg::AUDIO: {
+                        AudioBufferPtr pBuffer = pMsg->getAudioBuffer();
+                        AudioMsgPtr pStatusMsg(new AudioMsg);
+                        pStatusMsg->setAudioTime(pMsg->getAudioTime());
+                        pStatusQ->push(AudioMsgPtr(pStatusMsg));
+                        return pBuffer->getNumFrames();
+                    }
+                    case AudioMsg::SEEK_DONE: {
+                        AudioMsgPtr pStatusMsg(new AudioMsg);
+                        pStatusMsg->setSeekDone(pMsg->getSeekSeqNum(), pMsg->getSeekTime());
+                        pStatusQ->push(AudioMsgPtr(pStatusMsg));
+                        return -1;
+                    }
+                    default:
+                        pStatusQ->push(pMsg);
+                        return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        void processAudioSeek(AudioMsgQueuePtr pMsgQ, AudioMsgQueuePtr pStatusQ)
+        {
+            int framesDecoded = 0;
+            while (framesDecoded != -1) {
+                // The real AudioSource blocks on pMsgQ->pop()
+                msleep(10);
+                framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
+            }
         }
 
         virtual void testEqual(Bitmap& resultBmp, const std::string& sFName, 
@@ -119,19 +144,13 @@ class DecoderTest: public GraphicsTest {
         }
 
     private:
-        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer, 
-                bool bUseHardwareAcceleration)
+        string getDecoderName(bool bThreaded, bool bUseHardwareAcceleration)
         {
             string sName = "(";
-            if (bThreadedDecoder) {
-                sName += "Threaded decoder, ";
+            if (bThreaded) {
+                sName += "Threaded";
             } else {
-                sName += "Sync decoder, ";
-            }
-            if (bThreadedDemuxer) {
-                sName += "Threaded demuxer";
-            } else {
-                sName += "Sync demuxer";
+                sName += "Sync";
             }
             if (bUseHardwareAcceleration) {
                 sName += ", VDPAU)";
@@ -141,17 +160,14 @@ class DecoderTest: public GraphicsTest {
             return sName;
         }
 
-        bool m_bThreadedDecoder;
-        bool m_bThreadedDemuxer;
+        bool m_bThreaded;
         bool m_bUseHardwareAcceleration;
 };
 
 class VideoDecoderTest: public DecoderTest {
     public:
-        VideoDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer,
-                bool bUseHardwareAcceleration)
-            : DecoderTest("VideoDecoderTest", bThreadedDecoder, bThreadedDemuxer,
-                      bUseHardwareAcceleration)
+        VideoDecoderTest(bool bThreaded, bool bUseHardwareAcceleration)
+            : DecoderTest("VideoDecoderTest", bThreaded, bUseHardwareAcceleration)
         {}
 
         void runTests()
@@ -168,12 +184,13 @@ class VideoDecoderTest: public DecoderTest {
                 cerr << "    Testing " << sFilename << endl;
 
                 VideoDecoderPtr pDecoder = createDecoder();
-                pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(), 
-                        useHardwareAcceleration(), true);
+                pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
                 IntPoint frameSize = pDecoder->getSize();
                 TEST(frameSize == IntPoint(48, 48));
                 TEST(pDecoder->getVideoInfo().m_bHasVideo);
-                TEST(pDecoder->getNominalFPS() != 0);
+                TEST(pDecoder->getVideoInfo().m_Duration != 0);
+                TEST(pDecoder->getStreamFPS() != 0);
+                TEST(pDecoder->getFPS() != 0);
                 pDecoder->startDecoding(false, getAudioParams());
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
                 BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
@@ -181,6 +198,9 @@ class VideoDecoderTest: public DecoderTest {
                 // Test first two frames.
                 pDecoder->renderToBmp(pBmp, -1);
                 testEqual(*pBmp, sFilename+"_1", B8G8R8X8);
+                TEST(pDecoder->getCurFrame() == 0);
+                TEST(pDecoder->getCurTime() == 0);
+
                 pDecoder->renderToBmp(pBmp, -1);
                 testEqual(*pBmp, sFilename+"_2", B8G8R8X8);
                 pDecoder->close();
@@ -199,8 +219,7 @@ class VideoDecoderTest: public DecoderTest {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
 
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration(), true);
+            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
             pDecoder->startDecoding(false, getAudioParams());
 
             // Seek forward
@@ -218,7 +237,7 @@ class VideoDecoderTest: public DecoderTest {
             IntPoint frameSize = pDecoder->getSize();
 
             BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
-            pDecoder->seek(float(frameNum)/pDecoder->getNominalFPS());
+            pDecoder->seek(float(frameNum)/pDecoder->getStreamFPS());
             pDecoder->renderToBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_"+toString(frameNum), B8G8R8X8);
 
@@ -229,8 +248,7 @@ class VideoDecoderTest: public DecoderTest {
         {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration(), true);
+            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
             IntPoint frameSize = pDecoder->getSize();
             float timePerFrame = (1.0f/pDecoder->getFPS())*speedFactor;
             pDecoder->startDecoding(false, getAudioParams());
@@ -274,12 +292,13 @@ class VideoDecoderTest: public DecoderTest {
 
 class AudioDecoderTest: public DecoderTest {
     public:
-        AudioDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer)
-          : DecoderTest("AudioDecoderTest", bThreadedDecoder, bThreadedDemuxer, true)
+        AudioDecoderTest()
+          : DecoderTest("AudioDecoderTest", true, true)
         {}
 
         void runTests()
         {
+
             testOneFile("22.050Hz_16bit_mono.wav");
 
             testOneFile("44.1kHz_16bit_mono.wav");
@@ -304,38 +323,36 @@ class AudioDecoderTest: public DecoderTest {
                 
                 {
                     cerr << "      Reading complete file." << endl;
-                    VideoDecoderPtr pDecoder = createDecoder();
-                    pDecoder->open(getMediaLoc(sFilename), 
-                            isDemuxerThreaded(), useHardwareAcceleration(), true);
+                    AsyncVideoDecoderPtr pDecoder = 
+                            dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
+                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
-                    pDecoder->setVolume(0.5);
-                    TEST(pDecoder->getVolume() == 0.5);
                     pDecoder->startDecoding(false, getAudioParams());
+                    AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
+                    AudioMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
                     int totalFramesDecoded = 0;
-                    bool bCheckTimestamps = (sFilename.find(".ogg") == string::npos &&
-                            sFilename.find(".mp3") == string::npos);
-                    readAudioToEOF(pDecoder, totalFramesDecoded, bCheckTimestamps);
+                    readAudioToEOF(pDecoder, pMsgQ, pStatusQ, totalFramesDecoded, true);
 
                     // Check if we've decoded the whole file.
                     int framesInDuration = int(pDecoder->getVideoInfo().m_Duration*44100);
 //                    cerr << "framesInDuration: " << framesInDuration << endl;
+//                    cerr << "framesDecoded: " << totalFramesDecoded << endl;
                     TEST(abs(totalFramesDecoded-framesInDuration) < 65);
                 }
                 {
                     cerr << "      Seek test." << endl;
-                    VideoDecoderPtr pDecoder = createDecoder();
-                    pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                            useHardwareAcceleration(), true);
+                    AsyncVideoDecoderPtr pDecoder = 
+                            dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
+                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
+                    AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
+                    AudioMsgQueuePtr pStatusQ = pDecoder->getAudioStatusQ();
                     pDecoder->seek(duration/2);
-                    AudioBufferPtr pAudioBuffer = createAudioBuffer(4);
-                    pDecoder->fillAudioBuffer(pAudioBuffer);
-                    // 60 ms accuracy for seeks.
-                    TEST(abs(duration/2-pDecoder->getCurTime(SS_AUDIO)) < 0.06); 
-                    int totalFramesDecoded = 4;
+                    processAudioSeek(pMsgQ, pStatusQ);
+                    int totalFramesDecoded = 0;
 
-                    readAudioToEOF(pDecoder, totalFramesDecoded, false);
+                    readAudioToEOF(pDecoder, pMsgQ, pStatusQ, totalFramesDecoded, false);
                     if (sFilename.find(".mp3") == string::npos) {
                         // Check if we've decoded half the file.
                         // TODO: Find out why there are problems with this
@@ -346,7 +363,6 @@ class AudioDecoderTest: public DecoderTest {
 //                        cerr << "framesInDuration: " << framesInDuration << endl;
                         TEST(abs(totalFramesDecoded-framesInDuration/2) < 65);
                     }
-
                 }
 
             } catch (Exception & ex) {
@@ -355,16 +371,17 @@ class AudioDecoderTest: public DecoderTest {
             }
         }
 
-        void readAudioToEOF(VideoDecoderPtr pDecoder, int& totalFramesDecoded,
+        void readAudioToEOF(AsyncVideoDecoderPtr pDecoder, AudioMsgQueuePtr pMsgQ, 
+                AudioMsgQueuePtr pStatusQ, int& totalFramesDecoded,
                 bool bCheckTimestamps) 
         {
             int numWrongTimestamps = 0;
             while (!pDecoder->isEOF()) {
-                AudioBufferPtr pBuffer = createAudioBuffer(256);
                 int framesDecoded = 0;
                 while (framesDecoded == 0 && !pDecoder->isEOF()) {
-                    framesDecoded = pDecoder->fillAudioBuffer(pBuffer);
-//                    cerr << "framesDecoded: " << framesDecoded << endl;
+                    framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
+                    AVG_ASSERT(framesDecoded != -1);
+                    pDecoder->updateAudioStatus();
                     msleep(0);
                 }
                 totalFramesDecoded += framesDecoded;
@@ -372,7 +389,6 @@ class AudioDecoderTest: public DecoderTest {
                 if (abs(curTime-pDecoder->getCurTime(SS_AUDIO)) > 0.02f) {
                     numWrongTimestamps++;
                 }
-//                cerr << curTime << "->" << pDecoder->getCurTime(SS_AUDIO) << endl;
             }
             if (bCheckTimestamps) {
                 if (numWrongTimestamps>0) {
@@ -382,12 +398,11 @@ class AudioDecoderTest: public DecoderTest {
         }
 };
 
+
 class AVDecoderTest: public DecoderTest {
     public:
-        AVDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer,
-                bool bUseHardwareAcceleration)
-          : DecoderTest("AVDecoderTest", bThreadedDecoder, bThreadedDemuxer,
-                    bUseHardwareAcceleration)
+        AVDecoderTest(bool bUseHardwareAcceleration)
+          : DecoderTest("AVDecoderTest", true, bUseHardwareAcceleration)
         {}
 
         void runTests()
@@ -399,12 +414,17 @@ class AVDecoderTest: public DecoderTest {
         void basicFileTest(const string& sFilename, int expectedNumFrames)
         {
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), isDemuxerThreaded(),
-                    useHardwareAcceleration(), true);
+            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
             TEST(pDecoder->getVideoInfo().m_bHasVideo);
-            TEST(pDecoder->getNominalFPS() != 0);
+            TEST(pDecoder->getStreamFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());
-            if (isDemuxerThreaded()) {
+            AudioMsgQueuePtr pMsgQ;
+            AudioMsgQueuePtr pStatusQ;
+            if (isThreaded()) {
+                pMsgQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                        ->getAudioMsgQ();
+                pStatusQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                        ->getAudioStatusQ();
                 TEST(pDecoder->getVideoInfo().m_bHasAudio);
             }
             IntPoint frameSize = pDecoder->getSize();
@@ -425,26 +445,25 @@ class AVDecoderTest: public DecoderTest {
 //                    pBmp->save(ss.str());
                     numFrames++;
                 }
-                if (isDemuxerThreaded()) {
-                    AudioBufferPtr pBuffer = createAudioBuffer(256);
+                if (isThreaded()) {
                     int framesDecoded = 0;
                     while (framesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
-                        framesDecoded = pDecoder->fillAudioBuffer(pBuffer);
+                        framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
+                        dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                                ->updateAudioStatus();
                         msleep(0);
                     }
                     totalFramesDecoded += framesDecoded;
-//                    cerr << "framesDecoded: " << framesDecoded << endl;
                 }
                 curTime += 1.0f/pDecoder->getFPS();
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
-//            cerr << "numFrames: " << numFrames << endl;
             // TODO: Commented out because the last frames aren't decoded with newer
             // ffmpeg (circa >= 0.8)
             // TEST(numFrames == expectedNumFrames);
             // testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
 
-            if (isDemuxerThreaded()) {
+            if (isThreaded()) {
                 // Check if audio length was ok.
                 // TODO: Currently, getDuration() is the duration of the video stream.
                 // This causes the test to fail.
@@ -455,6 +474,7 @@ class AVDecoderTest: public DecoderTest {
 
             // Test loop.
             pDecoder->seek(0);
+            processAudioSeek(pMsgQ, pStatusQ);
             pDecoder->renderToBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
 
@@ -484,19 +504,15 @@ private:
 
     void addAudioTests()
     {
-        addTest(TestPtr(new AudioDecoderTest(false, true)));
-        addTest(TestPtr(new AudioDecoderTest(true, true)));
+        addTest(TestPtr(new AudioDecoderTest()));
     }
 
     void addVideoTests(bool bUseHardwareAcceleration)
     {
-        addTest(TestPtr(new VideoDecoderTest(false, false, bUseHardwareAcceleration)));
-        addTest(TestPtr(new VideoDecoderTest(false, true, bUseHardwareAcceleration)));
-        addTest(TestPtr(new VideoDecoderTest(true, true, bUseHardwareAcceleration)));
+        addTest(TestPtr(new VideoDecoderTest(false, bUseHardwareAcceleration)));
+        addTest(TestPtr(new VideoDecoderTest(true, bUseHardwareAcceleration)));
 
-        addTest(TestPtr(new AVDecoderTest(false, false, bUseHardwareAcceleration)));
-        addTest(TestPtr(new AVDecoderTest(false, true, bUseHardwareAcceleration)));
-        addTest(TestPtr(new AVDecoderTest(true, true, bUseHardwareAcceleration)));
+        addTest(TestPtr(new AVDecoderTest(bUseHardwareAcceleration)));
     }
 };
 
@@ -515,11 +531,6 @@ int main(int nargs, char** args)
     
     suite.runTests();
     bOk = suite.isOk();
-    if (bOk) {
-        return 0;
-    } else {
-        return 1;
-    }
 /*    
     while(true) {
         suite.runTests();
@@ -529,5 +540,10 @@ int main(int nargs, char** args)
         }
     }
 */    
+    if (bOk) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 

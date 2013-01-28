@@ -25,12 +25,13 @@
 #define _AudioDecoderThread_H_
 
 #include "../avgconfigwrapper.h"
-#include "VideoDecoder.h"
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
 #include "../audio/AudioParams.h"
+
+#include "WrapFFMpeg.h"
 
 #include <boost/thread.hpp>
 
@@ -38,20 +39,45 @@
 
 namespace avg {
 
+class AsyncDemuxer;
+
 class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
-        AudioDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-                VideoDecoderPtr pDecoder, const AudioParams& ap);
+        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, AsyncDemuxer* pDemuxer, 
+                AVStream* pStream, int streamIndex, const AudioParams& ap);
         virtual ~AudioDecoderThread();
         
         bool work();
-        void seek(float destTime);
         void setVolume(float volume);
 
     private:
-        VideoMsgQueue& m_MsgQ;
-        VideoDecoderPtr m_pDecoder;
+        void close();
+        AudioBufferPtr getAudioBuffer();
+        AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
+        void getNextAudioPacket(bool& bSeekDone);
+        void handleSeekDone(int seqNum, float seekTime);
+        void handleNoPacketMsg();
+        void pushAudioMsg(AudioBufferPtr pBuffer, float time);
+        void pushSeekDone(float time, int seqNum);
+        void pushEOF();
+        void deleteCurAudioPacket();
+
+        AudioMsgQueue& m_MsgQ;
+        AsyncDemuxer* m_pDemuxer;
         AudioParams m_AP;
+
+        AVStream * m_pAStream;
+        int m_AStreamIndex;
+        AVPacket * m_pCurAudioPacket;
+        AVPacket * m_pTempAudioPacket;
+        int m_InputSampleRate;
+        ReSampleContext * m_pAudioResampleContext;
+        float m_AudioStartTimestamp;
+        float m_LastFrameTime;
+        bool m_bEOF;
+
+        int m_SeekSeqNum;
+        float m_SeekTime;
 };
 
 }

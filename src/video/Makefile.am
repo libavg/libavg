@@ -7,9 +7,9 @@ else
     X_LIBS = -lXxf86vm -lX11
 endif
 
-ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h VideoDecoder.h \
-        VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h \
-        PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
+ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h VideoDecoder.h \
+        VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h FFMpegFrameDecoder.h \
+        AsyncVideoDecoder.h VideoDecoderThread.h SyncDecoder.h \
         IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h
 
 if USE_VDPAU_SRC
@@ -23,9 +23,10 @@ EXTRA_DIST = $(wildcard baseline/*.png)
 noinst_LTLIBRARIES = libvideo.la
 noinst_PROGRAMS=testvideo
 
-libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp \
-        VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp VideoDecoder.cpp \
-        PacketVideoMsg.cpp AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp \
+libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp VideoDecoder.cpp \
+        VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp \
+        AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp SyncDecoder.cpp \
+        FFMpegFrameDecoder.cpp \
         $(ALL_H)
 
 if USE_VDPAU_SRC
