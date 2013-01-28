@@ -18,29 +18,49 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
-#ifndef _IAudioSource_H_
-#define _IAudioSource_H_
+#ifndef _AudioSource_H_
+#define _AudioSource_H_
 
 #include "../api.h"
-#include "AudioBuffer.h"
+
+#include "AudioMsg.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 
-namespace avg {
-
-class AVG_API IAudioSource
+namespace avg
 {
-    public:
-        virtual ~IAudioSource() {};
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
+
+class AVG_API AudioSource
+{
+public:
+    AudioSource(AudioMsgQueue& msgQ, AudioMsgQueue& statusQ, int sampleRate);
+    virtual ~AudioSource();
+
+    void pause();
+    void play();
+    void notifySeek();
+    void setVolume(float volume);
+
+    void fillAudioBuffer(AudioBufferPtr pBuffer);
+
+private:
+    bool processNextMsg(bool bWait);
+
+    AudioMsgQueue& m_MsgQ;    
+    AudioMsgQueue& m_StatusQ;
+    int m_SampleRate;
+    AudioBufferPtr m_pInputAudioBuffer;
+    float m_LastTime;
+    int m_CurInputAudioPos;
+    bool m_bPaused;
+    bool m_bSeeking;
+    float m_Volume;
+    float m_LastVolume;
 };
 
-typedef boost::weak_ptr<IAudioSource> IAudioSourceWeakPtr;
+typedef boost::shared_ptr<AudioSource> AudioSourcePtr;
 
 }
 
-#endif /*AUDIOSOURCE_H_*/
+#endif

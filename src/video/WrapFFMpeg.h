@@ -66,4 +66,10 @@ extern "C" {
 #endif
 }
 
+#ifdef PixelFormat
+#undef PixelFormat
+#else
+#define AVPixelFormat ::PixelFormat
+#endif
+
 #endif

@@ -57,7 +57,7 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
         void setupVideoStream();
         void openVideoCodec();
 
-        AVFrame* createFrame(::PixelFormat pixelFormat, IntPoint size);
+        AVFrame* createFrame(AVPixelFormat pixelFormat, IntPoint size);
 
         void convertRGBImage(BitmapPtr pSrcBmp);
         void convertYUVImage(BitmapPtr pSrcBmp);

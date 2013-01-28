@@ -1,4 +1,4 @@
-INCLUDES = -I.. @XML2_CFLAGS@ @PYTHON_INCLUDES@
+AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @PYTHON_INCLUDES@
 
 ALL_H = Anim.h SimpleAnim.h LinearAnim.h AttrAnim.h ContinuousAnim.h EaseInOutAnim.h \
         WaitAnim.h ParallelAnim.h StateAnim.h

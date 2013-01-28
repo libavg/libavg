@@ -29,10 +29,9 @@
 #include "../base/XMLHelper.h"
 #include "../base/ObjectCounter.h"
 
-#include "../audio/SDLAudioEngine.h"
+#include "../audio/AudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
-#include "../video/FFMpegDecoder.h"
 
 #include <iostream>
 #include <sstream>
@@ -41,7 +40,7 @@
 #include <unistd.h>
 #endif
 
-using namespace boost::python;
+using namespace boost;
 using namespace std;
 
 namespace avg {
@@ -63,13 +62,13 @@ SoundNode::SoundNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_State(Unloaded)
+      m_State(Unloaded),
+      m_AudioID(-1)
 {
     args.setMembers(this);
     m_Filename = m_href;
     initFilename(m_Filename);
-    VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
-    m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, 8);
+    m_pDecoder = new AsyncVideoDecoder(8);
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -144,7 +143,7 @@ void SoundNode::setEOFCallback(PyObject * pEOFCallback)
 
 void SoundNode::connectDisplay()
 {
-    if (!SDLAudioEngine::get()) {
+    if (!AudioEngine::get()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Sound nodes can only be created if audio is not disabled."); 
     }
@@ -215,8 +214,8 @@ void SoundNode::setVolume(float volume)
         volume = 0;
     }
     m_Volume = volume;
-    if (m_pDecoder) {
-        m_pDecoder->setVolume(volume);
+    if (m_AudioID != -1) {
+        AudioEngine::get()->setSourceVolume(m_AudioID, volume);
     }
 }
 
@@ -240,17 +239,12 @@ void SoundNode::checkReload()
 
 void SoundNode::onFrameEnd()
 {
-    if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
-        onEOF();
-    }
-}
-
-int SoundNode::fillAudioBuffer(AudioBufferPtr pBuffer)
-{
     if (m_State == Playing) {
-        return m_pDecoder->fillAudioBuffer(pBuffer);
-    } else {
-        return 0;
+        m_pDecoder->updateAudioStatus();
+    }
+    if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
+        NodePtr pTempThis = getSharedThis();
+        onEOF();
     }
 }
 
@@ -274,8 +268,10 @@ void SoundNode::changeSoundState(SoundState newSoundState)
         }
         if (newSoundState == Paused) {
             m_PauseStartTime = curTime;
+            AudioEngine::get()->pauseSource(m_AudioID);
         } else if (newSoundState == Playing && m_State == Paused) {
             m_PauseTime += curTime-m_PauseStartTime;
+            AudioEngine::get()->playSource(m_AudioID);
         }
     }
     m_State = newSoundState;
@@ -284,6 +280,7 @@ void SoundNode::changeSoundState(SoundState newSoundState)
 void SoundNode::seek(long long destTime) 
 {
     if (getState() == NS_CANRENDER) {    
+        AudioEngine::get()->notifySeek(m_AudioID);
         m_pDecoder->seek(float(destTime)/1000);
         m_StartTime = Player::get()->getFrameTime() - destTime;
         m_PauseTime = 0;
@@ -297,8 +294,7 @@ void SoundNode::seek(long long destTime)
 
 void SoundNode::open()
 {
-    m_pDecoder->setVolume(m_Volume);
-    m_pDecoder->open(m_Filename, true, false, true);
+    m_pDecoder->open(m_Filename, false, true);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
@@ -309,9 +305,11 @@ void SoundNode::open()
 
 void SoundNode::startDecoding()
 {
-    SDLAudioEngine* pEngine = SDLAudioEngine::get();
+    AudioEngine* pEngine = AudioEngine::get();
     m_pDecoder->startDecoding(false, pEngine->getParams());
-    pEngine->addSource(this);
+    m_AudioID = pEngine->addSource(*m_pDecoder->getAudioMsgQ(), 
+            *m_pDecoder->getAudioStatusQ());
+    pEngine->setSourceVolume(m_AudioID, m_Volume);
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
@@ -320,7 +318,10 @@ void SoundNode::startDecoding()
 
 void SoundNode::close()
 {
-    SDLAudioEngine::get()->removeSource(this);
+    if (m_AudioID != -1) {
+        AudioEngine::get()->removeSource(m_AudioID);
+        m_AudioID = -1;
+    }
     m_pDecoder->close();
 }
 
@@ -328,7 +329,7 @@ void SoundNode::exceptionIfUnloaded(const std::string& sFuncName) const
 {
     if (m_State == Unloaded) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                string("SoundNode.")+sFuncName+" failed: video not loaded.");
+                string("SoundNode.")+sFuncName+" failed: sound not loaded.");
     }
 }
 
@@ -343,7 +344,7 @@ void SoundNode::onEOF()
         PyObject * result = PyEval_CallObject(m_pEOFCallback, arglist);
         Py_DECREF(arglist);
         if (!result) {
-            throw error_already_set();
+            throw py::error_already_set();
         }
         Py_DECREF(result);
     }

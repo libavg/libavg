@@ -480,11 +480,11 @@ class DragRecognizer(Recognizer):
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
-            self._setEnd(event)
-        if self.__minDragDist == 0:
-            self._setDetected(event)
-        else:
-            self._setPossible(event)
+        if self.getState() != "RUNNING":
+            if self.__minDragDist == 0:
+                self._setDetected(event)
+            else:
+                self._setPossible(event)
         pos = self.__relEventPos(event)
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
@@ -768,9 +768,10 @@ class TransformRecognizer(Recognizer):
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
-                self._setEnd(event)
-            self._setDetected(event)
-            self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
+            if self.getState() != "RUNNING":
+                self._setDetected(event)
+            if not(self.__frameHandlerID):
+                self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)

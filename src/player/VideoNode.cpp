@@ -34,10 +34,10 @@
 #include "../graphics/GLTexture.h"
 #include "../graphics/TextureMover.h"
 
-#include "../audio/SDLAudioEngine.h"
+#include "../audio/AudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
-#include "../video/FFMpegDecoder.h"
+#include "../video/SyncDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "../video/VDPAUDecoder.h"
 #endif
@@ -49,6 +49,7 @@
 #include <unistd.h>
 #endif
 
+using namespace boost;
 using namespace std;
 
 namespace avg {
@@ -85,7 +86,8 @@ VideoNode::VideoNode(const ArgList& args)
       m_pDecoder(0),
       m_Volume(1.0),
       m_bUsesHardwareAcceleration(false),
-      m_bEnableSound(true)
+      m_bEnableSound(true),
+      m_AudioID(-1)
 {
     args.setMembers(this);
     m_Filename = m_href;
@@ -95,10 +97,9 @@ VideoNode::VideoNode(const ArgList& args)
                 "Can't set queue length for unthreaded videos because there is no decoder queue in this case.");
     }
     if (m_bThreaded) {
-        VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
-        m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, m_QueueLength);
+        m_pDecoder = new AsyncVideoDecoder(m_QueueLength);
     } else {
-        m_pDecoder = new FFMpegDecoder();
+        m_pDecoder = new SyncDecoder();
     }
 
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -192,7 +193,7 @@ void VideoNode::seekToFrame(int frameNum)
     }
     exceptionIfUnloaded("seekToFrame");
     if (getCurFrame() != frameNum) {
-        long long destTime = (long long)(frameNum*1000.0/m_pDecoder->getNominalFPS());
+        long long destTime = (long long)(frameNum*1000.0/m_pDecoder->getStreamFPS());
         seek(destTime);
     }
 }
@@ -345,14 +346,14 @@ float VideoNode::getVolume()
     return m_Volume;
 }
 
-void VideoNode::setVolume(float Volume)
+void VideoNode::setVolume(float volume)
 {
-    if (Volume < 0) {
-        Volume = 0;
+    if (volume < 0) {
+        volume = 0;
     }
-    m_Volume = Volume;
-    if (m_VideoState != Unloaded && hasAudio()) {
-        m_pDecoder->setVolume(Volume);
+    m_Volume = volume;
+    if (m_AudioID != -1) {
+        AudioEngine::get()->setSourceVolume(m_AudioID, volume);
     }
 }
 
@@ -377,6 +378,10 @@ void VideoNode::checkReload()
 
 void VideoNode::onFrameEnd()
 {
+    AsyncVideoDecoder* pAsyncDecoder = dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
+    if (pAsyncDecoder && (m_VideoState == Playing || m_VideoState == Paused)) {
+        pAsyncDecoder->updateAudioStatus();
+    }
     if (m_bEOFPending) {
         // If the VideoNode is unlinked by python in onEOF, the following line prevents
         // the object from being deleted until we return from this function.
@@ -386,52 +391,51 @@ void VideoNode::onFrameEnd()
     }
 }
 
-int VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
-{
-    AVG_ASSERT(m_bThreaded);
-    if (m_VideoState == Playing) {
-        return m_pDecoder->fillAudioBuffer(pBuffer);
-    } else {
-        return 0;
-    }
-}
-
-void VideoNode::changeVideoState(VideoState NewVideoState)
+void VideoNode::changeVideoState(VideoState newVideoState)
 {
     long long curTime = Player::get()->getFrameTime(); 
-    if (m_VideoState == NewVideoState) {
+    if (m_VideoState == newVideoState) {
         return;
     }
     if (m_VideoState == Unloaded) {
         m_PauseStartTime = curTime;
         open();
     }
-    if (NewVideoState == Unloaded) {
+    if (newVideoState == Unloaded) {
         close();
     }
     if (getState() == NS_CANRENDER) {
         if (m_VideoState == Unloaded) {
             startDecoding();
         }
-        if (NewVideoState == Paused) {
+        if (newVideoState == Paused) {
             m_PauseStartTime = curTime;
-        } else if (NewVideoState == Playing && m_VideoState == Paused) {
+            if (m_AudioID != -1) {
+                AudioEngine::get()->pauseSource(m_AudioID);
+            }
+        } else if (newVideoState == Playing && m_VideoState == Paused) {
 /*            
             cerr << "Play after pause:" << endl;
             cerr << "  getFrameTime()=" << curTime << endl;
             cerr << "  m_PauseStartTime=" << m_PauseStartTime << endl;
             cerr << "  offset=" << (1000.0/m_pDecoder->getFPS()) << endl;
 */
+            if (m_AudioID != -1) {
+                AudioEngine::get()->playSource(m_AudioID);
+            }
             m_PauseTime += (curTime-m_PauseStartTime
                     - (long long)(1000.0/m_pDecoder->getFPS()));
         }
     }
-    m_VideoState = NewVideoState;
+    m_VideoState = newVideoState;
 }
 
 void VideoNode::seek(long long destTime) 
 {
     if (getState() == NS_CANRENDER) {    
+        if (m_AudioID != -1) {
+            AudioEngine::get()->notifySeek(m_AudioID);
+        }
         m_pDecoder->seek(float(destTime)/1000.0f);
         m_StartTime = Player::get()->getFrameTime() - destTime;
         m_JitterCompensation = 0.5;
@@ -451,9 +455,7 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration, 
-            m_bEnableSound);
-    m_pDecoder->setVolume(m_Volume);
+    m_pDecoder->open(m_Filename, m_bUsesHardwareAcceleration, m_bEnableSound);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();
@@ -464,6 +466,7 @@ void VideoNode::open()
     m_JitterCompensation = 0.5;
     m_PauseTime = 0;
 
+    m_bSeekPending = false;
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
     m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
@@ -473,7 +476,7 @@ void VideoNode::open()
 void VideoNode::startDecoding()
 {
     const AudioParams * pAP = 0;
-    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    AudioEngine* pAudioEngine = AudioEngine::get();
     if (pAudioEngine) {
         pAP = pAudioEngine->getParams();
     }
@@ -488,7 +491,11 @@ void VideoNode::startDecoding()
         }
     }
     if (videoInfo.m_bHasAudio && pAudioEngine) {
-        pAudioEngine->addSource(this);
+        AsyncVideoDecoder* pAsyncDecoder = 
+                dynamic_cast<AsyncVideoDecoder*>(m_pDecoder);
+        m_AudioID = pAudioEngine->addSource(*pAsyncDecoder->getAudioMsgQ(), 
+                *pAsyncDecoder->getAudioStatusQ());
+        pAudioEngine->setSourceVolume(m_AudioID, m_Volume);
     }
     m_bSeekPending = true;
     
@@ -539,9 +546,10 @@ void VideoNode::createTextures(IntPoint size)
 
 void VideoNode::close()
 {
-    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
-    if (hasAudio() && pAudioEngine) {
-        pAudioEngine->removeSource(this);
+    AudioEngine* pAudioEngine = AudioEngine::get();
+    if (m_AudioID != -1) {
+        pAudioEngine->removeSource(m_AudioID);
+        m_AudioID = -1;
     }
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {
@@ -652,7 +660,7 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
             }
         }
     } else {
-        if (m_bSeekPending && m_bFirstFrameDecoded && m_VideoState != Unloaded) {
+        if (m_VideoState != Unloaded && m_bSeekPending && m_bFirstFrameDecoded) {
             renderFrame();
         }
         if (m_VideoState == Playing) {
@@ -808,6 +816,9 @@ void VideoNode::updateStatusDueToDecoderEOF()
         m_PauseTime = 0;
         m_FramesInRowTooLate = 0;
         m_bFrameAvailable = false;
+        if (m_AudioID != -1) {
+            AudioEngine::get()->notifySeek(m_AudioID);
+        }
         m_pDecoder->loop();
     } else {
         changeVideoState(Paused);

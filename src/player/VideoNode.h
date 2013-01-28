@@ -33,7 +33,6 @@
 #include "../base/IFrameEndListener.h"
 #include "../base/UTF8String.h"
 
-#include "../audio/IAudioSource.h"
 #include "../video/VideoDecoder.h"
 
 namespace avg {
@@ -42,7 +41,7 @@ class VideoDecoder;
 class TextureMover;
 typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
 
-class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
+class AVG_API VideoNode: public RasterNode, IFrameEndListener
 {
     public:
         enum VideoAccelType {NONE, VDPAU};
@@ -97,7 +96,6 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         virtual void render();
         virtual void onFrameEnd();
         
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         virtual IntPoint getMediaSize();
 
         static VideoAccelType getVideoAccelConfig();
@@ -149,6 +147,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         float m_Volume;
         bool m_bUsesHardwareAcceleration;
         bool m_bEnableSound;
+        int m_AudioID;
 
         GLTexturePtr m_pTextures[4];
 };
