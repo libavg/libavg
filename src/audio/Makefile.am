@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
 
-ALL_H = AudioEngine.h AudioBuffer.h AudioParams.h IAudioSource.h \
+ALL_H = AudioEngine.h AudioBuffer.h AudioParams.h \
         Dynamics.h IProcessor.h AudioMsg.h AudioSource.h
 
 TESTS=testlimiter
