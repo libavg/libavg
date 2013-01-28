@@ -155,8 +155,7 @@ bool ConfigMgr::getBoolOption(const string& sSubsys,
     } else if (*psOption == "false") {
         return false;
     } else {
-        AVG_TRACE(logging::subsystem::ERROR, 
-                m_sFName << ": Unrecognized value for option " << sName << ": " 
+        AVG_LOG_ERROR(m_sFName << ": Unrecognized value for option " << sName << ": " 
                 << *psOption << ". Must be true or false. Aborting.");
         exit(-1);
     }
@@ -173,8 +172,7 @@ int ConfigMgr::getIntOption(const string& sSubsys,
     int Result = strtol(psOption->c_str(), 0, 10);
     int rc = errno;
     if (rc == EINVAL || rc == ERANGE) {
-        AVG_TRACE(logging::subsystem::ERROR,
-                m_sFName << ": Unrecognized value for option "<<sName<<": " 
+        AVG_LOG_ERROR(m_sFName << ": Unrecognized value for option "<<sName<<": " 
                 << *psOption << ". Must be an integer. Aborting.");
         exit(-1);
     }
@@ -190,8 +188,7 @@ void ConfigMgr::getGammaOption(const string& sSubsys,
     }
     int rc = sscanf(psOption->c_str(), "%f,%f,%f", Val, Val+1, Val+2);
     if (rc < 3) {
-        AVG_TRACE(logging::subsystem::ERROR,
-                m_sFName << ": Unrecognized value for option "<<sName<<": " 
+        AVG_LOG_ERROR(m_sFName << ": Unrecognized value for option "<<sName<<": " 
                 << *psOption << ". Must be three comma-separated numbers. Aborting.");
         exit(-1);
     }
@@ -218,8 +215,8 @@ bool ConfigMgr::loadFile(const std::string& sPath)
         int err = access(sPath.c_str(), R_OK);
         if (err == -1) {
             if (errno == EACCES) {
-                AVG_TRACE(logging::subsystem::WARNING,
-                       sPath+": File exists, but process doesn't have read permissions!");
+                AVG_LOG_WARNING(sPath+
+                        ": File exists, but process doesn't have read permissions!");
             }
             return false;
         }
@@ -239,8 +236,7 @@ bool ConfigMgr::loadFile(const std::string& sPath)
         }
         xmlNodePtr pRoot = xmlDocGetRootElement(doc);
         if (xmlStrcmp(pRoot->name, (const xmlChar *)(m_sFName.c_str()))) {
-            AVG_TRACE(logging::subsystem::ERROR, 
-                    sPath+": Root node must be <"+m_sFName+">, found " 
+            AVG_LOG_ERROR(sPath+": Root node must be <"+m_sFName+">, found " 
                     << pRoot->name << ". Aborting.");
             exit(255);
         }
@@ -252,8 +248,7 @@ bool ConfigMgr::loadFile(const std::string& sPath)
                 sSubsys = ((const char *)pSubsysNode->name);
                 xmlNodePtr pOptionNode = pSubsysNode->xmlChildrenNode;
                 if (!pOptionNode) {
-                    AVG_TRACE(logging::subsystem::ERROR,
-                            sPath << ": Option " << sSubsys
+                    AVG_LOG_ERROR(sPath << ": Option " << sSubsys 
                             << " has no value. Ignoring.");
                 } else {
                     ConfigOptionVector& CurSubsys = getSubsys(sSubsys);
@@ -273,13 +268,12 @@ bool ConfigMgr::loadFile(const std::string& sPath)
     } catch (Exception& e) {
         switch (e.getCode()) {
             case AVG_ERR_OPTION_SUBSYS_UNKNOWN:
-                AVG_TRACE(logging::subsystem::ERROR, "While parsing " << sPath 
-                        << ": Option group " << e.getStr() << " unknown. Aborting.");
+                AVG_LOG_ERROR("While parsing " << sPath << ": Option group " <<
+                        e.getStr() << " unknown. Aborting.");
                 exit(255);
             case AVG_ERR_OPTION_UNKNOWN: 
-                AVG_TRACE(logging::subsystem::ERROR, "While parsing " << sPath 
-                        << ": Option " << sSubsys << ":" << e.getStr() 
-                        << " unknown. Aborting.");
+                AVG_LOG_ERROR("While parsing " << sPath  << ": Option " << sSubsys <<
+                        ":" << e.getStr() << " unknown. Aborting.");
                 exit(255);
             default:
                 throw;

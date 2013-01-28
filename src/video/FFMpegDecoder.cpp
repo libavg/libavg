@@ -166,7 +166,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
     int err;
     m_sFilename = sFilename;
 
-    AVG_TRACE(logging::subsystem::MEMORY, "Opening " << sFilename);
+    AVG_TRACE(logging::category::MEMORY, logging::level::INFO, "Opening " << sFilename);
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
     err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
 #else
@@ -349,7 +349,7 @@ void FFMpegDecoder::close()
 {
     mutex::scoped_lock lock(s_OpenMutex);
     mutex::scoped_lock lock2(m_AudioMutex);
-    AVG_TRACE(logging::subsystem::MEMORY, "Closing " << m_sFilename);
+    AVG_TRACE(logging::category::MEMORY, logging::level::INFO, "Closing " << m_sFilename);
     
     delete m_pDemuxer;
     m_pDemuxer = 0;
@@ -683,9 +683,11 @@ void FFMpegDecoder::logConfig()
     bVDPAUAvailable = VDPAUDecoder::isAvailable();
 #endif
     if (bVDPAUAvailable) {
-        AVG_TRACE(logging::subsystem::CONFIG, "Hardware video acceleration: VDPAU");
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "Hardware video acceleration: VDPAU");
     } else {
-        AVG_TRACE(logging::subsystem::CONFIG, "Hardware video acceleration: Off");
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "Hardware video acceleration: Off");
     }
 }
 

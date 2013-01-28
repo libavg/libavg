@@ -124,7 +124,7 @@ void Image::setEmpty()
 void Image::setFilename(const std::string& sFilename, TextureCompression comp)
 {
     assertValid();
-    AVG_TRACE(logging::subsystem::MEMORY, "Loading " << sFilename);
+    AVG_TRACE(logging::category::MEMORY, logging::level::INFO, "Loading " << sFilename);
     BitmapPtr pBmp = loadBitmap(sFilename);
     if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 

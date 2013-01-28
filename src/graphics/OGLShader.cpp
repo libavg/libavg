@@ -60,16 +60,17 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     GLint bLinked;
     glproc::GetProgramiv(m_hProgram, GL_LINK_STATUS, &bLinked);
     if (!bLinked) {
-        AVG_TRACE(logging::subsystem::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
-        dumpInfoLog(m_hVertexShader, logging::subsystem::ERROR);
-        dumpInfoLog(m_hFragmentShader, logging::subsystem::ERROR);
-        dumpInfoLog(m_hProgram, logging::subsystem::ERROR, true);
+        AVG_LOG_ERROR("Linking shader program '"+sName+"' failed. Aborting.");
+        dumpInfoLog(m_hVertexShader, logging::level::ERROR);
+        dumpInfoLog(m_hFragmentShader, logging::level::ERROR);
+        dumpInfoLog(m_hProgram, logging::level::ERROR, true);
         exit(-1);
     } else {
-        AVG_TRACE(logging::subsystem::SHADER, "Linking shader program '"+sName+"'.");
-        dumpInfoLog(m_hVertexShader, logging::subsystem::SHADER);
-        dumpInfoLog(m_hFragmentShader, logging::subsystem::SHADER);
-        dumpInfoLog(m_hProgram, logging::subsystem::SHADER, true);
+        AVG_TRACE(logging::category::SHADER, logging::level::INFO,
+                "Linking shader program '"+sName+"'.");
+        dumpInfoLog(m_hVertexShader, logging::level::INFO);
+        dumpInfoLog(m_hFragmentShader, logging::level::INFO);
+        dumpInfoLog(m_hProgram, logging::level::INFO, true);
     }
     m_pShaderRegistry = ShaderRegistry::get();
     if (m_hVertexShader) {
@@ -154,7 +155,7 @@ bool OGLShader::findParam(const std::string& sName, unsigned& pos)
     return bFound;
 }
 
-void OGLShader::dumpInfoLog(GLuint hObj, int category, bool bIsProgram)
+void OGLShader::dumpInfoLog(GLuint hObj, long level, bool bIsProgram)
 {
     int infoLogLength;
     GLchar * pInfoLog;
@@ -180,7 +181,7 @@ void OGLShader::dumpInfoLog(GLuint hObj, int category, bool bIsProgram)
         string sLog = removeATIInfoLogSpam(pInfoLog);
         GLContext::checkError("OGLShader::dumpInfoLog: glGetShaderInfoLog()");
         if (sLog.size() > 3) {
-            AVG_TRACE(category, sLog);
+            AVG_TRACE(logging::category::SHADER, level, sLog);
         }
         free(pInfoLog);
     }

@@ -1054,15 +1054,15 @@ void Bitmap::initWithData(unsigned char * pBits, int stride, bool bCopyBits)
 //    cerr << "Bitmap::initWithData()" << endl;
     if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
-            AVG_TRACE(logging::subsystem::WARNING, "Odd size for YCbCr bitmap.");
+            AVG_LOG_WARNING("Odd size for YCbCr bitmap.");
             m_Size.x++;
         }
         if (m_Size.y%2 == 1) {
-            AVG_TRACE(logging::subsystem::WARNING, "Odd size for YCbCr bitmap.");
+            AVG_LOG_WARNING("Odd size for YCbCr bitmap.");
             m_Size.y++;
         }
         if (m_Size.x%2 == 1 || m_Size.y%2 == 1) {
-            AVG_TRACE(logging::subsystem::ERROR, "Odd size for YCbCr bitmap.");
+            AVG_LOG_ERROR("Odd size for YCbCr bitmap.");
         }
     }
     if (bCopyBits) {
@@ -1095,11 +1095,11 @@ void Bitmap::allocBits(int stride)
     }
     if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
-            AVG_TRACE(logging::subsystem::WARNING, "Odd width for YCbCr bitmap.");
+            AVG_LOG_WARNING("Odd width for YCbCr bitmap.");
             m_Size.x++;
         }
         if (m_Size.y%2 == 1) {
-            AVG_TRACE(logging::subsystem::WARNING, "Odd height for YCbCr bitmap.");
+            AVG_LOG_WARNING("Odd height for YCbCr bitmap.");
             m_Size.y++;
         }
         //XXX: We allocate more than nessesary here because ffmpeg seems to

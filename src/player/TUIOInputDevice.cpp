@@ -83,8 +83,8 @@ void TUIOInputDevice::start()
     if (!m_pSocket->IsBound()) {
         throw Exception(AVG_ERR_MT_INIT, "TUIO event source: Socket not bound.");
     }
-    AVG_TRACE(logging::subsystem::CONFIG, "TUIO multitouch event source created, listening on port "
-            << port);
+    AVG_TRACE(logging::category::CONFIG,logging::level::INFO,
+            "TUIO multitouch event source created, listening on port " << port);
 
 #ifndef WIN32
     pthread_create(&m_Thread, NULL, threadFunc, this);
@@ -106,7 +106,7 @@ void TUIOInputDevice::ProcessPacket(const char* pData, int size,
             processMessage(ReceivedMessage(packet), remoteEndpoint);
         }
     } catch (osc::Exception& e) {
-        AVG_TRACE(logging::subsystem::WARNING, "OSC exception: " << e.what());
+        AVG_LOG_WARNING("OSC exception: " << e.what());
     }
 }
 
@@ -124,7 +124,7 @@ void TUIOInputDevice::processBundle(const ReceivedBundle& bundle,
             }
         }
     } catch (osc::Exception& e) {
-        AVG_TRACE(logging::subsystem::WARNING, "OSC exception: " << e.what());
+        AVG_LOG_WARNING("OSC exception: " << e.what());
     }
 }
 
@@ -149,7 +149,7 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg,
             } 
         }
     } catch (osc::Exception& e) {
-        AVG_TRACE(logging::subsystem::WARNING, "Error parsing TUIO message: " << e.what()
+        AVG_LOG_WARNING("Error parsing TUIO message: " << e.what()
                 << ". Message was " << msg);
     }
 }

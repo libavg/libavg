@@ -36,7 +36,7 @@ namespace avg {
 VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
         VideoDecoderPtr pDecoder)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
-            logging::subsystem::PROFILE_VIDEO),
+            logging::category::PROFILE_VIDEO),
       m_MsgQ(msgQ),
       m_pDecoder(pDecoder),
       m_pBmpQ(new BitmapQueue()),

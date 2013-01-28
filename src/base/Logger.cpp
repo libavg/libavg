@@ -61,11 +61,11 @@ Logger * Logger::get()
 Logger::Logger()
 {
     setupSubsystem();
-    m_Flags = subsystem::ERROR | subsystem::WARNING | subsystem::APP | subsystem::DEPRECATION;
+    m_Flags = category::NONE | category::APP | category::DEPRECATION;
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
-        m_Flags = subsystem::ERROR | subsystem::APP;
+        m_Flags = category::NONE;
         bool bDone = false;
         string sCategory;
         do {
@@ -81,7 +81,7 @@ Logger::Logger()
             m_Flags |= category;
             } while (!bDone);
     }
-    m_MaxSubsystemNum = subsystem::DEPRECATION;
+    m_MaxSubsystemNum = category::DEPRECATION;
 }
 
 Logger::~Logger()
@@ -97,7 +97,7 @@ int Logger::getCategories() const
 void Logger::setCategories(int flags)
 {
     boost::mutex::scoped_lock lock(logMutex);
-    m_Flags = flags | subsystem::ERROR | subsystem::WARNING;
+    m_Flags = flags;
 }
 
 void Logger::pushCategories()
@@ -116,11 +116,12 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
-void Logger::addLogHandler(LogHandlerPtr logHandler){
+void Logger::addLogHandler(LogHandlerPtr logHandler)
+{
     m_Handlers.push_back(logHandler);
 }
 
-void Logger::trace(int category, const UTF8String& sMsg)
+void Logger::trace(const UTF8String& sMsg, unsigned long category, long level)
 {
     boost::mutex::scoped_lock lock(logMutex);
     if (category & m_Flags) {
@@ -167,41 +168,41 @@ int Logger::stringToCategory(const string& sCategory) const
 }
 
 void Logger::setupSubsystem(){
-    m_SubsystemToString[subsystem::NONE] = "NONE";
-    m_StringToSubsystem["NONE"] = subsystem::NONE;
+    m_SubsystemToString[category::NONE] = "NONE";
+    m_StringToSubsystem["NONE"] = category::NONE;
 
-    m_SubsystemToString[subsystem::PROFILE] = "PROFILE",
-    m_StringToSubsystem["PROFILE"] = subsystem::PROFILE;
+    m_SubsystemToString[category::PROFILE] = "PROFILE",
+    m_StringToSubsystem["PROFILE"] = category::PROFILE;
 
-    m_SubsystemToString[subsystem::PROFILE_VIDEO] = "PROFILE_VIDEO";
-    m_StringToSubsystem["PROFILE_VIDEO"] = subsystem::PROFILE_VIDEO;
+    m_SubsystemToString[category::PROFILE_VIDEO] = "PROFILE_VIDEO";
+    m_StringToSubsystem["PROFILE_VIDEO"] = category::PROFILE_VIDEO;
 
-    m_SubsystemToString[subsystem::EVENTS] = "EVENTS";
-    m_StringToSubsystem["EVENTS"] = subsystem::EVENTS;
+    m_SubsystemToString[category::EVENTS] = "EVENTS";
+    m_StringToSubsystem["EVENTS"] = category::EVENTS;
 
-    m_SubsystemToString[subsystem::EVENTS2] = "EVENTS2";
-    m_StringToSubsystem["EVENTS2"] = subsystem::EVENTS2;
+    m_SubsystemToString[category::EVENTS2] = "EVENTS2";
+    m_StringToSubsystem["EVENTS2"] = category::EVENTS2;
 
-    m_SubsystemToString[subsystem::CONFIG] = "CONFIG";
-    m_StringToSubsystem["CONFIG"] = subsystem::CONFIG;
+    m_SubsystemToString[category::CONFIG] = "CONFIG";
+    m_StringToSubsystem["CONFIG"] = category::CONFIG;
 
-    m_SubsystemToString[subsystem::MEMORY] = "MEMORY";
-    m_StringToSubsystem["MEMORY"] = subsystem::MEMORY;
+    m_SubsystemToString[category::MEMORY] = "MEMORY";
+    m_StringToSubsystem["MEMORY"] = category::MEMORY;
 
-    m_SubsystemToString[subsystem::APP] = "APP";
-    m_StringToSubsystem["APP"] = subsystem::APP;
+    m_SubsystemToString[category::APP] = "APP";
+    m_StringToSubsystem["APP"] = category::APP;
 
-    m_SubsystemToString[subsystem::PLUGIN] = "PLUGIN";
-    m_StringToSubsystem["PLUGIN"] = subsystem::PLUGIN;
+    m_SubsystemToString[category::PLUGIN] = "PLUGIN";
+    m_StringToSubsystem["PLUGIN"] = category::PLUGIN;
 
-    m_SubsystemToString[subsystem::PLAYER] = "PLAYER";
-    m_StringToSubsystem["PLAYER"] = subsystem::PLAYER;
+    m_SubsystemToString[category::PLAYER] = "PLAYER";
+    m_StringToSubsystem["PLAYER"] = category::PLAYER;
 
-    m_SubsystemToString[subsystem::SHADER] = "SHADER";
-    m_StringToSubsystem["SHADER"] = subsystem::SHADER;
+    m_SubsystemToString[category::SHADER] = "SHADER";
+    m_StringToSubsystem["SHADER"] = category::SHADER;
 
-    m_SubsystemToString[subsystem::DEPRECATION] = "DEPRECATION";
-    m_StringToSubsystem["DEPRECATION"] = subsystem::DEPRECATION;
+    m_SubsystemToString[category::DEPRECATION] = "DEPRECATION";
+    m_StringToSubsystem["DEPRECATION"] = category::DEPRECATION;
 }
 
 unsigned long Logger::registerCategory(const string cat){

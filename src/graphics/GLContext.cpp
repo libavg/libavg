@@ -335,35 +335,46 @@ const GLConfig& GLContext::getConfig()
 
 void GLContext::logConfig() 
 {
-    AVG_TRACE(logging::subsystem::CONFIG, "OpenGL configuration: ");
-    AVG_TRACE(logging::subsystem::CONFIG, "  OpenGL version: " << glGetString(GL_VERSION));
-    AVG_TRACE(logging::subsystem::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
-    AVG_TRACE(logging::subsystem::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO, "OpenGL configuration: ");
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            "  OpenGL version: " << glGetString(GL_VERSION));
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            "  OpenGL vendor: " << glGetString(GL_VENDOR));
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            "  OpenGL renderer: " << glGetString(GL_RENDERER));
     m_GLConfig.log();
     switch (getMemoryMode()) {
         case MM_PBO:
-            AVG_TRACE(logging::subsystem::CONFIG, "  Using pixel buffer objects");
+            AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                    "  Using pixel buffer objects");
             break;
         case MM_OGL:
-            AVG_TRACE(logging::subsystem::CONFIG, "  Not using GL memory extensions");
+            AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                    "  Not using GL memory extensions");
             break;
     }
-    AVG_TRACE(logging::subsystem::CONFIG, "  Max. texture size: " << getMaxTexSize());
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            "  Max. texture size: " << getMaxTexSize());
     string s;
     if (useGPUYUVConversion()) {
         s = "yes";
     } else {
         s = "no";
     }
-    AVG_TRACE(logging::subsystem::CONFIG, string("  GPU-based YUV-RGB conversion: ")+s+".");
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            string("  GPU-based YUV-RGB conversion: ")+s+".");
     try {
-        AVG_TRACE(logging::subsystem::CONFIG, "  Dedicated video memory: " << 
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "  Dedicated video memory: " << 
                 getVideoMemInstalled()/(1024*1024) << " MB");
-        AVG_TRACE(logging::subsystem::CONFIG, "  Video memory used at start: " << 
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "  Video memory used at start: " << 
                 getVideoMemUsed()/(1024*1024) << " MB");
     } catch (Exception) {
-        AVG_TRACE(logging::subsystem::CONFIG, "  Dedicated video memory: Unknown");
-        AVG_TRACE(logging::subsystem::CONFIG, "  Video memory used at start: Unknown");
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "  Dedicated video memory: Unknown");
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "  Video memory used at start: Unknown");
     }
 }
 
@@ -454,7 +465,8 @@ float GLContext::getRefreshRate()
 #else
         AVG_ASSERT(false);
 #endif
-        AVG_TRACE(logging::subsystem::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "Vertical Refresh Rate: " << s_RefreshRate);
     }
     return s_RefreshRate;
 }
@@ -475,14 +487,14 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        stringstream s;
+        ostringstream s;
 #ifndef AVG_ENABLE_EGL
         s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
 #else
         s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
 #endif
-        AVG_TRACE(logging::subsystem::ERROR, s.str());
+        AVG_LOG_ERROR(s.str());
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
         }
@@ -651,7 +663,7 @@ void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
 #ifndef AVG_ENABLE_EGL
     if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
 #endif
-        AVG_TRACE(logging::subsystem::WARNING, message);
+        AVG_LOG_WARNING(message);
         //        dumpBacktrace();
         //        AVG_ASSERT(false);
 #ifndef AVG_ENABLE_EGL

@@ -35,7 +35,7 @@ const ::PixelFormat STREAM_PIXEL_FORMAT = ::PIX_FMT_YUVJ420P;
 
 VideoWriterThread::VideoWriterThread(CQueue& CmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
-    : WorkerThread<VideoWriterThread>(sFilename, CmdQueue, logging::subsystem::PROFILE),
+    : WorkerThread<VideoWriterThread>(sFilename, CmdQueue, logging::category::PROFILE),
       m_sFilename(sFilename),
       m_Size(size),
       m_FrameRate(frameRate),

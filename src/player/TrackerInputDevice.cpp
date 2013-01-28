@@ -79,12 +79,14 @@ TrackerInputDevice::TrackerInputDevice()
                 "Unknown camera pixel format "+sCaptureFormat+".");
     }
     
-    AVG_TRACE(logging::subsystem::CONFIG, "Trying to create a Tracker for " << sDriver
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            "Trying to create a Tracker for " << sDriver
             << " Camera: " << sDevice << " Size: " << captureSize << "format: "
             << sCaptureFormat);
     m_pCamera = createCamera(sDriver, sDevice, -1, bFW800, captureSize, camPF, I8, 
             frameRate);
-    AVG_TRACE(logging::subsystem::CONFIG, "Got Camera " << m_pCamera->getDevice() << " from driver: " 
+    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            "Got Camera " << m_pCamera->getDevice() << " from driver: " 
             << m_pCamera->getDriverName());
 
     IntPoint imgSize = m_pCamera->getImgSize();
@@ -108,8 +110,7 @@ TrackerInputDevice::TrackerInputDevice()
     if (roi.tl.x < 0 || roi.tl.y < 0 || 
             roi.br.x > imgSize.x || roi.br.y > imgSize.y) 
     {
-        AVG_TRACE(logging::subsystem::ERROR, 
-                "Impossible tracker configuration: Region of interest is " 
+        AVG_LOG_ERROR("Impossible tracker configuration: Region of interest is " 
                 << roi << ", camera image size is " << imgSize << ". Aborting.");
         exit(5);
     }
@@ -386,8 +387,7 @@ void TrackerInputDevice::endCalibration()
     m_DisplayROI = m_OldDisplayROI;
     FRect area = m_TrackerConfig.getTransform()->getActiveBlobArea(m_DisplayROI);
     if (area.size().x*area.size().y > 1024*1024*8) {
-        AVG_TRACE(logging::subsystem::WARNING, "Ignoring calibration - resulting area would be " 
-                << area);
+        AVG_LOG_WARNING("Ignoring calibration - resulting area would be " << area);
         m_TrackerConfig.setTransform(m_pOldTransformer);
     }
     setConfig();

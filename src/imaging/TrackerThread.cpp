@@ -106,10 +106,11 @@ bool TrackerThread::init()
         m_pImagingContext = GLContext::create(
             GLConfig(false, false, true, 1, GLConfig::AUTO, false));
         createBandpassFilter();
-        AVG_TRACE(logging::subsystem::CONFIG, "Using fragment shaders for imaging operations.");
+        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+                "Using fragment shaders for imaging operations.");
     } catch (Exception& e) {
-        AVG_TRACE(logging::subsystem::WARNING, e.getStr());
-        AVG_TRACE(logging::subsystem::CONFIG, 
+        AVG_LOG_WARNING(e.getStr());
+        AVG_TRACE(logging::category::CONFIG, logging::level::WARNING,
                 "Using CPU for imaging operations (slow and inaccurate).");
         m_pImagingContext = 0;
         m_pBandpassFilter = FilterPtr(new FilterFastBandpass());
@@ -118,7 +119,7 @@ bool TrackerThread::init()
         m_StartTime = TimeSource::get()->getCurrentMillisecs(); 
         m_HistoryDelay = m_pConfig->getIntParam("/tracker/historydelay/@value");
     } catch (Exception& e) {
-        AVG_TRACE(logging::subsystem::WARNING, e.getStr());
+        AVG_LOG_WARNING(e.getStr());
     }
     
     // Done in TrackerInputDevice::ctor to work around Leopard/libdc1394 threading issue.
@@ -207,8 +208,10 @@ bool TrackerThread::work()
 void TrackerThread::deinit()
 {
     m_pCamera = CameraPtr();
-    AVG_TRACE(logging::subsystem::PROFILE, "Total camera frames: " << m_NumFrames);
-    AVG_TRACE(logging::subsystem::PROFILE, "Camera frames discarded: " << m_NumCamFramesDiscarded);
+    AVG_TRACE(logging::category::PROFILE, logging::level::INFO,
+            "Total camera frames: " << m_NumFrames);
+    AVG_TRACE(logging::category::PROFILE, logging::level::INFO,
+            "Camera frames discarded: " << m_NumCamFramesDiscarded);
     if (m_pBandpassFilter) {
         m_pBandpassFilter.reset();
     }

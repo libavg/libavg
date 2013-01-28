@@ -480,8 +480,7 @@ void VideoNode::startDecoding()
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
-            AVG_TRACE(logging::subsystem::WARNING, 
-                    getID() + ": Can't set FPS if video contains audio. Ignored.");
+            AVG_LOG_WARNING(getID() + ": Can't set FPS if video contains audio. Ignored.");
         } else {
             m_pDecoder->setFPS(m_FPS);
         }
@@ -550,8 +549,9 @@ void VideoNode::close()
         } else {
             sID = getID();
         }
-        AVG_TRACE(logging::subsystem::PROFILE_VIDEO, "Missed video frames for '" << sID << "': " 
-                << m_FramesTooLate << " of " << m_FramesPlayed);
+        AVG_TRACE(logging::category::PROFILE_VIDEO, logging::level::INFO,
+                "Missed video frames for '" << sID << "': " << m_FramesTooLate <<
+                " of " << m_FramesPlayed);
         m_FramesTooLate = 0;
     }
 }
@@ -691,7 +691,7 @@ bool VideoNode::renderFrame()
 {
     FrameAvailableCode frameAvailable = renderToSurface();
     if (m_pDecoder->isEOF()) {
-//        AVG_TRACE(logging::subsystem::PROFILE, "------------------ EOF -----------------");
+//        AVG_TRACE(logging::category::PROFILE, "------------------ EOF -----------------");
         updateStatusDueToDecoderEOF();
         if (m_bLoop) {
             frameAvailable = renderToSurface();
@@ -704,7 +704,7 @@ bool VideoNode::renderFrame()
             m_FramesInRowTooLate = 0;
             m_bSeekPending = false;
             setMaskCoords();
-//            AVG_TRACE(logging::subsystem::PROFILE, "New frame.");
+//            AVG_TRACE(logging::category::PROFILE, "New frame.");
             break;
         case FA_STILL_DECODING:
             {
@@ -737,12 +737,12 @@ bool VideoNode::renderFrame()
                     }
                 }
             }
-//            AVG_TRACE(logging::subsystem::PROFILE, "Missed video frame.");
+//            AVG_TRACE(logging::category::PROFILE, "Missed video frame.");
             break;
         case FA_USE_LAST_FRAME:
             m_FramesInRowTooLate = 0;
             m_bSeekPending = false;
-//            AVG_TRACE(logging::subsystem::PROFILE, "Video frame reused.");
+//            AVG_TRACE(logging::category::PROFILE, "Video frame reused.");
             break;
         default:
             AVG_ASSERT(false);

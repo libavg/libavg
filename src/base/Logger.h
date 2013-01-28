@@ -39,15 +39,13 @@ namespace avg {
 #endif
 
 namespace logging {
-    namespace subsystem {
-        const unsigned long NONE=0;
+    namespace category {
+        const unsigned long NONE=1; //TODO: In Documentation: NONE doesn't mean no logging, but no category now
         const unsigned long PROFILE=2;
         const unsigned long PROFILE_VIDEO=8;
         const unsigned long EVENTS=16;
         const unsigned long EVENTS2=32;
         const unsigned long CONFIG=64;
-        const unsigned long WARNING=128;
-        const unsigned long ERROR=256;
         const unsigned long MEMORY=512;
         const unsigned long APP=1024;
         const unsigned long PLUGIN=2048;
@@ -55,7 +53,6 @@ namespace logging {
         const unsigned long SHADER=8192;
         const unsigned long DEPRECATION=16384;
     }
-
     namespace level {
         const long CRITICAL = 50;
         const long FATAL = 50;
@@ -65,7 +62,6 @@ namespace logging {
         const long DEBUG = 10; 
         const long NOTSET = 0; 
     }
-
 
 class AVG_API Logger {
 public:
@@ -79,7 +75,7 @@ public:
     void popCategories();
     const char * categoryToString(unsigned long category) const;
     int stringToCategory(const std::string& sCategory) const;
-    void trace(int category, const UTF8String& sMsg);
+    void trace(const UTF8String& sMsg, unsigned long category, long level);
     inline bool isFlagSet(int category) const {
         return (category & m_Flags) != 0;
     }
@@ -102,12 +98,20 @@ private:
 
 }
 
-#define AVG_TRACE(category, sMsg) { \
+#define AVG_TRACE(category, level, sMsg) { \
 if (logging::Logger::get()->isFlagSet(category)) { \
     std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
     tmp << sMsg; \
-    logging::Logger::get()->trace(category, tmp.str()); \
+    logging::Logger::get()->trace(tmp.str(), category, level); \
     }\
+}\
+
+#define AVG_LOG_ERROR(sMsg){ \
+    AVG_TRACE(logging::category::NONE, logging::level::ERROR, sMsg); \
+}\
+
+#define AVG_LOG_WARNING(sMsg){ \
+    AVG_TRACE(logging::category::NONE, logging::level::WARNING, sMsg); \
 }\
 
 }

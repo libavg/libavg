@@ -76,7 +76,7 @@ class AVG_API OGLShader {
         GLuint compileShader(GLenum shaderType, const std::string& sProgram,
                 const std::string& sPrefix);
         bool findParam(const std::string& sName, unsigned& pos);
-        void dumpInfoLog(GLuint hObj, int category, bool bIsProgram=false);
+        void dumpInfoLog(GLuint hObj, long level, bool bIsProgram=false);
         std::string removeATIInfoLogSpam(const std::string& sLog);
 
         std::string m_sName;

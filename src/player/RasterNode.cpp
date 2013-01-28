@@ -136,7 +136,8 @@ void RasterNode::checkReload()
         m_sMaskFilename = sMaskFilename;
         try {
             if (m_sMaskFilename != "") {
-                AVG_TRACE(logging::subsystem::MEMORY, "Loading " << m_sMaskFilename);
+                AVG_TRACE(logging::category::MEMORY, logging::level::INFO,
+                        "Loading " << m_sMaskFilename);
                 m_pMaskBmp = loadBitmap(m_sMaskFilename, I8);
                 setMaskCoords();
             }
@@ -146,9 +147,9 @@ void RasterNode::checkReload()
             }
             m_sMaskFilename = "";
             if (getState() != Node::NS_UNCONNECTED) {
-                AVG_TRACE(logging::subsystem::ERROR, ex.getStr());
+                AVG_LOG_ERROR(ex.getStr());
             } else {
-                AVG_TRACE(logging::subsystem::MEMORY, ex.getStr());
+                AVG_TRACE(logging::category::MEMORY, logging::level::ERROR, ex.getStr());
             }
         }
         if (m_sMaskFilename == "") {

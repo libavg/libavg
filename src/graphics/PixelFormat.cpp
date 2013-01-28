@@ -278,7 +278,7 @@ unsigned getBytesPerPixel(PixelFormat pf)
         case YCbCr422:
             return 2;
         default:
-            AVG_TRACE(logging::subsystem::ERROR, "getBytesPerPixel(): Unknown format " << 
+            AVG_LOG_ERROR("getBytesPerPixel(): Unknown format " <<
                     getPixelFormatString(pf) << ".");
             AVG_ASSERT(false);
             return 0;

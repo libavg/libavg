@@ -55,7 +55,7 @@ FakeCamera::FakeCamera(std::vector<std::string>& pictures)
             setImgSize(pBmp->getSize());
             m_pBmpQ->push(pBmp);
         } catch (Exception& ex) {
-            AVG_TRACE(logging::subsystem::ERROR, ex.getStr());
+            AVG_LOG_ERROR(ex.getStr());
             throw;
         }
     }

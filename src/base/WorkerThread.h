@@ -47,7 +47,7 @@ public:
     typedef typename boost::shared_ptr<CQueue> CQueuePtr;
 
     WorkerThread(const std::string& sName, CQueue& CmdQ,
-            long logCategory=logging::subsystem::PROFILE);
+            long logCategory=logging::category::PROFILE);
     WorkerThread(WorkerThread const& other);
     virtual ~WorkerThread();
     void operator()();
@@ -118,8 +118,7 @@ void WorkerThread<DERIVED_THREAD>::operator()()
         pProfiler->dumpStatistics();
         pProfiler->kill();
     } catch (const Exception& e) {
-         AVG_TRACE(logging::subsystem::ERROR, "Uncaught exception in thread " << m_sName << ": "
-                  << e.getStr());
+         AVG_LOG_ERROR("Uncaught exception in thread " << m_sName << ": " << e.getStr());
          throw;
     }
 }
@@ -153,8 +152,7 @@ void WorkerThread<DERIVED_THREAD>::processCommands()
             pCmd = m_CmdQ.pop(false);
         }
     } catch (const Exception& e) {
-        AVG_TRACE(logging::subsystem::ERROR, "Uncaught exception in thread " 
-                << m_sName << ": " << e.getStr());
+        AVG_LOG_ERROR("Uncaught exception in thread " << m_sName << ": " << e.getStr());
     }
    
 }

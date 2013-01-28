@@ -70,17 +70,20 @@ protected:
 ColorNode::ColorNode(const ArgList& Args) :
     m_sFillColorName("FFFFFF")
 {   
-    AVG_TRACE(logging::subsystem::PLUGIN, "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor")); 
+    AVG_TRACE(logging::category::PLUGIN, logging::level::INFO,
+            "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor")); 
     
     Args.setMembers(this);
-    AVG_TRACE(logging::subsystem::PLUGIN, "ColorNode constructed with " << m_sFillColorName);   
+    AVG_TRACE(logging::category::PLUGIN, logging::level::INFO,
+            "ColorNode constructed with " << m_sFillColorName);   
 
     parseColor(m_sFillColorName);
 }
 
 void ColorNode::setFillColor(const string& sFillColor)
 {
-    AVG_TRACE(logging::subsystem::PLUGIN, "setFillColor called with " << sFillColor);   
+    AVG_TRACE(logging::category::PLUGIN,  logging::level::INFO,
+            "setFillColor called with " << sFillColor);   
     m_sFillColorName = sFillColor;
     parseColor(m_sFillColorName);
 }
@@ -116,7 +119,7 @@ void ColorNode::maybeRender(const glm::mat4& parentTransform)
 
 void ColorNode::render()
 {
-    //AVG_TRACE(logging::subsystem::PLUGIN, "ColorNode::render");   
+    //AVG_TRACE(logging::category::PLUGIN, "ColorNode::render");   
     
     glClearColor(m_r, m_g, m_b, 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);

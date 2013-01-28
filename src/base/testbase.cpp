@@ -915,18 +915,17 @@ public:
 
         //Log a test message
         string result("Test log message");
-        AVG_TRACE(logging::subsystem::ERROR, UTF8String(result));
+        AVG_TRACE(logging::category::NONE, logging::level::INFO, result);
 
         //Compare result
         TEST(buffer.str().find(result) != string::npos);
-
         //Test custom category registration
         logging::Logger *logger = logging::Logger::get();
         int AWESOME_CAT = logger->registerCategory("AWESOME");
         int cats = logger->getCategories();
         logger->setCategories(cats | logger->stringToCategory("AWESOME"));
         string msg("AWESOME LOG");
-        AVG_TRACE(AWESOME_CAT, msg);
+        AVG_TRACE(AWESOME_CAT, logging::level::INFO, msg);
         TEST(buffer.str().find(msg) != string::npos);
 
         //reset cerr stream to standard buffer
