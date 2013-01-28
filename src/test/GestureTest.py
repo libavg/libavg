@@ -768,6 +768,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 0, 30),
                 )
 
+        player.setFakeFPS(100)
         self.__initImageScene()
         # Turn off the jitter filter.
         ui.TransformRecognizer.FILTER_MIN_CUTOFF = None
@@ -915,6 +916,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 30, 10),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 30, 10),
                 ))
+        player.setFakeFPS(-1)
 
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
