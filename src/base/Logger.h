@@ -77,7 +77,7 @@ public:
     void popCategories();
     const char * categoryToString(size_t category) const;
     size_t stringToCategory(const std::string& sCategory) const;
-    void trace(const UTF8String& sMsg, size_t category, long level);
+    void trace(const UTF8String& sMsg, size_t category, long level) const;
     inline bool isFlagSet(size_t category) const {
         return (category & m_Flags) != 0;
     }
@@ -89,6 +89,10 @@ public:
     void logError(const string& msg, const size_t category=category::NONE) const;
     void logCritical(const string& msg, const size_t category=category::NONE) const;
     void log(const string& msg, const size_t category=category::NONE) const;
+
+    void setLogLevel(long level){
+        m_Level = level;
+    }
 
 private:
     Logger();
