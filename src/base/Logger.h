@@ -83,16 +83,12 @@ public:
     }
     size_t registerCategory(const string& cat);
 
-    /*
-    void logDebug(const string& msg, const unsigned long category=category::NONE) const;
-    void logInfo(const string& msg, const unsigned long category=category::NONE) const;
-    void logWarning(const string& msg,
-            const unsigned long category=category::NONE) const;
-    void logError(const string& msg, const unsigned long category=category::NONE) const;
-    void logCritical(const string& msg,
-            const unsigned long category=category::NONE) const;
-    void log(const string& msg, const unsigned long category=category::NONE) const;
-    */
+    void logDebug(const string& msg, const size_t category=category::NONE) const;
+    void logInfo(const string& msg, const size_t category=category::NONE) const;
+    void logWarning(const string& msg, const size_t category=category::NONE) const;
+    void logError(const string& msg, const size_t category=category::NONE) const;
+    void logCritical(const string& msg, const size_t category=category::NONE) const;
+    void log(const string& msg, const size_t category=category::NONE) const;
 
 private:
     Logger();
@@ -126,6 +122,10 @@ if (logging::Logger::get()->isFlagSet(category)) { \
 
 #define AVG_LOG_WARNING(sMsg){ \
     AVG_TRACE(logging::category::NONE, logging::level::WARNING, sMsg); \
+}\
+
+#define AVG_LOG_INFO(sMsg){ \
+    AVG_TRACE(logging::category::NONE, logging::level::INFO, sMsg); \
 }\
 
 }
