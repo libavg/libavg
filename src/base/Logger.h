@@ -40,18 +40,18 @@ namespace avg {
 
 namespace logging {
     namespace category {
-        const unsigned long NONE=1; //TODO: In Documentation: NONE doesn't mean no logging, but no category now
-        const unsigned long PROFILE=2;
-        const unsigned long PROFILE_VIDEO=8;
-        const unsigned long EVENTS=16;
-        const unsigned long EVENTS2=32;
-        const unsigned long CONFIG=64;
-        const unsigned long MEMORY=512;
-        const unsigned long APP=1024;
-        const unsigned long PLUGIN=2048;
-        const unsigned long PLAYER=4096;
-        const unsigned long SHADER=8192;
-        const unsigned long DEPRECATION=16384;
+        const size_t NONE=1; //TODO: In Documentation: NONE doesn't mean no logging, but no category now
+        const size_t PROFILE=2;
+        const size_t PROFILE_VIDEO=8;
+        const size_t EVENTS=16;
+        const size_t EVENTS2=32;
+        const size_t CONFIG=64;
+        const size_t MEMORY=512;
+        const size_t APP=1024;
+        const size_t PLUGIN=2048;
+        const size_t PLAYER=4096;
+        const size_t SHADER=8192;
+        const size_t DEPRECATION=16384;
     }
     namespace level {
         const long CRITICAL = 50;
@@ -71,17 +71,28 @@ public:
     virtual ~Logger();
 
     void addLogHandler(LogHandlerPtr logHandler);
-    int getCategories() const;
-    void setCategories(int flags);
+    size_t getCategories() const;
+    void setCategories(size_t flags);
     void pushCategories();
     void popCategories();
-    const char * categoryToString(unsigned long category) const;
-    int stringToCategory(const std::string& sCategory) const;
-    void trace(const UTF8String& sMsg, unsigned long category, long level);
-    inline bool isFlagSet(int category) const {
+    const char * categoryToString(size_t category) const;
+    size_t stringToCategory(const std::string& sCategory) const;
+    void trace(const UTF8String& sMsg, size_t category, long level);
+    inline bool isFlagSet(size_t category) const {
         return (category & m_Flags) != 0;
     }
-    unsigned long registerCategory(const string cat);
+    size_t registerCategory(const string& cat);
+
+    /*
+    void logDebug(const string& msg, const unsigned long category=category::NONE) const;
+    void logInfo(const string& msg, const unsigned long category=category::NONE) const;
+    void logWarning(const string& msg,
+            const unsigned long category=category::NONE) const;
+    void logError(const string& msg, const unsigned long category=category::NONE) const;
+    void logCritical(const string& msg,
+            const unsigned long category=category::NONE) const;
+    void log(const string& msg, const unsigned long category=category::NONE) const;
+    */
 
 private:
     Logger();
@@ -89,13 +100,13 @@ private:
 
     static Logger* m_pLogger;
 
-    int m_Flags;
-    std::vector<int> m_FlagStack;
+    size_t m_Flags;
+    std::vector<size_t> m_FlagStack;
     std::vector<LogHandlerPtr> m_Handlers;
-    std::map< unsigned long, string > m_CategoryToString;
-    std::map< const string , unsigned long > m_StringToCategory;
+    std::map< size_t, string > m_CategoryToString;
+    std::map< const string, size_t > m_StringToCategory;
 
-    unsigned long m_MaxCategoryNum;
+    size_t m_MaxCategoryNum;
     long m_Level;
 };
 

@@ -103,7 +103,7 @@ Logger::Logger()
                 sCategory = sEnvCategories.substr(0, pos);
                 sEnvCategories = sEnvCategories.substr(pos+1);
             }
-            long category = stringToCategory(sCategory);
+            size_t category = stringToCategory(sCategory);
             m_Flags |= category;
             } while (!bDone);
     }
@@ -114,13 +114,13 @@ Logger::~Logger()
 {
 }
 
-int Logger::getCategories() const
+size_t Logger::getCategories() const
 {
     boost::mutex::scoped_lock lock(logMutex);
     return m_Flags;
 }
 
-void Logger::setCategories(int flags)
+void Logger::setCategories(size_t flags)
 {
     boost::mutex::scoped_lock lock(logMutex);
     m_Flags = flags;
@@ -147,7 +147,7 @@ void Logger::addLogHandler(LogHandlerPtr logHandler)
     m_Handlers.push_back(logHandler);
 }
 
-void Logger::trace(const UTF8String& sMsg, unsigned long category, long level)
+void Logger::trace(const UTF8String& sMsg, size_t category, long level)
 {
     boost::mutex::scoped_lock lock(logMutex);
     if (category & m_Flags) {
@@ -164,15 +164,15 @@ void Logger::trace(const UTF8String& sMsg, unsigned long category, long level)
         pTime = localtime(&time.tv_sec);
         unsigned millis = time.tv_usec/1000;
 #endif
-        for(unsigned int i=0; i < m_Handlers.size(); ++i){
+        for(size_t i=0; i < m_Handlers.size(); ++i){
             m_Handlers.at(i)->logMessage(pTime, millis, category, sMsg);
         }
     }
 }
 
-const char * Logger::categoryToString(unsigned long category) const
+const char * Logger::categoryToString(size_t category) const
 {
-    std::map< unsigned long, string >::const_iterator it;
+    std::map< size_t, string >::const_iterator it;
     it = m_CategoryToString.find(category);
     if(it != m_CategoryToString.end()){
         return (it->second).c_str();
@@ -181,9 +181,9 @@ const char * Logger::categoryToString(unsigned long category) const
     }
 }
 
-int Logger::stringToCategory(const string& sCategory) const
+size_t Logger::stringToCategory(const string& sCategory) const
 {
-    std::map< string , unsigned long >::const_iterator it;
+    std::map< string , size_t >::const_iterator it;
     it = m_StringToCategory.find(sCategory);
     if(it != m_StringToCategory.end()){
         return it->second;
@@ -231,8 +231,8 @@ void Logger::setupCategory(){
     m_StringToCategory["DEPRECATION"] = category::DEPRECATION;
 }
 
-unsigned long Logger::registerCategory(const string cat){
-    std::map< string, unsigned long >::iterator it;
+size_t Logger::registerCategory(const string& cat){
+    std::map< string, size_t >::iterator it;
     it = m_StringToCategory.find(cat);
     if(it != m_StringToCategory.end()){
         return it->second;
