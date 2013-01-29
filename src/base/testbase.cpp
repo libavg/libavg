@@ -938,16 +938,16 @@ public:
     {
         std::stringstream buffer;
         std::streambuf *sbuf = std::cerr.rdbuf();
-        std::cerr.rdbuf(buffer.rdbuf());
+        logging::Logger *logger = logging::Logger::get();
         {
-            string result("Test log message");
-            AVG_TRACE(logging::category::NONE, logging::level::INFO, result);
+            std::cerr.rdbuf(buffer.rdbuf());
+            string msg("Test log message");
+            AVG_TRACE(logging::category::NONE, logging::level::INFO, msg);
             std::cerr.rdbuf(sbuf);
-            TEST(buffer.str().find(result) != string::npos);
+            TEST(buffer.str().find(msg) != string::npos);
         }
-        std::cerr.rdbuf(buffer.rdbuf());
         {
-            logging::Logger *logger = logging::Logger::get();
+            std::cerr.rdbuf(buffer.rdbuf());
             int AWESOME_CAT = logger->registerCategory("AWESOME");
             int cats = logger->getCategories();
             logger->setCategories(cats | logger->stringToCategory("AWESOME"));
@@ -955,6 +955,14 @@ public:
             AVG_TRACE(AWESOME_CAT, logging::level::INFO, msg);
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) != string::npos);
+        }
+        {
+            std::cerr.rdbuf(buffer.rdbuf());
+            logger->setLogLevel(logging::level::WARNING);
+            string msg("Invisible");
+            AVG_LOG_INFO(msg);
+            std::cerr.rdbuf(sbuf);
+            TEST(buffer.str().find(msg) == string::npos);
         }
     }
 };
