@@ -956,7 +956,6 @@ public:
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) != string::npos);
         }
-
     }
 };
 

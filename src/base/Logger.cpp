@@ -147,7 +147,7 @@ void Logger::addLogHandler(LogHandlerPtr logHandler)
     m_Handlers.push_back(logHandler);
 }
 
-void Logger::trace(const UTF8String& sMsg, size_t category, long level)
+void Logger::trace(const UTF8String& sMsg, size_t category, long level) const
 {
     boost::mutex::scoped_lock lock(logMutex);
     if (category & m_Flags) {
@@ -168,6 +168,36 @@ void Logger::trace(const UTF8String& sMsg, size_t category, long level)
             m_Handlers.at(i)->logMessage(pTime, millis, category, sMsg);
         }
     }
+}
+
+void Logger::logDebug(const string& msg, const size_t category) const
+{
+    trace(msg, category, level::DEBUG);
+}
+
+void Logger::logInfo(const string& msg, const size_t category) const
+{
+    trace(msg, category, level::INFO);
+}
+
+void Logger::logWarning(const string& msg, const size_t category) const
+{
+    trace(msg, category, level::WARNING);
+}
+
+void Logger::logError(const string& msg, const size_t category) const
+{
+    trace(msg, category, level::ERROR);
+}
+
+void Logger::logCritical(const string& msg, const size_t category) const
+{
+    trace(msg, category, level::CRITICAL);
+}
+
+void Logger::log(const string& msg, const size_t category) const
+{
+    trace(msg, category, level::INFO);
 }
 
 const char * Logger::categoryToString(size_t category) const

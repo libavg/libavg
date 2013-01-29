@@ -37,7 +37,7 @@ PythonLogHandler::~PythonLogHandler()
     delete m_pyLogger;
 }
 
-void PythonLogHandler::logMessage(tm* pTime, unsigned millis, int category,
+void PythonLogHandler::logMessage(const tm* pTime, unsigned millis, size_t category,
             const UTF8String& sMsg)
 {
     PyEval_CallMethod(m_pyLogger, "debug", "(s)", sMsg.c_str());
