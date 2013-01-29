@@ -81,7 +81,7 @@ Logger * Logger::get()
 Logger::Logger()
 {
     setupCategory();
-    m_Level = level::WARNING;
+    m_Level = level::INFO;
     string sEnvLevel;
     bool bEnvLevelSet = getEnv("AVG_LOG_LEVEL", sEnvLevel);
     if(bEnvLevelSet){
