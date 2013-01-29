@@ -150,7 +150,7 @@ void Logger::addLogHandler(LogHandlerPtr logHandler)
 void Logger::trace(const UTF8String& sMsg, size_t category, long level) const
 {
     boost::mutex::scoped_lock lock(logMutex);
-    if (category & m_Flags) {
+    if (category & m_Flags && m_Level <= level) {
         struct tm* pTime;
 #ifdef _WIN32
         __int64 now;
