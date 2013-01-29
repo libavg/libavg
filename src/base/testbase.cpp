@@ -945,6 +945,7 @@ public:
             AVG_TRACE(logging::category::NONE, logging::level::INFO, msg);
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) != string::npos);
+            buffer.str(string());
         }
         {
             std::cerr.rdbuf(buffer.rdbuf());
@@ -955,6 +956,7 @@ public:
             AVG_TRACE(AWESOME_CAT, logging::level::INFO, msg);
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) != string::npos);
+            buffer.str(string());
         }
         {
             std::cerr.rdbuf(buffer.rdbuf());
@@ -963,6 +965,7 @@ public:
             AVG_LOG_INFO(msg);
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) == string::npos);
+            buffer.str(string());
         }
     }
 };
