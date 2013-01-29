@@ -50,7 +50,7 @@ CHANGE_INTERVAL = SHOW_INTERVAL + TRANS_INTERVAL
 ANIM_INTERVAL   = CHANGE_INTERVAL + TRANS_INTERVAL
 ANIM_MAX_MOVE   = 200 # [px]
 
-Logger = avg.Logger.get()
+Logger = avg.logger
 BitmapMgr = avg.BitmapManager.get()
 
 

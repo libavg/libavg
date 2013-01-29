@@ -32,8 +32,7 @@ import cPickle as pickle
 
 import libavg
 from libavg import avg, player
-
-g_Log = avg.Logger.get()
+from libavg import logger as g_Log
 
 
 class Datastore(object):

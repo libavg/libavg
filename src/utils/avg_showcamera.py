@@ -26,8 +26,7 @@ import time
 from libavg import avg, player
 from libavg import parsecamargs
 from libavg import AVGApp
-
-g_Log = avg.Logger.get()
+from avg import logger as g_Log
 
 usage = """%prog [options]
 

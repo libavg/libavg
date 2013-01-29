@@ -25,6 +25,7 @@ import gc
 import math
 
 from libavg import avg, Point2D, player
+from libavg import logger as g_Log
 import graph
 from mtemu import MTemu
 import apphelpers
@@ -32,7 +33,6 @@ import apphelpers
 
 DEFAULT_RESOLUTION = (640, 480)
 
-g_Log = avg.Logger.get()
 g_KbManager = apphelpers.KeyboardManager.get()
 
 

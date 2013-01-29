@@ -24,8 +24,7 @@ import optparse
 import sys
 
 from libavg import avg, AVGApp
-
-g_log = avg.Logger.get()
+from libavg import logger as g_log
 
 parser = optparse.OptionParser("Usage: %prog <svgFileName> <elementID> [options]")
 parser.add_option("-s", "--size", action="store", type="float", dest="size", default=1,

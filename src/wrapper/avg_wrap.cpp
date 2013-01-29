@@ -106,9 +106,6 @@ BOOST_PYTHON_MODULE(avg)
         ;
 
         class_<logging::Logger>("Logger", no_init)
-            .def("get", &logging::Logger::get, 
-                    return_value_policy<reference_existing_object>())
-            .staticmethod("get")
             .def("getCategories", &logging::Logger::getCategories)
             .def("setCategories", &logging::Logger::setCategories)
             .def("pushCategories", &logging::Logger::pushCategories)
@@ -127,6 +124,7 @@ BOOST_PYTHON_MODULE(avg)
             .def_readonly("SHADER", &logging::category::SHADER)
             .def_readonly("DEPRECATION", &logging::category::DEPRECATION)
         ;
+        scope().attr("logger") = logging::Logger::get();
 
         class_<Publisher, boost::noncopyable>("Publisher")
             .def("subscribe", &Publisher::subscribe)

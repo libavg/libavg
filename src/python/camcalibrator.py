@@ -22,12 +22,12 @@
 
 import sys, os
 from libavg import avg, AVGApp, player
+from libavg import logger as g_Log
 
 import coordcalibrator
 import apphelpers
 
 mediadir = os.path.join(os.path.dirname(__file__), 'data')
-g_Log = avg.Logger.get()
 g_KbManager = apphelpers.KeyboardManager.get()
 
 

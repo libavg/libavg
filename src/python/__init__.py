@@ -9,7 +9,6 @@ del system
 
 from avg import *
 player = avg.Player.get()
-logging = avg.Logger.get()
 
 from enumcompat import *
 

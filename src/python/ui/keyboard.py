@@ -26,8 +26,8 @@
 import os.path
 
 from libavg import avg, player
+from libavg import logger as g_Logger
 
-g_Logger = avg.Logger.get()
 
 FEEDBACK_ZOOM_FACTOR = 1.0
 
