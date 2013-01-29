@@ -63,6 +63,8 @@ namespace logging {
         const long NOTSET = 0; 
     }
 
+long levelToLong(const string& sLevel);
+
 class AVG_API Logger {
 public:
     static Logger* get();
@@ -83,17 +85,18 @@ public:
 
 private:
     Logger();
-    void setupSubsystem();
+    void setupCategory();
 
     static Logger* m_pLogger;
 
     int m_Flags;
     std::vector<int> m_FlagStack;
     std::vector<LogHandlerPtr> m_Handlers;
-    std::map< unsigned long, string > m_SubsystemToString;
-    std::map< const string , unsigned long > m_StringToSubsystem;
+    std::map< unsigned long, string > m_CategoryToString;
+    std::map< const string , unsigned long > m_StringToCategory;
 
-    unsigned long m_MaxSubsystemNum;
+    unsigned long m_MaxCategoryNum;
+    long m_Level;
 };
 
 }

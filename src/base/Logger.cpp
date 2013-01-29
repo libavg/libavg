@@ -38,6 +38,7 @@
 #include <iostream>
 #include <iomanip>
 #include <boost/thread.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace std;
 
@@ -47,6 +48,25 @@ namespace logging{
 Logger* Logger::m_pLogger = 0;
 boost::mutex logMutex;
 
+long levelToLong(const string& sLevel){
+    string level = boost::to_upper_copy(sLevel);
+    if (level == "CRITICAL"){
+        return level::CRITICAL;
+    }else if (level == "FATAL"){
+        return level::FATAL;
+    }else if (level == "ERROR"){
+        return level::ERROR;
+    }else if (level == "WARNING"){
+        return level::WARNING;
+    }else if (level == "INFO"){
+        return level::INFO;
+    }else if (level == "DEBUG"){
+        return level::DEBUG;
+    }else if (level == "NOTSET"){
+        return level::NOTSET;
+    }
+    throw Exception(AVG_ERR_INVALID_ARGS, level + " is an invalid log level");
+}
 
 Logger * Logger::get()
 {
@@ -60,7 +80,13 @@ Logger * Logger::get()
 
 Logger::Logger()
 {
-    setupSubsystem();
+    setupCategory();
+    m_Level = level::WARNING;
+    string sEnvLevel;
+    bool bEnvLevelSet = getEnv("AVG_LOG_LEVEL", sEnvLevel);
+    if(bEnvLevelSet){
+        m_Level = levelToLong(sEnvLevel);
+    }
     m_Flags = category::NONE | category::APP | category::DEPRECATION;
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
@@ -81,7 +107,7 @@ Logger::Logger()
             m_Flags |= category;
             } while (!bDone);
     }
-    m_MaxSubsystemNum = category::DEPRECATION;
+    m_MaxCategoryNum = category::DEPRECATION;
 }
 
 Logger::~Logger()
@@ -147,8 +173,8 @@ void Logger::trace(const UTF8String& sMsg, unsigned long category, long level)
 const char * Logger::categoryToString(unsigned long category) const
 {
     std::map< unsigned long, string >::const_iterator it;
-    it = m_SubsystemToString.find(category);
-    if(it != m_SubsystemToString.end()){
+    it = m_CategoryToString.find(category);
+    if(it != m_CategoryToString.end()){
         return (it->second).c_str();
     }else{
         return "UNKNOWN";
@@ -158,8 +184,8 @@ const char * Logger::categoryToString(unsigned long category) const
 int Logger::stringToCategory(const string& sCategory) const
 {
     std::map< string , unsigned long >::const_iterator it;
-    it = m_StringToSubsystem.find(sCategory);
-    if(it != m_StringToSubsystem.end()){
+    it = m_StringToCategory.find(sCategory);
+    if(it != m_StringToCategory.end()){
         return it->second;
     }else{
         throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logging category " + sCategory
@@ -167,54 +193,54 @@ int Logger::stringToCategory(const string& sCategory) const
     }
 }
 
-void Logger::setupSubsystem(){
-    m_SubsystemToString[category::NONE] = "NONE";
-    m_StringToSubsystem["NONE"] = category::NONE;
+void Logger::setupCategory(){
+    m_CategoryToString[category::NONE] = "NONE";
+    m_StringToCategory["NONE"] = category::NONE;
 
-    m_SubsystemToString[category::PROFILE] = "PROFILE",
-    m_StringToSubsystem["PROFILE"] = category::PROFILE;
+    m_CategoryToString[category::PROFILE] = "PROFILE",
+    m_StringToCategory["PROFILE"] = category::PROFILE;
 
-    m_SubsystemToString[category::PROFILE_VIDEO] = "PROFILE_VIDEO";
-    m_StringToSubsystem["PROFILE_VIDEO"] = category::PROFILE_VIDEO;
+    m_CategoryToString[category::PROFILE_VIDEO] = "PROFILE_VIDEO";
+    m_StringToCategory["PROFILE_VIDEO"] = category::PROFILE_VIDEO;
 
-    m_SubsystemToString[category::EVENTS] = "EVENTS";
-    m_StringToSubsystem["EVENTS"] = category::EVENTS;
+    m_CategoryToString[category::EVENTS] = "EVENTS";
+    m_StringToCategory["EVENTS"] = category::EVENTS;
 
-    m_SubsystemToString[category::EVENTS2] = "EVENTS2";
-    m_StringToSubsystem["EVENTS2"] = category::EVENTS2;
+    m_CategoryToString[category::EVENTS2] = "EVENTS2";
+    m_StringToCategory["EVENTS2"] = category::EVENTS2;
 
-    m_SubsystemToString[category::CONFIG] = "CONFIG";
-    m_StringToSubsystem["CONFIG"] = category::CONFIG;
+    m_CategoryToString[category::CONFIG] = "CONFIG";
+    m_StringToCategory["CONFIG"] = category::CONFIG;
 
-    m_SubsystemToString[category::MEMORY] = "MEMORY";
-    m_StringToSubsystem["MEMORY"] = category::MEMORY;
+    m_CategoryToString[category::MEMORY] = "MEMORY";
+    m_StringToCategory["MEMORY"] = category::MEMORY;
 
-    m_SubsystemToString[category::APP] = "APP";
-    m_StringToSubsystem["APP"] = category::APP;
+    m_CategoryToString[category::APP] = "APP";
+    m_StringToCategory["APP"] = category::APP;
 
-    m_SubsystemToString[category::PLUGIN] = "PLUGIN";
-    m_StringToSubsystem["PLUGIN"] = category::PLUGIN;
+    m_CategoryToString[category::PLUGIN] = "PLUGIN";
+    m_StringToCategory["PLUGIN"] = category::PLUGIN;
 
-    m_SubsystemToString[category::PLAYER] = "PLAYER";
-    m_StringToSubsystem["PLAYER"] = category::PLAYER;
+    m_CategoryToString[category::PLAYER] = "PLAYER";
+    m_StringToCategory["PLAYER"] = category::PLAYER;
 
-    m_SubsystemToString[category::SHADER] = "SHADER";
-    m_StringToSubsystem["SHADER"] = category::SHADER;
+    m_CategoryToString[category::SHADER] = "SHADER";
+    m_StringToCategory["SHADER"] = category::SHADER;
 
-    m_SubsystemToString[category::DEPRECATION] = "DEPRECATION";
-    m_StringToSubsystem["DEPRECATION"] = category::DEPRECATION;
+    m_CategoryToString[category::DEPRECATION] = "DEPRECATION";
+    m_StringToCategory["DEPRECATION"] = category::DEPRECATION;
 }
 
 unsigned long Logger::registerCategory(const string cat){
     std::map< string, unsigned long >::iterator it;
-    it = m_StringToSubsystem.find(cat);
-    if(it != m_StringToSubsystem.end()){
+    it = m_StringToCategory.find(cat);
+    if(it != m_StringToCategory.end()){
         return it->second;
     }else{
-        m_MaxSubsystemNum *= 2;
-        m_SubsystemToString[m_MaxSubsystemNum] = cat;
-        m_StringToSubsystem[cat] = m_MaxSubsystemNum;
-        return m_MaxSubsystemNum;
+        m_MaxCategoryNum *= 2;
+        m_CategoryToString[m_MaxCategoryNum] = cat;
+        m_StringToCategory[cat] = m_MaxCategoryNum;
+        return m_MaxCategoryNum;
     }
 }
 

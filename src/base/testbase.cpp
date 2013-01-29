@@ -934,32 +934,31 @@ public:
     {
     }
 
-    void runTests(){
-        //Redirect cerr stream to string buffer
+    void runTests()
+    {
         std::stringstream buffer;
         std::streambuf *sbuf = std::cerr.rdbuf();
         std::cerr.rdbuf(buffer.rdbuf());
+        {
+            string result("Test log message");
+            AVG_TRACE(logging::category::NONE, logging::level::INFO, result);
+            std::cerr.rdbuf(sbuf);
+            TEST(buffer.str().find(result) != string::npos);
+        }
+        std::cerr.rdbuf(buffer.rdbuf());
+        {
+            logging::Logger *logger = logging::Logger::get();
+            int AWESOME_CAT = logger->registerCategory("AWESOME");
+            int cats = logger->getCategories();
+            logger->setCategories(cats | logger->stringToCategory("AWESOME"));
+            string msg("AWESOME LOG");
+            AVG_TRACE(AWESOME_CAT, logging::level::INFO, msg);
+            std::cerr.rdbuf(sbuf);
+            TEST(buffer.str().find(msg) != string::npos);
+        }
 
-        //Log a test message
-        string result("Test log message");
-        AVG_TRACE(logging::category::NONE, logging::level::INFO, result);
-
-        //Compare result
-        TEST(buffer.str().find(result) != string::npos);
-        //Test custom category registration
-        logging::Logger *logger = logging::Logger::get();
-        int AWESOME_CAT = logger->registerCategory("AWESOME");
-        int cats = logger->getCategories();
-        logger->setCategories(cats | logger->stringToCategory("AWESOME"));
-        string msg("AWESOME LOG");
-        AVG_TRACE(AWESOME_CAT, logging::level::INFO, msg);
-        TEST(buffer.str().find(msg) != string::npos);
-
-        //reset cerr stream to standard buffer
-        std::cerr.rdbuf(sbuf);
     }
 };
- 
 
 class BaseTestSuite: public TestSuite
 {
