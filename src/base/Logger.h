@@ -78,6 +78,7 @@ public:
     const char * categoryToString(size_t category) const;
     size_t stringToCategory(const std::string& sCategory) const;
     void trace(const UTF8String& sMsg, size_t category, long level) const;
+    void pytrace(size_t category, const UTF8String& sMsg, long level) const;
     inline bool isFlagSet(size_t category) const {
         return (category & m_Flags) != 0;
     }

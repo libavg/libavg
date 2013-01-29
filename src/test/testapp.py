@@ -183,7 +183,8 @@ class TestApp(object):
     def __dumpConfig(self):
         player.enableGLErrorChecks(True)
         avg.logger.pushCategories()
-        avg.logger.setCategories(log.APP | log.WARNING | log.CONFIG | log.DEPRECATION)
+        avg.logger.setCategories(avg.logger.APP | avg.logger.CONFIG |
+                avg.logger.DEPRECATION)
         player.loadString("""
                 <avg id="avg" width="160" height="120">
                 </avg>

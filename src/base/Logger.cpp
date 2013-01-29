@@ -147,6 +147,12 @@ void Logger::addLogHandler(LogHandlerPtr logHandler)
     m_Handlers.push_back(logHandler);
 }
 
+void Logger::pytrace(size_t category, const UTF8String& sMsg, long level) const
+{
+    AVG_TRACE(category::DEPRECATION, level::WARNING, "logger.trace will be removed in future versions. Please use logger.log or any of the convenience functions");
+    trace(sMsg, category, level);
+}
+
 void Logger::trace(const UTF8String& sMsg, size_t category, long level) const
 {
     boost::mutex::scoped_lock lock(logMutex);

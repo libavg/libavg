@@ -53,6 +53,7 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
+namespace bp = boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
         fakeTouchEvent, 4, 5)
@@ -110,7 +111,8 @@ BOOST_PYTHON_MODULE(avg)
             .def("setCategories", &logging::Logger::setCategories)
             .def("pushCategories", &logging::Logger::pushCategories)
             .def("popCategories", &logging::Logger::popCategories)
-            .def("trace", &logging::Logger::trace)
+            .def("trace", &logging::Logger::pytrace,
+                    (bp::arg("level")=logging::level::INFO))
             .def_readonly("NONE", &logging::category::NONE)
             .def_readonly("PROFILE", &logging::category::PROFILE)
             .def_readonly("PROFILE_VIDEO", &logging::category::PROFILE_VIDEO)
