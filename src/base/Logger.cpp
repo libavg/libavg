@@ -46,6 +46,7 @@ namespace avg {
 namespace logging{
 
 Logger* Logger::m_pLogger = 0;
+std::vector<LogHandlerPtr> m_Handlers;
 boost::mutex logMutex;
 boost::mutex handlerMutex;
 

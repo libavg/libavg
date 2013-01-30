@@ -106,7 +106,6 @@ private:
 
     size_t m_Flags;
     std::vector<size_t> m_FlagStack;
-    std::vector<LogHandlerPtr> m_Handlers;
     std::map< size_t, string > m_CategoryToString;
     std::map< const string, size_t > m_StringToCategory;
 
