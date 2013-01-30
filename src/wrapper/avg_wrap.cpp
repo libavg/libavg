@@ -107,12 +107,26 @@ BOOST_PYTHON_MODULE(avg)
         ;
 
         class_<logging::Logger>("Logger", no_init)
+            .def("addLogger", &addPythonLogger)
             .def("getCategories", &logging::Logger::getCategories)
             .def("setCategories", &logging::Logger::setCategories)
             .def("pushCategories", &logging::Logger::pushCategories)
             .def("popCategories", &logging::Logger::popCategories)
             .def("trace", &logging::Logger::pytrace,
                     (bp::arg("level")=logging::level::INFO))
+            .def("debug", &logging::Logger::logDebug,
+                    (bp::arg("category")=logging::category::NONE))
+            .def("info", &logging::Logger::logInfo,
+                    (bp::arg("category")=logging::category::NONE))
+            .def("warning", &logging::Logger::logWarning,
+                    (bp::arg("category")=logging::category::NONE))
+            .def("error", &logging::Logger::logError,
+                    (bp::arg("category")=logging::category::NONE))
+            .def("critical", &logging::Logger::logCritical,
+                    (bp::arg("category")=logging::category::NONE))
+            .def("log", &logging::Logger::log,
+                    (bp::arg("category")=logging::category::NONE,
+                     bp::arg("level")=logging::level::INFO))
             .def_readonly("NONE", &logging::category::NONE)
             .def_readonly("PROFILE", &logging::category::PROFILE)
             .def_readonly("PROFILE_VIDEO", &logging::category::PROFILE_VIDEO)
@@ -125,6 +139,14 @@ BOOST_PYTHON_MODULE(avg)
             .def_readonly("PLAYER", &logging::category::PLAYER)
             .def_readonly("SHADER", &logging::category::SHADER)
             .def_readonly("DEPRECATION", &logging::category::DEPRECATION)
+            //TODO: Should separate category and level on python level too
+            .def_readonly("CRITICAL", &logging::level::CRITICAL)
+            .def_readonly("FATAL", &logging::level::FATAL)
+            .def_readonly("ERROR", &logging::level::ERROR)
+            .def_readonly("WARNING", &logging::level::WARNING)
+            .def_readonly("INFO", &logging::level::INFO)
+            .def_readonly("DEBUG", &logging::level::DEBUG)
+            .def_readonly("NOTSET", &logging::level::NOTSET)
         ;
         scope().attr("logger") = logging::Logger::get();
 

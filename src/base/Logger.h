@@ -89,7 +89,8 @@ public:
     void logWarning(const string& msg, const size_t category=category::NONE) const;
     void logError(const string& msg, const size_t category=category::NONE) const;
     void logCritical(const string& msg, const size_t category=category::NONE) const;
-    void log(const string& msg, const size_t category=category::NONE) const;
+    void log(const string& msg, const size_t category=category::NONE,
+            long level=level::INFO) const;
 
     void setLogLevel(long level){
         m_Level = level;

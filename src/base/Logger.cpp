@@ -201,9 +201,9 @@ void Logger::logCritical(const string& msg, const size_t category) const
     trace(msg, category, level::CRITICAL);
 }
 
-void Logger::log(const string& msg, const size_t category) const
+void Logger::log(const string& msg, const size_t category, long level) const
 {
-    trace(msg, category, level::INFO);
+    trace(msg, category, level);
 }
 
 const char * Logger::categoryToString(size_t category) const
