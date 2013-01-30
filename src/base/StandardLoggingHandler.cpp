@@ -40,15 +40,15 @@ StandardLoggingHandler::~StandardLoggingHandler()
 
 }
 
-void StandardLoggingHandler::logMessage(const tm* pTime, unsigned millis, size_t category,
-        const UTF8String& sMsg)
+void StandardLoggingHandler::logMessage(const tm* pTime, unsigned millis,
+        const string& category, long level, const UTF8String& sMsg)
 {
     char timeString[256];
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
     cerr << "[" << timeString << "." << 
-        setw(3) << setfill('0') << millis << setw(0) << "] ";
-    cerr << logging::Logger::get()->categoryToString(category) << ": ";
-    cerr << sMsg << endl;
+        setw(3) << setfill('0') << millis << setw(0) << "][";
+    cerr << logging::levelToString(level) << "][";
+    cerr << category << "] : " << sMsg << endl;
     cerr.flush();
 }
 

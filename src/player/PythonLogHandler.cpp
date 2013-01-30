@@ -27,8 +27,8 @@ namespace avg
 PythonLogHandler::PythonLogHandler(PyObject *pyLogger):
     m_pyLogger(pyLogger)
 {
-    assert(m_pyLogger);
-    Py_INCREF(m_pyLogger);
+    Py_INCREF(pyLogger);
+    assert(pyLogger);
 }
 
 PythonLogHandler::~PythonLogHandler()
@@ -37,9 +37,10 @@ PythonLogHandler::~PythonLogHandler()
     delete m_pyLogger;
 }
 
-void PythonLogHandler::logMessage(const tm* pTime, unsigned millis, size_t category,
-            const UTF8String& sMsg)
+void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
+        const string& category, long level, const UTF8String& sMsg)
 {
+    std::cout << "SHOULD LOG: " << sMsg << endl;
     PyEval_CallMethod(m_pyLogger, "debug", "(s)", sMsg.c_str());
 }
 

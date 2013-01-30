@@ -407,7 +407,9 @@ void export_base()
     to_python_converter<TypeMap, to_dict<TypeMap> >();
 }
 
-void addPythonLogger(PyObject *self, PyObject * pyLogger){
+void addPythonLogger(PyObject *self, PyObject * pyLogger)
+{
+    logging::Logger * logger = logging::Logger::get();
     LogHandlerPtr logHandler(new PythonLogHandler(pyLogger));
-    logging::Logger::get()->addLogHandler(logHandler);
+    logger->addLogHandler(logHandler);
 }

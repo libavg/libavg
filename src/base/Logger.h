@@ -64,13 +64,15 @@ namespace logging {
     }
 
 long levelToLong(const string& sLevel);
+const char * levelToString(long level);
+
 
 class AVG_API Logger {
 public:
     static Logger* get();
     virtual ~Logger();
 
-    void addLogHandler(LogHandlerPtr logHandler);
+    void addLogHandler(const LogHandlerPtr& logHandler);
     size_t getCategories() const;
     void setCategories(size_t flags);
     void pushCategories();

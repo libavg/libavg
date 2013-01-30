@@ -32,13 +32,12 @@ public:
     PythonLogHandler(PyObject *pyLogger);
     virtual ~PythonLogHandler ();
 
-    virtual void logMessage(const tm* pTime, unsigned millis, size_t category,
-            const UTF8String& sMsg);
+    virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
+            long level, const UTF8String& sMsg);
 
 private:
 
     PyObject *m_pyLogger;
-
 };
 
 }

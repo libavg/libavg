@@ -47,8 +47,10 @@ namespace logging{
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex logMutex;
+boost::mutex handlerMutex;
 
-long levelToLong(const string& sLevel){
+long levelToLong(const string& sLevel)
+{
     string level = boost::to_upper_copy(sLevel);
     if (level == "CRITICAL"){
         return level::CRITICAL;
@@ -68,12 +70,32 @@ long levelToLong(const string& sLevel){
     throw Exception(AVG_ERR_INVALID_ARGS, level + " is an invalid log level");
 }
 
+const char * levelToString(long level)
+{
+    if(level == level::CRITICAL){
+        return "CRITICAL";
+    }else if(level == level::FATAL){
+        return "FATAL";
+    }else if(level == level::ERROR){
+        return "ERROR";
+    }else if(level == level::WARNING){
+        return "WARNING";
+    }else if(level == level::INFO){
+        return "INFO";
+    }else if(level == level::DEBUG){
+        return "DEBUG";
+    }else if(level == level::NOTSET){
+        return "NOTSET";
+    }
+    throw Exception(AVG_ERR_UNKNOWN, "Unkown log level");
+}
+
 Logger * Logger::get()
 {
+    boost::mutex::scoped_lock lock(logMutex);
     if (!m_pLogger) {
-        boost::mutex::scoped_lock lock(logMutex);
         m_pLogger = new Logger;
-        m_pLogger->addLogHandler(LogHandlerPtr(new StandardLoggingHandler()));
+        //m_pLogger->addLogHandler(LogHandlerPtr(new StandardLoggingHandler()));
     }
     return m_pLogger;
 }
@@ -142,8 +164,9 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
-void Logger::addLogHandler(LogHandlerPtr logHandler)
+void Logger::addLogHandler(const LogHandlerPtr& logHandler)
 {
+    boost::mutex::scoped_lock lock(handlerMutex);
     m_Handlers.push_back(logHandler);
 }
 
@@ -170,8 +193,10 @@ void Logger::trace(const UTF8String& sMsg, size_t category, long level) const
         pTime = localtime(&time.tv_sec);
         unsigned millis = time.tv_usec/1000;
 #endif
+        string sCategory = categoryToString(category);
+        boost::mutex::scoped_lock lock(handlerMutex);
         for(size_t i=0; i < m_Handlers.size(); ++i){
-            m_Handlers.at(i)->logMessage(pTime, millis, category, sMsg);
+            m_Handlers.at(i)->logMessage(pTime, millis, sCategory, level, sMsg);
         }
     }
 }
