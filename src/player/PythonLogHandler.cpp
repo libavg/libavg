@@ -37,14 +37,13 @@ PythonLogHandler::PythonLogHandler(PyObject *pyLogger):
 PythonLogHandler::~PythonLogHandler()
 {
     Py_DecRef(m_pyLogger);
-    //delete m_pyLogger;
 }
 
 void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
         const string& category, long level, const UTF8String& sMsg)
 {
-    PyEval_CallMethod(m_pyLogger, boost::to_lower_copy(string(logging::levelToString(level))).c_str(),
-            "(s)", sMsg.c_str());
+    string sLevel = boost::to_lower_copy(string(logging::levelToString(level)));
+    PyEval_CallMethod(m_pyLogger, sLevel.c_str(), "(s)", sMsg.c_str());
 }
 
 }
