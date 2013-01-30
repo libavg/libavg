@@ -19,6 +19,9 @@
 //  Current versions can be found at www.libavg.de
 
 #include "PythonLogHandler.h"
+#include "../base/Logger.h"
+
+#include <boost/algorithm/string.hpp>
 
 namespace avg
 {
@@ -34,14 +37,14 @@ PythonLogHandler::PythonLogHandler(PyObject *pyLogger):
 PythonLogHandler::~PythonLogHandler()
 {
     Py_DecRef(m_pyLogger);
-    delete m_pyLogger;
+    //delete m_pyLogger;
 }
 
 void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
         const string& category, long level, const UTF8String& sMsg)
 {
-    std::cout << "SHOULD LOG: " << sMsg << endl;
-    PyEval_CallMethod(m_pyLogger, "debug", "(s)", sMsg.c_str());
+    PyEval_CallMethod(m_pyLogger, boost::to_lower_copy(string(logging::levelToString(level))).c_str(),
+            "(s)", sMsg.c_str());
 }
 
 }
