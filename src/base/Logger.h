@@ -40,27 +40,27 @@ namespace avg {
 
 namespace logging {
     namespace category {
-        const size_t NONE=1; //TODO: In Documentation: NONE doesn't mean no logging, but no category now
-        const size_t PROFILE=2;
-        const size_t PROFILE_VIDEO=8;
-        const size_t EVENTS=16;
-        const size_t EVENTS2=32;
-        const size_t CONFIG=64;
-        const size_t MEMORY=512;
-        const size_t APP=1024;
-        const size_t PLUGIN=2048;
-        const size_t PLAYER=4096;
-        const size_t SHADER=8192;
-        const size_t DEPRECATION=16384;
+        static const size_t NONE=1; //TODO: In Documentation: NONE doesn't mean no logging, but no category now
+        static const size_t PROFILE=2;
+        static const size_t PROFILE_VIDEO=8;
+        static const size_t EVENTS=16;
+        static const size_t EVENTS2=32;
+        static const size_t CONFIG=64;
+        static const size_t MEMORY=512;
+        static const size_t APP=1024;
+        static const size_t PLUGIN=2048;
+        static const size_t PLAYER=4096;
+        static const size_t SHADER=8192;
+        static const size_t DEPRECATION=16384;
     }
     namespace level {
-        const long CRITICAL = 50;
-        const long FATAL = 50;
-        const long ERROR = 40; 
-        const long WARNING = 30; 
-        const long INFO = 20; 
-        const long DEBUG = 10; 
-        const long NOTSET = 0; 
+        static const long CRITICAL = 50;
+        static const long FATAL = 50;
+        static const long ERROR = 40; 
+        static const long WARNING = 30; 
+        static const long INFO = 20; 
+        static const long DEBUG = 10; 
+        static const long NOTSET = 0; 
     }
 
 long levelToLong(const string& sLevel);
@@ -101,8 +101,6 @@ public:
 private:
     Logger();
     void setupCategory();
-
-    static Logger* m_pLogger;
 
     size_t m_Flags;
     std::vector<size_t> m_FlagStack;

@@ -45,10 +45,12 @@ using namespace std;
 namespace avg {
 namespace logging{
 
-Logger* Logger::m_pLogger = 0;
-std::vector<LogHandlerPtr> m_Handlers;
-boost::mutex logMutex;
-boost::mutex handlerMutex;
+namespace {
+    Logger* m_pLogger = 0;
+    std::vector<LogHandlerPtr> m_Handlers;
+    boost::mutex logMutex;
+    boost::mutex handlerMutex;
+}
 
 long levelToLong(const string& sLevel)
 {
