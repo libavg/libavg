@@ -65,8 +65,6 @@ unsigned stringToLevel(const string& sLevel)
         return level::INFO;
     }else if (level == "DEBUG"){
         return level::DEBUG;
-    }else if (level == "NOTSET"){
-        return level::NOTSET;
     }
     throw Exception(AVG_ERR_INVALID_ARGS, level + " is an invalid log level");
 }
@@ -85,8 +83,6 @@ const char * levelToString(unsigned level)
         return "INFO";
     }else if(level == level::DEBUG){
         return "DEBUG";
-    }else if(level == level::NOTSET){
-        return "NOTSET";
     }
     throw Exception(AVG_ERR_UNKNOWN, "Unkown log level");
 }

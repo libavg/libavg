@@ -146,7 +146,6 @@ BOOST_PYTHON_MODULE(avg)
             .def_readonly("WARNING", &logging::level::WARNING)
             .def_readonly("INFO", &logging::level::INFO)
             .def_readonly("DEBUG", &logging::level::DEBUG)
-            .def_readonly("NOTSET", &logging::level::NOTSET)
         ;
         scope().attr("logger") = logging::Logger::get();
 

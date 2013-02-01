@@ -56,7 +56,6 @@ namespace logging {
         static const unsigned WARNING = 30; 
         static const unsigned INFO = 20; 
         static const unsigned DEBUG = 10; 
-        static const unsigned NOTSET = 0; 
     }
 
 unsigned stringToLevel(const string& sLevel);
@@ -87,7 +86,7 @@ public:
     void logWarning(const string& msg, const size_t category=category::NONE) const;
     void logError(const string& msg, const size_t category=category::NONE) const;
     void logCritical(const string& msg, const size_t category=category::NONE) const;
-    void log(const string& msg, const size_t category=category::NONE,
+    void log(const string& msg, const size_t category=category::APP,
             unsigned level=level::INFO) const;
 
     void setLogLevel(unsigned level){
