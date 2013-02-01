@@ -96,7 +96,6 @@ Logger * Logger::get()
     boost::mutex::scoped_lock lock(logMutex);
     if (!m_pLogger) {
         m_pLogger = new Logger;
-        //m_pLogger->addLogHandler(LogHandlerPtr(new StandardLoggingHandler()));
     }
     return m_pLogger;
 }
@@ -131,6 +130,12 @@ Logger::Logger()
             } while (!bDone);
     }
     m_MaxCategoryNum = category::DEPRECATION;
+
+    string sDummy;
+    bool bEnvUseStdErr = getEnv("AVG_LOG_OMIT_STDERR", sDummy);
+    if (!bEnvUseStdErr) {
+        addLogHandler(LogHandlerPtr(new StandardLoggingHandler));
+    }
 }
 
 Logger::~Logger()
