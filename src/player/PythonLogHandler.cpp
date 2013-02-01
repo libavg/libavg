@@ -20,12 +20,9 @@
 
 #include "PythonLogHandler.h"
 #include "../base/Logger.h"
-#include "../player/BoostPython.h"
 
 #include <boost/algorithm/string.hpp>
 
-
-namespace bp = boost::python;
 namespace avg
 {
     
