@@ -201,8 +201,9 @@ void Logger::trace(const UTF8String& sMsg, size_t category, long level) const
 #endif
         string sCategory = categoryToString(category);
         boost::mutex::scoped_lock lock(handlerMutex);
-        for(size_t i=0; i < m_Handlers.size(); ++i){
-            m_Handlers.at(i)->logMessage(pTime, millis, sCategory, level, sMsg);
+        std::vector<LogHandlerPtr>::iterator it;
+        for(it=m_Handlers.begin(); it!=m_Handlers.end(); ++it){
+            (*it)->logMessage(pTime, millis, sCategory, level, sMsg);
         }
     }
 }
