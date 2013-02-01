@@ -50,7 +50,7 @@ namespace {
     boost::mutex handlerMutex;
 }
 
-long levelToLong(const string& sLevel)
+unsigned stringToLevel(const string& sLevel)
 {
     string level = boost::to_upper_copy(sLevel);
     if (level == "CRITICAL"){
@@ -71,7 +71,7 @@ long levelToLong(const string& sLevel)
     throw Exception(AVG_ERR_INVALID_ARGS, level + " is an invalid log level");
 }
 
-const char * levelToString(long level)
+const char * levelToString(unsigned level)
 {
     if(level == level::CRITICAL){
         return "CRITICAL";
@@ -107,7 +107,7 @@ Logger::Logger()
     string sEnvLevel;
     bool bEnvLevelSet = getEnv("AVG_LOG_LEVEL", sEnvLevel);
     if(bEnvLevelSet){
-        m_Level = levelToLong(sEnvLevel);
+        m_Level = stringToLevel(sEnvLevel);
     }
     m_Flags = category::NONE | category::APP | category::DEPRECATION;
     string sEnvCategories;
@@ -176,13 +176,13 @@ void Logger::addLogHandler(const LogHandlerPtr& logHandler)
     m_Handlers.push_back(logHandler);
 }
 
-void Logger::pytrace(size_t category, const UTF8String& sMsg, long level) const
+void Logger::pytrace(size_t category, const UTF8String& sMsg, unsigned level) const
 {
     AVG_TRACE(category::DEPRECATION, level::WARNING, "logger.trace will be removed in future versions. Please use logger.log or any of the convenience functions");
     trace(sMsg, category, level);
 }
 
-void Logger::trace(const UTF8String& sMsg, size_t category, long level) const
+void Logger::trace(const UTF8String& sMsg, size_t category, unsigned level) const
 {
     boost::mutex::scoped_lock lock(logMutex);
     if (category & m_Flags && m_Level <= level) {
@@ -233,7 +233,7 @@ void Logger::logCritical(const string& msg, const size_t category) const
     trace(msg, category, level::CRITICAL);
 }
 
-void Logger::log(const string& msg, const size_t category, long level) const
+void Logger::log(const string& msg, const size_t category, unsigned level) const
 {
     trace(msg, category, level);
 }

@@ -41,7 +41,7 @@ StandardLoggingHandler::~StandardLoggingHandler()
 }
 
 void StandardLoggingHandler::logMessage(const tm* pTime, unsigned millis,
-        const string& category, long level, const UTF8String& sMsg)
+        const string& category, unsigned level, const UTF8String& sMsg)
 {
     char timeString[256];
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);

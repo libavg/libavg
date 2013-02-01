@@ -39,7 +39,7 @@ class AVG_API ILogHandler
 {
 public:
     virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
-            long level, const UTF8String& sMsg) = 0;
+            unsigned level, const UTF8String& sMsg) = 0;
     
 };
 

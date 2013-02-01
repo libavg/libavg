@@ -40,7 +40,7 @@ PythonLogHandler::~PythonLogHandler()
 }
 
 void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
-        const string& category, long level, const UTF8String& sMsg)
+        const string& category, unsigned level, const UTF8String& sMsg)
 {
     string sLevel = boost::to_lower_copy(string(logging::levelToString(level)));
     PyEval_CallMethod(m_pyLogger, sLevel.c_str(), "(s)", sMsg.c_str());

@@ -50,17 +50,17 @@ namespace logging {
         static const size_t DEPRECATION=16384;
     }
     namespace level {
-        static const long CRITICAL = 50;
-        static const long FATAL = 50;
-        static const long ERROR = 40; 
-        static const long WARNING = 30; 
-        static const long INFO = 20; 
-        static const long DEBUG = 10; 
-        static const long NOTSET = 0; 
+        static const unsigned CRITICAL = 50;
+        static const unsigned FATAL = 50;
+        static const unsigned ERROR = 40; 
+        static const unsigned WARNING = 30; 
+        static const unsigned INFO = 20; 
+        static const unsigned DEBUG = 10; 
+        static const unsigned NOTSET = 0; 
     }
 
-long levelToLong(const string& sLevel);
-const char * levelToString(long level);
+unsigned stringToLevel(const string& sLevel);
+const char * levelToString(unsigned level);
 
 
 class AVG_API Logger {
@@ -75,8 +75,8 @@ public:
     void popCategories();
     const char * categoryToString(size_t category) const;
     size_t stringToCategory(const std::string& sCategory) const;
-    void trace(const UTF8String& sMsg, size_t category, long level) const;
-    void pytrace(size_t category, const UTF8String& sMsg, long level) const;
+    void trace(const UTF8String& sMsg, size_t category, unsigned level) const;
+    void pytrace(size_t category, const UTF8String& sMsg, unsigned level) const;
     inline bool isFlagSet(size_t category) const {
         return (category & m_Flags) != 0;
     }
@@ -88,9 +88,9 @@ public:
     void logError(const string& msg, const size_t category=category::NONE) const;
     void logCritical(const string& msg, const size_t category=category::NONE) const;
     void log(const string& msg, const size_t category=category::NONE,
-            long level=level::INFO) const;
+            unsigned level=level::INFO) const;
 
-    void setLogLevel(long level){
+    void setLogLevel(unsigned level){
         m_Level = level;
     }
 
@@ -104,7 +104,7 @@ private:
     std::map< const string, size_t > m_StringToCategory;
 
     size_t m_MaxCategoryNum;
-    long m_Level;
+    unsigned m_Level;
 };
 
 }
