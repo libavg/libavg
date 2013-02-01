@@ -125,7 +125,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("critical", &logging::Logger::logCritical,
                     (bp::arg("category")=logging::category::NONE))
             .def("log", &logging::Logger::log,
-                    (bp::arg("category")=logging::category::NONE,
+                    (bp::arg("category")=logging::category::APP,
                      bp::arg("level")=logging::level::INFO))
             .def_readonly("NONE", &logging::category::NONE)
             .def_readonly("PROFILE", &logging::category::PROFILE)

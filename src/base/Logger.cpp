@@ -151,7 +151,7 @@ size_t Logger::getCategories() const
 void Logger::setCategories(size_t flags)
 {
     boost::mutex::scoped_lock lock(logMutex);
-    m_Flags = flags;
+    m_Flags = flags | category::DEPRECATION;
 }
 
 void Logger::pushCategories()
