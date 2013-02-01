@@ -113,7 +113,7 @@ Logger::Logger()
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
-        m_Flags = category::NONE;
+        m_Flags = category::NONE | category::DEPRECATION;
         bool bDone = false;
         string sCategory;
         do {
