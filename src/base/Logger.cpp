@@ -27,8 +27,6 @@
 
 #ifdef _WIN32
 #include <Winsock2.h>
-#undef ERROR
-#undef WARNING
 #include <time.h>
 #include <Mmsystem.h>
 #else

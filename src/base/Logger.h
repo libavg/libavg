@@ -34,10 +34,6 @@
 
 namespace avg {
 
-#ifdef ERROR
-#undef ERROR
-#endif
-
 namespace logging {
     namespace category {
         static const size_t NONE=1; //TODO: In Documentation: NONE doesn't mean no logging, but no category now
