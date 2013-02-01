@@ -115,15 +115,15 @@ BOOST_PYTHON_MODULE(avg)
             .def("trace", &logging::Logger::pytrace,
                     (bp::arg("level")=logging::level::INFO))
             .def("debug", &logging::Logger::logDebug,
-                    (bp::arg("category")=logging::category::NONE))
+                    (bp::arg("category")=logging::category::APP))
             .def("info", &logging::Logger::logInfo,
-                    (bp::arg("category")=logging::category::NONE))
+                    (bp::arg("category")=logging::category::APP))
             .def("warning", &logging::Logger::logWarning,
-                    (bp::arg("category")=logging::category::NONE))
+                    (bp::arg("category")=logging::category::APP))
             .def("error", &logging::Logger::logError,
-                    (bp::arg("category")=logging::category::NONE))
+                    (bp::arg("category")=logging::category::APP))
             .def("critical", &logging::Logger::logCritical,
-                    (bp::arg("category")=logging::category::NONE))
+                    (bp::arg("category")=logging::category::APP))
             .def("log", &logging::Logger::log,
                     (bp::arg("category")=logging::category::APP,
                      bp::arg("level")=logging::level::INFO))

@@ -81,11 +81,11 @@ public:
     }
     size_t registerCategory(const string& cat);
 
-    void logDebug(const string& msg, const size_t category=category::NONE) const;
-    void logInfo(const string& msg, const size_t category=category::NONE) const;
-    void logWarning(const string& msg, const size_t category=category::NONE) const;
-    void logError(const string& msg, const size_t category=category::NONE) const;
-    void logCritical(const string& msg, const size_t category=category::NONE) const;
+    void logDebug(const string& msg, const size_t category=category::APP) const;
+    void logInfo(const string& msg, const size_t category=category::APP) const;
+    void logWarning(const string& msg, const size_t category=category::APP) const;
+    void logError(const string& msg, const size_t category=category::APP) const;
+    void logCritical(const string& msg, const size_t category=category::APP) const;
     void log(const string& msg, const size_t category=category::APP,
             unsigned level=level::INFO) const;
 
