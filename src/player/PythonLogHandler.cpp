@@ -20,9 +20,12 @@
 
 #include "PythonLogHandler.h"
 #include "../base/Logger.h"
+#include "../player/BoostPython.h"
 
 #include <boost/algorithm/string.hpp>
 
+
+namespace bp = boost::python;
 namespace avg
 {
     
@@ -43,8 +46,24 @@ void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
         const string& category, unsigned level, const UTF8String& sMsg)
 {
     string sLevel = boost::to_lower_copy(string(logging::levelToString(level)));
-    string sMessage("[" + category + "] : " + sMsg);
-    PyEval_CallMethod(m_pyLogger, sLevel.c_str(), "(s)", sMessage.c_str());
+    PyObject * extra = PyDict_New();
+    PyObject * pyCat = PyString_FromString(category.c_str());
+
+    PyDict_SetItemString(extra, "category", pyCat);
+
+    PyObject * pyMsg = PyString_FromString(sMsg.c_str());
+    PyObject * args = PyTuple_New(1);
+    PyObject * kwargs = PyDict_New();
+    PyDict_SetItemString(kwargs, "extra", extra);
+    PyTuple_SetItem(args, 0, pyMsg);
+
+    PyObject_Call(PyObject_GetAttrString(m_pyLogger, sLevel.c_str()), args, kwargs);
+
+    Py_DECREF(extra);
+    Py_DECREF(pyCat);
+    Py_DECREF(pyMsg);
+    Py_DECREF(args);
+    Py_DECREF(kwargs);
 }
 
 }
