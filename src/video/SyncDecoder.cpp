@@ -20,7 +20,6 @@
 //
 
 #include "SyncDecoder.h"
-#include "AsyncDemuxer.h"
 #include "FFMpegDemuxer.h"
 
 #include "../base/Exception.h"
@@ -232,7 +231,12 @@ void SyncDecoder::readFrame(AVFrame& frame)
     while (!bDone) {
         AVPacket* pPacket = m_pDemuxer->getPacket(getVStreamIndex());
         m_bFirstPacket = false;
-        bool bGotPicture = m_pFrameDecoder->decodePacket(pPacket, frame, m_bVideoSeekDone);
+        bool bGotPicture;
+        if (pPacket) {
+            bGotPicture = m_pFrameDecoder->decodePacket(pPacket, frame, m_bVideoSeekDone);
+        } else {
+            bGotPicture = m_pFrameDecoder->decodeLastFrame(frame);
+        }
         if (bGotPicture && m_pFrameDecoder->isEOF()) {
             m_bEOFPending = true;
         }
