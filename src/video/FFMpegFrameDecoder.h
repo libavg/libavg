@@ -55,7 +55,6 @@ class AVG_API FFMpegFrameDecoder
         SwsContext * m_pSwsContext;
         AVStream* m_pStream;
 
-        bool m_bEOFPending;
         bool m_bEOF;
         
         float m_TimeUnitsPerSecond;

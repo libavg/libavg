@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "VideoMsg.h"
-#include "VideoDecoder.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
@@ -33,8 +32,6 @@
 #include "WrapFFMpeg.h"
 
 #include <boost/thread.hpp>
-
-#include <string>
 
 namespace avg {
 

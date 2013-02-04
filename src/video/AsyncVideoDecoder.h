@@ -23,6 +23,7 @@
 #define _AsyncVideoDecoder_H_
 
 #include "../api.h"
+#include "VideoDecoder.h"
 #include "VideoDemuxerThread.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"

@@ -46,7 +46,6 @@ namespace avg {
 FFMpegFrameDecoder::FFMpegFrameDecoder(AVStream* pStream)
     : m_pSwsContext(0),
       m_pStream(pStream),
-      m_bEOFPending(false),
       m_bEOF(false),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
@@ -95,7 +94,6 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
 bool FFMpegFrameDecoder::decodeLastFrame(AVFrame& frame)
 {
     // EOF. Decode the last data we got.
-    
     int bGotPicture = 0;
     AVCodecContext* pContext = m_pStream->codec;
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
@@ -162,8 +160,7 @@ void FFMpegFrameDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
                     frame.linesize[1], false));
         BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
                     frame.linesize[2], false));
-        pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
-                pContext->pix_fmt == PIX_FMT_YUVJ420P);
+        pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, pContext->pix_fmt == PIX_FMT_YUVJ420P);
     } else {
         if (!m_pSwsContext) {
             m_pSwsContext = sws_getContext(pContext->width, pContext->height, 
