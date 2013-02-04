@@ -56,9 +56,6 @@ AudioDecoderThread::~AudioDecoderThread()
         audio_resample_close(m_pAudioResampleContext);
         m_pAudioResampleContext = 0;
     }
-
-    m_LastFrameTime = 0;
-    m_AudioStartTimestamp = 0;
 }
 
 static ProfilingZoneID DecoderProfilingZone("Audio Decoder Thread", true);
@@ -101,7 +98,8 @@ bool AudioDecoderThread::work()
             pushEOF();
             break;
         case VideoMsg::CLOSED:
-            close();
+            m_MsgQ.clear();
+            stop();
             break;
         default:
             pMsg->dump();
@@ -191,12 +189,6 @@ void AudioDecoderThread::discardPacket(AVPacket* pPacket)
         pushSeekDone(m_LastFrameTime, m_SeekSeqNum);
         m_State = DECODING;
     }
-}
-
-void AudioDecoderThread::close()
-{
-    m_MsgQ.clear();
-    stop();
 }
 
 AudioBufferPtr AudioDecoderThread::resampleAudio(short* pDecodedData, int framesDecoded)
