@@ -15,6 +15,12 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
+  <xsd:simpleType name="bool">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="True"/>
+      <xsd:enumeration value="False"/>
+    </xsd:restriction>
+  </xsd:simpleType>
   <xsd:element name="skin">
     <xsd:complexType>
       <xsd:sequence maxOccurs="unbounded">
@@ -31,9 +37,9 @@
             <xsd:attribute name="linespacing" type="xsd:decimal"/>
             <xsd:attribute name="alignment" type="xsd:string"/>
             <xsd:attribute name="wrapmode" type="xsd:string"/>
-            <xsd:attribute name="justify" type="xsd:boolean"/>
+            <xsd:attribute name="justify" type="bool"/>
             <xsd:attribute name="letterspacing" type="xsd:decimal"/>
-            <xsd:attribute name="hint" type="xsd:boolean"/>
+            <xsd:attribute name="hint" type="bool"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="textbutton" minOccurs="0" maxOccurs="unbounded">
@@ -74,6 +80,7 @@
             <xsd:attribute name="borderEndsExtent" type="xsd:string"/>
             <xsd:attribute name="margins" type="xsd:string"/>
             <xsd:attribute name="friction" type="xsd:string"/>
+            <xsd:attribute name="sensitiveScrollBars" type="bool" use="required"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>

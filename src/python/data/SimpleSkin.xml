@@ -42,7 +42,8 @@
             borderSrc="scrollarea_border.png"
             borderEndsExtent="(8,8)"
             margins="(1,1,8,8)"
-            friction="-1"/>
+            friction="-1"
+            sensitiveScrollBars="True"/>
 <!--
     <checkbox
             uncheckedUpSrc="checkbox_unchecked_up.png"

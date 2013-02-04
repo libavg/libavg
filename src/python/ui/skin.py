@@ -63,7 +63,7 @@ class Skin:
 
         self.scrollAreaCfg, self.defaultScrollAreaCfg = self.__parseElement(
                 xmlRoot, "scrollarea", 
-                pyArgNames=("friction","borderEndsExtent","margins"),
+                pyArgNames=("friction","borderEndsExtent","margins","sensitiveScrollBars"),
                 bmpArgNames={"borderSrc":"borderBmp"})
 
     def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={}, 

@@ -23,9 +23,8 @@ class SimpleUIApp(AVGApp):
         self.__addValueDisplay(vSlider, (55,220))
         self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
 
-        self.createScrollArea(avg.Point2D(220,10), True)
-#        self.createScrollArea(avg.Point2D(500,10), False)
-#
+        self.createScrollArea(avg.Point2D(220,10))
+
 #        checkBox = simple.CheckBox(pos=(10,270), text="Disable everything", 
 #                parent=self._parentNode)
 #        checkBox.subscribe(simple.CheckBox.TOGGLED, self.onCheck)
@@ -39,7 +38,7 @@ class SimpleUIApp(AVGApp):
     def setImageHeight(self, scrollArea, thumbPos):
         scrollArea.contentsize = (scrollArea.contentsize.x, thumbPos)
 
-    def createScrollArea(self, pos, sensitiveScrollBars):
+    def createScrollArea(self, pos):
         image = avg.ImageNode(href="rgb24-64x64.png", size=(1024, 1024))
         scrollArea = ui.ScrollArea(contentNode=image, parent=self._parentNode,
                 pos=pos, size=(220,220))
