@@ -20,7 +20,6 @@
 //
 
 #include "FFMpegFrameDecoder.h"
-#include "AsyncDemuxer.h"
 #include "FFMpegDemuxer.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
@@ -67,44 +66,54 @@ FFMpegFrameDecoder::~FFMpegFrameDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+static ProfilingZoneID DecodePacketProfilingZone("Decode packet", true);
+
 bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
         bool bFrameAfterSeek)
 {
+    ScopeTimer timer(DecodePacketProfilingZone);
     int bGotPicture = 0;
     AVCodecContext* pContext = m_pStream->codec;
-    if (pPacket) {
+    AVG_ASSERT(pPacket);
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
-        int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
+    int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #else
-        int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
-                pPacket->size);
+    int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
+            pPacket->size);
 #endif
-        if (len1 > 0) {
-            AVG_ASSERT(len1 == pPacket->size);
-        }
-        if (bGotPicture) {
-            m_LastVideoFrameTime = getFrameTime(pPacket->dts, bFrameAfterSeek);
-        }
-        av_free_packet(pPacket);
-        delete pPacket;
-    } else {
-        // No more packets -> EOF. Decode the last data we got.
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
-        AVPacket packet;
-        packet.data = 0;
-        packet.size = 0;
-        avcodec_decode_video2(pContext, &frame, &bGotPicture, &packet);
-#else
-        avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
-#endif
-        m_bEOF = true;
-
-        // We don't have a timestamp for the last frame, so we'll
-        // calculate it based on the frame before.
-        m_LastVideoFrameTime += 1.0f/m_FPS;
+    if (len1 > 0) {
+        AVG_ASSERT(len1 == pPacket->size);
     }
+    if (bGotPicture) {
+        m_LastVideoFrameTime = getFrameTime(pPacket->dts, bFrameAfterSeek);
+    }
+    av_free_packet(pPacket);
+    delete pPacket;
     return (bGotPicture != 0);
 }
+
+bool FFMpegFrameDecoder::decodeLastFrame(AVFrame& frame)
+{
+    // EOF. Decode the last data we got.
+    
+    int bGotPicture = 0;
+    AVCodecContext* pContext = m_pStream->codec;
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
+    AVPacket packet;
+    packet.data = 0;
+    packet.size = 0;
+    avcodec_decode_video2(pContext, &frame, &bGotPicture, &packet);
+#else
+    avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
+#endif
+    m_bEOF = true;
+
+    // We don't have a timestamp for the last frame, so we'll
+    // calculate it based on the frame before.
+    m_LastVideoFrameTime += 1.0f/m_FPS;
+    return (bGotPicture != 0);
+}
+
 
 static ProfilingZoneID ConvertImageLibavgProfilingZone(
         "FFMpeg: colorspace conv (libavg)", true);

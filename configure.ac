@@ -58,12 +58,9 @@ PKG_CHECK_MODULES([LIBRSVG], [librsvg-2.0])
 PKG_CHECK_MODULES([FONTCONFIG], [fontconfig])
 
 PKG_CHECK_MODULES([FFMPEG], [libswscale libavformat libavcodec libavutil], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
-#Need to extend cflags or else the check_headers will not work as expected...
-CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
-CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
 AC_SUBST(LIBFFMPEG)
 AC_CHECK_HEADERS([libavformat/avformat.h])
-if test -z "$FFMPEG_CFLAGS" || test -z "$FFMPEG_LIBS"; then
+if test -z "$FFMPEG_LIBS"; then
   AC_MSG_ERROR([Could not find ffmpeg development libraries.])
 fi
 

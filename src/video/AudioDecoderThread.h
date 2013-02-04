@@ -39,43 +39,39 @@
 
 namespace avg {
 
-class AsyncDemuxer;
-
 class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
-        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, AsyncDemuxer* pDemuxer, 
-                AVStream* pStream, int streamIndex, const AudioParams& ap);
+        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, VideoMsgQueue& packetQ, 
+                AVStream* pStream, const AudioParams& ap);
         virtual ~AudioDecoderThread();
         
         bool work();
         void setVolume(float volume);
 
     private:
+        void decodePacket(AVPacket* pPacket);
+        void handleSeekDone(AVPacket* pPacket);
+        void discardPacket(AVPacket* pPacket);
         void close();
-        AudioBufferPtr getAudioBuffer();
         AudioBufferPtr resampleAudio(short* pDecodedData, int framesDecoded);
-        void getNextAudioPacket(bool& bSeekDone);
-        void handleSeekDone(int seqNum, float seekTime);
-        void handleNoPacketMsg();
+        void insertSilence(float duration);
         void pushAudioMsg(AudioBufferPtr pBuffer, float time);
         void pushSeekDone(float time, int seqNum);
         void pushEOF();
-        void deleteCurAudioPacket();
 
         AudioMsgQueue& m_MsgQ;
-        AsyncDemuxer* m_pDemuxer;
+        VideoMsgQueue& m_PacketQ;
         AudioParams m_AP;
 
         AVStream * m_pAStream;
-        int m_AStreamIndex;
-        AVPacket * m_pCurAudioPacket;
-        AVPacket * m_pTempAudioPacket;
+
         int m_InputSampleRate;
         ReSampleContext * m_pAudioResampleContext;
         float m_AudioStartTimestamp;
         float m_LastFrameTime;
-        bool m_bEOF;
-
+    
+        enum State {DECODING, SEEK_DONE, DISCARDING};
+        State m_State;
         int m_SeekSeqNum;
         float m_SeekTime;
 };

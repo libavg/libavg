@@ -37,6 +37,7 @@ class AVG_API FFMpegFrameDecoder
         virtual ~FFMpegFrameDecoder();
 
         bool decodePacket(AVPacket* pPacket, AVFrame& frame, bool bFrameAfterSeek);
+        bool decodeLastFrame(AVFrame& frame);
         void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
         void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride);
 

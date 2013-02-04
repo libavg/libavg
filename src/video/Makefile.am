@@ -1,5 +1,5 @@
 
-AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @GDK_PIXBUF_CFLAGS@
+AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @GDK_PIXBUF_CFLAGS@
         
 if APPLE
     X_LIBS = 
@@ -10,7 +10,7 @@ endif
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h VideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h FFMpegFrameDecoder.h \
         AsyncVideoDecoder.h VideoDecoderThread.h SyncDecoder.h \
-        IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h
+        VideoInfo.h WrapFFMpeg.h
 
 if USE_VDPAU_SRC
         ALL_H += VDPAUDecoder.h VDPAUHelper.h
@@ -25,7 +25,7 @@ noinst_PROGRAMS=testvideo
 
 libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp VideoDecoder.cpp \
         VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp \
-        AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp SyncDecoder.cpp \
+        AsyncVideoDecoder.cpp VideoInfo.cpp SyncDecoder.cpp \
         FFMpegFrameDecoder.cpp \
         $(ALL_H)
 
