@@ -187,10 +187,9 @@ void SyncDecoder::throwAwayFrame(float timeWanted)
     readFrameForTime(frame, timeWanted);
 }
 
-bool SyncDecoder::isEOF(StreamSelect stream) const
+bool SyncDecoder::isEOF() const
 {
     AVG_ASSERT(getState() == DECODING);
-    AVG_ASSERT(stream != SS_AUDIO);
     return m_pFrameDecoder->isEOF() && !m_bEOFPending;
 }
 

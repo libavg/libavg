@@ -58,7 +58,7 @@ public:
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
             float timeWanted);
     void updateAudioStatus();
-    virtual bool isEOF(StreamSelect stream = SS_ALL) const;
+    virtual bool isEOF() const;
     virtual void throwAwayFrame(float timeWanted);
    
     AudioMsgQueuePtr getAudioMsgQ();

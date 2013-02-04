@@ -260,19 +260,17 @@ void AsyncVideoDecoder::updateAudioStatus()
     }
 }
 
-bool AsyncVideoDecoder::isEOF(StreamSelect stream) const
+bool AsyncVideoDecoder::isEOF() const
 {
     AVG_ASSERT(getState() == DECODING);
-    switch(stream) {
-        case SS_AUDIO:
-            return (!getVideoInfo().m_bHasAudio || m_bAudioEOF);
-        case SS_VIDEO:
-            return (!getVideoInfo().m_bHasVideo || m_bVideoEOF);
-        case SS_ALL:
-            return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
-        default:
-            return false;
+    bool bEOF = true;
+    if (getVideoInfo().m_bHasAudio && !m_bAudioEOF) {
+        bEOF = false;
     }
+    if (getVideoInfo().m_bHasVideo && !m_bVideoEOF) {
+        bEOF = false;
+    }
+    return bEOF;
 }
 
 void AsyncVideoDecoder::throwAwayFrame(float timeWanted)

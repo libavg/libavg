@@ -80,7 +80,7 @@ class AVG_API VideoDecoder
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted) = 0;
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
-        virtual bool isEOF(StreamSelect stream = SS_ALL) const = 0;
+        virtual bool isEOF() const = 0;
         virtual void throwAwayFrame(float timeWanted) = 0;
 
         static void logConfig();

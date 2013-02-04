@@ -241,7 +241,7 @@ void SoundNode::onFrameEnd()
     if (m_State == Playing) {
         m_pDecoder->updateAudioStatus();
     }
-    if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
+    if (m_State == Playing && m_pDecoder->isEOF()) {
         NodePtr pTempThis = getSharedThis();
         onEOF();
     }

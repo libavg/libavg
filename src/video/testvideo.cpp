@@ -447,7 +447,7 @@ class AVDecoderTest: public DecoderTest {
                 }
                 if (isThreaded()) {
                     int framesDecoded = 0;
-                    while (framesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
+                    while (framesDecoded == 0 && !pDecoder->isEOF()) {
                         framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
                         dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
                                 ->updateAudioStatus();
@@ -457,7 +457,7 @@ class AVDecoderTest: public DecoderTest {
                 }
                 curTime += 1.0f/pDecoder->getFPS();
             }
-            TEST(pDecoder->isEOF(SS_VIDEO));
+            TEST(pDecoder->isEOF());
             // TODO: Commented out because the last frames aren't decoded with newer
             // ffmpeg (circa >= 0.8)
             // TEST(numFrames == expectedNumFrames);

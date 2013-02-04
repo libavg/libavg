@@ -51,7 +51,7 @@ class AVG_API SyncDecoder: public VideoDecoder
 
         virtual void seek(float destTime);
         virtual void loop();
-        virtual bool isEOF(StreamSelect stream = SS_ALL) const;
+        virtual bool isEOF() const;
         
     private:
         FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
