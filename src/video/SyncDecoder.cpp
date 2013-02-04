@@ -121,10 +121,9 @@ int SyncDecoder::getNumFramesQueued() const
     return 0;
 }
 
-float SyncDecoder::getCurTime(StreamSelect stream) const
+float SyncDecoder::getCurTime() const
 {
     AVG_ASSERT(getState() != CLOSED);
-    AVG_ASSERT(stream != SS_AUDIO);
     if (m_pFrameDecoder) {
         return m_pFrameDecoder->getCurTime();
     } else {

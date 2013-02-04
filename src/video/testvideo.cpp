@@ -386,7 +386,7 @@ class AudioDecoderTest: public DecoderTest {
                 }
                 totalFramesDecoded += framesDecoded;
                 float curTime = float(totalFramesDecoded)/44100;
-                if (abs(curTime-pDecoder->getCurTime(SS_AUDIO)) > 0.02f) {
+                if (abs(curTime-pDecoder->getCurTime()) > 0.02f) {
                     numWrongTimestamps++;
                 }
             }

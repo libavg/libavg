@@ -51,7 +51,7 @@ public:
     virtual void loop();
     virtual int getCurFrame() const;
     virtual int getNumFramesQueued() const;
-    virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
+    virtual float getCurTime() const;
     virtual float getFPS() const;
     virtual void setFPS(float fps);
 

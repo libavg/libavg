@@ -42,7 +42,7 @@ class AVG_API SyncDecoder: public VideoDecoder
 
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;
-        virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
+        virtual float getCurTime() const;
         virtual float getFPS() const;
         virtual void setFPS(float fps);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,

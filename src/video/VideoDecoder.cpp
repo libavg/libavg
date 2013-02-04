@@ -485,15 +485,11 @@ void avcodecError(const string& sFilename, int err)
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": " + buf);
 #else
     switch(err) {
-        case AVERROR_NUMEXPECTED:
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": Incorrect image filename syntax (use %%d to specify the image number:");
         case AVERROR_INVALIDDATA:
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": Error while parsing header");
         case AVERROR_NOFMT:
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": Unknown format");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": Unknown format");
         default:
             stringstream s;
             s << "'" << sFilename <<  "': Error while opening file (Num:" << err << ")";

@@ -173,7 +173,7 @@ void AsyncVideoDecoder::loop()
 int AsyncVideoDecoder::getCurFrame() const
 {
     AVG_ASSERT(getState() != CLOSED);
-    return int(getCurTime(SS_VIDEO)*getVideoInfo().m_StreamFPS+0.5);
+    return int(getCurTime()*getVideoInfo().m_StreamFPS+0.5);
 }
 
 int AsyncVideoDecoder::getNumFramesQueued() const
@@ -182,23 +182,14 @@ int AsyncVideoDecoder::getNumFramesQueued() const
     return m_pVMsgQ->size();
 }
 
-float AsyncVideoDecoder::getCurTime(StreamSelect stream) const
+float AsyncVideoDecoder::getCurTime() const
 {
     AVG_ASSERT(getState() != CLOSED);
-    switch (stream) {
-        case SS_DEFAULT:
-        case SS_VIDEO:
-            AVG_ASSERT(getVideoInfo().m_bHasVideo);
-            return m_CurVideoFrameTime;
-            break;
-        case SS_AUDIO:
-            AVG_ASSERT(getVideoInfo().m_bHasAudio);
-            return m_LastAudioFrameTime;
-            break;
-        default:
-            AVG_ASSERT(false);
+    if (getVideoInfo().m_bHasVideo) {
+        return m_CurVideoFrameTime;
+    } else {
+        return m_LastAudioFrameTime;
     }
-    return -1;
 }
 
 float AsyncVideoDecoder::getFPS() const

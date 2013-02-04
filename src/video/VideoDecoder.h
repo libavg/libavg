@@ -72,12 +72,11 @@ class AVG_API VideoDecoder
         virtual void loop() = 0;
         virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() const = 0;
-        virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const = 0;
+        virtual float getCurTime() const = 0;
         virtual float getFPS() const = 0;
         virtual void setFPS(float fps) = 0;
 
-        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
-                float timeWanted);
+        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, float timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted) = 0;
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
