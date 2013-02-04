@@ -76,6 +76,7 @@
     <ClInclude Include="..\..\src\graphics\BitmapManagerThread.h" />
     <ClInclude Include="..\..\src\graphics\BmpTextureMover.h" />
     <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
+    <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\FBO.h" />
     <ClInclude Include="..\..\src\graphics\Filter.h" />
     <ClInclude Include="..\..\src\graphics\Filter3x3.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="..\..\src\graphics\VertexArray.h" />
     <ClInclude Include="..\..\src\graphics\VertexData.h" />
     <ClInclude Include="..\..\src\graphics\WGLContext.h" />
+    <ClInclude Include="..\..\src\graphics\WinDisplay.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
@@ -150,6 +152,7 @@
     <ClCompile Include="..\..\src\graphics\BitmapManagerMsg.cpp" />
     <ClCompile Include="..\..\src\graphics\BitmapManagerThread.cpp" />
     <ClCompile Include="..\..\src\graphics\BmpTextureMover.cpp" />
+    <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter3x3.cpp" />
@@ -206,6 +209,7 @@
     <ClCompile Include="..\..\src\graphics\VertexArray.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexData.cpp" />
     <ClCompile Include="..\..\src\graphics\WGLContext.cpp" />
+    <ClCompile Include="..\..\src\graphics\WinDisplay.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

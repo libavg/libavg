@@ -38,11 +38,8 @@ class SubVertexArray;
 class AVG_API VertexArray: public VertexData {
 public:
     static const unsigned TEX_INDEX;
-    static const unsigned TEX_OFFSET;
-    static const unsigned COLOR_INDEX;
-    static const unsigned COLOR_OFFSET;
     static const unsigned POS_INDEX;
-    static const unsigned POS_OFFSET;
+    static const unsigned COLOR_INDEX;
 
     VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
     virtual ~VertexArray();
@@ -62,7 +59,6 @@ private:
     unsigned m_GLVertexBufferID;
     unsigned m_GLIndexBufferID;
 
-    bool m_bUseVertexShader;
     bool m_bUseMapBuffer;
 };
 

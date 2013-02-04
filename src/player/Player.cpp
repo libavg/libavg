@@ -80,6 +80,7 @@
 #include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
+#include "../graphics/Display.h"
 
 #include "../imaging/Camera.h"
 
@@ -147,6 +148,9 @@ Player::Player()
     }
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
+
+    SDLDisplayEngine::initSDL();
+    Display::get();
     initConfig();
 
     // Register all node types
@@ -293,23 +297,22 @@ void Player::enableGLErrorChecks(bool bEnable)
         
 glm::vec2 Player::getScreenResolution()
 {
-    return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
+    return glm::vec2(Display::get()->getScreenResolution());
 }
 
 float Player::getPixelsPerMM()
 {
-    return safeGetDisplayEngine()->getPixelsPerMM();
+    return Display::get()->getPixelsPerMM();
 }
 
 glm::vec2 Player::getPhysicalScreenDimensions()
 {
-    return safeGetDisplayEngine()->getPhysicalScreenDimensions();
+    return Display::get()->getPhysicalScreenDimensions();
 }
 
 void Player::assumePixelsPerMM(float ppmm)
 {
-    m_DP.m_DotsPerMM = ppmm;
-    safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
+    Display::get()->assumePixelsPerMM(ppmm);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -317,7 +320,7 @@ CanvasPtr Player::loadFile(const string& sFilename)
     errorIfPlaying("Player.loadFile");
     NodePtr pNode = loadMainNodeFromFile(sFilename);
     if (m_pMainCanvas) {
-        cleanup();
+        cleanup(false);
     }
 
     initMainCanvas(pNode);
@@ -329,7 +332,7 @@ CanvasPtr Player::loadString(const string& sAVG)
 {
     errorIfPlaying("Player.loadString");
     if (m_pMainCanvas) {
-        cleanup();
+        cleanup(false);
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
@@ -354,7 +357,7 @@ CanvasPtr Player::createMainCanvas(const py::dict& params)
 {
     errorIfPlaying("Player.createMainCanvas");
     if (m_pMainCanvas) {
-        cleanup();
+        cleanup(false);
     }
 
     NodePtr pNode = createNode("avg", params);
@@ -379,7 +382,7 @@ void Player::deleteCanvas(const string& sID)
                         string("deleteCanvas: Canvas with id ")+sID
                         +" is still referenced."));
             }
-            (*it)->stopPlayback();
+            (*it)->stopPlayback(false);
             m_pCanvases.erase(it);
             return;
         }
@@ -490,11 +493,11 @@ void Player::play()
             }
             notifySubscribers("PLAYBACK_END");
         } catch (...) {
-            cleanup();
+            cleanup(true);
             m_bDisplayEngineBroken = true;
             throw;
         }
-        cleanup();
+        cleanup(false);
         AVG_TRACE(Logger::PLAYER, "Playback ended.");
     } catch (Exception& ex) {
         m_bIsPlaying = false;
@@ -508,7 +511,7 @@ void Player::stop()
     if (m_bIsPlaying) {
         m_bStopping = true;
     } else {
-        cleanup();
+        cleanup(false);
     }
 }
 
@@ -529,7 +532,7 @@ void Player::initPlayback(const std::string& sShaderPath)
         }
         m_pMainCanvas->initPlayback(m_pDisplayEngine);
     } catch (Exception&) {
-        cleanup();
+        cleanup(true);
         m_bDisplayEngineBroken = true;
         throw;
     }
@@ -538,6 +541,7 @@ void Player::initPlayback(const std::string& sShaderPath)
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
 
     m_pDisplayEngine->initRender();
+    Display::get()->rereadScreenResolution();
     m_bStopping = false;
     if (m_pMultitouchInputDevice) {
         m_pMultitouchInputDevice->start();
@@ -1069,6 +1073,8 @@ bool Player::handleEvent(EventPtr pEvent)
 static ProfilingZoneID MainProfilingZone("Player - Total frame time");
 static ProfilingZoneID TimersProfilingZone("Player - handleTimers");
 static ProfilingZoneID EventsProfilingZone("Dispatch events");
+static ProfilingZoneID MainCanvasProfilingZone("Main canvas rendering");
+static ProfilingZoneID OffscreenProfilingZone("Offscreen rendering");
 
 void Player::doFrame(bool bFirstFrame)
 {
@@ -1093,9 +1099,13 @@ void Player::doFrame(bool bFirstFrame)
             }
         }
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
+            ScopeTimer Timer(OffscreenProfilingZone);
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
-        m_pMainCanvas->doFrame(m_bPythonAvailable);
+        {
+            ScopeTimer Timer(MainCanvasProfilingZone);
+            m_pMainCanvas->doFrame(m_bPythonAvailable);
+        }
         GLContext::mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
@@ -1133,10 +1143,7 @@ float Player::getFramerate()
 
 float Player::getVideoRefreshRate()
 {
-    if (!m_pDisplayEngine) {
-        return 0;
-    }
-    return m_pDisplayEngine->getRefreshRate();
+    return Display::get()->getRefreshRate();
 }
 
 size_t Player::getVideoMemInstalled()
@@ -1183,7 +1190,6 @@ void Player::initConfig()
 
     m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
-    m_DP.m_DotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
         AVG_TRACE(Logger::ERROR,
@@ -1219,8 +1225,6 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::FULL;
     } else if (sShaderUsage == "minimal") {
         m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
-    } else if (sShaderUsage == "fragmentonly") {
-        m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
     } else if (sShaderUsage == "auto") {
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {
@@ -1235,6 +1239,8 @@ void Player::initConfig()
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
+    float dotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
+    Display::get()->assumePixelsPerMM(dotsPerMM);
 }
 
 void Player::initGraphics(const string& sShaderPath)
@@ -1259,8 +1265,7 @@ void Player::initGraphics(const string& sShaderPath)
     {
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
-    AVG_TRACE(Logger::CONFIG, "Pixels per mm: " 
-            << m_pDisplayEngine->getPixelsPerMM());
+    AVG_TRACE(Logger::CONFIG, "Pixels per mm: " << Display::get()->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
@@ -1705,7 +1710,7 @@ OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
             string("Canvas with url '")+sURL+"' not found.");
 }
 
-void Player::cleanup()
+void Player::cleanup(bool bIsAbort)
 {
     // Kill all timeouts.
     vector<Timeout*>::iterator it;
@@ -1720,7 +1725,7 @@ void Player::cleanup()
     if (m_pMainCanvas) {
         unregisterFrameEndListener(BitmapManager::get());
         delete BitmapManager::get();
-        m_pMainCanvas->stopPlayback();
+        m_pMainCanvas->stopPlayback(bIsAbort);
         m_pMainCanvas = MainCanvasPtr();
     }
 
@@ -1728,7 +1733,7 @@ void Player::cleanup()
         m_pMultitouchInputDevice = IInputDevicePtr();
     }
     for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-        m_pCanvases[i]->stopPlayback();
+        m_pCanvases[i]->stopPlayback(bIsAbort);
     }
     m_pCanvases.clear();
 

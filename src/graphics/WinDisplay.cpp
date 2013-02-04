@@ -1,3 +1,4 @@
+//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
@@ -18,47 +19,43 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DisplayParams.h"
+#include "WinDisplay.h"
 
-#include <iostream>
+#include <windows.h>
 
 using namespace std;
 
 namespace avg {
 
-DisplayParams::DisplayParams()
-    : m_Pos(-1, -1),
-      m_Size(0, 0),
-      m_bFullscreen(false),
-      m_BPP(24),
-      m_WindowSize(0, 0),
-      m_bShowCursor(true),
-      m_VBRate(1),
-      m_Framerate(0),
-      m_bHasWindowFrame(true)
-{ 
-    m_Gamma[0] = -1.0f;
-    m_Gamma[1] = -1.0f;
-    m_Gamma[2] = -1.0f;
-}
 
-DisplayParams::~DisplayParams()
+
+WinDisplay::WinDisplay()
 {
 }
 
-void DisplayParams::dump() const
+WinDisplay::~WinDisplay()
 {
-    cerr << "DisplayParams: " << endl;
-    cerr << "  pos: " << m_Pos << endl;
-    cerr << "  size: " << m_Size << endl;
-    cerr << "  fullscreen: " << m_bFullscreen << endl;
-    cerr << "  bpp: " << m_BPP << endl;
-    cerr << "  window size: " << m_WindowSize << endl;
-    cerr << "  show cursor: " << m_bShowCursor << endl;
-    cerr << "  vbrate: " << m_VBRate << endl;
-    cerr << "  framerate: " << m_Framerate << endl;
-    cerr << "  has window frame: " << m_bHasWindowFrame << endl;
+}
+
+
+
+float WinDisplay::queryPPMM()
+{
+    HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+    return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
+}
+
+float WinDisplay::queryRefreshRate()
+{
+    float refreshRate;
+    // This isn't correct for multi-monitor systems.
+    HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
+    refreshRate = float(GetDeviceCaps(hDC, VREFRESH));
+    if (refreshRate < 2) {
+        refreshRate = 60;
+    }
+    DeleteDC(hDC);
+    return refreshRate;
 }
 
 }
-

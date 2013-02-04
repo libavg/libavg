@@ -26,7 +26,6 @@
 #include "Player.h"
 #include "AVGNode.h"
 #include "TouchStatus.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -47,7 +46,6 @@ MultitouchInputDevice::~MultitouchInputDevice()
 
 void MultitouchInputDevice::start()
 {
-    m_ScreenResolution = Player::get()->getDisplayEngine()->getScreenResolution();
     m_pMutex = MutexPtr(new boost::mutex);
 }
 
@@ -74,11 +72,6 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     }
 //    cerr << endl;
     return events;
-}
-
-const glm::vec2& MultitouchInputDevice::getScreenResolution() const
-{
-    return m_ScreenResolution;
 }
 
 int MultitouchInputDevice::getNumTouches() const

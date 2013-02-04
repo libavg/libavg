@@ -29,11 +29,15 @@
 
 from random import randint
 
-from libavg import avg
+from libavg import avg, player
 from libavg.gameapp import GameApp
 from libavg.utils import getMediaDir
 
-g_player = avg.Player.get()
+player.loadPlugin('collisiondetector')
+
+def playVideo(video):
+    if not player.isUsingGLES():
+        video.play()
 
 
 ### game elements ###
@@ -49,15 +53,18 @@ class Bullet(avg.VideoNode):
     def reset(self, pos):
         self.pos = pos
         self.active = True
-        self.play()
+        playVideo(self)
 
     def update(self, dt):
         y = self.y - Bullet.__SPEED * dt
         if y > -self.height:
             self.pos = (self.x, y)
         else:
-            self.active = False
-            self.pause()
+            self.destroy()
+
+    def destroy(self):
+        self.active = False
+        self.pause()
 
 
 class _Aircraft(avg.DivNode):
@@ -68,42 +75,62 @@ class _Aircraft(avg.DivNode):
     def __init__(self, mediabase, shadowdiv, parent=None, **kwargs):
         super(_Aircraft, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+        self.__alive = False
         self.__aircraftVid = avg.VideoNode(href=mediabase+'.mov', loop=True, parent=self)
         self.__aircraftVid.pause()
         self.__destroyVid = avg.VideoNode(href='explosion.mov', active=False,
                 threaded=False, parent=self)
         self.__destroyVid.pause()
+        self.__destroyVid.subscribe(avg.VideoNode.END_OF_FILE, self._hide)
         self.__shadowImg = avg.ImageNode(href=mediabase+'.gif', opacity=0.5,
                 pos=self.pos + _Aircraft.__SHADOW_OFFSET, parent=shadowdiv)
         self.__shadowImg.size *= _Aircraft.__SHADOW_SCALE
-        self.__shadowImg.setEffect(avg.BlurFXNode(6.0))
+        if not player.isUsingGLES():
+            self.__shadowImg.setEffect(avg.BlurFXNode(6.0))
         self.size = self.__aircraftVid.size
+        #self._debug('created')
+
+    @property
+    def alive(self):
+        return self.__alive
 
     def reset(self):
+        #self._debug('reset')
         self.active = True
+        self.__alive = True
         self.__aircraftVid.active = True
-        self.__aircraftVid.play()
+        playVideo(self.__aircraftVid)
         self.__destroyVid.active = False
         self.__destroyVid.pause()
         self.__shadowImg.active = True
 
     def destroy(self):
+        #self._debug('destroy')
+        self.__alive = False
         self.__aircraftVid.active = False
         self.__aircraftVid.pause()
         self.__destroyVid.active = True
-        self.__destroyVid.play()
+        playVideo(self.__destroyVid)
         self.__destroyVid.seekToFrame(0)
         self.__shadowImg.active = False
+        if player.isUsingGLES():
+            self._hide()
 
     def _move(self, pos):
         self.pos = pos
         self.__shadowImg.pos = self.pos + _Aircraft.__SHADOW_OFFSET
 
     def _hide(self):
+        #self._debug('hide')
         self.active = False
+        self.__alive = False
         self.__aircraftVid.pause()
         self.__destroyVid.pause()
         self.__shadowImg.active = False
+
+    @classmethod
+    def _debug(cls, msg):
+        print '%6d [%s] %s' %(player.getFrameTime(), cls.__name__, msg)
 
 
 class PlayerAircraft(_Aircraft):
@@ -147,6 +174,7 @@ class PlayerAircraft(_Aircraft):
             self._move(pos)
 
         if keyStates['space'] and self.__gunCtrl.shoot():
+            # fire bullets
             bulletLeft = None
             bulletRight = None
             for b in self.__bullets:
@@ -177,6 +205,9 @@ class PlayerAircraft(_Aircraft):
                 bulletsAlive = True
                 b.update(dt)
         return bulletsAlive
+
+    def getActiveBullets(self):
+        return [b for b in self.__bullets if b.active]
 
 
 class EnemyAircraft(_Aircraft):
@@ -331,6 +362,12 @@ class FireBirdsApp(GameApp):
                 for i in xrange(5)]
         self.__player = PlayerAircraft(self.__shadowDiv, gunCtrl, parent=self.__gameDiv)
 
+        enemyMask = avg.Bitmap(self._parentNode.mediadir + '/enemy.gif')
+        self.__playerCollisionDetector = collisiondetector.CollisionDetector(
+                enemyMask, avg.Bitmap(self._parentNode.mediadir + '/spitfire.gif'))
+        self.__bulletCollisionDetector = collisiondetector.CollisionDetector(
+                enemyMask, avg.Bitmap(self._parentNode.mediadir + '/bullet.gif'))
+
         self.__keyStates = dict.fromkeys(PlayerAircraft.ACTION_KEYS, False)
         self.__frameHandlerId = None
         self.__spawnTimeoutId = None
@@ -338,17 +375,9 @@ class FireBirdsApp(GameApp):
         self.__start()
 
     def onKeyDown(self, event):
-        if self.__spawnTimeoutId: # player alive
+        if self.__player.alive:
             if event.keystring in PlayerAircraft.ACTION_KEYS:
                 self.__keyStates[event.keystring] = True
-                return True
-            if event.keystring == '[-]':
-                if self.__liveCounter.dec():
-                    self.__stop()
-                    self.__player.destroy()
-                return True
-            if event.keystring == '[+]':
-                self.__scoreCounter.inc()
                 return True
             return False
         if not self.__frameHandlerId: # game stopped
@@ -369,13 +398,13 @@ class FireBirdsApp(GameApp):
         self.__liveCounter.reset()
         self.__scoreCounter.reset()
         self.__player.reset()
-        self.__frameHandlerId = g_player.setOnFrameHandler(self.__onFrame)
-        self.__spawnTimeoutId = g_player.setInterval(FireBirdsApp.ENEMY_SPAWN_TIMEOUT,
+        self.__frameHandlerId = player.subscribe(player.ON_FRAME, self.__onFrame)
+        self.__spawnTimeoutId = player.setInterval(FireBirdsApp.ENEMY_SPAWN_TIMEOUT,
                 self.__spawnEnemy)
 
     def __stop(self):
         assert(self.__frameHandlerId and self.__spawnTimeoutId)
-        g_player.clearInterval(self.__spawnTimeoutId)
+        player.clearInterval(self.__spawnTimeoutId)
         self.__spawnTimeoutId = None
 
     def __spawnEnemy(self):
@@ -391,18 +420,36 @@ class FireBirdsApp(GameApp):
         enemy.reset()
 
     def __onFrame(self):
-        dt = g_player.getFrameDuration() / 1000.0
+        dt = player.getFrameDuration() * 0.001
         self.__scrollingBg.update(dt)
-        enemiesAlive = False
+
+        bullets = self.__player.getActiveBullets()
+        enemiesActive = False
         for e in self.__enemies:
             if e.active:
-                enemiesAlive = True
-                e.update(dt)
-        if self.__spawnTimeoutId: # player alive
+                enemiesActive = True
+                if e.alive:
+                    for b in bullets:
+                        if self.__bulletCollisionDetector.detect(e.pos, b.pos):
+                            self.__scoreCounter.inc()
+                            e.destroy()
+                            b.destroy()
+                            break
+                if e.alive: # no bullet hit
+                    if self.__player.alive and \
+                            self.__playerCollisionDetector.detect(e.pos, self.__player.pos):
+                        e.destroy()
+                        if self.__liveCounter.dec():
+                            self.__stop()
+                            self.__player.destroy()
+                if e.alive: # no player collision
+                    e.update(dt)
+
+        if self.__player.alive:
             self.__player.update(dt, self.__keyStates)
-        elif not self.__player.updateBullets(dt) and not enemiesAlive:
-            # player dead, all bullets and enemies left the screen
-            g_player.clearInterval(self.__frameHandlerId)
+        elif not self.__player.updateBullets(dt) and not enemiesActive:
+            # player dead, all bullets and enemies left the screen, all destroy videos played
+            player.unsubscribe(player.ON_FRAME, self.__frameHandlerId)
             self.__frameHandlerId = None
 
 

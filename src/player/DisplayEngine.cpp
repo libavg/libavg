@@ -27,6 +27,7 @@
 #include "../base/Exception.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/Display.h"
 
 using namespace std;
 
@@ -108,7 +109,7 @@ void DisplayEngine::setVBlankRate(int rate)
     m_VBRate = rate;
     if (m_bInitialized) {
         bool bOK = GLContext::getMain()->initVBlank(rate);
-        m_Framerate = getRefreshRate()/m_VBRate;
+        m_Framerate = Display::get()->getRefreshRate()/m_VBRate;
         if (!bOK || rate == 0) { 
             AVG_TRACE(Logger::WARNING, "Using framerate of " << m_Framerate << 
                     " instead of VBRate of " << m_VBRate);

@@ -18,38 +18,51 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _WGLContext_H_
-#define _WGLContext_H_
-#include "../api.h"
 
-#include "GLContext.h"
+#ifndef _Display_H_
+#define _Display_H_
+
+#include "../api.h"
+#include "../avgconfigwrapper.h"
+
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
-struct SDL_SysWMinfo;
-
 namespace avg {
 
-class AVG_API WGLContext: public GLContext
+class Display;
+typedef boost::shared_ptr<Display> DisplayPtr;
+
+class AVG_API Display
 {
 public:
-    WGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-            const SDL_SysWMinfo* pSDLWMInfo=0);
-    virtual ~WGLContext();
-
-    void activate();
-
-    bool initVBlank(int rate);
+    static DisplayPtr get();
+    virtual ~Display();
+    void init();
+    void rereadScreenResolution();
+ 
+    IntPoint getScreenResolution();
+    float getPixelsPerMM();
+    void assumePixelsPerMM(float ppmm);
+    glm::vec2 getPhysicalScreenDimensions();
+    float getRefreshRate();
+    
+protected:
+    Display();
+    
+    virtual float queryPPMM()=0;
+    virtual IntPoint queryScreenResolution();
+    virtual float queryRefreshRate()=0;
 
 private:
-    void checkWinError(BOOL bOK, const std::string& sWhere);
+    IntPoint m_ScreenResolution;
+    float m_PPMM;
+    bool m_bAutoPPMM; // true if assumePixelsPerMM hasn't been called.
 
-    HWND m_hwnd;
-    HDC m_hDC;
-    HGLRC m_Context;
+    float m_RefreshRate;
 };
 
 }
+ 
 #endif
-
-

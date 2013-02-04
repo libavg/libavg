@@ -96,7 +96,7 @@ int AppleTrackpadInputDevice::callback(int device, Finger *data, int nFingers,
 TouchEventPtr AppleTrackpadInputDevice::createEvent(int avgID, Finger* pFinger, 
         Event::Type eventType)
 {
-    glm::vec2 size = getScreenResolution();
+    glm::vec2 size = Player::get()->getScreenResolution();
     IntPoint pos(pFinger->normalized.pos.x*size.x, (1-pFinger->normalized.pos.y)*size.y);
     glm::vec2 speed(pFinger->normalized.vel.x*size.x, pFinger->normalized.vel.y*size.y);
     float eccentricity = pFinger->majorAxis/pFinger->minorAxis;

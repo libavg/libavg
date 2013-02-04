@@ -68,8 +68,6 @@ std::string GLConfig::shaderUsageToString(ShaderUsage su)
             return "full";
         case MINIMAL:
             return "minimal";
-        case FRAGMENT_ONLY:
-            return "fragment only";
         case AUTO:
             return "auto";
         default:

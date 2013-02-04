@@ -28,7 +28,7 @@
 namespace avg {
 
 struct AVG_API GLConfig {
-    enum ShaderUsage {FULL, MINIMAL, FRAGMENT_ONLY, AUTO};
+    enum ShaderUsage {FULL, MINIMAL, AUTO};
 
     GLConfig();
     GLConfig(bool bGLES, bool bUsePOTTextures, bool bUsePixelBuffers,

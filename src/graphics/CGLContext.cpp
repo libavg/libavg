@@ -91,42 +91,6 @@ bool CGLContext::initVBlank(int rate)
     }
 }
 
-float CGLContext::calcRefreshRate()
-{
-    float refreshRate;
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
-    CGDisplayModeRef mode = CGDisplayCopyDisplayMode(CGMainDisplayID());
-    refreshRate = CGDisplayModeGetRefreshRate(mode);
-    if (refreshRate < 1.0) {
-        AVG_TRACE(Logger::CONFIG, 
-                "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
-        refreshRate = 60;
-    }
-    CGDisplayModeRelease(mode);
-#else
-    CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
-    if (modeInfo) {
-        CFNumberRef value = (CFNumberRef) CFDictionaryGetValue(modeInfo, 
-                kCGDisplayRefreshRate);
-        if (value) {
-            CFNumberGetValue(value, kCFNumberIntType, &refreshRate);
-            if (refreshRate < 1.0) {
-                AVG_TRACE(Logger::CONFIG, 
-                        "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
-                refreshRate = 60;
-            }
-        } else {
-            AVG_TRACE(Logger::WARNING, 
-                    "Apple refresh rate calculation (CFDictionaryGetValue) failed");
-        }
-    } else {
-        AVG_TRACE(Logger::WARNING, 
-                "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
-    }
-#endif
-    return refreshRate;
-}
-
 void CGLContext::initMacVBlank(int rate)
 {
     CGLContextObj context = CGLGetCurrentContext();
