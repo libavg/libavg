@@ -29,6 +29,7 @@
 #include <Winsock2.h>
 #include <time.h>
 #include <Mmsystem.h>
+#undef ERROR
 #else
 #include <sys/time.h>
 #include <syslog.h>

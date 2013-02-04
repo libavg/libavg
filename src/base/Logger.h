@@ -100,7 +100,7 @@ private:
     size_t m_Flags;
     std::vector<size_t> m_FlagStack;
     std::map< size_t, string > m_CategoryToString;
-    std::map< const string, size_t > m_StringToCategory;
+    std::map< string, size_t > m_StringToCategory;
 
     size_t m_MaxCategoryNum;
     unsigned m_Level;
