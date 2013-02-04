@@ -23,7 +23,7 @@
 #define _AsyncVideoDecoder_H_
 
 #include "../api.h"
-#include "AsyncDemuxer.h"
+#include "VideoDemuxerThread.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
 #include "VideoMsg.h"
@@ -64,6 +64,8 @@ public:
     AudioMsgQueuePtr getAudioStatusQ() const;
 
 private:
+    void setupDemuxer(std::vector<int> streamIndexes);
+    void deleteDemuxer();
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
     void waitForSeekDone();
@@ -77,7 +79,9 @@ private:
 
     int m_QueueLength;
 
-    AsyncDemuxer* m_pDemuxer;
+    boost::thread* m_pDemuxThread;
+    std::map<int, VideoMsgQueuePtr> m_PacketQs;
+    VideoDemuxerThread::CQueuePtr m_pDemuxCmdQ;
 
     boost::thread* m_pVDecoderThread;
     VideoDecoderThread::CQueuePtr m_pVCmdQ;

@@ -23,7 +23,6 @@
 #define _FFMpegDemuxer_H_
 
 #include "../avgconfigwrapper.h"
-#include "IDemuxer.h"
 
 #include "WrapFFMpeg.h"
 
@@ -35,7 +34,7 @@
 
 namespace avg {
 
-class AVG_API FFMpegDemuxer: public IDemuxer {
+class AVG_API FFMpegDemuxer {
     public:
         FFMpegDemuxer(AVFormatContext * pFormatContext, std::vector<int> streamIndexes);
         virtual ~FFMpegDemuxer();

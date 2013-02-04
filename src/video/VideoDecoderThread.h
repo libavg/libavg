@@ -41,38 +41,31 @@ namespace avg {
 typedef Queue<Bitmap> BitmapQueue;
 typedef boost::shared_ptr<BitmapQueue> BitmapQueuePtr;
 
-class AsyncDemuxer;
 class FFMpegFrameDecoder;
 typedef boost::shared_ptr<FFMpegFrameDecoder> FFMpegFrameDecoderPtr;
 
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
-        VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-                AsyncDemuxer* pDemuxer, AVStream* pStream, int streamIndex, 
-                const IntPoint& size, PixelFormat pf, bool bUseVDPAU);
+        VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, VideoMsgQueue& packetQ, 
+                AVStream* pStream, const IntPoint& size, PixelFormat pf, bool bUseVDPAU);
         virtual ~VideoDecoderThread();
         
         bool work();
-        void seek(float destTime);
         void setFPS(float fps);
         void returnFrame(VideoMsgPtr pMsg);
 
     private:
+        void decodePacket(AVPacket* pPacket);
+        void handleEOF();
+        void handleSeekDone(VideoMsgPtr pMsg);
+        void sendFrame(AVFrame& frame);
         void close();
-        FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps);
-#ifdef AVG_ENABLE_VDPAU
-        FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
-#endif
-        bool isSeekDone();
-        bool isEOF() const;
         BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, PixelFormat pf);
-        void readFrame(AVFrame& frame);
+        void pushMsg(VideoMsgPtr pMsg);
 
         VideoMsgQueue& m_MsgQ;
         FFMpegFrameDecoderPtr m_pFrameDecoder;
-        AsyncDemuxer* m_pDemuxer;
-        AVStream* m_pStream;
-        int m_StreamIndex;
+        VideoMsgQueue& m_PacketQ;
 
         BitmapQueuePtr m_pBmpQ;
         BitmapQueuePtr m_pHalfBmpQ;
@@ -82,9 +75,6 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         bool m_bUseVDPAU;
 
         bool m_bSeekDone;
-        int m_SeekSeqNum;
-
-        bool m_bEOFPending;
 };
 
 }
