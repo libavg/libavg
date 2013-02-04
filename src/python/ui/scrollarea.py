@@ -101,18 +101,20 @@ class ScrollArea(avg.DivNode):
         if "borderBmp" in self.cfg:
             endsExtent = self.cfg["borderEndsExtent"]
             self._borderNode = HVStretchNode(src=self.cfg["borderBmp"], 
-                    endsExtent=endsExtent, parent=self)
+                    endsExtent=endsExtent, sensitive=False, parent=self)
 
         if Orientation.HORIZONTAL in scrollBars:
             self._hScrollBar = slider.ScrollBar(parent=self)
-            self._hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onHThumbMove)
+            self._hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED,
+                    self.__onHThumbMove)
         else:
             self._hScrollBar = None
 
         if Orientation.VERTICAL in scrollBars:
             self._vScrollBar = slider.ScrollBar(orientation=Orientation.VERTICAL,
                     parent=self)
-            self._vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED, self.__onVThumbMove)
+            self._vScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED,
+                    self.__onVThumbMove)
         else:
             self._vScrollBar = None
 
