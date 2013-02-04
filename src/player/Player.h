@@ -59,6 +59,7 @@ class EventDispatcher;
 class MouseEvent;
 class CursorEvent;
 class SDLDisplayEngine;
+class Display;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -70,6 +71,7 @@ typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+typedef boost::shared_ptr<Display> DisplayPtr;
 
 class AVG_API Player: public Publisher
 {
@@ -112,7 +114,7 @@ class AVG_API Player: public Publisher
         void stop();
         bool isStopping();
         void initPlayback(const std::string& sShaderPath = "");
-        void cleanup();
+        void cleanup(bool bIsAbort);
         bool isPlaying();
         void setFramerate(float rate);
         void setVBlankFramerate(int rate);

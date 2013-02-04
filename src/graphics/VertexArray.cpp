@@ -38,11 +38,8 @@ using namespace boost;
 namespace avg {
 
 const unsigned VertexArray::TEX_INDEX = 0;
-const unsigned VertexArray::TEX_OFFSET = 0;
-const unsigned VertexArray::COLOR_INDEX = 1;
-const unsigned VertexArray::COLOR_OFFSET = 2;
-const unsigned VertexArray::POS_INDEX = 2;
-const unsigned VertexArray::POS_OFFSET = 3;
+const unsigned VertexArray::POS_INDEX = 1;
+const unsigned VertexArray::COLOR_INDEX = 2;
 
 VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     : VertexData(reserveVerts, reserveIndexes)
@@ -55,7 +52,6 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
         m_GLVertexBufferID = pContext->getVertexBufferCache().getBuffer();
         m_GLIndexBufferID = pContext->getIndexBufferCache().getBuffer();
     }
-    m_bUseVertexShader = (pContext->getShaderUsage() != GLConfig::FRAGMENT_ONLY);
     m_bUseMapBuffer = (!pContext->isGLES());
 }
 
@@ -80,8 +76,8 @@ void VertexArray::update()
 {
     if (hasDataChanged()) {
         transferBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID, 
-                getReserveVerts()*sizeof(T2V3C4Vertex), getNumVerts()*sizeof(T2V3C4Vertex),
-                getVertexPointer());
+                getReserveVerts()*sizeof(Vertex), 
+                getNumVerts()*sizeof(Vertex), getVertexPointer());
         transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
                 getReserveIndexes()*sizeof(unsigned short),
                 getNumIndexes()*sizeof(unsigned short), getIndexPointer());
@@ -94,26 +90,15 @@ void VertexArray::activate()
 {
     glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-    if (m_bUseVertexShader) {
-        glproc::VertexAttribPointer(TEX_INDEX, 2, GL_FLOAT, GL_FALSE, 
-                sizeof(T2V3C4Vertex), (void *)(TEX_OFFSET*sizeof(float)));
-        glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
-                sizeof(T2V3C4Vertex), (void *)(COLOR_OFFSET*sizeof(float)));
-        glproc::VertexAttribPointer(POS_INDEX, 3, GL_FLOAT, GL_FALSE, 
-                sizeof(T2V3C4Vertex), (void *)(POS_OFFSET*sizeof(float)));
-        glproc::EnableVertexAttribArray(TEX_INDEX);
-        glproc::EnableVertexAttribArray(COLOR_INDEX);
-        glproc::EnableVertexAttribArray(POS_INDEX);
-    } else {
-#ifndef AVG_ENABLE_EGL
-        glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 
-                (void *)(offsetof(T2V3C4Vertex, m_Tex)));
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 
-                (void *)(offsetof(T2V3C4Vertex, m_Color)));
-        glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
-                (void *)(offsetof(T2V3C4Vertex, m_Pos)));
-#endif
-    }
+    glproc::VertexAttribPointer(TEX_INDEX, 2, GL_SHORT, GL_FALSE,
+            sizeof(Vertex), (void *)(offsetof(Vertex, m_Tex)));
+    glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE, 
+            sizeof(Vertex), (void *)(offsetof(Vertex, m_Pos)));
+    glproc::VertexAttribPointer(COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, 
+            sizeof(Vertex), (void *)(offsetof(Vertex, m_Color)));
+    glproc::EnableVertexAttribArray(TEX_INDEX);
+    glproc::EnableVertexAttribArray(POS_INDEX);
+    glproc::EnableVertexAttribArray(COLOR_INDEX);
     GLContext::checkError("VertexArray::activate()");
 }
 
@@ -146,12 +131,12 @@ void VertexArray::transferBuffer(GLenum target, unsigned bufferID, unsigned rese
 {
     glproc::BindBuffer(target, bufferID);
     if (m_bUseMapBuffer) {
-        glproc::BufferData(target, reservedSize, 0, GL_DYNAMIC_DRAW);
+        glproc::BufferData(target, reservedSize, 0, GL_STREAM_DRAW);
         void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY);
         memcpy(pBuffer, pData, usedSize);
         glproc::UnmapBuffer(target);
     } else {
-        glproc::BufferData(target, usedSize, pData, GL_DYNAMIC_DRAW);
+        glproc::BufferData(target, usedSize, pData, GL_STREAM_DRAW);
     }
 }
 

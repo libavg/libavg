@@ -33,10 +33,10 @@
 
 namespace avg {
 
-struct T2V3C4Vertex {
-    GLfloat m_Tex[2];
+struct Vertex {
+    GLshort m_Tex[2];    // 4.12 fixed point.
+    GLfloat m_Pos[2];
     Pixel32 m_Color;
-    GLfloat m_Pos[3];
 };
 
 class VertexData;
@@ -68,7 +68,7 @@ protected:
     int getReserveVerts() const;
     int getReserveIndexes() const;
 
-    const T2V3C4Vertex * getVertexPointer() const;
+    const Vertex * getVertexPointer() const;
     const unsigned short * getIndexPointer() const;
 
     static const int MIN_VERTEXES;
@@ -81,13 +81,13 @@ private:
     int m_NumIndexes;
     int m_ReserveVerts;
     int m_ReserveIndexes;
-    T2V3C4Vertex * m_pVertexData;
+    Vertex * m_pVertexData;
     unsigned short * m_pIndexData;
 
     bool m_bDataChanged;
 };
 
-std::ostream& operator<<(std::ostream& os, const T2V3C4Vertex& v);
+std::ostream& operator<<(std::ostream& os, const Vertex& v);
 
 }
 

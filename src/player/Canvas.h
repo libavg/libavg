@@ -69,7 +69,7 @@ class AVG_API Canvas: public ExportedObject
         virtual ~Canvas();
         virtual void setRoot(NodePtr pRootNode);
         void initPlayback(int multiSampleSamples);
-        virtual void stopPlayback();
+        virtual void stopPlayback(bool bIsAbort);
        
         CanvasNodePtr getRootNode() const;
         NodePtr getElementByID(const std::string& id);

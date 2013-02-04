@@ -43,7 +43,6 @@ public:
     void activate();
 
     bool initVBlank(int rate);
-    static float calcRefreshRate();
 
 private:
     void initMacVBlank(int rate);

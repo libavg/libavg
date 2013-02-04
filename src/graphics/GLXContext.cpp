@@ -48,9 +48,9 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
 }
 
 static bool s_bX11Error;
-static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
+static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
-int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
+int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
 {
     cerr << "X11 error creating GL context: " << (int)(pErrEvent->request_code)
             << ", " << (int)(pErrEvent->minor_code) << endl;
@@ -200,12 +200,12 @@ bool GLXContext::initVBlank(int rate)
         return false;
     }
 }
+
 bool GLXContext::useDepthBuffer() const
 {
     // NVidia GLX GLES doesn't allow framebuffer stencil without depth.
     return true;
 }
-
 
 void GLXContext::swapBuffers()
 {
@@ -221,25 +221,6 @@ bool GLXContext::haveARBCreateContext()
         s_bHaveExtension = (queryGLXExtension("GLX_ARB_create_context"));
     }
     return s_bHaveExtension;
-}
-
-float GLXContext::calcRefreshRate()
-{
-    Display * pDisplay = XOpenDisplay(0);
-    int pixelClock;
-    XF86VidModeModeLine modeLine;
-    bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
-            &pixelClock, &modeLine);
-    if (!bOK) {
-        AVG_TRACE (Logger::WARNING, 
-                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_TRACE (Logger::WARNING, 
-                "Defaulting to 60 Hz refresh rate.");
-    }
-    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
-    float refreshRate = HSyncRate/modeLine.vtotal;
-    XCloseDisplay(pDisplay);
-    return refreshRate;
 }
 
 }

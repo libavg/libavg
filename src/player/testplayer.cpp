@@ -66,7 +66,7 @@ public:
 #endif
             player.initPlayback("../graphics/shaders/");
             player.doFrame(false);
-            player.cleanup();
+            player.cleanup(false);
         }
         try {
             throw bad_cast();

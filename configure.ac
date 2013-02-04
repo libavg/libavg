@@ -220,10 +220,28 @@ AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 PREFIX=$prefix
 AC_SUBST(PREFIX)
 AC_CONFIG_HEADERS(src/avgconfig.h)
-AC_OUTPUT(Makefile src/Makefile src/test/Makefile src/test/plugin/Makefile
-    src/base/Makefile src/base/triangulate/Makefile
-    src/lmfit/Makefile src/wrapper/Makefile src/player/Makefile src/graphics/Makefile 
-    src/graphics/shaders/Makefile src/python/Makefile
-    src/imaging/Makefile src/video/Makefile src/audio/Makefile src/utils/Makefile 
-    src/anim/Makefile src/python/data/Makefile src/samples/Makefile 
-    src/python/ui/Makefile src/oscpack/Makefile man/Makefile)
+AC_OUTPUT(Makefile 
+    src/Makefile 
+    src/test/Makefile 
+    src/test/plugin/Makefile
+    src/base/Makefile 
+    src/base/triangulate/Makefile
+    src/lmfit/Makefile 
+    src/wrapper/Makefile 
+    src/player/Makefile 
+    src/graphics/Makefile 
+    src/graphics/shaders/Makefile 
+    src/python/Makefile
+    src/imaging/Makefile 
+    src/video/Makefile 
+    src/audio/Makefile 
+    src/utils/Makefile 
+    src/anim/Makefile 
+    src/python/data/Makefile 
+    src/samples/Makefile 
+    src/samples/firebirds/Makefile
+    src/samples/firebirds/plugin/Makefile
+    src/samples/firebirds/media/Makefile
+    src/python/ui/Makefile 
+    src/oscpack/Makefile 
+    man/Makefile)

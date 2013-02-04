@@ -48,6 +48,7 @@ class GLContext;
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
+        static void initSDL();
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
         virtual void init(const DisplayParams& dp, GLConfig glConfig);
@@ -55,7 +56,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         // From DisplayEngine
         virtual void teardown();
-        virtual float getRefreshRate();
         virtual void setGamma(float red, float green, float blue);
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
@@ -71,15 +71,10 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
-        IntPoint getScreenResolution();
-        float getPixelsPerMM();
-        glm::vec2 getPhysicalScreenDimensions();
-        void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
 
     private:
         void initTranslationTable();
-        void calcScreenDimensions(float dotsPerMM=0);
 
         bool internalSetGamma(float red, float green, float blue);
 
@@ -91,8 +86,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
-        IntPoint m_ScreenResolution;
-        float m_PPMM;
 
         SDL_Surface * m_pScreen;
 

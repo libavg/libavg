@@ -21,6 +21,7 @@
 #
 
 from libavg import *
+import os
 
 class TouchApp(AVGApp):
     multitouch = True
@@ -48,5 +49,10 @@ class TouchApp(AVGApp):
 #                contact.distancefromstart, contact.motionangle, contact.motionvec, \
 #                contact.distancetravelled, event.speed
 
-TouchApp.start(resolution=(1280,800))
+if os.getenv('AVG_DEPLOY') is None:
+    resolution = (800, 600)
+else:
+    resolution = player.getScreenResolution()
+
+TouchApp.start(resolution=resolution)
 

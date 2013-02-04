@@ -147,7 +147,7 @@ private:
         if (!bIgnoreBrightness) {
             testEqualBrightness(*pDestBmp, *pBmp, 0.03);
         }
-        testEqual(*pDestBmp, sBmpName, pDestBmp->getPixelFormat(), 0.06, 0.3);
+        testEqual(*pDestBmp, sBmpName, pDestBmp->getPixelFormat(), 0.1, 0.3);
     }
 
 };
@@ -477,7 +477,6 @@ int main(int nargs, char** args)
         BitmapLoader::init(true);
         bOK = runTests(false, GLConfig::FULL);
         bOK &= runTests(false, GLConfig::MINIMAL);
-        bOK &= runTests(false, GLConfig::FRAGMENT_ONLY);
 #endif
         if (GLContext::isGLESSupported()) {
             BitmapLoader::init(false);
