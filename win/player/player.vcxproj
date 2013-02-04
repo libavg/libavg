@@ -114,6 +114,7 @@
     <ClCompile Include="..\..\src\player\Publisher.cpp" />
     <ClCompile Include="..\..\src\player\PublisherDefinition.cpp" />
     <ClCompile Include="..\..\src\player\PublisherDefinitionRegistry.cpp" />
+    <ClCompile Include="..\..\src\player\PythonLogHandler.cpp" />
     <ClCompile Include="..\..\src\player\RasterNode.cpp" />
     <ClCompile Include="..\..\src\player\RectNode.cpp" />
     <ClCompile Include="..\..\src\player\SDLDisplayEngine.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="..\..\src\player\Publisher.h" />
     <ClInclude Include="..\..\src\player\PublisherDefinition.h" />
     <ClInclude Include="..\..\src\player\PublisherDefinitionRegistry.h" />
+    <ClInclude Include="..\..\src\player\PythonLogHandler.h" />
     <ClInclude Include="..\..\src\player\RasterNode.h" />
     <ClInclude Include="..\..\src\player\RectNode.h" />
     <ClInclude Include="..\..\src\player\SDLDisplayEngine.h" />

@@ -31,6 +31,9 @@
 #include <sstream>
 #include <map>
 
+#ifdef ERROR
+#undef ERROR
+#endif
 
 namespace avg {
 
