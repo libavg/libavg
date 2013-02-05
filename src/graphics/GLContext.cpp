@@ -335,25 +335,25 @@ const GLConfig& GLContext::getConfig()
 
 void GLContext::logConfig() 
 {
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO, "OpenGL configuration: ");
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO, "OpenGL configuration: ");
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "  OpenGL version: " << glGetString(GL_VERSION));
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "  OpenGL vendor: " << glGetString(GL_VENDOR));
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "  OpenGL renderer: " << glGetString(GL_RENDERER));
     m_GLConfig.log();
     switch (getMemoryMode()) {
         case MM_PBO:
-            AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
                     "  Using pixel buffer objects");
             break;
         case MM_OGL:
-            AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+            AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
                     "  Not using GL memory extensions");
             break;
     }
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "  Max. texture size: " << getMaxTexSize());
     string s;
     if (useGPUYUVConversion()) {
@@ -361,19 +361,19 @@ void GLContext::logConfig()
     } else {
         s = "no";
     }
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             string("  GPU-based YUV-RGB conversion: ")+s+".");
     try {
-        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
                 "  Dedicated video memory: " << 
                 getVideoMemInstalled()/(1024*1024) << " MB");
-        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
                 "  Video memory used at start: " << 
                 getVideoMemUsed()/(1024*1024) << " MB");
     } catch (Exception) {
-        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
                 "  Dedicated video memory: Unknown");
-        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
                 "  Video memory used at start: Unknown");
     }
 }
@@ -465,7 +465,7 @@ float GLContext::getRefreshRate()
 #else
         AVG_ASSERT(false);
 #endif
-        AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
                 "Vertical Refresh Rate: " << s_RefreshRate);
     }
     return s_RefreshRate;

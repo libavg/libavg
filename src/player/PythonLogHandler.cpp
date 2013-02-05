@@ -42,7 +42,7 @@ PythonLogHandler::~PythonLogHandler()
 void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
         const string& category, unsigned level, const UTF8String& sMsg)
 {
-    string sLevel = boost::to_lower_copy(string(logging::levelToString(level)));
+    string sLevel = boost::to_lower_copy(string(Logger::levelToString(level)));
     PyObject * extra = PyDict_New();
     PyObject * pyCat = PyString_FromString(category.c_str());
 

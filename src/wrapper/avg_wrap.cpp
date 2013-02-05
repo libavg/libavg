@@ -106,48 +106,47 @@ BOOST_PYTHON_MODULE(avg)
             .def("__repr__", &MessageID::getRepr)
         ;
 
-        class_<logging::Logger>("Logger", no_init)
+        class_<Logger::Logger>("Logger", no_init)
             .def("addLogger", addPythonLogger)
-            .def("getCategories", &logging::Logger::getCategories)
-            .def("setCategories", &logging::Logger::setCategories)
-            .def("pushCategories", &logging::Logger::pushCategories)
-            .def("popCategories", &logging::Logger::popCategories)
-            .def("trace", &logging::Logger::pytrace,
-                    (bp::arg("level")=logging::level::INFO))
-            .def("debug", &logging::Logger::logDebug,
-                    (bp::arg("category")=logging::category::APP))
-            .def("info", &logging::Logger::logInfo,
-                    (bp::arg("category")=logging::category::APP))
-            .def("warning", &logging::Logger::logWarning,
-                    (bp::arg("category")=logging::category::APP))
-            .def("error", &logging::Logger::logError,
-                    (bp::arg("category")=logging::category::APP))
-            .def("critical", &logging::Logger::logCritical,
-                    (bp::arg("category")=logging::category::APP))
-            .def("log", &logging::Logger::log,
-                    (bp::arg("category")=logging::category::APP,
-                     bp::arg("level")=logging::level::INFO))
-            .def_readonly("NONE", &logging::category::NONE)
-            .def_readonly("PROFILE", &logging::category::PROFILE)
-            .def_readonly("PROFILE_VIDEO", &logging::category::PROFILE_VIDEO)
-            .def_readonly("EVENTS", &logging::category::EVENTS)
-            .def_readonly("EVENTS2", &logging::category::EVENTS2)
-            .def_readonly("CONFIG", &logging::category::CONFIG)
-            .def_readonly("MEMORY", &logging::category::MEMORY)
-            .def_readonly("APP", &logging::category::APP)
-            .def_readonly("PLUGIN", &logging::category::PLUGIN)
-            .def_readonly("PLAYER", &logging::category::PLAYER)
-            .def_readonly("SHADER", &logging::category::SHADER)
-            .def_readonly("DEPRECATION", &logging::category::DEPRECATION)
+            .def("getCategories", &Logger::Logger::getCategories)
+            .def("setCategories", &Logger::Logger::setCategories)
+            .def("pushCategories", &Logger::Logger::pushCategories)
+            .def("popCategories", &Logger::Logger::popCategories)
+            .def("trace", &Logger::Logger::pytrace,
+                    (bp::arg("level")=Logger::level::INFO))
+            .def("debug", &Logger::Logger::logDebug,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("info", &Logger::Logger::logInfo,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("warning", &Logger::Logger::logWarning,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("error", &Logger::Logger::logError,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("critical", &Logger::Logger::logCritical,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("log", &Logger::Logger::log,
+                    (bp::arg("category")=Logger::category::APP,
+                     bp::arg("level")=Logger::level::INFO))
+            .def_readonly("NONE", &Logger::category::NONE)
+            .def_readonly("PROFILE", &Logger::category::PROFILE)
+            .def_readonly("PROFILE_VIDEO", &Logger::category::PROFILE_VIDEO)
+            .def_readonly("EVENTS", &Logger::category::EVENTS)
+            .def_readonly("EVENTS2", &Logger::category::EVENTS2)
+            .def_readonly("CONFIG", &Logger::category::CONFIG)
+            .def_readonly("MEMORY", &Logger::category::MEMORY)
+            .def_readonly("APP", &Logger::category::APP)
+            .def_readonly("PLUGIN", &Logger::category::PLUGIN)
+            .def_readonly("PLAYER", &Logger::category::PLAYER)
+            .def_readonly("SHADER", &Logger::category::SHADER)
+            .def_readonly("DEPRECATION", &Logger::category::DEPRECATION)
             //TODO: Should separate category and level on python level too
-            .def_readonly("CRITICAL", &logging::level::CRITICAL)
-            .def_readonly("FATAL", &logging::level::FATAL)
-            .def_readonly("ERROR", &logging::level::ERROR)
-            .def_readonly("WARNING", &logging::level::WARNING)
-            .def_readonly("INFO", &logging::level::INFO)
-            .def_readonly("DEBUG", &logging::level::DEBUG)
+            .def_readonly("CRITICAL", &Logger::level::CRITICAL)
+            .def_readonly("ERROR", &Logger::level::ERROR)
+            .def_readonly("WARNING", &Logger::level::WARNING)
+            .def_readonly("INFO", &Logger::level::INFO)
+            .def_readonly("DEBUG", &Logger::level::DEBUG)
         ;
-        scope().attr("logger") = logging::Logger::get();
+        scope().attr("logger") = Logger::Logger::get();
 
         class_<Publisher, boost::noncopyable>("Publisher")
             .def("subscribe", &Publisher::subscribe)

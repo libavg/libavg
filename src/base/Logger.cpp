@@ -42,7 +42,25 @@
 using namespace std;
 
 namespace avg {
-namespace logging{
+
+    const unsigned Logger::level::CRITICAL = 50;
+    const unsigned Logger::level::ERROR = 40;
+    const unsigned Logger::level::WARNING = 30;
+    const unsigned Logger::level::INFO = 20;
+    const unsigned Logger::level::DEBUG = 10;
+
+    const size_t Logger::category::NONE = 1;
+    const size_t Logger::category::PROFILE = 2;
+    const size_t Logger::category::PROFILE_VIDEO = 8;
+    const size_t Logger::category::EVENTS = 16;
+    const size_t Logger::category::EVENTS2 = 32;
+    const size_t Logger::category::CONFIG = 64;
+    const size_t Logger::category::MEMORY = 512;
+    const size_t Logger::category::APP = 1024;
+    const size_t Logger::category::PLUGIN = 2048;
+    const size_t Logger::category::PLAYER = 4096;
+    const size_t Logger::category::SHADER = 8192;
+    const size_t Logger::category::DEPRECATION = 16384;
 
 namespace {
     Logger* m_pLogger = 0;
@@ -51,38 +69,34 @@ namespace {
     boost::mutex handlerMutex;
 }
 
-unsigned stringToLevel(const string& sLevel)
+unsigned Logger::stringToLevel(const string& sLevel)
 {
     string level = boost::to_upper_copy(sLevel);
     if (level == "CRITICAL"){
-        return level::CRITICAL;
-    }else if (level == "FATAL"){
-        return level::FATAL;
+        return Logger::level::CRITICAL;
     }else if (level == "ERROR"){
-        return level::ERROR;
+        return Logger::level::ERROR;
     }else if (level == "WARNING"){
-        return level::WARNING;
+        return Logger::level::WARNING;
     }else if (level == "INFO"){
-        return level::INFO;
+        return Logger::level::INFO;
     }else if (level == "DEBUG"){
-        return level::DEBUG;
+        return Logger::level::DEBUG;
     }
     throw Exception(AVG_ERR_INVALID_ARGS, level + " is an invalid log level");
 }
 
-const char * levelToString(unsigned level)
+const char * Logger::levelToString(unsigned level)
 {
-    if(level == level::CRITICAL){
+    if(level == Logger::level::CRITICAL){
         return "CRITICAL";
-    }else if(level == level::FATAL){
-        return "FATAL";
-    }else if(level == level::ERROR){
+    }else if(level == Logger::level::ERROR){
         return "ERROR";
-    }else if(level == level::WARNING){
+    }else if(level == Logger::level::WARNING){
         return "WARNING";
-    }else if(level == level::INFO){
+    }else if(level == Logger::level::INFO){
         return "INFO";
-    }else if(level == level::DEBUG){
+    }else if(level == Logger::level::DEBUG){
         return "DEBUG";
     }
     throw Exception(AVG_ERR_UNKNOWN, "Unkown log level");
@@ -104,7 +118,7 @@ Logger::Logger()
     string sEnvLevel;
     bool bEnvLevelSet = getEnv("AVG_LOG_LEVEL", sEnvLevel);
     if(bEnvLevelSet){
-        m_Level = stringToLevel(sEnvLevel);
+        m_Level = Logger::stringToLevel(sEnvLevel);
     }
     m_Flags = category::NONE | category::APP | category::DEPRECATION;
     string sEnvCategories;
@@ -175,14 +189,16 @@ void Logger::addLogHandler(const LogHandlerPtr& logHandler)
 
 void Logger::pytrace(size_t category, const UTF8String& sMsg, unsigned level) const
 {
-    AVG_TRACE(category::DEPRECATION, level::WARNING, "logger.trace will be removed in future versions. Please use logger.log or any of the convenience functions");
+    //TODO: Use avg_deprecation
+    AVG_TRACE(Logger::category::DEPRECATION, Logger::level::WARNING,
+            "logger.trace will be removed in future versions. Please use logger.log or any of the convenience functions");
     trace(sMsg, category, level);
 }
 
 void Logger::trace(const UTF8String& sMsg, size_t category, unsigned level) const
 {
     boost::mutex::scoped_lock lock(logMutex);
-    if ((m_Level <= level && category & m_Flags) || level::ERROR <= level) {
+    if ((m_Level <= level && category & m_Flags) || Logger::level::ERROR <= level) {
         struct tm* pTime;
         #ifdef _WIN32
         __int64 now;
@@ -207,27 +223,27 @@ void Logger::trace(const UTF8String& sMsg, size_t category, unsigned level) cons
 
 void Logger::logDebug(const string& msg, const size_t category) const
 {
-    trace(msg, category, level::DEBUG);
+    trace(msg, category, Logger::level::DEBUG);
 }
 
 void Logger::logInfo(const string& msg, const size_t category) const
 {
-    trace(msg, category, level::INFO);
+    trace(msg, category, Logger::level::INFO);
 }
 
 void Logger::logWarning(const string& msg, const size_t category) const
 {
-    trace(msg, category, level::WARNING);
+    trace(msg, category, Logger::level::WARNING);
 }
 
 void Logger::logError(const string& msg, const size_t category) const
 {
-    trace(msg, category, level::ERROR);
+    trace(msg, category, Logger::level::ERROR);
 }
 
 void Logger::logCritical(const string& msg, const size_t category) const
 {
-    trace(msg, category, level::CRITICAL);
+    trace(msg, category, Logger::level::CRITICAL);
 }
 
 void Logger::log(const string& msg, const size_t category, unsigned level) const
@@ -309,5 +325,4 @@ size_t Logger::registerCategory(const string& cat){
     }
 }
 
-}
 }

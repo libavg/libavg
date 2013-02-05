@@ -125,9 +125,9 @@ void CursorEvent::trace()
 {
     string sType = typeStr();
     if (!m_pNode) {
-        AVG_TRACE(logging::category::EVENTS, logging::level::INFO, sType); 
+        AVG_TRACE(Logger::category::EVENTS, Logger::level::INFO, sType); 
     } else {
-        AVG_TRACE(logging::category::EVENTS, logging::level::INFO,
+        AVG_TRACE(Logger::category::EVENTS, Logger::level::INFO,
                 m_pNode->getID()+", "+sType); 
     }
 }

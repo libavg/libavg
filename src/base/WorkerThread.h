@@ -47,7 +47,7 @@ public:
     typedef typename boost::shared_ptr<CQueue> CQueuePtr;
 
     WorkerThread(const std::string& sName, CQueue& CmdQ,
-            long logCategory=logging::category::PROFILE);
+            long logCategory=Logger::category::PROFILE);
     WorkerThread(WorkerThread const& other);
     virtual ~WorkerThread();
     void operator()();

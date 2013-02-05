@@ -28,7 +28,6 @@ using namespace std;
 
 namespace avg
 {
-using namespace logging;
 
 StandardLoggingHandler::StandardLoggingHandler()
 {
@@ -47,7 +46,7 @@ void StandardLoggingHandler::logMessage(const tm* pTime, unsigned millis,
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
     cerr << "[" << timeString << "." << 
         setw(3) << setfill('0') << millis << setw(0) << "][";
-    cerr << logging::levelToString(level) << "][";
+    cerr << Logger::levelToString(level) << "][";
     cerr << category << "] : " << sMsg << endl;
     cerr.flush();
 }

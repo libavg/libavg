@@ -938,11 +938,11 @@ public:
     {
         std::stringstream buffer;
         std::streambuf *sbuf = std::cerr.rdbuf();
-        logging::Logger *logger = logging::Logger::get();
+        Logger::Logger *logger = Logger::Logger::get();
         {
             std::cerr.rdbuf(buffer.rdbuf());
             string msg("Test log message");
-            AVG_TRACE(logging::category::NONE, logging::level::INFO, msg);
+            AVG_TRACE(Logger::category::NONE, Logger::level::INFO, msg);
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) != string::npos);
             buffer.str(string());
@@ -953,14 +953,14 @@ public:
             int cats = logger->getCategories();
             logger->setCategories(cats | logger->stringToCategory("AWESOME"));
             string msg("AWESOME LOG");
-            AVG_TRACE(AWESOME_CAT, logging::level::INFO, msg);
+            AVG_TRACE(AWESOME_CAT, Logger::level::INFO, msg);
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) != string::npos);
             buffer.str(string());
         }
         {
             std::cerr.rdbuf(buffer.rdbuf());
-            logger->setLogLevel(logging::level::WARNING);
+            logger->setLogLevel(Logger::level::WARNING);
             string msg("Invisible");
             AVG_LOG_INFO(msg);
             std::cerr.rdbuf(sbuf);

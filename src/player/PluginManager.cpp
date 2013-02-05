@@ -106,7 +106,7 @@ string PluginManager::locateSharedObject(const string& sFilename)
     }
     string sMessage = "Unable to locate plugin file '" + sFilename 
             + "'. Was looking in " + m_sCurrentSearchPath;
-    AVG_TRACE(logging::category::PLUGIN, logging::level::INFO, sMessage);
+    AVG_TRACE(Logger::category::PLUGIN, Logger::level::INFO, sMessage);
     throw PluginNotFound(sMessage);
 }
 
@@ -145,7 +145,7 @@ void PluginManager::parsePath(const string& sPath)
         
         m_PathComponents.push_back(sDirectory);
     } while (!sRemaining.empty());
-    AVG_TRACE(logging::category::PLUGIN, logging::level::INFO,
+    AVG_TRACE(Logger::category::PLUGIN, Logger::level::INFO,
             "Plugin search path set to '" << sPath << "'"); 
 }
     
@@ -154,7 +154,7 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
     void *handle = dlopen(sFullpath.c_str(), RTLD_LOCAL | RTLD_NOW);
     if (!handle) {
         string sMessage(dlerror());
-        AVG_TRACE(logging::category::PLUGIN, logging::level::ERROR,
+        AVG_TRACE(Logger::category::PLUGIN, Logger::level::ERROR,
                 "Could not load plugin. dlopen failed with message '"
                 << sMessage << "'");
         throw PluginCorrupted(sMessage);
@@ -165,7 +165,7 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
         dlclose(handle);
         throw e;
     }    
-    AVG_TRACE(logging::category::PLUGIN,logging::level::INFO,
+    AVG_TRACE(Logger::category::PLUGIN,Logger::level::INFO,
             "Loaded plugin '" << sFullpath << "'");
     return handle;
 }
@@ -179,7 +179,7 @@ void PluginManager::registerPlugin(void* handle)
     if (registerPlugin) {
         registerPlugin();
     } else {
-        AVG_TRACE(logging::category::PLUGIN, logging::level::ERROR,
+        AVG_TRACE(Logger::category::PLUGIN, Logger::level::ERROR,
                 "No plugin registration function detected");
         throw PluginCorrupted("No plugin registration function detected");
     }

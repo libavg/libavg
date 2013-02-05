@@ -442,7 +442,7 @@ void Player::newCanvasDependency()
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string sRealFilename;
-    AVG_TRACE(logging::category::MEMORY, logging::level::INFO,
+    AVG_TRACE(Logger::category::MEMORY, Logger::level::INFO,
             std::string("Player::loadFile(") + sFilename + ")");
 
     // When loading an avg file, assets are loaded from a directory relative
@@ -468,7 +468,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 
 NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
-    AVG_TRACE(logging::category::MEMORY, logging::level::INFO,"Player::loadString()");
+    AVG_TRACE(Logger::category::MEMORY, Logger::level::INFO,"Player::loadString()");
 
     string sEffectiveDoc = removeStartEndSpaces(sAVG);
     NodePtr pNode = internalLoad(sEffectiveDoc, "");
@@ -496,7 +496,7 @@ void Player::play()
             throw;
         }
         cleanup();
-        AVG_TRACE(logging::category::PLAYER, logging::level::INFO, "Playback ended.");
+        AVG_TRACE(Logger::category::PLAYER, Logger::level::INFO, "Playback ended.");
     } catch (Exception& ex) {
         m_bIsPlaying = false;
         AVG_LOG_ERROR(ex.getStr());
@@ -521,7 +521,7 @@ bool Player::isStopping()
 void Player::initPlayback(const std::string& sShaderPath)
 {
     m_bIsPlaying = true;
-    AVG_TRACE(logging::category::PLAYER, logging::level::INFO, "Playback started.");
+    AVG_TRACE(Logger::category::PLAYER, Logger::level::INFO, "Playback started.");
     initGraphics(sShaderPath);
     initAudio();
     try {
@@ -1238,7 +1238,7 @@ void Player::initConfig()
 void Player::initGraphics(const string& sShaderPath)
 {
     // Init display configuration.
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "Display bpp: " << m_DP.m_BPP);
 
     if (m_bDisplayEngineBroken) {
@@ -1250,7 +1250,7 @@ void Player::initGraphics(const string& sShaderPath)
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
@@ -1259,7 +1259,7 @@ void Player::initGraphics(const string& sShaderPath)
     {
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "Pixels per mm: " << m_pDisplayEngine->getPixelsPerMM());
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);

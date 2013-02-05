@@ -137,7 +137,7 @@ void XInputMTInputDevice::start()
 
     pEngine->setXIMTInputDevice(this);
     MultitouchInputDevice::start();
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
             "XInput Multitouch event source created.");
 }
 
@@ -229,7 +229,7 @@ void XInputMTInputDevice::findMTDevice()
         }
     }
     if (pTouchClass) {
-        AVG_TRACE(logging::category::CONFIG,logging::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG,Logger::level::INFO,
                 "Using multitouch input device " << m_sDeviceName << ", max touches: " <<
                 pTouchClass->num_touches);
     } else {

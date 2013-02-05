@@ -37,38 +37,38 @@
 
 namespace avg {
 
-namespace logging {
-    namespace category {
-        static const size_t NONE=1; //TODO: In Documentation: NONE doesn't mean no logging, but no category now
-        static const size_t PROFILE=2;
-        static const size_t PROFILE_VIDEO=8;
-        static const size_t EVENTS=16;
-        static const size_t EVENTS2=32;
-        static const size_t CONFIG=64;
-        static const size_t MEMORY=512;
-        static const size_t APP=1024;
-        static const size_t PLUGIN=2048;
-        static const size_t PLAYER=4096;
-        static const size_t SHADER=8192;
-        static const size_t DEPRECATION=16384;
-    }
-    namespace level {
-        static const unsigned CRITICAL = 50;
-        static const unsigned FATAL = 50;
-        static const unsigned ERROR = 40; 
-        static const unsigned WARNING = 30; 
-        static const unsigned INFO = 20; 
-        static const unsigned DEBUG = 10; 
-    }
-
-unsigned stringToLevel(const string& sLevel);
-const char * levelToString(unsigned level);
-
-
 class AVG_API Logger {
 public:
+    struct level
+    {
+        static const unsigned CRITICAL;
+        static const unsigned ERROR;
+        static const unsigned WARNING;
+        static const unsigned INFO;
+        static const unsigned DEBUG;
+    };
+
+    struct category
+    {
+        static const size_t NONE;
+        static const size_t PROFILE;
+        static const size_t PROFILE_VIDEO;
+        static const size_t EVENTS;
+        static const size_t EVENTS2;
+        static const size_t CONFIG;
+        static const size_t MEMORY;
+        static const size_t APP;
+        static const size_t PLUGIN;
+        static const size_t PLAYER;
+        static const size_t SHADER;
+        static const size_t DEPRECATION;
+    };
+
     static Logger* get();
     virtual ~Logger();
+
+    static unsigned stringToLevel(const string& sLevel);
+    static const char * levelToString(unsigned level);
 
     void addLogHandler(const LogHandlerPtr& logHandler);
     size_t getCategories() const;
@@ -102,33 +102,31 @@ private:
 
     size_t m_Flags;
     std::vector<size_t> m_FlagStack;
-    std::map< size_t, string > m_CategoryToString;
-    std::map< string, size_t > m_StringToCategory;
+    std::map< const size_t, string > m_CategoryToString;
+    std::map< const string, size_t > m_StringToCategory;
 
     size_t m_MaxCategoryNum;
     unsigned m_Level;
 };
 
-}
-
 #define AVG_TRACE(category, level, sMsg) { \
-if (logging::Logger::get()->isFlagSet(category)) { \
+if (Logger::get()->isFlagSet(category)) { \
     std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
     tmp << sMsg; \
-    logging::Logger::get()->trace(tmp.str(), category, level); \
+    Logger::get()->trace(tmp.str(), category, level); \
     }\
 }\
 
 #define AVG_LOG_ERROR(sMsg){ \
-    AVG_TRACE(logging::category::NONE, logging::level::ERROR, sMsg); \
+    AVG_TRACE(Logger::category::NONE, Logger::level::ERROR, sMsg); \
 }\
 
 #define AVG_LOG_WARNING(sMsg){ \
-    AVG_TRACE(logging::category::NONE, logging::level::WARNING, sMsg); \
+    AVG_TRACE(Logger::category::NONE, Logger::level::WARNING, sMsg); \
 }\
 
 #define AVG_LOG_INFO(sMsg){ \
-    AVG_TRACE(logging::category::NONE, logging::level::INFO, sMsg); \
+    AVG_TRACE(Logger::category::NONE, Logger::level::INFO, sMsg); \
 }\
 
 }

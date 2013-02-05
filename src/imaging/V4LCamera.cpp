@@ -104,7 +104,7 @@ V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat cam
     }
 
     initDevice();
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO, "V4L2 Camera opened");
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO, "V4L2 Camera opened");
 }
 
 V4LCamera::~V4LCamera()
@@ -127,7 +127,7 @@ void V4LCamera::close()
     m_vBuffers.clear();
 
     ::close(m_Fd);
-    AVG_TRACE(logging::category::CONFIG, logging::level::INFO, "V4L2 Camera closed");
+    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO, "V4L2 Camera closed");
 
     m_Fd = -1;
 }
@@ -335,7 +335,7 @@ void V4LCamera::setFeature(V4LCID_t v4lFeature, int value)
     control.id = v4lFeature;
     control.value = value;
 
-//    AVG_TRACE(logging::category::APP, "Setting feature " << getFeatureName(v4lFeature) <<
+//    AVG_TRACE(Logger::category::APP, "Setting feature " << getFeatureName(v4lFeature) <<
 //      " to "<< value);
 
     if (ioctl(m_Fd, VIDIOC_S_CTRL, &control) == -1) {
@@ -517,7 +517,7 @@ void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValu
 
 void V4LCamera::startCapture()
 {
-//  AVG_TRACE(logging::category::APP, "Entering startCapture()...");
+//  AVG_TRACE(Logger::category::APP, "Entering startCapture()...");
 
     unsigned int i;
     enum v4l2_buf_type type;
@@ -542,7 +542,7 @@ void V4LCamera::startCapture()
 
 void V4LCamera::initDevice()
 {
-//  AVG_TRACE(logging::category::APP, "Entering initDevice()...");
+//  AVG_TRACE(Logger::category::APP, "Entering initDevice()...");
 
     struct v4l2_capability cap;
     struct v4l2_cropcap CropCap;

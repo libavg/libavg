@@ -409,7 +409,7 @@ void export_base()
 
 void addPythonLogger(PyObject *self, PyObject * pyLogger)
 {
-    logging::Logger * logger = logging::Logger::get();
+    Logger::Logger * logger = Logger::Logger::get();
     LogHandlerPtr logHandler(new PythonLogHandler(pyLogger));
     logger->addLogHandler(logHandler);
 }

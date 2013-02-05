@@ -39,7 +39,7 @@ VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ,
         AsyncDemuxer* pDemuxer, AVStream* pStream, int streamIndex,
         const IntPoint& size, PixelFormat pf, bool bUseVDPAU)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
-            logging::category::PROFILE_VIDEO),
+            Logger::category::PROFILE_VIDEO),
       m_MsgQ(msgQ),
       m_pDemuxer(pDemuxer),
       m_pStream(pStream),

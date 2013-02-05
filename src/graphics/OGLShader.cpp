@@ -61,16 +61,16 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     glproc::GetProgramiv(m_hProgram, GL_LINK_STATUS, &bLinked);
     if (!bLinked) {
         AVG_LOG_ERROR("Linking shader program '"+sName+"' failed. Aborting.");
-        dumpInfoLog(m_hVertexShader, logging::level::ERROR);
-        dumpInfoLog(m_hFragmentShader, logging::level::ERROR);
-        dumpInfoLog(m_hProgram, logging::level::ERROR, true);
+        dumpInfoLog(m_hVertexShader, Logger::level::ERROR);
+        dumpInfoLog(m_hFragmentShader, Logger::level::ERROR);
+        dumpInfoLog(m_hProgram, Logger::level::ERROR, true);
         exit(-1);
     } else {
-        AVG_TRACE(logging::category::SHADER, logging::level::INFO,
+        AVG_TRACE(Logger::category::SHADER, Logger::level::INFO,
                 "Linking shader program '"+sName+"'.");
-        dumpInfoLog(m_hVertexShader, logging::level::INFO);
-        dumpInfoLog(m_hFragmentShader, logging::level::INFO);
-        dumpInfoLog(m_hProgram, logging::level::INFO, true);
+        dumpInfoLog(m_hVertexShader, Logger::level::INFO);
+        dumpInfoLog(m_hFragmentShader, Logger::level::INFO);
+        dumpInfoLog(m_hProgram, Logger::level::INFO, true);
     }
     m_pShaderRegistry = ShaderRegistry::get();
     if (m_hVertexShader) {
@@ -181,7 +181,7 @@ void OGLShader::dumpInfoLog(GLuint hObj, long level, bool bIsProgram)
         string sLog = removeATIInfoLogSpam(pInfoLog);
         GLContext::checkError("OGLShader::dumpInfoLog: glGetShaderInfoLog()");
         if (sLog.size() > 3) {
-            AVG_TRACE(logging::category::SHADER, level, sLog);
+            AVG_TRACE(Logger::category::SHADER, level, sLog);
         }
         free(pInfoLog);
     }

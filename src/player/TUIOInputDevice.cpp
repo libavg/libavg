@@ -83,7 +83,7 @@ void TUIOInputDevice::start()
     if (!m_pSocket->IsBound()) {
         throw Exception(AVG_ERR_MT_INIT, "TUIO event source: Socket not bound.");
     }
-    AVG_TRACE(logging::category::CONFIG,logging::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG,Logger::level::INFO,
             "TUIO multitouch event source created, listening on port " << port);
 
 #ifndef WIN32

@@ -192,7 +192,7 @@ void TouchEvent::removeBlob()
 void TouchEvent::trace()
 {
     CursorEvent::trace();
-    AVG_TRACE(logging::category::EVENTS2,logging::level::INFO, "pos: " << getPos() 
+    AVG_TRACE(Logger::category::EVENTS2,Logger::level::INFO, "pos: " << getPos() 
             << ", ID: " << getCursorID()
             << ", Area: " << m_Area
             << ", Eccentricity: " << m_Eccentricity);
