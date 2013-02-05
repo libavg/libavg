@@ -198,7 +198,7 @@ void Logger::pytrace(size_t category, const UTF8String& sMsg, unsigned level) co
 void Logger::trace(const UTF8String& sMsg, size_t category, unsigned level) const
 {
     boost::mutex::scoped_lock lock(logMutex);
-    if ((m_Level <= level && category & m_Flags) || Logger::level::ERROR <= level) {
+    if (shouldLog(category, level)) {
         struct tm* pTime;
         #ifdef _WIN32
         __int64 now;

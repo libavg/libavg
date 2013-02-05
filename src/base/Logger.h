@@ -79,9 +79,6 @@ public:
     size_t stringToCategory(const std::string& sCategory) const;
     void trace(const UTF8String& sMsg, size_t category, unsigned level) const;
     void pytrace(size_t category, const UTF8String& sMsg, unsigned level) const;
-    inline bool isFlagSet(size_t category) const {
-        return (category & m_Flags) != 0;
-    }
     size_t registerCategory(const string& cat);
 
     void logDebug(const string& msg, const size_t category=category::APP) const;
@@ -94,6 +91,14 @@ public:
 
     void setLogLevel(unsigned level){
         m_Level = level;
+    }
+
+    inline bool isCategorySet(size_t category) const {
+        return (category & m_Flags) != 0;
+    }
+
+    inline bool shouldLog(size_t category, unsigned level) const {
+        return (m_Level <= level && isCategorySet(category)) || Logger::level::ERROR <= level;
     }
 
 private:
@@ -110,7 +115,7 @@ private:
 };
 
 #define AVG_TRACE(category, level, sMsg) { \
-if (Logger::get()->isFlagSet(category)) { \
+if (Logger::get()->shouldLog(category, level)) { \
     std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
     tmp << sMsg; \
     Logger::get()->trace(tmp.str(), category, level); \
