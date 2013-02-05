@@ -40,7 +40,7 @@ void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
             it != sWarningsIssued.end(); ++it)
     {
         if (*it == sOldEntryPoint) {
-            bWarned = true;
+            return;
         }
     }
     if (!bWarned) { 
