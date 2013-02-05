@@ -407,9 +407,16 @@ void export_base()
     to_python_converter<TypeMap, to_dict<TypeMap> >();
 }
 
-void addPythonLogger(PyObject *self, PyObject * pyLogger)
+void addPythonLogger(PyObject * self, PyObject * pyLogger)
 {
     Logger::Logger * logger = Logger::Logger::get();
     LogHandlerPtr logHandler(new PythonLogHandler(pyLogger));
     logger->addLogHandler(logHandler);
 }
+
+void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned level){
+    avgDeprecationWarning(string("1.8"), "logger.trace",
+            "any of the logging convenience functions");
+    Logger::get()->trace(sMsg, category, level);
+}
+

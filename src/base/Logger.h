@@ -78,7 +78,6 @@ public:
     const char * categoryToString(size_t category) const;
     size_t stringToCategory(const std::string& sCategory) const;
     void trace(const UTF8String& sMsg, size_t category, unsigned level) const;
-    void pytrace(size_t category, const UTF8String& sMsg, unsigned level) const;
     size_t registerCategory(const string& cat);
 
     void logDebug(const string& msg, const size_t category=category::APP) const;

@@ -112,7 +112,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("setCategories", &Logger::Logger::setCategories)
             .def("pushCategories", &Logger::Logger::pushCategories)
             .def("popCategories", &Logger::Logger::popCategories)
-            .def("trace", &Logger::Logger::pytrace,
+            .def("trace", pytrace,
                     (bp::arg("level")=Logger::level::INFO))
             .def("debug", &Logger::Logger::logDebug,
                     (bp::arg("category")=Logger::category::APP))
