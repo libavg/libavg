@@ -97,7 +97,7 @@ void TrackerConfig::loadConfigFile(const string& sFilename)
     xmlFreeDtd(dtd);
     m_sFilename = sFilename;
 
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Reading Tracker config file from " << sFilename);
 }
 
@@ -246,7 +246,7 @@ void TrackerConfig::dump() const
 
 void TrackerConfig::save()
 {
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Saving tracker configuration to " << m_sFilename << ".");
 
     if (m_Doc) {

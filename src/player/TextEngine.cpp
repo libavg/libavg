@@ -208,6 +208,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
 void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
         const gchar *message, gpointer unused_data)
 {
+//TODO: Make this use correct AVG_LOG_LEVEL function
 #ifndef WIN32
     string s = "Pango ";
     if (log_level & G_LOG_LEVEL_ERROR) {

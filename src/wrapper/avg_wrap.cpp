@@ -113,7 +113,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("pushCategories", &Logger::Logger::pushCategories)
             .def("popCategories", &Logger::Logger::popCategories)
             .def("trace", pytrace,
-                    (bp::arg("level")=Logger::level::INFO))
+                    (bp::arg("severity")=Logger::severity::INFO))
             .def("debug", &Logger::Logger::logDebug,
                     (bp::arg("category")=Logger::category::APP))
             .def("info", &Logger::Logger::logInfo,
@@ -126,7 +126,7 @@ BOOST_PYTHON_MODULE(avg)
                     (bp::arg("category")=Logger::category::APP))
             .def("log", &Logger::Logger::log,
                     (bp::arg("category")=Logger::category::APP,
-                     bp::arg("level")=Logger::level::INFO))
+                     bp::arg("severity")=Logger::severity::INFO))
             .def_readonly("NONE", &Logger::category::NONE)
             .def_readonly("PROFILE", &Logger::category::PROFILE)
             .def_readonly("PROFILE_VIDEO", &Logger::category::PROFILE_VIDEO)
@@ -139,12 +139,12 @@ BOOST_PYTHON_MODULE(avg)
             .def_readonly("PLAYER", &Logger::category::PLAYER)
             .def_readonly("SHADER", &Logger::category::SHADER)
             .def_readonly("DEPRECATION", &Logger::category::DEPRECATION)
-            //TODO: Should separate category and level on python level too
-            .def_readonly("CRITICAL", &Logger::level::CRITICAL)
-            .def_readonly("ERROR", &Logger::level::ERROR)
-            .def_readonly("WARNING", &Logger::level::WARNING)
-            .def_readonly("INFO", &Logger::level::INFO)
-            .def_readonly("DEBUG", &Logger::level::DEBUG)
+            //TODO: Should separate category and severity on python severity too
+            .def_readonly("CRITICAL", &Logger::severity::CRITICAL)
+            .def_readonly("ERROR", &Logger::severity::ERROR)
+            .def_readonly("WARNING", &Logger::severity::WARNING)
+            .def_readonly("INFO", &Logger::severity::INFO)
+            .def_readonly("DEBUG", &Logger::severity::DEBUG)
         ;
         scope().attr("logger") = Logger::Logger::get();
 

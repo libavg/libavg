@@ -557,7 +557,7 @@ void VideoNode::close()
         } else {
             sID = getID();
         }
-        AVG_TRACE(Logger::category::PROFILE_VIDEO, Logger::level::INFO,
+        AVG_TRACE(Logger::category::PROFILE_VIDEO, Logger::severity::INFO,
                 "Missed video frames for '" << sID << "': " << m_FramesTooLate <<
                 " of " << m_FramesPlayed);
         m_FramesTooLate = 0;

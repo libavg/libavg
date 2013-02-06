@@ -39,7 +39,7 @@ namespace avg {
 
 class AVG_API Logger {
 public:
-    struct level
+    struct severity
     {
         static const unsigned CRITICAL;
         static const unsigned ERROR;
@@ -67,8 +67,8 @@ public:
     static Logger* get();
     virtual ~Logger();
 
-    static unsigned stringToLevel(const string& sLevel);
-    static const char * levelToString(unsigned level);
+    static unsigned stringToSeverity(const string& sSeverity);
+    static const char * severityToString(unsigned severity);
 
     void addLogHandler(const LogHandlerPtr& logHandler);
     size_t getCategories() const;
@@ -77,7 +77,7 @@ public:
     void popCategories();
     const char * categoryToString(size_t category) const;
     size_t stringToCategory(const std::string& sCategory) const;
-    void trace(const UTF8String& sMsg, size_t category, unsigned level) const;
+    void trace(const UTF8String& sMsg, size_t category, unsigned severity) const;
     size_t registerCategory(const string& cat);
 
     void logDebug(const string& msg, const size_t category=category::APP) const;
@@ -86,18 +86,18 @@ public:
     void logError(const string& msg, const size_t category=category::APP) const;
     void logCritical(const string& msg, const size_t category=category::APP) const;
     void log(const string& msg, const size_t category=category::APP,
-            unsigned level=level::INFO) const;
+            unsigned severity=severity::INFO) const;
 
-    void setLogLevel(unsigned level){
-        m_Level = level;
+    void setLogSeverity(unsigned severity){
+        m_Severity = severity;
     }
 
     inline bool isCategorySet(size_t category) const {
         return (category & m_Flags) != 0;
     }
 
-    inline bool shouldLog(size_t category, unsigned level) const {
-        return (m_Level <= level && isCategorySet(category)) || Logger::level::ERROR <= level;
+    inline bool shouldLog(size_t category, unsigned severity) const {
+        return (m_Severity <= severity && isCategorySet(category)) || Logger::severity::ERROR <= severity;
     }
 
 private:
@@ -110,27 +110,27 @@ private:
     std::map< const string, size_t > m_StringToCategory;
 
     size_t m_MaxCategoryNum;
-    unsigned m_Level;
+    unsigned m_Severity;
 };
 
-#define AVG_TRACE(category, level, sMsg) { \
-if (Logger::get()->shouldLog(category, level)) { \
+#define AVG_TRACE(category, severity, sMsg) { \
+if (Logger::get()->shouldLog(category, severity)) { \
     std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
     tmp << sMsg; \
-    Logger::get()->trace(tmp.str(), category, level); \
+    Logger::get()->trace(tmp.str(), category, severity); \
     }\
 }\
 
 #define AVG_LOG_ERROR(sMsg){ \
-    AVG_TRACE(Logger::category::NONE, Logger::level::ERROR, sMsg); \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::ERROR, sMsg); \
 }\
 
 #define AVG_LOG_WARNING(sMsg){ \
-    AVG_TRACE(Logger::category::NONE, Logger::level::WARNING, sMsg); \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::WARNING, sMsg); \
 }\
 
 #define AVG_LOG_INFO(sMsg){ \
-    AVG_TRACE(Logger::category::NONE, Logger::level::INFO, sMsg); \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::INFO, sMsg); \
 }\
 
 }

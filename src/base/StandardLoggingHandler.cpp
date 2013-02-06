@@ -40,13 +40,13 @@ StandardLoggingHandler::~StandardLoggingHandler()
 }
 
 void StandardLoggingHandler::logMessage(const tm* pTime, unsigned millis,
-        const string& category, unsigned level, const UTF8String& sMsg)
+        const string& category, unsigned severity, const UTF8String& sMsg)
 {
     char timeString[256];
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
     cerr << "[" << timeString << "." << 
         setw(3) << setfill('0') << millis << setw(0) << "][";
-    cerr << Logger::levelToString(level) << "][";
+    cerr << Logger::severityToString(severity) << "][";
     cerr << category << "] : " << sMsg << endl;
     cerr.flush();
 }

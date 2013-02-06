@@ -79,13 +79,13 @@ TrackerInputDevice::TrackerInputDevice()
                 "Unknown camera pixel format "+sCaptureFormat+".");
     }
     
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Trying to create a Tracker for " << sDriver
             << " Camera: " << sDevice << " Size: " << captureSize << "format: "
             << sCaptureFormat);
     m_pCamera = createCamera(sDriver, sDevice, -1, bFW800, captureSize, camPF, I8, 
             frameRate);
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Got Camera " << m_pCamera->getDevice() << " from driver: " 
             << m_pCamera->getDriverName());
 

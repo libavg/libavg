@@ -494,7 +494,7 @@ bool Node::checkReload(const std::string& sHRef, const ImagePtr& pImage,
             if (getState() != Node::NS_UNCONNECTED) {
                 AVG_LOG_ERROR(ex.getStr());
             } else {
-                AVG_TRACE(Logger::category::MEMORY, Logger::level::ERROR, ex.getStr());
+                AVG_TRACE(Logger::category::MEMORY, Logger::severity::ERROR, ex.getStr());
             }
         }
         return true;

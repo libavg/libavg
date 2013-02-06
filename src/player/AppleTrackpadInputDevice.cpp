@@ -57,7 +57,7 @@ void AppleTrackpadInputDevice::start()
     m_Device = MTDeviceCreateDefault();
     MTRegisterContactFrameCallback(m_Device, callback);
     MTDeviceStart(m_Device, 0);
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::info,
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::info,
             "Apple Trackpad Multitouch event source created.");
 }
 

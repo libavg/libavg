@@ -70,11 +70,11 @@ protected:
 ColorNode::ColorNode(const ArgList& Args) :
     m_sFillColorName("FFFFFF")
 {   
-    AVG_TRACE(Logger::category::PLUGIN, Logger::level::INFO,
+    AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
             "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor")); 
     
     Args.setMembers(this);
-    AVG_TRACE(Logger::category::PLUGIN, Logger::level::INFO,
+    AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
             "ColorNode constructed with " << m_sFillColorName);   
 
     parseColor(m_sFillColorName);
@@ -82,7 +82,7 @@ ColorNode::ColorNode(const ArgList& Args) :
 
 void ColorNode::setFillColor(const string& sFillColor)
 {
-    AVG_TRACE(Logger::category::PLUGIN,  Logger::level::INFO,
+    AVG_TRACE(Logger::category::PLUGIN,  Logger::severity::INFO,
             "setFillColor called with " << sFillColor);   
     m_sFillColorName = sFillColor;
     parseColor(m_sFillColorName);

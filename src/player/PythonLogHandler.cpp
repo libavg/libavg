@@ -40,9 +40,9 @@ PythonLogHandler::~PythonLogHandler()
 }
 
 void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
-        const string& category, unsigned level, const UTF8String& sMsg)
+        const string& category, unsigned severity, const UTF8String& sMsg)
 {
-    string sLevel = boost::to_lower_copy(string(Logger::levelToString(level)));
+    string sSeverity = boost::to_lower_copy(string(Logger::severityToString(severity)));
     PyObject * extra = PyDict_New();
     PyObject * pyCat = PyString_FromString(category.c_str());
 
@@ -54,7 +54,7 @@ void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
     PyDict_SetItemString(kwargs, "extra", extra);
     PyTuple_SetItem(args, 0, pyMsg);
 
-    PyObject_Call(PyObject_GetAttrString(m_pyLogger, sLevel.c_str()), args, kwargs);
+    PyObject_Call(PyObject_GetAttrString(m_pyLogger, sSeverity.c_str()), args, kwargs);
 
     Py_DECREF(extra);
     Py_DECREF(pyCat);

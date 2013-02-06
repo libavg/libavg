@@ -104,7 +104,7 @@ V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat cam
     }
 
     initDevice();
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO, "V4L2 Camera opened");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "V4L2 Camera opened");
 }
 
 V4LCamera::~V4LCamera()
@@ -127,7 +127,7 @@ void V4LCamera::close()
     m_vBuffers.clear();
 
     ::close(m_Fd);
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO, "V4L2 Camera closed");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "V4L2 Camera closed");
 
     m_Fd = -1;
 }

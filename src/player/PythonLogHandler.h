@@ -33,7 +33,7 @@ public:
     virtual ~PythonLogHandler ();
 
     virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
-            unsigned level, const UTF8String& sMsg);
+            unsigned severity, const UTF8String& sMsg);
 
 private:
 

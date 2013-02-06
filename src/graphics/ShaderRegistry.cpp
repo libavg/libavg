@@ -66,7 +66,7 @@ void ShaderRegistry::setShaderPath(const std::string& sLibPath)
         s_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
     }
 #endif
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Loading shaders from "+s_sLibPath);
 }
 

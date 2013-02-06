@@ -98,7 +98,7 @@ float CGLContext::calcRefreshRate()
     CGDisplayModeRef mode = CGDisplayCopyDisplayMode(CGMainDisplayID());
     refreshRate = CGDisplayModeGetRefreshRate(mode);
     if (refreshRate < 1.0) {
-        AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                 "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
         refreshRate = 60;
     }
@@ -111,7 +111,7 @@ float CGLContext::calcRefreshRate()
         if (value) {
             CFNumberGetValue(value, kCFNumberIntType, &refreshRate);
             if (refreshRate < 1.0) {
-                AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+                AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                         "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
                 refreshRate = 60;
             }

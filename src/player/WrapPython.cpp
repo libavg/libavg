@@ -56,7 +56,7 @@ void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
         if (sNewEntryPoint != string("")) { 
             sMsg += " Use "+string(sNewEntryPoint) + " instead."; 
         } 
-        AVG_TRACE(Logger::category::DEPRECATION, Logger::level::WARNING, sMsg); 
+        AVG_TRACE(Logger::category::DEPRECATION, Logger::severity::WARNING, sMsg); 
     } 
 }
 

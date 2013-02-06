@@ -414,9 +414,10 @@ void addPythonLogger(PyObject * self, PyObject * pyLogger)
     logger->addLogHandler(logHandler);
 }
 
-void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned level){
+void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned severity)
+{
     avgDeprecationWarning(string("1.8"), "logger.trace",
             "any of the logging convenience functions");
-    Logger::get()->trace(sMsg, category, level);
+    Logger::get()->trace(sMsg, category, severity);
 }
 

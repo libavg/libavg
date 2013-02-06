@@ -205,7 +205,7 @@ void DSCamera::setCaptureFormat()
         }
     }
     if (bFormatFound) {
-        AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                 "Camera image format: " << camImageFormatToString(pmtConfig));
         int height = ((VIDEOINFOHEADER*)(pmtConfig->pbFormat))->bmiHeader.biHeight;
         m_bUpsideDown = (height > 0);
@@ -222,7 +222,7 @@ void DSCamera::setCaptureFormat()
             m_bUpsideDown = (height > 0);
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
-            AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                     "Camera image format: " << camImageFormatToString(pmtCloseConfig));
             CoTaskMemFree((PVOID)pmtCloseConfig->pbFormat);
             CoTaskMemFree(pmtCloseConfig);

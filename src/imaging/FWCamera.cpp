@@ -164,7 +164,7 @@ FWCamera::~FWCamera()
     dc1394_camera_free(m_pCamera);
     dc1394_free(m_pDC1394);
 #endif
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO, "Firewire camera closed.");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "Firewire camera closed.");
 }
 
 void FWCamera::startCapture()
@@ -193,7 +193,7 @@ void FWCamera::startCapture()
             DC1394_FEATURE_MODE_MANUAL);
     dc1394_feature_set_power(m_pCamera, DC1394_FEATURE_EXPOSURE, DC1394_OFF);
 
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO, "Firewire camera opened.");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "Firewire camera opened.");
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         setFeature(it->first, it->second, true);
     }
@@ -201,11 +201,11 @@ void FWCamera::startCapture()
     
     if (getCamPF() == BAYER8) {
         if (strcmp(m_pCamera->model, "DFx 31BF03") == 0) {
-            AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                     "Applying bayer pattern fixup for IS DFx31BF03 camera");
             setCamPF(BAYER8_GRBG);
         } else if (strcmp(m_pCamera->vendor, "Point Grey Research") == 0) {
-            AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                     "Applying bayer pattern fixup for PointGrey cameras");
             enablePtGreyBayer();
         }

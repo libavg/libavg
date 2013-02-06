@@ -85,7 +85,7 @@ void LibMTDevInputDevice::start()
     m_Dimensions.br.y = pAbsInfo->maximum;
 
     MultitouchInputDevice::start();
-    AVG_TRACE(Logger::category::CONFIG, Logger::level::INFO,
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Linux MTDev Multitouch event source created.");
 }
 

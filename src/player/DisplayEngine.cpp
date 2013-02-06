@@ -63,24 +63,24 @@ void DisplayEngine::initRender()
 
 void DisplayEngine::deinitRender()
 {
-    AVG_TRACE(Logger::category::PROFILE, Logger::level::INFO,
+    AVG_TRACE(Logger::category::PROFILE, Logger::severity::INFO,
             "Framerate statistics: ");
-    AVG_TRACE(Logger::category::PROFILE, Logger::level::INFO,
+    AVG_TRACE(Logger::category::PROFILE, Logger::severity::INFO,
             "  Total frames: " <<m_NumFrames);
     float TotalTime = float(TimeSource::get()->getCurrentMicrosecs()
             -m_StartTime)/1000000;
-    AVG_TRACE(Logger::category::PROFILE,  Logger::level::INFO,
+    AVG_TRACE(Logger::category::PROFILE,  Logger::severity::INFO,
             "  Total time: " << TotalTime << " seconds");
     float actualFramerate = (m_NumFrames+1)/TotalTime;
-    AVG_TRACE(Logger::category::PROFILE,  Logger::level::INFO,
+    AVG_TRACE(Logger::category::PROFILE,  Logger::severity::INFO,
             "  Framerate achieved: " << actualFramerate);
-    AVG_TRACE(Logger::category::PROFILE,  Logger::level::INFO,
+    AVG_TRACE(Logger::category::PROFILE,  Logger::severity::INFO,
             "  Frames too late: " << m_FramesTooLate);
-    AVG_TRACE(Logger::category::PROFILE,  Logger::level::INFO,
+    AVG_TRACE(Logger::category::PROFILE,  Logger::severity::INFO,
             "  Percent of time spent waiting: " 
             << float (m_TimeSpentWaiting)/(10000*TotalTime));
     if (m_Framerate != 0) {
-        AVG_TRACE(Logger::category::PROFILE,  Logger::level::INFO,
+        AVG_TRACE(Logger::category::PROFILE,  Logger::severity::INFO,
                 "  Framerate goal was: " << m_Framerate);
         if (m_Framerate*2 < actualFramerate && m_NumFrames > 10) {
             AVG_LOG_WARNING("Actual framerate was a lot higher than framerate goal.\
