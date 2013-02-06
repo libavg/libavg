@@ -166,12 +166,6 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": unsupported audio codec ("+szBuf+").");
         }
-        if (m_pAStream->codec->sample_fmt != SAMPLE_FMT_S16) {
-            m_AStreamIndex = -1;
-            m_pAStream = 0; 
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported sample format (!= S16).");
-        }
     }
     if (!m_pVStream && !m_pAStream) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 

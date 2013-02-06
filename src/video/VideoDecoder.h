@@ -45,11 +45,11 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class VDPAUDecoder;
 
 enum FrameAvailableCode {
-    FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING, FA_CLOSED
+    FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
 };
 
 enum StreamSelect {
-    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_ALL
+    SS_AUDIO, SS_VIDEO, SS_DEFAULT
 };
 
 class AVG_API VideoDecoder
