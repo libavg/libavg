@@ -212,19 +212,29 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 #ifndef WIN32
     string s = "Pango ";
     if (log_level & G_LOG_LEVEL_ERROR) {
-        s += "error: ";
+        s += message;
+        AVG_LOG_ERROR(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_CRITICAL) {
-        s += string("critical: ")+message;
+        s += message;
         AVG_LOG_ERROR(s);
         AVG_ASSERT(false);
     } else if (log_level & G_LOG_LEVEL_WARNING) {
-        s += "warning: ";
+        s += message;
+        AVG_LOG_WARNING(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_MESSAGE) {
-        s += "message: ";
+        s += (string("message: ") + message);
+        AVG_LOG_INFO(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_INFO) {
-        s += "info: ";
+        s += message;
+        AVG_LOG_INFO(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_DEBUG) {
-        s += "debug: ";
+        s += message;
+        AVG_TRACE(Logger::category::NONE, Logger::severity::DEBUG, s);
+        return;
     }
     s += message;
     AVG_LOG_WARNING(s);
