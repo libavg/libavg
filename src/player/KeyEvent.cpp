@@ -72,8 +72,7 @@ int KeyEvent::getModifiers() const
 void KeyEvent::trace()
 {
     Event::trace();
-    AVG_TRACE(Logger::category::EVENTS2, Logger::severity::INFO,
-            "Scancode: " << m_ScanCode << ", Keycode: " << m_KeyCode << ", KeyString: " 
+    AVG_LOG_DEBUG("Scancode: " << m_ScanCode << ", Keycode: " << m_KeyCode << ", KeyString: " 
             << m_KeyString << ", Modifiers: " << m_Modifiers);
 }
 
