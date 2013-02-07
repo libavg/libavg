@@ -138,7 +138,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
         }
         if (bytesDecoded > 0) {
             int framesDecoded = bytesDecoded/(m_pStream->codec->channels*
-                    av_get_bytes_per_sample(m_InputSampleFormat));
+                    getBytesPerSample(m_InputSampleFormat));
             AudioBufferPtr pBuffer;
             bool bNeedsResample = (m_InputSampleRate != m_AP.m_SampleRate ||
                     m_InputSampleFormat != SAMPLE_FMT_S16 ||
@@ -200,7 +200,7 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
         m_pResampleContext = av_audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
-                SAMPLE_FMT_S16, m_InputSampleFormat, 16, 10, 0, 0.8);
+                SAMPLE_FMT_S16, (AVSampleFormat)m_InputSampleFormat, 16, 10, 0, 0.8);
 #else
         m_pResampleContext = audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate);
@@ -244,6 +244,25 @@ void AudioDecoderThread::pushEOF()
     VideoMsgPtr pMsg(new VideoMsg());
     pMsg->setEOF();
     m_MsgQ.push(pMsg);
+}
+
+int AudioDecoderThread::getBytesPerSample(int sampleFormat)
+{
+    switch (sampleFormat) {
+        case SAMPLE_FMT_U8:
+            return 1;
+        case SAMPLE_FMT_S16:
+            return 2;
+        case SAMPLE_FMT_S32:
+            return 4;
+        case SAMPLE_FMT_FLT:
+            return 4;
+        case SAMPLE_FMT_DBL:
+            return 8;
+        default:
+            AVG_ASSERT(false);
+            return 0;
+    }
 }
 
 }

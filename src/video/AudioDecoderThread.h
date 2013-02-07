@@ -57,6 +57,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         void pushAudioMsg(AudioBufferPtr pBuffer, float time);
         void pushSeekDone(float time, int seqNum);
         void pushEOF();
+        int getBytesPerSample(int sampleFormat);
 
         AudioMsgQueue& m_MsgQ;
         VideoMsgQueue& m_PacketQ;
@@ -65,7 +66,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         AVStream * m_pStream;
 
         int m_InputSampleRate;
-        AVSampleFormat m_InputSampleFormat;
+        int m_InputSampleFormat;
         ReSampleContext * m_pResampleContext;
         float m_AudioStartTimestamp;
         float m_LastFrameTime;
