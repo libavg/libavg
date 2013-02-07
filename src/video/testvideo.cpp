@@ -461,15 +461,6 @@ class AVDecoderTest: public DecoderTest {
             TEST(numFrames == expectedNumFrames);
             testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
 
-            if (isThreaded()) {
-                // Check if audio length was ok.
-                // TODO: Currently, getDuration() is the duration of the video stream.
-                // This causes the test to fail.
-                //int framesInDuration = int(pDecoder->getDuration()*44100);
-                //cerr << "framesDecoded: " << totalFramesDecoded << ", framesInDuration: " << framesInDuration << endl;
-                //TEST (abs(totalFramesDecoded-framesInDuration) < 45);
-            }
-
             // Test loop.
             pDecoder->seek(0);
             processAudioSeek(pMsgQ, pStatusQ);
