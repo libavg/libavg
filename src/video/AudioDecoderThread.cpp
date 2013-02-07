@@ -27,6 +27,8 @@
 #include "../base/TimeSource.h"
 #include "../base/ScopeTimer.h"
 
+#include <libavutil/samplefmt.h>
+
 using namespace std;
 
 namespace avg {
@@ -200,7 +202,7 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
         m_pResampleContext = av_audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
-                SAMPLE_FMT_S16, (AVSampleFormat)m_InputSampleFormat, 16, 10, 0, 0.8);
+                SAMPLE_FMT_S16, (SampleFormat)m_InputSampleFormat, 16, 10, 0, 0.8);
 #else
         m_pResampleContext = audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate);
