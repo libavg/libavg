@@ -117,9 +117,12 @@ void VideoDecoderThread::decodePacket(AVPacket* pPacket)
 void VideoDecoderThread::handleEOF()
 {
     AVFrame frame;
-    bool bGotPicture = m_pFrameDecoder->decodeLastFrame(frame);
-    if (bGotPicture) {
-        sendFrame(frame);
+    bool bGotPicture = true;
+    while (bGotPicture) {
+        bGotPicture = m_pFrameDecoder->decodeLastFrame(frame);
+        if (bGotPicture) {
+            sendFrame(frame);
+        }
     }
     VideoMsgPtr pMsg(new VideoMsg());
     pMsg->setEOF();

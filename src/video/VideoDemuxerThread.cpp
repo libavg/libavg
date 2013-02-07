@@ -130,7 +130,6 @@ void VideoDemuxerThread::close()
 void VideoDemuxerThread::onStreamEOF(int streamIndex)
 {
     m_PacketQEOFMap[streamIndex] = true;
-                
     m_bEOF = true;
     map<int, bool>::iterator it;
     for (it = m_PacketQEOFMap.begin(); it != m_PacketQEOFMap.end(); it++) {

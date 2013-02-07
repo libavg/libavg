@@ -458,10 +458,8 @@ class AVDecoderTest: public DecoderTest {
                 curTime += 1.0f/pDecoder->getFPS();
             }
             TEST(pDecoder->isEOF());
-            // TODO: Commented out because the last frames aren't decoded with newer
-            // ffmpeg (circa >= 0.8)
-            // TEST(numFrames == expectedNumFrames);
-            // testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
+            TEST(numFrames == expectedNumFrames);
+            testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
 
             if (isThreaded()) {
                 // Check if audio length was ok.
