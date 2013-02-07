@@ -27,7 +27,9 @@
 #include "../base/TimeSource.h"
 #include "../base/ScopeTimer.h"
 
+#if AVUTIL_VERSION_INT > AV_VERSION_INT(52, 0, 0)
 #include <libavutil/samplefmt.h>
+#endif
 
 using namespace std;
 
