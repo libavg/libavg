@@ -20,7 +20,7 @@
 //
 
 #include "AsyncVideoDecoder.h"
-#include "SyncDecoder.h"
+#include "SyncVideoDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
@@ -75,7 +75,7 @@ class DecoderTest: public GraphicsTest {
             if (m_bThreaded) {
                 pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(8));
             } else {
-                pDecoder = VideoDecoderPtr(new SyncDecoder());
+                pDecoder = VideoDecoderPtr(new SyncVideoDecoder());
             }
 
             return pDecoder;

@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "SyncDecoder.h"
+#include "SyncVideoDecoder.h"
 #include "FFMpegDemuxer.h"
 
 #include "../base/Exception.h"
@@ -42,7 +42,7 @@ using namespace boost;
 
 namespace avg {
 
-SyncDecoder::SyncDecoder()
+SyncVideoDecoder::SyncVideoDecoder()
     : m_pDemuxer(0),
       m_bFirstPacket(false),
       m_bUseStreamFPS(true),
@@ -51,12 +51,12 @@ SyncDecoder::SyncDecoder()
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-SyncDecoder::~SyncDecoder()
+SyncVideoDecoder::~SyncVideoDecoder()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void SyncDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
+void SyncVideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
         bool bEnableSound)
 {
     m_bEOFPending = false;
@@ -71,7 +71,7 @@ void SyncDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
     }
 }
 
-void SyncDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
+void SyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
     VideoDecoder::startDecoding(bDeliverYCbCr, 0);
 
@@ -84,7 +84,7 @@ void SyncDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
     m_pFrameDecoder->setFPS(m_FPS);
 }
 
-void SyncDecoder::close() 
+void SyncVideoDecoder::close() 
 {
     delete m_pDemuxer;
     m_pDemuxer = 0;
@@ -93,7 +93,7 @@ void SyncDecoder::close()
     VideoDecoder::close();
 }
 
-void SyncDecoder::seek(float destTime) 
+void SyncVideoDecoder::seek(float destTime) 
 {
     AVG_ASSERT(getState() == DECODING);
 
@@ -106,22 +106,22 @@ void SyncDecoder::seek(float destTime)
     m_pFrameDecoder->handleSeek();
 }
 
-void SyncDecoder::loop()
+void SyncVideoDecoder::loop()
 {
     seek(0);
 }
 
-int SyncDecoder::getCurFrame() const
+int SyncVideoDecoder::getCurFrame() const
 {
     return int(getCurTime()*getStreamFPS()+0.49);
 }
 
-int SyncDecoder::getNumFramesQueued() const
+int SyncVideoDecoder::getNumFramesQueued() const
 {
     return 0;
 }
 
-float SyncDecoder::getCurTime() const
+float SyncVideoDecoder::getCurTime() const
 {
     AVG_ASSERT(getState() != CLOSED);
     if (m_pFrameDecoder) {
@@ -131,13 +131,13 @@ float SyncDecoder::getCurTime() const
     }
 }
 
-float SyncDecoder::getFPS() const
+float SyncVideoDecoder::getFPS() const
 {
     AVG_ASSERT(getState() != CLOSED);
     return m_FPS;
 }
 
-void SyncDecoder::setFPS(float fps)
+void SyncVideoDecoder::setFPS(float fps)
 {
     m_bUseStreamFPS = (fps == 0);
     if (fps == 0) {
@@ -153,7 +153,7 @@ void SyncDecoder::setFPS(float fps)
 static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
 
-FrameAvailableCode SyncDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float timeWanted)
+FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
@@ -180,20 +180,20 @@ FrameAvailableCode SyncDecoder::renderToBmps(vector<BitmapPtr>& pBmps, float tim
     }
 }
 
-void SyncDecoder::throwAwayFrame(float timeWanted)
+void SyncVideoDecoder::throwAwayFrame(float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
     AVFrame frame;
     readFrameForTime(frame, timeWanted);
 }
 
-bool SyncDecoder::isEOF() const
+bool SyncVideoDecoder::isEOF() const
 {
     AVG_ASSERT(getState() == DECODING);
     return m_pFrameDecoder->isEOF() && !m_bEOFPending;
 }
 
-FrameAvailableCode SyncDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
+FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
     float timePerFrame = 1.0f/m_FPS;
@@ -216,7 +216,7 @@ FrameAvailableCode SyncDecoder::readFrameForTime(AVFrame& frame, float timeWante
 
 static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
 
-void SyncDecoder::readFrame(AVFrame& frame)
+void SyncVideoDecoder::readFrame(AVFrame& frame)
 {
     AVG_ASSERT(getState() == DECODING);
     ScopeTimer timer(DecodeProfilingZone); 

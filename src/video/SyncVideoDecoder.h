@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SyncDecoder_H_
-#define _SyncDecoder_H_
+#ifndef _SyncVideoDecoder_H_
+#define _SyncVideoDecoder_H_
 
 #include "../avgconfigwrapper.h"
 #include "VideoDecoder.h"
@@ -29,11 +29,11 @@
 
 namespace avg {
 
-class AVG_API SyncDecoder: public VideoDecoder
+class AVG_API SyncVideoDecoder: public VideoDecoder
 {
     public:
-        SyncDecoder();
-        virtual ~SyncDecoder();
+        SyncVideoDecoder();
+        virtual ~SyncVideoDecoder();
         virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
                 bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
@@ -69,7 +69,7 @@ class AVG_API SyncDecoder: public VideoDecoder
         float m_FPS;
 };
 
-typedef boost::shared_ptr<SyncDecoder> SyncDecoderPtr;
+typedef boost::shared_ptr<SyncVideoDecoder> SyncVideoDecoderPtr;
 
 }
 #endif 
