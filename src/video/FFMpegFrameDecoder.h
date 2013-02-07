@@ -58,8 +58,8 @@ class AVG_API FFMpegFrameDecoder
         bool m_bEOF;
         
         float m_TimeUnitsPerSecond;
-        long long m_VideoStartTimestamp;
-        float m_LastVideoFrameTime;
+        long long m_StartTimestamp;
+        float m_LastFrameTime;
 
         bool m_bUseStreamFPS;
         float m_FPS;

@@ -37,25 +37,25 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
       m_MsgQ(msgQ),
       m_PacketQ(packetQ),
       m_AP(ap),
-      m_pAStream(pStream),
-      m_pAudioResampleContext(0),
+      m_pStream(pStream),
+      m_pResampleContext(0),
       m_State(DECODING)
 {
     m_LastFrameTime = 0;
     m_AudioStartTimestamp = 0;
 
-    if (m_pAStream->start_time != (long long)AV_NOPTS_VALUE) {
-        m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)*m_pAStream->start_time);
+    if (m_pStream->start_time != (long long)AV_NOPTS_VALUE) {
+        m_AudioStartTimestamp = float(av_q2d(m_pStream->time_base)*m_pStream->start_time);
     }
-    m_InputSampleRate = (int)(m_pAStream->codec->sample_rate);
-    m_InputSampleFormat = m_pAStream->codec->sample_fmt;
+    m_InputSampleRate = (int)(m_pStream->codec->sample_rate);
+    m_InputSampleFormat = m_pStream->codec->sample_fmt;
 }
 
 AudioDecoderThread::~AudioDecoderThread()
 {
-    if (m_pAudioResampleContext) {
-        audio_resample_close(m_pAudioResampleContext);
-        m_pAudioResampleContext = 0;
+    if (m_pResampleContext) {
+        audio_resample_close(m_pResampleContext);
+        m_pResampleContext = 0;
     }
 }
 
@@ -121,10 +121,10 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
     while (pTempPacket->size > 0) {
         int bytesDecoded = AVCODEC_MAX_AUDIO_FRAME_SIZE;
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
-        int bytesConsumed = avcodec_decode_audio3(m_pAStream->codec, (short*)pDecodedData,
+        int bytesConsumed = avcodec_decode_audio3(m_pStream->codec, (short*)pDecodedData,
                 &bytesDecoded, pTempPacket);
 #else
-        int bytesConsumed = avcodec_decode_audio2(m_pAStream->codec, (short*)pDecodedData,
+        int bytesConsumed = avcodec_decode_audio2(m_pStream->codec, (short*)pDecodedData,
                 &bytesDecoded, pTempPacket->data, pTempPacket->size);
 #endif
         AVG_ASSERT(bytesConsumed != 0);
@@ -137,12 +137,12 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
             pTempPacket->size -= bytesConsumed;
         }
         if (bytesDecoded > 0) {
-            int framesDecoded = bytesDecoded/(m_pAStream->codec->channels*
+            int framesDecoded = bytesDecoded/(m_pStream->codec->channels*
                     av_get_bytes_per_sample(m_InputSampleFormat));
             AudioBufferPtr pBuffer;
             bool bNeedsResample = (m_InputSampleRate != m_AP.m_SampleRate ||
                     m_InputSampleFormat != SAMPLE_FMT_S16 ||
-                    m_pAStream->codec->channels != m_AP.m_Channels);
+                    m_pStream->codec->channels != m_AP.m_Channels);
             if (bNeedsResample) {
                 pBuffer = resampleAudio(pDecodedData, framesDecoded);
             } else {
@@ -160,7 +160,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
 void AudioDecoderThread::handleSeekDone(AVPacket* pPacket)
 {
     m_MsgQ.clear();
-    m_LastFrameTime = float(pPacket->dts*av_q2d(m_pAStream->time_base))
+    m_LastFrameTime = float(pPacket->dts*av_q2d(m_pStream->time_base))
             - m_AudioStartTimestamp;
 
    if (fabs(m_LastFrameTime - m_SeekTime) < 0.01) {
@@ -186,7 +186,7 @@ void AudioDecoderThread::handleSeekDone(AVPacket* pPacket)
 
 void AudioDecoderThread::discardPacket(AVPacket* pPacket)
 {
-    m_LastFrameTime = float(pPacket->dts*av_q2d(m_pAStream->time_base))
+    m_LastFrameTime = float(pPacket->dts*av_q2d(m_pStream->time_base))
             - m_AudioStartTimestamp;
     if (m_LastFrameTime-0.01f > m_SeekTime) {
         pushSeekDone(m_LastFrameTime, m_SeekSeqNum);
@@ -196,20 +196,20 @@ void AudioDecoderThread::discardPacket(AVPacket* pPacket)
 
 AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesDecoded)
 {
-    if (!m_pAudioResampleContext) {
+    if (!m_pResampleContext) {
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
-        m_pAudioResampleContext = av_audio_resample_init(m_AP.m_Channels, 
-                m_pAStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
+        m_pResampleContext = av_audio_resample_init(m_AP.m_Channels, 
+                m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
                 SAMPLE_FMT_S16, m_InputSampleFormat, 16, 10, 0, 0.8);
 #else
-        m_pAudioResampleContext = audio_resample_init(m_AP.m_Channels, 
-                m_pAStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate);
+        m_pResampleContext = audio_resample_init(m_AP.m_Channels, 
+                m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate);
 #endif
-        AVG_ASSERT(m_pAudioResampleContext);
+        AVG_ASSERT(m_pResampleContext);
     }
 
     short pResampledData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
-    int framesResampled = audio_resample(m_pAudioResampleContext, pResampledData,
+    int framesResampled = audio_resample(m_pResampleContext, pResampledData,
             (short*)pDecodedData, framesDecoded);
     AudioBufferPtr pBuffer(new AudioBuffer(framesResampled, m_AP));
     memcpy(pBuffer->getData(), pResampledData, 

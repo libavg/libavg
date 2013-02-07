@@ -27,7 +27,7 @@ using namespace std;
 
 namespace avg {
 
-VideoDemuxerThread::VideoDemuxerThread(CQueue& cmdQ, AVFormatContext * pFormatContext,
+VideoDemuxerThread::VideoDemuxerThread(CQueue& cmdQ, AVFormatContext* pFormatContext,
         const map<int, VideoMsgQueuePtr>& packetQs)
     : WorkerThread<VideoDemuxerThread>("VideoDemuxer", cmdQ),
       m_PacketQs(packetQs),
