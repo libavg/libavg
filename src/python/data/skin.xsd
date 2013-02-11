@@ -54,6 +54,18 @@
             <xsd:attribute name="disabledFont" type="xsd:IDREF"/>
           </xsd:complexType>
         </xsd:element>
+        <xsd:element name="checkbox" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="checkedUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="checkedDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="checkedDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="uncheckedUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="uncheckedDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="uncheckedDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="font" type="xsd:IDREF"/>
+          </xsd:complexType>
+        </xsd:element>
         <xsd:element name="slider" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:all>

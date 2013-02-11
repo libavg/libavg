@@ -44,13 +44,14 @@
             margins="(1,1,8,8)"
             friction="-1"
             sensitiveScrollBars="True"/>
-<!--
-    <checkbox
+<!--            
+   <checkbox
             uncheckedUpSrc="checkbox_unchecked_up.png"
             uncheckedDownSrc="checkbox_unchecked_down.png"
             uncheckedDisabledSrc="checkbox_unchecked_disabled.png"
             checkedUpSrc="checkbox_checked_up.png"
             checkedDownSrc="checkbox_checked_down.png"
-            checkedDisabledSrc="checkbox_checked_disabled.png"/>
+            checkedDisabledSrc="checkbox_checked_disabled.png"
+            font="stdFont"/>
             -->
 </skin>

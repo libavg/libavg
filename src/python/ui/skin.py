@@ -18,7 +18,7 @@
 #
 # Current versions can be found at www.libavg.de
 
-from libavg import avg, player
+from libavg import avg
 
 import os, copy
 import xml.etree.ElementTree as ET
@@ -56,6 +56,16 @@ class Skin:
                 bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp", 
                         "disabledSrc": "disabledBmp"},
                 fontArgNames=("font", "downFont", "disabledFont"))
+
+        self.checkBoxCfg, self.defaultCheckBoxCfg = self.__parseElement(
+                xmlRoot, "checkbox",
+                bmpArgNames={"uncheckedUpSrc":"unckeckedUpBmp", 
+                        "uncheckedDownSrc":"uncheckedDownBmp",
+                        "uncheckedDisabledSrc":"uncheckedDisabledBmp",
+                        "checkedUpSrc":"ckeckedUpBmp", 
+                        "checkedDownSrc":"checkedDownBmp",
+                        "checkedDisabledSrc":"checkedDisabledBmp"},
+                fontArgNames=("font",))
 
         self.sliderCfg, self.defaultSliderCfg = self.__initSliders(xmlRoot, "slider")
         self.scrollBarCfg, self.defaultScrollBarCfg = self.__initSliders(

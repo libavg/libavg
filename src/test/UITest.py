@@ -595,7 +595,7 @@ class UITestCase(AVGTestCase):
 
     def testSlider(self):
         def onThumbPosChanged(pos):
-            self.thumbpos = pos
+            self.thumbPos = pos
 
         def setSize():
             if orientation == ui.Orientation.HORIZONTAL:
@@ -631,7 +631,7 @@ class UITestCase(AVGTestCase):
     def testScrollBar(self):
         
         def onThumbPosChanged(pos):
-            self.thumbpos = pos
+            self.thumbPos = pos
 
         for orientation, orName in (
                 (ui.Orientation.HORIZONTAL, "Horiz"),
@@ -689,7 +689,7 @@ class UITestCase(AVGTestCase):
                         onThumbPosChanged),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 25, 10),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 50, 10),
-                 lambda: self.assertAlmostEqual(self.thumbpos, 0.25),
+                 lambda: self.assertAlmostEqual(self.thumbPos, 0.25),
 
                  # Enable/disable
                  self.messageTester.reset,
@@ -698,7 +698,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 50, 10),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 25, 10),
                  lambda: self.messageTester.assertState([]),
-                 lambda: self.assertAlmostEqual(self.thumbpos, 0.25),
+                 lambda: self.assertAlmostEqual(self.thumbPos, 0.25),
                  lambda: self.node.setEnabled(True),
                  lambda: self.compareImage("testScrollBarHoriz12"),
 
@@ -706,7 +706,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 50, 10),
                  lambda: self.node.setEnabled(False),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 25, 10),
-                 lambda: self.assertAlmostEqual(self.thumbpos, 0.25),
+                 lambda: self.assertAlmostEqual(self.thumbPos, 0.25),
                  lambda: self.node.setEnabled(True),
                  lambda: self.compareImage("testScrollBarHoriz12"),
                 ))
@@ -741,90 +741,6 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testScrollArea2"),
                 ))
 
-#    def testSimpleScrollArea(self):
-#
-#        def onContentPosChanged(newPos):
-#            self.messageTester.setMessageReceived(self.node.CONTENT_POS_CHANGED)
-#
-#        root = self.loadEmptyScene()
-#        image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
-#        self.node = simple.ScrollArea(contentNode=image, size=(115,115),
-#                friction=-1, parent=root)
-#        self.messageTester = MessageTester(self.node, [self.node.PRESSED, 
-#                self.node.RELEASED], self)
-#        self.node.subscribe(self.node.CONTENT_POS_CHANGED, onContentPosChanged)
-#        player.setFakeFPS(10)
-#
-#        self.start(False,
-#                (lambda: self.compareImage("testSimpleScrollArea1"),
-#                 lambda: self.node.setContentSize((400,200)),
-#                 lambda: self.compareImage("testSimpleScrollArea2"),
-#                 lambda: self.node.setContentPos((200,100)),
-#                 lambda: self.messageTester.assertState([self.node.CONTENT_POS_CHANGED]),
-#                 lambda: self.compareImage("testSimpleScrollArea3"),
-#                 lambda: self.node.setContentPos((0,0)),
-#                 # Scroll via gesture
-#                 self.messageTester.reset,
-#                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 90, 90,
-#                        [self.node.PRESSED,]),
-#                 self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 10, 90,
-#                        [self.node.CONTENT_POS_CHANGED]),
-#                 lambda: self.compareImage("testSimpleScrollArea4"),
-#                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10,
-#                        [self.node.RELEASED,self.node.CONTENT_POS_CHANGED]),
-#                 lambda: self.compareImage("testSimpleScrollArea5"),
-#                 lambda: self.delay(1000), # Wait for end of inertia.
-#                 lambda: self.node.setContentPos((0,0)), 
-#                 # Scroll using scroll bars
-#                 self.messageTester.reset,
-#                 lambda: self.compareImage("testSimpleScrollArea2"),
-#                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 110, 0),
-#                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 110, 50),
-#                 lambda: self.messageTester.assertState([self.node.CONTENT_POS_CHANGED]),
-#                 lambda: self.compareImage("testSimpleScrollArea6"),
-#                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 110),
-#                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 50, 110),
-#                 lambda: self.messageTester.assertState([self.node.CONTENT_POS_CHANGED]),
-#                 lambda: self.compareImage("testSimpleScrollArea7"),
-#                ))
-#        player.setFakeFPS(-1)
-#
-#    def testSimpleCheckBox(self):
-#        def onToggled(isChecked):
-#            self.assert_(self.expectedChecked == isChecked)
-#            self.assert_(checkBox.checked == isChecked)
-#            self.messageTester.setMessageReceived(simple.CheckBox.TOGGLED)
-#
-#        def setExpectedChecked(isChecked):
-#            self.expectedChecked = isChecked
-#
-#        root = self.loadEmptyScene()
-#        checkBox = simple.CheckBox(text="text", parent=root)
-#        self.messageTester = MessageTester(checkBox, [checkBox.PRESSED, 
-#                checkBox.RELEASED], self)
-#        checkBox.subscribe(checkBox.TOGGLED, onToggled)
-#        setExpectedChecked(False)
-#        self.start(False,
-#                (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 10, 10,
-#                        [checkBox.PRESSED,]),
-#                 lambda: setExpectedChecked(True),
-#                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10,
-#                        [checkBox.RELEASED, checkBox.TOGGLED,]),
-#                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 10, 10,
-#                        [checkBox.PRESSED,]),
-#                 lambda: setExpectedChecked(False),
-#                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10,
-#                        [checkBox.RELEASED, checkBox.TOGGLED,]),
-#                 
-#                 # Disabled node: No events.
-#                 lambda: checkBox.setEnabled(False),
-#                 lambda: self.assert_(not(checkBox.enabled)),
-#                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 10, 10, []),
-#                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 10, 10, []),
-#
-#                 lambda: checkBox.setEnabled(True),
-#                 lambda: self.assert_(checkBox.enabled),
-#                ))
 
 def uiTestSuite(tests):
     availableTests = (
@@ -840,10 +756,6 @@ def uiTestSuite(tests):
         "testSlider",
         "testScrollBar",
         "testScrollArea",
-#        "testSimpleScrollBar",
-#        "testSimpleSlider",
-#        "testSimpleScrollArea",
-#        "testSimpleCheckBox"
         )
 
     return createAVGTestSuite(availableTests, UITestCase, tests)

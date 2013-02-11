@@ -195,7 +195,7 @@ class ScrollArea(avg.DivNode):
             else:
                 self._hScrollBar.range = (0, self.__scrollPane.contentsize.x)
                 self._hScrollBar.enabled = True
-            self._hScrollBar.thumbextent = self.__scrollPane.width
+            self._hScrollBar.thumbExtent = self.__scrollPane.width
 
         if self._vScrollBar:
             self._vScrollBar.pos = (size.x-self._vScrollBar.width, 0)
@@ -207,11 +207,11 @@ class ScrollArea(avg.DivNode):
             else:
                 self._vScrollBar.range = (0, self.__scrollPane.contentsize.y)
                 self._vScrollBar.enabled = True
-            self._vScrollBar.thumbextent = self.__scrollPane.height
+            self._vScrollBar.thumbExtent = self.__scrollPane.height
 
     def __positionThumbs(self, contentPos):
         if self._hScrollBar:
-            self._hScrollBar.thumbpos = contentPos.x
+            self._hScrollBar.thumbPos = contentPos.x
         if self._vScrollBar:
-            self._vScrollBar.thumbpos = contentPos.y
+            self._vScrollBar.thumbPos = contentPos.y
 

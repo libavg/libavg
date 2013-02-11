@@ -18,7 +18,7 @@
 #
 # Current versions can be found at www.libavg.de
 
-from libavg import avg, player
+from libavg import avg
 from base import SwitchNode, HStretchNode, VStretchNode, Orientation
 from . import skin
 import gesture
@@ -93,7 +93,7 @@ class SliderBase(avg.DivNode):
     RELEASED = avg.Publisher.genMessageID()
 
     def __init__(self, orientation, cfg, enabled=True, height=0, width=0, range=(0.,1.), 
-            thumbpos=0.0, parent=None, **kwargs):
+            thumbPos=0.0, parent=None, **kwargs):
         super(SliderBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         
@@ -112,7 +112,7 @@ class SliderBase(avg.DivNode):
         self._initThumb(cfg)
 
         self._range = range
-        self._thumbPos = thumbpos
+        self._thumbPos = thumbPos
 
         self.subscribe(self.SIZE_CHANGED, lambda newSize: self._positionNodes())
         if orientation == Orientation.HORIZONTAL:
@@ -139,10 +139,10 @@ class SliderBase(avg.DivNode):
     def getThumbPos(self):
         return self._thumbPos
 
-    def setThumbPos(self, thumbpos):
-        self._positionNodes(thumbpos)
+    def setThumbPos(self, thumbPos):
+        self._positionNodes(thumbPos)
 
-    thumbpos = property(getThumbPos, setThumbPos)
+    thumbPos = property(getThumbPos, setThumbPos)
 
     def getEnabled(self):
         return self._trackNode.visibleid != "DISABLED"
@@ -241,8 +241,8 @@ class Slider(SliderBase):
 class ScrollBar(SliderBase):
    
     def __init__(self,  orientation=Orientation.HORIZONTAL, skinObj=skin.Skin.default,
-            thumbextent=0.1, **kwargs):
-        self.__thumbExtent = thumbextent
+            thumbExtent=0.1, **kwargs):
+        self.__thumbExtent = thumbExtent
         if orientation == Orientation.HORIZONTAL:
             cfg = skinObj.defaultScrollBarCfg["horizontal"]
         else:
@@ -267,7 +267,7 @@ class ScrollBar(SliderBase):
         self.__thumbExtent = float(thumbExtent)
         self._positionNodes()
 
-    thumbextent = property(getThumbExtent, setThumbExtent)
+    thumbExtent = property(getThumbExtent, setThumbExtent)
 
     def _getScrollRangeInPixels(self):
         if self._orientation == Orientation.HORIZONTAL:
