@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, textarea, ui, player
+from libavg import avg, textarea, widget, player
 
 from testcase import *
 
@@ -33,10 +33,10 @@ class UITestCase(AVGTestCase):
                     [("a", "A"), ( 5, 5), (30, 30), False],
                     [("1", ),      (35, 5), (30, 30), False],
                     ["SHIFT",    (65, 5), (50, 30), True]]
-            kbd = ui.Keyboard("keyboard_bg.png", "keyboard_down.png", keyDefs, shiftKey,
-                    feedbackSrc=feedbackImage, pos=pos, parent=root)
+            kbd = widget.Keyboard("keyboard_bg.png", "keyboard_down.png", keyDefs,
+                    shiftKey, feedbackSrc=feedbackImage, pos=pos, parent=root)
 
-            for msg in (ui.Keyboard.DOWN, ui.Keyboard.UP, ui.Keyboard.CHAR):
+            for msg in (widget.Keyboard.DOWN, widget.Keyboard.UP, widget.Keyboard.CHAR):
                 kbd.subscribe(msg, lambda keyCode, msg=msg: onMessage(msg, keyCode))
             return kbd
 
@@ -60,29 +60,29 @@ class UITestCase(AVGTestCase):
                 (lambda: self.compareImage("testUIKeyboard"),
                  # test character key
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
-                 lambda: assertState((ui.Keyboard.DOWN,), "a", "testUIKeyboardA"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "a", "testUIKeyboardA"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 30, 30),
-                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((widget.Keyboard.CHAR,widget.Keyboard.UP),
                         "a", "testUIKeyboard"),
                  # test command key
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 100, 30),
-                 lambda: assertState((ui.Keyboard.DOWN,), "SHIFT", "testUIKeyboardS"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "SHIFT", "testUIKeyboardS"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 30),
-                 lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
+                 lambda: assertState((widget.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
                  # test multiple keys
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 100, 30),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 30, 30),
-                 lambda: assertState((ui.Keyboard.DOWN,), "a", "testUIKeyboardAS"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "a", "testUIKeyboardAS"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 60, 30),
-                 lambda: assertState((ui.Keyboard.DOWN,), "1", "testUIKeyboardA1S"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "1", "testUIKeyboardA1S"),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 30, 30),
-                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((widget.Keyboard.CHAR,widget.Keyboard.UP),
                         "a", "testUIKeyboard1S"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_UP, 60, 30),
-                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((widget.Keyboard.CHAR,widget.Keyboard.UP),
                         "1", "testUIKeyboardS"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 100, 30),
-                 lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
+                 lambda: assertState((widget.Keyboard.UP,), "SHIFT", "testUIKeyboard"),
                 ))
 
         root = self.loadEmptyScene()
@@ -97,29 +97,30 @@ class UITestCase(AVGTestCase):
                 (lambda: self.compareImage("testUIKeyboardFB"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 100, 80),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 30, 80),
-                 lambda: assertState((ui.Keyboard.DOWN,), "a", "testUIKeyboardFBAS"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "a", "testUIKeyboardFBAS"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_DOWN, 60, 80),
-                 lambda: assertState((ui.Keyboard.DOWN,), "1", "testUIKeyboardFBA1S"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "1", "testUIKeyboardFBA1S"),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 30, 80),
-                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((widget.Keyboard.CHAR,widget.Keyboard.UP),
                         "A", "testUIKeyboardNoFB1S"),
                  lambda: self._sendTouchEvent(3, avg.Event.CURSOR_UP, 60, 80),
-                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((widget.Keyboard.CHAR,widget.Keyboard.UP),
                         "1", "testUIKeyboardFBS"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 100, 80),
-                 lambda: assertState((ui.Keyboard.UP,), "SHIFT", "testUIKeyboardFB"),
+                 lambda: assertState((widget.Keyboard.UP,), "SHIFT", "testUIKeyboardFB"),
                  # test drag over keys 
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 60, 80),
-                 lambda: assertState((ui.Keyboard.DOWN,), "1", "testUIKeyboardFB1"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "1", "testUIKeyboardFB1"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 60, 50),
-                 lambda: assertState((ui.Keyboard.UP,), "1", "testUIKeyboardFB"),
+                 lambda: assertState((widget.Keyboard.UP,), "1", "testUIKeyboardFB"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 100, 80),
-                 lambda: assertState((ui.Keyboard.DOWN,), "SHIFT", "testUIKeyboardFBS"),
+                 lambda: assertState((widget.Keyboard.DOWN,), "SHIFT",
+                        "testUIKeyboardFBS"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 60, 80),
-                 lambda: assertState((ui.Keyboard.DOWN,ui.Keyboard.UP),
+                 lambda: assertState((widget.Keyboard.DOWN,widget.Keyboard.UP),
                         "1", "testUIKeyboardFB1"),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 60, 80),
-                 lambda: assertState((ui.Keyboard.CHAR,ui.Keyboard.UP),
+                 lambda: assertState((widget.Keyboard.CHAR,widget.Keyboard.UP),
                         "1", "testUIKeyboardFB"),
                 ))           
 
@@ -267,7 +268,7 @@ class UITestCase(AVGTestCase):
 
         def createScene(**kwargs):
             root = self.loadEmptyScene()
-            button = ui.Button(
+            button = widget.Button(
                     parent = root,
                     upNode = avg.ImageNode(href="button_up.png"),
                     downNode = avg.ImageNode(href="button_down.png"),
@@ -275,18 +276,18 @@ class UITestCase(AVGTestCase):
                     **kwargs
                     )
             self.messageTester = MessageTester(button, 
-                    [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED],
-                    self)
+                    [widget.Button.CLICKED, widget.Button.PRESSED, 
+                    widget.Button.RELEASED], self)
             return button
 
         def runTest():
             self.start(False,
                     (# Standard down->up
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
-                            [ui.Button.PRESSED]),
+                            [widget.Button.PRESSED]),
                      lambda: self.compareImage("testUIButtonDown"),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
-                            [ui.Button.CLICKED, ui.Button.RELEASED]),
+                            [widget.Button.CLICKED, widget.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Disable, down, up -> no click
@@ -302,22 +303,22 @@ class UITestCase(AVGTestCase):
                      # Down, up further away -> no click
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 100, 0,
-                            [ui.Button.PRESSED, ui.Button.RELEASED]),
+                            [widget.Button.PRESSED, widget.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Down, move further away, up -> no click
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 100, 0),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 100, 0,
-                            [ui.Button.PRESSED, ui.Button.RELEASED]),
+                            [widget.Button.PRESSED, widget.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
 
                      # Test if button still reacts after abort
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
-                            [ui.Button.PRESSED]),
+                            [widget.Button.PRESSED]),
                      lambda: self.compareImage("testUIButtonDown"),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
-                            [ui.Button.CLICKED, ui.Button.RELEASED]),
+                            [widget.Button.CLICKED, widget.Button.RELEASED]),
                      lambda: self.compareImage("testUIButtonUp"),
                     ))
 
@@ -331,14 +332,14 @@ class UITestCase(AVGTestCase):
         runTest()
 
         root = self.loadEmptyScene()
-        button = ui.BmpButton(
+        button = widget.BmpButton(
                 parent = root,
                 upSrc = "button_up.png",
                 downSrc = "button_down.png",
                 disabledSrc = "button_disabled.png",
                 )
         self.messageTester = MessageTester(button, 
-                [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED],
+                [widget.Button.CLICKED, widget.Button.PRESSED, widget.Button.RELEASED],
                 self)
         runTest()
        
@@ -349,17 +350,17 @@ class UITestCase(AVGTestCase):
 
     def testTextButton(self):
         root = self.loadEmptyScene()
-        button = ui.TextButton("text", parent=root, size=(50,42))
+        button = widget.TextButton("text", parent=root, size=(50,42))
         self.messageTester = MessageTester(button, 
-                [ui.Button.CLICKED, ui.Button.PRESSED, ui.Button.RELEASED],
+                [widget.Button.CLICKED, widget.Button.PRESSED, widget.Button.RELEASED],
                 self)
         self.start(True,
                 (# Standard down->up
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
-                        [ui.Button.PRESSED]),
+                        [widget.Button.PRESSED]),
                  lambda: self.compareImage("testTextButtonDown"),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
-                        [ui.Button.CLICKED, ui.Button.RELEASED]),
+                        [widget.Button.CLICKED, widget.Button.RELEASED]),
                  lambda: self.compareImage("testTextButtonUp"),
 
                  # Check disabled graphics
@@ -373,7 +374,7 @@ class UITestCase(AVGTestCase):
                  lambda: button.setText("newText"),
                  lambda: self.compareImage("testTextButtonUpNewText"),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
-                        [ui.Button.PRESSED]),
+                        [widget.Button.PRESSED]),
                  lambda: self.compareImage("testTextButtonDownNewText"),
                 ))
 
@@ -381,12 +382,12 @@ class UITestCase(AVGTestCase):
     def testToggleButton(self):
 
         def onToggled(isToggled):
-            self.messageTester.setMessageReceived(ui.ToggleButton.TOGGLED)
+            self.messageTester.setMessageReceived(widget.ToggleButton.TOGGLED)
             self.toggled = isToggled
         
         def createScene(**kwargs):
             root = self.loadEmptyScene()
-            button = ui.ToggleButton(
+            button = widget.ToggleButton(
                     uncheckedUpNode = avg.ImageNode(href="toggle_unchecked_Up.png"),
                     uncheckedDownNode = avg.ImageNode(href="toggle_unchecked_Down.png"),
                     checkedUpNode = avg.ImageNode(href="toggle_checked_Up.png"),
@@ -399,20 +400,20 @@ class UITestCase(AVGTestCase):
                     **kwargs
                    )
             self.messageTester = MessageTester(button, 
-                    [ui.ToggleButton.PRESSED, ui.ToggleButton.RELEASED], self)
+                    [widget.ToggleButton.PRESSED, widget.ToggleButton.RELEASED], self)
 
-            button.subscribe(ui.ToggleButton.TOGGLED, onToggled)
+            button.subscribe(widget.ToggleButton.TOGGLED, onToggled)
             return button
 
         def testToggle():
             self.start(False,
                     (lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
-                             [ui.ToggleButton.PRESSED]),
+                             [widget.ToggleButton.PRESSED]),
                      lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleUnchecked_Down"),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
-                            [ui.ToggleButton.RELEASED, ui.ToggleButton.TOGGLED]),
+                            [widget.ToggleButton.RELEASED, widget.ToggleButton.TOGGLED]),
                      lambda: self.assert_(self.toggled),
                      lambda: self.compareImage("testUIToggleChecked_Up"),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
@@ -428,7 +429,7 @@ class UITestCase(AVGTestCase):
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleUnchecked_Down"),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 100, 0,
-                             [ui.ToggleButton.PRESSED, ui.ToggleButton.RELEASED]),
+                             [widget.ToggleButton.PRESSED, widget.ToggleButton.RELEASED]),
                      lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),
@@ -474,7 +475,7 @@ class UITestCase(AVGTestCase):
        
         def testFromSrc():
             root = self.loadEmptyScene()
-            button = ui.BmpToggleButton(
+            button = widget.BmpToggleButton(
                     uncheckedUpSrc="toggle_unchecked_Up.png",
                     uncheckedDownSrc="toggle_unchecked_Down.png",
                     checkedUpSrc="toggle_checked_Up.png",
@@ -482,7 +483,7 @@ class UITestCase(AVGTestCase):
                     uncheckedDisabledSrc="toggle_unchecked_Disabled.png",
                     checkedDisabledSrc="toggle_checked_Disabled.png",
                     parent=root)
-            button.subscribe(ui.ToggleButton.TOGGLED, onToggled)
+            button.subscribe(widget.ToggleButton.TOGGLED, onToggled)
             self.start(False,
                     (lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),
@@ -530,7 +531,7 @@ class UITestCase(AVGTestCase):
         root = self.loadEmptyScene()
         contentArea = avg.DivNode(size=(64,64))
         image = avg.ImageNode(href="rgb24-64x64.png", parent=contentArea)
-        scrollPane = ui.ScrollPane(contentNode=contentArea, size=(32,32), parent=root)
+        scrollPane = widget.ScrollPane(contentNode=contentArea, size=(32,32), parent=root)
 
         self.start(False,
                 (lambda: self.compareImage("testScrollPane1"),
@@ -545,13 +546,13 @@ class UITestCase(AVGTestCase):
     def testStretchNode(self):
             
         def changeExtent():
-            if orientation == ui.Orientation.HORIZONTAL:
+            if orientation == widget.Orientation.HORIZONTAL:
                 self.node.width = 100
             else:
                 self.node.height = 100
 
         def minExtent():
-            if orientation == ui.Orientation.HORIZONTAL:
+            if orientation == widget.Orientation.HORIZONTAL:
                 self.node.width = 3
                 self.assert_(self.node.width == 31)
             else:
@@ -559,15 +560,15 @@ class UITestCase(AVGTestCase):
                 self.assert_(self.node.height == 31)
 
         for orientation, orName in (
-                (ui.Orientation.HORIZONTAL,"Horiz"),
-                (ui.Orientation.VERTICAL, "Vert"),):
+                (widget.Orientation.HORIZONTAL,"Horiz"),
+                (widget.Orientation.VERTICAL, "Vert"),):
             root = self.loadEmptyScene()
-            if orientation == ui.Orientation.HORIZONTAL:
-                self.node = ui.HStretchNode(src="media/rgb24-32x32.png", endsExtent=15, 
-                        size=(31,31), parent=root)
+            if orientation == widget.Orientation.HORIZONTAL:
+                self.node = widget.HStretchNode(src="media/rgb24-32x32.png", 
+                        endsExtent=15, size=(31,31), parent=root)
             else:
-                self.node = ui.VStretchNode(src="media/rgb24-32x32.png", endsExtent=15, 
-                        size=(31,31), parent=root)
+                self.node = widget.VStretchNode(src="media/rgb24-32x32.png",
+                        endsExtent=15, size=(31,31), parent=root)
             self.start(False,
                     (lambda: self.compareImage("testStretchNode"+orName+"1"),
                      changeExtent,
@@ -584,7 +585,7 @@ class UITestCase(AVGTestCase):
             self.assert_(self.node.size == (64,64))
 
         root = self.loadEmptyScene()
-        self.node = ui.HVStretchNode(src="media/rgb24-32x32.png", endsExtent=(5,5), 
+        self.node = widget.HVStretchNode(src="media/rgb24-32x32.png", endsExtent=(5,5), 
                 size=(31,31), parent=root)
         self.start(False,
                 (lambda: self.compareImage("testHVStretchNode1"),
@@ -598,16 +599,16 @@ class UITestCase(AVGTestCase):
             self.thumbPos = pos
 
         def setSize():
-            if orientation == ui.Orientation.HORIZONTAL:
+            if orientation == widget.Orientation.HORIZONTAL:
                 self.node.width=140
             else:
                 self.node.height=60
 
         for orientation, orName in (
-                (ui.Orientation.HORIZONTAL, "Horiz"),
-                (ui.Orientation.VERTICAL, "Vert")):
+                (widget.Orientation.HORIZONTAL, "Horiz"),
+                (widget.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
-            self.node = ui.Slider(orientation=orientation, pos=(20,20), 
+            self.node = widget.Slider(orientation=orientation, pos=(20,20), 
                     width=100, height=100, parent=root)
             self.start(False,
                     (lambda: self.compareImage("testSlider"+orName+"1"),
@@ -634,10 +635,10 @@ class UITestCase(AVGTestCase):
             self.thumbPos = pos
 
         for orientation, orName in (
-                (ui.Orientation.HORIZONTAL, "Horiz"),
-                (ui.Orientation.VERTICAL, "Vert")):
+                (widget.Orientation.HORIZONTAL, "Horiz"),
+                (widget.Orientation.VERTICAL, "Vert")):
             root = self.loadEmptyScene()
-            self.node = ui.ScrollBar(orientation=orientation, pos=(20,20), 
+            self.node = widget.ScrollBar(orientation=orientation, pos=(20,20), 
                     width=100, height=100, parent=root)
             self.start(False,
                     (lambda: self.compareImage("testScrollBar"+orName+"1"),
@@ -663,15 +664,15 @@ class UITestCase(AVGTestCase):
 
         # Horizontal
         root = self.loadEmptyScene()
-        self.node = ui.ScrollBar(orientation=ui.Orientation.HORIZONTAL, pos=(20,5), 
-                width=100, parent=root)
+        self.node = widget.ScrollBar(orientation=widget.Orientation.HORIZONTAL, 
+                pos=(20,5), width=100, parent=root)
         self.messageTester = MessageTester(self.node, 
-                [ui.Slider.PRESSED, ui.Slider.RELEASED], self)
+                [widget.Slider.PRESSED, widget.Slider.RELEASED], self)
         self.start(False,
                 (lambda: self.node.setThumbExtent(0.5),
                  # User input
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 25, 10,
-                        [ui.Slider.PRESSED]),
+                        [widget.Slider.PRESSED]),
                  lambda: self.compareImage("testScrollBarHoriz7"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 50, 10),
                  lambda: self.compareImage("testScrollBarHoriz8"),
@@ -680,12 +681,12 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testScrollBarHoriz9"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 10,
-                        [ui.Slider.RELEASED]),
+                        [widget.Slider.RELEASED]),
                  lambda: self.compareImage("testScrollBarHoriz10"),
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
 
                  # Publish/Subscribe interface
-                 lambda: self.node.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, 
+                 lambda: self.node.subscribe(widget.ScrollBar.THUMB_POS_CHANGED, 
                         onThumbPosChanged),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 25, 10),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 50, 10),
@@ -714,7 +715,7 @@ class UITestCase(AVGTestCase):
         # Vertical: Don't need to test everything again, just make sure coords are 
         # calculated correctly.
         root = self.loadEmptyScene()
-        self.node = ui.ScrollBar(orientation=ui.Orientation.VERTICAL, pos=(5,5), 
+        self.node = widget.ScrollBar(orientation=widget.Orientation.VERTICAL, pos=(5,5), 
                 height=100, parent=root)
         self.start(False,
                 (lambda: self.node.setThumbExtent(0.5),
@@ -734,7 +735,7 @@ class UITestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png", size=(200,400))
-        self.node = ui.ScrollArea(contentNode=image, size=(80,80), parent=root)
+        self.node = widget.ScrollArea(contentNode=image, size=(80,80), parent=root)
         self.start(False,
                 (lambda: self.compareImage("testScrollArea1"),
                  lambda: setSize((120,80)),

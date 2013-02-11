@@ -19,8 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, statemachine, player
-from libavg.ui import filter
+from libavg import avg, statemachine, player, filter
 
 import weakref
 

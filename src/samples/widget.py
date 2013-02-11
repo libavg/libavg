@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, AVGApp, ui
+from libavg import avg, AVGApp, widget
 
 class SimpleUIApp(AVGApp):
     def init(self):
-        hScrollBar = ui.ScrollBar(pos=(10,10), width=150, parent=self._parentNode)
+        hScrollBar = widget.ScrollBar(pos=(10,10), width=150, parent=self._parentNode)
         self.__addValueDisplay(hScrollBar, (175,12))
 
-        vScrollBar = ui.ScrollBar(pos=(15,60), height=150, 
-                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
-        vScrollBar.thumbextent = 5
+        vScrollBar = widget.ScrollBar(pos=(15,60), height=150, 
+                orientation=widget.Orientation.VERTICAL, parent=self._parentNode)
+        vScrollBar.thumbExtent = 5
         vScrollBar.range = (10,0)
         self.__addValueDisplay(vScrollBar, (10,220))
 
-        hSlider = ui.Slider(pos=(10,35), width=150, parent=self._parentNode)
+        hSlider = widget.Slider(pos=(10,35), width=150, parent=self._parentNode)
         self.__addValueDisplay(hSlider, (175,33))
 
-        vSlider = ui.Slider(pos=(60.5,60), height=150, 
-                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+        vSlider = widget.Slider(pos=(60.5,60), height=150, 
+                orientation=widget.Orientation.VERTICAL, parent=self._parentNode)
         vSlider.range = (1,0)
         self.__addValueDisplay(vSlider, (55,220))
         self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
@@ -40,22 +40,22 @@ class SimpleUIApp(AVGApp):
 
     def createScrollArea(self, pos):
         image = avg.ImageNode(href="rgb24-64x64.png", size=(1024, 1024))
-        scrollArea = ui.ScrollArea(contentNode=image, parent=self._parentNode,
+        scrollArea = widget.ScrollArea(contentNode=image, parent=self._parentNode,
                 pos=pos, size=(220,220))
 
-        imageWidthSlider = ui.Slider(pos=pos+(0,230), width=220, 
+        imageWidthSlider = widget.Slider(pos=pos+(0,230), width=220, 
                 parent=self._parentNode)
         imageWidthSlider.range = (100,1024)
-        imageWidthSlider.thumbpos = 1024
-        imageWidthSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, 
+        imageWidthSlider.thumbPos = 1024
+        imageWidthSlider.subscribe(widget.ScrollBar.THUMB_POS_CHANGED, 
                 lambda thumbPos, scrollArea=scrollArea: 
                     self.setImageWidth(scrollArea, thumbPos))
 
-        imageHeightSlider = ui.Slider(pos=pos+(230,0), height=220,
-                orientation=ui.Orientation.VERTICAL, parent=self._parentNode)
+        imageHeightSlider = widget.Slider(pos=pos+(230,0), height=220,
+                orientation=widget.Orientation.VERTICAL, parent=self._parentNode)
         imageHeightSlider.range = (100,1024)
-        imageHeightSlider.thumbpos = 1024
-        imageHeightSlider.subscribe(ui.ScrollBar.THUMB_POS_CHANGED,
+        imageHeightSlider.thumbPos = 1024
+        imageHeightSlider.subscribe(widget.ScrollBar.THUMB_POS_CHANGED,
                 lambda thumbPos, scrollArea=scrollArea: 
                     self.setImageHeight(scrollArea, thumbPos))
         self.controls.extend([scrollArea, imageWidthSlider, imageHeightSlider])
@@ -66,9 +66,9 @@ class SimpleUIApp(AVGApp):
 
     def __addValueDisplay(self, scrollBar, pos):
         textNode = avg.WordsNode(pos=pos, parent=self._parentNode)
-        scrollBar.subscribe(ui.ScrollBar.THUMB_POS_CHANGED, 
+        scrollBar.subscribe(widget.ScrollBar.THUMB_POS_CHANGED, 
                 lambda pos, node=textNode: self.setText(pos, node))
-        self.setText(scrollBar.thumbpos, textNode)
+        self.setText(scrollBar.thumbPos, textNode)
 
 
 SimpleUIApp.start(resolution=(1024, 768))

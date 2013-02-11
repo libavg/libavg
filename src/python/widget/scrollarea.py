@@ -19,8 +19,8 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
-from libavg.ui import slider, gesture
+from libavg import avg, gesture
+from . import slider
 from base import HVStretchNode, Orientation
 from . import skin
 

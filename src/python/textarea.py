@@ -68,7 +68,7 @@ DEFAULT_BLUR_OPACITY = 0.3
 
 import time
 
-from libavg import avg, ui, player, gesture
+from libavg import avg, player, gesture
 from avg import Point2D
 
 

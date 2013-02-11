@@ -20,8 +20,7 @@
 #
 # Original author of this file is Henrik Thoms
 
-from libavg import avg, statemachine, player
-import gesture
+from libavg import avg, statemachine, player, gesture
 
 from base import SwitchNode, HVStretchNode
 from . import skin
