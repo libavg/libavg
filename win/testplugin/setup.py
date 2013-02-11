@@ -94,7 +94,7 @@ python_files += [
         LIBAVG_SRC_DIR+'test/testcase.py',
         LIBAVG_SRC_DIR+'test/testapp.py',
         ]
-python_ui_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/ui/')
+python_widget_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/widget/')
 python_data_files = gatherFilesInDir(LIBAVG_SRC_DIR+'python/data/',
         ('Makefile.am',))
 shader_files = gatherFilesInDir(LIBAVG_SRC_DIR+'graphics/shaders/',
@@ -113,7 +113,7 @@ data_files_list=[
 
         ('Lib/site-packages/libavg/plugin', ('../Release/colorplugin.dll',)),
         ('Lib/site-packages/libavg', python_files),
-        ('Lib/site-packages/libavg/ui', python_ui_files),
+        ('Lib/site-packages/libavg/widget', python_widget_files),
         ('Lib/site-packages/libavg/data', python_data_files),
         ('Lib/site-packages/libavg/shaders', shader_files),
         ('Lib/site-packages/libavg', assets_files)
