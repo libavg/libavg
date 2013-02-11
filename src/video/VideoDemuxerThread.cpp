@@ -77,6 +77,9 @@ bool VideoDemuxerThread::work()
         
         if (shortestQ < 0) {
             // All queues are at their max capacity. Take a nap and try again later.
+            // Note that we can't wait on the queue. If decoding is paused, the queues can
+            // remain full indefinitely and commands from the application (seek() and 
+            // close() must still be processed.
             msleep(10);
             return true;
         }

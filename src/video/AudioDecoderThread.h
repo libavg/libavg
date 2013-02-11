@@ -46,7 +46,6 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         virtual ~AudioDecoderThread();
         
         bool work();
-        void setVolume(float volume);
 
     private:
         void decodePacket(AVPacket* pPacket);
