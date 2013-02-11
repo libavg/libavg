@@ -104,7 +104,6 @@ class ScrollArea(avg.DivNode):
                     endsExtent=endsExtent, sensitive=False, parent=self)
 
         sensitiveScrollBars = self.cfg["sensitiveScrollBars"]
-        print sensitiveScrollBars
 
         if Orientation.HORIZONTAL in scrollBars:
             self._hScrollBar = slider.ScrollBar(sensitive=sensitiveScrollBars, parent=self)

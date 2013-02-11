@@ -23,7 +23,7 @@ from libavg import avg, textarea, widget, player
 
 from testcase import *
 
-class UITestCase(AVGTestCase):
+class WidgetTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
@@ -743,7 +743,7 @@ class UITestCase(AVGTestCase):
                 ))
 
 
-def uiTestSuite(tests):
+def widgetTestSuite(tests):
     availableTests = (
         "testKeyboard",
         "testTextArea",
@@ -759,4 +759,4 @@ def uiTestSuite(tests):
         "testScrollArea",
         )
 
-    return createAVGTestSuite(availableTests, UITestCase, tests)
+    return createAVGTestSuite(availableTests, WidgetTestCase, tests)
