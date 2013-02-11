@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, ui
+from libavg import avg, gesture
 import libavg
 
 import gestures
@@ -26,7 +26,7 @@ class TapButton(gestures.TextRect):
     def __init__(self, text, **kwargs):
         super(TapButton, self).__init__(text, **kwargs)
 
-        self.recognizer = ui.TapRecognizer(node=self,
+        self.recognizer = gesture.TapRecognizer(node=self,
                     possibleHandler=self._onPossible, detectedHandler=self._onDetected,
                     failHandler=self._onFail)
 

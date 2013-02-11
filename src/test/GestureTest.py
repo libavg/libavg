@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, ui, player
+from libavg import avg, gesture, player
 
 import math
 from testcase import *
@@ -38,48 +38,49 @@ class GestureTestCase(AVGTestCase):
             self.__tapRecognizer.enable(isEnabled)
 
         self.__initImageScene()
-        self.__tapRecognizer = ui.TapRecognizer(self.image)
-        self.messageTester = MessageTester(self.__tapRecognizer, [ui.Recognizer.POSSIBLE, 
-                ui.Recognizer.DETECTED, ui.Recognizer.FAILED], self)
+        self.__tapRecognizer = gesture.TapRecognizer(self.image)
+        self.messageTester = MessageTester(self.__tapRecognizer, 
+                [gesture.Recognizer.POSSIBLE, gesture.Recognizer.DETECTED, 
+                gesture.Recognizer.FAILED], self)
         player.setFakeFPS(10)
         self.start(False,
                 (# Down-up: recognized as tap.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Down-small move-up: recognized as tap.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 31, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Down-big move-up: fail
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 80, 80, 
-                        [ui.Recognizer.FAILED]),
+                        [gesture.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  # Down-Abort-Up: not recognized as tap
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  # Abort-Down-Up: recognized as tap
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Down-Abort-Up-Down-Up: recognized as tap
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Disable-Down-Up-Enable: not recognized as tap
                  lambda: enable(False),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
@@ -87,20 +88,20 @@ class GestureTestCase(AVGTestCase):
                  lambda: enable(True),
                  # Down-Disable-Enable-Up: not recognized as tap
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: enable(False),
                  lambda: enable(True),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  # Down-Disable-Up-Enable-Down-Up: recognized as tap
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: enable(False),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  lambda: enable(True),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Abort-Disable-Abort-Enable-Abort-Down-Up: recognized as tap
                  abort,
                  lambda: enable(False),
@@ -108,13 +109,13 @@ class GestureTestCase(AVGTestCase):
                  lambda: enable(True),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
 
                  # Remove node while tap is in progress.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self.__killImageNode,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                 ))
@@ -130,44 +131,44 @@ class GestureTestCase(AVGTestCase):
 
         player.setFakeFPS(20)
         self.__initImageScene()
-        self.__holdRecognizer = ui.HoldRecognizer(self.image,
+        self.__holdRecognizer = gesture.HoldRecognizer(self.image,
                 delay=1000)
         self.messageTester = MessageTester(self.__holdRecognizer, 
-                [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED, ui.Recognizer.FAILED, 
-                ui.Recognizer.END], self)
+                [gesture.Recognizer.POSSIBLE, gesture.Recognizer.DETECTED,
+                gesture.Recognizer.FAILED, gesture.Recognizer.END], self)
         self.start(False,
                 (# Standard down-hold-up sequence.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: self.delay(1100),
-                 lambda: self.messageTester.assertState([ui.Recognizer.DETECTED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.DETECTED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
-                        [ui.Recognizer.END]),
+                        [gesture.Recognizer.END]),
 
                  # down-up sequence, hold not long enough.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
-                        [ui.Recognizer.FAILED]),
+                        [gesture.Recognizer.FAILED]),
 
                  # down-move-up sequence, should fail. 
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 1, 1, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 150, 50, 
-                        [ui.Recognizer.FAILED]),
+                        [gesture.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
 
                  # down-hold-abort-up, should be recognized, no end event.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: self.delay(1100),
-                 lambda: self.messageTester.assertState([ui.Recognizer.DETECTED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.DETECTED]),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
 
                  # down-abort-hold-up, should not be recognized
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  abort,
                  lambda: self.delay(1100),
                  lambda: self.messageTester.assertState([]),
@@ -175,16 +176,16 @@ class GestureTestCase(AVGTestCase):
 
                  # down-hold-disabled-up-enabled, should be recognized, no end event.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: self.delay(1100),
-                 lambda: self.messageTester.assertState([ui.Recognizer.DETECTED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.DETECTED]),
                  lambda: enable(False),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  lambda: enable(True),
 
                  # down-disabled-enabled-hold-up, should not be recognized
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: enable(False),
                  lambda: enable(True),
                  lambda: self.delay(1100),
@@ -193,7 +194,7 @@ class GestureTestCase(AVGTestCase):
                  
                  # Remove node while hold is in progress.
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self.__killImageNode,
                  lambda: self.delay(1100),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
@@ -211,101 +212,101 @@ class GestureTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png", size=(128,128))
-        self.__tapRecognizer = ui.DoubletapRecognizer(image)
+        self.__tapRecognizer = gesture.DoubletapRecognizer(image)
         self.messageTester = MessageTester(self.__tapRecognizer, 
-                [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED, ui.Recognizer.FAILED, 
-                ui.Recognizer.END], self)
+                [gesture.Recognizer.POSSIBLE, gesture.Recognizer.DETECTED,
+                gesture.Recognizer.FAILED, gesture.Recognizer.END], self)
         player.setFakeFPS(20)
         self.start(False,
                 (# Down, up, down, up: click
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Down, move: stop
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 80, 30, 
-                        [ui.Recognizer.FAILED]),
+                        [gesture.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 30, []),
                  # Down, up, move: stop
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 80, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 80, 30, 
-                        [ui.Recognizer.FAILED]),
+                        [gesture.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 30, []),
                  # Down, up, down, move: stop
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 80, 30,
-                        [ui.Recognizer.FAILED]),
+                        [gesture.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 30, []),
                  # Down,delay: stop
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: self.delay(1000),
-                 lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
                         []),
                  # Down, up, delay: stop
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  lambda: self.delay(1000),
-                 lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.FAILED]),
                  # Down, up, down, delay: stop
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
                  lambda: self.delay(1000),
-                 lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.FAILED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
                         []),
                  # Down, abort, up, down, up, delay: just one click
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  lambda: self.delay(1000),
-                 lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.FAILED]),
                  # Down, up, abort, down, up, delay: two clicks but no double-click
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  lambda: self.delay(1000),
-                 lambda: self.messageTester.assertState([ui.Recognizer.FAILED]),
+                 lambda: self.messageTester.assertState([gesture.Recognizer.FAILED]),
                  # Down, up, down, abort, up: just one click
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  # Down, abort, up, down, up, down up: first aborted then recognized
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  abort,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Disabled, down, up, down, up, enabled: nothing
                  lambda: enable(False),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
@@ -315,7 +316,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: enable(True),                 
                  # Down, disabled up, down, up, enabled: just one down
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: enable(False),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
@@ -323,7 +324,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: enable(True),
                  # Down, up, disabled, down, up, enabled: just one click
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  lambda: enable(False),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
@@ -331,7 +332,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: enable(True),
                  # Down, up, down, disabled, up, enabled: just one click
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
                  lambda: enable(False),
@@ -339,16 +340,16 @@ class GestureTestCase(AVGTestCase):
                  lambda: enable(True),
                  # Down, disabled, enabled, up, down, up, down, up: recognized
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  lambda: enable(False),
                  lambda: enable(True),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                 ))
 
 
@@ -356,51 +357,52 @@ class GestureTestCase(AVGTestCase):
 
         # One finger
         for direction, xdir in (
-                (ui.SwipeRecognizer.RIGHT, 1), (ui.SwipeRecognizer.LEFT, -1)):
+                (gesture.SwipeRecognizer.RIGHT, 1), (gesture.SwipeRecognizer.LEFT, -1)):
             self.__initImageScene()
-            swipeRecognizer = ui.SwipeRecognizer(self.image, minDist=20,
+            swipeRecognizer = gesture.SwipeRecognizer(self.image, minDist=20,
                     direction=direction)
             self.messageTester = MessageTester(swipeRecognizer,
-                    [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED,
-                    ui.Recognizer.FAILED], 
+                    [gesture.Recognizer.POSSIBLE, gesture.Recognizer.DETECTED,
+                    gesture.Recognizer.FAILED], 
                     self)
             self.start(False,
                     (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 30,
-                            [ui.Recognizer.DETECTED]),
+                            [gesture.Recognizer.DETECTED]),
                      # Check angle tolerance
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 25,
-                            [ui.Recognizer.DETECTED]),
+                            [gesture.Recognizer.DETECTED]),
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 35,
-                            [ui.Recognizer.DETECTED]),
+                            [gesture.Recognizer.DETECTED]),
                      # Not far enough -> fail
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*10, 30,
-                            [ui.Recognizer.FAILED]),
+                            [gesture.Recognizer.FAILED]),
                      # Wrong direction -> fail
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 60,
-                            [ui.Recognizer.FAILED]),
+                            [gesture.Recognizer.FAILED]),
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30+xdir*30, 5,
-                            [ui.Recognizer.FAILED]),
+                            [gesture.Recognizer.FAILED]),
                     ))
 
 
     def testSwipeRecognizerTwoFingers(self):
         self.__initImageScene()
-        swipeRecognizer = ui.SwipeRecognizer(self.image, minDist=20, numContacts=2,
-                maxContactDist=15, direction=ui.SwipeRecognizer.RIGHT)
+        swipeRecognizer = gesture.SwipeRecognizer(self.image, minDist=20, numContacts=2,
+                maxContactDist=15, direction=gesture.SwipeRecognizer.RIGHT)
         self.messageTester = MessageTester(swipeRecognizer,
-                [ui.Recognizer.POSSIBLE, ui.Recognizer.DETECTED, ui.Recognizer.FAILED], 
+                [gesture.Recognizer.POSSIBLE, gesture.Recognizer.DETECTED,
+                 gesture.Recognizer.FAILED], 
                 self)
         self.start(False,
                 (self._genTouchEventFrames(
@@ -408,13 +410,13 @@ class GestureTestCase(AVGTestCase):
                         []), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_DOWN, 40, 30,),],
-                        [ui.Recognizer.POSSIBLE]), 
+                        [gesture.Recognizer.POSSIBLE]), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_UP, 70, 30,),],
                         []), 
                  self._genTouchEventFrames(
                         [(0, avg.Event.CURSOR_UP, 60, 30,),],
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  # Not enough fingers -> not recognized
                  self._genTouchEventFrames(
                         [(0, avg.Event.CURSOR_DOWN, 30, 30,),],
@@ -428,10 +430,10 @@ class GestureTestCase(AVGTestCase):
                         []), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_DOWN, 40, 30,),],
-                        [ui.Recognizer.POSSIBLE]), 
+                        [gesture.Recognizer.POSSIBLE]), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_UP, 35, 30,),],
-                        [ui.Recognizer.FAILED]), 
+                        [gesture.Recognizer.FAILED]), 
                  self._genTouchEventFrames(
                         [(0, avg.Event.CURSOR_UP, 60, 30,),],
                         []),
@@ -441,20 +443,20 @@ class GestureTestCase(AVGTestCase):
                         []), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_DOWN, 40, 30,),],
-                        [ui.Recognizer.POSSIBLE]), 
+                        [gesture.Recognizer.POSSIBLE]), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_UP, 70, 30,),],
                         []), 
                  self._genTouchEventFrames(
                         [(0, avg.Event.CURSOR_UP, 35, 30,),],
-                        [ui.Recognizer.FAILED]),
+                        [gesture.Recognizer.FAILED]),
                  # Fingers too far apart
                  self._genTouchEventFrames(
                         [(0, avg.Event.CURSOR_DOWN, 30, 30,),],
                         []), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_DOWN, 50, 30,),],
-                        [ui.Recognizer.FAILED]), 
+                        [gesture.Recognizer.FAILED]), 
                  self._genTouchEventFrames(
                         [(1, avg.Event.CURSOR_UP, 70, 30,),
                          (0, avg.Event.CURSOR_UP, 60, 30,),],
@@ -466,12 +468,12 @@ class GestureTestCase(AVGTestCase):
         def onMove(offset):
             if self.friction == -1:
                 self.assertEqual(offset, (40,40))
-            self.messageTester.setMessageReceived(ui.Recognizer.MOTION)
+            self.messageTester.setMessageReceived(gesture.Recognizer.MOTION)
 
         def onUp(offset):
             if self.friction == -1:
                 self.assertEqual(offset, (10,-10))
-            self.messageTester.setMessageReceived(ui.Recognizer.UP)
+            self.messageTester.setMessageReceived(gesture.Recognizer.UP)
 
         def enable(isEnabled):
             dragRecognizer.enable(isEnabled)
@@ -480,13 +482,14 @@ class GestureTestCase(AVGTestCase):
             dragRecognizer.abort()
 
         def setupRecognizer(friction, moveHandler=onMove, minDragDist=0, 
-                direction=ui.DragRecognizer.ANY_DIRECTION):
+                direction=gesture.DragRecognizer.ANY_DIRECTION):
             self.__initImageScene()
-            dragRecognizer = ui.DragRecognizer(self.image, moveHandler=moveHandler, 
+            dragRecognizer = gesture.DragRecognizer(self.image, moveHandler=moveHandler, 
                     upHandler=onUp, friction=friction, minDragDist=minDragDist, 
                     direction=direction)
-            messageTester = MessageTester(dragRecognizer, [ui.Recognizer.POSSIBLE, 
-                    ui.Recognizer.DETECTED, ui.Recognizer.FAILED, ui.Recognizer.END], 
+            messageTester = MessageTester(dragRecognizer, [gesture.Recognizer.POSSIBLE, 
+                    gesture.Recognizer.DETECTED, gesture.Recognizer.FAILED,
+                    gesture.Recognizer.END], 
                     self)
             return (dragRecognizer, messageTester)
 
@@ -500,23 +503,23 @@ class GestureTestCase(AVGTestCase):
             dragRecognizer, self.messageTester = setupRecognizer(friction=self.friction)
             self.start(False,
                     (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
-                            [ui.Recognizer.DETECTED]),
+                            [gesture.Recognizer.DETECTED]),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 70, 70, 
-                            [ui.Recognizer.MOTION]),
+                            [gesture.Recognizer.MOTION]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20, 
-                            [ui.Recognizer.UP, ui.Recognizer.END]),
+                            [gesture.Recognizer.UP, gesture.Recognizer.END]),
                      lambda: enable(False),
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, []),
                      lambda: dragRecognizer.enable(True),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.DETECTED]),
+                            [gesture.Recognizer.DETECTED]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20, 
-                            [ui.Recognizer.UP, ui.Recognizer.END]),
+                            [gesture.Recognizer.UP, gesture.Recognizer.END]),
 
                      # Remove node during drag.
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.DETECTED]),
+                            [gesture.Recognizer.DETECTED]),
                      self.__killImageNode,
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                     ))
@@ -525,7 +528,7 @@ class GestureTestCase(AVGTestCase):
         def onVertMove(offset):
             if self.friction == -1:
                 self.assertEqual(offset, (0,40))
-            self.messageTester.setMessageReceived(ui.Recognizer.MOTION)
+            self.messageTester.setMessageReceived(gesture.Recognizer.MOTION)
 
         for self.friction in (-1, 100):
             if self.friction == -1:
@@ -533,32 +536,32 @@ class GestureTestCase(AVGTestCase):
             else:
                 sys.stderr.write("  Drag with constraint, inertia\n")
             dragRecognizer, self.messageTester = setupRecognizer(moveHandler=onVertMove, 
-                    friction=self.friction, direction=ui.DragRecognizer.VERTICAL,
+                    friction=self.friction, direction=gesture.DragRecognizer.VERTICAL,
                     minDragDist=5)
             self.start(False,
                     (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 35, 30, []),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70, 
-                            [ui.Recognizer.DETECTED, ui.Recognizer.MOTION]),
+                            [gesture.Recognizer.DETECTED, gesture.Recognizer.MOTION]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20, 
-                            [ui.Recognizer.UP, ui.Recognizer.END]),
+                            [gesture.Recognizer.UP, gesture.Recognizer.END]),
                      # Wrong direction -> stop.
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 70, 30, 
-                            [ui.Recognizer.FAILED]),
+                            [gesture.Recognizer.FAILED]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 70, 30, []),
 
                      # No movement -> stop.
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
-                            [ui.Recognizer.FAILED]),
+                            [gesture.Recognizer.FAILED]),
 
                      # Down, Abort, Motion, Motion, Up -> not recognized
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      abort,
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 35, 30, []),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70, []),
@@ -566,7 +569,7 @@ class GestureTestCase(AVGTestCase):
 
                      # Down, Motion, Abort, Motion, Up -> not Recognized
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 35, 30, []),
                      abort,
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70, []),
@@ -574,27 +577,27 @@ class GestureTestCase(AVGTestCase):
 
                      # Down, Motion, Motion, Abort, Up -> not recognized
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 35, 30, []),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70,
-                            [ui.Recognizer.DETECTED, ui.Recognizer.MOTION]),
+                            [gesture.Recognizer.DETECTED, gesture.Recognizer.MOTION]),
                      abort,
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20, []),
 
                      # Down, Motion, Abort, Up, Down, Motion, Motion, Up -> Recognized
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 35, 30, []),
                      abort,
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20, []),
                      
                      self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                            [ui.Recognizer.POSSIBLE]),
+                            [gesture.Recognizer.POSSIBLE]),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 35, 30, []),
                      self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70,
-                            [ui.Recognizer.DETECTED, ui.Recognizer.MOTION]),
+                            [gesture.Recognizer.DETECTED, gesture.Recognizer.MOTION]),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20, 
-                            [ui.Recognizer.UP, ui.Recognizer.END]),
+                            [gesture.Recognizer.UP, gesture.Recognizer.END]),
                     ))
 
         # Test second down during inertia.
@@ -605,7 +608,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 40, 20),
                  self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 40, 20, 
-                            [ui.Recognizer.MOTION]),
+                            [gesture.Recognizer.MOTION]),
                 ))
 
         # Test node delete during inertia
@@ -613,27 +616,27 @@ class GestureTestCase(AVGTestCase):
         dragRecognizer, self.messageTester = setupRecognizer(friction=0.01)
         self.start(False,
                 (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.DETECTED]),
+                        [gesture.Recognizer.DETECTED]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20, 
-                        [ui.Recognizer.MOTION, ui.Recognizer.UP]),
+                        [gesture.Recognizer.MOTION, gesture.Recognizer.UP]),
                  self.__killImageNode,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 40, 20,
-                        [ui.Recognizer.MOTION]),
+                        [gesture.Recognizer.MOTION]),
                 ))
 
         # Test second down during inertia, constrained recognizer
         sys.stderr.write("  Down during inertia, constrained recognizer\n")
         dragRecognizer, self.messageTester = setupRecognizer(friction=0.01,
-                direction=ui.DragRecognizer.VERTICAL, minDragDist=5)
+                direction=gesture.DragRecognizer.VERTICAL, minDragDist=5)
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 70,
-                        [ui.Recognizer.DETECTED, ui.Recognizer.MOTION, 
-                         ui.Recognizer.POSSIBLE]),
+                        [gesture.Recognizer.DETECTED, gesture.Recognizer.MOTION, 
+                         gesture.Recognizer.POSSIBLE]),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 70,
-                        [ui.Recognizer.MOTION, ui.Recognizer.UP]),
+                        [gesture.Recognizer.MOTION, gesture.Recognizer.UP]),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [ui.Recognizer.MOTION]),
+                        [gesture.Recognizer.MOTION]),
                 ))
 
         player.setFakeFPS(-1)
@@ -649,7 +652,7 @@ class GestureTestCase(AVGTestCase):
             root = self.loadEmptyScene()
             div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
             image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-            ui.DragRecognizer(image, moveHandler=onDrag, friction=self.friction)
+            gesture.DragRecognizer(image, moveHandler=onDrag, friction=self.friction)
             self.start(False,
                     (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
@@ -660,7 +663,7 @@ class GestureTestCase(AVGTestCase):
     def testDragRecognizerInitialEvent(self):
 
         def onMotion(offset):
-            ui.DragRecognizer(self.image, 
+            gesture.DragRecognizer(self.image, 
                     detectedHandler=onDragStart, moveHandler=onDrag, 
                     initialEvent=player.getCurrentEvent())
             self.image.unsubscribe(avg.Node.CURSOR_MOTION, onMotion)
@@ -690,7 +693,7 @@ class GestureTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        ui.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, friction=-1)
+        gesture.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, friction=-1)
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
@@ -699,19 +702,19 @@ class GestureTestCase(AVGTestCase):
     def testDragRecognizerMinDist(self):
 
         def onMove(offset):
-            self.messageTester.setMessageReceived(ui.Recognizer.MOTION)
+            self.messageTester.setMessageReceived(gesture.Recognizer.MOTION)
 
         self.__initImageScene()
-        dragRecognizer = ui.DragRecognizer(self.image, moveHandler=onMove, minDragDist=10,
-                friction=-1)
-        self.messageTester = MessageTester(dragRecognizer, [ui.Recognizer.DETECTED], 
+        dragRecognizer = gesture.DragRecognizer(self.image, moveHandler=onMove,
+                minDragDist=10, friction=-1)
+        self.messageTester = MessageTester(dragRecognizer, [gesture.Recognizer.DETECTED], 
                 self)
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 35,
                         []),
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 30, 50,
-                        [ui.Recognizer.DETECTED, ui.Recognizer.MOTION]),
+                        [gesture.Recognizer.DETECTED, gesture.Recognizer.MOTION]),
                 ))
 
 
@@ -740,7 +743,7 @@ class GestureTestCase(AVGTestCase):
             return (
                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
                     lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
-                    lambda: checkTransform(ui.Transform((10,0))),
+                    lambda: checkTransform(gesture.Transform((10,0))),
                    )
 
         def createRotTestFrames(expectedTransform):
@@ -771,34 +774,34 @@ class GestureTestCase(AVGTestCase):
         player.setFakeFPS(100)
         self.__initImageScene()
         # Turn off the jitter filter.
-        ui.TransformRecognizer.FILTER_MIN_CUTOFF = None
-        ui.TransformRecognizer.FILTER_BETA = None
+        gesture.TransformRecognizer.FILTER_MIN_CUTOFF = None
+        gesture.TransformRecognizer.FILTER_BETA = None
         
-        self.__transformRecognizer = ui.TransformRecognizer(self.image,
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image,
                 friction=-1,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (# Check up/down handling
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: checkTransform(gesture.Transform((0,0))),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 20, 10),
-                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: checkTransform(gesture.Transform((10,0))),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 20, 20),
-                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: checkTransform(gesture.Transform((0,0))),
                  lambda: self._sendTouchEvents((
                         (1, avg.Event.CURSOR_MOTION, 30, 10),
                         (2, avg.Event.CURSOR_MOTION, 30, 20))),
-                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: checkTransform(gesture.Transform((10,0))),
                  lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 30, 20),
-                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: checkTransform(gesture.Transform((0,0))),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 40, 10),
-                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: checkTransform(gesture.Transform((10,0))),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 50, 10),
-                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: checkTransform(gesture.Transform((10,0))),
 
-                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
+                 createRotTestFrames(gesture.Transform((0,0), math.pi, 1, (0,15))),
 
-                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
+                 createScaleTestFrames(gesture.Transform((0,5), 0, 2, (0,20))),
 
                  # Delete node during transform
                  lambda: self._sendTouchEvents((
@@ -814,32 +817,32 @@ class GestureTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, friction=-1, 
+        self.__transformRecognizer = gesture.TransformRecognizer(image, friction=-1, 
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (createTransTestFrames(),
-                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,5))),
-                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,10))),
+                 createRotTestFrames(gesture.Transform((0,0), math.pi, 1, (0,5))),
+                 createScaleTestFrames(gesture.Transform((0,5), 0, 2, (0,10))),
                 ))
 
         # Test coordSysNode.
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, coordSysNode=div,
+        self.__transformRecognizer = gesture.TransformRecognizer(image, coordSysNode=div,
                 friction=-1,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (createTransTestFrames(),
-                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
-                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
+                 createRotTestFrames(gesture.Transform((0,0), math.pi, 1, (0,15))),
+                 createScaleTestFrames(gesture.Transform((0,5), 0, 2, (0,20))),
                 ))
 
         # Test friction
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, friction=0.01,
+        self.__transformRecognizer = gesture.TransformRecognizer(image, friction=0.01,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
@@ -850,7 +853,7 @@ class GestureTestCase(AVGTestCase):
 
         # Test abort
         self.__initImageScene()
-        self.__transformRecognizer = ui.TransformRecognizer(self.image, 
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, 
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (self.__transformRecognizer.abort,
@@ -858,13 +861,13 @@ class GestureTestCase(AVGTestCase):
                  self.__transformRecognizer.abort,
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 20, 10),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 30, 10),
-                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: checkTransform(gesture.Transform((0,0))),
                  self.__transformRecognizer.abort,
                 ))
 
         # Test enable/disable
         self.__initImageScene()
-        self.__transformRecognizer = ui.TransformRecognizer(self.image, friction=-1,
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, friction=-1,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (# Regular disable
@@ -872,17 +875,17 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 20, 10),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 30, 10),
-                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: checkTransform(gesture.Transform((0,0))),
                  # Re-enable
                  lambda: self.__transformRecognizer.enable(True),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
-                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: checkTransform(gesture.Transform((10,0))),
                  # Disable during gesture
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
                  lambda: self.__transformRecognizer.enable(False),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
-                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: checkTransform(gesture.Transform((0,0))),
                  lambda: self.__transformRecognizer.enable(True),
                 ))
 
@@ -891,12 +894,12 @@ class GestureTestCase(AVGTestCase):
             self.__transformRecognizer.enable(False)
 
         self.__initImageScene()
-        self.__transformRecognizer = ui.TransformRecognizer(self.image, friction=1,
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, friction=1,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
         self.start(False,
                 (# Disable during end event
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: self.__transformRecognizer.subscribe(ui.Recognizer.END,
+                 lambda: self.__transformRecognizer.subscribe(gesture.Recognizer.END,
                         disableDuringEnd),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
                  None,
@@ -907,7 +910,7 @@ class GestureTestCase(AVGTestCase):
 
         # Test second down during inertia.
         self.__initImageScene()
-        self.__transformRecognizer = ui.TransformRecognizer(self.image, friction=0.01,
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, friction=0.01,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp,
                 endHandler=onEnd)
         self.start(False,
@@ -920,35 +923,35 @@ class GestureTestCase(AVGTestCase):
 
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
-        means = ui.calcKMeans(pts)
+        means = gesture.calcKMeans(pts)
         self.assertEqual(means, ([0], [1]))
 
         pts.append (avg.Point2D(0,4))
-        means = ui.calcKMeans(pts)
+        means = gesture.calcKMeans(pts)
         self.assertEqual(means, ([0,1], [2]))
 
 
     def testMat3x3(self):
-        t = ui.Mat3x3.translate([1,0,1])
+        t = gesture.Mat3x3.translate([1,0,1])
         v = [1,0,1]
         self.assertEqual(t.applyVec(v), [2,0,1])
-        r = ui.Mat3x3.rotate(math.pi/2)
+        r = gesture.Mat3x3.rotate(math.pi/2)
         self.assertAlmostEqual(r.applyVec(v), [0,1,1])
-        self.assertAlmostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m)
-        self.assertAlmostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m)
-        self.assertAlmostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m)
-        self.assertAlmostEqual(ui.Mat3x3().m, ui.Mat3x3().inverse().m)
-        m = ui.Mat3x3([-1,  3, -3], 
+        self.assertAlmostEqual(t.applyMat(t).m, gesture.Mat3x3.translate([2,0,1]).m)
+        self.assertAlmostEqual(t.applyMat(r).m, gesture.Mat3x3([0,-1,1],[1,0,0]).m)
+        self.assertAlmostEqual(r.applyMat(t).m, gesture.Mat3x3([0,-1,0],[1,0,1]).m)
+        self.assertAlmostEqual(gesture.Mat3x3().m, gesture.Mat3x3().inverse().m)
+        m = gesture.Mat3x3([-1,  3, -3], 
                       [ 0, -6,  5],
                       [-5, -3,  1])
-        im = ui.Mat3x3([3./2,      1., -1./2],
+        im = gesture.Mat3x3([3./2,      1., -1./2],
                        [-25./6, -8./3,  5./6],
                        [-5.,      -3.,    1.])
         self.assertAlmostEqual(m.inverse().m, im.m)
 
         image = avg.ImageNode(pos=(10,20), size=(30,40), angle=1.57, 
             href="rgb24alpha-64x64.png")
-        mat = ui.Mat3x3.fromNode(image)
+        mat = gesture.Mat3x3.fromNode(image)
         mat.setNodeTransform(image)
         self.assertAlmostEqual(image.pos, (10,20))
         self.assertAlmostEqual(image.size, (30,40))
