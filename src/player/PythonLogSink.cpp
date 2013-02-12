@@ -58,7 +58,6 @@ void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
 
     Py_DECREF(extra);
     Py_DECREF(pyCat);
-    Py_DECREF(pyMsg);
     Py_DECREF(args);
     Py_DECREF(kwargs);
 }
