@@ -339,6 +339,7 @@ void exception_translator(avg::Exception const & e);
 void exportMessages(boost::python::object& nodeClass, const std::string& sClassName);
 
 void addPythonLogger(PyObject * self, PyObject * pyLogger);
+void removePythonLogger(PyObject * self, PyObject * pyLogger);
 
 void pytrace(PyObject * self, size_t category, const avg::UTF8String& sMsg,
         unsigned severity);

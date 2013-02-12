@@ -157,6 +157,16 @@ void Logger::addLogSink(const LogSinkPtr& logSink)
     m_Sinks.push_back(logSink);
 }
 
+void Logger::removeLogSink(const LogSinkPtr& logSink)
+{
+    boost::mutex::scoped_lock lock(sinkMutex);
+    std::vector<LogSinkPtr>::iterator it;
+    it = find(m_Sinks.begin(), m_Sinks.end(), logSink);
+    if ( it != m_Sinks.end() ){
+        m_Sinks.erase(it);
+    }
+}
+
 void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) const
 {
     boost::mutex::scoped_lock lock(logMutex);

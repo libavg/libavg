@@ -407,11 +407,27 @@ void export_base()
     to_python_converter<TypeMap, to_dict<TypeMap> >();
 }
 
+namespace {
+    std::map<PyObject *, LogSinkPtr> m_pyObjectMap;
+}
+
 void addPythonLogger(PyObject * self, PyObject * pyLogger)
 {
-    Logger::Logger * logger = Logger::Logger::get();
+    Logger * logger = Logger::get();
     LogSinkPtr logSink(new PythonLogSink(pyLogger));
     logger->addLogSink(logSink);
+    m_pyObjectMap[pyLogger] = logSink;
+}
+
+void removePythonLogger(PyObject * self, PyObject * pyLogger)
+{
+    Logger* logger = Logger::get();
+    std::map<PyObject *, LogSinkPtr>::iterator it;
+    it = m_pyObjectMap.find(pyLogger);
+    if( it !=m_pyObjectMap.end() ){
+        logger->removeLogSink(it->second);
+        m_pyObjectMap.erase(it);
+    }
 }
 
 void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned severity)
