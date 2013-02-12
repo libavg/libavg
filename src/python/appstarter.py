@@ -25,7 +25,6 @@ import gc
 import math
 
 from libavg import avg, Point2D, player
-from libavg import logger as g_Log
 import graph
 from mtemu import MTemu
 import apphelpers
@@ -326,7 +325,7 @@ class AVGMTAppStarter(AVGAppStarter):
         try:
             player.enableMultitouch()
         except RuntimeError, err:
-            g_Log.trace(g_Log.WARNING, str(err))
+            avg.logger.warning(str(err))
 
         self.tracker = player.getTracker()
 

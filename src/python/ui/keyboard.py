@@ -26,8 +26,6 @@
 import os.path
 
 from libavg import avg, player
-from libavg import logger as g_Logger
-
 
 FEEDBACK_ZOOM_FACTOR = 1.0
 
@@ -298,9 +296,8 @@ class Keyboard(avg.DivNode):
                 if self.__shiftDownCounter > 0:
                     self.__shiftDownCounter -= 1
                 else:
-                    g_Logger.trace(g_Logger.WARNING,
-                            'Keyboard: ShiftDownCounter=0 on [%s] up' 
-                            %self.__shiftKeyCode)
+                    avg.logger.warning('Keyboard: ShiftDownCounter=0 on [%s] up'
+                            % self.__shiftKeyCode)
             elif keyCode == self.__altGrKeyCode:
                 if self.__altGrKeyCounter > 0:
                     self.__altGrKeyCounter -= 1
