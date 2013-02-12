@@ -180,7 +180,7 @@ void LibMTDevInputDevice::processEvents(const set<int>& changedIDs)
 
 TouchEventPtr LibMTDevInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
 {
-    glm::vec2 size(getScreenResolution());
+    glm::vec2 size(Player::get()->getScreenResolution());
     glm::vec2 normPos(float(pos.x-m_Dimensions.tl.x)/m_Dimensions.width(),
             float(pos.y-m_Dimensions.tl.y)/m_Dimensions.height());
     IntPoint screenPos(int(normPos.x*size.x+0.5), int(normPos.y*size.y+0.5));

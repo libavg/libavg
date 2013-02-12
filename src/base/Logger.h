@@ -78,6 +78,7 @@ public:
     size_t stringToCategory(const std::string& sCategory) const;
     void trace(const UTF8String& sMsg, size_t category, unsigned severity) const;
     size_t registerCategory(const string& cat);
+    void setLogSeverity(unsigned severity);
 
     void logDebug(const string& msg, const size_t category=category::APP) const;
     void logInfo(const string& msg, const size_t category=category::APP) const;
@@ -127,6 +128,10 @@ if (Logger::get()->shouldLog(category, severity)) { \
 
 #define AVG_LOG_INFO(sMsg){ \
     AVG_TRACE(Logger::category::NONE, Logger::severity::INFO, sMsg); \
+}\
+
+#define AVG_LOG_DEBUG(sMsg){ \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::DEBUG, sMsg); \
 }\
 
 }

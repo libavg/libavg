@@ -37,6 +37,7 @@ class AVG_API FFMpegFrameDecoder
         virtual ~FFMpegFrameDecoder();
 
         bool decodePacket(AVPacket* pPacket, AVFrame& frame, bool bFrameAfterSeek);
+        bool decodeLastFrame(AVFrame& frame);
         void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
         void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride);
 
@@ -54,12 +55,11 @@ class AVG_API FFMpegFrameDecoder
         SwsContext * m_pSwsContext;
         AVStream* m_pStream;
 
-        bool m_bEOFPending;
         bool m_bEOF;
         
         float m_TimeUnitsPerSecond;
-        long long m_VideoStartTimestamp;
-        float m_LastVideoFrameTime;
+        long long m_StartTimestamp;
+        float m_LastFrameTime;
 
         bool m_bUseStreamFPS;
         float m_FPS;

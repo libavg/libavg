@@ -40,9 +40,10 @@ IntPoint getX11WindowPosition(const SDL_SysWMinfo* pSDLWMInfo)
     Window dummy;
     XWindowAttributes wAttribs;
     pSDLWMInfo->info.x11.lock_func();
-    XGetWindowAttributes(pSDLWMInfo->info.x11.display, pSDLWMInfo->info.x11.window, &wAttribs);
-    XTranslateCoordinates(pSDLWMInfo->info.x11.display, pSDLWMInfo->info.x11.window, wAttribs.root,
-            0, 0, &x, &y, &dummy);
+    XGetWindowAttributes(pSDLWMInfo->info.x11.display, pSDLWMInfo->info.x11.window,
+            &wAttribs);
+    XTranslateCoordinates(pSDLWMInfo->info.x11.display, pSDLWMInfo->info.x11.window,
+            wAttribs.root, 0, 0, &x, &y, &dummy);
     pSDLWMInfo->info.x11.unlock_func();
     return IntPoint(x, y);
 }

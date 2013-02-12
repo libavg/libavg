@@ -51,7 +51,6 @@ class AVG_API DisplayEngine
         float getEffectiveFramerate();
         void setVBlankRate(int rate);
         bool wasFrameLate();
-        virtual float getRefreshRate() = 0;
         virtual void setGamma(float Red, float Green, float Blue) = 0;
         virtual void setMousePos(const IntPoint& pos) = 0;
         virtual int getKeyModifierState() const = 0;

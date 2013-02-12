@@ -205,7 +205,7 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
 TouchEventPtr TUIOInputDevice::createEvent(int id, Event::Type type, glm::vec2 pos,
         glm::vec2 speed)
 {
-    glm::vec2 size = getScreenResolution();
+    glm::vec2 size = Player::get()->getScreenResolution();
     IntPoint screenPos(int(pos.x*size.x+0.5), int(pos.y*size.y+0.5));
     glm::vec2 screenSpeed(int(speed.x*size.x+0.5), int(speed.y*size.y+0.5));
     TouchEventPtr pEvent(new TouchEvent(id, type, screenPos, Event::TOUCH));

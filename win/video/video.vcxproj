@@ -67,17 +67,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\src\video\AsyncDemuxer.h" />
     <ClInclude Include="..\..\src\video\AsyncVideoDecoder.h" />
     <ClInclude Include="..\..\src\video\AudioDecoderThread.h" />
     <ClInclude Include="..\..\src\video\FFMpegDemuxer.h" />
     <ClInclude Include="..\..\src\video\FFMpegFrameDecoder.h" />
-    <ClInclude Include="..\..\src\video\IDemuxer.h" />
-    <ClInclude Include="..\..\src\video\IVideoDecoder.h" />
-    <ClInclude Include="..\..\src\video\SyncDecoder.h" />
+    <ClInclude Include="..\..\src\video\SyncVideoDecoder.h" />
     <ClInclude Include="..\..\src\video\VideoDecoder.h" />
     <ClInclude Include="..\..\src\video\VideoDecoderThread.h" />
     <ClInclude Include="..\..\src\video\VideoDemuxerThread.h" />
@@ -86,12 +80,11 @@
     <ClInclude Include="..\..\src\video\wrapffmpeg.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\video\AsyncDemuxer.cpp" />
     <ClCompile Include="..\..\src\video\AsyncVideoDecoder.cpp" />
     <ClCompile Include="..\..\src\video\AudioDecoderThread.cpp" />
     <ClCompile Include="..\..\src\video\FFMpegDemuxer.cpp" />
     <ClCompile Include="..\..\src\video\FFMpegFrameDecoder.cpp" />
-    <ClCompile Include="..\..\src\video\SyncDecoder.cpp" />
+    <ClCompile Include="..\..\src\video\SyncVideoDecoder.cpp" />
     <ClCompile Include="..\..\src\video\VideoDecoder.cpp" />
     <ClCompile Include="..\..\src\video\VideoDecoderThread.cpp" />
     <ClCompile Include="..\..\src\video\VideoDemuxerThread.cpp" />

@@ -3,12 +3,12 @@ SUBDIRS = shaders
 AM_CPPFLAGS = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
 
 if APPLE
-    GL_SOURCES = CGLContext.cpp PBO.cpp
-    GL_INCLUDES = CGLContext.h PBO.h
+    GL_SOURCES = CGLContext.cpp PBO.cpp AppleDisplay.cpp
+    GL_INCLUDES = CGLContext.h PBO.h AppleDisplay.h
 else
 if ENABLE_RPI
-    GL_SOURCES = EGLContext.cpp BCMDisplay.cpp
-    GL_INCLUDES = EGLContext.h BCMDisplay.h
+    GL_SOURCES = EGLContext.cpp BCMDisplay.cpp X11Display.cpp
+    GL_INCLUDES = EGLContext.h BCMDisplay.h X11Display.h
 else
 if ENABLE_EGL
     GL_SOURCES = EGLContext.cpp X11Display.cpp
@@ -28,7 +28,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
-        VertexArray.h GPUNullFilter.h GPUChromaKeyFilter.h \
+        VertexArray.h GPUNullFilter.h GPUChromaKeyFilter.h Display.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GPUShadowFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h GPUHueSatFilter.h GPUInvertFilter.h \
         FilterIntensity.h FilterNormalize.h FilterFloodfill.h FilterDilation.h \
@@ -45,6 +45,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp GPUChromaKeyFilter.cpp \
+        Display.cpp \
         GPUHueSatFilter.cpp GPUInvertFilter.cpp VertexArray.cpp GLContextAttribs.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GPUShadowFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp GLContext.cpp \
@@ -74,23 +75,23 @@ TESTS=testgraphics testgpu
 EXTRA_DIST = $(wildcard baseline/*.png) 
 
 noinst_LTLIBRARIES = libgraphics.la
-libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
+libgraphics_la_libadd = @LIBXINERAMA_LDADD@
+libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
-testgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
+testgraphics_LDADD = libgraphics.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@ \
-		@PYTHON_LIBS@
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@
 
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
-benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
+benchmarkgraphics_LDADD = libgraphics.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@ @PYTHON_LIBS@
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
 
 testgpu_SOURCES=testgpu.cpp $(ALL_H)
-testgpu_LDADD = ./libgraphics.la ../base/libbase.la -ldl \
+testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
         ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
-        @GDK_PIXBUF_LIBS@ @PYTHON_LIBS@
+        @GDK_PIXBUF_LIBS@ @LIBXINERAMA_LDADD@
 

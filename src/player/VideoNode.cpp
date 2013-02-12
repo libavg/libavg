@@ -37,7 +37,7 @@
 #include "../audio/AudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
-#include "../video/SyncDecoder.h"
+#include "../video/SyncVideoDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "../video/VDPAUDecoder.h"
 #endif
@@ -98,7 +98,7 @@ VideoNode::VideoNode(const ArgList& args)
     if (m_bThreaded) {
         m_pDecoder = new AsyncVideoDecoder(m_QueueLength);
     } else {
-        m_pDecoder = new SyncDecoder();
+        m_pDecoder = new SyncVideoDecoder();
     }
 
     ObjectCounter::get()->incRef(&typeid(*this));

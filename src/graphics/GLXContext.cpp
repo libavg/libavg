@@ -48,9 +48,9 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
 }
 
 static bool s_bX11Error;
-static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
+static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
-int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
+int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
 {
     cerr << "X11 error creating GL context: " << (int)(pErrEvent->request_code)
             << ", " << (int)(pErrEvent->minor_code) << endl;
@@ -176,13 +176,14 @@ bool GLXContext::initVBlank(int rate)
     static bool s_bVBlankActive = false;
     if (rate > 0) {
         if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
-            AVG_LOG_WARNING(
+            AVG_TRACE(Logger::WARNING, 
                  "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
             s_bVBlankActive = false;
             return false;
         } 
         if (!queryGLXExtension("GLX_EXT_swap_control")) {
-            AVG_LOG_WARNING("Linux VBlank setup failed: OpenGL Extension not supported.");
+            AVG_TRACE(Logger::WARNING,
+                    "Linux VBlank setup failed: OpenGL Extension not supported.");
             s_bVBlankActive = false;
             return false;
         }
@@ -199,12 +200,12 @@ bool GLXContext::initVBlank(int rate)
         return false;
     }
 }
+
 bool GLXContext::useDepthBuffer() const
 {
     // NVidia GLX GLES doesn't allow framebuffer stencil without depth.
     return true;
 }
-
 
 void GLXContext::swapBuffers()
 {
@@ -220,24 +221,6 @@ bool GLXContext::haveARBCreateContext()
         s_bHaveExtension = (queryGLXExtension("GLX_ARB_create_context"));
     }
     return s_bHaveExtension;
-}
-
-float GLXContext::calcRefreshRate()
-{
-    Display * pDisplay = XOpenDisplay(0);
-    int pixelClock;
-    XF86VidModeModeLine modeLine;
-    bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
-            &pixelClock, &modeLine);
-    if (!bOK) {
-        AVG_LOG_WARNING(
-                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_LOG_WARNING("Defaulting to 60 Hz refresh rate.");
-    }
-    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
-    float refreshRate = HSyncRate/modeLine.vtotal;
-    XCloseDisplay(pDisplay);
-    return refreshRate;
 }
 
 }

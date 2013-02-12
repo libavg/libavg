@@ -23,7 +23,8 @@
 #define _AsyncVideoDecoder_H_
 
 #include "../api.h"
-#include "AsyncDemuxer.h"
+#include "VideoDecoder.h"
+#include "VideoDemuxerThread.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
 #include "VideoMsg.h"
@@ -50,20 +51,22 @@ public:
     virtual void loop();
     virtual int getCurFrame() const;
     virtual int getNumFramesQueued() const;
-    virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
+    virtual float getCurTime() const;
     virtual float getFPS() const;
     virtual void setFPS(float fps);
 
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
             float timeWanted);
     void updateAudioStatus();
-    virtual bool isEOF(StreamSelect stream = SS_ALL) const;
+    virtual bool isEOF() const;
     virtual void throwAwayFrame(float timeWanted);
    
     AudioMsgQueuePtr getAudioMsgQ();
     AudioMsgQueuePtr getAudioStatusQ() const;
 
 private:
+    void setupDemuxer(std::vector<int> streamIndexes);
+    void deleteDemuxer();
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
     void waitForSeekDone();
@@ -77,7 +80,9 @@ private:
 
     int m_QueueLength;
 
-    AsyncDemuxer* m_pDemuxer;
+    boost::thread* m_pDemuxThread;
+    std::map<int, VideoMsgQueuePtr> m_PacketQs;
+    VideoDemuxerThread::CQueuePtr m_pDemuxCmdQ;
 
     boost::thread* m_pVDecoderThread;
     VideoDecoderThread::CQueuePtr m_pVCmdQ;

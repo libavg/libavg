@@ -41,12 +41,13 @@ using namespace std;
 
 #define AUDIO_MSG_QUEUE_LENGTH  50
 #define AUDIO_STATUS_QUEUE_LENGTH -1
+#define PACKET_QUEUE_LENGTH 50
 
 namespace avg {
 
 AsyncVideoDecoder::AsyncVideoDecoder(int queueLength)
     : m_QueueLength(queueLength),
-      m_pDemuxer(0),
+      m_pDemuxThread(0),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
       m_bUseStreamFPS(true),
@@ -86,7 +87,7 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
 {
     VideoDecoder::startDecoding(bDeliverYCbCr, pAP);
 
-    AVG_ASSERT(!m_pDemuxer);
+    AVG_ASSERT(!m_pDemuxThread);
     vector<int> streamIndexes;
     if (getVStreamIndex() >= 0) {
         streamIndexes.push_back(getVStreamIndex());
@@ -94,7 +95,7 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
     if (getAStreamIndex() >= 0) {
         streamIndexes.push_back(getAStreamIndex());
     }
-    m_pDemuxer = new AsyncDemuxer(getFormatContext(), streamIndexes);
+    setupDemuxer(streamIndexes);
 
     if (getVideoInfo().m_bHasVideo) {
         m_LastVideoFrameTime = -1;
@@ -104,9 +105,10 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         }
         m_pVCmdQ = VideoDecoderThread::CQueuePtr(new VideoDecoderThread::CQueue);
         m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(m_QueueLength));
+        VideoMsgQueue& packetQ = *m_PacketQs[getVStreamIndex()];
 
         m_pVDecoderThread = new boost::thread(VideoDecoderThread(
-                *m_pVCmdQ, *m_pVMsgQ, m_pDemuxer, getVideoStream(), getVStreamIndex(),
+                *m_pVCmdQ, *m_pVMsgQ, packetQ, getVideoStream(), 
                 getSize(), getPixelFormat(), usesVDPAU()));
     }
     
@@ -114,9 +116,9 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_pACmdQ = AudioDecoderThread::CQueuePtr(new AudioDecoderThread::CQueue);
         m_pAMsgQ = AudioMsgQueuePtr(new AudioMsgQueue(AUDIO_MSG_QUEUE_LENGTH));
         m_pAStatusQ = AudioMsgQueuePtr(new AudioMsgQueue(AUDIO_STATUS_QUEUE_LENGTH));
+        VideoMsgQueue& packetQ = *m_PacketQs[getAStreamIndex()];
         m_pADecoderThread = new boost::thread(
-                AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pDemuxer, getAudioStream(), 
-                getAStreamIndex(), *pAP));
+                AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, packetQ, getAudioStream(), *pAP));
         m_LastAudioFrameTime = 0;
     }
 }
@@ -125,9 +127,9 @@ void AsyncVideoDecoder::close()
 {
     AVG_ASSERT(getState() != CLOSED);
 
-    if (m_pDemuxer) {
-        m_pDemuxer->close();
-        m_pDemuxer = 0;
+    if (m_pDemuxThread) {
+        m_pDemuxCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::close, _1));
+        m_pDemuxThread->join();
     }
 
     if (m_pVDecoderThread) {
@@ -147,13 +149,17 @@ void AsyncVideoDecoder::close()
         m_pAMsgQ = AudioMsgQueuePtr();
     }
     VideoDecoder::close();
+    if (m_pDemuxThread) {
+        deleteDemuxer();
+    }
 }
 
 void AsyncVideoDecoder::seek(float destTime)
 {
     AVG_ASSERT(getState() == DECODING);
     m_NumSeeksSent++;
-    m_pDemuxer->seek(m_NumSeeksSent, destTime);
+    m_pDemuxCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, m_NumSeeksSent,
+            destTime));
 }
 
 void AsyncVideoDecoder::loop()
@@ -167,7 +173,7 @@ void AsyncVideoDecoder::loop()
 int AsyncVideoDecoder::getCurFrame() const
 {
     AVG_ASSERT(getState() != CLOSED);
-    return int(getCurTime(SS_VIDEO)*getVideoInfo().m_StreamFPS+0.5);
+    return int(getCurTime()*getVideoInfo().m_StreamFPS+0.5);
 }
 
 int AsyncVideoDecoder::getNumFramesQueued() const
@@ -176,23 +182,14 @@ int AsyncVideoDecoder::getNumFramesQueued() const
     return m_pVMsgQ->size();
 }
 
-float AsyncVideoDecoder::getCurTime(StreamSelect stream) const
+float AsyncVideoDecoder::getCurTime() const
 {
     AVG_ASSERT(getState() != CLOSED);
-    switch (stream) {
-        case SS_DEFAULT:
-        case SS_VIDEO:
-            AVG_ASSERT(getVideoInfo().m_bHasVideo);
-            return m_CurVideoFrameTime;
-            break;
-        case SS_AUDIO:
-            AVG_ASSERT(getVideoInfo().m_bHasAudio);
-            return m_LastAudioFrameTime;
-            break;
-        default:
-            AVG_ASSERT(false);
+    if (getVideoInfo().m_bHasVideo) {
+        return m_CurVideoFrameTime;
+    } else {
+        return m_LastAudioFrameTime;
     }
-    return -1;
 }
 
 float AsyncVideoDecoder::getFPS() const
@@ -263,19 +260,17 @@ void AsyncVideoDecoder::updateAudioStatus()
     }
 }
 
-bool AsyncVideoDecoder::isEOF(StreamSelect stream) const
+bool AsyncVideoDecoder::isEOF() const
 {
     AVG_ASSERT(getState() == DECODING);
-    switch(stream) {
-        case SS_AUDIO:
-            return (!getVideoInfo().m_bHasAudio || m_bAudioEOF);
-        case SS_VIDEO:
-            return (!getVideoInfo().m_bHasVideo || m_bVideoEOF);
-        case SS_ALL:
-            return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
-        default:
-            return false;
+    bool bEOF = true;
+    if (getVideoInfo().m_bHasAudio && !m_bAudioEOF) {
+        bEOF = false;
     }
+    if (getVideoInfo().m_bHasVideo && !m_bVideoEOF) {
+        bEOF = false;
+    }
+    return bEOF;
 }
 
 void AsyncVideoDecoder::throwAwayFrame(float timeWanted)
@@ -293,6 +288,33 @@ AudioMsgQueuePtr AsyncVideoDecoder::getAudioMsgQ()
 AudioMsgQueuePtr AsyncVideoDecoder::getAudioStatusQ() const
 {
     return m_pAStatusQ;
+}
+
+void AsyncVideoDecoder::setupDemuxer(vector<int> streamIndexes)
+{
+    m_pDemuxCmdQ = VideoDemuxerThread::CQueuePtr(new VideoDemuxerThread::CQueue());    
+    for (unsigned i = 0; i < streamIndexes.size(); ++i) {
+        VideoMsgQueuePtr pPacketQ(new VideoMsgQueue(PACKET_QUEUE_LENGTH));
+        m_PacketQs[i] = pPacketQ;
+    }
+    m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pDemuxCmdQ, getFormatContext(),
+            m_PacketQs));
+}
+
+void AsyncVideoDecoder::deleteDemuxer()
+{
+    delete m_pDemuxThread;
+    m_pDemuxThread = 0;
+    map<int, VideoMsgQueuePtr>::iterator it;
+    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        VideoMsgQueuePtr pPacketQ = it->second;
+        VideoMsgPtr pPacketMsg;
+        pPacketMsg = pPacketQ->pop(false);
+        while (pPacketMsg) {
+            pPacketMsg->freePacket();
+            pPacketMsg = pPacketQ->pop(false);
+        }
+    }
 }
 
 VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted, 

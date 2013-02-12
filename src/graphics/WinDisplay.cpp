@@ -19,27 +19,43 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IDemuxer_H_
-#define _IDemuxer_H_
+#include "WinDisplay.h"
 
-#include "../api.h"
-#include <math.h>
+#include <windows.h>
 
-#include "WrapFFMpeg.h"
-
-#include <boost/shared_ptr.hpp>
+using namespace std;
 
 namespace avg {
 
-    class AVG_API IDemuxer {
-        public:
-            virtual ~IDemuxer() {};
-           
-            virtual AVPacket * getPacket(int streamIndex) = 0;
-            virtual void dump() {};
-            
-    };
-    typedef boost::shared_ptr<IDemuxer> IDemuxerPtr;
+
+
+WinDisplay::WinDisplay()
+{
 }
 
-#endif
+WinDisplay::~WinDisplay()
+{
+}
+
+
+
+float WinDisplay::queryPPMM()
+{
+    HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+    return GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
+}
+
+float WinDisplay::queryRefreshRate()
+{
+    float refreshRate;
+    // This isn't correct for multi-monitor systems.
+    HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
+    refreshRate = float(GetDeviceCaps(hDC, VREFRESH));
+    if (refreshRate < 2) {
+        refreshRate = 60;
+    }
+    DeleteDC(hDC);
+    return refreshRate;
+}
+
+}

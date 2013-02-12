@@ -35,8 +35,7 @@ DisplayParams::DisplayParams()
       m_bShowCursor(true),
       m_VBRate(1),
       m_Framerate(0),
-      m_bHasWindowFrame(true),
-      m_DotsPerMM(0)
+      m_bHasWindowFrame(true)
 { 
     m_Gamma[0] = -1.0f;
     m_Gamma[1] = -1.0f;
@@ -59,7 +58,6 @@ void DisplayParams::dump() const
     cerr << "  vbrate: " << m_VBRate << endl;
     cerr << "  framerate: " << m_Framerate << endl;
     cerr << "  has window frame: " << m_bHasWindowFrame << endl;
-    cerr << "  dots per mm: " << m_DotsPerMM << endl;
 }
 
 }

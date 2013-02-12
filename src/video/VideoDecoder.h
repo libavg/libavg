@@ -45,11 +45,11 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class VDPAUDecoder;
 
 enum FrameAvailableCode {
-    FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING, FA_CLOSED
+    FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
 };
 
 enum StreamSelect {
-    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_ALL
+    SS_AUDIO, SS_VIDEO, SS_DEFAULT
 };
 
 class AVG_API VideoDecoder
@@ -72,16 +72,15 @@ class AVG_API VideoDecoder
         virtual void loop() = 0;
         virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() const = 0;
-        virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const = 0;
+        virtual float getCurTime() const = 0;
         virtual float getFPS() const = 0;
         virtual void setFPS(float fps) = 0;
 
-        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
-                float timeWanted);
+        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, float timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted) = 0;
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
-        virtual bool isEOF(StreamSelect stream = SS_ALL) const = 0;
+        virtual bool isEOF() const = 0;
         virtual void throwAwayFrame(float timeWanted) = 0;
 
         static void logConfig();

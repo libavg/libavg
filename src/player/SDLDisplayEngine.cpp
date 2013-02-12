@@ -45,6 +45,7 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/Display.h"
 
 #include "../video/VideoDecoder.h"
 
@@ -63,9 +64,11 @@
 #endif
 
 #ifdef linux
-#include <X11/extensions/Xinerama.h>
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
+#endif
+#ifdef AVG_ENABLE_XINERAMA
+#include <X11/extensions/Xinerama.h>
 #endif
 
 #include <signal.h>
@@ -83,16 +86,7 @@ using namespace std;
 
 namespace avg {
 
-SDLDisplayEngine::SDLDisplayEngine()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
-      m_WindowSize(0,0),
-      m_ScreenResolution(0,0),
-      m_PPMM(0),
-      m_pScreen(0),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_NumMouseButtonsDown(0),
-      m_pGLContext(0)
+void SDLDisplayEngine::initSDL()
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -101,16 +95,23 @@ SDLDisplayEngine::SDLDisplayEngine()
         bSDLInitialized = true;
     }
 #endif
-#ifdef linux
-    Display * pDisplay = XOpenDisplay(0);
-    if (!pDisplay) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, "Failed to connect to X11 display.");
-    }
-#endif
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_LOG_ERROR("Can't init SDL display subsystem.");
         exit(-1);
     }
+}
+
+SDLDisplayEngine::SDLDisplayEngine()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
+      m_WindowSize(0,0),
+      m_pScreen(0),
+      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
+      m_NumMouseButtonsDown(0),
+      m_pGLContext(0)
+{
+    initSDL();
+
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
@@ -216,7 +217,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     m_pXIMTInputDevice = 0;
 #endif
     SDL_WM_SetCaption("libavg", 0);
-    GLContext::getRefreshRate();
+    Display::get()->getRefreshRate();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
@@ -233,8 +234,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     VideoDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
-    m_ScreenResolution = IntPoint(0,0);
-    calcScreenDimensions(dp.m_DotsPerMM);
 }
 
 IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
@@ -273,11 +272,6 @@ void SDLDisplayEngine::teardown()
     }
 }
 
-float SDLDisplayEngine::getRefreshRate() 
-{
-    return GLContext::getRefreshRate();
-}
-
 void SDLDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
@@ -299,62 +293,6 @@ void SDLDisplayEngine::setMousePos(const IntPoint& pos)
 int SDLDisplayEngine::getKeyModifierState() const
 {
     return SDL_GetModState();
-}
-
-void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
-{
-    if (m_ScreenResolution.x == 0) {
-#ifdef AVG_ENABLE_XINERAMA
-        Display * pDisplay = XOpenDisplay(0);
-        int dummy1, dummy2;
-        Bool bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
-        if (bXinerama) {
-            bXinerama = XineramaIsActive(pDisplay);
-        }
-        if (bXinerama) {
-            int numHeads = 0;
-            XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
-            AVG_ASSERT(numHeads >= 1);
-/*
-            cerr << "Num heads: " << numHeads << endl;
-            for (int x=0; x<numHeads; ++x) {
-                cout << "Head " << x+1 << ": " <<
-                    pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
-                    pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
-            }
-            */
-            m_ScreenResolution = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
-            XFree(pScreenInfo);
-        } else {
-            const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-            m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-        }
-        XCloseDisplay(pDisplay);
-#else
-        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-#endif
-    }
-    if (dotsPerMM != 0) {
-        m_PPMM = dotsPerMM;
-    }
-
-    if (m_PPMM == 0) {
-#ifdef WIN32
-        HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-        m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
-#else
-    #ifdef linux
-        Display * pDisplay = XOpenDisplay(0);
-        glm::vec2 displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
-    #elif defined __APPLE__
-        CGSize size = CGDisplayScreenSize(CGMainDisplayID());
-        glm::vec2 displayMM(size.width, size.height);
-    #endif
-        // Non-Square pixels cause errors here. We'll fix that when it happens.
-        m_PPMM = m_ScreenResolution.x/displayMM.x;
-#endif
-    }
 }
 
 bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
@@ -903,34 +841,6 @@ const IntPoint& SDLDisplayEngine::getWindowSize() const
 bool SDLDisplayEngine::isFullscreen() const
 {
     return m_bIsFullscreen;
-}
-
-IntPoint SDLDisplayEngine::getScreenResolution()
-{
-    calcScreenDimensions();
-    return m_ScreenResolution;
-}
-
-float SDLDisplayEngine::getPixelsPerMM()
-{
-    calcScreenDimensions();
-
-    return m_PPMM;
-}
-
-glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
-{
-    calcScreenDimensions();
-    glm::vec2 size;
-    glm::vec2 screenRes = glm::vec2(getScreenResolution());
-    size.x = screenRes.x/m_PPMM;
-    size.y = screenRes.y/m_PPMM;
-    return size;
-}
-
-void SDLDisplayEngine::assumePixelsPerMM(float ppmm)
-{
-    m_PPMM = ppmm;
 }
 
 }

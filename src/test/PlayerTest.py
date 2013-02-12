@@ -671,17 +671,24 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testScreenDimensions(self):
-        res = player.getScreenResolution()
-        self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
-        ppmm = player.getPixelsPerMM()
-        self.assert_(ppmm > 0 and ppmm < 10000)
-        mm = player.getPhysicalScreenDimensions()
-        self.assert_(mm.x > 0 and mm.y > 0 and mm.x < 10000 and mm.y < 10000)
-        player.assumePixelsPerMM(ppmm)
-        newPPMM = player.getPixelsPerMM()
-        newMM = player.getPhysicalScreenDimensions()
-        self.assertAlmostEqual(newPPMM, ppmm)
-        self.assertEqual(newMM, mm)
+        def queryDimensions():
+            res = player.getScreenResolution()
+            self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
+            ppmm = player.getPixelsPerMM()
+            self.assert_(ppmm > 0 and ppmm < 10000)
+            mm = player.getPhysicalScreenDimensions()
+            self.assert_(mm.x > 0 and mm.y > 0 and mm.x < 10000 and mm.y < 10000)
+            player.assumePixelsPerMM(ppmm)
+            newPPMM = player.getPixelsPerMM()
+            self.assertAlmostEqual(newPPMM, ppmm)
+            newMM = player.getPhysicalScreenDimensions()
+            self.assertEqual(newMM, mm)
+
+        queryDimensions()
+        self.__initDefaultScene()
+        self.start(False,
+                (queryDimensions,
+                ))
 
     def testSVG(self):
         svgFile = avg.SVG("media/rect.svg", False)

@@ -410,8 +410,8 @@ void export_base()
 void addPythonLogger(PyObject * self, PyObject * pyLogger)
 {
     Logger::Logger * logger = Logger::Logger::get();
-    LogSinkPtr(new PythonLogSink(pyLogger));
-    logger->addLogHandler(logHandler);
+    LogSinkPtr logSink(new PythonLogSink(pyLogger));
+    logger->addLogSink(logSink);
 }
 
 void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned severity)

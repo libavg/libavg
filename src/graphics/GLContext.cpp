@@ -50,8 +50,6 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-float GLContext::s_RefreshRate = 0.0;
-
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
 bool GLContext::s_bErrorCheckEnabled = false;
@@ -132,15 +130,9 @@ void GLContext::init(bool bOwnsContext)
     if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
         if (isGLES()) {
             m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
-        }
-        if (m_MajorGLVersion > 1) {
-            m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         } else {
-            m_GLConfig.m_ShaderUsage = GLConfig::FRAGMENT_ONLY;
+            m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         }
-    }
-    if (m_GLConfig.m_ShaderUsage == GLConfig::FRAGMENT_ONLY) {
-        m_pShaderRegistry->setPreprocessorDefine("FRAGMENT_ONLY", "");
     }
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
@@ -155,18 +147,6 @@ void GLContext::init(bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
-
-    if (getShaderUsage() == GLConfig::FRAGMENT_ONLY) {
-#ifndef AVG_ENABLE_EGL
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-#endif
-    }
-
 }
 
 void GLContext::deleteObjects()
@@ -365,15 +345,15 @@ void GLContext::logConfig()
             string("  GPU-based YUV-RGB conversion: ")+s+".");
     try {
         AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "  Dedicated video memory: " << 
-                getVideoMemInstalled()/(1024*1024) << " MB");
+                "  Dedicated video memory: " << getVideoMemInstalled()/(1024*1024)
+                << " MB");
         AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "  Video memory used at start: " << 
-                getVideoMemUsed()/(1024*1024) << " MB");
+                "  Video memory used at start: " << getVideoMemUsed()/(1024*1024)
+                << " MB");
     } catch (Exception) {
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::ERROR,
                 "  Dedicated video memory: Unknown");
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::ERROR,
                 "  Video memory used at start: Unknown");
     }
 }
@@ -449,28 +429,6 @@ void GLContext::swapBuffers()
     AVG_ASSERT(false);
 }
 
-float GLContext::getRefreshRate()
-{
-    if (s_RefreshRate == 0.0) {
-#ifdef __APPLE__
-        s_RefreshRate = CGLContext::calcRefreshRate();
-#elif defined linux
-#ifdef AVG_ENABLE_EGL
-        s_RefreshRate = EGLContext::calcRefreshRate();
-#else
-        s_RefreshRate = GLXContext::calcRefreshRate();
-#endif
-#elif defined _WIN32
-        s_RefreshRate = WGLContext::calcRefreshRate();
-#else
-        AVG_ASSERT(false);
-#endif
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "Vertical Refresh Rate: " << s_RefreshRate);
-    }
-    return s_RefreshRate;
-}
-
 void GLContext::enableErrorChecks(bool bEnable)
 {
     s_bErrorCheckEnabled = bEnable;
@@ -487,7 +445,7 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        ostringstream s;
+        stringstream s;
 #ifndef AVG_ENABLE_EGL
         s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";

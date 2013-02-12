@@ -43,7 +43,7 @@ using namespace std;
 
 namespace avg {
 
-Display* XInputMTInputDevice::s_pDisplay = 0;
+::Display* XInputMTInputDevice::s_pDisplay = 0;
 
 const char* cookieTypeToName(int evtype);
 string xEventTypeToName(int evtype);

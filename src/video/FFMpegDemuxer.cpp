@@ -20,6 +20,7 @@
 //
 
 #include "FFMpegDemuxer.h"
+
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -58,8 +59,8 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
         AVG_ASSERT(false);
     }
 
-    PacketList & curPacketList = m_PacketLists.find(streamIndex)->second;
-    AVPacket * pPacket;
+    PacketList& curPacketList = m_PacketLists.find(streamIndex)->second;
+    AVPacket* pPacket;
     if (!curPacketList.empty()) {
         // The stream has packets queued already.
         pPacket = curPacketList.front();
@@ -71,7 +72,6 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
             pPacket = new AVPacket;
             memset(pPacket, 0, sizeof(AVPacket));
             int err = av_read_frame(m_pFormatContext, pPacket);
-            // TODO: Check url_ferror here too.
             if (err < 0) {
                 // EOF
                 av_free_packet(pPacket);

@@ -166,12 +166,6 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": unsupported audio codec ("+szBuf+").");
         }
-        if (m_pAStream->codec->sample_fmt != SAMPLE_FMT_S16) {
-            m_AStreamIndex = -1;
-            m_pAStream = 0; 
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported sample format (!= S16).");
-        }
     }
     if (!m_pVStream && !m_pAStream) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
@@ -487,15 +481,11 @@ void avcodecError(const string& sFilename, int err)
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": " + buf);
 #else
     switch(err) {
-        case AVERROR_NUMEXPECTED:
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": Incorrect image filename syntax (use %%d to specify the image number:");
         case AVERROR_INVALIDDATA:
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": Error while parsing header");
         case AVERROR_NOFMT:
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": Unknown format");
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": Unknown format");
         default:
             stringstream s;
             s << "'" << sFilename <<  "': Error while opening file (Num:" << err << ")";
