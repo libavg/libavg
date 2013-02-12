@@ -72,6 +72,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         bool m_bUseVDPAU;
 
         bool m_bSeekDone;
+        bool m_bProcessingLastFrames;
 };
 
 }
