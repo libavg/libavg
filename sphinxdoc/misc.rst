@@ -165,9 +165,9 @@ Misc. Classes
     .. autoclass:: Logger
 
         Interface to the logger used by the avg player.
-        The logger supports custom log handlers, categorized logging messages and log
-        levels.
-        The logger can not be instantiated, is available in the avg module.
+        The logger supports custom log sinks, categorized log messages and log
+        severities.
+        The logger can not be instantiated,but is available in the avg module.
         It can be configured via environment variables, c++ plugins or python.
 
         Log categories can be set either by calling Logger.setCategories or by setting the
@@ -184,14 +184,10 @@ Misc. Classes
             Outputs everything that has not been categorized.
         :py:const:`PROFILE`
             Outputs performance statistics on player termination.
-        :py:const:`PROFILE_LATEFRAMES`
-            Outputs performance statistics whenever a frame is displayed late.
         :py:const:`PROFILE_VIDEO`
             Outputs performance statistics for video decoding.
         :py:const:`EVENTS`
             Outputs basic event data.
-        :py:const:`EVENTS2`
-            Outputs all event data available.
         :py:const:`CONFIG`
             Outputs configuration data.
         :py:const:`MEMORY`
@@ -211,8 +207,8 @@ Misc. Classes
         Default categories are :py:const:`NONE`, :py:const:`APP` and
         :py:const:`DEPRECATION`.
 
-        Log levels are mimiking python's log interface.
-        Log levels(ordered by declining severity) are:
+        Log severities are similar to pythons log levels.
+        Log severities(in declining order) are:
 
         :py:const:`CRITICAL`
 
@@ -226,20 +222,21 @@ Misc. Classes
 
         :py:const:`DEBUG`
 
-        The log level can be set using :envvar:`AVG_LOG_LEVEL`
+        The log severity can be set using :envvar:`AVG_LOG_SEVERITY`
         By default, it is set to :py:const:`INFO`
 
         .. code-block:: bash
 
-            export AVG_LOG_LEVEL=INFO
+            export AVG_LOG_SEVERITY=INFO
 
         By default, log output is sent to the console (:file:`stderr`) in the format
 
         .. code-block:: bash
 
-            [time][LEVEL][CATEGORY] : message
+            [time][SEVERITY][CATEGORY] : message
 
-        To prevent logging to :file:`stderr` set :envvar:`AVG_LOG_OMIT_STDERR`.
+        To prevent logging to :file:`stderr` set :envvar:`AVG_LOG_OMIT_STDERR` in the
+        Environment.
 
 
         .. py:method:: popCategories
@@ -258,9 +255,9 @@ Misc. Classes
             Sets the types of messages that should be logged. :py:attr:`categories` is
             an or'ed sequence of categories.
 
-        .. py:method:: log(message, category, level)
+        .. py:method:: log(message, category, severity)
 
-            Logs message to the log if category is active or level is at least an
+            Logs a message if category is active or severity is at least 
             :py:const:`ERROR`.
 
             :param category: 
@@ -268,36 +265,42 @@ Misc. Classes
                 One of the categories listed above or custom category. Defaults to
                 :py:const:`APP`.
 
-            :param level:
-                Onf of the levels listed above. Defaults to :py:const:`INFO`.
+            :param severity
+                Onf of the severities listed above. Defaults to :py:const:`INFO`.
 
             :param message: The log message string.
 
         .. py:method:: critical(msg, category)
 
-            Shortcut to :py:meth:`log`, using the level indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name
 
         .. py:method:: error(msg, category)
 
-            Shortcut to :py:meth:`log`, using the level indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name
 
         .. py:method:: warning(msg, category)
 
-            Shortcut to :py:meth:`log`, using the level indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name
 
         .. py:method:: info(msg, category)
 
-            Shortcut to :py:meth:`log`, using the level indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name
 
         .. py:method:: debug(msg, category)
 
-            Shortcut to :py:meth:`log`, using the level indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name
 
-        .. py:method:: addLogger(logger)
+        .. py:method:: addSink(logger)
 
             Add a python logger object to libavg's logging handlers.
-            The python logger gets the category as an "extra" kwargs, useful for
+            The python logger gets the key `category` as an "extra" kwargs, useful for
             formatting the output.
+        
+        .. py:method:: removeSink(logger)
+
+            Removes a previously added logger. It will not receive any messages dispatched
+            by the logger annymore. It's save to call the function even if the logger is
+            not present.
 
 
     .. autoclass:: Point2D([x,y=(0,0)])
