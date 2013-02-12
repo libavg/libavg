@@ -87,16 +87,13 @@ public:
     void log(const string& msg, const size_t category=category::APP,
             unsigned severity=severity::INFO) const;
 
-    void setLogSeverity(unsigned severity){
-        m_Severity = severity;
-    }
-
     inline bool isCategorySet(size_t category) const {
         return (category & m_Flags) != 0;
     }
 
     inline bool shouldLog(size_t category, unsigned severity) const {
-        return (m_Severity <= severity && isCategorySet(category)) || Logger::severity::ERROR <= severity;
+        return (m_Severity <= severity && isCategorySet(category)) ||
+                Logger::severity::ERROR <= severity;
     }
 
 private:

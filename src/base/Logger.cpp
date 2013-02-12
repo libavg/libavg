@@ -161,7 +161,11 @@ size_t Logger::getCategories() const
 void Logger::setCategories(size_t flags)
 {
     boost::mutex::scoped_lock lock(logMutex);
-    m_Flags = flags | category::DEPRECATION;
+    m_Flags = flags;
+}
+
+void Logger::setLogSeverity(unsigned severity){
+        m_Severity = severity;
 }
 
 void Logger::pushCategories()
@@ -189,57 +193,57 @@ void Logger::addLogHandler(const LogHandlerPtr& logHandler)
 void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) const
 {
     boost::mutex::scoped_lock lock(logMutex);
-    if (shouldLog(category, severity)) {
-        struct tm* pTime;
-        #ifdef _WIN32
-        __int64 now;
-        _time64(&now);
-        pTime = _localtime64(&now);
-        DWORD tms = timeGetTime();
-        unsigned millis = unsigned(tms % 1000);
-        #else
-        struct timeval time;
-        gettimeofday(&time, NULL);
-        pTime = localtime(&time.tv_sec);
-        unsigned millis = time.tv_usec/1000;
-        #endif
-        string sCategory = categoryToString(category);
-        boost::mutex::scoped_lock lock(handlerMutex);
-        std::vector<LogHandlerPtr>::iterator it;
-        for(it=m_Handlers.begin(); it!=m_Handlers.end(); ++it){
-            (*it)->logMessage(pTime, millis, sCategory, severity, sMsg);
-        }
+    struct tm* pTime;
+    #ifdef _WIN32
+    __int64 now;
+    _time64(&now);
+    pTime = _localtime64(&now);
+    DWORD tms = timeGetTime();
+    unsigned millis = unsigned(tms % 1000);
+    #else
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    pTime = localtime(&time.tv_sec);
+    unsigned millis = time.tv_usec/1000;
+    #endif
+    string sCategory = categoryToString(category);
+    boost::mutex::scoped_lock lockHandler(handlerMutex);
+    std::vector<LogHandlerPtr>::iterator it;
+    for(it=m_Handlers.begin(); it!=m_Handlers.end(); ++it){
+        (*it)->logMessage(pTime, millis, sCategory, severity, sMsg);
     }
 }
 
 void Logger::logDebug(const string& msg, const size_t category) const
 {
-    trace(msg, category, Logger::severity::DEBUG);
+    log(msg, category, Logger::severity::DEBUG);
 }
 
 void Logger::logInfo(const string& msg, const size_t category) const
 {
-    trace(msg, category, Logger::severity::INFO);
+    log(msg, category, Logger::severity::INFO);
 }
 
 void Logger::logWarning(const string& msg, const size_t category) const
 {
-    trace(msg, category, Logger::severity::WARNING);
+    log(msg, category, Logger::severity::WARNING);
 }
 
 void Logger::logError(const string& msg, const size_t category) const
 {
-    trace(msg, category, Logger::severity::ERROR);
+    log(msg, category, Logger::severity::ERROR);
 }
 
 void Logger::logCritical(const string& msg, const size_t category) const
 {
-    trace(msg, category, Logger::severity::CRITICAL);
+    log(msg, category, Logger::severity::CRITICAL);
 }
 
 void Logger::log(const string& msg, const size_t category, unsigned severity) const
 {
-    trace(msg, category, severity);
+    if( shouldLog(category, severity)){
+        trace(msg, category, severity);
+    }
 }
 
 const char * Logger::categoryToString(size_t category) const
