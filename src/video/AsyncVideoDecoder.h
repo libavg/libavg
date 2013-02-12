@@ -23,6 +23,7 @@
 #define _AsyncVideoDecoder_H_
 
 #include "../api.h"
+#include "VideoDecoder.h"
 #include "VideoDemuxerThread.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
@@ -50,14 +51,14 @@ public:
     virtual void loop();
     virtual int getCurFrame() const;
     virtual int getNumFramesQueued() const;
-    virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
+    virtual float getCurTime() const;
     virtual float getFPS() const;
     virtual void setFPS(float fps);
 
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
             float timeWanted);
     void updateAudioStatus();
-    virtual bool isEOF(StreamSelect stream = SS_ALL) const;
+    virtual bool isEOF() const;
     virtual void throwAwayFrame(float timeWanted);
    
     AudioMsgQueuePtr getAudioMsgQ();

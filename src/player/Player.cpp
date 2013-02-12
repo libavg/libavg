@@ -151,7 +151,6 @@ Player::Player()
     pProfiler->setName("main");
 
     SDLDisplayEngine::initSDL();
-    Display::get();
     initConfig();
 
     FontStyle::registerType();
@@ -1234,12 +1233,15 @@ void Player::initConfig()
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
-    float dotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
-    Display::get()->assumePixelsPerMM(dotsPerMM);
 }
 
 void Player::initGraphics(const string& sShaderPath)
 {
+    if (!Display::isInitialized()) {
+        ConfigMgr* pMgr = ConfigMgr::get();
+        float dotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
+        Display::get()->assumePixelsPerMM(dotsPerMM);
+    }
     // Init display configuration.
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 

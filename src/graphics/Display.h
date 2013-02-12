@@ -38,6 +38,7 @@ class AVG_API Display
 {
 public:
     static DisplayPtr get();
+    static bool isInitialized();
     virtual ~Display();
     void init();
     void rereadScreenResolution();
@@ -61,6 +62,8 @@ private:
     bool m_bAutoPPMM; // true if assumePixelsPerMM hasn't been called.
 
     float m_RefreshRate;
+
+    static DisplayPtr s_pInstance;
 };
 
 }

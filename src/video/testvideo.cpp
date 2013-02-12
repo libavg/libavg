@@ -20,7 +20,7 @@
 //
 
 #include "AsyncVideoDecoder.h"
-#include "SyncDecoder.h"
+#include "SyncVideoDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
@@ -75,7 +75,7 @@ class DecoderTest: public GraphicsTest {
             if (m_bThreaded) {
                 pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(8));
             } else {
-                pDecoder = VideoDecoderPtr(new SyncDecoder());
+                pDecoder = VideoDecoderPtr(new SyncVideoDecoder());
             }
 
             return pDecoder;
@@ -386,7 +386,7 @@ class AudioDecoderTest: public DecoderTest {
                 }
                 totalFramesDecoded += framesDecoded;
                 float curTime = float(totalFramesDecoded)/44100;
-                if (abs(curTime-pDecoder->getCurTime(SS_AUDIO)) > 0.02f) {
+                if (abs(curTime-pDecoder->getCurTime()) > 0.02f) {
                     numWrongTimestamps++;
                 }
             }
@@ -447,7 +447,7 @@ class AVDecoderTest: public DecoderTest {
                 }
                 if (isThreaded()) {
                     int framesDecoded = 0;
-                    while (framesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
+                    while (framesDecoded == 0 && !pDecoder->isEOF()) {
                         framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
                         dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
                                 ->updateAudioStatus();
@@ -457,20 +457,9 @@ class AVDecoderTest: public DecoderTest {
                 }
                 curTime += 1.0f/pDecoder->getFPS();
             }
-            TEST(pDecoder->isEOF(SS_VIDEO));
-            // TODO: Commented out because the last frames aren't decoded with newer
-            // ffmpeg (circa >= 0.8)
-            // TEST(numFrames == expectedNumFrames);
-            // testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
-
-            if (isThreaded()) {
-                // Check if audio length was ok.
-                // TODO: Currently, getDuration() is the duration of the video stream.
-                // This causes the test to fail.
-                //int framesInDuration = int(pDecoder->getDuration()*44100);
-                //cerr << "framesDecoded: " << totalFramesDecoded << ", framesInDuration: " << framesInDuration << endl;
-                //TEST (abs(totalFramesDecoded-framesInDuration) < 45);
-            }
+            TEST(pDecoder->isEOF());
+            TEST(numFrames == expectedNumFrames);
+            testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
 
             // Test loop.
             pDecoder->seek(0);

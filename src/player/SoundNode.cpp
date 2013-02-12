@@ -112,7 +112,7 @@ int SoundNode::getNumAudioChannels() const
 long long SoundNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
-    return (long long)(m_pDecoder->getCurTime(SS_AUDIO)*1000);
+    return (long long)(m_pDecoder->getCurTime()*1000);
 }
 
 void SoundNode::seekToTime(long long Time)
@@ -242,7 +242,7 @@ void SoundNode::onFrameEnd()
     if (m_State == Playing) {
         m_pDecoder->updateAudioStatus();
     }
-    if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
+    if (m_State == Playing && m_pDecoder->isEOF()) {
         NodePtr pTempThis = getSharedThis();
         onEOF();
     }

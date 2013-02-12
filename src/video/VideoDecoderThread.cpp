@@ -46,7 +46,8 @@ VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ,
       m_Size(size),
       m_PF(pf),
       m_bUseVDPAU(bUseVDPAU),
-      m_bSeekDone(false)
+      m_bSeekDone(false),
+      m_bProcessingLastFrames(false)
 {
     m_pFrameDecoder = FFMpegFrameDecoderPtr(new FFMpegFrameDecoder(pStream));
 }
@@ -61,27 +62,34 @@ static ProfilingZoneID PacketWaitProfilingZone("Video wait for packet", true);
 bool VideoDecoderThread::work() 
 {
     ScopeTimer timer(DecoderProfilingZone);
-    VideoMsgPtr pMsg;
-    {
-        ScopeTimer timer(PacketWaitProfilingZone);
-        pMsg = m_PacketQ.pop(true);
-    }
-    switch (pMsg->getType()) {
-        case VideoMsg::PACKET:
-            decodePacket(pMsg->getPacket());
-            break;
-        case VideoMsg::END_OF_FILE:
-            handleEOF();
-            break;
-        case VideoMsg::SEEK_DONE:
-            handleSeekDone(pMsg);
-            break;
-        case VideoMsg::CLOSED:
-            close();
-            break;
-        default:
-            pMsg->dump();
-            AVG_ASSERT(false);
+    if (m_bProcessingLastFrames) {
+        // EOF received, but last frames still need to be decoded.
+        handleEOF();
+    } else {
+        // Standard decoding.
+        VideoMsgPtr pMsg;
+        {
+            ScopeTimer timer(PacketWaitProfilingZone);
+            pMsg = m_PacketQ.pop(true);
+        }
+        switch (pMsg->getType()) {
+            case VideoMsg::PACKET:
+                decodePacket(pMsg->getPacket());
+                break;
+            case VideoMsg::END_OF_FILE:
+                handleEOF();
+                m_bProcessingLastFrames = true;
+                break;
+            case VideoMsg::SEEK_DONE:
+                handleSeekDone(pMsg);
+                break;
+            case VideoMsg::CLOSED:
+                close();
+                break;
+            default:
+                pMsg->dump();
+                AVG_ASSERT(false);
+        }
     }
     ThreadProfiler::get()->reset();
     return true;
@@ -120,10 +128,12 @@ void VideoDecoderThread::handleEOF()
     bool bGotPicture = m_pFrameDecoder->decodeLastFrame(frame);
     if (bGotPicture) {
         sendFrame(frame);
+    } else {
+        m_bProcessingLastFrames = false;
+        VideoMsgPtr pMsg(new VideoMsg());
+        pMsg->setEOF();
+        pushMsg(pMsg);
     }
-    VideoMsgPtr pMsg(new VideoMsg());
-    pMsg->setEOF();
-    pushMsg(pMsg);
 }
 
 void VideoDecoderThread::handleSeekDone(VideoMsgPtr pMsg)

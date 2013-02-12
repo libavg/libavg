@@ -46,10 +46,9 @@ namespace avg {
 FFMpegFrameDecoder::FFMpegFrameDecoder(AVStream* pStream)
     : m_pSwsContext(0),
       m_pStream(pStream),
-      m_bEOFPending(false),
       m_bEOF(false),
-      m_VideoStartTimestamp(-1),
-      m_LastVideoFrameTime(-1),
+      m_StartTimestamp(-1),
+      m_LastFrameTime(-1),
       m_bUseStreamFPS(true)
 {
     m_TimeUnitsPerSecond = float(1.0/av_q2d(pStream->time_base));
@@ -85,7 +84,7 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
         AVG_ASSERT(len1 == pPacket->size);
     }
     if (bGotPicture) {
-        m_LastVideoFrameTime = getFrameTime(pPacket->dts, bFrameAfterSeek);
+        m_LastFrameTime = getFrameTime(pPacket->dts, bFrameAfterSeek);
     }
     av_free_packet(pPacket);
     delete pPacket;
@@ -95,7 +94,6 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
 bool FFMpegFrameDecoder::decodeLastFrame(AVFrame& frame)
 {
     // EOF. Decode the last data we got.
-    
     int bGotPicture = 0;
     AVCodecContext* pContext = m_pStream->codec;
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
@@ -110,7 +108,7 @@ bool FFMpegFrameDecoder::decodeLastFrame(AVFrame& frame)
 
     // We don't have a timestamp for the last frame, so we'll
     // calculate it based on the frame before.
-    m_LastVideoFrameTime += 1.0f/m_FPS;
+    m_LastFrameTime += 1.0f/m_FPS;
     return (bGotPicture != 0);
 }
 
@@ -162,8 +160,7 @@ void FFMpegFrameDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
                     frame.linesize[1], false));
         BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
                     frame.linesize[2], false));
-        pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
-                pContext->pix_fmt == PIX_FMT_YUVJ420P);
+        pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, pContext->pix_fmt == PIX_FMT_YUVJ420P);
     } else {
         if (!m_pSwsContext) {
             m_pSwsContext = sws_getContext(pContext->width, pContext->height, 
@@ -210,17 +207,17 @@ void FFMpegFrameDecoder::copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, i
 
 void FFMpegFrameDecoder::handleSeek()
 {
-    m_LastVideoFrameTime = -1.0f;
+    m_LastFrameTime = -1.0f;
     avcodec_flush_buffers(m_pStream->codec);
     m_bEOF = false;
-    if (m_VideoStartTimestamp == -1) {
-        m_VideoStartTimestamp = 0;
+    if (m_StartTimestamp == -1) {
+        m_StartTimestamp = 0;
     }
 }
 
 float FFMpegFrameDecoder::getCurTime() const
 {
-    return m_LastVideoFrameTime;
+    return m_LastFrameTime;
 }
 
 float FFMpegFrameDecoder::getFPS() const
@@ -248,17 +245,17 @@ float FFMpegFrameDecoder::getFrameTime(long long dts, bool bFrameAfterSeek)
     if (dts == (long long)AV_NOPTS_VALUE) {
         dts = 0;
     }
-    if (m_VideoStartTimestamp == -1) {
-        m_VideoStartTimestamp = dts;
+    if (m_StartTimestamp == -1) {
+        m_StartTimestamp = dts;
     }
     float frameTime;
     if (m_bUseStreamFPS || bFrameAfterSeek) {
-        frameTime = float(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
+        frameTime = float(dts-m_StartTimestamp)/m_TimeUnitsPerSecond;
     } else {
-        if (m_LastVideoFrameTime == -1) {
+        if (m_LastFrameTime == -1) {
             frameTime = 0;
         } else {
-            frameTime = m_LastVideoFrameTime + 1.0f/m_FPS;
+            frameTime = m_LastFrameTime + 1.0f/m_FPS;
         }
     }
     return frameTime;

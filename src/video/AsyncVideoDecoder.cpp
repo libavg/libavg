@@ -173,7 +173,7 @@ void AsyncVideoDecoder::loop()
 int AsyncVideoDecoder::getCurFrame() const
 {
     AVG_ASSERT(getState() != CLOSED);
-    return int(getCurTime(SS_VIDEO)*getVideoInfo().m_StreamFPS+0.5);
+    return int(getCurTime()*getVideoInfo().m_StreamFPS+0.5);
 }
 
 int AsyncVideoDecoder::getNumFramesQueued() const
@@ -182,23 +182,14 @@ int AsyncVideoDecoder::getNumFramesQueued() const
     return m_pVMsgQ->size();
 }
 
-float AsyncVideoDecoder::getCurTime(StreamSelect stream) const
+float AsyncVideoDecoder::getCurTime() const
 {
     AVG_ASSERT(getState() != CLOSED);
-    switch (stream) {
-        case SS_DEFAULT:
-        case SS_VIDEO:
-            AVG_ASSERT(getVideoInfo().m_bHasVideo);
-            return m_CurVideoFrameTime;
-            break;
-        case SS_AUDIO:
-            AVG_ASSERT(getVideoInfo().m_bHasAudio);
-            return m_LastAudioFrameTime;
-            break;
-        default:
-            AVG_ASSERT(false);
+    if (getVideoInfo().m_bHasVideo) {
+        return m_CurVideoFrameTime;
+    } else {
+        return m_LastAudioFrameTime;
     }
-    return -1;
 }
 
 float AsyncVideoDecoder::getFPS() const
@@ -269,19 +260,17 @@ void AsyncVideoDecoder::updateAudioStatus()
     }
 }
 
-bool AsyncVideoDecoder::isEOF(StreamSelect stream) const
+bool AsyncVideoDecoder::isEOF() const
 {
     AVG_ASSERT(getState() == DECODING);
-    switch(stream) {
-        case SS_AUDIO:
-            return (!getVideoInfo().m_bHasAudio || m_bAudioEOF);
-        case SS_VIDEO:
-            return (!getVideoInfo().m_bHasVideo || m_bVideoEOF);
-        case SS_ALL:
-            return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
-        default:
-            return false;
+    bool bEOF = true;
+    if (getVideoInfo().m_bHasAudio && !m_bAudioEOF) {
+        bEOF = false;
     }
+    if (getVideoInfo().m_bHasVideo && !m_bVideoEOF) {
+        bEOF = false;
+    }
+    return bEOF;
 }
 
 void AsyncVideoDecoder::throwAwayFrame(float timeWanted)
@@ -314,19 +303,9 @@ void AsyncVideoDecoder::setupDemuxer(vector<int> streamIndexes)
 
 void AsyncVideoDecoder::deleteDemuxer()
 {
-    m_pDemuxCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::stop, _1));
-    map<int, VideoMsgQueuePtr>::iterator it;
-    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
-        // If the Queue is full, this breaks the lock in the thread.
-        VideoMsgPtr pPacketMsg;
-        pPacketMsg = it->second->pop(false);
-        if (pPacketMsg) {
-            pPacketMsg->freePacket();
-        }
-    }
-    m_pDemuxThread->join();
     delete m_pDemuxThread;
     m_pDemuxThread = 0;
+    map<int, VideoMsgQueuePtr>::iterator it;
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoMsgQueuePtr pPacketQ = it->second;
         VideoMsgPtr pPacketMsg;

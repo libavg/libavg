@@ -56,7 +56,12 @@ extern "C" {
 #endif
 
 #if LIBAVFORMAT_VERSION_MAJOR > 52
-  #define SAMPLE_FMT_S16  AV_SAMPLE_FMT_S16
+  #define SAMPLE_FMT_S16 AV_SAMPLE_FMT_S16
+  #define SAMPLE_FMT_FLT AV_SAMPLE_FMT_FLT
+  #define SAMPLE_FMT_DBL AV_SAMPLE_FMT_DBL
+  #define SAMPLE_FMT_S32 AV_SAMPLE_FMT_S32
+  #define SAMPLE_FMT_U8 AV_SAMPLE_FMT_U8
+  #define SampleFormat AVSampleFormat
 #endif
 
 #ifndef URL_WRONLY

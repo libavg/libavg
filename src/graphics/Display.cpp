@@ -42,22 +42,28 @@ using namespace std;
 
 namespace avg {
 
+DisplayPtr Display::s_pInstance = DisplayPtr();
+
 DisplayPtr Display::get()
 {
-    static DisplayPtr s_pDisplay;
-    if (!s_pDisplay) {
+    if (!s_pInstance) {
 #ifdef __linux__
-        s_pDisplay = DisplayPtr(new X11Display());
+        s_pInstance = DisplayPtr(new X11Display());
 #elif defined __APPLE__
-        s_pDisplay = DisplayPtr(new AppleDisplay());
+        s_pInstance = DisplayPtr(new AppleDisplay());
 #elif defined _WIN32
-        s_pDisplay = DisplayPtr(new WinDisplay());
+        s_pInstance = DisplayPtr(new WinDisplay());
 #else
         AVG_ASSERT(false);
 #endif
-        s_pDisplay->init();
+        s_pInstance->init();
     }
-    return s_pDisplay;
+    return s_pInstance;
+}
+
+bool Display::isInitialized()
+{
+    return s_pInstance;
 }
 
 Display::Display()
