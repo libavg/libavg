@@ -68,39 +68,6 @@ namespace {
     boost::mutex handlerMutex;
 }
 
-unsigned Logger::stringToSeverity(const string& sSeverity)
-{
-    string severity = boost::to_upper_copy(sSeverity);
-    if (severity == "CRITICAL"){
-        return Logger::severity::CRITICAL;
-    }else if (severity == "ERROR"){
-        return Logger::severity::ERROR;
-    }else if (severity == "WARNING"){
-        return Logger::severity::WARNING;
-    }else if (severity == "INFO"){
-        return Logger::severity::INFO;
-    }else if (severity == "DEBUG"){
-        return Logger::severity::DEBUG;
-    }
-    throw Exception(AVG_ERR_INVALID_ARGS, severity + " is an invalid log severity");
-}
-
-const char * Logger::severityToString(unsigned severity)
-{
-    if(severity == Logger::severity::CRITICAL){
-        return "CRITICAL";
-    }else if(severity == Logger::severity::ERROR){
-        return "ERROR";
-    }else if(severity == Logger::severity::WARNING){
-        return "WARNING";
-    }else if(severity == Logger::severity::INFO){
-        return "INFO";
-    }else if(severity == Logger::severity::DEBUG){
-        return "DEBUG";
-    }
-    throw Exception(AVG_ERR_UNKNOWN, "Unkown log severity");
-}
-
 Logger * Logger::get()
 {
     boost::mutex::scoped_lock lock(logMutex);
@@ -214,6 +181,19 @@ void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) c
     }
 }
 
+size_t Logger::registerCategory(const string& cat){
+    std::map< string, size_t >::iterator it;
+    it = m_StringToCategory.find(cat);
+    if(it != m_StringToCategory.end()){
+        return it->second;
+    }else{
+        m_MaxCategoryNum *= 2;
+        m_CategoryToString[m_MaxCategoryNum] = cat;
+        m_StringToCategory[cat] = m_MaxCategoryNum;
+        return m_MaxCategoryNum;
+    }
+}
+
 void Logger::logDebug(const string& msg, const size_t category) const
 {
     log(msg, category, Logger::severity::DEBUG);
@@ -301,17 +281,38 @@ void Logger::setupCategory(){
     m_StringToCategory["DEPRECATION"] = category::DEPRECATION;
 }
 
-size_t Logger::registerCategory(const string& cat){
-    std::map< string, size_t >::iterator it;
-    it = m_StringToCategory.find(cat);
-    if(it != m_StringToCategory.end()){
-        return it->second;
-    }else{
-        m_MaxCategoryNum *= 2;
-        m_CategoryToString[m_MaxCategoryNum] = cat;
-        m_StringToCategory[cat] = m_MaxCategoryNum;
-        return m_MaxCategoryNum;
+unsigned Logger::stringToSeverity(const string& sSeverity)
+{
+    string severity = boost::to_upper_copy(sSeverity);
+    if (severity == "CRITICAL"){
+        return Logger::severity::CRITICAL;
+    }else if (severity == "ERROR"){
+        return Logger::severity::ERROR;
+    }else if (severity == "WARNING"){
+        return Logger::severity::WARNING;
+    }else if (severity == "INFO"){
+        return Logger::severity::INFO;
+    }else if (severity == "DEBUG"){
+        return Logger::severity::DEBUG;
     }
+    throw Exception(AVG_ERR_INVALID_ARGS, severity + " is an invalid log severity");
 }
+
+const char * Logger::severityToString(unsigned severity)
+{
+    if(severity == Logger::severity::CRITICAL){
+        return "CRITICAL";
+    }else if(severity == Logger::severity::ERROR){
+        return "ERROR";
+    }else if(severity == Logger::severity::WARNING){
+        return "WARNING";
+    }else if(severity == Logger::severity::INFO){
+        return "INFO";
+    }else if(severity == Logger::severity::DEBUG){
+        return "DEBUG";
+    }
+    throw Exception(AVG_ERR_UNKNOWN, "Unkown log severity");
+}
+
 
 }
