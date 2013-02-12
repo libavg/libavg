@@ -303,19 +303,9 @@ void AsyncVideoDecoder::setupDemuxer(vector<int> streamIndexes)
 
 void AsyncVideoDecoder::deleteDemuxer()
 {
-    m_pDemuxCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::stop, _1));
-    map<int, VideoMsgQueuePtr>::iterator it;
-    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
-        // If the Queue is full, this breaks the lock in the thread.
-        VideoMsgPtr pPacketMsg;
-        pPacketMsg = it->second->pop(false);
-        if (pPacketMsg) {
-            pPacketMsg->freePacket();
-        }
-    }
-    m_pDemuxThread->join();
     delete m_pDemuxThread;
     m_pDemuxThread = 0;
+    map<int, VideoMsgQueuePtr>::iterator it;
     for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoMsgQueuePtr pPacketQ = it->second;
         VideoMsgPtr pPacketMsg;
