@@ -83,7 +83,7 @@ Logger::Logger()
     setupCategory();
     m_Severity = severity::INFO;
     string sEnvSeverity;
-    bool bEnvSeveritySet = getEnv("AVG_LOG_severity", sEnvSeverity);
+    bool bEnvSeveritySet = getEnv("AVG_LOG_SEVERITY", sEnvSeverity);
     if(bEnvSeveritySet){
         m_Severity = Logger::stringToSeverity(sEnvSeverity);
     }
