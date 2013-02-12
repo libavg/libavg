@@ -59,6 +59,7 @@ namespace avg {
     const size_t Logger::category::PLAYER = 4096;
     const size_t Logger::category::SHADER = 8192;
     const size_t Logger::category::DEPRECATION = 16384;
+    const size_t Logger::category::LAST_CATEGORY = DEPRECATION;
 
 namespace {
     Logger* m_pLogger = 0;
@@ -122,7 +123,7 @@ Logger::Logger()
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
-        m_Flags = category::NONE | category::DEPRECATION;
+        m_Flags = category::NONE;
         bool bDone = false;
         string sCategory;
         do {
@@ -138,7 +139,7 @@ Logger::Logger()
             m_Flags |= category;
             } while (!bDone);
     }
-    m_MaxCategoryNum = category::DEPRECATION;
+    m_MaxCategoryNum = category::LAST_CATEGORY;
 
     string sDummy;
     bool bEnvUseStdErr = getEnv("AVG_LOG_OMIT_STDERR", sDummy);

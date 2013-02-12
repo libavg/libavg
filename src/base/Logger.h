@@ -60,6 +60,7 @@ public:
         static const size_t PLAYER;
         static const size_t SHADER;
         static const size_t DEPRECATION;
+        static const size_t LAST_CATEGORY;
     };
 
     static Logger* get();
