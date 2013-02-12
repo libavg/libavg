@@ -52,6 +52,8 @@ namespace avg {
     const size_t Logger::category::NONE = 1;
     const size_t Logger::category::PROFILE = 2;
     const size_t Logger::category::PROFILE_VIDEO = 8;
+    const size_t Logger::category::EVENTS = 16;
+    const size_t Logger::category::EVENTS2 = 32;
     const size_t Logger::category::CONFIG = 64;
     const size_t Logger::category::MEMORY = 512;
     const size_t Logger::category::APP = 1024;
@@ -268,6 +270,12 @@ void Logger::setupCategory(){
 
     m_CategoryToString[category::PROFILE_VIDEO] = "PROFILE_VIDEO";
     m_StringToCategory["PROFILE_VIDEO"] = category::PROFILE_VIDEO;
+
+    m_CategoryToString[category::EVENTS] = "EVENTS";
+    m_StringToCategory["EVENTS"] = category::EVENTS;
+
+    m_CategoryToString[category::EVENTS2] = "EVENTS2";
+    m_StringToCategory["EVENTS2"] = category::EVENTS2;
 
     m_CategoryToString[category::CONFIG] = "CONFIG";
     m_StringToCategory["CONFIG"] = category::CONFIG;

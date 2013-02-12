@@ -53,6 +53,8 @@ public:
         static const size_t NONE;
         static const size_t PROFILE;
         static const size_t PROFILE_VIDEO;
+        static const size_t EVENTS;
+        static const size_t EVENTS2;
         static const size_t CONFIG;
         static const size_t MEMORY;
         static const size_t APP;

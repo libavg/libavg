@@ -133,7 +133,7 @@ string Event::typeStr(Event::Type type)
 void Event::trace()
 {
     string sType = typeStr();
-    AVG_LOG_DEBUG(sType);
+    AVG_TRACE(Logger::category::EVENTS,Logger::severity::INFO, sType); 
 }
 
 }
