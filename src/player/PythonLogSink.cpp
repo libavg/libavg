@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#include "PythonLogHandler.h"
+#include "PythonLogSink.h"
 #include "../base/Logger.h"
 
 #include <boost/algorithm/string.hpp>
@@ -27,19 +27,19 @@ namespace avg
 {
     
 
-PythonLogHandler::PythonLogHandler(PyObject *pyLogger):
+PythonLogSink::PythonLogSink(PyObject *pyLogger):
     m_pyLogger(pyLogger)
 {
     Py_INCREF(pyLogger);
     assert(pyLogger);
 }
 
-PythonLogHandler::~PythonLogHandler()
+PythonLogSink::~PythonLogSink()
 {
     Py_DecRef(m_pyLogger);
 }
 
-void PythonLogHandler::logMessage(const tm* pTime, unsigned millis,
+void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
         const string& category, unsigned severity, const UTF8String& sMsg)
 {
     string sSeverity = boost::to_lower_copy(string(Logger::severityToString(severity)));

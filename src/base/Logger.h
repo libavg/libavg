@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "UTF8String.h"
-#include "ILogHandler.h"
+#include "ILogSink.h"
 
 #include <string>
 #include <vector>
@@ -69,7 +69,7 @@ public:
     static unsigned stringToSeverity(const string& sSeverity);
     static const char * severityToString(unsigned severity);
 
-    void addLogHandler(const LogHandlerPtr& logHandler);
+    void addLogSink(const LogSinkPtr& logHandler);
     size_t getCategories() const;
     void setCategories(size_t flags);
     void pushCategories();

@@ -18,18 +18,18 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#ifndef _StandardLogHandler_H_
-#define _StandardLogHandler_H_
+#ifndef _StandardLogSink_H_
+#define _StandardLogSink_H_
 
-#include "ILogHandler.h"
+#include "ILogSink.h"
 
 namespace avg{
 
-class StandardLoggingHandler: public ILogHandler
+class StandardLogSink: public ILogSink
 {
 public:
-    StandardLoggingHandler();
-    virtual ~StandardLoggingHandler ();
+    StandardLogSink();
+    virtual ~StandardLogSink ();
 
     virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
             unsigned severity, const UTF8String& sMsg);

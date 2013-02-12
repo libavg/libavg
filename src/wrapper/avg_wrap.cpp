@@ -107,7 +107,7 @@ BOOST_PYTHON_MODULE(avg)
         ;
 
         class_<Logger::Logger>("Logger", no_init)
-            .def("addLogger", addPythonLogger)
+            .def("addSink", addPythonLogger)
             .def("getCategories", &Logger::Logger::getCategories)
             .def("setCategories", &Logger::Logger::setCategories)
             .def("pushCategories", &Logger::Logger::pushCategories)

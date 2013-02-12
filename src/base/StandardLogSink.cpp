@@ -18,28 +18,37 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#ifndef _PYTHONLOGHANDLER_H_
-#define _PYTHONLOGHANDLER_H_
+#include "StandardLogSink.h"
+#include "Logger.h"
 
-#include "../base/ILogHandler.h"
-#include "../player/WrapPython.h"
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
 
 namespace avg
 {
-class PythonLogHandler: public ILogHandler
+
+StandardLogSink::StandardLogSink()
 {
-public:
-    PythonLogHandler(PyObject *pyLogger);
-    virtual ~PythonLogHandler ();
-
-    virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
-            unsigned severity, const UTF8String& sMsg);
-
-private:
-
-    PyObject *m_pyLogger;
-};
 
 }
 
-#endif
+StandardLogSink::~StandardLogSink()
+{
+
+}
+
+void StandardLogSink::logMessage(const tm* pTime, unsigned millis,
+        const string& category, unsigned severity, const UTF8String& sMsg)
+{
+    char timeString[256];
+    strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
+    cerr << "[" << timeString << "." << 
+        setw(3) << setfill('0') << millis << setw(0) << "][";
+    cerr << Logger::severityToString(severity) << "][";
+    cerr << category << "] : " << sMsg << endl;
+    cerr.flush();
+}
+
+}

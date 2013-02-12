@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2012 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -18,37 +18,33 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#include "StandardLoggingHandler.h"
-#include "Logger.h"
+#ifndef _ILOGHANDLER_H_
+#define _ILOGHANDLER_H_
 
-#include <iostream>
-#include <iomanip>
+#include "UTF8String.h"
+
+#ifdef _WIN32
+#include <time.h>
+#else
+#include <sys/time.h>
+#endif
+
+#include <boost/shared_ptr.hpp>
 
 using namespace std;
 
-namespace avg
-{
+namespace avg{
 
-StandardLoggingHandler::StandardLoggingHandler()
+class AVG_API ILogSink
 {
+public:
+    virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
+            unsigned severity, const UTF8String& sMsg) = 0;
+    
+};
+
+typedef boost::shared_ptr<ILogSink> LogSinkPtr;
 
 }
 
-StandardLoggingHandler::~StandardLoggingHandler()
-{
-
-}
-
-void StandardLoggingHandler::logMessage(const tm* pTime, unsigned millis,
-        const string& category, unsigned severity, const UTF8String& sMsg)
-{
-    char timeString[256];
-    strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
-    cerr << "[" << timeString << "." << 
-        setw(3) << setfill('0') << millis << setw(0) << "][";
-    cerr << Logger::severityToString(severity) << "][";
-    cerr << category << "] : " << sMsg << endl;
-    cerr.flush();
-}
-
-}
+#endif

@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine.
+//  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2012 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -18,32 +18,27 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#ifndef _ILOGHANDLER_H_
-#define _ILOGHANDLER_H_
+#ifndef _PYTHONLOGHANDLER_H_
+#define _PYTHONLOGHANDLER_H_
 
-#include "UTF8String.h"
+#include "../base/ILogSink.h"
+#include "../player/WrapPython.h"
 
-#ifdef _WIN32
-#include <time.h>
-#else
-#include <sys/time.h>
-#endif
-
-#include <boost/shared_ptr.hpp>
-
-using namespace std;
-
-namespace avg{
-
-class AVG_API ILogHandler
+namespace avg
+{
+class PythonLogSink: public ILogSink
 {
 public:
-    virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
-            unsigned severity, const UTF8String& sMsg) = 0;
-    
-};
+    PythonLogSink(PyObject *pyLogger);
+    virtual ~PythonLogSink ();
 
-typedef boost::shared_ptr<ILogHandler> LogHandlerPtr;
+    virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
+            unsigned severity, const UTF8String& sMsg);
+
+private:
+
+    PyObject *m_pyLogger;
+};
 
 }
 

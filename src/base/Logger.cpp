@@ -23,7 +23,7 @@
 
 #include "OSHelper.h"
 #include "Exception.h"
-#include "StandardLoggingHandler.h"
+#include "StandardLogSink.h"
 
 #ifdef _WIN32
 #include <Winsock2.h>
@@ -63,7 +63,7 @@ namespace avg {
 
 namespace {
     Logger* m_pLogger = 0;
-    std::vector<LogHandlerPtr> m_Handlers;
+    std::vector<LogSinkPtr> m_Handlers;
     boost::mutex logMutex;
     boost::mutex handlerMutex;
 }
@@ -111,7 +111,7 @@ Logger::Logger()
     string sDummy;
     bool bEnvUseStdErr = getEnv("AVG_LOG_OMIT_STDERR", sDummy);
     if (!bEnvUseStdErr) {
-        addLogHandler(LogHandlerPtr(new StandardLoggingHandler));
+        addLogSink(LogSinkPtr(new StandardLogSink));
     }
 }
 
@@ -151,7 +151,7 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
-void Logger::addLogHandler(const LogHandlerPtr& logHandler)
+void Logger::addLogSink(const LogSinkPtr& logHandler)
 {
     boost::mutex::scoped_lock lock(handlerMutex);
     m_Handlers.push_back(logHandler);
@@ -175,7 +175,7 @@ void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) c
     #endif
     string sCategory = categoryToString(category);
     boost::mutex::scoped_lock lockHandler(handlerMutex);
-    std::vector<LogHandlerPtr>::iterator it;
+    std::vector<LogSinkPtr>::iterator it;
     for(it=m_Handlers.begin(); it!=m_Handlers.end(); ++it){
         (*it)->logMessage(pTime, millis, sCategory, severity, sMsg);
     }

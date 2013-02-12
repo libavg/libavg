@@ -26,7 +26,7 @@
 #include "../base/MathHelper.h"
 #include "../base/ObjectCounter.h"
 
-#include "../player/PythonLogHandler.h"
+#include "../player/PythonLogSink.h"
 #include "../player/PublisherDefinitionRegistry.h"
 
 #include <boost/version.hpp>
@@ -410,7 +410,7 @@ void export_base()
 void addPythonLogger(PyObject * self, PyObject * pyLogger)
 {
     Logger::Logger * logger = Logger::Logger::get();
-    LogHandlerPtr logHandler(new PythonLogHandler(pyLogger));
+    LogSinkPtr(new PythonLogSink(pyLogger));
     logger->addLogHandler(logHandler);
 }
 
