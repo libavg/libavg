@@ -63,9 +63,9 @@ namespace avg {
 
 namespace {
     Logger* m_pLogger = 0;
-    std::vector<LogSinkPtr> m_Handlers;
+    std::vector<LogSinkPtr> m_Sinks;
     boost::mutex logMutex;
-    boost::mutex handlerMutex;
+    boost::mutex sinkMutex;
 }
 
 Logger * Logger::get()
@@ -151,10 +151,10 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
-void Logger::addLogSink(const LogSinkPtr& logHandler)
+void Logger::addLogSink(const LogSinkPtr& logSink)
 {
-    boost::mutex::scoped_lock lock(handlerMutex);
-    m_Handlers.push_back(logHandler);
+    boost::mutex::scoped_lock lock(sinkMutex);
+    m_Sinks.push_back(logSink);
 }
 
 void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) const
@@ -174,9 +174,9 @@ void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) c
     unsigned millis = time.tv_usec/1000;
     #endif
     string sCategory = categoryToString(category);
-    boost::mutex::scoped_lock lockHandler(handlerMutex);
+    boost::mutex::scoped_lock lockHandler(sinkMutex);
     std::vector<LogSinkPtr>::iterator it;
-    for(it=m_Handlers.begin(); it!=m_Handlers.end(); ++it){
+    for(it=m_Sinks.begin(); it!=m_Sinks.end(); ++it){
         (*it)->logMessage(pTime, millis, sCategory, severity, sMsg);
     }
 }

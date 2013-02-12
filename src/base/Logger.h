@@ -69,7 +69,8 @@ public:
     static unsigned stringToSeverity(const string& sSeverity);
     static const char * severityToString(unsigned severity);
 
-    void addLogSink(const LogSinkPtr& logHandler);
+    void addLogSink(const LogSinkPtr& logSink);
+    void removeLogSink(const LogSinkPtr& logSink);
     size_t getCategories() const;
     void setCategories(size_t flags);
     void pushCategories();
