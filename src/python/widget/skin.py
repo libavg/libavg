@@ -59,10 +59,10 @@ class Skin:
 
         self.checkBoxCfg, self.defaultCheckBoxCfg = self.__parseElement(
                 xmlRoot, "checkbox",
-                bmpArgNames={"uncheckedUpSrc":"unckeckedUpBmp", 
+                bmpArgNames={"uncheckedUpSrc":"uncheckedUpBmp", 
                         "uncheckedDownSrc":"uncheckedDownBmp",
                         "uncheckedDisabledSrc":"uncheckedDisabledBmp",
-                        "checkedUpSrc":"ckeckedUpBmp", 
+                        "checkedUpSrc":"checkedUpBmp", 
                         "checkedDownSrc":"checkedDownBmp",
                         "checkedDisabledSrc":"checkedDisabledBmp"},
                 fontArgNames=("font",))

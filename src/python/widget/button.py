@@ -363,6 +363,33 @@ class ToggleButton(_ButtonBase):
         self.__switchNode.visibleid = self.__stateMachine.state
 
 
+class CheckBox(ToggleButton):
+
+    def __init__(self, text="", skinObj=skin.Skin.default, **kwargs):
+        cfg = skinObj.defaultCheckBoxCfg
+        
+        uncheckedUpNode = self.__createImageNode(cfg["uncheckedUpBmp"])
+        uncheckedDownNode = self.__createImageNode(cfg["uncheckedDownBmp"])
+        uncheckedDisabledNode = self.__createImageNode(cfg["uncheckedDisabledBmp"])
+        checkedUpNode = self.__createImageNode(cfg["checkedUpBmp"])
+        checkedDownNode = self.__createImageNode(cfg["checkedDownBmp"])
+        checkedDisabledNode = self.__createImageNode(cfg["checkedDisabledBmp"])
+      
+        super(CheckBox, self).__init__(uncheckedUpNode=uncheckedUpNode,
+                uncheckedDownNode=uncheckedDownNode, 
+                uncheckedDisabledNode=uncheckedDisabledNode,
+                checkedUpNode=checkedUpNode,
+                checkedDownNode=checkedDownNode, 
+                checkedDisabledNode=checkedDisabledNode,
+                **kwargs)
+        avg.WordsNode(pos=(20,0), text=text, fontstyle=cfg["font"], parent=self)
+
+    def __createImageNode(self, bmp):
+        node = avg.ImageNode()
+        node.setBitmap(bmp)
+        return node
+
+
 class BmpToggleButton(ToggleButton):
     def __init__(self, uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc,
             uncheckedDisabledSrc=None, checkedDisabledSrc=None, **kwargs):
