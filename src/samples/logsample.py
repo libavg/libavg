@@ -34,4 +34,14 @@ class LoggingApp(AVGApp):
         avg.logger.critical("std::err - Critical")
         avg.logger.log("std::err - Log")
 
+        #Register custom log category
+        CUSTOM_LOG_CAT = avg.logger.registerCategory("My Custom Category")
+
+        #Enable custom log category
+        currentCats = avg.logger.getCategories()
+        avg.logger.setCategories(currentCats | CUSTOM_LOG_CAT)
+
+        #Log with custom log category
+        avg.logger.log("Message with custom category", CUSTOM_LOG_CAT)
+
 LoggingApp.start(resolution=(40, 40))
