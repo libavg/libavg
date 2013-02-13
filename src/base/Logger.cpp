@@ -193,7 +193,7 @@ void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) c
 }
 
 size_t Logger::registerCategory(const string& cat){
-    std::map< string, size_t >::iterator it;
+    std::map<const string, size_t >::iterator it;
     it = m_StringToCategory.find(cat);
     if(it != m_StringToCategory.end()){
         return it->second;
@@ -239,7 +239,7 @@ void Logger::log(const string& msg, const size_t category, unsigned severity) co
 
 const char * Logger::categoryToString(size_t category) const
 {
-    std::map< size_t, string >::const_iterator it;
+    std::map<const size_t, string>::const_iterator it;
     it = m_CategoryToString.find(category);
     if(it != m_CategoryToString.end()){
         return (it->second).c_str();
@@ -250,7 +250,7 @@ const char * Logger::categoryToString(size_t category) const
 
 size_t Logger::stringToCategory(const string& sCategory) const
 {
-    std::map< string , size_t >::const_iterator it;
+    std::map<const string , size_t >::const_iterator it;
     it = m_StringToCategory.find(sCategory);
     if(it != m_StringToCategory.end()){
         return it->second;

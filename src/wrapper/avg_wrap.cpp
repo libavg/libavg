@@ -106,26 +106,26 @@ BOOST_PYTHON_MODULE(avg)
             .def("__repr__", &MessageID::getRepr)
         ;
 
-        class_<Logger::Logger>("Logger", no_init)
+        class_<Logger>("Logger", no_init)
             .def("addSink", addPythonLogger)
             .def("removeSink", removePythonLogger)
-            .def("getCategories", &Logger::Logger::getCategories)
-            .def("setCategories", &Logger::Logger::setCategories)
-            .def("pushCategories", &Logger::Logger::pushCategories)
-            .def("popCategories", &Logger::Logger::popCategories)
+            .def("getCategories", &Logger::getCategories)
+            .def("setCategories", &Logger::setCategories)
+            .def("pushCategories", &Logger::pushCategories)
+            .def("popCategories", &Logger::popCategories)
             .def("trace", pytrace,
                     (bp::arg("severity")=Logger::severity::INFO))
-            .def("debug", &Logger::Logger::logDebug,
+            .def("debug", &Logger::logDebug,
                     (bp::arg("category")=Logger::category::APP))
-            .def("info", &Logger::Logger::logInfo,
+            .def("info", &Logger::logInfo,
                     (bp::arg("category")=Logger::category::APP))
-            .def("warning", &Logger::Logger::logWarning,
+            .def("warning", &Logger::logWarning,
                     (bp::arg("category")=Logger::category::APP))
-            .def("error", &Logger::Logger::logError,
+            .def("error", &Logger::logError,
                     (bp::arg("category")=Logger::category::APP))
-            .def("critical", &Logger::Logger::logCritical,
+            .def("critical", &Logger::logCritical,
                     (bp::arg("category")=Logger::category::APP))
-            .def("log", &Logger::Logger::log,
+            .def("log", &Logger::log,
                     (bp::arg("category")=Logger::category::APP,
                      bp::arg("severity")=Logger::severity::INFO))
             .def_readonly("NONE", &Logger::category::NONE)
@@ -146,7 +146,7 @@ BOOST_PYTHON_MODULE(avg)
             .def_readonly("INFO", &Logger::severity::INFO)
             .def_readonly("DEBUG", &Logger::severity::DEBUG)
         ;
-        scope().attr("logger") = Logger::Logger::get();
+        scope().attr("logger") = Logger::get();
 
         class_<Publisher, boost::noncopyable>("Publisher")
             .def("subscribe", &Publisher::subscribe)

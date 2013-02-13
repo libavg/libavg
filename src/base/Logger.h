@@ -39,7 +39,7 @@ namespace avg {
 
 class AVG_API Logger {
 public:
-    struct severity
+    struct AVG_API severity
     {
         static const unsigned CRITICAL;
         static const unsigned ERROR;
@@ -48,7 +48,7 @@ public:
         static const unsigned DEBUG;
     };
 
-    struct category
+    struct AVG_API category
     {
         static const size_t NONE;
         static const size_t PROFILE;

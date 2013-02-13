@@ -57,7 +57,7 @@ ThreadProfiler::ThreadProfiler()
       m_LogCategory(Logger::category::PROFILE)
 {
     m_bRunning = false;
-    ScopeTimer::enableTimers(Logger::Logger::get()->isCategorySet(
+    ScopeTimer::enableTimers(Logger::get()->isCategorySet(
             Logger::category::PROFILE));
 }
 

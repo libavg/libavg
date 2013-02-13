@@ -938,7 +938,7 @@ public:
     {
         std::stringstream buffer;
         std::streambuf *sbuf = std::cerr.rdbuf();
-        Logger::Logger *logger = Logger::Logger::get();
+        Logger *logger = Logger::get();
         {
             std::cerr.rdbuf(buffer.rdbuf());
             string msg("Test log message");
