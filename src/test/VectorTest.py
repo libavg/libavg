@@ -634,6 +634,16 @@ class VectorTestCase(AVGTestCase):
 
         def setHref():
             mesh.texhref = "rgb24alpha-64x64.png"
+            
+        def setBackfaceCullTrue():
+            mesh.texhref="rgb24-64x64.png"
+            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(31.5, 32))
+            mesh.texcoords = ((0,0),(1,0),(0,1),(1,1),(0.5,0.5))
+            mesh.triangles = ((3,1,4),(1,3,4),(1,2,4),(2,0,4))
+            mesh.backfacecull = True
+            
+        def setBackfaceCullFalse():
+            mesh.backfacecull = False 
 
         def setIllegalVertexes():
             mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32), (16,16))
@@ -660,7 +670,11 @@ class VectorTestCase(AVGTestCase):
                  setHref,
                  lambda: self.compareImage("testMesh5"),
                  setTrianglesSameItem,
-                 lambda: self.compareImage("testMesh6")
+                 lambda: self.compareImage("testMesh6"),
+                 setBackfaceCullTrue,
+                 lambda: self.compareImage("testMesh7"),
+                 setBackfaceCullFalse,
+                 lambda: self.compareImage("testMesh8")
                 ))
 
     def testInactiveVector(self):

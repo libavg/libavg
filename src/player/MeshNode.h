@@ -51,13 +51,20 @@ class AVG_API MeshNode : public VectorNode
 
         const std::vector<glm::ivec3>& getTriangles() const;
         void setTriangles(const std::vector<glm::ivec3>& pts);
+        
+        bool getBackfaceCull() const;
+        void setBackfaceCull(const bool bBackfaceCull);
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
+        
+        virtual void render();
 
     private:
         std::vector<glm::vec2> m_TexCoords;
         std::vector<glm::vec2> m_VertexCoords;
         std::vector<glm::ivec3> m_Triangles;
+        
+        bool m_bBackfaceCull;
 };
 }
 #endif
