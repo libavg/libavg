@@ -167,12 +167,12 @@ Misc. Classes
         Interface to the logger used by the avg player.
         The logger supports custom log sinks, categorized log messages and log
         severities.
-        The logger can not be instantiated,but is available in the avg module.
+        The logger can not be instantiated, but is available in the avg module.
         It can be configured via environment variables, c++ plugins or python.
 
-        Log categories can be set either by calling Logger.setCategories or by setting the
-        :envvar:`AVG_LOG_CATEGORIES` environment variable. When set through the
-        environment, log categories are separated by colons. In bash syntax:
+        Log categories can be set either by calling :py:meth:`setCategories()`
+        or by setting the :envvar:`AVG_LOG_CATEGORIES` environment variable. When set
+        through the environment, log categories are separated by colons. In bash syntax:
 
         .. code-block:: bash
 
@@ -207,8 +207,8 @@ Misc. Classes
         Default categories are :py:const:`NONE`, :py:const:`APP` and
         :py:const:`DEPRECATION`.
 
-        Log severities are similar to pythons log levels.
-        Log severities(in declining order) are:
+        Log severities are similar to python's log levels.
+        Log severities (in declining order) are:
 
         :py:const:`CRITICAL`
 
@@ -222,8 +222,8 @@ Misc. Classes
 
         :py:const:`DEBUG`
 
-        The log severity can be set using :envvar:`AVG_LOG_SEVERITY`
-        By default, it is set to :py:const:`INFO`
+        The log severity can be set using :envvar:`AVG_LOG_SEVERITY`.
+        By default, it is set to :py:const:`INFO`.
 
         .. code-block:: bash
 
@@ -265,41 +265,41 @@ Misc. Classes
                 One of the categories listed above or custom category. Defaults to
                 :py:const:`APP`.
 
-            :param severity
+            :param severity:
                 Onf of the severities listed above. Defaults to :py:const:`INFO`.
 
             :param message: The log message string.
 
         .. py:method:: critical(msg, category)
 
-            Shortcut to :py:meth:`log`, using the severity indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
 
         .. py:method:: error(msg, category)
 
-            Shortcut to :py:meth:`log`, using the severity indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
 
         .. py:method:: warning(msg, category)
 
-            Shortcut to :py:meth:`log`, using the severity indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
 
         .. py:method:: info(msg, category)
 
-            Shortcut to :py:meth:`log`, using the severity indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
 
         .. py:method:: debug(msg, category)
 
-            Shortcut to :py:meth:`log`, using the severity indicated by its name
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
 
         .. py:method:: addSink(logger)
 
             Add a python logger object to libavg's logging handlers.
-            The python logger gets the key `category` as an "extra" kwargs, useful for
+            The python logger gets the key `category` as an "extra" kwarg, useful for
             formatting the output.
         
         .. py:method:: removeSink(logger)
 
             Removes a previously added logger. It will not receive any messages dispatched
-            by the logger annymore. It's save to call the function even if the logger is
+            by the logger annymore. It's safe to call the function even if the logger is
             not present.
 
 
