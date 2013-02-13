@@ -530,6 +530,9 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self.compareImage("testUICheckBoxChecked_Down"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 15, 15),
                  lambda: self.compareImage("testUICheckBoxUnchecked_Up"),
+                 lambda: checkBox.setEnabled(False),
+                 lambda: self.compareImage("testUICheckBoxUnchecked_Disabled"),
+
                 ))
         
 
