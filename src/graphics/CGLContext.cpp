@@ -101,7 +101,8 @@ void CGLContext::initMacVBlank(int rate)
     long l = rate;
 #endif
     if (rate > 1) {
-        AVG_TRACE(Logger::WARNING, "VBlank rate set to " << rate 
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::WARNING,
+                "VBlank rate set to " << rate 
                 << " but Mac OS X only supports 1. Assuming 1.");
         l = 1;
     }
