@@ -40,7 +40,7 @@ void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
             it != sWarningsIssued.end(); ++it)
     {
         if (*it == sOldEntryPoint) {
-            bWarned = true;
+            return;
         }
     }
     if (!bWarned) { 
@@ -56,7 +56,7 @@ void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
         if (sNewEntryPoint != string("")) { 
             sMsg += " Use "+string(sNewEntryPoint) + " instead."; 
         } 
-        AVG_TRACE(Logger::DEPRECATION, sMsg); 
+        AVG_TRACE(Logger::category::DEPRECATION, Logger::severity::WARNING, sMsg); 
     } 
 }
 

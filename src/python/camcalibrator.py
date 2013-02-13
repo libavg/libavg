@@ -27,7 +27,6 @@ import coordcalibrator
 import apphelpers
 
 mediadir = os.path.join(os.path.dirname(__file__), 'data')
-g_Log = avg.Logger.get()
 g_KbManager = apphelpers.KeyboardManager.get()
 
 
@@ -78,7 +77,7 @@ def camera_setup(CameraType):
              'min':16, 'max':683, 'increment':2, 'precision':0},
         ]
     else:
-        g_Log.trace(g_Log.ERROR, "Unknown CameraType %s" % CameraType)
+        avg.logger.error("Unknown CameraType %s" % CameraType)
         sys.exit()
 
     paramList.extend([
@@ -390,7 +389,7 @@ class Calibrator(AVGApp):
     def __trackerSaveConfig(self):
         self.tracker.saveConfig()
         self.setNotification('Tracker configuration saved', 2000)
-        g_Log.trace(g_Log.APP, "Tracker configuration saved.")
+        avg.logger.info("Tracker configuration saved.")
               
     def __saveTrackerIMG(self):
         def saveTrackerImage(id, name):
@@ -404,7 +403,7 @@ class Calibrator(AVGApp):
         saveTrackerImage(avg.IMG_FINGERS, "fingers")
         saveTrackerImage(avg.IMG_HISTOGRAM, "histogram")
         self.setNotification('Tracker images dumped', 2000)
-        g_Log.trace(g_Log.APP, "Tracker images saved.")
+        avg.logger.info("Tracker images saved.")
     
     def __startCoordCalibration(self):
         assert(not self.coordCal)

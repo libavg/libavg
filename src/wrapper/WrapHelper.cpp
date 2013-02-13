@@ -21,10 +21,12 @@
 
 #include "WrapHelper.h"
 
+#include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
 #include "../base/ObjectCounter.h"
 
+#include "../player/PythonLogSink.h"
 #include "../player/PublisherDefinitionRegistry.h"
 
 #include <boost/version.hpp>
@@ -403,5 +405,35 @@ void export_base()
     to_python_converter<std::type_info, type_info_to_string>();
     //Maps
     to_python_converter<TypeMap, to_dict<TypeMap> >();
+}
+
+namespace {
+    std::map<PyObject *, LogSinkPtr> m_pyObjectMap;
+}
+
+void addPythonLogger(PyObject * self, PyObject * pyLogger)
+{
+    Logger * logger = Logger::get();
+    LogSinkPtr logSink(new PythonLogSink(pyLogger));
+    logger->addLogSink(logSink);
+    m_pyObjectMap[pyLogger] = logSink;
+}
+
+void removePythonLogger(PyObject * self, PyObject * pyLogger)
+{
+    Logger* logger = Logger::get();
+    std::map<PyObject *, LogSinkPtr>::iterator it;
+    it = m_pyObjectMap.find(pyLogger);
+    if( it !=m_pyObjectMap.end() ){
+        logger->removeLogSink(it->second);
+        m_pyObjectMap.erase(it);
+    }
+}
+
+void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned severity)
+{
+    avgDeprecationWarning(string("1.8"), "logger.trace",
+            "any of the logging convenience functions");
+    Logger::get()->trace(sMsg, category, severity);
 }
 

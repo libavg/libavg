@@ -100,6 +100,8 @@
     <ClInclude Include="..\..\src\base\GeomHelper.h" />
     <ClInclude Include="..\..\src\base\GLMHelper.h" />
     <ClInclude Include="..\..\src\base\IFrameEndListener.h" />
+    <ClInclude Include="..\..\src\base\ILogHandler.h" />
+    <ClInclude Include="..\..\src\base\ILogSink.h" />
     <ClInclude Include="..\..\src\base\IPlaybackEndListener.h" />
     <ClInclude Include="..\..\src\base\IPreRenderListener.h" />
     <ClInclude Include="..\..\src\base\Logger.h" />
@@ -112,6 +114,7 @@
     <ClInclude Include="..\..\src\base\Rect.h" />
     <ClInclude Include="..\..\src\base\ScopeTimer.h" />
     <ClInclude Include="..\..\src\base\Signal.h" />
+    <ClInclude Include="..\..\src\base\StandardLogSink.h" />
     <ClInclude Include="..\..\src\base\StringHelper.h" />
     <ClInclude Include="..\..\src\base\Test.h" />
     <ClInclude Include="..\..\src\base\TestSuite.h" />
@@ -149,6 +152,7 @@
     <ClCompile Include="..\..\src\base\ProfilingZone.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZoneID.cpp" />
     <ClCompile Include="..\..\src\base\ScopeTimer.cpp" />
+    <ClCompile Include="..\..\src\base\StandardLogSink.cpp" />
     <ClCompile Include="..\..\src\base\StringHelper.cpp" />
     <ClCompile Include="..\..\src\base\Test.cpp" />
     <ClCompile Include="..\..\src\base\TestSuite.cpp" />

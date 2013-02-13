@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,69 +19,122 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Logger_H_ 
+#ifndef _Logger_H_
 #define _Logger_H_
 
 #include "../api.h"
 #include "UTF8String.h"
+#include "ILogSink.h"
 
 #include <string>
 #include <vector>
 #include <sstream>
-
-namespace avg {
+#include <map>
 
 #ifdef ERROR
 #undef ERROR
 #endif
 
+namespace avg {
+
 class AVG_API Logger {
 public:
+    struct AVG_API severity
+    {
+        static const unsigned CRITICAL;
+        static const unsigned ERROR;
+        static const unsigned WARNING;
+        static const unsigned INFO;
+        static const unsigned DEBUG;
+    };
+
+    struct AVG_API category
+    {
+        static const size_t NONE;
+        static const size_t PROFILE;
+        static const size_t PROFILE_VIDEO;
+        static const size_t EVENTS;
+        static const size_t CONFIG;
+        static const size_t MEMORY;
+        static const size_t APP;
+        static const size_t PLUGIN;
+        static const size_t PLAYER;
+        static const size_t SHADER;
+        static const size_t DEPRECATION;
+        static const size_t LAST_CATEGORY;
+    };
+
     static Logger* get();
     virtual ~Logger();
-   
-    int getCategories() const;
-    void setCategories(int flags);
+
+    static unsigned stringToSeverity(const string& sSeverity);
+    static const char * severityToString(unsigned severity);
+
+    void addLogSink(const LogSinkPtr& logSink);
+    void removeLogSink(const LogSinkPtr& logSink);
+    size_t getCategories() const;
+    void setCategories(size_t flags);
     void pushCategories();
     void popCategories();
-    void trace(int category, const UTF8String& sMsg);
-    inline bool isFlagSet(int category) {
+    const char * categoryToString(size_t category) const;
+    size_t stringToCategory(const std::string& sCategory) const;
+    void trace(const UTF8String& sMsg, size_t category, unsigned severity) const;
+    size_t registerCategory(const string& cat);
+    void setLogSeverity(unsigned severity);
+
+    void logDebug(const string& msg, const size_t category=category::APP) const;
+    void logInfo(const string& msg, const size_t category=category::APP) const;
+    void logWarning(const string& msg, const size_t category=category::APP) const;
+    void logError(const string& msg, const size_t category=category::APP) const;
+    void logCritical(const string& msg, const size_t category=category::APP) const;
+    void log(const string& msg, const size_t category=category::APP,
+            unsigned severity=severity::INFO) const;
+
+    inline bool isCategorySet(size_t category) const {
         return (category & m_Flags) != 0;
     }
 
-    static const long NONE;
-    static const long PROFILE;
-    static const long PROFILE_VIDEO;
-    static const long EVENTS;
-    static const long EVENTS2;
-    static const long CONFIG;  
-    static const long WARNING;
-    static const long ERROR;  
-    static const long MEMORY;
-    static const long APP;
-    static const long PLUGIN;
-    static const long PLAYER;
-    static const long SHADER;
-    static const long DEPRECATION;
+    inline bool shouldLog(size_t category, unsigned severity) const {
+        return (m_Severity <= severity && isCategorySet(category)) ||
+                Logger::severity::ERROR <= severity;
+    }
 
 private:
     Logger();
-    static const char * categoryToString(int category);
-    int stringToCategory(const std::string& sCategory);
-   
-    static Logger* m_pLogger;
+    void setupCategory();
 
-    int m_Flags;
-    std::vector<int> m_FlagStack;
+    size_t m_Flags;
+    std::vector<size_t> m_FlagStack;
+    std::map< const size_t, string > m_CategoryToString;
+    std::map< const string, size_t > m_StringToCategory;
+
+    size_t m_MaxCategoryNum;
+    unsigned m_Severity;
 };
 
-#define AVG_TRACE(category, sMsg) { \
-    if (Logger::get()->isFlagSet(category)) { \
-        std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
-        tmp << sMsg; \
-        Logger::get()->trace(category, tmp.str()); \
+#define AVG_TRACE(category, severity, sMsg) { \
+if (Logger::get()->shouldLog(category, severity)) { \
+    std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
+    tmp << sMsg; \
+    Logger::get()->trace(tmp.str(), category, severity); \
     }\
-}
+}\
+
+#define AVG_LOG_ERROR(sMsg){ \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::ERROR, sMsg); \
+}\
+
+#define AVG_LOG_WARNING(sMsg){ \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::WARNING, sMsg); \
+}\
+
+#define AVG_LOG_INFO(sMsg){ \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::INFO, sMsg); \
+}\
+
+#define AVG_LOG_DEBUG(sMsg){ \
+    AVG_TRACE(Logger::category::NONE, Logger::severity::DEBUG, sMsg); \
+}\
 
 }
 #endif

@@ -96,7 +96,7 @@ void SDLDisplayEngine::initSDL()
     }
 #endif
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
-        AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
+        AVG_LOG_ERROR("Can't init SDL display subsystem.");
         exit(-1);
     }
 }
@@ -170,7 +170,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
             SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
             break;
         default:
-            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
+            AVG_LOG_ERROR("Unsupported bpp " << dp.m_BPP <<
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
@@ -280,7 +280,7 @@ void SDLDisplayEngine::setGamma(float red, float green, float blue)
         m_Gamma[1] = green;
         m_Gamma[2] = blue;
         if (!bOk) {
-            AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
+            AVG_LOG_WARNING("Unable to set display gamma.");
         }
     }
 }

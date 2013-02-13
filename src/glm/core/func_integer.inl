@@ -11,7 +11,7 @@ namespace glm
 {
 	namespace detail
 	{
-		
+
 	}//namespace detail
 
 	namespace core{
@@ -22,8 +22,8 @@ namespace glm
 		template <typename genUType>
 		GLM_FUNC_QUALIFIER genUType uaddCarry
 		(
-			genUType const & x, 
-			genUType const & y, 
+			genUType const & x,
+			genUType const & y,
 			genUType & Carry
 		)
 		{
@@ -36,8 +36,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec2<T> uaddCarry
 		(
-			detail::tvec2<T> const & x, 
-			detail::tvec2<T> const & y, 
+			detail::tvec2<T> const & x,
+			detail::tvec2<T> const & y,
 			detail::tvec2<T> & Carry
 		)
 		{
@@ -49,8 +49,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec3<T> uaddCarry
 		(
-			detail::tvec3<T> const & x, 
-			detail::tvec3<T> const & y, 
+			detail::tvec3<T> const & x,
+			detail::tvec3<T> const & y,
 			detail::tvec3<T> & Carry
 		)
 		{
@@ -63,8 +63,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec4<T> uaddCarry
 		(
-			detail::tvec4<T> const & x, 
-			detail::tvec4<T> const & y, 
+			detail::tvec4<T> const & x,
+			detail::tvec4<T> const & y,
 			detail::tvec4<T> & Carry
 		)
 		{
@@ -79,8 +79,8 @@ namespace glm
 		template <typename genUType>
 		GLM_FUNC_QUALIFIER genUType usubBorrow
 		(
-			genUType const & x, 
-			genUType const & y, 
+			genUType const & x,
+			genUType const & y,
 			genUType & Borrow
 		)
 		{
@@ -94,8 +94,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec2<T> usubBorrow
 		(
-			detail::tvec2<T> const & x, 
-			detail::tvec2<T> const & y, 
+			detail::tvec2<T> const & x,
+			detail::tvec2<T> const & y,
 			detail::tvec2<T> & Borrow
 		)
 		{
@@ -107,8 +107,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec3<T> usubBorrow
 		(
-			detail::tvec3<T> const & x, 
-			detail::tvec3<T> const & y, 
+			detail::tvec3<T> const & x,
+			detail::tvec3<T> const & y,
 			detail::tvec3<T> & Borrow
 		)
 		{
@@ -121,8 +121,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec4<T> usubBorrow
 		(
-			detail::tvec4<T> const & x, 
-			detail::tvec4<T> const & y, 
+			detail::tvec4<T> const & x,
+			detail::tvec4<T> const & y,
 			detail::tvec4<T> & Borrow
 		)
 		{
@@ -137,9 +137,9 @@ namespace glm
 		template <typename genUType>
 		GLM_FUNC_QUALIFIER void umulExtended
 		(
-			genUType const & x, 
-			genUType const & y, 
-			genUType & msb, 
+			genUType const & x,
+			genUType const & y,
+			genUType & msb,
 			genUType & lsb
 		)
 		{
@@ -153,9 +153,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec2<T> umulExtended
 		(
-			detail::tvec2<T> const & x, 
-			detail::tvec2<T> const & y, 
-			detail::tvec2<T> & msb, 
+			detail::tvec2<T> const & x,
+			detail::tvec2<T> const & y,
+			detail::tvec2<T> & msb,
 			detail::tvec2<T> & lsb
 		)
 		{
@@ -167,9 +167,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec3<T> umulExtended
 		(
-			detail::tvec3<T> const & x, 
-			detail::tvec3<T> const & y, 
-			detail::tvec3<T> & msb, 
+			detail::tvec3<T> const & x,
+			detail::tvec3<T> const & y,
+			detail::tvec3<T> & msb,
 			detail::tvec3<T> & lsb
 		)
 		{
@@ -182,9 +182,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec4<T> umulExtended
 		(
-			detail::tvec4<T> const & x, 
-			detail::tvec4<T> const & y, 
-			detail::tvec4<T> & msb, 
+			detail::tvec4<T> const & x,
+			detail::tvec4<T> const & y,
+			detail::tvec4<T> & msb,
 			detail::tvec4<T> & lsb
 		)
 		{
@@ -199,9 +199,9 @@ namespace glm
 		template <typename genIType>
 		GLM_FUNC_QUALIFIER void imulExtended
 		(
-			genIType const & x, 
-			genIType const & y, 
-			genIType & msb, 
+			genIType const & x,
+			genIType const & y,
+			genIType & msb,
 			genIType & lsb
 		)
 		{
@@ -215,9 +215,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec2<T> imulExtended
 		(
-			detail::tvec2<T> const & x, 
-			detail::tvec2<T> const & y, 
-			detail::tvec2<T> & msb, 
+			detail::tvec2<T> const & x,
+			detail::tvec2<T> const & y,
+			detail::tvec2<T> & msb,
 			detail::tvec2<T> & lsb
 		)
 		{
@@ -229,9 +229,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec3<T> imulExtended
 		(
-			detail::tvec3<T> const & x, 
-			detail::tvec3<T> const & y, 
-			detail::tvec3<T> & msb, 
+			detail::tvec3<T> const & x,
+			detail::tvec3<T> const & y,
+			detail::tvec3<T> & msb,
 			detail::tvec3<T> & lsb
 		)
 		{
@@ -244,9 +244,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec4<T> imulExtended
 		(
-			detail::tvec4<T> const & x, 
-			detail::tvec4<T> const & y, 
-			detail::tvec4<T> & msb, 
+			detail::tvec4<T> const & x,
+			detail::tvec4<T> const & y,
+			detail::tvec4<T> & msb,
 			detail::tvec4<T> & lsb
 		)
 		{
@@ -261,8 +261,8 @@ namespace glm
 		template <typename genIUType>
 		GLM_FUNC_QUALIFIER genIUType bitfieldExtract
 		(
-			genIUType const & Value, 
-			int const & Offset, 
+			genIUType const & Value,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -279,8 +279,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec2<T> bitfieldExtract
 		(
-			detail::tvec2<T> const & Value, 
-			int const & Offset, 
+			detail::tvec2<T> const & Value,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -292,8 +292,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec3<T> bitfieldExtract
 		(
-			detail::tvec3<T> const & Value, 
-			int const & Offset, 
+			detail::tvec3<T> const & Value,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -306,8 +306,8 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec4<T> bitfieldExtract
 		(
-			detail::tvec4<T> const & Value, 
-			int const & Offset, 
+			detail::tvec4<T> const & Value,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -322,9 +322,9 @@ namespace glm
 		template <typename genIUType>
 		GLM_FUNC_QUALIFIER genIUType bitfieldInsert
 		(
-			genIUType const & Base, 
-			genIUType const & Insert, 
-			int const & Offset, 
+			genIUType const & Base,
+			genIUType const & Insert,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -344,9 +344,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec2<T> bitfieldInsert
 		(
-			detail::tvec2<T> const & Base, 
-			detail::tvec2<T> const & Insert, 
-			int const & Offset, 
+			detail::tvec2<T> const & Base,
+			detail::tvec2<T> const & Insert,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -358,9 +358,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec3<T> bitfieldInsert
 		(
-			detail::tvec3<T> const & Base, 
-			detail::tvec3<T> const & Insert, 
-			int const & Offset, 
+			detail::tvec3<T> const & Base,
+			detail::tvec3<T> const & Insert,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -373,9 +373,9 @@ namespace glm
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec4<T> bitfieldInsert
 		(
-			detail::tvec4<T> const & Base, 
-			detail::tvec4<T> const & Insert, 
-			int const & Offset, 
+			detail::tvec4<T> const & Base,
+			detail::tvec4<T> const & Insert,
+			int const & Offset,
 			int const & Bits
 		)
 		{
@@ -398,7 +398,7 @@ namespace glm
 				if(Value & (genIUType(1) << i))
 					Out |= genIUType(1) << (BitSize - 1 - i);
 			return Out;
-		}	
+		}
 
 		template <typename T>
 		GLM_FUNC_QUALIFIER detail::tvec2<T> bitfieldReverse

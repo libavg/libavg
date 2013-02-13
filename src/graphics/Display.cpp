@@ -127,7 +127,8 @@ float Display::getRefreshRate()
 {
     if (m_RefreshRate == 0.0) {
         m_RefreshRate = queryRefreshRate();
-        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << m_RefreshRate);
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "Vertical Refresh Rate: " << m_RefreshRate);
     }
     return m_RefreshRate;
 }

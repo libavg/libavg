@@ -93,10 +93,12 @@ CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint size,
         m_pCamera->GetCameraVendor(sVendor, 256);
 
         if (strcmp(sModel, "DFx 31BF03") == 0) {
-            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for IS DFx31BF03 camera");
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Applying bayer pattern fixup for IS DFx31BF03 camera");
             setCamPF(BAYER8_GRBG);
         } else if (strcmp(sVendor, "Point Grey Research") == 0) {
-            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for PointGrey cameras");
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Applying bayer pattern fixup for PointGrey cameras");
             enablePtGreyBayer();
         }
         
@@ -166,7 +168,7 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
                 int err = pControl->SetValue(Value);
                 checkCMUWarning(err == CAM_SUCCESS, "Error setting camera strobe.");
             } else {
-                AVG_TRACE(Logger::WARNING, "Camera does not support strobe.");
+                AVG_LOG_WARNING("Camera does not support strobe.");
             }
         } else {
             CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
@@ -183,7 +185,7 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
                         string("Error setting camera feature: ") + 
                         cameraFeatureToString(Feature));
             } else {
-                AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+                AVG_LOG_WARNING(string("Camera does not support feature: ") + 
                         cameraFeatureToString(Feature));
             }
         }
@@ -202,7 +204,7 @@ void CMUCamera::setFeatureOneShot(CameraFeature Feature)
                 && err3 == CAM_SUCCESS,
                 string("Error setting feature: ") + cameraFeatureToString(Feature));
     } else {
-        AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+        AVG_LOG_WARNING(string("Camera does not support feature: ") + 
                 cameraFeatureToString(Feature));
     }
 }
@@ -242,7 +244,7 @@ void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
                     string("Error setting camera feature: ") + 
                     cameraFeatureToString(CAM_FEATURE_WHITE_BALANCE));
         } else {
-            AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+            AVG_LOG_WARNING(string("Camera does not support feature: ") + 
                     cameraFeatureToString(CAM_FEATURE_WHITE_BALANCE));
         }
     }
@@ -378,7 +380,7 @@ int CMUCamera::getCamIndex(long long guid)
                 return i;
             }
         }
-        AVG_TRACE(Logger::WARNING, string("Camera with guid ") + toString(guid)
+        AVG_LOG_WARNING(string("Camera with guid ") + toString(guid)
                 + " not present. Using first camera.");
         return 0;
     }
@@ -395,7 +397,7 @@ void CMUCamera::internalGetFeature(CameraFeature Feature, unsigned short* val1,
         pControl->Status();
         pControl->GetValue(val1, val2);
     } else {
-        AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
+        AVG_LOG_WARNING(string("Error reading camera feature: ") + 
                 cameraFeatureToString(Feature));
     }
 }
@@ -417,7 +419,7 @@ void CMUCamera::enablePtGreyBayer()
         PixelFormat exactPF = fwBayerStringToPF(bayerFormat);
         setCamPF(exactPF);
     } else {
-        AVG_TRACE(Logger::ERROR, "imageDataFormat not supported.");
+        AVG_LOG_ERROR("imageDataFormat not supported.");
     }
 }
 
@@ -431,7 +433,7 @@ void CMUCamera::checkCMUError(int code, int type, const string & sMsg) const
 void CMUCamera::checkCMUWarning(bool bOk, const string& sMsg) const
 {
     if (!bOk) {
-        AVG_TRACE(Logger::WARNING, sMsg);
+        AVG_LOG_WARNING(sMsg);
     }
 }
 

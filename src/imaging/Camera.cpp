@@ -204,7 +204,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
                     frameRate));
 #else
             (void)guid; // Silence compiler warning
-            AVG_TRACE(Logger::WARNING, "Firewire camera specified, but firewire "
+            AVG_LOG_WARNING("Firewire camera specified, but firewire "
                     "support not compiled in.");
 #endif
         } else if (sDriver == "video4linux") {
@@ -212,7 +212,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
             pCamera = CameraPtr(new V4LCamera(sDevice, unit, captureSize, camPF, 
                     destPF, frameRate));
 #else
-            AVG_TRACE(Logger::WARNING, "Video4Linux camera specified, but "
+            AVG_LOG_WARNING("Video4Linux camera specified, but "
                     "Video4Linux support not compiled in.");
 #endif
         } else if (sDriver == "directshow") {
@@ -224,7 +224,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
             pCamera = CameraPtr(new DSCamera(sDevice, captureSize, camPF, destPF,
                 frameRate));
 #else
-            AVG_TRACE(Logger::WARNING, "DirectShow camera specified, but "
+            AVG_LOG_WARNING("DirectShow camera specified, but "
                     "DirectShow is only available under windows.");
 #endif
         } else {
@@ -233,7 +233,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
         }
     } catch (const Exception& e) {
         if (e.getCode() == AVG_ERR_CAMERA_NONFATAL) {
-            AVG_TRACE(Logger::WARNING, e.getStr());
+            AVG_LOG_WARNING(e.getStr());
         } else {
             throw;
         }

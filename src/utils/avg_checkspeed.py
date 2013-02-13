@@ -120,7 +120,7 @@ if options.numObjs == -1:
     else:
         options.numObjs = 200 
 
-log = avg.Logger.get()
+log = avg.logger
 if options.profile:
     log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
 else:

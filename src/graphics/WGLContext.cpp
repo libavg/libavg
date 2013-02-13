@@ -128,7 +128,7 @@ bool WGLContext::initVBlank(int rate)
     static bool s_bVBlankActive = false;
     if (rate > 0) {
         if (!queryOGLExtension("WGL_EXT_swap_control")) {
-            AVG_TRACE(Logger::WARNING,
+            AVG_LOG_WARNING(
                     "Windows VBlank setup failed: OpenGL Extension not supported.");
             s_bVBlankActive = false;
             return false;
@@ -152,7 +152,7 @@ void WGLContext::checkWinError(BOOL bOK, const string& sWhere)
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
-        AVG_TRACE(Logger::ERROR, sWhere+":"+szErr);
+        AVG_LOG_ERROR(sWhere+":"+szErr);
         AVG_ASSERT(false);
     }
 }

@@ -82,7 +82,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
     int err;
     m_sFilename = sFilename;
 
-    AVG_TRACE(Logger::MEMORY, "Opening " << sFilename);
+    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Opening " << sFilename);
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
     err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
 #else
@@ -211,7 +211,7 @@ void VideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 void VideoDecoder::close() 
 {
     mutex::scoped_lock lock(s_OpenMutex);
-    AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
+    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Closing " << m_sFilename);
     
     // Close audio and video codecs
     if (m_pVStream) {
@@ -300,9 +300,11 @@ void VideoDecoder::logConfig()
     bVDPAUAvailable = VDPAUDecoder::isAvailable();
 #endif
     if (bVDPAUAvailable) {
-        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: VDPAU");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "Hardware video acceleration: VDPAU");
     } else {
-        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "Hardware video acceleration: Off");
     }
 }
 
