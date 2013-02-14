@@ -287,12 +287,6 @@ FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
     return renderToBmps(pBmps, timeWanted);
 }
 
-FrameAvailableCode VideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
-{
-    AVG_ASSERT(false);
-    return FA_NEW_FRAME; // Silence compiler warning.
-}
-
 void VideoDecoder::logConfig()
 {
     bool bVDPAUAvailable = false;
