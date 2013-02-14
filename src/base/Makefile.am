@@ -8,7 +8,7 @@ ALL_H = FileHelper.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
         Rect.h Directory.h DirEntry.h StringHelper.h MathHelper.h GeomHelper.h \
         CubicSpline.h BezierCurve.h UTF8String.h Triangle.h DAG.h \
         WideLine.h DlfcnWrapper.h Signal.h Backtrace.h \
-        CmdQueue.h ProfilingZoneID.h GLMHelper.h StandardLogSink.h
+        CmdQueue.h ProfilingZoneID.h GLMHelper.h StandardLogSink.h ILogSink.h
 
 TESTS=testbase
 
