@@ -84,7 +84,7 @@ class ScrollArea(avg.DivNode):
     RELEASED = avg.Publisher.genMessageID()
     CONTENT_POS_CHANGED = avg.Publisher.genMessageID()
 
-    def __init__(self, contentNode, size, skinObj=skin.Skin.default,
+    def __init__(self, contentNode, size, skinObj=skin.Skin.default, enabled=True,
             scrollBars=(Orientation.HORIZONTAL, Orientation.VERTICAL),
             parent=None, **kwargs):
 
@@ -106,7 +106,8 @@ class ScrollArea(avg.DivNode):
         sensitiveScrollBars = self.cfg["sensitiveScrollBars"]
 
         if Orientation.HORIZONTAL in scrollBars:
-            self._hScrollBar = slider.ScrollBar(sensitive=sensitiveScrollBars, parent=self)
+            self._hScrollBar = slider.ScrollBar(sensitive=sensitiveScrollBars, 
+                    parent=self)
             self._hScrollBar.subscribe(slider.Slider.THUMB_POS_CHANGED,
                     self.__onHThumbMove)
         else:
@@ -122,7 +123,11 @@ class ScrollArea(avg.DivNode):
 
         self.subscribe(self.SIZE_CHANGED, self.__positionNodes)
         self.size = size
-        
+       
+        self.__enabled = True
+        if not(enabled):
+            self.setEnabled(False)
+
         self.recognizer = gesture.DragRecognizer(
                 eventNode=self.__scrollPane, 
                 detectedHandler=self.__onDragStart,
@@ -148,6 +153,22 @@ class ScrollArea(avg.DivNode):
         self.__positionThumbs(avg.Point2D(pos))
         self.notifySubscribers(self.CONTENT_POS_CHANGED, [self.__scrollPane.contentpos])
     contentpos = property(getContentPos, setContentPos)
+
+    def getEnabled(self):
+        return self.__enabled
+
+    def setEnabled(self, enabled):
+        if enabled and not(self.__enabled):
+            self.recognizer.enable(True)
+        elif not(enabled) and self.__enabled:
+            self.recognizer.enable(False)
+
+        if self._vScrollBar:
+            self._vScrollBar.enabled = enabled
+        if self._hScrollBar:
+            self._hScrollBar.enabled = enabled
+        self.__enabled = enabled
+    enabled = property(getEnabled, setEnabled)
 
     def __onHThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (thumbPos, self.__scrollPane.contentpos.y)

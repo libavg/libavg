@@ -120,7 +120,7 @@ class Skin:
             sliderCfg[nodeID] = {}
             if defaultSliderCfg == None or nodeID == None:
                 defaultSliderCfg = sliderCfg[nodeID]
-            for xmlNode in sliderXmlNode.iterfind("*"):
+            for xmlNode in sliderXmlNode.findall("*"):
                 # Loop through orientations (horiz, vert)
                 bogus, attrs = self.__splitAttrs(xmlNode)
                 kwargs = self.__extractArgs(attrs,
