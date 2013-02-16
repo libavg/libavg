@@ -4,7 +4,11 @@ AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @GDK_PIXBUF_CFLAGS@
 if APPLE
     X_LIBS = 
 else
+if ENABLE_EGL
+    X_LIBS = -lX11 -lGLESv2 -lEGL
+else
     X_LIBS = -lXxf86vm -lX11
+endif
 endif
 
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h VideoDecoder.h \
