@@ -101,6 +101,13 @@ void SDLDisplayEngine::initSDL()
     }
 }
 
+void SDLDisplayEngine::quitSDL()
+{
+#ifndef _WIN32
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
+}
+
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
@@ -120,9 +127,6 @@ SDLDisplayEngine::SDLDisplayEngine()
 
 SDLDisplayEngine::~SDLDisplayEngine()
 {
-#ifndef _WIN32
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
-#endif
 }
 
 void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 

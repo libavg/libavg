@@ -200,6 +200,7 @@ void deletePlayer()
 Player::~Player()
 {
     m_pMainCanvas = MainCanvasPtr();
+    SDLDisplayEngine::quitSDL();
 }
 
 Player* Player::get()

@@ -49,6 +49,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
         static void initSDL();
+        static void quitSDL();
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
         virtual void init(const DisplayParams& dp, GLConfig glConfig);
