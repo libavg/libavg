@@ -15,6 +15,12 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
+  <xsd:complexType name="ProgressBarDef">
+    <xsd:attribute name="trackSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="trackEndsExtent" type="xsd:integer"/>
+    <xsd:attribute name="thumbSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="thumbEndsExtent" type="xsd:integer"/>
+  </xsd:complexType>
   <xsd:simpleType name="bool">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="True"/>
@@ -82,6 +88,15 @@
             <xsd:all>
               <xsd:element name="vertical" type="ScrollBarDef" minOccurs="1" maxOccurs="1"/>
               <xsd:element name="horizontal" type="ScrollBarDef" minOccurs="1" 
+                  maxOccurs="1"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="progressbar" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:element name="vertical" type="ProgressBarDef" minOccurs="1" maxOccurs="1"/>
+              <xsd:element name="horizontal" type="ProgressBarDef" minOccurs="1" 
                   maxOccurs="1"/>
             </xsd:all>
           </xsd:complexType>

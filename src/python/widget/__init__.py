@@ -3,4 +3,4 @@ from button import Button, BmpButton, TextButton, ToggleButton, BmpToggleButton,
 from keyboard import Keyboard
 from scrollarea import ScrollPane, ScrollArea
 from skin import Skin
-from slider import Slider, ScrollBar, ScrollBarTrack, ScrollBarThumb, SliderThumb
+from slider import Slider, ScrollBar, ScrollBarTrack, ScrollBarThumb, SliderThumb, ProgressBar

@@ -70,10 +70,13 @@ class Skin:
         self.sliderCfg, self.defaultSliderCfg = self.__initSliders(xmlRoot, "slider")
         self.scrollBarCfg, self.defaultScrollBarCfg = self.__initSliders(
                 xmlRoot, "scrollbar")
+        self.progressBarCfg, self.defaultProgressBarCfg = self.__initSliders(
+                xmlRoot, "progressbar")
 
         self.scrollAreaCfg, self.defaultScrollAreaCfg = self.__parseElement(
                 xmlRoot, "scrollarea", 
-                pyArgNames=("friction","borderEndsExtent","margins","sensitiveScrollBars"),
+                pyArgNames=("friction","borderEndsExtent","margins",
+                        "sensitiveScrollBars"),
                 bmpArgNames={"borderSrc":"borderBmp"})
 
     def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={}, 
@@ -126,7 +129,8 @@ class Skin:
                 kwargs = self.__extractArgs(attrs,
                         pyArgNames=("trackEndsExtent", "thumbEndsExtent"),
                         bmpArgNames={"trackSrc": "trackBmp", 
-                                "trackDisabledSrc": "trackDisabledBmp", 
+                                "trackDisabledSrc": "trackDisabledBmp",
+                                "thumbSrc": "thumbBmp",
                                 "thumbUpSrc": "thumbUpBmp",
                                 "thumbDownSrc": "thumbDownBmp",
                                 "thumbDisabledSrc": "thumbDisabledBmp"})

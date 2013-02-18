@@ -85,6 +85,73 @@ class SliderThumb(SwitchNode):
         super(SliderThumb, self).__init__(nodeMap=nodeMap, visibleid="UP", **kwargs)
 
 
+class ProgressBar(avg.DivNode):
+
+    def __init__(self, orientation, skinObj=skin.Skin.default, height=0, width=0, 
+            range=(0.,1.), value=0.0, parent=None, **kwargs):
+        super(ProgressBar, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
+        if orientation == Orientation.HORIZONTAL:
+            cfg = skinObj.defaultProgressBarCfg["horizontal"]
+        else:
+            cfg = skinObj.defaultProgressBarCfg["vertical"]
+    
+        self.__orientation = orientation
+
+        trackBmp = cfg["trackBmp"]
+        self.__trackNode = ScrollBarTrack(bmp=trackBmp, disabledBmp=trackBmp,
+                endsExtent=cfg["trackEndsExtent"], orientation=self.__orientation)
+        self.appendChild(self.__trackNode)
+
+        thumbBmp = cfg["thumbBmp"]
+        endsExtent=cfg["thumbEndsExtent"]
+
+        self.__thumbNode = ScrollBarThumb(orientation=self.__orientation, 
+                upBmp=thumbBmp, downBmp=thumbBmp, disabledBmp=thumbBmp,
+                endsExtent=endsExtent)
+        self.appendChild(self.__thumbNode)
+
+        self.__range = range
+        self.__value = value
+
+        if orientation == Orientation.HORIZONTAL:
+            self.size = (width, trackBmp.getSize().y)
+        else:
+            self.size = (trackBmp.getSize().x, height)
+        self.__positionNodes()
+
+    def getRange(self):
+        return self.__range
+
+    def setRange(self, range):
+        self.__range = (float(range[0]), float(range[1]))
+        self.__positionNodes()
+    range = property(getRange, setRange)
+
+    def getValue(self):
+        return self.__value
+
+    def setValue(self, value):
+        self.__positionNodes(value)
+    value = property(getValue, setValue)
+
+    def __positionNodes(self, newValue=None):
+        if newValue is not None:
+            self.__value = float(newValue)
+        if self.__value < self.__range[0]:
+            self.__value = self.__range[0]
+        if self.__value > self.__range[1]:
+            self.__value = self.__range[1]
+        self.__trackNode.size = self.size
+                 
+        effectiveRange = math.fabs(self.__range[1] - self.__range[0])
+        normValue = ((self.__value-self.__range[0])/effectiveRange) 
+        if self.__orientation == Orientation.HORIZONTAL:
+            self.__thumbNode.width = normValue*self.size.x
+        else:
+            self.__thumbNode.height = normValue*self.size.y
+        
+
 class SliderBase(avg.DivNode):
 
     THUMB_POS_CHANGED = avg.Publisher.genMessageID()
@@ -103,9 +170,9 @@ class SliderBase(avg.DivNode):
         self._orientation = orientation
 
         trackBmp = cfg["trackBmp"]
-        trackDisabledBmp = skin.getBmpFromCfg(cfg, "trackDisabledBmp", "trackBmp")
-        self._trackNode = ScrollBarTrack(bmp=trackBmp, endsExtent=cfg["trackEndsExtent"],
-                disabledBmp=trackDisabledBmp, orientation=self._orientation)
+        trackDisabledBmp = cfg["trackDisabledBmp"]
+        self._trackNode = ScrollBarTrack(bmp=trackBmp, disabledBmp=trackDisabledBmp, 
+                endsExtent=cfg["trackEndsExtent"], orientation=self._orientation)
         self.appendChild(self._trackNode)
 
         self._initThumb(cfg)

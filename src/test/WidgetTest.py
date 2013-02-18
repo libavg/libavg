@@ -756,6 +756,29 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self.assertAlmostEqual(self.node.getThumbPos(), 0),
                 ))
 
+    def testProgressBar(self):
+    
+        def setValue(value):
+            self.node.value = value
+
+        def setRange(range):
+            self.node.range = range
+
+        root = self.loadEmptyScene()
+        self.node = widget.ProgressBar(orientation=widget.Orientation.HORIZONTAL,
+                pos=(5,5), width=100, parent=root)
+        self.start(False,
+                (lambda: self.compareImage("testProgressBar1"),
+                 lambda: setValue(0.5),
+                 lambda: self.compareImage("testProgressBar2"),
+                 lambda: setValue(1),
+                 lambda: self.compareImage("testProgressBar3"),
+                 lambda: setRange((23,42)),
+                 lambda: self.compareImage("testProgressBar1"),
+                 lambda: setValue(32.5),
+                 lambda: self.compareImage("testProgressBar2"),
+                ))
+    
     def testScrollArea(self):
         def setSize(size):
             self.node.size = size
@@ -784,6 +807,7 @@ def widgetTestSuite(tests):
         "testHVStretchNode",
         "testSlider",
         "testScrollBar",
+        "testProgressBar",
         "testScrollArea",
         )
 
