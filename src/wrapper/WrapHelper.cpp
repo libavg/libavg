@@ -160,18 +160,6 @@ void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
     }
 }
 
-struct Exception_to_python_exception
-{
-    static PyObject* convert (std::exception ex)
-    {
-        PyObject *arglist = boost::python::incref(
-                Py_BuildValue("(s)", ex.what()));
-        
-        return boost::python::incref(
-                PyObject_CallObject(PyExc_RuntimeError, arglist));
-    }
-};
-
 template<class VEC2>
 struct Vec2_to_python_tuple
 {
@@ -270,11 +258,6 @@ struct vec3_from_python
     }
 };
 
-void exception_translator(std::exception const & e) 
-{
-    PyErr_SetString(PyExc_RuntimeError, e.what());
-}
-
 struct UTF8String_to_unicode
 {
     static PyObject *convert(const UTF8String & s)
@@ -365,8 +348,11 @@ struct type_info_to_string{
 void export_base()
 {
     // Exceptions
-    register_exception_translator<exception>(exception_translator);
-    to_python_converter<exception, Exception_to_python_exception>();
+
+    translateException<exception>(PyExc_RuntimeError);
+    translateException<Exception>(PyExc_RuntimeError);
+    to_python_converter< exception, Exception_to_python_exception<exception> >();
+    to_python_converter< Exception, Exception_to_python_exception<Exception> >();
    
     // vec2
     to_python_converter<IntPoint, Vec2_to_python_tuple<IntPoint> >();
