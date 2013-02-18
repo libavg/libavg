@@ -32,18 +32,20 @@ using namespace std;
 namespace avg {
 
 Exception::Exception(int code, const string& sErr)
-    : m_Code (code),
+    : std::exception(),
+      m_Code (code),
       m_sErr (sErr)
 {
 }
 
 Exception::Exception(const Exception& ex)
-    : m_Code (ex.getCode()),
+    : std::exception(),
+      m_Code (ex.getCode()),
       m_sErr (ex.getStr())
 {
 }
 
-Exception::~Exception()
+Exception::~Exception() throw()
 {
 }
 
@@ -55,6 +57,11 @@ int Exception::getCode() const
 const string& Exception::getStr() const
 {
     return m_sErr;
+}
+
+const char* Exception::what() const throw()
+{
+    return m_sErr.c_str();
 }
 
 void fatalError(const string& sMsg)

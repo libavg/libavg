@@ -351,7 +351,7 @@ BOOST_PYTHON_MODULE(avg)
             .add_property("builder", &VersionInfo::getBuilder)
             .add_property("buildtime", &VersionInfo::getBuildTime)
             ;
-    } catch (const Exception& e) {
+    } catch (const exception& e) {
         exception_translator(e);
         throw error_already_set();
     }
