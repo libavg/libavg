@@ -54,6 +54,6 @@
             checkedDownSrc="checkbox_checked_down.png"
             checkedDisabledSrc="checkbox_checked_disabled.png"
             font="stdFont"
-            downFont="downFont"
+            downFont="stdFont"
             disabledFont="disabledFont"/>
 </skin>

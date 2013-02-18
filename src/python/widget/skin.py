@@ -65,7 +65,7 @@ class Skin:
                         "checkedUpSrc":"checkedUpBmp", 
                         "checkedDownSrc":"checkedDownBmp",
                         "checkedDisabledSrc":"checkedDisabledBmp"},
-                fontArgNames=("font",))
+                fontArgNames=("font", "downFont", "disabledFont"))
 
         self.sliderCfg, self.defaultSliderCfg = self.__initSliders(xmlRoot, "slider")
         self.scrollBarCfg, self.defaultScrollBarCfg = self.__initSliders(

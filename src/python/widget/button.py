@@ -366,15 +366,15 @@ class ToggleButton(_ButtonBase):
 class CheckBox(ToggleButton):
 
     def __init__(self, text="", skinObj=skin.Skin.default, **kwargs):
-        cfg = skinObj.defaultCheckBoxCfg
+        self.cfg = skinObj.defaultCheckBoxCfg
         
-        uncheckedUpNode = self.__createImageNode(cfg["uncheckedUpBmp"])
-        uncheckedDownNode = self.__createImageNode(cfg["uncheckedDownBmp"])
-        uncheckedDisabledNode = self.__createImageNode(cfg["uncheckedDisabledBmp"])
-        checkedUpNode = self.__createImageNode(cfg["checkedUpBmp"])
-        checkedDownNode = self.__createImageNode(cfg["checkedDownBmp"])
-        checkedDisabledNode = self.__createImageNode(cfg["checkedDisabledBmp"])
-      
+        uncheckedUpNode = self.__createImageNode(self.cfg["uncheckedUpBmp"])
+        uncheckedDownNode = self.__createImageNode(self.cfg["uncheckedDownBmp"])
+        uncheckedDisabledNode = self.__createImageNode(self.cfg["uncheckedDisabledBmp"])
+        checkedUpNode = self.__createImageNode(self.cfg["checkedUpBmp"])
+        checkedDownNode = self.__createImageNode(self.cfg["checkedDownBmp"])
+        checkedDisabledNode = self.__createImageNode(self.cfg["checkedDisabledBmp"])
+
         super(CheckBox, self).__init__(uncheckedUpNode=uncheckedUpNode,
                 uncheckedDownNode=uncheckedDownNode, 
                 uncheckedDisabledNode=uncheckedDisabledNode,
@@ -382,7 +382,32 @@ class CheckBox(ToggleButton):
                 checkedDownNode=checkedDownNode, 
                 checkedDisabledNode=checkedDisabledNode,
                 **kwargs)
-        avg.WordsNode(pos=(20,0), text=text, fontstyle=cfg["font"], parent=self)
+        self.textNode = avg.WordsNode(pos=(20,0), text=text, fontstyle=self.cfg["font"],
+                parent=self)
+
+    def _enterUncheckedUp(self):
+        self.textNode.fontstyle = self.cfg["font"]
+        super(CheckBox, self)._enterUncheckedUp()
+
+    def _enterUncheckedDown(self):
+        self.textNode.fontstyle = self.cfg["downFont"]
+        super(CheckBox, self)._enterUncheckedDown()
+
+    def _enterCheckedUp(self):
+        self.textNode.fontstyle = self.cfg["font"]
+        super(CheckBox, self)._enterCheckedUp()
+
+    def _enterCheckedDown(self):
+        self.textNode.fontstyle = self.cfg["downFont"]
+        super(CheckBox, self)._enterCheckedDown()
+
+    def _enterUncheckedDisabled(self):
+        self.textNode.fontstyle = self.cfg["disabledFont"]
+        super(CheckBox, self)._enterUncheckedDisabled()
+
+    def _enterCheckedDisabled(self):
+        self.textNode.fontstyle = self.cfg["disabledFont"]
+        super(CheckBox, self)._enterCheckedDisabled()
 
     def __createImageNode(self, bmp):
         node = avg.ImageNode()
