@@ -79,16 +79,25 @@ class WordsTestCase(AVGTestCase):
                 ))
 
     def testFontStyle(self):
+
+        def setStyle(node, style):
+            node.fontstyle = style
+            self.assert_(node.fontsize == 15)
+
         fontStyle = avg.FontStyle(font="Bitstream Vera Sans", variant="Roman",
                 fontsize=12)
         self.assert_(fontStyle.font == "Bitstream Vera Sans")
         root = self.loadEmptyScene()
-        avg.WordsNode(pos=(1,1), fontstyle=fontStyle, text="Bitstream Vera Sans", 
+        words = avg.WordsNode(pos=(1,1), fontstyle=fontStyle, text="Bitstream Vera Sans", 
                 parent=root)
         avg.WordsNode (pos=(1,16), fontstyle=fontStyle, variant="bold", text="Bold",
                 parent=root)
+        otherFontStyle = fontStyle
+        otherFontStyle.fontsize = 15
         self.start(True, 
-                (lambda: self.compareImage("testSimpleWords"),
+                (lambda: self.compareImage("testFontStyle1"),
+                 lambda: setStyle(words, otherFontStyle),
+                 lambda: self.compareImage("testFontStyle2"),
                 ))
 
     def testGlyphPos(self):

@@ -224,6 +224,10 @@ void export_raster()
 
     class_<WordsNode, bases<RasterNode> >("WordsNode", no_init)
         .def("__init__", raw_constructor(createNode<wordsNodeName>))
+        .add_property("fontstyle",
+                make_function(&WordsNode::getFontStyle,
+                        return_value_policy<copy_const_reference>()),
+                &WordsNode::setFontStyle)
         .add_property("font", 
                 make_function(&WordsNode::getFont,
                         return_value_policy<copy_const_reference>()),

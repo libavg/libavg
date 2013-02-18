@@ -251,6 +251,17 @@ void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElement
     AreaNode::getElementsByPos(relPos, pElements);
 }
 
+const FontStyle& WordsNode::getFontStyle() const
+{
+    return m_FontStyle;
+}
+
+void WordsNode::setFontStyle(const FontStyle& fontStyle)
+{
+    m_FontStyle = fontStyle;
+    updateFont();
+}
+
 const std::string& WordsNode::getFont() const
 {
     return m_FontStyle.getFont();
