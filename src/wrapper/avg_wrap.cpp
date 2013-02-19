@@ -352,7 +352,7 @@ BOOST_PYTHON_MODULE(avg)
             .add_property("buildtime", &VersionInfo::getBuildTime)
             ;
     } catch (const exception& e) {
-        //ExceptionTranslator<exception>(PyExc_RuntimeError);
+        PyErr_SetString(PyExc_RuntimeError, e.what());
         throw error_already_set();
     }
 }
