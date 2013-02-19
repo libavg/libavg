@@ -64,10 +64,10 @@ const char* Exception::what() const throw()
     return m_sErr.c_str();
 }
 
-void fatalError(const string& sMsg)
+void fatalError(const string& sMsg, int type)
 {
     AVG_LOG_ERROR("Internal error: "+sMsg+" Aborting.");
-    exit(-1);
+    throw(Exception(type, sMsg));
 }
 
 void debugBreak()

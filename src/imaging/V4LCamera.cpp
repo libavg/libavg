@@ -90,17 +90,19 @@ V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat cam
 
     struct stat st;
     if (stat(m_sDevice.c_str(), &st) == -1) {
-        fatalError(string("Unable to access v4l2 device '")+m_sDevice+"'." );
+        fatalError(string("Unable to access v4l2 device '")+m_sDevice+"'.",
+                AVG_ERR_CAMERA_FATAL);
     }
 
     if (!S_ISCHR (st.st_mode)) {
-        fatalError(string("'")+m_sDevice+" is not a v4l2 device.");
+        fatalError(string("'")+m_sDevice+" is not a v4l2 device.", AVG_ERR_CAMERA_FATAL);
     }
 
     m_Fd = ::open(m_sDevice.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
 
     if (m_Fd == -1) {
-        fatalError(string("Unable to open v4l2 device '") + m_sDevice + "'.");
+        fatalError(string("Unable to open v4l2 device '") + m_sDevice + "'.",
+                AVG_ERR_CAMERA_FATAL);
     }
 
     initDevice();
@@ -225,8 +227,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
     // enqueues free buffer for mmap
     if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &buf)) {
-        throw(Exception(AVG_ERR_CAMERA_FATAL,
-                "V4L Camera: failed to enqueue image buffer."));
+        fatalError("V4L Camera: failed to enqueue image buffer.", AVG_ERR_CAMERA_FATAL);
     }
 
     return pDestBmp;
@@ -552,17 +553,17 @@ void V4LCamera::initDevice()
 
     if (xioctl(m_Fd, VIDIOC_QUERYCAP, &cap) == -1) {
         close();
-        fatalError(m_sDevice + " is not a valid V4L2 device.");
+        fatalError(m_sDevice + " is not a valid V4L2 device.", AVG_ERR_CAMERA_FATAL);
     }
 
     if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
         close();
-        fatalError(m_sDevice + " does not support capturing");
+        fatalError(m_sDevice + " does not support capturing", AVG_ERR_CAMERA_FATAL);
     }
 
     if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
         close();
-        fatalError(m_sDevice + " does not support streaming i/os");
+        fatalError(m_sDevice + " does not support streaming i/os", AVG_ERR_CAMERA_FATAL);
     }
     m_sDriverName = (const char *)cap.driver;
 
@@ -624,7 +625,8 @@ void V4LCamera::initDevice()
     // select channel
     if (xioctl(m_Fd, VIDIOC_S_INPUT, &m_Channel) == -1) {
         close();
-        fatalError(string("Cannot set MUX channel ")+toString(m_Channel));
+        fatalError(string("Cannot set MUX channel ")+toString(m_Channel),
+                AVG_ERR_CAMERA_FATAL);
     }
 
     m_bCameraAvailable = true;
@@ -648,7 +650,8 @@ void V4LCamera::initMMap()
     if (xioctl(m_Fd, VIDIOC_REQBUFS, &req) == -1) {
         if (EINVAL == errno) {
             close();
-            fatalError(m_sDevice+" does not support memory mapping");
+            fatalError(m_sDevice+" does not support memory mapping",
+                    AVG_ERR_CAMERA_FATAL);
         } else {
             cerr << "errno: " << strerror(errno);
             AVG_ASSERT(false);
