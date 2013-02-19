@@ -26,7 +26,6 @@ import time
 from libavg import avg, player
 from libavg import parsecamargs
 from libavg import AVGApp
-from avg import logger as g_Log
 
 usage = """%prog [options]
 
@@ -80,7 +79,7 @@ if g_options.list:
     exit(0)
 
 if g_options.resetbus:
-    g_Log.trace(g_Log.APP, "Resetting firewire bus.")
+    avg.logger.info("Resetting firewire bus.")
     avg.CameraNode.resetFirewireBus()
     time.sleep(1)
     if not g_options.driver:
@@ -108,12 +107,12 @@ class ShowCamera(AVGApp):
             if attr[0] != '_':
                 self.optdict[attr] = eval("g_options.%s" %attr)
 
-        g_Log.trace(g_Log.APP, "Creating camera:")
-        g_Log.trace(g_Log.APP, "driver=%(driver)s device=%(device)s" %self.optdict)
-        g_Log.trace(g_Log.APP,
+        avg.logger.info("Creating camera:")
+        avg.logger.info("driver=%(driver)s device=%(device)s" %self.optdict)
+        avg.logger.info( 
                 "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
                 %self.optdict)
-        g_Log.trace(g_Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
+        avg.logger.info("unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
                 %self.optdict)
            
         self.camNode = avg.CameraNode(driver = g_options.driver,
@@ -142,7 +141,7 @@ class ShowCamera(AVGApp):
 
     def checkCamera(self):
         if not(self.camNode.isAvailable()):
-            g_Log.trace(g_Log.APP, "Could not open camera")
+            avg.logger.error("Could not open camera")
             exit(1)
 
     def onKeyDown(self,event):
