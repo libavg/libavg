@@ -27,6 +27,10 @@
 #include <cstdlib>
 #include <sstream>
 
+#ifdef WIN32
+#include <intrin.h>
+#endif
+
 using namespace std;
 
 namespace avg {
@@ -73,7 +77,7 @@ void fatalError(const string& sMsg, int type)
 void debugBreak()
 {
 #ifdef _WIN32
-    __asm int 3;
+    __debugbreak();
 #else
     __builtin_trap();
 #endif
