@@ -128,9 +128,8 @@ class TestApp(object):
         player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
                 self.__commandlineOptions.usepixelbuffers, 1, shaderUsage, True)
 
-        log = avg.Logger.get()
-        cats = log.getCategories() & (~log.DEPRECATION)
-        log.setCategories(cats)
+        cats = avg.logger.getCategories() & (~avg.logger.DEPRECATION)
+        avg.logger.setCategories(cats)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(
@@ -183,9 +182,9 @@ class TestApp(object):
         
     def __dumpConfig(self):
         player.enableGLErrorChecks(True)
-        log = avg.Logger.get()
-        log.pushCategories()
-        log.setCategories(log.APP | log.WARNING | log.CONFIG | log.DEPRECATION)
+        avg.logger.pushCategories()
+        avg.logger.setCategories(avg.logger.APP | avg.logger.CONFIG |
+                avg.logger.DEPRECATION)
         player.loadString("""
                 <avg id="avg" width="160" height="120">
                 </avg>
@@ -193,4 +192,4 @@ class TestApp(object):
         player.setTimeout(0, player.stop)
         player.setFramerate(10000)
         player.play()
-        log.popCategories()
+        avg.logger.popCategories()

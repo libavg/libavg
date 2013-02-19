@@ -160,8 +160,8 @@ Misc. Classes
         .. py:method:: interpolate(x) -> y
 
         Takes an x coordinate and delivers a corresponding y coordinate. 
-        
 
+    
     .. autoclass:: FontStyle(font="sans", variant="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, letterspacing=0, aagamma=1, hint=True)
 
         A :py:class:`FontStyle` object encapsulates all configurable font attributes in a
@@ -173,36 +173,32 @@ Misc. Classes
 
     .. autoclass:: Logger
 
-        Interface to the logger used by the avg player. Enables the setting
-        of different logging categories. Categories can be set either by calling
-        Logger.setCategories or by setting the :envvar:`AVG_LOG_CATEGORIES` environment
-        variable. When set through the environment, log categories are separated by
-        colons. In bash syntax:
+        Interface to the logger used by the avg player.
+        The logger supports custom log sinks, categorized log messages and log
+        severities.
+        The logger can not be instantiated, but is available in the avg module.
+        It can be configured via environment variables, c++ plugins or python.
+
+        Log categories can be set either by calling :py:meth:`setCategories()`
+        or by setting the :envvar:`AVG_LOG_CATEGORIES` environment variable. When set
+        through the environment, log categories are separated by colons. In bash syntax:
 
         .. code-block:: bash
 
-            export AVG_LOG_CATEGORIES=ERROR:WARNING:CONFIG:PROFILE
-        
+            export AVG_LOG_CATEGORIES=CONFIG:PROFILE:MEMORY
+
         Log categories are:
-       
+
         :py:const:`NONE`
-            No logging except for errors.
+            Outputs everything that has not been categorized.
         :py:const:`PROFILE`
             Outputs performance statistics on player termination.
-        :py:const:`PROFILE_LATEFRAMES`
-            Outputs performance statistics whenever a frame is displayed late.
         :py:const:`PROFILE_VIDEO`
             Outputs performance statistics for video decoding.
         :py:const:`EVENTS`
             Outputs basic event data.
-        :py:const:`EVENTS2`
-            Outputs all event data available.
         :py:const:`CONFIG`
             Outputs configuration data.
-        :py:const:`WARNING`
-            Outputs warning messages.
-        :py:const:`ERROR`
-            Outputs error messages. Can't be turned off.
         :py:const:`MEMORY`
             Outputs open/close information whenever a media file is accessed.
         :py:const:`APP`
@@ -217,13 +213,41 @@ Misc. Classes
             Messages that warn of functionality that will be removed from libavg
             in the future.
 
-        Default categories are :py:const:`ERROR`, :py:const:`WARNING`,
-        :py:const:`APP` and  :py:const:`DEPRECATION`.
-        
-        Log output is sent to the console (:file:`stderr`).  Each log entry contains 
-        the time the message was written, the category of the entry and the message 
-        itself.
-        
+        Default categories are :py:const:`NONE`, :py:const:`APP` and
+        :py:const:`DEPRECATION`.
+
+        Log severities are similar to python's log levels.
+        Log severities (in declining order) are:
+
+        :py:const:`CRITICAL`
+
+        :py:const:`FATAL`
+
+        :py:const:`ERROR`
+
+        :py:const:`WARNING`
+
+        :py:const:`INFO`
+
+        :py:const:`DEBUG`
+
+        The log severity can be set using :envvar:`AVG_LOG_SEVERITY`.
+        By default, it is set to :py:const:`INFO`.
+
+        .. code-block:: bash
+
+            export AVG_LOG_SEVERITY=INFO
+
+        By default, log output is sent to the console (:file:`stderr`) in the format
+
+        .. code-block:: bash
+
+            [time][SEVERITY][CATEGORY] : message
+
+        To prevent logging to :file:`stderr` set :envvar:`AVG_LOG_OMIT_STDERR` in the
+        Environment.
+
+
         .. py:method:: popCategories
 
             Pops the current set of categories from the internal stack, restoring
@@ -240,20 +264,52 @@ Misc. Classes
             Sets the types of messages that should be logged. :py:attr:`categories` is
             an or'ed sequence of categories.
 
-        .. py:method:: trace(category, message)
+        .. py:method:: log(message, category, severity)
 
-            Logs message to the log if category is active.
+            Logs a message if category is active or severity is at least 
+            :py:const:`ERROR`.
 
             :param category: 
             
-                One of the categories listed above. Should in be APP for messages
-                logged from python.
+                One of the categories listed above or custom category. Defaults to
+                :py:const:`APP`.
+
+            :param severity:
+                Onf of the severities listed above. Defaults to :py:const:`INFO`.
 
             :param message: The log message string.
 
-        .. py:classmethod:: get
+        .. py:method:: critical(msg, category)
 
-            This method gives access to the logger. There is only one instance.
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: error(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: warning(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: info(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: debug(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: addSink(logger)
+
+            Add a python logger object to libavg's logging handlers.
+            The python logger gets the key `category` as an "extra" kwarg, useful for
+            formatting the output.
+        
+        .. py:method:: removeSink(logger)
+
+            Removes a previously added logger. It will not receive any messages dispatched
+            by the logger annymore. It's safe to call the function even if the logger is
+            not present.
 
 
     .. autoclass:: Point2D([x,y=(0,0)])

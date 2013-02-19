@@ -90,21 +90,24 @@ V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat cam
 
     struct stat st;
     if (stat(m_sDevice.c_str(), &st) == -1) {
-        fatalError(string("Unable to access v4l2 device '")+m_sDevice+"'." );
+        AVG_ASSERT_MSG(false, (string("Unable to access v4l2 device '" +
+                m_sDevice + "'.").c_str()));
     }
 
     if (!S_ISCHR (st.st_mode)) {
-        fatalError(string("'")+m_sDevice+" is not a v4l2 device.");
+        AVG_ASSERT_MSG(false, (string("'" + m_sDevice +
+                " is not a v4l2 device.").c_str()));
     }
 
     m_Fd = ::open(m_sDevice.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
 
     if (m_Fd == -1) {
-        fatalError(string("Unable to open v4l2 device '") + m_sDevice + "'.");
+        AVG_ASSERT_MSG(false, (string("Unable to open v4l2 device '" + m_sDevice
+                + "'.").c_str()));
     }
 
     initDevice();
-    AVG_TRACE(Logger::CONFIG, "V4L2 Camera opened");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "V4L2 Camera opened");
 }
 
 V4LCamera::~V4LCamera()
@@ -117,7 +120,7 @@ void V4LCamera::close()
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     int rc = xioctl(m_Fd, VIDIOC_STREAMOFF, &type);
     if (rc == -1) {
-        AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
+        AVG_LOG_ERROR("VIDIOC_STREAMOFF");
     }
     vector<Buffer>::iterator it;
     for (it = m_vBuffers.begin(); it != m_vBuffers.end(); ++it) {
@@ -127,7 +130,7 @@ void V4LCamera::close()
     m_vBuffers.clear();
 
     ::close(m_Fd);
-    AVG_TRACE(Logger::CONFIG, "V4L2 Camera closed");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "V4L2 Camera closed");
 
     m_Fd = -1;
 }
@@ -182,12 +185,12 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
         // caught signal or something else
         if (rc == -1) {
-            AVG_TRACE(Logger::WARNING, "V4L2: select failed.");
+            AVG_LOG_WARNING("V4L2: select failed.");
             return BitmapPtr();
         }
         // timeout
         if (rc == 0) {
-            AVG_TRACE(Logger::WARNING, "V4L2: Timeout while waiting for image data");
+            AVG_LOG_WARNING("V4L2: Timeout while waiting for image data");
             return BitmapPtr();
         }
     }
@@ -225,8 +228,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
     // enqueues free buffer for mmap
     if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &buf)) {
-        throw(Exception(AVG_ERR_CAMERA_FATAL,
-                "V4L Camera: failed to enqueue image buffer."));
+        AVG_ASSERT_MSG(false, "V4L Camera: failed to enqueue image buffer.");
     }
 
     return pDestBmp;
@@ -273,7 +275,7 @@ V4LCID_t V4LCamera::getFeatureID(CameraFeature feature) const
     } else if (feature == CAM_FEATURE_SATURATION) {
         v4lFeature = V4L2_CID_SATURATION;
     } else {
-        AVG_TRACE(Logger::WARNING, "feature " << cameraFeatureToString(feature)
+        AVG_LOG_WARNING("feature " << cameraFeatureToString(feature)
                 << " not supported for V4L2.");
         return -1;
     }
@@ -319,12 +321,12 @@ int V4LCamera::getFeature(CameraFeature feature) const
 void V4LCamera::setFeature(V4LCID_t v4lFeature, int value)
 {
     if (!m_bCameraAvailable) {
-        AVG_TRACE(Logger::WARNING, "setFeature() called before opening device: ignored");
+        AVG_LOG_WARNING("setFeature() called before opening device: ignored");
         return;
     }
 
     if (!isFeatureSupported(v4lFeature)) {
-        AVG_TRACE(Logger::WARNING, "Camera feature " << getFeatureName(v4lFeature) <<
+        AVG_LOG_WARNING("Camera feature " << getFeatureName(v4lFeature) <<
             " is not supported by hardware");
         return;
     }
@@ -335,29 +337,28 @@ void V4LCamera::setFeature(V4LCID_t v4lFeature, int value)
     control.id = v4lFeature;
     control.value = value;
 
-//    AVG_TRACE(Logger::APP, "Setting feature " << getFeatureName(v4lFeature) <<
+//    AVG_TRACE(Logger::category::APP, "Setting feature " << getFeatureName(v4lFeature) <<
 //      " to "<< value);
 
     if (ioctl(m_Fd, VIDIOC_S_CTRL, &control) == -1) {
-        AVG_TRACE(Logger::ERROR, "Cannot set feature " <<
-            m_FeaturesNames[v4lFeature]);
+        AVG_LOG_ERROR("Cannot set feature " << m_FeaturesNames[v4lFeature]);
     }
 }
 
 void V4LCamera::setFeatureOneShot(CameraFeature feature)
 {
-    AVG_TRACE(Logger::WARNING, "setFeatureOneShot is not supported by V4L cameras.");
+    AVG_LOG_WARNING("setFeatureOneShot is not supported by V4L cameras.");
 }
 
 int V4LCamera::getWhitebalanceU() const
 {
-    AVG_TRACE(Logger::WARNING, "getWhitebalance is not supported by V4L cameras.");
+    AVG_LOG_WARNING("getWhitebalance is not supported by V4L cameras.");
     return 0;
 }
 
 int V4LCamera::getWhitebalanceV() const
 {
-    AVG_TRACE(Logger::WARNING, "getWhitebalance is not supported by V4L cameras.");
+    AVG_LOG_WARNING("getWhitebalance is not supported by V4L cameras.");
     return 0;
 }
 
@@ -518,7 +519,7 @@ void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValu
 
 void V4LCamera::startCapture()
 {
-//  AVG_TRACE(Logger::APP, "Entering startCapture()...");
+//  AVG_TRACE(Logger::category::APP, "Entering startCapture()...");
 
     unsigned int i;
     enum v4l2_buf_type type;
@@ -543,7 +544,7 @@ void V4LCamera::startCapture()
 
 void V4LCamera::initDevice()
 {
-//  AVG_TRACE(Logger::APP, "Entering initDevice()...");
+//  AVG_TRACE(Logger::category::APP, "Entering initDevice()...");
 
     struct v4l2_capability cap;
     struct v4l2_cropcap CropCap;
@@ -553,17 +554,17 @@ void V4LCamera::initDevice()
 
     if (xioctl(m_Fd, VIDIOC_QUERYCAP, &cap) == -1) {
         close();
-        fatalError(m_sDevice + " is not a valid V4L2 device.");
+        AVG_ASSERT_MSG(false, (m_sDevice + " is not a valid V4L2 device.").c_str());
     }
 
     if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
         close();
-        fatalError(m_sDevice + " does not support capturing");
+        AVG_ASSERT_MSG(false, (m_sDevice + " does not support capturing").c_str());
     }
 
     if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
         close();
-        fatalError(m_sDevice + " does not support streaming i/os");
+        AVG_ASSERT_MSG(false, (m_sDevice + " does not support streaming i/os").c_str());
     }
     m_sDriverName = (const char *)cap.driver;
 
@@ -625,7 +626,8 @@ void V4LCamera::initDevice()
     // select channel
     if (xioctl(m_Fd, VIDIOC_S_INPUT, &m_Channel) == -1) {
         close();
-        fatalError(string("Cannot set MUX channel ")+toString(m_Channel));
+        AVG_ASSERT_MSG(false, (string("Cannot set MUX channel " +
+                toString(m_Channel))).c_str());
     }
 
     m_bCameraAvailable = true;
@@ -649,7 +651,8 @@ void V4LCamera::initMMap()
     if (xioctl(m_Fd, VIDIOC_REQBUFS, &req) == -1) {
         if (EINVAL == errno) {
             close();
-            fatalError(m_sDevice+" does not support memory mapping");
+            AVG_ASSERT_MSG(false, (m_sDevice +
+                    " does not support memory mapping").c_str());
         } else {
             cerr << "errno: " << strerror(errno);
             AVG_ASSERT(false);

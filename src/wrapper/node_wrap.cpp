@@ -325,6 +325,7 @@ void export_node()
                 return_value_policy<copy_const_reference>()), &MeshNode::setTexCoords)
         .add_property("triangles", make_function(&MeshNode::getTriangles,
                 return_value_policy<copy_const_reference>()), &MeshNode::setTriangles)
+        .add_property("backfacecull", &MeshNode::getBackfaceCull, &MeshNode::setBackfaceCull)
     ;
     
 }

@@ -170,7 +170,7 @@ string getAvgLibPath()
     char szFilename[1024];
     DWORD ok = GetModuleFileName(hModule, szFilename, sizeof(szFilename));
     if (ok == 0) {
-        AVG_TRACE(Logger::ERROR, "getAvgLibPath(): " << getWinErrMsg(GetLastError()));
+        AVG_LOG_ERROR("getAvgLibPath(): " << getWinErrMsg(GetLastError()));
         exit(5);
     } 
     string sPath=getPath(szFilename);
@@ -259,8 +259,7 @@ std::string convertUTF8ToFilename(const std::string & sName)
     int err1 = MultiByteToWideChar(CP_UTF8, 0, sName.c_str(), sName.size()+1, 
             wideString, 2048);
     if (err1 == 0) {
-        AVG_TRACE(Logger::WARNING, 
-                "Error in unicode conversion (MultiByteToWideChar): " <<
+        AVG_LOG_WARNING("Error in unicode conversion (MultiByteToWideChar): " <<
                 getWinErrMsg(GetLastError()));
         return sName;
     }
@@ -271,8 +270,7 @@ std::string convertUTF8ToFilename(const std::string & sName)
         err1 = WideCharToMultiByte(CP_UTF8, 0, wideShortFName, -1, pShortName, 
                 1024, 0, 0);
         if (err1 == 0) {
-            AVG_TRACE(Logger::WARNING, 
-                    "Error in unicode conversion (MultiByteToWideChar): " <<
+            AVG_LOG_WARNING("Error in unicode conversion (MultiByteToWideChar): " <<
                     getWinErrMsg(GetLastError()));
         }
         return pShortName;

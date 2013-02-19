@@ -104,7 +104,7 @@ string PluginManager::locateSharedObject(const string& sFilename)
     }
     string sMessage = "Unable to locate plugin file '" + sFilename 
             + "'. Was looking in " + m_sCurrentSearchPath;
-    AVG_TRACE(Logger::PLUGIN, sMessage);        
+    AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO, sMessage);
     throw PluginNotFound(sMessage);
 }
 
@@ -143,7 +143,8 @@ void PluginManager::parsePath(const string& sPath)
         
         m_PathComponents.push_back(sDirectory);
     } while (!sRemaining.empty());
-    AVG_TRACE(Logger::PLUGIN, "Plugin search path set to '" << sPath << "'"); 
+    AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
+            "Plugin search path set to '" << sPath << "'"); 
 }
     
 void* PluginManager::internalLoadPlugin(const string& sFullpath)
@@ -151,7 +152,8 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
     void *handle = dlopen(sFullpath.c_str(), RTLD_LOCAL | RTLD_NOW);
     if (!handle) {
         string sMessage(dlerror());
-        AVG_TRACE(Logger::PLUGIN, "Could not load plugin. dlopen failed with message '"
+        AVG_TRACE(Logger::category::PLUGIN, Logger::severity::ERROR,
+                "Could not load plugin. dlopen failed with message '"
                 << sMessage << "'");
         throw PluginCorrupted(sMessage);
     }
@@ -161,7 +163,8 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
         dlclose(handle);
         throw e;
     }    
-    AVG_TRACE(Logger::PLUGIN, "Loaded plugin '" << sFullpath << "'");
+    AVG_TRACE(Logger::category::PLUGIN,Logger::severity::INFO,
+            "Loaded plugin '" << sFullpath << "'");
     return handle;
 }
 
@@ -174,7 +177,8 @@ void PluginManager::registerPlugin(void* handle)
     if (registerPlugin) {
         registerPlugin();
     } else {
-        AVG_TRACE(Logger::PLUGIN, "No plugin registration function detected");
+        AVG_TRACE(Logger::category::PLUGIN, Logger::severity::ERROR,
+                "No plugin registration function detected");
         throw PluginCorrupted("No plugin registration function detected");
     }
 }

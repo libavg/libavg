@@ -129,7 +129,7 @@ if options.numPoints < 10:
 elif options.numPoints % 2 != 0:
     options.numPoints -= 1
 
-log = avg.Logger.get()
+log = avg.logger
 if options.profile:
     log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
 else:

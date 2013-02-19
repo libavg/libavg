@@ -54,10 +54,11 @@ void ThreadProfiler::kill()
 
 ThreadProfiler::ThreadProfiler()
     : m_sName(""),
-      m_LogCategory(Logger::PROFILE)
+      m_LogCategory(Logger::category::PROFILE)
 {
     m_bRunning = false;
-    ScopeTimer::enableTimers(Logger::get()->isFlagSet(Logger::PROFILE));
+    ScopeTimer::enableTimers(Logger::get()->isCategorySet(
+            Logger::category::PROFILE));
 }
 
 ThreadProfiler::~ThreadProfiler() 
@@ -110,18 +111,20 @@ void ThreadProfiler::stopZone(const ProfilingZoneID& zoneID)
 void ThreadProfiler::dumpStatistics()
 {
     if (!m_Zones.empty()) {
-        AVG_TRACE(m_LogCategory, "Thread " << m_sName);
-        AVG_TRACE(m_LogCategory, "Zone name                          Avg. time");
-        AVG_TRACE(m_LogCategory, "---------                          ---------");
+        AVG_TRACE(m_LogCategory, Logger::severity::INFO, "Thread " << m_sName);
+        AVG_TRACE(m_LogCategory, Logger::severity::INFO,
+                "Zone name                          Avg. time");
+        AVG_TRACE(m_LogCategory, Logger::severity::INFO,
+                "---------                          ---------");
 
         ZoneVector::iterator it;
         for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
-            AVG_TRACE(m_LogCategory,
+            AVG_TRACE(m_LogCategory, Logger::severity::INFO,
                     std::setw(35) << std::left 
                     << ((*it)->getIndentString()+(*it)->getName())
                     << std::setw(9) << std::right << (*it)->getAvgUSecs());
         }
-        AVG_TRACE(m_LogCategory, "");
+        AVG_TRACE(m_LogCategory, Logger::severity::INFO, "");
     }
 }
 

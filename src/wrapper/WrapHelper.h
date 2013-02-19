@@ -343,10 +343,53 @@ avg::NodePtr createNode(const boost::python::tuple &args,
 {
     checkEmptyArgs(args);
     return avg::Player::get()->createNode(pszType, attrs, args[0]);
+};
+
+template <typename T>struct Exception_to_python_exception
+{
+    static PyObject* convert (const T& ex)
+    {
+        PyObject *arglist = boost::python::incref(
+                Py_BuildValue("(s)", ex.what()));
+        return boost::python::incref(
+                PyObject_CallObject(PyExc_RuntimeError, arglist));
+    }
+};
+
+
+template<typename T> struct ExceptionTranslator
+{
+public:
+    void operator()(const T& ex) const
+    {
+      PyErr_SetString(m_PyExcept, ex.what());
+    }
+
+    ExceptionTranslator(PyObject* py_except): m_PyExcept(py_except)
+    {
+      boost::python::register_exception_translator<T>(*this);
+    }
+
+    ExceptionTranslator(const ExceptionTranslator& other):m_PyExcept(other.m_PyExcept)
+    {
+    }
+
+  private:
+
+    PyObject* m_PyExcept;
+
+};
+
+template <typename T> void translateException(PyObject* e) {
+  ExceptionTranslator<T> my_translator(e);
 }
 
-void exception_translator(avg::Exception const & e);
-
 void exportMessages(boost::python::object& nodeClass, const std::string& sClassName);
+
+void addPythonLogger(PyObject * self, PyObject * pyLogger);
+void removePythonLogger(PyObject * self, PyObject * pyLogger);
+
+void pytrace(PyObject * self, size_t category, const avg::UTF8String& sMsg,
+        unsigned severity);
 
 #endif

@@ -176,14 +176,12 @@ bool GLXContext::initVBlank(int rate)
     static bool s_bVBlankActive = false;
     if (rate > 0) {
         if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
-            AVG_TRACE(Logger::WARNING, 
-                 "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+            AVG_LOG_WARNING("__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
             s_bVBlankActive = false;
             return false;
         } 
         if (!queryGLXExtension("GLX_EXT_swap_control")) {
-            AVG_TRACE(Logger::WARNING,
-                    "Linux VBlank setup failed: OpenGL Extension not supported.");
+            AVG_LOG_WARNING("Linux VBlank setup failed: OpenGL Extension not supported.");
             s_bVBlankActive = false;
             return false;
         }

@@ -32,7 +32,6 @@ import apphelpers
 
 DEFAULT_RESOLUTION = (640, 480)
 
-g_Log = avg.Logger.get()
 g_KbManager = apphelpers.KeyboardManager.get()
 
 
@@ -326,7 +325,7 @@ class AVGMTAppStarter(AVGAppStarter):
         try:
             player.enableMultitouch()
         except RuntimeError, err:
-            g_Log.trace(g_Log.WARNING, str(err))
+            avg.logger.warning(str(err))
 
         self.tracker = player.getTracker()
 

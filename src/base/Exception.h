@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include <string>
+#include <exception>
 
 #define AVG_ERR_UNKNOWN -1
 #define AVG_ERR_XML_PARSE 1
@@ -60,21 +61,21 @@
 
 namespace avg {
  
-class AVG_API Exception 
+class AVG_API Exception: public std::exception
 {
     public:
         Exception(int code, const std::string& sErr = "");
         Exception(const Exception& ex);
-        virtual ~Exception();
+        virtual ~Exception() throw();
         virtual int getCode() const;
         virtual const std::string& getStr() const;
+        virtual const char* what() const throw();
 
     private:
         int m_Code;
         std::string m_sErr;
 };
 
-void AVG_API fatalError(const std::string& sMsg);
 void AVG_API debugBreak();
 void AVG_API avgAssert(bool b, const char * pszFile, int line, const char * pszReason=0);
 

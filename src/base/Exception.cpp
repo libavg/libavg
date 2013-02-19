@@ -27,23 +27,29 @@
 #include <cstdlib>
 #include <sstream>
 
+#ifdef WIN32
+#include <intrin.h>
+#endif
+
 using namespace std;
 
 namespace avg {
 
 Exception::Exception(int code, const string& sErr)
-    : m_Code (code),
+    : std::exception(),
+      m_Code (code),
       m_sErr (sErr)
 {
 }
 
 Exception::Exception(const Exception& ex)
-    : m_Code (ex.getCode()),
+    : std::exception(),
+      m_Code (ex.getCode()),
       m_sErr (ex.getStr())
 {
 }
 
-Exception::~Exception()
+Exception::~Exception() throw()
 {
 }
 
@@ -57,23 +63,17 @@ const string& Exception::getStr() const
     return m_sErr;
 }
 
-void fatalError(const string& sMsg)
+const char* Exception::what() const throw()
 {
-    AVG_TRACE(Logger::ERROR, "Internal error: "+sMsg+" Aborting.");
-    exit(-1);
+    return m_sErr.c_str();
 }
 
 void debugBreak()
 {
 #ifdef _WIN32
-    __asm int 3;
-#elif defined __arm__
-    asm("swi 0x03");
-#elif defined __i386__
-    asm("int $3");
+    __debugbreak();
 #else
-    //deliberately dereferencing a null pointer should break in most debuggers
-    *((char *)0) = 0;
+    __builtin_trap();
 #endif
 }
 

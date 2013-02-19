@@ -51,7 +51,7 @@ float AppleDisplay::queryRefreshRate()
     CGDisplayModeRef mode = CGDisplayCopyDisplayMode(CGMainDisplayID());
     refreshRate = CGDisplayModeGetRefreshRate(mode);
     if (refreshRate < 1.0) {
-        AVG_TRACE(Logger::CONFIG, 
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                 "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
         refreshRate = 60;
     }
@@ -64,7 +64,7 @@ float AppleDisplay::queryRefreshRate()
     AVG_ASSERT(value);
     CFNumberGetValue(value, kCFNumberIntType, &refreshRate);
     if (refreshRate < 1.0) {
-        AVG_TRACE(Logger::CONFIG, 
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                 "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
         refreshRate = 60;
     }

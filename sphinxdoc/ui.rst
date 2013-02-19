@@ -175,17 +175,18 @@ functionality
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
-        by the two image files in bgHref and downHref. Keys can be defined as rectangles 
-        anywhere on these images. Works for both single-touch and multitouch devices. 
-        When a key is pressed, a callback function is invoked.
+        by the two image files in :py:attr:`bgSrc` and :py:attr:`downSrc`. Keys can be
+        defined as rectangles anywhere on these images. Works for both single-touch and 
+        multitouch devices. Generates events when keys are pressed or released.
 
-        Needs offscreen rendering support on the machine.
+        Needs offscreen rendering support on the machine to generate individual key images
+        from the image files supplied.
 
-        :param string bgHref: 
+        :param string bgSrc: 
         
             Filename of an image that contains the keyboard with unpressed keys.
 
-        :param string downHref:
+        :param string downSrc:
         
             Filename of an image that contains the keyboard with pressed keys.
 
@@ -205,12 +206,12 @@ functionality
 
         :param shiftKeyCode:
 
-            One of the command keycodes. When the key with this code is pressed,
+            One of the command keycodes. When a key with this code is pressed,
             pressing other keys causes them to return the shifted keycode.
 
         :param altGrKeyCode:
 
-            One of the command keycodes. When the key with this code is pressed,
+            One of the command keycodes. When a key with this code is pressed,
             pressing other keys causes them to return the altgr keycode.
 
         :param bool stickyShift:
@@ -221,26 +222,31 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
-        :param string feedbackHref:
+        :param string feedbackSrc:
 
             Filename of an image that contains the keyboard feedback by pressed keys.
             If this parameter not set the feedback funktion is turned off.
 
-        :param textarea textarea:
+        **Messages:**
 
-            Connect the keyboard upHandler instant to the textarea input.
+            :py:class:`Keyboard` emits messages on every key press and release:
+
+            .. py:method:: DOWN(keycode)
+
+            Emitted whenever a key (command or char) is pressed.
+
+            .. py:method:: UP(keycode)
+
+            Emitted whenever a key (command or char) is released.
+
+            .. py:method:: CHAR(char)
+
+            Emitted whenever a character is generated. This is generally when a char key is
+            released and takes into account shift/altgr status.
 
         .. py:method:: reset()
 
             Resets any sticky keys (shift, altgr) to their default state.
-
-        .. py:method:: setKeyHandler(self, downHandler, [upHandler])
-
-            Set callbacks to invoke on key press and -release. Handlers take three 
-            paramters: (event, char, cmd)
-
-            :param downHandler: Callable to invoke on key down event or :py:const:`None`.
-            :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
         .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
 
@@ -253,11 +259,6 @@ functionality
             :param avg.Point2D keySize: Size of each key.
 
             :param int spacing: Number of empty pixels between two keys.
-
-            :param string feedbackStr:
-
-                String containing if the key has a feedback use f for :py:const:`False`
-                and t for py:const:`True` (i.e. :samp:`"fttttttttttf"`)
 
             :param string keyStr: 
             

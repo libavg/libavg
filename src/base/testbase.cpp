@@ -41,6 +41,7 @@
 #include "TestSuite.h"
 #include "TimeSource.h"
 #include "XMLHelper.h"
+#include "Logger.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -924,6 +925,51 @@ public:
     }
 };
 
+
+class StandardLoggerTest: public Test
+{
+public:
+    StandardLoggerTest()
+      : Test("StandardLoggerTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        std::stringstream buffer;
+        std::streambuf *sbuf = std::cerr.rdbuf();
+        Logger *logger = Logger::get();
+        {
+            std::cerr.rdbuf(buffer.rdbuf());
+            string msg("Test log message");
+            AVG_TRACE(Logger::category::NONE, Logger::severity::INFO, msg);
+            std::cerr.rdbuf(sbuf);
+            TEST(buffer.str().find(msg) != string::npos);
+            buffer.str(string());
+        }
+        {
+            std::cerr.rdbuf(buffer.rdbuf());
+            int AWESOME_CAT = logger->registerCategory("AWESOME");
+            int cats = logger->getCategories();
+            logger->setCategories(cats | logger->stringToCategory("AWESOME"));
+            string msg("AWESOME LOG");
+            AVG_TRACE(AWESOME_CAT, Logger::severity::INFO, msg);
+            std::cerr.rdbuf(sbuf);
+            TEST(buffer.str().find(msg) != string::npos);
+            buffer.str(string());
+        }
+        {
+            std::cerr.rdbuf(buffer.rdbuf());
+            logger->setLogSeverity(Logger::severity::WARNING);
+            string msg("Invisible");
+            AVG_LOG_INFO(msg);
+            std::cerr.rdbuf(sbuf);
+            TEST(buffer.str().find(msg) == string::npos);
+            buffer.str(string());
+        }
+    }
+};
+
 class BaseTestSuite: public TestSuite
 {
 public:
@@ -945,6 +991,7 @@ public:
         addTest(TestPtr(new BacktraceTest));
         addTest(TestPtr(new PolygonTest));
         addTest(TestPtr(new XmlParserTest));
+        addTest(TestPtr(new StandardLoggerTest));
     }
 };
 

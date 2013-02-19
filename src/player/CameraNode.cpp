@@ -99,8 +99,8 @@ CameraNode::CameraNode(const ArgList& args)
 
     m_pCamera = createCamera(sDriver, sDevice, unit, bFW800, IntPoint(width, height), 
             camPF, destPF, frameRate);
-    AVG_TRACE(Logger::CONFIG, "Got Camera " << m_pCamera->getDevice() << " from driver: "
-            << m_pCamera->getDriverName());
+    AVG_TRACE(Logger::category::CONFIG,Logger::severity::INFO, "Got Camera " <<
+            m_pCamera->getDevice() << " from driver: " << m_pCamera->getDriverName());
     
     m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, args.getArgVal<int>("brightness"));
     m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, args.getArgVal<int>("exposure"));

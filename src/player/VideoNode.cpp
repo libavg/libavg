@@ -484,8 +484,7 @@ void VideoNode::startDecoding()
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
-            AVG_TRACE(Logger::WARNING, 
-                    getID() + ": Can't set FPS if video contains audio. Ignored.");
+            AVG_LOG_WARNING(getID() + ": Can't set FPS if video contains audio. Ignored.");
         } else {
             m_pDecoder->setFPS(m_FPS);
         }
@@ -559,8 +558,9 @@ void VideoNode::close()
         } else {
             sID = getID();
         }
-        AVG_TRACE(Logger::PROFILE_VIDEO, "Missed video frames for '" << sID << "': " 
-                << m_FramesTooLate << " of " << m_FramesPlayed);
+        AVG_TRACE(Logger::category::PROFILE_VIDEO, Logger::severity::INFO,
+                "Missed video frames for '" << sID << "': " << m_FramesTooLate <<
+                " of " << m_FramesPlayed);
         m_FramesTooLate = 0;
     }
 }
@@ -698,12 +698,26 @@ VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
 
 bool VideoNode::renderFrame()
 {
-    FrameAvailableCode frameAvailable = renderToSurface();
+    FrameAvailableCode frameAvailable =
+            m_pDecoder->renderToTexture(m_pTextures, getNextFrameTime()/1000.0f);
+
+    // Even with vsync, frame duration has a bit of jitter. If the video frames rendered
+    // are at the border of a frame's time, this can cause irregular display times.
+    // So, if we detect this condition, we adjust the frame time by a small fraction
+    // to move it towards the center of the time slot.
+    long long jitter = (long long)(getNextFrameTime()-m_pDecoder->getCurTime()*1000);
+    if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
+        m_JitterCompensation += 0.05;
+        if (m_JitterCompensation > 1) {
+            m_JitterCompensation -= 1;
+        }
+    }
+
     if (m_pDecoder->isEOF()) {
-//        AVG_TRACE(Logger::PROFILE, "------------------ EOF -----------------");
         updateStatusDueToDecoderEOF();
         if (m_bLoop) {
-            frameAvailable = renderToSurface();
+            frameAvailable = 
+                    m_pDecoder->renderToTexture(m_pTextures, getNextFrameTime()/1000.0f);
         }
     }
 
@@ -713,7 +727,7 @@ bool VideoNode::renderFrame()
             m_FramesInRowTooLate = 0;
             m_bSeekPending = false;
             setMaskCoords();
-//            AVG_TRACE(Logger::PROFILE, "New frame.");
+//            AVG_TRACE(Logger::category::PROFILE, "New frame.");
             break;
         case FA_STILL_DECODING:
             {
@@ -746,49 +760,18 @@ bool VideoNode::renderFrame()
                     }
                 }
             }
-//            AVG_TRACE(Logger::PROFILE, "Missed video frame.");
+//            AVG_TRACE(Logger::category::PROFILE, "Missed video frame.");
             break;
         case FA_USE_LAST_FRAME:
             m_FramesInRowTooLate = 0;
             m_bSeekPending = false;
-//            AVG_TRACE(Logger::PROFILE, "Video frame reused.");
+//            AVG_TRACE(Logger::category::PROFILE, "Video frame reused.");
             break;
         default:
             AVG_ASSERT(false);
     }
 
     return (frameAvailable == FA_NEW_FRAME);
-}
-
-FrameAvailableCode VideoNode::renderToSurface()
-{
-    FrameAvailableCode frameAvailable;
-    PixelFormat pf = m_pDecoder->getPixelFormat();
-    std::vector<BitmapPtr> pBmps;
-    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-        pBmps.push_back(m_pTextures[i]->lockStreamingBmp());
-    }
-    if (pixelFormatIsPlanar(pf)) {
-        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime()/1000.0f);
-    } else {
-        frameAvailable = m_pDecoder->renderToBmp(pBmps[0], getNextFrameTime()/1000.0f);
-    }
-    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-        m_pTextures[i]->unlockStreamingBmp(frameAvailable == FA_NEW_FRAME);
-    }
-
-    // Even with vsync, frame duration has a bit of jitter. If the video frames rendered
-    // are at the border of a frame's time, this can cause irregular display times.
-    // So, if we detect this condition, we adjust the frame time by a small fraction
-    // to move it towards the center of the time slot.
-    long long jitter = (long long)(getNextFrameTime()-m_pDecoder->getCurTime()*1000);
-    if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
-        m_JitterCompensation += 0.05;
-        if (m_JitterCompensation > 1) {
-            m_JitterCompensation -= 1;
-        }
-    }
-    return frameAvailable;
 }
 
 void VideoNode::onEOF()
@@ -804,7 +787,6 @@ void VideoNode::onEOF()
     }
     notifySubscribers("END_OF_FILE");
 }
-
 
 void VideoNode::updateStatusDueToDecoderEOF()
 {

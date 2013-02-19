@@ -21,10 +21,12 @@
 
 #include "WrapHelper.h"
 
+#include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
 #include "../base/ObjectCounter.h"
 
+#include "../player/PythonLogSink.h"
 #include "../player/PublisherDefinitionRegistry.h"
 
 #include <boost/version.hpp>
@@ -158,18 +160,6 @@ void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
     }
 }
 
-struct Exception_to_python_exception
-{
-    static PyObject* convert (avg::Exception ex)
-    {
-        PyObject *arglist = boost::python::incref(
-                Py_BuildValue("(s)", ex.getStr().c_str()));
-        
-        return boost::python::incref(
-                PyObject_CallObject(PyExc_RuntimeError, arglist));
-    }
-};
-
 template<class VEC2>
 struct Vec2_to_python_tuple
 {
@@ -268,11 +258,6 @@ struct vec3_from_python
     }
 };
 
-void exception_translator(Exception const & e) 
-{
-    PyErr_SetString(PyExc_RuntimeError, e.getStr().c_str());
-}
-
 struct UTF8String_to_unicode
 {
     static PyObject *convert(const UTF8String & s)
@@ -363,8 +348,11 @@ struct type_info_to_string{
 void export_base()
 {
     // Exceptions
-    register_exception_translator<Exception>(exception_translator);
-    to_python_converter<Exception, Exception_to_python_exception>();
+
+    translateException<exception>(PyExc_RuntimeError);
+    translateException<Exception>(PyExc_RuntimeError);
+    to_python_converter< exception, Exception_to_python_exception<exception> >();
+    to_python_converter< Exception, Exception_to_python_exception<Exception> >();
    
     // vec2
     to_python_converter<IntPoint, Vec2_to_python_tuple<IntPoint> >();
@@ -403,5 +391,35 @@ void export_base()
     to_python_converter<std::type_info, type_info_to_string>();
     //Maps
     to_python_converter<TypeMap, to_dict<TypeMap> >();
+}
+
+namespace {
+    std::map<PyObject *, LogSinkPtr> m_pyObjectMap;
+}
+
+void addPythonLogger(PyObject * self, PyObject * pyLogger)
+{
+    Logger * logger = Logger::get();
+    LogSinkPtr logSink(new PythonLogSink(pyLogger));
+    logger->addLogSink(logSink);
+    m_pyObjectMap[pyLogger] = logSink;
+}
+
+void removePythonLogger(PyObject * self, PyObject * pyLogger)
+{
+    Logger* logger = Logger::get();
+    std::map<PyObject *, LogSinkPtr>::iterator it;
+    it = m_pyObjectMap.find(pyLogger);
+    if( it !=m_pyObjectMap.end() ){
+        logger->removeLogSink(it->second);
+        m_pyObjectMap.erase(it);
+    }
+}
+
+void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned severity)
+{
+    avgDeprecationWarning(string("1.8"), "logger.trace",
+            "any of the logging convenience functions");
+    Logger::get()->trace(sMsg, category, severity);
 }
 

@@ -33,8 +33,6 @@ import cPickle as pickle
 import libavg
 from libavg import avg, player
 
-g_Log = avg.Logger.get()
-
 
 class Datastore(object):
     '''
@@ -90,7 +88,7 @@ class Datastore(object):
         try:
             f = open(self.__dumpFile)
         except IOError:
-            g_Log.trace(g_Log.APP, 'Initializing %s' % self)
+            avg.logger.info('Initializing %s' % self)
             self.data = initialData
             self.commit()
         else:
@@ -98,20 +96,17 @@ class Datastore(object):
                 self.data = pickle.load(f)
             except:
                 f.close()
-                g_Log.trace(g_Log.ERROR, 'Datastore %s is corrupted, '
-                        'reinitializing' % self)
+                avg.logger.error('Datastore %s is corrupted, reinitializing' % self)
                 self.data = initialData
                 self.commit()
             else:
                 f.close()
                 if not validator(self.data):
-                    g_Log.trace(g_Log.ERROR, 'Sanity check failed for %s: '
-                            'reinitializing' % self)
+                    avg.logger.error('Sanity check failed for %s: reinitializing' % self)
                     self.data = initialData
                     self.commit()
                 else:
-                    g_Log.trace(g_Log.APP, '%s successfully '
-                            'loaded' % self)
+                    avg.logger.info('%s successfully loaded' % self)
 
         if autoCommit:
             import atexit
@@ -129,26 +124,24 @@ class Datastore(object):
             with open(tempFile, 'wb') as f:
                 pickle.dump(self.data, f)
         except Exception, e:
-            g_Log.trace(g_Log.ERROR, 'Cannot save '
-                    '%s (%s)' % (self.__dumpFile, str(e)))
+            avg.logger.error('Cannot save %s (%s)' % (self.__dumpFile, str(e)))
             return False
         else:
             if os.path.exists(self.__dumpFile):
                 try:
                     os.remove(self.__dumpFile)
                 except Exception, e:
-                    g_Log.trace(g_Log.ERROR, 'Cannot overwrite '
-                            'dump file %s (%s)' % (self, str(e)))
+                    avg.logger.error('Cannot overwrite dump file %s (%s)'
+                            % (self, str(e)))
                     return False
             try:
                 os.rename(tempFile, self.__dumpFile)
             except Exception, e:
-                g_Log.trace(g_Log.ERROR, 'Cannot save '
-                        '%s (%s)' % (self, str(e)))
+                avg.logger.error('Cannot save %s (%s)' % (self, str(e)))
                 os.remove(tempFile)
                 return False
             else:
-                g_Log.trace(g_Log.APP, '%s saved' % self)
+                avg.logger.info('%s saved' % self)
                 return True
 
     def __repr__(self):
@@ -233,7 +226,7 @@ class GameApp(libavg.AVGApp):
         else:
             os.environ['AVG_DEPLOY'] = '1'
 
-        g_Log.trace(g_Log.APP, 'Setting resolution to: %s' % str(kwargs['resolution']))
+        avg.logger.info('Setting resolution to: %s' % str(kwargs['resolution']))
 
         super(GameApp, cls).start(*args, **kwargs)
 

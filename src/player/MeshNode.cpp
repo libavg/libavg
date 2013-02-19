@@ -49,6 +49,8 @@ void MeshNode::registerType()
                 offsetof(MeshNode, m_TexCoords)))
         .addArg(Arg<vector<glm::ivec3> >("triangles", vTriangle, false, 
                 offsetof(MeshNode, m_Triangles)))
+        .addArg(Arg<bool>("backfacecull", false, false,
+                offsetof(MeshNode, m_bBackfaceCull)))
         ;
     TypeRegistry::get()->registerType(def);
 }
@@ -124,6 +126,16 @@ void MeshNode::setTriangles(const vector<glm::ivec3>& triangles)
     setDrawNeeded();
 }
 
+bool MeshNode::getBackfaceCull() const
+{
+    return m_bBackfaceCull;
+}
+
+void MeshNode::setBackfaceCull(const bool bBackfaceCull)
+{
+    m_bBackfaceCull = bBackfaceCull;
+}
+
 void MeshNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     for (unsigned int i = 0; i < m_VertexCoords.size(); i++) {
@@ -133,6 +145,19 @@ void MeshNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
     for (unsigned int i = 0; i < m_Triangles.size(); i++) {
         pVertexData->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, 
                 m_Triangles[i].z);
+    }
+}
+
+void MeshNode::render()
+{
+    if (m_bBackfaceCull) {
+        glEnable(GL_CULL_FACE);
+    }
+    
+    VectorNode::render();
+    
+    if (m_bBackfaceCull) {
+        glDisable(GL_CULL_FACE);
     }
 }
 

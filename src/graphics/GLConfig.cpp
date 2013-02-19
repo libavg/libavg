@@ -46,19 +46,23 @@ GLConfig::GLConfig(bool bGLES, bool bUsePOTTextures, bool bUsePixelBuffers,
 
 void GLConfig::log()
 {
-    AVG_TRACE(Logger::CONFIG, "  OpenGL flavor: " << (m_bGLES?"Mobile (ES)":"Desktop"));
-    AVG_TRACE(Logger::CONFIG, "  Pixel buffers: " << (m_bUsePixelBuffers?"true":"false"));
-    AVG_TRACE(Logger::CONFIG, "  Power of 2 textures: " <<
-            (m_bUsePOTTextures?"true":"false"));
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  OpenGL flavor: " << (m_bGLES?"Mobile (ES)":"Desktop"));
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  Pixel buffers: " << (m_bUsePixelBuffers?"true":"false"));
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  Power of 2 textures: " << (m_bUsePOTTextures?"true":"false"));
     if (m_MultiSampleSamples == 1) {
-        AVG_TRACE(Logger::CONFIG, "  No multisampling");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "  No multisampling");
     } else {
-        AVG_TRACE(Logger::CONFIG, "  Multisampling with " << m_MultiSampleSamples 
-                << " samples");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "  Multisampling with " << m_MultiSampleSamples << " samples");
     }
     string sShader = shaderUsageToString(m_ShaderUsage);
-    AVG_TRACE(Logger::CONFIG, "  Shader usage: " << sShader);
-    AVG_TRACE(Logger::CONFIG, "  Debug context: " << (m_bUseDebugContext?"true":"false"));
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  Shader usage: " << sShader);
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  Debug context: " << (m_bUseDebugContext?"true":"false"));
 }
 
 std::string GLConfig::shaderUsageToString(ShaderUsage su)

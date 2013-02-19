@@ -315,35 +315,46 @@ const GLConfig& GLContext::getConfig()
 
 void GLContext::logConfig() 
 {
-    AVG_TRACE(Logger::CONFIG, "OpenGL configuration: ");
-    AVG_TRACE(Logger::CONFIG, "  OpenGL version: " << glGetString(GL_VERSION));
-    AVG_TRACE(Logger::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
-    AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "OpenGL configuration: ");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  OpenGL version: " << glGetString(GL_VERSION));
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  OpenGL vendor: " << glGetString(GL_VENDOR));
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  OpenGL renderer: " << glGetString(GL_RENDERER));
     m_GLConfig.log();
     switch (getMemoryMode()) {
         case MM_PBO:
-            AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects");
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "  Using pixel buffer objects");
             break;
         case MM_OGL:
-            AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions");
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "  Not using GL memory extensions");
             break;
     }
-    AVG_TRACE(Logger::CONFIG, "  Max. texture size: " << getMaxTexSize());
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "  Max. texture size: " << getMaxTexSize());
     string s;
     if (useGPUYUVConversion()) {
         s = "yes";
     } else {
         s = "no";
     }
-    AVG_TRACE(Logger::CONFIG, string("  GPU-based YUV-RGB conversion: ")+s+".");
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            string("  GPU-based YUV-RGB conversion: ")+s+".");
     try {
-        AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: " << 
-                getVideoMemInstalled()/(1024*1024) << " MB");
-        AVG_TRACE(Logger::CONFIG, "  Video memory used at start: " << 
-                getVideoMemUsed()/(1024*1024) << " MB");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "  Dedicated video memory: " << getVideoMemInstalled()/(1024*1024)
+                << " MB");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "  Video memory used at start: " << getVideoMemUsed()/(1024*1024)
+                << " MB");
     } catch (Exception) {
-        AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: Unknown");
-        AVG_TRACE(Logger::CONFIG, "  Video memory used at start: Unknown");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::ERROR,
+                "  Dedicated video memory: Unknown");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::ERROR,
+                "  Video memory used at start: Unknown");
     }
 }
 
@@ -441,7 +452,7 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
 #else
         s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
 #endif
-        AVG_TRACE(Logger::ERROR, s.str());
+        AVG_LOG_ERROR(s.str());
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
         }
@@ -610,7 +621,7 @@ void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
 #ifndef AVG_ENABLE_EGL
     if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
 #endif
-        AVG_TRACE(Logger::WARNING, message);
+        AVG_LOG_WARNING(message);
         //        dumpBacktrace();
         //        AVG_ASSERT(false);
 #ifndef AVG_ENABLE_EGL

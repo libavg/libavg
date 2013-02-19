@@ -53,6 +53,7 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
+namespace bp = boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
         fakeTouchEvent, 4, 5)
@@ -99,29 +100,47 @@ BOOST_PYTHON_MODULE(avg)
         ;
 
         class_<Logger>("Logger", no_init)
-            .def("get", &Logger::get, 
-                    return_value_policy<reference_existing_object>())
-            .staticmethod("get")
+            .def("addSink", addPythonLogger)
+            .def("removeSink", removePythonLogger)
+            .def("registerCategory", &Logger::registerCategory)
             .def("getCategories", &Logger::getCategories)
             .def("setCategories", &Logger::setCategories)
             .def("pushCategories", &Logger::pushCategories)
             .def("popCategories", &Logger::popCategories)
-            .def("trace", &Logger::trace)
-            .def_readonly("NONE", &Logger::NONE)
-            .def_readonly("PROFILE", &Logger::PROFILE)
-            .def_readonly("PROFILE_VIDEO", &Logger::PROFILE_VIDEO)
-            .def_readonly("EVENTS", &Logger::EVENTS)
-            .def_readonly("EVENTS2", &Logger::EVENTS2)
-            .def_readonly("CONFIG", &Logger::CONFIG)
-            .def_readonly("WARNING", &Logger::WARNING)
-            .def_readonly("ERROR", &Logger::ERROR)
-            .def_readonly("MEMORY", &Logger::MEMORY)
-            .def_readonly("APP", &Logger::APP)
-            .def_readonly("PLUGIN", &Logger::PLUGIN)
-            .def_readonly("PLAYER", &Logger::PLAYER)
-            .def_readonly("SHADER", &Logger::SHADER)
-            .def_readonly("DEPRECATION", &Logger::DEPRECATION)
+            .def("trace", pytrace,
+                    (bp::arg("severity")=Logger::severity::INFO))
+            .def("debug", &Logger::logDebug,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("info", &Logger::logInfo,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("warning", &Logger::logWarning,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("error", &Logger::logError,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("critical", &Logger::logCritical,
+                    (bp::arg("category")=Logger::category::APP))
+            .def("log", &Logger::log,
+                    (bp::arg("category")=Logger::category::APP,
+                     bp::arg("severity")=Logger::severity::INFO))
+            .def_readonly("NONE", &Logger::category::NONE)
+            .def_readonly("PROFILE", &Logger::category::PROFILE)
+            .def_readonly("PROFILE_VIDEO", &Logger::category::PROFILE_VIDEO)
+            .def_readonly("EVENTS", &Logger::category::EVENTS)
+            .def_readonly("CONFIG", &Logger::category::CONFIG)
+            .def_readonly("MEMORY", &Logger::category::MEMORY)
+            .def_readonly("APP", &Logger::category::APP)
+            .def_readonly("PLUGIN", &Logger::category::PLUGIN)
+            .def_readonly("PLAYER", &Logger::category::PLAYER)
+            .def_readonly("SHADER", &Logger::category::SHADER)
+            .def_readonly("DEPRECATION", &Logger::category::DEPRECATION)
+            //TODO: Should separate category and severity on python severity too
+            .def_readonly("CRITICAL", &Logger::severity::CRITICAL)
+            .def_readonly("ERROR", &Logger::severity::ERROR)
+            .def_readonly("WARNING", &Logger::severity::WARNING)
+            .def_readonly("INFO", &Logger::severity::INFO)
+            .def_readonly("DEBUG", &Logger::severity::DEBUG)
         ;
+        scope().attr("logger") = Logger::get();
 
         class_<ExportedObject, boost::shared_ptr<ExportedObject>, boost::noncopyable>
                 ("ExportedObject", no_init)
@@ -315,8 +334,8 @@ BOOST_PYTHON_MODULE(avg)
             .add_property("builder", &VersionInfo::getBuilder)
             .add_property("buildtime", &VersionInfo::getBuildTime)
             ;
-    } catch (const Exception& e) {
-        exception_translator(e);
+    } catch (const exception& e) {
+        PyErr_SetString(PyExc_RuntimeError, e.what());
         throw error_already_set();
     }
 }

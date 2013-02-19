@@ -38,7 +38,7 @@ VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ,
         VideoMsgQueue& packetQ, AVStream* pStream, const IntPoint& size, PixelFormat pf, 
         bool bUseVDPAU)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
-            Logger::PROFILE_VIDEO),
+            Logger::category::PROFILE_VIDEO),
       m_MsgQ(msgQ),
       m_PacketQ(packetQ),
       m_pBmpQ(new BitmapQueue()),

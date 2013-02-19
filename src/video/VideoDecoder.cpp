@@ -31,6 +31,7 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLTexture.h"
 
 #include <string>
 
@@ -82,7 +83,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
     int err;
     m_sFilename = sFilename;
 
-    AVG_TRACE(Logger::MEMORY, "Opening " << sFilename);
+    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Opening " << sFilename);
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
     err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
 #else
@@ -211,7 +212,7 @@ void VideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 void VideoDecoder::close() 
 {
     mutex::scoped_lock lock(s_OpenMutex);
-    AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
+    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Closing " << m_sFilename);
     
     // Close audio and video codecs
     if (m_pVStream) {
@@ -287,10 +288,23 @@ FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
     return renderToBmps(pBmps, timeWanted);
 }
 
-FrameAvailableCode VideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
+FrameAvailableCode VideoDecoder::renderToTexture(GLTexturePtr pTextures[4], 
+        float timeWanted)
 {
-    AVG_ASSERT(false);
-    return FA_NEW_FRAME; // Silence compiler warning.
+    std::vector<BitmapPtr> pBmps;
+    for (unsigned i=0; i<getNumPixelFormatPlanes(m_PF); ++i) {
+        pBmps.push_back(pTextures[i]->lockStreamingBmp());
+    }
+    FrameAvailableCode frameAvailable;
+    if (pixelFormatIsPlanar(m_PF)) {
+        frameAvailable = renderToBmps(pBmps, timeWanted);
+    } else {
+        frameAvailable = renderToBmp(pBmps[0], timeWanted);
+    }
+    for (unsigned i=0; i<getNumPixelFormatPlanes(m_PF); ++i) {
+        pTextures[i]->unlockStreamingBmp(frameAvailable == FA_NEW_FRAME);
+    }
+    return frameAvailable;
 }
 
 void VideoDecoder::logConfig()
@@ -300,9 +314,11 @@ void VideoDecoder::logConfig()
     bVDPAUAvailable = VDPAUDecoder::isAvailable();
 #endif
     if (bVDPAUAvailable) {
-        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: VDPAU");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "Hardware video acceleration: VDPAU");
     } else {
-        AVG_TRACE(Logger::CONFIG, "Hardware video acceleration: Off");
+        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "Hardware video acceleration: Off");
     }
 }
 

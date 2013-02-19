@@ -28,8 +28,8 @@ AC_PROG_CPP
 CXXFLAGS="-O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body $CXXFLAGS"
 CFLAGS="-O3 -ffast-math -Wall -pipe $CFLAGS"
 if [[ $host_cpu == i386 ]] || [[ $host_cpu == i686 ]] || [[ $host_cpu == x86_64 ]]; then
-    CXXFLAGS="-msse2 -mfpmath=sse $CXXFLAGS"
-    CFLAGS="-msse2 -mfpmath=sse $CFLAGS"
+    CXXFLAGS="-msse2 $CXXFLAGS"
+    CFLAGS="-msse2 $CFLAGS"
 fi
 OBJC="gcc"
 OBJCFLAGS=""
@@ -152,7 +152,7 @@ AC_ARG_ENABLE(rpi,
         enable_rpi=no)
 
 if test "$enable_rpi" = yes; then
-    CPPFLAGS="$CPPFLAGS -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads"
+    CPPFLAGS="$CPPFLAGS -I/opt/vc/include -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/interface/vcos/pthreads"
     LDFLAGS="$LDFLAGS -L/opt/vc/lib"
     AC_DEFINE(AVG_ENABLE_RPI, 1, [Build on RaspberryPi])
     AM_CONDITIONAL(ENABLE_RPI, true)

@@ -163,7 +163,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
             pFamily = getFontFamily(sFamily);
         } catch (Exception&) {
             if (m_sFontsNotFound.find(sFamily) == m_sFontsNotFound.end()) {
-                AVG_TRACE(Logger::WARNING, "Could not find font face " << sFamily << 
+                AVG_LOG_WARNING("Could not find font face " << sFamily << 
                         ". Using sans instead.");
                 m_sFontsNotFound.insert(sFamily);
             }
@@ -189,7 +189,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
                 pair<string, string> variant(sFamily, sVariant);
                 if (m_VariantsNotFound.find(variant) == m_VariantsNotFound.end()) {
                     m_VariantsNotFound.insert(variant);
-                    AVG_TRACE(Logger::WARNING, "Could not find font variant " 
+                    AVG_LOG_WARNING("Could not find font variant " 
                             << sFamily << ":" << sVariant << ". Using " <<
                             pango_font_face_get_face_name(pFace) << " instead.");
                 }
@@ -208,25 +208,36 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
 void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
         const gchar *message, gpointer unused_data)
 {
+//TODO: Make this use correct AVG_LOG_LEVEL function
 #ifndef WIN32
     string s = "Pango ";
     if (log_level & G_LOG_LEVEL_ERROR) {
-        s += "error: ";
+        s += message;
+        AVG_LOG_ERROR(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_CRITICAL) {
-        s += string("critical: ")+message;
-        AVG_TRACE(Logger::ERROR, s);
+        s += message;
+        AVG_LOG_ERROR(s);
         AVG_ASSERT(false);
     } else if (log_level & G_LOG_LEVEL_WARNING) {
-        s += "warning: ";
+        s += message;
+        AVG_LOG_WARNING(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_MESSAGE) {
-        s += "message: ";
+        s += (string("message: ") + message);
+        AVG_LOG_INFO(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_INFO) {
-        s += "info: ";
+        s += message;
+        AVG_LOG_INFO(s);
+        return;
     } else if (log_level & G_LOG_LEVEL_DEBUG) {
-        s += "debug: ";
+        s += message;
+        AVG_TRACE(Logger::category::NONE, Logger::severity::DEBUG, s);
+        return;
     }
     s += message;
-    AVG_TRACE(Logger::WARNING, s);
+    AVG_LOG_WARNING(s);
 #endif
 }
 

@@ -50,7 +50,6 @@ CHANGE_INTERVAL = SHOW_INTERVAL + TRANS_INTERVAL
 ANIM_INTERVAL   = CHANGE_INTERVAL + TRANS_INTERVAL
 ANIM_MAX_MOVE   = 200 # [px]
 
-Logger = avg.Logger.get()
 BitmapMgr = avg.BitmapManager.get()
 
 
@@ -111,19 +110,19 @@ class SlideshowApp(gameapp.GameApp):
     def init(self):
         imgDir = os.getcwd()
         if not os.path.isdir(imgDir):
-            Logger.trace(Logger.ERROR, 'Directory [%s] not found' %imgDir)
+            avg.logger.error('Directory [%s] not found' % imgDir)
             exit(1)
-        Logger.trace(Logger.APP, 'Scanning directory [%s] ...' %imgDir)
+        avg.logger.info('Scanning directory [%s] ...' % imgDir)
 
         imgExts = tuple(IMAGE_EXTENSIONS + [ext.upper() for ext in IMAGE_EXTENSIONS])
         self.__imgFiles = [os.path.join(imgDir, imgFile) for imgFile in
                 filter(lambda f: f.endswith(imgExts), os.listdir(imgDir))]
         if not self.__imgFiles:
-            Logger.trace(Logger.ERROR, 'No image files found, '
-                    'scanned file extensions:\n%s' %(', '.join(imgExts)))
+            avg.logger.error('No image files found, '
+                    'scanned file extensions:\n%s' % (', '.join(imgExts)))
             exit(1)
         l = len(self.__imgFiles)
-        Logger.trace(Logger.APP, '%d image file%s found' %(l, 's' if l > 1 else ''))
+        avg.logger.info('%d image file%s found' % (l, 's' if l > 1 else ''))
         shuffle(self.__imgFiles)
 
         self.__slidesDiv = avg.DivNode(size=self._parentNode.size, parent=self._parentNode)

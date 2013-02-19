@@ -42,6 +42,8 @@ namespace avg {
 
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class VDPAUDecoder;
 
 enum FrameAvailableCode {
@@ -79,7 +81,8 @@ class AVG_API VideoDecoder
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, float timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted) = 0;
-        virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
+        virtual FrameAvailableCode renderToTexture(GLTexturePtr pTextures[4],
+                float timeWanted);
         virtual bool isEOF() const = 0;
         virtual void throwAwayFrame(float timeWanted) = 0;
 

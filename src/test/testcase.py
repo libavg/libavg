@@ -62,7 +62,7 @@ class AVGTestCase(unittest.TestCase):
 
         player.enableGLErrorChecks(True)
         self.__testFuncName = testFuncName
-        self.__logger = avg.Logger.get()
+        self.__logger = avg.logger
         self.__skipped = False
         self.__warnOnImageDiff = False
 
