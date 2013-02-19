@@ -47,7 +47,7 @@ private:
     static void releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame);
     static void drawHorizBand(AVCodecContext* pContext, const AVFrame* pFrame, 
             int offset[4], int y, int type, int height);
-    static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
+    static AVPixelFormat getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt);
 
     vdpau_render_state* getFreeRenderState();
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
@@ -56,7 +56,7 @@ private:
 
     VdpDecoder m_VDPDecoder;
     VdpVideoMixer m_VDPMixer;
-    ::PixelFormat  m_PixFmt;
+    AVPixelFormat  m_PixFmt;
     IntPoint m_Size;
     std::vector<vdpau_render_state*> m_RenderStates;
 

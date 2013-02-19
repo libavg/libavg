@@ -119,7 +119,7 @@ void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame*
     pVDPAUDecoder->render(pContext, src);
 }
 
-::PixelFormat VDPAUDecoder::getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt)
+AVPixelFormat VDPAUDecoder::getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt)
 {
     switch (pContext->codec_id) {
         case CODEC_ID_H264:
