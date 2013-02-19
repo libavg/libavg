@@ -76,7 +76,6 @@ class AVG_API Exception: public std::exception
         std::string m_sErr;
 };
 
-void AVG_API fatalError(const std::string& sMsg, int type=AVG_ERR_UNKNOWN);
 void AVG_API debugBreak();
 void AVG_API avgAssert(bool b, const char * pszFile, int line, const char * pszReason=0);
 
