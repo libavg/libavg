@@ -55,6 +55,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void init(const DisplayParams& dp, GLConfig glConfig);
         IntPoint calcWindowSize(const DisplayParams& dp) const;
 
+        void setWindowTitle(const std::string& sTitle);
+
         // From DisplayEngine
         virtual void teardown();
         virtual void setGamma(float red, float green, float blue);

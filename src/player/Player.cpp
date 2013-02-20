@@ -250,6 +250,11 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_Pos.y = y;
 }
 
+void Player::setWindowTitle(const string& sTitle)
+{
+    m_pDisplayEngine->setWindowTitle(sTitle);
+}
+
 void Player::useGLES(bool bGLES)
 {
     errorIfPlaying("Player.useGLES");
