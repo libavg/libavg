@@ -96,18 +96,18 @@ class ProgressBar(avg.DivNode):
         else:
             cfg = skinObj.defaultProgressBarCfg["vertical"]
     
-        self.__orientation = orientation
+        self._orientation = orientation
 
         trackBmp = cfg["trackBmp"]
-        self.__trackNode = ScrollBarTrack(bmp=trackBmp, disabledBmp=trackBmp,
-                endsExtent=cfg["trackEndsExtent"], orientation=self.__orientation)
-        self.appendChild(self.__trackNode)
+        self._trackNode = ScrollBarTrack(bmp=trackBmp, disabledBmp=trackBmp,
+                endsExtent=cfg["trackEndsExtent"], orientation=self._orientation)
+        self.appendChild(self._trackNode)
 
-        thumbBmp = cfg["thumbBmp"]
+        thumbUpBmp = cfg["thumbUpBmp"]
         endsExtent=cfg["thumbEndsExtent"]
 
-        self.__thumbNode = ScrollBarThumb(orientation=self.__orientation, 
-                upBmp=thumbBmp, downBmp=thumbBmp, disabledBmp=thumbBmp,
+        self.__thumbNode = ScrollBarThumb(orientation=self._orientation, 
+                upBmp=thumbUpBmp, downBmp=thumbUpBmp, disabledBmp=thumbUpBmp,
                 endsExtent=endsExtent)
         self.appendChild(self.__thumbNode)
 
@@ -118,35 +118,35 @@ class ProgressBar(avg.DivNode):
             self.size = (width, trackBmp.getSize().y)
         else:
             self.size = (trackBmp.getSize().x, height)
-        self.__positionNodes()
+        self._positionNodes()
 
     def getRange(self):
         return self.__range
 
     def setRange(self, range):
         self.__range = (float(range[0]), float(range[1]))
-        self.__positionNodes()
+        self._positionNodes()
     range = property(getRange, setRange)
 
     def getValue(self):
         return self.__value
 
     def setValue(self, value):
-        self.__positionNodes(value)
+        self._positionNodes(value)
     value = property(getValue, setValue)
 
-    def __positionNodes(self, newValue=None):
+    def _positionNodes(self, newValue=None):
         if newValue is not None:
             self.__value = float(newValue)
         if self.__value < self.__range[0]:
             self.__value = self.__range[0]
         if self.__value > self.__range[1]:
             self.__value = self.__range[1]
-        self.__trackNode.size = self.size
+        self._trackNode.size = self.size
                  
         effectiveRange = math.fabs(self.__range[1] - self.__range[0])
         normValue = ((self.__value-self.__range[0])/effectiveRange) 
-        if self.__orientation == Orientation.HORIZONTAL:
+        if self._orientation == Orientation.HORIZONTAL:
             self.__thumbNode.width = normValue*self.size.x
         else:
             self.__thumbNode.height = normValue*self.size.y

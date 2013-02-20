@@ -4,3 +4,4 @@ from keyboard import Keyboard
 from scrollarea import ScrollPane, ScrollArea
 from skin import Skin
 from slider import Slider, ScrollBar, ScrollBarTrack, ScrollBarThumb, SliderThumb, ProgressBar
+from mediacontrol import TimeSlider

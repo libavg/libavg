@@ -18,7 +18,8 @@
   <xsd:complexType name="ProgressBarDef">
     <xsd:attribute name="trackSrc" type="xsd:string" use="required"/>
     <xsd:attribute name="trackEndsExtent" type="xsd:integer"/>
-    <xsd:attribute name="thumbSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="thumbUpSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="thumbDisabledSrc" type="xsd:string"/>
     <xsd:attribute name="thumbEndsExtent" type="xsd:integer"/>
   </xsd:complexType>
   <xsd:simpleType name="bool">

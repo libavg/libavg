@@ -631,29 +631,36 @@ class WidgetTestCase(AVGTestCase):
             else:
                 self.node.height=60
 
+        sys.stderr.write("\n")
         for orientation, orName in (
                 (widget.Orientation.HORIZONTAL, "Horiz"),
                 (widget.Orientation.VERTICAL, "Vert")):
-            root = self.loadEmptyScene()
-            self.node = widget.Slider(orientation=orientation, pos=(20,20), 
-                    width=100, height=100, parent=root)
-            self.start(False,
-                    (lambda: self.compareImage("testSlider"+orName+"1"),
-                     lambda: self.node.setThumbPos(0.25),
-                     lambda: self.compareImage("testSlider"+orName+"2"),
-                     lambda: self.node.setThumbPos(1),
-                     lambda: self.compareImage("testSlider"+orName+"3"),
-                     lambda: self.node.setRange((1,10)),
-                     lambda: self.compareImage("testSlider"+orName+"1"),
-                     lambda: self.node.setRange((10,1)),
-                     lambda: self.compareImage("testSlider"+orName+"3"),
-                     setSize,
-                     lambda: self.compareImage("testSlider"+orName+"4"),
-                     lambda: self.node.setEnabled(False),
-                     lambda: self.compareImage("testSlider"+orName+"5"),
-                     lambda: self.node.setEnabled(True),
-                     lambda: self.compareImage("testSlider"+orName+"4"),
-                    ))
+            for widgetType in ("Slider", "TimeSlider"):
+                sys.stderr.write("  "+widgetType+", "+orName+"\n")
+                root = self.loadEmptyScene()
+                if widgetType == "Slider":
+                    self.node = widget.Slider(orientation=orientation, pos=(20,20), 
+                            width=100, height=100, parent=root)
+                else:
+                    self.node = widget.TimeSlider(orientation=orientation, pos=(20,20), 
+                            width=100, height=100, parent=root)
+                self.start(False,
+                        (lambda: self.compareImage("test"+widgetType+orName+"1"),
+                         lambda: self.node.setThumbPos(0.25),
+                         lambda: self.compareImage("test"+widgetType+orName+"2"),
+                         lambda: self.node.setThumbPos(1),
+                         lambda: self.compareImage("test"+widgetType+orName+"3"),
+                         lambda: self.node.setRange((1,10)),
+                         lambda: self.compareImage("test"+widgetType+orName+"1"),
+                         lambda: self.node.setRange((10,1)),
+                         lambda: self.compareImage("test"+widgetType+orName+"3"),
+                         setSize,
+                         lambda: self.compareImage("test"+widgetType+orName+"4"),
+                         lambda: self.node.setEnabled(False),
+                         lambda: self.compareImage("test"+widgetType+orName+"5"),
+                         lambda: self.node.setEnabled(True),
+                         lambda: self.compareImage("test"+widgetType+orName+"4"),
+                        ))
 
 
     def testScrollBar(self):
@@ -768,15 +775,15 @@ class WidgetTestCase(AVGTestCase):
         self.node = widget.ProgressBar(orientation=widget.Orientation.HORIZONTAL,
                 pos=(5,5), width=100, parent=root)
         self.start(False,
-                (lambda: self.compareImage("testProgressBar1"),
+                (lambda: self.compareImage("test"+widgetType+"1"),
                  lambda: setValue(0.5),
-                 lambda: self.compareImage("testProgressBar2"),
+                 lambda: self.compareImage("test"+widgetType+"2"),
                  lambda: setValue(1),
-                 lambda: self.compareImage("testProgressBar3"),
+                 lambda: self.compareImage("test"+widgetType+"3"),
                  lambda: setRange((23,42)),
-                 lambda: self.compareImage("testProgressBar1"),
+                 lambda: self.compareImage("test"+widgetType+"1"),
                  lambda: setValue(32.5),
-                 lambda: self.compareImage("testProgressBar2"),
+                 lambda: self.compareImage("test"+widgetType+"2"),
                 ))
     
     def testScrollArea(self):

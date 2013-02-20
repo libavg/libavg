@@ -130,7 +130,6 @@ class Skin:
                         pyArgNames=("trackEndsExtent", "thumbEndsExtent"),
                         bmpArgNames={"trackSrc": "trackBmp", 
                                 "trackDisabledSrc": "trackDisabledBmp",
-                                "thumbSrc": "thumbBmp",
                                 "thumbUpSrc": "thumbUpBmp",
                                 "thumbDownSrc": "thumbDownBmp",
                                 "thumbDisabledSrc": "thumbDisabledBmp"})
