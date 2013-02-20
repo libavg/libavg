@@ -75,6 +75,21 @@
             <xsd:attribute name="disabledFont" type="xsd:IDREF"/>
           </xsd:complexType>
         </xsd:element>
+        <xsd:element name="mediacontrol" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="playUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="playDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="playDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="pauseUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="pauseDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="pauseDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="font" type="xsd:IDREF" use="required"/>
+            <xsd:attribute name="timePos" type="xsd:string" use="required"/>
+            <xsd:attribute name="timeLeftPos" type="xsd:string" use="required"/>
+            <xsd:attribute name="barPos" type="xsd:string" use="required"/>
+          </xsd:complexType>
+        </xsd:element>
         <xsd:element name="slider" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:all>
@@ -87,7 +102,8 @@
         <xsd:element name="scrollbar" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:all>
-              <xsd:element name="vertical" type="ScrollBarDef" minOccurs="1" maxOccurs="1"/>
+              <xsd:element name="vertical" type="ScrollBarDef" minOccurs="1"
+                  maxOccurs="1"/>
               <xsd:element name="horizontal" type="ScrollBarDef" minOccurs="1" 
                   maxOccurs="1"/>
             </xsd:all>
@@ -96,7 +112,8 @@
         <xsd:element name="progressbar" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:all>
-              <xsd:element name="vertical" type="ProgressBarDef" minOccurs="1" maxOccurs="1"/>
+              <xsd:element name="vertical" type="ProgressBarDef" minOccurs="1"
+                  maxOccurs="1"/>
               <xsd:element name="horizontal" type="ProgressBarDef" minOccurs="1" 
                   maxOccurs="1"/>
             </xsd:all>
