@@ -19,9 +19,7 @@
 # Current versions can be found at www.libavg.de
 
 from libavg import avg
-from . import slider, skin
-
-import math
+from . import slider, button, skin
 
 class TimeSlider(slider.Slider):
 
@@ -54,4 +52,47 @@ class TimeSlider(slider.Slider):
                 self.__progressThumb.width = self._thumbNode.x+self._thumbNode.width/2
             else:
                 self.__progressThumb.height = self._thumbNode.y+self._thumbNode.height/2
-        
+
+
+class MediaControl(avg.DivNode):
+
+    PLAY_CLICKED = avg.Publisher.genMessageID()
+    PAUSE_CLICKED = avg.Publisher.genMessageID()
+    SEEK_PRESSED = avg.Publisher.genMessageID()
+    SEEK_MOVED = avg.Publisher.genMessageID()
+    SEEK_RELEASED = avg.Publisher.genMessageID()
+
+    def __init__(self, skinObj=skin.Skin.default, **kwargs):
+        super(MediaControl, self).__init__(**kwargs)
+        mediaDir = skin.defaultMediaDir
+
+        # Create TimeSlider, playButton, time displays
+        # subscribe to button & slider changes
+        self._playButton = button.BmpToggleButton(
+                uncheckedUpSrc=mediaDir+"play_button_up.png",
+                uncheckedDownSrc=mediaDir+"play_button_down.png",
+                checkedUpSrc=mediaDir+"pause_button_up.png",
+                checkedDownSrc=mediaDir+"pause_button_down.png",
+                parent=self)
+
+        self.publish(MediaControl.PLAY_CLICKED)
+        self.publish(MediaControl.PAUSE_CLICKED)
+        self.publish(MediaControl.SEEK_PRESSED)
+        self.publish(MediaControl.SEEK_MOVED)
+        self.publish(MediaControl.SEEK_RELEASED)
+
+    def play():
+        # Set playButton state
+        pass
+
+    def pause():
+        # Set playButton state
+        pass
+
+    def setDuration(duration):
+        # Set TimeSlider range
+        pass
+
+    def setTime(curTime):
+        # Set TimeSlider pos, time displays
+        pass

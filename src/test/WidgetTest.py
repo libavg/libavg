@@ -775,15 +775,15 @@ class WidgetTestCase(AVGTestCase):
         self.node = widget.ProgressBar(orientation=widget.Orientation.HORIZONTAL,
                 pos=(5,5), width=100, parent=root)
         self.start(False,
-                (lambda: self.compareImage("test"+widgetType+"1"),
+                (lambda: self.compareImage("testProgressBar1"),
                  lambda: setValue(0.5),
-                 lambda: self.compareImage("test"+widgetType+"2"),
+                 lambda: self.compareImage("testProgressBar2"),
                  lambda: setValue(1),
-                 lambda: self.compareImage("test"+widgetType+"3"),
+                 lambda: self.compareImage("testProgressBar3"),
                  lambda: setRange((23,42)),
-                 lambda: self.compareImage("test"+widgetType+"1"),
+                 lambda: self.compareImage("testProgressBar1"),
                  lambda: setValue(32.5),
-                 lambda: self.compareImage("test"+widgetType+"2"),
+                 lambda: self.compareImage("testProgressBar2"),
                 ))
     
     def testScrollArea(self):
