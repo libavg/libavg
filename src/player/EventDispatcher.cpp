@@ -65,7 +65,6 @@ void EventDispatcher::dispatch()
     vector<EventPtr>::iterator it;
     for (it = events.begin(); it != events.end(); ++it) {
         EventPtr pEvent = *it;
-//        cerr << "  " << pEvent->typeStr() << ", " << pEvent->getSource() << endl;
         bool bHookEatsEvent = processEventHook(pEvent);
         if (!(!m_bMouseEnabled && pEvent->getSource() == Event::MOUSE) &&
                 !bHookEatsEvent) {

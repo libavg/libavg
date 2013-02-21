@@ -1547,13 +1547,11 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
             NodePtr pNode = *it;
             if (pNode->getState() != Node::NS_UNCONNECTED) {
-                CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
-                        pEvent->cloneAs(pEvent->getType()));
-                pNodeEvent->setNode(pNode);
-                if (pNodeEvent->getType() != Event::CURSOR_MOTION) {
-                    pNodeEvent->trace();
+                pEvent->setNode(pNode);
+                if (pEvent->getType() != Event::CURSOR_MOTION) {
+                    pEvent->trace();
                 }
-                if (pNode->handleEvent(pNodeEvent) == true) {
+                if (pNode->handleEvent(pEvent) == true) {
                     // stop bubbling
                     break;
                 }
