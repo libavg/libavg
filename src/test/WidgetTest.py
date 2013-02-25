@@ -790,6 +790,9 @@ class WidgetTestCase(AVGTestCase):
         
         root = self.loadEmptyScene()
         self.node = widget.MediaControl(size=(160,30), parent=root)
+        self.messageTester = MessageTester(self.node, 
+                [widget.MediaControl.PLAY_CLICKED, widget.MediaControl.PAUSE_CLICKED],
+                self)
         self.start(False,
                 (lambda: self.compareImage("testMediaControl1"),
                  lambda: self.node.setDuration(60*1000),
@@ -798,6 +801,18 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self.compareImage("testMediaControl3"),
                  lambda: self.node.setTime(60*1000),
                  lambda: self.compareImage("testMediaControl4"),
+                 lambda: self.node.play(),
+                 lambda: self.compareImage("testMediaControl5"),
+                 lambda: self.node.pause(),
+                 lambda: self.compareImage("testMediaControl4"),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 1, 1),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 1, 1),
+                 lambda: self.messageTester.assertState(
+                        [widget.MediaControl.PLAY_CLICKED,]),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 1, 1),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 1, 1),
+                 lambda: self.messageTester.assertState(
+                        [widget.MediaControl.PAUSE_CLICKED,]),
                 ))
 
     def testScrollArea(self):

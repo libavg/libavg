@@ -80,6 +80,7 @@ class MediaControl(avg.DivNode):
                 checkedDisabledNode=self.__createImageNode(cfg, "pauseDisabledBmp", 
                         "pauseUpBmp"),
                 parent=self)
+        self._playButton.subscribe(button.ToggleButton.TOGGLED, self.__onTogglePlay)
 
         sliderWidth = self.width + cfg["barRight"] - cfg["barPos"][0]
         self._timeSlider = TimeSlider(skinObj=skinObj, pos=cfg["barPos"],
@@ -101,12 +102,10 @@ class MediaControl(avg.DivNode):
         self.publish(MediaControl.SEEK_RELEASED)
 
     def play(self):
-        # Set playButton state
-        pass
+        self._playButton.checked = True
 
     def pause(self):
-        # Set playButton state
-        pass
+        self._playButton.checked = False
 
     def getDuration(self):
         return self._timeSlider.range[1]
@@ -124,6 +123,12 @@ class MediaControl(avg.DivNode):
         self.__updateText()
     time = property(getTime, setTime)
 
+    def __onTogglePlay(self, play):
+        if play:
+            self.notifySubscribers(MediaControl.PLAY_CLICKED, [])
+        else:
+            self.notifySubscribers(MediaControl.PAUSE_CLICKED, [])
+            
     def __updateText(self):
         self._timeNode.text = self.__msToMinSec(self._timeSlider.thumbPos)
         self._timeLeftNode.text = "-"+self.__msToMinSec(
@@ -136,7 +141,7 @@ class MediaControl(avg.DivNode):
         return node
 
     def __msToMinSec(self, ms):
-        minutes, ms = divmod(ms,60000)
+        minutes, ms = divmod(ms, 60000)
         seconds, ms = divmod(ms, 1000)
-        return "%02d:%02d"%(minutes, seconds)
+        return "%d:%02d"%(minutes, seconds)
 
