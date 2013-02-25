@@ -145,16 +145,11 @@ bool WorkerThread<DERIVED_THREAD>::init()
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::processCommands()
 {
-    try {
-        CmdPtr pCmd = m_CmdQ.pop(false);
-        while (pCmd) {
-            pCmd->execute(dynamic_cast<DERIVED_THREAD*>(this));
-            pCmd = m_CmdQ.pop(false);
-        }
-    } catch (const Exception& e) {
-        AVG_LOG_ERROR("Uncaught exception in thread " << m_sName << ": " << e.getStr());
+    CmdPtr pCmd = m_CmdQ.pop(false);
+    while (pCmd) {
+        pCmd->execute(dynamic_cast<DERIVED_THREAD*>(this));
+        pCmd = m_CmdQ.pop(false);
     }
-   
 }
 
 }
