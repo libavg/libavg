@@ -25,6 +25,14 @@ class Orientation():
     HORIZONTAL = 1
 
 
+def bmpFromSrc(src):
+    if isinstance(src, basestring):
+        return avg.Bitmap(src)
+    elif isinstance(src, avg.Bitmap):
+        return src
+    else:
+        raise RuntimeError("src must be a string or a Bitmap.")
+
 class StretchNodeBase(avg.DivNode):
     
     def __init__(self, src=None, parent=None, **kwargs):
@@ -33,7 +41,7 @@ class StretchNodeBase(avg.DivNode):
         if isinstance(src, avg.Bitmap):
             self._bmp = src
         else:
-            self._bmp = self._bmpFromSrc(src)
+            self._bmp = bmpFromSrc(src)
        
         self.subscribe(self.SIZE_CHANGED, self._positionNodes)
 
@@ -46,14 +54,6 @@ class StretchNodeBase(avg.DivNode):
         else:
             player.subscribe(avg.Player.PLAYBACK_START, self._renderImages)
 
-    def _bmpFromSrc(self, src):
-        if isinstance(src, basestring):
-            return avg.Bitmap(src)
-        elif isinstance(src, avg.Bitmap):
-            return src
-        else:
-            raise RuntimeError("src must be a string or a Bitmap.")
-        
     def _setSizeFromBmp(self, bmp):
         size = bmp.getSize()
         if self.width == 0:

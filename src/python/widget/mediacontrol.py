@@ -30,9 +30,9 @@ class TimeSlider(slider.Slider):
                 **kwargs)
 
         if self._orientation == slider.Orientation.HORIZONTAL:
-            progressCfg= skinObj.defaultProgressBarCfg["horizontal"]
+            progressCfg = skinObj.defaultProgressBarCfg["horizontal"]
         else:
-            progressCfg= skinObj.defaultProgressBarCfg["vertical"]
+            progressCfg = skinObj.defaultProgressBarCfg["vertical"]
         
         thumbUpBmp = progressCfg["thumbUpBmp"]
         thumbDisabledBmp = skin.getBmpFromCfg(progressCfg, "thumbDisabledBmp",
@@ -62,18 +62,35 @@ class MediaControl(avg.DivNode):
     SEEK_MOVED = avg.Publisher.genMessageID()
     SEEK_RELEASED = avg.Publisher.genMessageID()
 
-    def __init__(self, skinObj=skin.Skin.default, **kwargs):
+    def __init__(self, skinObj=skin.Skin.default, parent=None, **kwargs):
         super(MediaControl, self).__init__(**kwargs)
-        mediaDir = skin.defaultMediaDir
+        self.registerInstance(self, parent)
 
-        # Create TimeSlider, playButton, time displays
+        cfg = skinObj.defaultMediaControlCfg
+
         # subscribe to button & slider changes
-        self._playButton = button.BmpToggleButton(
-                uncheckedUpSrc=mediaDir+"play_button_up.png",
-                uncheckedDownSrc=mediaDir+"play_button_down.png",
-                checkedUpSrc=mediaDir+"pause_button_up.png",
-                checkedDownSrc=mediaDir+"pause_button_down.png",
+        self._playButton = button.ToggleButton(
+                uncheckedUpNode=self.__createImageNode(cfg, "playUpBmp"),
+                uncheckedDownNode=self.__createImageNode(cfg, "playDownBmp"),
+                uncheckedDisabledNode=self.__createImageNode(cfg, "playDisabledBmp", 
+                        "playUpBmp"),
+                checkedUpNode=self.__createImageNode(cfg, "pauseUpBmp"),
+                checkedDownNode=self.__createImageNode(cfg, "pauseDownBmp"),
+                checkedDisabledNode=self.__createImageNode(cfg, "pauseDisabledBmp", 
+                        "pauseUpBmp"),
                 parent=self)
+
+        sliderWidth = self.width + cfg["barRight"] - cfg["barPos"][0]
+        self._timeSlider = TimeSlider(skinObj=skinObj, pos=cfg["barPos"],
+                width=sliderWidth, parent=self)
+
+        self._timeNode = avg.WordsNode(pos=cfg["timePos"], fontstyle=cfg["font"],
+                color="FFFFFF", parent=self)
+        timeLeftPos = (self.width+cfg["timeLeftPos"][0], cfg["timeLeftPos"][1])
+        self._timeLeftNode = avg.WordsNode(pos=timeLeftPos, fontstyle=cfg["font"],
+                color="FFFFFF", parent=self)
+
+        self.setTime(0)
 
         self.publish(MediaControl.PLAY_CLICKED)
         self.publish(MediaControl.PAUSE_CLICKED)
@@ -81,18 +98,32 @@ class MediaControl(avg.DivNode):
         self.publish(MediaControl.SEEK_MOVED)
         self.publish(MediaControl.SEEK_RELEASED)
 
-    def play():
+    def play(self):
         # Set playButton state
         pass
 
-    def pause():
+    def pause(self):
         # Set playButton state
         pass
 
-    def setDuration(duration):
+    def setDuration(self, duration):
         # Set TimeSlider range
         pass
 
-    def setTime(curTime):
+    def setTime(self, curTime):
         # Set TimeSlider pos, time displays
+        self._timeNode.text = self.__msToMinSec(curTime)
+        self._timeLeftNode.text = self.__msToMinSec(curTime)
         pass
+
+    def __createImageNode(self, cfg, src, defaultSrc=None):
+        bmp = skin.getBmpFromCfg(cfg, src, defaultSrc)
+        node = avg.ImageNode()
+        node.setBitmap(bmp)
+        return node
+
+    def __msToMinSec(self, ms):
+        minutes, ms = divmod(ms,60000)
+        seconds, ms = divmod(ms, 1000)
+        return "%02d:%02d"%(minutes, seconds)
+

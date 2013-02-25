@@ -785,7 +785,16 @@ class WidgetTestCase(AVGTestCase):
                  lambda: setValue(32.5),
                  lambda: self.compareImage("testProgressBar2"),
                 ))
-    
+   
+    def testMediaControl(self):
+        
+        root = self.loadEmptyScene()
+        self.node = widget.MediaControl(size=(160,30), parent=root)
+
+        self.start(False,
+                (lambda: self.compareImage("testMediaControl1"),
+                ))
+
     def testScrollArea(self):
         def setSize(size):
             self.node.size = size
@@ -815,6 +824,7 @@ def widgetTestSuite(tests):
         "testSlider",
         "testScrollBar",
         "testProgressBar",
+        "testMediaControl",
         "testScrollArea",
         )
 

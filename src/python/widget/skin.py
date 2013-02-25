@@ -79,6 +79,17 @@ class Skin:
                         "sensitiveScrollBars"),
                 bmpArgNames={"borderSrc":"borderBmp"})
 
+        self.mediaControlCfg, self.defaultMediaControlCfg = self.__parseElement(
+                xmlRoot, "mediacontrol",
+                bmpArgNames={"playUpSrc":"playUpBmp", 
+                        "playDownSrc":"playDownBmp",
+                        "playDisabledSrc":"playDisabledBmp",
+                        "pauseUpSrc":"pauseUpBmp", 
+                        "pauseDownSrc":"pauseDownBmp",
+                        "pauseDisabledSrc":"pauseDisabledBmp"},
+                pyArgNames=("timePos", "timeLeftPos", "barPos", "barRight"),
+                fontArgNames=("font"))
+
     def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={}, 
             fontArgNames=()):
         cfgMap = {}
@@ -138,7 +149,7 @@ class Skin:
         return (sliderCfg, defaultSliderCfg)
     
 
-def getBmpFromCfg(cfg, bmpName, defaultName):
+def getBmpFromCfg(cfg, bmpName, defaultName=None):
     if bmpName in cfg:
         return cfg[bmpName]
     else:

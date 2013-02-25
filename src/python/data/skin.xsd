@@ -88,6 +88,7 @@
             <xsd:attribute name="timePos" type="xsd:string" use="required"/>
             <xsd:attribute name="timeLeftPos" type="xsd:string" use="required"/>
             <xsd:attribute name="barPos" type="xsd:string" use="required"/>
+            <xsd:attribute name="barRight" type="xsd:string" use="required"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="slider" minOccurs="0" maxOccurs="unbounded">
