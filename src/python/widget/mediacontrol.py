@@ -59,7 +59,7 @@ class MediaControl(avg.DivNode):
     PLAY_CLICKED = avg.Publisher.genMessageID()
     PAUSE_CLICKED = avg.Publisher.genMessageID()
     SEEK_PRESSED = avg.Publisher.genMessageID()
-    SEEK_MOVED = avg.Publisher.genMessageID()
+    SEEK_MOTION = avg.Publisher.genMessageID()
     SEEK_RELEASED = avg.Publisher.genMessageID()
 
     def __init__(self, skinObj=skin.Skin.default, duration=1000, time=0, parent=None,
@@ -85,6 +85,9 @@ class MediaControl(avg.DivNode):
         sliderWidth = self.width + cfg["barRight"] - cfg["barPos"][0]
         self._timeSlider = TimeSlider(skinObj=skinObj, pos=cfg["barPos"],
                 width=sliderWidth, parent=self)
+        self._timeSlider.subscribe(TimeSlider.PRESSED, self.__onSliderPressed)
+        self._timeSlider.subscribe(TimeSlider.RELEASED, self.__onSliderReleased)
+        self._timeSlider.subscribe(TimeSlider.THUMB_POS_CHANGED, self.__onSliderMotion)
 
         self._timeNode = avg.WordsNode(pos=cfg["timePos"], fontstyle=cfg["font"],
                 color="FFFFFF", parent=self)
@@ -98,7 +101,7 @@ class MediaControl(avg.DivNode):
         self.publish(MediaControl.PLAY_CLICKED)
         self.publish(MediaControl.PAUSE_CLICKED)
         self.publish(MediaControl.SEEK_PRESSED)
-        self.publish(MediaControl.SEEK_MOVED)
+        self.publish(MediaControl.SEEK_MOTION)
         self.publish(MediaControl.SEEK_RELEASED)
 
     def play(self):
@@ -128,7 +131,17 @@ class MediaControl(avg.DivNode):
             self.notifySubscribers(MediaControl.PLAY_CLICKED, [])
         else:
             self.notifySubscribers(MediaControl.PAUSE_CLICKED, [])
-            
+
+    def __onSliderPressed(self):
+        self.notifySubscribers(MediaControl.SEEK_PRESSED, [])
+
+    def __onSliderReleased(self):
+        self.notifySubscribers(MediaControl.SEEK_RELEASED, [])
+
+    def __onSliderMotion(self, curTime):
+        self.__updateText()
+        self.notifySubscribers(MediaControl.SEEK_MOTION, [curTime])
+
     def __updateText(self):
         self._timeNode.text = self.__msToMinSec(self._timeSlider.thumbPos)
         self._timeLeftNode.text = "-"+self.__msToMinSec(

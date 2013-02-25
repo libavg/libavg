@@ -788,11 +788,16 @@ class WidgetTestCase(AVGTestCase):
    
     def testMediaControl(self):
         
+        def onSeek(time):
+            self.messageTester.setMessageReceived(widget.MediaControl.SEEK_MOTION)
+
         root = self.loadEmptyScene()
         self.node = widget.MediaControl(size=(160,30), parent=root)
         self.messageTester = MessageTester(self.node, 
-                [widget.MediaControl.PLAY_CLICKED, widget.MediaControl.PAUSE_CLICKED],
+                [widget.MediaControl.PLAY_CLICKED, widget.MediaControl.PAUSE_CLICKED,
+                 widget.MediaControl.SEEK_PRESSED, widget.MediaControl.SEEK_RELEASED],
                 self)
+        self.node.subscribe(widget.MediaControl.SEEK_MOTION, onSeek)
         self.start(False,
                 (lambda: self.compareImage("testMediaControl1"),
                  lambda: self.node.setDuration(60*1000),
@@ -805,6 +810,7 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self.compareImage("testMediaControl5"),
                  lambda: self.node.pause(),
                  lambda: self.compareImage("testMediaControl4"),
+                 self.messageTester.reset,
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 1, 1),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 1, 1),
                  lambda: self.messageTester.assertState(
@@ -813,6 +819,18 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 1, 1),
                  lambda: self.messageTester.assertState(
                         [widget.MediaControl.PAUSE_CLICKED,]),
+                 lambda: self.node.setTime(0),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 56, 5),
+                 lambda: self.messageTester.assertState(
+                        [widget.MediaControl.SEEK_PRESSED,
+                         widget.MediaControl.SEEK_MOTION]),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 150, 5),
+                 lambda: self.messageTester.assertState(
+                        [widget.MediaControl.SEEK_MOTION,]),
+                 lambda: self.compareImage("testMediaControl4"),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 150, 5),
+                 lambda: self.messageTester.assertState(
+                        [widget.MediaControl.SEEK_RELEASED,]),
                 ))
 
     def testScrollArea(self):
