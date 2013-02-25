@@ -78,6 +78,6 @@
             font="stdFont"
             timePos="(15,0)"
             timeLeftPos="(-42,0)"
-            barPos="(55,1)"
+            barPos="(55,2)"
             barRight="-45"/>
 </skin>

@@ -62,7 +62,8 @@ class MediaControl(avg.DivNode):
     SEEK_MOVED = avg.Publisher.genMessageID()
     SEEK_RELEASED = avg.Publisher.genMessageID()
 
-    def __init__(self, skinObj=skin.Skin.default, parent=None, **kwargs):
+    def __init__(self, skinObj=skin.Skin.default, duration=1000, time=0, parent=None,
+            **kwargs):
         super(MediaControl, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
@@ -90,7 +91,8 @@ class MediaControl(avg.DivNode):
         self._timeLeftNode = avg.WordsNode(pos=timeLeftPos, fontstyle=cfg["font"],
                 color="FFFFFF", parent=self)
 
-        self.setTime(0)
+        self.setDuration(duration)
+        self.setTime(time)
 
         self.publish(MediaControl.PLAY_CLICKED)
         self.publish(MediaControl.PAUSE_CLICKED)
@@ -106,15 +108,26 @@ class MediaControl(avg.DivNode):
         # Set playButton state
         pass
 
+    def getDuration(self):
+        return self._timeSlider.range[1]
+
     def setDuration(self, duration):
-        # Set TimeSlider range
-        pass
+        self._timeSlider.range = (0, duration)
+        self.__updateText()
+    duration = property(getDuration, setDuration)
+
+    def getTime(self):
+        return self._timeSlider.thumbPos
 
     def setTime(self, curTime):
-        # Set TimeSlider pos, time displays
-        self._timeNode.text = self.__msToMinSec(curTime)
-        self._timeLeftNode.text = self.__msToMinSec(curTime)
-        pass
+        self._timeSlider.thumbPos = curTime
+        self.__updateText()
+    time = property(getTime, setTime)
+
+    def __updateText(self):
+        self._timeNode.text = self.__msToMinSec(self._timeSlider.thumbPos)
+        self._timeLeftNode.text = "-"+self.__msToMinSec(
+                (self._timeSlider.range[1]-self._timeSlider.thumbPos))
 
     def __createImageNode(self, cfg, src, defaultSrc=None):
         bmp = skin.getBmpFromCfg(cfg, src, defaultSrc)

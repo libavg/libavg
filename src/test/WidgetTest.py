@@ -790,9 +790,14 @@ class WidgetTestCase(AVGTestCase):
         
         root = self.loadEmptyScene()
         self.node = widget.MediaControl(size=(160,30), parent=root)
-
         self.start(False,
                 (lambda: self.compareImage("testMediaControl1"),
+                 lambda: self.node.setDuration(60*1000),
+                 lambda: self.compareImage("testMediaControl2"),
+                 lambda: self.node.setTime(30*1000),
+                 lambda: self.compareImage("testMediaControl3"),
+                 lambda: self.node.setTime(60*1000),
+                 lambda: self.compareImage("testMediaControl4"),
                 ))
 
     def testScrollArea(self):
