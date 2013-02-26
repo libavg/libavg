@@ -89,7 +89,8 @@ class AVG_API OGLShader {
         std::vector<GLShaderParamPtr> m_pParams;
         Mat4fGLShaderParamPtr m_pTransformParam;
 
-        ShaderRegistryPtr m_pShaderRegistry;
+        // Dumb pointer for speed reasons.
+        ShaderRegistry* m_pShaderRegistry;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;

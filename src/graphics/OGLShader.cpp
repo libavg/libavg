@@ -72,7 +72,7 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
         dumpInfoLog(m_hFragmentShader, Logger::severity::INFO);
         dumpInfoLog(m_hProgram, Logger::severity::INFO, true);
     }
-    m_pShaderRegistry = ShaderRegistry::get();
+    m_pShaderRegistry = &*ShaderRegistry::get();
     if (m_hVertexShader) {
         m_pTransformParam = getParam<glm::mat4>("transform");
     }

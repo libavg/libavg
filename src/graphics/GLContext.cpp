@@ -95,6 +95,10 @@ GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize,
     m_GLConfig = glConfig;
 }
 
+GLContext::~GLContext()
+{
+}
+
 void GLContext::init(bool bOwnsContext)
 {
     m_bOwnsContext = bOwnsContext;

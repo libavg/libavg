@@ -200,6 +200,9 @@ void deletePlayer()
 Player::~Player()
 {
     m_pMainCanvas = MainCanvasPtr();
+    if (m_pDisplayEngine) {
+        m_pDisplayEngine->teardown();
+    }
     SDLDisplayEngine::quitSDL();
 }
 
@@ -1271,6 +1274,7 @@ void Player::initGraphics(const string& sShaderPath)
     if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
             m_pDisplayEngine->isFullscreen() == true) 
     {
+        m_pDisplayEngine->teardown();
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
