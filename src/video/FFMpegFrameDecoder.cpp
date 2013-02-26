@@ -242,14 +242,16 @@ bool FFMpegFrameDecoder::isEOF() const
 
 float FFMpegFrameDecoder::getFrameTime(long long dts, bool bFrameAfterSeek)
 {
+    bool bUseStreamFPS = m_bUseStreamFPS;
     if (dts == (long long)AV_NOPTS_VALUE) {
+        bUseStreamFPS = false;
         dts = 0;
     }
     if (m_StartTimestamp == -1) {
         m_StartTimestamp = dts;
     }
     float frameTime;
-    if (m_bUseStreamFPS || bFrameAfterSeek) {
+    if (bUseStreamFPS || bFrameAfterSeek) {
         frameTime = float(dts-m_StartTimestamp)/m_TimeUnitsPerSecond;
     } else {
         if (m_LastFrameTime == -1) {
