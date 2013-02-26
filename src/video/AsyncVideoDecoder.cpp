@@ -336,7 +336,6 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
 //                << ", diff: " << timeWanted-m_LastAudioFrameTime << endl;
     }
     m_bWasSeeking = isSeeking();
-
     if ((!bVSeekDone &&
             (isVSeeking() ||
              fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
@@ -450,7 +449,7 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
 
 void AsyncVideoDecoder::handleVSeekDone(AudioMsgPtr pMsg)
 {
-    m_LastVideoFrameTime = pMsg->getSeekTime();
+    m_LastVideoFrameTime = pMsg->getSeekTime() - 1/m_FPS;
     if (m_NumVSeeksDone < pMsg->getSeekSeqNum()) {
         m_NumVSeeksDone = pMsg->getSeekSeqNum();
     }
