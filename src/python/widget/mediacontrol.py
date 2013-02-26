@@ -114,7 +114,7 @@ class MediaControl(avg.DivNode):
         return self._timeSlider.range[1]
 
     def setDuration(self, duration):
-        self._timeSlider.range = (0, duration)
+        self._timeSlider.range = (0, duration-100)
         self.__updateText()
     duration = property(getDuration, setDuration)
 

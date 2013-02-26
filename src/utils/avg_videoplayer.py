@@ -35,7 +35,7 @@ class VideoPlayer(AVGApp):
         AVGApp.__init__(self, parentNode)
 
     def init(self):
-        self.node = avg.VideoNode(href=args[0], loop=True, 
+        self.node = avg.VideoNode(href=args[0], 
                 accelerated=not(options.disableAccel))
         self.node.play()
         self.node.x = (self._parentNode.width-self.node.width)/2

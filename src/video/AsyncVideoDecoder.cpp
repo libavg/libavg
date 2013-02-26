@@ -157,6 +157,8 @@ void AsyncVideoDecoder::close()
 void AsyncVideoDecoder::seek(float destTime)
 {
     AVG_ASSERT(getState() == DECODING);
+    m_bAudioEOF = false;
+    m_bVideoEOF = false;
     m_NumSeeksSent++;
     m_pDemuxCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, m_NumSeeksSent,
             destTime));
