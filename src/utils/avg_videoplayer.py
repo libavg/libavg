@@ -23,9 +23,11 @@
 
 import sys
 import optparse
-from libavg import avg, AVGApp, player
+from libavg import avg, AVGApp, player, widget
 
 class VideoPlayer(AVGApp):
+
+    CONTROL_WIDTH=240
 
     def __init__(self, parentNode):
         if options.fullscreen:
@@ -36,15 +38,27 @@ class VideoPlayer(AVGApp):
         self.node = avg.VideoNode(href=args[0], loop=True, 
                 accelerated=not(options.disableAccel))
         self.node.play()
+        self.node.x = (self._parentNode.width-self.node.width)/2
+        self.node.y = (self._parentNode.height-self.node.height)/2
+       
         if self.node.hasAlpha():
             self.__makeAlphaBackground()
         self._parentNode.appendChild(self.node)
         self.curFrameWords = avg.WordsNode(parent=self._parentNode, pos=(10, 10), 
                 fontsize=10)
-        self.curTimeWords = avg.WordsNode(parent=self._parentNode, pos=(10, 22), 
+        self.framesQueuedWords = avg.WordsNode(parent=self._parentNode, pos=(10, 22), 
                 fontsize=10)
-        self.framesQueuedWords = avg.WordsNode(parent=self._parentNode, pos=(10, 34), 
-                fontsize=10)
+
+        controlPos = ((self._parentNode.width-VideoPlayer.CONTROL_WIDTH)/2, 
+                self._parentNode.height-25)
+        self.videoControl = widget.MediaControl(pos=controlPos, 
+                size=(VideoPlayer.CONTROL_WIDTH, 20), 
+                duration=self.node.getDuration(),
+                parent=self._parentNode)
+        self.videoControl.play()
+        self.videoControl.subscribe(widget.MediaControl.PLAY_CLICKED, self.onPlay)
+        self.videoControl.subscribe(widget.MediaControl.PAUSE_CLICKED, self.onPause)
+        self.videoControl.subscribe(widget.MediaControl.SEEK_MOTION, self.onSeek)
 
         player.subscribe(player.ON_FRAME, self.onFrame)
     
@@ -63,10 +77,18 @@ class VideoPlayer(AVGApp):
         curFrame = self.node.getCurFrame()
         numFrames = self.node.getNumFrames()
         self.curFrameWords.text = "Frame: %i/%i"%(curFrame, numFrames)
-        curVideoTime = self.node.getCurTime()
-        self.curTimeWords.text = "Time: "+str(curVideoTime/1000.0)
         framesQueued = self.node.getNumFramesQueued()
         self.framesQueuedWords.text = "Frames queued: "+str(framesQueued)
+        self.videoControl.time = self.node.getCurTime()
+
+    def onPlay(self):
+        self.node.play()
+
+    def onPause(self):
+        self.node.pause()
+
+    def onSeek(self, time):
+        self.node.seekToTime(int(time))
 
     def __makeAlphaBackground(self):
         SQUARESIZE=40
@@ -95,5 +117,7 @@ if len(args) == 0:
 
 argsNode = avg.VideoNode(href=args[0], loop=True, accelerated=False)
 argsNode.pause()
-VideoPlayer.start(resolution=argsNode.getMediaSize())
+size = argsNode.getMediaSize()
+size = (max(size.x, 320), max(size.y, 120))
+VideoPlayer.start(resolution=size)
 

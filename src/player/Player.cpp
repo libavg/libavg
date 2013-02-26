@@ -200,6 +200,9 @@ void deletePlayer()
 Player::~Player()
 {
     m_pMainCanvas = MainCanvasPtr();
+    if (m_pDisplayEngine) {
+        m_pDisplayEngine->teardown();
+    }
     SDLDisplayEngine::quitSDL();
 }
 
@@ -248,6 +251,11 @@ void Player::setWindowPos(int x, int y)
     errorIfPlaying("Player.setWindowPos");
     m_DP.m_Pos.x = x;
     m_DP.m_Pos.y = y;
+}
+
+void Player::setWindowTitle(const string& sTitle)
+{
+    m_pDisplayEngine->setWindowTitle(sTitle);
 }
 
 void Player::useGLES(bool bGLES)
@@ -1261,6 +1269,7 @@ void Player::initGraphics(const string& sShaderPath)
     if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
             m_pDisplayEngine->isFullscreen() == true) 
     {
+        m_pDisplayEngine->teardown();
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
@@ -1531,13 +1540,11 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
             NodePtr pNode = *it;
             if (pNode->getState() != Node::NS_UNCONNECTED) {
-                CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
-                        pEvent->cloneAs(pEvent->getType()));
-                pNodeEvent->setNode(pNode);
-                if (pNodeEvent->getType() != Event::CURSOR_MOTION) {
-                    pNodeEvent->trace();
+                pEvent->setNode(pNode);
+                if (pEvent->getType() != Event::CURSOR_MOTION) {
+                    pEvent->trace();
                 }
-                if (pNode->handleEvent(pNodeEvent) == true) {
+                if (pNode->handleEvent(pEvent) == true) {
                     // stop bubbling
                     break;
                 }

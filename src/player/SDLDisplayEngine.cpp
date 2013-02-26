@@ -256,6 +256,11 @@ IntPoint SDLDisplayEngine::calcWindowSize(const DisplayParams& dp) const
     AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
     return windowSize;
 }
+        
+void SDLDisplayEngine::setWindowTitle(const string& sTitle)
+{
+    SDL_WM_SetCaption(sTitle.c_str(), 0);
+}
 
 #ifdef _WIN32
 #pragma warning(disable: 4996)

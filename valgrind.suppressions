@@ -775,19 +775,18 @@
    fun:_ZNK3avg8FWCamera9getDeviceEv
 }
 {
-   fontconfig
-   Memcheck:Leak
-   fun:malloc
-   obj:/usr/lib/libfontconfig.so.1.3.0
-   obj:/usr/lib/libfontconfig.so.1.3.0
-   obj:/usr/lib/libfontconfig.so.1.3.0
-   obj:/usr/lib/libfontconfig.so.1.3.0
-   obj:/usr/lib/libexpat.so.1.5.2
-   obj:/usr/lib/libexpat.so.1.5.2
-   obj:/usr/lib/libexpat.so.1.5.2
-   obj:/usr/lib/libexpat.so.1.5.2
-   fun:XML_ParseBuffer
+   fontconfig1
+   Memcheck:Addr4
+   ...
    fun:FcConfigParseAndLoad
+   ...
+}
+{
+   fontconfig2
+   Memcheck:Leak
+   ...
+   fun:FcConfigParseAndLoad
+   ...
 }
 {
    libavcodec

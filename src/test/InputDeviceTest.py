@@ -23,6 +23,15 @@ from libavg import avg, player
 from testcase import *
 
 
+class CustomMouseEvent(avg.TouchEvent):
+    def __init__(self, eventId, eventType, pos, source):
+        super(CustomMouseEvent, self).__init__(eventId, eventType, pos, source)
+        self.customAttribute = None
+    
+    def customMethod(self):
+        pass
+
+
 class CustomInputDevice(avg.InputDevice):
     def __init__(self, eventReceiverNode=None):
         if eventReceiverNode:
@@ -70,10 +79,17 @@ class EventTestCase(AVGTestCase):
                 super(DerivedEvent, self).__init__(avg.Event.CUSTOM_EVENT, avg.Event.NONE)
                 self.property = True
                 
+        class CustomMouseEvent(avg.TouchEvent):
+            def __init__(self):
+                super(CustomMouseEvent, self).__init__(42, avg.Event.CURSOR_DOWN, 
+                        (10, 10), avg.Event.TOUCH)
+                self.customAttribute = None
+
         self.hasEventHandlerBeenCalled = False
         self.isCustomInputDeviceSet = False
         self.isCustomInputDeviceNameSet = False
         self.hasCustomEventProperty = False
+        self.customMouseEventHandlerCalled = False
         
         def eventHandler(event):
             self.hasEventHandlerBeenCalled = True
@@ -83,7 +99,11 @@ class EventTestCase(AVGTestCase):
         
         def customEventEventHandler(event):
             self.hasCustomEventProperty = event.property
-        
+
+        def customMouseEventHandler(event):
+            self.customMouseEventHandlerCalled = True
+            self.assert_(hasattr(event, "customAttribute"))
+
         def checkAndResetResults():
             if not self.hasEventHandlerBeenCalled: return False
             if not self.isCustomInputDeviceSet: return False
@@ -121,9 +141,13 @@ class EventTestCase(AVGTestCase):
                  lambda: self.customInputDevice.feedEvent(
                          avg.TouchEvent(300, avg.Event.CURSOR_DOWN, (5, 5), 
                                 avg.Event.TOUCH, (10,10))),
-                 lambda: self.assert_(checkAndResetResults())
+                 lambda: self.assert_(checkAndResetResults()),
+
+                 lambda: root.subscribe(avg.Node.CURSOR_DOWN, customMouseEventHandler),
+                 lambda: self.customInputDevice.feedEvent(CustomMouseEvent()),
+                 lambda: self.assert_(self.customMouseEventHandlerCalled),
                 ))
-    
+
     def testAnonymousInputDevice(self):
         root = self.loadEmptyScene()
         

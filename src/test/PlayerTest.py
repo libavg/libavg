@@ -37,12 +37,25 @@ class PlayerTestCase(AVGTestCase):
             ptMap[avg.Point2D(0,0)] = 2
             self.assertEqual(len(ptMap), 2)
             self.assertEqual(ptMap[avg.Point2D(0,0)], 2)
+        
+        def testToTupleConversion():
+            pt = avg.Point2D(10, 20)
+            tpl = tuple(pt)
+            self.assertEqual(pt.x, tpl[0])
+            self.assertEqual(pt.y, tpl[1])
+
+        def testFromTupleConversion():
+            tpl = (15, 20)
+            pt = avg.Point2D(tpl)
+            self.assertEqual(pt.x, tpl[0])
+            self.assertEqual(pt.y, tpl[1])
 
         pt = avg.Point2D()
         self.assertEqual(pt, avg.Point2D(0,0))
-        pt = avg.Point2D(10, 10)
+        pt = avg.Point2D(10, 20)
         self.assertEqual(pt[0], pt.x)
         self.assertEqual(pt[1], pt.y)
+        pt = avg.Point2D(10, 10)
         self.assertEqual(pt, avg.Point2D(10, 10))
         self.assertEqual(pt, (10, 10))
         self.assertEqual(pt, avg.Point2D([10, 10]))
@@ -51,6 +64,8 @@ class PlayerTestCase(AVGTestCase):
         pt2 = eval(repr(pt))
         self.assertEqual(pt2, pt)
         testHash()
+        testFromTupleConversion()
+        testToTupleConversion()
         self.assertAlmostEqual(avg.Point2D(10,0).getNormalized(), avg.Point2D(1,0))
         self.assertAlmostEqual(pt.getRotated(math.pi, (5,5)), avg.Point2D(0,0))
         self.assertEqual(-pt, (-10, -10))

@@ -154,6 +154,7 @@ class MediaControl(avg.DivNode):
         return node
 
     def __msToMinSec(self, ms):
+        ms += 500
         minutes, ms = divmod(ms, 60000)
         seconds, ms = divmod(ms, 1000)
         return "%d:%02d"%(minutes, seconds)

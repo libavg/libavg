@@ -45,7 +45,9 @@ X11Display::~X11Display()
 float X11Display::queryPPMM()
 {
     ::Display * pDisplay = XOpenDisplay(0);
-    return getScreenResolution().x/float(DisplayWidthMM(pDisplay, 0));
+    float ppmm = getScreenResolution().x/float(DisplayWidthMM(pDisplay, 0));
+    XCloseDisplay(pDisplay);
+    return ppmm;
 }
 
 IntPoint X11Display::queryScreenResolution()

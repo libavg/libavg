@@ -350,6 +350,7 @@ void export_base()
     // Exceptions
 
     translateException<exception>(PyExc_RuntimeError);
+    translateException<out_of_range>(PyExc_IndexError);
     translateException<Exception>(PyExc_RuntimeError);
     to_python_converter< exception, Exception_to_python_exception<exception> >();
     to_python_converter< Exception, Exception_to_python_exception<Exception> >();

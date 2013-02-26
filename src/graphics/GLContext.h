@@ -51,7 +51,7 @@ public:
 
     GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo);
-    virtual ~GLContext() {};
+    virtual ~GLContext();
 
     virtual void activate()=0;
     ShaderRegistryPtr getShaderRegistry() const;

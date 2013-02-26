@@ -148,7 +148,6 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
     }
     m_bSendingEvents = true;
     AVG_ASSERT(pCursorEvent->getContact() == shared_from_this());
-    EventPtr pEvent = boost::dynamic_pointer_cast<Event>(pCursorEvent);
     m_bCurListenerIsDead = false;
     for (map<int, Listener>::iterator it = m_ListenerMap.begin(); 
             it != m_ListenerMap.end();)
@@ -159,12 +158,12 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         switch (pCursorEvent->getType()) {
             case Event::CURSOR_MOTION:
                 if (listener.m_pMotionCallback != Py_None) {
-                    py::call<void>(listener.m_pMotionCallback, pEvent);
+                    py::call<void>(listener.m_pMotionCallback, pCursorEvent);
                 }
                 break;
             case Event::CURSOR_UP:
                 if (listener.m_pUpCallback != Py_None) {
-                    py::call<void>(listener.m_pUpCallback, pEvent);
+                    py::call<void>(listener.m_pUpCallback, pCursorEvent);
                 }
                 break;
             default:

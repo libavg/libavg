@@ -355,7 +355,6 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
                 } else {
 #if AVG_ENABLE_VDPAU
                     vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-                    pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
                     unlockVDPAUSurface(pRenderState);
 #endif
                 }
@@ -437,6 +436,7 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
             returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
             break;
         case VideoMsg::VDPAU_FRAME:
+            unlockVDPAUSurface(pMsg->getRenderState());
             break;
         case VideoMsg::END_OF_FILE:
             m_NumVSeeksDone = m_NumSeeksSent;

@@ -95,6 +95,10 @@ GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize,
     m_GLConfig = glConfig;
 }
 
+GLContext::~GLContext()
+{
+}
+
 void GLContext::init(bool bOwnsContext)
 {
     m_bOwnsContext = bOwnsContext;
@@ -116,6 +120,10 @@ void GLContext::init(bool bOwnsContext)
         }
     }
 #ifndef AVG_ENABLE_EGL
+    if (m_GLConfig.m_MultiSampleSamples > 1) {
+        glEnable(GL_MULTISAMPLE);
+        checkError("init: glEnable(GL_MULTISAMPLE)");
+    }
     glEnable(GL_MULTISAMPLE);
 #endif
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
