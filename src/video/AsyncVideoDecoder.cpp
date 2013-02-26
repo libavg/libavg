@@ -436,7 +436,9 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
             returnFrame(dynamic_pointer_cast<VideoMsg>(pMsg));
             break;
         case VideoMsg::VDPAU_FRAME:
+#ifdef AVG_ENABLE_VDPAU
             unlockVDPAUSurface(pMsg->getRenderState());
+#endif            
             break;
         case VideoMsg::END_OF_FILE:
             m_NumVSeeksDone = m_NumSeeksSent;
