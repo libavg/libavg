@@ -30,17 +30,23 @@ class VideoPlayer(AVGApp):
     CONTROL_WIDTH=240
 
     def __init__(self, parentNode):
-        if options.fullscreen:
-            player.setResolution(True, 1920, 1200, 0)
         AVGApp.__init__(self, parentNode)
 
     def init(self):
-        self.node = avg.VideoNode(href=args[0], 
-                accelerated=not(options.disableAccel))
+        self.node = avg.VideoNode(href=args[0], accelerated=not(options.disableAccel))
         self.node.play()
+
+        mediaSize = self.node.getMediaSize()
+        canvasSize = self._parentNode.size
+        sizeRatio = min(mediaSize.x/canvasSize.x, mediaSize.y/canvasSize.y)
+        self.node.size /= sizeRatio
+
         self.node.x = (self._parentNode.width-self.node.width)/2
         self.node.y = (self._parentNode.height-self.node.height)/2
-       
+        self.node.subscribe(avg.VideoNode.END_OF_FILE, self.onEOF)
+
+        
+
         if self.node.hasAlpha():
             self.__makeAlphaBackground()
         self._parentNode.appendChild(self.node)
@@ -64,6 +70,7 @@ class VideoPlayer(AVGApp):
 
         player.subscribe(player.ON_FRAME, self.onFrame)
         self.isSeeking = False
+        self.isPaused = False
     
     def onKeyDown(self, event):
         curTime = self.node.getCurTime()
@@ -85,18 +92,25 @@ class VideoPlayer(AVGApp):
         if not(self.isSeeking):
             self.videoControl.time = self.node.getCurTime()
 
+    def onEOF(self):
+        self.videoControl.pause()
+        self.isPaused = True
+
     def onPlay(self):
         self.node.play()
+        self.isPaused = False
 
     def onPause(self):
         self.node.pause()
+        self.isPaused = True
 
     def onSeekStart(self):
         self.node.pause()
         self.isSeeking = True
 
     def onSeekEnd(self):
-        self.node.play()
+        if not(self.isPaused):
+            self.node.play()
         self.isSeeking = False
 
     def onSeek(self, time):
@@ -119,8 +133,6 @@ class VideoPlayer(AVGApp):
 parser = optparse.OptionParser("Usage: %prog <filename> [options]")
 parser.add_option("-d", "--disable-accel", dest="disableAccel", action="store_true",
         default=False, help="disable vdpau acceleration")
-parser.add_option("-f", "--fullscreen", dest="fullscreen", action="store_true",
-        default=False)
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
@@ -129,7 +141,10 @@ if len(args) == 0:
 
 argsNode = avg.VideoNode(href=args[0], loop=True, accelerated=False)
 argsNode.pause()
-size = argsNode.getMediaSize()
-size = (max(size.x, 320), max(size.y, 120))
+mediaSize = argsNode.getMediaSize()
+size = avg.Point2D(max(mediaSize.x, 320), max(mediaSize.y, 120))
+screenSize = player.getScreenResolution()
+size = avg.Point2D(min(size.x, screenSize.x), min(size.y, screenSize.y-80))
+
 VideoPlayer.start(resolution=size)
 
