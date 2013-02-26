@@ -58,9 +58,12 @@ class VideoPlayer(AVGApp):
         self.videoControl.play()
         self.videoControl.subscribe(widget.MediaControl.PLAY_CLICKED, self.onPlay)
         self.videoControl.subscribe(widget.MediaControl.PAUSE_CLICKED, self.onPause)
+        self.videoControl.subscribe(widget.MediaControl.SEEK_PRESSED, self.onSeekStart)
+        self.videoControl.subscribe(widget.MediaControl.SEEK_RELEASED, self.onSeekEnd)
         self.videoControl.subscribe(widget.MediaControl.SEEK_MOTION, self.onSeek)
 
         player.subscribe(player.ON_FRAME, self.onFrame)
+        self.isSeeking = False
     
     def onKeyDown(self, event):
         curTime = self.node.getCurTime()
@@ -79,13 +82,22 @@ class VideoPlayer(AVGApp):
         self.curFrameWords.text = "Frame: %i/%i"%(curFrame, numFrames)
         framesQueued = self.node.getNumFramesQueued()
         self.framesQueuedWords.text = "Frames queued: "+str(framesQueued)
-        self.videoControl.time = self.node.getCurTime()
+        if not(self.isSeeking):
+            self.videoControl.time = self.node.getCurTime()
 
     def onPlay(self):
         self.node.play()
 
     def onPause(self):
         self.node.pause()
+
+    def onSeekStart(self):
+        self.node.pause()
+        self.isSeeking = True
+
+    def onSeekEnd(self):
+        self.node.play()
+        self.isSeeking = False
 
     def onSeek(self, time):
         self.node.seekToTime(int(time))
