@@ -822,8 +822,7 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self.node.setTime(0),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 56, 5),
                  lambda: self.messageTester.assertState(
-                        [widget.MediaControl.SEEK_PRESSED,
-                         widget.MediaControl.SEEK_MOTION]),
+                        [widget.MediaControl.SEEK_PRESSED]),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 150, 5),
                  lambda: self.messageTester.assertState(
                         [widget.MediaControl.SEEK_MOTION,]),

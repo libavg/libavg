@@ -228,14 +228,11 @@ class SliderBase(avg.DivNode):
     enabled = property(getEnabled, setEnabled)
 
     def _positionNodes(self, newSliderPos=None):
-        oldThumbPos = self._thumbPos
         if newSliderPos is not None:
             self._thumbPos = float(newSliderPos)
         self._trackNode.size = self.size
                  
         self._constrainSliderPos()
-        if self._thumbPos != oldThumbPos:
-            self.notifySubscribers(Slider.THUMB_POS_CHANGED, [self._thumbPos])
 
         pixelRange = self._getScrollRangeInPixels()
         if self._getSliderRange() == 0:
@@ -262,7 +259,10 @@ class SliderBase(avg.DivNode):
                 normalizedOffset = offset.x/pixelRange
             else:
                 normalizedOffset = offset.y/pixelRange
+        oldThumbPos = self._thumbPos
         self._positionNodes(self.__dragStartPos + normalizedOffset*self._getSliderRange())
+        if self._thumbPos != oldThumbPos:
+            self.notifySubscribers(Slider.THUMB_POS_CHANGED, [self._thumbPos])
 
     def __onUp(self, offset):
         self.__onDrag(offset)
