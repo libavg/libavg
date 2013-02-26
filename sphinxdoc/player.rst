@@ -580,6 +580,11 @@ Player & Canvas
             Sets the location of the player window. Must be called before loadFile
             or loadString.
 
+        .. py:method:: setWindowTitle(title)
+
+            Sets the string displayed in the title bar of the libavg window. Default is
+            'libavg'.
+
         .. py:method:: showCursor(show)
 
             Shows or hides the mouse cursor.
