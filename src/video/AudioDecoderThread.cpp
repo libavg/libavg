@@ -257,6 +257,8 @@ int AudioDecoderThread::getBytesPerSample(int sampleFormat)
             return 1;
         case SAMPLE_FMT_S16:
             return 2;
+        case SAMPLE_FMT_S16P:
+            return 2;
         case SAMPLE_FMT_S32:
             return 4;
         case SAMPLE_FMT_FLT:
@@ -264,6 +266,7 @@ int AudioDecoderThread::getBytesPerSample(int sampleFormat)
         case SAMPLE_FMT_DBL:
             return 8;
         default:
+            AVG_LOG_ERROR("Unknown SampleFormat: " << sampleFormat << "\n");
             AVG_ASSERT(false);
             return 0;
     }
