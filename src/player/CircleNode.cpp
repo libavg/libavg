@@ -21,7 +21,7 @@
 
 #include "CircleNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
@@ -35,14 +35,14 @@ namespace avg {
 
 void CircleNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("circle", "filledvectornode",
-            Node::buildNode<CircleNode>)
+    TypeDefinition def = TypeDefinition("circle", "filledvectornode",
+            ExportedObject::buildObject<CircleNode>)
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, offsetof(CircleNode, m_Pos)))
         .addArg(Arg<float>("r", 1, false, offsetof(CircleNode, m_Radius)))
         .addArg(Arg<float>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
         .addArg(Arg<float>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 CircleNode::CircleNode(const ArgList& args)

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:complexType name="SliderDef">
+    <xsd:attribute name="trackSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="trackDisabledSrc" type="xsd:string"/>
+    <xsd:attribute name="trackEndsExtent" type="xsd:integer"/>
+    <xsd:attribute name="thumbUpSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="thumbDownSrc" type="xsd:string"/>
+    <xsd:attribute name="thumbDisabledSrc" type="xsd:string"/>
+  </xsd:complexType>
+  <xsd:complexType name="ScrollBarDef">
+    <xsd:complexContent>
+      <xsd:extension base="SliderDef">
+        <xsd:attribute name="thumbEndsExtent" type="xsd:integer"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ProgressBarDef">
+    <xsd:attribute name="trackSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="trackEndsExtent" type="xsd:integer"/>
+    <xsd:attribute name="thumbUpSrc" type="xsd:string" use="required"/>
+    <xsd:attribute name="thumbDisabledSrc" type="xsd:string"/>
+    <xsd:attribute name="thumbEndsExtent" type="xsd:integer"/>
+  </xsd:complexType>
+  <xsd:simpleType name="bool">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="True"/>
+      <xsd:enumeration value="False"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:element name="skin">
+    <xsd:complexType>
+      <xsd:sequence maxOccurs="unbounded">
+        <xsd:element name="fontdef" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID" use="required"/>
+            <xsd:attribute name="baseid" type="xsd:IDREF"/>
+            <xsd:attribute name="font" type="xsd:string"/>
+            <xsd:attribute name="variant" type="xsd:string"/>
+            <xsd:attribute name="color" type="xsd:string"/>
+            <xsd:attribute name="aagamma" type="xsd:decimal"/>
+            <xsd:attribute name="fontsize" type="xsd:decimal"/>
+            <xsd:attribute name="indent" type="xsd:integer"/>
+            <xsd:attribute name="linespacing" type="xsd:decimal"/>
+            <xsd:attribute name="alignment" type="xsd:string"/>
+            <xsd:attribute name="wrapmode" type="xsd:string"/>
+            <xsd:attribute name="justify" type="bool"/>
+            <xsd:attribute name="letterspacing" type="xsd:decimal"/>
+            <xsd:attribute name="hint" type="bool"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="textbutton" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="upSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="downSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="disabledSrc" type="xsd:string"/>
+            <xsd:attribute name="endsExtent" type="xsd:string" use="required"/>
+            <xsd:attribute name="font" type="xsd:IDREF" use="required"/>
+            <xsd:attribute name="downFont" type="xsd:IDREF"/>
+            <xsd:attribute name="disabledFont" type="xsd:IDREF"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="checkbox" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="checkedUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="checkedDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="checkedDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="uncheckedUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="uncheckedDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="uncheckedDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="font" type="xsd:IDREF" use="required"/>
+            <xsd:attribute name="downFont" type="xsd:IDREF"/>
+            <xsd:attribute name="disabledFont" type="xsd:IDREF"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="mediacontrol" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="playUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="playDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="playDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="pauseUpSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="pauseDownSrc" type="xsd:string" use="required"/>
+            <xsd:attribute name="pauseDisabledSrc" type="xsd:string"/>
+            <xsd:attribute name="font" type="xsd:IDREF" use="required"/>
+            <xsd:attribute name="timePos" type="xsd:string" use="required"/>
+            <xsd:attribute name="timeLeftPos" type="xsd:string" use="required"/>
+            <xsd:attribute name="barPos" type="xsd:string" use="required"/>
+            <xsd:attribute name="barRight" type="xsd:string" use="required"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="slider" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:element name="vertical" type="SliderDef" minOccurs="1" maxOccurs="1"/>
+              <xsd:element name="horizontal" type="SliderDef" minOccurs="1" 
+                  maxOccurs="1"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="scrollbar" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:element name="vertical" type="ScrollBarDef" minOccurs="1"
+                  maxOccurs="1"/>
+              <xsd:element name="horizontal" type="ScrollBarDef" minOccurs="1" 
+                  maxOccurs="1"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="progressbar" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:all>
+              <xsd:element name="vertical" type="ProgressBarDef" minOccurs="1"
+                  maxOccurs="1"/>
+              <xsd:element name="horizontal" type="ProgressBarDef" minOccurs="1" 
+                  maxOccurs="1"/>
+            </xsd:all>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="scrollarea" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:attribute name="scrollBarID" type="xsd:IDREF"/>
+            <xsd:attribute name="borderSrc" type="xsd:string"/>
+            <xsd:attribute name="borderEndsExtent" type="xsd:string"/>
+            <xsd:attribute name="margins" type="xsd:string"/>
+            <xsd:attribute name="friction" type="xsd:string"/>
+            <xsd:attribute name="sensitiveScrollBars" type="bool" use="required"/>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>

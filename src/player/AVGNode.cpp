@@ -22,7 +22,7 @@
 #include "AVGNode.h"
 #include "Player.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "KeyEvent.h"
 
 #include "../base/FileHelper.h"
@@ -35,8 +35,9 @@ namespace avg {
 
 void AVGNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("avg", "canvasbase", Node::buildNode<AVGNode>);
-    NodeRegistry::get()->registerNodeType(def);
+    TypeDefinition def = TypeDefinition("avg", "canvasbase", 
+            ExportedObject::buildObject<AVGNode>);
+    TypeRegistry::get()->registerType(def);
 }
 
 AVGNode::AVGNode(const ArgList& args)

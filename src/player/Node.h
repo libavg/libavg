@@ -33,7 +33,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
@@ -50,7 +49,7 @@ typedef boost::shared_ptr<Node> NodePtr;
 class DivNode;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 class ArgList;
-class NodeDefinition;
+class TypeDefinition;
 
 class CanvasNode;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
@@ -63,8 +62,6 @@ typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
-class Style;
-typedef boost::shared_ptr<Style> StylePtr;
 
 class AVG_API Node: public Publisher
 {
@@ -72,17 +69,9 @@ class AVG_API Node: public Publisher
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
 
         static void registerType();
-        template<class NodeType>
-        static NodePtr buildNode(const ArgList& Args)
-        {
-            return NodePtr(new NodeType(Args));
-        }
-        virtual void setTypeInfo(const NodeDefinition * pDefinition);
-        void setStyle(const StylePtr& pStyle);
         void registerInstance(PyObject* pSelf, const DivNodePtr& pParent);
         
         virtual ~Node();
-        virtual void setArgs(const ArgList& args);
         virtual void setParent(DivNode* pParent, NodeState parentState,
                 CanvasPtr pCanvas);
         virtual void removeParent();
@@ -140,15 +129,7 @@ class AVG_API Node: public Publisher
         virtual bool handleEvent(EventPtr pEvent); 
 
         virtual const std::string& getID() const;
-        StylePtr getStyle() const;
-        std::string getTypeStr() const;
-        
-        bool operator ==(const Node& other) const;
-        bool operator !=(const Node& other) const;
-        long getHash() const;
-
-        virtual const NodeDefinition* getDefinition() const;
-
+    
     protected:
         Node(const std::string& sPublisherName="Node");
 
@@ -164,9 +145,6 @@ class AVG_API Node: public Publisher
 
     private:
         std::string m_ID;
-        const NodeDefinition* m_pDefinition;
-        StylePtr m_pStyle;
-        PyObject* m_pSelf;
 
         DivNode* m_pParent;
 

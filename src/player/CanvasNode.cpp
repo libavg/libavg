@@ -22,7 +22,7 @@
 #include "CanvasNode.h"
 #include "Player.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
@@ -33,8 +33,9 @@ namespace avg {
 
 void CanvasNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("canvasbase", "div", Node::buildNode<CanvasNode>);
-    NodeRegistry::get()->registerNodeType(def);
+    TypeDefinition def = TypeDefinition("canvasbase", "div", 
+            ExportedObject::buildObject<CanvasNode>);
+    TypeRegistry::get()->registerType(def);
 }
 
 CanvasNode::CanvasNode(const ArgList& args)

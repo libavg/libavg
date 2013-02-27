@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, ui
+from libavg import avg, gesture
 import libavg
 
 RESOLUTION = avg.Point2D(800, 600)
@@ -32,7 +32,7 @@ class SubclassDemoApp(libavg.AVGApp):
     def init(self):
         self.rect = TextRect(text="Hello World", pos=(20,20), size=(200,120), 
                 parent=self._parentNode)
-        ui.TapRecognizer(node=self.rect, detectedHandler=self.onTap)
+        gesture.TapRecognizer(node=self.rect, detectedHandler=self.onTap)
         
     def onTap(self, event):
         self.rect.size = self.rect.size + (10,10)

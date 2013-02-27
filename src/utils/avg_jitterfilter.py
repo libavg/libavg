@@ -21,31 +21,33 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, AVGApp, player
-from libavg.ui import filter, simple
+from libavg import avg, AVGApp, player, filter, widget
 
 import os
 
 class LabledSlider(avg.DivNode):
-    def __init__(self, label, min, max, formatStr, onChange, parent=None, **kwargs):
+    def __init__(self, label, range, formatStr, parent=None, **kwargs):
         super(LabledSlider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-        self.__onChange = onChange
         self.__formatStr = formatStr
 
-        avg.WordsNode(text=label, parent=self)
-        self.__slider = simple.Slider(size=(300,25), range=(min, max), 
+        fontStyle = widget.Skin.default.fonts["stdFont"]
+        avg.WordsNode(text=label, fontstyle=fontStyle, color="FFFFFF", parent=self)
+        self.__slider = widget.Slider(width=300, range=range, 
                 pos=(15,20), parent=self)
         self.__slider.subscribe(self.__slider.THUMB_POS_CHANGED, self.__onSliderMove)
-        self.__valueDisplay = avg.WordsNode(pos=(320, 24), parent=self)
-        self.__valueDisplay.text = self.__formatStr%self.__slider.thumbpos
+        self.__valueDisplay = avg.WordsNode(pos=(320, 18), fontstyle=fontStyle,
+                color="FFFFFF", parent=self)
+        self.__valueDisplay.text = self.__formatStr%self.__slider.thumbPos
+
+        self.publish(widget.Slider.THUMB_POS_CHANGED)
 
     def getThumbPos(self):
-        return self.__slider.thumbpos
-    thumbpos = property(getThumbPos)
+        return self.__slider.thumbPos
+    thumbPos = property(getThumbPos)
 
     def __onSliderMove(self, thumbPos):
-        self.__onChange()
+        self.notifySubscribers(widget.Slider.THUMB_POS_CHANGED, [thumbPos,])
         self.__valueDisplay.text = self.__formatStr%thumbPos
 
 
@@ -54,13 +56,15 @@ class JitterFilter(AVGApp):
 
     def init(self):
         player.showCursor(True)
-        self.__minCutoffSlider = LabledSlider(label="Minimum Cutoff", min=0.3, max=8.0,
-                formatStr="%.1f", onChange=self.__onSliderMove, 
-                pos=(10,10), parent=self._parentNode)
-        self.__cutoffSlopeSlider = LabledSlider(label="Cutoff Slope", min=0.0, max=0.05,
-                formatStr="%.3f", onChange=self.__onSliderMove, 
-                pos=(10,50), parent=self._parentNode)
-        self.__onSliderMove()
+        self.__minCutoffSlider = LabledSlider(label="Minimum Cutoff", range=(0.3, 8.0),
+                formatStr="%.1f", pos=(10,10), parent=self._parentNode)
+        self.__minCutoffSlider.subscribe(widget.Slider.THUMB_POS_CHANGED, 
+                self.__onSliderMove)
+        self.__cutoffSlopeSlider = LabledSlider(label="Cutoff Slope", range=(0.0, 0.05),
+                formatStr="%.3f", pos=(10,50), parent=self._parentNode)
+        self.__minCutoffSlider.subscribe(widget.Slider.THUMB_POS_CHANGED, 
+                self.__onSliderMove)
+        self.__onSliderMove(avg.Point2D(0,0))
 
         self._parentNode.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         self.__contact = None
@@ -70,9 +74,9 @@ class JitterFilter(AVGApp):
                 color="00FF00", opacity=0, parent=self._parentNode)
         self.__filters = None
 
-    def __onSliderMove(self):
-        self.__minCutoff = self.__minCutoffSlider.thumbpos
-        self.__cutoffSlope = self.__cutoffSlopeSlider.thumbpos
+    def __onSliderMove(self, pos):
+        self.__minCutoff = self.__minCutoffSlider.thumbPos
+        self.__cutoffSlope = self.__cutoffSlopeSlider.thumbPos
 
     def __onDown(self, event):
         if self.__contact is None:

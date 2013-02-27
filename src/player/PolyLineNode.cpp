@@ -21,7 +21,7 @@
 
 #include "PolyLineNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
@@ -37,14 +37,14 @@ void PolyLineNode::registerType()
 {
     vector<glm::vec2> v;
     vector<float> vd;
-    NodeDefinition def = NodeDefinition("polyline", "vectornode", 
-            Node::buildNode<PolyLineNode>)
+    TypeDefinition def = TypeDefinition("polyline", "vectornode", 
+            ExportedObject::buildObject<PolyLineNode>)
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolyLineNode, m_TexCoords)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 PolyLineNode::PolyLineNode(const ArgList& args)

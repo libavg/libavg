@@ -9,9 +9,6 @@ This section describes the base classes for all node classes that libavg provide
     .. inheritance-diagram:: Node
         :parts: 1
 
-    .. inheritance-diagram:: Style
-        :parts: 1
-
     To be rendered, a :py:class:`Node` must be part of a scene graph. Scene graphs are 
     trees of :py:class:`Node` objects associated with a :py:class:`Canvas`. A
     :py:class:`CanvasNode` is at the root of each scene graph. Scene graphs are pure tree
@@ -179,11 +176,6 @@ This section describes the base classes for all node classes that libavg provide
         .. py:attribute:: sensitive
 
             A node only reacts to events if sensitive is true.
-
-        .. py:attribute:: style
-
-            A :py:class:`Style` object that contains default values for the node's
-            attributes.
 
         .. py:method:: connectEventHandler(type, source, pyobj, pyfunc)
 
@@ -388,17 +380,3 @@ This section describes the base classes for all node classes that libavg provide
                 list of args passed. Subscribers are called synchronously; the order of
                 invokation is undefined.
 
-
-    .. autoclass:: Style([basestyle=None], attrs, ...)
-
-        :py:class:`Style` objects are the libavg equivalent of html styles. They 
-        are constructed with any number of node attributes. When a node is constructed
-        using a style as a parameter, the style's attributes are used as defaults for
-        the node attributes. Once constructed, the attributes of the :py:class:`Style`
-        object can be accessed like a read-only dict.
-        
-        :param basestyle:
-
-            If this constructor parameter is given, the new style is constructed as
-            derived style. The attributes of :py:attr:`basestyle` are used as default
-            values for the style being constructed. 

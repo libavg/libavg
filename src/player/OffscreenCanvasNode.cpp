@@ -22,7 +22,7 @@
 #include "OffscreenCanvasNode.h"
 #include "Player.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../base/FileHelper.h"
 
@@ -32,8 +32,8 @@ namespace avg {
 
 void OffscreenCanvasNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("canvas", "canvasbase",
-            Node::buildNode<OffscreenCanvasNode>)
+    TypeDefinition def = TypeDefinition("canvas", "canvasbase",
+            ExportedObject::buildObject<OffscreenCanvasNode>)
         .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(OffscreenCanvasNode, m_bHandleEvents)))
         .addArg(Arg<int>("multisamplesamples", 1, false, 
@@ -42,7 +42,7 @@ void OffscreenCanvasNode::registerType()
                 offsetof(OffscreenCanvasNode, m_bMipmap)))
         .addArg(Arg<bool>("autorender", true, false,
                 offsetof(OffscreenCanvasNode, m_bAutoRender)));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& args)

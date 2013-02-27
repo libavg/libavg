@@ -184,22 +184,6 @@ int Contact::getID() const
     return m_CursorID;
 }
 
-bool Contact::operator ==(const Contact& other) const
-{
-    return (shared_from_this() == other.shared_from_this());
-}
-
-bool Contact::operator !=(const Contact& other) const
-{
-    return (shared_from_this() != other.shared_from_this());
-}
-
-long Contact::getHash() const
-{
-    return long(&*shared_from_this());
-    
-}
-
 void Contact::calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent)
 {
     if (pEvent->getSpeed() == glm::vec2(0,0)) {

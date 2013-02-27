@@ -28,7 +28,7 @@ from testcase import *
 class WordsTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
-    
+   
     def testSimpleWords(self):
         def checkFont():
             self.assertEqual(node.variant, "bold")
@@ -50,7 +50,7 @@ class WordsTestCase(AVGTestCase):
         node = avg.WordsNode (pos=(1,16), fontsize=12, font="Bitstream Vera Sans",
                 text="Bold", variant="bold", parent=root)
         self.assertNotEqual(node.size, (0,0))
-        pos = node.getGlyphPos(0)
+        node.getGlyphPos(0)
         self.start(True, 
                 (lambda: self.compareImage("testSimpleWords"),
                  checkFont,
@@ -76,6 +76,28 @@ class WordsTestCase(AVGTestCase):
         self.start(True, 
                 (lambda: changeText("bar"),
                  changeFont,
+                ))
+
+    def testFontStyle(self):
+
+        def setStyle(node, style):
+            node.fontstyle = style
+            self.assert_(node.fontsize == 15)
+
+        fontStyle = avg.FontStyle(font="Bitstream Vera Sans", variant="Roman",
+                fontsize=12)
+        self.assert_(fontStyle.font == "Bitstream Vera Sans")
+        root = self.loadEmptyScene()
+        words = avg.WordsNode(pos=(1,1), fontstyle=fontStyle, text="Bitstream Vera Sans", 
+                parent=root)
+        avg.WordsNode (pos=(1,16), fontstyle=fontStyle, variant="bold", text="Bold",
+                parent=root)
+        otherFontStyle = fontStyle
+        otherFontStyle.fontsize = 15
+        self.start(True, 
+                (lambda: self.compareImage("testFontStyle1"),
+                 lambda: setStyle(words, otherFontStyle),
+                 lambda: self.compareImage("testFontStyle2"),
                 ))
 
     def testGlyphPos(self):
@@ -627,6 +649,7 @@ def wordsTestSuite(tests):
     availableTests = (
             "testSimpleWords",
             "testRedrawOnDemand",
+            "testFontStyle",
             "testGlyphPos",
             "testParaWords",
             "testJustify",

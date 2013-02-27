@@ -21,13 +21,12 @@
 
 #include "Node.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "Arg.h"
 #include "Canvas.h"
 #include "DivNode.h"
 #include "Player.h"
 #include "CursorEvent.h"
-#include "Style.h"
 #include "PublisherDefinition.h"
 
 #include "../base/Exception.h"
@@ -39,6 +38,7 @@
 #include <string>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -58,17 +58,16 @@ void Node::registerType()
     pPubDef->addMessage("END_OF_FILE");
     pPubDef->addMessage("SIZE_CHANGED");
 
-    NodeDefinition def = NodeDefinition("node")
+    TypeDefinition def = TypeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
         .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
         .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
         .addArg(Arg<float>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 Node::Node(const std::string& sPublisherName)
     : Publisher(sPublisherName),
-      m_pSelf(0),
       m_pParent(0),
       m_pCanvas(),
       m_State(NS_UNCONNECTED)
@@ -82,23 +81,9 @@ Node::~Node()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void Node::setArgs(const ArgList& args)
-{
-}
-
-void Node::setTypeInfo(const NodeDefinition * pDefinition)
-{
-    m_pDefinition = pDefinition;
-}
-
-void Node::setStyle(const StylePtr& pStyle)
-{
-    m_pStyle = pStyle;
-}
-
 void Node::registerInstance(PyObject* pSelf, const DivNodePtr& pParent)
 {
-    m_pSelf = pSelf;
+    ExportedObject::registerInstance(pSelf);
     if (pParent) {
         pParent->appendChild(getSharedThis());
     }
@@ -185,11 +170,6 @@ void Node::unlink(bool bKill)
 const string& Node::getID() const
 {
     return m_ID;
-}
-
-StylePtr Node::getStyle() const
-{
-    return m_pStyle;
 }
 
 void Node::setID(const std::string& id)
@@ -515,16 +495,7 @@ bool Node::getEffectiveActive() const
 
 NodePtr Node::getSharedThis()
 {
-    // Just using shared_from_this causes strange behaviour when derived Node classes
-    // are written in python: The pointer returned by shared_from_this doesn't know
-    // about the python part of the object and cuts it off. Because of this, we remember
-    // a pointer to the python object in m_pSelf and use that to create a functioning
-    // and complete NodePtr if there is a python derived class.
-    if (m_pSelf) {
-        return py::extract<NodePtr>(m_pSelf);
-    } else {
-        return boost::dynamic_pointer_cast<Node>(shared_from_this());
-    }
+    return dynamic_pointer_cast<Node>(ExportedObject::getSharedThis());
 }
 
 void Node::connectOneEventHandler(const EventID& id, PyObject * pObj, 
@@ -604,31 +575,6 @@ bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
 {
     bool bOk = py::call<bool>(pFunc, pEvent);
     return bOk;
-}
-
-bool Node::operator ==(const Node& other) const
-{
-    return this == &other;
-}
-
-bool Node::operator !=(const Node& other) const
-{
-    return this != &other;
-}
-
-long Node::getHash() const
-{
-    return long(this);
-}
-
-const NodeDefinition* Node::getDefinition() const
-{
-    return m_pDefinition;
-}
-
-string Node::getTypeStr() const
-{
-    return m_pDefinition->getName();
 }
 
 Node::EventID::EventID(Event::Type eventType, Event::Source source)

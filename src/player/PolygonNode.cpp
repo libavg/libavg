@@ -21,7 +21,7 @@
 
 #include "PolygonNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
@@ -42,15 +42,15 @@ void PolygonNode::registerType()
     VectorVec2Vector cv;
     vector<glm::vec2> v;
     vector<float> vd;
-    NodeDefinition def = NodeDefinition("polygon", "filledvectornode",
-            Node::buildNode<PolygonNode>)
+    TypeDefinition def = TypeDefinition("polygon", "filledvectornode",
+            ExportedObject::buildObject<PolygonNode>)
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolygonNode, m_TexCoords)))
         .addArg(Arg<VectorVec2Vector>("holes", cv, false, offsetof(PolygonNode, m_Holes)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 PolygonNode::PolygonNode(const ArgList& args)

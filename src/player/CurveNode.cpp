@@ -21,7 +21,7 @@
 
 #include "CurveNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
@@ -39,14 +39,15 @@ namespace avg {
 
 void CurveNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("curve", "vectornode", Node::buildNode<CurveNode>)
+    TypeDefinition def = TypeDefinition("curve", "vectornode", 
+            ExportedObject::buildObject<CurveNode>)
         .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(CurveNode, m_P1)))
         .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(CurveNode, m_P2)))
         .addArg(Arg<glm::vec2>("pos3", glm::vec2(0,0), false, offsetof(CurveNode, m_P3)))
         .addArg(Arg<glm::vec2>("pos4", glm::vec2(0,0), false, offsetof(CurveNode, m_P4)))
         .addArg(Arg<float>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
         .addArg(Arg<float>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 CurveNode::CurveNode(const ArgList& args)

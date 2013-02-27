@@ -86,7 +86,9 @@
     <ClCompile Include="..\..\src\player\DivNode.cpp" />
     <ClCompile Include="..\..\src\player\Event.cpp" />
     <ClCompile Include="..\..\src\player\EventDispatcher.cpp" />
+    <ClCompile Include="..\..\src\player\ExportedObject.cpp" />
     <ClCompile Include="..\..\src\player\FilledVectorNode.cpp" />
+    <ClCompile Include="..\..\src\player\FontStyle.cpp" />
     <ClCompile Include="..\..\src\player\FXNode.cpp" />
     <ClCompile Include="..\..\src\player\HueSatFXNode.cpp" />
     <ClCompile Include="..\..\src\player\InvertFXNode.cpp" />
@@ -101,8 +103,6 @@
     <ClCompile Include="..\..\src\player\MouseEvent.cpp" />
     <ClCompile Include="..\..\src\player\MultitouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Node.cpp" />
-    <ClCompile Include="..\..\src\player\NodeDefinition.cpp" />
-    <ClCompile Include="..\..\src\player\NodeRegistry.cpp" />
     <ClCompile Include="..\..\src\player\NullFXNode.cpp" />
     <ClCompile Include="..\..\src\player\OffscreenCanvas.cpp" />
     <ClCompile Include="..\..\src\player\OffscreenCanvasNode.cpp" />
@@ -121,7 +121,6 @@
     <ClCompile Include="..\..\src\player\ShadowFXNode.cpp" />
     <ClCompile Include="..\..\src\player\Shape.cpp" />
     <ClCompile Include="..\..\src\player\SoundNode.cpp" />
-    <ClCompile Include="..\..\src\player\Style.cpp" />
     <ClCompile Include="..\..\src\player\SubscriberInfo.cpp" />
     <ClCompile Include="..\..\src\player\SVG.cpp" />
     <ClCompile Include="..\..\src\player\SVGElement.cpp" />
@@ -134,6 +133,8 @@
     <ClCompile Include="..\..\src\player\TrackerInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\TrackerTouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TUIOInputDevice.cpp" />
+    <ClCompile Include="..\..\src\player\TypeDefinition.cpp" />
+    <ClCompile Include="..\..\src\player\TypeRegistry.cpp" />
     <ClCompile Include="..\..\src\player\VectorNode.cpp" />
     <ClCompile Include="..\..\src\player\VersionInfo.cpp" />
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
@@ -165,7 +166,9 @@
     <ClInclude Include="..\..\src\player\DivNode.h" />
     <ClInclude Include="..\..\src\player\Event.h" />
     <ClInclude Include="..\..\src\player\EventDispatcher.h" />
+    <ClInclude Include="..\..\src\player\ExportedObject.h" />
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
+    <ClInclude Include="..\..\src\player\FontStyle.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
     <ClInclude Include="..\..\src\player\HueSatFXNode.h" />
     <ClInclude Include="..\..\src\player\InvertFXNode.h" />
@@ -181,8 +184,6 @@
     <ClInclude Include="..\..\src\player\MouseEvent.h" />
     <ClInclude Include="..\..\src\player\MultitouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Node.h" />
-    <ClInclude Include="..\..\src\player\NodeDefinition.h" />
-    <ClInclude Include="..\..\src\player\NodeRegistry.h" />
     <ClInclude Include="..\..\src\player\NullFXNode.h" />
     <ClInclude Include="..\..\src\player\OffscreenCanvas.h" />
     <ClInclude Include="..\..\src\player\OffscreenCanvasNode.h" />
@@ -202,7 +203,6 @@
     <ClInclude Include="..\..\src\player\ShadowFXNode.h" />
     <ClInclude Include="..\..\src\player\Shape.h" />
     <ClInclude Include="..\..\src\player\SoundNode.h" />
-    <ClInclude Include="..\..\src\player\Style.h" />
     <ClInclude Include="..\..\src\player\SubscriberInfo.h" />
     <ClInclude Include="..\..\src\player\SVG.h" />
     <ClInclude Include="..\..\src\player\SVGElement.h" />
@@ -215,6 +215,8 @@
     <ClInclude Include="..\..\src\player\TrackerInputDevice.h" />
     <ClInclude Include="..\..\src\player\TrackerTouchStatus.h" />
     <ClInclude Include="..\..\src\player\TUIOInputDevice.h" />
+    <ClInclude Include="..\..\src\player\TypeDefinition.h" />
+    <ClInclude Include="..\..\src\player\TypeRegistry.h" />
     <ClInclude Include="..\..\src\player\VectorNode.h" />
     <ClInclude Include="..\..\src\player\VersionInfo.h" />
     <ClInclude Include="..\..\src\player\VideoNode.h" />

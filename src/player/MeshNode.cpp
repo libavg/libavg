@@ -24,7 +24,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "VectorNode.h"
 
 #include <cstdlib>
@@ -41,8 +41,8 @@ void MeshNode::registerType()
     vector<glm::vec2> vTex;
     vector<glm::ivec3> vTriangle;
 
-    NodeDefinition def = NodeDefinition("mesh", "vectornode", 
-            (NodeBuilder)MeshNode::buildNode<MeshNode>)
+    TypeDefinition def = TypeDefinition("mesh", "vectornode", 
+            ExportedObject::buildObject<MeshNode>)
         .addArg(Arg<vector<glm::vec2> >("vertexcoords", vVert, false, 
                 offsetof(MeshNode, m_VertexCoords)))
         .addArg(Arg<vector<glm::vec2> >("texcoords", vTex, false, 
@@ -52,7 +52,7 @@ void MeshNode::registerType()
         .addArg(Arg<bool>("backfacecull", false, false,
                 offsetof(MeshNode, m_bBackfaceCull)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 MeshNode::MeshNode(const ArgList& args)

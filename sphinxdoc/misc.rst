@@ -161,6 +161,15 @@ Misc. Classes
 
         Takes an x coordinate and delivers a corresponding y coordinate. 
 
+    
+    .. autoclass:: FontStyle(font="sans", variant="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, letterspacing=0, aagamma=1, hint=True)
+
+        A :py:class:`FontStyle` object encapsulates all configurable font attributes in a
+        :py:class:`WordsNode`. It provides a way to set all relevant attributes 
+        (:py:attr:`font`, :py:attr:`fontsize`, etc.) in one line of code. The attributes
+        correspond to the :py:class:`WordsNode` attributes; refer to the :py:class:`WordsNode`
+        reference for descriptions.    
+
 
     .. autoclass:: Logger
 

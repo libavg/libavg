@@ -24,7 +24,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
-        FilterId.h HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
+        HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
         FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \

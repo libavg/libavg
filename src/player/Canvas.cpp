@@ -57,7 +57,8 @@ void Canvas::setRoot(NodePtr pRootNode)
 {
     assert(!m_pRootNode);
     m_pRootNode = dynamic_pointer_cast<CanvasNode>(pRootNode);
-    m_pRootNode->setParent(0, Node::NS_CONNECTED, shared_from_this());
+    CanvasPtr pThis = dynamic_pointer_cast<Canvas>(shared_from_this());
+    m_pRootNode->setParent(0, Node::NS_CONNECTED, pThis);
     registerNode(m_pRootNode);
 }
 
@@ -212,21 +213,6 @@ void Canvas::registerPreRenderListener(IPreRenderListener* pListener)
 void Canvas::unregisterPreRenderListener(IPreRenderListener* pListener)
 {
     m_PreRenderSignal.disconnect(pListener);
-}
-
-bool Canvas::operator ==(const Canvas& other) const
-{
-    return this == &other;
-}
-
-bool Canvas::operator !=(const Canvas& other) const
-{
-    return this != &other;
-}
-
-long Canvas::getHash() const
-{
-    return long(this);
 }
 
 Player* Canvas::getPlayer() const

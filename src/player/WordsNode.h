@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "RasterNode.h"
+#include "FontStyle.h"
 #include "../graphics/Pixel32.h"
 #include "../base/UTF8String.h"
 
@@ -60,6 +61,9 @@ class AVG_API WordsNode : public RasterNode
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
         void setTextFromNodeValue(const std::string& sText);
+
+        const FontStyle& getFontStyle() const;
+        void setFontStyle(const FontStyle& fontStyle);
 
         const std::string& getFont() const;
         void setFont(const std::string& sName);
@@ -130,23 +134,10 @@ class AVG_API WordsNode : public RasterNode
         PangoRectangle getGlyphRect(int i);
 
         // Exposed Attributes
-        std::string m_sFontName;
-        std::string m_sFontVariant;
+        FontStyle m_FontStyle;
         UTF8String m_sText;
         UTF8String m_sRawText;
-        std::string m_sColorName;
-        Pixel32 m_Color;
-        float m_Gamma;
 
-        float m_FontSize;
-        int m_Indent;
-        float m_LineSpacing;
-        PangoAlignment m_Alignment;
-        PangoWrapMode m_WrapMode;
-        bool m_bJustify;
-        float m_LetterSpacing;
-        bool m_bHint;
-       
         bool m_bParsedText;
         bool m_bRawTextMode;
         IntPoint m_LogicalSize;

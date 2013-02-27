@@ -26,7 +26,7 @@
 
 #include "../../player/Player.h"
 #include "../../player/AreaNode.h"
-#include "../../player/NodeDefinition.h"
+#include "../../player/TypeDefinition.h"
 
 #include "../../base/Logger.h"
 #include "../../graphics/OGLHelper.h"
@@ -46,7 +46,7 @@ namespace avg {
 class ColorNode : public AreaNode 
 {
 public:
-    static NodeDefinition createNodeDefinition();
+    static void registerType();
     
     ColorNode(const ArgList& Args);
 
@@ -127,13 +127,16 @@ void ColorNode::render()
 
 char colorNodeName[] = "colornode";
 
-NodeDefinition ColorNode::createNodeDefinition()
+void ColorNode::registerType()
 {
-    return NodeDefinition("colornode", "areanode", Node::buildNode<ColorNode>)
+    avg::TypeDefinition def = avg::TypeDefinition("colornode", "areanode", 
+            ExportedObject::buildObject<ColorNode>)
         .addArg(Arg<float>("floatparam", 0.0f, false,
                 offsetof(ColorNode, m_FloatParam)))
         .addArg(Arg<string>("fillcolor", "0F0F0F", false, 
                 offsetof(ColorNode, m_sFillColorName)));
+    const char* allowedParentNodeNames[] = {"avg", 0};
+    avg::TypeRegistry::get()->registerType(def, allowedParentNodeNames);
 }
  
 }
@@ -156,10 +159,7 @@ AVG_PLUGIN_API void registerPlugin()
     object colorModule(handle<>(PyImport_ImportModule("colorplugin")));
     mainModule.attr("colorplugin") = colorModule;
 
-    avg::NodeDefinition myNodeDefinition = avg::ColorNode::createNodeDefinition();
-    const char* allowedParentNodeNames[] = {"avg", 0};
+    avg::ColorNode::registerType();
 
-    // Register this node type
-    avg::Player::get()->registerNodeType(myNodeDefinition, allowedParentNodeNames);
 }
 

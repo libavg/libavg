@@ -24,12 +24,12 @@
 
 #include "../api.h"
 
+#include "ExportedObject.h"
 #include "BoostPython.h"
 #include "PublisherDefinition.h"
 #include "MessageID.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
@@ -46,7 +46,7 @@ typedef boost::weak_ptr<SubscriberInfo> SubscriberInfoWeakPtr;
 class Publisher;
 typedef boost::shared_ptr<Publisher> PublisherPtr;
 
-class AVG_API Publisher: public boost::enable_shared_from_this<Publisher> 
+class AVG_API Publisher: public ExportedObject
 {
 public:
     Publisher();

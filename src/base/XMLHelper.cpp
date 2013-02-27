@@ -89,7 +89,6 @@ XMLParser::XMLParser()
     xmlPedanticParserDefault(1);
     xmlSetGenericErrorFunc(this, errorOutputFunc);
     xmlDoValidityCheckingDefaultValue = 0;
-
 }
 
 XMLParser::~XMLParser()

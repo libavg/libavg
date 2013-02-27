@@ -34,7 +34,7 @@
 
 namespace avg {
 
-class Node;
+class ExportedObject;
 
 template<class T>
 class AVG_TEMPLATE_API Arg: public ArgBase
@@ -46,7 +46,7 @@ public:
 
     void setValue(const T& Value);
     const T& getValue() const;
-    virtual void setMember(Node * pNode) const;
+    virtual void setMember(ExportedObject * pObj) const;
     virtual ArgBase* createCopy() const;
 
 private:
@@ -80,10 +80,10 @@ void Arg<T>::setValue(const T& Value)
 }
 
 template<class T>
-void Arg<T>::setMember(Node * pNode) const
+void Arg<T>::setMember(ExportedObject * pObj) const
 {
     if (getMemberOffset() != -1) {
-        T* pMember = (T*)((char*)pNode+getMemberOffset());
+        T* pMember = (T*)((char*)pObj+getMemberOffset());
         *pMember = m_Value;
     }
 }

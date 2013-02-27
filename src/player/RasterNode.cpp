@@ -21,7 +21,7 @@
 
 #include "RasterNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "OGLSurface.h"
 #include "FXNode.h"
 
@@ -41,7 +41,7 @@ namespace avg {
 
 void RasterNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("rasternode", "areanode")
+    TypeDefinition def = TypeDefinition("rasternode", "areanode")
         .addArg(Arg<int>("maxtilewidth", -1, false, 
                 offsetof(RasterNode, m_MaxTileSize.x)))
         .addArg(Arg<int>("maxtileheight", -1, false, 
@@ -60,7 +60,7 @@ void RasterNode::registerType()
                 offsetof(RasterNode, m_Contrast)))
         .addArg(Arg<glm::vec3>("intensity", glm::vec3(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Intensity)));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 RasterNode::RasterNode()

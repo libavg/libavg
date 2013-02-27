@@ -23,8 +23,6 @@
 
 #include "PluginManager.h"
 
-#include "NodeDefinition.h"
-
 #include "../base/DlfcnWrapper.h"
 #include "../base/FileHelper.h"
 #include "../base/Logger.h"

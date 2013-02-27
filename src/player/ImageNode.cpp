@@ -21,7 +21,7 @@
 
 #include "ImageNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "OGLSurface.h"
 #include "Player.h"
 #include "OffscreenCanvas.h"
@@ -43,10 +43,11 @@ namespace avg {
 
 void ImageNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("image", "rasternode", Node::buildNode<ImageNode>)
+    TypeDefinition def = TypeDefinition("image", "rasternode", 
+            ExportedObject::buildObject<ImageNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)))
         .addArg(Arg<string>("compression", "none"));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 ImageNode::ImageNode(const ArgList& args)

@@ -18,3 +18,5 @@ from app import AVGApp, App
 from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
 import utils, methodref
 import gameapp
+import gesture
+import filter

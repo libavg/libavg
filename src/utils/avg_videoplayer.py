@@ -23,30 +23,54 @@
 
 import sys
 import optparse
-from libavg import avg, AVGApp, player
+from libavg import avg, AVGApp, player, widget
 
 class VideoPlayer(AVGApp):
 
+    CONTROL_WIDTH=240
+
     def __init__(self, parentNode):
-        if options.fullscreen:
-            player.setResolution(True, 1920, 1200, 0)
         AVGApp.__init__(self, parentNode)
 
     def init(self):
-        self.node = avg.VideoNode(href=args[0], loop=True, 
-                accelerated=not(options.disableAccel))
+        self.node = avg.VideoNode(href=args[0], accelerated=not(options.disableAccel))
         self.node.play()
+
+        mediaSize = self.node.getMediaSize()
+        canvasSize = self._parentNode.size
+        sizeRatio = min(mediaSize.x/canvasSize.x, mediaSize.y/canvasSize.y)
+        self.node.size /= sizeRatio
+
+        self.node.x = (self._parentNode.width-self.node.width)/2
+        self.node.y = (self._parentNode.height-self.node.height)/2
+        self.node.subscribe(avg.VideoNode.END_OF_FILE, self.onEOF)
+
+        
+
         if self.node.hasAlpha():
             self.__makeAlphaBackground()
         self._parentNode.appendChild(self.node)
         self.curFrameWords = avg.WordsNode(parent=self._parentNode, pos=(10, 10), 
                 fontsize=10)
-        self.curTimeWords = avg.WordsNode(parent=self._parentNode, pos=(10, 22), 
-                fontsize=10)
-        self.framesQueuedWords = avg.WordsNode(parent=self._parentNode, pos=(10, 34), 
+        self.framesQueuedWords = avg.WordsNode(parent=self._parentNode, pos=(10, 22), 
                 fontsize=10)
 
+        controlPos = ((self._parentNode.width-VideoPlayer.CONTROL_WIDTH)/2, 
+                self._parentNode.height-25)
+        self.videoControl = widget.MediaControl(pos=controlPos, 
+                size=(VideoPlayer.CONTROL_WIDTH, 20), 
+                duration=self.node.getDuration(),
+                parent=self._parentNode)
+        self.videoControl.play()
+        self.videoControl.subscribe(widget.MediaControl.PLAY_CLICKED, self.onPlay)
+        self.videoControl.subscribe(widget.MediaControl.PAUSE_CLICKED, self.onPause)
+        self.videoControl.subscribe(widget.MediaControl.SEEK_PRESSED, self.onSeekStart)
+        self.videoControl.subscribe(widget.MediaControl.SEEK_RELEASED, self.onSeekEnd)
+        self.videoControl.subscribe(widget.MediaControl.SEEK_MOTION, self.onSeek)
+
         player.subscribe(player.ON_FRAME, self.onFrame)
+        self.isSeeking = False
+        self.isPaused = False
     
     def onKeyDown(self, event):
         curTime = self.node.getCurTime()
@@ -63,10 +87,34 @@ class VideoPlayer(AVGApp):
         curFrame = self.node.getCurFrame()
         numFrames = self.node.getNumFrames()
         self.curFrameWords.text = "Frame: %i/%i"%(curFrame, numFrames)
-        curVideoTime = self.node.getCurTime()
-        self.curTimeWords.text = "Time: "+str(curVideoTime/1000.0)
         framesQueued = self.node.getNumFramesQueued()
         self.framesQueuedWords.text = "Frames queued: "+str(framesQueued)
+        if not(self.isSeeking):
+            self.videoControl.time = self.node.getCurTime()
+
+    def onEOF(self):
+        self.videoControl.pause()
+        self.isPaused = True
+
+    def onPlay(self):
+        self.node.play()
+        self.isPaused = False
+
+    def onPause(self):
+        self.node.pause()
+        self.isPaused = True
+
+    def onSeekStart(self):
+        self.node.pause()
+        self.isSeeking = True
+
+    def onSeekEnd(self):
+        if not(self.isPaused):
+            self.node.play()
+        self.isSeeking = False
+
+    def onSeek(self, time):
+        self.node.seekToTime(int(time))
 
     def __makeAlphaBackground(self):
         SQUARESIZE=40
@@ -85,8 +133,6 @@ class VideoPlayer(AVGApp):
 parser = optparse.OptionParser("Usage: %prog <filename> [options]")
 parser.add_option("-d", "--disable-accel", dest="disableAccel", action="store_true",
         default=False, help="disable vdpau acceleration")
-parser.add_option("-f", "--fullscreen", dest="fullscreen", action="store_true",
-        default=False)
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
@@ -95,5 +141,10 @@ if len(args) == 0:
 
 argsNode = avg.VideoNode(href=args[0], loop=True, accelerated=False)
 argsNode.pause()
-VideoPlayer.start(resolution=argsNode.getMediaSize())
+mediaSize = argsNode.getMediaSize()
+size = avg.Point2D(max(mediaSize.x, 320), max(mediaSize.y, 120))
+screenSize = player.getScreenResolution()
+size = avg.Point2D(min(size.x, screenSize.x), min(size.y, screenSize.y-80))
+
+VideoPlayer.start(resolution=size)
 

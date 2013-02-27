@@ -21,7 +21,7 @@
 
 #include "RectNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
@@ -37,8 +37,8 @@ namespace avg {
 void RectNode::registerType()
 {
     float texCoords[] = {0, 0.25f, 0.5f, 0.75f, 1};
-    NodeDefinition def = NodeDefinition("rect", "filledvectornode",
-            Node::buildNode<RectNode>)
+    TypeDefinition def = TypeDefinition("rect", "filledvectornode",
+            ExportedObject::buildObject<RectNode>)
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, 
                 offsetof(RectNode, m_Rect.tl)))
         .addArg(Arg<glm::vec2>("size", glm::vec2(0,0)))
@@ -46,7 +46,7 @@ void RectNode::registerType()
         .addArg(Arg<vector<float> >("texcoords", vectorFromCArray(5, texCoords), false,
                 offsetof(RectNode, m_TexCoords)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 RectNode::RectNode(const ArgList& args)

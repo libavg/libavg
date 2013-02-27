@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, ui
+from libavg import avg, gesture
 import libavg
 
 RESOLUTION = avg.Point2D(800, 600)
@@ -51,7 +51,7 @@ class TransformNode(TextRect):
         self.__ignoreScale = ignoreScale
         self.__ignoreRotation = ignoreRotation
 
-        self.recognizer = ui.TransformRecognizer(
+        self.recognizer = gesture.TransformRecognizer(
                 eventNode=self, 
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove,
@@ -85,7 +85,7 @@ class TransformChildNode(avg.DivNode):
 
         self.inputNode = avg.RectNode(size=(self.size.x, self.size.y/2), 
                 fillopacity=0.5, fillcolor="808080", strokewidth=0, parent=self)
-        self.recognizer = ui.TransformRecognizer(
+        self.recognizer = gesture.TransformRecognizer(
                 eventNode=self.inputNode,
                 coordSysNode=self,
                 detectedHandler=self.__onDetected,
@@ -107,7 +107,7 @@ class DragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
         super(DragNode, self).__init__(text, **kwargs)
 
-        self.recognizer = ui.DragRecognizer(
+        self.recognizer = gesture.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove,
@@ -132,21 +132,21 @@ class ConstrainedDragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
         super(ConstrainedDragNode, self).__init__(text, **kwargs)
 
-        self.recognizer = ui.DragRecognizer(
+        self.recognizer = gesture.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onHorizMove,
                 upHandler=self.__onHorizMove,
-                direction=ui.DragRecognizer.HORIZONTAL,
+                direction=gesture.DragRecognizer.HORIZONTAL,
                 friction=0.05
                 )
 
-        self.recognizer2 = ui.DragRecognizer(
+        self.recognizer2 = gesture.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onVertMove,
                 upHandler=self.__onVertMove,
-                direction=ui.DragRecognizer.VERTICAL,
+                direction=gesture.DragRecognizer.VERTICAL,
                 friction=0.05
                 )
 
@@ -168,11 +168,11 @@ class TapNode(TextRect):
         super(TapNode, self).__init__(text, **kwargs)
 
         if isDoubleTap:
-            self.recognizer = ui.DoubletapRecognizer(node=self, 
+            self.recognizer = gesture.DoubletapRecognizer(node=self, 
                     possibleHandler=self.__onPossible, detectedHandler=self.__onDetected,
                     failHandler=self.__onFail)
         else:
-            self.recognizer = ui.TapRecognizer(node=self, 
+            self.recognizer = gesture.TapRecognizer(node=self, 
                     possibleHandler=self.__onPossible, detectedHandler=self.__onDetected,
                     failHandler=self.__onFail)
 
@@ -195,8 +195,8 @@ class SwipeNode(TextRect):
     def __init__(self, text, numContacts, **kwargs):
         super(SwipeNode, self).__init__(text, **kwargs)
 
-        self.recognizer = ui.SwipeRecognizer(node=self, minDist=25, 
-                numContacts=numContacts, direction=ui.SwipeRecognizer.RIGHT,
+        self.recognizer = gesture.SwipeRecognizer(node=self, minDist=25, 
+                numContacts=numContacts, direction=gesture.SwipeRecognizer.RIGHT,
                 possibleHandler=self.__onPossible, detectedHandler=self.__onDetected, 
                 failHandler=self.__onFail)
 
@@ -219,9 +219,9 @@ class HoldNode(TextRect):
     def __init__(self, text, **kwargs):
         super(HoldNode, self).__init__(text, **kwargs)
 
-        self.recognizer = ui.HoldRecognizer(node=self, possibleHandler=self.__onPossible,
-                detectedHandler=self.__onDetected, failHandler=self.__onFail,
-                stopHandler=self.__onStop)
+        self.recognizer = gesture.HoldRecognizer(node=self, 
+                possibleHandler=self.__onPossible, detectedHandler=self.__onDetected, 
+                failHandler=self.__onFail, stopHandler=self.__onStop)
 
     def __onPossible(self):
         self.rect.fillcolor = "FFFFFF"

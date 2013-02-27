@@ -21,7 +21,7 @@
 
 #include "FilledVectorNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "Image.h"
 #include "DivNode.h"
 
@@ -36,7 +36,7 @@ namespace avg {
 
 void FilledVectorNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("filledvectornode", "vectornode")
+    TypeDefinition def = TypeDefinition("filledvectornode", "vectornode")
         .addArg(Arg<UTF8String>("filltexhref", "", false, 
                 offsetof(FilledVectorNode, m_FillTexHRef)))
         .addArg(Arg<float>("fillopacity", 0, false, 
@@ -48,7 +48,7 @@ void FilledVectorNode::registerType()
         .addArg(Arg<glm::vec2>("filltexcoord2", glm::vec2(1,1), false,
                 offsetof(FilledVectorNode, m_FillTexCoord2)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 FilledVectorNode::FilledVectorNode(const ArgList& args)

@@ -21,7 +21,7 @@
 
 #include "DivNode.h"
 #include "Player.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "Canvas.h"
 
 #include "../base/Exception.h"
@@ -48,11 +48,12 @@ void DivNode::registerType()
             "circle", "mesh"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
-    NodeDefinition def = NodeDefinition("div", "areanode", Node::buildNode<DivNode>)
+    TypeDefinition def = TypeDefinition("div", "areanode", 
+            ExportedObject::buildObject<DivNode>)
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 DivNode::DivNode(const ArgList& args)

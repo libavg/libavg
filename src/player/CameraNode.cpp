@@ -21,7 +21,7 @@
 
 #include "CameraNode.h"
 #include "OGLSurface.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -48,8 +48,8 @@ namespace avg {
 
 void CameraNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("camera", "rasternode", 
-            Node::buildNode<CameraNode>)
+    TypeDefinition def = TypeDefinition("camera", "rasternode", 
+            ExportedObject::buildObject<CameraNode>)
         .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
         .addArg(Arg<int>("unit", -1))
@@ -66,7 +66,7 @@ void CameraNode::registerType()
         .addArg(Arg<int>("shutter", -1))
         .addArg(Arg<int>("gain", -1))
         .addArg(Arg<int>("strobeduration", -1));
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 CameraNode::CameraNode(const ArgList& args)

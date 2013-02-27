@@ -37,7 +37,8 @@
 #include "PolygonNode.h"
 #include "CircleNode.h"
 #include "MeshNode.h"
-#include "NodeDefinition.h"
+#include "FontStyle.h"
+#include "TypeDefinition.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
 #include "TestHelper.h"
@@ -152,7 +153,7 @@ Player::Player()
     SDLDisplayEngine::initSDL();
     initConfig();
 
-    // Register all node types
+    FontStyle::registerType();
     Node::registerType();
     AreaNode::registerType();
     RasterNode::registerType();
@@ -176,7 +177,6 @@ Player::Player()
     CircleNode::registerType();
     MeshNode::registerType();
 
-    // Register non-node publishers
     Contact::registerType();
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
@@ -961,11 +961,6 @@ std::string Player::getRootMediaDir()
     return sMediaDir;
 }
 
-const NodeDefinition& Player::getNodeDef(const std::string& sType)
-{
-    return NodeRegistry::get()->getNodeDef(sType);
-}
-
 void Player::disablePython()
 {
     m_bPythonAvailable = false;
@@ -1309,9 +1304,8 @@ void Player::initMainCanvas(NodePtr pRootNode)
 NodePtr Player::internalLoad(const string& sAVG, const string& sFilename)
 {
     XMLParser parser;
-    parser.setDTD(NodeRegistry::get()->getDTD(), "avg.dtd");
+    parser.setDTD(TypeRegistry::get()->getDTD(), "avg.dtd");
     parser.parse(sAVG, sFilename);
-
     xmlNodePtr xmlNode = parser.getRootNode();
     NodePtr pNode = createNodeFromXml(parser.getDoc(), xmlNode);
     if (!pNode) {
@@ -1330,12 +1324,6 @@ SDLDisplayEnginePtr Player::safeGetDisplayEngine()
 
 }
 
-void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
-{
-    NodeRegistry* pRegistry = NodeRegistry::get();
-    pRegistry->registerNodeType(def, pParentNames);
-}
-
 NodePtr Player::createNode(const string& sType,
         const py::dict& params, const boost::python::object& self)
 {
@@ -1347,7 +1335,8 @@ NodePtr Player::createNode(const string& sType,
         attrs.attr("__delitem__")("parent");
         pParentNode = py::extract<DivNodePtr>(parent);
     }
-    NodePtr pNode = NodeRegistry::get()->createNode(sType, attrs);
+    NodePtr pNode = dynamic_pointer_cast<Node>(
+            TypeRegistry::get()->createObject(sType, attrs));
 
     // See if the class names of self and pNode match. If they don't, there is a
     // python derived class that's being constructed and we can't set parent here.
@@ -1379,7 +1368,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
     xmlDoValidityCheckingDefaultValue =0;
 
     XMLParser parser;
-    parser.setDTD(NodeRegistry::get()->getDTD(), "avg.dtd");
+    parser.setDTD(TypeRegistry::get()->getDTD(), "avg.dtd");
     parser.parse(sXML, "");
 
 //        cvp->error = xmlParserValidityError;
@@ -1393,14 +1382,14 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
 NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         const xmlNodePtr xmlNode)
 {
-    NodePtr pCurNode;
     const char * nodeType = (const char *)xmlNode->name;
 
     if (!strcmp (nodeType, "text") || !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
         return NodePtr();
     }
-    pCurNode = NodeRegistry::get()->createNode(nodeType, xmlNode);
+    NodePtr pCurNode = dynamic_pointer_cast<Node>(
+            TypeRegistry::get()->createObject(nodeType, xmlNode));
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.

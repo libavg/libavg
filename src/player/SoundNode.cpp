@@ -20,7 +20,7 @@
 //
 #include "SoundNode.h"
 #include "Player.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "Canvas.h"
 
 #include "../base/Exception.h"
@@ -47,12 +47,13 @@ namespace avg {
 
 void SoundNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("sound", "areanode", Node::buildNode<SoundNode>)
+    TypeDefinition def = TypeDefinition("sound", "areanode", 
+            ExportedObject::buildObject<SoundNode>)
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))
         .addArg(Arg<float>("volume", 1.0, false, offsetof(SoundNode, m_Volume)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 SoundNode::SoundNode(const ArgList& args)

@@ -21,7 +21,7 @@
 
 #include "WordsNode.h"
 #include "OGLSurface.h"
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "TextEngine.h"
 
 #include "../base/Logger.h"
@@ -84,27 +84,28 @@ void WordsNode::registerType()
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
-    NodeDefinition def = NodeDefinition("words", "rasternode", Node::buildNode<WordsNode>)
+    TypeDefinition def = TypeDefinition("words", "rasternode", 
+            ExportedObject::buildObject<WordsNode>)
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
-        .addArg(Arg<string>("font", "sans", false, offsetof(WordsNode, m_sFontName)))
-        .addArg(Arg<string>("variant", "", false, offsetof(WordsNode, m_sFontVariant)))
+        .addArg(Arg<string>("font", "sans"))
+        .addArg(Arg<string>("variant", ""))
         .addArg(Arg<UTF8String>("text", ""))
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(WordsNode, m_sColorName)))
-        .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(WordsNode, m_Gamma)))
-        .addArg(Arg<float>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
-        .addArg(Arg<int>("indent", 0, false, offsetof(WordsNode, m_Indent)))
-        .addArg(Arg<float>("linespacing", 0, false, offsetof(WordsNode, m_LineSpacing)))
+        .addArg(Arg<string>("color", "FFFFFF"))
+        .addArg(Arg<float>("aagamma", 1.0f))
+        .addArg(Arg<float>("fontsize", 15))
+        .addArg(Arg<int>("indent", 0, false))
+        .addArg(Arg<float>("linespacing", 0))
         .addArg(Arg<string>("alignment", "left"))
         .addArg(Arg<string>("wrapmode", "word"))
-        .addArg(Arg<bool>("justify", false, false, offsetof(WordsNode, m_bJustify)))
+        .addArg(Arg<bool>("justify", false))
         .addArg(Arg<bool>("rawtextmode", false, false, 
                 offsetof(WordsNode, m_bRawTextMode)))
-        .addArg(Arg<float>("letterspacing", 0, false, 
-                offsetof(WordsNode, m_LetterSpacing)))
-        .addArg(Arg<bool>("hint", true, false, offsetof(WordsNode, m_bHint)))
+        .addArg(Arg<float>("letterspacing", 0))
+        .addArg(Arg<bool>("hint", true))
+        .addArg(Arg<FontStyle>("fontstyle", FontStyle()))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 WordsNode::WordsNode(const ArgList& args)
@@ -114,13 +115,14 @@ WordsNode::WordsNode(const ArgList& args)
       m_bRenderNeeded(true)
 {
     m_bParsedText = false;
-
     args.setMembers(this);
-    setAlignment(args.getArgVal<string>("alignment"));
-    setWrapMode(args.getArgVal<string>("wrapmode"));
+
+    m_FontStyle = args.getArgVal<FontStyle>("fontstyle");
+    m_FontStyle.setDefaultedArgs(args);
+
     updateFont();
     setText(args.getArgVal<UTF8String>("text"));
-    m_Color = colorStringToColor(m_sColorName);
+    
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -147,7 +149,7 @@ void WordsNode::setTextFromNodeValue(const string& sText)
 void WordsNode::connectDisplay()
 {
     RasterNode::connectDisplay();
-    getSurface()->setAlphaGamma(m_Gamma);
+    getSurface()->setAlphaGamma(m_FontStyle.getAAGamma());
 }
 
 void WordsNode::connect(CanvasPtr pCanvas)
@@ -168,64 +170,45 @@ void WordsNode::disconnect(bool bKill)
 
 string WordsNode::getAlignment() const
 {
-    switch(m_Alignment) {
-        case PANGO_ALIGN_LEFT:
-            return "left";
-        case PANGO_ALIGN_CENTER:
-            return "center";
-        case PANGO_ALIGN_RIGHT:
-            return "right";
-        default:
-            AVG_ASSERT(false);
-            return "";
-    }
+    return m_FontStyle.getAlignment();
 }
 
 void WordsNode::setAlignment(const string& sAlign)
 {
-    if (sAlign == "left") {
-        m_Alignment = PANGO_ALIGN_LEFT;
-    } else if (sAlign == "center") {
-        m_Alignment = PANGO_ALIGN_CENTER;
-    } else if (sAlign == "right") {
-        m_Alignment = PANGO_ALIGN_RIGHT;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "WordsNode alignment "+sAlign+" not supported."));
-    }
+    m_FontStyle.setAlignment(sAlign);
     updateLayout();
 }
 
 bool WordsNode::getJustify() const
 {
-    return m_bJustify;
+    return m_FontStyle.getJustify();
 }
 
 void WordsNode::setJustify(bool bJustify)
 {
-    m_bJustify = bJustify;
+    m_FontStyle.setJustify(bJustify);
     updateLayout();
 }
 
 float WordsNode::getLetterSpacing() const
 {
-    return m_LetterSpacing;
+    return m_FontStyle.getLetterSpacing();
 }
 
 void WordsNode::setLetterSpacing(float letterSpacing)
 {
-    m_LetterSpacing = letterSpacing;
+    m_FontStyle.setLetterSpacing(letterSpacing);
     updateLayout();
 }
 
 bool WordsNode::getHint() const
 {
-    return m_bHint;
+    return m_FontStyle.getHint();
 }
 
 void WordsNode::setHint(bool bHint)
 {
-    m_bHint = bHint;
+    m_FontStyle.setHint(bHint);
     updateLayout();
 }
 
@@ -268,20 +251,31 @@ void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElement
     AreaNode::getElementsByPos(relPos, pElements);
 }
 
+const FontStyle& WordsNode::getFontStyle() const
+{
+    return m_FontStyle;
+}
+
+void WordsNode::setFontStyle(const FontStyle& fontStyle)
+{
+    m_FontStyle = fontStyle;
+    updateFont();
+}
+
 const std::string& WordsNode::getFont() const
 {
-    return m_sFontName;
+    return m_FontStyle.getFont();
 }
 
 void WordsNode::setFont(const std::string& sName)
 {
-    m_sFontName = sName;
+    m_FontStyle.setFont(sName);
     updateFont();
 }
 
 const std::string& WordsNode::getFontVariant() const
 {
-    return m_sFontVariant;
+    return m_FontStyle.getFontVariant();
 }
 
 void WordsNode::addFontDir(const std::string& sDir)
@@ -292,7 +286,7 @@ void WordsNode::addFontDir(const std::string& sDir)
 
 void WordsNode::setFontVariant(const std::string& sVariant)
 {
-    m_sFontVariant = sVariant;
+    m_FontStyle.setFontVariant(sVariant);
     updateFont();
 }
 
@@ -322,62 +316,57 @@ void WordsNode::setText(const UTF8String& sText)
 
 const std::string& WordsNode::getColor() const
 {
-    return m_sColorName;
+    return m_FontStyle.getColor();
 }
 
 void WordsNode::setColor(const string& sColor)
 {
-    m_sColorName = sColor;
-    m_Color = colorStringToColor(m_sColorName);
-    m_bRenderNeeded = true;
+    m_FontStyle.setColor(sColor);
 }
 
 float WordsNode::getAAGamma() const
 {
-    return m_Gamma;
+    return m_FontStyle.getAAGamma();
 }
 
 void WordsNode::setAAGamma(float gamma)
 {
-    m_Gamma = gamma;
+    m_FontStyle.setAAGamma(gamma);
     if (getState() == Node::NS_CANRENDER) {
-        getSurface()->setAlphaGamma(m_Gamma);
+        getSurface()->setAlphaGamma(gamma);
     }
 }
 
 float WordsNode::getFontSize() const
 {
-    return m_FontSize;
+    return m_FontStyle.getFontSize();
 }
 
 void WordsNode::setFontSize(float size)
 {
-    if (size <= 1) {
-        throw Exception(AVG_ERR_INVALID_ARGS, "Words node: Font size < 1 is illegal.");
-    } 
-    m_FontSize = size;
+    m_FontStyle.setFontSize(size);
     updateFont();
 }
 
 int WordsNode::getIndent() const
 {
-    return m_Indent;
+    return m_FontStyle.getIndent();
 }
 
 void WordsNode::setIndent(int indent)
 {
-    m_Indent = indent;
+    m_FontStyle.setIndent(indent);
     updateLayout();
 }
 
 float WordsNode::getLineSpacing() const
 {
-    return m_LineSpacing;
+    return m_FontStyle.getLineSpacing();
 }
 
 void WordsNode::setLineSpacing(float lineSpacing)
 {
-    m_LineSpacing = lineSpacing;
+    m_FontStyle.setLineSpacing(lineSpacing);
     updateLayout();
 }
 
@@ -451,32 +440,13 @@ glm::vec2 WordsNode::getLineExtents(int line)
 
 void WordsNode::setWrapMode(const string& sWrapMode)
 {
-    if (sWrapMode == "word") {
-        m_WrapMode = PANGO_WRAP_WORD;
-    } else if (sWrapMode == "char") {
-        m_WrapMode = PANGO_WRAP_CHAR;
-    } else if (sWrapMode == "wordchar") {
-        m_WrapMode = PANGO_WRAP_WORD_CHAR;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "WordsNode wrapping mode "+sWrapMode+" not supported."));
-    }
+    m_FontStyle.setWrapMode(sWrapMode);
     updateLayout();
 }
 
 string WordsNode::getWrapMode() const
 {
-    switch(m_WrapMode) {
-        case PANGO_WRAP_WORD:
-            return "word";
-        case PANGO_WRAP_CHAR:
-            return "char";
-        case PANGO_WRAP_WORD_CHAR:
-            return "wordchar";
-        default:
-            AVG_ASSERT(false);
-            return "";
-    }
+    return m_FontStyle.getWrapMode();
 }
 
 void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
@@ -540,10 +510,11 @@ void WordsNode::updateFont()
         if (m_pFontDescription) {
             pango_font_description_free(m_pFontDescription);
         }
-        m_pFontDescription = TextEngine::get(m_bHint).getFontDescription(m_sFontName, 
-                m_sFontVariant);
+        TextEngine& engine = TextEngine::get(m_FontStyle.getHint());
+        m_pFontDescription = engine.getFontDescription(m_FontStyle.getFont(), 
+                m_FontStyle.getFontVariant());
         pango_font_description_set_absolute_size(m_pFontDescription,
-                (int)(m_FontSize * PANGO_SCALE));
+                (int)(m_FontStyle.getFontSize() * PANGO_SCALE));
     }
     updateLayout();
 }
@@ -558,7 +529,8 @@ void WordsNode::updateLayout()
         m_LogicalSize = IntPoint(0,0);
         m_bRenderNeeded = true;
     } else {
-        PangoContext* pContext = TextEngine::get(m_bHint).getPangoContext();
+        TextEngine& engine = TextEngine::get(m_FontStyle.getHint());
+        PangoContext* pContext = engine.getPangoContext();
         pango_context_set_font_description(pContext, m_pFontDescription);
 
         if (m_pLayout) {
@@ -569,7 +541,7 @@ void WordsNode::updateLayout()
         PangoAttrList * pAttrList = 0;
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
         PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
-            (int(m_LetterSpacing*1024));
+            (int(m_FontStyle.getLetterSpacing()*1024));
 #endif
         if (m_bParsedText) {
             char * pText = 0;
@@ -590,21 +562,23 @@ void WordsNode::updateLayout()
         pango_layout_set_attributes(m_pLayout, pAttrList);
         pango_attr_list_unref(pAttrList);
 
-        pango_layout_set_wrap(m_pLayout, m_WrapMode);
-        pango_layout_set_alignment(m_pLayout, m_Alignment);
-        pango_layout_set_justify(m_pLayout, m_bJustify);
+        pango_layout_set_wrap(m_pLayout, m_FontStyle.getWrapModeVal());
+        pango_layout_set_alignment(m_pLayout, m_FontStyle.getAlignmentVal());
+        pango_layout_set_justify(m_pLayout, m_FontStyle.getJustify());
         if (getUserSize().x != 0) {
             pango_layout_set_width(m_pLayout, int(getUserSize().x * PANGO_SCALE));
         }
-        pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
-        if (m_Indent < 0) {
+        int indent = m_FontStyle.getIndent() * PANGO_SCALE;
+        pango_layout_set_indent(m_pLayout, indent);
+        if (indent < 0) {
             // For hanging indentation, we add a tabstop to support lists
             PangoTabArray* pTabs = pango_tab_array_new_with_positions(1, false,
-                    PANGO_TAB_LEFT, -m_Indent * PANGO_SCALE);
+                    PANGO_TAB_LEFT, -indent);
             pango_layout_set_tabs(m_pLayout, pTabs);
             pango_tab_array_free(pTabs);
         }
-        pango_layout_set_spacing(m_pLayout, (int)(m_LineSpacing*PANGO_SCALE));
+        pango_layout_set_spacing(m_pLayout, 
+                (int)(m_FontStyle.getLineSpacing()*PANGO_SCALE));
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
         pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
@@ -672,7 +646,7 @@ void WordsNode::renderText()
             PangoRectangle ink_rect;
             pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
             pango_ft2_render_layout(&bitmap, m_pLayout, -ink_rect.x, -ink_rect.y);
-            switch (m_Alignment) {
+            switch (m_FontStyle.getAlignmentVal()) {
                 case PANGO_ALIGN_LEFT:
                     m_AlignOffset = 0;
                     break;
@@ -708,10 +682,11 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     if (isVisible()) {
         redraw();
     }
+    Pixel32 color = m_FontStyle.getColorVal();
     if (m_sText.length() != 0 && isVisible()) {
-        renderFX(getSize(), m_Color, false);
+        renderFX(getSize(), color, false);
     }
-    calcVertexArray(pVA, m_Color);
+    calcVertexArray(pVA, color);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
@@ -728,7 +703,7 @@ void WordsNode::render()
             transform = glm::translate(getTransform(), glm::vec3(offset.x, offset.y, 0));
         }
         blta8(transform, glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), 
-                m_Color, getBlendMode());
+                m_FontStyle.getColorVal(), getBlendMode());
     }
 }
 

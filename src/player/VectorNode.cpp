@@ -21,7 +21,7 @@
 
 #include "VectorNode.h"
 
-#include "NodeDefinition.h"
+#include "TypeDefinition.h"
 #include "OGLSurface.h"
 #include "Image.h"
 
@@ -49,14 +49,14 @@ namespace avg {
 
 void VectorNode::registerType()
 {
-    NodeDefinition def = NodeDefinition("vectornode", "node")
+    TypeDefinition def = TypeDefinition("vectornode", "node")
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<float>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
         .addArg(Arg<string>("blendmode", "blend", false, 
                 offsetof(VectorNode, m_sBlendMode)))
         ;
-    NodeRegistry::get()->registerNodeType(def);
+    TypeRegistry::get()->registerType(def);
 }
 
 VectorNode::VectorNode(const ArgList& args)

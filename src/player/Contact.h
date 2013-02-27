@@ -65,10 +65,6 @@ public:
 
     int getID() const;
     
-    bool operator ==(const Contact& other) const;
-    bool operator !=(const Contact& other) const;
-    long getHash() const;
-
 private:
     void calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent);
     void updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2);

@@ -68,7 +68,7 @@ DEFAULT_BLUR_OPACITY = 0.3
 
 import time
 
-from libavg import avg, ui, player
+from libavg import avg, player, gesture
 from avg import Point2D
 
 
@@ -282,7 +282,7 @@ class TextArea(avg.DivNode):
         self.__lastActivity = 0
 
         if moveCoursorOnTouch:
-            self.__recognizer = ui.DragRecognizer(eventNode=self, friction=-1,
+            self.__recognizer = gesture.DragRecognizer(eventNode=self, friction=-1,
                     moveHandler=self.__moveHandler, 
                     detectedHandler=self.__detectedHandler,
                     upHandler=self.__upHandler)

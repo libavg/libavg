@@ -671,7 +671,7 @@ Area Nodes
             not support hardware-accelerated video decoding or :py:const:`VDPAU` if VDPAU
             can be used to decode videos.
 
-    .. autoclass:: WordsNode([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, aagamma=1, hint=True])
+    .. autoclass:: WordsNode([fontstyle=None, font="sans", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, aagamma=1, hint=True])
 
         A words node displays formatted text. All
         properties are set in pixels. International and multi-byte character
@@ -715,6 +715,13 @@ Area Nodes
         .. py:attribute:: fontsize
 
             The font size in pixels. Fractional sizes are supported.
+
+        .. py:attribute:: fontstyle
+
+            A :py:class:`FontStyle` object that encapsulates all font attributes of the node. As a 
+            constructor parameter, this attribute sets the default attributes and other 
+            constructor arguments can override these. If set during :py:class:`WordsNode` use,
+            all relevant attributes are set to the new values.
 
         .. py:attribute:: hint
 
