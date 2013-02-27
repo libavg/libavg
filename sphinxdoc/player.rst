@@ -12,7 +12,7 @@ Player & Canvas
 
     This section describes the classes that provide a framework for rendering. The 
     :py:class:`Player` class is an interface to the avg renderer. The 
-    :py:class:`Canvas` class and it's descendant :py:class:`OffscreenCanvas` provide 
+    :py:class:`Canvas` class and its descendant :py:class:`OffscreenCanvas` provide 
     areas to draw on. 
     
     .. autoclass:: Canvas

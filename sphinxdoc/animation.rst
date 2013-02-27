@@ -118,7 +118,7 @@ Animation
         :param stopCallback: 
         
             Python callable to invoke when the animation has 
-            finished running, either because it's run the allotted time, because
+            finished running, either because it has run the allotted time, because
             abort was called or because another animation for the same
             attribute was started.
 
@@ -148,7 +148,7 @@ Animation
         :param stopCallback:
         
             Python callable to invoke when the animation has 
-            finished running, either because it's run the allotted time, because
+            finished running, either because it has run the allotted time, because
             abort was called or because another animation for the same
             attribute was started.
         
@@ -165,7 +165,7 @@ Animation
         :param stopCallback: 
             
             Python callable to invoke when the animation has 
-            finished running, either because it's run the allotted time or because
+            finished running, either because it has run the allotted time or because
             abort was called.
 
         :param maxAge: The maximum duration of the animation in milliseconds.
@@ -193,7 +193,7 @@ Animation
 
     .. autoclass:: StateAnim(states)
 
-        Animation that executes one of several child animations depending on it's 
+        Animation that executes one of several child animations depending on its
         current state. The state can be None, in which case no animation is 
         executed. None is the initial state. Note that changing the state of an 
         animation during a start or stop callback of a child animation is not 
@@ -223,7 +223,7 @@ Animation
         :param stopCallback: 
         
             Python callable to invoke when the animation has 
-            finished running, either because it's run the allotted time or because
+            finished running, either because it has run the allotted time or because
             abort was called.
 
         .. py:method:: start

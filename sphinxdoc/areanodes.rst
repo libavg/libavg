@@ -27,17 +27,17 @@ Area Nodes
         .. py:attribute:: x
 
             This is the horizontal position of the node's reference point 
-            relative to it's parent node. 
+            relative to its parent node. 
 
         .. py:attribute:: y
 
             This is the vertical position of the node's reference point 
-            relative to it's parent node. 
+            relative to its parent node. 
 
         .. py:attribute:: pos
 
             This is the position of the node's reference point 
-            relative to it's parent node. 
+            relative to its parent node. 
 
         .. py:attribute:: width
 
@@ -278,12 +278,12 @@ Area Nodes
 
         .. py:method:: reorderChild(oldIndex, newIndex)
 
-            Moves the child at :py:attr:`oldIndex` so it's at :py:attr:`newIndex`. This
+            Moves the child at :py:attr:`oldIndex` so it is at :py:attr:`newIndex`. This
             function can be used to change the order in which the children are drawn.
 
         .. py:method:: reorderChild(node, newPos)
 
-            Moves the child :py:attr:`node` so it's at index :py:attr:`newPos`. This
+            Moves the child :py:attr:`node` so it is at index :py:attr:`newPos`. This
             function can be used to change the order in which the children are drawn.
 
         .. py:method:: indexOf(node)

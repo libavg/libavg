@@ -314,7 +314,7 @@ This section describes the base classes for all node classes that libavg provide
 
         .. py:method:: unlink([kill=False])
 
-            Removes a node from it's parent container and optionally deletes all resources
+            Removes a node from its parent container and optionally deletes all resources
             the node holds. In the default case, :py:meth:`unlink` is equivalent to
             :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
             except that if the node has no parent, unlink does nothing. Also in the 

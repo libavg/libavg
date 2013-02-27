@@ -9,7 +9,7 @@ Vector Nodes
 
     .. autoclass:: CircleNode([r=1, texcoord1=0, texcoord2=1])
 
-        A circle. The reference point for a circle is it's center.
+        A circle. The reference point for a circle is its center.
 
         .. py:attribute:: r
 
@@ -126,7 +126,7 @@ Vector Nodes
         .. py:attribute:: angle
 
             The angle that the rectangle is rotated to in radians. 0 is
-            unchanged, 3.14 is upside-down. The rectangle is rotated around it's
+            unchanged, 3.14 is upside-down. The rectangle is rotated around its
             center.
 
         .. py:attribute:: pos

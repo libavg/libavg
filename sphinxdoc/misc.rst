@@ -10,11 +10,11 @@ Misc. Classes
         obtained from any :py:class:`RasterNode` or loaded from disk. For nodes of type 
         :py:class:`ImageNode`, the current bitmap can be set as well.
 
-        The layout of the pixels in the bitmap is described by it's pixel format.
+        The layout of the pixels in the bitmap is described by its pixel format.
         The names for pixel format constants are confusing. They try to follow logic,
         but it's a bit elusive: In many cases, each component is described by a single 
-        letter indicating it's role in the pixel and a number indicating the number of 
-        bits used for this component.
+        letter indicating the component's role in the pixel and a number indicating the 
+        number of bits used for this component.
         Components are named in the order they appear in memory. In the cases where
         the name doesn't follow this logic, reasons for the name are usually historical or
         by convention.
