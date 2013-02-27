@@ -50,9 +50,7 @@ class Graph(avg.DivNode):
     def delete(self):
         def kill():
             self.unlink()
-        avg.LinearAnim(self, "opacity", 300, 1, 0, None, kill).start()
-        player.clearInterval(self._interval)
-        self._interval = None
+        avg.LinearAnim(self, "opacity", 200, 1., 0., False, None, kill).start()
 
 
 class AveragingGraph(Graph):
@@ -61,8 +59,13 @@ class AveragingGraph(Graph):
         super(AveragingGraph, self).__init__(title, getValue, parent, **kwargs)
         self.registerInstance(self, None)
 
+    def delete(self):
+        super(AveragingGraph, self).delete()
+        player.clearInterval(self.__interval)
+        self.__interval = None
+
     def _setup(self):
-        self._interval = player.setInterval(1000, self._nextMemSample)
+        self.__interval = player.setInterval(1000, self._nextMemSample)
         self.__numSamples = 0
         self._usage = [0]
         self._maxUsage = [0]
@@ -117,8 +120,14 @@ class SlidingGraph(Graph):
         self.registerInstance(self, None)
         self._limitValue = float(limit)
 
+    def delete(self):
+        super(SlidingGraph, self).delete()
+        player.clearInterval(self.__frameHandlerID)
+        self.__interval = None
+
     def _setup(self):
-        self._interval = player.setOnFrameHandler(self._nextFrameTimeSample)
+        self.__frameHandlerID = player.subscribe(avg.Player.ON_FRAME, 
+                self._nextFrameTimeSample)
         self._numSamples = 0
         self._lastCurUsage = 0
         self._maxFrameTime = 0
