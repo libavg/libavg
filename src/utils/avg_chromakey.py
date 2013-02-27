@@ -22,8 +22,7 @@
 #
 
 import optparse
-from libavg import avg, AVGApp
-from libavg.ui import simple
+from libavg import avg, AVGApp, widget
 from libavg import parsecamargs
 
 GUI_SIZE=(300, 526)
@@ -34,22 +33,21 @@ class FXSlider(avg.DivNode):
         super(FXSlider, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
-        avg.RectNode(pos=(0,8), size=(280,38), color="808080", strokewidth=2,
-                parent=self)
+        avg.RectNode(pos=(0,8), size=(280,38), color="808080", strokewidth=2, parent=self)
         textBgRect = avg.RectNode(pos=(8,2), fillcolor="000000", fillopacity=1, 
                 strokewidth=0, parent=self)
         caption = avg.WordsNode(pos=(10,0), text=caption, parent=self)
-        textBgRect.size = caption.getMediaSize()+(4, 2)
+        textBgRect.size = caption.getMediaSize() + (4,2)
         self.__words = avg.WordsNode(pos=(240,23), parent=self)
-        self.__slider = simple.Slider(size=(220, 25), range=(min, max), pos=(15,20), 
-                parent=self)
+        self.__slider = widget.Slider(width=220, range=(min,max), pos=(15,20), parent=self)
         self.__slider.subscribe(self.__slider.THUMB_POS_CHANGED, self.__onSliderMove)
         self.pos = (0, row*46)
         self.__fxNode = fxNode
         self.__fxAttrName = fxAttrName
         self.__caption = caption
         self.__isInt = isInt
-        self.__slider.thumbpos = getattr(self.__fxNode, fxAttrName)
+        self.__slider.thumbPos = getattr(self.__fxNode, fxAttrName)
+        self.__onSliderMove(self.__slider.thumbPos)
 
     def __onSliderMove(self, thumbPos):
         if self.__isInt:
@@ -107,10 +105,10 @@ class Chromakey(AVGApp):
         FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression", 
                 False, parent=self.__guiDiv)
 
-        button = simple.TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
+        button = widget.TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
                 parent=self.__guiDiv)
         button.subscribe(button.CLICKED, self.__onWhitebalance)
-        button = simple.TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
+        button = widget.TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
                 parent=self.__guiDiv)
         button.subscribe(button.CLICKED, self.__dumpConfig)
 

@@ -33,8 +33,7 @@ class LabledSlider(avg.DivNode):
 
         fontStyle = widget.Skin.default.fonts["stdFont"]
         avg.WordsNode(text=label, fontstyle=fontStyle, color="FFFFFF", parent=self)
-        self.__slider = widget.Slider(width=300, range=range, 
-                pos=(15,20), parent=self)
+        self.__slider = widget.Slider(width=300, range=range, pos=(15,20), parent=self)
         self.__slider.subscribe(self.__slider.THUMB_POS_CHANGED, self.__onSliderMove)
         self.__valueDisplay = avg.WordsNode(pos=(320, 18), fontstyle=fontStyle,
                 color="FFFFFF", parent=self)
