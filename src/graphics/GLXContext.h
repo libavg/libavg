@@ -24,6 +24,8 @@
 
 #include "GLContext.h"
 
+#include "../base/Exception.h"
+
 #include <boost/shared_ptr.hpp>
 
 struct SDL_SysWMinfo;
@@ -46,7 +48,9 @@ public:
 
 private:
     void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
+            const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit);
+
+    void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
 
     Display* m_pDisplay;
     Colormap m_Colormap;

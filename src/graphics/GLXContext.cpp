@@ -32,6 +32,7 @@
 #include <X11/extensions/xf86vmode.h>
 
 #include <iostream>
+#include <stdlib.h>
 
 
 namespace avg {
@@ -43,25 +44,43 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(glConfig, windowSize, pSDLWMInfo)
 {
-    createGLXContext(glConfig, windowSize, pSDLWMInfo);
+    try {
+        createGLXContext(glConfig, windowSize, pSDLWMInfo, true);
+    } catch (const Exception &e) {
+        if(e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED){
+            createGLXContext(glConfig, windowSize, pSDLWMInfo, false);
+        }else{
+            exit(EXIT_FAILURE);
+        }
+    }
     init(true);
 }
 
 static bool s_bX11Error;
+static bool s_bDumpX11ErrorMsg;
 static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
 int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
 {
-    cerr << "X11 error creating GL context: " << (int)(pErrEvent->request_code)
-            << ", " << (int)(pErrEvent->minor_code) << endl;
+    if(s_bDumpX11ErrorMsg){
+        char errorString[128]; 
+        XGetErrorText(pDisplay, pErrEvent->error_code, errorString, 128);
+        cerr << "X11 error creating GL context: " << errorString <<
+            "\n\tMajor opcode of failed request: " << (int)(pErrEvent->request_code) <<
+            "\n\tMinor opcode of failed request: " << (int)(pErrEvent->minor_code) <<
+            "\n";
+    }
     s_bX11Error = true;
     return 0;
 }
 
 void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo)
+        const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
 {
     Window win = 0;
+    s_bX11Error = false;
+    s_bDumpX11ErrorMsg = true;
+    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
 
     m_pDisplay = getX11Display(pSDLWMInfo);
 
@@ -121,20 +140,21 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
             attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
             attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
         }
-        if (glConfig.m_bUseDebugContext) {
+        if (glConfig.m_bUseDebugContext && bUseDebugBit) {
             attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
         }
         PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
             (PFNGLXCREATECONTEXTATTRIBSARBPROC)
             getglXProcAddress("glXCreateContextAttribsARB");
 
+        s_bDumpX11ErrorMsg = false;
         m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
+        s_bDumpX11ErrorMsg = true;
+        throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
     } else {
         m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
     }
     AVG_ASSERT(m_Context);
-    s_bX11Error = false;
-    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
     if (pSDLWMInfo) {
         setCurrent();
         glXMakeCurrent(m_pDisplay, win, m_Context);
@@ -147,9 +167,7 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     }
     XSetErrorHandler(s_DefaultErrorHandler);
 
-    if (s_bX11Error) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
-    }
+    throwOnXError();
     m_Drawable = glXGetCurrentDrawable();
 }
 
@@ -162,6 +180,13 @@ GLXContext::~GLXContext()
         m_Context = 0;
         XDestroyWindow(m_pDisplay, m_Drawable);
         XFreeColormap(m_pDisplay, m_Colormap);
+    }
+}
+
+void GLXContext::throwOnXError( int code)
+{
+    if(s_bX11Error){
+        throw Exception(code, "X error creating OpenGL context.");
     }
 }
 

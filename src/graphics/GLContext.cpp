@@ -124,7 +124,6 @@ void GLContext::init(bool bOwnsContext)
         glEnable(GL_MULTISAMPLE);
         checkError("init: glEnable(GL_MULTISAMPLE)");
     }
-    glEnable(GL_MULTISAMPLE);
 #endif
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     if (useGPUYUVConversion()) {
