@@ -49,7 +49,7 @@ class AVTestCase(AVGTestCase):
         player.setTimeout(100000, onNoEOF)
         player.play()
         self.assert_(self.eofCalled)
-        
+
     def testVideoInfo(self):
         def checkInfo():
             node.pause()
@@ -422,6 +422,26 @@ class AVTestCase(AVGTestCase):
                  None
                 ))
 
+    def testVideoSeekAfterEOF(self):
+        def onEOF():
+            node.seekToTime(0)
+            player.subscribe(avg.Player.ON_FRAME, onFrame)
+
+        def onFrame():
+            if node.getCurTime() < 100:
+                self.compareImage("testSeekAfterEOF")
+                player.stop()
+
+        def onNoEOF():
+            self.fail("No EOF")
+
+        player.setFakeFPS(25)
+        root = self.loadEmptyScene()
+        node = avg.VideoNode(href="mpeg1-48x48.mpg", parent=root)
+        node.play()
+        node.subscribe(avg.VideoNode.END_OF_FILE, onEOF)
+        player.setTimeout(100000, onNoEOF)
+        player.play()
 
     def testSound(self):
         def testSoundFile(filename):
@@ -644,6 +664,7 @@ def AVTestSuite(tests):
             "testVideoLoop",
             "testVideoMask",
             "testVideoEOF",
+            "testVideoSeekAfterEOF",
             "testException",
             "testVideoWriter",
             "test2VideosAtOnce",
