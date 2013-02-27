@@ -357,13 +357,10 @@ class TextArea(avg.DivNode):
         @param lineSpacing: linespacing property of words node
         @param letterSpacing: letterspacing property of words node
         """
-        self.__textNode.font = font
-        self.__textNode.fontsize = int(fontsize)
-        self.__textNode.alignment = alignment
+        self.__textNode.fontstyle = avg.FontStyle(font=font, fontsize=fontsize, 
+                alignment=alignment, variant=variant, linespacing=lineSpacing,
+                letterspacing=letterSpacing)
         self.__textNode.color = color
-        self.__textNode.variant = variant
-        self.__textNode.linespacing = lineSpacing
-        self.__textNode.letterspacing = letterSpacing
         self.__isMultiline = multiline
         self.__border = border
         self.__maxLength = -1
@@ -410,13 +407,9 @@ class TextArea(avg.DivNode):
 
         if self.__loupe:
             zoomfactor = (1.0 + self.__loupeZoomFactor)
-            self.__loupeTextNode.font = font
+            self.__loupeTextNode.fontstyle = self.__textNode.fontstyle
             self.__loupeTextNode.fontsize = int(fontsize) * zoomfactor
-            self.__loupeTextNode.alignment = alignment
             self.__loupeTextNode.color = color
-            self.__loupeTextNode.variant = variant
-            self.__loupeTextNode.linespacing = lineSpacing
-            self.__loupeTextNode.letterspacing = letterSpacing * zoomfactor
             if multiline:
                 self.__loupeTextNode.width = self.__textNode.width * zoomfactor
                 self.__loupeTextNode.wrapmode = 'wordchar'
