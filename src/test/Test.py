@@ -94,8 +94,8 @@ if sys.platform != 'win32':
     os.chdir(srcDir)
 
 import libavg
-libavg.avg.logger.trace(libavg.avg.Logger.APP, "Using libavg from: "+
-        os.path.dirname(libavg.__file__))
+libavg.avg.logger.info("Using libavg from: "+ os.path.dirname(libavg.__file__), 
+        libavg.avg.Logger.APP)
 # Ensure mouse is activated
 libavg.player.enableMouse(True)
 
