@@ -127,13 +127,15 @@ class WidgetTestCase(AVGTestCase):
     def testTextArea(self):
         def setup():
             self.ta1 = textarea.TextArea(pos=(2,2), size=(156, 96), parent=root)
-            self.ta1.setStyle(fontsize=16, multiline=True, color='FFFFFF')
+            self.ta1.setStyle(font="Bitstream vera sans", variant="Roman", fontsize=16,
+                    multiline=True, color='FFFFFF')
             self.ta1.setText('Lorem ipsum')
             self.ta1.setFocus(True) # TODO: REMOVE
 
             self.ta2 = textarea.TextArea(pos=(2,100), size=(156, 18), parent=root)
-            self.ta2.setStyle(fontsize=14, multiline=False, color='4b94ef', 
-                    cursorColor='FF0000', flashingCursor=False)
+            self.ta2.setStyle(font="Bitstream vera sans", variant="Roman", fontsize=14,
+                    multiline=False, color='4b94ef', cursorColor='FF0000', 
+                    flashingCursor=False)
             self.ta2.setText('sit dolor')
             self.ta2.showCursor(False)
             self.ta2.setFocus(True) # TODO: REMOVE
