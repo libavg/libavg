@@ -257,7 +257,7 @@ int AudioDecoderThread::getBytesPerSample(int sampleFormat)
             return 1;
         case SAMPLE_FMT_S16:
             return 2;
-#ifdef SAMPLE_FMT_S16P            
+#ifdef AV_SAMPLE_FMT_S16P            
         case SAMPLE_FMT_S16P:
             return 2;
 #endif
