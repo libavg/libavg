@@ -16,7 +16,8 @@ http://www.libavg.de/wiki/ProgrammersGuide.
     events
     animation
     fx
-    ui
+    gesture
+    widget
     misc
 
 Indices and tables
