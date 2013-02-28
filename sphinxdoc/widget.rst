@@ -1,17 +1,28 @@
-User Interface Classes
-======================
+Widget Classes
+==============
 
-The namespace libavg.widget contains python modules that expose higher-level user interface
-functionality
+The libavg.widget module contains high-level user interface elements such as buttons and 
+list boxes. Widgets are fully skinnable and multitouch-enabled.
+
+.. note::
+
+    The widget module is experimental. Functionality and interface are still in flux and
+    subject to change.
 
 .. automodule:: libavg.widget
     :no-members:
 
-    .. inheritance-diagram:: Button ToggleButton Keyboard
+    .. inheritance-diagram:: HStretchNode VStretchNode HVStretchNode SwitchNode Button TextButton BmpButton ToggleButton CheckBox BmpToggleButton Keyboard Slider ScrollBar ScrollBarTrack ScrollBarThumb SliderThumb ProgressBar ScrollArea ScrollPane TimeSlider MediaControl Skin 
         :parts: 1
 
 
-    .. autoclass:: Button(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+    .. autoclass:: BmpButton(upSrc, downSrc, [disabledSrc=None])
+
+        A :py:class:`Button` that is created from image files. Internally, it creates two or
+        three :py:class:`ImageNode`s and uses them as constructor parameters for
+        :py:class:`Button`.
+
+    .. autoclass:: Button(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, enabled=True, clickHandler=None])
 
         A button that shows different user-supplied nodes depending on its
         state. Possible button states are up, down and disabled. The nodes are attached
@@ -40,9 +51,20 @@ functionality
             :py:attr:`fatFingerEnlarge` is incompatible with a custom 
             :py:attr:`activeAreaNode`.
 
-        **Callbacks:**
+        **Messages:**
 
-            .. py:method:: clickHandler(event)
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: Button.PRESSED()
+
+                Called when a tap on the button is initiated.
+
+            .. py:method:: Button.RELEASED()
+
+                Called when a tap on the button ends. Emitted for both successful and
+                aborted taps.
+
+            .. py:method:: Button.CLICKED()
 
                 Called when the button is clicked.
 
@@ -51,10 +73,104 @@ functionality
             :py:const:`True` if the button accepts input. If the button is disabled,
             it shows the :py:attr:`disabledNode`.
 
-        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None, **kwargs]) -> Button
 
-            Factory method that creates a button from filenames of the images to be
-            displayed for different states.
+    .. autoclass:: TextButton(text, [skinObj=skin.Skin.default])
+
+        A :py:class:`Button` that is created using the given :py:class:`Skin` and a text.
+
+        .. py:attribute:: text 
+
+            The string displayed on the button.
+
+
+    .. autoclass:: ToggleButton(uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, enabled=True, checked=False])
+
+        A button that can be used to toggle between checked and unchecked states. 
+        Classical GUI checkboxes are an example of this kind of button.
+        
+        A :py:class:`ToggleButton` has a total of six visual states. In addition to the
+        distinction between checked and unchecked, a button can be enabled or disabled.
+        Buttons also change their appearance as soon as they are touched, leading to two
+        further states. For each visual state, a node is passed as constructor parameter.
+        The constructor attaches the nodes to the :py:class:`ToggleButton`.
+
+        Uses the :py:class:`TapRecognizer` to detect clicks.
+
+        .. image:: ToggleButtonStates.png
+
+        :param avg.Node uncheckedUpNode: 
+        
+            The node displayed when the button is unchecked and not touched.
+
+        :param avg.Node uncheckedDownNode: 
+            
+            The node displayed when the button is unchecked and touched.
+
+        :param avg.Node checkedUpNode: 
+        
+            The node displayed when the button is checked and not touched.
+
+        :param avg.Node checkedDownNode: 
+        
+            The node displayed when the button is checked and not touched.
+
+        :param avg.Node uncheckedDisabledNode: 
+        
+            The node displayed when the button is unchecked and disabled.
+
+        :param avg.Node checkedDisabledNode: 
+        
+            The node displayed when the button is checked and disabled.
+
+        :param avg.Node activeAreaNode: 
+        
+            A node that is used only to determine if a click is over the button. Usually,
+            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
+            buttons, where the active area should be larger than the visible button to
+            account for touch inaccuracies.
+
+        :param bool fatFingerEnlarge:
+
+            If this parameter is set to :py:const:`True`, the button generates its own 
+            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
+            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
+            :py:attr:`activeAreaNode`.
+
+        :param bool checked:
+
+            If this parameter is set to :py:const:`True`, the button starts in the checked
+            state.
+
+        :param bool enabled:
+
+            If this parameter is set to :py:const:`True`, the button starts in the 
+            disabled state.
+
+        **Messages:**
+
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: Button.PRESSED()
+
+                Called when a tap on the button is initiated.
+
+            .. py:method:: Button.RELEASED()
+
+                Called when a tap on the button ends. Emitted for both successful and
+                aborted taps.
+
+            .. py:method:: Button.TOGGLED()
+
+                Called when the button changes from unchecked to checked or vice-versa.
+
+
+        .. py:attribute:: checked
+
+            The state of the toggle.
+
+        .. py:attribute:: enabled
+
+            Determines whether the button accepts input.
 
 
     .. autoclass:: Keyboard(bgHref, downHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, feedbackHref, textarea])
@@ -161,95 +277,3 @@ functionality
                 Unicode string containing the keycodes when altgr is pressed.
     
     
-    .. autoclass:: ToggleButton(uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
-
-        A button that can be used to toggle between checked and unchecked states. 
-        Classical GUI checkboxes are an example of this kind of button.
-        
-        A :py:class:`ToggleButton` has a total of six visual states. In addition to the
-        distinction between checked and unchecked, a button can be enabled or disabled.
-        Buttons also change their appearance as soon as they are touched, leading to two
-        further states. For each visual state, a node is passed as constructor parameter.
-        The constructor attaches the nodes to the :py:class:`ToggleButton`. Simple
-        ToggleButtons can be constructed by passing image filenames to 
-        the :py:func:`fromSrc` factory function.
-
-        Uses the :py:class:`TapRecognizer` to detect clicks.
-
-        .. image:: ToggleButtonStates.png
-
-        :param avg.Node uncheckedUpNode: 
-        
-            The node displayed when the button is unchecked and not touched.
-
-        :param avg.Node uncheckedDownNode: 
-            
-            The node displayed when the button is unchecked and touched.
-
-        :param avg.Node checkedUpNode: 
-        
-            The node displayed when the button is checked and not touched.
-
-        :param avg.Node checkedDownNode: 
-        
-            The node displayed when the button is checked and not touched.
-
-        :param avg.Node uncheckedDisabledNode: 
-        
-            The node displayed when the button is unchecked and disabled.
-
-        :param avg.Node checkedDisabledNode: 
-        
-            The node displayed when the button is checked and disabled.
-
-        :param avg.Node activeAreaNode: 
-        
-            A node that is used only to determine if a click is over the button. Usually,
-            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
-            buttons, where the active area should be larger than the visible button to
-            account for touch inaccuracies.
-
-        :param bool fatFingerEnlarge:
-
-            If this parameter is set to :py:const:`True`, the button generates its own 
-            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
-            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
-            :py:attr:`activeAreaNode`.
-
-        :param bool checked:
-
-            If this parameter is set to :py:const:`True`, the button starts in the checked
-            state.
-
-        :param bool enabled:
-
-            If this parameter is set to :py:const:`True`, the button starts in the 
-            disabled state.
-
-        **Callbacks:**
-
-            .. py:method:: checkedHandler(event)
-
-                Called when the button is checked.
-
-            .. py:method:: uncheckedHandler(event)
-
-                Called when the button is unchecked.
-
-        .. py:attribute:: checked
-
-            The state of the toggle.
-
-        .. py:attribute:: enabled
-
-            Determines whether the button accepts input.
-
-        .. py:method:: getState() -> String
-
-            Returns the visual state of the button as a string.
-
-        .. py:classmethod:: fromSrc(uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc, [uncheckedDisabledSrc=None, checkedDisabledSrc=None **kwargs]) -> ToggleButton
-
-            Factory method that creates a togglebutton from filenames of the images to be
-            displayed for different states.
-
