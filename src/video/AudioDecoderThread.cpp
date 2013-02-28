@@ -257,7 +257,7 @@ int AudioDecoderThread::getBytesPerSample(int sampleFormat)
             return 1;
         case SAMPLE_FMT_S16:
             return 2;
-#ifdef AV_SAMPLE_FMT_S16P            
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(52, 13, 100)
         case SAMPLE_FMT_S16P:
             return 2;
 #endif
