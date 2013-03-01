@@ -74,6 +74,113 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
             it shows the :py:attr:`disabledNode`.
 
 
+    .. autoclass:: Keyboard(bgSrc, downSrc, keyDefs, shiftKeyCode, [altGrKeyCode=None, stickyShift=False, feedbackSrc=None])
+
+        Implements an onscreen keyboard that turns mouse clicks or touches into key 
+        presses. The keyboard is completely configurable. Keyboard graphics are determined
+        by the two image files in :py:attr:`bgSrc` and :py:attr:`downSrc`. Keys can be
+        defined as rectangles anywhere on these images. Works for both single-touch and 
+        multitouch devices. Generates events when keys are pressed or released. 
+        An additional enlarged image of the key being pressed can be rendered above a 
+        pending touch as well by using :py:attr:`feedbackSrc`.
+
+        Needs offscreen rendering support on the machine to generate individual key images
+        from the image files supplied.
+
+        :param string bgSrc: 
+        
+            Filename of an image that contains the keyboard with unpressed keys.
+
+        :param string downSrc:
+        
+            Filename of an image that contains the keyboard with pressed keys.
+
+        :param list keyDefs:
+
+            List of key definitions. Keys can be either character keys:
+
+                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, 
+                <pos>, <size>]
+
+            or command keys:
+
+                [<keycode>, <feedback>, <repeat>, <pos>, <size>]
+
+            For character keys, the shift and altgr keycodes are optional. To define
+            entire rows of evenly-spaced keys, use :py:meth:`makeRowKeyDefs`.
+
+        :param shiftKeyCode:
+
+            One of the command keycodes. When a key with this code is pressed,
+            pressing other keys causes them to return the shifted keycode.
+
+        :param altGrKeyCode:
+
+            One of the command keycodes. When a key with this code is pressed,
+            pressing other keys causes them to return the altgr keycode.
+
+        :param bool stickyShift:
+
+            For single-touch devices, the shift key must stay in the pressed state
+            until the next normal key is pressed to have any effect. This is the 
+            behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
+            :py:const:`False` (the default), a 
+            multitouch device is assumed and shift works like on a physical keyboard.
+
+        :param string feedbackSrc:
+
+            Filename of an image that contains an enlarged version of bgSrc for use as
+            feedback during key pressed. If this parameter not set the feedback funktion
+            is turned off.
+
+        **Messages:**
+
+            :py:class:`Keyboard` emits messages on every key press and release:
+
+            .. py:method:: DOWN(keycode)
+
+            Emitted whenever a key (command or char) is pressed.
+
+            .. py:method:: UP(keycode)
+
+            Emitted whenever a key (command or char) is released.
+
+            .. py:method:: CHAR(char)
+
+            Emitted whenever a character is generated. This is generally when a char key
+            is released and takes into account shift/altgr status.
+
+        .. py:method:: reset()
+
+            Resets any sticky keys (shift, altgr) to their default state.
+
+        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
+
+            Creates key definitions for a row of uniform keys. Useful for creating the 
+            keyDefs parameter of the Keyboard constructor. All the keys get no repeat 
+            functionality.
+
+            :param avg.Point2D startPos: Top left position of the row.
+
+            :param avg.Point2D keySize: Size of each key.
+
+            :param int spacing: Number of empty pixels between two keys.
+
+            :param string keyStr: 
+            
+                Unicode string containing the unshifted keycodes (i.e. 
+                :samp:`u"qwertzuiopżś"`)
+
+            :param string shiftKeyStr: 
+            
+                Unicode string containing the shifted keycodes
+                (i.e. :samp:`u"QWERTZUIOPńć"`)
+
+            :param string altGrKeyStr: 
+            
+                Unicode string containing the keycodes when altgr is pressed.
+    
+    
     .. autoclass:: TextButton(text, [skinObj=skin.Skin.default])
 
         A :py:class:`Button` that is created using the given :py:class:`Skin` and a text.
@@ -173,107 +280,3 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
             Determines whether the button accepts input.
 
 
-    .. autoclass:: Keyboard(bgHref, downHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, feedbackHref, textarea])
-
-        Implements an onscreen keyboard that turns mouse clicks or touches into key 
-        presses. The keyboard is completely configurable. Keyboard graphics are determined
-        by the two image files in :py:attr:`bgSrc` and :py:attr:`downSrc`. Keys can be
-        defined as rectangles anywhere on these images. Works for both single-touch and 
-        multitouch devices. Generates events when keys are pressed or released.
-
-        Needs offscreen rendering support on the machine to generate individual key images
-        from the image files supplied.
-
-        :param string bgSrc: 
-        
-            Filename of an image that contains the keyboard with unpressed keys.
-
-        :param string downSrc:
-        
-            Filename of an image that contains the keyboard with pressed keys.
-
-        :param list keyDefs:
-
-            List of key definitions. Keys can be either character keys:
-
-                [(<keycode>, <shift keycode>, <altgr keycode>), <feedback>, <repeat>, 
-                <pos>, <size>]
-
-            or command keys:
-
-                [<keycode>, <feedback>, <repeat>, <pos>, <size>]
-
-            For character keys, the shift and altgr keycodes are optional. To define
-            entire rows of evenly-spaced keys, use :py:meth:`makeRowKeyDefs`.
-
-        :param shiftKeyCode:
-
-            One of the command keycodes. When a key with this code is pressed,
-            pressing other keys causes them to return the shifted keycode.
-
-        :param altGrKeyCode:
-
-            One of the command keycodes. When a key with this code is pressed,
-            pressing other keys causes them to return the altgr keycode.
-
-        :param bool stickyShift:
-
-            For single-touch devices, the shift key must stay in the pressed state
-            until the next normal key is pressed to have any effect. This is the 
-            behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
-            :py:const:`False` (the default), a 
-            multitouch device is assumed and shift works like on a physical keyboard.
-
-        :param string feedbackSrc:
-
-            Filename of an image that contains the keyboard feedback by pressed keys.
-            If this parameter not set the feedback funktion is turned off.
-
-        **Messages:**
-
-            :py:class:`Keyboard` emits messages on every key press and release:
-
-            .. py:method:: DOWN(keycode)
-
-            Emitted whenever a key (command or char) is pressed.
-
-            .. py:method:: UP(keycode)
-
-            Emitted whenever a key (command or char) is released.
-
-            .. py:method:: CHAR(char)
-
-            Emitted whenever a character is generated. This is generally when a char key is
-            released and takes into account shift/altgr status.
-
-        .. py:method:: reset()
-
-            Resets any sticky keys (shift, altgr) to their default state.
-
-        .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, feedbackStr, keyStr, shiftKeyStr, [altGrKeyStr])
-
-            Creates key definitions for a row of uniform keys. Useful for creating the 
-            keyDefs parameter of the Keyboard constructor. All the keys get no repeat 
-            functionality.
-
-            :param avg.Point2D startPos: Top left position of the row.
-
-            :param avg.Point2D keySize: Size of each key.
-
-            :param int spacing: Number of empty pixels between two keys.
-
-            :param string keyStr: 
-            
-                Unicode string containing the unshifted keycodes (i.e. 
-                :samp:`u"qwertzuiopżś"`)
-
-            :param string shiftKeyStr: 
-            
-                Unicode string containing the shifted keycodes
-                (i.e. :samp:`u"QWERTZUIOPńć"`)
-
-            :param string altGrKeyStr: 
-            
-                Unicode string containing the keycodes when altgr is pressed.
-    
-    
