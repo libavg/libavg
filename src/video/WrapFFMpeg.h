@@ -62,6 +62,7 @@ extern "C" {
   #define SAMPLE_FMT_S32 AV_SAMPLE_FMT_S32
   #define SAMPLE_FMT_U8 AV_SAMPLE_FMT_U8
   #define SAMPLE_FMT_S16P AV_SAMPLE_FMT_S16P
+  #define SAMPLE_FMT_FLTP AV_SAMPLE_FMT_FLTP
   #define SampleFormat AVSampleFormat
 #endif
 
