@@ -19,6 +19,9 @@ ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h VideoDecoder.h \
 if USE_VDPAU_SRC
         ALL_H += VDPAUDecoder.h VDPAUHelper.h
 endif
+if USE_VAAPI_SRC
+        ALL_H += VAAPIDecoder.h
+endif
 
 TESTS=testvideo
 
@@ -35,6 +38,9 @@ libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp VideoDecoder.cpp 
 
 if USE_VDPAU_SRC
         libvideo_la_SOURCES += VDPAUDecoder.cpp VDPAUHelper.cpp
+endif
+if USE_VAAPI_SRC
+        libvideo_la_SOURCES += VAAPIDecoder.cpp
 endif
 
 libvideo_la_LIBADD = @LIBVIDEO_LDADD@

@@ -32,7 +32,6 @@ namespace avg {
 VDPAUDecoder::VDPAUDecoder()
     : m_VDPDecoder(VDP_INVALID_HANDLE),
       m_VDPMixer(VDP_INVALID_HANDLE),
-      m_PixFmt(PIX_FMT_NONE),
       m_Size(-1,-1)
 {
 }
@@ -210,8 +209,6 @@ void VDPAUDecoder::setupDecoder(AVCodecContext* pContext)
     status = vdp_decoder_create(getVDPAUDevice(), profile, m_Size.x, m_Size.y, 16,
             &m_VDPDecoder);
     AVG_ASSERT(status == VDP_STATUS_OK);
-
-    m_PixFmt = pContext->pix_fmt;
 
     VdpVideoMixerFeature features[] = {
         VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL,

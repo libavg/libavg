@@ -18,8 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _VDPAUDecoder_H_
-#define _VDPAUDecoder_H_
+#ifndef _VAAPIDecoder_H_
+#define _VAAPIDecoder_H_
 
 
 #include "../avgconfigwrapper.h"
@@ -27,16 +27,15 @@
 
 #include "WrapFFMpeg.h"
 
-#include <vdpau/vdpau.h>
-#include <libavcodec/vdpau.h>
+#include <libavcodec/vaapi.h>
 
 namespace avg {
 
-class VDPAUDecoder
+class VAAPIDecoder
 {
 public:
-    VDPAUDecoder();
-    ~VDPAUDecoder();
+    VAAPIDecoder();
+    ~VAAPIDecoder();
     AVCodec* openCodec(AVCodecContext* pCodec);
 
     static bool isAvailable();
@@ -49,15 +48,8 @@ private:
             int offset[4], int y, int type, int height);
     static AVPixelFormat getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt);
 
-    vdpau_render_state* getFreeRenderState();
-    int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
-    void render(AVCodecContext* pContext, const AVFrame* pFrame);
-    void setupDecoder(AVCodecContext* pContext);
-
-    VdpDecoder m_VDPDecoder;
-    VdpVideoMixer m_VDPMixer;
     IntPoint m_Size;
-    std::vector<vdpau_render_state*> m_RenderStates;
+    vaapi_context*  m_VAAPIContext;
 
 };
 
