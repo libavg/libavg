@@ -80,7 +80,7 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
 bool VAAPIDecoder::isAvailable()
 {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 34, 0)
-    return false;
+    return initVAAPI();
 #else
     return false;
 #endif
@@ -95,6 +95,10 @@ void VAAPIDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFram
 {
 }
 
+void VAAPIDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
+        int offset[4], int y, int type, int height)
+{
+}
 
 AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt)
 {

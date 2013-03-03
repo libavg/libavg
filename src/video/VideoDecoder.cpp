@@ -23,6 +23,9 @@
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
+#ifdef AVG_ENABLE_VAAPI
+#include "VAAPIDecoder.h"
+#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -402,6 +405,13 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
         m_pVDPAUDecoder = new VDPAUDecoder();
         pContext->opaque = m_pVDPAUDecoder;
         pCodec = m_pVDPAUDecoder->openCodec(pContext);
+    } 
+#endif
+#ifdef AVG_ENABLE_VAAPI
+    if (bUseHardwareAcceleration) {
+        m_pVAAPIDecoder = new VAAPIDecoder();
+        pContext->opaque = m_pVAAPIDecoder;
+        pCodec = m_pVAAPIDecoder->openCodec(pContext);
     } 
 #endif
     if (!pCodec) {

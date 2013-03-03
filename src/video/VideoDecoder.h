@@ -45,6 +45,7 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class VDPAUDecoder;
+class VAAPIDecoder;
 
 enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
@@ -118,6 +119,9 @@ class AVG_API VideoDecoder
         IntPoint m_Size;
 #ifdef AVG_ENABLE_VDPAU
         VDPAUDecoder* m_pVDPAUDecoder;
+#endif
+#ifdef AVG_ENABLE_VAAPI
+        VAAPIDecoder* m_pVAAPIDecoder;
 #endif
         
         // Audio

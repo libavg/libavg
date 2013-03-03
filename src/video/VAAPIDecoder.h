@@ -26,6 +26,7 @@
 #include "../base/GLMHelper.h"
 
 #include "WrapFFMpeg.h"
+#include "VAAPIHelper.h"
 
 #include <libavcodec/vaapi.h>
 

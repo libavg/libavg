@@ -20,7 +20,7 @@ if USE_VDPAU_SRC
         ALL_H += VDPAUDecoder.h VDPAUHelper.h
 endif
 if USE_VAAPI_SRC
-        ALL_H += VAAPIDecoder.h
+        ALL_H += VAAPIDecoder.h VAAPIHelper.h
 endif
 
 TESTS=testvideo
@@ -40,7 +40,7 @@ if USE_VDPAU_SRC
         libvideo_la_SOURCES += VDPAUDecoder.cpp VDPAUHelper.cpp
 endif
 if USE_VAAPI_SRC
-        libvideo_la_SOURCES += VAAPIDecoder.cpp
+        libvideo_la_SOURCES += VAAPIDecoder.cpp VAAPIHelper.cpp
 endif
 
 libvideo_la_LIBADD = @LIBVIDEO_LDADD@
@@ -49,6 +49,6 @@ testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la ../base/triangulate/libtriangulate.la -ldl \
         @LIBXINERAMA_LDADD@ @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ @XML2_LIBS@ \
-        @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBFFMPEG@ $(X_LIBS) \
+        @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBFFMPEG@ @LIBVA_LIBS@ $(X_LIBS) \
         @GDK_PIXBUF_LIBS@
 
