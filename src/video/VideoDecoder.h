@@ -59,6 +59,8 @@ class AVG_API VideoDecoder
 {
     public:
         enum DecoderState {CLOSED, OPENED, DECODING};
+        enum VideoAccelType {NONE, VDPAU, VAAPI};
+
         VideoDecoder();
         virtual ~VideoDecoder();
         virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
@@ -88,6 +90,7 @@ class AVG_API VideoDecoder
         virtual void throwAwayFrame(float timeWanted) = 0;
 
         static void logConfig();
+        static VideoAccelType getHWAccelSupported();
 
     protected:
         int getNumFrames() const;

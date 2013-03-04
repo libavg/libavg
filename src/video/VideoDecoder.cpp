@@ -312,17 +312,37 @@ FrameAvailableCode VideoDecoder::renderToTexture(GLTexturePtr pTextures[4],
 
 void VideoDecoder::logConfig()
 {
-    bool bVDPAUAvailable = false;
-#ifdef AVG_ENABLE_VDPAU
-    bVDPAUAvailable = VDPAUDecoder::isAvailable();
-#endif
-    if (bVDPAUAvailable) {
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "Hardware video acceleration: VDPAU");
-    } else {
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "Hardware video acceleration: Off");
+    string sHWAccel;
+    switch(getHWAccelSupported()) {
+        case VDPAU:
+            sHWAccel = "VDPAU";
+            break;
+        case VAAPI:
+            sHWAccel = "VAAPI";
+            break;
+        case NONE:
+            sHWAccel = "Off";
+            break;
+        default:
+            AVG_ASSERT_MSG(false, "Unknown HW accel type.");
     }
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                "Hardware video acceleration:"+sHWAccel);
+}
+
+VideoDecoder::VideoAccelType VideoDecoder::getHWAccelSupported()
+{
+#ifdef AVG_ENABLE_VDPAU
+    if (VDPAUDecoder::isAvailable()) {
+        return VDPAU;
+    }
+#endif
+#ifdef AVG_ENABLE_VAAPI
+    if (VAAPIDecoder::isAvailable()) {
+        return VAAPI;
+    }
+#endif
+    return NONE;
 }
 
 int VideoDecoder::getNumFrames() const
