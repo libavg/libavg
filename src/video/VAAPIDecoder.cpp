@@ -80,7 +80,7 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
 bool VAAPIDecoder::isAvailable()
 {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 34, 0)
-    return initVAAPI();
+    return getVAAPIDisplay() != 0;
 #else
     return false;
 #endif

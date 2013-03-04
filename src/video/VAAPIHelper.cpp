@@ -27,34 +27,30 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/X11Display.h"
 
-# include <va/va.h>
-# include <va/va_glx.h>
+#include <va/va_glx.h>
 
 using namespace std;
 
 namespace avg {
 
-bool initVAAPI()
+VADisplay getVAAPIDisplay()
 {
     static bool bIsInitialized = false;
-    static bool bIsAvailable;
-    if (bIsInitialized) {
-        return bIsAvailable;
-    } else {
+    static VADisplay vaDisplay = 0;
+    if (!bIsInitialized) {
         bIsInitialized = true;
         ::Display* pDisplay = getX11Display(0);
-        VADisplay vaDisplay = vaGetDisplayGLX(pDisplay);
+        vaDisplay = vaGetDisplayGLX(pDisplay);
 
         int majorVer;
         int minorVer;
         VAStatus status = vaInitialize(vaDisplay, &majorVer, &minorVer);
         if (status != VA_STATUS_SUCCESS) {
-            bIsAvailable = false;
+            vaDisplay = 0;
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, vaErrorStr(status));
         }
-        bIsAvailable = true;
-        return bIsAvailable;
     }
+    return vaDisplay;
 }
 
 }

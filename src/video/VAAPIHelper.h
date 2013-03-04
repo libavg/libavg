@@ -25,13 +25,14 @@
 #include "../avgconfigwrapper.h"
 
 #include <boost/shared_ptr.hpp>
+#include <va/va.h>
 
 namespace avg {
 
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
-bool initVAAPI();
+VADisplay getVAAPIDisplay();
 
 }
 #endif
