@@ -147,9 +147,10 @@ void export_raster()
         .add_property("controls", &CameraInfo::getControls)
     ;
         
-    enum_<VideoNode::VideoAccelType>("VideoAccelType")
-        .value("NO_ACCELERATION", VideoNode::NONE)
-        .value("VDPAU", VideoNode::VDPAU)
+    enum_<VideoDecoder::VideoAccelType>("VideoAccelType")
+        .value("NO_ACCELERATION", VideoDecoder::NONE)
+        .value("VDPAU", VideoDecoder::VDPAU)
+        .value("VAAPI", VideoDecoder::VAAPI)
         .export_values()
     ;
 

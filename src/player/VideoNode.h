@@ -44,8 +44,6 @@ typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
 class AVG_API VideoNode: public RasterNode, IFrameEndListener
 {
     public:
-        enum VideoAccelType {NONE, VDPAU};
-
         static void registerType();
         
         VideoNode(const ArgList& args);
@@ -98,7 +96,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         
         virtual IntPoint getMediaSize();
 
-        static VideoAccelType getVideoAccelConfig();
+        static VideoDecoder::VideoAccelType getVideoAccelConfig();
 
     private:
         bool renderFrame();

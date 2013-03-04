@@ -686,14 +686,9 @@ void VideoNode::render()
     }
 }
 
-VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
+VideoDecoder::VideoAccelType VideoNode::getVideoAccelConfig()
 {
-#ifdef AVG_ENABLE_VDPAU
-    if (VDPAUDecoder::isAvailable()) {
-        return VDPAU;
-    }
-#endif
-    return NONE;
+    return VideoDecoder::getHWAccelSupported();
 }
 
 bool VideoNode::renderFrame()
