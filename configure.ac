@@ -207,6 +207,7 @@ AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
 AC_CHECK_HEADERS([vdpau/vdpau.h],let vdpau_h2=1,let vdpau_h2=0)
 if [[ $vdpau_lib -eq 1 ]] && [[ $vdpau_h1 -eq 1 ]] && [[ $vdpau_h2 -eq 1 ]]; then
   AC_DEFINE(AVG_ENABLE_VDPAU, 1, [Enable VDPAU support])
+  AC_MSG_NOTICE([Using VDPAU])
   LIBVIDEO_LDADD="-lvdpau"
   AM_CONDITIONAL(USE_VDPAU_SRC, true)
 else
@@ -220,6 +221,7 @@ AC_CHECK_HEADERS([va/va.h], , [have_vaapi=no])
 AC_CHECK_HEADERS([va/va_x11.h], , [have_vaapi=no])
 if [[ x"$have_vaapi" = x"yes" ]]; then
   AC_DEFINE(AVG_ENABLE_VAAPI, 1, [Enable VAAPI support])
+  AC_MSG_NOTICE([Using VAAPI])
   LIBVIDEO_LDADD="$LIBVIDEO_LDADD -lva-glx"
   AM_CONDITIONAL(USE_VAAPI_SRC, true)
 else
