@@ -24,6 +24,9 @@
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
+#ifdef AVG_ENABLE_VAAPI
+#include "VAAPIDecoder.h"
+#endif
 
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
@@ -50,10 +53,8 @@ using namespace boost;
 
 class DecoderTest: public GraphicsTest {
     public:
-        DecoderTest(const string& sClassName, bool bThreaded, 
-                bool bUseHardwareAcceleration)
-          : GraphicsTest(sClassName+getDecoderName(bThreaded, bUseHardwareAcceleration),
-                2),
+        DecoderTest(const string& sClassName, bool bThreaded, bool bUseHardwareAcceleration)
+          : GraphicsTest(sClassName+getDecoderName(bThreaded, bUseHardwareAcceleration), 2),
             m_bThreaded(bThreaded),
             m_bUseHardwareAcceleration(bUseHardwareAcceleration)
         {}
@@ -153,7 +154,7 @@ class DecoderTest: public GraphicsTest {
                 sName += "Sync";
             }
             if (bUseHardwareAcceleration) {
-                sName += ", VDPAU)";
+                sName += ", HW accelerated)";
             } else {
                 sName += ")";
             }
@@ -293,7 +294,7 @@ class VideoDecoderTest: public DecoderTest {
 class AudioDecoderTest: public DecoderTest {
     public:
         AudioDecoderTest()
-          : DecoderTest("AudioDecoderTest", true, true)
+          : DecoderTest("AudioDecoderTest", true, false)
         {}
 
         void runTests()
@@ -479,14 +480,15 @@ public:
     {
         addAudioTests();
         addVideoTests(false);
-#ifdef AVG_ENABLE_VDPAU
-        if (VDPAUDecoder::isAvailable()) {
+#if defined(AVG_ENABLE_VDPAU) || defined(AVG_ENABLE_VAAPI)
+        if (VDPAUDecoder::isAvailable() || VAAPIDecoder::isAvailable()) {
             addVideoTests(true);
         } else {
-            cerr << "Skipping VDPAU tests: VDPAU configured but not available." << endl;
+            cerr << "Skipping HW accel tests: HW accel configured but not available."
+                    << endl;
         }
 #else
-        cerr << "Skipping VDPAU tests: VDPAU not configured." << endl;
+        cerr << "Skipping HA accel tests: HW accel not configured." << endl;
 #endif
     }
 private:

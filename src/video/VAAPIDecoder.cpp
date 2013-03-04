@@ -88,7 +88,8 @@ bool VAAPIDecoder::isAvailable()
 
 int VAAPIDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    return 0;
+    VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
+    return pVAAPIDecoder->getBufferInternal(pContext, pFrame);
 }
 
 void VAAPIDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
@@ -110,6 +111,21 @@ AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFor
     } else {
         return pFmt[0];
     }
+}
+/*
+VAAPISurface* VAAPIDecoder::getFreeSurface()
+{
+    for (unsigned i = 0; i<m_Surfaces.size(); i++) {
+        VAAPISurface *pSurface = &m_Surfaces[i];
+        if (!pSurface->m_RefCount) {
+            return pSurface;
+        }
+    }
+}
+*/
+int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
+{
+    return 0;
 }
 
 }

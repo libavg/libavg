@@ -32,6 +32,14 @@
 
 namespace avg {
 
+struct VAAPISurface
+{
+    VASurfaceID m_SurfaceID;
+    int m_RefCount;
+    VAImage m_Image;
+    int m_bBound;
+};
+
 class VAAPIDecoder
 {
 public:
@@ -49,8 +57,11 @@ private:
             int offset[4], int y, int type, int height);
     static AVPixelFormat getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt);
 
+    int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
+
     IntPoint m_Size;
     vaapi_context*  m_VAAPIContext;
+    std::vector<VAAPISurface *> m_Surfaces;
 
 };
 
