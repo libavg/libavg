@@ -23,7 +23,7 @@
 from appstarter import AppStarter
 
 
-class App(object):
+class AVGApp(object):
     _instances = {}
 
     def __init__(self, parentNode):
@@ -62,8 +62,16 @@ class App(object):
         return cls._instances.get(cls.__name__, None)
 
     @classmethod
-    def start(cls, appStarter=AppStarter, **kwargs):
-        appStarter(appClass=cls, **kwargs)
+    def start(cls, **kwargs):
+        if cls.multitouch:
+            from appstarter import AVGMTAppStarter
+            starter = AVGMTAppStarter
+        else:
+            from appstarter import AVGAppStarter
+            starter = AVGAppStarter
+        
+        super(AVGApp, cls).start(appStarter=starter,
+                fakeFullscreen=cls.fakeFullscreen, **kwargs)
 
     def init(self):
         """main initialization
@@ -121,21 +129,3 @@ class App(object):
     def getStarter(self):
         return self._starter
 
-
-class AVGApp(App):
-    '''Backward compatibility class'''
-    multitouch = False
-    fakeFullscreen = False
-
-    @classmethod
-    def start(cls, **kwargs):
-        # TODO: deprecation warning
-        if cls.multitouch:
-            from appstarter import AVGMTAppStarter
-            starter = AVGMTAppStarter
-        else:
-            from appstarter import AVGAppStarter
-            starter = AVGAppStarter
-        
-        super(AVGApp, cls).start(appStarter=starter,
-                fakeFullscreen=cls.fakeFullscreen, **kwargs)
