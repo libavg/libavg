@@ -428,7 +428,7 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
     } 
 #endif
 #ifdef AVG_ENABLE_VAAPI
-    if (bUseHardwareAcceleration) {
+    if (!pCodec && bUseHardwareAcceleration) {
         m_pVAAPIDecoder = new VAAPIDecoder();
         pContext->opaque = m_pVAAPIDecoder;
         pCodec = m_pVAAPIDecoder->openCodec(pContext);
