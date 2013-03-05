@@ -49,37 +49,42 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
         return 0;
     }
 
-/*    
-    switch (pContext->codec_id) {
-        case CODEC_ID_MPEG2VIDEO:
-            pCodec = avcodec_find_decoder_by_name("mpeg2_vaapi");
-            break;
-        case CODEC_ID_MPEG4:
-            pCodec = avcodec_find_decoder_by_name("mpeg4_vaapi");
-            break;
-        case CODEC_ID_H263:
-            pCodec = avcodec_find_decoder_by_name("h263_vaapi");
-            break;
-        case CODEC_ID_H264:
-            pCodec = avcodec_find_decoder_by_name("h264_vaapi");
-            break;
-        case CODEC_ID_WMV3:
-            pCodec = avcodec_find_decoder_by_name("wmv3_vaapi");
-            break;
-        case CODEC_ID_VC1:
-            pCodec = avcodec_find_decoder_by_name("vc1_vaapi");
-            break;
-        default:
-            pCodec = 0;
-    }
-*/
     if (isSupportedCodec(pContext->codec_id)) {
+        int profile;
+        switch (pContext->codec_id) {
+            case CODEC_ID_MPEG2VIDEO:
+                profile = VAProfileMPEG2Main;
+                break;
+            case CODEC_ID_MPEG4:
+            case CODEC_ID_H263:
+                profile = VAProfileMPEG4AdvancedSimple;
+                break;
+            case CODEC_ID_H264:
+                profile = VAProfileH264High;
+                break;
+            case CODEC_ID_WMV3:
+                profile = VAProfileVC1Main;
+                break;
+            case CODEC_ID_VC1:
+                profile = VAProfileVC1Advanced;
+                break;
+            default:
+                profile = -1;
+        }
+        m_Size = IntPoint(pContext->width, pContext->height);
+        if (profile != -1) {
+            VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
+            bool bOK = pVAAPIDecoder->initDecoder((VAProfile)profile);
+            if (!bOK) {
+                return 0;
+            }
+        }
+
         pContext->get_buffer = VAAPIDecoder::getBuffer;
         pContext->release_buffer = VAAPIDecoder::releaseBuffer;
         pContext->draw_horiz_band = 0;
         pContext->get_format = VAAPIDecoder::getFormat;
         pContext->slice_flags = SLICE_FLAG_CODED_ORDER | SLICE_FLAG_ALLOW_FIELD;
-        m_Size = IntPoint(pContext->width, pContext->height);
         
         AVCodec* pCodec = avcodec_find_decoder(pContext->codec_id);
         return pCodec;
@@ -112,35 +117,7 @@ void VAAPIDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFram
 AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt)
 {
     cerr << "getFormat" << endl;
-    int profile;
-    switch (pContext->codec_id) {
-        case CODEC_ID_MPEG2VIDEO:
-            profile = VAProfileMPEG2Main;
-            break;
-        case CODEC_ID_MPEG4:
-        case CODEC_ID_H263:
-            profile = VAProfileMPEG4AdvancedSimple;
-            break;
-        case CODEC_ID_H264:
-            profile = VAProfileH264High;
-            break;
-        case CODEC_ID_WMV3:
-            profile = VAProfileVC1Main;
-            break;
-        case CODEC_ID_VC1:
-            profile = VAProfileVC1Advanced;
-            break;
-        default:
-            profile = -1;
-    }
-    if (profile != -1) {
-        VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
-        bool bOK = pVAAPIDecoder->initDecoder((VAProfile)profile);
-        if (bOK) {
-            return PIX_FMT_VAAPI_VLD;
-        }
-    }
-    return pFmt[0];
+    return PIX_FMT_VAAPI_VLD;
 }
 /*
 VAAPISurface* VAAPIDecoder::getFreeSurface()
