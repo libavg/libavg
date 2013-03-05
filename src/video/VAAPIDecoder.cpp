@@ -31,12 +31,16 @@ namespace avg {
 std::vector<VAProfile> VAAPIDecoder::s_Profiles;
 
 VAAPIDecoder::VAAPIDecoder()
-    : m_Size(-1,-1)
+    : m_Size(-1,-1),
+      m_ConfigID(unsigned(-1))
 {
 }
 
 VAAPIDecoder::~VAAPIDecoder()
 {
+    if (m_ConfigID != unsigned(-1)) {
+        vaDestroyConfig(getVAAPIDisplay(), m_ConfigID);
+    }
 }
 
 AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
@@ -131,7 +135,7 @@ AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFor
     }
     if (profile != -1) {
         VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
-        bool bOK = pVAAPIDecoder->initDecoder((VAProfile)profile, VAEntrypointVLD);
+        bool bOK = pVAAPIDecoder->initDecoder((VAProfile)profile);
         if (bOK) {
             return PIX_FMT_VAAPI_VLD;
         }
@@ -154,85 +158,44 @@ int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
     return 0;
 }
 
-bool VAAPIDecoder::initDecoder(VAProfile profile, VAEntrypoint entrypoint)
+bool VAAPIDecoder::initDecoder(VAProfile profile)
 {
     cerr << "VAAPIDecoder::initDecoder" << endl;
+/*    
+    VAContextID context_id = 0;
+    VAStatus status;
+*/
 
     if (!hasProfile(profile)) {
         return false;
     }
-/*    
+
+    if (!hasEntryPoint(profile, VAEntrypointVLD)) {
+        return false;
+    }
+
     VAConfigAttrib attrib;
-    VAConfigID config_id = 0;
-    VAContextID context_id = 0;
-    VASurfaceID surface_id = 0;
-    VAStatus status;
-
-    if (!has_profile(vaapi, profile))
-        return -1;
-    if (!has_entrypoint(vaapi, profile, entrypoint))
-        return -1;
-
-#if USE_GLX
-    if (display_type() == DISPLAY_GLX) {
-        GLXContext * const glx = glx_get_context();
-
-        if (!glx)
-            return -1;
-
-        if (glx_init_texture(picture_width, picture_height) < 0)
-            return -1;
-
-        if (vaapi_glx_create_surface(glx->texture_target, glx->texture) < 0)
-            return -1;
+    attrib.type = VAConfigAttribRTFormat;
+    VAStatus status = vaGetConfigAttributes(getVAAPIDisplay(), profile, VAEntrypointVLD,
+            &attrib, 1);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    if ((attrib.value & VA_RT_FORMAT_YUV420) == 0) {
+        return false;
     }
-#endif
+    status = vaCreateConfig(getVAAPIDisplay(), profile, VAEntrypointVLD, &attrib, 1, 
+            &m_ConfigID);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+   
+    VASurfaceID surface;
+    status = vaCreateSurfaces(getVAAPIDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
+            1, &surface);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+        
+    status = vaCreateContext(getVAAPIDisplay(), m_ConfigID, m_Size.x, m_Size.y,
+            VA_PROGRESSIVE, &surface, 1, &m_ContextID);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    if (vaapi->profile != profile || vaapi->entrypoint != entrypoint) {
-        if (vaapi->config_id)
-            vaDestroyConfig(vaapi->display, vaapi->config_id);
-
-        attrib.type = VAConfigAttribRTFormat;
-        status = vaGetConfigAttributes(vaapi->display, profile, entrypoint,
-                                       &attrib, 1);
-        if (!vaapi_check_status(status, "vaGetConfigAttributes()"))
-            return -1;
-        if ((attrib.value & VA_RT_FORMAT_YUV420) == 0)
-            return -1;
-
-        status = vaCreateConfig(vaapi->display, profile, entrypoint,
-                                &attrib, 1, &config_id);
-        if (!vaapi_check_status(status, "vaCreateConfig()"))
-            return -1;
-    }
-    else
-        config_id = vaapi->config_id;
-
-    if (vaapi->picture_width != picture_width || vaapi->picture_height != picture_height) {
-        if (vaapi->surface_id)
-            vaDestroySurfaces(vaapi->display, &vaapi->surface_id, 1);
-
-        status = vaCreateSurfaces(vaapi->display, picture_width, picture_height,
-                                  VA_RT_FORMAT_YUV420, 1, &surface_id);
-        if (!vaapi_check_status(status, "vaCreateSurfaces()"))
-            return -1;
-
-        if (vaapi->context_id)
-            vaDestroyContext(vaapi->display, vaapi->context_id);
-
-        status = vaCreateContext(vaapi->display, config_id,
-                                 picture_width, picture_height,
-                                 VA_PROGRESSIVE,
-                                 &surface_id, 1,
-                                 &context_id);
-        if (!vaapi_check_status(status, "vaCreateContext()"))
-            return -1;
-    }
-    else {
-        context_id = vaapi->context_id;
-        surface_id = vaapi->surface_id;
-    }
-
+/*    
     vaapi->config_id      = config_id;
     vaapi->context_id     = context_id;
     vaapi->surface_id     = surface_id;
@@ -273,6 +236,26 @@ bool VAAPIDecoder::hasProfile(VAProfile profile)
     return false;
 }
 
+bool VAAPIDecoder::hasEntryPoint(VAProfile profile, VAEntrypoint entryPoint)
+{
+    int numEntryPoints = vaMaxNumEntrypoints(getVAAPIDisplay());
+    VAEntrypoint *pEntryPoints =
+            (VAEntrypoint*)malloc(numEntryPoints*sizeof(VAEntrypoint));
+    VAStatus status = vaQueryConfigEntrypoints(getVAAPIDisplay(), profile, pEntryPoints, 
+            &numEntryPoints);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    cerr << "VAAPI entry points available for " << profileToString(profile) << ":" << endl;
+    bool bEntryPointFound = false;
+    for (int i=0; i<numEntryPoints; ++i) {
+        cerr << "  " << entryPointToString(pEntryPoints[i]) << endl;
+        if (pEntryPoints[i] == entryPoint) {
+            bEntryPointFound = true;
+        }
+    }
+    free(pEntryPoints);
+    return bEntryPointFound;
+}
+
 string VAAPIDecoder::profileToString(VAProfile profile)
 {
     switch (profile) {
@@ -298,7 +281,26 @@ string VAAPIDecoder::profileToString(VAProfile profile)
     default: break;
     }
     return "<unknown>";
-    
+}
+
+string VAAPIDecoder::entryPointToString(VAEntrypoint entryPoint)
+{
+    switch (entryPoint) {
+#define ENTRYPOINT(entryPoint) \
+        case VAEntrypoint##entryPoint: return "VAEntrypoint" #entryPoint
+        ENTRYPOINT(VLD);
+        ENTRYPOINT(IZZ);
+        ENTRYPOINT(IDCT);
+        ENTRYPOINT(MoComp);
+        ENTRYPOINT(Deblocking);
+#if VA_CHECK_VERSION(0,32,0)
+        ENTRYPOINT(EncSlice);
+        ENTRYPOINT(EncPicture);
+#endif
+#undef ENTRYPOINT
+    default: break;
+    }
+    return "<unknown>";
 }
 
 }

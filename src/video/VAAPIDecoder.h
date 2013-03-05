@@ -56,14 +56,19 @@ private:
     static AVPixelFormat getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt);
 
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
-    bool initDecoder(VAProfile profile, VAEntrypoint entrypoint);
+    bool initDecoder(VAProfile profile);
 
     static bool isSupportedCodec(CodecID codecID);
     static bool hasProfile(VAProfile profile);
+    static bool hasEntryPoint(VAProfile profile, VAEntrypoint entryPoint);
     static std::string profileToString(VAProfile profile);
+    static std::string entryPointToString(VAEntrypoint entryPoint);
 
     IntPoint m_Size;
-    vaapi_context*  m_VAAPIContext;
+    VAConfigID m_ConfigID;
+    VAContextID m_ContextID;
+//    vaapi_context*  m_pVAAPIContext;
+
     std::vector<VAAPISurface *> m_Surfaces;
 
     static std::vector<VAProfile> s_Profiles;
