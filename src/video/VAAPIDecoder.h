@@ -53,16 +53,20 @@ private:
     // Callbacks
     static int getBuffer(AVCodecContext* pContext, AVFrame* pFrame);
     static void releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame);
-    static void drawHorizBand(AVCodecContext* pContext, const AVFrame* pFrame, 
-            int offset[4], int y, int type, int height);
     static AVPixelFormat getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt);
 
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
+    bool initDecoder(VAProfile profile, VAEntrypoint entrypoint);
+
+    static bool isSupportedCodec(CodecID codecID);
+    static bool hasProfile(VAProfile profile);
+    static std::string profileToString(VAProfile profile);
 
     IntPoint m_Size;
     vaapi_context*  m_VAAPIContext;
     std::vector<VAAPISurface *> m_Surfaces;
 
+    static std::vector<VAProfile> s_Profiles;
 };
 
 }

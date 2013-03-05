@@ -420,6 +420,7 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 //    pContext->debug = 0x0001; // see avcodec.h
 
     AVCodec * pCodec = 0;
+/*
 #ifdef AVG_ENABLE_VDPAU
     if (bUseHardwareAcceleration) {
         m_pVDPAUDecoder = new VDPAUDecoder();
@@ -427,6 +428,7 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
         pCodec = m_pVDPAUDecoder->openCodec(pContext);
     } 
 #endif
+*/    
 #ifdef AVG_ENABLE_VAAPI
     if (!pCodec && bUseHardwareAcceleration) {
         m_pVAAPIDecoder = new VAAPIDecoder();
