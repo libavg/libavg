@@ -30,7 +30,6 @@ from libavg import avg, player
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 # XXX Needs to be moved to a more general place 
-# (see uilib2 branch: ui/base.py/StretchNodeBase/_bmpFromSrc()).
 def _bmpFromSrc(node, src):
     if isinstance(src, basestring):
         if os.path.isabs(src):
