@@ -32,7 +32,8 @@ std::vector<VAProfile> VAAPIDecoder::s_Profiles;
 
 VAAPIDecoder::VAAPIDecoder()
     : m_Size(-1,-1),
-      m_ConfigID(unsigned(-1))
+      m_ConfigID(unsigned(-1)),
+      m_pFFMpegVAContext(0)
 {
 }
 
@@ -50,7 +51,7 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
     }
 
     if (isSupportedCodec(pContext->codec_id)) {
-        int profile;
+        int profile = -1;
         switch (pContext->codec_id) {
             case CODEC_ID_MPEG2VIDEO:
                 profile = VAProfileMPEG2Main;
@@ -69,23 +70,26 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
                 profile = VAProfileVC1Advanced;
                 break;
             default:
-                profile = -1;
+                AVG_ASSERT(false);
         }
         m_Size = IntPoint(pContext->width, pContext->height);
-        if (profile != -1) {
-            VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
-            bool bOK = pVAAPIDecoder->initDecoder((VAProfile)profile);
-            if (!bOK) {
-                return 0;
-            }
+        bool bOK = initDecoder((VAProfile)profile);
+        if (!bOK) {
+            return 0;
         }
+        m_pFFMpegVAContext = new vaapi_context;
+        pContext->hwaccel_context = m_pFFMpegVAContext;
+        memset(m_pFFMpegVAContext, 0, sizeof(vaapi_context));
+        m_pFFMpegVAContext->display = getVAAPIDisplay();
+        m_pFFMpegVAContext->config_id = m_ConfigID;
+        m_pFFMpegVAContext->context_id = m_ContextID;
 
         pContext->get_buffer = VAAPIDecoder::getBuffer;
         pContext->release_buffer = VAAPIDecoder::releaseBuffer;
         pContext->draw_horiz_band = 0;
         pContext->get_format = VAAPIDecoder::getFormat;
         pContext->slice_flags = SLICE_FLAG_CODED_ORDER | SLICE_FLAG_ALLOW_FIELD;
-        
+        pContext->pix_fmt = PIX_FMT_VAAPI_VLD;
         AVCodec* pCodec = avcodec_find_decoder(pContext->codec_id);
         return pCodec;
     } else {
@@ -112,6 +116,10 @@ int VAAPIDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 void VAAPIDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
     cerr << "releaseBuffer" << endl;
+    pFrame->data[0] = 0;
+    pFrame->data[1] = 0;
+    pFrame->data[2] = 0;
+    pFrame->data[3] = 0;
 }
 
 AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt)
@@ -132,7 +140,18 @@ VAAPISurface* VAAPIDecoder::getFreeSurface()
 */
 int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 {
+    uint8_t *surface = (uint8_t*)(uintptr_t)m_Surface;
+    pFrame->type = FF_BUFFER_TYPE_USER;
+    pFrame->data[0] = surface;
+    pFrame->data[1] = 0;
+    pFrame->data[2] = 0;
+    pFrame->data[3] = surface;
+    pFrame->linesize[0] = 0;
+    pFrame->linesize[1] = 0;
+    pFrame->linesize[2] = 0;
+    pFrame->linesize[3] = 0;
     return 0;
+    
 }
 
 bool VAAPIDecoder::initDecoder(VAProfile profile)
@@ -162,25 +181,17 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     status = vaCreateConfig(getVAAPIDisplay(), profile, VAEntrypointVLD, &attrib, 1, 
             &m_ConfigID);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
-   
-    VASurfaceID surface;
+
+    
     status = vaCreateSurfaces(getVAAPIDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
-            1, &surface);
+            1, &m_Surface);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
         
     status = vaCreateContext(getVAAPIDisplay(), m_ConfigID, m_Size.x, m_Size.y,
-            VA_PROGRESSIVE, &surface, 1, &m_ContextID);
+            VA_PROGRESSIVE, &m_Surface, 1, &m_ContextID);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-/*    
-    vaapi->config_id      = config_id;
-    vaapi->context_id     = context_id;
-    vaapi->surface_id     = surface_id;
-    vaapi->profile        = profile;
-    vaapi->entrypoint     = entrypoint;
-    vaapi->picture_width  = picture_width;
-    vaapi->picture_height = picture_height;
-*/    
+
     return true;
 }
 

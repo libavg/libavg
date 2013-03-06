@@ -35,9 +35,9 @@ namespace avg {
 struct VAAPISurface
 {
     VASurfaceID m_SurfaceID;
-    int m_RefCount;
+    bool m_bUsed;
     VAImage m_Image;
-    int m_bBound;
+    bool m_bBound;
 };
 
 class VAAPIDecoder
@@ -67,9 +67,8 @@ private:
     IntPoint m_Size;
     VAConfigID m_ConfigID;
     VAContextID m_ContextID;
-//    vaapi_context*  m_pVAAPIContext;
-
-    std::vector<VAAPISurface *> m_Surfaces;
+    VASurfaceID m_Surface;
+    vaapi_context* m_pFFMpegVAContext;
 
     static std::vector<VAProfile> s_Profiles;
 };

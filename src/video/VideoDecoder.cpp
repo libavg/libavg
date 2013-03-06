@@ -59,6 +59,9 @@ VideoDecoder::VideoDecoder()
 #ifdef AVG_ENABLE_VDPAU
       m_pVDPAUDecoder(0),
 #endif
+#ifdef AVG_ENABLE_VDPAU
+      m_pVAAPIDecoder(0),
+#endif
       m_AStreamIndex(-1),
       m_pAStream(0)
 {
@@ -74,6 +77,11 @@ VideoDecoder::~VideoDecoder()
 #ifdef AVG_ENABLE_VDPAU
     if (m_pVDPAUDecoder) {
         delete m_pVDPAUDecoder;
+    }
+#endif
+#ifdef AVG_ENABLE_VAAPI
+    if (m_pVAAPIDecoder) {
+        delete m_pVAAPIDecoder;
     }
 #endif
     ObjectCounter::get()->decRef(&typeid(*this));
@@ -493,6 +501,9 @@ PixelFormat VideoDecoder::calcPixelFormat(bool bUseYCbCr)
             case PIX_FMT_VDPAU_WMV3:
             case PIX_FMT_VDPAU_VC1:
 #endif
+#ifdef AVG_ENABLE_VAAPI
+            case PIX_FMT_VAAPI_VLD:
+#endif            
                 return YCbCr420p;
             case PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
