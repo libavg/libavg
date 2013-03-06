@@ -1,4 +1,4 @@
-SUBDIRS = widget data
+SUBDIRS = widget data app
 pkgpyexec_PYTHON = enumcompat.py camcalibrator.py textarea.py gameapp.py \
        mathutil.py avgapp.py appstarter.py utils.py filter.py \
        mtemu.py geom.py parsecamargs.py apphelpers.py methodref.py \
