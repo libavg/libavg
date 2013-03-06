@@ -164,7 +164,8 @@ void VideoDecoderThread::sendFrame(AVFrame& frame)
                 pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
             }
             for (unsigned i = 0; i < pBmps.size(); ++i) {
-                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
+                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], frame.data[i], 
+                        frame.linesize[i]);
             }
         } else {
             pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
