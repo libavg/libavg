@@ -147,26 +147,24 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
             bool bNeedsResample = (m_InputSampleRate != m_AP.m_SampleRate ||
                     m_InputSampleFormat != SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
-            bool skipBranch = false;
+            bool bIsPlanar = false;
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(52, 13, 100)
-            bool bNeedsInterleave = av_sample_fmt_is_planar(
-                    (SampleFormat)m_InputSampleFormat);
-            if (bNeedsInterleave){
+            bIsPlanar = av_sample_fmt_is_planar((SampleFormat)m_InputSampleFormat);
+            if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
                         FF_INPUT_BUFFER_PADDING_SIZE);
-                interleave(pPackedData, pDecodedData, m_pStream->codec->channels,
+                planarToInterleaved(pPackedData, pDecodedData, m_pStream->codec->channels,
                         m_pStream->codec->frame_size);
                 pBuffer = resampleAudio(pPackedData, framesDecoded,
-                        av_get_packed_sample_fmt((SampleFormat)m_InputSampleFormat) );
+                        av_get_packed_sample_fmt((SampleFormat)m_InputSampleFormat));
                 av_free(pPackedData);
                 bNeedsResample = false;
-                skipBranch = true;
             }
 #endif
             if (bNeedsResample) {
-                    pBuffer = resampleAudio(pDecodedData, framesDecoded,
-                            m_InputSampleFormat);
-            } else if(!skipBranch){
+                pBuffer = resampleAudio(pDecodedData, framesDecoded,
+                        m_InputSampleFormat);
+            } else if (!bIsPlanar) {
                 pBuffer = AudioBufferPtr(new AudioBuffer(framesDecoded, m_AP));
                 memcpy(pBuffer->getData(), pDecodedData, bytesDecoded);
             }
@@ -239,25 +237,26 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
     return pBuffer;
 }
 
-void AudioDecoderThread::interleave(char *output, char *input, int channels, int samples)
+void AudioDecoderThread::planarToInterleaved(char* pOutput, char* pInput, int numChannels,
+        int numSamples)
 {
-    AVG_ASSERT(channels <= 8);
-    if(samples == 0){
-        //Fishy, some ogg files have noe proper frame_size set. But outputBufferSamples
-        //worked for sample ogg file
-        samples = m_AP.m_OutputBufferSamples;
+    AVG_ASSERT(numChannels <= 8);
+    if (numSamples == 0) {
+        // Fishy, some ogg files have no proper frame_size set. But outputBufferSamples
+        // worked for sample ogg file.
+        numSamples = m_AP.m_OutputBufferSamples;
     }
     int i, j;
     int bytesPerSample = getBytesPerSample(m_InputSampleFormat);
     char * pPlanes[8] = {};
-    for (i=0; i<channels; i++){
-        pPlanes[i] = input + i*(samples*bytesPerSample);
+    for (i=0; i<numChannels; i++) {
+        pPlanes[i] = pInput + i*(numSamples*bytesPerSample);
     }
-    for (i=0; i < samples; i++){
-        for(j=0; j<channels; j++){
-            memcpy(output, pPlanes[j], bytesPerSample);
-            output+=bytesPerSample;
-            pPlanes[j]+=bytesPerSample;
+    for (i=0; i<numSamples; i++) {
+        for (j=0; j<numChannels; j++) {
+            memcpy(pOutput, pPlanes[j], bytesPerSample);
+            pOutput += bytesPerSample;
+            pPlanes[j] += bytesPerSample;
         }
     }
 }

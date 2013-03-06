@@ -54,7 +54,8 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         AudioBufferPtr resampleAudio(char* pDecodedData, int framesDecoded,
                 int currentSampleFormat);
         void insertSilence(float duration);
-        void interleave(char *output, char *input, int channels, int samples);
+        void planarToInterleaved(char* pOutput, char* pInput, int numChannels, 
+                int numSamples);
         void pushAudioMsg(AudioBufferPtr pBuffer, float time);
         void pushSeekDone(float time, int seqNum);
         void pushEOF();
