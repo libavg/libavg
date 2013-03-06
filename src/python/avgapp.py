@@ -25,6 +25,8 @@ from appstarter import AppStarter
 
 class AVGApp(object):
     _instances = {}
+    multitouch = False
+    fakeFullscreen = False
 
     def __init__(self, parentNode):
         '''
@@ -70,8 +72,7 @@ class AVGApp(object):
             from appstarter import AVGAppStarter
             starter = AVGAppStarter
         
-        super(AVGApp, cls).start(appStarter=starter,
-                fakeFullscreen=cls.fakeFullscreen, **kwargs)
+        starter(appClass=cls, fakeFullscreen=cls.fakeFullscreen, **kwargs)
 
     def init(self):
         """main initialization
