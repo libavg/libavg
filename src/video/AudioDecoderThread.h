@@ -51,8 +51,10 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         void decodePacket(AVPacket* pPacket);
         void handleSeekDone(AVPacket* pPacket);
         void discardPacket(AVPacket* pPacket);
-        AudioBufferPtr resampleAudio(char* pDecodedData, int framesDecoded);
+        AudioBufferPtr resampleAudio(char* pDecodedData, int framesDecoded,
+                int currentSampleFormat);
         void insertSilence(float duration);
+        void interleave(char *output, char *input, int channels, int samples);
         void pushAudioMsg(AudioBufferPtr pBuffer, float time);
         void pushSeekDone(float time, int seqNum);
         void pushEOF();
