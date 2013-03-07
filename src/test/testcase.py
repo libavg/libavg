@@ -150,13 +150,17 @@ class AVGTestCase(unittest.TestCase):
         stdDev = diffBmp.getStdDev()
         return avg <= maxAvg and stdDev <= maxStdDev
 
-    def assertException(self, code):
+    def assertException(self, code, excType=None):
         exceptionRaised = False
         try:
             code()
-        except:
+        except Exception, e:
             exceptionRaised = True
-        self.assert_(exceptionRaised)
+        
+        if excType is not None:
+            self.assert_(exceptionRaised and type(e) == excType)
+        else:
+            self.assert_(exceptionRaised)
 
     def assertAlmostEqual(self, a, b, epsilon=0.00001):
         if not(almostEqual(a, b, epsilon)):
