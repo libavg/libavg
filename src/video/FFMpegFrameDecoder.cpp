@@ -98,6 +98,7 @@ bool FFMpegFrameDecoder::decodeLastFrame(AVFrame& frame)
     AVCodecContext* pContext = m_pStream->codec;
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
     AVPacket packet;
+    av_init_packet(&packet);
     packet.data = 0;
     packet.size = 0;
     avcodec_decode_video2(pContext, &frame, &bGotPicture, &packet);

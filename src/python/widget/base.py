@@ -33,10 +33,10 @@ def bmpFromSrc(src):
     else:
         raise RuntimeError("src must be a string or a Bitmap.")
 
-class StretchNodeBase(avg.DivNode):
+class _StretchNodeBase(avg.DivNode):
     
     def __init__(self, src=None, parent=None, **kwargs):
-        super(StretchNodeBase, self).__init__(**kwargs)
+        super(_StretchNodeBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         if isinstance(src, avg.Bitmap):
             self._bmp = src
@@ -84,7 +84,7 @@ class StretchNodeBase(avg.DivNode):
         player.deleteCanvas("stretch_canvas")
 
 
-class HStretchNode(StretchNodeBase):
+class HStretchNode(_StretchNodeBase):
 
     def __init__(self, endsExtent, minExtent=-1, **kwargs):
         super(HStretchNode, self).__init__(**kwargs)
@@ -115,7 +115,7 @@ class HStretchNode(StretchNodeBase):
                 (-endOffset,0), (self.__endsExtent, height))
     
 
-class VStretchNode(StretchNodeBase):
+class VStretchNode(_StretchNodeBase):
 
     def __init__(self, endsExtent, minExtent=-1, **kwargs):
         super(VStretchNode, self).__init__(**kwargs)
@@ -146,7 +146,7 @@ class VStretchNode(StretchNodeBase):
                 (width, self.__endsExtent))
 
 
-class HVStretchNode(StretchNodeBase):
+class HVStretchNode(_StretchNodeBase):
 
     def __init__(self, endsExtent, minExtent=(-1,-1), **kwargs):
         super(HVStretchNode, self).__init__(**kwargs)
@@ -217,7 +217,7 @@ class SwitchNode(avg.DivNode):
         super(SwitchNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
   
-        self.__nodeMap = nodeMap
+        self.__nodeMap = None
         if nodeMap:
             self.setNodeMap(nodeMap)
         if visibleid:
@@ -226,6 +226,8 @@ class SwitchNode(avg.DivNode):
         self.subscribe(self.SIZE_CHANGED, self.__setChildSizes)
 
     def setNodeMap(self, nodeMap):
+        if self.__nodeMap is not None:
+            raise RuntimeError("SwitchNode.nodeMap can only be set once.")
         self.__nodeMap = nodeMap
         for node in self.__nodeMap.itervalues():
             if node:

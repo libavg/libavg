@@ -73,6 +73,55 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
             :py:const:`True` if the button accepts input. If the button is disabled,
             it shows the :py:attr:`disabledNode`.
 
+    
+    .. autoclass:: HStretchNode(endsExtent, [src=None, minExtent=-1]) 
+
+        A node that stretches its graphics to fill the size given horizontally. It is used
+        as base component for scrollbars and buttons. The base
+        bitmap is split into three parts: left, center and right. The left and right parts
+        are :py:attr:`endsExtent` wide and generated from the corresponding parts of the 
+        source bitmap. The center part is generated from a one pixel wide slice of the 
+        source bitmap and stretched to fill the space left between the left and right
+        parts.
+
+        :param int endsExtent:
+
+            Width of the left and right bitmaps in pixels.
+
+        :param src:
+
+            Either the name of a bitmap file or a :py:class:`Bitmap` object. Used to
+            generate the graphics used.
+
+        :param int minExtent:
+
+            Minimum horizontal size. The default of -1 uses :py:const:`2*endsExtent+1` as
+            minimum.
+
+
+    .. autoclass:: HVStretchNode(endsExtent, [src=None, minExtent=-1]) 
+
+        A node that stretches its graphics to fill the size given horizontally and
+        vertically. It is used as base component for scrollareas. Similar to 
+        :py:class:`HStretchNode`, the base bitmap is split and partial bitmaps are
+        extracted. Four corner bitmaps of size :py:attr:`endsExtent` stay the same size,
+        four one-pixel-slice bitmaps fill the sides, and a single one-pixel bitmap is used
+        to fill the center area.
+
+        :param IntPoint endsExtent:
+
+            Size of the corner bitmaps in pixels.
+
+        :param src:
+
+            Either the name of a bitmap file or a :py:class:`Bitmap` object. Used to
+            generate the graphics used.
+
+        :param IntPoint minExtent:
+
+            Minimum size. The default of :py:const:`-1` uses :py:const:`2*endsExtent+1` as
+            minimum.
+
 
     .. autoclass:: Keyboard(bgSrc, downSrc, keyDefs, shiftKeyCode, [altGrKeyCode=None, stickyShift=False, feedbackSrc=None])
 
@@ -181,6 +230,32 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
                 Unicode string containing the keycodes when altgr is pressed.
     
     
+    .. autoclass:: Orientation()
+
+        .. py:data:: HORIZONTAL
+
+        .. py:data:: VERTICAL
+
+
+    .. autoclass:: SwitchNode([nodeMap=None, visibleid=None])
+
+        A :py:class:`DivNode` that keeps a map of child nodes and shows only one of 
+        the map members at any time. 
+
+        :param map nodeMap:
+
+            A map :py:const:`id->node` that contains the nodes to switch between. 
+        
+        .. py:method:: setNodeMap(nodeMap)
+
+            Can be used to set the :py:attr:`nodeMap` after construction if no node map
+            was set before.
+
+        .. py:attribute:: visibleid
+
+            The id of the visible child node.
+
+
     .. autoclass:: TextButton(text, [skinObj=skin.Skin.default])
 
         A :py:class:`Button` that is created using the given :py:class:`Skin` and a text.
@@ -279,4 +354,28 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
 
             Determines whether the button accepts input.
 
+
+    .. autoclass:: VStretchNode(endsExtent, [src=None, minExtent=-1]) 
+
+        A node that stretches its graphics to fill the size given vertically. It is used
+        as base component for scrollbars. The base
+        bitmap is split into three parts: top, center and bottom. The top and bottom parts
+        are :py:attr:`endsExtent` wide and generated from the corresponding parts of the 
+        source bitmap. The center part is generated from a one pixel high slice of the 
+        source bitmap and stretched to fill the space left between the top and bottom
+        parts.
+
+        :param int endsExtent:
+
+            Width of the top and bottom bitmaps in pixels.
+
+        :param src:
+
+            Either the name of a bitmap file or a :py:class:`Bitmap` object. Used to
+            generate the graphics used.
+
+        :param int minExtent:
+
+            Minimum vertical size. The default of :py:const:`-1` uses 
+            :py:const:`2*endsExtent+1` as minimum.
 
