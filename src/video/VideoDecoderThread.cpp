@@ -157,7 +157,10 @@ void VideoDecoderThread::sendFrame(AVFrame& frame)
             }
             break;
         case VA_VAAPI:
-            AVG_ASSERT(false);
+            {
+                VAAPISurfaceInfo* pSurfaceInfo = (VAAPISurfaceInfo*)frame.opaque;
+                pMsg->setVAAPIFrame(pSurfaceInfo, m_pFrameDecoder->getCurTime());
+            }
             break;
         case VA_NONE: 
             {

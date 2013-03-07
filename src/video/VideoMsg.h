@@ -35,11 +35,14 @@ struct AVPacket;
 
 namespace avg {
 
+struct VAAPISurfaceInfo;
+
 class AVG_API VideoMsg: public AudioMsg {
 public:
     VideoMsg();
     void setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime);
-    void setVDPAUFrame(vdpau_render_state* m_pRenderState, float frameTime);
+    void setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime);
+    void setVAAPIFrame(VAAPISurfaceInfo* pSurfaceInfo, float frameTime);
     void setPacket(AVPacket* pPacket);
 
     virtual ~VideoMsg();
@@ -50,6 +53,7 @@ public:
     void freePacket();
 
     vdpau_render_state* getRenderState();
+    VAAPISurfaceInfo* getVAAPISurfaceInfo();
 
 private:
     // FRAME
@@ -58,6 +62,9 @@ private:
 
     // VDPAU_FRAME
     vdpau_render_state* m_pRenderState;
+
+    // VAAPI_FRAME
+    VAAPISurfaceInfo* m_pSurfaceInfo;
     
     // PACKET
     AVPacket * m_pPacket;
