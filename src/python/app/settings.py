@@ -24,17 +24,25 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
+import re
 import optparse
+
+import libavg
 
 
 class Settings(object):
+    VALUE_CONV_FUNC = str
+
     def __init__(self, defaults, settingsKeywords={}):
         assert type(defaults) == dict
         # TODO: check if a thorough check is better than a simple update
         defaults.update(settingsKeywords)
-        self.__config = dict([(k, str(v)) for k, v in defaults.iteritems()])
+        self.__config = defaults
 
         self.__overrideDefaultsWithCliArgs()
+
+    def __iter__(self):
+        return self.__config.__iter__()
 
     def get(self, key, convertFunc=lambda v: v):
         if not key in self.__config:
@@ -47,11 +55,20 @@ class Settings(object):
             raise ValueError('%s (key=%s value=%s)' % (e,
                     key, value))
 
-    def decodejson(self, key):
+    def getjson(self, key):
         import json
 
         return self.get(key, json.loads)
     
+    def getpoint2d(self, key):
+        value = self.get(key)
+        maybeTuple = re.split(r'\s*[,xX]\s*', value)
+        
+        if len(maybeTuple) != 2:
+            raise ValueError('Cannot convert key %s value %s to Point2D' % (key, value))
+
+        return libavg.Point2D(map(float, maybeTuple))
+
     def getint(self, key):
         return self.get(key, int)
     
@@ -66,11 +83,11 @@ class Settings(object):
         elif value in ('no', 'false'):
             return False
         else:
-            raise TypeError('Cannot convert %s to boolean' % value)
+            raise ValueError('Cannot convert %s to boolean' % value)
 
-    def getall(self):
-        return self.__config
-
+    def set(self, key, value):
+        self.__config[key] = self.VALUE_CONV_FUNC(value)
+        
     def __overrideDefaultsWithCliArgs(self):
         parser = optparse.OptionParser()
 
@@ -87,13 +104,4 @@ class Settings(object):
 
         self.__config.update((k, v) for k, v in options.__dict__.iteritems() if v is not None)
 
-
-if __name__ == '__main__':
-    defaults = dict(test_boolean=True, test_string='string', another_value_int=1234)
-
-    s = Settings(defaults)
-    print s.getall()
-    print s.getboolean('test_boolean')
-    print s.get('test_string')
-    print s.getint('another_value_int')
 

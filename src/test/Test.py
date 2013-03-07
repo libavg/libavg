@@ -119,6 +119,7 @@ import InputDeviceTest
 import AVGAppTest
 import WidgetTest
 import GestureTest
+import AppTest
 
 app = testapp.TestApp()
 
@@ -138,6 +139,7 @@ app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
 app.registerSuiteFactory('widget', WidgetTest.widgetTestSuite)
 app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
 app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
+app.registerSuiteFactory('app', AppTest.appTestSuite)
 
 app.run()
 
