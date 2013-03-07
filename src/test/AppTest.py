@@ -23,6 +23,7 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
+import sys
 import libavg
 from libavg.app import settings
 from libavg.app.settings import Option
@@ -76,13 +77,21 @@ class AppTestCase(testcase.AVGTestCase):
 
         s.set('test_value', '1234')
         self.assertEquals(s.getint('test_value'), 1234)
-            
-            
+
+    def testSettingsArgvOverride(self):
+        savedArgv = sys.argv
+        sys.argv = ['foo', '--foo-bar', 'baz']
+        s = settings.Settings([Option('foo_bar', 'bar')])
+        self.assertEquals(s.get('foo_bar'), 'baz')
+        sys.argv = savedArgv
+
+
 def appTestSuite(tests):
     availableTests = (
             'testSettingsOptions',
             'testSettingsTypes',
             'testSettingsSet',
+            'testSettingsArgvOverride',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 
