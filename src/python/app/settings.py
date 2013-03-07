@@ -24,14 +24,7 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
-'''
-Provide settings via a loosely-defined configuration, generating interoperability
-between configuration and command line arguments.
-'''
-
-import sys
-import os
-import argparse
+import optparse
 
 
 class Settings(object):
@@ -79,19 +72,20 @@ class Settings(object):
         return self.__config
 
     def __overrideDefaultsWithCliArgs(self):
-        finalParser = argparse.ArgumentParser()
+        parser = optparse.OptionParser()
 
-        mainGroup = finalParser.add_argument_group('Application options')
+        mainGroup = optparse.OptionGroup(parser, 'Application options')
         
         for key, val in self.__config.iteritems():
             cliKey = '--%s' % key.replace('_', '-').lower()
             currentValue = val
 
-            mainGroup.add_argument(cliKey, help='Default: %s' % currentValue)
+            mainGroup.add_option(cliKey, help='Default: %s' % currentValue)
 
-        args = finalParser.parse_args()
+        parser.add_option_group(mainGroup)
+        options, posargs = parser.parse_args()
 
-        self.__config.update((k, v) for k, v in args.__dict__.iteritems() if v is not None)
+        self.__config.update((k, v) for k, v in options.__dict__.iteritems() if v is not None)
 
 
 if __name__ == '__main__':
