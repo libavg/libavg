@@ -1,3 +1,3 @@
 pkgwidgetdir = $(pkgpyexecdir)/app
-pkgwidget_PYTHON = __init__.py settings.py
+pkgwidget_PYTHON = __init__.py app.py settings.py
 
