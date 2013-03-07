@@ -150,19 +150,45 @@ class Settings(object):
     def __overrideDefaultsWithCliArgs(self):
         parser = optparse.OptionParser()
 
-        mainGroup = optparse.OptionGroup(parser, 'Application options')
+        groups = self.__groupOptionsKeys()
         
-        for option in self.__options:
-            cliKey = '--%s' % option.key.replace('_', '-').lower()
-            currentValue = option.value
+        for group in groups:
+            parserGroup = optparse.OptionGroup(parser, group)
+            
+            keys = sorted(groups[group])
+            
+            for option in [self.__getOptionOrNone(key) for key in keys]:
+                cliKey = '--%s' % option.key.replace('_', '-').lower()
+                currentValue = option.value
 
-            mainGroup.add_option(cliKey, help='Default: %s' % currentValue)
+                help = '[Default: %s]' % currentValue
+                
+                if option.help:
+                    help = '%s %s' % (option.help, help)
+                    
+                parserGroup.add_option(cliKey, help=help)
 
-        parser.add_option_group(mainGroup)
+            parser.add_option_group(parserGroup)
+
         options, posargs = parser.parse_args()
 
         for key, value in options.__dict__.iteritems():
             if value is not None:
                 self.set(key, value)
 
+    def __groupOptionsKeys(self):
+        groups = {}
+        for option in self.__options:
+            components = option.key.split('_', 1)
+            if len(components) == 1:
+                group = 'DEFAULT'
+            else:
+                group = components[0]
+            
+            if not group in groups:
+                groups[group] = []
+            
+            groups[group].append(option.key)
+
+        return groups
 
