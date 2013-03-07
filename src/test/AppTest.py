@@ -19,28 +19,32 @@
 #
 # Current versions can be found at www.libavg.de
 #
+# Original author of this file is OXullo Interecans <x at brainrapers dot org>
+# Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
-import os
-import time
 
 import libavg
-from libavg import avg, Point2D, player
 from libavg.app import settings
 import testcase
 
-g_helper = player.getTestHelper()
-
-TEST_RESOLUTION = (160, 120)
-
 
 class AppTestCase(testcase.AVGTestCase):
-#    def testSettingsInit(self):
-#        self.assertException(lambda: settings.Settings({1:2}), ValueError)
-#        self.assertException(lambda: settings.Settings({'1':2}), ValueError)
-#        self.assertException(lambda: settings.Settings({1:'2'}), ValueError)
+    def testSettingsDefaults(self):
+        self.assertException(lambda: settings.Defaults(test=1), ValueError)
+        
+        defaults = settings.Defaults()
+        def intKey():
+            defaults[1] = 'foo'
+        
+        self.assertException(intKey, ValueError)
+        
+        def intValue():
+            defaults['foo'] = 1
+
+        self.assertException(intValue, ValueError)
         
     def testSettingsTypes(self):
-        defaults = dict(test_boolean='True', test_string='string',
+        defaults = settings.Defaults(test_boolean='True', test_string='string',
                 another_value_int='1234', test_2d='1280x1024', test_2d_alt='1280,1024',
                 test_float='12.345', test_json='[1, null,3 , "string", 12.345]')
 
@@ -64,12 +68,14 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(s.getjson('test_json'), [1, None, 3, 'string', 12.345])
 
     def testSettingsSet(self):
-        s = settings.Settings(dict())
-        s.set('test_value', 1234)
+        s = settings.Settings(settings.Defaults())
+        self.assertException(lambda: s.set('test_value', 1234), ValueError)
+
+        s.set('test_value', '1234')
         self.assertEquals(s.getint('test_value'), 1234)
 
     def testSettingsIteration(self):
-        defaults = {'0':'foo', '1':'bar', '2':'baz'}
+        defaults = settings.Defaults(a='foo', b='bar', c='baz')
         s = settings.Settings(defaults)
         
         keys = defaults.keys()
@@ -83,7 +89,7 @@ class AppTestCase(testcase.AVGTestCase):
             
 def appTestSuite(tests):
     availableTests = (
-#            'testSettingsInit',
+            'testSettingsDefaults',
             'testSettingsTypes',
             'testSettingsSet',
             'testSettingsIteration',

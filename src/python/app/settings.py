@@ -29,14 +29,27 @@ import optparse
 
 import libavg
 
+class Defaults(dict):
+    def __init__(self, **kargs):
+        for key, value in kargs.iteritems():
+            if not isinstance(value, str):
+                raise ValueError('The type of %s value is not string (%s)' % (key, value))
+        
+        super(Defaults, self).__init__(**kargs)
+
+    def __setitem__(self, key, value):
+        if not isinstance(key, str):
+            raise ValueError('The type of %s key is not string (value=%s)' % (key, value))
+
+        if not isinstance(value, str):
+            raise ValueError('The type of %s value is not string (%s)' % (key, value))
+
+        super(Defaults, self).__setitem__(key, value)        
+
 
 class Settings(object):
-    VALUE_CONV_FUNC = str
-
-    def __init__(self, defaults, settingsKeywords={}):
-        assert type(defaults) == dict
-        # TODO: check if a thorough check is better than a simple update
-        defaults.update(settingsKeywords)
+    def __init__(self, defaults):
+        assert type(defaults) == Defaults
         self.__config = defaults
 
         self.__overrideDefaultsWithCliArgs()
@@ -86,7 +99,7 @@ class Settings(object):
             raise ValueError('Cannot convert %s to boolean' % value)
 
     def set(self, key, value):
-        self.__config[key] = self.VALUE_CONV_FUNC(value)
+        self.__config[key] = value
         
     def __overrideDefaultsWithCliArgs(self):
         parser = optparse.OptionParser()
