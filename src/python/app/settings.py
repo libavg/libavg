@@ -29,44 +29,73 @@ import optparse
 
 import libavg
 
-class Defaults(dict):
-    def __init__(self, **kargs):
-        for key, value in kargs.iteritems():
-            if not isinstance(value, str):
-                raise ValueError('The type of %s value is not string (%s)' % (key, value))
-        
-        super(Defaults, self).__init__(**kargs)
 
-    def __setitem__(self, key, value):
+class Option(object):
+    def __init__(self, key, value, help=None):
         if not isinstance(key, str):
             raise ValueError('The type of %s key is not string (value=%s)' % (key, value))
 
-        if not isinstance(value, str):
-            raise ValueError('The type of %s value is not string (%s)' % (key, value))
+        self.__key = key
+        self.value = value
+        self.__help = help
 
-        super(Defaults, self).__setitem__(key, value)        
+    def __repr__(self):
+        return '<%s key=%s value=%s help=%s>' % (self.__class__.__name__,
+                self.key, self.value, self.help)
+
+    @property
+    def key(self):
+        return self.__key
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value, str):
+            raise ValueError('The type of %s value (%s) '
+                    'must be string instead of %s' % (self.__key, value, type(value)))
+        
+        self.__value = value
+
+    @property
+    def help(self):
+        return self.__help
 
 
 class Settings(object):
-    def __init__(self, defaults):
-        assert type(defaults) == Defaults
-        self.__config = defaults
+    def __init__(self, defaults=[]):
+        if (type(defaults) not in (tuple, list) or
+                not all([isinstance(opt, Option) for opt in defaults])):
+            raise ValueError('Settings must be initialized with a list '
+                    'of Option instances')
+
+        self.__options = []
+        
+        for option in defaults:
+            self.addOption(option)
 
         self.__overrideDefaultsWithCliArgs()
 
     def __iter__(self):
-        return self.__config.__iter__()
+        return self.__options.__iter__()
 
-    def get(self, key, convertFunc=lambda v: v):
-        if not key in self.__config:
+    def getoption(self, key):
+        option = self.__getOptionOrNone(key)
+
+        if option is None:
             raise RuntimeError('Cannot find key %s in the settings' % key)
 
-        value = self.__config[key]
+        return option
+        
+    def get(self, key, convertFunc=lambda v: v):
+        option = self.getoption(key)
+
         try:
-            return convertFunc(value)
+            return convertFunc(option.value)
         except (TypeError, ValueError), e:
-            raise ValueError('%s (key=%s value=%s)' % (e,
-                    key, value))
+            raise ValueError('%s (option=%s)' % (e, option))
 
     def getjson(self, key):
         import json
@@ -99,22 +128,41 @@ class Settings(object):
             raise ValueError('Cannot convert %s to boolean' % value)
 
     def set(self, key, value):
-        self.__config[key] = value
-        
+        option = self.getoption(key)
+        option.value = value
+
+    def addOption(self, option):
+        if not isinstance(option, Option):
+            raise TypeError('Must be an instance of Option')
+
+        if self.__getOptionOrNone(option.key):
+            raise RuntimeError('Option %s has been already defined' % option.key)
+            
+        self.__options.append(option)
+
+    def __getOptionOrNone(self, key):
+        for option in self.__options:
+            if option.key == key:
+                return option
+
+        return None
+
     def __overrideDefaultsWithCliArgs(self):
         parser = optparse.OptionParser()
 
         mainGroup = optparse.OptionGroup(parser, 'Application options')
         
-        for key, val in self.__config.iteritems():
-            cliKey = '--%s' % key.replace('_', '-').lower()
-            currentValue = val
+        for option in self.__options:
+            cliKey = '--%s' % option.key.replace('_', '-').lower()
+            currentValue = option.value
 
             mainGroup.add_option(cliKey, help='Default: %s' % currentValue)
 
         parser.add_option_group(mainGroup)
         options, posargs = parser.parse_args()
 
-        self.__config.update((k, v) for k, v in options.__dict__.iteritems() if v is not None)
+        for key, value in options.__dict__.iteritems():
+            if value is not None:
+                self.set(key, value)
 
 

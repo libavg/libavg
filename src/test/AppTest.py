@@ -25,28 +25,30 @@
 
 import libavg
 from libavg.app import settings
+from libavg.app.settings import Option
 import testcase
 
 
 class AppTestCase(testcase.AVGTestCase):
-    def testSettingsDefaults(self):
-        self.assertException(lambda: settings.Defaults(test=1), ValueError)
+    def testSettingsOptions(self):
+        self.assertException(lambda: settings.Option('test', 1), ValueError)
         
-        defaults = settings.Defaults()
-        def intKey():
-            defaults[1] = 'foo'
-        
-        self.assertException(intKey, ValueError)
-        
-        def intValue():
-            defaults['foo'] = 1
+        self.assertException(lambda: settings.Settings(
+                [Option('foo', 'bar'), Option('foo', 'bar')]), RuntimeError)
 
-        self.assertException(intValue, ValueError)
+        s = settings.Settings([Option('foo', 'bar')])
+        self.assertException(lambda: s.addOption(Option('foo', 'baz')))
         
     def testSettingsTypes(self):
-        defaults = settings.Defaults(test_boolean='True', test_string='string',
-                another_value_int='1234', test_2d='1280x1024', test_2d_alt='1280,1024',
-                test_float='12.345', test_json='[1, null,3 , "string", 12.345]')
+        defaults = [
+                Option('test_boolean', 'True', 'help'),
+                Option('test_string', 'string'),
+                Option('another_value_int', '1234'),
+                Option('test_2d', '1280x1024'),
+                Option('test_2d_alt','1280,1024'),
+                Option('test_float','12.345'),
+                Option('test_json','[1, null,3 , "string", 12.345]')
+        ]
 
         s = settings.Settings(defaults)
 
@@ -68,31 +70,19 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(s.getjson('test_json'), [1, None, 3, 'string', 12.345])
 
     def testSettingsSet(self):
-        s = settings.Settings(settings.Defaults())
+        s = settings.Settings()
+        s.addOption(Option('test_value', ''))
         self.assertException(lambda: s.set('test_value', 1234), ValueError)
 
         s.set('test_value', '1234')
         self.assertEquals(s.getint('test_value'), 1234)
-
-    def testSettingsIteration(self):
-        defaults = settings.Defaults(a='foo', b='bar', c='baz')
-        s = settings.Settings(defaults)
-        
-        keys = defaults.keys()
-        for idx in s:
-            self.assert_(idx in keys)
-            keys.remove(idx)
-            
-        self.assertEquals(keys, [])
-
             
             
 def appTestSuite(tests):
     availableTests = (
-            'testSettingsDefaults',
+            'testSettingsOptions',
             'testSettingsTypes',
             'testSettingsSet',
-            'testSettingsIteration',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 

@@ -66,26 +66,29 @@ from libavg import avg, Point2D
 
 #import loghelpers
 import settings
+from settings import Option
 #import keyboardmanager
 #import debugpanel
 #import flashmessage
-#import idlemanager
 
 
-defaults = settings.Defaults(
-        app_resolution='640x480',
-        app_window_size='640x480',
-        app_fullscreen='false',
-        app_show_cursor='true',
-        app_rotation='normal',
-        app_loglevel='INFO',
-        app_panel_fontsize='10',
-        app_mouse_enabled='true',
-        app_idle_timeout='60',
-        multitouch_enabled='false',
-        multitouch_driver='',
-        multitouch_tuio_port='',
-        multitouch_mtdev_device='')
+defaults = [
+        Option('app_resolution', '640x480'),
+        Option('app_window_size', '640x480'),
+        Option('app_fullscreen', 'false'),
+        Option('app_show_cursor', 'true'),
+        Option('app_rotation', 'normal'),
+        Option('app_panel_fontsize', '10'),
+        Option('app_mouse_enabled', 'true'),
+        Option('app_idle_timeout', '60'),
+        Option('multitouch_enabled', 'false'),
+        Option('multitouch_driver', ''),
+        Option('multitouch_tuio_port', ''),
+        Option('multitouch_mtdev_device', ''),
+        Option('logging_sink', 'libavg'),
+        Option('logging_severity', 'INFO'),
+        Option('logging_categories', ''),
+]
 
 class MainScene(libavg.avg.DivNode):
     '''
@@ -176,7 +179,6 @@ class App(object):
         self._setupAppParent(pos, size, angle)
         self._setupMainScene()
         self._setupTopPanel()
-        #self._setupIdleManager()
 
         #self._setupDebugPanel()
         #self._setupKeyboardManager()
