@@ -165,10 +165,7 @@ int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 
 void VAAPIDecoder::releaseBufferInternal(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
-    pFrame->data[0] = 0;
-    pFrame->data[1] = 0;
-    pFrame->data[2] = 0;
-    pFrame->data[3] = 0;
+/*
     VAAPISurfaceInfo* pVAAPISurface = (VAAPISurfaceInfo*)(pFrame->opaque);
 
     bool bFound = false;
@@ -181,6 +178,7 @@ void VAAPIDecoder::releaseBufferInternal(struct AVCodecContext* pContext, AVFram
         }
     }
     AVG_ASSERT(bFound);
+*/    
 }
 
 bool VAAPIDecoder::initDecoder(VAProfile profile)

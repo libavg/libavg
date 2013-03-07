@@ -87,7 +87,7 @@ BitmapPtr VideoMsg::getFrameBitmap(int i)
 
 float VideoMsg::getFrameTime()
 {
-    AVG_ASSERT(getType() == FRAME || getType() == VDPAU_FRAME);
+    AVG_ASSERT(getType() == FRAME || getType() == VDPAU_FRAME || getType() == VAAPI_FRAME);
     return m_FrameTime;
 }
 

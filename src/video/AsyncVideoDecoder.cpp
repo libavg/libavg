@@ -213,6 +213,7 @@ void AsyncVideoDecoder::setFPS(float fps)
 }
 
 static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU", true);
+static ProfilingZoneID VAAPIDecodeProfilingZone("AsyncVideoDecoder: VAAPI", true);
 
 FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         float timeWanted)
@@ -231,21 +232,40 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         AVG_ASSERT(pFrameMsg);
         m_LastVideoFrameTime = pFrameMsg->getFrameTime();
         m_CurVideoFrameTime = m_LastVideoFrameTime;
-        if (pFrameMsg->getType() == VideoMsg::VDPAU_FRAME) {
+        switch (pFrameMsg->getType()) {
+            case VideoMsg::VDPAU_FRAME:
 #ifdef AVG_ENABLE_VDPAU
-            ScopeTimer timer(VDPAUDecodeProfilingZone);
-            vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-            if (pixelFormatIsPlanar(getPixelFormat())) {
-                getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
-            } else {
-                getBitmapFromVDPAU(pRenderState, pBmps[0]);
-            }
+                {
+                    ScopeTimer timer(VDPAUDecodeProfilingZone);
+                    vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
+                    if (pixelFormatIsPlanar(getPixelFormat())) {
+                        getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
+                    } else {
+                        getBitmapFromVDPAU(pRenderState, pBmps[0]);
+                    }
+                }
+#else
+                AVG_ASSERT(false);
 #endif
-        } else {
-            for (unsigned i = 0; i < pBmps.size(); ++i) {
-                pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
-            }
-            returnFrame(pFrameMsg);
+                break;
+            case VideoMsg::VAAPI_FRAME:
+#ifdef AVG_ENABLE_VAAPI
+                {
+                    ScopeTimer timer(VAAPIDecodeProfilingZone);
+                    AVG_ASSERT(false);
+                }
+#else
+                AVG_ASSERT(false);
+#endif
+                break;
+            case VideoMsg::FRAME:
+                for (unsigned i = 0; i < pBmps.size(); ++i) {
+                    pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
+                }
+                returnFrame(pFrameMsg);
+                break;
+            default:
+                AVG_ASSERT(false);
         }
     }
     return frameAvailable;
@@ -351,13 +371,20 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
         float frameTime = -1;
         while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
             if (pFrameMsg) {
-                if (pFrameMsg->getType() == VideoMsg::FRAME) {
-                    returnFrame(pFrameMsg);
-                } else {
+                switch (pFrameMsg->getType()) {
+                    case VideoMsg::VDPAU_FRAME:
 #if AVG_ENABLE_VDPAU
-                    vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-                    unlockVDPAUSurface(pRenderState);
+                        unlockVDPAUSurface(pFrameMsg->getRenderState());
 #endif
+                        break;
+                    case VideoMsg::VAAPI_FRAME:
+                        AVG_ASSERT(false);
+                        break;
+                    case VideoMsg::FRAME:
+                        returnFrame(pFrameMsg);
+                        break;
+                    default:
+                        AVG_ASSERT(false);
                 }
             }
             pFrameMsg = getNextBmps(false);
@@ -386,6 +413,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
         switch (pMsg->getType()) {
             case VideoMsg::FRAME:
             case VideoMsg::VDPAU_FRAME:
+            case VideoMsg::VAAPI_FRAME:
                 return pMsg;
             case VideoMsg::END_OF_FILE:
                 m_NumVSeeksDone = m_NumSeeksSent;
@@ -439,6 +467,11 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
         case VideoMsg::VDPAU_FRAME:
 #ifdef AVG_ENABLE_VDPAU
             unlockVDPAUSurface(pMsg->getRenderState());
+#endif            
+            break;
+        case VideoMsg::VAAPI_FRAME:
+#ifdef AVG_ENABLE_VAAPI
+            AVG_ASSERT(false);
 #endif            
             break;
         case VideoMsg::END_OF_FILE:
