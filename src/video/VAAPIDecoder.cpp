@@ -30,6 +30,12 @@ namespace avg {
 
 std::vector<VAProfile> VAAPIDecoder::s_Profiles;
 
+VAAPISurfaceInfo::VAAPISurfaceInfo(VASurfaceID surfaceID)
+    : m_SurfaceID(surfaceID),
+      m_bUsed(false)
+{
+}
+
 VAAPIDecoder::VAAPIDecoder()
     : m_Size(-1,-1),
       m_ConfigID(unsigned(-1)),
@@ -116,10 +122,8 @@ int VAAPIDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 void VAAPIDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
     cerr << "releaseBuffer" << endl;
-    pFrame->data[0] = 0;
-    pFrame->data[1] = 0;
-    pFrame->data[2] = 0;
-    pFrame->data[3] = 0;
+    VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
+    return pVAAPIDecoder->releaseBufferInternal(pContext, pFrame);
 }
 
 AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt)
@@ -127,40 +131,61 @@ AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFor
     cerr << "getFormat" << endl;
     return PIX_FMT_VAAPI_VLD;
 }
-/*
-VAAPISurface* VAAPIDecoder::getFreeSurface()
+
+VAAPISurfaceInfo* VAAPIDecoder::getFreeSurface()
 {
     for (unsigned i = 0; i<m_Surfaces.size(); i++) {
-        VAAPISurface *pSurface = &m_Surfaces[i];
-        if (!pSurface->m_RefCount) {
+        VAAPISurfaceInfo *pSurface = &m_Surfaces[i];
+        if (!pSurface->m_bUsed) {
+            pSurface->m_bUsed = true;
             return pSurface;
         }
     }
+    AVG_ASSERT(false);
+    return 0;
 }
-*/
+
 int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    uint8_t *surface = (uint8_t*)(uintptr_t)m_Surface;
+    VAAPISurfaceInfo* pVAAPISurface = getFreeSurface();
+
     pFrame->type = FF_BUFFER_TYPE_USER;
-    pFrame->data[0] = surface;
+    pFrame->data[0] = 0;
     pFrame->data[1] = 0;
     pFrame->data[2] = 0;
-    pFrame->data[3] = surface;
+    pFrame->data[3] = 0;
     pFrame->linesize[0] = 0;
     pFrame->linesize[1] = 0;
     pFrame->linesize[2] = 0;
     pFrame->linesize[3] = 0;
+    pFrame->opaque = (void*)pVAAPISurface;
     return 0;
     
+}
+
+void VAAPIDecoder::releaseBufferInternal(struct AVCodecContext* pContext, AVFrame* pFrame)
+{
+    pFrame->data[0] = 0;
+    pFrame->data[1] = 0;
+    pFrame->data[2] = 0;
+    pFrame->data[3] = 0;
+    VAAPISurfaceInfo* pVAAPISurface = (VAAPISurfaceInfo*)(pFrame->opaque);
+
+    bool bFound = false;
+    for (unsigned i = 0; i<m_Surfaces.size(); i++) {
+        if (pVAAPISurface == &m_Surfaces[i]) {
+            AVG_ASSERT(pVAAPISurface->m_bUsed);
+            pVAAPISurface->m_bUsed = false;
+            bFound = true;
+            break;
+        }
+    }
+    AVG_ASSERT(bFound);
 }
 
 bool VAAPIDecoder::initDecoder(VAProfile profile)
 {
     cerr << "VAAPIDecoder::initDecoder" << endl;
-/*    
-    VAContextID context_id = 0;
-    VAStatus status;
-*/
 
     if (!hasProfile(profile)) {
         return false;
@@ -182,15 +207,19 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
             &m_ConfigID);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    
+    VASurfaceID surfaceIDs[20];
     status = vaCreateSurfaces(getVAAPIDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
-            1, &m_Surface);
+            20, surfaceIDs);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
         
     status = vaCreateContext(getVAAPIDisplay(), m_ConfigID, m_Size.x, m_Size.y,
-            VA_PROGRESSIVE, &m_Surface, 1, &m_ContextID);
+            VA_PROGRESSIVE, surfaceIDs, 20, &m_ContextID);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
+    AVG_ASSERT(m_Surfaces.size() == 0);
+    for (int i=0; i<20; ++i) {
+        m_Surfaces.push_back(VAAPISurfaceInfo(surfaceIDs[i]));
+    }
 
     return true;
 }

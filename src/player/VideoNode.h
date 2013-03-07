@@ -34,6 +34,7 @@
 #include "../base/UTF8String.h"
 
 #include "../video/VideoDecoder.h"
+#include "../video/VideoInfo.h"
 
 namespace avg {
 
@@ -96,7 +97,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         
         virtual IntPoint getMediaSize();
 
-        static VideoDecoder::VideoAccelType getVideoAccelConfig();
+        static VideoAccelType getVideoAccelConfig();
 
     private:
         bool renderFrame();
@@ -142,7 +143,8 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         VideoDecoder * m_pDecoder;
         float m_Volume;
-        bool m_bUsesHardwareAcceleration;
+        bool m_bUseHardwareAcceleration;
+        VideoAccelType m_VideoAccelType;
         bool m_bEnableSound;
         int m_AudioID;
 

@@ -264,7 +264,7 @@ VideoInfo VideoDecoder::getVideoInfo() const
             m_pVStream != 0, m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getStreamFPS(),
-                m_pVStream->codec->codec->name, usesVDPAU(), getDuration(SS_VIDEO));
+                m_pVStream->codec->codec->name, getHWAccelUsed(), getDuration(SS_VIDEO));
     }
     if (m_pAStream) {
         AVCodecContext * pACodec = m_pAStream->codec;
@@ -322,13 +322,13 @@ void VideoDecoder::logConfig()
 {
     string sHWAccel;
     switch(getHWAccelSupported()) {
-        case VDPAU:
+        case VA_VDPAU:
             sHWAccel = "VDPAU";
             break;
-        case VAAPI:
+        case VA_VAAPI:
             sHWAccel = "VAAPI";
             break;
-        case NONE:
+        case VA_NONE:
             sHWAccel = "Off";
             break;
         default:
@@ -338,19 +338,19 @@ void VideoDecoder::logConfig()
                 "Hardware video acceleration:"+sHWAccel);
 }
 
-VideoDecoder::VideoAccelType VideoDecoder::getHWAccelSupported()
+VideoAccelType VideoDecoder::getHWAccelSupported()
 {
 #ifdef AVG_ENABLE_VDPAU
     if (VDPAUDecoder::isAvailable()) {
-        return VDPAU;
+        return VA_VDPAU;
     }
 #endif
 #ifdef AVG_ENABLE_VAAPI
     if (VAAPIDecoder::isAvailable()) {
-        return VAAPI;
+        return VA_VAAPI;
     }
 #endif
-    return NONE;
+    return VA_NONE;
 }
 
 int VideoDecoder::getNumFrames() const
@@ -370,14 +370,22 @@ AVFormatContext* VideoDecoder::getFormatContext()
     return m_pFormatContext;
 }
 
-bool VideoDecoder::usesVDPAU() const
+VideoAccelType VideoDecoder::getHWAccelUsed() const
 {
-#ifdef AVG_ENABLE_VDPAU
     AVCodecContext const* pContext = getCodecContext();
-    return pContext->codec && (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU);
-#else
-    return false;
+    if (pContext->codec) {
+#ifdef AVG_ENABLE_VDPAU
+        if (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU) {
+            return VA_VDPAU;
+        }
 #endif
+#ifdef AVG_ENABLE_VDPAU
+        if (pContext->codec->capabilities & CODEC_CAP_DR1) {
+            return VA_VAAPI;
+        }
+#endif
+    }
+    return VA_NONE;
 }
 
 AVCodecContext const* VideoDecoder::getCodecContext() const

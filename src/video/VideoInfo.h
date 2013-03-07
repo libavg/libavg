@@ -29,6 +29,8 @@
 #include <string>
 
 namespace avg {
+    
+enum VideoAccelType {VA_NONE, VA_VDPAU, VA_VAAPI};
 
 struct AVG_API VideoInfo
 {
@@ -37,7 +39,7 @@ struct AVG_API VideoInfo
             bool bHasAudio);
     void setVideoData(const IntPoint& size, const std::string& sPixelFormat,
             int numFrames, float streamFPS, const std::string& sVCodec,
-            bool bUsesVDPAU, float duration);
+            VideoAccelType videoAccelType, float duration);
 
     void setAudioData(const std::string& sACodec, int sampleRate, int numAudioChannels,
             float duration);
@@ -52,7 +54,7 @@ struct AVG_API VideoInfo
     int m_NumFrames;
     float m_StreamFPS;
     std::string m_sVCodec;
-    bool m_bUsesVDPAU;
+    VideoAccelType m_VideoAccelType;
     float m_VideoDuration;
 
     bool m_bHasAudio;

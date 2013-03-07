@@ -36,7 +36,7 @@ namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
         VideoMsgQueue& packetQ, AVStream* pStream, const IntPoint& size, PixelFormat pf, 
-        bool bUseVDPAU)
+        VideoAccelType videoAccelType)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
             Logger::category::PROFILE_VIDEO),
       m_MsgQ(msgQ),
@@ -45,7 +45,7 @@ VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ,
       m_pHalfBmpQ(new BitmapQueue()),
       m_Size(size),
       m_PF(pf),
-      m_bUseVDPAU(bUseVDPAU),
+      m_VideoAccelType(videoAccelType),
       m_bSeekDone(false),
       m_bProcessingLastFrames(false)
 {
@@ -149,29 +149,41 @@ static ProfilingZoneID CopyImageProfilingZone("Copy image", true);
 void VideoDecoderThread::sendFrame(AVFrame& frame)
 {
     VideoMsgPtr pMsg(new VideoMsg());
-    if (m_bUseVDPAU) {
-        vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-        pMsg->setVDPAUFrame(pRenderState, m_pFrameDecoder->getCurTime());
-    } else {
-        vector<BitmapPtr> pBmps;
-        if (pixelFormatIsPlanar(m_PF)) {
-            ScopeTimer timer(CopyImageProfilingZone);
-            IntPoint halfSize(m_Size.x/2, m_Size.y/2);
-            pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            if (m_PF == YCbCrA420p) {
-                pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
+    switch (m_VideoAccelType) {
+        case VA_VDPAU:
+            {
+                vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+                pMsg->setVDPAUFrame(pRenderState, m_pFrameDecoder->getCurTime());
             }
-            for (unsigned i = 0; i < pBmps.size(); ++i) {
-                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], frame.data[i], 
-                        frame.linesize[i]);
+            break;
+        case VA_VAAPI:
+            AVG_ASSERT(false);
+            break;
+        case VA_NONE: 
+            {
+                vector<BitmapPtr> pBmps;
+                if (pixelFormatIsPlanar(m_PF)) {
+                    ScopeTimer timer(CopyImageProfilingZone);
+                    IntPoint halfSize(m_Size.x/2, m_Size.y/2);
+                    pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
+                    pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+                    pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+                    if (m_PF == YCbCrA420p) {
+                        pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
+                    }
+                    for (unsigned i = 0; i < pBmps.size(); ++i) {
+                        m_pFrameDecoder->copyPlaneToBmp(pBmps[i], frame.data[i], 
+                                frame.linesize[i]);
+                    }
+                } else {
+                    pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
+                    m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
+                }
+                pMsg->setFrame(pBmps, m_pFrameDecoder->getCurTime());
             }
-        } else {
-            pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
-            m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
-        }
-        pMsg->setFrame(pBmps, m_pFrameDecoder->getCurTime());
+            break;
+        default:
+            AVG_ASSERT(false);
     }
     pushMsg(pMsg);
 }

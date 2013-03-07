@@ -66,7 +66,7 @@ void VideoNode::registerType()
                 offsetof(VideoNode, m_QueueLength)))
         .addArg(Arg<float>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
         .addArg(Arg<bool>("accelerated", false, false,
-                offsetof(VideoNode, m_bUsesHardwareAcceleration)))
+                offsetof(VideoNode, m_bUseHardwareAcceleration)))
         .addArg(Arg<bool>("enablesound", true, false,
                 offsetof(VideoNode, m_bEnableSound)))
         ;
@@ -85,7 +85,8 @@ VideoNode::VideoNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_bUsesHardwareAcceleration(false),
+      m_bUseHardwareAcceleration(false),
+      m_VideoAccelType(VA_NONE),
       m_bEnableSound(true),
       m_AudioID(-1)
 {
@@ -327,7 +328,7 @@ void VideoNode::setEOFCallback(PyObject * pEOFCallback)
 bool VideoNode::isAccelerated() const
 {
     exceptionIfUnloaded("isAccelerated");
-    return m_bUsesHardwareAcceleration;
+    return m_VideoAccelType != VA_NONE;
 }
 
 const UTF8String& VideoNode::getHRef() const
@@ -455,7 +456,7 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bUsesHardwareAcceleration, m_bEnableSound);
+    m_pDecoder->open(m_Filename, m_bUseHardwareAcceleration, m_bEnableSound);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();
@@ -469,7 +470,7 @@ void VideoNode::open()
     m_bSeekPending = false;
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
-    m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
+    m_VideoAccelType = videoInfo.m_VideoAccelType;
     setViewport(-32767, -32767, -32767, -32767);
 }
 
@@ -686,7 +687,7 @@ void VideoNode::render()
     }
 }
 
-VideoDecoder::VideoAccelType VideoNode::getVideoAccelConfig()
+VideoAccelType VideoNode::getVideoAccelConfig()
 {
     return VideoDecoder::getHWAccelSupported();
 }

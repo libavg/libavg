@@ -109,7 +109,7 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
 
         m_pVDecoderThread = new boost::thread(VideoDecoderThread(
                 *m_pVCmdQ, *m_pVMsgQ, packetQ, getVideoStream(), 
-                getSize(), getPixelFormat(), usesVDPAU()));
+                getSize(), getPixelFormat(), getHWAccelUsed()));
     }
     
     if (getVideoInfo().m_bHasAudio) {

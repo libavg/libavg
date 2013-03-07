@@ -59,7 +59,6 @@ class AVG_API VideoDecoder
 {
     public:
         enum DecoderState {CLOSED, OPENED, DECODING};
-        enum VideoAccelType {NONE, VDPAU, VAAPI};
 
         VideoDecoder();
         virtual ~VideoDecoder();
@@ -95,7 +94,7 @@ class AVG_API VideoDecoder
     protected:
         int getNumFrames() const;
         AVFormatContext* getFormatContext();
-        bool usesVDPAU() const;
+        VideoAccelType getHWAccelUsed() const;
         AVCodecContext const * getCodecContext() const;
         AVCodecContext * getCodecContext();
 
