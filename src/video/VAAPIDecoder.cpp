@@ -254,14 +254,24 @@ void VAAPIDecoder::determineImageFormat()
     cerr << "Image formats available: " << endl;
     for (int i=0; i<numFmts; ++i) {
         cerr << "  " << imageFmtToString(&(pFmts[i])) << endl;
+    }
+
+    m_pImageFmt = new VAImageFormat;
+    for (int i=0; i<numFmts; ++i) {
         if (pFmts[i].fourcc == VA_FOURCC_YV12) {
-            m_pImageFmt = new VAImageFormat;
             *m_pImageFmt = pFmts[i];
+            return;
+        }
+    }
+    for (int i=0; i<numFmts; ++i) {
+        if (pFmts[i].fourcc == VA_FOURCC_NV12) {
+            *m_pImageFmt = pFmts[i];
+            return;
         }
     }
 
-    // ToDo: Disable acceleration if image format not supported.
-    AVG_ASSERT(m_pImageFmt);
+    // TODO: Disable acceleration if image format not supported.
+    AVG_ASSERT(false);
 }
 
 bool VAAPIDecoder::isSupportedCodec(CodecID codecID)
