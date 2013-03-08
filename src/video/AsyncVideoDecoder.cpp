@@ -252,7 +252,14 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 #ifdef AVG_ENABLE_VAAPI
                 {
                     ScopeTimer timer(VAAPIDecodeProfilingZone);
+                    VAAPISurfaceInfo* pSurfaceInfo = pFrameMsg->getVAAPISurfaceInfo();
+                    if (pixelFormatIsPlanar(getPixelFormat())) {
+//                        getPlanesFromVAAPI(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
+                    } else {
+//                        getBitmapFromVAAPI(pRenderState, pBmps[0]);
+                    }
                     AVG_ASSERT(false);
+
                 }
 #else
                 AVG_ASSERT(false);

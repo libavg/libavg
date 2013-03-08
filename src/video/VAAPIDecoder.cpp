@@ -23,6 +23,7 @@
 #include "../base/Exception.h"
 
 #include <iostream>
+#include <sstream>
 
 using namespace std;
     
@@ -81,6 +82,7 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
         m_Size = IntPoint(pContext->width, pContext->height);
         bool bOK = initDecoder((VAProfile)profile);
         if (!bOK) {
+            cerr << "VAAPI init failed" << endl;
             return 0;
         }
         m_pFFMpegVAContext = new vaapi_context;
@@ -186,6 +188,7 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     cerr << "VAAPIDecoder::initDecoder" << endl;
 
     if (!hasProfile(profile)) {
+        cerr << "  Profile " << profileToString(profile) << " not available." << endl;
         return false;
     }
 
@@ -219,7 +222,24 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
         m_Surfaces.push_back(VAAPISurfaceInfo(surfaceIDs[i]));
     }
 
+    determineImageFormat();
+
     return true;
+}
+
+VAImageFormat* VAAPIDecoder::determineImageFormat()
+{
+    int numFmts = vaMaxNumImageFormats(getVAAPIDisplay());
+    VAImageFormat *pFmts = new VAImageFormat[numFmts];
+    AVG_ASSERT(pFmts);
+
+    VAStatus status = vaQueryImageFormats(getVAAPIDisplay(), pFmts, &numFmts);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    cerr << "Num image formats: " << numFmts << endl;
+    for (int i=0; i<numFmts; ++i) {
+        cerr << "  " << i << ": " << imageFmtToString(&(pFmts[i])) << endl;
+    }
+    return 0;
 }
 
 bool VAAPIDecoder::isSupportedCodec(CodecID codecID)
@@ -316,6 +336,16 @@ string VAAPIDecoder::entryPointToString(VAEntrypoint entryPoint)
     default: break;
     }
     return "<unknown>";
+}
+
+string VAAPIDecoder::imageFmtToString(VAImageFormat* pFormat)
+{
+    stringstream ss;
+    char fourcc[5];
+    memcpy (fourcc, &(pFormat->fourcc), 4);
+    fourcc[4] = 0;
+
+    return fourcc;
 }
 
 }

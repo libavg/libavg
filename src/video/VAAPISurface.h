@@ -1,0 +1,54 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2011 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+#ifndef _VAAPISurface_H_
+#define _VAAPISurface_H_
+
+
+#include "../avgconfigwrapper.h"
+#include "../base/GLMHelper.h"
+#include "../graphics/Bitmap.h"
+
+#include "WrapFFMpeg.h"
+
+#include <libavcodec/vaapi.h>
+#include <va/va.h>
+
+namespace avg {
+
+class VAAPIDecoder;
+
+class VAAPISurface
+{
+    VAAPISurface(VASurfaceID surfaceID, VAAPIDecoder* pDecoder);
+
+    VASurfaceID getSurfaceID() const;
+    void setUsed(bool bUsed);
+    void getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV) const;
+    void getRGBBmp(BitmapPtr pBmp) const;
+
+private:
+    VASurfaceID m_SurfaceID;
+    bool m_bUsed;
+};
+
+}
+#endif
+

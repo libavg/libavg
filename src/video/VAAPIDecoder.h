@@ -27,6 +27,7 @@
 
 #include "WrapFFMpeg.h"
 #include "VAAPIHelper.h"
+#include "VAAPISurface.h"
 
 #include <libavcodec/vaapi.h>
 
@@ -59,12 +60,14 @@ private:
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     void releaseBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     bool initDecoder(VAProfile profile);
+    VAImageFormat* determineImageFormat();
 
     static bool isSupportedCodec(CodecID codecID);
     static bool hasProfile(VAProfile profile);
     static bool hasEntryPoint(VAProfile profile, VAEntrypoint entryPoint);
     static std::string profileToString(VAProfile profile);
     static std::string entryPointToString(VAEntrypoint entryPoint);
+    static std::string imageFmtToString(VAImageFormat* pFormat);
 
     IntPoint m_Size;
     VAConfigID m_ConfigID;
