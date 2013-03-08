@@ -43,8 +43,8 @@ public:
     VASurfaceID getSurfaceID() const;
     void setUsed(bool bUsed);
     bool isUsed() const;
-    void getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV) const;
-    void getRGBBmp(BitmapPtr pBmp) const;
+    void getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV);
+    void getRGBBmp(BitmapPtr pBmp);
 
 private:
     VASurfaceID m_SurfaceID;

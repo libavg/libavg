@@ -25,6 +25,9 @@
 #include "VDPAUDecoder.h"
 #include "VDPAUHelper.h"
 #endif
+#ifdef AVG_ENABLE_VAAPI
+#include "VAAPISurface.h"
+#endif
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -254,12 +257,10 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
                     ScopeTimer timer(VAAPIDecodeProfilingZone);
                     VAAPISurface* pSurface = pFrameMsg->getVAAPISurface();
                     if (pixelFormatIsPlanar(getPixelFormat())) {
-//                        getPlanesFromVAAPI(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
+                        pSurface->getYUVBmps(pBmps[0], pBmps[1], pBmps[2]);
                     } else {
-//                        getBitmapFromVAAPI(pRenderState, pBmps[0]);
+                        pSurface->getRGBBmp(pBmps[0]);
                     }
-                    AVG_ASSERT(false);
-
                 }
 #else
                 AVG_ASSERT(false);

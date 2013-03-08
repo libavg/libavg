@@ -22,6 +22,7 @@
 #include "VAAPISurface.h"
 
 #include "VAAPIDecoder.h"
+#include "VAAPIHelper.h"
 
 #include "../base/Exception.h"
 
@@ -55,94 +56,48 @@ bool VAAPISurface::isUsed() const
     return m_bUsed;
 }
 
-void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV) const
+void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
 {
-/*
-    VAAPIDecoder* pVaapiDecoder = pVaapiSurface->m_pDecoder;
-    VASurfaceID surface_id = pVaapiSurface->m_SurfaceID;
-    VAImage image = pVaapiSurface->m_Image;
+    VAStatus status;
 
-    if(vaSyncSurface(getVAAPIDisplay(), pVaapiSurface->m_SurfaceID)) {
-        AVG_ASSERT_MSG(false, "vaSyncSurface returned error");
-        return;
-    }
-    if (pVaapiSurface->m_bBound == 0) {
-        if(vaGetImage(getVAAPIDisplay(), surface_id, 0, 0, pVaapiDecoder->getSize().x,
-                    pVaapiDecoder->getSize().y, image.image_id) ) {
-            AVG_ASSERT_MSG(false, "vaGetImage returned error");
-            return;
-        }
-    }
+    status = vaSyncSurface(getVAAPIDisplay(), m_SurfaceID);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    void *p_base;
-    if(vaMapBuffer(getVAAPIDisplay(), image.buf, &p_base)) {
-        AVG_ASSERT_MSG(false, "vaMapBuffer returned error");
-        return;
-    }
+    status = vaGetImage(getVAAPIDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
+            m_pImage->image_id);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    uint8_t *dest[3] = {
-        pBmpY->getPixels(),
-        pBmpV->getPixels(),
-        pBmpU->getPixels()
-    };
-    uint32_t pitches[3] = {
-        pBmpY->getStride(),
-        pBmpV->getStride(),
-        pBmpU->getStride()
-    };
+    void* pImgBuffer;
+    status = vaMapBuffer(getVAAPIDisplay(), m_pImage->buf, &pImgBuffer);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    const uint32_t i_fourcc = pVaapiDecoder->getImage().format.fourcc;
-    //AVG_TRACE(Logger::category::PLAYER, Logger::severity::INFO, "getPlanesFromVAAPI: " << i_fourcc);
+    BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
+            (uint8_t*)pImgBuffer + m_pImage->offsets[0], m_pImage->pitches[0], false));
+    pBmpY->copyPixels(*pSrcBmp);
+/*    
+    pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
+            (uint8_t*)pImgBuffer + m_pImage->offsets[1], m_pImage->pitches[1], false));
+    pBmpU->copyPixels(*pSrcBmp);
+    pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
+            (uint8_t*)pImgBuffer + m_pImage->offsets[2], m_pImage->pitches[2], false));
+    pBmpV->copyPixels(*pSrcBmp);
+*/
+    vaUnmapBuffer(getVAAPIDisplay(), m_pImage->buf);
 
-    if(i_fourcc == VA_FOURCC('Y','V','1','2') ||
-            i_fourcc == VA_FOURCC('I','4','2','0')) {
-        bool b_swap_uv = i_fourcc == VA_FOURCC('I','4','2','0');
-        uint8_t *pp_plane[3];
-        size_t  pi_pitch[3];
-
-        for( int i = 0; i < 3; i++ ) {
-            const int i_src = (b_swap_uv && i != 0) ? (3-i) : i;
-            pp_plane[i] = (uint8_t*)p_base + image.offsets[i_src];
-            pi_pitch[i] = image.pitches[i_src];
-        }
-
-        copyPlane(dest[0], pitches[0], pp_plane[0], pi_pitch[0],
-                pVaapiDecoder->getSize().x, pVaapiDecoder->getSize().y);
-        copyPlane(dest[1], pitches[1], pp_plane[1], pi_pitch[1],
-                pVaapiDecoder->getSize().x/2, pVaapiDecoder->getSize().y/2);
-        copyPlane(dest[2], pitches[2], pp_plane[2], pi_pitch[2],
-                pVaapiDecoder->getSize().x/2, pVaapiDecoder->getSize().y/2);
-    }
-    else
-    {
-        assert( i_fourcc == VA_FOURCC('N','V','1','2') );
-        uint8_t *pp_plane[2];
-        size_t  pi_pitch[2];
-
-        for(int i = 0; i < 2; i++) {
-            pp_plane[i] = (uint8_t*)p_base + pVaapiDecoder->getImage().offsets[i];
-            pi_pitch[i] = pVaapiDecoder->getImage().pitches[i];
-        }
-
-        copyPlane(dest[0], pitches[0], pp_plane[0], pi_pitch[0],
-                pVaapiDecoder->getSize().x, pVaapiDecoder->getSize().y);
-        splitPlanes(dest[2], pitches[2], dest[1], pitches[1],
-                pp_plane[1], pi_pitch[1],
-                pVaapiDecoder->getSize().x/2, pVaapiDecoder->getSize().y/2);
-    }
-
-    if(vaUnmapBuffer(getVAAPIDisplay(), image.buf)) {
-        AVG_ASSERT_MSG(false, "vaUnmapBuffer returned error");
-        return;
-    }
-
-    //AVG_TRACE(Logger::category::PLAYER, Logger::severity::INFO, "getPlanesFromVaapi finished.");
-    unlockVAAPISurface(pVaapiSurface);
-   */ 
+    setUsed(false);
+    
 }
 
-void VAAPISurface::getRGBBmp(BitmapPtr pBmp) const
+void VAAPISurface::getRGBBmp(BitmapPtr pBmp)
 {
+    AVG_ASSERT(m_Size == pBmp->getSize());
+    
+    IntPoint UVSize(m_Size.x/2, m_Size.y/2);
+    BitmapPtr pBmpY(new Bitmap(m_Size, I8));
+    BitmapPtr pBmpU(new Bitmap(UVSize, I8));
+    BitmapPtr pBmpV(new Bitmap(UVSize, I8));
+    getYUVBmps(pBmpY, pBmpU, pBmpV);
+    pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
 }
 
 }
