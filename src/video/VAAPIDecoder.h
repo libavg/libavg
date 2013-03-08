@@ -33,19 +33,15 @@
 
 namespace avg {
 
-struct VAAPISurfaceInfo
-{
-    VAAPISurfaceInfo(VASurfaceID surfaceID);
-    VASurfaceID m_SurfaceID;
-    bool m_bUsed;
-};
-
 class VAAPIDecoder
 {
 public:
     VAAPIDecoder();
     ~VAAPIDecoder();
     AVCodec* openCodec(AVCodecContext* pCodec);
+
+    VAImage* getImage() const;
+    IntPoint getSize() const;
 
     static bool isAvailable();
 
@@ -55,12 +51,12 @@ private:
     static void releaseBuffer(AVCodecContext* pContext, AVFrame* pFrame);
     static AVPixelFormat getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt);
 
-    VAAPISurfaceInfo* getFreeSurface();
+    VAAPISurface* getFreeSurface();
 
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     void releaseBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     bool initDecoder(VAProfile profile);
-    VAImageFormat* determineImageFormat();
+    void determineImageFormat();
 
     static bool isSupportedCodec(CodecID codecID);
     static bool hasProfile(VAProfile profile);
@@ -72,8 +68,10 @@ private:
     IntPoint m_Size;
     VAConfigID m_ConfigID;
     VAContextID m_ContextID;
-    std::vector<VAAPISurfaceInfo> m_Surfaces;
+    std::vector<VAAPISurface> m_Surfaces;
     vaapi_context* m_pFFMpegVAContext;
+    VAImageFormat* m_pImageFmt;
+    VAImage* m_pImage;
 
     static std::vector<VAProfile> s_Profiles;
 };

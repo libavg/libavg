@@ -31,16 +31,12 @@ namespace avg {
 
 std::vector<VAProfile> VAAPIDecoder::s_Profiles;
 
-VAAPISurfaceInfo::VAAPISurfaceInfo(VASurfaceID surfaceID)
-    : m_SurfaceID(surfaceID),
-      m_bUsed(false)
-{
-}
-
 VAAPIDecoder::VAAPIDecoder()
-    : m_Size(-1,-1),
+    : m_Size(0, 0),
       m_ConfigID(unsigned(-1)),
-      m_pFFMpegVAContext(0)
+      m_pFFMpegVAContext(0),
+      m_pImageFmt(0),
+      m_pImage(0)
 {
 }
 
@@ -105,6 +101,18 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
     }
 }
 
+VAImage* VAAPIDecoder::getImage() const
+{
+    AVG_ASSERT(m_pImage);
+    return m_pImage;
+}
+
+IntPoint VAAPIDecoder::getSize() const
+{
+    AVG_ASSERT(m_Size != IntPoint(0,0));
+    return m_Size;
+}
+
 bool VAAPIDecoder::isAvailable()
 {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 34, 0)
@@ -134,12 +142,12 @@ AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFor
     return PIX_FMT_VAAPI_VLD;
 }
 
-VAAPISurfaceInfo* VAAPIDecoder::getFreeSurface()
+VAAPISurface* VAAPIDecoder::getFreeSurface()
 {
     for (unsigned i = 0; i<m_Surfaces.size(); i++) {
-        VAAPISurfaceInfo *pSurface = &m_Surfaces[i];
-        if (!pSurface->m_bUsed) {
-            pSurface->m_bUsed = true;
+        VAAPISurface* pSurface = &m_Surfaces[i];
+        if (!pSurface->isUsed()) {
+            pSurface->setUsed(true);
             return pSurface;
         }
     }
@@ -149,7 +157,7 @@ VAAPISurfaceInfo* VAAPIDecoder::getFreeSurface()
 
 int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    VAAPISurfaceInfo* pVAAPISurface = getFreeSurface();
+    VAAPISurface* pVAAPISurface = getFreeSurface();
 
     pFrame->type = FF_BUFFER_TYPE_USER;
     pFrame->data[0] = 0;
@@ -208,38 +216,48 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
             &m_ConfigID);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    VASurfaceID surfaceIDs[20];
+    determineImageFormat();
+    m_pImage = new VAImage();
+    status = vaCreateImage(getVAAPIDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
+    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+
+    VASurfaceID surfaceIDs[200];
     status = vaCreateSurfaces(getVAAPIDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
-            20, surfaceIDs);
+            200, surfaceIDs);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
         
     status = vaCreateContext(getVAAPIDisplay(), m_ConfigID, m_Size.x, m_Size.y,
-            VA_PROGRESSIVE, surfaceIDs, 20, &m_ContextID);
+            VA_PROGRESSIVE, surfaceIDs, 200, &m_ContextID);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
     AVG_ASSERT(m_Surfaces.size() == 0);
-    for (int i=0; i<20; ++i) {
-        m_Surfaces.push_back(VAAPISurfaceInfo(surfaceIDs[i]));
+    for (int i=0; i<200; ++i) {
+        m_Surfaces.push_back(VAAPISurface(surfaceIDs[i], this));
     }
-
-    determineImageFormat();
 
     return true;
 }
 
-VAImageFormat* VAAPIDecoder::determineImageFormat()
+void VAAPIDecoder::determineImageFormat()
 {
     int numFmts = vaMaxNumImageFormats(getVAAPIDisplay());
-    VAImageFormat *pFmts = new VAImageFormat[numFmts];
+    VAImageFormat* pFmts = new VAImageFormat[numFmts];
     AVG_ASSERT(pFmts);
 
     VAStatus status = vaQueryImageFormats(getVAAPIDisplay(), pFmts, &numFmts);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
-    cerr << "Num image formats: " << numFmts << endl;
+    AVG_ASSERT(m_pImageFmt == 0);
+    cerr << "Image formats available: " << endl;
     for (int i=0; i<numFmts; ++i) {
-        cerr << "  " << i << ": " << imageFmtToString(&(pFmts[i])) << endl;
+        cerr << "  " << imageFmtToString(&(pFmts[i])) << endl;
+        if (pFmts[i].fourcc == VA_FOURCC_YV12) {
+            m_pImageFmt = new VAImageFormat;
+            *m_pImageFmt = pFmts[i];
+        }
     }
-    return 0;
+
+    // ToDo: Disable acceleration if image format not supported.
+    AVG_ASSERT(m_pImageFmt);
 }
 
 bool VAAPIDecoder::isSupportedCodec(CodecID codecID)

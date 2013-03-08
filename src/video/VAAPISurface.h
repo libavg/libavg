@@ -37,16 +37,20 @@ class VAAPIDecoder;
 
 class VAAPISurface
 {
+public:
     VAAPISurface(VASurfaceID surfaceID, VAAPIDecoder* pDecoder);
 
     VASurfaceID getSurfaceID() const;
     void setUsed(bool bUsed);
+    bool isUsed() const;
     void getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV) const;
     void getRGBBmp(BitmapPtr pBmp) const;
 
 private:
     VASurfaceID m_SurfaceID;
     bool m_bUsed;
+    IntPoint m_Size;
+    VAImage* m_pImage; // Shared between all surfaces in a decoder.
 };
 
 }

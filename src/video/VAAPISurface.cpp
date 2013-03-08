@@ -18,7 +18,10 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+
 #include "VAAPISurface.h"
+
+#include "VAAPIDecoder.h"
 
 #include "../base/Exception.h"
 
@@ -32,6 +35,8 @@ VAAPISurface::VAAPISurface(VASurfaceID surfaceID, VAAPIDecoder* pDecoder)
     : m_SurfaceID(surfaceID),
       m_bUsed(false)
 {
+    m_Size = pDecoder->getSize();
+    m_pImage = pDecoder->getImage();
 }
 
 VASurfaceID VAAPISurface::getSurfaceID() const
@@ -43,6 +48,11 @@ void VAAPISurface::setUsed(bool bUsed)
 {
     AVG_ASSERT(bUsed != m_bUsed);
     m_bUsed = bUsed;
+}
+    
+bool VAAPISurface::isUsed() const
+{
+    return m_bUsed;
 }
 
 void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV) const
