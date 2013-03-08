@@ -375,12 +375,12 @@ VideoAccelType VideoDecoder::getHWAccelUsed() const
     AVCodecContext const* pContext = getCodecContext();
     if (pContext->codec) {
 #ifdef AVG_ENABLE_VDPAU
-        if (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU) {
+        if (m_pVDPAUDecoder) {
             return VA_VDPAU;
         }
 #endif
-#ifdef AVG_ENABLE_VDPAU
-        if (pContext->codec->capabilities & CODEC_CAP_DR1) {
+#ifdef AVG_ENABLE_VAAPI
+        if (m_pVAAPIDecoder) {
             return VA_VAAPI;
         }
 #endif
@@ -442,6 +442,10 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
         m_pVDPAUDecoder = new VDPAUDecoder();
         pContext->opaque = m_pVDPAUDecoder;
         pCodec = m_pVDPAUDecoder->openCodec(pContext);
+        if (!pCodec) {
+            delete m_pVDPAUDecoder;
+            m_pVDPAUDecoder = 0;
+        }
     } 
 #endif
 */    
@@ -450,6 +454,10 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
         m_pVAAPIDecoder = new VAAPIDecoder();
         pContext->opaque = m_pVAAPIDecoder;
         pCodec = m_pVAAPIDecoder->openCodec(pContext);
+        if (!pCodec) {
+            delete m_pVAAPIDecoder;
+            m_pVAAPIDecoder = 0;
+        }
     } 
 #endif
     if (!pCodec) {
