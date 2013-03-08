@@ -71,21 +71,43 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
     status = vaMapBuffer(getVAAPIDisplay(), m_pImage->buf, &pImgBuffer);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
-            (uint8_t*)pImgBuffer + m_pImage->offsets[0], m_pImage->pitches[0], false));
-    pBmpY->copyPixels(*pSrcBmp);
-/*    
-    pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
-            (uint8_t*)pImgBuffer + m_pImage->offsets[1], m_pImage->pitches[1], false));
-    pBmpU->copyPixels(*pSrcBmp);
-    pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
-            (uint8_t*)pImgBuffer + m_pImage->offsets[2], m_pImage->pitches[2], false));
-    pBmpV->copyPixels(*pSrcBmp);
-*/
-    vaUnmapBuffer(getVAAPIDisplay(), m_pImage->buf);
+    switch (m_pImage->format.fourcc) {
+        case VA_FOURCC_YV12:
+            {
+                BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
+                        (uint8_t*)pImgBuffer + m_pImage->offsets[0], 
+                        m_pImage->pitches[0], false));
+                pBmpY->copyPixels(*pSrcBmp);
 
+                pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
+                            (uint8_t*)pImgBuffer + m_pImage->offsets[1],
+                            m_pImage->pitches[1], false));
+                pBmpU->copyPixels(*pSrcBmp);
+                pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
+                            (uint8_t*)pImgBuffer + m_pImage->offsets[2], 
+                            m_pImage->pitches[2], false));
+                pBmpV->copyPixels(*pSrcBmp);
+            }
+            break;
+        case VA_FOURCC_NV12:
+            {
+                BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
+                        (uint8_t*)pImgBuffer + m_pImage->offsets[0], 
+                        m_pImage->pitches[0], false));
+                pBmpY->copyPixels(*pSrcBmp);
+
+                pSrcBmp = BitmapPtr(new Bitmap(IntPoint(m_Size.x, m_Size.y/2), I8, 
+                            (uint8_t*)pImgBuffer + m_pImage->offsets[1],
+                            m_pImage->pitches[1], false));
+                
+                splitInterleaved(pBmpU, pBmpV, pSrcBmp);
+            }
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+    vaUnmapBuffer(getVAAPIDisplay(), m_pImage->buf);
     setUsed(false);
-    
 }
 
 void VAAPISurface::getRGBBmp(BitmapPtr pBmp)
@@ -98,6 +120,22 @@ void VAAPISurface::getRGBBmp(BitmapPtr pBmp)
     BitmapPtr pBmpV(new Bitmap(UVSize, I8));
     getYUVBmps(pBmpY, pBmpU, pBmpV);
     pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
+}
+    
+void VAAPISurface::splitInterleaved(BitmapPtr pBmpU, BitmapPtr pBmpV, BitmapPtr pSrcBmp)
+{
+    unsigned char * pULine = pBmpU->getPixels();
+    unsigned char * pVLine = pBmpV->getPixels();
+    unsigned char * pSrcLine = pSrcBmp->getPixels();
+    for (int y=0; y<pBmpU->getSize().y; y++) {
+        for (int x=0; x<pBmpU->getSize().x; x++) {    
+            pULine[x] = pSrcLine[x*2];
+            pVLine[x] = pSrcLine[x*2+1];
+        }
+        pULine += pBmpU->getStride();
+        pVLine += pBmpV->getStride();
+        pSrcLine += pSrcBmp->getStride();
+    }
 }
 
 }

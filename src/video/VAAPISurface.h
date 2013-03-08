@@ -47,6 +47,8 @@ public:
     void getRGBBmp(BitmapPtr pBmp);
 
 private:
+    void splitInterleaved(BitmapPtr pBmpU, BitmapPtr pBmpV, BitmapPtr pSrcBmp);
+
     VASurfaceID m_SurfaceID;
     bool m_bUsed;
     IntPoint m_Size;
