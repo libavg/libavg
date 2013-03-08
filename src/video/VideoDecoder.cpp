@@ -424,8 +424,8 @@ void VideoDecoder::initVideoSupport()
         av_register_all();
         s_bInitialized = true;
         // Tune libavcodec console spam.
-//        av_log_set_level(AV_LOG_DEBUG);
-        av_log_set_level(AV_LOG_QUIET);
+        av_log_set_level(AV_LOG_DEBUG);
+//        av_log_set_level(AV_LOG_QUIET);
     }
 }
 

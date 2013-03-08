@@ -176,10 +176,10 @@ class VideoDecoderTest: public DecoderTest {
 
         void runTests()
         {
-            basicFileTest("mpeg1-48x48.mpg", 30);
+//            basicFileTest("mpeg1-48x48.mpg", 30);
             basicFileTest("mpeg2-48x48.mov", 30);
-            basicFileTest("mjpeg-48x48.avi", 202);
-            testSeeks("mjpeg-48x48.avi");
+//            basicFileTest("mjpeg-48x48.avi", 202);
+//            testSeeks("mjpeg-48x48.avi");
         }
 
     private:
@@ -210,9 +210,9 @@ class VideoDecoderTest: public DecoderTest {
                 testEqual(*pBmp, sFilename+"_2", B8G8R8X8);
                 pDecoder->close();
                 
-                readWholeFile(sFilename, 1, expectedNumFrames); 
-                readWholeFile(sFilename, 0.5, expectedNumFrames); 
-                readWholeFile(sFilename, 2, expectedNumFrames/2); 
+//                readWholeFile(sFilename, 1, expectedNumFrames); 
+//                readWholeFile(sFilename, 0.5, expectedNumFrames); 
+//                readWholeFile(sFilename, 2, expectedNumFrames/2); 
             } catch (Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.getStr() << endl;
                 throw;
@@ -484,8 +484,8 @@ public:
     VideoTestSuite() 
         : TestSuite("VideoTestSuite")
     {
-        addAudioTests();
-        addVideoTests(false);
+//        addAudioTests();
+//        addVideoTests(false);
 #if defined(AVG_ENABLE_VDPAU) || defined(AVG_ENABLE_VAAPI)
         if (VDPAUDecoder::isAvailable() || VAAPIDecoder::isAvailable()) {
             addVideoTests(true);
@@ -506,10 +506,10 @@ private:
 
     void addVideoTests(bool bUseHardwareAcceleration)
     {
-        addTest(TestPtr(new VideoDecoderTest(false, bUseHardwareAcceleration)));
+//        addTest(TestPtr(new VideoDecoderTest(false, bUseHardwareAcceleration)));
         addTest(TestPtr(new VideoDecoderTest(true, bUseHardwareAcceleration)));
 
-        addTest(TestPtr(new AVDecoderTest(bUseHardwareAcceleration)));
+//        addTest(TestPtr(new AVDecoderTest(bUseHardwareAcceleration)));
     }
 };
 
