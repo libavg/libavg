@@ -53,8 +53,10 @@ using namespace boost;
 
 class DecoderTest: public GraphicsTest {
     public:
-        DecoderTest(const string& sClassName, bool bThreaded, bool bUseHardwareAcceleration)
-          : GraphicsTest(sClassName+getDecoderName(bThreaded, bUseHardwareAcceleration), 2),
+        DecoderTest(const string& sClassName, bool bThreaded, 
+                bool bUseHardwareAcceleration)
+          : GraphicsTest(sClassName+getDecoderName(bThreaded, bUseHardwareAcceleration),
+                2),
             m_bThreaded(bThreaded),
             m_bUseHardwareAcceleration(bUseHardwareAcceleration)
         {}
@@ -102,7 +104,8 @@ class DecoderTest: public GraphicsTest {
                     }
                     case AudioMsg::SEEK_DONE: {
                         AudioMsgPtr pStatusMsg(new AudioMsg);
-                        pStatusMsg->setSeekDone(pMsg->getSeekSeqNum(), pMsg->getSeekTime());
+                        pStatusMsg->setSeekDone(pMsg->getSeekSeqNum(), 
+                                pMsg->getSeekTime());
                         pStatusQ->push(AudioMsgPtr(pStatusMsg));
                         return -1;
                     }
@@ -327,7 +330,8 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Reading complete file." << endl;
                     AsyncVideoDecoderPtr pDecoder = 
                             dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
-                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), 
+                            true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
                     pDecoder->startDecoding(false, getAudioParams());
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
@@ -345,7 +349,8 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Seek test." << endl;
                     AsyncVideoDecoderPtr pDecoder = 
                             dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
-                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), 
+                            true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
