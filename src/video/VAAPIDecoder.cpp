@@ -158,12 +158,13 @@ VAAPISurface* VAAPIDecoder::getFreeSurface()
 int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 {
     VAAPISurface* pVAAPISurface = getFreeSurface();
+    uint8_t* surfaceID = (uint8_t*)(uintptr_t)pVAAPISurface->getSurfaceID();
 
     pFrame->type = FF_BUFFER_TYPE_USER;
-    pFrame->data[0] = 0;
+    pFrame->data[0] = surfaceID;
     pFrame->data[1] = 0;
     pFrame->data[2] = 0;
-    pFrame->data[3] = 0;
+    pFrame->data[3] = surfaceID;
     pFrame->linesize[0] = 0;
     pFrame->linesize[1] = 0;
     pFrame->linesize[2] = 0;
@@ -175,6 +176,9 @@ int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 
 void VAAPIDecoder::releaseBufferInternal(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
+    pFrame->data[0] = 0;
+    pFrame->data[3] = 0;
+    pFrame->opaque = 0;
 /*
     VAAPISurfaceInfo* pVAAPISurface = (VAAPISurfaceInfo*)(pFrame->opaque);
 
