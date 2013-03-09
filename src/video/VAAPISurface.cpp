@@ -78,14 +78,13 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
                         (uint8_t*)pImgBuffer + m_pImage->offsets[0], 
                         m_pImage->pitches[0], false));
                 pBmpY->copyPixels(*pSrcBmp);
-
                 pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
-                            (uint8_t*)pImgBuffer + m_pImage->offsets[1],
-                            m_pImage->pitches[1], false));
+                            (uint8_t*)pImgBuffer + m_pImage->offsets[2],
+                            m_pImage->pitches[2], false));
                 pBmpU->copyPixels(*pSrcBmp);
                 pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
-                            (uint8_t*)pImgBuffer + m_pImage->offsets[2], 
-                            m_pImage->pitches[2], false));
+                            (uint8_t*)pImgBuffer + m_pImage->offsets[1], 
+                            m_pImage->pitches[1], false));
                 pBmpV->copyPixels(*pSrcBmp);
             }
             break;
