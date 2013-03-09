@@ -61,15 +61,15 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
     VAStatus status;
 
     status = vaSyncSurface(getVAAPIDisplay(), m_SurfaceID);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    VAAPIDecoder::checkError(status);
 
     status = vaGetImage(getVAAPIDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
             m_pImage->image_id);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    VAAPIDecoder::checkError(status);
 
     void* pImgBuffer;
     status = vaMapBuffer(getVAAPIDisplay(), m_pImage->buf, &pImgBuffer);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    VAAPIDecoder::checkError(status);
 
     switch (m_pImage->format.fourcc) {
         case VA_FOURCC_YV12:

@@ -123,6 +123,13 @@ bool VAAPIDecoder::isAvailable()
 #endif
 }
 
+void VAAPIDecoder::checkError(VAStatus status)
+{
+    if (status != VA_STATUS_SUCCESS) {
+        AVG_ASSERT_MSG(false, (string("VAAPI error: ") + vaErrorStr(status)).c_str());
+    }
+}
+
 int VAAPIDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
     cerr << "getBuffer" << endl;
@@ -213,29 +220,29 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     attrib.type = VAConfigAttribRTFormat;
     VAStatus status = vaGetConfigAttributes(getVAAPIDisplay(), profile, VAEntrypointVLD,
             &attrib, 1);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    checkError(status);
     if ((attrib.value & VA_RT_FORMAT_YUV420) == 0) {
         return false;
     }
     status = vaCreateConfig(getVAAPIDisplay(), profile, VAEntrypointVLD, &attrib, 1, 
             &m_ConfigID);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    checkError(status);
 
     determineImageFormat();
     cerr << "Decoding to image format " << imageFmtToString(m_pImageFmt) << endl;
 
     m_pImage = new VAImage();
     status = vaCreateImage(getVAAPIDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    checkError(status);
 
     VASurfaceID surfaceIDs[40];
     status = vaCreateSurfaces(getVAAPIDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
             40, surfaceIDs);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    checkError(status);
         
     status = vaCreateContext(getVAAPIDisplay(), m_ConfigID, m_Size.x, m_Size.y,
             VA_PROGRESSIVE, surfaceIDs, 40, &m_ContextID);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    checkError(status);
 
     AVG_ASSERT(m_Surfaces.size() == 0);
     for (int i=0; i<40; ++i) {
@@ -252,7 +259,7 @@ void VAAPIDecoder::determineImageFormat()
     AVG_ASSERT(pFmts);
 
     VAStatus status = vaQueryImageFormats(getVAAPIDisplay(), pFmts, &numFmts);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    checkError(status);
     AVG_ASSERT(m_pImageFmt == 0);
     cerr << "Image formats available: " << endl;
     for (int i=0; i<numFmts; ++i) {
@@ -290,7 +297,7 @@ bool VAAPIDecoder::hasProfile(VAProfile profile)
         int numProfiles = vaMaxNumProfiles(getVAAPIDisplay());
         VAProfile *pProfiles = (VAProfile*)malloc(numProfiles*sizeof(VAProfile));
         VAStatus status = vaQueryConfigProfiles(getVAAPIDisplay(), pProfiles, &numProfiles);
-        AVG_ASSERT(status == VA_STATUS_SUCCESS);
+        checkError(status);
         cerr << "VAAPI Profiles available: " << endl;
         for (int i=0; i<numProfiles; ++i) {
             s_Profiles.push_back(pProfiles[i]);
@@ -313,7 +320,7 @@ bool VAAPIDecoder::hasEntryPoint(VAProfile profile, VAEntrypoint entryPoint)
             (VAEntrypoint*)malloc(numEntryPoints*sizeof(VAEntrypoint));
     VAStatus status = vaQueryConfigEntrypoints(getVAAPIDisplay(), profile, pEntryPoints, 
             &numEntryPoints);
-    AVG_ASSERT(status == VA_STATUS_SUCCESS);
+    checkError(status);
     cerr << "VAAPI entry points available for " << profileToString(profile) << ":" << endl;
     bool bEntryPointFound = false;
     for (int i=0; i<numEntryPoints; ++i) {

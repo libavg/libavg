@@ -44,6 +44,7 @@ public:
     IntPoint getSize() const;
 
     static bool isAvailable();
+    static void checkError(VAStatus status);
 
 private:
     // Callbacks
