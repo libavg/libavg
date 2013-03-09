@@ -386,7 +386,7 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
 #endif
                         break;
                     case VideoMsg::VAAPI_FRAME:
-                        AVG_ASSERT(false);
+                        pFrameMsg->getVAAPISurface()->setUsed(false);
                         break;
                     case VideoMsg::FRAME:
                         returnFrame(pFrameMsg);
