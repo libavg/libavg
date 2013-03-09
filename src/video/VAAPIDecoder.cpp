@@ -34,6 +34,7 @@ std::vector<VAProfile> VAAPIDecoder::s_Profiles;
 VAAPIDecoder::VAAPIDecoder()
     : m_Size(0, 0),
       m_ConfigID(unsigned(-1)),
+      m_ContextID(unsigned(-1)),
       m_pFFMpegVAContext(0),
       m_pImageFmt(0),
       m_pImage(0)
@@ -44,6 +45,24 @@ VAAPIDecoder::~VAAPIDecoder()
 {
     if (m_ConfigID != unsigned(-1)) {
         vaDestroyConfig(getVAAPIDisplay(), m_ConfigID);
+    }
+
+    if (m_pImageFmt) {
+        delete m_pImageFmt;
+    }
+    if (m_pImage) {
+        vaDestroyImage(getVAAPIDisplay(), m_pImage->image_id);
+    }
+    if (m_ContextID != unsigned(-1)) {
+        vaDestroyContext(getVAAPIDisplay(), m_ContextID);
+        for (unsigned i=0; i<m_Surfaces.size(); ++i) {
+            VASurfaceID surfaceID = m_Surfaces[i].getSurfaceID();
+            vaDestroySurfaces(getVAAPIDisplay(), &surfaceID, 1);
+        }
+    }
+
+    if (m_pFFMpegVAContext) {
+        delete m_pFFMpegVAContext;
     }
 }
 
