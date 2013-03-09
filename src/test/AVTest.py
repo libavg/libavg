@@ -147,7 +147,7 @@ class AVTestCase(AVGTestCase):
                      testInfo,
                      lambda: node.stop()
                     ))
-        videoFiles = ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", #"mpeg1-48x48-sound.avi", 
+        videoFiles = ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg2-48x48.mov", 
                 "rgba-48x48.mov", "h264-48x48.h264", "vp6a-yuva-48x48.flv"]
         sys.stderr.write("\n")
         for filename in videoFiles:
