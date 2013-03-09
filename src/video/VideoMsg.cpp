@@ -21,6 +21,9 @@
 
 #include "VideoMsg.h"
 #include "WrapFFMpeg.h"
+#ifdef AVG_ENABLE_VAAPI
+#include "VAAPISurface.h"
+#endif
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -33,6 +36,9 @@ VideoMsg::VideoMsg()
 
 VideoMsg::~VideoMsg()
 {
+    if (getType() == VAAPI_FRAME) {
+        m_pSurface->decRef();
+    }
 }
 
 void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime)
@@ -53,6 +59,7 @@ void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime)
 void VideoMsg::setVAAPIFrame(VAAPISurface* pSurface, float frameTime)
 {
     setType(VAAPI_FRAME);
+    pSurface->incRef();
     m_pSurface = pSurface;
     m_FrameTime = frameTime;
 }

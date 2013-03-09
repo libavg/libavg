@@ -21,6 +21,9 @@
 
 #include "VideoDecoderThread.h"
 #include "FFMpegFrameDecoder.h"
+#ifdef AVG_ENABLE_VAAPI
+#include "VAAPISurface.h"
+#endif
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

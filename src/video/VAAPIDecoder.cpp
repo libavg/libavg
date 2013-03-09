@@ -152,7 +152,7 @@ VAAPISurface* VAAPIDecoder::getFreeSurface()
     for (unsigned i = 0; i<m_Surfaces.size(); i++) {
         VAAPISurface* pSurface = &m_Surfaces[i];
         if (!pSurface->isUsed()) {
-            pSurface->setUsed(true);
+            pSurface->incRef();
             return pSurface;
         }
     }
@@ -181,23 +181,12 @@ int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
 
 void VAAPIDecoder::releaseBufferInternal(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
+    VAAPISurface* pSurface = (VAAPISurface*)(pFrame->opaque);
+    pSurface->decRef();
+
     pFrame->data[0] = 0;
     pFrame->data[3] = 0;
     pFrame->opaque = 0;
-/*
-    VAAPISurfaceInfo* pVAAPISurface = (VAAPISurfaceInfo*)(pFrame->opaque);
-
-    bool bFound = false;
-    for (unsigned i = 0; i<m_Surfaces.size(); i++) {
-        if (pVAAPISurface == &m_Surfaces[i]) {
-            AVG_ASSERT(pVAAPISurface->m_bUsed);
-            pVAAPISurface->m_bUsed = false;
-            bFound = true;
-            break;
-        }
-    }
-    AVG_ASSERT(bFound);
-*/    
 }
 
 bool VAAPIDecoder::initDecoder(VAProfile profile)

@@ -41,7 +41,8 @@ public:
     VAAPISurface(VASurfaceID surfaceID, VAAPIDecoder* pDecoder);
 
     VASurfaceID getSurfaceID() const;
-    void setUsed(bool bUsed);
+    void incRef();
+    void decRef();
     bool isUsed() const;
     void getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV);
     void getRGBBmp(BitmapPtr pBmp);
@@ -50,7 +51,7 @@ private:
     void splitInterleaved(BitmapPtr pBmpU, BitmapPtr pBmpV, BitmapPtr pSrcBmp);
 
     VASurfaceID m_SurfaceID;
-    bool m_bUsed;
+    int m_RefCount;
     IntPoint m_Size;
     VAImage* m_pImage; // Shared between all surfaces in a decoder.
 };

@@ -34,7 +34,7 @@ namespace avg {
 
 VAAPISurface::VAAPISurface(VASurfaceID surfaceID, VAAPIDecoder* pDecoder)
     : m_SurfaceID(surfaceID),
-      m_bUsed(false)
+      m_RefCount(0)
 {
     m_Size = pDecoder->getSize();
     m_pImage = pDecoder->getImage();
@@ -45,15 +45,21 @@ VASurfaceID VAAPISurface::getSurfaceID() const
     return m_SurfaceID;
 }
 
-void VAAPISurface::setUsed(bool bUsed)
+void VAAPISurface::incRef()
 {
-    AVG_ASSERT(bUsed != m_bUsed);
-    m_bUsed = bUsed;
+    AVG_ASSERT(m_RefCount < 2);
+    m_RefCount++;
 }
-    
+
+void VAAPISurface::decRef()
+{
+    AVG_ASSERT(m_RefCount > 0);
+    m_RefCount--;
+}
+ 
 bool VAAPISurface::isUsed() const
 {
-    return m_bUsed;
+    return m_RefCount > 0;
 }
 
 void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
@@ -106,7 +112,6 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
             AVG_ASSERT(false);
     }
     vaUnmapBuffer(getVAAPIDisplay(), m_pImage->buf);
-    setUsed(false);
 }
 
 void VAAPISurface::getRGBBmp(BitmapPtr pBmp)
