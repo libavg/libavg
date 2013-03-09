@@ -132,21 +132,18 @@ void VAAPIDecoder::checkError(VAStatus status)
 
 int VAAPIDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    cerr << "getBuffer" << endl;
     VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
     return pVAAPIDecoder->getBufferInternal(pContext, pFrame);
 }
 
 void VAAPIDecoder::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
-    cerr << "releaseBuffer" << endl;
     VAAPIDecoder* pVAAPIDecoder = (VAAPIDecoder*)pContext->opaque;
     return pVAAPIDecoder->releaseBufferInternal(pContext, pFrame);
 }
 
 AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt)
 {
-    cerr << "getFormat" << endl;
     return PIX_FMT_VAAPI_VLD;
 }
 
@@ -205,8 +202,6 @@ void VAAPIDecoder::releaseBufferInternal(struct AVCodecContext* pContext, AVFram
 
 bool VAAPIDecoder::initDecoder(VAProfile profile)
 {
-    cerr << "VAAPIDecoder::initDecoder" << endl;
-
     if (!hasProfile(profile)) {
         cerr << "  Profile " << profileToString(profile) << " not available." << endl;
         return false;
