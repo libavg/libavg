@@ -640,7 +640,7 @@ class AVTestCase(AVGTestCase):
         video = avg.VideoNode(accelerated=False, href="media/mpeg1-48x48.mpg")
         video.play()
         self.assertEqual(video.accelerated, False)
-        video = avg.VideoNode(accelerated=True, href="media/mpeg1-48x48.mpg")
+        video = avg.VideoNode(accelerated=True, href="media/mpeg2-48x48.mov")
         video.play()
         self.assertEqual(video.accelerated, (accelConfig != avg.NO_ACCELERATION))
 
