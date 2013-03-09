@@ -93,6 +93,7 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
         pContext->draw_horiz_band = 0;
         pContext->get_format = VAAPIDecoder::getFormat;
         pContext->slice_flags = SLICE_FLAG_CODED_ORDER | SLICE_FLAG_ALLOW_FIELD;
+        pContext->thread_count = 1;
         pContext->pix_fmt = PIX_FMT_VAAPI_VLD;
         AVCodec* pCodec = avcodec_find_decoder(pContext->codec_id);
         return pCodec;
@@ -225,17 +226,17 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     status = vaCreateImage(getVAAPIDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
-    VASurfaceID surfaceIDs[200];
+    VASurfaceID surfaceIDs[40];
     status = vaCreateSurfaces(getVAAPIDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
-            200, surfaceIDs);
+            40, surfaceIDs);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
         
     status = vaCreateContext(getVAAPIDisplay(), m_ConfigID, m_Size.x, m_Size.y,
-            VA_PROGRESSIVE, surfaceIDs, 200, &m_ContextID);
+            VA_PROGRESSIVE, surfaceIDs, 40, &m_ContextID);
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
     AVG_ASSERT(m_Surfaces.size() == 0);
-    for (int i=0; i<200; ++i) {
+    for (int i=0; i<40; ++i) {
         m_Surfaces.push_back(VAAPISurface(surfaceIDs[i], this));
     }
 
