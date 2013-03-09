@@ -65,7 +65,7 @@ void VideoNode::registerType()
         .addArg(Arg<int>("queuelength", 8, false, 
                 offsetof(VideoNode, m_QueueLength)))
         .addArg(Arg<float>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
-        .addArg(Arg<bool>("accelerated", false, false,
+        .addArg(Arg<bool>("accelerated", true, false,
                 offsetof(VideoNode, m_bUseHardwareAcceleration)))
         .addArg(Arg<bool>("enablesound", true, false,
                 offsetof(VideoNode, m_bEnableSound)))
@@ -85,7 +85,7 @@ VideoNode::VideoNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_bUseHardwareAcceleration(false),
+      m_bUseHardwareAcceleration(true),
       m_VideoAccelType(VA_NONE),
       m_bEnableSound(true),
       m_AudioID(-1)
