@@ -45,17 +45,17 @@ public:
 
     virtual ~AudioMsg();
 
-    MsgType getType();
+    MsgType getType() const;
 
     AudioBufferPtr getAudioBuffer() const;
     float getAudioTime() const;
 
     const Exception& getException() const;
 
-    int getSeekSeqNum();
-    float getSeekTime();
+    int getSeekSeqNum() const;
+    float getSeekTime() const;
 
-    virtual void dump();
+    virtual void dump() const;
 
 protected:
     void setType(MsgType msgType);

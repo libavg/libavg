@@ -222,7 +222,7 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     AVG_ASSERT(status == VA_STATUS_SUCCESS);
 
     determineImageFormat();
-    cerr << "Using image format " << imageFmtToString(m_pImageFmt) << endl;
+    cerr << "Decoding to image format " << imageFmtToString(m_pImageFmt) << endl;
 
     m_pImage = new VAImage();
     status = vaCreateImage(getVAAPIDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);

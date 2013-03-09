@@ -79,7 +79,7 @@ void AudioMsg::setClosed()
     setType(CLOSED);
 }
 
-AudioMsg::MsgType AudioMsg::getType()
+AudioMsg::MsgType AudioMsg::getType() const
 {
     return m_MsgType;
 }
@@ -102,19 +102,19 @@ const Exception& AudioMsg::getException() const
     return *m_pEx;
 }
 
-int AudioMsg::getSeekSeqNum()
+int AudioMsg::getSeekSeqNum() const
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekSeqNum;
 }
 
-float AudioMsg::getSeekTime()
+float AudioMsg::getSeekTime() const
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekTime;
 }
     
-void AudioMsg::dump()
+void AudioMsg::dump() const
 {
     switch (m_MsgType) {
         case NONE:
@@ -137,6 +137,9 @@ void AudioMsg::dump()
             break;
         case VDPAU_FRAME:
             cerr << "VDPAU_FRAME" << endl;
+            break;
+        case VAAPI_FRAME:
+            cerr << "VAAPI_FRAME" << endl;
             break;
         case SEEK_DONE:
             cerr << "SEEK_DONE" << endl;

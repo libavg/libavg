@@ -47,13 +47,13 @@ public:
 
     virtual ~VideoMsg();
 
-    BitmapPtr getFrameBitmap(int i);
-    float getFrameTime();
-    AVPacket* getPacket();
+    BitmapPtr getFrameBitmap(int i) const;
+    float getFrameTime() const;
+    AVPacket* getPacket() const;
     void freePacket();
 
-    vdpau_render_state* getRenderState();
-    VAAPISurface* getVAAPISurface();
+    vdpau_render_state* getRenderState() const;
+    VAAPISurface* getVAAPISurface() const;
 
 private:
     // FRAME

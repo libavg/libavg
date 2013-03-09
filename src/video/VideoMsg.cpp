@@ -64,7 +64,7 @@ void VideoMsg::setPacket(AVPacket* pPacket)
     m_pPacket = pPacket;
 }
 
-AVPacket * VideoMsg::getPacket()
+AVPacket * VideoMsg::getPacket() const
 {
     AVG_ASSERT(getType() == PACKET);
     return m_pPacket;
@@ -79,25 +79,25 @@ void VideoMsg::freePacket()
     }
 }
 
-BitmapPtr VideoMsg::getFrameBitmap(int i)
+BitmapPtr VideoMsg::getFrameBitmap(int i) const
 {
     AVG_ASSERT(getType() == FRAME);
     return m_pBmps[i];
 }
 
-float VideoMsg::getFrameTime()
+float VideoMsg::getFrameTime() const
 {
     AVG_ASSERT(getType() == FRAME || getType() == VDPAU_FRAME || getType() == VAAPI_FRAME);
     return m_FrameTime;
 }
 
-vdpau_render_state* VideoMsg::getRenderState()
+vdpau_render_state* VideoMsg::getRenderState() const
 {
     AVG_ASSERT(getType() == VDPAU_FRAME);
     return m_pRenderState;
 }
     
-VAAPISurface* VideoMsg::getVAAPISurface()
+VAAPISurface* VideoMsg::getVAAPISurface() const
 {
     AVG_ASSERT(getType() == VAAPI_FRAME);
     return m_pSurface;
