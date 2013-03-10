@@ -185,14 +185,16 @@ GLXContext::~GLXContext()
 
 void GLXContext::throwOnXError( int code)
 {
-    if(s_bX11Error){
+    if (s_bX11Error) {
         throw Exception(code, "X error creating OpenGL context.");
     }
 }
 
 void GLXContext::activate()
 {
-    glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
+    bool bOk = glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
+    AVG_ASSERT_MSG(bOk, "glxMakeCurrent failed.");
+    checkError("glXMakeCurrent");
     setCurrent();
 }
 
