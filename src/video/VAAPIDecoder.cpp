@@ -23,7 +23,11 @@
 #include "../base/Exception.h"
 #include "../graphics/X11Display.h"
 
+#ifdef AVG_ENABLE_EGL
+#include <va/va_x11.h>
+#else
 #include <va/va_glx.h>
+#endif
 
 #include <iostream>
 #include <sstream>
@@ -159,7 +163,11 @@ VADisplay VAAPIDecoder::getDisplay()
     if (!bIsInitialized) {
         bIsInitialized = true;
         ::Display* pDisplay = getX11Display(0);
+#ifdef AVG_ENABLE_EGL
+        vaDisplay = vaGetDisplay(pDisplay);
+#else        
         vaDisplay = vaGetDisplayGLX(pDisplay);
+#endif
 
         int majorVer;
         int minorVer;
