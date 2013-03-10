@@ -22,6 +22,7 @@
 
 #include "../base/Exception.h"
 #include "../graphics/X11Display.h"
+#include "../graphics/GLTexture.h"
 
 #ifdef AVG_ENABLE_EGL
 #include <va/va_x11.h>
@@ -36,7 +37,8 @@ using namespace std;
     
 namespace avg {
 
-std::vector<VAProfile> VAAPIDecoder::s_Profiles;
+vector<VAProfile> VAAPIDecoder::s_Profiles;
+std::map<unsigned, void *> VAAPIDecoder::s_GLSurfaceMap;
 
 VAAPIDecoder::VAAPIDecoder()
     : m_Size(0, 0),
@@ -178,6 +180,32 @@ VADisplay VAAPIDecoder::getDisplay()
         }
     }
     return vaDisplay;
+}
+
+void VAAPIDecoder::registerTexture(GLTexturePtr pTex)
+{
+    unsigned texid = pTex->getID();
+    void* pVAGLSurface;
+    VAStatus status = vaCreateSurfaceGLX(getDisplay(), GL_TEXTURE_2D, texid, &pVAGLSurface);
+    VAAPIDecoder::checkError(status);
+    
+    s_GLSurfaceMap[texid] = pVAGLSurface;
+}
+
+void VAAPIDecoder::deregisterTexture(GLTexturePtr pTex)
+{
+    unsigned texid = pTex->getID();
+    void* pVAGLSurface = s_GLSurfaceMap[texid];
+    VAStatus status = vaDestroySurfaceGLX(getDisplay(), pVAGLSurface);
+    VAAPIDecoder::checkError(status);
+    s_GLSurfaceMap.erase(texid);
+}
+
+void * VAAPIDecoder::getVAGLSurface(GLTexturePtr pTex)
+{
+    unsigned texid = pTex->getID();
+    void* pVAGLSurface = s_GLSurfaceMap[texid];
+    return pVAGLSurface;
 }
 
 int VAAPIDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)

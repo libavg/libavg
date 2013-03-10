@@ -500,7 +500,8 @@ void VideoNode::startDecoding()
     m_bSeekPending = true;
     
     createTextures(videoInfo.m_Size);
-   
+    m_pDecoder->registerTextures(m_pTextures);
+
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
@@ -546,6 +547,12 @@ void VideoNode::createTextures(IntPoint size)
 
 void VideoNode::close()
 {
+    if (m_pTextures[0]) {
+        m_pDecoder->deregisterTextures(m_pTextures);
+        for (int i=0; i<4; ++i) {
+            m_pTextures[i] = GLTexturePtr();
+        }
+    }
     AudioEngine* pAudioEngine = AudioEngine::get();
     if (m_AudioID != -1) {
         pAudioEngine->removeSource(m_AudioID);

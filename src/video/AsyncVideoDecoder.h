@@ -46,6 +46,8 @@ public:
     virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
             bool bEnableSound);
     virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
+    virtual void registerTextures(GLTexturePtr pTextures[4]);
+    virtual void deregisterTextures(GLTexturePtr pTextures[4]);
     virtual void close();
     virtual void seek(float destTime);
     virtual void loop();

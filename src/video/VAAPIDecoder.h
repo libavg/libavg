@@ -29,8 +29,13 @@
 #include "VAAPISurface.h"
 
 #include <libavcodec/vaapi.h>
+#include <map>
+#include <vector>
 
 namespace avg {
+
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class VAAPIDecoder
 {
@@ -45,6 +50,10 @@ public:
     static bool isAvailable();
     static void checkError(VAStatus status);
     static VADisplay getDisplay();
+
+    static void registerTexture(GLTexturePtr pTex);
+    static void deregisterTexture(GLTexturePtr pTex);
+    static void * getVAGLSurface(GLTexturePtr pTex);
 
 private:
     // Callbacks
@@ -75,6 +84,7 @@ private:
     VAImage* m_pImage;
 
     static std::vector<VAProfile> s_Profiles;
+    static std::map<unsigned, void *> s_GLSurfaceMap; // textureID -> VA GLX Surface
 };
 
 }

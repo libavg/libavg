@@ -26,6 +26,7 @@
 #include "VDPAUHelper.h"
 #endif
 #ifdef AVG_ENABLE_VAAPI
+#include "VAAPIDecoder.h"
 #include "VAAPISurface.h"
 #endif
 
@@ -123,6 +124,24 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_pADecoderThread = new boost::thread(
                 AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, packetQ, getAudioStream(), *pAP));
         m_LastAudioFrameTime = 0;
+    }
+}
+
+void AsyncVideoDecoder::registerTextures(GLTexturePtr pTextures[4])
+{
+    if (getHWAccelUsed() == VA_VAAPI) {
+#ifdef AVG_ENABLE_VAAPI
+        VAAPIDecoder::registerTexture(pTextures[0]);
+#endif
+    }
+}
+
+void AsyncVideoDecoder::deregisterTextures(GLTexturePtr pTextures[4])
+{
+    if (getHWAccelUsed() == VA_VAAPI) {
+#ifdef AVG_ENABLE_VAAPI
+        VAAPIDecoder::deregisterTexture(pTextures[0]);
+#endif
     }
 }
 

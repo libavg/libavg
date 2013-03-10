@@ -144,15 +144,10 @@ void VAAPISurface::getRGBBmp(BitmapPtr pBmp)
 
 void VAAPISurface::copyToTexture(GLTexturePtr pTex)
 {
-    void* pVAGLSurface;
+    void* pVAGLSurface = VAAPIDecoder::getVAGLSurface(pTex);
     VAStatus status;
-    status = vaCreateSurfaceGLX(VAAPIDecoder::getDisplay(), GL_TEXTURE_2D, pTex->getID(), 
-            &pVAGLSurface);
-    VAAPIDecoder::checkError(status);
     status = vaCopySurfaceGLX(VAAPIDecoder::getDisplay(), pVAGLSurface, m_SurfaceID, 
             VA_FRAME_PICTURE);
-    VAAPIDecoder::checkError(status);
-    status = vaDestroySurfaceGLX(VAAPIDecoder::getDisplay(), pVAGLSurface);
     VAAPIDecoder::checkError(status);
 }
 
