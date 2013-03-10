@@ -57,6 +57,8 @@ public:
 
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
             float timeWanted);
+    virtual FrameAvailableCode renderToTexture(GLTexturePtr pTextures[4],
+            float timeWanted);
     void updateAudioStatus();
     virtual bool isEOF() const;
     virtual void throwAwayFrame(float timeWanted);

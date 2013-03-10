@@ -34,6 +34,8 @@
 namespace avg {
 
 class VAAPIDecoder;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class VAAPISurface
 {
@@ -46,6 +48,7 @@ public:
     bool isUsed() const;
     void getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV);
     void getRGBBmp(BitmapPtr pBmp);
+    void copyToTexture(GLTexturePtr pTex);
 
 private:
     void splitInterleaved(BitmapPtr pBmpU, BitmapPtr pBmpV, BitmapPtr pSrcBmp);

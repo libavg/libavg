@@ -517,10 +517,11 @@ PixelFormat VideoDecoder::calcPixelFormat(bool bUseYCbCr)
             case PIX_FMT_VDPAU_WMV3:
             case PIX_FMT_VDPAU_VC1:
 #endif
+                return YCbCr420p;
 #ifdef AVG_ENABLE_VAAPI
             case PIX_FMT_VAAPI_VLD:
+                return R8G8B8X8;
 #endif            
-                return YCbCr420p;
             case PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
             case PIX_FMT_YUVA420P:

@@ -279,6 +279,39 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     return frameAvailable;
 }
 
+FrameAvailableCode AsyncVideoDecoder::renderToTexture(GLTexturePtr pTextures[4], 
+        float timeWanted)
+{
+    AVG_ASSERT(getState() == DECODING);
+    if (getHWAccelUsed() == VA_VAAPI) {
+        FrameAvailableCode frameAvailable;
+#ifdef AVG_ENABLE_VAAPI
+        VideoMsgPtr pFrameMsg;
+        if (timeWanted == -1) {
+            waitForSeekDone();
+            pFrameMsg = getNextBmps(true);
+            frameAvailable = FA_NEW_FRAME;
+        } else {
+            pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
+        }
+        if (frameAvailable == FA_NEW_FRAME) {
+            AVG_ASSERT(pFrameMsg);
+            m_LastVideoFrameTime = pFrameMsg->getFrameTime();
+            m_CurVideoFrameTime = m_LastVideoFrameTime;
+            AVG_ASSERT(pFrameMsg->getType() == VideoMsg::VAAPI_FRAME);
+            ScopeTimer timer(VAAPIDecodeProfilingZone);
+            VAAPISurface* pSurface = pFrameMsg->getVAAPISurface();
+            pSurface->copyToTexture(pTextures[0]);
+        }
+#else
+        AVG_ASSERT(false);
+#endif
+        return frameAvailable;
+    } else {
+        return VideoDecoder::renderToTexture(pTextures, timeWanted);
+    }
+}
+
 void AsyncVideoDecoder::updateAudioStatus()
 {
     if (m_pAStatusQ) {
