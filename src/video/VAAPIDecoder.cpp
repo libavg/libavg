@@ -21,6 +21,9 @@
 #include "VAAPIDecoder.h"
 
 #include "../base/Exception.h"
+#include "../graphics/X11Display.h"
+
+#include <va/va_glx.h>
 
 #include <iostream>
 #include <sstream>
@@ -44,20 +47,20 @@ VAAPIDecoder::VAAPIDecoder()
 VAAPIDecoder::~VAAPIDecoder()
 {
     if (m_ConfigID != unsigned(-1)) {
-        vaDestroyConfig(getVAAPIDisplay(), m_ConfigID);
+        vaDestroyConfig(getDisplay(), m_ConfigID);
     }
 
     if (m_pImageFmt) {
         delete m_pImageFmt;
     }
     if (m_pImage) {
-        vaDestroyImage(getVAAPIDisplay(), m_pImage->image_id);
+        vaDestroyImage(getDisplay(), m_pImage->image_id);
     }
     if (m_ContextID != unsigned(-1)) {
-        vaDestroyContext(getVAAPIDisplay(), m_ContextID);
+        vaDestroyContext(getDisplay(), m_ContextID);
         for (unsigned i=0; i<m_Surfaces.size(); ++i) {
             VASurfaceID surfaceID = m_Surfaces[i].getSurfaceID();
-            vaDestroySurfaces(getVAAPIDisplay(), &surfaceID, 1);
+            vaDestroySurfaces(getDisplay(), &surfaceID, 1);
         }
     }
 
@@ -103,7 +106,7 @@ AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
         m_pFFMpegVAContext = new vaapi_context;
         pContext->hwaccel_context = m_pFFMpegVAContext;
         memset(m_pFFMpegVAContext, 0, sizeof(vaapi_context));
-        m_pFFMpegVAContext->display = getVAAPIDisplay();
+        m_pFFMpegVAContext->display = getDisplay();
         m_pFFMpegVAContext->config_id = m_ConfigID;
         m_pFFMpegVAContext->context_id = m_ContextID;
 
@@ -136,7 +139,7 @@ IntPoint VAAPIDecoder::getSize() const
 bool VAAPIDecoder::isAvailable()
 {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 34, 0)
-    return getVAAPIDisplay() != 0;
+    return getDisplay() != 0;
 #else
     return false;
 #endif
@@ -147,6 +150,26 @@ void VAAPIDecoder::checkError(VAStatus status)
     if (status != VA_STATUS_SUCCESS) {
         AVG_ASSERT_MSG(false, (string("VAAPI error: ") + vaErrorStr(status)).c_str());
     }
+}
+
+VADisplay VAAPIDecoder::getDisplay()
+{
+    static bool bIsInitialized = false;
+    static VADisplay vaDisplay = 0;
+    if (!bIsInitialized) {
+        bIsInitialized = true;
+        ::Display* pDisplay = getX11Display(0);
+        vaDisplay = vaGetDisplayGLX(pDisplay);
+
+        int majorVer;
+        int minorVer;
+        VAStatus status = vaInitialize(vaDisplay, &majorVer, &minorVer);
+        if (status != VA_STATUS_SUCCESS) {
+            vaDisplay = 0;
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, vaErrorStr(status));
+        }
+    }
+    return vaDisplay;
 }
 
 int VAAPIDecoder::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
@@ -221,13 +244,13 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
 
     VAConfigAttrib attrib;
     attrib.type = VAConfigAttribRTFormat;
-    VAStatus status = vaGetConfigAttributes(getVAAPIDisplay(), profile, VAEntrypointVLD,
+    VAStatus status = vaGetConfigAttributes(getDisplay(), profile, VAEntrypointVLD,
             &attrib, 1);
     checkError(status);
     if ((attrib.value & VA_RT_FORMAT_YUV420) == 0) {
         return false;
     }
-    status = vaCreateConfig(getVAAPIDisplay(), profile, VAEntrypointVLD, &attrib, 1, 
+    status = vaCreateConfig(getDisplay(), profile, VAEntrypointVLD, &attrib, 1, 
             &m_ConfigID);
     checkError(status);
 
@@ -235,15 +258,15 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     cerr << "Decoding to image format " << imageFmtToString(m_pImageFmt) << endl;
 
     m_pImage = new VAImage();
-    status = vaCreateImage(getVAAPIDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
+    status = vaCreateImage(getDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
     checkError(status);
 
     VASurfaceID surfaceIDs[40];
-    status = vaCreateSurfaces(getVAAPIDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
+    status = vaCreateSurfaces(getDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
             40, surfaceIDs);
     checkError(status);
         
-    status = vaCreateContext(getVAAPIDisplay(), m_ConfigID, m_Size.x, m_Size.y,
+    status = vaCreateContext(getDisplay(), m_ConfigID, m_Size.x, m_Size.y,
             VA_PROGRESSIVE, surfaceIDs, 40, &m_ContextID);
     checkError(status);
 
@@ -257,11 +280,11 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
 
 void VAAPIDecoder::determineImageFormat()
 {
-    int numFmts = vaMaxNumImageFormats(getVAAPIDisplay());
+    int numFmts = vaMaxNumImageFormats(getDisplay());
     VAImageFormat* pFmts = new VAImageFormat[numFmts];
     AVG_ASSERT(pFmts);
 
-    VAStatus status = vaQueryImageFormats(getVAAPIDisplay(), pFmts, &numFmts);
+    VAStatus status = vaQueryImageFormats(getDisplay(), pFmts, &numFmts);
     checkError(status);
     AVG_ASSERT(m_pImageFmt == 0);
     cerr << "Image formats available: " << endl;
@@ -297,9 +320,9 @@ bool VAAPIDecoder::isSupportedCodec(CodecID codecID)
 bool VAAPIDecoder::hasProfile(VAProfile profile)
 {
     if (s_Profiles.size() == 0) {
-        int numProfiles = vaMaxNumProfiles(getVAAPIDisplay());
+        int numProfiles = vaMaxNumProfiles(getDisplay());
         VAProfile *pProfiles = (VAProfile*)malloc(numProfiles*sizeof(VAProfile));
-        VAStatus status = vaQueryConfigProfiles(getVAAPIDisplay(), pProfiles, &numProfiles);
+        VAStatus status = vaQueryConfigProfiles(getDisplay(), pProfiles, &numProfiles);
         checkError(status);
         cerr << "VAAPI Profiles available: " << endl;
         for (int i=0; i<numProfiles; ++i) {
@@ -318,10 +341,10 @@ bool VAAPIDecoder::hasProfile(VAProfile profile)
 
 bool VAAPIDecoder::hasEntryPoint(VAProfile profile, VAEntrypoint entryPoint)
 {
-    int numEntryPoints = vaMaxNumEntrypoints(getVAAPIDisplay());
+    int numEntryPoints = vaMaxNumEntrypoints(getDisplay());
     VAEntrypoint *pEntryPoints =
             (VAEntrypoint*)malloc(numEntryPoints*sizeof(VAEntrypoint));
-    VAStatus status = vaQueryConfigEntrypoints(getVAAPIDisplay(), profile, pEntryPoints, 
+    VAStatus status = vaQueryConfigEntrypoints(getDisplay(), profile, pEntryPoints, 
             &numEntryPoints);
     checkError(status);
     cerr << "VAAPI entry points available for " << profileToString(profile) << ":" << endl;

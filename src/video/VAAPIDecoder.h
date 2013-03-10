@@ -26,7 +26,6 @@
 #include "../base/GLMHelper.h"
 
 #include "WrapFFMpeg.h"
-#include "VAAPIHelper.h"
 #include "VAAPISurface.h"
 
 #include <libavcodec/vaapi.h>
@@ -45,6 +44,7 @@ public:
 
     static bool isAvailable();
     static void checkError(VAStatus status);
+    static VADisplay getDisplay();
 
 private:
     // Callbacks

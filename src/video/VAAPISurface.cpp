@@ -22,7 +22,6 @@
 #include "VAAPISurface.h"
 
 #include "VAAPIDecoder.h"
-#include "VAAPIHelper.h"
 
 #include "../base/Exception.h"
 
@@ -66,15 +65,15 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
 {
     VAStatus status;
 
-    status = vaSyncSurface(getVAAPIDisplay(), m_SurfaceID);
+    status = vaSyncSurface(VAAPIDecoder::getDisplay(), m_SurfaceID);
     VAAPIDecoder::checkError(status);
 
-    status = vaGetImage(getVAAPIDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
+    status = vaGetImage(VAAPIDecoder::getDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
             m_pImage->image_id);
     VAAPIDecoder::checkError(status);
 
     void* pImgBuffer;
-    status = vaMapBuffer(getVAAPIDisplay(), m_pImage->buf, &pImgBuffer);
+    status = vaMapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf, &pImgBuffer);
     VAAPIDecoder::checkError(status);
 
     switch (m_pImage->format.fourcc) {
@@ -111,7 +110,7 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
         default:
             AVG_ASSERT(false);
     }
-    vaUnmapBuffer(getVAAPIDisplay(), m_pImage->buf);
+    vaUnmapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf);
 }
 
 void VAAPISurface::getRGBBmp(BitmapPtr pBmp)

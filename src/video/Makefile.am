@@ -20,7 +20,7 @@ if USE_VDPAU_SRC
         ALL_H += VDPAUDecoder.h VDPAUHelper.h
 endif
 if USE_VAAPI_SRC
-        ALL_H += VAAPIDecoder.h VAAPIHelper.h VAAPISurface.h
+        ALL_H += VAAPIDecoder.h VAAPISurface.h
 endif
 
 TESTS=testvideo
@@ -40,7 +40,7 @@ if USE_VDPAU_SRC
         libvideo_la_SOURCES += VDPAUDecoder.cpp VDPAUHelper.cpp
 endif
 if USE_VAAPI_SRC
-        libvideo_la_SOURCES += VAAPIDecoder.cpp VAAPIHelper.cpp VAAPISurface.cpp
+        libvideo_la_SOURCES += VAAPIDecoder.cpp VAAPISurface.cpp
 endif
 
 libvideo_la_LIBADD = @LIBVIDEO_LDADD@
