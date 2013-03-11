@@ -85,6 +85,16 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(s.get('foo_bar'), 'baz')
         sys.argv = savedArgv
 
+    def testAppAdditionalSettings(self):
+        app = libavg.app.App(Option('foo_bar', 'baz'), Option('bar_foo', 'baz'))
+        self.assertEquals(app.settings.get('foo_bar'), 'baz')
+
+    def testAppInstance(self):
+        app = libavg.app.App()
+        self.assertEquals(app, libavg.app.instance)
+
+    def tearDown(self):
+        libavg.app.instance = None
 
 def appTestSuite(tests):
     availableTests = (
@@ -92,6 +102,8 @@ def appTestSuite(tests):
             'testSettingsTypes',
             'testSettingsSet',
             'testSettingsArgvOverride',
+            'testAppAdditionalSettings',
+            'testAppInstance',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 

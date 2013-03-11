@@ -24,38 +24,6 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
-'''
-Application core module
-
-Minimal example
-
->>> import alib.app
->>> alib.app.App().run(alib.app.MainScene())
-
-Specialized instances of app.settings.Settings can be passed to the App constructor:
-
->>> import alib.app
->>> mySettings = alib.app.settings.Settings('/path/to/myconfig')
->>> alib.app.App(mySettings).run(alib.app.MainScene())
-
-Subclassing a MainScene::
-
-import logging
-import libavg
-
-from alib import app
-
-class MyScene(app.MainScene):
-    def onInit(self):
-        libavg.avg.WordsNode(parent=self, fontsize=60, text='helloworld!')
-        
-        logging.info('Starting up')
-
-
-if __name__ == '__main__':
-    app.App().run(MyScene())
-'''
-
 import os
 import io
 import math
@@ -71,24 +39,6 @@ from settings import Option
 #import debugpanel
 #import flashmessage
 
-
-defaults = [
-        Option('app_resolution', '640x480'),
-        Option('app_window_size', '640x480'),
-        Option('app_fullscreen', 'false'),
-        Option('app_show_cursor', 'true'),
-        Option('app_rotation', 'normal'),
-        Option('app_panel_fontsize', '10'),
-        Option('app_mouse_enabled', 'true'),
-        Option('app_idle_timeout', '60'),
-        Option('multitouch_enabled', 'false'),
-        Option('multitouch_driver', ''),
-        Option('multitouch_tuio_port', ''),
-        Option('multitouch_mtdev_device', ''),
-        Option('logging_sink', 'libavg'),
-        Option('logging_severity', 'INFO'),
-        Option('logging_categories', ''),
-]
 
 class MainScene(libavg.avg.DivNode):
     '''
@@ -136,7 +86,25 @@ class App(object):
     libavg-based application class
     '''
 
-    def __init__(self, settings=None):
+    _defaults = [
+            Option('app_resolution', '640x480'),
+            Option('app_window_size', '640x480'),
+            Option('app_fullscreen', 'false'),
+            Option('app_show_cursor', 'true'),
+            Option('app_rotation', 'normal'),
+            Option('app_panel_fontsize', '10'),
+            Option('app_mouse_enabled', 'true'),
+            Option('app_idle_timeout', '60'),
+            Option('multitouch_enabled', 'false'),
+            Option('multitouch_driver', ''),
+            Option('multitouch_tuio_port', ''),
+            Option('multitouch_mtdev_device', ''),
+            Option('logging_sink', 'libavg'),
+            Option('logging_severity', 'INFO'),
+            Option('logging_categories', ''),
+    ]
+
+    def __init__(self, *args):
         import libavg.app
 
         if libavg.app.instance is not None:
@@ -156,8 +124,7 @@ class App(object):
 
         self.__lastFrameTimestamp = time.time()
 
-        if settings is None:
-            self._setupSettings()
+        self._setupSettings(args)
 
         #self._setupLogging()
 
@@ -250,8 +217,11 @@ class App(object):
         '''
         return self._windowSize
 
-    def _setupSettings(self):
-        self._settings = settings.Settings(defaults)
+    def _setupSettings(self, additionalOptions):
+        assert all([isinstance(option, settings.Option)
+                for option in additionalOptions])
+
+        self._settings = settings.Settings(self._defaults + list(additionalOptions))
 
     def _setupLogging(self):
         logLevel = self.settings.get('app_loglevel')
@@ -416,7 +386,4 @@ class App(object):
             screenBmp.save(filename)
             flashmessage.FlashMessage('Screenshot saved as %s' % filename,
                     parent=self.appParent)
-
-if __name__ == '__main__':
-    App().run(MainScene())
 
