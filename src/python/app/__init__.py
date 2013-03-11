@@ -25,6 +25,7 @@
 
 from app import App
 from app import MainScene
+from app import AppSettings
 
 instance = None
 

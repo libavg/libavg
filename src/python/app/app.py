@@ -81,12 +81,8 @@ class MainScene(libavg.avg.DivNode):
         pass
 
 
-class App(object):
-    '''
-    libavg-based application class
-    '''
-
-    _defaults = [
+class AppSettings(settings.Settings):
+    DEFAULTS = [
             Option('app_resolution', '640x480'),
             Option('app_window_size', '640x480'),
             Option('app_fullscreen', 'false'),
@@ -102,6 +98,15 @@ class App(object):
             Option('logging_severity', 'INFO'),
             Option('logging_categories', ''),
     ]
+    
+    def __init__(self, defaults=[]):
+        super(AppSettings, self).__init__(self.DEFAULTS + defaults)
+
+
+class App(object):
+    '''
+    libavg-based application class
+    '''
 
     def __init__(self, settingsInstance=None):
         import libavg.app
@@ -136,6 +141,7 @@ class App(object):
         '''
         assert isinstance(mainScene, MainScene)
         self._mainScene = mainScene
+
         self._settings.overlayDefaults()
 
         mainScene.onStartup()
@@ -214,7 +220,7 @@ class App(object):
         return self._windowSize
 
     def _setupSettings(self):
-        self._settings = settings.Settings(self._defaults)
+        self._settings = AppSettings()
 
     def _setupLogging(self):
         logLevel = self.settings.get('app_loglevel')
