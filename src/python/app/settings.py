@@ -152,8 +152,8 @@ class Settings(object):
 
         groups = self.__groupOptionsKeys()
         
-        for group in groups:
-            parserGroup = optparse.OptionGroup(parser, group)
+        for group in sorted(groups):
+            parserGroup = optparse.OptionGroup(parser, '%s section' % group.title())
             
             keys = sorted(groups[group])
             
