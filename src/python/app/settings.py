@@ -76,10 +76,11 @@ class Settings(object):
         for option in defaults:
             self.addOption(option)
 
-        self.__overrideDefaultsWithCliArgs()
-
     def __iter__(self):
         return self.__options.__iter__()
+
+    def overlayDefaults(self):
+        self.__overlayDefaultsWithArgv()
 
     def getoption(self, key):
         option = self.__getOptionOrNone(key)
@@ -147,7 +148,7 @@ class Settings(object):
 
         return None
 
-    def __overrideDefaultsWithCliArgs(self):
+    def __overlayDefaultsWithArgv(self):
         parser = optparse.OptionParser()
 
         groups = self.__groupOptionsKeys()

@@ -104,7 +104,7 @@ class App(object):
             Option('logging_categories', ''),
     ]
 
-    def __init__(self, *args):
+    def __init__(self, settingsInstance=None):
         import libavg.app
 
         if libavg.app.instance is not None:
@@ -113,7 +113,6 @@ class App(object):
 
         libavg.app.instance = self
 
-        self._settings = None
         self._mainScene = None
         self._appParent = None
         self._debugPanel = None
@@ -122,9 +121,12 @@ class App(object):
         self._resolution = None
         self._windowSize = None
 
-        self.__lastFrameTimestamp = time.time()
+        self.__lastFrameTimestamp = 0
 
-        self._setupSettings(args)
+        if settingsInstance is None:
+            self._setupSettings()
+        else:
+            self._settings = settingsInstance
 
         #self._setupLogging()
 
@@ -136,6 +138,8 @@ class App(object):
         '''
         assert isinstance(mainScene, MainScene)
         self._mainScene = mainScene
+        self._settings.overlayDefaults()
+
         mainScene.onStartup()
 
         self._setupResolution()
@@ -152,6 +156,8 @@ class App(object):
         #self._setupDebuggingWidgets()
         self._applyResolution()
         self._setupOnInit()
+
+        self.__lastFrameTimestamp = time.time()
 
         self._runLoop()
 
@@ -217,11 +223,8 @@ class App(object):
         '''
         return self._windowSize
 
-    def _setupSettings(self, additionalOptions):
-        assert all([isinstance(option, settings.Option)
-                for option in additionalOptions])
-
-        self._settings = settings.Settings(self._defaults + list(additionalOptions))
+    def _setupSettings(self):
+        self._settings = settings.Settings(self._defaults)
 
     def _setupLogging(self):
         logLevel = self.settings.get('app_loglevel')

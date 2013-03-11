@@ -25,9 +25,27 @@
 
 import sys
 import libavg
+from libavg import player
 from libavg.app import settings
 from libavg.app.settings import Option
 import testcase
+
+
+class TestApp(libavg.app.App):
+    def testRun(self, mainScene, onFrameHandlersList):
+        assert type(onFrameHandlersList) == list
+        self.__onFrameHandlersList = onFrameHandlersList
+        player.subscribe(player.ON_FRAME, self.__onFrame)
+        player.setFramerate(10000)
+        player.assumePixelsPerMM(1)
+        self.run(mainScene)
+
+    def __onFrame(self):
+        if self.__onFrameHandlersList:
+            todo = self.__onFrameHandlersList.pop(0)
+            todo()
+        else:
+            player.stop()
 
 
 class AppTestCase(testcase.AVGTestCase):
@@ -82,11 +100,14 @@ class AppTestCase(testcase.AVGTestCase):
         savedArgv = sys.argv
         sys.argv = ['foo', '--foo-bar', 'baz']
         s = settings.Settings([Option('foo_bar', 'bar')])
+        s.overlayDefaults()
         self.assertEquals(s.get('foo_bar'), 'baz')
         sys.argv = savedArgv
 
     def testAppAdditionalSettings(self):
-        app = libavg.app.App(Option('foo_bar', 'baz'), Option('bar_foo', 'baz'))
+        app = TestApp()
+        app.settings.addOption(Option('foo_bar', 'baz'))
+        app.settings.addOption(Option('bar_foo', 'baz'))
         self.assertEquals(app.settings.get('foo_bar'), 'baz')
 
     def testAppInstance(self):
@@ -95,6 +116,7 @@ class AppTestCase(testcase.AVGTestCase):
 
     def tearDown(self):
         libavg.app.instance = None
+
 
 def appTestSuite(tests):
     availableTests = (
