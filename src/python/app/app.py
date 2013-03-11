@@ -94,7 +94,6 @@ class App(object):
             Option('app_rotation', 'normal'),
             Option('app_panel_fontsize', '10'),
             Option('app_mouse_enabled', 'true'),
-            Option('app_idle_timeout', '60'),
             Option('multitouch_enabled', 'false'),
             Option('multitouch_driver', ''),
             Option('multitouch_tuio_port', ''),
@@ -117,7 +116,6 @@ class App(object):
         self._appParent = None
         self._debugPanel = None
         self._overlayPanel = None
-        self._idleManager = None
         self._resolution = None
         self._windowSize = None
 
@@ -193,14 +191,6 @@ class App(object):
         DivNode that stands on top of the MainScene
         '''
         return self._overlayPanel
-
-    @property
-    def idleManager(self):
-        '''
-        The instance of L{app.idlemanager.IdleManager} that is created if idle_timeout
-            in app settings is greater than 0
-        '''
-        return self._idleManager
 
     @property
     def settings(self):
@@ -325,12 +315,6 @@ class App(object):
                 )
 
         libavg.player.showCursor(self.settings.getboolean('app_show_cursor'))
-
-    def _setupIdleManager(self):
-        timeout = self.settings.getfloat('app_idle_timeout')
-        if timeout > 0:
-            self._idleManager = idlemanager.IdleManager(timeout=timeout,
-                    activityNode=libavg.player.getRootNode(), activityOnKey=True)
 
     def _setupKeyboardManager(self):
         keyboardmanager.init(libavg.player.getRootNode())
