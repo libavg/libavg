@@ -115,31 +115,13 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
 void VAAPISurface::getRGBBmp(BitmapPtr pBmp)
 {
     AVG_ASSERT(m_Size == pBmp->getSize());
-    VAStatus status;
-    status = vaGetImage(VAAPIDecoder::getDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
-            m_pImage->image_id);
-    VAAPIDecoder::checkError(status);
-
-    void* pImgBuffer;
-    status = vaMapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf, &pImgBuffer);
-    VAAPIDecoder::checkError(status);
-
-    AVG_ASSERT(m_pImage->format.fourcc == VA_FOURCC_BGRA);
-    BitmapPtr pSrcBmp(new Bitmap(m_Size, R8G8B8X8, 
-            (uint8_t*)pImgBuffer + m_pImage->offsets[0], m_pImage->pitches[0], false));
-    pBmp->copyPixels(*pSrcBmp);
-    // Make sure the alpha channel is white.
-    // TODO: This is slow. Make OpenGL do it.
-    unsigned char * pLine = pBmp->getPixels();
-    IntPoint size = pBmp->getSize();
-    for (int y = 0; y < size.y; ++y) {
-        unsigned char * pPixel = pLine;
-        for (int x = 0; x < size.x; ++x) {
-            pPixel[3] = 0xFF;
-            pPixel += 4;
-        }
-        pLine = pLine + pBmp->getStride();
-    }
+    
+    IntPoint UVSize(m_Size.x/2, m_Size.y/2);
+    BitmapPtr pBmpY(new Bitmap(m_Size, I8));
+    BitmapPtr pBmpU(new Bitmap(UVSize, I8));
+    BitmapPtr pBmpV(new Bitmap(UVSize, I8));
+    getYUVBmps(pBmpY, pBmpU, pBmpV);
+    pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
 }
 
 void VAAPISurface::copyToTexture(GLTexturePtr pTex)

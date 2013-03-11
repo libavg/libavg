@@ -330,19 +330,17 @@ void VAAPIDecoder::determineImageFormat()
 
     m_pImageFmt = new VAImageFormat;
     for (int i=0; i<numFmts; ++i) {
-        if (pFmts[i].fourcc == VA_FOURCC_BGRA) {
+        if (pFmts[i].fourcc == VA_FOURCC_YV12) {
             *m_pImageFmt = pFmts[i];
             return;
         }
     }
-/*
     for (int i=0; i<numFmts; ++i) {
         if (pFmts[i].fourcc == VA_FOURCC_NV12) {
             *m_pImageFmt = pFmts[i];
             return;
         }
     }
-*/
     // TODO: Disable acceleration if image format not supported.
     AVG_ASSERT(false);
 }
