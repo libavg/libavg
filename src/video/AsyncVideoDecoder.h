@@ -71,6 +71,7 @@ public:
 private:
     void setupDemuxer(std::vector<int> streamIndexes);
     void deleteDemuxer();
+    VideoMsgPtr getBmps(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
     void waitForSeekDone();

@@ -242,14 +242,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 {
     AVG_ASSERT(getState() == DECODING);
     FrameAvailableCode frameAvailable;
-    VideoMsgPtr pFrameMsg;
-    if (timeWanted == -1) {
-        waitForSeekDone();
-        pFrameMsg = getNextBmps(true);
-        frameAvailable = FA_NEW_FRAME;
-    } else {
-        pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
-    }
+    VideoMsgPtr pFrameMsg = getBmps(timeWanted, frameAvailable);
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
         m_LastVideoFrameTime = pFrameMsg->getFrameTime();
@@ -305,14 +298,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToTexture(GLTexturePtr pTextures[4],
     if (getHWAccelUsed() == VA_VAAPI) {
         FrameAvailableCode frameAvailable;
 #ifdef AVG_ENABLE_VAAPI
-        VideoMsgPtr pFrameMsg;
-        if (timeWanted == -1) {
-            waitForSeekDone();
-            pFrameMsg = getNextBmps(true);
-            frameAvailable = FA_NEW_FRAME;
-        } else {
-            pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
-        }
+        VideoMsgPtr pFrameMsg = getBmps(timeWanted, frameAvailable);
         if (frameAvailable == FA_NEW_FRAME) {
             AVG_ASSERT(pFrameMsg);
             m_LastVideoFrameTime = pFrameMsg->getFrameTime();
@@ -396,6 +382,18 @@ void AsyncVideoDecoder::deleteDemuxer()
             pPacketMsg->freePacket();
             pPacketMsg = pPacketQ->pop(false);
         }
+    }
+}
+
+VideoMsgPtr AsyncVideoDecoder::getBmps(float timeWanted,
+        FrameAvailableCode& frameAvailable)
+{
+    if (timeWanted == -1) {
+        waitForSeekDone();
+        frameAvailable = FA_NEW_FRAME;
+        return getNextBmps(true);
+    } else {
+        return getBmpsForTime(timeWanted, frameAvailable);
     }
 }
 
