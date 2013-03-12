@@ -23,6 +23,7 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
+import os
 import sys
 import libavg
 from libavg import player
@@ -135,11 +136,26 @@ class AppTestCase(testcase.AVGTestCase):
                 lambda: self.assertEquals(player.getRootNode().size, (120, 160)),
                 ])
 
-#    def testScreenshot(self):
-#        app = TestApp()
-#        app.testRun([
-#                app.takeScreenshot,
-#                ])
+    def testScreenshot(self):
+        expectedFiles = ['TestApp-001.png', 'TestApp-002.png']
+        
+        def removeFiles():
+            for file in expectedFiles:
+                if os.path.exists(file):
+                    os.unlink(file)
+
+        def testScreenshots():
+            for file in expectedFiles:
+                self.assert_(os.path.exists(file))
+
+        removeFiles()
+        app = TestApp()
+        app.testRun([
+                app.takeScreenshot,
+                app.takeScreenshot,
+                testScreenshots,
+                removeFiles,
+                ])
 
     def tearDown(self):
         libavg.app.instance = None
@@ -156,7 +172,7 @@ def appTestSuite(tests):
             'testAppResolution',
             'testAppFullscreen',
             'testAppRotation',
-#            'testScreenshot',
+            'testScreenshot',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 

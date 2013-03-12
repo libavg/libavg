@@ -37,7 +37,7 @@ import settings
 from settings import Option
 #import keyboardmanager
 #import debugpanel
-#import flashmessage
+import flashmessage
 
 
 class MainScene(libavg.avg.DivNode):
