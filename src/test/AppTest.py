@@ -28,12 +28,13 @@ import sys
 import libavg
 from libavg import player
 from libavg.app import settings
+from libavg.app import keyboardmanager
 from libavg.app.settings import Option
 import testcase
 
 
 class TestApp(libavg.app.App):
-    def testRun(self, onFrameHandlersList=[], mainScene=libavg.app.MainScene()):
+    def testRun(self, onFrameHandlersList=[], mainScene=None):
         assert type(onFrameHandlersList) == list
         self.__onFrameHandlersList = onFrameHandlersList
         player.subscribe(player.ON_FRAME, self.__onFrame)
@@ -41,6 +42,10 @@ class TestApp(libavg.app.App):
         player.assumePixelsPerMM(1)
         self.settings.set('app_resolution', '160x120')
         self.settings.set('app_window_size', '160x120')
+
+        if mainScene is None:
+            mainScene = libavg.app.MainScene()
+
         self.run(mainScene)
 
     def __onFrame(self):
@@ -157,8 +162,31 @@ class AppTestCase(testcase.AVGTestCase):
                 removeFiles,
                 ])
 
+    def testKeyboardManager(self):
+        statesRecords = [False, False]
+        def keyDownPressed():
+            statesRecords[0] = True
+        
+        def keyUpPressed():
+            statesRecords[1] = True
+            
+        app = TestApp()
+        app.testRun([
+                lambda: keyboardmanager.bindKeyDown('a', keyDownPressed, ''),
+                lambda: keyboardmanager.bindKeyUp('a', keyUpPressed, ''),
+                lambda: self.__emuKeyPress('a'),
+                lambda: self.assert_(all(statesRecords)),
+                ])
+                
     def tearDown(self):
         libavg.app.instance = None
+
+    def __emuKeyPress(self, char):
+        helper = libavg.player.getTestHelper()
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_DOWN, ord(char), ord(char), char,
+                ord(char), libavg.avg.KEYMOD_NONE)
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_UP, ord(char), ord(char), char,
+                ord(char), libavg.avg.KEYMOD_NONE)
 
 
 def appTestSuite(tests):
@@ -173,6 +201,7 @@ def appTestSuite(tests):
             'testAppFullscreen',
             'testAppRotation',
             'testScreenshot',
+            'testKeyboardManager',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 

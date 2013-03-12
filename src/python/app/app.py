@@ -35,7 +35,7 @@ from libavg import avg, Point2D
 #import loghelpers
 import settings
 from settings import Option
-#import keyboardmanager
+import keyboardmanager
 #import debugpanel
 import flashmessage
 
@@ -154,7 +154,7 @@ class App(object):
         self._setupTopPanel()
 
         #self._setupDebugPanel()
-        #self._setupKeyboardManager()
+        self._setupKeyboardManager()
         #self._setupDebuggingWidgets()
         self._applyResolution()
         self._setupOnInit()
@@ -166,6 +166,9 @@ class App(object):
         self._runLoop()
 
         mainScene.onExit()
+        
+        self._teardownKeyboardManager()
+
         return 0
 
     @property
@@ -348,12 +351,12 @@ class App(object):
         libavg.player.showCursor(self.settings.getboolean('app_show_cursor'))
 
     def _setupKeyboardManager(self):
-        keyboardmanager.init(libavg.player.getRootNode())
-        keyboardmanager.bindKeyDown(
-                keystring='d',
-                handler=self._debugPanel.toggleVisibility,
-                help='Show/hide the debug panel',
-                modifiers=libavg.avg.KEYMOD_CTRL)
+        keyboardmanager.init()
+#        keyboardmanager.bindKeyDown(
+#                keystring='d',
+#                handler=self._debugPanel.toggleVisibility,
+#                help='Show/hide the debug panel',
+#                modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keystring='m',
@@ -367,6 +370,9 @@ class App(object):
                 handler=self.takeScreenshot,
                 help='Take screenshot',
                 modifiers=libavg.avg.KEYMOD_CTRL)
+
+    def _teardownKeyboardManager(self):
+        keyboardmanager.unbindAll()
 
     def _setupOnInit(self):
         libavg.player.setTimeout(0, self._onInitInternal)
