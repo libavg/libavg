@@ -142,7 +142,7 @@ class App(object):
         assert isinstance(mainScene, MainScene)
         self._mainScene = mainScene
 
-        self._settings.overlayDefaults()
+        # TODO: run settings extenders here
 
         mainScene.onStartup()
 
@@ -221,6 +221,7 @@ class App(object):
 
     def _setupSettings(self):
         self._settings = AppSettings()
+        self._settings.applyExtender(settings.ArgvExtender())
 
     def _setupLogging(self):
         logLevel = self.settings.get('app_loglevel')

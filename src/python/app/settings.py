@@ -24,6 +24,7 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
+import sys
 import re
 import optparse
 
@@ -60,8 +61,75 @@ class Option(object):
         self.__value = value
 
     @property
+    def group(self):
+        components = self.__getComponents()
+        if len(components) == 1:
+            return 'DEFAULT'
+        else:
+            return components[0]
+
+    @property
+    def tail(self):
+        components = self.__getComponents()
+        if len(components) == 1:
+            return self.key
+        else:
+            return components[1]
+        
+    @property
     def help(self):
         return self.__help
+
+    def __getComponents(self):
+        return self.key.split('_', 1)
+
+
+class ArgvExtender(object):
+    def __init__(self, args=sys.argv[1:]):
+        self.__args = args
+
+    def __call__(self, optionsList):
+        parser = optparse.OptionParser()
+
+        groups = self.__groupOptionsKeys(optionsList)
+
+        for group in sorted(groups):
+            parserGroup = optparse.OptionGroup(parser, '%s section' % group.title())
+
+            keys = sorted(groups[group])
+
+            for option in [option for option in optionsList if option.key in keys]:
+                cliKey = '--%s' % option.key.replace('_', '-').lower()
+                currentValue = option.value
+
+                help = '[Default: %s]' % currentValue
+
+                if option.help:
+                    help = '%s %s' % (option.help, help)
+
+                parserGroup.add_option(cliKey, help=help)
+
+            parser.add_option_group(parserGroup)
+
+        parsedOptions, _ = parser.parse_args(args=self.__args)
+
+        for key, value in parsedOptions.__dict__.iteritems():
+            if value is not None:
+                for option in optionsList:
+                    if option.key == key:
+                        option.value = value
+        
+        return optionsList
+
+    def __groupOptionsKeys(self, optionsList):
+        groups = {}
+        for option in optionsList:
+            if not option.group in groups:
+                groups[option.group] = []
+            
+            groups[option.group].append(option.key)
+
+        return groups
 
 
 class Settings(object):
@@ -79,8 +147,8 @@ class Settings(object):
     def __iter__(self):
         return self.__options.__iter__()
 
-    def overlayDefaults(self):
-        self.__overlayDefaultsWithArgv()
+    def applyExtender(self, extender):
+        self.__options = extender(self.__options)
 
     def getoption(self, key):
         option = self.__getOptionOrNone(key)
@@ -148,48 +216,4 @@ class Settings(object):
 
         return None
 
-    def __overlayDefaultsWithArgv(self):
-        parser = optparse.OptionParser()
-
-        groups = self.__groupOptionsKeys()
-        
-        for group in sorted(groups):
-            parserGroup = optparse.OptionGroup(parser, '%s section' % group.title())
-            
-            keys = sorted(groups[group])
-            
-            for option in [self.__getOptionOrNone(key) for key in keys]:
-                cliKey = '--%s' % option.key.replace('_', '-').lower()
-                currentValue = option.value
-
-                help = '[Default: %s]' % currentValue
-                
-                if option.help:
-                    help = '%s %s' % (option.help, help)
-                    
-                parserGroup.add_option(cliKey, help=help)
-
-            parser.add_option_group(parserGroup)
-
-        options, posargs = parser.parse_args()
-
-        for key, value in options.__dict__.iteritems():
-            if value is not None:
-                self.set(key, value)
-
-    def __groupOptionsKeys(self):
-        groups = {}
-        for option in self.__options:
-            components = option.key.split('_', 1)
-            if len(components) == 1:
-                group = 'DEFAULT'
-            else:
-                group = components[0]
-            
-            if not group in groups:
-                groups[group] = []
-            
-            groups[group].append(option.key)
-
-        return groups
 

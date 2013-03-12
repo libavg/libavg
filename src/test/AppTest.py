@@ -96,13 +96,11 @@ class AppTestCase(testcase.AVGTestCase):
         s.set('test_value', '1234')
         self.assertEquals(s.getint('test_value'), 1234)
 
-    def testSettingsArgvOverride(self):
-        savedArgv = sys.argv
-        sys.argv = ['foo', '--foo-bar', 'baz']
+    def testSettingsArgvExtender(self):
         s = settings.Settings([Option('foo_bar', 'bar')])
-        s.overlayDefaults()
+        e = settings.ArgvExtender(args=['foo', '--foo-bar', 'baz'])
+        s.applyExtender(e)
         self.assertEquals(s.get('foo_bar'), 'baz')
-        sys.argv = savedArgv
 
     def testAppAdditionalSettings(self):
         app = TestApp()
@@ -123,7 +121,7 @@ def appTestSuite(tests):
             'testSettingsOptions',
             'testSettingsTypes',
             'testSettingsSet',
-            'testSettingsArgvOverride',
+            'testSettingsArgvExtender',
             'testAppAdditionalSettings',
             'testAppInstance',
     )
