@@ -306,8 +306,8 @@ class App(object):
         windowSize = self.settings.getpoint2d('app_window_size')
 
         if rotation in ('left', 'right'):
-            resolution = [resolution.y, resolution.x]
-            windowSize = [windowSize.y, windowSize.x]
+            resolution = Point2D(resolution.y, resolution.x)
+            windowSize = Point2D(windowSize.y, windowSize.x)
 
         self._resolution = resolution
         self._windowSize = windowSize
