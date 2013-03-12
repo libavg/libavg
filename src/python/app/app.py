@@ -161,6 +161,8 @@ class App(object):
         self._applyResolution()
         self._setupOnInit()
 
+        self.onBeforeLaunch()
+
         self.__lastFrameTimestamp = time.time()
 
         self._runLoop()
@@ -218,6 +220,9 @@ class App(object):
         Current target window size
         '''
         return self._windowSize
+
+    def onBeforeLaunch(self):
+        pass
 
     def _setupSettings(self):
         self._settings = AppSettings()
