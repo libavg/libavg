@@ -32,12 +32,14 @@ import testcase
 
 
 class TestApp(libavg.app.App):
-    def testRun(self, mainScene, onFrameHandlersList):
+    def testRun(self, onFrameHandlersList=[], mainScene=libavg.app.MainScene()):
         assert type(onFrameHandlersList) == list
         self.__onFrameHandlersList = onFrameHandlersList
         player.subscribe(player.ON_FRAME, self.__onFrame)
         player.setFramerate(10000)
         player.assumePixelsPerMM(1)
+        self.settings.set('app_resolution', '160x120')
+        self.settings.set('app_window_size', '160x120')
         self.run(mainScene)
 
     def __onFrame(self):
@@ -109,8 +111,35 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(app.settings.get('foo_bar'), 'baz')
 
     def testAppInstance(self):
-        app = libavg.app.App()
+        app = TestApp()
         self.assertEquals(app, libavg.app.instance)
+
+    def testAppResolution(self):
+        app = TestApp()
+        app.testRun([
+                lambda: self.assertEquals(player.getRootNode().size, (160, 120)),
+                lambda: self.assert_(not player.isFullscreen()),
+                ])
+
+    def testAppFullscreen(self):
+        app = TestApp()
+        app.settings.set('app_fullscreen', 'true')
+        app.testRun([
+                lambda: self.assert_(player.isFullscreen()),
+                ])
+
+    def testAppRotation(self):
+        app = TestApp()
+        app.settings.set('app_rotation', 'left')
+        app.testRun([
+                lambda: self.assertEquals(player.getRootNode().size, (120, 160)),
+                ])
+
+#    def testScreenshot(self):
+#        app = TestApp()
+#        app.testRun([
+#                app.takeScreenshot,
+#                ])
 
     def tearDown(self):
         libavg.app.instance = None
@@ -124,6 +153,10 @@ def appTestSuite(tests):
             'testSettingsArgvExtender',
             'testAppAdditionalSettings',
             'testAppInstance',
+            'testAppResolution',
+            'testAppFullscreen',
+            'testAppRotation',
+#            'testScreenshot',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 

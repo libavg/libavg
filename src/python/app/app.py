@@ -142,8 +142,6 @@ class App(object):
         assert isinstance(mainScene, MainScene)
         self._mainScene = mainScene
 
-        # TODO: run settings extenders here
-
         mainScene.onStartup()
 
         self._setupResolution()
@@ -223,6 +221,27 @@ class App(object):
 
     def onBeforeLaunch(self):
         pass
+
+    def takeScreenshot(self):
+        screenBmp = libavg.player.screenshot()
+
+        filenameTemplate = '%s-%03d.png'
+
+        i = 1
+        while i < 1000:
+            filename = filenameTemplate % (self.__class__.__name__, i)
+            if os.path.exists(filename):
+                i += 1
+            else:
+                break
+
+        if i == 1000:
+            flashmessage.FlashMessage('Maximum number of screenshots reached',
+                    parent=self.appParent, isError=True)
+        else:
+            screenBmp.save(filename)
+            flashmessage.FlashMessage('Screenshot saved as %s' % filename,
+                    parent=self.appParent)
 
     def _setupSettings(self):
         self._settings = AppSettings()
@@ -345,7 +364,7 @@ class App(object):
 
         keyboardmanager.bindKeyDown(
                 keystring='p',
-                handler=self.__takeScreenshot,
+                handler=self.takeScreenshot,
                 help='Take screenshot',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
@@ -364,25 +383,4 @@ class App(object):
         now = time.time()
         self.mainScene.onFrame(now - self.__lastFrameTimestamp)
         self.__lastFrameTimestamp = now
-
-    def __takeScreenshot(self):
-        screenBmp = libavg.player.screenshot()
-
-        filenameTemplate = '%s-%03d.png'
-
-        i = 1
-        while i < 1000:
-            filename = filenameTemplate % (self.__class__.__name__, i)
-            if os.path.exists(filename):
-                i += 1
-            else:
-                break
-
-        if i == 1000:
-            flashmessage.FlashMessage('Maximum number of screenshots reached',
-                    parent=self.appParent, isError=True)
-        else:
-            screenBmp.save(filename)
-            flashmessage.FlashMessage('Screenshot saved as %s' % filename,
-                    parent=self.appParent)
 
