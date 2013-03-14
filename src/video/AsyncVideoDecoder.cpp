@@ -295,7 +295,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToTexture(GLTexturePtr pTextures[4],
         float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
-    if (getHWAccelUsed() == VA_VAAPI) {
+/*    if (getHWAccelUsed() == VA_VAAPI) {
         FrameAvailableCode frameAvailable;
 #ifdef AVG_ENABLE_VAAPI
         VideoMsgPtr pFrameMsg = getBmps(timeWanted, frameAvailable);
@@ -313,8 +313,9 @@ FrameAvailableCode AsyncVideoDecoder::renderToTexture(GLTexturePtr pTextures[4],
 #endif
         return frameAvailable;
     } else {
+*/        
         return VideoDecoder::renderToTexture(pTextures, timeWanted);
-    }
+//    }
 }
 
 void AsyncVideoDecoder::updateAudioStatus()
