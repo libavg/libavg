@@ -59,7 +59,7 @@ VideoDecoder::VideoDecoder()
 #ifdef AVG_ENABLE_VDPAU
       m_pVDPAUDecoder(0),
 #endif
-#ifdef AVG_ENABLE_VDPAU
+#ifdef AVG_ENABLE_VAAPI
       m_pVAAPIDecoder(0),
 #endif
       m_AStreamIndex(-1),
