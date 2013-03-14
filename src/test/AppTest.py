@@ -32,9 +32,24 @@ from libavg.app import keyboardmanager
 from libavg.app.settings import Option
 import testcase
 
+class SilentOutput(object):
+    class Blackhole(object):
+        def write(self, *args):
+            pass
+
+    def __init__(self):
+        self.__savedStreams = [sys.stdout, sys.stderr]
+
+    def __enter__(self):
+        sys.stdout = self.Blackhole()
+        sys.stderr = self.Blackhole()
+
+    def __exit__(self, *args):
+        sys.stdout, sys.stderr = self.__savedStreams
+
 
 class TestApp(libavg.app.App):
-    def testRun(self, onFrameHandlersList=[], mainScene=None):
+    def testRun(self, onFrameHandlersList=[], mainScene=None, runtimeOptions={}):
         assert type(onFrameHandlersList) == list
         self.__onFrameHandlersList = onFrameHandlersList
         player.subscribe(player.ON_FRAME, self.__onFrame)
@@ -46,7 +61,7 @@ class TestApp(libavg.app.App):
         if mainScene is None:
             mainScene = libavg.app.MainScene()
 
-        self.run(mainScene)
+        self.run(mainScene, **runtimeOptions)
 
     def __onFrame(self):
         if self.__onFrameHandlersList:
@@ -58,13 +73,13 @@ class TestApp(libavg.app.App):
 
 class AppTestCase(testcase.AVGTestCase):
     def testSettingsOptions(self):
-        self.assertException(lambda: settings.Option('test', 1), ValueError)
+        self.assertRaises(ValueError, lambda: settings.Option('test', 1))
         
-        self.assertException(lambda: settings.Settings(
-                [Option('foo', 'bar'), Option('foo', 'bar')]), RuntimeError)
+        self.assertRaises(RuntimeError, lambda: settings.Settings(
+                [Option('foo', 'bar'), Option('foo', 'bar')]))
 
         s = settings.Settings([Option('foo', 'bar')])
-        self.assertException(lambda: s.addOption(Option('foo', 'baz')))
+        self.assertRaises(RuntimeError, lambda: s.addOption(Option('foo', 'baz')))
         
     def testSettingsTypes(self):
         defaults = [
@@ -82,15 +97,15 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(s.getboolean('test_boolean'), True)
 
         self.assertEquals(type(s.get('test_string')), str)
-        self.assertException(lambda: s.getboolean('test_string'), ValueError)
+        self.assertRaises(ValueError, lambda: s.getboolean('test_string'))
 
         self.assertEquals(s.getint('another_value_int'), 1234)
-        self.assertException(lambda: s.getint('test_string'), ValueError)
+        self.assertRaises(ValueError, lambda: s.getint('test_string'))
         self.assertEquals(s.get('another_value_int'), '1234')
 
         self.assertEquals(s.getpoint2d('test_2d'), libavg.Point2D(1280, 1024))
         self.assertEquals(s.getpoint2d('test_2d_alt'), libavg.Point2D(1280, 1024))
-        self.assertException(lambda: s.getint('test_2d'), ValueError)
+        self.assertRaises(ValueError, lambda: s.getint('test_2d'))
 
         self.assertEquals(s.getfloat('test_float'), 12.345)
         
@@ -99,7 +114,7 @@ class AppTestCase(testcase.AVGTestCase):
     def testSettingsSet(self):
         s = settings.Settings()
         s.addOption(Option('test_value', ''))
-        self.assertException(lambda: s.set('test_value', 1234), ValueError)
+        self.assertRaises(ValueError, lambda: s.set('test_value', 1234))
 
         s.set('test_value', '1234')
         self.assertEquals(s.getint('test_value'), 1234)
@@ -110,11 +125,38 @@ class AppTestCase(testcase.AVGTestCase):
         s.applyExtender(e)
         self.assertEquals(s.get('foo_bar'), 'baz')
 
+        e = settings.ArgvExtender(args=['foo', '--foo-baxxx', 'baz'])
+        with SilentOutput():
+            self.assertRaises(SystemExit, lambda: s.applyExtender(e))
+
+    def testSettingsKargsExtender(self):
+        s = settings.Settings([Option('foo_bar', 'bar')])
+        e = settings.KargsExtender({'foo_bar': 'baz'})
+        s.applyExtender(e)
+        self.assertEquals(s.get('foo_bar'), 'baz')
+
+        e = settings.KargsExtender({'foo_baxxx': 'baz'})
+        self.assertRaises(RuntimeError, lambda: s.applyExtender(e))
+
     def testAppAdditionalSettings(self):
         app = TestApp()
         app.settings.addOption(Option('foo_bar', 'baz'))
         app.settings.addOption(Option('bar_foo', 'baz'))
         self.assertEquals(app.settings.get('foo_bar'), 'baz')
+
+    def testAppRuntimeSettings(self):
+        app = TestApp()
+        app.settings.addOption(Option('foo_bar', 'baz'))
+        app.testRun([
+                lambda: self.assertEquals(libavg.app.instance.settings.get('foo_bar'),
+                        'bar'),
+                ],
+                runtimeOptions={'foo_bar':'bar'})
+        
+    def testAppRuntimeSettingsFail(self):
+        app = TestApp()
+        self.assertRaises(RuntimeError,
+                lambda: app.testRun(runtimeOptions={'foo_bar':'bar'}))
 
     def testAppInstance(self):
         app = TestApp()
@@ -195,7 +237,10 @@ def appTestSuite(tests):
             'testSettingsTypes',
             'testSettingsSet',
             'testSettingsArgvExtender',
+            'testSettingsKargsExtender',
             'testAppAdditionalSettings',
+            'testAppRuntimeSettings',
+            'testAppRuntimeSettingsFail',
             'testAppInstance',
             'testAppResolution',
             'testAppFullscreen',

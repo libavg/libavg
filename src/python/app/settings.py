@@ -84,6 +84,24 @@ class Option(object):
         return self.key.split('_', 1)
 
 
+class KargsExtender(object):
+    def __init__(self, optionsKargs):
+        self.__optionsKargs = optionsKargs
+
+    def __call__(self, optionsList):
+        optionsKeyset = set([option.key for option in optionsList])
+        kaKeyset = set(self.__optionsKargs.keys())
+
+        if not optionsKeyset.issuperset(kaKeyset):
+            raise RuntimeError('No such option/s: %s' % list(kaKeyset - optionsKeyset))
+            
+        for option in optionsList:
+            if option.key in self.__optionsKargs:
+                option.value = self.__optionsKargs[option.key]
+
+        return optionsList
+
+
 class ArgvExtender(object):
     def __init__(self, args=sys.argv[1:]):
         self.__args = args

@@ -94,9 +94,9 @@ class AppSettings(settings.Settings):
             Option('multitouch_driver', ''),
             Option('multitouch_tuio_port', ''),
             Option('multitouch_mtdev_device', ''),
-            Option('logging_sink', 'libavg'),
-            Option('logging_severity', 'INFO'),
-            Option('logging_categories', ''),
+#            Option('logging_sink', 'libavg'),
+#            Option('logging_severity', 'INFO'),
+#            Option('logging_categories', ''),
     ]
     
     def __init__(self, defaults=[]):
@@ -133,7 +133,7 @@ class App(object):
 
         #self._setupLogging()
 
-    def run(self, mainScene):
+    def run(self, mainScene, **kargs):
         '''
         Start the application using the provided L{MainScene} instance
 
@@ -141,6 +141,8 @@ class App(object):
         '''
         assert isinstance(mainScene, MainScene)
         self._mainScene = mainScene
+
+        self._applySettingsExtenders(kargs)
 
         mainScene.onStartup()
 
@@ -171,6 +173,9 @@ class App(object):
 
         return 0
 
+    def stop(self):
+        libavg.player.stop()
+
     @property
     def mainScene(self):
         '''
@@ -186,13 +191,13 @@ class App(object):
         '''
         return self._appParent
 
-    @property
-    def debugPanel(self):
-        '''
-        The instance of L{app.debugpanel.DebugPanel} that currently runs in the
-            application
-        '''
-        return self._debugPanel
+#    @property
+#    def debugPanel(self):
+#        '''
+#        The instance of L{app.debugpanel.DebugPanel} that currently runs in the
+#            application
+#        '''
+#        return self._debugPanel
 
     @property
     def overlayPanel(self):
@@ -248,7 +253,10 @@ class App(object):
 
     def _setupSettings(self):
         self._settings = AppSettings()
-        self._settings.applyExtender(settings.ArgvExtender())
+
+    def _applySettingsExtenders(self, kargs):
+        self.settings.applyExtender(settings.KargsExtender(kargs))
+        self.settings.applyExtender(settings.ArgvExtender())
 
     def _setupLogging(self):
         logLevel = self.settings.get('app_loglevel')
@@ -313,14 +321,14 @@ class App(object):
     def _setupTopPanel(self):
         self._overlayPanel = libavg.avg.DivNode(parent=self.appParent, id='overlayPanel')
 
-    def _setupDebugPanel(self):
-        self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
-                    size=self.appParent.size, id='debugPanel',
-                    fontsize=self.settings.getfloat('app_panel_fontsize'))
+#    def _setupDebugPanel(self):
+#        self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
+#                    size=self.appParent.size, id='debugPanel',
+#                    fontsize=self.settings.getfloat('app_panel_fontsize'))
 
-    def _setupDebuggingWidgets(self):
-        self._debugPanel.addWidget(debugpanel.LoggerWidget)
-        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
+#    def _setupDebuggingWidgets(self):
+#        self._debugPanel.addWidget(debugpanel.LoggerWidget)
+#        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
 
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
