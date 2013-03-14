@@ -294,13 +294,6 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
             &m_ConfigID);
     checkError(status);
 
-    determineImageFormat();
-    cerr << "Decoding to image format " << imageFmtToString(m_pImageFmt) << endl;
-
-    m_pImage = new VAImage();
-    status = vaCreateImage(getDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
-    checkError(status);
-
     VASurfaceID surfaceIDs[40];
     status = vaCreateSurfaces(getDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
             40, surfaceIDs);
@@ -308,6 +301,13 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
         
     status = vaCreateContext(getDisplay(), m_ConfigID, m_Size.x, m_Size.y,
             VA_PROGRESSIVE, surfaceIDs, 40, &m_ContextID);
+    checkError(status);
+
+    determineImageFormat(surfaceIDs[0]);
+    cerr << "Decoding to image format " << imageFmtToString(m_pImageFmt) << endl;
+
+    m_pImage = new VAImage();
+    status = vaCreateImage(getDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
     checkError(status);
 
     AVG_ASSERT(m_Surfaces.size() == 0);
@@ -318,7 +318,7 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     return true;
 }
 
-void VAAPIDecoder::determineImageFormat()
+void VAAPIDecoder::determineImageFormat(const VASurfaceID& surface)
 {
     int numFmts = vaMaxNumImageFormats(getDisplay());
     VAImageFormat* pFmts = new VAImageFormat[numFmts];
@@ -332,21 +332,40 @@ void VAAPIDecoder::determineImageFormat()
         cerr << "  " << imageFmtToString(&(pFmts[i])) << endl;
     }
 
-    m_pImageFmt = new VAImageFormat;
-    for (int i=0; i<numFmts; ++i) {
-        if (pFmts[i].fourcc == VA_FOURCC_YV12) {
-            *m_pImageFmt = pFmts[i];
-            return;
-        }
-    }
-    for (int i=0; i<numFmts; ++i) {
-        if (pFmts[i].fourcc == VA_FOURCC_NV12) {
-            *m_pImageFmt = pFmts[i];
-            return;
-        }
+    m_pImageFmt = checkImageFormat(surface, numFmts, pFmts, VA_FOURCC_YV12);
+    if (!m_pImageFmt) {
+        m_pImageFmt = checkImageFormat(surface, numFmts, pFmts, VA_FOURCC_NV12);
     }
     // TODO: Disable acceleration if image format not supported.
-    AVG_ASSERT(false);
+    AVG_ASSERT(m_pImageFmt);
+}
+    
+VAImageFormat* VAAPIDecoder::checkImageFormat(const VASurfaceID& surface, int numFmts,
+        VAImageFormat* pFmts, unsigned long fourcc)
+{
+    for (int i=0; i<numFmts; ++i) {
+        if (pFmts[i].fourcc == fourcc) {
+            VAImageFormat* pImageFmt = new VAImageFormat;
+            *pImageFmt = pFmts[i];
+
+            // Check if the format is supported by createing an image and calling vaGetImage
+            // on it.
+            VAImage* pImage = new VAImage();
+            VAStatus status = vaCreateImage(getDisplay(), pImageFmt, m_Size.x, m_Size.y, 
+                    pImage);
+            checkError(status);
+            status = vaGetImage(getDisplay(), surface, 0, 0, m_Size.x, m_Size.y, 
+                    pImage->image_id);
+            vaDestroyImage(getDisplay(), pImage->image_id);
+            if (status == VA_STATUS_SUCCESS) {
+                // Format is supported for vaGetImage -> use it.
+                return pImageFmt;
+            } else {
+                delete pImageFmt;
+            }
+        }
+    }
+    return 0;
 }
 
 bool VAAPIDecoder::isSupportedCodec(CodecID codecID)
@@ -449,7 +468,7 @@ string VAAPIDecoder::imageFmtToString(VAImageFormat* pFormat)
 {
     stringstream ss;
     char fourcc[5];
-    memcpy (fourcc, &(pFormat->fourcc), 4);
+    memcpy(fourcc, &(pFormat->fourcc), 4);
     fourcc[4] = 0;
 
     return fourcc;

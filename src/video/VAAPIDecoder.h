@@ -66,7 +66,9 @@ private:
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     void releaseBufferInternal(AVCodecContext* pContext, AVFrame* pFrame);
     bool initDecoder(VAProfile profile);
-    void determineImageFormat();
+    void determineImageFormat(const VASurfaceID& surface);
+    VAImageFormat* checkImageFormat(const VASurfaceID& surface, int numFmts,
+            VAImageFormat* pFmts, unsigned long fourcc);
 
     static bool isSupportedCodec(CodecID codecID);
     static bool hasProfile(VAProfile profile);
