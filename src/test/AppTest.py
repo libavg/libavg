@@ -32,7 +32,7 @@ from libavg.app import keyboardmanager
 from libavg.app.settings import Option
 import testcase
 
-class SilentOutput(object):
+class SuppressOutput(object):
     class Blackhole(object):
         def write(self, *args):
             pass
@@ -126,7 +126,7 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(s.get('foo_bar'), 'baz')
 
         e = settings.ArgvExtender(args=['foo', '--foo-baxxx', 'baz'])
-        with SilentOutput():
+        with SuppressOutput():
             self.assertRaises(SystemExit, lambda: s.applyExtender(e))
 
     def testSettingsKargsExtender(self):
