@@ -36,6 +36,9 @@ class AVGApp(object):
         super(YourApp, self).__init__(parentNode)
         '''
 
+        import warnings
+        warnings.warn('AVGApp is deprecated, use libavg.app.App instead')
+
         appname = self.__class__.__name__
         if appname in AVGApp._instances:
             raise RuntimeError('App %s already setup' % appname)
@@ -129,4 +132,11 @@ class AVGApp(object):
 
     def getStarter(self):
         return self._starter
+
+
+class App(object):
+    @classmethod
+    def start(cls, *args, **kargs):
+        raise RuntimeError('avgapp.App cannot be used any longer. Use libavg.AVGApp for '
+                'a compatible class or switch to the new libavg.app.App')
 
