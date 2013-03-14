@@ -48,7 +48,7 @@ public:
     IntPoint getSize() const;
 
     static bool isAvailable();
-    static void checkError(VAStatus status);
+    static void checkError(VAStatus status, const std::string& sMsg="");
     static VADisplay getDisplay();
 
     static void registerTexture(GLTexturePtr pTex);

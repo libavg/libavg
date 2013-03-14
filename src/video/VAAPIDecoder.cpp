@@ -151,10 +151,11 @@ bool VAAPIDecoder::isAvailable()
 #endif
 }
 
-void VAAPIDecoder::checkError(VAStatus status)
+void VAAPIDecoder::checkError(VAStatus status, const string& sMsg)
 {
     if (status != VA_STATUS_SUCCESS) {
-        AVG_ASSERT_MSG(false, (string("VAAPI error: ") + vaErrorStr(status)).c_str());
+        AVG_ASSERT_MSG(false, 
+                (string("VAAPI error ('")+sMsg+"'): "+vaErrorStr(status)).c_str());
     }
 }
 

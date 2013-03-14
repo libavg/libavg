@@ -68,15 +68,15 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
     VAStatus status;
 
     status = vaSyncSurface(VAAPIDecoder::getDisplay(), m_SurfaceID);
-    VAAPIDecoder::checkError(status);
+    VAAPIDecoder::checkError(status, "vaSyncSurface");
 
     status = vaGetImage(VAAPIDecoder::getDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
             m_pImage->image_id);
-    VAAPIDecoder::checkError(status);
+    VAAPIDecoder::checkError(status, "vaGetImage");
 
     void* pImgBuffer;
     status = vaMapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf, &pImgBuffer);
-    VAAPIDecoder::checkError(status);
+    VAAPIDecoder::checkError(status, "vaMapBuffer");
 
     switch (m_pImage->format.fourcc) {
         case VA_FOURCC_YV12:
@@ -112,7 +112,8 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
         default:
             AVG_ASSERT(false);
     }
-    vaUnmapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf);
+    status = vaUnmapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf);
+    VAAPIDecoder::checkError(status, "vaUnmapBuffer");
 }
 
 void VAAPISurface::getRGBBmp(BitmapPtr pBmp)
