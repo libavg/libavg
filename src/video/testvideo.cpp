@@ -487,7 +487,7 @@ public:
         addAudioTests();
         addVideoTests(false);
 #if defined(AVG_ENABLE_VDPAU) || defined(AVG_ENABLE_VAAPI)
-        if (VDPAUDecoder::isAvailable() || VAAPIDecoder::isAvailable()) {
+        if (/*VDPAUDecoder::isAvailable() ||*/ VAAPIDecoder::isAvailable()) {
             addVideoTests(true);
         } else {
             cerr << "Skipping HW accel tests: HW accel configured but not available."

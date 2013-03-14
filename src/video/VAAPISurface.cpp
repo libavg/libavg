@@ -67,6 +67,9 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
 {
     VAStatus status;
 
+    status = vaSyncSurface(VAAPIDecoder::getDisplay(), m_SurfaceID);
+    VAAPIDecoder::checkError(status);
+
     status = vaGetImage(VAAPIDecoder::getDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
             m_pImage->image_id);
     VAAPIDecoder::checkError(status);
@@ -128,6 +131,10 @@ void VAAPISurface::copyToTexture(GLTexturePtr pTex)
 {
     void* pVAGLSurface = VAAPIDecoder::getVAGLSurface(pTex);
     VAStatus status;
+
+    status = vaSyncSurface(VAAPIDecoder::getDisplay(), m_SurfaceID);
+    VAAPIDecoder::checkError(status);
+
     status = vaCopySurfaceGLX(VAAPIDecoder::getDisplay(), pVAGLSurface, m_SurfaceID, 
             VA_FRAME_PICTURE);
     VAAPIDecoder::checkError(status);

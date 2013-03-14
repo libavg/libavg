@@ -243,6 +243,9 @@ int VAAPIDecoder::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame)
     VAAPISurface* pVAAPISurface = getFreeSurface();
     uint8_t* surfaceID = (uint8_t*)(uintptr_t)pVAAPISurface->getSurfaceID();
 
+    VAStatus status = vaSyncSurface(getDisplay(), pVAAPISurface->getSurfaceID());
+    checkError(status);
+
     pFrame->type = FF_BUFFER_TYPE_USER;
     pFrame->data[0] = surfaceID;
     pFrame->data[1] = 0;
