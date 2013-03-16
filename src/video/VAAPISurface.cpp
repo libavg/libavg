@@ -24,6 +24,7 @@
 #include "VAAPIDecoder.h"
 
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
 #include "../graphics/GLTexture.h"
 
 #include <va/va_glx.h>
@@ -63,54 +64,65 @@ bool VAAPISurface::isUsed() const
     return m_RefCount > 0;
 }
 
+static ProfilingZoneID VAAPIGetProfilingZone("Get VAAPI image", true);
+static ProfilingZoneID VAAPIConvertProfilingZone("Convert VAAPI image", true);
+
 void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
 {
     VAStatus status;
-
-    status = vaSyncSurface(VAAPIDecoder::getDisplay(), m_SurfaceID);
-    VAAPIDecoder::checkError(status, "vaSyncSurface");
-
-    status = vaGetImage(VAAPIDecoder::getDisplay(), m_SurfaceID, 0, 0, m_Size.x, m_Size.y,
-            m_pImage->image_id);
-    VAAPIDecoder::checkError(status, "vaGetImage");
-
     void* pImgBuffer;
-    status = vaMapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf, &pImgBuffer);
-    VAAPIDecoder::checkError(status, "vaMapBuffer");
 
-    switch (m_pImage->format.fourcc) {
-        case VA_FOURCC_YV12:
-            {
-                BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
-                        (uint8_t*)pImgBuffer + m_pImage->offsets[0], 
-                        m_pImage->pitches[0], false));
-                pBmpY->copyPixels(*pSrcBmp);
-                pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
-                            (uint8_t*)pImgBuffer + m_pImage->offsets[2],
-                            m_pImage->pitches[2], false));
-                pBmpU->copyPixels(*pSrcBmp);
-                pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
-                            (uint8_t*)pImgBuffer + m_pImage->offsets[1], 
-                            m_pImage->pitches[1], false));
-                pBmpV->copyPixels(*pSrcBmp);
-            }
-            break;
-        case VA_FOURCC_NV12:
-            {
-                BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
-                        (uint8_t*)pImgBuffer + m_pImage->offsets[0], 
-                        m_pImage->pitches[0], false));
-                pBmpY->copyPixels(*pSrcBmp);
+    {
+        ScopeTimer timer(VAAPIGetProfilingZone);
 
-                pSrcBmp = BitmapPtr(new Bitmap(IntPoint(m_Size.x, m_Size.y/2), I8, 
-                            (uint8_t*)pImgBuffer + m_pImage->offsets[1],
-                            m_pImage->pitches[1], false));
-                
-                splitInterleaved(pBmpU, pBmpV, pSrcBmp);
-            }
-            break;
-        default:
-            AVG_ASSERT(false);
+        status = vaSyncSurface(VAAPIDecoder::getDisplay(), m_SurfaceID);
+        VAAPIDecoder::checkError(status, "vaSyncSurface");
+
+        status = vaGetImage(VAAPIDecoder::getDisplay(), m_SurfaceID, 
+                0, 0, m_Size.x, m_Size.y, m_pImage->image_id);
+        VAAPIDecoder::checkError(status, "vaGetImage");
+
+        status = vaMapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf, &pImgBuffer);
+        VAAPIDecoder::checkError(status, "vaMapBuffer");
+    }
+
+    {
+        ScopeTimer timer(VAAPIConvertProfilingZone);
+
+        switch (m_pImage->format.fourcc) {
+            case VA_FOURCC_YV12:
+                {
+                    BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
+                                (uint8_t*)pImgBuffer + m_pImage->offsets[0], 
+                                m_pImage->pitches[0], false));
+                    pBmpY->copyPixels(*pSrcBmp);
+                    pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
+                                (uint8_t*)pImgBuffer + m_pImage->offsets[2],
+                                m_pImage->pitches[2], false));
+                    pBmpU->copyPixels(*pSrcBmp);
+                    pSrcBmp = BitmapPtr(new Bitmap(m_Size/2, I8, 
+                                (uint8_t*)pImgBuffer + m_pImage->offsets[1], 
+                                m_pImage->pitches[1], false));
+                    pBmpV->copyPixels(*pSrcBmp);
+                }
+                break;
+            case VA_FOURCC_NV12:
+                {
+                    BitmapPtr pSrcBmp(new Bitmap(m_Size, I8, 
+                                (uint8_t*)pImgBuffer + m_pImage->offsets[0], 
+                                m_pImage->pitches[0], false));
+                    pBmpY->copyPixels(*pSrcBmp);
+
+                    pSrcBmp = BitmapPtr(new Bitmap(IntPoint(m_Size.x, m_Size.y/2), I8, 
+                                (uint8_t*)pImgBuffer + m_pImage->offsets[1],
+                                m_pImage->pitches[1], false));
+
+                    splitInterleaved(pBmpU, pBmpV, pSrcBmp);
+                }
+                break;
+            default:
+                AVG_ASSERT(false);
+        }
     }
     status = vaUnmapBuffer(VAAPIDecoder::getDisplay(), m_pImage->buf);
     VAAPIDecoder::checkError(status, "vaUnmapBuffer");
