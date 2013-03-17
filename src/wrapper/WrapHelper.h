@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "../base/GLMHelper.h"
 #include "../base/Exception.h"
+#include "../base/ILogSink.h"
 
 #include "../player/BoostPython.h"
 #include "../player/Player.h"
@@ -389,7 +390,7 @@ void exportMessages(boost::python::object& nodeClass, const std::string& sClassN
 void addPythonLogger(PyObject * self, PyObject * pyLogger);
 void removePythonLogger(PyObject * self, PyObject * pyLogger);
 
-void pytrace(PyObject * self, size_t category, const avg::UTF8String& sMsg,
-        unsigned severity);
+void pytrace(PyObject * self, avg::category_t category, const avg::UTF8String& sMsg,
+        avg::severity_t severity);
 
 #endif

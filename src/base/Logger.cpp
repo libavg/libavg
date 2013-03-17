@@ -40,11 +40,10 @@
 
 
 using namespace std;
-
 namespace ba = boost::algorithm;
 
-namespace avg {
 
+namespace avg {
     const severity_t Logger::severity::CRITICAL = 50;
     const severity_t Logger::severity::ERROR = 40;
     const severity_t Logger::severity::WARNING = 30;
@@ -65,15 +64,13 @@ namespace avg {
     const category_t Logger::category::LAST_CATEGORY = DEPRECATION;
 
 namespace {
-
     Logger* m_pLogger = 0;
-    std::vector<LogSinkPtr> m_Sinks;
     boost::mutex logMutex;
     boost::mutex sinkMutex;
     boost::mutex severityMutex;
 }
 
-    boost::mutex Logger::m_CategoryMutex;
+boost::mutex Logger::m_CategoryMutex;
 
 Logger * Logger::get()
 {
@@ -121,7 +118,6 @@ Logger::Logger()
             category_t category = stringToCategory(sCategory);
             severity_t severity = stringToSeverity(sSeverity);
             m_Flags |= category;
-            cout << "Add: " << sCategory << " with severity: " << sSeverity << "\n";
             registerCategory(sCategory, severity);
         }
     }
@@ -201,7 +197,7 @@ void Logger::trace(const UTF8String& sMsg, category_t category,
     #endif
     string sCategory = categoryToString(category);
     boost::mutex::scoped_lock lockHandler(sinkMutex);
-    std::vector<LogSinkPtr>::iterator it;
+    std::vector<LogSinkPtr>::const_iterator it;
     for(it=m_Sinks.begin(); it!=m_Sinks.end(); ++it){
         (*it)->logMessage(pTime, millis, sCategory, severity, sMsg);
     }
@@ -209,7 +205,7 @@ void Logger::trace(const UTF8String& sMsg, category_t category,
 
 category_t Logger::registerCategory(const string& cat, severity_t severity){
     boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
-    std::map<const string, category_t >::iterator it;
+    StringToCatMap::iterator it;
     category_t category;
     it = m_StringToCategory.find(cat);
     
@@ -229,7 +225,7 @@ category_t Logger::registerCategory(const string& cat, severity_t severity){
 void Logger::setSeverity(category_t category, severity_t severity)
 {
     boost::mutex::scoped_lock lock(severityMutex);
-    std::map< const category_t, const severity_t>::iterator it;
+    CatToSeverityMap::iterator it;
     it = m_CategorySeverities.find(category);
     if ( it != m_CategorySeverities.end()){
         m_CategorySeverities.erase(it);
@@ -272,7 +268,7 @@ void Logger::log(const string& msg, category_t category, severity_t severity) co
 
 const char * Logger::categoryToString(category_t category) const
 {
-    std::map<const category_t, string>::const_iterator it;
+    CatToStringMap::const_iterator it;
     it = m_CategoryToString.find(category);
     if(it != m_CategoryToString.end()){
         return (it->second).c_str();
@@ -283,7 +279,7 @@ const char * Logger::categoryToString(category_t category) const
 
 category_t Logger::stringToCategory(const string& sCategory) const
 {
-    std::map<const string , category_t >::const_iterator it;
+    StringToCatMap::const_iterator it;
     it = m_StringToCategory.find(sCategory);
     if(it != m_StringToCategory.end()){
         return it->second;

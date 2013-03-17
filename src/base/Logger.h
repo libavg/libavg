@@ -33,6 +33,7 @@
 #include <map>
 
 #include <boost/thread.hpp>
+#include <boost/noncopyable.hpp>
 
 #ifdef ERROR
 #undef ERROR
@@ -40,10 +41,11 @@
 
 namespace avg {
 
-typedef unsigned severity_t;
-typedef size_t category_t;
+typedef std::map< const category_t, const severity_t > CatToSeverityMap;
+typedef std::map< const category_t, string > CatToStringMap;
+typedef std::map< const string, category_t > StringToCatMap;
 
-class AVG_API Logger {
+class AVG_API Logger: private boost::noncopyable {
 public:
     struct AVG_API severity
     {
@@ -86,7 +88,7 @@ public:
     category_t stringToCategory(const std::string& sCategory) const;
     void trace(const UTF8String& sMsg, category_t category, severity_t severity) const;
     category_t registerCategory(const string& cat, severity_t severity=severity::INFO);
-    void setSeverity(size_t category, unsigned severity);
+    void setSeverity(category_t category, severity_t severity);
 
     void logDebug(const string& msg, category_t category=category::APP) const;
     void logInfo(const string& msg, category_t category=category::APP) const;
@@ -102,7 +104,7 @@ public:
 
     inline bool shouldLog(category_t category, severity_t severity) const {
         if ( isCategorySet(category) ){
-            std::map<const category_t , const severity_t >::const_iterator it;
+            CatToSeverityMap::const_iterator it;
             it = m_CategorySeverities.find(category);
             AVG_ASSERT(it != m_CategorySeverities.end());
             return it->second <= severity;
@@ -115,15 +117,15 @@ private:
     Logger();
     void setupCategory();
 
-    size_t m_Flags;
-    std::vector<size_t> m_FlagStack;
-    std::map< const category_t, const severity_t> m_CategorySeverities;
-    std::map< const category_t, string > m_CategoryToString;
-    std::map< const string, category_t > m_StringToCategory;
+    std::vector<LogSinkPtr> m_Sinks;
+    std::vector<category_t> m_FlagStack;
+    CatToSeverityMap m_CategorySeverities;
+    CatToStringMap m_CategoryToString;
+    StringToCatMap m_StringToCategory;
 
-    size_t m_MaxCategoryNum;
-    unsigned m_Severity;
-
+    category_t m_Flags;
+    severity_t m_Severity;
+    category_t m_MaxCategoryNum;
 
     static boost::mutex m_CategoryMutex;
 };

@@ -99,7 +99,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("__repr__", &MessageID::getRepr)
         ;
 
-        class_<Logger>("Logger", no_init)
+        class_<Logger, boost::noncopyable>("Logger", no_init)
             .def("addSink", addPythonLogger)
             .def("removeSink", removePythonLogger)
             .def("registerCategory", &Logger::registerCategory,
@@ -142,7 +142,7 @@ BOOST_PYTHON_MODULE(avg)
             .def_readonly("INFO", &Logger::severity::INFO)
             .def_readonly("DEBUG", &Logger::severity::DEBUG)
         ;
-        scope().attr("logger") = Logger::get();
+        scope().attr("logger") = boost::python::ptr(Logger::get());
 
         class_<ExportedObject, boost::shared_ptr<ExportedObject>, boost::noncopyable>
                 ("ExportedObject", no_init)

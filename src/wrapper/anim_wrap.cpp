@@ -33,6 +33,7 @@
 
 using namespace boost::python;
 using namespace avg;
+namespace bp = boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(start_overloads, start, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setState_overloads, StateAnim::setState, 1, 2);
@@ -66,9 +67,9 @@ void export_anim()
             boost::noncopyable>("LinearAnim", no_init)
         .def(init<const object&, const std::string&, long long, const object&, 
                 const object&, optional<bool, const object&, const object&> >
-                ((arg("node"), arg("attrName"), arg("duration"), 
-                 arg("startValue"), arg("endValue"), arg("useInt")=false,
-                 arg("startCallback")=object(), arg("stopCallback")=object())))
+                ((bp::arg("node"), bp::arg("attrName"), bp::arg("duration"), 
+                 bp::arg("startValue"), bp::arg("endValue"), bp::arg("useInt")=false,
+                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object())))
         ;
 
     class_<EaseInOutAnim, boost::shared_ptr<EaseInOutAnim>, bases<SimpleAnim>, 
@@ -76,41 +77,41 @@ void export_anim()
         .def(init<const object&, const std::string&, long long, const object&,
                 const object&, long long, long long, 
                 optional<bool, const object&, const object&> >
-                ((arg("node"), arg("attrName"), arg("duration"), 
-                 arg("startValue"), arg("endValue"), arg("easeInDuration"), 
-                 arg("easeOutDuration"), arg("useInt")=false,
-                 arg("startCallback")=object(), arg("stopCallback")=object())))
+                ((bp::arg("node"), bp::arg("attrName"), bp::arg("duration"), 
+                 bp::arg("startValue"), bp::arg("endValue"), bp::arg("easeInDuration"), 
+                 bp::arg("easeOutDuration"), bp::arg("useInt")=false,
+                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object())))
         ;
    
     class_<ContinuousAnim, boost::shared_ptr<ContinuousAnim>, bases<AttrAnim>, 
             boost::noncopyable>("ContinuousAnim", no_init)
         .def(init<const object&, const std::string&, const object&, const object&, 
                 optional<bool, const object&, const object&> >
-                ((arg("node"), arg("attrName"), arg("duration"), 
-                 arg("startValue"), arg("speed"), arg("useInt")=false,
-                 arg("startCallback")=object(), arg("stopCallback")=object())))
+                ((bp::arg("node"), bp::arg("attrName"), bp::arg("duration"), 
+                 bp::arg("startValue"), bp::arg("speed"), bp::arg("useInt")=false,
+                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object())))
         ;
 
     class_<WaitAnim, boost::shared_ptr<WaitAnim>, bases<Anim>, boost::noncopyable>(
             "WaitAnim", no_init)
         .def(init<optional<long long, const object&, const object&> >
-                ((arg("duration")=-1, arg("startCallback")=object(),
-                 arg("stopCallback")=object())))
-        .def("start", &WaitAnim::start, start_overloads(args("bKeepAttr")))
+                ((bp::arg("duration")=-1, bp::arg("startCallback")=object(),
+                 bp::arg("stopCallback")=object())))
+        .def("start", &WaitAnim::start, start_overloads(bp::args("bKeepAttr")))
         ;
     
     class_<ParallelAnim, boost::shared_ptr<ParallelAnim>, bases<Anim>, 
             boost::noncopyable>("ParallelAnim", no_init)
         .def(init<const std::vector<AnimPtr>&,
                 optional<const object&, const object&, long long> >
-                ((arg("anims"), arg("startCallback")=object(),
-                 arg("stopCallback")=object(), arg("maxAge")=-1)))
+                ((bp::arg("anims"), bp::arg("startCallback")=object(),
+                 bp::arg("stopCallback")=object(), bp::arg("maxAge")=-1)))
         .def("start", &ParallelAnim::start, start_overloads(args("bKeepAttr")))
         ;
       
     class_<AnimState, boost::noncopyable>("AnimState", no_init)
         .def(init<const std::string&, AnimPtr, optional<const std::string&> >
-                ((arg("name"), arg("anim"), arg("nextName")="")))
+                ((bp::arg("name"), bp::arg("anim"), bp::arg("nextName")="")))
         ;
 
     class_<StateAnim, boost::shared_ptr<StateAnim>, bases<Anim>, 
@@ -121,9 +122,10 @@ void export_anim()
         .def("setDebug", &StateAnim::setDebug) 
         ;
 
-    def("fadeIn", fadeIn, (arg("node"), arg("duration"), arg("max")=1.0, 
-            arg("stopCallback")=object()));
+    def("fadeIn", fadeIn, (bp::arg("node"), bp::arg("duration"), bp::arg("max")=1.0, 
+            bp::arg("stopCallback")=object()));
 
-    def("fadeOut", fadeOut, (arg("node"), arg("duration"), arg("stopCallback")=object()));
+    def("fadeOut", fadeOut, (bp::arg("node"), bp::arg("duration"),
+            bp::arg("stopCallback")=object()));
 
 }

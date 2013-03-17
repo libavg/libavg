@@ -35,11 +35,14 @@ using namespace std;
 
 namespace avg{
 
+typedef unsigned severity_t;
+typedef size_t category_t;
+
 class AVG_API ILogSink
 {
 public:
     virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
-            unsigned severity, const UTF8String& sMsg) = 0;
+            severity_t severity, const UTF8String& sMsg) = 0;
     
 };
 

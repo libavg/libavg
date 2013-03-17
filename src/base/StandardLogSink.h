@@ -32,7 +32,7 @@ public:
     virtual ~StandardLogSink ();
 
     virtual void logMessage(const tm* pTime, unsigned millis, const string& category,
-            unsigned severity, const UTF8String& sMsg);
+            severity_t severity, const UTF8String& sMsg);
 };
 
 }

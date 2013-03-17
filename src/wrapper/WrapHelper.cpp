@@ -417,7 +417,8 @@ void removePythonLogger(PyObject * self, PyObject * pyLogger)
     }
 }
 
-void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned severity)
+void pytrace(PyObject * self, avg::category_t category, const UTF8String& sMsg,
+        avg::severity_t severity)
 {
     avgDeprecationWarning(string("1.8"), "logger.trace",
             "any of the logging convenience functions");

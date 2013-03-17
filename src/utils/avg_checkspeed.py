@@ -121,9 +121,13 @@ if options.numObjs == -1:
         options.numObjs = 200 
 
 log = avg.logger
+log.setSeverity(log.CONFIG, log.INFO)
 if options.profile:
-    log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+    log.setSeverity(log.PROFILE, log.INFO)
+    log.setCategories(log.CONFIG | log.PROFILE)
 else:
-    log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
+    log.setCategories(log.CONFIG)
+    
+
 SpeedApp.start(resolution=(800,600))
 
