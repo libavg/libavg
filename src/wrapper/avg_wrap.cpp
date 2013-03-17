@@ -102,11 +102,13 @@ BOOST_PYTHON_MODULE(avg)
         class_<Logger>("Logger", no_init)
             .def("addSink", addPythonLogger)
             .def("removeSink", removePythonLogger)
-            .def("registerCategory", &Logger::registerCategory)
+            .def("registerCategory", &Logger::registerCategory,
+                    (bp::arg("severity")=Logger::severity::INFO))
             .def("getCategories", &Logger::getCategories)
             .def("setCategories", &Logger::setCategories)
             .def("pushCategories", &Logger::pushCategories)
             .def("popCategories", &Logger::popCategories)
+            .def("setSeverity", &Logger::setSeverity)
             .def("trace", pytrace,
                     (bp::arg("severity")=Logger::severity::INFO))
             .def("debug", &Logger::logDebug,

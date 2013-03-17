@@ -949,18 +949,33 @@ public:
         }
         {
             std::cerr.rdbuf(buffer.rdbuf());
-            int AWESOME_CAT = logger->registerCategory("AWESOME");
+            int CUSTOM_CAT = logger->registerCategory("CUSTOM_CAT 1");
             int cats = logger->getCategories();
-            logger->setCategories(cats | logger->stringToCategory("AWESOME"));
-            string msg("AWESOME LOG");
-            AVG_TRACE(AWESOME_CAT, Logger::severity::INFO, msg);
+            logger->setCategories(cats | logger->stringToCategory("CUSTOM_CAT 1"));
+            string msg("CUSTOM_CAT LOG");
+            AVG_TRACE(CUSTOM_CAT, Logger::severity::INFO, msg);
             std::cerr.rdbuf(sbuf);
             TEST(buffer.str().find(msg) != string::npos);
             buffer.str(string());
         }
         {
             std::cerr.rdbuf(buffer.rdbuf());
-            logger->setLogSeverity(Logger::severity::WARNING);
+            int CUSTOM_CAT = logger->registerCategory("CUSTOM_CAT 1",
+                    Logger::severity::CRITICAL);
+            int cats = logger->getCategories();
+            logger->setCategories(cats | logger->stringToCategory("CUSTOM_CAT 1"));
+            string msg_info("CUSTOM_CAT LOG INFO");
+            AVG_TRACE(CUSTOM_CAT, Logger::severity::INFO, msg_info);
+            TEST(buffer.str().find(msg_info) == string::npos);
+            buffer.str(string());
+            string msg_critical("CUSTOM_CAT LOG CRITICAL");
+            AVG_TRACE(CUSTOM_CAT, Logger::severity::CRITICAL, msg_critical);
+            std::cerr.rdbuf(sbuf);
+            buffer.str(string());
+        }
+        {
+            std::cerr.rdbuf(buffer.rdbuf());
+            logger->setSeverity(Logger::category::NONE, Logger::severity::WARNING);
             string msg("Invisible");
             AVG_LOG_INFO(msg);
             std::cerr.rdbuf(sbuf);

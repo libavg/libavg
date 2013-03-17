@@ -36,38 +36,44 @@
 #endif
 #include <iostream>
 #include <iomanip>
-#include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
+
 
 using namespace std;
 
+namespace ba = boost::algorithm;
+
 namespace avg {
 
-    const unsigned Logger::severity::CRITICAL = 50;
-    const unsigned Logger::severity::ERROR = 40;
-    const unsigned Logger::severity::WARNING = 30;
-    const unsigned Logger::severity::INFO = 20;
-    const unsigned Logger::severity::DEBUG = 10;
+    const severity_t Logger::severity::CRITICAL = 50;
+    const severity_t Logger::severity::ERROR = 40;
+    const severity_t Logger::severity::WARNING = 30;
+    const severity_t Logger::severity::INFO = 20;
+    const severity_t Logger::severity::DEBUG = 10;
 
-    const size_t Logger::category::NONE = 1;
-    const size_t Logger::category::PROFILE = 2;
-    const size_t Logger::category::PROFILE_VIDEO = 8;
-    const size_t Logger::category::EVENTS = 16;
-    const size_t Logger::category::CONFIG = 64;
-    const size_t Logger::category::MEMORY = 512;
-    const size_t Logger::category::APP = 1024;
-    const size_t Logger::category::PLUGIN = 2048;
-    const size_t Logger::category::PLAYER = 4096;
-    const size_t Logger::category::SHADER = 8192;
-    const size_t Logger::category::DEPRECATION = 16384;
-    const size_t Logger::category::LAST_CATEGORY = DEPRECATION;
+    const category_t Logger::category::NONE = 1;
+    const category_t Logger::category::PROFILE = 2;
+    const category_t Logger::category::PROFILE_VIDEO = 8;
+    const category_t Logger::category::EVENTS = 16;
+    const category_t Logger::category::CONFIG = 64;
+    const category_t Logger::category::MEMORY = 512;
+    const category_t Logger::category::APP = 1024;
+    const category_t Logger::category::PLUGIN = 2048;
+    const category_t Logger::category::PLAYER = 4096;
+    const category_t Logger::category::SHADER = 8192;
+    const category_t Logger::category::DEPRECATION = 16384;
+    const category_t Logger::category::LAST_CATEGORY = DEPRECATION;
 
 namespace {
+
     Logger* m_pLogger = 0;
     std::vector<LogSinkPtr> m_Sinks;
     boost::mutex logMutex;
     boost::mutex sinkMutex;
+    boost::mutex severityMutex;
 }
+
+    boost::mutex Logger::m_CategoryMutex;
 
 Logger * Logger::get()
 {
@@ -88,24 +94,36 @@ Logger::Logger()
         m_Severity = Logger::stringToSeverity(sEnvSeverity);
     }
     m_Flags = category::NONE | category::APP | category::DEPRECATION;
+    registerCategory("NONE", m_Severity);
+    registerCategory("APP", m_Severity);
+    registerCategory("DEPRECATION", m_Severity);
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
         m_Flags = category::NONE;
-        bool bDone = false;
-        string sCategory;
-        do {
-            string::size_type pos = sEnvCategories.find(":");
-            if (pos == string::npos) {
-                sCategory = sEnvCategories;
-                bDone = true;
-            } else {
-                sCategory = sEnvCategories.substr(0, pos);
-                sEnvCategories = sEnvCategories.substr(pos+1);
+        typedef vector<string> stringVector;
+        stringVector sCategories;
+        ba::split( sCategories, sEnvCategories, ba::is_any_of(" "),
+                ba::token_compress_on);
+        stringVector::iterator it; 
+        for(it=sCategories.begin(); it!=sCategories.end(); it++){
+            string::size_type pos = (*it).find(":");
+            string sCategory;
+            string sSeverity = "INFO";
+            if(pos == string::npos){
+                sCategory = *it;
+            }else{
+                stringVector tmpValues;
+                ba::split( tmpValues, *it, ba::is_any_of(":"), ba::token_compress_on);
+                sCategory = tmpValues.at(0);
+                sSeverity = tmpValues.at(1);
             }
-            size_t category = stringToCategory(sCategory);
+            category_t category = stringToCategory(sCategory);
+            severity_t severity = stringToSeverity(sSeverity);
             m_Flags |= category;
-            } while (!bDone);
+            cout << "Add: " << sCategory << " with severity: " << sSeverity << "\n";
+            registerCategory(sCategory, severity);
+        }
     }
     m_MaxCategoryNum = category::LAST_CATEGORY;
 
@@ -120,31 +138,27 @@ Logger::~Logger()
 {
 }
 
-size_t Logger::getCategories() const
+category_t Logger::getCategories() const
 {
-    boost::mutex::scoped_lock lock(logMutex);
+    boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
     return m_Flags;
 }
 
-void Logger::setCategories(size_t flags)
+void Logger::setCategories(category_t flags)
 {
-    boost::mutex::scoped_lock lock(logMutex);
+    boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
     m_Flags = flags;
-}
-
-void Logger::setLogSeverity(unsigned severity){
-        m_Severity = severity;
 }
 
 void Logger::pushCategories()
 {
-    boost::mutex::scoped_lock lock(logMutex);
+    boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
     m_FlagStack.push_back(m_Flags);
 }
 
 void Logger::popCategories()
 {
-    boost::mutex::scoped_lock lock(logMutex);
+    boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
     if (m_FlagStack.empty()) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "popCategories: Nothing to pop.");
     }
@@ -168,7 +182,8 @@ void Logger::removeLogSink(const LogSinkPtr& logSink)
     }
 }
 
-void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) const
+void Logger::trace(const UTF8String& sMsg, category_t category,
+        severity_t severity) const
 {
     boost::mutex::scoped_lock lock(logMutex);
     struct tm* pTime;
@@ -192,54 +207,72 @@ void Logger::trace(const UTF8String& sMsg, size_t category, unsigned severity) c
     }
 }
 
-size_t Logger::registerCategory(const string& cat){
-    std::map<const string, size_t >::iterator it;
+category_t Logger::registerCategory(const string& cat, severity_t severity){
+    boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
+    std::map<const string, category_t >::iterator it;
+    category_t category;
     it = m_StringToCategory.find(cat);
+    
     if(it != m_StringToCategory.end()){
-        return it->second;
+        category = it->second;
     }else{
         m_MaxCategoryNum *= 2;
         m_CategoryToString[m_MaxCategoryNum] = cat;
         m_StringToCategory[cat] = m_MaxCategoryNum;
-        return m_MaxCategoryNum;
+        category = m_MaxCategoryNum;
     }
+
+    setSeverity(category, severity);
+    return category;
 }
 
-void Logger::logDebug(const string& msg, const size_t category) const
+void Logger::setSeverity(category_t category, severity_t severity)
+{
+    boost::mutex::scoped_lock lock(severityMutex);
+    std::map< const category_t, const severity_t>::iterator it;
+    it = m_CategorySeverities.find(category);
+    if ( it != m_CategorySeverities.end()){
+        m_CategorySeverities.erase(it);
+    }
+    m_CategorySeverities.insert(pair<const category_t, const severity_t>
+            (category, severity));
+}
+
+void Logger::logDebug(const string& msg, category_t category) const
 {
     log(msg, category, Logger::severity::DEBUG);
 }
 
-void Logger::logInfo(const string& msg, const size_t category) const
+void Logger::logInfo(const string& msg, category_t category) const
 {
     log(msg, category, Logger::severity::INFO);
 }
 
-void Logger::logWarning(const string& msg, const size_t category) const
+void Logger::logWarning(const string& msg, category_t category) const
 {
     log(msg, category, Logger::severity::WARNING);
 }
 
-void Logger::logError(const string& msg, const size_t category) const
+void Logger::logError(const string& msg, category_t category) const
 {
     log(msg, category, Logger::severity::ERROR);
 }
 
-void Logger::logCritical(const string& msg, const size_t category) const
+void Logger::logCritical(const string& msg, category_t category) const
 {
     log(msg, category, Logger::severity::CRITICAL);
 }
 
-void Logger::log(const string& msg, const size_t category, unsigned severity) const
+void Logger::log(const string& msg, category_t category, severity_t severity) const
 {
     if( shouldLog(category, severity)){
         trace(msg, category, severity);
     }
 }
 
-const char * Logger::categoryToString(size_t category) const
+const char * Logger::categoryToString(category_t category) const
 {
-    std::map<const size_t, string>::const_iterator it;
+    std::map<const category_t, string>::const_iterator it;
     it = m_CategoryToString.find(category);
     if(it != m_CategoryToString.end()){
         return (it->second).c_str();
@@ -248,9 +281,9 @@ const char * Logger::categoryToString(size_t category) const
     }
 }
 
-size_t Logger::stringToCategory(const string& sCategory) const
+category_t Logger::stringToCategory(const string& sCategory) const
 {
-    std::map<const string , size_t >::const_iterator it;
+    std::map<const string , category_t >::const_iterator it;
     it = m_StringToCategory.find(sCategory);
     if(it != m_StringToCategory.end()){
         return it->second;
@@ -295,7 +328,7 @@ void Logger::setupCategory(){
     m_StringToCategory["DEPRECATION"] = category::DEPRECATION;
 }
 
-unsigned Logger::stringToSeverity(const string& sSeverity)
+severity_t Logger::stringToSeverity(const string& sSeverity)
 {
     string severity = boost::to_upper_copy(sSeverity);
     if (severity == "CRITICAL"){
@@ -312,7 +345,7 @@ unsigned Logger::stringToSeverity(const string& sSeverity)
     throw Exception(AVG_ERR_INVALID_ARGS, severity + " is an invalid log severity");
 }
 
-const char * Logger::severityToString(unsigned severity)
+const char * Logger::severityToString(severity_t severity)
 {
     if(severity == Logger::severity::CRITICAL){
         return "CRITICAL";

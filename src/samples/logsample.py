@@ -39,9 +39,15 @@ class LoggingApp(AVGApp):
 
         #Enable custom log category
         currentCats = avg.logger.getCategories()
-        avg.logger.setCategories(currentCats | CUSTOM_LOG_CAT)
+        avg.logger.setCategories(currentCats | CUSTOM_LOG_CAT )
 
         #Log with custom log category
         avg.logger.log("Message with custom category", CUSTOM_LOG_CAT)
+        avg.logger.debug("Hidden message", CUSTOM_LOG_CAT)
+        avg.logger.setSeverity(CUSTOM_LOG_CAT, avg.logger.DEBUG)
+        avg.logger.debug("This will show up", CUSTOM_LOG_CAT)
 
-LoggingApp.start(resolution=(40, 40))
+        #Hidden unless AVG_LOG_CATEGORIES=APP:DEBUG
+        avg.logger.debug("Hidden, unless AVG_LOG_CATEGORIES configured elsewise")
+
+LoggingApp.start(resolution=(140, 140))
