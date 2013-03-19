@@ -45,10 +45,12 @@ namespace ba = boost::algorithm;
 
 namespace avg {
     const severity_t Logger::severity::CRITICAL = 50;
-    const severity_t Logger::severity::ERROR = 40;
-    const severity_t Logger::severity::WARNING = 30;
-    const severity_t Logger::severity::INFO = 20;
-    const severity_t Logger::severity::DEBUG = 10;
+    const severity_t Logger::severity::ERROR    = 40;
+    const severity_t Logger::severity::WARNING  = 30;
+    const severity_t Logger::severity::INFO     = 20;
+    const severity_t Logger::severity::DEBUG    = 10;
+    const severity_t Logger::severity::NOT_SET  =  0;
+
 
     const category_t Logger::category::NONE = 1;
     const category_t Logger::category::PROFILE = 2;
@@ -91,9 +93,9 @@ Logger::Logger()
         m_Severity = Logger::stringToSeverity(sEnvSeverity);
     }
     m_Flags = category::NONE | category::APP | category::DEPRECATION;
-    registerCategory("NONE", m_Severity);
-    registerCategory("APP", m_Severity);
-    registerCategory("DEPRECATION", m_Severity);
+    registerCategory("NONE");
+    registerCategory("APP");
+    registerCategory("DEPRECATION");
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
@@ -106,7 +108,7 @@ Logger::Logger()
         for(it=sCategories.begin(); it!=sCategories.end(); it++){
             string::size_type pos = (*it).find(":");
             string sCategory;
-            string sSeverity = "INFO";
+            string sSeverity = "NOT_SET";
             if(pos == string::npos){
                 sCategory = *it;
             }else{
@@ -205,10 +207,11 @@ void Logger::trace(const UTF8String& sMsg, category_t category,
 
 category_t Logger::registerCategory(const string& cat, severity_t severity){
     boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
+    severity = severity == severity::NOT_SET ? m_Severity : severity;
     StringToCatMap::iterator it;
     category_t category;
     it = m_StringToCategory.find(cat);
-    
+
     if(it != m_StringToCategory.end()){
         category = it->second;
     }else{
@@ -232,6 +235,12 @@ void Logger::setSeverity(category_t category, severity_t severity)
     }
     m_CategorySeverities.insert(pair<const category_t, const severity_t>
             (category, severity));
+}
+
+void Logger::setDefaultSeverity(severity_t severity)
+{
+    boost::mutex::scoped_lock lock(logMutex);
+    m_Severity = severity;
 }
 
 void Logger::logDebug(const string& msg, category_t category) const
@@ -337,6 +346,8 @@ severity_t Logger::stringToSeverity(const string& sSeverity)
         return Logger::severity::INFO;
     }else if (severity == "DEBUG"){
         return Logger::severity::DEBUG;
+    }else if (severity == "NOT_SET"){
+        return Logger::severity::NOT_SET;
     }
     throw Exception(AVG_ERR_INVALID_ARGS, severity + " is an invalid log severity");
 }

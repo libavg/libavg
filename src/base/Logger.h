@@ -54,6 +54,7 @@ public:
         static const severity_t WARNING;
         static const severity_t INFO;
         static const severity_t DEBUG;
+        static const severity_t NOT_SET;
     };
 
     struct AVG_API category
@@ -87,8 +88,10 @@ public:
     const char * categoryToString(category_t category) const;
     category_t stringToCategory(const std::string& sCategory) const;
     void trace(const UTF8String& sMsg, category_t category, severity_t severity) const;
-    category_t registerCategory(const string& cat, severity_t severity=severity::INFO);
+    category_t registerCategory(const string& cat,
+            severity_t severity=severity::NOT_SET);
     void setSeverity(category_t category, severity_t severity);
+    void setDefaultSeverity(severity_t severity);
 
     void logDebug(const string& msg, category_t category=category::APP) const;
     void logInfo(const string& msg, category_t category=category::APP) const;

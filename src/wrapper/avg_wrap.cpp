@@ -94,7 +94,7 @@ BOOST_PYTHON_MODULE(avg)
 
         def("pointInPolygon", pointInPolygon);
         def("validateXml", validateXml);
-        
+
         class_<MessageID>("MessageID", no_init)
             .def("__repr__", &MessageID::getRepr)
         ;
@@ -103,12 +103,13 @@ BOOST_PYTHON_MODULE(avg)
             .def("addSink", addPythonLogger)
             .def("removeSink", removePythonLogger)
             .def("registerCategory", &Logger::registerCategory,
-                    (bp::arg("severity")=Logger::severity::INFO))
+                    (bp::arg("severity")=Logger::severity::NOT_SET))
             .def("getCategories", &Logger::getCategories)
             .def("setCategories", &Logger::setCategories)
             .def("pushCategories", &Logger::pushCategories)
             .def("popCategories", &Logger::popCategories)
             .def("setSeverity", &Logger::setSeverity)
+            .def("setDefaultSeverity", &Logger::setDefaultSeverity)
             .def("trace", pytrace,
                     (bp::arg("severity")=Logger::severity::INFO))
             .def("debug", &Logger::logDebug,
