@@ -106,8 +106,11 @@ public:
         if ( isCategorySet(category) ){
             CatToSeverityMap::const_iterator it;
             it = m_CategorySeverities.find(category);
-            AVG_ASSERT(it != m_CategorySeverities.end());
-            return it->second <= severity;
+            if(m_CategorySeverities.end() == it){
+                return m_Severity <= severity;
+            }else{
+                return it->second <= severity;
+            }
         } else {
             return false;
         }
