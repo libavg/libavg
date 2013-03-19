@@ -81,6 +81,8 @@ public:
 
     void addLogSink(const LogSinkPtr& logSink);
     void removeLogSink(const LogSinkPtr& logSink);
+    void clearLogSinks();
+
     category_t getCategories() const;
     void setCategories(category_t flags);
     void pushCategories();
@@ -88,17 +90,17 @@ public:
     const char * categoryToString(category_t category) const;
     category_t stringToCategory(const std::string& sCategory) const;
     void trace(const UTF8String& sMsg, category_t category, severity_t severity) const;
-    category_t registerCategory(const string& cat,
+    category_t registerCategory(const UTF8String& cat,
             severity_t severity=severity::NOT_SET);
     void setSeverity(category_t category, severity_t severity);
     void setDefaultSeverity(severity_t severity);
 
-    void logDebug(const string& msg, category_t category=category::APP) const;
-    void logInfo(const string& msg, category_t category=category::APP) const;
-    void logWarning(const string& msg, category_t category=category::APP) const;
-    void logError(const string& msg, category_t category=category::APP) const;
-    void logCritical(const string& msg, category_t category=category::APP) const;
-    void log(const string& msg, category_t category=category::APP,
+    void logDebug(const UTF8String& msg, category_t category=category::APP) const;
+    void logInfo(const UTF8String& msg, category_t category=category::APP) const;
+    void logWarning(const UTF8String& msg, category_t category=category::APP) const;
+    void logError(const UTF8String& msg, category_t category=category::APP) const;
+    void logCritical(const UTF8String& msg, category_t category=category::APP) const;
+    void log(const UTF8String& msg, category_t category=category::APP,
             severity_t severity=severity::INFO) const;
 
     inline bool isCategorySet(category_t category) const {

@@ -180,6 +180,11 @@ void Logger::removeLogSink(const LogSinkPtr& logSink)
     }
 }
 
+void Logger::clearLogSinks(){
+    boost::mutex::scoped_lock lock(sinkMutex);
+    m_Sinks.clear();
+}
+
 void Logger::trace(const UTF8String& sMsg, category_t category,
         severity_t severity) const
 {
@@ -205,7 +210,7 @@ void Logger::trace(const UTF8String& sMsg, category_t category,
     }
 }
 
-category_t Logger::registerCategory(const string& cat, severity_t severity){
+category_t Logger::registerCategory(const UTF8String& cat, severity_t severity){
     boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
     severity = severity == severity::NOT_SET ? m_Severity : severity;
     StringToCatMap::iterator it;
@@ -243,32 +248,32 @@ void Logger::setDefaultSeverity(severity_t severity)
     m_Severity = severity;
 }
 
-void Logger::logDebug(const string& msg, category_t category) const
+void Logger::logDebug(const UTF8String& msg, category_t category) const
 {
     log(msg, category, Logger::severity::DEBUG);
 }
 
-void Logger::logInfo(const string& msg, category_t category) const
+void Logger::logInfo(const UTF8String& msg, category_t category) const
 {
     log(msg, category, Logger::severity::INFO);
 }
 
-void Logger::logWarning(const string& msg, category_t category) const
+void Logger::logWarning(const UTF8String& msg, category_t category) const
 {
     log(msg, category, Logger::severity::WARNING);
 }
 
-void Logger::logError(const string& msg, category_t category) const
+void Logger::logError(const UTF8String& msg, category_t category) const
 {
     log(msg, category, Logger::severity::ERROR);
 }
 
-void Logger::logCritical(const string& msg, category_t category) const
+void Logger::logCritical(const UTF8String& msg, category_t category) const
 {
     log(msg, category, Logger::severity::CRITICAL);
 }
 
-void Logger::log(const string& msg, category_t category, severity_t severity) const
+void Logger::log(const UTF8String& msg, category_t category, severity_t severity) const
 {
     if( shouldLog(category, severity)){
         trace(msg, category, severity);

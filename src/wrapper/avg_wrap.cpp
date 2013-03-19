@@ -102,6 +102,7 @@ BOOST_PYTHON_MODULE(avg)
         class_<Logger, boost::noncopyable>("Logger", no_init)
             .def("addSink", addPythonLogger)
             .def("removeSink", removePythonLogger)
+            .def("clearSinks", &Logger::clearLogSinks)
             .def("registerCategory", &Logger::registerCategory,
                     (bp::arg("severity")=Logger::severity::NOT_SET))
             .def("getCategories", &Logger::getCategories)

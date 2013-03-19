@@ -13,12 +13,15 @@ hdlr.setFormatter(formatter)
 pyLogger = logging.getLogger(__name__)
 pyLogger.addHandler(hdlr)
 pyLogger.propagate = False
+pyLogger.level = logging.DEBUG
 
 
 class LoggingApp(AVGApp):
     def init(self):
         # Add the python logger to libavgs logger as a message sink
+        avg.logger.clearSinks()
         avg.logger.addSink(pyLogger)
+        avg.logger.setDefaultSeverity(avg.logger.DEBUG)
 
         avg.logger.log("Custom Info level message",avg.logger.APP, avg.logger.INFO)
 
