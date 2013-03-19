@@ -30,27 +30,99 @@ from testcase import *
 class LoggerTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
+        self.testMsg = u'福 means good fortune'
+
+    def setUp(self):
+        self.stream = StringIO.StringIO()
+        self.hdlr = logging.StreamHandler(self.stream)
+        self.pyLogger = logging.getLogger(__name__)
+        self.pyLogger.addHandler(self.hdlr)
+        self.pyLogger.propagate = False
+        self.pyLogger.level = logging.DEBUG
+        logger.addSink(self.pyLogger)
+
+    def tearDown(self):
+        self.pyLogger.removeHandler(self.hdlr)
+        logger.clearSinks()
+
+    def _assertMsg(self):
+        self.stream.flush()
+        self.assert_(self.stream.getvalue().decode('utf8').find(self.testMsg) != -1)
+        self.stream.close()
+
+    def _assertNoMsg(self):
+        self.stream.flush()
+        self.assert_(self.stream.getvalue().decode('utf8').find(self.testMsg) == -1)
+        self.stream.close()
 
     def testAddSink(self):
         logger.clearSinks()
-        stream = StringIO.StringIO()
-        hdlr = logging.StreamHandler(stream)
-        formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(category)s] : %(message)s')
-        pyLogger = logging.getLogger(__name__)
-        pyLogger.addHandler(hdlr)
-        pyLogger.propagate = False
-        pyLogger.level = logging.DEBUG
-        testText = u'福 means good fortune'
-        logger.addSink(pyLogger)
+        logger.addSink(self.pyLogger)
+        logger.info(self.testMsg)
+        self._assertMsg()
 
-        logger.info(testText)
-        stream.flush()
-        self.assert_(stream.getvalue().decode('utf8').find(testText) != -1)
-        stream.truncate(0)
-        stream.flush()
-        self.assert_(stream.getvalue().decode('utf8').find(testText) == -1)
+    def testClearSinks(self):
+        logger.clearSinks()
+        logger.info(self.testMsg)
+        self._assertNoMsg()
+
+    def testRemoveSink(self):
+        logger.removeSink(self.pyLogger)
+        logger.info(self.testMsg)
+        self._assertNoMsg()
+
+    def testRegisterAndSetCategory(self):
+        snowmanCategory = logger.registerCategory(u'☃ Category')
+        logger.setCategories(logger.getCategories() | snowmanCategory)
+        logger.info(self.testMsg, snowmanCategory)
+        self._assertMsg()
+
+    def testSetNoCategories(self):
+        logger.setCategories(logger.NONE)
+        logger.info(self.testMsg)
+        self._assertNoMsg()
+    
+    def testSetCategories(self):
+        logger.setCategories(logger.APP)
+        logger.info(self.testMsg)
+        self._assertMsg()
+
+    def testSetSeverityAbove(self):
+        logger.setSeverity(logger.APP, logger.WARNING)
+        logger.info(self.testMsg)
+        self._assertNoMsg()
+
+    def testSetSeverity(self):
+        logger.setSeverity(logger.APP, logger.INFO)
+        logger.info(self.testMsg)
+        self._assertMsg()
+
+    def testSetDefaultSeverity1(self):
+        logger.setDefaultSeverity(logger.DEBUG)
+        snowmanCategory = logger.registerCategory(u'☃ Category')
+        logger.setCategories(logger.getCategories() | snowmanCategory)
+        logger.debug(self.testMsg, snowmanCategory)
+        self._assertMsg()
+
+    def testSetDefaultSeverity2(self):
+        logger.setDefaultSeverity(logger.INFO)
+        snowmanCategory = logger.registerCategory(u'☃ Category')
+        logger.setCategories(logger.getCategories() | snowmanCategory)
+        logger.debug(self.testMsg, snowmanCategory)
+        self._assertNoMsg()
+
 
 def loggerTestSuite(tests):
     availableTests = (
-            "testAddSink",)
+            "testAddSink",
+            "testClearSinks",
+            "testRemoveSink",
+            "testRegisterAndSetCategory",
+            "testSetNoCategories",
+            "testSetCategories",
+            "testSetSeverityAbove",
+            "testSetSeverity",
+            "testSetDefaultSeverity1",
+            "testSetDefaultSeverity2",
+            )
     return createAVGTestSuite(availableTests, LoggerTestCase, tests)

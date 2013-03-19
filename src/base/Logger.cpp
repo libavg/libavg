@@ -212,7 +212,7 @@ void Logger::trace(const UTF8String& sMsg, category_t category,
 
 category_t Logger::registerCategory(const UTF8String& cat, severity_t severity){
     boost::mutex::scoped_lock lock(Logger::m_CategoryMutex);
-    severity = severity == severity::NOT_SET ? m_Severity : severity;
+    severity = ((severity == severity::NOT_SET) ? m_Severity : severity);
     StringToCatMap::iterator it;
     category_t category;
     it = m_StringToCategory.find(cat);
