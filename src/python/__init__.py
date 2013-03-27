@@ -17,7 +17,6 @@ import statemachine
 from avgapp import AVGApp
 from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
 import utils, methodref
-import gameapp
 import gesture
 import filter
 import persist
