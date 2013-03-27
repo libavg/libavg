@@ -40,7 +40,7 @@ in background.
 
 import os
 from random import shuffle, randint
-from libavg import avg, player, gameapp
+from libavg import avg, player, app
 
 
 IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tga', '.tif', '.tiff']
@@ -104,10 +104,8 @@ class Slide(avg.ImageNode):
                 lambda: self.notifySubscribers(Slide.HIDE_DONE, [self]))
 
 
-class SlideshowApp(gameapp.GameApp):
-    multitouch = False
-
-    def init(self):
+class Slideshow(app.MainScene):
+    def onInit(self):
         imgDir = os.getcwd()
         if not os.path.isdir(imgDir):
             avg.logger.error('Directory [%s] not found' % imgDir)
@@ -125,7 +123,7 @@ class SlideshowApp(gameapp.GameApp):
         avg.logger.info('%d image file%s found' % (l, 's' if l > 1 else ''))
         shuffle(self.__imgFiles)
 
-        self.__slidesDiv = avg.DivNode(size=self._parentNode.size, parent=self._parentNode)
+        self.__slidesDiv = avg.DivNode(size=self.size, parent=self)
         # ping-pong two slides for cross-fade transition
         self.__newSlide = Slide(parent=self.__slidesDiv)
         self.__oldSlide = Slide(href=self.__imgFiles[0], parent=self.__slidesDiv)
@@ -148,5 +146,5 @@ class SlideshowApp(gameapp.GameApp):
 
 
 if __name__ == '__main__':
-    SlideshowApp.start()
+    app.App().run(Slideshow())
 
