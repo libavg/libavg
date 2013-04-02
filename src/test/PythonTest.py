@@ -175,11 +175,11 @@ class PythonTestCase(AVGTestCase):
         machine.addState('B', {'C': None, 'A': self.btoa})
         machine.addState('C', {'A': None})
 
-        imageFName = AVGTestCase.imageResultDirectory + "/stateMachineGraphVis.png"
+        imageFName = AVGTestCase.imageResultDirectory + "/stateMachineGraphViz.png"
         try:
             machine.makeDiagram(imageFName)
         except RuntimeError:
-            self.skip("graphvis not installed.")
+            self.skip("graphviz not installed.")
 
 
 def pythonTestSuite(tests):
