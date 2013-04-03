@@ -102,7 +102,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
     XVisualInfo visTemplate;
     visTemplate.visualid = vid;
     int num_visuals;
-    XVisualInfo* pVisualInfo = XGetVisualInfo(m_xDisplay, VisualIDMask, &visTemplate,
+    XVisualInfo* pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualIDMask, &visTemplate,
             &num_visuals);
     AVG_ASSERT(pVisualInfo);
 #endif
@@ -113,7 +113,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
         xWindow = createChildWindow(pSDLWMInfo, m_xDisplay, windowSize);
 #else
         Colormap colormap;
-        xWindow = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
+        xWindow = (EGLNativeWindowType)createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
 #endif
     }
 
@@ -135,12 +135,12 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
         XVisualInfo visTemplate, *results;
         visTemplate.screen = 0;
         int numVisuals;
-        results = XGetVisualInfo(m_xDisplay, VisualScreenMask,
+        results = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
                 &visTemplate, & numVisuals);
 
-        Pixmap pmp = XCreatePixmap(m_xDisplay, 
-                RootWindow(m_xDisplay, results[0].screen), 8, 8, results[0].depth);
-        m_Surface = eglCreatePixmapSurface(m_Display, m_Config, pmp, NULL);
+        Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay, 
+                RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8, results[0].depth);
+        m_Surface = eglCreatePixmapSurface(m_Display, m_Config, (EGLNativePixmapType)pmp, NULL);
 #endif
     }
     AVG_ASSERT(m_Surface);
