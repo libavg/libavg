@@ -851,7 +851,7 @@ class WidgetTestCase(AVGTestCase):
         root = self.loadEmptyScene()
 
         pwdPath = os.path.dirname(os.path.realpath(__file__))
-        mediaPath = os.path.join(pwdPath, "media/")
+        mediaPath = os.path.join(pwdPath, "media")
         skin = widget.Skin(os.path.join(pwdPath, "..", "python/data/SimpleSkin.xml"),
                 mediaPath)
         downBmpPath = skin.textButtonCfg[None]['downBmp'].getName()
