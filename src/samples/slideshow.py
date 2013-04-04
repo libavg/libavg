@@ -24,7 +24,8 @@
 #
 
 """
-Image slideshow example which shows all images found in the current working directory.
+Image slideshow example which shows all images found in the current working
+directory (default) or the one provided via the "app_image_dir" setting.
 
 Images are cross-faded and some random motion/scaling is applied while they're shown.
 This example also shows how to use libavg's BitmapManager to asynchronously load images
@@ -32,8 +33,7 @@ in background.
 """
 
 # TODO:
-# once gameapp supports custom cmdline options, add options for:
-#  * image directory
+# add app settings for:
 #  * show/transition intervals
 #  * max. move distance
 #  * sorted/shuffled show order (shuffled yet)
@@ -106,7 +106,7 @@ class Slide(avg.ImageNode):
 
 class Slideshow(app.MainScene):
     def onInit(self):
-        imgDir = os.getcwd()
+        imgDir = os.path.abspath(app.instance.settings.get('app_image_dir'))
         if not os.path.isdir(imgDir):
             avg.logger.error('Directory [%s] not found' % imgDir)
             exit(1)
@@ -146,5 +146,8 @@ class Slideshow(app.MainScene):
 
 
 if __name__ == '__main__':
-    app.App().run(Slideshow())
+    myApp = app.App()
+    myApp.settings.addOption(app.settings.Option('app_image_dir', '',
+            'The directory to scan for images'))
+    myApp.run(Slideshow())
 
