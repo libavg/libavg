@@ -31,6 +31,7 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/TextureMover.h"
 #include "../graphics/GLTexture.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../imaging/Camera.h"
 #include "../imaging/FWCamera.h"
@@ -91,7 +92,11 @@ CameraNode::CameraNode(const ArgList& args)
     }
     PixelFormat destPF;
     if (pixelFormatIsColored(camPF)) {
-        destPF = B8G8R8X8;
+        if (BitmapLoader::get()->isBlueFirst()) {
+            destPF = B8G8R8X8;
+        } else {
+            destPF = R8G8B8X8;
+        }
     } else {
         destPF = I8;
     }
