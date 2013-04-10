@@ -499,9 +499,6 @@ void V4LCamera::getCameraControls(int fd, CameraInfo* camInfo)
     }
 }
 
-
-
-
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
     // ignore -1 coming from default unbiased cameranode parameters
