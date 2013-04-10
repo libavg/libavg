@@ -439,6 +439,7 @@ CameraInfo* V4LCamera::getCameraInfos(int deviceNumber)
 void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
 {
     for (int i = 0;; i++) {
+//        cerr << i << endl;
         v4l2_fmtdesc fmtDesc;
         memset(&fmtDesc, 0, sizeof(fmtDesc));
         fmtDesc.index = i;
@@ -452,6 +453,12 @@ void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
         frmSizeEnum.index = 0;
         frmSizeEnum.pixel_format = fmtDesc.pixelformat;
         while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
+/*            fprintf(stdout, "  pixelformat  :%c%c%c%c\\n",
+                                fmtDesc.pixelformat & 0xFF,
+                                (fmtDesc.pixelformat >> 8) & 0xFF,
+                                (fmtDesc.pixelformat >> 16) & 0xFF, 
+                                (fmtDesc.pixelformat >> 24) & 0xFF);
+*/
             PixelFormat pixFormat = intToPixelFormat(fmtDesc.pixelformat);
             if (pixFormat != NO_PIXELFORMAT) {
                 v4l2_frmivalenum frmIvalEnum;
