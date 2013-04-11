@@ -29,8 +29,9 @@ namespace avg {
 
 using namespace std;
 
-FXNode::FXNode() 
+FXNode::FXNode(bool bSupportsGLES) 
     : m_Size(0, 0),
+      m_bSupportsGLES(bSupportsGLES),
       m_bDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -43,6 +44,7 @@ FXNode::~FXNode()
 
 void FXNode::connect()
 {
+    checkGLES();
     if (m_Size != IntPoint(0,0)) {
         m_pFilter = createFilter(m_Size);
     }
@@ -105,9 +107,9 @@ void FXNode::setDirty()
     m_bDirty = true;
 }
 
-void FXNode::errorIfGLES() const
+void FXNode::checkGLES() const
 {
-    if (GLContext::getCurrent()->isGLES()) {
+    if (!m_bSupportsGLES && GLContext::getCurrent()->isGLES()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "This effect is unsupported under OpenGL ES.");
     }
 }

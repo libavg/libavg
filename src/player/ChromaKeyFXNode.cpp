@@ -30,7 +30,7 @@ using namespace std;
 namespace avg {
 
 ChromaKeyFXNode::ChromaKeyFXNode() 
-    : FXNode(),
+    : FXNode(false),
       m_sColorName("00FF00"),
       m_Color(0, 255, 0),
       m_HTolerance(0.0),
@@ -40,7 +40,6 @@ ChromaKeyFXNode::ChromaKeyFXNode()
       m_Erosion(0),
       m_SpillThreshold(0.0)
 {
-    errorIfGLES();
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 

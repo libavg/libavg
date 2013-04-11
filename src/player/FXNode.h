@@ -32,7 +32,7 @@ namespace avg {
 
 class AVG_API FXNode {
 public:
-    FXNode();
+    FXNode(bool bSupportsGLES=true);
     virtual ~FXNode();
 
     virtual void connect();
@@ -52,14 +52,14 @@ protected:
     FBOPtr getFBO();
     void setDirty();
 
-    void errorIfGLES() const;
-
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size) = 0;
+    void checkGLES() const;
 
     IntPoint m_Size;
     GPUFilterPtr m_pFilter;
     
+    bool m_bSupportsGLES;
     bool m_bDirty;
 };
 
