@@ -186,6 +186,43 @@ Misc. Classes
         The logger is configurable through environment variables as well as c++ and python
         interfaces.
 
+        .. py:method:: log(message, category, severity)
+
+            Logs a message if category is active or severity is at least 
+            :py:const:`ERROR`.
+
+            :param category: 
+            
+                One of the categories listed above or custom category. Defaults to
+                :py:const:`APP`.
+
+            :param severity:
+                Onf of the severities listed above. Defaults to :py:const:`INFO`.
+
+            :param message: The log message string.
+
+        .. py:method:: critical(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: error(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: warning(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: info(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+        .. py:method:: debug(msg, category)
+
+            Shortcut to :py:meth:`log`, using the severity indicated by its name.
+
+
+
        **Categories:**
 
             :py:const:`NONE`
@@ -226,13 +263,6 @@ Misc. Classes
 
             :py:const:`DEBUG`
 
-
-        Log severities are similar to python's log levels.
-        Log severities (in declining order) are:
-
-        The log severity can be set using :envvar:`AVG_LOG_SEVERITY`.
-        By default, it is set to :py:const:`INFO`.
-
         .. code-block:: bash
 
             export AVG_LOG_SEVERITY=INFO
@@ -260,8 +290,7 @@ Misc. Classes
 
         .. py:method:: clearSinks()
         
-            TODO
-            
+            Remove all currently registered sinks, including the default stderr sink.
         .. py:method:: popCategories
 
             Pops the current set of categories from the internal stack, restoring
@@ -299,53 +328,30 @@ Misc. Classes
             
             To set severity levels programmatically, refer to (:py:meth:`setSeverity`)
             
-        .. py:method:: registerCategory(category, severity)
+        .. py:method:: registerCategory(name[, severity=defaultSeverity]) -> category
 
-            Todo
+            Register a custom category. :py:attr:`name` is the string that will show up
+            in the logs.
+
+            The given :py:attr:`severity` will be set. If no severit is given, the
+            currently default severity is used.
+
+            Usually you'd want to enable your category using :py:meth:`setCategories`
+            after registering them.
+
+            Returns the identifier of the category.
             
         .. py:method:: setSeverity(category, severity)
 
-            Todo
+            Sets a severity for a given category.
 
         .. py:method:: setDefaultSeverity(severity)
 
-            Todo
+            Sets the default severity of the logger.
 
-        .. py:method:: log(message, category, severity)
+            This is equivalent to setting :envvar:`AVG_LOG_SEVERITY`
 
-            Logs a message if category is active or severity is at least 
-            :py:const:`ERROR`.
-
-            :param category: 
-            
-                One of the categories listed above or custom category. Defaults to
-                :py:const:`APP`.
-
-            :param severity:
-                Onf of the severities listed above. Defaults to :py:const:`INFO`.
-
-            :param message: The log message string.
-
-        .. py:method:: critical(msg, category)
-
-            Shortcut to :py:meth:`log`, using the severity indicated by its name.
-
-        .. py:method:: error(msg, category)
-
-            Shortcut to :py:meth:`log`, using the severity indicated by its name.
-
-        .. py:method:: warning(msg, category)
-
-            Shortcut to :py:meth:`log`, using the severity indicated by its name.
-
-        .. py:method:: info(msg, category)
-
-            Shortcut to :py:meth:`log`, using the severity indicated by its name.
-
-        .. py:method:: debug(msg, category)
-
-            Shortcut to :py:meth:`log`, using the severity indicated by its name.
-
+            The default severity is :py:const:`INFO`.
 
     .. autoclass:: Point2D([x,y=(0,0)])
 

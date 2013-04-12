@@ -40,7 +40,7 @@ PythonLogSink::~PythonLogSink()
 }
 
 void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
-        const string& category, severity_t severity, const UTF8String& sMsg)
+        const category_t& category, severity_t severity, const UTF8String& sMsg)
 {
     string sSeverity = boost::to_lower_copy(string(Logger::severityToString(severity)));
     PyObject * extra = PyDict_New();

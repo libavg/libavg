@@ -390,7 +390,7 @@ void exportMessages(boost::python::object& nodeClass, const std::string& sClassN
 void addPythonLogger(PyObject * self, PyObject * pyLogger);
 void removePythonLogger(PyObject * self, PyObject * pyLogger);
 
-void pytrace(PyObject * self, avg::category_t category, const avg::UTF8String& sMsg,
+void pytrace(PyObject * self, const avg::category_t& category, const avg::UTF8String& sMsg,
         avg::severity_t severity);
 
 #endif

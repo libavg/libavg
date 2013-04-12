@@ -71,58 +71,28 @@ class LoggerTestCase(AVGTestCase):
         logger.info(self.testMsg)
         self._assertNoMsg()
 
-    def testRegisterAndSetCategory(self):
-        snowmanCategory = logger.registerCategory(u'☃ Category')
-        logger.setCategories(logger.getCategories() | snowmanCategory)
-        logger.info(self.testMsg, snowmanCategory)
+    def testConfigureCategory(self):
+        snowmanCategory = logger.configureCategory(u'☃ Category')
+        logger.warning(self.testMsg, snowmanCategory)
         self._assertMsg()
 
-    def testSetNoCategories(self):
-        logger.setCategories(logger.NONE)
-        logger.info(self.testMsg)
-        self._assertNoMsg()
-    
-    def testSetCategories(self):
-        logger.setCategories(logger.APP)
-        logger.info(self.testMsg)
-        self._assertMsg()
-
-    def testSetSeverityAbove(self):
-        logger.setSeverity(logger.APP, logger.WARNING)
+    def testOmitCategory(self):
+        logger.configureCategory(logger.Category.APP, logger.Severity.CRITICAL)
         logger.info(self.testMsg)
         self._assertNoMsg()
 
-    def testSetSeverity(self):
-        logger.setSeverity(logger.APP, logger.INFO)
+    def testLogCategory(self):
+        logger.configureCategory(logger.Category.APP, logger.Severity.INFO)
         logger.info(self.testMsg)
         self._assertMsg()
-
-    def testSetDefaultSeverity1(self):
-        logger.setDefaultSeverity(logger.DEBUG)
-        snowmanCategory = logger.registerCategory(u'☃ Category')
-        logger.setCategories(logger.getCategories() | snowmanCategory)
-        logger.debug(self.testMsg, snowmanCategory)
-        self._assertMsg()
-
-    def testSetDefaultSeverity2(self):
-        logger.setDefaultSeverity(logger.INFO)
-        snowmanCategory = logger.registerCategory(u'☃ Category')
-        logger.setCategories(logger.getCategories() | snowmanCategory)
-        logger.debug(self.testMsg, snowmanCategory)
-        self._assertNoMsg()
-
 
 def loggerTestSuite(tests):
     availableTests = (
             "testAddSink",
             "testClearSinks",
             "testRemoveSink",
-            "testRegisterAndSetCategory",
-            "testSetNoCategories",
-            "testSetCategories",
-            "testSetSeverityAbove",
-            "testSetSeverity",
-            "testSetDefaultSeverity1",
-            "testSetDefaultSeverity2",
+            "testConfigureCategory",
+            "testOmitCategory",
+            "testLogCategory",
             )
     return createAVGTestSuite(availableTests, LoggerTestCase, tests)

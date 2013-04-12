@@ -941,45 +941,43 @@ public:
         Logger *logger = Logger::get();
         {
             std::cerr.rdbuf(buffer.rdbuf());
-            string msg("Test log message");
-            AVG_TRACE(Logger::category::NONE, Logger::severity::INFO, msg);
+                string msg("Test log message");
+                AVG_TRACE(Logger::category::NONE, Logger::severity::WARNING, msg);
             std::cerr.rdbuf(sbuf);
-            TEST(buffer.str().find(msg) != string::npos);
+                TEST(buffer.str().find(msg) != string::npos);
+            buffer.str(string());
+
+            std::cerr.rdbuf(buffer.rdbuf());
+                AVG_TRACE(Logger::category::NONE, Logger::severity::DEBUG, msg);
+            std::cerr.rdbuf(sbuf);
+            std::cout << buffer.str();
+                TEST(buffer.str().find(msg) == string::npos);
             buffer.str(string());
         }
         {
             std::cerr.rdbuf(buffer.rdbuf());
-            int CUSTOM_CAT = logger->registerCategory("CUSTOM_CAT 1");
-            int cats = logger->getCategories();
-            logger->setCategories(cats | logger->stringToCategory("CUSTOM_CAT 1"));
-            string msg("CUSTOM_CAT LOG");
-            AVG_TRACE(CUSTOM_CAT, Logger::severity::INFO, msg);
+                category_t CUSTOM_CAT = logger->configureCategory("CUSTOM_CAT 1");
+                string msg("CUSTOM_CAT LOG");
+                AVG_TRACE(CUSTOM_CAT, Logger::severity::WARNING, msg);
             std::cerr.rdbuf(sbuf);
-            TEST(buffer.str().find(msg) != string::npos);
+                TEST(buffer.str().find(msg) != string::npos);
             buffer.str(string());
         }
         {
             std::cerr.rdbuf(buffer.rdbuf());
-            int CUSTOM_CAT = logger->registerCategory("CUSTOM_CAT 1",
-                    Logger::severity::CRITICAL);
-            int cats = logger->getCategories();
-            logger->setCategories(cats | logger->stringToCategory("CUSTOM_CAT 1"));
-            string msg_info("CUSTOM_CAT LOG INFO");
-            AVG_TRACE(CUSTOM_CAT, Logger::severity::INFO, msg_info);
-            TEST(buffer.str().find(msg_info) == string::npos);
-            buffer.str(string());
-            string msg_critical("CUSTOM_CAT LOG CRITICAL");
-            AVG_TRACE(CUSTOM_CAT, Logger::severity::CRITICAL, msg_critical);
+                category_t CUSTOM_CAT = logger->configureCategory("CUSTOM_CAT 1",
+                        Logger::severity::CRITICAL);
+                string msg_info("CUSTOM_CAT LOG INFO");
+                AVG_TRACE(CUSTOM_CAT, Logger::severity::WARNING, msg_info);
             std::cerr.rdbuf(sbuf);
+                TEST(buffer.str().find(msg_info) == string::npos);
             buffer.str(string());
-        }
-        {
+
             std::cerr.rdbuf(buffer.rdbuf());
-            logger->setSeverity(Logger::category::NONE, Logger::severity::WARNING);
-            string msg("Invisible");
-            AVG_LOG_INFO(msg);
+                string msg_critical("CUSTOM_CAT LOG CRITICAL");
+                AVG_TRACE(CUSTOM_CAT, Logger::severity::CRITICAL, msg_critical);
             std::cerr.rdbuf(sbuf);
-            TEST(buffer.str().find(msg) == string::npos);
+                TEST(buffer.str().find(msg_critical) != string::npos);
             buffer.str(string());
         }
     }
