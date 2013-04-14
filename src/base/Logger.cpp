@@ -65,7 +65,7 @@ namespace {
     Logger* s_pLogger = 0;
     boost::mutex s_logMutex;
     boost::mutex s_sinkMutex;
-    boost::mutex s_severityMutex;
+    boost::mutex s_removeStdSinkMutex;
 }
 
 boost::mutex Logger::m_CategoryMutex;
@@ -113,9 +113,10 @@ Logger::Logger()
     }
 
     string sDummy;
-    bool bEnvUseStdErr = getEnv("AVG_LOG_OMIT_STDERR", sDummy);
-    if (!bEnvUseStdErr) {
-        addLogSink(LogSinkPtr(new StandardLogSink));
+    bool bEnvOmitStdErr = getEnv("AVG_LOG_OMIT_STDERR", sDummy);
+    if (!bEnvOmitStdErr) {
+        m_pStdSink = LogSinkPtr(new StandardLogSink);
+        addLogSink(m_pStdSink);
     }
 }
 
@@ -139,14 +140,18 @@ void Logger::removeLogSink(const LogSinkPtr& logSink)
     }
 }
 
-void Logger::clearLogSinks(){
-    boost::mutex::scoped_lock lock(s_sinkMutex);
-    m_pSinks.clear();
+void Logger::removeStdLogSink()
+{
+    boost::mutex::scoped_lock lock(s_removeStdSinkMutex);
+    if ( m_pStdSink.get()) {
+        removeLogSink(m_pStdSink);
+        m_pStdSink = LogSinkPtr();
+    }
 }
 
 category_t Logger::configureCategory(category_t category, severity_t severity)
 {
-    boost::mutex::scoped_lock lock(s_severityMutex);
+    boost::mutex::scoped_lock lock(m_CategoryMutex);
     severity = (severity == Logger::severity::NOT_SET) ? m_Severity : severity;
     UTF8String sCategory = boost::to_upper_copy(string(category));
     CatToSeverityMap::iterator it;

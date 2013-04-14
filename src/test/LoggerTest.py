@@ -40,10 +40,10 @@ class LoggerTestCase(AVGTestCase):
         self.pyLogger.propagate = False
         self.pyLogger.level = logging.DEBUG
         logger.addSink(self.pyLogger)
+        logger.removeStdLogSink()
 
     def tearDown(self):
         self.pyLogger.removeHandler(self.hdlr)
-        logger.clearSinks()
 
     def _assertMsg(self):
         self.stream.flush()
@@ -54,17 +54,6 @@ class LoggerTestCase(AVGTestCase):
         self.stream.flush()
         self.assert_(self.stream.getvalue().decode('utf8').find(self.testMsg) == -1)
         self.stream.close()
-
-    def testAddSink(self):
-        logger.clearSinks()
-        logger.addSink(self.pyLogger)
-        logger.info(self.testMsg)
-        self._assertMsg()
-
-    def testClearSinks(self):
-        logger.clearSinks()
-        logger.info(self.testMsg)
-        self._assertNoMsg()
 
     def testRemoveSink(self):
         logger.removeSink(self.pyLogger)
@@ -86,10 +75,9 @@ class LoggerTestCase(AVGTestCase):
         logger.info(self.testMsg)
         self._assertMsg()
 
+
 def loggerTestSuite(tests):
     availableTests = (
-            "testAddSink",
-            "testClearSinks",
             "testRemoveSink",
             "testConfigureCategory",
             "testOmitCategory",

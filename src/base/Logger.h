@@ -78,7 +78,7 @@ public:
 
     void addLogSink(const LogSinkPtr& logSink);
     void removeLogSink(const LogSinkPtr& logSink);
-    void clearLogSinks();
+    void removeStdLogSink();
 
     category_t configureCategory(category_t category,
             severity_t severity=severity::NOT_SET);
@@ -100,6 +100,7 @@ public:
             severity_t severity=severity::INFO) const;
 
     inline bool shouldLog(const category_t& category, severity_t severity) const {
+        boost::mutex::scoped_lock lock(m_CategoryMutex);
         CatToSeverityMap::const_iterator it;
         it = m_CategorySeverities.find(category);
         if(m_CategorySeverities.end() != it) {
@@ -115,6 +116,7 @@ private:
     void setupCategory();
 
     std::vector<LogSinkPtr> m_pSinks;
+    LogSinkPtr m_pStdSink;
     CatToSeverityMap m_CategorySeverities;
     severity_t m_Severity;
     static boost::mutex m_CategoryMutex;
