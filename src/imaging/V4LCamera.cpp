@@ -439,6 +439,7 @@ CameraInfo* V4LCamera::getCameraInfos(int deviceNumber)
 void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
 {
     for (int i = 0;; i++) {
+//        cerr << i << endl;
         v4l2_fmtdesc fmtDesc;
         memset(&fmtDesc, 0, sizeof(fmtDesc));
         fmtDesc.index = i;
@@ -452,6 +453,12 @@ void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
         frmSizeEnum.index = 0;
         frmSizeEnum.pixel_format = fmtDesc.pixelformat;
         while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
+/*            fprintf(stdout, "  pixelformat  :%c%c%c%c\\n",
+                                fmtDesc.pixelformat & 0xFF,
+                                (fmtDesc.pixelformat >> 8) & 0xFF,
+                                (fmtDesc.pixelformat >> 16) & 0xFF, 
+                                (fmtDesc.pixelformat >> 24) & 0xFF);
+*/
             PixelFormat pixFormat = intToPixelFormat(fmtDesc.pixelformat);
             if (pixFormat != NO_PIXELFORMAT) {
                 v4l2_frmivalenum frmIvalEnum;
@@ -498,9 +505,6 @@ void V4LCamera::getCameraControls(int fd, CameraInfo* camInfo)
         camInfo->addControl(camControl);
     }
 }
-
-
-
 
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
@@ -608,16 +612,24 @@ void V4LCamera::initDevice()
     }
 
     CLEAR(StreamParam);
-
     StreamParam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    StreamParam.parm.capture.timeperframe.numerator = 1;
-    StreamParam.parm.capture.timeperframe.denominator = (int)getFrameRate();
-    rc = xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam);
-    if (getFrameRate() != StreamParam.parm.capture.timeperframe.denominator || rc == -1) {
-        throw(Exception(AVG_ERR_CAMERA_NONFATAL,
-                string("Unable to set V4L camera framerate: '")
-                +strerror(errno)
-                +"'. Try using avg_showcamera.py --list to find out what the device supports."));
+    rc = xioctl(m_Fd, VIDIOC_G_PARM, &StreamParam);
+
+    if(StreamParam.parm.capture.capability == V4L2_CAP_TIMEPERFRAME) {
+        CLEAR(StreamParam);
+
+        StreamParam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        StreamParam.parm.capture.timeperframe.numerator = 1;
+        StreamParam.parm.capture.timeperframe.denominator = (int)getFrameRate();
+        rc = xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam);
+        if (getFrameRate() != StreamParam.parm.capture.timeperframe.denominator ||
+                rc == -1) 
+        {
+            throw(Exception(AVG_ERR_CAMERA_NONFATAL,
+                        string("Unable to set V4L camera framerate: '")
+                        +strerror(errno)
+                        +"'. Try using avg_showcamera.py --list to find out what the device supports."));
+        }
     }
 
     initMMap();

@@ -579,7 +579,7 @@ Misc. Classes
 
         .. py:method:: makeDiagram(imageFName, [showMethods=False])
 
-            Dumps a graph of the state machine to an image file using dot. graphvis must
+            Dumps a graph of the state machine to an image file using dot. graphviz must
             be installed and in the path for this to work. Very useful for debugging. If
             :py:attr:`showMethods` is true, names of enter, leave and transition
             methods are included in the diagram.

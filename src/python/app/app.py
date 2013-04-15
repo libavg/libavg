@@ -84,7 +84,7 @@ class MainScene(libavg.avg.DivNode):
 class AppSettings(settings.Settings):
     DEFAULTS = [
             Option('app_resolution', '640x480'),
-            Option('app_window_size', '640x480'),
+            Option('app_window_size', ''),
             Option('app_fullscreen', 'false'),
             Option('app_show_cursor', 'true'),
             Option('app_rotation', 'normal'),
@@ -334,6 +334,8 @@ class App(object):
         rotation = self.settings.get('app_rotation').lower()
         resolution = self.settings.getpoint2d('app_resolution')
         windowSize = self.settings.getpoint2d('app_window_size')
+        if windowSize == '':
+            windowSize = resolution
 
         if rotation in ('left', 'right'):
             resolution = Point2D(resolution.y, resolution.x)

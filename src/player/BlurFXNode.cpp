@@ -31,10 +31,9 @@ using namespace std;
 namespace avg {
 
 BlurFXNode::BlurFXNode(float radius) 
-    : FXNode(),
+    : FXNode(false),
       m_StdDev(radius)
 {
-    errorIfGLES();
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 

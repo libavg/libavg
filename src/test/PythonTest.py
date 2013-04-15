@@ -183,7 +183,7 @@ class PythonTestCase(AVGTestCase):
         machine.addState('B', {'C': None, 'A': self.btoa})
         machine.addState('C', {'A': None})
 
-        imageFName = AVGTestCase.imageResultDirectory + "/stateMachineGraphVis.png"
+        imageFName = AVGTestCase.imageResultDirectory + "/stateMachineGraphViz.png"
         try:
             machine.makeDiagram(imageFName)
         except RuntimeError:
