@@ -333,8 +333,10 @@ class App(object):
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
         resolution = self.settings.getpoint2d('app_resolution')
-        windowSize = self.settings.getpoint2d('app_window_size')
-        if windowSize == '':
+        windowSizeStr = self.settings.get('app_window_size')
+        if windowSizeStr != '':
+            windowSize = self.settings.getpoint2d('app_window_size')
+        else:
             windowSize = resolution
 
         if rotation in ('left', 'right'):

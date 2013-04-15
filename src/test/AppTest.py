@@ -49,14 +49,16 @@ class SuppressOutput(object):
 
 
 class TestApp(libavg.app.App):
+    CUSTOM_SETTINGS = {'app_resolution': '160x120', 'app_window_size': '160x120'}
+
     def testRun(self, onFrameHandlersList=[], mainScene=None, runtimeOptions={}):
         assert type(onFrameHandlersList) == list
         self.__onFrameHandlersList = onFrameHandlersList
         player.subscribe(player.ON_FRAME, self.__onFrame)
         player.setFramerate(10000)
         player.assumePixelsPerMM(1)
-        self.settings.set('app_resolution', '160x120')
-        self.settings.set('app_window_size', '160x120')
+        for k, v in self.CUSTOM_SETTINGS.iteritems():
+            self.settings.set(k, v)
 
         if mainScene is None:
             mainScene = libavg.app.MainScene()
@@ -169,6 +171,11 @@ class AppTestCase(testcase.AVGTestCase):
                 lambda: self.assert_(not player.isFullscreen()),
                 ])
 
+    def testAppDefaultWindowSize(self):
+        app = TestApp()
+        app.CUSTOM_SETTINGS = {'app_resolution': '160x120'}
+        app.testRun()
+
     def testAppFullscreen(self):
         app = TestApp()
         app.settings.set('app_fullscreen', 'true')
@@ -243,6 +250,7 @@ def appTestSuite(tests):
             'testAppRuntimeSettingsFail',
             'testAppInstance',
             'testAppResolution',
+            'testAppDefaultWindowSize',
             'testAppFullscreen',
             'testAppRotation',
             'testScreenshot',
