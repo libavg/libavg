@@ -338,7 +338,7 @@ class GunControl(avg.DivNode):
 
 ### application ###
 
-class FireBirds(app.MainScene):
+class FireBirds(app.MainDiv):
     ENEMY_SPAWN_TIMEOUT = 1000 # ms
 
     def onInit(self):

@@ -104,7 +104,7 @@ class Slide(avg.ImageNode):
                 lambda: self.notifySubscribers(Slide.HIDE_DONE, [self]))
 
 
-class Slideshow(app.MainScene):
+class Slideshow(app.MainDiv):
     def onInit(self):
         imgDir = os.path.abspath(app.instance.settings.get('app_image_dir'))
         if not os.path.isdir(imgDir):

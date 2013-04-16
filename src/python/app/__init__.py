@@ -24,7 +24,7 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 from app import App
-from app import MainScene
+from app import MainDiv
 from app import AppSettings
 
 instance = None

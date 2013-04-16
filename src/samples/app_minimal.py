@@ -10,5 +10,5 @@ $ ./app_minimal.py -h
 
 from libavg import app
 
-app.App().run(app.MainScene())
+app.App().run(app.MainDiv())
 

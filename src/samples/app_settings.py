@@ -12,7 +12,7 @@ import libavg
 from libavg import app
 from libavg.app.settings import Option
 
-class MyScene(app.MainScene):
+class MyScene(app.MainDiv):
     def onInit(self):
         libavg.WordsNode(text='foo_bar=%s app_resolution=%s' %
                 (app.instance.settings.get('foo_bar'),

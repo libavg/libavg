@@ -51,7 +51,7 @@ class SuppressOutput(object):
 class TestApp(libavg.app.App):
     CUSTOM_SETTINGS = {'app_resolution': '160x120', 'app_window_size': '160x120'}
 
-    def testRun(self, onFrameHandlersList=[], mainScene=None, runtimeOptions={}):
+    def testRun(self, onFrameHandlersList=[], mainDiv=None, runtimeOptions={}):
         assert type(onFrameHandlersList) == list
         self.__onFrameHandlersList = onFrameHandlersList
         player.subscribe(player.ON_FRAME, self.__onFrame)
@@ -60,10 +60,10 @@ class TestApp(libavg.app.App):
         for k, v in self.CUSTOM_SETTINGS.iteritems():
             self.settings.set(k, v)
 
-        if mainScene is None:
-            mainScene = libavg.app.MainScene()
+        if mainDiv is None:
+            mainDiv = libavg.app.MainDiv()
 
-        self.run(mainScene, **runtimeOptions)
+        self.run(mainDiv, **runtimeOptions)
 
     def __onFrame(self):
         if self.__onFrameHandlersList:

@@ -40,7 +40,7 @@ import keyboardmanager
 import flashmessage
 
 
-class MainScene(libavg.avg.DivNode):
+class MainDiv(libavg.avg.DivNode):
     '''
     Main construction block for libavg-based applications
     '''
@@ -48,7 +48,7 @@ class MainScene(libavg.avg.DivNode):
 
     def __init__(self, **kargs):
         assert not 'parent' in kargs
-        super(MainScene, self).__init__(**kargs)
+        super(MainDiv, self).__init__(**kargs)
         self.registerInstance(self, None)
 
     def onStartup(self):
@@ -117,7 +117,7 @@ class App(object):
 
         libavg.app.instance = self
 
-        self._mainScene = None
+        self._mainDiv = None
         self._appParent = None
         self._debugPanel = None
         self._overlayPanel = None
@@ -133,18 +133,18 @@ class App(object):
 
         #self._setupLogging()
 
-    def run(self, mainScene, **kargs):
+    def run(self, mainDiv, **kargs):
         '''
-        Start the application using the provided L{MainScene} instance
+        Start the application using the provided L{MainDiv} instance
 
-        @param mainScene: an instance of L{MainScene} (or derived class)
+        @param mainDiv: an instance of L{MainDiv} (or derived class)
         '''
-        assert isinstance(mainScene, MainScene)
-        self._mainScene = mainScene
+        assert isinstance(mainDiv, MainDiv)
+        self._mainDiv = mainDiv
 
         self._applySettingsExtenders(kargs)
 
-        mainScene.onStartup()
+        mainDiv.onStartup()
 
         self._setupResolution()
         self._setupRootNode()
@@ -152,7 +152,7 @@ class App(object):
         self._setupMultitouch()
         pos, size, angle = self._getAppParentGeometry()
         self._setupAppParent(pos, size, angle)
-        self._setupMainScene()
+        self._setupMainDiv()
         self._setupTopPanel()
 
         #self._setupDebugPanel()
@@ -167,7 +167,7 @@ class App(object):
 
         self._runLoop()
 
-        mainScene.onExit()
+        mainDiv.onExit()
         
         self._teardownKeyboardManager()
 
@@ -177,17 +177,17 @@ class App(object):
         libavg.player.stop()
 
     @property
-    def mainScene(self):
+    def mainDiv(self):
         '''
-        MainScene instance passed to method L{run}
+        MainDiv instance passed to method L{run}
         '''
-        return self._mainScene
+        return self._mainDiv
 
     @property
     def appParent(self):
         '''
         Base DivNode where the application sets up the control layers
-            (L{MainScene}, debug, messaging)
+            (L{MainDiv}, debug, messaging)
         '''
         return self._appParent
 
@@ -202,7 +202,7 @@ class App(object):
     @property
     def overlayPanel(self):
         '''
-        DivNode that stands on top of the MainScene
+        DivNode that stands on top of the MainDiv
         '''
         return self._overlayPanel
 
@@ -314,9 +314,9 @@ class App(object):
         self._appParent = libavg.avg.DivNode(parent=libavg.player.getRootNode(),
                 pos=pos, size=size, angle=angle)
 
-    def _setupMainScene(self):
-        self.appParent.appendChild(self.mainScene)
-        self.mainScene.size = self.appParent.size
+    def _setupMainDiv(self):
+        self.appParent.appendChild(self.mainDiv)
+        self.mainDiv.size = self.appParent.size
 
     def _setupTopPanel(self):
         self._overlayPanel = libavg.avg.DivNode(parent=self.appParent, id='overlayPanel')
@@ -393,12 +393,12 @@ class App(object):
         libavg.player.play()
 
     def _onInitInternal(self):
-        initFunc = getattr(self.mainScene, self.mainScene.INIT_FUNC)
+        initFunc = getattr(self.mainDiv, self.mainDiv.INIT_FUNC)
         initFunc()
         libavg.player.subscribe(libavg.player.ON_FRAME, self._onFrameInternal)
 
     def _onFrameInternal(self):
         now = time.time()
-        self.mainScene.onFrame(now - self.__lastFrameTimestamp)
+        self.mainDiv.onFrame(now - self.__lastFrameTimestamp)
         self.__lastFrameTimestamp = now
 

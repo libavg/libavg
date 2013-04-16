@@ -28,7 +28,7 @@ import libavg
 from libavg import app
 
 
-class MyScene(app.MainScene):
+class MyScene(app.MainDiv):
     def onInit(self):
         # This message is displayed immediately
         app.flashmessage.FlashMessage('helloworld! this message will disappear in a bit')
