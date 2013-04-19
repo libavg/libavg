@@ -74,7 +74,8 @@ CanvasPtr createMainCanvas(const boost::python::tuple &args,
     return extract<Player&>(args[0])().createMainCanvas(params);
 }
 
-class ScopeHelper{};
+class SeverityScopeHelper{};
+class CategoryScopeHelper{};
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -125,7 +126,7 @@ BOOST_PYTHON_MODULE(avg)
                          bp::arg("severity")=Logger::severity::INFO))
            ;
             {
-                scope severityScope = class_<ScopeHelper>("Severity");
+                scope severityScope = class_<SeverityScopeHelper>("Severity");
                 severityScope.attr("CRITICAL") = Logger::severity::CRITICAL;
                 severityScope.attr("ERROR") = Logger::severity::ERROR;
                 severityScope.attr("WARNING") = Logger::severity::WARNING;
@@ -133,7 +134,7 @@ BOOST_PYTHON_MODULE(avg)
                 severityScope.attr("DEBUG") = Logger::severity::DEBUG;
             }
             {
-                scope categoryScope = class_<ScopeHelper>("Category");
+                scope categoryScope = class_<CategoryScopeHelper>("Category");
                 categoryScope.attr("PROFILE") = Logger::category::PROFILE;
                 categoryScope.attr("PROFILE_VIDEO") = Logger::category::PROFILE_VIDEO;
                 categoryScope.attr("EVENTS") = Logger::category::EVENTS;
