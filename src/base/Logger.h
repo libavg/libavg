@@ -136,5 +136,9 @@ if (Logger::get()->shouldLog(category, severity)) { \
     AVG_TRACE(Logger::category::NONE, Logger::severity::DEBUG, sMsg); \
 }\
 
+#define AVG_LOG_CONFIG(sMsg){ \
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, sMsg); \
+}\
+
 }
 #endif

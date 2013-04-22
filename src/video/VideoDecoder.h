@@ -46,6 +46,7 @@ class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class VDPAUDecoder;
 class VAAPIDecoder;
+class OpenMaxDecoder;
 
 enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
@@ -105,6 +106,10 @@ class AVG_API VideoDecoder
         int getAStreamIndex() const;
         AVStream* getAudioStream() const;
 
+#ifdef AVG_ENABLE_RPI
+        OpenMaxDecoder* m_pOpenMaxDecoder;
+#endif
+        
     private:
         void initVideoSupport();
         int openCodec(int streamIndex, bool bUseHardwareAcceleration);
@@ -127,7 +132,6 @@ class AVG_API VideoDecoder
 #ifdef AVG_ENABLE_VAAPI
         VAAPIDecoder* m_pVAAPIDecoder;
 #endif
-        
         // Audio
         int m_AStreamIndex;
         AVStream * m_pAStream;

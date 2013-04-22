@@ -22,6 +22,10 @@ endif
 if USE_VAAPI_SRC
         ALL_H += VAAPIDecoder.h VAAPISurface.h
 endif
+if ENABLE_RPI
+        AM_CPPFLAGS += -I/opt/vc/src/hello_pi/libs/ilclient
+        ALL_H += OpenMaxDecoder.h
+endif
 
 TESTS=testvideo
 
@@ -42,13 +46,17 @@ endif
 if USE_VAAPI_SRC
         libvideo_la_SOURCES += VAAPIDecoder.cpp VAAPISurface.cpp
 endif
+if ENABLE_RPI
+        libvideo_la_SOURCES += OpenMaxDecoder.cpp
+        OMX_LIBS = -lopenmaxil -L/opt/vc/src/hello_pi/libs/ilclient -lilclient
+endif
 
-libvideo_la_LIBADD = @LIBVIDEO_LDADD@
+libvideo_la_LIBADD = @LIBVIDEO_LDADD@ $(OMX_LIBS)
 
 testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la ../base/triangulate/libtriangulate.la -ldl \
         @LIBXINERAMA_LDADD@ @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ @XML2_LIBS@ \
         @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBFFMPEG@ @LIBVA_LIBS@ $(X_LIBS) \
-        @GDK_PIXBUF_LIBS@
+        @GDK_PIXBUF_LIBS@ $(OMX_LIBS)
 

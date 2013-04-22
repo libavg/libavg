@@ -67,6 +67,10 @@ TESTS=testcalibrator testplayer
 
 EXTRA_DIST = SDLMain.h
 
+if ENABLE_RPI
+        OMX_LIBS = -lopenmaxil
+endif
+
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testcalibrator testplayer
 testplayer_SOURCES=testplayer.cpp
@@ -77,7 +81,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) $(XI2_2_LIBS) \
         @LIBFFMPEG@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) @GDK_PIXBUF_LIBS@ \
-        @FONTCONFIG_LIBS@ @LIBXINERAMA_LDADD@ @LIBVIDEO_LDADD@
+        @FONTCONFIG_LIBS@ @LIBXINERAMA_LDADD@ @LIBVIDEO_LDADD@ $(OMX_LIBS)
         
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 

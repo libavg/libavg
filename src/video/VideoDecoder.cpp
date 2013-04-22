@@ -26,6 +26,9 @@
 #ifdef AVG_ENABLE_VAAPI
 #include "VAAPIDecoder.h"
 #endif
+#ifdef AVG_ENABLE_RPI
+#include "OpenMaxDecoder.h"
+#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -62,6 +65,9 @@ VideoDecoder::VideoDecoder()
 #ifdef AVG_ENABLE_VAAPI
       m_pVAAPIDecoder(0),
 #endif
+#ifdef AVG_ENABLE_RPI
+      m_pOpenMaxDecoder(0),
+#endif
       m_AStreamIndex(-1),
       m_pAStream(0)
 {
@@ -82,6 +88,11 @@ VideoDecoder::~VideoDecoder()
 #ifdef AVG_ENABLE_VAAPI
     if (m_pVAAPIDecoder) {
         delete m_pVAAPIDecoder;
+    }
+#endif
+#ifdef AVG_ENABLE_RPI
+    if (m_pOpenMaxDecoder){
+        delete m_pOpenMaxDecoder;
     }
 #endif
     ObjectCounter::get()->decRef(&typeid(*this));
@@ -424,7 +435,7 @@ void VideoDecoder::initVideoSupport()
         av_register_all();
         s_bInitialized = true;
         // Tune libavcodec console spam.
-//        av_log_set_level(AV_LOG_DEBUG);
+        //av_log_set_level(AV_LOG_DEBUG);
 //        av_log_set_level(AV_LOG_QUIET);
     }
 }
@@ -459,6 +470,12 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
             m_pVAAPIDecoder = 0;
         }
     } 
+#endif
+#ifdef AVG_ENABLE_RPI
+        m_pOpenMaxDecoder = new OpenMaxDecoder();
+        pContext->opaque = m_pOpenMaxDecoder;
+        pCodec = m_pOpenMaxDecoder->openCodec(pContext);
+        AVG_LOG_CONFIG("OPENED OpenMaxDecoder");
 #endif
     if (!pCodec) {
         pCodec = avcodec_find_decoder(pContext->codec_id);
@@ -507,6 +524,9 @@ float VideoDecoder::getDuration(StreamSelect streamSelect) const
 PixelFormat VideoDecoder::calcPixelFormat(bool bUseYCbCr)
 {
     AVCodecContext const* pContext = getCodecContext();
+#ifdef AVG_ENABLE_RPI
+        return R8G8B8A8;
+#endif
     if (bUseYCbCr) {
         switch(pContext->pix_fmt) {
             case PIX_FMT_YUV420P:

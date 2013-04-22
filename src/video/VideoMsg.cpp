@@ -36,9 +36,11 @@ VideoMsg::VideoMsg()
 
 VideoMsg::~VideoMsg()
 {
+#ifdef AVG_ENABLE_VAAPI
     if (getType() == VAAPI_FRAME) {
         m_pSurface->decRef();
     }
+#endif
 }
 
 void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime)
@@ -58,10 +60,12 @@ void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime)
 
 void VideoMsg::setVAAPIFrame(VAAPISurface* pSurface, float frameTime)
 {
+#ifdef AVG_ENABLE_VAAPI
     setType(VAAPI_FRAME);
     pSurface->incRef();
     m_pSurface = pSurface;
     m_FrameTime = frameTime;
+#endif
 }
     
 void VideoMsg::setPacket(AVPacket* pPacket)

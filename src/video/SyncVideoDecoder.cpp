@@ -37,6 +37,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef AVG_ENABLE_RPI
+#include "OpenMaxDecoder.h"
+#endif
+
 using namespace std;
 using namespace boost;
 
@@ -150,6 +154,27 @@ void SyncVideoDecoder::setFPS(float fps)
     }
 }
 
+void SyncVideoDecoder::registerTextures(GLTexturePtr pTextures[4])
+{
+    #ifdef AVG_ENABLE_RPI
+    m_pOpenMaxDecoder->registerTexture(pTextures[0]);
+    #endif
+}
+
+FrameAvailableCode SyncVideoDecoder::renderToTexture(GLTexturePtr pTextures[4],
+        float timeWanted)
+{
+    #ifdef AVG_ENABLE_RPI
+        AVPacket * pPacket = m_pDemuxer->getPacket(getVStreamIndex());
+        if(pPacket){
+            m_pOpenMaxDecoder->renderToTexture(pPacket, pTextures, timeWanted);
+            av_free_packet(pPacket);
+            return FA_NEW_FRAME;
+        }
+    #else
+        return VideoDecoder::renderToTexture(pTextures, timeWanted);
+    #endif
+}
 static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
 

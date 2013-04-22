@@ -37,6 +37,7 @@ class AVG_API SyncVideoDecoder: public VideoDecoder
         virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
                 bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
+        virtual void registerTextures(GLTexturePtr pTextures[4]);
         virtual void close();
 
 
@@ -45,6 +46,8 @@ class AVG_API SyncVideoDecoder: public VideoDecoder
         virtual float getCurTime() const;
         virtual float getFPS() const;
         virtual void setFPS(float fps);
+        virtual FrameAvailableCode renderToTexture(GLTexturePtr pTextures[4],
+                float timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted);
         virtual void throwAwayFrame(float timeWanted);

@@ -153,7 +153,7 @@ AC_ARG_ENABLE(rpi,
 
 if test "$enable_rpi" = yes; then
     CPPFLAGS="$CPPFLAGS -I/opt/vc/include -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/interface/vcos/pthreads"
-    LDFLAGS="$LDFLAGS -L/opt/vc/lib"
+    LDFLAGS="$LDFLAGS -L/opt/vc/lib -L/opt/vc/src/hello_pi/libs/ilclient"
     AC_DEFINE(AVG_ENABLE_RPI, 1, [Build on RaspberryPi])
     AM_CONDITIONAL(ENABLE_RPI, true)
     if test "$enable_egl" = no; then
