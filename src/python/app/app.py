@@ -87,7 +87,7 @@ class App(object):
     libavg-based application class
     '''
 
-    def __init__(self, settingsInstance=None):
+    def __init__(self):
         import libavg.app
 
         if libavg.app.instance is not None:
@@ -105,10 +105,7 @@ class App(object):
 
         self.__lastFrameTimestamp = 0
 
-        if settingsInstance is None:
-            self._setupSettings()
-        else:
-            self._settings = settingsInstance
+        self._setupSettings()
 
     def run(self, mainDiv, **kargs):
         '''
