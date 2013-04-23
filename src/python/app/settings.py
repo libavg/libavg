@@ -118,7 +118,7 @@ class ArgvExtender(object):
 
             for option in [option for option in optionsList if option.key in keys]:
                 cliKey = '--%s' % option.key.replace('_', '-').lower()
-                currentValue = option.value
+                currentValue = option.value if option.value else '<undefined>'
 
                 help = '[Default: %s]' % currentValue
 
