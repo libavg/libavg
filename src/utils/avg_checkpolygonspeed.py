@@ -129,11 +129,9 @@ if options.numPoints < 10:
 elif options.numPoints % 2 != 0:
     options.numPoints -= 1
 
-log = avg.logger
+avg.logger.configureCategory(avg.logger.Category.CONFIG, avg.logger.Severity.INFO)
 if options.profile:
-    log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
-else:
-    log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
+    avg.logger.configureCategory(avg.logger.Category.PROFILE, avg.logger.Severity.INFO)
 
 SpeedApp.start(resolution=(800,600))
 

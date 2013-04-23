@@ -13,35 +13,40 @@ hdlr.setFormatter(formatter)
 pyLogger = logging.getLogger(__name__)
 pyLogger.addHandler(hdlr)
 pyLogger.propagate = False
+pyLogger.level = logging.DEBUG
 
 
 class LoggingApp(AVGApp):
     def init(self):
         # Add the python logger to libavgs logger as a message sink
+        avg.logger.clearSinks()
         avg.logger.addSink(pyLogger)
 
-        avg.logger.log("Custom Info level message",avg.logger.APP, avg.logger.INFO)
+        avg.logger.debug("Hidden, unless AVG_LOG_CATEGORIES configured with APP:DEBUG")
 
-        avg.logger.debug("Debug level message, with APP Category")
+        avg.logger.configureCategory(avg.logger.Category.APP, avg.logger.Severity.INFO)
+        avg.logger.log("Custom Info level message", avg.logger.Category.APP,
+                avg.logger.Severity.INFO)
+
         avg.logger.info("Info level message, with APP Category")
         avg.logger.warning("Warn level message, with APP Category")
 
         #Remove the logSink, no message should be logged now, if run with
         #AVG_LOG_OMIT_STDERR=1
-        avg.logger.removeSink(logging.getLogger("MY_APP"))
+        #avg.logger.removeSink(logging.getLogger("MY_APP"))
 
         avg.logger.error("std::err - Error")
         avg.logger.critical("std::err - Critical")
         avg.logger.log("std::err - Log")
 
         #Register custom log category
-        CUSTOM_LOG_CAT = avg.logger.registerCategory("My Custom Category")
-
-        #Enable custom log category
-        currentCats = avg.logger.getCategories()
-        avg.logger.setCategories(currentCats | CUSTOM_LOG_CAT)
+        CUSTOM_LOG_CAT = avg.logger.configureCategory("My Custom Category",
+                avg.logger.Severity.INFO)
 
         #Log with custom log category
         avg.logger.log("Message with custom category", CUSTOM_LOG_CAT)
+        avg.logger.debug("Hidden message", CUSTOM_LOG_CAT)
+        avg.logger.configureCategory(CUSTOM_LOG_CAT, avg.logger.Severity.DEBUG)
+        avg.logger.debug("This will show up", CUSTOM_LOG_CAT)
 
-LoggingApp.start(resolution=(40, 40))
+LoggingApp.start(resolution=(140, 140))

@@ -74,6 +74,8 @@ CanvasPtr createMainCanvas(const boost::python::tuple &args,
     return extract<Player&>(args[0])().createMainCanvas(params);
 }
 
+class SeverityScopeHelper{};
+class CategoryScopeHelper{};
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -94,53 +96,60 @@ BOOST_PYTHON_MODULE(avg)
 
         def("pointInPolygon", pointInPolygon);
         def("validateXml", validateXml);
-        
+
         class_<MessageID>("MessageID", no_init)
             .def("__repr__", &MessageID::getRepr)
         ;
 
-        class_<Logger>("Logger", no_init)
-            .def("addSink", addPythonLogger)
-            .def("removeSink", removePythonLogger)
-            .def("registerCategory", &Logger::registerCategory)
-            .def("getCategories", &Logger::getCategories)
-            .def("setCategories", &Logger::setCategories)
-            .def("pushCategories", &Logger::pushCategories)
-            .def("popCategories", &Logger::popCategories)
-            .def("trace", pytrace,
-                    (bp::arg("severity")=Logger::severity::INFO))
-            .def("debug", &Logger::logDebug,
-                    (bp::arg("category")=Logger::category::APP))
-            .def("info", &Logger::logInfo,
-                    (bp::arg("category")=Logger::category::APP))
-            .def("warning", &Logger::logWarning,
-                    (bp::arg("category")=Logger::category::APP))
-            .def("error", &Logger::logError,
-                    (bp::arg("category")=Logger::category::APP))
-            .def("critical", &Logger::logCritical,
-                    (bp::arg("category")=Logger::category::APP))
-            .def("log", &Logger::log,
-                    (bp::arg("category")=Logger::category::APP,
-                     bp::arg("severity")=Logger::severity::INFO))
-            .def_readonly("NONE", &Logger::category::NONE)
-            .def_readonly("PROFILE", &Logger::category::PROFILE)
-            .def_readonly("PROFILE_VIDEO", &Logger::category::PROFILE_VIDEO)
-            .def_readonly("EVENTS", &Logger::category::EVENTS)
-            .def_readonly("CONFIG", &Logger::category::CONFIG)
-            .def_readonly("MEMORY", &Logger::category::MEMORY)
-            .def_readonly("APP", &Logger::category::APP)
-            .def_readonly("PLUGIN", &Logger::category::PLUGIN)
-            .def_readonly("PLAYER", &Logger::category::PLAYER)
-            .def_readonly("SHADER", &Logger::category::SHADER)
-            .def_readonly("DEPRECATION", &Logger::category::DEPRECATION)
-            //TODO: Should separate category and severity on python severity too
-            .def_readonly("CRITICAL", &Logger::severity::CRITICAL)
-            .def_readonly("ERROR", &Logger::severity::ERROR)
-            .def_readonly("WARNING", &Logger::severity::WARNING)
-            .def_readonly("INFO", &Logger::severity::INFO)
-            .def_readonly("DEBUG", &Logger::severity::DEBUG)
-        ;
-        scope().attr("logger") = Logger::get();
+        {
+           scope loggerScope = class_<Logger, boost::noncopyable>("Logger", no_init)
+                .def("addSink", addPythonLogger)
+                .def("removeSink", removePythonLogger)
+                .def("removeStdLogSink", &Logger::removeStdLogSink)
+                .def("configureCategory", &Logger::configureCategory,
+                        (bp::arg("severity")=Logger::severity::NOT_SET))
+                .def("getCategories", &Logger::getCategories)
+                .def("trace", pytrace,
+                        (bp::arg("severity")=Logger::severity::INFO))
+                .def("debug", &Logger::logDebug,
+                        (bp::arg("category")=Logger::category::APP))
+                .def("info", &Logger::logInfo,
+                        (bp::arg("category")=Logger::category::APP))
+                .def("warning", &Logger::logWarning,
+                        (bp::arg("category")=Logger::category::APP))
+                .def("error", &Logger::logError,
+                        (bp::arg("category")=Logger::category::APP))
+                .def("critical", &Logger::logCritical,
+                        (bp::arg("category")=Logger::category::APP))
+                .def("log", &Logger::log,
+                        (bp::arg("category")=Logger::category::APP,
+                         bp::arg("severity")=Logger::severity::INFO))
+           ;
+            {
+                scope severityScope = class_<SeverityScopeHelper>("Severity");
+                severityScope.attr("CRITICAL") = Logger::severity::CRITICAL;
+                severityScope.attr("ERROR") = Logger::severity::ERROR;
+                severityScope.attr("WARNING") = Logger::severity::WARNING;
+                severityScope.attr("INFO") = Logger::severity::INFO;
+                severityScope.attr("DEBUG") = Logger::severity::DEBUG;
+            }
+            {
+                scope categoryScope = class_<CategoryScopeHelper>("Category");
+                categoryScope.attr("PROFILE") = Logger::category::PROFILE;
+                categoryScope.attr("PROFILE_VIDEO") = Logger::category::PROFILE_VIDEO;
+                categoryScope.attr("EVENTS") = Logger::category::EVENTS;
+                categoryScope.attr("CONFIG") = Logger::category::CONFIG;
+                categoryScope.attr("MEMORY") = Logger::category::MEMORY;
+                categoryScope.attr("APP") = Logger::category::APP;
+                categoryScope.attr("PLUGIN") = Logger::category::PLUGIN;
+                categoryScope.attr("PLAYER") = Logger::category::PLAYER;
+                categoryScope.attr("SHADER") = Logger::category::SHADER;
+                categoryScope.attr("DEPRECATION") = Logger::category::DEPRECATION;
+                categoryScope.attr("NONE") = Logger::category::NONE;
+            }
+        }
+
+        scope().attr("logger") = boost::python::ptr(Logger::get());
 
         class_<ExportedObject, boost::shared_ptr<ExportedObject>, boost::noncopyable>
                 ("ExportedObject", no_init)

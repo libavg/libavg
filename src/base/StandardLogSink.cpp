@@ -40,7 +40,7 @@ StandardLogSink::~StandardLogSink()
 }
 
 void StandardLogSink::logMessage(const tm* pTime, unsigned millis,
-        const string& category, unsigned severity, const UTF8String& sMsg)
+        const category_t& category, severity_t severity, const UTF8String& sMsg)
 {
     char timeString[256];
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
