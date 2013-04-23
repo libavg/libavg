@@ -28,7 +28,6 @@
 from collections import defaultdict
 from collections import deque
 from math import cos
-import logging
 
 import libavg
 from libavg import avg
@@ -635,10 +634,6 @@ class DebugPanel(avg.DivNode):
                           handler=lambda: self.addWidget(FrametimeGraphWidget),
                           help="Frametime graph")
 
-        kbmgr.bindKeyDown(keystring='l',
-                          handler=lambda: self.addWidget(LoggerWidget),
-                          help="Logging")
-
         kbmgr.bindKeyDown(keystring='k',
                           handler=lambda: self.addWidget(KeyboardManagerBindingsShower),
                           help="kbmgrBindings")
@@ -665,7 +660,7 @@ class DebugPanel(avg.DivNode):
 
     def addWidget(self, widgetClass, *args, **kwargs):
         if widgetClass in self.bannedWidgetClasses:
-            logging.warning("You can't add the same widget twice")
+            libavg.logger.warning("You can't add the same widget twice")
             return
 
         widgetFrame = DebugWidgetFrame((self.width, DebugWidget.SLOT_HEIGHT), widgetClass)
@@ -677,7 +672,8 @@ class DebugPanel(avg.DivNode):
 
         if height > self.maxSize[1]:
             widgetFrame = None
-            logging.warning("No vertical space left.\nDelete a widget and try again")
+            libavg.logger.warning("No vertical space left. "
+                    "Delete a widget and try again")
             return False
 
         self.appendChild(widgetFrame)
