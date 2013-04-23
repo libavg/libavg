@@ -379,17 +379,6 @@ class ObjectDumpWidget(DebugWidget):
         self.tableContainer = None
 
 
-class LoggerWidget(ScrollableTextWidget):
-    def __init__(self, *args, **kwargs):
-        super(LoggerWidget, self).__init__(**kwargs)
-        self.registerInstance(self, None)
-
-        # self.__observer = loghelpers.ObserverHandler(self.__onLogMessageReceived)
-
-    def __onLogMessageReceived(self, text):
-        self.appendLine(text, False)
-
-
 class GraphWidget(DebugWidget):
     def __init__(self, title, graphType, valueSource, **kwargs):
         super(GraphWidget, self).__init__(**kwargs)
