@@ -32,11 +32,10 @@ import time
 import libavg
 from libavg import avg, Point2D
 
-#import loghelpers
 import settings
 from settings import Option
 import keyboardmanager
-#import debugpanel
+import debugpanel
 import flashmessage
 
 
@@ -133,9 +132,9 @@ class App(object):
         self._setupMainDiv()
         self._setupTopPanel()
 
-        #self._setupDebugPanel()
+        self._setupDebugPanel()
         self._setupKeyboardManager()
-        #self._setupDebuggingWidgets()
+        self._setupDebuggingWidgets()
         self._applyResolution()
         self._setupOnInit()
 
@@ -169,13 +168,13 @@ class App(object):
         '''
         return self._appParent
 
-#    @property
-#    def debugPanel(self):
-#        '''
-#        The instance of L{app.debugpanel.DebugPanel} that currently runs in the
-#            application
-#        '''
-#        return self._debugPanel
+    @property
+    def debugPanel(self):
+        '''
+        The instance of L{app.debugpanel.DebugPanel} that currently runs in the
+            application
+        '''
+        return self._debugPanel
 
     @property
     def overlayPanel(self):
@@ -317,14 +316,14 @@ class App(object):
     def _setupTopPanel(self):
         self._overlayPanel = libavg.avg.DivNode(parent=self.appParent, id='overlayPanel')
 
-#    def _setupDebugPanel(self):
-#        self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
-#                    size=self.appParent.size, id='debugPanel',
-#                    fontsize=self.settings.getfloat('app_panel_fontsize'))
+    def _setupDebugPanel(self):
+        self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
+                    size=self.appParent.size, id='debugPanel',
+                    fontsize=self.settings.getfloat('app_panel_fontsize'))
 
-#    def _setupDebuggingWidgets(self):
-#        self._debugPanel.addWidget(debugpanel.LoggerWidget)
-#        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
+    def _setupDebuggingWidgets(self):
+        self._debugPanel.addWidget(debugpanel.LoggerWidget)
+        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
 
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
@@ -360,11 +359,11 @@ class App(object):
 
     def _setupKeyboardManager(self):
         keyboardmanager.init()
-#        keyboardmanager.bindKeyDown(
-#                keystring='d',
-#                handler=self._debugPanel.toggleVisibility,
-#                help='Show/hide the debug panel',
-#                modifiers=libavg.avg.KEYMOD_CTRL)
+        keyboardmanager.bindKeyDown(
+                keystring='d',
+                handler=self._debugPanel.toggleVisibility,
+                help='Show/hide the debug panel',
+                modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keystring='m',
