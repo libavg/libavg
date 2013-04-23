@@ -94,9 +94,7 @@ class AppSettings(settings.Settings):
             Option('multitouch_driver', ''),
             Option('multitouch_tuio_port', ''),
             Option('multitouch_mtdev_device', ''),
-#            Option('logging_sink', 'libavg'),
-#            Option('logging_severity', 'INFO'),
-#            Option('logging_categories', ''),
+            Option('log_avg_categories', ''),
     ]
     
     def __init__(self, defaults=[]):
@@ -131,8 +129,6 @@ class App(object):
         else:
             self._settings = settingsInstance
 
-        #self._setupLogging()
-
     def run(self, mainDiv, **kargs):
         '''
         Start the application using the provided L{MainDiv} instance
@@ -143,6 +139,7 @@ class App(object):
         self._mainDiv = mainDiv
 
         self._applySettingsExtenders(kargs)
+        self._setupLogging()
 
         mainDiv.onStartup()
 
@@ -259,8 +256,13 @@ class App(object):
         self.settings.applyExtender(settings.ArgvExtender())
 
     def _setupLogging(self):
-        logLevel = self.settings.get('app_loglevel')
-        loghelpers.init(logLevel)
+        catMap = self.settings.get('log_avg_categories').strip()
+        if catMap:
+            for catPair in catMap.split(' '):
+                cat, strLevel = catPair.split(':')
+                level = getattr(avg.logger.Severity, strLevel)
+
+                libavg.avg.logger.configureCategory(cat, level)
 
     def _setupRootNode(self):
         libavg.player.loadString('''<?xml version="1.0"?>
