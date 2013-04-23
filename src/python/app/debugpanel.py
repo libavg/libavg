@@ -584,7 +584,7 @@ class DebugPanel(avg.DivNode):
         self.opacity = 0
         self.maxSize = self.size
         self.size = (self.size[0], 0)
-        self.bannedWidgetClasses = []
+        self.activeWidgetClasses = []
         self.__selectedWidget = None
 
         self.__touchVisOverlay = None
@@ -627,19 +627,20 @@ class DebugPanel(avg.DivNode):
 
     def setupKeys(self):
         kbmgr.bindKeyDown(keystring='m',
-                          handler=lambda: self.addWidget(MemoryGraphWidget),
+                          handler=lambda: self.toggleWidget(MemoryGraphWidget),
                           help="Memory graph")
 
         kbmgr.bindKeyDown(keystring='f',
-                          handler=lambda: self.addWidget(FrametimeGraphWidget),
+                          handler=lambda: self.toggleWidget(FrametimeGraphWidget),
                           help="Frametime graph")
 
         kbmgr.bindKeyDown(keystring='k',
-                          handler=lambda: self.addWidget(KeyboardManagerBindingsShower),
+                          handler=lambda: self.toggleWidget(
+                                KeyboardManagerBindingsShower),
                           help="kbmgrBindings")
 
         kbmgr.bindKeyDown(keystring='o',
-                          handler=lambda: self.addWidget(ObjectDumpWidget),
+                          handler=lambda: self.toggleWidget(ObjectDumpWidget),
                           help="Object dump")
 
         kbmgr.bindKeyDown(keystring='d',
@@ -658,8 +659,14 @@ class DebugPanel(avg.DivNode):
                           handler=self.selectPreviousWidget,
                           help="Select previous widget")
 
+    def toggleWidget(self, widgetClass, *args, **kwargs):
+        if widgetClass in self.activeWidgetClasses:
+            self.removeWidgetByClass(widgetClass)
+        else:
+            self.addWidget(widgetClass, *args, **kwargs)
+
     def addWidget(self, widgetClass, *args, **kwargs):
-        if widgetClass in self.bannedWidgetClasses:
+        if widgetClass in self.activeWidgetClasses:
             libavg.logger.warning("You can't add the same widget twice")
             return
 
@@ -692,8 +699,14 @@ class DebugPanel(avg.DivNode):
         self.reorderWidgets()
         if self.opacity != 0:
             widgetFrame.show()
-        self.bannedWidgetClasses.append(widgetClass)
+        self.activeWidgetClasses.append(widgetClass)
         self.updateWidgets()
+
+    def removeWidgetByClass(self, widgetClass):
+        for frame in self.__slots[:]:
+            if frame.widget.__class__ == widgetClass:
+                self.removeWidgetFrame(frame)
+                return
 
     def _heightChanged(self):
         height = 0
@@ -728,7 +741,7 @@ class DebugPanel(avg.DivNode):
 
     def removeWidgetFrame(self, widgetFrame):
         widget = widgetFrame.widget
-        self.bannedWidgetClasses.remove(widget.__class__)
+        self.activeWidgetClasses.remove(widget.__class__)
         for idx, slot in enumerate(self.__slots):
             if slot == widgetFrame:
                 widgetFrame.widget.kill()
