@@ -105,8 +105,11 @@ class Slide(avg.ImageNode):
 
 
 class Slideshow(app.MainDiv):
+    EXTRA_OPTIONS = [app.settings.Option('slideshow_image_dir', '',
+            'The directory to scan for images')]
+
     def onInit(self):
-        imgDir = os.path.abspath(app.instance.settings.get('app_image_dir'))
+        imgDir = os.path.abspath(app.instance.settings.get('slideshow_image_dir'))
         if not os.path.isdir(imgDir):
             avg.logger.error('Directory [%s] not found' % imgDir)
             exit(1)
@@ -146,8 +149,5 @@ class Slideshow(app.MainDiv):
 
 
 if __name__ == '__main__':
-    myApp = app.App()
-    myApp.settings.addOption(app.settings.Option('app_image_dir', '',
-            'The directory to scan for images'))
-    myApp.run(Slideshow())
+    app.App().run(Slideshow())
 
