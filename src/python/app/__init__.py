@@ -25,7 +25,6 @@
 
 from app import App
 from app import MainDiv
-from app import AppSettings
 
 instance = None
 

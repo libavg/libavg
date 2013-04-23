@@ -81,26 +81,6 @@ class MainDiv(libavg.avg.DivNode):
         pass
 
 
-class AppSettings(settings.Settings):
-    DEFAULTS = [
-            Option('app_resolution', '640x480'),
-            Option('app_window_size', ''),
-            Option('app_fullscreen', 'false'),
-            Option('app_show_cursor', 'true'),
-            Option('app_rotation', 'normal'),
-            Option('app_panel_fontsize', '10'),
-            Option('app_mouse_enabled', 'true'),
-            Option('multitouch_enabled', 'false'),
-            Option('multitouch_driver', ''),
-            Option('multitouch_tuio_port', ''),
-            Option('multitouch_mtdev_device', ''),
-            Option('log_avg_categories', ''),
-    ]
-    
-    def __init__(self, defaults=[]):
-        super(AppSettings, self).__init__(self.DEFAULTS + defaults)
-
-
 class App(object):
     '''
     libavg-based application class
@@ -249,7 +229,20 @@ class App(object):
                     parent=self.appParent)
 
     def _setupSettings(self):
-        self._settings = AppSettings()
+        self._settings = settings.Settings()
+        self._settings.addOption(Option('app_resolution', '640x480'))
+        self._settings.addOption(Option('app_window_size', ''))
+        self._settings.addOption(Option('app_fullscreen', 'false'))
+        self._settings.addOption(Option('app_show_cursor', 'true'))
+        self._settings.addOption(Option('app_rotation', 'normal'))
+        self._settings.addOption(Option('app_panel_fontsize', '10'))
+        self._settings.addOption(Option('app_mouse_enabled', 'true'))
+        self._settings.addOption(Option('multitouch_enabled', 'false'))
+        self._settings.addOption(Option('multitouch_driver', ''))
+        self._settings.addOption(Option('multitouch_tuio_port', ''))
+        self._settings.addOption(Option('multitouch_mtdev_device', ''))
+        self._settings.addOption(Option('log_avg_categories', ''))
+        
 
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
