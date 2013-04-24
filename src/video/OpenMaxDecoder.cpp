@@ -27,6 +27,7 @@
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/ScopeTimer.h"
 #include "../graphics/GLTexture.h"
 
 #include "OpenMaxDecoder.h"
@@ -140,8 +141,8 @@ void OpenMaxDecoder::checkILError(int err)
 void OpenMaxDecoder::registerTexture(GLTexturePtr pTexture)
 {
     EGLint imageAttributes[] = {
-            EGL_GL_TEXTURE_LEVEL_KHR, 0, // mip map level to reference
-            EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
+            EGL_GL_TEXTURE_LEVEL_KHR, 0,
+            EGL_IMAGE_PRESERVED_KHR, EGL_FALSE,
             EGL_NONE
     };
     EGLDisplay eglDisplay = eglGetCurrentDisplay();
@@ -162,14 +163,15 @@ void OpenMaxDecoder::fill_buffer_done_cb(COMPONENT_T *comp)
   checkOMXError(OMX_FillThisBuffer(ilclient_get_handle(m_pEglRenderer), m_pEglBuffer));
 }
 
+static ProfilingZoneID DecodePacketZone("OpenMaxDecoder: decodePacket");
 void OpenMaxDecoder::decodePacket(AVPacket* pPacket)
 {
+    ScopeTimer timer(DecodePacketZone);
     if(pPacket) {
         AVG_ASSERT(pPacket->data);
         if(!m_bPortSettingsChanged &&
-           ((ilclient_wait_for_event(m_pVideoDecoder, OMX_EventPortSettingsChanged, 131, 0, 0, 1,
-                   ILCLIENT_EVENT_ERROR | ILCLIENT_PARAMETER_CHANGED, 10000) == 0) ||
-            (ilclient_remove_event(m_pVideoDecoder, OMX_EventPortSettingsChanged, 131, 0, 0, 1) == 0)))
+            (ilclient_remove_event(m_pVideoDecoder, OMX_EventPortSettingsChanged,
+                    131, 0, 0, 1) == 0))
         {
             AVG_LOG_CONFIG("PORT SETTINGS CHANGE");
             m_bPortSettingsChanged = true;

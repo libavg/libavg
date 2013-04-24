@@ -161,9 +161,11 @@ void SyncVideoDecoder::registerTextures(GLTexturePtr pTextures[4])
     #endif
 }
 
+static ProfilingZoneID RenderToTextureProfilingZone("SyncVideoDecoder: renderToTexture");
 FrameAvailableCode SyncVideoDecoder::renderToTexture(GLTexturePtr pTextures[4],
         float timeWanted)
 {
+    ScopeTimer timer(RenderToTextureProfilingZone);
     #ifdef AVG_ENABLE_RPI
         AVPacket * pPacket = m_pDemuxer->getPacket(getVStreamIndex());
         if(pPacket){
