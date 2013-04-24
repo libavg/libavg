@@ -106,8 +106,8 @@ public:
         if(m_CategorySeverities.end() != it) {
             return it->second <= severity;
         } else {
-            logWarning("Category: " + category + " unknown", Logger::category::CONFIG);
-            return false;
+            string msg("Unknown category: " + category);
+            throw Exception(AVG_ERR_INVALID_ARGS, msg);
         }
     }
 
