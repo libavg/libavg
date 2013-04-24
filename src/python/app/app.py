@@ -228,6 +228,16 @@ class App(object):
             flashmessage.FlashMessage('Screenshot saved as %s' % filename,
                     parent=self.appParent)
 
+    def dumpTextObjectCount(self):
+        objects = libavg.player.getTestHelper().getObjectCount()
+        savedSeverity = libavg.logger.getCategories()[libavg.logger.Category.APP]
+        libavg.logger.configureCategory(libavg.logger.Category.APP,
+                libavg.logger.Severity.INFO)
+        for key, value in objects.iteritems():
+            libavg.logger.info('%-25s: %s' % (key, value))
+
+        libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)
+
     def _setupSettings(self):
         self._settings = settings.Settings()
         self._settings.addOption(Option('app_resolution', '640x480'))
@@ -322,7 +332,8 @@ class App(object):
                     fontsize=self.settings.getfloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
-        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
+        # self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
+        pass
 
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
@@ -375,6 +386,12 @@ class App(object):
                 keystring='p',
                 handler=self.takeScreenshot,
                 help='Take screenshot',
+                modifiers=libavg.avg.KEYMOD_CTRL)
+
+        keyboardmanager.bindKeyDown(
+                keystring='o',
+                handler=self.dumpTextObjectCount,
+                help='Dump objects count to the console',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
     def _teardownKeyboardManager(self):
