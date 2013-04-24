@@ -75,6 +75,9 @@ class LoggerTestCase(AVGTestCase):
         logger.info(self.testMsg)
         self._assertMsg()
 
+    def testUnknownCategoryWarning(self):
+        self.assertException(lambda: logger.error("Foo", "Bar"))
+
 
 def loggerTestSuite(tests):
     availableTests = (
@@ -82,5 +85,6 @@ def loggerTestSuite(tests):
             "testConfigureCategory",
             "testOmitCategory",
             "testLogCategory",
+            "testUnknownCategoryWarning",
             )
     return createAVGTestSuite(availableTests, LoggerTestCase, tests)
