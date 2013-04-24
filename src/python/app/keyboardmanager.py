@@ -40,6 +40,9 @@ from libavg import avg, player
 
 IGNORED_KEYMODS = avg.KEYMOD_NUM
 
+LOGCAT = avg.logger.configureCategory('KEYBOARDMANAGER',
+        avg.logger.Severity.WARNING)
+
 _KeyBinding = namedtuple('_KeyBinding',
         ['keystring', 'handler', 'help', 'modifiers', 'type'])
 
@@ -55,6 +58,7 @@ def init():
     '''
     player.subscribe(player.KEY_DOWN, _onKeyDown)
     player.subscribe(player.KEY_UP, _onKeyUp)
+    avg.logger.debug('Keyboardmanager initialized', LOGCAT)
 
 def bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE):
     '''
@@ -119,6 +123,8 @@ def disable():
     _isEnabled = False
 
 def _bindKey(keystring, handler, help, modifiers, type):
+    avg.logger.info('Binding key <%s> (mod:%s) to handler %s (%s)' % (keystring,
+            modifiers, handler, type), LOGCAT)
     _checkDuplicates(keystring, modifiers, type)
     keyBinding = _KeyBinding(keystring, handler, help, modifiers, type)
 
@@ -136,6 +142,8 @@ def _findAndRemoveKeybinding(keystring, modifiers, type, list):
                    break;
 
 def _unbindKey(keystring, modifiers, type):
+    avg.logger.info('Unbinding key <%s> (mod:%s) (%s)' % (keystring,
+            modifiers, type), LOGCAT)
     if modifiers != avg.KEYMOD_NONE:
         _findAndRemoveKeybinding(keystring, modifiers, type, _modifiedKeyBindings)
     else:
@@ -155,9 +163,13 @@ def _areMatchingModifiers(mod1, mod2):
     return mod1 == mod2 or mod1 & mod2
 
 def _processEvent(event, type):
+    avg.logger.debug('Processing event keystring=%s '
+            'modifiers=%s type=%s' % (event.keystring, event.modifiers, event.type),
+            LOGCAT)
     for keyBinding in _plainKeyBindings + _modifiedKeyBindings:
         if ((keyBinding.keystring, keyBinding.type) == (event.keystring, type) and
                 _areMatchingModifiers(event.modifiers, keyBinding.modifiers)):
+            avg.logger.debug('  Found keyBinding=%s' % (keyBinding,), LOGCAT)
             keyBinding.handler()
             return
 
