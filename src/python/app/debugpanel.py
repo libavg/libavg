@@ -38,7 +38,6 @@ from libavg.apphelpers import DebugTouchVisualization
 from libavg.apphelpers import TouchVisualizationOverlay as TouchVisOverlay
 
 
-# import loghelpers
 import keyboardmanager as kbmgr
 
 g_fontsize = 10
@@ -573,6 +572,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
 # TODO: better layout management
 class DebugPanel(avg.DivNode):
     MAX_OPACITY = 0.9
+    UNSENSITIVE_OPACITY = 0.6
 
     def __init__(self, parent=None, fontsize=10, **kwargs):
         super(DebugPanel, self).__init__(**kwargs)
@@ -595,7 +595,6 @@ class DebugPanel(avg.DivNode):
     def show(self):
         kbmgr.push()
         self.setupKeys()
-        self.sensitive = True
         for widgetFrame in self.__slots:
             if widgetFrame:
                 widgetFrame.show()
@@ -603,7 +602,6 @@ class DebugPanel(avg.DivNode):
 
     def hide(self):
         kbmgr.pop()
-        self.sensitive = False
         for widget in self.__slots:
             if widget:
                 widget.hide()
@@ -658,6 +656,21 @@ class DebugPanel(avg.DivNode):
         kbmgr.bindKeyDown(keystring='up',
                           handler=self.selectPreviousWidget,
                           help="Select previous widget")
+
+        kbmgr.bindKeyDown(keystring='left ctrl',
+                          handler=lambda: self.__setSensitivity(True),
+                          help="Set debug panel sensitive")
+
+        kbmgr.bindKeyUp(keystring='left ctrl',
+                          handler=lambda: self.__setSensitivity(False),
+                          help="Set debug panel unsensitive")
+
+    def __setSensitivity(self, sensitive):
+        self.sensitive = sensitive
+        if sensitive:
+            self.opacity = self.MAX_OPACITY
+        else:
+            self.opacity = self.UNSENSITIVE_OPACITY
 
     def toggleWidget(self, widgetClass, *args, **kwargs):
         if widgetClass in self.activeWidgetClasses:
