@@ -337,7 +337,12 @@ class App(object):
 
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
-        resolution = self.settings.getpoint2d('app_resolution')
+        resolutionStr = self.settings.get('app_resolution').lower()
+        if resolutionStr != '':
+            resolution = self.settings.getpoint2d('app_resolution')
+        else:
+            resolution = libavg.player.getScreenResolution()
+
         windowSizeStr = self.settings.get('app_window_size')
         if windowSizeStr != '':
             windowSize = self.settings.getpoint2d('app_window_size')
