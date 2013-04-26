@@ -328,12 +328,11 @@ class App(object):
 
     def _setupDebugPanel(self):
         self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
-                    size=self.appParent.size, id='debugPanel',
+                    size=self.appParent.size,
                     fontsize=self.settings.getfloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
-        # self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
-        pass
+        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
 
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()

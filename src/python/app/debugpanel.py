@@ -568,8 +568,6 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
         return modifiersStringsList
 
-
-# TODO: better layout management
 class DebugPanel(avg.DivNode):
     MAX_OPACITY = 0.9
     UNSENSITIVE_OPACITY = 0.6
@@ -577,41 +575,89 @@ class DebugPanel(avg.DivNode):
     def __init__(self, parent=None, fontsize=10, **kwargs):
         super(DebugPanel, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+        self.__panel = None
+        self.__callables = []
+        self.__fontsize = fontsize
+
+        self.active = False
+
+    def addWidget(self, widgetCls, *args, **kwargs):
+        callable_ = lambda: self.__panel.addWidget(widgetCls, *args, **kwargs)
+        if self.__panel:
+            callable_()
+        else:
+            self.__callables.append(callable_)
+
+    def hide(self):
+        kbmgr.pop()
+        self.active = False
+        if self.__panel:
+            self.__panel.hide()
+
+    def show(self):
+        self.active = True
+        kbmgr.push()
+        self._setupKeys()
+        if self.__panel:
+            self.__panel.show()
+        else:
+            self.__panel = _DebugPanel(parent=self, size=self.size, id='debugPanel',
+                    fontsize=self.__fontsize)
+            for callable_ in self.__callables:
+                callable_()
+
+    def toggleVisibility(self):
+        if self.active:
+            self.hide()
+        else:
+            self.show()
+
+    def _setupKeys(self):
+        kbmgr.bindKeyDown(keystring='left ctrl',
+                          handler=lambda: self.__setSensitivity(True),
+                          help="Set debug panel sensitive")
+
+        kbmgr.bindKeyUp(keystring='left ctrl',
+                          handler=lambda: self.__setSensitivity(False),
+                          help="Set debug panel unsensitive")
+
+    def __setSensitivity(self, sensitive):
+        self.sensitive = sensitive
+        if sensitive:
+            self.opacity = self.MAX_OPACITY
+        else:
+            self.opacity = self.UNSENSITIVE_OPACITY
+
+# TODO: better layout management
+class _DebugPanel(avg.DivNode):
+
+    def __init__(self, parent=None, fontsize=10, **kwargs):
+        super(_DebugPanel, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
 
         self.__slots = []
 
-        self.sensitive = False
-        self.opacity = 0
         self.maxSize = self.size
         self.size = (self.size[0], 0)
         self.activeWidgetClasses = []
         self.__selectedWidget = None
-
         self.__touchVisOverlay = None
 
         global g_fontsize
         g_fontsize = fontsize
 
+        self.show()
+
     def show(self):
-        kbmgr.push()
         self.setupKeys()
         for widgetFrame in self.__slots:
             if widgetFrame:
                 widgetFrame.show()
-        self.opacity = self.MAX_OPACITY
 
     def hide(self):
-        kbmgr.pop()
         for widget in self.__slots:
             if widget:
                 widget.hide()
-        self.opacity = 0
-
-    def toggleVisibility(self):
-        if self.opacity == 0:
-            self.show()
-        else:
-            self.hide()
 
     def toggleTouchVisualization(self):
         if self.__touchVisOverlay is None:
@@ -657,21 +703,6 @@ class DebugPanel(avg.DivNode):
                           handler=self.selectPreviousWidget,
                           help="Select previous widget")
 
-        kbmgr.bindKeyDown(keystring='left ctrl',
-                          handler=lambda: self.__setSensitivity(True),
-                          help="Set debug panel sensitive")
-
-        kbmgr.bindKeyUp(keystring='left ctrl',
-                          handler=lambda: self.__setSensitivity(False),
-                          help="Set debug panel unsensitive")
-
-    def __setSensitivity(self, sensitive):
-        self.sensitive = sensitive
-        if sensitive:
-            self.opacity = self.MAX_OPACITY
-        else:
-            self.opacity = self.UNSENSITIVE_OPACITY
-
     def toggleWidget(self, widgetClass, *args, **kwargs):
         if widgetClass in self.activeWidgetClasses:
             self.removeWidgetByClass(widgetClass)
@@ -710,8 +741,7 @@ class DebugPanel(avg.DivNode):
         widgetFrame.subscribe(widgetFrame.FRAME_HEIGHT_CHANGED, self._heightChanged)
 
         self.reorderWidgets()
-        if self.opacity != 0:
-            widgetFrame.show()
+        widgetFrame.show()
         self.activeWidgetClasses.append(widgetClass)
         self.updateWidgets()
 
