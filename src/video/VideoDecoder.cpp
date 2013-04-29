@@ -303,6 +303,19 @@ float VideoDecoder::getStreamFPS() const
     return float(av_q2d(m_pVStream->r_frame_rate));
 }
 
+void VideoDecoder::registerTextures(GLTexturePtr pTextures[4])
+{
+/*
+    if (getHWAccelUsed() == VA_VAAPI) {
+#ifdef AVG_ENABLE_VAAPI
+        VAAPIDecoder::registerTexture(pTextures[0]);
+#endif
+    }
+*/
+
+}
+
+
 FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
 {
     std::vector<BitmapPtr> pBmps;
@@ -339,6 +352,9 @@ void VideoDecoder::logConfig()
         case VA_VAAPI:
             sHWAccel = "VAAPI";
             break;
+        case VA_OMAX:
+            sHWAccel = "OPENMAX";
+            break;
         case VA_NONE:
             sHWAccel = "Off";
             break;
@@ -360,6 +376,10 @@ VideoAccelType VideoDecoder::getHWAccelSupported()
     if (VAAPIDecoder::isAvailable()) {
         return VA_VAAPI;
     }
+#endif
+#ifdef AVG_ENABLE_RPI
+    //TODO: isAvailable check
+    return VA_OMAX;
 #endif
     return VA_NONE;
 }
@@ -393,6 +413,11 @@ VideoAccelType VideoDecoder::getHWAccelUsed() const
 #ifdef AVG_ENABLE_VAAPI
         if (m_pVAAPIDecoder) {
             return VA_VAAPI;
+        }
+#endif
+#ifdef AVG_ENABLE_RPI
+        if ( m_pOpenMaxDecoder) {
+            return VA_OMAX;
         }
 #endif
     }
@@ -457,9 +482,9 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
             delete m_pVDPAUDecoder;
             m_pVDPAUDecoder = 0;
         }
-    } 
+    }
 #endif
-*/    
+*/
 #ifdef AVG_ENABLE_VAAPI
     if (!pCodec && bUseHardwareAcceleration) {
         m_pVAAPIDecoder = new VAAPIDecoder();
@@ -469,13 +494,17 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
             delete m_pVAAPIDecoder;
             m_pVAAPIDecoder = 0;
         }
-    } 
+    }
 #endif
+    AVG_LOG_CONFIG("About to open Codec: " << bUseHardwareAcceleration);
 #ifdef AVG_ENABLE_RPI
+    if (!pCodec && bUseHardwareAcceleration){
+        AVG_LOG_CONFIG("OPEN OpenMaxDecoder");
         m_pOpenMaxDecoder = new OpenMaxDecoder();
         pContext->opaque = m_pOpenMaxDecoder;
         pCodec = m_pOpenMaxDecoder->openCodec(pContext);
         AVG_LOG_CONFIG("OPENED OpenMaxDecoder");
+    }
 #endif
     if (!pCodec) {
         pCodec = avcodec_find_decoder(pContext->codec_id);

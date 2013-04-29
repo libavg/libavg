@@ -50,7 +50,8 @@ SyncVideoDecoder::SyncVideoDecoder()
     : m_pDemuxer(0),
       m_bFirstPacket(false),
       m_bUseStreamFPS(true),
-      m_FPS(0)
+      m_FPS(0),
+      VideoDecoder()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -64,8 +65,7 @@ void SyncVideoDecoder::open(const string& sFilename, bool bUseHardwareAccelerati
         bool bEnableSound)
 {
     m_bEOFPending = false;
-    VideoDecoder::open(sFilename, false, false);
-
+    VideoDecoder::open(sFilename, bUseHardwareAcceleration, false);
     if (getVStreamIndex() >= 0) {
         if (m_bUseStreamFPS) {
             m_FPS = getStreamFPS();
@@ -154,24 +154,21 @@ void SyncVideoDecoder::setFPS(float fps)
     }
 }
 
-void SyncVideoDecoder::registerTextures(GLTexturePtr pTextures[4])
-{
-    #ifdef AVG_ENABLE_RPI
-    m_pOpenMaxDecoder->registerTexture(pTextures[0]);
-    #endif
-}
-
 static ProfilingZoneID RenderToTextureProfilingZone("SyncVideoDecoder: renderToTexture");
 FrameAvailableCode SyncVideoDecoder::renderToTexture(GLTexturePtr pTextures[4],
         float timeWanted)
 {
     ScopeTimer timer(RenderToTextureProfilingZone);
     #ifdef AVG_ENABLE_RPI
-        AVPacket * pPacket = m_pDemuxer->getPacket(getVStreamIndex());
-        if(pPacket){
-            m_pOpenMaxDecoder->renderToTexture(pPacket, pTextures, timeWanted);
-            av_free_packet(pPacket);
-            return FA_NEW_FRAME;
+        if (m_pOpenMaxDecoder) {
+            AVPacket * pPacket = m_pDemuxer->getPacket(getVStreamIndex());
+            if(pPacket){
+                m_pOpenMaxDecoder->renderToTexture(pPacket, pTextures, timeWanted);
+                av_free_packet(pPacket);
+                return FA_NEW_FRAME;
+            }
+        } else {
+            return VideoDecoder::renderToTexture(pTextures, timeWanted);
         }
     #else
         return VideoDecoder::renderToTexture(pTextures, timeWanted);
@@ -222,11 +219,22 @@ bool SyncVideoDecoder::isEOF() const
     return m_pFrameDecoder->isEOF() && !m_bEOFPending;
 }
 
+void SyncVideoDecoder::registerTextures(GLTexturePtr pTextures[4])
+{
+    VideoDecoder::registerTextures(pTextures);
+    #ifdef AVG_ENABLE_RPI
+    if ( m_pOpenMaxDecoder) {
+        m_pOpenMaxDecoder->registerTexture(pTextures[0]);
+    }
+    #endif
+}
+
 FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
     float timePerFrame = 1.0f/m_FPS;
-    if (!m_bVideoSeekDone && timeWanted-m_pFrameDecoder->getCurTime() < 0.5f*timePerFrame)
+    if (!m_bVideoSeekDone &&
+        timeWanted - m_pFrameDecoder->getCurTime() < 0.5f*timePerFrame)
     {
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
@@ -234,7 +242,7 @@ FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame& frame, float time
         bool bInvalidFrame = true;
         while (bInvalidFrame && !isEOF()) {
             readFrame(frame);
-            bInvalidFrame = m_pFrameDecoder->getCurTime()-timeWanted < -0.5f*timePerFrame;
+            bInvalidFrame = m_pFrameDecoder->getCurTime() - timeWanted < -0.5f*timePerFrame;
         }
     }
     if (m_bVideoSeekDone) {

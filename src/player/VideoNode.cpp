@@ -36,8 +36,8 @@
 
 #include "../audio/AudioEngine.h"
 
+#include "../video/VideoDecoderFactory.h"
 #include "../video/AsyncVideoDecoder.h"
-#include "../video/SyncVideoDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "../video/VDPAUDecoder.h"
 #endif
@@ -97,11 +97,9 @@ VideoNode::VideoNode(const ArgList& args)
         throw Exception(AVG_ERR_INVALID_ARGS, 
                 "Can't set queue length for unthreaded videos because there is no decoder queue in this case.");
     }
-    if (m_bThreaded) {
-        m_pDecoder = new AsyncVideoDecoder(m_QueueLength);
-    } else {
-        m_pDecoder = new SyncVideoDecoder();
-    }
+    VideoDecoderFactory decoderFactory;
+    m_pDecoder = decoderFactory.get(m_bUseHardwareAcceleration, m_bThreaded,
+            m_QueueLength);
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }

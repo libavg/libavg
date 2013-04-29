@@ -30,7 +30,7 @@
 
 namespace avg {
     
-enum VideoAccelType {VA_NONE, VA_VDPAU, VA_VAAPI};
+enum VideoAccelType {VA_NONE, VA_VDPAU, VA_VAAPI, VA_OMAX};
 
 struct AVG_API VideoInfo
 {

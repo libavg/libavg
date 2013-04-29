@@ -151,6 +151,7 @@ void export_raster()
         .value("NO_ACCELERATION", VA_NONE)
         .value("VDPAU", VA_VDPAU)
         .value("VAAPI", VA_VAAPI)
+        .value("VAOMAX", VA_OMAX)
         .export_values()
     ;
 

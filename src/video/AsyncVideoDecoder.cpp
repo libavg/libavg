@@ -127,17 +127,6 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
     }
 }
 
-void AsyncVideoDecoder::registerTextures(GLTexturePtr pTextures[4])
-{
-/*
-    if (getHWAccelUsed() == VA_VAAPI) {
-#ifdef AVG_ENABLE_VAAPI
-        VAAPIDecoder::registerTexture(pTextures[0]);
-#endif
-    }
-*/
-}
-
 void AsyncVideoDecoder::deregisterTextures(GLTexturePtr pTextures[4])
 {
 /*
@@ -532,6 +521,7 @@ void AsyncVideoDecoder::handleVSeekMsg(VideoMsgPtr pMsg)
 #endif            
             break;
         case VideoMsg::VAAPI_FRAME:
+        case VideoMsg::OMAX_FRAME:
             break;
         case VideoMsg::END_OF_FILE:
             m_NumVSeeksDone = m_NumSeeksSent;

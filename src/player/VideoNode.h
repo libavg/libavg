@@ -39,8 +39,6 @@
 namespace avg {
 
 class VideoDecoder;
-class TextureMover;
-typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
 
 class AVG_API VideoNode: public RasterNode, IFrameEndListener
 {
