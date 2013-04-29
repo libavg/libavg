@@ -55,7 +55,7 @@ class AVG_API SyncVideoDecoder: public VideoDecoder
         virtual void seek(float destTime);
         virtual void loop();
         virtual bool isEOF() const;
-        
+
     private:
         FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
         void readFrame(AVFrame& frame);
@@ -64,7 +64,7 @@ class AVG_API SyncVideoDecoder: public VideoDecoder
         bool m_bVideoSeekDone;
 
         FFMpegDemuxer * m_pDemuxer;
-        
+
         bool m_bEOFPending;
         bool m_bFirstPacket;
 

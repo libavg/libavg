@@ -42,11 +42,7 @@ namespace avg {
 
 FFMpegFrameDecoder::FFMpegFrameDecoder(AVStream* pStream)
     : m_pSwsContext(0),
-      m_pStream(pStream),
-      m_bEOF(false),
-      m_StartTimestamp(-1),
-      m_LastFrameTime(-1),
-      m_bUseStreamFPS(true)
+      m_pStream(pStream)
 {
     m_TimeUnitsPerSecond = float(1.0/av_q2d(pStream->time_base));
     m_FPS = float(av_q2d(pStream->r_frame_rate));
@@ -213,16 +209,6 @@ void FFMpegFrameDecoder::handleSeek()
     }
 }
 
-float FFMpegFrameDecoder::getCurTime() const
-{
-    return m_LastFrameTime;
-}
-
-float FFMpegFrameDecoder::getFPS() const
-{
-    return m_FPS;
-}
-
 void FFMpegFrameDecoder::setFPS(float fps)
 {
     m_bUseStreamFPS = (fps == 0);
@@ -231,11 +217,6 @@ void FFMpegFrameDecoder::setFPS(float fps)
     } else {
         m_FPS = fps;
     }
-}
-
-bool FFMpegFrameDecoder::isEOF() const
-{
-    return m_bEOF;
 }
 
 float FFMpegFrameDecoder::getFrameTime(long long dts, bool bFrameAfterSeek)

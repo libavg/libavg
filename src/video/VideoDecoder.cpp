@@ -159,11 +159,11 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
                 break;
         }
     }
-    
+
     // Enable video stream demuxing
     if (m_VStreamIndex >= 0) {
         m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
-        
+
         m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
 
         int rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
@@ -570,7 +570,7 @@ PixelFormat VideoDecoder::calcPixelFormat(bool bUseYCbCr)
 #ifdef AVG_ENABLE_VAAPI
             case PIX_FMT_VAAPI_VLD:
                 return YCbCr420p;
-#endif            
+#endif
             case PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
             case PIX_FMT_YUVA420P:

@@ -19,42 +19,48 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FFMpegFrameDecoder_H_
-#define _FFMpegFrameDecoder_H_
-
-#include "../avgconfigwrapper.h"
-
-#include "../graphics/Bitmap.h"
-
-#include "WrapFFMpeg.h"
 #include "FrameDecoderBase.h"
 
 namespace avg {
 
-class AVG_API FFMpegFrameDecoder: public FrameDecoderBase
+FrameDecoderBase::FrameDecoderBase():
+    m_bEOF(false),
+    m_StartTimestamp(-1),
+    m_LastFrameTime(-1),
+    m_bUseStreamFPS(true)
 {
-    public:
-        FFMpegFrameDecoder(AVStream* pStream);
-        virtual ~FFMpegFrameDecoder();
-
-        bool decodePacket(AVPacket* pPacket, AVFrame& frame, bool bFrameAfterSeek);
-        bool decodeLastFrame(AVFrame& frame);
-        void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
-        void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride);
-
-        void handleSeek();
-
-        virtual void setFPS(float fps);
-
-    private:
-        float getFrameTime(long long dts, bool bFrameAfterSeek);
-
-        SwsContext * m_pSwsContext;
-        AVStream* m_pStream;
-};
-
-typedef boost::shared_ptr<FFMpegFrameDecoder> FFMpegFrameDecoderPtr;
 
 }
-#endif 
 
+FrameDecoderBase::~FrameDecoderBase()
+{
+
+}
+
+float FrameDecoderBase::getCurTime() const
+{
+    return m_LastFrameTime;
+}
+
+float FrameDecoderBase::getFPS() const
+{
+    return m_FPS;
+}
+
+void FrameDecoderBase::setFPS(float fps)
+{
+    m_FPS = fps;
+}
+
+bool FrameDecoderBase::isEOF() const
+{
+    return m_bEOF;
+}
+
+float FrameDecoderBase::getFrameTime(long long dts, bool bFrameAfterSeek)
+{
+    //TODO: getFrameTime
+    return 0;
+}
+
+}
