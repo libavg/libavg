@@ -73,15 +73,15 @@ class DebugWidgetFrame(avg.DivNode):
     def setup(self, widgetCls):
         self.__background = avg.RectNode(parent=self, opacity=0.8,
                                          fillcolor='000000', fillopacity=0.8)
-        self.__widget = widgetCls(parent=self, size=(self.width - self.BORDER * 2, 0),
-                                  pos=(self.BORDER, self.BORDER))
+        self.__widget = widgetCls(parent=self,
+                size=(max(0, self.width - self.BORDER * 2), 0),
+                pos=(self.BORDER, self.BORDER))
         self.__selectHighlight = avg.RectNode(parent=self, color="35C0CD",
-                                              strokewidth=self.BORDER, opacity=0.8,
-                                              pos=(self.BORDER / 2, self.BORDER / 2),
-                                              active=False, sensitive=False)
+                strokewidth=self.BORDER, opacity=0.8,
+                pos=(self.BORDER / 2, self.BORDER / 2), active=False, sensitive=False)
         self.__boundary = avg.RectNode(parent=self, sensitive=False)
         self.removeButton = TextButton(parent=self, size=(20, 20),
-                                       pos=(self.width - 40, 10), text="X")
+               pos=(self.width - 40, 10), text="X")
 
         self.publish(self.REMOVE_WIDGET_FRAME)
         self.publish(DebugWidgetFrame.FRAME_HEIGHT_CHANGED)
@@ -90,19 +90,19 @@ class DebugWidgetFrame(avg.DivNode):
         self.removeButton.subscribe(self.removeButton.CLICKED, self.remove)
         self.__widget.subscribe(widgetCls.WIDGET_HEIGHT_CHANGED,
                                 self.adjustWidgetHeight)
-
         self.__widget.update()
 
     def _onSizeChanged(self, size):
         self.__boundary.size = size
         self.__background.size = size
-        childSize = (size[0] - self.BORDER * 2, size[1] - self.BORDER * 2)
-        self.__selectHighlight.size = (size[0] - self.BORDER, size[1] - self.BORDER)
+        childSize = (max(0, size[0] - self.BORDER * 2), max(0, size[1] - self.BORDER * 2))
+        self.__selectHighlight.size = (max(0, size[0] - self.BORDER),
+                max(0, size[1] - self.BORDER))
         self.__widget.size = childSize
         self.__widget.syncSize(childSize)
 
     def adjustWidgetHeight(self, height):
-        self.size = (self.width, height + 2 * self.BORDER)
+        self.size = (max(0, self.width), height + 2 * self.BORDER)
         self.notifySubscribers(DebugWidgetFrame.FRAME_HEIGHT_CHANGED, [])
 
     def remove(self):
@@ -515,7 +515,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
         for modifiers, bindings in keyClasses.iteritems():
             label = 'Modifiers: %s' % (', '.join(self.__modifiersToList(modifiers)))
 
-            ticker = TickerNode(parent=self, size=(self.width, 0), label=label,
+            ticker = TickerNode(parent=self, size=(max(0, self.width), 0), label=label,
                                 content="")
 
             for binding in bindings:
@@ -524,7 +524,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
         if len(kbmgr._plainKeyBindingsStack) > 0:
             label = "Application Bindings without modifier"
-            ticker = TickerNode(parent=self, size=(self.width, 0), label=label,
+            ticker = TickerNode(parent=self, size=(max(0, self.width), 0), label=label,
                                 content="")
             for binding in kbmgr._plainKeyBindingsStack[-1]:
                 ticker.addContent(self.markupBinding(binding.keystring, binding.help))
@@ -714,7 +714,8 @@ class _DebugPanel(avg.DivNode):
             libavg.logger.warning("You can't add the same widget twice")
             return
 
-        widgetFrame = DebugWidgetFrame((self.width, DebugWidget.SLOT_HEIGHT), widgetClass)
+        widgetFrame = DebugWidgetFrame((max(0, self.width), DebugWidget.SLOT_HEIGHT),
+                widgetClass)
         height = 0
         for frame in self.__slots:
             if frame:
