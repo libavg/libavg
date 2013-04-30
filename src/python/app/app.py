@@ -233,8 +233,9 @@ class App(object):
         savedSeverity = libavg.logger.getCategories()[libavg.logger.Category.APP]
         libavg.logger.configureCategory(libavg.logger.Category.APP,
                 libavg.logger.Severity.INFO)
+        libavg.logger.info('Dumping objects count')
         for key, value in objects.iteritems():
-            libavg.logger.info('%-25s: %s' % (key, value))
+            libavg.logger.info('  %-25s: %s' % (key, value))
 
         libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)
 
