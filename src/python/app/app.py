@@ -145,7 +145,7 @@ class App(object):
         self._runLoop()
 
         mainDiv.onExit()
-        
+
         self._teardownKeyboardManager()
 
         return 0
@@ -328,7 +328,7 @@ class App(object):
 
     def _setupDebugPanel(self):
         self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
-                    size=self.appParent.size,
+                    size=self.appParent.size, id='debugPanel',
                     fontsize=self.settings.getfloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):

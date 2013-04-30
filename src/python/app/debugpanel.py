@@ -601,7 +601,7 @@ class DebugPanel(avg.DivNode):
         if self.__panel:
             self.__panel.show()
         else:
-            self.__panel = _DebugPanel(parent=self, size=self.size, id='debugPanel',
+            self.__panel = _DebugPanel(parent=self, size=self.size,
                     fontsize=self.__fontsize)
             for callable_ in self.__callables:
                 callable_()
