@@ -49,7 +49,17 @@ class Graph(avg.DivNode):
 
     def delete(self):
         def kill():
-            self.unlink()
+            self._textNode0.unlink(True)
+            self._textNode0 = None
+            self._textNode1.unlink(True)
+            self._textNode1 = None
+            self._maxLineNode.unlink(True)
+            self._maxLineNode = None
+            self._lineNode.unlink(True)
+            self._lineNode = None
+            self.__graphText.unlink(True)
+            self.__graphText = None
+            self.unlink(True)
         avg.LinearAnim(self, "opacity", 200, 1., 0., False, None, kill).start()
 
 

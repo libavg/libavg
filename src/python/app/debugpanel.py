@@ -55,6 +55,10 @@ PADDING_RIGHT = 5
 PADDING_TOP = 2
 PADDING_BOTTOM = 2
 
+def subscribe(publisher, msgID, callable_):
+    publisher.subscribe(msgID, callable_)
+    return lambda: publisher.unsubscribe(msgID, callable_)
+
 
 class DebugWidgetFrame(avg.DivNode):
 
@@ -65,10 +69,29 @@ class DebugWidgetFrame(avg.DivNode):
     def __init__(self, size, widgetCls, *args, **kwargs):
         super(DebugWidgetFrame, self).__init__(size=size, *args, **kwargs)
         self.registerInstance(self, None)
+        self._subscriptions = []
         self.setup(widgetCls)
-        self.subscribe(self.SIZE_CHANGED, self._onSizeChanged)
+        self._subscriptions.append(subscribe(self, self.SIZE_CHANGED,
+                self._onSizeChanged))
         self.size = size
         self._onSizeChanged(size)
+
+    def kill(self):
+        print "KILL WidgetFrame"
+        for unsubscribe in self._subscriptions:
+            unsubscribe()
+        self.__widget.kill()
+        self.__widget.unlink(True)
+        self.__widget = None
+        self.__background.unlink(True)
+        self.__background = None
+        self.__selectHighlight.unlink(True)
+        self.__selectHighlight = None
+        self.__boundary.unlink(True)
+        self.__boundary = None
+        self.__removeBtn.unlink(True)
+        self.__removeBtn = None
+        self.unlink(True)
 
     def setup(self, widgetCls):
         self.__background = avg.RectNode(parent=self, opacity=0.8,
@@ -80,16 +103,17 @@ class DebugWidgetFrame(avg.DivNode):
                 strokewidth=self.BORDER, opacity=0.8,
                 pos=(self.BORDER / 2, self.BORDER / 2), active=False, sensitive=False)
         self.__boundary = avg.RectNode(parent=self, sensitive=False)
-        self.removeButton = TextButton(parent=self, size=(20, 20),
-               pos=(self.width - 40, 10), text="X")
+        self.__removeBtn = TextButton(parent=self, size=(20, 20),
+                pos=(self.width - 40, 10), text="X")
 
         self.publish(self.REMOVE_WIDGET_FRAME)
         self.publish(DebugWidgetFrame.FRAME_HEIGHT_CHANGED)
 
-        self.subscribe(self.CURSOR_DOWN, self.toggleSelect)
-        self.removeButton.subscribe(self.removeButton.CLICKED, self.remove)
-        self.__widget.subscribe(widgetCls.WIDGET_HEIGHT_CHANGED,
-                                self.adjustWidgetHeight)
+        self._subscriptions.append(subscribe(self, self.CURSOR_DOWN, self.toggleSelect))
+        self._subscriptions.append(subscribe(self.__removeBtn, self.__removeBtn.CLICKED,
+                self.remove))
+        self._subscriptions.append(subscribe(self.__widget,
+            widgetCls.WIDGET_HEIGHT_CHANGED, self.adjustWidgetHeight))
         self.__widget.update()
 
     def _onSizeChanged(self, size):
@@ -405,6 +429,10 @@ class GraphWidget(DebugWidget):
         if self.__graph:
             self.__graph.active = False
 
+    def kill(self):
+        self.__graph.delete()
+        self.__graph = None
+
 
 class MemoryGraphWidget(GraphWidget):
     def __init__(self, **kwargs):
@@ -671,41 +699,38 @@ class _DebugPanel(avg.DivNode):
 
     def setupKeys(self):
         kbmgr.bindKeyDown(keystring='m',
-                          handler=lambda: self.toggleWidget(MemoryGraphWidget),
-                          help="Memory graph")
+                handler=lambda: self.toggleWidget(MemoryGraphWidget),
+                help="Memory graph")
 
         kbmgr.bindKeyDown(keystring='f',
-                          handler=lambda: self.toggleWidget(FrametimeGraphWidget),
-                          help="Frametime graph")
+                handler=lambda: self.toggleWidget(FrametimeGraphWidget),
+                help="Frametime graph")
 
         kbmgr.bindKeyDown(keystring='k',
-                          handler=lambda: self.toggleWidget(
-                                KeyboardManagerBindingsShower),
-                          help="kbmgrBindings")
+                handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
+                help="kbmgrBindings")
 
         kbmgr.bindKeyDown(keystring='o',
-                          handler=lambda: self.toggleWidget(ObjectDumpWidget),
-                          help="Object dump")
+                handler=lambda: self.toggleWidget(ObjectDumpWidget), help="Object dump")
 
-        kbmgr.bindKeyDown(keystring='d',
-                          handler=self.removeSelectedWidgetFrames,
-                          help="Delete widgets")
+        kbmgr.bindKeyDown(keystring='d', handler=self.removeSelectedWidgetFrames,
+                help="Delete widgets")
 
-        kbmgr.bindKeyDown(keystring='e',
-                          handler=self.toggleTouchVisualization,
-                          help="CURSOR Visualization")
+        kbmgr.bindKeyDown(keystring='e', handler=self.toggleTouchVisualization,
+                help="CURSOR Visualization")
 
-        kbmgr.bindKeyDown(keystring='down',
-                          handler=self.selectNextWidget,
-                          help="Select next widget")
+        kbmgr.bindKeyDown(keystring='down', handler=self.selectNextWidget,
+                help="Select next widget")
 
-        kbmgr.bindKeyDown(keystring='up',
-                          handler=self.selectPreviousWidget,
-                          help="Select previous widget")
+        kbmgr.bindKeyDown(keystring='up', handler=self.selectPreviousWidget,
+                help="Select previous widget")
+
+        kbmgr.bindKeyDown(keystring='w', handler=lambda: self.toggleWidget(DebugWidget),
+                help="Empty Widget")
 
     def toggleWidget(self, widgetClass, *args, **kwargs):
         if widgetClass in self.activeWidgetClasses:
-            self.removeWidgetByClass(widgetClass)
+            self._removeWidgetByClass(widgetClass)
         else:
             self.addWidget(widgetClass, *args, **kwargs)
 
@@ -723,6 +748,7 @@ class _DebugPanel(avg.DivNode):
         height += widgetFrame.height
 
         if height > self.maxSize[1]:
+            widgetFrame.kill()
             widgetFrame = None
             libavg.logger.warning("No vertical space left. "
                     "Delete a widget and try again")
@@ -746,7 +772,7 @@ class _DebugPanel(avg.DivNode):
         self.activeWidgetClasses.append(widgetClass)
         self.updateWidgets()
 
-    def removeWidgetByClass(self, widgetClass):
+    def _removeWidgetByClass(self, widgetClass):
         for frame in self.__slots[:]:
             if frame.widget.__class__ == widgetClass:
                 self.removeWidgetFrame(frame)
@@ -784,14 +810,15 @@ class _DebugPanel(avg.DivNode):
             self.selectWidget(self.__selectedWidget + 1)
 
     def removeWidgetFrame(self, widgetFrame):
-        widget = widgetFrame.widget
-        self.activeWidgetClasses.remove(widget.__class__)
+        widgetFrame.unsubscribe(widgetFrame.REMOVE_WIDGET_FRAME, self.removeWidgetFrame)
+        widgetFrame.unsubscribe(widgetFrame.FRAME_HEIGHT_CHANGED, self._heightChanged)
+        self.activeWidgetClasses.remove(widgetFrame.widget.__class__)
         for idx, slot in enumerate(self.__slots):
             if slot == widgetFrame:
-                widgetFrame.widget.kill()
-                widgetFrame.unlink(True)
-                widgetFrame = None
                 self.__slots[idx] = None
+                widgetFrame.kill()
+                widgetFrame = None
+                slot = None
                 break
         self.reorderWidgets()
         self.updateWidgets()
