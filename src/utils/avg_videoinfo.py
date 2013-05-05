@@ -130,7 +130,7 @@ class ConsoleOutputHandler(OutputHandler):
         self.__audioCodecLen = 5
 
         for filename in self._fileNameList:
-            self._node.href = str(filename)
+            self._node.href = filename
             self._node.play()
             self.__filenameLen = max(self.__filenameLen, len(filename))
             curLen = len(self._node.getVideoCodec())

@@ -132,7 +132,7 @@ class StateMachine(object):
         try:
             subprocess.call(["dot", "tmp.dot", "-Tpng", "-o"+fName])
         except OSError:
-            raise RuntimeError("dot executable not found. graphvis needs to be installed for StateMachine.makeDiagram to work.")
+            raise RuntimeError("dot executable not found. graphviz needs to be installed for StateMachine.makeDiagram to work.")
         os.remove("tmp.dot")
 
     def __getNiceFuncName(self, f):

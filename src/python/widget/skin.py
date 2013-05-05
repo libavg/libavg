@@ -29,7 +29,7 @@ class Skin:
 
     def __init__(self, skinXmlFName, mediaDir=""):
         global defaultMediaDir
-        self.__mediaDir = defaultMediaDir
+        self.__mediaDir = defaultMediaDir if mediaDir == "" else mediaDir
         schemaFName = defaultMediaDir+"skin.xsd"
         schemaString = open(schemaFName, "r").read()
         xmlString = open(skinXmlFName, "r").read()
@@ -119,7 +119,7 @@ class Skin:
                 kwargs[key] = eval(value)
             elif key in bmpArgNames.iterkeys():
                 argkey = bmpArgNames[key]
-                kwargs[argkey] = avg.Bitmap(self.__mediaDir+value)
+                kwargs[argkey] = avg.Bitmap(os.path.join(self.__mediaDir, value))
             elif key in fontArgNames:
                 kwargs[key] = self.fonts[value]
             else:

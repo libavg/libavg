@@ -196,6 +196,7 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
 
             .. py:method:: CHAR(char)
 
+
             Emitted whenever a character is generated. This is generally when a char key
             is released and takes into account shift/altgr status.
 
@@ -229,7 +230,54 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
             
                 Unicode string containing the keycodes when altgr is pressed.
     
-    
+   
+    .. autoclass:: MediaControl([duration=1000, time=0])
+
+        A composite control that incorporates a :py:class:`TimeSlider`, a play/pause 
+        button and text widgets that display the time. By itself, the 
+        :py:class:`MediaControl` is independent of a media node. The controlling
+        application is responsible for keeping track of media node and 
+        :py:class:`MediaControl` state and syncing the two.
+
+        **Messages:**
+        
+            .. py:method:: PLAY_CLICKED()
+
+            Emitted when the play/pause toggle is switched to play.
+
+            .. py:method:: PAUSE_CLICKED()
+
+            Emitted when the play/pause toggle is switched to pause.
+
+            .. py:method:: SEEK_PRESSED()
+
+            Emitted when the user starts dragging the seek thumb.
+
+            .. py:method:: SEEK_MOTION(curTime)
+
+            Emitted when the user moves the seek thumb.
+
+            .. py:method:: SEEK_RELEASED()
+
+            Emitted when the user releases the seek thumb.
+
+        .. py:attribute:: duration
+
+        Duration of the medium in milliseconds. 
+
+        .. py:attribute:: time
+
+        Current media time in milliseconds.
+
+        .. py:method:: play()
+
+        Switches to play mode by toggling the button.
+
+        .. py:method:: pause()
+
+        Switches to pause mode by toggling the button.
+
+
     .. autoclass:: Orientation()
 
         .. py:data:: HORIZONTAL
@@ -264,6 +312,10 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
 
             The string displayed on the button.
 
+
+    .. autoclass:: TimeSlider()
+
+        Works like a :py:class:`ProgressBar` with an additional slider thumb.
 
     .. autoclass:: ToggleButton(uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, enabled=True, checked=False])
 
