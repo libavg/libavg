@@ -485,7 +485,8 @@ void VideoNode::startDecoding()
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
-            AVG_LOG_WARNING(getID() + ": Can't set FPS if video contains audio. Ignored.");
+            AVG_LOG_WARNING(getID() + 
+                    ": Can't set FPS if video contains audio. Ignored.");
         } else {
             m_pDecoder->setFPS(m_FPS);
         }

@@ -77,7 +77,13 @@ void VAAPISurface::getYUVBmps(BitmapPtr pBmpY, BitmapPtr pBmpU, BitmapPtr pBmpV)
 
         status = vaSyncSurface(VAAPIDecoder::getDisplay(), m_SurfaceID);
         VAAPIDecoder::checkError(status, "vaSyncSurface");
-
+/*
+        VASurfaceStatus surfStatus;
+        status = vaQuerySurfaceStatus(VAAPIDecoder::getDisplay(), m_SurfaceID,
+                &surfStatus);
+        VAAPIDecoder::checkError(status, "vaQuerySurfaceStatus");
+        cerr << "Surface status: " << surfStatus << endl;
+*/
         status = vaGetImage(VAAPIDecoder::getDisplay(), m_SurfaceID, 
                 0, 0, m_Size.x, m_Size.y, m_pImage->image_id);
         VAAPIDecoder::checkError(status, "vaGetImage");
