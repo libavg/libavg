@@ -74,16 +74,6 @@ VideoDecoder::~VideoDecoder()
     if (m_pFormatContext) {
         close();
     }
-#ifdef AVG_ENABLE_VDPAU
-    if (m_pVDPAUDecoder) {
-        delete m_pVDPAUDecoder;
-    }
-#endif
-#ifdef AVG_ENABLE_VAAPI
-    if (m_pVAAPIDecoder) {
-        delete m_pVAAPIDecoder;
-    }
-#endif
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -245,6 +235,16 @@ void VideoDecoder::close()
         m_pFormatContext = 0;
 #endif
     }
+#ifdef AVG_ENABLE_VDPAU
+    if (m_pVDPAUDecoder) {
+        delete m_pVDPAUDecoder;
+    }
+#endif
+#ifdef AVG_ENABLE_VAAPI
+    if (m_pVAAPIDecoder) {
+        delete m_pVAAPIDecoder;
+    }
+#endif
     
     m_State = CLOSED;
 }
@@ -425,7 +425,7 @@ void VideoDecoder::initVideoSupport()
         s_bInitialized = true;
         // Tune libavcodec console spam.
 //        av_log_set_level(AV_LOG_DEBUG);
-//        av_log_set_level(AV_LOG_QUIET);
+        av_log_set_level(AV_LOG_QUIET);
     }
 }
 
@@ -473,6 +473,12 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 #endif
 
     if (rc < 0) {
+#ifdef AVG_ENABLE_VAAPI
+        if (m_pVAAPIDecoder) {
+            delete m_pVAAPIDecoder;
+            m_pVAAPIDecoder = 0;
+        }
+#endif
         return -1;
     }
     return 0;
