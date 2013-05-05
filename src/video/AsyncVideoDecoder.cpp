@@ -297,10 +297,10 @@ void AsyncVideoDecoder::setupDemuxer(vector<int> streamIndexes)
     m_pDemuxCmdQ = VideoDemuxerThread::CQueuePtr(new VideoDemuxerThread::CQueue());    
     for (unsigned i = 0; i < streamIndexes.size(); ++i) {
         VideoMsgQueuePtr pPacketQ(new VideoMsgQueue(PACKET_QUEUE_LENGTH));
-        m_PacketQs[i] = pPacketQ;
+        m_PacketQs[streamIndexes[i]] = pPacketQ;
     }
-    m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pDemuxCmdQ, getFormatContext(),
-            m_PacketQs));
+    m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pDemuxCmdQ,
+            getFormatContext(), m_PacketQs));
 }
 
 void AsyncVideoDecoder::deleteDemuxer()
