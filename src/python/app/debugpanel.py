@@ -681,6 +681,7 @@ class _DebugPanel(avg.DivNode):
         for widgetFrame in self.__slots:
             if widgetFrame:
                 widgetFrame.show()
+        self.updateWidgets()
 
     def hide(self):
         for widget in self.__slots:
@@ -769,8 +770,8 @@ class _DebugPanel(avg.DivNode):
 
         self.reorderWidgets()
         widgetFrame.show()
-        self.activeWidgetClasses.append(widgetClass)
         self.updateWidgets()
+        self.activeWidgetClasses.append(widgetClass)
 
     def _removeWidgetByClass(self, widgetClass):
         for frame in self.__slots[:]:
