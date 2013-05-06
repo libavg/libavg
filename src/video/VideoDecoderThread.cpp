@@ -80,8 +80,8 @@ bool VideoDecoderThread::work()
                 decodePacket(pMsg->getPacket());
                 break;
             case VideoMsg::END_OF_FILE:
-                handleEOF();
                 m_bProcessingLastFrames = true;
+                handleEOF();
                 break;
             case VideoMsg::SEEK_DONE:
                 handleSeekDone(pMsg);
