@@ -560,7 +560,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
         self._positionTickers()
 
     def markupBinding(self, keystring, help):
-        return '<span size="large"><b>%s</b></span>: %s' % (keystring, help)
+        return u'<span size="large"><b>%s</b></span>: %s' % (keystring, help)
 
     def _positionTickers(self):
         height = 0
