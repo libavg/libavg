@@ -69,29 +69,10 @@ class DebugWidgetFrame(avg.DivNode):
     def __init__(self, size, widgetCls, *args, **kwargs):
         super(DebugWidgetFrame, self).__init__(size=size, *args, **kwargs)
         self.registerInstance(self, None)
-        self._subscriptions = []
         self.setup(widgetCls)
-        self._subscriptions.append(subscribe(self, self.SIZE_CHANGED,
-                self._onSizeChanged))
+        self.subscribe(self.SIZE_CHANGED, self._onSizeChanged)
         self.size = size
         self._onSizeChanged(size)
-
-    def kill(self):
-        print "KILL WidgetFrame"
-        for unsubscribe in self._subscriptions:
-            unsubscribe()
-        self.__widget.kill()
-        self.__widget.unlink(True)
-        self.__widget = None
-        self.__background.unlink(True)
-        self.__background = None
-        self.__selectHighlight.unlink(True)
-        self.__selectHighlight = None
-        self.__boundary.unlink(True)
-        self.__boundary = None
-        self.__removeBtn.unlink(True)
-        self.__removeBtn = None
-        self.unlink(True)
 
     def setup(self, widgetCls):
         self.__background = avg.RectNode(parent=self, opacity=0.8,
@@ -103,17 +84,16 @@ class DebugWidgetFrame(avg.DivNode):
                 strokewidth=self.BORDER, opacity=0.8,
                 pos=(self.BORDER / 2, self.BORDER / 2), active=False, sensitive=False)
         self.__boundary = avg.RectNode(parent=self, sensitive=False)
-        self.__removeBtn = TextButton(parent=self, size=(20, 20),
+        removeBtn = TextButton(parent=self, size=(20, 20),
                 pos=(self.width - 40, 10), text="X")
 
         self.publish(self.REMOVE_WIDGET_FRAME)
         self.publish(DebugWidgetFrame.FRAME_HEIGHT_CHANGED)
 
-        self._subscriptions.append(subscribe(self, self.CURSOR_DOWN, self.toggleSelect))
-        self._subscriptions.append(subscribe(self.__removeBtn, self.__removeBtn.CLICKED,
-                self.remove))
-        self._subscriptions.append(subscribe(self.__widget,
-            widgetCls.WIDGET_HEIGHT_CHANGED, self.adjustWidgetHeight))
+        #self._subscriptions.append(subscribe(self, self.CURSOR_DOWN, self.toggleSelect))
+        removeBtn.subscribe(removeBtn.CLICKED, self.remove)
+        self.__widget.subscribe(self.__widget.WIDGET_HEIGHT_CHANGED,
+                self.adjustWidgetHeight)
         self.__widget.update()
 
     def _onSizeChanged(self, size):
@@ -359,10 +339,11 @@ class ObjectDumpWidget(DebugWidget):
         super(ObjectDumpWidget, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         self.tableContainer = Table(parent=self, size=(self.width, self.SLOT_HEIGHT))
-        self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
+        #self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
 
     def update(self):
         objDump = libavg.player.getTestHelper().getObjectCount()
+        """
         pos = (0, 0)
         for key in sorted(objDump.iterkeys()):
             val = objDump[key]
@@ -373,14 +354,19 @@ class ObjectDumpWidget(DebugWidget):
         height = len(objDump) * self.tableDivs[key].height
         if self.height != height:
             self.notifySubscribers(DebugWidget.WIDGET_HEIGHT_CHANGED, [height])
+        """
 
     def persistColumn(self):
+        pass
+        """
         objDump = libavg.player.getTestHelper().getObjectCount()
         for key, val in objDump.iteritems():
             self.tableDivs[key].insertValue(val)
+        """
 
     def syncSize(self, size):
-        self.tableContainer.size = (size[0], size[1] - (g_fontsize + 2))
+        #self.tableContainer.size = (size[0], size[1] - (g_fontsize + 2))
+        pass
 
     def onShow(self):
         self.intervalID = libavg.player.setInterval(1000, self.update)
@@ -389,16 +375,14 @@ class ObjectDumpWidget(DebugWidget):
                                     help="Persist live column to object dump table")
 
     def onHide(self):
-        libavg.player.clearInterval(self.intervalID)
-        kbmgr.unbindKeyDown(keystring='i')
+        self.kill()
 
     def kill(self):
-        self.onHide()
-        for divKey in self.tableDivs.keys():
-            self.tableDivs[divKey].unlink()
-            self.tableDivs[divKey] = None
-        self.tableContainer.unlink()
-        self.tableContainer = None
+        if self.intervalID:
+            libavg.player.clearInterval(self.intervalID)
+            self.intervalID = None
+        kbmgr.unbindKeyDown(keystring='i')
+
 
 
 class GraphWidget(DebugWidget):
@@ -428,10 +412,6 @@ class GraphWidget(DebugWidget):
     def onHide(self):
         if self.__graph:
             self.__graph.active = False
-
-    def kill(self):
-        self.__graph.delete()
-        self.__graph = None
 
 
 class MemoryGraphWidget(GraphWidget):
@@ -749,8 +729,6 @@ class _DebugPanel(avg.DivNode):
         height += widgetFrame.height
 
         if height > self.maxSize[1]:
-            widgetFrame.kill()
-            widgetFrame = None
             libavg.logger.warning("No vertical space left. "
                     "Delete a widget and try again")
             return False
@@ -774,7 +752,7 @@ class _DebugPanel(avg.DivNode):
         self.activeWidgetClasses.append(widgetClass)
 
     def _removeWidgetByClass(self, widgetClass):
-        for frame in self.__slots[:]:
+        for frame in self.__slots:
             if frame.widget.__class__ == widgetClass:
                 self.removeWidgetFrame(frame)
                 return
@@ -811,16 +789,13 @@ class _DebugPanel(avg.DivNode):
             self.selectWidget(self.__selectedWidget + 1)
 
     def removeWidgetFrame(self, widgetFrame):
-        widgetFrame.unsubscribe(widgetFrame.REMOVE_WIDGET_FRAME, self.removeWidgetFrame)
-        widgetFrame.unsubscribe(widgetFrame.FRAME_HEIGHT_CHANGED, self._heightChanged)
         self.activeWidgetClasses.remove(widgetFrame.widget.__class__)
         for idx, slot in enumerate(self.__slots):
             if slot == widgetFrame:
                 self.__slots[idx] = None
-                widgetFrame.kill()
-                widgetFrame = None
-                slot = None
                 break
+        widgetFrame.widget.kill()
+        widgetFrame.unlink(True)
         self.reorderWidgets()
         self.updateWidgets()
 

@@ -333,7 +333,8 @@ class App(object):
                     fontsize=self.settings.getfloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
-        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
+        #self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
+        pass
 
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
