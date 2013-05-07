@@ -747,7 +747,7 @@ class _DebugPanel(avg.DivNode):
 
     def _removeWidgetByClass(self, widgetClass):
         for frame in self.__slots:
-            if frame.widget.__class__ == widgetClass:
+            if frame and frame.widget.__class__ == widgetClass:
                 self.removeWidgetFrame(frame)
                 return
 
