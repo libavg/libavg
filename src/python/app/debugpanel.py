@@ -339,11 +339,10 @@ class ObjectDumpWidget(DebugWidget):
         super(ObjectDumpWidget, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         self.tableContainer = Table(parent=self, size=(self.width, self.SLOT_HEIGHT))
-        #self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
+        self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
 
     def update(self):
         objDump = libavg.player.getTestHelper().getObjectCount()
-        """
         pos = (0, 0)
         for key in sorted(objDump.iterkeys()):
             val = objDump[key]
@@ -354,19 +353,14 @@ class ObjectDumpWidget(DebugWidget):
         height = len(objDump) * self.tableDivs[key].height
         if self.height != height:
             self.notifySubscribers(DebugWidget.WIDGET_HEIGHT_CHANGED, [height])
-        """
 
     def persistColumn(self):
-        pass
-        """
         objDump = libavg.player.getTestHelper().getObjectCount()
         for key, val in objDump.iteritems():
             self.tableDivs[key].insertValue(val)
-        """
 
     def syncSize(self, size):
-        #self.tableContainer.size = (size[0], size[1] - (g_fontsize + 2))
-        pass
+        self.tableContainer.size = (size[0], size[1] - (g_fontsize + 2))
 
     def onShow(self):
         self.intervalID = libavg.player.setInterval(1000, self.update)
@@ -375,14 +369,14 @@ class ObjectDumpWidget(DebugWidget):
                                     help="Persist live column to object dump table")
 
     def onHide(self):
-        self.kill()
-
-    def kill(self):
         if self.intervalID:
             libavg.player.clearInterval(self.intervalID)
             self.intervalID = None
         kbmgr.unbindKeyDown(keystring='i')
 
+    def kill(self):
+        self.onHide()
+        self.tableDivs = None
 
 
 class GraphWidget(DebugWidget):
