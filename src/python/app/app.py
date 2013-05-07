@@ -252,7 +252,6 @@ class App(object):
         self._settings.addOption(Option('multitouch_tuio_port', ''))
         self._settings.addOption(Option('multitouch_mtdev_device', ''))
         self._settings.addOption(Option('log_avg_categories', ''))
-        
 
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
@@ -416,4 +415,3 @@ class App(object):
         now = time.time()
         self.mainDiv.onFrame(now - self.__lastFrameTimestamp)
         self.__lastFrameTimestamp = now
-
