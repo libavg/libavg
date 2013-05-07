@@ -407,6 +407,9 @@ class GraphWidget(DebugWidget):
         if self.__graph:
             self.__graph.active = False
 
+    def kill(self):
+        self.__graph.delete()
+
 
 class MemoryGraphWidget(GraphWidget):
     def __init__(self, **kwargs):
