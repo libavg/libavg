@@ -90,7 +90,7 @@ class DebugWidgetFrame(avg.DivNode):
         self.publish(self.REMOVE_WIDGET_FRAME)
         self.publish(DebugWidgetFrame.FRAME_HEIGHT_CHANGED)
 
-        #self._subscriptions.append(subscribe(self, self.CURSOR_DOWN, self.toggleSelect))
+        self.subscribe(self.CURSOR_DOWN, self.toggleSelect)
         removeBtn.subscribe(removeBtn.CLICKED, self.remove)
         self.__widget.subscribe(self.__widget.WIDGET_HEIGHT_CHANGED,
                 self.adjustWidgetHeight)
