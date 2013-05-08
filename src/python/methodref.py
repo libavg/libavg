@@ -67,10 +67,3 @@ class methodref(object):
         elif self._obj() is None:
             return None
         return new.instancemethod(self._func, self._obj(), self._clas)
-
-def callWeakRef(ref, *args, **kwargs):
-    func = ref()
-    if func is None:
-        return
-    else:
-        return func(*args, **kwargs)
