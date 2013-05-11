@@ -235,6 +235,8 @@ namespace glproc {
     extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32
+    extern AVG_API PFNWGLGETEXTENSIONSSTRINGARBPROC GetExtensionsStringARB;
+    extern AVG_API PFNWGLGETSWAPINTERVALEXTPROC GetSwapIntervalEXT;
     extern AVG_API PFNWGLSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
     void init();
