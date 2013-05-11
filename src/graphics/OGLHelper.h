@@ -32,6 +32,7 @@
     #include <GL/gl.h>
     #include <GL/glu.h>
     #include "GL/glext.h"
+    #include "GL/wglext.h"
 #else
     #ifdef AVG_ENABLE_EGL
         #define EGL_EGLEXT_PROTOTYPES
@@ -47,12 +48,6 @@
 #if defined(linux) && !defined(AVG_ENABLE_EGL)
         #define GLX_GLXEXT_PROTOTYPES
         #include "GL/glx.h"
-#endif
-
-#ifdef _WIN32
-    //TODO: Does anyone know where these are declared?
-    typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
-    typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 #endif
 
 #ifdef linux
@@ -240,7 +235,7 @@ namespace glproc {
     extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32
-    extern AVG_API PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
+    extern AVG_API PFNWGLSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
     void init();
 
