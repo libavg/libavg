@@ -131,6 +131,10 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
+    // This makes sure VAAPI support is initialized before the OpenGL context is.
+    // If this line is removed, Ubuntu 12.04 on AMD E350 will crash on termination.
+    VideoDecoder::getHWAccelSupported();
+
     // This "fixes" the default behaviour of SDL under x11, avoiding it
     // to report relative mouse coordinates when going fullscreen and
     // the mouse cursor is hidden (grabbed). So far libavg and apps based
