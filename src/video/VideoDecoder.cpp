@@ -52,8 +52,9 @@ bool VideoDecoder::s_bInitialized = false;
 mutex VideoDecoder::s_OpenMutex;
 
 
-VideoDecoder::VideoDecoder()
-    : m_State(CLOSED),
+VideoDecoder::VideoDecoder(bool bUseHardwareAcceleration)
+     :m_bUseHardwareAcceleration(bUseHardwareAcceleration),
+      m_State(CLOSED),
       m_pFormatContext(0),
       m_VStreamIndex(-1),
       m_pVStream(0),
@@ -98,8 +99,7 @@ VideoDecoder::~VideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+void VideoDecoder::open(const string& sFilename, bool bEnableSound)
 {
     mutex::scoped_lock lock(s_OpenMutex);
     int err;
@@ -166,7 +166,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
 
         m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
 
-        int rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
+        int rc = openCodec(m_VStreamIndex, m_bUseHardwareAcceleration);
         if (rc == -1) {
             m_VStreamIndex = -1;
             char szBuf[256];
@@ -472,7 +472,6 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 //    pContext->debug = 0x0001; // see avcodec.h
 
     AVCodec * pCodec = 0;
-/*
 #ifdef AVG_ENABLE_VDPAU
     if (bUseHardwareAcceleration) {
         m_pVDPAUDecoder = new VDPAUDecoder();
@@ -484,7 +483,7 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
         }
     }
 #endif
-*/
+
 #ifdef AVG_ENABLE_VAAPI
     if (!pCodec && bUseHardwareAcceleration) {
         m_pVAAPIDecoder = new VAAPIDecoder();

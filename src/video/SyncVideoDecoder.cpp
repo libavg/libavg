@@ -46,12 +46,12 @@ using namespace boost;
 
 namespace avg {
 
-SyncVideoDecoder::SyncVideoDecoder()
+SyncVideoDecoder::SyncVideoDecoder(bool bUseHardwareAcceleration)
     : m_pDemuxer(0),
       m_bFirstPacket(false),
       m_bUseStreamFPS(true),
       m_FPS(0),
-      VideoDecoder()
+      VideoDecoder(bUseHardwareAcceleration)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -61,11 +61,10 @@ SyncVideoDecoder::~SyncVideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void SyncVideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+void SyncVideoDecoder::open(const string& sFilename, bool bEnableSound)
 {
     m_bEOFPending = false;
-    VideoDecoder::open(sFilename, bUseHardwareAcceleration, false);
+    VideoDecoder::open(sFilename, false);
     if (getVStreamIndex() >= 0) {
         if (m_bUseStreamFPS) {
             m_FPS = getStreamFPS();

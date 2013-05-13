@@ -49,13 +49,14 @@ using namespace std;
 
 namespace avg {
 
-AsyncVideoDecoder::AsyncVideoDecoder(int queueLength)
+AsyncVideoDecoder::AsyncVideoDecoder(bool bUseHardwareAcceleration, int queueLength)
     : m_QueueLength(queueLength),
       m_pDemuxThread(0),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
       m_bUseStreamFPS(true),
-      m_FPS(0)
+      m_FPS(0),
+      VideoDecoder(bUseHardwareAcceleration)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -68,8 +69,7 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+void AsyncVideoDecoder::open(const std::string& sFilename, bool bEnableSound)
 {
     m_NumSeeksSent = 0;
     m_NumVSeeksDone = 0;
@@ -79,8 +79,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcce
     m_bWasVSeeking = false;
     m_bWasSeeking = false;
     m_CurVideoFrameTime = -1;
-    
-    VideoDecoder::open(sFilename, bUseHardwareAcceleration, bEnableSound);
+    VideoDecoder::open(sFilename, bEnableSound);
 
     if (getVideoInfo().m_bHasVideo && m_bUseStreamFPS) {
         m_FPS = getStreamFPS();

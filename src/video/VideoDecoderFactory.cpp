@@ -39,9 +39,9 @@ VideoDecoder* VideoDecoderFactory::get(bool useHWAccel, bool threaded, int queue
 {
 //TODO: C++11 UniquePtr would be really handy here
     if (threaded) {
-        return new AsyncVideoDecoder(queueLength);
+        return new AsyncVideoDecoder(useHWAccel, queueLength);
     } else {
-        return new SyncVideoDecoder();
+        return new SyncVideoDecoder(useHWAccel);
     }
 }
 

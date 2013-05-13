@@ -454,7 +454,7 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bUseHardwareAcceleration, m_bEnableSound);
+    m_pDecoder->open(m_Filename, m_bEnableSound);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();
@@ -496,7 +496,7 @@ void VideoNode::startDecoding()
         pAudioEngine->setSourceVolume(m_AudioID, m_Volume);
     }
     m_bSeekPending = true;
-    
+
     createTextures(videoInfo.m_Size);
     m_pDecoder->registerTextures(m_pTextures);
 

@@ -144,9 +144,11 @@ void FFMpegFrameDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
             destFmt = PIX_FMT_BGRA;
     }
     AVCodecContext const* pContext = m_pStream->codec;
+    cerr << "PIX FORMAT: " << pContext->pix_fmt << "\n";
     if (destFmt == PIX_FMT_BGRA && (pContext->pix_fmt == PIX_FMT_YUV420P || 
                 pContext->pix_fmt == PIX_FMT_YUVJ420P))
     {
+        cerr << "convert image!\n";
         ScopeTimer timer(ConvertImageLibavgProfilingZone);
         BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, frame.data[0],
                     frame.linesize[0], false));

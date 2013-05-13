@@ -41,10 +41,9 @@ namespace avg {
 class AVG_API AsyncVideoDecoder: public VideoDecoder
 {
 public:
-    AsyncVideoDecoder(int queueLength);
+    AsyncVideoDecoder(bool bUseHardwareAcceleration=true, int queueLength=8);
     virtual ~AsyncVideoDecoder();
-    virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
-            bool bEnableSound);
+    virtual void open(const std::string& sFilename, bool bEnableSound);
     virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
     virtual void deregisterTextures(GLTexturePtr pTextures[4]);
     virtual void close();

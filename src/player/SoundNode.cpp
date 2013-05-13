@@ -32,6 +32,7 @@
 #include "../audio/AudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
+#include "../video/VideoDecoderFactory.h"
 
 #include <iostream>
 #include <sstream>
@@ -68,7 +69,8 @@ SoundNode::SoundNode(const ArgList& args)
     args.setMembers(this);
     m_Filename = m_href;
     initFilename(m_Filename);
-    m_pDecoder = new AsyncVideoDecoder(8);
+    VideoDecoderFactory vFactory;
+    m_pDecoder = dynamic_cast<AsyncVideoDecoder *>(vFactory.get(false, true, 8));
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -294,7 +296,7 @@ void SoundNode::seek(long long destTime)
 
 void SoundNode::open()
 {
-    m_pDecoder->open(m_Filename, false, true);
+    m_pDecoder->open(m_Filename, true);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 

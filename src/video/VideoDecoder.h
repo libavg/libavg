@@ -61,10 +61,9 @@ class AVG_API VideoDecoder
     public:
         enum DecoderState {CLOSED, OPENED, DECODING};
 
-        VideoDecoder();
+        VideoDecoder(bool bUseHardwareAcceleration=true);
         virtual ~VideoDecoder();
-        virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
-                bool bEnableSound);
+        virtual void open(const std::string& sFilename, bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void registerTextures(GLTexturePtr pTextures[4]);
         virtual void deregisterTextures(GLTexturePtr pTextures[4]) {};
@@ -84,8 +83,6 @@ class AVG_API VideoDecoder
         virtual void setFPS(float fps) = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, float timeWanted);
-        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
-                float timeWanted) = 0;
         virtual FrameAvailableCode renderToTexture(GLTexturePtr pTextures[4],
                 float timeWanted);
         virtual bool isEOF() const = 0;
@@ -95,6 +92,8 @@ class AVG_API VideoDecoder
         static VideoAccelType getHWAccelSupported();
 
     protected:
+        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
+                float timeWanted) = 0;
         int getNumFrames() const;
         AVFormatContext* getFormatContext();
         VideoAccelType getHWAccelUsed() const;
@@ -105,6 +104,8 @@ class AVG_API VideoDecoder
         AVStream* getVideoStream() const;
         int getAStreamIndex() const;
         AVStream* getAudioStream() const;
+
+        bool m_bUseHardwareAcceleration;
 
 #ifdef AVG_ENABLE_RPI
         OpenMaxDecoder* m_pOpenMaxDecoder;

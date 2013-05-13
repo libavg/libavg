@@ -21,6 +21,7 @@
 
 #include "AsyncVideoDecoder.h"
 #include "SyncVideoDecoder.h"
+#include "VideoDecoderFactory.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
@@ -72,15 +73,10 @@ class DecoderTest: public GraphicsTest {
             return m_bUseHardwareAcceleration;
         }
 
-        VideoDecoderPtr createDecoder() 
+        VideoDecoderPtr createDecoder(bool useHWAccel) 
         {
-            VideoDecoderPtr pDecoder;
-            if (m_bThreaded) {
-                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(8));
-            } else {
-                pDecoder = VideoDecoderPtr(new SyncVideoDecoder());
-            }
-
+            VideoDecoderFactory decoderFactory;
+            VideoDecoderPtr pDecoder(decoderFactory.get(useHWAccel, m_bThreaded, 8));
             return pDecoder;
         }
 
@@ -188,20 +184,25 @@ class VideoDecoderTest: public DecoderTest {
             try {
                 cerr << "    Testing " << sFilename << endl;
 
-                VideoDecoderPtr pDecoder = createDecoder();
-                pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+                VideoDecoderPtr pDecoder = createDecoder(useHardwareAcceleration());
+                pDecoder->open(getMediaLoc(sFilename), true);
                 IntPoint frameSize = pDecoder->getSize();
                 TEST(frameSize == IntPoint(48, 48));
                 TEST(pDecoder->getVideoInfo().m_bHasVideo);
                 TEST(pDecoder->getVideoInfo().m_Duration != 0);
                 TEST(pDecoder->getStreamFPS() != 0);
                 TEST(pDecoder->getFPS() != 0);
+            cerr << "HERE\n"; 
                 pDecoder->startDecoding(false, getAudioParams());
+            cerr << "HERE 2\n"; 
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
+            cerr << "HERE 3\n"; 
                 BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
 
+            cerr << "HERE 4\n"; 
                 // Test first two frames.
                 pDecoder->renderToBmp(pBmp, -1);
+            cerr << "HERE 5\n"; 
                 testEqual(*pBmp, sFilename+"_1", B8G8R8X8);
                 TEST(pDecoder->getCurFrame() == 0);
                 TEST(pDecoder->getCurTime() == 0);
@@ -223,8 +224,8 @@ class VideoDecoderTest: public DecoderTest {
         {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
 
-            VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+            VideoDecoderPtr pDecoder = createDecoder(useHardwareAcceleration());
+            pDecoder->open(getMediaLoc(sFilename), true);
             pDecoder->startDecoding(false, getAudioParams());
 
             // Seek forward
@@ -252,8 +253,8 @@ class VideoDecoderTest: public DecoderTest {
                 int expectedNumFrames)
         {
             // Read whole file, test last image.
-            VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+            VideoDecoderPtr pDecoder = createDecoder(useHardwareAcceleration());
+            pDecoder->open(getMediaLoc(sFilename), true);
             IntPoint frameSize = pDecoder->getSize();
             float timePerFrame = (1.0f/pDecoder->getFPS())*speedFactor;
             pDecoder->startDecoding(false, getAudioParams());
@@ -329,9 +330,9 @@ class AudioDecoderTest: public DecoderTest {
                 {
                     cerr << "      Reading complete file." << endl;
                     AsyncVideoDecoderPtr pDecoder = 
-                            dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
-                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), 
-                            true);
+                            dynamic_pointer_cast<AsyncVideoDecoder>(
+                                    createDecoder(useHardwareAcceleration()));
+                    pDecoder->open(getMediaLoc(sFilename), true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
                     pDecoder->startDecoding(false, getAudioParams());
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
@@ -348,9 +349,9 @@ class AudioDecoderTest: public DecoderTest {
                 {
                     cerr << "      Seek test." << endl;
                     AsyncVideoDecoderPtr pDecoder = 
-                            dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
-                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), 
-                            true);
+                            dynamic_pointer_cast<AsyncVideoDecoder>(
+                                    createDecoder(useHardwareAcceleration()));
+                    pDecoder->open(getMediaLoc(sFilename), true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
@@ -420,8 +421,8 @@ class AVDecoderTest: public DecoderTest {
     private:
         void basicFileTest(const string& sFilename, int expectedNumFrames)
         {
-            VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+            VideoDecoderPtr pDecoder = createDecoder(useHardwareAcceleration());
+            pDecoder->open(getMediaLoc(sFilename), true);
             TEST(pDecoder->getVideoInfo().m_bHasVideo);
             TEST(pDecoder->getStreamFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());
@@ -486,8 +487,12 @@ public:
     {
         addAudioTests();
         addVideoTests(false);
-#if defined(AVG_ENABLE_VDPAU) || defined(AVG_ENABLE_VAAPI)
-        if (/*VDPAUDecoder::isAvailable() ||*/ VAAPIDecoder::isAvailable()) {
+#if defined(AVG_ENABLE_VDPAU)
+        if (VDPAUDecoder::isAvailable()) {
+#elif defined(AVG_ENABLE_VAAPI)
+        if (VAAPIDecoder::isAvailable()) {
+#endif
+#if defined(AVG_ENABLE_VDPAU) | defined(AVG_ENABLE_VAAPI)
             addVideoTests(true);
         } else {
             cerr << "Skipping HW accel tests: HW accel configured but not available."
