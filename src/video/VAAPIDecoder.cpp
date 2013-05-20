@@ -228,16 +228,6 @@ AVPixelFormat VAAPIDecoder::getFormat(AVCodecContext* pContext, const AVPixelFor
 
 VAAPISurface* VAAPIDecoder::getFreeSurface()
 {
-/*
-    int numSurfacesUsed = 0;
-    for (unsigned i = 0; i<m_Surfaces.size(); i++) {
-        VAAPISurface* pSurface = &m_Surfaces[i];
-        if (pSurface->isUsed()) {
-            numSurfacesUsed++;
-        }
-    }
-    cerr << numSurfacesUsed << endl;
-*/
     for (unsigned i = 0; i<m_Surfaces.size(); i++) {
         VAAPISurface* pSurface = &m_Surfaces[i];
         if (!pSurface->isUsed()) {
@@ -292,11 +282,6 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
         return false;
     }
 
-    int numSurfaces = 2+1;
-    if (profile == VAProfileH264High) {
-        numSurfaces = 16+1;
-    }
-
     VAConfigAttrib attrib;
     attrib.type = VAConfigAttribRTFormat;
     VAStatus status = vaGetConfigAttributes(getDisplay(), profile, VAEntrypointVLD,
@@ -311,11 +296,11 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
 
     VASurfaceID surfaceIDs[40];
     status = vaCreateSurfaces(getDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
-            numSurfaces, surfaceIDs);
+            40, surfaceIDs);
     checkError(status, "initDecoder: vaCreateSurfaces");
         
     status = vaCreateContext(getDisplay(), m_ConfigID, m_Size.x, m_Size.y,
-            VA_PROGRESSIVE, surfaceIDs, numSurfaces, &m_ContextID);
+            VA_PROGRESSIVE, surfaceIDs, 40, &m_ContextID);
     if (status != VA_STATUS_SUCCESS) {
         cerr << "vaCreateContext failed, disabling VAAPI." << endl;
         return false;
@@ -329,7 +314,7 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     checkError(status, "initDecoder: vaCreateImage");
 
     AVG_ASSERT(m_Surfaces.size() == 0);
-    for (int i=0; i<numSurfaces; ++i) {
+    for (int i=0; i<40; ++i) {
         m_Surfaces.push_back(VAAPISurface(surfaceIDs[i], this));
     }
 
