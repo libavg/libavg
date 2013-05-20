@@ -286,29 +286,32 @@ bool VAAPIDecoder::initDecoder(VAProfile profile)
     attrib.type = VAConfigAttribRTFormat;
     VAStatus status = vaGetConfigAttributes(getDisplay(), profile, VAEntrypointVLD,
             &attrib, 1);
-    checkError(status);
+    checkError(status, "initDecoder: vaGetConfigAttributes");
     if ((attrib.value & VA_RT_FORMAT_YUV420) == 0) {
         return false;
     }
     status = vaCreateConfig(getDisplay(), profile, VAEntrypointVLD, &attrib, 1, 
             &m_ConfigID);
-    checkError(status);
+    checkError(status, "initDecoder: vaCreateConfig");
 
     VASurfaceID surfaceIDs[40];
     status = vaCreateSurfaces(getDisplay(), m_Size.x, m_Size.y, VA_RT_FORMAT_YUV420,
             40, surfaceIDs);
-    checkError(status);
+    checkError(status, "initDecoder: vaCreateSurfaces");
         
     status = vaCreateContext(getDisplay(), m_ConfigID, m_Size.x, m_Size.y,
             VA_PROGRESSIVE, surfaceIDs, 40, &m_ContextID);
-    checkError(status);
+    if (status != VA_STATUS_SUCCESS) {
+        cerr << "vaCreateContext failed, disabling VAAPI." << endl;
+        return false;
+    }
 
     determineImageFormat(surfaceIDs[0]);
 //    cerr << "Decoding to image format " << imageFmtToString(m_pImageFmt) << endl;
 
     m_pImage = new VAImage();
     status = vaCreateImage(getDisplay(), m_pImageFmt, m_Size.x, m_Size.y, m_pImage);
-    checkError(status);
+    checkError(status, "initDecoder: vaCreateImage");
 
     AVG_ASSERT(m_Surfaces.size() == 0);
     for (int i=0; i<40; ++i) {
