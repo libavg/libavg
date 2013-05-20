@@ -222,7 +222,7 @@ AC_CHECK_HEADERS([va/va_x11.h], , [have_vaapi=no])
 if [[ x"$have_vaapi" = x"yes" ]]; then
   AC_DEFINE(AVG_ENABLE_VAAPI, 1, [Enable VAAPI support])
   AC_MSG_NOTICE([Using VAAPI])
-  LIBVIDEO_LDADD="$LIBVIDEO_LDADD -lva-x11 -lva-glx"
+  LIBVIDEO_LDADD="$LIBVIDEO_LDADD -lva -lva-x11 -lva-glx"
   AM_CONDITIONAL(USE_VAAPI_SRC, true)
 else
   AM_CONDITIONAL(USE_VAAPI_SRC, false)
