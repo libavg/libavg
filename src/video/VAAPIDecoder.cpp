@@ -39,6 +39,7 @@ namespace avg {
 
 vector<VAProfile> VAAPIDecoder::s_Profiles;
 std::map<unsigned, void *> VAAPIDecoder::s_GLSurfaceMap;
+bool VAAPIDecoder::s_bExists = false;
 
 VAAPIDecoder::VAAPIDecoder()
     : m_Size(0, 0),
@@ -73,13 +74,15 @@ VAAPIDecoder::~VAAPIDecoder()
     if (m_pFFMpegVAContext) {
         delete m_pFFMpegVAContext;
     }
+    s_bExists = false;
 }
 
 AVCodec* VAAPIDecoder::openCodec(AVCodecContext* pContext)
 {
-    if (!isAvailable()) {
+    if (!isAvailable() || s_bExists) {
         return 0;
     }
+    s_bExists = true;
 
     if (isSupportedCodec(pContext->codec_id)) {
         int profile = -1;

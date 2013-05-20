@@ -87,6 +87,10 @@ private:
 
     static std::vector<VAProfile> s_Profiles;
     static std::map<unsigned, void *> s_GLSurfaceMap; // textureID -> VA GLX Surface
+
+    // XXX: Possibly due to driver bugs, more than one VAAPI decoder instance isn't
+    // supported.
+    static bool s_bExists;
 };
 
 }
