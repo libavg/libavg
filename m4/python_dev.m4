@@ -48,6 +48,8 @@ dnl now the actual libpython
      AC_MSG_RESULT(not found)
     fi
   fi
+else
+  AC_MSG_RESULT($py_makefile not found)
 fi
 AC_SUBST(PYTHON_LIBS)])
 
