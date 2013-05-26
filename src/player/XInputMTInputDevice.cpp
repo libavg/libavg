@@ -52,11 +52,6 @@ XInputMTInputDevice::XInputMTInputDevice()
     : m_LastID(0),
       m_DeviceID(-1)
 {
-    SDLDisplayEngine* pDisplayEngine = Player::get()->getDisplayEngine();
-    glm::vec2 size(pDisplayEngine->getSize());
-    glm::vec2 windowSize(pDisplayEngine->getWindowSize());
-    m_DisplayScale.x = size.x/windowSize.x;
-    m_DisplayScale.y = size.y/windowSize.y;
 }
 
 XInputMTInputDevice::~XInputMTInputDevice()
@@ -74,6 +69,10 @@ void XInputMTInputDevice::start()
 {
     Status status;
     SDLDisplayEngine * pEngine = Player::get()->getDisplayEngine();
+    glm::vec2 size(pEngine->getSize());
+    glm::vec2 windowSize(pEngine->getWindowSize());
+    m_DisplayScale.x = size.x/windowSize.x;
+    m_DisplayScale.y = size.y/windowSize.y;
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
