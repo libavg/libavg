@@ -103,10 +103,7 @@ class Recognizer(avg.Publisher):
         assert(self.__stateMachine.state != "RUNNING")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        for contact in self._contacts:
-            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
-            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
-        self._contacts = set()
+        self._disconnectContacts()
         self.notifySubscribers(Recognizer.FAILED, [])
 
     def _setDetected(self, event):
