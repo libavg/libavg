@@ -84,7 +84,7 @@ class GestureDemoDiv(app.MainDiv):
     def onInit(self):
 
         avg.WordsNode(text='''a - abort recognition <br/>
-                d - switch enable/disable recognition <br/><br/>
+                d - enable/disable recognition <br/><br/>
                 or use the buttons on the right side''',
                 pos=(20, 510), parent=self)
 
@@ -101,9 +101,9 @@ class GestureDemoDiv(app.MainDiv):
         self.enableButton = EnableButton(text="Disable all", pos = (630, 540), parent=self)
 
         app.keyboardmanager.bindKeyDown(keystring="a", handler=abortAll, 
-                help="Abort all running gestures")
+                help="abort recognition")
         app.keyboardmanager.bindKeyDown(keystring="d", handler=self.onEnableKey, 
-                help="Enable/disable nodes")
+                help="Enable/disable recognition")
 
     def onEnableKey(self):
         switchNodesEnabled()
