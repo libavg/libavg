@@ -127,7 +127,8 @@ bool WGLContext::initVBlank(int rate)
 {
     static bool s_bVBlankActive = false;
     if (rate > 0) {
-        if (!queryOGLExtension("WGL_EXT_swap_control")) {
+        if (!queryOGLExtension("WGL_EXT_swap_control")
+                && !queryWGLExtension("WGL_EXT_swap_control")) {
             AVG_LOG_WARNING(
                     "Windows VBlank setup failed: OpenGL Extension not supported.");
             s_bVBlankActive = false;
@@ -143,6 +144,29 @@ bool WGLContext::initVBlank(int rate)
         }
         return false;
     }
+}
+
+bool WGLContext::queryWGLExtension(const char *extName)
+{
+    if (glproc::GetExtensionsStringARB == NULL) {
+        return false;
+    }
+
+    char *p;
+    size_t extNameLen = strlen(extName);
+
+    p = (char *)glproc::GetExtensionsStringARB(m_hDC);
+    AVG_ASSERT(p != 0);
+    char * end = p + strlen(p);
+
+    while (p < end) {
+        size_t n = strcspn(p, " ");
+        if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
+            return true;
+        }
+        p += (n + 1);
+    }
+    return false;
 }
 
 void WGLContext::checkWinError(BOOL bOK, const string& sWhere) 
