@@ -123,11 +123,12 @@ class AppTestCase(testcase.AVGTestCase):
 
     def testSettingsArgvExtender(self):
         s = settings.Settings([Option('foo_bar', 'bar')])
-        e = settings.ArgvExtender(args=['foo', '--foo-bar', 'baz'])
+        e = settings.ArgvExtender('', '', args=['foo', '--foo-bar', 'baz'])
         s.applyExtender(e)
         self.assertEquals(s.get('foo_bar'), 'baz')
+        self.assertEquals(e.posArgs, ['foo'])
 
-        e = settings.ArgvExtender(args=['foo', '--foo-baxxx', 'baz'])
+        e = settings.ArgvExtender('', '', args=['foo', '--foo-baxxx', 'baz'])
         with SuppressOutput():
             self.assertRaises(SystemExit, lambda: s.applyExtender(e))
 

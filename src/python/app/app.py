@@ -86,7 +86,7 @@ class App(object):
     libavg-based application class
     '''
 
-    def __init__(self):
+    def __init__(self, posArgsHelp=''):
         import libavg.app
 
         if libavg.app.instance is not None:
@@ -103,6 +103,7 @@ class App(object):
         self._windowSize = None
 
         self.__lastFrameTimestamp = 0
+        self.__posArgsHelp = posArgsHelp
 
         self._setupSettings()
 
@@ -256,8 +257,10 @@ class App(object):
 
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
-        argvExtender = settings.ArgvExtender(self.mainDiv.VERSION)
+        argvExtender = settings.ArgvExtender(self.mainDiv.VERSION,
+                self.__posArgsHelp)
         self.settings.applyExtender(argvExtender)
+        self.settings.posArgs = argvExtender.posArgs
 
     def _setupLogging(self):
         catMap = self.settings.get('log_avg_categories').strip()

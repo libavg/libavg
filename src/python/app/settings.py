@@ -103,12 +103,15 @@ class KargsExtender(object):
 
 
 class ArgvExtender(object):
-    def __init__(self, appVersionInfo, args=sys.argv[1:]):
-        self.__args = args
+    def __init__(self, appVersionInfo, posArgsHelp, args=sys.argv[1:]):
         self.__appVersionInfo = appVersionInfo
+        self.__posArgsHelp = posArgsHelp
+        self.__args = args
+        self.__posArgs = None
 
     def __call__(self, optionsList):
-        parser = optparse.OptionParser()
+        usage = 'Usage: %prog [options] ' + str(self.__posArgsHelp)
+        parser = optparse.OptionParser(usage=usage)
         parser.add_option('-v', '--version', dest='version', action='store_true',
                 help='print libavg and application version information')
 
@@ -132,7 +135,7 @@ class ArgvExtender(object):
 
             parser.add_option_group(parserGroup)
 
-        parsedOptions, _ = parser.parse_args(args=self.__args)
+        parsedOptions, self.__posArgs = parser.parse_args(args=self.__args)
 
         if parsedOptions.version:
             print 'libavg'
@@ -153,6 +156,13 @@ class ArgvExtender(object):
         
         return optionsList
 
+    @property
+    def posArgs(self):
+        if self.__posArgs is None:
+            raise RuntimeError('Cannot provide posArgs before applying the extender')
+
+        return self.__posArgs
+
     def __groupOptionsKeys(self, optionsList):
         groups = {}
         for option in optionsList:
@@ -172,9 +182,11 @@ class Settings(object):
                     'of Option instances')
 
         self.__options = []
-        
+
         for option in defaults:
             self.addOption(option)
+
+        self.posArgs = None
 
     def __iter__(self):
         return self.__options.__iter__()
