@@ -94,6 +94,7 @@ class App(object):
                     self.__class__.__name__)
 
         libavg.app.instance = self
+        self._posArgsHelp = posArgsHelp
 
         self._mainDiv = None
         self._appParent = None
@@ -103,7 +104,6 @@ class App(object):
         self._windowSize = None
 
         self.__lastFrameTimestamp = 0
-        self.__posArgsHelp = posArgsHelp
 
         self._setupSettings()
 
@@ -258,7 +258,7 @@ class App(object):
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
         argvExtender = settings.ArgvExtender(self.mainDiv.VERSION,
-                self.__posArgsHelp)
+                self._posArgsHelp)
         self.settings.applyExtender(argvExtender)
         self.settings.posArgs = argvExtender.posArgs
 
