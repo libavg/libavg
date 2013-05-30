@@ -103,11 +103,14 @@ class KargsExtender(object):
 
 
 class ArgvExtender(object):
-    def __init__(self, args=sys.argv[1:]):
+    def __init__(self, appVersionInfo, args=sys.argv[1:]):
         self.__args = args
+        self.__appVersionInfo = appVersionInfo
 
     def __call__(self, optionsList):
         parser = optparse.OptionParser()
+        parser.add_option('-v', '--version', dest='version', action='store_true',
+                help='print libavg and application version information')
 
         groups = self.__groupOptionsKeys(optionsList)
 
@@ -130,6 +133,17 @@ class ArgvExtender(object):
             parser.add_option_group(parserGroup)
 
         parsedOptions, _ = parser.parse_args(args=self.__args)
+
+        if parsedOptions.version:
+            print 'libavg'
+            vi = libavg.VersionInfo()
+            print ' version  : %s' % vi.full
+            print ' builder  : %s (%s)' % (vi.builder, vi.buildtime)
+            print ' branchurl: %s' % vi.branchurl
+            print
+            print 'application'
+            print ' version: %s' % self.__appVersionInfo
+            sys.exit(0)
 
         for key, value in parsedOptions.__dict__.iteritems():
             if value is not None:

@@ -44,6 +44,7 @@ class MainDiv(libavg.avg.DivNode):
     '''
     INIT_FUNC = 'onInit'
     EXTRA_OPTIONS = []
+    VERSION = 'undef'
 
     def __init__(self, **kargs):
         assert not 'parent' in kargs
@@ -255,7 +256,8 @@ class App(object):
 
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
-        self.settings.applyExtender(settings.ArgvExtender())
+        argvExtender = settings.ArgvExtender(self.mainDiv.VERSION)
+        self.settings.applyExtender(argvExtender)
 
     def _setupLogging(self):
         catMap = self.settings.get('log_avg_categories').strip()
