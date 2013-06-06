@@ -102,6 +102,8 @@ class ScrollArea(avg.DivNode):
             endsExtent = self.cfg["borderEndsExtent"]
             self._borderNode = HVStretchNode(src=self.cfg["borderBmp"], 
                     endsExtent=endsExtent, sensitive=False, parent=self)
+        else:
+            self._borderNode = None
 
         sensitiveScrollBars = self.cfg["sensitiveScrollBars"]
 
@@ -194,7 +196,8 @@ class ScrollArea(avg.DivNode):
 
     def __positionNodes(self, size):
         paneSize = size
-        self._borderNode.size = size
+        if self._borderNode:
+            self._borderNode.size = size
 
         margins = self.cfg["margins"]
         if self._hScrollBar:
