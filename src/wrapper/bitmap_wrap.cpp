@@ -26,6 +26,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/FilterResizeBilinear.h"
 
 #include "../base/CubicSpline.h"
 
@@ -79,6 +80,11 @@ struct Pixel32_to_python_tuple
 ConstVec2 Bitmap_getSize(Bitmap* This)
 {
     return (glm::vec2)(This->getSize());
+}
+
+BitmapPtr Bitmap_getResized(BitmapPtr This, const glm::vec2& size)
+{
+    return FilterResizeBilinear(IntPoint(size)).apply(This);
 }
 
 glm::vec2* createPoint()
@@ -157,6 +163,7 @@ void export_bitmap()
         .def("__init__", make_constructor(createBitmapWithRect))
         .def("__init__", make_constructor(createBitmapFromFile))
         .def("blt", &Bitmap::blt)
+        .def("getResized", &Bitmap_getResized)
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)

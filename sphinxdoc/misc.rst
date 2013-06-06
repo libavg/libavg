@@ -114,6 +114,10 @@ Misc. Classes
             method can be used to interface to the python imaging library PIL
             (http://www.pythonware.com/products/pil/).
 
+        .. py:method:: getResized(newSize) -> Bitmap
+
+            Returns a new bitmap that is a resized version of the original.
+
         .. py:method:: getSize() -> Point2D
 
             Returns the size of the image in pixels.

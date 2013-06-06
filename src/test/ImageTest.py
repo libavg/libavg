@@ -217,7 +217,6 @@ class ImageTestCase(AVGTestCase):
         def testCropRect():
             bmp = avg.Bitmap('media/rgb24-65x65.png')
             bmp1 = avg.Bitmap(bmp, (32,32), (64,64))
-            print bmp1.getSize()
             self.assert_(bmp1.getSize() == (32,32))
             node = avg.ImageNode(pos=(96,0), parent=root)
             node.setBitmap(bmp1)
@@ -230,6 +229,13 @@ class ImageTestCase(AVGTestCase):
             node = avg.ImageNode(pos=(96,32), size=(32,32), parent=root)
             node.setBitmap(destBmp)
             
+        def testResize():
+            srcBmp = avg.Bitmap('media/rgb24-32x32.png')
+            destBmp = srcBmp.getResized((64,64))
+            self.assert_(destBmp.getSize() == (64,64))
+            node = avg.ImageNode(pos=(128,0), size=(32,32), parent=root)
+            node.setBitmap(destBmp)
+
 
         def testUnicode():
             if self._isCurrentDirWriteable():
@@ -275,6 +281,8 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testBitmap2"),
                  testBlt,
                  lambda: self.compareImage("testBitmap3"),
+                 testResize,
+                 lambda: self.compareImage("testBitmap4"),
                  testGetPixel,
                  lambda: self.assertException(setNullBitmap)
                 ))
