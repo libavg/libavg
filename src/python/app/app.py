@@ -127,7 +127,6 @@ class App(object):
         self._setupResolution()
         self._setupRootNode()
         self._setupMouse()
-        self._setupMultitouch()
         pos, size, angle = self._getAppParentGeometry()
         self._setupAppParent(pos, size, angle)
         self._setupMainDiv()
@@ -412,6 +411,7 @@ class App(object):
         libavg.player.play()
 
     def _onInitInternal(self):
+        self._setupMultitouch()
         initFunc = getattr(self.mainDiv, self.mainDiv.INIT_FUNC)
         initFunc()
         libavg.player.subscribe(libavg.player.ON_FRAME, self._onFrameInternal)
