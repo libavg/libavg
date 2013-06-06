@@ -544,6 +544,19 @@ void Bitmap::save(const UTF8String& sFilename)
                 }
             }
             break;
+        case B8G8R8:
+            pTempBmp = new Bitmap(m_Size, R8G8B8);
+            for (size_t y = 0; y < size_t(m_Size.y); y++) {
+                unsigned char * pSrcLine = m_pBits+y * m_Stride;
+                unsigned char * pDestLine = pTempBmp->getPixels() + 
+                        y*pTempBmp->getStride();
+                for (size_t x = 0; x < size_t(m_Size.x); x++) { 
+                    pDestLine[x*3] = pSrcLine[x*3 + 2];
+                    pDestLine[x*3 + 1] = pSrcLine[x*3 + 1];
+                    pDestLine[x*3 + 2] = pSrcLine[x*3];
+                }
+            }
+            break;
         default:
             if (hasAlpha()) {
                 pTempBmp = new Bitmap(m_Size, R8G8B8A8);
