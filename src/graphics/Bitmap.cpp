@@ -745,8 +745,7 @@ bool Bitmap::operator ==(const Bitmap& otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
     // equal value only.
-    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF)
-    {
+    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF) {
         return false;
     }
 
@@ -778,15 +777,17 @@ bool Bitmap::operator ==(const Bitmap& otherBmp)
 
 BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
 {
-    if (m_PF != otherBmp.getPixelFormat())
+    if (m_PF != otherBmp.getPixelFormat()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: pixel formats differ(")
                 + getPixelFormatString(m_PF)+", "
                 + getPixelFormatString(otherBmp.getPixelFormat())+")");
-    if (m_Size != otherBmp.getSize())
+    }
+    if (m_Size != otherBmp.getSize()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: bitmap sizes differ (this=")
                 + toString(m_Size) + ", other=" + toString(otherBmp.getSize()) + ")");
+    }
     BitmapPtr pResultBmp = BitmapPtr(new Bitmap(m_Size, m_PF));
     const unsigned char * pSrcLine1 = otherBmp.getPixels();
     const unsigned char * pSrcLine2 = m_pBits;
@@ -832,7 +833,11 @@ BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
 void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
-
+    if (pos.x < 0 or pos.y < 0) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                string("Bitmap::blt: pos < 0 is not supported."));
+    }
+    
     IntRect destRect(pos.x, pos.y, pos.x+otherBmp.getSize().x, 
             pos.y+otherBmp.getSize().y);
     destRect.intersect(IntRect(IntPoint(0,0), getSize()));

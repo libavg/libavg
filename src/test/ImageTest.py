@@ -222,6 +222,15 @@ class ImageTestCase(AVGTestCase):
             node = avg.ImageNode(pos=(96,0), parent=root)
             node.setBitmap(bmp1)
 
+        def testBlt():
+            srcBmp = avg.Bitmap('media/rgb24-65x65.png')
+            destBmp = avg.Bitmap((65,65), avg.B8G8R8X8, "bmp")
+            destBmp.blt(srcBmp, (0,0))
+            destBmp.blt(srcBmp, (32,32))
+            node = avg.ImageNode(pos=(96,32), size=(32,32), parent=root)
+            node.setBitmap(destBmp)
+            
+
         def testUnicode():
             if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
@@ -264,6 +273,8 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testBitmap1"),
                  testCropRect,
                  lambda: self.compareImage("testBitmap2"),
+                 testBlt,
+                 lambda: self.compareImage("testBitmap3"),
                  testGetPixel,
                  lambda: self.assertException(setNullBitmap)
                 ))

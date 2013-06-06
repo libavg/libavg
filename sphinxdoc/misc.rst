@@ -8,7 +8,8 @@ Misc. Classes
 
         Class representing a rectangular set of pixels in CPU memory. Bitmaps can be 
         obtained from any :py:class:`RasterNode` or loaded from disk. For nodes of type 
-        :py:class:`ImageNode`, the current bitmap can be set as well.
+        :py:class:`ImageNode`, the current bitmap can be set as well. In general, huge
+        Bitmaps (e.g. width>65536) are supported as long as they fit into memory.
 
         The layout of the pixels in the bitmap is described by its pixel format.
         The names for pixel format constants are confusing. They try to follow logic,
@@ -82,6 +83,10 @@ Misc. Classes
         .. py:method:: __init__(fileName)
 
             Loads an image file from disk and returns it as bitmap object.
+
+        .. py:method:: blt(srcBmp, pos)
+
+            Copies the pixels of srcBmp into the current bitmap at pos. 
 
         .. py:method:: getAvg() -> float
 
