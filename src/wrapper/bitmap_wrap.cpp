@@ -91,6 +91,12 @@ BitmapPtr createBitmapFromFile(const UTF8String& sFName)
     return loadBitmap(sFName);
 }
 
+BitmapPtr createBitmapWithRect(BitmapPtr pBmp, const glm::vec2& pos, const glm::vec2& size)
+{
+    IntRect rect = IntRect(IntPoint(pos), IntPoint(size));
+    return BitmapPtr(new Bitmap(*pBmp, rect));
+}
+
 void export_bitmap()
 {
     export_point<glm::vec2>("Point2D")
@@ -148,6 +154,7 @@ void export_bitmap()
     class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
         .def(init<glm::vec2, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
+        .def("__init__", make_constructor(createBitmapWithRect))
         .def("__init__", make_constructor(createBitmapFromFile))
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)

@@ -214,6 +214,14 @@ class ImageTestCase(AVGTestCase):
             bmp1.setPixels(s)
             self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 
+        def testCropRect():
+            bmp = avg.Bitmap('media/rgb24-65x65.png')
+            bmp1 = avg.Bitmap(bmp, (32,32), (64,64))
+            print bmp1.getSize()
+            self.assert_(bmp1.getSize() == (32,32))
+            node = avg.ImageNode(pos=(96,0), parent=root)
+            node.setBitmap(bmp1)
+
         def testUnicode():
             if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
@@ -254,6 +262,8 @@ class ImageTestCase(AVGTestCase):
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1"),
+                 testCropRect,
+                 lambda: self.compareImage("testBitmap2"),
                  testGetPixel,
                  lambda: self.assertException(setNullBitmap)
                 ))

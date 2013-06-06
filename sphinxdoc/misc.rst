@@ -73,6 +73,12 @@ Misc. Classes
 
             Creates a copy of an already existing bitmap.
 
+        .. py:method:: __init__(bitmap, tlPos, brPos)
+
+            Returns a rectangle inside an existing bitmap as a new bitmap. Note that the
+            pixels are not copied and write operations will therefore effect the 
+            original bitmap as well.
+
         .. py:method:: __init__(fileName)
 
             Loads an image file from disk and returns it as bitmap object.
