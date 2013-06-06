@@ -121,8 +121,8 @@ Bitmap::Bitmap(Bitmap& origBmp, const IntRect& rect)
     } else {
         m_sName = "";
     }
-    unsigned char * pRegionStart = origBmp.getPixels()+rect.tl.y*origBmp.getStride()+
-            rect.tl.x*getBytesPerPixel();
+    unsigned char * pRegionStart = origBmp.getPixels()
+            + size_t(rect.tl.y)*origBmp.getStride() + rect.tl.x*getBytesPerPixel();
     initWithData(pRegionStart, origBmp.getStride(), false);
 }
 
@@ -519,11 +519,11 @@ void Bitmap::save(const UTF8String& sFilename)
     switch (m_PF) {
         case B8G8R8X8:
             pTempBmp = new Bitmap(m_Size, R8G8B8);
-            for (int y = 0; y < m_Size.y; y++) {
-                unsigned char * pSrcLine = m_pBits+y * m_Stride;
+            for (size_t y = 0; y < size_t(m_Size.y); y++) {
+                unsigned char * pSrcLine = m_pBits + y*m_Stride;
                 unsigned char * pDestLine = pTempBmp->getPixels() + 
                         y*pTempBmp->getStride();
-                for (int x = 0; x < m_Size.x; x++) { 
+                for (size_t x = 0; x < size_t(m_Size.x); x++) { 
                     pDestLine[x*3] = pSrcLine[x*4 + 2];
                     pDestLine[x*3 + 1] = pSrcLine[x*4 + 1];
                     pDestLine[x*3 + 2] = pSrcLine[x*4];
@@ -532,11 +532,11 @@ void Bitmap::save(const UTF8String& sFilename)
             break;
         case B8G8R8A8:
             pTempBmp = new Bitmap(m_Size, R8G8B8A8);
-            for (int y = 0; y < m_Size.y; y++) {
+            for (size_t y = 0; y < size_t(m_Size.y); y++) {
                 unsigned char * pSrcLine = m_pBits+y * m_Stride;
                 unsigned char * pDestLine = pTempBmp->getPixels() + 
                         y*pTempBmp->getStride();
-                for (int x = 0; x < m_Size.x; x++) { 
+                for (size_t x = 0; x < size_t(m_Size.x); x++) { 
                     pDestLine[x*4] = pSrcLine[x*4 + 2];
                     pDestLine[x*4 + 1] = pSrcLine[x*4 + 1];
                     pDestLine[x*4 + 2] = pSrcLine[x*4];
