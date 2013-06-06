@@ -833,7 +833,7 @@ BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
 void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
-    if (pos.x < 0 or pos.y < 0) {
+    if (pos.x < 0 || pos.y < 0) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::blt: pos < 0 is not supported."));
     }
