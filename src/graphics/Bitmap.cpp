@@ -842,9 +842,10 @@ void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
             pos.y+otherBmp.getSize().y);
     destRect.intersect(IntRect(IntPoint(0,0), getSize()));
     for (int y = 0; y < destRect.height(); y++) {
-        unsigned char * pSrcPixel = getPixels()+(pos.y+y)*getStride()+pos.x*4;
+        unsigned char * pSrcPixel = getPixels()+size_t(pos.y+y)*getStride()
+                +size_t(pos.x*4);
         const unsigned char * pOtherPixel = otherBmp.getPixels()+
-                y*otherBmp.getStride(); 
+                size_t(y*otherBmp.getStride()); 
         if (otherBmp.hasAlpha()) {
             for (int x = 0; x < destRect.width(); x++) {
                 int srcAlpha = 255-pOtherPixel[3];
@@ -1110,9 +1111,9 @@ void Bitmap::allocBits(int stride)
         //XXX: We allocate more than nessesary here because ffmpeg seems to
         // overwrite memory after the bits - probably during yuv conversion.
         // Yuck.
-        m_pBits = new unsigned char[(m_Stride+1)*(m_Size.y+1)];
+        m_pBits = new unsigned char[size_t(m_Stride+1)*(m_Size.y+1)];
     } else {
-        m_pBits = new unsigned char[m_Stride*m_Size.y];
+        m_pBits = new unsigned char[size_t(m_Stride)*m_Size.y];
     }
 }
 
