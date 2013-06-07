@@ -957,6 +957,8 @@ public:
         runTestWithBitmap(pBmp);
         pBmp = loadTestBmp("rgb24-64x64", B8G8R8X8);
         runTestWithBitmap(pBmp);
+        pBmp = loadTestBmp("rgb24-65x65", B8G8R8);
+        runTestWithBitmap(pBmp);
     }
 
 private:

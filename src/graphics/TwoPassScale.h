@@ -271,15 +271,15 @@ void TwoPassScale<DataClass>::HorizScale(PixelClass * pSrcData, const IntPoint& 
         // No scaling required, just copy
         for (int y = 0; y < destSize.y; y++) {
             memcpy(pDest, pSrc, sizeof (PixelClass) * srcSize.x);
-            pSrc += srcStride;
-            pDest += destStride;
+            pSrc = (PixelClass*)((char*)(pSrc)+srcStride);
+            pDest = (PixelClass*)((char*)(pDest)+destStride);
         }
     } else {
         LineContribType * pContrib = CalcContributions(destSize.x, srcSize.x);
         for (int y = 0; y < destSize.y; y++) {
             ScaleRow(pSrc, srcSize.x, pDest, destSize.x, pContrib);
-            pSrc += srcStride;
-            pDest += destStride;
+            pSrc = (PixelClass*)((char*)(pSrc)+srcStride);
+            pDest = (PixelClass*)((char*)(pDest)+destStride);
         }
         FreeContributions(pContrib);  // Free contributions structure
     }
@@ -296,8 +296,8 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
         // No scaling required, just copy
         for (int y = 0; y < destSize.y; y++) {
             memcpy(pDest, pSrc, sizeof (PixelClass) * srcSize.x);
-            pSrc += srcStride;
-            pDest += destStride;
+            pSrc = (PixelClass*)((char*)(pSrc)+srcStride);
+            pDest = (PixelClass*)((char*)(pDest)+destStride);
         }
     } else {
         LineContribType * pContrib = CalcContributions(destSize.y, srcSize.y);
@@ -306,7 +306,7 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
             int * pWeights = pContrib->ContribRow[y].Weights;
             int iLeft = pContrib->ContribRow[y].Left;
             int iRight = pContrib->ContribRow[y].Right;
-            PixelClass * pSrcPixelBase = pSrc+iLeft*srcStride;
+            PixelClass* pSrcPixelBase = (PixelClass*)((char*)(pSrc)+iLeft*srcStride);
             for (int x = 0; x < destSize.x; x++) {
                 typename DataClass::_Accumulator a;
                 int * pWeight = pWeights;
@@ -317,12 +317,12 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
                     // Accumulate weighted effect of each neighboring pixel
                     a.Accumulate(*pWeight, *pSrcPixel);
                     pWeight++;
-                    pSrcPixel += srcStride;
+                    pSrcPixel = (PixelClass*)((char*)(pSrcPixel)+srcStride);
                 }
                 a.Store(pDestPixel);
                 pDestPixel++;
             }
-            pDest += destStride;
+            pDest = (PixelClass*)((char*)(pDest)+destStride);
         }
         FreeContributions(pContrib);     // Free contributions structure
     }
@@ -336,15 +336,15 @@ void TwoPassScale<DataClass>::Scale(PixelClass * pSrcData, const IntPoint& srcSi
     // Allocate temp image
     PixelClass *pTempData = new PixelClass[srcSize.y*dstSize.x];
     IntPoint tempSize(dstSize.x, srcSize.y);
-    int tempStride = dstSize.x;
+    int tempStride = dstSize.x*sizeof(PixelClass);
 
     // Scale source image horizontally into temporary image
-    HorizScale(pSrcData, srcSize, srcStride/sizeof(PixelClass), 
+    HorizScale(pSrcData, srcSize, srcStride, 
             pTempData, tempSize, tempStride);
  
     // Scale temporary image vertically into result image
     VertScale (pTempData, tempSize, tempStride, 
-            pDstData, dstSize, dstStride/sizeof(PixelClass));
+            pDstData, dstSize, dstStride);
     delete [] pTempData;
 }
 
