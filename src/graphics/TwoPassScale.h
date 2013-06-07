@@ -306,7 +306,8 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
             int * pWeights = pContrib->ContribRow[y].Weights;
             int iLeft = pContrib->ContribRow[y].Left;
             int iRight = pContrib->ContribRow[y].Right;
-            PixelClass* pSrcPixelBase = (PixelClass*)((char*)(pSrc)+iLeft*srcStride);
+            PixelClass* pSrcPixelBase = (PixelClass*)((char*)(pSrc)
+                    + size_t(iLeft)*srcStride);
             for (int x = 0; x < destSize.x; x++) {
                 typename DataClass::_Accumulator a;
                 int * pWeight = pWeights;
