@@ -141,6 +141,11 @@ if test "$enable_ParPort" = yes; then
     AC_DEFINE(AVG_ENABLE_PARPORT, 1, [Enable parallel port support])
 fi 
 
+AC_ARG_ENABLE(gles2,
+        AC_HELP_STRING([--enable-gles2], [include gles2 support [ðefault=no]]),
+        ,
+        enable_gles2=no)
+
 AC_ARG_ENABLE(egl,
         AC_HELP_STRING([--enable-egl], [include EGL support [default=no]]),
         ,
@@ -169,11 +174,14 @@ fi
 
 if test "$enable_egl" = yes; then
     AC_CHECK_HEADERS(["EGL/egl.h"], [egl_present=yes;])
-    AC_CHECK_HEADERS(["GLES2/gl2.h"], [gles2_present=yes;])
-    if [[ x"$egl_present" == x ]] || [[ x"$gles2_present" == x ]]; then
+    if [[ x"$egl_present" == x ]]; then
         AC_MSG_ERROR([EGL not found. Aborting])
     fi
     AC_DEFINE(AVG_ENABLE_EGL, 1, [Enable EGL support])
+    if test "$enable_gles2" = no; then
+        enable_gles2=yes
+        AC_MSG_NOTICE([An opengl context with egl is not supported atm, enabling gles2])
+    fi
 else
     AX_CHECK_GL
     AX_CHECK_GLU
@@ -182,6 +190,16 @@ else
     fi
     AC_DEFINE(AVG_ENABLE_OPENGL, 1, [Enable OpenGL support])
 fi
+
+if test "$enable_gles2" = yes; then
+    AC_CHECK_HEADERS(["GLES2/gl2.h"], [gles2_present=yes;])
+    if [[ x"$gles2_present" == x ]]; then
+        AC_MSG_ERROR([GLES2 not found. Aborting])
+    fi
+    AC_DEFINE(AVG_ENABLE_GLES2, 1, [Enable GLES2 support])
+fi
+
+AM_CONDITIONAL(ENABLE_GLES2, test x"$gles2_present" != x)
 AM_CONDITIONAL(ENABLE_EGL, test x"$egl_present" != x)
 AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 

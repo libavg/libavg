@@ -296,7 +296,7 @@ private:
         cerr << "    Testing save for " << pf << endl;
         BitmapPtr pBmp = initBmp(pf);
         pBmp->save("test.png");
-        BitmapPtr pLoadedBmp = loadBitmap("test.png");
+        BitmapPtr pLoadedBmp = loadBitmap("test.png", pf);
         ::remove("test.png");
         testEqual(*pLoadedBmp, *pBmp, "BmpSave");
     }
@@ -888,7 +888,11 @@ public:
         BitmapPtr pBmp = loadTestBmp("floodfill");
         BitmapPtr pDestBmp = FilterFloodfill<ColorTester>(
                 ColorTester(Pixel32(255,255,255,255)), IntPoint(4,3)).apply(pBmp);
+        #ifdef AVG_ENABLE_GLES2
+        testEqual(*pDestBmp, "FloodfillResult", R8G8B8A8, 0, 0);
+        #else
         testEqual(*pDestBmp, "FloodfillResult", B8G8R8A8, 0, 0);
+        #endif
     }
 
 };
@@ -1043,7 +1047,11 @@ public:
 int main(int nargs, char** args)
 {
     g_type_init();
-    BitmapLoader::init(true);
+    #ifdef AVG_ENABLE_GLES2
+        BitmapLoader::init(false);
+    #else
+        BitmapLoader::init(true);
+    #endif
     GraphicsTest::createResultImgDir();
     GraphicsTestSuite suite;
     suite.runTests();

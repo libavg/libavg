@@ -59,15 +59,11 @@ bool GLContext::s_bErrorLogEnabled = true;
 GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
 {
-    if (glConfig.m_bGLES) {
-        AVG_ASSERT(isGLESSupported());
-    }
 #ifdef __APPLE__
     return new CGLContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined linux
     #ifdef AVG_ENABLE_EGL
         GLConfig tempConfig = glConfig;
-        tempConfig.m_bGLES = true;
         return new EGLContext(tempConfig, windowSize, pSDLWMInfo);
     #else
         return new GLXContext(glConfig, windowSize, pSDLWMInfo);
@@ -511,19 +507,6 @@ int GLContext::nextMultiSampleValue(int curSamples)
         default:
             return 8;
     }
-}
-
-bool GLContext::isGLESSupported()
-{
-#if defined linux
-    #ifdef AVG_ENABLE_EGL
-    return true;
-    #else
-    return GLXContext::haveARBCreateContext();
-    #endif
-#else
-    return false;
-#endif
 }
 
 void GLContext::enableErrorLog(bool bEnable)

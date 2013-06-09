@@ -99,7 +99,6 @@ public:
     static void setMain(GLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
-    static bool isGLESSupported();
     static void enableErrorLog(bool bEnable);
 
 protected:

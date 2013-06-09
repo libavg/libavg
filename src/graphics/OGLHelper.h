@@ -37,13 +37,15 @@
     #ifdef AVG_ENABLE_EGL
         #define EGL_EGLEXT_PROTOTYPES
         #include <EGL/egl.h>
-        #include <GLES2/gl2.h>
-        #include <GLES2/gl2ext.h>
     #else
         #include "GL/gl.h"
         #include "GL/glu.h"
         #include "GL/glext.h"
     #endif
+#endif
+#ifdef AVG_ENABLE_GLES2
+    #include <GLES2/gl2.h>
+    #include <GLES2/gl2ext.h>
 #endif
 #if defined(linux) && !defined(AVG_ENABLE_EGL)
         #define GLX_GLXEXT_PROTOTYPES
@@ -92,7 +94,7 @@ GLfunction AVG_API getFuzzyProcAddress(const char * psz);
 GLfunction getglXProcAddress(const char * psz);
 #endif
 
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
 #define GL_WRITE_ONLY GL_WRITE_ONLY_OES
 #define GL_DYNAMIC_READ 0x88E9
 #define GL_BGRA 0x80E1
@@ -175,7 +177,7 @@ typedef void (GL_APIENTRYP PFNGLBINDATTRIBLOCATIONPROC) (GLuint program, GLuint 
 namespace glproc {
     extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;
     extern AVG_API PFNGLBUFFERDATAPROC BufferData;
-#ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_GLES2
     extern AVG_API PFNGLBUFFERSUBDATAPROC BufferSubData;
     extern AVG_API PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;

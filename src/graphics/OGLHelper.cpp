@@ -46,7 +46,7 @@ using namespace std;
 namespace avg {
 
 namespace glproc {
-#ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_GLES2
     PFNGLBUFFERSUBDATAPROC BufferSubData;
     PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
     PFNGLBLITFRAMEBUFFERPROC BlitFramebuffer;
@@ -172,7 +172,7 @@ string AVG_API oglModeToString(int mode)
             return "GL_RGB";
         case GL_RGBA:
             return "GL_RGBA";
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
         case GL_BGRA_EXT:
             return "GL_BGRA_EXT";
 #else
@@ -246,7 +246,7 @@ void loadGLLibrary()
 #ifdef __APPLE__
     const char * pszFName = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
 #else
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
     const char * pszFName = "libGLESv2.so";
 #else
     const char * pszFName = "libGL.so.1";
@@ -339,7 +339,7 @@ namespace glproc {
         }
         s_bInitialized = true;
         loadGLLibrary();
-        
+
         GenBuffers = (PFNGLGENBUFFERSPROC)getFuzzyProcAddress("glGenBuffers");
         BufferData = (PFNGLBUFFERDATAPROC)getFuzzyProcAddress("glBufferData");
         DeleteBuffers = (PFNGLDELETEBUFFERSPROC)getFuzzyProcAddress("glDeleteBuffers");
@@ -370,7 +370,7 @@ namespace glproc {
         Uniform1fv = (PFNGLUNIFORM1FVPROC)getFuzzyProcAddress("glUniform1fv");
         UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)
                 getFuzzyProcAddress("glUniformMatrix4fv");
-        
+
         BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)
                 getFuzzyProcAddress("glBlendFuncSeparate");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
@@ -378,7 +378,7 @@ namespace glproc {
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
         GenerateMipmap = (PFNGLGENERATEMIPMAPPROC)getFuzzyProcAddress
                 ("glGenerateMipmap");
-        
+
         CheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)
                 getFuzzyProcAddress("glCheckFramebufferStatus");
         GenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)
@@ -402,7 +402,7 @@ namespace glproc {
 
         DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)
                 getFuzzyProcAddress("glDeleteRenderbuffers");
-#ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_GLES2
         BufferSubData = (PFNGLBUFFERSUBDATAPROC)getFuzzyProcAddress("glBufferSubData");
         GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress
             ("glGetBufferSubData");

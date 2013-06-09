@@ -118,7 +118,7 @@ void OGLShader::setTransform(const glm::mat4& transform)
     if (m_hVertexShader) {
         m_pTransformParam->set(transform);
     } else {
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
         // No fixed-function vertex shader in gles
         AVG_ASSERT(false);
 #else

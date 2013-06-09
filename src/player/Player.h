@@ -87,7 +87,6 @@ class AVG_API Player: public Publisher
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
         void setWindowTitle(const std::string& sTitle);
-        void useGLES(bool bGLES);
         void setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
                 int multiSampleSamples, GLConfig::ShaderUsage shaderUsage,
                 bool bUseDebugContext);

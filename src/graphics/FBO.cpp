@@ -40,7 +40,7 @@ namespace avg {
 #define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT
 #endif
 
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
 #define GL_DEPTH_STENCIL_EXT GL_DEPTH24_STENCIL8_OES
 #endif
 
@@ -134,7 +134,7 @@ unsigned FBO::getNumTextures() const
 
 void FBO::copyToDestTexture() const
 {
-#ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_GLES2
     if (m_MultisampleSamples != 1) {
         // Copy Multisample FBO to destination fbo
         glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
@@ -170,7 +170,7 @@ BitmapPtr FBO::getImage(int i) const
 void FBO::moveToPBO(int i) const
 {
     AVG_ASSERT(GLContext::getCurrent()->getMemoryMode() == MM_PBO);
-#ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_GLES2
     // Get data directly from the FBO using glReadBuffer. At least on NVidia/Linux, this 
     // is faster than reading stuff from the texture.
     copyToDestTexture();
@@ -189,7 +189,7 @@ void FBO::moveToPBO(int i) const
  
 BitmapPtr FBO::getImageFromPBO() const
 {
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
     AVG_ASSERT(false);
     return BitmapPtr();
 #else
@@ -233,7 +233,7 @@ void FBO::init()
     if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
-#ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_GLES2
     if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
         m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
     }
@@ -273,9 +273,10 @@ void FBO::init()
         }
         m_OutputFBO = m_FBO;
     } else {
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
+        //TODO: GLES2 should support multisampling
         AVG_ASSERT(false);
-#else        
+#else
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER, m_ColorBuffer);
         GLContext::enableErrorLog(false);
@@ -337,7 +338,8 @@ bool FBO::isFBOSupported()
 
 bool FBO::isMultisampleFBOSupported()
 {
-#ifdef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
+    //TODO GLES2 generally supports multisampling
     return false;
 #else
     int maxSamples;
@@ -377,7 +379,7 @@ void FBO::checkError(const string& sContext)
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
             sErr = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
             break;
-#ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_GLES2
         case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
             sErr = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT";
             break;

@@ -258,16 +258,6 @@ void Player::setWindowTitle(const string& sTitle)
     m_pDisplayEngine->setWindowTitle(sTitle);
 }
 
-void Player::useGLES(bool bGLES)
-{
-    errorIfPlaying("Player.useGLES");
-    m_GLConfig.m_bGLES = bGLES;
-#ifdef AVG_ENABLE_EGL
-    m_GLConfig.m_bGLES = true;
-#endif
-    BitmapLoader::init(!m_GLConfig.m_bGLES);
-}
-
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
         int multiSampleSamples, GLConfig::ShaderUsage shaderUsage,
         bool bUseDebugContext)
@@ -1209,7 +1199,9 @@ void Player::initConfig()
     m_AP.m_OutputBufferSamples =
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
-    m_GLConfig.m_bGLES = pMgr->getBoolOption("scr", "gles", false);
+    #ifdef AVG_ENABLE_GLES2
+    m_GLConfig.m_bGLES = true;
+    #endif
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
@@ -1234,9 +1226,6 @@ void Player::initConfig()
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
-#ifdef AVG_ENABLE_EGL
-    m_GLConfig.m_bGLES = true;
-#endif
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);

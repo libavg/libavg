@@ -473,15 +473,14 @@ int main(int nargs, char** args)
     g_type_init();
     bool bOK = true;
     try {
-#ifndef AVG_ENABLE_EGL
+#ifdef AVG_ENABLE_GLES2
+        BitmapLoader::init(false);
+        bOK &= runTests(true, GLConfig::MINIMAL);
+#else
         BitmapLoader::init(true);
         bOK = runTests(false, GLConfig::FULL);
         bOK &= runTests(false, GLConfig::MINIMAL);
 #endif
-        if (GLContext::isGLESSupported()) {
-            BitmapLoader::init(false);
-            bOK &= runTests(true, GLConfig::MINIMAL);
-        }
     } catch (Exception& ex) {
         if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
             cerr << ex.getStr() << endl;

@@ -223,19 +223,19 @@ class ImageTestCase(AVGTestCase):
 
         def testBlt():
             srcBmp = avg.Bitmap('media/rgb24-65x65.png')
-            destBmp = avg.Bitmap((65,65), avg.B8G8R8X8, "bmp")
+            destPf = avg.R8G8B8A8 if player.isUsingGLES() else avg.B8G8R8X8
+            destBmp = avg.Bitmap((65,65), destPf, "bmp")
             destBmp.blt(srcBmp, (0,0))
             destBmp.blt(srcBmp, (32,32))
             node = avg.ImageNode(pos=(96,32), size=(32,32), parent=root)
             node.setBitmap(destBmp)
-            
+
         def testResize():
             srcBmp = avg.Bitmap('media/rgb24-32x32.png')
             destBmp = srcBmp.getResized((64,64))
             self.assert_(destBmp.getSize() == (64,64))
             node = avg.ImageNode(pos=(128,0), size=(32,32), parent=root)
             node.setBitmap(destBmp)
-
 
         def testUnicode():
             if self._isCurrentDirWriteable():

@@ -38,7 +38,7 @@ BitmapLoader * BitmapLoader::s_pBitmapLoader = 0;
     
 void BitmapLoader::init(bool bBlueFirst) 
 {
-//    cerr << "BitmapLoader::init(" << bBlueFirst << ")" << endl;
+    //cerr << "BitmapLoader::init(" << bBlueFirst << ")" << endl;
     if (s_pBitmapLoader != 0) {
         delete s_pBitmapLoader;
     }
@@ -116,7 +116,7 @@ BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
             }
         }
     }
-//    cerr << "load, pf= " << pf << endl;
+    //    cerr << "load, pf= " << pf << endl;
     BitmapPtr pBmp(new Bitmap(size, pf, sFName));
     int stride = gdk_pixbuf_get_rowstride(pPixBuf);
     guchar* pSrc = gdk_pixbuf_get_pixels(pPixBuf);

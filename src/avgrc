@@ -1,6 +1,5 @@
 <avgrc>
   <scr>
-    <gles>false</gles>
     <bpp>24</bpp>
     <fullscreen>false</fullscreen>
     <usepow2textures>false</usepow2textures>
