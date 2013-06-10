@@ -431,7 +431,9 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     SDL_Event sdlEvent;
     vector<EventPtr> events;
 
+    int numEvents = 0;
     while (SDL_PollEvent(&sdlEvent)) {
+        numEvents++;
         EventPtr pNewEvent;
         switch (sdlEvent.type) {
             case SDL_MOUSEMOTION:
@@ -493,6 +495,10 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
         if (pNewEvent) {
             events.push_back(pNewEvent);
         }
+    }
+    if (numEvents > 124) {
+        AVG_TRACE(Logger::category::EVENTS, Logger::severity::WARNING, 
+                "SDL Event queue full, dropping events.");
     }
     return events;
 }
