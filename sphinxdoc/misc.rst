@@ -160,6 +160,12 @@ Misc. Classes
         .. py:classmethod:: get() -> BitmapManager
 
             This method gives access to the BitmapManager instance.
+        
+        .. py:method:: setNumThreads(numThreads)
+
+            Sets the number of threads used to load bitmaps. The default is a single
+            thread. This should generally be less than the number of logical cores 
+            available.
 
     .. autoclass:: CubicSpline(controlpoints)
 
