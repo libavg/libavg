@@ -49,9 +49,11 @@ bool BitmapManagerThread::work()
 
 void BitmapManagerThread::deinit()
 {
-    AVG_TRACE(Logger::category::PROFILE, Logger::severity::INFO,
-            "Average latency for async bitmap loads: " << m_TotalLatency/m_NumBmpsLoaded 
-            << " ms");
+    if (m_NumBmpsLoaded > 0) {
+        AVG_TRACE(Logger::category::PROFILE, Logger::severity::INFO,
+                "Average latency for async bitmap loads: " << m_TotalLatency/m_NumBmpsLoaded
+                << " ms");
+    }
 }
 
 static ProfilingZoneID LoaderProfilingZone("loadBitmap", true);
