@@ -25,17 +25,19 @@
 #include "BitmapLoader.h"
 
 #include "../base/Exception.h"
-#include "../base/ProfilingZoneID.h"
+#include "../base/ScopeTimer.h"
+#include "../base/TimeSource.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 namespace avg {
 
-BitmapManagerThread::BitmapManagerThread(CQueue& cmdQ,
-        BitmapManagerMsgQueue& MsgQueue)
-        : WorkerThread<BitmapManagerThread>("BitmapManager", cmdQ),
-        m_MsgQueue(MsgQueue)
+BitmapManagerThread::BitmapManagerThread(CQueue& cmdQ, BitmapManagerMsgQueue& MsgQueue)
+    : WorkerThread<BitmapManagerThread>("BitmapManager", cmdQ),
+      m_MsgQueue(MsgQueue),
+      m_TotalLatency(0),
+      m_NumBmpsLoaded(0)
 {
 }
 
@@ -45,18 +47,31 @@ bool BitmapManagerThread::work()
     return true;
 }
 
+void BitmapManagerThread::deinit()
+{
+    AVG_TRACE(Logger::category::PROFILE, Logger::severity::INFO,
+            "Average latency for async bitmap loads: " << m_TotalLatency/m_NumBmpsLoaded 
+            << " ms");
+}
+
+static ProfilingZoneID LoaderProfilingZone("loadBitmap", true);
+
 void BitmapManagerThread::loadBitmap(BitmapManagerMsgPtr pRequest)
 {
     BitmapPtr pBmp;
-
+    ScopeTimer timer(LoaderProfilingZone);
+    float startTime = pRequest->getStartTime();
     try {
         pBmp = avg::loadBitmap(pRequest->getFilename());
         pRequest->setBitmap(pBmp);
     } catch (const Exception& ex) {
         pRequest->setError(ex);
     }
-
     m_MsgQueue.push(pRequest);
+    m_NumBmpsLoaded++;
+    float curLatency = TimeSource::get()->getCurrentMicrosecs()/1000 - startTime;
+    m_TotalLatency += curLatency;
+    ThreadProfiler::get()->reset();
 }
 
 }

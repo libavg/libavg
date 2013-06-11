@@ -45,6 +45,7 @@ public:
     void executeCallback();
     void setRequest(const UTF8String& sFilename, const boost::python::object& onLoadedCb);
     const UTF8String getFilename();
+    float getStartTime();
     void setBitmap(BitmapPtr pBmp);
     void setError(const Exception& ex);
 
@@ -52,6 +53,7 @@ public:
 
 private:
     UTF8String m_sFilename;
+    float m_StartTime;
     BitmapPtr m_pBmp;
     boost::python::object m_OnLoadedCb;
     MsgType m_MsgType;

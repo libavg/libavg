@@ -23,6 +23,7 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
+#include "../base/TimeSource.h"
 
 
 namespace avg {
@@ -47,6 +48,7 @@ void BitmapManagerMsg::setRequest(const UTF8String& sFilename,
 {
     AVG_ASSERT(m_MsgType == NONE);
     m_sFilename = sFilename;
+    m_StartTime = TimeSource::get()->getCurrentMicrosecs()/1000.0f;
     m_OnLoadedCb = onLoadedCb;
     m_MsgType = REQUEST;
 }
@@ -72,6 +74,12 @@ const UTF8String BitmapManagerMsg::getFilename()
 {
     AVG_ASSERT(m_MsgType != NONE);
     return m_sFilename;
+}
+
+float BitmapManagerMsg::getStartTime()
+{
+    AVG_ASSERT(m_MsgType == REQUEST);
+    return m_StartTime;
 }
     
 void BitmapManagerMsg::setBitmap(BitmapPtr pBmp)
