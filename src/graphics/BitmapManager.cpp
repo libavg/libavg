@@ -29,6 +29,7 @@
 
 #include "../base/OSHelper.h"
 
+using namespace std;
 
 namespace avg {
 
@@ -42,9 +43,9 @@ BitmapManager::BitmapManager()
     
     m_pCmdQueue = BitmapManagerThread::CQueuePtr(new BitmapManagerThread::CQueue);
     m_pMsgQueue = BitmapManagerMsgQueuePtr(new BitmapManagerMsgQueue(8));
-    m_pBitmapManagerThread = new boost::thread(
-            BitmapManagerThread(*m_pCmdQueue, *m_pMsgQueue));
-    
+
+    startThreads(1);
+
     s_pBitmapManager = this;
 }
 
@@ -56,12 +57,7 @@ BitmapManager::~BitmapManager()
     while (!m_pMsgQueue->empty()) {
         m_pMsgQueue->pop();
     }
-    m_pCmdQueue->pushCmd(boost::bind(&BitmapManagerThread::stop, _1));
-    if (m_pBitmapManagerThread) {
-        m_pBitmapManagerThread->join();
-        delete m_pBitmapManagerThread;
-    }
-
+    stopThreads();
     s_pBitmapManager = 0;
 }
 
@@ -98,6 +94,12 @@ void BitmapManager::loadBitmap(const UTF8String& sUtf8FileName,
     }
 }
 
+void BitmapManager::setNumThreads(int numThreads)
+{
+    stopThreads();
+    startThreads(numThreads);
+}
+
 void BitmapManager::onFrameEnd()
 {
     while (!m_pMsgQueue->empty()) {
@@ -106,5 +108,27 @@ void BitmapManager::onFrameEnd()
     }
 }
 
+void BitmapManager::startThreads(int numThreads)
+{
+    for (int i=0; i<numThreads; ++i) {
+        boost::thread* pThread = new boost::thread(
+                BitmapManagerThread(*m_pCmdQueue, *m_pMsgQueue));
+        m_pBitmapManagerThreads.push_back(pThread);
+    }
+}
+
+void BitmapManager::stopThreads()
+{
+    int numThreads = m_pBitmapManagerThreads.size();
+    for (int i=0; i<numThreads; ++i) {
+        m_pCmdQueue->pushCmd(boost::bind(&BitmapManagerThread::stop, _1));
+    }
+    for (int i=0; i<numThreads; ++i) {
+        boost::thread* pThread = m_pBitmapManagerThreads[i];
+        pThread->join();
+        delete pThread;
+    }
+    m_pBitmapManagerThreads.clear();
+}
 
 }

@@ -328,12 +328,16 @@ class ImageTestCase(AVGTestCase):
                     "within %dms timeout" % WAIT_TIMEOUT)
             player.stop()
             
-        self.loadEmptyScene()
+        for multithread in [False, True]:
+            self.loadEmptyScene()
         
-        player.setTimeout(WAIT_TIMEOUT, reportStuck)
-        player.setResolution(0, 0, 0, 0)
-        loadValidBitmap()
-        player.play()
+            if multithread:
+                avg.BitmapManager.get().setNumThreads(2)
+            player.setTimeout(WAIT_TIMEOUT, reportStuck)
+            player.setResolution(0, 0, 0, 0)
+            loadValidBitmap()
+            player.play()
+        avg.BitmapManager.get().setNumThreads(1)
         
     def testBitmapManagerException(self):
         def bitmapCb(bitmap):

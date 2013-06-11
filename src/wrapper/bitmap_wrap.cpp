@@ -183,6 +183,7 @@ void export_bitmap()
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
         .def("loadBitmap", &BitmapManager::loadBitmap)
+        .def("setNumThreads", &BitmapManager::setNumThreads)
     ;
 
     class_<CubicSpline, boost::noncopyable>("CubicSpline", no_init)

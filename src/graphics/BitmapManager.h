@@ -32,6 +32,7 @@
 
 #include <boost/thread.hpp>
 
+#include <vector>
 
 namespace avg {
 
@@ -43,13 +44,17 @@ class AVG_API BitmapManager : public IFrameEndListener
         static BitmapManager* get();
         void loadBitmap(const UTF8String& sUtf8FileName,
                 const boost::python::object& pyFunc);
-        
+        void setNumThreads(int numThreads);
+
         virtual void onFrameEnd();
         
     private:
+        void startThreads(int numThreads);
+        void stopThreads();
+
         static BitmapManager * s_pBitmapManager;
 
-        boost::thread* m_pBitmapManagerThread;
+        std::vector<boost::thread*> m_pBitmapManagerThreads;
         BitmapManagerThread::CQueuePtr m_pCmdQueue;
         BitmapManagerMsgQueuePtr m_pMsgQueue;
 };
