@@ -103,6 +103,9 @@ BitmapPtr createBitmapWithRect(BitmapPtr pBmp, const glm::vec2& pos, const glm::
     return BitmapPtr(new Bitmap(*pBmp, rect));
 }
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads, BitmapManager::loadBitmap, 
+        2, 3);
+
 void export_bitmap()
 {
     export_point<glm::vec2>("Point2D")
@@ -182,7 +185,7 @@ void export_bitmap()
         .def("get", &BitmapManager::get,
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
-        .def("loadBitmap", &BitmapManager::loadBitmap)
+        .def("loadBitmap", &BitmapManager::loadBitmap, loadBitmap_overloads())
         .def("setNumThreads", &BitmapManager::setNumThreads)
     ;
 

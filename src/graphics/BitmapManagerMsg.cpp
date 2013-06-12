@@ -44,12 +44,13 @@ BitmapManagerMsg::~BitmapManagerMsg()
 }
 
 void BitmapManagerMsg::setRequest(const UTF8String& sFilename,
-        const boost::python::object& onLoadedCb)
+        const boost::python::object& onLoadedCb, PixelFormat pf)
 {
     AVG_ASSERT(m_MsgType == NONE);
     m_sFilename = sFilename;
     m_StartTime = TimeSource::get()->getCurrentMicrosecs()/1000.0f;
     m_OnLoadedCb = onLoadedCb;
+    m_PF = pf;
     m_MsgType = REQUEST;
 }
 
@@ -82,6 +83,12 @@ float BitmapManagerMsg::getStartTime()
     return m_StartTime;
 }
     
+PixelFormat BitmapManagerMsg::getPixelFormat()
+{
+    AVG_ASSERT(m_MsgType == REQUEST);
+    return m_PF;
+}
+
 void BitmapManagerMsg::setBitmap(BitmapPtr pBmp)
 {
     AVG_ASSERT(m_MsgType == REQUEST);

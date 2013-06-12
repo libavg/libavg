@@ -70,7 +70,7 @@ BitmapManager* BitmapManager::get()
 }
 
 void BitmapManager::loadBitmap(const UTF8String& sUtf8FileName,
-        const boost::python::object& pyFunc)
+        const boost::python::object& pyFunc, PixelFormat pf)
 {
     std::string sFileName = convertUTF8ToFilename(sUtf8FileName);
 
@@ -81,7 +81,7 @@ void BitmapManager::loadBitmap(const UTF8String& sUtf8FileName,
 #endif
 
     BitmapManagerMsgPtr msg = BitmapManagerMsgPtr(new BitmapManagerMsg());
-    msg->setRequest(sUtf8FileName, pyFunc);
+    msg->setRequest(sUtf8FileName, pyFunc, pf);
 
     if (rc != 0) {
         msg->setError(Exception(AVG_ERR_FILEIO, 

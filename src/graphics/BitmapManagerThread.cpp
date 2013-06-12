@@ -64,7 +64,7 @@ void BitmapManagerThread::loadBitmap(BitmapManagerMsgPtr pRequest)
     ScopeTimer timer(LoaderProfilingZone);
     float startTime = pRequest->getStartTime();
     try {
-        pBmp = avg::loadBitmap(pRequest->getFilename());
+        pBmp = avg::loadBitmap(pRequest->getFilename(), pRequest->getPixelFormat());
         pRequest->setBitmap(pBmp);
     } catch (const Exception& ex) {
         pRequest->setError(ex);

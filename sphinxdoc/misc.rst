@@ -151,11 +151,13 @@ Misc. Classes
         (EXPERIMENTAL) Singleton class that allow an asynchronous load of bitmaps.
         The instance is accessed by :py:meth:`get`.
 
-        .. py:method:: loadBitmap(fileName, callback)
+        .. py:method:: loadBitmap(fileName, callback, pixelformat=NO_PIXELFORMAT)
         
             Asynchronously loads a file into a Bitmap. The provided callback is invoked
             with a Bitmap instance as argument in case of a successful load or with a
-            RuntimeError exception instance in case of failure.
+            RuntimeError exception instance in case of failure. The optional parameter
+            :py:attr:`pixelformat` can be used to convert the bitmap to a specific format
+            asynchronously as well.
 
         .. py:classmethod:: get() -> BitmapManager
 
@@ -188,8 +190,8 @@ Misc. Classes
         A :py:class:`FontStyle` object encapsulates all configurable font attributes in a
         :py:class:`WordsNode`. It provides a way to set all relevant attributes 
         (:py:attr:`font`, :py:attr:`fontsize`, etc.) in one line of code. The attributes
-        correspond to the :py:class:`WordsNode` attributes; refer to the :py:class:`WordsNode`
-        reference for descriptions.    
+        correspond to the :py:class:`WordsNode` attributes; refer to the 
+        :py:class:`WordsNode` reference for descriptions.    
 
 
     .. autoclass:: Logger

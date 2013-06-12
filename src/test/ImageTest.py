@@ -26,8 +26,6 @@ import shutil
 from libavg import avg, player
 from testcase import *
 
-g_IsMaskSupported = None
-
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
@@ -299,18 +297,27 @@ class ImageTestCase(AVGTestCase):
         def loadValidBitmap():
             def validBitmapCb(bitmap):
                 self.assert_(not isinstance(bitmap, Exception))
-                player.setTimeout(0, loadUnexistentBitmap)
+                player.setTimeout(0, loadBitmapWithPixelFormat)
 
             avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
                     validBitmapCb)
+
+        def loadBitmapWithPixelFormat():
+            def validBitmapCb(bitmap):
+                self.assert_(not isinstance(bitmap, Exception))
+                self.assert_(bitmap.getFormat() == avg.B5G6R5)
+                player.setTimeout(0, loadUnexistentBitmap)
+
+            avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
+                    validBitmapCb, avg.B5G6R5)
 
         def loadUnexistentBitmap():
             avg.BitmapManager.get().loadBitmap("nonexistent.png",
                     lambda bmp: expectException(
                             returnValue=bmp,
-                            nextAction=lambda: player.setTimeout(0, loadBrokenImage)))
+                            nextAction=lambda: player.setTimeout(0, loadBrokenBitmap)))
 
-        def loadBrokenImage():
+        def loadBrokenBitmap():
             import tempfile
             tempFileName = os.path.join(tempfile.gettempdir(),
                     "broken.png")
@@ -330,7 +337,6 @@ class ImageTestCase(AVGTestCase):
             
         for multithread in [False, True]:
             self.loadEmptyScene()
-        
             if multithread:
                 avg.BitmapManager.get().setNumThreads(2)
             player.setTimeout(WAIT_TIMEOUT, reportStuck)

@@ -43,7 +43,7 @@ class AVG_API BitmapManager : public IFrameEndListener
         ~BitmapManager();
         static BitmapManager* get();
         void loadBitmap(const UTF8String& sUtf8FileName,
-                const boost::python::object& pyFunc);
+                const boost::python::object& pyFunc, PixelFormat pf=NO_PIXELFORMAT);
         void setNumThreads(int numThreads);
 
         virtual void onFrameEnd();
