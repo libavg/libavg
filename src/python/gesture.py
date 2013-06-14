@@ -522,7 +522,6 @@ class DragRecognizer(Recognizer):
 
     def __fail(self, event):
         self._setFail(event)
-        self._disconnectContacts()
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
         self.__inertiaHandler = None
