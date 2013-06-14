@@ -476,36 +476,29 @@ class DragRecognizer(Recognizer):
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
-            self.__lastPos = self.__relEventPos(event)
-            self.__nodeDownOffset = self.__nodeDownPos - event.node.getRelPos(event.pos)
+            self._setEnd(event)
+        if self.__minDragDist == 0:
+            self._setDetected(event)
         else:
-            pos = self.__relEventPos(event)
-            self.__dragStartPos = pos
-            self.__lastPos = pos
-            self.__nodeDownPos = event.node.getRelPos(event.pos)
-            self.__nodeDownOffset = avg.Point2D(0, 0)
-        if self.getState() != "RUNNING":
-            if self.__minDragDist == 0:
-                self._setDetected(event)
-            else:
-                self._setPossible(event)
+            self._setPossible(event)
+        pos = self.__relEventPos(event)
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
                     self.__onInertiaStop)
+        self.__dragStartPos = pos
+        self.__lastPos = pos
 
     def _handleMove(self, event):
         if self.getState() != "IDLE":
             pos = self.__relEventPos(event)
             offset = pos - self.__dragStartPos
             if self.getState() == "RUNNING":
-                self.notifySubscribers(Recognizer.MOTION,
-                        [offset + self.__nodeDownOffset]);
+                self.notifySubscribers(Recognizer.MOTION, [offset]);
             else:
                 if offset.getNorm() > self.__minDragDist*player.getPixelsPerMM():
                     if self.__angleFits(offset):
                         self._setDetected(event)
-                        self.notifySubscribers(Recognizer.MOTION,
-                                [offset + self.__nodeDownOffset]);
+                        self.notifySubscribers(Recognizer.MOTION, [offset]);
                     else:
                         self.__fail(event)
             if self.__inertiaHandler:
@@ -517,8 +510,7 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             if self.getState() == "RUNNING":
                 self.__offset = pos - self.__dragStartPos
-                self.notifySubscribers(Recognizer.UP,
-                        [self.__offset + self.__nodeDownOffset]);
+                self.notifySubscribers(Recognizer.UP, [self.__offset]);
                 if self.__friction != -1:
                     self.__isSliding = True
                     self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -530,14 +522,14 @@ class DragRecognizer(Recognizer):
 
     def __fail(self, event):
         self._setFail(event)
+        self._disconnectContacts()
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
         self.__inertiaHandler = None
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        self.notifySubscribers(Recognizer.MOTION,
-                [self.__offset + self.__nodeDownOffset]);
+        self.notifySubscribers(Recognizer.MOTION, [self.__offset]);
 
     def __onInertiaStop(self):
         self.__inertiaHandler = None
@@ -772,10 +764,9 @@ class TransformRecognizer(Recognizer):
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
-            if self.getState() != "RUNNING":
-                self._setDetected(event)
-            if not(self.__frameHandlerID):
-                self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
+                self._setEnd(event)
+            self._setDetected(event)
+            self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)
