@@ -71,7 +71,7 @@ AX_PYTHON_DEVEL
 AC_ARG_VAR(BOOST_PYTHON_LIBS, [linker flags for BOOST, defaults to -lboost_python])
 if test -z "$BOOST_PYTHON_LIBS"
 then
-  AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LIBS)
+  AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LDFLAGS)
   if test -z "$libboost_python_installed"
   then
     AC_MSG_ERROR([boost.python not found. Aborting.])
