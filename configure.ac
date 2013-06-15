@@ -48,6 +48,7 @@ if [[ $target_vendor = apple ]] && [[ x"`which port`" = x"/opt/local/bin/port" ]
 fi
 
 AC_SEARCH_LIBS([clock_gettime],[rt])
+AC_CHECK_LIB([dl], [dlopen])
 
 AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))
 PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
@@ -65,12 +66,7 @@ if test -z "$FFMPEG_LIBS"; then
 fi
 
 AM_PATH_PYTHON
-
-AM_CHECK_PYTHON_HEADERS
-AM_CHECK_PYTHON_LIB
-if test -z "$PYTHON_INCLUDES" || test -z "$PYTHON_LIBS"; then
-  AC_MSG_ERROR([could not find files required to build python plugin])
-fi
+AX_PYTHON_DEVEL
 
 AC_ARG_VAR(BOOST_PYTHON_LIBS, [linker flags for BOOST, defaults to -lboost_python])
 if test -z "$BOOST_PYTHON_LIBS"
