@@ -32,8 +32,6 @@ import math
 import libavg
 from libavg import avg
 from libavg import graph
-from libavg.widget.scrollarea import ScrollArea
-from libavg.widget.button import TextButton
 from touchvisualization import DebugTouchVisualization
 from touchvisualization import TouchVisualizationOverlay as TouchVisOverlay
 
@@ -49,11 +47,6 @@ PANGO_ENTITIES_MAP = {
     ">": "&gt;",
     "<": "&lt;",
 }
-
-PADDING_LEFT = 10
-PADDING_RIGHT = 5
-PADDING_TOP = 2
-PADDING_BOTTOM = 2
 
 def subscribe(publisher, msgID, callable_):
     publisher.subscribe(msgID, callable_)
@@ -512,10 +505,7 @@ class DebugPanel(avg.DivNode):
             if not self.active:
                 self.__panel.show()
         else:
-            self.__panel = _DebugPanel(parent=self, size=self.size,
-                    fontsize=self.__fontsize)
-            for callable_ in self.__callables:
-                callable_()
+            self.forceLoadPanel()
 
         self.active = True
 
@@ -535,6 +525,13 @@ class DebugPanel(avg.DivNode):
         else:
             self.__touchVisOverlay.unlink(True)
             self.__touchVisOverlay = None
+
+    def forceLoadPanel(self):
+        if self.__panel is None:
+            self.__panel = _DebugPanel(parent=self, size=self.size,
+                    fontsize=self.__fontsize)
+            for callable_ in self.__callables:
+                callable_()
 
 
 class _DebugPanel(avg.DivNode):
