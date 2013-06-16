@@ -27,7 +27,7 @@
 
 from collections import defaultdict
 from collections import deque
-from math import cos
+import math
 
 import libavg
 from libavg import avg
@@ -131,6 +131,7 @@ class DebugWidgetFrame(avg.DivNode):
 
 class DebugWidget(avg.DivNode):
     SLOT_HEIGHT = 200
+    CAPTION = 'xx'
 
     WIDGET_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
@@ -138,6 +139,11 @@ class DebugWidget(avg.DivNode):
         super(DebugWidget, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         self.publish(DebugWidget.WIDGET_HEIGHT_CHANGED)
+        if self.CAPTION:
+            caption = avg.WordsNode(text=self.CAPTION, pivot=(0, 0),
+                    opacity=0.3, fontsize=14, parent=self)
+            caption.angle = math.pi / 2
+            caption.pos = (self.width, 0)
 
     def syncSize(self, size):
         pass
@@ -251,6 +257,8 @@ class Table(avg.DivNode):
 
 
 class ObjectDumpWidget(DebugWidget):
+    CAPTION = 'Objects count'
+
     def __init__(self, parent=None, **kwargs):
         super(ObjectDumpWidget, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -343,6 +351,8 @@ class FrametimeGraphWidget(GraphWidget):
 
 
 class KeyboardManagerBindingsShower(DebugWidget):
+    CAPTION = 'Keyboard bindings'
+
     def __init__(self, *args, **kwargs):
         super(KeyboardManagerBindingsShower, self).__init__(**kwargs)
         self.registerInstance(self, None)
