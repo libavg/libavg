@@ -39,6 +39,7 @@ from collections import namedtuple
 from libavg import avg, player
 
 IGNORED_KEYMODS = avg.KEYMOD_NUM
+KEYMOD_ANY = -1
 
 LOGCAT = avg.logger.configureCategory('KEYBOARDMANAGER',
         avg.logger.Severity.WARNING)
@@ -122,11 +123,14 @@ def disable():
     global _isEnabled
     _isEnabled = False
 
-def _bindKey(keystring, handler, help, modifiers, type):
+def _bindKey(keystring, handler, help, modifiers, type_):
+    if type(keystring) == unicode:
+        keystring = keystring.encode('utf8')
+
     avg.logger.info('Binding key <%s> (mod:%s) to handler %s (%s)' % (keystring,
             modifiers, handler, type), LOGCAT)
-    _checkDuplicates(keystring, modifiers, type)
-    keyBinding = _KeyBinding(keystring, handler, help, modifiers, type)
+    _checkDuplicates(keystring, modifiers, type_)
+    keyBinding = _KeyBinding(keystring, handler, help, modifiers, type_)
 
     if modifiers != avg.KEYMOD_NONE:
         _modifiedKeyBindings.append(keyBinding)
@@ -141,13 +145,16 @@ def _findAndRemoveKeybinding(keystring, modifiers, type, list):
                    list.remove(keybinding)
                    break;
 
-def _unbindKey(keystring, modifiers, type):
+def _unbindKey(keystring, modifiers, type_):
+    if type(keystring) == unicode:
+        keystring = keystring.encode('utf8')
+
     avg.logger.info('Unbinding key <%s> (mod:%s) (%s)' % (keystring,
             modifiers, type), LOGCAT)
     if modifiers != avg.KEYMOD_NONE:
-        _findAndRemoveKeybinding(keystring, modifiers, type, _modifiedKeyBindings)
+        _findAndRemoveKeybinding(keystring, modifiers, type_, _modifiedKeyBindings)
     else:
-        _findAndRemoveKeybinding(keystring, modifiers, type, _plainKeyBindings)
+        _findAndRemoveKeybinding(keystring, modifiers, type_, _plainKeyBindings)
 
 def _onKeyDown(event):
     if _isEnabled:
@@ -157,26 +164,47 @@ def _onKeyUp(event):
     if _isEnabled:
         _processEvent(event, avg.KEYUP)
 
-def _areMatchingModifiers(mod1, mod2):
+def _testModifiers(mod1, mod2):
+    if mod1 == KEYMOD_ANY or mod2 == KEYMOD_ANY:
+        return True
+
     mod1 &= ~IGNORED_KEYMODS
     mod2 &= ~IGNORED_KEYMODS
     return mod1 == mod2 or mod1 & mod2
 
-def _processEvent(event, type):
+def _testMatchString(keyBinding, keyString, type_):
+    sameType = keyBinding.type == type_
+    keyStringMatches = keyBinding.keystring == keyString
+
+    return sameType and keyStringMatches
+
+def _testMatchEvent(keyBinding, event, type_):
+    if not _testModifiers(event.modifiers, keyBinding.modifiers):
+        return False
+
+    if _testMatchString(keyBinding, event.keystring, type_):
+        return True
+
+    if type_ == avg.KEYDOWN:
+        return _testMatchString(keyBinding,
+                unichr(event.unicode).encode('utf8'), type_)
+    else:
+        return False
+
+def _processEvent(event, type_):
     avg.logger.debug('Processing event keystring=%s '
             'modifiers=%s type=%s' % (event.keystring, event.modifiers, event.type),
             LOGCAT)
     for keyBinding in _plainKeyBindings + _modifiedKeyBindings:
-        if ((keyBinding.keystring, keyBinding.type) == (event.keystring, type) and
-                _areMatchingModifiers(event.modifiers, keyBinding.modifiers)):
+        if _testMatchEvent(keyBinding, event, type_):
             avg.logger.debug('  Found keyBinding=%s' % (keyBinding,), LOGCAT)
             keyBinding.handler()
             return
 
-def _checkDuplicates(keystring, modifiers, type):
+def _checkDuplicates(keystring, modifiers, type_):
     for keyBinding in _plainKeyBindings + _modifiedKeyBindings:
-        if ((keyBinding.keystring, keyBinding.type) == (keystring, type) and
-                _areMatchingModifiers(modifiers, keyBinding.modifiers)):
+        if (_testModifiers(keyBinding.modifiers, modifiers) and
+                _testMatchString(keyBinding, keystring, type_)):
             raise RuntimeError('Key binding keystring=%s modifiers=%s type=%s '
-                    'already defined' % (keystring, modifiers, type))
+                    'already defined' % (keystring, modifiers, type_))
 

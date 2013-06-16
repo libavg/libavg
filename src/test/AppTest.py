@@ -223,31 +223,69 @@ class AppTestCase(testcase.AVGTestCase):
                 removeFiles,
                 ])
 
-    def testKeyboardManager(self):
-        statesRecords = [False, False]
-        def keyDownPressed():
-            statesRecords[0] = True
-        
-        def keyUpPressed():
-            statesRecords[1] = True
-            
-        app = TestApp()
-        app.testRun([
-                lambda: keyboardmanager.bindKeyDown('a', keyDownPressed, ''),
-                lambda: keyboardmanager.bindKeyUp('a', keyUpPressed, ''),
-                lambda: self.__emuKeyPress('a'),
-                lambda: self.assert_(all(statesRecords)),
-                ])
-                
+    def testKeyboardManagerPlain(self):
+        tester = lambda: self.__emuKeyPress(0, 97, 'a', 97, libavg.avg.KEYMOD_NONE)
+        self.__testKeyboardManager('a', libavg.avg.KEYMOD_NONE, tester)
+
+    def testKeyboardManagerPlainMod(self):
+        tester = lambda: self.__emuKeyPress(0, 97, 'a', 97, libavg.avg.KEYMOD_LSHIFT)
+        self.__testKeyboardManager('a', libavg.avg.KEYMOD_SHIFT, tester)
+
+    def testKeyboardManagerUnicodeBinary(self):
+        tester = lambda: self.__emuKeyPress(53, 164, 'ö', 246, libavg.avg.KEYMOD_NONE)
+        self.__testKeyboardManager('ö', libavg.avg.KEYMOD_NONE, tester)
+
+    def testKeyboardManagerUnicodeExplicit(self):
+        tester = lambda: self.__emuKeyPress(53, 164, 'ö', 246, libavg.avg.KEYMOD_NONE)
+        self.__testKeyboardManager(u'ö', libavg.avg.KEYMOD_NONE, tester)
+
+    def testKeyboardManagerUnicodeMod(self):
+        tester = lambda: self.__emuKeyPress(0, 65, 'A', 65, libavg.avg.KEYMOD_LSHIFT)
+        self.__testKeyboardManager(u'A', keyboardmanager.KEYMOD_ANY, tester)
+        self.tearDown()
+        self.__testKeyboardManager(u'A', libavg.avg.KEYMOD_SHIFT, tester)
+
     def tearDown(self):
         libavg.app.instance = None
 
-    def __emuKeyPress(self, char):
+    def __testKeyboardManager(self, keyString, modifiers, tester):
+        self.statesRecords = [False, False]
+        def keyDownPressed():
+            self.statesRecords[0] = True
+
+        def keyUpPressed():
+            self.statesRecords[1] = True
+
+        def bindKeys():
+            keyboardmanager.bindKeyDown(keyString, keyDownPressed, '', modifiers)
+            keyboardmanager.bindKeyUp(keyString, keyUpPressed, '', modifiers)
+
+        def reset():
+            keyboardmanager.unbindKeyDown(keyString, modifiers)
+            keyboardmanager.unbindKeyUp(keyString, modifiers)
+            self.statesRecords = [False, False]
+
+        def cleanup():
+            del self.statesRecords
+
+        app = TestApp()
+        app.testRun([
+                bindKeys,
+                tester,
+                lambda: self.assert_(all(self.statesRecords)),
+                reset,
+                tester,
+                lambda: self.assert_(not any(self.statesRecords)),
+                cleanup,
+                ])
+
+    def __emuKeyPress(self, scanCode, keyCode, keyString, unicode_, modifiers):
         helper = libavg.player.getTestHelper()
-        helper.fakeKeyEvent(libavg.avg.Event.KEY_DOWN, ord(char), ord(char), char,
-                ord(char), libavg.avg.KEYMOD_NONE)
-        helper.fakeKeyEvent(libavg.avg.Event.KEY_UP, ord(char), ord(char), char,
-                ord(char), libavg.avg.KEYMOD_NONE)
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_DOWN, scanCode, keyCode, keyString,
+                unicode_, modifiers)
+        # Note: on up, unicode is always 0
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_UP, scanCode, keyCode, keyString,
+                0, modifiers)
 
 
 def appTestSuite(tests):
@@ -267,7 +305,11 @@ def appTestSuite(tests):
             'testAppFullscreen',
             'testAppRotation',
             'testScreenshot',
-            'testKeyboardManager',
+            'testKeyboardManagerPlain',
+            'testKeyboardManagerPlainMod',
+            'testKeyboardManagerUnicodeBinary',
+            'testKeyboardManagerUnicodeExplicit',
+            'testKeyboardManagerUnicodeMod',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 
