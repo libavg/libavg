@@ -44,6 +44,18 @@ KEYMOD_ANY = -1
 LOGCAT = avg.logger.configureCategory('KEYBOARDMANAGER',
         avg.logger.Severity.WARNING)
 
+
+class KeyboardManagerPublisher(avg.Publisher):
+    BINDINGS_UPDATED = avg.Publisher.genMessageID()
+    def __init__(self):
+        super(KeyboardManagerPublisher, self).__init__()
+        self.publish(self.BINDINGS_UPDATED)
+
+    def notifyUpdate(self):
+        self.notifySubscribers(self.BINDINGS_UPDATED, [])
+
+publisher = KeyboardManagerPublisher()
+
 _KeyBinding = namedtuple('_KeyBinding',
         ['keystring', 'handler', 'help', 'modifiers', 'type'])
 
@@ -52,6 +64,7 @@ _modifiedKeyBindings = []
 _plainKeyBindings = []
 _plainKeyBindingsStack = []
 _isEnabled = True
+
 
 def init():
     '''
@@ -90,6 +103,7 @@ def unbindAll():
     _modifiedKeyBindings = []
     _plainKeyBindings = []
     _plainKeyBindingsStack = []
+    publisher.notifyUpdate()
 
 def push():
     '''
@@ -98,6 +112,7 @@ def push():
     global _plainKeyBindings
     _plainKeyBindingsStack.append(_plainKeyBindings)
     _plainKeyBindings = []
+    publisher.notifyUpdate()
 
 def pop():
     '''
@@ -105,6 +120,7 @@ def pop():
     '''
     global _plainKeyBindings
     _plainKeyBindings = _plainKeyBindingsStack.pop()
+    publisher.notifyUpdate()
 
 def getCurrentBindings():
     return _modifiedKeyBindings + _plainKeyBindings
@@ -137,6 +153,8 @@ def _bindKey(keystring, handler, help, modifiers, type_):
     else:
         _plainKeyBindings.append(keyBinding)
 
+    publisher.notifyUpdate()
+
 def _findAndRemoveKeybinding(keystring, modifiers, type, list):
     for keybinding in list:
             if keybinding.keystring == keystring and \
@@ -155,6 +173,8 @@ def _unbindKey(keystring, modifiers, type_):
         _findAndRemoveKeybinding(keystring, modifiers, type_, _modifiedKeyBindings)
     else:
         _findAndRemoveKeybinding(keystring, modifiers, type_, _plainKeyBindings)
+
+    publisher.notifyUpdate()
 
 def _onKeyDown(event):
     if _isEnabled:

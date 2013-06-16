@@ -131,7 +131,7 @@ class DebugWidgetFrame(avg.DivNode):
 
 class DebugWidget(avg.DivNode):
     SLOT_HEIGHT = 200
-    CAPTION = 'xx'
+    CAPTION = ''
 
     WIDGET_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
@@ -357,6 +357,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
         super(KeyboardManagerBindingsShower, self).__init__(**kwargs)
         self.registerInstance(self, None)
         self.keybindingWordNodes = []
+        kbmgr.publisher.subscribe(kbmgr.publisher.BINDINGS_UPDATED, self.update)
 
     def clear(self):
         for node in self.keybindingWordNodes:
@@ -382,6 +383,9 @@ class KeyboardManagerBindingsShower(DebugWidget):
         self._placeNodes()
 
     def _placeNodes(self):
+        if not self.keybindingWordNodes:
+            return
+
         maxWidth = max([node.width for node in self.keybindingWordNodes])
         columns = int(self.parent.width / maxWidth)
         rows = len(self.keybindingWordNodes) / columns
