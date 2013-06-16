@@ -479,7 +479,7 @@ class DebugPanel(avg.DivNode):
                 help="Object dump",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keystring='e', handler=self.toggleTouchVisualization,
+        kbmgr.bindKeyDown(keystring='v', handler=self.toggleTouchVisualization,
                 help="CURSOR Visualization",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 

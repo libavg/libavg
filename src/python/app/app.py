@@ -29,7 +29,7 @@ import math
 import time
 
 import libavg
-from libavg import avg, Point2D
+from libavg import avg, Point2D, mtemu
 
 import settings
 from settings import Option
@@ -102,6 +102,7 @@ class App(object):
         self._overlayPanel = None
         self._resolution = None
         self._windowSize = None
+        self._mtEmu = None
 
         self.__lastFrameTimestamp = 0
 
@@ -402,6 +403,34 @@ class App(object):
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         self.debugPanel.setupKeys()
+
+        if self.settings.getboolean('multitouch_enabled'):
+            keyboardmanager.bindKeyDown(
+                    keystring='e',
+                    handler=self._toggleMtEmulation,
+                    help='Toggle multitouch emulation',
+                    modifiers=libavg.avg.KEYMOD_CTRL)
+
+    def _toggleMtEmulation(self):
+        if self._mtEmu is None:
+            self._mtEmu = mtemu.MTemu()
+            keyboardmanager.bindKeyDown('left shift', self._mtEmu.toggleDualTouch,
+                    'Toggle single / dual touch emu')
+            keyboardmanager.bindKeyDown('right shift', self._mtEmu.toggleDualTouch,
+                    'Toggle single / dual touch emu')
+            keyboardmanager.bindKeyDown('left ctrl', self._mtEmu.toggleSource,
+                    'Switch touch / track source emu')
+            keyboardmanager.bindKeyDown('right ctrl', self._mtEmu.toggleSource,
+                    'Switch touch / track source emu')
+        else:
+            self._mtEmu.deinit()
+            keyboardmanager.unbindKeyDown('left ctrl')
+            keyboardmanager.unbindKeyDown('right ctrl')
+            keyboardmanager.unbindKeyDown('left shift')
+            keyboardmanager.unbindKeyDown('right shift')
+
+            del self._mtEmu
+            self._mtEmu = None
 
     def _teardownKeyboardManager(self):
         keyboardmanager.unbindAll()
