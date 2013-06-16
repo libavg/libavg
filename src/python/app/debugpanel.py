@@ -281,14 +281,15 @@ class ObjectDumpWidget(DebugWidget):
     def onShow(self):
         self.intervalID = libavg.player.setInterval(1000, self.update)
         kbmgr.bindKeyDown(keystring='i',
-                                    handler=self.persistColumn,
-                                    help="Persist live column to object dump table")
+                handler=self.persistColumn,
+                help="Persist live column to object dump table",
+                modifiers=libavg.KEYMOD_CTRL)
 
     def onHide(self):
         if self.intervalID:
             libavg.player.clearInterval(self.intervalID)
             self.intervalID = None
-        kbmgr.unbindKeyDown(keystring='i')
+        kbmgr.unbindKeyDown(keystring='i', modifiers=libavg.KEYMOD_CTRL)
 
     def kill(self):
         self.onHide()
@@ -341,130 +342,59 @@ class FrametimeGraphWidget(GraphWidget):
         self.registerInstance(self, None)
 
 
-class TickerNode(avg.DivNode):
-    def __init__(self, label, content, parent=None, *args, **kwargs):
-        super(TickerNode, self).__init__(*args, **kwargs)
-        self.registerInstance(self, parent)
-        self.label = avg.WordsNode(fontsize=g_fontsize, font='monospace', parent=self,
-                                   text=label)
-        self.content = avg.WordsNode(fontsize=g_fontsize, font='monospace',
-                                     pos=(PADDING_LEFT, self.label.height), parent=self)
-        self.updateSize()
-        self.createAnim()
-
-    def setLabel(self, label):
-        self.label.text = label
-        self.content.y = self.label.height
-
-    def addContent(self, content):
-        self.clearAnim()
-        self.content.text += u"%s; " % content
-        self.updateSize()
-        self.createAnim()
-
-    def createAnim(self):
-        diff = self.content.width - self.width
-        if diff > 0:
-            duration = self._getDuration(diff)
-            scrollForwardAnim = avg.EaseInOutAnim(self.content,
-                                                  'x',
-                                                  int(duration),
-                                                  self.content.x,
-                                                  -diff,
-                                                  int(diff / 4),
-                                                  int(diff / 4))
-            scrollBackwardAnim = avg.EaseInOutAnim(self.content,
-                                                   'x',
-                                                   int(duration),
-                                                   -diff,
-                                                   PADDING_LEFT,
-                                                   int(diff / 4),
-                                                   int(diff / 4))
-            pauseAnim = avg.WaitAnim(1000)
-
-            states = []
-            states.append(avg.AnimState('forward', scrollForwardAnim, 'pauseEnd'))
-            states.append(avg.AnimState('backward', scrollBackwardAnim, 'pauseStart'))
-            states.append(avg.AnimState('pauseEnd', pauseAnim, 'backward'))
-            states.append(avg.AnimState('pauseStart', pauseAnim, 'forward'))
-
-            self.anim = avg.StateAnim(states)
-            self.anim.setState('pauseStart')
-        else:
-            self.anim = None
-
-    def clearAnim(self):
-        if self.anim:
-            if self.anim.isRunning():
-                self.anim.abort()
-            del self.anim
-            self.anim = None
-
-    def updateSize(self):
-        height = self.label.height + self.content.height
-        self.height = height
-
-    def _getDuration(self, dist, speed=80):
-        """
-        Get the duration for executing an animation at a certain speed
-        @param speed: pixels/seconds
-        @type speed: float
-        @return duration in ms
-        """
-        return (dist / speed) * 1000  # 20pixel/sec
-
-
 class KeyboardManagerBindingsShower(DebugWidget):
     def __init__(self, *args, **kwargs):
         super(KeyboardManagerBindingsShower, self).__init__(**kwargs)
         self.registerInstance(self, None)
-        self.keybindingTickers = []
+        self.keybindingWordNodes = []
 
     def clear(self):
-        for ticker in self.keybindingTickers:
-            ticker.clearAnim()
-            ticker.unlink(True)
-            ticker = None
-        self.keybindingTickers = []
+        for node in self.keybindingWordNodes:
+            node.unlink(True)
+        self.keybindingWordNodes = []
 
     def update(self):
         self.clear()
-        keyClasses = defaultdict(list)
         for binding in kbmgr.getCurrentBindings():
-            keyClasses[binding.modifiers].append(binding)
+            keystring = binding.keystring.decode('utf8')
+            modifiersStr = self.__modifiersToString(binding.modifiers)
+            if modifiersStr is not None:
+                key = '%s-%s' % (modifiersStr, keystring)
+            else:
+                key = keystring
 
-        for modifiers, bindings in keyClasses.iteritems():
-            label = 'Modifiers: %s' % (', '.join(self.__modifiersToList(modifiers)))
+            node = avg.WordsNode(
+                    text='<span size="large"><b>%s</b></span>: %s' %
+                            (key, binding.help),
+                    fontsize=g_fontsize, parent=self)
+            self.keybindingWordNodes.append(node)
 
-            ticker = TickerNode(parent=self, size=(max(0, self.width), 0), label=label,
-                                content="")
+        self._placeNodes()
 
-            for binding in bindings:
-                ticker.addContent(self.markupBinding(binding.keystring, binding.help))
-            self.keybindingTickers.append(ticker)
+    def _placeNodes(self):
+        maxWidth = max([node.width for node in self.keybindingWordNodes])
+        columns = int(self.parent.width / maxWidth)
+        rows = len(self.keybindingWordNodes) / columns
+        colSize = self.parent.width / columns
 
-        if len(kbmgr._plainKeyBindingsStack) > 0:
-            label = "Application Bindings without modifier"
-            ticker = TickerNode(parent=self, size=(max(0, self.width), 0), label=label,
-                                content="")
-            for binding in kbmgr._plainKeyBindingsStack[-1]:
-                ticker.addContent(self.markupBinding(binding.keystring, binding.help))
-            self.keybindingTickers.append(ticker)
-        self._positionTickers()
+        currentColumn = 0
+        currentRow = 0
+        heights = [0] * columns
+        for node in self.keybindingWordNodes:
+            if currentRow == rows and currentColumn < columns - 1:
+                currentRow = 0
+                currentColumn += 1
+                lastHeight = 0
 
-    def markupBinding(self, keystring, help):
-        keystring = keystring.decode('utf8')
-        return u'<span size="large"><b>%s</b></span>: %s' % (keystring, help)
+            node.pos = (currentColumn * colSize, heights[currentColumn])
+            heights[currentColumn] += node.height
+            currentRow += 1
 
-    def _positionTickers(self):
-        height = 0
-        for ticker in self.keybindingTickers:
-            ticker.pos = (0, height)
-            height += ticker.height
-        if self.height != height:
-            self.notifySubscribers(self.WIDGET_HEIGHT_CHANGED, [height])
+        finalHeight = max(heights)
+        if self.height != finalHeight:
+            self.notifySubscribers(self.WIDGET_HEIGHT_CHANGED, [finalHeight])
 
-    def __modifiersToList(self, modifiers):
+    def __modifiersToString(self, modifiers):
         def isSingleBit(number):
             bitsSet = 0
             for i in xrange(8):
@@ -474,7 +404,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
             return bitsSet == 1
 
         if modifiers == 0:
-            return ['NONE']
+            return None
 
         allModifiers = []
         for mod in dir(avg):
@@ -486,9 +416,18 @@ class KeyboardManagerBindingsShower(DebugWidget):
         modifiersStringsList = []
         for modval, modstr in allModifiers:
             if modifiers & modval:
-                modifiersStringsList.append(modstr)
+                modifiersStringsList.append(modstr.replace('KEYMOD_', ''))
 
-        return modifiersStringsList
+        for doubleMod in ['CTRL', 'META', 'SHIFT']:
+            left = 'L' + doubleMod
+            right = 'R' + doubleMod
+            if left in modifiersStringsList and right in modifiersStringsList:
+                modifiersStringsList.remove(left)
+                modifiersStringsList.remove(right)
+                modifiersStringsList.append(doubleMod)
+
+        return '/'.join(modifiersStringsList).lower()
+
 
 class DebugPanel(avg.DivNode):
     def __init__(self, parent=None, fontsize=10, **kwargs):
@@ -518,7 +457,7 @@ class DebugPanel(avg.DivNode):
 
         kbmgr.bindKeyDown(keystring='?',
                 handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
-                help="kbmgrBindings",
+                help="Show keyboard bindings",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keystring='o',
@@ -579,7 +518,6 @@ class DebugPanel(avg.DivNode):
             self.__touchVisOverlay = None
 
 
-# TODO: better layout management
 class _DebugPanel(avg.DivNode):
 
     def __init__(self, parent=None, fontsize=10, **kwargs):
