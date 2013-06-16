@@ -63,7 +63,6 @@ def subscribe(publisher, msgID, callable_):
 class DebugWidgetFrame(avg.DivNode):
 
     BORDER = 7
-    REMOVE_WIDGET_FRAME = avg.Publisher.genMessageID()
     FRAME_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
     def __init__(self, size, widgetCls, *args, **kwargs):
@@ -84,14 +83,9 @@ class DebugWidgetFrame(avg.DivNode):
                 strokewidth=self.BORDER, opacity=0.8,
                 pos=(self.BORDER / 2, self.BORDER / 2), active=False, sensitive=False)
         self.__boundary = avg.RectNode(parent=self, sensitive=False)
-        removeBtn = TextButton(parent=self, size=(20, 20),
-                pos=(self.width - 40, 10), text="X")
 
-        self.publish(self.REMOVE_WIDGET_FRAME)
         self.publish(DebugWidgetFrame.FRAME_HEIGHT_CHANGED)
 
-        self.subscribe(self.CURSOR_DOWN, self.toggleSelect)
-        removeBtn.subscribe(removeBtn.CLICKED, self.remove)
         self.__widget.subscribe(self.__widget.WIDGET_HEIGHT_CHANGED,
                 self.adjustWidgetHeight)
         self.__widget.update()
@@ -108,9 +102,6 @@ class DebugWidgetFrame(avg.DivNode):
     def adjustWidgetHeight(self, height):
         self.size = (max(0, self.width), height + 2 * self.BORDER)
         self.notifySubscribers(DebugWidgetFrame.FRAME_HEIGHT_CHANGED, [])
-
-    def remove(self):
-        self.notifySubscribers(self.REMOVE_WIDGET_FRAME, [self])
 
     def toggleSelect(self, event=None):
         self.__selectHighlight.active = not(self.__selectHighlight.active)
@@ -163,81 +154,6 @@ class DebugWidget(avg.DivNode):
     def kill(self):
         pass
 
-
-class ScrollableTextWidget(DebugWidget):
-
-    def __init__(self, parent=None, **kwargs):
-        super(ScrollableTextWidget, self).__init__(**kwargs)
-        self.registerInstance(self, parent)
-        self.autoscroll = True
-        self.__maxLines = 100
-        self.__lines = avg.DivNode()
-        self.__scrollableArea = ScrollArea(self.__lines, (self.width, self.SLOT_HEIGHT),
-                                           parent=self)
-        self.__scrollableArea.subscribe(self.__scrollableArea.PRESSED,
-                                        self.disableAutoscroll)
-        self.__scrollableArea.subscribe(self.__scrollableArea.RELEASED,
-                                        self.enableAutoscroll)
-
-    def syncSize(self, size):
-        paddingSize = avg.Point2D(PADDING_LEFT + PADDING_RIGHT,
-                                  PADDING_BOTTOM + PADDING_TOP)
-
-        self.__scrollableArea.size = avg.Point2D(size) - paddingSize
-        self.__scrollableArea.pos = (PADDING_LEFT, PADDING_TOP)
-        self.__lines.width = size[0] - PADDING_LEFT - PADDING_RIGHT
-
-    def disableAutoscroll(self):
-        self.autoscroll = False
-
-    def enableAutoscroll(self):
-        self.autoscroll = True
-        self.scrollToEnd()
-
-    def scrollToEnd(self):
-        # Early escape, there are less lines then screen estate
-        if self.__scrollableArea.contentsize.y <= self.__scrollableArea.size.y:
-            return
-        childrenRemoved = 0
-        removedHeight = 0
-        while self.__lines.getNumChildren() > self.__maxLines:
-            removedHeight += self.__lines.getChild(0).height
-            self.__lines.removeChild(0)
-            childrenRemoved += 1
-            # Remove only some at a time to reduce framerate spikes when
-            # releasing the mouse after reading the logs
-            if childrenRemoved > 150:
-                break
-        if childrenRemoved > 0:
-            for childID in xrange(0, self.__lines.getNumChildren()):
-                child = self.__lines.getChild(childID)
-                child.pos = child.pos - (0, removedHeight)
-            self.__lines.height -= removedHeight
-
-        distance = (self.__scrollableArea.contentpos.y /
-                   (self.__scrollableArea.contentsize.y - self.__scrollableArea.size.y))
-        slowdown = 500
-        duration = (cos(distance) - cos(1.0)) * slowdown
-        avg.LinearAnim(self.__scrollableArea,
-                       'contentpos',
-                       int(duration),
-                       self.__scrollableArea.contentpos,
-                       (0, self.__scrollableArea.contentsize.y -
-                           self.__scrollableArea.size.y)).start()
-
-    def appendLine(self, line, escape=True):
-        if escape:
-            line = ''.join(PANGO_ENTITIES_MAP.get(char, char) for char in line)
-
-        node = avg.WordsNode(fontsize=g_fontsize, text=line, font='monospace',
-                             pos=(0, self.__lines.height), rawtextmode=True)
-        self.__lines.height += node.height
-        if node.width > self.__lines.width:
-            self.__lines.width = node.width
-        self.__lines.appendChild(node)
-
-        if self.autoscroll:
-            self.scrollToEnd()
 
 NUM_COLS = 10
 COL_WIDTH = 60
@@ -537,6 +453,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
         self._positionTickers()
 
     def markupBinding(self, keystring, help):
+        keystring = keystring.decode('utf8')
         return u'<span size="large"><b>%s</b></span>: %s' % (keystring, help)
 
     def _positionTickers(self):
@@ -574,17 +491,44 @@ class KeyboardManagerBindingsShower(DebugWidget):
         return modifiersStringsList
 
 class DebugPanel(avg.DivNode):
-    MAX_OPACITY = 0.9
-    UNSENSITIVE_OPACITY = 0.6
-
     def __init__(self, parent=None, fontsize=10, **kwargs):
         super(DebugPanel, self).__init__(**kwargs)
         self.registerInstance(self, parent)
+
+        avg.LineNode(pos1=(0, 0), pos2=(0, libavg.player.getRootNode().size.y),
+                color='ff0000', parent=self)
+
+        self.sensitive = False
+        self.active = False
         self.__panel = None
         self.__callables = []
         self.__fontsize = fontsize
+        self.__touchVisOverlay = None
 
-        self.active = False
+    def setupKeys(self):
+        kbmgr.bindKeyDown(keystring='m',
+                handler=lambda: self.toggleWidget(MemoryGraphWidget),
+                help="Memory graph",
+                modifiers=libavg.avg.KEYMOD_CTRL)
+
+        kbmgr.bindKeyDown(keystring='f',
+                handler=lambda: self.toggleWidget(FrametimeGraphWidget),
+                help="Frametime graph",
+                modifiers=libavg.avg.KEYMOD_CTRL)
+
+        kbmgr.bindKeyDown(keystring='?',
+                handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
+                help="kbmgrBindings",
+                modifiers=libavg.avg.KEYMOD_CTRL)
+
+        kbmgr.bindKeyDown(keystring='o',
+                handler=lambda: self.toggleWidget(ObjectDumpWidget),
+                help="Object dump",
+                modifiers=libavg.avg.KEYMOD_CTRL)
+
+        kbmgr.bindKeyDown(keystring='e', handler=self.toggleTouchVisualization,
+                help="CURSOR Visualization",
+                modifiers=libavg.avg.KEYMOD_CTRL)
 
     def addWidget(self, widgetCls, *args, **kwargs):
         callable_ = lambda: self.__panel.addWidget(widgetCls, *args, **kwargs)
@@ -593,23 +537,29 @@ class DebugPanel(avg.DivNode):
         else:
             self.__callables.append(callable_)
 
+    def toggleWidget(self, *args, **kwargs):
+        if not self.active:
+            self.show()
+            self.__panel.ensureWidgetWisible(*args, **kwargs)
+        else:
+            self.__panel.toggleWidget(*args, **kwargs)
+
     def hide(self):
-        kbmgr.pop()
-        self.active = False
-        if self.__panel:
+        if self.__panel and self.active:
             self.__panel.hide()
+            self.active = False
 
     def show(self):
-        self.active = True
-        kbmgr.push()
-        self._setupKeys()
         if self.__panel:
-            self.__panel.show()
+            if not self.active:
+                self.__panel.show()
         else:
             self.__panel = _DebugPanel(parent=self, size=self.size,
                     fontsize=self.__fontsize)
             for callable_ in self.__callables:
                 callable_()
+
+        self.active = True
 
     def toggleVisibility(self):
         if self.active:
@@ -617,21 +567,17 @@ class DebugPanel(avg.DivNode):
         else:
             self.show()
 
-    def _setupKeys(self):
-        kbmgr.bindKeyDown(keystring='left ctrl',
-                          handler=lambda: self.__setSensitivity(True),
-                          help="Set debug panel sensitive")
-
-        kbmgr.bindKeyUp(keystring='left ctrl',
-                          handler=lambda: self.__setSensitivity(False),
-                          help="Set debug panel unsensitive")
-
-    def __setSensitivity(self, sensitive):
-        self.sensitive = sensitive
-        if sensitive:
-            self.opacity = self.MAX_OPACITY
+    def toggleTouchVisualization(self):
+        if self.__touchVisOverlay is None:
+            self.__touchVisOverlay = TouchVisOverlay(
+                    isDebug=True,
+                    visClass=DebugTouchVisualization,
+                    size=self.parent.size,
+                    parent=self.parent)
         else:
-            self.opacity = self.UNSENSITIVE_OPACITY
+            self.__touchVisOverlay.unlink(True)
+            self.__touchVisOverlay = None
+
 
 # TODO: better layout management
 class _DebugPanel(avg.DivNode):
@@ -646,7 +592,6 @@ class _DebugPanel(avg.DivNode):
         self.size = (self.size[0], 0)
         self.activeWidgetClasses = []
         self.__selectedWidget = None
-        self.__touchVisOverlay = None
 
         global g_fontsize
         g_fontsize = fontsize
@@ -654,7 +599,6 @@ class _DebugPanel(avg.DivNode):
         self.show()
 
     def show(self):
-        self.setupKeys()
         for widgetFrame in self.__slots:
             if widgetFrame:
                 widgetFrame.show()
@@ -665,46 +609,9 @@ class _DebugPanel(avg.DivNode):
             if widget:
                 widget.hide()
 
-    def toggleTouchVisualization(self):
-        if self.__touchVisOverlay is None:
-            self.__touchVisOverlay = TouchVisOverlay(isDebug=True,
-                                                     visClass=DebugTouchVisualization,
-                                                     size=self.parent.size,
-                                                     parent=self.parent)
-        else:
-            self.__touchVisOverlay.unlink(True)
-            self.__touchVisOverlay = None
-
-    def setupKeys(self):
-        kbmgr.bindKeyDown(keystring='m',
-                handler=lambda: self.toggleWidget(MemoryGraphWidget),
-                help="Memory graph")
-
-        kbmgr.bindKeyDown(keystring='f',
-                handler=lambda: self.toggleWidget(FrametimeGraphWidget),
-                help="Frametime graph")
-
-        kbmgr.bindKeyDown(keystring='k',
-                handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
-                help="kbmgrBindings")
-
-        kbmgr.bindKeyDown(keystring='o',
-                handler=lambda: self.toggleWidget(ObjectDumpWidget), help="Object dump")
-
-        kbmgr.bindKeyDown(keystring='d', handler=self.removeSelectedWidgetFrames,
-                help="Delete widgets")
-
-        kbmgr.bindKeyDown(keystring='e', handler=self.toggleTouchVisualization,
-                help="CURSOR Visualization")
-
-        kbmgr.bindKeyDown(keystring='down', handler=self.selectNextWidget,
-                help="Select next widget")
-
-        kbmgr.bindKeyDown(keystring='up', handler=self.selectPreviousWidget,
-                help="Select previous widget")
-
-        kbmgr.bindKeyDown(keystring='w', handler=lambda: self.toggleWidget(DebugWidget),
-                help="Empty Widget")
+    def ensureWidgetWisible(self, widgetClass, *args, **kwargs):
+        if not widgetClass in self.activeWidgetClasses:
+            self.toggleWidget(widgetClass, *args, **kwargs)
 
     def toggleWidget(self, widgetClass, *args, **kwargs):
         if widgetClass in self.activeWidgetClasses:
@@ -740,7 +647,6 @@ class _DebugPanel(avg.DivNode):
                 break
         if not widgetPlaced:
             self.__slots.append(widgetFrame)
-        widgetFrame.subscribe(widgetFrame.REMOVE_WIDGET_FRAME, self.removeWidgetFrame)
         widgetFrame.subscribe(widgetFrame.FRAME_HEIGHT_CHANGED, self._heightChanged)
 
         self.reorderWidgets()

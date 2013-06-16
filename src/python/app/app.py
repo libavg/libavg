@@ -335,7 +335,7 @@ class App(object):
                     fontsize=self.settings.getfloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
-        self._debugPanel.addWidget(debugpanel.KeyboardManagerBindingsShower)
+        pass
 
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
@@ -383,7 +383,7 @@ class App(object):
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='m',
+                keystring='h',
                 handler=lambda: libavg.player.showCursor(
                         not libavg.player.isCursorShown()),
                 help='Show/hide cursor',
@@ -396,10 +396,12 @@ class App(object):
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='o',
+                keystring='b',
                 handler=self.dumpTextObjectCount,
                 help='Dump objects count to the console',
                 modifiers=libavg.avg.KEYMOD_CTRL)
+
+        self.debugPanel.setupKeys()
 
     def _teardownKeyboardManager(self):
         keyboardmanager.unbindAll()
