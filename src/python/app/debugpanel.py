@@ -298,28 +298,18 @@ class ObjectDumpWidget(DebugWidget):
 
 
 class GraphWidget(DebugWidget):
-    def __init__(self, title, graphType, valueSource, **kwargs):
+    def __init__(self, **kwargs):
         super(GraphWidget, self).__init__(**kwargs)
         self.registerInstance(self, None)
-
-        if not hasattr(graph, graphType):
-            raise Exception("Unknown GraphType requested")
-        else:
-            self.graphClass = getattr(graph, graphType)
-        if not callable(valueSource):
-            raise Exception("Value source needs to be a callable")
-        else:
-            self.sourceCallable = valueSource
-
-        self.title = title
         self.__graph = None
 
     def onShow(self):
         if self.__graph:
             self.__graph.active = True
         else:
-            self.__graph = self.graphClass(title=self.title, size=self.size,
-                                           getValue=self.sourceCallable, parent=self)
+            self.__graph = self._createGraph()
+            # self.graphClass(title=self.title, size=self.size,
+            #                                getValue=self.sourceCallable, parent=self)
 
     def onHide(self):
         if self.__graph:
@@ -328,21 +318,32 @@ class GraphWidget(DebugWidget):
     def kill(self):
         self.__graph.delete()
 
+    def _createGraph(self):
+        pass
+
 
 class MemoryGraphWidget(GraphWidget):
     CAPTION = 'Memory usage'
     def __init__(self, **kwargs):
-        super(MemoryGraphWidget, self).__init__("", "AveragingGraph",
-                                                avg.getMemoryUsage, **kwargs)
+        super(MemoryGraphWidget, self).__init__(**kwargs)
         self.registerInstance(self, None)
+
+    def _createGraph(self):
+        return libavg.graph.AveragingGraph(parent=self, size=self.size, 
+                getValue=avg.getMemoryUsage)
 
 
 class FrametimeGraphWidget(GraphWidget):
     CAPTION = 'Time per frame'
     def __init__(self, **kwargs):
-        super(FrametimeGraphWidget, self).__init__("", "SlidingGraph",
-                                                   libavg.player.getFrameTime, **kwargs)
+        super(FrametimeGraphWidget, self).__init__(**kwargs)
         self.registerInstance(self, None)
+
+    def _createGraph(self):
+         return libavg.graph.SlidingBinnedGraph(parent=self,
+                 getValue=libavg.player.getFrameTime,
+                 binsThresholds=[0.0, 20.0, 40.0, 80.0, 160.0],
+                 size=self.size)
 
 
 class KeyboardManagerBindingsShower(DebugWidget):

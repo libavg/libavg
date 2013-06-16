@@ -19,7 +19,7 @@
 
 import time
 
-from libavg import avg, player
+from libavg import avg, player, Point2D
 
 
 class Graph(avg.DivNode):
@@ -125,7 +125,7 @@ class AveragingGraph(Graph):
 
 
 class SlidingGraph(Graph):
-    def __init__(self, title, getValue, limit=120.0, parent=None, **kwargs):
+    def __init__(self, title='', getValue=None, limit=120.0, parent=None, **kwargs):
         super(SlidingGraph, self).__init__(title, getValue, parent, **kwargs)
         self.registerInstance(self, None)
         self._limitValue = float(limit)
@@ -177,3 +177,72 @@ class SlidingGraph(Graph):
 
     def _getCoords(self):
         return zip(xrange(0, len(self._values) * self._xSkip, self._xSkip), self._values)
+
+
+class BinBar(avg.DivNode):
+    def __init__(self, label, parent=None, **kwargs):
+        super(BinBar, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
+
+        avg.WordsNode(text=label, fontsize=8, alignment='center',
+                pos=(self.size.x / 2, self.size.y - 12), parent=self)
+
+        self._vbar = avg.RectNode(opacity=0, fillopacity=0.4,
+                fillcolor='ff0000', parent=self)
+
+        self.update(0)
+
+    def update(self, value):
+        if value > 1:
+            value = 1
+        if value < 0:
+            value = 0
+
+        height = (self.size.y - 15) * value
+        self._vbar.size = (self.size.x - 2, height)
+        self._vbar.pos = (1, self.size.y - height - 12)
+
+
+class BinsGraph(avg.DivNode):
+    def __init__(self, binsThresholds, parent=None, **kwargs):
+        super(BinsGraph, self).__init__(**kwargs)
+        self.registerInstance(self, parent)
+
+        avg.RectNode(size=self.size, parent=self)
+        colWidth = self.size.x / len(binsThresholds)
+        self._binBars = [BinBar(str(int(thr)),
+                pos=(idx * colWidth, 0),
+                size=(colWidth, self.size.y),
+                parent=self)
+                for idx, thr in enumerate(binsThresholds)]
+
+    def update(self, values):
+        s = sum(values)
+
+        for binBar, value in zip(self._binBars, values):
+            binBar.update(float(value) / s)
+
+
+class SlidingBinnedGraph(SlidingGraph):
+    def __init__(self, title='', getValue=None, limit=120.0, binsThresholds=[],
+            parent=None, **kwargs):
+        super(SlidingBinnedGraph, self).__init__(title, getValue, limit, parent, **kwargs)
+        if not all([isinstance(x, (int, float)) for x in binsThresholds]):
+            raise RuntimeError('Bins thresholds must be provided as list of numbers')
+
+        self._bins = [0] * len(binsThresholds)
+        self._binsThresholds = binsThresholds
+        self._binsGraph = BinsGraph(binsThresholds=binsThresholds[1:],
+                pos=(self.size.x - 120, 5), size=(90, self.size.y - 10),
+                parent=self)
+
+    def _appendValue(self, value):
+        for i in xrange(len(self._binsThresholds) - 1, -1, -1):
+            if value >= self._binsThresholds[i]:
+                self._bins[i] += 1
+                break
+
+        if sum(self._bins) % 100 == 0:
+            self._binsGraph.update(self._bins[1:])
+
+        super(SlidingBinnedGraph, self)._appendValue(value)
