@@ -23,6 +23,7 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
+#include "../base/TimeSource.h"
 
 
 namespace avg {
@@ -43,11 +44,13 @@ BitmapManagerMsg::~BitmapManagerMsg()
 }
 
 void BitmapManagerMsg::setRequest(const UTF8String& sFilename,
-        const boost::python::object& onLoadedCb)
+        const boost::python::object& onLoadedCb, PixelFormat pf)
 {
     AVG_ASSERT(m_MsgType == NONE);
     m_sFilename = sFilename;
+    m_StartTime = TimeSource::get()->getCurrentMicrosecs()/1000.0f;
     m_OnLoadedCb = onLoadedCb;
+    m_PF = pf;
     m_MsgType = REQUEST;
 }
 
@@ -73,7 +76,19 @@ const UTF8String BitmapManagerMsg::getFilename()
     AVG_ASSERT(m_MsgType != NONE);
     return m_sFilename;
 }
+
+float BitmapManagerMsg::getStartTime()
+{
+    AVG_ASSERT(m_MsgType == REQUEST);
+    return m_StartTime;
+}
     
+PixelFormat BitmapManagerMsg::getPixelFormat()
+{
+    AVG_ASSERT(m_MsgType == REQUEST);
+    return m_PF;
+}
+
 void BitmapManagerMsg::setBitmap(BitmapPtr pBmp)
 {
     AVG_ASSERT(m_MsgType == REQUEST);

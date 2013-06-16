@@ -25,6 +25,7 @@
 #include "Filterfliprgb.h"
 
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <iostream>
@@ -82,11 +83,19 @@ PixelFormat BitmapLoader::getDefaultPixelFormat(bool bAlpha)
     } 
 }
 
+static ProfilingZoneID GDKPixbufProfilingZone("gdk_pixbuf load", true);
+static ProfilingZoneID ConvertProfilingZone("Format conversion", true);
+static ProfilingZoneID RGBFlipProfilingZone("RGB<->BGR flip", true);
+
 BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
 {
     AVG_ASSERT(s_pBitmapLoader != 0);
     GError* pError = 0;
-    GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_file(sFName.c_str(), &pError);
+    GdkPixbuf* pPixBuf;
+    {
+        ScopeTimer timer(GDKPixbufProfilingZone);
+        pPixBuf = gdk_pixbuf_new_from_file(sFName.c_str(), &pError);
+    }
     if (!pPixBuf) {
         string sErr = pError->message;
         g_error_free(pError);
@@ -116,15 +125,21 @@ BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
             }
         }
     }
-//    cerr << "load, pf= " << pf << endl;
     BitmapPtr pBmp(new Bitmap(size, pf, sFName));
-    int stride = gdk_pixbuf_get_rowstride(pPixBuf);
-    guchar* pSrc = gdk_pixbuf_get_pixels(pPixBuf);
-    BitmapPtr pSrcBmp(new Bitmap(size, srcPF, pSrc, stride, false));
-    if (pixelFormatIsBlueFirst(pf) != pixelFormatIsBlueFirst(srcPF)) {
-        FilterFlipRGB().applyInPlace(pSrcBmp);
+    {
+        ScopeTimer timer(ConvertProfilingZone);
+
+        int stride = gdk_pixbuf_get_rowstride(pPixBuf);
+        guchar* pSrc = gdk_pixbuf_get_pixels(pPixBuf);
+        BitmapPtr pSrcBmp(new Bitmap(size, srcPF, pSrc, stride, false));
+        {
+            ScopeTimer timer(RGBFlipProfilingZone);
+            if (pixelFormatIsBlueFirst(pf) != pixelFormatIsBlueFirst(srcPF)) {
+                FilterFlipRGB().applyInPlace(pSrcBmp);
+            }
+        }
+        pBmp->copyPixels(*pSrcBmp);
     }
-    pBmp->copyPixels(*pSrcBmp);
     g_object_unref(pPixBuf);
     return pBmp;
 }

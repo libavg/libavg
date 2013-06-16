@@ -43,7 +43,11 @@ class AVG_API BitmapManagerThread : public WorkerThread<BitmapManagerThread>
         
     private:
         virtual bool work();
+        virtual void deinit();
         BitmapManagerMsgQueue& m_MsgQueue;
+
+        float m_TotalLatency;
+        int m_NumBmpsLoaded;
 };
 
 }

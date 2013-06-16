@@ -608,7 +608,8 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 40, 20),
                  self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 40, 20, 
-                            [gesture.Recognizer.MOTION]),
+                            [gesture.Recognizer.END, gesture.Recognizer.DETECTED,
+                             gesture.Recognizer.MOTION]),
                 ))
 
         # Test node delete during inertia
@@ -636,7 +637,8 @@ class GestureTestCase(AVGTestCase):
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 70,
                         [gesture.Recognizer.MOTION, gesture.Recognizer.UP]),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [gesture.Recognizer.MOTION]),
+                        [gesture.Recognizer.END, gesture.Recognizer.POSSIBLE,
+                         gesture.Recognizer.MOTION]),
                 ))
 
         player.setFakeFPS(-1)
@@ -905,14 +907,11 @@ class GestureTestCase(AVGTestCase):
                  None,
                 ))
 
-        def onEnd():
-            self.assert_(False)
-
         # Test second down during inertia.
         self.__initImageScene()
-        self.__transformRecognizer = gesture.TransformRecognizer(self.image, friction=0.01,
-                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp,
-                endHandler=onEnd)
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, 
+                friction=0.01, detectedHandler=onDetected, moveHandler=onMove, 
+                upHandler=onUp)
         self.start(False,
                 (
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
