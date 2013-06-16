@@ -133,13 +133,13 @@ class DebugWidget(avg.DivNode):
         self.registerInstance(self, parent)
         self.publish(DebugWidget.WIDGET_HEIGHT_CHANGED)
         if self.CAPTION:
-            caption = avg.WordsNode(text=self.CAPTION, pivot=(0, 0),
-                    opacity=0.3, fontsize=14, parent=self)
-            caption.angle = math.pi / 2
-            caption.pos = (self.width, 0)
+            self._caption = avg.WordsNode(text=self.CAPTION, pivot=(0, 0),
+                    opacity=0.5, fontsize=14, parent=self)
+            self._caption.angle = math.pi / 2
+            self._caption.pos = (self.width, 0)
 
     def syncSize(self, size):
-        pass
+        self._caption.width = size[1]
 
     def update(self):
         pass
@@ -330,15 +330,17 @@ class GraphWidget(DebugWidget):
 
 
 class MemoryGraphWidget(GraphWidget):
+    CAPTION = 'Memory usage'
     def __init__(self, **kwargs):
-        super(MemoryGraphWidget, self).__init__("Memory usage", "AveragingGraph",
+        super(MemoryGraphWidget, self).__init__("", "AveragingGraph",
                                                 avg.getMemoryUsage, **kwargs)
         self.registerInstance(self, None)
 
 
 class FrametimeGraphWidget(GraphWidget):
+    CAPTION = 'Time per frame'
     def __init__(self, **kwargs):
-        super(FrametimeGraphWidget, self).__init__("Time per frame", "SlidingGraph",
+        super(FrametimeGraphWidget, self).__init__("", "SlidingGraph",
                                                    libavg.player.getFrameTime, **kwargs)
         self.registerInstance(self, None)
 
@@ -478,7 +480,7 @@ class DebugPanel(avg.DivNode):
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keystring='v', handler=self.toggleTouchVisualization,
-                help="CURSOR Visualization",
+                help="Cursor visualization",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
     def addWidget(self, widgetCls, *args, **kwargs):
