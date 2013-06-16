@@ -389,6 +389,11 @@ class KeyboardManagerBindingsShower(DebugWidget):
         maxWidth = max([node.width for node in self.keybindingWordNodes])
         columns = int(self.parent.width / maxWidth)
         rows = len(self.keybindingWordNodes) / columns
+        remainder = len(self.keybindingWordNodes) % columns
+
+        if remainder != 0:
+            rows += 1
+
         colSize = self.parent.width / columns
 
         currentColumn = 0
