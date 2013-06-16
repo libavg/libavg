@@ -34,8 +34,8 @@ from libavg import avg
 from libavg import graph
 from libavg.widget.scrollarea import ScrollArea
 from libavg.widget.button import TextButton
-from libavg.apphelpers import DebugTouchVisualization
-from libavg.apphelpers import TouchVisualizationOverlay as TouchVisOverlay
+from touchvisualization import DebugTouchVisualization
+from touchvisualization import TouchVisualizationOverlay as TouchVisOverlay
 
 
 import keyboardmanager as kbmgr
