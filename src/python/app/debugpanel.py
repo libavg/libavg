@@ -501,6 +501,9 @@ class DebugPanel(avg.DivNode):
         else:
             self.__panel.toggleWidget(*args, **kwargs)
 
+        if not self.__panel.activeWidgetClasses:
+            self.hide()
+
     def hide(self):
         if self.__panel and self.active:
             self.__panel.hide()
