@@ -418,7 +418,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
             return bitsSet == 1
 
-        if modifiers == 0:
+        if modifiers in (0, kbmgr.KEYMOD_ANY):
             return None
 
         allModifiers = []
@@ -449,8 +449,11 @@ class DebugPanel(avg.DivNode):
         super(DebugPanel, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        avg.LineNode(pos1=(0, 0), pos2=(0, libavg.player.getRootNode().size.y),
-                color='ff0000', parent=self)
+        avg.RectNode(size=self.size, opacity=0, fillopacity=0.3, fillcolor='ff0000',
+                parent=self)
+        avg.WordsNode(text='Debug panel', fontsize=fontsize,
+                pos=(0, self.height - fontsize - fontsize / 3),
+                parent=self)
 
         self.sensitive = False
         self.active = False
@@ -473,7 +476,7 @@ class DebugPanel(avg.DivNode):
         kbmgr.bindKeyDown(keystring='?',
                 handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
                 help="Show keyboard bindings",
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=kbmgr.KEYMOD_ANY)
 
         kbmgr.bindKeyDown(keystring='o',
                 handler=lambda: self.toggleWidget(ObjectDumpWidget),
