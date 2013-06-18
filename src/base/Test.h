@@ -56,7 +56,6 @@ protected:
     int m_IndentLevel;
 
 private:
-    bool m_bOk;
     int m_NumSucceeded;
     int m_NumFailed;
     std::string m_sName;
