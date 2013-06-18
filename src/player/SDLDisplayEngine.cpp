@@ -114,7 +114,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_pScreen(0),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_NumMouseButtonsDown(0),
       m_pGLContext(0)
 {
     initSDL();
