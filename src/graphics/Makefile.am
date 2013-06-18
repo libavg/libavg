@@ -63,10 +63,14 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
 if APPLE
     X_LIBS =
 else
-if ENABLE_EGL
+if ENABLE_RPI
     X_LIBS = -lX11 -lGLESv2 -lEGL
 else
+if ENABLE_EGL
+    X_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+else
     X_LIBS = -lXxf86vm -lX11
+endif
 endif
 endif
 

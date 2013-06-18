@@ -88,9 +88,6 @@ IntPoint X11Display::queryScreenResolution()
 
 float X11Display::queryRefreshRate()
 {
-#ifdef AVG_ENABLE_EGL
-    return 60;
-#else
     ::Display * pDisplay = XOpenDisplay(0);
     int pixelClock;
     XF86VidModeModeLine modeLine;
@@ -105,7 +102,6 @@ float X11Display::queryRefreshRate()
     float refreshRate = HSyncRate/modeLine.vtotal;
     XCloseDisplay(pDisplay);
     return refreshRate;
-#endif
 }
 
 
