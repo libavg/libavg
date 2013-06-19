@@ -65,6 +65,11 @@ class LoggerTestCase(AVGTestCase):
         logger.warning(self.testMsg, snowmanCategory)
         self._assertMsg()
 
+    def testReconfigureCategory(self):
+        snowmanCategory = logger.configureCategory(u'☃ Category', logger.Severity.INFO)
+        logger.info(self.testMsg, snowmanCategory)
+        self._assertMsg()
+
     def testOmitCategory(self):
         logger.configureCategory(logger.Category.APP, logger.Severity.CRITICAL)
         logger.info(self.testMsg)
@@ -83,6 +88,7 @@ def loggerTestSuite(tests):
     availableTests = (
             "testRemoveSink",
             "testConfigureCategory",
+            "testReconfigureCategory",
             "testOmitCategory",
             "testLogCategory",
             "testUnknownCategoryWarning",

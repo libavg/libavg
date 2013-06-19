@@ -51,7 +51,7 @@ namespace avg {
 
     const category_t Logger::category::NONE = UTF8String("NONE");
     const category_t Logger::category::PROFILE = UTF8String("PROFILE");
-    const category_t Logger::category::PROFILE_VIDEO = UTF8String("PROILE_VIDEO");
+    const category_t Logger::category::PROFILE_VIDEO = UTF8String("PROFILE_VIDEO");
     const category_t Logger::category::EVENTS = UTF8String("EVENTS");
     const category_t Logger::category::CONFIG = UTF8String("CONFIG");
     const category_t Logger::category::MEMORY = UTF8String("MEMORY");
@@ -154,13 +154,17 @@ category_t Logger::configureCategory(category_t category, severity_t severity)
     boost::mutex::scoped_lock lock(m_CategoryMutex);
     severity = (severity == Logger::severity::NOT_SET) ? m_Severity : severity;
     UTF8String sCategory = boost::to_upper_copy(string(category));
-    CatToSeverityMap::iterator it;
-    it = m_CategorySeverities.find(sCategory);
-    if ( it != m_CategorySeverities.end()) {
-        m_CategorySeverities.erase(it);
+    const size_t catHash = makeHash(sCategory);
+    CatHashToSeverityMap::iterator it;
+    it = m_CategoryHashSeverities.find(catHash);
+    if ( it != m_CategoryHashSeverities.end()) {
+        m_CategoryHashSeverities.erase(it);
+        m_CategorySeverities.erase(sCategory);
     }
     pair<const category_t, const severity_t> element(sCategory, severity);
+    pair<const size_t, const severity_t> hashedElement(catHash, severity);
     m_CategorySeverities.insert(element);
+    m_CategoryHashSeverities.insert(hashedElement);
     return sCategory;
 }
 

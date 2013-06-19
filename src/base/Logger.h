@@ -29,6 +29,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/functional/hash.hpp>
 
 #include <string>
 #include <vector>
@@ -42,6 +43,7 @@
 namespace avg {
 
 typedef std::map< const category_t, const severity_t > CatToSeverityMap;
+typedef std::map< const size_t, const severity_t > CatHashToSeverityMap;
 
 class AVG_API Logger: private boost::noncopyable {
 public:
@@ -101,9 +103,10 @@ public:
 
     inline bool shouldLog(const category_t& category, severity_t severity) const {
         boost::mutex::scoped_lock lock(m_CategoryMutex);
-        CatToSeverityMap::const_iterator it;
-        it = m_CategorySeverities.find(category);
-        if(m_CategorySeverities.end() != it) {
+        const size_t hashCat = makeHash(category);
+        CatHashToSeverityMap::const_iterator it;
+        it = m_CategoryHashSeverities.find(hashCat);
+        if(m_CategoryHashSeverities.end() != it) {
             return it->second <= severity;
         } else {
             string msg("Unknown category: " + category);
@@ -118,8 +121,10 @@ private:
     std::vector<LogSinkPtr> m_pSinks;
     LogSinkPtr m_pStdSink;
     CatToSeverityMap m_CategorySeverities;
+    CatHashToSeverityMap m_CategoryHashSeverities;
     severity_t m_Severity;
     static boost::mutex m_CategoryMutex;
+    boost::hash<UTF8String> makeHash;
 };
 
 #define AVG_TRACE(category, severity, sMsg) { \
