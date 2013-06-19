@@ -51,7 +51,7 @@ namespace avg {
 
     const category_t Logger::category::NONE = UTF8String("NONE");
     const category_t Logger::category::PROFILE = UTF8String("PROFILE");
-    const category_t Logger::category::PROFILE_VIDEO = UTF8String("PROILE_VIDEO");
+    const category_t Logger::category::PROFILE_VIDEO = UTF8String("PROFILE_VIDEO");
     const category_t Logger::category::EVENTS = UTF8String("EVENTS");
     const category_t Logger::category::CONFIG = UTF8String("CONFIG");
     const category_t Logger::category::MEMORY = UTF8String("MEMORY");
