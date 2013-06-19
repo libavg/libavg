@@ -124,7 +124,7 @@ class TouchVisualization(BaseTouchVisualization):
 
         if event.source == avg.Event.TOUCH:
             self.__circle = avg.ImageNode(parent=self)
-            self.__circle.setBitmap(TouchVisualization.bmp)
+            self.__circle.setBitmap(self.bmp)
             self.__setRadius(self._radius)
             avg.LinearAnim(self.__circle, "opacity", 200, 0.7, 0.4).start()
         else:
