@@ -67,7 +67,6 @@ private:
     xmlDocPtr m_Doc;
 
     std::string m_sError;
-    bool m_bHideErrors;
 };
 
 void validateXml(const std::string& sXML, const std::string& sSchema,

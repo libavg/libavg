@@ -31,6 +31,8 @@
 #include <X11/extensions/Xinerama.h>
 #endif
 
+#include <boost/math/special_functions/fpclassify.hpp>
+
 
 namespace avg {
 
@@ -88,9 +90,6 @@ IntPoint X11Display::queryScreenResolution()
 
 float X11Display::queryRefreshRate()
 {
-#ifdef AVG_ENABLE_EGL
-    return 60;
-#else
     ::Display * pDisplay = XOpenDisplay(0);
     int pixelClock;
     XF86VidModeModeLine modeLine;
@@ -100,14 +99,18 @@ float X11Display::queryRefreshRate()
         AVG_LOG_WARNING(
                 "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
         AVG_LOG_WARNING("Defaulting to 60 Hz refresh rate.");
+        return 60;
     }
-    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
-    float refreshRate = HSyncRate/modeLine.vtotal;
+    float hSyncRate = (pixelClock * 1000.0) / modeLine.htotal;
+    float refreshRate = hSyncRate / modeLine.vtotal;
     XCloseDisplay(pDisplay);
+    if ( refreshRate < 20 || refreshRate > 200 || !(boost::math::isnormal(refreshRate))){
+        AVG_LOG_WARNING("Could not get valid refresh rate");
+        AVG_LOG_WARNING("Defaulting to 60 Hz refresh rate.");
+        return 60;
+    }
     return refreshRate;
-#endif
 }
-
 
 ::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo)
 {

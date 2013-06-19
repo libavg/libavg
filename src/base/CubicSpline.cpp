@@ -30,7 +30,6 @@ using namespace std;
 namespace avg {
 
 CubicSpline::CubicSpline(const vector<float>& x, const vector<float>& y, bool bLoop)
-    : m_bLoop(bLoop)
 {
     AVG_ASSERT(x.size() == y.size());
     for (unsigned i=0; i<x.size(); ++i) {
@@ -40,8 +39,7 @@ CubicSpline::CubicSpline(const vector<float>& x, const vector<float>& y, bool bL
 }
 
 CubicSpline::CubicSpline(const vector<glm::vec2>& pts, bool bLoop)
-    : m_Pts(pts),
-      m_bLoop(bLoop)
+    : m_Pts(pts)
 {
     init();
 }
