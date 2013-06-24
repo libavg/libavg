@@ -308,15 +308,13 @@ class GraphWidget(DebugWidget):
             self.__graph.active = True
         else:
             self.__graph = self._createGraph()
-            # self.graphClass(title=self.title, size=self.size,
-            #                                getValue=self.sourceCallable, parent=self)
 
     def onHide(self):
         if self.__graph:
             self.__graph.active = False
 
     def kill(self):
-        self.__graph.delete()
+        self.__graph.unlink(True)
 
     def _createGraph(self):
         pass
@@ -324,26 +322,35 @@ class GraphWidget(DebugWidget):
 
 class MemoryGraphWidget(GraphWidget):
     CAPTION = 'Memory usage'
-    def __init__(self, **kwargs):
-        super(MemoryGraphWidget, self).__init__(**kwargs)
-        self.registerInstance(self, None)
 
     def _createGraph(self):
-        return libavg.graph.AveragingGraph(parent=self, size=self.size, 
+        return libavg.graph.AveragingGraph(parent=self, size=self.size,
                 getValue=avg.getMemoryUsage)
 
 
 class FrametimeGraphWidget(GraphWidget):
     CAPTION = 'Time per frame'
-    def __init__(self, **kwargs):
-        super(FrametimeGraphWidget, self).__init__(**kwargs)
-        self.registerInstance(self, None)
 
     def _createGraph(self):
          return libavg.graph.SlidingBinnedGraph(parent=self,
                  getValue=libavg.player.getFrameTime,
                  binsThresholds=[0.0, 20.0, 40.0, 80.0, 160.0],
                  size=self.size)
+
+
+class GPUMemoryGraphWidget(GraphWidget):
+    CAPTION = 'GPU Memory usage'
+
+    def _createGraph(self):
+        try:
+            libavg.player.getVideoMemUsed()
+        except RuntimeError:
+            return avg.WordsNode(parent=self,
+                    text='GPU memory graph is not supported on this hardware',
+                    color='ff5555')
+        else:
+            return libavg.graph.AveragingGraph(parent=self, size=self.size,
+                    getValue=libavg.player.getVideoMemUsed)
 
 
 class KeyboardManagerBindingsShower(DebugWidget):
@@ -463,6 +470,11 @@ class DebugPanel(avg.DivNode):
         self.__touchVisOverlay = None
 
     def setupKeys(self):
+        kbmgr.bindKeyDown(keystring='g',
+                handler=lambda: self.toggleWidget(GPUMemoryGraphWidget),
+                help="GPU memory graph",
+                modifiers=libavg.avg.KEYMOD_CTRL)
+
         kbmgr.bindKeyDown(keystring='m',
                 handler=lambda: self.toggleWidget(MemoryGraphWidget),
                 help="Memory graph",

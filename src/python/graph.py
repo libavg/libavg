@@ -47,21 +47,6 @@ class Graph(avg.DivNode):
     def _setup(self):
         raise RuntimeError('Please overload _setup() function')
 
-    def delete(self):
-        def kill():
-            self._textNode0.unlink(True)
-            self._textNode0 = None
-            self._textNode1.unlink(True)
-            self._textNode1 = None
-            self._maxLineNode.unlink(True)
-            self._maxLineNode = None
-            self._lineNode.unlink(True)
-            self._lineNode = None
-            self.__graphText.unlink(True)
-            self.__graphText = None
-            self.unlink(True)
-        avg.LinearAnim(self, "opacity", 200, 1., 0., False, None, kill).start()
-
 
 class AveragingGraph(Graph):
 
@@ -69,11 +54,11 @@ class AveragingGraph(Graph):
         super(AveragingGraph, self).__init__(title, getValue, parent, **kwargs)
         self.registerInstance(self, None)
 
-    def delete(self):
-        super(AveragingGraph, self).delete()
+    def unlink(self, kill):
         player.clearInterval(self.__interval)
         self.__interval = None
-
+        super(AveragingGraph, self).unlink(kill)
+    
     def _setup(self):
         self.__interval = player.setInterval(1000, self._nextMemSample)
         self.__numSamples = 0
@@ -81,6 +66,7 @@ class AveragingGraph(Graph):
         self._maxUsage = [0]
         self._minutesUsage = [0]
         self._minutesMaxUsage = [0]
+        self._nextMemSample()
 
     def _nextMemSample(self):
         curUsage = self._getValue()
@@ -129,11 +115,6 @@ class SlidingGraph(Graph):
         super(SlidingGraph, self).__init__(title, getValue, parent, **kwargs)
         self.registerInstance(self, None)
         self._limitValue = float(limit)
-
-    def delete(self):
-        super(SlidingGraph, self).delete()
-        player.clearInterval(self.__frameHandlerID)
-        self.__interval = None
 
     def _setup(self):
         self.__frameHandlerID = player.subscribe(avg.Player.ON_FRAME, 
