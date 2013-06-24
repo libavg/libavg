@@ -17,6 +17,7 @@
 #
 # Current versions can be found at www.libavg.de
 
+import math
 import time
 
 from libavg import avg, player, Point2D
@@ -174,10 +175,7 @@ class BinBar(avg.DivNode):
         self.update(0)
 
     def update(self, value):
-        if value > 1:
-            value = 1
-        if value < 0:
-            value = 0
+        value = min(max(value, 0), 1)
 
         height = (self.size.y - 15) * value
         self._vbar.size = (self.size.x - 2, height)
@@ -201,7 +199,9 @@ class BinsGraph(avg.DivNode):
         s = sum(values)
 
         for binBar, value in zip(self._binBars, values):
-            binBar.update(float(value) / s)
+            normValue = float(value) / s
+            logValue = math.log10(normValue * 9 + 1) if normValue != 0 else 0
+            binBar.update(logValue)
 
 
 class SlidingBinnedGraph(SlidingGraph):
@@ -213,7 +213,7 @@ class SlidingBinnedGraph(SlidingGraph):
 
         self._bins = [0] * len(binsThresholds)
         self._binsThresholds = binsThresholds
-        self._binsGraph = BinsGraph(binsThresholds=binsThresholds[1:],
+        self._binsGraph = BinsGraph(binsThresholds=binsThresholds,
                 pos=(self.size.x - 120, 5), size=(90, self.size.y - 10),
                 parent=self)
 
@@ -224,6 +224,6 @@ class SlidingBinnedGraph(SlidingGraph):
                 break
 
         if sum(self._bins) % 100 == 0:
-            self._binsGraph.update(self._bins[1:])
+            self._binsGraph.update(self._bins)
 
         super(SlidingBinnedGraph, self)._appendValue(value)
