@@ -16,42 +16,36 @@ glitches while loading
 '''
 
 import sys
-import libavg
-from libavg import player
+from libavg import avg, player, app
 
 APP_RESOLUTION = (640, 480)
 
 
-class AsyncLoadApp(libavg.AVGApp):
-    def init(self):
+class AsyncLoadDiv(app.MainDiv):
+
+    def onInit(self):
         '''
         Create placeholders for the example. A single ImageNode is used to show
         the pictures.
         '''
-        self.__imageNode = libavg.avg.ImageNode(pos=(10, 20), parent=self._parentNode)
-        self.__spinner = libavg.avg.RectNode(color='222222',
-                fillopacity=1, size=(40, 40), active=False,
-                pos=(10, self._parentNode.size.y - 50), parent=self._parentNode)
-        self.__infoNode = libavg.avg.WordsNode(text='Press space to load the first image',
-                fontsize=11, pos=(10, 5), parent=self._parentNode)
+        self.__imageNode = avg.ImageNode(pos=(10, 20), parent=self)
+        self.__spinner = avg.RectNode(color='222222', fillopacity=1, size=(40, 40), 
+                active=False, pos=(10, self.size.y - 50), parent=self)
+        self.__infoNode = avg.WordsNode(text='Press space to load the first image',
+                fontsize=11, pos=(10, 5), parent=self)
         
         self.__pics = sys.argv[1:]
         self.__currentPic = -1
         player.subscribe(player.ON_FRAME, self.__onFrame)
-    
-    def onKeyDown(self, event):
-        '''
-        Intercept a space keypress and trigger the request.
-        '''
-        if event.keystring == 'space':
-            self.__requestNextBitmap()
+        app.keyboardmanager.bindKeyDown(keystring="space", handler=self.__requestNextBitmap,
+                help="Request next bitmap")
     
     def __requestNextBitmap(self):
         '''
         Ask the BitmapManager to load a new file. loadBitmap() call returns immediately.
         '''
         self.__currentPic = (self.__currentPic + 1) % len(self.__pics)
-        libavg.avg.BitmapManager.get().loadBitmap(self.__pics[self.__currentPic],
+        avg.BitmapManager.get().loadBitmap(self.__pics[self.__currentPic],
                 self.__onBitmapLoaded)
                 
         self.__spinner.active = True
@@ -91,5 +85,5 @@ if len(sys.argv) == 1:
     print 'Usage: %s <filename> [<filename> [<filename> [..]]]' % sys.argv[0]
     sys.exit(1)
     
-AsyncLoadApp.start(resolution=APP_RESOLUTION)
+app.App().run(AsyncLoadDiv(), app_resolution="640,480")
 
