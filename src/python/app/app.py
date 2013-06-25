@@ -231,14 +231,16 @@ class App(object):
 
     def dumpTextObjectCount(self):
         objects = libavg.player.getTestHelper().getObjectCount()
-        savedSeverity = libavg.logger.getCategories()[libavg.logger.Category.APP]
-        libavg.logger.configureCategory(libavg.logger.Category.APP,
-                libavg.logger.Severity.INFO)
+        # XXX: logging2 temporary revert
+        # savedSeverity = libavg.logger.getCategories()[libavg.logger.Category.APP]
+        # libavg.logger.configureCategory(libavg.logger.Category.APP,
+        #         libavg.logger.Severity.INFO)
         libavg.logger.info('Dumping objects count')
         for key, value in objects.iteritems():
             libavg.logger.info('  %-25s: %s' % (key, value))
 
-        libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)
+        # XXX: logging2 temporary revert
+        # libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)
 
     def _setupSettings(self):
         self._settings = settings.Settings()
@@ -253,7 +255,8 @@ class App(object):
         self._settings.addOption(Option('multitouch_driver', ''))
         self._settings.addOption(Option('multitouch_tuio_port', ''))
         self._settings.addOption(Option('multitouch_mtdev_device', ''))
-        self._settings.addOption(Option('log_avg_categories', ''))
+        # XXX: logging2 temporary revert
+        # self._settings.addOption(Option('log_avg_categories', ''))
 
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
@@ -263,13 +266,15 @@ class App(object):
         self.settings.posArgs = argvExtender.posArgs
 
     def _setupLogging(self):
-        catMap = self.settings.get('log_avg_categories').strip()
-        if catMap:
-            for catPair in catMap.split(' '):
-                cat, strLevel = catPair.split(':')
-                level = getattr(avg.logger.Severity, strLevel)
-
-                libavg.avg.logger.configureCategory(cat, level)
+        pass
+        # XXX: logging2 temporary revert
+        # catMap = self.settings.get('log_avg_categories').strip()
+        # if catMap:
+        #     for catPair in catMap.split(' '):
+        #         cat, strLevel = catPair.split(':')
+        #         level = getattr(avg.logger.Severity, strLevel)
+        # 
+        #         libavg.avg.logger.configureCategory(cat, level)
 
     def _setupRootNode(self):
         libavg.player.loadString('''<?xml version="1.0"?>
