@@ -23,7 +23,6 @@
 #define _ThreadProfiler_H_
 
 #include "../api.h"
-#include "ILogSink.h"
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
@@ -51,7 +50,7 @@ public:
     static void kill();
     ThreadProfiler();
     virtual ~ThreadProfiler();
-    void setLogCategory(category_t category);
+    void setLogCategory(long category);
  
     void start();
     void restart();
@@ -78,7 +77,7 @@ private:
     ZoneVector m_ActiveZones;
     ZoneVector m_Zones;
     bool m_bRunning;
-    category_t m_LogCategory;
+    long m_LogCategory;
 
     static boost::thread_specific_ptr<ThreadProfiler*> s_pInstance;
 };

@@ -57,15 +57,15 @@ ThreadProfiler::ThreadProfiler()
       m_LogCategory(Logger::category::PROFILE)
 {
     m_bRunning = false;
-    ScopeTimer::enableTimers(Logger::get()->shouldLog(m_LogCategory,
-            Logger::severity::INFO));
+    ScopeTimer::enableTimers(Logger::get()->isCategorySet(
+            Logger::category::PROFILE));
 }
 
 ThreadProfiler::~ThreadProfiler() 
 {
 }
 
-void ThreadProfiler::setLogCategory(category_t category)
+void ThreadProfiler::setLogCategory(long category)
 {
     AVG_ASSERT(!m_bRunning);
     m_LogCategory = category;
