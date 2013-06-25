@@ -47,11 +47,11 @@ namespace avg {
     const severity_t Logger::severity::WARNING  = 30;
     const severity_t Logger::severity::INFO     = 20;
     const severity_t Logger::severity::DEBUG    = 10;
-    const severity_t Logger::severity::NOT_SET  =  0;
+    const severity_t Logger::severity::NONE  =  0;
 
     const category_t Logger::category::NONE = UTF8String("NONE");
     const category_t Logger::category::PROFILE = UTF8String("PROFILE");
-    const category_t Logger::category::PROFILE_VIDEO = UTF8String("PROFILE_VIDEO");
+    const category_t Logger::category::PROFILE_VIDEO = UTF8String("PROFILE_V");
     const category_t Logger::category::EVENTS = UTF8String("EVENTS");
     const category_t Logger::category::CONFIG = UTF8String("CONFIG");
     const category_t Logger::category::MEMORY = UTF8String("MEMORY");
@@ -59,7 +59,7 @@ namespace avg {
     const category_t Logger::category::PLUGIN = UTF8String("PLUGIN");
     const category_t Logger::category::PLAYER = UTF8String("PLAYER");
     const category_t Logger::category::SHADER = UTF8String("SHADER");
-    const category_t Logger::category::DEPRECATION = UTF8String("DEPRECATION");
+    const category_t Logger::category::DEPRECATION = UTF8String("DEPREC");
 
 namespace {
     Logger* s_pLogger = 0;
@@ -98,7 +98,7 @@ Logger::Logger()
         for(it=sCategories.begin(); it!=sCategories.end(); it++) {
             string::size_type pos = (*it).find(":");
             string sCategory;
-            string sSeverity = "NOT_SET";
+            string sSeverity = "NONE";
             if(pos == string::npos) {
                 sCategory = *it;
             } else {
@@ -152,7 +152,7 @@ void Logger::removeStdLogSink()
 category_t Logger::configureCategory(category_t category, severity_t severity)
 {
     boost::mutex::scoped_lock lock(m_CategoryMutex);
-    severity = (severity == Logger::severity::NOT_SET) ? m_Severity : severity;
+    severity = (severity == Logger::severity::NONE) ? m_Severity : severity;
     UTF8String sCategory = boost::to_upper_copy(string(category));
     const size_t catHash = makeHash(sCategory);
     CatHashToSeverityMap::iterator it;
@@ -248,18 +248,18 @@ void Logger::setupCategory()
 severity_t Logger::stringToSeverity(const string& sSeverity)
 {
     string severity = boost::to_upper_copy(string(sSeverity));
-    if (severity == "CRITICAL") {
+    if (severity == "CRIT") {
         return Logger::severity::CRITICAL;
-    } else if (severity == "ERROR") {
+    } else if (severity == "ERR") {
         return Logger::severity::ERROR;
-    } else if (severity == "WARNING") {
+    } else if (severity == "WARN") {
         return Logger::severity::WARNING;
     } else if (severity == "INFO") {
         return Logger::severity::INFO;
-    } else if (severity == "DEBUG") {
+    } else if (severity == "DBG") {
         return Logger::severity::DEBUG;
-    } else if (severity == "NOT_SET") {
-        return Logger::severity::NOT_SET;
+    } else if (severity == "NONE") {
+        return Logger::severity::NONE;
     }
     throw Exception(AVG_ERR_INVALID_ARGS, severity + " is an invalid log severity");
 }
@@ -267,15 +267,15 @@ severity_t Logger::stringToSeverity(const string& sSeverity)
 const char * Logger::severityToString(severity_t severity)
 {
     if(severity == Logger::severity::CRITICAL) {
-        return "CRITICAL";
+        return "CRIT";
     } else if(severity == Logger::severity::ERROR) {
-        return "ERROR";
+        return "ERR";
     } else if(severity == Logger::severity::WARNING) {
-        return "WARNING";
+        return "WARN";
     } else if(severity == Logger::severity::INFO) {
         return "INFO";
     } else if(severity == Logger::severity::DEBUG) {
-        return "DEBUG";
+        return "DBG";
     }
     throw Exception(AVG_ERR_UNKNOWN, "Unkown log severity");
 }

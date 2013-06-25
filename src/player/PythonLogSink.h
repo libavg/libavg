@@ -38,6 +38,7 @@ public:
 private:
 
     PyObject *m_pyLogger;
+    static const char * LogSeverityToPythonString(severity_t severity);
 };
 
 }

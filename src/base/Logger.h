@@ -54,7 +54,7 @@ public:
         static const severity_t WARNING;
         static const severity_t INFO;
         static const severity_t DEBUG;
-        static const severity_t NOT_SET;
+        static const severity_t NONE;
     };
 
     struct AVG_API category
@@ -83,7 +83,7 @@ public:
     void removeStdLogSink();
 
     category_t configureCategory(category_t category,
-            severity_t severity=severity::NOT_SET);
+            severity_t severity=severity::NONE);
     CatToSeverityMap getCategories();
 
     void trace(const UTF8String& sMsg, const category_t& category,

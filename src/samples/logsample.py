@@ -19,7 +19,7 @@ pyLogger.level = logging.DEBUG
 class LoggingApp(AVGApp):
     def init(self):
         # Add the python logger to libavgs logger as a message sink
-        avg.logger.clearSinks()
+        avg.logger.removeStdLogSink()
         avg.logger.addSink(pyLogger)
 
         avg.logger.debug("Hidden, unless AVG_LOG_CATEGORIES configured with APP:DEBUG")
@@ -46,7 +46,7 @@ class LoggingApp(AVGApp):
         #Log with custom log category
         avg.logger.log("Message with custom category", CUSTOM_LOG_CAT)
         avg.logger.debug("Hidden message", CUSTOM_LOG_CAT)
-        avg.logger.configureCategory(CUSTOM_LOG_CAT, avg.logger.Severity.DEBUG)
+        avg.logger.configureCategory(CUSTOM_LOG_CAT, avg.logger.Severity.DBG)
         avg.logger.debug("This will show up", CUSTOM_LOG_CAT)
 
 LoggingApp.start(resolution=(140, 140))

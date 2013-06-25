@@ -71,7 +71,7 @@ class LoggerTestCase(AVGTestCase):
         self._assertMsg()
 
     def testOmitCategory(self):
-        logger.configureCategory(logger.Category.APP, logger.Severity.CRITICAL)
+        logger.configureCategory(logger.Category.APP, logger.Severity.CRIT)
         logger.info(self.testMsg)
         self._assertNoMsg()
 

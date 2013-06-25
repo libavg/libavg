@@ -181,7 +181,7 @@ class TestApp(object):
         player.enableGLErrorChecks(True)
         cats = avg.logger.getCategories()
         for cat in [avg.logger.Category.APP, avg.logger.Category.CONFIG,
-                avg.logger.Category.DEPRECATION]:
+                avg.logger.Category.DEPREC]:
             avg.logger.configureCategory(cat, avg.logger.Severity.INFO)
         player.loadString("""
                 <avg id="avg" width="160" height="120">

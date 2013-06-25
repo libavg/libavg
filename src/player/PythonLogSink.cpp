@@ -39,10 +39,25 @@ PythonLogSink::~PythonLogSink()
     Py_DecRef(m_pyLogger);
 }
 
+const char * PythonLogSink::LogSeverityToPythonString(severity_t severity)
+{
+    if(severity == Logger::severity::CRITICAL) {
+        return "critical";
+    } else if(severity == Logger::severity::ERROR) {
+        return "error";
+    } else if(severity == Logger::severity::WARNING) {
+        return "warning";
+    } else if(severity == Logger::severity::INFO) {
+        return "info";
+    } else if(severity == Logger::severity::DEBUG) {
+        return "debug";
+    }
+    throw Exception(AVG_ERR_UNKNOWN, "Unkown log severity");
+}
+
 void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
         const category_t& category, severity_t severity, const UTF8String& sMsg)
 {
-    string sSeverity = boost::to_lower_copy(string(Logger::severityToString(severity)));
     PyObject * extra = PyDict_New();
     PyObject * pyCat = PyString_FromString(category.c_str());
 
@@ -54,7 +69,8 @@ void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
     PyDict_SetItemString(kwargs, "extra", extra);
     PyTuple_SetItem(args, 0, pyMsg);
 
-    PyObject_Call(PyObject_GetAttrString(m_pyLogger, sSeverity.c_str()), args, kwargs);
+    PyObject_Call(PyObject_GetAttrString(m_pyLogger,
+            LogSeverityToPythonString(severity)), args, kwargs);
 
     Py_DECREF(extra);
     Py_DECREF(pyCat);

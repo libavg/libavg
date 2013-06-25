@@ -107,7 +107,7 @@ BOOST_PYTHON_MODULE(avg)
                 .def("removeSink", removePythonLogger)
                 .def("removeStdLogSink", &Logger::removeStdLogSink)
                 .def("configureCategory", &Logger::configureCategory,
-                        (bp::arg("severity")=Logger::severity::NOT_SET))
+                        (bp::arg("severity")=Logger::severity::NONE))
                 .def("getCategories", &Logger::getCategories)
                 .def("trace", pytrace,
                         (bp::arg("severity")=Logger::severity::INFO))
@@ -127,16 +127,17 @@ BOOST_PYTHON_MODULE(avg)
            ;
             {
                 scope severityScope = class_<SeverityScopeHelper>("Severity");
-                severityScope.attr("CRITICAL") = Logger::severity::CRITICAL;
-                severityScope.attr("ERROR") = Logger::severity::ERROR;
-                severityScope.attr("WARNING") = Logger::severity::WARNING;
+                severityScope.attr("CRIT") = Logger::severity::CRITICAL;
+                severityScope.attr("ERR") = Logger::severity::ERROR;
+                severityScope.attr("WARN") = Logger::severity::WARNING;
                 severityScope.attr("INFO") = Logger::severity::INFO;
-                severityScope.attr("DEBUG") = Logger::severity::DEBUG;
+                severityScope.attr("DBG") = Logger::severity::DEBUG;
+                severityScope.attr("NONE") = Logger::severity::NONE;
             }
             {
                 scope categoryScope = class_<CategoryScopeHelper>("Category");
                 categoryScope.attr("PROFILE") = Logger::category::PROFILE;
-                categoryScope.attr("PROFILE_VIDEO") = Logger::category::PROFILE_VIDEO;
+                categoryScope.attr("PROFILE_V") = Logger::category::PROFILE_VIDEO;
                 categoryScope.attr("EVENTS") = Logger::category::EVENTS;
                 categoryScope.attr("CONFIG") = Logger::category::CONFIG;
                 categoryScope.attr("MEMORY") = Logger::category::MEMORY;
@@ -144,7 +145,7 @@ BOOST_PYTHON_MODULE(avg)
                 categoryScope.attr("PLUGIN") = Logger::category::PLUGIN;
                 categoryScope.attr("PLAYER") = Logger::category::PLAYER;
                 categoryScope.attr("SHADER") = Logger::category::SHADER;
-                categoryScope.attr("DEPRECATION") = Logger::category::DEPRECATION;
+                categoryScope.attr("DEPREC") = Logger::category::DEPRECATION;
                 categoryScope.attr("NONE") = Logger::category::NONE;
             }
         }
