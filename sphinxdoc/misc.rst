@@ -410,6 +410,14 @@ Misc. Classes
             and then creates an image node that displays that bitmap. :py:attr:`nodeAttrs`
             is a dictionary containing constructor parameters for the node.
 
+        .. py:method:: getElementPos(elementID) -> Point2D
+
+            Returns the position of an element.
+
+        .. py:method:: getElementSize(elementID) -> Point2D
+
+            Returns the original size of an element.
+
 
     .. autoclass:: TestHelper
 
