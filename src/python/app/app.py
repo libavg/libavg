@@ -80,13 +80,19 @@ class MainDiv(libavg.avg.DivNode):
         '''
         pass
 
+    def onArgvExtenderCreated(self, argvExtender):
+        pass
+
+    def onArgvExtenderApplied(self, argvExtender):
+        pass
+
 
 class App(object):
     '''
     libavg-based application class
     '''
 
-    def __init__(self, posArgsHelp=''):
+    def __init__(self):
         import libavg.app
 
         if libavg.app.instance is not None:
@@ -94,7 +100,6 @@ class App(object):
                     self.__class__.__name__)
 
         libavg.app.instance = self
-        self._posArgsHelp = posArgsHelp
 
         self._mainDiv = None
         self._appParent = None
@@ -260,10 +265,10 @@ class App(object):
 
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
-        argvExtender = settings.ArgvExtender(self.mainDiv.VERSION,
-                self._posArgsHelp)
+        argvExtender = settings.ArgvExtender(self.mainDiv.VERSION)
+        self.mainDiv.onArgvExtenderCreated(argvExtender)
         self.settings.applyExtender(argvExtender)
-        self.settings.posArgs = argvExtender.posArgs
+        self.mainDiv.onArgvExtenderApplied(argvExtender)
 
     def _setupLogging(self):
         pass

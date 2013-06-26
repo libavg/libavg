@@ -103,22 +103,21 @@ class KargsExtender(object):
 
 
 class ArgvExtender(object):
-    def __init__(self, appVersionInfo, posArgsHelp, args=sys.argv[1:]):
+    def __init__(self, appVersionInfo, args=sys.argv[1:]):
         self.__appVersionInfo = appVersionInfo
-        self.__posArgsHelp = posArgsHelp
+        self.__parser = optparse.OptionParser()
         self.__args = args
-        self.__posArgs = None
+        self.__parsedArgs = None
 
     def __call__(self, optionsList):
-        usage = 'Usage: %prog [options] ' + str(self.__posArgsHelp)
-        parser = optparse.OptionParser(usage=usage)
-        parser.add_option('-v', '--version', dest='version', action='store_true',
+        self.__parser.add_option('-v', '--version', dest='version', action='store_true',
                 help='print libavg and application version information')
 
         groups = self.__groupOptionsKeys(optionsList)
 
         for group in sorted(groups):
-            parserGroup = optparse.OptionGroup(parser, '%s section' % group.title())
+            parserGroup = optparse.OptionGroup(self.__parser,
+                    '%s section' % group.title())
 
             keys = sorted(groups[group])
 
@@ -133,9 +132,11 @@ class ArgvExtender(object):
 
                 parserGroup.add_option(cliKey, help=help)
 
-            parser.add_option_group(parserGroup)
+            self.__parser.add_option_group(parserGroup)
 
-        parsedOptions, self.__posArgs = parser.parse_args(args=self.__args)
+        self.__parsedArgs = self.__parser.parse_args(args=self.__args)
+
+        parsedOptions = self.__parsedArgs[0]
 
         if parsedOptions.version:
             print 'libavg'
@@ -157,11 +158,15 @@ class ArgvExtender(object):
         return optionsList
 
     @property
-    def posArgs(self):
-        if self.__posArgs is None:
-            raise RuntimeError('Cannot provide posArgs before applying the extender')
+    def parsedArgs(self):
+        if self.__parsedArgs is None:
+            raise RuntimeError('Cannot provide parsedArgs before applying the extender')
 
-        return self.__posArgs
+        return self.__parsedArgs
+
+    @property
+    def parser(self):
+        return self.__parser
 
     def __groupOptionsKeys(self, optionsList):
         groups = {}
@@ -185,8 +190,6 @@ class Settings(object):
 
         for option in defaults:
             self.addOption(option)
-
-        self.posArgs = None
 
     def __iter__(self):
         return self.__options.__iter__()
