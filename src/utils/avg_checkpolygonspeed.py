@@ -144,5 +144,5 @@ class SpeedDiv(app.MainDiv):
 
 
 if __name__ == '__main__':
-    app.App().run(SpeedDiv(), app_resolution='800, 600')
+    app.App().run(SpeedDiv(), app_resolution='800x600')
 
