@@ -87,7 +87,6 @@ class SpeedDiv(app.MainDiv):
         if not self.__optVsync:
             player.setFramerate(1000)
 
-        self.mediadir = utils.getMediaDir(None, 'data')
         tstart = time.time()
         self.__createNodes()
         print 'Time to create nodes: %f' % (time.time()-tstart)
