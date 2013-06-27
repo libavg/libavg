@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,11 +21,9 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
-#
 
 from libavg import *
 
-import optparse
 import random
 
 def parseCmdLine():
@@ -63,42 +62,106 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
     return options
 
 
-class SpeedApp(AVGApp):
-    def init(self):
-        self._parentNode.mediadir = utils.getMediaDir(None, "data")
+class SpeedDiv(app.MainDiv):
+    def onArgvExtenderCreated(self, argvExtender):
+        usage = '%prog [options]\n' \
+                'Checks libavg performance by creating lots of nodes. ' \
+                'Displays a frame time graph and executes for 20 secs.'
+        argvExtender.parser.set_usage(usage)
+
+        argvExtender.parser.add_option('--use-fx', '-f', dest='useFX',
+                action='store_true', default=False,
+                help='display everything using a NullFX to test FX overhead')
+        argvExtender.parser.add_option('--video', '-i', dest='video',
+                action='store_true', default=False,
+                help='show videos instead of images')
+        argvExtender.parser.add_option('--audio', '-a', dest='audio',
+                action='store_true', default=False,
+                help='when showing videos, use videos with an audio channel')
+        argvExtender.parser.add_option('--create-nodes', '-c', dest='create',
+                action='store_true', default=False,
+                help='destroy and recreate all nodes every 400 ms')
+        argvExtender.parser.add_option('--move', '-m', dest='move',
+                action='store_true', default=False,
+                help='move nodes every frame')
+        argvExtender.parser.add_option('--blur', '-b', dest='blur',
+                action='store_true', default=False,
+                help='apply a BlurFXNode to the nodes')
+        argvExtender.parser.add_option('--color', '-o', dest='color',
+                action='store_true', default=False,
+                help='apply gamma to the nodes, causing the color correction shader to activate')
+        argvExtender.parser.add_option('--vsync', '-s', dest='vsync',
+                action='store_true', default=False,
+                help='sync output to vertical refresh')
+        argvExtender.parser.add_option('--num-objs', '-n', dest='numObjs',
+                type='int', default=-1,
+                help='number of objects to create [Default: 200 images or 40 videos]')
+        argvExtender.parser.add_option('--profile', '-p', dest='profile',
+                action='store_true', default=False,
+                help='enable profiling output, note that profiling makes things slower')
+
+    def onArgvExtenderApplied(self, argvExtender):
+        opts, args = argvExtender.parsedArgs
+
+        self.__optUseFX = opts.useFX
+        self.__optVideo = opts.video
+        self.__optAudio = opts.audio
+        self.__optCreate = opts.create
+        self.__optMove = opts.move
+        self.__optBlur = opts.blur
+        self.__optColor = opts.color
+        self.__optVsync = opts.vsync
+        self.__optNumObjs = opts.numObjs
+        if self.__optNumObjs < 1:
+            if self.__optVideo:
+                self.__optNumObjs = 40
+            else:
+                self.__optNumObjs = 200 
+
+        log = avg.logger
+        if opts.profile:
+            log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
+        else:
+            log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
+
+    def onInit(self):
+        if not self.__optVsync:
+            player.setFramerate(1000)
+
+        self.mediadir = utils.getMediaDir(None, 'data')
         self.__createNodes()
-        self._starter.showFrameRate()
-        if options.createNodes:
+        app.instance.debugPanel.toggleWidget(app.debugpanel.FrametimeGraphWidget)
+        if self.__optCreate:
             player.setInterval(400, self.__createNodes)
         # Ignore the first frame for the 20 sec-limit so long startup times don't
         # break things.
         player.setTimeout(0, lambda: player.setTimeout(20000, player.stop))
-        if options.move:
-            player.setOnFrameHandler(self.__moveNodes)
+
+    def onFrame(self, dt):
+         if self.__optMove:
+            self.__moveNodes()
 
     def __createNodes(self):
         self.__nodes = []
-        for i in xrange(options.numObjs):
+        for i in xrange(self.__optNumObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
-            if options.video:
-                if options.audio:
+            if self.__optVideo:
+                if self.__optAudio:
                     fname = "mpeg1-48x48-sound.avi"
                 else:
                     fname = "mpeg1-48x48.mpg"
-                node = avg.VideoNode(pos=pos, href=fname, loop=True, 
-                        parent=self._parentNode)
+                node = avg.VideoNode(pos=pos, href=fname, loop=True, parent=self)
                 node.play()
             else:
-                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png", 
-                        parent=self._parentNode)
-            if options.useFX:
+                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png", parent=self)
+            if self.__optUseFX:
                 node.setEffect(avg.NullFXNode())
-            if options.blur:
+            if self.__optBlur:
                 node.setEffect(avg.BlurFXNode(10))
-            if options.color:
+            if self.__optColor:
                 node.gamma = (1.1, 1.1, 1.1)
             self.__nodes.append(node)
-        if options.createNodes:
+        if self.__optCreate:
             player.setTimeout(300, self.__deleteNodes)
 
     def __deleteNodes(self):
@@ -111,19 +174,6 @@ class SpeedApp(AVGApp):
             node.pos = (random.randrange(800-64), random.randrange(600-64))
 
 
-options = parseCmdLine()
-if not(options.vsync):
-    player.setFramerate(1000)
-if options.numObjs == -1:
-    if options.video:
-        options.numObjs = 40
-    else:
-        options.numObjs = 200 
-
-log = avg.logger
-if options.profile:
-    log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
-else:
-    log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
-SpeedApp.start(resolution=(800,600))
+if __name__ == '__main__':
+    app.App().run(SpeedDiv(), app_resolution='800x600')
 
