@@ -26,41 +26,6 @@ from libavg import *
 
 import random
 
-def parseCmdLine():
-    parser = optparse.OptionParser(usage=
-"""%prog [option]. 
-Checks libavg performance by creating lots of nodes. Displays a frame time graph and executes for 20 secs.""")
-    parser.add_option('--use-fx', '-f', dest='useFX', action='store_true', default=False, 
-            help='Display everything using a NullFX to test FX overhead.')
-    parser.add_option('--video', '-v', dest='video',  action='store_true', default=False, 
-            help='Show videos instead of images.')
-    parser.add_option('--audio', '-a', dest='audio',  action='store_true', default=False, 
-            help='When showing videos, use videos with an audio channel')
-    parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
-            default=False, 
-            help='Destroy and recreate all nodes every 400 ms.')
-    parser.add_option('--move', '-m', dest='move', action='store_true',
-            default=False, 
-            help='Move nodes every frame.')
-    parser.add_option('--blur', '-b', dest='blur', action='store_true',
-            default=False, 
-            help='Applies a BlurFXNode to the nodes.')
-    parser.add_option('--color', dest='color', action='store_true',
-            default=False, 
-            help='Applies gamma to the nodes, causing the color correction shader to activate.')
-    parser.add_option('--vsync', '-s', dest='vsync', action='store_true',
-            default=False, 
-            help='Sync output to vertical refresh.')
-    parser.add_option('--profile', '-p', dest='profile', action='store_true',
-            default=False,
-            help='Enable profiling output. Note that profiling makes things slower.')
-    parser.add_option('--num-objs', '-n', dest='numObjs', type='int', default=-1,
-            help='Number of objects to create. Default is 200 images or 40 videos.')
-
-    (options, args) = parser.parse_args()
-
-    return options
-
 
 class SpeedDiv(app.MainDiv):
     def onArgvExtenderCreated(self, argvExtender):
