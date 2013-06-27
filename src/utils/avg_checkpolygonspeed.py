@@ -91,8 +91,7 @@ class SpeedDiv(app.MainDiv):
         tstart = time.time()
         self.__createNodes()
         print 'Time to create nodes: %f' % (time.time()-tstart)
-        # TODO: show frame graph (in debug panel)
-#        self._starter.showFrameRate()
+        app.instance.debugPanel.toggleWidget(app.debugpanel.FrametimeGraphWidget)
         if self.__optCreate:
             player.setInterval(400, self.__createNodes)
         # Ignore the first frame for the 20 sec-limit so long startup times don't
