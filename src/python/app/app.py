@@ -412,14 +412,13 @@ class App(object):
                 help='Dump objects count to the console',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        self.debugPanel.setupKeys()
+        keyboardmanager.bindKeyDown(
+                keystring='e',
+                handler=self._toggleMtEmulation,
+                help='Toggle multitouch emulation',
+                modifiers=libavg.avg.KEYMOD_CTRL)
 
-        if self.settings.getboolean('multitouch_enabled'):
-            keyboardmanager.bindKeyDown(
-                    keystring='e',
-                    handler=self._toggleMtEmulation,
-                    help='Toggle multitouch emulation',
-                    modifiers=libavg.avg.KEYMOD_CTRL)
+        self.debugPanel.setupKeys()
 
     def _toggleMtEmulation(self):
         if self._mtEmu is None:
