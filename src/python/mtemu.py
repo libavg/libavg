@@ -46,32 +46,21 @@ class MTemu(object):
         player.setEventHook(self.__onEvent)
 
         root = player.getRootNode()
-        posX = root.size.x - 15
-        posY = root.size.y - 20
-
-        self.__layer = avg.WordsNode(text='Multitouch emulation active',
-                pos=(posX, posY),
+        self.__caption = avg.WordsNode(pos=(root.size.x - 15, root.size.y - 20),
                 alignment = 'right',
                 color='DDDDDD',
                 sensitive=False,
-                fontsize=18,
+                fontsize=16,
                 parent=root)
+        self.__updateCaption()
 
     def deinit(self):
         player.setEventHook(self.__oldEventHook)
-        self.__layer.unlink()
+        self.__caption.unlink()
         if self.mouseState == 'Down':
             self.__releaseTouch(self.cursorID)
             if self.secondTouch:
                 self.__releaseTouch(self.cursorID+1)
-
-    def setTrackSource(self):
-        self.__clearSourceState()
-        self.source = avg.Event.TRACK
-    
-    def setTouchSource(self):
-        self.__clearSourceState()
-        self.source = avg.Event.TOUCH
 
     def toggleSource(self):
         '''
@@ -80,6 +69,7 @@ class MTemu(object):
         self.__clearSourceState()
         self.source = (avg.Event.TOUCH if self.source == avg.Event.TRACK
                 else avg.Event.TRACK)
+        self.__updateCaption()
 
     def toggleDualTouch(self):
         self.dualTouch = not(self.dualTouch)
@@ -109,6 +99,9 @@ class MTemu(object):
                 self.__sendFakeTouch(self.cursorID+1, Point2D(0,0),
                         avg.Event.CURSOR_DOWN, mirror=True)
             self.secondTouch = not(self.secondTouch)
+
+    def __updateCaption(self):
+        self.__caption.text = 'Multitouch emulation active (%s source)' % self.source
 
     def __onEvent(self, event):
         if event.source == avg.Event.MOUSE:

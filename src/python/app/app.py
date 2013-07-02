@@ -432,18 +432,11 @@ class App(object):
             keyboardmanager.bindKeyUp('right shift', self._mtEmu.disableDualTouch,
                     'Disable pinch gesture emulation')
 
-            keyboardmanager.bindKeyDown('left ctrl', self._mtEmu.setTrackSource,
-                    'Use TRACK source for mt emu')
-            keyboardmanager.bindKeyDown('right ctrl', self._mtEmu.setTrackSource,
-                    'Use TRACK source for mt emu')
-            keyboardmanager.bindKeyUp('left ctrl', self._mtEmu.setTouchSource,
-                    'Use TOUCH source for mt emu')
-            keyboardmanager.bindKeyUp('right ctrl', self._mtEmu.setTouchSource,
-                    'Use TOUCH source for mt emu')
+            keyboardmanager.bindKeyDown('t', self._mtEmu.toggleSource,
+                    'Toggle source between TOUCH and TRACK', libavg.avg.KEYMOD_CTRL)
         else:
             self._mtEmu.deinit()
-            keyboardmanager.unbindKeyDown('left ctrl')
-            keyboardmanager.unbindKeyDown('right ctrl')
+            keyboardmanager.unbindKeyDown('t', libavg.avg.KEYMOD_CTRL)
             keyboardmanager.unbindKeyDown('left shift')
             keyboardmanager.unbindKeyDown('right shift')
 
