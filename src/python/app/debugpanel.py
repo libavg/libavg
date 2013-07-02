@@ -372,10 +372,16 @@ class KeyboardManagerBindingsShower(DebugWidget):
         for binding in kbmgr.getCurrentBindings():
             keystring = binding.keystring.decode('utf8')
             modifiersStr = self.__modifiersToString(binding.modifiers)
+
             if modifiersStr is not None:
                 key = '%s-%s' % (modifiersStr, keystring)
             else:
                 key = keystring
+
+            if binding.type == libavg.avg.KEYDOWN:
+                key = '%s %s' % (key, unichr(8595))
+            else:
+                key = '%s %s' % (key, unichr(8593))
 
             node = avg.WordsNode(
                     text='<span size="large"><b>%s</b></span>: %s' %
