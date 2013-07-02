@@ -434,6 +434,7 @@ class App(object):
             self._mtEmu.deinit()
             keyboardmanager.unbindKeyDown('t', libavg.avg.KEYMOD_CTRL)
             keyboardmanager.unbindKeyDown('shift')
+            keyboardmanager.unbindKeyUp('shift')
 
             del self._mtEmu
             self._mtEmu = None
