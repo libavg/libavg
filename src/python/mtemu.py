@@ -65,20 +65,43 @@ class MTemu(object):
             if self.secondTouch:
                 self.__releaseTouch(self.cursorID+1)
 
+    def setTrackSource(self):
+        self.__clearSourceState()
+        self.source = avg.Event.TRACK
+    
+    def setTouchSource(self):
+        self.__clearSourceState()
+        self.source = avg.Event.TOUCH
+
     def toggleSource(self):
         '''
         Switch between avg.Event.TOUCH and avg.Event.TRACK - source
         '''
+        self.__clearSourceState()
+        self.source = (avg.Event.TOUCH if self.source == avg.Event.TRACK
+                else avg.Event.TRACK)
+
+    def toggleDualTouch(self):
+        self.dualTouch = not(self.dualTouch)
+        self.__clearDualtouchState()
+
+    def enableDualTouch(self):
+        self.dualTouch = True
+        self.__clearDualtouchState()
+
+    def disableDualTouch(self):
+        self.dualTouch = False
+        self.__clearDualtouchState()
+
+    def __clearSourceState(self):
         if self.mouseState == 'Down':
             self.__releaseTouch(self.cursorID)
             if self.secondTouch:
                 self.__releaseTouch(self.cursorID+1)
             self.mouseState = 'Up'
             self.secondTouch = False
-        self.source = avg.Event.TOUCH if self.source == avg.Event.TRACK else avg.Event.TRACK
 
-    def toggleDualTouch(self):
-        self.dualTouch = not(self.dualTouch)
+    def __clearDualtouchState(self):
         if self.mouseState == 'Down':
             if self.secondTouch:
                 self.__releaseTouch(self.cursorID+1)

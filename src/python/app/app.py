@@ -423,14 +423,23 @@ class App(object):
     def _toggleMtEmulation(self):
         if self._mtEmu is None:
             self._mtEmu = mtemu.MTemu()
-            keyboardmanager.bindKeyDown('left shift', self._mtEmu.toggleDualTouch,
-                    'Toggle single / dual touch emu')
-            keyboardmanager.bindKeyDown('right shift', self._mtEmu.toggleDualTouch,
-                    'Toggle single / dual touch emu')
-            keyboardmanager.bindKeyDown('left ctrl', self._mtEmu.toggleSource,
-                    'Switch touch / track source emu')
-            keyboardmanager.bindKeyDown('right ctrl', self._mtEmu.toggleSource,
-                    'Switch touch / track source emu')
+            keyboardmanager.bindKeyDown('left shift', self._mtEmu.enableDualTouch,
+                    'Enable pinch gesture emulation')
+            keyboardmanager.bindKeyDown('right shift', self._mtEmu.enableDualTouch,
+                    'Enable pinch gesture emulation')
+            keyboardmanager.bindKeyUp('left shift', self._mtEmu.disableDualTouch,
+                    'Disable pinch gesture emulation')
+            keyboardmanager.bindKeyUp('right shift', self._mtEmu.disableDualTouch,
+                    'Disable pinch gesture emulation')
+
+            keyboardmanager.bindKeyDown('left ctrl', self._mtEmu.setTrackSource,
+                    'Use TRACK source for mt emu')
+            keyboardmanager.bindKeyDown('right ctrl', self._mtEmu.setTrackSource,
+                    'Use TRACK source for mt emu')
+            keyboardmanager.bindKeyUp('left ctrl', self._mtEmu.setTouchSource,
+                    'Use TOUCH source for mt emu')
+            keyboardmanager.bindKeyUp('right ctrl', self._mtEmu.setTouchSource,
+                    'Use TOUCH source for mt emu')
         else:
             self._mtEmu.deinit()
             keyboardmanager.unbindKeyDown('left ctrl')
