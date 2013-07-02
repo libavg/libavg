@@ -193,11 +193,18 @@ def _testModifiers(mod1, mod2):
     mod2 &= ~IGNORED_KEYMODS
     return mod1 == mod2 or mod1 & mod2
 
+def _testPatternMatch(pattern, text):
+    if pattern in ('shift', 'alt', 'ctrl', 'meta', 'super'):
+        return pattern in text
+    else:
+        return False
+
 def _testMatchString(keyBinding, keyString, type_):
     sameType = keyBinding.type == type_
-    keyStringMatches = keyBinding.keystring == keyString
+    patternMatch = _testPatternMatch(keyBinding.keystring, keyString)
+    directMatch = keyBinding.keystring == keyString
 
-    return sameType and keyStringMatches
+    return sameType and (directMatch or patternMatch)
 
 def _testMatchEvent(keyBinding, event, type_):
     if not _testModifiers(event.modifiers, keyBinding.modifiers):

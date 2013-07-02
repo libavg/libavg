@@ -23,11 +23,7 @@
 # <sm (at) archimedes-solutions (dot) de>
 
 '''
-this class provides a test to emulate one or two TOUCH/TRACK events. 
-by pressing "ctrl left/right" the TOUCH events will be switched into TRACK events and the 
-other way around.
-by pressing "shift left/right" a second event is created whenever the mousebutton (left) 
-is clicked. 
+Multitouch emulation helper, supporting pinch gestures
 '''
 
 from libavg import avg, Point2D, player

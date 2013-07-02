@@ -423,13 +423,9 @@ class App(object):
     def _toggleMtEmulation(self):
         if self._mtEmu is None:
             self._mtEmu = mtemu.MTemu()
-            keyboardmanager.bindKeyDown('left shift', self._mtEmu.enableDualTouch,
+            keyboardmanager.bindKeyDown('shift', self._mtEmu.enableDualTouch,
                     'Enable pinch gesture emulation')
-            keyboardmanager.bindKeyDown('right shift', self._mtEmu.enableDualTouch,
-                    'Enable pinch gesture emulation')
-            keyboardmanager.bindKeyUp('left shift', self._mtEmu.disableDualTouch,
-                    'Disable pinch gesture emulation')
-            keyboardmanager.bindKeyUp('right shift', self._mtEmu.disableDualTouch,
+            keyboardmanager.bindKeyUp('shift', self._mtEmu.disableDualTouch,
                     'Disable pinch gesture emulation')
 
             keyboardmanager.bindKeyDown('t', self._mtEmu.toggleSource,
@@ -437,8 +433,7 @@ class App(object):
         else:
             self._mtEmu.deinit()
             keyboardmanager.unbindKeyDown('t', libavg.avg.KEYMOD_CTRL)
-            keyboardmanager.unbindKeyDown('left shift')
-            keyboardmanager.unbindKeyDown('right shift')
+            keyboardmanager.unbindKeyDown('shift')
 
             del self._mtEmu
             self._mtEmu = None
