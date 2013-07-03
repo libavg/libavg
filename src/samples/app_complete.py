@@ -6,8 +6,8 @@ More complete application example employing settings and common MainDiv placehol
 
 Try also:
 $ ./app_settings.py -h
-$ ./app_settings.py --block-speed=900
-$ ./app_settings.py --block-speed 750 --block-color 00ff00
+$ ./app_settings.py --speed=900
+$ ./app_settings.py --speed 750 --color 00ff00
 
 Note: animations are usually more efficiently handled by libavg.avg.Anim classes.
 '''
