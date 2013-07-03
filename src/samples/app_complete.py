@@ -19,12 +19,16 @@ from libavg.app.settings import Option
 
 
 class MyMainDiv(app.MainDiv):
+    # An OptionParser instance is passed to this function, allowing the MainDiv to
+    # expose command line arguments requirements
     def onArgvParserCreated(self, parser):
         parser.add_option('--speed', '-s', default='300', dest='speed',
                 help='Pixels per second')
         parser.add_option('--color', '-c', default='ff0000', dest='color',
                 help='Fill color of the running block')
 
+    # The same instance gets passed again when the command line arguments get parsed
+    # options, args are the result of OptionParser.parse_args()
     def onArgvParsed(self, options, args, parser):
         self.argvoptions = options
 
