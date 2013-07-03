@@ -33,52 +33,50 @@ g_Trigger = True
 
 
 class SpeedDiv(app.MainDiv):
-    def onArgvExtenderCreated(self, argvExtender):
+    def onArgvParserCreated(self, parser):
         usage = '%prog [options]\n' \
                 'Checks libavg performance by creating lots of polygon nodes. ' \
                 'Displays a frame time graph and executes for 20 secs.'
-        argvExtender.parser.set_usage(usage)
+        parser.set_usage(usage)
 
-        argvExtender.parser.add_option('--hole-polygon', '-y', dest='hole',
+        parser.add_option('--hole-polygon', '-y', dest='hole',
                 action='store_true', default=False,
                 help='generate polygons with holes')
-        argvExtender.parser.add_option('--create-nodes', '-c', dest='create',
+        parser.add_option('--create-nodes', '-c', dest='create',
                 action='store_true', default=False,
                 help='destroy and recreate all nodes every 400 ms')
-        argvExtender.parser.add_option('--move', '-m', dest='move',
+        parser.add_option('--move', '-m', dest='move',
                 action='store_true', default=False,
                 help='move nodes every frame')
-        argvExtender.parser.add_option('--vsync', '-s', dest='vsync',
+        parser.add_option('--vsync', '-s', dest='vsync',
                 action='store_true', default=False,
                 help='sync output to vertical refresh')
-        argvExtender.parser.add_option('--num-objs', '-n', dest='numObjs',
+        parser.add_option('--num-objs', '-n', dest='numObjs',
                 type='int', default=40,
                 help='number of polygons to create [Default: 40]')
-        argvExtender.parser.add_option('--num-points', '-x', dest='numPoints',
+        parser.add_option('--num-points', '-x', dest='numPoints',
                 type='int', default=10,
                 help='number of points in each polygon [Default: 10]')
-        argvExtender.parser.add_option('--profile', '-p', dest='profile',
+        parser.add_option('--profile', '-p', dest='profile',
                 action='store_true', default=False,
                 help='enable profiling output, note that profiling makes things slower')
 
-    def onArgvExtenderApplied(self, argvExtender):
-        opts, args = argvExtender.parsedArgs
-
-        self.__optHole = opts.hole
-        self.__optCreate = opts.create
-        self.__optMove = opts.move
-        self.__optVsync = opts.vsync
-        self.__optNumObjs = opts.numObjs
+    def onArgvParsed(self, options, args, parser):
+        self.__optHole = options.hole
+        self.__optCreate = options.create
+        self.__optMove = options.move
+        self.__optVsync = options.vsync
+        self.__optNumObjs = options.numObjs
         if self.__optNumObjs < 1:
             self.__optNumObjs = 40
-        self.__optNumPoints = opts.numPoints
+        self.__optNumPoints = options.numPoints
         if self.__optNumPoints < 10:
             self.__optNumPoints = 10
         elif self.__optNumPoints % 2 != 0:
             self.__optNumPoints -= 1
 
         log = avg.logger
-        if opts.profile:
+        if options.profile:
             log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
         else:
             log.setCategories(log.CONFIG | log.WARNING | log.ERROR)

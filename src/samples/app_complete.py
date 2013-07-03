@@ -19,14 +19,14 @@ from libavg.app.settings import Option
 
 
 class MyMainDiv(app.MainDiv):
-    def onArgvExtenderCreated(self, argvExtender):
-        argvExtender.parser.add_option('--speed', '-s', default='300', dest='speed',
+    def onArgvParserCreated(self, parser):
+        parser.add_option('--speed', '-s', default='300', dest='speed',
                 help='Pixels per second')
-        argvExtender.parser.add_option('--color', '-c', default='ff0000', dest='color',
+        parser.add_option('--color', '-c', default='ff0000', dest='color',
                 help='Fill color of the running block')
 
-    def onArgvExtenderApplied(self, argvExtender):
-        self.argvoptions = argvExtender.parsedArgs[0]
+    def onArgvParsed(self, options, args, parser):
+        self.argvoptions = options
 
     # This is called as soon as the player is started by the App()
     # it's supposed to be the place where everything gets initialized.

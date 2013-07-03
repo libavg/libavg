@@ -149,17 +149,6 @@ class AppTestCase(testcase.AVGTestCase):
         app.settings.addOption(Option('bar_foo', 'baz'))
         self.assertEquals(app.settings.get('foo_bar'), 'baz')
 
-    def testAppExtraOptionsSettings(self):
-        class MyMainDiv(libavg.app.MainDiv):
-            EXTRA_OPTIONS = [Option('foo_bar', 'baz')]
-
-        app = TestApp()
-        app.testRun([
-                lambda: self.assertEquals(libavg.app.instance.settings.get('foo_bar'),
-                        'baz'),
-                ],
-                mainDiv=MyMainDiv())
-
     def testAppRuntimeSettings(self):
         app = TestApp()
         app.settings.addOption(Option('foo_bar', 'baz'))
@@ -298,7 +287,6 @@ def appTestSuite(tests):
             'testSettingsArgvExtender',
             'testSettingsKargsExtender',
             'testAppAdditionalSettings',
-            'testAppExtraOptionsSettings',
             'testAppRuntimeSettings',
             'testAppRuntimeSettingsFail',
             'testAppInstance',

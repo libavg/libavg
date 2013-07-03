@@ -27,19 +27,18 @@ from libavg import avg, app, player, widget
 class VideoPlayer(app.MainDiv):
     CONTROL_WIDTH=240
 
-    def onArgvExtenderCreated(self, argvExtender):
-        argvExtender.parser.set_usage("%prog [options] <filename>")
-        argvExtender.parser.add_option("-d", "--disable-accel", dest="disableAccel",
+    def onArgvParserCreated(self, parser):
+        parser.set_usage("%prog [options] <filename>")
+        parser.add_option("-d", "--disable-accel", dest="disableAccel",
                 action="store_true", default=False,
                 help="disable vdpau acceleration")
 
-    def onArgvExtenderApplied(self, argvExtender):
-        opts, args = argvExtender.parsedArgs
+    def onArgvParsed(self, options, args, parser):
         if len(args) != 1:
-            argvExtender.parser.print_help()
+            parser.print_help()
             sys.exit(1)
 
-        self.node = avg.VideoNode(href=args[0], accelerated=not(opts.disableAccel))
+        self.node = avg.VideoNode(href=args[0], accelerated=not(options.disableAccel))
         self.node.pause()
 
         mediaSize = self.node.getMediaSize()

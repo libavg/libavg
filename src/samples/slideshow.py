@@ -106,13 +106,12 @@ class Slide(avg.ImageNode):
 
 
 class Slideshow(app.MainDiv):
-    def onArgvExtenderCreated(self, argvExtender):
-        argvExtender.parser.set_usage('%prog <images dir>')
+    def onArgvParserCreated(self, parser):
+        parser.set_usage('%prog <images dir>')
 
-    def onArgvExtenderApplied(self, argvExtender):
-        opts, args = argvExtender.parsedArgs
+    def onArgvParsed(self, options, args, parser):
         if len(args) != 1:
-            argvExtender.parser.print_help()
+            parser.print_help()
             sys.exit(1)
         self._imagesDir = args[0]
 

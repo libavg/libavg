@@ -27,25 +27,24 @@ from libavg import avg, app
 
 
 class ShowSVG(app.MainDiv):
-    def onArgvExtenderCreated(self, argvExtender):
-        argvExtender.parser.set_usage("%prog [options] <svgFileName> <elementID>")
+    def onArgvParserCreated(self, parser):
+        parser.set_usage("%prog [options] <svgFileName> <elementID>")
 
-        argvExtender.parser.add_option("-s", "--size", dest="size",
+        parser.add_option("-s", "--size", dest="size",
                 type="float", default=1.0,
                 help="specify a factor for the size of the element [Default: 1.0]")
-        argvExtender.parser.add_option("--save-image", dest="saveImage",
+        parser.add_option("--save-image", dest="saveImage",
                 action="store_true", default=False,
                 help="save the image rendered to a png file")
 
-    def onArgvExtenderApplied(self, argvExtender):
-        opts, args = argvExtender.parsedArgs
+    def onArgvParsed(self, options, args, parser):
         if len(args) != 2:
-            argvExtender.parser.print_help()
+            parser.print_help()
             sys.exit(1)
         self._svgFName = args[0]
         self._svgID = args[1]
-        self._size = opts.size
-        self._saveImage = opts.saveImage
+        self._size = options.size
+        self._saveImage = options.saveImage
 
     def onInit(self):
         self.svg = avg.SVG(self._svgFName, True)

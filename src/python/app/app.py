@@ -50,6 +50,24 @@ class MainDiv(libavg.avg.DivNode):
         super(MainDiv, self).__init__(**kargs)
         self.registerInstance(self, None)
 
+    def onArgvParserCreated(self, parser):
+        '''
+        Called with an OptionParser instance where command line options can be defined
+        @param parser: instance of OptionParser
+        '''
+        pass
+
+    def onArgvParsed(self, options, args, parser):
+        '''
+        Called when the argv parser has parsed the command line arguments
+        @param options: optional parameters defined via parser.add_option
+        @type options: named tuple
+        @param args: positional arguments
+        @type args: list
+        @param parser: instance of OptionParser
+        '''
+        pass
+
     def onStartup(self):
         '''
         Called before libavg has been setup
@@ -77,12 +95,6 @@ class MainDiv(libavg.avg.DivNode):
         @param delta: time in seconds since the last onFrame() call
         @type delta: float
         '''
-        pass
-
-    def onArgvExtenderCreated(self, argvExtender):
-        pass
-
-    def onArgvExtenderApplied(self, argvExtender):
         pass
 
 
@@ -262,9 +274,10 @@ class App(object):
     def _applySettingsExtenders(self, kargs):
         self.settings.applyExtender(settings.KargsExtender(kargs))
         argvExtender = settings.ArgvExtender(self.mainDiv.VERSION)
-        self.mainDiv.onArgvExtenderCreated(argvExtender)
+        self.mainDiv.onArgvParserCreated(argvExtender.parser)
         self.settings.applyExtender(argvExtender)
-        self.mainDiv.onArgvExtenderApplied(argvExtender)
+        self.mainDiv.onArgvParsed(argvExtender.parsedArgs[0], argvExtender.parsedArgs[1],
+                argvExtender.parser)
 
     def _setupLogging(self):
         pass
