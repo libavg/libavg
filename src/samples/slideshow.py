@@ -38,6 +38,7 @@ in background.
 #  * max. move distance
 #  * sorted/shuffled show order (shuffled yet)
 
+import sys
 import os
 from random import shuffle, randint
 from libavg import avg, player, app
@@ -105,19 +106,25 @@ class Slide(avg.ImageNode):
 
 
 class Slideshow(app.MainDiv):
-    EXTRA_OPTIONS = [app.settings.Option('slideshow_image_dir', '',
-            'The directory to scan for images')]
+    def onArgvExtenderCreated(self, argvExtender):
+        argvExtender.parser.set_usage('%prog <images dir>')
+
+    def onArgvExtenderApplied(self, argvExtender):
+        opts, args = argvExtender.parsedArgs
+        if len(args) != 1:
+            argvExtender.parser.print_help()
+            sys.exit(1)
+        self._imagesDir = args[0]
 
     def onInit(self):
-        imgDir = os.path.abspath(app.instance.settings.get('slideshow_image_dir'))
-        if not os.path.isdir(imgDir):
-            avg.logger.error('Directory [%s] not found' % imgDir)
+        if not os.path.isdir(self._imagesDir):
+            avg.logger.error('Directory [%s] not found' % self._imagesDir)
             exit(1)
-        avg.logger.info('Scanning directory [%s] ...' % imgDir)
+        avg.logger.info('Scanning directory [%s] ...' % self._imagesDir)
 
         imgExts = tuple(IMAGE_EXTENSIONS + [ext.upper() for ext in IMAGE_EXTENSIONS])
-        self.__imgFiles = [os.path.join(imgDir, imgFile) for imgFile in
-                filter(lambda f: f.endswith(imgExts), os.listdir(imgDir))]
+        self.__imgFiles = [os.path.join(self._imagesDir, imgFile) for imgFile in
+                filter(lambda f: f.endswith(imgExts), os.listdir(self._imagesDir))]
         if not self.__imgFiles:
             avg.logger.error('No image files found, '
                     'scanned file extensions:\n%s' % (', '.join(imgExts)))

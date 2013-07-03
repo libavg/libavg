@@ -43,7 +43,6 @@ class MainDiv(libavg.avg.DivNode):
     Main construction block for libavg-based applications
     '''
     INIT_FUNC = 'onInit'
-    EXTRA_OPTIONS = []
     VERSION = 'undef'
 
     def __init__(self, **kargs):
@@ -121,9 +120,6 @@ class App(object):
         '''
         assert isinstance(mainDiv, MainDiv)
         self._mainDiv = mainDiv
-
-        for option in mainDiv.EXTRA_OPTIONS:
-            self.settings.addOption(option)
 
         self._applySettingsExtenders(kargs)
         self._setupLogging()

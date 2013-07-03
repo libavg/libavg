@@ -13,32 +13,37 @@ Note: animations are usually more efficiently handled by libavg.avg.Anim classes
 '''
 
 import libavg
+import libavg.widget
 from libavg import app
 from libavg.app.settings import Option
 
 
 class MyMainDiv(app.MainDiv):
-    # Options needed by the MainDiv
-    EXTRA_OPTIONS = [
-            Option('block_speed', '300', 'Pixels per seconds'),
-            Option('block_color', 'ff0000', 'Fill color of the running block'),
-    ]
+    def onArgvExtenderCreated(self, argvExtender):
+        argvExtender.parser.add_option('--speed', '-s', default='300', dest='speed',
+                help='Pixels per second')
+        argvExtender.parser.add_option('--color', '-c', default='ff0000', dest='color',
+                help='Fill color of the running block')
+
+    def onArgvExtenderApplied(self, argvExtender):
+        self.argvoptions = argvExtender.parsedArgs[0]
 
     # This is called as soon as the player is started by the App()
     # it's supposed to be the place where everything gets initialized.
     def onInit(self):
         libavg.WordsNode(text='block_speed=%s app_resolution=%s' %
-                (app.instance.settings.get('block_speed'),
-                app.instance.settings.getpoint2d('app_resolution')), parent=self)
+                (self.argvoptions.speed,
+                app.instance.settings.getpoint2d('app_resolution')),
+                pos=(10, self.height - 25), parent=self)
 
         # Create a graphic element that will be animated
         self.__runningBlock = libavg.RectNode(pos=(0, 100), size=(20, 20),
-                fillopacity=1, fillcolor=app.instance.settings.get('block_color'),
+                fillopacity=1, fillcolor=self.argvoptions.color,
                 parent=self)
         self.__shouldMove = True
 
         # Add a button to switch off/on the motion of the running block
-        button = libavg.widget.TextButton(text='Toggle motion', pos=(20, 50),
+        button = libavg.widget.TextButton(text='Toggle motion', pos=(20, 200),
                 size=(100, 30), parent=self)
         button.subscribe(button.CLICKED, self.__toggleMotion)
 
@@ -48,7 +53,7 @@ class MyMainDiv(app.MainDiv):
     def onFrame(self, delta):
         # delta is the time, in seconds, since the last call to this function
         if self.__shouldMove:
-            speed = float(app.instance.settings.get('block_speed'))
+            speed = float(self.argvoptions.speed)
             self.__runningBlock.pos += (speed * delta, 0)
             if self.__runningBlock.pos.x > self.size.x:
                 self.__runningBlock.pos = (0, 100)
@@ -61,7 +66,5 @@ class MyMainDiv(app.MainDiv):
 
 
 if __name__ == '__main__':
-    # parameters passed as kwargs to the App.run method will override the wired defaults,
-    # but they're overriden by the command line arguments
-    app.App().run(MyMainDiv(), block_speed='500')
+    app.App().run(MyMainDiv())
 
