@@ -36,7 +36,7 @@ class MyMainDiv(app.MainDiv):
     def onInit(self):
         libavg.WordsNode(text='block_speed=%s app_resolution=%s' %
                 (self.argvoptions.speed,
-                app.instance.settings.getPoint2D('app_resolution')),
+                self.settings.getPoint2D('app_resolution')),
                 pos=(10, self.height - 25), parent=self)
 
         # Create a graphic element that will be animated

@@ -45,7 +45,7 @@ class VideoPlayer(app.MainDiv):
         size = avg.Point2D(max(mediaSize.x, 320), max(mediaSize.y, 120))
         screenSize = player.getScreenResolution()
         size = avg.Point2D(min(size.x, screenSize.x), min(size.y, screenSize.y-80))
-        app.instance.settings.set("app_resolution", "%dx%d" %(size.x, size.y))
+        self.settings.set("app_resolution", "%dx%d" %(size.x, size.y))
 
     def onInit(self):
         self.node.play()

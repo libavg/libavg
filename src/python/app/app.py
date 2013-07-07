@@ -128,6 +128,7 @@ class App(object):
         self._mainDiv = mainDiv
 
         self._applySettingsExtenders(kargs)
+        self.mainDiv.settings = self._settings
         self._setupLogging()
 
         mainDiv.onStartup()
