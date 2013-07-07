@@ -69,5 +69,7 @@ class MyMainDiv(app.MainDiv):
 
 
 if __name__ == '__main__':
-    app.App().run(MyMainDiv())
+    # Core options can be changed as parameters of App().run(), after providing
+    # a MainDiv instance
+    app.App().run(MyMainDiv(), app_resolution='1024x500')
 
