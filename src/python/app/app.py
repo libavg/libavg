@@ -104,8 +104,6 @@ class App(object):
     '''
 
     def __init__(self):
-        import libavg.app
-
         self._setupInstance()
 
         self._mainDiv = None
@@ -252,6 +250,8 @@ class App(object):
         # libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)
 
     def _setupInstance(self):
+        import libavg.app
+
         if libavg.app.instance is not None:
             raise RuntimeError('%s has been already instantiated' %
                     self.__class__.__name__)
