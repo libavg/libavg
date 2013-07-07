@@ -168,7 +168,9 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
     vector<unsigned int> holeIndexes;
     pts.reserve(m_Pts.size());
 
-    pts.push_back(m_Pts[0]);
+    if (glm::distance2(m_Pts[0], m_Pts[m_Pts.size()-1]) > 0.1) {
+        pts.push_back(m_Pts[0]);
+    }
     for (unsigned i = 1; i < m_Pts.size(); ++i) {
         if (glm::distance2(m_Pts[i], m_Pts[i-1]) > 0.1) {
             pts.push_back(m_Pts[i]);
