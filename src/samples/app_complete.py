@@ -15,7 +15,6 @@ Note: animations are usually more efficiently handled by libavg.avg.Anim classes
 import libavg
 import libavg.widget
 from libavg import app
-from libavg.app.settings import Option
 
 
 class MyMainDiv(app.MainDiv):
