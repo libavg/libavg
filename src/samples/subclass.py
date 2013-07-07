@@ -30,9 +30,10 @@ class SubclassDemo(app.MainDiv):
     def onInit(self):
         self.rect = TextRect(text="Hello World", pos=(20,20), size=(200,120), 
                 parent=self)
-        gesture.TapRecognizer(node=self.rect, detectedHandler=self.onTap)
+        self.__recognizer = gesture.TapRecognizer(node=self.rect, 
+                detectedHandler=self.onTap)
         
-    def onTap(self, event):
+    def onTap(self):
         self.rect.size = self.rect.size + (10,10)
 
 if __name__ == '__main__':
