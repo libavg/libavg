@@ -300,10 +300,10 @@ class App(object):
         </avg>''' % tuple(self.resolution))
 
     def _setupMouse(self):
-        libavg.player.enableMouse(self.settings.getboolean('app_mouse_enabled'))
+        libavg.player.enableMouse(self.settings.getBoolean('app_mouse_enabled'))
 
     def _setupMultitouch(self):
-        if self.settings.getboolean('multitouch_enabled'):
+        if self.settings.getBoolean('multitouch_enabled'):
             driver = self.settings.get('multitouch_driver').upper()
             if driver:
                 os.putenv('AVG_MULTITOUCH_DRIVER', driver)
@@ -355,7 +355,7 @@ class App(object):
     def _setupDebugPanel(self):
         self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
                     size=self.appParent.size, id='debugPanel',
-                    fontsize=self.settings.getfloat('app_panel_fontsize'))
+                    fontsize=self.settings.getFloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
         pass
@@ -364,13 +364,13 @@ class App(object):
         rotation = self.settings.get('app_rotation').lower()
         resolutionStr = self.settings.get('app_resolution').lower()
         if resolutionStr != '':
-            resolution = self.settings.getpoint2d('app_resolution')
+            resolution = self.settings.getPoint2D('app_resolution')
         else:
             resolution = libavg.player.getScreenResolution()
 
         windowSizeStr = self.settings.get('app_window_size')
         if windowSizeStr != '':
-            windowSize = self.settings.getpoint2d('app_window_size')
+            windowSize = self.settings.getPoint2D('app_window_size')
         else:
             windowSize = resolution
 
@@ -382,7 +382,7 @@ class App(object):
         self._windowSize = windowSize
 
     def _applyResolution(self):
-        fullscreen = self.settings.getboolean('app_fullscreen')
+        fullscreen = self.settings.getBoolean('app_fullscreen')
 
         if fullscreen:
             resolution = self.resolution
@@ -395,7 +395,7 @@ class App(object):
                 0  # color depth
                 )
 
-        libavg.player.showCursor(self.settings.getboolean('app_show_cursor'))
+        libavg.player.showCursor(self.settings.getBoolean('app_show_cursor'))
 
     def _setupKeyboardManager(self):
         keyboardmanager.init()

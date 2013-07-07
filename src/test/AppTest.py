@@ -96,22 +96,22 @@ class AppTestCase(testcase.AVGTestCase):
 
         s = settings.Settings(defaults)
 
-        self.assertEquals(s.getboolean('test_boolean'), True)
+        self.assertEquals(s.getBoolean('test_boolean'), True)
 
         self.assertEquals(type(s.get('test_string')), str)
-        self.assertRaises(ValueError, lambda: s.getboolean('test_string'))
+        self.assertRaises(ValueError, lambda: s.getBoolean('test_string'))
 
-        self.assertEquals(s.getint('another_value_int'), 1234)
-        self.assertRaises(ValueError, lambda: s.getint('test_string'))
+        self.assertEquals(s.getInt('another_value_int'), 1234)
+        self.assertRaises(ValueError, lambda: s.getInt('test_string'))
         self.assertEquals(s.get('another_value_int'), '1234')
 
-        self.assertEquals(s.getpoint2d('test_2d'), libavg.Point2D(1280, 1024))
-        self.assertEquals(s.getpoint2d('test_2d_alt'), libavg.Point2D(1280, 1024))
-        self.assertRaises(ValueError, lambda: s.getint('test_2d'))
+        self.assertEquals(s.getPoint2D('test_2d'), libavg.Point2D(1280, 1024))
+        self.assertEquals(s.getPoint2D('test_2d_alt'), libavg.Point2D(1280, 1024))
+        self.assertRaises(ValueError, lambda: s.getInt('test_2d'))
 
-        self.assertEquals(s.getfloat('test_float'), 12.345)
+        self.assertEquals(s.getFloat('test_float'), 12.345)
         
-        self.assertEquals(s.getjson('test_json'), [1, None, 3, 'string', 12.345])
+        self.assertEquals(s.getJson('test_json'), [1, None, 3, 'string', 12.345])
 
     def testSettingsSet(self):
         s = settings.Settings()
@@ -119,7 +119,7 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertRaises(ValueError, lambda: s.set('test_value', 1234))
 
         s.set('test_value', '1234')
-        self.assertEquals(s.getint('test_value'), 1234)
+        self.assertEquals(s.getInt('test_value'), 1234)
 
     def testSettingsArgvExtender(self):
         s = settings.Settings([Option('foo_bar', 'bar')])

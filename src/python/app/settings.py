@@ -197,7 +197,7 @@ class Settings(object):
     def applyExtender(self, extender):
         self.__options = extender(self.__options)
 
-    def getoption(self, key):
+    def getOption(self, key):
         option = self.__getOptionOrNone(key)
 
         if option is None:
@@ -206,19 +206,19 @@ class Settings(object):
         return option
         
     def get(self, key, convertFunc=lambda v: v):
-        option = self.getoption(key)
+        option = self.getOption(key)
 
         try:
             return convertFunc(option.value)
         except (TypeError, ValueError), e:
             raise ValueError('%s (option=%s)' % (e, option))
 
-    def getjson(self, key):
+    def getJson(self, key):
         import json
 
         return self.get(key, json.loads)
     
-    def getpoint2d(self, key):
+    def getPoint2D(self, key):
         value = self.get(key)
         maybeTuple = re.split(r'\s*[,xX]\s*', value)
         
@@ -227,13 +227,13 @@ class Settings(object):
 
         return libavg.Point2D(map(float, maybeTuple))
 
-    def getint(self, key):
+    def getInt(self, key):
         return self.get(key, int)
     
-    def getfloat(self, key):
+    def getFloat(self, key):
         return self.get(key, float)
 
-    def getboolean(self, key):
+    def getBoolean(self, key):
         value = self.get(key).lower()
         
         if value in ('yes', 'true'):
@@ -244,7 +244,7 @@ class Settings(object):
             raise ValueError('Cannot convert %s to boolean' % value)
 
     def set(self, key, value):
-        option = self.getoption(key)
+        option = self.getOption(key)
         option.value = value
 
     def addOption(self, option):
