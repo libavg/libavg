@@ -110,9 +110,8 @@ void FFMpegDemuxer::seek(float destTime)
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     av_seek_frame(m_pFormatContext, -1, destTime*1000000, 0);
 #else
-    int err = av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE),
+   av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE),
             AVSEEK_FLAG_BACKWARD);
-    AVG_ASSERT(err >= 0);
 #endif
 #endif
     clearPacketCache();
