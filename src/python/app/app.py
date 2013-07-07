@@ -106,11 +106,7 @@ class App(object):
     def __init__(self):
         import libavg.app
 
-        if libavg.app.instance is not None:
-            raise RuntimeError('%s has been already instantiated' %
-                    self.__class__.__name__)
-
-        libavg.app.instance = self
+        self._setupInstance()
 
         self._mainDiv = None
         self._appParent = None
@@ -254,6 +250,13 @@ class App(object):
 
         # XXX: logging2 temporary revert
         # libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)
+
+    def _setupInstance(self):
+        if libavg.app.instance is not None:
+            raise RuntimeError('%s has been already instantiated' %
+                    self.__class__.__name__)
+
+        libavg.app.instance = self
 
     def _setupSettings(self):
         self._settings = settings.Settings()
