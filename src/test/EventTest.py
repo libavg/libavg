@@ -110,7 +110,6 @@ class EventTestCase(AVGTestCase):
 
     def testTilted(self):
         root = self.loadEmptyScene()
-        root = root
         img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", angle=0.785, parent=root)
         handlerTester = NodeHandlerTester(self, img)
         
@@ -120,6 +119,18 @@ class EventTestCase(AVGTestCase):
                         (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER)),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 0, 0),
                  lambda: handlerTester.assertState((avg.Node.CURSOR_OUT,)),
+                ))
+
+    def testWordsClicks(self):
+        root = self.loadEmptyScene()
+        words = avg.WordsNode(pos=(40,40), alignment="right", text="test", parent=root)
+        handlerTester = NodeHandlerTester(self, words)
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 45, 45),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 35, 45),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_UP, avg.Node.CURSOR_OVER)),
                 ))
 
     def testDivEvents(self):
@@ -1044,6 +1055,7 @@ def eventTestSuite(tests):
             "testKeyEvents",
             "testSimpleEvents",
             "testTilted",
+            "testWordsClicks",
             "testDivEvents",
             "testDivNegativePos",
             "testUnlinkInHandler",

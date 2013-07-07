@@ -272,6 +272,12 @@ class PlayerTestCase(AVGTestCase):
         innerDiv.getChild(0).elementoutlinecolor = "00FF00"
         self.start(False, [lambda: self.compareImage("testOutlines")])
 
+    def testWordsOutlines(self):
+        root = self.loadEmptyScene()
+        root.elementoutlinecolor = "FFFFFF"
+        avg.WordsNode(pos=(40,40), alignment="center", text="test", parent=root)
+        self.start(True, [lambda: self.compareImage("testWordsOutlines")])
+
     def testError(self):
         self.initDefaultImageScene()
         player.setTimeout(1, lambda: undefinedFunction)
@@ -822,6 +828,7 @@ def playerTestSuite(tests):
             "testRotatePivot",
             "testOpacity",
             "testOutlines",
+            "testWordsOutlines",
             "testError",
             "testExceptionInTimeout",
             "testInvalidImageFilename",
