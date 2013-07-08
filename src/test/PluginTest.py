@@ -39,7 +39,7 @@ class PluginTestCase(AVGTestCase):
                     # make distcheck
                     addpth = '../../_build/src/test/'
 
-                player.pluginPath += ":"+addpth+"plugin/.libs"
+                player.pluginPath += ":"+addpth
             player.loadPlugin("colorplugin")
             
         def usePlugin1():
