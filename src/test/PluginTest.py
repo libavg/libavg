@@ -32,14 +32,9 @@ class PluginTestCase(AVGTestCase):
     def testColorNodePlugin(self):
         def loadPlugin():
             if platform.system() != 'Windows':
-                if os.getenv('srcdir') in ('.', None):
-                    # make check or ./Test.py
-                    addpth = './'
-                else:
+                if not(os.getenv('srcdir') in ('.', None)):
                     # make distcheck
-                    addpth = '../../_build/src/test/'
-
-                player.pluginPath += ":"+addpth
+                    player.pluginPath += ":../../_build/src/test/plugin/.libs"
             player.loadPlugin("colorplugin")
             
         def usePlugin1():
