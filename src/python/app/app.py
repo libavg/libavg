@@ -127,8 +127,8 @@ class App(object):
         assert isinstance(mainDiv, MainDiv)
         self._mainDiv = mainDiv
 
-        self._applySettingsExtenders(kargs)
         self.mainDiv.settings = self._settings
+        self._applySettingsExtenders(kargs)
         self._setupLogging()
 
         mainDiv.onStartup()
