@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
-#
 
-import optparse
-from libavg import avg, AVGApp, widget
+from libavg import avg, app, widget
 from libavg import parsecamargs
 
 GUI_SIZE=(300, 526)
+
 
 class FXSlider(avg.DivNode):
     def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, parent=None,
@@ -62,15 +61,39 @@ def colorToString(colorTuple):
     s = "%02X%02X%02X"%colorTuple[:-1]
     return s
 
-class Chromakey(AVGApp):
-    def init(self):
-        avg.RectNode(size=(options.width,options.height), fillcolor="FF0000", 
-                fillopacity=1, strokewidth=0, parent=self._parentNode)
-        self.__camNode = avg.CameraNode(driver=options.driver, device=options.device, 
-                 unit=options.unit, fw800=options.fw800, 
-                 capturewidth=options.width, captureheight=options.height, 
-                 pixelformat=options.pixelFormat, framerate=options.framerate, 
-                 width=options.width, height=options.height, parent=self._parentNode)
+
+class Chromakey(app.MainDiv):
+    def onArgvParserCreated(self, parser):
+        parser.set_usage(usage)
+        parsecamargs.addOptions(parser)
+
+    def onArgvParsed(self, options, args, parser):
+        if options.driver is None:
+            parser.print_help()
+            print
+            print "ERROR: at least '--driver' must be specified"
+            exit(1)
+
+        self.__optWidth = options.width
+        self.__optHeight = options.height
+        self.__optsCam = {
+                "driver": options.driver,
+                "device": options.device,
+                "unit": options.unit,
+                "fw800": options.fw800,
+                "pixelformat": options.pixelFormat,
+                "framerate": options.framerate}
+
+        self.settings.set("app_resolution", "%dx%d"
+                %(GUI_SIZE[0]+options.width, max(GUI_SIZE[1], options.height)))
+
+    def onInit(self):
+        avg.RectNode(size=(self.__optWidth,self.__optHeight), fillcolor="FF0000",
+                fillopacity=1, strokewidth=0, parent=self)
+        self.__camNode = avg.CameraNode(
+                 capturewidth=self.__optWidth, captureheight=self.__optHeight,
+                 width=self.__optWidth, height=self.__optHeight, parent=self,
+                 **self.__optsCam)
         self.__camNode.play()
         self.__filter = avg.ChromaKeyFXNode()
         self.__camNode.setEffect(self.__filter)
@@ -83,7 +106,7 @@ class Chromakey(AVGApp):
         self.__createGUI()
 
     def __createGUI(self):
-        self.__guiDiv = avg.DivNode(pos=(options.width+10,10), parent=self._parentNode)
+        self.__guiDiv = avg.DivNode(pos=(self.__optWidth+10,10), parent=self)
 
         self.__colorWords = avg.WordsNode(pos=(0,14), parent=self.__guiDiv)
         self.__colorWords.text = "Key Color: "+self.__filter.color
@@ -117,7 +140,6 @@ class Chromakey(AVGApp):
         FXSlider(10, 128, 1023, self.__camNode, "gain", "Gain", 
                 True, parent=self.__guiDiv)
 
-
     def __onColorDown(self, event):
         pos = self.__camNode.getRelPos(event.pos)
         bmp = self.__camNode.getBitmap()
@@ -149,6 +171,7 @@ class Chromakey(AVGApp):
         print "  erosion=", self.__filter.erosion
         print "  spillthreshold=", self.__filter.spillthreshold
 
+
 usage = """%prog [options]
 
 avg_chromakey.py is a configuration utility for the libavg chromakey filter.
@@ -160,17 +183,7 @@ user to adjust the camera and filter parameters. The parameters can be dumped
 to the console for easy inclusion in libavg scripts.
 """
 
-parser = optparse.OptionParser(usage=usage)
-parsecamargs.addOptions(parser)
 
-(options, args) = parser.parse_args()
-if options.driver is None:
-    parser.print_help()
-    print
-    print "ERROR: at least '--driver' must be specified"
-    exit()
-
-resolution=(GUI_SIZE[0]+options.width, max(GUI_SIZE[1],options.height))
-
-Chromakey.start(resolution=resolution)
+if __name__ == "__main__":
+    app.App().run(Chromakey())
 
