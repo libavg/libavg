@@ -379,9 +379,9 @@ class KeyboardManagerBindingsShower(DebugWidget):
                 key = keystring
 
             if binding.type == libavg.avg.KEYDOWN:
-                key = '%s %s' % (key, unichr(8595))
+                key = '%s %s' % (unichr(8595), key)
             else:
-                key = '%s %s' % (key, unichr(8593))
+                key = '%s %s' % (unichr(8593), key)
 
             node = avg.WordsNode(
                     text='<span size="large"><b>%s</b></span>: %s' %
