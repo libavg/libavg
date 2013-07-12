@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,18 +19,19 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
-#
 
 from libavg import *
-import os
 
-class TouchApp(AVGApp):
-    multitouch = True
 
-    def init(self):
-        self._parentNode.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
-        self.getStarter().setTouchVisualization(apphelpers.TouchVisualization)
-    
+class TouchApp(app.MainDiv):
+    def onArgvParsed(self, options, args, parser):
+        if self.settings.getBoolean("app_fullscreen"):
+            self.settings.set("app_resolution", "") # use screen resolution
+
+    def onInit(self):
+        self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+        app.instance.debugPanel.toggleTouchVisualization()
+
     def __onDown(self, event):
 #        if event.source == avg.MOUSE:
 #            print event.type, event.button
@@ -49,10 +51,7 @@ class TouchApp(AVGApp):
 #                contact.distancefromstart, contact.motionangle, contact.motionvec, \
 #                contact.distancetravelled, event.speed
 
-if os.getenv('AVG_DEPLOY') is None:
-    resolution = (800, 600)
-else:
-    resolution = player.getScreenResolution()
 
-TouchApp.start(resolution=resolution)
+if __name__ == "__main__":
+    app.App().run(TouchApp(), app_resolution="800x600", multitouch_enabled="true")
 
