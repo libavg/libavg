@@ -94,6 +94,8 @@ python_files += [
         LIBAVG_SRC_DIR+'test/testcase.py',
         LIBAVG_SRC_DIR+'test/testapp.py',
         ]
+python_app_files = gatherFilesInDir(LIBAVG_SRC_DIR+'python/app/',
+        ('Makefile.am',))
 python_widget_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/widget/')
 python_data_files = gatherFilesInDir(LIBAVG_SRC_DIR+'python/data/',
         ('Makefile.am',))
@@ -113,6 +115,7 @@ data_files_list=[
 
         ('Lib/site-packages/libavg/plugin', ('../Release/colorplugin.dll',)),
         ('Lib/site-packages/libavg', python_files),
+        ('Lib/site-packages/libavg/app', python_app_files),
         ('Lib/site-packages/libavg/widget', python_widget_files),
         ('Lib/site-packages/libavg/data', python_data_files),
         ('Lib/site-packages/libavg/shaders', shader_files),

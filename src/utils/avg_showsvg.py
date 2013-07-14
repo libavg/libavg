@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,36 +21,43 @@
 # Current versions can be found at www.libavg.de
 #
 
-import optparse
 import sys
 
-from libavg import avg, AVGApp
+from libavg import avg, app
 
-parser = optparse.OptionParser("Usage: %prog <svgFileName> <elementID> [options]")
-parser.add_option("-s", "--size", action="store", type="float", dest="size", default=1,
-        help="Specify a factor for the size of the element.")
-parser.add_option("--save-image", action="store_true", dest="saveImage", default=False,
-        help="Save the image rendered to a png file.")
 
-(options, args) = parser.parse_args()
-if len(args) < 2:
-    parser.print_help()
-    sys.exit(1)
-svgFName = args[0]
-svgID = args[1]
+class ShowSVG(app.MainDiv):
+    def onArgvParserCreated(self, parser):
+        parser.set_usage("%prog [options] <svgFileName> <elementID>")
 
-class ShowSVG(AVGApp):
-    def init(self):
-        self.svg = avg.SVG(svgFName, True)
-        img = self.svg.createImageNode(svgID, {"pos":(1,1), "parent":self._parentNode}, 
-                options.size)
-        rect = avg.RectNode(fillcolor="808080", color="FFFFFF", fillopacity=1, 
+        parser.add_option("-s", "--size", dest="size",
+                type="float", default=1.0,
+                help="specify a factor for the size of the element [Default: 1.0]")
+        parser.add_option("--save-image", dest="saveImage",
+                action="store_true", default=False,
+                help="save the image rendered to a png file")
+
+    def onArgvParsed(self, options, args, parser):
+        if len(args) != 2:
+            parser.print_help()
+            sys.exit(1)
+        self._svgFName = args[0]
+        self._svgID = args[1]
+        self._size = options.size
+        self._saveImage = options.saveImage
+
+    def onInit(self):
+        self.svg = avg.SVG(self._svgFName, True)
+        img = self.svg.createImageNode(self._svgID, {"pos":(1,1), "parent":self},
+                self._size)
+        rect = avg.RectNode(fillcolor="808080", color="FFFFFF", fillopacity=1,
                 pos=(0.5, 0.5), size=img.size+(1,1))
-        self._parentNode.insertChild(rect, 0)
-        if options.saveImage:
-            bmp = self.svg.renderElement(svgID, options.size)
-            bmp.save(svgID+".png")
+        self.insertChild(rect, 0)
+        if self._saveImage:
+            bmp = self.svg.renderElement(self._svgID, self._size)
+            bmp.save(self._svgID+".png")
 
-if __name__ == '__main__':
-    ShowSVG.start(resolution=(1024, 768))
+
+if __name__ == "__main__":
+    app.App().run(ShowSVG(), app_resolution="1024x768")
 

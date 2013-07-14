@@ -657,6 +657,10 @@ TrackerInputDevice * Player::getTracker()
 
 void Player::enableMultitouch()
 {
+    if (!m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Must call Player.play() before enableMultitouch().");
+    }
 
     string sDriver;
     getEnv("AVG_MULTITOUCH_DRIVER", sDriver);

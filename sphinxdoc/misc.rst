@@ -621,3 +621,63 @@ Misc. Classes
             to the console.
 
 
+.. automodule:: libavg.persist
+    :no-members:
+
+    .. autoclass:: Persist(storeFile, initialData[, validator=lambda v: True, autoCommit=False])
+
+        A general purpose persistent object.
+        Its state is defined in the :py:attr:`data` attribute and pickled
+        from/to a store file.
+        
+
+        :param string storeFile:
+        
+            Full path of the store file that is used to store and retrieve a
+            serialized version of the data.
+
+        :param initialData:
+
+            A pickle-able object that is assigned to the :py:attr:`data` attribute
+            when no file store exists or when the store file is corrupted.
+
+        :param callable validator:
+
+            An optional callable that receives the object state as soon it's
+            de-pickled from the store file. If the validator call doesn't return True,
+            the object state is restored to the provided `initialData`.
+
+        :param bool autoCommit:
+
+            If True, the :py:attr:`commit` method is registered as an `atexit` function.
+            
+        .. py:attribute:: data
+
+            State of the persistent object.
+
+        .. py:attribute:: storeFile
+
+            Returns the full path of the store file.
+
+        .. py:method:: commit()
+
+            Dumps the contents of the :py:attr:`data` attribute to the store file.
+
+
+    .. autoclass:: UserPersistentData(appName, fileName, initialData[, validator=lambda v: True, autoCommit=False])
+
+        A :py:class:`Persist` subclass that sets up an OS-independent path for
+        the store file.
+        Under posix-compliant OSes is `$HOME/.avg/<appName>/<fileName>.pkl`
+        Under Windows is `%APPDATA%\Avg\<appName>/<fileName>.pkl`
+
+        :param string appName:
+        
+            Name of the application. This string is used to compose the full path to
+            the file store and it creates a namespace (directory) for multiple files
+            for the same application.
+
+        :param string fileName:
+        
+            Name of the file store file. `.pkl` will be added as extension.
+

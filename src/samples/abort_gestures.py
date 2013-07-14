@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, gesture
-import libavg
+from libavg import avg, gesture, app
 
 import gestures
 
@@ -80,40 +79,36 @@ class EnableButton(TapButton):
         self.changeText()
 
 
-class GestureDemoApp(libavg.AVGApp):
+class GestureDemoDiv(app.MainDiv):
 
-    def init(self):
+    def onInit(self):
 
         avg.WordsNode(text='''a - abort recognition <br/>
-                d - switch enable/disable recognition <br/><br/>
+                d - enable/disable recognition <br/><br/>
                 or use the buttons on the right side''',
-                pos=(20, 510), parent=self._parentNode)
+                pos=(20, 510), parent=self)
 
-        nodeList.append(gestures.HoldNode(text="HoldRecognizer", pos=(20,20),
-                parent=self._parentNode))
+        nodeList.append(gestures.HoldNode(text="HoldRecognizer", pos=(20,20), parent=self))
 
         nodeList.append(gestures.DragNode(text="DragRecognizer<br/>friction",pos=(200,20),
-                friction=0.05, parent=self._parentNode))
+                friction=0.05, parent=self))
 
         nodeList.append(gestures.TransformNode(text="TransformRecognizer",
-                ignoreRotation=False, ignoreScale=False,
-                pos=(380,20), parent=self._parentNode))
+                ignoreRotation=False, ignoreScale=False, pos=(380,20), parent=self))
 
-        self.abortButton = AbortButton(text="Abort all", pos = (630, 490),
-                parent=self._parentNode)
+        self.abortButton = AbortButton(text="Abort all", pos = (630, 490), parent=self)
 
-        self.enableButton = EnableButton(text="Disable all", pos = (630, 540),
-                parent=self._parentNode)
+        self.enableButton = EnableButton(text="Disable all", pos = (630, 540), parent=self)
 
-    def onKeyDown(self, event):
-        if event.keystring == 'a':
-            abortAll()
-        if event.keystring == 'd':
-            switchNodesEnabled()
-            self.enableButton.changeText()
-        else:
-            libavg.AVGApp.onKeyDown(self, event)
+        app.keyboardmanager.bindKeyDown(keystring="a", handler=abortAll, 
+                help="abort recognition")
+        app.keyboardmanager.bindKeyDown(keystring="d", handler=self.onEnableKey, 
+                help="Enable/disable recognition")
+
+    def onEnableKey(self):
+        switchNodesEnabled()
+        self.enableButton.changeText()
 
 
 if __name__ == '__main__':
-    GestureDemoApp.start(resolution=RESOLUTION)
+    app.App().run(GestureDemoDiv(), app_resolution="800,600")

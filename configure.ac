@@ -239,5 +239,6 @@ AC_OUTPUT(Makefile
     src/samples/firebirds/plugin/Makefile
     src/samples/firebirds/media/Makefile
     src/python/widget/Makefile 
+    src/python/app/Makefile 
     src/oscpack/Makefile 
     man/Makefile)

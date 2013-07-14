@@ -20,25 +20,11 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is Robert Parcus <betoparcus@gmail.com>
+# Original author of this file is OXullo Interecans <x at brainrapers dot org>
+# Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
+from app import App
+from app import MainDiv
 
-from libavg import avg, app
-
-
-class VSyncDiv(app.MainDiv):
-    def onInit(self):
-        self.__line = avg.LineNode(color='FFFFFF', parent=self)
-        self.__x = 0
-
-    def onFrame(self, dt):
-        self.__x += 1
-        if self.__x == self.width:
-            self.__x = 0
-        self.__line.pos1 = (self.__x, 0)
-        self.__line.pos2 = (self.__x, self.height)
-
-
-if __name__ == '__main__':
-    app.App().run(VSyncDiv(), app_resolution='800x600')
+instance = None
 

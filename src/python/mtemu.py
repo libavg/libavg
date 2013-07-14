@@ -23,69 +23,83 @@
 # <sm (at) archimedes-solutions (dot) de>
 
 '''
-this class provides a test to emulate one or two TOUCH/TRACK events. 
-by pressing "ctrl left/right" the TOUCH events will be switched into TRACK events and the 
-other way around.
-by pressing "shift left/right" a second event is created whenever the mousebutton (left) 
-is clicked. 
+Multitouch emulation helper, supporting pinch gestures
 '''
 
 from libavg import avg, Point2D, player
 
 
 class MTemu(object):
-
-    mouseState = 'Up'
-    cursorID = 0
-    dualTouch = False
-    secondTouch = False
-    source = avg.Event.TOUCH
+    MOUSE_STATE_UP = 'MOUSE_STATE_UP'
+    MOUSE_STATE_DOWN = 'MOUSE_STATE_DOWN'
 
     def __init__(self):
+        self.__mouseState = self.MOUSE_STATE_UP
+        self.__cursorID = 0
+        self.__dualTouch = False
+        self.__secondTouch = False
+        self.__source = avg.Event.TOUCH
+
         self.__oldEventHook = player.getEventHook()
         player.setEventHook(self.__onEvent)
 
         root = player.getRootNode()
-        posX = root.size.x - 15
-        posY = root.size.y - 20
-
-        self.__layer = avg.WordsNode(text='Multitouch emulation active',
-                pos=(posX, posY),
+        self.__caption = avg.WordsNode(pos=(root.size.x - 15, root.size.y - 20),
                 alignment = 'right',
                 color='DDDDDD',
                 sensitive=False,
-                fontsize=18,
+                fontsize=14,
                 parent=root)
+        self.__updateCaption()
 
     def deinit(self):
         player.setEventHook(self.__oldEventHook)
-        self.__layer.unlink()
-        if self.mouseState == 'Down':
-            self.__releaseTouch(self.cursorID)
-            if self.secondTouch:
-                self.__releaseTouch(self.cursorID+1)
+        self.__caption.unlink()
+        if self.__mouseState == self.MOUSE_STATE_DOWN:
+            self.__releaseTouch(self.__cursorID)
+            if self.__secondTouch:
+                self.__releaseTouch(self.__cursorID+1)
 
     def toggleSource(self):
         '''
         Switch between avg.Event.TOUCH and avg.Event.TRACK - source
         '''
-        if self.mouseState == 'Down':
-            self.__releaseTouch(self.cursorID)
-            if self.secondTouch:
-                self.__releaseTouch(self.cursorID+1)
-            self.mouseState = 'Up'
-            self.secondTouch = False
-        self.source = avg.Event.TOUCH if self.source == avg.Event.TRACK else avg.Event.TRACK
+        self.__clearSourceState()
+        self.__source = (avg.Event.TOUCH if self.__source == avg.Event.TRACK
+                else avg.Event.TRACK)
+        self.__updateCaption()
 
     def toggleDualTouch(self):
-        self.dualTouch = not(self.dualTouch)
-        if self.mouseState == 'Down':
-            if self.secondTouch:
-                self.__releaseTouch(self.cursorID+1)
+        self.__dualTouch = not(self.__dualTouch)
+        self.__clearDualtouchState()
+
+    def enableDualTouch(self):
+        self.__dualTouch = True
+        self.__clearDualtouchState()
+
+    def disableDualTouch(self):
+        self.__dualTouch = False
+        self.__clearDualtouchState()
+
+    def __clearSourceState(self):
+        if self.__mouseState == self.MOUSE_STATE_DOWN:
+            self.__releaseTouch(self.__cursorID)
+            if self.__secondTouch:
+                self.__releaseTouch(self.__cursorID+1)
+            self.__mouseState = self.MOUSE_STATE_UP
+            self.__secondTouch = False
+
+    def __clearDualtouchState(self):
+        if self.__mouseState == self.MOUSE_STATE_DOWN:
+            if self.__secondTouch:
+                self.__releaseTouch(self.__cursorID+1)
             else:
-                self.__sendFakeTouch(self.cursorID+1, Point2D(0,0),
+                self.__sendFakeTouch(self.__cursorID+1, Point2D(0,0),
                         avg.Event.CURSOR_DOWN, mirror=True)
-            self.secondTouch = not(self.secondTouch)
+            self.__secondTouch = not(self.__secondTouch)
+
+    def __updateCaption(self):
+        self.__caption.text = 'Multitouch emulation (%s source)' % self.__source
 
     def __onEvent(self, event):
         if event.source == avg.Event.MOUSE:
@@ -101,40 +115,40 @@ class MTemu(object):
 
     def __onMouseDown(self, event):
         self._initialPos = event.pos
-        if self.mouseState == 'Up' and event.button == 1:
-            self.__sendFakeTouch(self.cursorID, event.pos, event.type)
-            if self.dualTouch and not self.secondTouch:
-                self.__sendFakeTouch(self.cursorID+1, event.pos, event.type,
+        if self.__mouseState == self.MOUSE_STATE_UP and event.button == 1:
+            self.__sendFakeTouch(self.__cursorID, event.pos, event.type)
+            if self.__dualTouch and not self.__secondTouch:
+                self.__sendFakeTouch(self.__cursorID+1, event.pos, event.type,
                         True)
-                self.secondTouch = True
-            self.mouseState = 'Down'
+                self.__secondTouch = True
+            self.__mouseState = self.MOUSE_STATE_DOWN
 
     def __onMouseMotion(self, event):
-        if self.mouseState == 'Down':
-            self.__sendFakeTouch(self.cursorID, event.pos, event.type)
-            if self.dualTouch and self.secondTouch:
-                self.__sendFakeTouch(self.cursorID+1, event.pos,
+        if self.__mouseState == self.MOUSE_STATE_DOWN:
+            self.__sendFakeTouch(self.__cursorID, event.pos, event.type)
+            if self.__dualTouch and self.__secondTouch:
+                self.__sendFakeTouch(self.__cursorID+1, event.pos,
                         event.type, True)
 
     def __onMouseUp(self, event):
-        if self.mouseState == 'Down' and event.button == 1:
-            self.__sendFakeTouch(self.cursorID, event.pos, event.type)
-            if self.dualTouch and self.secondTouch:
-                self.__sendFakeTouch(self.cursorID+1, event.pos,
+        if self.__mouseState == self.MOUSE_STATE_DOWN and event.button == 1:
+            self.__sendFakeTouch(self.__cursorID, event.pos, event.type)
+            if self.__dualTouch and self.__secondTouch:
+                self.__sendFakeTouch(self.__cursorID+1, event.pos,
                         event.type, True)
-                self.secondTouch = False
-            self.mouseState = 'Up'
-            self.cursorID += 2 #Even for left uneven for right touch
+                self.__secondTouch = False
+            self.__mouseState = self.MOUSE_STATE_UP
+            self.__cursorID += 2 #Even for left uneven for right touch
 
     def __sendFakeTouch(self, cursorID, pos, touchType, mirror=False):
         offset = Point2D(0,0)
-        if self.dualTouch:
+        if self.__dualTouch:
             offset = Point2D(40, 0)
         if mirror:
             pos = 2*(self._initialPos)-pos
             offset = -offset
         player.getTestHelper().fakeTouchEvent(cursorID,
-                touchType, self.source, self.__clampPos(pos+offset))
+                touchType, self.__source, self.__clampPos(pos+offset))
 
     def __releaseTouch(self, cursorID):
        self.__sendFakeTouch(cursorID, Point2D(0,0), avg.Event.CURSOR_UP)

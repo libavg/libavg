@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
-#
 
-import optparse
 import time
 from libavg import avg, player
 from libavg import parsecamargs
-from libavg import AVGApp
+from libavg import app
 
 usage = """%prog [options]
 
@@ -33,79 +31,79 @@ avg_showcamera.py shows the images captured by a camera attached to the
 system. Its main use is to find out which parameters - device names,
 image formats, framerates, etc. can be used with the camera(s)."""
 
-parser = optparse.OptionParser(usage=usage)
-parsecamargs.addOptions(parser)
-parser.add_option("-l", "--list", dest="list", action="store_true", default=False,
-          help="lists informations about detected cameras")
-parser.add_option("-s", "--noinfo", dest="noinfo", action="store_true", default=False,
-          help="don't show any info overlayed on the screen")
-parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", default=False,
-          help="reset the firewire bus.")
 
-(g_options, g_args) = parser.parse_args()
+class ShowCamera(app.MainDiv):
+    def onArgvParserCreated(self, parser):
+        parser.set_usage(usage)
+        parsecamargs.addOptions(parser)
+        parser.add_option("-l", "--list", dest="list",
+                action="store_true", default=False,
+                help="lists informations about detected cameras")
+        parser.add_option("-s", "--noinfo", dest="noinfo",
+                action="store_true", default=False,
+                help="don't show any info overlayed on the screen")
+        parser.add_option("-r", "--resetbus", dest="resetbus",
+                action="store_true", default=False,
+                help="reset the firewire bus")
 
-if g_options.list:
-    infoList = list()
-    infoList = avg.CameraNode.getCamerasInfos()
-    if (len(infoList) <= 0):
-        print "No camera available!"
-    for info in infoList:
-        print ""
-        print "##################",info.driver,"##################"
-        print "Device ID:", info.deviceID
-        print ""
-        print "----------------- FORMATS ------------------"
-        formatsList = list()
-        formatsList = info.imageFormats
-        for format in formatsList:
-            print "++++"
-            print "Pixelformat:", format.pixelFormat
-            print "Resolution:", format.size
-            print "Framerates: |",
-            framerateList = list()
-            framerateList = format.framerates
-            for framerate in framerateList:
-                print framerate, "|",
-            print ""
-        print ""
-        print "----------------- CONTROLS -----------------"
-        controlsList = list()
-        controlsList = info.controls
-        for control in controlsList:
-            print "++++", control.controlName
-            print "Min:" , control.min, "| Max:", control.max,
-            print "| Default:", control.default
-        print ""
-    exit(0)
+    def onArgvParsed(self, options, args, parser):
+        if options.list:
+            infoList = list()
+            infoList = avg.CameraNode.getCamerasInfos()
+            if (len(infoList) <= 0):
+                print "No camera available!"
+            for info in infoList:
+                print ""
+                print "##################",info.driver,"##################"
+                print "Device ID:", info.deviceID
+                print ""
+                print "----------------- FORMATS ------------------"
+                formatsList = list()
+                formatsList = info.imageFormats
+                for format in formatsList:
+                    print "++++"
+                    print "Pixelformat:", format.pixelFormat
+                    print "Resolution:", format.size
+                    print "Framerates: |",
+                    framerateList = list()
+                    framerateList = format.framerates
+                    for framerate in framerateList:
+                        print framerate, "|",
+                    print ""
+                print ""
+                print "----------------- CONTROLS -----------------"
+                controlsList = list()
+                controlsList = info.controls
+                for control in controlsList:
+                    print "++++", control.controlName
+                    print "Min:" , control.min, "| Max:", control.max,
+                    print "| Default:", control.default
+                print ""
+            exit(0)
 
-if g_options.resetbus:
-    avg.logger.info("Resetting firewire bus.")
-    avg.CameraNode.resetFirewireBus()
-    time.sleep(1)
-    if not g_options.driver:
-        exit(0)
+        if options.resetbus:
+            avg.logger.info("Resetting firewire bus.")
+            avg.CameraNode.resetFirewireBus()
+            time.sleep(1)
+            if not options.driver:
+                exit(0)
 
-if g_options.driver is None and not g_options.list and not g_options.resetbus:
-    parser.print_help()
-    print
-    print "Keys available when image is being displayed:"
-    print "  w: Execute whitebalance."
-    print "  1/2: Decrease/Increase whitebalance u."
-    print "  3/4: Decrease/Increase whitebalance v."
-    print "  s: Take screenshot."
-    print
-    print "ERROR: at least '--driver', '--list' or '--resetbus' options must be specified"
-    exit()
-
-class ShowCamera(AVGApp):
-    def init(self):
-        self.curFrame = 0
-        global g_options
+        if options.driver is None and not options.list and not options.resetbus:
+            parser.print_help()
+            print
+            print "ERROR: at least '--driver', '--list' or '--resetbus' options " \
+                  "must be specified"
+            exit(1)
 
         self.optdict = {}
-        for attr in dir(g_options):
+        for attr in dir(options):
             if attr[0] != '_':
-                self.optdict[attr] = eval("g_options.%s" %attr)
+                self.optdict[attr] = eval("options.%s" %attr)
+
+        self.settings.set("app_resolution", "%dx%d" %(options.width, options.height))
+
+    def onInit(self):
+        self.curFrame = 0
 
         avg.logger.info("Creating camera:")
         avg.logger.info("driver=%(driver)s device=%(device)s" %self.optdict)
@@ -114,37 +112,44 @@ class ShowCamera(AVGApp):
                 %self.optdict)
         avg.logger.info("unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
                 %self.optdict)
-           
-        self.camNode = avg.CameraNode(driver = g_options.driver,
-                device = g_options.device, unit = g_options.unit, fw800 = g_options.fw800,
-                framerate = g_options.framerate, capturewidth = g_options.width,
-                captureheight=g_options.height, pixelformat= g_options.pixelFormat)
 
-        player.getRootNode().appendChild(self.camNode)
+        self.camNode = avg.CameraNode(driver=self.optdict["driver"],
+                device=self.optdict["device"], unit=self.optdict["unit"],
+                fw800=self.optdict["fw800"], framerate=self.optdict["framerate"],
+                capturewidth=self.optdict["width"], captureheight=self.optdict["height"],
+                pixelformat=self.optdict["pixelFormat"], parent=self)
 
-        if not g_options.noinfo:
-            self.infoText = ("Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f"
-                    %self.optdict)
+        if not self.optdict["noinfo"]:
+            self.infoText = ("Driver=%(driver)s (dev=%(device)s unit=%(unit)d) "
+                    "%(width)dx%(height)d@%(framerate)f" %self.optdict)
             avg.WordsNode(text=self.infoText, color="ff3333", pos=(5,5), fontsize=14, 
-                    rawtextmode=True, parent=player.getRootNode())
-            frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
-                    parent=player.getRootNode())
-            player.subscribe(player.ON_FRAME, lambda:self.updateFrameDisplay(frameText))
+                    rawtextmode=True, parent=self)
+            self.frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
+                    parent=self)
+        else:
+            self.frameText = None
 
+        self.setupKeys()
 
-    def _enter(self):
         self.camNode.play()
         player.setTimeout(100, self.checkCamera)
 
-    def _leave(self):
-        self.camNode.stop()
+    def onFrame(self, dt):
+        if self.frameText:
+            self.curFrame += 1
+            self.frameText.text = "%(cam)d/%(app)d" \
+                    %{"cam":self.camNode.framenum, "app":self.curFrame}
 
     def checkCamera(self):
         if not(self.camNode.isAvailable()):
             avg.logger.error("Could not open camera")
             exit(1)
 
-    def onKeyDown(self,event):
+    def setupKeys(self):
+        def setWhitebalance():
+            print "Setting whitebalance"
+            self.camNode.doOneShotWhitebalance()
+
         def addWhitebalance(du = 0, dv = 0):
             self.camNode.setWhitebalance(self.camNode.getWhitebalanceU() + du, 
                     self.camNode.getWhitebalanceV() + dv)
@@ -158,41 +163,39 @@ class ShowCamera(AVGApp):
         def addShutter(shutter):
             self.camNode.shutter += shutter
             print "shutter:", self.camNode.shutter
-            
-        if event.keystring == "w":
-            print "Setting Whitebalance"
-            self.camNode.doOneShotWhitebalance()
-        
-        elif event.keystring == "1":
-            addWhitebalance(du = -1)
-            
-        elif event.keystring == "2":
-            addWhitebalance(du = 1)
-            
-        elif event.keystring == "3":
-            addWhitebalance(dv = -1)
-            
-        elif event.keystring == "4":
-            addWhitebalance(dv = 1)
-        
-        elif event.keystring == "left":
-           addShutter(shutter = -1)
-            
-        elif event.keystring == "right":
-            addShutter(shutter = 1)
-        
-        elif event.keystring == "up":
-            addGain(gain = 1)
-        
-        elif event.keystring == "down":
-            addGain(gain = -1)
-        else:
-            AVGApp.onKeyDown(self, event)
 
-    def updateFrameDisplay(self, node):
-        self.curFrame += 1
-        node.text = "%(cam)d/%(app)d"%{"cam":self.camNode.framenum, "app":self.curFrame}
-    
+        app.keyboardmanager.bindKeyDown(keystring="w",
+                handler=setWhitebalance,
+                help="Execute whitebalance")
 
-ShowCamera.start(resolution=(g_options.width, g_options.height))
+        app.keyboardmanager.bindKeyDown(keystring="1",
+                handler=lambda: addWhitebalance(du = -1),
+                help="Decrease whitebalance u")
+        app.keyboardmanager.bindKeyDown(keystring="2",
+                handler=lambda: addWhitebalance(du = 1),
+                help="Increase whitebalance u")
+        app.keyboardmanager.bindKeyDown(keystring="3",
+                handler=lambda: addWhitebalance(dv = -1),
+                help="Decrease whitebalance v")
+        app.keyboardmanager.bindKeyDown(keystring="4",
+                handler=lambda: addWhitebalance(dv = 1),
+                help="Increase whitebalance v")
+
+        app.keyboardmanager.bindKeyDown(keystring="left",
+                handler=lambda: addShutter(shutter = -1),
+                help="Decrease shutter")
+        app.keyboardmanager.bindKeyDown(keystring="right",
+                handler=lambda: addShutter(shutter = 1),
+                help="Increase shutter")
+
+        app.keyboardmanager.bindKeyDown(keystring="up",
+                handler=lambda: addGain(gain = 1),
+                help="Increase gain")
+        app.keyboardmanager.bindKeyDown(keystring="down",
+                handler=lambda: addGain(gain = -1),
+                help="Decrease gain")
+
+
+if __name__ == "__main__":
+    app.App().run(ShowCamera())
 
