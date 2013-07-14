@@ -68,35 +68,20 @@ _isEnabled = True
 
 
 def init():
-    '''
-    Initialize the manager, normally done by L{app.App}
-    '''
     player.subscribe(player.KEY_DOWN, _onKeyDown)
     player.subscribe(player.KEY_UP, _onKeyUp)
     avg.logger.debug('Keyboardmanager initialized', LOGCAT)
 
 def bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE):
-    '''
-    Bind a down-key action to an handler defining a mandatory help text
-    '''
     _bindKey(keystring, handler, help, modifiers, avg.KEYDOWN)
 
 def bindKeyUp(keystring, handler, help, modifiers=avg.KEYMOD_NONE):
-    '''
-    Bind an up-key action to an handler defining a mandatory help text
-    '''
     _bindKey(keystring, handler, help, modifiers, avg.KEYUP)
 
 def unbindKeyUp(keystring, modifiers=avg.KEYMOD_NONE):
-    '''
-    Unbind an up-key action that's been previously defined be bindKeyUp
-    '''
     _unbindKey(keystring, modifiers, avg.KEYUP)
 
 def unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE):
-    '''
-    Unbind a down-key action that's been previously defined be bindKeyDown
-    '''
     _unbindKey(keystring, modifiers, avg.KEYDOWN)
 
 def unbindAll():
@@ -127,16 +112,10 @@ def getCurrentBindings():
     return _modifiedKeyBindings + _plainKeyBindings
 
 def enable():
-    '''
-    Enable the bindings. Key presses and releases trigger the bound handlers
-    '''
     global _isEnabled
     _isEnabled = True
 
 def disable():
-    '''
-    Disabled the bindings. Key presses and releases do not trigger the bound handlers
-    '''
     global _isEnabled
     _isEnabled = False
 

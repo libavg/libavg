@@ -51,58 +51,25 @@ class MainDiv(libavg.avg.DivNode):
         self.registerInstance(self, None)
 
     def onArgvParserCreated(self, parser):
-        '''
-        Called with an OptionParser instance where command line options can be defined
-        @param parser: instance of OptionParser
-        '''
         pass
 
     def onArgvParsed(self, options, args, parser):
-        '''
-        Called when the argv parser has parsed the command line arguments
-        @param options: optional parameters defined via parser.add_option
-        @type options: named tuple
-        @param args: positional arguments
-        @type args: list
-        @param parser: instance of OptionParser
-        '''
         pass
 
     def onStartup(self):
-        '''
-        Called before libavg has been setup
-        Setup early services or communication channels here
-        '''
         pass
 
     def onInit(self):
-        '''
-        Called by a libavg timer as soon as the main loop starts
-        Build the application node tree here
-        '''
         pass
 
     def onExit(self):
-        '''
-        Called when the main loop stops
-        Release resources and cleanup here
-        '''
         pass
 
     def onFrame(self, delta):
-        '''
-        Called at every frame
-        @param delta: time in seconds since the last onFrame() call
-        @type delta: float
-        '''
         pass
 
 
 class App(object):
-    '''
-    libavg-based application class
-    '''
-
     def __init__(self):
         self._setupInstance()
 
@@ -119,11 +86,6 @@ class App(object):
         self._setupSettings()
 
     def run(self, mainDiv, **kargs):
-        '''
-        Start the application using the provided L{MainDiv} instance
-
-        @param mainDiv: an instance of L{MainDiv} (or derived class)
-        '''
         assert isinstance(mainDiv, MainDiv)
         self._mainDiv = mainDiv
 
@@ -164,53 +126,30 @@ class App(object):
 
     @property
     def mainDiv(self):
-        '''
-        MainDiv instance passed to method L{run}
-        '''
         return self._mainDiv
 
     @property
     def appParent(self):
-        '''
-        Base DivNode where the application sets up the control layers
-            (L{MainDiv}, debug, messaging)
-        '''
         return self._appParent
 
     @property
     def debugPanel(self):
-        '''
-        The instance of L{app.debugpanel.DebugPanel} that currently runs in the
-            application
-        '''
         return self._debugPanel
 
     @property
     def overlayPanel(self):
-        '''
-        DivNode that stands on top of the MainDiv
-        '''
         return self._overlayPanel
 
     @property
     def settings(self):
-        '''
-        The instance of L{app.settings.Settings} associated to the application
-        '''
         return self._settings
 
     @property
     def resolution(self):
-        '''
-        Current target screen resolution
-        '''
         return self._resolution
 
     @property
     def windowSize(self):
-        '''
-        Current target window size
-        '''
         return self._windowSize
 
     def onBeforeLaunch(self):
