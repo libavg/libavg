@@ -156,10 +156,10 @@ class App(object):
     def onBeforeLaunch(self):
         pass
 
-    def takeScreenshot(self):
+    def takeScreenshot(self, targetFolder='.'):
         screenBmp = libavg.player.screenshot()
 
-        filenameTemplate = '%s-%03d.png'
+        filenameTemplate = os.path.join(targetFolder, '%s-%03d.png')
 
         i = 1
         while i < 1000:

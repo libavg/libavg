@@ -25,6 +25,7 @@
 
 import os
 import sys
+import tempfile
 import libavg
 from libavg import player
 from libavg.app import settings
@@ -194,8 +195,10 @@ class AppTestCase(testcase.AVGTestCase):
                 ])
 
     def testScreenshot(self):
-        expectedFiles = ['TestApp-001.png', 'TestApp-002.png']
-        
+        tempDir = tempfile.gettempdir()
+        expectedFiles = map(lambda v: os.path.join(tempDir, v),
+                ['TestApp-001.png', 'TestApp-002.png'])
+
         def removeFiles():
             for file in expectedFiles:
                 if os.path.exists(file):
@@ -208,8 +211,8 @@ class AppTestCase(testcase.AVGTestCase):
         removeFiles()
         app = TestApp()
         app.testRun([
-                app.takeScreenshot,
-                app.takeScreenshot,
+                lambda: app.takeScreenshot(tempDir),
+                lambda: app.takeScreenshot(tempDir),
                 testScreenshots,
                 removeFiles,
                 ])

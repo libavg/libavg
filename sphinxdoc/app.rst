@@ -42,7 +42,7 @@ app module
             Called just before starting the main loop (Player.play()). Useful only
             for subclassing.
 
-        .. py:method:: takeScreenshot()
+        .. py:method:: takeScreenshot(targetFolder='.')
 
             Takes a screenshot of what is currently visible on the screen. Normally
             bound to the keypress CTRL-p
