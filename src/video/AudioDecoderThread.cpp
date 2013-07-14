@@ -131,7 +131,8 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
         int bytesConsumed = avcodec_decode_audio2(m_pStream->codec, (short*)pDecodedData,
                 &bytesDecoded, pTempPacket->data, pTempPacket->size);
 #endif
-        AVG_ASSERT(bytesConsumed != 0);
+//        This is triggered for some strange/broken videos.
+//        AVG_ASSERT(bytesConsumed != 0);
         if (bytesConsumed < 0) {
             // Error decoding -> throw away current packet.
             bytesDecoded = 0;

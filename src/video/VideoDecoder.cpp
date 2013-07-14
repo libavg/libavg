@@ -82,7 +82,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
     mutex::scoped_lock lock(s_OpenMutex);
     int err;
     m_sFilename = sFilename;
-
+    
     AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Opening " << sFilename);
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
     err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
@@ -96,7 +96,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
         m_pFormatContext = 0;
         avcodecError(sFilename, err);
     }
-    
+
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
     err = avformat_find_stream_info(m_pFormatContext, 0);
 #else
@@ -144,28 +144,28 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
         
         m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
 
+        char szCodec[256];
+        avcodec_string(szCodec, sizeof(szCodec), m_pVStream->codec, 0);
         int rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
         if (rc == -1) {
             m_VStreamIndex = -1;
-            char szBuf[256];
-            avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
             m_pVStream = 0;
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported video codec ("+szBuf+").");
+                    sFilename + ": unsupported video codec ("+szCodec+").");
         }
         m_PF = calcPixelFormat(true);
     }
     // Enable audio stream demuxing.
     if (m_AStreamIndex >= 0) {
         m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
+        char szCodec[256];
+        avcodec_string(szCodec, sizeof(szCodec), m_pAStream->codec, 0);
         int rc = openCodec(m_AStreamIndex, false);
         if (rc == -1) {
             m_AStreamIndex = -1;
             m_pAStream = 0; 
-            char szBuf[256];
-            avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": unsupported audio codec ("+szBuf+").");
+                    sFilename + ": unsupported audio codec ("+szCodec+").");
         }
     }
     if (!m_pVStream && !m_pAStream) {
