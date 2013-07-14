@@ -110,7 +110,11 @@ class App(object):
 
         self.__lastFrameTimestamp = time.time()
 
-        self._runLoop()
+        try:
+            self._runLoop()
+        except Exception, e:
+            self._teardownKeyboardManager()
+            raise
 
         mainDiv.onExit()
 

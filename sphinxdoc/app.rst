@@ -124,6 +124,10 @@ app module
             Called when the main loop exits.
             Release resources and run cleanups here.
 
+            .. note::
+
+                onExit() doesn't get called if an exception is raised on the main thread.
+
         .. py:method:: onFrame(delta)
 
             Called at every frame. delta is the time that has passed since the last
