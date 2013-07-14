@@ -32,7 +32,8 @@ class Skin:
         self.__mediaDir = defaultMediaDir if mediaDir == "" else mediaDir
         schemaFName = defaultMediaDir+"skin.xsd"
         schemaString = open(schemaFName, "r").read()
-        xmlString = open(skinXmlFName, "r").read()
+        skinPath = os.path.join(self.__mediaDir, skinXmlFName)
+        xmlString = open(skinPath, "r").read()
         avg.validateXml(xmlString, schemaString, skinXmlFName, schemaFName)
 
         xmlRoot = ET.fromstring(xmlString)
@@ -157,4 +158,4 @@ def getBmpFromCfg(cfg, bmpName, defaultName=None):
     
 
 defaultMediaDir = os.path.join(os.path.dirname(__file__), "..", 'data/')
-Skin.default = Skin(defaultMediaDir+"SimpleSkin.xml", defaultMediaDir)
+Skin.default = Skin("SimpleSkin.xml", defaultMediaDir)
