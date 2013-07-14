@@ -9,6 +9,9 @@ of a libavg application.
     The app package is experimental. Functionality and interface are still in flux and
     subject to change.
 
+app module
+==========
+
 .. automodule:: libavg.app
     :no-members:
 
@@ -127,6 +130,9 @@ of a libavg application.
             call of onFrame().
 
 
+Keyboard handling
+=================
+
 .. automodule:: libavg.app.keyboardmanager
     :no-members:
 
@@ -189,15 +195,18 @@ of a libavg application.
         Companion to enable(), disables the keybindings handlers.
 
 
+Settings
+========
+
 .. automodule:: libavg.app.settings
     :no-members:
 
-        The Setting class, normally instantiated and set up by App, is a collection
-        of options. A group of core options, necessary for the App to properly set up
-        the running conditions are added with their defaults.
+    The Setting class, normally instantiated and set up by App, is a collection
+    of options. A group of core options, necessary for the App to properly set up
+    the running conditions are added with their defaults.
 
-        Options can be overridden on App().run() (as kargs) and by the command line
-        interface.
+    Options can be overridden on App().run() (as kargs) and by the command line
+    interface.
 
     .. autoclass:: Settings(defaults=[])
 
@@ -230,6 +239,9 @@ of a libavg application.
         XXX
 
 
+Debug panel
+===========
+
 .. automodule:: libavg.app.debugpanel
     :no-members:
 
@@ -238,11 +250,13 @@ of a libavg application.
         XXX
 
 
+Flash messages
+==============
+
 .. automodule:: libavg.app.flashmessage
     :no-members:
 
-    .. autoclass:: FlashMessage(text, timeout=DEFAULT_TIMEOUT, parent=None, isError=False,
-            acknowledge=False)
+    .. autoclass:: FlashMessage(text, timeout=DEFAULT_TIMEOUT, parent=None, isError=False, acknowledge=False)
 
         A FlashMessage is a brief, temporary or persistent notification to the user, under
         the form of a text line shown on top of the node hierarchy.
@@ -270,6 +284,9 @@ of a libavg application.
                 removing automatically (after timeout has elapsed) or acknowledged
                 by the user (by clicking / touching on it).
 
+
+Touch visualization
+===================
 
 .. automodule:: libavg.app.touchvisualization
     :no-members:
