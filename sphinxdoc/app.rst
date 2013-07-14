@@ -22,11 +22,15 @@ of a libavg application.
 
         .. py:method:: run(mainDiv, **kargs)
 
-            Starts the application upon mainDiv (an instance of libavg.app.MainDiv).
+            Starts the application using the provided mainDiv (an instance of
+            libavg.app.MainDiv).
+            
             The optional additional kargs are used to set the defaults of the Settings
             instance.
 
-        .. py:method:: run(mainDiv, **kargs)
+            TODO: maybe an example here
+
+        .. py:method:: stop()
 
             Stops the player.
 
@@ -79,8 +83,6 @@ of a libavg application.
         This abstract class, once subclassed, is the placeholder for the main user's code.
         Its member methods are to be implemented, at least onInit().
 
-        .. py:method:: run(mainDiv, **kargs)
-
         .. py:attribute:: INIT_FUNC
 
             A string that represents the identifier of the method that will be called
@@ -124,7 +126,8 @@ of a libavg application.
             Called at every frame. delta is the time that has passed since the last
             call of onFrame().
 
-.. automodule:: libavg.keyboardmanager
+
+.. automodule:: libavg.app.keyboardmanager
     :no-members:
 
     This module provides a convenient interface to keyboard events management. Keys
@@ -184,3 +187,94 @@ of a libavg application.
     .. py:method:: disable()
 
         Companion to enable(), disables the keybindings handlers.
+
+
+.. automodule:: libavg.app.settings
+    :no-members:
+
+        The Setting class, normally instantiated and set up by App, is a collection
+        of options. A group of core options, necessary for the App to properly set up
+        the running conditions are added with their defaults.
+
+        Options can be overridden on App().run() (as kargs) and by the command line
+        interface.
+
+    .. autoclass:: Settings(defaults=[])
+
+        .. py:method:: get(key, convertFunc=lambda v: v)
+
+            XXX
+
+        .. py:method:: getJson(key)
+
+            XXX
+
+        .. py:method:: getPoint2D(key)
+
+            XXX
+
+        .. py:method:: getInt(key)
+
+            XXX
+
+        .. py:method:: getFloat(key)
+
+            XXX
+
+        .. py:method:: getBoolean(key)
+
+            XXX
+
+    .. autoclass:: Option(key, value, help=None)
+
+        XXX
+
+
+.. automodule:: libavg.app.debugpanel
+    :no-members:
+
+    ..autoclass:: DebugPanel
+
+        XXX
+
+
+.. automodule:: libavg.app.flashmessage
+    :no-members:
+
+    .. autoclass:: FlashMessage(text, timeout=DEFAULT_TIMEOUT, parent=None, isError=False,
+            acknowledge=False)
+
+        A FlashMessage is a brief, temporary or persistent notification to the user, under
+        the form of a text line shown on top of the node hierarchy.
+
+        The message is normally shown for a certain amount of time, then it disappears. It
+        can also be defined as persistent: in such case the user has to acknowledge it by
+        clicking on it to make it disappear.
+
+        A FlashMessage can be used also to notify errors, shown with a different color and
+        automatically pushing the message to the underlying logger.
+
+        Multiple FlashMessages are assured to be shown in the order they get created.
+
+        :param timeout: The time in milliseconds the message should persist on screen
+                before it gets removed.
+        
+        :param parent: When specified, the parent node the message should be appending
+                itself to.
+
+        :param isError: A boolean flag to mark the message as error. Error-flagged
+                messages are shown in a different color and are routed to the
+                logger as well.
+
+        :param acknowledge: A boolean flag to indicate whether the message has to be
+                removing automatically (after timeout has elapsed) or acknowledged
+                by the user (by clicking / touching on it).
+
+
+.. automodule:: libavg.app.touchvisualization
+    :no-members:
+
+    .. autoclass:: TouchVisualizationOverlay(isDebug, visClass)
+
+        XXX
+

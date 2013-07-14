@@ -39,9 +39,6 @@ import flashmessage
 
 
 class MainDiv(libavg.avg.DivNode):
-    '''
-    Main construction block for libavg-based applications
-    '''
     INIT_FUNC = 'onInit'
     VERSION = 'undef'
 
