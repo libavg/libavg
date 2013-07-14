@@ -24,16 +24,6 @@
 # Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
-'''
-Convenient stack-based keyboard bindings handler
-
-Minimal example:
-
->>> keyboardmanager.bindKeyDown(keystring='d',
->>>     handler=doSomething,
->>>     help='Do something')
-'''
-
 from collections import namedtuple
 
 from libavg import avg, player
