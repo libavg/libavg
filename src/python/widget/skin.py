@@ -158,4 +158,4 @@ def getBmpFromCfg(cfg, bmpName, defaultName=None):
     
 
 defaultMediaDir = os.path.join(os.path.dirname(__file__), "..", 'data/')
-Skin.default = Skin("SimpleSkin.xml", defaultMediaDir)
+Skin.default = Skin("SimpleSkin.xml", "")
