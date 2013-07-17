@@ -27,10 +27,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 
-#ifdef AVG_ENABLE_XINERAMA
-#include <X11/extensions/Xinerama.h>
-#endif
-
 #include <boost/math/special_functions/fpclassify.hpp>
 
 
@@ -55,35 +51,13 @@ float X11Display::queryPPMM()
 IntPoint X11Display::queryScreenResolution()
 {
     IntPoint size;
-    bool bXinerama = false;
+    // Xinerama query has been removed from here in order to fix #431
     ::Display * pDisplay = XOpenDisplay(0);
-#ifdef AVG_ENABLE_XINERAMA
-    int dummy1, dummy2;
-    bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
-    if (bXinerama) {
-        bXinerama = XineramaIsActive(pDisplay);
-    }
-    if (bXinerama) {
-        int numHeads = 0;
-        XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
-        AVG_ASSERT(numHeads >= 1);
-        /*
-        cerr << "Num heads: " << numHeads << endl;
-        for (int x=0; x<numHeads; ++x) {
-            cout << "Head " << x+1 << ": " <<
-                pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
-                pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
-        }
-        */
-        size = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
-        XFree(pScreenInfo);
-    }
-#endif
-    if (!bXinerama) {
-        Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
-        AVG_ASSERT(pScreen);
-        size = IntPoint(pScreen->width, pScreen->height);
-    }
+
+    Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
+    AVG_ASSERT(pScreen);
+    size = IntPoint(pScreen->width, pScreen->height);
+
     XCloseDisplay(pDisplay);
     return size;
 }

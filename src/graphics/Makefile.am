@@ -80,7 +80,6 @@ EXTRA_DIST = $(wildcard baseline/*.png)
 
 noinst_LTLIBRARIES = libgraphics.la
 noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
-libgraphics_la_libadd = @LIBXINERAMA_LDADD@
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = libgraphics.la ../base/libbase.la \
@@ -97,5 +96,5 @@ testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
         ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
-        @GDK_PIXBUF_LIBS@ @LIBXINERAMA_LDADD@
+        @GDK_PIXBUF_LIBS@
 

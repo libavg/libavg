@@ -46,7 +46,7 @@ libvideo_la_LIBADD = @LIBVIDEO_LDADD@
 testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la ../base/triangulate/libtriangulate.la -ldl \
-        @LIBXINERAMA_LDADD@ @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ @XML2_LIBS@ \
+        @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ @XML2_LIBS@ \
         @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBFFMPEG@ $(X_LIBS) \
         @GDK_PIXBUF_LIBS@
 

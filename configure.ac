@@ -181,21 +181,6 @@ fi
 AM_CONDITIONAL(ENABLE_EGL, test x"$egl_present" != x)
 AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
-AC_CHECK_LIB([Xinerama],[main],let xinerama_lib=1,let xinerama_lib=0)
-AC_CHECK_HEADERS([X11/extensions/Xinerama.h],let xinerama_h=1,let xinerama_h=0)
-if [[ $target_vendor != apple ]] && [[ $xinerama_lib -eq 1 ]] && [[ $xinerama_h -eq 1 ]];
-then
-  AC_MSG_NOTICE([Using Xinerama])
-  AC_DEFINE(AVG_ENABLE_XINERAMA, 1, [Enable Xinerama support])
-  LIBXINERAMA_LDADD="-lXinerama"
-  AM_CONDITIONAL(USE_XINERAMA_SRC, true)
-else
-  AC_MSG_NOTICE([Not using Xinerama])
-  LIBXINERAMA_LDADD=""
-  AM_CONDITIONAL(USE_XINERAMA_SRC, false)
-fi
-AC_SUBST([LIBXINERAMA_LDADD])
-
 AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
 AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)

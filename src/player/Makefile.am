@@ -81,7 +81,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) $(XI2_2_LIBS) \
         @LIBFFMPEG@ $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) @GDK_PIXBUF_LIBS@ \
-        @FONTCONFIG_LIBS@ @LIBXINERAMA_LDADD@
+        @FONTCONFIG_LIBS@
         
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
