@@ -123,12 +123,13 @@ class DebugTouchVisualization(BaseTouchVisualization):
 class TouchVisualization(BaseTouchVisualization):
 
     mediadir = os.path.join(os.path.dirname(__file__), os.path.pardir, 'data')
+    sources = [avg.Event.TOUCH]
     bmp = avg.Bitmap(mediadir+"/TouchFeedback.png")
 
     def __init__(self, event, **kwargs):
         BaseTouchVisualization.__init__(self, event, **kwargs)
 
-        if event.source == avg.Event.TOUCH:
+        if event.source in self.sources:
             self.__circle = avg.ImageNode(parent=self)
             self.__circle.setBitmap(self.bmp)
             self.__setRadius(self._radius)
