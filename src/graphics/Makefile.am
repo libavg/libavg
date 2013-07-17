@@ -1,6 +1,6 @@
 SUBDIRS = shaders
 
-AM_CPPFLAGS = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
+AM_CPPFLAGS = -I.. @GL_CFLAGS@ @PYTHON_CPPFLAGS@ @GDK_PIXBUF_CFLAGS@
 
 if APPLE
     GL_SOURCES = CGLContext.cpp PBO.cpp AppleDisplay.cpp
@@ -63,10 +63,14 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
 if APPLE
     X_LIBS =
 else
-if ENABLE_EGL
+if ENABLE_RPI
     X_LIBS = -lX11 -lGLESv2 -lEGL
 else
+if ENABLE_EGL
+    X_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+else
     X_LIBS = -lXxf86vm -lX11
+endif
 endif
 endif
 
@@ -76,7 +80,6 @@ EXTRA_DIST = $(wildcard baseline/*.png)
 
 noinst_LTLIBRARIES = libgraphics.la
 noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
-libgraphics_la_libadd = @LIBXINERAMA_LDADD@
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = libgraphics.la ../base/libbase.la \
@@ -93,5 +96,5 @@ testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
         ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
-        @GDK_PIXBUF_LIBS@ @LIBXINERAMA_LDADD@
+        @GDK_PIXBUF_LIBS@
 

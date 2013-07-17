@@ -24,6 +24,7 @@
 
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
+#include "../base/ScopeTimer.h"
 
 #include <boost/python/slice.hpp>
 
@@ -57,14 +58,15 @@ bool SubscriberInfo::hasExpired() const
     return (func.ptr() == py::object().ptr());
 }
 
+static ProfilingZoneID InvokeSubscriberProfilingZone("SubscriberInfo: invoke");
+
 void SubscriberInfo::invoke(py::list args) const
 {
-    py::object callWeakRef = s_MethodrefModule.attr("callWeakRef");
-    py::list argsCopy(args[py::slice()]);
-    argsCopy.insert(0, m_Callable);
-    py::tuple argsTuple(argsCopy);
-    PyObject * pResult = PyObject_CallObject(callWeakRef.ptr(), argsTuple.ptr());
-    if (pResult == 0) {
+    ScopeTimer timer(InvokeSubscriberProfilingZone);
+    py::object func = m_Callable();
+    py::tuple argsTuple(args);
+    py::object pyResult = func(*argsTuple);
+    if (pyResult.ptr() == 0) {
         throw py::error_already_set();
     }
 }
@@ -73,7 +75,7 @@ int SubscriberInfo::getID() const
 {
     return m_ID;
 }
-    
+
 bool SubscriberInfo::isCallable(const py::object& callable) const
 {
     bool bResult = py::call_method<bool>(m_Callable.ptr(), "isSameFunc", callable);

@@ -19,9 +19,17 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import geom, statemachine
+import os
+import time
+import tempfile
+
+from libavg import geom, statemachine, persist
 
 from testcase import *
+
+def getTempFileName():
+    return os.path.join(tempfile.gettempdir(), 'libavg.%d' % time.time())
+
 
 class PythonTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -181,6 +189,35 @@ class PythonTestCase(AVGTestCase):
         except RuntimeError:
             self.skip("graphviz not installed.")
 
+    def testPersistStore(self):
+        testFile = getTempFileName()
+        p = persist.Persist(testFile, {})
+        self.assertEqual(p.storeFile, testFile)
+        self.assertEqual(p.data, {})
+        p.data['test'] = 1
+        p.commit()
+        p = persist.Persist(testFile, {})
+        self.assert_('test' in p.data)
+        self.assertEqual(p.data['test'], 1)
+        os.unlink(testFile)
+        
+    def testPersistCorrupted(self):
+        testFile = getTempFileName()
+        f = open(testFile, 'w')
+        f.write('garbage')
+        f.close()
+        p = persist.Persist(testFile, {})
+        self.assertEqual(p.data, {})
+        os.unlink(testFile)
+
+    def testPersistValidation(self):
+        testFile = getTempFileName()
+        p = persist.Persist(testFile, {'test': 1})
+        p.commit()
+        p = persist.Persist(testFile, [], validator=lambda v: isinstance(v, list))
+        self.assertEqual(p.data, [])
+        os.unlink(testFile)
+
 
 def pythonTestSuite(tests):
     availableTests = (
@@ -189,6 +226,10 @@ def pythonTestSuite(tests):
         "testArc",
         "testStateMachine",
         "testStateMachineDiagram",
+        "testPersistStore",
+        "testPersistCorrupted",
+        "testPersistValidation",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
+

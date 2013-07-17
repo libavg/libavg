@@ -110,7 +110,8 @@ void WorkerThread<DERIVED_THREAD>::operator()()
             bOK = work();
             if (!bOK) {
                 m_bShouldStop = true;
-            } else {
+            }
+            if (!m_bShouldStop) {
                 processCommands();
             }
         }
@@ -146,9 +147,11 @@ template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::processCommands()
 {
     CmdPtr pCmd = m_CmdQ.pop(false);
-    while (pCmd) {
+    while (pCmd && !m_bShouldStop) {
         pCmd->execute(dynamic_cast<DERIVED_THREAD*>(this));
-        pCmd = m_CmdQ.pop(false);
+        if (!m_bShouldStop) {
+            pCmd = m_CmdQ.pop(false);
+        }
     }
 }
 

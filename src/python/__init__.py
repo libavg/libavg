@@ -14,9 +14,11 @@ from enumcompat import *
 
 import textarea
 import statemachine
-from app import AVGApp, App
+from avgapp import AVGApp
 from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
 import utils, methodref
-import gameapp
 import gesture
 import filter
+import persist
+import app
+

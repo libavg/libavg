@@ -30,7 +30,7 @@
 from random import randint
 
 from libavg import avg, player
-from libavg.gameapp import GameApp
+from libavg import app
 from libavg.utils import getMediaDir
 
 player.loadPlugin('collisiondetector')
@@ -338,22 +338,21 @@ class GunControl(avg.DivNode):
 
 ### application ###
 
-class FireBirdsApp(GameApp):
+class FireBirds(app.MainDiv):
     ENEMY_SPAWN_TIMEOUT = 1000 # ms
-    multitouch = False
 
-    def init(self):
-        self._parentNode.mediadir = getMediaDir(__file__)
+    def onInit(self):
+        self.mediadir = getMediaDir(__file__)
 
         self.__gameMusic = avg.SoundNode(href='Fire_Birds.mp3', loop=True,
-                volume=0.75, parent=self._parentNode)
-        self.__scrollingBg = ScrollingBackground(self._parentNode)
-        self.__shadowDiv = avg.DivNode(parent=self._parentNode)
-        self.__gameDiv = avg.DivNode(size=self._parentNode.size, parent=self._parentNode)
-        self.__guiDiv = avg.DivNode(parent=self._parentNode)
+                volume=0.75, parent=self)
+        self.__scrollingBg = ScrollingBackground(self)
+        self.__shadowDiv = avg.DivNode(parent=self)
+        self.__gameDiv = avg.DivNode(size=self.size, parent=self)
+        self.__guiDiv = avg.DivNode(parent=self)
 
         bg = avg.ImageNode(href='gui_frame.png', parent=self.__guiDiv)
-        self.__guiDiv.pos = (0, self._parentNode.height - bg.height)
+        self.__guiDiv.pos = (0, self.height - bg.height)
         self.__liveCounter = LiveCounter(pos=(8, 12), parent=self.__guiDiv)
         gunCtrl = GunControl(pos=(300, 54), parent=self.__guiDiv)
         self.__scoreCounter = ScoreCounter(pos=(1142, 54), parent=self.__guiDiv)
@@ -362,19 +361,21 @@ class FireBirdsApp(GameApp):
                 for i in xrange(5)]
         self.__player = PlayerAircraft(self.__shadowDiv, gunCtrl, parent=self.__gameDiv)
 
-        enemyMask = avg.Bitmap(self._parentNode.mediadir + '/enemy.gif')
+        enemyMask = avg.Bitmap(self.mediadir + '/enemy.gif')
         self.__playerCollisionDetector = collisiondetector.CollisionDetector(
-                enemyMask, avg.Bitmap(self._parentNode.mediadir + '/spitfire.gif'))
+                enemyMask, avg.Bitmap(self.mediadir + '/spitfire.gif'))
         self.__bulletCollisionDetector = collisiondetector.CollisionDetector(
-                enemyMask, avg.Bitmap(self._parentNode.mediadir + '/bullet.gif'))
+                enemyMask, avg.Bitmap(self.mediadir + '/bullet.gif'))
 
         self.__keyStates = dict.fromkeys(PlayerAircraft.ACTION_KEYS, False)
         self.__frameHandlerId = None
         self.__spawnTimeoutId = None
         self.__gameMusic.play()
         self.__start()
+        player.subscribe(player.KEY_DOWN, self.__onKeyDown)
+        player.subscribe(player.KEY_UP, self.__onKeyUp)
 
-    def onKeyDown(self, event):
+    def __onKeyDown(self, event):
         if self.__player.alive:
             if event.keystring in PlayerAircraft.ACTION_KEYS:
                 self.__keyStates[event.keystring] = True
@@ -387,7 +388,7 @@ class FireBirdsApp(GameApp):
         # else: wait for bullets and enemies to leave the screen
         return False
 
-    def onKeyUp(self, event):
+    def __onKeyUp(self, event):
         if event.keystring in PlayerAircraft.ACTION_KEYS:
             self.__keyStates[event.keystring] = False
             return True
@@ -399,7 +400,7 @@ class FireBirdsApp(GameApp):
         self.__scoreCounter.reset()
         self.__player.reset()
         self.__frameHandlerId = player.subscribe(player.ON_FRAME, self.__onFrame)
-        self.__spawnTimeoutId = player.setInterval(FireBirdsApp.ENEMY_SPAWN_TIMEOUT,
+        self.__spawnTimeoutId = player.setInterval(self.ENEMY_SPAWN_TIMEOUT,
                 self.__spawnEnemy)
 
     def __stop(self):
@@ -454,5 +455,7 @@ class FireBirdsApp(GameApp):
 
 
 if __name__ == '__main__':
-    FireBirdsApp.start(resolution=(1280, 720))
+    # Note: It's planned to set the window size to the application resolution per default.
+    #       Once implemented remove the obsolete app_window_size setting...
+    app.App().run(FireBirds(), app_resolution='1280x720', app_window_size='1280x720')
 

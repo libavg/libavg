@@ -42,6 +42,7 @@ public:
     bool initVBlank(int rate);
 
 private:
+    bool queryWGLExtension(const char* extName);
     void checkWinError(BOOL bOK, const std::string& sWhere);
 
     HWND m_hwnd;

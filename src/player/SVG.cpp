@@ -111,6 +111,12 @@ NodePtr SVG::createImageNode(const UTF8String& sElementID, const py::dict& nodeA
     return createImageNodeFromBitmap(pBmp, nodeAttrs);
 }
 
+glm::vec2 SVG::getElementPos(const UTF8String& sElementID)
+{
+    SVGElementPtr pElement = getElement(sElementID);
+    return pElement->getPos();
+}
+
 glm::vec2 SVG::getElementSize(const UTF8String& sElementID)
 {
     SVGElementPtr pElement = getElement(sElementID);

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,23 +21,24 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
-#
 
-from libavg import *
 
-class VSyncApp(AVGApp):
-    
-    def init(self):
-        self.__line = avg.LineNode(pos1=(0,0), pos2=(0,1199), color="FFFFFF",
-                parent=self._parentNode)
+from libavg import avg, app
+
+
+class VSyncDiv(app.MainDiv):
+    def onInit(self):
+        self.__line = avg.LineNode(color='FFFFFF', parent=self)
         self.__x = 0
-        player.subscribe(player.ON_FRAME, self.onFrame)
 
-    def onFrame(self):
+    def onFrame(self, dt):
         self.__x += 1
-        if self.__x == 800:
+        if self.__x == self.width:
             self.__x = 0
         self.__line.pos1 = (self.__x, 0)
-        self.__line.pos2 = (self.__x, 599)
-        
-VSyncApp.start(resolution=(800,600))
+        self.__line.pos2 = (self.__x, self.height)
+
+
+if __name__ == '__main__':
+    app.App().run(VSyncDiv(), app_resolution='800x600')
+

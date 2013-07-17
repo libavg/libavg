@@ -4,10 +4,14 @@ AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @GDK_PIXBUF_CFLAGS@
 if APPLE
     X_LIBS = 
 else
-if ENABLE_EGL
+if ENABLE_RPI
     X_LIBS = -lX11 -lGLESv2 -lEGL
 else
+if ENABLE_EGL
+    X_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+else
     X_LIBS = -lXxf86vm -lX11
+endif
 endif
 endif
 
@@ -48,7 +52,7 @@ libvideo_la_LIBADD = @LIBVIDEO_LDADD@
 testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la ../base/triangulate/libtriangulate.la -ldl \
-        @LIBXINERAMA_LDADD@ @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ @XML2_LIBS@ \
+        @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ @XML2_LIBS@ \
         @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBFFMPEG@ @LIBVA_LIBS@ $(X_LIBS) \
         @GDK_PIXBUF_LIBS@
 

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2013 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -45,19 +45,23 @@ void FontStyle::registerType()
         .addArg(Arg<string>("alignment", "left"))
         .addArg(Arg<string>("wrapmode", "word"))
         .addArg(Arg<bool>("justify", false, false, offsetof(FontStyle, m_bJustify)))
-        .addArg(Arg<float>("letterspacing", 0, false, 
+        .addArg(Arg<float>("letterspacing", 0, false,
                 offsetof(FontStyle, m_LetterSpacing)))
         .addArg(Arg<bool>("hint", true, false, offsetof(FontStyle, m_bHint)))
+        .addArg(Arg<FontStylePtr>("basestyle", FontStylePtr()))
         ;
     TypeRegistry::get()->registerType(def);
 }
-        
+
 FontStyle::FontStyle(const ArgList& args)
 {
     args.setMembers(this);
     setAlignment(args.getArgVal<string>("alignment"));
     setWrapMode(args.getArgVal<string>("wrapmode"));
     m_Color = colorStringToColor(m_sColorName);
+    if (args.getArgVal<FontStylePtr>("basestyle") != 0) {
+        applyBaseStyle(*(args.getArgVal<FontStylePtr>("basestyle")), args);
+    }
 }
 
 FontStyle::FontStyle()
@@ -71,6 +75,33 @@ FontStyle::FontStyle()
 
 FontStyle::~FontStyle()
 {
+}
+
+template<class ATTR>
+void setDefaultedAttr(ATTR& member, const string& sName, const ArgList& args,
+        const ATTR& attr)
+{
+    if (args.getArg(sName)->isDefault()) {
+        member = attr;
+    }
+}
+
+void FontStyle::applyBaseStyle(const FontStyle& baseStyle, const ArgList& args)
+{
+    setDefaultedAttr(m_sName, "font", args, baseStyle.getFont());
+    setDefaultedAttr(m_sVariant, "variant", args, baseStyle.getFontVariant());
+    setDefaultedAttr(m_sColorName, "color", args, baseStyle.getColor());
+    m_Color = colorStringToColor(m_sColorName);
+    setDefaultedAttr(m_AAGamma, "aagamma", args, baseStyle.getAAGamma());
+    setDefaultedAttr(m_Size, "fontsize", args, baseStyle.getFontSize());
+    setDefaultedAttr(m_Indent, "indent", args, baseStyle.getIndent());
+    setDefaultedAttr(m_LineSpacing, "linespacing", args, baseStyle.getLineSpacing());
+    setDefaultedAttr(m_Alignment, "alignment", args, baseStyle.getAlignmentVal());
+    setDefaultedAttr(m_WrapMode, "wrapmode", args, baseStyle.getWrapModeVal());
+    setDefaultedAttr(m_bJustify, "justify", args, baseStyle.getJustify());
+    setDefaultedAttr(m_LetterSpacing, "letterspacing", args,
+            baseStyle.getLetterSpacing());
+    setDefaultedAttr(m_bHint, "hint", args, baseStyle.getHint());
 }
 
 template<class ARG>
@@ -280,6 +311,5 @@ Pixel32 FontStyle::getColorVal() const
 {
     return m_Color;
 }
-
 
 }

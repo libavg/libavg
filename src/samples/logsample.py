@@ -3,7 +3,7 @@
 
 import logging
 
-from libavg import avg, AVGApp
+from libavg import avg, app
 
 # Setup Python Logger
 hdlr = logging.StreamHandler()
@@ -15,8 +15,8 @@ pyLogger.addHandler(hdlr)
 pyLogger.propagate = False
 
 
-class LoggingApp(AVGApp):
-    def init(self):
+class LoggingTest(app.MainDiv):
+    def onInit(self):
         # Add the python logger to libavgs logger as a message sink
         avg.logger.addSink(pyLogger)
 
@@ -44,4 +44,4 @@ class LoggingApp(AVGApp):
         #Log with custom log category
         avg.logger.log("Message with custom category", CUSTOM_LOG_CAT)
 
-LoggingApp.start(resolution=(40, 40))
+app.App().run(LoggingTest(), app_resolution='40x40')

@@ -106,7 +106,9 @@ namespace glproc {
     PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32
-    PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
+    PFNWGLGETEXTENSIONSSTRINGARBPROC GetExtensionsStringARB;
+    PFNWGLGETSWAPINTERVALEXTPROC GetSwapIntervalEXT;
+    PFNWGLSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 
     void * s_hGLLib = 0;
@@ -426,7 +428,11 @@ namespace glproc {
                 getglXProcAddress("glXSwapIntervalEXT");
 #endif
 #ifdef _WIN32
-        SwapIntervalEXT = (PFNWGLEXTSWAPCONTROLPROC) 
+        GetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)
+                getwglProcAddress("wglGetExtensionsStringARB");
+        GetSwapIntervalEXT = (PFNWGLGETSWAPINTERVALEXTPROC)
+                getwglProcAddress("wglGetSwapIntervalEXT");
+        SwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)
                 getwglProcAddress("wglSwapIntervalEXT");
 #endif
     }

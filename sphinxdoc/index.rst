@@ -10,6 +10,7 @@ http://www.libavg.de/wiki/ProgrammersGuide.
     :maxdepth: 2
 
     player
+    app
     basenodes
     areanodes
     vectornodes

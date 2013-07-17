@@ -321,6 +321,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("createImageNode", createImageNode1)
             .def("createImageNode", createImageNode2)
             .def("createImageNode", createImageNode3)
+            .def("getElementPos", &SVG::getElementPos)
             .def("getElementSize", &SVG::getElementSize)
             ;
 

@@ -852,8 +852,7 @@ class WidgetTestCase(AVGTestCase):
         image = avg.ImageNode(href="rgb24-64x64.png", size=(200, 400))
         pwdPath = os.path.dirname(os.path.realpath(__file__))
         mediaPath = os.path.join(pwdPath, "media")
-        skin = widget.Skin(os.path.join(pwdPath, "media/CustomSkin.xml"),
-                mediaPath)
+        skin = widget.Skin("CustomSkin.xml", mediaPath)
         self.node = widget.ScrollArea(contentNode=image, size=(80, 80), skinObj=skin,
                 parent=root)
         self.start(False,
@@ -864,8 +863,7 @@ class WidgetTestCase(AVGTestCase):
 
         pwdPath = os.path.dirname(os.path.realpath(__file__))
         mediaPath = os.path.join(pwdPath, "media")
-        skin = widget.Skin(os.path.join(pwdPath, "..", "python/data/SimpleSkin.xml"),
-                mediaPath)
+        skin = widget.Skin("SimpleSkin.xml", mediaPath)
         downBmpPath = skin.textButtonCfg[None]['downBmp'].getName()
         upBmpPath = skin.textButtonCfg[None]['upBmp'].getName()
         self.assert_(downBmpPath == os.path.join(mediaPath, 'button_bg_down.png'))

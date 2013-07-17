@@ -44,7 +44,6 @@ private:
 
     std::vector<glm::vec2> m_Pts;
     std::vector<float> m_Y2; // Second derivatives
-    bool m_bLoop;
 };
 
 typedef boost::shared_ptr<CubicSpline> CubicSplinePtr;

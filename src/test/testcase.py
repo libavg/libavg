@@ -156,6 +156,7 @@ class AVGTestCase(unittest.TestCase):
             code()
         except:
             exceptionRaised = True
+        
         self.assert_(exceptionRaised)
 
     def assertAlmostEqual(self, a, b, epsilon=0.00001):

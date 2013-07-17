@@ -58,7 +58,6 @@ private:
 
     std::map<std::string, AnimState> m_States;
     bool m_bDebug;
-    bool m_bIsAborting;
     std::string m_sCurStateName;
 };
 

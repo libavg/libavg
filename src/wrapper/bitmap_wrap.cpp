@@ -26,6 +26,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/FilterResizeBilinear.h"
 
 #include "../base/CubicSpline.h"
 
@@ -81,6 +82,11 @@ ConstVec2 Bitmap_getSize(Bitmap* This)
     return (glm::vec2)(This->getSize());
 }
 
+BitmapPtr Bitmap_getResized(BitmapPtr This, const glm::vec2& size)
+{
+    return FilterResizeBilinear(IntPoint(size)).apply(This);
+}
+
 glm::vec2* createPoint()
 {
     return new glm::vec2(0,0);
@@ -90,6 +96,15 @@ BitmapPtr createBitmapFromFile(const UTF8String& sFName)
 {
     return loadBitmap(sFName);
 }
+
+BitmapPtr createBitmapWithRect(BitmapPtr pBmp, const glm::vec2& pos, const glm::vec2& size)
+{
+    IntRect rect = IntRect(IntPoint(pos), IntPoint(size));
+    return BitmapPtr(new Bitmap(*pBmp, rect));
+}
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads, BitmapManager::loadBitmap, 
+        2, 3);
 
 void export_bitmap()
 {
@@ -148,7 +163,10 @@ void export_bitmap()
     class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
         .def(init<glm::vec2, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
+        .def("__init__", make_constructor(createBitmapWithRect))
         .def("__init__", make_constructor(createBitmapFromFile))
+        .def("blt", &Bitmap::blt)
+        .def("getResized", &Bitmap_getResized)
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)
@@ -167,7 +185,8 @@ void export_bitmap()
         .def("get", &BitmapManager::get,
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
-        .def("loadBitmap", &BitmapManager::loadBitmap)
+        .def("loadBitmap", &BitmapManager::loadBitmap, loadBitmap_overloads())
+        .def("setNumThreads", &BitmapManager::setNumThreads)
     ;
 
     class_<CubicSpline, boost::noncopyable>("CubicSpline", no_init)

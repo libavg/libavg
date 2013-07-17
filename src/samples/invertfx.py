@@ -20,18 +20,16 @@
 #
 #  Current versions can be found at www.libavg.de
 
-from libavg import avg, AVGApp, player
+from libavg import avg, app
 
-class InvertApp(AVGApp):
-
-    def init(self):
-        rootNode = player.getRootNode()
-
-        orig = avg.ImageNode(parent = rootNode, href='../test/media/hsl.png')
-        invert = avg.ImageNode(parent = rootNode, href='../test/media/hsl.png',
+class Invert(app.MainDiv):
+    def onInit(self):
+        orig = avg.ImageNode(parent=self, href='../test/media/hsl.png')
+        invert = avg.ImageNode(parent=self, href='../test/media/hsl.png',
                 pos=(orig.size.x+10, 0))
         invert.setEffect(avg.InvertFXNode())
 
+
 if __name__ == '__main__':
-    InvertApp.start(resolution=(200,200),debugWindowSize=(200,200))
+    app.App().run(Invert(), app_resolution='200x200')
 
