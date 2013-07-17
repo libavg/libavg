@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2013 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -167,6 +167,7 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
     Arg<CollVec2Vector>* pCollVec2VectorArg =
             dynamic_cast<Arg<CollVec2Vector>* >(&*pArg);
     Arg<FontStyle>* pFontStyleArg = dynamic_cast<Arg<FontStyle>* >(&*pArg);
+    Arg<FontStylePtr>* pFontStylePtrArg = dynamic_cast<Arg<FontStylePtr>* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, value);
     } else if (pUTF8StringArg) {
@@ -195,6 +196,8 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
         avg::setArgValue(pCollVec2VectorArg, sName, value);
     } else if (pFontStyleArg) {
         avg::setArgValue(pFontStyleArg, sName, value);
+    } else if (pFontStylePtrArg) {
+        avg::setArgValue(pFontStylePtrArg, sName, value);
     } else {
         AVG_ASSERT(false);
     }

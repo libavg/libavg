@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2013 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -90,6 +90,8 @@ class AVG_API FontStyle: public ExportedObject
         Pixel32 getColorVal() const;
 
     private:
+        void applyBaseStyle(const FontStyle& baseStyle, const ArgList& args);
+
         std::string m_sName;
         std::string m_sVariant;
         std::string m_sColorName;

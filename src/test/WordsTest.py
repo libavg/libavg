@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -99,6 +99,28 @@ class WordsTestCase(AVGTestCase):
                  lambda: setStyle(words, otherFontStyle),
                  lambda: self.compareImage("testFontStyle2"),
                 ))
+
+    def testBaseStyle(self):
+        attrs = {"font": "Bitstream Vera Sans",
+                 "variant": "Bold",
+                 "color": "FF0000",
+                 "aagamma": 0.5,
+                 "fontsize": 20,
+                 "indent": 1,
+                 "linespacing": 2,
+                 "alignment": "right",
+                 "wrapmode": "char",
+                 "justify": True,
+                 "letterspacing": 3,
+                 "hint": False}
+        defaultStyle = avg.FontStyle()
+        fontStyle1 = avg.FontStyle(basestyle=defaultStyle, **attrs)
+        for attrName in attrs.iterkeys():
+            self.assert_(getattr(fontStyle1, attrName) != getattr(defaultStyle, attrName))
+            self.assert_(getattr(fontStyle1, attrName) == attrs[attrName])
+        fontStyle2 = avg.FontStyle(basestyle=fontStyle1)
+        for attrName in attrs.iterkeys():
+            self.assert_(getattr(fontStyle2, attrName) == getattr(fontStyle1, attrName))
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
@@ -650,6 +672,7 @@ def wordsTestSuite(tests):
             "testSimpleWords",
             "testRedrawOnDemand",
             "testFontStyle",
+            "testBaseStyle",
             "testGlyphPos",
             "testParaWords",
             "testJustify",
