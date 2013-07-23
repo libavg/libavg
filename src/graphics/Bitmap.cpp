@@ -116,6 +116,7 @@ Bitmap::Bitmap(Bitmap& origBmp, const IntRect& rect)
     AVG_ASSERT(rect.br.x <= origBmp.getSize().x);
     AVG_ASSERT(rect.br.y <= origBmp.getSize().y);
     AVG_ASSERT(rect.tl.x >= 0 && rect.tl.y >= 0);
+    AVG_ASSERT(rect.width() > 0 && rect.height() > 0);
     if (!origBmp.getName().empty()) {
         m_sName = origBmp.getName()+" part";
     } else {

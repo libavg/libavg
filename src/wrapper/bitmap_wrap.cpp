@@ -97,9 +97,10 @@ BitmapPtr createBitmapFromFile(const UTF8String& sFName)
     return loadBitmap(sFName);
 }
 
-BitmapPtr createBitmapWithRect(BitmapPtr pBmp, const glm::vec2& pos, const glm::vec2& size)
+BitmapPtr createBitmapWithRect(BitmapPtr pBmp,
+        const glm::vec2& tlPos, const glm::vec2& brPos)
 {
-    IntRect rect = IntRect(IntPoint(pos), IntPoint(size));
+    IntRect rect = IntRect(IntPoint(tlPos), IntPoint(brPos));
     return BitmapPtr(new Bitmap(*pBmp, rect));
 }
 
