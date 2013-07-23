@@ -455,7 +455,5 @@ class FireBirds(app.MainDiv):
 
 
 if __name__ == '__main__':
-    # Note: It's planned to set the window size to the application resolution per default.
-    #       Once implemented remove the obsolete app_window_size setting...
-    app.App().run(FireBirds(), app_resolution='1280x720', app_window_size='1280x720')
+    app.App().run(FireBirds(), app_resolution='1280x720')
 
