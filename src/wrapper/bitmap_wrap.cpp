@@ -100,6 +100,15 @@ BitmapPtr createBitmapFromFile(const UTF8String& sFName)
 BitmapPtr createBitmapWithRect(BitmapPtr pBmp,
         const glm::vec2& tlPos, const glm::vec2& brPos)
 {
+    if (tlPos.x >= brPos.x || tlPos.y >= brPos.y) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Can't create a bitmap with zero or negative width/height.");
+    }
+    IntPoint size = pBmp->getSize();
+    if (tlPos.x < 0 || tlPos.y < 0 || brPos.x > size.x || brPos.y > size.y) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Attempt to create a subbitmap that doesn't fit into the parent bitmap.");
+    }
     IntRect rect = IntRect(IntPoint(tlPos), IntPoint(brPos));
     return BitmapPtr(new Bitmap(*pBmp, rect));
 }
