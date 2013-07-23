@@ -391,20 +391,14 @@ class FireBirds(app.MainDiv):
         if self.__player.alive:
             if event.keystring in PlayerAircraft.ACTION_KEYS:
                 self.__keyStates[event.keystring] = True
-                return True
-            return False
-        if not self.__frameHandlerId: # game stopped
+        elif not self.__frameHandlerId: # game stopped
             if event.keystring == 'space':
                 self.__start()
-                return True
         # else: wait for bullets and enemies to leave the screen
-        return False
 
     def __onKeyUp(self, event):
         if event.keystring in PlayerAircraft.ACTION_KEYS:
             self.__keyStates[event.keystring] = False
-            return True
-        return False
 
     def __start(self):
         assert(not self.__frameHandlerId and not self.__spawnTimeoutId)
