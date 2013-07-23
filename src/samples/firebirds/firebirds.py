@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2012 Ulrich von Zadow
+# Copyright (C) 2012-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this file: Thomas Schott <scotty@c-base.org>
-#
 
 # TODO: some info foo here:
 # * c't 09/2011 p.184, media sources/license
@@ -58,7 +57,7 @@ class Bullet(avg.VideoNode):
     def update(self, dt):
         y = self.y - Bullet.__SPEED * dt
         if y > -self.height:
-            self.pos = (self.x, y)
+            self.y = y
         else:
             self.destroy()
 
@@ -211,8 +210,11 @@ class PlayerAircraft(_Aircraft):
 
 
 class EnemyAircraft(_Aircraft):
+    ESCAPED = avg.Publisher.genMessageID()
+
     def __init__(self, shadowdiv, parent=None, **kwargs):
         super(EnemyAircraft, self).__init__('enemy', shadowdiv, parent, **kwargs)
+        self.publish(EnemyAircraft.ESCAPED)
         self.__destroySnd = avg.SoundNode(href='enemyDeath.mp3', volume=2.0, parent=self)
         self._hide()
 
@@ -231,6 +233,7 @@ class EnemyAircraft(_Aircraft):
             self._move((self.x, y))
         else:
             self._hide()
+            self.notifySubscribers(EnemyAircraft.ESCAPED, [])
 
 
 ### gui elements ###
@@ -296,6 +299,14 @@ class ScoreCounter(avg.DivNode):
 
     def inc(self):
         self.__score += 1
+        self.__updateImages()
+
+    def dec(self):
+        if self.__score > 0:
+            self.__score -= 1
+            self.__updateImages()
+
+    def __updateImages(self):
         s = self.__score
         for img in self.__images:
             y = s % 10 * -34
@@ -357,8 +368,9 @@ class FireBirds(app.MainDiv):
         gunCtrl = GunControl(pos=(300, 54), parent=self.__guiDiv)
         self.__scoreCounter = ScoreCounter(pos=(1142, 54), parent=self.__guiDiv)
 
-        self.__enemies = [EnemyAircraft(self.__shadowDiv, parent=self.__gameDiv)
-                for i in xrange(5)]
+        self.__enemies = []
+        for i in xrange(2):
+            self.__createEnemy()
         self.__player = PlayerAircraft(self.__shadowDiv, gunCtrl, parent=self.__gameDiv)
 
         enemyMask = avg.Bitmap(self.mediadir + '/enemy.gif')
@@ -408,6 +420,12 @@ class FireBirds(app.MainDiv):
         player.clearInterval(self.__spawnTimeoutId)
         self.__spawnTimeoutId = None
 
+    def __createEnemy(self):
+        enemy = EnemyAircraft(self.__shadowDiv, parent=self.__gameDiv)
+        enemy.subscribe(EnemyAircraft.ESCAPED, self.__scoreCounter.dec)
+        self.__enemies.append(enemy)
+        return enemy
+
     def __spawnEnemy(self):
         assert(self.__frameHandlerId)
         enemy = None
@@ -416,8 +434,7 @@ class FireBirds(app.MainDiv):
                 enemy = e
                 break
         if not enemy:
-            enemy = EnemyAircraft(self.__shadowDiv, parent=self.__gameDiv)
-            self.__enemies.append(enemy)
+            enemy = self.__createEnemy()
         enemy.reset()
 
     def __onFrame(self):
