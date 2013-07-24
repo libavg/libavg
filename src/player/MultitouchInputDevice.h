@@ -26,6 +26,7 @@
 #include "IInputDevice.h"
 
 #include "../base/GLMHelper.h"
+#include "../base/ConfigMgr.h"
 
 #include <boost/thread.hpp>
 #include <map>
@@ -48,7 +49,7 @@ public:
     MultitouchInputDevice();
     virtual ~MultitouchInputDevice() = 0;
     virtual void start();
-    
+
     std::vector<EventPtr> pollEvents();
 
 protected:
@@ -59,12 +60,16 @@ protected:
     void addTouchStatus(int id, TouchEventPtr pInitialEvent);
     void removeTouchStatus(int id);
     void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs);
+    glm::vec2 getTouchArea() const;
+    IntPoint getScreenPos(const glm::vec2& pos) const;
     boost::mutex& getMutex();
+    glm::vec2 mTouchOffset;
 
 private:
     std::map<int, TouchStatusPtr> m_TouchIDMap;
     std::vector<TouchStatusPtr> m_Touches;
     MutexPtr m_pMutex;
+    glm::vec2 mTouchArea;
 };
 
 typedef boost::shared_ptr<MultitouchInputDevice> MultitouchInputDevicePtr;

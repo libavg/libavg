@@ -35,4 +35,8 @@
     <filtermincutoff>0.1</filtermincutoff>
     <filterbeta>0.03</filterbeta>
   </gesture>
+  <touch>
+    <area>0, 0</area>
+    <offset>0, 0</offset>
+  </touch>
 </avgrc>  

@@ -51,6 +51,8 @@ TUIOInputDevice::TUIOInputDevice()
     : m_pSocket(0),
       m_LastID(0)
 {
+    // Adding 0.5 to the offset, so positions are rounded correctly
+    mTouchOffset += glm::vec2(0.5, 0.5);
 }
 
 TUIOInputDevice::~TUIOInputDevice()
@@ -205,8 +207,8 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
 TouchEventPtr TUIOInputDevice::createEvent(int id, Event::Type type, glm::vec2 pos,
         glm::vec2 speed)
 {
-    glm::vec2 size = Player::get()->getScreenResolution();
-    IntPoint screenPos(int(pos.x*size.x+0.5), int(pos.y*size.y+0.5));
+    const glm::vec2 size = getTouchArea();
+    IntPoint screenPos = getScreenPos(pos);
     glm::vec2 screenSpeed(int(speed.x*size.x+0.5), int(speed.y*size.y+0.5));
     TouchEventPtr pEvent(new TouchEvent(id, type, screenPos, Event::TOUCH));
     pEvent->setSpeed(screenSpeed/1000.f);
