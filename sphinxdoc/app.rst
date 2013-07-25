@@ -28,14 +28,10 @@ app module
             The optional additional kargs are used to set default settings - see 
             :py:class:`settings.Settings`.
 
-        .. py:method:: stop()
-
-            Stops the player.
-
         .. py:method:: onBeforeLaunch()
 
             Called just before starting the main loop (:samp:`Player.play()`). Useful only
-            for subclassing.
+            for subclassing. The display hasn't been initialized at this point.
 
         .. py:method:: takeScreenshot(targetFolder='.')
 
@@ -51,11 +47,6 @@ app module
 
             The instance passed as first argument of the :py:meth:`run()` method.
 
-        .. py:attribute:: appParent
-
-            The :py:class:`DivNode` that is :py:attr:`mainDiv`'s parent. It also holds
-            several internal nodes such as the overlay panels.
-
         .. py:attribute:: debugPanel
 
             An instance of debugpanel.DebugPanel.
@@ -68,24 +59,12 @@ app module
 
             An instance of settings.Settings.
 
-        .. py:attribute:: resolution
-
-            Current target screen resolution.
-
-        .. py:attribute:: windowSize
-
-            Current target window size.
-
+    
     .. autoclass:: MainDiv
 
         This abstract class must be subclassed to write a libavg application. It is the main
         application entry point and should be the parent node for all application-created
         nodes. All the public methods are empty and don't do anything if not overridden.
-
-        .. py:attribute:: INIT_FUNC
-
-            A string that represents the identifier of the method that will be called
-            on the MainDiv instance upon initialization of the App. It defaults to onInit.
 
         .. py:attribute:: VERSION
 
@@ -126,10 +105,9 @@ app module
 
                 onExit() doesn't get called if an exception is raised on the main thread.
 
-        .. py:method:: onFrame(delta)
+        .. py:method:: onFrame()
 
-            Called at every frame. :py:attr:`delta` is the time that has passed since the 
-            last call of :py:meth:`onFrame()` in milliseconds.
+            Called every frame.
 
 
 Keyboard handling
@@ -237,21 +215,6 @@ Settings
         .. py:method:: getBoolean(key)
 
             XXX
-
-    .. autoclass:: Option(key, value, help=None)
-
-        XXX
-
-
-Debug panel
-===========
-
-.. automodule:: libavg.app.debugpanel
-    :no-members:
-
-    ..autoclass:: DebugPanel
-
-        XXX
 
 
 Flash messages
