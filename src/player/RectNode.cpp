@@ -114,12 +114,24 @@ void RectNode::setAngle(float angle)
     setDrawNeeded();
 }
 
-void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+glm::vec2 RectNode::toLocal(const glm::vec2& globalPos) const
+{
+    glm::vec2 localPos = globalPos - m_Rect.tl;
+    glm::vec2 pivot = m_Rect.size()/2.f;
+    return getRotatedPivot(localPos, -m_Angle, pivot);
+}
+
+glm::vec2 RectNode::toGlobal(const glm::vec2& localPos) const
 {
     glm::vec2 pivot = m_Rect.tl + m_Rect.size()/2.f;
-    glm::vec2 rpos = getRotatedPivot(pos, m_Angle, pivot);
-    if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
-            rpos.y < m_Rect.br.y && reactsToMouseEvents())
+    glm::vec2 globalPos = getRotatedPivot(localPos, m_Angle, pivot); 
+    return globalPos + m_Rect.tl;
+}
+
+void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+{
+    if (pos.x >= 0 && pos.y >= 0 && pos.x < m_Rect.size().x && pos.y < m_Rect.size().y 
+            && reactsToMouseEvents())
     {
         pElements.push_back(getSharedThis());
     }
