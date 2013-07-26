@@ -20,36 +20,13 @@ app module
         :py:class:`App` usually does not need to be subclassed. Instead, subclass 
         :py:class:`MainDiv` and pass an instance of the derived class to :py:meth:`run()`.
         
-        .. py:method:: run(mainDiv, **kargs)
+        .. py:attribute:: debugPanel
 
-            Starts the application using the provided :py:attr:`mainDiv` (an instance of
-            :py:class:`MainDiv`).
-            
-            The optional additional kargs are used to set default settings - see 
-            :py:class:`settings.Settings`.
-
-        .. py:method:: onBeforeLaunch()
-
-            Called just before starting the main loop (:samp:`Player.play()`). Useful only
-            for subclassing. The display hasn't been initialized at this point.
-
-        .. py:method:: takeScreenshot(targetFolder='.')
-
-            Takes a screenshot of what is currently visible on the screen. Normally
-            bound to the keypress :kbd:`CTRL-p`.
-
-        .. py:method:: dumpTextObjectCount()
-
-            Dumps on the console the current number of initialized objects. Normally
-            bound to the keypress :kbd:`CTRL-b`.
+            An instance of debugpanel.DebugPanel.
 
         .. py:attribute:: mainDiv
 
             The instance passed as first argument of the :py:meth:`run()` method.
-
-        .. py:attribute:: debugPanel
-
-            An instance of debugpanel.DebugPanel.
 
         .. py:attribute:: overlayPanel
 
@@ -58,6 +35,29 @@ app module
         .. py:attribute:: settings
 
             An instance of settings.Settings.
+
+        .. py:method:: dumpTextObjectCount()
+
+            Dumps on the console the current number of initialized objects. Normally
+            bound to the keypress :kbd:`CTRL-b`.
+
+        .. py:method:: onBeforeLaunch()
+
+            Called just before starting the main loop (:samp:`Player.play()`). Useful only
+            for subclassing. The display hasn't been initialized at this point.
+
+        .. py:method:: run(mainDiv, **kargs)
+
+            Starts the application using the provided :py:attr:`mainDiv` (an instance of
+            :py:class:`MainDiv`).
+            
+            The optional additional kargs are used to set default settings - see 
+            :py:class:`settings.Settings`.
+
+        .. py:method:: takeScreenshot(targetFolder='.')
+
+            Takes a screenshot of what is currently visible on the screen. Normally
+            bound to the keypress :kbd:`CTRL-p`.
 
     
     .. autoclass:: MainDiv
@@ -71,13 +71,6 @@ app module
             A version string. This is shown using the :option:`-v` or :option:`--version`
             command-line option.
 
-        .. py:method:: onArgvParserCreated(parser)
-
-            Called with an empty :py:class:`optparse.OptionParser` instance. Allows the
-            application to add additional command line options. :py:class:`App` adds it's 
-            own parameters as well. If this is overridden, :py:meth:`onArgvParsed()` 
-            should probably be overridden as well.
-
         .. py:method:: onArgvParsed(options, args, parser)
 
             This method is called after command-line arguments have been parsed and should
@@ -87,14 +80,12 @@ app module
             :py:class:`optparse.OptionParser` configured by calling 
             :py:meth:`onArgvParserCreated`.
             
-        .. py:method:: onStartup()
+        .. py:method:: onArgvParserCreated(parser)
 
-            Called before libavg has been setup, just after the App().run() call.
-
-        .. py:method:: onInit()
-
-            Called by a libavg timer as soon as the main loop starts.
-            Build the application node tree here.
+            Called with an empty :py:class:`optparse.OptionParser` instance. Allows the
+            application to add additional command line options. :py:class:`App` adds it's 
+            own parameters as well. If this is overridden, :py:meth:`onArgvParsed()` 
+            should probably be overridden as well.
 
         .. py:method:: onExit()
 
@@ -108,6 +99,15 @@ app module
         .. py:method:: onFrame()
 
             Called every frame.
+
+        .. py:method:: onInit()
+
+            Called by a libavg timer as soon as the main loop starts.
+            Build the application node tree here.
+
+        .. py:method:: onStartup()
+
+            Called before libavg has been setup, just after the App().run() call.
 
 
 keyboardmanager Module
@@ -126,55 +126,55 @@ keyboardmanager Module
     TODO: expand the discussion regarding keystring vs SDL
     TODO: describe the modifiers
 
-    .. py:function:: init()
-
-        Called by :py:class:`App`. Should not be called by user programs.
-
-    .. py:method:: bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
 
         Sets up a key handler so that :py:attr:`handler` is called whenever 
         :py:attr:`keystring` is pressed.
 
-    .. py:method:: bindKeyUp(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: bindKeyUp(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
 
         Sets up a key handler so that :py:attr:`handler` is called whenever 
         :py:attr:`keystring` is released.
 
-    .. py:method:: unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: disable()
 
-        Removes a previously defined key binding for a KEY_DOWN event.
+        Companion to :py:meth:`enable()`, disables all handlers.
 
-    .. py:method:: unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: enable()
 
-        Removes a previously defined key binding for a KEY_UP event.
+        Companion to :py:meth:`disable()`, enables all handlers.
 
-    .. py:method:: unbindAll()
+    .. py:function:: getCurrentBindings()
 
-        Removes all the defined key bindings at once.
+        Returns the currently assigned bindings as a list of keyboardmanager._KeyBindings
+        named tuples.
 
-    .. py:method:: push()
+    .. py:function:: init()
+
+        Called by :py:class:`App`. Should not be called by user programs.
+
+    .. py:function:: pop()
+
+        Companion to :py:meth:`push()`, restores the non-modified key bindings
+        previously pushed onto the stack via :py:meth:`push()`.
+
+    .. py:function:: push()
 
         Pushes all the non-modified key bindings onto a stack and clears them all.
         Useful when the application flow branches to a state where a different key
         bindings set is needed. The bindings can be then restored with :py:meth:`pop()`.
 
-    .. py:method:: pop()
+    .. py:function:: unbindAll()
 
-        Companion to :py:meth:`push()`, restores the non-modified key bindings set
-        previously pushed onto the stack via :py:meth:`push()`.
+        Removes all the defined key bindings at once.
 
-    .. py:method:: getCurrentBindings()
+    .. py:function:: unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE)
 
-        Returns the currently assigned bindings as a list of keyboardmanager._KeyBindings
-        named tuples.
+        Removes a previously defined key binding for a KEY_DOWN event.
 
-    .. py:method:: enable()
+    .. py:function:: unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE)
 
-        Companion to :py:meth:`disable()`, enables all handlers.
-
-    .. py:method:: disable()
-
-        Companion to :py:meth:`enable()`, disables all handlers.
+        Removes a previously defined key binding for a KEY_UP event.
 
 
 settings Module
