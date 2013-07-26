@@ -7,7 +7,7 @@ intended to be an informal introduction to libavg - for this, have a look at
 http://www.libavg.de/wiki/ProgrammersGuide. 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     player
     app
@@ -21,7 +21,7 @@ http://www.libavg.de/wiki/ProgrammersGuide.
     widget
     misc
 
-Indices and tables
+Indexes and tables
 ==================
 
 * :ref:`genindex`

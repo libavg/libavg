@@ -110,23 +110,23 @@ app module
             Called every frame.
 
 
-Keyboard handling
-=================
+keyboardmanager Module
+----------------------
 
 .. automodule:: libavg.app.keyboardmanager
     :no-members:
 
     This module makes it possible to attach event handlers to individual keypresses. 
     Keys that are bound through the keyboard manager are also be shown in the debug panel
-    via the keyboard bindings widget along with their help string. :py:class:`App` defines
+    via the keyboard bindings widget along with their help string. :py:class:`libavg.app.App` defines
     a range of keyboard bindings by default. Conceptually, all keys modified by :kbd:`CTRL`
-    are reserved by :py:class:`App`.
+    are reserved by :py:class:`libavg.app.App`.
 
     For all the binding methods, keystring can be a python string or a unicode object.
     TODO: expand the discussion regarding keystring vs SDL
     TODO: describe the modifiers
 
-    .. py:method:: init()
+    .. py:function:: init()
 
         Called by :py:class:`App`. Should not be called by user programs.
 
@@ -177,20 +177,25 @@ Keyboard handling
         Companion to :py:meth:`enable()`, disables all handlers.
 
 
-Settings
-========
+settings Module
+---------------
 
 .. automodule:: libavg.app.settings
     :no-members:
 
-    The Setting class, normally instantiated and set up by App, is a collection
-    of options. A group of core options, necessary for the App to properly set up
-    the running conditions are added with their defaults.
-
-    Options can be overridden on App().run() (as kargs) and by the command line
-    interface.
-
     .. autoclass:: Settings(defaults=[])
+        
+        The :py:class:`Settings` class holds a collection of application options as 
+        :py:class:`Option` instances. It is usually instantiated by :py:class:`App`. The available 
+        options and defaults are either passed on construction or configured using 
+        :py:meth:`Settings.addOption`. Usually, the configuration happens in :py:class:`App` (for 
+        general options) and :py:meth:`MainDiv.onArgvParserCreated` (for application-specific 
+        options). :py:class:`App` takes converts parameters to :samp:`App.run()` and command-line
+        arguments to the configured options.
+
+        .. py:method:: addOption(option)
+
+            Adds an option.
 
         .. py:method:: get(key, convertFunc=lambda v: v)
 
@@ -217,28 +222,21 @@ Settings
             XXX
 
 
-Flash messages
-==============
+flashmessage Module
+-------------------
 
 .. automodule:: libavg.app.flashmessage
     :no-members:
 
     .. autoclass:: FlashMessage(text, timeout=DEFAULT_TIMEOUT, parent=None, isError=False, acknowledge=False)
 
-        A FlashMessage is a brief, temporary or persistent notification to the user, under
-        the form of a text line shown on top of the node hierarchy.
-
-        The message is normally shown for a certain amount of time, then it disappears. It
-        can also be defined as persistent: in such case the user has to acknowledge it by
-        clicking on it to make it disappear.
-
-        A FlashMessage can be used also to notify errors, shown with a different color and
-        automatically pushing the message to the underlying logger.
-
-        Multiple FlashMessages are assured to be shown in the order they get created.
+        A :py:class:`FlashMessage` is a user notification shown as a text line. The message can have
+        an optional timeout or stay visible until clicked on by the user. It inserts itself into node
+        tree at the top. Multiple :py:class:`FlashMessage` instances are shown in the order they get 
+        created.
 
         :param timeout: The time in milliseconds the message should persist on screen
-                before it gets removed.
+                before it gets removed. Only valid if :py:attr:`acknowledge` is :py:const:`False`.
         
         :param parent: When specified, the parent node the message should be appending
                 itself to.
@@ -247,18 +245,9 @@ Flash messages
                 messages are shown in a different color and are routed to the
                 logger as well.
 
-        :param acknowledge: A boolean flag to indicate whether the message has to be
-                removing automatically (after timeout has elapsed) or acknowledged
+        :param acknowledge: A boolean flag to indicate whether the message should remove itself
+                automatically (after timeout has elapsed) or needs to be acknowledged
                 by the user (by clicking / touching on it).
 
 
-Touch visualization
-===================
-
-.. automodule:: libavg.app.touchvisualization
-    :no-members:
-
-    .. autoclass:: TouchVisualizationOverlay(isDebug, visClass)
-
-        XXX
 
