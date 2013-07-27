@@ -22,9 +22,9 @@
 #include "WrapHelper.h"
 
 #include "../player/BoostPython.h"
+#include "../player/BitmapManager.h"
 
 #include "../graphics/Bitmap.h"
-#include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/FilterResizeBilinear.h"
 

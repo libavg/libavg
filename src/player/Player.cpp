@@ -66,6 +66,7 @@
 #include "MouseEvent.h"
 #include "EventDispatcher.h"
 #include "PublisherDefinition.h"
+#include "BitmapManager.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -78,7 +79,6 @@
 #include "../base/WorkerThread.h"
 #include "../base/DAG.h"
 
-#include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/Display.h"

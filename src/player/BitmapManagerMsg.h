@@ -22,11 +22,11 @@
 #ifndef _BitmapManagerMsg_H_
 #define _BitmapManagerMsg_H_
 
-#include "../player/WrapPython.h"
+#include "WrapPython.h"
 
 #include "../api.h"
 #include "../base/Queue.h"
-#include "Bitmap.h"
+#include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>

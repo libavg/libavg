@@ -1,6 +1,6 @@
 SUBDIRS = shaders
 
-AM_CPPFLAGS = -I.. @GL_CFLAGS@ @PYTHON_CPPFLAGS@ @GDK_PIXBUF_CFLAGS@
+AM_CPPFLAGS = -I.. @GL_CFLAGS@ @GDK_PIXBUF_CFLAGS@
 
 if APPLE
     GL_SOURCES = CGLContext.cpp PBO.cpp AppleDisplay.cpp
@@ -35,8 +35,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         FilterErosion.h FilterGetAlpha.h FBO.h GLTexture.h TextureMover.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
-        ImagingProjection.h BitmapManager.h BitmapManagerThread.h \
-        BitmapManagerMsg.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
+        ImagingProjection.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
         GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
         VertexData.h BitmapLoader.h $(GL_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
@@ -53,8 +52,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterGetAlpha.cpp FBO.cpp GLTexture.cpp TextureMover.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
-        ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp \
-        BitmapManagerMsg.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \
+        ImagingProjection.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \
         GPURGB2YUVFilter.cpp GLShaderParam.cpp StandardShader.cpp SubVertexArray.cpp \
         VertexData.cpp BitmapLoader.cpp $(GL_SOURCES)
 

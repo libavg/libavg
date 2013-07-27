@@ -64,7 +64,8 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedObject.h \
         InvertFXNode.h TUIOInputDevice.h VideoWriter.h VideoWriterThread.h \
         SVG.h SVGElement.h Publisher.h SubscriberInfo.h PublisherDefinition.h \
         PublisherDefinitionRegistry.h MessageID.h VersionInfo.h \
-		PythonLogSink.h \
+        PythonLogSink.h BitmapManager.h BitmapManagerThread.h \
+        BitmapManagerMsg.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -111,6 +112,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         InvertFXNode.cpp HueSatFXNode.cpp VideoWriter.cpp VideoWriterThread.cpp \
         SVG.cpp SVGElement.cpp Publisher.cpp SubscriberInfo.cpp PublisherDefinition.cpp \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
-		PythonLogSink.cpp \
+        PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
+        BitmapManagerMsg.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
