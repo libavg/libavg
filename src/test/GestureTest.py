@@ -608,7 +608,8 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 40, 20),
                  self.messageTester.reset,
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 40, 20, 
-                            [gesture.Recognizer.MOTION]),
+                            [gesture.Recognizer.END, gesture.Recognizer.DETECTED,
+                             gesture.Recognizer.MOTION]),
                 ))
 
         # Test node delete during inertia
@@ -636,7 +637,8 @@ class GestureTestCase(AVGTestCase):
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 70,
                         [gesture.Recognizer.MOTION, gesture.Recognizer.UP]),
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30, 
-                        [gesture.Recognizer.MOTION]),
+                        [gesture.Recognizer.END, gesture.Recognizer.POSSIBLE,
+                         gesture.Recognizer.MOTION]),
                 ))
 
         player.setFakeFPS(-1)
@@ -646,18 +648,22 @@ class GestureTestCase(AVGTestCase):
 
         def onDrag(offset):
             self.assertAlmostEqual(offset, (-40,-40))
+            self.__onDragCalled = True
 
         player.setFakeFPS(100)
+        self.__onDragCalled = False
         for self.friction in (-1, 100):
             root = self.loadEmptyScene()
             div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
             image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-            gesture.DragRecognizer(image, moveHandler=onDrag, friction=self.friction)
+            dragRecognizer = gesture.DragRecognizer(image, moveHandler=onDrag,
+                    friction=self.friction)
             self.start(False,
                     (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
                     ))
         player.setFakeFPS(-1)
+        assert(self.__onDragCalled)
 
 
     def testDragRecognizerInitialEvent(self):
@@ -689,15 +695,19 @@ class GestureTestCase(AVGTestCase):
 
         def onDrag(offset):
             self.assertEqual(offset, (40,40))
+            self.__dragRecognizerCalled = True
 
         root = self.loadEmptyScene()
         div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        gesture.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, friction=-1)
+        dragRecognizer = gesture.DragRecognizer(image, moveHandler=onDrag,
+                coordSysNode=div, friction=-1)
+        self.__dragRecognizerCalled = False
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
                 ))
+        assert(self.__dragRecognizerCalled)
 
     def testDragRecognizerMinDist(self):
 
@@ -905,14 +915,11 @@ class GestureTestCase(AVGTestCase):
                  None,
                 ))
 
-        def onEnd():
-            self.assert_(False)
-
         # Test second down during inertia.
         self.__initImageScene()
-        self.__transformRecognizer = gesture.TransformRecognizer(self.image, friction=0.01,
-                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp,
-                endHandler=onEnd)
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, 
+                friction=0.01, detectedHandler=onDetected, moveHandler=onMove, 
+                upHandler=onUp)
         self.start(False,
                 (
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),

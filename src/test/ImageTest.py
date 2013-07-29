@@ -26,8 +26,6 @@ import shutil
 from libavg import avg, player
 from testcase import *
 
-g_IsMaskSupported = None
-
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
@@ -214,6 +212,28 @@ class ImageTestCase(AVGTestCase):
             bmp1.setPixels(s)
             self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 
+        def testCropRect():
+            bmp = avg.Bitmap('media/rgb24-65x65.png')
+            bmp1 = avg.Bitmap(bmp, (32,32), (64,64))
+            self.assert_(bmp1.getSize() == (32,32))
+            node = avg.ImageNode(pos=(96,0), parent=root)
+            node.setBitmap(bmp1)
+
+        def testBlt():
+            srcBmp = avg.Bitmap('media/rgb24-65x65.png')
+            destBmp = avg.Bitmap((65,65), avg.B8G8R8X8, "bmp")
+            destBmp.blt(srcBmp, (0,0))
+            destBmp.blt(srcBmp, (32,32))
+            node = avg.ImageNode(pos=(96,32), size=(32,32), parent=root)
+            node.setBitmap(destBmp)
+            
+        def testResize():
+            srcBmp = avg.Bitmap('media/rgb24-32x32.png')
+            destBmp = srcBmp.getResized((64,64))
+            self.assert_(destBmp.getSize() == (64,64))
+            node = avg.ImageNode(pos=(128,0), size=(32,32), parent=root)
+            node.setBitmap(destBmp)
+
         def testUnicode():
             if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
@@ -237,6 +257,12 @@ class ImageTestCase(AVGTestCase):
         def setNullBitmap():
             node.setBitmap(None)
 
+        def testSubBitmap():
+            srcBmp = avg.Bitmap('media/rgb24-32x32.png')
+            destBmp = avg.Bitmap(srcBmp, (16,16), (32,32))
+            self.assertEqual(srcBmp.getPixel((16,16)), destBmp.getPixel((0,0)))
+            self.assertException(lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
+
         node = avg.ImageNode(href="media/rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
 
@@ -254,8 +280,15 @@ class ImageTestCase(AVGTestCase):
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1"),
+                 testCropRect,
+                 lambda: self.compareImage("testBitmap2"),
+                 testBlt,
+                 lambda: self.compareImage("testBitmap3"),
+                 testResize,
+                 lambda: self.compareImage("testBitmap4"),
                  testGetPixel,
-                 lambda: self.assertException(setNullBitmap)
+                 lambda: self.assertException(setNullBitmap),
+                 testSubBitmap,
                 ))
 
     def testBitmapManager(self):
@@ -270,18 +303,27 @@ class ImageTestCase(AVGTestCase):
         def loadValidBitmap():
             def validBitmapCb(bitmap):
                 self.assert_(not isinstance(bitmap, Exception))
-                player.setTimeout(0, loadUnexistentBitmap)
+                player.setTimeout(0, loadBitmapWithPixelFormat)
 
             avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
                     validBitmapCb)
+
+        def loadBitmapWithPixelFormat():
+            def validBitmapCb(bitmap):
+                self.assert_(not isinstance(bitmap, Exception))
+                self.assert_(bitmap.getFormat() == avg.B5G6R5)
+                player.setTimeout(0, loadUnexistentBitmap)
+
+            avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
+                    validBitmapCb, avg.B5G6R5)
 
         def loadUnexistentBitmap():
             avg.BitmapManager.get().loadBitmap("nonexistent.png",
                     lambda bmp: expectException(
                             returnValue=bmp,
-                            nextAction=lambda: player.setTimeout(0, loadBrokenImage)))
+                            nextAction=lambda: player.setTimeout(0, loadBrokenBitmap)))
 
-        def loadBrokenImage():
+        def loadBrokenBitmap():
             import tempfile
             tempFileName = os.path.join(tempfile.gettempdir(),
                     "broken.png")
@@ -299,12 +341,15 @@ class ImageTestCase(AVGTestCase):
                     "within %dms timeout" % WAIT_TIMEOUT)
             player.stop()
             
-        self.loadEmptyScene()
-        
-        player.setTimeout(WAIT_TIMEOUT, reportStuck)
-        player.setResolution(0, 0, 0, 0)
-        loadValidBitmap()
-        player.play()
+        for multithread in [False, True]:
+            self.loadEmptyScene()
+            if multithread:
+                avg.BitmapManager.get().setNumThreads(2)
+            player.setTimeout(WAIT_TIMEOUT, reportStuck)
+            player.setResolution(0, 0, 0, 0)
+            loadValidBitmap()
+            player.play()
+        avg.BitmapManager.get().setNumThreads(1)
         
     def testBitmapManagerException(self):
         def bitmapCb(bitmap):

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2013 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
-#
 
-from libavg import avg, AVGApp, player, filter, widget
+from libavg import avg, app, player, filter, widget
 
-import os
 
 class LabledSlider(avg.DivNode):
     def __init__(self, label, range, formatStr, parent=None, **kwargs):
@@ -50,27 +48,28 @@ class LabledSlider(avg.DivNode):
         self.__valueDisplay.text = self.__formatStr%thumbPos
 
 
-class JitterFilter(AVGApp):
-    multitouch=True
+class JitterFilter(app.MainDiv):
+    def onArgvParsed(self, options, args, parser):
+        if self.settings.getBoolean("app_fullscreen"):
+            self.settings.set("app_resolution", "") # use screen resolution
 
-    def init(self):
-        player.showCursor(True)
+    def onInit(self):
         self.__minCutoffSlider = LabledSlider(label="Minimum Cutoff", range=(0.3, 8.0),
-                formatStr="%.1f", pos=(10,10), parent=self._parentNode)
+                formatStr="%.1f", pos=(10,10), parent=self)
         self.__minCutoffSlider.subscribe(widget.Slider.THUMB_POS_CHANGED, 
                 self.__onSliderMove)
         self.__cutoffSlopeSlider = LabledSlider(label="Cutoff Slope", range=(0.0, 0.05),
-                formatStr="%.3f", pos=(10,50), parent=self._parentNode)
+                formatStr="%.3f", pos=(10,50), parent=self)
         self.__minCutoffSlider.subscribe(widget.Slider.THUMB_POS_CHANGED, 
                 self.__onSliderMove)
         self.__onSliderMove(avg.Point2D(0,0))
 
-        self._parentNode.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+        self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         self.__contact = None
         self.__rawContactCircle = avg.CircleNode(r=7*player.getPixelsPerMM(), 
-                color="FF0000", opacity=0, parent=self._parentNode)
+                color="FF0000", opacity=0, parent=self)
         self.__filteredContactCircle = avg.CircleNode(r=7*player.getPixelsPerMM(), 
-                color="00FF00", opacity=0, parent=self._parentNode)
+                color="00FF00", opacity=0, parent=self)
         self.__filters = None
 
     def __onSliderMove(self, pos):
@@ -103,10 +102,10 @@ class JitterFilter(AVGApp):
                 self.__filters[1].apply(rawPos.y, time))
         self.__filteredContactCircle.pos = filteredPos
 
-if 'AVG_DEPLOY' in os.environ:
-    resolution = player.getScreenResolution() 
-else:
-    resolution = (800, 600)
 
-JitterFilter.start(resolution=resolution)
+if __name__ == "__main__":
+    app.App().run(JitterFilter(),
+            app_resolution="800x600",
+            app_show_cursor="true",
+            multitouch_enabled="true")
 

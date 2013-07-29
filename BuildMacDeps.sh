@@ -89,6 +89,18 @@ buildgdkpixbuf()
     cd ..
 }
 
+buildlibrsvg()
+{
+    echo --------------------------------------------------------------------
+    cd librsvg-2.34.0
+    autoreconf --force --install
+    LDFLAGS=`xml2-config --libs` CPPFLAGS=`xml2-config --cflags` ./configure --prefix=${AVG_PATH} --disable-shared --disable-gtk-theme --disable-tools
+    make clean
+    make -j5
+    make install
+    cd ..
+}
+
 buildboost()
 {
     echo --------------------------------------------------------------------
@@ -108,7 +120,7 @@ then
     exit -1 
 fi
 
-if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
+if [[ x"${AVG_MAC_ENV_SET}" == "x" ]]
 then
     echo Please call 'source mac/avg_env.sh' before calling this script.
     exit -1 
@@ -127,7 +139,6 @@ buildLib automake-1.11
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 buildlibpng
-buildLib libxml2-2.6.32 --disable-shared
 buildLib pkg-config-0.20
 if [[ "${DARWINMAJORVER}" == "10" ]]
 then
@@ -150,7 +161,7 @@ buildLib cairo-1.10.2 "--disable-shared --enable-xlib=no --enable-xlib-xrender=n
 buildLib pango-1.24.4 "--disable-shared --without-x --with-included-modules=yes"
 
 buildgdkpixbuf
-buildLib librsvg-2.34.0 --disable-shared
+buildlibrsvg
 
 buildboost
 

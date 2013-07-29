@@ -56,6 +56,7 @@ public:
             const py::dict& nodeAttrs, const glm::vec2& renderSize);
     NodePtr createImageNode(const UTF8String& sElementID,
             const py::dict& nodeAttrs, float scale);
+    glm::vec2 getElementPos(const UTF8String& sElementID);
     glm::vec2 getElementSize(const UTF8String& sElementID);
 
 private:

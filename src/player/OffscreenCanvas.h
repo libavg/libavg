@@ -81,7 +81,6 @@ class AVG_API OffscreenCanvas: public Canvas
 
         bool m_bIsRendered;
         CameraNode* m_pCameraNodeRef;
-        int m_cameraFrameRate;
 };
 
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;

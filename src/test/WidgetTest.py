@@ -847,6 +847,28 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self.compareImage("testScrollArea2"),
                 ))
 
+    def testScrollAreaCustomSkin(self):
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(href="rgb24-64x64.png", size=(200, 400))
+        pwdPath = os.path.dirname(os.path.realpath(__file__))
+        mediaPath = os.path.join(pwdPath, "media")
+        skin = widget.Skin("CustomSkin.xml", mediaPath)
+        self.node = widget.ScrollArea(contentNode=image, size=(80, 80), skinObj=skin,
+                parent=root)
+        self.start(False,
+                (lambda: self.compareImage("testScrollArea3"),))
+
+    def testCustomMediaDir(self):
+        root = self.loadEmptyScene()
+
+        pwdPath = os.path.dirname(os.path.realpath(__file__))
+        mediaPath = os.path.join(pwdPath, "media")
+        skin = widget.Skin("SimpleSkin.xml", mediaPath)
+        downBmpPath = skin.textButtonCfg[None]['downBmp'].getName()
+        upBmpPath = skin.textButtonCfg[None]['upBmp'].getName()
+        self.assert_(downBmpPath == os.path.join(mediaPath, 'button_bg_down.png'))
+        self.assert_(upBmpPath == os.path.join(mediaPath, 'button_bg_up.png'))
+
 
 def widgetTestSuite(tests):
     availableTests = (
@@ -865,6 +887,8 @@ def widgetTestSuite(tests):
         "testProgressBar",
         "testMediaControl",
         "testScrollArea",
+        "testScrollAreaCustomSkin",
+        "testCustomMediaDir",
         )
 
     return createAVGTestSuite(availableTests, WidgetTestCase, tests)

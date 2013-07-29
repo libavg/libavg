@@ -266,6 +266,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("getEventHook", &Player::getEventHook)
             .def("getConfigOption", &Player::getConfigOption)
             .def("isUsingGLES", &Player::isUsingGLES)
+            .def("areFullShadersSupported", &Player::areFullShadersSupported)
             .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
             .add_property("volume", &Player::getVolume, &Player::setVolume)
         ;
@@ -331,6 +332,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("createImageNode", createImageNode1)
             .def("createImageNode", createImageNode2)
             .def("createImageNode", createImageNode3)
+            .def("getElementPos", &SVG::getElementPos)
             .def("getElementSize", &SVG::getElementSize)
             ;
 

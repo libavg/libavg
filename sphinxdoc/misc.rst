@@ -8,7 +8,8 @@ Misc. Classes
 
         Class representing a rectangular set of pixels in CPU memory. Bitmaps can be 
         obtained from any :py:class:`RasterNode` or loaded from disk. For nodes of type 
-        :py:class:`ImageNode`, the current bitmap can be set as well.
+        :py:class:`ImageNode`, the current bitmap can be set as well. In general, huge
+        Bitmaps (e.g. width>65536) are supported as long as they fit into memory.
 
         The layout of the pixels in the bitmap is described by its pixel format.
         The names for pixel format constants are confusing. They try to follow logic,
@@ -73,9 +74,19 @@ Misc. Classes
 
             Creates a copy of an already existing bitmap.
 
+        .. py:method:: __init__(bitmap, tlPos, brPos)
+
+            Returns a rectangle inside an existing bitmap as a new bitmap. Note that the
+            pixels are not copied and write operations will therefore effect the 
+            original bitmap as well.
+
         .. py:method:: __init__(fileName)
 
             Loads an image file from disk and returns it as bitmap object.
+
+        .. py:method:: blt(srcBmp, pos)
+
+            Copies the pixels of srcBmp into the current bitmap at pos. 
 
         .. py:method:: getAvg() -> float
 
@@ -102,6 +113,10 @@ Misc. Classes
             Returns the raw pixel data in the bitmap as a python string. This
             method can be used to interface to the python imaging library PIL
             (http://www.pythonware.com/products/pil/).
+
+        .. py:method:: getResized(newSize) -> Bitmap
+
+            Returns a new bitmap that is a resized version of the original.
 
         .. py:method:: getSize() -> Point2D
 
@@ -136,15 +151,23 @@ Misc. Classes
         (EXPERIMENTAL) Singleton class that allow an asynchronous load of bitmaps.
         The instance is accessed by :py:meth:`get`.
 
-        .. py:method:: loadBitmap(fileName, callback)
+        .. py:method:: loadBitmap(fileName, callback, pixelformat=NO_PIXELFORMAT)
         
             Asynchronously loads a file into a Bitmap. The provided callback is invoked
             with a Bitmap instance as argument in case of a successful load or with a
-            RuntimeError exception instance in case of failure.
+            RuntimeError exception instance in case of failure. The optional parameter
+            :py:attr:`pixelformat` can be used to convert the bitmap to a specific format
+            asynchronously as well.
 
         .. py:classmethod:: get() -> BitmapManager
 
             This method gives access to the BitmapManager instance.
+        
+        .. py:method:: setNumThreads(numThreads)
+
+            Sets the number of threads used to load bitmaps. The default is a single
+            thread. This should generally be less than the number of logical cores 
+            available.
 
     .. autoclass:: CubicSpline(controlpoints)
 
@@ -167,8 +190,8 @@ Misc. Classes
         A :py:class:`FontStyle` object encapsulates all configurable font attributes in a
         :py:class:`WordsNode`. It provides a way to set all relevant attributes 
         (:py:attr:`font`, :py:attr:`fontsize`, etc.) in one line of code. The attributes
-        correspond to the :py:class:`WordsNode` attributes; refer to the :py:class:`WordsNode`
-        reference for descriptions.    
+        correspond to the :py:class:`WordsNode` attributes; refer to the 
+        :py:class:`WordsNode` reference for descriptions.    
 
 
     .. autoclass:: Logger
@@ -428,6 +451,14 @@ Misc. Classes
             and then creates an image node that displays that bitmap. :py:attr:`nodeAttrs`
             is a dictionary containing constructor parameters for the node.
 
+        .. py:method:: getElementPos(elementID) -> Point2D
+
+            Returns the position of an element.
+
+        .. py:method:: getElementSize(elementID) -> Point2D
+
+            Returns the original size of an element.
+
 
     .. autoclass:: TestHelper
 
@@ -620,7 +651,7 @@ Misc. Classes
 
         .. py:method:: makeDiagram(imageFName, [showMethods=False])
 
-            Dumps a graph of the state machine to an image file using dot. graphvis must
+            Dumps a graph of the state machine to an image file using dot. graphviz must
             be installed and in the path for this to work. Very useful for debugging. If
             :py:attr:`showMethods` is true, names of enter, leave and transition
             methods are included in the diagram.
@@ -630,4 +661,64 @@ Misc. Classes
             If :py:attr:`trace` is set to :py:const:`True`, all state changes are dumped
             to the console.
 
+
+.. automodule:: libavg.persist
+    :no-members:
+
+    .. autoclass:: Persist(storeFile, initialData[, validator=lambda v: True, autoCommit=False])
+
+        A general purpose persistent object.
+        Its state is defined in the :py:attr:`data` attribute and pickled
+        from/to a store file.
+        
+
+        :param string storeFile:
+        
+            Full path of the store file that is used to store and retrieve a
+            serialized version of the data.
+
+        :param initialData:
+
+            A pickle-able object that is assigned to the :py:attr:`data` attribute
+            when no file store exists or when the store file is corrupted.
+
+        :param callable validator:
+
+            An optional callable that receives the object state as soon it's
+            de-pickled from the store file. If the validator call doesn't return True,
+            the object state is restored to the provided `initialData`.
+
+        :param bool autoCommit:
+
+            If True, the :py:attr:`commit` method is registered as an `atexit` function.
+            
+        .. py:attribute:: data
+
+            State of the persistent object.
+
+        .. py:attribute:: storeFile
+
+            Returns the full path of the store file.
+
+        .. py:method:: commit()
+
+            Dumps the contents of the :py:attr:`data` attribute to the store file.
+
+
+    .. autoclass:: UserPersistentData(appName, fileName, initialData[, validator=lambda v: True, autoCommit=False])
+
+        A :py:class:`Persist` subclass that sets up an OS-independent path for
+        the store file.
+        Under posix-compliant OSes is `$HOME/.avg/<appName>/<fileName>.pkl`
+        Under Windows is `%APPDATA%\Avg\<appName>/<fileName>.pkl`
+
+        :param string appName:
+        
+            Name of the application. This string is used to compose the full path to
+            the file store and it creates a namespace (directory) for multiple files
+            for the same application.
+
+        :param string fileName:
+        
+            Name of the file store file. `.pkl` will be added as extension.
 

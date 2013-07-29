@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, gesture
-import libavg
+from libavg import avg, gesture, app
 
 RESOLUTION = avg.Point2D(800, 600)
 
@@ -244,51 +243,45 @@ class HoldNode(TextRect):
         self.words.color = "FFFFFF"
 
 
-class GestureDemoApp(libavg.AVGApp):
-    multitouch = True
+class GestureDemoDiv(app.MainDiv):
 
-    def init(self):
+    def onInit(self):
         TransformNode(text="TransformRecognizer",
-                ignoreRotation=False, ignoreScale=False,
-                pos=(20,20), parent=self._parentNode)
+                ignoreRotation=False, ignoreScale=False, pos=(20,20), parent=self)
 
         TransformNode(text="TransformRecognizer<br/>ignoreRotation",
-                ignoreRotation=True, ignoreScale=False,
-                pos=(20,70), parent=self._parentNode)
+                ignoreRotation=True, ignoreScale=False, pos=(20,70), parent=self)
 
         TransformNode(text="TransformRecognizer<br/>ignoreScale",
-                ignoreRotation=False, ignoreScale=True,
-                pos=(20,120), parent=self._parentNode)
+                ignoreRotation=False, ignoreScale=True, pos=(20,120), parent=self)
 
         TransformNode(text="TransformRecognizer<br/>friction",
                 ignoreRotation=False, ignoreScale=False,
-                pos=(20,170), friction=0.02, parent=self._parentNode)
+                pos=(20,170), friction=0.02, parent=self)
 
         TransformChildNode(text="TransformRecognizer<br/>child dragger",
-                pos=(20,220), parent=self._parentNode)
+                pos=(20,220), parent=self)
 
-        DragNode(text="DragRecognizer", pos=(200,20), parent=self._parentNode)
+        DragNode(text="DragRecognizer", pos=(200,20), parent=self)
 
         DragNode(text="DragRecognizer<br/>friction", pos=(200,70), friction=0.01,
-                parent=self._parentNode)
+                parent=self)
 
         ConstrainedDragNode(text="DragRecognizer<br/>constrained", pos=(200,120), 
-                friction=0.01, parent=self._parentNode)
+                friction=0.01, parent=self)
 
-        TapNode(text="TapRecognizer", pos=(380,20), isDoubleTap=False,
-                parent=self._parentNode)
+        TapNode(text="TapRecognizer", pos=(380,20), isDoubleTap=False, parent=self)
 
-        TapNode(text="DoubletapRecognizer", pos=(380,70), isDoubleTap=True,
-                parent=self._parentNode)
+        TapNode(text="DoubletapRecognizer", pos=(380,70), isDoubleTap=True, parent=self)
 
-        HoldNode(text="HoldRecognizer", pos=(380,120), parent=self._parentNode)
+        HoldNode(text="HoldRecognizer", pos=(380,120), parent=self)
 
         SwipeNode(text="SwipeRecognizer<br/>(Right)", pos=(380,170), 
-                numContacts=1, parent=self._parentNode)
+                numContacts=1, parent=self)
 
         SwipeNode(text="SwipeRecognizer<br/>(Right, 2 fingers)", pos=(380,220), 
-                numContacts=2, parent=self._parentNode)
+                numContacts=2, parent=self)
 
 
 if __name__ == '__main__':
-    GestureDemoApp.start(resolution=RESOLUTION)
+    app.App().run(GestureDemoDiv(), app_resolution="800,600")

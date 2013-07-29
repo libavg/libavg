@@ -1,6 +1,6 @@
 
 AM_CPPFLAGS = -I. -I../player \
-        @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ \
+        @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_CPPFLAGS@ \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@
 
 ALL_H = WrapHelper.h raw_constructor.hpp
@@ -39,5 +39,5 @@ avg_la_LIBADD = ../player/libplayer.la \
                 @BOOST_THREAD_LIBS@ @XML2_LIBS@ \
                 @DC1394_2_LIBS@ @GLU_LIBS@ $(XI2_1_LIBS) $(XI2_2_LIBS) \
                 $(ALL_GL_LIBS) @LIBFFMPEG@ @PTHREAD_LIBS@ \
-                @GDK_PIXBUF_LIBS@ @FONTCONFIG_LIBS@ @LIBXINERAMA_LDADD@
+                @GDK_PIXBUF_LIBS@ @FONTCONFIG_LIBS@
 

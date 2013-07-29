@@ -23,8 +23,10 @@
 from appstarter import AppStarter
 
 
-class App(object):
+class AVGApp(object):
     _instances = {}
+    multitouch = False
+    fakeFullscreen = False
 
     def __init__(self, parentNode):
         '''
@@ -33,6 +35,9 @@ class App(object):
         WordsNode.addFontDir(). Do not forget to call
         super(YourApp, self).__init__(parentNode)
         '''
+
+        import warnings
+        warnings.warn('AVGApp is deprecated, use libavg.app.App instead')
 
         appname = self.__class__.__name__
         if appname in AVGApp._instances:
@@ -62,8 +67,15 @@ class App(object):
         return cls._instances.get(cls.__name__, None)
 
     @classmethod
-    def start(cls, appStarter=AppStarter, **kwargs):
-        appStarter(appClass=cls, **kwargs)
+    def start(cls, **kwargs):
+        if cls.multitouch:
+            from appstarter import AVGMTAppStarter
+            starter = AVGMTAppStarter
+        else:
+            from appstarter import AVGAppStarter
+            starter = AVGAppStarter
+        
+        starter(appClass=cls, fakeFullscreen=cls.fakeFullscreen, **kwargs)
 
     def init(self):
         """main initialization
@@ -122,20 +134,9 @@ class App(object):
         return self._starter
 
 
-class AVGApp(App):
-    '''Backward compatibility class'''
-    multitouch = False
-    fakeFullscreen = False
-
+class App(object):
     @classmethod
-    def start(cls, **kwargs):
-        # TODO: deprecation warning
-        if cls.multitouch:
-            from appstarter import AVGMTAppStarter
-            starter = AVGMTAppStarter
-        else:
-            from appstarter import AVGAppStarter
-            starter = AVGAppStarter
-        
-        super(AVGApp, cls).start(appStarter=starter,
-                fakeFullscreen=cls.fakeFullscreen, **kwargs)
+    def start(cls, *args, **kargs):
+        raise RuntimeError('avgapp.App cannot be used any longer. Use libavg.AVGApp for '
+                'a compatible class or switch to the new libavg.app.App')
+

@@ -249,10 +249,17 @@ void WordsNode::setSize(const glm::vec2& pt)
     updateLayout();
 }
 
-void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+glm::vec2 WordsNode::toLocal(const glm::vec2& globalPos) const
 {
-    glm::vec2 relPos = pos-glm::vec2(m_AlignOffset, 0);
-    AreaNode::getElementsByPos(relPos, pElements);
+    glm::vec2 localPos = globalPos - getRelViewport().tl - glm::vec2(m_AlignOffset, 0);
+    return getRotatedPivot(localPos, -getAngle(), getPivot());
+}
+
+glm::vec2 WordsNode::toGlobal(const glm::vec2& localPos) const
+{
+    glm::vec2 alignPos = localPos + glm::vec2(m_AlignOffset, 0);
+    glm::vec2 globalPos = getRotatedPivot(alignPos, getAngle(), getPivot());
+    return globalPos + getRelViewport().tl;
 }
 
 const FontStyle& WordsNode::getFontStyle() const

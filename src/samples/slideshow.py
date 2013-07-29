@@ -24,7 +24,8 @@
 #
 
 """
-Image slideshow example which shows all images found in the current working directory.
+Image slideshow example which shows all images found in the current working
+directory (default) or the one provided via the "app_image_dir" setting.
 
 Images are cross-faded and some random motion/scaling is applied while they're shown.
 This example also shows how to use libavg's BitmapManager to asynchronously load images
@@ -32,15 +33,15 @@ in background.
 """
 
 # TODO:
-# once gameapp supports custom cmdline options, add options for:
-#  * image directory
+# add app settings for:
 #  * show/transition intervals
 #  * max. move distance
 #  * sorted/shuffled show order (shuffled yet)
 
+import sys
 import os
 from random import shuffle, randint
-from libavg import avg, player, gameapp
+from libavg import avg, player, app
 
 
 IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tga', '.tif', '.tiff']
@@ -104,19 +105,25 @@ class Slide(avg.ImageNode):
                 lambda: self.notifySubscribers(Slide.HIDE_DONE, [self]))
 
 
-class SlideshowApp(gameapp.GameApp):
-    multitouch = False
+class Slideshow(app.MainDiv):
+    def onArgvParserCreated(self, parser):
+        parser.set_usage('%prog <images dir>')
 
-    def init(self):
-        imgDir = os.getcwd()
-        if not os.path.isdir(imgDir):
-            avg.logger.error('Directory [%s] not found' % imgDir)
+    def onArgvParsed(self, options, args, parser):
+        if len(args) != 1:
+            parser.print_help()
+            sys.exit(1)
+        self._imagesDir = args[0]
+
+    def onInit(self):
+        if not os.path.isdir(self._imagesDir):
+            avg.logger.error('Directory [%s] not found' % self._imagesDir)
             exit(1)
-        avg.logger.info('Scanning directory [%s] ...' % imgDir)
+        avg.logger.info('Scanning directory [%s] ...' % self._imagesDir)
 
         imgExts = tuple(IMAGE_EXTENSIONS + [ext.upper() for ext in IMAGE_EXTENSIONS])
-        self.__imgFiles = [os.path.join(imgDir, imgFile) for imgFile in
-                filter(lambda f: f.endswith(imgExts), os.listdir(imgDir))]
+        self.__imgFiles = [os.path.join(self._imagesDir, imgFile) for imgFile in
+                filter(lambda f: f.endswith(imgExts), os.listdir(self._imagesDir))]
         if not self.__imgFiles:
             avg.logger.error('No image files found, '
                     'scanned file extensions:\n%s' % (', '.join(imgExts)))
@@ -125,7 +132,7 @@ class SlideshowApp(gameapp.GameApp):
         avg.logger.info('%d image file%s found' % (l, 's' if l > 1 else ''))
         shuffle(self.__imgFiles)
 
-        self.__slidesDiv = avg.DivNode(size=self._parentNode.size, parent=self._parentNode)
+        self.__slidesDiv = avg.DivNode(size=self.size, parent=self)
         # ping-pong two slides for cross-fade transition
         self.__newSlide = Slide(parent=self.__slidesDiv)
         self.__oldSlide = Slide(href=self.__imgFiles[0], parent=self.__slidesDiv)
@@ -148,5 +155,5 @@ class SlideshowApp(gameapp.GameApp):
 
 
 if __name__ == '__main__':
-    SlideshowApp.start()
+    app.App().run(Slideshow())
 

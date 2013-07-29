@@ -1,5 +1,5 @@
 AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
-        @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ \
+        @PANGOFT2_CFLAGS@ @PYTHON_CPPFLAGS@ @GL_CFLAGS@ \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@ \
         $(MTDEV_CFLAGS)
         
@@ -10,10 +10,14 @@ if APPLE
 else
     APPLE_SOURCES =
     APPLE_LINKFLAGS=
-if ENABLE_EGL
+if ENABLE_RPI
     XGL_LIBS = -lX11 -lGLESv2 -lEGL
 else
+if ENABLE_EGL
+    XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+else
     XGL_LIBS = -lXxf86vm -lX11
+endif
 endif
 endif
 
@@ -60,7 +64,8 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedObject.h \
         InvertFXNode.h TUIOInputDevice.h VideoWriter.h VideoWriterThread.h \
         SVG.h SVGElement.h Publisher.h SubscriberInfo.h PublisherDefinition.h \
         PublisherDefinitionRegistry.h MessageID.h VersionInfo.h \
-		PythonLogSink.h \
+        PythonLogSink.h BitmapManager.h BitmapManagerThread.h \
+        BitmapManagerMsg.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -76,8 +81,8 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) $(XI2_2_LIBS) \
-        @LIBFFMPEG@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) @GDK_PIXBUF_LIBS@ \
-        @FONTCONFIG_LIBS@ @LIBXINERAMA_LDADD@
+        @LIBFFMPEG@ $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) @GDK_PIXBUF_LIBS@ \
+        @FONTCONFIG_LIBS@
         
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
@@ -88,7 +93,7 @@ testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@
 
-libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS) 
+libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) $(MTDEV_LIBS) 
 libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedObject.cpp \
         Player.cpp PluginManager.cpp TypeRegistry.cpp ArgBase.cpp ArgList.cpp \
@@ -107,6 +112,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         InvertFXNode.cpp HueSatFXNode.cpp VideoWriter.cpp VideoWriterThread.cpp \
         SVG.cpp SVGElement.cpp Publisher.cpp SubscriberInfo.cpp PublisherDefinition.cpp \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
-		PythonLogSink.cpp \
+        PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
+        BitmapManagerMsg.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

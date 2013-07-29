@@ -29,10 +29,11 @@ class Skin:
 
     def __init__(self, skinXmlFName, mediaDir=""):
         global defaultMediaDir
-        self.__mediaDir = defaultMediaDir
+        self.__mediaDir = defaultMediaDir if mediaDir == "" else mediaDir
         schemaFName = defaultMediaDir+"skin.xsd"
         schemaString = open(schemaFName, "r").read()
-        xmlString = open(skinXmlFName, "r").read()
+        skinPath = os.path.join(self.__mediaDir, skinXmlFName)
+        xmlString = open(skinPath, "r").read()
         avg.validateXml(xmlString, schemaString, skinXmlFName, schemaFName)
 
         xmlRoot = ET.fromstring(xmlString)
@@ -119,7 +120,7 @@ class Skin:
                 kwargs[key] = eval(value)
             elif key in bmpArgNames.iterkeys():
                 argkey = bmpArgNames[key]
-                kwargs[argkey] = avg.Bitmap(self.__mediaDir+value)
+                kwargs[argkey] = avg.Bitmap(os.path.join(self.__mediaDir, value))
             elif key in fontArgNames:
                 kwargs[key] = self.fonts[value]
             else:
@@ -157,4 +158,4 @@ def getBmpFromCfg(cfg, bmpName, defaultName=None):
     
 
 defaultMediaDir = os.path.join(os.path.dirname(__file__), "..", 'data/')
-Skin.default = Skin(defaultMediaDir+"SimpleSkin.xml", defaultMediaDir)
+Skin.default = Skin("SimpleSkin.xml", "")

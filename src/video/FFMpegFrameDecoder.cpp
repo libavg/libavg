@@ -75,14 +75,10 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
     AVCodecContext* pContext = m_pStream->codec;
     AVG_ASSERT(pPacket);
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
-    int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
+    avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #else
-    int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
-            pPacket->size);
+    avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data, pPacket->size);
 #endif
-    if (len1 > 0) {
-        AVG_ASSERT(len1 == pPacket->size);
-    }
     if (bGotPicture) {
         m_LastFrameTime = getFrameTime(pPacket->dts, bFrameAfterSeek);
     }

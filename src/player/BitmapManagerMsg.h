@@ -22,11 +22,11 @@
 #ifndef _BitmapManagerMsg_H_
 #define _BitmapManagerMsg_H_
 
-#include "../player/WrapPython.h"
+#include "WrapPython.h"
 
 #include "../api.h"
 #include "../base/Queue.h"
-#include "Bitmap.h"
+#include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
@@ -43,8 +43,11 @@ public:
     virtual ~BitmapManagerMsg();
 
     void executeCallback();
-    void setRequest(const UTF8String& sFilename, const boost::python::object& onLoadedCb);
+    void setRequest(const UTF8String& sFilename, const boost::python::object& onLoadedCb,
+            PixelFormat pf);
     const UTF8String getFilename();
+    float getStartTime();
+    PixelFormat getPixelFormat();
     void setBitmap(BitmapPtr pBmp);
     void setError(const Exception& ex);
 
@@ -52,8 +55,10 @@ public:
 
 private:
     UTF8String m_sFilename;
+    float m_StartTime;
     BitmapPtr m_pBmp;
     boost::python::object m_OnLoadedCb;
+    PixelFormat m_PF;
     MsgType m_MsgType;
     Exception* m_pEx;
 };

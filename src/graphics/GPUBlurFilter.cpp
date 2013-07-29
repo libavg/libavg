@@ -47,6 +47,8 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
+    GLContext::getCurrent()->ensureFullShaders("GPUBlurFilter");
+
     setDimensions(size, stdDev, bClipBorders);
     createShader(SHADERID_VERT);
     setStdDev(stdDev);

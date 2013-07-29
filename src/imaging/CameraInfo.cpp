@@ -22,8 +22,8 @@
 
 #include "CameraInfo.h"
 
-namespace avg{
-// ---------------CameraImageFormat----------------------
+namespace avg {
+
 CameraImageFormat::CameraImageFormat(IntPoint size, PixelFormat pixelFormat,
         FrameratesVector framerates)
 {
@@ -52,7 +52,7 @@ FrameratesVector CameraImageFormat::getFramerates()
     return m_Framerates;
 }
 
-// ---------------CameraControl------------------------
+
 CameraControl::CameraControl(const std::string& sControlName, int min, int max,
         int defaultValue)
 {
@@ -87,7 +87,7 @@ int CameraControl::getDefault()
     return m_DefaultValue;
 }
 
-// ---------------CameraInfo------------------------
+
 CameraInfo::CameraInfo(const std::string& sDriver, const std::string& sDeviceID)
 {
     m_sDriver = sDriver;

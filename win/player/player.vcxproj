@@ -71,6 +71,9 @@
     <ClCompile Include="..\..\src\player\ArgBase.cpp" />
     <ClCompile Include="..\..\src\player\ArgList.cpp" />
     <ClCompile Include="..\..\src\player\AVGNode.cpp" />
+    <ClCompile Include="..\..\src\player\BitmapManager.cpp" />
+    <ClCompile Include="..\..\src\player\BitmapManagerMsg.cpp" />
+    <ClCompile Include="..\..\src\player\BitmapManagerThread.cpp" />
     <ClCompile Include="..\..\src\player\BlurFXNode.cpp" />
     <ClCompile Include="..\..\src\player\CameraNode.cpp" />
     <ClCompile Include="..\..\src\player\Canvas.cpp" />
@@ -150,6 +153,9 @@
     <ClInclude Include="..\..\src\player\ArgBase.h" />
     <ClInclude Include="..\..\src\player\ArgList.h" />
     <ClInclude Include="..\..\src\player\AVGNode.h" />
+    <ClInclude Include="..\..\src\player\BitmapManager.h" />
+    <ClInclude Include="..\..\src\player\BitmapManagerMsg.h" />
+    <ClInclude Include="..\..\src\player\BitmapManagerThread.h" />
     <ClInclude Include="..\..\src\player\BlurFXNode.h" />
     <ClInclude Include="..\..\src\player\BoostPython.h" />
     <ClInclude Include="..\..\src\player\CameraNode.h" />

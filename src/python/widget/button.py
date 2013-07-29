@@ -35,25 +35,26 @@ class _ButtonBase(avg.DivNode):
         self.registerInstance(self, parent)
         self.publish(self.PRESSED)
         self.publish(self.RELEASED)
-        
-    def _setActiveArea(self, upNode, activeAreaNode, fatFingerEnlarge):
-        self.__activeAreaNode = activeAreaNode
 
+    def _setActiveArea(self, upNode, activeAreaNode, fatFingerEnlarge):
         if fatFingerEnlarge:
-            if self.__activeAreaNode != None:
+            if activeAreaNode:
                 raise(RuntimeError(
                     "Button: Can't specify both fatFingerEnlarge and activeAreaNode"))
             size = upNode.size
             minSize = 20*player.getPixelsPerMM()
             size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
-            self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
+            activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
+            #Here we need to store a 'hard' reference to the active area node
+            #because the tap recognizer won't keep it
+            self.__activeAreaNode = activeAreaNode
         else:
-            if self.__activeAreaNode == None:
-                self.__activeAreaNode = self
+            if activeAreaNode == None:
+                activeAreaNode = self
             else:
-                self.appendChild(self.__activeAreaNode)
+                self.appendChild(activeAreaNode)
 
-        self._tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
+        self._tapRecognizer = gesture.TapRecognizer(activeAreaNode,
                 possibleHandler=self._onDown, 
                 detectedHandler=self._onTap, 
                 failHandler=self._onTapFail)

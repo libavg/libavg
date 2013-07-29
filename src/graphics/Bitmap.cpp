@@ -116,13 +116,14 @@ Bitmap::Bitmap(Bitmap& origBmp, const IntRect& rect)
     AVG_ASSERT(rect.br.x <= origBmp.getSize().x);
     AVG_ASSERT(rect.br.y <= origBmp.getSize().y);
     AVG_ASSERT(rect.tl.x >= 0 && rect.tl.y >= 0);
+    AVG_ASSERT(rect.width() > 0 && rect.height() > 0);
     if (!origBmp.getName().empty()) {
         m_sName = origBmp.getName()+" part";
     } else {
         m_sName = "";
     }
-    unsigned char * pRegionStart = origBmp.getPixels()+rect.tl.y*origBmp.getStride()+
-            rect.tl.x*getBytesPerPixel();
+    unsigned char * pRegionStart = origBmp.getPixels()
+            + size_t(rect.tl.y)*origBmp.getStride() + rect.tl.x*getBytesPerPixel();
     initWithData(pRegionStart, origBmp.getStride(), false);
 }
 
@@ -519,11 +520,11 @@ void Bitmap::save(const UTF8String& sFilename)
     switch (m_PF) {
         case B8G8R8X8:
             pTempBmp = new Bitmap(m_Size, R8G8B8);
-            for (int y = 0; y < m_Size.y; y++) {
-                unsigned char * pSrcLine = m_pBits+y * m_Stride;
+            for (size_t y = 0; y < size_t(m_Size.y); y++) {
+                unsigned char * pSrcLine = m_pBits + y*m_Stride;
                 unsigned char * pDestLine = pTempBmp->getPixels() + 
                         y*pTempBmp->getStride();
-                for (int x = 0; x < m_Size.x; x++) { 
+                for (size_t x = 0; x < size_t(m_Size.x); x++) { 
                     pDestLine[x*3] = pSrcLine[x*4 + 2];
                     pDestLine[x*3 + 1] = pSrcLine[x*4 + 1];
                     pDestLine[x*3 + 2] = pSrcLine[x*4];
@@ -532,15 +533,28 @@ void Bitmap::save(const UTF8String& sFilename)
             break;
         case B8G8R8A8:
             pTempBmp = new Bitmap(m_Size, R8G8B8A8);
-            for (int y = 0; y < m_Size.y; y++) {
+            for (size_t y = 0; y < size_t(m_Size.y); y++) {
                 unsigned char * pSrcLine = m_pBits+y * m_Stride;
                 unsigned char * pDestLine = pTempBmp->getPixels() + 
                         y*pTempBmp->getStride();
-                for (int x = 0; x < m_Size.x; x++) { 
+                for (size_t x = 0; x < size_t(m_Size.x); x++) { 
                     pDestLine[x*4] = pSrcLine[x*4 + 2];
                     pDestLine[x*4 + 1] = pSrcLine[x*4 + 1];
                     pDestLine[x*4 + 2] = pSrcLine[x*4];
                     pDestLine[x*4 + 3] = pSrcLine[x*4+3];
+                }
+            }
+            break;
+        case B8G8R8:
+            pTempBmp = new Bitmap(m_Size, R8G8B8);
+            for (size_t y = 0; y < size_t(m_Size.y); y++) {
+                unsigned char * pSrcLine = m_pBits+y * m_Stride;
+                unsigned char * pDestLine = pTempBmp->getPixels() + 
+                        y*pTempBmp->getStride();
+                for (size_t x = 0; x < size_t(m_Size.x); x++) { 
+                    pDestLine[x*3] = pSrcLine[x*3 + 2];
+                    pDestLine[x*3 + 1] = pSrcLine[x*3 + 1];
+                    pDestLine[x*3 + 2] = pSrcLine[x*3];
                 }
             }
             break;
@@ -557,6 +571,9 @@ void Bitmap::save(const UTF8String& sFilename)
             pTempBmp->getStride(), 0, 0);
 
     string sExt = getExtension(sFilename);
+    if (sExt == "jpg") {
+        sExt = "jpeg";
+    }
 
     GError* pError = 0;
     gboolean bOk = gdk_pixbuf_save(pPixBuf, sFilename.c_str(), sExt.c_str(), &pError, 
@@ -745,8 +762,7 @@ bool Bitmap::operator ==(const Bitmap& otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
     // equal value only.
-    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF)
-    {
+    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF) {
         return false;
     }
 
@@ -778,15 +794,17 @@ bool Bitmap::operator ==(const Bitmap& otherBmp)
 
 BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
 {
-    if (m_PF != otherBmp.getPixelFormat())
+    if (m_PF != otherBmp.getPixelFormat()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: pixel formats differ(")
                 + getPixelFormatString(m_PF)+", "
                 + getPixelFormatString(otherBmp.getPixelFormat())+")");
-    if (m_Size != otherBmp.getSize())
+    }
+    if (m_Size != otherBmp.getSize()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: bitmap sizes differ (this=")
                 + toString(m_Size) + ", other=" + toString(otherBmp.getSize()) + ")");
+    }
     BitmapPtr pResultBmp = BitmapPtr(new Bitmap(m_Size, m_PF));
     const unsigned char * pSrcLine1 = otherBmp.getPixels();
     const unsigned char * pSrcLine2 = m_pBits;
@@ -831,33 +849,56 @@ BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
     
 void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
 {
-    AVG_ASSERT(getBytesPerPixel() == 4);
-
+    AVG_ASSERT(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
+    AVG_ASSERT(otherBmp.getBytesPerPixel() == 4 || otherBmp.getBytesPerPixel() == 3);
+    if (pos.x < 0 || pos.y < 0) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                string("Bitmap::blt: pos < 0 is not supported."));
+    }
+    
     IntRect destRect(pos.x, pos.y, pos.x+otherBmp.getSize().x, 
             pos.y+otherBmp.getSize().y);
     destRect.intersect(IntRect(IntPoint(0,0), getSize()));
     for (int y = 0; y < destRect.height(); y++) {
-        unsigned char * pSrcPixel = getPixels()+(pos.y+y)*getStride()+pos.x*4;
+        unsigned char * pSrcPixel = getPixels()+size_t(pos.y+y)*getStride()
+                +size_t(pos.x*getBytesPerPixel());
         const unsigned char * pOtherPixel = otherBmp.getPixels()+
-                y*otherBmp.getStride(); 
-        if (otherBmp.hasAlpha()) {
-            for (int x = 0; x < destRect.width(); x++) {
-                int srcAlpha = 255-pOtherPixel[3];
-                pSrcPixel[0] = 
-                        (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
-                pSrcPixel[1] = 
-                        (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
-                pSrcPixel[2] = 
-                        (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
-                pSrcPixel += 4;
-                pOtherPixel += 4;
+                size_t(y*otherBmp.getStride());
+        if (getBytesPerPixel() == 4) {
+            if (otherBmp.hasAlpha()) {
+                for (int x = 0; x < destRect.width(); x++) {
+                    int srcAlpha = 255-pOtherPixel[3];
+                    pSrcPixel[0] = 
+                            (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
+                    pSrcPixel[1] = 
+                            (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
+                    pSrcPixel[2] = 
+                            (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
+                    pSrcPixel += 4;
+                    pOtherPixel += 4;
+                }
+            } else {
+                for (int x = 0; x < destRect.width(); x++) {
+                    *(Pixel32*)pSrcPixel = *(Pixel32*)pOtherPixel;
+                    pSrcPixel[3] = 255;
+                    pSrcPixel += 4;
+                    pOtherPixel += 4;
+                }
             }
         } else {
-            for (int x = 0; x < destRect.width(); x++) {
-                *(Pixel32*)pSrcPixel = *(Pixel32*)pOtherPixel;
-                pSrcPixel[3] = 255;
-                pSrcPixel += 4;
-                pOtherPixel += 4;
+            if (otherBmp.getBytesPerPixel() == 4) {
+                // Incomplete: Missing alpha support.
+                for (int x = 0; x < destRect.width(); x++) {
+                    *(Pixel24*)pSrcPixel = *(Pixel24*)pOtherPixel;
+                    pSrcPixel += 3;
+                    pOtherPixel += 4;
+                }
+            } else {
+                for (int x = 0; x < destRect.width(); x++) {
+                    *(Pixel24*)pSrcPixel = *(Pixel24*)pOtherPixel;
+                    pSrcPixel += 3;
+                    pOtherPixel += 3;
+                }
             }
         }
     }
@@ -1105,9 +1146,9 @@ void Bitmap::allocBits(int stride)
         //XXX: We allocate more than nessesary here because ffmpeg seems to
         // overwrite memory after the bits - probably during yuv conversion.
         // Yuck.
-        m_pBits = new unsigned char[(m_Stride+1)*(m_Size.y+1)];
+        m_pBits = new unsigned char[size_t(m_Stride+1)*(m_Size.y+1)];
     } else {
-        m_pBits = new unsigned char[m_Stride*m_Size.y];
+        m_pBits = new unsigned char[size_t(m_Stride)*m_Size.y];
     }
 }
 

@@ -132,6 +132,13 @@ Player & Canvas
 
             Registers an :py:class:`InputDevice` with the system.
 
+        .. py:method:: areFullShadersSupported() -> bool
+
+            Returns :py:const:`True` if the current OpenGL configuration has full shader
+            support. Platforms without full shader support (this includes OpenGL ES) disable
+            several :py:class:`FXNode` types. Calling this when playback is not running is
+            an error.
+
         .. py:method:: assumePixelsPerMM(ppmm)
 
             Tells the system to assume a resolution for the physical screen, overriding 

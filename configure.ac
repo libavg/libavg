@@ -48,6 +48,7 @@ if [[ $target_vendor = apple ]] && [[ x"`which port`" = x"/opt/local/bin/port" ]
 fi
 
 AC_SEARCH_LIBS([clock_gettime],[rt])
+AC_CHECK_LIB([dl], [dlopen])
 
 AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))
 PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
@@ -65,17 +66,12 @@ if test -z "$FFMPEG_LIBS"; then
 fi
 
 AM_PATH_PYTHON
-
-AM_CHECK_PYTHON_HEADERS
-AM_CHECK_PYTHON_LIB
-if test -z "$PYTHON_INCLUDES" || test -z "$PYTHON_LIBS"; then
-  AC_MSG_ERROR([could not find files required to build python plugin])
-fi
+AX_PYTHON_DEVEL
 
 AC_ARG_VAR(BOOST_PYTHON_LIBS, [linker flags for BOOST, defaults to -lboost_python])
 if test -z "$BOOST_PYTHON_LIBS"
 then
-  AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LIBS)
+  AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LDFLAGS)
   if test -z "$libboost_python_installed"
   then
     AC_MSG_ERROR([boost.python not found. Aborting.])
@@ -185,21 +181,6 @@ fi
 AM_CONDITIONAL(ENABLE_EGL, test x"$egl_present" != x)
 AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
-AC_CHECK_LIB([Xinerama],[main],let xinerama_lib=1,let xinerama_lib=0)
-AC_CHECK_HEADERS([X11/extensions/Xinerama.h],let xinerama_h=1,let xinerama_h=0)
-if [[ $target_vendor != apple ]] && [[ $xinerama_lib -eq 1 ]] && [[ $xinerama_h -eq 1 ]];
-then
-  AC_MSG_NOTICE([Using Xinerama])
-  AC_DEFINE(AVG_ENABLE_XINERAMA, 1, [Enable Xinerama support])
-  LIBXINERAMA_LDADD="-lXinerama"
-  AM_CONDITIONAL(USE_XINERAMA_SRC, true)
-else
-  AC_MSG_NOTICE([Not using Xinerama])
-  LIBXINERAMA_LDADD=""
-  AM_CONDITIONAL(USE_XINERAMA_SRC, false)
-fi
-AC_SUBST([LIBXINERAMA_LDADD])
-
 AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
 AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
@@ -243,5 +224,6 @@ AC_OUTPUT(Makefile
     src/samples/firebirds/plugin/Makefile
     src/samples/firebirds/media/Makefile
     src/python/widget/Makefile 
+    src/python/app/Makefile 
     src/oscpack/Makefile 
     man/Makefile)

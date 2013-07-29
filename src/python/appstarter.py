@@ -39,7 +39,6 @@ class AppStarter(object):
     '''Starts an AVGApp'''
     def __init__(self, appClass, resolution=DEFAULT_RESOLUTION,
             debugWindowSize=None, fakeFullscreen=False):
-        player.enableMouse(not 'AVG_DISABLE_MOUSE' in os.environ)
 
         resolution = Point2D(resolution)
         testMode = not 'AVG_DEPLOY' in os.environ
@@ -48,10 +47,6 @@ class AppStarter(object):
             debugWindowSize = Point2D(debugWindowSize)
         else:
             debugWindowSize = Point2D(0, 0)
-
-        self._setupBaseDivs(resolution)
-
-        player.showCursor(testMode)
 
         if fakeFullscreen:
             if os.name != 'nt':
@@ -62,6 +57,10 @@ class AppStarter(object):
             fullscreen = False
         else:
             fullscreen = not testMode
+
+        player.enableMouse(not 'AVG_DISABLE_MOUSE' in os.environ)
+        player.showCursor(testMode)
+        self._setupBaseDivs(resolution)
 
         player.setResolution(
                 fullscreen,
@@ -157,7 +156,7 @@ class AVGAppStarter(AppStarter):
 
     def showMemoryUsage(self):
         if self.__memGraph:
-            self.__memGraph.delete()
+            self.__memGraph.unlink(True)
             self.__graphs.remove(self.__memGraph)
             self.__memGraph = None
         else:
@@ -169,7 +168,7 @@ class AVGAppStarter(AppStarter):
 
     def showVideoMemoryUsage(self):
         if self.__vidMemGraph:
-            self.__vidMemGraph.delete()
+            self.__vidMemGraph.unlink(True)
             self.__graphs.remove(self.__vidMemGraph)
             self.__vidMemGraph = None
         else:
@@ -182,7 +181,7 @@ class AVGAppStarter(AppStarter):
 
     def showFrameRate(self):
         if self.__frGraph:
-            self.__frGraph.delete()
+            self.__frGraph.unlink(True)
             self.__graphs.remove(self.__frGraph)
             self.__frGraph = None
         else:

@@ -44,8 +44,10 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
       m_MaxFilter(size, pfSrc, R32G32B32A32F, max, true, false, true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    setDimensions(size);
     
+    GLContext::getCurrent()->ensureFullShaders("GPUBandpassFilter");
+
+    setDimensions(size);
     OGLShaderPtr pShader = getShader();
     m_pMinTexParam = pShader->getParam<int>("u_MinTex");
     m_pMaxTexParam = pShader->getParam<int>("u_MaxTex");

@@ -27,9 +27,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 
-#ifdef AVG_ENABLE_XINERAMA
-#include <X11/extensions/Xinerama.h>
-#endif
+#include <boost/math/special_functions/fpclassify.hpp>
 
 
 namespace avg {
@@ -53,44 +51,19 @@ float X11Display::queryPPMM()
 IntPoint X11Display::queryScreenResolution()
 {
     IntPoint size;
-    bool bXinerama = false;
+    // Xinerama query has been removed from here in order to fix #431
     ::Display * pDisplay = XOpenDisplay(0);
-#ifdef AVG_ENABLE_XINERAMA
-    int dummy1, dummy2;
-    bXinerama = XineramaQueryExtension(pDisplay, &dummy1, &dummy2);
-    if (bXinerama) {
-        bXinerama = XineramaIsActive(pDisplay);
-    }
-    if (bXinerama) {
-        int numHeads = 0;
-        XineramaScreenInfo * pScreenInfo = XineramaQueryScreens(pDisplay, &numHeads);
-        AVG_ASSERT(numHeads >= 1);
-        /*
-        cerr << "Num heads: " << numHeads << endl;
-        for (int x=0; x<numHeads; ++x) {
-            cout << "Head " << x+1 << ": " <<
-                pScreenInfo[x].width << "x" << pScreenInfo[x].height << " at " <<
-                pScreenInfo[x].x_org << "," << pScreenInfo[x].y_org << endl;
-        }
-        */
-        size = IntPoint(pScreenInfo[0].width, pScreenInfo[0].height);  
-        XFree(pScreenInfo);
-    }
-#endif
-    if (!bXinerama) {
-        Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
-        AVG_ASSERT(pScreen);
-        size = IntPoint(pScreen->width, pScreen->height);
-    }
+
+    Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
+    AVG_ASSERT(pScreen);
+    size = IntPoint(pScreen->width, pScreen->height);
+
     XCloseDisplay(pDisplay);
     return size;
 }
 
 float X11Display::queryRefreshRate()
 {
-#ifdef AVG_ENABLE_EGL
-    return 60;
-#else
     ::Display * pDisplay = XOpenDisplay(0);
     int pixelClock;
     XF86VidModeModeLine modeLine;
@@ -100,14 +73,18 @@ float X11Display::queryRefreshRate()
         AVG_LOG_WARNING(
                 "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
         AVG_LOG_WARNING("Defaulting to 60 Hz refresh rate.");
+        return 60;
     }
-    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
-    float refreshRate = HSyncRate/modeLine.vtotal;
+    float hSyncRate = (pixelClock * 1000.0) / modeLine.htotal;
+    float refreshRate = hSyncRate / modeLine.vtotal;
     XCloseDisplay(pDisplay);
+    if ( refreshRate < 20 || refreshRate > 200 || !(boost::math::isnormal(refreshRate))){
+        AVG_LOG_WARNING("Could not get valid refresh rate");
+        AVG_LOG_WARNING("Defaulting to 60 Hz refresh rate.");
+        return 60;
+    }
     return refreshRate;
-#endif
 }
-
 
 ::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo)
 {

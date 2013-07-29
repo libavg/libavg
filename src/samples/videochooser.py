@@ -1,35 +1,49 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import * 
 import os, sys
+from libavg import avg, app, player, Point2D
 
-THUMBNAIL_WIDTH = 320
-FADE_DURATION = 1000
 
-class VideoChooserApp(AVGApp):
-    def init(self):
+class VideoChooser(app.MainDiv):
+    def onArgvParserCreated(self, parser):
+        parser.set_usage("%prog <folder>")
+        parser.add_option('--duration', '-d', dest='duration',
+                default=2000, type='int', help='Fade duration')
+        parser.add_option('--width', '-w', dest='thumbWidth',
+                default=320, type='int', help='Thumbnail width')
+
+    def onArgvParsed(self, options, args, parser):
+        if len(args) != 1:
+            parser.print_help()
+            sys.exit(1)
+
+        self.__folder = args[0]
+        self.__duration = options.duration
+        self.__thumbWidth = options.thumbWidth
+
+    def onInit(self):
         player.showCursor(True)
-        dir = sys.argv[1]
 
-        self.videoListNode = DivNode(parent=self._parentNode)
+        self.videoListNode = avg.DivNode(parent=self)
         self.videoNodes = []
-        fileNames = os.listdir(dir)
+        fileNames = os.listdir(self.__folder)
         i = 0
         for fileName in fileNames:
             try:
-                videoNode = VideoNode(
-                        pos = (i*(THUMBNAIL_WIDTH+20), 0),
-                        href = dir+"/"+fileName,
-                        loop = True,
+                videoNode = avg.VideoNode(
+                        pos=(i*(self.__thumbWidth+20), 0),
+                        href=self.__folder+'/'+fileName,
+                        loop=True,
                         mipmap=True,
+                        enablesound=False,
                         parent = self.videoListNode)
                 videoNode.play()
                 self.videoNodes.append(videoNode)
 
                 size = videoNode.getMediaSize()
-                height = (THUMBNAIL_WIDTH*size.y)/size.x
-                videoNode.size = (THUMBNAIL_WIDTH, height)
+                height = (self.__thumbWidth*size.y)/size.x
+                videoNode.size = (self.__thumbWidth, height)
                 videoNode.subscribe(videoNode.CURSOR_DOWN,
                         lambda event, videoNode=videoNode: 
                                 self.chooseVideo(event, videoNode))
@@ -37,7 +51,7 @@ class VideoChooserApp(AVGApp):
             except RuntimeError:
                 pass
 
-        self._parentNode.subscribe(self._parentNode.CURSOR_MOTION, self.onMouseMove)
+        self.subscribe(self.CURSOR_MOTION, self.onMouseMove)
         self.bigVideoNode = None
 
     def onMouseMove(self, event):
@@ -52,21 +66,22 @@ class VideoChooserApp(AVGApp):
         destPos = Point2D(720, 550)-destSize/2
         absPos = videoNode.getAbsPos(Point2D(0,0))
         frame = videoNode.getCurFrame()
-        self.bigVideoNode = VideoNode(href=videoNode.href, loop=True, sensitive=False,
-                parent=self._parentNode)
+        self.bigVideoNode = avg.VideoNode(href=videoNode.href, loop=True, sensitive=False,
+                parent=self)
         self.bigVideoNode.play()
         self.bigVideoNode.seekToFrame(frame)
-        EaseInOutAnim(self.bigVideoNode, "pos", 1000, absPos, destPos, False,
+        avg.EaseInOutAnim(self.bigVideoNode, "pos", 1000, absPos, destPos, False,
                 300, 300).start()
-        EaseInOutAnim(self.bigVideoNode, "size", 1000, videoNode.size, destSize, False,
-                300, 300).start()
+        avg.EaseInOutAnim(self.bigVideoNode, "size", 1000, videoNode.size, destSize,
+                False, 300, 300).start()
 
     def removeBigVideo(self):
         oldVideoNode = self.bigVideoNode
-        fadeOut(oldVideoNode, FADE_DURATION, lambda: oldVideoNode.unlink(True))
+        avg.fadeOut(oldVideoNode, self.__duration, lambda: oldVideoNode.unlink(True))
 
     def getTotalWidth(self):
-        return (THUMBNAIL_WIDTH+20)*len(self.videoNodes)
+        return (self.__thumbWidth+20)*len(self.videoNodes)
 
-VideoChooserApp.start(resolution=(1440, 900), debugWindowSize=(720, 450))
+
+app.App().run(VideoChooser(), app_resolution='1440x900', app_window_size='720x450')
 

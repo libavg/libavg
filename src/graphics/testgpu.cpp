@@ -430,7 +430,7 @@ public:
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));
-        if (!GLContext::getCurrent()->isGLES()) {
+        if (GLContext::getCurrent()->getShaderUsage() == GLConfig::FULL) {
             addTest(TestPtr(new RGB2YUVFilterTest));
             addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new BlurFilterTest));

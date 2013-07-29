@@ -103,10 +103,7 @@ class Recognizer(avg.Publisher):
         assert(self.__stateMachine.state != "RUNNING")
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        for contact in self._contacts:
-            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
-            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
-        self._contacts = set()
+        self._disconnectContacts()
         self.notifySubscribers(Recognizer.FAILED, [])
 
     def _setDetected(self, event):
@@ -479,11 +476,11 @@ class DragRecognizer(Recognizer):
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
-        if self.getState() != "RUNNING":
-            if self.__minDragDist == 0:
-                self._setDetected(event)
-            else:
-                self._setPossible(event)
+            self._setEnd(event)
+        if self.__minDragDist == 0:
+            self._setDetected(event)
+        else:
+            self._setPossible(event)
         pos = self.__relEventPos(event)
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
@@ -525,7 +522,6 @@ class DragRecognizer(Recognizer):
 
     def __fail(self, event):
         self._setFail(event)
-        self._disconnectContacts()
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
         self.__inertiaHandler = None
@@ -767,10 +763,9 @@ class TransformRecognizer(Recognizer):
         if numContacts == 1:
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
-            if self.getState() != "RUNNING":
-                self._setDetected(event)
-            if not(self.__frameHandlerID):
-                self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
+                self._setEnd(event)
+            self._setDetected(event)
+            self.__frameHandlerID = player.subscribe(player.ON_FRAME, self.__onFrame)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)
