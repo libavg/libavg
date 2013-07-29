@@ -141,6 +141,12 @@ void GLContext::init(bool bOwnsContext)
             m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         }
     }
+#ifdef __APPLE__
+    if (GLContext::isVendor("Intel")) {
+        // Bug #434: Some shaders cause hard lockups on Mac Book Air.
+        m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+    }
+#endif
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
     }
@@ -465,6 +471,15 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
         }
         AVG_ASSERT(false);
     }
+}
+    
+void GLContext::ensureFullShaders(const string& sContext) const
+{
+    if (getShaderUsage() != GLConfig::FULL) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                sContext + " not supported if ShaderUsage==MINIMAL");
+    }
+
 }
 
 GLContext::BlendMode GLContext::stringToBlendMode(const string& s)

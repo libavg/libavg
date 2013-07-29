@@ -102,10 +102,16 @@ class KargsExtender(object):
         return optionsList
 
 
+class HelpPrintingOptionParser(optparse.OptionParser):
+    def error(self, *args, **kargs):
+        self.print_help()
+        optparse.OptionParser.error(self, *args, **kargs)
+
+
 class ArgvExtender(object):
     def __init__(self, appVersionInfo, args=sys.argv[1:]):
         self.__appVersionInfo = appVersionInfo
-        self.__parser = optparse.OptionParser()
+        self.__parser = HelpPrintingOptionParser()
         self.__args = args
         self.__parsedArgs = None
 

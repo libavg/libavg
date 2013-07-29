@@ -94,9 +94,10 @@ class DebugTouchVisualization(BaseTouchVisualization):
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, self._radius)
         pulseCircleAnim.start()
 
-    def __del__(self):
+    def unlink(self, kill=True):
         if self.motionPath:
             self.motionPath.unlink(True)
+        super(DebugTouchVisualization, self).unlink(kill)
 
     def _onMotion(self, event):
         BaseTouchVisualization._onMotion(self, event)
@@ -174,11 +175,12 @@ class TouchVisualizationOverlay(avg.DivNode):
         rootNode.subscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
         rootNode.subscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
 
-    def __del__(self):
+    def unlink(self, kill=True):
         rootNode = player.getRootNode()
         if rootNode:
             rootNode.unsubscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
             rootNode.unsubscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
+        super(TouchVisualizationOverlay, self).unlink(kill)
 
     def __onTouchDown(self, event):
         self.visClass(event, parent=self)

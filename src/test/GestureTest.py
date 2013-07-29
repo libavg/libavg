@@ -648,18 +648,22 @@ class GestureTestCase(AVGTestCase):
 
         def onDrag(offset):
             self.assertAlmostEqual(offset, (-40,-40))
+            self.__onDragCalled = True
 
         player.setFakeFPS(100)
+        self.__onDragCalled = False
         for self.friction in (-1, 100):
             root = self.loadEmptyScene()
             div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
             image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-            gesture.DragRecognizer(image, moveHandler=onDrag, friction=self.friction)
+            dragRecognizer = gesture.DragRecognizer(image, moveHandler=onDrag,
+                    friction=self.friction)
             self.start(False,
                     (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
                     ))
         player.setFakeFPS(-1)
+        assert(self.__onDragCalled)
 
 
     def testDragRecognizerInitialEvent(self):
@@ -691,15 +695,19 @@ class GestureTestCase(AVGTestCase):
 
         def onDrag(offset):
             self.assertEqual(offset, (40,40))
+            self.__dragRecognizerCalled = True
 
         root = self.loadEmptyScene()
         div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        gesture.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, friction=-1)
+        dragRecognizer = gesture.DragRecognizer(image, moveHandler=onDrag,
+                coordSysNode=div, friction=-1)
+        self.__dragRecognizerCalled = False
         self.start(False,
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
                 ))
+        assert(self.__dragRecognizerCalled)
 
     def testDragRecognizerMinDist(self):
 

@@ -24,6 +24,7 @@
 
 #include "../api.h"
 
+#include "GLMHelper.h"
 #include <libxml/parser.h>
 
 #include <string>
@@ -48,7 +49,7 @@ public:
     void addSubsys(const std::string& sName);
     void addOption(const std::string& sSubsys, const std::string& sName,
             const std::string& sDefault);
-    
+
     const ConfigOptionVector* getOptions(const std::string& sSubsys) const;
     const std::string* getOption(const std::string& sSubsys, 
             const std::string& sName) const;
@@ -58,6 +59,8 @@ public:
             const std::string& sName, int Default) const;
     void getGammaOption(const std::string& sSubsys, 
             const std::string& sName, float* Val) const;
+    glm::vec2 getSizeOption(const std::string& sSubsys, 
+            const std::string& sName) const;
     void getStringOption(const std::string& sSubsys, 
             const std::string& sName, const std::string& sDefault, std::string& sVal) 
             const;

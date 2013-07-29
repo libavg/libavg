@@ -190,7 +190,7 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.assertEqual(self.__mouseDownCalled, False),
                  lambda: self.fakeClick(55, 50),
                  lambda: self.assertEqual(self.__mouseDownCalled, False),
-                 lambda: self.fakeClick(65, 60),
+                 lambda: self.fakeClick(65, 65),
                  lambda: self.assert_(self.__mouseDownCalled)
                 ))
 

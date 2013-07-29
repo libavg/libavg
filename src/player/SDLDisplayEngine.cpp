@@ -95,9 +95,14 @@ void SDLDisplayEngine::initSDL()
         bSDLInitialized = true;
     }
 #endif
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
-        AVG_LOG_ERROR("Can't init SDL display subsystem.");
-        exit(-1);
+#ifdef linux
+    // Disable all other video drivers (DirectFB, libcaca, ...) to avoid confusing
+    // error messages.
+    SDL_putenv((char*)"SDL_VIDEODRIVER=x11");
+#endif
+    int err = SDL_InitSubSystem(SDL_INIT_VIDEO);
+    if (err == -1) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, SDL_GetError());
     }
 }
 

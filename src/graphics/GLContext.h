@@ -91,6 +91,7 @@ public:
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
     static void mandatoryCheckError(const char* pszWhere);
+    void ensureFullShaders(const std::string& sContext) const;
 
     static BlendMode stringToBlendMode(const std::string& s);
 

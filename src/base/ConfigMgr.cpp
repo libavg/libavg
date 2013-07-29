@@ -97,6 +97,10 @@ ConfigMgr::ConfigMgr()
     addOption("gesture", "filterbeta", "0.03");
     addOption("gesture", "friction", "-1");
 
+    addSubsys("touch");
+    addOption("touch", "area", "0, 0");
+    addOption("touch", "offset", "0, 0");
+
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
     char * pHome = getenv("HOME");
@@ -192,6 +196,23 @@ void ConfigMgr::getGammaOption(const string& sSubsys,
                 << *psOption << ". Must be three comma-separated numbers. Aborting.");
         exit(-1);
     }
+}
+
+glm::vec2 ConfigMgr::getSizeOption(const string& sSubsys,
+        const string& sName) const
+{
+    const string * psOption = getOption(sSubsys, sName);
+    if (psOption == 0) {
+        return glm::vec2(0, 0);
+    }
+    float val[2];
+    int rc = sscanf(psOption->c_str(), "%f,%f", val, val+1);
+    if (rc < 2) {
+        AVG_LOG_ERROR(m_sFName << ": Unrecognized value for option " << sName << ": "
+                << *psOption << ". Must be 2 comma-separated numbers(x, y). Aborting.");
+        exit(-1);
+    }
+    return glm::vec2(val[0], val[1]);
 }
 
 void ConfigMgr::getStringOption(const string& sSubsys, 

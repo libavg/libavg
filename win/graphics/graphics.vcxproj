@@ -71,9 +71,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\graphics\Bitmap.h" />
     <ClInclude Include="..\..\src\graphics\BitmapLoader.h" />
-    <ClInclude Include="..\..\src\graphics\BitmapManager.h" />
-    <ClInclude Include="..\..\src\graphics\BitmapManagerMsg.h" />
-    <ClInclude Include="..\..\src\graphics\BitmapManagerThread.h" />
     <ClInclude Include="..\..\src\graphics\BmpTextureMover.h" />
     <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
@@ -148,9 +145,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
     <ClCompile Include="..\..\src\graphics\BitmapLoader.cpp" />
-    <ClCompile Include="..\..\src\graphics\BitmapManager.cpp" />
-    <ClCompile Include="..\..\src\graphics\BitmapManagerMsg.cpp" />
-    <ClCompile Include="..\..\src\graphics\BitmapManagerThread.cpp" />
     <ClCompile Include="..\..\src\graphics\BmpTextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />

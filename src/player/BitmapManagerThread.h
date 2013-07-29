@@ -19,44 +19,35 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _BitmapManager_H_
-#define _BitmapManager_H_
-
-#include "BitmapManagerThread.h"
-#include "BitmapManagerMsg.h"
+#ifndef _BitmapManagerThread_H_
+#define _BitmapManagerThread_H_
 
 #include "../api.h"
-#include "Bitmap.h"
-#include "../base/Queue.h"
-#include "../base/IFrameEndListener.h"
+
+#include "BitmapManagerMsg.h"
+
+#include "../base/WorkerThread.h"
+#include "../graphics/Bitmap.h"
 
 #include <boost/thread.hpp>
 
-#include <vector>
 
 namespace avg {
 
-class AVG_API BitmapManager : public IFrameEndListener
+class AVG_API BitmapManagerThread : public WorkerThread<BitmapManagerThread>
 {
     public:
-        BitmapManager();
-        ~BitmapManager();
-        static BitmapManager* get();
-        void loadBitmap(const UTF8String& sUtf8FileName,
-                const boost::python::object& pyFunc, PixelFormat pf=NO_PIXELFORMAT);
-        void setNumThreads(int numThreads);
-
-        virtual void onFrameEnd();
+        BitmapManagerThread(CQueue& cmdQ, BitmapManagerMsgQueue& MsgQueue);
+                
+        void loadBitmap(BitmapManagerMsgPtr pRequest);
         
     private:
-        void startThreads(int numThreads);
-        void stopThreads();
+        virtual bool work();
+        virtual void deinit();
+        BitmapManagerMsgQueue& m_MsgQueue;
 
-        static BitmapManager * s_pBitmapManager;
-
-        std::vector<boost::thread*> m_pBitmapManagerThreads;
-        BitmapManagerThread::CQueuePtr m_pCmdQueue;
-        BitmapManagerMsgQueuePtr m_pMsgQueue;
+        float m_TotalLatency;
+        int m_NumBmpsLoaded;
 };
 
 }

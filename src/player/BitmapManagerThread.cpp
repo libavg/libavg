@@ -21,12 +21,11 @@
 
 #include "BitmapManagerThread.h"
 
-#include "Bitmap.h"
-#include "BitmapLoader.h"
-
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
+
+#include "../graphics/BitmapLoader.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -175,7 +175,6 @@ class EventTestCase(AVGTestCase):
                         (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER)),
                 ))
 
-
     def testUnlinkInHandler(self):
         def onImgDown(event):
             self.__imgDownCalled = True

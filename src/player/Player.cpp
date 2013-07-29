@@ -66,6 +66,7 @@
 #include "MouseEvent.h"
 #include "EventDispatcher.h"
 #include "PublisherDefinition.h"
+#include "BitmapManager.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -78,7 +79,6 @@
 #include "../base/WorkerThread.h"
 #include "../base/DAG.h"
 
-#include "../graphics/BitmapManager.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/Display.h"
@@ -1282,6 +1282,7 @@ void Player::initGraphics(const string& sShaderPath)
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
     m_pDisplayEngine->setGamma(1.0, 1.0, 1.0);
+    m_GLConfig = GLContext::getCurrent()->getConfig();
 }
 
 void Player::initAudio()
@@ -1696,6 +1697,15 @@ string Player::getConfigOption(const string& sSubsys, const string& sName) const
 bool Player::isUsingGLES() const
 {
     return m_GLConfig.m_bGLES;
+}
+
+bool Player::areFullShadersSupported() const
+{
+    if (!m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Must call Player.play() before areFullShadersSupported().");
+    }
+    return (m_GLConfig.m_ShaderUsage == GLConfig::FULL);
 }
 
 OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
