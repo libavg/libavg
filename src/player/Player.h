@@ -172,6 +172,7 @@ class AVG_API Player: public Publisher
         std::string getConfigOption(const std::string& sSubsys, const std::string& sName)
                 const;
         bool isUsingGLES() const;
+        bool areFullShadersSupported() const;
 
         OffscreenCanvasPtr getCanvasFromURL(const std::string& sURL);
 

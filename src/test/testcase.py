@@ -194,6 +194,12 @@ class AVGTestCase(unittest.TestCase):
     def skipReason(self):
         return self.__skipReason
 
+    def skipIfMinimalShader(self):
+        if not(player.areFullShadersSupported()):
+            self.skip("Not supported if ShaderUsage == MINIMAL")
+            player.stop()
+            return
+
     def _sendMouseEvent(self, type, x, y):
         helper = player.getTestHelper()
         if type == avg.Event.CURSOR_UP:

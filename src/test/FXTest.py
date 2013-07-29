@@ -172,7 +172,7 @@ class FXTestCase(AVGTestCase):
                                 ))
 
     def testBlurFX(self):
-        
+       
         def setRadius(radius):
             self.effect.radius = radius
         
@@ -186,16 +186,13 @@ class FXTestCase(AVGTestCase):
             effect = avg.BlurFXNode(8)
             self.node.setEffect(effect)
 
-        if player.isUsingGLES():
-            self.skip("Not supported under GLES")
-            return
-
         root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
-        self.node.setEffect(self.effect)
         self.start(False,
-                (lambda: self.compareImage("testBlurFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: self.node.setEffect(self.effect),
+                 lambda: self.compareImage("testBlurFX1"),
                  lambda: setRadius(8),
                  lambda: self.compareImage("testBlurFX2"),
                  removeFX,
@@ -266,18 +263,15 @@ class FXTestCase(AVGTestCase):
             effect.opacity = opacity
             effect.color =  color
 
-        if player.isUsingGLES():
-            self.skip("Not supported under GLES")
-            return
-
         root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
         node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
         rect.size = node.size + (1, 1)
         effect = avg.ShadowFXNode((0,0), 1, 1, "FFFFFF")
-        node.setEffect(effect)
         self.start(False,
-                (lambda: self.compareImage("testShadowFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: node.setEffect(effect),
+                 lambda: self.compareImage("testShadowFX1"),
                  lambda: setParams((0,0), 3, 2, "00FFFF"),
                  lambda: self.compareImage("testShadowFX2"),
                  lambda: setParams((2,2), 0.1, 1, "FFFFFF"),
@@ -298,18 +292,15 @@ class FXTestCase(AVGTestCase):
             effect.opacity = opacity
             effect.color =  color
 
-        if player.isUsingGLES():
-            self.skip("Not supported under GLES")
-            return
-
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, pos=(10,10), text="testtext", 
                 font="Bitstream Vera Sans")
         effect = avg.ShadowFXNode()
         setParams((0,0), 1.5, 1.5, "FF0000")
-        node.setEffect(effect)
         self.start(True,
-                (lambda: self.compareImage("testWordsShadowFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: node.setEffect(effect),
+                 lambda: self.compareImage("testWordsShadowFX1"),
                  lambda: setParams((2,2), 2, 2, "00FFFF"),
                  lambda: self.compareImage("testWordsShadowFX2"),
                 ))
@@ -413,18 +404,15 @@ class FXTestCase(AVGTestCase):
             videoNode.setEffect(effect)
             videoNode.play()
 
-        if player.isUsingGLES():
-            self.skip("Not supported under GLES")
-            return
-
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24alpha-64x64.png")
         effect = avg.BlurFXNode()
         effect.radius = 0
-        node.setEffect(effect)
         player.setFakeFPS(25)
         self.start(False,
-                (changeTexture,
+                (self.skipIfMinimalShader,
+                 lambda: node.setEffect(effect),
+                 changeTexture,
                  lambda: self.compareImage("testFXUpdateTex"),
                  addMaskTex,
                  lambda: self.compareImage("testFXUpdateMaskTex1"),
@@ -446,16 +434,14 @@ class FXTestCase(AVGTestCase):
             effect.ltolerance = ltol
             effect.stolerance = stol
 
-        if player.isUsingGLES():
-            self.skip("Not supported under GLES")
-            return
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         effect = avg.ChromaKeyFXNode()
         setParams(0.01, 0.01, 0.01)
-        node.setEffect(effect)
         self.start(False,
-                (lambda: self.compareImage("testChromaKeyFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: node.setEffect(effect),
+                 lambda: self.compareImage("testChromaKeyFX1"),
                  lambda: setParams(0.2, 0.2, 0.2),
                  lambda: self.compareImage("testChromaKeyFX2"),
                  lambda: effect.__setattr__("color", "FF0000"),

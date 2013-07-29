@@ -466,6 +466,15 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
         AVG_ASSERT(false);
     }
 }
+    
+void GLContext::ensureFullShaders(const string& sContext) const
+{
+    if (getShaderUsage() != GLConfig::FULL) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                sContext + " not supported if ShaderUsage==MINIMAL");
+    }
+
+}
 
 GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 {

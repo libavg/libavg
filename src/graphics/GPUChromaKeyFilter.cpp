@@ -49,6 +49,8 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, bool bStandalone)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
+    GLContext::getCurrent()->ensureFullShaders("GPUChromaKeyFilter");
+
     setDimensions(size);
     OGLShaderPtr pShader = getShader();
     m_pTextureParam = pShader->getParam<int>("u_Texture");
