@@ -75,17 +75,14 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
             int err = av_read_frame(m_pFormatContext, pPacket);
             if (err < 0) {
                 // EOF or error
-                if (err != int(AVERROR_EOF)) {
 #if LIBAVUTIL_VERSION_MAJOR > 50
+                if (err != int(AVERROR_EOF)) {
                     char sz[256];
                     av_strerror(err, sz, 256);
                     AVG_TRACE(Logger::category::PLAYER, Logger::severity::ERROR,
                             "Error decoding video: " << sz);
-#else
-                    AVG_TRACE(Logger::category::PLAYER, Logger::severity::ERROR,
-                            "Error decoding video: ");
-#endif
                 }
+#endif
                 av_free_packet(pPacket);
                 delete pPacket;
                 pPacket = 0;
