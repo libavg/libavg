@@ -12,6 +12,9 @@ Effect Nodes
         Blurs the node it is applied to. Corresponds to the Gaussian Blur effect in 
         Photoshop.
 
+        Not supported under minimal shaders. Programs can call
+        :py:meth:`Player.areFullShadersSupported` to ensure support.
+
         .. py:attribute:: radius
 
             The width of the blur. This corresponds to the radius parameter of
@@ -31,6 +34,9 @@ Effect Nodes
         foreground. All of the parameters can be manipulated for test purposes using the 
         :program:`avg_chromakey.py` script. The effect is carried out in the HSL 
         colorspace (http://en.wikipedia.org/wiki/HSL_and_HSV).
+
+        Not supported under minimal shaders. Programs can call
+        :py:meth:`Player.areFullShadersSupported` to ensure support.
 
         .. py:attribute:: color
 
@@ -111,6 +117,9 @@ Effect Nodes
     .. autoclass:: ShadowFXNode(offset=(0,0), radius=1.0, opacity=1.0, color="FFFFFF")
 
         Adds a shadow behind the node.
+
+        Not supported under minimal shaders. Programs can call
+        :py:meth:`Player.areFullShadersSupported` to ensure support.
 
         .. py:attribute:: offset
 
