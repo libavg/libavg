@@ -51,8 +51,6 @@ TUIOInputDevice::TUIOInputDevice()
     : m_pSocket(0),
       m_LastID(0)
 {
-    // Adding 0.5 to the offset, so positions are rounded correctly
-    mTouchOffset += glm::vec2(0.5, 0.5);
 }
 
 TUIOInputDevice::~TUIOInputDevice()

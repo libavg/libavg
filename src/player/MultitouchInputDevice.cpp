@@ -36,11 +36,11 @@ namespace avg {
 MultitouchInputDevice::MultitouchInputDevice()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(MultitouchInputDevice))
 {
-    mTouchArea = ConfigMgr::get()->getSizeOption("touch", "area");
-    if(mTouchArea.x == 0){
-        mTouchArea = Player::get()->getScreenResolution();
+    m_TouchArea = ConfigMgr::get()->getSizeOption("touch", "area");
+    if(m_TouchArea.x == 0){
+        m_TouchArea = Player::get()->getScreenResolution();
     }
-    mTouchOffset = ConfigMgr::get()->getSizeOption("touch", "offset");
+    m_TouchOffset = ConfigMgr::get()->getSizeOption("touch", "offset");
 }
 
 MultitouchInputDevice::~MultitouchInputDevice()
@@ -119,13 +119,13 @@ void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadID
 
 glm::vec2 MultitouchInputDevice::getTouchArea() const
 {
-    return mTouchArea;
+    return m_TouchArea;
 }
 
 IntPoint MultitouchInputDevice::getScreenPos(const glm::vec2& pos) const
 {
-        return IntPoint(int(pos.x * mTouchArea.x + mTouchOffset.x),
-                        int(pos.y * mTouchArea.y + mTouchOffset.y));
+        return IntPoint(int(pos.x * m_TouchArea.x + m_TouchOffset.x + 0.5),
+                        int(pos.y * m_TouchArea.y + m_TouchOffset.y) + 0.5);
 }
 
 boost::mutex& MultitouchInputDevice::getMutex()

@@ -63,13 +63,13 @@ protected:
     glm::vec2 getTouchArea() const;
     IntPoint getScreenPos(const glm::vec2& pos) const;
     boost::mutex& getMutex();
-    glm::vec2 mTouchOffset;
 
 private:
     std::map<int, TouchStatusPtr> m_TouchIDMap;
     std::vector<TouchStatusPtr> m_Touches;
     MutexPtr m_pMutex;
-    glm::vec2 mTouchArea;
+    glm::vec2 m_TouchArea;
+    glm::vec2 m_TouchOffset;
 };
 
 typedef boost::shared_ptr<MultitouchInputDevice> MultitouchInputDevicePtr;
