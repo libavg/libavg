@@ -709,6 +709,33 @@ class GestureTestCase(AVGTestCase):
                 ))
         assert(self.__dragRecognizerCalled)
 
+
+    def testDragRecognizerCoordSysNodeParentUnlink(self):
+
+        def onDrag(offset):
+            self.assertEqual(offset, (40,40))
+            self.__dragRecognizerCalled = True
+
+        def onUp(offset):
+            self.__upRecognizerCalled = True
+
+        root = self.loadEmptyScene()
+        div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        dragRecognizer = gesture.DragRecognizer(image, moveHandler=onDrag,
+                coordSysNode=div, friction=-1)
+        self.__dragRecognizerCalled = False
+        self.__upRecognizerCalled = False
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
+                 lambda: div.unlink(False),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 70, 70),
+                ))
+        assert(self.__dragRecognizerCalled)
+        assert(not self.__upRecognizerCalled)
+
+
     def testDragRecognizerMinDist(self):
 
         def onMove(offset):
@@ -984,6 +1011,7 @@ def gestureTestSuite(tests):
         "testDragRecognizerRelCoords",
         "testDragRecognizerInitialEvent",
         "testDragRecognizerCoordSysNode",
+        "testDragRecognizerCoordSysNodeParentUnlink",
         "testDragRecognizerMinDist",
         "testTransformRecognizer",
         "testKMeans",

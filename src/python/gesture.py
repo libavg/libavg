@@ -474,51 +474,61 @@ class DragRecognizer(Recognizer):
         super(DragRecognizer, self).abort()
 
     def _handleDown(self, event):
-        if self.__inertiaHandler:
-            self.__inertiaHandler.abort()
-            self._setEnd(event)
-        if self.__minDragDist == 0:
-            self._setDetected(event)
-        else:
-            self._setPossible(event)
-        pos = self.__relEventPos(event)
-        if self.__friction != -1:
-            self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
-                    self.__onInertiaStop)
-        self.__dragStartPos = pos
-        self.__lastPos = pos
-
-    def _handleMove(self, event):
-        if self.getState() != "IDLE":
-            pos = self.__relEventPos(event)
-            offset = pos - self.__dragStartPos
-            if self.getState() == "RUNNING":
-                self.notifySubscribers(Recognizer.MOTION, [offset]);
-            else:
-                if offset.getNorm() > self.__minDragDist*player.getPixelsPerMM():
-                    if self.__angleFits(offset):
-                        self._setDetected(event)
-                        self.notifySubscribers(Recognizer.MOTION, [offset]);
-                    else:
-                        self.__fail(event)
+        if not self._handleCoordSysNodeUnlinked():
             if self.__inertiaHandler:
-                self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+                self.__inertiaHandler.abort()
+                self._setEnd(event)
+            if self.__minDragDist == 0:
+                self._setDetected(event)
+            else:
+                self._setPossible(event)
+            pos = self.__relEventPos(event)
+            if self.__friction != -1:
+                self.__inertiaHandler = InertiaHandler(self.__friction,
+                        self.__onInertiaMove, self.__onInertiaStop)
+            self.__dragStartPos = pos
             self.__lastPos = pos
 
-    def _handleUp(self, event):
-        if self.getState() != "IDLE":
-            pos = self.__relEventPos(event)
-            if self.getState() == "RUNNING":
-                self.__offset = pos - self.__dragStartPos
-                self.notifySubscribers(Recognizer.UP, [self.__offset]);
-                if self.__friction != -1:
-                    self.__isSliding = True
-                    self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
-                    self.__inertiaHandler.onUp()
+    def _handleMove(self, event):
+        if not self._handleCoordSysNodeUnlinked():
+            if self.getState() != "IDLE":
+                pos = self.__relEventPos(event)
+                offset = pos - self.__dragStartPos
+                if self.getState() == "RUNNING":
+                    self.notifySubscribers(Recognizer.MOTION, [offset]);
                 else:
-                    self._setEnd(event)
-            else:
-                self.__fail(event)
+                    if offset.getNorm() > self.__minDragDist*player.getPixelsPerMM():
+                        if self.__angleFits(offset):
+                            self._setDetected(event)
+                            self.notifySubscribers(Recognizer.MOTION, [offset]);
+                        else:
+                            self.__fail(event)
+                if self.__inertiaHandler:
+                    self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+                self.__lastPos = pos
+
+    def _handleUp(self, event):
+        if not self._handleCoordSysNodeUnlinked():
+            if self.getState() != "IDLE":
+                pos = self.__relEventPos(event)
+                if self.getState() == "RUNNING":
+                    self.__offset = pos - self.__dragStartPos
+                    self.notifySubscribers(Recognizer.UP, [self.__offset]);
+                    if self.__friction != -1:
+                        self.__isSliding = True
+                        self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+                        self.__inertiaHandler.onUp()
+                    else:
+                        self._setEnd(event)
+                else:
+                    self.__fail(event)
+
+    def _handleCoordSysNodeUnlinked(self):
+        if self.__coordSysNode().getParent():
+            return False
+        else:
+            self.abort()
+            return True
 
     def __fail(self, event):
         self._setFail(event)
