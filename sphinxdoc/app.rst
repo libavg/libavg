@@ -122,8 +122,8 @@ keyboardmanager Module
     Keys that are bound through the keyboard manager are also be shown in the debug panel
     via the keyboard bindings widget along with their help string.
     :py:class:`libavg.app.App` defines a range of keyboard bindings by default. 
-    Conceptually, all keys modified by :kbd:`CTRL` are reserved by 
-    :py:class:`libavg.app.App`.
+    The keyboardmanager is usually set up by :py:class:`libavg.app.App`.
+    :py:class:`libavg.app.App` also reserves all keys modified by :kbd:`CTRL`.
 
     For all the binding methods, keystring can be a python string or a unicode object.
     The modifiers are described under :py:attr:`libavg.avg.KeyEvent.modifiers`.
