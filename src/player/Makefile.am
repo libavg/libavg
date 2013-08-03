@@ -1,7 +1,7 @@
 AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         @PANGOFT2_CFLAGS@ @PYTHON_CPPFLAGS@ @GL_CFLAGS@ \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@ \
-        $(MTDEV_CFLAGS)
+        $(MTDEV_CFLAGS) @PTHREAD_CFLAGS@
         
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
@@ -79,10 +79,10 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../base/triangulate/libtriangulate.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) $(XI2_2_LIBS) \
         @LIBFFMPEG@ $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) @GDK_PIXBUF_LIBS@ \
-        @FONTCONFIG_LIBS@ @LIBVIDEO_LDADD@
+        @FONTCONFIG_LIBS@ @LIBVIDEO_LDADD@ @PTHREAD_CFLAGS@ @PTHREAD_LIBS@
         
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
