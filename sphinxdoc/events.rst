@@ -219,8 +219,12 @@ Input Handling
 
         .. py:attribute:: modifiers
 
-            Any modifier keys (:kbd:`shift`, :kbd:`ctrl`, etc.) pressed. This is a 
-            number of KeyModifier values or'ed together. Read-only. 
+            Any modifier keys pressed, or'ed together. Possible Modifiers are 
+            :py:const:`KEYMOD_NONE`, :py:const:`KEYMOD_LSHIFT`, :py:const:`KEYMOD_RSHIFT`,
+            :py:const:`KEYMOD_LCTRL`, :py:const:`KEYMOD_RCTRL`, :py:const:`KEYMOD_LALT`,
+            :py:const:`KEYMOD_RALT`, :py:const:`KEYMOD_LMETA`, :py:const:`KEYMOD_RMETA`,
+            :py:const:`KEYMOD_NUM`, :py:const:`KEYMOD_CAPS`, :py:const:`KEYMOD_MODE` and
+            :py:const:`KEYMOD_RALT`. Read-only. 
 
         .. py:attribute:: scancode
 

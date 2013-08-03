@@ -13,9 +13,9 @@ app module
         This class handles global application affairs. Among these are setting up a root
         node along with window size (and possibly screen resolution) and screen
         rotation, and creating an environment for the user's :py:class:`MainDiv`. 
-        Global user interface items such as a debug panel and keyboard manager are also set 
-        up. Additionally, :py:class:`App` handles configuration settings and command line
-        argument support.
+        Global user interface items such as a debug panel and keyboard manager are also 
+        set up. Additionally, :py:class:`App` handles configuration settings and command
+        line argument support.
         
         :py:class:`App` usually does not need to be subclassed. Instead, subclass 
         :py:class:`MainDiv` and pass an instance of the derived class to :py:meth:`run()`.
@@ -57,14 +57,16 @@ app module
         .. py:method:: takeScreenshot(targetFolder='.')
 
             Takes a screenshot of what is currently visible on the screen. Normally
-            bound to the keypress :kbd:`CTRL-p`.
+            bound to the keypress :kbd:`CTRL-p`. Screenshots are saved to the disk under
+            the name 'App-nnn.png', where nnn is a sequence number.
 
     
     .. autoclass:: MainDiv
 
-        This abstract class must be subclassed to write a libavg application. It is the main
-        application entry point and should be the parent node for all application-created
-        nodes. All the public methods are empty and don't do anything if not overridden.
+        This abstract class must be subclassed to write a libavg application. It is the
+        main application entry point and should be the parent node for all 
+        application-created nodes. All the public methods are empty and don't do anything
+        if not overridden.
 
         .. py:attribute:: VERSION
 
@@ -118,13 +120,13 @@ keyboardmanager Module
 
     This module makes it possible to attach event handlers to individual keypresses. 
     Keys that are bound through the keyboard manager are also be shown in the debug panel
-    via the keyboard bindings widget along with their help string. :py:class:`libavg.app.App` defines
-    a range of keyboard bindings by default. Conceptually, all keys modified by :kbd:`CTRL`
-    are reserved by :py:class:`libavg.app.App`.
+    via the keyboard bindings widget along with their help string.
+    :py:class:`libavg.app.App` defines a range of keyboard bindings by default. 
+    Conceptually, all keys modified by :kbd:`CTRL` are reserved by 
+    :py:class:`libavg.app.App`.
 
     For all the binding methods, keystring can be a python string or a unicode object.
-    TODO: expand the discussion regarding keystring vs SDL
-    TODO: describe the modifiers
+    The modifiers are described under :py:attr:`libavg.avg.KeyEvent.modifiers`.
 
     .. py:function:: bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
 
@@ -146,8 +148,7 @@ keyboardmanager Module
 
     .. py:function:: getCurrentBindings()
 
-        Returns the currently assigned bindings as a list of keyboardmanager._KeyBindings
-        named tuples.
+        Returns the currently assigned bindings as a list of named tuples.
 
     .. py:function:: init()
 
@@ -177,21 +178,21 @@ keyboardmanager Module
         Removes a previously defined key binding for a KEY_UP event.
 
 
-settings Module
----------------
+.. settings Module
+  ---------------
 
-.. automodule:: libavg.app.settings
+  .. automodule:: libavg.app.settings
     :no-members:
 
     .. autoclass:: Settings(defaults=[])
         
         The :py:class:`Settings` class holds a collection of application options as 
-        :py:class:`Option` instances. It is usually instantiated by :py:class:`App`. The available 
-        options and defaults are either passed on construction or configured using 
-        :py:meth:`Settings.addOption`. Usually, the configuration happens in :py:class:`App` (for 
-        general options) and :py:meth:`MainDiv.onArgvParserCreated` (for application-specific 
-        options). :py:class:`App` takes converts parameters to :samp:`App.run()` and command-line
-        arguments to the configured options.
+        :py:class:`Option` instances. It is usually instantiated by :py:class:`App`. The
+        available options and defaults are either passed on construction or configured 
+        using :py:meth:`Settings.addOption`. Usually, the configuration happens in 
+        :py:class:`App` (for general options) and :py:meth:`MainDiv.onArgvParserCreated` 
+        (for application-specific options). :py:class:`App` takes converts parameters to 
+        :samp:`App.run()` and command-line arguments to the configured options.
 
         .. py:method:: addOption(option)
 
@@ -230,13 +231,14 @@ flashmessage Module
 
     .. autoclass:: FlashMessage(text, timeout=DEFAULT_TIMEOUT, parent=None, isError=False, acknowledge=False)
 
-        A :py:class:`FlashMessage` is a user notification shown as a text line. The message can have
-        an optional timeout or stay visible until clicked on by the user. It inserts itself into node
-        tree at the top. Multiple :py:class:`FlashMessage` instances are shown in the order they get 
-        created.
+        A :py:class:`FlashMessage` is a user notification shown as a text line. The
+        message can have an optional timeout or stay visible until clicked on by the user.
+        It inserts itself into node tree at the top. Multiple :py:class:`FlashMessage` 
+        instances are shown in the order they get created.
 
         :param timeout: The time in milliseconds the message should persist on screen
-                before it gets removed. Only valid if :py:attr:`acknowledge` is :py:const:`False`.
+                before it gets removed. Only valid if :py:attr:`acknowledge` is 
+                :py:const:`False`.
         
         :param parent: When specified, the parent node the message should be appending
                 itself to.
@@ -245,7 +247,7 @@ flashmessage Module
                 messages are shown in a different color and are routed to the
                 logger as well.
 
-        :param acknowledge: A boolean flag to indicate whether the message should remove itself
+        :param acknowledge: A flag to indicate whether the message should remove itself
                 automatically (after timeout has elapsed) or needs to be acknowledged
                 by the user (by clicking / touching on it).
 
