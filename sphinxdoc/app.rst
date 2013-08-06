@@ -126,7 +126,11 @@ keyboardmanager Module
     :py:class:`libavg.app.App` also reserves all keys modified by :kbd:`CTRL`.
 
     For all the binding methods, keystring can be a python string or a unicode object.
-    The modifiers are described under :py:attr:`libavg.avg.KeyEvent.modifiers`.
+    Plain strings are matched to :py:attr:`libavg.avg.KeyEvent.keystring`, while unicode
+    objects are matched to :py:attr:`libavg.avg.KeyEvent.unicode`. The modifiers are
+    described under :py:attr:`libavg.avg.KeyEvent.modifiers`, with the additional modifiers
+    :py:const:`KEYMOD_SHIFT`, :py:const:`KEYMOD_CTRL` and :py:const:`KEYMOD_ALT` available
+    to simplify checking for left and right modifier keys at one time.
 
     .. py:function:: bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
 
@@ -178,51 +182,6 @@ keyboardmanager Module
         Removes a previously defined key binding for a KEY_UP event.
 
 
-.. settings Module
-  ---------------
-
-  .. automodule:: libavg.app.settings
-    :no-members:
-
-    .. autoclass:: Settings(defaults=[])
-        
-        The :py:class:`Settings` class holds a collection of application options as 
-        :py:class:`Option` instances. It is usually instantiated by :py:class:`App`. The
-        available options and defaults are either passed on construction or configured 
-        using :py:meth:`Settings.addOption`. Usually, the configuration happens in 
-        :py:class:`App` (for general options) and :py:meth:`MainDiv.onArgvParserCreated` 
-        (for application-specific options). :py:class:`App` takes converts parameters to 
-        :samp:`App.run()` and command-line arguments to the configured options.
-
-        .. py:method:: addOption(option)
-
-            Adds an option.
-
-        .. py:method:: get(key, convertFunc=lambda v: v)
-
-            XXX
-
-        .. py:method:: getJson(key)
-
-            XXX
-
-        .. py:method:: getPoint2D(key)
-
-            XXX
-
-        .. py:method:: getInt(key)
-
-            XXX
-
-        .. py:method:: getFloat(key)
-
-            XXX
-
-        .. py:method:: getBoolean(key)
-
-            XXX
-
-
 flashmessage Module
 -------------------
 
@@ -231,10 +190,11 @@ flashmessage Module
 
     .. autoclass:: FlashMessage(text, timeout=DEFAULT_TIMEOUT, parent=None, isError=False, acknowledge=False)
 
-        A :py:class:`FlashMessage` is a user notification shown as a text line. The
-        message can have an optional timeout or stay visible until clicked on by the user.
-        It inserts itself into node tree at the top. Multiple :py:class:`FlashMessage` 
-        instances are shown in the order they get created.
+        A :py:class:`FlashMessage` is an easy way to show debug notification and similar
+        text in the libavg window. The message can have an optional timeout or stay 
+        visible until clicked on by the user. It inserts itself into node tree at the top.
+        Multiple :py:class:`FlashMessage` instances are shown in the order they get 
+        created.
 
         :param timeout: The time in milliseconds the message should persist on screen
                 before it gets removed. Only valid if :py:attr:`acknowledge` is 
