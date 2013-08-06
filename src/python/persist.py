@@ -21,7 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
-# Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
 import os
@@ -32,7 +31,8 @@ import libavg
 
 
 class Persist(object):
-    def __init__(self, storeFile, initialData, validator=lambda v: True, autoCommit=False):
+    def __init__(self, storeFile, initialData, validator=lambda v: True,
+            autoCommit=False):
         self.__storeFile = storeFile
         
         if hasattr(initialData, '__call__'):

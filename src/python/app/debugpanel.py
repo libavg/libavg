@@ -23,7 +23,6 @@
 # Original authors of this file are
 #   OXullo Interecans <x at brainrapers dot org>
 #   Richard Klemm <richy at coding-reality.de>
-# Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 from collections import defaultdict
 from collections import deque
