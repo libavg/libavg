@@ -13,12 +13,14 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
         :parts: 1
 
 
-    .. autoclass:: DoubletapRecognizer(node, [maxTime=MAX_DOUBLETAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+    .. autoclass:: DoubletapRecognizer(node, [maxTime=MAX_DOUBLETAP_TIME, maxDist=MAX_TAP_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
 
         A :py:class:`DoubletapRecognizer` detects doubletaps: Two short touches in quick
         succession without a large change of the cursor position.
 
         :param maxTime: The maximum time that each phase of the tap may take.
+
+        :param maxDist: The maximum distance the contact may move in millimeters.
 
 
     .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, initialEvent=None, direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE, friction=-1, minDragDist=None, possibleHandler=None, failHandler=None, detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None])
@@ -113,16 +115,16 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
             Causes inertia processing to end immediately.
 
 
-    .. autoclass:: HoldRecognizer(node, [delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
+    .. autoclass:: HoldRecognizer(node, [delay=HOLD_DELAY, maxDist=MAX_TAP_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
 
         A :py:class:`HoldRecognizer` detects if a touch is held for a certain amount of 
         time. Holds are continuous events: the :py:meth:`stopHandler` is called when the
         contact up event arrives.
 
-        :param delay: 
-        
-            The amount of time that has to pass before the hold is recognized.
-    
+        :param delay: The amount of time that has to pass before the hold is recognized.
+
+        :param maxDist: The maximum distance the contact may move in millimeters.
+
 
     .. autoclass:: Recognizer(node, isContinuous, maxContacts, initialEvent[, possibleHandler=None, failHandler=None, detectedHandler=None, endHandler=None])
 
@@ -245,13 +247,15 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
             Maximum distance between the start positions of the different contacts.
 
 
-    .. autoclass:: TapRecognizer(node, [maxTime=MAX_TAP_TIME, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
+    .. autoclass:: TapRecognizer(node, [maxTime=MAX_TAP_TIME, maxDist=MAX_TAP_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None])
 
         A :py:class:`TapRecognizer` detects short touches without a large change of the 
         cursor position.
 
         :param maxTime: The maximum time that the tap may take in milliseconds.
-    
+
+        :param maxDist: The maximum distance the contact may move in millimeters.
+
 
     .. autoclass:: Transform(trans, [rot=0, scale=1, pivot=(0,0)])
 
