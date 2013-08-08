@@ -33,10 +33,17 @@ template<class RECEIVER>
 class AVG_TEMPLATE_API CmdQueue: public Queue<Command<RECEIVER> >
 {
 public:
+    CmdQueue(int maxSize=-1);
     typedef typename Queue<Command<RECEIVER> >::QElementPtr CmdPtr;
     void pushCmd(typename Command<RECEIVER>::CmdFunc func);
     
 };
+
+template<class RECEIVER>
+CmdQueue<RECEIVER>::CmdQueue(int maxSize)
+    : Queue<Command<RECEIVER> >(maxSize)
+{
+}
 
 template<class RECEIVER>
 void CmdQueue<RECEIVER>::pushCmd(typename Command<RECEIVER>::CmdFunc func)
