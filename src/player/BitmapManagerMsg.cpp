@@ -20,6 +20,7 @@
 //
 
 #include "BitmapManagerMsg.h"
+#include "IBitmapLoadedListener.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -30,14 +31,20 @@ namespace avg {
 
 BitmapManagerMsg::BitmapManagerMsg(const UTF8String& sFilename,
         const boost::python::object& onLoadedCb, PixelFormat pf) 
-    : m_pEx(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_sFilename = sFilename;
-    m_StartTime = TimeSource::get()->getCurrentMicrosecs()/1000.0f;
+    init(sFilename, pf);
     m_OnLoadedCb = onLoadedCb;
-    m_PF = pf;
-    m_MsgType = REQUEST;
+    m_pLoadedListener = 0;
+}
+
+BitmapManagerMsg::BitmapManagerMsg(const UTF8String& sFilename,
+        IBitmapLoadedListener* pLoadedListener, PixelFormat pf)
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+    init(sFilename, pf);
+    m_OnLoadedCb = boost::python::object();
+    m_pLoadedListener = pLoadedListener;
 }
 
 BitmapManagerMsg::~BitmapManagerMsg()
@@ -48,15 +55,31 @@ BitmapManagerMsg::~BitmapManagerMsg()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+void BitmapManagerMsg::init(const UTF8String& sFilename, PixelFormat pf)
+{
+    m_sFilename = sFilename;
+    m_StartTime = TimeSource::get()->getCurrentMicrosecs()/1000.0f;
+    m_PF = pf;
+    m_MsgType = REQUEST;
+    m_pEx = 0;
+}
+
 void BitmapManagerMsg::executeCallback()
 {
     switch (m_MsgType) {
         case BITMAP:
-            boost::python::call<void>(m_OnLoadedCb.ptr(), m_pBmp);
+            if (m_pLoadedListener) {
+                m_pLoadedListener->onBitmapLoaded(m_pBmp);
+            } else {
+                boost::python::call<void>(m_OnLoadedCb.ptr(), m_pBmp);
+            }
             break;
-
         case ERROR:
-            boost::python::call<void>(m_OnLoadedCb.ptr(), m_pEx);
+            if (m_pLoadedListener) {
+                m_pLoadedListener->onBitmapLoadError(m_pEx);
+            } else {
+                boost::python::call<void>(m_OnLoadedCb.ptr(), m_pEx);
+            }
             break;
         
         default:

@@ -113,7 +113,7 @@ BitmapPtr createBitmapWithRect(BitmapPtr pBmp,
     return BitmapPtr(new Bitmap(*pBmp, rect));
 }
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads, BitmapManager::loadBitmap, 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads, BitmapManager::loadBitmapPy, 
         2, 3);
 
 void export_bitmap()
@@ -195,7 +195,7 @@ void export_bitmap()
         .def("get", &BitmapManager::get,
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
-        .def("loadBitmap", &BitmapManager::loadBitmap, loadBitmap_overloads())
+        .def("loadBitmap", &BitmapManager::loadBitmapPy, loadBitmap_overloads())
         .def("setNumThreads", &BitmapManager::setNumThreads)
     ;
 

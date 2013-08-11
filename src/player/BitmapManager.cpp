@@ -20,6 +20,7 @@
 //
 
 #include "BitmapManager.h"
+#include "IBitmapLoadedListener.h"
 
 #ifdef WIN32
 #include  <io.h>
@@ -69,29 +70,22 @@ BitmapManager* BitmapManager::get()
     return s_pBitmapManager;
 }
 
-void BitmapManager::loadBitmap(const UTF8String& sUtf8FileName,
+void BitmapManager::loadBitmapPy(const UTF8String& sUtf8FileName,
         const boost::python::object& pyFunc, PixelFormat pf)
 {
     std::string sFileName = convertUTF8ToFilename(sUtf8FileName);
-
-#ifdef WIN32
-    int rc = _access(sFileName.c_str(), 04);
-#else
-    int rc = access(sFileName.c_str(), R_OK);
-#endif
-
-    BitmapManagerMsgPtr msg = BitmapManagerMsgPtr(
+    BitmapManagerMsgPtr pMsg = BitmapManagerMsgPtr(
             new BitmapManagerMsg(sUtf8FileName, pyFunc, pf));
+    internalLoadBitmap(pMsg);
+}
 
-    if (rc != 0) {
-        msg->setError(Exception(AVG_ERR_FILEIO, 
-                std::string("BitmapManager can't open output file '") +
-                sFileName + "'. Reason: " +
-                strerror(errno)));
-        m_pMsgQueue->push(msg);
-    } else {
-        m_pCmdQueue->pushCmd(boost::bind(&BitmapManagerThread::loadBitmap, _1, msg));
-    }
+void BitmapManager::loadBitmap(const UTF8String& sUtf8FileName,
+        IBitmapLoadedListener* pLoadedListener, PixelFormat pf)
+{
+    std::string sFileName = convertUTF8ToFilename(sUtf8FileName);
+    BitmapManagerMsgPtr pMsg = BitmapManagerMsgPtr(
+            new BitmapManagerMsg(sUtf8FileName, pLoadedListener, pf));
+    internalLoadBitmap(pMsg);
 }
 
 void BitmapManager::setNumThreads(int numThreads)
@@ -105,6 +99,25 @@ void BitmapManager::onFrameEnd()
     while (!m_pMsgQueue->empty()) {
         BitmapManagerMsgPtr pMsg = m_pMsgQueue->pop();
         pMsg->executeCallback();
+    }
+}
+
+void BitmapManager::internalLoadBitmap(BitmapManagerMsgPtr pMsg)
+{
+#ifdef WIN32
+    int rc = _access(pMsg->getFilename().c_str(), 04);
+#else
+    int rc = access(pMsg->getFilename().c_str(), R_OK);
+#endif
+
+    if (rc != 0) {
+        pMsg->setError(Exception(AVG_ERR_FILEIO, 
+                std::string("BitmapManager can't open output file '") +
+                pMsg->getFilename() + "'. Reason: " +
+                strerror(errno)));
+        m_pMsgQueue->push(pMsg);
+    } else {
+        m_pCmdQueue->pushCmd(boost::bind(&BitmapManagerThread::loadBitmap, _1, pMsg));
     }
 }
 
