@@ -80,8 +80,8 @@ void BitmapManager::loadBitmap(const UTF8String& sUtf8FileName,
     int rc = access(sFileName.c_str(), R_OK);
 #endif
 
-    BitmapManagerMsgPtr msg = BitmapManagerMsgPtr(new BitmapManagerMsg());
-    msg->setRequest(sUtf8FileName, pyFunc, pf);
+    BitmapManagerMsgPtr msg = BitmapManagerMsgPtr(
+            new BitmapManagerMsg(sUtf8FileName, pyFunc, pf));
 
     if (rc != 0) {
         msg->setError(Exception(AVG_ERR_FILEIO, 

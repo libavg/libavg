@@ -28,11 +28,16 @@
 
 namespace avg {
 
-BitmapManagerMsg::BitmapManagerMsg() 
-    : m_MsgType(NONE),
-      m_pEx(0)
+BitmapManagerMsg::BitmapManagerMsg(const UTF8String& sFilename,
+        const boost::python::object& onLoadedCb, PixelFormat pf) 
+    : m_pEx(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    m_sFilename = sFilename;
+    m_StartTime = TimeSource::get()->getCurrentMicrosecs()/1000.0f;
+    m_OnLoadedCb = onLoadedCb;
+    m_PF = pf;
+    m_MsgType = REQUEST;
 }
 
 BitmapManagerMsg::~BitmapManagerMsg()
@@ -43,20 +48,8 @@ BitmapManagerMsg::~BitmapManagerMsg()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void BitmapManagerMsg::setRequest(const UTF8String& sFilename,
-        const boost::python::object& onLoadedCb, PixelFormat pf)
-{
-    AVG_ASSERT(m_MsgType == NONE);
-    m_sFilename = sFilename;
-    m_StartTime = TimeSource::get()->getCurrentMicrosecs()/1000.0f;
-    m_OnLoadedCb = onLoadedCb;
-    m_PF = pf;
-    m_MsgType = REQUEST;
-}
-
 void BitmapManagerMsg::executeCallback()
 {
-    AVG_ASSERT(m_MsgType != NONE);
     switch (m_MsgType) {
         case BITMAP:
             boost::python::call<void>(m_OnLoadedCb.ptr(), m_pBmp);
@@ -73,7 +66,6 @@ void BitmapManagerMsg::executeCallback()
     
 const UTF8String BitmapManagerMsg::getFilename()
 {
-    AVG_ASSERT(m_MsgType != NONE);
     return m_sFilename;
 }
 

@@ -37,14 +37,13 @@ namespace avg {
 class AVG_API BitmapManagerMsg
 {
 public:
-    enum MsgType {NONE, REQUEST, BITMAP, ERROR};
+    enum MsgType {REQUEST, BITMAP, ERROR};
 
-    BitmapManagerMsg();
+    BitmapManagerMsg(const UTF8String& sFilename,
+        const boost::python::object& onLoadedCb, PixelFormat pf);
     virtual ~BitmapManagerMsg();
 
     void executeCallback();
-    void setRequest(const UTF8String& sFilename, const boost::python::object& onLoadedCb,
-            PixelFormat pf);
     const UTF8String getFilename();
     float getStartTime();
     PixelFormat getPixelFormat();
