@@ -121,4 +121,10 @@ TypeDefinition& TypeDefinition::addChildren(const vector<string>& sChildren)
     return *this;
 }
 
+TypeDefinition& TypeDefinition::addChild(const string& sChild)
+{
+    m_sChildren.push_back(sChild);
+    return *this;
+}
+
 }

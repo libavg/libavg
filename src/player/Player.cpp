@@ -38,7 +38,6 @@
 #include "CircleNode.h"
 #include "MeshNode.h"
 #include "FontStyle.h"
-#include "TypeDefinition.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
 #include "TestHelper.h"

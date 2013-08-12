@@ -128,9 +128,9 @@ string TypeRegistry::getDTD() const
     return ss.str();
 }
 
-const TypeDefinition& TypeRegistry::getTypeDef(const string& sType)
+TypeDefinition& TypeRegistry::getTypeDef(const string& sType)
 {
-    TypeDefMap::const_iterator it = m_TypeDefs.find(sType);
+    TypeDefMap::iterator it = m_TypeDefs.find(sType);
     if (it == m_TypeDefs.end()) {
         throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
             string("Unknown node type ") + sType + " encountered."));
