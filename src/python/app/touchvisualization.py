@@ -161,14 +161,16 @@ class TouchVisualization(BaseTouchVisualization):
         
 
 class TouchVisualizationOverlay(avg.DivNode):
-    def __init__(self, isDebug, visClass, parent=None, **kwargs):
+    def __init__(self, isDebug, visClass, rootNode=None, parent=None, 
+            **kwargs):
         super(TouchVisualizationOverlay, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.sensitive = False
         self.visClass = visClass
+        if rootNode is None:
+            rootNode = player.getRootNode()
 
-        rootNode = player.getRootNode()
         if isDebug:
             self.elementoutlinecolor='FFFFAA'
             avg.RectNode(parent=self, size=self.size, fillopacity=0.2, fillcolor='000000')
