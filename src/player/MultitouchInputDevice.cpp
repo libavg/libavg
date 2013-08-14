@@ -60,7 +60,7 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     vector<TouchStatusPtr>::iterator it;
 //    cerr << "--------poll---------" << endl;
     for (it = m_Touches.begin(); it != m_Touches.end(); ) {
-//        cerr << it->first << " ";
+//        cerr << (*it)->getID() << " ";
         CursorEventPtr pEvent = (*it)->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
