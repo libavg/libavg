@@ -482,11 +482,11 @@ class GestureTestCase(AVGTestCase):
             dragRecognizer.abort()
 
         def setupRecognizer(friction, moveHandler=onMove, minDragDist=0, 
-                direction=gesture.DragRecognizer.ANY_DIRECTION):
+                direction=gesture.DragRecognizer.ANY_DIRECTION, **kargs):
             self.__initImageScene()
             dragRecognizer = gesture.DragRecognizer(self.image, moveHandler=moveHandler, 
                     upHandler=onUp, friction=friction, minDragDist=minDragDist, 
-                    direction=direction)
+                    direction=direction, **kargs)
             messageTester = MessageTester(dragRecognizer, [gesture.Recognizer.POSSIBLE, 
                     gesture.Recognizer.DETECTED, gesture.Recognizer.FAILED,
                     gesture.Recognizer.END], 
@@ -640,6 +640,23 @@ class GestureTestCase(AVGTestCase):
                         [gesture.Recognizer.END, gesture.Recognizer.POSSIBLE,
                          gesture.Recognizer.MOTION]),
                 ))
+
+        # Test abort in possible handler
+        for self.friction in (-1, 100):
+            if self.friction == -1:
+                sys.stderr.write("  Abort in possible handler, no inertia\n")
+            else:
+                sys.stderr.write("  Abort in possible handler, inertia\n")
+            dragRecognizer, self.messageTester = setupRecognizer(friction=self.friction,
+                    minDragDist=5, possibleHandler=abort)
+            self.start(False,
+                    (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [gesture.Recognizer.POSSIBLE]),
+                     self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 70, 70, []),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 70, 70, []),
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                            [gesture.Recognizer.POSSIBLE]),
+                    ))
 
         player.setFakeFPS(-1)
 
