@@ -76,6 +76,10 @@ class Recognizer(avg.Publisher):
         if initialEvent:
             self.__onDown(initialEvent)
 
+    @property
+    def contacts(self):
+        return list(self._contacts)
+
     def abort(self):
         if self.__isEnabled:
             self.__abort()

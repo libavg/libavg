@@ -204,11 +204,14 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
                 Emitted when a continuous gesture ends. This is often a result of an
                 up event, but e.g. in the case of inertia, :py:meth:`END` is emitted
                 when movement stops.
-                
+
+        .. py:attribute:: contacts
+
+            List of all contacts detected by the :py:class:`Recognizer`.
 
         .. py:method:: abort()
 
-            Aborts the present recognized gesture
+            Aborts the present recognized gesture.
 
         .. py:method:: enable(isEnabled)
 
