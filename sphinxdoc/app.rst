@@ -104,12 +104,14 @@ app module
 
         .. py:method:: onInit()
 
-            Called by a libavg timer as soon as the main loop starts.
+            Called by a libavg timer as soon as the main loop starts. At this point in 
+            time, the window has been created and all render functions are available.
             Build the application node tree here.
 
         .. py:method:: onStartup()
 
-            Called before libavg has been setup, just after the App().run() call.
+            Called before libavg has been setup, just after the :samp:`App().run()` call.
+            The window has not been created at this time.
 
 
 keyboardmanager Module
