@@ -282,7 +282,7 @@ class ObjectDumpWidget(DebugWidget):
         self.intervalID = libavg.player.setInterval(1000, self.update)
         kbmgr.bindKeyDown(keystring='i',
                 handler=self.persistColumn,
-                help="Persist live column to object dump table",
+                help="Object count snapshot",
                 modifiers=libavg.KEYMOD_CTRL)
 
     def onHide(self):
@@ -497,7 +497,7 @@ class DebugPanel(avg.DivNode):
 
         kbmgr.bindKeyDown(keystring='o',
                 handler=lambda: self.toggleWidget(ObjectDumpWidget),
-                help="Object dump",
+                help="Object count table",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keystring='v', handler=self.toggleTouchVisualization,
