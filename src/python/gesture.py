@@ -86,8 +86,8 @@ class Recognizer(avg.Publisher):
             self.__setEventHandler()
 
     def enable(self, isEnabled):
-        if isEnabled != self.__isEnabled:
-            self.__isEnabled = isEnabled
+        if bool(isEnabled) != self.__isEnabled:
+            self.__isEnabled = bool(isEnabled)
             if isEnabled:
                 self.__setEventHandler()
             else:
@@ -766,7 +766,7 @@ class TransformRecognizer(Recognizer):
         self.subscribe(Recognizer.UP, upHandler)
 
     def enable(self, isEnabled):
-        if isEnabled != self.isEnabled() and not(isEnabled):
+        if bool(isEnabled) != self.isEnabled() and not(isEnabled):
             self.__abort()
         super(TransformRecognizer, self).enable(isEnabled)
 
