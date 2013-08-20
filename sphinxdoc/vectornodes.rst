@@ -31,9 +31,9 @@ Vector Nodes
             If :samp:`t=0`, returns :py:attr:`pos1`. :samp:`t=1` returns :py:attr:`pos4`,
             and values in between return the points in between.
 
-        .. py:attribute:: length (ro)
+        .. py:attribute:: length
 
-            Returns an approximation of the length of the curve.
+            Returns an approximation of the length of the curve (ro).
 
         .. py:attribute:: pos1
 
