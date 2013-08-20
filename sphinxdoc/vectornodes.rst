@@ -25,6 +25,16 @@ Vector Nodes
         :py:attr:`pos1` and :py:attr:`pos4` are the two endpoints of the curve. 
         :py:attr:`pos2` and :py:attr:`pos3` are control points.
 
+        .. py:method:: getPtOnCurve(t) -> pos
+
+            Returns a point on the curve. Which point is determined by the value of t.
+            If :samp:`t=0`, returns :py:attr:`pos1`. :samp:`t=1` returns :py:attr:`pos4`,
+            and values in between return the points in between.
+
+        .. py:attribute:: length (ro)
+
+            Returns an approximation of the length of the curve.
+
         .. py:attribute:: pos1
 
         .. py:attribute:: pos2
