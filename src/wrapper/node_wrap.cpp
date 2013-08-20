@@ -282,6 +282,8 @@ void export_node()
         .add_property("y4", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
         .add_property("texcoord1", &CurveNode::getTexCoord1, &CurveNode::setTexCoord1)
         .add_property("texcoord2", &CurveNode::getTexCoord2, &CurveNode::setTexCoord2)
+        .add_property("length", &CurveNode::getCurveLen)
+        .def("getPtOnCurve", &CurveNode::getPtOnCurve)
     ;
 
     class_<PolyLineNode, bases<VectorNode>, boost::noncopyable>("PolyLineNode", no_init)

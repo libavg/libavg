@@ -125,6 +125,23 @@ void CurveNode::setTexCoord2(float tc)
     m_TC2 = tc;
     setDrawNeeded();
 }
+ 
+int CurveNode::getCurveLen() const
+{
+    // Calc. upper bound for spline length.
+    float curveLen = glm::length(m_P2-m_P1) + glm::length(m_P3 - m_P2)
+            + glm::length(m_P4-m_P3);
+    if (curveLen > 50000) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Illegal points in curve.");
+    }
+    return int(curveLen);
+}
+
+glm::vec2 CurveNode::getPtOnCurve(float t) const
+{
+    BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
+    return curve.interpolate(t);
+}
 
 void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
@@ -139,17 +156,6 @@ void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
         pVertexData->appendPos(m_RightCurve[i+1], glm::vec2(tc,0), color);
         pVertexData->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
     }
-}
-
-int CurveNode::getCurveLen()
-{
-    // Calc. upper bound for spline length.
-    float curveLen = glm::length(m_P2-m_P1) + glm::length(m_P3 - m_P2)
-            + glm::length(m_P4-m_P3);
-    if (curveLen > 50000) {
-        throw Exception(AVG_ERR_OUT_OF_RANGE, "Illegal points in curve.");
-    }
-    return int(curveLen);
 }
 
 void CurveNode::updateLines()
