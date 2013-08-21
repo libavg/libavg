@@ -55,7 +55,7 @@ VertexData::VertexData(int reserveVerts, int reserveIndexes)
     }
     
     m_pVertexData = new Vertex[m_ReserveVerts];
-    m_pIndexData = new unsigned short[m_ReserveIndexes];
+    m_pIndexData = new GL_INDEX_TYPE[m_ReserveIndexes];
 
 }
 
@@ -133,7 +133,7 @@ void VertexData::appendVertexData(const VertexDataPtr& pVertexes)
             pVertexes->getNumVerts()*sizeof(Vertex));
     int numIndexes = pVertexes->getNumIndexes();
     for (int i=0; i<numIndexes; ++i) {
-        m_pIndexData[oldNumIndexes+i] = pVertexes->m_pIndexData[i]+oldNumVerts;
+        m_pIndexData[oldNumIndexes+i] = pVertexes->m_pIndexData[i] + oldNumVerts;
     }
     m_bDataChanged = true;
 }
@@ -191,10 +191,12 @@ void VertexData::grow()
         bChanged = true;
         int oldReserveVerts = m_ReserveVerts;
         m_ReserveVerts = int(m_ReserveVerts*1.5);
+#ifdef AVG_ENABLE_EGL
         if (m_ReserveVerts > 65535) {
             throw Exception(AVG_ERR_UNSUPPORTED, 
                     "Global maximum number of vertexes reached (65535).");
         }
+#endif
         if (m_ReserveVerts < m_NumVerts) {
             m_ReserveVerts = m_NumVerts;
         }
@@ -210,9 +212,9 @@ void VertexData::grow()
         if (m_ReserveIndexes < m_NumIndexes) {
             m_ReserveIndexes = m_NumIndexes;
         }
-        unsigned short * pIndexData = m_pIndexData;
-        m_pIndexData = new unsigned short[m_ReserveIndexes];
-        memcpy(m_pIndexData, pIndexData, sizeof(unsigned short)*oldReserveIndexes);
+        GL_INDEX_TYPE * pIndexData = m_pIndexData;
+        m_pIndexData = new GL_INDEX_TYPE[m_ReserveIndexes];
+        memcpy(m_pIndexData, pIndexData, sizeof(GL_INDEX_TYPE)*oldReserveIndexes);
         delete[] pIndexData;
     }
     if (bChanged) {
@@ -235,7 +237,7 @@ const Vertex * VertexData::getVertexPointer() const
     return m_pVertexData;
 }
 
-const unsigned short * VertexData::getIndexPointer() const
+const GL_INDEX_TYPE * VertexData::getIndexPointer() const
 {
     return m_pIndexData;
 }
