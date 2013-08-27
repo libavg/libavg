@@ -86,12 +86,18 @@ void OffscreenCanvas::stopPlayback(bool bIsAbort)
 
 BitmapPtr OffscreenCanvas::screenshot() const
 {
+    BitmapPtr pBmp = screenshotIgnoreAlpha();
+    FilterUnmultiplyAlpha().applyInPlace(pBmp);
+    return pBmp;
+}
+
+BitmapPtr OffscreenCanvas::screenshotIgnoreAlpha() const
+{
     if (!isRunning() || !m_bIsRendered) {
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
     BitmapPtr pBmp = m_pFBO->getImage(0);
-    FilterUnmultiplyAlpha().applyInPlace(pBmp);
     return pBmp;
 }
 

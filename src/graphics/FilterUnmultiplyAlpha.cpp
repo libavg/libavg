@@ -23,6 +23,7 @@
 #include "Pixeldefs.h"
 
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
 
 namespace avg {
     
@@ -36,8 +37,11 @@ FilterUnmultiplyAlpha::~FilterUnmultiplyAlpha()
 
 }
 
+static ProfilingZoneID ProfilingZone("FilterUnmultiplyAlpha");
+
 void FilterUnmultiplyAlpha::applyInPlace(BitmapPtr pBmp) 
 {
+    ScopeTimer Timer(ProfilingZone);
     AVG_ASSERT(pBmp->getBytesPerPixel() == 4);
     IntPoint size = pBmp->getSize();
     for (int y = 0; y < size.y; y++) {
