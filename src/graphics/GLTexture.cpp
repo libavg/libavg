@@ -83,6 +83,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     m_TexID = s_LastTexID;
     m_pGLContext->bindTexture(GL_TEXTURE0, m_TexID);
     if (bMipmap) {
+        glproc::GenerateMipmap(GL_TEXTURE_2D);
+        GLContext::checkError("GLTexture::generateMipmap()");
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -144,7 +146,7 @@ void GLTexture::generateMipmaps()
     if (m_bMipmap) {
         activate();
         glproc::GenerateMipmap(GL_TEXTURE_2D);
-        GLContext::checkError("GLTexture::generateMipmaps()");
+        GLContext::checkError("GLTexture::generateMipmap()");
     }
 }
 

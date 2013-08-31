@@ -65,8 +65,6 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
     }
     for (unsigned i=0; i<numTextures; ++i) {
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
-        // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
-        // glGenerateMipmaps causes FBO creation to fail(?!).
         pTex->generateMipmaps();
         GLContext::checkError("FBO::FBO: generateMipmaps");
         m_pTextures.push_back(pTex);
