@@ -147,37 +147,37 @@ glm::ivec3 stringToIVec3(const std::string& s)
 }
 
 
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<int> &p);
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<float> &p);
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<double> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<int> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<float> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<double> &p);
 
-template std::istream& operator>>(std::istream& is, glm::detail::tvec2<int>& p);
-template std::istream& operator>>(std::istream& is, glm::detail::tvec2<float>& p);
-template std::istream& operator>>(std::istream& is, glm::detail::tvec2<double>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<int>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<float>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<double>& p);
 
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<int> &p);
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<float> &p);
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<double> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<int> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<float> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<double> &p);
 
-template std::istream& operator>>(std::istream& is, glm::detail::tvec3<int>& p);
-template std::istream& operator>>(std::istream& is, glm::detail::tvec3<float>& p);
-template std::istream& operator>>(std::istream& is, glm::detail::tvec3<double>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<int>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<float>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<double>& p);
 
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<int> &p);
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<float> &p);
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<double> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<int> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<float> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<double> &p);
 
-template std::ostream& operator<<(std::ostream& os, const glm::detail::tmat4x4<float> &p);
-template std::ostream& operator<<(std::ostream& os, 
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tmat4x4<float> &p);
+template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, 
         const glm::detail::tmat4x4<double> &p);
 
-template bool almostEqual(const glm::detail::tvec2<float>& v1,
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec2<float>& v1,
         const glm::detail::tvec2<float>& v2);
-template bool almostEqual(const glm::detail::tvec2<double>& v1,
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec2<double>& v1,
         const glm::detail::tvec2<double>& v2);
-template bool almostEqual(const glm::detail::tvec4<float>& v1,
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<float>& v1,
         const glm::detail::tvec4<float>& v2);
-template bool almostEqual(const glm::detail::tvec4<double>& v1,
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<double>& v1,
         const glm::detail::tvec4<double>& v2);
 }
 
