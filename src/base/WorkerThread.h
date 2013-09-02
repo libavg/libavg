@@ -55,6 +55,9 @@ public:
     void waitForCommand();
     void stop();
 
+protected:
+    int getNumCmdsInQueue() const;
+
 private:
     virtual bool init();
     virtual bool work() = 0;
@@ -135,6 +138,12 @@ template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::stop() 
 {
     m_bShouldStop = true;
+}
+
+template<class DERIVED_THREAD>
+int WorkerThread<DERIVED_THREAD>::getNumCmdsInQueue() const
+{
+    return m_CmdQ.size();
 }
 
 template<class DERIVED_THREAD>

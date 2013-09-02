@@ -42,6 +42,12 @@ struct Vertex {
 class VertexData;
 typedef boost::shared_ptr<VertexData> VertexDataPtr;
 
+#ifdef AVG_ENABLE_EGL
+#define GL_INDEX_TYPE unsigned short 
+#else
+#define GL_INDEX_TYPE unsigned int 
+#endif
+
 class AVG_API VertexData {
 public:
     VertexData(int reserveVerts = 0, int reserveIndexes = 0);
@@ -69,7 +75,7 @@ protected:
     int getReserveIndexes() const;
 
     const Vertex * getVertexPointer() const;
-    const unsigned short * getIndexPointer() const;
+    const GL_INDEX_TYPE * getIndexPointer() const;
 
     static const int MIN_VERTEXES;
     static const int MIN_INDEXES;
@@ -82,7 +88,7 @@ private:
     int m_ReserveVerts;
     int m_ReserveIndexes;
     Vertex * m_pVertexData;
-    unsigned short * m_pIndexData;
+    GL_INDEX_TYPE * m_pIndexData;
 
     bool m_bDataChanged;
 };

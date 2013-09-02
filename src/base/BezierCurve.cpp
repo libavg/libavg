@@ -45,6 +45,7 @@ glm::vec2 BezierCurve::interpolate(float t) const
            3.f*t*t*(1.f-t)        *m_P2+
            t*t*t                  *m_P3;
 }
+
 glm::vec2 BezierCurve::getDeriv(float t) const
 {
     return 3.f*(m_P1-m_P0)*(1.f-t)*(1.f-t)+

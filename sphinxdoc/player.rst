@@ -306,8 +306,8 @@ Player & Canvas
 
         .. py:method:: getKeyModifierState() -> KeyModifier
 
-            Returns the current modifier keys (:kbd:`shift`, :kbd:`ctrl`) pressed. 
-            The return value is several KeyModifier values or'ed together.
+            Returns the current modifier keys pressed, or'ed together. For a list of
+            possible values, see :py:attr:`KeyEvent.modifiers`.
 
         .. py:method:: getMainCanvas() -> Canvas
 

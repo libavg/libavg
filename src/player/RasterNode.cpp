@@ -196,7 +196,6 @@ void RasterNode::setWarpedVertexCoords(const VertexGrid& grid)
                 "setWarpedVertexCoords() called with incorrect grid size.");
     }
     m_TileVertices = grid;
-    m_bVertexArrayDirty = true;
 }
 
 int RasterNode::getMaxTileWidth() const
@@ -341,7 +340,6 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color
                         curVertex+1, curVertex, curVertex+2, curVertex+3);
             }
         }
-        m_bVertexArrayDirty = false;
     }
 }
 
@@ -551,7 +549,6 @@ void RasterNode::calcVertexGrid(VertexGrid& grid)
             calcTileVertex(x, y, grid[y][x]);
         }
     }
-    m_bVertexArrayDirty = true;
 }
 
 void RasterNode::calcTileVertex(int x, int y, glm::vec2& Vertex) 
@@ -602,6 +599,5 @@ void RasterNode::calcTexCoords()
             }
         }
     }
-    m_bVertexArrayDirty = true;
 }
 }

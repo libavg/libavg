@@ -38,7 +38,7 @@ namespace avg {
 
 class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
     public:
-        VideoWriterThread(CQueue& CmdQueue, const std::string& sFilename, IntPoint size,
+        VideoWriterThread(CQueue& cmdQueue, const std::string& sFilename, IntPoint size,
                 int frameRate, int qMin, int qMax);
         virtual ~VideoWriterThread();
 

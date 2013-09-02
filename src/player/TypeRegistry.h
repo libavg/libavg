@@ -44,7 +44,7 @@ public:
     
     void registerType(const TypeDefinition& def, const char* pParentNames[] = 0);
     void updateDefinition(const TypeDefinition& def);
-    const TypeDefinition& getTypeDef(const std::string& Type);
+    TypeDefinition& getTypeDef(const std::string& Type);
     ExportedObjectPtr createObject(const std::string& Type, const xmlNodePtr xmlNode);
     ExportedObjectPtr createObject(const std::string& Type, const py::dict& PyDict);
     

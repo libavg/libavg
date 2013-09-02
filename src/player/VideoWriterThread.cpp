@@ -33,9 +33,9 @@ namespace avg {
 const unsigned int VIDEO_BUFFER_SIZE = 400000;
 const AVPixelFormat STREAM_PIXEL_FORMAT = ::PIX_FMT_YUVJ420P;
 
-VideoWriterThread::VideoWriterThread(CQueue& CmdQueue, const string& sFilename,
+VideoWriterThread::VideoWriterThread(CQueue& cmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
-    : WorkerThread<VideoWriterThread>(sFilename, CmdQueue, Logger::category::PROFILE),
+    : WorkerThread<VideoWriterThread>(sFilename, cmdQueue, Logger::category::PROFILE),
       m_sFilename(sFilename),
       m_Size(size),
       m_FrameRate(frameRate),

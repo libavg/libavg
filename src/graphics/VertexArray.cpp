@@ -78,9 +78,15 @@ void VertexArray::update()
         transferBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID, 
                 getReserveVerts()*sizeof(Vertex), 
                 getNumVerts()*sizeof(Vertex), getVertexPointer());
+#ifdef AVG_ENABLE_EGL        
         transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
                 getReserveIndexes()*sizeof(unsigned short),
                 getNumIndexes()*sizeof(unsigned short), getIndexPointer());
+#else
+        transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
+                getReserveIndexes()*sizeof(unsigned int),
+                getNumIndexes()*sizeof(unsigned int), getIndexPointer());
+#endif
         GLContext::checkError("VertexArray::update()");
     }
     resetDataChanged();
@@ -106,15 +112,24 @@ void VertexArray::draw()
 {
     update();
     activate();
+#ifdef AVG_ENABLE_EGL        
     glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_SHORT, 0);
+#else
+    glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_INT, 0);
+#endif
     GLContext::checkError("VertexArray::draw()");
 }
 
 void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
         unsigned numVertexes)
 {
+#ifdef AVG_ENABLE_EGL        
     glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_SHORT, 
             (void *)(startIndex*sizeof(unsigned short)));
+#else
+    glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_INT, 
+            (void *)(startIndex*sizeof(unsigned int)));
+#endif
 //    XXX: Theoretically faster, but broken on Linux/Intel N10 graphics, Ubuntu 12/04
 //    glproc::DrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, 
 //            numIndexes, GL_UNSIGNED_SHORT, (void *)(startIndex*sizeof(unsigned short)));

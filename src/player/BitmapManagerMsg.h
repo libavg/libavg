@@ -34,17 +34,21 @@
 
 namespace avg {
 
+class IBitmapLoadedListener;
+
 class AVG_API BitmapManagerMsg
 {
 public:
-    enum MsgType {NONE, REQUEST, BITMAP, ERROR};
+    enum MsgType {REQUEST, BITMAP, ERROR};
 
-    BitmapManagerMsg();
+    BitmapManagerMsg(const UTF8String& sFilename,
+            const boost::python::object& onLoadedCb, PixelFormat pf);
+    BitmapManagerMsg(const UTF8String& sFilename,
+            IBitmapLoadedListener* pLoadedListener, PixelFormat pf);
     virtual ~BitmapManagerMsg();
+    void init(const UTF8String& sFilename, PixelFormat pf);
 
     void executeCallback();
-    void setRequest(const UTF8String& sFilename, const boost::python::object& onLoadedCb,
-            PixelFormat pf);
     const UTF8String getFilename();
     float getStartTime();
     PixelFormat getPixelFormat();
@@ -58,6 +62,7 @@ private:
     float m_StartTime;
     BitmapPtr m_pBmp;
     boost::python::object m_OnLoadedCb;
+    IBitmapLoadedListener* m_pLoadedListener;
     PixelFormat m_PF;
     MsgType m_MsgType;
     Exception* m_pEx;

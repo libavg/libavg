@@ -42,13 +42,13 @@ class AVG_TEMPLATE_API Queue
 public:
     typedef boost::shared_ptr<QElement> QElementPtr;
 
-    Queue(int MaxSize=-1);
+    Queue(int maxSize=-1);
     virtual ~Queue();
 
     bool empty() const;
     QElementPtr pop(bool bBlock = true);
     void clear();
-    void push(const QElementPtr& Elem);
+    void push(const QElementPtr& pElem);
     QElementPtr peek(bool bBlock = true) const;
     int size() const;
     int getMaxSize() const;
@@ -63,8 +63,8 @@ private:
 };
 
 template<class QElement>
-Queue<QElement>::Queue(int MaxSize)
-    : m_MaxSize(MaxSize)
+Queue<QElement>::Queue(int maxSize)
+    : m_MaxSize(maxSize)
 {
 }
 
@@ -83,8 +83,8 @@ bool Queue<QElement>::empty() const
 template<class QElement>
 typename Queue<QElement>::QElementPtr Queue<QElement>::pop(bool bBlock)
 {
-    scoped_lock Lock(m_Mutex);
-    QElementPtr pElem = getFrontElement(bBlock, Lock); 
+    scoped_lock lock(m_Mutex);
+    QElementPtr pElem = getFrontElement(bBlock, lock); 
     if (pElem) {
         m_pElements.pop_front();
         m_Cond.notify_one();
@@ -104,8 +104,8 @@ void Queue<QElement>::clear()
 template<class QElement>
 typename Queue<QElement>::QElementPtr Queue<QElement>::peek(bool bBlock) const
 {
-    scoped_lock Lock(m_Mutex);
-    QElementPtr pElem = getFrontElement(bBlock, Lock); 
+    scoped_lock lock(m_Mutex);
+    QElementPtr pElem = getFrontElement(bBlock, lock); 
     if (pElem) {
         m_Cond.notify_one();
     }
@@ -116,10 +116,10 @@ template<class QElement>
 void Queue<QElement>::push(const QElementPtr& pElem)
 {
     assert(pElem);
-    scoped_lock Lock(m_Mutex);
+    scoped_lock lock(m_Mutex);
     if (m_pElements.size() == (unsigned)m_MaxSize) {
         while (m_pElements.size() == (unsigned)m_MaxSize) {
-            m_Cond.wait(Lock);
+            m_Cond.wait(lock);
         }
     }
     m_pElements.push_back(pElem);
@@ -129,25 +129,25 @@ void Queue<QElement>::push(const QElementPtr& pElem)
 template<class QElement>
 int Queue<QElement>::size() const
 {
-    scoped_lock Lock(m_Mutex);
+    scoped_lock lock(m_Mutex);
     return int(m_pElements.size());
 }
 
 template<class QElement>
 int Queue<QElement>::getMaxSize() const
 {
-    scoped_lock Lock(m_Mutex);
+    scoped_lock lock(m_Mutex);
     return m_MaxSize;
 }
 
 template<class QElement>
 typename Queue<QElement>::QElementPtr 
-        Queue<QElement>::getFrontElement(bool bBlock, scoped_lock& Lock) const
+        Queue<QElement>::getFrontElement(bool bBlock, scoped_lock& lock) const
 {
     if (m_pElements.empty()) {
         if (bBlock) {
             while (m_pElements.empty()) {
-                m_Cond.wait(Lock);
+                m_Cond.wait(lock);
             }
         } else {
             return QElementPtr();

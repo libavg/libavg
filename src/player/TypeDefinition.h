@@ -59,6 +59,7 @@ public:
     TypeDefinition& addArg(const ArgBase& newArg);
     TypeDefinition& addDTDElements(const std::string& s);
     TypeDefinition& addChildren(const std::vector<std::string>& sChildren);
+    TypeDefinition& addChild(const std::string& sChild);
 
 private:
     std::string m_sName;

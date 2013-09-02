@@ -739,9 +739,9 @@ class EventTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         root.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.MOUSE, onErrMouseOver)
         self.assertException(lambda:
-                self.start((
-                         lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
-                )))
+                self.start(False,
+                        (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
+                        )))
     
     def testEventHook(self):
         def resetState():

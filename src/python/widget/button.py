@@ -182,7 +182,7 @@ class TextButton(Button):
         HVStretchNode(size=size, src=cfg[bmpName], endsExtent=endsExtent, 
                 parent=stateNode)
         words = avg.WordsNode(text=text, fontstyle=cfg[fontStyleName], parent=stateNode)
-        words.pos = (size-words.size)/2
+        words.pos = (round((size.x-words.size.x)/2), round((size.y-words.size.y)/2))
         self.wordsNodes.append(words)
         return stateNode
 

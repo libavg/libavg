@@ -19,37 +19,25 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CmdQueue_H_
-#define _CmdQueue_H_
-
-#include "Command.h"
-#include "Queue.h"
+#ifndef _IBitmapLoadedListener_H_ 
+#define _IBitmapLoadedListener_H_
 
 #include "../api.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
 
-template<class RECEIVER>
-class AVG_TEMPLATE_API CmdQueue: public Queue<Command<RECEIVER> >
-{
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class Exception;
+
+class AVG_API IBitmapLoadedListener {
 public:
-    CmdQueue(int maxSize=-1);
-    typedef typename Queue<Command<RECEIVER> >::QElementPtr CmdPtr;
-    void pushCmd(typename Command<RECEIVER>::CmdFunc func);
-    
+    virtual ~IBitmapLoadedListener() {};
+    virtual void onBitmapLoaded(BitmapPtr pBmp) = 0;
+    virtual void onBitmapLoadError(const Exception* e) = 0;
 };
-
-template<class RECEIVER>
-CmdQueue<RECEIVER>::CmdQueue(int maxSize)
-    : Queue<Command<RECEIVER> >(maxSize)
-{
-}
-
-template<class RECEIVER>
-void CmdQueue<RECEIVER>::pushCmd(typename Command<RECEIVER>::CmdFunc func)
-{
-    this->push(CmdPtr(new Command<RECEIVER>(func)));
-}
 
 }
 

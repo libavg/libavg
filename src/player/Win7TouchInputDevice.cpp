@@ -179,6 +179,7 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 IntPoint Win7TouchInputDevice::calcClientAreaOffset() const
 {
+    // TODO: This might work for now, but the x offset should probably be SM_CXBORDER.
     return IntPoint(GetSystemMetrics(SM_CYBORDER)+2, GetSystemMetrics(SM_CYCAPTION)+3);
 }
 

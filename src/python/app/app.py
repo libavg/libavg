@@ -21,7 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
-# Sponsored by Archimedes Exhibitions GmbH ( http://www.archimedes-exhibitions.de )
 
 
 import os

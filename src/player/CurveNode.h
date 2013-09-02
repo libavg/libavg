@@ -55,10 +55,12 @@ class AVG_API CurveNode : public VectorNode
         float getTexCoord2() const;
         void setTexCoord2(float tc);
 
+        int getCurveLen() const;
+        glm::vec2 getPtOnCurve(float t) const;
+
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
     private:
-        int getCurveLen();
         void updateLines();
         void addLRCurvePoint(const glm::vec2& pos, const glm::vec2& deriv);
         glm::vec2 m_P1;
