@@ -64,6 +64,7 @@ namespace avg {
 namespace {
     Logger* s_pLogger = 0;
     boost::mutex s_logMutex;
+    boost::mutex s_traceMutex;
     boost::mutex s_sinkMutex;
     boost::mutex s_removeStdSinkMutex;
 }
@@ -72,7 +73,7 @@ boost::mutex Logger::m_CategoryMutex;
 
 Logger * Logger::get()
 {
-    boost::mutex::scoped_lock lock(s_logMutex);
+    boost::lock_guard<boost::mutex> lock(s_logMutex);
     if (!s_pLogger) {
         s_pLogger = new Logger;
     }
@@ -126,13 +127,13 @@ Logger::~Logger()
 
 void Logger::addLogSink(const LogSinkPtr& logSink)
 {
-    boost::mutex::scoped_lock lock(s_sinkMutex);
+    boost::lock_guard<boost::mutex> lock(s_sinkMutex);
     m_pSinks.push_back(logSink);
 }
 
 void Logger::removeLogSink(const LogSinkPtr& logSink)
 {
-    boost::mutex::scoped_lock lock(s_sinkMutex);
+    boost::lock_guard<boost::mutex> lock(s_sinkMutex);
     std::vector<LogSinkPtr>::iterator it;
     it = find(m_pSinks.begin(), m_pSinks.end(), logSink);
     if ( it != m_pSinks.end() ) {
@@ -142,7 +143,7 @@ void Logger::removeLogSink(const LogSinkPtr& logSink)
 
 void Logger::removeStdLogSink()
 {
-    boost::mutex::scoped_lock lock(s_removeStdSinkMutex);
+    boost::lock_guard<boost::mutex> lock(s_removeStdSinkMutex);
     if ( m_pStdSink.get()) {
         removeLogSink(m_pStdSink);
         m_pStdSink = LogSinkPtr();
@@ -151,7 +152,7 @@ void Logger::removeStdLogSink()
 
 category_t Logger::configureCategory(category_t category, severity_t severity)
 {
-    boost::mutex::scoped_lock lock(m_CategoryMutex);
+    boost::lock_guard<boost::mutex> lock(m_CategoryMutex);
     severity = (severity == Logger::severity::NONE) ? m_Severity : severity;
     UTF8String sCategory = boost::to_upper_copy(string(category));
     const size_t catHash = makeHash(sCategory);
@@ -176,7 +177,7 @@ CatToSeverityMap Logger::getCategories()
 void Logger::trace(const UTF8String& sMsg, const category_t& category,
         severity_t severity) const
 {
-    boost::mutex::scoped_lock lock(s_logMutex);
+    boost::lock_guard<boost::mutex> lock(s_traceMutex);
     struct tm* pTime;
     #ifdef _WIN32
     __int64 now;
@@ -190,7 +191,7 @@ void Logger::trace(const UTF8String& sMsg, const category_t& category,
     pTime = localtime(&time.tv_sec);
     unsigned millis = time.tv_usec/1000;
     #endif
-    boost::mutex::scoped_lock lockHandler(s_sinkMutex);
+    boost::lock_guard<boost::mutex> lockHandler(s_sinkMutex);
     std::vector<LogSinkPtr>::const_iterator it;
     for(it=m_pSinks.begin(); it!=m_pSinks.end(); ++it){
         (*it)->logMessage(pTime, millis, category, severity, sMsg);

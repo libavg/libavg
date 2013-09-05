@@ -83,6 +83,7 @@ BOOST_PYTHON_MODULE(avg)
         docstring_options doc_options(true, false);
 
         Player::get();
+        PyEval_InitThreads();
         export_base();
 
         register_ptr_to_python<DivNodePtr>();

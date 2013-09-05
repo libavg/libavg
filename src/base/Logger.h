@@ -28,6 +28,7 @@
 #include "../api.h"
 
 #include <boost/thread.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/functional/hash.hpp>
 
@@ -102,7 +103,7 @@ public:
             severity_t severity=severity::INFO) const;
 
     inline bool shouldLog(const category_t& category, severity_t severity) const {
-        boost::mutex::scoped_lock lock(m_CategoryMutex);
+        boost::lock_guard<boost::mutex> lock(m_CategoryMutex);
         const size_t hashCat = makeHash(category);
         CatHashToSeverityMap::const_iterator it;
         it = m_CategoryHashSeverities.find(hashCat);

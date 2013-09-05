@@ -68,7 +68,8 @@ struct to_list
 };
 
 template <typename MapType>
-struct to_dict{
+struct to_dict
+{
     static PyObject* convert(MapType const& a)
     {
         boost::python::dict result;
@@ -392,5 +393,18 @@ void removePythonLogger(PyObject * self, PyObject * pyLogger);
 
 void pytrace(PyObject * self, const avg::category_t& category, const avg::UTF8String& sMsg,
         avg::severity_t severity);
+
+struct aquirePyGIL
+{
+    PyGILState_STATE pyGilState;
+    aquirePyGIL()
+    {
+            pyGilState = PyGILState_Ensure();
+    }
+    ~aquirePyGIL()
+    {
+            PyGILState_Release(pyGilState);
+    }
+};
 
 #endif
