@@ -137,17 +137,17 @@ BOOST_PYTHON_MODULE(avg)
             }
             {
                 scope categoryScope = class_<CategoryScopeHelper>("Category");
+                categoryScope.attr("APP") = Logger::category::APP;
+                categoryScope.attr("CONFIG") = Logger::category::CONFIG;
+                categoryScope.attr("DEPREC") = Logger::category::DEPRECATION;
+                categoryScope.attr("EVENTS") = Logger::category::EVENTS;
+                categoryScope.attr("MEMORY") = Logger::category::MEMORY;
+                categoryScope.attr("NONE") = Logger::category::NONE;
                 categoryScope.attr("PROFILE") = Logger::category::PROFILE;
                 categoryScope.attr("PROFILE_V") = Logger::category::PROFILE_VIDEO;
-                categoryScope.attr("EVENTS") = Logger::category::EVENTS;
-                categoryScope.attr("CONFIG") = Logger::category::CONFIG;
-                categoryScope.attr("MEMORY") = Logger::category::MEMORY;
-                categoryScope.attr("APP") = Logger::category::APP;
                 categoryScope.attr("PLUGIN") = Logger::category::PLUGIN;
                 categoryScope.attr("PLAYER") = Logger::category::PLAYER;
                 categoryScope.attr("SHADER") = Logger::category::SHADER;
-                categoryScope.attr("DEPREC") = Logger::category::DEPRECATION;
-                categoryScope.attr("NONE") = Logger::category::NONE;
             }
         }
 
