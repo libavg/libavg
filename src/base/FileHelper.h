@@ -27,20 +27,20 @@
 
 namespace avg {
     
-std::string getPath(const std::string& sFilename);
-std::string getFilenamePart(const std::string& sFilename);
-std::string getExtension(const std::string& sFilename);
-std::string getCWD();
+std::string AVG_API getPath(const std::string& sFilename);
+std::string AVG_API getFilenamePart(const std::string& sFilename);
+std::string AVG_API getExtension(const std::string& sFilename);
+std::string AVG_API getCWD();
 
-bool isAbsPath(const std::string& path);
+bool AVG_API isAbsPath(const std::string& path);
 
-bool fileExists(const std::string& sFilename);
+bool AVG_API fileExists(const std::string& sFilename);
 
-void readWholeFile(const std::string& sFilename, std::string& sContents);
+void AVG_API readWholeFile(const std::string& sFilename, std::string& sContents);
 
-void writeWholeFile(const std::string& sFilename, const std::string& sContent);
+void AVG_API writeWholeFile(const std::string& sFilename, const std::string& sContent);
 
-void copyFile(const std::string& sSourceFile, const std::string& sDestFile);
+void AVG_API copyFile(const std::string& sSourceFile, const std::string& sDestFile);
 
 
 #ifdef WIN32

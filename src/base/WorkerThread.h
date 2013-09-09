@@ -36,7 +36,7 @@
 
 namespace avg {
 
-void setAffinityMask(bool bIsMainThread);
+void AVG_API setAffinityMask(bool bIsMainThread);
 
 template<class DERIVED_THREAD>
 class AVG_TEMPLATE_API WorkerThread {

@@ -48,7 +48,7 @@ private:
     static BitmapLoader * s_pBitmapLoader;
 };
 
-BitmapPtr loadBitmap(const UTF8String& sFName, PixelFormat pf=NO_PIXELFORMAT);
+BitmapPtr AVG_API loadBitmap(const UTF8String& sFName, PixelFormat pf=NO_PIXELFORMAT);
 
 }
 

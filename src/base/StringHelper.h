@@ -37,9 +37,9 @@
 
 namespace avg {
 
-bool isWhitespace(const std::string& s);
-void skipWhitespace(std::istream& is);
-void skipToken(std::istream& is, char token);
+bool AVG_API isWhitespace(const std::string& s);
+void AVG_API skipWhitespace(std::istream& is);
+void AVG_API skipToken(std::istream& is, char token);
 
 template<class T>
 std::istream& operator >>(std::istream& is, std::vector<T>& v)
@@ -74,15 +74,15 @@ std::istream& operator >>(std::istream& is, std::vector<T>& v)
     return is;
 }
 
-int stringToInt(const std::string& s);
-float stringToFloat(const std::string& s);
-bool stringToBool(const std::string& s);
+int AVG_API stringToInt(const std::string& s);
+float AVG_API stringToFloat(const std::string& s);
+bool AVG_API stringToBool(const std::string& s);
 
-std::string removeStartEndSpaces(const std::string& s);
+std::string AVG_API removeStartEndSpaces(const std::string& s);
 
-std::string toLowerCase(const std::string& s);
+std::string AVG_API toLowerCase(const std::string& s);
 
-bool equalIgnoreCase(const std::string& s1, const std::string& s2);
+bool AVG_API equalIgnoreCase(const std::string& s1, const std::string& s2);
 
 template<class T>
 std::string toString(const T& i)
@@ -92,7 +92,7 @@ std::string toString(const T& i)
     return stream.str();
 }
 
-std::string toString(const bool& b);
+std::string AVG_API toString(const bool& b);
 
 template<class T>
 std::string getFriendlyTypeName(const T& dummy)
