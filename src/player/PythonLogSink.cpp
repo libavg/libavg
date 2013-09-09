@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 
 #include "PythonLogSink.h"
-#include "../wrapper/WrapHelper.h"
+#include "WrapPython.h"
 #include "../base/Logger.h"
 
 #include <boost/algorithm/string.hpp>

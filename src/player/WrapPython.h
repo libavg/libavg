@@ -19,6 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#ifndef _WrapPython_H_
+#define _WrapPython_H_
+
 #include "../api.h"
 
 #ifdef _DEBUG
@@ -49,7 +52,19 @@
 
 namespace avg {
 
+class aquirePyGIL
+{
+public:
+    aquirePyGIL();
+    virtual ~aquirePyGIL();
+
+private:
+    PyGILState_STATE m_pyGilState;
+};
+
 void avgDeprecationWarning(const std::string& sVersion, const std::string& sOldEntryPoint,
         const std::string& sNewEntryPoint);
 
 }
+
+#endif
