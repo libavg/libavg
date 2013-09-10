@@ -30,7 +30,6 @@ import math
 
 import libavg
 from libavg import avg
-from libavg import graph
 from touchvisualization import DebugTouchVisualization
 from touchvisualization import TouchVisualizationOverlay as TouchVisOverlay
 
@@ -177,22 +176,20 @@ class TableRow(avg.DivNode):
         if TableRow.ROW_ID % 2 != 0:
             self.columnBackground.fillopacity = 0
         self.cols = [0] * NUM_COLS
+        self.liveColumn = avg.WordsNode(parent=self.columnContainer, fontsize=g_fontsize,
+                text="N/A - SPECIAL", size=(COL_WIDTH, ROW_HEIGHT), variant="bold")
         for i in xrange(0, NUM_COLS):
             self.cols[i] = (avg.WordsNode(parent=self.columnContainer,
                                           fontsize=g_fontsize,
                                           text="0", size=(COL_WIDTH / 2.0, ROW_HEIGHT),
-                                          pos=(i * COL_WIDTH, 0)),
+                                          pos=((i+1) * COL_WIDTH, 0)),
                             avg.WordsNode(parent=self.columnContainer,
                                           fontsize=g_fontsize,
                                           text="(0)", size=(COL_WIDTH / 2.0, ROW_HEIGHT),
-                                          pos=(i * COL_WIDTH + COL_WIDTH / 2, 0),
+                                          pos=((i+1) * COL_WIDTH + COL_WIDTH / 2, 0),
                                           color="000000"))
 
-        self.liveColumn = avg.WordsNode(parent=self.columnContainer, fontsize=g_fontsize,
-                                        text="N/A - SPECIAL",
-                                        size=(COL_WIDTH, ROW_HEIGHT), variant="bold",
-                                        pos=(NUM_COLS * COL_WIDTH, 0))
-        self.rowData = deque([0] * (NUM_COLS + 1), maxlen=NUM_COLS + 1)
+        self.rowData = deque([(0, 0)] * (NUM_COLS + 1), maxlen=NUM_COLS + 1)
         self.label = avg.WordsNode(parent=self, fontsize=g_fontsize, variant="bold")
         self.setLabel("NONE")
 
@@ -214,24 +211,21 @@ class TableRow(avg.DivNode):
                                       self.liveColumn.width, g_fontsize)
 
     def insertValue(self, data):
-        self.rowData.append(data)
-        prevValue = 0
-        for i in xrange(0, len(self.rowData)):
-            if i >= 0:
-                data = self.rowData[i]
-                column = self.cols[i - 1]
-                column[0].text = str(data)
-                diff = data - prevValue
-                column[1].text = "(%s)" % diff
-                column[1].pos = (column[0].x + column[0].getLineExtents(0)[0] + 2,
-                                 column[0].y)
-                if diff == 0:
-                    column[1].color = "000000"
-                elif diff < 0:
-                    column[1].color = "00FF00"
-                else:
-                    column[1].color = "FF0000"
-            prevValue = self.rowData[i]
+        prevValue = self.rowData[0][0]
+        self.rowData.appendleft([data, data-prevValue])
+        for i in xrange(0, len(self.rowData)-1):
+            val, diff = self.rowData[i]
+            column = self.cols[i]
+            column[0].text = str(val)
+            column[1].text = "({diff})".format(diff=diff)
+            column[1].pos = (column[0].x + column[0].getLineExtents(0)[0] + 2,
+                             column[0].y)
+            if diff == 0:
+                column[1].color = "000000"
+            elif diff < 0:
+                column[1].color = "00FF00"
+            else:
+                column[1].color = "FF0000"
 
     def updateLiveColumn(self, value):
         self.liveColumn.text = str(value)
@@ -411,7 +405,6 @@ class KeyboardManagerBindingsShower(DebugWidget):
             if currentRow == rows and currentColumn < columns - 1:
                 currentRow = 0
                 currentColumn += 1
-                lastHeight = 0
 
             node.pos = (currentColumn * colSize, heights[currentColumn])
             heights[currentColumn] += node.height
