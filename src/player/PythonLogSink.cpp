@@ -22,6 +22,7 @@
 #include "WrapPython.h"
 #include "../base/Logger.h"
 
+#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <boost/python/errors.hpp>
 
@@ -80,9 +81,9 @@ void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
         Py_DECREF(args);
         Py_DECREF(kwargs);
     } catch (const boost::python::error_already_set &err) {
-        cerr << "PythonLogSink: Python raised exception\n";
+        std::cerr << "PythonLogSink: Python raised exception\n";
     } catch (const exception &err) {
-        cerr << "PythonLogSink: Couldn't log to python logger.\n";
+        std::cerr << "PythonLogSink: Couldn't log to python logger.\n";
     }
 }
 

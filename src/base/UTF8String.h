@@ -23,6 +23,7 @@
 #define _UTF8String_H_
 
 #include "../api.h"
+#include <boost/functional/hash.hpp>
 #include <string>
 
 namespace avg {
@@ -38,6 +39,8 @@ public:
     UTF8String& operator =(const char * psz);
 
 };
+
+std::size_t hash_value(const avg::UTF8String& x);
 
 }
 #endif

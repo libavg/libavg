@@ -54,4 +54,9 @@ UTF8String& UTF8String::operator =(const char* psz)
     return *this;
 }
 
+std::size_t hash_value(const avg::UTF8String& x)
+{
+    boost::hash<std::string> hasher;
+    return hasher(x);
+};
 }
