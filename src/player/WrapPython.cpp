@@ -31,6 +31,15 @@ using namespace std;
 
 namespace avg {
 
+aquirePyGIL::aquirePyGIL()
+{
+    m_pyGilState = PyGILState_Ensure();
+}
+aquirePyGIL::~aquirePyGIL()
+{
+    PyGILState_Release(m_pyGilState);
+}
+
 void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
         const string& sNewEntryPoint)
 {

@@ -47,7 +47,7 @@ public:
     typedef typename boost::shared_ptr<CQueue> CQueuePtr;
 
     WorkerThread(const std::string& sName, CQueue& CmdQ,
-            long logCategory=Logger::category::PROFILE);
+            category_t logCategory=Logger::category::PROFILE);
     WorkerThread(WorkerThread const& other);
     virtual ~WorkerThread();
     void operator()();
@@ -68,12 +68,12 @@ private:
     std::string m_sName;
     bool m_bShouldStop;
     CQueue& m_CmdQ;
-    long m_LogCategory;
+    category_t m_LogCategory;
 };
 
 template<class DERIVED_THREAD>
 WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CQueue& CmdQ, 
-        long logCategory)
+        category_t logCategory)
     : m_sName(sName),
       m_bShouldStop(false),
       m_CmdQ(CmdQ),

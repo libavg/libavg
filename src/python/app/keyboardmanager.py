@@ -30,10 +30,8 @@ from libavg import avg, player
 IGNORED_KEYMODS = avg.KEYMOD_NUM
 KEYMOD_ANY = -1
 
-# XXX: logging2 temporary revert
-# LOGCAT = avg.logger.configureCategory('KEYBOARDMANAGER',
-#         avg.logger.Severity.WARNING)
-LOGCAT = avg.logger.registerCategory('KBMGR')
+LOGCAT = avg.logger.configureCategory('KEYBOARDMANAGER',
+        avg.logger.Severity.WARN)
 
 class KeyboardManagerPublisher(avg.Publisher):
     BINDINGS_UPDATED = avg.Publisher.genMessageID()

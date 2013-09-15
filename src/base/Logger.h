@@ -22,9 +22,15 @@
 #ifndef _Logger_H_
 #define _Logger_H_
 
-#include "../api.h"
-#include "UTF8String.h"
+#include "Exception.h"
 #include "ILogSink.h"
+#include "UTF8String.h"
+#include "../api.h"
+
+#include <boost/thread.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/functional/hash.hpp>
 
 #include <string>
 #include <vector>
@@ -37,79 +43,89 @@
 
 namespace avg {
 
-class AVG_API Logger {
+typedef std::map< const category_t, const severity_t > CatToSeverityMap;
+typedef std::map< const size_t, const severity_t > CatHashToSeverityMap;
+
+class AVG_API Logger: private boost::noncopyable {
 public:
     struct AVG_API severity
     {
-        static const unsigned CRITICAL;
-        static const unsigned ERROR;
-        static const unsigned WARNING;
-        static const unsigned INFO;
-        static const unsigned DEBUG;
+        static const severity_t CRITICAL;
+        static const severity_t ERROR;
+        static const severity_t WARNING;
+        static const severity_t INFO;
+        static const severity_t DEBUG;
+        static const severity_t NONE;
     };
 
     struct AVG_API category
     {
-        static const size_t NONE;
-        static const size_t PROFILE;
-        static const size_t PROFILE_VIDEO;
-        static const size_t EVENTS;
-        static const size_t CONFIG;
-        static const size_t MEMORY;
-        static const size_t APP;
-        static const size_t PLUGIN;
-        static const size_t PLAYER;
-        static const size_t SHADER;
-        static const size_t DEPRECATION;
-        static const size_t LAST_CATEGORY;
+        static const category_t NONE;
+        static const category_t PROFILE;
+        static const category_t PROFILE_VIDEO;
+        static const category_t EVENTS;
+        static const category_t CONFIG;
+        static const category_t MEMORY;
+        static const category_t APP;
+        static const category_t PLUGIN;
+        static const category_t PLAYER;
+        static const category_t SHADER;
+        static const category_t DEPRECATION;
     };
 
     static Logger* get();
     virtual ~Logger();
 
-    static unsigned stringToSeverity(const string& sSeverity);
-    static const char * severityToString(unsigned severity);
+    static severity_t stringToSeverity(const string& sSeverity);
+    static const char * severityToString(const severity_t severity);
 
     void addLogSink(const LogSinkPtr& logSink);
     void removeLogSink(const LogSinkPtr& logSink);
-    size_t getCategories() const;
-    void setCategories(size_t flags);
-    void pushCategories();
-    void popCategories();
-    const char * categoryToString(size_t category) const;
-    size_t stringToCategory(const std::string& sCategory) const;
-    void trace(const UTF8String& sMsg, size_t category, unsigned severity) const;
-    size_t registerCategory(const string& cat);
-    void setLogSeverity(unsigned severity);
+    void removeStdLogSink();
 
-    void logDebug(const string& msg, const size_t category=category::APP) const;
-    void logInfo(const string& msg, const size_t category=category::APP) const;
-    void logWarning(const string& msg, const size_t category=category::APP) const;
-    void logError(const string& msg, const size_t category=category::APP) const;
-    void logCritical(const string& msg, const size_t category=category::APP) const;
-    void log(const string& msg, const size_t category=category::APP,
-            unsigned severity=severity::INFO) const;
+    category_t configureCategory(category_t category,
+            severity_t severity=severity::NONE);
+    CatToSeverityMap getCategories();
 
-    inline bool isCategorySet(size_t category) const {
-        return (category & m_Flags) != 0;
-    }
+    void trace(const UTF8String& sMsg, const category_t& category,
+            severity_t severity) const;
+    void logDebug(const UTF8String& msg,
+            const category_t& category=category::APP) const;
+    void logInfo(const UTF8String& msg,
+            const category_t& category=category::APP) const;
+    void logWarning(const UTF8String& msg,
+            const category_t& category=category::APP) const;
+    void logError(const UTF8String& msg,
+            const category_t& category=category::APP) const;
+    void logCritical(const UTF8String& msg,
+            const category_t& category=category::APP) const;
+    void log(const UTF8String& msg, const category_t& category=category::APP,
+            severity_t severity=severity::INFO) const;
 
-    inline bool shouldLog(size_t category, unsigned severity) const {
-        return (m_Severity <= severity && isCategorySet(category)) ||
-                Logger::severity::ERROR <= severity;
+    inline bool shouldLog(const category_t& category, severity_t severity) const {
+        boost::lock_guard<boost::mutex> lock(m_CategoryMutex);
+        const size_t hashCat = makeHash(category);
+        CatHashToSeverityMap::const_iterator it;
+        it = m_CategoryHashSeverities.find(hashCat);
+        if(m_CategoryHashSeverities.end() != it) {
+            return it->second <= severity;
+        } else {
+            string msg("Unknown category: " + category);
+            throw Exception(AVG_ERR_INVALID_ARGS, msg);
+        }
     }
 
 private:
     Logger();
     void setupCategory();
 
-    size_t m_Flags;
-    std::vector<size_t> m_FlagStack;
-    std::map< const size_t, string > m_CategoryToString;
-    std::map< const string, size_t > m_StringToCategory;
-
-    size_t m_MaxCategoryNum;
-    unsigned m_Severity;
+    std::vector<LogSinkPtr> m_pSinks;
+    LogSinkPtr m_pStdSink;
+    CatToSeverityMap m_CategorySeverities;
+    CatHashToSeverityMap m_CategoryHashSeverities;
+    severity_t m_Severity;
+    static boost::mutex m_CategoryMutex;
+    boost::hash<UTF8String> makeHash;
 };
 
 #define AVG_TRACE(category, severity, sMsg) { \

@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "../base/GLMHelper.h"
 #include "../base/Exception.h"
+#include "../base/ILogSink.h"
 
 #include "../player/BoostPython.h"
 #include "../player/Player.h"
@@ -67,7 +68,8 @@ struct to_list
 };
 
 template <typename MapType>
-struct to_dict{
+struct to_dict
+{
     static PyObject* convert(MapType const& a)
     {
         boost::python::dict result;
@@ -389,7 +391,7 @@ void exportMessages(boost::python::object& nodeClass, const std::string& sClassN
 void addPythonLogger(PyObject * self, PyObject * pyLogger);
 void removePythonLogger(PyObject * self, PyObject * pyLogger);
 
-void pytrace(PyObject * self, size_t category, const avg::UTF8String& sMsg,
-        unsigned severity);
+void pytrace(PyObject * self, const avg::category_t& category, const avg::UTF8String& sMsg,
+        avg::severity_t severity);
 
 #endif

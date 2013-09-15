@@ -392,6 +392,7 @@ void export_base()
     to_python_converter<std::type_info, type_info_to_string>();
     //Maps
     to_python_converter<TypeMap, to_dict<TypeMap> >();
+    to_python_converter<CatToSeverityMap, to_dict<CatToSeverityMap> >();
 }
 
 namespace {
@@ -417,7 +418,8 @@ void removePythonLogger(PyObject * self, PyObject * pyLogger)
     }
 }
 
-void pytrace(PyObject * self, size_t category, const UTF8String& sMsg, unsigned severity)
+void pytrace(PyObject * self, const avg::category_t& category, const UTF8String& sMsg,
+        avg::severity_t severity)
 {
     avgDeprecationWarning(string("1.8"), "logger.trace",
             "any of the logging convenience functions");

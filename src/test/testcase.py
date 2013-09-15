@@ -122,8 +122,7 @@ class AVGTestCase(unittest.TestCase):
                     + fileName + ".png")
         except RuntimeError:
             bmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+".png")
-            self.__logger.trace(self.__logger.WARNING, 
-                                "Could not load image "+fileName+".png")
+            self.__logger.warning("Could not load image "+fileName+".png")
             raise
         diffBmp = bmp.subtract(baselineBmp)
         average = diffBmp.getAvg()
@@ -235,7 +234,7 @@ class AVGTestCase(unittest.TestCase):
     def __nextAction(self):
         if not(self.__delaying):
             if self.__dumpTestFrames:
-                self.__logger.trace(self.__logger.APP, "Frame "+str(self.curFrame))
+                self.__logger.log("Frame "+str(self.curFrame))
             if len(self.actions) == self.curFrame:
                 player.stop()
             else:

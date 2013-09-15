@@ -82,10 +82,9 @@ class SpeedDiv(app.MainDiv):
                 self.__optNumObjs = 200 
 
         log = avg.logger
+        log.configureCategory(log.Category.CONFIG, log.Severity.DBG)
         if options.profile:
-            log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
-        else:
-            log.setCategories(log.CONFIG | log.WARNING | log.ERROR)
+            log.configureCategory(log.Category.PROFILE, log.Severity.DBG)
 
     def onInit(self):
         if not self.__optVsync:
