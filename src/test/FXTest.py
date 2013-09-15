@@ -219,7 +219,8 @@ class FXTestCase(AVGTestCase):
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24alpha-64x64.png")
         resetFX()
         self.start(False,
-                (lambda: self.compareImage("testHueSatFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: self.compareImage("testHueSatFX1"),
                  lambda: setParam('saturation', -50),
                  lambda: self.compareImage("testHueSatFX2"),
                  lambda: setParam('saturation', -100),
@@ -250,7 +251,8 @@ class FXTestCase(AVGTestCase):
         self.node = avg.ImageNode(parent=self.root, pos=(10,10), href="hsl.png")
         resetFX()
         self.start(False,
-                (lambda: self.compareImage("testInvertFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: self.compareImage("testInvertFX1"),
                  redAlphaScene,
                  lambda: self.compareImage("testInvertFX2"),
                 ))

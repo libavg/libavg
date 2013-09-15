@@ -31,6 +31,10 @@
 #include <libavutil/samplefmt.h>
 #endif
 
+#ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
+    #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
+#endif
+
 using namespace std;
 
 namespace avg {

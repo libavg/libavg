@@ -26,6 +26,10 @@
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 18, 102)
+    typedef CodecID AVCodecID;
+#endif
+
 using namespace std;
 
 namespace avg {
@@ -191,7 +195,7 @@ void VideoWriterThread::setupVideoStream()
 #endif
 
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
-    pCodecContext->codec_id = static_cast<CodecID>(m_pOutputFormat->video_codec);
+    pCodecContext->codec_id = static_cast<AVCodecID>(m_pOutputFormat->video_codec);
     pCodecContext->codec_type = AVMEDIA_TYPE_VIDEO;
 
     /* put sample parameters */
