@@ -21,6 +21,7 @@
 
 #include "ObjectCounter.h"
 #include "Exception.h"
+#include "Logger.h"
 
 #include <boost/thread/mutex.hpp>
 
@@ -80,7 +81,7 @@ ObjectCounter * ObjectCounter::get()
 void ObjectCounter::incRef(const std::type_info* pType)
 {
 #ifdef DEBUG_ALLOC
-    boost::mutex::scoped_lock Lock(*pCounterMutex);
+    lock_guard Lock(*pCounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
         m_TypeMap[pType] = 1;
@@ -99,7 +100,7 @@ void ObjectCounter::decRef(const std::type_info* pType)
         // s_pObjectCounter has been deleted.
         return;
     }
-    boost::mutex::scoped_lock Lock(*pCounterMutex);
+    lock_guard Lock(*pCounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
         cerr << "ObjectCounter for " << demangle(pType->name()) 

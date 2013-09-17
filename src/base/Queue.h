@@ -34,7 +34,7 @@
 
 namespace avg {
 
-typedef boost::mutex::scoped_lock scoped_lock;
+typedef boost::unique_lock<boost::mutex> unique_lock;
 
 template<class QElement>
 class AVG_TEMPLATE_API Queue 
@@ -54,7 +54,7 @@ public:
     int getMaxSize() const;
 
 private:
-    QElementPtr getFrontElement(bool bBlock, scoped_lock& Lock) const;
+    QElementPtr getFrontElement(bool bBlock, unique_lock& Lock) const;
 
     std::deque<QElementPtr> m_pElements;
     mutable boost::mutex m_Mutex;
@@ -76,14 +76,14 @@ Queue<QElement>::~Queue()
 template<class QElement>
 bool Queue<QElement>::empty() const
 {
-    scoped_lock Lock(m_Mutex);
+    unique_lock Lock(m_Mutex);
     return m_pElements.empty();
 }
 
 template<class QElement>
 typename Queue<QElement>::QElementPtr Queue<QElement>::pop(bool bBlock)
 {
-    scoped_lock lock(m_Mutex);
+    unique_lock lock(m_Mutex);
     QElementPtr pElem = getFrontElement(bBlock, lock); 
     if (pElem) {
         m_pElements.pop_front();
@@ -104,7 +104,7 @@ void Queue<QElement>::clear()
 template<class QElement>
 typename Queue<QElement>::QElementPtr Queue<QElement>::peek(bool bBlock) const
 {
-    scoped_lock lock(m_Mutex);
+    unique_lock lock(m_Mutex);
     QElementPtr pElem = getFrontElement(bBlock, lock); 
     if (pElem) {
         m_Cond.notify_one();
@@ -116,7 +116,7 @@ template<class QElement>
 void Queue<QElement>::push(const QElementPtr& pElem)
 {
     assert(pElem);
-    scoped_lock lock(m_Mutex);
+    unique_lock lock(m_Mutex);
     if (m_pElements.size() == (unsigned)m_MaxSize) {
         while (m_pElements.size() == (unsigned)m_MaxSize) {
             m_Cond.wait(lock);
@@ -129,20 +129,20 @@ void Queue<QElement>::push(const QElementPtr& pElem)
 template<class QElement>
 int Queue<QElement>::size() const
 {
-    scoped_lock lock(m_Mutex);
+    unique_lock lock(m_Mutex);
     return int(m_pElements.size());
 }
 
 template<class QElement>
 int Queue<QElement>::getMaxSize() const
 {
-    scoped_lock lock(m_Mutex);
+    unique_lock lock(m_Mutex);
     return m_MaxSize;
 }
 
 template<class QElement>
 typename Queue<QElement>::QElementPtr 
-        Queue<QElement>::getFrontElement(bool bBlock, scoped_lock& lock) const
+        Queue<QElement>::getFrontElement(bool bBlock, unique_lock& lock) const
 {
     if (m_pElements.empty()) {
         if (bBlock) {

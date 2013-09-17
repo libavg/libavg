@@ -45,6 +45,7 @@ namespace avg {
 
 typedef std::map< const category_t, const severity_t > CatToSeverityMap;
 typedef std::map< const size_t, const severity_t > CatHashToSeverityMap;
+typedef boost::lock_guard<boost::mutex> lock_guard;
 
 class AVG_API Logger: private boost::noncopyable {
 public:
@@ -103,7 +104,7 @@ public:
             severity_t severity=severity::INFO) const;
 
     inline bool shouldLog(const category_t& category, severity_t severity) const {
-        boost::lock_guard<boost::mutex> lock(m_CategoryMutex);
+        lock_guard lock(m_CategoryMutex);
         const size_t hashCat = makeHash(category);
         CatHashToSeverityMap::const_iterator it;
         it = m_CategoryHashSeverities.find(hashCat);
