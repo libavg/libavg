@@ -38,12 +38,11 @@
 #include "WrapFFMpeg.h"
 
 using namespace std;
-using namespace boost;
 
 namespace avg {
 
 bool VideoDecoder::s_bInitialized = false;
-mutex VideoDecoder::s_OpenMutex;
+boost::mutex VideoDecoder::s_OpenMutex;
 
 
 VideoDecoder::VideoDecoder()
