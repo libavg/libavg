@@ -11,7 +11,7 @@ else
     APPLE_SOURCES =
     APPLE_LINKFLAGS=
 if ENABLE_RPI
-    XGL_LIBS = -lX11 -lGLESv2 -lEGL
+    XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
 else
 if ENABLE_EGL
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
