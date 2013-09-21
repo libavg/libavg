@@ -12,7 +12,6 @@ if ENABLE_1394_2
     DC1394_SOURCES = FWCameraUtils.cpp
     DC1394_INCLUDES = FWCameraUtils.h
 else
-
     DC1394_SOURCES =
     DC1394_INCLUDES =
 endif
@@ -26,7 +25,7 @@ ALL_CPP = Camera.cpp TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp R
         DeDistort.cpp trackerconfigdtd.cpp FilterWipeBorder.cpp FilterClearBorder.cpp \
         $(V4L2_SOURCES) CameraInfo.cpp
 
-TESTS=testimaging
+TESTS = testimaging
 
 EXTRA_DIST = avgtrackerrc.minimal $(wildcard baseline/*.png) $(wildcard testfiles/*.png) \
         CMUCamera.h CMUCamera.cpp DSCamera.cpp DSCamera.h DSHelper.h DSHelper.cpp \
@@ -35,8 +34,8 @@ EXTRA_DIST = avgtrackerrc.minimal $(wildcard baseline/*.png) $(wildcard testfile
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
 
-noinst_PROGRAMS=testimaging
-testimaging_SOURCES=testimaging.cpp $(ALL_H)
+noinst_PROGRAMS = testimaging
+testimaging_SOURCES = testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@

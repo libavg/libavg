@@ -10,7 +10,7 @@ ALL_H = FileHelper.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
         WideLine.h DlfcnWrapper.h Signal.h Backtrace.h \
         CmdQueue.h ProfilingZoneID.h GLMHelper.h StandardLogSink.h ILogSink.h
 
-TESTS=testbase
+TESTS = testbase
 
 EXTRA_DIST = DlfcnWrapper.cpp
 
@@ -26,9 +26,9 @@ libbase_la_SOURCES = FileHelper.cpp Exception.cpp Logger.cpp \
     $(ALL_H)
 libbase_a_CXXFLAGS = -Wno-format-y2k
 
-noinst_PROGRAMS=testbase
-testbase_SOURCES=testbase.cpp $(ALL_H)
-testbase_LDADD = ./libbase.la ./triangulate/libtriangulate.la @BOOST_THREAD_LIBS@ \
-        @XML2_LIBS@ @PTHREAD_LIBS@
+noinst_PROGRAMS = testbase
+testbase_SOURCES = testbase.cpp $(ALL_H)
+testbase_LDADD = ./libbase.la ./triangulate/libtriangulate.la \
+        @BOOST_THREAD_LIBS@ @XML2_LIBS@ @PTHREAD_LIBS@
 # -rdynamic needed only for testBacktrace to work under linux.
 testbase_LDFLAGS = -rdynamic

@@ -2,14 +2,15 @@ AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         @PANGOFT2_CFLAGS@ @PYTHON_CPPFLAGS@ @GL_CFLAGS@ \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@ \
         $(MTDEV_CFLAGS)
-        
+
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
-    APPLE_LINKFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport
+    APPLE_LINKFLAGS = -read_only_relocs suppress -F/System/Library/PrivateFrameworks \
+            -framework MultitouchSupport
     XGL_LIBS =
 else
     APPLE_SOURCES =
-    APPLE_LINKFLAGS=
+    APPLE_LINKFLAGS =
 if ENABLE_RPI
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
 else
@@ -45,7 +46,7 @@ endif
 GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp
 GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
+ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedObject.h \
         DisplayEngine.h TypeRegistry.h Arg.h ArgBase.h ArgList.h \
@@ -57,7 +58,7 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedObject.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
         TouchEvent.h Contact.h TouchStatus.h TrackerTouchStatus.h BoostPython.h \
-        SoundNode.h FontStyle.h\
+        SoundNode.h FontStyle.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h HueSatFXNode.h \
@@ -68,37 +69,37 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedObject.h \
         BitmapManagerMsg.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
-TESTS=testcalibrator testplayer
+TESTS = testcalibrator testplayer
 
 EXTRA_DIST = SDLMain.h
 
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testcalibrator testplayer
-testplayer_SOURCES=testplayer.cpp
+testplayer_SOURCES = testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../base/triangulate/libtriangulate.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@ \
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) $(XI2_2_LIBS) \
         @LIBFFMPEG@ $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) @GDK_PIXBUF_LIBS@ \
         @FONTCONFIG_LIBS@
-        
+
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
-testcalibrator_SOURCES=testcalibrator.cpp
+testcalibrator_SOURCES = testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../base/triangulate/libtriangulate.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@
 
-libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) $(MTDEV_LIBS) 
+libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) $(MTDEV_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedObject.cpp \
         Player.cpp PluginManager.cpp TypeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
-        MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp WrapPython.cpp\
+        MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp WrapPython.cpp \
         WordsNode.cpp CameraNode.cpp TypeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
@@ -112,7 +113,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         InvertFXNode.cpp HueSatFXNode.cpp VideoWriter.cpp VideoWriterThread.cpp \
         SVG.cpp SVGElement.cpp Publisher.cpp SubscriberInfo.cpp PublisherDefinition.cpp \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
-        PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp\
+        PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
         BitmapManagerMsg.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
