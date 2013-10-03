@@ -420,13 +420,12 @@ class AVDecoderTest: public DecoderTest {
             pDecoder->startDecoding(false, getAudioParams());
             AudioMsgQueuePtr pMsgQ;
             AudioMsgQueuePtr pStatusQ;
-            if (isThreaded()) {
-                pMsgQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
-                        ->getAudioMsgQ();
-                pStatusQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
-                        ->getAudioStatusQ();
-                TEST(pDecoder->getVideoInfo().m_bHasAudio);
-            }
+            
+            pMsgQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder) ->getAudioMsgQ();
+            pStatusQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                ->getAudioStatusQ();
+            TEST(pDecoder->getVideoInfo().m_bHasAudio);
+            
             IntPoint frameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
             int numFrames = 0;
@@ -445,16 +444,15 @@ class AVDecoderTest: public DecoderTest {
 //                    pBmp->save(ss.str());
                     numFrames++;
                 }
-                if (isThreaded()) {
-                    int framesDecoded = 0;
-                    while (framesDecoded == 0 && !pDecoder->isEOF()) {
-                        framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
-                        dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
-                                ->updateAudioStatus();
-                        msleep(0);
-                    }
-                    totalFramesDecoded += framesDecoded;
+                int framesDecoded = 0;
+                while (framesDecoded == 0 && !pDecoder->isEOF()) {
+                    framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
+                    dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                        ->updateAudioStatus();
+                    msleep(0);
                 }
+                totalFramesDecoded += framesDecoded;
+
                 curTime += 1.0f/pDecoder->getFPS();
             }
             TEST(pDecoder->isEOF());
