@@ -153,7 +153,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                     m_InputSampleFormat != SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
             bool bIsPlanar = false;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(52, 13, 100)
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 17, 0)
             bIsPlanar = av_sample_fmt_is_planar((SampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
