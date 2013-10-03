@@ -21,6 +21,7 @@
 
 #include "FFMpegFrameDecoder.h"
 #include "FFMpegDemuxer.h"
+#include "VideoInfo.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
@@ -52,11 +53,8 @@ FFMpegFrameDecoder::FFMpegFrameDecoder(AVStream* pStream)
       m_bUseStreamFPS(true)
 {
     m_TimeUnitsPerSecond = float(1.0/av_q2d(pStream->time_base));
-    if (pStream->avg_frame_rate.den != 0) {
-        m_FPS = float(av_q2d(pStream->avg_frame_rate));
-    } else {
-        m_FPS = float(av_q2d(pStream->r_frame_rate));
-    }
+    m_FPS = getStreamFPS(pStream);
+    
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -231,11 +229,7 @@ void FFMpegFrameDecoder::setFPS(float fps)
 {
     m_bUseStreamFPS = (fps == 0);
     if (fps == 0) {
-        if (m_pStream->avg_frame_rate.den != 0) {
-            m_FPS = float(av_q2d(m_pStream->avg_frame_rate));
-        } else {
-            m_FPS = float(av_q2d(m_pStream->r_frame_rate));
-        }
+        m_FPS = getStreamFPS(m_pStream);
     } else {
         m_FPS = fps;
     }
