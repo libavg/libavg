@@ -119,10 +119,10 @@ class DynamicsTestCase(AVGTestCase):
         def createVideo(useXml):
             if useXml:
                 node = player.createNode(
-                        "<video href='mpeg1-48x48.mpg' threaded='false'/>")
+                        "<video href='mpeg1-48x48.mov' threaded='false'/>")
             else:
                 node = player.createNode("video", 
-                        {"href":"mpeg1-48x48.mpg", "threaded":False})
+                        {"href":"mpeg1-48x48.mov", "threaded":False})
             node.play()
             return node
 

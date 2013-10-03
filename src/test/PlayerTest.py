@@ -542,7 +542,7 @@ class PlayerTestCase(AVGTestCase):
                 player.createNode("""
                   <div id="nestedavg" x="40" y="30" width="80" height="60" crop="True">
                     <video id="movie" x="10" y="10" width="40" height="40" 
-                            threaded="false" href="mpeg1-48x48.mpg"
+                            threaded="false" href="mpeg1-48x48.mov"
                             fps="30"/>
                   </div>
                 """))
@@ -589,7 +589,7 @@ class PlayerTestCase(AVGTestCase):
         image = avg.ImageNode(href="rgb24-64x64.png",
                 maxtilewidth=32, maxtileheight=16, parent=root)
         video = avg.VideoNode(pos=(40,0), size=(80,80), opacity=0.5, loop=True,
-                href="mpeg1-48x48.mpg", threaded=False, fps=30, parent=root)
+                href="mpeg1-48x48.mov", threaded=False, fps=30, parent=root)
 
         self.assertException(image.getOrigVertexCoords)
         self.assertException(image.getWarpedVertexCoords)

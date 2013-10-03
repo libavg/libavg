@@ -111,7 +111,7 @@ class SpeedDiv(app.MainDiv):
                 if self.__optAudio:
                     fname = "mpeg1-48x48-sound.avi"
                 else:
-                    fname = "mpeg1-48x48.mpg"
+                    fname = "mpeg1-48x48.mov"
                 node = avg.VideoNode(pos=pos, href=fname, loop=True, parent=self)
                 node.play()
             else:

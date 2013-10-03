@@ -328,7 +328,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             self.videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
+                    href="mpeg1-48x48.mov", intensity=(0.5,0.5,0.5))
             self.videoNode.play()
 
         root = self.loadEmptyScene()
@@ -363,7 +363,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
+                    href="mpeg1-48x48.mov", contrast=(0.5,0.5,0.5))
             videoNode.play()
 
         root = self.loadEmptyScene()
@@ -400,7 +400,7 @@ class FXTestCase(AVGTestCase):
         def addVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, threaded=False, size=(96,96),
-                    href="mpeg1-48x48.mpg")
+                    href="mpeg1-48x48.mov")
             effect = avg.BlurFXNode()
             effect.radius = 0
             videoNode.setEffect(effect)
