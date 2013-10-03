@@ -278,11 +278,24 @@ IntPoint VideoDecoder::getSize() const
 float VideoDecoder::getStreamFPS() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    float fps = float(av_q2d(m_pVStream->r_frame_rate));
-    if (fps > 10000) {
-        // This looks like a movie with a broken frame rate. See bug #436.
-        fps = getNumFrames()/getDuration(SS_VIDEO);
+    float fps;
+    if (m_pVStream->avg_frame_rate.den != 0) {
+        fps = float(av_q2d(m_pVStream->avg_frame_rate));
+    } else {
+        if (m_pVStream->r_frame_rate.den != 0) {
+            fps = float(av_q2d(m_pVStream->r_frame_rate));
+        } else {
+            fps = getNumFrames()/getDuration(SS_VIDEO);
+        }
     }
+    AVG_ASSERT(fps < 10000);
+/*
+    cerr << "getStreamFPS: fps= " << fps << endl;
+    cerr << "    r_frame_rate num: " << m_pVStream->r_frame_rate.num << ", den: " << m_pVStream->r_frame_rate.den << endl;
+    cerr << "    avg_frame_rate: num: " << m_pVStream->avg_frame_rate.num << ", den: " << m_pVStream->avg_frame_rate.den << endl;
+    cerr << "    numFrames= " << getNumFrames() << ", duration= " 
+                << getDuration(SS_VIDEO) << endl;
+*/
     return fps;
 }
 

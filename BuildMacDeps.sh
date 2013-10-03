@@ -140,12 +140,7 @@ buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 buildlibpng
 buildLib pkg-config-0.20
-if [[ "${DARWINMAJORVER}" == "10" ]]
-then
-    buildLib ffmpeg "--arch=x86_64 --disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio --disable-decoder=vc1 --disable-decoder=wmv3"
-else
-    buildLib ffmpeg "--disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio"
-fi
+buildLib libav-9.9 --arch=x86_64 --disable-debug --enable-pthreads --disable-yasm
 
 buildLib SDL-1.2.15 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
