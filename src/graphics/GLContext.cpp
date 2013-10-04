@@ -394,15 +394,18 @@ bool GLContext::usePOTTextures()
 
 bool GLContext::arePBOsSupported()
 {
-    return (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
-             queryOGLExtension("GL_EXT_pixel_buffer_object"));
+    if (isGLES()) {
+        return false;
+    } else {
+        return (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
+                 queryOGLExtension("GL_EXT_pixel_buffer_object"));
+    }
 }
 
 OGLMemoryMode GLContext::getMemoryMode()
 {
     if (!m_bCheckedMemoryMode) {
-        if (arePBOsSupported() && m_GLConfig.m_bUsePixelBuffers) 
-        {
+        if (arePBOsSupported() && m_GLConfig.m_bUsePixelBuffers) {
             m_MemoryMode = MM_PBO;
         } else {
             m_MemoryMode = MM_OGL;
