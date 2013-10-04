@@ -109,8 +109,12 @@ void AudioEngine::init(const AudioParams& ap, float volume)
 
     int err = SDL_OpenAudio(&desired, 0);
     if (err < 0) {
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::WARNING,
-                "Can't open audio: " << SDL_GetError());
+        static bool bWarned = false;
+        if (!bWarned) {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::WARNING,
+                    "Can't open audio: " << SDL_GetError());
+            bWarned = true;
+        }
     }
 }
 
