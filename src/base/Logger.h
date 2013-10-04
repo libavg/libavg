@@ -46,6 +46,7 @@ namespace avg {
 typedef std::map< const category_t, const severity_t > CatToSeverityMap;
 typedef std::map< const size_t, const severity_t > CatHashToSeverityMap;
 
+#pragma warning(disable:4275) // non dll-interface class used as base for dll-interface class
 class AVG_API Logger: private boost::noncopyable {
 public:
     struct AVG_API severity
