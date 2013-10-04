@@ -632,6 +632,9 @@ void WordsNode::renderText()
     if (m_bRenderNeeded) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
+            TextEngine& engine = TextEngine::get(m_FontStyle.getHint());
+            PangoContext* pContext = engine.getPangoContext();
+            pango_context_set_font_description(pContext, m_pFontDescription);
             int maxTexSize = GLContext::getMain()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 
