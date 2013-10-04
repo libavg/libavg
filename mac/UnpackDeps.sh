@@ -18,10 +18,6 @@ for file in $(ls tarballs/*.gz); do
     tar xzf $file
 done
 
-echo "  Copying ffmpeg."
-rm -rf ffmpeg
-cp -pR tarballs/ffmpeg ffmpeg
-
 echo "  Applying patches."
 cd gettext-0.18.1.1
 patch -p0 <  ../../libavg/mac/stpncpy.patch
@@ -36,9 +32,6 @@ patch configure.in < ../../libavg/mac/librsvg_configure.patch
 cd ..
 cd glib-2.29.2/glib
 patch -R gconvert.c < ../../../libavg/mac/glib.patch
-cd ../..
-cd ffmpeg/libswscale
-patch -p0 <../../../libavg/mac/ffmpeg.broken-yuv.patch
 cd ../..
 cd boost_1_41_0/tools/build/v2/tools
 patch -R darwin.jam < ../../../../../../libavg/mac/boost-lion.patch
