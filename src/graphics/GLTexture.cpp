@@ -84,7 +84,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     m_pGLContext->bindTexture(GL_TEXTURE0, m_TexID);
     if (bMipmap) {
         glproc::GenerateMipmap(GL_TEXTURE_2D);
-        GLContext::checkError("GLTexture::generateMipmap()");
+        GLContext::checkError("GLTexture::GLTexture generateMipmap()");
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -94,7 +94,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
-    GLContext::checkError("GLTexture: glTexImage2D()");
+    GLContext::checkError("GLTexture::GLTexture glTexImage2D()");
 
     if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
