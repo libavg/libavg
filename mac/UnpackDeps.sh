@@ -36,8 +36,8 @@ cd ../..
 cd boost_1_41_0/tools/build/v2/tools
 patch -R darwin.jam < ../../../../../../libavg/mac/boost-lion.patch
 cd ../../../../..
-#cd freetype-2.4.4/
-#patch -p1 < ../../libavg/mac/freetype_linespacing.patch
-#cd ..
+cd freetype-2.5.0.1/
+patch -p1 -R < ../../libavg/mac/freetype_linespacing.patch
+cd ..
 
 echo "Done"

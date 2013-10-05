@@ -147,7 +147,7 @@ buildLib SDL-1.2.15 "--disable-shared --disable-cdrom --disable-threads --disabl
 buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 
-buildLib freetype-2.4.4 "--disable-shared --with-old-mac-fonts"
+buildLib freetype-2.5.0.1 "--disable-shared --with-old-mac-fonts"
 buildLib expat-2.0.0 --disable-shared
 
 buildfontconfig
