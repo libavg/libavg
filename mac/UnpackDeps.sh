@@ -7,15 +7,9 @@ fi
 
 cd $AVG_PATH/deps
 
-echo "Unpacking libavg dependencies."
-for file in $(ls tarballs/*.bz2); do
+for file in $(ls tarballs/*.gz) $(ls tarballs/*.bz2); do
     echo "  Unpacking $file."
-    tar xjf $file
-done
-
-for file in $(ls tarballs/*.gz); do
-    echo "  Unpacking $file."
-    tar xzf $file
+    tar xf $file
 done
 
 echo "  Applying patches."
