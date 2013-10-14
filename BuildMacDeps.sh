@@ -28,32 +28,6 @@ buildLib()
     cd ..
 }
 
-buildlibjpeg()
-{
-    echo --------------------------------------------------------------------
-    cd jpeg-6b
-    cp ${AVG_PATH}/share/libtool/config/config.sub .
-    cp ${AVG_PATH}/share/libtool/config/config.guess .
-    ./configure --prefix=${AVG_PATH}
-    make clean
-    make -j5
-    make install-lib
-    make install-headers
-    ranlib ../../lib/libjpeg.a
-    cd ..
-}
-
-buildlibpng()
-{
-    echo --------------------------------------------------------------------
-    cd libpng-1.2.41
-    ./configure --prefix=${AVG_PATH} --disable-shared
-    make clean
-    make -j5
-    make install
-    cd ..
-}
-
 buildglib()
 {
     echo --------------------------------------------------------------------
@@ -130,15 +104,13 @@ clean
 
 cd ../deps
 
-DARWINVER=`uname -r`
-DARWINMAJORVER=${DARWINVER%%.*}
-
 buildLib libtool-2.2.6
 buildLib autoconf-2.63
 buildLib automake-1.11
-buildlibjpeg
+buildLib nasm-2.10.09
+buildLib libjpeg-turbo-1.3.0 "--host x86_64-apple-darwin NASM=${HOME}/devel/libavg/bin/nasm"
 buildLib tiff-3.8.2 --disable-shared 
-buildlibpng
+buildLib libpng-1.2.41 --disable-shared
 buildLib pkg-config-0.20
 buildLib yasm-1.2.0 
 buildLib libav-9.9 "--arch=x86_64 --disable-debug --enable-pthreads --enable-runtime-cpudetect"
