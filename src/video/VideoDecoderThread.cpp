@@ -56,6 +56,25 @@ VideoDecoderThread::~VideoDecoderThread()
 {
 }
 
+bool VideoDecoderThread::init()
+{
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
+    m_pFrame = avcodec_alloc_frame();
+#else
+    m_pFrame = new AVFrame;
+#endif
+    return true;
+}
+        
+void VideoDecoderThread::deinit()
+{
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
+    avcodec_free_frame(&m_pFrame);
+#else
+    delete m_pFrame;
+#endif
+}
+
 static ProfilingZoneID DecoderProfilingZone("Video Decoder Thread", true);
 static ProfilingZoneID PacketWaitProfilingZone("Video wait for packet", true);
 
@@ -114,20 +133,18 @@ void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
 
 void VideoDecoderThread::decodePacket(AVPacket* pPacket)
 {
-    AVFrame frame;
-    bool bGotPicture = m_pFrameDecoder->decodePacket(pPacket, frame, m_bSeekDone);
+    bool bGotPicture = m_pFrameDecoder->decodePacket(pPacket, m_pFrame, m_bSeekDone);
     if (bGotPicture) {
         m_bSeekDone = false;
-        sendFrame(frame);
+        sendFrame(m_pFrame);
     }
 }
 
 void VideoDecoderThread::handleEOF()
 {
-    AVFrame frame;
-    bool bGotPicture = m_pFrameDecoder->decodeLastFrame(frame);
+    bool bGotPicture = m_pFrameDecoder->decodeLastFrame(m_pFrame);
     if (bGotPicture) {
-        sendFrame(frame);
+        sendFrame(m_pFrame);
     } else {
         m_bProcessingLastFrames = false;
         VideoMsgPtr pMsg(new VideoMsg());
@@ -146,11 +163,11 @@ void VideoDecoderThread::handleSeekDone(VideoMsgPtr pMsg)
 
 static ProfilingZoneID CopyImageProfilingZone("Copy image", true);
 
-void VideoDecoderThread::sendFrame(AVFrame& frame)
+void VideoDecoderThread::sendFrame(AVFrame* pFrame)
 {
     VideoMsgPtr pMsg(new VideoMsg());
     if (m_bUseVDPAU) {
-        vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+        vdpau_render_state *pRenderState = (vdpau_render_state *)pFrame->data[0];
         pMsg->setVDPAUFrame(pRenderState, m_pFrameDecoder->getCurTime());
     } else {
         vector<BitmapPtr> pBmps;
@@ -164,12 +181,12 @@ void VideoDecoderThread::sendFrame(AVFrame& frame)
                 pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
             }
             for (unsigned i = 0; i < pBmps.size(); ++i) {
-                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], frame.data[i], 
-                        frame.linesize[i]);
+                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], pFrame->data[i], 
+                        pFrame->linesize[i]);
             }
         } else {
             pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
-            m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
+            m_pFrameDecoder->convertFrameToBmp(pFrame, pBmps[0]);
         }
         pMsg->setFrame(pBmps, m_pFrameDecoder->getCurTime());
     }

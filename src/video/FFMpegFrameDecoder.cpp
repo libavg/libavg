@@ -21,6 +21,7 @@
 
 #include "FFMpegFrameDecoder.h"
 #include "FFMpegDemuxer.h"
+#include "VideoInfo.h"
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAUDecoder.h"
 #endif
@@ -52,7 +53,8 @@ FFMpegFrameDecoder::FFMpegFrameDecoder(AVStream* pStream)
       m_bUseStreamFPS(true)
 {
     m_TimeUnitsPerSecond = float(1.0/av_q2d(pStream->time_base));
-    m_FPS = float(av_q2d(pStream->r_frame_rate));
+    m_FPS = getStreamFPS(pStream);
+    
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -67,7 +69,7 @@ FFMpegFrameDecoder::~FFMpegFrameDecoder()
 
 static ProfilingZoneID DecodePacketProfilingZone("Decode packet", true);
 
-bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
+bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame* pFrame,
         bool bFrameAfterSeek)
 {
     ScopeTimer timer(DecodePacketProfilingZone);
@@ -75,9 +77,9 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
     AVCodecContext* pContext = m_pStream->codec;
     AVG_ASSERT(pPacket);
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
-    avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
+    avcodec_decode_video2(pContext, pFrame, &bGotPicture, pPacket);
 #else
-    avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data, pPacket->size);
+    avcodec_decode_video(pContext, pFrame, &bGotPicture, pPacket->data, pPacket->size);
 #endif
     if (bGotPicture) {
         m_LastFrameTime = getFrameTime(pPacket->dts, bFrameAfterSeek);
@@ -87,7 +89,7 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame& frame,
     return (bGotPicture != 0);
 }
 
-bool FFMpegFrameDecoder::decodeLastFrame(AVFrame& frame)
+bool FFMpegFrameDecoder::decodeLastFrame(AVFrame* pFrame)
 {
     // EOF. Decode the last data we got.
     int bGotPicture = 0;
@@ -97,9 +99,9 @@ bool FFMpegFrameDecoder::decodeLastFrame(AVFrame& frame)
     av_init_packet(&packet);
     packet.data = 0;
     packet.size = 0;
-    avcodec_decode_video2(pContext, &frame, &bGotPicture, &packet);
+    avcodec_decode_video2(pContext, pFrame, &bGotPicture, &packet);
 #else
-    avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
+    avcodec_decode_video(pContext, pFrame, &bGotPicture, 0, 0);
 #endif
     m_bEOF = true;
 
@@ -116,7 +118,7 @@ static ProfilingZoneID ConvertImageSWSProfilingZone(
         "FFMpeg: colorspace conv (SWS)", true);
 static ProfilingZoneID SetAlphaProfilingZone("FFMpeg: set alpha channel", true);
 
-void FFMpegFrameDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
+void FFMpegFrameDecoder::convertFrameToBmp(AVFrame* pFrame, BitmapPtr pBmp)
 {
     AVPicture destPict;
     unsigned char * pDestBits = pBmp->getPixels();
@@ -151,13 +153,14 @@ void FFMpegFrameDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
                 pContext->pix_fmt == PIX_FMT_YUVJ420P))
     {
         ScopeTimer timer(ConvertImageLibavgProfilingZone);
-        BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, frame.data[0],
-                    frame.linesize[0], false));
-        BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, frame.data[1],
-                    frame.linesize[1], false));
-        BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
-                    frame.linesize[2], false));
-        pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, pContext->pix_fmt == PIX_FMT_YUVJ420P);
+        BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, pFrame->data[0],
+                pFrame->linesize[0], false));
+        BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, pFrame->data[1],
+                pFrame->linesize[1], false));
+        BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, pFrame->data[2],
+                pFrame->linesize[2], false));
+        pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
+                pContext->pix_fmt == PIX_FMT_YUVJ420P);
     } else {
         if (!m_pSwsContext) {
             m_pSwsContext = sws_getContext(pContext->width, pContext->height, 
@@ -167,7 +170,7 @@ void FFMpegFrameDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
         }
         {
             ScopeTimer timer(ConvertImageSWSProfilingZone);
-            sws_scale(m_pSwsContext, frame.data, frame.linesize, 0, 
+            sws_scale(m_pSwsContext, pFrame->data, pFrame->linesize, 0, 
                     pContext->height, destPict.data, destPict.linesize);
         }
         if (pBmp->getPixelFormat() == B8G8R8X8 || pBmp->getPixelFormat() == R8G8B8X8) {
@@ -226,7 +229,7 @@ void FFMpegFrameDecoder::setFPS(float fps)
 {
     m_bUseStreamFPS = (fps == 0);
     if (fps == 0) {
-        m_FPS = float(av_q2d(m_pStream->r_frame_rate));
+        m_FPS = getStreamFPS(m_pStream);
     } else {
         m_FPS = fps;
     }

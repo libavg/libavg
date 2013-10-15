@@ -82,6 +82,11 @@ void SyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 
     m_pFrameDecoder = FFMpegFrameDecoderPtr(new FFMpegFrameDecoder(getVideoStream()));
     m_pFrameDecoder->setFPS(m_FPS);
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
+    m_pFrame = avcodec_alloc_frame();
+#else
+    m_pFrame = new AVFrame;
+#endif
 }
 
 void SyncVideoDecoder::close() 
@@ -91,6 +96,11 @@ void SyncVideoDecoder::close()
 
     m_pFrameDecoder = FFMpegFrameDecoderPtr();
     VideoDecoder::close();
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
+    avcodec_free_frame(&m_pFrame);
+#else
+    delete m_pFrame;
+#endif
 }
 
 void SyncVideoDecoder::seek(float destTime) 
@@ -98,8 +108,7 @@ void SyncVideoDecoder::seek(float destTime)
     AVG_ASSERT(getState() == DECODING);
 
     if (m_bFirstPacket) {
-        AVFrame frame;
-        readFrame(frame);
+        readFrame(m_pFrame);
     }
     m_pDemuxer->seek(destTime);
     m_bVideoSeekDone = true;
@@ -158,13 +167,12 @@ FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 {
     AVG_ASSERT(getState() == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
-    AVFrame frame;
     FrameAvailableCode frameAvailable;
     if (timeWanted == -1) {
-        readFrame(frame);
+        readFrame(m_pFrame);
         frameAvailable = FA_NEW_FRAME;
     } else {
-        frameAvailable = readFrameForTime(frame, timeWanted);
+        frameAvailable = readFrameForTime(m_pFrame, timeWanted);
     }
     if (frameAvailable == FA_USE_LAST_FRAME || isEOF()) {
         return FA_USE_LAST_FRAME;
@@ -172,11 +180,11 @@ FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         if (pixelFormatIsPlanar(getPixelFormat())) {
             ScopeTimer timer(CopyImageProfilingZone);
             for (unsigned i = 0; i < pBmps.size(); ++i) {
-                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], frame.data[i],
-                        frame.linesize[i]);
+                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], m_pFrame->data[i],
+                        m_pFrame->linesize[i]);
             }
         } else {
-            m_pFrameDecoder->convertFrameToBmp(frame, pBmps[0]);
+            m_pFrameDecoder->convertFrameToBmp(m_pFrame, pBmps[0]);
         }
         return FA_NEW_FRAME;
     }
@@ -185,8 +193,7 @@ FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 void SyncVideoDecoder::throwAwayFrame(float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
-    AVFrame frame;
-    readFrameForTime(frame, timeWanted);
+    readFrameForTime(m_pFrame, timeWanted);
 }
 
 bool SyncVideoDecoder::isEOF() const
@@ -195,7 +202,7 @@ bool SyncVideoDecoder::isEOF() const
     return m_pFrameDecoder->isEOF() && !m_bEOFPending;
 }
 
-FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
+FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame* pFrame, float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
     float timePerFrame = 1.0f/m_FPS;
@@ -206,7 +213,7 @@ FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame& frame, float time
     } else {
         bool bInvalidFrame = true;
         while (bInvalidFrame && !isEOF()) {
-            readFrame(frame);
+            readFrame(pFrame);
             bInvalidFrame = m_pFrameDecoder->getCurTime()-timeWanted < -0.5f*timePerFrame;
         }
     }
@@ -218,7 +225,7 @@ FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame& frame, float time
 
 static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
 
-void SyncVideoDecoder::readFrame(AVFrame& frame)
+void SyncVideoDecoder::readFrame(AVFrame* pFrame)
 {
     AVG_ASSERT(getState() == DECODING);
     ScopeTimer timer(DecodeProfilingZone); 
@@ -233,9 +240,10 @@ void SyncVideoDecoder::readFrame(AVFrame& frame)
         m_bFirstPacket = false;
         bool bGotPicture;
         if (pPacket) {
-            bGotPicture = m_pFrameDecoder->decodePacket(pPacket, frame, m_bVideoSeekDone);
+            bGotPicture = m_pFrameDecoder->decodePacket(pPacket, pFrame, 
+                    m_bVideoSeekDone);
         } else {
-            bGotPicture = m_pFrameDecoder->decodeLastFrame(frame);
+            bGotPicture = m_pFrameDecoder->decodeLastFrame(pFrame);
         }
         if (bGotPicture && m_pFrameDecoder->isEOF()) {
             m_bEOFPending = true;

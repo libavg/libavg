@@ -1031,7 +1031,7 @@ class EventTestCase(AVGTestCase):
 
         self.messageReceived = False
         root = self.loadEmptyScene()
-        self.video = avg.VideoNode(href="mpeg1-48x48.mpg", parent=root)
+        self.video = avg.VideoNode(href="mpeg1-48x48.mov", parent=root)
         self.video.subscribe(self.video.SIZE_CHANGED, onResize)
         self.video.play()
         self.assert_(self.messageReceived)

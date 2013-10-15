@@ -91,7 +91,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     GLContext::checkError("GLTexture: glTexImage2D()");
     if (bMipmap) {
         glproc::GenerateMipmap(GL_TEXTURE_2D);
-        GLContext::checkError("GLTexture::generateMipmap()");
+        GLContext::checkError("GLTexture::GLTexture generateMipmap()");
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

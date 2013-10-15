@@ -101,7 +101,8 @@ class DecoderTest: public GraphicsTest {
                     }
                     case AudioMsg::SEEK_DONE: {
                         AudioMsgPtr pStatusMsg(new AudioMsg);
-                        pStatusMsg->setSeekDone(pMsg->getSeekSeqNum(), pMsg->getSeekTime());
+                        pStatusMsg->setSeekDone(pMsg->getSeekSeqNum(),
+                                pMsg->getSeekTime());
                         pStatusQ->push(AudioMsgPtr(pStatusMsg));
                         return -1;
                     }
@@ -172,7 +173,7 @@ class VideoDecoderTest: public DecoderTest {
 
         void runTests()
         {
-            basicFileTest("mpeg1-48x48.mpg", 30);
+            basicFileTest("mpeg1-48x48.mov", 30);
             basicFileTest("mjpeg-48x48.avi", 202);
             testSeeks("mjpeg-48x48.avi");
         }
@@ -420,13 +421,12 @@ class AVDecoderTest: public DecoderTest {
             pDecoder->startDecoding(false, getAudioParams());
             AudioMsgQueuePtr pMsgQ;
             AudioMsgQueuePtr pStatusQ;
-            if (isThreaded()) {
-                pMsgQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
-                        ->getAudioMsgQ();
-                pStatusQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
-                        ->getAudioStatusQ();
-                TEST(pDecoder->getVideoInfo().m_bHasAudio);
-            }
+            
+            pMsgQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder) ->getAudioMsgQ();
+            pStatusQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                ->getAudioStatusQ();
+            TEST(pDecoder->getVideoInfo().m_bHasAudio);
+            
             IntPoint frameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
             int numFrames = 0;
@@ -445,16 +445,15 @@ class AVDecoderTest: public DecoderTest {
 //                    pBmp->save(ss.str());
                     numFrames++;
                 }
-                if (isThreaded()) {
-                    int framesDecoded = 0;
-                    while (framesDecoded == 0 && !pDecoder->isEOF()) {
-                        framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
-                        dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
-                                ->updateAudioStatus();
-                        msleep(0);
-                    }
-                    totalFramesDecoded += framesDecoded;
+                int framesDecoded = 0;
+                while (framesDecoded == 0 && !pDecoder->isEOF()) {
+                    framesDecoded = processAudioMsg(pMsgQ, pStatusQ);
+                    dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
+                        ->updateAudioStatus();
+                    msleep(0);
                 }
+                totalFramesDecoded += framesDecoded;
+
                 curTime += 1.0f/pDecoder->getFPS();
             }
             TEST(pDecoder->isEOF());
