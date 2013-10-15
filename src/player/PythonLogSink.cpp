@@ -80,9 +80,9 @@ void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
         Py_DECREF(pyCat);
         Py_DECREF(args);
         Py_DECREF(kwargs);
-    } catch (const boost::python::error_already_set &err) {
+    } catch (const boost::python::error_already_set &) {
         std::cerr << "PythonLogSink: Python raised exception\n";
-    } catch (const exception &err) {
+    } catch (const exception &) {
         std::cerr << "PythonLogSink: Couldn't log to python logger.\n";
     }
 }

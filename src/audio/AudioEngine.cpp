@@ -107,8 +107,14 @@ void AudioEngine::init(const AudioParams& ap, float volume)
     desired.callback = audioCallback;
     desired.userdata = this;
 
-    if (SDL_OpenAudio(&desired, 0) < 0) {
-      //throw new Exception("Cannot open audio device");
+    int err = SDL_OpenAudio(&desired, 0);
+    if (err < 0) {
+        static bool bWarned = false;
+        if (!bWarned) {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::WARNING,
+                    "Can't open audio: " << SDL_GetError());
+            bWarned = true;
+        }
     }
 }
 

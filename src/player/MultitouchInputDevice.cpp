@@ -37,7 +37,7 @@ MultitouchInputDevice::MultitouchInputDevice()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(MultitouchInputDevice))
 {
     m_TouchArea = ConfigMgr::get()->getSizeOption("touch", "area");
-    if(m_TouchArea.x == 0){
+    if (m_TouchArea.x == 0) {
         m_TouchArea = Player::get()->getScreenResolution();
     }
     m_TouchOffset = ConfigMgr::get()->getSizeOption("touch", "offset");
