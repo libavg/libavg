@@ -82,21 +82,10 @@ OGLShader::~OGLShader()
 {
 }
 
-bool isMountainLion()
-{
-#ifdef __APPLE__
-    return getOSXMajorVersion() == 12;
-#else
-    return false;
-#endif
-}
-
 void OGLShader::activate()
 {
-    // If we're running on OS X mountain lion, we need to disable shader activation 
-    // caching (See bug #355).
     OGLShaderPtr pCurShader = m_pShaderRegistry->getCurShader();
-    if (isMountainLion() || !pCurShader || &*pCurShader != this) {
+    if (!pCurShader || &*pCurShader != this) {
         glproc::UseProgram(m_hProgram);
         m_pShaderRegistry->setCurShader(m_sName);
         GLContext::checkError("OGLShader::activate: glUseProgram()");
