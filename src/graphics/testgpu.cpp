@@ -470,7 +470,6 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 
 int main(int nargs, char** args)
 {
-    g_type_init();
     bool bOK = true;
     try {
 #ifndef AVG_ENABLE_EGL

@@ -225,7 +225,6 @@ public:
 
 int main(int nargs, char** args)
 {
-    g_type_init();
     ImagingTestSuite Suite;
     BitmapLoader::init(true);
     Suite.runTests();

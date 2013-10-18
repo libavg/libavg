@@ -507,7 +507,6 @@ private:
 
 int main(int nargs, char** args)
 {
-    g_type_init();
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
 
