@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import libavg
-from libavg import app
+from libavg import app, player
 
 
 class MyMainDiv(app.MainDiv):
     # An OptionParser instance is passed to this function, allowing the MainDiv to
     # add command line arguments
     def onArgvParserCreated(self, parser):
-        parser.add_option('--speed', '-s', default='300', dest='speed',
+        parser.add_option('--speed', '-s', default='0.3', dest='speed',
                 help='Pixels per second')
         parser.add_option('--color', '-c', default='ff0000', dest='color',
                 help='Fill color of the running block')
@@ -38,11 +38,10 @@ class MyMainDiv(app.MainDiv):
     def onExit(self):
         print 'Exiting..'
 
-    def onFrame(self, delta):
-        # delta is the time, in seconds, since the last call to this function
+    def onFrame(self):
         if self.__shouldMove:
             speed = float(self.argvoptions.speed)
-            self.__runningBlock.pos += (speed * delta, 0)
+            self.__runningBlock.pos += (speed * player.getFrameDuration(), 0)
             if self.__runningBlock.pos.x > self.size.x:
                 self.__runningBlock.pos = (0, 100)
 

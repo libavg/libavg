@@ -99,7 +99,7 @@ class SpeedDiv(app.MainDiv):
         # break things.
         player.setTimeout(0, lambda: player.setTimeout(20000, player.stop))
 
-    def onFrame(self, dt):
+    def onFrame(self):
          if self.__optMove:
             self.__moveNodes()
 

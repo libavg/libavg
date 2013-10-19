@@ -91,7 +91,7 @@ class VideoPlayer(app.MainDiv):
                 self.node.seekToTime(0)
         return False
 
-    def onFrame(self, dt):
+    def onFrame(self):
         curFrame = self.node.getCurFrame()
         numFrames = self.node.getNumFrames()
         self.curFrameWords.text = "Frame: %i/%i"%(curFrame, numFrames)

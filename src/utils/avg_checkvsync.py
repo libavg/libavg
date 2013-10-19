@@ -31,7 +31,7 @@ class VSyncDiv(app.MainDiv):
         self.__line = avg.LineNode(color='FFFFFF', parent=self)
         self.__x = 0
 
-    def onFrame(self, dt):
+    def onFrame(self):
         self.__x += 1
         if self.__x == self.width:
             self.__x = 0
