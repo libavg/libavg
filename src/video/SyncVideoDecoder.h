@@ -62,7 +62,7 @@ class AVG_API SyncVideoDecoder: public VideoDecoder
 
         FFMpegDemuxer * m_pDemuxer;
         
-        bool m_bEOFPending;
+        bool m_bProcessingLastFrames;
         bool m_bFirstPacket;
 
         bool m_bUseStreamFPS;

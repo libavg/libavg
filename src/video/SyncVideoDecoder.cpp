@@ -59,7 +59,7 @@ SyncVideoDecoder::~SyncVideoDecoder()
 void SyncVideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
         bool bEnableSound)
 {
-    m_bEOFPending = false;
+    m_bProcessingLastFrames = false;
     VideoDecoder::open(sFilename, false, false);
 
     if (getVStreamIndex() >= 0) {
@@ -199,7 +199,7 @@ void SyncVideoDecoder::throwAwayFrame(float timeWanted)
 bool SyncVideoDecoder::isEOF() const
 {
     AVG_ASSERT(getState() == DECODING);
-    return m_pFrameDecoder->isEOF() && !m_bEOFPending;
+    return m_pFrameDecoder->isEOF() && !m_bProcessingLastFrames;
 }
 
 FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame* pFrame, float timeWanted)
@@ -230,26 +230,30 @@ void SyncVideoDecoder::readFrame(AVFrame* pFrame)
     AVG_ASSERT(getState() == DECODING);
     ScopeTimer timer(DecodeProfilingZone); 
 
-    if (m_bEOFPending) {
-        m_bEOFPending = false;
-        return;
-    }
-    bool bDone = false;
-    while (!bDone) {
-        AVPacket* pPacket = m_pDemuxer->getPacket(getVStreamIndex());
-        m_bFirstPacket = false;
-        bool bGotPicture;
-        if (pPacket) {
-            bGotPicture = m_pFrameDecoder->decodePacket(pPacket, pFrame, 
-                    m_bVideoSeekDone);
-        } else {
-            bGotPicture = m_pFrameDecoder->decodeLastFrame(pFrame);
+    if (m_bProcessingLastFrames) {
+        // EOF received, but last frames still need to be decoded.
+        bool bGotPicture = m_pFrameDecoder->decodeLastFrame(pFrame);
+        if (!bGotPicture) {
+            m_bProcessingLastFrames = false;
         }
-        if (bGotPicture && m_pFrameDecoder->isEOF()) {
-            m_bEOFPending = true;
-        }
-        if (bGotPicture || m_pFrameDecoder->isEOF()) {
-            bDone = true;
+    } else {        
+        bool bDone = false;
+        while (!bDone) {
+            AVPacket* pPacket = m_pDemuxer->getPacket(getVStreamIndex());
+            m_bFirstPacket = false;
+            bool bGotPicture;
+            if (pPacket) {
+                bGotPicture = m_pFrameDecoder->decodePacket(pPacket, pFrame, 
+                        m_bVideoSeekDone);
+            } else {
+                bGotPicture = m_pFrameDecoder->decodeLastFrame(pFrame);
+            }
+            if (bGotPicture && m_pFrameDecoder->isEOF()) {
+                m_bProcessingLastFrames = true;
+            }
+            if (bGotPicture || m_pFrameDecoder->isEOF()) {
+                bDone = true;
+            }
         }
     }
 }
