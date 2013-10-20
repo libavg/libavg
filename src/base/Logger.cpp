@@ -155,17 +155,13 @@ category_t Logger::configureCategory(category_t category, severity_t severity)
     boost::lock_guard<boost::mutex> lock(m_CategoryMutex);
     severity = (severity == Logger::severity::NONE) ? m_Severity : severity;
     UTF8String sCategory = boost::to_upper_copy(string(category));
-    const size_t catHash = makeHash(sCategory);
-    CatHashToSeverityMap::iterator it;
-    it = m_CategoryHashSeverities.find(catHash);
-    if ( it != m_CategoryHashSeverities.end()) {
-        m_CategoryHashSeverities.erase(it);
+    CatToSeverityMap::iterator it;
+    it = m_CategorySeverities.find(sCategory);
+    if ( it != m_CategorySeverities.end()) {
         m_CategorySeverities.erase(sCategory);
     }
     pair<const category_t, const severity_t> element(sCategory, severity);
-    pair<const size_t, const severity_t> hashedElement(catHash, severity);
     m_CategorySeverities.insert(element);
-    m_CategoryHashSeverities.insert(hashedElement);
     return sCategory;
 }
 
