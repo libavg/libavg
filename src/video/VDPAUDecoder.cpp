@@ -25,6 +25,17 @@
 
 #include <iostream>
 
+/*
+Notes on adding Render-to-texture support:
+- For every Surface, call
+    VDPAURegisterSurfaceNV()
+    VDPAUSurfaceAccessNV(..., READ) 
+- VideoNode: Create OGLSurface and GLTexture objs each frame from texids,
+  map VDPAU surfaces while textures exist.
+- New OGLSurface pixel format VDPAU_INTERLACED
+- Support new OGLSurface pixel format in shader
+*/
+
 using namespace std;
 
 namespace avg {
