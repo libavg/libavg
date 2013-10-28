@@ -1,0 +1,6 @@
+205,207d204
+< #if defined (__APPLE__) 
+< #  define G_INLINE_FUNC inline
+< #else
+222d218
+< #endif
