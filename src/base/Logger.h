@@ -125,7 +125,6 @@ private:
     CatToSeverityMap m_CategorySeverities;
     severity_t m_Severity;
     static boost::mutex m_CategoryMutex;
-    boost::hash<UTF8String> makeHash;
 };
 
 #define AVG_TRACE(category, severity, sMsg) { \
