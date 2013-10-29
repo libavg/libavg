@@ -121,7 +121,7 @@ void AudioEngine::init(const AudioParams& ap, float volume)
 void AudioEngine::teardown()
 {
     {
-        mutex::scoped_lock lock(m_Mutex);
+        boost::mutex::scoped_lock lock(m_Mutex);
         SDL_PauseAudio(1);
     }
     // Optimized away - takes too long.
@@ -137,7 +137,7 @@ void AudioEngine::teardown()
 void AudioEngine::setAudioEnabled(bool bEnabled)
 {
     SDL_LockAudio();
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     AVG_ASSERT(m_AudioSources.empty());
     m_bEnabled = bEnabled;
     if (m_bEnabled) {
@@ -161,7 +161,7 @@ void AudioEngine::pause()
 int AudioEngine::addSource(AudioMsgQueue& dataQ, AudioMsgQueue& statusQ)
 {
     SDL_LockAudio();
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     static int nextID = -1;
     nextID++;
     AudioSourcePtr pSrc(new AudioSource(dataQ, statusQ, m_AP.m_SampleRate));
@@ -173,7 +173,7 @@ int AudioEngine::addSource(AudioMsgQueue& dataQ, AudioMsgQueue& statusQ)
 void AudioEngine::removeSource(int id)
 {
     SDL_LockAudio();
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     int numErased = m_AudioSources.erase(id);
     AVG_ASSERT(numErased == 1);
     SDL_UnlockAudio();
@@ -181,7 +181,7 @@ void AudioEngine::removeSource(int id)
 
 void AudioEngine::pauseSource(int id)
 {
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     AudioSourceMap::iterator itSource = m_AudioSources.find(id);
     AVG_ASSERT(itSource != m_AudioSources.end());
     AudioSourcePtr pSource = itSource->second;
@@ -190,7 +190,7 @@ void AudioEngine::pauseSource(int id)
 
 void AudioEngine::playSource(int id)
 {
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     AudioSourceMap::iterator itSource = m_AudioSources.find(id);
     AVG_ASSERT(itSource != m_AudioSources.end());
     AudioSourcePtr pSource = itSource->second;
@@ -199,7 +199,7 @@ void AudioEngine::playSource(int id)
 
 void AudioEngine::notifySeek(int id)
 {
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     AudioSourceMap::iterator itSource = m_AudioSources.find(id);
     AVG_ASSERT(itSource != m_AudioSources.end());
     AudioSourcePtr pSource = itSource->second;
@@ -208,7 +208,7 @@ void AudioEngine::notifySeek(int id)
 
 void AudioEngine::setSourceVolume(int id, float volume)
 {
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     AudioSourceMap::iterator itSource = m_AudioSources.find(id);
     AVG_ASSERT(itSource != m_AudioSources.end());
     AudioSourcePtr pSource = itSource->second;
@@ -218,7 +218,7 @@ void AudioEngine::setSourceVolume(int id, float volume)
 void AudioEngine::setVolume(float volume)
 {
     SDL_LockAudio();
-    mutex::scoped_lock lock(m_Mutex);
+    boost::mutex::scoped_lock lock(m_Mutex);
     m_Volume = volume;
     SDL_UnlockAudio();
 }
@@ -252,7 +252,7 @@ void AudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
         m_pMixBuffer[i]=0;
     }
     {
-        mutex::scoped_lock lock(m_Mutex);
+        boost::mutex::scoped_lock lock(m_Mutex);
         AudioSourceMap::iterator it;
         for (it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
             m_pTempBuffer->clear();

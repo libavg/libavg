@@ -43,7 +43,7 @@ using namespace boost;
 namespace avg {
 
 bool VideoDecoder::s_bInitialized = false;
-mutex VideoDecoder::s_OpenMutex;
+boost::mutex VideoDecoder::s_OpenMutex;
 
 
 VideoDecoder::VideoDecoder()
@@ -79,7 +79,7 @@ VideoDecoder::~VideoDecoder()
 void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
         bool bEnableSound)
 {
-    mutex::scoped_lock lock(s_OpenMutex);
+    boost::mutex::scoped_lock lock(s_OpenMutex);
     int err;
     m_sFilename = sFilename;
     
@@ -211,7 +211,7 @@ void VideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 
 void VideoDecoder::close() 
 {
-    mutex::scoped_lock lock(s_OpenMutex);
+    boost::mutex::scoped_lock lock(s_OpenMutex);
     AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Closing " << m_sFilename);
     
     // Close audio and video codecs
