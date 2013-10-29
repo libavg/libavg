@@ -27,9 +27,6 @@ cd ..
 cd glib-2.29.2/glib
 patch -R gconvert.c < ../../../libavg/mac/glib.patch
 cd ../..
-cd boost_1_41_0/tools/build/v2/tools
-patch -R darwin.jam < ../../../../../../libavg/mac/boost-lion.patch
-cd ../../../../..
 cd freetype-2.5.0.1/
 patch -p1 -R < ../../libavg/mac/freetype_linespacing.patch
 cd ..
@@ -39,4 +36,7 @@ cd ..
 cd pkg-config-0.20/glib-1.2.8/
 patch -p0 -R glib.h ../../../libavg/mac/pkg-config-mavericks.patch
 cd ../..
+cd libdc1394-2.2.1
+patch -p1 < ../../libavg/mac/dc1394_mavericks.patch
+cd ..
 echo "Done"

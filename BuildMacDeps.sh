@@ -78,7 +78,7 @@ buildlibrsvg()
 buildboost()
 {
     echo --------------------------------------------------------------------
-    cd boost_1_41_0
+    cd boost_1_54_0
     ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread,date_time
     ./bjam clean
     ./bjam install
@@ -133,6 +133,6 @@ buildlibrsvg
 
 buildboost
 
-buildLib libdc1394-2.0.2 "--disable-shared --disable-doxygen-doc --without-x"
+buildLib libdc1394-2.2.1 "--disable-shared --disable-doxygen-doc --without-x"
 
 cd ../libavg
