@@ -79,13 +79,14 @@ buildboost()
 {
     echo --------------------------------------------------------------------
     cd boost_1_54_0
-    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread,date_time
+    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread,date_time,system
     ./bjam clean
     ./bjam install
     cd ..
     rm -f ../lib/libboost_thread.dylib
     rm -f ../lib/libboost_python.dylib
     rm -f ../lib/libboost_date_time.dylib
+    rm -f ../lib/libboost_system.dylib
 }
 if [[ x"${AVG_PATH}" == "x" ]]
 then
