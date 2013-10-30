@@ -1,0 +1,77 @@
+--- libdc1394-2.2.1/configure	2013-01-28 03:47:43.000000000 +0100
++++ libdc1394-2.2.1-changed/configure	2013-10-29 22:05:59.000000000 +0100
+@@ -13609,51 +13609,8 @@
+ 
+     ;;
+ *-*-darwin*)
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for IOMasterPort in -lIOKit" >&5
+-$as_echo_n "checking for IOMasterPort in -lIOKit... " >&6; }
+-if test "${ac_cv_lib_IOKit_IOMasterPort+set}" = set; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-  ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lIOKit  $LIBS"
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-
+-/* Override any GCC internal prototype to avoid an error.
+-   Use char because int might match the return type of a GCC
+-   builtin and then its argument prototype would still apply.  */
+-#ifdef __cplusplus
+-extern "C"
+-#endif
+-char IOMasterPort ();
+-int
+-main ()
+-{
+-return IOMasterPort ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  ac_cv_lib_IOKit_IOMasterPort=yes
+-else
+-  ac_cv_lib_IOKit_IOMasterPort=no
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-LIBS=$ac_check_lib_save_LIBS
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_IOKit_IOMasterPort" >&5
+-$as_echo "$ac_cv_lib_IOKit_IOMasterPort" >&6; }
+-if test "x$ac_cv_lib_IOKit_IOMasterPort" = x""yes; then :
+-
+-$as_echo "#define HAVE_MACOSX /**/" >>confdefs.h
+- have_macosx=true
+-else
+-  as_fn_error "IOKitLib not found." "$LINENO" 5
+-fi
+ 
+-    platform_LDFLAGS="-framework CoreServices -framework CoreFoundation -framework Carbon"
++    platform_LDFLAGS="-framework CoreServices -framework CoreFoundation -framework Carbon -framework IOKit"
+ 
+     ;;
+ *-*-cygwin* | *-*-mingw*)
+--- libdc1394-2.2.1/dc1394/macosx/Makefile.in	2013-01-28 03:47:45.000000000 +0100
++++ libdc1394-2.2.1-changed/dc1394/macosx/Makefile.in	2013-10-29 22:03:29.000000000 +0100
+@@ -264,7 +264,7 @@
+ @HAVE_MACOSX_TRUE@	capture.h
+ 
+ AM_CFLAGS = -I..
+-libdc1394_macosx_la_LDFLAGS = -framework CoreFoundation -framework Carbon
++libdc1394_macosx_la_LDFLAGS = -framework CoreFoundation -framework Carbon -framework IOKit
+ libdc1394_macosx_la_LIBADD = -lIOKit
+ libdc1394_macosx_la_SOURCES = \
+ 	control.c \
+--- libdc1394-2.2.1/examples/Makefile.in	2013-01-28 03:47:45.000000000 +0100
++++ libdc1394-2.2.1-changed/examples/Makefile.in	2013-10-29 22:03:59.000000000 +0100
+@@ -350,7 +350,7 @@
+ B = dc1394_reset_bus $(am__append_2)
+ @HAVE_LINUX_TRUE@@HAVE_OPENGL_TRUE@GL_LIBS = -lGL
+ @HAVE_OPENGL_TRUE@@HAVE_WINDOWS_TRUE@GL_LIBS = -lopengl32
+-@HAVE_MACOSX_TRUE@AM_LDFLAGS = -framework CoreFoundation -framework Carbon
++@HAVE_MACOSX_TRUE@AM_LDFLAGS = -framework CoreFoundation -framework Carbon -framework IOKit
+ LDADD = ../dc1394/libdc1394.la
+ helloworld_SOURCES = helloworld.c
+ ladybug_SOURCES = ladybug.c
