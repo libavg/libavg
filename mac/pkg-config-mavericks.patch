@@ -1,5 +1,5 @@
 205,207d204
-< #if defined (__APPLE__) 
+< #if defined (__clang__) 
 < #  define G_INLINE_FUNC inline
 < #else
 222d218
