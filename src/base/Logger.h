@@ -25,10 +25,9 @@
 #include "Exception.h"
 #include "ILogSink.h"
 #include "UTF8String.h"
+#include "ThreadHelper.h"
 #include "../api.h"
 
-#include <boost/thread.hpp>
-#include <boost/thread/locks.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/functional/hash.hpp>
 
@@ -45,7 +44,6 @@ namespace avg {
 
 typedef std::map< const category_t, const severity_t > CatToSeverityMap;
 typedef std::map< const size_t, const severity_t > CatHashToSeverityMap;
-typedef boost::lock_guard<boost::mutex> lock_guard;
 
 class AVG_API Logger: private boost::noncopyable {
 public:

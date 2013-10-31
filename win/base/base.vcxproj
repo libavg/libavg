@@ -130,6 +130,7 @@
     <ClInclude Include="..\..\src\base\UTF8String.h" />
     <ClInclude Include="..\..\src\base\WideLine.h" />
     <ClInclude Include="..\..\src\base\WorkerThread.h" />
+    <ClInclude Include="..\..\src\base\ThreadHelper.h" />
     <ClInclude Include="..\..\src\base\XMLHelper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +168,7 @@
     <ClCompile Include="..\..\src\base\UTF8String.cpp" />
     <ClCompile Include="..\..\src\base\WideLine.cpp" />
     <ClCompile Include="..\..\src\base\WorkerThread.cpp" />
+    <ClCompile Include="..\..\src\base\ThreadHelper.cpp" />
     <ClCompile Include="..\..\src\base\XMLHelper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
