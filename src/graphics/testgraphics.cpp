@@ -1042,7 +1042,6 @@ public:
 
 int main(int nargs, char** args)
 {
-    g_type_init();
     BitmapLoader::init(true);
     GraphicsTest::createResultImgDir();
     GraphicsTestSuite suite;

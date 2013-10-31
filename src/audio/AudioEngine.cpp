@@ -31,6 +31,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -96,7 +97,7 @@ void AudioEngine::init(const AudioParams& ap, float volume)
     pLimiter->setRatio(std::numeric_limits<float>::infinity());
     pLimiter->setMakeupGain(0.f); // in dB
     m_pLimiter = pLimiter;
-
+    
     SDL_AudioSpec desired;
     desired.freq = m_AP.m_SampleRate;
     desired.format = AUDIO_S16SYS;
@@ -106,8 +107,14 @@ void AudioEngine::init(const AudioParams& ap, float volume)
     desired.callback = audioCallback;
     desired.userdata = this;
 
-    if (SDL_OpenAudio(&desired, 0) < 0) {
-      //throw new Exception("Cannot open audio device");
+    int err = SDL_OpenAudio(&desired, 0);
+    if (err < 0) {
+        static bool bWarned = false;
+        if (!bWarned) {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::WARNING,
+                    "Can't open audio: " << SDL_GetError());
+            bWarned = true;
+        }
     }
 }
 

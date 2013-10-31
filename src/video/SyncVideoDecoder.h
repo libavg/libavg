@@ -54,19 +54,20 @@ class AVG_API SyncVideoDecoder: public VideoDecoder
         virtual bool isEOF() const;
         
     private:
-        FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
-        void readFrame(AVFrame& frame);
+        FrameAvailableCode readFrameForTime(AVFrame* pFrame, float timeWanted);
+        void readFrame(AVFrame* pFrame);
 
         FFMpegFrameDecoderPtr m_pFrameDecoder;
         bool m_bVideoSeekDone;
 
         FFMpegDemuxer * m_pDemuxer;
         
-        bool m_bEOFPending;
+        bool m_bProcessingLastFrames;
         bool m_bFirstPacket;
 
         bool m_bUseStreamFPS;
         float m_FPS;
+        AVFrame* m_pFrame;
 };
 
 typedef boost::shared_ptr<SyncVideoDecoder> SyncVideoDecoderPtr;

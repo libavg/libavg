@@ -134,7 +134,7 @@ class ShowCamera(app.MainDiv):
         self.camNode.play()
         player.setTimeout(100, self.checkCamera)
 
-    def onFrame(self, dt):
+    def onFrame(self):
         if self.frameText:
             self.curFrame += 1
             self.frameText.text = "%(cam)d/%(app)d" \

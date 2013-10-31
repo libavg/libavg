@@ -61,7 +61,7 @@ class MainDiv(libavg.avg.DivNode):
     def onExit(self):
         pass
 
-    def onFrame(self, delta):
+    def onFrame(self):
         pass
 
 
@@ -399,9 +399,4 @@ class App(object):
         self._setupMultitouch()
         initFunc = getattr(self.mainDiv, self.mainDiv.INIT_FUNC)
         initFunc()
-        libavg.player.subscribe(libavg.player.ON_FRAME, self._onFrameInternal)
-
-    def _onFrameInternal(self):
-        now = time.time()
-        self.mainDiv.onFrame(now - self.__lastFrameTimestamp)
-        self.__lastFrameTimestamp = now
+        libavg.player.subscribe(libavg.player.ON_FRAME, self.mainDiv.onFrame)

@@ -4,7 +4,12 @@ then
 else
     DARWINVER=`uname -r`
     DARWINMAJORVER=${DARWINVER%%.*}
-    DEBUGINFOFLAG="-gstabs"
+    if [[ "${DARWINMAJORVER}" == "13" ]]
+    then
+        DEBUGINFOFLAG="-g"
+    else
+        DEBUGINFOFLAG="-gstabs"
+    fi
     export PATH=${AVG_PATH}/bin:${PATH}
     export CPPFLAGS="-I${AVG_PATH}/include "$CPPFLAGS
     export CXXFLAGS="-O3 ${DEBUGINFOFLAG} -Wall -pipe "$CXXFLAGS

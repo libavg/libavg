@@ -82,19 +82,20 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     s_LastTexID++;
     m_TexID = s_LastTexID;
     m_pGLContext->bindTexture(GL_TEXTURE0, m_TexID);
-    if (bMipmap) {
-        glproc::GenerateMipmap(GL_TEXTURE_2D);
-        GLContext::checkError("GLTexture::generateMipmap()");
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
+
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     GLContext::checkError("GLTexture: glTexImage2D()");
+    if (bMipmap) {
+        glproc::GenerateMipmap(GL_TEXTURE_2D);
+        GLContext::checkError("GLTexture::GLTexture generateMipmap()");
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
 
     if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
@@ -241,7 +242,7 @@ int GLTexture::getGLFormat(PixelFormat pf)
         case B8G8R8X8:
             AVG_ASSERT(!GLContext::getMain()->isGLES());
             return GL_BGRA;
-#ifndef AVG_ENABLE_EGL            
+#ifndef AVG_ENABLE_EGL
         case R32G32B32A32F:
             return GL_BGRA;
 #endif
@@ -326,15 +327,43 @@ void GLTexture::resetDirty()
     m_bIsDirty = false;
 }
 
+const string wrapModeToStr(unsigned wrapMode)
+{
+    string sWrapMode;
+    switch (wrapMode) {
+        case GL_CLAMP_TO_EDGE:
+            sWrapMode = "CLAMP_TO_EDGE";
+            break;
+#ifndef AVG_ENABLE_EGL
+        case GL_CLAMP:
+            sWrapMode = "CLAMP";
+            break;
+        case GL_CLAMP_TO_BORDER:
+            sWrapMode = "CLAMP_TO_BORDER";
+            break;
+#endif
+        case GL_REPEAT:
+            sWrapMode = "REPEAT";
+            break;
+        case GL_MIRRORED_REPEAT:
+            sWrapMode = "MIRRORED_REPEAT";
+            break;
+        default:
+            sWrapMode = "unknown";
+    }
+    return sWrapMode;
+}
+
 void GLTexture::dump(unsigned wrapSMode, unsigned wrapTMode) const
 {
     cerr << "GLTexture" << endl;
     cerr << "m_Size: " << m_Size << endl;
-    cerr << "m_GLSize: " << m_Size << endl;
+    cerr << "m_GLSize: " << m_GLSize << endl;
     cerr << "m_pf: " << m_pf << endl;
     cerr << "m_bMipmap: " << m_bMipmap << endl;
     if (wrapSMode != (unsigned)-1) {
-        cerr << "Wrap modes: " << wrapSMode << ", " << wrapTMode << endl;
+        cerr << "Wrap modes: " << \
+                wrapModeToStr(wrapSMode) << ", " << wrapModeToStr(wrapTMode) << endl;
     }
 }
 

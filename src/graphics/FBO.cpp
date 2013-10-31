@@ -297,6 +297,14 @@ void FBO::init()
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
             glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, 
                     m_MultisampleSamples, GL_DEPTH_STENCIL_EXT, glSize.x, glSize.y);
+            GLenum err = glGetError();
+            if (err == GL_INVALID_OPERATION) {
+                glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+                glproc::DeleteFramebuffers(1, &m_FBO);
+                glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
+                m_pOutputPBO = PBOPtr();
+                throwMultisampleError();
+            }
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                     GL_RENDERBUFFER, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,

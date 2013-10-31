@@ -38,6 +38,7 @@
 #include "WrapFFMpeg.h"
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -277,12 +278,7 @@ IntPoint VideoDecoder::getSize() const
 float VideoDecoder::getStreamFPS() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    float fps = float(av_q2d(m_pVStream->r_frame_rate));
-    if (fps > 10000) {
-        // This looks like a movie with a broken frame rate. See bug #436.
-        fps = getNumFrames()/getDuration(SS_VIDEO);
-    }
-    return fps;
+    return avg::getStreamFPS(m_pVStream);
 }
 
 FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)

@@ -31,7 +31,7 @@
 
 #include <vector>
 #include <map>
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_LIBCPP_VERSION)
 #include <unordered_map>
 #else
 #include <tr1/unordered_map>
@@ -68,7 +68,7 @@ private:
     ProfilingZonePtr addZone(const ProfilingZoneID& zoneID);
     std::string m_sName;
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_LIBCPP_VERSION)
     typedef std::unordered_map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
 #else
     typedef std::tr1::unordered_map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;

@@ -10,4 +10,3 @@ EXTRA_DIST = CHANGES LICENSE README TODO
 
 noinst_LTLIBRARIES = liboscpack.la
 liboscpack_la_SOURCES = $(ALL_CPP) $(ALL_H)
-

@@ -3,10 +3,10 @@ AM_CPPFLAGS = -I.. @PTHREAD_CFLAGS@
 ALL_H = AudioEngine.h AudioBuffer.h AudioParams.h \
         Dynamics.h IProcessor.h AudioMsg.h AudioSource.h
 
-TESTS=testlimiter
+TESTS = testlimiter
 
 noinst_LTLIBRARIES = libaudio.la
-noinst_PROGRAMS=testlimiter
+noinst_PROGRAMS = testlimiter
 
 libaudio_la_SOURCES = AudioEngine.cpp AudioBuffer.cpp AudioParams.cpp AudioMsg.cpp \
         AudioSource.cpp $(ALL_H)

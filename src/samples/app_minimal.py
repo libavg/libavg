@@ -10,7 +10,7 @@ class MyMainDiv(app.MainDiv):
     def onExit(self):
         pass
 
-    def onFrame(self, delta):
+    def onFrame(self):
         pass
 
 app.App().run(MyMainDiv())

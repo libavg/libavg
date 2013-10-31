@@ -1,0 +1,11 @@
+--- a/src/video/quartz/SDL_QuartzVideo.h	Sat Aug 10 10:54:03 2013 -0700
++++ b/src/video/quartz/SDL_QuartzVideo.h	Thu Sep 05 06:38:57 2013 -0700
+@@ -91,7 +91,6 @@
+     CGDirectDisplayID  display;            /* 0 == main display (only support single display) */
+     const void         *mode;              /* current mode of the display */
+     const void         *save_mode;         /* original mode of the display */
+-    CGDirectPaletteRef palette;            /* palette of an 8-bit display */
+     NSOpenGLContext    *gl_context;        /* OpenGL rendering context */
+     NSGraphicsContext  *nsgfx_context;     /* Cocoa graphics context */
+     Uint32             width, height, bpp; /* frequently used data about the display */
+

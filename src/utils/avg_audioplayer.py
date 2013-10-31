@@ -39,7 +39,7 @@ class AudioPlayerDiv(app.MainDiv):
         self._node.play()
         self._words = avg.WordsNode(parent=self, pos=(10, 22), fontsize=10)
 
-    def onFrame(self, dt):
+    def onFrame(self):
         curTime = self._node.getCurTime()
         self._words.text = "Time: "+str(curTime/1000.0)
 

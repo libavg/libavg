@@ -186,8 +186,6 @@ Player::Player()
     if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
         debugBreak();
     }
-    
-    g_type_init();
 }
 
 void deletePlayer()

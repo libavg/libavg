@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "WrapFFMpeg.h"
+
 #include "../base/GLMHelper.h"
 
 #include <string>
@@ -61,6 +63,8 @@ struct AVG_API VideoInfo
     int m_NumAudioChannels;
     float m_AudioDuration;
 };
+
+float getStreamFPS(AVStream* pStream);
 
 }
 #endif 

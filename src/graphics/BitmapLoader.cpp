@@ -39,6 +39,9 @@ BitmapLoader * BitmapLoader::s_pBitmapLoader = 0;
     
 void BitmapLoader::init(bool bBlueFirst) 
 {
+#if (GLIB_MAJOR_VERSION <= 2 && GLIB_MINOR_VERSION < 36)
+    g_type_init();
+#endif
 //    cerr << "BitmapLoader::init(" << bBlueFirst << ")" << endl;
     if (s_pBitmapLoader != 0) {
         delete s_pBitmapLoader;

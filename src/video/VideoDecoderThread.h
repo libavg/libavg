@@ -46,6 +46,8 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, VideoMsgQueue& packetQ, 
                 AVStream* pStream, const IntPoint& size, PixelFormat pf, bool bUseVDPAU);
         virtual ~VideoDecoderThread();
+        virtual bool init();
+        virtual void deinit();
         
         bool work();
         void setFPS(float fps);
@@ -55,7 +57,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         void decodePacket(AVPacket* pPacket);
         void handleEOF();
         void handleSeekDone(VideoMsgPtr pMsg);
-        void sendFrame(AVFrame& frame);
+        void sendFrame(AVFrame* pFrame);
         void close();
         BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, PixelFormat pf);
         void pushMsg(VideoMsgPtr pMsg);
@@ -73,6 +75,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
 
         bool m_bSeekDone;
         bool m_bProcessingLastFrames;
+        AVFrame* m_pFrame;
 };
 
 }

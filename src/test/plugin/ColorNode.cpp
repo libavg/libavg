@@ -59,25 +59,23 @@ public:
     virtual void maybeRender(const glm::mat4& parentTransform);
     virtual void render();
 
-protected:
-    void parseColor(const std::string& sColorSreing);
-    
+private:
     std::string m_sFillColorName;
-    float m_r, m_g, m_b;
+    Pixel32 m_Color;
     float m_FloatParam;
 };
 
-ColorNode::ColorNode(const ArgList& Args) :
-    m_sFillColorName("FFFFFF")
+ColorNode::ColorNode(const ArgList& Args)
+    : m_sFillColorName("FFFFFF")
 {   
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
-            "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor")); 
+            "ColorNode c'tor gets Argument fillcolor= "  << 
+            Args.getArgVal<string>("fillcolor")); 
     
     Args.setMembers(this);
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
             "ColorNode constructed with " << m_sFillColorName);   
-
-    parseColor(m_sFillColorName);
+    m_Color = colorStringToColor(m_sFillColorName);
 }
 
 void ColorNode::setFillColor(const string& sFillColor)
@@ -85,7 +83,7 @@ void ColorNode::setFillColor(const string& sFillColor)
     AVG_TRACE(Logger::category::PLUGIN,  Logger::severity::INFO,
             "setFillColor called with " << sFillColor);   
     m_sFillColorName = sFillColor;
-    parseColor(m_sFillColorName);
+    m_Color = colorStringToColor(m_sFillColorName);
 }
 
 const std::string& ColorNode::getFillColor() const
@@ -104,14 +102,6 @@ void ColorNode::setFloat(float f)
 }
 
 
-void ColorNode::parseColor(const std::string& sColorSreing)
-{
-    istringstream(sColorSreing.substr(0,2)) >> hex >> m_r;
-    istringstream(sColorSreing.substr(2,2)) >> hex >> m_g;
-    istringstream(sColorSreing.substr(4,2)) >> hex >> m_b;
-}
-
-
 void ColorNode::maybeRender(const glm::mat4& parentTransform)
 {
     render();
@@ -119,9 +109,7 @@ void ColorNode::maybeRender(const glm::mat4& parentTransform)
 
 void ColorNode::render()
 {
-    //AVG_TRACE(Logger::category::PLUGIN, "ColorNode::render");   
-    
-    glClearColor(m_r, m_g, m_b, 1.0); 
+    glClearColor(m_Color.getR()/255., m_Color.getG()/255., m_Color.getB()/255., 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
