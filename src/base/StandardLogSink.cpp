@@ -46,8 +46,8 @@ void StandardLogSink::logMessage(const tm* pTime, unsigned millis,
     strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
     cerr << "[" << timeString << "." << 
         setw(3) << setfill('0') << millis << setw(0) << "][";
-    cerr << setw(8) << setfill('.') << Logger::severityToString(severity) << "][";
-    cerr << setw(13) << setfill('.') << category << "] : " << sMsg << endl;
+    cerr << setw(4) << setfill('.') << Logger::severityToString(severity) << "][";
+    cerr << setw(9) << setfill('.') << category << "] : " << sMsg << endl;
     cerr.flush();
 }
 
