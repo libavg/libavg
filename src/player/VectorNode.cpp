@@ -177,7 +177,9 @@ void VectorNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     float curOpacity = getEffectiveOpacity();
-    m_pShape->draw(m_Transform, curOpacity);
+    if (curOpacity > 0.01) {
+        m_pShape->draw(m_Transform, curOpacity);
+    }
 }
 
 void VectorNode::setColor(const string& sColor)
