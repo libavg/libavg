@@ -47,7 +47,7 @@ class WordsTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         avg.WordsNode (pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
                 text="Bitstream Vera Sans", variant="roman", parent=root)
-        node = avg.WordsNode (pos=(1,16), fontsize=12, font="Bitstream Vera Sans",
+        node = avg.WordsNode(pos=(1,16), fontsize=12, font="Bitstream Vera Sans",
                 text="Bold", variant="bold", parent=root)
         self.assertNotEqual(node.size, (0,0))
         node.getGlyphPos(0)
@@ -240,7 +240,7 @@ class WordsTestCase(AVGTestCase):
                     Ulysses von James Joyce werden. Aber jetzt lohnt es sich noch nicht, \
                     mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext.",
                 parent=root)
-        self.start(False,
+        self.start(True,
                 (setMask,
                  lambda: self.compareImage("testWordsMask1"),
                  setColor,
@@ -627,14 +627,14 @@ class WordsTestCase(AVGTestCase):
         
         def testSize(p1, p2):
             self.assert_(abs(p1.x - p2.x) < 5)
-            self.assert_(abs(p1.y - p2.y) < 20)
+            self.assert_(abs(p1.y - p2.y) < 50)
         
         testSize(textNode.size, avg.Point2D(630,13))
         testSize(textNode.getMediaSize(), avg.Point2D(630,13))
         mediaSize = textNode.getMediaSize()
 
         def changeSize():
-            textNode.width = 50 
+            textNode.width = 50
             testSize(textNode.size, avg.Point2D(50,182))
             testSize(textNode.getMediaSize(), avg.Point2D(45,182))
             self.assertNotEqual(mediaSize, textNode.getMediaSize())

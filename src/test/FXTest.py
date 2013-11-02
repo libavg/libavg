@@ -349,7 +349,7 @@ class FXTestCase(AVGTestCase):
     def testWordsIntensity(self):
         root = self.loadEmptyScene()
         avg.WordsNode(parent=root, fontsize=24, font="Bitstream Vera Sans",
-                intensity=(0.5,0.5,0.5), text="Half-brightness text.",
+                intensity=(0.5,0.5,0.5), text="brightness",
                 width=140)
         self.start(True,
                 (lambda: self.compareImage("testWordsIntensity"),
