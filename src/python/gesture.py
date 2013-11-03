@@ -125,8 +125,9 @@ class Recognizer(avg.Publisher):
 
     def __onDown(self, event):
         nodeGone = self._handleNodeGone()
-        if not(nodeGone):
-            if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
+        if event.contact and not(nodeGone):
+            if (self.__maxContacts == None or len(self._contacts) <
+                    self.__maxContacts):
                 event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
                 event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
                 self._contacts.add(event.contact)
@@ -138,13 +139,13 @@ class Recognizer(avg.Publisher):
 
     def __onMotion(self, event):
         nodeGone = self._handleNodeGone()
-        if not(nodeGone):
+        if event.contact and not(nodeGone):
             self.__dirty = True
             self._handleMove(event)
 
     def __onUp(self, event):
         nodeGone = self._handleNodeGone()
-        if not(nodeGone):
+        if event.contact and not(nodeGone):
             self.__dirty = True
             self._contacts.remove(event.contact)
             if len(self._contacts) == 0:
