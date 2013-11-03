@@ -1,0 +1,11 @@
+<skin>
+<scrollbar>
+  <horizontal
+    trackSrc="scrollbar_horiz_track.png"
+    trackDisabledSrc="scrollbar_horiz_track_disabled.png"
+    trackEndsExtent="2" 
+    thumbUpSrc="scrollbar_horiz_thumb_up.png"
+    thumbDownSrc="scrollbar_horiz_thumb_down.png"
+    thumbEndsExtent="4"/>
+</scrollbar>
+</skin>

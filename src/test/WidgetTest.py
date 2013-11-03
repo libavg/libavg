@@ -869,6 +869,8 @@ class WidgetTestCase(AVGTestCase):
         self.assert_(downBmpPath == os.path.join(mediaPath, 'button_bg_down.png'))
         self.assert_(upBmpPath == os.path.join(mediaPath, 'button_bg_up.png'))
 
+        skin = widget.Skin("IncompleteSkin.xml", mediaPath)
+
 
 def widgetTestSuite(tests):
     availableTests = (
