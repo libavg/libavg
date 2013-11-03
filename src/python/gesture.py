@@ -991,6 +991,8 @@ def initConfig():
     DragRecognizer.MIN_DRAG_DIST = getFloatOption("mindragdist")
     DragRecognizer.FRICTION = getFloatOption("friction")
     TransformRecognizer.FILTER_MIN_CUTOFF = getFloatOption("filtermincutoff")
+    if TransformRecognizer.FILTER_MIN_CUTOFF == -1:
+        TransformRecognizer.FILTER_MIN_CUTOFF = None
     TransformRecognizer.FILTER_BETA = getFloatOption("filterbeta")
 
 
