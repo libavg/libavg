@@ -2,7 +2,9 @@ Widget Classes
 ==============
 
 The libavg.widget module contains high-level user interface elements such as buttons and 
-list boxes. Widgets are fully skinnable and multitouch-enabled.
+list boxes. Widgets are fully skinnable (using the :py:class:`Skin` class and an xml 
+configuration file) and multitouch-enabled. Sample code for all widgets can be found in the
+:samp:`widget.py` sample.
 
 .. note::
 
@@ -387,8 +389,58 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
 
     .. autoclass:: Skin(skinXmlFName[, mediaDir=""])
 
+        A :py:class:`Skin` determines the appearance of any user interface elements that
+        use it. Skin configuration is determined by an xml file. This xml file determines
+        the bitmaps to use and the sizes of various components. It also determines the 
+        fonts used by the elements. Skinnable user interface elements include 
+        :py:class:`TextButton`, :py:class:`Slider`, :py:class:`ScrollBar`, 
+        :py:class:`ProgressBar`, :py:class:`ScrollArea`, :py:class:`CheckBox` and
+        :py:class:`MediaControl`. In addition, the fonts defined can be accessed by the
+        application.
+
+        The default skin xml file is located at :samp:`src/python/data/SimpleSkin.xml`. It
+        provides a good basis from which to create your own skin.
+
+        :param string skinXmlFName:
+
+            The name of the xml configuration file.
+
+        :param string mediaDir:
+        
+            The location of the image files to use.
+
+        .. py:attribute:: fonts:
+
+            A dictionary of :py:class:`FontStyle` objects created from the xml 
+            configuration file.
+
 
     .. autoclass:: Slider([orientation=Orientation.HORIZONTAL, skinObj=skin.Skin.default])
+
+        Sliders are horizontal or vertical bar with a draggable thumb that can be used
+        to set a value. In contrast to a scroll bar, the slider's thumb has no range.
+
+        **Messages:**
+        
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: PRESSED()
+
+                Emitted when a drag is initiated.
+
+            .. py:method:: RELEASED()
+
+                Emitted when a drag is finished.
+
+            .. py:method:: THUMB_POS_CHANGED(pos)
+
+                Emitted when the thumb is dragged.
+
+        .. py:attribute:: range
+
+            Minimum and maximum values for the thumb.
+
+        .. py:attribute:: thumbPos
 
 
     .. autoclass:: SwitchNode([nodeMap=None, visibleid=None])
