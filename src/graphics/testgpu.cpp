@@ -176,7 +176,17 @@ private:
         BitmapPtr pDestBmp;
         pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pixelFormatHasAlpha(pf), 1)
                 .apply(pBmp);
-        testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName, 0.2, 0.5);
+        float maxAverage, maxStdDev;
+        if (GLContext::getCurrent()->isGLES()) {
+            // less strict (lower floating point precision?)
+            maxAverage = 0.5;
+            maxStdDev = 1.5;
+        }
+        else {
+            maxAverage = 0.2;
+            maxStdDev = 0.5;
+        }
+        testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName, maxAverage, maxStdDev);
     }
 };
 
@@ -264,7 +274,18 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
         pDestBmp = GPUInvertFilter(pBmp->getSize(), false).apply(pBmp);
-        testEqual(*pDestBmp, string("invert_")+sFName, pBmp->getPixelFormat(), 0.0, 0.0);
+        float maxAverage, maxStdDev;
+        if (GLContext::getCurrent()->isGLES()) {
+            // less strict (lower floating point precision?)
+            maxAverage = 0.6;
+            maxStdDev = 2.0;
+        }
+        else {
+            maxAverage = 0.0;
+            maxStdDev = 0.0;
+        }
+        testEqual(*pDestBmp, string("invert_")+sFName, pBmp->getPixelFormat(),
+                maxAverage, maxStdDev);
     }
 };
 
