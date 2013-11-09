@@ -388,6 +388,12 @@ private:
                     pOrigBmp->getPixelFormat(), true));
         pTex->moveBmpToTexture(pOrigBmp);
         pTex->generateMipmaps();
+
+        if (GLContext::getCurrent()->isGLES()) {
+            // GLES doesn't support attaching texture mipmap levels other than 0 to
+            // FBOs, so moveTextureToBmp() will fail. Skip result image comparison.
+            return;
+        }
         BitmapPtr pResultBmp = pTex->moveTextureToBmp(1);
         IntPoint newSize(pOrigBmp->getSize()/2);
         TEST(pResultBmp->getSize() == newSize);
