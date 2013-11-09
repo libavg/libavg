@@ -478,6 +478,7 @@ int main(int nargs, char** args)
 {
     bool bOK = true;
     try {
+        GraphicsTest::createResultImgDir();
 #ifndef AVG_ENABLE_EGL
         BitmapLoader::init(true);
         bOK = runTests(false, GLConfig::FULL);
