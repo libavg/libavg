@@ -126,10 +126,6 @@ class App(object):
         return self._mainDiv
 
     @property
-    def appParent(self):
-        return self._appParent
-
-    @property
     def debugPanel(self):
         return self._debugPanel
 
@@ -159,11 +155,11 @@ class App(object):
 
         if i == 1000:
             flashmessage.FlashMessage('Maximum number of screenshots reached',
-                    parent=self.appParent, isError=True)
+                    parent=self._appParent, isError=True)
         else:
             screenBmp.save(filename)
             flashmessage.FlashMessage('Screenshot saved as %s' % filename,
-                    parent=self.appParent)
+                    parent=self._appParent)
 
     def dumpTextObjectCount(self):
         objects = libavg.player.getTestHelper().getObjectCount()
@@ -270,15 +266,15 @@ class App(object):
                 pos=pos, size=size, angle=angle)
 
     def _setupMainDiv(self):
-        self.appParent.appendChild(self.mainDiv)
-        self.mainDiv.size = self.appParent.size
+        self._appParent.appendChild(self.mainDiv)
+        self.mainDiv.size = self._appParent.size
 
     def _setupTopPanel(self):
-        self._overlayPanel = libavg.avg.DivNode(parent=self.appParent, id='overlayPanel')
+        self._overlayPanel = libavg.avg.DivNode(parent=self._appParent, id='overlayPanel')
 
     def _setupDebugPanel(self):
-        self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
-                    size=self.appParent.size, id='debugPanel',
+        self._debugPanel = debugpanel.DebugPanel(parent=self._appParent,
+                    size=self._appParent.size, id='debugPanel',
                     fontsize=self.settings.getFloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
