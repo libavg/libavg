@@ -108,7 +108,7 @@ class HelpPrintingOptionParser(optparse.OptionParser):
 
 
 class ArgvExtender(object):
-    def __init__(self, appVersionInfo, args=sys.argv[1:]):
+    def __init__(self, appVersionInfo, args=None):
         self.__appVersionInfo = appVersionInfo
         self.__parser = HelpPrintingOptionParser()
         self.__args = args
@@ -138,6 +138,9 @@ class ArgvExtender(object):
                 parserGroup.add_option(cliKey, help=help)
 
             self.__parser.add_option_group(parserGroup)
+
+        if self.__args is None:
+            self.__args = sys.argv[1:]
 
         self.__parsedArgs = self.__parser.parse_args(args=self.__args)
 

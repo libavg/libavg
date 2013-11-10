@@ -157,7 +157,11 @@ class TestApp(object):
         
     def __parseCommandline(self):
         self.__commandlineOptions, args = self.__optionParser.parse_args()
-        
+
+        # MFX 2013-11-10: cleanup argv consuming testapp args to avoid clashes
+        # with libavg.app.App ArgvExtender
+        sys.argv = [sys.argv[0]]
+
         if len(args): # suite
             suiteFactory = args.pop(0)
             if not(self.isSuiteFactoryRegistered(suiteFactory)):
