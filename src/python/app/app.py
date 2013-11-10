@@ -38,7 +38,6 @@ import flashmessage
 
 
 class MainDiv(libavg.avg.DivNode):
-    INIT_FUNC = 'onInit'
     VERSION = 'undef'
 
     def __init__(self, **kargs):
@@ -382,6 +381,5 @@ class App(object):
 
     def _onInitInternal(self):
         self._setupMultitouch()
-        initFunc = getattr(self.mainDiv, self.mainDiv.INIT_FUNC)
-        initFunc()
+        self.mainDiv.onInit()
         libavg.player.subscribe(libavg.player.ON_FRAME, self.mainDiv.onFrame)
