@@ -121,9 +121,6 @@ class App(object):
 
         return 0
 
-    def stop(self):
-        libavg.player.stop()
-
     @property
     def mainDiv(self):
         return self._mainDiv
@@ -143,14 +140,6 @@ class App(object):
     @property
     def settings(self):
         return self._settings
-
-    @property
-    def resolution(self):
-        return self._resolution
-
-    @property
-    def windowSize(self):
-        return self._windowSize
 
     def onBeforeLaunch(self):
         pass
@@ -232,7 +221,7 @@ class App(object):
         libavg.player.loadString('''<?xml version="1.0"?>
         <!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
         <avg width="%s" height="%s">
-        </avg>''' % tuple(self.resolution))
+        </avg>''' % tuple(self._resolution))
 
     def _setupMouse(self):
         libavg.player.enableMouse(self.settings.getBoolean('app_mouse_enabled'))
@@ -255,20 +244,20 @@ class App(object):
 
     def _getAppParentGeometry(self):
         rotation = self.settings.get('app_rotation').lower()
-        size = self.resolution
+        size = self._resolution
         pos = (0, 0)
         angle = 0
 
         if rotation == 'left':
             angle = -math.pi / 2
-            size = (self.resolution.y, self.resolution.x)
-            pos = ((self.resolution.x - self.resolution.y) / 2,
-                    (self.resolution.y - self.resolution.x) / 2)
+            size = (self._resolution.y, self._resolution.x)
+            pos = ((self._resolution.x - self._resolution.y) / 2,
+                    (self._resolution.y - self._resolution.x) / 2)
         elif rotation == 'right':
             angle = math.pi / 2
-            size = (self.resolution.y, self.resolution.x)
-            pos = ((self.resolution.x - self.resolution.y) / 2,
-                    (self.resolution.y - self.resolution.x) / 2)
+            size = (self._resolution.y, self._resolution.x)
+            pos = ((self._resolution.x - self._resolution.y) / 2,
+                    (self._resolution.y - self._resolution.x) / 2)
         elif rotation == 'inverted':
             angle = math.pi
         elif rotation != 'normal':
@@ -320,9 +309,9 @@ class App(object):
         fullscreen = self.settings.getBoolean('app_fullscreen')
 
         if fullscreen:
-            resolution = self.resolution
+            resolution = self._resolution
         else:
-            resolution = self.windowSize
+            resolution = self._windowSize
 
         libavg.player.setResolution(
                 fullscreen,
