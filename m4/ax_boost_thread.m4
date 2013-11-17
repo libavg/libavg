@@ -37,14 +37,12 @@ if test "$ax_cv_boost_thread" = yes; then
   AC_DEFINE(HAVE_BOOST_THREAD,,[define if the Boost::Thread library is available])
   dnl Now determine the appropriate file names
   AC_ARG_WITH([boost-thread],AS_HELP_STRING([--with-boost-thread],
-  [specify the boost thread library or suffix to use]),
+  [specify the boost thread library suffix to use]),
   [if test "x$with_boost_thread" != "xno"; then
-    ax_thread_lib=$with_boost_thread
-    ax_boost_thread_lib=boost_thread-$with_boost_thread
+    ax_boost_thread_lib=boost_thread$with_boost_thread
   fi])
-  for ax_lib in $ax_thread_lib $ax_boost_thread_lib boost_thread boost_thread-mt; do
-    AC_CHECK_LIB($ax_lib, main, [BOOST_THREAD_LIBS=-l$ax_lib
-break])
+  for ax_lib in $ax_boost_thread_lib boost_thread boost_thread-mt; do
+    AC_CHECK_LIB($ax_lib, main, [BOOST_THREAD_LIBS=-l$ax_lib; break])
   done
 
   # OXullo 2012-07-18: since boost 1.50, boost::thread depends on boost::system
@@ -54,12 +52,12 @@ break])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <boost/thread/thread.hpp>]],
             [[boost::thread_group thrds; return 0;]])],
             [ax_cv_boost_thread_system=no],
-            [LIBS="$LIBS $BOOST_THREAD_LIBS -lboost_system"
+            [LIBS="$LIBS $BOOST_THREAD_LIBS -lboost_system$with_boost_thread"
                 AC_LINK_IFELSE([
                     AC_LANG_PROGRAM([[#include <boost/thread/thread.hpp>]],
                         [[boost::thread_group thrds; return 0;]])
                     ],
-                    [BOOST_THREAD_LIBS="$BOOST_THREAD_LIBS -lboost_system"
+                    [BOOST_THREAD_LIBS="$BOOST_THREAD_LIBS -lboost_system$with_boost_thread"
                         ax_cv_boost_thread_system=yes],
                     [AC_ERROR([Cannot use Boost::Thread])]
                     )])

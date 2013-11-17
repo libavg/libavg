@@ -52,12 +52,12 @@
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
-
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_syswm.h>
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>

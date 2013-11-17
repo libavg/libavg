@@ -2,7 +2,9 @@ Widget Classes
 ==============
 
 The libavg.widget module contains high-level user interface elements such as buttons and 
-list boxes. Widgets are fully skinnable and multitouch-enabled.
+list boxes. Widgets are fully skinnable (using the :py:class:`Skin` class and an xml 
+configuration file) and multitouch-enabled. Sample code for all widgets can be found in the
+:samp:`widget.py` sample.
 
 .. note::
 
@@ -12,17 +14,27 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
 .. automodule:: libavg.widget
     :no-members:
 
-    .. inheritance-diagram:: HStretchNode VStretchNode HVStretchNode SwitchNode Button TextButton BmpButton ToggleButton CheckBox BmpToggleButton Keyboard Slider ScrollBar ScrollBarTrack ScrollBarThumb SliderThumb ProgressBar ScrollArea ScrollPane TimeSlider MediaControl Skin 
+    .. inheritance-diagram:: SwitchNode Button TextButton BmpButton ToggleButton CheckBox BmpToggleButton Keyboard Slider ScrollBar ProgressBar ScrollArea ScrollPane TimeSlider MediaControl
         :parts: 1
 
+    .. inheritance-diagram:: HStretchNode VStretchNode HVStretchNode Skin
+        :parts: 1
 
     .. autoclass:: BmpButton(upSrc, downSrc, [disabledSrc=None])
 
         A :py:class:`Button` that is created from image files. Internally, it creates two or
-        three :py:class:`ImageNode`s and uses them as constructor parameters for
+        three :py:class:`ImageNode` s and uses them as constructor parameters for
         :py:class:`Button`.
 
-    .. autoclass:: Button(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, enabled=True, clickHandler=None])
+
+    .. autoclass:: BmpToggleButton(uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc, [uncheckedDisabledSrc=None, checkedDisabledSrc=None])
+
+        A :py:class:`ToggleButton` that is created from image files. Internally, it creates 
+        image nodes for the src parameters and uses them as constructor parameters for
+        :py:class:`ToggleButton`.
+        
+
+    .. autoclass:: Button(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, enabled=True])
 
         A button that shows different user-supplied nodes depending on its
         state. Possible button states are up, down and disabled. The nodes are attached
@@ -73,7 +85,11 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
             :py:const:`True` if the button accepts input. If the button is disabled,
             it shows the :py:attr:`disabledNode`.
 
-    
+
+    .. autoclass:: CheckBox([text="", skinObj=skin.Skin.default])
+
+        This is a classic checkbox with text to the right.
+
     .. autoclass:: HStretchNode(endsExtent, [src=None, minExtent=-1]) 
 
         A node that stretches its graphics to fill the size given horizontally. It is used
@@ -99,7 +115,7 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
             minimum.
 
 
-    .. autoclass:: HVStretchNode(endsExtent, [src=None, minExtent=-1]) 
+    .. autoclass:: HVStretchNode(endsExtent, [src=None, minExtent=-(1,-1)]) 
 
         A node that stretches its graphics to fill the size given horizontally and
         vertically. It is used as base component for scrollareas. Similar to 
@@ -119,7 +135,7 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
 
         :param IntPoint minExtent:
 
-            Minimum size. The default of :py:const:`-1` uses :py:const:`2*endsExtent+1` as
+            Minimum size. The default of :py:const:`(-1,-1]` uses :py:const:`2*endsExtent+1` as
             minimum.
 
 
@@ -185,20 +201,20 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
         **Messages:**
 
             :py:class:`Keyboard` emits messages on every key press and release:
+            To get these messages, call :py:meth:`Publisher.subscribe`.
 
             .. py:method:: DOWN(keycode)
 
-            Emitted whenever a key (command or char) is pressed.
+                Emitted whenever a key (command or char) is pressed.
 
             .. py:method:: UP(keycode)
 
-            Emitted whenever a key (command or char) is released.
+                Emitted whenever a key (command or char) is released.
 
             .. py:method:: CHAR(char)
 
-
-            Emitted whenever a character is generated. This is generally when a char key
-            is released and takes into account shift/altgr status.
+                Emitted whenever a character is generated. This is generally when a char key
+                is released and takes into account shift/altgr status.
 
         .. py:method:: reset()
 
@@ -231,9 +247,9 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
                 Unicode string containing the keycodes when altgr is pressed.
     
    
-    .. autoclass:: MediaControl([duration=1000, time=0])
+    .. autoclass:: MediaControl([duration=1000, time=0, skinObj=skin.Skin.default])
 
-        A composite control that incorporates a :py:class:`TimeSlider`, a play/pause 
+        A composite control that incorporates a :py:class:`Slider`, a play/pause 
         button and text widgets that display the time. By itself, the 
         :py:class:`MediaControl` is independent of a media node. The controlling
         application is responsible for keeping track of media node and 
@@ -243,39 +259,39 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
         
             .. py:method:: PLAY_CLICKED()
 
-            Emitted when the play/pause toggle is switched to play.
+                Emitted when the play/pause toggle is switched to play.
 
             .. py:method:: PAUSE_CLICKED()
 
-            Emitted when the play/pause toggle is switched to pause.
+                Emitted when the play/pause toggle is switched to pause.
 
             .. py:method:: SEEK_PRESSED()
 
-            Emitted when the user starts dragging the seek thumb.
+                Emitted when the user starts dragging the seek thumb.
 
             .. py:method:: SEEK_MOTION(curTime)
 
-            Emitted when the user moves the seek thumb.
+                Emitted when the user moves the seek thumb.
 
             .. py:method:: SEEK_RELEASED()
 
-            Emitted when the user releases the seek thumb.
+                Emitted when the user releases the seek thumb.
 
         .. py:attribute:: duration
 
-        Duration of the medium in milliseconds. 
+            Duration of the medium in milliseconds. 
 
         .. py:attribute:: time
 
-        Current media time in milliseconds.
+            Current media time in milliseconds.
 
         .. py:method:: play()
 
-        Switches to play mode by toggling the button.
+            Switches to play mode by toggling the button.
 
         .. py:method:: pause()
 
-        Switches to pause mode by toggling the button.
+            Switches to pause mode by toggling the button.
 
 
     .. autoclass:: Orientation()
@@ -283,6 +299,148 @@ list boxes. Widgets are fully skinnable and multitouch-enabled.
         .. py:data:: HORIZONTAL
 
         .. py:data:: VERTICAL
+
+
+    .. autoclass:: ProgressBar(orientation, [skinObj=skin.Skin.default, height=0, width=0, range=(0.,1.), value=0.0])
+
+        A horizontal bar-shaped UI element that indicates the progression of an operation.
+
+        .. py:attribute:: range
+
+            Tuple giving minimum and maximum value.
+
+        .. py:attribute:: value
+
+            Current progression. The application is responsible for updating the value. In 
+            general, :py:attr:`value` will start at :py:attr:`range[0]` and end with 
+            :py:attr:`range[1]`. 
+
+
+    .. autoclass:: ScrollArea(contentNode, size[, skinObj=skin.Skin.default, enabled=True, scrollBars=(Orientation.HORIZONTAL, Orientation.VERTICAL)])
+
+        A rectangular area that allows a user to choose a view into arbitrary content. The
+        content can be larger than the :py:class:`ScrollArea`, in which case scroll bars can
+        be used to allow the user to choose which part to view. Dragging the content to 
+        determine the viewport is also supported. A :py:class:`ScrollArea` uses 
+        :py:class:`ScrollPane` and :py:class:`ScrollBar` objects internally.
+
+        **Messages:**
+        
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: PRESSED()
+
+                Emitted when a content drag is initiated.
+
+            .. py:method:: RELEASED()
+
+                Emitted when a content drag is finished.
+
+            .. py:method:: CONTENT_POS_CHANGED(pos)
+
+                Emitted when the viewport changes for any reason.
+
+        .. py:attribute:: contentsize
+
+            The size of the :py:attr:`contentNode`.
+
+        .. py:attribute:: contentpos
+
+            The position of the content within the area.
+
+
+    .. autoclass:: ScrollBar([orientation=Orientation.HORIZONTAL, skinObj=skin.Skin.default, enabled=True, height=0, width=0, range=(0.,1.), thumbPos=0.0, thumbExtent=0.1])
+
+        A vertical or horizontal scroll bar.
+
+        **Messages:**
+        
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: PRESSED()
+
+                Emitted when a drag is initiated.
+
+            .. py:method:: RELEASED()
+
+                Emitted when a drag is finished.
+
+            .. py:method:: THUMB_POS_CHANGED(pos)
+
+                Emitted when the thumb is dragged.
+
+        .. py:attribute:: range
+
+            Minimum and maximum values for the thumb.
+
+        .. py:attribute:: thumbPos
+
+        .. py:attribute:: thumbExtent
+
+
+    .. autoclass:: ScrollPane(contentNode)
+
+        A rectangular view into arbitrary content. No user interaction is implemented.
+
+        .. py:attribute:: contentpos        
+
+        .. py:attribute:: contentsize
+
+
+    .. autoclass:: Skin(skinXmlFName[, mediaDir=""])
+
+        A :py:class:`Skin` determines the appearance of any user interface elements that
+        use it. Skin configuration is determined by an xml file. This xml file determines
+        the bitmaps to use and the sizes of various components. It also determines the 
+        fonts used by the elements. Skinnable user interface elements include 
+        :py:class:`TextButton`, :py:class:`Slider`, :py:class:`ScrollBar`, 
+        :py:class:`ProgressBar`, :py:class:`ScrollArea`, :py:class:`CheckBox` and
+        :py:class:`MediaControl`. In addition, the fonts defined can be accessed by the
+        application.
+
+        The default skin xml file is located at :samp:`src/python/data/SimpleSkin.xml`. It
+        provides a good basis from which to create your own skin.
+
+        :param string skinXmlFName:
+
+            The name of the xml configuration file.
+
+        :param string mediaDir:
+        
+            The location of the image files to use.
+
+        .. py:attribute:: fonts:
+
+            A dictionary of :py:class:`FontStyle` objects created from the xml 
+            configuration file.
+
+
+    .. autoclass:: Slider([orientation=Orientation.HORIZONTAL, skinObj=skin.Skin.default])
+
+        Sliders are horizontal or vertical bar with a draggable thumb that can be used
+        to set a value. In contrast to a scroll bar, the slider's thumb has no range.
+
+        **Messages:**
+        
+            To get these messages, call :py:meth:`Publisher.subscribe`.
+
+            .. py:method:: PRESSED()
+
+                Emitted when a drag is initiated.
+
+            .. py:method:: RELEASED()
+
+                Emitted when a drag is finished.
+
+            .. py:method:: THUMB_POS_CHANGED(pos)
+
+                Emitted when the thumb is dragged.
+
+        .. py:attribute:: range
+
+            Minimum and maximum values for the thumb.
+
+        .. py:attribute:: thumbPos
 
 
     .. autoclass:: SwitchNode([nodeMap=None, visibleid=None])

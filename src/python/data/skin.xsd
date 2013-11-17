@@ -94,8 +94,8 @@
         <xsd:element name="slider" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:all>
-              <xsd:element name="vertical" type="SliderDef" minOccurs="1" maxOccurs="1"/>
-              <xsd:element name="horizontal" type="SliderDef" minOccurs="1" 
+              <xsd:element name="vertical" type="SliderDef" minOccurs="0" maxOccurs="1"/>
+              <xsd:element name="horizontal" type="SliderDef" minOccurs="0" 
                   maxOccurs="1"/>
             </xsd:all>
           </xsd:complexType>
@@ -103,7 +103,7 @@
         <xsd:element name="scrollbar" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:all>
-              <xsd:element name="vertical" type="ScrollBarDef" minOccurs="1"
+              <xsd:element name="vertical" type="ScrollBarDef" minOccurs="0"
                   maxOccurs="1"/>
               <xsd:element name="horizontal" type="ScrollBarDef" minOccurs="1" 
                   maxOccurs="1"/>
@@ -113,9 +113,9 @@
         <xsd:element name="progressbar" minOccurs="0" maxOccurs="unbounded">
           <xsd:complexType>
             <xsd:all>
-              <xsd:element name="vertical" type="ProgressBarDef" minOccurs="1"
+              <xsd:element name="vertical" type="ProgressBarDef" minOccurs="0"
                   maxOccurs="1"/>
-              <xsd:element name="horizontal" type="ProgressBarDef" minOccurs="1" 
+              <xsd:element name="horizontal" type="ProgressBarDef" minOccurs="0" 
                   maxOccurs="1"/>
             </xsd:all>
           </xsd:complexType>

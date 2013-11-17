@@ -53,6 +53,23 @@ def flatten(l):
         i += 1
     return ltype(l)
 
+
+class MouseEmulator(object):
+    def __init__(self):
+        self.btnStates = [False, False, False]
+
+    def sendMouseEvent(self, type_, x, y, btn=1):
+        helper = player.getTestHelper()
+        index = btn-1
+        if type_ == avg.Event.CURSOR_UP:
+            self.btnStates[index] = False
+        if type_ == avg.Event.CURSOR_DOWN:
+            self.btnStates[index] = True
+
+        helper.fakeMouseEvent(type_, self.btnStates[0], self.btnStates[1],
+                self.btnStates[2], x, y, btn)
+
+
 class AVGTestCase(unittest.TestCase):
     imageResultDirectory = "resultimages"
     baselineImageResultDirectory = "baseline"
@@ -65,6 +82,7 @@ class AVGTestCase(unittest.TestCase):
         self.__logger = avg.logger
         self.__skipped = False
         self.__warnOnImageDiff = False
+        self.__mouseEmulator = None
 
     def __setupPlayer(self):
         player.setMultiSampleSamples(1)
@@ -199,13 +217,10 @@ class AVGTestCase(unittest.TestCase):
             player.stop()
             return
 
-    def _sendMouseEvent(self, type, x, y):
-        helper = player.getTestHelper()
-        if type == avg.Event.CURSOR_UP:
-            button = False
-        else:
-            button = True
-        helper.fakeMouseEvent(type, button, False, False, x, y, 1)
+    def _sendMouseEvent(self, type, x, y, btn=1):
+        if not self.__mouseEmulator:
+            self.__mouseEmulator = MouseEmulator()
+        self.__mouseEmulator.sendMouseEvent(type, x, y, btn)
 
     def _sendTouchEvent(self, id, type, x, y):
         helper = player.getTestHelper()

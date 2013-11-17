@@ -522,7 +522,7 @@ class WidgetTestCase(AVGTestCase):
         avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
         checkBox = widget.CheckBox(text="checkboxtext", pos=(10,10), parent=root)
 
-        self.start(False,
+        self.start(True,
                 (lambda: self.compareImage("testUICheckBoxUnchecked_Up"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 15, 15),
                  lambda: self.compareImage("testUICheckBoxUnchecked_Down"),
@@ -800,7 +800,7 @@ class WidgetTestCase(AVGTestCase):
                  widget.MediaControl.SEEK_PRESSED, widget.MediaControl.SEEK_RELEASED],
                 self)
         self.node.subscribe(widget.MediaControl.SEEK_MOTION, onSeek)
-        self.start(False,
+        self.start(True,
                 (lambda: self.compareImage("testMediaControl1"),
                  lambda: self.node.setDuration(60*1000),
                  lambda: self.compareImage("testMediaControl2"),
@@ -868,6 +868,8 @@ class WidgetTestCase(AVGTestCase):
         upBmpPath = skin.textButtonCfg[None]['upBmp'].getName()
         self.assert_(downBmpPath == os.path.join(mediaPath, 'button_bg_down.png'))
         self.assert_(upBmpPath == os.path.join(mediaPath, 'button_bg_up.png'))
+
+        skin = widget.Skin("IncompleteSkin.xml", mediaPath)
 
 
 def widgetTestSuite(tests):

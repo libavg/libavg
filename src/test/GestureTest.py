@@ -55,6 +55,17 @@ class GestureTestCase(AVGTestCase):
                  self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 31, 30, []),
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
                         [gesture.Recognizer.DETECTED]),
+
+                 # Down-small down-second up-second up-first: recognized as tap
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                        [gesture.Recognizer.POSSIBLE]),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 31, 30, btn=2),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 31, 30, btn=2),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 31, 30, btn=2),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 31, 30, btn=2),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, 
+                        [gesture.Recognizer.DETECTED]),
+
                  # Down-big move-up: fail
                  self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
                         [gesture.Recognizer.POSSIBLE]),
@@ -119,7 +130,6 @@ class GestureTestCase(AVGTestCase):
                  self.__killImageNode,
                  self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
                 ))
-
 
     def testHoldRecognizer(self):
 

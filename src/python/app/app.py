@@ -38,7 +38,6 @@ import flashmessage
 
 
 class MainDiv(libavg.avg.DivNode):
-    INIT_FUNC = 'onInit'
     VERSION = 'undef'
 
     def __init__(self, **kargs):
@@ -121,16 +120,9 @@ class App(object):
 
         return 0
 
-    def stop(self):
-        libavg.player.stop()
-
     @property
     def mainDiv(self):
         return self._mainDiv
-
-    @property
-    def appParent(self):
-        return self._appParent
 
     @property
     def debugPanel(self):
@@ -143,14 +135,6 @@ class App(object):
     @property
     def settings(self):
         return self._settings
-
-    @property
-    def resolution(self):
-        return self._resolution
-
-    @property
-    def windowSize(self):
-        return self._windowSize
 
     def onBeforeLaunch(self):
         pass
@@ -170,11 +154,11 @@ class App(object):
 
         if i == 1000:
             flashmessage.FlashMessage('Maximum number of screenshots reached',
-                    parent=self.appParent, isError=True)
+                    parent=self._appParent, isError=True)
         else:
             screenBmp.save(filename)
             flashmessage.FlashMessage('Screenshot saved as %s' % filename,
-                    parent=self.appParent)
+                    parent=self._appParent)
 
     def dumpTextObjectCount(self):
         objects = libavg.player.getTestHelper().getObjectCount()
@@ -232,7 +216,7 @@ class App(object):
         libavg.player.loadString('''<?xml version="1.0"?>
         <!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
         <avg width="%s" height="%s">
-        </avg>''' % tuple(self.resolution))
+        </avg>''' % tuple(self._resolution))
 
     def _setupMouse(self):
         libavg.player.enableMouse(self.settings.getBoolean('app_mouse_enabled'))
@@ -255,20 +239,20 @@ class App(object):
 
     def _getAppParentGeometry(self):
         rotation = self.settings.get('app_rotation').lower()
-        size = self.resolution
+        size = self._resolution
         pos = (0, 0)
         angle = 0
 
         if rotation == 'left':
             angle = -math.pi / 2
-            size = (self.resolution.y, self.resolution.x)
-            pos = ((self.resolution.x - self.resolution.y) / 2,
-                    (self.resolution.y - self.resolution.x) / 2)
+            size = (self._resolution.y, self._resolution.x)
+            pos = ((self._resolution.x - self._resolution.y) / 2,
+                    (self._resolution.y - self._resolution.x) / 2)
         elif rotation == 'right':
             angle = math.pi / 2
-            size = (self.resolution.y, self.resolution.x)
-            pos = ((self.resolution.x - self.resolution.y) / 2,
-                    (self.resolution.y - self.resolution.x) / 2)
+            size = (self._resolution.y, self._resolution.x)
+            pos = ((self._resolution.x - self._resolution.y) / 2,
+                    (self._resolution.y - self._resolution.x) / 2)
         elif rotation == 'inverted':
             angle = math.pi
         elif rotation != 'normal':
@@ -281,15 +265,15 @@ class App(object):
                 pos=pos, size=size, angle=angle)
 
     def _setupMainDiv(self):
-        self.appParent.appendChild(self.mainDiv)
-        self.mainDiv.size = self.appParent.size
+        self._appParent.appendChild(self.mainDiv)
+        self.mainDiv.size = self._appParent.size
 
     def _setupTopPanel(self):
-        self._overlayPanel = libavg.avg.DivNode(parent=self.appParent, id='overlayPanel')
+        self._overlayPanel = libavg.avg.DivNode(parent=self._appParent, id='overlayPanel')
 
     def _setupDebugPanel(self):
-        self._debugPanel = debugpanel.DebugPanel(parent=self.appParent,
-                    size=self.appParent.size, id='debugPanel',
+        self._debugPanel = debugpanel.DebugPanel(parent=self._appParent,
+                    size=self._appParent.size, id='debugPanel',
                     fontsize=self.settings.getFloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
@@ -320,9 +304,9 @@ class App(object):
         fullscreen = self.settings.getBoolean('app_fullscreen')
 
         if fullscreen:
-            resolution = self.resolution
+            resolution = self._resolution
         else:
-            resolution = self.windowSize
+            resolution = self._windowSize
 
         libavg.player.setResolution(
                 fullscreen,
@@ -397,6 +381,5 @@ class App(object):
 
     def _onInitInternal(self):
         self._setupMultitouch()
-        initFunc = getattr(self.mainDiv, self.mainDiv.INIT_FUNC)
-        initFunc()
+        self.mainDiv.onInit()
         libavg.player.subscribe(libavg.player.ON_FRAME, self.mainDiv.onFrame)
