@@ -20,6 +20,11 @@
 //
 
 #include "ThreadHelper.h"
+#include "OSHelper.h"
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 namespace avg {
 
@@ -72,6 +77,18 @@ void setAffinityMask(bool bIsMainThread)
     DWORD_PTR pPrevMask = SetThreadAffinityMask(GetCurrentThread(), mask);
     AVG_ASSERT_MSG(pPrevMask != 0, getWinErrMsg(GetLastError()).c_str());
 #endif
+}
+
+unsigned getLowestBitSet(unsigned val)
+{
+    AVG_ASSERT(val != 0); // Doh
+
+    unsigned pos = 0;
+    while (!(val & 1)) {
+        val >>= 1;
+        ++pos;
+    }
+    return pos;
 }
 
 }

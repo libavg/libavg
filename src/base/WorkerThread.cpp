@@ -23,10 +23,6 @@
 
 #include "OSHelper.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 namespace avg {
 
 using namespace std;
@@ -40,18 +36,6 @@ void printAffinityMask(cpu_set_t& mask)
     cerr << endl;
 }
 #endif
-
-unsigned getLowestBitSet(unsigned val)
-{
-    AVG_ASSERT(val != 0); // Doh
-
-    unsigned pos = 0;
-    while (!(val & 1)) {
-        val >>= 1;
-        ++pos;
-    }
-    return pos;
-}
 
 }
 
