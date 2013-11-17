@@ -869,7 +869,10 @@ class WidgetTestCase(AVGTestCase):
         self.assert_(downBmpPath == os.path.join(mediaPath, 'button_bg_down.png'))
         self.assert_(upBmpPath == os.path.join(mediaPath, 'button_bg_up.png'))
 
-        skin = widget.Skin("IncompleteSkin.xml", mediaPath)
+        customSkinMediaPath = os.path.join(mediaPath, 'incompleteSkinMedia')
+        skin = widget.Skin("IncompleteSkin.xml", customSkinMediaPath)
+        self.node = widget.ScrollBar(orientation=widget.Orientation.HORIZONTAL, 
+                pos=(20,5), width=100, parent=root, skinObj=skin)
 
 
 def widgetTestSuite(tests):
