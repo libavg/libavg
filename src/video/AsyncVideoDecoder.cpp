@@ -36,8 +36,8 @@
 #include <math.h>
 #include <iostream>
 
-using namespace boost;
 using namespace std;
+using boost::dynamic_pointer_cast;
 
 #define AUDIO_MSG_QUEUE_LENGTH  50
 #define AUDIO_STATUS_QUEUE_LENGTH -1

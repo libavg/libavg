@@ -54,7 +54,7 @@ void MultitouchInputDevice::start()
 
 vector<EventPtr> MultitouchInputDevice::pollEvents()
 {
-    boost::mutex::scoped_lock lock(*m_pMutex);
+    lock_guard lock(*m_pMutex);
 
     vector<EventPtr> events;
     vector<TouchStatusPtr>::iterator it;

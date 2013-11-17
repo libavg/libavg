@@ -205,7 +205,7 @@ void TrackerInputDevice::setConfig()
 
 void TrackerInputDevice::createBitmaps(const IntRect& area)
 {
-    boost::mutex::scoped_lock lock(*m_pMutex);
+    lock_guard lock(*m_pMutex);
     for (int i=1; i<NUM_TRACKER_IMAGES; i++) {
         switch (i) {
             case TRACKER_IMG_HISTOGRAM:
@@ -229,7 +229,7 @@ void TrackerInputDevice::createBitmaps(const IntRect& area)
 
 Bitmap * TrackerInputDevice::getImage(TrackerImageID imageID) const
 {
-    boost::mutex::scoped_lock lock(*m_pMutex);
+    lock_guard lock(*m_pMutex);
     return new Bitmap(*m_pBitmaps[imageID]);
 }
 
@@ -408,7 +408,7 @@ void TrackerInputDevice::abortCalibration()
 
 vector<EventPtr> TrackerInputDevice::pollEvents()
 {
-    boost::mutex::scoped_lock lock(*m_pMutex);
+    lock_guard lock(*m_pMutex);
     vector<EventPtr> pTouchEvents;
     vector<EventPtr> pTrackEvents;
     pollEventType(pTouchEvents, m_TouchEvents, CursorEvent::TOUCH);

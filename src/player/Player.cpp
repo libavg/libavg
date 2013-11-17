@@ -832,7 +832,7 @@ bool Player::clearInterval(int id)
 
 void Player::callFromThread(PyObject * pyfunc)
 {
-    boost::mutex::scoped_lock lock(m_AsyncCallMutex);
+    lock_guard lock(m_AsyncCallMutex);
     Timeout* pTimeout = new Timeout(0, pyfunc, false, getFrameTime());
     m_AsyncCalls.push_back(pTimeout);
 }
@@ -1635,7 +1635,7 @@ void Player::handleTimers()
         std::vector<Timeout *> tempAsyncCalls;
         Py_BEGIN_ALLOW_THREADS;
         {
-            boost::mutex::scoped_lock lock(m_AsyncCallMutex);
+            lock_guard lock(m_AsyncCallMutex);
             tempAsyncCalls = m_AsyncCalls;
             m_AsyncCalls.clear();
         }

@@ -73,7 +73,7 @@ boost::mutex Logger::m_CategoryMutex;
 
 Logger * Logger::get()
 {
-    boost::lock_guard<boost::mutex> lock(s_logMutex);
+    lock_guard lock(s_logMutex);
     if (!s_pLogger) {
         s_pLogger = new Logger;
     }
@@ -127,13 +127,13 @@ Logger::~Logger()
 
 void Logger::addLogSink(const LogSinkPtr& logSink)
 {
-    boost::lock_guard<boost::mutex> lock(s_sinkMutex);
+    lock_guard lock(s_sinkMutex);
     m_pSinks.push_back(logSink);
 }
 
 void Logger::removeLogSink(const LogSinkPtr& logSink)
 {
-    boost::lock_guard<boost::mutex> lock(s_sinkMutex);
+    lock_guard lock(s_sinkMutex);
     std::vector<LogSinkPtr>::iterator it;
     it = find(m_pSinks.begin(), m_pSinks.end(), logSink);
     if ( it != m_pSinks.end() ) {
@@ -143,7 +143,7 @@ void Logger::removeLogSink(const LogSinkPtr& logSink)
 
 void Logger::removeStdLogSink()
 {
-    boost::lock_guard<boost::mutex> lock(s_removeStdSinkMutex);
+    lock_guard lock(s_removeStdSinkMutex);
     if ( m_pStdSink.get()) {
         removeLogSink(m_pStdSink);
         m_pStdSink = LogSinkPtr();
@@ -152,7 +152,7 @@ void Logger::removeStdLogSink()
 
 category_t Logger::configureCategory(category_t category, severity_t severity)
 {
-    boost::lock_guard<boost::mutex> lock(m_CategoryMutex);
+    lock_guard lock(m_CategoryMutex);
     severity = (severity == Logger::severity::NONE) ? m_Severity : severity;
     UTF8String sCategory = boost::to_upper_copy(string(category));
     CatToSeverityMap::iterator it;
@@ -173,7 +173,7 @@ CatToSeverityMap Logger::getCategories()
 void Logger::trace(const UTF8String& sMsg, const category_t& category,
         severity_t severity) const
 {
-    boost::lock_guard<boost::mutex> lock(s_traceMutex);
+    lock_guard lock(s_traceMutex);
     struct tm* pTime;
     #ifdef _WIN32
     __int64 now;
@@ -187,7 +187,7 @@ void Logger::trace(const UTF8String& sMsg, const category_t& category,
     pTime = localtime(&time.tv_sec);
     unsigned millis = time.tv_usec/1000;
     #endif
-    boost::lock_guard<boost::mutex> lockHandler(s_sinkMutex);
+    lock_guard lockHandler(s_sinkMutex);
     std::vector<LogSinkPtr>::const_iterator it;
     for(it=m_pSinks.begin(); it!=m_pSinks.end(); ++it){
         (*it)->logMessage(pTime, millis, category, severity, sMsg);

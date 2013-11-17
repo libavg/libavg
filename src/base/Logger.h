@@ -25,10 +25,9 @@
 #include "Exception.h"
 #include "ILogSink.h"
 #include "UTF8String.h"
+#include "ThreadHelper.h"
 #include "../api.h"
 
-#include <boost/thread.hpp>
-#include <boost/thread/locks.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/unordered_map.hpp>
@@ -106,7 +105,7 @@ public:
             severity_t severity=severity::INFO) const;
 
     inline bool shouldLog(const category_t& category, severity_t severity) const {
-        boost::lock_guard<boost::mutex> lock(m_CategoryMutex);
+        lock_guard lock(m_CategoryMutex);
         try {
             severity_t targetSeverity = m_CategorySeverities.at(category);
             return (targetSeverity <= severity);

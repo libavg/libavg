@@ -97,7 +97,7 @@ void TUIOInputDevice::start()
 void TUIOInputDevice::ProcessPacket(const char* pData, int size, 
         const IpEndpointName& remoteEndpoint)
 {
-    boost::mutex::scoped_lock lock(getMutex());
+    lock_guard lock(getMutex());
     try {
         ReceivedPacket packet(pData, size);
         if (packet.IsBundle()) {

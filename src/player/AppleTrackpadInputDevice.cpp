@@ -64,7 +64,7 @@ void AppleTrackpadInputDevice::start()
 void AppleTrackpadInputDevice::onData(int device, Finger* pFingers, int numFingers, 
         float timestamp, int frame)
 {
-    boost::mutex::scoped_lock lock(getMutex());
+    lock_guard lock(getMutex());
     for (int i = 0; i < numFingers; i++) {
         Finger* pFinger = &pFingers[i];
         TouchStatusPtr pTouchStatus = getTouchStatus(pFinger->identifier);

@@ -27,6 +27,7 @@
 #include "Exception.h"
 #include "Logger.h"
 #include "Queue.h"
+#include "ThreadHelper.h"
 #include "ThreadProfiler.h"
 #include "CmdQueue.h"
 
@@ -36,7 +37,6 @@
 
 namespace avg {
 
-void AVG_API setAffinityMask(bool bIsMainThread);
 
 template<class DERIVED_THREAD>
 class AVG_TEMPLATE_API WorkerThread {

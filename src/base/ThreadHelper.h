@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine.
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2013 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,23 +19,19 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "WorkerThread.h"
+#ifndef _ThreadHelper_H_
+#define _ThreadHelper_H_
 
-#include "OSHelper.h"
+#include "Exception.h"
+#include <boost/thread.hpp>
+#include <boost/thread/locks.hpp>
 
 namespace avg {
 
-using namespace std;
+void AVG_API setAffinityMask(bool bIsMainThread);
+typedef boost::lock_guard<boost::mutex> lock_guard;
+unsigned getLowestBitSet(unsigned val);
 
-#ifdef linux
-void printAffinityMask(cpu_set_t& mask)
-{
-    for (int i=0; i<32; ++i) {
-        cerr << int(CPU_ISSET(i, &mask));
-    }
-    cerr << endl;
 }
+
 #endif
-
-}
-
