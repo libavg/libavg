@@ -174,8 +174,12 @@ class VideoDecoderTest: public DecoderTest {
         void runTests()
         {
             basicFileTest("mpeg1-48x48.mov", 30);
+#ifndef AVG_ENABLE_RPI
             basicFileTest("mjpeg-48x48.avi", 202);
             testSeeks("mjpeg-48x48.avi");
+#else
+            cerr << "Skipping mjpeg tests: SW decoding too slow on RaspberryPi." << endl;
+#endif
         }
 
     private:
