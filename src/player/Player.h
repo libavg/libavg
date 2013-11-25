@@ -47,7 +47,7 @@ namespace avg {
 class AudioEngine;
 class Node;
 class Canvas;
-class MainCanvas;
+class MultiContextCanvas;
 class OffscreenCanvas;
 class TrackerInputDevice;
 class MultitouchInputDevice;
@@ -64,7 +64,7 @@ class Display;
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
-typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
+typedef boost::shared_ptr<MultiContextCanvas> MultiContextCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 typedef boost::shared_ptr<class Contact> ContactPtr;
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
@@ -225,7 +225,7 @@ class AVG_API Player: public Publisher
 
         void errorIfPlaying(const std::string& sFunc) const;
 
-        MainCanvasPtr m_pMainCanvas;
+        MultiContextCanvasPtr m_pMainCanvas;
 
         SDLDisplayEnginePtr m_pDisplayEngine;
         bool m_bDisplayEngineBroken;

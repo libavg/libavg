@@ -53,7 +53,7 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedObject.h \
         Node.h AreaNode.h DisplayParams.h TypeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
-        EventDispatcher.h CursorEvent.h MouseEvent.h \
+        EventDispatcher.h CursorEvent.h MouseEvent.h MultiContextCanvas.h \
         Event.h KeyEvent.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
@@ -105,7 +105,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
         TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
-        SoundNode.cpp FontStyle.cpp \
+        SoundNode.cpp FontStyle.cpp MultiContextCanvas.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         Contact.cpp TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \
