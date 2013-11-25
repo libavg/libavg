@@ -80,7 +80,9 @@ void MainCanvas::renderTree()
     GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
     {
         ScopeTimer Timer(RootRenderProfilingZone);
-        Canvas::render(m_pDisplayEngine->getWindowSize(), false);
+        IntPoint windowSize = m_pDisplayEngine->getWindowSize();
+        glViewport(0, 0, windowSize.x, windowSize.y);
+        Canvas::render(false);
     }
 }
 

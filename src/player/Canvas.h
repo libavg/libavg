@@ -91,7 +91,7 @@ class AVG_API Canvas: public ExportedObject
 
         std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
 
-        virtual void render(IntPoint windowSize, bool bOffscreen);
+        virtual void render(bool bOffscreen);
 
     protected:
         Player * getPlayer() const;

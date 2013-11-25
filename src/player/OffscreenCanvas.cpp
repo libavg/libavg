@@ -262,7 +262,9 @@ void OffscreenCanvas::renderTree()
     m_pFBO->activate();
     {
         ScopeTimer Timer(OffscreenRenderProfilingZone);
-        Canvas::render(IntPoint(getRootNode()->getSize()), true);
+        IntPoint windowSize(getRootNode()->getSize());
+        glViewport(0, 0, windowSize.x, windowSize.y);
+        Canvas::render(true);
     }
     m_pFBO->copyToDestTexture();
     m_bIsRendered = true;

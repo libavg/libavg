@@ -241,11 +241,10 @@ void Canvas::preRender()
     }
 }
 
-void Canvas::render(IntPoint windowSize, bool bOffscreen)
+void Canvas::render(bool bOffscreen)
 {
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
             !bOffscreen);
-    glViewport(0, 0, windowSize.x, windowSize.y);
     GLContext::checkError("Canvas::render: glViewport()");
     glm::vec2 size = m_pRootNode->getSize();
     glm::mat4 projMat;
