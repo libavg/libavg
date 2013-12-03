@@ -18,35 +18,48 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _SecondaryGLXContext_H_
-#define _SecondaryGLXContext_H_
+#ifndef _GLXContext_H_
+#define _GLXContext_H_
 #include "../api.h"
 
-#include "GLXContext.h"
-#include "../base/Rect.h"
+#include "GLContext.h"
 
 #include "../base/Exception.h"
 
 #include <boost/shared_ptr.hpp>
-#include <string>
+
+struct SDL_SysWMinfo;
 
 namespace avg {
 
-class AVG_API SecondaryGLXContext: public GLXContext
+class AVG_API GLXContext: public GLContext
 {
 public:
-    SecondaryGLXContext(const GLConfig& glConfig, const std::string& sDisplay,
-            const IntRect& windowDimensions);
-    virtual ~SecondaryGLXContext();
+    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0));
+    virtual ~GLXContext();
+
+    void activate();
+    bool initVBlank(int rate);
+    bool useDepthBuffer() const;
+    void swapBuffers();
+
+    static bool haveARBCreateContext();
+
+protected:
+    void setX11ErrorHandler();
+    void resetX11ErrorHandler();
+    void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
+    GLXFBConfig getFBConfig(::Display* pDisplay, int multiSampleSamples);
+
+    Display* m_pDisplay;
+    Colormap m_Colormap;
+    GLXDrawable m_Drawable;
+    ::GLXContext m_Context;
 
 private:
-    void createContext(const GLConfig& glConfig, const std::string& sDisplay, 
-            const IntRect& windowDimensions, bool bUseDebugBit);
+    static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
 
-    ::Window m_Window;
 };
-
-typedef boost::shared_ptr<SecondaryGLXContext> SecondaryGLXContextPtr;
 
 }
 #endif

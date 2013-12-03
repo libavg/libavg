@@ -22,7 +22,7 @@
 #define _SDLGLXContext_H_
 #include "../api.h"
 
-#include "GLContext.h"
+#include "GLXContext.h"
 
 #include "../base/Exception.h"
 
@@ -32,30 +32,16 @@ struct SDL_SysWMinfo;
 
 namespace avg {
 
-class AVG_API SDLGLXContext: public GLContext
+class AVG_API SDLGLXContext: public GLXContext
 {
 public:
     SDLGLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
             const SDL_SysWMinfo* pSDLWMInfo=0);
     virtual ~SDLGLXContext();
 
-    void activate();
-    bool initVBlank(int rate);
-    bool useDepthBuffer() const;
-    void swapBuffers();
-
-    static bool haveARBCreateContext();
-
 private:
     void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit);
-
-    void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
-
-    Display* m_pDisplay;
-    Colormap m_Colormap;
-    GLXDrawable m_Drawable;
-    ::GLXContext m_Context;
 
 };
 

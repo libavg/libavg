@@ -53,7 +53,7 @@ MultiContextCanvas::~MultiContextCanvas()
 void MultiContextCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 {
     MainCanvas::initPlayback(pDisplayEngine);
-    createSecondWindow();
+//    createSecondWindow();
 }
 
 BitmapPtr MultiContextCanvas::screenshot() const
@@ -68,7 +68,7 @@ static ProfilingZoneID SecondWindowRenderProfilingZone(
 void MultiContextCanvas::renderTree()
 {
     MainCanvas::renderTree();
-
+/*
     {
         GLContext* pMainContext = GLContext::getCurrent();
         ScopeTimer Timer(SecondWindowRenderProfilingZone);
@@ -77,6 +77,7 @@ void MultiContextCanvas::renderTree()
         m_pGLContext->swapBuffers();
         pMainContext->activate();
     }
+*/
 //    pollEvents();
 }
 
