@@ -102,6 +102,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
     private:
         bool renderFrame();
+        FrameAvailableCode renderToSurface();
         void seek(long long destTime);
         void onEOF();
         void updateStatusDueToDecoderEOF();

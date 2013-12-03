@@ -41,6 +41,7 @@
 #include "PluginManager.h"
 #include "TextEngine.h"
 #include "TestHelper.h"
+#include "MainCanvas.h"
 #include "MultiContextCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
@@ -196,7 +197,7 @@ void deletePlayer()
 
 Player::~Player()
 {
-    m_pMainCanvas = MultiContextCanvasPtr();
+    m_pMainCanvas = MainCanvasPtr();
     if (m_pDisplayEngine) {
         m_pDisplayEngine->teardown();
     }
@@ -1298,7 +1299,7 @@ void Player::initAudio()
 void Player::initMainCanvas(NodePtr pRootNode)
 {
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
-    m_pMainCanvas = MultiContextCanvasPtr(new MultiContextCanvas(this));
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
     m_DP.m_Size = m_pMainCanvas->getSize();
 
@@ -1739,7 +1740,7 @@ void Player::cleanup(bool bIsAbort)
         unregisterFrameEndListener(BitmapManager::get());
         delete BitmapManager::get();
         m_pMainCanvas->stopPlayback(bIsAbort);
-        m_pMainCanvas = MultiContextCanvasPtr();
+        m_pMainCanvas = MainCanvasPtr();
     }
 
     if (m_pMultitouchInputDevice) {
