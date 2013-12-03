@@ -36,13 +36,14 @@ class AVG_API MainCanvas: public Canvas
         MainCanvas(Player * pPlayer);
         virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
-        void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
+        virtual void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
         
         virtual BitmapPtr screenshot() const;
 
-    private:
+    protected:
         virtual void renderTree();
 
+    private:
         SDLDisplayEnginePtr m_pDisplayEngine;
 };
 

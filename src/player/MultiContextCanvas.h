@@ -23,20 +23,16 @@
 #define _MultiContextCanvas_H_
 
 #include "../api.h"
-#include "Canvas.h"
+#include "MainCanvas.h"
 
 namespace avg {
 
-class SDLDisplayEngine;
-typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
-
-class AVG_API MultiContextCanvas: public Canvas
+class AVG_API MultiContextCanvas: public MainCanvas
 {
     public:
         MultiContextCanvas(Player * pPlayer);
         virtual ~MultiContextCanvas();
-        virtual void setRoot(NodePtr pRootNode);
-        void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
+        virtual void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
         
         virtual BitmapPtr screenshot() const;
 
@@ -46,7 +42,6 @@ class AVG_API MultiContextCanvas: public Canvas
 
         virtual void renderTree();
 
-        SDLDisplayEnginePtr m_pDisplayEngine;
         ::Display* m_pDisplay;
         ::Window m_SecondWindow;
         ::GLXContext m_GLContext;

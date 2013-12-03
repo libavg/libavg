@@ -41,7 +41,7 @@ using namespace std;
 namespace avg {
     
 MultiContextCanvas::MultiContextCanvas(Player * pPlayer)
-    : Canvas(pPlayer)
+    : MainCanvas(pPlayer)
 {
 }
 
@@ -49,44 +49,26 @@ MultiContextCanvas::~MultiContextCanvas()
 {
 }
 
-void MultiContextCanvas::setRoot(NodePtr pRootNode)
-{
-    Canvas::setRoot(pRootNode);
-    if (!dynamic_pointer_cast<AVGNode>(pRootNode)) {
-        throw (Exception(AVG_ERR_XML_PARSE,
-                    "Root node of an avg tree needs to be an <avg> node."));
-    }
-}
-
 void MultiContextCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 {
-    m_pDisplayEngine = pDisplayEngine;
-    Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
-
+    MainCanvas::initPlayback(pDisplayEngine);
     createSecondWindow();
 }
 
 BitmapPtr MultiContextCanvas::screenshot() const
 {
-    if (!m_pDisplayEngine) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "MultiContextCanvas::screenshot(): Canvas is not being rendered. No screenshot available."));
-    }
-    return m_pDisplayEngine->screenshot();
+    AVG_ASSERT_MSG(false, "Not implemented");
+    return BitmapPtr();
 }
 
-static ProfilingZoneID RootRenderProfilingZone("Render MultiContextCanvas");
+static ProfilingZoneID SecondWindowRenderProfilingZone("MultiContextCanvas: render second window");
 
 void MultiContextCanvas::renderTree()
 {
-    preRender();
-    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-    GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
+    MainCanvas::renderTree();
+
     {
-        ScopeTimer Timer(RootRenderProfilingZone);
-        IntPoint windowSize = m_pDisplayEngine->getWindowSize();
-        glViewport(0, 0, windowSize.x, windowSize.y);
-        Canvas::render(false);
+        ScopeTimer Timer(SecondWindowRenderProfilingZone);
         glXMakeCurrent(m_pDisplay, m_SecondWindow, m_GLContext);
         glEnable(GL_BLEND);
         GLContext::checkError("init: glEnable(GL_BLEND)");
