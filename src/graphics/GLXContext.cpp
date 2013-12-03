@@ -42,7 +42,7 @@ using namespace boost;
 
 GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize, pSDLWMInfo)
+    : GLContext(glConfig, windowSize)
 {
     try {
         createGLXContext(glConfig, windowSize, pSDLWMInfo, true);

@@ -42,7 +42,7 @@ using namespace boost;
 
 CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize, pSDLWMInfo)
+    : GLContext(glConfig, windowSize)
 {
     if (pSDLWMInfo) {
         m_Context = CGLGetCurrentContext();

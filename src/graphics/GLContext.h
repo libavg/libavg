@@ -49,8 +49,7 @@ public:
     static GLContext* create(const GLConfig& glConfig, 
             const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
 
-    GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
+    GLContext(const GLConfig& glConfig, const IntPoint& windowSize);
     virtual ~GLContext();
 
     virtual void activate()=0;

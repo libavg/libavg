@@ -42,7 +42,7 @@ using namespace boost;
 
 SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string& sDisplay,  
         const IntRect& windowDimensions)
-    : GLContext(glConfig, windowDimensions.size(), 0)
+    : GLContext(glConfig, windowDimensions.size())
 {
     try {
         createContext(glConfig, sDisplay, windowDimensions, true);
