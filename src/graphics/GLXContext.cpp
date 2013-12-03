@@ -47,10 +47,10 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
     try {
         createGLXContext(glConfig, windowSize, pSDLWMInfo, true);
     } catch (const Exception &e) {
-        if(e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED){
+        if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
             createGLXContext(glConfig, windowSize, pSDLWMInfo, false);
-        }else{
-            exit(EXIT_FAILURE);
+        } else {
+            AVG_ASSERT_MSG(false, "Failed to create GLX context");
         }
     }
     init(true);
