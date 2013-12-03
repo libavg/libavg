@@ -27,6 +27,9 @@
 
 namespace avg {
 
+class SecondaryGLXContext;
+typedef boost::shared_ptr<SecondaryGLXContext> SecondaryGLXContextPtr;
+
 class AVG_API MultiContextCanvas: public MainCanvas
 {
     public:
@@ -42,9 +45,7 @@ class AVG_API MultiContextCanvas: public MainCanvas
 
         virtual void renderTree();
 
-        ::Display* m_pDisplay;
-        ::Window m_SecondWindow;
-        ::GLXContext m_GLContext;
+        SecondaryGLXContextPtr m_pGLContext;
 };
 
 }

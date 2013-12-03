@@ -14,8 +14,8 @@ if ENABLE_EGL
     GL_SOURCES = EGLContext.cpp X11Display.cpp
     GL_INCLUDES = EGLContext.h X11Display.h
 else
-    GL_SOURCES = GLXContext.cpp PBO.cpp X11Display.cpp
-    GL_INCLUDES = GLXContext.h PBO.h X11Display.h
+    GL_SOURCES = SecondaryGLXContext.cpp GLXContext.cpp PBO.cpp X11Display.cpp
+    GL_INCLUDES = SecondaryGLXContext.h GLXContext.h PBO.h X11Display.h
 endif
 endif
 endif

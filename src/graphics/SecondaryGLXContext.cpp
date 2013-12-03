@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GLXContext.h"
+#include "SecondaryGLXContext.h"
 #include "GLContextAttribs.h"
 #include "X11Display.h"
 
@@ -40,15 +40,15 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize, pSDLWMInfo)
+SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string& sDisplay,  
+        const IntRect& windowDimensions)
+    : GLContext(glConfig, windowDimensions.size(), 0)
 {
     try {
-        createGLXContext(glConfig, windowSize, pSDLWMInfo, true);
+        createContext(glConfig, sDisplay, windowDimensions, true);
     } catch (const Exception &e) {
         if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
-            createGLXContext(glConfig, windowSize, pSDLWMInfo, false);
+            createContext(glConfig, sDisplay, windowDimensions, false);
         } else {
             AVG_ASSERT_MSG(false, "Failed to create GLX context");
         }
@@ -74,15 +74,14 @@ static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
     return 0;
 }
 
-void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
+void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& sDisplay, 
+        const IntRect& windowDimensions, bool bUseDebugBit)
 {
-    Window win = 0;
     s_bX11Error = false;
     s_bDumpX11ErrorMsg = true;
     s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
 
-    m_pDisplay = getX11Display(pSDLWMInfo);
+    m_pDisplay = XOpenDisplay(sDisplay.c_str());
 
     GLContextAttribs attrs;
     attrs.append(GLX_X_RENDERABLE, 1);
@@ -129,10 +128,20 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     XFree(pFBConfig);
     XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
 
-    if (pSDLWMInfo) {
-        win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, m_Colormap);
-    }
+    ::Window rootWindow = DefaultRootWindow(m_pDisplay);
+    m_Colormap = XCreateColormap(m_pDisplay, rootWindow, pVisualInfo->visual, 
+            AllocNone);
+    AVG_ASSERT(m_Colormap);
+    XSetWindowAttributes swa;
+    swa.event_mask = ButtonPressMask;
+    swa.colormap = m_Colormap;
 
+    m_Window = XCreateWindow(m_pDisplay, rootWindow, 0, 0, 800, 600, 5, pVisualInfo->depth, 
+            InputOutput, pVisualInfo->visual, CWColormap | CWEventMask, &swa);
+    AVG_ASSERT(m_Window);
+    XMapWindow(m_pDisplay, m_Window);
+    XStoreName(m_pDisplay, m_Window, "libavg secondary window");
+    
     if (haveARBCreateContext()) {
         GLContextAttribs attrs;
         if (isGLES()) {
@@ -155,23 +164,16 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
         m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
     }
     AVG_ASSERT(m_Context);
-    if (pSDLWMInfo) {
-        setCurrent();
-        glXMakeCurrent(m_pDisplay, win, m_Context);
-    } else { 
-        Pixmap pmp = XCreatePixmap(m_pDisplay, 
-                RootWindow(m_pDisplay, pVisualInfo->screen), 8, 8, pVisualInfo->depth);
-        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, pVisualInfo, pmp);
-
-        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
-    }
+    setCurrent();
+    glXMakeCurrent(m_pDisplay, m_Window, m_Context);
+    
     XSetErrorHandler(s_DefaultErrorHandler);
 
     throwOnXError();
     m_Drawable = glXGetCurrentDrawable();
 }
 
-GLXContext::~GLXContext()
+SecondaryGLXContext::~SecondaryGLXContext()
 {
     deleteObjects();
     if (m_Context && ownsContext()) {
@@ -183,20 +185,20 @@ GLXContext::~GLXContext()
     }
 }
 
-void GLXContext::throwOnXError( int code)
+void SecondaryGLXContext::throwOnXError( int code)
 {
     if(s_bX11Error){
         throw Exception(code, "X error creating OpenGL context.");
     }
 }
 
-void GLXContext::activate()
+void SecondaryGLXContext::activate()
 {
     glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
     setCurrent();
 }
 
-bool GLXContext::initVBlank(int rate) 
+bool SecondaryGLXContext::initVBlank(int rate) 
 {
     static bool s_bVBlankActive = false;
     if (rate > 0) {
@@ -224,18 +226,18 @@ bool GLXContext::initVBlank(int rate)
     }
 }
 
-bool GLXContext::useDepthBuffer() const
+bool SecondaryGLXContext::useDepthBuffer() const
 {
     // NVidia GLX GLES doesn't allow framebuffer stencil without depth.
     return true;
 }
 
-void GLXContext::swapBuffers()
+void SecondaryGLXContext::swapBuffers()
 {
     glXSwapBuffers(m_pDisplay, m_Drawable);
 }
 
-bool GLXContext::haveARBCreateContext()
+bool SecondaryGLXContext::haveARBCreateContext()
 {
     static bool s_bExtensionChecked = false;
     static bool s_bHaveExtension = false;

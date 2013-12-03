@@ -30,6 +30,7 @@
 #include "../base/Logger.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/SecondaryGLXContext.h"
 
 #include <X11/Xlib.h>
 
@@ -61,57 +62,34 @@ BitmapPtr MultiContextCanvas::screenshot() const
     return BitmapPtr();
 }
 
-static ProfilingZoneID SecondWindowRenderProfilingZone("MultiContextCanvas: render second window");
+static ProfilingZoneID SecondWindowRenderProfilingZone(
+        "MultiContextCanvas: render second window");
 
 void MultiContextCanvas::renderTree()
 {
     MainCanvas::renderTree();
 
     {
+        GLContext* pMainContext = GLContext::getCurrent();
         ScopeTimer Timer(SecondWindowRenderProfilingZone);
-        glXMakeCurrent(m_pDisplay, m_SecondWindow, m_GLContext);
-        glEnable(GL_BLEND);
-        GLContext::checkError("init: glEnable(GL_BLEND)");
-        glDisable(GL_DEPTH_TEST);
-        GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
-        glEnable(GL_STENCIL_TEST);
-        GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");  
+        m_pGLContext->activate();
         Canvas::render(false);
-        glXSwapBuffers(m_pDisplay, glXGetCurrentDrawable());
-        GLContext::getCurrent()->activate();
+        m_pGLContext->swapBuffers();
+        pMainContext->activate();
     }
-    pollEvents();
+//    pollEvents();
 }
 
 void MultiContextCanvas::createSecondWindow()
 {
-    m_pDisplay = XOpenDisplay((char *)0);
-    AVG_ASSERT(m_pDisplay);
-
-    ::Window rootWindow = DefaultRootWindow(m_pDisplay);
-    GLint attribs[] = {GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None};
-
-    ::XVisualInfo* pVI = glXChooseVisual(m_pDisplay, 0, attribs);
-    AVG_ASSERT(pVI);
-    ::Colormap cmap = XCreateColormap(m_pDisplay, rootWindow, pVI->visual, AllocNone);
-    AVG_ASSERT(cmap);
-    XSetWindowAttributes swa;
-    swa.event_mask = ButtonPressMask;
-    swa.colormap = cmap;
-
-    m_SecondWindow = XCreateWindow(m_pDisplay, rootWindow, 0, 0, 800, 600, 
-            5, pVI->depth, InputOutput, pVI->visual, CWColormap | CWEventMask, &swa);
-    AVG_ASSERT(m_SecondWindow);
-    XMapWindow(m_pDisplay, m_SecondWindow);
-    XStoreName(m_pDisplay, m_SecondWindow, "libavg secondary window");
-    ::GLXContext otherContext = glXGetCurrentContext();
-    m_GLContext = glXCreateContext(m_pDisplay, pVI, otherContext, GL_TRUE);
-    AVG_ASSERT(m_GLContext);
-//    glXMakeCurrent(dpy, win, ctx);
-    
-//    XCloseDisplay(m_pDisplay);
+    GLContext* pMainContext = GLContext::getCurrent();
+    const GLConfig& config = pMainContext->getConfig();
+    m_pGLContext = SecondaryGLXContextPtr(new SecondaryGLXContext(config, ":0.0",
+            IntRect(0,0,800,600)));
+    pMainContext->activate();
 }
 
+/*
 void MultiContextCanvas::pollEvents()
 {
     XEvent xev;
@@ -125,5 +103,5 @@ void MultiContextCanvas::pollEvents()
         }
     }
 }
-
+*/
 }
