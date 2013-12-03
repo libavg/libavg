@@ -30,7 +30,7 @@
     #ifdef AVG_ENABLE_EGL
         #include "EGLContext.h"
     #else
-        #include "GLXContext.h"
+        #include "SDLGLXContext.h"
     #endif
 #elif defined _WIN32
     #include "WGLContext.h"
@@ -69,7 +69,7 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
         tempConfig.m_bGLES = true;
         return new EGLContext(tempConfig, windowSize, pSDLWMInfo);
     #else
-        return new GLXContext(glConfig, windowSize, pSDLWMInfo);
+        return new SDLGLXContext(glConfig, windowSize, pSDLWMInfo);
     #endif
 #elif defined _WIN32
     return new WGLContext(glConfig, windowSize, pSDLWMInfo);
@@ -525,7 +525,7 @@ bool GLContext::isGLESSupported()
     #ifdef AVG_ENABLE_EGL
     return true;
     #else
-    return GLXContext::haveARBCreateContext();
+    return SDLGLXContext::haveARBCreateContext();
     #endif
 #else
     return false;

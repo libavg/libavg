@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GLXContext.h"
+#include "SDLGLXContext.h"
 #include "GLContextAttribs.h"
 #include "X11Display.h"
 
@@ -40,7 +40,7 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+SDLGLXContext::SDLGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(glConfig, windowSize)
 {
@@ -74,7 +74,7 @@ static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
     return 0;
 }
 
-void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+void SDLGLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
 {
     Window win = 0;
@@ -171,7 +171,7 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     m_Drawable = glXGetCurrentDrawable();
 }
 
-GLXContext::~GLXContext()
+SDLGLXContext::~SDLGLXContext()
 {
     deleteObjects();
     if (m_Context && ownsContext()) {
@@ -183,20 +183,20 @@ GLXContext::~GLXContext()
     }
 }
 
-void GLXContext::throwOnXError( int code)
+void SDLGLXContext::throwOnXError( int code)
 {
     if(s_bX11Error){
         throw Exception(code, "X error creating OpenGL context.");
     }
 }
 
-void GLXContext::activate()
+void SDLGLXContext::activate()
 {
     glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
     setCurrent();
 }
 
-bool GLXContext::initVBlank(int rate) 
+bool SDLGLXContext::initVBlank(int rate) 
 {
     static bool s_bVBlankActive = false;
     if (rate > 0) {
@@ -224,18 +224,18 @@ bool GLXContext::initVBlank(int rate)
     }
 }
 
-bool GLXContext::useDepthBuffer() const
+bool SDLGLXContext::useDepthBuffer() const
 {
     // NVidia GLX GLES doesn't allow framebuffer stencil without depth.
     return true;
 }
 
-void GLXContext::swapBuffers()
+void SDLGLXContext::swapBuffers()
 {
     glXSwapBuffers(m_pDisplay, m_Drawable);
 }
 
-bool GLXContext::haveARBCreateContext()
+bool SDLGLXContext::haveARBCreateContext()
 {
     static bool s_bExtensionChecked = false;
     static bool s_bHaveExtension = false;

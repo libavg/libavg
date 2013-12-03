@@ -18,8 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _GLXContext_H_
-#define _GLXContext_H_
+#ifndef _SDLGLXContext_H_
+#define _SDLGLXContext_H_
 #include "../api.h"
 
 #include "GLContext.h"
@@ -32,12 +32,12 @@ struct SDL_SysWMinfo;
 
 namespace avg {
 
-class AVG_API GLXContext: public GLContext
+class AVG_API SDLGLXContext: public GLContext
 {
 public:
-    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+    SDLGLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
             const SDL_SysWMinfo* pSDLWMInfo=0);
-    virtual ~GLXContext();
+    virtual ~SDLGLXContext();
 
     void activate();
     bool initVBlank(int rate);
