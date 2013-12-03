@@ -261,7 +261,7 @@ void Canvas::render(bool bOffscreen)
 
 void Canvas::renderOutlines(const glm::mat4& transform)
 {
-    GLContext* pContext = GLContext::getMain();
+    GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA(new VertexArray);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
@@ -288,7 +288,7 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    StandardShaderPtr pShader = GLContext::getMain()->getStandardShader();
+    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
     pShader->setUntextured();
     pShader->setTransform(transform);
     pShader->activate();

@@ -867,7 +867,7 @@ BitmapPtr Player::screenshot()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
     }
-    if (GLContext::getMain()->isGLES()) {
+    if (GLContext::getCurrent()->isGLES()) {
         // Some GLES implementations invalidate the buffer after eglSwapBuffers.
         // The only way we can get at the contents at this point is to rerender them.
         IntPoint windowSize = m_pDisplayEngine->getWindowSize();
@@ -1160,7 +1160,7 @@ size_t Player::getVideoMemInstalled()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemInstalled must be called after Player.play().");
     }
-    return GLContext::getMain()->getVideoMemInstalled();
+    return GLContext::getCurrent()->getVideoMemInstalled();
 }
 
 size_t Player::getVideoMemUsed()
@@ -1169,7 +1169,7 @@ size_t Player::getVideoMemUsed()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemUsed must be called after Player.play().");
     }
-    return GLContext::getMain()->getVideoMemUsed();
+    return GLContext::getCurrent()->getVideoMemUsed();
 }
 
 void Player::setGamma(float red, float green, float blue)

@@ -51,7 +51,6 @@ using namespace std;
 using namespace boost;
 
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
-GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
@@ -503,16 +502,6 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
-}
-
-GLContext* GLContext::getMain()
-{
-    return s_pMainContext;
-}
-
-void GLContext::setMain(GLContext * pMainContext)
-{
-    s_pMainContext = pMainContext;
 }
 
 int GLContext::nextMultiSampleValue(int curSamples)

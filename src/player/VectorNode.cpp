@@ -166,7 +166,7 @@ void VectorNode::maybeRender(const glm::mat4& parentTransform)
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
         m_Transform = parentTransform;
-        GLContext::getMain()->setBlendMode(m_BlendMode);
+        GLContext::getCurrent()->setBlendMode(m_BlendMode);
         render();
     }
 }

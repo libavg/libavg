@@ -477,7 +477,6 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     cerr << sVariant << endl; 
     cerr << "---------------------------------------------------" << endl;
     GLContext* pContext = GLContext::create(GLConfig(bGLES, false, true, 1, su, true));
-    GLContext::setMain(pContext);
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");

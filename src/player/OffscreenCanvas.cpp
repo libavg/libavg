@@ -70,7 +70,7 @@ void OffscreenCanvas::initPlayback()
     } else {
         pf = R8G8B8A8;
     }
-    bool bUseDepthBuffer = GLContext::getMain()->useDepthBuffer();
+    bool bUseDepthBuffer = GLContext::getCurrent()->useDepthBuffer();
     m_pFBO = FBOPtr(new FBO(getSize(), pf, 1, getMultiSampleSamples(), bUseDepthBuffer,
             true, m_bUseMipmaps));
     Canvas::initPlayback(getMultiSampleSamples());
@@ -225,7 +225,7 @@ bool OffscreenCanvas::isSupported()
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::isSupported(): Player.play() needs to be called before support can be queried."));
     }
-    if (GLContext::getMain()->isGLES()) {
+    if (GLContext::getCurrent()->isGLES()) {
         return true;
     } else {
         return FBO::isFBOSupported() && FBO::isPackedDepthStencilSupported();

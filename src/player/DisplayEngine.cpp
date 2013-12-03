@@ -94,7 +94,7 @@ void DisplayEngine::deinitRender()
 void DisplayEngine::setFramerate(float rate)
 {
     if (rate != 0 && m_bInitialized) {
-        GLContext::getMain()->initVBlank(0);
+        GLContext::getCurrent()->initVBlank(0);
     }
     m_Framerate = rate;
     m_VBRate = 0;
@@ -114,7 +114,7 @@ void DisplayEngine::setVBlankRate(int rate)
 {
     m_VBRate = rate;
     if (m_bInitialized) {
-        bool bOK = GLContext::getMain()->initVBlank(rate);
+        bool bOK = GLContext::getCurrent()->initVBlank(rate);
         m_Framerate = Display::get()->getRefreshRate()/m_VBRate;
         if (!bOK || rate == 0) { 
             AVG_LOG_WARNING("Using framerate of " << m_Framerate << 

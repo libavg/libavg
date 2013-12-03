@@ -218,7 +218,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     int rc = SDL_GetWMInfo(&info);
     AVG_ASSERT(rc != -1);
     m_pGLContext = GLContext::create(glConfig, m_WindowSize, &info);
-    GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
@@ -281,7 +280,6 @@ void SDLDisplayEngine::teardown()
             delete m_pGLContext;
             m_pGLContext = 0;
         }
-        GLContext::setMain(0);
     }
 }
 

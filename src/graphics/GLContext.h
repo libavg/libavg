@@ -96,7 +96,6 @@ public:
     static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
-    static GLContext* getMain();
     static void setMain(GLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
@@ -148,7 +147,6 @@ private:
     static bool s_bErrorLogEnabled;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
-    static GLContext* s_pMainContext;
 };
 
 }

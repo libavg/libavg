@@ -61,7 +61,7 @@ void MultiContextCanvas::setRoot(NodePtr pRootNode)
 void MultiContextCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
-    Canvas::initPlayback(GLContext::getMain()->getConfig().m_MultiSampleSamples);
+    Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
 
     createSecondWindow();
 }
@@ -96,7 +96,7 @@ void MultiContextCanvas::renderTree()
         GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");  
         Canvas::render(false);
         glXSwapBuffers(m_pDisplay, glXGetCurrentDrawable());
-        GLContext::getMain()->activate();
+        GLContext::getCurrent()->activate();
     }
     pollEvents();
 }

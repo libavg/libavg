@@ -75,7 +75,7 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     FBO::checkError("BmpTextureMover::moveTextureToBmp");
     IntPoint size = tex.getMipmapSize(mipmapLevel);
     BitmapPtr pBmp(new Bitmap(size, getPF()));
-    if (GLContext::getMain()->isGLES() && getPF() == B5G6R5) {
+    if (GLContext::getCurrent()->isGLES() && getPF() == B5G6R5) {
         BitmapPtr pTmpBmp(new Bitmap(size, R8G8B8A8));
         glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, pTmpBmp->getPixels());
         FilterFlipRGB().applyInPlace(pTmpBmp);

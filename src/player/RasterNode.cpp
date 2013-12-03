@@ -221,7 +221,7 @@ const std::string& RasterNode::getBlendModeStr() const
 void RasterNode::setBlendModeStr(const string& sBlendMode)
 {
     GLContext::BlendMode blendMode = GLContext::stringToBlendMode(sBlendMode);
-    if (!GLContext::getMain()->isBlendModeSupported(blendMode)) {
+    if (!GLContext::getCurrent()->isBlendModeSupported(blendMode)) {
         m_sBlendMode = "blend";
         m_BlendMode = GLContext::BLEND_BLEND;
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -414,7 +414,7 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
             bForceRender))
     {
         ScopeTimer Timer(FXProfilingZone);
-        GLContext* pContext = GLContext::getMain();
+        GLContext* pContext = GLContext::getCurrent();
         StandardShader::get()->setAlpha(1.0f);
         m_pSurface->activate(getMediaSize());
 
@@ -495,7 +495,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         GLContext::BlendMode mode, float opacity, const Pixel32& color,
         bool bPremultipliedAlpha)
 {
-    GLContext* pContext = GLContext::getMain();
+    GLContext* pContext = GLContext::getCurrent();
     FRect destRect;
     
     StandardShaderPtr pShader = pContext->getStandardShader();
