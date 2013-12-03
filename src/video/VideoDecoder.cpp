@@ -31,7 +31,6 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapLoader.h"
-#include "../graphics/GLTexture.h"
 
 #include <string>
 
@@ -286,25 +285,6 @@ FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);
     return renderToBmps(pBmps, timeWanted);
-}
-
-FrameAvailableCode VideoDecoder::renderToTexture(GLTexturePtr pTextures[4], 
-        float timeWanted)
-{
-    std::vector<BitmapPtr> pBmps;
-    for (unsigned i=0; i<getNumPixelFormatPlanes(m_PF); ++i) {
-        pBmps.push_back(pTextures[i]->lockStreamingBmp());
-    }
-    FrameAvailableCode frameAvailable;
-    if (pixelFormatIsPlanar(m_PF)) {
-        frameAvailable = renderToBmps(pBmps, timeWanted);
-    } else {
-        frameAvailable = renderToBmp(pBmps[0], timeWanted);
-    }
-    for (unsigned i=0; i<getNumPixelFormatPlanes(m_PF); ++i) {
-        pTextures[i]->unlockStreamingBmp(frameAvailable == FA_NEW_FRAME);
-    }
-    return frameAvailable;
 }
 
 void VideoDecoder::logConfig()
