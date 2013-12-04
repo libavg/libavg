@@ -64,27 +64,24 @@ void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& 
     XVisualInfo* pVisualInfo = createDetachedContext(XOpenDisplay(sDisplay.c_str()), 
             glConfig, bUseDebugBit);
     
-    ::Window rootWindow = DefaultRootWindow(m_pDisplay);
-    m_Colormap = XCreateColormap(m_pDisplay, rootWindow, pVisualInfo->visual, 
-            AllocNone);
-    AVG_ASSERT(m_Colormap);
     XSetWindowAttributes swa;
     swa.event_mask = ButtonPressMask;
-    swa.colormap = m_Colormap;
+    swa.colormap = getColormap();
 
-    m_Window = XCreateWindow(m_pDisplay, rootWindow, 0, 0, 800, 600, 5, pVisualInfo->depth, 
-            InputOutput, pVisualInfo->visual, CWColormap | CWEventMask, &swa);
+    m_Window = XCreateWindow(getDisplay(), DefaultRootWindow(getDisplay()), 
+            0, 0, 800, 600, 5, pVisualInfo->depth, InputOutput, pVisualInfo->visual, 
+            CWColormap | CWEventMask, &swa);
     AVG_ASSERT(m_Window);
-    XMapWindow(m_pDisplay, m_Window);
-    XStoreName(m_pDisplay, m_Window, "libavg secondary window");
+    XMapWindow(getDisplay(), m_Window);
+    XStoreName(getDisplay(), m_Window, "libavg secondary window");
     
     setCurrent();
-    glXMakeCurrent(m_pDisplay, m_Window, m_Context);
+    glXMakeCurrent(getDisplay(), m_Window, getGLXContext());
     
     resetX11ErrorHandler();
 
     throwOnXError();
-    m_Drawable = glXGetCurrentDrawable();
+    initDrawable();
 }
 
 SecondaryGLXContext::~SecondaryGLXContext()

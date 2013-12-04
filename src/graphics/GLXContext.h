@@ -51,18 +51,20 @@ protected:
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
-    ::GLXContext getGLXContext() const;
-    Display* getDisplay() const;
+    void initDrawable();
 
-    Colormap m_Colormap;
-    GLXDrawable m_Drawable;
+    ::GLXContext getGLXContext() const;
+    ::Display* getDisplay() const;
+    Colormap getColormap() const;
 
 private:
     GLXFBConfig getFBConfig(::Display* pDisplay, int multiSampleSamples);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
 
-    Display* m_pDisplay;
+    Colormap m_Colormap;
+    ::Display* m_pDisplay;
     ::GLXContext m_Context;
+    GLXDrawable m_Drawable;
 };
 
 }

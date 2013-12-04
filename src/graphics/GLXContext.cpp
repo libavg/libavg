@@ -179,6 +179,11 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
         m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
     }
     AVG_ASSERT(m_Context);
+    
+    m_Colormap = XCreateColormap(pDisplay, RootWindow(m_pDisplay, pVisualInfo->screen),
+            pVisualInfo->visual, AllocNone);
+    AVG_ASSERT(m_Colormap);
+
     return pVisualInfo;
 }
 
@@ -215,7 +220,8 @@ GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS, &buffer);
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &samples);
             if (bestConfig < 0 || 
-                    (buffer == 1 && samples > bestSamples && samples <= multiSampleSamples))
+                    (buffer == 1 && samples > bestSamples && 
+                     samples <= multiSampleSamples))
             {
                 bestConfig = i;
                 bestSamples = samples;
@@ -228,14 +234,24 @@ GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
     return fbConfig;
 }
 
+void GLXContext::initDrawable()
+{
+    m_Drawable = glXGetCurrentDrawable();
+}
+
 ::GLXContext GLXContext::getGLXContext() const
 {
     return m_Context;
 }
 
-Display* GLXContext::getDisplay() const
+::Display* GLXContext::getDisplay() const
 {
     return m_pDisplay;
+}
+
+Colormap GLXContext::getColormap() const
+{
+    return m_Colormap;
 }
 
 }

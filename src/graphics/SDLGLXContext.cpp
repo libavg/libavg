@@ -60,7 +60,7 @@ SDLGLXContext::~SDLGLXContext()
 {
 }
 
-void SDLGLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+void SDLGLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
 {
     Window win = 0;
@@ -69,20 +69,20 @@ void SDLGLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& w
             bUseDebugBit);
 
     if (pSDLWMInfo) {
-        win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, m_Colormap);
+        win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, getColormap());
         setCurrent();
-        glXMakeCurrent(m_pDisplay, win, m_Context);
+        glXMakeCurrent(getDisplay(), win, getGLXContext());
     } else { 
-        Pixmap pmp = XCreatePixmap(m_pDisplay, 
-                RootWindow(m_pDisplay, pVisualInfo->screen), 8, 8, pVisualInfo->depth);
-        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, pVisualInfo, pmp);
+        Pixmap pmp = XCreatePixmap(getDisplay(), 
+                RootWindow(getDisplay(), pVisualInfo->screen), 8, 8, pVisualInfo->depth);
+        GLXPixmap pixmap = glXCreateGLXPixmap(getDisplay(), pVisualInfo, pmp);
 
-        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
+        glXMakeCurrent(getDisplay(), pixmap, getGLXContext());
     }
     resetX11ErrorHandler();
 
     throwOnXError();
-    m_Drawable = glXGetCurrentDrawable();
+    initDrawable();
 }
 
 }
