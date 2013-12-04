@@ -198,15 +198,15 @@ class VideoDecoderTest: public DecoderTest {
                 TEST(pDecoder->getFPS() != 0);
                 pDecoder->startDecoding(false, getAudioParams());
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
-                BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
 
                 // Test first two frames.
-                pDecoder->renderToBmp(pBmp, -1);
+                BitmapPtr pBmp;
+                pDecoder->getRenderedBmp(pBmp, -1);
                 testEqual(*pBmp, sFilename+"_1", B8G8R8X8);
                 TEST(pDecoder->getCurFrame() == 0);
                 TEST(pDecoder->getCurTime() == 0);
 
-                pDecoder->renderToBmp(pBmp, -1);
+                pDecoder->getRenderedBmp(pBmp, -1);
                 testEqual(*pBmp, sFilename+"_2", B8G8R8X8);
                 pDecoder->close();
                 
@@ -239,11 +239,9 @@ class VideoDecoderTest: public DecoderTest {
 
         void testSeek(int frameNum, const string& sFilename, VideoDecoderPtr pDecoder)
         {
-            IntPoint frameSize = pDecoder->getSize();
-
-            BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
+            BitmapPtr pBmp;
             pDecoder->seek(float(frameNum)/pDecoder->getStreamFPS());
-            pDecoder->renderToBmp(pBmp, -1);
+            pDecoder->getRenderedBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_"+toString(frameNum), B8G8R8X8);
 
         }
@@ -254,15 +252,14 @@ class VideoDecoderTest: public DecoderTest {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
-            IntPoint frameSize = pDecoder->getSize();
             float timePerFrame = (1.0f/pDecoder->getFPS())*speedFactor;
             pDecoder->startDecoding(false, getAudioParams());
-            BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
+            BitmapPtr pBmp;
             int numFrames = 0;
             float curTime = 0;
 
             while (!pDecoder->isEOF()) {
-                FrameAvailableCode frameAvailable = pDecoder->renderToBmp(pBmp, curTime);
+                FrameAvailableCode frameAvailable = pDecoder->getRenderedBmp(pBmp, curTime);
                 if (frameAvailable == FA_NEW_FRAME) {
 /*                    
                     stringstream ss;
@@ -289,7 +286,7 @@ class VideoDecoderTest: public DecoderTest {
             
             // Test loop.
             pDecoder->loop();
-            pDecoder->renderToBmp(pBmp, -1);
+            pDecoder->getRenderedBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
 
             pDecoder->close();
@@ -433,8 +430,7 @@ class AVDecoderTest: public DecoderTest {
                 ->getAudioStatusQ();
             TEST(pDecoder->getVideoInfo().m_bHasAudio);
             
-            IntPoint frameSize = pDecoder->getSize();
-            BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
+            BitmapPtr pBmp;
             int numFrames = 0;
             int totalFramesDecoded = 0;
             float curTime = 0;
@@ -442,7 +438,7 @@ class AVDecoderTest: public DecoderTest {
             while (!pDecoder->isEOF()) {
                 FrameAvailableCode frameAvailable;
                 do {
-                    frameAvailable = pDecoder->renderToBmp(pBmp, curTime);
+                    frameAvailable = pDecoder->getRenderedBmp(pBmp, curTime);
                     msleep(0);
                 } while (frameAvailable == FA_STILL_DECODING);
                 if (frameAvailable == FA_NEW_FRAME) {
@@ -469,7 +465,7 @@ class AVDecoderTest: public DecoderTest {
             // Test loop.
             pDecoder->seek(0);
             processAudioSeek(pMsgQ, pStatusQ);
-            pDecoder->renderToBmp(pBmp, -1);
+            pDecoder->getRenderedBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
 
             pDecoder->close();
@@ -484,6 +480,7 @@ public:
     {
         addAudioTests();
         addVideoTests(false);
+        
 #ifdef AVG_ENABLE_VDPAU
         if (VDPAUDecoder::isAvailable()) {
             addVideoTests(true);

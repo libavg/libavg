@@ -161,7 +161,7 @@ void SyncVideoDecoder::setFPS(float fps)
 static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
 
-FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
+FrameAvailableCode SyncVideoDecoder::getRenderedBmps(vector<BitmapPtr>& pBmps, 
         float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
@@ -178,11 +178,20 @@ FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     } else {
         if (pixelFormatIsPlanar(getPixelFormat())) {
             ScopeTimer timer(CopyImageProfilingZone);
+            IntPoint size = getSize();
+            pBmps[0] = BitmapPtr(new Bitmap(size, I8));
+            IntPoint halfSize(size.x/2, size.y/2);
+            pBmps[1] = BitmapPtr(new Bitmap(halfSize, I8));
+            pBmps[2] = BitmapPtr(new Bitmap(halfSize, I8));
+            if (pixelFormatHasAlpha(getPixelFormat())) {
+                pBmps[3] = BitmapPtr(new Bitmap(size, I8));
+            }
             for (unsigned i = 0; i < pBmps.size(); ++i) {
                 m_pFrameDecoder->copyPlaneToBmp(pBmps[i], m_pFrame->data[i],
                         m_pFrame->linesize[i]);
             }
         } else {
+            pBmps[0] = BitmapPtr(new Bitmap(getSize(), getPixelFormat()));
             m_pFrameDecoder->convertFrameToBmp(m_pFrame, pBmps[0]);
         }
         return FA_NEW_FRAME;

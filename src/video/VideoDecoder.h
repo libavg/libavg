@@ -76,8 +76,8 @@ class AVG_API VideoDecoder
         virtual float getFPS() const = 0;
         virtual void setFPS(float fps) = 0;
 
-        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, float timeWanted);
-        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
+        virtual FrameAvailableCode getRenderedBmp(BitmapPtr& pBmp, float timeWanted);
+        virtual FrameAvailableCode getRenderedBmps(std::vector<BitmapPtr>& pBmps,
                 float timeWanted) = 0;
         virtual bool isEOF() const = 0;
         virtual void throwAwayFrame(float timeWanted) = 0;

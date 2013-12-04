@@ -56,12 +56,6 @@ void MultiContextCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 //    createSecondWindow();
 }
 
-BitmapPtr MultiContextCanvas::screenshot() const
-{
-    AVG_ASSERT_MSG(false, "Not implemented");
-    return BitmapPtr();
-}
-
 static ProfilingZoneID SecondWindowRenderProfilingZone(
         "MultiContextCanvas: render second window");
 

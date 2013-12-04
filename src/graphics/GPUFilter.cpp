@@ -22,7 +22,6 @@
 #include "GPUFilter.h"
 #include "Bitmap.h"
 
-#include "VertexArray.h"
 #include "ImagingProjection.h"
 #include "GLContext.h"
 #include "ShaderRegistry.h"

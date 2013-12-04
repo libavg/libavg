@@ -28,7 +28,6 @@
 #ifndef AVG_ENABLE_EGL
     #include "PBO.h"
 #endif
-#include "VertexArray.h"
 
 #include "../base/GLMHelper.h"
 

@@ -21,12 +21,11 @@
 
 #include "OGLShader.h"
 #include "ShaderRegistry.h"
+#include "VertexArray.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/OSHelper.h"
-
-#include "../graphics/VertexArray.h"
 
 #include <iostream>
 #include <sstream>

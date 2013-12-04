@@ -280,11 +280,13 @@ float VideoDecoder::getStreamFPS() const
     return avg::getStreamFPS(m_pVStream);
 }
 
-FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
+FrameAvailableCode VideoDecoder::getRenderedBmp(BitmapPtr& pBmp, float timeWanted)
 {
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);
-    return renderToBmps(pBmps, timeWanted);
+    FrameAvailableCode fa = getRenderedBmps(pBmps, timeWanted);
+    pBmp = pBmps[0];
+    return fa;
 }
 
 void VideoDecoder::logConfig()

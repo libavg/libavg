@@ -37,8 +37,6 @@ class AVG_API MultiContextCanvas: public MainCanvas
         virtual ~MultiContextCanvas();
         virtual void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
         
-        virtual BitmapPtr screenshot() const;
-
     private:
         void createSecondWindow();
         void pollEvents();

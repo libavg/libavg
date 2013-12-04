@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "Filter.h"
-#include "VertexArray.h"
 #include "Bitmap.h"
 #include "TextureMover.h"
 #include "FBO.h"
