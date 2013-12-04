@@ -303,19 +303,17 @@ void CameraNode::open()
     IntPoint size = getMediaSize();
     bool bMipmap = getMaterial().getUseMipmaps();
     m_pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
-    m_pTex->enableStreaming();
     getSurface()->create(pf, m_pTex);
     newSurface();
 
-    BitmapPtr pBmp = m_pTex->lockStreamingBmp();
+    BitmapPtr pBmp;
+    pBmp = BitmapPtr(new Bitmap(size, pf));
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
-        FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
-        Filter.applyInPlace(pBmp);
+        FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
     } else if (pf == I8) {
-        FilterFill<Pixel8> Filter(0);
-        Filter.applyInPlace(pBmp);
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
     } 
-    m_pTex->unlockStreamingBmp(true);
+    m_pTex->moveBmpToTexture(pBmp);
     setupFX(true);
 }
 
@@ -348,14 +346,7 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     if (m_bNewBmp && isVisible()) {
         ScopeTimer Timer(CameraDownloadProfilingZone);
         m_FrameNum++;
-        BitmapPtr pBmp = m_pTex->lockStreamingBmp();
-        if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
-            cerr << "Surface: " << pBmp->getPixelFormat() << ", CamDest: "
-                << m_pCurBmp->getPixelFormat() << endl;
-        }
-        AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
-        pBmp->copyPixels(*m_pCurBmp);
-        m_pTex->unlockStreamingBmp(true);
+        m_pTex->moveBmpToTexture(m_pCurBmp);
         renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
         m_bNewBmp = false;
     }

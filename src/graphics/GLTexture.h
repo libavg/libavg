@@ -48,9 +48,6 @@ public:
     void generateMipmaps();
     void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
-    void enableStreaming();
-    BitmapPtr lockStreamingBmp();
-    void unlockStreamingBmp(bool bUpdated);
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
@@ -83,7 +80,6 @@ private:
     static unsigned s_LastTexID;
     unsigned m_TexID;
     bool m_bIsDirty;
-    TextureMoverPtr m_pMover;
 
     GLContext* m_pGLContext;
 };

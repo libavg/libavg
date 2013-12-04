@@ -521,9 +521,6 @@ void VideoNode::createTextures(IntPoint size)
     } else {
         m_pTextures[0] = GLTexturePtr(new GLTexture(size, pf, bMipmap));
     }
-    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-        m_pTextures[i]->enableStreaming();
-    }
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(size, pf));
         FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
