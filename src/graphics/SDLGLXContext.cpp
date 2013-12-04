@@ -65,37 +65,11 @@ void SDLGLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& w
 {
     Window win = 0;
     setX11ErrorHandler();
-    m_pDisplay = getX11Display(pSDLWMInfo);
-    GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig.m_MultiSampleSamples);
-    XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
+    XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(pSDLWMInfo), glConfig,
+            bUseDebugBit);
 
     if (pSDLWMInfo) {
         win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, m_Colormap);
-    }
-
-    if (haveARBCreateContext()) {
-        GLContextAttribs attrs;
-        if (isGLES()) {
-            attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
-            attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
-            attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
-        }
-        if (glConfig.m_bUseDebugContext && bUseDebugBit) {
-            attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
-        }
-        PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
-            (PFNGLXCREATECONTEXTATTRIBSARBPROC)
-            getglXProcAddress("glXCreateContextAttribsARB");
-
-//        s_bDumpX11ErrorMsg = false;
-        m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
-//        s_bDumpX11ErrorMsg = true;
-        throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
-    } else {
-        m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
-    }
-    AVG_ASSERT(m_Context);
-    if (pSDLWMInfo) {
         setCurrent();
         glXMakeCurrent(m_pDisplay, win, m_Context);
     } else { 

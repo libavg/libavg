@@ -46,19 +46,23 @@ public:
     static bool haveARBCreateContext();
 
 protected:
+    XVisualInfo* createDetachedContext(::Display* pDisplay, const GLConfig& glConfig,
+            bool bUseDebugBit);
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
-    GLXFBConfig getFBConfig(::Display* pDisplay, int multiSampleSamples);
+    ::GLXContext getGLXContext() const;
+    Display* getDisplay() const;
 
-    Display* m_pDisplay;
     Colormap m_Colormap;
     GLXDrawable m_Drawable;
-    ::GLXContext m_Context;
 
 private:
+    GLXFBConfig getFBConfig(::Display* pDisplay, int multiSampleSamples);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
 
+    Display* m_pDisplay;
+    ::GLXContext m_Context;
 };
 
 }

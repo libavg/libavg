@@ -77,7 +77,7 @@ void MultiContextCanvas::renderTree()
         m_pGLContext->swapBuffers();
         pMainContext->activate();
     }
-*/
+*/    
 //    pollEvents();
 }
 

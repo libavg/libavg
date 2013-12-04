@@ -61,10 +61,9 @@ void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& 
 {
     setX11ErrorHandler();
 
-    m_pDisplay = XOpenDisplay(sDisplay.c_str());
-    GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig.m_MultiSampleSamples);
-    XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
-
+    XVisualInfo* pVisualInfo = createDetachedContext(XOpenDisplay(sDisplay.c_str()), 
+            glConfig, bUseDebugBit);
+    
     ::Window rootWindow = DefaultRootWindow(m_pDisplay);
     m_Colormap = XCreateColormap(m_pDisplay, rootWindow, pVisualInfo->visual, 
             AllocNone);
@@ -79,28 +78,6 @@ void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& 
     XMapWindow(m_pDisplay, m_Window);
     XStoreName(m_pDisplay, m_Window, "libavg secondary window");
     
-    if (haveARBCreateContext()) {
-        GLContextAttribs attrs;
-        if (isGLES()) {
-            attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
-            attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
-            attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
-        }
-        if (glConfig.m_bUseDebugContext && bUseDebugBit) {
-            attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
-        }
-        PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
-            (PFNGLXCREATECONTEXTATTRIBSARBPROC)
-            getglXProcAddress("glXCreateContextAttribsARB");
-
-//        s_bDumpX11ErrorMsg = false;
-        m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
-//        s_bDumpX11ErrorMsg = true;
-        throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
-    } else {
-        m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
-    }
-    AVG_ASSERT(m_Context);
     setCurrent();
     glXMakeCurrent(m_pDisplay, m_Window, m_Context);
     

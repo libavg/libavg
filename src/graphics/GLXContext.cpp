@@ -150,6 +150,38 @@ bool GLXContext::haveARBCreateContext()
     return s_bHaveExtension;
 }
 
+XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
+        const GLConfig& glConfig, bool bUseDebugBit)
+{
+    m_pDisplay = pDisplay;
+    GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig.m_MultiSampleSamples);
+    XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
+
+    if (haveARBCreateContext()) {
+        GLContextAttribs attrs;
+        if (isGLES()) {
+            attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+            attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
+            attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
+        }
+        if (glConfig.m_bUseDebugContext && bUseDebugBit) {
+            attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
+        }
+        PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
+            (PFNGLXCREATECONTEXTATTRIBSARBPROC)
+            getglXProcAddress("glXCreateContextAttribsARB");
+
+        s_bDumpX11ErrorMsg = false;
+        m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
+        s_bDumpX11ErrorMsg = true;
+        throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
+    } else {
+        m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
+    }
+    AVG_ASSERT(m_Context);
+    return pVisualInfo;
+}
+
 GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
 {
     GLContextAttribs attrs;
@@ -194,6 +226,16 @@ GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
     GLXFBConfig fbConfig = pFBConfig[bestConfig];
     XFree(pFBConfig);
     return fbConfig;
+}
+
+::GLXContext GLXContext::getGLXContext() const
+{
+    return m_Context;
+}
+
+Display* GLXContext::getDisplay() const
+{
+    return m_pDisplay;
 }
 
 }
