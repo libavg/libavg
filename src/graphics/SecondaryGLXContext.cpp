@@ -56,6 +56,11 @@ SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string&
     init(true);
 }
 
+SecondaryGLXContext::~SecondaryGLXContext()
+{
+    XDestroyWindow(getDisplay(), m_Window);
+}
+
 void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& sDisplay, 
         const IntRect& windowDimensions, bool bUseDebugBit)
 {
@@ -82,10 +87,6 @@ void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& 
 
     throwOnXError();
     initDrawable();
-}
-
-SecondaryGLXContext::~SecondaryGLXContext()
-{
 }
 
 }

@@ -50,31 +50,6 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize)
     s_bX11Error = false;
 }
 
-void GLXContext::setX11ErrorHandler()
-{
-    s_bDumpX11ErrorMsg = true;
-    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
-}
-
-void GLXContext::resetX11ErrorHandler()
-{
-    XSetErrorHandler(s_DefaultErrorHandler);
-}
-
-int GLXContext::X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
-{
-    if (s_bDumpX11ErrorMsg) {
-        char errorString[128]; 
-        XGetErrorText(pDisplay, pErrEvent->error_code, errorString, 128);
-        cerr << "X11 error creating GL context: " << errorString <<
-            "\n\tMajor opcode of failed request: " << (int)(pErrEvent->request_code) <<
-            "\n\tMinor opcode of failed request: " << (int)(pErrEvent->minor_code) <<
-            "\n";
-    }
-    s_bX11Error = true;
-    return 0;
-}
-
 GLXContext::~GLXContext()
 {
     deleteObjects();
@@ -84,13 +59,6 @@ GLXContext::~GLXContext()
         m_Context = 0;
         XDestroyWindow(m_pDisplay, m_Drawable);
         XFreeColormap(m_pDisplay, m_Colormap);
-    }
-}
-
-void GLXContext::throwOnXError(int code)
-{
-    if (s_bX11Error) {
-        throw Exception(code, "X error creating OpenGL context.");
     }
 }
 
@@ -187,6 +155,44 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
     return pVisualInfo;
 }
 
+void GLXContext::setX11ErrorHandler()
+{
+    s_bDumpX11ErrorMsg = true;
+    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
+}
+
+void GLXContext::resetX11ErrorHandler()
+{
+    XSetErrorHandler(s_DefaultErrorHandler);
+}
+
+void GLXContext::throwOnXError(int code)
+{
+    if (s_bX11Error) {
+        throw Exception(code, "X error creating OpenGL context.");
+    }
+}
+
+void GLXContext::initDrawable()
+{
+    m_Drawable = glXGetCurrentDrawable();
+}
+
+::GLXContext GLXContext::getGLXContext() const
+{
+    return m_Context;
+}
+
+::Display* GLXContext::getDisplay() const
+{
+    return m_pDisplay;
+}
+
+Colormap GLXContext::getColormap() const
+{
+    return m_Colormap;
+}
+
 GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
 {
     GLContextAttribs attrs;
@@ -234,24 +240,18 @@ GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
     return fbConfig;
 }
 
-void GLXContext::initDrawable()
+int GLXContext::X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
 {
-    m_Drawable = glXGetCurrentDrawable();
-}
-
-::GLXContext GLXContext::getGLXContext() const
-{
-    return m_Context;
-}
-
-::Display* GLXContext::getDisplay() const
-{
-    return m_pDisplay;
-}
-
-Colormap GLXContext::getColormap() const
-{
-    return m_Colormap;
+    if (s_bDumpX11ErrorMsg) {
+        char errorString[128]; 
+        XGetErrorText(pDisplay, pErrEvent->error_code, errorString, 128);
+        cerr << "X11 error creating GL context: " << errorString <<
+            "\n\tMajor opcode of failed request: " << (int)(pErrEvent->request_code) <<
+            "\n\tMinor opcode of failed request: " << (int)(pErrEvent->minor_code) <<
+            "\n";
+    }
+    s_bX11Error = true;
+    return 0;
 }
 
 }
