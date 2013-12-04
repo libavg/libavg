@@ -341,6 +341,22 @@ AVCodecContext* VideoDecoder::getCodecContext()
     return m_pVStream->codec;
 }
 
+void VideoDecoder::allocFrameBmps(vector<BitmapPtr>& pBmps)
+{
+    if (pixelFormatIsPlanar(getPixelFormat())) {
+        IntPoint size = getSize();
+        pBmps[0] = BitmapPtr(new Bitmap(size, I8));
+        IntPoint halfSize(size.x/2, size.y/2);
+        pBmps[1] = BitmapPtr(new Bitmap(halfSize, I8));
+        pBmps[2] = BitmapPtr(new Bitmap(halfSize, I8));
+        if (pixelFormatHasAlpha(getPixelFormat())) {
+            pBmps[3] = BitmapPtr(new Bitmap(size, I8));
+        }
+    } else {
+        pBmps[0] = BitmapPtr(new Bitmap(getSize(), getPixelFormat()));
+    }
+}
+
 int VideoDecoder::getVStreamIndex() const
 {
     return m_VStreamIndex;

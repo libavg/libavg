@@ -33,6 +33,7 @@
 #include "WrapFFMpeg.h"
 
 #include <string>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -90,6 +91,7 @@ class AVG_API VideoDecoder
         bool usesVDPAU() const;
         AVCodecContext const * getCodecContext() const;
         AVCodecContext * getCodecContext();
+        void allocFrameBmps(std::vector<BitmapPtr>& pBmps);
 
         int getVStreamIndex() const;
         AVStream* getVideoStream() const;
