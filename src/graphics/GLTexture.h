@@ -44,6 +44,7 @@ public:
             bool bDeleteTex=false);
     virtual ~GLTexture();
 
+    void init();
     void activate(int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
     void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
@@ -76,12 +77,13 @@ private:
     bool m_bMipmap;
     bool m_bDeleteTex;
     bool m_bUsePOT;
+    int m_PotBorderColor;
+    unsigned m_WrapSMode;
+    unsigned m_WrapTMode;
 
     static unsigned s_LastTexID;
     unsigned m_TexID;
     bool m_bIsDirty;
-
-    GLContext* m_pGLContext;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;

@@ -53,12 +53,15 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
       m_pf(pf),
       m_bMipmap(bMipmap),
       m_bDeleteTex(true),
+      m_PotBorderColor(potBorderColor),
+      m_WrapSMode(wrapSMode),
+      m_WrapTMode(wrapTMode),
       m_bIsDirty(true)
 {
-    m_pGLContext = GLContext::getCurrent();
+    GLContext* pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_bUsePOT = m_pGLContext->usePOTTextures() || bForcePOT;
-    if (m_pGLContext->isGLES() && bMipmap) {
+    m_bUsePOT = pGLContext->usePOTTextures() || bForcePOT;
+    if (pGLContext->isGLES() && bMipmap) {
         m_bUsePOT = true;
     }
     if (m_bUsePOT) {
@@ -68,7 +71,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         m_GLSize = m_Size;
     }
 
-    int maxTexSize = m_pGLContext->getMaxTexSize();
+    int maxTexSize = pGLContext->getMaxTexSize();
     if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large ("  + toString(m_Size)
                 + "). Maximum supported by graphics card is "
@@ -79,38 +82,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
                 "Float textures not supported by OpenGL configuration.");
     }
 
-    s_LastTexID++;
-    m_TexID = s_LastTexID;
-    m_pGLContext->bindTexture(GL_TEXTURE0, m_TexID);
+    init();
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
-    glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
-            getGLFormat(m_pf), getGLType(m_pf), 0);
-    GLContext::checkError("GLTexture: glTexImage2D()");
-    if (bMipmap) {
-        glproc::GenerateMipmap(GL_TEXTURE_2D);
-        GLContext::checkError("GLTexture::GLTexture generateMipmap()");
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-
-    if (m_bUsePOT) {
-        // Make sure the texture is transparent and black before loading stuff 
-        // into it to avoid garbage at the borders.
-        // In the case of UV textures, we set the border color to 128...
-        int TexMemNeeded = m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
-        char * pPixels = new char[TexMemNeeded];
-        memset(pPixels, potBorderColor, TexMemNeeded);
-        glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
-                m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
-                pPixels);
-        GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
-        delete[] pPixels;
-    }
-//    dump(wrapSMode, wrapTMode);
 }
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
@@ -124,7 +97,6 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
       m_TexID(glTexID),
       m_bIsDirty(true)
 {
-    m_pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -137,9 +109,44 @@ GLTexture::~GLTexture()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+void GLTexture::init()
+{
+    s_LastTexID++;
+    m_TexID = s_LastTexID;
+    GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_WrapSMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_WrapTMode);
+    glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
+            getGLFormat(m_pf), getGLType(m_pf), 0);
+    GLContext::checkError("GLTexture: glTexImage2D()");
+    if (m_bMipmap) {
+        glproc::GenerateMipmap(GL_TEXTURE_2D);
+        GLContext::checkError("GLTexture::GLTexture generateMipmap()");
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+
+    if (m_bUsePOT) {
+        // Make sure the texture is transparent and black before loading stuff 
+        // into it to avoid garbage at the borders.
+        // In the case of UV textures, we set the border color to 128...
+        int texMemNeeded = m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
+        char * pPixels = new char[texMemNeeded];
+        memset(pPixels, m_PotBorderColor, texMemNeeded);
+        glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
+                m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
+                pPixels);
+        GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
+        delete[] pPixels;
+    }
+}
+
 void GLTexture::activate(int textureUnit)
 {
-    m_pGLContext->bindTexture(textureUnit, m_TexID);
+    GLContext::getCurrent()->bindTexture(textureUnit, m_TexID);
 }
 
 void GLTexture::generateMipmaps()
