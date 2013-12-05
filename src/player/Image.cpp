@@ -28,6 +28,7 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/TextureMover.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLContextMultiplexer.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -186,9 +187,9 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
         if (bSourceChanged || m_pSurface->getSize() != pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
         {
-            pTex = GLTexturePtr(new GLTexture(pBmp->getSize(), pf, 
+            pTex = GLContextMultiplexer::get()->createTexture(pBmp->getSize(), pf, 
                     m_Material.getUseMipmaps(), 0, m_Material.getWrapSMode(), 
-                    m_Material.getWrapTMode()));
+                    m_Material.getWrapTMode());
             m_pSurface->create(pf, pTex);
         }
         TextureMoverPtr pMover = TextureMover::create(pBmp->getSize(), pf,
@@ -339,8 +340,9 @@ void Image::setupSurface()
 {
     PixelFormat pf = m_pBmp->getPixelFormat();
 //    cerr << "setupSurface: " << pf << endl;
-    GLTexturePtr pTex(new GLTexture(m_pBmp->getSize(), pf, m_Material.getUseMipmaps(), 
-            0, m_Material.getWrapSMode(), m_Material.getWrapTMode()));
+    GLTexturePtr pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
+            m_Material.getUseMipmaps(), 0, 
+            m_Material.getWrapSMode(), m_Material.getWrapTMode());
     m_pSurface->create(pf, pTex);
     TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
     pMover->moveBmpToTexture(m_pBmp, *pTex);

@@ -30,7 +30,9 @@
 #include "../base/Logger.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/GLTexture.h"
 #include "../graphics/SecondaryGLXContext.h"
+#include "../graphics/GLContextMultiplexer.h"
 
 #include <X11/Xlib.h>
 
@@ -40,11 +42,12 @@ using namespace boost;
 using namespace std;
 
 namespace avg {
-    
+
 MainCanvas::MainCanvas(Player * pPlayer, bool bSecondViewport)
     : Canvas(pPlayer),
       m_bSecondViewport(bSecondViewport)
 {
+    m_pMultiplexer = GLContextMultiplexerPtr(new GLContextMultiplexer());
 }
 
 MainCanvas::~MainCanvas()
@@ -85,7 +88,9 @@ static ProfilingZoneID SecondWindowRenderProfilingZone(
 
 void MainCanvas::renderTree()
 {
+    m_pMultiplexer->reset();
     preRender();
+    m_pMultiplexer->uploadTextures();
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
     {
@@ -117,7 +122,7 @@ void MainCanvas::createSecondWindow()
 }
 
 /*
-void MultiContextCanvas::pollEvents()
+void MainCanvas::pollEvents()
 {
     XEvent xev;
     while (XCheckWindowEvent(m_pDisplay, m_SecondWindow, ButtonPressMask, &xev)) {

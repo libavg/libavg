@@ -48,7 +48,8 @@ using namespace std;
 unsigned GLTexture::s_LastTexID = 10000000;
 
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
+        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT,
+        bool bSkipInit)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
@@ -81,9 +82,12 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Float textures not supported by OpenGL configuration.");
     }
+    s_LastTexID++;
+    m_TexID = s_LastTexID;
 
-    init();
-
+    if (!bSkipInit) {
+        init();
+    }
 }
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
@@ -111,8 +115,6 @@ GLTexture::~GLTexture()
 
 void GLTexture::init()
 {
-    s_LastTexID++;
-    m_TexID = s_LastTexID;
     GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -137,8 +139,7 @@ void GLTexture::init()
         char * pPixels = new char[texMemNeeded];
         memset(pPixels, m_PotBorderColor, texMemNeeded);
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
-                m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
-                pPixels);
+                m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), pPixels);
         GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
         delete[] pPixels;
     }

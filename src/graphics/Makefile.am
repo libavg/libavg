@@ -20,7 +20,7 @@ endif
 endif
 endif
 
-ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
+ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextMultiplexer.h \
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
@@ -38,7 +38,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         ImagingProjection.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
         GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
         VertexData.h BitmapLoader.h $(GL_INCLUDES)
-ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
+ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp GLContextMultiplexer.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \

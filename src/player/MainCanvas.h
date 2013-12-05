@@ -31,6 +31,8 @@ class SDLDisplayEngine;
 typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
 class SecondaryGLXContext;
 typedef boost::shared_ptr<SecondaryGLXContext> SecondaryGLXContextPtr;
+class GLContextMultiplexer;
+typedef boost::shared_ptr<GLContextMultiplexer> GLContextMultiplexerPtr;
 
 class AVG_API MainCanvas: public Canvas
 {
@@ -39,7 +41,7 @@ class AVG_API MainCanvas: public Canvas
         virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
         virtual void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
-        
+       
         virtual BitmapPtr screenshot() const;
 
     private:
@@ -48,6 +50,7 @@ class AVG_API MainCanvas: public Canvas
         void pollEvents();
 
         SDLDisplayEnginePtr m_pDisplayEngine;
+        GLContextMultiplexerPtr m_pMultiplexer;
         bool m_bSecondViewport;
 
         SecondaryGLXContextPtr m_pGLContext;
