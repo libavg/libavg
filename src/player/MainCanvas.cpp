@@ -30,6 +30,9 @@
 #include "../base/Logger.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/SecondaryGLXContext.h"
+
+#include <X11/Xlib.h>
 
 #include <vector>
 
@@ -38,8 +41,9 @@ using namespace std;
 
 namespace avg {
     
-MainCanvas::MainCanvas(Player * pPlayer)
-    : Canvas(pPlayer)
+MainCanvas::MainCanvas(Player * pPlayer, bool bSecondViewport)
+    : Canvas(pPlayer),
+      m_bSecondViewport(bSecondViewport)
 {
 }
 
@@ -60,6 +64,10 @@ void MainCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
+
+    if (m_bSecondViewport) {
+        createSecondWindow();
+    }
 }
 
 BitmapPtr MainCanvas::screenshot() const
@@ -72,6 +80,8 @@ BitmapPtr MainCanvas::screenshot() const
 }
 
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
+static ProfilingZoneID SecondWindowRenderProfilingZone(
+        "Render second window");
 
 void MainCanvas::renderTree()
 {
@@ -84,6 +94,42 @@ void MainCanvas::renderTree()
         glViewport(0, 0, windowSize.x, windowSize.y);
         Canvas::render(false);
     }
+/*
+    if (m_bSecondViewport) {
+        GLContext* pMainContext = GLContext::getCurrent();
+        ScopeTimer Timer(SecondWindowRenderProfilingZone);
+        m_pGLContext->activate();
+        Canvas::render(false);
+        m_pGLContext->swapBuffers();
+        pMainContext->activate();
+    }
+*/
+//    pollEvents();
 }
+
+void MainCanvas::createSecondWindow()
+{
+    GLContext* pMainContext = GLContext::getCurrent();
+    const GLConfig& config = pMainContext->getConfig();
+    m_pGLContext = SecondaryGLXContextPtr(new SecondaryGLXContext(config, ":0.0",
+            IntRect(0,0,800,600)));
+    pMainContext->activate();
+}
+
+/*
+void MultiContextCanvas::pollEvents()
+{
+    XEvent xev;
+    while (XCheckWindowEvent(m_pDisplay, m_SecondWindow, ButtonPressMask, &xev)) {
+        switch(xev.type) {
+            case ButtonPress:
+                cerr << "..." << endl;
+                break;
+            default:
+                cerr << "?" << endl;
+        }
+    }
+}
+*/
 
 }

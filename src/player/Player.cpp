@@ -42,7 +42,6 @@
 #include "TextEngine.h"
 #include "TestHelper.h"
 #include "MainCanvas.h"
-#include "MultiContextCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
 #include "SDLDisplayEngine.h"
@@ -1299,7 +1298,7 @@ void Player::initAudio()
 void Player::initMainCanvas(NodePtr pRootNode)
 {
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
-    m_pMainCanvas = MainCanvasPtr(new MultiContextCanvas(this));
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this, false));
     m_pMainCanvas->setRoot(pRootNode);
     m_DP.m_Size = m_pMainCanvas->getSize();
 
