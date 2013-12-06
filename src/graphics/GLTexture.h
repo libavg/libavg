@@ -50,6 +50,7 @@ public:
     void generateMipmaps();
     void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
+    void scheduleBmpUpload(BitmapPtr pBmp);
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 

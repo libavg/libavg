@@ -53,7 +53,8 @@ public:
 
 private:
     std::vector<GLTexturePtr> m_pPendingTexCreates;
-    std::map<GLTexturePtr, BitmapPtr> m_pPendingTexUploads;
+    typedef std::map<GLTexturePtr, BitmapPtr> TexUploadMap;
+    TexUploadMap m_pPendingTexUploads;
 
     static GLContextMultiplexer* s_pGLContextMultiplexer;
 };

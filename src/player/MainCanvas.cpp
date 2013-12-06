@@ -88,7 +88,6 @@ static ProfilingZoneID SecondWindowRenderProfilingZone(
 
 void MainCanvas::renderTree()
 {
-    m_pMultiplexer->reset();
     preRender();
     m_pMultiplexer->uploadTextures();
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -109,6 +108,7 @@ void MainCanvas::renderTree()
         pMainContext->activate();
     }
 */
+    m_pMultiplexer->reset();
 //    pollEvents();
 }
 

@@ -72,6 +72,12 @@ void GLContextMultiplexer::uploadTextures()
         m_pPendingTexCreates[i]->init();
     }
 */
+    TexUploadMap::iterator it;
+    for (it=m_pPendingTexUploads.begin(); it!=m_pPendingTexUploads.end(); ++it) {
+        GLTexturePtr pTex = it->first;
+        BitmapPtr pBmp = it->second;
+        pTex->moveBmpToTexture(pBmp);
+    }
 }
 
 void GLContextMultiplexer::reset()

@@ -192,12 +192,11 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
                     m_Material.getWrapTMode());
             m_pSurface->create(pf, pTex);
         }
-        TextureMoverPtr pMover = TextureMover::create(pBmp->getSize(), pf,
-                GL_STATIC_DRAW);
-        BitmapPtr pMoverBmp = pMover->lock();
-        pMoverBmp->copyPixels(*pBmp);
-        pMover->unlock();
-        pMover->moveToTexture(*pTex);
+        // TODO: pBmp is potentially created in python and the smart pointer reference count
+        // is messed up. Hence, we copy it here to get a clean reference count :-/.
+        BitmapPtr pTempBmp(new Bitmap(pBmp->getSize(), pf, ""));
+        pTempBmp->copyPixels(*pBmp);
+        GLContextMultiplexer::get()->scheduleTexUpload(pTex, pTempBmp);
         m_pBmp = BitmapPtr();
     } else {
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
@@ -344,8 +343,7 @@ void Image::setupSurface()
             m_Material.getUseMipmaps(), 0, 
             m_Material.getWrapSMode(), m_Material.getWrapTMode());
     m_pSurface->create(pf, pTex);
-    TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
-    pMover->moveBmpToTexture(m_pBmp, *pTex);
+    GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pBmp);
     m_pBmp = BitmapPtr();
 }
 
