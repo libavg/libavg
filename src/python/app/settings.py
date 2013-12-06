@@ -205,6 +205,9 @@ class Settings(object):
     def applyExtender(self, extender):
         self.__options = extender(self.__options)
 
+    def hasOption(self, key):
+        return self.__getOptionOrNone(key) is not None
+
     def getOption(self, key):
         option = self.__getOptionOrNone(key)
 

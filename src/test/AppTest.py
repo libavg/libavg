@@ -121,6 +121,12 @@ class AppTestCase(testcase.AVGTestCase):
         s.set('test_value', '1234')
         self.assertEquals(s.getInt('test_value'), 1234)
 
+    def testSettingsHasOption(self):
+        s = settings.Settings()
+        s.addOption(Option('test_value', ''))
+        self.assertEquals(s.hasOption('test_value'), True)
+        self.assertEquals(s.hasOption('test_value_foo'), False)
+
     def testSettingsArgvExtender(self):
         s = settings.Settings([Option('foo_bar', 'bar')])
         e = settings.ArgvExtender('', args=['foo', '--foo-bar', 'baz', '-c', 'baz2'])
@@ -286,6 +292,7 @@ def appTestSuite(tests):
             'testSettingsOptions',
             'testSettingsTypes',
             'testSettingsSet',
+            'testSettingsHasOption',
             'testSettingsArgvExtender',
             'testSettingsKargsExtender',
             'testAppAdditionalSettings',
