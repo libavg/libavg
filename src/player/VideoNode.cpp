@@ -32,7 +32,7 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLTexture.h"
-#include "../graphics/TextureMover.h"
+#include "../graphics/GLContextMultiplexer.h"
 
 #include "../audio/AudioEngine.h"
 
@@ -524,7 +524,7 @@ void VideoNode::createTextures(IntPoint size)
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(size, pf));
         FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
-        m_pTextures[0]->moveBmpToTexture(pBmp);
+        GLContextMultiplexer::get()->scheduleTexUpload(m_pTextures[0], pBmp);
     }
     if (pixelFormatIsPlanar(pf)) {
         if (pixelFormatHasAlpha(pf)) {
@@ -771,7 +771,7 @@ FrameAvailableCode VideoNode::renderToSurface()
     }
     if (frameAvailable == FA_NEW_FRAME) {
         for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-            m_pTextures[i]->moveBmpToTexture(pBmps[i]);
+            GLContextMultiplexer::get()->scheduleTexUpload(m_pTextures[i], pBmps[i]);
         }
     }
 

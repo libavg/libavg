@@ -47,7 +47,7 @@ GLContextMultiplexer::GLContextMultiplexer()
 
 GLContextMultiplexer::~GLContextMultiplexer()
 {
-    s_pGLContextMultiplexer = 0;
+//    s_pGLContextMultiplexer = 0;
 }
 
 GLTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelFormat pf, 

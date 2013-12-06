@@ -26,7 +26,6 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfliprgb.h"
-#include "../graphics/TextureMover.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/GLContextMultiplexer.h"
 
