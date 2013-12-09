@@ -26,11 +26,7 @@
 #include "Player.h"
 #include "AVGNode.h"
 
-#include "../graphics/Bitmap.h"
-#include "../graphics/Filterfill.h"
-#include "../graphics/Pixel8.h"
 #include "../base/Exception.h"
-
 #include "../base/Logger.h"
 
 using namespace std;
@@ -192,7 +188,7 @@ void TouchEvent::removeBlob()
 void TouchEvent::trace()
 {
     CursorEvent::trace();
-    AVG_TRACE(Logger::category::EVENTS,Logger::severity::DEBUG, "pos: " << getPos() 
+    AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG, "pos: " << getPos() 
             << ", ID: " << getCursorID()
             << ", Area: " << m_Area
             << ", Eccentricity: " << m_Eccentricity);

@@ -139,9 +139,9 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg,
             const char* cmd;
             args >> cmd;
 
-            if (strcmp(cmd,"set")==0) { 
+            if (strcmp(cmd, "set") == 0) { 
                 processSet(args);
-            } else if (strcmp(cmd,"alive")==0) {
+            } else if (strcmp(cmd, "alive") == 0) {
                 processAlive(args);
             } else if (strcmp(cmd, "fseq") == 0 ) {
                 int32 fseq;
