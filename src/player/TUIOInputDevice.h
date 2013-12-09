@@ -58,13 +58,16 @@ private:
             const IpEndpointName& remoteEndpoint);
     void processMessage(const osc::ReceivedMessage& msg, 
         const IpEndpointName& remoteEndpoint);
-    void processSet(osc::ReceivedMessageArgumentStream& args);
-    void processAlive(osc::ReceivedMessageArgumentStream& args);
-    TouchEventPtr createEvent(int id, Event::Type type, glm::vec2 pos, glm::vec2 speed);
+    void processTouchSet(osc::ReceivedMessageArgumentStream& args);
+    void processTangibleSet(osc::ReceivedMessageArgumentStream& args);
+    void processAlive(osc::ReceivedMessageArgumentStream& args, 
+            Event::Source source);
+    void setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed);
+    void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs, 
+            Event::Source source);
 
     UdpListeningReceiveSocket* m_pSocket;
     int m_LastID;
-    std::set<int> m_LiveTUIOIDs;
 #ifndef WIN32
     pthread_t m_Thread;
 #else

@@ -23,8 +23,8 @@
 #define _TrackerTouchStatus_H_
 
 #include "../api.h"
-#include "Event.h"
 #include "TouchStatus.h"
+#include "TouchEvent.h"
 
 #include "../base/GLMHelper.h"
 

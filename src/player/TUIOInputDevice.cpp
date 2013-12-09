@@ -21,6 +21,7 @@
 
 #include "TUIOInputDevice.h"
 #include "TouchEvent.h"
+#include "TangibleEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
 #include "TouchStatus.h"
@@ -131,21 +132,28 @@ void TUIOInputDevice::processBundle(const ReceivedBundle& bundle,
 void TUIOInputDevice::processMessage(const ReceivedMessage& msg, 
         const IpEndpointName& remoteEndpoint) 
 {
-//    cerr << msg << endl;
+    cerr << msg << endl;
     try {
         ReceivedMessageArgumentStream args = msg.ArgumentStream();
+        const char* cmd;
+        args >> cmd;
 
         if (strcmp(msg.AddressPattern(), "/tuio/2Dcur") == 0) {
-            const char* cmd;
-            args >> cmd;
-
             if (strcmp(cmd, "set") == 0) { 
-                processSet(args);
+                processTouchSet(args);
             } else if (strcmp(cmd, "alive") == 0) {
-                processAlive(args);
+                processAlive(args, Event::TOUCH);
+/*
             } else if (strcmp(cmd, "fseq") == 0 ) {
                 int32 fseq;
                 args >> fseq;
+*/                
+            } 
+        } else if (strcmp(msg.AddressPattern(), "/tuio/2Dobj") == 0) {
+            if (strcmp(cmd, "set") == 0) { 
+                processTangibleSet(args);
+            } else if (strcmp(cmd, "alive") == 0) {
+                processAlive(args, Event::TANGIBLE);
             } 
         }
     } catch (osc::Exception& e) {
@@ -154,7 +162,7 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg,
     }
 }
 
-void TUIOInputDevice::processSet(ReceivedMessageArgumentStream& args)
+void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args)
 {
     osc::int32 tuioID;
     float xpos, ypos;
@@ -163,54 +171,102 @@ void TUIOInputDevice::processSet(ReceivedMessageArgumentStream& args)
     args >> tuioID >> xpos >> ypos >> xspeed >> yspeed >> accel;
     glm::vec2 pos(xpos, ypos);
     glm::vec2 speed(xspeed, yspeed);
-//    cerr << "Set: ID: " << tuioID << ", pos: " << pos << ", speed: " << speed 
-//        << ", accel: " << accel << endl;
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
+    IntPoint screenPos = getScreenPos(pos);
+    TouchEventPtr pEvent;
     if (!pTouchStatus) {
         // Down
         m_LastID++;
-        TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSOR_DOWN, pos, speed); 
+        pEvent = TouchEventPtr(new TouchEvent(m_LastID, Event::CURSOR_DOWN, screenPos,
+                Event::TOUCH));
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
-        TouchEventPtr pEvent = createEvent(0, Event::CURSOR_MOTION, pos, speed); 
+        pEvent = TouchEventPtr(new TouchEvent(0, Event::CURSOR_MOTION, screenPos, 
+                Event::TOUCH));
         pTouchStatus->pushEvent(pEvent);
     }
+    setEventSpeed(pEvent, speed);
 }
 
-void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
+void TUIOInputDevice::processTangibleSet(ReceivedMessageArgumentStream& args)
 {
-    m_LiveTUIOIDs.clear();
+    osc::int32 tuioID;
+    osc::int32 classID;
+    float xpos, ypos;
+    float angle;
+    float xspeed, yspeed;
+    float angleSpeed;
+    float accel;
+    float angleAccel;
+    args >> tuioID >> classID >> xpos >> ypos >> angle >> xspeed >> yspeed >> angleSpeed >>
+            accel >> angleAccel;
+    glm::vec2 pos(xpos, ypos);
+    glm::vec2 speed(xspeed, yspeed);
+    TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
+    IntPoint screenPos = getScreenPos(pos);
+    TangibleEventPtr pEvent;
+    if (!pTouchStatus) {
+        // Down
+        m_LastID++;
+        pEvent = TangibleEventPtr(new TangibleEvent(m_LastID, classID, Event::CURSOR_DOWN,
+                screenPos, speed, angle));
+        addTouchStatus((long)tuioID, pEvent);
+    } else {
+        // Move
+        pEvent = TangibleEventPtr(new TangibleEvent(0, classID, Event::CURSOR_MOTION, 
+                screenPos, speed, angle));
+        pTouchStatus->pushEvent(pEvent);
+    }
+    setEventSpeed(pEvent, speed);
+}
+
+void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args, 
+        Event::Source source)
+{
+    std::set<int> liveTUIOIDs;
     int32 tuioID;
     while (!args.Eos()) {
         args >> tuioID;
-        m_LiveTUIOIDs.insert(tuioID);
+        liveTUIOIDs.insert(tuioID);
     }
 
     // Create up events for all ids not in live list.
     set<int> deadTUIOIDs;
-    getDeadIDs(m_LiveTUIOIDs, deadTUIOIDs);
+    getDeadIDs(liveTUIOIDs, deadTUIOIDs, source);
     set<int>::iterator it;
     for (it = deadTUIOIDs.begin(); it != deadTUIOIDs.end(); ++it) {
         int id = *it;
         TouchStatusPtr pTouchStatus = getTouchStatus(id);
-        TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
-        TouchEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
-                pOldEvent->cloneAs(Event::CURSOR_UP));
+        CursorEventPtr pOldEvent = pTouchStatus->getLastEvent();
+        CursorEventPtr pUpEvent = pOldEvent->cloneAs(Event::CURSOR_UP);
         pTouchStatus->pushEvent(pUpEvent);
         removeTouchStatus(id);
     }
 }
 
-TouchEventPtr TUIOInputDevice::createEvent(int id, Event::Type type, glm::vec2 pos,
-        glm::vec2 speed)
+void TUIOInputDevice::setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed)
 {
     const glm::vec2 size = getTouchArea();
-    IntPoint screenPos = getScreenPos(pos);
     glm::vec2 screenSpeed(int(speed.x*size.x+0.5), int(speed.y*size.y+0.5));
-    TouchEventPtr pEvent(new TouchEvent(id, type, screenPos, Event::TOUCH));
     pEvent->setSpeed(screenSpeed/1000.f);
-    return pEvent;
+}
+
+void TUIOInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs, 
+        Event::Source source)
+{
+    TouchIDMap::const_iterator it;
+    const TouchIDMap& touchIDMap = getTouchIDMap();
+    for (it = touchIDMap.begin(); it != touchIDMap.end(); ++it) {
+        int id = it->first;
+        Event::Source curSource = it->second->getLastEvent()->getSource();
+        if (curSource == source) {
+            set<int>::const_iterator foundIt = liveIDs.find(id);
+            if (foundIt == liveIDs.end()) {
+                deadIDs.insert(id);
+            }
+        }
+    }
 }
 
 }

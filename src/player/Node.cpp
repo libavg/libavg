@@ -58,9 +58,13 @@ void Node::registerType()
     pPubDef->addMessage("TANGIBLE_DOWN");
     pPubDef->addMessage("TANGIBLE_MOTION");
     pPubDef->addMessage("TANGIBLE_UP");
+    pPubDef->addMessage("TANGIBLE_OVER");
+    pPubDef->addMessage("TANGIBLE_OUT");
     pPubDef->addMessage("PEN_DOWN");
     pPubDef->addMessage("PEN_MOTION");
     pPubDef->addMessage("PEN_UP");
+    pPubDef->addMessage("PEN_OVER");
+    pPubDef->addMessage("PEN_OUT");
     pPubDef->addMessage("END_OF_FILE");
     pPubDef->addMessage("SIZE_CHANGED");
 
@@ -566,6 +570,10 @@ string Node::getEventMessageID(const EventPtr& pEvent)
                     return "TANGIBLE_MOTION";
                 case Event::CURSOR_UP:
                     return "TANGIBLE_UP";
+                case Event::CURSOR_OVER:
+                    return "TANGIBLE_OVER";
+                case Event::CURSOR_OUT:
+                    return "TANGIBLE_OUT";
                 default:
                     break;
             }
@@ -578,6 +586,10 @@ string Node::getEventMessageID(const EventPtr& pEvent)
                     return "PEN_MOTION";
                 case Event::CURSOR_UP:
                     return "PEN_UP";
+                case Event::CURSOR_OVER:
+                    return "PEN_OVER";
+                case Event::CURSOR_OUT:
+                    return "PEN_OUT";
                 default:
                     break;
             }

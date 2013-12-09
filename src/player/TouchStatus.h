@@ -30,23 +30,23 @@
 
 namespace avg {
 
-class TouchEvent;
-typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+class CursorEvent;
+typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
 class AVG_API TouchStatus {
 public:
-    TouchStatus(TouchEventPtr pEvent);
+    TouchStatus(CursorEventPtr pEvent);
     virtual ~TouchStatus();
 
-    void pushEvent(TouchEventPtr pEvent, bool bCheckMotion=true);
-    TouchEventPtr pollEvent();
-    TouchEventPtr getLastEvent();
+    void pushEvent(CursorEventPtr pEvent, bool bCheckMotion=true);
+    CursorEventPtr pollEvent();
+    CursorEventPtr getLastEvent();
 
     int getID() const;
 
 private:
-    TouchEventPtr m_pLastEvent;
-    std::vector<TouchEventPtr> m_pNewEvents;
+    CursorEventPtr m_pLastEvent;
+    std::vector<CursorEventPtr> m_pNewEvents;
 
     bool m_bFirstFrame;
     int m_CursorID;

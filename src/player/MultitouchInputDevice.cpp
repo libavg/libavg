@@ -20,7 +20,7 @@
 //
 
 #include "MultitouchInputDevice.h"
-#include "TouchEvent.h"
+#include "CursorEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
 #include "TouchStatus.h"
@@ -92,7 +92,7 @@ TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
     }
 }
 
-void MultitouchInputDevice::addTouchStatus(int id, TouchEventPtr pInitialEvent)
+void MultitouchInputDevice::addTouchStatus(int id, CursorEventPtr pInitialEvent)
 {
     TouchStatusPtr pTouchStatus(new TouchStatus(pInitialEvent));
     m_TouchIDMap[id] = pTouchStatus;
@@ -105,16 +105,9 @@ void MultitouchInputDevice::removeTouchStatus(int id)
     AVG_ASSERT(numRemoved == 1);
 }
 
-void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
+const MultitouchInputDevice::TouchIDMap& MultitouchInputDevice::getTouchIDMap() const
 {
-    map<int, TouchStatusPtr>::iterator it;
-    for (it = m_TouchIDMap.begin(); it != m_TouchIDMap.end(); ++it) {
-        int id = it->first;
-        set<int>::const_iterator foundIt = liveIDs.find(id);
-        if (foundIt == liveIDs.end()) {
-            deadIDs.insert(id);
-        }
-    }
+    return m_TouchIDMap;
 }
 
 glm::vec2 MultitouchInputDevice::getTouchArea() const
