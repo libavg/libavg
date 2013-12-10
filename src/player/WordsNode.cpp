@@ -34,6 +34,7 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/GLContextMultiplexer.h"
 #include "../graphics/GLTexture.h"
 #include "../graphics/TextureMover.h"
 
@@ -641,11 +642,8 @@ void WordsNode::renderText()
                         "WordsNode size exceeded maximum (Size=" 
                         + toString(m_InkSize) + ", max=" + toString(maxTexSize) + ")");
             }
-            GLTexturePtr pTex(new GLTexture(m_InkSize, A8));
-            getSurface()->create(A8, pTex);
-            TextureMoverPtr pMover = TextureMover::create(m_InkSize, A8, GL_DYNAMIC_DRAW);
 
-            BitmapPtr pBmp = pMover->lock();
+            BitmapPtr pBmp(new Bitmap(m_InkSize, A8));
             FilterFill<unsigned char>(0).applyInPlace(pBmp);
             FT_Bitmap bitmap;
             bitmap.rows = m_InkSize.y;
@@ -674,8 +672,10 @@ void WordsNode::renderText()
                     AVG_ASSERT(false);
             }
 
-            pMover->unlock();
-            pMover->moveToTexture(*pTex);
+            GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+            GLTexturePtr pTex = pCM->createTexture(m_InkSize, A8);
+            getSurface()->create(A8, pTex);
+            pCM->scheduleTexUpload(pTex, pBmp);
             newSurface();
         }
         m_bRenderNeeded = false;
