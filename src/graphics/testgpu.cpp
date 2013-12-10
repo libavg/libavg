@@ -31,6 +31,7 @@
 #include "GPURGB2YUVFilter.h"
 #include "FilterResizeBilinear.h"
 #include "GLContext.h"
+#include "GLContextMultiplexer.h"
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
@@ -300,9 +301,11 @@ public:
     void runTests() 
     {
         BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
-        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat()));
-        pTex->moveBmpToTexture(pOrigBmp);
+        GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+        GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat());
+        pCM->scheduleTexUpload(pTex, pOrigBmp);
+        pCM->uploadTextures();
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
         BitmapPtr pResultBmp = f.getResults();
@@ -374,29 +377,15 @@ private:
         cerr << "    Testing " << sResultFName << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
-            cerr << "      move functions." << endl;
-            GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+            GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+            GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
                     pOrigBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
-                    GL_CLAMP_TO_EDGE, bPOT));
-            TextureMoverPtr pWriteMover = TextureMover::create(memoryMode, 
-                    pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
-            pWriteMover->moveBmpToTexture(pOrigBmp, *pTex);
+                    GL_CLAMP_TO_EDGE, bPOT);
+            pCM->scheduleTexUpload(pTex, pOrigBmp);
+            pCM->uploadTextures();
+
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
-        }
-        {
-            cerr << "      lock functions." << endl;
-            GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
-                    pOrigBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
-                    GL_CLAMP_TO_EDGE, bPOT));
-            TextureMoverPtr pMover = TextureMover::create(memoryMode, 
-                    pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
-            BitmapPtr pTransferBmp = pMover->lock();
-            pTransferBmp->copyPixels(*pOrigBmp);
-            pMover->unlock();
-            pMover->moveToTexture(*pTex);
-            BitmapPtr pDestBmp = pTex->moveTextureToBmp();
-            testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-lock", 0.01, 0.1);
         }
     }
 
@@ -405,9 +394,11 @@ private:
         cerr << "    Testing mipmap support, " << sFName << ", " << 
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
-        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
-                    pOrigBmp->getPixelFormat(), true));
-        pTex->moveBmpToTexture(pOrigBmp);
+        GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+        GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat(), true);
+        pCM->scheduleTexUpload(pTex, pOrigBmp);
+        pCM->uploadTextures();
         pTex->generateMipmaps();
 
         if (GLContext::getCurrent()->isGLES()) {
@@ -433,16 +424,15 @@ private:
     {
         cerr << "    Testing B5G6R5 compression, " << sFName << ", " << 
                 oglMemoryMode2String(memoryMode) << endl;
-        BitmapPtr pOrigBmp = loadTestBmp(sFName);
-        TextureMoverPtr pMover = TextureMover::create(memoryMode, pOrigBmp->getSize(),
-                B5G6R5, GL_STATIC_DRAW);
-        BitmapPtr pMoverBmp = pMover->lock();
-        pMoverBmp->copyPixels(*pOrigBmp);
-        pMover->unlock();
-        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pMoverBmp->getSize(), 
-                    pMoverBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
-                    GL_CLAMP_TO_EDGE, false));
-        pMover->moveToTexture(*pTex);
+        BitmapPtr pFileBmp = loadTestBmp(sFName);
+        BitmapPtr pOrigBmp(new Bitmap(pFileBmp->getSize(), B5G6R5));
+        pOrigBmp->copyPixels(*pFileBmp);
+        GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+        GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat());
+        pCM->scheduleTexUpload(pTex, pOrigBmp);
+        pCM->uploadTextures();
+
         BitmapPtr pDestBmp = pTex->moveTextureToBmp();
     }
 };
@@ -477,6 +467,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     cerr << sVariant << endl; 
     cerr << "---------------------------------------------------" << endl;
     GLContext* pContext = GLContext::create(GLConfig(bGLES, false, true, 1, su, true));
+    GLContextMultiplexer* pMultiplexer = new GLContextMultiplexer();
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
@@ -485,10 +476,12 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
         GPUTestSuite suite(sVariant);
         suite.runTests();
         delete pContext;
+        delete pMultiplexer;
         return suite.isOk();
     } catch (Exception& ex) {
         cerr << "Exception: " << ex.getStr() << endl;
         delete pContext;
+        delete pMultiplexer;
         return false;
     }
 }
