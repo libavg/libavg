@@ -28,6 +28,7 @@
 #include "../graphics/ImagingProjection.h"
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLContextMultiplexer.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -400,7 +401,7 @@ void RasterNode::downloadMask()
 {
     GLTexturePtr pTex(new GLTexture(m_pMaskBmp->getSize(), I8, 
             m_Material.getUseMipmaps()));
-    pTex->moveBmpToTexture(m_pMaskBmp);
+    GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pMaskBmp);
     m_pSurface->setMask(pTex);
 }
 
