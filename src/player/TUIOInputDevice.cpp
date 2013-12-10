@@ -132,7 +132,6 @@ void TUIOInputDevice::processBundle(const ReceivedBundle& bundle,
 void TUIOInputDevice::processMessage(const ReceivedMessage& msg, 
         const IpEndpointName& remoteEndpoint) 
 {
-    cerr << msg << endl;
     try {
         ReceivedMessageArgumentStream args = msg.ArgumentStream();
         const char* cmd;
