@@ -55,8 +55,8 @@ GLTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelForm
         bool bForcePOT)
 {
     GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap, potBorderColor, 
-            wrapSMode, wrapTMode, bForcePOT, false));
-//    m_pPendingTexCreates.push_back(pTex);
+            wrapSMode, wrapTMode, bForcePOT, true));
+    m_pPendingTexCreates.push_back(pTex);
     return pTex;
 }
 
@@ -67,11 +67,10 @@ void GLContextMultiplexer::scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp)
 
 void GLContextMultiplexer::uploadTextures()
 {
-/*
     for (unsigned i=0; i<m_pPendingTexCreates.size(); ++i) {
         m_pPendingTexCreates[i]->init();
     }
-*/
+
     TexUploadMap::iterator it;
     for (it=m_pPendingTexUploads.begin(); it!=m_pPendingTexUploads.end(); ++it) {
         GLTexturePtr pTex = it->first;

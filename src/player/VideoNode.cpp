@@ -510,16 +510,17 @@ void VideoNode::createTextures(IntPoint size)
 {
     PixelFormat pf = getPixelFormat();
     bool bMipmap = getMaterial().getUseMipmaps();
+    GLContextMultiplexer* pCM = GLContextMultiplexer::get();
     if (pixelFormatIsPlanar(pf)) {
-        m_pTextures[0] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
+        m_pTextures[0] = pCM->createTexture(size, I8, bMipmap);
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap, 128));
-        m_pTextures[2] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap, 128));
+        m_pTextures[1] = pCM->createTexture(halfSize, I8, bMipmap, 128);
+        m_pTextures[2] = pCM->createTexture(halfSize, I8, bMipmap, 128);
         if (pixelFormatHasAlpha(pf)) {
-            m_pTextures[3] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
+            m_pTextures[3] = pCM->createTexture(size, I8, bMipmap);
         }
     } else {
-        m_pTextures[0] = GLTexturePtr(new GLTexture(size, pf, bMipmap));
+        m_pTextures[0] = pCM->createTexture(size, pf, bMipmap);
     }
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(size, pf));

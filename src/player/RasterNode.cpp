@@ -399,8 +399,8 @@ void RasterNode::calcMaskCoords()
 
 void RasterNode::downloadMask()
 {
-    GLTexturePtr pTex(new GLTexture(m_pMaskBmp->getSize(), I8, 
-            m_Material.getUseMipmaps()));
+    GLTexturePtr pTex = GLContextMultiplexer::get()->createTexture(
+            m_pMaskBmp->getSize(), I8, m_Material.getUseMipmaps());
     GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pMaskBmp);
     m_pSurface->setMask(pTex);
 }
