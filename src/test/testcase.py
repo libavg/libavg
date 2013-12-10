@@ -224,12 +224,16 @@ class AVGTestCase(unittest.TestCase):
 
     def _sendTouchEvent(self, id, type, x, y):
         helper = player.getTestHelper()
-        helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x, y))
-      
+        helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x,y))
+
     def _sendTouchEvents(self, eventData):
         helper = player.getTestHelper()
         for (id, type, x, y) in eventData:
-            helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x, y))
+            helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x,y))
+
+    def _sendTangibleEvent(self, id, markerid, type, x, y):
+        helper = player.getTestHelper()
+        helper.fakeTangibleEvent(id, markerid, type, avg.Point2D(x,y), avg.Point2D(0,0), 0)
 
     def _genMouseEventFrames(self, type, x, y, expectedEvents):
         return [
@@ -304,8 +308,12 @@ class NodeHandlerTester(object):
         self.__messagesReceived = set()
 
     def setHandlers(self):
-        messageIDs = [avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP, avg.Node.CURSOR_OVER, 
-                avg.Node.CURSOR_OUT, avg.Node.CURSOR_MOTION]
+        messageIDs = [
+                avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP, avg.Node.CURSOR_OVER, 
+                avg.Node.CURSOR_OUT, avg.Node.CURSOR_MOTION,
+                avg.Node.TANGIBLE_DOWN, avg.Node.TANGIBLE_UP, avg.Node.TANGIBLE_OVER, 
+                avg.Node.TANGIBLE_OUT, avg.Node.TANGIBLE_MOTION,
+                ]
         for messageID in messageIDs:
             subscriberID = self.__node.subscribe(messageID, 
                     lambda event, messageID=messageID: 

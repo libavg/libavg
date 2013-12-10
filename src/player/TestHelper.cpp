@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "MouseEvent.h"
 #include "TouchEvent.h"
+#include "TangibleEvent.h"
 #include "KeyEvent.h"
 #include "TouchStatus.h"
 
@@ -71,29 +72,18 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
     // The id is modified to avoid collisions with real touch events.
     TouchEventPtr pEvent(new TouchEvent(id+std::numeric_limits<int>::max()/2, eventType, 
             IntPoint(pos), source, speed));
-    map<int, TouchStatusPtr>::iterator it = m_Touches.find(pEvent->getCursorID());
-    switch (pEvent->getType()) {
-        case Event::CURSOR_DOWN: {
-                AVG_ASSERT(it == m_Touches.end());
-                TouchStatusPtr pTouchStatus(new TouchStatus(pEvent));
-                m_Touches[pEvent->getCursorID()] = pTouchStatus;
-            }
-            break;
-        case Event::CURSOR_MOTION:
-        case Event::CURSOR_UP: {
-                if (it == m_Touches.end()) {
-                    cerr << "borked: " << pEvent->getCursorID() << ", " << 
-                            pEvent->typeStr() << endl;
-                }
-                AVG_ASSERT(it != m_Touches.end());
-                TouchStatusPtr pTouchStatus = (*it).second;
-                pTouchStatus->pushEvent(pEvent);
-            }
-            break;
-        default:
-            AVG_ASSERT(false);
-            break;
-    }
+    processTouchStatus(pEvent);
+}
+
+void TestHelper::fakeTangibleEvent(int id, int markerID, Event::Type eventType, 
+                const glm::vec2& pos, const glm::vec2& speed, float orientation)
+{
+    checkEventType(eventType);
+    // The id is modified to avoid collisions with real events.
+    TangibleEventPtr pEvent(new TangibleEvent(id+std::numeric_limits<int>::max()/4, 
+            markerID, eventType, IntPoint(pos), speed, orientation));
+    processTouchStatus(pEvent);
+
 }
 
 void TestHelper::fakeKeyEvent(Event::Type eventType,
@@ -137,6 +127,33 @@ std::vector<EventPtr> TestHelper::pollEvents()
 
     m_Events.clear();
     return events;
+}
+
+void TestHelper::processTouchStatus(CursorEventPtr pEvent)
+{
+    map<int, TouchStatusPtr>::iterator it = m_Touches.find(pEvent->getCursorID());
+    switch (pEvent->getType()) {
+        case Event::CURSOR_DOWN: {
+                AVG_ASSERT(it == m_Touches.end());
+                TouchStatusPtr pTouchStatus(new TouchStatus(pEvent));
+                m_Touches[pEvent->getCursorID()] = pTouchStatus;
+            }
+            break;
+        case Event::CURSOR_MOTION:
+        case Event::CURSOR_UP: {
+                if (it == m_Touches.end()) {
+                    cerr << "borked: " << pEvent->getCursorID() << ", " << 
+                            pEvent->typeStr() << endl;
+                }
+                AVG_ASSERT(it != m_Touches.end());
+                TouchStatusPtr pTouchStatus = (*it).second;
+                pTouchStatus->pushEvent(pEvent);
+            }
+            break;
+        default:
+            AVG_ASSERT(false);
+            break;
+    }
 }
 
 void TestHelper::checkEventType(Event::Type eventType)

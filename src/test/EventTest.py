@@ -108,6 +108,26 @@ class EventTestCase(AVGTestCase):
                  
                 ))
 
+    def testTangibleEvents(self):
+        root = self.loadEmptyScene()
+        img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        handlerTester1 = NodeHandlerTester(self, img1)
+        
+        self.start(False,
+                (# down, move, up.
+                 lambda: self.assert_(not(player.isMultitouchAvailable())),
+                 lambda: self._sendTangibleEvent(1, 3, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: handlerTester1.assertState(
+                        (avg.Node.TANGIBLE_DOWN, avg.Node.TANGIBLE_OVER)),
+
+                 lambda: self._sendTangibleEvent(1, 3, avg.Event.CURSOR_MOTION, 12, 12),
+                 lambda: handlerTester1.assertState((avg.Node.TANGIBLE_MOTION,)),
+
+                 lambda: self._sendTangibleEvent(1, 3, avg.Event.CURSOR_UP, 12, 12),
+                 lambda: handlerTester1.assertState(
+                        (avg.Node.TANGIBLE_UP, avg.Node.TANGIBLE_OUT))
+                ))
+
     def testTilted(self):
         root = self.loadEmptyScene()
         img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", angle=0.785, parent=root)
@@ -925,7 +945,8 @@ class EventTestCase(AVGTestCase):
 
         def onDown(event):
             contact = event.contact
-            self.motionListenerID = contact.subscribe(avg.Contact.CURSOR_MOTION, onContact2)
+            self.motionListenerID = contact.subscribe(avg.Contact.CURSOR_MOTION, 
+                    onContact2)
             self.upListenerID = contact.subscribe(avg.Contact.CURSOR_UP, onContact2)
             contact.subscribe(avg.Contact.CURSOR_MOTION, onContact1)
             contact.subscribe(avg.Contact.CURSOR_UP, onContact1)
@@ -1053,6 +1074,7 @@ def eventTestSuite(tests):
     availableTests = (
             "testKeyEvents",
             "testSimpleEvents",
+            "testTangibleEvents",
             "testTilted",
             "testWordsClicks",
             "testDivEvents",
