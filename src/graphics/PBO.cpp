@@ -87,7 +87,7 @@ void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, getStride(), false);
     PBOBitmap.copyPixels(*pBmp);
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-    GLContext::checkError("PBO::setImage: UnmapBuffer()");
+    GLContext::checkError("PBO::moveBmpToTexture: UnmapBuffer()");
 
     tex.setDirty();
     moveToTexture(tex);
@@ -105,13 +105,13 @@ void PBO::moveTextureToPBO(GLTexture& tex, int mipmapLevel)
     AVG_ASSERT(getSize() == tex.getGLSize());
     AVG_ASSERT(getPF() == tex.getPF());
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_PBOID);
-    GLContext::checkError("PBO::getImage BindBuffer()");
+    GLContext::checkError("PBO::moveTextureToPBO BindBuffer()");
 
     tex.activate(GL_TEXTURE0);
 
     glGetTexImage(GL_TEXTURE_2D, mipmapLevel, GLTexture::getGLFormat(getPF()), 
             GLTexture::getGLType(getPF()), 0);
-    GLContext::checkError("PBO::getImage: glGetTexImage()");
+    GLContext::checkError("PBO::moveTextureToPBO: glGetTexImage()");
     if (mipmapLevel == 0) {
         m_ActiveSize = tex.getSize();
         m_BufferStride = tex.getGLSize().x;
@@ -125,76 +125,18 @@ BitmapPtr PBO::movePBOToBmp() const
 {
     AVG_ASSERT(isReadPBO());
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_PBOID);
-    GLContext::checkError("PBO::getImage BindBuffer()");
+    GLContext::checkError("PBO::movePBOToBmp BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
-    GLContext::checkError("PBO::getImage MapBuffer()");
+    GLContext::checkError("PBO::movePBOToBmp MapBuffer()");
     Bitmap PBOBitmap(m_ActiveSize, getPF(), (unsigned char *)pPBOPixels, 
             m_BufferStride*getBytesPerPixel(getPF()), false);
     BitmapPtr pBmp(new Bitmap(m_ActiveSize, getPF()));
     pBmp->copyPixels(PBOBitmap);
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
-    GLContext::checkError("PBO::getImage: UnmapBuffer()");
+    GLContext::checkError("PBO::movePBOToBmp: UnmapBuffer()");
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     
     return pBmp;
-}
-
-BitmapPtr PBO::lock()
-{
-    AVG_ASSERT(!isReadPBO());
-    BitmapPtr pBmp;
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
-    GLContext::checkError("PBOTexture::lockBmp: glBindBuffer()");
-    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, getMemNeeded(), 0, m_Usage);
-    GLContext::checkError("PBOTexture::lockBmp: glBufferData()");
-    unsigned char * pBuffer = (unsigned char *)
-        glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-    GLContext::checkError("PBOTexture::lockBmp: glMapBuffer()");
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-    GLContext::checkError("PBOTexture::lockBmp: glBindBuffer(0)");
-
-    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, getStride(), false));
-    return pBmp;
-}
-
-void PBO::unlock()
-{
-    AVG_ASSERT(!isReadPBO());
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
-    GLContext::checkError("PBOTexture::unlockBmp: glBindBuffer()");
-    glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-    GLContext::checkError("PBOTexture::unlockBmp: glUnmapBuffer()");
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-    GLContext::checkError("PBOTexture::unlockBmp: glBindBuffer(0)");
-}
-
-void PBO::moveToTexture(GLTexture& tex)
-{
-    AVG_ASSERT(!isReadPBO());
-    IntPoint size = tex.getSize();
-    if (size.x > getSize().x) {
-        size.x = getSize().x;
-    } 
-    if (size.y > getSize().y) {
-        size.y = getSize().y;
-    } 
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
-    GLContext::checkError("PBOTexture::lockBmp: glBindBuffer()");
-    tex.activate(GL_TEXTURE0);
-#ifdef __APPLE__
-    // See getStride()
-    if (getPF() == A8) {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    } else {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    }
-#endif
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
-            GLTexture::getGLFormat(getPF()), GLTexture::getGLType(getPF()), 0);
-    GLContext::checkError("PBO::setImage: glTexSubImage2D()");
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-    tex.setDirty();
-    tex.generateMipmaps();
 }
 
 bool PBO::isReadPBO() const
@@ -212,6 +154,35 @@ bool PBO::isReadPBO() const
             AVG_ASSERT(false);
             return false;
     }
+}
+
+void PBO::moveToTexture(GLTexture& tex)
+{
+    AVG_ASSERT(!isReadPBO());
+    IntPoint size = tex.getSize();
+    if (size.x > getSize().x) {
+        size.x = getSize().x;
+    } 
+    if (size.y > getSize().y) {
+        size.y = getSize().y;
+    } 
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
+    GLContext::checkError("PBO::moveToTexture: glBindBuffer()");
+    tex.activate(GL_TEXTURE0);
+#ifdef __APPLE__
+    // See getStride()
+    if (getPF() == A8) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    } else {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+#endif
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
+            GLTexture::getGLFormat(getPF()), GLTexture::getGLType(getPF()), 0);
+    GLContext::checkError("PBO::setImage: glTexSubImage2D()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+    tex.setDirty();
+    tex.generateMipmaps();
 }
 
 unsigned PBO::getMemNeeded() const

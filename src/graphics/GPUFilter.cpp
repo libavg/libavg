@@ -24,6 +24,7 @@
 
 #include "ImagingProjection.h"
 #include "GLContext.h"
+#include "GLContextMultiplexer.h"
 #include "ShaderRegistry.h"
 #include "Filterfliprgb.h"
 #include "BitmapLoader.h"
@@ -256,11 +257,8 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
     } else {
         pf = I8;
     }
-    GLTexturePtr pTex(new GLTexture(size, pf));
-    TextureMoverPtr pKernelMover = TextureMover::create(size, pf, GL_STREAM_DRAW);
-    BitmapPtr pBmp = pKernelMover->lock();
+    BitmapPtr pBmp(new Bitmap(size, pf));
     void * pPixels = pBmp->getPixels();
-    GLContext::checkError("GPUFilter::calcBlurKernelTex MapBuffer()");
     if (bUseFloat) {
         float * pCurFloat = (float*)pPixels;
         for (int i = 0; i < kernelWidth; ++i) {
@@ -276,8 +274,8 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
             ++pCurPixel;
         }
     }
-    pKernelMover->unlock();
-    pKernelMover->moveToTexture(*pTex);
+    GLTexturePtr pTex = GLContextMultiplexer::get()->createTexture(size, pf);
+    GLContextMultiplexer::get()->scheduleTexUpload(pTex, pBmp);
 
     delete[] pKernel;
     return pTex;

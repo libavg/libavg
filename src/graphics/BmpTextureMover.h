@@ -37,10 +37,6 @@ public:
     virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex);
     virtual BitmapPtr moveTextureToBmp(GLTexture& tex, int mipmapLevel=0);
 
-    virtual BitmapPtr lock();
-    virtual void unlock();
-    virtual void moveToTexture(GLTexture& tex);
-
 private:
     BitmapPtr m_pBmp;
 };

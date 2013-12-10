@@ -94,18 +94,4 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
 
 }
 
-BitmapPtr BmpTextureMover::lock()
-{
-    return m_pBmp;
-}
-
-void BmpTextureMover::unlock()
-{
-}
-
-void BmpTextureMover::moveToTexture(GLTexture& tex)
-{
-    moveBmpToTexture(m_pBmp, tex);
-}
-
 }
