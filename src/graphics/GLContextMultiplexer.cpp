@@ -39,6 +39,11 @@ GLContextMultiplexer* GLContextMultiplexer::get()
     return s_pGLContextMultiplexer;
 }
 
+bool GLContextMultiplexer::exists()
+{
+    return s_pGLContextMultiplexer != 0;
+}
+
 GLContextMultiplexer::GLContextMultiplexer()
 {
 //    AVG_ASSERT(!s_pGLContextMultiplexer);
@@ -47,7 +52,7 @@ GLContextMultiplexer::GLContextMultiplexer()
 
 GLContextMultiplexer::~GLContextMultiplexer()
 {
-//    s_pGLContextMultiplexer = 0;
+    s_pGLContextMultiplexer = 0;
 }
 
 GLTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelFormat pf, 
@@ -65,8 +70,18 @@ void GLContextMultiplexer::scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp)
     m_pPendingTexUploads[pTex] = pBmp;
 }
 
+void GLContextMultiplexer::deleteTexture(unsigned texID)
+{
+    m_PendingTexDeletes.push_back(texID);
+}
+
 void GLContextMultiplexer::uploadTextures()
 {
+    for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {
+        glDeleteTextures(1, &m_PendingTexDeletes[i]);
+        GLContext::checkError("GLContextMultiplexer: delete textures");
+    }
+
     for (unsigned i=0; i<m_pPendingTexCreates.size(); ++i) {
         m_pPendingTexCreates[i]->init();
     }
@@ -83,6 +98,7 @@ void GLContextMultiplexer::reset()
 {
     m_pPendingTexCreates.clear();
     m_pPendingTexUploads.clear();
+    m_PendingTexDeletes.clear();
 }
 
 }

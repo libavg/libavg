@@ -39,6 +39,7 @@ class AVG_API GLContextMultiplexer
 {
 public:
     static GLContextMultiplexer* get();
+    static bool exists();
 
     GLContextMultiplexer();
     virtual ~GLContextMultiplexer();
@@ -46,8 +47,9 @@ public:
     GLTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
             unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
-
     void scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp);
+    void deleteTexture(unsigned texID);
+
     void uploadTextures();
     void reset();
 
@@ -55,6 +57,7 @@ private:
     std::vector<GLTexturePtr> m_pPendingTexCreates;
     typedef std::map<GLTexturePtr, BitmapPtr> TexUploadMap;
     TexUploadMap m_pPendingTexUploads;
+    std::vector<unsigned> m_PendingTexDeletes;
 
     static GLContextMultiplexer* s_pGLContextMultiplexer;
 };

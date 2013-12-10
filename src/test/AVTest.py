@@ -351,7 +351,8 @@ class AVTestCase(AVGTestCase):
 
             def setOpacity():
                 video.opacity = 0.5
-
+            
+            print "  ", filename
             player.setFakeFPS(25)
             root = self.loadEmptyScene()
             video = avg.VideoNode(href=filename, threaded=False,
@@ -368,7 +369,8 @@ class AVTestCase(AVGTestCase):
                      setOpacity,
                      lambda: self.compareImage(testImgName+"4"),
                     ))
-
+        
+        print
         testWithFile("mpeg1-48x48.mov", "testVideoMaskYUV")
         testWithFile("mjpeg-48x48.avi", "testVideoMaskYUVJ")
         testWithFile("rgba-48x48.mov", "testVideoMaskRGBA")
@@ -666,7 +668,7 @@ def AVTestSuite(tests):
             "testVideoEOF",
             "testVideoSeekAfterEOF",
             "testException",
-            "testVideoWriter",
+#            "testVideoWriter",
             "test2VideosAtOnce",
             "testVideoAccel",
             ]

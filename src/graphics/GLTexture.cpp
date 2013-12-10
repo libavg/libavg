@@ -27,6 +27,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "GLContext.h"
+#include "GLContextMultiplexer.h"
 #include "TextureMover.h"
 #ifndef AVG_ENABLE_EGL
     #include "PBO.h"
@@ -106,9 +107,8 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
 
 GLTexture::~GLTexture()
 {
-    if (m_bDeleteTex) {
-        glDeleteTextures(1, &m_TexID);
-        GLContext::checkError("GLTexture: DeleteTextures()");
+    if (m_bDeleteTex && GLContextMultiplexer::exists()) {
+        GLContextMultiplexer::get()->deleteTexture(m_TexID);
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
