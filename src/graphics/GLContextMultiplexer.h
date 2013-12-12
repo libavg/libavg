@@ -50,7 +50,7 @@ public:
     void scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp);
     void deleteTexture(unsigned texID);
 
-    void uploadTextures();
+    void uploadData();
     void reset();
 
 private:

@@ -305,7 +305,7 @@ public:
         GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
                 pOrigBmp->getPixelFormat());
         pCM->scheduleTexUpload(pTex, pOrigBmp);
-        pCM->uploadTextures();
+        pCM->uploadData();
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
         BitmapPtr pResultBmp = f.getResults();
@@ -382,7 +382,7 @@ private:
                     pOrigBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
                     GL_CLAMP_TO_EDGE, bPOT);
             pCM->scheduleTexUpload(pTex, pOrigBmp);
-            pCM->uploadTextures();
+            pCM->uploadData();
 
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
@@ -398,7 +398,7 @@ private:
         GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
                 pOrigBmp->getPixelFormat(), true);
         pCM->scheduleTexUpload(pTex, pOrigBmp);
-        pCM->uploadTextures();
+        pCM->uploadData();
         pTex->generateMipmaps();
 
         if (GLContext::getCurrent()->isGLES()) {
@@ -431,7 +431,7 @@ private:
         GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
                 pOrigBmp->getPixelFormat());
         pCM->scheduleTexUpload(pTex, pOrigBmp);
-        pCM->uploadTextures();
+        pCM->uploadData();
 
         BitmapPtr pDestBmp = pTex->moveTextureToBmp();
     }

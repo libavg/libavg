@@ -276,7 +276,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
     }
     GLTexturePtr pTex = GLContextMultiplexer::get()->createTexture(size, pf);
     GLContextMultiplexer::get()->scheduleTexUpload(pTex, pBmp);
-    GLContextMultiplexer::get()->uploadTextures();
+    GLContextMultiplexer::get()->uploadData();
 
     delete[] pKernel;
     return pTex;

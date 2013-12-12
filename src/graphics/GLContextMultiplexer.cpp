@@ -75,7 +75,7 @@ void GLContextMultiplexer::deleteTexture(unsigned texID)
     m_PendingTexDeletes.push_back(texID);
 }
 
-void GLContextMultiplexer::uploadTextures()
+void GLContextMultiplexer::uploadData()
 {
     for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {
         glDeleteTextures(1, &m_PendingTexDeletes[i]);

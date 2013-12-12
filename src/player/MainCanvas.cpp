@@ -89,7 +89,7 @@ static ProfilingZoneID SecondWindowRenderProfilingZone(
 void MainCanvas::renderTree()
 {
     preRender();
-    m_pMultiplexer->uploadTextures();
+    m_pMultiplexer->uploadData();
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
     {
