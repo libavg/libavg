@@ -271,7 +271,6 @@ void Canvas::renderOutlines(const glm::mat4& transform)
     pShader->setAlpha(0.5f);
     pShader->activate();
     if (pVA->getNumVerts() != 0) {
-        pVA->update();
         pVA->draw();
     }
 }
@@ -294,7 +293,7 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
     pShader->activate();
     va.draw();
 
-    // Set stencil test to only let
+    // Set stencil test
     glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
