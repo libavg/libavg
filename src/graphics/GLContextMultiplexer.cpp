@@ -83,18 +83,19 @@ VertexArrayPtr GLContextMultiplexer::createVertexArray(int reserveVerts, int res
     return pVA;
 }
 
-void GLContextMultiplexer::deleteVertexArray(unsigned vertexBufferID, int numVerts, 
-        unsigned indexBufferID, int numIndexes)
+void GLContextMultiplexer::deleteBuffers(BufferIDMap& bufferIDs)
 {
-    GLContext* pContext = GLContext::getCurrent();
-    if (pContext) {
-        glproc::DeleteBuffers(1, &vertexBufferID);
-        glproc::DeleteBuffers(1, &indexBufferID);
-    }    
+    m_PendingBufferDeletes.push_back(bufferIDs);
 }
 
 void GLContextMultiplexer::uploadData()
 {
+    GLContext* pContext = GLContext::getCurrent();
+    for (unsigned i=0; i<m_PendingBufferDeletes.size(); ++i) {
+        glproc::DeleteBuffers(1, &m_PendingBufferDeletes[i][pContext]);
+        GLContext::checkError("GLContextMultiplexer: delete buffers");
+    }
+
     for (unsigned i=0; i<m_pPendingVACreates.size(); ++i) {
         m_pPendingVACreates[i]->init();
     }
@@ -121,6 +122,9 @@ void GLContextMultiplexer::reset()
     m_pPendingTexCreates.clear();
     m_pPendingTexUploads.clear();
     m_PendingTexDeletes.clear();
+
+    m_pPendingVACreates.clear();
+    m_PendingBufferDeletes.clear();
 }
 
 }

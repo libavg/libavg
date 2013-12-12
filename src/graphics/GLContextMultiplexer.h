@@ -53,8 +53,8 @@ public:
     void deleteTexture(unsigned texID);
 
     VertexArrayPtr createVertexArray(int reserveVerts = 0, int reserveIndexes = 0);
-    void deleteVertexArray(unsigned VertexBufferID, int numVerts, unsigned indexBufferID, 
-            int numIndexes);
+    typedef std::map<GLContext*, unsigned> BufferIDMap;
+    void deleteBuffers(BufferIDMap& bufferIDs);
 
     void uploadData();
     void reset();
@@ -66,6 +66,7 @@ private:
     std::vector<unsigned> m_PendingTexDeletes;
 
     std::vector<VertexArrayPtr> m_pPendingVACreates;
+    std::vector<BufferIDMap> m_PendingBufferDeletes;
 
     static GLContextMultiplexer* s_pGLContextMultiplexer;
 };

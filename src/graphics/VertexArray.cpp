@@ -22,6 +22,7 @@
 #include "VertexArray.h"
 
 #include "GLContext.h"
+#include "GLContextMultiplexer.h"
 #include "SubVertexArray.h"
 
 #include "../base/Exception.h"
@@ -61,14 +62,8 @@ void VertexArray::init()
 
 VertexArray::~VertexArray()
 {
-    /*
-    GLContext* pContext = GLContext::getCurrent();
-    if (pContext) {
-        glproc::DeleteBuffers(1, &m_GLVertexBufferID);
-        glproc::DeleteBuffers(1, &m_GLIndexBufferID);
-        }
-    }
-    */
+    GLContextMultiplexer::get()->deleteBuffers(m_VertexBufferIDMap);
+    GLContextMultiplexer::get()->deleteBuffers(m_IndexBufferIDMap);
 }
 
 void VertexArray::update()
