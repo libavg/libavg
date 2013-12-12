@@ -22,6 +22,7 @@
 #include "ImagingProjection.h"
 
 #include "GLContext.h"
+#include "GLContextMultiplexer.h"
 #include "OGLShader.h"
 
 #include "../base/Exception.h"
@@ -29,16 +30,16 @@
 namespace avg {
 
 ImagingProjection::ImagingProjection(IntPoint size)
-    : m_Color(0, 0, 0, 0),
-      m_pVA(new VertexArray)
+    : m_Color(0, 0, 0, 0)
 {
+    m_pVA = GLContextMultiplexer::get()->createVertexArray();
     init(size, IntRect(IntPoint(0,0), size));
 }
 
 ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
-    : m_Color(0, 0, 0, 0),
-      m_pVA(new VertexArray)
+    : m_Color(0, 0, 0, 0)
 {
+    m_pVA = GLContextMultiplexer::get()->createVertexArray();
     init(srcSize, destRect);
 }
 

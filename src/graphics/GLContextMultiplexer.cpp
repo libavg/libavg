@@ -25,6 +25,7 @@
 #include "../base/Logger.h"
 
 #include "GLTexture.h"
+#include "VertexArray.h"
 
 
 namespace avg {
@@ -59,7 +60,7 @@ GLTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelForm
         bool bMipmap, int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, 
         bool bForcePOT)
 {
-    GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap, potBorderColor, 
+    GLTexturePtr pTex(new GLTexture(size, pf, bMipmap, potBorderColor, 
             wrapSMode, wrapTMode, bForcePOT, true));
     m_pPendingTexCreates.push_back(pTex);
     return pTex;
@@ -75,8 +76,19 @@ void GLContextMultiplexer::deleteTexture(unsigned texID)
     m_PendingTexDeletes.push_back(texID);
 }
 
+VertexArrayPtr GLContextMultiplexer::createVertexArray(int reserveVerts, int reserveIndexes)
+{
+    VertexArrayPtr pVA(new VertexArray(reserveVerts, reserveIndexes));
+    m_pPendingVACreates.push_back(pVA);
+    return pVA;
+}
+
 void GLContextMultiplexer::uploadData()
 {
+    for (unsigned i=0; i<m_pPendingVACreates.size(); ++i) {
+        m_pPendingVACreates[i]->init();
+    }
+
     for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {
         glDeleteTextures(1, &m_PendingTexDeletes[i]);
         GLContext::checkError("GLContextMultiplexer: delete textures");

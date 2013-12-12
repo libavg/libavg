@@ -30,10 +30,12 @@
 #include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
+#include <map>
 
 namespace avg {
 
 class SubVertexArray;
+class GLContext;
 
 class AVG_API VertexArray: public VertexData {
 public:
@@ -42,6 +44,7 @@ public:
     static const unsigned COLOR_INDEX;
 
     VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
+    void init();
     virtual ~VertexArray();
 
     void update();
@@ -56,8 +59,9 @@ private:
     void transferBuffer(GLenum target, unsigned bufferID, unsigned reservedSize, 
             unsigned usedSize, const void* pData);
 
-    unsigned m_GLVertexBufferID;
-    unsigned m_GLIndexBufferID;
+    typedef std::map<GLContext*, unsigned> BufferIDMap;
+    BufferIDMap m_VertexBufferIDMap;
+    BufferIDMap m_IndexBufferIDMap;
 
     bool m_bUseMapBuffer;
 };

@@ -34,6 +34,8 @@ class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class VertexArray;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
 class AVG_API GLContextMultiplexer
 {
@@ -50,6 +52,8 @@ public:
     void scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp);
     void deleteTexture(unsigned texID);
 
+    VertexArrayPtr createVertexArray(int reserveVerts = 0, int reserveIndexes = 0);
+
     void uploadData();
     void reset();
 
@@ -58,6 +62,8 @@ private:
     typedef std::map<GLTexturePtr, BitmapPtr> TexUploadMap;
     TexUploadMap m_pPendingTexUploads;
     std::vector<unsigned> m_PendingTexDeletes;
+
+    std::vector<VertexArrayPtr> m_pPendingVACreates;
 
     static GLContextMultiplexer* s_pGLContextMultiplexer;
 };

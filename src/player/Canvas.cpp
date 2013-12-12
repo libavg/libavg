@@ -31,6 +31,7 @@
 #include "../base/ScopeTimer.h"
 
 #include "../graphics/StandardShader.h"
+#include "../graphics/GLContextMultiplexer.h"
 
 #include <iostream>
 
@@ -67,7 +68,7 @@ void Canvas::initPlayback(int multiSampleSamples)
     m_bIsPlaying = true;
     m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
-    m_pVertexArray = VertexArrayPtr(new VertexArray(2000, 3000));
+    m_pVertexArray = GLContextMultiplexer::get()->createVertexArray(2000, 3000);
 }
 
 void Canvas::stopPlayback(bool bIsAbort)
@@ -235,14 +236,14 @@ void Canvas::preRender()
     ScopeTimer Timer(PreRenderProfilingZone);
     m_pVertexArray->reset();
     m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
-    {
-        ScopeTimer Timer(VATransferProfilingZone);
-        m_pVertexArray->update();
-    }
 }
 
 void Canvas::render(bool bOffscreen)
 {
+    {
+        ScopeTimer Timer(VATransferProfilingZone);
+        m_pVertexArray->update();
+    }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
             !bOffscreen);
     GLContext::checkError("Canvas::render: glViewport()");
@@ -262,7 +263,7 @@ void Canvas::render(bool bOffscreen)
 void Canvas::renderOutlines(const glm::mat4& transform)
 {
     GLContext* pContext = GLContext::getCurrent();
-    VertexArrayPtr pVA(new VertexArray);
+    VertexArrayPtr pVA = GLContextMultiplexer::get()->createVertexArray();
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShaderPtr pShader = pContext->getStandardShader();
