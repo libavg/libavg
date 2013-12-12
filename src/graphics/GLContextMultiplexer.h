@@ -53,6 +53,8 @@ public:
     void deleteTexture(unsigned texID);
 
     VertexArrayPtr createVertexArray(int reserveVerts = 0, int reserveIndexes = 0);
+//    void deleteVertexArray(unsigned VertexBufferID, int numVerts, unsigned indexBufferID, 
+//            int numIndexes);
 
     void uploadData();
     void reset();

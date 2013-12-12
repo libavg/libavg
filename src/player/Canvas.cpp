@@ -264,6 +264,7 @@ void Canvas::renderOutlines(const glm::mat4& transform)
 {
     GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA = GLContextMultiplexer::get()->createVertexArray();
+    pVA->init();
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShaderPtr pShader = pContext->getStandardShader();
