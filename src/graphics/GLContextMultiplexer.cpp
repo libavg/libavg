@@ -83,21 +83,13 @@ VertexArrayPtr GLContextMultiplexer::createVertexArray(int reserveVerts, int res
     return pVA;
 }
 
-void GLContextMultiplexer::deleteVertexArray(unsigned VertexBufferID, int numVerts, 
+void GLContextMultiplexer::deleteVertexArray(unsigned vertexBufferID, int numVerts, 
         unsigned indexBufferID, int numIndexes)
 {
     GLContext* pContext = GLContext::getCurrent();
     if (pContext) {
-        if (numVerts == MIN_VERTEXES) {
-            pContext->getVertexBufferCache().returnBuffer(m_GLVertexBufferID);
-        } else {
-            glproc::DeleteBuffers(1, &m_GLVertexBufferID);
-        }
-        if (getReserveIndexes() == MIN_INDEXES) {
-            pContext->getIndexBufferCache().returnBuffer(m_GLIndexBufferID);
-        } else {
-            glproc::DeleteBuffers(1, &m_GLIndexBufferID);
-        }
+        glproc::DeleteBuffers(1, &vertexBufferID);
+        glproc::DeleteBuffers(1, &indexBufferID);
     }    
 }
 

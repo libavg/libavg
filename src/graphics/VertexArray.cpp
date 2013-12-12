@@ -53,14 +53,9 @@ void VertexArray::init()
     GLContext* pContext = GLContext::getCurrent();
     unsigned vertexBufferID;
     unsigned indexBufferID;
-    if (getReserveVerts() != MIN_VERTEXES || getReserveIndexes() != MIN_INDEXES) {
-        glproc::GenBuffers(1, &vertexBufferID);
-        glproc::GenBuffers(1, &indexBufferID);
-    } else {
-        vertexBufferID = pContext->getVertexBufferCache().getBuffer();
-        indexBufferID = pContext->getIndexBufferCache().getBuffer();
-    }
+    glproc::GenBuffers(1, &vertexBufferID);
     m_VertexBufferIDMap[pContext] = vertexBufferID;
+    glproc::GenBuffers(1, &indexBufferID);
     m_IndexBufferIDMap[pContext] = indexBufferID;
 }
 
@@ -69,17 +64,11 @@ VertexArray::~VertexArray()
     /*
     GLContext* pContext = GLContext::getCurrent();
     if (pContext) {
-        if (getReserveVerts() == MIN_VERTEXES) {
-            pContext->getVertexBufferCache().returnBuffer(m_GLVertexBufferID);
-        } else {
-            glproc::DeleteBuffers(1, &m_GLVertexBufferID);
+        glproc::DeleteBuffers(1, &m_GLVertexBufferID);
+        glproc::DeleteBuffers(1, &m_GLIndexBufferID);
         }
-        if (getReserveIndexes() == MIN_INDEXES) {
-            pContext->getIndexBufferCache().returnBuffer(m_GLIndexBufferID);
-        } else {
-            glproc::DeleteBuffers(1, &m_GLIndexBufferID);
-        }
-    }*/
+    }
+    */
 }
 
 void VertexArray::update()

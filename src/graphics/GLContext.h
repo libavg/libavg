@@ -59,8 +59,6 @@ public:
     GLConfig::ShaderUsage getShaderUsage() const;
 
     // GL Object caching.
-    GLBufferCache& getVertexBufferCache();
-    GLBufferCache& getIndexBufferCache();
     GLBufferCache& getPBOCache();
     unsigned genFBO();
     void returnFBOToCache(unsigned fboID);
@@ -121,8 +119,6 @@ private:
     ShaderRegistryPtr m_pShaderRegistry;
     StandardShaderPtr m_pStandardShader;
 
-    GLBufferCache m_VertexBufferCache;
-    GLBufferCache m_IndexBufferCache;
     GLBufferCache m_PBOCache;
     std::vector<unsigned int> m_FBOIDs;
 

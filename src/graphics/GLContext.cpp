@@ -211,16 +211,6 @@ GLConfig::ShaderUsage GLContext::getShaderUsage() const
     return m_GLConfig.m_ShaderUsage;
 }
 
-GLBufferCache& GLContext::getVertexBufferCache()
-{
-    return m_VertexBufferCache;
-}
-
-GLBufferCache& GLContext::getIndexBufferCache()
-{
-    return m_IndexBufferCache;
-}
-
 GLBufferCache& GLContext::getPBOCache()
 {
     return m_PBOCache;
