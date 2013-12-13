@@ -87,7 +87,6 @@ void VertexArray::update()
 #endif
         GLContext::checkError("VertexArray::update()");
     }
-    resetDataChanged();
 }
 
 void VertexArray::activate()

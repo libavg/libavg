@@ -152,6 +152,7 @@ void VertexData::reset()
 {
     m_NumVerts = 0;
     m_NumIndexes = 0;
+    m_bDataChanged = false;
 }
 
 int VertexData::getNumVerts() const

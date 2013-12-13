@@ -98,16 +98,17 @@ void MainCanvas::renderTree()
         glViewport(0, 0, windowSize.x, windowSize.y);
         Canvas::render(false);
     }
-/*
+
     if (m_bSecondViewport) {
         GLContext* pMainContext = GLContext::getCurrent();
         ScopeTimer Timer(SecondWindowRenderProfilingZone);
         m_pGLContext->activate();
+        m_pMultiplexer->uploadData();
         Canvas::render(false);
         m_pGLContext->swapBuffers();
         pMainContext->activate();
     }
-*/
+
     m_pMultiplexer->reset();
 //    pollEvents();
 }
@@ -118,6 +119,7 @@ void MainCanvas::createSecondWindow()
     const GLConfig& config = pMainContext->getConfig();
     m_pGLContext = SecondaryGLXContextPtr(new SecondaryGLXContext(config, ":0.0",
             IntRect(0,0,800,600)));
+    
     pMainContext->activate();
 }
 
