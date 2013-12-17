@@ -24,19 +24,6 @@
 #include "Window.h"
 #include "../avgconfigwrapper.h"
 
-#ifdef __APPLE__
-#include "SDLMain.h"
-#endif
-
-#include "Shape.h"
-
-#include "Event.h"
-#include "MouseEvent.h"
-#include "KeyEvent.h"
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-#include "XInputMTInputDevice.h"
-#endif
-#include "../base/MathHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -46,42 +33,11 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
-#include "../graphics/Display.h"
-
-#include "../video/VideoDecoder.h"
-
-#include "OGLSurface.h"
-#include "OffscreenCanvas.h"
-
-#ifdef __APPLE__
-#include <ApplicationServices/ApplicationServices.h>
-#endif
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 
-#ifdef __APPLE__
-#include <OpenGL/OpenGL.h>
-#endif
-
-#ifdef linux
-#include <sys/ioctl.h>
-#include <sys/fcntl.h>
-#endif
-#ifdef AVG_ENABLE_XINERAMA
-#include <X11/extensions/Xinerama.h>
-#endif
-
-#include <signal.h>
 #include <iostream>
-#include <sstream>
-#include <math.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 using namespace std;
 
@@ -181,9 +137,6 @@ Window::Window(const DisplayParams& dp, GLConfig glConfig)
     m_pGLContext->logConfig();
 }
 
-//#ifdef _WIN32
-//#pragma warning(disable: 4996)
-//#endif
 Window::~Window()
 {
     if (m_pGLContext) {

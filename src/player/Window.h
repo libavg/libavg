@@ -31,13 +31,9 @@
 
 #include <boost/shared_ptr.hpp>
 #include <string>
-#include <vector>
-
-union SDL_Event;
 
 namespace avg {
 
-class XInputMTInputDevice;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class Bitmap;
