@@ -27,10 +27,6 @@
 #include "DisplayEngine.h"
 
 #include "../graphics/GLConfig.h"
-#include "../graphics/Bitmap.h"
-#include "../graphics/Pixel32.h"
-#include "../graphics/OGLHelper.h"
-#include "../graphics/FBO.h"
 
 #include <string>
 #include <vector>
