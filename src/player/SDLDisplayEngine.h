@@ -39,6 +39,8 @@ namespace avg {
 class XInputMTInputDevice;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
+class Window;
+typedef boost::shared_ptr<class Window> WindowPtr;
 class GLContext;
 
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
@@ -68,32 +70,26 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
 
-        const IntPoint& getWindowSize() const;
+        const IntPoint getWindowSize() const;
         bool isFullscreen() const;
         virtual void swapBuffers();
 
     private:
         void initTranslationTable();
-
         bool internalSetGamma(float red, float green, float blue);
-
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
         EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
         
+        WindowPtr m_pWindow;
         IntPoint m_Size;
         bool m_bIsFullscreen;
-        IntPoint m_WindowSize;
-
-        SDL_Surface * m_pScreen;
 
         // Event handling.
         MouseEventPtr m_pLastMouseEvent;
-        static std::vector<long> KeyCodeTranslationTable;
         XInputMTInputDevice * m_pXIMTInputDevice;
-
-        GLContext* m_pGLContext;
+        static std::vector<long> KeyCodeTranslationTable;
 
         float m_Gamma[3];
 };

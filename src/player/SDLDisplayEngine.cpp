@@ -1,4 +1,4 @@
-
+//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
@@ -32,9 +32,8 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-#include "XInputMTInputDevice.h"
-#endif
+#include "Window.h"
+
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -115,11 +114,9 @@ void SDLDisplayEngine::quitSDL()
 
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
-      m_WindowSize(0,0),
-      m_pScreen(0),
+      m_Size(0,0),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
-      m_pGLContext(0)
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0))
 {
     initSDL();
 
@@ -135,95 +132,11 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
-    // This "fixes" the default behaviour of SDL under x11, avoiding it
-    // to report relative mouse coordinates when going fullscreen and
-    // the mouse cursor is hidden (grabbed). So far libavg and apps based
-    // on it don't use relative coordinates.
-    setEnv("SDL_MOUSE_RELATIVE", "0");
-
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
-    stringstream ss;
-    if (dp.m_Pos.x != -1) {
-        ss << dp.m_Pos.x << "," << dp.m_Pos.y;
-        setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
-    }
-    m_WindowSize = dp.m_WindowSize;
-    unsigned int Flags = 0;
-    if (dp.m_bFullscreen) {
-        Flags |= SDL_FULLSCREEN;
-    }
-    m_bIsFullscreen = dp.m_bFullscreen;
 
-    if (!dp.m_bHasWindowFrame) {
-        Flags |= SDL_NOFRAME;
-    }
-
-#ifndef linux
-    if (glConfig.m_bUseDebugContext) {
-        glConfig.m_bUseDebugContext = false;
-    }
-    switch (dp.m_BPP) {
-        case 24:
-            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
-            break;
-        case 16:
-            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
-            break;
-        default:
-            AVG_LOG_ERROR("Unsupported bpp " << dp.m_BPP <<
-                    "in SDLDisplayEngine::init()");
-            exit(-1);
-    }
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
-    Flags |= SDL_OPENGL;
-
-    m_pScreen = 0;
-    while (glConfig.m_MultiSampleSamples && !m_pScreen) {
-        if (glConfig.m_MultiSampleSamples > 1) {
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,
-                    glConfig.m_MultiSampleSamples);
-        } else {
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-        }
-        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
-        if (!m_pScreen) {
-            glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
-                    glConfig.m_MultiSampleSamples);
-        }
-    }
-#else
-    // Linux version: Context created manually, not by SDL
-    m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
-#endif
-    if (!m_pScreen) {
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
-                + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
-                toString(dp.m_BPP) + ").");
-    }
-    SDL_SysWMinfo info;
-    SDL_VERSION(&info.version);
-    int rc = SDL_GetWMInfo(&info);
-    AVG_ASSERT(rc != -1);
-    m_pGLContext = GLContext::create(glConfig, m_WindowSize, &info);
-
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    m_pXIMTInputDevice = 0;
-#endif
-    SDL_WM_SetCaption("libavg", 0);
+    m_pWindow = WindowPtr(new Window(dp, glConfig));
     Display::get()->getRefreshRate();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
@@ -234,10 +147,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         setFramerate(dp.m_Framerate);
     }
 
-    m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
-    m_pGLContext->logConfig();
     VideoDecoder::logConfig();
 
     SDL_EnableUNICODE(1);
@@ -265,22 +176,9 @@ void SDLDisplayEngine::setWindowTitle(const string& sTitle)
     SDL_WM_SetCaption(sTitle.c_str(), 0);
 }
 
-#ifdef _WIN32
-#pragma warning(disable: 4996)
-#endif
 void SDLDisplayEngine::teardown()
 {
-    if (m_pScreen) {
-#ifdef linux
-        // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
-        SDL_ShowCursor(SDL_ENABLE);
-#endif
-        m_pScreen = 0;
-        if (m_pGLContext) {
-            delete m_pGLContext;
-            m_pGLContext = 0;
-        }
-    }
+    m_pWindow = WindowPtr();
 }
 
 void SDLDisplayEngine::setGamma(float red, float green, float blue)
@@ -319,19 +217,6 @@ bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
 #endif
 }
 
-static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
-
-void SDLDisplayEngine::swapBuffers()
-{
-    ScopeTimer timer(SwapBufferProfilingZone);
-#ifdef linux    
-    m_pGLContext->swapBuffers();
-#else
-    SDL_GL_SwapBuffers();
-#endif
-    GLContext::checkError("swapBuffers()");
-}
-
 void SDLDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
@@ -352,37 +237,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 
 BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 {
-    BitmapPtr pBmp;
-    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-    if (m_pGLContext->isGLES()) {
-        pBmp = BitmapPtr(new Bitmap(m_WindowSize, R8G8B8X8, "screenshot"));
-        glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_RGBA, GL_UNSIGNED_BYTE, 
-                pBmp->getPixels());
-        GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
-    } else {
-#ifndef AVG_ENABLE_EGL
-        pBmp = BitmapPtr(new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
-        string sTmp;
-        bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
-        GLenum buf = buffer;
-        if (!buffer) {
-            if (bBroken) {
-                // Workaround for buggy GL_FRONT on some machines.
-                buf = GL_BACK;
-            } else {
-                buf = GL_FRONT;
-            }
-        }
-        glReadBuffer(buf);
-        GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
-        glproc::BindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-        glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
-                pBmp->getPixels());
-        GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
-#endif
-    }
-    FilterFlip().applyInPlace(pBmp);
-    return pBmp;
+    return m_pWindow->screenshot(buffer);
 }
 
 IntPoint SDLDisplayEngine::getSize()
@@ -516,8 +371,9 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
 {
     int x, y;
     Uint8 buttonState = SDL_GetMouseState(&x, &y);
-    x = int((x*m_Size.x)/m_WindowSize.x);
-    y = int((y*m_Size.y)/m_WindowSize.y);
+    IntPoint windowSize = m_pWindow->getSize();
+    x = int((x*m_Size.x)/windowSize.x);
+    y = int((y*m_Size.y)/windowSize.y);
     glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
     glm::vec2 speed;
     if (lastMousePos.x == -1) {
@@ -850,14 +706,23 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(UNDO);
 }
 
-const IntPoint& SDLDisplayEngine::getWindowSize() const
+const IntPoint SDLDisplayEngine::getWindowSize() const
 {
-    return m_WindowSize;
+    if (m_pWindow) {
+        return m_pWindow->getSize();
+    } else {
+        return IntPoint(0,0);
+    }
 }
 
 bool SDLDisplayEngine::isFullscreen() const
 {
     return m_bIsFullscreen;
+}
+
+void SDLDisplayEngine::swapBuffers()
+{
+    m_pWindow->swapBuffers();
 }
 
 }
