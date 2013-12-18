@@ -29,7 +29,7 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#include "Window.h"
+#include "SDLWindow.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -118,7 +118,7 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
 
-    m_pWindow = WindowPtr(new Window(dp, glConfig));
+    m_pWindow = WindowPtr(new SDLWindow(dp, glConfig));
     Display::get()->getRefreshRate();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);

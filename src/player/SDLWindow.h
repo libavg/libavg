@@ -20,56 +20,51 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Window_H_
-#define _Window_H_
+#ifndef _SDLWindow_H_
+#define _SDLWindow_H_
 
 #include "../api.h"
+#include "Window.h"
 #include "DisplayParams.h"
 #include "Event.h"
 
-#include "../base/Rect.h"
 #include "../graphics/GLConfig.h"
 
 #include <boost/shared_ptr.hpp>
-#include <string>
+
+union SDL_Event;
 
 namespace avg {
 
 class XInputMTInputDevice;
+class MouseEvent;
+typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class Bitmap;
 typedef boost::shared_ptr<class Bitmap> BitmapPtr;
-class GLContext;
 
-class AVG_API Window
+class AVG_API SDLWindow: public Window
 {
     public:
-        Window(const DisplayParams& dp, GLConfig glConfig);
-        virtual ~Window();
+        SDLWindow(const DisplayParams& dp, GLConfig glConfig);
+        virtual ~SDLWindow();
 
-        void setTitle(const std::string& sTitle);
-        virtual BitmapPtr screenshot(int buffer=0);
-
-        const IntPoint& getSize() const;
-        const IntRect& getViewport() const;
-        bool isFullscreen() const;
-        virtual void swapBuffers();
-
-        virtual std::vector<EventPtr> pollEvents() = 0;
-
-    protected:
-        void setGLContext(GLContext* pGLContext);
+        virtual std::vector<EventPtr> pollEvents();
+        void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
 
     private:
-        bool internalSetGamma(float red, float green, float blue);
-       
-        bool m_bIsFullscreen;
-        IntPoint m_Size;
-        IntRect m_Viewport;
-
-        GLContext* m_pGLContext;
+        void initTranslationTable();
+        EventPtr createMouseEvent
+                (Event::Type Type, const SDL_Event & SDLEvent, long Button);
+        EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        
+        // Event handling.
+        MouseEventPtr m_pLastMouseEvent;
+        XInputMTInputDevice * m_pXIMTInputDevice;
+        static std::vector<long> s_KeyCodeTranslationTable;
 };
 
-typedef boost::shared_ptr<Window> WindowPtr;
+typedef boost::shared_ptr<SDLWindow> SDLWindowPtr;
 
 }
 
