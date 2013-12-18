@@ -20,54 +20,35 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Window_H_
-#define _Window_H_
+#ifndef _SecondaryWindow_H_
+#define _SecondaryWindow_H_
 
 #include "../api.h"
+#include "Window.h"
 #include "DisplayParams.h"
 #include "Event.h"
 
-#include "../base/Rect.h"
+#include "../graphics/GLConfig.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
 
-class XInputMTInputDevice;
-class Bitmap;
-typedef boost::shared_ptr<class Bitmap> BitmapPtr;
-class GLContext;
-
-class AVG_API Window
+class AVG_API SecondaryWindow: public Window
 {
     public:
-        Window(const DisplayParams& dp);
-        virtual ~Window();
+        SecondaryWindow(const DisplayParams& dp, GLConfig glConfig);
+        virtual ~SecondaryWindow();
 
-        virtual void setTitle(const std::string& sTitle) = 0;
-        BitmapPtr screenshot(int buffer=0);
+        virtual void setTitle(const std::string& sTitle);
 
-        const IntPoint& getSize() const;
-        const IntRect& getViewport() const;
-        bool isFullscreen() const;
-        virtual void swapBuffers() const;
-        GLContext* getGLContext() const;
-
-        virtual std::vector<EventPtr> pollEvents() = 0;
-
-    protected:
-        void setGLContext(GLContext* pGLContext);
+        virtual std::vector<EventPtr> pollEvents();
 
     private:
-        bool m_bIsFullscreen;
-        IntPoint m_Size;
-        IntRect m_Viewport;
-
-        GLContext* m_pGLContext;
 };
 
-typedef boost::shared_ptr<Window> WindowPtr;
+typedef boost::shared_ptr<SecondaryWindow> SecondaryWindowPtr;
 
 }
 

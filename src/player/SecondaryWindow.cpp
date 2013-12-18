@@ -1,0 +1,74 @@
+
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2011 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+
+#include "SecondaryWindow.h"
+#include "../avgconfigwrapper.h"
+
+#include "Player.h"
+
+#include "../base/Exception.h"
+#include "../base/Logger.h"
+#include "../base/ScopeTimer.h"
+#include "../base/OSHelper.h"
+#include "../base/StringHelper.h"
+
+#include "../graphics/GLContext.h"
+#include "../graphics/Filterflip.h"
+#include "../graphics/Filterfliprgb.h"
+#include "../graphics/SecondaryGLXContext.h"
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_syswm.h>
+
+#include <iostream>
+
+using namespace std;
+
+namespace avg {
+
+SecondaryWindow::SecondaryWindow(const DisplayParams& dp, GLConfig glConfig)
+    : Window(dp)
+{
+    GLContext* pMainContext = GLContext::getCurrent();
+    GLContext* pGLContext = new SecondaryGLXContext(glConfig, ":0.0", IntRect(0,0,800,600));
+    setGLContext(pGLContext);
+    
+    pMainContext->activate();
+}
+
+SecondaryWindow::~SecondaryWindow()
+{
+
+}
+
+void SecondaryWindow::setTitle(const std::string& sTitle)
+{
+}
+
+vector<EventPtr> SecondaryWindow::pollEvents()
+{
+    return vector<EventPtr>();
+}
+
+
+}

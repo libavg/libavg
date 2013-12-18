@@ -45,7 +45,7 @@ using namespace std;
 
 namespace avg {
 
-Window::Window(const DisplayParams& dp, GLConfig glConfig)
+Window::Window(const DisplayParams& dp)
     : m_pGLContext(0)
 {
     m_Size = dp.m_WindowSize;

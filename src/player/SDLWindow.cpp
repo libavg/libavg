@@ -53,7 +53,7 @@ namespace avg {
 vector<long> SDLWindow::s_KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
-    : Window(dp, glConfig),
+    : Window(dp),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0))
 {
