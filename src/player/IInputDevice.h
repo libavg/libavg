@@ -28,8 +28,6 @@
 #include <vector>
 #include <string>
 
-#define EXTRACT_INPUTDEVICE_CLASSNAME( classType ) (#classType)
-
 namespace avg {
 
 class Event;

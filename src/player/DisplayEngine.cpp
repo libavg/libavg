@@ -93,7 +93,7 @@ void DisplayEngine::quitSDL()
 }
 
 DisplayEngine::DisplayEngine()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(DisplayEngine)),
+    : IInputDevice("DisplayEngine"),
       m_Size(0,0),
       m_NumFrames(0),
       m_VBRate(0),

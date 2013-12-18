@@ -40,7 +40,7 @@ using namespace std;
 namespace avg {
     
 TestHelper::TestHelper()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TestHelper))
+    : IInputDevice("TestHelper")
 {
 }
 
