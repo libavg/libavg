@@ -27,6 +27,9 @@
 #include "Player.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
+#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
+#include "XInputMTInputDevice.h" 
+#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"

@@ -26,6 +26,7 @@
 #include "AVGNode.h"
 #include "TouchStatus.h"
 #include "DisplayEngine.h"
+#include "SDLWindow.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -134,7 +135,7 @@ void XInputMTInputDevice::start()
     detInfo.deviceid = m_DeviceID;
     XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&detInfo, 1);
 
-    pEngine->setXIMTInputDevice(this);
+    pEngine->getSDLWindow()->setXIMTInputDevice(this);
     MultitouchInputDevice::start();
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "XInput Multitouch event source created.");

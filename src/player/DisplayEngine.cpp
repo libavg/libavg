@@ -268,6 +268,11 @@ void DisplayEngine::setWindowTitle(const string& sTitle)
     SDL_WM_SetCaption(sTitle.c_str(), 0);
 }
 
+SDLWindowPtr DisplayEngine::getSDLWindow() const
+{
+    return boost::dynamic_pointer_cast<SDLWindow>(m_pWindow);
+}
+
 static ProfilingZoneID WaitProfilingZone("Render - wait");
 
 void DisplayEngine::frameWait()

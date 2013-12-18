@@ -41,6 +41,8 @@ class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class Window;
 typedef boost::shared_ptr<class Window> WindowPtr;
+class SDLWindow;
+typedef boost::shared_ptr<class SDLWindow> SDLWindowPtr;
 class GLContext;
 
 class AVG_API DisplayEngine: public IInputDevice
@@ -65,6 +67,7 @@ class AVG_API DisplayEngine: public IInputDevice
         int getKeyModifierState() const;
         IntPoint calcWindowSize(const DisplayParams& dp) const;
         void setWindowTitle(const std::string& sTitle);
+        SDLWindowPtr getSDLWindow() const;
 
         void frameWait();
         void swapBuffers();
