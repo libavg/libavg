@@ -25,6 +25,7 @@
 
 #include "../api.h"
 #include "DisplayParams.h"
+#include "Event.h"
 
 #include "../base/Rect.h"
 #include "../graphics/GLConfig.h"
@@ -32,8 +33,11 @@
 #include <boost/shared_ptr.hpp>
 #include <string>
 
+union SDL_Event;
+
 namespace avg {
 
+class XInputMTInputDevice;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class Bitmap;
@@ -53,12 +57,25 @@ class AVG_API Window
         bool isFullscreen() const;
         virtual void swapBuffers();
 
+        virtual std::vector<EventPtr> pollEvents();
+        void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
+
     private:
         bool internalSetGamma(float red, float green, float blue);
-
+        void initTranslationTable();
+        EventPtr createMouseEvent
+                (Event::Type Type, const SDL_Event & SDLEvent, long Button);
+        EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        
         bool m_bIsFullscreen;
         IntPoint m_Size;
         IntRect m_Viewport;
+
+        // Event handling.
+        MouseEventPtr m_pLastMouseEvent;
+        XInputMTInputDevice * m_pXIMTInputDevice;
+        static std::vector<long> s_KeyCodeTranslationTable;
 
         GLContext* m_pGLContext;
 };
