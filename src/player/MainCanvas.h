@@ -27,8 +27,8 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+class DisplayEngine;
+typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
 class SecondaryGLXContext;
 typedef boost::shared_ptr<SecondaryGLXContext> SecondaryGLXContextPtr;
 class GLContextMultiplexer;
@@ -40,7 +40,7 @@ class AVG_API MainCanvas: public Canvas
         MainCanvas(Player * pPlayer, bool bSecondViewport);
         virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
-        virtual void initPlayback(const SDLDisplayEnginePtr& pDisplayEngine);
+        virtual void initPlayback(const DisplayEnginePtr& pDisplayEngine);
        
         virtual BitmapPtr screenshot() const;
 
@@ -49,7 +49,7 @@ class AVG_API MainCanvas: public Canvas
         void createSecondWindow();
         void pollEvents();
 
-        SDLDisplayEnginePtr m_pDisplayEngine;
+        DisplayEnginePtr m_pDisplayEngine;
         GLContextMultiplexerPtr m_pMultiplexer;
         bool m_bSecondViewport;
 

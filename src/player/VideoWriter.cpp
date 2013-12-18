@@ -22,7 +22,7 @@
 #include "VideoWriter.h"
 #include "OffscreenCanvas.h"
 #include "Player.h"
-#include "SDLDisplayEngine.h"
+#include "DisplayEngine.h"
 
 #include "../graphics/FBO.h"
 #include "../graphics/GPURGB2YUVFilter.h"

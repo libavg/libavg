@@ -22,7 +22,7 @@
 #include "MainCanvas.h"
 
 #include "Player.h"
-#include "SDLDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "AVGNode.h"
 
 #include "../base/Exception.h"
@@ -63,7 +63,7 @@ void MainCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void MainCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
+void MainCanvas::initPlayback(const DisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);

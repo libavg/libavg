@@ -44,7 +44,7 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
-#include "SDLDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
@@ -149,7 +149,7 @@ Player::Player()
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
 
-    SDLDisplayEngine::initSDL();
+    DisplayEngine::initSDL();
     initConfig();
 
     FontStyle::registerType();
@@ -200,7 +200,7 @@ Player::~Player()
     if (m_pDisplayEngine) {
         m_pDisplayEngine->teardown();
     }
-    SDLDisplayEngine::quitSDL();
+    DisplayEngine::quitSDL();
 }
 
 Player* Player::get()
@@ -1259,11 +1259,11 @@ void Player::initGraphics(const string& sShaderPath)
     if (m_bDisplayEngineBroken) {
         m_bDisplayEngineBroken = false;
         m_pDisplayEngine->teardown();
-        m_pDisplayEngine = SDLDisplayEnginePtr();
+        m_pDisplayEngine = DisplayEnginePtr();
     }
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = DisplayEnginePtr(new DisplayEngine());
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Requested OpenGL configuration: ");
@@ -1319,10 +1319,10 @@ NodePtr Player::internalLoad(const string& sAVG, const string& sFilename)
     return pNode;
 }
 
-SDLDisplayEnginePtr Player::safeGetDisplayEngine()
+DisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = DisplayEnginePtr(new DisplayEngine());
     }
     return m_pDisplayEngine;
 
@@ -1649,7 +1649,7 @@ void Player::handleTimers()
     }
 }
 
-SDLDisplayEngine * Player::getDisplayEngine() const
+DisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }
@@ -1755,7 +1755,7 @@ void Player::cleanup(bool bIsAbort)
         if (!m_bKeepWindowOpen) {
             m_pDisplayEngine->deinitRender();
             m_pDisplayEngine->teardown();
-            m_pDisplayEngine = SDLDisplayEnginePtr();
+            m_pDisplayEngine = DisplayEnginePtr();
         }
     }
     if (AudioEngine::get()) {

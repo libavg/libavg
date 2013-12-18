@@ -25,7 +25,7 @@
 #include "Player.h"
 #include "AVGNode.h"
 #include "TouchStatus.h"
-#include "SDLDisplayEngine.h"
+#include "DisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -68,7 +68,7 @@ XInputMTInputDevice::~XInputMTInputDevice()
 void XInputMTInputDevice::start()
 {
     Status status;
-    SDLDisplayEngine * pEngine = Player::get()->getDisplayEngine();
+    DisplayEngine * pEngine = Player::get()->getDisplayEngine();
     glm::vec2 size(pEngine->getSize());
     glm::vec2 windowSize(pEngine->getWindowSize());
     m_DisplayScale.x = size.x/windowSize.x;

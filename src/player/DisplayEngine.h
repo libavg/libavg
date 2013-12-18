@@ -24,26 +24,35 @@
 
 #include "../api.h"
 #include "DisplayParams.h"
+#include "IInputDevice.h"
 
-#include "../graphics/Pixel32.h"
+#include "../graphics/GLConfig.h"
 #include "../graphics/Bitmap.h"
 
-#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 
 #include <string>
+#include <vector>
 
 namespace avg {
 
-class Region;
+class MouseEvent;
+typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
+class Window;
+typedef boost::shared_ptr<class Window> WindowPtr;
+class GLContext;
 
-class AVG_API DisplayEngine
+class AVG_API DisplayEngine: public IInputDevice
 {   
     public:
+        static void initSDL();
+        static void quitSDL();
+
         DisplayEngine();
         virtual ~DisplayEngine();
-        virtual void teardown() = 0;
+        virtual void init(const DisplayParams& dp, GLConfig glConfig);
+        virtual void teardown();
         void initRender();
         void deinitRender();
         void setFramerate(float rate);
@@ -51,24 +60,38 @@ class AVG_API DisplayEngine
         float getEffectiveFramerate();
         void setVBlankRate(int rate);
         bool wasFrameLate();
-        virtual void setGamma(float Red, float Green, float Blue) = 0;
-        virtual void setMousePos(const IntPoint& pos) = 0;
-        virtual int getKeyModifierState() const = 0;
+        void setGamma(float Red, float Green, float Blue);
+        void setMousePos(const IntPoint& pos);
+        int getKeyModifierState() const;
+        IntPoint calcWindowSize(const DisplayParams& dp) const;
+        void setWindowTitle(const std::string& sTitle);
 
         void frameWait();
-        virtual void swapBuffers() = 0;
+        void swapBuffers();
         void checkJitter();
         long long getDisplayTime();
 
-        virtual IntPoint getSize() = 0;
+        const IntPoint& getSize() const;
+        IntPoint getWindowSize() const;
+        bool isFullscreen() const;
 
-        virtual void showCursor(bool bShow) = 0;
+        void showCursor(bool bShow);
 
-        virtual BitmapPtr screenshot(int buffer=0) = 0;
+        BitmapPtr screenshot(int buffer=0);
+
+        // From IInputDevice
+        std::vector<EventPtr> pollEvents();
 
     protected:
         
     private:
+        bool internalSetGamma(float red, float green, float blue);
+        
+        WindowPtr m_pWindow;
+        IntPoint m_Size;
+        bool m_bIsFullscreen;
+
+        float m_Gamma[3];
         int m_NumFrames;
         int m_FramesTooLate;
         long long m_StartTime;
@@ -90,4 +113,4 @@ typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
 
 }
 
-#endif //_DisplayEngine_H_
+#endif
