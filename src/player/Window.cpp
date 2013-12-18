@@ -61,13 +61,6 @@ Window::~Window()
     }
 }
 
-void Window::setTitle(const string& sTitle)
-{
-    SDL_WM_SetCaption(sTitle.c_str(), 0);
-}
-
-static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
-
 BitmapPtr Window::screenshot(int buffer)
 {
     BitmapPtr pBmp;
@@ -118,15 +111,18 @@ bool Window::isFullscreen() const
     return m_bIsFullscreen;
 }
 
-void Window::swapBuffers()
+static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
+
+void Window::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
-#ifdef linux    
     m_pGLContext->swapBuffers();
-#else
-    SDL_GL_SwapBuffers();
-#endif
     GLContext::checkError("swapBuffers()");
+}
+
+GLContext* Window::getGLContext() const
+{
+    return m_pGLContext;
 }
 
 void Window::setGLContext(GLContext* pGLContext)

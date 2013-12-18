@@ -152,6 +152,24 @@ SDLWindow::~SDLWindow()
 {
 }
 
+void SDLWindow::setTitle(const string& sTitle)
+{
+    SDL_WM_SetCaption(sTitle.c_str(), 0);
+}
+
+static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
+
+void SDLWindow::swapBuffers() const
+{
+    ScopeTimer timer(SwapBufferProfilingZone);
+#ifdef linux    
+    getGLContext()->swapBuffers();
+#else
+    SDL_GL_SwapBuffers();
+#endif
+    GLContext::checkError("swapBuffers()");
+}
+
 const char * getEventTypeName(unsigned char type) 
 {
     switch (type) {

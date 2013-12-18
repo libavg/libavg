@@ -46,13 +46,14 @@ class AVG_API Window
         Window(const DisplayParams& dp, GLConfig glConfig);
         virtual ~Window();
 
-        void setTitle(const std::string& sTitle);
-        virtual BitmapPtr screenshot(int buffer=0);
+        virtual void setTitle(const std::string& sTitle) = 0;
+        BitmapPtr screenshot(int buffer=0);
 
         const IntPoint& getSize() const;
         const IntRect& getViewport() const;
         bool isFullscreen() const;
-        virtual void swapBuffers();
+        virtual void swapBuffers() const;
+        GLContext* getGLContext() const;
 
         virtual std::vector<EventPtr> pollEvents() = 0;
 
@@ -60,8 +61,6 @@ class AVG_API Window
         void setGLContext(GLContext* pGLContext);
 
     private:
-        bool internalSetGamma(float red, float green, float blue);
-       
         bool m_bIsFullscreen;
         IntPoint m_Size;
         IntRect m_Viewport;

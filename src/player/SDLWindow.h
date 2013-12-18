@@ -46,9 +46,12 @@ class AVG_API SDLWindow: public Window
 {
     public:
         SDLWindow(const DisplayParams& dp, GLConfig glConfig);
-        virtual ~SDLWindow();
+        ~SDLWindow();
 
-        virtual std::vector<EventPtr> pollEvents();
+        void setTitle(const std::string& sTitle);
+        void swapBuffers() const;
+
+        std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
 
     private:
