@@ -26,27 +26,16 @@
 #include "SDLMain.h"
 #endif
 
-#include "Shape.h"
-#include "OGLSurface.h"
-#include "OffscreenCanvas.h"
-
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #include "Window.h"
 
-#include "../base/MathHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
-#include "../base/OSHelper.h"
-#include "../base/StringHelper.h"
 
-#include "../graphics/Display.h"
-#include "../graphics/GLContext.h"
-#include "../graphics/Filterflip.h"
-#include "../graphics/Filterfliprgb.h"
 #include "../graphics/Display.h"
 
 #include "../video/VideoDecoder.h"
@@ -56,29 +45,20 @@
 #endif
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
 #endif
 
-#ifdef linux
-#include <sys/ioctl.h>
-#include <sys/fcntl.h>
-#endif
 #ifdef AVG_ENABLE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
 
 #include <signal.h>
 #include <iostream>
-#include <sstream>
-#include <math.h>
 
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <unistd.h>
 #endif
 
 using namespace std;
