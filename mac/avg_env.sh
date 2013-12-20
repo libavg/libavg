@@ -8,7 +8,7 @@ else
     then
         CXX=gcc
     fi
-    IS_CLANG=`${CXX} --version | grep clang`
+    IS_CLANG="`${CXX} --version 2> /dev/null | grep clang`"
     if [[ "${IS_CLANG}" == "" ]]
     then
         DEBUGINFOFLAG="-gstabs"
