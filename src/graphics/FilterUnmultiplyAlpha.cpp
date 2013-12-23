@@ -45,13 +45,48 @@ void FilterUnmultiplyAlpha::applyInPlace(BitmapPtr pBmp)
     AVG_ASSERT(pBmp->getBytesPerPixel() == 4);
     IntPoint size = pBmp->getSize();
     for (int y = 0; y < size.y; y++) {
-        unsigned char * pPixel = pBmp->getPixels()+y*pBmp->getStride();
+        unsigned char * pPixel = pBmp->getPixels() + y*pBmp->getStride();
         for (int x = 0; x < size.x; x++) { 
             int alpha = *(pPixel+ALPHAPOS);
             if (alpha != 0) {
                 *(pPixel+REDPOS) = (int(*(pPixel+REDPOS))*255)/alpha;
                 *(pPixel+GREENPOS) = (int(*(pPixel+GREENPOS))*255)/alpha;
                 *(pPixel+BLUEPOS) = (int(*(pPixel+BLUEPOS))*255)/alpha;
+            }
+            pPixel += 4;
+        }
+    }
+    // The color values of transparent pixels are used in bilinear texture
+    // filtering in certain conditions. To avoid artifacts, we transfer the
+    // color from a neighboring non-transparent pixel.
+    for (int y = 1; y < size.y-1; y++) {
+        int stride = pBmp->getStride();
+        unsigned char * pPixel = pBmp->getPixels() + y*stride;
+        for (int x = 1; x < size.x-1; x++) { 
+            int alpha = *(pPixel+ALPHAPOS);
+            if (alpha == 0) {
+                unsigned char * pSrcPixel = pPixel;
+                if (*(pPixel+4+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel+4;
+                } else if (*(pPixel+stride+4+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel+stride+4;
+                } else if (*(pPixel+stride+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel+stride;
+                } else if (*(pPixel+stride-4+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel+stride-4;
+                } else if (*(pPixel-4+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel-4;
+                } else if (*(pPixel-stride-4+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel-stride-4;
+                } else if (*(pPixel-stride+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel-stride;
+                } else if (*(pPixel-stride+4+ALPHAPOS) != 0) {
+                    pSrcPixel = pPixel-stride+4;
+                }
+
+                *(pPixel+REDPOS) = *(pSrcPixel+REDPOS);
+                *(pPixel+GREENPOS) = *(pSrcPixel+GREENPOS);
+                *(pPixel+BLUEPOS) = *(pSrcPixel+BLUEPOS);
             }
             pPixel += 4;
         }
