@@ -35,10 +35,9 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
+#ifdef linux
 #include "../graphics/SecondaryGLXContext.h"
-
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
+#endif
 
 #include <iostream>
 
@@ -50,7 +49,10 @@ SecondaryWindow::SecondaryWindow(const DisplayParams& dp, GLConfig glConfig)
     : Window(dp)
 {
     GLContext* pMainContext = GLContext::getCurrent();
-    GLContext* pGLContext = new SecondaryGLXContext(glConfig, ":0.0", IntRect(0,0,800,600));
+    GLContext* pGLContext;
+#ifdef linux
+    pGLContext = new SecondaryGLXContext(glConfig, ":0.0", IntRect(0,0,800,600));
+#endif
     setGLContext(pGLContext);
     
     pMainContext->activate();

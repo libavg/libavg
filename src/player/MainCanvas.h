@@ -29,8 +29,8 @@ namespace avg {
 
 class DisplayEngine;
 typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
-class SecondaryGLXContext;
-typedef boost::shared_ptr<SecondaryGLXContext> SecondaryGLXContextPtr;
+class GLContext;
+typedef boost::shared_ptr<GLContext> GLContextPtr;
 class GLContextMultiplexer;
 typedef boost::shared_ptr<GLContextMultiplexer> GLContextMultiplexerPtr;
 
@@ -53,7 +53,7 @@ class AVG_API MainCanvas: public Canvas
         GLContextMultiplexerPtr m_pMultiplexer;
         bool m_bSecondViewport;
 
-        SecondaryGLXContextPtr m_pGLContext;
+        GLContextPtr m_pGLContext;
 };
 
 }

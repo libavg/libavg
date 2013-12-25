@@ -31,10 +31,11 @@
 
 #include "../graphics/GLContext.h"
 #include "../graphics/GLTexture.h"
-#include "../graphics/SecondaryGLXContext.h"
 #include "../graphics/GLContextMultiplexer.h"
-
+#ifdef linux
+#include "../graphics/SecondaryGLXContext.h"
 #include <X11/Xlib.h>
+#endif
 
 #include <vector>
 
@@ -117,9 +118,10 @@ void MainCanvas::createSecondWindow()
 {
     GLContext* pMainContext = GLContext::getCurrent();
     const GLConfig& config = pMainContext->getConfig();
-    m_pGLContext = SecondaryGLXContextPtr(new SecondaryGLXContext(config, ":0.0",
+#ifdef linux
+    m_pGLContext = GLContextPtr(new SecondaryGLXContext(config, ":0.0",
             IntRect(0,0,800,600)));
-    
+#endif
     pMainContext->activate();
 }
 

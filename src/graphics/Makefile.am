@@ -38,7 +38,8 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextMultiplexer.h 
         ImagingProjection.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
         GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
         VertexData.h BitmapLoader.h $(GL_INCLUDES)
-ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp GLContextMultiplexer.cpp \
+ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
+        GLContextMultiplexer.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
