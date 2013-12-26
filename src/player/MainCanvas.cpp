@@ -116,13 +116,13 @@ void MainCanvas::renderTree()
 
 void MainCanvas::createSecondWindow()
 {
+#ifdef linux
     GLContext* pMainContext = GLContext::getCurrent();
     const GLConfig& config = pMainContext->getConfig();
-#ifdef linux
     m_pGLContext = GLContextPtr(new SecondaryGLXContext(config, ":0.0",
             IntRect(0,0,800,600)));
-#endif
     pMainContext->activate();
+#endif
 }
 
 /*

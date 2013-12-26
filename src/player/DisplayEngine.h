@@ -90,7 +90,7 @@ class AVG_API DisplayEngine: public IInputDevice
     private:
         bool internalSetGamma(float red, float green, float blue);
         
-        WindowPtr m_pWindow;
+        std::vector<WindowPtr> m_pWindows;
         IntPoint m_Size;
         bool m_bIsFullscreen;
 

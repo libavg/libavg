@@ -118,7 +118,7 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
 
-    m_pWindow = WindowPtr(new SDLWindow(dp, glConfig));
+    m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
     Display::get()->getRefreshRate();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
@@ -138,7 +138,7 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
 void DisplayEngine::teardown()
 {
-    m_pWindow = WindowPtr();
+    m_pWindows.clear();
 }
 
 void DisplayEngine::initRender()
@@ -270,7 +270,7 @@ void DisplayEngine::setWindowTitle(const string& sTitle)
 
 SDLWindowPtr DisplayEngine::getSDLWindow() const
 {
-    return boost::dynamic_pointer_cast<SDLWindow>(m_pWindow);
+    return boost::dynamic_pointer_cast<SDLWindow>(m_pWindows[0]);
 }
 
 static ProfilingZoneID WaitProfilingZone("Render - wait");
@@ -297,7 +297,9 @@ void DisplayEngine::frameWait()
 
 void DisplayEngine::swapBuffers()
 {
-    m_pWindow->swapBuffers();
+    for (unsigned i=0; i<m_pWindows.size(); ++i) {
+        m_pWindows[i]->swapBuffers();
+    }
 }
 
 void DisplayEngine::checkJitter()
@@ -340,10 +342,10 @@ const IntPoint& DisplayEngine::getSize() const
 
 IntPoint DisplayEngine::getWindowSize() const
 {
-    if (m_pWindow) {
-        return m_pWindow->getSize();
-    } else {
+    if (m_pWindows.empty()) {
         return IntPoint(0,0);
+    } else {
+        return m_pWindows[0]->getSize();
     }
 }
 
@@ -372,12 +374,17 @@ void DisplayEngine::showCursor(bool bShow)
 
 BitmapPtr DisplayEngine::screenshot(int buffer)
 {
-    return m_pWindow->screenshot(buffer);
+    return m_pWindows[0]->screenshot(buffer);
 }
 
 vector<EventPtr> DisplayEngine::pollEvents()
 {
-    return m_pWindow->pollEvents();
+    vector<EventPtr> pEvents;
+    for (unsigned i=0; i != m_pWindows.size(); ++i) {
+        vector<EventPtr> pWinEvents =  m_pWindows[i]->pollEvents();
+        pEvents.insert(pEvents.end(), pWinEvents.begin(), pWinEvents.end());
+    }
+    return pEvents;
 }
 
 bool DisplayEngine::internalSetGamma(float red, float green, float blue)

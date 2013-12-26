@@ -24,9 +24,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
-#endif
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>

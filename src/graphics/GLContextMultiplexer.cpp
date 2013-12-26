@@ -53,6 +53,13 @@ GLContextMultiplexer::GLContextMultiplexer()
 
 GLContextMultiplexer::~GLContextMultiplexer()
 {
+    m_pPendingTexCreates.clear();
+    m_pPendingTexUploads.clear();
+    m_PendingTexDeletes.clear();
+
+    m_pPendingVACreates.clear();
+    m_PendingBufferDeletes.clear();
+
     s_pGLContextMultiplexer = 0;
 }
 
