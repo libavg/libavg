@@ -78,7 +78,6 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
         flags |= SDL_NOFRAME;
     }
 
-    SDL_Surface * pSDLSurface;
     IntPoint size = dp.m_WindowSize;
 #ifndef linux
     if (glConfig.m_bUseDebugContext) {
@@ -108,6 +107,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
     flags |= SDL_OPENGL;
 
+    SDL_Surface * pSDLSurface = 0;
     while (glConfig.m_MultiSampleSamples && !pSDLSurface) {
         if (glConfig.m_MultiSampleSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);

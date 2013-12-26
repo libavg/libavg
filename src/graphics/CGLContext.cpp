@@ -46,6 +46,7 @@ CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
 {
     if (pSDLWMInfo) {
         m_Context = CGLGetCurrentContext();
+        AVG_ASSERT(m_Context);
         setCurrent();
     } else {
         CGLPixelFormatObj pixelFormatObj;
