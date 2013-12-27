@@ -48,14 +48,14 @@ namespace avg {
 SecondaryWindow::SecondaryWindow(const DisplayParams& dp, GLConfig glConfig)
     : Window(dp)
 {
+#ifdef linux
     GLContext* pMainContext = GLContext::getCurrent();
     GLContext* pGLContext;
-#ifdef linux
     pGLContext = new SecondaryGLXContext(glConfig, ":0.0", IntRect(0,0,800,600));
-#endif
     setGLContext(pGLContext);
     
     pMainContext->activate();
+#endif
 }
 
 SecondaryWindow::~SecondaryWindow()
@@ -70,6 +70,18 @@ void SecondaryWindow::setTitle(const std::string& sTitle)
 vector<EventPtr> SecondaryWindow::pollEvents()
 {
     return vector<EventPtr>();
+/*
+    XEvent xev;
+    while (XCheckWindowEvent(m_pDisplay, m_SecondWindow, ButtonPressMask, &xev)) {
+        switch(xev.type) {
+            case ButtonPress:
+                cerr << "..." << endl;
+                break;
+            default:
+                cerr << "?" << endl;
+        }
+    }
+*/
 }
 
 

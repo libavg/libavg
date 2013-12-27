@@ -1273,7 +1273,7 @@ void Player::initGraphics(const string& sShaderPath)
             m_pDisplayEngine->isFullscreen() == true) 
     {
         m_pDisplayEngine->teardown();
-        m_pDisplayEngine->init(m_DP, m_GLConfig);
+        m_pDisplayEngine->init(m_DP, m_GLConfig, false);
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Pixels per mm: " << Display::get()->getPixelsPerMM());
@@ -1298,7 +1298,7 @@ void Player::initAudio()
 void Player::initMainCanvas(NodePtr pRootNode)
 {
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
-    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this, false));
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
     m_DP.m_Size = m_pMainCanvas->getSize();
 

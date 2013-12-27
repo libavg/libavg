@@ -30,6 +30,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #include "SDLWindow.h"
+#include "SecondaryWindow.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -112,13 +113,17 @@ DisplayEngine::~DisplayEngine()
 {
 }
 
-void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
+void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig, bool bSecondWindow) 
 {
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
 
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
+    if (bSecondWindow) {
+        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp, glConfig)));
+    }
+
     Display::get()->getRefreshRate();
 
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
@@ -266,6 +271,16 @@ IntPoint DisplayEngine::calcWindowSize(const DisplayParams& dp) const
 void DisplayEngine::setWindowTitle(const string& sTitle)
 {
     SDL_WM_SetCaption(sTitle.c_str(), 0);
+}
+
+unsigned DisplayEngine::getNumWindows() const
+{
+    return m_pWindows.size();
+}
+
+const WindowPtr DisplayEngine::getWindow(unsigned i) const
+{
+    return m_pWindows[i];
 }
 
 SDLWindowPtr DisplayEngine::getSDLWindow() const

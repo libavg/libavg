@@ -37,7 +37,7 @@ typedef boost::shared_ptr<GLContextMultiplexer> GLContextMultiplexerPtr;
 class AVG_API MainCanvas: public Canvas
 {
     public:
-        MainCanvas(Player * pPlayer, bool bSecondViewport);
+        MainCanvas(Player * pPlayer);
         virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
         virtual void initPlayback(const DisplayEnginePtr& pDisplayEngine);
@@ -46,14 +46,10 @@ class AVG_API MainCanvas: public Canvas
 
     private:
         void renderTree();
-        void createSecondWindow();
         void pollEvents();
 
         DisplayEnginePtr m_pDisplayEngine;
         GLContextMultiplexerPtr m_pMultiplexer;
-        bool m_bSecondViewport;
-
-        GLContextPtr m_pGLContext;
 };
 
 }

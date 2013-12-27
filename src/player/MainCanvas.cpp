@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "DisplayEngine.h"
 #include "AVGNode.h"
+#include "Window.h"
 
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
@@ -44,10 +45,10 @@ using namespace std;
 
 namespace avg {
 
-MainCanvas::MainCanvas(Player * pPlayer, bool bSecondViewport)
-    : Canvas(pPlayer),
-      m_bSecondViewport(bSecondViewport)
+MainCanvas::MainCanvas(Player * pPlayer)
+    : Canvas(pPlayer)
 {
+    // TODO: Move this somewhere else.
     m_pMultiplexer = GLContextMultiplexerPtr(new GLContextMultiplexer());
 }
 
@@ -68,10 +69,6 @@ void MainCanvas::initPlayback(const DisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
-
-    if (m_bSecondViewport) {
-        createSecondWindow();
-    }
 }
 
 BitmapPtr MainCanvas::screenshot() const
@@ -90,16 +87,22 @@ static ProfilingZoneID SecondWindowRenderProfilingZone(
 void MainCanvas::renderTree()
 {
     preRender();
-    m_pMultiplexer->uploadData();
-    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-    GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
-    {
+    DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
+    unsigned numWindows = pDisplayEngine->getNumWindows();
+    for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(RootRenderProfilingZone);
-        IntPoint windowSize = m_pDisplayEngine->getWindowSize();
-        glViewport(0, 0, windowSize.x, windowSize.y);
+        WindowPtr pWindow = pDisplayEngine->getWindow(i);
+        GLContext* pContext = pWindow->getGLContext();
+        pContext->activate();
+        m_pMultiplexer->uploadData();
+        glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+        GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
+        IntRect windowSize = pWindow->getViewport();
+        glViewport(windowSize.tl.x, windowSize.tl.y, windowSize.width(), 
+                windowSize.height());
         Canvas::render(false);
     }
-
+/*
     if (m_bSecondViewport) {
         GLContext* pMainContext = GLContext::getCurrent();
         ScopeTimer Timer(SecondWindowRenderProfilingZone);
@@ -109,36 +112,8 @@ void MainCanvas::renderTree()
         m_pGLContext->swapBuffers();
         pMainContext->activate();
     }
-
-    m_pMultiplexer->reset();
-//    pollEvents();
-}
-
-void MainCanvas::createSecondWindow()
-{
-#ifdef linux
-    GLContext* pMainContext = GLContext::getCurrent();
-    const GLConfig& config = pMainContext->getConfig();
-    m_pGLContext = GLContextPtr(new SecondaryGLXContext(config, ":0.0",
-            IntRect(0,0,800,600)));
-    pMainContext->activate();
-#endif
-}
-
-/*
-void MainCanvas::pollEvents()
-{
-    XEvent xev;
-    while (XCheckWindowEvent(m_pDisplay, m_SecondWindow, ButtonPressMask, &xev)) {
-        switch(xev.type) {
-            case ButtonPress:
-                cerr << "..." << endl;
-                break;
-            default:
-                cerr << "?" << endl;
-        }
-    }
-}
 */
+    m_pMultiplexer->reset();
+}
 
 }

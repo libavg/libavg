@@ -53,7 +53,7 @@ class AVG_API DisplayEngine: public IInputDevice
 
         DisplayEngine();
         virtual ~DisplayEngine();
-        virtual void init(const DisplayParams& dp, GLConfig glConfig);
+        virtual void init(const DisplayParams& dp, GLConfig glConfig, bool bSecondWindow);
         virtual void teardown();
         void initRender();
         void deinitRender();
@@ -67,6 +67,9 @@ class AVG_API DisplayEngine: public IInputDevice
         int getKeyModifierState() const;
         IntPoint calcWindowSize(const DisplayParams& dp) const;
         void setWindowTitle(const std::string& sTitle);
+    
+        unsigned getNumWindows() const;
+        const WindowPtr getWindow(unsigned i) const;
         SDLWindowPtr getSDLWindow() const;
 
         void frameWait();
