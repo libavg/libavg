@@ -270,8 +270,8 @@ void OffscreenCanvas::renderTree()
         pWindow->getGLContext()->activate();
         m_pFBO->activate();
         GLContextMultiplexer::get()->uploadData();
-        IntRect viewport = pWindow->getViewport();
-        glViewport(viewport.tl.x, viewport.tl.y, viewport.width(), viewport.height());
+        glm::vec2 size = getRootNode()->getSize();
+        glViewport(0, 0, size.x, size.y);
         Canvas::render(true);
         m_pFBO->copyToDestTexture();
     }

@@ -573,7 +573,7 @@ def imageTestSuite(tests):
             "testBitmapManagerException",
             "testBlendMode",
             "testImageMask",
-#            "testImageMaskCanvas",
+            "testImageMaskCanvas",
             "testImageMaskPos",
             "testImageMaskSize",
             "testImageMipmap",
