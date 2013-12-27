@@ -25,6 +25,7 @@
 #include "AVGNode.h"
 #include "Shape.h"
 #include "OffscreenCanvas.h"
+#include "Window.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -238,22 +239,27 @@ void Canvas::preRender()
     m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
 }
 
-void Canvas::render(bool bOffscreen)
+void Canvas::renderWindow(WindowPtr pWindow, FBOPtr pFBO, const IntRect& viewport)
 {
+    pWindow->getGLContext()->activate();
+    GLContextMultiplexer::get()->uploadData();
+    glm::mat4 projMat;
+    glm::vec2 size = m_pRootNode->getSize();
+    if (pFBO) {
+        pFBO->activate();
+        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
+    } else {
+        glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+        projMat = glm::ortho(0.f, size.x, size.y, 0.f);
+    }
+    glViewport(viewport.tl.x, viewport.tl.y, viewport.width(), viewport.height());
     {
         ScopeTimer Timer(VATransferProfilingZone);
         m_pVertexArray->update();
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-            !bOffscreen);
-    GLContext::checkError("Canvas::render: glViewport()");
-    glm::vec2 size = m_pRootNode->getSize();
-    glm::mat4 projMat;
-    if (bOffscreen) {
-        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
-    } else {
-        projMat = glm::ortho(0.f, size.x, size.y, 0.f);
-    }
+            !pFBO);
+    GLContext::checkError("Canvas::renderWindow: glViewport()");
     m_pVertexArray->activate();
     m_pRootNode->maybeRender(projMat);
 

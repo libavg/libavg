@@ -48,6 +48,7 @@
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
+#include "SDLWindow.h"
 #ifdef __APPLE__
     #include "AppleTrackpadInputDevice.h"
 #endif
@@ -869,9 +870,9 @@ BitmapPtr Player::screenshot()
     if (GLContext::getCurrent()->isGLES()) {
         // Some GLES implementations invalidate the buffer after eglSwapBuffers.
         // The only way we can get at the contents at this point is to rerender them.
-        IntPoint windowSize = m_pDisplayEngine->getWindowSize();
-        glViewport(0, 0, windowSize.x, windowSize.y);
-        m_pMainCanvas->render(false);
+        WindowPtr pWindow = m_pDisplayEngine->getSDLWindow();
+        IntRect viewport = pWindow->getViewport();
+        m_pMainCanvas->renderWindow(pWindow, FBOPtr(), viewport);
     }
     return m_pDisplayEngine->screenshot();
 }

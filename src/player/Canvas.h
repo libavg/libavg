@@ -52,11 +52,13 @@ class Canvas;
 class FBO;
 class VertexArray;
 class SubVertexArray;
+class Window;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 typedef boost::shared_ptr<FBO> FBOPtr;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+typedef boost::shared_ptr<Window> WindowPtr;
 
 class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
@@ -91,7 +93,8 @@ class AVG_API Canvas: public ExportedObject
 
         std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
 
-        virtual void render(bool bOffscreen);
+        virtual void renderWindow(WindowPtr pWindow, FBOPtr pFBO, 
+                const IntRect& viewport);
 
     protected:
         Player * getPlayer() const;
