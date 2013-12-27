@@ -2,13 +2,18 @@ if [[ x"${AVG_PATH}" == x"" ]]
 then
     echo Please set AVG_PATH
 else
-    DARWINVER=`uname -r`
-    DARWINMAJORVER=${DARWINVER%%.*}
-    if [[ "${DARWINMAJORVER}" == "13" ]]
+    # Set the debug info flag to use depending on whether clang is used as compiler.
+    # Is there an easier way to do this?
+    if [[ "${CXX}" == "" ]]
     then
-        DEBUGINFOFLAG="-g"
-    else
+        CXX=gcc
+    fi
+    IS_CLANG="`${CXX} --version 2> /dev/null | grep clang`"
+    if [[ "${IS_CLANG}" == "" ]]
+    then
         DEBUGINFOFLAG="-gstabs"
+    else
+        DEBUGINFOFLAG="-g"
     fi
     export PATH=${AVG_PATH}/bin:${PATH}
     export CPPFLAGS="-I${AVG_PATH}/include "$CPPFLAGS
