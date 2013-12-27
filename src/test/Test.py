@@ -127,7 +127,7 @@ app = testapp.TestApp()
 
 app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
 app.registerSuiteFactory('player', PlayerTest.playerTestSuite)
-#app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
+app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
 app.registerSuiteFactory('image', ImageTest.imageTestSuite)
 #app.registerSuiteFactory('fx', FXTest.fxTestSuite)
 app.registerSuiteFactory('vector', VectorTest.vectorTestSuite)

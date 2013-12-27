@@ -1735,6 +1735,10 @@ void Player::cleanup(bool bIsAbort)
     m_pLastCursorStates.clear();
     m_pTestHelper->reset();
     ThreadProfiler::get()->dumpStatistics();
+    for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
+        m_pCanvases[i]->stopPlayback(bIsAbort);
+    }
+    m_pCanvases.clear();
     if (m_pMainCanvas) {
         unregisterFrameEndListener(BitmapManager::get());
         delete BitmapManager::get();
@@ -1745,10 +1749,6 @@ void Player::cleanup(bool bIsAbort)
     if (m_pMultitouchInputDevice) {
         m_pMultitouchInputDevice = IInputDevicePtr();
     }
-    for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-        m_pCanvases[i]->stopPlayback(bIsAbort);
-    }
-    m_pCanvases.clear();
 
     if (m_pDisplayEngine) {
         m_DP.m_WindowSize = IntPoint(0,0);

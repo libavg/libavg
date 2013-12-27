@@ -322,9 +322,9 @@ void DisplayEngine::checkJitter()
     if (m_LastFrameTime == 0) {
         m_EffFramerate = 0;
     } else {
-        long long CurIntervalTime = TimeSource::get()->getCurrentMicrosecs()
+        long long curIntervalTime = TimeSource::get()->getCurrentMicrosecs()
                 -m_LastFrameTime;
-        m_EffFramerate = 1000000.0f/CurIntervalTime;
+        m_EffFramerate = 1000000.0f/curIntervalTime;
     }
 
     long long frameTime = TimeSource::get()->getCurrentMicrosecs();

@@ -23,6 +23,8 @@
 
 #include "CanvasNode.h"
 #include "Player.h"
+#include "Window.h"
+#include "DisplayEngine.h"
 
 #include "../base/Exception.h"
 #include "../base/ProfilingZoneID.h"
@@ -31,6 +33,7 @@
 
 #include "../graphics/FilterUnmultiplyAlpha.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLContextMultiplexer.h"
 
 #include <iostream>
 
@@ -259,14 +262,19 @@ void OffscreenCanvas::renderTree()
                 "OffscreenCanvas::renderTree(): Player.play() needs to be called before rendering offscreen canvases."));
     }
     preRender();
-    m_pFBO->activate();
-    {
+    DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
+    unsigned numWindows = pDisplayEngine->getNumWindows();
+    for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(OffscreenRenderProfilingZone);
-        IntPoint windowSize(getRootNode()->getSize());
-        glViewport(0, 0, windowSize.x, windowSize.y);
+        WindowPtr pWindow = pDisplayEngine->getWindow(i);
+        pWindow->getGLContext()->activate();
+        m_pFBO->activate();
+        GLContextMultiplexer::get()->uploadData();
+        IntRect viewport = pWindow->getViewport();
+        glViewport(viewport.tl.x, viewport.tl.y, viewport.width(), viewport.height());
         Canvas::render(true);
+        m_pFBO->copyToDestTexture();
     }
-    m_pFBO->copyToDestTexture();
     m_bIsRendered = true;
 }
 

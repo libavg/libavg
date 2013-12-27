@@ -92,27 +92,14 @@ void MainCanvas::renderTree()
     for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(RootRenderProfilingZone);
         WindowPtr pWindow = pDisplayEngine->getWindow(i);
-        GLContext* pContext = pWindow->getGLContext();
-        pContext->activate();
+        pWindow->getGLContext()->activate();
         m_pMultiplexer->uploadData();
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
         GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
-        IntRect windowSize = pWindow->getViewport();
-        glViewport(windowSize.tl.x, windowSize.tl.y, windowSize.width(), 
-                windowSize.height());
+        IntRect viewport = pWindow->getViewport();
+        glViewport(viewport.tl.x, viewport.tl.y, viewport.width(), viewport.height());
         Canvas::render(false);
     }
-/*
-    if (m_bSecondViewport) {
-        GLContext* pMainContext = GLContext::getCurrent();
-        ScopeTimer Timer(SecondWindowRenderProfilingZone);
-        m_pGLContext->activate();
-        m_pMultiplexer->uploadData();
-        Canvas::render(false);
-        m_pGLContext->swapBuffers();
-        pMainContext->activate();
-    }
-*/
     m_pMultiplexer->reset();
 }
 
