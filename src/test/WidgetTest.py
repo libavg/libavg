@@ -873,6 +873,7 @@ class WidgetTestCase(AVGTestCase):
         skin = widget.Skin("IncompleteSkin.xml", customSkinMediaPath)
         self.node = widget.ScrollBar(orientation=widget.Orientation.HORIZONTAL, 
                 pos=(20,5), width=100, parent=root, skinObj=skin)
+        self.start(False, ())
 
 
 def widgetTestSuite(tests):
