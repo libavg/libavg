@@ -63,6 +63,7 @@ Window::~Window()
 
 BitmapPtr Window::screenshot(int buffer)
 {
+    AVG_ASSERT(m_pGLContext);
     BitmapPtr pBmp;
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     if (m_pGLContext->isGLES()) {
@@ -115,6 +116,7 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
 void Window::swapBuffers() const
 {
+    AVG_ASSERT(m_pGLContext);
     ScopeTimer timer(SwapBufferProfilingZone);
     m_pGLContext->activate();
     m_pGLContext->swapBuffers();
@@ -123,6 +125,7 @@ void Window::swapBuffers() const
 
 GLContext* Window::getGLContext() const
 {
+    AVG_ASSERT(m_pGLContext);
     return m_pGLContext;
 }
 
