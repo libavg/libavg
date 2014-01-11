@@ -88,6 +88,7 @@ test_baseline_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/baseline/')
 test_testmediadir_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/testmediadir/')
 test_fonts_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/fonts/')
 test_media_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/media/')
+test_media_skin_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/media/incompleteSkinMedia')
 
 python_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/')
 python_files += [
@@ -112,6 +113,7 @@ data_files_list=[
         ('Lib/site-packages/libavg/test/testmediadir', test_testmediadir_files),
         ('Lib/site-packages/libavg/test/fonts', test_fonts_files),
         ('Lib/site-packages/libavg/test/media', test_media_files),
+        ('Lib/site-packages/libavg/test/media/incompleteSkinMedia', test_media_skin_files),
 
         ('Lib/site-packages/libavg/plugin', ('../Release/colorplugin.dll',)),
         ('Lib/site-packages/libavg', python_files),
