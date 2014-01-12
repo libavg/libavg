@@ -49,17 +49,17 @@ const std::string VersionInfo::getBuildTime()
     return std::string(AVG_VERSION_BUILDTIME);
 }
 
-int VersionInfo::getMajor()
+const std::string VersionInfo::getMajor()
 {
     return AVG_VERSION_MAJOR;
 }
 
-int VersionInfo::getMinor()
+const std::string VersionInfo::getMinor()
 {
     return AVG_VERSION_MINOR;
 }
 
-int VersionInfo::getMicro()
+const std::string VersionInfo::getMicro()
 {
     return AVG_VERSION_MICRO;
 }
