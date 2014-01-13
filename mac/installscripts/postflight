@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.6
+#!/usr/bin/env python2.7
 
 import sys
 #sys.stdout = open("/Users/uzadow/Desktop/postflight.log", "w")
@@ -7,7 +7,6 @@ from libavg import avg
 
 print "Building font cache. This can take a while."
 Player=avg.Player.get()
-print "2"
 Player.loadString("""
           <avg width="160" height="120">
             <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans" 
