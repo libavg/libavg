@@ -3,8 +3,37 @@ libavg 1.8.0.pre1 - Jan 11, 2014
   svn revision 9495
 
   Major New Features:
+    * Skinnable widget library including all standard button types, sliders, scroll and
+      progress bars, on-screen keyboard and media controls.
+    * Major speed improvements: libavg can now handle thousands of visible nodes, switched
+      to entirely shader-based rendering.
+    * New cool Firebirds sample (Scotty).
+    * Powerful unified event handling framework based on publish/subscribe pattern.
+    * Support for GLES and Raspberry Pi.
+    * Complete rewrite of the video decoder subsystem: Audio consistently works, VDPAU and
+      VAAPI support.
+    * Shiny new logging subsystem (Richy)
+    * Powerful new app class (OXullo)
+ 
+  Less Major New Features:
 
-  -
+    * New StateMachine class
+    * WordsNode.alphagamma
+    * GPUInvertFilter (Richy)
+    * Faster handling of filled vector nodes (Benjamin Granzow)
+    * Easier creation of derived node classes in python
+    * €1 jitter filter support for gestures
+    * Global libavg.player variable
+    * CPU Thread affinity used for cleaner playback when many threads are involved
+    * Debug OpenGL context support
+    * Player.callFromThread()
+    * FontStyle class
+    * SwipeRecognizer gesture recognizer
+    * Bitmaps: added blt(), getResized(), (Incomplete) support for bitmaps > 2 GB, thread
+      pool support for BitmapLoader.
+
+  LOTS of minor new features, support for current OSes and graphics drivers, bugfixes,
+  etc.
 
 libavg 1.7.1 - Jan 26, 2012
 
