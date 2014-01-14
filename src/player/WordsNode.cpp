@@ -414,7 +414,10 @@ glm::vec2 WordsNode::getGlyphSize(int i)
 
 int WordsNode::getNumLines()
 {
-    return pango_layout_get_line_count(m_pLayout);
+    if(m_sText.length() != 0) {
+        return pango_layout_get_line_count(m_pLayout);
+    }
+    return 0;
 }
 
 PyObject* WordsNode::getCharIndexFromPos(glm::vec2 p)

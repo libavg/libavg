@@ -588,6 +588,8 @@ class WordsTestCase(AVGTestCase):
     def testGetNumLines(self):
         textNode = avg.WordsNode(text="paragraph 1<br/>paragraph 2<br/>paragraph 3")
         self.assertEqual(textNode.getNumLines(), 3)
+        textNode.text = ""
+        self.assertEqual(textNode.getNumLines(), 0)
     
     def testGetLineExtents(self):        
         textNode = avg.WordsNode(fontsize = 100,
