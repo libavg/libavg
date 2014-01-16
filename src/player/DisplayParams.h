@@ -24,7 +24,11 @@
 
 #include "../api.h"
 
+#include "WindowParams.h"
+
 #include "../base/GLMHelper.h"
+
+#include <vector>
 
 namespace avg {
 
@@ -32,19 +36,18 @@ struct AVG_API DisplayParams {
     DisplayParams();
     virtual ~DisplayParams();
 
+    void resetWindows();
     void dump() const;
 
-    IntPoint m_Pos;
-    IntPoint m_Size;
     bool m_bFullscreen;
     int m_BPP;
-    IntPoint m_WindowSize;
     bool m_bShowCursor;
     int m_VBRate;
     float m_Framerate;
-    bool m_bHasWindowFrame;
 
     float m_Gamma[3];
+
+    std::vector<WindowParams> m_Windows;
 };
 
 }

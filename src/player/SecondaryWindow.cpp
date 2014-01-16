@@ -45,8 +45,9 @@ using namespace std;
 
 namespace avg {
 
-SecondaryWindow::SecondaryWindow(const DisplayParams& dp, GLConfig glConfig)
-    : Window(dp)
+SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
+        GLConfig glConfig)
+    : Window(wp, bIsFullscreen)
 {
 #ifdef linux
     GLContext* pMainContext = GLContext::getCurrent();

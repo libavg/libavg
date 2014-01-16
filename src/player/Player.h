@@ -224,6 +224,7 @@ class AVG_API Player: public Publisher
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
 
         void errorIfPlaying(const std::string& sFunc) const;
+        void errorIfMultiDisplay(const std::string& sFunc) const;
 
         MainCanvasPtr m_pMainCanvas;
 

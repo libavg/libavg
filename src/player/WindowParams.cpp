@@ -1,5 +1,3 @@
-
-//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
@@ -20,36 +18,33 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SecondaryWindow_H_
-#define _SecondaryWindow_H_
+#include "WindowParams.h"
 
-#include "../api.h"
-#include "Window.h"
-#include "DisplayParams.h"
-#include "Event.h"
+#include <iostream>
 
-#include "../graphics/GLConfig.h"
-
-#include <boost/shared_ptr.hpp>
-#include <string>
+using namespace std;
 
 namespace avg {
 
-class AVG_API SecondaryWindow: public Window
-{
-    public:
-        SecondaryWindow(const WindowParams& wp, bool bIsFullscreen, GLConfig glConfig);
-        virtual ~SecondaryWindow();
-
-        virtual void setTitle(const std::string& sTitle);
-
-        virtual std::vector<EventPtr> pollEvents();
-
-    private:
-};
-
-typedef boost::shared_ptr<SecondaryWindow> SecondaryWindowPtr;
-
+WindowParams::WindowParams()
+    : m_Pos(-1, -1),
+      m_Size(0, 0),
+      m_Viewport(0, 0, 0, 0),
+      m_bHasWindowFrame(true)
+{ 
 }
 
-#endif
+WindowParams::~WindowParams()
+{
+}
+
+void WindowParams::dump() const
+{
+    cerr << "  WindowParams: " << endl;
+    cerr << "    pos: " << m_Pos << endl;
+    cerr << "    size: " << m_Size << endl;
+    cerr << "    viewport: " << m_Viewport << endl;
+    cerr << "    has window frame: " << m_bHasWindowFrame << endl;
+}
+
+}

@@ -220,16 +220,21 @@ bool Player::exists()
 
 void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 {
+    errorIfMultiDisplay("Player.setResolution");
     errorIfPlaying("Player.setResolution");
+
+    WindowParams& wp = m_DP.m_Windows[0];
     m_DP.m_bFullscreen = bFullscreen;
     if (bpp) {
         m_DP.m_BPP = bpp;
     }
+    wp.m_Viewport.tl.x = 0;
+    wp.m_Viewport.tl.y = 0;
     if (width) {
-        m_DP.m_WindowSize.x = width;
+        wp.m_Viewport.br.x = width;
     }
     if (height) {
-        m_DP.m_WindowSize.y = height;
+        wp.m_Viewport.br.y = height;
     }
 }
 
@@ -240,15 +245,19 @@ bool Player::isFullscreen()
 
 void Player::setWindowFrame(bool bHasWindowFrame)
 {
+    errorIfMultiDisplay("Player.setWindowFrame");
     errorIfPlaying("Player.setWindowFrame");
-    m_DP.m_bHasWindowFrame = bHasWindowFrame;
+    WindowParams& wp = m_DP.m_Windows[0];
+    wp.m_bHasWindowFrame = bHasWindowFrame;
 }
 
 void Player::setWindowPos(int x, int y)
 {
+    errorIfMultiDisplay("Player.setWindowPos");
     errorIfPlaying("Player.setWindowPos");
-    m_DP.m_Pos.x = x;
-    m_DP.m_Pos.y = y;
+    WindowParams& wp = m_DP.m_Windows[0];
+    wp.m_Pos.x = x;
+    wp.m_Pos.y = y;
 }
 
 void Player::setWindowTitle(const string& sTitle)
@@ -1184,6 +1193,7 @@ void Player::setGamma(float red, float green, float blue)
 
 void Player::initConfig()
 {
+    errorIfMultiDisplay("Player.setWindowPos");
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
 
@@ -1195,14 +1205,15 @@ void Player::initConfig()
     }
     m_DP.m_bFullscreen = pMgr->getBoolOption("scr", "fullscreen", false);
 
-    m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
-    m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
+    WindowParams& wp = m_DP.m_Windows[0];
+    wp.m_Size.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
+    wp.m_Size.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
 
-    if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
+    if (m_DP.m_bFullscreen && (wp.m_Size != IntPoint(0, 0))) {
         AVG_LOG_ERROR("Can't set fullscreen and window size at once. Aborting.");
         exit(-1);
     }
-    if (m_DP.m_WindowSize.x != 0 && m_DP.m_WindowSize.y != 0) {
+    if (wp.m_Size.x != 0 && wp.m_Size.y != 0) {
         AVG_LOG_ERROR("Can't set window width and height at once");
         AVG_LOG_ERROR("(aspect ratio is determined by avg file). Aborting.");
         exit(-1);
@@ -1269,8 +1280,9 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Requested OpenGL configuration: ");
     m_GLConfig.log();
-    m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
-    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
+    m_pDisplayEngine->calcWindowSizes(m_DP);
+    if (m_DP.m_Windows.size() > 1 ||
+            m_pDisplayEngine->getWindowSize() != m_DP.m_Windows[0].m_Size ||
             m_pDisplayEngine->isFullscreen() == true) 
     {
         m_pDisplayEngine->teardown();
@@ -1301,8 +1313,9 @@ void Player::initMainCanvas(NodePtr pRootNode)
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
+    if (m_DP.m_Windows.size() == 1) {
+        m_DP.m_Windows[0].m_Viewport = IntRect(IntPoint(0,0), m_pMainCanvas->getSize());
+    }
     registerFrameEndListener(BitmapManager::get());
 }
 
@@ -1593,13 +1606,23 @@ void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
     }
 }
 
-void Player::errorIfPlaying(const std::string& sFunc) const
+void Player::errorIfPlaying(const string& sFunc) const
 {
     if (m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 sFunc + " must be called before Player.play().");
     }
 }
+
+void Player::errorIfMultiDisplay(const string& sFunc) const
+{
+    if (m_DP.m_Windows.size() != 1) {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                sFunc + " only supported in single-window mode.");
+    }
+}
+
+
 
 void Player::handleTimers()
 {
@@ -1752,7 +1775,7 @@ void Player::cleanup(bool bIsAbort)
     }
 
     if (m_pDisplayEngine) {
-        m_DP.m_WindowSize = IntPoint(0,0);
+        m_DP.m_Windows[0].m_Size = IntPoint(0, 0);
         if (!m_bKeepWindowOpen) {
             m_pDisplayEngine->deinitRender();
             m_pDisplayEngine->teardown();

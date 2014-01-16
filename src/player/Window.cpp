@@ -45,12 +45,13 @@ using namespace std;
 
 namespace avg {
 
-Window::Window(const DisplayParams& dp)
+Window::Window(const WindowParams& wp, bool bIsFullscreen)
     : m_pGLContext(0)
 {
-    m_Size = dp.m_WindowSize;
-    m_Viewport = IntRect(IntPoint(0,0), dp.m_Size);
-    m_bIsFullscreen = dp.m_bFullscreen;
+    m_Pos = wp.m_Pos;
+    m_Size = wp.m_Size;
+    m_Viewport = wp.m_Viewport;
+    m_bIsFullscreen = bIsFullscreen;
 }
 
 Window::~Window()
@@ -95,6 +96,11 @@ BitmapPtr Window::screenshot(int buffer)
     }
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
+}
+
+const IntPoint& Window::getPos() const
+{
+    return m_Pos;
 }
 
 const IntPoint& Window::getSize() const

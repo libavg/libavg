@@ -53,7 +53,7 @@ namespace avg {
 vector<long> SDLWindow::s_KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
-    : Window(dp),
+    : Window(dp.m_Windows[0], dp.m_bFullscreen),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0))
 {
@@ -64,21 +64,23 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     // the mouse cursor is hidden (grabbed). So far libavg and apps based
     // on it don't use relative coordinates.
     setEnv("SDL_MOUSE_RELATIVE", "0");
+    const WindowParams& wp = dp.m_Windows[0];
 
     stringstream ss;
-    if (dp.m_Pos.x != -1) {
-        ss << dp.m_Pos.x << "," << dp.m_Pos.y;
+    IntPoint pos = getPos();
+    if (pos.x != -1) {
+        ss << pos.x << "," << pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
     unsigned int flags = 0;
     if (dp.m_bFullscreen) {
         flags |= SDL_FULLSCREEN;
     }
-    if (!dp.m_bHasWindowFrame) {
+    if (!wp.m_bHasWindowFrame) {
         flags |= SDL_NOFRAME;
     }
 
-    IntPoint size = dp.m_WindowSize;
+    IntPoint size = wp.m_Size;
     SDL_Surface * pSDLSurface = 0;
 #ifndef linux
     if (glConfig.m_bUseDebugContext) {

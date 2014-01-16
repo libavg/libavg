@@ -65,7 +65,7 @@ class AVG_API DisplayEngine: public IInputDevice
         void setGamma(float Red, float Green, float Blue);
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
-        IntPoint calcWindowSize(const DisplayParams& dp) const;
+        void calcWindowSizes(DisplayParams& dp) const;
         void setWindowTitle(const std::string& sTitle);
     
         unsigned getNumWindows() const;

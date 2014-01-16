@@ -121,7 +121,8 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig, bool bSecon
 
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
     if (bSecondWindow) {
-        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp, glConfig)));
+        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.m_Windows[1],
+                dp.m_bFullscreen, glConfig)));
     }
 
     Display::get()->getRefreshRate();
@@ -251,21 +252,25 @@ int DisplayEngine::getKeyModifierState() const
     return SDL_GetModState();
 }
 
-IntPoint DisplayEngine::calcWindowSize(const DisplayParams& dp) const
+void DisplayEngine::calcWindowSizes(DisplayParams& dp) const
 {
-    float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
-    IntPoint windowSize;
-    if (dp.m_WindowSize == IntPoint(0, 0)) {
-        windowSize = dp.m_Size;
-    } else if (dp.m_WindowSize.x == 0) {
-        windowSize.x = int(dp.m_WindowSize.y*aspectRatio);
-        windowSize.y = dp.m_WindowSize.y;
-    } else {
-        windowSize.x = dp.m_WindowSize.x;
-        windowSize.y = int(dp.m_WindowSize.x/aspectRatio);
+    for (unsigned i=0; i<dp.m_Windows.size(); ++i) {
+        WindowParams& wp = dp.m_Windows[i];
+        float aspectRatio = float(wp.m_Viewport.width())/float(wp.m_Viewport.height());
+        IntPoint windowSize;
+        IntPoint viewportSize = wp.m_Viewport.size();
+        if (wp.m_Size == IntPoint(0, 0)) {
+            windowSize = viewportSize;
+        } else if (wp.m_Size.x == 0) {
+            windowSize.x = int(viewportSize.y*aspectRatio);
+            windowSize.y = viewportSize.y;
+        } else {
+            windowSize.x = viewportSize.x;
+            windowSize.y = int(viewportSize.x/aspectRatio);
+        }
+        AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
+        wp.m_Size = windowSize;
     }
-    AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
-    return windowSize;
 }
  
 void DisplayEngine::setWindowTitle(const string& sTitle)

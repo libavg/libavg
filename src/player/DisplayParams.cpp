@@ -27,37 +27,39 @@ using namespace std;
 namespace avg {
 
 DisplayParams::DisplayParams()
-    : m_Pos(-1, -1),
-      m_Size(0, 0),
-      m_bFullscreen(false),
+    : m_bFullscreen(false),
       m_BPP(24),
-      m_WindowSize(0, 0),
       m_bShowCursor(true),
       m_VBRate(1),
-      m_Framerate(0),
-      m_bHasWindowFrame(true)
+      m_Framerate(0)
 { 
     m_Gamma[0] = -1.0f;
     m_Gamma[1] = -1.0f;
     m_Gamma[2] = -1.0f;
+    m_Windows.push_back(WindowParams());
 }
 
 DisplayParams::~DisplayParams()
 {
 }
 
+void DisplayParams::resetWindows()
+{
+    m_Windows.clear();
+    m_Windows.push_back(WindowParams());
+}
+
 void DisplayParams::dump() const
 {
     cerr << "DisplayParams: " << endl;
-    cerr << "  pos: " << m_Pos << endl;
-    cerr << "  size: " << m_Size << endl;
     cerr << "  fullscreen: " << m_bFullscreen << endl;
     cerr << "  bpp: " << m_BPP << endl;
-    cerr << "  window size: " << m_WindowSize << endl;
     cerr << "  show cursor: " << m_bShowCursor << endl;
     cerr << "  vbrate: " << m_VBRate << endl;
     cerr << "  framerate: " << m_Framerate << endl;
-    cerr << "  has window frame: " << m_bHasWindowFrame << endl;
+    for (unsigned i=0; i<m_Windows.size(); ++i) {
+        m_Windows[i].dump();
+    }
 }
 
 }

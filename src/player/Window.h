@@ -24,7 +24,7 @@
 #define _Window_H_
 
 #include "../api.h"
-#include "DisplayParams.h"
+#include "WindowParams.h"
 #include "Event.h"
 
 #include "../base/Rect.h"
@@ -42,12 +42,13 @@ class GLContext;
 class AVG_API Window
 {
     public:
-        Window(const DisplayParams& dp);
+        Window(const WindowParams& wp, bool bIsFullscreen);
         virtual ~Window();
 
         virtual void setTitle(const std::string& sTitle) = 0;
         BitmapPtr screenshot(int buffer=0);
 
+        const IntPoint& getPos() const;
         const IntPoint& getSize() const;
         const IntRect& getViewport() const;
         bool isFullscreen() const;
@@ -61,6 +62,7 @@ class AVG_API Window
 
     private:
         bool m_bIsFullscreen;
+        IntPoint m_Pos;
         IntPoint m_Size;
         IntRect m_Viewport;
 
