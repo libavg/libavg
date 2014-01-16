@@ -10,13 +10,12 @@ libavg 1.8.0.pre1 - Jan 11, 2014
     * New cool Firebirds sample (Scotty).
     * Powerful unified event handling framework based on publish/subscribe pattern.
     * Support for GLES and Raspberry Pi.
-    * Complete rewrite of the video decoder subsystem: Audio consistently works, VDPAU and
-      VAAPI support.
+    * Complete rewrite of the video decoder subsystem: Audio consistently works, VDPAU
+      support.
     * Shiny new logging subsystem (Richy)
     * Powerful new app class (OXullo)
  
   Less Major New Features:
-
     * New StateMachine class
     * WordsNode.alphagamma
     * GPUInvertFilter (Richy)
