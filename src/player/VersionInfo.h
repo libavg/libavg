@@ -35,9 +35,9 @@ class AVG_API VersionInfo
         const std::string getBranchUrl();
         const std::string getBuilder();
         const std::string getBuildTime();
-        int getMajor();
-        int getMinor();
-        int getMicro();
+        const std::string getMajor();
+        const std::string getMinor();
+        const std::string getMicro();
         int getRevision();
 };
 

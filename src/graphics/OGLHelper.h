@@ -47,6 +47,9 @@
 #endif
 #if defined(linux) && !defined(AVG_ENABLE_EGL)
         #define GLX_GLXEXT_PROTOTYPES
+        #ifndef __GLXextFuncPtr
+            typedef void (*__GLXextFuncPtr)(void);
+        #endif
         #include "GL/glx.h"
 #endif
 

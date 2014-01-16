@@ -44,9 +44,9 @@ OUTPUT_TEMPLATE = '''// version.h
 #define AVG_VERSION_BUILDER     "%(builder)s"
 #define AVG_VERSION_BUILDTIME   "%(buildtime)s"
 #define AVG_VERSION_REVISION    %(revision)s
-#define AVG_VERSION_MAJOR       %(major)d
-#define AVG_VERSION_MINOR       %(minor)d
-#define AVG_VERSION_MICRO       %(micro)d
+#define AVG_VERSION_MAJOR       "%(major)s"
+#define AVG_VERSION_MINOR       "%(minor)s"
+#define AVG_VERSION_MICRO       "%(micro)s"
 '''
 TOPDIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_FILE = os.path.join(TOPDIR, 'm4', 'avg_version.m4')
@@ -119,9 +119,9 @@ def getBuilder():
     return '%s@%s %s' % (user, hostname, platform.platform())
 
 def extractComponentFromM4(text, component):
-    match = re.search(r'%s\s*\].*\[\s*(\d+)\s*\]' % component, text, re.M)
+    match = re.search(r'%s\s*\].*\[\s*([A-Za-z0-9\.]+)\s*\]' % component, text, re.M)
     if match:
-        return int(match.group(1))
+        return match.group(1)
     else:
         err('Cannot identify %s version component in %s' % (component, INPUT_FILE))
         sys.exit(1)
@@ -138,7 +138,7 @@ def getVersionComponents():
     return (major, minor, micro)
     
 def assembleVersionInfo(major, minor, micro):
-    releaseVersion = '%d.%d.%d' % (major, minor, micro)
+    releaseVersion = '%s.%s.%s' % (major, minor, micro)
     revision = getSvnRevision()
     branchurl, branch = getSvnBranch()
     builder = getBuilder()

@@ -6,11 +6,11 @@ set -x
 cd ..
 
 VERSION_MAJOR=$(grep VERSION_MAJOR m4/avg_version.m4 |
-        sed 's/^.*\[ *\([0-9]*\) *\].*$/\1/')
+        sed 's/^.*\[ *\([A-Za-z0-9\.]*\) *\].*$/\1/')
 VERSION_MINOR=$(grep VERSION_MINOR m4/avg_version.m4 |
-        sed 's/^.*\[ *\([0-9]*\) *\].*$/\1/')
+        sed 's/^.*\[ *\([A-Za-z0-9\.]*\) *\].*$/\1/')
 VERSION_MICRO=$(grep VERSION_MICRO m4/avg_version.m4 |
-        sed 's/^.*\[ *\([0-9]*\) *\].*$/\1/')
+        sed 's/^.*\[ *\([A-Za-z0-9\.]*\) *\].*$/\1/')
 
 export VERSION=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_MICRO
 
@@ -47,11 +47,11 @@ makeOneDist()
     mkdir etc
     cp -R /etc/fonts etc/
     cd $LIBAVGDIR/src/test
-    cp -Rv *.py *.avg *.png *.svg ${AVG_PATH}/dist/libavg/avg/test
+    cp -Rv *.py *.avg *.svg ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
     cp -v baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
     mkdir ${AVG_PATH}/dist/libavg/avg/test/media
-    cp -v media/* ${AVG_PATH}/dist/libavg/avg/test/media
+    cp -Rv media/* ${AVG_PATH}/dist/libavg/avg/test/media
     mkdir ${AVG_PATH}/dist/libavg/avg/test/testmediadir
     cp -v testmediadir/* ${AVG_PATH}/dist/libavg/avg/test/testmediadir
     mkdir ${AVG_PATH}/dist/libavg/avg/test/fonts
@@ -78,20 +78,12 @@ LIBAVGDIR=`pwd`
 DARWINVER=`uname -r`
 DARWINMAJORVER=${DARWINVER%%.*}
 
-if [[ "${DARWINMAJORVER}" == "10" ]]
-then
-    PYTHONVERSION=2.6
-    OSXVERSION=10.6
-    BUILDDIR=/usr/local/lib/python2.6/
-else
-    PYTHONVERSION=2.5
-    OSXVERSION=10.5
-    BUILDDIR=/Library/Python/2.5
-    sudo rm -rf ${BUILDDIR}/site-packages/libavg
-    sudo make install
-fi
+PYTHONVERSION=2.7
+OSXVERSION=10.6
+BUILDDIR=/usr/local/lib/python2.7/
+
 makeOneDist /Library/Python/${PYTHONVERSION}/site-packages/libavg ${PYTHONVERSION} 
 cd $LIBAVGDIR
-/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.${OSXVERSION}.pmdoc -v -o libavg.pkg
-hdiutil create libavg-mac-${OSXVERSION}-${VERSION}.dmg -srcfolder libavg.pkg -ov 
-hdiutil internet-enable -yes libavg-mac-${OSXVERSION}-${VERSION}.dmg
+/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.6.pmdoc -v -o libavg.pkg
+hdiutil create libavg-mac-${VERSION}.dmg -srcfolder libavg.pkg -ov 
+hdiutil internet-enable -yes libavg-mac-${VERSION}.dmg
