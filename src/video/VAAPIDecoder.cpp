@@ -34,7 +34,20 @@
 #include <sstream>
 
 using namespace std;
-    
+
+// TODO:
+// Before this can be merged to trunk, we need to:
+// - Fix remaining instabilities
+// - Get render-to-texture to work
+// - Document the new dependencies: libva-dev, driver (i965-va-driver, xvba-va-driver, 
+//   vdpau-va-driver)
+// - Add sane logging
+// - Add <videoaccel> to avgrc and Player.setVideoAccel(): 
+//   none|auto|vdpau|vaapi_minimal|vaapi
+//   (where vaapi_minimal means only one video, no glx texture)
+// - Test all configured accel variants in testvideo
+// - Fix compile when libva isn't installed.
+
 namespace avg {
 
 vector<VAProfile> VAAPIDecoder::s_Profiles;
