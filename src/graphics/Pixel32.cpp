@@ -75,7 +75,7 @@ std::string Pixel32::getColorString() const
     return s.str();
 }
 
-Pixel32 colorStringToColor(const string & s)
+Pixel32 colorStringToColor(const UTF8String& s)
 {
     int r, g, b;
     int numChars;

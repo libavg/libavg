@@ -23,6 +23,7 @@
 #define _Pixel32_H_
 
 #include "../api.h"
+#include <base/UTF8String.h>
 
 #include "Pixeldefs.h"
 
@@ -71,7 +72,7 @@ public:
 
 AVG_API std::ostream& operator <<(std::ostream& os, const Pixel32& pix);
 
-AVG_API Pixel32 colorStringToColor(const std::string& s);
+AVG_API Pixel32 colorStringToColor(const UTF8String& s);
 
 void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v);
 void YUVJtoBGR32Pixel(Pixel32* pDest, int y, int u, int v);

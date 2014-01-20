@@ -41,7 +41,7 @@ void FilledVectorNode::registerType()
                 offsetof(FilledVectorNode, m_FillTexHRef)))
         .addArg(Arg<float>("fillopacity", 0, false, 
                 offsetof(FilledVectorNode, m_FillOpacity)))
-        .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
+        .addArg(Arg<UTF8String>("fillcolor", "FFFFFF", false, 
                 offsetof(FilledVectorNode, m_sFillColorName)))
         .addArg(Arg<glm::vec2>("filltexcoord1", glm::vec2(0,0), false,
                 offsetof(FilledVectorNode, m_FillTexCoord1)))
@@ -57,7 +57,7 @@ FilledVectorNode::FilledVectorNode(const ArgList& args)
 {
     m_FillTexHRef = args.getArgVal<UTF8String>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
-    m_sFillColorName = args.getArgVal<string>("fillcolor");
+    m_sFillColorName = args.getArgVal<UTF8String>("fillcolor");
     m_FillColor = colorStringToColor(m_sFillColorName);
 }
 
@@ -176,7 +176,7 @@ void FilledVectorNode::render()
     VectorNode::render();
 }
 
-void FilledVectorNode::setFillColor(const string& sColor)
+void FilledVectorNode::setFillColor(const UTF8String& sColor)
 {
     if (m_sFillColorName != sColor) {
         m_sFillColorName = sColor;
@@ -185,7 +185,7 @@ void FilledVectorNode::setFillColor(const string& sColor)
     }
 }
 
-const string& FilledVectorNode::getFillColor() const
+const UTF8String& FilledVectorNode::getFillColor() const
 {
     return m_sFillColorName;
 }

@@ -562,7 +562,7 @@ class VectorTestCase(AVGTestCase):
         
         def changeCircle():
             circle.color="FF0000"
-            circle.fillcolor="FFFFFF"
+            circle.fillcolor=u"FFFFFF"
             circle.fillopacity=0.5
             circle.strokewidth=3
         
