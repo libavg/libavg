@@ -23,7 +23,7 @@
 #define _Pixel32_H_
 
 #include "../api.h"
-#include <base/UTF8String.h>
+#include "../base/UTF8String.h"
 
 #include "Pixeldefs.h"
 
