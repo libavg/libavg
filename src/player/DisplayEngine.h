@@ -53,7 +53,7 @@ class AVG_API DisplayEngine: public IInputDevice
 
         DisplayEngine();
         virtual ~DisplayEngine();
-        virtual void init(const DisplayParams& dp, GLConfig glConfig, bool bSecondWindow);
+        virtual void init(const DisplayParams& dp, GLConfig glConfig);
         virtual void teardown();
         void initRender();
         void deinitRender();

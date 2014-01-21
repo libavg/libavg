@@ -1278,7 +1278,7 @@ void Player::initGraphics(const string& sShaderPath)
             m_pDisplayEngine->isFullscreen() == true) 
     {
         m_pDisplayEngine->teardown();
-        m_pDisplayEngine->init(m_DP, m_GLConfig, false);
+        m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Pixels per mm: " << Display::get()->getPixelsPerMM());

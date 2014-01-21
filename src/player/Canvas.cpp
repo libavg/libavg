@@ -244,11 +244,10 @@ void Canvas::renderWindow(WindowPtr pWindow, FBOPtr pFBO, const IntRect& viewpor
     pWindow->getGLContext()->activate();
     GLContextMultiplexer::get()->uploadData();
     glm::mat4 projMat;
-    glm::vec2 size = m_pRootNode->getSize();
     if (pFBO) {
         pFBO->activate();
-        projMat = glm::ortho(viewport.tl.x, viewport.br.x, 
-                viewport.tl.y, viewport.br.y);
+        projMat = glm::ortho(float(viewport.tl.x), float(viewport.br.x), 
+                float(viewport.tl.y), float(viewport.br.y));
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
         projMat = glm::ortho(float(viewport.tl.x), float(viewport.br.x), 

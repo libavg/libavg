@@ -113,15 +113,16 @@ DisplayEngine::~DisplayEngine()
 {
 }
 
-void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig, bool bSecondWindow) 
+void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
 
+    
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
-    if (bSecondWindow) {
-        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(1),
+    for (unsigned i=1; i<dp.getNumWindows(); ++i) {
+        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
                 dp.isFullscreen(), glConfig)));
     }
 
