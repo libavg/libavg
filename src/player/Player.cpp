@@ -223,39 +223,26 @@ void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
     errorIfMultiDisplay("Player.setResolution");
     errorIfPlaying("Player.setResolution");
 
-    WindowParams& wp = m_DP.m_Windows[0];
-    m_DP.m_bFullscreen = bFullscreen;
-    if (bpp) {
-        m_DP.m_BPP = bpp;
-    }
-    wp.m_Viewport.tl.x = 0;
-    wp.m_Viewport.tl.y = 0;
-    if (width) {
-        wp.m_Viewport.br.x = width;
-    }
-    if (height) {
-        wp.m_Viewport.br.y = height;
-    }
+    m_DP.setResolution(bFullscreen, width, height, bpp);
 }
 
 bool Player::isFullscreen()
 {
-    return m_DP.m_bFullscreen;
+    return m_DP.isFullscreen();
 }
 
 void Player::setWindowFrame(bool bHasWindowFrame)
 {
     errorIfMultiDisplay("Player.setWindowFrame");
     errorIfPlaying("Player.setWindowFrame");
-    WindowParams& wp = m_DP.m_Windows[0];
-    wp.m_bHasWindowFrame = bHasWindowFrame;
+    m_DP.getWindowParams(0).m_bHasWindowFrame = bHasWindowFrame;
 }
 
 void Player::setWindowPos(int x, int y)
 {
     errorIfMultiDisplay("Player.setWindowPos");
     errorIfPlaying("Player.setWindowPos");
-    WindowParams& wp = m_DP.m_Windows[0];
+    WindowParams& wp = m_DP.getWindowParams(0);
     wp.m_Pos.x = x;
     wp.m_Pos.y = y;
 }
@@ -577,8 +564,7 @@ void Player::setFramerate(float rate)
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
     }
-    m_DP.m_Framerate = rate;
-    m_DP.m_VBRate = 0;
+    m_DP.setFramerate(rate, 0);
 }
 
 void Player::setVBlankFramerate(int rate)
@@ -586,8 +572,7 @@ void Player::setVBlankFramerate(int rate)
     if (m_bIsPlaying) {
         m_pDisplayEngine->setVBlankRate(rate);
     }
-    m_DP.m_Framerate = 0;
-    m_DP.m_VBRate = rate;
+    m_DP.setFramerate(0, rate);
 }
 
 float Player::getEffectiveFramerate()
@@ -891,12 +876,12 @@ void Player::showCursor(bool bShow)
     if (m_pDisplayEngine) {
         m_pDisplayEngine->showCursor(bShow);
     }
-    m_DP.m_bShowCursor = bShow;
+    m_DP.setShowCursor(bShow);
 }
 
 bool Player::isCursorShown()
 {
-    return m_DP.m_bShowCursor;
+    return m_DP.isCursorVisible();
 }
 
 void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
@@ -1153,9 +1138,10 @@ void Player::endFrame()
 float Player::getFramerate()
 {
     if (!m_pDisplayEngine) {
-        return m_DP.m_Framerate;
+        return m_DP.getFramerate();
+    } else {
+        return m_pDisplayEngine->getFramerate();
     }
-    return m_pDisplayEngine->getFramerate();
 }
 
 float Player::getVideoRefreshRate()
@@ -1186,9 +1172,7 @@ void Player::setGamma(float red, float green, float blue)
     if (m_pDisplayEngine) {
         m_pDisplayEngine->setGamma(red, green, blue);
     }
-    m_DP.m_Gamma[0] = red;
-    m_DP.m_Gamma[1] = green;
-    m_DP.m_Gamma[2] = blue;
+    m_DP.setGamma(red, green, blue);
 }
 
 void Player::initConfig()
@@ -1197,19 +1181,20 @@ void Player::initConfig()
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
 
-    m_DP.m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
-    if (m_DP.m_BPP != 15 && m_DP.m_BPP != 16 && m_DP.m_BPP != 24 && m_DP.m_BPP != 32) {
-        AVG_LOG_ERROR("BPP must be 15, 16, 24 or 32. Current value is "
-                << m_DP.m_BPP << ". Aborting." );
+    int bpp = atoi(pMgr->getOption("scr", "bpp")->c_str());
+    if (bpp != 15 && bpp != 16 && bpp != 24 && bpp != 32) {
+        AVG_LOG_ERROR("BPP must be 15, 16, 24 or 32. Current value is " << bpp <<
+                ". Aborting." );
         exit(-1);
     }
-    m_DP.m_bFullscreen = pMgr->getBoolOption("scr", "fullscreen", false);
+    m_DP.setBPP(bpp);
+    m_DP.setFullscreen(pMgr->getBoolOption("scr", "fullscreen", false));
 
-    WindowParams& wp = m_DP.m_Windows[0];
+    WindowParams& wp = m_DP.getWindowParams(0);
     wp.m_Size.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     wp.m_Size.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
 
-    if (m_DP.m_bFullscreen && (wp.m_Size != IntPoint(0, 0))) {
+    if (m_DP.isFullscreen() && (wp.m_Size != IntPoint(0, 0))) {
         AVG_LOG_ERROR("Can't set fullscreen and window size at once. Aborting.");
         exit(-1);
     }
@@ -1254,7 +1239,9 @@ void Player::initConfig()
 #endif
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
-    pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
+    float gamma[3];
+    pMgr->getGammaOption("scr", "gamma", gamma);
+    m_DP.setGamma(gamma[0], gamma[1], gamma[2]);
 }
 
 void Player::initGraphics(const string& sShaderPath)
@@ -1266,7 +1253,7 @@ void Player::initGraphics(const string& sShaderPath)
     }
     // Init display configuration.
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-            "Display bpp: " << m_DP.m_BPP);
+            "Display bpp: " << m_DP.getBPP());
 
     if (m_bDisplayEngineBroken) {
         m_bDisplayEngineBroken = false;
@@ -1280,9 +1267,9 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Requested OpenGL configuration: ");
     m_GLConfig.log();
-    m_pDisplayEngine->calcWindowSizes(m_DP);
-    if (m_DP.m_Windows.size() > 1 ||
-            m_pDisplayEngine->getWindowSize() != m_DP.m_Windows[0].m_Size ||
+    m_DP.calcWindowSizes();
+    if (m_DP.getNumWindows() > 1 ||
+            m_pDisplayEngine->getWindowSize() != m_DP.getWindowParams(0).m_Size ||
             m_pDisplayEngine->isFullscreen() == true) 
     {
         m_pDisplayEngine->teardown();
@@ -1313,8 +1300,9 @@ void Player::initMainCanvas(NodePtr pRootNode)
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
-    if (m_DP.m_Windows.size() == 1) {
-        m_DP.m_Windows[0].m_Viewport = IntRect(IntPoint(0,0), m_pMainCanvas->getSize());
+    if (m_DP.getNumWindows() == 1) {
+        m_DP.getWindowParams(0).m_Viewport = 
+                IntRect(IntPoint(0,0), m_pMainCanvas->getSize());
     }
     registerFrameEndListener(BitmapManager::get());
 }
@@ -1616,7 +1604,7 @@ void Player::errorIfPlaying(const string& sFunc) const
 
 void Player::errorIfMultiDisplay(const string& sFunc) const
 {
-    if (m_DP.m_Windows.size() != 1) {
+    if (m_DP.getNumWindows() != 1) {
         throw Exception(AVG_ERR_INVALID_ARGS,
                 sFunc + " only supported in single-window mode.");
     }
@@ -1775,7 +1763,7 @@ void Player::cleanup(bool bIsAbort)
     }
 
     if (m_pDisplayEngine) {
-        m_DP.m_Windows[0].m_Size = IntPoint(0, 0);
+        m_DP.getWindowParams(0).m_Size = IntPoint(0, 0);
         if (!m_bKeepWindowOpen) {
             m_pDisplayEngine->deinitRender();
             m_pDisplayEngine->teardown();

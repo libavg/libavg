@@ -121,18 +121,18 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig, bool bSecon
 
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
     if (bSecondWindow) {
-        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.m_Windows[1],
-                dp.m_bFullscreen, glConfig)));
+        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(1),
+                dp.isFullscreen(), glConfig)));
     }
 
     Display::get()->getRefreshRate();
 
-    setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
-    showCursor(dp.m_bShowCursor);
-    if (dp.m_Framerate == 0) {
-        setVBlankRate(dp.m_VBRate);
+    setGamma(dp.getGamma(0), dp.getGamma(1), dp.getGamma(2));
+    showCursor(dp.isCursorVisible());
+    if (dp.getFramerate() == 0) {
+        setVBlankRate(dp.getVBRate());
     } else {
-        setFramerate(dp.m_Framerate);
+        setFramerate(dp.getFramerate());
     }
 
     // SDL sets up a signal handler we really don't want.
@@ -252,27 +252,6 @@ int DisplayEngine::getKeyModifierState() const
     return SDL_GetModState();
 }
 
-void DisplayEngine::calcWindowSizes(DisplayParams& dp) const
-{
-    for (unsigned i=0; i<dp.m_Windows.size(); ++i) {
-        WindowParams& wp = dp.m_Windows[i];
-        float aspectRatio = float(wp.m_Viewport.width())/float(wp.m_Viewport.height());
-        IntPoint windowSize;
-        IntPoint viewportSize = wp.m_Viewport.size();
-        if (wp.m_Size == IntPoint(0, 0)) {
-            windowSize = viewportSize;
-        } else if (wp.m_Size.x == 0) {
-            windowSize.x = int(viewportSize.y*aspectRatio);
-            windowSize.y = viewportSize.y;
-        } else {
-            windowSize.x = viewportSize.x;
-            windowSize.y = int(viewportSize.x/aspectRatio);
-        }
-        AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
-        wp.m_Size = windowSize;
-    }
-}
- 
 void DisplayEngine::setWindowTitle(const string& sTitle)
 {
     SDL_WM_SetCaption(sTitle.c_str(), 0);

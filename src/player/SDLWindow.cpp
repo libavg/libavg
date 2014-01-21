@@ -53,7 +53,7 @@ namespace avg {
 vector<long> SDLWindow::s_KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
-    : Window(dp.m_Windows[0], dp.m_bFullscreen),
+    : Window(dp.getWindowParams(0), dp.isFullscreen()),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0))
 {
@@ -64,7 +64,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     // the mouse cursor is hidden (grabbed). So far libavg and apps based
     // on it don't use relative coordinates.
     setEnv("SDL_MOUSE_RELATIVE", "0");
-    const WindowParams& wp = dp.m_Windows[0];
+    const WindowParams& wp = dp.getWindowParams(0);
 
     stringstream ss;
     IntPoint pos = getPos();
@@ -73,7 +73,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
     unsigned int flags = 0;
-    if (dp.m_bFullscreen) {
+    if (dp.isFullscreen()) {
         flags |= SDL_FULLSCREEN;
     }
     if (!wp.m_bHasWindowFrame) {
@@ -86,7 +86,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     if (glConfig.m_bUseDebugContext) {
         glConfig.m_bUseDebugContext = false;
     }
-    switch (dp.m_BPP) {
+    switch (dp.getBPP()) {
         case 24:
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
             SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -100,7 +100,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
             SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
             break;
         default:
-            AVG_LOG_ERROR("Unsupported bpp " << dp.m_BPP <<
+            AVG_LOG_ERROR("Unsupported bpp " << dp.getBPP() <<
                     "in Window::init()");
             exit(-1);
     }
@@ -119,7 +119,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
-        pSDLSurface = SDL_SetVideoMode(size.x, size.y, dp.m_BPP, flags);
+        pSDLSurface = SDL_SetVideoMode(size.x, size.y, dp.getBPP(), flags);
         if (!pSDLSurface) {
             glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
                     glConfig.m_MultiSampleSamples);
@@ -127,12 +127,12 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     }
 #else
     // Linux version: Context created manually, not by SDL
-    pSDLSurface = SDL_SetVideoMode(size.x, size.y, dp.m_BPP, flags);
+    pSDLSurface = SDL_SetVideoMode(size.x, size.y, dp.getBPP(), flags);
 #endif
     if (!pSDLSurface) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
                 + SDL_GetError() + ". (size=" + toString(size) + ", bpp=" + 
-                toString(dp.m_BPP) + ").");
+                toString(dp.getBPP()) + ").");
     }
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);

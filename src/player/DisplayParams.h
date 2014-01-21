@@ -32,13 +32,33 @@
 
 namespace avg {
 
-struct AVG_API DisplayParams {
+class AVG_API DisplayParams {
+public:
     DisplayParams();
     virtual ~DisplayParams();
 
+    void calcWindowSizes();
+    void setResolution(bool bFullscreen, int width, int height, int bpp);
+    void setFullscreen(bool bFullscreen);
+    void setBPP(int bpp);
+    void setGamma(float red, float green, float blue);
+    void setFramerate(float framerate, int vbRate);
+    void setShowCursor(bool bShow);
     void resetWindows();
+
+    bool isFullscreen() const;
+    int getBPP() const;
+    bool isCursorVisible() const;
+    int getVBRate() const;
+    float getFramerate() const;
+    int getNumWindows() const;
+    WindowParams& getWindowParams(int i);
+    const WindowParams& getWindowParams(int i) const;
+    const float getGamma(int i) const;
+
     void dump() const;
 
+private:
     bool m_bFullscreen;
     int m_BPP;
     bool m_bShowCursor;

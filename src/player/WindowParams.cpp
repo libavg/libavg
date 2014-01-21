@@ -20,6 +20,8 @@
 
 #include "WindowParams.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
 
 using namespace std;
@@ -36,6 +38,24 @@ WindowParams::WindowParams()
 
 WindowParams::~WindowParams()
 {
+}
+
+void WindowParams::calcSize()
+{
+    float aspectRatio = float(m_Viewport.width())/float(m_Viewport.height());
+    IntPoint windowSize;
+    IntPoint viewportSize = m_Viewport.size();
+    if (m_Size == IntPoint(0, 0)) {
+        windowSize = viewportSize;
+    } else if (m_Size.x == 0) {
+        windowSize.x = int(viewportSize.y*aspectRatio);
+        windowSize.y = viewportSize.y;
+    } else {
+        windowSize.x = viewportSize.x;
+        windowSize.y = int(viewportSize.x/aspectRatio);
+    }
+    AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
+    m_Size = windowSize;
 }
 
 void WindowParams::dump() const

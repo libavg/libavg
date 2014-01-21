@@ -43,10 +43,108 @@ DisplayParams::~DisplayParams()
 {
 }
 
+void DisplayParams::calcWindowSizes()
+{
+    for (unsigned i=0; i<m_Windows.size(); ++i) {
+        m_Windows[i].calcSize();
+    }
+}
+
+void DisplayParams::setResolution(bool bFullscreen, int width, int height, int bpp)
+{
+    WindowParams& wp = m_Windows[0];
+    m_bFullscreen = bFullscreen;
+    if (bpp) {
+        m_BPP = bpp;
+    }
+    wp.m_Viewport.tl.x = 0;
+    wp.m_Viewport.tl.y = 0;
+    if (width) {
+        wp.m_Viewport.br.x = width;
+    }
+    if (height) {
+        wp.m_Viewport.br.y = height;
+    }
+}
+
+void DisplayParams::setFullscreen(bool bFullscreen)
+{
+    m_bFullscreen = bFullscreen;
+}
+
+void DisplayParams::setBPP(int bpp)
+{
+    m_BPP = bpp;
+}
+
+
+void DisplayParams::setGamma(float red, float green, float blue)
+{
+    m_Gamma[0] = red;
+    m_Gamma[1] = green;
+    m_Gamma[2] = blue;
+}
+
+void DisplayParams::setFramerate(float framerate, int vbRate)
+{
+    m_Framerate = framerate;
+    m_VBRate = vbRate;
+}
+
+void DisplayParams::setShowCursor(bool bShow)
+{
+    m_bShowCursor = bShow;
+}
+
 void DisplayParams::resetWindows()
 {
     m_Windows.clear();
     m_Windows.push_back(WindowParams());
+}
+
+bool DisplayParams::isFullscreen() const
+{
+    return m_bFullscreen;
+}
+
+int DisplayParams::getBPP() const
+{
+    return m_BPP;
+}
+
+bool DisplayParams::isCursorVisible() const
+{
+    return m_bShowCursor;
+}
+
+int DisplayParams::getVBRate() const
+{
+    return m_VBRate;
+}
+
+float DisplayParams::getFramerate() const
+{
+    return m_Framerate;
+}
+
+int DisplayParams::getNumWindows() const
+{
+    return m_Windows.size();
+}
+
+WindowParams& DisplayParams::getWindowParams(int i)
+{
+    return m_Windows[i];
+}
+
+const WindowParams& DisplayParams::getWindowParams(int i) const
+{
+    return m_Windows[i];
+}
+
+const float DisplayParams::getGamma(int i) const
+{
+    return m_Gamma[i];
 }
 
 void DisplayParams::dump() const

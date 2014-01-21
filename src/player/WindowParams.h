@@ -33,6 +33,7 @@ struct AVG_API WindowParams {
     WindowParams();
     virtual ~WindowParams();
 
+    void calcSize();
     void dump() const;
 
     IntPoint m_Pos;
