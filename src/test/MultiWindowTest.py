@@ -31,10 +31,11 @@ class MultiWindowTestCase(AVGTestCase):
 
     def testMultiWindowBase(self):
         root = self.loadEmptyScene()
-        node = avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
+        avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
         player.setWindowConfig("avgwindowconfig.xml")
         self.start(False,
                 (None,
+                 lambda: self.delay(10000),
                 ))
 
 

@@ -247,12 +247,14 @@ void Canvas::renderWindow(WindowPtr pWindow, FBOPtr pFBO, const IntRect& viewpor
     glm::vec2 size = m_pRootNode->getSize();
     if (pFBO) {
         pFBO->activate();
-        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
+        projMat = glm::ortho(viewport.tl.x, viewport.br.x, 
+                viewport.tl.y, viewport.br.y);
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-        projMat = glm::ortho(0.f, size.x, size.y, 0.f);
+        projMat = glm::ortho(float(viewport.tl.x), float(viewport.br.x), 
+                float(viewport.br.y), float(viewport.tl.y));
     }
-    glViewport(viewport.tl.x, viewport.tl.y, viewport.width(), viewport.height());
+    glViewport(0, 0, viewport.width(), viewport.height());
     {
         ScopeTimer Timer(VATransferProfilingZone);
         m_pVertexArray->update();

@@ -1,4 +1,4 @@
 <avgwindowconfig>
   <window pos="(0,0)" size="(80,120)" viewport="((0,0),(80,120))" displayserver="0"/>
-  <window pos="(200,0)" size="(80,120)" viewport="((80,0),(80,120))" displayserver="0"/>
+  <window pos="(200,0)" size="(80,120)" viewport="((80,0),(160,120))" displayserver="0"/>
 </avgwindowconfig>

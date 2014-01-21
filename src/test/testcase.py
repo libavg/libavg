@@ -86,7 +86,7 @@ class AVGTestCase(unittest.TestCase):
 
     def __setupPlayer(self):
         player.setMultiSampleSamples(1)
-        player.setResolution(0, 0, 0, 0)
+#        player.setResolution(0, 0, 0, 0)
     
     @staticmethod
     def setImageResultDirectory(name):
