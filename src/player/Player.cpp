@@ -252,6 +252,11 @@ void Player::setWindowTitle(const string& sTitle)
     m_pDisplayEngine->setWindowTitle(sTitle);
 }
 
+void Player::setWindowConfig(const string& sFileName)
+{
+    m_DP.setConfig(sFileName);
+}
+
 void Player::useGLES(bool bGLES)
 {
     errorIfPlaying("Player.useGLES");

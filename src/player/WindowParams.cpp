@@ -32,6 +32,7 @@ WindowParams::WindowParams()
     : m_Pos(-1, -1),
       m_Size(0, 0),
       m_Viewport(0, 0, 0, 0),
+      m_DisplayServer(0),
       m_bHasWindowFrame(true)
 { 
 }

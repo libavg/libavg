@@ -24,7 +24,8 @@
 
 #include "../api.h"
 
-#include "../base/GLMHelper.h"
+#include "GLMHelper.h"
+#include "StringHelper.h"
 #include "../glm/glm.hpp"
 
 #include <algorithm>
@@ -64,6 +65,9 @@ public:
     Vec2 cropPoint(const Vec2& pt) const;
 };
 
+typedef Rect<float> FRect;
+typedef Rect<int> IntRect;
+
 template<class NUM>
 std::ostream& operator<<( std::ostream& os, const Rect<NUM> &r)
 {
@@ -71,9 +75,23 @@ std::ostream& operator<<( std::ostream& os, const Rect<NUM> &r)
     return os;
 }
 
+template<class NUM>
+std::istream& operator>>(std::istream& is, Rect<NUM>& r)
+{
+    skipToken(is, '(');
+    is >> r.tl;
+    skipToken(is, ',');
+    is >> r.br;
+    skipToken(is, ')');
+    return is;
+}
 
-typedef Rect<float> FRect;
-typedef Rect<int> IntRect;
+inline IntRect stringToIntRect(const std::string& s)
+{
+    IntRect r;
+    fromString(s, r);
+    return r;
+}
 
 template<class NUM>
 Rect<NUM>::Rect()

@@ -39,6 +39,7 @@ struct AVG_API WindowParams {
     IntPoint m_Pos;
     IntPoint m_Size;
     IntRect m_Viewport;
+    int m_DisplayServer;
     bool m_bHasWindowFrame;
 };
 

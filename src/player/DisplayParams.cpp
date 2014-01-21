@@ -20,6 +20,12 @@
 
 #include "DisplayParams.h"
 
+#include "../base/XMLHelper.h"
+#include "../base/FileHelper.h"
+#include "../base/StringHelper.h"
+#include "../base/GLMHelper.h"
+#include "../base/Rect.h"
+
 #include <iostream>
 
 using namespace std;
@@ -48,6 +54,60 @@ void DisplayParams::calcWindowSizes()
     for (unsigned i=0; i<m_Windows.size(); ++i) {
         m_Windows[i].calcSize();
     }
+}
+
+void DisplayParams::setConfig(const std::string& sFilename)
+{
+    m_Windows.clear();
+
+    string sConfig;
+    readWholeFile(sFilename, sConfig);
+
+    XMLParser parser;
+    string sSchema = 
+            "<?xml version='1.0' encoding='UTF-8'?>"
+            "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'>"
+            "  <xsd:element name='avgwindowconfig'>"
+            "    <xsd:complexType>"
+            "      <xsd:sequence maxOccurs='unbounded'>"
+            "        <xsd:element name='window' minOccurs='1' maxOccurs='unbounded'>"
+            "          <xsd:complexType>"
+            "            <xsd:attribute name='pos' type='xsd:string' use='required'/>"
+            "            <xsd:attribute name='size' type='xsd:string' use='required'/>"
+            "            <xsd:attribute name='viewport' type='xsd:string' use='required'/>"
+            "            <xsd:attribute name='displayserver' type='xsd:integer'/>"
+            "          </xsd:complexType>"
+            "        </xsd:element>"
+            "      </xsd:sequence>"
+            "    </xsd:complexType>"
+            "  </xsd:element>"
+            "</xsd:schema>";
+    parser.setSchema(sSchema, "avgwindowconfig.schema");
+    parser.parse(sConfig, sFilename);
+    xmlNodePtr xmlNode = parser.getRootNode();
+    xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
+    while (curXmlChild) {
+        const char * nodeType = (const char *)curXmlChild->name;
+        if (strcmp (nodeType, "text") && strcmp (nodeType, "comment")) {
+            WindowParams wp;
+            for (xmlAttrPtr prop = curXmlChild->properties; prop; prop = prop->next) {
+                string sName = toLowerCase((char*)prop->name);
+                string sValue = (char*)prop->children->content;
+                if (sName == "pos") {
+                    wp.m_Pos = IntPoint(stringToVec2(sValue));
+                } else if (sName == "size") {
+                    wp.m_Size = IntPoint(stringToVec2(sValue));
+                } else if (sName == "viewport") {
+                    wp.m_Viewport = stringToIntRect(sValue);
+                } else if (sName == "displayserver") {
+                    wp.m_DisplayServer = stringToInt(sValue);
+                }
+            }
+            m_Windows.push_back(wp);
+        }
+        curXmlChild = curXmlChild->next;
+    }
+    dump();
 }
 
 void DisplayParams::setResolution(bool bFullscreen, int width, int height, int bpp)
