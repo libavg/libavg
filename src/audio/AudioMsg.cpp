@@ -144,6 +144,9 @@ void AudioMsg::dump()
         case PACKET:
             cerr << "PACKET" << endl;
             break;
+        case CLOSED:
+            cerr << "CLOSED" << endl;
+            break;
         default:
             AVG_ASSERT(false);
             break;
