@@ -153,9 +153,9 @@ void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
         pBmpU->getPixels()
     };
     uint32_t pitches[3] = {
-        pBmpY->getStride(),
-        pBmpV->getStride(),
-        pBmpU->getStride()
+        uint32_t(pBmpY->getStride()),
+        uint32_t(pBmpV->getStride()),
+        uint32_t(pBmpU->getStride())
     };
     status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
             VDP_YCBCR_FORMAT_YV12, dest, pitches);
