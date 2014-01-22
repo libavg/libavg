@@ -45,7 +45,8 @@ static bool s_bDumpX11ErrorMsg;
 static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
 GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize)
-    : GLContext(glConfig, windowSize)
+    : GLContext(glConfig, windowSize),
+      m_pDisplay(0)
 {
     s_bX11Error = false;
 }

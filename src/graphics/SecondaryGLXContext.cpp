@@ -50,7 +50,8 @@ SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string&
         if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
             createContext(glConfig, sDisplay, windowDimensions, false);
         } else {
-            AVG_ASSERT_MSG(false, "Failed to create GLX context");
+            AVG_TRACE(Logger::category::NONE, Logger::severity::ERROR, 
+                    "Failed to create GLX context: " << e.what());
         }
     }
     init(true);
@@ -66,20 +67,25 @@ void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& 
 {
     setX11ErrorHandler();
 
-    XVisualInfo* pVisualInfo = createDetachedContext(XOpenDisplay(sDisplay.c_str()), 
-            glConfig, bUseDebugBit);
+    ::Display* pDisplay = XOpenDisplay(sDisplay.c_str());
+    if (!pDisplay) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Display '" + sDisplay + "' is not available.");
+    }
+    XVisualInfo* pVisualInfo = createDetachedContext(pDisplay, glConfig, bUseDebugBit);
     
     XSetWindowAttributes swa;
     swa.event_mask = ButtonPressMask;
     swa.colormap = getColormap();
 
     m_Window = XCreateWindow(getDisplay(), DefaultRootWindow(getDisplay()), 
-            windowDimensions.tl.x, windowDimensions.tl.y, windowDimensions.width(), 
-            windowDimensions.height(), 5, pVisualInfo->depth, InputOutput, 
-            pVisualInfo->visual, CWColormap | CWEventMask, &swa);
+            0, 0, windowDimensions.width(), windowDimensions.height(), 5, 
+            pVisualInfo->depth, InputOutput, pVisualInfo->visual, 
+            CWColormap | CWEventMask, &swa);
     AVG_ASSERT(m_Window);
     XMapWindow(getDisplay(), m_Window);
     XStoreName(getDisplay(), m_Window, "libavg secondary window");
+    XMoveWindow(getDisplay(), m_Window, windowDimensions.tl.x, windowDimensions.tl.y);
     
     setCurrent();
     glXMakeCurrent(getDisplay(), m_Window, getGLXContext());
