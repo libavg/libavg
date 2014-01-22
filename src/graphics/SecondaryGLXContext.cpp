@@ -40,7 +40,7 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string& sDisplay,  
+SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string& sDisplay,
         const IntRect& windowDimensions)
     : GLXContext(glConfig, windowDimensions.size())
 {
@@ -74,8 +74,9 @@ void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& 
     swa.colormap = getColormap();
 
     m_Window = XCreateWindow(getDisplay(), DefaultRootWindow(getDisplay()), 
-            0, 0, 800, 600, 5, pVisualInfo->depth, InputOutput, pVisualInfo->visual, 
-            CWColormap | CWEventMask, &swa);
+            windowDimensions.tl.x, windowDimensions.tl.y, windowDimensions.width(), 
+            windowDimensions.height(), 5, pVisualInfo->depth, InputOutput, 
+            pVisualInfo->visual, CWColormap | CWEventMask, &swa);
     AVG_ASSERT(m_Window);
     XMapWindow(getDisplay(), m_Window);
     XStoreName(getDisplay(), m_Window, "libavg secondary window");

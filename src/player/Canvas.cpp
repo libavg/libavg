@@ -253,7 +253,8 @@ void Canvas::renderWindow(WindowPtr pWindow, FBOPtr pFBO, const IntRect& viewpor
         projMat = glm::ortho(float(viewport.tl.x), float(viewport.br.x), 
                 float(viewport.br.y), float(viewport.tl.y));
     }
-    glViewport(0, 0, viewport.width(), viewport.height());
+    IntPoint windowSize = pWindow->getSize();
+    glViewport(0, 0, windowSize.x, windowSize.y);
     {
         ScopeTimer Timer(VATransferProfilingZone);
         m_pVertexArray->update();

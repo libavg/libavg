@@ -52,7 +52,9 @@ SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
 #ifdef linux
     GLContext* pMainContext = GLContext::getCurrent();
     GLContext* pGLContext;
-    pGLContext = new SecondaryGLXContext(glConfig, ":0.0", IntRect(0,0,800,600));
+    IntRect windowDimensions(wp.m_Pos, wp.m_Pos+wp.m_Size);
+    cerr << "dimensions: " << windowDimensions << endl;
+    pGLContext = new SecondaryGLXContext(glConfig, ":0.0", windowDimensions);
     setGLContext(pGLContext);
     
     pMainContext->activate();

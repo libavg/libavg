@@ -49,11 +49,11 @@ void WindowParams::calcSize()
     if (m_Size == IntPoint(0, 0)) {
         windowSize = viewportSize;
     } else if (m_Size.x == 0) {
-        windowSize.x = int(viewportSize.y*aspectRatio);
-        windowSize.y = viewportSize.y;
+        windowSize.x = int(m_Size.y*aspectRatio);
+        windowSize.y = m_Size.y;
     } else {
-        windowSize.x = viewportSize.x;
-        windowSize.y = int(viewportSize.x/aspectRatio);
+        windowSize.x = m_Size.x;
+        windowSize.y = int(m_Size.x/aspectRatio);
     }
     AVG_ASSERT(windowSize.x != 0 && windowSize.y != 0);
     m_Size = windowSize;

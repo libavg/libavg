@@ -103,6 +103,11 @@ void DisplayParams::setConfig(const std::string& sFilename)
                     wp.m_DisplayServer = stringToInt(sValue);
                 }
             }
+            if (wp.m_Size.x != 0 && wp.m_Size.y != 0) {
+                throw Exception(AVG_ERR_OUT_OF_RANGE, "While parsing '" + sFilename +
+                        "': Can't set window width and height at once (aspect ratio is "
+                        "determined by the viewport).");
+            }
             m_Windows.push_back(wp);
         }
         curXmlChild = curXmlChild->next;
