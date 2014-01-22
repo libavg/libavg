@@ -191,8 +191,9 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
                     m_Material.getWrapTMode());
             m_pSurface->create(pf, pTex);
         }
-        // TODO: pBmp is potentially created in python and the smart pointer reference count
-        // is messed up. Hence, we copy it here to get a clean reference count :-/.
+        // TODO: pBmp is potentially created in python. In this case, the smart pointer 
+        // reference count is messed up. Hence, we copy it here to get a clean reference
+        // count :-/.
         BitmapPtr pTempBmp(new Bitmap(pBmp->getSize(), pf, ""));
         pTempBmp->copyPixels(*pBmp);
         GLContextMultiplexer::get()->scheduleTexUpload(pTex, pTempBmp);

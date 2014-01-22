@@ -78,12 +78,22 @@ void GLContextMultiplexer::scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp)
     m_pPendingTexUploads[pTex] = pBmp;
 }
 
+GLTexturePtr GLContextMultiplexer::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
+        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
+{
+    GLTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
+            potBorderColor, wrapSMode, wrapTMode, bForcePOT);
+    scheduleTexUpload(pTex, pBmp);
+    return pTex;
+}
+
 void GLContextMultiplexer::deleteTexture(unsigned texID)
 {
     m_PendingTexDeletes.push_back(texID);
 }
 
-VertexArrayPtr GLContextMultiplexer::createVertexArray(int reserveVerts, int reserveIndexes)
+VertexArrayPtr GLContextMultiplexer::createVertexArray(int reserveVerts,
+        int reserveIndexes)
 {
     VertexArrayPtr pVA(new VertexArray(reserveVerts, reserveIndexes));
     m_pPendingVACreates.push_back(pVA);

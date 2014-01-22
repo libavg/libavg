@@ -50,6 +50,9 @@ public:
             int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
             unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
     void scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp);
+    GLTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false,
+            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
+            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
     void deleteTexture(unsigned texID);
 
     VertexArrayPtr createVertexArray(int reserveVerts = 0, int reserveIndexes = 0);

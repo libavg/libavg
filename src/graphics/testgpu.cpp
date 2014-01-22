@@ -302,9 +302,7 @@ public:
     {
         BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
         GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-        GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat());
-        pCM->scheduleTexUpload(pTex, pOrigBmp);
+        GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
@@ -378,10 +376,8 @@ private:
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-            GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
-                    pOrigBmp->getPixelFormat(), false, 0, GL_CLAMP_TO_EDGE, 
-                    GL_CLAMP_TO_EDGE, bPOT);
-            pCM->scheduleTexUpload(pTex, pOrigBmp);
+            GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, false, 0,
+                    GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bPOT);
             pCM->uploadData();
 
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
@@ -395,9 +391,7 @@ private:
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-        GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat(), true);
-        pCM->scheduleTexUpload(pTex, pOrigBmp);
+        GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, true);
         pCM->uploadData();
         pTex->generateMipmaps();
 
@@ -428,9 +422,7 @@ private:
         BitmapPtr pOrigBmp(new Bitmap(pFileBmp->getSize(), B5G6R5));
         pOrigBmp->copyPixels(*pFileBmp);
         GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-        GLTexturePtr pTex = pCM->createTexture(pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat());
-        pCM->scheduleTexUpload(pTex, pOrigBmp);
+        GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
 
         BitmapPtr pDestBmp = pTex->moveTextureToBmp();
