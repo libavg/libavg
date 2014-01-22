@@ -12,13 +12,17 @@ def handleFile(path):
 #        m = re.match(r'#include\s*["<]([\-_a-zA-Z0-9\.\\/]+)[">]\s*', l)
         if match:
             if path[-2:] == 'py':
-                lines[i] = "# Copyright (C) 2003-2011 Ulrich von Zadow\n"
+                lines[i] = "# Copyright (C) 2003-2014 Ulrich von Zadow\n"
             else:
-                lines[i] = "//  Copyright (C) 2003-2011 Ulrich von Zadow\n"
+                lines[i] = "//  Copyright (C) 2003-2014 Ulrich von Zadow\n"
             found = True
-    if not(found):
+    if found:
+        outFile = open(path, "w")
+        for line in lines:
+            outFile.write(line)
+    else:
         print path
-
+        
 
 for ext in ("h", "c", "cpp", "py"):
     cmd = 'find . -name "*.'+ext+'"'
