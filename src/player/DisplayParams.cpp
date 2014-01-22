@@ -67,6 +67,12 @@ void DisplayParams::setConfig(const std::string& sFilename)
     string sSchema = 
             "<?xml version='1.0' encoding='UTF-8'?>"
             "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'>"
+            "  <xsd:simpleType name='bool'>"
+            "    <xsd:restriction base='xsd:string'>"
+            "      <xsd:enumeration value='True'/>"
+            "      <xsd:enumeration value='False'/>"
+            "    </xsd:restriction>"
+            "  </xsd:simpleType>"
             "  <xsd:element name='avgwindowconfig'>"
             "    <xsd:complexType>"
             "      <xsd:sequence maxOccurs='unbounded'>"
@@ -75,7 +81,8 @@ void DisplayParams::setConfig(const std::string& sFilename)
             "            <xsd:attribute name='pos' type='xsd:string' use='required'/>"
             "            <xsd:attribute name='size' type='xsd:string' use='required'/>"
             "            <xsd:attribute name='viewport' type='xsd:string' use='required'/>"
-            "            <xsd:attribute name='displayserver' type='xsd:integer'/>"
+            "            <xsd:attribute name='hasframe' type='bool' use='required'/>"
+            "            <xsd:attribute name='displayserver' type='xsd:integer' use='required'/>"
             "          </xsd:complexType>"
             "        </xsd:element>"
             "      </xsd:sequence>"
@@ -99,6 +106,8 @@ void DisplayParams::setConfig(const std::string& sFilename)
                     wp.m_Size = IntPoint(stringToVec2(sValue));
                 } else if (sName == "viewport") {
                     wp.m_Viewport = stringToIntRect(sValue);
+                } else if (sName == "hasframe") {
+                    wp.m_bHasWindowFrame = stringToBool(sValue);
                 } else if (sName == "displayserver") {
                     wp.m_DisplayServer = stringToInt(sValue);
                 }

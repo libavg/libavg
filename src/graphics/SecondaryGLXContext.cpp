@@ -41,14 +41,14 @@ using namespace std;
 using namespace boost;
 
 SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string& sDisplay,
-        const IntRect& windowDimensions)
+        const IntRect& windowDimensions, bool bHasWindowFrame)
     : GLXContext(glConfig, windowDimensions.size())
 {
     try {
-        createContext(glConfig, sDisplay, windowDimensions, true);
+        createContext(glConfig, sDisplay, windowDimensions, bHasWindowFrame, true);
     } catch (const Exception &e) {
         if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
-            createContext(glConfig, sDisplay, windowDimensions, false);
+            createContext(glConfig, sDisplay, windowDimensions, bHasWindowFrame, false);
         } else {
             AVG_TRACE(Logger::category::NONE, Logger::severity::ERROR, 
                     "Failed to create GLX context: " << e.what());
@@ -63,7 +63,7 @@ SecondaryGLXContext::~SecondaryGLXContext()
 }
 
 void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& sDisplay, 
-        const IntRect& windowDimensions, bool bUseDebugBit)
+        const IntRect& windowDimensions, bool bHasWindowFrame, bool bUseDebugBit)
 {
     setX11ErrorHandler();
 
@@ -77,11 +77,18 @@ void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& 
     XSetWindowAttributes swa;
     swa.event_mask = ButtonPressMask;
     swa.colormap = getColormap();
+    swa.override_redirect = !bHasWindowFrame;
 
+    int borderWidth;
+    if (bHasWindowFrame) {
+        borderWidth = 5;
+    } else {
+        borderWidth = 0;
+    }
     m_Window = XCreateWindow(getDisplay(), DefaultRootWindow(getDisplay()), 
-            0, 0, windowDimensions.width(), windowDimensions.height(), 5, 
+            0, 0, windowDimensions.width(), windowDimensions.height(), borderWidth, 
             pVisualInfo->depth, InputOutput, pVisualInfo->visual, 
-            CWColormap | CWEventMask, &swa);
+            CWColormap | CWEventMask | CWOverrideRedirect, &swa);
     AVG_ASSERT(m_Window);
     XMapWindow(getDisplay(), m_Window);
     XStoreName(getDisplay(), m_Window, "libavg secondary window");

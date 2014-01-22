@@ -36,12 +36,12 @@ class AVG_API SecondaryGLXContext: public GLXContext
 {
 public:
     SecondaryGLXContext(const GLConfig& glConfig, const std::string& sDisplay,
-            const IntRect& windowDimensions);
+            const IntRect& windowDimensions, bool bHasWindowFrame);
     virtual ~SecondaryGLXContext();
 
 private:
     void createContext(const GLConfig& glConfig, const std::string& sDisplay, 
-            const IntRect& windowDimensions, bool bUseDebugBit);
+            const IntRect& windowDimensions, bool bHasWindowFrame, bool bUseDebugBit);
 
     ::Window m_Window;
 };
