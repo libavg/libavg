@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -49,8 +49,8 @@ class AVG_API FilledVectorNode : public VectorNode
         const glm::vec2& getFillTexCoord2() const;
         void setFillTexCoord2(const glm::vec2& pt);
 
-        void setFillColor(const std::string& sColor);
-        const std::string& getFillColor() const;
+        void setFillColor(const UTF8String& sColor);
+        const UTF8String& getFillColor() const;
 
         float getFillOpacity() const;
         void setFillOpacity(float opacity);
@@ -76,7 +76,7 @@ class AVG_API FilledVectorNode : public VectorNode
         glm::vec2 m_FillTexCoord2;
         ShapePtr m_pFillShape;
         float m_FillOpacity;
-        std::string m_sFillColorName;
+        UTF8String m_sFillColorName;
         Pixel32 m_FillColor;
 };
 

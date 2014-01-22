@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -143,6 +143,9 @@ void AudioMsg::dump()
             break;
         case PACKET:
             cerr << "PACKET" << endl;
+            break;
+        case CLOSED:
+            cerr << "CLOSED" << endl;
             break;
         default:
             AVG_ASSERT(false);

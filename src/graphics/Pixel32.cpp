@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -75,7 +75,7 @@ std::string Pixel32::getColorString() const
     return s.str();
 }
 
-Pixel32 colorStringToColor(const string & s)
+Pixel32 colorStringToColor(const UTF8String& s)
 {
     int r, g, b;
     int numChars;

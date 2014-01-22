@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2011 Ulrich von Zadow
+# Copyright (C) 2003-2014 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -562,7 +562,7 @@ class VectorTestCase(AVGTestCase):
         
         def changeCircle():
             circle.color="FF0000"
-            circle.fillcolor="FFFFFF"
+            circle.fillcolor=u"FFFFFF"
             circle.fillopacity=0.5
             circle.strokewidth=3
         
