@@ -159,7 +159,7 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
 //            cerr << "up: " << pos << endl; 
             TouchStatusPtr pTouchStatus = getTouchStatus(pTouchInput->dwID);
-            TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
+            CursorEventPtr pOldEvent = pTouchStatus->getLastEvent();
             TouchEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
                     Event::CURSOR_UP, pos, Event::TOUCH));
             pTouchStatus->pushEvent(pUpEvent);
