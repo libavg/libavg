@@ -108,6 +108,7 @@
     <ClInclude Include="..\..\src\graphics\GLBufferCache.h" />
     <ClInclude Include="..\..\src\graphics\GLConfig.h" />
     <ClInclude Include="..\..\src\graphics\GLContext.h" />
+    <ClInclude Include="..\..\src\graphics\GLContextMultiplexer.h" />
     <ClInclude Include="..\..\src\graphics\GLShaderParam.h" />
     <ClInclude Include="..\..\src\graphics\GLTexture.h" />
     <ClInclude Include="..\..\src\graphics\GPUBandpassFilter.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="..\..\src\graphics\GLBufferCache.cpp" />
     <ClCompile Include="..\..\src\graphics\GLConfig.cpp" />
     <ClCompile Include="..\..\src\graphics\GLContext.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLContextMultiplexer.cpp" />
     <ClCompile Include="..\..\src\graphics\GLShaderParam.cpp" />
     <ClCompile Include="..\..\src\graphics\GLTexture.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBandpassFilter.cpp" />
