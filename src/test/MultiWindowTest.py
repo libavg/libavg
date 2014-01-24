@@ -20,10 +20,10 @@
 # Current versions can be found at www.libavg.de
 #
 
-
+import libavg
 from libavg import avg, player
 from testcase import *
-
+import AppTest
 
 class MultiWindowTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -35,12 +35,25 @@ class MultiWindowTestCase(AVGTestCase):
         player.setWindowConfig("avgwindowconfig.xml")
         self.start(False,
                 (None,
-                 lambda: self.delay(10000),
                 ))
 
+    def testMultiWindowApp(self):
+        app = AppTest.TestApp()
+        app.CUSTOM_SETTINGS = {}
+        app.settings.set('app_windowconfig', 'avgwindowconfig.xml')
+        app.settings.set('app_window_size', '160x120')
+        self.assertException(lambda: app.testRun([]))
+        libavg.app.instance = None
+
+        app = AppTest.TestApp()
+        app.CUSTOM_SETTINGS = {}
+        app.settings.set('app_windowconfig', 'avgwindowconfig.xml')
+        app.testRun([])
+        
 
 def multiWindowTestSuite(tests):
     availableTests = (
             "testMultiWindowBase",
+            "testMultiWindowApp",
             )
     return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)

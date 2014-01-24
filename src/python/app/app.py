@@ -28,7 +28,7 @@ import math
 import time
 
 import libavg
-from libavg import avg, Point2D, mtemu
+from libavg import avg, Point2D, mtemu, player
 
 import settings
 from settings import Option
@@ -182,6 +182,7 @@ class App(object):
 
     def _setupSettings(self):
         self._settings = settings.Settings()
+        self._settings.addOption(Option('app_windowconfig', ''))
         self._settings.addOption(Option('app_resolution', '640x480'))
         self._settings.addOption(Option('app_window_size', ''))
         self._settings.addOption(Option('app_fullscreen', 'false'))
@@ -282,39 +283,48 @@ class App(object):
     def _setupResolution(self):
         rotation = self.settings.get('app_rotation').lower()
         resolutionStr = self.settings.get('app_resolution').lower()
-        if resolutionStr != '':
-            resolution = self.settings.getPoint2D('app_resolution')
-        else:
-            resolution = libavg.player.getScreenResolution()
-
         windowSizeStr = self.settings.get('app_window_size')
-        if windowSizeStr != '':
-            windowSize = self.settings.getPoint2D('app_window_size')
+        if self.settings.get('app_windowconfig') == '':
+            if resolutionStr != '':
+                resolution = self.settings.getPoint2D('app_resolution')
+            else:
+                resolution = libavg.player.getScreenResolution()
+
+            if windowSizeStr != '':
+                windowSize = self.settings.getPoint2D('app_window_size')
+            else:
+                windowSize = resolution
+
+            if rotation in ('left', 'right'):
+                resolution = Point2D(resolution.y, resolution.x)
+                windowSize = Point2D(windowSize.y, windowSize.x)
+
+            self._resolution = resolution
+            self._windowSize = windowSize
         else:
-            windowSize = resolution
-
-        if rotation in ('left', 'right'):
-            resolution = Point2D(resolution.y, resolution.x)
-            windowSize = Point2D(windowSize.y, windowSize.x)
-
-        self._resolution = resolution
-        self._windowSize = windowSize
+            if rotation != 'normal' or windowSizeStr != '':
+                raise TypeError('App parameters: app_windowconfig is incompatible '+
+                        'with app_window_size and app_rotation')
+            player.setWindowConfig(self.settings.get('app_windowconfig'))
+            self._resolution = self.settings.getPoint2D('app_resolution')
 
     def _applyResolution(self):
-        fullscreen = self.settings.getBoolean('app_fullscreen')
+        if self.settings.get('app_windowconfig') == '':
+            
+            fullscreen = self.settings.getBoolean('app_fullscreen')
 
-        if fullscreen:
-            resolution = self._resolution
-        else:
-            resolution = self._windowSize
+            if fullscreen:
+                resolution = self._resolution
+            else:
+                resolution = self._windowSize
 
-        libavg.player.setResolution(
-                fullscreen,
-                int(resolution.x), int(resolution.y),
-                0  # color depth
-                )
+            libavg.player.setResolution(
+                    fullscreen,
+                    int(resolution.x), int(resolution.y),
+                    0  # color depth
+                    )
 
-        libavg.player.showCursor(self.settings.getBoolean('app_show_cursor'))
+            libavg.player.showCursor(self.settings.getBoolean('app_show_cursor'))
 
     def _setupKeyboardManager(self):
         keyboardmanager.init()
