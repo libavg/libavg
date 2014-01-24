@@ -65,6 +65,7 @@ Window::~Window()
 BitmapPtr Window::screenshot(int buffer)
 {
     AVG_ASSERT(m_pGLContext);
+    m_pGLContext->activate();
     BitmapPtr pBmp;
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     if (m_pGLContext->isGLES()) {

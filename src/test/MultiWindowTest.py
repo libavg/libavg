@@ -34,7 +34,7 @@ class MultiWindowTestCase(AVGTestCase):
         avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
         player.setWindowConfig("avgwindowconfig.xml")
         self.start(False,
-                (None,
+                (lambda: self.compareImage("testMultiWindow1"),
                 ))
 
     def testMultiWindowApp(self):

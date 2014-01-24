@@ -374,7 +374,20 @@ void DisplayEngine::showCursor(bool bShow)
 
 BitmapPtr DisplayEngine::screenshot(int buffer)
 {
-    return m_pWindows[0]->screenshot(buffer);
+    IntRect destRect;
+    for (unsigned i=0; i != m_pWindows.size(); ++i) {
+        IntRect winDims(m_pWindows[i]->getPos(), 
+                m_pWindows[i]->getPos()+m_pWindows[i]->getSize());
+        destRect.expand(winDims);
+    }
+    
+    BitmapPtr pDestBmp(new Bitmap(destRect.size(), B8G8R8X8));
+    for (unsigned i=0; i != m_pWindows.size(); ++i) {
+        BitmapPtr pWinBmp = m_pWindows[i]->screenshot(buffer);
+        IntPoint pos = m_pWindows[i]->getPos() - destRect.tl;
+        pDestBmp->blt(*pWinBmp, pos);
+    }
+    return pDestBmp;
 }
 
 vector<EventPtr> DisplayEngine::pollEvents()
