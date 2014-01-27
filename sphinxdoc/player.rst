@@ -575,6 +575,15 @@ Player & Canvas
                 Number of vertical blanking intervals to wait. On Mac OS X, only :samp:`1`
                 is supported as rate.
 
+        .. py:method:: setWindowConfig(configFileName)
+
+            Sets the window configuration for multi-window setups. Multi-window setups are
+            supported on X11 and can span more than one X11 display (and thus, multiple 
+            GPUs). A sample config file can be found under
+            :file:`src/test/avg_windowconfig.xml`. Using this file, window positions and
+            sizes can be set. Each window can show a separate portion of the main scene
+            (a 'viewport').
+
         .. py:method:: setWindowFrame(hasWindowFrame)
 
             :py:attr:`hasWindowFrame` should be set to :py:const:`True` if a 
