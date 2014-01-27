@@ -195,7 +195,11 @@ void DisplayEngine::deinitRender()
 void DisplayEngine::setFramerate(float rate)
 {
     if (rate != 0 && m_bInitialized) {
-        GLContext::getCurrent()->initVBlank(0);
+        for (unsigned i=0; i<m_pWindows.size(); ++i) {
+            GLContext* pContext = m_pWindows[i]->getGLContext();
+            pContext->activate();
+            pContext->initVBlank(0);
+        }
     }
     m_Framerate = rate;
     m_VBRate = 0;
@@ -215,7 +219,12 @@ void DisplayEngine::setVBlankRate(int rate)
 {
     m_VBRate = rate;
     if (m_bInitialized) {
-        bool bOK = GLContext::getCurrent()->initVBlank(rate);
+        bool bOK = true;
+        for (unsigned i=0; i<m_pWindows.size(); ++i) {
+            GLContext* pContext = m_pWindows[i]->getGLContext();
+            pContext->activate();
+            bOK &= pContext->initVBlank(rate);
+        }
         m_Framerate = Display::get()->getRefreshRate()/m_VBRate;
         if (!bOK || rate == 0) { 
             AVG_LOG_WARNING("Using framerate of " << m_Framerate << 

@@ -65,6 +65,8 @@ private:
     ::Display* m_pDisplay;
     ::GLXContext m_Context;
     GLXDrawable m_Drawable;
+
+    bool m_bVBlankActive;
 };
 
 }
