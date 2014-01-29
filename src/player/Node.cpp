@@ -55,6 +55,16 @@ void Node::registerType()
     pPubDef->addMessage("HOVER_UP");
     pPubDef->addMessage("HOVER_OVER");
     pPubDef->addMessage("HOVER_OUT");
+    pPubDef->addMessage("TANGIBLE_DOWN");
+    pPubDef->addMessage("TANGIBLE_MOTION");
+    pPubDef->addMessage("TANGIBLE_UP");
+    pPubDef->addMessage("TANGIBLE_OVER");
+    pPubDef->addMessage("TANGIBLE_OUT");
+    pPubDef->addMessage("PEN_DOWN");
+    pPubDef->addMessage("PEN_MOTION");
+    pPubDef->addMessage("PEN_UP");
+    pPubDef->addMessage("PEN_OVER");
+    pPubDef->addMessage("PEN_OUT");
     pPubDef->addMessage("END_OF_FILE");
     pPubDef->addMessage("SIZE_CHANGED");
 
@@ -534,41 +544,77 @@ void Node::dumpEventHandlers()
 string Node::getEventMessageID(const EventPtr& pEvent)
 {
     Event::Source source = pEvent->getSource();
-    if (source == Event::MOUSE || source == Event::TOUCH) {
-        switch (pEvent->getType()) {
-            case Event::CURSOR_DOWN:
-                return "CURSOR_DOWN";
-            case Event::CURSOR_MOTION:
-                return "CURSOR_MOTION";
-            case Event::CURSOR_UP:
-                return "CURSOR_UP";
-            case Event::CURSOR_OVER:
-                return "CURSOR_OVER";
-            case Event::CURSOR_OUT:
-                return "CURSOR_OUT";
-            default:
-                AVG_ASSERT_MSG(false, 
-                        (string("Unknown message type ")+pEvent->typeStr()).c_str());
-                return "";
-        }
-    } else {
-        switch (pEvent->getType()) {
-            case Event::CURSOR_DOWN:
-                return "HOVER_DOWN";
-            case Event::CURSOR_MOTION:
-                return "HOVER_MOTION";
-            case Event::CURSOR_UP:
-                return "HOVER_UP";
-            case Event::CURSOR_OVER:
-                return "HOVER_OVER";
-            case Event::CURSOR_OUT:
-                return "HOVER_OUT";
-            default:
-                AVG_ASSERT_MSG(false, 
-                        (string("Unknown message type ")+pEvent->typeStr()).c_str());
-                return "";
-        }
+    switch (source) {
+        case Event::MOUSE:
+        case Event::TOUCH:
+            switch (pEvent->getType()) {
+                case Event::CURSOR_DOWN:
+                    return "CURSOR_DOWN";
+                case Event::CURSOR_MOTION:
+                    return "CURSOR_MOTION";
+                case Event::CURSOR_UP:
+                    return "CURSOR_UP";
+                case Event::CURSOR_OVER:
+                    return "CURSOR_OVER";
+                case Event::CURSOR_OUT:
+                    return "CURSOR_OUT";
+                default:
+                    break;
+            }
+            break;
+        case Event::TANGIBLE:
+            switch (pEvent->getType()) {
+                case Event::CURSOR_DOWN:
+                    return "TANGIBLE_DOWN";
+                case Event::CURSOR_MOTION:
+                    return "TANGIBLE_MOTION";
+                case Event::CURSOR_UP:
+                    return "TANGIBLE_UP";
+                case Event::CURSOR_OVER:
+                    return "TANGIBLE_OVER";
+                case Event::CURSOR_OUT:
+                    return "TANGIBLE_OUT";
+                default:
+                    break;
+            }
+            break;
+        case Event::PEN:
+            switch (pEvent->getType()) {
+                case Event::CURSOR_DOWN:
+                    return "PEN_DOWN";
+                case Event::CURSOR_MOTION:
+                    return "PEN_MOTION";
+                case Event::CURSOR_UP:
+                    return "PEN_UP";
+                case Event::CURSOR_OVER:
+                    return "PEN_OVER";
+                case Event::CURSOR_OUT:
+                    return "PEN_OUT";
+                default:
+                    break;
+            }
+            break;
+        case Event::TRACK:
+            switch (pEvent->getType()) {
+                case Event::CURSOR_DOWN:
+                    return "HOVER_DOWN";
+                case Event::CURSOR_MOTION:
+                    return "HOVER_MOTION";
+                case Event::CURSOR_UP:
+                    return "HOVER_UP";
+                case Event::CURSOR_OVER:
+                    return "HOVER_OVER";
+                case Event::CURSOR_OUT:
+                    return "HOVER_OUT";
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
+    AVG_ASSERT_MSG(false, (string("Unknown message type ")+pEvent->typeStr()).c_str());
+    return "";
 }
 
 bool Node::callPython(PyObject * pFunc, EventPtr pEvent)

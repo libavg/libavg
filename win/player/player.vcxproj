@@ -128,6 +128,7 @@
     <ClCompile Include="..\..\src\player\SubscriberInfo.cpp" />
     <ClCompile Include="..\..\src\player\SVG.cpp" />
     <ClCompile Include="..\..\src\player\SVGElement.cpp" />
+    <ClCompile Include="..\..\src\player\TangibleEvent.cpp" />
     <ClCompile Include="..\..\src\player\TestHelper.cpp" />
     <ClCompile Include="..\..\src\player\TextEngine.cpp" />
     <ClCompile Include="..\..\src\player\Timeout.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="..\..\src\player\SubscriberInfo.h" />
     <ClInclude Include="..\..\src\player\SVG.h" />
     <ClInclude Include="..\..\src\player\SVGElement.h" />
+    <ClInclude Include="..\..\src\player\TangibleEvent.h" />
     <ClInclude Include="..\..\src\player\TestHelper.h" />
     <ClInclude Include="..\..\src\player\TextEngine.h" />
     <ClInclude Include="..\..\src\player\Timeout.h" />

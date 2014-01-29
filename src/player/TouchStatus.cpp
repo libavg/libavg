@@ -21,7 +21,7 @@
 
 #include "TouchStatus.h"
 
-#include "TouchEvent.h"
+#include "CursorEvent.h"
 #include "BoostPython.h"
 #include "Player.h"
 
@@ -34,7 +34,7 @@ using namespace std;
 
 namespace avg {
 
-TouchStatus::TouchStatus(TouchEventPtr pEvent)
+TouchStatus::TouchStatus(CursorEventPtr pEvent)
     : m_bFirstFrame(true),
       m_CursorID(pEvent->getCursorID())
 {
@@ -46,7 +46,7 @@ TouchStatus::~TouchStatus()
 {
 }
 
-void TouchStatus::pushEvent(TouchEventPtr pEvent, bool bCheckMotion)
+void TouchStatus::pushEvent(CursorEventPtr pEvent, bool bCheckMotion)
 {
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
@@ -77,12 +77,12 @@ void TouchStatus::pushEvent(TouchEventPtr pEvent, bool bCheckMotion)
     }
 }
 
-TouchEventPtr TouchStatus::pollEvent()
+CursorEventPtr TouchStatus::pollEvent()
 {
     if (m_pNewEvents.empty()) {
-        return TouchEventPtr();
+        return CursorEventPtr();
     } else {
-        TouchEventPtr pEvent = m_pNewEvents[0];
+        CursorEventPtr pEvent = m_pNewEvents[0];
         m_pNewEvents.erase(m_pNewEvents.begin());
         m_bFirstFrame = false;
         m_pLastEvent = pEvent;
@@ -90,7 +90,7 @@ TouchEventPtr TouchStatus::pollEvent()
     }
 }
 
-TouchEventPtr TouchStatus::getLastEvent()
+CursorEventPtr TouchStatus::getLastEvent()
 {
     if (m_pNewEvents.empty()) {
         AVG_ASSERT(m_pLastEvent);

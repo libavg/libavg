@@ -38,6 +38,9 @@ union SDL_Event;
 
 namespace avg {
 
+class TouchEvent;
+typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+
 class AVG_API XInputMTInputDevice: public MultitouchInputDevice
 {
 public:

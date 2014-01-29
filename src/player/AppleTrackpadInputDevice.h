@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "MultitouchInputDevice.h"
 #include "Event.h"
+#include "TouchEvent.h"
 
 extern "C" {
 

@@ -53,6 +53,8 @@ class AVG_API TestHelper : public IInputDevice
                 int xPosition, int yPosition, int button);
         void fakeTouchEvent(int id, Event::Type eventType, Event::Source source,
                 const glm::vec2& pos, const glm::vec2& speed=glm::vec2(0, 0));
+        void fakeTangibleEvent(int id, int markerID, Event::Type eventType, 
+                const glm::vec2& pos, const glm::vec2& speed, float orientation);
         void fakeKeyEvent(Event::Type eventType,
                 unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int unicode, int modifiers);
@@ -63,8 +65,9 @@ class AVG_API TestHelper : public IInputDevice
         virtual std::vector<EventPtr> pollEvents();
 
     private:
+        void processTouchStatus(CursorEventPtr pEvent);
         void checkEventType(Event::Type eventType);
-        
+
         std::vector<EventPtr> m_Events;
         std::map<int, TouchStatusPtr> m_Touches;
 };

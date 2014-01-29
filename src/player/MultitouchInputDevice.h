@@ -38,8 +38,8 @@ namespace avg {
 
 class TouchStatus;
 typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
-class TouchEvent;
-typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+class CursorEvent;
+typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 class Event;
 typedef boost::shared_ptr<Event> EventPtr;
 
@@ -57,15 +57,18 @@ protected:
     // Note that the id used here is not the libavg cursor id but a touch-driver-specific
     // id handed up from the driver level.
     TouchStatusPtr getTouchStatus(int id);
-    void addTouchStatus(int id, TouchEventPtr pInitialEvent);
+    void addTouchStatus(int id, CursorEventPtr pInitialEvent);
     void removeTouchStatus(int id);
-    void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs);
+
+    typedef std::map<int, TouchStatusPtr> TouchIDMap;
+    const TouchIDMap& getTouchIDMap() const;
+
     glm::vec2 getTouchArea() const;
     IntPoint getScreenPos(const glm::vec2& pos) const;
     boost::mutex& getMutex();
 
 private:
-    std::map<int, TouchStatusPtr> m_TouchIDMap;
+    TouchIDMap m_TouchIDMap;
     std::vector<TouchStatusPtr> m_Touches;
     MutexPtr m_pMutex;
     glm::vec2 m_TouchArea;
