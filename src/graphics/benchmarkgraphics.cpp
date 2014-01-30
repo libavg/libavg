@@ -85,7 +85,7 @@ public:
 
     void run()
     {
-        BitmapPtr pBmp = loadBitmap("testfiles/rgb24alpha-64x64.png");
+        BitmapPtr pBmp = loadBitmap("../test/media/rgb24alpha-64x64.png");
     }
 };
 
@@ -249,6 +249,7 @@ void runPerformanceTests()
 
 int main(int nargs, char** args)
 {
+    BitmapLoader::init(true);
     runPerformanceTests();
 }
 
