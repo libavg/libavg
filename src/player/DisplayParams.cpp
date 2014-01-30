@@ -121,7 +121,7 @@ void DisplayParams::setConfig(const std::string& sFilename)
         }
         curXmlChild = curXmlChild->next;
     }
-    dump();
+//    dump();
 }
 
 void DisplayParams::setResolution(bool bFullscreen, int width, int height, int bpp)

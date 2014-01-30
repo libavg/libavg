@@ -34,6 +34,8 @@
 
 namespace avg {
 
+class GLContext;
+
 class AVG_API OffscreenCanvas: public Canvas
 {
     public:
@@ -55,7 +57,7 @@ class AVG_API OffscreenCanvas: public Canvas
         std::string getID() const;
         bool isRunning() const;
         GLTexturePtr getTex() const;
-        FBOPtr getFBO() const;
+        FBOPtr getFBO();
 
         void registerCameraNode(CameraNode* pCameraNode);
         void unregisterCameraNode();
@@ -76,7 +78,11 @@ class AVG_API OffscreenCanvas: public Canvas
         virtual void renderTree();
 
     private:
-        FBOPtr m_pFBO;
+        FBOPtr getCurFBO();
+        FBOConstPtr getCurFBO() const;
+
+        typedef std::map<GLContext*, FBOPtr> FBOMap;
+        FBOMap m_pFBOMap;
         bool m_bUseMipmaps;
         std::vector<CanvasPtr> m_pDependentCanvases;
 

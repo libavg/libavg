@@ -72,6 +72,29 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
     init();
 }
 
+FBO::FBO(GLTexturePtr pTex, unsigned multisampleSamples, bool bUsePackedDepthStencil, 
+        bool bUseStencil, bool bMipmap)
+    : m_Size(pTex->getSize()),
+      m_PF(pTex->getPF()),
+      m_MultisampleSamples(multisampleSamples),
+      m_bUsePackedDepthStencil(bUsePackedDepthStencil),
+      m_bUseStencil(bUseStencil),
+      m_bMipmap(bMipmap)
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+    if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
+    }
+    if (multisampleSamples < 1) {
+        throwMultisampleError();
+    }
+
+    m_pTextures.push_back(pTex);
+
+    init();
+}
+
 FBO::~FBO()
 {
     ObjectCounter::get()->decRef(&typeid(*this));

@@ -43,6 +43,9 @@ public:
     FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
             unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
             bool bUseStencil=false, bool bMipmap=false);
+    FBO(GLTexturePtr pTex, 
+            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
+            bool bUseStencil=false, bool bMipmap=false);
     virtual ~FBO();
 
     void activate() const;
@@ -90,6 +93,7 @@ private:
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;
+typedef boost::shared_ptr<const FBO> FBOConstPtr;
 
 }
 
