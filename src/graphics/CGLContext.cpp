@@ -42,7 +42,7 @@ using namespace boost;
 
 CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize, pSDLWMInfo)
+    : GLContext(windowSize, pSDLWMInfo)
 {
     if (pSDLWMInfo) {
         m_Context = CGLGetCurrentContext();
@@ -61,7 +61,7 @@ CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         }
         CGLDestroyPixelFormat(pixelFormatObj);
     }
-    init(!pSDLWMInfo);
+    init(glConfig, !pSDLWMInfo);
 }
 
 CGLContext::~CGLContext()
