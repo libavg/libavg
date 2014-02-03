@@ -109,7 +109,7 @@ buildLib libtool-2.2.6
 buildLib autoconf-2.63
 buildLib automake-1.11
 buildLib nasm-2.10.09
-buildLib libjpeg-turbo-1.3.0 "--host x86_64-apple-darwin NASM=${AVG_PATH}/bin/nasm"
+buildLib libjpeg-turbo-1.3.0 "--host x86_64-apple-darwin --disable-shared NASM=${AVG_PATH}/bin/nasm"
 buildLib tiff-3.8.2 --disable-shared 
 buildLib libpng-1.2.41 --disable-shared
 buildLib pkg-config-0.20
