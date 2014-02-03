@@ -80,8 +80,7 @@ GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSiz
 #endif
 }
 
-GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo)
+GLContext::GLContext(const IntPoint& windowSize, const SDL_SysWMinfo* pSDLWMInfo)
     : m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
@@ -92,15 +91,15 @@ GLContext::GLContext(const GLConfig& glConfig, const IntPoint& windowSize,
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
-    m_GLConfig = glConfig;
 }
 
 GLContext::~GLContext()
 {
 }
 
-void GLContext::init(bool bOwnsContext)
+void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
 {
+    m_GLConfig = glConfig;
     m_bOwnsContext = bOwnsContext;
     activate();
     glproc::init();

@@ -49,8 +49,7 @@ public:
     static GLContext* create(const GLConfig& glConfig, 
             const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
 
-    GLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
+    GLContext(const IntPoint& windowSize, const SDL_SysWMinfo* pSDLWMInfo);
     virtual ~GLContext();
 
     virtual void activate()=0;
@@ -104,7 +103,7 @@ public:
     static void enableErrorLog(bool bEnable);
 
 protected:
-    void init(bool bOwnsContext);
+    void init(const GLConfig& glConfig, bool bOwnsContext);
     void deleteObjects();
 
     void getVersion(int& major, int& minor) const;

@@ -47,7 +47,7 @@ public:
     static bool haveARBCreateContext();
 
 private:
-    void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+    void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit);
 
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);

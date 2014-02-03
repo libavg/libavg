@@ -42,18 +42,19 @@ using namespace boost;
 
 GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize, pSDLWMInfo)
+    : GLContext(windowSize, pSDLWMInfo)
 {
+    GLConfig config = glConfig;
     try {
-        createGLXContext(glConfig, windowSize, pSDLWMInfo, true);
+        createGLXContext(config, windowSize, pSDLWMInfo, true);
     } catch (const Exception &e) {
-        if(e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED){
-            createGLXContext(glConfig, windowSize, pSDLWMInfo, false);
-        }else{
+        if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
+            createGLXContext(config, windowSize, pSDLWMInfo, false);
+        } else {
             exit(EXIT_FAILURE);
         }
     }
-    init(true);
+    init(config, true);
 }
 
 static bool s_bX11Error;
@@ -62,7 +63,7 @@ static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
 int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
 {
-    if(s_bDumpX11ErrorMsg){
+    if (s_bDumpX11ErrorMsg) {
         char errorString[128]; 
         XGetErrorText(pDisplay, pErrEvent->error_code, errorString, 128);
         cerr << "X11 error creating GL context: " << errorString <<
@@ -74,7 +75,7 @@ int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
     return 0;
 }
 
-void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
 {
     Window win = 0;
@@ -109,18 +110,20 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     int bestSamples = -1;
     for (int i=0; i<fbCount; ++i) {
         XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, pFBConfig[i]);
-        if (pVisualInfo) {
-            int buffer;
-            int samples;
+        if (pVisualInfo && pVisualInfo->depth == 24) {
+            int numBuffers;
+            int numSamples;
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS,
-                    &buffer);
-            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &samples);
-            if (bestConfig < 0 || 
-                    (buffer == 1 && samples > bestSamples && 
-                     samples <= glConfig.m_MultiSampleSamples))
+                    &numBuffers);
+            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &numSamples);
+            if (numSamples == 0) {
+                numSamples = 1;
+            }
+            if (numSamples > bestSamples && 
+                     numSamples <= glConfig.m_MultiSampleSamples)
             {
                 bestConfig = i;
-                bestSamples = samples;
+                bestSamples = numSamples;
             }
             XFree(pVisualInfo);
         }
@@ -135,7 +138,7 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
 
     if (haveARBCreateContext()) {
         GLContextAttribs attrs;
-        if (isGLES()) {
+        if (glConfig.m_bGLES) {
             attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
             attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
             attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
@@ -168,6 +171,7 @@ void GLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& wind
     XSetErrorHandler(s_DefaultErrorHandler);
 
     throwOnXError();
+    glConfig.m_MultiSampleSamples = bestSamples;
     m_Drawable = glXGetCurrentDrawable();
 }
 
@@ -185,7 +189,7 @@ GLXContext::~GLXContext()
 
 void GLXContext::throwOnXError( int code)
 {
-    if(s_bX11Error){
+    if (s_bX11Error) {
         throw Exception(code, "X error creating OpenGL context.");
     }
 }
