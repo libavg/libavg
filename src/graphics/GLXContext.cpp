@@ -121,13 +121,17 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &numSamples);
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_CONFIG_CAVEAT, &caveat);
             if (numSamples == 0) {
+                // Configs without multisampling have numBuffers == 0 and numSamples == 0,
+                // but the corresponding libavg config is multisamplesamples == 1.
                 numSamples = 1;
             }
-            if (numSamples >= bestSamples &&
-                numSamples <= glConfig.m_MultiSampleSamples &&
-                caveat < bestCaveat)
+            if ((numSamples > bestSamples && numSamples <= glConfig.m_MultiSampleSamples)
+                  || (numSamples == bestSamples && caveat < bestCaveat))
             {
-
+                // A config is better than the last one in two cases:
+                //    1) it has more samples per pixel (but not more than requested) or
+                //    2) it has the same number of samples per pixel but a better caveat
+                //       value.
                 bestCaveat = caveat;
                 bestConfig = i;
                 bestSamples = numSamples;
