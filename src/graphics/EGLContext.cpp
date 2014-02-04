@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -41,10 +41,10 @@ using namespace std;
 
 EGLContext::EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize, pSDLWMInfo)
+    : GLContext(windowSize, pSDLWMInfo)
 {
     createEGLContext(glConfig, windowSize, pSDLWMInfo);
-    init(true);
+    init(glConfig, true);
 }
 
 EGLContext::~EGLContext()
@@ -138,7 +138,7 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
         results = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
                 &visTemplate, & numVisuals);
 
-        Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay, 
+        Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay,
                 RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8, results[0].depth);
         m_Surface = eglCreatePixmapSurface(m_Display, m_Config, (EGLNativePixmapType)pmp, NULL);
 #endif
@@ -171,7 +171,7 @@ void EGLContext::swapBuffers()
 void EGLContext::checkEGLError(bool bError, const std::string& sMsg)
 {
     if (bError) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sMsg + " (EGL error: " + 
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sMsg + " (EGL error: " +
                 toString(eglGetError()) + ")");
     }
 }
