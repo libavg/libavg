@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <limits>
 
 
 namespace avg {
@@ -108,26 +109,33 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
     // Find the config with the appropriate number of multisample samples.
     int bestConfig = -1;
     int bestSamples = -1;
+    int bestCaveat = std::numeric_limits<int>::max();
     for (int i=0; i<fbCount; ++i) {
         XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, pFBConfig[i]);
         if (pVisualInfo && pVisualInfo->depth == 24) {
             int numBuffers;
             int numSamples;
+            int caveat;
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS,
                     &numBuffers);
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &numSamples);
+            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_CONFIG_CAVEAT, &caveat);
             if (numSamples == 0) {
                 numSamples = 1;
             }
-            if (numSamples > bestSamples && 
-                     numSamples <= glConfig.m_MultiSampleSamples)
+            if (numSamples >= bestSamples &&
+                numSamples <= glConfig.m_MultiSampleSamples &&
+                caveat < bestCaveat)
             {
+
+                bestCaveat = caveat;
                 bestConfig = i;
                 bestSamples = numSamples;
             }
             XFree(pVisualInfo);
         }
     }
+
     GLXFBConfig fbConfig = pFBConfig[bestConfig];
     XFree(pFBConfig);
     XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
