@@ -76,7 +76,7 @@ void OffscreenCanvas::initPlayback()
         pf = R8G8B8A8;
     }
     GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-    GLTexturePtr pTex = pCM->createTexture(getSize(), pf, m_bUseMipmaps);
+    m_pTex = pCM->createTexture(getSize(), pf, m_bUseMipmaps);
     unsigned numWindows = pDisplayEngine->getNumWindows();
     for (unsigned i=0; i<numWindows; ++i) {
         WindowPtr pWindow = pDisplayEngine->getWindow(i);
@@ -84,7 +84,7 @@ void OffscreenCanvas::initPlayback()
         bool bUseDepthBuffer = pContext->useDepthBuffer();
         pContext->activate();
         pCM->uploadData();
-        m_pFBOMap[pContext] = FBOPtr(new FBO(pTex, getMultiSampleSamples(),
+        m_pFBOMap[pContext] = FBOPtr(new FBO(m_pTex, getMultiSampleSamples(),
                 bUseDepthBuffer, true, m_bUseMipmaps));
     }
     Canvas::initPlayback(getMultiSampleSamples());
@@ -93,7 +93,15 @@ void OffscreenCanvas::initPlayback()
 
 void OffscreenCanvas::stopPlayback(bool bIsAbort)
 {
+    FBOMap::iterator it;
+    for (it=m_pFBOMap.begin(); it!=m_pFBOMap.end(); ++it) {
+        GLContext* pContext = it->first;
+        FBOPtr pFBO = it->second;
+        pContext->activate();
+        m_pFBOMap[pContext] = FBOPtr();
+    }
     m_pFBOMap.clear();
+    m_pTex = GLTexturePtr();
     Canvas::stopPlayback(bIsAbort);
     m_bIsRendered = false;
 }

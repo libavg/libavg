@@ -83,6 +83,7 @@ class AVG_API OffscreenCanvas: public Canvas
 
         typedef std::map<GLContext*, FBOPtr> FBOMap;
         FBOMap m_pFBOMap;
+        GLTexturePtr m_pTex;
         bool m_bUseMipmaps;
         std::vector<CanvasPtr> m_pDependentCanvases;
 

@@ -51,15 +51,21 @@ class MultiWindowTestCase(AVGTestCase):
         app.testRun([])
 
     def testMultiWindowCanvas(self):
+        def deleteCanvas():
+            img1.unlink(True)
+            img2.unlink(True)
+            player.deleteCanvas("canvas")
+
         root = self.loadEmptyScene()
         player.setWindowConfig("avgwindowconfig.xml")
         canvas = player.createCanvas(id="canvas", size=(160,120))
         avg.ImageNode(pos=(0,0), href="media/rgb24-64x64.png", 
                 parent=canvas.getRootNode())
-        avg.ImageNode(pos=(0,0), href="canvas:canvas", parent=root)
-        avg.ImageNode(pos=(80,0), href="canvas:canvas", parent=root)
+        img1 = avg.ImageNode(pos=(0,0), href="canvas:canvas", parent=root)
+        img2 = avg.ImageNode(pos=(80,0), href="canvas:canvas", parent=root)
         self.start(False,
                 (lambda: self.compareImage("testMultiWindowCanvas"),
+                 deleteCanvas,
                 ))
 
 
