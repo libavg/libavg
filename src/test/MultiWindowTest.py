@@ -56,6 +56,11 @@ class MultiWindowTestCase(AVGTestCase):
             img2.unlink(True)
             player.deleteCanvas("canvas")
 
+        def canvasScreenshot():
+            bmp = canvas.screenshot()
+            self.compareBitmapToFile(bmp, "testMultiWindowCanvas2")
+
+
         root = self.loadEmptyScene()
         player.setWindowConfig("avgwindowconfig.xml")
         canvas = player.createCanvas(id="canvas", size=(160,120))
@@ -64,15 +69,31 @@ class MultiWindowTestCase(AVGTestCase):
         img1 = avg.ImageNode(pos=(0,0), href="canvas:canvas", parent=root)
         img2 = avg.ImageNode(pos=(80,0), href="canvas:canvas", parent=root)
         self.start(False,
-                (lambda: self.compareImage("testMultiWindowCanvas"),
+                (lambda: self.compareImage("testMultiWindowCanvas1"),
+                 canvasScreenshot,
                  deleteCanvas,
                 ))
 
+    def testMultiWindowManualCanvas(self):
+        def renderCanvas():
+            canvas.render()
+            bmp = canvas.screenshot()
+            self.compareBitmapToFile(bmp, "testMultiWindowManualCanvas")
+
+        self.loadEmptyScene()
+        player.setWindowConfig("avgwindowconfig.xml")
+        canvas = player.createCanvas(id="canvas", size=(160,120), autorender=False)
+        avg.ImageNode(pos=(0,0), href="media/rgb24-64x64.png", 
+                parent=canvas.getRootNode())
+        self.start(False,
+                (renderCanvas,
+                ))
 
 def multiWindowTestSuite(tests):
     availableTests = (
             "testMultiWindowBase",
             "testMultiWindowApp",
-            "testMultiWindowCanvas"
+            "testMultiWindowCanvas",
+            "testMultiWindowManualCanvas"
             )
     return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)
