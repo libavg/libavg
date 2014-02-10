@@ -35,7 +35,7 @@ namespace avg {
 class AVG_API GLXContext: public GLContext
 {
 public:
-    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0));
+    GLXContext(const IntPoint& windowSize=IntPoint(0,0));
     virtual ~GLXContext();
 
     void activate();
@@ -46,7 +46,7 @@ public:
     static bool haveARBCreateContext();
 
 protected:
-    XVisualInfo* createDetachedContext(::Display* pDisplay, const GLConfig& glConfig,
+    XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig,
             bool bUseDebugBit);
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
@@ -58,8 +58,10 @@ protected:
     Colormap getColormap() const;
 
 private:
-    GLXFBConfig getFBConfig(::Display* pDisplay, int multiSampleSamples);
+    GLXFBConfig getFBConfig(::Display* pDisplay, GLConfig& glConfig);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
+    void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
+            const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit);
 
     Colormap m_Colormap;
     ::Display* m_pDisplay;

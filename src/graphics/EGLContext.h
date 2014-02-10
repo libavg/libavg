@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
 struct SDL_SysWMinfo;
 
 namespace avg {
-    
+
 class AVG_API EGLContext: public GLContext
 {
 public:

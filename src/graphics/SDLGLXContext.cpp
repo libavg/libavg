@@ -42,25 +42,26 @@ using namespace boost;
 
 SDLGLXContext::SDLGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLXContext(glConfig, windowSize)
+    : GLXContext(windowSize)
 {
+    GLConfig config = glConfig;
     try {
-        createGLXContext(glConfig, windowSize, pSDLWMInfo, true);
+        createGLXContext(config, windowSize, pSDLWMInfo, true);
     } catch (const Exception &e) {
         if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
-            createGLXContext(glConfig, windowSize, pSDLWMInfo, false);
+            createGLXContext(config, windowSize, pSDLWMInfo, false);
         } else {
             AVG_ASSERT_MSG(false, "Failed to create GLX context");
         }
     }
-    init(true);
+    init(config, true);
 }
 
 SDLGLXContext::~SDLGLXContext()
 {
 }
 
-void SDLGLXContext::createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
+void SDLGLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
 {
     Window win = 0;

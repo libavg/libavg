@@ -42,19 +42,20 @@ using namespace boost;
 
 SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string& sDisplay,
         const IntRect& windowDimensions, bool bHasWindowFrame)
-    : GLXContext(glConfig, windowDimensions.size())
+    : GLXContext(windowDimensions.size())
 {
+    GLConfig config = glConfig;
     try {
-        createContext(glConfig, sDisplay, windowDimensions, bHasWindowFrame, true);
+        createContext(config, sDisplay, windowDimensions, bHasWindowFrame, true);
     } catch (const Exception &e) {
         if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
-            createContext(glConfig, sDisplay, windowDimensions, bHasWindowFrame, false);
+            createContext(config, sDisplay, windowDimensions, bHasWindowFrame, false);
         } else {
             AVG_TRACE(Logger::category::NONE, Logger::severity::ERROR, 
                     "Failed to create GLX context: " << e.what());
         }
     }
-    init(true);
+    init(config, true);
 }
 
 SecondaryGLXContext::~SecondaryGLXContext()
@@ -62,7 +63,7 @@ SecondaryGLXContext::~SecondaryGLXContext()
     XDestroyWindow(getDisplay(), m_Window);
 }
 
-void SecondaryGLXContext::createContext(const GLConfig& glConfig, const string& sDisplay, 
+void SecondaryGLXContext::createContext(GLConfig& glConfig, const string& sDisplay, 
         const IntRect& windowDimensions, bool bHasWindowFrame, bool bUseDebugBit)
 {
     setX11ErrorHandler();

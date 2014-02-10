@@ -40,7 +40,7 @@ public:
     virtual ~SDLGLXContext();
 
 private:
-    void createGLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+    void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit);
 
 };

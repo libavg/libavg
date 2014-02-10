@@ -67,7 +67,7 @@ void registerWindowClass()
 
 WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(glConfig, windowSize)
+    : GLContext(windowSize)
 {
         bool bOwnsContext;
     if (pSDLWMInfo) {
@@ -103,7 +103,7 @@ WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         bOwnsContext = true;
     }
 
-    init(bOwnsContext);
+    init(glConfig, bOwnsContext);
 }
 
 WGLContext::~WGLContext()

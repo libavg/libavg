@@ -44,8 +44,8 @@ static bool s_bX11Error;
 static bool s_bDumpX11ErrorMsg;
 static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
-GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize)
-    : GLContext(glConfig, windowSize),
+GLXContext::GLXContext(const IntPoint& windowSize)
+    : GLContext(windowSize),
       m_pDisplay(0),
       m_bVBlankActive(false)
 {
@@ -120,15 +120,15 @@ bool GLXContext::haveARBCreateContext()
 }
 
 XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
-        const GLConfig& glConfig, bool bUseDebugBit)
+        GLConfig& glConfig, bool bUseDebugBit)
 {
     m_pDisplay = pDisplay;
-    GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig.m_MultiSampleSamples);
+    GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig);
     XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
 
     if (haveARBCreateContext()) {
         GLContextAttribs attrs;
-        if (isGLES()) {
+        if (glConfig.m_bGLES) {
             attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
             attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
             attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
@@ -194,7 +194,7 @@ Colormap GLXContext::getColormap() const
     return m_Colormap;
 }
 
-GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
+GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, GLConfig& glConfig)
 {
     GLContextAttribs attrs;
     attrs.append(GLX_X_RENDERABLE, 1);
@@ -219,23 +219,37 @@ GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, int multiSampleSamples)
     // Find the config with the appropriate number of multisample samples.
     int bestConfig = -1;
     int bestSamples = -1;
+    int bestCaveat = std::numeric_limits<int>::max();
     for (int i=0; i<fbCount; ++i) {
         XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, pFBConfig[i]);
-        if (pVisualInfo) {
-            int buffer;
-            int samples;
-            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS, &buffer);
-            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &samples);
-            if (bestConfig < 0 || 
-                    (buffer == 1 && samples > bestSamples && 
-                     samples <= multiSampleSamples))
+        if (pVisualInfo && pVisualInfo->depth == 24) {
+            int numBuffers;
+            int numSamples;
+            int caveat;
+            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS, 
+                    &numBuffers);
+            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &numSamples);
+            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_CONFIG_CAVEAT, &caveat);
+            if (numSamples == 0) {
+                // Configs without multisampling have numBuffers == 0 and numSamples == 0,
+                // but the corresponding libavg config is multisamplesamples == 1.
+                numSamples = 1;
+            }
+            if ((numSamples > bestSamples && numSamples <= glConfig.m_MultiSampleSamples)
+                  || (numSamples == bestSamples && caveat < bestCaveat))
             {
+                // A config is better than the last one in two cases:
+                //    1) it has more samples per pixel (but not more than requested) or
+                //    2) it has the same number of samples per pixel but a better caveat
+                //       value.
+                bestCaveat = caveat;
                 bestConfig = i;
-                bestSamples = samples;
+                bestSamples = numSamples;
             }
             XFree(pVisualInfo);
         }
     }
+    glConfig.m_MultiSampleSamples = bestSamples;
     GLXFBConfig fbConfig = pFBConfig[bestConfig];
     XFree(pFBConfig);
     return fbConfig;
