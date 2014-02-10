@@ -242,6 +242,7 @@ BitmapPtr Image::getBitmap()
                     return BitmapPtr(new Bitmap(*m_pBmp));
                 }
             case GPU:
+                GLContextMultiplexer::get()->uploadData();
                 return m_pSurface->getTex()->moveTextureToBmp();
             default:
                 AVG_ASSERT(false);

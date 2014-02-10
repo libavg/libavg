@@ -192,11 +192,17 @@ class ImageTestCase(AVGTestCase):
         def getBitmap(node):
             bmp = node.getBitmap()
             self.assertEqual(bmp.getSize(), (65,65))
+            self.compareBitmapToFile(bmp, "rgb24-65x65")
             self.assert_(bmp.getFormat() == avg.R8G8B8X8 or 
                     bmp.getFormat() == avg.B8G8R8X8)
             node.setBitmap(bmp)
             self.assertEqual(node.getMediaSize(), (65,65))
         
+        def immediateGetBitmap():
+            node = avg.ImageNode(href="rgb24-65x65.png", size=(32, 32), parent=root)
+            bmp = node.getBitmap()
+            self.compareBitmapToFile(bmp, "rgb24-65x65")
+
         def loadFromBitmap(p, orighref):
             node = avg.ImageNode(pos=p, size=(32, 32), href=orighref)
             bmp = avg.Bitmap('media/rgb24-65x65.png')
@@ -277,6 +283,7 @@ class ImageTestCase(AVGTestCase):
         testUnicode()
         self.start(False,
                 (lambda: getBitmap(node),
+                 immediateGetBitmap,
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1"),
