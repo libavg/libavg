@@ -87,6 +87,7 @@ void Image::moveToCPU()
         switch (m_Source) {
             case FILE:
             case BITMAP:
+                GLContextMultiplexer::get()->uploadData();
                 m_pBmp = m_pSurface->getTex()->moveTextureToBmp();
                 break;
             case SCENE:

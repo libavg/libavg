@@ -202,6 +202,14 @@ class ImageTestCase(AVGTestCase):
             node = avg.ImageNode(href="rgb24-65x65.png", size=(32, 32), parent=root)
             bmp = node.getBitmap()
             self.compareBitmapToFile(bmp, "rgb24-65x65")
+            node.unlink(True)
+            node = avg.ImageNode(href="rgb24-65x65.png", size=(32, 32), parent=root)
+            node.unlink()
+            root.appendChild(node)
+            bmp = node.getBitmap()
+            self.compareBitmapToFile(bmp, "rgb24-65x65")
+            node.unlink(True)
+
 
         def loadFromBitmap(p, orighref):
             node = avg.ImageNode(pos=p, size=(32, 32), href=orighref)
