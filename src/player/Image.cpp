@@ -84,20 +84,6 @@ void Image::moveToCPU()
 {
     assertValid();
     if (m_State == GPU) {
-        switch (m_Source) {
-            case FILE:
-            case BITMAP:
-                GLContextMultiplexer::get()->uploadData();
-                m_pBmp = m_pSurface->getTex()->moveTextureToBmp();
-                break;
-            case SCENE:
-                break;
-            case NONE:
-                break;
-            default:
-                AVG_ASSERT(false);
-                return;
-        }
         m_State = CPU;
         m_pSurface->destroy();
     }
@@ -182,26 +168,19 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
         default:
             assert(false);
     }
+    m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
+    m_pBmp->copyPixels(*pBmp);
     if (m_State == GPU) {
         GLTexturePtr pTex = m_pSurface->getTex();
-        if (bSourceChanged || m_pSurface->getSize() != pBmp->getSize() ||
+        if (bSourceChanged || m_pSurface->getSize() != m_pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
         {
-            pTex = GLContextMultiplexer::get()->createTexture(pBmp->getSize(), pf, 
+            pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
                     m_Material.getUseMipmaps(), 0, m_Material.getWrapSMode(), 
                     m_Material.getWrapTMode());
             m_pSurface->create(pf, pTex);
         }
-        // TODO: pBmp is potentially created in python. In this case, the smart pointer 
-        // reference count is messed up. Hence, we copy it here to get a clean reference
-        // count :-/.
-        BitmapPtr pTempBmp(new Bitmap(pBmp->getSize(), pf, ""));
-        pTempBmp->copyPixels(*pBmp);
-        GLContextMultiplexer::get()->scheduleTexUpload(pTex, pTempBmp);
-        m_pBmp = BitmapPtr();
-    } else {
-        m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
-        m_pBmp->copyPixels(*pBmp);
+        GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pBmp);
     }
     assertValid();
 }
@@ -232,23 +211,10 @@ const string& Image::getFilename() const
 
 BitmapPtr Image::getBitmap()
 {
-    if (m_Source == NONE) {
+    if (m_Source == NONE || m_Source == SCENE) {
         return BitmapPtr();
     } else {
-        switch (m_State) {
-            case CPU:
-                if (m_Source == SCENE) {
-                    return BitmapPtr();
-                } else {
-                    return BitmapPtr(new Bitmap(*m_pBmp));
-                }
-            case GPU:
-                GLContextMultiplexer::get()->uploadData();
-                return m_pSurface->getTex()->moveTextureToBmp();
-            default:
-                AVG_ASSERT(false);
-                return BitmapPtr();
-        }
+        return BitmapPtr(new Bitmap(*m_pBmp));
     }
 }
 
@@ -346,7 +312,6 @@ void Image::setupSurface()
             m_Material.getWrapSMode(), m_Material.getWrapTMode());
     m_pSurface->create(pf, pTex);
     GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pBmp);
-    m_pBmp = BitmapPtr();
 }
 
 bool Image::changeSource(Source newSource)
@@ -357,9 +322,7 @@ bool Image::changeSource(Source newSource)
                 break;
             case FILE:
             case BITMAP:
-                if (m_State == CPU) {
-                    m_pBmp = BitmapPtr();
-                }
+                m_pBmp = BitmapPtr();
                 m_sFilename = "";
                 break;
             case SCENE:
@@ -380,13 +343,12 @@ void Image::assertValid() const
     AVG_ASSERT(m_pSurface);
     AVG_ASSERT((m_Source == FILE) == (m_sFilename != ""));
     AVG_ASSERT((m_Source == SCENE) == bool(m_pCanvas));
+    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
     switch (m_State) {
         case CPU:
-            AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
             AVG_ASSERT(!(m_pSurface->isCreated()));
             break;
         case GPU:
-            AVG_ASSERT(!m_pBmp);
             if (m_Source != NONE) {
                 AVG_ASSERT(m_pSurface->isCreated());
             } else {
