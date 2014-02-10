@@ -114,8 +114,8 @@ std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
 //                        cerr << "up " << pTouch->id << endl;
                         if (pTouchStatus) {
 //                            cerr << "  --> remove" << endl;
-                            TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
-                            TouchEventPtr pUpEvent =
+                            CursorEventPtr pOldEvent = pTouchStatus->getLastEvent();
+                            CursorEventPtr pUpEvent =
                                     boost::dynamic_pointer_cast<TouchEvent>(
                                     pOldEvent->cloneAs(Event::CURSOR_UP));
                             pTouchStatus->pushEvent(pUpEvent);
@@ -162,14 +162,14 @@ void LibMTDevInputDevice::processEvents(const set<int>& changedIDs)
                 if (!pTouchStatus) {
                     // Down
                     m_LastID++;
-                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSOR_DOWN,
+                    CursorEventPtr pEvent = createEvent(m_LastID, Event::CURSOR_DOWN,
                             touch.pos);
 //                    cerr << "down <" << touch.id << "> --> [" << m_LastID << "]" << endl;
                     addTouchStatus((long)touch.id, pEvent);
                 } else {
 //                    cerr << "move <" << touch.id << "> --> " << touch.pos << endl;
                     // Move
-                    TouchEventPtr pEvent = createEvent(0, Event::CURSOR_MOTION, 
+                    CursorEventPtr pEvent = createEvent(0, Event::CURSOR_MOTION, 
                             touch.pos);
                     pTouchStatus->pushEvent(pEvent);
                 }
@@ -178,7 +178,7 @@ void LibMTDevInputDevice::processEvents(const set<int>& changedIDs)
     }
 }
 
-TouchEventPtr LibMTDevInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
+CursorEventPtr LibMTDevInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
 {
     glm::vec2 size(Player::get()->getScreenResolution());
     glm::vec2 normPos(float(pos.x-m_Dimensions.tl.x)/m_Dimensions.width(),

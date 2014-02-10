@@ -47,7 +47,7 @@ public:
     
 private:
     void processEvents(const std::set<int>& changedIDs);
-    TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
+    CursorEventPtr createEvent(int id, Event::Type type, IntPoint pos);
 
     int m_DeviceFD;
     int m_LastID;
