@@ -36,34 +36,40 @@ class SpeedDiv(app.MainDiv):
 
         parser.add_option('--use-fx', '-f', dest='useFX',
                 action='store_true', default=False,
-                help='display everything using a NullFX to test FX overhead')
+                help='display everything using a NullFX to test FX overhead.')
         parser.add_option('--video', '-i', dest='video',
                 action='store_true', default=False,
-                help='show videos instead of images')
+                help='show videos instead of images.')
         parser.add_option('--audio', '-a', dest='audio',
                 action='store_true', default=False,
-                help='when showing videos, use videos with an audio channel')
+                help='when showing videos, use videos with an audio channel.')
         parser.add_option('--create-nodes', '-c', dest='create',
                 action='store_true', default=False,
-                help='destroy and recreate all nodes every 400 ms')
+                help='destroy and recreate all nodes every 400 ms.')
         parser.add_option('--move', '-m', dest='move',
                 action='store_true', default=False,
-                help='move nodes every frame')
+                help='move nodes every frame.')
         parser.add_option('--blur', '-b', dest='blur',
                 action='store_true', default=False,
-                help='apply a BlurFXNode to the nodes')
+                help='apply a BlurFXNode to the nodes.')
         parser.add_option('--color', '-o', dest='color',
                 action='store_true', default=False,
-                help='apply gamma to the nodes, causing the color correction shader to activate')
+                help='apply gamma to the nodes, causing the color correction shader to activate.')
         parser.add_option('--vsync', '-s', dest='vsync',
                 action='store_true', default=False,
-                help='sync output to vertical refresh')
+                help='sync output to vertical refresh.')
         parser.add_option('--num-objs', '-n', dest='numObjs',
                 type='int', default=-1,
-                help='number of objects to create [Default: 200 images or 40 videos]')
+                help='number of objects to create [Default: 200 images or 40 videos].')
         parser.add_option('--profile', '-p', dest='profile',
                 action='store_true', default=False,
-                help='enable profiling output, note that profiling makes things slower')
+                help='enable profiling output, note that profiling makes things slower.')
+        parser.add_option('--texsize', '-t', dest='texSize',
+                type='int', default=64,
+                help='set the size of each image texture to test texture bandwidth. Disabled for videos.')
+        parser.add_option('--imgsize', dest='imgSize',
+                type='int', default=64,
+                help='set the on-screen size of each image or video to test pixel processing power.')
 
     def onArgvParsed(self, options, args, parser):
         self.__optUseFX = options.useFX
@@ -80,6 +86,8 @@ class SpeedDiv(app.MainDiv):
                 self.__optNumObjs = 40
             else:
                 self.__optNumObjs = 200 
+        self.__optTexSize = options.texSize
+        self.__optImgSize = options.imgSize
 
         log = avg.logger
         log.configureCategory(log.Category.CONFIG, log.Severity.DBG)
@@ -91,6 +99,7 @@ class SpeedDiv(app.MainDiv):
             player.setFramerate(1000)
 
         self.mediadir = utils.getMediaDir(None, 'data')
+        self.__createTexture()
         self.__createNodes()
         app.instance.debugPanel.toggleWidget(app.debugpanel.FrametimeGraphWidget)
         if self.__optCreate:
@@ -100,22 +109,34 @@ class SpeedDiv(app.MainDiv):
         player.setTimeout(0, lambda: player.setTimeout(20000, player.stop))
 
     def onFrame(self):
-         if self.__optMove:
+        if self.__optMove:
             self.__moveNodes()
+
+    def __createTexture(self):
+        size = avg.Point2D(self.__optTexSize, self.__optTexSize)
+        canvas = player.createCanvas(id="canvas", autorender=False, size=size)
+        avg.ImageNode(href=self.mediadir+"/rgb24alpha-64x64.png", size=size,
+                parent=canvas.getRootNode())
+        canvas.render()
+        self.__bmp = canvas.screenshot()
+        player.deleteCanvas("canvas")
 
     def __createNodes(self):
         self.__nodes = []
         for i in xrange(self.__optNumObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
+            size = (self.__optImgSize, self.__optImgSize)
             if self.__optVideo:
                 if self.__optAudio:
                     fname = "mpeg1-48x48-sound.avi"
                 else:
                     fname = "mpeg1-48x48.mov"
-                node = avg.VideoNode(pos=pos, href=fname, loop=True, parent=self)
+                node = avg.VideoNode(pos=pos, href=fname, loop=True, size=size,
+                        parent=self)
                 node.play()
             else:
-                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png", parent=self)
+                node = avg.ImageNode(pos=pos, size=size, parent=self)
+                node.setBitmap(self.__bmp)
             if self.__optUseFX:
                 node.setEffect(avg.NullFXNode())
             if self.__optBlur:
