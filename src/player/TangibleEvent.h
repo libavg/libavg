@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -18,42 +18,40 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is igor@c-base.org
+//
 
-#ifndef _TouchStatus_H_
-#define _TouchStatus_H_
+#ifndef _TangibleEvent_H_
+#define _TangibleEvent_H_
 
 #include "../api.h"
+#include "CursorEvent.h"
 
-#include <boost/shared_ptr.hpp>
-
-#include <vector>
+#include <boost/weak_ptr.hpp>
 
 namespace avg {
 
-class CursorEvent;
-typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
+class TangibleEvent;
+typedef boost::shared_ptr<class TangibleEvent> TangibleEventPtr;
+typedef boost::weak_ptr<class TangibleEvent> TangibleEventWeakPtr;
 
-class AVG_API TouchStatus {
-public:
-    TouchStatus(CursorEventPtr pEvent);
-    virtual ~TouchStatus();
+class AVG_API TangibleEvent: public CursorEvent 
+{
+    public:
+        TangibleEvent(int id, int markerID, Type eventType, const IntPoint& pos, 
+                const glm::vec2& speed, float orientation);
+        virtual ~TangibleEvent();
+        virtual CursorEventPtr cloneAs(Type eventType) const;
 
-    void pushEvent(CursorEventPtr pEvent, bool bCheckMotion=true);
-    CursorEventPtr pollEvent();
-    CursorEventPtr getLastEvent();
+        int getMarkerID() const;
+        float getOrientation() const;
 
-    int getID() const;
+        virtual void trace();
 
-private:
-    CursorEventPtr m_pLastEvent;
-    std::vector<CursorEventPtr> m_pNewEvents;
-
-    bool m_bFirstFrame;
-    int m_CursorID;
+    private:
+        int m_MarkerID;
+        float m_Orientation;
 };
 
-typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
-
 }
-
 #endif

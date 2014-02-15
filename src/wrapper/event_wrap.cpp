@@ -24,6 +24,7 @@
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
+#include "../player/TangibleEvent.h"
 #include "../player/Contact.h"
 #include "../player/TrackerInputDevice.h"
 #include "../player/Publisher.h"
@@ -132,6 +133,7 @@ void export_event()
         .value("MOUSE", CursorEvent::MOUSE)
         .value("TOUCH", CursorEvent::TOUCH)
         .value("TRACK", CursorEvent::TRACK)
+        .value("TANGIBLE", CursorEvent::TANGIBLE)
         .value("CUSTOM", Event::CUSTOM)
         .value("NONE", Event::NONE)
         .export_values()
@@ -184,6 +186,12 @@ void export_event()
         .add_property("handorientation", &TouchEvent::getHandOrientation)
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
         .def("getContour", &TouchEvent::getContour)
+        ;
+
+    class_<TangibleEvent, bases<CursorEvent> >("TangibleEvent", init<int, int, 
+            Event::Type, const IntPoint&, const glm::vec2&, float>())
+        .add_property("markerid", &TangibleEvent::getMarkerID)
+        .add_property("orientation", &TangibleEvent::getOrientation)
         ;
 
     object contactClass = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >

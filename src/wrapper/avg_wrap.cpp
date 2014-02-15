@@ -182,6 +182,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("fakeMouseEvent", &TestHelper::fakeMouseEvent)
             .def("fakeTouchEvent", &TestHelper::fakeTouchEvent,
                     TestHelper_fakeTouchEvent_overloads())
+            .def("fakeTangibleEvent", &TestHelper::fakeTangibleEvent)
             .def("fakeKeyEvent", &TestHelper::fakeKeyEvent)
             .def("dumpObjects", &TestHelper::dumpObjects)
             .def("getObjectCount", &TestHelper::getObjectCount)

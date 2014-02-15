@@ -32,7 +32,7 @@ class BaseTouchVisualization(avg.DivNode):
         event.contact.subscribe(avg.Contact.CURSOR_MOTION, self._onMotion)
         event.contact.subscribe(avg.Contact.CURSOR_UP, self._onUp)
         self.pos = avg.Point2D(event.pos)
-        self._fingerSize = 7*player.getPixelsPerMM() # Assume 14mm width for a finger.
+        self._fingerSize = 7 * player.getPixelsPerMM() # Assume 14mm width for a finger.
         self._radius = self._getRadius(event)
 
     def _abort(self):
@@ -48,7 +48,7 @@ class BaseTouchVisualization(avg.DivNode):
         del self
 
     def _getRadius(self, event):
-        if event.source in [avg.Event.MOUSE]:
+        if event.source in [avg.Event.MOUSE, avg.Event.TANGIBLE]:
             return self._fingerSize
         else:
             return max(self._fingerSize, event.majoraxis.getNorm())
@@ -63,6 +63,8 @@ class DebugTouchVisualization(BaseTouchVisualization):
 
         if event.source == avg.Event.TOUCH:
             color = 'e5d8d8'
+        elif event.source == avg.Event.TANGIBLE:
+            color = 'ffe0e0'
         else:
             color = 'd8e5e5'
             self.opacity = 0.5
@@ -82,8 +84,10 @@ class DebugTouchVisualization(BaseTouchVisualization):
                     opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
 
-        if event.cursorid == -1:
+        if event.source == avg.Event.MOUSE:
             text = 'MOUSE'
+        elif event.source == avg.Event.TANGIBLE:
+            text = '%s %d %d' % (event.source, event.cursorid, event.markerid)
         else:
             text = '%s %d' % (event.source, event.cursorid)
         avg.WordsNode(pos=fontPos, text=text, fontsize=9, parent=self)
@@ -116,7 +120,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
         return -avg.Point2D.fromPolar(event.handorientation, 30)
 
     def setAxisSecondPos(self, event):
-        if event.source not in [avg.Event.MOUSE]:
+        if event.source not in [avg.Event.MOUSE, avg.Event.TANGIBLE]:
             self.__majorAxis.pos2 = event.majoraxis
             self.__minorAxis.pos2 = event.minoraxis
 
@@ -157,7 +161,7 @@ class TouchVisualization(BaseTouchVisualization):
 
     def __setRadius(self, radius):
         self.__circle.pos = (-radius, -radius)
-        self.__circle.size = (radius*2,radius*2)
+        self.__circle.size = (radius*2, radius*2)
         
 
 class TouchVisualizationOverlay(avg.DivNode):
@@ -176,12 +180,14 @@ class TouchVisualizationOverlay(avg.DivNode):
             avg.RectNode(parent=self, size=self.size, fillopacity=0.2, fillcolor='000000')
         rootNode.subscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
         rootNode.subscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
+        rootNode.subscribe(avg.Node.TANGIBLE_DOWN, self.__onTouchDown)
 
     def unlink(self, kill=True):
         rootNode = player.getRootNode()
         if rootNode:
             rootNode.unsubscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
             rootNode.unsubscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
+            rootNode.unsubscribe(avg.Node.TANGIBLE_DOWN, self.__onTouchDown)
         super(TouchVisualizationOverlay, self).unlink(kill)
 
     def __onTouchDown(self, event):
