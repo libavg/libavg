@@ -23,6 +23,7 @@
 #define _GLTexture_H_
 
 #include "../api.h"
+#include "TexInfo.h"
 #include "Bitmap.h"
 #include "OGLHelper.h"
 
@@ -32,7 +33,7 @@ namespace avg {
 
 class GLContext;
 
-class AVG_API GLTexture {
+class AVG_API GLTexture: public TexInfo {
 
 public:
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
@@ -46,23 +47,13 @@ public:
     void init();
     void activate(int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
-    void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
+    virtual void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
-    const IntPoint& getSize() const;
-    const IntPoint& getGLSize() const;
-    PixelFormat getPF() const;
     unsigned getID() const;
 
-    IntPoint getMipmapSize(int level) const;
-
-    static bool isFloatFormatSupported();
-    static int getGLFormat(PixelFormat pf);
-    static int getGLType(PixelFormat pf);
-    int getGLInternalFormat() const;
-    
     void setDirty();
     bool isDirty() const;
     void resetDirty();
@@ -70,15 +61,10 @@ public:
     void dump(unsigned wrapSMode=-1, unsigned wrapTMode=-1) const;
 
 private:
-    IntPoint m_Size;
-    IntPoint m_GLSize;
-    PixelFormat m_pf;
-    bool m_bMipmap;
+    bool usePOT(bool bForcePOT, bool bMipmap);
+
     bool m_bDeleteTex;
-    bool m_bUsePOT;
     int m_PotBorderColor;
-    unsigned m_WrapSMode;
-    unsigned m_WrapTMode;
 
     static unsigned s_LastTexID;
     unsigned m_TexID;
