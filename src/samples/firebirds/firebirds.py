@@ -22,9 +22,8 @@
 #
 # Original author of this file: Thomas Schott <scotty@c-base.org>
 
-# TODO: some info foo here:
-# * c't 09/2011 p.184, media sources/license
-# * description, link to wiki tutorial page
+# See the LICENSE file for license information regarding the media
+# used by this sample.
 
 from random import randint
 

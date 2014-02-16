@@ -122,7 +122,8 @@ WordsNode::WordsNode(const ArgList& args)
     m_FontStyle.setDefaultedArgs(args);
 #ifdef _WIN32
     if (m_FontStyle.getFont() == "sans") {
-        m_FontStyle.setFont("Bitstream vera sans");
+        m_FontStyle.setFont("Arial");
+        m_FontStyle.setFontVariant("Regular");
     }
 #endif
     updateFont();
