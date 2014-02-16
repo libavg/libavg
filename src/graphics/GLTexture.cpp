@@ -153,7 +153,7 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 {
-    TextureMoverPtr pMover = TextureMover::create(getSize(), getPF(), GL_DYNAMIC_READ);
+    TextureMoverPtr pMover = TextureMover::create(getGLSize(), getPF(), GL_DYNAMIC_READ);
     return pMover->moveTextureToBmp(*this, mipmapLevel);
 }
 
