@@ -30,8 +30,6 @@
 
 namespace avg {
 
-class TextureMover;
-typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
 class GLContext;
 
 class AVG_API GLTexture {
@@ -50,7 +48,6 @@ public:
     void generateMipmaps();
     void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
-    void scheduleBmpUpload(BitmapPtr pBmp);
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 

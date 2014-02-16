@@ -29,9 +29,6 @@
 #include "GLContext.h"
 #include "GLContextMultiplexer.h"
 #include "TextureMover.h"
-#ifndef AVG_ENABLE_EGL
-    #include "PBO.h"
-#endif
 #include "FBO.h"
 
 #include <string.h>
@@ -140,7 +137,7 @@ void GLTexture::init()
         memset(pPixels, m_PotBorderColor, texMemNeeded);
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
                 m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), pPixels);
-        GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
+        GLContext::checkError("GLTexture::init: glTexImage2D()");
         delete[] pPixels;
     }
 }
