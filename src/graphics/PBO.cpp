@@ -89,7 +89,6 @@ void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     GLContext::checkError("PBO::moveBmpToTexture: UnmapBuffer()");
 
-    tex.setDirty();
     moveToTexture(tex);
 }
 
@@ -181,7 +180,6 @@ void PBO::moveToTexture(GLTexture& tex)
             GLTexture::getGLFormat(getPF()), GLTexture::getGLType(getPF()), 0);
     GLContext::checkError("PBO::setImage: glTexSubImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-    tex.setDirty();
     tex.generateMipmaps();
 }
 

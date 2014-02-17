@@ -302,8 +302,7 @@ public:
     {
         BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
         GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-        GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
-        pCM->uploadData();
+        GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp);
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
         BitmapPtr pResultBmp = f.getResults();
@@ -376,9 +375,8 @@ private:
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-            GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, false, 0,
+            GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp, false, 0,
                     GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bPOT);
-            pCM->uploadData();
 
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
@@ -391,8 +389,7 @@ private:
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-        GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, true);
-        pCM->uploadData();
+        GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp, true);
         pTex->generateMipmaps();
 
         if (GLContext::getCurrent()->isGLES()) {
@@ -422,8 +419,7 @@ private:
         BitmapPtr pOrigBmp(new Bitmap(pFileBmp->getSize(), B5G6R5));
         pOrigBmp->copyPixels(*pFileBmp);
         GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-        GLTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
-        pCM->uploadData();
+        GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp);
 
         BitmapPtr pDestBmp = pTex->moveTextureToBmp();
     }

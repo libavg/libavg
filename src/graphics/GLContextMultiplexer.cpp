@@ -25,6 +25,7 @@
 #include "../base/Logger.h"
 
 #include "GLTexture.h"
+#include "MCTexture.h"
 #include "VertexArray.h"
 
 
@@ -63,27 +64,45 @@ GLContextMultiplexer::~GLContextMultiplexer()
     s_pGLContextMultiplexer = 0;
 }
 
-GLTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelFormat pf, 
+MCTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelFormat pf, 
         bool bMipmap, int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, 
         bool bForcePOT)
 {
-    GLTexturePtr pTex(new GLTexture(size, pf, bMipmap, potBorderColor, 
-            wrapSMode, wrapTMode, bForcePOT, true));
+    MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, potBorderColor, 
+            wrapSMode, wrapTMode, bForcePOT));
     m_pPendingTexCreates.push_back(pTex);
     return pTex;
 }
 
-void GLContextMultiplexer::scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp)
+GLTexturePtr GLContextMultiplexer::createGLTexture(const IntPoint& size, PixelFormat pf, 
+        bool bMipmap, int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, 
+        bool bForcePOT)
+{
+    GLTexturePtr pTex(new GLTexture(size, pf, bMipmap, potBorderColor, 
+            wrapSMode, wrapTMode, bForcePOT));
+    return pTex;
+}
+
+void GLContextMultiplexer::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
 {
     m_pPendingTexUploads[pTex] = pBmp;
 }
 
-GLTexturePtr GLContextMultiplexer::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
+MCTexturePtr GLContextMultiplexer::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
         int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
 {
-    GLTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
+    MCTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
             potBorderColor, wrapSMode, wrapTMode, bForcePOT);
     scheduleTexUpload(pTex, pBmp);
+    return pTex;
+}
+
+GLTexturePtr GLContextMultiplexer::createGLTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
+        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
+{
+    GLTexturePtr pTex = createGLTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
+            potBorderColor, wrapSMode, wrapTMode, bForcePOT);
+    pTex->moveBmpToTexture(pBmp);
     return pTex;
 }
 
@@ -123,12 +142,12 @@ void GLContextMultiplexer::uploadData()
     }
 
     for (unsigned i=0; i<m_pPendingTexCreates.size(); ++i) {
-        m_pPendingTexCreates[i]->init();
+        m_pPendingTexCreates[i]->initForGLContext();
     }
 
     TexUploadMap::iterator it;
     for (it=m_pPendingTexUploads.begin(); it!=m_pPendingTexUploads.end(); ++it) {
-        GLTexturePtr pTex = it->first;
+        MCTexturePtr pTex = it->first;
         BitmapPtr pBmp = it->second;
         pTex->moveBmpToTexture(pBmp);
     }

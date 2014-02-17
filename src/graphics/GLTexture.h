@@ -38,13 +38,13 @@ class AVG_API GLTexture: public TexInfo {
 public:
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
-            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false,
-            bool bSkipInit=false);
+            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
     GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             bool bDeleteTex=false);
+    GLTexture(const TexInfo& texInfo, int potBorderColor);
     virtual ~GLTexture();
-
     void init();
+
     void activate(int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
     virtual void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
@@ -54,21 +54,12 @@ public:
 
     unsigned getID() const;
 
-    void setDirty();
-    bool isDirty() const;
-    void resetDirty();
-
-    void dump(unsigned wrapSMode=-1, unsigned wrapTMode=-1) const;
-
 private:
-    bool usePOT(bool bForcePOT, bool bMipmap);
-
     bool m_bDeleteTex;
     int m_PotBorderColor;
 
     static unsigned s_LastTexID;
     unsigned m_TexID;
-    bool m_bIsDirty;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;

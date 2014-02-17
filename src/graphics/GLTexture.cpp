@@ -46,38 +46,32 @@ using namespace std;
 unsigned GLTexture::s_LastTexID = 10000000;
 
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT,
-        bool bSkipInit)
+        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
     : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap)),
       m_bDeleteTex(true),
-      m_PotBorderColor(potBorderColor),
-      m_bIsDirty(true)
+      m_PotBorderColor(potBorderColor)
 {
-    GLContext* pGLContext = GLContext::getCurrent();
     ObjectCounter::get()->incRef(&typeid(*this));
-
-    int maxTexSize = pGLContext->getMaxTexSize();
-    if (size.x > maxTexSize || size.y > maxTexSize) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large ("  + toString(size)
-                + "). Maximum supported by graphics card is "
-                + toString(maxTexSize));
-    }
-    s_LastTexID++;
-    m_TexID = s_LastTexID;
-
-    if (!bSkipInit) {
-        init();
-    }
+    init();
 }
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
         bool bDeleteTex)
     : TexInfo(size, pf, bMipmap),
       m_bDeleteTex(bDeleteTex),
-      m_TexID(glTexID),
-      m_bIsDirty(true)
+      m_TexID(glTexID)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+}
+
+GLTexture::GLTexture(const TexInfo& texInfo, int potBorderColor)
+    : TexInfo(texInfo),
+      m_bDeleteTex(true),
+      m_PotBorderColor(potBorderColor)      
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+    init();
+
 }
 
 GLTexture::~GLTexture()
@@ -90,6 +84,9 @@ GLTexture::~GLTexture()
 
 void GLTexture::init()
 {
+    s_LastTexID++;
+    m_TexID = s_LastTexID;
+
     GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -148,7 +145,6 @@ void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
     TextureMoverPtr pMover = TextureMover::create(getSize(), getPF(), GL_DYNAMIC_DRAW);
     pMover->moveBmpToTexture(pBmp, *this);
-    m_bIsDirty = true;
 }
 
 BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
@@ -160,31 +156,6 @@ BitmapPtr GLTexture::moveTextureToBmp(int mipmapLevel)
 unsigned GLTexture::getID() const
 {
     return m_TexID;
-}
-
-void GLTexture::setDirty()
-{
-    m_bIsDirty = true;
-}
-
-bool GLTexture::isDirty() const
-{
-    return m_bIsDirty;
-}
-
-void GLTexture::resetDirty()
-{
-    m_bIsDirty = false;
-}
-
-bool GLTexture::usePOT(bool bForcePOT, bool bMipmap)
-{
-    GLContext* pGLContext = GLContext::getCurrent();
-    if (pGLContext->usePOTTextures() || bForcePOT || (pGLContext->isGLES() && bMipmap)) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 }

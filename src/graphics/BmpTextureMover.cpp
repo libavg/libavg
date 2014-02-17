@@ -60,7 +60,6 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             tex.getGLFormat(getPF()), tex.getGLType(getPF()), 
             pStartPos);
-    tex.setDirty();
     tex.generateMipmaps();
     GLContext::checkError("BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
 }

@@ -33,6 +33,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextMultiplexer.h 
         GPUFilter.h GPUBandpassFilter.h GPUHueSatFilter.h GPUInvertFilter.h \
         FilterIntensity.h FilterNormalize.h FilterFloodfill.h FilterDilation.h \
         FilterErosion.h FilterGetAlpha.h FBO.h GLTexture.h TexInfo.h TextureMover.h \
+        MCTexture.h \
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
         ImagingProjection.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
@@ -51,6 +52,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp GLContext.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
         FilterGetAlpha.cpp FBO.cpp GLTexture.cpp TexInfo.cpp TextureMover.cpp \
+        MCTexture.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
         ImagingProjection.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \

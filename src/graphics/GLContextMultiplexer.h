@@ -32,6 +32,8 @@ namespace avg {
 
 class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class VertexArray;
@@ -46,11 +48,17 @@ public:
     GLContextMultiplexer();
     virtual ~GLContextMultiplexer();
 
-    GLTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
+    MCTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
             unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
-    void scheduleTexUpload(GLTexturePtr pTex, BitmapPtr pBmp);
-    GLTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false,
+    GLTexturePtr createGLTexture(const IntPoint& size, PixelFormat pf, 
+            bool bMipmap, int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, 
+            bool bForcePOT);
+    void scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp);
+    MCTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false,
+            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
+            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
+    GLTexturePtr createGLTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false,
             int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
             unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
     void deleteTexture(unsigned texID);
@@ -63,8 +71,8 @@ public:
     void reset();
 
 private:
-    std::vector<GLTexturePtr> m_pPendingTexCreates;
-    typedef std::map<GLTexturePtr, BitmapPtr> TexUploadMap;
+    std::vector<MCTexturePtr> m_pPendingTexCreates;
+    typedef std::map<MCTexturePtr, BitmapPtr> TexUploadMap;
     TexUploadMap m_pPendingTexUploads;
     std::vector<unsigned> m_PendingTexDeletes;
 

@@ -51,6 +51,13 @@ TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap,
         m_GLSize = m_Size;
     }
 
+    int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+    if (size.x > maxTexSize || size.y > maxTexSize) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large ("  + toString(size)
+                + "). Maximum supported by graphics card is "
+                + toString(maxTexSize));
+    }
+
     if (getGLType(m_pf) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Float textures not supported by OpenGL configuration.");
@@ -240,6 +247,16 @@ bool TexInfo::getUseMipmap() const
 bool TexInfo::getUsePOT() const
 {
     return m_bUsePOT;
+}
+
+bool TexInfo::usePOT(bool bForcePOT, bool bMipmap)
+{
+    GLContext* pGLContext = GLContext::getCurrent();
+    if (pGLContext->usePOTTextures() || bForcePOT || (pGLContext->isGLES() && bMipmap)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 }

@@ -59,6 +59,8 @@ protected:
     bool getUseMipmap() const;
     bool getUsePOT() const;
 
+    static bool usePOT(bool bForcePOT, bool bMipmap);
+
 private:
     IntPoint m_Size;
     IntPoint m_GLSize;
