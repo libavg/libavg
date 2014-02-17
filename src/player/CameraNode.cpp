@@ -30,7 +30,8 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/TextureMover.h"
-#include "../graphics/GLTexture.h"
+#include "../graphics/MCTexture.h"
+#include "../graphics/GLContextMultiplexer.h"
 #include "../graphics/BitmapLoader.h"
 
 #include "../imaging/Camera.h"
@@ -302,7 +303,8 @@ void CameraNode::open()
     PixelFormat pf = getPixelFormat();
     IntPoint size = getMediaSize();
     bool bMipmap = getMaterial().getUseMipmaps();
-    m_pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
+    
+    m_pTex = GLContextMultiplexer::get()->createTexture(size, pf, bMipmap);
     getSurface()->create(pf, m_pTex);
     newSurface();
 

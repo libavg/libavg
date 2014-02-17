@@ -56,7 +56,7 @@ class AVG_API OffscreenCanvas: public Canvas
 
         std::string getID() const;
         bool isRunning() const;
-        GLTexturePtr getTex() const;
+        MCTexturePtr getTex() const;
         FBOPtr getFBO();
 
         void registerCameraNode(CameraNode* pCameraNode);
@@ -83,7 +83,7 @@ class AVG_API OffscreenCanvas: public Canvas
 
         typedef std::map<GLContext*, FBOPtr> FBOMap;
         FBOMap m_pFBOMap;
-        GLTexturePtr m_pTex;
+        MCTexturePtr m_pTex;
         bool m_bUseMipmaps;
         std::vector<CanvasPtr> m_pDependentCanvases;
 

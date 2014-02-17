@@ -23,6 +23,7 @@
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/Backtrace.h"
 
 #include "GLTexture.h"
 #include "MCTexture.h"

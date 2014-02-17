@@ -171,7 +171,7 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
     m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
     m_pBmp->copyPixels(*pBmp);
     if (m_State == GPU) {
-        GLTexturePtr pTex = m_pSurface->getTex();
+        MCTexturePtr pTex = m_pSurface->getTex();
         if (bSourceChanged || m_pSurface->getSize() != m_pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
         {
@@ -307,7 +307,7 @@ void Image::setupSurface()
 {
     PixelFormat pf = m_pBmp->getPixelFormat();
 //    cerr << "setupSurface: " << pf << endl;
-    GLTexturePtr pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
+    MCTexturePtr pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
             m_Material.getUseMipmaps(), 0, 
             m_Material.getWrapSMode(), m_Material.getWrapTMode());
     m_pSurface->create(pf, pTex);

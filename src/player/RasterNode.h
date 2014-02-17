@@ -41,8 +41,6 @@ class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 class FBO;
 typedef boost::shared_ptr<FBO> FBOPtr;
-class GLTexture;
-typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
 

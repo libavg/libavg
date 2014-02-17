@@ -677,7 +677,7 @@ void WordsNode::renderText()
             }
 
             GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-            GLTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
+            MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
             getSurface()->create(A8, pTex);
             newSurface();
         }

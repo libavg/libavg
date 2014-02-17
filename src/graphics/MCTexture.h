@@ -51,6 +51,7 @@ public:
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
+    GLTexturePtr getCurTex() const; // TODO: Make private.
     unsigned getID() const;
 
     void setDirty();
@@ -58,8 +59,6 @@ public:
     void resetDirty();
 
 private:
-    GLTexturePtr getCurTex() const;
-
     int m_PotBorderColor;
 
     typedef std::map<GLContext*, GLTexturePtr> TexMap;

@@ -155,7 +155,7 @@ void RasterNode::checkReload()
         }
         if (m_sMaskFilename == "") {
             m_pMaskBmp = BitmapPtr();
-            getSurface()->setMask(GLTexturePtr());
+            getSurface()->setMask(MCTexturePtr());
         }
         if (getState() == Node::NS_CANRENDER && m_pMaskBmp) {
             downloadMask();
@@ -399,7 +399,7 @@ void RasterNode::calcMaskCoords()
 
 void RasterNode::downloadMask()
 {
-    GLTexturePtr pTex = GLContextMultiplexer::get()->createTextureFromBmp(m_pMaskBmp,
+    MCTexturePtr pTex = GLContextMultiplexer::get()->createTextureFromBmp(m_pMaskBmp,
             m_Material.getUseMipmaps());
     m_pSurface->setMask(pTex);
 }
@@ -482,9 +482,9 @@ void RasterNode::setupFX(bool bNewFX)
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
                     getMipmap()));
             GLTexturePtr pTex = m_pFBO->getTex();
-            #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-            #endif
+#endif
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
                     m_pSurface->getSize()));
         }

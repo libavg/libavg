@@ -34,6 +34,7 @@
 #include "../graphics/FilterUnmultiplyAlpha.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/GLContextMultiplexer.h"
+#include "../graphics/MCTexture.h"
 
 #include <iostream>
 
@@ -78,15 +79,22 @@ void OffscreenCanvas::initPlayback()
     GLContextMultiplexer* pCM = GLContextMultiplexer::get();
     m_pTex = pCM->createTexture(getSize(), pf, m_bUseMipmaps);
     unsigned numWindows = pDisplayEngine->getNumWindows();
-    for (unsigned i=0; i<numWindows; ++i) {
-        WindowPtr pWindow = pDisplayEngine->getWindow(i);
-        GLContext* pContext = pWindow->getGLContext();
-        bool bUseDepthBuffer = pContext->useDepthBuffer();
-        pContext->activate();
-        pCM->uploadData();
-        m_pFBOMap[pContext] = FBOPtr(new FBO(m_pTex, getMultiSampleSamples(),
-                bUseDepthBuffer, true, m_bUseMipmaps));
+    try {
+        for (unsigned i=0; i<numWindows; ++i) {
+            WindowPtr pWindow = pDisplayEngine->getWindow(i);
+            GLContext* pContext = pWindow->getGLContext();
+            bool bUseDepthBuffer = pContext->useDepthBuffer();
+            pContext->activate();
+            pCM->uploadData();
+            m_pFBOMap[pContext] = FBOPtr(new FBO(m_pTex->getCurTex(),
+                    getMultiSampleSamples(), bUseDepthBuffer, true, m_bUseMipmaps));
+        }
+    } catch (...) {
+        pCM->reset();
+        m_pTex = MCTexturePtr();
+        throw;
     }
+    pCM->reset();
     Canvas::initPlayback(getMultiSampleSamples());
     m_bIsRendered = false;
 }
@@ -101,7 +109,7 @@ void OffscreenCanvas::stopPlayback(bool bIsAbort)
         m_pFBOMap[pContext] = FBOPtr();
     }
     m_pFBOMap.clear();
-    m_pTex = GLTexturePtr();
+    m_pTex = MCTexturePtr();
     Canvas::stopPlayback(bIsAbort);
     m_bIsRendered = false;
 }
@@ -166,10 +174,10 @@ bool OffscreenCanvas::isRunning() const
     return (m_pFBOMap.size() != 0);
 }
 
-GLTexturePtr OffscreenCanvas::getTex() const
+MCTexturePtr OffscreenCanvas::getTex() const
 {
     AVG_ASSERT(isRunning());
-    return getCurFBO()->getTex();
+    return m_pTex;
 }
 
 FBOPtr OffscreenCanvas::getFBO()
@@ -293,6 +301,7 @@ void OffscreenCanvas::renderTree()
         renderWindow(pWindow, pFBO, viewport);
         pFBO->copyToDestTexture();
     }
+    GLContextMultiplexer::get()->reset();
     m_bIsRendered = true;
 }
 
