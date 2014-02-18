@@ -54,9 +54,6 @@
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     #include "Win7TouchInputDevice.h"
 #endif
-#ifdef AVG_ENABLE_MTDEV
-    #include "LibMTDevInputDevice.h"
-#endif
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     #include "XInputMTInputDevice.h"
 #endif
@@ -666,10 +663,8 @@ void Player::enableMultitouch()
         sDriver = "WIN7TOUCH";
 #elif defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
         sDriver = "XINPUT";
-#elif defined (AVG_ENABLE_MTDEV)
-        sDriver = "LINUXMTDEV";
 #else
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
 #endif
@@ -687,10 +682,6 @@ void Player::enableMultitouch()
         throw Exception(AVG_ERR_MT_INIT,
                 "XInput multitouch event source: Support not configured.'");
 #endif
-#ifdef AVG_ENABLE_MTDEV
-    } else if (sDriver == "LINUXMTDEV") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new LibMTDevInputDevice);
-#endif
 #ifdef __APPLE__
     } else if (sDriver == "APPLETRACKPAD") {
         m_pMultitouchInputDevice = IInputDevicePtr(new AppleTrackpadInputDevice);
@@ -698,7 +689,7 @@ void Player::enableMultitouch()
     } else if (sDriver == "TRACKER") {
         m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
     } else {
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }

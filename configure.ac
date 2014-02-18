@@ -96,11 +96,6 @@ if test x"$DC1394_2_LIBS" != "x"; then
     AC_DEFINE(AVG_ENABLE_1394_2, 1, [Enable firewire camera support v.2])
 fi
 
-PKG_CHECK_MODULES([MTDEV], [mtdev],
-        [AC_DEFINE(AVG_ENABLE_MTDEV, 1, [Enable Linux kernel multitouch])],
-         AC_MSG_NOTICE(mtdev not found))
-AM_CONDITIONAL(ENABLE_MTDEV, test x"$MTDEV_LIBS" != x)
-
 if test $target_vendor = apple; then
     AM_CONDITIONAL(HAVE_XI2_1, false)
     AM_CONDITIONAL(HAVE_XI2_2, false)
