@@ -37,11 +37,11 @@ class AVG_API GLTexture: public TexInfo {
 
 public:
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
-            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
+            bool bForcePOT=false, int potBorderColor=0);
     GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             bool bDeleteTex=false);
-    GLTexture(const TexInfo& texInfo, int potBorderColor);
+    GLTexture(const TexInfo& texInfo);
     virtual ~GLTexture();
     void init();
 
@@ -56,7 +56,6 @@ public:
 
 private:
     bool m_bDeleteTex;
-    int m_PotBorderColor;
 
     static unsigned s_LastTexID;
     unsigned m_TexID;

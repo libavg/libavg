@@ -33,9 +33,8 @@ namespace avg {
 class AVG_API TexInfo {
 
 public:
-    TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
-            bool bUsePOT=false);
+    TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap,
+            unsigned wrapSMode, unsigned wrapTMode, bool bUsePOT, int potBorderColor);
     virtual ~TexInfo();
 
     virtual void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
@@ -58,6 +57,7 @@ protected:
     unsigned getWrapTMode() const;
     bool getUseMipmap() const;
     bool getUsePOT() const;
+    int getPOTBorderColor() const;
 
     static bool usePOT(bool bForcePOT, bool bMipmap);
 
@@ -66,9 +66,12 @@ private:
     IntPoint m_GLSize;
     PixelFormat m_pf;
     bool m_bMipmap;
-    bool m_bUsePOT;
+
     unsigned m_WrapSMode;
     unsigned m_WrapTMode;
+    
+    bool m_bUsePOT;
+    int m_POTBorderColor;
 };
 
 typedef boost::shared_ptr<TexInfo> TexInfoPtr;

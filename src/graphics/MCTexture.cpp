@@ -39,9 +39,9 @@ namespace avg {
 using namespace std;
 
 MCTexture::MCTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
-    : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap)),
-      m_PotBorderColor(potBorderColor),
+        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
+    : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap),
+            potBorderColor),
       m_bIsDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -57,7 +57,7 @@ void MCTexture::initForGLContext()
     GLContext* pContext = GLContext::getCurrent();
     AVG_ASSERT(m_pTextures.count(pContext) == 0);
     
-    m_pTextures[pContext] = GLTexturePtr(new GLTexture(*this, m_PotBorderColor));
+    m_pTextures[pContext] = GLTexturePtr(new GLTexture(*this));
 }
 
 void MCTexture::activate(int textureUnit)

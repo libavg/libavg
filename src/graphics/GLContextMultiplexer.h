@@ -49,18 +49,18 @@ public:
     virtual ~GLContextMultiplexer();
 
     MCTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
-            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
+            bool bForcePOT=false, int potBorderColor=0);
     GLTexturePtr createGLTexture(const IntPoint& size, PixelFormat pf, 
-            bool bMipmap, int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, 
-            bool bForcePOT);
+            bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
+            bool bForcePOT, int potBorderColor);
     void scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp);
-    MCTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false,
-            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
-            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
+    MCTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false, 
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
+            bool bForcePOT=false, int potBorderColor=0);
     GLTexturePtr createGLTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false,
-            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
-            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
+            bool bForcePOT=false, int potBorderColor=0);
     void deleteTexture(unsigned texID);
 
     VertexArrayPtr createVertexArray(int reserveVerts = 0, int reserveIndexes = 0);

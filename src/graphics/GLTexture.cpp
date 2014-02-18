@@ -46,10 +46,10 @@ using namespace std;
 unsigned GLTexture::s_LastTexID = 10000000;
 
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
-    : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap)),
-      m_bDeleteTex(true),
-      m_PotBorderColor(potBorderColor)
+        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
+    : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap), 
+            potBorderColor),
+      m_bDeleteTex(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
@@ -57,17 +57,16 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
         bool bDeleteTex)
-    : TexInfo(size, pf, bMipmap),
+    : TexInfo(size, pf, bMipmap, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false, 0),
       m_bDeleteTex(bDeleteTex),
       m_TexID(glTexID)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-GLTexture::GLTexture(const TexInfo& texInfo, int potBorderColor)
+GLTexture::GLTexture(const TexInfo& texInfo)
     : TexInfo(texInfo),
-      m_bDeleteTex(true),
-      m_PotBorderColor(potBorderColor)      
+      m_bDeleteTex(true)      
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
@@ -111,7 +110,7 @@ void GLTexture::init()
         // In the case of UV textures, we set the border color to 128...
         int texMemNeeded = size.x*size.y*getBytesPerPixel(pf);
         char * pPixels = new char[texMemNeeded];
-        memset(pPixels, m_PotBorderColor, texMemNeeded);
+        memset(pPixels, getPOTBorderColor(), texMemNeeded);
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), size.x, size.y, 0, 
                 getGLFormat(pf), getGLType(pf), pPixels);
         GLContext::checkError("GLTexture::init: glTexImage2D()");

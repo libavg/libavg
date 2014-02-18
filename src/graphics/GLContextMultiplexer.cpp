@@ -66,21 +66,21 @@ GLContextMultiplexer::~GLContextMultiplexer()
 }
 
 MCTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelFormat pf, 
-        bool bMipmap, int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, 
-        bool bForcePOT)
+        bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
+        bool bForcePOT, int potBorderColor)
 {
-    MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, potBorderColor, 
-            wrapSMode, wrapTMode, bForcePOT));
+    MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, wrapSMode, wrapTMode, bForcePOT,
+            potBorderColor));
     m_pPendingTexCreates.push_back(pTex);
     return pTex;
 }
 
 GLTexturePtr GLContextMultiplexer::createGLTexture(const IntPoint& size, PixelFormat pf, 
-        bool bMipmap, int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, 
-        bool bForcePOT)
+        bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
+        bool bForcePOT, int potBorderColor)
 {
-    GLTexturePtr pTex(new GLTexture(size, pf, bMipmap, potBorderColor, 
-            wrapSMode, wrapTMode, bForcePOT));
+    GLTexturePtr pTex(new GLTexture(size, pf, bMipmap, wrapSMode, wrapTMode, bForcePOT,
+            potBorderColor));
     return pTex;
 }
 
@@ -90,19 +90,19 @@ void GLContextMultiplexer::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
 }
 
 MCTexturePtr GLContextMultiplexer::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
-        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
+        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
 {
     MCTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
-            potBorderColor, wrapSMode, wrapTMode, bForcePOT);
+            wrapSMode, wrapTMode, bForcePOT, potBorderColor);
     scheduleTexUpload(pTex, pBmp);
     return pTex;
 }
 
 GLTexturePtr GLContextMultiplexer::createGLTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
-        int potBorderColor, unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
+        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
 {
     GLTexturePtr pTex = createGLTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
-            potBorderColor, wrapSMode, wrapTMode, bForcePOT);
+            wrapSMode, wrapTMode, bForcePOT, potBorderColor);
     pTex->moveBmpToTexture(pBmp);
     return pTex;
 }

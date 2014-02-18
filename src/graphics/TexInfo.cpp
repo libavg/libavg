@@ -36,13 +36,14 @@ namespace avg {
 using namespace std;
 
 TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bUsePOT)
+        unsigned wrapSMode, unsigned wrapTMode, bool bUsePOT, int potBorderColor)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
-      m_bUsePOT(bUsePOT),
       m_WrapSMode(wrapSMode),
-      m_WrapTMode(wrapTMode)
+      m_WrapTMode(wrapTMode),
+      m_bUsePOT(bUsePOT),
+      m_POTBorderColor(potBorderColor)
 {
     if (m_bUsePOT) {
         m_GLSize.x = nextpow2(m_Size.x);
@@ -247,6 +248,11 @@ bool TexInfo::getUseMipmap() const
 bool TexInfo::getUsePOT() const
 {
     return m_bUsePOT;
+}
+
+int TexInfo::getPOTBorderColor() const
+{
+    return m_POTBorderColor;
 }
 
 bool TexInfo::usePOT(bool bForcePOT, bool bMipmap)

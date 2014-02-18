@@ -514,8 +514,10 @@ void VideoNode::createTextures(IntPoint size)
     if (pixelFormatIsPlanar(pf)) {
         m_pTextures[0] = pCM->createTexture(size, I8, bMipmap);
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = pCM->createTexture(halfSize, I8, bMipmap, 128);
-        m_pTextures[2] = pCM->createTexture(halfSize, I8, bMipmap, 128);
+        m_pTextures[1] = pCM->createTexture(halfSize, I8, bMipmap,
+                GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false, 128);
+        m_pTextures[2] = pCM->createTexture(halfSize, I8, bMipmap,
+                GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false, 128);
         if (pixelFormatHasAlpha(pf)) {
             m_pTextures[3] = pCM->createTexture(size, I8, bMipmap);
         }

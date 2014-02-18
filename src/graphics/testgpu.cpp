@@ -375,8 +375,8 @@ private:
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             GLContextMultiplexer* pCM = GLContextMultiplexer::get();
-            GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp, false, 0,
-                    GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bPOT);
+            GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp, false,
+                    GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bPOT, 0);
 
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);

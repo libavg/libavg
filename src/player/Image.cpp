@@ -176,7 +176,7 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
                 m_pSurface->getPixelFormat() != pf)
         {
             pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
-                    m_Material.getUseMipmaps(), 0, m_Material.getWrapSMode(), 
+                    m_Material.getUseMipmaps(), m_Material.getWrapSMode(), 
                     m_Material.getWrapTMode());
             m_pSurface->create(pf, pTex);
         }
@@ -308,7 +308,7 @@ void Image::setupSurface()
     PixelFormat pf = m_pBmp->getPixelFormat();
 //    cerr << "setupSurface: " << pf << endl;
     MCTexturePtr pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
-            m_Material.getUseMipmaps(), 0, 
+            m_Material.getUseMipmaps(), 
             m_Material.getWrapSMode(), m_Material.getWrapTMode());
     m_pSurface->create(pf, pTex);
     GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pBmp);
