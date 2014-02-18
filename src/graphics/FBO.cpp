@@ -143,16 +143,6 @@ void FBO::activate() const
     checkError("activate");
 }
 
-PixelFormat FBO::getPF() const
-{
-    return m_PF;
-}
-
-unsigned FBO::getNumTextures() const
-{
-    return m_pTextures.size();
-}
-
 void FBO::copyToDestTexture() const
 {
 #ifndef AVG_ENABLE_EGL
@@ -238,11 +228,6 @@ GLTexturePtr FBO::getTex(int i) const
 const IntPoint& FBO::getSize() const
 {
     return m_Size;
-}
-
-unsigned FBO::getID() const
-{
-    return m_FBO;
 }
 
 void FBO::init()

@@ -94,7 +94,6 @@ class AVG_API DisplayEngine: public IInputDevice
         
         std::vector<WindowPtr> m_pWindows;
         IntPoint m_Size;
-        bool m_bIsFullscreen;
 
         float m_Gamma[3];
         int m_NumFrames;

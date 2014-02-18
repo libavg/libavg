@@ -22,14 +22,6 @@ endif
 endif
 endif
 
-if ENABLE_MTDEV
-    MTDEV_SOURCES = LibMTDevInputDevice.cpp
-    MTDEV_INCLUDES = LibMTDevInputDevice.h
-else
-    MTDEV_SOURCES =
-    MTDEV_INCLUDES =
-endif
-
 if HAVE_XI2_1
     XINPUT2_SOURCES = XInputMTInputDevice.cpp
     XINPUT2_INCLUDES = XInputMTInputDevice.h
