@@ -47,8 +47,6 @@ public:
     virtual ~FBO();
 
     void activate() const;
-    PixelFormat getPF() const;
-    unsigned getNumTextures() const;
 
     void copyToDestTexture() const;
     BitmapPtr getImage(int i=0) const;
@@ -56,14 +54,11 @@ public:
     BitmapPtr getImageFromPBO() const;
     GLTexturePtr getTex(int i=0) const;
     const IntPoint& getSize() const;
-    unsigned getID() const;
 
     static bool isFBOSupported();
     static bool isMultisampleFBOSupported();
     static bool isPackedDepthStencilSupported();
 
-    void initCache();
-    static void deleteCache();
     static void checkError(const std::string& sContext);
 
 private:
