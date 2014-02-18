@@ -47,22 +47,10 @@ namespace avg {
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
         unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bUseStencil,
         bool bMipmap)
-    : m_Size(size),
-      m_PF(pf),
-      m_MultisampleSamples(multisampleSamples),
-      m_bUsePackedDepthStencil(bUsePackedDepthStencil),
-      m_bUseStencil(bUseStencil),
-      m_bMipmap(bMipmap)
+    : FBOInfo(size, pf, numTextures, multisampleSamples, bUsePackedDepthStencil,
+            bUseStencil, bMipmap)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    AVG_ASSERT(numTextures == 1 || multisampleSamples == 1);
-    if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
-    }
-    if (multisampleSamples < 1) {
-        throwMultisampleError();
-    }
     for (unsigned i=0; i<numTextures; ++i) {
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
         pTex->generateMipmaps();
@@ -74,22 +62,10 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
 
 FBO::FBO(GLTexturePtr pTex, unsigned multisampleSamples, bool bUsePackedDepthStencil, 
         bool bUseStencil, bool bMipmap)
-    : m_Size(pTex->getSize()),
-      m_PF(pTex->getPF()),
-      m_MultisampleSamples(multisampleSamples),
-      m_bUsePackedDepthStencil(bUsePackedDepthStencil),
-      m_bUseStencil(bUseStencil),
-      m_bMipmap(bMipmap)
+    : FBOInfo(pTex->getSize(), pTex->getPF(), 1, multisampleSamples,
+            bUsePackedDepthStencil, bUseStencil, bMipmap)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
-    }
-    if (multisampleSamples < 1) {
-        throwMultisampleError();
-    }
-
     m_pTextures.push_back(pTex);
 
     init();
@@ -111,22 +87,23 @@ FBO::~FBO()
     GLContext* pContext = GLContext::getCurrent();
     if (pContext) {
         pContext->returnFBOToCache(m_FBO);
-        if (m_MultisampleSamples > 1) {
+        bool bMultisample = (getMultisampleSamples() > 1);
+        if (bMultisample) {
             glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
             pContext->returnFBOToCache(m_OutputFBO);
         }
-        if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
+        if (getUsePackedDepthStencil() && isPackedDepthStencilSupported()) {
             glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
                     GL_RENDERBUFFER, 0);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, 0);
-            if (m_MultisampleSamples > 1) {
+            if (bMultisample) {
                 glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO);
                 glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                         GL_TEXTURE_2D, 0, 0);
             }
-        } else if (m_bUseStencil) {
+        } else if (getUseStencil()) {
             glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, 0);
@@ -146,16 +123,17 @@ void FBO::activate() const
 void FBO::copyToDestTexture() const
 {
 #ifndef AVG_ENABLE_EGL
-    if (m_MultisampleSamples != 1) {
+    if (getMultisampleSamples() != 1) {
         // Copy Multisample FBO to destination fbo
         glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
         glproc::BindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_OutputFBO);
-        glproc::BlitFramebuffer(0, 0, m_Size.x, m_Size.y, 0, 0, m_Size.x, m_Size.y,
+        IntPoint size = getSize();
+        glproc::BlitFramebuffer(0, 0, size.x, size.y, 0, 0, size.x, size.y,
                 GL_COLOR_BUFFER_BIT, GL_LINEAR);
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 #endif
-    if (m_bMipmap) {
+    if (getMipmap()) {
         for (unsigned i=0; i< m_pTextures.size(); ++i) {
             m_pTextures[i]->generateMipmaps();
         }
@@ -169,10 +147,12 @@ BitmapPtr FBO::getImage(int i) const
         moveToPBO(i);
         return getImageFromPBO();
     } else {
-        BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
+        IntPoint size = getSize();
+        PixelFormat pf = getPF();
+        BitmapPtr pBmp(new Bitmap(size, pf)); 
         glproc::BindFramebuffer(GL_FRAMEBUFFER, m_OutputFBO); 
-        glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
-                GLTexture::getGLType(m_PF), pBmp->getPixels()); 
+        glReadPixels(0, 0, size.x, size.y, GLTexture::getGLFormat(pf),  
+                GLTexture::getGLType(pf), pBmp->getPixels()); 
         GLContext::checkError("FBO::getImage ReadPixels()"); 
         return pBmp;
     }
@@ -192,8 +172,10 @@ void FBO::moveToPBO(int i) const
     glReadBuffer(GL_COLOR_ATTACHMENT0+i); 
     GLContext::checkError("FBO::moveToPBO ReadBuffer()"); 
  
-    glReadPixels(0, 0, m_Size.x, m_Size.y, GLTexture::getGLFormat(m_PF),  
-            GLTexture::getGLType(m_PF), 0); 
+    IntPoint size = getSize();
+    PixelFormat pf = getPF();
+    glReadPixels(0, 0, size.x, size.y, GLTexture::getGLFormat(pf),  
+            GLTexture::getGLType(pf), 0); 
     GLContext::checkError("FBO::moveToPBO ReadPixels()");     
 #endif
 }
@@ -208,11 +190,13 @@ BitmapPtr FBO::getImageFromPBO() const
     m_pOutputPBO->activate(); 
     GLContext::checkError("FBO::getImageFromPBO BindBuffer()"); 
 
-    BitmapPtr pBmp(new Bitmap(m_Size, m_PF)); 
+    IntPoint size = getSize();
+    PixelFormat pf = getPF();
+    BitmapPtr pBmp(new Bitmap(size, pf)); 
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY); 
     GLContext::checkError("FBO::getImageFromPBO MapBuffer()"); 
-    Bitmap PBOBitmap(m_Size, m_PF, (unsigned char *)pPBOPixels,  
-            m_Size.x*getBytesPerPixel(m_PF), false); 
+    Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels,  
+            size.x*getBytesPerPixel(pf), false); 
     pBmp->copyPixels(PBOBitmap); 
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT); 
     GLContext::checkError("FBO::getImageFromPBO UnmapBuffer()"); 
@@ -225,23 +209,19 @@ GLTexturePtr FBO::getTex(int i) const
     return m_pTextures[i];
 }
 
-const IntPoint& FBO::getSize() const
-{
-    return m_Size;
-}
-
 void FBO::init()
 {
     GLContext* pContext = GLContext::getCurrent();
-    if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {
+    if (getUsePackedDepthStencil() && !isPackedDepthStencilSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support offscreen cropping (GL_EXT_packed_depth_stencil).");
     }
-    if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
+    unsigned numSamples = getMultisampleSamples();
+    if (numSamples > 1 && !isMultisampleFBOSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
 #ifndef AVG_ENABLE_EGL
     if (GLContext::getCurrent()->getMemoryMode() == MM_PBO) {
-        m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
+        m_pOutputPBO = PBOPtr(new PBO(getSize(), getPF(), GL_STREAM_READ));
     }
 #endif
 
@@ -252,13 +232,13 @@ void FBO::init()
     GLContext::checkError("FBO::init: BindFramebuffer()");
 
     IntPoint glSize = m_pTextures[0]->getGLSize();
-    if (m_MultisampleSamples == 1) {
+    if (numSamples == 1) {
         for (unsigned i=0; i<m_pTextures.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, 
                     GL_TEXTURE_2D, m_pTextures[i]->getID(), 0);
             GLContext::checkError("FBO: glFramebufferTexture2D()");
         }
-        if (m_bUsePackedDepthStencil) {
+        if (getUsePackedDepthStencil()) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL_EXT, 
@@ -268,7 +248,7 @@ void FBO::init()
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, m_StencilBuffer);
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(DEPTH_STENCIL)");
-        } else if (m_bUseStencil) {
+        } else if (getUseStencil()) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
             glproc::RenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, 
@@ -285,8 +265,8 @@ void FBO::init()
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER, m_ColorBuffer);
         GLContext::enableErrorLog(false);
-        glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, m_MultisampleSamples,
-                GL_RGBA8, glSize.x, glSize.y);
+        glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, numSamples, GL_RGBA8, 
+                glSize.x, glSize.y);
         GLContext::enableErrorLog(true);
         GLenum err = glGetError();
         if (err == GL_INVALID_VALUE) {
@@ -300,11 +280,11 @@ void FBO::init()
         glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                 GL_RENDERBUFFER, m_ColorBuffer);
         GLContext::checkError("FBO::init: FramebufferRenderbuffer");
-        if (m_bUsePackedDepthStencil) {
+        if (getUsePackedDepthStencil()) {
             glproc::GenRenderbuffers(1, &m_StencilBuffer);
             glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
-            glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, 
-                    m_MultisampleSamples, GL_DEPTH_STENCIL_EXT, glSize.x, glSize.y);
+            glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, numSamples, 
+                    GL_DEPTH_STENCIL_EXT, glSize.x, glSize.y);
             GLenum err = glGetError();
             if (err == GL_INVALID_OPERATION) {
                 glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -319,7 +299,7 @@ void FBO::init()
                     GL_RENDERBUFFER, m_StencilBuffer);
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         } else {
-            AVG_ASSERT_MSG(!m_bUseStencil, 
+            AVG_ASSERT_MSG(!getUseStencil(), 
                 "Multisample FBO with stencil & not depth buffers not implemented yet.");
         }
         checkError("init multisample");
@@ -334,41 +314,6 @@ void FBO::init()
 
     checkError("init");
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void FBO::throwMultisampleError()
-{
-    throw(Exception(AVG_ERR_UNSUPPORTED, 
-                string("Unsupported value for number of multisample samples (")
-                + toString(m_MultisampleSamples) + ")."));
-}
-
-bool FBO::isFBOSupported()
-{
-    return GLContext::getCurrent()->isGLES() || 
-            queryOGLExtension("GL_EXT_framebuffer_object");
-}
-
-bool FBO::isMultisampleFBOSupported()
-{
-#ifdef AVG_ENABLE_EGL
-    return false;
-#else
-    int maxSamples;
-    glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        return false;
-    }
-    return queryOGLExtension("GL_EXT_framebuffer_multisample") && 
-            queryOGLExtension("GL_EXT_framebuffer_blit") && maxSamples > 1;
-#endif
-}
-
-bool FBO::isPackedDepthStencilSupported()
-{
-    return queryOGLExtension("GL_EXT_packed_depth_stencil") || 
-            queryOGLExtension("GL_OES_packed_depth_stencil");
 }
 
 void FBO::checkError(const string& sContext)
