@@ -360,7 +360,8 @@ IntPoint DisplayEngine::getWindowSize() const
 
 bool DisplayEngine::isFullscreen() const
 {
-    return m_bIsFullscreen;
+    AVG_ASSERT(!m_pWindows.empty());
+    return m_pWindows[0]->isFullscreen();
 }
 
 void DisplayEngine::showCursor(bool bShow)

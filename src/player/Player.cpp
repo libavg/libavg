@@ -1266,7 +1266,7 @@ void Player::initGraphics(const string& sShaderPath)
     m_DP.calcWindowSizes();
     if (m_DP.getNumWindows() > 1 ||
             m_pDisplayEngine->getWindowSize() != m_DP.getWindowParams(0).m_Size ||
-            m_pDisplayEngine->isFullscreen() == true) 
+            m_pDisplayEngine->isFullscreen() != m_DP.isFullscreen()) 
     {
         m_pDisplayEngine->teardown();
         m_pDisplayEngine->init(m_DP, m_GLConfig);
