@@ -29,7 +29,6 @@
 #include "GLContext.h"
 #include "GLContextManager.h"
 #include "TextureMover.h"
-#include "FBO.h"
 
 #include <string.h>
 #include <iostream>
@@ -53,15 +52,6 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
-}
-
-GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
-        bool bDeleteTex)
-    : TexInfo(size, pf, bMipmap, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false, 0),
-      m_bDeleteTex(bDeleteTex),
-      m_TexID(glTexID)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 GLTexture::GLTexture(const TexInfo& texInfo)

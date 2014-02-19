@@ -60,14 +60,11 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
     init();
 }
 
-FBO::FBO(GLTexturePtr pTex, unsigned multisampleSamples, bool bUsePackedDepthStencil, 
-        bool bUseStencil, bool bMipmap)
-    : FBOInfo(pTex->getSize(), pTex->getPF(), 1, multisampleSamples,
-            bUsePackedDepthStencil, bUseStencil, bMipmap)
+FBO::FBO(const FBOInfo& fboInfo, const vector<GLTexturePtr>& pTex)
+    : FBOInfo(fboInfo)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_pTextures.push_back(pTex);
-
+    m_pTextures = pTex;
     init();
 }
 

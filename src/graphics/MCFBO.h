@@ -19,51 +19,52 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GLTexture_H_
-#define _GLTexture_H_
+#ifndef _MCFBO_H_
+#define _MCFBO_H_
 
 #include "../api.h"
-#include "TexInfo.h"
-#include "Bitmap.h"
-#include "OGLHelper.h"
+
+#include "FBOInfo.h"
+#include "FBO.h"
+#include "MCTexture.h"
+
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
+#include <vector>
+#include <map>
+
 namespace avg {
 
-class GLContext;
-
-class AVG_API GLTexture: public TexInfo {
-
+class AVG_API MCFBO: public FBOInfo
+{
 public:
-    GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
-            bool bForcePOT=false, int potBorderColor=0);
-    GLTexture(const TexInfo& texInfo);
-    virtual ~GLTexture();
-    void init();
+    MCFBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
+            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
+            bool bUseStencil=false, bool bMipmap=false);
+    virtual ~MCFBO();
+    void initForGLContext();
 
-    void activate(int textureUnit=GL_TEXTURE0);
-    void generateMipmaps();
-    virtual void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
+    void activate() const;
+    FBOPtr getCurFBO() const;
 
-    void moveBmpToTexture(BitmapPtr pBmp);
-    BitmapPtr moveTextureToBmp(int mipmapLevel=0);
-
-    unsigned getID() const;
+    void copyToDestTexture() const;
+    BitmapPtr getImage(int i=0) const;
+    void moveToPBO(int i=0) const;
+    BitmapPtr getImageFromPBO() const;
+    MCTexturePtr getTex(int i=0) const;
 
 private:
-    bool m_bDeleteTex;
 
-    static unsigned s_LastTexID;
-    unsigned m_TexID;
+    typedef std::map<GLContext*, FBOPtr> FBOMap;
+    FBOMap m_pFBOs;
+    std::vector<MCTexturePtr> m_pTextures;
+    
 };
 
-typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 
 }
 
-#endif
- 
-
-
+#endif 

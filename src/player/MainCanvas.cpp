@@ -93,7 +93,7 @@ void MainCanvas::renderTree()
         ScopeTimer Timer(RootRenderProfilingZone);
         WindowPtr pWindow = pDisplayEngine->getWindow(i);
         IntRect viewport = pWindow->getViewport();
-        renderWindow(pWindow, FBOPtr(), viewport);
+        renderWindow(pWindow, MCFBOPtr(), viewport);
     }
     m_pContextManager->reset();
 }

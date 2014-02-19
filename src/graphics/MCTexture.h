@@ -51,7 +51,7 @@ public:
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
-    GLTexturePtr getCurTex() const; // TODO: Make private.
+    GLTexturePtr getCurTex() const;
     unsigned getID() const;
 
     void setDirty();

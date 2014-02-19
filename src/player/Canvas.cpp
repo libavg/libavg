@@ -33,6 +33,7 @@
 
 #include "../graphics/StandardShader.h"
 #include "../graphics/GLContextManager.h"
+#include "../graphics/MCFBO.h"
 
 #include <iostream>
 
@@ -239,7 +240,7 @@ void Canvas::preRender()
     m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
 }
 
-void Canvas::renderWindow(WindowPtr pWindow, FBOPtr pFBO, const IntRect& viewport)
+void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewport)
 {
     pWindow->getGLContext()->activate();
     GLContextManager::get()->uploadData();

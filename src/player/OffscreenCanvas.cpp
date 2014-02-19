@@ -35,6 +35,8 @@
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/GLContextManager.h"
 #include "../graphics/MCTexture.h"
+#include "../graphics/MCFBO.h"
+#include "../graphics/FBO.h"
 
 #include <iostream>
 
@@ -77,21 +79,21 @@ void OffscreenCanvas::initPlayback()
         pf = R8G8B8A8;
     }
     GLContextManager* pCM = GLContextManager::get();
-    m_pTex = pCM->createTexture(getSize(), pf, m_bUseMipmaps);
+    bool bUseDepthBuffer = pDisplayEngine->getWindow(0)->getGLContext()->useDepthBuffer();
+    m_pFBO = MCFBOPtr(new MCFBO(getSize(), pf, 1, getMultiSampleSamples(),
+            bUseDepthBuffer, true, m_bUseMipmaps));
     unsigned numWindows = pDisplayEngine->getNumWindows();
     try {
         for (unsigned i=0; i<numWindows; ++i) {
             WindowPtr pWindow = pDisplayEngine->getWindow(i);
             GLContext* pContext = pWindow->getGLContext();
-            bool bUseDepthBuffer = pContext->useDepthBuffer();
             pContext->activate();
             pCM->uploadData();
-            m_pFBOMap[pContext] = FBOPtr(new FBO(m_pTex->getCurTex(),
-                    getMultiSampleSamples(), bUseDepthBuffer, true, m_bUseMipmaps));
+            m_pFBO->initForGLContext();
         }
     } catch (...) {
         pCM->reset();
-        m_pTex = MCTexturePtr();
+        m_pFBO = MCFBOPtr();
         throw;
     }
     pCM->reset();
@@ -101,15 +103,7 @@ void OffscreenCanvas::initPlayback()
 
 void OffscreenCanvas::stopPlayback(bool bIsAbort)
 {
-    FBOMap::iterator it;
-    for (it=m_pFBOMap.begin(); it!=m_pFBOMap.end(); ++it) {
-        GLContext* pContext = it->first;
-        FBOPtr pFBO = it->second;
-        pContext->activate();
-        m_pFBOMap[pContext] = FBOPtr();
-    }
-    m_pFBOMap.clear();
-    m_pTex = MCTexturePtr();
+    m_pFBO = MCFBOPtr();
     Canvas::stopPlayback(bIsAbort);
     m_bIsRendered = false;
 }
@@ -127,7 +121,7 @@ BitmapPtr OffscreenCanvas::screenshotIgnoreAlpha() const
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
-    BitmapPtr pBmp = getCurFBO()->getImage(0);
+    BitmapPtr pBmp = m_pFBO->getImage(0);
     return pBmp;
 }
 
@@ -171,19 +165,19 @@ std::string OffscreenCanvas::getID() const
 
 bool OffscreenCanvas::isRunning() const
 {
-    return (m_pFBOMap.size() != 0);
+    return (m_pFBO);
 }
 
 MCTexturePtr OffscreenCanvas::getTex() const
 {
     AVG_ASSERT(isRunning());
-    return m_pTex;
+    return m_pFBO->getTex();
 }
 
 FBOPtr OffscreenCanvas::getFBO()
 {
     AVG_ASSERT(isRunning());
-    return getCurFBO();
+    return m_pFBO->getCurFBO();
 }
 
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
@@ -232,7 +226,6 @@ void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
     for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
         if (pCanvas == m_pDependentCanvases[i]) {
             m_pDependentCanvases.erase(m_pDependentCanvases.begin()+i);
-//            dump();
             return;
         }
     }
@@ -296,24 +289,12 @@ void OffscreenCanvas::renderTree()
         WindowPtr pWindow = pDisplayEngine->getWindow(i);
         GLContext* pContext = pWindow->getGLContext();
         pContext->activate();
-        FBOPtr pFBO = getCurFBO();
         IntRect viewport(IntPoint(0,0), IntPoint(getRootNode()->getSize()));
-        renderWindow(pWindow, pFBO, viewport);
-        pFBO->copyToDestTexture();
+        renderWindow(pWindow, m_pFBO, viewport);
+        m_pFBO->copyToDestTexture();
     }
     GLContextManager::get()->reset();
     m_bIsRendered = true;
-}
-
-FBOPtr OffscreenCanvas::getCurFBO()
-{
-    return m_pFBOMap[GLContext::getCurrent()];
-}
-
-FBOConstPtr OffscreenCanvas::getCurFBO() const
-{
-    
-    return m_pFBOMap.find(GLContext::getCurrent())->second;
 }
 
 }
