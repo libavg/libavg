@@ -34,7 +34,7 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLContext.h"
-#include "../graphics/GLContextMultiplexer.h"
+#include "../graphics/GLContextManager.h"
 #include "../graphics/GLTexture.h"
 #include "../graphics/TextureMover.h"
 
@@ -676,7 +676,7 @@ void WordsNode::renderText()
                     AVG_ASSERT(false);
             }
 
-            GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+            GLContextManager* pCM = GLContextManager::get();
             MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
             getSurface()->create(A8, pTex);
             newSurface();

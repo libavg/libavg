@@ -28,7 +28,7 @@
 #include "../graphics/ImagingProjection.h"
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/BitmapLoader.h"
-#include "../graphics/GLContextMultiplexer.h"
+#include "../graphics/GLContextManager.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -399,7 +399,7 @@ void RasterNode::calcMaskCoords()
 
 void RasterNode::downloadMask()
 {
-    MCTexturePtr pTex = GLContextMultiplexer::get()->createTextureFromBmp(m_pMaskBmp,
+    MCTexturePtr pTex = GLContextManager::get()->createTextureFromBmp(m_pMaskBmp,
             m_Material.getUseMipmaps());
     m_pSurface->setMask(pTex);
 }

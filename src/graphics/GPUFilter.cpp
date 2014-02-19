@@ -24,7 +24,7 @@
 
 #include "ImagingProjection.h"
 #include "GLContext.h"
-#include "GLContextMultiplexer.h"
+#include "GLContextManager.h"
 #include "ShaderRegistry.h"
 #include "Filterfliprgb.h"
 #include "BitmapLoader.h"
@@ -274,7 +274,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
             ++pCurPixel;
         }
     }
-    GLTexturePtr pTex = GLContextMultiplexer::get()->createGLTextureFromBmp(pBmp);
+    GLTexturePtr pTex = GLContextManager::get()->createGLTextureFromBmp(pBmp);
 
     delete[] pKernel;
     return pTex;

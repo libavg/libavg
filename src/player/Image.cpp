@@ -27,7 +27,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/BitmapLoader.h"
-#include "../graphics/GLContextMultiplexer.h"
+#include "../graphics/GLContextManager.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -175,12 +175,12 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
         if (bSourceChanged || m_pSurface->getSize() != m_pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
         {
-            pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
+            pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(), pf, 
                     m_Material.getUseMipmaps(), m_Material.getWrapSMode(), 
                     m_Material.getWrapTMode());
             m_pSurface->create(pf, pTex);
         }
-        GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pBmp);
+        GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
     }
     assertValid();
 }
@@ -307,11 +307,11 @@ void Image::setupSurface()
 {
     PixelFormat pf = m_pBmp->getPixelFormat();
 //    cerr << "setupSurface: " << pf << endl;
-    MCTexturePtr pTex = GLContextMultiplexer::get()->createTexture(m_pBmp->getSize(), pf, 
+    MCTexturePtr pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(), pf, 
             m_Material.getUseMipmaps(), 
             m_Material.getWrapSMode(), m_Material.getWrapTMode());
     m_pSurface->create(pf, pTex);
-    GLContextMultiplexer::get()->scheduleTexUpload(pTex, m_pBmp);
+    GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
 }
 
 bool Image::changeSource(Source newSource)

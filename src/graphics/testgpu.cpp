@@ -31,7 +31,7 @@
 #include "GPURGB2YUVFilter.h"
 #include "FilterResizeBilinear.h"
 #include "GLContext.h"
-#include "GLContextMultiplexer.h"
+#include "GLContextManager.h"
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
@@ -301,7 +301,7 @@ public:
     void runTests() 
     {
         BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
-        GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+        GLContextManager* pCM = GLContextManager::get();
         GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp);
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
@@ -374,7 +374,7 @@ private:
         cerr << "    Testing " << sResultFName << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
-            GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+            GLContextManager* pCM = GLContextManager::get();
             GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp, false,
                     GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bPOT, 0);
 
@@ -388,7 +388,7 @@ private:
         cerr << "    Testing mipmap support, " << sFName << ", " << 
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
-        GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+        GLContextManager* pCM = GLContextManager::get();
         GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp, true);
         pTex->generateMipmaps();
 
@@ -418,7 +418,7 @@ private:
         BitmapPtr pFileBmp = loadTestBmp(sFName);
         BitmapPtr pOrigBmp(new Bitmap(pFileBmp->getSize(), B5G6R5));
         pOrigBmp->copyPixels(*pFileBmp);
-        GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+        GLContextManager* pCM = GLContextManager::get();
         GLTexturePtr pTex = pCM->createGLTextureFromBmp(pOrigBmp);
 
         BitmapPtr pDestBmp = pTex->moveTextureToBmp();
@@ -455,7 +455,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     cerr << sVariant << endl; 
     cerr << "---------------------------------------------------" << endl;
     GLContext* pContext = GLContext::create(GLConfig(bGLES, false, true, 1, su, true));
-    GLContextMultiplexer* pMultiplexer = new GLContextMultiplexer();
+    GLContextManager* pCM = new GLContextManager();
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
@@ -464,12 +464,12 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
         GPUTestSuite suite(sVariant);
         suite.runTests();
         delete pContext;
-        delete pMultiplexer;
+        delete pCM;
         return suite.isOk();
     } catch (Exception& ex) {
         cerr << "Exception: " << ex.getStr() << endl;
         delete pContext;
-        delete pMultiplexer;
+        delete pCM;
         return false;
     }
 }

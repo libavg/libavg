@@ -32,7 +32,7 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLTexture.h"
-#include "../graphics/GLContextMultiplexer.h"
+#include "../graphics/GLContextManager.h"
 
 #include "../audio/AudioEngine.h"
 
@@ -510,7 +510,7 @@ void VideoNode::createTextures(IntPoint size)
 {
     PixelFormat pf = getPixelFormat();
     bool bMipmap = getMaterial().getUseMipmaps();
-    GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+    GLContextManager* pCM = GLContextManager::get();
     if (pixelFormatIsPlanar(pf)) {
         m_pTextures[0] = pCM->createTexture(size, I8, bMipmap);
         IntPoint halfSize(size.x/2, size.y/2);
@@ -527,7 +527,7 @@ void VideoNode::createTextures(IntPoint size)
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(size, pf));
         FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
-        GLContextMultiplexer::get()->scheduleTexUpload(m_pTextures[0], pBmp);
+        pCM->scheduleTexUpload(m_pTextures[0], pBmp);
     }
     if (pixelFormatIsPlanar(pf)) {
         if (pixelFormatHasAlpha(pf)) {
@@ -774,7 +774,7 @@ FrameAvailableCode VideoNode::renderToSurface()
     }
     if (frameAvailable == FA_NEW_FRAME) {
         for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-            GLContextMultiplexer::get()->scheduleTexUpload(m_pTextures[i], pBmps[i]);
+            GLContextManager::get()->scheduleTexUpload(m_pTextures[i], pBmps[i]);
         }
     }
 

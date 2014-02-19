@@ -27,7 +27,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "GLContext.h"
-#include "GLContextMultiplexer.h"
+#include "GLContextManager.h"
 #include "TextureMover.h"
 #include "FBO.h"
 
@@ -75,8 +75,8 @@ GLTexture::GLTexture(const TexInfo& texInfo)
 
 GLTexture::~GLTexture()
 {
-    if (m_bDeleteTex && GLContextMultiplexer::exists()) {
-        GLContextMultiplexer::get()->deleteTexture(m_TexID);
+    if (m_bDeleteTex && GLContextManager::exists()) {
+        GLContextManager::get()->deleteTexture(m_TexID);
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }

@@ -27,7 +27,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "GLContext.h"
-#include "GLContextMultiplexer.h"
+#include "GLContextManager.h"
 #include "TextureMover.h"
 #include "FBO.h"
 

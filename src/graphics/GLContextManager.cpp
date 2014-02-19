@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GLContextMultiplexer.h"
+#include "GLContextManager.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -34,26 +34,26 @@ namespace avg {
 
 using namespace std;
 
-GLContextMultiplexer* GLContextMultiplexer::s_pGLContextMultiplexer = 0;
+GLContextManager* GLContextManager::s_pGLContextManager = 0;
 
-GLContextMultiplexer* GLContextMultiplexer::get()
+GLContextManager* GLContextManager::get()
 {
-    AVG_ASSERT(s_pGLContextMultiplexer);
-    return s_pGLContextMultiplexer;
+    AVG_ASSERT(s_pGLContextManager);
+    return s_pGLContextManager;
 }
 
-bool GLContextMultiplexer::exists()
+bool GLContextManager::exists()
 {
-    return s_pGLContextMultiplexer != 0;
+    return s_pGLContextManager != 0;
 }
 
-GLContextMultiplexer::GLContextMultiplexer()
+GLContextManager::GLContextManager()
 {
-//    AVG_ASSERT(!s_pGLContextMultiplexer);
-    s_pGLContextMultiplexer = this;
+//    AVG_ASSERT(!s_pGLContextManager);
+    s_pGLContextManager = this;
 }
 
-GLContextMultiplexer::~GLContextMultiplexer()
+GLContextManager::~GLContextManager()
 {
     m_pPendingTexCreates.clear();
     m_pPendingTexUploads.clear();
@@ -62,10 +62,10 @@ GLContextMultiplexer::~GLContextMultiplexer()
     m_pPendingVACreates.clear();
     m_PendingBufferDeletes.clear();
 
-    s_pGLContextMultiplexer = 0;
+    s_pGLContextManager = 0;
 }
 
-MCTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelFormat pf, 
+MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat pf, 
         bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
         bool bForcePOT, int potBorderColor)
 {
@@ -75,7 +75,7 @@ MCTexturePtr GLContextMultiplexer::createTexture(const IntPoint& size, PixelForm
     return pTex;
 }
 
-GLTexturePtr GLContextMultiplexer::createGLTexture(const IntPoint& size, PixelFormat pf, 
+GLTexturePtr GLContextManager::createGLTexture(const IntPoint& size, PixelFormat pf, 
         bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
         bool bForcePOT, int potBorderColor)
 {
@@ -84,12 +84,12 @@ GLTexturePtr GLContextMultiplexer::createGLTexture(const IntPoint& size, PixelFo
     return pTex;
 }
 
-void GLContextMultiplexer::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
+void GLContextManager::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
 {
     m_pPendingTexUploads[pTex] = pBmp;
 }
 
-MCTexturePtr GLContextMultiplexer::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
+MCTexturePtr GLContextManager::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
 {
     MCTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
@@ -98,7 +98,7 @@ MCTexturePtr GLContextMultiplexer::createTextureFromBmp(BitmapPtr pBmp, bool bMi
     return pTex;
 }
 
-GLTexturePtr GLContextMultiplexer::createGLTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
+GLTexturePtr GLContextManager::createGLTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
 {
     GLTexturePtr pTex = createGLTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
@@ -107,12 +107,12 @@ GLTexturePtr GLContextMultiplexer::createGLTextureFromBmp(BitmapPtr pBmp, bool b
     return pTex;
 }
 
-void GLContextMultiplexer::deleteTexture(unsigned texID)
+void GLContextManager::deleteTexture(unsigned texID)
 {
     m_PendingTexDeletes.push_back(texID);
 }
 
-VertexArrayPtr GLContextMultiplexer::createVertexArray(int reserveVerts,
+VertexArrayPtr GLContextManager::createVertexArray(int reserveVerts,
         int reserveIndexes)
 {
     VertexArrayPtr pVA(new VertexArray(reserveVerts, reserveIndexes));
@@ -120,17 +120,17 @@ VertexArrayPtr GLContextMultiplexer::createVertexArray(int reserveVerts,
     return pVA;
 }
 
-void GLContextMultiplexer::deleteBuffers(BufferIDMap& bufferIDs)
+void GLContextManager::deleteBuffers(BufferIDMap& bufferIDs)
 {
     m_PendingBufferDeletes.push_back(bufferIDs);
 }
 
-void GLContextMultiplexer::uploadData()
+void GLContextManager::uploadData()
 {
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_PendingBufferDeletes.size(); ++i) {
         glproc::DeleteBuffers(1, &m_PendingBufferDeletes[i][pContext]);
-        GLContext::checkError("GLContextMultiplexer: delete buffers");
+        GLContext::checkError("GLContextManager: delete buffers");
     }
 
     for (unsigned i=0; i<m_pPendingVACreates.size(); ++i) {
@@ -139,7 +139,7 @@ void GLContextMultiplexer::uploadData()
 
     for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {
         glDeleteTextures(1, &m_PendingTexDeletes[i]);
-        GLContext::checkError("GLContextMultiplexer: delete textures");
+        GLContext::checkError("GLContextManager: delete textures");
     }
 
     for (unsigned i=0; i<m_pPendingTexCreates.size(); ++i) {
@@ -154,7 +154,7 @@ void GLContextMultiplexer::uploadData()
     }
 }
 
-void GLContextMultiplexer::reset()
+void GLContextManager::reset()
 {
     m_pPendingTexCreates.clear();
     m_pPendingTexUploads.clear();

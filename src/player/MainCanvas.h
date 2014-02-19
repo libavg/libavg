@@ -31,8 +31,8 @@ class DisplayEngine;
 typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
 class GLContext;
 typedef boost::shared_ptr<GLContext> GLContextPtr;
-class GLContextMultiplexer;
-typedef boost::shared_ptr<GLContextMultiplexer> GLContextMultiplexerPtr;
+class GLContextManager;
+typedef boost::shared_ptr<GLContextManager> GLContextManagerPtr;
 
 class AVG_API MainCanvas: public Canvas
 {
@@ -49,7 +49,7 @@ class AVG_API MainCanvas: public Canvas
         void pollEvents();
 
         DisplayEnginePtr m_pDisplayEngine;
-        GLContextMultiplexerPtr m_pMultiplexer;
+        GLContextManagerPtr m_pContextManager;
 };
 
 }

@@ -32,7 +32,7 @@
 
 #include "../graphics/GLContext.h"
 #include "../graphics/GLTexture.h"
-#include "../graphics/GLContextMultiplexer.h"
+#include "../graphics/GLContextManager.h"
 #ifdef linux
 #include "../graphics/SecondaryGLXContext.h"
 #include <X11/Xlib.h>
@@ -49,7 +49,7 @@ MainCanvas::MainCanvas(Player * pPlayer)
     : Canvas(pPlayer)
 {
     // TODO: Move this somewhere else.
-    m_pMultiplexer = GLContextMultiplexerPtr(new GLContextMultiplexer());
+    m_pContextManager = GLContextManagerPtr(new GLContextManager());
 }
 
 MainCanvas::~MainCanvas()
@@ -95,7 +95,7 @@ void MainCanvas::renderTree()
         IntRect viewport = pWindow->getViewport();
         renderWindow(pWindow, FBOPtr(), viewport);
     }
-    m_pMultiplexer->reset();
+    m_pContextManager->reset();
 }
 
 }

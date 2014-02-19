@@ -18,8 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _GLContextMultiplexer_H_
-#define _GLContextMultiplexer_H_
+#ifndef _GLContextManager_H_
+#define _GLContextManager_H_
 
 #include "../api.h"
 
@@ -39,14 +39,14 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
-class AVG_API GLContextMultiplexer
+class AVG_API GLContextManager
 {
 public:
-    static GLContextMultiplexer* get();
+    static GLContextManager* get();
     static bool exists();
 
-    GLContextMultiplexer();
-    virtual ~GLContextMultiplexer();
+    GLContextManager();
+    virtual ~GLContextManager();
 
     MCTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
@@ -79,10 +79,10 @@ private:
     std::vector<VertexArrayPtr> m_pPendingVACreates;
     std::vector<BufferIDMap> m_PendingBufferDeletes;
 
-    static GLContextMultiplexer* s_pGLContextMultiplexer;
+    static GLContextManager* s_pGLContextManager;
 };
 
-typedef boost::shared_ptr<GLContextMultiplexer> GLContextMultiplexerPtr;
+typedef boost::shared_ptr<GLContextManager> GLContextManagerPtr;
 
 }
 #endif

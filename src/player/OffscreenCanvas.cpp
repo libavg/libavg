@@ -33,7 +33,7 @@
 
 #include "../graphics/FilterUnmultiplyAlpha.h"
 #include "../graphics/BitmapLoader.h"
-#include "../graphics/GLContextMultiplexer.h"
+#include "../graphics/GLContextManager.h"
 #include "../graphics/MCTexture.h"
 
 #include <iostream>
@@ -76,7 +76,7 @@ void OffscreenCanvas::initPlayback()
     } else {
         pf = R8G8B8A8;
     }
-    GLContextMultiplexer* pCM = GLContextMultiplexer::get();
+    GLContextManager* pCM = GLContextManager::get();
     m_pTex = pCM->createTexture(getSize(), pf, m_bUseMipmaps);
     unsigned numWindows = pDisplayEngine->getNumWindows();
     try {
@@ -301,7 +301,7 @@ void OffscreenCanvas::renderTree()
         renderWindow(pWindow, pFBO, viewport);
         pFBO->copyToDestTexture();
     }
-    GLContextMultiplexer::get()->reset();
+    GLContextManager::get()->reset();
     m_bIsRendered = true;
 }
 
