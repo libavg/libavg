@@ -89,6 +89,7 @@ class AVG_API RasterNode: public AreaNode
         void setContrast(const glm::vec3& contrast);
 
         void setEffect(FXNodePtr pFXNode);
+        virtual void renderFX() {}; //TODO: =0
         
     protected:
         RasterNode();

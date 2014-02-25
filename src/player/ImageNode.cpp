@@ -38,6 +38,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -154,12 +155,18 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
-        bool bHasCanvas = bool(m_pImage->getCanvas());
         if (m_pImage->getSource() != Image::NONE) {
-            renderFX(getSize(), Pixel32(255, 255, 255, 255), bHasCanvas, bHasCanvas);
+            getCanvas()->scheduleFXRender(
+                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
         }
     }
     calcVertexArray(pVA);
+}
+
+void ImageNode::renderFX()
+{
+    bool bHasCanvas = bool(m_pImage->getCanvas());
+    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), bHasCanvas, bHasCanvas);
 }
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");

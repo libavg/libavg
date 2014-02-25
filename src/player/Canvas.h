@@ -44,6 +44,7 @@ namespace avg {
 
 class Player;
 class Node;
+class RasterNode;
 class CanvasNode;
 class AudioEngine;
 class TestHelper;
@@ -56,6 +57,7 @@ class SubVertexArray;
 class Window;
 
 typedef boost::shared_ptr<Node> NodePtr;
+typedef boost::shared_ptr<RasterNode> RasterNodePtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 typedef boost::shared_ptr<FBO> FBOPtr;
 typedef boost::shared_ptr<MCFBO> MCFBOPtr;
@@ -97,6 +99,7 @@ class AVG_API Canvas: public ExportedObject
 
         virtual void renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, 
                 const IntRect& viewport);
+        void scheduleFXRender(const RasterNodePtr& pNode);
 
     protected:
         Player * getPlayer() const;
@@ -106,6 +109,7 @@ class AVG_API Canvas: public ExportedObject
 
     private:
         virtual void renderTree()=0;
+        void renderFX();
         void renderOutlines(const glm::mat4& transform);
 
         void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);
@@ -123,6 +127,8 @@ class AVG_API Canvas: public ExportedObject
 
         int m_MultiSampleSamples;
         int m_ClipLevel;
+
+        std::vector<RasterNodePtr> m_pScheduledFXNodes;
 };
 
 }

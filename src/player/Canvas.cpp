@@ -244,6 +244,7 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
 {
     pWindow->getGLContext()->activate();
     GLContextManager::get()->uploadData();
+    renderFX();
     glm::mat4 projMat;
     if (pFBO) {
         pFBO->activate();
@@ -270,6 +271,11 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
     renderOutlines(projMat);
 }
 
+void Canvas::scheduleFXRender(const RasterNodePtr& pNode)
+{
+    m_pScheduledFXNodes.push_back(pNode);
+}
+
 void Canvas::renderOutlines(const glm::mat4& transform)
 {
     GLContext* pContext = GLContext::getCurrent();
@@ -285,6 +291,15 @@ void Canvas::renderOutlines(const glm::mat4& transform)
     if (pVA->getNumVerts() != 0) {
         pVA->draw();
     }
+}
+
+void Canvas::renderFX()
+{
+    vector<RasterNodePtr>::iterator it;
+    for (it=m_pScheduledFXNodes.begin(); it!=m_pScheduledFXNodes.end(); ++it) {
+        (*it)->renderFX();
+    }
+    m_pScheduledFXNodes.clear();
 }
 
 void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp)
