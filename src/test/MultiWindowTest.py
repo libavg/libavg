@@ -90,12 +90,24 @@ class MultiWindowTestCase(AVGTestCase):
                 ))
 
     def testMultiWindowFX(self):
+        def setHueSat(node):
+            effect = avg.HueSatFXNode()
+            effect.saturation = -200
+            node.setEffect(effect)
+
+        def setBlur(node):
+            node.setEffect(avg.BlurFXNode(3))
+
         root = self.loadEmptyScene()
         player.setWindowConfig("avgwindowconfig.xml")
         node = avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
         node.setEffect(avg.NullFXNode())
         self.start(False,
                 (lambda: self.compareImage("testMultiWindowFX1"),
+                 lambda: setHueSat(node),
+                 lambda: self.compareImage("testMultiWindowFX2"),
+                 lambda: setBlur(node),
+                 lambda: self.compareImage("testMultiWindowFX3"),
                 ))
         
         

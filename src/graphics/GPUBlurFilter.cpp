@@ -26,6 +26,7 @@
 #include "OGLShader.h"
 #include "GLContextManager.h"
 #include "FBO.h"
+#include "MCTexture.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"

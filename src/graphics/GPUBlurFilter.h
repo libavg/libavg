@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "GPUFilter.h"
 #include "GLShaderParam.h"
-#include "GLTexture.h"
+#include "MCTexture.h"
 
 namespace avg {
 
@@ -47,7 +47,7 @@ private:
     bool m_bClipBorders;
     bool m_bUseFloatKernel;
 
-    GLTexturePtr m_pGaussCurveTex;
+    MCTexturePtr m_pGaussCurveTex;
     ImagingProjectionPtr m_pProjection2;
 
     FloatGLShaderParamPtr m_pHorizWidthParam;

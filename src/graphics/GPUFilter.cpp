@@ -29,6 +29,7 @@
 #include "Filterfliprgb.h"
 #include "BitmapLoader.h"
 #include "MCFBO.h"
+#include "MCTexture.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -205,7 +206,7 @@ int GPUFilter::getBlurKernelRadius(float stdDev) const
     return int(ceil(stdDev*3));
 }
 
-GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat)
+MCTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat)
         const
 {
     AVG_ASSERT(opacity != -1);
@@ -276,7 +277,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
             ++pCurPixel;
         }
     }
-    GLTexturePtr pTex = GLContextManager::get()->createGLTextureFromBmp(pBmp);
+    MCTexturePtr pTex = GLContextManager::get()->createTextureFromBmp(pBmp);
 
     delete[] pKernel;
     return pTex;

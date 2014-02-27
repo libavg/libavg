@@ -37,6 +37,8 @@ class FBO;
 typedef boost::shared_ptr<FBO> FBOPtr;
 class MCFBO;
 typedef boost::shared_ptr<MCFBO> MCFBOPtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
 class AVG_API GPUFilter: public Filter
 {
@@ -66,7 +68,7 @@ protected:
 
     void draw(GLTexturePtr pTex);
     int getBlurKernelRadius(float stdDev) const;
-    GLTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
+    MCTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
 
 private:
     PixelFormat m_PFSrc;
