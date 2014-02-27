@@ -29,6 +29,7 @@
 #include "MCTexture.h"
 #include "VertexArray.h"
 #include "MCFBO.h"
+#include "ShaderRegistry.h"
 
 #ifdef __APPLE__
     #include "CGLContext.h"
@@ -107,6 +108,23 @@ GLContext* GLContextManager::createContext(const GLConfig& glConfig,
     return pContext;
 }
 
+void GLContextManager::registerContext(GLContext* pContext)
+{
+    m_pContexts.push_back(pContext);
+}
+
+void GLContextManager::unregisterContext(GLContext* pContext)
+{
+    vector<GLContext*>::iterator it;
+    for (it=m_pContexts.begin(); it!=m_pContexts.end(); ++it) {
+        if (*it == pContext) {
+            m_pContexts.erase(it);
+            return;
+        }
+    }
+    AVG_ASSERT(false);
+}
+
 MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat pf, 
         bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
         bool bForcePOT, int potBorderColor)
@@ -134,6 +152,16 @@ MCFBOPtr GLContextManager::createFBO(const IntPoint& size, PixelFormat pf,
             bUsePackedDepthStencil, bUseStencil, bMipmap, wrapSMode, wrapTMode));
     m_pPendingFBOCreates.push_back(pFBO);
     return pFBO;
+}
+
+void GLContextManager::createShader(const std::string& sID)
+{
+    GLContext* pContext = GLContext::getCurrent();
+    for (unsigned i=0; i<m_pContexts.size(); ++i) {
+        m_pContexts[i]->activate();
+        m_pContexts[i]->getShaderRegistry()->createShader(sID);
+    }
+    pContext->activate();
 }
 
 void GLContextManager::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
@@ -175,6 +203,17 @@ VertexArrayPtr GLContextManager::createVertexArray(int reserveVerts,
 void GLContextManager::deleteBuffers(BufferIDMap& bufferIDs)
 {
     m_PendingBufferDeletes.push_back(bufferIDs);
+}
+
+void GLContextManager::uploadData()
+{
+    GLContext* pContext = GLContext::getCurrent();
+    for (unsigned i=0; i<m_pContexts.size(); ++i) {
+        m_pContexts[i]->activate();
+        uploadDataForContext();
+    }
+    pContext->activate();
+    reset();
 }
 
 void GLContextManager::uploadDataForContext()

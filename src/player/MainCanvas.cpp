@@ -48,8 +48,6 @@ namespace avg {
 MainCanvas::MainCanvas(Player * pPlayer)
     : Canvas(pPlayer)
 {
-    // TODO: Move this somewhere else.
-    m_pContextManager = GLContextManagerPtr(new GLContextManager());
 }
 
 MainCanvas::~MainCanvas()
@@ -95,7 +93,7 @@ void MainCanvas::renderTree()
         IntRect viewport = pWindow->getViewport();
         renderWindow(pWindow, MCFBOPtr(), viewport);
     }
-    m_pContextManager->reset();
+    GLContextManager::get()->reset();
 }
 
 }

@@ -45,6 +45,7 @@ namespace avg {
 GPUFilter::GPUFilter(const string& sShaderID, bool bUseAlpha,
         bool bStandalone, unsigned numTextures, bool bMipmap)
     : m_bStandalone(bStandalone),
+      m_sShaderID(sShaderID),
       m_NumTextures(numTextures),
       m_bMipmap(bMipmap),
       m_SrcSize(0,0),
@@ -52,9 +53,8 @@ GPUFilter::GPUFilter(const string& sShaderID, bool bUseAlpha,
 {
     m_PFSrc = BitmapLoader::get()->getDefaultPixelFormat(bUseAlpha);
     m_PFDest = m_PFSrc;
-    createShader(sShaderID);
+    GLContextManager::get()->createShader(sShaderID);
 
-    m_pShader = avg::getShader(sShaderID);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -63,13 +63,13 @@ GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
     : m_PFSrc(pfSrc),
       m_PFDest(pfDest),
       m_bStandalone(bStandalone),
+      m_sShaderID(sShaderID),
       m_NumTextures(numTextures),
       m_bMipmap(bMipmap),
       m_SrcSize(0,0),
       m_DestRect(0,0,0,0)
 {
-    createShader(sShaderID);
-    m_pShader = avg::getShader(sShaderID);
+    GLContextManager::get()->createShader(sShaderID);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -178,15 +178,15 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
     }
 }
   
-const OGLShaderPtr& GPUFilter::getShader() const
+OGLShaderPtr GPUFilter::getShader() const
 {
-    return m_pShader;
+    return avg::getShader(m_sShaderID);
 }
 
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
-    m_pProjection->draw(m_pShader);
+    m_pProjection->draw(getShader());
 }
 
 void dumpKernel(int width, float* pKernel)

@@ -34,16 +34,20 @@ namespace avg {
 ImagingProjection::ImagingProjection(IntPoint size)
     : m_Color(0, 0, 0, 0)
 {
-    m_pVA = GLContextManager::get()->createVertexArray();
-    m_pVA->initForGLContext();
+    GLContextManager* pCM = GLContextManager::get();
+    m_pVA = pCM->createVertexArray();
+    pCM->uploadData();
+
     init(size, IntRect(IntPoint(0,0), size));
 }
 
 ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
     : m_Color(0, 0, 0, 0)
 {
-    m_pVA = GLContextManager::get()->createVertexArray();
-    m_pVA->initForGLContext();
+    GLContextManager* pCM = GLContextManager::get();
+    m_pVA = pCM->createVertexArray();
+    pCM->uploadData();
+
     init(srcSize, destRect);
 }
 

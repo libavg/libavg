@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
+#include "GLContextManager.h"
 #include "ImagingProjection.h"
 #include "FBO.h"
 
@@ -71,9 +72,9 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, bool bStandalone)
     m_pSpillThresholdParam = pShader->getParam<float>("u_SpillThreshold");
     m_pIsLastParam = pShader->getParam<int>("u_bIsLast");
 
-    createShader(SHADERID_EROSION);
+    GLContextManager::get()->createShader(SHADERID_EROSION);
     pShader = avg::getShader(SHADERID_EROSION);
-    m_pErosionTextureParam= pShader->getParam<int>("u_Texture");
+    m_pErosionTextureParam = pShader->getParam<int>("u_Texture");
     m_pErosionIsLastParam = pShader->getParam<int>("u_bIsLast");
     
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(size));

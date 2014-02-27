@@ -60,6 +60,7 @@ class MouseEvent;
 class CursorEvent;
 class DisplayEngine;
 class Display;
+class GLContextManager;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -72,6 +73,7 @@ typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
 typedef boost::shared_ptr<Display> DisplayPtr;
+typedef boost::shared_ptr<GLContextManager> GLContextManagerPtr;
 
 class AVG_API Player: public Publisher
 {
@@ -228,6 +230,7 @@ class AVG_API Player: public Publisher
         void errorIfPlaying(const std::string& sFunc) const;
         void errorIfMultiDisplay(const std::string& sFunc) const;
 
+        GLContextManagerPtr m_pContextManager;
         MainCanvasPtr m_pMainCanvas;
 
         DisplayEnginePtr m_pDisplayEngine;

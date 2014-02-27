@@ -24,6 +24,7 @@
 #include "ShaderRegistry.h"
 #include "ImagingProjection.h"
 #include "OGLShader.h"
+#include "GLContextManager.h"
 #include "FBO.h"
 
 #include "../base/ObjectCounter.h"
@@ -51,7 +52,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     GLContext::getCurrent()->ensureFullShaders("GPUBlurFilter");
 
     setDimensions(size, stdDev, bClipBorders);
-    createShader(SHADERID_VERT);
+    GLContextManager::get()->createShader(SHADERID_VERT);
     setStdDev(stdDev);
 
     OGLShaderPtr pShader = getShader();

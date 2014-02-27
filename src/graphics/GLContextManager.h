@@ -52,6 +52,8 @@ public:
 
     GLContext* createContext(const GLConfig& glConfig, 
             const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
+    void registerContext(GLContext* pContext);
+    void unregisterContext(GLContext* pContext);
 
     MCTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
@@ -63,6 +65,7 @@ public:
             unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
             bool bUseStencil=false, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+    void createShader(const std::string& sID);
 
     void scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp);
     MCTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false, 
@@ -98,8 +101,6 @@ private:
 
     static GLContextManager* s_pGLContextManager;
 };
-
-typedef boost::shared_ptr<GLContextManager> GLContextManagerPtr;
 
 }
 #endif

@@ -54,6 +54,8 @@ void VertexArray::initForGLContext()
     GLContext* pContext = GLContext::getCurrent();
     unsigned vertexBufferID;
     unsigned indexBufferID;
+    AVG_ASSERT(m_VertexBufferIDMap.count(pContext) == 0);
+    AVG_ASSERT(m_IndexBufferIDMap.count(pContext) == 0);
     glproc::GenBuffers(1, &vertexBufferID);
     m_VertexBufferIDMap[pContext] = vertexBufferID;
     glproc::GenBuffers(1, &indexBufferID);

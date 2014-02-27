@@ -79,6 +79,7 @@
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/Display.h"
+#include "../graphics/GLContextManager.h"
 
 #include "../imaging/Camera.h"
 
@@ -135,6 +136,7 @@ Player::Player()
         SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
     }
 #endif
+    m_pContextManager = GLContextManagerPtr(new GLContextManager());
 #ifdef __linux
 // Turning this on causes fp exceptions in the linux nvidia drivers.
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);

@@ -30,6 +30,8 @@ namespace avg {
 GLShaderParam::GLShaderParam(OGLShader* pShader, const std::string& sName)
     : m_sName(sName)
 {
+    // XXX: We assume that m_Location is going to be the same for every GL context the
+    // shader is used in. So far, that works.
     m_Location = glproc::GetUniformLocation(pShader->getProgram(), sName.c_str());
     string sErr = std::string("Shader param '") + sName + "' not found in shader '" + 
             pShader->getName() + "'.";

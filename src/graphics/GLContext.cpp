@@ -23,6 +23,7 @@
 
 #include "ShaderRegistry.h"
 #include "StandardShader.h"
+#include "GLContextManager.h"
 
 #include "../base/Backtrace.h"
 #include "../base/Exception.h"
@@ -58,6 +59,7 @@ GLContext::GLContext(const IntPoint& windowSize)
 
 GLContext::~GLContext()
 {
+    GLContextManager::get()->unregisterContext(this);
 }
 
 void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)

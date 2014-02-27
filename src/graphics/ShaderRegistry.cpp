@@ -179,11 +179,6 @@ void ShaderRegistry::throwParseError(const string& sFileName, int curLine)
             toString(curLine)+": Syntax error.");
 }
 
-void createShader(const std::string& sID)
-{
-    return ShaderRegistry::get()->createShader(sID);
-}
-
 OGLShaderPtr getShader(const std::string& sID)
 {
     return ShaderRegistry::get()->getShader(sID);

@@ -62,7 +62,7 @@ protected:
     void setDimensions(const IntPoint& srcSize);
     void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
             unsigned texMode);
-    const OGLShaderPtr& getShader() const;
+    OGLShaderPtr getShader() const;
 
     void draw(GLTexturePtr pTex);
     int getBlurKernelRadius(float stdDev) const;
@@ -72,6 +72,7 @@ private:
     PixelFormat m_PFSrc;
     PixelFormat m_PFDest;
     bool m_bStandalone;
+    std::string m_sShaderID;
     unsigned m_NumTextures;
     bool m_bMipmap;
 
@@ -80,7 +81,6 @@ private:
     std::vector<MCFBOPtr> m_pFBOs;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
-    OGLShaderPtr m_pShader;
     ImagingProjectionPtr m_pProjection;
 };
 

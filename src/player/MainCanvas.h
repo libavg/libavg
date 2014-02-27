@@ -49,7 +49,6 @@ class AVG_API MainCanvas: public Canvas
         void pollEvents();
 
         DisplayEnginePtr m_pDisplayEngine;
-        GLContextManagerPtr m_pContextManager;
 };
 
 }

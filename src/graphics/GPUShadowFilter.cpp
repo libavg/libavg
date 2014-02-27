@@ -25,6 +25,7 @@
 #include "OGLShader.h"
 #include "ImagingProjection.h"
 #include "FBO.h"
+#include "GLContextManager.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"
@@ -49,7 +50,7 @@ GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset,
     GLContext::getCurrent()->ensureFullShaders("GPUShadowFilter");
 
     setDimensions(size, stdDev, offset);
-    createShader(SHADERID_VERT);
+    GLContextManager::get()->createShader(SHADERID_VERT);
     setParams(offset, stdDev, opacity, color);
     OGLShaderPtr pShader = getShader();
     m_pHorizWidthParam = pShader->getParam<float>("u_Width");
