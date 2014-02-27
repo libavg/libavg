@@ -98,16 +98,28 @@ class MultiWindowTestCase(AVGTestCase):
         def setBlur(node):
             node.setEffect(avg.BlurFXNode(3))
 
+        def startVideo():
+            node.unlink(True)
+            self.videoNode = avg.VideoNode(href="mpeg1-48x48.mov", size=(96,96), 
+                    threaded=False, parent=root)
+            self.videoNode.setEffect(avg.NullFXNode())
+            self.videoNode.play()
+
         root = self.loadEmptyScene()
         player.setWindowConfig("avgwindowconfig.xml")
         node = avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
         node.setEffect(avg.NullFXNode())
+        player.setFakeFPS(25)
         self.start(False,
                 (lambda: self.compareImage("testMultiWindowFX1"),
                  lambda: setHueSat(node),
                  lambda: self.compareImage("testMultiWindowFX2"),
                  lambda: setBlur(node),
                  lambda: self.compareImage("testMultiWindowFX3"),
+                 startVideo,
+                 lambda: self.compareImage("testMultiWindowFXVideo1"),
+                 lambda: setHueSat(self.videoNode),
+                 lambda: self.compareImage("testMultiWindowFXVideo2"),
                 ))
         
         
