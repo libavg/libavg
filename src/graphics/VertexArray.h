@@ -44,7 +44,7 @@ public:
     static const unsigned COLOR_INDEX;
 
     VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
-    void init();
+    void initForGLContext();
     virtual ~VertexArray();
 
     void update();

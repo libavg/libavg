@@ -24,18 +24,6 @@
 #include "ShaderRegistry.h"
 #include "StandardShader.h"
 
-#ifdef __APPLE__
-    #include "CGLContext.h"
-#elif defined linux
-    #ifdef AVG_ENABLE_EGL
-        #include "EGLContext.h"
-    #else
-        #include "SDLGLXContext.h"
-    #endif
-#elif defined _WIN32
-    #include "WGLContext.h"
-#endif
-
 #include "../base/Backtrace.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -54,30 +42,6 @@ thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
-
-GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSize,
-        const SDL_SysWMinfo* pSDLWMInfo)
-{
-    if (glConfig.m_bGLES) {
-        AVG_ASSERT(isGLESSupported());
-    }
-#ifdef __APPLE__
-    return new CGLContext(glConfig, windowSize, pSDLWMInfo);
-#elif defined linux
-    #ifdef AVG_ENABLE_EGL
-        GLConfig tempConfig = glConfig;
-        tempConfig.m_bGLES = true;
-        return new EGLContext(tempConfig, windowSize, pSDLWMInfo);
-    #else
-        return new SDLGLXContext(glConfig, windowSize, pSDLWMInfo);
-    #endif
-#elif defined _WIN32
-    return new WGLContext(glConfig, windowSize, pSDLWMInfo);
-#else
-    AVG_ASSERT(false);
-    return GLContextPtr();
-#endif
-}
 
 GLContext::GLContext(const IntPoint& windowSize)
     : m_MaxTexSize(0),
@@ -507,19 +471,6 @@ int GLContext::nextMultiSampleValue(int curSamples)
         default:
             return 8;
     }
-}
-
-bool GLContext::isGLESSupported()
-{
-#if defined linux
-    #ifdef AVG_ENABLE_EGL
-    return true;
-    #else
-    return SDLGLXContext::haveARBCreateContext();
-    #endif
-#else
-    return false;
-#endif
 }
 
 void GLContext::enableErrorLog(bool bEnable)

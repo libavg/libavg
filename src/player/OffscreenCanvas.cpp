@@ -88,7 +88,7 @@ void OffscreenCanvas::initPlayback()
             WindowPtr pWindow = pDisplayEngine->getWindow(i);
             GLContext* pContext = pWindow->getGLContext();
             pContext->activate();
-            pCM->uploadData();
+            pCM->uploadDataForContext();
         }
     } catch (...) {
         pCM->reset();

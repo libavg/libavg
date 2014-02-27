@@ -244,7 +244,7 @@ void Canvas::preRender()
 void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewport)
 {
     pWindow->getGLContext()->activate();
-    GLContextManager::get()->uploadData();
+    GLContextManager::get()->uploadDataForContext();
     renderFX();
     glm::mat4 projMat;
     if (pFBO) {
@@ -281,7 +281,7 @@ void Canvas::renderOutlines(const glm::mat4& transform)
 {
     GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA = GLContextManager::get()->createVertexArray();
-    pVA->init();
+    pVA->initForGLContext();
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShaderPtr pShader = pContext->getStandardShader();

@@ -46,9 +46,6 @@ typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 class AVG_API GLContext
 {
 public:
-    static GLContext* create(const GLConfig& glConfig, 
-            const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
-
     GLContext(const IntPoint& windowSize);
     virtual ~GLContext();
 
@@ -96,7 +93,6 @@ public:
     static void setMain(GLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
-    static bool isGLESSupported();
     static void enableErrorLog(bool bEnable);
 
 protected:

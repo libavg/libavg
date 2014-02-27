@@ -30,6 +30,18 @@
 #include "VertexArray.h"
 #include "MCFBO.h"
 
+#ifdef __APPLE__
+    #include "CGLContext.h"
+#elif defined linux
+    #ifdef AVG_ENABLE_EGL
+        #include "EGLContext.h"
+    #else
+        #include "SDLGLXContext.h"
+    #endif
+#elif defined _WIN32
+    #include "WGLContext.h"
+#endif
+
 
 namespace avg {
 
@@ -66,6 +78,33 @@ GLContextManager::~GLContextManager()
     m_PendingBufferDeletes.clear();
 
     s_pGLContextManager = 0;
+}
+
+GLContext* GLContextManager::createContext(const GLConfig& glConfig, 
+            const IntPoint& windowSize, const SDL_SysWMinfo* pSDLWMInfo)
+{
+    if (glConfig.m_bGLES) {
+        AVG_ASSERT(isGLESSupported());
+    }
+    GLContext* pContext;
+#ifdef __APPLE__
+    pContext = new CGLContext(glConfig, windowSize, pSDLWMInfo);
+#elif defined linux
+    #ifdef AVG_ENABLE_EGL
+        GLConfig tempConfig = glConfig;
+        tempConfig.m_bGLES = true;
+        pContext = new EGLContext(tempConfig, windowSize, pSDLWMInfo);
+    #else
+        pContext = new SDLGLXContext(glConfig, windowSize, pSDLWMInfo);
+    #endif
+#elif defined _WIN32
+    pContext = new WGLContext(glConfig, windowSize, pSDLWMInfo);
+#else
+    AVG_ASSERT(false);
+    pContext = 0;
+#endif
+    m_pContexts.push_back(pContext);
+    return pContext;
 }
 
 MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat pf, 
@@ -138,7 +177,7 @@ void GLContextManager::deleteBuffers(BufferIDMap& bufferIDs)
     m_PendingBufferDeletes.push_back(bufferIDs);
 }
 
-void GLContextManager::uploadData()
+void GLContextManager::uploadDataForContext()
 {
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_PendingBufferDeletes.size(); ++i) {
@@ -147,7 +186,7 @@ void GLContextManager::uploadData()
     }
 
     for (unsigned i=0; i<m_pPendingVACreates.size(); ++i) {
-        m_pPendingVACreates[i]->init();
+        m_pPendingVACreates[i]->initForGLContext();
     }
 
     for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {
@@ -181,6 +220,19 @@ void GLContextManager::reset()
 
     m_pPendingVACreates.clear();
     m_PendingBufferDeletes.clear();
+}
+
+bool GLContextManager::isGLESSupported()
+{
+#if defined linux
+    #ifdef AVG_ENABLE_EGL
+    return true;
+    #else
+    return SDLGLXContext::haveARBCreateContext();
+    #endif
+#else
+    return false;
+#endif
 }
 
 }

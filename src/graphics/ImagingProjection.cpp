@@ -35,7 +35,7 @@ ImagingProjection::ImagingProjection(IntPoint size)
     : m_Color(0, 0, 0, 0)
 {
     m_pVA = GLContextManager::get()->createVertexArray();
-    m_pVA->init();
+    m_pVA->initForGLContext();
     init(size, IntRect(IntPoint(0,0), size));
 }
 
@@ -43,7 +43,7 @@ ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
     : m_Color(0, 0, 0, 0)
 {
     m_pVA = GLContextManager::get()->createVertexArray();
-    m_pVA->init();
+    m_pVA->initForGLContext();
     init(srcSize, destRect);
 }
 

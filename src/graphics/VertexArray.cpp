@@ -49,7 +49,7 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     m_bUseMapBuffer = (!pContext->isGLES());
 }
 
-void VertexArray::init()
+void VertexArray::initForGLContext()
 {
     GLContext* pContext = GLContext::getCurrent();
     unsigned vertexBufferID;

@@ -50,6 +50,9 @@ public:
     GLContextManager();
     virtual ~GLContextManager();
 
+    GLContext* createContext(const GLConfig& glConfig, 
+            const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
+
     MCTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
             bool bForcePOT=false, int potBorderColor=0);
@@ -75,9 +78,14 @@ public:
     void deleteBuffers(BufferIDMap& bufferIDs);
 
     void uploadData();
+    void uploadDataForContext();
     void reset();
 
+    static bool isGLESSupported();
+
 private:
+    std::vector<GLContext*> m_pContexts;
+
     std::vector<MCTexturePtr> m_pPendingTexCreates;
     typedef std::map<MCTexturePtr, BitmapPtr> TexUploadMap;
     TexUploadMap m_pPendingTexUploads;

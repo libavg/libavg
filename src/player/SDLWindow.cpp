@@ -38,6 +38,7 @@
 #include "../base/StringHelper.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/GLContextManager.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
@@ -138,7 +139,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     SDL_VERSION(&info.version);
     int rc = SDL_GetWMInfo(&info);
     AVG_ASSERT(rc != -1);
-    GLContext* pGLContext = GLContext::create(glConfig, size, &info);
+    GLContext* pGLContext = GLContextManager::get()->createContext(glConfig, size, &info);
     setGLContext(pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 

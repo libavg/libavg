@@ -38,6 +38,7 @@
 #include "../graphics/FilterGauss.h"
 #include "../graphics/FilterMask.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/GLContextManager.h"
 #include "../graphics/GPUBandpassFilter.h"
 #include "../graphics/GPUBlurFilter.h"
 #include "../graphics/BitmapLoader.h"
@@ -103,7 +104,7 @@ TrackerThread::~TrackerThread()
 bool TrackerThread::init()
 {
     try {
-        m_pImagingContext = GLContext::create(
+        m_pImagingContext = GLContextManager::get()->createContext(
             GLConfig(false, false, true, 1, GLConfig::AUTO, false));
         createBandpassFilter();
         AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
