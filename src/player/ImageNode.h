@@ -52,8 +52,8 @@ class AVG_API ImageNode : public RasterNode
         
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
+        virtual void renderFX();
         virtual void render();
-        void renderFX();
         
         void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
 

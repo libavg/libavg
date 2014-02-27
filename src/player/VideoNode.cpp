@@ -499,7 +499,7 @@ void VideoNode::startDecoding()
     m_bSeekPending = true;
     
     createTextures(videoInfo.m_Size);
-   
+
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
@@ -655,7 +655,8 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
             }
             m_bFirstFrameDecoded |= m_bFrameAvailable;
             if (m_bFirstFrameDecoded) {
-                renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+                getCanvas()->scheduleFXRender(
+                        dynamic_pointer_cast<RasterNode>(shared_from_this()));
             }
         }
     } else {
@@ -673,6 +674,11 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         }
     }
     calcVertexArray(pVA);
+}
+
+void VideoNode::renderFX()
+{
+    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");

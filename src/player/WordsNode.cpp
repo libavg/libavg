@@ -23,6 +23,7 @@
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
 #include "TextEngine.h"
+#include "Canvas.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -44,6 +45,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -699,11 +701,16 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     if (isVisible()) {
         redraw();
     }
-    Pixel32 color = m_FontStyle.getColorVal();
     if (m_sText.length() != 0 && isVisible()) {
-        renderFX(getSize(), color, false);
+        getCanvas()->scheduleFXRender(
+                dynamic_pointer_cast<RasterNode>(shared_from_this()));
     }
-    calcVertexArray(pVA, color);
+    calcVertexArray(pVA, m_FontStyle.getColorVal());
+}
+
+void WordsNode::renderFX()
+{
+    RasterNode::renderFX(getSize(), m_FontStyle.getColorVal(), false);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");

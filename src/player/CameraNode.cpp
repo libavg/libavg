@@ -22,6 +22,7 @@
 #include "CameraNode.h"
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
+#include "Canvas.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -45,6 +46,7 @@
 #endif
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -316,7 +318,7 @@ void CameraNode::open()
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
     } 
     m_pTex->moveBmpToTexture(pBmp);
-    setupFX(true);
+    setupFX();
 }
 
 int CameraNode::getFeature(CameraFeature feature) const
@@ -349,10 +351,16 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         ScopeTimer Timer(CameraDownloadProfilingZone);
         m_FrameNum++;
         m_pTex->moveBmpToTexture(m_pCurBmp);
-        renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+        getCanvas()->scheduleFXRender(
+                dynamic_pointer_cast<RasterNode>(shared_from_this()));
         m_bNewBmp = false;
     }
     calcVertexArray(pVA);
+}
+
+void CameraNode::renderFX()
+{
+    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");

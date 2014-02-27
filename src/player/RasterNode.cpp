@@ -109,7 +109,7 @@ void RasterNode::connectDisplay()
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
-    setupFX(true);
+    setupFX();
 }
 
 void RasterNode::disconnect(bool bKill)
@@ -323,7 +323,7 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
     m_pFXNode = pFXNode;
     if (getState() == NS_CANRENDER) {
-        setupFX(true);
+        setupFX();
     }
 }
 
@@ -410,7 +410,6 @@ static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
         bool bPremultipliedAlpha, bool bForceRender)
 {
-    setupFX(false);
     if (m_pFXNode && (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty() ||
             bForceRender))
     {
@@ -466,17 +465,16 @@ void RasterNode::newSurface()
     if (m_pSurface->isCreated()) {
         calcVertexGrid(m_TileVertices);
         calcTexCoords();
+        setupFX();
     }
 }
 
-void RasterNode::setupFX(bool bNewFX)
+void RasterNode::setupFX()
 {
     if (m_pSurface && m_pSurface->getSize() != IntPoint(-1,-1) && m_pFXNode) {
-        if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
-            m_pFXNode->setSize(m_pSurface->getSize());
-            m_pFXNode->connect();
-            m_bFXDirty = true;
-        }
+        m_pFXNode->setSize(m_pSurface->getSize());
+        m_pFXNode->connect();
+        m_bFXDirty = true;
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
 #ifdef AVG_ENABLE_EGL
