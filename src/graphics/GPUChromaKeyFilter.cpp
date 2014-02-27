@@ -54,28 +54,34 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, bool bStandalone)
     GLContext::getCurrent()->ensureFullShaders("GPUChromaKeyFilter");
 
     setDimensions(size);
-    OGLShaderPtr pShader = getShader();
-    m_pTextureParam = pShader->getParam<int>("u_Texture");
+    GLContextManager* pCM = GLContextManager::get();
+    m_pTextureParam = pCM->createShaderParam<int>(SHADERID_CHROMAKEY, "u_Texture");
     
-    m_pHKeyParam = pShader->getParam<float>("u_HKey");
-    m_pHToleranceParam = pShader->getParam<float>("u_HTolerance");
-    m_pHSoftToleranceParam = pShader->getParam<float>("u_HSoftTolerance");
+    m_pHKeyParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY, "u_HKey");
+    m_pHToleranceParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY,
+            "u_HTolerance");
+    m_pHSoftToleranceParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY,
+            "u_HSoftTolerance");
     
-    m_pSKeyParam = pShader->getParam<float>("u_SKey");
-    m_pSToleranceParam = pShader->getParam<float>("u_STolerance");
-    m_pSSoftToleranceParam = pShader->getParam<float>("u_SSoftTolerance");
+    m_pSKeyParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY, "u_SKey");
+    m_pSToleranceParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY,
+            "u_STolerance");
+    m_pSSoftToleranceParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY,
+            "u_SSoftTolerance");
     
-    m_pLKeyParam = pShader->getParam<float>("u_LKey");
-    m_pLToleranceParam = pShader->getParam<float>("u_LTolerance");
-    m_pLSoftToleranceParam = pShader->getParam<float>("u_LSoftTolerance");
+    m_pLKeyParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY, "u_LKey");
+    m_pLToleranceParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY,
+            "u_LTolerance");
+    m_pLSoftToleranceParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY,
+            "u_LSoftTolerance");
     
-    m_pSpillThresholdParam = pShader->getParam<float>("u_SpillThreshold");
-    m_pIsLastParam = pShader->getParam<int>("u_bIsLast");
+    m_pSpillThresholdParam = pCM->createShaderParam<float>(SHADERID_CHROMAKEY,
+            "u_SpillThreshold");
+    m_pIsLastParam = pCM->createShaderParam<int>(SHADERID_CHROMAKEY, "u_bIsLast");
 
     GLContextManager::get()->createShader(SHADERID_EROSION);
-    pShader = avg::getShader(SHADERID_EROSION);
-    m_pErosionTextureParam = pShader->getParam<int>("u_Texture");
-    m_pErosionIsLastParam = pShader->getParam<int>("u_bIsLast");
+    m_pErosionTextureParam = pCM->createShaderParam<int>(SHADERID_EROSION, "u_Texture");
+    m_pErosionIsLastParam = pCM->createShaderParam<int>(SHADERID_EROSION, "u_bIsLast");
     
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(size));
 }

@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "GPUFilter.h"
-#include "GLShaderParam.h"
+#include "MCShaderParam.h"
 #include "MCTexture.h"
 
 namespace avg {
@@ -50,15 +50,15 @@ private:
     MCTexturePtr m_pGaussCurveTex;
     ImagingProjectionPtr m_pProjection2;
 
-    FloatGLShaderParamPtr m_pHorizWidthParam;
-    IntGLShaderParamPtr m_pHorizRadiusParam;
-    IntGLShaderParamPtr m_pHorizTextureParam;
-    IntGLShaderParamPtr m_pHorizKernelTexParam;
+    FloatMCShaderParamPtr m_pHorizWidthParam;
+    IntMCShaderParamPtr m_pHorizRadiusParam;
+    IntMCShaderParamPtr m_pHorizTextureParam;
+    IntMCShaderParamPtr m_pHorizKernelTexParam;
 
-    FloatGLShaderParamPtr m_pVertWidthParam;
-    IntGLShaderParamPtr m_pVertRadiusParam;
-    IntGLShaderParamPtr m_pVertTextureParam;
-    IntGLShaderParamPtr m_pVertKernelTexParam;
+    FloatMCShaderParamPtr m_pVertWidthParam;
+    IntMCShaderParamPtr m_pVertRadiusParam;
+    IntMCShaderParamPtr m_pVertTextureParam;
+    IntMCShaderParamPtr m_pVertKernelTexParam;
 };
 
 typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;

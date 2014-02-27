@@ -24,6 +24,7 @@
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
 #include "FBO.h"
+#include "GLContextManager.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -49,11 +50,11 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
     GLContext::getCurrent()->ensureFullShaders("GPUBandpassFilter");
 
     setDimensions(size);
-    OGLShaderPtr pShader = getShader();
-    m_pMinTexParam = pShader->getParam<int>("u_MinTex");
-    m_pMaxTexParam = pShader->getParam<int>("u_MaxTex");
-    m_pPostScaleParam = pShader->getParam<float>("u_PostScale");
-    m_pInvertParam = pShader->getParam<int>("u_bInvert");
+    GLContextManager* pCM = GLContextManager::get();
+    m_pMinTexParam = pCM->createShaderParam<int>(SHADERID, "u_MinTex");
+    m_pMaxTexParam = pCM->createShaderParam<int>(SHADERID, "u_MaxTex");
+    m_pPostScaleParam = pCM->createShaderParam<float>(SHADERID, "u_PostScale");
+    m_pInvertParam = pCM->createShaderParam<int>(SHADERID, "u_bInvert");
 }
 
 GPUBandpassFilter::~GPUBandpassFilter()

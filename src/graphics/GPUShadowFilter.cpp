@@ -50,24 +50,24 @@ GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset,
     GLContext::getCurrent()->ensureFullShaders("GPUShadowFilter");
 
     setDimensions(size, stdDev, offset);
-    GLContextManager::get()->createShader(SHADERID_VERT);
+    GLContextManager* pCM = GLContextManager::get();
+    pCM->createShader(SHADERID_VERT);
     setParams(offset, stdDev, opacity, color);
-    OGLShaderPtr pShader = getShader();
-    m_pHorizWidthParam = pShader->getParam<float>("u_Width");
-    m_pHorizRadiusParam = pShader->getParam<int>("u_Radius");
-    m_pHorizTextureParam = pShader->getParam<int>("u_Texture");
-    m_pHorizKernelTexParam = pShader->getParam<int>("u_KernelTex");
-    m_pHorizOffsetParam = pShader->getParam<glm::vec2>("u_Offset");
+    
+    m_pHorizWidthParam = pCM->createShaderParam<float>(SHADERID_HORIZ, "u_Width");
+    m_pHorizRadiusParam = pCM->createShaderParam<int>(SHADERID_HORIZ, "u_Radius");
+    m_pHorizTextureParam = pCM->createShaderParam<int>(SHADERID_HORIZ, "u_Texture");
+    m_pHorizKernelTexParam = pCM->createShaderParam<int>(SHADERID_HORIZ, "u_KernelTex");
+    m_pHorizOffsetParam = pCM->createShaderParam<glm::vec2>(SHADERID_HORIZ, "u_Offset");
 
-    pShader = avg::getShader(SHADERID_VERT);
-    m_pVertWidthParam = pShader->getParam<float>("u_Width");
-    m_pVertRadiusParam = pShader->getParam<int>("u_Radius");
-    m_pVertTextureParam = pShader->getParam<int>("u_HBlurTex");
-    m_pVertKernelTexParam = pShader->getParam<int>("u_KernelTex");
-    m_pVertColorParam = pShader->getParam<Pixel32>("u_Color");
-    m_pVertOrigTexParam = pShader->getParam<int>("u_OrigTex");
-    m_pVertDestPosParam = pShader->getParam<glm::vec2>("u_DestPos");
-    m_pVertDestSizeParam = pShader->getParam<glm::vec2>("u_DestSize");
+    m_pVertWidthParam = pCM->createShaderParam<float>(SHADERID_VERT, "u_Width");
+    m_pVertRadiusParam = pCM->createShaderParam<int>(SHADERID_VERT, "u_Radius");
+    m_pVertTextureParam = pCM->createShaderParam<int>(SHADERID_VERT, "u_HBlurTex");
+    m_pVertKernelTexParam = pCM->createShaderParam<int>(SHADERID_VERT, "u_KernelTex");
+    m_pVertColorParam = pCM->createShaderParam<Pixel32>(SHADERID_VERT, "u_Color");
+    m_pVertOrigTexParam = pCM->createShaderParam<int>(SHADERID_VERT, "u_OrigTex");
+    m_pVertDestPosParam = pCM->createShaderParam<glm::vec2>(SHADERID_VERT, "u_DestPos");
+    m_pVertDestSizeParam = pCM->createShaderParam<glm::vec2>(SHADERID_VERT, "u_DestSize");
 }
 
 GPUShadowFilter::~GPUShadowFilter()

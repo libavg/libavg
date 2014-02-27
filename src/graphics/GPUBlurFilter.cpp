@@ -53,20 +53,19 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     GLContext::getCurrent()->ensureFullShaders("GPUBlurFilter");
 
     setDimensions(size, stdDev, bClipBorders);
-    GLContextManager::get()->createShader(SHADERID_VERT);
+    GLContextManager* pCM = GLContextManager::get();
+    pCM->createShader(SHADERID_VERT);
     setStdDev(stdDev);
 
-    OGLShaderPtr pShader = getShader();
-    m_pHorizWidthParam = pShader->getParam<float>("u_Width");
-    m_pHorizRadiusParam = pShader->getParam<int>("u_Radius");
-    m_pHorizTextureParam = pShader->getParam<int>("u_Texture");
-    m_pHorizKernelTexParam = pShader->getParam<int>("u_KernelTex");
+    m_pHorizWidthParam = pCM->createShaderParam<float>(SHADERID_HORIZ, "u_Width");
+    m_pHorizRadiusParam = pCM->createShaderParam<int>(SHADERID_HORIZ, "u_Radius");
+    m_pHorizTextureParam = pCM->createShaderParam<int>(SHADERID_HORIZ, "u_Texture");
+    m_pHorizKernelTexParam = pCM->createShaderParam<int>(SHADERID_HORIZ, "u_KernelTex");
 
-    pShader = avg::getShader(SHADERID_VERT);
-    m_pVertWidthParam = pShader->getParam<float>("u_Width");
-    m_pVertRadiusParam = pShader->getParam<int>("u_Radius");
-    m_pVertTextureParam = pShader->getParam<int>("u_Texture");
-    m_pVertKernelTexParam = pShader->getParam<int>("u_KernelTex");
+    m_pVertWidthParam = pCM->createShaderParam<float>(SHADERID_VERT, "u_Width");
+    m_pVertRadiusParam = pCM->createShaderParam<int>(SHADERID_VERT, "u_Radius");
+    m_pVertTextureParam = pCM->createShaderParam<int>(SHADERID_VERT, "u_Texture");
+    m_pVertKernelTexParam = pCM->createShaderParam<int>(SHADERID_VERT, "u_KernelTex");
 }
 
 GPUBlurFilter::~GPUBlurFilter()

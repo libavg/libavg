@@ -22,6 +22,7 @@
 #include "GPUInvertFilter.h"
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
+#include "GLContextManager.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
@@ -37,7 +38,8 @@ GPUInvertFilter::GPUInvertFilter(const IntPoint& size, bool bUseAlpha, bool bSta
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    m_pTextureParam = getShader()->getParam<int>("u_Texture");
+    GLContextManager* pCM = GLContextManager::get();
+    m_pTextureParam = pCM->createShaderParam<int>(SHADERID_INVERT_COLOR, "u_Texture");
 }
 
 GPUInvertFilter::~GPUInvertFilter()

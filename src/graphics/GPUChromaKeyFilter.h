@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "GPUFilter.h"
-#include "GLShaderParam.h"
+#include "MCShaderParam.h"
 #include "Bitmap.h"
 
 namespace avg {
@@ -50,21 +50,21 @@ private:
     float m_SpillThreshold;
     ImagingProjectionPtr m_pProjection2;
     
-    IntGLShaderParamPtr m_pTextureParam;
-    FloatGLShaderParamPtr m_pHKeyParam;
-    FloatGLShaderParamPtr m_pHToleranceParam;
-    FloatGLShaderParamPtr m_pHSoftToleranceParam;
-    FloatGLShaderParamPtr m_pSKeyParam;
-    FloatGLShaderParamPtr m_pSToleranceParam;
-    FloatGLShaderParamPtr m_pSSoftToleranceParam;
-    FloatGLShaderParamPtr m_pLKeyParam;
-    FloatGLShaderParamPtr m_pLToleranceParam;
-    FloatGLShaderParamPtr m_pLSoftToleranceParam;
-    FloatGLShaderParamPtr m_pSpillThresholdParam;
-    IntGLShaderParamPtr m_pIsLastParam;
+    IntMCShaderParamPtr m_pTextureParam;
+    FloatMCShaderParamPtr m_pHKeyParam;
+    FloatMCShaderParamPtr m_pHToleranceParam;
+    FloatMCShaderParamPtr m_pHSoftToleranceParam;
+    FloatMCShaderParamPtr m_pSKeyParam;
+    FloatMCShaderParamPtr m_pSToleranceParam;
+    FloatMCShaderParamPtr m_pSSoftToleranceParam;
+    FloatMCShaderParamPtr m_pLKeyParam;
+    FloatMCShaderParamPtr m_pLToleranceParam;
+    FloatMCShaderParamPtr m_pLSoftToleranceParam;
+    FloatMCShaderParamPtr m_pSpillThresholdParam;
+    IntMCShaderParamPtr m_pIsLastParam;
 
-    IntGLShaderParamPtr m_pErosionTextureParam;
-    IntGLShaderParamPtr m_pErosionIsLastParam;
+    IntMCShaderParamPtr m_pErosionTextureParam;
+    IntMCShaderParamPtr m_pErosionIsLastParam;
 };
 
 typedef boost::shared_ptr<GPUChromaKeyFilter> GPUChromaKeyFilterPtr;

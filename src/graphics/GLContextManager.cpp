@@ -154,7 +154,7 @@ MCFBOPtr GLContextManager::createFBO(const IntPoint& size, PixelFormat pf,
     return pFBO;
 }
 
-void GLContextManager::createShader(const std::string& sID)
+void GLContextManager::createShader(const string& sID)
 {
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_pContexts.size(); ++i) {
@@ -247,6 +247,11 @@ void GLContextManager::uploadDataForContext()
     for (unsigned i=0; i<m_pPendingFBOCreates.size(); ++i) {
         m_pPendingFBOCreates[i]->initForGLContext();
     }
+
+    for (unsigned i=0; i<m_pPendingShaderParamCreates.size(); ++i) {
+        m_pPendingShaderParamCreates[i]->initForGLContext();
+    }
+    
 }
 
 void GLContextManager::reset()
@@ -256,6 +261,7 @@ void GLContextManager::reset()
     m_PendingTexDeletes.clear();
 
     m_pPendingFBOCreates.clear();
+    m_pPendingShaderParamCreates.clear();
 
     m_pPendingVACreates.clear();
     m_PendingBufferDeletes.clear();

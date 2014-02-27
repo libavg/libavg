@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
+#include "GLContextManager.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -43,9 +44,9 @@ GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, bool bUseAlpha,
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
 
-    OGLShaderPtr pShader = getShader();
-    m_pTextureParam = pShader->getParam<int>("u_Texture");
-    m_pAlphaParam = pShader->getParam<float>("u_Alpha");
+    GLContextManager* pCM = GLContextManager::get();
+    m_pTextureParam = pCM->createShaderParam<int>(SHADERID, "u_Texture");
+    m_pAlphaParam = pCM->createShaderParam<float>(SHADERID, "u_Alpha");
 }
 
 GPUBrightnessFilter::~GPUBrightnessFilter()

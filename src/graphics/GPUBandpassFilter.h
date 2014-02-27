@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "GPUFilter.h"
 #include "GPUBlurFilter.h"
+#include "MCShaderParam.h"
 #include "Bitmap.h"
 
 namespace avg {
@@ -45,10 +46,10 @@ private:
     GPUBlurFilter m_MinFilter;
     GPUBlurFilter m_MaxFilter;
 
-    IntGLShaderParamPtr m_pMinTexParam;
-    IntGLShaderParamPtr m_pMaxTexParam;
-    FloatGLShaderParamPtr m_pPostScaleParam;
-    IntGLShaderParamPtr m_pInvertParam;
+    IntMCShaderParamPtr m_pMinTexParam;
+    IntMCShaderParamPtr m_pMaxTexParam;
+    FloatMCShaderParamPtr m_pPostScaleParam;
+    IntMCShaderParamPtr m_pInvertParam;
 };
 
 }

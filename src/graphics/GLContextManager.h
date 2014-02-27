@@ -25,6 +25,7 @@
 
 #include "PixelFormat.h"
 #include "GLContext.h"
+#include "MCShaderParam.h"
 
 #include <map>
 
@@ -66,6 +67,15 @@ public:
             bool bUseStencil=false, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
     void createShader(const std::string& sID);
+    template<class VAL_TYPE>
+    boost::shared_ptr<MCShaderParamTemplate<VAL_TYPE> > createShaderParam(
+            const std::string& sShaderName, const std::string& sParamName)
+    {
+        boost::shared_ptr<MCShaderParamTemplate<VAL_TYPE> > pParam(
+                new MCShaderParamTemplate<VAL_TYPE>(sShaderName, sParamName));
+        m_pPendingShaderParamCreates.push_back(pParam);
+        return pParam;
+    }
 
     void scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp);
     MCTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false, 
@@ -95,6 +105,7 @@ private:
     std::vector<unsigned> m_PendingTexDeletes;
 
     std::vector<MCFBOPtr> m_pPendingFBOCreates;
+    std::vector<MCShaderParamPtr> m_pPendingShaderParamCreates;
 
     std::vector<VertexArrayPtr> m_pPendingVACreates;
     std::vector<BufferIDMap> m_PendingBufferDeletes;

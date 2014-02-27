@@ -24,6 +24,7 @@
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
 #include "BitmapLoader.h"
+#include "GLContextManager.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -42,7 +43,8 @@ GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    m_pTextureParam = getShader()->getParam<int>("u_Texture");
+    m_pTextureParam = 
+            GLContextManager::get()->createShaderParam<int>(SHADERID, "u_Texture");
 }
 
 GPUNullFilter::~GPUNullFilter()
