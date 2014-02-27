@@ -29,6 +29,7 @@
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/GLContextManager.h"
+#include "../graphics/MCFBO.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -116,7 +117,7 @@ void RasterNode::disconnect(bool bKill)
     if (m_pSurface) {
         m_pSurface->destroy();
     }
-    m_pFBO = FBOPtr();
+    m_pFBO = MCFBOPtr();
     m_pImagingProjection = ImagingProjectionPtr();
     if (bKill) {
         m_pFXNode = FXNodePtr();
@@ -318,7 +319,7 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
         m_pFXNode->disconnect();
     }
     if (m_pFXNode && !pFXNode) {
-        m_pFBO = FBOPtr();
+        m_pFBO = MCFBOPtr();
     }
     m_pFXNode = pFXNode;
     if (getState() == NS_CANRENDER) {
@@ -428,24 +429,23 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         m_pImagingProjection->setColor(color);
         m_pImagingProjection->draw(StandardShader::get()->getShader());
 
-/*
         static int i=0;
         stringstream ss;
         ss << "node" << i << ".png";
         BitmapPtr pBmp = m_pFBO->getImage(0);
         pBmp->save(ss.str());
-*/    
-        m_pFXNode->apply(m_pFBO->getTex());
+    
+        m_pFXNode->apply(m_pFBO->getTex()->getCurTex());
         
-/*        
+        
         stringstream ss1;
         ss1 << "nodefx" << i << ".png";
         i++;
         m_pFXNode->getImage()->save(ss1.str());
-*/
-        m_bFXDirty = false;
-        m_pSurface->resetDirty();
-        m_pFXNode->resetDirty();
+
+//        m_bFXDirty = false;
+//        m_pSurface->resetDirty();
+//        m_pFXNode->resetDirty();
     }
 }
 
@@ -471,7 +471,7 @@ void RasterNode::newSurface()
 
 void RasterNode::setupFX(bool bNewFX)
 {
-    if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
+    if (m_pSurface && m_pSurface->getSize() != IntPoint(-1,-1) && m_pFXNode) {
         if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFXNode->setSize(m_pSurface->getSize());
             m_pFXNode->connect();
@@ -479,12 +479,14 @@ void RasterNode::setupFX(bool bNewFX)
         }
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
-            m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
-                    getMipmap()));
-            GLTexturePtr pTex = m_pFBO->getTex();
-#ifndef AVG_ENABLE_EGL
-            pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+#ifdef AVG_ENABLE_EGL
+            unsigned wrapMode = GL_CLAMP_TO_EDGE;
+#else
+            unsigned wrapMode = GL_CLAMP_TO_BORDER;
 #endif
+            GLContextManager* pCM = GLContextManager::get();
+            m_pFBO = pCM->createFBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
+                    false, getMipmap(), wrapMode, wrapMode);
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
                     m_pSurface->getSize()));
         }

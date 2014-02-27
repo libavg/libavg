@@ -28,6 +28,7 @@
 #include "GLTexture.h"
 #include "MCTexture.h"
 #include "VertexArray.h"
+#include "MCFBO.h"
 
 
 namespace avg {
@@ -59,6 +60,8 @@ GLContextManager::~GLContextManager()
     m_pPendingTexUploads.clear();
     m_PendingTexDeletes.clear();
 
+    m_pPendingFBOCreates.clear();
+
     m_pPendingVACreates.clear();
     m_PendingBufferDeletes.clear();
 
@@ -82,6 +85,16 @@ GLTexturePtr GLContextManager::createGLTexture(const IntPoint& size, PixelFormat
     GLTexturePtr pTex(new GLTexture(size, pf, bMipmap, wrapSMode, wrapTMode, bForcePOT,
             potBorderColor));
     return pTex;
+}
+
+MCFBOPtr GLContextManager::createFBO(const IntPoint& size, PixelFormat pf, 
+        unsigned numTextures, unsigned multisampleSamples, bool bUsePackedDepthStencil,
+        bool bUseStencil, bool bMipmap, unsigned wrapSMode, unsigned wrapTMode)
+{
+    MCFBOPtr pFBO(new MCFBO(size, pf, numTextures, multisampleSamples, 
+            bUsePackedDepthStencil, bUseStencil, bMipmap, wrapSMode, wrapTMode));
+    m_pPendingFBOCreates.push_back(pFBO);
+    return pFBO;
 }
 
 void GLContextManager::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
@@ -152,6 +165,10 @@ void GLContextManager::uploadData()
         BitmapPtr pBmp = it->second;
         pTex->moveBmpToTexture(pBmp);
     }
+
+    for (unsigned i=0; i<m_pPendingFBOCreates.size(); ++i) {
+        m_pPendingFBOCreates[i]->initForGLContext();
+    }
 }
 
 void GLContextManager::reset()
@@ -159,6 +176,8 @@ void GLContextManager::reset()
     m_pPendingTexCreates.clear();
     m_pPendingTexUploads.clear();
     m_PendingTexDeletes.clear();
+
+    m_pPendingFBOCreates.clear();
 
     m_pPendingVACreates.clear();
     m_PendingBufferDeletes.clear();

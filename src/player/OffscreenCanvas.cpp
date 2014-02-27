@@ -80,8 +80,8 @@ void OffscreenCanvas::initPlayback()
     }
     GLContextManager* pCM = GLContextManager::get();
     bool bUseDepthBuffer = pDisplayEngine->getWindow(0)->getGLContext()->useDepthBuffer();
-    m_pFBO = MCFBOPtr(new MCFBO(getSize(), pf, 1, getMultiSampleSamples(),
-            bUseDepthBuffer, true, m_bUseMipmaps));
+    m_pFBO = pCM->createFBO(getSize(), pf, 1, getMultiSampleSamples(),
+            bUseDepthBuffer, true, m_bUseMipmaps);
     unsigned numWindows = pDisplayEngine->getNumWindows();
     try {
         for (unsigned i=0; i<numWindows; ++i) {
@@ -89,7 +89,6 @@ void OffscreenCanvas::initPlayback()
             GLContext* pContext = pWindow->getGLContext();
             pContext->activate();
             pCM->uploadData();
-            m_pFBO->initForGLContext();
         }
     } catch (...) {
         pCM->reset();

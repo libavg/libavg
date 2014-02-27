@@ -70,12 +70,6 @@ void MCTexture::generateMipmaps()
     getCurTex()->generateMipmaps();
 }
 
-void MCTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
-{
-    TexInfo::setWrapMode(wrapSMode, wrapTMode);
-    getCurTex()->setWrapMode(wrapSMode, wrapTMode);
-}
-
 void MCTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
     getCurTex()->moveBmpToTexture(pBmp);

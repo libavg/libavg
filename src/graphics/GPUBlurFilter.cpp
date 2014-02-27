@@ -24,6 +24,7 @@
 #include "ShaderRegistry.h"
 #include "ImagingProjection.h"
 #include "OGLShader.h"
+#include "FBO.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"

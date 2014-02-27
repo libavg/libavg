@@ -89,11 +89,23 @@ class MultiWindowTestCase(AVGTestCase):
                 (renderCanvas,
                 ))
 
+    def testMultiWindowFX(self):
+        root = self.loadEmptyScene()
+        player.setWindowConfig("avgwindowconfig.xml")
+        node = avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
+        node.setEffect(avg.NullFXNode())
+        self.start(False,
+                (lambda: self.compareImage("testMultiWindowFX1"),
+                ))
+        
+        
+
 def multiWindowTestSuite(tests):
     availableTests = (
             "testMultiWindowBase",
             "testMultiWindowApp",
             "testMultiWindowCanvas",
-            "testMultiWindowManualCanvas"
+            "testMultiWindowManualCanvas",
+            "testMultiWindowFX"
             )
     return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)

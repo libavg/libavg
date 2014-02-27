@@ -46,7 +46,6 @@ public:
     void initForGLContext();
     void activate(int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
-    virtual void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);

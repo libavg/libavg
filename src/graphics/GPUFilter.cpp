@@ -28,6 +28,7 @@
 #include "ShaderRegistry.h"
 #include "Filterfliprgb.h"
 #include "BitmapLoader.h"
+#include "MCFBO.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -115,7 +116,7 @@ void GPUFilter::apply(GLTexturePtr pSrcTex)
 
 GLTexturePtr GPUFilter::getDestTex(int i) const
 {
-    return m_pFBOs[i]->getTex();
+    return m_pFBOs[i]->getTex()->getCurTex();
 }
 
 BitmapPtr GPUFilter::getImage() const
@@ -125,7 +126,7 @@ BitmapPtr GPUFilter::getImage() const
 
 FBOPtr GPUFilter::getFBO(int i)
 {
-    return m_pFBOs[i];
+    return m_pFBOs[i]->getCurFBO();
 }
 
 const IntRect& GPUFilter::getDestRect() const
@@ -155,10 +156,11 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
 {
     bool bProjectionChanged = false;
     if (destRect != m_DestRect) {
+        GLContextManager* pCM = GLContextManager::get();
         m_pFBOs.clear();
         for (unsigned i=0; i<m_NumTextures; ++i) {
-            FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
-                    m_bMipmap));
+            MCFBOPtr pFBO = pCM->createFBO(destRect.size(), m_PFDest, 1, 1, false,
+                    false, m_bMipmap);
             m_pFBOs.push_back(pFBO);
         }
         m_DestRect = destRect;

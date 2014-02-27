@@ -38,6 +38,8 @@ class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+class MCFBO;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 
 class AVG_API GLContextManager
 {
@@ -54,6 +56,11 @@ public:
     GLTexturePtr createGLTexture(const IntPoint& size, PixelFormat pf, 
             bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
             bool bForcePOT, int potBorderColor);
+    MCFBOPtr createFBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
+            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
+            bool bUseStencil=false, bool bMipmap=false,
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+
     void scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp);
     MCTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false, 
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
@@ -75,6 +82,8 @@ private:
     typedef std::map<MCTexturePtr, BitmapPtr> TexUploadMap;
     TexUploadMap m_pPendingTexUploads;
     std::vector<unsigned> m_PendingTexDeletes;
+
+    std::vector<MCFBOPtr> m_pPendingFBOCreates;
 
     std::vector<VertexArrayPtr> m_pPendingVACreates;
     std::vector<BufferIDMap> m_PendingBufferDeletes;

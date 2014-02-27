@@ -27,6 +27,8 @@
 
 #include "../base/Exception.h"
 
+using namespace std;
+
 namespace avg {
 
 ImagingProjection::ImagingProjection(IntPoint size)

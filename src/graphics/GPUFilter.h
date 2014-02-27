@@ -26,7 +26,6 @@
 #include "Filter.h"
 #include "Bitmap.h"
 #include "TextureMover.h"
-#include "FBO.h"
 
 namespace avg {
 
@@ -34,6 +33,10 @@ class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 class OGLShader;
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
+class MCFBO;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 
 class AVG_API GPUFilter: public Filter
 {
@@ -74,7 +77,7 @@ private:
 
     GLTexturePtr m_pSrcTex;
     TextureMoverPtr m_pSrcMover;
-    std::vector<FBOPtr> m_pFBOs;
+    std::vector<MCFBOPtr> m_pFBOs;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
     OGLShaderPtr m_pShader;

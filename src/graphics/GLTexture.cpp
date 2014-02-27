@@ -122,14 +122,6 @@ void GLTexture::generateMipmaps()
     }
 }
 
-void GLTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
-{
-    TexInfo::setWrapMode(wrapSMode, wrapTMode);
-    activate();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
-}
-
 void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
     TextureMoverPtr pMover = TextureMover::create(getSize(), getPF(), GL_DYNAMIC_DRAW);

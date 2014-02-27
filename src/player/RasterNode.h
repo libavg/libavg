@@ -39,8 +39,8 @@ namespace avg {
 class OGLSurface;
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
-class FBO;
-typedef boost::shared_ptr<FBO> FBOPtr;
+class MCFBO;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
 
@@ -147,7 +147,7 @@ class AVG_API RasterNode: public AreaNode
         glm::vec3 m_Intensity;
         glm::vec3 m_Contrast;
 
-        FBOPtr m_pFBO;
+        MCFBOPtr m_pFBO;
         FXNodePtr m_pFXNode;
         bool m_bFXDirty;
         ImagingProjectionPtr m_pImagingProjection;
