@@ -668,7 +668,7 @@ def AVTestSuite(tests):
             "testVideoEOF",
             "testVideoSeekAfterEOF",
             "testException",
-#            "testVideoWriter",
+            "testVideoWriter",
             "test2VideosAtOnce",
             "testVideoAccel",
             ]
