@@ -105,6 +105,11 @@ class MultiWindowTestCase(AVGTestCase):
             self.videoNode.setEffect(avg.NullFXNode())
             self.videoNode.play()
 
+        def addWords():
+            self.videoNode.unlink(True)
+            self.wordsNode = avg.WordsNode(text="WordsNode", color="FF0000", parent=root)
+            self.wordsNode.setEffect(avg.NullFXNode())
+
         root = self.loadEmptyScene()
         player.setWindowConfig("avgwindowconfig.xml")
         node = avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
@@ -120,6 +125,10 @@ class MultiWindowTestCase(AVGTestCase):
                  lambda: self.compareImage("testMultiWindowFXVideo1"),
                  lambda: setHueSat(self.videoNode),
                  lambda: self.compareImage("testMultiWindowFXVideo2"),
+                 addWords,
+                 lambda: self.compareImage("testMultiWindowFXWords1"),
+                 lambda: setHueSat(self.wordsNode),
+                 lambda: self.compareImage("testMultiWindowFXWords2"),
                 ))
         
         
