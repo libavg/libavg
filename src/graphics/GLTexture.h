@@ -36,10 +36,12 @@ class GLContext;
 class AVG_API GLTexture: public TexInfo {
 
 public:
+    // Try to avoid constructing GLTextures directly - use 
+    // GLContextManager::createTexture()
+    GLTexture(const TexInfo& texInfo);
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
             bool bForcePOT=false, int potBorderColor=0);
-    GLTexture(const TexInfo& texInfo);
     virtual ~GLTexture();
     void init();
 

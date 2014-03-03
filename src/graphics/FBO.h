@@ -41,9 +41,6 @@ namespace avg {
 class AVG_API FBO: public FBOInfo
 {
 public:
-    FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
-            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
-            bool bUseStencil=false, bool bMipmap=false);
     FBO(const FBOInfo& fboInfo, const std::vector<GLTexturePtr>& pTex);
     virtual ~FBO();
 

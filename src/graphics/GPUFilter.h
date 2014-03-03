@@ -78,7 +78,7 @@ private:
     unsigned m_NumTextures;
     bool m_bMipmap;
 
-    GLTexturePtr m_pSrcTex;
+    MCTexturePtr m_pSrcTex;
     TextureMoverPtr m_pSrcMover;
     std::vector<MCFBOPtr> m_pFBOs;
     IntPoint m_SrcSize;

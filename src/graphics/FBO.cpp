@@ -44,22 +44,6 @@ namespace avg {
 #define GL_DEPTH_STENCIL_EXT GL_DEPTH24_STENCIL8_OES
 #endif
 
-FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
-        unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bUseStencil,
-        bool bMipmap)
-    : FBOInfo(size, pf, numTextures, multisampleSamples, bUsePackedDepthStencil,
-            bUseStencil, bMipmap)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-    for (unsigned i=0; i<numTextures; ++i) {
-        GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
-        pTex->generateMipmaps();
-        GLContext::checkError("FBO::FBO: generateMipmaps");
-        m_pTextures.push_back(pTex);
-    }
-    init();
-}
-
 FBO::FBO(const FBOInfo& fboInfo, const vector<GLTexturePtr>& pTex)
     : FBOInfo(fboInfo)
 {

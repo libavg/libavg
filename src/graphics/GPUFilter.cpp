@@ -90,8 +90,8 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
         GLContextManager::get()->uploadData();
         m_bIsInitialized = true;
     }
-    m_pSrcMover->moveBmpToTexture(pBmpSource, *m_pSrcTex);
-    apply(m_pSrcTex);
+    m_pSrcMover->moveBmpToTexture(pBmpSource, *(m_pSrcTex->getCurTex()));
+    apply(m_pSrcTex->getCurTex());
     BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage();
 
     BitmapPtr pTmpBmp;
@@ -175,10 +175,11 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
         bProjectionChanged = true;
     }
     if (m_bStandalone && srcSize != m_SrcSize) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
+        m_pSrcTex = MCTexturePtr(new MCTexture(srcSize, m_PFSrc, false, texMode, 
                 texMode, 0));
         m_pSrcMover = TextureMover::create(srcSize, m_PFSrc, GL_STREAM_DRAW);
         bProjectionChanged = true;
+        m_bIsInitialized = false;
     }
     m_SrcSize = srcSize;
     if (bProjectionChanged) {

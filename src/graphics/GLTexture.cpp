@@ -44,6 +44,15 @@ using namespace std;
 // don't overlap.
 unsigned GLTexture::s_LastTexID = 10000000;
 
+GLTexture::GLTexture(const TexInfo& texInfo)
+    : TexInfo(texInfo),
+      m_bDeleteTex(true)      
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+    init();
+
+}
+
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
     : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap), 
@@ -52,15 +61,6 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
-}
-
-GLTexture::GLTexture(const TexInfo& texInfo)
-    : TexInfo(texInfo),
-      m_bDeleteTex(true)      
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-    init();
-
 }
 
 GLTexture::~GLTexture()
