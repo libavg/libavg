@@ -241,6 +241,8 @@ void Canvas::preRender()
     m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
 }
 
+static ProfilingZoneID RootRenderProfilingZone("RootNode: render");
+
 void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewport)
 {
     pWindow->getGLContext()->activate();
@@ -267,8 +269,10 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
             !pFBO);
     GLContext::checkError("Canvas::renderWindow: glViewport()");
     m_pVertexArray->activate();
-    m_pRootNode->maybeRender(projMat);
-
+    {
+        ScopeTimer timer(RootRenderProfilingZone);
+        m_pRootNode->maybeRender(projMat);
+    }
     renderOutlines(projMat);
 }
 

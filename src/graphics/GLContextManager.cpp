@@ -24,6 +24,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/Backtrace.h"
+#include "../base/ScopeTimer.h"
 
 #include "GLTexture.h"
 #include "MCTexture.h"
@@ -198,8 +199,11 @@ void GLContextManager::uploadData()
     reset();
 }
 
+static ProfilingZoneID UploadDataProfilingZone("uploadData");
+
 void GLContextManager::uploadDataForContext()
 {
+    ScopeTimer timer(UploadDataProfilingZone);
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_PendingBufferDeletes.size(); ++i) {
         glproc::DeleteBuffers(1, &m_PendingBufferDeletes[i][pContext]);

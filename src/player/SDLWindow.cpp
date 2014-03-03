@@ -160,7 +160,7 @@ void SDLWindow::setTitle(const string& sTitle)
     SDL_WM_SetCaption(sTitle.c_str(), 0);
 }
 
-static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
+static ProfilingZoneID SwapBufferProfilingZone("Render - SDL swap buffers");
 
 void SDLWindow::swapBuffers() const
 {
