@@ -53,7 +53,6 @@ GPUFilter::GPUFilter(const string& sShaderID, bool bUseAlpha,
       m_DestRect(0,0,0,0),
       m_bIsInitialized(false)
 {
-    cerr << "GPUFilter: " << sShaderID << endl;
     m_PFSrc = BitmapLoader::get()->getDefaultPixelFormat(bUseAlpha);
     m_PFDest = m_PFSrc;
     GLContextManager::get()->createShader(sShaderID);
@@ -175,8 +174,8 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
         bProjectionChanged = true;
     }
     if (m_bStandalone && srcSize != m_SrcSize) {
-        m_pSrcTex = MCTexturePtr(new MCTexture(srcSize, m_PFSrc, false, texMode, 
-                texMode, 0));
+        m_pSrcTex = GLContextManager::get()->createTexture(srcSize, m_PFSrc, false, 
+                texMode, texMode, 0);
         m_pSrcMover = TextureMover::create(srcSize, m_PFSrc, GL_STREAM_DRAW);
         bProjectionChanged = true;
         m_bIsInitialized = false;
