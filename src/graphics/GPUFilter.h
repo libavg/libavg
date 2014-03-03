@@ -84,6 +84,8 @@ private:
     IntPoint m_SrcSize;
     IntRect m_DestRect;
     ImagingProjectionPtr m_pProjection;
+
+    bool m_bIsInitialized;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;

@@ -50,8 +50,10 @@ GPUFilter::GPUFilter(const string& sShaderID, bool bUseAlpha,
       m_NumTextures(numTextures),
       m_bMipmap(bMipmap),
       m_SrcSize(0,0),
-      m_DestRect(0,0,0,0)
+      m_DestRect(0,0,0,0),
+      m_bIsInitialized(false)
 {
+    cerr << "GPUFilter: " << sShaderID << endl;
     m_PFSrc = BitmapLoader::get()->getDefaultPixelFormat(bUseAlpha);
     m_PFDest = m_PFSrc;
     GLContextManager::get()->createShader(sShaderID);
@@ -68,7 +70,8 @@ GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
       m_NumTextures(numTextures),
       m_bMipmap(bMipmap),
       m_SrcSize(0,0),
-      m_DestRect(0,0,0,0)
+      m_DestRect(0,0,0,0),
+      m_bIsInitialized(false)
 {
     GLContextManager::get()->createShader(sShaderID);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -83,6 +86,10 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pSrcTex);
     AVG_ASSERT(!(m_pFBOs.empty()));
+    if (!m_bIsInitialized) {
+        GLContextManager::get()->uploadData();
+        m_bIsInitialized = true;
+    }
     m_pSrcMover->moveBmpToTexture(pBmpSource, *m_pSrcTex);
     apply(m_pSrcTex);
     BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage();
