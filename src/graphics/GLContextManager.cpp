@@ -135,15 +135,6 @@ MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat p
     return pTex;
 }
 
-GLTexturePtr GLContextManager::createGLTexture(const IntPoint& size, PixelFormat pf, 
-        bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
-        bool bForcePOT, int potBorderColor)
-{
-    GLTexturePtr pTex(new GLTexture(size, pf, bMipmap, wrapSMode, wrapTMode, bForcePOT,
-            potBorderColor));
-    return pTex;
-}
-
 MCFBOPtr GLContextManager::createFBO(const IntPoint& size, PixelFormat pf, 
         unsigned numTextures, unsigned multisampleSamples, bool bUsePackedDepthStencil,
         bool bUseStencil, bool bMipmap, unsigned wrapSMode, unsigned wrapTMode)
@@ -175,15 +166,6 @@ MCTexturePtr GLContextManager::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap
     MCTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
             wrapSMode, wrapTMode, bForcePOT, potBorderColor);
     scheduleTexUpload(pTex, pBmp);
-    return pTex;
-}
-
-GLTexturePtr GLContextManager::createGLTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
-{
-    GLTexturePtr pTex = createGLTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
-            wrapSMode, wrapTMode, bForcePOT, potBorderColor);
-    pTex->moveBmpToTexture(pBmp);
     return pTex;
 }
 
