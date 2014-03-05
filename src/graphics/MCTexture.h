@@ -28,6 +28,7 @@
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
+#include <map>
 
 namespace avg {
 
