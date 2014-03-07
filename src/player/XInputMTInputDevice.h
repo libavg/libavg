@@ -57,8 +57,6 @@ private:
 
     static int filterEvent(const SDL_Event * pEvent);
 
-    int m_LastID;
-
     static ::Display* s_pDisplay;
     void (*m_SDLLockFunc)(void);
     void (*m_SDLUnlockFunc)(void);

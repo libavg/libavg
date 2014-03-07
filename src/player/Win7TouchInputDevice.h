@@ -52,7 +52,6 @@ private:
 
     HWND m_Hwnd;
     WNDPROC m_OldWndProc;
-    int m_LastID;
     IntPoint m_ClientAreaOffset;
 
 #ifdef SM_DIGITIZER

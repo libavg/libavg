@@ -49,8 +49,7 @@ const char* cookieTypeToName(int evtype);
 string xEventTypeToName(int evtype);
 
 XInputMTInputDevice::XInputMTInputDevice()
-    : m_LastID(0),
-      m_DeviceID(-1)
+    : m_DeviceID(-1)
 {
 }
 
@@ -152,8 +151,8 @@ void XInputMTInputDevice::handleXIEvent(const XEvent& xEvent)
             case XI_TouchBegin:
                 {
 //                    cerr << "TouchBegin " << xid << ", " << pos << endl;
-                    m_LastID++;
-                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSOR_DOWN, pos);
+                    TouchEventPtr pEvent = createEvent(getNextContactID(),
+                            Event::CURSOR_DOWN, pos);
                     addTouchStatus(xid, pEvent);
                 }
                 break;

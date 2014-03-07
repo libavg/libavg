@@ -126,4 +126,10 @@ boost::mutex& MultitouchInputDevice::getMutex()
     return *m_pMutex;
 }
 
+int MultitouchInputDevice::getNextContactID()
+{
+    static int lastID = 0;
+    return lastID++;
+}
+
 }

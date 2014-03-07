@@ -67,7 +67,6 @@ private:
             Event::Source source);
 
     UdpListeningReceiveSocket* m_pSocket;
-    int m_LastID;
     unsigned m_RemoteIP;
 #ifndef WIN32
     pthread_t m_Thread;

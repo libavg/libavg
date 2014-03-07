@@ -67,6 +67,8 @@ protected:
     IntPoint getScreenPos(const glm::vec2& pos) const;
     boost::mutex& getMutex();
 
+    static int getNextContactID();
+
 private:
     TouchIDMap m_TouchIDMap;
     std::vector<TouchStatusPtr> m_Touches;

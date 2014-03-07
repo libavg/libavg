@@ -50,7 +50,6 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
 
 TUIOInputDevice::TUIOInputDevice()
     : m_pSocket(0),
-      m_LastID(0),
       m_RemoteIP(0)
 {
 }
@@ -180,9 +179,8 @@ void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args)
     TouchEventPtr pEvent;
     if (!pTouchStatus) {
         // Down
-        m_LastID++;
-        pEvent = TouchEventPtr(new TouchEvent(m_LastID, Event::CURSOR_DOWN, screenPos,
-                Event::TOUCH));
+        pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), Event::CURSOR_DOWN, 
+                screenPos, Event::TOUCH));
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
@@ -212,9 +210,8 @@ void TUIOInputDevice::processTangibleSet(ReceivedMessageArgumentStream& args)
     TangibleEventPtr pEvent;
     if (!pTouchStatus) {
         // Down
-        m_LastID++;
-        pEvent = TangibleEventPtr(new TangibleEvent(m_LastID, classID, Event::CURSOR_DOWN,
-                screenPos, speed, angle));
+        pEvent = TangibleEventPtr(new TangibleEvent(getNextContactID(), classID, 
+                Event::CURSOR_DOWN, screenPos, speed, angle));
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
