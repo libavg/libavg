@@ -48,9 +48,6 @@
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
-#ifdef __APPLE__
-    #include "AppleTrackpadInputDevice.h"
-#endif
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     #include "Win7TouchInputDevice.h"
 #endif
@@ -682,14 +679,10 @@ void Player::enableMultitouch()
         throw Exception(AVG_ERR_MT_INIT,
                 "XInput multitouch event source: Support not configured.'");
 #endif
-#ifdef __APPLE__
-    } else if (sDriver == "APPLETRACKPAD") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new AppleTrackpadInputDevice);
-#endif
     } else if (sDriver == "TRACKER") {
         m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
     } else {
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER and TUIO.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }

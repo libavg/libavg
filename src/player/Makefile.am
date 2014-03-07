@@ -4,7 +4,7 @@ AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         $(MTDEV_CFLAGS)
 
 if APPLE
-    APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
+    APPLE_SOURCES = SDLMain.m
     APPLE_LINKFLAGS = -read_only_relocs suppress -F/System/Library/PrivateFrameworks \
             -framework MultitouchSupport
     XGL_LIBS =
