@@ -38,7 +38,7 @@ typedef bool (WINAPI* CTIHPROC)(HTOUCHINPUT);
 class AVG_API Win7TouchInputDevice: public MultitouchInputDevice
 {
 public:
-    Win7TouchInputDevice();
+    Win7TouchInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
     virtual ~Win7TouchInputDevice();
     virtual void start();
 

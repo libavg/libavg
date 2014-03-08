@@ -51,7 +51,7 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public InputDevice
     typedef std::map<BlobPtr, TrackerTouchStatusPtr> TouchStatusMap;
 
     public:
-        TrackerInputDevice();
+        TrackerInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
         virtual ~TrackerInputDevice();
         void start();
 

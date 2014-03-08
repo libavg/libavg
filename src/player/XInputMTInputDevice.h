@@ -44,7 +44,7 @@ typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 class AVG_API XInputMTInputDevice: public MultitouchInputDevice
 {
 public:
-    XInputMTInputDevice();
+    XInputMTInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
     virtual ~XInputMTInputDevice();
     virtual void start();
 

@@ -37,7 +37,8 @@ namespace avg {
 
 Win7TouchInputDevice* Win7TouchInputDevice::s_pInstance(0);
 
-Win7TouchInputDevice::Win7TouchInputDevice()
+Win7TouchInputDevice::Win7TouchInputDevice(const DivNodePtr& pEventReceiverNode)
+    : MultitouchInputDevice(pEventReceiverNode)
 {
     s_pInstance = this;
 }

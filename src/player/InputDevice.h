@@ -47,7 +47,6 @@ class AVG_API InputDevice {
         virtual std::vector<EventPtr> pollEvents() = 0;
 
         const DivNodePtr& getEventReceiverNode() const;
-        void setEventReceiverNode(const DivNodePtr pEventReceiverNode);
         const std::string& getName() const;
 
     private:

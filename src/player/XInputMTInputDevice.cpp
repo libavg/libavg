@@ -48,8 +48,9 @@ namespace avg {
 const char* cookieTypeToName(int evtype);
 string xEventTypeToName(int evtype);
 
-XInputMTInputDevice::XInputMTInputDevice()
-    : m_DeviceID(-1)
+XInputMTInputDevice::XInputMTInputDevice(const DivNodePtr& pEventReceiverNode)
+    : MultitouchInputDevice(pEventReceiverNode),
+      m_DeviceID(-1)
 {
 }
 

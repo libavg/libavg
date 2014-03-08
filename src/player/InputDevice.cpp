@@ -40,11 +40,6 @@ const DivNodePtr& InputDevice::getEventReceiverNode() const
     return m_pEventReceiverNode;
 }
 
-void InputDevice::setEventReceiverNode(const DivNodePtr pEventReceiverNode)
-{
-    m_pEventReceiverNode = pEventReceiverNode;
-}
-
 const std::string& InputDevice::getName() const
 {
     return m_sName;

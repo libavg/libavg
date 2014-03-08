@@ -48,8 +48,9 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
     return 0;
 };
 
-TUIOInputDevice::TUIOInputDevice()
-    : m_pSocket(0),
+TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode)
+    : MultitouchInputDevice(pEventReceiverNode),
+      m_pSocket(0),
       m_RemoteIP(0)
 {
 }
