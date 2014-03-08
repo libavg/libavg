@@ -36,11 +36,16 @@ namespace avg {
 MultitouchInputDevice::MultitouchInputDevice(const DivNodePtr& pEventReceiverNode)
     : InputDevice("MultitouchInputDevice", pEventReceiverNode)
 {
-    m_TouchArea = ConfigMgr::get()->getSizeOption("touch", "area");
-    if (m_TouchArea.x == 0) {
-        m_TouchArea = Player::get()->getScreenResolution();
+    if (pEventReceiverNode) {
+        m_TouchOffset = IntPoint(0,0);
+        m_TouchArea = pEventReceiverNode->getSize();
+    } else {
+        m_TouchArea = ConfigMgr::get()->getSizeOption("touch", "area");
+        if (m_TouchArea.x == 0) {
+            m_TouchArea = Player::get()->getScreenResolution();
+        }
+        m_TouchOffset = ConfigMgr::get()->getSizeOption("touch", "offset");
     }
-    m_TouchOffset = ConfigMgr::get()->getSizeOption("touch", "offset");
 }
 
 MultitouchInputDevice::~MultitouchInputDevice()
