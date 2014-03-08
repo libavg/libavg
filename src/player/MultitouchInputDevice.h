@@ -23,7 +23,7 @@
 #define _MultitouchInputDevice_H_
 
 #include "../api.h"
-#include "IInputDevice.h"
+#include "InputDevice.h"
 
 #include "../base/GLMHelper.h"
 #include "../base/ConfigMgr.h"
@@ -43,7 +43,7 @@ typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 class Event;
 typedef boost::shared_ptr<Event> EventPtr;
 
-class AVG_API MultitouchInputDevice: public IInputDevice
+class AVG_API MultitouchInputDevice: public InputDevice
 {
 public:
     MultitouchInputDevice();

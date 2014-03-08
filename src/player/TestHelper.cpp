@@ -41,7 +41,7 @@ using namespace std;
 namespace avg {
     
 TestHelper::TestHelper()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TestHelper))
+    : InputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TestHelper))
 {
 }
 
@@ -105,7 +105,7 @@ TypeMap TestHelper::getObjectCount()
     return ObjectCounter::get()->getObjectCount();
 }
 
-// From IInputDevice
+// From InputDevice
 std::vector<EventPtr> TestHelper::pollEvents()
 {
     vector<EventPtr> events = m_Events;

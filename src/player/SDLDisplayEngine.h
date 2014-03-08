@@ -23,7 +23,7 @@
 #define _SDLDisplayEngine_H_
 
 #include "../api.h"
-#include "IInputDevice.h"
+#include "InputDevice.h"
 #include "DisplayEngine.h"
 
 #include "../graphics/GLConfig.h"
@@ -45,7 +45,7 @@ class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class GLContext;
 
-class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
+class AVG_API SDLDisplayEngine: public DisplayEngine, public InputDevice
 {
     public:
         static void initSDL();
@@ -68,7 +68,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void showCursor(bool bShow);
         virtual BitmapPtr screenshot(int buffer=0);
 
-        // From IInputDevice
+        // From InputDevice
         virtual std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
 

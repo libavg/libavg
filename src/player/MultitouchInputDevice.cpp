@@ -34,7 +34,7 @@ using namespace std;
 namespace avg {
 
 MultitouchInputDevice::MultitouchInputDevice()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(MultitouchInputDevice))
+    : InputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(MultitouchInputDevice))
 {
     m_TouchArea = ConfigMgr::get()->getSizeOption("touch", "area");
     if (m_TouchArea.x == 0) {

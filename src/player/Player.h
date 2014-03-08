@@ -135,7 +135,7 @@ class AVG_API Player: public Publisher
         bool clearInterval(int id);
         void callFromThread(PyObject * pyfunc);
 
-        void addInputDevice(IInputDevicePtr pSource);
+        void addInputDevice(InputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
         EventPtr getCurrentEvent() const;
         TrackerInputDevice * getTracker();
@@ -235,7 +235,7 @@ class AVG_API Player: public Publisher
         bool m_bIsTraversingTree;
         bool m_bStopping;
 
-        IInputDevicePtr m_pMultitouchInputDevice;
+        InputDevicePtr m_pMultitouchInputDevice;
 
         // Timeout handling
         int internalSetTimeout(int time, PyObject * pyfunc, bool bIsInterval);

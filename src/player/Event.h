@@ -32,9 +32,9 @@
 
 namespace avg {
 
-class IInputDevice;
-typedef boost::shared_ptr<class IInputDevice> IInputDevicePtr;
-typedef boost::weak_ptr<class IInputDevice> IInputDeviceWeakPtr;
+class InputDevice;
+typedef boost::shared_ptr<class InputDevice> InputDevicePtr;
+typedef boost::weak_ptr<class InputDevice> InputDeviceWeakPtr;
 
 class AVG_API Event {
     public:
@@ -59,8 +59,8 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        IInputDevicePtr getInputDevice() const;
-        void setInputDevice(IInputDevicePtr pInputDevice);
+        InputDevicePtr getInputDevice() const;
+        void setInputDevice(InputDevicePtr pInputDevice);
         bool hasInputDevice() const;
         const std::string& getInputDeviceName() const;
         
@@ -79,7 +79,7 @@ class AVG_API Event {
         int m_Counter;
         Source m_Source;
 
-        IInputDeviceWeakPtr m_pInputDevice;
+        InputDeviceWeakPtr m_pInputDevice;
         static int s_CurCounter;
 };
 

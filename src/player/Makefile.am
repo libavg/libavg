@@ -40,7 +40,7 @@ GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
-ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h ExportedObject.h \
+ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         DisplayEngine.h TypeRegistry.h Arg.h ArgBase.h ArgList.h \
         Node.h AreaNode.h DisplayParams.h TypeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
@@ -99,7 +99,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
         TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
-        SoundNode.cpp FontStyle.cpp TangibleEvent.cpp \
+        SoundNode.cpp FontStyle.cpp TangibleEvent.cpp InputDevice.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         Contact.cpp TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \

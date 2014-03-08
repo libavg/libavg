@@ -23,7 +23,7 @@
 #define _EventDispatcher_h_
 
 #include "../api.h"
-#include "IInputDevice.h"
+#include "InputDevice.h"
 
 #include <vector>
 #include <map>
@@ -42,7 +42,7 @@ class AVG_API EventDispatcher {
         virtual ~EventDispatcher();
         void dispatch();
         
-        void addInputDevice(IInputDevicePtr pInputDevice);
+        void addInputDevice(InputDevicePtr pInputDevice);
 
         void sendEvent(EventPtr pEvent);
         void enableMouse(bool bEnabled);
@@ -54,7 +54,7 @@ class AVG_API EventDispatcher {
         void testAddContact(EventPtr pEvent);
         void testRemoveContact(EventPtr pEvent);
 
-        std::vector<IInputDevicePtr> m_InputDevices;
+        std::vector<InputDevicePtr> m_InputDevices;
         Player* m_pPlayer;
         std::map<int, ContactPtr> m_ContactMap;
         int m_NumMouseButtonsDown;

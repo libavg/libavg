@@ -537,7 +537,7 @@ void Player::initPlayback(const std::string& sShaderPath)
         throw;
     }
     m_pEventDispatcher->addInputDevice(
-            boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
+            boost::dynamic_pointer_cast<InputDevice>(m_pDisplayEngine));
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
 
     m_pDisplayEngine->initRender();
@@ -607,7 +607,7 @@ void Player::setFakeFPS(float fps)
     }
 }
 
-void Player::addInputDevice(IInputDevicePtr pSource)
+void Player::addInputDevice(InputDevicePtr pSource)
 {
     if (!m_pEventDispatcher) {
         throw Exception(AVG_ERR_UNSUPPORTED,
@@ -667,20 +667,20 @@ void Player::enableMultitouch()
 #endif
     }
     if (sDriver == "TUIO") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new TUIOInputDevice);
+        m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new Win7TouchInputDevice);
+        m_pMultitouchInputDevice = InputDevicePtr(new Win7TouchInputDevice);
 #endif
     } else if (sDriver == "XINPUT" || sDriver == "XINPUT21") {
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        m_pMultitouchInputDevice =  IInputDevicePtr(new XInputMTInputDevice);
+        m_pMultitouchInputDevice =  InputDevicePtr(new XInputMTInputDevice);
 #else
         throw Exception(AVG_ERR_MT_INIT,
                 "XInput multitouch event source: Support not configured.'");
 #endif
     } else if (sDriver == "TRACKER") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
+        m_pMultitouchInputDevice = InputDevicePtr(new TrackerInputDevice);
     } else {
         AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER and TUIO.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
@@ -690,7 +690,7 @@ void Player::enableMultitouch()
         try {
             m_pMultitouchInputDevice->start();
         } catch (Exception&) {
-            m_pMultitouchInputDevice = IInputDevicePtr();
+            m_pMultitouchInputDevice = InputDevicePtr();
             throw;
         }
     }
@@ -1725,7 +1725,7 @@ void Player::cleanup(bool bIsAbort)
     }
 
     if (m_pMultitouchInputDevice) {
-        m_pMultitouchInputDevice = IInputDevicePtr();
+        m_pMultitouchInputDevice = InputDevicePtr();
     }
     for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
         m_pCanvases[i]->stopPlayback(bIsAbort);
