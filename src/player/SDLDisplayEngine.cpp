@@ -114,7 +114,7 @@ void SDLDisplayEngine::quitSDL()
 }
 
 SDLDisplayEngine::SDLDisplayEngine()
-    : InputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
+    : InputDevice("SDLDisplayEngine"),
       m_WindowSize(0,0),
       m_pScreen(0),
       m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 

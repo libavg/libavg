@@ -26,7 +26,7 @@ using namespace std;
 namespace avg {
 
 InputDevice::InputDevice(const string& sName, const DivNodePtr& pEventReceiverNode)
-    : m_sName(name),
+    : m_sName(sName),
       m_pEventReceiverNode(pEventReceiverNode)
 {
 }

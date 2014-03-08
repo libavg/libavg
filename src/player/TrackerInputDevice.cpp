@@ -57,7 +57,7 @@ using namespace std;
 namespace avg {
 
 TrackerInputDevice::TrackerInputDevice()
-    : InputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TrackerInputDevice)),
+    : InputDevice("TrackerInputDevice"),
       m_pTrackerThread(0),
       m_bSubtractHistory(true),
       m_pCalibrator(0)

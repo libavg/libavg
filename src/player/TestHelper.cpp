@@ -41,7 +41,7 @@ using namespace std;
 namespace avg {
     
 TestHelper::TestHelper()
-    : InputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TestHelper))
+    : InputDevice("TestHelper")
 {
 }
 
