@@ -26,7 +26,7 @@
 #include "../base/ObjectCounter.h"
 #include "../graphics/Bitmap.h"
 #include "Event.h"
-#include "IInputDevice.h"
+#include "InputDevice.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -40,7 +40,7 @@ typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
-class AVG_API TestHelper : public IInputDevice
+class AVG_API TestHelper : public InputDevice
 {
     public: 
         TestHelper();
@@ -61,7 +61,7 @@ class AVG_API TestHelper : public IInputDevice
         void dumpObjects();
         TypeMap getObjectCount();
 
-        // From IInputDevice
+        // From InputDevice
         virtual std::vector<EventPtr> pollEvents();
 
     private:

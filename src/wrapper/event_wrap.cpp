@@ -37,17 +37,17 @@ using namespace avg;
 using namespace std;
 
 
-class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice>
+class InputDeviceWrapper : public InputDevice, public wrapper<InputDevice>
 {
     public:
-        IInputDeviceWrapper(const std::string& name,
+        InputDeviceWrapper(const std::string& name,
                 const DivNodePtr& pEventReceiverNode=DivNodePtr())
-            : IInputDevice(name, pEventReceiverNode)
+            : InputDevice(name, pEventReceiverNode)
         {
         }
 
-        IInputDeviceWrapper(const IInputDevice& inputDevice)
-            : IInputDevice(inputDevice)
+        InputDeviceWrapper(const InputDevice& inputDevice)
+            : InputDevice(inputDevice)
         {
         }
 
@@ -57,12 +57,12 @@ class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice>
             if (startMethod) {
                 startMethod();
             }
-            IInputDevice::start();
+            InputDevice::start();
         }
 
         void default_start() 
         {
-            return this->IInputDevice::start();
+            return this->InputDevice::start();
         }
 
         virtual std::vector<EventPtr> pollEvents() 
@@ -218,20 +218,20 @@ void export_event()
         .export_values()
     ;
 
-    class_<IInputDevicePtr>("IInputDevice")
+    class_<InputDevicePtr>("InputDevice")
     ;
 
-    class_< IInputDeviceWrapper,
-            boost::shared_ptr<IInputDeviceWrapper>,
+    class_< InputDeviceWrapper,
+            boost::shared_ptr<InputDeviceWrapper>,
             boost::noncopyable
     >("InputDevice", init<const std::string&, optional<const DivNodePtr&> >())
-        .def("start", &IInputDevice::start, &IInputDeviceWrapper::default_start)
-        .def("pollEvents", pure_virtual(&IInputDevice::pollEvents))
+        .def("start", &InputDevice::start, &InputDeviceWrapper::default_start)
+        .def("pollEvents", pure_virtual(&InputDevice::pollEvents))
         .add_property("name",
-                      make_function(&IInputDevice::getName,
+                      make_function(&InputDevice::getName,
                                     return_value_policy<copy_const_reference>()))
         .add_property("eventreceivernode",
-                      make_function(&IInputDevice::getEventReceiverNode,
+                      make_function(&InputDevice::getEventReceiverNode,
                                     return_value_policy<copy_const_reference>()))
     ;
 

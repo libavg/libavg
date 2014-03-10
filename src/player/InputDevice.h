@@ -19,12 +19,14 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IInputDevice_H_
-#define _IInputDevice_H_
+#ifndef _InputDevice_H_
+#define _InputDevice_H_
 
 #include "../api.h"
 #include "DivNode.h"
+
 #include <boost/shared_ptr.hpp>
+
 #include <vector>
 #include <string>
 
@@ -34,46 +36,25 @@ class Event;
 typedef boost::shared_ptr<Event> EventPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 
-class AVG_API IInputDevice {
+class AVG_API InputDevice {
     public:
-        IInputDevice(const std::string& name,
-                const DivNodePtr& pEventReceiverNode=DivNodePtr())
-            : m_sName(name),
-              m_pEventReceiverNode(pEventReceiverNode)
-        {
-        }
+        InputDevice(const std::string& sName,
+                const DivNodePtr& pEventReceiverNode=DivNodePtr());
 
-        virtual ~IInputDevice()
-        {
-        };
+        virtual ~InputDevice();
 
-        virtual void start()
-        {
-        };
-
+        virtual void start() {};
         virtual std::vector<EventPtr> pollEvents() = 0;
 
-        const DivNodePtr& getEventReceiverNode() const
-        {
-            return m_pEventReceiverNode;
-        }
-
-        void setEventReceiverNode(const DivNodePtr pEventReceiverNode)
-        {
-            m_pEventReceiverNode = pEventReceiverNode;
-        }
-
-        const std::string& getName() const
-        {
-            return m_sName;
-        }
+        const DivNodePtr& getEventReceiverNode() const;
+        const std::string& getName() const;
 
     private:
         std::string m_sName;
         DivNodePtr m_pEventReceiverNode;
 };
 
-typedef boost::shared_ptr<IInputDevice> IInputDevicePtr;
+typedef boost::shared_ptr<InputDevice> InputDevicePtr;
 
 }
 

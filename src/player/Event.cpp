@@ -20,7 +20,7 @@
 //
 
 #include "Event.h"
-#include "IInputDevice.h"
+#include "InputDevice.h"
 #include "Player.h"
 
 #include "../base/TimeSource.h"
@@ -78,7 +78,7 @@ Event::Source Event::getSource() const
     return m_Source;
 }
 
-IInputDevicePtr Event::getInputDevice() const
+InputDevicePtr Event::getInputDevice() const
 {
     return m_pInputDevice.lock();
 }
@@ -88,7 +88,7 @@ bool Event::hasInputDevice() const
     return !m_pInputDevice.expired();
 }
 
-void Event::setInputDevice(IInputDevicePtr pInputDevice)
+void Event::setInputDevice(InputDevicePtr pInputDevice)
 {
     m_pInputDevice = pInputDevice;
 }

@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "DisplayParams.h"
-#include "IInputDevice.h"
+#include "InputDevice.h"
 
 #include "../graphics/GLConfig.h"
 #include "../graphics/Bitmap.h"
@@ -45,7 +45,7 @@ class SDLWindow;
 typedef boost::shared_ptr<class SDLWindow> SDLWindowPtr;
 class GLContext;
 
-class AVG_API DisplayEngine: public IInputDevice
+class AVG_API DisplayEngine: public InputDevice
 {   
     public:
         static void initSDL();
@@ -84,7 +84,7 @@ class AVG_API DisplayEngine: public IInputDevice
 
         BitmapPtr screenshot(int buffer=0);
 
-        // From IInputDevice
+        // From InputDevice
         std::vector<EventPtr> pollEvents();
 
     protected:

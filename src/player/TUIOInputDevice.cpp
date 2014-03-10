@@ -48,9 +48,10 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
     return 0;
 };
 
-TUIOInputDevice::TUIOInputDevice()
-    : m_pSocket(0),
-      m_LastID(0)
+TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode)
+    : MultitouchInputDevice(pEventReceiverNode),
+      m_pSocket(0),
+      m_RemoteIP(0)
 {
 }
 
@@ -95,33 +96,38 @@ void TUIOInputDevice::start()
 #endif
 }
 
+unsigned TUIOInputDevice::getRemoteIP() const
+{
+    return m_RemoteIP;
+}
+
 void TUIOInputDevice::ProcessPacket(const char* pData, int size, 
         const IpEndpointName& remoteEndpoint)
 {
     lock_guard lock(getMutex());
+    m_RemoteIP = remoteEndpoint.address;
     try {
         ReceivedPacket packet(pData, size);
         if (packet.IsBundle()) {
-            processBundle(ReceivedBundle(packet), remoteEndpoint);
+            processBundle(ReceivedBundle(packet));
         } else {
-            processMessage(ReceivedMessage(packet), remoteEndpoint);
+            processMessage(ReceivedMessage(packet));
         }
     } catch (osc::Exception& e) {
         AVG_LOG_WARNING("OSC exception: " << e.what());
     }
 }
 
-void TUIOInputDevice::processBundle(const ReceivedBundle& bundle, 
-        const IpEndpointName& remoteEndpoint) 
+void TUIOInputDevice::processBundle(const ReceivedBundle& bundle) 
 {
     try {
         for (ReceivedBundle::const_iterator it = bundle.ElementsBegin(); 
                 it != bundle.ElementsEnd(); ++it) 
         {
             if (it->IsBundle()) {
-                processBundle(ReceivedBundle(*it), remoteEndpoint);
+                processBundle(ReceivedBundle(*it));
             } else {
-                processMessage(ReceivedMessage(*it), remoteEndpoint);
+                processMessage(ReceivedMessage(*it));
             }
         }
     } catch (osc::Exception& e) {
@@ -129,8 +135,7 @@ void TUIOInputDevice::processBundle(const ReceivedBundle& bundle,
     }
 }
 
-void TUIOInputDevice::processMessage(const ReceivedMessage& msg, 
-        const IpEndpointName& remoteEndpoint) 
+void TUIOInputDevice::processMessage(const ReceivedMessage& msg) 
 {
     try {
         ReceivedMessageArgumentStream args = msg.ArgumentStream();
@@ -175,9 +180,8 @@ void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args)
     TouchEventPtr pEvent;
     if (!pTouchStatus) {
         // Down
-        m_LastID++;
-        pEvent = TouchEventPtr(new TouchEvent(m_LastID, Event::CURSOR_DOWN, screenPos,
-                Event::TOUCH));
+        pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), Event::CURSOR_DOWN, 
+                screenPos, Event::TOUCH));
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
@@ -207,9 +211,8 @@ void TUIOInputDevice::processTangibleSet(ReceivedMessageArgumentStream& args)
     TangibleEventPtr pEvent;
     if (!pTouchStatus) {
         // Down
-        m_LastID++;
-        pEvent = TangibleEventPtr(new TangibleEvent(m_LastID, classID, Event::CURSOR_DOWN,
-                screenPos, speed, angle));
+        pEvent = TangibleEventPtr(new TangibleEvent(getNextContactID(), classID, 
+                Event::CURSOR_DOWN, screenPos, speed, angle));
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move

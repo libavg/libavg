@@ -44,7 +44,7 @@ typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 class AVG_API XInputMTInputDevice: public MultitouchInputDevice
 {
 public:
-    XInputMTInputDevice();
+    XInputMTInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
     virtual ~XInputMTInputDevice();
     virtual void start();
 
@@ -56,8 +56,6 @@ private:
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
 
     static int filterEvent(const SDL_Event * pEvent);
-
-    int m_LastID;
 
     static ::Display* s_pDisplay;
     void (*m_SDLLockFunc)(void);

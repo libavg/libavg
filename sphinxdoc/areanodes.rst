@@ -595,7 +595,7 @@ Area Nodes
 
             Returns the index of the video frame currently playing.
 
-        .. py:method:: getCurTime()
+        .. py:method:: getCurTime() -> long
 
             Returns milliseconds of playback time since video start.
 

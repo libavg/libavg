@@ -37,8 +37,8 @@ namespace avg {
 
 Win7TouchInputDevice* Win7TouchInputDevice::s_pInstance(0);
 
-Win7TouchInputDevice::Win7TouchInputDevice()
-    : m_LastID(0)
+Win7TouchInputDevice::Win7TouchInputDevice(const DivNodePtr& pEventReceiverNode)
+    : MultitouchInputDevice(pEventReceiverNode)
 {
     s_pInstance = this;
 }
@@ -152,9 +152,8 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
         if (pTouchInput->dwFlags & TOUCHEVENTF_DOWN) {
 //            cerr << "down: " << pos << endl; 
-            m_LastID++;
-            TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSOR_DOWN, pos,
-                    Event::TOUCH));
+            TouchEventPtr pEvent (new TouchEvent(getNextContactID(), Event::CURSOR_DOWN,
+                    pos, Event::TOUCH));
             addTouchStatus((long)pTouchInput->dwID, pEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
 //            cerr << "up: " << pos << endl; 

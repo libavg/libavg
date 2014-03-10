@@ -41,10 +41,12 @@ namespace avg {
 class AVG_API TUIOInputDevice: public MultitouchInputDevice, PacketListener
 {
 public:
-    TUIOInputDevice();
+    TUIOInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
     virtual ~TUIOInputDevice();
     virtual void start();
-    
+   
+    virtual unsigned getRemoteIP() const;
+
     virtual void ProcessPacket(const char* pData, int size, 
             const IpEndpointName& remoteEndpoint);
 
@@ -54,10 +56,8 @@ private:
 #else
     static DWORD WINAPI threadFunc(LPVOID p);
 #endif
-    void processBundle(const osc::ReceivedBundle& bundle, 
-            const IpEndpointName& remoteEndpoint);
-    void processMessage(const osc::ReceivedMessage& msg, 
-        const IpEndpointName& remoteEndpoint);
+    void processBundle(const osc::ReceivedBundle& bundle);
+    void processMessage(const osc::ReceivedMessage& msg);
     void processTouchSet(osc::ReceivedMessageArgumentStream& args);
     void processTangibleSet(osc::ReceivedMessageArgumentStream& args);
     void processAlive(osc::ReceivedMessageArgumentStream& args, 
@@ -67,7 +67,7 @@ private:
             Event::Source source);
 
     UdpListeningReceiveSocket* m_pSocket;
-    int m_LastID;
+    unsigned m_RemoteIP;
 #ifndef WIN32
     pthread_t m_Thread;
 #else
