@@ -94,6 +94,7 @@
     <ClCompile Include="..\..\src\player\FontStyle.cpp" />
     <ClCompile Include="..\..\src\player\FXNode.cpp" />
     <ClCompile Include="..\..\src\player\HueSatFXNode.cpp" />
+    <ClCompile Include="..\..\src\player\InputDevice.cpp" />
     <ClCompile Include="..\..\src\player\InvertFXNode.cpp" />
     <ClCompile Include="..\..\src\player\Image.cpp" />
     <ClCompile Include="..\..\src\player\ImageNode.cpp" />
@@ -178,8 +179,8 @@
     <ClInclude Include="..\..\src\player\FontStyle.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
     <ClInclude Include="..\..\src\player\HueSatFXNode.h" />
+    <ClInclude Include="..\..\src\player\InputDevice.h" />
     <ClInclude Include="..\..\src\player\InvertFXNode.h" />
-    <ClInclude Include="..\..\src\player\IInputDevice.h" />
     <ClInclude Include="..\..\src\player\Image.h" />
     <ClInclude Include="..\..\src\player\ImageNode.h" />
     <ClInclude Include="..\..\src\player\KeyEvent.h" />
