@@ -113,6 +113,12 @@ app module
             Called before libavg has been setup, just after the :samp:`App().run()` call.
             The window has not been created at this time.
 
+        .. py:method:: toggleTouchVisualization(visClass=touchvisualization.TouchVisualization)
+
+            A TouchVisualization gives the user visual feedback whenever a touch event is
+            registered. This call switches the feedback on or off.
+
+
 
 keyboardmanager Module
 ----------------------
