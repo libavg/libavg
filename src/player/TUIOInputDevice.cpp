@@ -48,11 +48,24 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
     return 0;
 };
 
-TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode)
+TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
     : MultitouchInputDevice(pEventReceiverNode),
       m_pSocket(0),
       m_RemoteIP(0)
 {
+    if (port != 0) {
+        m_Port = port;
+    } else {
+        string sPort("3333");
+        getEnv("AVG_TUIO_PORT", sPort);
+        try {
+            m_Port = stringToInt(sPort);
+        } catch (Exception&) {
+            throw Exception(AVG_ERR_TYPE, 
+                    string("TUIO event source: AVG_TUIO_PORT set to invalid value '")
+                    + sPort + "'");
+        }
+    }
 }
 
 TUIOInputDevice::~TUIOInputDevice()
@@ -64,29 +77,19 @@ TUIOInputDevice::~TUIOInputDevice()
 
 void TUIOInputDevice::start()
 {
-    string sPort("3333");
-    getEnv("AVG_TUIO_PORT", sPort);
-    int port;
-    try {
-        port = stringToInt(sPort);
-    } catch (Exception&) {
-        throw Exception(AVG_ERR_TYPE, 
-                string("TUIO event source: AVG_TUIO_PORT set to invalid value '")
-                + sPort + "'");
-    }
     MultitouchInputDevice::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
-                IpEndpointName::ANY_ADDRESS, port), this);
+                IpEndpointName::ANY_ADDRESS, m_Port), this);
     } catch (std::exception &e) {
         throw Exception(AVG_ERR_MT_INIT, 
-                string("TUIO event source: Can't initialize networking. ") + e.what());
+                string("TUIO event source (port ") + toString(port) + "). " + e.what());
     }
     if (!m_pSocket->IsBound()) {
         throw Exception(AVG_ERR_MT_INIT, "TUIO event source: Socket not bound.");
     }
     AVG_TRACE(Logger::category::CONFIG,Logger::severity::INFO,
-            "TUIO multitouch event source created, listening on port " << port);
+            "TUIO multitouch event source created, listening on port " << m_Port);
 
 #ifndef WIN32
     pthread_create(&m_Thread, NULL, threadFunc, this);

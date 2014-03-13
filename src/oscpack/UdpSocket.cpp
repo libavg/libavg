@@ -184,7 +184,9 @@ public:
         SockaddrFromIpEndpointName( bindSockAddr, localEndpoint );
 
         if (bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
-            throw std::runtime_error("unable to bind udp socket\n");
+            std::string sErr = std::string("Unable to bind UDP socket. ") + 
+                    strerror(errno);
+            throw std::runtime_error(sErr.c_str());
         }
 
         isBound_ = true;
@@ -686,7 +688,9 @@ public:
         SockaddrFromIpEndpointName( bindSockAddr, localEndpoint );
 
         if (bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
-            throw std::runtime_error("unable to bind udp socket\n");
+            std::string sErr = std::string("Unable to bind UDP socket. ") + 
+                    strerror(errno);
+            throw std::runtime_error(sErr.c_str());
         }
 
         isBound_ = true;
