@@ -35,6 +35,7 @@ from settings import Option
 import keyboardmanager
 import debugpanel
 import flashmessage
+import touchvisualization
 
 
 class MainDiv(libavg.avg.DivNode):
@@ -44,6 +45,17 @@ class MainDiv(libavg.avg.DivNode):
         assert not 'parent' in kargs
         super(MainDiv, self).__init__(**kargs)
         self.registerInstance(self, None)
+        self.__touchVisOverlay = None
+
+    def toggleTouchVisualization(self, visClass=touchvisualization.TouchVisualization):
+        if not(self.__touchVisOverlay is None):
+            self.__touchVisOverlay.unlink(True)
+            del self.__touchVisOverlay
+            self.__touchVisOverlay = None
+        else:
+            self.__touchVisOverlay = touchvisualization.TouchVisualizationOverlay(
+                    isDebug=False, visClass=visClass, size=self.size,
+                    parent=self)
 
     def onArgvParserCreated(self, parser):
         pass
@@ -76,8 +88,6 @@ class App(object):
         self._windowSize = None
         self._mtEmu = None
 
-        self.__lastFrameTimestamp = 0
-
         self._setupSettings()
 
     def run(self, mainDiv, **kargs):
@@ -105,8 +115,6 @@ class App(object):
         self._setupOnInit()
 
         self.onBeforeLaunch()
-
-        self.__lastFrameTimestamp = time.time()
 
         try:
             self._runLoop()

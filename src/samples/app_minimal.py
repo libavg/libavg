@@ -5,7 +5,7 @@ from libavg import app
 
 class MyMainDiv(app.MainDiv):
     def onInit(self):
-        pass
+        self.toggleTouchVisualization()
 
     def onExit(self):
         pass
