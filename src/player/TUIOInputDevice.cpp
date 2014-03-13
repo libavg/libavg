@@ -83,7 +83,7 @@ void TUIOInputDevice::start()
                 IpEndpointName::ANY_ADDRESS, m_Port), this);
     } catch (std::exception &e) {
         throw Exception(AVG_ERR_MT_INIT, 
-                string("TUIO event source (port ") + toString(port) + "). " + e.what());
+                string("TUIO event source (port ") + toString(m_Port) + "). " + e.what());
     }
     if (!m_pSocket->IsBound()) {
         throw Exception(AVG_ERR_MT_INIT, "TUIO event source: Socket not bound.");
