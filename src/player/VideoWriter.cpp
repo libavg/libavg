@@ -23,6 +23,7 @@
 #include "OffscreenCanvas.h"
 #include "Player.h"
 #include "DisplayEngine.h"
+#include "Window.h"
 
 #include "../graphics/FBO.h"
 #include "../graphics/GPURGB2YUVFilter.h"
@@ -80,14 +81,19 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
 #endif
     remove(m_sOutFileName.c_str());
     CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
+    DisplayEngine* pDisplayEngine = Player::get()->getDisplayEngine();
     if (pMainCanvas == m_pCanvas) {
-        m_FrameSize = Player::get()->getDisplayEngine()->getWindowSize();
+        m_FrameSize = pDisplayEngine->getWindowSize();
     } else {
         m_FrameSize = m_pCanvas->getSize();
+        GLContext* pOldContext = GLContext::getCurrent();
+        m_pMainGLContext = pDisplayEngine->getWindow(0)->getGLContext();
+        m_pMainGLContext->activate();
         m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
         if (GLContext::getCurrent()->useGPUYUVConversion()) {
             m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
         }
+        pOldContext->activate();
     }
     VideoWriterThread writer(m_CmdQueue, m_sOutFileName, m_FrameSize, m_FrameRate, 
             qMin, qMax);
@@ -173,7 +179,10 @@ void VideoWriter::onFrameEnd()
     // the VideoWriterThread.
     if (m_pFBO) {
         // Read last frame's bitmap.
+        GLContext* pOldContext = GLContext::getCurrent();
+        m_pMainGLContext->activate();
         getFrameFromPBO();
+        pOldContext->activate();
     }
     if (m_StartTime == -1) {
         m_StartTime = Player::get()->getFrameTime();
@@ -203,6 +212,8 @@ void VideoWriter::onFrameEnd()
 void VideoWriter::getFrameFromFBO()
 {
     if (m_pFBO) {
+        GLContext* pOldContext = GLContext::getCurrent();
+        m_pMainGLContext->activate();
         if (m_pFilter) {
             m_pFilter->apply(m_pFBO->getTex());
             FBOPtr pYUVFBO = m_pFilter->getFBO();
@@ -210,6 +221,7 @@ void VideoWriter::getFrameFromFBO()
         } else {
             m_pFBO->moveToPBO();
         }
+        pOldContext->activate();
         m_bFramePending = true;
     } else {
         BitmapPtr pBmp = Player::get()->getDisplayEngine()->screenshot(GL_BACK);
@@ -224,7 +236,10 @@ void VideoWriter::getFrameFromPBO()
         if (m_pFilter) {
             pBmp = m_pFilter->getFBO()->getImageFromPBO();
         } else {
+            GLContext* pOldContext = GLContext::getCurrent();
+            m_pMainGLContext->activate();
             pBmp = m_pFBO->getImageFromPBO();
+            pOldContext->activate();
         }
         sendFrameToEncoder(pBmp);
         m_bFramePending = false;
