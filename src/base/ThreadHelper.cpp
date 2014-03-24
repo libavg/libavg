@@ -26,7 +26,17 @@
 #include <Windows.h>
 #endif
 
+using namespace std;
+
 namespace avg {
+
+void printAffinityMask(cpu_set_t& mask)
+{
+    for (int i=0; i<32; ++i) {
+        cerr << int(CPU_ISSET(i, &mask));
+    }
+    cerr << endl;
+}
 
 void setAffinityMask(bool bIsMainThread)
 {

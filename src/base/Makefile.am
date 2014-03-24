@@ -23,7 +23,7 @@ libbase_la_SOURCES = FileHelper.cpp Exception.cpp Logger.cpp \
     StringHelper.cpp MathHelper.cpp GeomHelper.cpp CubicSpline.cpp \
     BezierCurve.cpp UTF8String.cpp Triangle.cpp DAG.cpp WideLine.cpp \
     Backtrace.cpp ProfilingZoneID.cpp GLMHelper.cpp \
-    WorkerThread.cpp StandardLogSink.cpp ThreadHelper.cpp \
+    StandardLogSink.cpp ThreadHelper.cpp \
     $(ALL_H)
 libbase_a_CXXFLAGS = -Wno-format-y2k
 
