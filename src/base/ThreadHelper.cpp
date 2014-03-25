@@ -30,6 +30,7 @@ using namespace std;
 
 namespace avg {
 
+#ifdef linux
 void printAffinityMask(cpu_set_t& mask)
 {
     for (int i=0; i<32; ++i) {
@@ -37,6 +38,7 @@ void printAffinityMask(cpu_set_t& mask)
     }
     cerr << endl;
 }
+#endif
 
 void setAffinityMask(bool bIsMainThread)
 {
