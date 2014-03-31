@@ -24,6 +24,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#include <Mmsystem.h>
 #endif
 
 using namespace std;
@@ -101,6 +102,15 @@ unsigned getLowestBitSet(unsigned val)
         ++pos;
     }
     return pos;
+}
+
+void yield()
+{
+#ifdef linux
+    sched_yield();
+#else
+    Sleep(1);
+#endif
 }
 
 }
