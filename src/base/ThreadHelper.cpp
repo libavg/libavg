@@ -24,9 +24,22 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#include <Mmsystem.h>
 #endif
 
+using namespace std;
+
 namespace avg {
+
+#ifdef linux
+void printAffinityMask(cpu_set_t& mask)
+{
+    for (int i=0; i<32; ++i) {
+        cerr << int(CPU_ISSET(i, &mask));
+    }
+    cerr << endl;
+}
+#endif
 
 void setAffinityMask(bool bIsMainThread)
 {
@@ -89,6 +102,15 @@ unsigned getLowestBitSet(unsigned val)
         ++pos;
     }
     return pos;
+}
+
+void yield()
+{
+#ifdef linux
+    sched_yield();
+#else
+    Sleep(1);
+#endif
 }
 
 }
