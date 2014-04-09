@@ -109,7 +109,11 @@ void yield()
 #ifdef linux
     sched_yield();
 #else
+#ifdef _WIN32
     Sleep(1);
+#else
+    sleep(1);
+#endif
 #endif
 }
 
