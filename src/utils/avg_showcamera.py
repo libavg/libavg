@@ -45,6 +45,9 @@ class ShowCamera(app.MainDiv):
         parser.add_option("-r", "--resetbus", dest="resetbus",
                 action="store_true", default=False,
                 help="reset the firewire bus")
+        parser.add_option("-c", "--capture", dest="capture",
+                action="store_true", default=False,
+                help="Capture camera image to video file 'camera.mov'.")
 
     def onArgvParsed(self, options, args, parser):
         if options.list:
@@ -95,6 +98,11 @@ class ShowCamera(app.MainDiv):
                   "must be specified"
             exit(1)
 
+        if options.capture:
+            self.capture = True
+        else:
+            self.capture = False
+
         self.optdict = {}
         for attr in dir(options):
             if attr[0] != '_':
@@ -113,21 +121,29 @@ class ShowCamera(app.MainDiv):
         avg.logger.info("unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
                 %self.optdict)
 
+        self.canvas = player.createCanvas(id="canvas", size=self.size)
+
         self.camNode = avg.CameraNode(driver=self.optdict["driver"],
                 device=self.optdict["device"], unit=self.optdict["unit"],
                 fw800=self.optdict["fw800"], framerate=self.optdict["framerate"],
                 capturewidth=self.optdict["width"], captureheight=self.optdict["height"],
-                pixelformat=self.optdict["pixelFormat"], parent=self)
+                pixelformat=self.optdict["pixelFormat"], parent=self.canvas.getRootNode())
 
         if not self.optdict["noinfo"]:
             self.infoText = ("Driver=%(driver)s (dev=%(device)s unit=%(unit)d) "
                     "%(width)dx%(height)d@%(framerate)f" %self.optdict)
             avg.WordsNode(text=self.infoText, color="ff3333", pos=(5,5), fontsize=14, 
-                    rawtextmode=True, parent=self)
+                    rawtextmode=True, parent=self.canvas.getRootNode())
             self.frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
-                    parent=self)
+                    parent=self.canvas.getRootNode())
         else:
             self.frameText = None
+
+        self.canvasImage = avg.ImageNode(href="canvas:canvas", size=self.size,
+                parent=self)
+
+        if self.capture:
+            self.videoWriter = avg.VideoWriter(self.canvas, "camera.mov", 60, 3, 5, True)
 
         self.setupKeys()
 
@@ -139,6 +155,9 @@ class ShowCamera(app.MainDiv):
             self.curFrame += 1
             self.frameText.text = "%(cam)d/%(app)d" \
                     %{"cam":self.camNode.framenum, "app":self.curFrame}
+
+    def onExit(self):
+        self.videoWriter.stop()
 
     def checkCamera(self):
         if not(self.camNode.isAvailable()):
