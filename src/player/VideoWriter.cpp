@@ -124,6 +124,9 @@ void VideoWriter::stop()
         
         m_pCanvas->unregisterFrameEndListener(this);
         m_pCanvas->unregisterPlaybackEndListener(this);
+
+        m_pFBO = FBOPtr();
+        m_pFilter = GPURGB2YUVFilterPtr();
     }
 }
 
