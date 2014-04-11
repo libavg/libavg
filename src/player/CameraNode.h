@@ -128,6 +128,7 @@ class AVG_API CameraNode : public RasterNode
         BitmapPtr m_pCurBmp;
         bool m_bIsAutoUpdateCameraImage;
         bool m_bNewBmp;
+        bool m_bNewSurface;
 
         MCTexturePtr m_pTex;
 };

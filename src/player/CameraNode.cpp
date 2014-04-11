@@ -77,7 +77,8 @@ CameraNode::CameraNode(const ArgList& args)
     : m_bIsPlaying(false),
       m_FrameNum(0),
       m_bIsAutoUpdateCameraImage(true),
-      m_bNewBmp(false)
+      m_bNewBmp(false),
+      m_bNewSurface(false)
 {
     args.setMembers(this);
     string sDriver = args.getArgVal<string>("driver");
@@ -308,16 +309,9 @@ void CameraNode::open()
     
     m_pTex = GLContextManager::get()->createTexture(size, pf, bMipmap);
     getSurface()->create(pf, m_pTex);
+    m_bNewSurface = true;
     newSurface();
 
-    BitmapPtr pBmp;
-    pBmp = BitmapPtr(new Bitmap(size, pf));
-    if (pf == B8G8R8X8 || pf == B8G8R8A8) {
-        FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
-    } else if (pf == I8) {
-        FilterFill<Pixel8>(0).applyInPlace(pBmp);
-    } 
-    m_pTex->moveBmpToTexture(pBmp);
     setupFX();
 }
 
@@ -347,14 +341,30 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();
     }
-    if (m_bNewBmp && isVisible()) {
-        ScopeTimer Timer(CameraDownloadProfilingZone);
-        m_FrameNum++;
-        m_pTex->moveBmpToTexture(m_pCurBmp);
-        getCanvas()->scheduleFXRender(
-                dynamic_pointer_cast<RasterNode>(shared_from_this()));
-        m_bNewBmp = false;
+    if (isVisible()) {
+        if (m_bNewBmp) {
+            ScopeTimer Timer(CameraDownloadProfilingZone);
+            m_FrameNum++;
+            GLContextManager::get()->scheduleTexUpload(m_pTex, m_pCurBmp);
+            getCanvas()->scheduleFXRender(
+                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
+            m_bNewBmp = false;
+        } else if (m_bNewSurface) {
+            BitmapPtr pBmp;
+            PixelFormat pf = getPixelFormat();
+            pBmp = BitmapPtr(new Bitmap(getMediaSize(), pf));
+            if (pf == B8G8R8X8 || pf == B8G8R8A8) {
+                FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
+            } else if (pf == I8) {
+                FilterFill<Pixel8>(0).applyInPlace(pBmp);
+            } 
+            GLContextManager::get()->scheduleTexUpload(m_pTex, pBmp);
+            getCanvas()->scheduleFXRender(
+                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
+        }
+        m_bNewSurface = false;
     }
+
     calcVertexArray(pVA);
 }
 
