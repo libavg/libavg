@@ -157,7 +157,8 @@ class ShowCamera(app.MainDiv):
                     %{"cam":self.camNode.framenum, "app":self.curFrame}
 
     def onExit(self):
-        self.videoWriter.stop()
+        if self.capture:
+            self.videoWriter.stop()
 
     def checkCamera(self):
         if not(self.camNode.isAvailable()):
