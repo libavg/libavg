@@ -32,6 +32,11 @@ g_helper = player.getTestHelper()
 TEST_RESOLUTION = (160, 120)
 
 class TestAppBase(libavg.AVGApp):
+    @classmethod
+    def start(cls, **kwargs):
+        with testcase.SuppressOutput():
+            super(TestAppBase, cls).start(**kwargs)
+
     def requestStop(self, timeout=0):
         player.setTimeout(timeout, player.stop)
 
