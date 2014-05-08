@@ -26,7 +26,7 @@ import sys
 import os
 import math
 
-from libavg import avg, player
+from libavg import avg, player, logger
 
 def almostEqual(a, b, epsilon):
     try:
@@ -54,6 +54,22 @@ def flatten(l):
     return ltype(l)
 
 
+class SuppressOutput(object):
+    class Blackhole(object):
+        def write(self, *args):
+            pass
+
+    def __init__(self):
+        self.__savedStreams = [sys.stdout, sys.stderr]
+
+    def __enter__(self):
+        sys.stdout = self.Blackhole()
+        sys.stderr = self.Blackhole()
+
+    def __exit__(self, *args):
+        sys.stdout, sys.stderr = self.__savedStreams
+
+
 class MouseEmulator(object):
     def __init__(self):
         self.btnStates = [False, False, False]
@@ -78,6 +94,8 @@ class AVGTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, testFuncName)
 
         player.enableGLErrorChecks(True)
+        logger.configureCategory("MEMORY", logger.Severity.ERR);
+        logger.configureCategory("DEPREC", logger.Severity.ERR);
         self.__testFuncName = testFuncName
         self.__logger = avg.logger
         self.__skipped = False

@@ -225,6 +225,8 @@ BitmapPtr V4LCamera::getImage(bool bWait)
             false, "TempCameraBmp"));
 
     BitmapPtr pDestBmp = convertCamFrameToDestPF(pCamBmp);
+//    cerr << "CamBmp: " << pCamBmp->getPixelFormat() << ", DestBmp: "
+//            << pDestBmp->getPixelFormat() << endl;
 
     // enqueues free buffer for mmap
     if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &buf)) {
@@ -544,6 +546,14 @@ void V4LCamera::startCapture()
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     int err= xioctl (m_Fd, VIDIOC_STREAMON, &type);
     AVG_ASSERT(err != -1);
+
+    if (getCamPF() == BAYER8) {
+        if (m_sModelName == "DFx 31AU03") {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Applying bayer pattern fixup for IS DFx31AU03 camera");
+            setCamPF(BAYER8_GRBG);
+        }
+    }
 }
 
 void V4LCamera::initDevice()
@@ -571,6 +581,7 @@ void V4LCamera::initDevice()
         AVG_ASSERT_MSG(false, (m_sDevice + " does not support streaming i/os").c_str());
     }
     m_sDriverName = (const char *)cap.driver;
+    m_sModelName = (const char *)cap.card;
 
     /* Select video input, video standard and tune here. */
     CLEAR(CropCap);
@@ -647,8 +658,6 @@ void V4LCamera::initDevice()
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         setFeature(it->first, it->second);
     }
-
-
 }
 
 void V4LCamera::initMMap()
