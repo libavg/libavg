@@ -59,7 +59,6 @@ GLXContext::~GLXContext()
         glXMakeCurrent(m_pDisplay, 0, 0);
         glXDestroyContext(m_pDisplay, m_Context);
         m_Context = 0;
-        XDestroyWindow(m_pDisplay, m_Drawable);
         XFreeColormap(m_pDisplay, m_Colormap);
     }
 }
