@@ -31,7 +31,7 @@ namespace avg {
 void AVG_API setAffinityMask(bool bIsMainThread);
 typedef boost::lock_guard<boost::mutex> lock_guard;
 unsigned getLowestBitSet(unsigned val);
-void yield();
+void AVG_API yield();
 
 }
 
