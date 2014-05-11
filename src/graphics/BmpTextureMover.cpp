@@ -60,7 +60,6 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             tex.getGLFormat(getPF()), tex.getGLType(getPF()), 
             pStartPos);
-    tex.setDirty();
     tex.generateMipmaps();
     GLContext::checkError("BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
 }
@@ -75,7 +74,7 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     FBO::checkError("BmpTextureMover::moveTextureToBmp");
     IntPoint size = tex.getMipmapSize(mipmapLevel);
     BitmapPtr pBmp(new Bitmap(size, getPF()));
-    if (GLContext::getMain()->isGLES() && getPF() == B5G6R5) {
+    if (GLContext::getCurrent()->isGLES() && getPF() == B5G6R5) {
         BitmapPtr pTmpBmp(new Bitmap(size, R8G8B8A8));
         glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, pTmpBmp->getPixels());
         FilterFlipRGB().applyInPlace(pTmpBmp);
@@ -92,20 +91,6 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     return pBmp;
 
-}
-
-BitmapPtr BmpTextureMover::lock()
-{
-    return m_pBmp;
-}
-
-void BmpTextureMover::unlock()
-{
-}
-
-void BmpTextureMover::moveToTexture(GLTexture& tex)
-{
-    moveBmpToTexture(m_pBmp, tex);
 }
 
 }

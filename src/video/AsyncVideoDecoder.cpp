@@ -214,7 +214,7 @@ void AsyncVideoDecoder::setFPS(float fps)
 
 static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU", true);
 
-FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
+FrameAvailableCode AsyncVideoDecoder::getRenderedBmps(vector<BitmapPtr>& pBmps,
         float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
@@ -235,6 +235,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 #ifdef AVG_ENABLE_VDPAU
             ScopeTimer timer(VDPAUDecodeProfilingZone);
             vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
+            allocFrameBmps(pBmps);
             if (pixelFormatIsPlanar(getPixelFormat())) {
                 getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
             } else {
@@ -243,9 +244,9 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 #endif
         } else {
             for (unsigned i = 0; i < pBmps.size(); ++i) {
-                pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
+                pBmps[i] = pFrameMsg->getFrameBitmap(i);
             }
-            returnFrame(pFrameMsg);
+//            returnFrame(pFrameMsg);
         }
     }
     return frameAvailable;

@@ -43,6 +43,7 @@ class FBO;
 typedef boost::shared_ptr<FBO> FBOPtr;
 class GPURGB2YUVFilter;
 typedef boost::shared_ptr<GPURGB2YUVFilter> GPURGB2YUVFilterPtr;
+class GLContext;
 
 class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  
 {
@@ -70,6 +71,7 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener
         void writeDummyFrame();
 
         CanvasPtr m_pCanvas;
+        GLContext* m_pMainGLContext;
         FBOPtr m_pFBO;
         GPURGB2YUVFilterPtr m_pFilter;
         std::string m_sOutFileName;

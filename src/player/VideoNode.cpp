@@ -32,7 +32,7 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLTexture.h"
-#include "../graphics/TextureMover.h"
+#include "../graphics/GLContextManager.h"
 
 #include "../audio/AudioEngine.h"
 
@@ -480,7 +480,7 @@ void VideoNode::startDecoding()
     if (pAudioEngine) {
         pAP = pAudioEngine->getParams();
     }
-    m_pDecoder->startDecoding(GLContext::getMain()->useGPUYUVConversion(), pAP);
+    m_pDecoder->startDecoding(GLContext::getCurrent()->useGPUYUVConversion(), pAP);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
@@ -499,7 +499,7 @@ void VideoNode::startDecoding()
     m_bSeekPending = true;
     
     createTextures(videoInfo.m_Size);
-   
+
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
@@ -510,25 +510,24 @@ void VideoNode::createTextures(IntPoint size)
 {
     PixelFormat pf = getPixelFormat();
     bool bMipmap = getMaterial().getUseMipmaps();
+    GLContextManager* pCM = GLContextManager::get();
     if (pixelFormatIsPlanar(pf)) {
-        m_pTextures[0] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
+        m_pTextures[0] = pCM->createTexture(size, I8, bMipmap);
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap, 128));
-        m_pTextures[2] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap, 128));
+        m_pTextures[1] = pCM->createTexture(halfSize, I8, bMipmap,
+                GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false, 128);
+        m_pTextures[2] = pCM->createTexture(halfSize, I8, bMipmap,
+                GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false, 128);
         if (pixelFormatHasAlpha(pf)) {
-            m_pTextures[3] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
+            m_pTextures[3] = pCM->createTexture(size, I8, bMipmap);
         }
     } else {
-        m_pTextures[0] = GLTexturePtr(new GLTexture(size, pf, bMipmap));
-    }
-    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-        m_pTextures[i]->enableStreaming();
+        m_pTextures[0] = pCM->createTexture(size, pf, bMipmap);
     }
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
-        FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
-        BitmapPtr pBmp = m_pTextures[0]->lockStreamingBmp();
-        Filter.applyInPlace(pBmp);
-        m_pTextures[0]->unlockStreamingBmp(true);
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(size, pf));
+        FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
+        pCM->scheduleTexUpload(m_pTextures[0], pBmp);
     }
     if (pixelFormatIsPlanar(pf)) {
         if (pixelFormatHasAlpha(pf)) {
@@ -656,7 +655,8 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
             }
             m_bFirstFrameDecoded |= m_bFrameAvailable;
             if (m_bFirstFrameDecoded) {
-                renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+                getCanvas()->scheduleFXRender(
+                        dynamic_pointer_cast<RasterNode>(shared_from_this()));
             }
         }
     } else {
@@ -674,6 +674,11 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         }
     }
     calcVertexArray(pVA);
+}
+
+void VideoNode::renderFX()
+{
+    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
@@ -698,26 +703,12 @@ VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
 
 bool VideoNode::renderFrame()
 {
-    FrameAvailableCode frameAvailable =
-            m_pDecoder->renderToTexture(m_pTextures, getNextFrameTime()/1000.0f);
-
-    // Even with vsync, frame duration has a bit of jitter. If the video frames rendered
-    // are at the border of a frame's time, this can cause irregular display times.
-    // So, if we detect this condition, we adjust the frame time by a small fraction
-    // to move it towards the center of the time slot.
-    long long jitter = (long long)(getNextFrameTime()-m_pDecoder->getCurTime()*1000);
-    if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
-        m_JitterCompensation += 0.05;
-        if (m_JitterCompensation > 1) {
-            m_JitterCompensation -= 1;
-        }
-    }
-
+    FrameAvailableCode frameAvailable = renderToSurface();
     if (m_pDecoder->isEOF()) {
+//        AVG_TRACE(Logger::category::PROFILE, "------------------ EOF -----------------");
         updateStatusDueToDecoderEOF();
         if (m_bLoop) {
-            frameAvailable = 
-                    m_pDecoder->renderToTexture(m_pTextures, getNextFrameTime()/1000.0f);
+            frameAvailable = renderToSurface();
         }
     }
 
@@ -774,6 +765,39 @@ bool VideoNode::renderFrame()
     return (frameAvailable == FA_NEW_FRAME);
 }
 
+FrameAvailableCode VideoNode::renderToSurface()
+{
+    FrameAvailableCode frameAvailable;
+    PixelFormat pf = m_pDecoder->getPixelFormat();
+    std::vector<BitmapPtr> pBmps;
+    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
+        pBmps.push_back(BitmapPtr());
+    }
+    if (pixelFormatIsPlanar(pf)) {
+        frameAvailable = m_pDecoder->getRenderedBmps(pBmps, getNextFrameTime()/1000.0f);
+    } else {
+        frameAvailable = m_pDecoder->getRenderedBmp(pBmps[0], getNextFrameTime()/1000.0f);
+    }
+    if (frameAvailable == FA_NEW_FRAME) {
+        for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
+            GLContextManager::get()->scheduleTexUpload(m_pTextures[i], pBmps[i]);
+        }
+    }
+
+    // Even with vsync, frame duration has a bit of jitter. If the video frames rendered
+    // are at the border of a frame's time, this can cause irregular display times.
+    // So, if we detect this condition, we adjust the frame time by a small fraction
+    // to move it towards the center of the time slot.
+    long long jitter = (long long)(getNextFrameTime()-m_pDecoder->getCurTime()*1000);
+    if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
+        m_JitterCompensation += 0.05;
+        if (m_JitterCompensation > 1) {
+            m_JitterCompensation -= 1;
+        }
+    }
+    return frameAvailable;
+}
+
 void VideoNode::onEOF()
 {
     if (m_pEOFCallback) {
@@ -787,6 +811,7 @@ void VideoNode::onEOF()
     }
     notifySubscribers("END_OF_FILE");
 }
+
 
 void VideoNode::updateStatusDueToDecoderEOF()
 {

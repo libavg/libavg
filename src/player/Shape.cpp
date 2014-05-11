@@ -107,7 +107,7 @@ void Shape::setVertexArray(const VertexArrayPtr& pVA)
 void Shape::draw(const glm::mat4& transform, float opacity)
 {
     bool bIsTextured = isTextured();
-    GLContext* pContext = GLContext::getMain();
+    GLContext* pContext = GLContext::getCurrent();
     StandardShaderPtr pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
     pShader->setAlpha(opacity);

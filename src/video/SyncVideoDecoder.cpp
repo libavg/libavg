@@ -161,7 +161,7 @@ void SyncVideoDecoder::setFPS(float fps)
 static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
 
-FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
+FrameAvailableCode SyncVideoDecoder::getRenderedBmps(vector<BitmapPtr>& pBmps, 
         float timeWanted)
 {
     AVG_ASSERT(getState() == DECODING);
@@ -176,6 +176,7 @@ FrameAvailableCode SyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     if (frameAvailable == FA_USE_LAST_FRAME || isEOF()) {
         return FA_USE_LAST_FRAME;
     } else {
+        allocFrameBmps(pBmps);
         if (pixelFormatIsPlanar(getPixelFormat())) {
             ScopeTimer timer(CopyImageProfilingZone);
             for (unsigned i = 0; i < pBmps.size(); ++i) {

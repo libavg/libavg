@@ -35,8 +35,8 @@
 
 namespace avg {
 
-class GLTexture;
-typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
 
 class AVG_API OGLSurface {
@@ -44,14 +44,14 @@ public:
     OGLSurface();
     virtual ~OGLSurface();
 
-    virtual void create(PixelFormat pf, GLTexturePtr pTex0, 
-            GLTexturePtr pTex1 = GLTexturePtr(), GLTexturePtr pTex2 = GLTexturePtr(), 
-            GLTexturePtr pTex3 = GLTexturePtr());
-    void setMask(GLTexturePtr pTex);
+    virtual void create(PixelFormat pf, MCTexturePtr pTex0, 
+            MCTexturePtr pTex1 = MCTexturePtr(), MCTexturePtr pTex2 = MCTexturePtr(), 
+            MCTexturePtr pTex3 = MCTexturePtr());
+    void setMask(MCTexturePtr pTex);
     virtual void destroy();
     void activate(const IntPoint& logicalSize = IntPoint(1,1),
             bool bPremultipliedAlpha = false) const;
-    GLTexturePtr getTex(int i=0) const;
+    MCTexturePtr getTex(int i=0) const;
 
     void setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize);
 
@@ -71,10 +71,10 @@ private:
     glm::mat4 calcColorspaceMatrix() const;
     bool colorIsModified() const;
 
-    GLTexturePtr m_pTextures[4];
+    MCTexturePtr m_pTextures[4];
     IntPoint m_Size;
     PixelFormat m_pf;
-    GLTexturePtr m_pMaskTexture;
+    MCTexturePtr m_pMaskTexture;
     glm::vec2 m_MaskPos;
     glm::vec2 m_MaskSize;
     

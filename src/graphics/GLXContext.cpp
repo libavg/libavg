@@ -33,7 +33,6 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include <limits>
 
 
 namespace avg {
@@ -41,51 +40,161 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(windowSize, pSDLWMInfo)
-{
-    GLConfig config = glConfig;
-    try {
-        createGLXContext(config, windowSize, pSDLWMInfo, true);
-    } catch (const Exception &e) {
-        if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
-            createGLXContext(config, windowSize, pSDLWMInfo, false);
-        } else {
-            exit(EXIT_FAILURE);
-        }
-    }
-    init(config, true);
-}
-
 static bool s_bX11Error;
 static bool s_bDumpX11ErrorMsg;
 static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
-int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
+GLXContext::GLXContext(const IntPoint& windowSize)
+    : GLContext(windowSize),
+      m_pDisplay(0),
+      m_bVBlankActive(false)
 {
-    if (s_bDumpX11ErrorMsg) {
-        char errorString[128]; 
-        XGetErrorText(pDisplay, pErrEvent->error_code, errorString, 128);
-        cerr << "X11 error creating GL context: " << errorString <<
-            "\n\tMajor opcode of failed request: " << (int)(pErrEvent->request_code) <<
-            "\n\tMinor opcode of failed request: " << (int)(pErrEvent->minor_code) <<
-            "\n";
-    }
-    s_bX11Error = true;
-    return 0;
+    s_bX11Error = false;
 }
 
-void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
+GLXContext::~GLXContext()
 {
-    Window win = 0;
-    s_bX11Error = false;
+    deleteObjects();
+    if (m_Context && ownsContext()) {
+        glXMakeCurrent(m_pDisplay, 0, 0);
+        glXDestroyContext(m_pDisplay, m_Context);
+        m_Context = 0;
+        XFreeColormap(m_pDisplay, m_Colormap);
+    }
+}
+
+void GLXContext::activate()
+{
+    glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
+    setCurrent();
+}
+
+bool GLXContext::initVBlank(int rate) 
+{
+    if (rate > 0) {
+        if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
+            AVG_LOG_WARNING("__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+            m_bVBlankActive = false;
+            return false;
+        } 
+        if (!queryGLXExtension("GLX_EXT_swap_control")) {
+            AVG_LOG_WARNING("Linux VBlank setup failed: OpenGL Extension not supported.");
+            m_bVBlankActive = false;
+            return false;
+        }
+
+        glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
+        m_bVBlankActive = true;
+        return true;
+
+    } else {
+        if (m_bVBlankActive) {
+            glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, 0);
+            m_bVBlankActive = false;
+        }
+        return false;
+    }
+}
+
+bool GLXContext::useDepthBuffer() const
+{
+    // NVidia GLX GLES doesn't allow framebuffer stencil without depth.
+    return true;
+}
+
+void GLXContext::swapBuffers()
+{
+    glXSwapBuffers(m_pDisplay, m_Drawable);
+}
+
+bool GLXContext::haveARBCreateContext()
+{
+    static bool s_bExtensionChecked = false;
+    static bool s_bHaveExtension = false;
+    if (!s_bExtensionChecked) {
+        s_bExtensionChecked = true;
+        s_bHaveExtension = (queryGLXExtension("GLX_ARB_create_context"));
+    }
+    return s_bHaveExtension;
+}
+
+XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
+        GLConfig& glConfig, bool bUseDebugBit)
+{
+    m_pDisplay = pDisplay;
+    GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig);
+    XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
+
+    if (haveARBCreateContext()) {
+        GLContextAttribs attrs;
+        if (glConfig.m_bGLES) {
+            attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
+            attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
+            attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
+        }
+        if (glConfig.m_bUseDebugContext && bUseDebugBit) {
+            attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
+        }
+        PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
+            (PFNGLXCREATECONTEXTATTRIBSARBPROC)
+            getglXProcAddress("glXCreateContextAttribsARB");
+
+        s_bDumpX11ErrorMsg = false;
+        m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
+        s_bDumpX11ErrorMsg = true;
+        throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
+    } else {
+        m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
+    }
+    AVG_ASSERT(m_Context);
+    
+    m_Colormap = XCreateColormap(pDisplay, RootWindow(m_pDisplay, pVisualInfo->screen),
+            pVisualInfo->visual, AllocNone);
+    AVG_ASSERT(m_Colormap);
+
+    return pVisualInfo;
+}
+
+void GLXContext::setX11ErrorHandler()
+{
     s_bDumpX11ErrorMsg = true;
     s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
+}
 
-    m_pDisplay = getX11Display(pSDLWMInfo);
+void GLXContext::resetX11ErrorHandler()
+{
+    XSetErrorHandler(s_DefaultErrorHandler);
+}
 
+void GLXContext::throwOnXError(int code)
+{
+    if (s_bX11Error) {
+        throw Exception(code, "X error creating OpenGL context.");
+    }
+}
+
+void GLXContext::initDrawable()
+{
+    m_Drawable = glXGetCurrentDrawable();
+}
+
+::GLXContext GLXContext::getGLXContext() const
+{
+    return m_Context;
+}
+
+::Display* GLXContext::getDisplay() const
+{
+    return m_pDisplay;
+}
+
+Colormap GLXContext::getColormap() const
+{
+    return m_Colormap;
+}
+
+GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, GLConfig& glConfig)
+{
     GLContextAttribs attrs;
     attrs.append(GLX_X_RENDERABLE, 1);
     attrs.append(GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT);
@@ -116,7 +225,7 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
             int numBuffers;
             int numSamples;
             int caveat;
-            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS,
+            glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLE_BUFFERS, 
                     &numBuffers);
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_SAMPLES, &numSamples);
             glXGetFBConfigAttrib(m_pDisplay, pFBConfig[i], GLX_CONFIG_CAVEAT, &caveat);
@@ -139,127 +248,24 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
             XFree(pVisualInfo);
         }
     }
-
+    glConfig.m_MultiSampleSamples = bestSamples;
     GLXFBConfig fbConfig = pFBConfig[bestConfig];
     XFree(pFBConfig);
-    XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
-
-    if (pSDLWMInfo) {
-        win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, m_Colormap);
-    }
-
-    if (haveARBCreateContext()) {
-        GLContextAttribs attrs;
-        if (glConfig.m_bGLES) {
-            attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
-            attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
-            attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
-        }
-        if (glConfig.m_bUseDebugContext && bUseDebugBit) {
-            attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
-        }
-        PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
-            (PFNGLXCREATECONTEXTATTRIBSARBPROC)
-            getglXProcAddress("glXCreateContextAttribsARB");
-
-        s_bDumpX11ErrorMsg = false;
-        m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
-        s_bDumpX11ErrorMsg = true;
-        throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
-    } else {
-        m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
-    }
-    AVG_ASSERT(m_Context);
-    if (pSDLWMInfo) {
-        setCurrent();
-        glXMakeCurrent(m_pDisplay, win, m_Context);
-    } else { 
-        Pixmap pmp = XCreatePixmap(m_pDisplay, 
-                RootWindow(m_pDisplay, pVisualInfo->screen), 8, 8, pVisualInfo->depth);
-        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, pVisualInfo, pmp);
-
-        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
-    }
-    XSetErrorHandler(s_DefaultErrorHandler);
-
-    throwOnXError();
-    glConfig.m_MultiSampleSamples = bestSamples;
-    m_Drawable = glXGetCurrentDrawable();
+    return fbConfig;
 }
 
-GLXContext::~GLXContext()
+int GLXContext::X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent)
 {
-    deleteObjects();
-    if (m_Context && ownsContext()) {
-        glXMakeCurrent(m_pDisplay, 0, 0);
-        glXDestroyContext(m_pDisplay, m_Context);
-        m_Context = 0;
-        XDestroyWindow(m_pDisplay, m_Drawable);
-        XFreeColormap(m_pDisplay, m_Colormap);
+    if (s_bDumpX11ErrorMsg) {
+        char errorString[128]; 
+        XGetErrorText(pDisplay, pErrEvent->error_code, errorString, 128);
+        cerr << "X11 error creating GL context: " << errorString <<
+            "\n\tMajor opcode of failed request: " << (int)(pErrEvent->request_code) <<
+            "\n\tMinor opcode of failed request: " << (int)(pErrEvent->minor_code) <<
+            "\n";
     }
-}
-
-void GLXContext::throwOnXError( int code)
-{
-    if (s_bX11Error) {
-        throw Exception(code, "X error creating OpenGL context.");
-    }
-}
-
-void GLXContext::activate()
-{
-    glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
-    setCurrent();
-}
-
-bool GLXContext::initVBlank(int rate) 
-{
-    static bool s_bVBlankActive = false;
-    if (rate > 0) {
-        if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
-            AVG_LOG_WARNING("__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
-            s_bVBlankActive = false;
-            return false;
-        } 
-        if (!queryGLXExtension("GLX_EXT_swap_control")) {
-            AVG_LOG_WARNING("Linux VBlank setup failed: OpenGL Extension not supported.");
-            s_bVBlankActive = false;
-            return false;
-        }
-
-        glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
-        s_bVBlankActive = true;
-        return true;
-
-    } else {
-        if (s_bVBlankActive) {
-            glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, 0);
-            s_bVBlankActive = false;
-        }
-        return false;
-    }
-}
-
-bool GLXContext::useDepthBuffer() const
-{
-    // NVidia GLX GLES doesn't allow framebuffer stencil without depth.
-    return true;
-}
-
-void GLXContext::swapBuffers()
-{
-    glXSwapBuffers(m_pDisplay, m_Drawable);
-}
-
-bool GLXContext::haveARBCreateContext()
-{
-    static bool s_bExtensionChecked = false;
-    static bool s_bHaveExtension = false;
-    if (!s_bExtensionChecked) {
-        s_bExtensionChecked = true;
-        s_bHaveExtension = (queryGLXExtension("GLX_ARB_create_context"));
-    }
-    return s_bHaveExtension;
+    s_bX11Error = true;
+    return 0;
 }
 
 }

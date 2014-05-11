@@ -40,6 +40,8 @@ namespace avg {
 class VideoDecoder;
 class TextureMover;
 typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
 class AVG_API VideoNode: public RasterNode, IFrameEndListener
 {
@@ -93,6 +95,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
+        virtual void renderFX();
         virtual void render();
         virtual void onFrameEnd();
         
@@ -102,6 +105,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
     private:
         bool renderFrame();
+        FrameAvailableCode renderToSurface();
         void seek(long long destTime);
         void onEOF();
         void updateStatusDueToDecoderEOF();
@@ -148,7 +152,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         bool m_bEnableSound;
         int m_AudioID;
 
-        GLTexturePtr m_pTextures[4];
+        MCTexturePtr m_pTextures[4];
 };
 
 }

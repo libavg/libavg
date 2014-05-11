@@ -39,10 +39,8 @@ namespace avg {
 class OGLSurface;
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
-class FBO;
-typedef boost::shared_ptr<FBO> FBOPtr;
-class GLTexture;
-typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class MCFBO;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
 
@@ -91,6 +89,7 @@ class AVG_API RasterNode: public AreaNode
         void setContrast(const glm::vec3& contrast);
 
         void setEffect(FXNodePtr pFXNode);
+        virtual void renderFX()=0;
         
     protected:
         RasterNode();
@@ -109,9 +108,8 @@ class AVG_API RasterNode: public AreaNode
         void renderFX(const glm::vec2& destSize, const Pixel32& color, 
                 bool bPremultipliedAlpha, bool bForceRender=false);
 
-    protected:
         void newSurface();
-        void setupFX(bool bNewFX);
+        void setupFX();
 
     private:
         void downloadMask();
@@ -148,7 +146,7 @@ class AVG_API RasterNode: public AreaNode
         glm::vec3 m_Intensity;
         glm::vec3 m_Contrast;
 
-        FBOPtr m_pFBO;
+        MCFBOPtr m_pFBO;
         FXNodePtr m_pFXNode;
         bool m_bFXDirty;
         ImagingProjectionPtr m_pImagingProjection;

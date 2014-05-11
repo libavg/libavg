@@ -22,6 +22,7 @@
 #include "CameraNode.h"
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
+#include "Canvas.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -30,7 +31,8 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/TextureMover.h"
-#include "../graphics/GLTexture.h"
+#include "../graphics/MCTexture.h"
+#include "../graphics/GLContextManager.h"
 #include "../graphics/BitmapLoader.h"
 
 #include "../imaging/Camera.h"
@@ -44,6 +46,7 @@
 #endif
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -74,7 +77,8 @@ CameraNode::CameraNode(const ArgList& args)
     : m_bIsPlaying(false),
       m_FrameNum(0),
       m_bIsAutoUpdateCameraImage(true),
-      m_bNewBmp(false)
+      m_bNewBmp(false),
+      m_bNewSurface(false)
 {
     args.setMembers(this);
     string sDriver = args.getArgVal<string>("driver");
@@ -302,21 +306,13 @@ void CameraNode::open()
     PixelFormat pf = getPixelFormat();
     IntPoint size = getMediaSize();
     bool bMipmap = getMaterial().getUseMipmaps();
-    m_pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
-    m_pTex->enableStreaming();
+    
+    m_pTex = GLContextManager::get()->createTexture(size, pf, bMipmap);
     getSurface()->create(pf, m_pTex);
+    m_bNewSurface = true;
     newSurface();
 
-    BitmapPtr pBmp = m_pTex->lockStreamingBmp();
-    if (pf == B8G8R8X8 || pf == B8G8R8A8) {
-        FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
-        Filter.applyInPlace(pBmp);
-    } else if (pf == I8) {
-        FilterFill<Pixel8> Filter(0);
-        Filter.applyInPlace(pBmp);
-    } 
-    m_pTex->unlockStreamingBmp(true);
-    setupFX(true);
+    setupFX();
 }
 
 int CameraNode::getFeature(CameraFeature feature) const
@@ -345,21 +341,36 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();
     }
-    if (m_bNewBmp && isVisible()) {
-        ScopeTimer Timer(CameraDownloadProfilingZone);
-        m_FrameNum++;
-        BitmapPtr pBmp = m_pTex->lockStreamingBmp();
-        if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
-            cerr << "Surface: " << pBmp->getPixelFormat() << ", CamDest: "
-                << m_pCurBmp->getPixelFormat() << endl;
+    if (isVisible()) {
+        if (m_bNewBmp) {
+            ScopeTimer Timer(CameraDownloadProfilingZone);
+            m_FrameNum++;
+            GLContextManager::get()->scheduleTexUpload(m_pTex, m_pCurBmp);
+            getCanvas()->scheduleFXRender(
+                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
+            m_bNewBmp = false;
+        } else if (m_bNewSurface) {
+            BitmapPtr pBmp;
+            PixelFormat pf = getPixelFormat();
+            pBmp = BitmapPtr(new Bitmap(getMediaSize(), pf));
+            if (pf == B8G8R8X8 || pf == B8G8R8A8) {
+                FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
+            } else if (pf == I8) {
+                FilterFill<Pixel8>(0).applyInPlace(pBmp);
+            } 
+            GLContextManager::get()->scheduleTexUpload(m_pTex, pBmp);
+            getCanvas()->scheduleFXRender(
+                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
         }
-        AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
-        pBmp->copyPixels(*m_pCurBmp);
-        m_pTex->unlockStreamingBmp(true);
-        renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
-        m_bNewBmp = false;
+        m_bNewSurface = false;
     }
+
     calcVertexArray(pVA);
+}
+
+void CameraNode::renderFX()
+{
+    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");

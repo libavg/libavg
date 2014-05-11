@@ -102,14 +102,12 @@ float X11Display::queryRefreshRate()
 }
 
 Window createChildWindow(const SDL_SysWMinfo* pSDLWMInfo, XVisualInfo* pVisualInfo,
-        const IntPoint& windowSize, Colormap& colormap)
+        const IntPoint& windowSize, const Colormap& colormap)
 
 {
     // Create a child window with the required attributes to render into.
     XSetWindowAttributes swa;
     ::Display* pDisplay = pSDLWMInfo->info.x11.display;
-    colormap = XCreateColormap(pDisplay, RootWindow(pDisplay, pVisualInfo->screen),
-            pVisualInfo->visual, AllocNone);
     swa.colormap = colormap;
     swa.background_pixmap = None;
     swa.event_mask = StructureNotifyMask; 

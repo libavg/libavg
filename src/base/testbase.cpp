@@ -313,7 +313,6 @@ public:
 
     void runTests() 
     {
-        typedef TestWorkerThread::CmdPtr CmdPtr;
         TestWorkerThread::CQueue cmdQ;
         boost::thread* pTestThread;
         int numFuncCalls = 0;

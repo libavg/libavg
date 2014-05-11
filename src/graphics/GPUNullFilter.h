@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "GPUFilter.h"
-#include "GLShaderParam.h"
+#include "MCShaderParam.h"
 #include "Bitmap.h"
 
 namespace avg {
@@ -38,7 +38,7 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    IntGLShaderParamPtr m_pTextureParam;
+    IntMCShaderParamPtr m_pTextureParam;
 };
 
 typedef boost::shared_ptr<GPUNullFilter> GPUNullFilterPtr;

@@ -48,6 +48,7 @@ class AVG_API WordsNode : public RasterNode
         virtual void disconnect(bool bKill);
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
+        virtual void renderFX();
         virtual void render();
 
         virtual float getWidth() const;

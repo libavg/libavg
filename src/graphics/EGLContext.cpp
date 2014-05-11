@@ -41,7 +41,7 @@ using namespace std;
 
 EGLContext::EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(windowSize, pSDLWMInfo)
+    : GLContext(windowSize)
 {
     createEGLContext(glConfig, windowSize, pSDLWMInfo);
     init(glConfig, true);

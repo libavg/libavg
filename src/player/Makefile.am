@@ -35,14 +35,14 @@ else
 endif
 endif
 
-GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp
-GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h
+GL_SOURCES = OGLSurface.cpp
+GL_INCLUDES = OGLSurface.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         DisplayEngine.h TypeRegistry.h Arg.h ArgBase.h ArgList.h \
-        Node.h AreaNode.h DisplayParams.h TypeDefinition.h TextEngine.h \
+        Node.h AreaNode.h DisplayParams.h WindowParams.h TypeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
@@ -50,7 +50,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
         TouchEvent.h Contact.h TouchStatus.h TrackerTouchStatus.h BoostPython.h \
-        SoundNode.h FontStyle.h TangibleEvent.h \
+        SoundNode.h FontStyle.h Window.h SDLWindow.h SecondaryWindow.h TangibleEvent.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h HueSatFXNode.h \
@@ -95,11 +95,12 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
         MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp WrapPython.cpp \
         WordsNode.cpp CameraNode.cpp TypeDefinition.cpp TextEngine.cpp \
-        Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
-        Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
-        MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
+        Timeout.cpp Event.cpp DisplayParams.cpp WindowParams.cpp CursorState.cpp \
+        MaterialInfo.cpp Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp \
+        CursorEvent.cpp MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
         TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
-        SoundNode.cpp FontStyle.cpp TangibleEvent.cpp InputDevice.cpp \
+        SoundNode.cpp FontStyle.cpp Window.cpp SDLWindow.cpp SecondaryWindow.cpp \
+        TangibleEvent.cpp InputDevice.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         Contact.cpp TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \

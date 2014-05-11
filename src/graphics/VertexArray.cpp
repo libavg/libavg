@@ -22,6 +22,7 @@
 #include "VertexArray.h"
 
 #include "GLContext.h"
+#include "GLContextManager.h"
 #include "SubVertexArray.h"
 
 #include "../base/Exception.h"
@@ -45,57 +46,59 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     : VertexData(reserveVerts, reserveIndexes)
 {
     GLContext* pContext = GLContext::getCurrent();
-    if (getReserveVerts() != MIN_VERTEXES || getReserveIndexes() != MIN_INDEXES) {
-        glproc::GenBuffers(1, &m_GLVertexBufferID);
-        glproc::GenBuffers(1, &m_GLIndexBufferID);
-    } else {
-        m_GLVertexBufferID = pContext->getVertexBufferCache().getBuffer();
-        m_GLIndexBufferID = pContext->getIndexBufferCache().getBuffer();
-    }
     m_bUseMapBuffer = (!pContext->isGLES());
+}
+
+void VertexArray::initForGLContext()
+{
+    GLContext* pContext = GLContext::getCurrent();
+    unsigned vertexBufferID;
+    unsigned indexBufferID;
+    AVG_ASSERT(m_VertexBufferIDMap.count(pContext) == 0);
+    AVG_ASSERT(m_IndexBufferIDMap.count(pContext) == 0);
+    glproc::GenBuffers(1, &vertexBufferID);
+    m_VertexBufferIDMap[pContext] = vertexBufferID;
+    glproc::GenBuffers(1, &indexBufferID);
+    m_IndexBufferIDMap[pContext] = indexBufferID;
 }
 
 VertexArray::~VertexArray()
 {
-    GLContext* pContext = GLContext::getCurrent();
-    if (pContext) {
-        if (getReserveVerts() == MIN_VERTEXES) {
-            pContext->getVertexBufferCache().returnBuffer(m_GLVertexBufferID);
-        } else {
-            glproc::DeleteBuffers(1, &m_GLVertexBufferID);
-        }
-        if (getReserveIndexes() == MIN_INDEXES) {
-            pContext->getIndexBufferCache().returnBuffer(m_GLIndexBufferID);
-        } else {
-            glproc::DeleteBuffers(1, &m_GLIndexBufferID);
-        }
-    }
+    GLContextManager::get()->deleteBuffers(m_VertexBufferIDMap);
+    GLContextManager::get()->deleteBuffers(m_IndexBufferIDMap);
 }
 
 void VertexArray::update()
 {
+    AVG_ASSERT(!m_VertexBufferIDMap.empty());
     if (hasDataChanged()) {
-        transferBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID, 
+        GLContext* pContext = GLContext::getCurrent();
+        unsigned vertexBufferID = m_VertexBufferIDMap[pContext];
+        transferBuffer(GL_ARRAY_BUFFER, vertexBufferID, 
                 getReserveVerts()*sizeof(Vertex), 
                 getNumVerts()*sizeof(Vertex), getVertexPointer());
+        unsigned indexBufferID = m_IndexBufferIDMap[pContext];
 #ifdef AVG_ENABLE_EGL        
-        transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
+        transferBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID, 
                 getReserveIndexes()*sizeof(unsigned short),
                 getNumIndexes()*sizeof(unsigned short), getIndexPointer());
 #else
-        transferBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID, 
+        transferBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID, 
                 getReserveIndexes()*sizeof(unsigned int),
                 getNumIndexes()*sizeof(unsigned int), getIndexPointer());
 #endif
         GLContext::checkError("VertexArray::update()");
     }
-    resetDataChanged();
 }
 
 void VertexArray::activate()
 {
-    glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
-    glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
+    AVG_ASSERT(!m_VertexBufferIDMap.empty());
+    GLContext* pContext = GLContext::getCurrent();
+    unsigned vertexBufferID = m_VertexBufferIDMap[pContext];
+    unsigned indexBufferID = m_IndexBufferIDMap[pContext];
+    glproc::BindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+    glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
     glproc::VertexAttribPointer(TEX_INDEX, 2, GL_SHORT, GL_FALSE,
             sizeof(Vertex), (void *)(offsetof(Vertex, m_Tex)));
     glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE, 

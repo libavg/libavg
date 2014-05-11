@@ -23,7 +23,6 @@
 
 #include "TypeDefinition.h"
 
-#include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
 #include "../base/GeomHelper.h"
 #include "../base/triangulate/Triangulate.h"

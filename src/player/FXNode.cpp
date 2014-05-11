@@ -68,7 +68,7 @@ void FXNode::setSize(const IntPoint& newSize)
 void FXNode::apply(GLTexturePtr pSrcTex)
 {
     // blt overwrites everything, so no glClear necessary before.
-    GLContext::getMain()->setBlendMode(GLContext::BLEND_COPY);
+    GLContext::getCurrent()->setBlendMode(GLContext::BLEND_COPY);
     m_pFilter->apply(pSrcTex);
 }
 

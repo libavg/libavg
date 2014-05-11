@@ -25,12 +25,15 @@
 #include "AVGNode.h"
 #include "Shape.h"
 #include "OffscreenCanvas.h"
+#include "Window.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 
 #include "../graphics/StandardShader.h"
+#include "../graphics/GLContextManager.h"
+#include "../graphics/MCFBO.h"
 
 #include <iostream>
 
@@ -67,7 +70,7 @@ void Canvas::initPlayback(int multiSampleSamples)
     m_bIsPlaying = true;
     m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
-    m_pVertexArray = VertexArrayPtr(new VertexArray(2000, 3000));
+    m_pVertexArray = GLContextManager::get()->createVertexArray(2000, 3000);
 }
 
 void Canvas::stopPlayback(bool bIsAbort)
@@ -160,6 +163,7 @@ void Canvas::doFrame(bool bPythonAvailable)
         }
         Player::get()->endTraversingTree();
     }
+    m_pScheduledFXNodes.clear();
     emitFrameEndSignal();
 }
 
@@ -235,35 +239,53 @@ void Canvas::preRender()
     ScopeTimer Timer(PreRenderProfilingZone);
     m_pVertexArray->reset();
     m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
+}
+
+static ProfilingZoneID RootRenderProfilingZone("RootNode: render");
+
+void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewport)
+{
+    pWindow->getGLContext()->activate();
+    GLContextManager::get()->uploadDataForContext();
+    renderFX();
+    glm::mat4 projMat;
+    if (pFBO) {
+        pFBO->activate();
+        glm::vec2 size = m_pRootNode->getSize();
+        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
+        glViewport(0, 0, GLsizei(size.x), GLsizei(size.y));
+    } else {
+        glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
+        projMat = glm::ortho(float(viewport.tl.x), float(viewport.br.x), 
+                float(viewport.br.y), float(viewport.tl.y));
+        IntPoint windowSize = pWindow->getSize();
+        glViewport(0, 0, windowSize.x, windowSize.y);
+    }
     {
         ScopeTimer Timer(VATransferProfilingZone);
         m_pVertexArray->update();
     }
+    clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+            !pFBO);
+    GLContext::checkError("Canvas::renderWindow: glViewport()");
+    m_pVertexArray->activate();
+    {
+        ScopeTimer timer(RootRenderProfilingZone);
+        m_pRootNode->maybeRender(projMat);
+    }
+    renderOutlines(projMat);
 }
 
-void Canvas::render(IntPoint windowSize, bool bOffscreen)
+void Canvas::scheduleFXRender(const RasterNodePtr& pNode)
 {
-    clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-            !bOffscreen);
-    glViewport(0, 0, windowSize.x, windowSize.y);
-    GLContext::checkError("Canvas::render: glViewport()");
-    glm::vec2 size = m_pRootNode->getSize();
-    glm::mat4 projMat;
-    if (bOffscreen) {
-        projMat = glm::ortho(0.f, size.x, 0.f, size.y);
-    } else {
-        projMat = glm::ortho(0.f, size.x, size.y, 0.f);
-    }
-    m_pVertexArray->activate();
-    m_pRootNode->maybeRender(projMat);
-
-    renderOutlines(projMat);
+    m_pScheduledFXNodes.push_back(pNode);
 }
 
 void Canvas::renderOutlines(const glm::mat4& transform)
 {
-    GLContext* pContext = GLContext::getMain();
-    VertexArrayPtr pVA(new VertexArray);
+    GLContext* pContext = GLContext::getCurrent();
+    VertexArrayPtr pVA = GLContextManager::get()->createVertexArray();
+    pVA->initForGLContext();
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShaderPtr pShader = pContext->getStandardShader();
@@ -272,8 +294,15 @@ void Canvas::renderOutlines(const glm::mat4& transform)
     pShader->setAlpha(0.5f);
     pShader->activate();
     if (pVA->getNumVerts() != 0) {
-        pVA->update();
         pVA->draw();
+    }
+}
+
+void Canvas::renderFX()
+{
+    vector<RasterNodePtr>::iterator it;
+    for (it=m_pScheduledFXNodes.begin(); it!=m_pScheduledFXNodes.end(); ++it) {
+        (*it)->renderFX();
     }
 }
 
@@ -289,13 +318,13 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    StandardShaderPtr pShader = GLContext::getMain()->getStandardShader();
+    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
     pShader->setUntextured();
     pShader->setTransform(transform);
     pShader->activate();
     va.draw();
 
-    // Set stencil test to only let
+    // Set stencil test
     glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 

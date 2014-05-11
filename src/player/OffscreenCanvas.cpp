@@ -23,6 +23,8 @@
 
 #include "CanvasNode.h"
 #include "Player.h"
+#include "Window.h"
+#include "DisplayEngine.h"
 
 #include "../base/Exception.h"
 #include "../base/ProfilingZoneID.h"
@@ -31,6 +33,10 @@
 
 #include "../graphics/FilterUnmultiplyAlpha.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLContextManager.h"
+#include "../graphics/MCTexture.h"
+#include "../graphics/MCFBO.h"
+#include "../graphics/FBO.h"
 
 #include <iostream>
 
@@ -63,6 +69,8 @@ void OffscreenCanvas::setRoot(NodePtr pRootNode)
 
 void OffscreenCanvas::initPlayback()
 {
+    DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
+
     m_bUseMipmaps = getMipmap();
     PixelFormat pf;
     if (BitmapLoader::get()->isBlueFirst()) {
@@ -70,16 +78,24 @@ void OffscreenCanvas::initPlayback()
     } else {
         pf = R8G8B8A8;
     }
-    bool bUseDepthBuffer = GLContext::getMain()->useDepthBuffer();
-    m_pFBO = FBOPtr(new FBO(getSize(), pf, 1, getMultiSampleSamples(), bUseDepthBuffer,
-            true, m_bUseMipmaps));
+    GLContextManager* pCM = GLContextManager::get();
+    bool bUseDepthBuffer = pDisplayEngine->getWindow(0)->getGLContext()->useDepthBuffer();
+    m_pFBO = pCM->createFBO(getSize(), pf, 1, getMultiSampleSamples(),
+            bUseDepthBuffer, true, m_bUseMipmaps);
+    try {
+        pCM->uploadData();
+    } catch (...) {
+        pCM->reset();
+        m_pFBO = MCFBOPtr();
+        throw;
+    }
     Canvas::initPlayback(getMultiSampleSamples());
     m_bIsRendered = false;
 }
 
 void OffscreenCanvas::stopPlayback(bool bIsAbort)
 {
-    m_pFBO = FBOPtr();
+    m_pFBO = MCFBOPtr();
     Canvas::stopPlayback(bIsAbort);
     m_bIsRendered = false;
 }
@@ -141,19 +157,19 @@ std::string OffscreenCanvas::getID() const
 
 bool OffscreenCanvas::isRunning() const
 {
-    return (m_pFBO != FBOPtr());
+    return (m_pFBO);
 }
 
-GLTexturePtr OffscreenCanvas::getTex() const
+MCTexturePtr OffscreenCanvas::getTex() const
 {
     AVG_ASSERT(isRunning());
     return m_pFBO->getTex();
 }
 
-FBOPtr OffscreenCanvas::getFBO() const
+FBOPtr OffscreenCanvas::getFBO()
 {
     AVG_ASSERT(isRunning());
-    return m_pFBO;
+    return m_pFBO->getCurFBO();
 }
 
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
@@ -202,7 +218,6 @@ void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
     for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
         if (pCanvas == m_pDependentCanvases[i]) {
             m_pDependentCanvases.erase(m_pDependentCanvases.begin()+i);
-//            dump();
             return;
         }
     }
@@ -225,7 +240,7 @@ bool OffscreenCanvas::isSupported()
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::isSupported(): Player.play() needs to be called before support can be queried."));
     }
-    if (GLContext::getMain()->isGLES()) {
+    if (GLContext::getCurrent()->isGLES()) {
         return true;
     } else {
         return FBO::isFBOSupported() && FBO::isPackedDepthStencilSupported();
@@ -259,12 +274,18 @@ void OffscreenCanvas::renderTree()
                 "OffscreenCanvas::renderTree(): Player.play() needs to be called before rendering offscreen canvases."));
     }
     preRender();
-    m_pFBO->activate();
-    {
+    DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
+    unsigned numWindows = pDisplayEngine->getNumWindows();
+    for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(OffscreenRenderProfilingZone);
-        Canvas::render(IntPoint(getRootNode()->getSize()), true);
+        WindowPtr pWindow = pDisplayEngine->getWindow(i);
+        GLContext* pContext = pWindow->getGLContext();
+        pContext->activate();
+        IntRect viewport(IntPoint(0,0), IntPoint(getRootNode()->getSize()));
+        renderWindow(pWindow, m_pFBO, viewport);
+        m_pFBO->copyToDestTexture();
     }
-    m_pFBO->copyToDestTexture();
+    GLContextManager::get()->reset();
     m_bIsRendered = true;
 }
 

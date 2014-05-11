@@ -22,6 +22,7 @@
 #include "GPUHueSatFilter.h"
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
+#include "GLContextManager.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
@@ -40,12 +41,13 @@ GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, bool bUseAlpha, bool bSta
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    OGLShaderPtr pShader = getShader();
-    m_pHueParam = pShader->getParam<float>("u_Hue");
-    m_pSatParam = pShader->getParam<float>("u_Sat");
-    m_pLightnessParam = pShader->getParam<float>("u_LightnessOffset");
-    m_pColorizeParam = pShader->getParam<int>("u_bColorize");
-    m_pTextureParam = pShader->getParam<int>("u_Texture");
+    GLContextManager* pCM = GLContextManager::get();
+    m_pHueParam = pCM->createShaderParam<float>(SHADERID_HSL_COLOR, "u_Hue");
+    m_pSatParam = pCM->createShaderParam<float>(SHADERID_HSL_COLOR, "u_Sat");
+    m_pLightnessParam = pCM->createShaderParam<float>(SHADERID_HSL_COLOR, 
+            "u_LightnessOffset");
+    m_pColorizeParam = pCM->createShaderParam<int>(SHADERID_HSL_COLOR, "u_bColorize");
+    m_pTextureParam = pCM->createShaderParam<int>(SHADERID_HSL_COLOR, "u_Texture");
 }
 
 GPUHueSatFilter::~GPUHueSatFilter()

@@ -55,7 +55,7 @@ public:
     virtual float getFPS() const;
     virtual void setFPS(float fps);
 
-    virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
+    virtual FrameAvailableCode getRenderedBmps(std::vector<BitmapPtr>& pBmps, 
             float timeWanted);
     void updateAudioStatus();
     virtual bool isEOF() const;

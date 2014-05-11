@@ -46,10 +46,7 @@ typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 class AVG_API GLContext
 {
 public:
-    static GLContext* create(const GLConfig& glConfig, 
-            const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
-
-    GLContext(const IntPoint& windowSize, const SDL_SysWMinfo* pSDLWMInfo);
+    GLContext(const IntPoint& windowSize);
     virtual ~GLContext();
 
     virtual void activate()=0;
@@ -59,8 +56,6 @@ public:
     GLConfig::ShaderUsage getShaderUsage() const;
 
     // GL Object caching.
-    GLBufferCache& getVertexBufferCache();
-    GLBufferCache& getIndexBufferCache();
     GLBufferCache& getPBOCache();
     unsigned genFBO();
     void returnFBOToCache(unsigned fboID);
@@ -95,11 +90,9 @@ public:
     static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
-    static GLContext* getMain();
     static void setMain(GLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
-    static bool isGLESSupported();
     static void enableErrorLog(bool bEnable);
 
 protected:
@@ -122,8 +115,6 @@ private:
     ShaderRegistryPtr m_pShaderRegistry;
     StandardShaderPtr m_pStandardShader;
 
-    GLBufferCache m_VertexBufferCache;
-    GLBufferCache m_IndexBufferCache;
     GLBufferCache m_PBOCache;
     std::vector<unsigned int> m_FBOIDs;
 
@@ -147,7 +138,6 @@ private:
     static bool s_bErrorLogEnabled;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
-    static GLContext* s_pMainContext;
 };
 
 }

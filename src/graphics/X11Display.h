@@ -51,7 +51,7 @@ protected:
 ::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo);
 
 Window createChildWindow(const SDL_SysWMinfo* pSDLWMInfo, XVisualInfo* pVisualInfo,
-        const IntPoint& windowSize, Colormap& colormap);
+        const IntPoint& windowSize, const Colormap& colormap);
 
 }
 #endif

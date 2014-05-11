@@ -24,9 +24,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
-#endif
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
@@ -42,10 +40,11 @@ using namespace boost;
 
 CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
         const SDL_SysWMinfo* pSDLWMInfo)
-    : GLContext(windowSize, pSDLWMInfo)
+    : GLContext(windowSize)
 {
     if (pSDLWMInfo) {
         m_Context = CGLGetCurrentContext();
+        AVG_ASSERT(m_Context);
         setCurrent();
     } else {
         CGLPixelFormatObj pixelFormatObj;

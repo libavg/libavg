@@ -28,7 +28,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/GLContext.h"
-#include "../graphics/GLTexture.h"
+#include "../graphics/MCTexture.h"
 
 #include <iostream>
 #include <sstream>
@@ -61,8 +61,8 @@ OGLSurface::~OGLSurface()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1, 
-        GLTexturePtr pTex2, GLTexturePtr pTex3)
+void OGLSurface::create(PixelFormat pf, MCTexturePtr pTex0, MCTexturePtr pTex1, 
+        MCTexturePtr pTex2, MCTexturePtr pTex3)
 {
     m_pf = pf;
     m_Size = pTex0->getSize();
@@ -85,7 +85,7 @@ void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1,
     }
 }
 
-void OGLSurface::setMask(GLTexturePtr pTex)
+void OGLSurface::setMask(MCTexturePtr pTex)
 {
     m_pMaskTexture = pTex;
     m_bIsDirty = true;
@@ -93,10 +93,10 @@ void OGLSurface::setMask(GLTexturePtr pTex)
 
 void OGLSurface::destroy()
 {
-    m_pTextures[0] = GLTexturePtr();
-    m_pTextures[1] = GLTexturePtr();
-    m_pTextures[2] = GLTexturePtr();
-    m_pTextures[3] = GLTexturePtr();
+    m_pTextures[0] = MCTexturePtr();
+    m_pTextures[1] = MCTexturePtr();
+    m_pTextures[2] = MCTexturePtr();
+    m_pTextures[3] = MCTexturePtr();
 }
 
 void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
@@ -165,7 +165,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     GLContext::checkError("OGLSurface::activate");
 }
 
-GLTexturePtr OGLSurface::getTex(int i) const
+MCTexturePtr OGLSurface::getTex(int i) const
 {
     return m_pTextures[i];
 }

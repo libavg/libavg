@@ -26,8 +26,8 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfliprgb.h"
-#include "../graphics/TextureMover.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLContextManager.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
@@ -84,19 +84,6 @@ void Image::moveToCPU()
 {
     assertValid();
     if (m_State == GPU) {
-        switch (m_Source) {
-            case FILE:
-            case BITMAP:
-                m_pBmp = m_pSurface->getTex()->moveTextureToBmp();
-                break;
-            case SCENE:
-                break;
-            case NONE:
-                break;
-            default:
-                AVG_ASSERT(false);
-                return;
-        }
         m_State = CPU;
         m_pSurface->destroy();
     }
@@ -181,26 +168,19 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
         default:
             assert(false);
     }
+    m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
+    m_pBmp->copyPixels(*pBmp);
     if (m_State == GPU) {
-        GLTexturePtr pTex = m_pSurface->getTex();
-        if (bSourceChanged || m_pSurface->getSize() != pBmp->getSize() ||
+        MCTexturePtr pTex = m_pSurface->getTex();
+        if (bSourceChanged || m_pSurface->getSize() != m_pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
         {
-            pTex = GLTexturePtr(new GLTexture(pBmp->getSize(), pf, 
-                    m_Material.getUseMipmaps(), 0, m_Material.getWrapSMode(), 
-                    m_Material.getWrapTMode()));
+            pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(), pf, 
+                    m_Material.getUseMipmaps(), m_Material.getWrapSMode(), 
+                    m_Material.getWrapTMode());
             m_pSurface->create(pf, pTex);
         }
-        TextureMoverPtr pMover = TextureMover::create(pBmp->getSize(), pf,
-                GL_STATIC_DRAW);
-        BitmapPtr pMoverBmp = pMover->lock();
-        pMoverBmp->copyPixels(*pBmp);
-        pMover->unlock();
-        pMover->moveToTexture(*pTex);
-        m_pBmp = BitmapPtr();
-    } else {
-        m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
-        m_pBmp->copyPixels(*pBmp);
+        GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
     }
     assertValid();
 }
@@ -231,22 +211,10 @@ const string& Image::getFilename() const
 
 BitmapPtr Image::getBitmap()
 {
-    if (m_Source == NONE) {
+    if (m_Source == NONE || m_Source == SCENE) {
         return BitmapPtr();
     } else {
-        switch (m_State) {
-            case CPU:
-                if (m_Source == SCENE) {
-                    return BitmapPtr();
-                } else {
-                    return BitmapPtr(new Bitmap(*m_pBmp));
-                }
-            case GPU:
-                return m_pSurface->getTex()->moveTextureToBmp();
-            default:
-                AVG_ASSERT(false);
-                return BitmapPtr();
-        }
+        return BitmapPtr(new Bitmap(*m_pBmp));
     }
 }
 
@@ -339,12 +307,11 @@ void Image::setupSurface()
 {
     PixelFormat pf = m_pBmp->getPixelFormat();
 //    cerr << "setupSurface: " << pf << endl;
-    GLTexturePtr pTex(new GLTexture(m_pBmp->getSize(), pf, m_Material.getUseMipmaps(), 
-            0, m_Material.getWrapSMode(), m_Material.getWrapTMode()));
+    MCTexturePtr pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(), pf, 
+            m_Material.getUseMipmaps(), 
+            m_Material.getWrapSMode(), m_Material.getWrapTMode());
     m_pSurface->create(pf, pTex);
-    TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
-    pMover->moveBmpToTexture(m_pBmp, *pTex);
-    m_pBmp = BitmapPtr();
+    GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
 }
 
 bool Image::changeSource(Source newSource)
@@ -355,9 +322,7 @@ bool Image::changeSource(Source newSource)
                 break;
             case FILE:
             case BITMAP:
-                if (m_State == CPU) {
-                    m_pBmp = BitmapPtr();
-                }
+                m_pBmp = BitmapPtr();
                 m_sFilename = "";
                 break;
             case SCENE:
@@ -378,13 +343,12 @@ void Image::assertValid() const
     AVG_ASSERT(m_pSurface);
     AVG_ASSERT((m_Source == FILE) == (m_sFilename != ""));
     AVG_ASSERT((m_Source == SCENE) == bool(m_pCanvas));
+    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
     switch (m_State) {
         case CPU:
-            AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
             AVG_ASSERT(!(m_pSurface->isCreated()));
             break;
         case GPU:
-            AVG_ASSERT(!m_pBmp);
             if (m_Source != NONE) {
                 AVG_ASSERT(m_pSurface->isCreated());
             } else {

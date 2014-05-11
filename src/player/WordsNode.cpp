@@ -23,6 +23,7 @@
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
 #include "TextEngine.h"
+#include "Canvas.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -34,6 +35,7 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/GLContextManager.h"
 #include "../graphics/GLTexture.h"
 #include "../graphics/TextureMover.h"
 
@@ -43,6 +45,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -639,17 +642,14 @@ void WordsNode::renderText()
             TextEngine& engine = TextEngine::get(m_FontStyle.getHint());
             PangoContext* pContext = engine.getPangoContext();
             pango_context_set_font_description(pContext, m_pFontDescription);
-            int maxTexSize = GLContext::getMain()->getMaxTexSize();
+            int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 
                         "WordsNode size exceeded maximum (Size=" 
                         + toString(m_InkSize) + ", max=" + toString(maxTexSize) + ")");
             }
-            GLTexturePtr pTex(new GLTexture(m_InkSize, A8));
-            getSurface()->create(A8, pTex);
-            TextureMoverPtr pMover = TextureMover::create(m_InkSize, A8, GL_DYNAMIC_DRAW);
 
-            BitmapPtr pBmp = pMover->lock();
+            BitmapPtr pBmp(new Bitmap(m_InkSize, A8));
             FilterFill<unsigned char>(0).applyInPlace(pBmp);
             FT_Bitmap bitmap;
             bitmap.rows = m_InkSize.y;
@@ -678,8 +678,9 @@ void WordsNode::renderText()
                     AVG_ASSERT(false);
             }
 
-            pMover->unlock();
-            pMover->moveToTexture(*pTex);
+            GLContextManager* pCM = GLContextManager::get();
+            MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
+            getSurface()->create(A8, pTex);
             newSurface();
         }
         m_bRenderNeeded = false;
@@ -700,11 +701,16 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     if (isVisible()) {
         redraw();
     }
-    Pixel32 color = m_FontStyle.getColorVal();
     if (m_sText.length() != 0 && isVisible()) {
-        renderFX(getSize(), color, false);
+        getCanvas()->scheduleFXRender(
+                dynamic_pointer_cast<RasterNode>(shared_from_this()));
     }
-    calcVertexArray(pVA, color);
+    calcVertexArray(pVA, m_FontStyle.getColorVal());
+}
+
+void WordsNode::renderFX()
+{
+    RasterNode::renderFX(getSize(), m_FontStyle.getColorVal(), false);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");

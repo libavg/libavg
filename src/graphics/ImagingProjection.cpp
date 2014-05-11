@@ -22,23 +22,32 @@
 #include "ImagingProjection.h"
 
 #include "GLContext.h"
+#include "GLContextManager.h"
 #include "OGLShader.h"
 
 #include "../base/Exception.h"
 
+using namespace std;
+
 namespace avg {
 
 ImagingProjection::ImagingProjection(IntPoint size)
-    : m_Color(0, 0, 0, 0),
-      m_pVA(new VertexArray)
+    : m_Color(0, 0, 0, 0)
 {
+    GLContextManager* pCM = GLContextManager::get();
+    m_pVA = pCM->createVertexArray();
+    pCM->uploadData();
+
     init(size, IntRect(IntPoint(0,0), size));
 }
 
 ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
-    : m_Color(0, 0, 0, 0),
-      m_pVA(new VertexArray)
+    : m_Color(0, 0, 0, 0)
 {
+    GLContextManager* pCM = GLContextManager::get();
+    m_pVA = pCM->createVertexArray();
+    pCM->uploadData();
+
     init(srcSize, destRect);
 }
 

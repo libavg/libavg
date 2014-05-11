@@ -24,27 +24,51 @@
 
 #include "../api.h"
 
+#include "WindowParams.h"
+
 #include "../base/GLMHelper.h"
+
+#include <vector>
 
 namespace avg {
 
-struct AVG_API DisplayParams {
+class AVG_API DisplayParams {
+public:
     DisplayParams();
     virtual ~DisplayParams();
 
+    void calcWindowSizes();
+    void setConfig(const std::string& sFilename);
+    void setResolution(bool bFullscreen, int width, int height, int bpp);
+    void setFullscreen(bool bFullscreen);
+    void setBPP(int bpp);
+    void setGamma(float red, float green, float blue);
+    void setFramerate(float framerate, int vbRate);
+    void setShowCursor(bool bShow);
+    void resetWindows();
+
+    bool isFullscreen() const;
+    int getBPP() const;
+    bool isCursorVisible() const;
+    int getVBRate() const;
+    float getFramerate() const;
+    int getNumWindows() const;
+    WindowParams& getWindowParams(int i);
+    const WindowParams& getWindowParams(int i) const;
+    const float getGamma(int i) const;
+
     void dump() const;
 
-    IntPoint m_Pos;
-    IntPoint m_Size;
+private:
     bool m_bFullscreen;
     int m_BPP;
-    IntPoint m_WindowSize;
     bool m_bShowCursor;
     int m_VBRate;
     float m_Framerate;
-    bool m_bHasWindowFrame;
 
     float m_Gamma[3];
+
+    std::vector<WindowParams> m_Windows;
 };
 
 }

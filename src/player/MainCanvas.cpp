@@ -22,14 +22,21 @@
 #include "MainCanvas.h"
 
 #include "Player.h"
-#include "SDLDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "AVGNode.h"
+#include "Window.h"
 
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/GLTexture.h"
+#include "../graphics/GLContextManager.h"
+#ifdef linux
+#include "../graphics/SecondaryGLXContext.h"
+#include <X11/Xlib.h>
+#endif
 
 #include <vector>
 
@@ -37,7 +44,7 @@ using namespace boost;
 using namespace std;
 
 namespace avg {
-    
+
 MainCanvas::MainCanvas(Player * pPlayer)
     : Canvas(pPlayer)
 {
@@ -56,10 +63,10 @@ void MainCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void MainCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
+void MainCanvas::initPlayback(const DisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
-    Canvas::initPlayback(GLContext::getMain()->getConfig().m_MultiSampleSamples);
+    Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
 }
 
 BitmapPtr MainCanvas::screenshot() const
@@ -72,16 +79,21 @@ BitmapPtr MainCanvas::screenshot() const
 }
 
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
+static ProfilingZoneID SecondWindowRenderProfilingZone(
+        "Render second window");
 
 void MainCanvas::renderTree()
 {
     preRender();
-    glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
-    GLContext::checkError("Canvas::renderTree: BindFramebuffer()");
-    {
+    DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
+    unsigned numWindows = pDisplayEngine->getNumWindows();
+    for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(RootRenderProfilingZone);
-        Canvas::render(m_pDisplayEngine->getWindowSize(), false);
+        WindowPtr pWindow = pDisplayEngine->getWindow(i);
+        IntRect viewport = pWindow->getViewport();
+        renderWindow(pWindow, MCFBOPtr(), viewport);
     }
+    GLContextManager::get()->reset();
 }
 
 }

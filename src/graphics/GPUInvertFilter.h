@@ -26,7 +26,7 @@
 #include "../api.h"
 
 #include "GPUFilter.h"
-#include "GLShaderParam.h"
+#include "MCShaderParam.h"
 
 namespace avg {
 
@@ -40,7 +40,7 @@ public:
     void initShader();
 
 private:
-    IntGLShaderParamPtr m_pTextureParam;
+    IntMCShaderParamPtr m_pTextureParam;
 };
 
 typedef boost::shared_ptr<GPUInvertFilter> GPUInvertFilterPtr;

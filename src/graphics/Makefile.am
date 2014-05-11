@@ -14,13 +14,13 @@ if ENABLE_EGL
     GL_SOURCES = EGLContext.cpp X11Display.cpp
     GL_INCLUDES = EGLContext.h X11Display.h
 else
-    GL_SOURCES = GLXContext.cpp PBO.cpp X11Display.cpp
-    GL_INCLUDES = GLXContext.h PBO.h X11Display.h
+    GL_SOURCES = GLXContext.cpp SecondaryGLXContext.cpp SDLGLXContext.cpp PBO.cpp X11Display.cpp
+    GL_INCLUDES = GLXContext.h SecondaryGLXContext.h SDLGLXContext.h PBO.h X11Display.h
 endif
 endif
 endif
 
-ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
+ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextManager.h \
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
@@ -32,13 +32,15 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GPUShadowFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h GPUHueSatFilter.h GPUInvertFilter.h \
         FilterIntensity.h FilterNormalize.h FilterFloodfill.h FilterDilation.h \
-        FilterErosion.h FilterGetAlpha.h FBO.h GLTexture.h TextureMover.h\
+        FilterErosion.h FilterGetAlpha.h FBO.h GLTexture.h TexInfo.h TextureMover.h \
+        MCTexture.h FBOInfo.h MCFBO.h \
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
         ImagingProjection.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
         GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
-        VertexData.h BitmapLoader.h $(GL_INCLUDES)
+        VertexData.h BitmapLoader.h MCShaderParam.h $(GL_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
+        GLContextManager.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
@@ -49,12 +51,13 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GPUShadowFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp GLContext.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
-        FilterGetAlpha.cpp FBO.cpp GLTexture.cpp TextureMover.cpp \
+        FilterGetAlpha.cpp FBO.cpp GLTexture.cpp TexInfo.cpp TextureMover.cpp \
+        MCTexture.cpp FBOInfo.cpp MCFBO.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
         ImagingProjection.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \
         GPURGB2YUVFilter.cpp GLShaderParam.cpp StandardShader.cpp SubVertexArray.cpp \
-        VertexData.cpp BitmapLoader.cpp $(GL_SOURCES)
+        VertexData.cpp BitmapLoader.cpp MCShaderParam.cpp $(GL_SOURCES)
 
 if APPLE
     X_LIBS =

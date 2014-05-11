@@ -24,10 +24,8 @@
 
 #include "../api.h"
 #include "Filter.h"
-#include "VertexArray.h"
 #include "Bitmap.h"
 #include "TextureMover.h"
-#include "FBO.h"
 
 namespace avg {
 
@@ -35,6 +33,12 @@ class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 class OGLShader;
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
+class MCFBO;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
 class AVG_API GPUFilter: public Filter
 {
@@ -60,26 +64,28 @@ protected:
     void setDimensions(const IntPoint& srcSize);
     void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
             unsigned texMode);
-    const OGLShaderPtr& getShader() const;
+    OGLShaderPtr getShader() const;
 
     void draw(GLTexturePtr pTex);
     int getBlurKernelRadius(float stdDev) const;
-    GLTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
+    MCTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
 
 private:
     PixelFormat m_PFSrc;
     PixelFormat m_PFDest;
     bool m_bStandalone;
+    std::string m_sShaderID;
     unsigned m_NumTextures;
     bool m_bMipmap;
 
-    GLTexturePtr m_pSrcTex;
+    MCTexturePtr m_pSrcTex;
     TextureMoverPtr m_pSrcMover;
-    std::vector<FBOPtr> m_pFBOs;
+    std::vector<MCFBOPtr> m_pFBOs;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
-    OGLShaderPtr m_pShader;
     ImagingProjectionPtr m_pProjection;
+
+    bool m_bIsInitialized;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;

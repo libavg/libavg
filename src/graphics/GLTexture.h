@@ -23,6 +23,7 @@
 #define _GLTexture_H_
 
 #include "../api.h"
+#include "TexInfo.h"
 #include "Bitmap.h"
 #include "OGLHelper.h"
 
@@ -30,62 +31,33 @@
 
 namespace avg {
 
-class TextureMover;
-typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
 class GLContext;
 
-class AVG_API GLTexture {
+class AVG_API GLTexture: public TexInfo {
 
 public:
+    // Try to avoid constructing GLTextures directly - use 
+    // GLContextManager::createTexture()
+    GLTexture(const TexInfo& texInfo);
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            int potBorderColor=0, unsigned wrapSMode=GL_CLAMP_TO_EDGE,
-            unsigned wrapTMode=GL_CLAMP_TO_EDGE, bool bForcePOT=false);
-    GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            bool bDeleteTex=false);
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
+            bool bForcePOT=false, int potBorderColor=0);
     virtual ~GLTexture();
+    void init();
 
     void activate(int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
-    void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
-    void enableStreaming();
-    BitmapPtr lockStreamingBmp();
-    void unlockStreamingBmp(bool bUpdated);
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
-    const IntPoint& getSize() const;
-    const IntPoint& getGLSize() const;
-    PixelFormat getPF() const;
     unsigned getID() const;
 
-    IntPoint getMipmapSize(int level) const;
-
-    static bool isFloatFormatSupported();
-    static int getGLFormat(PixelFormat pf);
-    static int getGLType(PixelFormat pf);
-    int getGLInternalFormat() const;
-    
-    void setDirty();
-    bool isDirty() const;
-    void resetDirty();
-
-    void dump(unsigned wrapSMode=-1, unsigned wrapTMode=-1) const;
-
 private:
-    IntPoint m_Size;
-    IntPoint m_GLSize;
-    PixelFormat m_pf;
-    bool m_bMipmap;
     bool m_bDeleteTex;
-    bool m_bUsePOT;
 
     static unsigned s_LastTexID;
     unsigned m_TexID;
-    bool m_bIsDirty;
-    TextureMoverPtr m_pMover;
-
-    GLContext* m_pGLContext;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;

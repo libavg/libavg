@@ -28,11 +28,15 @@
 
 #include "CameraNode.h"
 
-#include "../graphics/FBO.h"
-
 #include <string>
 
 namespace avg {
+
+class GLContext;
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
+class MCFBO;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 
 class AVG_API OffscreenCanvas: public Canvas
 {
@@ -54,8 +58,8 @@ class AVG_API OffscreenCanvas: public Canvas
 
         std::string getID() const;
         bool isRunning() const;
-        GLTexturePtr getTex() const;
-        FBOPtr getFBO() const;
+        MCTexturePtr getTex() const;
+        FBOPtr getFBO();
 
         void registerCameraNode(CameraNode* pCameraNode);
         void unregisterCameraNode();
@@ -76,7 +80,7 @@ class AVG_API OffscreenCanvas: public Canvas
         virtual void renderTree();
 
     private:
-        FBOPtr m_pFBO;
+        MCFBOPtr m_pFBO;
         bool m_bUseMipmaps;
         std::vector<CanvasPtr> m_pDependentCanvases;
 

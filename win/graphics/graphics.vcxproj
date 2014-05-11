@@ -75,6 +75,7 @@
     <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\FBO.h" />
+    <ClInclude Include="..\..\src\graphics\FBOInfo.h" />
     <ClInclude Include="..\..\src\graphics\Filter.h" />
     <ClInclude Include="..\..\src\graphics\Filter3x3.h" />
     <ClInclude Include="..\..\src\graphics\FilterBandpass.h" />
@@ -108,6 +109,7 @@
     <ClInclude Include="..\..\src\graphics\GLBufferCache.h" />
     <ClInclude Include="..\..\src\graphics\GLConfig.h" />
     <ClInclude Include="..\..\src\graphics\GLContext.h" />
+    <ClInclude Include="..\..\src\graphics\GLContextManager.h" />
     <ClInclude Include="..\..\src\graphics\GLShaderParam.h" />
     <ClInclude Include="..\..\src\graphics\GLTexture.h" />
     <ClInclude Include="..\..\src\graphics\GPUBandpassFilter.h" />
@@ -123,6 +125,9 @@
     <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
     <ClInclude Include="..\..\src\graphics\HistoryPreProcessor.h" />
     <ClInclude Include="..\..\src\graphics\ImagingProjection.h" />
+    <ClInclude Include="..\..\src\graphics\MCFBO.h" />
+    <ClInclude Include="..\..\src\graphics\MCShaderParam.h" />
+    <ClInclude Include="..\..\src\graphics\MCTexture.h" />
     <ClInclude Include="..\..\src\graphics\OGLHelper.h" />
     <ClInclude Include="..\..\src\graphics\OGLShader.h" />
     <ClInclude Include="..\..\src\graphics\PBO.h" />
@@ -135,6 +140,7 @@
     <ClInclude Include="..\..\src\graphics\ShaderRegistry.h" />
     <ClInclude Include="..\..\src\graphics\StandardShader.h" />
     <ClInclude Include="..\..\src\graphics\SubVertexArray.h" />
+    <ClInclude Include="..\..\src\graphics\TexInfo.h" />
     <ClInclude Include="..\..\src\graphics\TextureMover.h" />
     <ClInclude Include="..\..\src\graphics\TwoPassScale.h" />
     <ClInclude Include="..\..\src\graphics\VertexArray.h" />
@@ -148,6 +154,7 @@
     <ClCompile Include="..\..\src\graphics\BmpTextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />
+    <ClCompile Include="..\..\src\graphics\FBOInfo.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter3x3.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterBandpass.cpp" />
@@ -176,6 +183,7 @@
     <ClCompile Include="..\..\src\graphics\GLBufferCache.cpp" />
     <ClCompile Include="..\..\src\graphics\GLConfig.cpp" />
     <ClCompile Include="..\..\src\graphics\GLContext.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLContextManager.cpp" />
     <ClCompile Include="..\..\src\graphics\GLShaderParam.cpp" />
     <ClCompile Include="..\..\src\graphics\GLTexture.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBandpassFilter.cpp" />
@@ -191,6 +199,9 @@
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
     <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
     <ClCompile Include="..\..\src\graphics\ImagingProjection.cpp" />
+    <ClCompile Include="..\..\src\graphics\MCFBO.cpp" />
+    <ClCompile Include="..\..\src\graphics\MCShaderParam.cpp" />
+    <ClCompile Include="..\..\src\graphics\MCTexture.cpp" />
     <ClCompile Include="..\..\src\graphics\OGLHelper.cpp" />
     <ClCompile Include="..\..\src\graphics\OGLShader.cpp" />
     <ClCompile Include="..\..\src\graphics\PBO.cpp" />
@@ -199,6 +210,7 @@
     <ClCompile Include="..\..\src\graphics\ShaderRegistry.cpp" />
     <ClCompile Include="..\..\src\graphics\StandardShader.cpp" />
     <ClCompile Include="..\..\src\graphics\SubVertexArray.cpp" />
+    <ClCompile Include="..\..\src\graphics\TexInfo.cpp" />
     <ClCompile Include="..\..\src\graphics\TextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexArray.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexData.cpp" />

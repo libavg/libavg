@@ -45,9 +45,6 @@ public:
     void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex);
     virtual BitmapPtr moveTextureToBmp(GLTexture& tex, int mipmapLevel=0);
 
-    BitmapPtr lock();
-    void unlock();
-    void moveToTexture(GLTexture& tex);
     void moveTextureToPBO(GLTexture& tex, int mipmapLevel=0);
     BitmapPtr movePBOToBmp() const;
 
@@ -55,6 +52,7 @@ public:
     int getID() const;
 
 private:
+    void moveToTexture(GLTexture& tex);
     unsigned getMemNeeded() const;
     unsigned getStride() const;
     unsigned getTarget() const;

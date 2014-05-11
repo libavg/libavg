@@ -28,6 +28,8 @@
 #include "../graphics/ImagingProjection.h"
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLContextManager.h"
+#include "../graphics/MCFBO.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -107,7 +109,7 @@ void RasterNode::connectDisplay()
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
-    setupFX(true);
+    setupFX();
 }
 
 void RasterNode::disconnect(bool bKill)
@@ -115,7 +117,7 @@ void RasterNode::disconnect(bool bKill)
     if (m_pSurface) {
         m_pSurface->destroy();
     }
-    m_pFBO = FBOPtr();
+    m_pFBO = MCFBOPtr();
     m_pImagingProjection = ImagingProjectionPtr();
     if (bKill) {
         m_pFXNode = FXNodePtr();
@@ -150,7 +152,7 @@ void RasterNode::checkReload()
         }
         if (m_sMaskFilename == "") {
             m_pMaskBmp = BitmapPtr();
-            getSurface()->setMask(GLTexturePtr());
+            getSurface()->setMask(MCTexturePtr());
         }
         if (getState() == Node::NS_CANRENDER && m_pMaskBmp) {
             downloadMask();
@@ -217,7 +219,7 @@ const std::string& RasterNode::getBlendModeStr() const
 void RasterNode::setBlendModeStr(const string& sBlendMode)
 {
     GLContext::BlendMode blendMode = GLContext::stringToBlendMode(sBlendMode);
-    if (!GLContext::getMain()->isBlendModeSupported(blendMode)) {
+    if (!GLContext::getCurrent()->isBlendModeSupported(blendMode)) {
         m_sBlendMode = "blend";
         m_BlendMode = GLContext::BLEND_BLEND;
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -313,11 +315,11 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
         m_pFXNode->disconnect();
     }
     if (m_pFXNode && !pFXNode) {
-        m_pFBO = FBOPtr();
+        m_pFBO = MCFBOPtr();
     }
     m_pFXNode = pFXNode;
     if (getState() == NS_CANRENDER) {
-        setupFX(true);
+        setupFX();
     }
 }
 
@@ -394,9 +396,8 @@ void RasterNode::calcMaskCoords()
 
 void RasterNode::downloadMask()
 {
-    GLTexturePtr pTex(new GLTexture(m_pMaskBmp->getSize(), I8, 
-            m_Material.getUseMipmaps()));
-    pTex->moveBmpToTexture(m_pMaskBmp);
+    MCTexturePtr pTex = GLContextManager::get()->createTextureFromBmp(m_pMaskBmp,
+            m_Material.getUseMipmaps());
     m_pSurface->setMask(pTex);
 }
 
@@ -405,12 +406,11 @@ static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
         bool bPremultipliedAlpha, bool bForceRender)
 {
-    setupFX(false);
     if (m_pFXNode && (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty() ||
             bForceRender))
     {
         ScopeTimer Timer(FXProfilingZone);
-        GLContext* pContext = GLContext::getMain();
+        GLContext* pContext = GLContext::getCurrent();
         StandardShader::get()->setAlpha(1.0f);
         m_pSurface->activate(getMediaSize());
 
@@ -423,15 +423,14 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
         m_pImagingProjection->setColor(color);
         m_pImagingProjection->draw(StandardShader::get()->getShader());
-
 /*
         static int i=0;
         stringstream ss;
         ss << "node" << i << ".png";
         BitmapPtr pBmp = m_pFBO->getImage(0);
         pBmp->save(ss.str());
-*/    
-        m_pFXNode->apply(m_pFBO->getTex());
+*/  
+        m_pFXNode->apply(m_pFBO->getTex()->getCurTex());
         
 /*        
         stringstream ss1;
@@ -439,9 +438,9 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         i++;
         m_pFXNode->getImage()->save(ss1.str());
 */
-        m_bFXDirty = false;
-        m_pSurface->resetDirty();
-        m_pFXNode->resetDirty();
+//        m_bFXDirty = false;
+//        m_pSurface->resetDirty();
+//        m_pFXNode->resetDirty();
     }
 }
 
@@ -462,25 +461,26 @@ void RasterNode::newSurface()
     if (m_pSurface->isCreated()) {
         calcVertexGrid(m_TileVertices);
         calcTexCoords();
+        setupFX();
     }
 }
 
-void RasterNode::setupFX(bool bNewFX)
+void RasterNode::setupFX()
 {
-    if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
-        if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
-            m_pFXNode->setSize(m_pSurface->getSize());
-            m_pFXNode->connect();
-            m_bFXDirty = true;
-        }
+    if (m_pSurface && m_pSurface->getSize() != IntPoint(-1,-1) && m_pFXNode) {
+        m_pFXNode->setSize(m_pSurface->getSize());
+        m_pFXNode->connect();
+        m_bFXDirty = true;
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
-            m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
-                    getMipmap()));
-            GLTexturePtr pTex = m_pFBO->getTex();
-            #ifndef AVG_ENABLE_EGL
-            pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-            #endif
+#ifdef AVG_ENABLE_EGL
+            unsigned wrapMode = GL_CLAMP_TO_EDGE;
+#else
+            unsigned wrapMode = GL_CLAMP_TO_BORDER;
+#endif
+            GLContextManager* pCM = GLContextManager::get();
+            m_pFBO = pCM->createFBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
+                    false, getMipmap(), wrapMode, wrapMode);
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
                     m_pSurface->getSize()));
         }
@@ -491,7 +491,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         GLContext::BlendMode mode, float opacity, const Pixel32& color,
         bool bPremultipliedAlpha)
 {
-    GLContext* pContext = GLContext::getMain();
+    GLContext* pContext = GLContext::getCurrent();
     FRect destRect;
     
     StandardShaderPtr pShader = pContext->getStandardShader();

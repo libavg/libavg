@@ -31,7 +31,6 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapLoader.h"
-#include "../graphics/GLTexture.h"
 
 #include <string>
 
@@ -281,30 +280,13 @@ float VideoDecoder::getStreamFPS() const
     return avg::getStreamFPS(m_pVStream);
 }
 
-FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
+FrameAvailableCode VideoDecoder::getRenderedBmp(BitmapPtr& pBmp, float timeWanted)
 {
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);
-    return renderToBmps(pBmps, timeWanted);
-}
-
-FrameAvailableCode VideoDecoder::renderToTexture(GLTexturePtr pTextures[4], 
-        float timeWanted)
-{
-    std::vector<BitmapPtr> pBmps;
-    for (unsigned i=0; i<getNumPixelFormatPlanes(m_PF); ++i) {
-        pBmps.push_back(pTextures[i]->lockStreamingBmp());
-    }
-    FrameAvailableCode frameAvailable;
-    if (pixelFormatIsPlanar(m_PF)) {
-        frameAvailable = renderToBmps(pBmps, timeWanted);
-    } else {
-        frameAvailable = renderToBmp(pBmps[0], timeWanted);
-    }
-    for (unsigned i=0; i<getNumPixelFormatPlanes(m_PF); ++i) {
-        pTextures[i]->unlockStreamingBmp(frameAvailable == FA_NEW_FRAME);
-    }
-    return frameAvailable;
+    FrameAvailableCode fa = getRenderedBmps(pBmps, timeWanted);
+    pBmp = pBmps[0];
+    return fa;
 }
 
 void VideoDecoder::logConfig()
@@ -357,6 +339,22 @@ AVCodecContext const* VideoDecoder::getCodecContext() const
 AVCodecContext* VideoDecoder::getCodecContext()
 {
     return m_pVStream->codec;
+}
+
+void VideoDecoder::allocFrameBmps(vector<BitmapPtr>& pBmps)
+{
+    if (pixelFormatIsPlanar(getPixelFormat())) {
+        IntPoint size = getSize();
+        pBmps[0] = BitmapPtr(new Bitmap(size, I8));
+        IntPoint halfSize(size.x/2, size.y/2);
+        pBmps[1] = BitmapPtr(new Bitmap(halfSize, I8));
+        pBmps[2] = BitmapPtr(new Bitmap(halfSize, I8));
+        if (pixelFormatHasAlpha(getPixelFormat())) {
+            pBmps[3] = BitmapPtr(new Bitmap(size, I8));
+        }
+    } else {
+        pBmps[0] = BitmapPtr(new Bitmap(getSize(), getPixelFormat()));
+    }
 }
 
 int VideoDecoder::getVStreamIndex() const

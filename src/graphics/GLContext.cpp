@@ -23,18 +23,7 @@
 
 #include "ShaderRegistry.h"
 #include "StandardShader.h"
-
-#ifdef __APPLE__
-    #include "CGLContext.h"
-#elif defined linux
-    #ifdef AVG_ENABLE_EGL
-        #include "EGLContext.h"
-    #else
-        #include "GLXContext.h"
-    #endif
-#elif defined _WIN32
-    #include "WGLContext.h"
-#endif
+#include "GLContextManager.h"
 
 #include "../base/Backtrace.h"
 #include "../base/Exception.h"
@@ -51,36 +40,11 @@ using namespace std;
 using namespace boost;
 
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
-GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
 
-GLContext* GLContext::create(const GLConfig& glConfig, const IntPoint& windowSize,
-        const SDL_SysWMinfo* pSDLWMInfo)
-{
-    if (glConfig.m_bGLES) {
-        AVG_ASSERT(isGLESSupported());
-    }
-#ifdef __APPLE__
-    return new CGLContext(glConfig, windowSize, pSDLWMInfo);
-#elif defined linux
-    #ifdef AVG_ENABLE_EGL
-        GLConfig tempConfig = glConfig;
-        tempConfig.m_bGLES = true;
-        return new EGLContext(tempConfig, windowSize, pSDLWMInfo);
-    #else
-        return new GLXContext(glConfig, windowSize, pSDLWMInfo);
-    #endif
-#elif defined _WIN32
-    return new WGLContext(glConfig, windowSize, pSDLWMInfo);
-#else
-    AVG_ASSERT(false);
-    return GLContextPtr();
-#endif
-}
-
-GLContext::GLContext(const IntPoint& windowSize, const SDL_SysWMinfo* pSDLWMInfo)
+GLContext::GLContext(const IntPoint& windowSize)
     : m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
@@ -95,6 +59,7 @@ GLContext::GLContext(const IntPoint& windowSize, const SDL_SysWMinfo* pSDLWMInfo
 
 GLContext::~GLContext()
 {
+    GLContextManager::get()->unregisterContext(this);
 }
 
 void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
@@ -210,16 +175,6 @@ bool GLContext::useGPUYUVConversion() const
 GLConfig::ShaderUsage GLContext::getShaderUsage() const
 {
     return m_GLConfig.m_ShaderUsage;
-}
-
-GLBufferCache& GLContext::getVertexBufferCache()
-{
-    return m_VertexBufferCache;
-}
-
-GLBufferCache& GLContext::getIndexBufferCache()
-{
-    return m_IndexBufferCache;
 }
 
 GLBufferCache& GLContext::getPBOCache()
@@ -504,16 +459,6 @@ GLContext* GLContext::getCurrent()
     return *s_pCurrentContext;
 }
 
-GLContext* GLContext::getMain()
-{
-    return s_pMainContext;
-}
-
-void GLContext::setMain(GLContext * pMainContext)
-{
-    s_pMainContext = pMainContext;
-}
-
 int GLContext::nextMultiSampleValue(int curSamples)
 {
     switch (curSamples) {
@@ -528,19 +473,6 @@ int GLContext::nextMultiSampleValue(int curSamples)
         default:
             return 8;
     }
-}
-
-bool GLContext::isGLESSupported()
-{
-#if defined linux
-    #ifdef AVG_ENABLE_EGL
-    return true;
-    #else
-    return GLXContext::haveARBCreateContext();
-    #endif
-#else
-    return false;
-#endif
 }
 
 void GLContext::enableErrorLog(bool bEnable)

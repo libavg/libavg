@@ -124,7 +124,7 @@ class SpeedDiv(app.MainDiv):
     def __createNodes(self):
         self.__nodes = []
         for i in xrange(self.__optNumObjs):
-            pos = (random.randrange(800-64), random.randrange(600-64))
+            pos = (random.randrange(self.width-64), random.randrange(self.height-64))
             size = (self.__optImgSize, self.__optImgSize)
             if self.__optVideo:
                 if self.__optAudio:
@@ -154,7 +154,7 @@ class SpeedDiv(app.MainDiv):
 
     def __moveNodes(self):
         for node in self.__nodes:
-            node.pos = (random.randrange(800-64), random.randrange(600-64))
+            node.pos = (random.randrange(self.width-64), random.randrange(self.height-64))
 
 
 if __name__ == '__main__':

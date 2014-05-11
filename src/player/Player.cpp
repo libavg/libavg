@@ -44,10 +44,11 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "TrackerInputDevice.h"
-#include "SDLDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
+#include "SDLWindow.h"
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     #include "Win7TouchInputDevice.h"
 #endif
@@ -75,6 +76,7 @@
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/Display.h"
+#include "../graphics/GLContextManager.h"
 
 #include "../imaging/Camera.h"
 
@@ -131,6 +133,7 @@ Player::Player()
         SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
     }
 #endif
+    m_pContextManager = GLContextManagerPtr(new GLContextManager());
 #ifdef __linux
 // Turning this on causes fp exceptions in the linux nvidia drivers.
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
@@ -143,7 +146,7 @@ Player::Player()
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
 
-    SDLDisplayEngine::initSDL();
+    DisplayEngine::initSDL();
     initConfig();
 
     FontStyle::registerType();
@@ -194,7 +197,7 @@ Player::~Player()
     if (m_pDisplayEngine) {
         m_pDisplayEngine->teardown();
     }
-    SDLDisplayEngine::quitSDL();
+    DisplayEngine::quitSDL();
 }
 
 Player* Player::get()
@@ -213,40 +216,41 @@ bool Player::exists()
 
 void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 {
+    errorIfMultiDisplay("Player.setResolution");
     errorIfPlaying("Player.setResolution");
-    m_DP.m_bFullscreen = bFullscreen;
-    if (bpp) {
-        m_DP.m_BPP = bpp;
-    }
-    if (width) {
-        m_DP.m_WindowSize.x = width;
-    }
-    if (height) {
-        m_DP.m_WindowSize.y = height;
-    }
+
+    m_DP.setResolution(bFullscreen, width, height, bpp);
 }
 
 bool Player::isFullscreen()
 {
-    return m_DP.m_bFullscreen;
+    return m_DP.isFullscreen();
 }
 
 void Player::setWindowFrame(bool bHasWindowFrame)
 {
+    errorIfMultiDisplay("Player.setWindowFrame");
     errorIfPlaying("Player.setWindowFrame");
-    m_DP.m_bHasWindowFrame = bHasWindowFrame;
+    m_DP.getWindowParams(0).m_bHasWindowFrame = bHasWindowFrame;
 }
 
 void Player::setWindowPos(int x, int y)
 {
+    errorIfMultiDisplay("Player.setWindowPos");
     errorIfPlaying("Player.setWindowPos");
-    m_DP.m_Pos.x = x;
-    m_DP.m_Pos.y = y;
+    WindowParams& wp = m_DP.getWindowParams(0);
+    wp.m_Pos.x = x;
+    wp.m_Pos.y = y;
 }
 
 void Player::setWindowTitle(const string& sTitle)
 {
     m_pDisplayEngine->setWindowTitle(sTitle);
+}
+
+void Player::setWindowConfig(const string& sFileName)
+{
+    m_DP.setConfig(sFileName);
 }
 
 void Player::useGLES(bool bGLES)
@@ -561,8 +565,7 @@ void Player::setFramerate(float rate)
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
     }
-    m_DP.m_Framerate = rate;
-    m_DP.m_VBRate = 0;
+    m_DP.setFramerate(rate, 0);
 }
 
 void Player::setVBlankFramerate(int rate)
@@ -570,8 +573,7 @@ void Player::setVBlankFramerate(int rate)
     if (m_bIsPlaying) {
         m_pDisplayEngine->setVBlankRate(rate);
     }
-    m_DP.m_Framerate = 0;
-    m_DP.m_VBRate = rate;
+    m_DP.setFramerate(0, rate);
 }
 
 float Player::getEffectiveFramerate()
@@ -850,10 +852,12 @@ BitmapPtr Player::screenshot()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
     }
-    if (GLContext::getMain()->isGLES()) {
+    if (GLContext::getCurrent()->isGLES()) {
         // Some GLES implementations invalidate the buffer after eglSwapBuffers.
         // The only way we can get at the contents at this point is to rerender them.
-        m_pMainCanvas->render(m_pDisplayEngine->getWindowSize(), false);
+        WindowPtr pWindow = m_pDisplayEngine->getSDLWindow();
+        IntRect viewport = pWindow->getViewport();
+        m_pMainCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
     }
     return m_pDisplayEngine->screenshot();
 }
@@ -863,12 +867,12 @@ void Player::showCursor(bool bShow)
     if (m_pDisplayEngine) {
         m_pDisplayEngine->showCursor(bShow);
     }
-    m_DP.m_bShowCursor = bShow;
+    m_DP.setShowCursor(bShow);
 }
 
 bool Player::isCursorShown()
 {
-    return m_DP.m_bShowCursor;
+    return m_DP.isCursorVisible();
 }
 
 void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
@@ -1125,9 +1129,10 @@ void Player::endFrame()
 float Player::getFramerate()
 {
     if (!m_pDisplayEngine) {
-        return m_DP.m_Framerate;
+        return m_DP.getFramerate();
+    } else {
+        return m_pDisplayEngine->getFramerate();
     }
-    return m_pDisplayEngine->getFramerate();
 }
 
 float Player::getVideoRefreshRate()
@@ -1141,7 +1146,7 @@ size_t Player::getVideoMemInstalled()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemInstalled must be called after Player.play().");
     }
-    return GLContext::getMain()->getVideoMemInstalled();
+    return GLContext::getCurrent()->getVideoMemInstalled();
 }
 
 size_t Player::getVideoMemUsed()
@@ -1150,7 +1155,7 @@ size_t Player::getVideoMemUsed()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemUsed must be called after Player.play().");
     }
-    return GLContext::getMain()->getVideoMemUsed();
+    return GLContext::getCurrent()->getVideoMemUsed();
 }
 
 void Player::setGamma(float red, float green, float blue)
@@ -1158,32 +1163,33 @@ void Player::setGamma(float red, float green, float blue)
     if (m_pDisplayEngine) {
         m_pDisplayEngine->setGamma(red, green, blue);
     }
-    m_DP.m_Gamma[0] = red;
-    m_DP.m_Gamma[1] = green;
-    m_DP.m_Gamma[2] = blue;
+    m_DP.setGamma(red, green, blue);
 }
 
 void Player::initConfig()
 {
+    errorIfMultiDisplay("Player.setWindowPos");
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
 
-    m_DP.m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
-    if (m_DP.m_BPP != 15 && m_DP.m_BPP != 16 && m_DP.m_BPP != 24 && m_DP.m_BPP != 32) {
-        AVG_LOG_ERROR("BPP must be 15, 16, 24 or 32. Current value is "
-                << m_DP.m_BPP << ". Aborting." );
+    int bpp = atoi(pMgr->getOption("scr", "bpp")->c_str());
+    if (bpp != 15 && bpp != 16 && bpp != 24 && bpp != 32) {
+        AVG_LOG_ERROR("BPP must be 15, 16, 24 or 32. Current value is " << bpp <<
+                ". Aborting." );
         exit(-1);
     }
-    m_DP.m_bFullscreen = pMgr->getBoolOption("scr", "fullscreen", false);
+    m_DP.setBPP(bpp);
+    m_DP.setFullscreen(pMgr->getBoolOption("scr", "fullscreen", false));
 
-    m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
-    m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
+    WindowParams& wp = m_DP.getWindowParams(0);
+    wp.m_Size.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
+    wp.m_Size.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
 
-    if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
+    if (m_DP.isFullscreen() && (wp.m_Size != IntPoint(0, 0))) {
         AVG_LOG_ERROR("Can't set fullscreen and window size at once. Aborting.");
         exit(-1);
     }
-    if (m_DP.m_WindowSize.x != 0 && m_DP.m_WindowSize.y != 0) {
+    if (wp.m_Size.x != 0 && wp.m_Size.y != 0) {
         AVG_LOG_ERROR("Can't set window width and height at once");
         AVG_LOG_ERROR("(aspect ratio is determined by avg file). Aborting.");
         exit(-1);
@@ -1224,7 +1230,9 @@ void Player::initConfig()
 #endif
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
-    pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
+    float gamma[3];
+    pMgr->getGammaOption("scr", "gamma", gamma);
+    m_DP.setGamma(gamma[0], gamma[1], gamma[2]);
 }
 
 void Player::initGraphics(const string& sShaderPath)
@@ -1236,23 +1244,24 @@ void Player::initGraphics(const string& sShaderPath)
     }
     // Init display configuration.
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-            "Display bpp: " << m_DP.m_BPP);
+            "Display bpp: " << m_DP.getBPP());
 
     if (m_bDisplayEngineBroken) {
         m_bDisplayEngineBroken = false;
         m_pDisplayEngine->teardown();
-        m_pDisplayEngine = SDLDisplayEnginePtr();
+        m_pDisplayEngine = DisplayEnginePtr();
     }
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = DisplayEnginePtr(new DisplayEngine());
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Requested OpenGL configuration: ");
     m_GLConfig.log();
-    m_DP.m_WindowSize = m_pDisplayEngine->calcWindowSize(m_DP);
-    if (m_pDisplayEngine->getWindowSize() != m_DP.m_WindowSize ||
-            m_pDisplayEngine->isFullscreen() != m_DP.m_bFullscreen) 
+    m_DP.calcWindowSizes();
+    if (m_DP.getNumWindows() > 1 ||
+            m_pDisplayEngine->getWindowSize() != m_DP.getWindowParams(0).m_Size ||
+            m_pDisplayEngine->isFullscreen() != m_DP.isFullscreen()) 
     {
         m_pDisplayEngine->teardown();
         m_pDisplayEngine->init(m_DP, m_GLConfig);
@@ -1282,8 +1291,10 @@ void Player::initMainCanvas(NodePtr pRootNode)
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this, m_bMouseEnabled));
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
-    m_DP.m_Size = m_pMainCanvas->getSize();
-
+    if (m_DP.getNumWindows() == 1) {
+        m_DP.getWindowParams(0).m_Viewport = 
+                IntRect(IntPoint(0,0), m_pMainCanvas->getSize());
+    }
     registerFrameEndListener(BitmapManager::get());
 }
 
@@ -1301,10 +1312,10 @@ NodePtr Player::internalLoad(const string& sAVG, const string& sFilename)
     return pNode;
 }
 
-SDLDisplayEnginePtr Player::safeGetDisplayEngine()
+DisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = DisplayEnginePtr(new DisplayEngine());
     }
     return m_pDisplayEngine;
 
@@ -1574,13 +1585,23 @@ void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
     }
 }
 
-void Player::errorIfPlaying(const std::string& sFunc) const
+void Player::errorIfPlaying(const string& sFunc) const
 {
     if (m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 sFunc + " must be called before Player.play().");
     }
 }
+
+void Player::errorIfMultiDisplay(const string& sFunc) const
+{
+    if (m_DP.getNumWindows() != 1) {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                sFunc + " only supported in single-window mode.");
+    }
+}
+
+
 
 void Player::handleTimers()
 {
@@ -1631,7 +1652,7 @@ void Player::handleTimers()
     }
 }
 
-SDLDisplayEngine * Player::getDisplayEngine() const
+DisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }
@@ -1717,6 +1738,10 @@ void Player::cleanup(bool bIsAbort)
     m_pLastCursorStates.clear();
     m_pTestHelper->reset();
     ThreadProfiler::get()->dumpStatistics();
+    for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
+        m_pCanvases[i]->stopPlayback(bIsAbort);
+    }
+    m_pCanvases.clear();
     if (m_pMainCanvas) {
         unregisterFrameEndListener(BitmapManager::get());
         delete BitmapManager::get();
@@ -1727,17 +1752,13 @@ void Player::cleanup(bool bIsAbort)
     if (m_pMultitouchInputDevice) {
         m_pMultitouchInputDevice = InputDevicePtr();
     }
-    for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-        m_pCanvases[i]->stopPlayback(bIsAbort);
-    }
-    m_pCanvases.clear();
 
     if (m_pDisplayEngine) {
-        m_DP.m_WindowSize = IntPoint(0,0);
+        m_DP.getWindowParams(0).m_Size = IntPoint(0, 0);
         if (!m_bKeepWindowOpen) {
             m_pDisplayEngine->deinitRender();
             m_pDisplayEngine->teardown();
-            m_pDisplayEngine = SDLDisplayEnginePtr();
+            m_pDisplayEngine = DisplayEnginePtr();
         }
     }
     if (AudioEngine::get()) {

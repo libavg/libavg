@@ -24,11 +24,11 @@
 
 #include "../api.h"
 
+#include "FBOInfo.h"
 #include "GLTexture.h"
 #ifndef AVG_ENABLE_EGL
     #include "PBO.h"
 #endif
-#include "VertexArray.h"
 
 #include "../base/GLMHelper.h"
 
@@ -38,12 +38,10 @@
 
 namespace avg {
 
-class AVG_API FBO
+class AVG_API FBO: public FBOInfo
 {
 public:
-    FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
-            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
-            bool bUseStencil=false, bool bMipmap=false);
+    FBO(const FBOInfo& fboInfo, const std::vector<GLTexturePtr>& pTex);
     virtual ~FBO();
 
     void activate() const;
@@ -53,24 +51,11 @@ public:
     void moveToPBO(int i=0) const;
     BitmapPtr getImageFromPBO() const;
     GLTexturePtr getTex(int i=0) const;
-    const IntPoint& getSize() const;
-
-    static bool isFBOSupported();
-    static bool isMultisampleFBOSupported();
-    static bool isPackedDepthStencilSupported();
 
     static void checkError(const std::string& sContext);
 
 private:
     void init();
-    void throwMultisampleError();
-
-    IntPoint m_Size;
-    PixelFormat m_PF;
-    unsigned m_MultisampleSamples;
-    bool m_bUsePackedDepthStencil;
-    bool m_bUseStencil;
-    bool m_bMipmap;
 
 #ifndef AVG_ENABLE_EGL
     PBOPtr m_pOutputPBO;
@@ -86,6 +71,7 @@ private:
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;
+typedef boost::shared_ptr<const FBO> FBOConstPtr;
 
 }
 
