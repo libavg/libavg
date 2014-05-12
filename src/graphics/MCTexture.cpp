@@ -73,6 +73,7 @@ void MCTexture::generateMipmaps()
 void MCTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
     getCurTex()->moveBmpToTexture(pBmp);
+    m_bIsDirty = true;
 }
 
 BitmapPtr MCTexture::moveTextureToBmp(int mipmapLevel)

@@ -163,7 +163,7 @@ void Canvas::doFrame(bool bPythonAvailable)
         }
         Player::get()->endTraversingTree();
     }
-    m_pScheduledFXNodes.clear();
+    resetFXSchedule();
     emitFrameEndSignal();
 }
 
@@ -305,6 +305,16 @@ void Canvas::renderFX()
         (*it)->renderFX();
     }
 }
+
+void Canvas::resetFXSchedule()
+{
+    vector<RasterNodePtr>::iterator it;
+    for (it=m_pScheduledFXNodes.begin(); it!=m_pScheduledFXNodes.end(); ++it) {
+        (*it)->resetFXDirty();
+    }
+    m_pScheduledFXNodes.clear();
+}
+
 
 void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp)
 {

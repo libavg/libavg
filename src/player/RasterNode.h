@@ -90,7 +90,8 @@ class AVG_API RasterNode: public AreaNode
 
         void setEffect(FXNodePtr pFXNode);
         virtual void renderFX()=0;
-        
+        void resetFXDirty();
+
     protected:
         RasterNode();
          

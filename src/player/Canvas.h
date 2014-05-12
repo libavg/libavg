@@ -110,6 +110,7 @@ class AVG_API Canvas: public ExportedObject
     private:
         virtual void renderTree()=0;
         void renderFX();
+        void resetFXSchedule();
         void renderOutlines(const glm::mat4& transform);
 
         void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);

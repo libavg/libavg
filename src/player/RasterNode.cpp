@@ -323,6 +323,15 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
+void RasterNode::resetFXDirty()
+{
+    m_bFXDirty = false;
+    m_pSurface->resetDirty();
+    if (m_pFXNode) {
+        m_pFXNode->resetDirty();
+    }
+}
+
 void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color)
 {
     if (isVisible() && m_pSurface->isCreated()) {
@@ -438,9 +447,6 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         i++;
         m_pFXNode->getImage()->save(ss1.str());
 */
-//        m_bFXDirty = false;
-//        m_pSurface->resetDirty();
-//        m_pFXNode->resetDirty();
     }
 }
 
