@@ -23,15 +23,13 @@
 
 
 #include "../avgconfigwrapper.h"
+#include "../graphics/Bitmap.h"
 
 #include <vdpau/vdpau.h>
 #include <libavcodec/vdpau.h>
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
-
-class Bitmap;
-typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 extern VdpGetProcAddress* vdp_get_proc_address;
 
