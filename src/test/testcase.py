@@ -19,7 +19,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-
+#
 import unittest
 
 import sys
