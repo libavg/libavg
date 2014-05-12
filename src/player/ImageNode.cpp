@@ -155,8 +155,7 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible() && m_pImage->getSource() != Image::NONE) {
-            scheduleFXRender();
-        }
+        scheduleFXRender();
     }
     calcVertexArray(pVA);
 }
