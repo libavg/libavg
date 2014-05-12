@@ -94,7 +94,8 @@ class AVG_API RasterNode: public AreaNode
 
     protected:
         RasterNode();
-         
+        
+        void scheduleFXRender();
         void calcVertexArray(const VertexArrayPtr& pVA, 
                 const Pixel32& color = Pixel32(0,0,0,0));
         void blt32(const glm::mat4& transform, const glm::vec2& destSize, float opacity,

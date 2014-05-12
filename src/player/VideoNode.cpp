@@ -655,8 +655,7 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
             }
             m_bFirstFrameDecoded |= m_bFrameAvailable;
             if (m_bFirstFrameDecoded) {
-                getCanvas()->scheduleFXRender(
-                        dynamic_pointer_cast<RasterNode>(shared_from_this()));
+                scheduleFXRender();
             }
         }
     } else {

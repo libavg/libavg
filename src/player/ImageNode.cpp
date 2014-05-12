@@ -156,8 +156,7 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         if (m_pImage->getSource() != Image::NONE) {
-            getCanvas()->scheduleFXRender(
-                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
+            scheduleFXRender();
         }
     }
     calcVertexArray(pVA);

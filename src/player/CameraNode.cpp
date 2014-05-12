@@ -346,8 +346,7 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
             ScopeTimer Timer(CameraDownloadProfilingZone);
             m_FrameNum++;
             GLContextManager::get()->scheduleTexUpload(m_pTex, m_pCurBmp);
-            getCanvas()->scheduleFXRender(
-                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
+            scheduleFXRender();
             m_bNewBmp = false;
         } else if (m_bNewSurface) {
             BitmapPtr pBmp;
@@ -359,8 +358,7 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
                 FilterFill<Pixel8>(0).applyInPlace(pBmp);
             } 
             GLContextManager::get()->scheduleTexUpload(m_pTex, pBmp);
-            getCanvas()->scheduleFXRender(
-                    dynamic_pointer_cast<RasterNode>(shared_from_this()));
+            scheduleFXRender();
         }
         m_bNewSurface = false;
     }

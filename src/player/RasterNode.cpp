@@ -24,6 +24,7 @@
 #include "TypeDefinition.h"
 #include "OGLSurface.h"
 #include "FXNode.h"
+#include "Canvas.h"
 
 #include "../graphics/ImagingProjection.h"
 #include "../graphics/ShaderRegistry.h"
@@ -38,6 +39,7 @@
 #include "../base/ScopeTimer.h"
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -332,6 +334,14 @@ void RasterNode::resetFXDirty()
     }
 }
 
+void RasterNode::scheduleFXRender()
+{
+    if (m_pFXNode) {
+        getCanvas()->scheduleFXRender(
+                dynamic_pointer_cast<RasterNode>(shared_from_this()));
+    }
+}
+
 void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color)
 {
     if (isVisible() && m_pSurface->isCreated()) {
@@ -415,8 +425,7 @@ static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
         bool bPremultipliedAlpha, bool bForceRender)
 {
-    if (m_pFXNode && (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty() ||
-            bForceRender))
+    if (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty() || bForceRender)
     {
         ScopeTimer Timer(FXProfilingZone);
         GLContext* pContext = GLContext::getCurrent();

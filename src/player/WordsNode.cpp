@@ -702,8 +702,7 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         redraw();
     }
     if (m_sText.length() != 0 && isVisible()) {
-        getCanvas()->scheduleFXRender(
-                dynamic_pointer_cast<RasterNode>(shared_from_this()));
+        scheduleFXRender();
     }
     calcVertexArray(pVA, m_FontStyle.getColorVal());
 }
