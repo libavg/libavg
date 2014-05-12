@@ -154,8 +154,7 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 {
     ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (isVisible()) {
-        if (m_pImage->getSource() != Image::NONE) {
+    if (isVisible() && m_pImage->getSource() != Image::NONE) {
             scheduleFXRender();
         }
     }
