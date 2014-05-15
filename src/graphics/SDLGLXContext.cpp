@@ -45,15 +45,7 @@ SDLGLXContext::SDLGLXContext(const GLConfig& glConfig, const IntPoint& windowSiz
     : GLXContext(windowSize)
 {
     GLConfig config = glConfig;
-    try {
-        createGLXContext(config, windowSize, pSDLWMInfo, true);
-    } catch (const Exception &e) {
-        if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
-            createGLXContext(config, windowSize, pSDLWMInfo, false);
-        } else {
-            AVG_ASSERT_MSG(false, "Failed to create GLX context");
-        }
-    }
+    createGLXContext(config, windowSize, pSDLWMInfo);
     init(config, true);
 }
 
@@ -62,12 +54,11 @@ SDLGLXContext::~SDLGLXContext()
 }
 
 void SDLGLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize,
-        const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit)
+        const SDL_SysWMinfo* pSDLWMInfo)
 {
     Window win = 0;
     setX11ErrorHandler();
-    XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(pSDLWMInfo), glConfig,
-            bUseDebugBit);
+    XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(pSDLWMInfo), glConfig);
 
     if (pSDLWMInfo) {
         win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, getColormap());

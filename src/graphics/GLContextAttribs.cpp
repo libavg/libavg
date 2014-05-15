@@ -24,17 +24,20 @@
 
 #include "../base/Exception.h"
 
+#ifdef AVG_ENABLE_EGL
+    #define ATTR_NONE EGL_NONE
+#else
+    #define ATTR_NONE 0
+#endif
+
+
 namespace avg {
 
 GLContextAttribs::GLContextAttribs()
 {
     m_pAttributes = new int[50];
     m_NumAttributes = 0;
-#ifdef AVG_ENABLE_EGL
-    m_pAttributes[0] = EGL_NONE;
-#else
-    m_pAttributes[0] = 0;
-#endif
+    m_pAttributes[0] = ATTR_NONE;
 }
 
 GLContextAttribs::~GLContextAttribs()
@@ -42,6 +45,15 @@ GLContextAttribs::~GLContextAttribs()
     delete[] m_pAttributes;
 }
 
+GLContextAttribs& GLContextAttribs::operator=(const GLContextAttribs& rhs){
+    m_NumAttributes = rhs.m_NumAttributes;
+    m_pAttributes = new int[50];
+    for(int i = 0; i<m_NumAttributes; i++){
+        m_pAttributes[i] = rhs.m_pAttributes[i];
+    }
+    m_pAttributes[m_NumAttributes] = ATTR_NONE;
+    return *this;
+}
 
 void GLContextAttribs::append(int newAttr, int newAttrVal)
 {
@@ -51,11 +63,7 @@ void GLContextAttribs::append(int newAttr, int newAttrVal)
     if (newAttrVal != -1) {
         m_pAttributes[m_NumAttributes++] = newAttrVal;
     }
-#ifdef AVG_ENABLE_EGL
-    m_pAttributes[m_NumAttributes] = EGL_NONE;
-#else
-    m_pAttributes[m_NumAttributes] = 0;
-#endif
+    m_pAttributes[m_NumAttributes] = ATTR_NONE;
 }
 
 const int* GLContextAttribs::get() const

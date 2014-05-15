@@ -31,6 +31,8 @@ public:
     GLContextAttribs();
     virtual ~GLContextAttribs();
 
+    GLContextAttribs& operator=(const GLContextAttribs& rhs);
+
     void append(int newAttr, int newAttrVal=-1);
 
     const int* get() const;

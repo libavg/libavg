@@ -118,8 +118,7 @@ bool GLXContext::haveARBCreateContext()
     return s_bHaveExtension;
 }
 
-XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
-        GLConfig& glConfig, bool bUseDebugBit)
+XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig)
 {
     m_pDisplay = pDisplay;
     GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig);
@@ -127,12 +126,14 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
 
     if (haveARBCreateContext()) {
         GLContextAttribs attrs;
+        GLContextAttribs attrsWODebug;
         if (glConfig.m_bGLES) {
             attrs.append(GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
             attrs.append(GLX_CONTEXT_MAJOR_VERSION_ARB, 2);
             attrs.append(GLX_CONTEXT_MINOR_VERSION_ARB, 0);
         }
-        if (glConfig.m_bUseDebugContext && bUseDebugBit) {
+        if (glConfig.m_bUseDebugContext) {
+            attrsWODebug = attrs;
             attrs.append(GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB);
         }
         PFNGLXCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB = 
@@ -141,6 +142,13 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay,
 
         s_bDumpX11ErrorMsg = false;
         m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
+        if(!m_Context && glConfig.m_bUseDebugContext) {
+            //On intel HW ContextCreation with DebugBit fails
+            AVG_LOG_WARNING("Failed to create DEBUG context… falling back to standard context");
+            s_bX11Error = false;
+            m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrsWODebug.get());
+            AVG_ASSERT(m_Context);
+        }
         s_bDumpX11ErrorMsg = true;
         throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
     } else {

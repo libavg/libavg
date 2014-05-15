@@ -41,7 +41,7 @@ public:
 
 private:
     void createContext(GLConfig& glConfig, const std::string& sDisplay, 
-            const IntRect& windowDimensions, bool bHasWindowFrame, bool bUseDebugBit);
+            const IntRect& windowDimensions, bool bHasWindowFrame);
 
     ::Window m_Window;
 };

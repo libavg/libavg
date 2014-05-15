@@ -46,8 +46,7 @@ public:
     static bool haveARBCreateContext();
 
 protected:
-    XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig,
-            bool bUseDebugBit);
+    XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig);
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
@@ -61,7 +60,7 @@ private:
     GLXFBConfig getFBConfig(::Display* pDisplay, GLConfig& glConfig);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
     void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit);
+            const SDL_SysWMinfo* pSDLWMInfo);
 
     Colormap m_Colormap;
     ::Display* m_pDisplay;

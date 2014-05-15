@@ -45,16 +45,7 @@ SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string&
     : GLXContext(windowDimensions.size())
 {
     GLConfig config = glConfig;
-    try {
-        createContext(config, sDisplay, windowDimensions, bHasWindowFrame, true);
-    } catch (const Exception &e) {
-        if (e.getCode() == AVG_ERR_DEBUG_CONTEXT_FAILED) {
-            createContext(config, sDisplay, windowDimensions, bHasWindowFrame, false);
-        } else {
-            AVG_TRACE(Logger::category::NONE, Logger::severity::ERROR, 
-                    "Failed to create GLX context: " << e.what());
-        }
-    }
+    createContext(config, sDisplay, windowDimensions, bHasWindowFrame);
     init(config, true);
 }
 
@@ -64,7 +55,7 @@ SecondaryGLXContext::~SecondaryGLXContext()
 }
 
 void SecondaryGLXContext::createContext(GLConfig& glConfig, const string& sDisplay, 
-        const IntRect& windowDimensions, bool bHasWindowFrame, bool bUseDebugBit)
+        const IntRect& windowDimensions, bool bHasWindowFrame)
 {
     setX11ErrorHandler();
 
@@ -73,7 +64,7 @@ void SecondaryGLXContext::createContext(GLConfig& glConfig, const string& sDispl
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Display '" + sDisplay + "' is not available.");
     }
-    XVisualInfo* pVisualInfo = createDetachedContext(pDisplay, glConfig, bUseDebugBit);
+    XVisualInfo* pVisualInfo = createDetachedContext(pDisplay, glConfig);
     
     XSetWindowAttributes swa;
     swa.event_mask = ButtonPressMask;

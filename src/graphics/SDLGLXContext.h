@@ -41,7 +41,7 @@ public:
 
 private:
     void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo, bool bUseDebugBit);
+            const SDL_SysWMinfo* pSDLWMInfo);
 
 };
 
