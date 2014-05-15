@@ -172,8 +172,9 @@ void export_event()
         .add_property("button", &MouseEvent::getButton)
     ;
 
-    class_<TouchEvent, bases<CursorEvent> >("TouchEvent", init<int, Event::Type,
+    class_<TouchEvent, bases<CursorEvent> >("TouchEvent", init<int, int, Event::Type,
             const IntPoint&, Event::Source, optional<const glm::vec2&> >())
+        .add_property("userid", &TouchEvent::getUserID)
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("eccentricity", &TouchEvent::getEccentricity)

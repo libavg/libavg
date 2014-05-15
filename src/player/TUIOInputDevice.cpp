@@ -172,10 +172,11 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
 void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args)
 {
     osc::int32 tuioID;
+    osc::int32 userID;
     float xpos, ypos;
     float xspeed, yspeed;
     float accel;
-    args >> tuioID >> xpos >> ypos >> xspeed >> yspeed >> accel;
+    args >> tuioID >> xpos >> ypos >> xspeed >> yspeed >> userID;
     glm::vec2 pos(xpos, ypos);
     glm::vec2 speed(xspeed, yspeed);
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
@@ -183,12 +184,12 @@ void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args)
     TouchEventPtr pEvent;
     if (!pTouchStatus) {
         // Down
-        pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), Event::CURSOR_DOWN, 
+        pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), userID, Event::CURSOR_DOWN, 
                 screenPos, Event::TOUCH));
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
-        pEvent = TouchEventPtr(new TouchEvent(0, Event::CURSOR_MOTION, screenPos, 
+        pEvent = TouchEventPtr(new TouchEvent(0, userID, Event::CURSOR_MOTION, screenPos, 
                 Event::TOUCH));
         pTouchStatus->pushEvent(pEvent);
     }

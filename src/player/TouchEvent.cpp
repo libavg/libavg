@@ -36,6 +36,7 @@ namespace avg {
 TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
         Source source, const glm::vec2& speed)
     : CursorEvent(id, eventType, pos, source),
+      m_UserID(-1),
       m_pBlob(pBlob),
       m_bHasHandOrientation(false)
 {
@@ -68,6 +69,7 @@ TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source sourc
         const glm::vec2& speed, float orientation, float area, float eccentricity, 
         glm::vec2 majorAxis, glm::vec2 minorAxis)
     : CursorEvent(id, eventType, pos, source),
+      m_UserID(-1),
       m_Orientation(orientation),
       m_Area(area),
       m_Eccentricity(eccentricity),
@@ -77,9 +79,23 @@ TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source sourc
     setSpeed(speed);
 }
 
+TouchEvent::TouchEvent(int id, int userID, Type eventType, const IntPoint& pos, Source source,
+        const glm::vec2& speed)
+    : CursorEvent(id, eventType, pos, source),
+      m_UserID(userID),
+      m_Orientation(0),
+      m_Area(20),
+      m_Eccentricity(0),
+      m_MajorAxis(5, 0),
+      m_MinorAxis(0, 5)
+{
+    setSpeed(speed);
+}
+
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
         const glm::vec2& speed)
     : CursorEvent(id, eventType, pos, source),
+      m_UserID(-1),
       m_Orientation(0),
       m_Area(20),
       m_Eccentricity(0),
@@ -98,6 +114,11 @@ CursorEventPtr TouchEvent::cloneAs(Type eventType) const
     TouchEventPtr pClone(new TouchEvent(*this));
     pClone->m_Type = eventType;
     return pClone;
+}
+
+int TouchEvent::getUserID() const
+{
+    return m_UserID;
 }
 
 float TouchEvent::getOrientation() const 

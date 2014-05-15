@@ -45,7 +45,7 @@ TouchStatus::TouchStatus(CursorEventPtr pEvent)
 TouchStatus::~TouchStatus()
 {
 }
-
+    
 void TouchStatus::pushEvent(CursorEventPtr pEvent, bool bCheckMotion)
 {
     AVG_ASSERT(pEvent);
@@ -88,7 +88,7 @@ CursorEventPtr TouchStatus::pollEvent()
         m_pLastEvent = pEvent;
         return pEvent;
     }
-}
+}   
 
 CursorEventPtr TouchStatus::getLastEvent()
 {
@@ -106,4 +106,3 @@ int TouchStatus::getID() const
 }
 
 }
-
