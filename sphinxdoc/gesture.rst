@@ -110,10 +110,6 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
 
             Aborts the present recognized gesture and sliding caused by inertia
 
-        .. py:method:: abortInertia()
-
-            Causes inertia processing to end immediately.
-
 
     .. autoclass:: HoldRecognizer(node, [delay=HOLD_DELAY, maxDist=MAX_TAP_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
 

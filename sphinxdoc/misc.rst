@@ -172,8 +172,7 @@ Misc. Classes
     .. autoclass:: CubicSpline(controlpoints)
 
         Class that generates a smooth curve between control points using cubic 
-        spline-based interpolation. The utility avg_splineedit.py can be used to edit a
-        spline and generate control points. For an introduction on spline interpolation,
+        spline-based interpolation. For an introduction on spline interpolation,
         see http://en.wikipedia.org/wiki/Spline_interpolation.
 
         :param controlpoints:
