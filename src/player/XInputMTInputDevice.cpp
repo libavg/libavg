@@ -68,6 +68,7 @@ XInputMTInputDevice::~XInputMTInputDevice()
 
 void XInputMTInputDevice::start()
 {
+
     Status status;
     DisplayEngine * pEngine = Player::get()->getDisplayEngine();
     glm::vec2 size(pEngine->getSize());
@@ -94,8 +95,8 @@ void XInputMTInputDevice::start()
     }
 
     // Which version of XI2? 
-    int major;
-    int minor;
+    int major=2;
+    int minor=1;
     status = XIQueryVersion(s_pDisplay, &major, &minor);
     if (status == BadRequest) {
         throw Exception(AVG_ERR_MT_INIT, 
