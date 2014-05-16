@@ -1,3 +1,13 @@
+libavg 1.8.1 - May xx, 2014
+
+  svn revision xxx
+
+  Bugfixes:
+    * Fixed XInput multitouch support (r9651, #489)
+    * Documentation fixes (r9648, r9637, r9636, #487)
+    * Cleaner test output (r9629, r9630, #410)
+    * Fixed undefined reference in VDPAUHelper (r9635, #486)
+
 libavg 1.8.0 - Feb 15, 2014
 
   svn revision 9557
