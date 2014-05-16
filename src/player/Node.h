@@ -143,6 +143,8 @@ class AVG_API Node: public Publisher
         bool getEffectiveActive() const;
         NodePtr getSharedThis();
 
+        void logFileNotFoundWarning(const std::string& sWarn) const;
+
     private:
         std::string m_ID;
 

@@ -146,11 +146,7 @@ void RasterNode::checkReload()
                 throw;
             }
             m_sMaskFilename = "";
-            if (getState() != Node::NS_UNCONNECTED) {
-                AVG_LOG_ERROR(ex.getStr());
-            } else {
-                AVG_TRACE(Logger::category::MEMORY, Logger::severity::ERROR, ex.getStr());
-            }
+            logFileNotFoundWarning(ex.getStr());
         }
         if (m_sMaskFilename == "") {
             m_pMaskBmp = BitmapPtr();

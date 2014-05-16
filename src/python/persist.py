@@ -58,14 +58,14 @@ class Persist(object):
                 self.data = pickle.load(f)
             except:
                 f.close()
-                libavg.logger.error('Persist %s is corrupted or unreadable, '
+                libavg.logger.warning('Persist %s is corrupted or unreadable, '
                         'reinitializing' % self)
                 self.data = initialData
                 self.commit()
             else:
                 f.close()
                 if not validator(self.data):
-                    libavg.logger.error('Sanity check failed for %s, '
+                    libavg.logger.warning('Sanity check failed for %s, '
                             'reinitializing' % self)
                     self.data = initialData
                     self.commit()
@@ -90,20 +90,20 @@ class Persist(object):
             with open(tempFile, 'wb') as f:
                 pickle.dump(self.data, f)
         except Exception, e:
-            libavg.logger.error('Cannot save %s (%s)' % (self.__storeFile, str(e)))
+            libavg.logger.warning('Cannot save %s (%s)' % (self.__storeFile, str(e)))
             return False
         else:
             if os.path.exists(self.__storeFile):
                 try:
                     os.remove(self.__storeFile)
                 except Exception, e:
-                    libavg.logger.error('Cannot overwrite dump file '
+                    libavg.logger.warning('Cannot overwrite dump file '
                             '%s (%s)' % (self, str(e)))
                     return False
             try:
                 os.rename(tempFile, self.__storeFile)
             except Exception, e:
-                libavg.logger.error('Cannot save %s (%s)' % (self, str(e)))
+                libavg.logger.warning('Cannot save %s (%s)' % (self, str(e)))
                 os.remove(tempFile)
                 return False
             else:

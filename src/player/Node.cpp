@@ -471,11 +471,7 @@ bool Node::checkReload(const std::string& sHRef, const ImagePtr& pImage,
             }
         } catch (Exception& ex) {
             pImage->setEmpty();
-            if (getState() != Node::NS_UNCONNECTED) {
-                AVG_LOG_ERROR(ex.getStr());
-            } else {
-                AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, ex.getStr());
-            }
+            logFileNotFoundWarning(ex.getStr());
         }
         return true;
     } else {
@@ -496,6 +492,17 @@ bool Node::getEffectiveActive() const
 NodePtr Node::getSharedThis()
 {
     return dynamic_pointer_cast<Node>(ExportedObject::getSharedThis());
+}
+
+void Node::logFileNotFoundWarning(const string& sWarn) const
+{
+    unsigned int sev;
+    if (getState() != Node::NS_UNCONNECTED) {
+        sev = Logger::severity::WARNING; 
+    } else {
+        sev = Logger::severity::INFO; 
+    }
+    AVG_TRACE(Logger::category::MEMORY, sev, sWarn);
 }
 
 void Node::connectOneEventHandler(const EventID& id, PyObject * pObj, 

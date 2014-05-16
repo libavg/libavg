@@ -32,21 +32,6 @@ from libavg.app import keyboardmanager
 from libavg.app.settings import Option
 import testcase
 
-class SuppressOutput(object):
-    class Blackhole(object):
-        def write(self, *args):
-            pass
-
-    def __init__(self):
-        self.__savedStreams = [sys.stdout, sys.stderr]
-
-    def __enter__(self):
-        sys.stdout = self.Blackhole()
-        sys.stderr = self.Blackhole()
-
-    def __exit__(self, *args):
-        sys.stdout, sys.stderr = self.__savedStreams
-
 
 class TestApp(libavg.app.App):
     CUSTOM_SETTINGS = {'app_resolution': '160x120', 'app_window_size': '160x120'}
@@ -137,7 +122,7 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(e.parsedArgs[1], ['foo'])
 
         e = settings.ArgvExtender('', args=['foo', '--foo-baxxx', 'baz'])
-        with SuppressOutput():
+        with testcase.SuppressOutput():
             self.assertRaises(SystemExit, lambda: s.applyExtender(e))
 
     def testSettingsKargsExtender(self):
