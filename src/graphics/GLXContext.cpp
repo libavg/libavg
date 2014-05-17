@@ -150,7 +150,6 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& gl
             m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrsWODebug.get());
             AVG_ASSERT(m_Context);
         }
-        throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
     } else {
         m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
     }
