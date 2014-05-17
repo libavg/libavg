@@ -142,6 +142,7 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& gl
 
         s_bDumpX11ErrorMsg = false;
         m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrs.get());
+        s_bDumpX11ErrorMsg = true;
         if(!m_Context && glConfig.m_bUseDebugContext) {
             //On intel HW ContextCreation with DebugBit fails
             AVG_LOG_WARNING("Failed to create DEBUG context… falling back to standard context");
@@ -149,7 +150,6 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& gl
             m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrsWODebug.get());
             AVG_ASSERT(m_Context);
         }
-        s_bDumpX11ErrorMsg = true;
         throwOnXError(AVG_ERR_DEBUG_CONTEXT_FAILED);
     } else {
         m_Context = glXCreateContext(m_pDisplay, pVisualInfo, 0, GL_TRUE);
