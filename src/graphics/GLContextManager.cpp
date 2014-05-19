@@ -105,7 +105,6 @@ GLContext* GLContextManager::createContext(const GLConfig& glConfig,
     AVG_ASSERT(false);
     pContext = 0;
 #endif
-    m_pContexts.push_back(pContext);
     return pContext;
 }
 

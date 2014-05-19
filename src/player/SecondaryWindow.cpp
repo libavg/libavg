@@ -57,7 +57,6 @@ SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
     string sDisplay = ":0." + toString(wp.m_DisplayServer);
     pGLContext = new SecondaryGLXContext(glConfig, sDisplay, windowDimensions,
             wp.m_bHasWindowFrame);
-    GLContextManager::get()->registerContext(pGLContext);
     setGLContext(pGLContext);
     
     pMainContext->activate();

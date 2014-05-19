@@ -55,6 +55,7 @@ GLContext::GLContext(const IntPoint& windowSize)
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
+    GLContextManager::get()->registerContext(this);
 }
 
 GLContext::~GLContext()
