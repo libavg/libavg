@@ -62,7 +62,12 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
 AudioDecoderThread::~AudioDecoderThread()
 {
     if (m_pResampleContext) {
+#ifdef LIBAVRESAMPLE_VERSION
+        avresample_close(m_pResampleContext);
+        avresample_free(&m_pResampleContext);
+#else
         audio_resample_close(m_pResampleContext);
+#endif
         m_pResampleContext = 0;
     }
 }
@@ -222,23 +227,52 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
         int currentSampleFormat)
 {
     if (!m_pResampleContext) {
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
+#ifdef LIBAVRESAMPLE_VERSION
+        m_pResampleContext = avresample_alloc_context();
+        av_opt_set_int(m_pResampleContext, "in_channel_layout",
+                av_get_default_channel_layout(m_pStream->codec->channels), 0);
+        av_opt_set_int(m_pResampleContext, "out_channel_layout", AV_CH_LAYOUT_STEREO, 0);
+        av_opt_set_int(m_pResampleContext, "in_sample_rate", m_InputSampleRate, 0);
+        av_opt_set_int(m_pResampleContext, "out_sample_rate", m_AP.m_SampleRate, 0);
+        av_opt_set_int(m_pResampleContext, "in_sample_fmt",
+                (SampleFormat)currentSampleFormat, 0);
+        av_opt_set_int(m_pResampleContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+        int err = avresample_open(m_pResampleContext);
+        AVG_ASSERT(err >= 0);
+#else
+    #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
         m_pResampleContext = av_audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
                 SAMPLE_FMT_S16, (SampleFormat)currentSampleFormat, 16, 10, 0, 0.8);
-#else
+    #else
         m_pResampleContext = audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate);
+    #endif
 #endif
         AVG_ASSERT(m_pResampleContext);
     }
-
+#ifdef LIBAVRESAMPLE_VERSION
+    uint8_t *pResampledData;
+    int leftoverSamples = avresample_available(m_pResampleContext);
+    int framesAvailable = leftoverSamples +
+            av_rescale_rnd(avresample_get_delay(m_pResampleContext) +
+                    framesDecoded, m_AP.m_SampleRate, m_InputSampleRate, AV_ROUND_UP);
+    av_samples_alloc(&pResampledData, 0, 2, framesAvailable,
+            AV_SAMPLE_FMT_S16, 0);
+    int framesResampled = avresample_convert(m_pResampleContext, &pResampledData, 0, 
+            framesAvailable, (uint8_t**)&pDecodedData, 0, framesDecoded);
+    AudioBufferPtr pBuffer(new AudioBuffer(framesResampled, m_AP));
+    memcpy(pBuffer->getData(), pResampledData, 
+            framesResampled*m_AP.m_Channels*sizeof(short));
+    av_freep(&pResampledData);
+#else
     short pResampledData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
     int framesResampled = audio_resample(m_pResampleContext, pResampledData,
             (short*)pDecodedData, framesDecoded);
     AudioBufferPtr pBuffer(new AudioBuffer(framesResampled, m_AP));
     memcpy(pBuffer->getData(), pResampledData, 
             framesResampled*m_AP.m_Channels*sizeof(short));
+#endif
     return pBuffer;
 }
 

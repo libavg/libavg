@@ -47,6 +47,7 @@ extern "C" {
 #if LIBAVCODEC_VERSION_MAJOR > 52
 #include <libavutil/pixdesc.h>
 #include <libavutil/mathematics.h>
+#include <libavutil/opt.h>
 #else
 #define av_get_pix_fmt_name avcodec_get_pix_fmt_name
 #endif
@@ -70,6 +71,10 @@ extern "C" {
         #define url_fopen avio_open
         #define url_fclose avio_close
         #define URL_WRONLY AVIO_FLAG_WRITE
+#endif
+#ifdef HAVE_LIBAVRESAMPLE_AVRESAMPLE_H
+    #include <libavresample/avresample.h>
+    #include <libavresample/version.h>
 #endif
 }
 
