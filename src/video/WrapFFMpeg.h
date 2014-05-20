@@ -67,6 +67,16 @@ extern "C" {
   #define SampleFormat AVSampleFormat
 #endif
 
+#ifndef AV_CODEC_ID_MPEG1VIDEO
+  #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO 
+  #define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
+  #define AV_CODEC_ID_H264 CODEC_ID_H264
+  #define AV_CODEC_ID_WMV3 CODEC_ID_WMV3
+  #define AV_CODEC_ID_VC1 CODEC_ID_VC1
+  #define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
+  #define AV_CODEC_ID_NONE CODEC_ID_NONE
+#endif
+
 #ifndef URL_WRONLY
         #define url_fopen avio_open
         #define url_fclose avio_close
