@@ -194,8 +194,10 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
         }
     }
     av_free(pDecodedData);
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
+#if LIBAVCODEC_VERSION_MAJOR > 53
     avcodec_free_frame(&pDecodedFrame);
+#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
+    delete pDecodedFrame;
 #endif
     delete pTempPacket;
 }
