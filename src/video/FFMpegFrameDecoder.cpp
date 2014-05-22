@@ -75,11 +75,7 @@ bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame* pFrame,
     int bGotPicture = 0;
     AVCodecContext* pContext = m_pStream->codec;
     AVG_ASSERT(pPacket);
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
     avcodec_decode_video2(pContext, pFrame, &bGotPicture, pPacket);
-#else
-    avcodec_decode_video(pContext, pFrame, &bGotPicture, pPacket->data, pPacket->size);
-#endif
     if (bGotPicture) {
         m_LastFrameTime = getFrameTime(pPacket->dts, bFrameAfterSeek);
     }
@@ -93,15 +89,11 @@ bool FFMpegFrameDecoder::decodeLastFrame(AVFrame* pFrame)
     // EOF. Decode the last data we got.
     int bGotPicture = 0;
     AVCodecContext* pContext = m_pStream->codec;
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
     AVPacket packet;
     av_init_packet(&packet);
     packet.data = 0;
     packet.size = 0;
     avcodec_decode_video2(pContext, pFrame, &bGotPicture, &packet);
-#else
-    avcodec_decode_video(pContext, pFrame, &bGotPicture, 0, 0);
-#endif
     m_bEOF = true;
 
     // We don't have a timestamp for the last frame, so we'll

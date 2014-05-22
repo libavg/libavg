@@ -144,12 +144,9 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
         int planeSize;
         bytesDecoded = av_samples_get_buffer_size(&planeSize, m_pStream->codec->channels,
             pDecodedFrame->nb_samples, m_pStream->codec->sample_fmt, 1);
-#elif LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
+#else
         int bytesConsumed = avcodec_decode_audio3(m_pStream->codec, (short*)pDecodedData,
                 &bytesDecoded, pTempPacket);
-#else
-        int bytesConsumed = avcodec_decode_audio2(m_pStream->codec, (short*)pDecodedData,
-                &bytesDecoded, pTempPacket->data, pTempPacket->size);
 #endif
 //        This is triggered for some strange/broken videos.
 //        AVG_ASSERT(bytesConsumed != 0);
@@ -169,7 +166,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                     m_InputSampleFormat != SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
             bool bIsPlanar = false;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)
             bIsPlanar = av_sample_fmt_is_planar((SampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
@@ -181,7 +177,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                 av_free(pPackedData);
                 bNeedsResample = false;
             }
-#endif
             if (bNeedsResample) {
                 pBuffer = resampleAudio(pDecodedData, framesDecoded,
                         m_InputSampleFormat);
@@ -256,14 +251,9 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
         int err = avresample_open(m_pResampleContext);
         AVG_ASSERT(err >= 0);
 #else
-    #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
         m_pResampleContext = av_audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
                 SAMPLE_FMT_S16, (SampleFormat)currentSampleFormat, 16, 10, 0, 0.8);
-    #else
-        m_pResampleContext = audio_resample_init(m_AP.m_Channels, 
-                m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate);
-    #endif
 #endif
         AVG_ASSERT(m_pResampleContext);
     }
@@ -358,12 +348,10 @@ int AudioDecoderThread::getBytesPerSample(int sampleFormat)
             return 4;
         case SAMPLE_FMT_DBL:
             return 8;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(52, 3, 0)
         case SAMPLE_FMT_S16P:
             return 2;
         case SAMPLE_FMT_FLTP:
             return 4;
-#endif
         default:
             AVG_LOG_ERROR("Unknown SampleFormat: " << sampleFormat << "\n");
             AVG_ASSERT(false);
