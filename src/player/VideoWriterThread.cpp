@@ -226,12 +226,7 @@ void VideoWriterThread::openVideoCodec()
     AVCodec* videoCodec = avcodec_find_encoder(m_pVideoStream->codec->codec_id);
     AVG_ASSERT(videoCodec);
 
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
     int rc = avcodec_open2(m_pVideoStream->codec, videoCodec, 0);
-
-#else
-    int rc = avcodec_open(m_pVideoStream->codec, videoCodec);
-#endif
     AVG_ASSERT(rc == 0);
 }
 
@@ -321,11 +316,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
         }
 
         if (pCodecContext->coded_frame->key_frame) {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             packet.flags |= AV_PKT_FLAG_KEY;
-#else
-            packet.flags |= PKT_FLAG_KEY;
-#endif
         }
         packet.stream_index = m_pVideoStream->index;
         packet.data = m_pVideoBuffer;
