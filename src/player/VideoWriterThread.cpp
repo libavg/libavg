@@ -128,7 +128,7 @@ void VideoWriterThread::open()
 #else
     m_pOutputFormat = guess_format(0, m_sFilename.c_str(), 0);
 #endif
-    m_pOutputFormat->video_codec = CODEC_ID_MJPEG;
+    m_pOutputFormat->video_codec = AV_CODEC_ID_MJPEG;
 
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
     m_pOutputFormatContext = avformat_alloc_context();
@@ -140,7 +140,7 @@ void VideoWriterThread::open()
     strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
             sizeof(m_pOutputFormatContext->filename));
 
-    if (m_pOutputFormat->video_codec != CODEC_ID_NONE) {
+    if (m_pOutputFormat->video_codec != AV_CODEC_ID_NONE) {
         setupVideoStream();
     }
 #if LIBAVFORMAT_VERSION_MAJOR < 52
