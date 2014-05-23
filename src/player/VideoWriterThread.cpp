@@ -302,28 +302,42 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
     ScopeTimer timer(ProfilingZoneWriteFrame);
     m_FramesWritten++;
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
-    int out_size = avcodec_encode_video(pCodecContext, m_pVideoBuffer,
-            VIDEO_BUFFER_SIZE, pFrame);
+    AVPacket packet = { 0 };
+    int ret, out_size = 0;
 
-    /* if zero size, it means the image was buffered */
+    #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 0, 0)
+        int got_output = 0;
+        ret = avcodec_encode_video2(pCodecContext, &packet, pFrame, &got_output);
+        if(ret < 0) {
+            av_free_packet(&packet);
+            AVG_ASSERT(false);
+        }
+        out_size = packet.size;
+    #else
+        out_size = avcodec_encode_video(pCodecContext, m_pVideoBuffer,
+                VIDEO_BUFFER_SIZE, pFrame);
+        if(out_size > 0) {
+            av_init_packet(&packet);
+
+            if ((pCodecContext->coded_frame->pts) != (long long)AV_NOPTS_VALUE) {
+                packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
+                        pCodecContext->time_base, m_pVideoStream->time_base);
+            }
+
+            if (pCodecContext->coded_frame->key_frame) {
+                packet.flags |= AV_PKT_FLAG_KEY;
+            }
+            packet.stream_index = m_pVideoStream->index;
+            packet.data = m_pVideoBuffer;
+            packet.size = out_size;
+        }
+    #endif
+
+    ///* if zero size, it means the image was buffered */
     if (out_size > 0) {
-        AVPacket packet;
-        av_init_packet(&packet);
-
-        if ((pCodecContext->coded_frame->pts) != (long long)AV_NOPTS_VALUE) {
-            packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
-                    pCodecContext->time_base, m_pVideoStream->time_base);
-        }
-
-        if (pCodecContext->coded_frame->key_frame) {
-            packet.flags |= AV_PKT_FLAG_KEY;
-        }
-        packet.stream_index = m_pVideoStream->index;
-        packet.data = m_pVideoBuffer;
-        packet.size = out_size;
-
         /* write the compressed frame in the media file */
-        int ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
+        ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
+        av_free_packet(&packet);
         AVG_ASSERT(ret == 0);
     }
 
