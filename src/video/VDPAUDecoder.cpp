@@ -72,7 +72,9 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
     switch (pContext->codec_id) {
         case AV_CODEC_ID_MPEG1VIDEO:
             pCodec = avcodec_find_decoder_by_name("mpeg1video_vdpau");
-            pCodec->id = AV_CODEC_ID_MPEG1VIDEO;
+            if(pCodec) {
+                pCodec->id = AV_CODEC_ID_MPEG1VIDEO;
+            }
             break;
         case AV_CODEC_ID_MPEG2VIDEO:
             pCodec = avcodec_find_decoder_by_name("mpegvideo_vdpau");
