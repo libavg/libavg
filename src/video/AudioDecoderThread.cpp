@@ -350,10 +350,12 @@ int AudioDecoderThread::getBytesPerSample(int sampleFormat)
             return 4;
         case SAMPLE_FMT_DBL:
             return 8;
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(52, 3, 0)
         case SAMPLE_FMT_S16P:
             return 2;
         case SAMPLE_FMT_FLTP:
             return 4;
+#endif
         default:
             AVG_LOG_ERROR("Unknown SampleFormat: " << sampleFormat << "\n");
             AVG_ASSERT(false);
