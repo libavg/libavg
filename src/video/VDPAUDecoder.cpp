@@ -70,20 +70,22 @@ AVCodec* VDPAUDecoder::openCodec(AVCodecContext* pContext)
 
     AVCodec* pCodec = 0;
     switch (pContext->codec_id) {
-        case CODEC_ID_MPEG1VIDEO:
+        case AV_CODEC_ID_MPEG1VIDEO:
             pCodec = avcodec_find_decoder_by_name("mpeg1video_vdpau");
-            pCodec->id = CODEC_ID_MPEG1VIDEO;
+            if(pCodec) {
+                pCodec->id = AV_CODEC_ID_MPEG1VIDEO;
+            }
             break;
-        case CODEC_ID_MPEG2VIDEO:
+        case AV_CODEC_ID_MPEG2VIDEO:
             pCodec = avcodec_find_decoder_by_name("mpegvideo_vdpau");
             break;
-        case CODEC_ID_H264:
+        case AV_CODEC_ID_H264:
             pCodec = avcodec_find_decoder_by_name("h264_vdpau");
             break;
-        case CODEC_ID_WMV3:
+        case AV_CODEC_ID_WMV3:
             pCodec = avcodec_find_decoder_by_name("wmv3_vdpau");
             break;
-        case CODEC_ID_VC1:
+        case AV_CODEC_ID_VC1:
             pCodec = avcodec_find_decoder_by_name("vc1_vdpau");
             break;
         default:
@@ -133,15 +135,15 @@ void VDPAUDecoder::drawHorizBand(struct AVCodecContext* pContext, const AVFrame*
 AVPixelFormat VDPAUDecoder::getFormat(AVCodecContext* pContext, const AVPixelFormat* pFmt)
 {
     switch (pContext->codec_id) {
-        case CODEC_ID_H264:
+        case AV_CODEC_ID_H264:
             return PIX_FMT_VDPAU_H264;
-        case CODEC_ID_MPEG1VIDEO:
+        case AV_CODEC_ID_MPEG1VIDEO:
             return PIX_FMT_VDPAU_MPEG1;
-        case CODEC_ID_MPEG2VIDEO:
+        case AV_CODEC_ID_MPEG2VIDEO:
             return PIX_FMT_VDPAU_MPEG2;
-        case CODEC_ID_WMV3:
+        case AV_CODEC_ID_WMV3:
             return PIX_FMT_VDPAU_WMV3;
-        case CODEC_ID_VC1:
+        case AV_CODEC_ID_VC1:
             return PIX_FMT_VDPAU_VC1;
         default:
             return pFmt[0];
