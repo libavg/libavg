@@ -44,12 +44,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/avutil.h>
-#if LIBAVCODEC_VERSION_MAJOR > 52
 #include <libavutil/pixdesc.h>
 #include <libavutil/mathematics.h>
-#else
-#define av_get_pix_fmt_name avcodec_get_pix_fmt_name
-#endif
+#include <libavutil/opt.h>
 #if LIBAVFORMAT_VERSION_MAJOR < 53
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
@@ -66,10 +63,24 @@ extern "C" {
   #define SampleFormat AVSampleFormat
 #endif
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 00)
+  #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO 
+  #define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
+  #define AV_CODEC_ID_H264 CODEC_ID_H264
+  #define AV_CODEC_ID_WMV3 CODEC_ID_WMV3
+  #define AV_CODEC_ID_VC1 CODEC_ID_VC1
+  #define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
+  #define AV_CODEC_ID_NONE CODEC_ID_NONE
+#endif
+
 #ifndef URL_WRONLY
         #define url_fopen avio_open
         #define url_fclose avio_close
         #define URL_WRONLY AVIO_FLAG_WRITE
+#endif
+#ifdef HAVE_LIBAVRESAMPLE_AVRESAMPLE_H
+    #include <libavresample/avresample.h>
+    #include <libavresample/version.h>
 #endif
 }
 

@@ -67,21 +67,19 @@ void VideoInfo::setAudioData(const string& sACodec, int sampleRate, int numAudio
     
 float getStreamFPS(AVStream* pStream)
 {
-    float fps;
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52, 42, 0)
+    float fps = 0;
     if (pStream->avg_frame_rate.den != 0) {
         fps = float(av_q2d(pStream->avg_frame_rate));
-    } else {
-#endif        
-        if (pStream->r_frame_rate.den != 0) {
-            fps = float(av_q2d(pStream->r_frame_rate));
-        } else {
-            float duration = float(pStream->duration)*float(av_q2d(pStream->time_base));
-            fps = pStream->nb_frames/duration;
-        }
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52, 42, 0)
+    }
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 0)
+    if (fps == 0 && pStream->r_frame_rate.den != 0) {
+        fps = float(av_q2d(pStream->r_frame_rate));
     }
 #endif
+    if (fps == 0) { 
+        float duration = float(pStream->duration)*float(av_q2d(pStream->time_base));
+        fps = pStream->nb_frames/duration;
+    }
     AVG_ASSERT(fps < 10000);
 /*
     cerr << "getStreamFPS: fps= " << fps << endl;

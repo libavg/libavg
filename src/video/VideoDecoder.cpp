@@ -83,24 +83,14 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
     m_sFilename = sFilename;
     
     AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Opening " << sFilename);
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
     err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
-#else
-    AVFormatParameters params;
-    memset(&params, 0, sizeof(params));
-    err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 0, 0, &params);
-#endif
     if (err < 0) {
         m_sFilename = "";
         m_pFormatContext = 0;
         avcodecError(sFilename, err);
     }
 
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
     err = avformat_find_stream_info(m_pFormatContext, 0);
-#else
-    err = av_find_stream_info(m_pFormatContext);
-#endif
 
     if (err < 0) {
         m_sFilename = "";
@@ -408,11 +398,7 @@ int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
     if (!pCodec) {
         return -1;
     }
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
     int rc = avcodec_open2(pContext, pCodec, 0);
-#else
-    int rc = avcodec_open(pContext, pCodec);
-#endif
 
     if (rc < 0) {
         return -1;
@@ -487,23 +473,9 @@ string VideoDecoder::getStreamPF() const
 
 void avcodecError(const string& sFilename, int err)
 {
-#if LIBAVFORMAT_VERSION_MAJOR > 52
-        char buf[256];
-        av_strerror(err, buf, 256);
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": " + buf);
-#else
-    switch(err) {
-        case AVERROR_INVALIDDATA:
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                    sFilename + ": Error while parsing header");
-        case AVERROR_NOFMT:
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": Unknown format");
-        default:
-            stringstream s;
-            s << "'" << sFilename <<  "': Error while opening file (Num:" << err << ")";
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, s.str());
-    }
-#endif
+    char buf[256];
+    av_strerror(err, buf, 256);
+    throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": " + buf);
 }
 
 }
