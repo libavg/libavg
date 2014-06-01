@@ -33,6 +33,12 @@ src/version.h
 src/video/testvideo
 test-driver
 
+# Make check output
+*.log
+*.trs
+src/test/libavg
+src/test/resultimages
+
 # python
 # Byte-compiled / optimized / DLL files
 __pycache__/
