@@ -61,3 +61,6 @@ __pycache__/
 *.la
 *.a
 *.lib
+
+# YouCompleteMe config file
+.ycm_extra_conf.py
