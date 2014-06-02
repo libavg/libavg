@@ -24,6 +24,7 @@
 
 #include "../api.h"
 
+#define GLM_FORCE_RADIANS
 #include "../glm/fwd.hpp"
 #include "../glm/gtc/matrix_transform.hpp"
 #include "../glm/gtc/type_ptr.hpp"

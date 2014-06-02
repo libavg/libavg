@@ -341,7 +341,7 @@ void AreaNode::calcTransform()
         glm::vec3 pivot(getPivot().x, getPivot().y, 0);
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos);
         transform = glm::translate(transform, pivot);
-        transform = glm::rotate(transform, (180.f/PI)*m_Angle, glm::vec3(0,0,1));
+        transform = glm::rotate(transform, m_Angle, glm::vec3(0,0,1));
         m_LocalTransform = glm::translate(transform, -pivot);
         m_bTransformChanged = false;
     }

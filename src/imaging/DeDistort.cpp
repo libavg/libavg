@@ -25,7 +25,6 @@
 #include "TrackerConfig.h"
 
 #include "../base/StringHelper.h"
-#include "../base/MathHelper.h"
 #include "../glm/gtx/rotate_vector.hpp"
 #include <cstring>
 #include <iostream>
@@ -187,7 +186,7 @@ glm::dvec2 DeDistort::inverse_transform_point(const glm::dvec2& pt)
     glm::dvec2 destPt = pt - m_CamExtents/2.;
     destPt = glm::dvec2(2*destPt.x/m_CamExtents.x, 2*destPt.y/m_CamExtents.y);
     destPt = inv_trapezoid(m_TrapezoidFactor, destPt);
-    destPt = glm::rotate(destPt, -m_Angle*180/M_PI);
+    destPt = glm::rotate(destPt, -m_Angle);
     destPt *= m_RescaleFactor;
     destPt = inverse_undistort(m_DistortionParams, destPt);
     destPt = glm::dvec2(destPt.x*m_CamExtents.x/2, destPt.y*m_CamExtents.y/2);
@@ -208,7 +207,7 @@ glm::dvec2 DeDistort::transform_point(const glm::dvec2& pt)
     destPt = glm::dvec2(2*destPt.x/m_CamExtents.x, 2*destPt.y/m_CamExtents.y);
     destPt = undistort(m_DistortionParams, destPt);
     destPt /= m_RescaleFactor;
-    destPt = glm::rotate(destPt, m_Angle*180/M_PI);
+    destPt = glm::rotate(destPt, m_Angle);
     destPt = trapezoid(m_TrapezoidFactor, destPt);
     destPt = glm::dvec2(destPt.x*m_CamExtents.x/2, destPt.y*m_CamExtents.y/2);
     destPt += m_CamExtents/2.;
