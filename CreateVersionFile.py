@@ -42,7 +42,7 @@ OUTPUT_TEMPLATE = '''// version.h
 #define AVG_VERSION_FULL        "%(fullVersion)s"
 #define AVG_VERSION_BUILDER     "%(builder)s"
 #define AVG_VERSION_BUILDTIME   "%(buildtime)s"
-#define AVG_VERSION_REVISION    %(revision)s
+#define AVG_VERSION_REVISION    "%(revision)s"
 #define AVG_VERSION_MAJOR       "%(major)s"
 #define AVG_VERSION_MINOR       "%(minor)s"
 #define AVG_VERSION_MICRO       "%(micro)s"
