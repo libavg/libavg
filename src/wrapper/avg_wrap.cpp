@@ -346,7 +346,6 @@ BOOST_PYTHON_MODULE(avg)
             .add_property("minor", &VersionInfo::getMinor)
             .add_property("micro", &VersionInfo::getMicro)
             .add_property("revision", &VersionInfo::getRevision)
-            .add_property("branchurl", &deprecatedGet<VersionInfo>)
             .add_property("builder", &VersionInfo::getBuilder)
             .add_property("buildtime", &VersionInfo::getBuildTime)
             ;

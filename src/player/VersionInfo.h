@@ -32,7 +32,6 @@ class AVG_API VersionInfo
     public:
         const std::string getFull();
         const std::string getRelease();
-        const std::string getBranchUrl();
         const std::string getBuilder();
         const std::string getBuildTime();
         const std::string getMajor();

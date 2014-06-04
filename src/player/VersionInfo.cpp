@@ -34,11 +34,6 @@ const std::string VersionInfo::getRelease()
     return std::string(AVG_VERSION_RELEASE);
 }
 
-const std::string VersionInfo::getBranchUrl()
-{
-    return std::string("https://github.com/libavg/libavg.git");
-}
-
 const std::string VersionInfo::getBuilder()
 {
     return std::string(AVG_VERSION_BUILDER);
