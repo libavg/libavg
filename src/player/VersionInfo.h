@@ -32,13 +32,12 @@ class AVG_API VersionInfo
     public:
         const std::string getFull();
         const std::string getRelease();
-        const std::string getBranchUrl();
         const std::string getBuilder();
         const std::string getBuildTime();
         const std::string getMajor();
         const std::string getMinor();
         const std::string getMicro();
-        int getRevision();
+        const std::string getRevision();
 };
 
 }

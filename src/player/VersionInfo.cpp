@@ -34,11 +34,6 @@ const std::string VersionInfo::getRelease()
     return std::string(AVG_VERSION_RELEASE);
 }
 
-const std::string VersionInfo::getBranchUrl()
-{
-    return std::string(AVG_VERSION_BRANCH_URL);
-}
-
 const std::string VersionInfo::getBuilder()
 {
     return std::string(AVG_VERSION_BUILDER);
@@ -64,7 +59,7 @@ const std::string VersionInfo::getMicro()
     return AVG_VERSION_MICRO;
 }
 
-int VersionInfo::getRevision()
+const std::string VersionInfo::getRevision()
 {
     return AVG_VERSION_REVISION;
 }

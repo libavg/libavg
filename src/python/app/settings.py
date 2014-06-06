@@ -151,7 +151,6 @@ class ArgvExtender(object):
             vi = libavg.VersionInfo()
             print ' version  : %s' % vi.full
             print ' builder  : %s (%s)' % (vi.builder, vi.buildtime)
-            print ' branchurl: %s' % vi.branchurl
             print
             print 'application'
             print ' version: %s' % self.__appVersionInfo
