@@ -49,6 +49,8 @@ public:
 
     virtual void ProcessPacket(const char* pData, int size, 
             const IpEndpointName& remoteEndpoint);
+    
+    virtual void processMessage(const osc::ReceivedMessage& msg);
 
 private:
 #ifndef WIN32
@@ -57,7 +59,6 @@ private:
     static DWORD WINAPI threadFunc(LPVOID p);
 #endif
     void processBundle(const osc::ReceivedBundle& bundle);
-    void processMessage(const osc::ReceivedMessage& msg);
     void processTouchSet(osc::ReceivedMessageArgumentStream& args);
     void processTangibleSet(osc::ReceivedMessageArgumentStream& args);
     void processAlive(osc::ReceivedMessageArgumentStream& args, 
