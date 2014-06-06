@@ -26,6 +26,8 @@
 /// @author Christophe Riccio
 ///////////////////////////////////////////////////////////////////////////////////
 
+#include <cstring>
+
 #include "func_common.hpp"
 #include "type_half.hpp"
 #include "../fwd.hpp"
@@ -35,7 +37,9 @@ namespace glm
 	GLM_FUNC_QUALIFIER uint packUnorm2x16(vec2 const & v)
 	{
 		u16vec2 Topack(round(clamp(v, 0.0f, 1.0f) * 65535.0f));
-		return reinterpret_cast<uint&>(Topack);
+        uint32 Result(0);
+        std::memcpy(&Result, &Topack, sizeof Result);
+		return Result;
 	}
 
 	GLM_FUNC_QUALIFIER vec2 unpackUnorm2x16(uint const & p)
@@ -47,7 +51,9 @@ namespace glm
 	GLM_FUNC_QUALIFIER uint packSnorm2x16(vec2 const & v)
 	{
 		i16vec2 Topack(round(clamp(v ,-1.0f, 1.0f) * 32767.0f));
-		return reinterpret_cast<uint32&>(Topack);
+        uint32 Result(0);
+        std::memcpy(&Result, &Topack, sizeof Result);
+		return Result;
 	}
 
 	GLM_FUNC_QUALIFIER vec2 unpackSnorm2x16(uint const & p)
