@@ -20,6 +20,8 @@
 # Current versions can be found at www.libavg.de
 #
 
+from __future__ import print_function
+
 from libavg import avg, player
 from testcase import *
 
@@ -351,8 +353,8 @@ class AVTestCase(AVGTestCase):
 
             def setOpacity():
                 video.opacity = 0.5
-            
-            print "  ", filename
+
+            print("  ", filename)
             player.setFakeFPS(25)
             root = self.loadEmptyScene()
             video = avg.VideoNode(href=filename, threaded=False,
@@ -370,10 +372,11 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage(testImgName+"4"),
                     ))
         
-        print
-        testWithFile("mpeg1-48x48.mov", "testVideoMaskYUV")
-        testWithFile("mjpeg-48x48.avi", "testVideoMaskYUVJ")
-        testWithFile("rgba-48x48.mov", "testVideoMaskRGBA")
+        print(
+            testWithFile("mpeg1-48x48.mov", "testVideoMaskYUV"),
+            testWithFile("mjpeg-48x48.avi", "testVideoMaskYUVJ"),
+            testWithFile("rgba-48x48.mov", "testVideoMaskRGBA"),
+        )
 
     def testException(self):
         class TestException(Exception):

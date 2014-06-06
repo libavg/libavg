@@ -25,13 +25,16 @@
 
 import os.path
 
+import six
+from six.moves import range
+
 from libavg import avg, player
 
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 # XXX Merge with base.bmpFromSrc()
 def _bmpFromSrc(node, src):
-    if isinstance(src, basestring):
+    if isinstance(src, six.string_types):
         if os.path.isabs(src):
             effectiveSrc = src
         else:
@@ -67,7 +70,7 @@ class Key(avg.DivNode):
             if player.isPlaying():
                 self.__createImages(downBmp, feedbackBmp)
             else:
-                player.subscribe(avg.Player.PLAYBACK_START, 
+                player.subscribe(avg.Player.PLAYBACK_START,
                         lambda: self.__createImages(downBmp, feedbackBmp))
 
     def reset(self):
@@ -117,7 +120,7 @@ class Key(avg.DivNode):
     def __createImages(self, downBmp, feedbackBmp):
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
         self.__createImage(self.__image, downBmp, 1)
- 
+
         self.__feedbackImage = avg.ImageNode(parent=self, opacity=0.0)
         if feedbackBmp and not(self.__isCommand):
             self.__createImage(self.__feedbackImage, feedbackBmp, 2)
@@ -157,7 +160,7 @@ class Keyboard(avg.DivNode):
             self.__codesPerKey = 2
         if self.__altGrKeyCode:
             self.__codesPerKey = 3
-        
+
         self.__keys = []
         if bgSrc:
             bgNode = avg.ImageNode(parent=self)
@@ -170,8 +173,8 @@ class Keyboard(avg.DivNode):
                     kd[0] += (kd[0][0],)
                 key = Key(kd, downBmp, feedbackBmp, parent=self)
             else:
-                sticky =(self.__stickyShift and 
-                        (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
+                sticky =(self.__stickyShift and
+                        (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0]))
                 key = Key(kd, downBmp, feedbackBmp, sticky=sticky, parent=self)
             self.__keys.append(key)
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onCursorDown)
@@ -183,16 +186,16 @@ class Keyboard(avg.DivNode):
         self.publish(Keyboard.CHAR)
 
     @classmethod
-    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
+    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr,
             altGrKeyStr=None):
         keyDefs = []
         curPos = avg.Point2D(startPos)
         offset = keySize[0]+spacing
-        if (len(shiftKeyStr) != len(keyStr) or 
+        if (len(shiftKeyStr) != len(keyStr) or
                 (altGrKeyStr and len(altGrKeyStr) != len(keyStr))):
             raise RuntimeError("makeRowKeyDefs string lengths must be identical.")
 
-        for i in xrange(len(keyStr)):
+        for i in range(len(keyStr)):
             if altGrKeyStr:
                 codes = (keyStr[i], shiftKeyStr[i], altGrKeyStr[i])
             else:
@@ -245,7 +248,7 @@ class Keyboard(avg.DivNode):
         return None
 
     def __isInside(self, pos, node):
-        return (pos.x >= 0 and pos.y >= 0 and 
+        return (pos.x >= 0 and pos.y >= 0 and
                 pos.x <= node.size.x and pos.y <= node.size.y)
 
     def __switchFeedbackKey(self, newKey):
@@ -295,7 +298,7 @@ class Keyboard(avg.DivNode):
                 if self.__shiftDownCounter > 0:
                     self.__shiftDownCounter -= 1
                 else:
-                    avg.logger.warning('Keyboard: ShiftDownCounter=0 on [%s] up' 
+                    avg.logger.warning('Keyboard: ShiftDownCounter=0 on [%s] up'
                             %self.__shiftKeyCode)
             elif keyCode == self.__altGrKeyCode:
                 if self.__altGrKeyCounter > 0:

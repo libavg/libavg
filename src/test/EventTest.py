@@ -19,17 +19,19 @@
 # Current versions can be found at www.libavg.de
 #
 
+from __future__ import print_function
+
 from libavg import avg, player
 from testcase import *
 
 def dumpMouseEvent(Event):
-    print Event
-    print "  type: "+str(Event.type)
-    print "  leftbuttonstate: "+str(Event.leftbuttonstate)
-    print "  middlebuttonstate: "+str(Event.middlebuttonstate)
-    print "  rightbuttonstate: "+str(Event.rightbuttonstate)
-    print "  position: "+str(Event.x)+","+str(Event.y)
-    print "  node: "+Event.node.id
+    print(Event)
+    print("  type: "+str(Event.type))
+    print("  leftbuttonstate: "+str(Event.leftbuttonstate))
+    print("  middlebuttonstate: "+str(Event.middlebuttonstate))
+    print("  rightbuttonstate: "+str(Event.rightbuttonstate))
+    print("  position: "+str(Event.x)+","+str(Event.y))
+    print("  node: "+Event.node.id)
 
 mainMouseUpCalled = False
 mainMouseDownCalled = False
@@ -624,13 +626,13 @@ class EventTestCase(AVGTestCase):
             self.img1MouseOverCalled = True
         
         def printState():
-            print "----"
-            print "img2MouseOverCalled=", self.img2MouseOverCalled
-            print "img2MouseOutCalled=", self.img2MouseOutCalled
-            print "divMouseOverCalled=", self.divMouseOverCalled
-            print "divMouseOutCalled=", self.divMouseOutCalled
-            print "avgMouseOverCalled=", self.avgMouseOverCalled
-            print "img1MouseOverCalled=", self.img1MouseOverCalled
+            print("----")
+            print("img2MouseOverCalled=", self.img2MouseOverCalled)
+            print("img2MouseOutCalled=", self.img2MouseOutCalled)
+            print("divMouseOverCalled=", self.divMouseOverCalled)
+            print("divMouseOutCalled=", self.divMouseOutCalled)
+            print("avgMouseOverCalled=", self.avgMouseOverCalled)
+            print("img1MouseOverCalled=", self.img1MouseOverCalled)
         
         def resetState():
             self.img2MouseOverCalled = False

@@ -18,6 +18,7 @@
 # Current versions can be found at www.libavg.de
 #
 
+from six.moves import range
 from libavg import avg
 
 class RoundedRect(avg.PolygonNode):
@@ -57,7 +58,7 @@ class RoundedRect(avg.PolygonNode):
     def __calcPolygon(self):
         def calcQuarterCircle(center, r, startAngle):
             pos = []
-            for i in xrange(int(r)+1):
+            for i in range(int(r)+1):
                 angle = i*(1.57/r)+startAngle
                 p = avg.Point2D(center)+avg.Point2D.fromPolar(angle, r)
                 pos.append(p)
@@ -134,7 +135,7 @@ class PieSlice(avg.PolygonNode):
         numPoints = self.__radius*2.*circlePart
         if numPoints < 4:
             numPoints = 4
-        for i in xrange(0, int(numPoints)):
+        for i in range(0, int(numPoints)):
             pos.append(getCirclePoint(i/numPoints))
         pos.append(getCirclePoint(1))
         pos.append(self.__pos)
@@ -195,7 +196,7 @@ class Arc(avg.PolyLineNode):
         pos = []
         circlePart = (self.__endangle - self.__startangle)/6.28
         numPoints = self.__radius*2.*circlePart
-        for i in xrange(0, int(numPoints)):
+        for i in range(0, int(numPoints)):
             pos.append(getCirclePoint(i/numPoints))
         pos.append(getCirclePoint(1))
         self.polyPos = pos

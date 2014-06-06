@@ -20,7 +20,7 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
-from appstarter import AppStarter
+from .appstarter import AppStarter
 
 
 class AVGApp(object):
@@ -42,7 +42,7 @@ class AVGApp(object):
         appname = self.__class__.__name__
         if appname in AVGApp._instances:
             raise RuntimeError('App %s already setup' % appname)
-            
+
         AVGApp._instances[appname] = self
 
         self.__isRunning = False
@@ -50,14 +50,14 @@ class AVGApp(object):
         self._starter = None
 
         if 'onKey' in dir(self):
-            raise DeprecationWarning, \
-                    'AVGApp.onKey() has been renamed to AVGApp.onKeyDown().'
+            raise DeprecationWarning(
+                    'AVGApp.onKey() has been renamed to AVGApp.onKeyDown().')
 
     @classmethod
     def get(cls):
         '''
         Get the Application instance
-        
+
         Note: this class method has to be called from the top-level app class:
 
         >>> class MyApp(libavg.AVGApp):
@@ -74,7 +74,7 @@ class AVGApp(object):
         else:
             from appstarter import AVGAppStarter
             starter = AVGAppStarter
-        
+
         starter(appClass=cls, fakeFullscreen=cls.fakeFullscreen, **kwargs)
 
     def init(self):

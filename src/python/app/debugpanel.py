@@ -28,13 +28,16 @@ from collections import defaultdict
 from collections import deque
 import math
 
+import six
+from six.moves import range
+
 import libavg
 from libavg import avg
-from touchvisualization import DebugTouchVisualization
-from touchvisualization import TouchVisualizationOverlay as TouchVisOverlay
+from .touchvisualization import DebugTouchVisualization
+from .touchvisualization import TouchVisualizationOverlay as TouchVisOverlay
 
 
-import keyboardmanager as kbmgr
+from . import keyboardmanager as kbmgr
 
 g_fontsize = 10
 
@@ -178,7 +181,7 @@ class TableRow(avg.DivNode):
         self.cols = [0] * NUM_COLS
         self.liveColumn = avg.WordsNode(parent=self.columnContainer, fontsize=g_fontsize,
                 text="N/A - SPECIAL", size=(COL_WIDTH, ROW_HEIGHT), variant="bold")
-        for i in xrange(0, NUM_COLS):
+        for i in range(0, NUM_COLS):
             self.cols[i] = (avg.WordsNode(parent=self.columnContainer,
                                           fontsize=g_fontsize,
                                           text="0", size=(COL_WIDTH / 2.0, ROW_HEIGHT),
@@ -213,7 +216,7 @@ class TableRow(avg.DivNode):
     def insertValue(self, data):
         prevValue = self.rowData[0][0]
         self.rowData.appendleft([data, data-prevValue])
-        for i in xrange(0, len(self.rowData)-1):
+        for i in range(0, len(self.rowData)-1):
             val, diff = self.rowData[i]
             column = self.cols[i]
             column[0].text = str(val)
@@ -237,7 +240,7 @@ class Table(avg.DivNode):
         self.registerInstance(self, parent)
 
     def labelColumnSizeChanged(self):
-        for childID in xrange(0, self.getNumChildren()):
+        for childID in range(0, self.getNumChildren()):
             child = self.getChild(childID)
             child.resizeLabelColumn()
 
@@ -254,7 +257,7 @@ class ObjectDumpWidget(DebugWidget):
     def update(self):
         objDump = libavg.player.getTestHelper().getObjectCount()
         pos = (0, 0)
-        for key in sorted(objDump.iterkeys()):
+        for key in sorted(six.iterkeys(objDump)):
             val = objDump[key]
             self.tableDivs[key].updateLiveColumn(val)
             self.tableDivs[key].setLabel(key)
@@ -266,7 +269,7 @@ class ObjectDumpWidget(DebugWidget):
 
     def persistColumn(self):
         objDump = libavg.player.getTestHelper().getObjectCount()
-        for key, val in objDump.iteritems():
+        for key, val in six.iteritems(objDump):
             self.tableDivs[key].insertValue(val)
 
     def syncSize(self, size):
@@ -372,9 +375,9 @@ class KeyboardManagerBindingsShower(DebugWidget):
                 key = keystring
 
             if binding.type == libavg.avg.KEYDOWN:
-                key = '%s %s' % (unichr(8595), key)
+                key = '%s %s' % (six.unichr(8595), key)
             else:
-                key = '%s %s' % (unichr(8593), key)
+                key = '%s %s' % (six.unichr(8593), key)
 
             node = avg.WordsNode(
                     text='<span size="large"><b>%s</b></span>: %s' %
@@ -417,7 +420,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
     def __modifiersToString(self, modifiers):
         def isSingleBit(number):
             bitsSet = 0
-            for i in xrange(8):
+            for i in range(8):
                 if (1 << i) & number:
                     bitsSet += 1
 
@@ -635,19 +638,19 @@ class _DebugPanel(avg.DivNode):
 
     def _heightChanged(self):
         height = 0
-        for childID in xrange(0, self.getNumChildren()):
+        for childID in range(0, self.getNumChildren()):
             child = self.getChild(childID)
             height += child.height
         self.height = height
         self.reorderWidgets()
 
     def updateWidgets(self):
-        for childID in xrange(0, self.getNumChildren()):
+        for childID in range(0, self.getNumChildren()):
             self.getChild(childID).widget.update()
 
     def selectWidget(self, id):
         id = id % self.getNumChildren()
-        for childID in xrange(0, self.getNumChildren()):
+        for childID in range(0, self.getNumChildren()):
             self.getChild(childID).unselect()
         self.getChild(id).select()
         self.__selectedWidget = id
@@ -677,7 +680,7 @@ class _DebugPanel(avg.DivNode):
 
     def removeSelectedWidgetFrames(self):
         candidates = []
-        for childID in xrange(0, self.getNumChildren()):
+        for childID in range(0, self.getNumChildren()):
             child = self.getChild(childID)
             if child.isSelected():
                 candidates.append(child)

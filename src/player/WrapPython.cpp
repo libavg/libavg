@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -52,21 +52,20 @@ void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
             return;
         }
     }
-    if (!bWarned) { 
+    if (!bWarned) {
         sWarningsIssued.push_back(sOldEntryPoint);
-        
+
         PyFrameObject* pFrame = PyEval_GetFrame();
-        int lineNo = PyCode_Addr2Line(pFrame->f_code, pFrame->f_lasti); 
-                        // lineNo = PyFrame_GetLineNumber(pFrame);
-        string sFName = getFilenamePart(PyString_AS_STRING(pFrame->f_code->co_filename));
+        int lineNo = PyCode_Addr2Line(pFrame->f_code, pFrame->f_lasti);
+        string sFName = getFilenamePart(PyUnicode_AS_DATA(pFrame->f_code->co_filename));
         string sMsg = sFName + ":" + toString(lineNo) + ": ";
-        sMsg += string(sOldEntryPoint) + " deprecated since version " + 
-                string(sVersion)+"."; 
-        if (sNewEntryPoint != string("")) { 
-            sMsg += " Use "+string(sNewEntryPoint) + " instead."; 
-        } 
-        AVG_TRACE(Logger::category::DEPRECATION, Logger::severity::WARNING, sMsg); 
-    } 
+        sMsg += string(sOldEntryPoint) + " deprecated since version " +
+                string(sVersion)+".";
+        if (sNewEntryPoint != string("")) {
+            sMsg += " Use "+string(sNewEntryPoint) + " instead.";
+        }
+        AVG_TRACE(Logger::category::DEPRECATION, Logger::severity::WARNING, sMsg);
+    }
 }
 
 }

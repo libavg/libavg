@@ -142,7 +142,7 @@ BOOST_PYTHON_MODULE(colorplugin)
 
 AVG_PLUGIN_API void registerPlugin()
 {
-    initcolorplugin();
+    PyInit_colorplugin();
     object mainModule(handle<>(borrowed(PyImport_AddModule("__builtin__"))));
     object colorModule(handle<>(PyImport_ImportModule("colorplugin")));
     mainModule.attr("colorplugin") = colorModule;

@@ -794,9 +794,6 @@ class GestureTestCase(AVGTestCase):
             self.transform = transform
 
         def checkTransform(expectedTransform):
-#            print self.transform
-#            print expectedTransform
-#            print
             self.assertAlmostEqual(self.transform.trans, expectedTransform.trans)
             self.assertAlmostEqual(self.transform.rot, expectedTransform.rot)
             self.assertAlmostEqual(self.transform.scale, expectedTransform.scale)

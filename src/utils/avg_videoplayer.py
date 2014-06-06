@@ -21,6 +21,7 @@
 # Current versions can be found at www.libavg.de
 
 import sys
+from six.moves import range
 from libavg import avg, app, player, widget
 
 
@@ -129,8 +130,8 @@ class VideoPlayer(app.MainDiv):
         size = self.node.getMediaSize()
         avg.RectNode(parent=self, size=self.node.getMediaSize(),
                 strokewidth=0, fillcolor="FFFFFF", fillopacity=1)
-        for y in xrange(0, int(size.y)/SQUARESIZE):
-            for x in xrange(0, int(size.x)/(SQUARESIZE*2)):
+        for y in range(0, int(size.y)/SQUARESIZE):
+            for x in range(0, int(size.x)/(SQUARESIZE*2)):
                 pos = avg.Point2D(x*SQUARESIZE*2, y*SQUARESIZE)
                 if y%2==1:
                     pos += (SQUARESIZE, 0)

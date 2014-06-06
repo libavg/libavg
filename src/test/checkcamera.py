@@ -20,9 +20,13 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
-#
+
+from __future__ import print_function
 
 from libavg import *
+
+import six
+
 import camcfgs
 import optparse
 
@@ -34,13 +38,13 @@ def parseCmdLine():
     validCameras = ('Dragonfly', 'FireflyMV', 'Firei', 'DFx31BF03', 'QuickCamProLinux',
             'QuickCamProBGRWin', 'QuickCamPro9Win')
     parser = optparse.OptionParser(usage=
-"""%prog cameraname [option]. 
+"""%prog cameraname [option].
 A test to check camera features support by libavg. Supported cameras are """
 + str(validCameras))
-#    parser.add_argument(dest='camera', action='store', type=str, 
+#    parser.add_argument(dest='camera', action='store', type=str,
 #            choices=validCameras, help = 'Select which camera model to test.')
     parser.add_option('--test-params', '-p', dest='testParams', action='store_true',
-            default=False, 
+            default=False,
             help='Execute optional tests for camera params like gain, shutter, etc.')
     (options, args) = parser.parse_args()
     g_TestParams = options.testParams
@@ -52,7 +56,7 @@ A test to check camera features support by libavg. Supported cameras are """
     elif cameraName == 'FireflyMV':
         return camcfgs.FireflyMV
     elif cameraName == 'Firei':
-        return camcfgs.Firei 
+        return camcfgs.Firei
     elif cameraName == 'DFx31BF03':
         return camcfgs.DFx31BF03Cfg
     elif cameraName == 'QuickCamProLinux':
@@ -70,7 +74,7 @@ class CameraTestCase(AVGTestCase):
         self.fmt = fmt
         self.testFuncArgs = testFuncArgs
         AVGTestCase.__init__(self, testFuncName)
-        
+
     def testFormat(self):
         self.__dumpFormat()
         self.loadEmptyScene()
@@ -96,7 +100,7 @@ class CameraTestCase(AVGTestCase):
             actions.append(setDefaultParams)
             actions.append(None)
             for val in testCfg.testValues:
-                actions.append(lambda paramName=testCfg.name, val=val: 
+                actions.append(lambda paramName=testCfg.name, val=val:
                         setCamParam(paramName, val))
                 actions.append(None)
                 actions.append(None)
@@ -106,12 +110,12 @@ class CameraTestCase(AVGTestCase):
             return actions
 
         def setDefaultParams():
-            for (paramName, val) in cameraCfg.defaultParams.iteritems():
+            for (paramName, val) in six.iteritems(cameraCfg.defaultParams):
                 if paramName == "setWhitebalance":
                     self.cam.setWhitebalance(*val)
                 else:
                     setattr(self.cam, paramName, val)
-               
+
         def setCamParam(paramName, val):
             if paramName == 'setwhitebalance':
                 self.cam.setWhitebalance(*val)
@@ -127,14 +131,12 @@ class CameraTestCase(AVGTestCase):
                 colour.append(bmp.getChannelAvg(1))
                 colour.append(bmp.getChannelAvg(2))
                 self.averages.append(colour)
-            else:    
+            else:
                 self.averages.append(bmp.getAvg())
 
         def checkCamImageChange(testCfg):
-            
+
             def saveCamImages():
-#                print
-#                print "Average image brightnesses: ",minAverages, medAverages, maxAverages
                 dir = AVGTestCase.getImageResultDir()
                 for (i, category) in enumerate(("min", "med", "max")):
                     self.camBmps[i].save(dir+"/cam"+testCfg.name+category+".png")
@@ -152,14 +154,14 @@ class CameraTestCase(AVGTestCase):
                 if medAverages+testCfg.medMaxDiff > maxAverages:
                     saveCamImages()
                     self.fail()
-            self.averages = [] 
+            self.averages = []
             self.camBmps = []
 
         def isColorParam(paramName):
             return paramName in ['saturation', 'setwhitebalance']
 
         testCfg = self.testFuncArgs[0]
-        print >>sys.stderr, testCfg.name, " ",
+        print(testCfg.name, " ", file=sys.stderr)
         self.loadEmptyScene()
         self.__openCamera()
         self.actions = buildParamActionList(testCfg)
@@ -170,7 +172,7 @@ class CameraTestCase(AVGTestCase):
         self.cam = None
 
     def __openCamera(self):
-        self.cam = avg.CameraNode(driver=self.cameraCfg.driver, 
+        self.cam = avg.CameraNode(driver=self.cameraCfg.driver,
                 device=self.cameraCfg.device, unit=self.cameraCfg.unit,
                 fw800=self.cameraCfg.fw800, framerate=self.fmt.framerate,
                 capturewidth=self.fmt.size[0], captureheight=self.fmt.size[1],
@@ -181,8 +183,6 @@ class CameraTestCase(AVGTestCase):
         self.assert_(self.cam.isAvailable())
 
     def __onFrame(self):
-        # We execute one action per camera frame.
-#        print self.cam.framenum
         if self.cam.framenum != self.lastCameraFrame:
             self.lastCameraFrame += 1
             if len(self.actions) == self.lastCameraFrame:
@@ -193,12 +193,12 @@ class CameraTestCase(AVGTestCase):
                     action()
 
     def __dumpFormat(self):
-        print >>sys.stderr, str(self.fmt.size)+", "+str(self.fmt.pixelformat)+ \
-                ", "+str(self.fmt.framerate)+" ",
+        print(str(self.fmt.size), ", "+str(self.fmt.pixelformat), ", ",
+              str(self.fmt.framerate), " ", file=sys.stderr)
 
 def dumpCameraCfg(cfg):
-    print >>sys.stderr, "Camera config: driver="+cfg.driver+", device="+cfg.device+ \
-            ", unit="+str(cfg.unit)
+    print("Camera config: driver=", cfg.driver, ", device=", cfg.device,
+            ", unit=", str(cfg.unit), file=sys.stderr)
 
 
 cameraCfg = parseCmdLine()
@@ -211,7 +211,7 @@ suite.addTest(CameraTestCase(cameraCfg, cameraCfg.illegalFormat, "testIllegalFor
 suite.addTest(CameraTestCase(cameraCfg, cameraCfg.formats[0], "testCreateDelete"))
 if g_TestParams:
     for testCfg in cameraCfg.paramTests:
-        suite.addTest(CameraTestCase(cameraCfg, cameraCfg.formats[0], "testParams", 
+        suite.addTest(CameraTestCase(cameraCfg, cameraCfg.formats[0], "testParams",
                 testCfg))
 testRunner = unittest.TextTestRunner(verbosity = 2)
 testResult = testRunner.run(suite)

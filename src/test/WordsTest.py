@@ -22,6 +22,8 @@
 
 import platform
 
+import six
+
 from libavg import avg, player
 from testcase import *
 
@@ -115,11 +117,11 @@ class WordsTestCase(AVGTestCase):
                  "hint": False}
         defaultStyle = avg.FontStyle()
         fontStyle1 = avg.FontStyle(basestyle=defaultStyle, **attrs)
-        for attrName in attrs.iterkeys():
+        for attrName in six.iterkeys(attrs):
             self.assert_(getattr(fontStyle1, attrName) != getattr(defaultStyle, attrName))
             self.assert_(getattr(fontStyle1, attrName) == attrs[attrName])
         fontStyle2 = avg.FontStyle(basestyle=fontStyle1)
-        for attrName in attrs.iterkeys():
+        for attrName in six.iterkeys(attrs):
             self.assert_(getattr(fontStyle2, attrName) == getattr(fontStyle1, attrName))
 
     def testGlyphPos(self):
@@ -136,7 +138,6 @@ class WordsTestCase(AVGTestCase):
         self.assertException(lambda: node.getGlyphPos(4))
         node.text=u"föa"
         self.assert_(posAlmostEqual(node.getGlyphPos(1), (4,0)))
-#        print [ node.getGlyphPos(i) for i in range(3)]
         self.assert_(posAlmostEqual(node.getGlyphPos(2), (12,0)))
         self.assertException(lambda: node.getGlyphPos(3))
 
@@ -259,9 +260,6 @@ class WordsTestCase(AVGTestCase):
 
     def testHinting(self):
         def checkPositions():
-#            node0 = root.getChild(0)
-#            for i in range(len(node0.text)):
-#                print node0.getGlyphPos(i)
             noHint = root.getChild(0)
             hint = root.getChild(1)
             posNoHint = noHint.getGlyphPos(6)

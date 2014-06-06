@@ -21,6 +21,8 @@
 # Current versions can be found at www.libavg.de
 #
 
+from __future__ import print_function
+
 from optparse import OptionParser
 import sys
 from libavg import avg
@@ -43,7 +45,7 @@ def sortByName(a, b):
         return 1
 
 class OutputHandler(object):
-    
+
     def __init__(self, args):
         self._node = avg.VideoNode()
         self.__getFileNames(args)
@@ -69,8 +71,8 @@ class OutputHandler(object):
                 if os.path.isfile(file):
                     self._node.href = str(file)
                     self._node.play()
-                    self._fileNameList.append(self._node.href)   
-            except RuntimeError, err:
+                    self._fileNameList.append(self._node.href)
+            except RuntimeError as err:
                 sys.stderr.write(str(err) + "\n")
                 self._node = avg.VideoNode()
         self._fileNameList.sort(cmp=sortByName)
@@ -81,7 +83,7 @@ class OutputHandler(object):
         for newfile in newFiles:
             if folder  == "..":
                 testFile = "../"+newfile
-            else: 
+            else:
                 testFile = str(folder)+"/"+newfile
             if os.path.isfile(testFile):
                 folderFiles.append(testFile)
@@ -91,11 +93,11 @@ class OutputHandler(object):
 
 
 class ConsoleOutputHandler(OutputHandler):
-    
+
     def __init__(self, args):
         super(ConsoleOutputHandler, self).__init__(args)
         if self._fileNameList == []:
-            print "No valid video files found."
+            print("No valid video files found.")
             printHelp()
 
     def output(self):
@@ -106,22 +108,22 @@ class ConsoleOutputHandler(OutputHandler):
 
     def __outputSingleFile(self, filename):
         self._node.href = filename
-        print "File: " + self._node.href
-        print ("Duration: " + str(self._node.getDuration()/1000.) + " s (" 
-                + str(self._node.getNumFrames()) + " frames)")
-        print "Bitrate: " + str(self._node.getBitrate()) + " b/s"
-        print "Video stream: " 
-        print "  Codec: " + self._node.getVideoCodec()
-        print "  Size: " + str(self._node.getMediaSize())
-        print "  Pixel format: " + self._node.getStreamPixelFormat()
-        print "  FPS: " + str(self._node.fps)
-        print "  Duration: " + str(self._node.getVideoDuration()/1000.) + " s"
+        print("File: " + self._node.href)
+        print(("Duration: " + str(self._node.getDuration()/1000.) + " s ("
+             (  + str(self._node.getNumFrames()) + " frames)")))
+        print("Bitrate: ", str(self._node.getBitrate()), " b/s")
+        print("Video stream: " )
+        print("  Codec: " + self._node.getVideoCodec())
+        print("  Size: " + str(self._node.getMediaSize()))
+        print("  Pixel format: " + self._node.getStreamPixelFormat())
+        print("  FPS: " + str(self._node.fps))
+        print("  Duration: " + str(self._node.getVideoDuration()/1000.) + " s")
         if self._node.hasAudio():
-            print "Audio stream: " 
-            print "  Codec: " + self._node.getAudioCodec()
-            print "  Sample rate: " + str(self._node.getAudioSampleRate()) + " Hz"
-            print "  Channels: " + str(self._node.getNumAudioChannels())
-            print "  Duration: " + str(self._node.getAudioDuration()/1000.) + " s"
+            print("Audio stream: " )
+            print("  Codec: " + self._node.getAudioCodec())
+            print("  Sample rate: " + str(self._node.getAudioSampleRate()) + " Hz")
+            print("  Channels: " + str(self._node.getNumAudioChannels()))
+            print("  Duration: " + str(self._node.getAudioDuration()/1000.) + " s")
 
     def __outputTable(self):
         self.__filenameLen = 8
@@ -140,7 +142,7 @@ class ConsoleOutputHandler(OutputHandler):
             if self._node.hasAudio():
                 curLen = len(self._node.getAudioCodec())
                 self.__audioCodecLen = max(self.__audioCodecLen, curLen)
-        
+
         self.__outputTableHeader()
 
         for filename in self._fileNameList:
@@ -157,16 +159,16 @@ class ConsoleOutputHandler(OutputHandler):
         vAudioCodec = "Codec".ljust(self.__audioCodecLen+1)
         vSampleRate = "Rate".ljust(6)
         vChannels = "Channels".ljust(8)
-       
+
         videoPropWidth = self.__videoFormatLen+self.__videoCodecLen+30
-        print ("| ".rjust(self.__filenameLen + 3) +
+        print("| ".rjust(self.__filenameLen + 3) +
                 "Video properties".center(videoPropWidth) +
                 "| " +
                 "Audio properties".center((self.__audioCodecLen+17)))
-        print (vFile + "| " + vDuration + vVideoCodec +
+        print(vFile + "| " + vDuration + vVideoCodec +
                 vVideoSize + vPixel + vFPS + "| " + vAudioCodec +
                 vSampleRate + vChannels )
-        print ("| ".rjust(self.__filenameLen+3) +
+        print("| ".rjust(self.__filenameLen+3) +
                 "|".rjust(videoPropWidth+1))
 
     def __outputTableLine(self, node):
@@ -180,7 +182,7 @@ class ConsoleOutputHandler(OutputHandler):
         else:
             vFPS = str(round(node.fps, 2)).ljust(6)
 
-        if node.hasAudio():   
+        if node.hasAudio():
             vAudioCodec = str(node.getAudioCodec()).ljust(self.__audioCodecLen + 1)
             vSampleRate = str(node.getAudioSampleRate()).ljust(6)
             vChannels = str(node.getNumAudioChannels()).ljust(8)
@@ -188,13 +190,13 @@ class ConsoleOutputHandler(OutputHandler):
             vAudioCodec = "no audio"
             vSampleRate = ""
             vChannels = ""
-            
+
         info = (vFile + "| " + vDuration + vVideoCodec + vVideoSize + vPixel +
                 vFPS + "| " + vAudioCodec + vSampleRate + vChannels)
-        print info
+        print(info)
 
 class XMLOutputHandler(OutputHandler):
-    
+
     def __init__(self, args):
         super(XMLOutputHandler, self).__init__(args)
         self.__impl = minidom.getDOMImplementation()
@@ -205,8 +207,8 @@ class XMLOutputHandler(OutputHandler):
         for filename in self._fileNameList:
             self._node.href = str(filename)
             self.__appendXMLChild(self._node)
-        print self.__doc.toprettyxml(indent="    ",encoding="utf-8")
-        
+        print(self.__doc.toprettyxml(indent="    ",encoding="utf-8"))
+
     def __appendXMLChild(self, node):
         node.play()
         videoinfo = self.__doc.createElement("videoinfo")
@@ -228,13 +230,13 @@ class XMLOutputHandler(OutputHandler):
             videoinfo.appendChild(audioNode)
 
 class CSVOutputHandler(OutputHandler):
-    
+
     def __init__(self, args):
         super(CSVOutputHandler, self).__init__(args)
 
     def output(self):
-        print ("File\tDuration(sec)\tNumber of Frames\tBitrate(b/s)\tVideo Codec\t" +
-                "Width\tHeight\tPixel format\tFPS\tAudio Codec\t" + 
+        print("File\tDuration(sec)\tNumber of Frames\tBitrate(b/s)\tVideo Codec\t" +
+                "Width\tHeight\tPixel format\tFPS\tAudio Codec\t" +
                 "Audio Sample rate(Hz)\t Audio channels")
         for filename in self._fileNameList:
             self._node.href = str(filename)
@@ -243,7 +245,7 @@ class CSVOutputHandler(OutputHandler):
     def __outputNode(self, node):
         s = (str(node.href)+'\t'+
             str(node.getDuration()/1000.)+'\t' +
-            str(node.getNumFrames())+"\t" + 
+            str(node.getNumFrames())+"\t" +
             str(node.getBitrate()) + '\t' +
             str(node.getVideoCodec()) + '\t' +
             str(node.getMediaSize()[0]) + '\t' +
@@ -257,8 +259,8 @@ class CSVOutputHandler(OutputHandler):
                 str(node.getNumAudioChannels()))
         else:
             s += ' \t \t'
-        print s
-    
+        print(s)
+
 def printHelp():
     parser.print_help()
     sys.exit(1)

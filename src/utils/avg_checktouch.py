@@ -33,23 +33,13 @@ class TouchApp(app.MainDiv):
         app.instance.debugPanel.toggleTouchVisualization()
 
     def __onDown(self, event):
-#        if event.source == avg.MOUSE:
-#            print event.type, event.button
-#        else:
-#            print event.type
         if (event.contact):
             event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onContact)
             event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onContact)
             contact = event.contact
-#            print "new contact: ", contact.id, event.pos, contact.age, \
-#                    contact.distancefromstart, contact.motionangle, contact.motionvec, \
-#                    contact.distancetravelled
 
     def __onContact(self, event):
         contact = event.contact
-#        print event.type, contact.id, event.pos, contact.age, \
-#                contact.distancefromstart, contact.motionangle, contact.motionvec, \
-#                contact.distancetravelled, event.speed
 
 
 if __name__ == "__main__":

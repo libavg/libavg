@@ -22,20 +22,21 @@
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
-
 import os
 import math
 import time
 
+import six
+
 import libavg
 from libavg import avg, Point2D, mtemu, player
 
-import settings
-from settings import Option
-import keyboardmanager
-import debugpanel
-import flashmessage
-import touchvisualization
+from . import settings
+from .settings import Option
+from . import keyboardmanager
+from . import debugpanel
+from . import flashmessage
+from .import touchvisualization
 
 
 class MainDiv(libavg.avg.DivNode):
@@ -118,7 +119,7 @@ class App(object):
 
         try:
             self._runLoop()
-        except Exception, e:
+        except Exception as e:
             self._teardownKeyboardManager()
             raise
 
@@ -174,7 +175,7 @@ class App(object):
         libavg.logger.configureCategory(libavg.logger.Category.APP,
                 libavg.logger.Severity.INFO)
         libavg.logger.info('Dumping objects count')
-        for key, value in objects.iteritems():
+        for key, value in six.iteritems(objects):
             libavg.logger.info('  %-25s: %s' % (key, value))
 
         libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)

@@ -25,6 +25,10 @@
 # See the LICENSE file for license information regarding the media
 # used by this sample.
 
+from __future__ import print_function
+
+from six.moves import range
+
 from random import randint
 
 from libavg import avg, player
@@ -128,7 +132,7 @@ class _Aircraft(avg.DivNode):
 
     @classmethod
     def _debug(cls, msg):
-        print '%6d [%s] %s' %(player.getFrameTime(), cls.__name__, msg)
+        print('%6d [%s] %s' %(player.getFrameTime(), cls.__name__, msg))
 
 
 class PlayerAircraft(_Aircraft):
@@ -139,7 +143,7 @@ class PlayerAircraft(_Aircraft):
     def __init__(self, shadowdiv, gunCtrl, parent=None, **kwargs):
         super(PlayerAircraft, self).__init__('spitfire', shadowdiv, parent, **kwargs)
         self.__gunCtrl = gunCtrl
-        self.__bullets = [Bullet(parent=self.parent) for i in xrange(10)]
+        self.__bullets = [Bullet(parent=self.parent) for i in range(10)]
         self.__engineSnd = avg.SoundNode(href='flySound.mp3', loop=True, parent=self)
         self.__bulletSnd = avg.SoundNode(href='bulletSound.mp3', volume=0.75, parent=self)
         self.__maxX, self.__maxY = self.parent.size - self.size
@@ -264,7 +268,7 @@ class LiveCounter(avg.DivNode):
         self.__numLives = 0
         self.__images = []
         x = 0
-        for i in xrange(LiveCounter.__NUM_LIVES):
+        for i in range(LiveCounter.__NUM_LIVES):
             avg.ImageNode(href='gui_lives_bg.png', pos=(x, 0), parent=self)
             img = avg.ImageNode(href='gui_lives_fg.png', pos=(x, 0), parent=self)
             self.__images.append(img)
@@ -288,7 +292,7 @@ class ScoreCounter(avg.DivNode):
         self.registerInstance(self, parent)
         self.__score = 0
         self.__images = [avg.ImageNode(href='gui_numbers.png', pos=((2 - i) * 34, 0),
-                parent=self) for i in xrange(3)]
+                parent=self) for i in range(3)]
 
     def reset(self):
         self.__score = 0
@@ -368,7 +372,7 @@ class FireBirds(app.MainDiv):
         self.__scoreCounter = ScoreCounter(pos=(1142, 54), parent=self.__guiDiv)
 
         self.__enemies = []
-        for i in xrange(2):
+        for i in range(2):
             self.__createEnemy()
         self.__player = PlayerAircraft(self.__shadowDiv, gunCtrl, parent=self.__gameDiv)
 

@@ -25,6 +25,9 @@
 import os
 import sys
 import tempfile
+
+import six 
+
 import libavg
 from libavg import player
 from libavg.app import settings
@@ -42,7 +45,7 @@ class TestApp(libavg.app.App):
         player.subscribe(player.ON_FRAME, self.__onFrame)
         player.setFramerate(10000)
         player.assumePixelsPerMM(1)
-        for k, v in self.CUSTOM_SETTINGS.iteritems():
+        for k, v in six.iteritems(self.CUSTOM_SETTINGS):
             self.settings.set(k, v)
 
         if mainDiv is None:

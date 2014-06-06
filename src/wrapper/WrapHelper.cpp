@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -37,7 +37,7 @@ using namespace boost::python;
 
 namespace Vec2Helper
 {
-    int len(const glm::vec2&) 
+    int len(const glm::vec2&)
     {
         return 2;
     }
@@ -109,7 +109,7 @@ namespace Vec2Helper
         // but this is meant for pixel values anyway, right? ;-).
         return long(pt.x*42+pt.y*23);
     }
-    
+
     glm::vec2 safeGetNormalized(const glm::vec2& pt)
     {
         if (pt.x==0 && pt.y==0) {
@@ -124,7 +124,7 @@ namespace Vec2Helper
     {
         return glm::length(pt);
     }
-    
+
     float vecAngle(const glm::vec2& pt1, const glm::vec2& pt2)
     {
         float angle = fmod((atan2(pt1.y, pt1.x) - atan2(pt2.y, pt2.x)), float(2*M_PI));
@@ -155,7 +155,7 @@ glm::vec2 ConstVec2::toVec2() const
 void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
 {
     if (boost::python::len(args) != numArgs) {
-        throw avg::Exception(AVG_ERR_INVALID_ARGS, 
+        throw avg::Exception(AVG_ERR_INVALID_ARGS,
                 "Nodes must be constructed using named parameters. Positional parameters are not supported.");
     }
 }
@@ -190,12 +190,12 @@ struct Vec4_to_python_tuple
 template<class VEC2, class ATTR>
 struct vec2_from_python
 {
-    vec2_from_python() 
+    vec2_from_python()
     {
         boost::python::converter::registry::push_back(
                 &convertible, &construct, boost::python::type_id<VEC2>());
     }
-    
+
     static void* convertible(PyObject* obj_ptr)
     {
         // Using PySequence_Check here causes infinite recursion.
@@ -229,12 +229,12 @@ struct vec2_from_python
 template<class VEC3, class ATTR>
 struct vec3_from_python
 {
-    vec3_from_python() 
+    vec3_from_python()
     {
         boost::python::converter::registry::push_back(
                 &convertible, &construct, boost::python::type_id<VEC3>());
     }
-    
+
     static void* convertible(PyObject* obj_ptr)
     {
         if (!PySequence_Check(obj_ptr)) {
@@ -340,7 +340,7 @@ struct UTF8String_from_unicode
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
         PyObject * pPyUTF8 = PyUnicode_AsUTF8String(obj_ptr);
-        char * psz = PyString_AsString(pPyUTF8);
+        const char * psz = PyBytes_AsString(pPyUTF8);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
                         ->storage.bytes;
@@ -362,14 +362,14 @@ struct UTF8String_from_string
 
     static void* convertible(PyObject* obj_ptr)
     {
-        if (!PyString_Check(obj_ptr)) return 0;
+        if (!PyUnicode_Check(obj_ptr)) return 0;
         return obj_ptr;
     }
 
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        const char * psz = PyString_AsString(obj_ptr);
+        const char * psz = PyUnicode_AS_DATA(obj_ptr);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
                         ->storage.bytes;
@@ -407,15 +407,15 @@ void export_base()
     translateException<Exception>(PyExc_RuntimeError);
     to_python_converter< exception, Exception_to_python_exception<exception> >();
     to_python_converter< Exception, Exception_to_python_exception<Exception> >();
-   
+
     // vec2
     to_python_converter<IntPoint, Vec2_to_python_tuple<IntPoint> >();
     vec2_from_python<IntPoint, int>();
     vec2_from_python<glm::vec2, float>();
     vec2_from_python<ConstVec2, float>();
-   
+
     // vector<vec2>
-    to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
+    to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();
     from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
     from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
 
@@ -432,8 +432,8 @@ void export_base()
     vec4_from_python<glm::vec4, float>();
     
     // vector<vec3>
-    to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
-    to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();    
+    to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();
+    to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();
     from_python_sequence<vector<glm::ivec3>, variable_capacity_policy>();
     from_python_sequence<vector<glm::vec3>, variable_capacity_policy>();
 
@@ -442,9 +442,9 @@ void export_base()
     UTF8String_from_unicode();
     UTF8String_from_string();
 
-    to_python_converter<vector<string>, to_list<vector<string> > >();    
+    to_python_converter<vector<string>, to_list<vector<string> > >();
     from_python_sequence<vector<string>, variable_capacity_policy>();
-  
+
     from_python_sequence<vector<float>, variable_capacity_policy>();
     from_python_sequence<vector<int>, variable_capacity_policy>();
 

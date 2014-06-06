@@ -208,13 +208,16 @@ struct from_python_sequence
           || PyTuple_Check(obj_ptr)
           || PyIter_Check(obj_ptr)
           || PyRange_Check(obj_ptr)
-          || (   !PyString_Check(obj_ptr)
-              && !PyUnicode_Check(obj_ptr)
-              && (   obj_ptr->ob_type == 0
-                  || obj_ptr->ob_type->ob_type == 0
-                  || obj_ptr->ob_type->ob_type->tp_name == 0
+          || (
+#if PY_MAJOR_VERSION < 3
+              !PyString_Check(obj_ptr)
+              &&
+#endif
+              !PyUnicode_Check(obj_ptr)
+              && (   Py_TYPE(obj_ptr) == 0
+                  || Py_TYPE(obj_ptr)->tp_name == 0
                   || std::strcmp(
-                       obj_ptr->ob_type->ob_type->tp_name,
+                       Py_TYPE(obj_ptr)->tp_name,
                        "Boost.Python.class") != 0)
               && PyObject_HasAttrString(obj_ptr, "__len__")
               && PyObject_HasAttrString(obj_ptr, "__getitem__")))) return 0;

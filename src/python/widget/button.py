@@ -22,7 +22,7 @@
 
 from libavg import avg, statemachine, player, gesture
 
-from base import SwitchNode, HVStretchNode
+from .base import SwitchNode, HVStretchNode
 from . import skin
 
 class _ButtonBase(avg.DivNode):

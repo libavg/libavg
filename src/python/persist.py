@@ -22,10 +22,14 @@
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
+from __future__ import print_function
 
 import os
 import time
-import cPickle as pickle
+try: #Python 2
+    import cPickle as pickle
+except ImportError: #Python 3
+    import pickle
 
 import libavg
 
@@ -34,7 +38,7 @@ class Persist(object):
     def __init__(self, storeFile, initialData, validator=lambda v: True,
             autoCommit=False):
         self.__storeFile = storeFile
-        
+
         if hasattr(initialData, '__call__'):
             initialData = initialData()
         elif initialData is None:
@@ -89,20 +93,20 @@ class Persist(object):
         try:
             with open(tempFile, 'wb') as f:
                 pickle.dump(self.data, f)
-        except Exception, e:
+        except Exception as e:
             libavg.logger.warning('Cannot save %s (%s)' % (self.__storeFile, str(e)))
             return False
         else:
             if os.path.exists(self.__storeFile):
                 try:
                     os.remove(self.__storeFile)
-                except Exception, e:
+                except Exception as e:
                     libavg.logger.warning('Cannot overwrite dump file '
                             '%s (%s)' % (self, str(e)))
                     return False
             try:
                 os.rename(tempFile, self.__storeFile)
-            except Exception, e:
+            except Exception as e:
                 libavg.logger.warning('Cannot save %s (%s)' % (self, str(e)))
                 os.remove(tempFile)
                 return False
@@ -118,7 +122,7 @@ class UserPersistentData(Persist):
 
         try:
             os.makedirs(basePath)
-        except OSError, e:
+        except OSError as e:
             import errno
             if e.errno != errno.EEXIST:
                 raise
@@ -145,7 +149,7 @@ if __name__ == '__main__':
     p.commit()
 
     p = Persist(testFile, initialData)
-    print not p.data['initial']
+    print(not p.data['initial'])
 
     os.unlink(testFile)
 
@@ -153,5 +157,4 @@ if __name__ == '__main__':
     p.data['initial'] = False
     p.commit()
 
-    print p
-
+    print(p)

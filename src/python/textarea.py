@@ -23,6 +23,7 @@
 # Original author of this module is Marco Fagiolini <mfx at archi-me-des dot de>
 #
 
+
 """
 Single/Multi-Line editable text field widget for libavg
 
@@ -68,8 +69,10 @@ DEFAULT_BLUR_OPACITY = 0.3
 
 import time
 
+import six
+
 from libavg import avg, player, gesture
-from avg import Point2D
+from .avg import Point2D
 
 
 class FocusContext(object):
@@ -117,7 +120,7 @@ class FocusContext(object):
         @type kchar: string
         @param kchar: a single character (if more than one, the following are ignored)
         """
-        uch = unicode(kchar, 'utf-8')
+        uch = six.text_type(kchar, 'utf-8')
         self.keyUCodePressed(ord(uch[0]))
 
     def keyUCodePressed(self, keycode):
@@ -319,8 +322,8 @@ class TextArea(avg.DivNode):
 
         @param uString: an unicode string (or an utf-8 encoded string)
         """
-        if not isinstance(uString, unicode):
-            uString = unicode(uString, 'utf-8')
+        if not isinstance(uString, six.text_type):
+            uString = six.text_type(uString, 'utf-8')
 
         self.__data = []
         for c in uString:
@@ -553,7 +556,7 @@ class TextArea(avg.DivNode):
         return u''.join(self.__data)
 
     def __appendKeycode(self, keycode):
-        self.__appendUChar(unichr(keycode))
+        self.__appendUChar(six.unichr(keycode))
 
     def __appendUChar(self, uchar):
         # if maximum number of char is specified, honour the limit

@@ -18,6 +18,8 @@
 #
 # Current versions can be found at www.libavg.de
 
+import six
+
 from libavg import avg, player
 
 class Orientation():
@@ -26,7 +28,7 @@ class Orientation():
 
 
 def bmpFromSrc(src):
-    if isinstance(src, basestring):
+    if isinstance(src, six.string_types):
         return avg.Bitmap(src)
     elif isinstance(src, avg.Bitmap):
         return src
@@ -34,7 +36,7 @@ def bmpFromSrc(src):
         raise RuntimeError("src must be a string or a Bitmap.")
 
 class _StretchNodeBase(avg.DivNode):
-    
+
     def __init__(self, src=None, parent=None, **kwargs):
         super(_StretchNodeBase, self).__init__(**kwargs)
         self.registerInstance(self, parent)
@@ -42,10 +44,10 @@ class _StretchNodeBase(avg.DivNode):
             self._bmp = src
         else:
             self._bmp = bmpFromSrc(src)
-       
+
         self.subscribe(self.SIZE_CHANGED, self._positionNodes)
 
-    def _initNodes(self):    
+    def _initNodes(self):
         self._setSizeFromBmp(self._bmp)
         self._positionNodes(self.size)
 
@@ -94,9 +96,9 @@ class HStretchNode(_StretchNodeBase):
         self.__startImg = avg.ImageNode(parent=self)
         self.__centerImg = avg.ImageNode(parent=self)
         self.__endImg = avg.ImageNode(parent=self)
-       
+
         self._initNodes()
-    
+
     def _positionNodes(self, newSize):
         if newSize.x < self.__minExtent:
             self.width = self.__minExtent
@@ -108,12 +110,12 @@ class HStretchNode(_StretchNodeBase):
     def _renderImages(self):
         height = self._bmp.getSize().y
         self._renderImage(self._bmp, self.__startImg, (0,0), (self.__endsExtent, height))
-        self._renderImage(self._bmp, self.__centerImg, 
+        self._renderImage(self._bmp, self.__centerImg,
                 (-self.__endsExtent,0), (1, height))
         endOffset = self._bmp.getSize().x - self.__endsExtent
-        self._renderImage(self._bmp, self.__endImg, 
+        self._renderImage(self._bmp, self.__endImg,
                 (-endOffset,0), (self.__endsExtent, height))
-    
+
 
 class VStretchNode(_StretchNodeBase):
 
@@ -125,9 +127,9 @@ class VStretchNode(_StretchNodeBase):
         self.__startImg = avg.ImageNode(parent=self)
         self.__centerImg = avg.ImageNode(parent=self)
         self.__endImg = avg.ImageNode(parent=self)
-        
+
         self._initNodes()
-   
+
     def _positionNodes(self, newSize):
         if newSize.y < self.__minExtent:
             self.height = self.__minExtent
@@ -135,14 +137,14 @@ class VStretchNode(_StretchNodeBase):
             self.__centerImg.y = self.__endsExtent
             self.__centerImg.height = newSize.y - self.__endsExtent*2
             self.__endImg.y = newSize.y - self.__endsExtent
-        
+
     def _renderImages(self):
         width = self._bmp.getSize().x
         self._renderImage(self._bmp, self.__startImg, (0,0), (width, self.__endsExtent))
-        self._renderImage(self._bmp, self.__centerImg, 
+        self._renderImage(self._bmp, self.__centerImg,
                 (0,-self.__endsExtent), (width, 1))
         endOffset = self._bmp.getSize().y - self.__endsExtent
-        self._renderImage(self._bmp, self.__endImg, (0,-endOffset), 
+        self._renderImage(self._bmp, self.__endImg, (0,-endOffset),
                 (width, self.__endsExtent))
 
 
@@ -155,11 +157,11 @@ class HVStretchNode(_StretchNodeBase):
         (vEndsExtent, vMinExtent) = self._checkExtents(endsExtent[1], minExtent[1])
         self.__endsExtent = avg.Point2D(hEndsExtent, vEndsExtent)
         self.__minExtent = avg.Point2D(hMinExtent, vMinExtent)
-        
+
         self.__createNodes()
 
         self._initNodes()
-    
+
     def __calcNodePositions(self, newSize):
         xPosns = (0, self.__endsExtent[0], newSize.x-self.__endsExtent[0], newSize.x)
         yPosns = (0, self.__endsExtent[1], newSize.y-self.__endsExtent[1], newSize.y)
@@ -179,12 +181,12 @@ class HVStretchNode(_StretchNodeBase):
                 node = avg.ImageNode(parent=self)
                 curRow.append(node)
             self.__nodes.append(curRow)
-        
+
     def _positionNodes(self, newSize):
         newSize = avg.Point2D(
                 max(self.__minExtent.x, newSize.x),
                 max(self.__minExtent.y, newSize.y))
-       
+
         self.__calcNodePositions(newSize)
 
         for y in range(3):
@@ -216,7 +218,7 @@ class SwitchNode(avg.DivNode):
     def __init__(self, nodeMap=None, visibleid=None, parent=None, **kwargs):
         super(SwitchNode, self).__init__(**kwargs)
         self.registerInstance(self, parent)
-  
+
         self.__nodeMap = None
         if nodeMap:
             self.setNodeMap(nodeMap)
@@ -229,7 +231,7 @@ class SwitchNode(avg.DivNode):
         if self.__nodeMap is not None:
             raise RuntimeError("SwitchNode.nodeMap can only be set once.")
         self.__nodeMap = nodeMap
-        for node in self.__nodeMap.itervalues():
+        for node in six.itervalues(self.__nodeMap):
             if node:
                 # Only insert child if it hasn't been inserted yet.
                 try:
@@ -250,7 +252,7 @@ class SwitchNode(avg.DivNode):
         if not (visibleid in self.__nodeMap):
             raise RuntimeError("'%s' is not a registered id." % visibleid)
         self.__visibleid = visibleid
-        for node in self.__nodeMap.itervalues():
+        for node in six.itervalues(self.__nodeMap):
             node.active = False
         self.__nodeMap[visibleid].active = True
 
@@ -258,10 +260,10 @@ class SwitchNode(avg.DivNode):
 
     def __setChildSizes(self, newSize):
         if self.__nodeMap:
-            for node in self.__nodeMap.itervalues():
+            for node in six.itervalues(self.__nodeMap):
                 if node:
                     node.size = newSize
-                    # Hack to support min. size in SwitchNodes containing StretchNodes 
+                    # Hack to support min. size in SwitchNodes containing StretchNodes
                     if node.size > newSize:
                         self.size = node.size
                         return

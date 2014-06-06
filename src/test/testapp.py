@@ -20,11 +20,14 @@
 # Current versions can be found at www.libavg.de
 #
 
+from __future__ import print_function
 import unittest
 
 import optparse
 import os
 import sys
+
+import six
 
 from libavg import avg, player
 import testcase
@@ -98,7 +101,7 @@ class TestApp(object):
             for suite in self.__testSuite:
                 for test in suite:
                     if test.skipped():
-                        print "  " + str(test) + ": " + test.skipReason()
+                        print("  ", str(test), ": ", test.skipReason())
 
         if testResult.wasSuccessful():
             self.__exitOk = TestApp.EXIT_OK
@@ -187,5 +190,5 @@ class TestApp(object):
         player.setTimeout(0, player.stop)
         player.setFramerate(10000)
         player.play()
-        for cat, severity in cats.iteritems():
+        for cat, severity in six.iteritems(cats):
             avg.logger.configureCategory(cat, severity)

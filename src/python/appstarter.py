@@ -20,14 +20,16 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
+from __future__ import print_function
+
 import os
 import gc
 import math
 
 from libavg import avg, Point2D, player
-import graph
-from mtemu import MTemu
-import apphelpers
+from . import graph
+from .mtemu import MTemu
+from . import apphelpers
 
 
 DEFAULT_RESOLUTION = (640, 480)
@@ -151,8 +153,8 @@ class AVGAppStarter(AppStarter):
         gc.collect()
         testHelper = player.getTestHelper()
         testHelper.dumpObjects()
-        print 'Num anims: ', avg.getNumRunningAnims()
-        print 'Num python objects: ', len(gc.get_objects())
+        print('Num anims: ', avg.getNumRunningAnims())
+        print('Num python objects: ', len(gc.get_objects()))
 
     def showMemoryUsage(self):
         if self.__memGraph:
@@ -300,7 +302,8 @@ class AVGMTAppStarter(AVGAppStarter):
         self.tracker.setDebugImages(False, False)
 
     def __updateTrackerImage(self):
-        def transformPos((x,y)):
+        def transformPos(pos):
+            x, y = pos
             if self.trackerFlipX:
                 x = 1 - x
             if self.trackerFlipY:
@@ -323,7 +326,7 @@ class AVGMTAppStarter(AVGAppStarter):
         # we must add the tracker first, calibrator depends on it
         try:
             player.enableMultitouch()
-        except RuntimeError, err:
+        except RuntimeError as err:
             avg.logger.warning(str(err))
 
         self.tracker = player.getTracker()
@@ -383,7 +386,7 @@ class AVGMTAppStarter(AVGAppStarter):
             self.__calibratorNode.active = False
 
         if self.__calibrator.isRunning():
-            print "calibrator already running!"
+            print("calibrator already running!")
             return
 
         self._activeApp = self.__calibrator

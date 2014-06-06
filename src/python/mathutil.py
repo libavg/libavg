@@ -24,6 +24,8 @@
 # Clean that up.
 
 import math
+
+from six.moves import range
 from libavg import Point2D
 
 def getAngle(p1, p2):
@@ -39,7 +41,10 @@ def getDistance (p, q):
 def getDistSquared (p, q):
     return (p.x-q.x)**2 + (p.y-q.y)**2
 
-def getScaleToSize ((width, height), (max_width, max_height)):
+def getScaleToSize (min_tpl, max_tpl):
+    width, height = min_tpl
+    max_width, max_height = max_tpl
+
     if width < max_width:
         height = height * (float(max_width) / width)
         width = max_width
@@ -118,7 +123,7 @@ def solveEquationMatrix(_matrix, eps = 1.0/(10**10)):
         matrix.append(newrow)
     matrix = gauss_jordan (matrix)
     res=[]
-    for col in xrange(len(matrix[0])-1):
+    for col in range(len(matrix[0])-1):
         rows = filter(lambda row: row[col] >= eps, matrix)
         if len(rows)!=1:
             raise EquationNotSolvable
@@ -148,9 +153,9 @@ class MovingAverage:
     Moving average implementation.
     Example:
     ma = MovingAverage(20)
-    print ma(2)
-    print ma(3)
-    print ma(10)
+    print(ma(2))
+    print(ma(3))
+    print(ma(10))
     """
     def __init__(self, points):
         self.__points = points

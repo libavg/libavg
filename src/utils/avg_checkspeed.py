@@ -22,6 +22,7 @@
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
 
+from six.moves import range
 from libavg import *
 
 import random
@@ -123,7 +124,7 @@ class SpeedDiv(app.MainDiv):
 
     def __createNodes(self):
         self.__nodes = []
-        for i in xrange(self.__optNumObjs):
+        for i in range(self.__optNumObjs):
             pos = (random.randrange(self.width-64), random.randrange(self.height-64))
             size = (self.__optImgSize, self.__optImgSize)
             if self.__optVideo:

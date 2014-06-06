@@ -19,8 +19,9 @@
 # Current versions can be found at www.libavg.de
 #
 
-import StringIO
 import logging
+
+import six
 
 from libavg import logger
 
@@ -33,7 +34,7 @@ class LoggerTestCase(AVGTestCase):
         self.testMsg = u'福 means good fortune'
 
     def setUp(self):
-        self.stream = StringIO.StringIO()
+        self.stream = six.StringIO()
         self.hdlr = logging.StreamHandler(self.stream)
         self.pyLogger = logging.getLogger(__name__)
         self.pyLogger.addHandler(self.hdlr)

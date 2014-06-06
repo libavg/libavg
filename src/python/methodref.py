@@ -17,7 +17,8 @@
 #
 # Current versions can be found at www.libavg.de
 
-import weakref, new
+import weakref
+import types
 
 class methodref(object):
     # From Python Cookbook
@@ -66,4 +67,4 @@ class methodref(object):
             return self._func
         elif self._obj() is None:
             return None
-        return new.instancemethod(self._func, self._obj(), self._clas)
+        return types.MethodType(self._func, self._obj())

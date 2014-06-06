@@ -22,6 +22,9 @@
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
 
+from __future__ import print_function
+from six.moves import range
+
 from libavg import *
 
 import random
@@ -86,7 +89,7 @@ class SpeedDiv(app.MainDiv):
 
         tstart = time.time()
         self.__createNodes()
-        print 'Time to create nodes: %f' % (time.time()-tstart)
+        print('Time to create nodes: {0:f}'.format(time.time()-tstart))
         app.instance.debugPanel.toggleWidget(app.debugpanel.FrametimeGraphWidget)
         if self.__optCreate:
             player.setInterval(400, self.__createNodes)
@@ -100,7 +103,7 @@ class SpeedDiv(app.MainDiv):
 
     def __createNodes(self):
         self.__nodes = []
-        for i in xrange(self.__optNumObjs):
+        for i in range(self.__optNumObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
             polyPos = self.__calPolyCords(pos, R)
             holes = []
@@ -132,7 +135,7 @@ class SpeedDiv(app.MainDiv):
         alpha = math.radians(360.0 / (self.__optNumPoints/2))
         beta = alpha/2
         result = []
-        for i in xrange(self.__optNumPoints/2):
+        for i in range(self.__optNumPoints/2):
             result.append((r*math.cos(i*alpha) + offset[0],
                     r*math.sin(i*alpha) + offset[1]))
             result.append((r2*math.cos(i*alpha+beta) + offset[0],

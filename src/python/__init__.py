@@ -12,18 +12,18 @@ if system() == 'Linux':
     cdll.LoadLibrary("libstdc++.so.6")
 del system
 
-from avg import *
+from .avg import *
 player = avg.Player.get()
 
-from enumcompat import *
+from .enumcompat import *
 
-import textarea
-import statemachine
-from avgapp import AVGApp
-from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
-import utils, methodref
-import gesture
-import filter
-import persist
-import app
+from . import textarea
+from . import statemachine
+from .avgapp import AVGApp
+from .appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
+from . import utils, methodref
+from . import gesture
+from . import filter
+from . import persist
+from . import app
 

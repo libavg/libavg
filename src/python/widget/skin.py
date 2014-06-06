@@ -23,8 +23,10 @@ from libavg import avg
 import os, copy
 import xml.etree.ElementTree as ET
 
-class Skin: 
-   
+import six
+
+class Skin:
+
     default = None
 
     def __init__(self, skinXmlFName, mediaDir=""):
@@ -45,25 +47,25 @@ class Skin:
                 self.fonts[fontid] = copy.copy(self.fonts[attrs["baseid"]])
                 font = self.fonts[fontid]
                 del attrs["baseid"]
-                for (key, value) in attrs.iteritems():
+                for (key, value) in six.iteritems(attrs):
                     setattr(font, key, value)
             else:
-                kwargs = self.__extractArgs(attrs, 
+                kwargs = self.__extractArgs(attrs,
                         ("fontsize", "letterspacing", "linespacing"))
                 self.fonts[fontid] = avg.FontStyle(**kwargs)
 
         self.textButtonCfg, self.defaultTextButtonCfg = self.__parseElement(
-                xmlRoot, "textbutton", 
-                bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp", 
+                xmlRoot, "textbutton",
+                bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp",
                         "disabledSrc": "disabledBmp"},
                 fontArgNames=("font", "downFont", "disabledFont"))
 
         self.checkBoxCfg, self.defaultCheckBoxCfg = self.__parseElement(
                 xmlRoot, "checkbox",
-                bmpArgNames={"uncheckedUpSrc":"uncheckedUpBmp", 
+                bmpArgNames={"uncheckedUpSrc":"uncheckedUpBmp",
                         "uncheckedDownSrc":"uncheckedDownBmp",
                         "uncheckedDisabledSrc":"uncheckedDisabledBmp",
-                        "checkedUpSrc":"checkedUpBmp", 
+                        "checkedUpSrc":"checkedUpBmp",
                         "checkedDownSrc":"checkedDownBmp",
                         "checkedDisabledSrc":"checkedDisabledBmp"},
                 fontArgNames=("font", "downFont", "disabledFont"))
@@ -75,29 +77,29 @@ class Skin:
                 xmlRoot, "progressbar")
 
         self.scrollAreaCfg, self.defaultScrollAreaCfg = self.__parseElement(
-                xmlRoot, "scrollarea", 
+                xmlRoot, "scrollarea",
                 pyArgNames=("friction","borderEndsExtent","margins",
                         "sensitiveScrollBars"),
                 bmpArgNames={"borderSrc":"borderBmp"})
 
         self.mediaControlCfg, self.defaultMediaControlCfg = self.__parseElement(
                 xmlRoot, "mediacontrol",
-                bmpArgNames={"playUpSrc":"playUpBmp", 
+                bmpArgNames={"playUpSrc":"playUpBmp",
                         "playDownSrc":"playDownBmp",
                         "playDisabledSrc":"playDisabledBmp",
-                        "pauseUpSrc":"pauseUpBmp", 
+                        "pauseUpSrc":"pauseUpBmp",
                         "pauseDownSrc":"pauseDownBmp",
                         "pauseDisabledSrc":"pauseDisabledBmp"},
                 pyArgNames=("timePos", "timeLeftPos", "barPos", "barRight"),
                 fontArgNames=("font"))
 
-    def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={}, 
+    def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={},
             fontArgNames=()):
         cfgMap = {}
         defaultCfg = None
         for node in xmlRoot.findall(elementName):
             nodeid, attrs = self.__splitAttrs(node)
-            kwargs = self.__extractArgs(attrs, pyArgNames=pyArgNames, 
+            kwargs = self.__extractArgs(attrs, pyArgNames=pyArgNames,
                     bmpArgNames=bmpArgNames, fontArgNames=fontArgNames)
             cfgMap[nodeid] = kwargs
             if defaultCfg == None or nodeid == None:
@@ -115,10 +117,10 @@ class Skin:
 
     def __extractArgs(self, attrs, pyArgNames=(), bmpArgNames={}, fontArgNames=()):
         kwargs = {}
-        for (key, value) in attrs.iteritems():
+        for (key, value) in six.iteritems(attrs):
             if key in pyArgNames:
                 kwargs[key] = eval(value)
-            elif key in bmpArgNames.iterkeys():
+            elif key in six.iterkeys(bmpArgNames):
                 argkey = bmpArgNames[key]
                 kwargs[argkey] = avg.Bitmap(os.path.join(self.__mediaDir, value))
             elif key in fontArgNames:
@@ -140,7 +142,7 @@ class Skin:
                 bogus, attrs = self.__splitAttrs(xmlNode)
                 kwargs = self.__extractArgs(attrs,
                         pyArgNames=("trackEndsExtent", "thumbEndsExtent"),
-                        bmpArgNames={"trackSrc": "trackBmp", 
+                        bmpArgNames={"trackSrc": "trackBmp",
                                 "trackDisabledSrc": "trackDisabledBmp",
                                 "thumbUpSrc": "thumbUpBmp",
                                 "thumbDownSrc": "thumbDownBmp",
@@ -148,14 +150,14 @@ class Skin:
                 sliderCfg[nodeID][xmlNode.tag] = kwargs
 
         return (sliderCfg, defaultSliderCfg)
-    
+
 
 def getBmpFromCfg(cfg, bmpName, defaultName=None):
     if bmpName in cfg:
         return cfg[bmpName]
     else:
         return cfg[defaultName]
-    
+
 
 defaultMediaDir = os.path.join(os.path.dirname(__file__), "..", 'data/')
 Skin.default = Skin("SimpleSkin.xml", "")

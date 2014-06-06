@@ -22,10 +22,13 @@
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
+from __future__ import print_function
 
 import sys
 import re
 import optparse
+
+import six
 
 import libavg
 
@@ -56,7 +59,7 @@ class Option(object):
         if not isinstance(value, str):
             raise ValueError('The type of %s value (%s) '
                     'must be string instead of %s' % (self.__key, value, type(value)))
-        
+
         self.__value = value
 
     @property
@@ -74,7 +77,7 @@ class Option(object):
             return self.key
         else:
             return components[1]
-        
+
     @property
     def help(self):
         return self.__help
@@ -93,7 +96,7 @@ class KargsExtender(object):
 
         if not optionsKeyset.issuperset(kaKeyset):
             raise RuntimeError('No such option/s: %s' % list(kaKeyset - optionsKeyset))
-            
+
         for option in optionsList:
             if option.key in self.__optionsKargs:
                 option.value = self.__optionsKargs[option.key]
@@ -147,21 +150,21 @@ class ArgvExtender(object):
         parsedOptions = self.__parsedArgs[0]
 
         if parsedOptions.version:
-            print 'libavg'
+            print('libavg')
             vi = libavg.VersionInfo()
-            print ' version  : %s' % vi.full
-            print ' builder  : %s (%s)' % (vi.builder, vi.buildtime)
-            print
-            print 'application'
-            print ' version: %s' % self.__appVersionInfo
+            print(' version  : {0}'.format(vi.full))
+            print(' builder  : {0} {1}'.format(vi.builder, vi.buildtime))
+            print()
+            print('application')
+            print(' version: {0}'.format(self.__appVersionInfo))
             sys.exit(0)
 
-        for key, value in parsedOptions.__dict__.iteritems():
+        for key, value in six.iteritems(parsedOptions.__dict__):
             if value is not None:
                 for option in optionsList:
                     if option.key == key:
                         option.value = value
-        
+
         return optionsList
 
     @property
@@ -180,7 +183,7 @@ class ArgvExtender(object):
         for option in optionsList:
             if not option.group in groups:
                 groups[option.group] = []
-            
+
             groups[option.group].append(option.key)
 
         return groups
@@ -214,24 +217,24 @@ class Settings(object):
             raise RuntimeError('Cannot find key %s in the settings' % key)
 
         return option
-        
+
     def get(self, key, convertFunc=lambda v: v):
         option = self.getOption(key)
 
         try:
             return convertFunc(option.value)
-        except (TypeError, ValueError), e:
+        except (TypeError, ValueError) as e:
             raise ValueError('%s (option=%s)' % (e, option))
 
     def getJson(self, key):
         import json
 
         return self.get(key, json.loads)
-    
+
     def getPoint2D(self, key):
         value = self.get(key)
         maybeTuple = re.split(r'\s*[,xX]\s*', value)
-        
+
         if len(maybeTuple) != 2:
             raise ValueError('Cannot convert key %s value %s to Point2D' % (key, value))
 
@@ -239,13 +242,13 @@ class Settings(object):
 
     def getInt(self, key):
         return self.get(key, int)
-    
+
     def getFloat(self, key):
         return self.get(key, float)
 
     def getBoolean(self, key):
         value = self.get(key).lower()
-        
+
         if value in ('yes', 'true'):
             return True
         elif value in ('no', 'false'):
@@ -263,7 +266,7 @@ class Settings(object):
 
         if self.__getOptionOrNone(option.key):
             raise RuntimeError('Option %s has been already defined' % option.key)
-            
+
         self.__options.append(option)
 
     def __getOptionOrNone(self, key):

@@ -21,7 +21,7 @@
 
 from libavg import avg, gesture
 from . import slider
-from base import HVStretchNode, Orientation
+from .base import HVStretchNode, Orientation
 from . import skin
 
 class ScrollPane(avg.DivNode):
