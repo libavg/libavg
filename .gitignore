@@ -33,6 +33,12 @@ src/version.h
 src/video/testvideo
 test-driver
 
+#libavg dist-check
+version.h
+sphinxdoc/_build
+libavg-*.tar.gz
+libavg-*.zip
+
 # Make check output
 *.log
 *.trs
@@ -61,3 +67,6 @@ __pycache__/
 *.la
 *.a
 *.lib
+
+# YouCompleteMe config file
+.ycm_extra_conf.py

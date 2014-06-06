@@ -24,9 +24,11 @@
 
 #include "../api.h"
 
-#include "../glm/glm.hpp"
+#define GLM_FORCE_RADIANS
+#include "../glm/fwd.hpp"
 #include "../glm/gtc/matrix_transform.hpp"
 #include "../glm/gtc/type_ptr.hpp"
+#include "../glm/gtx/io.hpp"
 
 #include <iostream>
 #include <vector>
@@ -39,24 +41,17 @@ glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle,
 float getAngle(const glm::vec2& vec);
 glm::vec2 fromPolar(float angle, float radius);
 
-template<class NUM>
-bool almostEqual(const glm::detail::tvec2<NUM>& v1, const glm::detail::tvec2<NUM>& v2);
-template<class NUM>
-bool almostEqual(const glm::detail::tvec4<NUM>& v1, const glm::detail::tvec4<NUM>& v2);
+template<typename NUM, glm::precision precision>
+bool almostEqual(const glm::detail::tvec2<NUM, precision>& v1,
+                 const glm::detail::tvec2<NUM, precision>& v2);
+template<typename NUM, glm::precision precision>
+bool almostEqual(const glm::detail::tvec4<NUM, precision>& v1,
+                 const glm::detail::tvec4<NUM, precision>& v2);
 
-template<class NUM>
-std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<NUM> &v);
-template<class NUM>
-std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<NUM> &v);
-template<class NUM>
-std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<NUM> &v);
-template<class NUM>
-std::ostream& operator<<(std::ostream& os, const glm::detail::tmat4x4<NUM> &v);
-
-template<class NUM>
-std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM>& p);
-template<class NUM>
-std::istream& operator>>(std::istream& is, glm::detail::tvec3<NUM>& p);
+template<typename NUM, glm::precision precision>
+std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM, precision>& p);
+template<typename NUM, glm::precision precision>
+std::istream& operator>>(std::istream& is, glm::detail::tvec3<NUM, precision>& p);
 
 typedef glm::ivec2 IntPoint;
 typedef std::vector<glm::vec2> Vec2Vector;

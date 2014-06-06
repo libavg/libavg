@@ -31,7 +31,7 @@ namespace avg {
 
 glm::vec2 getRotated(const glm::vec2& vec, float angle)
 {
-    return glm::rotate(vec, angle*180/PI);
+    return glm::rotate(vec, angle);
 }
 
 glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle, const glm::vec2& pivot)
@@ -40,7 +40,7 @@ glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle, const glm::vec2& pi
     glm::vec2 translated = vec - pivot;
    
     // calculate rotated coordinates about the origin
-    glm::vec2 rotated = glm::rotate(translated, angle*180/PI);
+    glm::vec2 rotated = glm::rotate(translated, angle);
 
     // re-translate pivot to original position
     rotated += pivot;
@@ -58,51 +58,22 @@ glm::vec2 fromPolar(float angle, float radius)
     return glm::vec2(cos(angle)*radius, sin(angle)*radius);
 }
 
-template<class NUM>
-bool almostEqual(const glm::detail::tvec2<NUM>& v1, const glm::detail::tvec2<NUM>& v2)
+template<typename NUM, glm::precision precision>
+bool almostEqual(const glm::detail::tvec2<NUM, precision>& v1,
+                 const glm::detail::tvec2<NUM, precision>& v2)
 {
     return (fabs(v1.x-v2.x)+fabs(v1.y-v2.y)) < 0.0001;
 }
 
-template<class NUM>
-bool almostEqual(const glm::detail::tvec4<NUM>& v1, const glm::detail::tvec4<NUM>& v2)
+template<typename NUM, glm::precision precision>
+bool almostEqual(const glm::detail::tvec4<NUM, precision>& v1,
+                 const glm::detail::tvec4<NUM, precision>& v2)
 {
     return (fabs(v1.x-v2.x)+fabs(v1.y-v2.y)+fabs(v1.z-v2.z)+fabs(v1.w-v2.w)) < 0.0001;
 }
 
-template<class NUM>
-std::ostream& operator<<( std::ostream& os, const glm::detail::tvec2<NUM> &v)
-{
-    os << "(" << v.x << "," << v.y << ")";
-    return os;
-}
-
-template<class NUM>
-std::ostream& operator<<( std::ostream& os, const glm::detail::tvec3<NUM> &v)
-{
-    os << "(" << v.x << "," << v.y << "," << v.z << ")";
-    return os;
-}
-
-template<class NUM>
-std::ostream& operator<<( std::ostream& os, const glm::detail::tvec4<NUM> &v)
-{
-    os << "(" << v.x << "," << v.y << "," << v.z << ", " << v.a << ")";
-    return os;
-}
-
-template<class NUM>
-std::ostream& operator<<( std::ostream& os, const glm::detail::tmat4x4<NUM> &m)
-{
-    os << "(" << m[0] << ", " << endl << 
-            m[1] << ", " << endl << 
-            m[2] << ", " << endl << 
-            m[3] << ", " << endl << ")";
-    return os;
-}
-
-template<class NUM>
-std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM>& p)
+template<typename NUM, glm::precision precision>
+std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM, precision>& p)
 {
     skipToken(is, '(');
     is >> p.x;
@@ -112,8 +83,8 @@ std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM>& p)
     return is;
 }
 
-template<class NUM>
-std::istream& operator>>(std::istream& is, glm::detail::tvec3<NUM>& p)
+template<typename NUM, glm::precision precision>
+std::istream& operator>>(std::istream& is, glm::detail::tvec3<NUM, precision>& p)
 {
     skipToken(is, '(');
     is >> p.x;
@@ -147,37 +118,21 @@ glm::ivec3 stringToIVec3(const std::string& s)
 }
 
 
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<int> &p);
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<float> &p);
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<double> &p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<int, glm::highp>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<float, glm::highp>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<double, glm::highp>& p);
 
-template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<int>& p);
-template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<float>& p);
-template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec2<double>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<int, glm::highp>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<float, glm::highp>& p);
+template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<double, glm::highp>& p);
 
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<int> &p);
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<float> &p);
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<double> &p);
-
-template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<int>& p);
-template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<float>& p);
-template AVG_TEMPLATE_API std::istream& operator>>(std::istream& is, glm::detail::tvec3<double>& p);
-
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<int> &p);
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<float> &p);
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<double> &p);
-
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, const glm::detail::tmat4x4<float> &p);
-template AVG_TEMPLATE_API std::ostream& operator<<(std::ostream& os, 
-        const glm::detail::tmat4x4<double> &p);
-
-template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec2<float>& v1,
-        const glm::detail::tvec2<float>& v2);
-template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec2<double>& v1,
-        const glm::detail::tvec2<double>& v2);
-template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<float>& v1,
-        const glm::detail::tvec4<float>& v2);
-template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<double>& v1,
-        const glm::detail::tvec4<double>& v2);
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec2<float, glm::highp>& v1,
+        const glm::detail::tvec2<float, glm::highp>& v2);
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec2<double, glm::highp>& v1,
+        const glm::detail::tvec2<double, glm::highp>& v2);
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<float, glm::highp>& v1,
+        const glm::detail::tvec4<float, glm::highp>& v2);
+template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<double, glm::highp>& v1,
+        const glm::detail::tvec4<double, glm::highp>& v2);
 }
 

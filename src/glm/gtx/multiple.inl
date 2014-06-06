@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
+// OpenGL Mathematics Copyright (c) 2005 - 2014 G-Truc Creation (www.g-truc.net)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Created : 2009-10-26
-// Updated : 2009-10-26
+// Updated : 2011-06-07
 // Licence : This source is under MIT License
 // File    : glm/gtx/multiple.inl
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -11,181 +11,142 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace glm{
-namespace gtx{
-namespace multiple
+namespace detail
 {
+	template <bool Signed>
+	struct higherMultiple
+	{
+		template <typename genType>
+		GLM_FUNC_QUALIFIER genType operator()
+		(
+			genType const & Source,
+			genType const & Multiple
+		)
+		{
+			if (Source > genType(0))
+			{
+				genType Tmp = Source - genType(1);
+				return Tmp + (Multiple - (Tmp % Multiple));
+			}
+			else
+				return Source + (-Source % Multiple);
+		}
+	};
+
+	template <>
+	struct higherMultiple<false>
+	{
+		template <typename genType>
+		GLM_FUNC_QUALIFIER genType operator()
+		(
+			genType const & Source,
+			genType const & Multiple
+		)
+		{
+			genType Tmp = Source - genType(1);
+			return Tmp + (Multiple - (Tmp % Multiple));
+		}
+	};
+}//namespace detail
+
 	//////////////////////
 	// higherMultiple
 
-	template <typename genType> 
+	template <typename genType>
 	GLM_FUNC_QUALIFIER genType higherMultiple
 	(
-		genType const & Source, 
+		genType const & Source,
 		genType const & Multiple
 	)
 	{
-		genType Tmp = Source % Multiple;
-		return Tmp ? Source + Multiple - Tmp : Source;
+		detail::higherMultiple<std::numeric_limits<genType>::is_signed> Compute;
+		return Compute(Source, Multiple);
 	}
 
-	template <> 
-	GLM_FUNC_QUALIFIER detail::thalf higherMultiple
-	(
-		detail::thalf const & Source, 
-		detail::thalf const & Multiple
-	)
-	{
-		int Tmp = int(float(Source)) % int(float(Multiple));
-		return Tmp ? Source + Multiple - detail::thalf(float(Tmp)) : Source;
-	}
-
-	template <> 
+	template <>
 	GLM_FUNC_QUALIFIER float higherMultiple
 	(	
-		float const & Source, 
+		float const & Source,
 		float const & Multiple
 	)
 	{
-		int Tmp = int(Source) % int(Multiple);
-		return Tmp ? Source + Multiple - float(Tmp) : Source;
+		if (Source > float(0))
+		{
+			float Tmp = Source - float(1);
+			return Tmp + (Multiple - std::fmod(Tmp, Multiple));
+		}
+		else
+			return Source + std::fmod(-Source, Multiple);
 	}
 
-	template <> 
+	template <>
 	GLM_FUNC_QUALIFIER double higherMultiple
 	(
-		double const & Source, 
+		double const & Source,
 		double const & Multiple
 	)
 	{
-		long Tmp = long(Source) % long(Multiple);
-		return Tmp ? Source + Multiple - double(Tmp) : Source;
+		if (Source > double(0))
+		{
+			double Tmp = Source - double(1);
+			return Tmp + (Multiple - std::fmod(Tmp, Multiple));
+		}
+		else
+			return Source + std::fmod(-Source, Multiple);
 	}
 
-	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec2<T> higherMultiple
-	(
-		detail::tvec2<T> const & Source, 
-		detail::tvec2<T> const & Multiple
-	)
-	{
-		detail::tvec2<T> Result;
-		for(typename detail::tvec2<T>::size_type i = 0; i < detail::tvec2<T>::value_size(); ++i)
-			Result[i] = higherMultiple(Source[i], Multiple[i]);
-		return Result;
-	}
-
-	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec3<T> higherMultiple
-	(
-		detail::tvec3<T> const & Source, 
-		detail::tvec3<T> const & Multiple
-	)
-	{
-		detail::tvec3<T> Result;
-		for(typename detail::tvec3<T>::size_type i = 0; i < detail::tvec3<T>::value_size(); ++i)
-			Result[i] = higherMultiple(Source[i], Multiple[i]);
-		return Result;
-	}
-
-	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec4<T> higherMultiple
-	(
-		detail::tvec4<T> const & Source, 
-		detail::tvec4<T> const & Multiple
-	)
-	{
-		detail::tvec4<T> Result;
-		for(typename detail::tvec4<T>::size_type i = 0; i < detail::tvec4<T>::value_size(); ++i)
-			Result[i] = higherMultiple(Source[i], Multiple[i]);
-		return Result;
-	}
+	VECTORIZE_VEC_VEC(higherMultiple)
 
 	//////////////////////
 	// lowerMultiple
 
-	template <typename genType> 
+	template <typename genType>
 	GLM_FUNC_QUALIFIER genType lowerMultiple
 	(
-		genType const & Source, 
+		genType const & Source,
 		genType const & Multiple
 	)
 	{
-		genType Tmp = Source % Multiple;
-		return Tmp ? Source - Tmp : Source;
+		if (Source >= genType(0))
+			return Source - Source % Multiple;
+		else
+		{
+			genType Tmp = Source + genType(1);
+			return Tmp - Tmp % Multiple - Multiple;
+		}
 	}
 
-	template <> 
-	GLM_FUNC_QUALIFIER detail::thalf lowerMultiple
-	(
-		detail::thalf const & Source, 
-		detail::thalf const & Multiple
-	)
-	{
-		int Tmp = int(float(Source)) % int(float(Multiple));
-		return Tmp ? Source - detail::thalf(float(Tmp)) : Source;
-	}
-
-	template <> 
+	template <>
 	GLM_FUNC_QUALIFIER float lowerMultiple
 	(
-		float const & Source, 
+		float const & Source,
 		float const & Multiple
 	)
 	{
-		int Tmp = int(Source) % int(Multiple);
-		return Tmp ? Source - float(Tmp) : Source;
+		if (Source >= float(0))
+			return Source - std::fmod(Source, Multiple);
+		else
+		{
+			float Tmp = Source + float(1);
+			return Tmp - std::fmod(Tmp, Multiple) - Multiple;
+		}
 	}
 
-	template <> 
+	template <>
 	GLM_FUNC_QUALIFIER double lowerMultiple
 	(
-		double const & Source, 
+		double const & Source,
 		double const & Multiple
 	)
 	{
-		long Tmp = long(Source) % long(Multiple);
-		return Tmp ? Source - double(Tmp) : Source;
+		if (Source >= double(0))
+			return Source - std::fmod(Source, Multiple);
+		else
+		{
+			double Tmp = Source + double(1);
+			return Tmp - std::fmod(Tmp, Multiple) - Multiple;
+		}
 	}
 
-	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec2<T> lowerMultiple
-	(
-		detail::tvec2<T> const & Source, 
-		detail::tvec2<T> const & Multiple
-	)
-	{
-		detail::tvec2<T> Result;
-		for(typename detail::tvec2<T>::size_type i = 0; i < detail::tvec2<T>::value_size(); ++i)
-			Result[i] = lowerMultiple(Source[i], Multiple[i]);
-		return Result;
-	}
-
-	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec3<T> lowerMultiple
-	(
-		detail::tvec3<T> const & Source, 
-		detail::tvec3<T> const & Multiple
-	)
-	{
-		detail::tvec3<T> Result;
-		for(typename detail::tvec3<T>::size_type i = 0; i < detail::tvec3<T>::value_size(); ++i)
-			Result[i] = lowerMultiple(Source[i], Multiple[i]);
-		return Result;
-	}
-
-	template <typename T> 
-	GLM_FUNC_QUALIFIER detail::tvec4<T> lowerMultiple
-	(
-		detail::tvec4<T> const & Source, 
-		detail::tvec4<T> const & Multiple
-	)
-	{
-		detail::tvec4<T> Result;
-		for(typename detail::tvec4<T>::size_type i = 0; i < detail::tvec4<T>::value_size(); ++i)
-			Result[i] = lowerMultiple(Source[i], Multiple[i]);
-		return Result;
-	}
-
-}//namespace multiple
-}//namespace gtx
+	VECTORIZE_VEC_VEC(lowerMultiple)
 }//namespace glm

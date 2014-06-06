@@ -1,63 +1,29 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2011 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Based on the work of Stefan Gustavson and Ashima Arts on "webgl-noise": 
-// https://github.com/ashima/webgl-noise 
-// Following Stefan Gustavson's paper "Simplex noise demystified": 
-// http://www.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2011-04-21
-// Updated : 2011-04-21
-// Licence : This source is under MIT License
-// File    : glm/gtx/noise.hpp
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Dependency:
-// - GLM core
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+/// OpenGL Mathematics (glm.g-truc.net)
+///
+/// Copyright (c) 2005 - 2013 G-Truc Creation (www.g-truc.net)
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////////
 
-#ifndef glm_gtx_noise
-#define glm_gtx_noise
-
-// Dependency:
-#include "../glm.hpp"
-
-#if(defined(GLM_MESSAGES) && !defined(glm_ext))
-#	pragma message("GLM: GLM_GTX_noise extension included")
+#if(defined(GLM_MESSAGES))
+#	pragma message("GLM: GLM_GTX_random extension is deprecated, include GLM_GTC_random (glm/gtc/noise.hpp) instead")
 #endif
 
-namespace glm{
-namespace gtx{
-namespace noise	///< GLM_GTX_noise extension: Comparison functions for a user defined epsilon values.
-{
-	/// \addtogroup gtx_noise
-	/// @{
-
-	//! Classic perlin noise.
-	//! From GLM_GTX_noise extension.
-	template <typename T, template<typename> class vecType> 
-    T perlin(
-		vecType<T> const & p);
-		
-	//! Periodic perlin noise.
-	//! From GLM_GTX_noise extension.
-	template <typename T, template<typename> class vecType> 
-    T perlin(
-		vecType<T> const & p, 
-		vecType<T> const & rep);
-
-	//! Simplex noise.
-	//! From GLM_GTX_noise extension.
-	template <typename T, template<typename> class vecType> 
-    T simplex(
-		vecType<T> const & p);
-
-	/// @}
-}//namespace noise
-}//namespace gtx
-}//namespace glm
-
-#include "noise.inl"
-
-namespace glm{using namespace gtx::noise;}
-
-#endif//glm_gtx_noise
+// Promoted:
+#include "../gtc/noise.hpp"
