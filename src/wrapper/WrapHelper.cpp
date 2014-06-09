@@ -133,6 +133,15 @@ namespace Vec2Helper
         }
         return angle;
     }
+
+    /* TODO: Cheap workaround for inability to properly overload operator< so that 
+     * boost python is able to pick  it up
+     */
+    bool lt(const glm::vec2& lhs, const glm::vec2& rhs)
+    {
+        glm::vec2::bool_type smaller = glm::lessThan(lhs, rhs);
+        return smaller.x || smaller.y;
+    }
 }
 
 // The ConstVec2 stuff is there so that vec2 attributes behave sensibly. That is,
@@ -145,11 +154,6 @@ ConstVec2::ConstVec2(const glm::vec2& other)
 {
     x = other.x;
     y = other.y;
-}
-
-glm::vec2 ConstVec2::toVec2() const
-{
-    return glm::vec2(x,y);
 }
 
 void checkEmptyArgs(const boost::python::tuple &args, int numArgs)

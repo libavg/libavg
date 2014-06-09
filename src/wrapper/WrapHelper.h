@@ -305,6 +305,7 @@ void deprecatedSet(T& node, float d)
     throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
 }
 
+
 namespace Vec2Helper
 {
     int len(const glm::vec2&);
@@ -321,6 +322,7 @@ namespace Vec2Helper
     glm::vec2 safeGetNormalized(const glm::vec2& pt);
     float getNorm(const glm::vec2& pt);
     float vecAngle(const glm::vec2& pt1, const glm::vec2& pt2);
+    bool lt(const glm::vec2& lhs, const glm::vec2& rhs);
 }
 
 class ConstVec2: public glm::vec2
@@ -328,7 +330,7 @@ class ConstVec2: public glm::vec2
 public:
     ConstVec2();
     ConstVec2(const glm::vec2& other);
-    glm::vec2 toVec2() const;
+
     //operator glm::vec2() const;
 };
 

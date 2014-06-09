@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../base/GLMHelper.h"
 #include "WrapHelper.h"
 
 #include "../player/BoostPython.h"
@@ -49,6 +50,8 @@ class_<POINT> export_point(const string& sName)
         .def("__repr__", &Vec2Helper::repr)
         .def("__hash__", &Vec2Helper::getHash)
         .def("getNormalized", &Vec2Helper::safeGetNormalized)
+        /*: TODO: Properly overload operator< (self < self) */
+        .def("__lt__", &Vec2Helper::lt)
         .def("getNorm", &Vec2Helper::getNorm)
         .def("getRotated", &getRotated)
         .def("getRotated", &getRotatedPivot)

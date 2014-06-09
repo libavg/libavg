@@ -36,7 +36,7 @@
 namespace avg {
 
 glm::vec2 getRotated(const glm::vec2& vec, float angle);
-glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle, 
+glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle,
         const glm::vec2& pivot=glm::vec2(0,0));
 float getAngle(const glm::vec2& vec);
 glm::vec2 fromPolar(float angle, float radius);
@@ -59,6 +59,18 @@ typedef std::vector<glm::vec2> Vec2Vector;
 glm::vec2 stringToVec2(const std::string& s);
 glm::vec3 stringToVec3(const std::string& s);
 glm::ivec3 stringToIVec3(const std::string& s);
+
+}
+
+namespace glm {
+
+template<typename NUM, glm::precision precision>
+bool operator<(const glm::detail::tvec2<NUM, precision>& lhs,
+               const glm::detail::tvec2<NUM, precision>& rhs)
+{
+    glm::vec2::bool_type smaller = glm::lessThan(lhs, rhs);
+    return smaller.x || smaller.y;
+};
 
 }
 

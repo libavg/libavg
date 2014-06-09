@@ -20,6 +20,8 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
+from __future__ import absolute_import
+
 from .appstarter import AppStarter
 
 
@@ -69,10 +71,10 @@ class AVGApp(object):
     @classmethod
     def start(cls, **kwargs):
         if cls.multitouch:
-            from appstarter import AVGMTAppStarter
+            from .appstarter import AVGMTAppStarter
             starter = AVGMTAppStarter
         else:
-            from appstarter import AVGAppStarter
+            from .appstarter import AVGAppStarter
             starter = AVGAppStarter
 
         starter(appClass=cls, fakeFullscreen=cls.fakeFullscreen, **kwargs)

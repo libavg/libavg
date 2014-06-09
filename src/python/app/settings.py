@@ -238,7 +238,7 @@ class Settings(object):
         if len(maybeTuple) != 2:
             raise ValueError('Cannot convert key %s value %s to Point2D' % (key, value))
 
-        return libavg.Point2D(map(float, maybeTuple))
+        return libavg.Point2D(list(map(float, maybeTuple)))
 
     def getInt(self, key):
         return self.get(key, int)
