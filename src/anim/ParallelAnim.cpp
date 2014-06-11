@@ -24,14 +24,14 @@
 #include "../player/Player.h"
 
 using namespace boost;
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
 
 ParallelAnim::ParallelAnim(const vector<AnimPtr>& anims,
-            const object& startCallback, const object& stopCallback, long long maxAge)
-    : Anim(startCallback, stopCallback),
+            const bp::object& startCallback, const bp::object& stopCallback, long long maxAge,
+            const bp::object& abortCallback)
+    : Anim(startCallback, stopCallback, abortCallback),
       m_Anims(anims),
       m_MaxAge(maxAge)
 {
@@ -71,7 +71,7 @@ void ParallelAnim::abort()
             (*it)->abort();
         }
         m_RunningAnims.clear();
-        setStopped();
+        setAborted();
         ParallelAnimPtr tempThis = m_This;
         m_This = ParallelAnimPtr();
         tempThis = ParallelAnimPtr();

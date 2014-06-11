@@ -57,7 +57,7 @@ void ContinuousAnim::start(bool bKeepAttr)
 void ContinuousAnim::abort()
 {
     if (isRunning()) {
-        removeFromMap();
+        removeFromMap(true);
     }
 }
 

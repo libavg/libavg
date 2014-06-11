@@ -67,7 +67,7 @@ void SimpleAnim::start(bool bKeepAttr)
 void SimpleAnim::abort()
 {
     if (isRunning()) {
-        removeFromMap();
+        removeFromMap(true);
     }
 }
 

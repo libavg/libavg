@@ -61,7 +61,6 @@ public:
     void setAbortCallback(const bp::object& abortCallback);
     virtual void start(bool bKeepAttr=false);
     virtual void abort() = 0;
-    virtual void stop() {}; //TODO
     bool isRunning() const;
     void setHasParent();
     
@@ -70,11 +69,13 @@ public:
     virtual bool step() = 0;
 
 protected:
+    void setAborted();
     void setStopped();
    
 private:
     Anim();
     Anim(const Anim&);
+    void halt();
     bp::object m_StartCallback;
     bp::object m_StopCallback;
     bp::object m_AbortCallback;

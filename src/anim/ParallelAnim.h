@@ -37,9 +37,10 @@ class AVG_API ParallelAnim: public Anim {
 public:
     virtual ~ParallelAnim();
     ParallelAnim(const std::vector<AnimPtr>& anims,
-            const boost::python::object& startCallback=boost::python::object(), 
-            const boost::python::object& stopCallback=boost::python::object(),
-            long long maxAge=-1);
+            const bp::object& startCallback=bp::object(), 
+            const bp::object& stopCallback=bp::object(),
+            long long maxAge=-1,
+            const bp::object& abortCallback=bp::object());
 
     virtual void start(bool bKeepAttr=false);
     virtual void abort();

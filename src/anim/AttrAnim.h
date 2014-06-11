@@ -39,7 +39,7 @@ namespace avg {
 
 struct ObjAttrID {
     ObjAttrID(const bp::object& obj, const std::string& sAttrName)
-        : m_ObjHash(boost::python::extract<long>(obj.attr("__hash__")())),
+        : m_ObjHash(bp::extract<long>(obj.attr("__hash__")())),
           m_sAttrName(sAttrName)
     {
     }
@@ -71,7 +71,7 @@ protected:
     void setValue(const bp::object& val);
 
     void addToMap();
-    void removeFromMap();
+    void removeFromMap(bool isAborted=false);
     void stopActiveAttrAnim();
 
 private:

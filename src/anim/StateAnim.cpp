@@ -24,7 +24,6 @@
 #include "../base/Exception.h"
 #include "../player/Player.h"
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
@@ -41,7 +40,7 @@ AnimState::AnimState()
 }
 
 StateAnim::StateAnim(const vector<AnimState>& states)
-    : Anim(object(), object()),
+    : Anim(bp::object(), bp::object()),
       m_bDebug(false)
 {
     vector<AnimState>::const_iterator it;

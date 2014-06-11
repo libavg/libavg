@@ -109,12 +109,26 @@ void Anim::onPlaybackEnd()
     }
 }
 
+void Anim::setAborted()
+{
+    if(m_AbortCallback != bp::object()) {
+        halt();
+        try {
+            m_AbortCallback();
+        } catch (bp::error_already_set&) {
+            cerr << "Python exception in Anim abort callback." << endl;
+            PyErr_Print();
+            exit(5);
+        }
+    }else {
+        setStopped();
+    }
+
+}
+
 void Anim::setStopped()
 {
-    if (m_bIsRoot) {
-        Player::get()->unregisterPreRenderListener(this);
-    }
-    m_bRunning = false;
+    halt();
     if (m_StopCallback != bp::object()) {
         try {
             m_StopCallback();
@@ -124,6 +138,14 @@ void Anim::setStopped()
             exit(5);
         }
     }
+}
+
+void Anim::halt()
+{
+    if (m_bIsRoot) {
+        Player::get()->unregisterPreRenderListener(this);
+    }
+    m_bRunning = false;
 }
 
 }

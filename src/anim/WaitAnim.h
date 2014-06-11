@@ -34,8 +34,9 @@ typedef boost::shared_ptr<class WaitAnim> WaitAnimPtr;
 class AVG_API WaitAnim: public Anim {
 public:
     WaitAnim(long long duration = -1,
-            const boost::python::object& startCallback=boost::python::object(), 
-            const boost::python::object& stopCallback=boost::python::object());
+            const bp::object& startCallback=bp::object(), 
+            const bp::object& stopCallback=bp::object(),
+            const bp::object& abortCallback=bp::object());
     virtual ~WaitAnim();
    
     virtual void start(bool bKeepAttr=false);

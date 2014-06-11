@@ -29,8 +29,9 @@ using namespace std;
 namespace avg {
 
 WaitAnim::WaitAnim(long long duration, const bp::object& startCallback, 
-        const bp::object& stopCallback)
-    : Anim(startCallback, stopCallback),
+        const bp::object& stopCallback,
+        const bp::object& abortCallback)
+    : Anim(startCallback, stopCallback, abortCallback),
       m_Duration(duration)
 {
 }
@@ -48,7 +49,7 @@ void WaitAnim::start(bool bKeepAttr)
 
 void WaitAnim::abort()
 {
-    setStopped();
+    setAborted();
     m_pThis = WaitAnimPtr();
 }
     

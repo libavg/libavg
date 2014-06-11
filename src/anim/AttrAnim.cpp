@@ -86,11 +86,15 @@ void AttrAnim::addToMap()
             dynamic_pointer_cast<AttrAnim>(shared_from_this());
 }
 
-void AttrAnim::removeFromMap()
+void AttrAnim::removeFromMap(bool isAborted)
 {
     AnimPtr tempThis = shared_from_this();
     s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
-    setStopped();
+    if(isAborted) {
+        setAborted();
+    } else {
+        setStopped();
+    }
 }
 
 void AttrAnim::stopActiveAttrAnim()

@@ -50,6 +50,7 @@ void export_anim()
     class_<Anim, boost::shared_ptr<Anim>, boost::noncopyable>("Anim", no_init)
         .def("setStartCallback", &Anim::setStartCallback)
         .def("setStopCallback", &Anim::setStopCallback)
+        .def("setAbortCallback", &Anim::setAbortCallback)
         .def("abort", &Anim::abort)
         .def("isRunning", &Anim::isRunning)
         ;
@@ -66,46 +67,52 @@ void export_anim()
     class_<LinearAnim, boost::shared_ptr<LinearAnim>, bases<SimpleAnim>, 
             boost::noncopyable>("LinearAnim", no_init)
         .def(init<const object&, const std::string&, long long, const object&, 
-                const object&, optional<bool, const object&, const object&> >
+                const object&,
+                optional<bool, const object&, const object&, const object&> >
                 ((bp::arg("node"), bp::arg("attrName"), bp::arg("duration"), 
                  bp::arg("startValue"), bp::arg("endValue"), bp::arg("useInt")=false,
-                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object())))
+                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object(),
+                 bp::arg("abortCallback")=object())))
         ;
 
     class_<EaseInOutAnim, boost::shared_ptr<EaseInOutAnim>, bases<SimpleAnim>, 
             boost::noncopyable>("EaseInOutAnim", no_init)
         .def(init<const object&, const std::string&, long long, const object&,
                 const object&, long long, long long, 
-                optional<bool, const object&, const object&> >
+                optional<bool, const object&, const object&, const object&> >
                 ((bp::arg("node"), bp::arg("attrName"), bp::arg("duration"), 
                  bp::arg("startValue"), bp::arg("endValue"), bp::arg("easeInDuration"), 
                  bp::arg("easeOutDuration"), bp::arg("useInt")=false,
-                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object())))
+                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object(),
+                 bp::arg("abortCallback")=object())))
         ;
    
     class_<ContinuousAnim, boost::shared_ptr<ContinuousAnim>, bases<AttrAnim>, 
             boost::noncopyable>("ContinuousAnim", no_init)
         .def(init<const object&, const std::string&, const object&, const object&, 
-                optional<bool, const object&, const object&> >
+                optional<bool, const object&, const object&, const object&> >
                 ((bp::arg("node"), bp::arg("attrName"), bp::arg("duration"), 
                  bp::arg("startValue"), bp::arg("speed"), bp::arg("useInt")=false,
-                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object())))
+                 bp::arg("startCallback")=object(), bp::arg("stopCallback")=object(),
+                 bp::arg("abortCallback")=object())))
         ;
 
     class_<WaitAnim, boost::shared_ptr<WaitAnim>, bases<Anim>, boost::noncopyable>(
             "WaitAnim", no_init)
-        .def(init<optional<long long, const object&, const object&> >
+        .def(init<optional<long long, const object&, const object&, const object&> >
                 ((bp::arg("duration")=-1, bp::arg("startCallback")=object(),
-                 bp::arg("stopCallback")=object())))
+                 bp::arg("stopCallback")=object(),
+                 bp::arg("abortCallback")=object())))
         .def("start", &WaitAnim::start, start_overloads(bp::args("bKeepAttr")))
         ;
     
     class_<ParallelAnim, boost::shared_ptr<ParallelAnim>, bases<Anim>, 
             boost::noncopyable>("ParallelAnim", no_init)
         .def(init<const std::vector<AnimPtr>&,
-                optional<const object&, const object&, long long> >
+                optional<const object&, const object&, long long, const object&> >
                 ((bp::arg("anims"), bp::arg("startCallback")=object(),
-                 bp::arg("stopCallback")=object(), bp::arg("maxAge")=-1)))
+                 bp::arg("stopCallback")=object(), bp::arg("maxAge")=-1,
+                 bp::arg("abortCallback")=object())))
         .def("start", &ParallelAnim::start, start_overloads(args("bKeepAttr")))
         ;
       
