@@ -512,8 +512,42 @@ class AnimTestCase(AVGTestCase):
         self._testAnimAbort(anim)
 
     def testStateAnimAbort(self):
-        #[todo] - Implement
-        pass
+        def state1StopCallback():
+            self.__state1StopCallbackCalled = True
+
+        def state1AbortCallback():
+            self.__state1AbortCallbackCalled = True
+
+        def state2StartCallback():
+            self.__state2StartCallbackCalled = True
+
+        def makeAnim():
+            self.anim = avg.StateAnim(
+                    [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200, 
+                            0, 100, False, None, state1StopCallback, state1AbortCallback),
+                            "STATE2"),
+                     avg.AnimState("STATE2", avg.LinearAnim(self.__node, "x", 200, 
+                            100, 50, False, state2StartCallback), "STATE3"),
+                     avg.AnimState("STATE3", avg.WaitAnim())
+                    ])
+
+
+        self.initScene()
+        self.__state1StopCallbackCalled = False
+        self.__state1AbortCallbackCalled = False
+        self.__state2StartCallbackCalled = False
+        self.start(False,
+                (makeAnim,
+                 lambda: self.compareImage("testStateAnimC1"),
+                 lambda: self.anim.setState("STATE1"),
+                 None,
+                 lambda: self.anim.abort(),
+                 lambda: self.assert_(not self.__state1StopCallbackCalled),
+                 lambda: self.assert_(not self.__state2StartCallbackCalled),
+                 lambda: self.assert_(self.__state1AbortCallbackCalled),
+                ))
+
+        self.anim = None
 
     def testParallelAnimAbort(self):
         #[todo] - Implement

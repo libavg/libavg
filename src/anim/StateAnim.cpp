@@ -57,7 +57,11 @@ StateAnim::~StateAnim()
 
 void StateAnim::abort()
 {
-    setState("");
+    map<string, AnimState>::iterator it = m_States.find(m_sCurStateName);
+    if (it != m_States.end()) {
+        it->second.m_pAnim->abort();
+    }
+    setAborted();
 }
 
 void StateAnim::setState(const std::string& sName, bool bKeepAttr)
