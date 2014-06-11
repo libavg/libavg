@@ -178,6 +178,15 @@ struct Vec3_to_python_tuple
     }
 };
 
+template<class VEC4>
+struct Vec4_to_python_tuple
+{
+    static PyObject* convert (VEC4 v)
+    {
+        return boost::python::incref(boost::python::make_tuple(v.x, v.y, v.z, v.w).ptr());
+    }
+};
+
 template<class VEC2, class ATTR>
 struct vec2_from_python
 {
@@ -254,6 +263,50 @@ struct vec3_from_python
                 (boost::python::converter::rvalue_from_python_storage<VEC3>*)
                         data)->storage.bytes;
         new (storage) VEC3(t);
+        data->convertible = storage;
+    }
+};
+
+template<class VEC4, class ATTR>
+struct vec4_from_python
+{
+    vec4_from_python() 
+    {
+        boost::python::converter::registry::push_back(
+                &convertible, &construct, boost::python::type_id<VEC4>());
+    }
+    
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PySequence_Check(obj_ptr)) {
+            return 0;
+        }
+        if (PySequence_Size(obj_ptr) != 4) {
+            return 0;
+        }
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        VEC4 t;
+        PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
+        t.x = (ATTR)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
+        pEntry = PySequence_GetItem(obj_ptr, 1);
+        t.y = (ATTR)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
+        pEntry = PySequence_GetItem(obj_ptr, 2);
+        t.z = (ATTR)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
+        pEntry = PySequence_GetItem(obj_ptr, 3);
+        t.w = (ATTR)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<VEC4>*)
+                        data)->storage.bytes;
+        new (storage) VEC4(t);
         data->convertible = storage;
     }
 };
@@ -371,6 +424,12 @@ void export_base()
     to_python_converter<glm::vec3, Vec3_to_python_tuple<glm::vec3> >();
     vec3_from_python<glm::ivec3, int>();
     vec3_from_python<glm::vec3, float>();
+    
+    // vec4
+    to_python_converter<glm::ivec4, Vec4_to_python_tuple<glm::ivec4> >();
+    to_python_converter<glm::vec4, Vec4_to_python_tuple<glm::vec4> >();
+    vec4_from_python<glm::ivec4, int>();
+    vec4_from_python<glm::vec4, float>();
     
     // vector<vec3>
     to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
