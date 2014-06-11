@@ -25,15 +25,15 @@
 #include "../player/Player.h"
 
 using namespace boost;
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
    
-SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, long long duration, 
-        const object& startValue, const object& endValue, bool bUseInt, 
-        const object& startCallback, const object& stopCallback)
-    : AttrAnim(node, sAttrName, startCallback, stopCallback),
+SimpleAnim::SimpleAnim(const bp::object& node, const string& sAttrName, long long duration, 
+        const bp::object& startValue, const bp::object& endValue, bool bUseInt, 
+        const bp::object& startCallback, const bp::object& stopCallback,
+        const bp::object& abortCallback)
+    : AttrAnim(node, sAttrName, startCallback, stopCallback, abortCallback),
       m_Duration(duration),
       m_StartValue(startValue),
       m_EndValue(endValue),
@@ -58,7 +58,7 @@ void SimpleAnim::start(bool bKeepAttr)
     }
     if (m_Duration == 0) {
         setValue(m_EndValue);
-        remove();
+        removeFromMap();
     } else {
         step();
     }
@@ -67,17 +67,17 @@ void SimpleAnim::start(bool bKeepAttr)
 void SimpleAnim::abort()
 {
     if (isRunning()) {
-        remove();
+        removeFromMap();
     }
 }
 
 template<class T>
-object typedLERP(const object& startValue, const object& endValue, float part)
+bp::object typedLERP(const bp::object& startValue, const bp::object& endValue, float part)
 {
-    T start = extract<T>(startValue);
-    T end = extract<T>(endValue);
+    T start = bp::extract<T>(startValue);
+    T end = bp::extract<T>(endValue);
     T cur = start+(end-start)*part;
-    return object(cur);
+    return bp::object(cur);
 }
 
 bool SimpleAnim::step()
@@ -87,22 +87,22 @@ bool SimpleAnim::step()
             /m_Duration);
     if (t >= 1.0) {
         setValue(m_EndValue);
-        remove();
+        removeFromMap();
         return true;
     } else {
-        object curValue;
+        bp::object curValue;
         float part = interpolate(t);
         if (isPythonType<float>(m_StartValue)) {
             curValue = typedLERP<float>(m_StartValue, m_EndValue, part);
             if (m_bUseInt) {
-                float d = extract<float>(curValue);
-                curValue = object(round(d));
+                float d = bp::extract<float>(curValue);
+                curValue = bp::object(round(d));
             }
         } else if (isPythonType<glm::vec2>(m_StartValue)) {
             curValue = typedLERP<glm::vec2>(m_StartValue, m_EndValue, part);
             if (m_bUseInt) {
-                glm::vec2 pt = extract<glm::vec2>(curValue);
-                curValue = object(glm::vec2(round(pt.x), round(pt.y)));
+                glm::vec2 pt = bp::extract<glm::vec2>(curValue);
+                curValue = bp::object(glm::vec2(round(pt.x), round(pt.y)));
             }
         } else {
             throw (Exception(AVG_ERR_TYPE, 
@@ -130,17 +130,17 @@ long long SimpleAnim::calcStartTime()
         if (m_EndValue == m_StartValue) {
             part = 0;
         } else {
-            part = getStartPart(extract<float>(m_StartValue), 
-                    extract<float>(m_EndValue), extract<float>(getValue()));
+            part = getStartPart(bp::extract<float>(m_StartValue), 
+                    bp::extract<float>(m_EndValue), bp::extract<float>(getValue()));
         }
     } else if (isPythonType<glm::vec2>(m_StartValue)) {
-        float start = glm::vec2(extract<glm::vec2>(m_StartValue)()).x;
-        float end = glm::vec2(extract<glm::vec2>(m_EndValue)()).x;
-        float cur = glm::vec2(extract<glm::vec2>(getValue())()).x;
+        float start = glm::vec2(bp::extract<glm::vec2>(m_StartValue)()).x;
+        float end = glm::vec2(bp::extract<glm::vec2>(m_EndValue)()).x;
+        float cur = glm::vec2(bp::extract<glm::vec2>(getValue())()).x;
         if (start == end) {
-            start = glm::vec2(extract<glm::vec2>(m_StartValue)()).y;
-            end = glm::vec2(extract<glm::vec2>(m_EndValue)()).y;
-            start = glm::vec2(extract<glm::vec2>(getValue())()).y;
+            start = glm::vec2(bp::extract<glm::vec2>(m_StartValue)()).y;
+            end = glm::vec2(bp::extract<glm::vec2>(m_EndValue)()).y;
+            start = glm::vec2(bp::extract<glm::vec2>(getValue())()).y;
         }
         if (start == end) {
             part = 0;
@@ -170,13 +170,6 @@ float SimpleAnim::getStartPart(float start, float end, float cur)
         }
     }
     return (tend+tstart)/2;
-}
-
-void SimpleAnim::remove() 
-{
-    AnimPtr tempThis = shared_from_this();
-    removeFromMap();
-    setStopped();
 }
 
 }

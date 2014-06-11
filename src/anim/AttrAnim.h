@@ -38,7 +38,7 @@
 namespace avg {
 
 struct ObjAttrID {
-    ObjAttrID(const boost::python::object& obj, const std::string& sAttrName)
+    ObjAttrID(const bp::object& obj, const std::string& sAttrName)
         : m_ObjHash(boost::python::extract<long>(obj.attr("__hash__")())),
           m_sAttrName(sAttrName)
     {
@@ -58,16 +58,17 @@ class AVG_API AttrAnim: public Anim
 public:
     static int getNumRunningAnims();
 
-    AttrAnim(const boost::python::object& node, const std::string& sAttrName,
-            const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
+    AttrAnim(const bp::object& node, const std::string& sAttrName,
+            const bp::object& startCallback,
+            const bp::object& stopCallback,
+            const bp::object& abortCallback);
     virtual ~AttrAnim();
     
     virtual void start(bool bKeepAttr=false);
 
 protected:
-    boost::python::object getValue() const;
-    void setValue(const boost::python::object& val);
+    bp::object getValue() const;
+    void setValue(const bp::object& val);
 
     void addToMap();
     void removeFromMap();
@@ -77,10 +78,10 @@ private:
     AttrAnim();
     AttrAnim(const AttrAnim&);
 
-    boost::python::object m_Node;
+    bp::object m_Node;
     std::string m_sAttrName;
 
-    typedef std::map<ObjAttrID, AttrAnimPtr> AttrAnimationMap;
+    typedef std::map<const ObjAttrID, AttrAnimPtr> AttrAnimationMap;
     static AttrAnimationMap s_ActiveAnimations;
 };
 

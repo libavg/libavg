@@ -25,14 +25,15 @@
 
 #include "../player/Player.h"
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
    
-Anim::Anim(const object& startCallback, const object& stopCallback)
+Anim::Anim(const bp::object& startCallback, const bp::object& stopCallback,
+    const bp::object& abortCallback)
     : m_StartCallback(startCallback),
       m_StopCallback(stopCallback),
+      m_AbortCallback(abortCallback),
       m_bRunning(false),
       m_bIsRoot(true)
 {
@@ -48,14 +49,19 @@ Anim::~Anim()
     }
 }
 
-void Anim::setStartCallback(const object& startCallback)
+void Anim::setStartCallback(const bp::object& startCallback)
 {
     m_StartCallback = startCallback;
 }
 
-void Anim::setStopCallback(const object& stopCallback)
+void Anim::setStopCallback(const bp::object& stopCallback)
 {
     m_StopCallback = stopCallback;
+}
+
+void Anim::setAbortCallback(const bp::object& abortCallback)
+{
+    m_AbortCallback = abortCallback;
 }
 
 void Anim::start(bool)
@@ -72,8 +78,8 @@ void Anim::start(bool)
     if (m_bIsRoot) {
         Player::get()->registerPreRenderListener(this);
     }
-    if (m_StartCallback != object()) {
-        call<void>(m_StartCallback.ptr());
+    if (m_StartCallback != bp::object()) {
+        bp::call<void>(m_StartCallback.ptr());
     }
 }
 
@@ -92,12 +98,12 @@ void Anim::onPreRender()
 {
     step();
 }
-    
+
 void Anim::onPlaybackEnd()
 {
     AnimPtr tempThis = shared_from_this();
-    m_StartCallback = object();
-    m_StopCallback = object();
+    m_StartCallback = bp::object();
+    m_StopCallback = bp::object();
     if (m_bRunning) {
         abort();
     }
@@ -109,10 +115,10 @@ void Anim::setStopped()
         Player::get()->unregisterPreRenderListener(this);
     }
     m_bRunning = false;
-    if (m_StopCallback != object()) {
+    if (m_StopCallback != bp::object()) {
         try {
             m_StopCallback();
-        } catch (error_already_set &) {
+        } catch (bp::error_already_set &) {
             cerr << "Python exception in Anim stop callback." << endl;
             PyErr_Print();
             exit(5);

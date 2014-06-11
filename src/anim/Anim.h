@@ -36,6 +36,8 @@
 
 #include <string>
 
+namespace bp = boost::python;
+
 namespace avg {
 
 class Anim;
@@ -44,18 +46,22 @@ class GroupAnim;
 typedef boost::shared_ptr<class Anim> AnimPtr;
 typedef boost::weak_ptr<class Anim> AnimWeakPtr;
 
+
 class AVG_API Anim: public boost::enable_shared_from_this<Anim>, IPreRenderListener,
         IPlaybackEndListener
 {
 public:
-    Anim(const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
+    Anim(const bp::object& startCallback, 
+            const bp::object& stopCallback,
+            const bp::object& abortCallback=bp::object());
     virtual ~Anim();
 
-    void setStartCallback(const boost::python::object& startCallback);
-    void setStopCallback(const boost::python::object& stopCallback);
+    void setStartCallback(const bp::object& startCallback);
+    void setStopCallback(const bp::object& stopCallback);
+    void setAbortCallback(const bp::object& abortCallback);
     virtual void start(bool bKeepAttr=false);
     virtual void abort() = 0;
+    virtual void stop() {}; //TODO
     bool isRunning() const;
     void setHasParent();
     
@@ -69,14 +75,15 @@ protected:
 private:
     Anim();
     Anim(const Anim&);
-    boost::python::object m_StartCallback;
-    boost::python::object m_StopCallback;
+    bp::object m_StartCallback;
+    bp::object m_StopCallback;
+    bp::object m_AbortCallback;
     bool m_bRunning;
     bool m_bIsRoot;
 };
 
 template<class T>
-bool isPythonType(const boost::python::object& obj)
+bool isPythonType(const bp::object& obj)
 {
     boost::python::extract<T> ext(obj);
     return ext.check();

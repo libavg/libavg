@@ -23,16 +23,16 @@
 
 #include "../player/Player.h"
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
 
-LinearAnim::LinearAnim(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, bool bUseInt, 
-            const object& startCallback, const object& stopCallback)
+LinearAnim::LinearAnim(const bp::object& node, const string& sAttrName, long long duration,
+            const bp::object& startValue, const bp::object& endValue, bool bUseInt, 
+            const bp::object& startCallback, const bp::object& stopCallback,
+            const bp::object& abortCallback)
     : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
-            stopCallback)
+            stopCallback, abortCallback)
 {
 }
 
@@ -50,22 +50,22 @@ float LinearAnim::getStartPart(float start, float end, float cur)
     return (cur-start)/(end-start);
 }
 
-AnimPtr fadeIn(const boost::python::object& node, long long duration, float max, 
-        const boost::python::object& stopCallback)
+AnimPtr fadeIn(const bp::object& node, long long duration, float max, 
+        const bp::object& stopCallback)
 {
-    object startVal = node.attr("opacity");
+    bp::object startVal = node.attr("opacity");
     AnimPtr pAnim(new LinearAnim(node, "opacity", duration, startVal, 
-            object(max), false, object(), stopCallback));
+            bp::object(max), false, bp::object(), stopCallback));
     pAnim->start(false);
     return pAnim;
 }
 
-AnimPtr fadeOut(const boost::python::object& node, long long duration, 
-        const boost::python::object& stopCallback)
+AnimPtr fadeOut(const bp::object& node, long long duration, 
+        const bp::object& stopCallback)
 {
-    object startVal = node.attr("opacity");
+    bp::object startVal = node.attr("opacity");
     AnimPtr pAnim(new LinearAnim(node, "opacity", duration, startVal, 
-            object(0), false, object(), stopCallback));
+            bp::object(0), false, bp::object(), stopCallback));
     pAnim->start(true);
     return pAnim;
 }

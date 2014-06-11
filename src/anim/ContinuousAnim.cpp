@@ -25,15 +25,15 @@
 #include "../base/MathHelper.h"
 #include "../player/Player.h"
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
 
-ContinuousAnim::ContinuousAnim(const object& node, const string& sAttrName, 
-            const object& startValue, const object& speed, bool bUseInt, 
-            const object& startCallback, const object& stopCallback)
-    : AttrAnim(node, sAttrName, startCallback, stopCallback),
+ContinuousAnim::ContinuousAnim(const bp::object& node, const string& sAttrName, 
+            const bp::object& startValue, const bp::object& speed, bool bUseInt, 
+            const bp::object& startCallback, const bp::object& stopCallback,
+            const bp::object& abortCallback)
+    : AttrAnim(node, sAttrName, startCallback, stopCallback, abortCallback),
       m_StartValue(startValue),
       m_Speed(speed),
       m_bUseInt(bUseInt)
@@ -57,28 +57,26 @@ void ContinuousAnim::start(bool bKeepAttr)
 void ContinuousAnim::abort()
 {
     if (isRunning()) {
-        AnimPtr tempThis = shared_from_this();
         removeFromMap();
-        setStopped();
     }
 }
 
 bool ContinuousAnim::step()
 {
-    object curValue;
+    bp::object curValue;
     float time = (Player::get()->getFrameTime()-m_StartTime)/1000.0f;
     if (isPythonType<float>(m_EffStartValue)) {
-        curValue = object(time*extract<float>(m_Speed)+m_EffStartValue);
+        curValue = bp::object(time*bp::extract<float>(m_Speed)+m_EffStartValue);
         if (m_bUseInt) {
-            float d = extract<float>(curValue);
-            curValue = object(round(d));
+            float d = bp::extract<float>(curValue);
+            curValue = bp::object(round(d));
         }
     } else if (isPythonType<glm::vec2>(m_EffStartValue)) {
-        glm::vec2 pt = extract<glm::vec2>(m_Speed)();
-        curValue = object(time*pt+m_EffStartValue);
+        glm::vec2 pt = bp::extract<glm::vec2>(m_Speed)();
+        curValue = bp::object(time*pt+m_EffStartValue);
         if (m_bUseInt) {
-            glm::vec2 pt = extract<glm::vec2>(curValue)();
-            curValue = object(glm::vec2(round(pt.x), round(pt.y)));
+            glm::vec2 pt = bp::extract<glm::vec2>(curValue)();
+            curValue = bp::object(glm::vec2(round(pt.x), round(pt.y)));
         }
     } else {
         throw (Exception(AVG_ERR_TYPE, 

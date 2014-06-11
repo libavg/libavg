@@ -25,7 +25,6 @@
 #include "../player/Node.h"
 
 using namespace boost;
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
@@ -50,13 +49,14 @@ int AttrAnim::getNumRunningAnims()
     return s_ActiveAnimations.size();
 }
 
-AttrAnim::AttrAnim(const object& node, const string& sAttrName, 
-        const object& startCallback, const object& stopCallback)
-    : Anim(startCallback, stopCallback),
+AttrAnim::AttrAnim(const bp::object& node, const string& sAttrName, 
+        const bp::object& startCallback, const bp::object& stopCallback,
+        const bp::object& abortCallback)
+    : Anim(startCallback, stopCallback, abortCallback),
       m_Node(node),
       m_sAttrName(sAttrName)
 {
-    object obj = getValue();
+    bp::object obj = getValue();
 }
 
 AttrAnim::~AttrAnim()
@@ -70,12 +70,12 @@ void AttrAnim::start(bool bKeepAttr)
     addToMap();
 }
 
-object AttrAnim::getValue() const
+bp::object AttrAnim::getValue() const
 {
     return m_Node.attr(m_sAttrName.c_str());
 }
 
-void AttrAnim::setValue(const object& val)
+void AttrAnim::setValue(const bp::object& val)
 {
     m_Node.attr(m_sAttrName.c_str()) = val;
 }
@@ -88,7 +88,9 @@ void AttrAnim::addToMap()
 
 void AttrAnim::removeFromMap()
 {
+    AnimPtr tempThis = shared_from_this();
     s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
+    setStopped();
 }
 
 void AttrAnim::stopActiveAttrAnim()

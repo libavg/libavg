@@ -30,13 +30,14 @@ namespace avg {
 
 class AVG_API LinearAnim: public SimpleAnim {
 public:
-    LinearAnim(const boost::python::object& node, const std::string& sAttrName, 
+    LinearAnim(const bp::object& node, const std::string& sAttrName, 
             long long duration,
-            const boost::python::object& pStartValue, 
-            const boost::python::object& pEndValue, 
+            const bp::object& pStartValue, 
+            const bp::object& pEndValue, 
             bool bUseInt=false, 
-            const boost::python::object& startCallback=boost::python::object(), 
-            const boost::python::object& stopCallback=boost::python::object());
+            const bp::object& startCallback=bp::object(),
+            const bp::object& stopCallback=bp::object(),
+            const bp::object& abortCallback=bp::object());
     virtual ~LinearAnim();
     
 protected:
@@ -46,11 +47,11 @@ private:
     float getStartPart(float start, float end, float cur);
 };
 
-AnimPtr fadeIn(const boost::python::object& node, long long duration, float max=1.0f,
-        const boost::python::object& stopCallback=boost::python::object());
+AnimPtr fadeIn(const bp::object& node, long long duration, float max=1.0f,
+        const bp::object& stopCallback=bp::object());
 
-AnimPtr fadeOut(const boost::python::object& node, long long duration, 
-        const boost::python::object& stopCallback=boost::python::object());
+AnimPtr fadeOut(const bp::object& node, long long duration, 
+        const bp::object& stopCallback=bp::object());
 
 }
 

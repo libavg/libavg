@@ -41,13 +41,14 @@ typedef boost::shared_ptr<class SimpleAnim> SimpleAnimPtr;
 class AVG_API SimpleAnim: public AttrAnim 
 {
 public:
-    SimpleAnim(const boost::python::object& node, const std::string& sAttrName,
+    SimpleAnim(const bp::object& node, const std::string& sAttrName,
             long long duration,
-            const boost::python::object& pStartValue, 
-            const boost::python::object& pEndValue, 
+            const bp::object& pStartValue, 
+            const bp::object& pEndValue, 
             bool bUseInt, 
-            const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
+            const bp::object& startCallback, 
+            const bp::object& stopCallback,
+            const bp::object& abortCallback);
     virtual ~SimpleAnim()=0;
 
     virtual void start(bool bKeepAttr=false);
@@ -65,8 +66,8 @@ private:
     virtual float getStartPart(float start, float end, float cur);
 
     long long m_Duration;
-    boost::python::object m_StartValue;
-    boost::python::object m_EndValue;
+    bp::object m_StartValue;
+    bp::object m_EndValue;
     bool m_bUseInt;
     long long m_StartTime;
 };

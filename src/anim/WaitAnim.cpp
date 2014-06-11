@@ -24,13 +24,12 @@
 #include "../player/Player.h"
 
 using namespace boost;
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
 
-WaitAnim::WaitAnim(long long duration, const object& startCallback, 
-        const object& stopCallback)
+WaitAnim::WaitAnim(long long duration, const bp::object& startCallback, 
+        const bp::object& stopCallback)
     : Anim(startCallback, stopCallback),
       m_Duration(duration)
 {
@@ -63,7 +62,6 @@ bool WaitAnim::step()
     } else {
         return false;
     }
-
 }
 
 }

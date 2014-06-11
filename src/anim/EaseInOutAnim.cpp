@@ -26,17 +26,17 @@
 
 #include <math.h>
 
-using namespace boost::python;
 using namespace std;
 
 namespace avg {
 
-EaseInOutAnim::EaseInOutAnim(const object& node, const string& sAttrName, 
-            long long duration, const object& startValue, const object& endValue, 
+EaseInOutAnim::EaseInOutAnim(const bp::object& node, const string& sAttrName, 
+            long long duration, const bp::object& startValue, const bp::object& endValue, 
             long long easeInDuration, long long easeOutDuration, bool bUseInt, 
-            const object& startCallback, const object& stopCallback)
+            const bp::object& startCallback, const bp::object& stopCallback,
+            const bp::object& abortCallback)
     : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
-            stopCallback),
+            stopCallback, abortCallback),
       m_EaseInDuration(float(easeInDuration)/duration),
       m_EaseOutDuration(float(easeOutDuration)/duration)
 {
