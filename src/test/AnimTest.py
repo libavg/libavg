@@ -537,7 +537,7 @@ def animTestSuite(tests):
         "testParallelAnim",
         "testParallelAnimRegistry",
         "testStateAnim",
-        "testNonNodeAttrAnim"
+        "testNonNodeAttrAnim",
         "testWaitAnimAbort",
         "testLinearAnimAbort",
         "testEaseInOutAnimAbort",
