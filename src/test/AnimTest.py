@@ -457,6 +457,68 @@ class AnimTestCase(AVGTestCase):
         genericObject2 = None
         genericObject3 = None
 
+    def _testAnimAbort(self, anim):
+        def onStop():
+            self.__onStopCalled = True
+
+        def onAbort():
+            self.__onAbortCalled = True
+
+        def startAnim():
+            self.__onStopCalled = False
+            self.__onAbortCalled = False
+            self.__anim.start()
+
+        def addStopCallback():
+            self.__anim.setStopCallback(onStop)
+
+        self.__anim = anim
+        anim.setAbortCallback(onAbort)
+        self.start(False,
+                (startAnim,
+                 lambda: self.__anim.abort(),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assert_(not self.__onStopCalled),
+                 lambda: self.assert_(self.__onAbortCalled),
+                 lambda: self.assert_(not(self.__anim.isRunning())),
+                 addStopCallback,
+                 startAnim,
+                 lambda: self.__anim.abort(),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assert_(not self.__onStopCalled),
+                 lambda: self.assert_(self.__onAbortCalled),
+                 lambda: self.assert_(not(self.__anim.isRunning()))
+                ))
+        self.__anim = None
+
+    def testWaitAnimAbort(self):
+        self.initScene()
+        anim = avg.WaitAnim(100, None, None, None)
+        self._testAnimAbort(anim)
+
+    def testLinearAnimAbort(self):
+        self.initScene()
+        anim = avg.LinearAnim(self.__node, 'x', 100, 0, 10, True)
+        self._testAnimAbort(anim)
+
+    def testEaseInOutAnimAbort(self):
+        self.initScene()
+        anim = avg.EaseInOutAnim(self.__node, 'x', 100, 0, 10, 10, 10)
+        self._testAnimAbort(anim)
+
+    def testContinuousAnimAbort(self):
+        self.initScene()
+        anim = avg.ContinuousAnim(self.__node, 'x', 0, 200)
+        self._testAnimAbort(anim)
+
+    def testStateAnimAbort(self):
+        #[todo] - Implement
+        pass
+
+    def testParallelAnimAbort(self):
+        #[todo] - Implement
+        pass
+
 
 def animTestSuite(tests):
     availableTests = (
@@ -476,6 +538,12 @@ def animTestSuite(tests):
         "testParallelAnimRegistry",
         "testStateAnim",
         "testNonNodeAttrAnim"
+        "testWaitAnimAbort",
+        "testLinearAnimAbort",
+        "testEaseInOutAnimAbort",
+        "testContinuousAnimAbort",
+        "testStateAnimAbort",
+        "testParallelAnimAbort",
         )
     return createAVGTestSuite(availableTests, AnimTestCase, tests)
 
