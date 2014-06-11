@@ -275,6 +275,9 @@ class AnimTestCase(AVGTestCase):
                 ))
 
     def testParallelAnim(self):
+        def animAborted():
+            self.__abortCalled = True
+
         def animStopped():
             self.__endCalled = True
 
@@ -284,12 +287,12 @@ class AnimTestCase(AVGTestCase):
                       avg.LinearAnim(self.nodes[1], "x", 200, 0, 120)
                     ]).start()
 
-        def startAnim():
+        def startAnim(abortCB=None):
             self.anim = avg.ParallelAnim(
                     [ avg.LinearAnim(self.nodes[0], "x", 200, 0, 60),
                       avg.LinearAnim(self.nodes[1], "x", 400, 0, 120),
                       avg.EaseInOutAnim(self.nodes[2], "x", 400, 0, 120, 100, 100)
-                    ], None, animStopped)
+                    ], None, animStopped, -1, abortCB)
             self.__endCalled = False
             self.anim.start()
 
@@ -315,6 +318,7 @@ class AnimTestCase(AVGTestCase):
             self.nodes.append(node)
         player.setFakeFPS(10)
         self.__endCalled = False
+        self.__abortCalled = False
         self.start(False,
                 (startFireForgetAnim,
                  lambda: self.assertEqual(avg.getNumRunningAnims(), 2),
@@ -327,17 +331,23 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assert_(not(self.anim.isRunning())),
                  lambda: self.compareImage("testParallelAnimC2"),
                  lambda: self.assert_(self.__endCalled),
+                 lambda: self.assert_(not self.__abortCalled),
                  lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
                  startAnim,
                  abortAnim,
                  lambda: self.compareImage("testParallelAnimC3"),
                  lambda: self.assert_(self.__endCalled),
+                 lambda: self.assert_(not self.__abortCalled),
                  lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
                  startTimedAnim,
                  lambda: self.delay(200),
                  lambda: self.assert_(self.__endCalled),
+                 lambda: self.assert_(not self.__abortCalled),
                  lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
-                 startAnim
+                 lambda: startAnim(animAborted),
+                 abortAnim,
+                 lambda: self.assert_(not self.__endCalled),
+                 lambda: self.assert_(self.__abortCalled)
                 ))
         self.nodes = []
 
@@ -549,10 +559,6 @@ class AnimTestCase(AVGTestCase):
 
         self.anim = None
 
-    def testParallelAnimAbort(self):
-        #[todo] - Implement
-        pass
-
 
 def animTestSuite(tests):
     availableTests = (
@@ -577,7 +583,6 @@ def animTestSuite(tests):
         "testEaseInOutAnimAbort",
         "testContinuousAnimAbort",
         "testStateAnimAbort",
-        "testParallelAnimAbort",
         )
     return createAVGTestSuite(availableTests, AnimTestCase, tests)
 

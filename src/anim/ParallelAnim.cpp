@@ -71,6 +71,7 @@ void ParallelAnim::abort()
             (*it)->abort();
         }
         m_RunningAnims.clear();
+
         setAborted();
         ParallelAnimPtr tempThis = m_This;
         m_This = ParallelAnimPtr();
