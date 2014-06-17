@@ -42,7 +42,7 @@ class AnimTestCase(AVGTestCase):
             self.__anim.start()
 
         def startKeepAttr():
-            self.__node.x = 32 
+            self.__node.x = 32
             self.__anim.start(True)
 
         def abortAnim():
@@ -85,10 +85,10 @@ class AnimTestCase(AVGTestCase):
     def testAnimRegistry(self):
         def on1Stop():
             self.__onStopCalled = True
-        
+
         def on2Start():
             self.__onStopBeforeOnStart = self.__onStopCalled
-        
+
         self.initScene()
         sameNode = player.getElementByID("test")
         anim1 = avg.LinearAnim(self.__node, "x", 500, 0, 100,
@@ -171,7 +171,7 @@ class AnimTestCase(AVGTestCase):
             anim = avg.LinearAnim(self.__node, 'pos', 100, (50, 100),
                 (100, 100), False, None, back)
             anim.start()
-            
+
         def back():
             anim = avg.LinearAnim(self.__node, 'pos', 100, (100, 100),
                 (50, 100), False, None, forth)
@@ -184,30 +184,36 @@ class AnimTestCase(AVGTestCase):
                 ))
 
     def testPointAnim(self):
-        def startAnim():
-            self.__anim.start()
+        self._testPointAnim(
+                startPos=(0, 0),
+                endPos=(100, 40),
+                keepAttrPos=(50, 20),
+                startPosImgSrc="testPointAnim1",
+                endPosImgSrc="testPointAnim2",
+                keepAttrPosImgSrc="testPointAnim3")
 
-        def startKeepAttr():
-            self.__node.pos = (50, 20)
-            self.__anim.start(True)
+    def testXPosPointAnim(self):
+        self._testPointAnim(
+                startPos=(0, 0),
+                endPos=(80, 0),
+                keepAttrPos=(40, 0),
+                startPosImgSrc=("testXPosPointAnim1"),
+                endPosImgSrc="testXPosPointAnim2",
+                keepAttrPosImgSrc="testXPosPointAnim3")
 
-        self.initScene()
-        self.__anim = avg.LinearAnim(self.__node, "pos", 200, avg.Point2D(0,0), 
-                avg.Point2D(100,40), False)
-        self.start(False,
-                (startAnim,
-                 lambda: self.compareImage("testPointAnim1"),
-                 lambda: self.compareImage("testPointAnim2"),
-                 None,
-                 lambda: self.assert_(not(self.__anim.isRunning())),
-                 startKeepAttr,
-                 lambda: self.compareImage("testPointAnim3"),
-                ))
+    def testYPosPointAnim(self):
+        self._testPointAnim(
+                startPos=(0, 0),
+                endPos=(0, 80),
+                keepAttrPos=(0, 40),
+                startPosImgSrc=("testYPosPointAnim1"),
+                endPosImgSrc="testYPosPointAnim2",
+                keepAttrPosImgSrc="testYPosPointAnim3")
 
     def testIntAnim(self):
         self.initScene()
         self.__doubleAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100, True)
-        self.__pointAnim = avg.LinearAnim(self.__node, "pos", 200, avg.Point2D(0,0), 
+        self.__pointAnim = avg.LinearAnim(self.__node, "pos", 200, avg.Point2D(0,0),
                 avg.Point2D(100,40), True)
         self.start(False,
                 (self.__doubleAnim.start,
@@ -236,7 +242,7 @@ class AnimTestCase(AVGTestCase):
             self.__animStopped = False
 
         self.initScene()
-        self.__anim = avg.ContinuousAnim(self.__node, "angle", 0, 2*math.pi, 
+        self.__anim = avg.ContinuousAnim(self.__node, "angle", 0, 2*math.pi,
             False, startAnim, stopAnim)
         self.__linearAnim = avg.LinearAnim(self.__node, "angle", 1000, math.pi, math.pi)
 
@@ -267,7 +273,7 @@ class AnimTestCase(AVGTestCase):
         self.initScene()
         self.__endCalled = False
         self.start(False,
-                (startAnim, 
+                (startAnim,
                  lambda: self.assert_(self.anim.isRunning()),
                  lambda: self.delay(200),
                  lambda: self.assert_(not(self.anim.isRunning())),
@@ -300,7 +306,7 @@ class AnimTestCase(AVGTestCase):
                     ], None, animStopped, 200)
             self.__endCalled = False
             self.anim.start()
-            
+
         def abortAnim():
             self.anim.abort()
 
@@ -347,9 +353,9 @@ class AnimTestCase(AVGTestCase):
                         [ avg.LinearAnim(self.__node, "x", 200, 0, 60),
                           avg.LinearAnim(self.__node, "y", 200, 0, 120)
                         ]).start()
-            
+
             avg.LinearAnim(self.__node, "x", 300, 0, 100, False, None).start()
-        
+
         self.initScene()
         self.start(False,
                 (makeAnims,
@@ -367,9 +373,9 @@ class AnimTestCase(AVGTestCase):
 
         def makeAnim():
             self.anim = avg.StateAnim(
-                    [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200, 
+                    [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200,
                             0, 100, False, None, state1StopCallback), "STATE2"),
-                     avg.AnimState("STATE2", avg.LinearAnim(self.__node, "x", 200, 
+                     avg.AnimState("STATE2", avg.LinearAnim(self.__node, "x", 200,
                             100, 50, False, state2StartCallback), "STATE3"),
                      avg.AnimState("STATE3", avg.WaitAnim())
                     ])
@@ -458,6 +464,29 @@ class AnimTestCase(AVGTestCase):
         genericObject3 = None
 
 
+    def _testPointAnim(self, startPos, endPos, keepAttrPos, startPosImgSrc, endPosImgSrc,
+            keepAttrPosImgSrc):
+        def startAnim():
+            self.__anim.start()
+
+        def startKeepAttr():
+            self.__node.pos = keepAttrPos
+            self.__anim.start(True)
+
+        self.initScene()
+        self.__anim = avg.LinearAnim(self.__node, "pos", 200, avg.Point2D(startPos),
+                avg.Point2D(endPos), False)
+        self.start(False,
+                (startAnim,
+                 lambda: self.compareImage(startPosImgSrc),
+                 lambda: self.compareImage(endPosImgSrc),
+                 None,
+                 lambda: self.assert_(not(self.__anim.isRunning())),
+                 startKeepAttr,
+                 lambda: self.compareImage(keepAttrPosImgSrc),
+                ))
+
+
 def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
@@ -468,6 +497,8 @@ def animTestSuite(tests):
         "testLinearAnimZeroDuration",
         "testPingPongStopAnim",
         "testPointAnim",
+        "testXPosPointAnim",
+        "testYPosPointAnim",
         "testEaseInOutAnim",
         "testIntAnim",
         "testContinuousAnim",

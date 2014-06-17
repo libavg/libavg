@@ -140,7 +140,7 @@ long long SimpleAnim::calcStartTime()
         if (start == end) {
             start = glm::vec2(extract<glm::vec2>(m_StartValue)()).y;
             end = glm::vec2(extract<glm::vec2>(m_EndValue)()).y;
-            start = glm::vec2(extract<glm::vec2>(getValue())()).y;
+            cur = glm::vec2(extract<glm::vec2>(getValue())()).y;
         }
         if (start == end) {
             part = 0;
