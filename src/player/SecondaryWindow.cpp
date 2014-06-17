@@ -36,7 +36,9 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 #ifdef linux
-#include "../graphics/SecondaryGLXContext.h"
+#ifndef AVG_ENABLE_EGL
+  #include "../graphics/SecondaryGLXContext.h"
+#endif
 #include "../graphics/GLContextManager.h"
 #endif
 

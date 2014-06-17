@@ -81,7 +81,7 @@ public:
     void deleteTexture(unsigned texID);
 
     VertexArrayPtr createVertexArray(int reserveVerts = 0, int reserveIndexes = 0);
-    typedef std::map<GLContext*, unsigned> BufferIDMap;
+    typedef std::map<const GLContext*, unsigned> BufferIDMap;
     void deleteBuffers(BufferIDMap& bufferIDs);
 
     void uploadData();

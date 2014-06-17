@@ -59,7 +59,7 @@ private:
     void transferBuffer(GLenum target, unsigned bufferID, unsigned reservedSize, 
             unsigned usedSize, const void* pData);
 
-    typedef std::map<GLContext*, unsigned> BufferIDMap;
+    typedef std::map<const GLContext*, unsigned> BufferIDMap;
     BufferIDMap m_VertexBufferIDMap;
     BufferIDMap m_IndexBufferIDMap;
 
