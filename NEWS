@@ -1,8 +1,7 @@
-libavg 1.8.1 - May xx, 2014
-
-  svn revision xxx
+libavg 1.8.1 - June 21, 2014
 
   Bugfixes:
+    * Fixed anim keepAttr bug (#496)
     * Fixed XInput multitouch support (r9651, #489)
     * Documentation fixes (r9648, r9637, r9636, #487)
     * Cleaner test output (r9629, r9630, #410)
