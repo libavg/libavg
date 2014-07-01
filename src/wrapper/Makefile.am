@@ -13,7 +13,7 @@ if ENABLE_RPI
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
 else
 if ENABLE_EGL
-    XGL_LIBS = -lX11 -lGLESv2 -lEGL
+    XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
 else
     XGL_LIBS = -lXxf86vm -lX11
 endif

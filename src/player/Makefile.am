@@ -13,11 +13,14 @@ else
     APPLE_LINKFLAGS =
 if ENABLE_RPI
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+    XGL_LINKFLAGS =
 else
 if ENABLE_EGL
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+    XGL_LINKFLAGS = -pthread
 else
     XGL_LIBS = -lXxf86vm -lX11
+    XGL_LINKFLAGS =
 endif
 endif
 endif
@@ -86,7 +89,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         @LIBFFMPEG@ @LIBAVRESAMPLE@ $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) @GDK_PIXBUF_LIBS@ \
         @FONTCONFIG_LIBS@
 
-testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
+testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker $(XGL_LINKFLAGS)
 
 testcalibrator_SOURCES = testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
