@@ -40,6 +40,7 @@
 #include "../base/TimeSource.h"
 
 #include "../graphics/Display.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../video/VideoDecoder.h"
 
@@ -392,12 +393,8 @@ BitmapPtr DisplayEngine::screenshot(int buffer)
         destRect.expand(winDims);
     }
     
-    BitmapPtr pDestBmp;
-    if(true) {
-        pDestBmp = BitmapPtr(new Bitmap(destRect.size(), R8G8B8X8));
-    }else {
-        pDestBmp = BitmapPtr(new Bitmap(destRect.size(), B8G8R8X8));
-    }
+    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(destRect.size(), 
+            BitmapLoader::get()->getDefaultPixelFormat(false)));
     for (unsigned i=0; i != m_pWindows.size(); ++i) {
         BitmapPtr pWinBmp = m_pWindows[i]->screenshot(buffer);
         IntPoint pos = m_pWindows[i]->getPos() - destRect.tl;
