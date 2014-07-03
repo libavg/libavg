@@ -61,12 +61,12 @@ class OutputHandler(object):
             elif arg == ".." or os.path.isdir(arg):
                 filePaths.extend(self.__getFilesInFolder(arg))
             else:
-                if os.path.isfile(arg):
+                if not(os.path.exists(arg)) or os.path.isfile(arg):
                     filePaths.append(arg)
 
         for file in filePaths:
             try:
-                if os.path.isfile(file):
+                if not(os.path.exists(arg)) or os.path.isfile(file):
                     self._node.href = str(file)
                     self._node.play()
                     self._fileNameList.append(self._node.href)   
