@@ -700,6 +700,13 @@ VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
     return NONE;
 }
 
+void VideoNode::initFilename(string& sFilename)
+{
+    if (sFilename.find("://") == string::npos) {
+        Node::initFilename(sFilename);
+    }
+}
+ 
 bool VideoNode::renderFrame()
 {
     FrameAvailableCode frameAvailable = renderToSurface();

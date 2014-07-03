@@ -103,6 +103,9 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         static VideoAccelType getVideoAccelConfig();
 
+    protected:
+        void initFilename(std::string& sFilename);
+
     private:
         bool renderFrame();
         FrameAvailableCode renderToSurface();

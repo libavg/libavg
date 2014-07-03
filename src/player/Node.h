@@ -136,7 +136,7 @@ class AVG_API Node: public Publisher
         bool reactsToMouseEvents();
             
         void setState(NodeState state);
-        void initFilename(std::string& sFilename);
+        virtual void initFilename(std::string& sFilename);
         bool checkReload(const std::string& sHRef, const ImagePtr& pImage,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
