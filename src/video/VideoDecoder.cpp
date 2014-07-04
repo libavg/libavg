@@ -134,8 +134,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
         char szCodec[256];
         avcodec_string(szCodec, sizeof(szCodec), m_pVStream->codec, 0);
         if (m_pVStream->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-//            m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
-            m_Size = IntPoint(0, 0);
+            m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
             rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
         }
         if (rc == -1) {
