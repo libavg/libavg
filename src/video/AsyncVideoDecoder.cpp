@@ -65,7 +65,7 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 }
 
 void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+        bool bEnableSound, int vStreamIndex, int aStreamIndex)
 {
     m_NumSeeksSent = 0;
     m_NumVSeeksDone = 0;
@@ -76,7 +76,8 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcce
     m_bWasSeeking = false;
     m_CurVideoFrameTime = -1;
     
-    VideoDecoder::open(sFilename, bUseHardwareAcceleration, bEnableSound);
+    VideoDecoder::open(sFilename, bUseHardwareAcceleration, bEnableSound, vStreamIndex, 
+            aStreamIndex);
 
     if (getVideoInfo().m_bHasVideo && m_bUseStreamFPS) {
         m_FPS = getStreamFPS();

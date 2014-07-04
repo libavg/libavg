@@ -69,6 +69,8 @@ void VideoNode::registerType()
                 offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         .addArg(Arg<bool>("enablesound", true, false,
                 offsetof(VideoNode, m_bEnableSound)))
+        .addArg(Arg<int>("vstream", -1, false, offsetof(VideoNode, m_VStreamIndex)))
+        .addArg(Arg<int>("astream", -1, false, offsetof(VideoNode, m_AStreamIndex)))
         ;
     TypeRegistry::get()->registerType(def);
 }
@@ -455,7 +457,8 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bUsesHardwareAcceleration, m_bEnableSound);
+    m_pDecoder->open(m_Filename, m_bUsesHardwareAcceleration, m_bEnableSound,
+            m_VStreamIndex, m_AStreamIndex);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();

@@ -76,7 +76,7 @@ VideoDecoder::~VideoDecoder()
 }
 
 void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+        bool bEnableSound, int vStreamIndex, int aStreamIndex)
 {
     lock_guard lock(s_OpenMutex);
     int err;
@@ -107,8 +107,8 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
     av_read_play(m_pFormatContext);
     
     // Find audio and video streams in the file
-    m_VStreamIndex = -1;
-    m_AStreamIndex = -1;
+    m_VStreamIndex = vStreamIndex;
+    m_AStreamIndex = aStreamIndex;
     for (unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
         AVCodecContext* pContext = m_pFormatContext->streams[i]->codec;
         switch (pContext->codec_type) {
@@ -129,13 +129,15 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
     
     // Enable video stream demuxing
     if (m_VStreamIndex >= 0) {
+        int rc = -1;
         m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
-        
-        m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
-
         char szCodec[256];
         avcodec_string(szCodec, sizeof(szCodec), m_pVStream->codec, 0);
-        int rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
+        if (m_pVStream->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+//            m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
+            m_Size = IntPoint(0, 0);
+            rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
+        }
         if (rc == -1) {
             m_VStreamIndex = -1;
             m_pVStream = 0;

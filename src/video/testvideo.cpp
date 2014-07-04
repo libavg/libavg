@@ -189,7 +189,8 @@ class VideoDecoderTest: public DecoderTest {
                 cerr << "    Testing " << sFilename << endl;
 
                 VideoDecoderPtr pDecoder = createDecoder();
-                pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+                pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true,
+                        -1, -1);
                 IntPoint frameSize = pDecoder->getSize();
                 TEST(frameSize == IntPoint(48, 48));
                 TEST(pDecoder->getVideoInfo().m_bHasVideo);
@@ -224,7 +225,8 @@ class VideoDecoderTest: public DecoderTest {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
 
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true,
+                    -1, -1);
             pDecoder->startDecoding(false, getAudioParams());
 
             // Seek forward
@@ -251,7 +253,8 @@ class VideoDecoderTest: public DecoderTest {
         {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true,
+                    -1, -1);
             float timePerFrame = (1.0f/pDecoder->getFPS())*speedFactor;
             pDecoder->startDecoding(false, getAudioParams());
             BitmapPtr pBmp;
@@ -259,7 +262,8 @@ class VideoDecoderTest: public DecoderTest {
             float curTime = 0;
 
             while (!pDecoder->isEOF()) {
-                FrameAvailableCode frameAvailable = pDecoder->getRenderedBmp(pBmp, curTime);
+                FrameAvailableCode frameAvailable = pDecoder->getRenderedBmp(pBmp,
+                        curTime);
                 if (frameAvailable == FA_NEW_FRAME) {
 /*                    
                     stringstream ss;
@@ -329,7 +333,8 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Reading complete file." << endl;
                     AsyncVideoDecoderPtr pDecoder = 
                             dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
-                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(),
+                            true, -1, -1);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
                     pDecoder->startDecoding(false, getAudioParams());
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
@@ -347,7 +352,8 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Seek test." << endl;
                     AsyncVideoDecoderPtr pDecoder = 
                             dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
-                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+                    pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(),
+                            true, -1, -1);
                     float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
                     AudioMsgQueuePtr pMsgQ = pDecoder->getAudioMsgQ();
@@ -418,7 +424,8 @@ class AVDecoderTest: public DecoderTest {
         void basicFileTest(const string& sFilename, int expectedNumFrames)
         {
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
+            pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true, 
+                    -1, -1);
             TEST(pDecoder->getVideoInfo().m_bHasVideo);
             TEST(pDecoder->getStreamFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());

@@ -56,10 +56,10 @@ SyncVideoDecoder::~SyncVideoDecoder()
 }
 
 void SyncVideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+        bool bEnableSound, int vStreamIndex, int aStreamIndex)
 {
     m_bProcessingLastFrames = false;
-    VideoDecoder::open(sFilename, false, false);
+    VideoDecoder::open(sFilename, false, false, vStreamIndex, aStreamIndex);
 
     if (getVStreamIndex() >= 0) {
         if (m_bUseStreamFPS) {

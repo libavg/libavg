@@ -60,7 +60,7 @@ class AVG_API VideoDecoder
         VideoDecoder();
         virtual ~VideoDecoder();
         virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
-                bool bEnableSound);
+                bool bEnableSound, int vStreamIndex, int aStreamIndex);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
         virtual DecoderState getState() const;

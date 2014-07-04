@@ -52,7 +52,7 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
 {
     // Make sure enableStream was called on streamIndex.
     AVG_ASSERT(m_PacketLists.size() > 0);
-    AVG_ASSERT(streamIndex > -1 && streamIndex < 10);
+    AVG_ASSERT(streamIndex > -1 && streamIndex < 100);
 
     if (m_PacketLists.find(streamIndex) == m_PacketLists.end()) {
         cerr << this << ": getPacket: Stream " << streamIndex << " not found." << endl;
