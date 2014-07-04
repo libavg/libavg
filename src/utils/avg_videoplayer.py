@@ -32,16 +32,22 @@ class VideoPlayer(app.MainDiv):
         parser.add_option("-d", "--disable-accel", dest="disableAccel",
                 action="store_true", default=False,
                 help="disable vdpau acceleration")
+        parser.add_option("--vstream", dest="vstream", type="int", default=-1,
+                help="Select video stream index.")
 
     def onArgvParsed(self, options, args, parser):
         if len(args) != 1:
             parser.print_help()
             sys.exit(1)
 
-        self.node = avg.VideoNode(href=args[0], accelerated=not(options.disableAccel))
+        self.node = avg.VideoNode(href=args[0], accelerated=not(options.disableAccel),
+                vstream=options.vstream)
         self.node.pause()
 
         mediaSize = self.node.getMediaSize()
+        if mediaSize == avg.Point2D(0, 0):
+            mediaSize = avg.Point2D(1280, 720)
+            self.node.size = mediaSize
         size = avg.Point2D(max(mediaSize.x, 320), max(mediaSize.y, 120))
         screenSize = player.getScreenResolution()
         size = avg.Point2D(min(size.x, screenSize.x), min(size.y, screenSize.y-80))
@@ -50,7 +56,7 @@ class VideoPlayer(app.MainDiv):
     def onInit(self):
         self.node.play()
 
-        mediaSize = self.node.getMediaSize()
+        mediaSize = self.node.size
         canvasSize = self.size
         sizeRatio = min(mediaSize.x/canvasSize.x, mediaSize.y/canvasSize.y)
         self.node.size /= sizeRatio
