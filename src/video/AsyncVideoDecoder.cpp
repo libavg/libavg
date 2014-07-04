@@ -119,7 +119,8 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_pAStatusQ = AudioMsgQueuePtr(new AudioMsgQueue(AUDIO_STATUS_QUEUE_LENGTH));
         VideoMsgQueue& packetQ = *m_PacketQs[getAStreamIndex()];
         m_pADecoderThread = new boost::thread(
-                AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, packetQ, getAudioStream(), *pAP));
+                AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, packetQ, getAudioStream(),
+                        *pAP));
         m_LastAudioFrameTime = 0;
     }
 }
