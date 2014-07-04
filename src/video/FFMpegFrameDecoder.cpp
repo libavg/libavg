@@ -206,6 +206,11 @@ void FFMpegFrameDecoder::handleSeek()
     }
 }
 
+IntPoint FFMpegFrameDecoder::getSize() const
+{
+    return IntPoint(m_pStream->codec->width, m_pStream->codec->height);
+}
+
 float FFMpegFrameDecoder::getCurTime() const
 {
     return m_LastFrameTime;

@@ -43,6 +43,7 @@ class AVG_API FFMpegFrameDecoder
 
         void handleSeek();
 
+        IntPoint getSize() const;
         virtual float getCurTime() const;
         virtual float getFPS() const;
         virtual void setFPS(float fps);

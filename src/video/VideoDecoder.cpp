@@ -277,6 +277,9 @@ FrameAvailableCode VideoDecoder::getRenderedBmp(BitmapPtr& pBmp, float timeWante
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);
     FrameAvailableCode fa = getRenderedBmps(pBmps, timeWanted);
+    if (fa == FA_NEW_FRAME && m_Size == IntPoint(0,0)) {
+        m_Size = pBmps[0]->getSize();
+    }
     pBmp = pBmps[0];
     return fa;
 }

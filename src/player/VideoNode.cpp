@@ -501,7 +501,9 @@ void VideoNode::startDecoding()
     }
     m_bSeekPending = true;
     
-    createTextures(videoInfo.m_Size);
+    if (videoInfo.m_Size != IntPoint(0,0)) {
+        createTextures(videoInfo.m_Size);
+    }
 
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
@@ -788,6 +790,9 @@ FrameAvailableCode VideoNode::renderToSurface()
         frameAvailable = m_pDecoder->getRenderedBmp(pBmps[0], getNextFrameTime()/1000.0f);
     }
     if (frameAvailable == FA_NEW_FRAME) {
+        if (!m_pTextures[0]) {
+            createTextures(pBmps[0]->getSize());
+        }
         for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
             GLContextManager::get()->scheduleTexUpload(m_pTextures[i], pBmps[i]);
         }

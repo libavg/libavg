@@ -165,6 +165,10 @@ static ProfilingZoneID CopyImageProfilingZone("Copy image", true);
 
 void VideoDecoderThread::sendFrame(AVFrame* pFrame)
 {
+    if (m_Size == IntPoint(0,0)) {
+        m_Size = m_pFrameDecoder->getSize();
+        m_Size = IntPoint(pFrame->width, pFrame->height);
+    }
     VideoMsgPtr pMsg(new VideoMsg());
     if (m_bUseVDPAU) {
         vdpau_render_state *pRenderState = (vdpau_render_state *)pFrame->data[0];
