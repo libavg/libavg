@@ -329,17 +329,19 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
         AVG_ASSERT(false);
     }
     VideoMsgPtr pFrameMsg;
-    float timePerFrame = 1.0f/getFPS();
-
+    float fps = getFPS();
+    float timePerFrame;
+    if (fps == 0) {
+        timePerFrame = 0;
+    } else {
+        timePerFrame = 1.0f/getFPS();
+    }
     checkForSeekDone();
     bool bVSeekDone = (!isVSeeking() && m_bWasVSeeking);
     m_bWasVSeeking = isVSeeking();
     
-    if (!isSeeking() && m_bWasSeeking) {
-//        cerr << "timeWanted: " << timeWanted << ", audio: " << m_LastAudioFrameTime
-//                << ", diff: " << timeWanted-m_LastAudioFrameTime << endl;
-    }
     m_bWasSeeking = isSeeking();
+//    cerr << "timeWanted: " << timeWanted << ", m_LastVideoFrameTime: " << m_LastVideoFrameTime << ", timePerFrame: " << timePerFrame << endl;
     if ((!bVSeekDone &&
             (isVSeeking() ||
              fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
