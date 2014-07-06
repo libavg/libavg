@@ -115,6 +115,7 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize,
                 RootWindow(m_xDisplay, pVisualInfo->screen), pVisualInfo->visual,
                 AllocNone);
         xWindow = (EGLNativeWindowType)createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
+        XFreeColormap(m_xDisplay, colormap);
 #endif
     }
 
