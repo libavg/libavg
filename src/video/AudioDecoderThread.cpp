@@ -125,25 +125,31 @@ bool AudioDecoderThread::work()
 
 void AudioDecoderThread::decodePacket(AVPacket* pPacket)
 {
-    char* pDecodedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
-            FF_INPUT_BUFFER_PADDING_SIZE);
+    char* pDecodedData;
     AVPacket* pTempPacket = new AVPacket;
     av_init_packet(pTempPacket);
     pTempPacket->data = pPacket->data;
     pTempPacket->size = pPacket->size;
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
-    int gotFrame = 0;
     AVFrame* pDecodedFrame;
     pDecodedFrame = avcodec_alloc_frame();
+#else
+    pDecodedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
+            FF_INPUT_BUFFER_PADDING_SIZE);
 #endif
     while (pTempPacket->size > 0) {
+        int gotFrame = 0;
         int bytesDecoded = AVCODEC_MAX_AUDIO_FRAME_SIZE;
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
         int bytesConsumed = avcodec_decode_audio4(m_pStream->codec, pDecodedFrame,
                 &gotFrame, pTempPacket);
-        int planeSize;
-        bytesDecoded = av_samples_get_buffer_size(&planeSize, m_pStream->codec->channels,
-            pDecodedFrame->nb_samples, m_pStream->codec->sample_fmt, 1);
+        if (gotFrame) {
+            bytesDecoded = av_samples_get_buffer_size(0, m_pStream->codec->channels,
+                    pDecodedFrame->nb_samples, m_pStream->codec->sample_fmt, 1);
+            pDecodedData = (char*)(pDecodedFrame->data[0]);
+        } else {
+            bytesDecoded = 0;
+        }
 #else
         int bytesConsumed = avcodec_decode_audio3(m_pStream->codec, (short*)pDecodedData,
                 &bytesDecoded, pTempPacket);
@@ -190,11 +196,12 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
             pushAudioMsg(pBuffer, m_LastFrameTime);
         }
     }
-    av_free(pDecodedData);
 #if LIBAVCODEC_VERSION_MAJOR > 53
     avcodec_free_frame(&pDecodedFrame);
 #elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
     delete pDecodedFrame;
+#else
+    av_free(pDecodedData);
 #endif
     delete pTempPacket;
 }
