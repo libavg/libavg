@@ -40,6 +40,8 @@ using namespace boost::python;
 using namespace std;
 using namespace avg;
 
+namespace bp = boost::python;
+
 template<class POINT>
 class_<POINT> export_point(const string& sName)
 {
@@ -79,6 +81,29 @@ struct Pixel32_to_python_tuple
                 px.getR(), px.getG(), px.getB(), px.getA()).ptr());
     }
 };
+
+static bp::object Bitmap_getPixels(Bitmap& bitmap) {
+    const glm::byte* buffer = bitmap.getPixels();
+    int buffSize = bitmap.getMemNeeded();
+    //now you wrap that as buffer
+    PyObject* py_memView = PyMemoryView_FromMemory(const_cast<char*>(reinterpret_cast<const char*>(buffer)),
+            buffSize, PyBUF_READ);
+    bp::object retval = object(handle<>(py_memView));
+    return retval;
+}
+
+static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter) {
+    Py_buffer bufferView;
+    if (PyObject_CheckBuffer(exporter)) {
+        PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
+    } else {
+        //@klemmster TODO: Throw error
+        return;
+    }
+    const glm::byte* cxx_buf = reinterpret_cast<glm::byte*>(bufferView.buf);
+    bitmap.setPixels(cxx_buf);
+    PyBuffer_Release(&bufferView);
+}
 
 ConstVec2 Bitmap_getSize(Bitmap* This)
 {
@@ -183,8 +208,8 @@ void export_bitmap()
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)
-        .def("getPixels", &Bitmap::getPixelsAsString)
-        .def("setPixels", &Bitmap::setPixelsFromString)
+        .def("getPixels", &Bitmap_getPixels)
+        .def("setPixels", &Bitmap_setPixels)
         .def("getPixel", &Bitmap::getPythonPixel)
         .def("subtract", &Bitmap::subtract)
         .def("getAvg", &Bitmap::getAvg)
@@ -193,7 +218,7 @@ void export_bitmap()
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>())
     ;
-    
+
     class_<BitmapManager>("BitmapManager", no_init)
         .def("get", &BitmapManager::get,
                 return_value_policy<reference_existing_object>())

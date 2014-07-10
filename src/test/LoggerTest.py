@@ -48,12 +48,12 @@ class LoggerTestCase(AVGTestCase):
 
     def _assertMsg(self):
         self.stream.flush()
-        self.assert_(self.stream.getvalue().decode('utf8').find(self.testMsg) != -1)
+        self.assert_(self.stream.getvalue().find(self.testMsg) != -1)
         self.stream.close()
 
     def _assertNoMsg(self):
         self.stream.flush()
-        self.assert_(self.stream.getvalue().decode('utf8').find(self.testMsg) == -1)
+        self.assert_(self.stream.getvalue().find(self.testMsg) == -1)
         self.stream.close()
 
     def testRemoveSink(self):
