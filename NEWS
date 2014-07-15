@@ -1,3 +1,8 @@
+libavg 1.8.2 - July 15, 2014
+
+  Bugfixes:
+    * Fixed Audio (#500)
+
 libavg 1.8.1 - June 21, 2014
 
   Bugfixes:
