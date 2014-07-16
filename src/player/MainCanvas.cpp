@@ -34,8 +34,10 @@
 #include "../graphics/GLTexture.h"
 #include "../graphics/GLContextManager.h"
 #ifdef linux
-#include "../graphics/SecondaryGLXContext.h"
-#include <X11/Xlib.h>
+  #ifndef AVG_ENABLE_EGL
+  #include "../graphics/SecondaryGLXContext.h"
+  #include <X11/Xlib.h>
+  #endif
 #endif
 
 #include <vector>

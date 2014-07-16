@@ -49,17 +49,16 @@ EGLContext::EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
 
 EGLContext::~EGLContext()
 {
-    getVertexBufferCache().deleteBuffers();
-    getIndexBufferCache().deleteBuffers();
     getPBOCache().deleteBuffers();
     deleteObjects();
     eglMakeCurrent(m_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, 0);
     eglDestroyContext(m_Display, m_Context);
     eglDestroySurface(m_Display, m_Surface);
     eglTerminate(m_Display);
+    m_Context = 0;
 }
 
-void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
+void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
 {
     bool bOk;
@@ -112,8 +111,11 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
 #ifdef AVG_ENABLE_RPI
         xWindow = createChildWindow(pSDLWMInfo, m_xDisplay, windowSize);
 #else
-        Colormap colormap;
+        Colormap colormap = XCreateColormap(m_xDisplay,
+                RootWindow(m_xDisplay, pVisualInfo->screen), pVisualInfo->visual,
+                AllocNone);
         xWindow = (EGLNativeWindowType)createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
+        XFreeColormap(m_xDisplay, colormap);
 #endif
     }
 
@@ -140,19 +142,20 @@ void EGLContext::createEGLContext(const GLConfig& glConfig, const IntPoint& wind
 
         Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay,
                 RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8, results[0].depth);
+
         m_Surface = eglCreatePixmapSurface(m_Display, m_Config, (EGLNativePixmapType)pmp, NULL);
 #endif
     }
+    //dumpEGLConfig();
     AVG_ASSERT(m_Surface);
 
     GLContextAttribs attrs;
     attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
     m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
     checkEGLError(!m_Context, "Unable to create EGL context");
-//    dumpEGLConfig();
 }
 
-bool EGLContext::initVBlank(int rate)
+bool EGLContext::initVBlank(int)
 {
     return false;
 }

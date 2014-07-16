@@ -13,13 +13,24 @@ else
     APPLE_LINKFLAGS =
 if ENABLE_RPI
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+    XGL_LINKFLAGS =
 else
 if ENABLE_EGL
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+    XGL_LINKFLAGS = -pthread
 else
     XGL_LIBS = -lXxf86vm -lX11
+    XGL_LINKFLAGS =
 endif
 endif
+endif
+
+if ENABLE_EGL
+    SECONDARY_WINDOW_SOURCES =
+    SECONDARY_WINDOW_INCLUDES =
+else
+    SECONDARY_WINDOW_SOURCES = SecondaryWindow.cpp
+    SECONDARY_WINDOW_INCLUDES = SecondaryWindow.h
 endif
 
 if HAVE_XI2_1
@@ -50,7 +61,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
         TouchEvent.h Contact.h TouchStatus.h TrackerTouchStatus.h BoostPython.h \
-        SoundNode.h FontStyle.h Window.h SDLWindow.h SecondaryWindow.h TangibleEvent.h \
+        SoundNode.h FontStyle.h Window.h SDLWindow.h TangibleEvent.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h HueSatFXNode.h \
@@ -59,7 +70,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         PublisherDefinitionRegistry.h MessageID.h VersionInfo.h \
         PythonLogSink.h BitmapManager.h BitmapManagerThread.h IBitmapLoadedListener.h \
         BitmapManagerMsg.h \
-        $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
+        $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES) $(SECONDARY_WINDOW_INCLUDES)
 
 TESTS = testcalibrator testplayer
 
@@ -78,7 +89,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         @LIBFFMPEG@ @LIBAVRESAMPLE@ $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) @GDK_PIXBUF_LIBS@ \
         @FONTCONFIG_LIBS@
 
-testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
+testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker $(XGL_LINKFLAGS)
 
 testcalibrator_SOURCES = testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
@@ -99,7 +110,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         MaterialInfo.cpp Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp \
         CursorEvent.cpp MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
         TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
-        SoundNode.cpp FontStyle.cpp Window.cpp SDLWindow.cpp SecondaryWindow.cpp \
+        SoundNode.cpp FontStyle.cpp Window.cpp SDLWindow.cpp \
         TangibleEvent.cpp InputDevice.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
@@ -110,5 +121,5 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
         PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
         BitmapManagerMsg.cpp \
-        $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
+        $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(SECONDARY_WINDOW_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

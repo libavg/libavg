@@ -30,7 +30,9 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #include "SDLWindow.h"
-#include "SecondaryWindow.h"
+#ifndef AVG_ENABLE_EGL
+  #include "SecondaryWindow.h"
+#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -38,6 +40,7 @@
 #include "../base/TimeSource.h"
 
 #include "../graphics/Display.h"
+#include "../graphics/BitmapLoader.h"
 
 #include "../video/VideoDecoder.h"
 
@@ -121,10 +124,12 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
+    #ifndef AVG_ENABLE_EGL
     for (int i=1; i<dp.getNumWindows(); ++i) {
         m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
                 dp.isFullscreen(), glConfig)));
     }
+    #endif
 
     Display::get()->getRefreshRate();
 
@@ -388,7 +393,8 @@ BitmapPtr DisplayEngine::screenshot(int buffer)
         destRect.expand(winDims);
     }
     
-    BitmapPtr pDestBmp(new Bitmap(destRect.size(), B8G8R8X8));
+    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(destRect.size(), 
+            BitmapLoader::get()->getDefaultPixelFormat(false)));
     for (unsigned i=0; i != m_pWindows.size(); ++i) {
         BitmapPtr pWinBmp = m_pWindows[i]->screenshot(buffer);
         IntPoint pos = m_pWindows[i]->getPos() - destRect.tl;

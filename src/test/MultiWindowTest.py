@@ -135,14 +135,18 @@ class MultiWindowTestCase(AVGTestCase):
 
 def multiWindowTestSuite(tests):
     if sys.platform.startswith("linux"):
-        availableTests = (
-                "testMultiWindowBase",
-                "testMultiWindowApp",
-                "testMultiWindowCanvas",
-                "testMultiWindowManualCanvas",
-                "testMultiWindowFX"
-                )
-        return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)
+        if not player.isUsingGLES():
+            availableTests = (
+                    "testMultiWindowBase",
+                    "testMultiWindowApp",
+                    "testMultiWindowCanvas",
+                    "testMultiWindowManualCanvas",
+                    "testMultiWindowFX"
+                    )
+            return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)
+        else:
+            sys.stderr.write("Skipping multi-window tests - only supported under Linux w/GLX")
+            return unittest.TestSuite()
     else:
         sys.stderr.write("Skipping multi-window tests - only supported under Linux.")
         return unittest.TestSuite()

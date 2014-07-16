@@ -858,6 +858,7 @@ BitmapPtr Player::screenshot()
         WindowPtr pWindow = m_pDisplayEngine->getSDLWindow();
         IntRect viewport = pWindow->getViewport();
         m_pMainCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
+        GLContextManager::get()->reset();
     }
     return m_pDisplayEngine->screenshot();
 }
