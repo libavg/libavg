@@ -28,23 +28,26 @@
 
 #include <boost/python/slice.hpp>
 
+
 using namespace std;
 
 namespace avg {
 
-py::object SubscriberInfo::s_MethodrefModule;
+boost::shared_ptr<PyMethodRef> SubscriberInfo::s_pPyMethodref;
+
 
 SubscriberInfo::SubscriberInfo(int id, const py::object& callable)
     : m_ID(id)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (s_MethodrefModule.ptr() == py::object().ptr()) {
-        s_MethodrefModule = py::import("libavg.methodref");
+    if (!s_pPyMethodref) {
+        s_pPyMethodref = boost::shared_ptr<PyMethodRef>(new PyMethodRef());
     }
+
     // Use the methodref module to manage the lifetime of the callables. This makes 
     // sure that we can delete bound-method callbacks when the object they are bound
     // to disappears.
-    m_Callable = py::object(s_MethodrefModule.attr("methodref")(callable));
+    m_Callable = s_pPyMethodref->getMethodRef(callable);
 }
 
 SubscriberInfo::~SubscriberInfo()

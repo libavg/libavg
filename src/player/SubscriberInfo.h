@@ -23,6 +23,8 @@
 #define _SubscriberInfo_H_
 
 #include "../api.h"
+#include "../base/IPlaybackEndListener.h"
+#include "Player.h"
 
 #include "BoostPython.h"
 #include <boost/shared_ptr.hpp>
@@ -32,7 +34,10 @@
 
 #include <vector>
 
+
 namespace avg {
+
+class PyMethodRef;
 
 class SubscriberInfo {
 public:
@@ -45,14 +50,35 @@ public:
     bool isCallable(const py::object& callable) const;
 
 private:
+    friend class PyMethodRef;
     int m_ID;
     py::object m_Callable;
-    static py::object s_MethodrefModule;
+    static boost::shared_ptr<PyMethodRef> s_pPyMethodref;
 };
 
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;
-}
 
+
+class PyMethodRef : public IPlaybackEndListener  {
+public:
+    PyMethodRef() {
+        m_MethodrefModule = py::import("libavg.methodref");
+        Player::get()->registerPlaybackEndListener(this);
+    }
+
+    virtual void onPlaybackEnd(){
+        SubscriberInfo::s_pPyMethodref.reset();
+    }
+
+    py::object getMethodRef(const py::object& callable){
+        return py::object(m_MethodrefModule.attr("methodref")(callable));
+    }
+
+private:
+    py::object m_MethodrefModule;
+};
+
+}
 #endif
 
 
