@@ -4,7 +4,7 @@ Input Handling
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: Event CursorEvent MouseEvent TouchEvent KeyEvent
+    .. inheritance-diagram:: Event CursorEvent MouseEvent TouchEvent KeyEvent TangibleEvent
         :parts: 1
 
     .. inheritance-diagram:: Contact
@@ -271,6 +271,21 @@ Input Handling
             Current speed of the mouse in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
 
+    .. autoclass:: TangibleEvent(id, markerID, type, pos, speed, orientation)
+
+        Generated when a tangible event occurs. Tangible events happen when a surface that
+        supports marker-based tracking is active. Supported only for TUIO-based surfaces.
+
+        .. py:attribute:: markerID
+
+            The id of the marker. Unlike :py:attr:`cursorid`, :py:attr:`markerID` is persistent
+            and stays the same if a tangible is removed from the surface and re-placed
+            again.
+
+        .. py:attribute:: orientation
+
+            The angle of the marker in radians.
+
     .. autoclass:: TouchEvent(id, type, pos, source, [speed])
 
         Generated when a touch or other tracking event occurs. Touch events happen 
@@ -288,16 +303,16 @@ Input Handling
 
         .. py:attribute:: cursorid
 
-            An identifier for the current touch. A single touch will generate a down,
-            zero or more motion and a single up event in its lifetime, all with the same
-            :py:attr:`cursorid`.
+            An identifier for the current touch. A single touch will generate a down 
+            event, zero or more motion events and a single up event in its lifetime, all
+            with the same :py:attr:`cursorid`.
 
         .. py:attribute:: eccentricity
 
         .. py:attribute:: handorientation
 
             The angle of the hand relative to the finger. :py:attr:`handorientation` is
-            only defined for events with :py:attr:`source`=:py:const:`TOUCH`. If the 
+            only defined for events with :py:attr:`source` = :py:const:`TOUCH`. If the 
             tracker has detected a hovering hand attached to the finger, this is the 
             actual hand-finger angle. If no hand was detected, the angle is approximated 
             using the position of the touch on the surface. :py:attr:`handorientation`

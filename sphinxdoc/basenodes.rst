@@ -93,6 +93,9 @@ This section describes the base classes for all node classes that libavg provide
             parameters are of type :py:class:`CursorEvent`. The CURSOR messages are 
             emitted for mouse and touch events. The HOVER events are emitted for touch 
             devices which can sense hands approaching the surface before the actual touch.
+            TANGIBLE events are emitted when a touch by a physical object is
+            detected and have parameters of class :py:class:`TangibleEvent`. Tangibles are
+            usually marker-based and have unique ids.
 
             To get these messages, call :py:meth:`Publisher.subscribe`.
 
@@ -135,6 +138,26 @@ This section describes the base classes for all node classes that libavg provide
             .. py:method:: HOVER_OUT(cursorevent)
             
                 Emitted whenever a hover cursor leaves the :py:class:`Node`'s area.
+
+            .. py:method:: TANGIBLE_DOWN(tangibleevent)
+            
+                Emitted whenever a new tangible cursor is registered.
+
+            .. py:method:: TANGIBLE_MOTION(tangibleevent)
+            
+                Emitted whenever a tangible cursor moves.
+
+            .. py:method:: TANGIBLE_UP(tangibleevent)
+            
+                Emitted whenever a tangible cursor disappears.
+
+            .. py:method:: TANGIBLE_OVER(tangibleevent)
+            
+                Emitted whenever a tangible cursor enters the :py:class:`Node`'s area.
+
+            .. py:method:: TANGIBLE_OUT(tangibleevent)
+            
+                Emitted whenever a tangible cursor leaves the :py:class:`Node`'s area.
 
             .. py:method:: SIZE_CHANGED(newSize)
             
