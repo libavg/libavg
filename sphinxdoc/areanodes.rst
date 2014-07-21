@@ -718,10 +718,10 @@ Area Nodes
 
         .. py:attribute:: fontstyle
 
-            A :py:class:`FontStyle` object that encapsulates all font attributes of the node. As a 
-            constructor parameter, this attribute sets the default attributes and other 
-            constructor arguments can override these. If set during :py:class:`WordsNode` use,
-            all relevant attributes are set to the new values.
+            A :py:class:`FontStyle` object that encapsulates all font attributes of the
+            node. As a constructor parameter, this attribute sets the default attributes
+            and other constructor arguments can override these. If set during
+            :py:class:`WordsNode` use, all relevant attributes are set to the new values.
 
         .. py:attribute:: hint
 
@@ -759,12 +759,10 @@ Area Nodes
 
         .. py:attribute:: text 
 
-            The string to display. If the node is created using xml, this is either the
-            text attribute of the words node or the content of the words
-            node itself. In the second case, the string can be formatted
-            using the pango text attribute markup language described at
-            http://developer.gnome.org/pango/unstable/PangoMarkupFormat.html.
-            Markup can also be used if the text is set using the python attribute.
+            The string to display. The string can be formatted using the pango text 
+            attribute markup language described at
+            http://developer.gnome.org/pango/unstable/PangoMarkupFormat.html. In addition,
+            the :samp:`<br/>` tag is supported for paragraph breaks.
 
             Markup parsing can be turned on or off with :py:attr:`rawtextmode` attribute.
 
