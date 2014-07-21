@@ -47,6 +47,7 @@ static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 GLXContext::GLXContext(const IntPoint& windowSize)
     : GLContext(windowSize),
       m_pDisplay(0),
+      m_Context(0),
       m_bVBlankActive(false)
 {
     s_bX11Error = false;

@@ -42,7 +42,8 @@ using namespace boost;
 
 SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string& sDisplay,
         const IntRect& windowDimensions, bool bHasWindowFrame)
-    : GLXContext(windowDimensions.size())
+    : GLXContext(windowDimensions.size()),
+      m_Window(-1)
 {
     GLConfig config = glConfig;
     createContext(config, sDisplay, windowDimensions, bHasWindowFrame);
@@ -51,7 +52,9 @@ SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string&
 
 SecondaryGLXContext::~SecondaryGLXContext()
 {
-    XDestroyWindow(getDisplay(), m_Window);
+    if (m_Window != -1) {
+        XDestroyWindow(getDisplay(), m_Window);
+    }
 }
 
 void SecondaryGLXContext::createContext(GLConfig& glConfig, const string& sDisplay, 
@@ -61,6 +64,7 @@ void SecondaryGLXContext::createContext(GLConfig& glConfig, const string& sDispl
 
     ::Display* pDisplay = XOpenDisplay(sDisplay.c_str());
     if (!pDisplay) {
+        resetX11ErrorHandler();
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Display '" + sDisplay + "' is not available.");
     }
