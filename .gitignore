@@ -4,6 +4,7 @@ Makefile
 .deps
 .libs
 *.cache
+core
 
 aclocal.m4
 config.guess
@@ -70,3 +71,6 @@ __pycache__/
 
 # YouCompleteMe config file
 .ycm_extra_conf.py
+
+# vim temp files
+*.swp
