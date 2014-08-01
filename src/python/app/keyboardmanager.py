@@ -171,7 +171,8 @@ def _testMatchString(keyBinding, keyString, type_):
     sameType = keyBinding.type == type_
     patternMatch = _testPatternMatch(keyBinding.keystring, keyString)
     directMatch = keyBinding.keystring == keyString
-
+    if type(keyBinding.keystring) == six.binary_type:
+        directMatch = keyBinding.keystring.decode('utf8') == keyString
     return sameType and (directMatch or patternMatch)
 
 def _testMatchEvent(keyBinding, event, type_):
