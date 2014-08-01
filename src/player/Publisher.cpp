@@ -54,12 +54,16 @@ Publisher::~Publisher()
 
 int Publisher::subscribe(MessageID messageID, PyObject* pCallable)
 {
-    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
-    int subscriberID = s_LastSubscriberID;
-    s_LastSubscriberID++;
-//    cerr << this << " subscribe " << messageID << ", " << subscriberID << endl;
-    subscribers.push_front(SubscriberInfoPtr(new SubscriberInfo(subscriberID, pCallable)));
-    return subscriberID;
+    if(PyCallable_Check(pCallable)){
+        SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+        int subscriberID = s_LastSubscriberID;
+        s_LastSubscriberID++;
+//        cerr << this << " subscribe " << messageID << ", " << subscriberID << endl;
+        subscribers.push_front(SubscriberInfoPtr(new SubscriberInfo(subscriberID, pCallable)));
+        return subscriberID;
+    }
+    //TODO: Document Return Value -1 if PyObject not callable
+    return -1;
 }
 
 void Publisher::unsubscribe(MessageID messageID, int subscriberID)
