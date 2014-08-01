@@ -52,6 +52,7 @@ private:
     int m_ID;
     PyObject* m_pWeakSelf;
     PyObject* m_pPyFunction;
+    PyObject* m_pWeakClass;
 };
 
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;

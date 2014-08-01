@@ -354,6 +354,8 @@ struct UTF8String_from_unicode
     }
 };
 
+#if PY_MAJOR_VERSION < 3
+
 struct UTF8String_from_string
 {
     UTF8String_from_string()
@@ -366,14 +368,14 @@ struct UTF8String_from_string
 
     static void* convertible(PyObject* obj_ptr)
     {
-        if (!PyUnicode_Check(obj_ptr)) return 0;
+        if (!PyString_Check(obj_ptr)) return 0;
         return obj_ptr;
     }
 
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        const char * psz = PyUnicode_AS_DATA(obj_ptr);
+        const char * psz = PyString_AsString(obj_ptr);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
                         ->storage.bytes;
@@ -381,6 +383,7 @@ struct UTF8String_from_string
         data->convertible = storage;
     }
 };
+#endif
 
 void exportMessages(object& nodeClass, const string& sClassName)
 {
@@ -444,7 +447,9 @@ void export_base()
     // string
     to_python_converter<UTF8String, UTF8String_to_unicode>();
     UTF8String_from_unicode();
+    #if PY_MAJOR_VERSION < 3
     UTF8String_from_string();
+    #endif
 
     to_python_converter<vector<string>, to_list<vector<string> > >();
     from_python_sequence<vector<string>, variable_capacity_policy>();
