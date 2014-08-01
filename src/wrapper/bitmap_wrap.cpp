@@ -77,7 +77,7 @@ struct Pixel32_to_python_tuple
 {
     static PyObject* convert (avg::Pixel32 px)
     {
-        return boost::python::incref(boost::python::make_tuple(
+        return bp::incref(bp::make_tuple(
                 px.getR(), px.getG(), px.getB(), px.getA()).ptr());
     }
 };
@@ -86,9 +86,10 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap) {
     const glm::byte* buffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
     //now you wrap that as buffer
-    PyObject* py_memView = PyMemoryView_FromMemory(const_cast<char*>(reinterpret_cast<const char*>(buffer)),
+    PyObject* py_memView = PyMemoryView_FromMemory(
+            const_cast<char*>(reinterpret_cast<const char*>(buffer)),
             buffSize, PyBUF_READ);
-    bp::object retval = object(handle<>(py_memView));
+    bp::object retval = bp::object(handle<>(py_memView));
     return retval;
 }
 

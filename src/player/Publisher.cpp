@@ -52,13 +52,13 @@ Publisher::~Publisher()
 {
 }
 
-int Publisher::subscribe(MessageID messageID, const py::object& callable)
+int Publisher::subscribe(MessageID messageID, PyObject* pCallable)
 {
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     int subscriberID = s_LastSubscriberID;
     s_LastSubscriberID++;
 //    cerr << this << " subscribe " << messageID << ", " << subscriberID << endl;
-    subscribers.push_front(SubscriberInfoPtr(new SubscriberInfo(subscriberID, callable)));
+    subscribers.push_front(SubscriberInfoPtr(new SubscriberInfo(subscriberID, pCallable)));
     return subscriberID;
 }
 
@@ -98,12 +98,12 @@ void Publisher::unsubscribe1(int subscriberID)
             "Subscriber with ID "+toString(subscriberID)+" not found.");
 }
 
-void Publisher::unsubscribeCallable(MessageID messageID, const py::object& callable)
+void Publisher::unsubscribeCallable(MessageID messageID, PyObject* pCallable)
 {
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
-        if ((*it)->isCallable(callable)) {
+        if ((*it)->isCallable(pCallable)) {
             unsubscribeIterator(messageID, it);
             return;
         }
@@ -129,12 +129,12 @@ bool Publisher::isSubscribed(MessageID messageID, int subscriberID)
     return false;
 }
 
-bool Publisher::isSubscribedCallable(MessageID messageID, const py::object& callable)
+bool Publisher::isSubscribedCallable(MessageID messageID, PyObject* pCallable)
 {
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
-        if ((*it)->isCallable(callable)) {
+        if ((*it)->isCallable(pCallable)) {
             return true;
         }
     }
@@ -195,7 +195,7 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
                 // Python subscriber doesn't exist anymore -> auto-unsubscribe.
                 unsubscribe(messageID, pSub->getID());
             } else {
-//              cerr << "  invoke: " << (*it)->getID() << endl;
+//              cerr << "  invoke: " << pSub->getID() << endl;
                 pSub->invoke(args);
             }
         }

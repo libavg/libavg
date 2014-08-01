@@ -33,32 +33,46 @@ using namespace std;
 
 namespace avg {
 
-boost::shared_ptr<PyMethodRef> SubscriberInfo::s_pPyMethodref;
-
-
-SubscriberInfo::SubscriberInfo(int id, const py::object& callable)
-    : m_ID(id)
+SubscriberInfo::SubscriberInfo(int id, PyObject* pCallable)
+    : m_ID(id),
+      m_pWeakSelf(Py_None),
+      m_pPyFunction(Py_None)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (!s_pPyMethodref) {
-        s_pPyMethodref = boost::shared_ptr<PyMethodRef>(new PyMethodRef());
-    }
+    AVG_ASSERT(PyCallable_Check(pCallable));
 
-    // Use the methodref module to manage the lifetime of the callables. This makes 
-    // sure that we can delete bound-method callbacks when the object they are bound
-    // to disappears.
-    m_Callable = s_pPyMethodref->getMethodRef(callable);
+    if(PyMethod_Check(pCallable)) { //Bound method
+        m_pWeakSelf = PyWeakref_NewRef(PyMethod_Self(pCallable), NULL);
+        AVG_ASSERT(m_pWeakSelf != Py_None);
+        m_pPyFunction = PyWeakref_NewRef(PyMethod_Function(pCallable), NULL);
+        AVG_ASSERT(m_pPyFunction != Py_None);
+    }else{
+        m_pPyFunction = pCallable;
+        Py_INCREF(m_pPyFunction); //We need to keep a reference to the unbound function
+        AVG_ASSERT(m_pPyFunction != Py_None);
+    }
 }
 
 SubscriberInfo::~SubscriberInfo()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+    if(m_pWeakSelf != Py_None){
+        Py_DECREF(m_pWeakSelf);
+    }
+    Py_DECREF(m_pPyFunction);
 }
 
 bool SubscriberInfo::hasExpired() const
 {
-    py::object func = m_Callable();
-    return (func.ptr() == py::object().ptr());
+    bool expired;
+    if(m_pWeakSelf == Py_None) { //Unbound function
+        return false; //Unbound functions can't really expire
+    }else{
+        //If self still exists, the function should still be valid or people are messing
+        //too deeply with python
+        expired = PyWeakref_GetObject(m_pWeakSelf) == Py_None;
+    }
+    return expired;
 }
 
 static ProfilingZoneID InvokeSubscriberProfilingZone("SubscriberInfo: invoke");
@@ -66,11 +80,28 @@ static ProfilingZoneID InvokeSubscriberProfilingZone("SubscriberInfo: invoke");
 void SubscriberInfo::invoke(py::list args) const
 {
     ScopeTimer timer(InvokeSubscriberProfilingZone);
-    py::object func = m_Callable();
-    py::tuple argsTuple(args);
-    py::object pyResult = func(*argsTuple);
-    if (pyResult.ptr() == 0) {
-        throw py::error_already_set();
+
+    if(m_pWeakSelf != Py_None) { //Bound method case
+        PyObject * pFunction = PyWeakref_GetObject(m_pPyFunction);
+        AVG_ASSERT(pFunction != Py_None);
+        PyObject * pSelf = PyWeakref_GetObject(m_pWeakSelf);
+        AVG_ASSERT(pSelf != Py_None);
+        PyObject * pCallable = PyMethod_New(pFunction, pSelf);  //Bind function to self --> creating a bound method
+        AVG_ASSERT(pCallable != Py_None);
+        py::tuple argsTuple(args);
+        PyObject* pyResult = PyObject_CallObject(pCallable, argsTuple.ptr());
+        if (pyResult == NULL) {
+            throw py::error_already_set();
+        }
+        Py_DECREF(pCallable);
+        Py_DECREF(pyResult);
+    }else{ //unbound method case
+        py::tuple argsTuple(args);
+        PyObject* pyResult = PyObject_CallObject(m_pPyFunction, argsTuple.ptr());
+        if (pyResult == NULL) {
+            throw py::error_already_set();
+        }
+        Py_XDECREF(pyResult);
     }
 }
 
@@ -79,10 +110,15 @@ int SubscriberInfo::getID() const
     return m_ID;
 }
 
-bool SubscriberInfo::isCallable(const py::object& callable) const
+bool SubscriberInfo::isCallable(const PyObject* pCallable) const
 {
-    bool bResult = py::call_method<bool>(m_Callable.ptr(), "isSameFunc", callable);
-    return bResult;
+    if(m_pWeakSelf != Py_None) {
+        PyObject * lhsCallable = PyWeakref_GetObject(m_pPyFunction);
+        PyObject * rhsCallable = PyMethod_Function(const_cast<PyObject*>(pCallable));
+        return lhsCallable == rhsCallable;
+    }else{
+        return m_pPyFunction == pCallable;
+    }
 }
 
 }

@@ -93,9 +93,10 @@ class TestApp(object):
        
         numSkipped = 0
         for suite in self.__testSuite:
-            for test in suite:
-                if test.skipped():
-                    numSkipped += 1
+            if suite:
+                for test in suite:
+                    if test.skipped():
+                        numSkipped += 1
         if numSkipped > 0:
             sys.stderr.write("Skipped "+str(numSkipped)+" tests:\n")
             for suite in self.__testSuite:

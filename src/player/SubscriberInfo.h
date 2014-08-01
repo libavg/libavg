@@ -23,7 +23,6 @@
 #define _SubscriberInfo_H_
 
 #include "../api.h"
-#include "../base/IPlaybackEndListener.h"
 #include "Player.h"
 
 #include "BoostPython.h"
@@ -41,42 +40,21 @@ class PyMethodRef;
 
 class SubscriberInfo {
 public:
-    SubscriberInfo(int id, const py::object& callable);
+    SubscriberInfo(int id, PyObject* pCallable);
     virtual ~SubscriberInfo();
 
     bool hasExpired() const;
     void invoke(py::list args) const;
     int getID() const;
-    bool isCallable(const py::object& callable) const;
+    bool isCallable(const PyObject* pCallable) const;
 
 private:
-    friend class PyMethodRef;
     int m_ID;
-    py::object m_Callable;
-    static boost::shared_ptr<PyMethodRef> s_pPyMethodref;
+    PyObject* m_pWeakSelf;
+    PyObject* m_pPyFunction;
 };
 
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;
-
-
-class PyMethodRef : public IPlaybackEndListener  {
-public:
-    PyMethodRef() {
-        m_MethodrefModule = py::import("libavg.methodref");
-        Player::get()->registerPlaybackEndListener(this);
-    }
-
-    virtual void onPlaybackEnd(){
-        SubscriberInfo::s_pPyMethodref.reset();
-    }
-
-    py::object getMethodRef(const py::object& callable){
-        return py::object(m_MethodrefModule.attr("methodref")(callable));
-    }
-
-private:
-    py::object m_MethodrefModule;
-};
 
 }
 #endif
