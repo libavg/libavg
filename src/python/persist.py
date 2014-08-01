@@ -52,7 +52,7 @@ class Persist(object):
                         'cannot be accessed with r/w permissions' % self)
 
         try:
-            f = open(self.__storeFile)
+            f = open(self.__storeFile, 'rb')
         except IOError:
             libavg.logger.debug('Initializing %s' % self)
             self.data = initialData
