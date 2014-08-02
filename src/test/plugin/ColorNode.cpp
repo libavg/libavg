@@ -140,18 +140,16 @@ BOOST_PYTHON_MODULE(colorplugin)
         return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
 }
 
-AVG_PLUGIN_API void registerPlugin()
+AVG_PLUGIN_API PyObject* registerPlugin()
 {
     #if PY_MAJOR_VERSION < 3
         initcolorplugin();
+        PyObject* pyColorModule = PyImport_ImportModule("colorplugin");
     #else
-        PyInit_colorplugin();
+        PyObject* pyColorModule = PyInit_colorplugin();
     #endif
-    object mainModule(handle<>(borrowed(PyImport_AddModule("__builtin__"))));
-    object colorModule(handle<>(PyImport_ImportModule("colorplugin")));
-    mainModule.attr("colorplugin") = colorModule;
 
     avg::ColorNode::registerType();
-
+    return pyColorModule;
 }
 
