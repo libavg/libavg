@@ -186,6 +186,10 @@ class FXTestCase(AVGTestCase):
             effect = avg.BlurFXNode(8)
             self.node.setEffect(effect)
 
+        def addNewFXKWARGS():
+            effect = avg.BlurFXNode(radius=8)
+            self.node.setEffect(effect)
+
         root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
@@ -201,6 +205,9 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlurFX2"),
                  removeFX,
                  addNewFX,
+                 lambda: self.compareImage("testBlurFX2"),
+                 removeFX,
+                 addNewFXKWARGS,
                  lambda: self.compareImage("testBlurFX2"),
                  lambda: setRadius(300),
                 ))

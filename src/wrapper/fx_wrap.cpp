@@ -35,6 +35,8 @@
 using namespace boost::python;
 using namespace avg;
 
+namespace bp = boost::python;
+
 void export_fx()
 {
 
@@ -42,7 +44,7 @@ void export_fx()
         ;
 
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>,
-            boost::noncopyable>("BlurFXNode", init<optional<float> >())
+            boost::noncopyable>("BlurFXNode", init<optional<float> >(bp::arg("radius")))
         .add_property("radius", &BlurFXNode::getRadius,
                 &BlurFXNode::setRadius)
         ;
