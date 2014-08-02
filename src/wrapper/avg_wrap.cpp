@@ -81,7 +81,7 @@ class CategoryScopeHelper{};
 boost::function<size_t (const bp::tuple& args, const bp::dict& kwargs )>
         playerGetMemoryUsage = boost::bind(getMemoryUsage);
 
-// [todo] - remove after releasing libavg-v1.9.0
+// [todo] - remove after releasing libavg-v2.0.0
 size_t getMemoryUsageDeprecated() {
     avgDeprecationWarning("1.9.0", "avg.getMemoryUsage", "player.getMemoryUsage");
     return getMemoryUsage();
@@ -104,7 +104,7 @@ BOOST_PYTHON_MODULE(avg)
         register_ptr_to_python<MouseEventPtr>();
         register_ptr_to_python<TouchEventPtr>();
 
-        // [todo] - remove after releasing libavg-v1.9.0
+        // [todo] - remove after releasing libavg-v2.0.0
         def("getMemoryUsage", getMemoryUsageDeprecated);
 
         def("pointInPolygon", pointInPolygon);
