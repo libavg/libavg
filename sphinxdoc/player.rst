@@ -354,6 +354,13 @@ Player & Canvas
             is the total amount used by all programs. Only available when using NVidia
             drivers.
 
+        .. py:method:: getMemoryUsage() -> int
+
+            Returns the amount of memory used by the application in bytes. More
+            precisely, this function returns the resident set size of the process
+            in bytes. This does not include shared libraries or memory paged out to
+            disk.
+
         .. py:method:: getVideoRefreshRate() -> float
 
             Returns the current hardware video refresh rate in number of

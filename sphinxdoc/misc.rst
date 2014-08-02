@@ -535,13 +535,6 @@ Misc. Classes
             video file (e.g. for playback in a video node), destroy the python object 
             first. This waits for sync.
 
-    .. autofunction:: getMemoryUsage() -> int
-
-        Returns the amount of memory used by the application in bytes. More
-        precisely, this function returns the resident set size of the process
-        in bytes. This does not include shared libraries or memory paged out to
-        disk.
-
     .. autofunction:: pointInPolygon(point, poly) -> bool
 
         Checks if a point is inside a polygon.

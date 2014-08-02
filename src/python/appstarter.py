@@ -162,7 +162,8 @@ class AVGAppStarter(AppStarter):
         else:
             size = (self._appNode.width, self._appNode.height/6.0)
             self.__memGraph = graph.AveragingGraph(title = 'Memory Usage',
-                    getValue = avg.getMemoryUsage, parent=player.getRootNode(), size=size)
+                    getValue = player.getMemoryUsage, parent=player.getRootNode(),
+                    size=size)
             self.__graphs.append(self.__memGraph)
         self.__positionGraphs()
 

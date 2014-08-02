@@ -77,6 +77,17 @@ CanvasPtr createMainCanvas(const boost::python::tuple &args,
 class SeverityScopeHelper{};
 class CategoryScopeHelper{};
 
+
+boost::function<size_t (const bp::tuple& args, const bp::dict& kwargs )>
+        playerGetMemoryUsage = boost::bind(getMemoryUsage);
+
+// [todo] - remove after releasing libavg-v1.9.0
+size_t getMemoryUsageDeprecated() {
+    avgDeprecationWarning("1.9.0", "avg.getMemoryUsage", "player.getMemoryUsage");
+    return getMemoryUsage();
+}
+
+
 BOOST_PYTHON_MODULE(avg)
 {
     try {
@@ -93,7 +104,8 @@ BOOST_PYTHON_MODULE(avg)
         register_ptr_to_python<MouseEventPtr>();
         register_ptr_to_python<TouchEventPtr>();
 
-        def("getMemoryUsage", getMemoryUsage);
+        // [todo] - remove after releasing libavg-v1.9.0
+        def("getMemoryUsage", getMemoryUsageDeprecated);
 
         def("pointInPolygon", pointInPolygon);
         def("validateXml", validateXml);
@@ -229,6 +241,7 @@ BOOST_PYTHON_MODULE(avg)
             .def("setFramerate", &Player::setFramerate)
             .def("setVBlankFramerate", &Player::setVBlankFramerate)
             .def("getEffectiveFramerate", &Player::getEffectiveFramerate)
+            .def("getMemoryUsage", raw_function(playerGetMemoryUsage))
             .def("getTestHelper", &Player::getTestHelper,
                     return_value_policy<reference_existing_object>())
             .def("setFakeFPS", &Player::setFakeFPS)

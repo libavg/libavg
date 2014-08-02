@@ -318,7 +318,7 @@ class MemoryGraphWidget(GraphWidget):
 
     def _createGraph(self):
         return libavg.graph.AveragingGraph(parent=self, size=self.size,
-                getValue=avg.getMemoryUsage)
+                getValue=libavg.player.getMemoryUsage)
 
 
 class FrametimeGraphWidget(GraphWidget):
