@@ -36,7 +36,6 @@
 
 namespace avg {
 
-class PyMethodRef;
 
 class SubscriberInfo {
 public:
