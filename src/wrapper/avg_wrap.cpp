@@ -87,6 +87,12 @@ size_t getMemoryUsageDeprecated() {
     return getMemoryUsage();
 }
 
+bool pointInPolygonDepcrecated(const glm::vec2& pt, const std::vector<glm::vec2>& poly) {
+    avgDeprecationWarning("1.9.0", "avg.pointInPolygon", "Point2D.isInPolygon");
+    return pointInPolygon(pt, poly);
+}
+// end remove
+
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -106,8 +112,9 @@ BOOST_PYTHON_MODULE(avg)
 
         // [todo] - remove after releasing libavg-v2.0.0
         def("getMemoryUsage", getMemoryUsageDeprecated);
+        def("pointInPolygon", pointInPolygonDepcrecated);
+        // end remove
 
-        def("pointInPolygon", pointInPolygon);
         def("validateXml", validateXml);
 
         class_<MessageID>("MessageID", no_init)

@@ -550,8 +550,8 @@ class VectorTestCase(AVGTestCase):
 
     def testPointInPolygon(self):
         polygon_pos = [(10, 10), (50, 10), (90, 50), (90, 90)]
-        self.assert_(avg.pointInPolygon((50, 20), polygon_pos))
-        self.assert_(avg.pointInPolygon((10, 20), polygon_pos) == False)
+        self.assert_(avg.Point2D(50, 20).isInPolygon(polygon_pos))
+        self.assert_(not avg.Point2D(10, 20).isInPolygon(polygon_pos))
 
     def testCircle(self):
         def addCircle():
