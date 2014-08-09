@@ -650,7 +650,7 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testMemoryQuery(self):
-        self.assertNotEqual(avg.getMemoryUsage(), 0)
+        self.assertNotEqual(player.getMemoryUsage(), 0)
 
     def testStopOnEscape(self):
         def pressEscape():

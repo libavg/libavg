@@ -29,6 +29,7 @@
 #include "../graphics/FilterResizeBilinear.h"
 
 #include "../base/CubicSpline.h"
+#include "../base/GeomHelper.h"
 
 #include "../glm/gtx/vector_angle.hpp"
 
@@ -60,6 +61,7 @@ class_<POINT> export_point(const string& sName)
         .def(float() * self)
         .def(self * float())
         .def(self / float())
+        .def("isInPolygon", &pointInPolygon)
         .def("getAngle", &getAngle)
         .def("fromPolar", &fromPolar)
         .staticmethod("fromPolar")
