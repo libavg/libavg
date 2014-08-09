@@ -186,6 +186,10 @@ class FXTestCase(AVGTestCase):
             effect = avg.BlurFXNode(8)
             self.node.setEffect(effect)
 
+        def addNewFXKWARGS():
+            effect = avg.BlurFXNode(radius=8)
+            self.node.setEffect(effect)
+
         root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
@@ -202,13 +206,16 @@ class FXTestCase(AVGTestCase):
                  removeFX,
                  addNewFX,
                  lambda: self.compareImage("testBlurFX2"),
+                 removeFX,
+                 addNewFXKWARGS,
+                 lambda: self.compareImage("testBlurFX2"),
                  lambda: setRadius(300),
                 ))
 
     def testHueSatFX(self):
 
-        def resetFX():
-            self.effect = avg.HueSatFXNode()
+        def resetFX(**kwargs):
+            self.effect = avg.HueSatFXNode(**kwargs)
             self.node.setEffect(self.effect)
 
         def setParam(param, value):
@@ -231,6 +238,12 @@ class FXTestCase(AVGTestCase):
                  lambda: setParam('hue', 180),
                  lambda: self.compareImage("testHueSatFX4"),
                  lambda: setParam('hue', -180),
+                 lambda: self.compareImage("testHueSatFX4"),
+                 lambda: resetFX(saturation=-50),
+                 lambda: self.compareImage("testHueSatFX2"),
+                 lambda: resetFX(saturation=-150),
+                 lambda: self.compareImage("testHueSatFX3"),
+                 lambda: resetFX(hue=-180),
                  lambda: self.compareImage("testHueSatFX4"),
                 ))
 
@@ -265,14 +278,18 @@ class FXTestCase(AVGTestCase):
             effect.opacity = opacity
             effect.color =  color
 
+        def setEffect(**kwargs):
+            effect = avg.ShadowFXNode(**kwargs)
+            self.node.setEffect(effect)
+
         root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
-        node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
-        rect.size = node.size + (1, 1)
+        self.node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
+        rect.size = self.node.size + (1, 1)
         effect = avg.ShadowFXNode((0,0), 1, 1, "FFFFFF")
         self.start(False,
                 (self.skipIfMinimalShader,
-                 lambda: node.setEffect(effect),
+                 lambda: self.node.setEffect(effect),
                  lambda: self.compareImage("testShadowFX1"),
                  lambda: setParams((0,0), 3, 2, "00FFFF"),
                  lambda: self.compareImage("testShadowFX2"),
@@ -284,10 +301,20 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testShadowFX5"),
                  lambda: setParams((0,0), 0, 1, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX6"),
+                 lambda: setEffect(offset=(0,0), radius=3, opacity=2, color="00FFFF"),
+                 lambda: self.compareImage("testShadowFX2"),
+                 lambda: setEffect(offset=(2,2), radius=0.1, opacity=1, color="FFFFFF"),
+                 lambda: self.compareImage("testShadowFX3"),
+                 lambda: setEffect(offset=(-2,-2), radius=0.1, opacity=1, color="FFFFFF"),
+                 lambda: self.compareImage("testShadowFX4"),
+                 lambda: setEffect(offset=(-2,-2), radius=3, opacity=1, color="FFFFFF"),
+                 lambda: self.compareImage("testShadowFX5"),
+                 lambda: setEffect(offset=(0,0), radius=0, opacity=1, color="FFFFFF"),
+                 lambda: self.compareImage("testShadowFX6"),
                 ))
 
     def testWordsShadowFX(self):
-        
+
         def setParams(offset, radius, opacity, color):
             effect.offset = offset
             effect.radius = radius
