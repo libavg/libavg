@@ -86,15 +86,15 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap) {
     const glm::byte* buffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
 
-    #if PY_MAJOR_VERSION < 3
-        PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(const_cast<glm::byte*>(buffer),
-                buffSize);
-        PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
-    #else
-        PyObject* py_memView = PyMemoryView_FromMemory(
-                const_cast<char*>(reinterpret_cast<const char*>(buffer)),
-                buffSize, PyBUF_READ);
-    #endif
+#if PY_MAJOR_VERSION < 3
+    PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(const_cast<glm::byte*>(buffer),
+            buffSize);
+    PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
+#else
+    PyObject* py_memView = PyMemoryView_FromMemory(
+            const_cast<char*>(reinterpret_cast<const char*>(buffer)),
+            buffSize, PyBUF_READ);
+#endif
     bp::object retval = bp::object(handle<>(py_memView));
     return retval;
 }
