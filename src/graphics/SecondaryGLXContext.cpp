@@ -52,7 +52,7 @@ SecondaryGLXContext::SecondaryGLXContext(const GLConfig& glConfig, const string&
 
 SecondaryGLXContext::~SecondaryGLXContext()
 {
-    if (m_Window != -1) {
+    if (m_Window != (::Window)-1) {
         XDestroyWindow(getDisplay(), m_Window);
     }
 }
