@@ -25,7 +25,7 @@ import math
 from testcase import *
 
 class GestureTestCase(AVGTestCase):
-    
+
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
@@ -933,6 +933,10 @@ class GestureTestCase(AVGTestCase):
         self.__initImageScene()
         self.__transformRecognizer = gesture.TransformRecognizer(self.image, friction=-1,
                 detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+
+        def disableOnUp(_):
+            self.__transformRecognizer.enable(False)
+
         self.start(False,
                 (# Regular disable
                  lambda: self.__transformRecognizer.enable(False),
@@ -951,6 +955,12 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
                  lambda: checkTransform(gesture.Transform((0,0))),
                  lambda: self.__transformRecognizer.enable(True),
+                 # Disable during up event
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self.__transformRecognizer.subscribe(self.__transformRecognizer.UP,
+                             disableOnUp),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
+                 lambda: checkTransform(gesture.Transform((10, 0))),
                 ))
 
         # Test enable/disable, friction
