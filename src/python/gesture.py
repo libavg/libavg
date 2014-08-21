@@ -800,9 +800,9 @@ class TransformRecognizer(Recognizer):
             contact = event.contact
             transform = Transform(self.__filteredRelContactPos(contact)
                     - self.__lastPosns[0])
-            self.notifySubscribers(Recognizer.UP, [transform]);
             player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
             self.__frameHandlerID = None
+            self.notifySubscribers(Recognizer.UP, [transform]);
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
                 self.__inertiaHandler.onUp()
