@@ -47,9 +47,9 @@ SubscriberInfo::SubscriberInfo(int id, PyObject* pCallable)
         AVG_ASSERT(m_pWeakSelf != Py_None);
         m_pPyFunction = PyWeakref_NewRef(PyMethod_Function(pCallable), NULL);
         AVG_ASSERT(m_pPyFunction != Py_None);
-        #if PY_MAJOR_VERSION < 3
-            m_pWeakClass = PyWeakref_NewRef(PyMethod_Class(pCallable), NULL);
-        #endif
+#if PY_MAJOR_VERSION < 3
+        m_pWeakClass = PyWeakref_NewRef(PyMethod_Class(pCallable), NULL);
+#endif
 
     }else{
         m_pPyFunction = pCallable;
@@ -91,13 +91,13 @@ void SubscriberInfo::invoke(py::list args) const
         AVG_ASSERT(pFunction != Py_None);
         PyObject * pSelf = PyWeakref_GetObject(m_pWeakSelf);
         AVG_ASSERT(pSelf != Py_None);
-        #if PY_MAJOR_VERSION < 3
-            PyObject * pClass = PyWeakref_GetObject(m_pWeakClass);
-            AVG_ASSERT(pClass != Py_None);
-            PyObject * pCallable = PyMethod_New(pFunction, pSelf, pClass);  //Bind function to self --> creating a bound method
-        #else
-            PyObject * pCallable = PyMethod_New(pFunction, pSelf);  //Bind function to self --> creating a bound method
-        #endif
+#if PY_MAJOR_VERSION < 3
+        PyObject * pClass = PyWeakref_GetObject(m_pWeakClass);
+        AVG_ASSERT(pClass != Py_None);
+        PyObject * pCallable = PyMethod_New(pFunction, pSelf, pClass);  //Bind function to self --> creating a bound method
+#else
+        PyObject * pCallable = PyMethod_New(pFunction, pSelf);  //Bind function to self --> creating a bound method
+#endif
         AVG_ASSERT(pCallable != Py_None);
         py::tuple argsTuple(args);
         PyObject* pyResult = PyObject_CallObject(pCallable, argsTuple.ptr());
