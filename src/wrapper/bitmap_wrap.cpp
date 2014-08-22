@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../base/GLMHelper.h"
 #include "WrapHelper.h"
 
 #include "../player/BoostPython.h"
@@ -39,6 +40,8 @@
 using namespace boost::python;
 using namespace std;
 using namespace avg;
+
+namespace bp = boost::python;
 
 template<class POINT>
 class_<POINT> export_point(const string& sName)
@@ -74,10 +77,40 @@ struct Pixel32_to_python_tuple
 {
     static PyObject* convert (avg::Pixel32 px)
     {
-        return boost::python::incref(boost::python::make_tuple(
+        return bp::incref(bp::make_tuple(
                 px.getR(), px.getG(), px.getB(), px.getA()).ptr());
     }
 };
+
+static bp::object Bitmap_getPixels(Bitmap& bitmap) {
+    const glm::byte* buffer = bitmap.getPixels();
+    int buffSize = bitmap.getMemNeeded();
+
+#if PY_MAJOR_VERSION < 3
+    PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(const_cast<glm::byte*>(buffer),
+            buffSize);
+    PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
+#else
+    PyObject* py_memView = PyMemoryView_FromMemory(
+            const_cast<char*>(reinterpret_cast<const char*>(buffer)),
+            buffSize, PyBUF_READ);
+#endif
+    bp::object retval = bp::object(handle<>(py_memView));
+    return retval;
+}
+
+static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter) {
+    Py_buffer bufferView;
+    if (PyObject_CheckBuffer(exporter)) {
+        PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
+    } else {
+        //@klemmster TODO: Throw error
+        return;
+    }
+    const glm::byte* cxx_buf = reinterpret_cast<glm::byte*>(bufferView.buf);
+    bitmap.setPixels(cxx_buf);
+    PyBuffer_Release(&bufferView);
+}
 
 ConstVec2 Bitmap_getSize(Bitmap* This)
 {
@@ -182,8 +215,8 @@ void export_bitmap()
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)
-        .def("getPixels", &Bitmap::getPixelsAsString)
-        .def("setPixels", &Bitmap::setPixelsFromString)
+        .def("getPixels", &Bitmap_getPixels)
+        .def("setPixels", &Bitmap_setPixels)
         .def("getPixel", &Bitmap::getPythonPixel)
         .def("subtract", &Bitmap::subtract)
         .def("getAvg", &Bitmap::getAvg)
