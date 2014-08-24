@@ -352,6 +352,12 @@ Misc. Classes
 
         .. py:attribute:: y
 
+        .. py:classmethod:: angle(p1, p2) -> float
+
+            Returns the angle between the two vectors :py:attr:`p1` and :py:attr:`p2`
+            in the range 0 and 2*pi, with 0 being the positive x axis. Angles run
+            clockwise.
+
         .. py:method:: getAngle() -> float
 
             Returns the direction of the vector as an angle between pi and -pi, with
