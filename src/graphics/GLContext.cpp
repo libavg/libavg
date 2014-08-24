@@ -105,13 +105,13 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
         } else {
             m_GLConfig.m_ShaderUsage = GLConfig::FULL;
         }
-    }
 #ifdef __APPLE__
-    if (GLContext::isVendor("Intel")) {
-        // Bug #434: Some shaders cause hard lockups on Mac Book Air.
-        m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
-    }
+        if (GLContext::isVendor("Intel")) {
+            // Bug #434: Some shaders cause hard lockups on Mac Book Air.
+            m_GLConfig.m_ShaderUsage = GLConfig::MINIMAL;
+        }
 #endif
+    }
     for (int i=0; i<16; ++i) {
         m_BoundTextures[i] = 0xFFFFFFFF;
     }
