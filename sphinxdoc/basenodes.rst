@@ -380,6 +380,9 @@ This section describes the base classes for all node classes that libavg provide
             from being deleted immediately and :py:meth:`unsubscribe` needs to be called 
             manually.
 
+            If the :py:attr:`callable` parameter is :py:const:`None`, the call is ignored
+            and -1 is returned.
+
         .. py:method:: unsubscribe(messageID, subscriberID)
                        unsubscribe(messageID, callable)
 
