@@ -311,6 +311,7 @@ class EventTestCase(AVGTestCase):
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
         self.img.subscribe(avg.Node.CURSOR_DOWN, onDown)
         self.assertException(lambda: self.img.subscribe(23, onDown))
+        self.assertException(lambda: self.img.subscribe(avg.Node.CURSOR_DOWN, 23))
         self.assertException(lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, 23))
         self.start(False,
                 (lambda: self.fakeClick(10,10),
