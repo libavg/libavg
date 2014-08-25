@@ -4,11 +4,18 @@
 import libavg
 from libavg import app
 
+import math
+
 class LinesDiv(app.MainDiv):
     def onInit(self):
         self.toggleTouchVisualization()
         self.__createLines(0)
         self.__createLines(250, "dottedline.png", 0, 20)
+
+        self.polyLine = libavg.PolyLineNode(texhref="dottedline.png", strokewidth=2,
+                parent=self)
+        self.growLine = True
+        self.lineLen = 120
 
     def __createLines(self, xstart, texhref="", texcoord1=0, texcoord2=1):
         div = libavg.DivNode(pos=(xstart,0), parent=self)
@@ -20,12 +27,29 @@ class LinesDiv(app.MainDiv):
                 strokewidth=2, texhref=texhref, texcoord1=texcoord1, texcoord2=texcoord2,
                 parent=div)
 
-
     def onExit(self):
         pass
-
+    
     def onFrame(self):
-        pass
+        if self.growLine:
+            self.lineLen += 1
+            if self.lineLen > 300:
+                self.growLine = False
+        else:
+            self.lineLen -= 1
+            if self.lineLen < 100:
+                self.growLine = True
+        self.__calcPolyLine()
+
+    def __calcPolyLine(self):
+        pos = []
+        texcoords = []
+        for i in xrange(20):
+            xpos = (10.0*i)/100*self.lineLen
+            pos.append((xpos, 100+10*math.sin(i*2)))
+            texcoords.append(xpos/10)
+        self.polyLine.pos = pos
+        self.polyLine.texcoords = texcoords
 
 app.App().run(LinesDiv())
 
