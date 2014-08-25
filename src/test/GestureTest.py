@@ -877,6 +877,21 @@ class GestureTestCase(AVGTestCase):
                         (2, avg.Event.CURSOR_UP, 30, 20))),
                 ))
 
+        self.__initImageScene()
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image,
+                friction=-1,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (# Unlink node during transform (don't delete)
+                 lambda: self._sendTouchEvents((
+                        (1, avg.Event.CURSOR_DOWN, 30, 10),
+                        (2, avg.Event.CURSOR_DOWN, 30, 20))),
+                 lambda: self.image.unlink(True),
+                 lambda: self._sendTouchEvents((
+                        (1, avg.Event.CURSOR_UP, 30, 10),
+                        (2, avg.Event.CURSOR_UP, 30, 20))),
+                ))
+
         # Test rel. coords.
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
