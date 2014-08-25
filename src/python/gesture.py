@@ -816,7 +816,8 @@ class TransformRecognizer(Recognizer):
             del self.__filters[event.contact]
 
     def _handleNodeGone(self):
-        if self.__coordSysNode and not(self.__coordSysNode()):
+        if ((self.__coordSysNode and not(self.__coordSysNode())) or
+                self.__coordSysNode().getParent() == None):
             self.enable(False)
             return True
         else:
