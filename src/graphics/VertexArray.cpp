@@ -99,7 +99,7 @@ void VertexArray::activate()
     unsigned indexBufferID = m_IndexBufferIDMap[pContext];
     glproc::BindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-    glproc::VertexAttribPointer(TEX_INDEX, 2, GL_SHORT, GL_FALSE,
+    glproc::VertexAttribPointer(TEX_INDEX, 2, GL_FLOAT, GL_FALSE,
             sizeof(Vertex), (void *)(offsetof(Vertex, m_Tex)));
     glproc::VertexAttribPointer(POS_INDEX, 2, GL_FLOAT, GL_FALSE, 
             sizeof(Vertex), (void *)(offsetof(Vertex, m_Pos)));
