@@ -802,12 +802,12 @@ class TransformRecognizer(Recognizer):
                     - self.__lastPosns[0])
             player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
             self.__frameHandlerID = None
-            self.notifySubscribers(Recognizer.UP, [transform]);
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
                 self.__inertiaHandler.onUp()
             else:
                 self._setEnd(event)
+            self.notifySubscribers(Recognizer.UP, [transform]);
         elif numContacts == 1:
             self.__newPhase()
         else:
