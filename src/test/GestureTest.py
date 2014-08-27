@@ -972,8 +972,8 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.__transformRecognizer.enable(True),
                  # Disable during up event
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: self.__transformRecognizer.subscribe(self.__transformRecognizer.UP,
-                             disableOnUp),
+                 lambda: self.__transformRecognizer.subscribe(
+                        self.__transformRecognizer.UP, disableOnUp),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
                  lambda: checkTransform(gesture.Transform((10, 0))),
                 ))
@@ -993,6 +993,23 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
                  None,
                 ))
+
+        # Test abort during up
+        def abortDuringUp(event):
+            self.__transformRecognizer.enable(False)
+
+        self.__initImageScene()
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, 
+                friction=0.01,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self.__transformRecognizer.subscribe(gesture.Recognizer.UP,
+                        abortDuringUp),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
+                ))
+        
 
         # Test second down during inertia.
         self.__initImageScene()
