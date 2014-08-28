@@ -53,13 +53,13 @@ public:
     Publisher(const std::string& sTypeName);
     virtual ~Publisher();
 
-    int subscribe(MessageID messageID, const py::object& callable);
+    int subscribe(MessageID messageID, PyObject* pCallable);
     void unsubscribe(MessageID messageID, int subscriberID);
     void unsubscribe1(int subscriberID);
-    void unsubscribeCallable(MessageID messageID, const py::object& callable);
+    void unsubscribeCallable(MessageID messageID, PyObject* pCallable);
     int getNumSubscribers(MessageID messageID);
     bool isSubscribed(MessageID messageID, int subscriberID);
-    bool isSubscribedCallable(MessageID messageID, const py::object& callable);
+    bool isSubscribedCallable(MessageID messageID, PyObject* pCallable);
 
     // The following methods should really be protected, but python derived classes need
     // to call them too.
