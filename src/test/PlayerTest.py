@@ -338,9 +338,6 @@ class PlayerTestCase(AVGTestCase):
             if self.numOnFramesCalled == 3:
                 player.clearInterval(self.intervalID)
 
-        def wait():
-            pass
-        
         def throwException():
             raise TestException
 
