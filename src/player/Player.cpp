@@ -1613,6 +1613,7 @@ void Player::handleTimers()
     while (it != m_PendingTimeouts.end() && (*it)->isReady(getFrameTime())
             && !m_bStopping)
     {
+        m_bCurrentTimeoutDeleted = false;
         (*it)->fire(getFrameTime());
         if (m_bCurrentTimeoutDeleted) {
             it = m_PendingTimeouts.begin();
@@ -1626,7 +1627,6 @@ void Player::handleTimers()
                 it = m_PendingTimeouts.erase(it);
             }
         }
-        m_bCurrentTimeoutDeleted = false;
     }
     for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); ++it) {
         addTimeout(*it);
