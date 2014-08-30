@@ -325,6 +325,25 @@ class PlayerTestCase(AVGTestCase):
         class TestException(Exception):
             pass
         
+        class TestOnFrameAddAndRemove(object):
+            def __init__(self):
+                self.callCount = 0
+
+                # long running dummy timeout. Will be removed before the timer elapses.
+                self.longTimeoutId = player.setTimeout(10000, lambda: None)
+
+                def onTimeOut():
+                    self.callCount += 1
+
+                def onFrame():
+                    if self.longTimeoutId is not None:
+                        player.clearInterval(self.longTimeoutId)
+                        self.longTimeoutId = None
+                        callbackId = player.setTimeout(0, onTimeOut)
+
+                player.subscribe(player.ON_FRAME, onFrame)
+
+
         def timeout1():
             player.clearInterval(self.timeout1ID)
             player.clearInterval(self.timeout2ID)
@@ -355,14 +374,19 @@ class PlayerTestCase(AVGTestCase):
         self.numOnFramesCalled = 0
         try:
             self.initDefaultImageScene()
+
+            # needs 3 frames to complete
+            self.testOnFrameAddAndRemove = TestOnFrameAddAndRemove()
+
             self.start(False,
                     (setupTimeouts,
                      None,
                      lambda: self.assert_(self.timeout1called),
                      lambda: self.assert_(not(self.timeout2called)),
                      lambda: self.assert_(self.numOnFramesCalled == 3),
+                     lambda: self.assert_(self.testOnFrameAddAndRemove.callCount == 1),
                      lambda: initException(),
-                     lambda: self.delay(10),
+                     lambda: self.delay(10)
                     ))
         except TestException:
             self.__exceptionThrown = True
