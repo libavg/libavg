@@ -76,7 +76,7 @@ void CameraNode::registerType()
 CameraNode::CameraNode(const ArgList& args)
     : m_bIsPlaying(false),
       m_FrameNum(0),
-      m_bIsAutoUpdateCameraImage(true),
+      m_bAutoUpdateCameraImage(true),
       m_bNewBmp(false),
       m_bNewSurface(false)
 {
@@ -337,7 +337,7 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (isAutoUpdateCameraImage()) {
+    if (m_bAutoUpdateCameraImage) {
         ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();
     }
@@ -398,20 +398,15 @@ void CameraNode::updateToLatestCameraImage()
 
 void CameraNode::updateCameraImage()
 {
-    if (!isAutoUpdateCameraImage()) {
+    if (!m_bAutoUpdateCameraImage) {
         m_pCurBmp = m_pCamera->getImage(false);
         blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
-bool CameraNode::isAutoUpdateCameraImage() const
-{
-    return m_bIsAutoUpdateCameraImage;
-}
-
 void CameraNode::setAutoUpdateCameraImage(bool bVal)
 {
-    m_bIsAutoUpdateCameraImage = bVal;
+    m_bAutoUpdateCameraImage = bVal;
 }
 
 bool CameraNode::isImageAvailable() const
