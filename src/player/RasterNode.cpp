@@ -402,12 +402,12 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
 
 void RasterNode::blt32()
 {
-    blt(getTransform(), getSize(), getBlendMode(), getEffectiveOpacity());
+    blt(getTransform(), getSize());
 }
 
 void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize)
 {
-    blt(transform, destSize, getBlendMode(), getEffectiveOpacity());
+    blt(transform, destSize);
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const
@@ -505,17 +505,17 @@ void RasterNode::setupFX()
     }
 }
 
-void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize, 
-        GLContext::BlendMode mode, float opacity)
+void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize)
 {
     GLContext* pContext = GLContext::getCurrent();
     FRect destRect;
     
     StandardShaderPtr pShader = pContext->getStandardShader();
+    float opacity = getEffectiveOpacity();
     pContext->setBlendColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
     pShader->setAlpha(opacity);
     if (m_pFXNode) {
-        pContext->setBlendMode(mode, true);
+        pContext->setBlendMode(m_BlendMode, true);
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
         pShader->setColorModel(0);
         pShader->disableColorspaceMatrix();
@@ -528,7 +528,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
         m_pSurface->activate(getMediaSize());
-        pContext->setBlendMode(mode, m_pSurface->isPremultipliedAlpha());
+        pContext->setBlendMode(m_BlendMode, m_pSurface->isPremultipliedAlpha());
         destRect = FRect(glm::vec2(0,0), destSize);
     }
     glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);

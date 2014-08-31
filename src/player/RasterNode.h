@@ -113,8 +113,7 @@ class AVG_API RasterNode: public AreaNode
         void downloadMask();
         virtual void calcMaskCoords();
         void checkDisplayAvailable(std::string sMsg);
-        void blt(const glm::mat4& transform, const glm::vec2& destSize, 
-                GLContext::BlendMode mode, float opacity);
+        void blt(const glm::mat4& transform, const glm::vec2& destSize);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
