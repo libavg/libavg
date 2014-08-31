@@ -675,11 +675,6 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     calcVertexArray(pVA);
 }
 
-void VideoNode::renderFX()
-{
-    RasterNode::renderFX(Pixel32(255, 255, 255, 255));
-}
-
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render()

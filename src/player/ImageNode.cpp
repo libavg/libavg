@@ -33,6 +33,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/MCTexture.h"
 
 #include <iostream>
 #include <sstream>
@@ -155,15 +156,13 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible() && m_pImage->getSource() != Image::NONE) {
+        if (m_pImage->getCanvas()) {
+            // Force FX render every frame for canvas nodes.
+            getSurface()->getTex(0)->setDirty();
+        }
         scheduleFXRender();
     }
     calcVertexArray(pVA);
-}
-
-void ImageNode::renderFX()
-{
-    bool bHasCanvas = bool(m_pImage->getCanvas());
-    RasterNode::renderFX(Pixel32(255, 255, 255, 255), bHasCanvas);
 }
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");

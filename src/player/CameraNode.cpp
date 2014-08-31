@@ -366,11 +366,6 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     calcVertexArray(pVA);
 }
 
-void CameraNode::renderFX()
-{
-    RasterNode::renderFX(Pixel32(255, 255, 255, 255));
-}
-
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 
 void CameraNode::render()
