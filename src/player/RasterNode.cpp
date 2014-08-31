@@ -360,17 +360,16 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color
     }
 }
 
-void RasterNode::blt32(const glm::mat4& transform, const glm::vec2& destSize, 
-        float opacity, GLContext::BlendMode mode, bool bPremultipliedAlpha)
+void RasterNode::blt32(bool bPremultipliedAlpha)
 {
-    blt(transform, destSize, mode, opacity, Pixel32(255, 255, 255, 255),
-            bPremultipliedAlpha);
+    blt(getTransform(), getSize(), getBlendMode(), getEffectiveOpacity(),
+            Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
 }
 
 void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize, 
-        float opacity, const Pixel32& color, GLContext::BlendMode mode)
+        const Pixel32& color)
 {
-    blt(transform, destSize, mode, opacity, color, false);
+    blt(transform, destSize, getBlendMode(), getEffectiveOpacity(), color, false);
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const

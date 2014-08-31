@@ -98,10 +98,9 @@ class AVG_API RasterNode: public AreaNode
         void scheduleFXRender();
         void calcVertexArray(const VertexArrayPtr& pVA, 
                 const Pixel32& color = Pixel32(0,0,0,0));
-        void blt32(const glm::mat4& transform, const glm::vec2& destSize, float opacity,
-                GLContext::BlendMode mode, bool bPremultipliedAlpha = false);
-        void blta8(const glm::mat4& transform, const glm::vec2& destSize, float opacity, 
-                const Pixel32& color, GLContext::BlendMode mode);
+        void blt32(bool bPremultipliedAlpha = false);
+        void blta8(const glm::mat4& transform, const glm::vec2& destSize,
+                const Pixel32& color);
 
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;

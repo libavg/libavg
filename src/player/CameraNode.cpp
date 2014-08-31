@@ -377,7 +377,7 @@ void CameraNode::render()
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
-        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32();
     }
 }
 
@@ -400,7 +400,8 @@ void CameraNode::updateCameraImage()
 {
     if (!m_bAutoUpdateCameraImage) {
         m_pCurBmp = m_pCamera->getImage(false);
-        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
+        // TODO: The next line isn't needed, I believe.
+        blt32();
     }
 }
 

@@ -725,8 +725,7 @@ void WordsNode::render()
         } else {
             transform = glm::translate(getTransform(), glm::vec3(offset.x, offset.y, 0));
         }
-        blta8(transform, glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), 
-                m_FontStyle.getColorVal(), getBlendMode());
+        blta8(transform, glm::vec2(getSurface()->getSize()), m_FontStyle.getColorVal());
     }
 }
 
