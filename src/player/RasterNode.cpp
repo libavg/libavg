@@ -360,16 +360,16 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color
     }
 }
 
-void RasterNode::blt32(bool bPremultipliedAlpha)
+void RasterNode::blt32()
 {
     blt(getTransform(), getSize(), getBlendMode(), getEffectiveOpacity(),
-            Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
+            Pixel32(255, 255, 255, 255));
 }
 
 void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize, 
         const Pixel32& color)
 {
-    blt(transform, destSize, getBlendMode(), getEffectiveOpacity(), color, false);
+    blt(transform, destSize, getBlendMode(), getEffectiveOpacity(), color);
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const
@@ -502,8 +502,7 @@ void RasterNode::setupFX()
 }
 
 void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize, 
-        GLContext::BlendMode mode, float opacity, const Pixel32& color,
-        bool bPremultipliedAlpha)
+        GLContext::BlendMode mode, float opacity, const Pixel32& color)
 {
     GLContext* pContext = GLContext::getCurrent();
     FRect destRect;
@@ -524,8 +523,8 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
-        pContext->setBlendMode(mode, bPremultipliedAlpha);
+        m_pSurface->activate(getMediaSize());
+        pContext->setBlendMode(mode, m_pSurface->isPremultipliedAlpha());
         destRect = FRect(glm::vec2(0,0), destSize);
     }
     glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);

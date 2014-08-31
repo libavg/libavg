@@ -98,7 +98,7 @@ class AVG_API RasterNode: public AreaNode
         void scheduleFXRender();
         void calcVertexArray(const VertexArrayPtr& pVA, 
                 const Pixel32& color = Pixel32(0,0,0,0));
-        void blt32(bool bPremultipliedAlpha = false);
+        void blt32();
         void blta8(const glm::mat4& transform, const glm::vec2& destSize,
                 const Pixel32& color);
 
@@ -117,8 +117,7 @@ class AVG_API RasterNode: public AreaNode
         virtual void calcMaskCoords();
         void checkDisplayAvailable(std::string sMsg);
         void blt(const glm::mat4& transform, const glm::vec2& destSize, 
-                GLContext::BlendMode mode, float opacity, const Pixel32& color,
-                bool bPremultipliedAlpha);
+                GLContext::BlendMode mode, float opacity, const Pixel32& color);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);

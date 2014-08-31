@@ -172,7 +172,7 @@ void ImageNode::render()
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pImage->getSource() != Image::NONE) {
-        blt32(bool(m_pImage->getCanvas()));
+        blt32();
     }
 }
 
