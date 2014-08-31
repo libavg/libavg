@@ -421,8 +421,7 @@ void RasterNode::downloadMask()
 
 static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 
-void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
-        bool bPremultipliedAlpha, bool bForceRender)
+void RasterNode::renderFX(const Pixel32& color, bool bForceRender)
 {
     if (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty() || bForceRender)
     {
@@ -434,6 +433,7 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
 
+        bool bPremultipliedAlpha = m_pSurface->isPremultipliedAlpha();
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }

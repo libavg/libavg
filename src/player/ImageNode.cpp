@@ -163,7 +163,7 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 void ImageNode::renderFX()
 {
     bool bHasCanvas = bool(m_pImage->getCanvas());
-    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), bHasCanvas, bHasCanvas);
+    RasterNode::renderFX(Pixel32(255, 255, 255, 255), bHasCanvas);
 }
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");

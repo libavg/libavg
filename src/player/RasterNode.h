@@ -106,8 +106,7 @@ class AVG_API RasterNode: public AreaNode
         const MaterialInfo& getMaterial() const;
         bool hasMask() const;
         void setMaskCoords();
-        void renderFX(const glm::vec2& destSize, const Pixel32& color, 
-                bool bPremultipliedAlpha, bool bForceRender=false);
+        void renderFX(const Pixel32& color, bool bForceRender=false);
 
         void newSurface();
         void setupFX();

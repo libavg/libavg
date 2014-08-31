@@ -709,7 +709,7 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 void WordsNode::renderFX()
 {
-    RasterNode::renderFX(getSize(), m_FontStyle.getColorVal(), false);
+    RasterNode::renderFX(m_FontStyle.getColorVal());
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
