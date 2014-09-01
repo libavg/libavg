@@ -338,9 +338,6 @@ class PlayerTestCase(AVGTestCase):
             if self.numOnFramesCalled == 3:
                 player.clearInterval(self.intervalID)
 
-        def wait():
-            pass
-        
         def throwException():
             raise TestException
 
@@ -358,6 +355,7 @@ class PlayerTestCase(AVGTestCase):
         self.numOnFramesCalled = 0
         try:
             self.initDefaultImageScene()
+
             self.start(False,
                     (setupTimeouts,
                      None,
@@ -365,13 +363,39 @@ class PlayerTestCase(AVGTestCase):
                      lambda: self.assert_(not(self.timeout2called)),
                      lambda: self.assert_(self.numOnFramesCalled == 3),
                      lambda: initException(),
-                     lambda: self.delay(10),
+                     lambda: self.delay(10)
                     ))
         except TestException:
             self.__exceptionThrown = True
             
         self.assert_(self.__exceptionThrown)
         player.clearInterval(self.timeout3ID)
+
+
+    def testTimeoutOnFrameHandling(self):
+
+        def onTimeOut():
+            self.callCount += 1
+
+        def onFrame():
+                player.clearInterval(self.longTimeoutId)
+                self.longTimeoutId = None
+                player.setTimeout(0, onTimeOut)
+                player.unsubscribe(player.ON_FRAME, self.onFrameID)
+
+        self.initDefaultImageScene()
+        self.callCount = 0
+        # long running dummy timeout. Will be removed before the timer elapses.
+        self.longTimeoutId = player.setTimeout(10000, lambda: None)
+        self.onFrameID = player.subscribe(player.ON_FRAME, onFrame)
+
+        self.start(False,
+                (None,
+                 None,
+                 None,
+                 lambda: self.assert_(self.callCount == 1),
+                ))
+
 
     def testCallFromThread(self):
 
@@ -834,6 +858,7 @@ def playerTestSuite(tests):
             "testInvalidImageFilename",
             "testInvalidVideoFilename",
             "testTimeouts",
+            "testTimeoutOnFrameHandling",
             "testCallFromThread",
             "testAVGFile",
             "testBroken",
