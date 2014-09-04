@@ -395,8 +395,6 @@ void CameraNode::updateCameraImage()
 {
     if (!m_bAutoUpdateCameraImage) {
         m_pCurBmp = m_pCamera->getImage(false);
-        // TODO: The next line isn't needed, I believe.
-        blt32();
     }
 }
 
