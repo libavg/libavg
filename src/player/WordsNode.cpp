@@ -677,6 +677,7 @@ void WordsNode::renderText()
                 default:
                     AVG_ASSERT(false);
             }
+            setRenderColor(m_FontStyle.getColorVal());
 
             GLContextManager* pCM = GLContextManager::get();
             MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
@@ -704,12 +705,7 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     if (m_sText.length() != 0 && isVisible()) {
         scheduleFXRender();
     }
-    calcVertexArray(pVA, m_FontStyle.getColorVal());
-}
-
-void WordsNode::renderFX()
-{
-    RasterNode::renderFX(getSize(), m_FontStyle.getColorVal(), false);
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
@@ -725,8 +721,7 @@ void WordsNode::render()
         } else {
             transform = glm::translate(getTransform(), glm::vec3(offset.x, offset.y, 0));
         }
-        blta8(transform, glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), 
-                m_FontStyle.getColorVal(), getBlendMode());
+        blta8(transform, glm::vec2(getSurface()->getSize()));
     }
 }
 

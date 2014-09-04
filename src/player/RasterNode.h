@@ -89,26 +89,22 @@ class AVG_API RasterNode: public AreaNode
         void setContrast(const glm::vec3& contrast);
 
         void setEffect(FXNodePtr pFXNode);
-        virtual void renderFX()=0;
+        virtual void renderFX();
         void resetFXDirty();
 
     protected:
         RasterNode();
         
         void scheduleFXRender();
-        void calcVertexArray(const VertexArrayPtr& pVA, 
-                const Pixel32& color = Pixel32(0,0,0,0));
-        void blt32(const glm::mat4& transform, const glm::vec2& destSize, float opacity,
-                GLContext::BlendMode mode, bool bPremultipliedAlpha = false);
-        void blta8(const glm::mat4& transform, const glm::vec2& destSize, float opacity, 
-                const Pixel32& color, GLContext::BlendMode mode);
+        void calcVertexArray(const VertexArrayPtr& pVA);
+        void blt32();
+        void blta8(const glm::mat4& transform, const glm::vec2& destSize);
 
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
         bool hasMask() const;
         void setMaskCoords();
-        void renderFX(const glm::vec2& destSize, const Pixel32& color, 
-                bool bPremultipliedAlpha, bool bForceRender=false);
+        void setRenderColor(const Pixel32& color);
 
         void newSurface();
         void setupFX();
@@ -117,9 +113,7 @@ class AVG_API RasterNode: public AreaNode
         void downloadMask();
         virtual void calcMaskCoords();
         void checkDisplayAvailable(std::string sMsg);
-        void blt(const glm::mat4& transform, const glm::vec2& destSize, 
-                GLContext::BlendMode mode, float opacity, const Pixel32& color,
-                bool bPremultipliedAlpha);
+        void blt(const glm::mat4& transform, const glm::vec2& destSize);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
@@ -138,7 +132,8 @@ class AVG_API RasterNode: public AreaNode
         BitmapPtr m_pMaskBmp;
         glm::vec2 m_MaskPos;
         glm::vec2 m_MaskSize;
-        
+        Pixel32 m_Color;
+
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
         SubVertexArray m_SubVA;

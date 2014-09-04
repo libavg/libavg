@@ -95,7 +95,6 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void renderFX();
         virtual void render();
         virtual void onFrameEnd();
         

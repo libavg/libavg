@@ -675,18 +675,13 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     calcVertexArray(pVA);
 }
 
-void VideoNode::renderFX()
-{
-    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
-}
-
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
-        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32();
     }
 }
 
