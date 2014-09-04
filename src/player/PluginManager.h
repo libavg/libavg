@@ -60,8 +60,9 @@ private:
     std::string checkDirectory(const std::string& sDirectory);
     void parsePath(const std::string& sPath);
     std::string locateSharedObject(const std::string& sPluginName);
-    void* internalLoadPlugin(const std::string& sPluginName);
-    void registerPlugin(void* pHandle);
+    void* internalLoadPlugin(const std::string& sPluginPath,
+            const std::string& sPluginName);
+    void registerPlugin(void* pHandle, const std::string& sPluginName);
       
     // maps module names to a pair of handle and reference count
     typedef std::map<std::string, std::pair<void*, int> > PluginMap;

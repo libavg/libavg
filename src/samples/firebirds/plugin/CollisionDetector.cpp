@@ -112,11 +112,13 @@ BOOST_PYTHON_MODULE(collisiondetector)
 }
 
 
-AVG_PLUGIN_API void registerPlugin()
+AVG_PLUGIN_API PyObject* registerPlugin()
 {
+#if PY_MAJOR_VERSION < 3
     initcollisiondetector(); // created by BOOST_PYTHON_MODULE
-    object mainModule(handle<>(borrowed(PyImport_AddModule("__main__"))));
-    object collisiondetectorModule(handle<>(PyImport_ImportModule("collisiondetector")));
-    mainModule.attr("collisiondetector") = collisiondetectorModule;
+    return PyImport_ImportModule("collisiondetector");
+#else
+    throw Exception(AVG_ERR_UNSUPPORTED, "Python3 not supported yet")
+#endif
 }
 
