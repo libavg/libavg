@@ -1,6 +1,15 @@
 libavg
 ======
 
+Notes for the video_stream branch: This is an incomplete implementation of video streaming.
+
+TODO:
+
+ * Selection of the substreams to decode.
+ * Latency. As-is, there are several seconds of latency.
+ * VDPAU support.
+ * Longer queue length for remote streams.
+
 
 libavg is a high-level development platform for media-centric applications.
 Multitouch
