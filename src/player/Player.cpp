@@ -271,7 +271,9 @@ void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     setMultiSampleSamples(multiSampleSamples);
-    m_GLConfig.m_ShaderUsage = shaderUsage;
+    if (shaderUsage != GLConfig::AUTO) {
+        m_GLConfig.m_ShaderUsage = shaderUsage;
+    }
     m_GLConfig.m_bUseDebugContext = bUseDebugContext;
 }
 
