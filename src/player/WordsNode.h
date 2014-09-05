@@ -128,7 +128,6 @@ class AVG_API WordsNode : public RasterNode
         void updateFont();
         void updateLayout();
         void renderText();
-        void redraw();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         void setParsedText(const UTF8String& sText);
         UTF8String applyBR(const UTF8String& sText);

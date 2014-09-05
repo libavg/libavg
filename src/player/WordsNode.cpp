@@ -633,6 +633,8 @@ static ProfilingZoneID RenderTextProfilingZone("WordsNode: render text");
 
 void WordsNode::renderText()
 {
+    AVG_ASSERT(m_sText.length() < 32767);
+
     if (!(getState() == NS_CANRENDER)) {
         return;
     }
@@ -688,19 +690,12 @@ void WordsNode::renderText()
     }
 }
 
-void WordsNode::redraw()
-{
-    AVG_ASSERT(m_sText.length() < 32767);
-    
-    renderText();
-}
-
 void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
-        redraw();
+        renderText();
     }
     if (m_sText.length() != 0 && isVisible()) {
         scheduleFXRender();
