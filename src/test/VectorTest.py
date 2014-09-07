@@ -386,7 +386,7 @@ class VectorTestCase(AVGTestCase):
         
         def repeatTexCoords():
             polyline.pos = [(10,10), (30,10), (30,50), (50,50), (50,70), (70,70)]
-            polyline.texcoords = [1, 2, 3]
+            polyline.texcoords = [0,1]
         
         canvas = self.makeEmptyCanvas()
         polyline = texturePolyLine()
