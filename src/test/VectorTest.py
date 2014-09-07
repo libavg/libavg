@@ -660,9 +660,9 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         mesh = addMesh()
-        self.assertException(setIllegalVertexes)
-        self.assertException(setIllegalTextures)
-        self.assertException(setIllegalIndexes)
+        self.assertRaises(RuntimeError, setIllegalVertexes)
+        self.assertRaises(RuntimeError, setIllegalTextures)
+        self.assertRaises(RuntimeError, setIllegalIndexes)
         self.start(False,
                 (lambda: self.compareImage("testMesh1"),
                  setVertexCoords,
