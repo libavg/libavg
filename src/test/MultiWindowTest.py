@@ -42,7 +42,7 @@ class MultiWindowTestCase(AVGTestCase):
         app.CUSTOM_SETTINGS = {}
         app.settings.set('app_windowconfig', 'avgwindowconfig.xml')
         app.settings.set('app_window_size', '160x120')
-        self.assertException(lambda: app.testRun([]))
+        self.assertRaises(RuntimeError, lambda: app.testRun([]))
         libavg.app.instance = None
 
         app = AppTest.TestApp()

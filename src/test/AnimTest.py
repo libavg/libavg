@@ -51,7 +51,7 @@ class AnimTestCase(AVGTestCase):
         self.__anim = curAnim
         self.__anim.setStopCallback(onStop)
         self.__onStopCalled = False
-        self.assertException(lambda: self.__anim.start())
+        self.assertRaises(RuntimeError, lambda: self.__anim.start())
         self.start(False,
                 (startAnim,
                  lambda: self.compareImage(imgBaseName+"1"),
@@ -143,8 +143,9 @@ class AnimTestCase(AVGTestCase):
 
     def testNonExistentAttributeAnim(self):
         self.initScene()
-        self.assertException(lambda: avg.LinearAnim(self.__node, "foo", 0, 0, 0, False))
-        self.assertException(lambda: avg.LinearAnim(None, "x", 0, 0, 0, False))
+        self.assertRaises(Exception,
+                lambda: avg.LinearAnim(self.__node, "foo", 0, 0, 0, False))
+        self.assertRaises(Exception, lambda: avg.LinearAnim(None, "x", 0, 0, 0, False))
 
     def testLinearAnimZeroDuration(self):
         def onStop():

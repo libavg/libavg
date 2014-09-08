@@ -94,8 +94,12 @@ class ImageTestCase(AVGTestCase):
             return avg.ImageNode(pos=p, href="rgb24-32x32.png", parent=root)
 
         def illegalMove(node):
-            self.assertException(node.pos.x == 23)
-            self.assertException(node.pos.y == 23)
+            def xMove():
+                node.pos.x = 23
+            def yMove():
+                node.pos.x = 23
+            self.assertRaises(AttributeError, xMove)
+            self.assertRaises(AttributeError, yMove)
 
         def addNodes(y):
             xmlNode = createXmlNode((16, y))
@@ -164,7 +168,7 @@ class ImageTestCase(AVGTestCase):
         def testEarlyAccessException():
             node = createNode((16, 16))
             root.appendChild(node)
-            self.assertException(node.getWarpedVertexCoords)
+            self.assertRaises(RuntimeError, node.getWarpedVertexCoords)
             node.unlink()
 
         def addNode():
@@ -266,7 +270,7 @@ class ImageTestCase(AVGTestCase):
             bmp = avg.Bitmap('media/greyscale.png')
             self.assertEqual(bmp.getPixel((1,1)), (255,255,255,255))
             self.assertEqual(bmp.getPixel((1,63)), (0,0,0,255))
-            self.assertException(lambda: bmp.getPixel((64,0)))
+            self.assertRaises(RuntimeError, lambda: bmp.getPixel((64,0)))
 
         def setNullBitmap():
             node.setBitmap(None)
@@ -275,7 +279,7 @@ class ImageTestCase(AVGTestCase):
             srcBmp = avg.Bitmap('media/rgb24-32x32.png')
             destBmp = avg.Bitmap(srcBmp, (16,16), (32,32))
             self.assertEqual(srcBmp.getPixel((16,16)), destBmp.getPixel((0,0)))
-            self.assertException(lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
+            self.assertRaises(RuntimeError, lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
 
         node = avg.ImageNode(href="media/rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
@@ -302,7 +306,7 @@ class ImageTestCase(AVGTestCase):
                  testResize,
                  lambda: self.compareImage("testBitmap4"),
                  testGetPixel,
-                 lambda: self.assertException(setNullBitmap),
+                 lambda: self.assertRaises(RuntimeError, setNullBitmap),
                  testSubBitmap,
                 ))
 
@@ -372,7 +376,7 @@ class ImageTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         avg.BitmapManager.get().loadBitmap("rgb24alpha-64x64.png", bitmapCb),
-        self.assertException(player.play)
+        self.assertRaises(RuntimeError, player.play)
 
     def testBlendMode(self):
         def isBlendMinMaxSupported():

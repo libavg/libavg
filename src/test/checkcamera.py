@@ -83,7 +83,7 @@ class CameraTestCase(AVGTestCase):
 
     def testIllegalFormat(self):
         self.loadEmptyScene()
-        self.assertException(lambda: self.__openCamera())
+        self.assertRaises(RuntimeError, (lambda: self.__openCamera())
 
     def testCreateDelete(self):
         # Create and delete without ever calling play.
