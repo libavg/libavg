@@ -120,7 +120,7 @@ Vector Nodes
             A sequence of float texture coordinates along the u axis of the texture,
             used for the polygon border. It can contain either one coordinate per entry
             in pos (plus an additional one to close the polygon) or two coordinates that
-            are interpolated to wrapp around the :py:class:`PolygonNode` once.
+            are interpolated to wrap around the :py:class:`PolygonNode` once.
             
     .. autoclass:: PolyLineNode([linejoin="bevel", pos, texcoords])
 
@@ -172,8 +172,8 @@ Vector Nodes
         When using textured :py:class:`VectorNodes`, texture coordinates can be set. 
         Generally, texture bitmaps are mapped to coordinates 
         :py:const:`(u,v) = (0,0)-(1,1)`, and the texture is repeated for coordinates 
-        outside this range. For lines and similar vectors, the u texture coordinate
-        increases along the line, while the v coordinate increases perpendicular to it.
+        outside this range. The :py:const:`u` texture coordinate increases along the
+        stroke, while the :py:const:`v` coordinate increases perpendicular to it.
 
         .. py:attribute:: blendmode
 
