@@ -140,9 +140,9 @@ class PythonTestCase(AVGTestCase):
         machine.addState('A', {'B': atob, 'nostate': atob}, aEntered, aLeft)
         machine.addState('B', {'C': lambda: btoc("dummy"), 'A': self.btoa})
         machine.addState('C', {'A': None})
-        self.assertException(lambda: machine.addState('C', {'A': None}))
-        self.assertException(lambda: machine.changeState('C'))
-        self.assertException(lambda: machine.changeState('nostate'))
+        self.assertRaises(RuntimeError, lambda: machine.addState('C', {'A': None}))
+        self.assertRaises(RuntimeError, lambda: machine.changeState('C'))
+        self.assertRaises(RuntimeError, lambda: machine.changeState('nostate'))
         machine.changeState('B')
         self.assert_(self.atobCalled)
         self.assert_(self.aLeftCalled)
@@ -156,7 +156,7 @@ class PythonTestCase(AVGTestCase):
         self.assertEqual(machine.state, 'A')
 #        machine.dump()
 
-        self.assertException(lambda: machine.addState('illegal', {}))
+        self.assertRaises(RuntimeError, lambda: machine.addState('illegal', {}))
 
         # Create a machine without transition callbacks
         machine = statemachine.StateMachine("testmachine", 'A')
@@ -168,7 +168,7 @@ class PythonTestCase(AVGTestCase):
         # Make a machine with a transition to a nonexistent state.
         kaputtMachine = statemachine.StateMachine("kaputt", 'A')
         kaputtMachine.addState('A', {'B': None})
-        self.assertException(lambda: kaputtMachine.changeState('B'))
+        self.assertRaises(RuntimeError, lambda: kaputtMachine.changeState('B'))
 
     def testStateMachineDiagram(self):
         def aEntered():
