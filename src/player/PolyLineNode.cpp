@@ -83,9 +83,9 @@ const vector<float>& PolyLineNode::getTexCoords() const
 
 void PolyLineNode::setTexCoords(const vector<float>& coords)
 {
-    if (coords.size() > m_Pts.size()) {
+    if (coords.size() != m_Pts.size() && coords.size() != 2 && coords.size() != 0) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
-                "Too many texture coordinates in polyline"));
+                "Illegal number of texture coordinates in polyline. Number of elements must be 0, 2 or the number of vertexes."));
     }
     m_EffTexCoords.clear();
     m_TexCoords = coords;
