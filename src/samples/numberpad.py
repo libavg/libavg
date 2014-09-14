@@ -5,7 +5,6 @@ from libavg import app, avg, widget
 
 class MainDiv(app.MainDiv):
     def onInit(self):
-        self.toggleTouchVisualization()
         self.textNode = avg.WordsNode(pos=(10,10), text="", parent=self) 
         for i in range(0,10):
             pos = avg.Point2D(10,40) + ((i%3)*40, (i//3)*40)

@@ -5,7 +5,6 @@ from libavg import app, avg
 
 class MainDiv(app.MainDiv):
     def onInit(self):
-        self.toggleTouchVisualization()
         self.node = avg.WordsNode(pos=(10,10), text="Hello World", parent=self)
         self.node.subscribe(avg.Node.CURSOR_DOWN, self.onDown)
 
