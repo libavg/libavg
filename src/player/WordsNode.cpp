@@ -337,6 +337,7 @@ const std::string& WordsNode::getColor() const
 void WordsNode::setColor(const string& sColor)
 {
     m_FontStyle.setColor(sColor);
+    updateLayout();
 }
 
 float WordsNode::getAAGamma() const
@@ -350,6 +351,7 @@ void WordsNode::setAAGamma(float gamma)
     if (getState() == Node::NS_CANRENDER) {
         getSurface()->setAlphaGamma(gamma);
     }
+    updateLayout();
 }
 
 float WordsNode::getFontSize() const

@@ -330,12 +330,11 @@ class WordsTestCase(AVGTestCase):
             oldwidth = words.width
             words.text = "blue" 
             self.assertNotEqual(words.width, oldwidth)
-            words.color = "404080"
             words.x += 10
-        
-        def changeHeight():
-            words.height = 28
-        
+
+        def changeColor():
+            words.color = "404080"
+
         def activateText():
             words.active = True
         
@@ -363,14 +362,16 @@ class WordsTestCase(AVGTestCase):
         self.start(True, 
                 (lambda: self.compareImage("testDynamicWords1"),
                  changeText,
-                 changeHeight,
-                 changeFont,
                  lambda: self.compareImage("testDynamicWords2"),
-                 deactivateText,
+                 changeColor,
                  lambda: self.compareImage("testDynamicWords3"),
+                 changeFont,
+                 lambda: self.compareImage("testDynamicWords4"),
+                 deactivateText,
+                 lambda: self.compareImage("testDynamicWords5"),
                  activateText,
                  changeFont2,
-                 lambda: self.compareImage("testDynamicWords4"),
+                 lambda: self.compareImage("testDynamicWords6"),
                  changeTextWithInvalidTag
                 ))
 
