@@ -31,7 +31,7 @@ class BaseTouchVisualization(avg.DivNode):
 
         event.contact.subscribe(avg.Contact.CURSOR_MOTION, self._onMotion)
         event.contact.subscribe(avg.Contact.CURSOR_UP, self._onUp)
-        self.pos = avg.Point2D(event.pos)
+        self.pos = self.getParent().getRelPos(event.pos)
         self._fingerSize = 7 * player.getPixelsPerMM() # Assume 14mm width for a finger.
         self._radius = self._getRadius(event)
 
@@ -40,7 +40,7 @@ class BaseTouchVisualization(avg.DivNode):
         del self
 
     def _onMotion(self, event):
-        self.pos = event.pos
+        self.pos = self.getParent().getRelPos(event.pos)
         self._radius = self._getRadius(event)
 
     def _onUp(self, event):
