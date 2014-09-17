@@ -364,6 +364,20 @@ class EventTestCase(AVGTestCase):
         def onSecondSubscribeDown():
             self.downCalled[1] = True
 
+        def setupCallableUnsubscribe():
+            self.msgIDs = []
+            for i in range(0, 2):
+                self.msgIDs.append(self.img.subscribe(avg.Node.CURSOR_DOWN,
+                        onUnsubscribeCallableDown))
+
+        def onUnsubscribeCallableDown(event):
+            self.assertRaises(RuntimeError,
+                    lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN,
+                            onUnsubscribeCallableDown))
+            for j in range(0,2):
+                self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.msgIDs[j])
+
+
         def assertDownsCalled(expectedState):
             self.assert_(self.downCalled == expectedState)
 
@@ -373,13 +387,18 @@ class EventTestCase(AVGTestCase):
         self.start(False,
                 (# Subscribe twice to an event, unsubscribe both during processing of the 
                  # first. Second shouldn't be called anymore.
-                 lambda: setupUnsubscribe(),
+                 setupUnsubscribe,
                  lambda: self.fakeClick(10,10),
                  assertCorrectUnsubscribe,
 
+                 # Subscribe twice to an event. unsubscribe using callable should
+                 # fail because it's unclear which subscriber should be unsubscribed.
+                 setupCallableUnsubscribe,
+                 lambda: self.fakeClick(10,10),
+
                  # Subscribe to an event, subscribe again during event processing.
                  # The second one shouldn't be called immediately.
-                 lambda: setupSubscribe(),
+                 setupSubscribe,
                  lambda: self.fakeClick(10,10),
                  lambda: assertDownsCalled([True, False]),
                  lambda: self.fakeClick(10,10),
