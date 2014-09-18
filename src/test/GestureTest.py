@@ -1060,6 +1060,29 @@ class GestureTestCase(AVGTestCase):
         self.assertAlmostEqual(image.size, (30,40))
         self.assertAlmostEqual(image.angle, 1.57)
 
+    def testTwoRecognizers(self):
+        self.__initImageScene()
+        self.__tapRecognizer = gesture.TapRecognizer(self.image)
+        self.messageTester = MessageTester(self.__tapRecognizer,
+                [gesture.Recognizer.POSSIBLE, gesture.Recognizer.DETECTED,
+                gesture.Recognizer.FAILED], self)
+        self.__tapRecognizer2 = gesture.TapRecognizer(self.image)
+        player.setFakeFPS(10)
+        self.start(False,
+                (# Standard down-hold-up sequence.
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                        [gesture.Recognizer.POSSIBLE]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
+                        [gesture.Recognizer.DETECTED]),
+
+                 # down-move-up sequence, should fail.
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 1, 1,
+                        [gesture.Recognizer.POSSIBLE]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 150, 50,
+                        [gesture.Recognizer.FAILED]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
+                ))
+
     def __initImageScene(self):
         root = self.loadEmptyScene()
         self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -1083,6 +1106,7 @@ def gestureTestSuite(tests):
         "testDragRecognizerCoordSysNodeParentUnlink",
         "testDragRecognizerMinDist",
         "testTransformRecognizer",
+        "testTwoRecognizers",
         "testKMeans",
         "testMat3x3",
         )
