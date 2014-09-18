@@ -112,13 +112,23 @@ void Publisher::unsubscribeCallable(MessageID messageID, PyObject* pCallable)
 {
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
+    SubscriberInfoList::iterator foundIt;
+    int numSubscribers = 0;
+
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
         if ((*it)->isCallable(pCallable)) {
-            unsubscribeIterator(messageID, it);
-            return;
+            numSubscribers++;
+            foundIt = it;
         }
     }
-    throwSubscriberNotFound(messageID, -1);
+    if (numSubscribers == 0) {
+        throwSubscriberNotFound(messageID, -1);
+    }
+    if (numSubscribers > 1) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
+                " has more than one subscriber with the given callable.");
+    }
+    unsubscribeIterator(messageID, foundIt);
 }
 
 int Publisher::getNumSubscribers(MessageID messageID)

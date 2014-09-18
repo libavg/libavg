@@ -46,6 +46,10 @@ class Recognizer(avg.Publisher):
         self.__isContinuous = isContinuous
         self.__maxContacts = maxContacts
 
+        self.__downHandlerID = None
+        self.__moveHandlerID = {}
+        self.__upHandlerID = {}
+
         self.__setEventHandler() 
         self.__isEnabled = True
         self._contacts = set() 
@@ -128,8 +132,10 @@ class Recognizer(avg.Publisher):
         if event.contact and not(nodeGone):
             if (self.__maxContacts == None or len(self._contacts) <
                     self.__maxContacts):
-                event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
-                event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
+                self.__moveHandlerID[event.contact] = event.contact.subscribe(
+                        avg.Contact.CURSOR_MOTION, self.__onMotion)
+                self.__upHandlerID[event.contact] = event.contact.subscribe(
+                        avg.Contact.CURSOR_UP, self.__onUp)
                 self._contacts.add(event.contact)
                 if len(self._contacts) == 1:
                     self.__frameHandlerID = player.subscribe(player.ON_FRAME, 
@@ -153,18 +159,21 @@ class Recognizer(avg.Publisher):
                 self.__frameHandlerID = None
             self._handleUp(event)
 
-    def __abort(self):        
+    def __abort(self):
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
         if len(self._contacts) != 0:
             self._disconnectContacts()
         if self.__node and self.__node():
-            self.__node().unsubscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+            self.__node().unsubscribe(avg.Node.CURSOR_DOWN, self.__downHandlerID)
+            self.__downHandlerID = None
 
     def _disconnectContacts(self):
         for contact in self._contacts:
-            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
-            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
+            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__moveHandlerID[contact])
+            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__upHandlerID[contact])
+        self.__moveHandlerID = {}
+        self.__upHandlerID = {}
         self._contacts = set()
         if self.__frameHandlerID:
             player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
@@ -197,7 +206,8 @@ class Recognizer(avg.Publisher):
 
     def __setEventHandler(self):
         if self.__node and self.__node():
-            self.__node().subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+            self.__downHandlerID = self.__node().subscribe(
+                    avg.Node.CURSOR_DOWN, self.__onDown)
 
 
 class TapRecognizer(Recognizer):
