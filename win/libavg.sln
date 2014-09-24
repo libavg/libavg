@@ -88,6 +88,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgraphics", "testgraphic
 		{4B3614A9-4CF5-4C14-9F71-4254B7988324} = {4B3614A9-4CF5-4C14-9F71-4254B7988324}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgpu", "testgpu\testgpu.vcxproj", "{C7F16268-E53F-4E2C-A283-0475EA113745}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B9F3907-0C54-4FF4-AAF3-8FDA3496DB88} = {9B9F3907-0C54-4FF4-AAF3-8FDA3496DB88}
+		{4B3614A9-4CF5-4C14-9F71-4254B7988324} = {4B3614A9-4CF5-4C14-9F71-4254B7988324}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -162,6 +168,10 @@ Global
 		{C8174AA7-D062-4337-B740-90460C16FD86}.Debug|Win32.Build.0 = Debug|Win32
 		{C8174AA7-D062-4337-B740-90460C16FD86}.Release|Win32.ActiveCfg = Release|Win32
 		{C8174AA7-D062-4337-B740-90460C16FD86}.Release|Win32.Build.0 = Release|Win32
+		{C7F16268-E53F-4E2C-A283-0475EA113745}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7F16268-E53F-4E2C-A283-0475EA113745}.Debug|Win32.Build.0 = Debug|Win32
+		{C7F16268-E53F-4E2C-A283-0475EA113745}.Release|Win32.ActiveCfg = Release|Win32
+		{C7F16268-E53F-4E2C-A283-0475EA113745}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
