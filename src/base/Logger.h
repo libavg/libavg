@@ -73,6 +73,7 @@ public:
         static const category_t PLAYER;
         static const category_t SHADER;
         static const category_t DEPRECATION;
+        static const category_t VIDEO;
     };
 
     static Logger* get();

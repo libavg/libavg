@@ -321,6 +321,8 @@ Misc. Classes
                 General libavg playback messages.
             :py:const:`SHADER`
                 Shader compiler messages.
+            :py:const:`VIDEO`
+                Audio/Video related messages.
 
        **Severities**
 
