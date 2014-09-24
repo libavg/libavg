@@ -505,7 +505,7 @@ void Player::play()
         }
         cleanup(false);
         AVG_TRACE(Logger::category::PLAYER, Logger::severity::INFO, "Playback ended.");
-    } catch (Exception& ex) {
+    } catch (Exception&) {
         m_bIsPlaying = false;
         throw;
     }
