@@ -109,7 +109,7 @@ void ColorNode::maybeRender(const glm::mat4& parentTransform)
 
 void ColorNode::render()
 {
-    glClearColor(m_Color.getR()/255., m_Color.getG()/255., m_Color.getB()/255., 1.0); 
+    glClearColor(m_Color.getR()/255.f, m_Color.getG()/255.f, m_Color.getB()/255.f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
