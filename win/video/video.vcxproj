@@ -90,6 +90,7 @@
     <ClCompile Include="..\..\src\video\VideoDemuxerThread.cpp" />
     <ClCompile Include="..\..\src\video\VideoInfo.cpp" />
     <ClCompile Include="..\..\src\video\VideoMsg.cpp" />
+    <ClCompile Include="..\..\src\video\WrapFFMpeg.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
