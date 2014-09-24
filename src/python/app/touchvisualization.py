@@ -87,7 +87,10 @@ class DebugTouchVisualization(BaseTouchVisualization):
         if event.source == avg.Event.MOUSE:
             text = 'MOUSE'
         elif event.source == avg.Event.TANGIBLE:
-            text = '%s %d %d' % (event.source, event.cursorid, event.markerid)
+            text = '%s %d %d %d %d' % (event.source, event.cursorid, event.markerid, 
+				event.userid, event.jointid)
+        elif event.source == avg.Event.TOUCH:
+            text = '%s %d %d %d' % (event.source, event.cursorid, event.userid, event.jointid)
         else:
             text = '%s %d' % (event.source, event.cursorid)
         avg.WordsNode(pos=fontPos, text=text, fontsize=9, parent=self)

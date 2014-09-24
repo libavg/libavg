@@ -59,8 +59,8 @@ private:
     static DWORD WINAPI threadFunc(LPVOID p);
 #endif
     void processBundle(const osc::ReceivedBundle& bundle);
-    void processTouchSet(osc::ReceivedMessageArgumentStream& args);
-    void processTangibleSet(osc::ReceivedMessageArgumentStream& args);
+    void processTouchSet(osc::ReceivedMessageArgumentStream& args, bool extended=false);
+    void processTangibleSet(osc::ReceivedMessageArgumentStream& args, bool extended=false);
     void processAlive(osc::ReceivedMessageArgumentStream& args, 
             Event::Source source);
     void setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed);
