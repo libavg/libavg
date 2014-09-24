@@ -125,7 +125,7 @@ bool AudioDecoderThread::work()
 
 void AudioDecoderThread::decodePacket(AVPacket* pPacket)
 {
-    char* pDecodedData;
+    char* pDecodedData = 0;
     AVPacket* pTempPacket = new AVPacket;
     av_init_packet(pTempPacket);
     pTempPacket->data = pPacket->data;
