@@ -578,7 +578,7 @@ void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
 #ifndef AVG_ENABLE_EGL
     if (type != GL_DEBUG_TYPE_PERFORMANCE_ARB && s_bErrorLogEnabled) {
 #endif
-        AVG_LOG_WARNING(message);
+        AVG_LOG_DEBUG(message);
         //        dumpBacktrace();
         //        AVG_ASSERT(false);
 #ifndef AVG_ENABLE_EGL

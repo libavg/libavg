@@ -33,7 +33,7 @@ noinst_PROGRAMS = testvideo
 libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp VideoDecoder.cpp \
         VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp \
         AsyncVideoDecoder.cpp VideoInfo.cpp SyncVideoDecoder.cpp \
-        FFMpegFrameDecoder.cpp \
+        FFMpegFrameDecoder.cpp WrapFFMpeg.cpp \
         $(ALL_H)
 
 if USE_VDPAU_SRC
