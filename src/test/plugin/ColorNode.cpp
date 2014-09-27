@@ -142,6 +142,8 @@ BOOST_PYTHON_MODULE(colorplugin)
 
 AVG_PLUGIN_API PyObject* registerPlugin()
 {
+    avg::ColorNode::registerType();
+
 #if PY_MAJOR_VERSION < 3
     initcolorplugin();
     PyObject* pyColorModule = PyImport_ImportModule("colorplugin");
@@ -149,7 +151,6 @@ AVG_PLUGIN_API PyObject* registerPlugin()
     PyObject* pyColorModule = PyInit_colorplugin();
 #endif
 
-    avg::ColorNode::registerType();
     return pyColorModule;
 }
 
