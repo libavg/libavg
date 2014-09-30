@@ -81,7 +81,7 @@ class LoggerTestCase(AVGTestCase):
         self._assertMsg()
 
     def testUnknownCategoryWarning(self):
-        self.assertException(lambda: logger.error("Foo", "Bar"))
+        self.assertRaises(RuntimeError, lambda: logger.error("Foo", "Bar"))
 
 
 def loggerTestSuite(tests):

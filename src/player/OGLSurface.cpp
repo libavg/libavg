@@ -62,7 +62,7 @@ OGLSurface::~OGLSurface()
 }
 
 void OGLSurface::create(PixelFormat pf, MCTexturePtr pTex0, MCTexturePtr pTex1, 
-        MCTexturePtr pTex2, MCTexturePtr pTex3)
+        MCTexturePtr pTex2, MCTexturePtr pTex3, bool bPremultipliedAlpha)
 {
     m_pf = pf;
     m_Size = pTex0->getSize();
@@ -71,6 +71,7 @@ void OGLSurface::create(PixelFormat pf, MCTexturePtr pTex0, MCTexturePtr pTex1,
     m_pTextures[2] = pTex2;
     m_pTextures[3] = pTex3;
     m_bIsDirty = true;
+    m_bPremultipliedAlpha = bPremultipliedAlpha;
 
     // Make sure pixel format and number of textures line up.
     if (pixelFormatIsPlanar(pf)) {
@@ -99,7 +100,7 @@ void OGLSurface::destroy()
     m_pTextures[3] = MCTexturePtr();
 }
 
-void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
+void OGLSurface::activate(const IntPoint& logicalSize) const
 {
     StandardShaderPtr pShader = StandardShader::get();
 
@@ -137,7 +138,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     pShader->setGamma(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
                 1./m_AlphaGamma));
 
-    pShader->setPremultipliedAlpha(bPremultipliedAlpha);
+    pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
     if (m_pMaskTexture) {
         m_pMaskTexture->activate(GL_TEXTURE4);
         // Special case for pot textures: 
@@ -195,6 +196,11 @@ IntPoint OGLSurface::getTextureSize()
 bool OGLSurface::isCreated() const
 {
     return m_pTextures[0];
+}
+
+bool OGLSurface::isPremultipliedAlpha() const
+{
+    return m_bPremultipliedAlpha;
 }
 
 void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,

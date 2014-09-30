@@ -52,14 +52,24 @@ Publisher::~Publisher()
 {
 }
 
-int Publisher::subscribe(MessageID messageID, const py::object& callable)
+int Publisher::subscribe(MessageID messageID, PyObject* pCallable)
 {
-    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
-    int subscriberID = s_LastSubscriberID;
-    s_LastSubscriberID++;
-//    cerr << this << " subscribe " << messageID << ", " << subscriberID << endl;
-    subscribers.push_front(SubscriberInfoPtr(new SubscriberInfo(subscriberID, callable)));
-    return subscriberID;
+    if (PyCallable_Check(pCallable)) {
+        SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+        int subscriberID = s_LastSubscriberID;
+        s_LastSubscriberID++;
+//        cerr << this << " subscribe " << messageID << ", " << subscriberID << endl;
+        subscribers.push_front(SubscriberInfoPtr(
+                new SubscriberInfo(subscriberID, pCallable)));
+        return subscriberID;
+    } else {
+        if (pCallable != Py_None) {
+            throw Exception(AVG_ERR_INVALID_ARGS,
+                    "Second parameter to subscribe() must be a callable.");
+        } else {
+            return -1;
+        }
+    }
 }
 
 void Publisher::unsubscribe(MessageID messageID, int subscriberID)
@@ -98,17 +108,27 @@ void Publisher::unsubscribe1(int subscriberID)
             "Subscriber with ID "+toString(subscriberID)+" not found.");
 }
 
-void Publisher::unsubscribeCallable(MessageID messageID, const py::object& callable)
+void Publisher::unsubscribeCallable(MessageID messageID, PyObject* pCallable)
 {
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
+    SubscriberInfoList::iterator foundIt;
+    int numSubscribers = 0;
+
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
-        if ((*it)->isCallable(callable)) {
-            unsubscribeIterator(messageID, it);
-            return;
+        if ((*it)->isCallable(pCallable)) {
+            numSubscribers++;
+            foundIt = it;
         }
     }
-    throwSubscriberNotFound(messageID, -1);
+    if (numSubscribers == 0) {
+        throwSubscriberNotFound(messageID, -1);
+    }
+    if (numSubscribers > 1) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Signal with ID "+toString(messageID)+
+                " has more than one subscriber with the given callable.");
+    }
+    unsubscribeIterator(messageID, foundIt);
 }
 
 int Publisher::getNumSubscribers(MessageID messageID)
@@ -129,12 +149,12 @@ bool Publisher::isSubscribed(MessageID messageID, int subscriberID)
     return false;
 }
 
-bool Publisher::isSubscribedCallable(MessageID messageID, const py::object& callable)
+bool Publisher::isSubscribedCallable(MessageID messageID, PyObject* pCallable)
 {
     SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
     SubscriberInfoList::iterator it;
     for (it = subscribers.begin(); it != subscribers.end(); it++) {
-        if ((*it)->isCallable(callable)) {
+        if ((*it)->isCallable(pCallable)) {
             return true;
         }
     }
@@ -195,7 +215,7 @@ void Publisher::notifySubscribersPy(MessageID messageID, const py::list& args)
                 // Python subscriber doesn't exist anymore -> auto-unsubscribe.
                 unsubscribe(messageID, pSub->getID());
             } else {
-//              cerr << "  invoke: " << (*it)->getID() << endl;
+//              cerr << "  invoke: " << pSub->getID() << endl;
                 pSub->invoke(args);
             }
         }

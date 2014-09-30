@@ -48,7 +48,6 @@ class AVG_API WordsNode : public RasterNode
         virtual void disconnect(bool bKill);
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void renderFX();
         virtual void render();
 
         virtual float getWidth() const;
@@ -129,7 +128,6 @@ class AVG_API WordsNode : public RasterNode
         void updateFont();
         void updateLayout();
         void renderText();
-        void redraw();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         void setParsedText(const UTF8String& sText);
         UTF8String applyBR(const UTF8String& sText);

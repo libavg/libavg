@@ -452,13 +452,13 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
+    GLContextManager cm;
+    GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
-            GLConfig::shaderUsageToString(su);
+            GLConfig::shaderUsageToString(pContext->getShaderUsage());
     cerr << "---------------------------------------------------" << endl;
     cerr << sVariant << endl; 
     cerr << "---------------------------------------------------" << endl;
-    GLContextManager cm;
-    GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
@@ -482,7 +482,7 @@ int main(int nargs, char** args)
     try {
 #ifndef AVG_ENABLE_EGL
         BitmapLoader::init(true);
-        bOK = runTests(false, GLConfig::FULL);
+        bOK = runTests(false, GLConfig::AUTO);
         bOK &= runTests(false, GLConfig::MINIMAL);
 #endif
         if (GLContextManager::isGLESSupported()) {

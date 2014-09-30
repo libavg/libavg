@@ -80,7 +80,7 @@ py::object PluginManager::loadPlugin(const std::string& sPluginName)
     if (i == m_LoadedPlugins.end()) {
         // no, let's try to load it!
         string sFullpath = locateSharedObject(sPluginName+PLUGIN_EXTENSION);
-        void *handle = internalLoadPlugin(sFullpath);
+        void *handle = internalLoadPlugin(sFullpath, sPluginName);
         // add to map of loaded plugins
         m_LoadedPlugins[sPluginName] = make_pair(handle, 1);
     } else {
@@ -149,7 +149,8 @@ void PluginManager::parsePath(const string& sPath)
             "Plugin search path set to '" << sPath << "'"); 
 }
     
-void* PluginManager::internalLoadPlugin(const string& sFullpath)
+void* PluginManager::internalLoadPlugin(const string& sFullpath,
+        const string& sPluginName)
 {   
     void *handle = dlopen(sFullpath.c_str(), RTLD_LOCAL | RTLD_NOW);
     if (!handle) {
@@ -160,7 +161,7 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
         throw PluginCorrupted(sMessage);
     }
     try {
-        registerPlugin(handle);
+        registerPlugin(handle, sPluginName);
     } catch(PluginCorrupted& e) {
         dlclose(handle);
         throw e;
@@ -170,14 +171,27 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
     return handle;
 }
 
-void PluginManager::registerPlugin(void* handle)
+void PluginManager::registerPlugin(void* handle, const std::string& sPluginName)
 {
-   typedef void (*RegisterPluginPtr)();
+   typedef PyObject* (*RegisterPluginPtr)();
    RegisterPluginPtr registerPlugin = 
        reinterpret_cast<RegisterPluginPtr>(dlsym(handle, "registerPlugin"));
 
     if (registerPlugin) {
-        registerPlugin();
+        PyObject* plugin = registerPlugin();
+        py::object sysModule(py::handle<>(PyImport_ImportModule("sys")));
+        sysModule.attr("modules")[sPluginName] = py::object(py::handle<>(plugin));
+
+        //TODO: Discuss –– maybe we shouldn't add plugins to the __builtins__ but rather
+        //have users ```import PLUGIN```explicitly
+        #if PY_MAJOR_VERSION < 3
+        PyObject* pyBuiltin = PyImport_AddModule("__builtin__");
+        #else
+        PyObject* pyBuiltin = PyImport_AddModule("builtins");
+        #endif
+        int success =  PyModule_AddObject(pyBuiltin, sPluginName.c_str(), plugin);
+        AVG_ASSERT(success == 0);
+
     } else {
         AVG_TRACE(Logger::category::PLUGIN, Logger::severity::ERROR,
                 "No plugin registration function detected");

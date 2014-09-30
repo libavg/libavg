@@ -53,13 +53,13 @@ public:
     Publisher(const std::string& sTypeName);
     virtual ~Publisher();
 
-    int subscribe(MessageID messageID, const py::object& callable);
+    int subscribe(MessageID messageID, PyObject* pCallable);
     void unsubscribe(MessageID messageID, int subscriberID);
     void unsubscribe1(int subscriberID);
-    void unsubscribeCallable(MessageID messageID, const py::object& callable);
+    void unsubscribeCallable(MessageID messageID, PyObject* pCallable);
     int getNumSubscribers(MessageID messageID);
     bool isSubscribed(MessageID messageID, int subscriberID);
-    bool isSubscribedCallable(MessageID messageID, const py::object& callable);
+    bool isSubscribedCallable(MessageID messageID, PyObject* pCallable);
 
     // The following methods should really be protected, but python derived classes need
     // to call them too.
@@ -69,6 +69,9 @@ public:
     void notifySubscribers(const std::string& sMsgName);
     template<class ARG_TYPE>
     void notifySubscribers(const std::string& sMsgName, const ARG_TYPE& arg);
+    template<class ARG1_TYPE, class ARG2_TYPE>
+    void notifySubscribers(const std::string& sMsgName, const ARG1_TYPE& arg1, 
+            const ARG2_TYPE& arg2);
     void notifySubscribersPy(MessageID messageID, const py::list& args);
 
     static MessageID genMessageID();
@@ -102,6 +105,22 @@ void Publisher::notifySubscribers(const std::string& sMsgName, const ARG_TYPE& a
         py::list args;
         py::object pyArg(arg);
         args.append(pyArg);
+        notifySubscribersPy(messageID, args);
+    }
+}
+
+template<class ARG1_TYPE, class ARG2_TYPE>
+void Publisher::notifySubscribers(const std::string& sMsgName, const ARG1_TYPE& arg1,
+        const ARG2_TYPE& arg2)
+{
+    MessageID messageID = m_pPublisherDef->getMessageID(sMsgName);
+    SubscriberInfoList& subscribers = safeFindSubscribers(messageID);
+    if (!subscribers.empty()) {
+        py::list args;
+        py::object pyArg1(arg1);
+        args.append(pyArg1);
+        py::object pyArg2(arg2);
+        args.append(pyArg2);
         notifySubscribersPy(messageID, args);
     }
 }

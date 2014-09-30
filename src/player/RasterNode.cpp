@@ -70,6 +70,7 @@ void RasterNode::registerType()
 RasterNode::RasterNode()
     : m_pSurface(0),
       m_Material(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false),
+      m_Color(0,0,0,0),
       m_TileSize(-1,-1),
       m_bFXDirty(true)
 {
@@ -325,6 +326,44 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
+static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
+
+void RasterNode::renderFX()
+{
+    if (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty()) {
+        ScopeTimer Timer(FXProfilingZone);
+        GLContext* pContext = GLContext::getCurrent();
+        StandardShader::get()->setAlpha(1.0f);
+        m_pSurface->activate(getMediaSize());
+
+        m_pFBO->activate();
+        clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
+
+        bool bPremultipliedAlpha = m_pSurface->isPremultipliedAlpha();
+        if (bPremultipliedAlpha) {
+            glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+        pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
+        m_pImagingProjection->setColor(m_Color);
+        m_pImagingProjection->draw(StandardShader::get()->getShader());
+/*
+        static int i=0;
+        stringstream ss;
+        ss << "node" << i << ".png";
+        BitmapPtr pBmp = m_pFBO->getImage(0);
+        pBmp->save(ss.str());
+*/  
+        m_pFXNode->apply(m_pFBO->getTex()->getCurTex());
+        
+/*        
+        stringstream ss1;
+        ss1 << "nodefx" << i << ".png";
+        i++;
+        m_pFXNode->getImage()->save(ss1.str());
+*/
+    }
+}
+
 void RasterNode::resetFXDirty()
 {
     m_bFXDirty = false;
@@ -342,17 +381,18 @@ void RasterNode::scheduleFXRender()
     }
 }
 
-void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color)
+void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
 {
     if (isVisible() && m_pSurface->isCreated()) {
         pVA->startSubVA(m_SubVA);
         for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
             for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
                 int curVertex = m_SubVA.getNumVerts();
-                m_SubVA.appendPos(m_TileVertices[y][x], m_TexCoords[y][x], color); 
-                m_SubVA.appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1], color); 
-                m_SubVA.appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1], color);
-                m_SubVA.appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x], color); 
+                m_SubVA.appendPos(m_TileVertices[y][x], m_TexCoords[y][x], m_Color); 
+                m_SubVA.appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1], m_Color); 
+                m_SubVA.appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1], 
+                        m_Color);
+                m_SubVA.appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x], m_Color); 
                 m_SubVA.appendQuadIndexes(
                         curVertex+1, curVertex, curVertex+2, curVertex+3);
             }
@@ -360,17 +400,14 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA, const Pixel32& color
     }
 }
 
-void RasterNode::blt32(const glm::mat4& transform, const glm::vec2& destSize, 
-        float opacity, GLContext::BlendMode mode, bool bPremultipliedAlpha)
+void RasterNode::blt32()
 {
-    blt(transform, destSize, mode, opacity, Pixel32(255, 255, 255, 255),
-            bPremultipliedAlpha);
+    blt(getTransform(), getSize());
 }
 
-void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize, 
-        float opacity, const Pixel32& color, GLContext::BlendMode mode)
+void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize)
 {
-    blt(transform, destSize, mode, opacity, color, false);
+    blt(transform, destSize);
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const
@@ -419,44 +456,10 @@ void RasterNode::downloadMask()
             m_Material.getUseMipmaps());
     m_pSurface->setMask(pTex);
 }
-
-static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
-
-void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
-        bool bPremultipliedAlpha, bool bForceRender)
-{
-    if (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty() || bForceRender)
-    {
-        ScopeTimer Timer(FXProfilingZone);
-        GLContext* pContext = GLContext::getCurrent();
-        StandardShader::get()->setAlpha(1.0f);
-        m_pSurface->activate(getMediaSize());
-
-        m_pFBO->activate();
-        clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
-
-        if (bPremultipliedAlpha) {
-            glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
-        m_pImagingProjection->setColor(color);
-        m_pImagingProjection->draw(StandardShader::get()->getShader());
-/*
-        static int i=0;
-        stringstream ss;
-        ss << "node" << i << ".png";
-        BitmapPtr pBmp = m_pFBO->getImage(0);
-        pBmp->save(ss.str());
-*/  
-        m_pFXNode->apply(m_pFBO->getTex()->getCurTex());
         
-/*        
-        stringstream ss1;
-        ss1 << "nodefx" << i << ".png";
-        i++;
-        m_pFXNode->getImage()->save(ss1.str());
-*/
-    }
+void RasterNode::setRenderColor(const Pixel32& color)
+{
+    m_Color = color;
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)
@@ -502,18 +505,17 @@ void RasterNode::setupFX()
     }
 }
 
-void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize, 
-        GLContext::BlendMode mode, float opacity, const Pixel32& color,
-        bool bPremultipliedAlpha)
+void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize)
 {
     GLContext* pContext = GLContext::getCurrent();
     FRect destRect;
     
     StandardShaderPtr pShader = pContext->getStandardShader();
+    float opacity = getEffectiveOpacity();
     pContext->setBlendColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
     pShader->setAlpha(opacity);
     if (m_pFXNode) {
-        pContext->setBlendMode(mode, true);
+        pContext->setBlendMode(m_BlendMode, true);
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
         pShader->setColorModel(0);
         pShader->disableColorspaceMatrix();
@@ -525,8 +527,8 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
-        pContext->setBlendMode(mode, bPremultipliedAlpha);
+        m_pSurface->activate(getMediaSize());
+        pContext->setBlendMode(m_BlendMode, m_pSurface->isPremultipliedAlpha());
         destRect = FRect(glm::vec2(0,0), destSize);
     }
     glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);

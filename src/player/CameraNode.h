@@ -94,13 +94,11 @@ class AVG_API CameraNode : public RasterNode
         void setStrobeDuration(int value);
         
         void updateCameraImage();
-        bool isAutoUpdateCameraImage() const;
         void setAutoUpdateCameraImage(bool bVal);
         bool isImageAvailable() const;
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void renderFX();
         virtual void render();
 
         int getFrameNum() const;
@@ -126,7 +124,7 @@ class AVG_API CameraNode : public RasterNode
         CameraPtr m_pCamera;
         int m_FrameNum;
         BitmapPtr m_pCurBmp;
-        bool m_bIsAutoUpdateCameraImage;
+        bool m_bAutoUpdateCameraImage;
         bool m_bNewBmp;
         bool m_bNewSurface;
 

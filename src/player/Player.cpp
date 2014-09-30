@@ -271,7 +271,9 @@ void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     setMultiSampleSamples(multiSampleSamples);
-    m_GLConfig.m_ShaderUsage = shaderUsage;
+    if (shaderUsage != GLConfig::AUTO) {
+        m_GLConfig.m_ShaderUsage = shaderUsage;
+    }
     m_GLConfig.m_bUseDebugContext = bUseDebugContext;
 }
 
@@ -503,9 +505,8 @@ void Player::play()
         }
         cleanup(false);
         AVG_TRACE(Logger::category::PLAYER, Logger::severity::INFO, "Playback ended.");
-    } catch (Exception& ex) {
+    } catch (Exception&) {
         m_bIsPlaying = false;
-        AVG_LOG_ERROR(ex.getStr());
         throw;
     }
 }
@@ -1222,7 +1223,7 @@ void Player::initConfig()
         m_GLConfig.m_ShaderUsage = GLConfig::AUTO;
     } else {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
-               "avgrc parameter shaderusage must be full, minimal, fragmentonly or auto");
+               "avgrc parameter shaderusage must be full, minimal or auto");
     }
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
@@ -1613,6 +1614,7 @@ void Player::handleTimers()
     while (it != m_PendingTimeouts.end() && (*it)->isReady(getFrameTime())
             && !m_bStopping)
     {
+        m_bCurrentTimeoutDeleted = false;
         (*it)->fire(getFrameTime());
         if (m_bCurrentTimeoutDeleted) {
             it = m_PendingTimeouts.begin();
@@ -1626,7 +1628,6 @@ void Player::handleTimers()
                 it = m_PendingTimeouts.erase(it);
             }
         }
-        m_bCurrentTimeoutDeleted = false;
     }
     for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); ++it) {
         addTimeout(*it);

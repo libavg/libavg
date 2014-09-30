@@ -133,12 +133,12 @@ class WordsTestCase(AVGTestCase):
         self.assert_(posAlmostEqual(node.getGlyphPos(3), (22,0)))
         size = node.getGlyphSize(3)
         self.assert_(posAlmostEqual(size, (8, 18)))
-        self.assertException(lambda: node.getGlyphPos(4))
+        self.assertRaises(RuntimeError, lambda: node.getGlyphPos(4))
         node.text=u"föa"
         self.assert_(posAlmostEqual(node.getGlyphPos(1), (4,0)))
 #        print [ node.getGlyphPos(i) for i in range(3)]
         self.assert_(posAlmostEqual(node.getGlyphPos(2), (12,0)))
-        self.assertException(lambda: node.getGlyphPos(3))
+        self.assertRaises(RuntimeError, lambda: node.getGlyphPos(3))
 
     def testParaWords(self):
         root = self.loadEmptyScene()
@@ -330,12 +330,11 @@ class WordsTestCase(AVGTestCase):
             oldwidth = words.width
             words.text = "blue" 
             self.assertNotEqual(words.width, oldwidth)
-            words.color = "404080"
             words.x += 10
-        
-        def changeHeight():
-            words.height = 28
-        
+
+        def changeColor():
+            words.color = "404080"
+
         def activateText():
             words.active = True
         
@@ -363,14 +362,16 @@ class WordsTestCase(AVGTestCase):
         self.start(True, 
                 (lambda: self.compareImage("testDynamicWords1"),
                  changeText,
-                 changeHeight,
-                 changeFont,
                  lambda: self.compareImage("testDynamicWords2"),
-                 deactivateText,
+                 changeColor,
                  lambda: self.compareImage("testDynamicWords3"),
+                 changeFont,
+                 lambda: self.compareImage("testDynamicWords4"),
+                 deactivateText,
+                 lambda: self.compareImage("testDynamicWords5"),
                  activateText,
                  changeFont2,
-                 lambda: self.compareImage("testDynamicWords4"),
+                 lambda: self.compareImage("testDynamicWords6"),
                  changeTextWithInvalidTag
                 ))
 
@@ -426,8 +427,7 @@ class WordsTestCase(AVGTestCase):
         def bombIt():
             def cantRun():
                 self.xmldnode.rawtextmode = False
-                self.assert_(0)
-            self.assertException(cantRun)
+            self.assertRaises(RuntimeError, cantRun)
         
         def assignNewTexts():
             text = u'&ùùààxx>'
@@ -573,9 +573,9 @@ class WordsTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         self.start(True, 
-                (self.assertException(assignInvalidColor1),
-                 self.assertException(assignInvalidColor2),
-                 self.assertException(assignInvalidColor3),
+                (self.assertRaises(RuntimeError, assignInvalidColor1),
+                 self.assertRaises(RuntimeError, assignInvalidColor2),
+                 self.assertRaises(RuntimeError, assignInvalidColor3),
                 ))
 
     def testFontDir(self):
@@ -648,9 +648,7 @@ class WordsTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         text = "42 " * 42 * 20 
         avg.WordsNode(parent=root, text=text)
-        self.assertException(
-                lambda: self.start((None, None))
-        )
+        self.assertRaises(RuntimeError, lambda: self.start(True, (None, None)))
 
     def testWordsGamma(self):
         

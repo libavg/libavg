@@ -115,9 +115,9 @@ void PolygonNode::setHoles(const VectorVec2Vector& holes)
 
 void PolygonNode::setTexCoords(const vector<float>& coords)
 {
-    if (coords.size() > m_Pts.size()+1) {
+    if (coords.size() != m_Pts.size()+1 && coords.size() != 2 && coords.size() != 0) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
-                "Too many texture coordinates in polygon"));
+                "Illegal number of texture coordinates in polygon. Number of elements must be 0, 2 or the number of vertexes."));
     }
     m_EffTexCoords.clear();
     m_TexCoords = coords;

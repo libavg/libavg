@@ -321,6 +321,8 @@ Misc. Classes
                 General libavg playback messages.
             :py:const:`SHADER`
                 Shader compiler messages.
+            :py:const:`VIDEO`
+                Audio/Video related messages.
 
        **Severities**
 
@@ -351,6 +353,12 @@ Misc. Classes
         .. py:attribute:: x
 
         .. py:attribute:: y
+
+        .. py:classmethod:: angle(p1, p2) -> float
+
+            Returns the angle between the two vectors :py:attr:`p1` and :py:attr:`p2`
+            in the range 0 and 2*pi, with 0 being the positive x axis. Angles run
+            clockwise.
 
         .. py:method:: getAngle() -> float
 

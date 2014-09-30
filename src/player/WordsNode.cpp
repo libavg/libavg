@@ -337,6 +337,7 @@ const std::string& WordsNode::getColor() const
 void WordsNode::setColor(const string& sColor)
 {
     m_FontStyle.setColor(sColor);
+    updateLayout();
 }
 
 float WordsNode::getAAGamma() const
@@ -350,6 +351,7 @@ void WordsNode::setAAGamma(float gamma)
     if (getState() == Node::NS_CANRENDER) {
         getSurface()->setAlphaGamma(gamma);
     }
+    updateLayout();
 }
 
 float WordsNode::getFontSize() const
@@ -633,6 +635,8 @@ static ProfilingZoneID RenderTextProfilingZone("WordsNode: render text");
 
 void WordsNode::renderText()
 {
+    AVG_ASSERT(m_sText.length() < 32767);
+
     if (!(getState() == NS_CANRENDER)) {
         return;
     }
@@ -677,6 +681,7 @@ void WordsNode::renderText()
                 default:
                     AVG_ASSERT(false);
             }
+            setRenderColor(m_FontStyle.getColorVal());
 
             GLContextManager* pCM = GLContextManager::get();
             MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
@@ -687,29 +692,17 @@ void WordsNode::renderText()
     }
 }
 
-void WordsNode::redraw()
-{
-    AVG_ASSERT(m_sText.length() < 32767);
-    
-    renderText();
-}
-
 void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
-        redraw();
+        renderText();
     }
     if (m_sText.length() != 0 && isVisible()) {
         scheduleFXRender();
     }
-    calcVertexArray(pVA, m_FontStyle.getColorVal());
-}
-
-void WordsNode::renderFX()
-{
-    RasterNode::renderFX(getSize(), m_FontStyle.getColorVal(), false);
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
@@ -725,8 +718,7 @@ void WordsNode::render()
         } else {
             transform = glm::translate(getTransform(), glm::vec3(offset.x, offset.y, 0));
         }
-        blta8(transform, glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), 
-                m_FontStyle.getColorVal(), getBlendMode());
+        blta8(transform, glm::vec2(getSurface()->getSize()));
     }
 }
 

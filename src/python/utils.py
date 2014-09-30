@@ -45,38 +45,6 @@ def getMediaDirFromNode(node, path=''):
     else:
         return path
 
-def getScaledDim (size, max = None, min = None):
-    width, height = size
-    if width == 0 or height == 0:
-        return size
-
-    if max:
-        max = Point2D(max)
-        assert (max.x > 0 and max.y > 0)
-        if width > max.x:
-            height = height * (max.x / width)
-            width = max.x
-        if height > max.y:
-            width = width * (max.y / height)
-            height = max.y
-
-    if min:
-        min = Point2D(min)
-        assert (min.x > 0 and min.y > 0)
-        if width < min.x:
-            height = height * (min.x / width)
-            width = min.x
-        if height < min.y:
-            width = width * (min.y / height)
-            height = min.y
-
-    return Point2D(width, height)
-
-def createImagePreviewNode(maxSize, absHref):
-    node =  player.createNode('image', {'href': absHref})
-    node.size = getScaledDim(node.size, max = maxSize)
-    return node
-
 def initFXCache(numFXNodes):
     nodes = []
     mediadir = os.path.join(os.path.dirname(__file__), 'data')

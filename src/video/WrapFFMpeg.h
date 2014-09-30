@@ -22,6 +22,8 @@
 #ifndef _WrapFFMpeg_H_
 #define _WrapFFMpeg_H_
 
+#include <string>
+
 #include "../avgconfigwrapper.h"
 
 #ifdef _WIN32
@@ -47,6 +49,7 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 #include <libavutil/mathematics.h>
 #include <libavutil/opt.h>
+#include <libavutil/error.h>
 #if LIBAVFORMAT_VERSION_MAJOR < 53
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
@@ -89,5 +92,10 @@ extern "C" {
 #else
 #define AVPixelFormat ::PixelFormat
 #endif
+
+namespace avg
+{
+    const std::string getAVErrorString(int errNum);
+}
 
 #endif

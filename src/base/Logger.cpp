@@ -60,6 +60,7 @@ namespace avg {
     const category_t Logger::category::PLAYER = UTF8String("PLAYER");
     const category_t Logger::category::SHADER = UTF8String("SHADER");
     const category_t Logger::category::DEPRECATION = UTF8String("DEPREC");
+    const category_t Logger::category::VIDEO = UTF8String("VIDEO");
 
 namespace {
     Logger* s_pLogger = 0;
@@ -240,6 +241,7 @@ void Logger::setupCategory()
     configureCategory(category::PLAYER);
     configureCategory(category::SHADER);
     configureCategory(category::DEPRECATION);
+    configureCategory(category::VIDEO);
 }
 
 severity_t Logger::stringToSeverity(const string& sSeverity)

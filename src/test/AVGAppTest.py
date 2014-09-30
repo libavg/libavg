@@ -171,7 +171,7 @@ class AVGAppTestCase(testcase.AVGTestCase):
         if os.name == 'nt':
             FakeFullscreenApp.start(resolution=resolution)
         else:
-            self.assertException(
+            self.assertRaises(RuntimeError,
                     lambda: FakeFullscreenApp.start(resolution=resolution))
         
 def avgAppTestSuite(tests):

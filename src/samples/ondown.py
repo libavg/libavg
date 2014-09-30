@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, app, player
-
+from libavg import app, avg
 
 class MainDiv(app.MainDiv):
     def onInit(self):
         self.node = avg.WordsNode(pos=(10,10), text="Hello World", parent=self)
+        self.node.subscribe(avg.Node.CURSOR_DOWN, self.onDown)
 
-        player.setTimeout(1000, self.moveText)
-
-    def moveText(self):
+    def onDown(self, event):
         self.node.x = 200
 
 app.App().run(MainDiv())

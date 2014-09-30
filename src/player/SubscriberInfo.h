@@ -23,6 +23,7 @@
 #define _SubscriberInfo_H_
 
 #include "../api.h"
+#include "Player.h"
 
 #include "BoostPython.h"
 #include <boost/shared_ptr.hpp>
@@ -36,23 +37,24 @@ namespace avg {
 
 class SubscriberInfo {
 public:
-    SubscriberInfo(int id, const py::object& callable);
+    SubscriberInfo(int id, PyObject* pCallable);
     virtual ~SubscriberInfo();
 
     bool hasExpired() const;
     void invoke(py::list args) const;
     int getID() const;
-    bool isCallable(const py::object& callable) const;
+    bool isCallable(const PyObject* pCallable) const;
 
 private:
     int m_ID;
-    py::object m_Callable;
-    static py::object s_MethodrefModule;
+    PyObject* m_pWeakSelf;
+    PyObject* m_pPyFunction;
+    PyObject* m_pWeakClass;
 };
 
 typedef boost::shared_ptr<SubscriberInfo> SubscriberInfoPtr;
-}
 
+}
 #endif
 
 

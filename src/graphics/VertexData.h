@@ -34,7 +34,7 @@
 namespace avg {
 
 struct Vertex {
-    GLshort m_Tex[2];    // 4.12 fixed point.
+    GLfloat m_Tex[2];
     GLfloat m_Pos[2];
     Pixel32 m_Color;
 };

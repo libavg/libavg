@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,16 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 //  Current versions can be found at www.libavg.de
-//
 
-uniform mat4 transform;
-attribute vec4 a_Color;
-attribute vec2 a_TexCoord;
-attribute vec2 a_Pos;
+#include "WrapFFMpeg.h"
 
-varying vec2 v_TexCoord;
-varying vec4 v_Color;
+namespace avg {
 
-void main(void)
+const std::string getAVErrorString(int errNum)
 {
-    gl_Position = transform * vec4(a_Pos, 0, 1);
-    v_TexCoord = a_TexCoord;
-    v_Color = a_Color;
+    char errorBuffer[255];
+    av_strerror(errNum, errorBuffer, sizeof(errorBuffer));
+    return std::string(errorBuffer);
 }
 
+}

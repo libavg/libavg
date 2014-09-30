@@ -877,6 +877,21 @@ class GestureTestCase(AVGTestCase):
                         (2, avg.Event.CURSOR_UP, 30, 20))),
                 ))
 
+        self.__initImageScene()
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image,
+                friction=-1,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (# Unlink node during transform (don't delete)
+                 lambda: self._sendTouchEvents((
+                        (1, avg.Event.CURSOR_DOWN, 30, 10),
+                        (2, avg.Event.CURSOR_DOWN, 30, 20))),
+                 lambda: self.image.unlink(True),
+                 lambda: self._sendTouchEvents((
+                        (1, avg.Event.CURSOR_UP, 30, 10),
+                        (2, avg.Event.CURSOR_UP, 30, 20))),
+                ))
+
         # Test rel. coords.
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
@@ -957,8 +972,8 @@ class GestureTestCase(AVGTestCase):
                  lambda: self.__transformRecognizer.enable(True),
                  # Disable during up event
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
-                 lambda: self.__transformRecognizer.subscribe(self.__transformRecognizer.UP,
-                             disableOnUp),
+                 lambda: self.__transformRecognizer.subscribe(
+                        self.__transformRecognizer.UP, disableOnUp),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 10),
                  lambda: checkTransform(gesture.Transform((10, 0))),
                 ))
@@ -978,6 +993,23 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
                  None,
                 ))
+
+        # Test abort during up
+        def abortDuringUp(event):
+            self.__transformRecognizer.enable(False)
+
+        self.__initImageScene()
+        self.__transformRecognizer = gesture.TransformRecognizer(self.image, 
+                friction=0.01,
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self.__transformRecognizer.subscribe(gesture.Recognizer.UP,
+                        abortDuringUp),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
+                ))
+        
 
         # Test second down during inertia.
         self.__initImageScene()
@@ -1028,6 +1060,29 @@ class GestureTestCase(AVGTestCase):
         self.assertAlmostEqual(image.size, (30,40))
         self.assertAlmostEqual(image.angle, 1.57)
 
+    def testTwoRecognizers(self):
+        self.__initImageScene()
+        self.__tapRecognizer = gesture.TapRecognizer(self.image)
+        self.messageTester = MessageTester(self.__tapRecognizer,
+                [gesture.Recognizer.POSSIBLE, gesture.Recognizer.DETECTED,
+                gesture.Recognizer.FAILED], self)
+        self.__tapRecognizer2 = gesture.TapRecognizer(self.image)
+        player.setFakeFPS(10)
+        self.start(False,
+                (# Standard down-hold-up sequence.
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                        [gesture.Recognizer.POSSIBLE]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30,
+                        [gesture.Recognizer.DETECTED]),
+
+                 # down-move-up sequence, should fail.
+                 self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 1, 1,
+                        [gesture.Recognizer.POSSIBLE]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_MOTION, 150, 50,
+                        [gesture.Recognizer.FAILED]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 30, 30, []),
+                ))
+
     def __initImageScene(self):
         root = self.loadEmptyScene()
         self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -1051,6 +1106,7 @@ def gestureTestSuite(tests):
         "testDragRecognizerCoordSysNodeParentUnlink",
         "testDragRecognizerMinDist",
         "testTransformRecognizer",
+        "testTwoRecognizers",
         "testKMeans",
         "testMat3x3",
         )

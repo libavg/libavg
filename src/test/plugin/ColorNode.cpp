@@ -109,7 +109,7 @@ void ColorNode::maybeRender(const glm::mat4& parentTransform)
 
 void ColorNode::render()
 {
-    glClearColor(m_Color.getR()/255., m_Color.getG()/255., m_Color.getB()/255., 1.0); 
+    glClearColor(m_Color.getR()/255.f, m_Color.getG()/255.f, m_Color.getB()/255.f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -140,14 +140,17 @@ BOOST_PYTHON_MODULE(colorplugin)
         return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
 }
 
-AVG_PLUGIN_API void registerPlugin()
+AVG_PLUGIN_API PyObject* registerPlugin()
 {
-    initcolorplugin();
-    object mainModule(handle<>(borrowed(PyImport_AddModule("__builtin__"))));
-    object colorModule(handle<>(PyImport_ImportModule("colorplugin")));
-    mainModule.attr("colorplugin") = colorModule;
-
     avg::ColorNode::registerType();
 
+#if PY_MAJOR_VERSION < 3
+    initcolorplugin();
+    PyObject* pyColorModule = PyImport_ImportModule("colorplugin");
+#else
+    PyObject* pyColorModule = PyInit_colorplugin();
+#endif
+
+    return pyColorModule;
 }
 
