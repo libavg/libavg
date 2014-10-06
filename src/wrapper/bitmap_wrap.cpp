@@ -105,8 +105,8 @@ static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
     if (PyObject_CheckBuffer(exporter)) {
         PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
     } else {
-        //@klemmster TODO: Throw error
-        return;
+        throw Exception(AVG_ERR_INVALID_ARGS,
+               "Second parameter to Bitmap.setPixels must support the buffer interface.");
     }
     const unsigned char* cxx_buf = reinterpret_cast<unsigned char*>(bufferView.buf);
     bitmap.setPixels(cxx_buf);

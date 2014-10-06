@@ -229,6 +229,8 @@ class ImageTestCase(AVGTestCase):
             bmp1 = avg.Bitmap(bmp.getSize(), bmp.getFormat(), "sample")
             bmp1.setPixels(s)
             self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
+            self.assertRaises(RuntimeError, lambda: bmp1.setPixels(13)),
+
 
         def testCropRect():
             bmp = avg.Bitmap('media/rgb24-65x65.png')
