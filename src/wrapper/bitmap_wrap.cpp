@@ -19,7 +19,6 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../base/GLMHelper.h"
 #include "WrapHelper.h"
 
 #include "../player/BoostPython.h"
@@ -82,12 +81,13 @@ struct Pixel32_to_python_tuple
     }
 };
 
-static bp::object Bitmap_getPixels(Bitmap& bitmap) {
-    const glm::byte* buffer = bitmap.getPixels();
+static bp::object Bitmap_getPixels(Bitmap& bitmap)
+{
+    const unsigned char* buffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
 
 #if PY_MAJOR_VERSION < 3
-    PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(const_cast<glm::byte*>(buffer),
+    PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(const_cast<unsigned char*>(buffer),
             buffSize);
     PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
 #else
@@ -99,7 +99,8 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap) {
     return retval;
 }
 
-static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter) {
+static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
+{
     Py_buffer bufferView;
     if (PyObject_CheckBuffer(exporter)) {
         PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
@@ -107,7 +108,7 @@ static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter) {
         //@klemmster TODO: Throw error
         return;
     }
-    const glm::byte* cxx_buf = reinterpret_cast<glm::byte*>(bufferView.buf);
+    const unsigned char* cxx_buf = reinterpret_cast<unsigned char*>(bufferView.buf);
     bitmap.setPixels(cxx_buf);
     PyBuffer_Release(&bufferView);
 }

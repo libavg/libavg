@@ -74,9 +74,9 @@ public:
     int getStride() const;
     PixelFormat getPixelFormat() const;
     void setPixelFormat(PixelFormat pf);
-    glm::byte * getPixels();
-    const glm::byte * getPixels() const;
-    void setPixels(const glm::byte* pPixels);
+    unsigned char* getPixels();
+    const unsigned char* getPixels() const;
+    void setPixels(const unsigned char* pPixels);
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;
@@ -121,7 +121,7 @@ private:
     IntPoint m_Size;
     int m_Stride;
     PixelFormat m_PF;
-    glm::byte* m_pBits;
+    unsigned char* m_pBits;
     bool m_bOwnsBits;
     UTF8String m_sName;
 
