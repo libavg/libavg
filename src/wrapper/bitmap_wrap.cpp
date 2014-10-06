@@ -81,23 +81,29 @@ struct Pixel32_to_python_tuple
     }
 };
 
-static bp::object Bitmap_getPixels(Bitmap& bitmap)
+static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
 {
-    const unsigned char* buffer = bitmap.getPixels();
+    const unsigned char* pBuffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
-
+    if (bCopyData) {
 #if PY_MAJOR_VERSION < 3
-    PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(const_cast<unsigned char*>(buffer),
-            buffSize);
-    PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
+        PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(
+                const_cast<unsigned char*>(pBuffer), buffSize);
+        PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
 #else
-    PyObject* py_memView = PyMemoryView_FromMemory(
-            const_cast<char*>(reinterpret_cast<const char*>(buffer)),
-            buffSize, PyBUF_READ);
+        PyObject* py_memView = PyMemoryView_FromMemory(
+                const_cast<char*>(reinterpret_cast<const char*>(pBuffer)),
+                buffSize, PyBUF_READ);
 #endif
-    bp::object retval = bp::object(handle<>(py_memView));
-    return retval;
+        return bp::object(handle<>(py_memView));
+    } else {
+        return bp::object(string((const char*)pBuffer, buffSize));
+    }
 }
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels, 
+        1, 2);
+
 
 static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
 {
@@ -216,7 +222,7 @@ void export_bitmap()
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)
-        .def("getPixels", &Bitmap_getPixels)
+        .def("getPixels", &Bitmap_getPixels, Bitmap_getPixels_overloads())
         .def("setPixels", &Bitmap_setPixels)
         .def("getPixel", &Bitmap::getPythonPixel)
         .def("subtract", &Bitmap::subtract)
