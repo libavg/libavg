@@ -108,11 +108,18 @@ Misc. Classes
             Returns one image pixel as a color tuple. This should only be used
             for single pixels, as it is very slow.
 
-        .. py:method:: getPixels() -> string
+        .. py:method:: getPixels(copyData = True) -> string
 
-            Returns the raw pixel data in the bitmap as a python string. This
-            method can be used to interface to the python imaging library PIL
-            (http://www.pythonware.com/products/pil/).
+            Returns the raw pixel data in the bitmap as a python buffer. This
+            method can be used to interface to external libraries such as the python
+            imaging library PIL (http://www.pythonware.com/products/pil/).
+
+            :param bool copyData:
+            
+                Whether to copy the bitmap data into the returned python buffer or return
+                a view to the memory in the bitmap. Note that the second variant 
+                (``copyData = False``) is dangerous, since referencing the buffer after
+                the bitmap is deleted will cause a crash.
 
         .. py:method:: getResized(newSize) -> Bitmap
 
@@ -177,11 +184,11 @@ Misc. Classes
 
         :param controlpoints:
 
-        A list of 2D coordinates. The x coordinates must be in increasing order.
+            A list of 2D coordinates. The x coordinates must be in increasing order.
 
         .. py:method:: interpolate(x) -> y
 
-        Takes an x coordinate and delivers a corresponding y coordinate. 
+            Takes an x coordinate and delivers a corresponding y coordinate. 
 
     
     .. autoclass:: FontStyle(font="sans", variant="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, letterspacing=0, aagamma=1, hint=True)

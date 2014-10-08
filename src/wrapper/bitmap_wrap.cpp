@@ -40,6 +40,8 @@ using namespace boost::python;
 using namespace std;
 using namespace avg;
 
+namespace bp = boost::python;
+
 template<class POINT>
 class_<POINT> export_point(const string& sName)
 {
@@ -74,10 +76,49 @@ struct Pixel32_to_python_tuple
 {
     static PyObject* convert (avg::Pixel32 px)
     {
-        return boost::python::incref(boost::python::make_tuple(
+        return bp::incref(bp::make_tuple(
                 px.getR(), px.getG(), px.getB(), px.getA()).ptr());
     }
 };
+
+static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
+{
+    unsigned char* pBuffer = bitmap.getPixels();
+    int buffSize = bitmap.getMemNeeded();
+    if (bCopyData) {
+        char * pBufCopy = new char[buffSize];
+        memcpy(pBufCopy, pBuffer, buffSize);
+        return bp::object(handle<>(PyBuffer_FromMemory(pBufCopy, buffSize)));
+    } else {
+#if PY_MAJOR_VERSION < 3
+        return bp::object(handle<>(PyBuffer_FromMemory(pBuffer, buffSize)));
+#else
+        // TODO: This returns a memoryview and not a buffer, which will probably break
+        // PIL interoperability.
+        PyObject* py_memView = PyMemoryView_FromMemory((char*)pBuffer,
+                buffSize, PyBUF_READ);
+        return bp::object(handle<>(py_memView));
+#endif
+    }
+}
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels, 
+        1, 2);
+
+
+static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
+{
+    Py_buffer bufferView;
+    if (PyObject_CheckBuffer(exporter)) {
+        PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
+    } else {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+               "Second parameter to Bitmap.setPixels must support the buffer interface.");
+    }
+    const unsigned char* cxx_buf = reinterpret_cast<unsigned char*>(bufferView.buf);
+    bitmap.setPixels(cxx_buf);
+    PyBuffer_Release(&bufferView);
+}
 
 ConstVec2 Bitmap_getSize(Bitmap* This)
 {
@@ -182,8 +223,8 @@ void export_bitmap()
         .def("save", &Bitmap::save)
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)
-        .def("getPixels", &Bitmap::getPixelsAsString)
-        .def("setPixels", &Bitmap::setPixelsFromString)
+        .def("getPixels", &Bitmap_getPixels, Bitmap_getPixels_overloads())
+        .def("setPixels", &Bitmap_setPixels)
         .def("getPixel", &Bitmap::getPythonPixel)
         .def("subtract", &Bitmap::subtract)
         .def("getAvg", &Bitmap::getAvg)

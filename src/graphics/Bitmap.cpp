@@ -608,31 +608,20 @@ void Bitmap::setPixelFormat(PixelFormat pf)
     m_PF = pf;
 }
 
-unsigned char * Bitmap::getPixels()
+unsigned char* Bitmap::getPixels()
 {
     return m_pBits;
 }
 
-const unsigned char * Bitmap::getPixels() const
+const unsigned char* Bitmap::getPixels() const
 {
     return m_pBits;
 }
 
-string Bitmap::getPixelsAsString() const
-{
-    return string((char*)m_pBits, getMemNeeded());
-}
-
-void Bitmap::setPixels(const unsigned char * pPixels)
+void Bitmap::setPixels(const unsigned char* pPixels)
 {
     memcpy(m_pBits, pPixels, getMemNeeded());
 }
-
-void Bitmap::setPixelsFromString(const string& sPixels)
-{
-    memcpy(m_pBits, sPixels.c_str(), getMemNeeded());
-}
-
 
 const string& Bitmap::getName() const
 {
