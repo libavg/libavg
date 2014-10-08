@@ -10,7 +10,7 @@ class MyMainDiv(app.MainDiv):
     def onInit(self):
         self.toggleTouchVisualization()
         bmp = avg.Bitmap("rgb24-64x64.png")
-        pixels = bmp.getPixels()
+        pixels = bmp.getPixels(False)
         image = Image.frombytes("RGBA", (64,64), pixels)
         # Need to swap red and blue.
         b,g,r,a = image.split()

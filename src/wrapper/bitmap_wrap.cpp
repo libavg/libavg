@@ -88,16 +88,17 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
     if (bCopyData) {
         char * pBufCopy = new char[buffSize];
         memcpy(pBufCopy, pBuffer, buffSize);
-        return bp::object(handle<>(PyBuffer_FromMemory(pBuffer, buffSize)));
+        return bp::object(handle<>(PyBuffer_FromMemory(pBufCopy, buffSize)));
     } else {
 #if PY_MAJOR_VERSION < 3
-        PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(pBuffer, buffSize);
-        PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
+        return bp::object(handle<>(PyBuffer_FromMemory(pBuffer, buffSize)));
 #else
+        // TODO: This returns a memoryview and not a buffer, which will probably break
+        // PIL interoperability.
         PyObject* py_memView = PyMemoryView_FromMemory((char*)pBuffer,
                 buffSize, PyBUF_READ);
-#endif
         return bp::object(handle<>(py_memView));
+#endif
     }
 }
 
