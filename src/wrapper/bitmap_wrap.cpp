@@ -86,6 +86,8 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
     const unsigned char* pBuffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
     if (bCopyData) {
+        return bp::object(string((const char*)pBuffer, buffSize));
+    } else {
 #if PY_MAJOR_VERSION < 3
         PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(
                 const_cast<unsigned char*>(pBuffer), buffSize);
@@ -96,8 +98,6 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
                 buffSize, PyBUF_READ);
 #endif
         return bp::object(handle<>(py_memView));
-    } else {
-        return bp::object(string((const char*)pBuffer, buffSize));
     }
 }
 
