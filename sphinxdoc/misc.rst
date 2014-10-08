@@ -110,15 +110,15 @@ Misc. Classes
 
         .. py:method:: getPixels(copyData = True) -> string
 
-            Returns the raw pixel data in the bitmap as a python string. This
-            method can be used to interface to the python imaging library PIL
-            (http://www.pythonware.com/products/pil/).
+            Returns the raw pixel data in the bitmap as a python buffer. This
+            method can be used to interface to external libraries such as the python
+            imaging library PIL (http://www.pythonware.com/products/pil/).
 
             :param bool copyData:
             
-                Whether to copy the bitmap data into the returned python string or return
+                Whether to copy the bitmap data into the returned python buffer or return
                 a view to the memory in the bitmap. Note that the second variant 
-                (``copyData = False``) is dangerous, since referencing the string after 
+                (``copyData = False``) is dangerous, since referencing the buffer after
                 the bitmap is deleted will cause a crash.
 
         .. py:method:: getResized(newSize) -> Bitmap
