@@ -83,18 +83,18 @@ struct Pixel32_to_python_tuple
 
 static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
 {
-    const unsigned char* pBuffer = bitmap.getPixels();
+    unsigned char* pBuffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
     if (bCopyData) {
-        return bp::object(string((const char*)pBuffer, buffSize));
+        char * pBufCopy = new char[buffSize];
+        memcpy(pBufCopy, pBuffer, buffSize);
+        return bp::object(handle<>(PyBuffer_FromMemory(pBuffer, buffSize)));
     } else {
 #if PY_MAJOR_VERSION < 3
-        PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(
-                const_cast<unsigned char*>(pBuffer), buffSize);
+        PyObject* pyBuffer = PyBuffer_FromReadWriteMemory(pBuffer, buffSize);
         PyObject* py_memView = PyMemoryView_FromObject(pyBuffer);
 #else
-        PyObject* py_memView = PyMemoryView_FromMemory(
-                const_cast<char*>(reinterpret_cast<const char*>(pBuffer)),
+        PyObject* py_memView = PyMemoryView_FromMemory((char*)pBuffer,
                 buffSize, PyBUF_READ);
 #endif
         return bp::object(handle<>(py_memView));
