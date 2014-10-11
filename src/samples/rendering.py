@@ -25,7 +25,7 @@ class RenderingDiv(app.MainDiv):
                 parent=self)
         for i, blendmode in enumerate(("blend", "add", "min", "max")):
             pos=avg.Point2D(10,180)+i*avg.Point2D(80,0)
-            avg.ImageNode(pos=pos, href="mask.png", size=(64,64), parent=self)
+            avg.ImageNode(pos=pos, href="mask.png", parent=self)
             avg.ImageNode(pos=pos, href="rgb24-64x64.png", blendmode=blendmode,
                     parent=self)
             CaptionNode(pos=pos, text=blendmode, parent=self)
