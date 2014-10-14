@@ -46,7 +46,7 @@ class AVG_API GLContextManager
 {
 public:
     static GLContextManager* get();
-    static bool exists();
+    static bool isActive();
 
     GLContextManager();
     virtual ~GLContextManager();

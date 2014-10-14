@@ -65,7 +65,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
 
 GLTexture::~GLTexture()
 {
-    if (m_bDeleteTex && GLContextManager::exists()) {
+    if (m_bDeleteTex && GLContextManager::isActive()) {
         GLContextManager::get()->deleteTexture(m_TexID);
     }
     ObjectCounter::get()->decRef(&typeid(*this));
