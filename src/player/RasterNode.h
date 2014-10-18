@@ -136,6 +136,7 @@ class AVG_API RasterNode: public AreaNode
 
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
+        bool m_bHasStdVertices;
         SubVertexArray m_SubVA;
         std::vector<std::vector<glm::vec2> > m_TexCoords;
 

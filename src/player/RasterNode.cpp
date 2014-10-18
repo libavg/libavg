@@ -193,9 +193,10 @@ void RasterNode::setWarpedVertexCoords(const VertexGrid& grid)
         }
     }
     if (!bGridOK) {
-        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
                 "setWarpedVertexCoords() called with incorrect grid size.");
     }
+    m_bHasStdVertices = false;
     m_TileVertices = grid;
 }
 
@@ -384,17 +385,21 @@ void RasterNode::scheduleFXRender()
 void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
 {
     if (isVisible() && m_pSurface->isCreated()) {
-        pVA->startSubVA(m_SubVA);
-        for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
-            for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
-                int curVertex = m_SubVA.getNumVerts();
-                m_SubVA.appendPos(m_TileVertices[y][x], m_TexCoords[y][x], m_Color); 
-                m_SubVA.appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1], m_Color); 
-                m_SubVA.appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1], 
-                        m_Color);
-                m_SubVA.appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x], m_Color); 
-                m_SubVA.appendQuadIndexes(
-                        curVertex+1, curVertex, curVertex+2, curVertex+3);
+        if (!m_bHasStdVertices) {
+            pVA->startSubVA(m_SubVA);
+            for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
+                for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
+                    int curVertex = m_SubVA.getNumVerts();
+                    m_SubVA.appendPos(m_TileVertices[y][x], m_TexCoords[y][x], m_Color);
+                    m_SubVA.appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1],
+                            m_Color);
+                    m_SubVA.appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1],
+                            m_Color);
+                    m_SubVA.appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x],
+                            m_Color);
+                    m_SubVA.appendQuadIndexes(
+                            curVertex+1, curVertex, curVertex+2, curVertex+3);
+                }
             }
         }
     }
@@ -477,6 +482,7 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
 void RasterNode::newSurface()
 {
     if (m_pSurface->isCreated()) {
+        m_bHasStdVertices = !(m_pSurface->getPixelFormat() == A8);
         calcVertexGrid(m_TileVertices);
         calcTexCoords();
         setupFX();
@@ -537,8 +543,11 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize)
     localTransform = glm::scale(localTransform, scaleVec);
     pShader->setTransform(localTransform);
     pShader->activate();
-
-    m_SubVA.draw();
+    if (m_bHasStdVertices) {
+        getCanvas()->getStdSubVA().draw();
+    } else {
+        m_SubVA.draw();
+    }
 }
 
 IntPoint RasterNode::getNumTiles()
