@@ -34,6 +34,7 @@
 
 #include "../graphics/OGLHelper.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/SubVertexArray.h"
 
 #include <map>
 #include <string>
@@ -100,6 +101,7 @@ class AVG_API Canvas: public ExportedObject
         virtual void renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, 
                 const IntRect& viewport);
         void scheduleFXRender(const RasterNodePtr& pNode);
+        SubVertexArray& getStdSubVA();
 
     protected:
         Player * getPlayer() const;
@@ -112,12 +114,14 @@ class AVG_API Canvas: public ExportedObject
         void renderFX();
         void resetFXSchedule();
         void renderOutlines(const glm::mat4& transform);
+        void createStdSubVA();
 
         void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;
         VertexArrayPtr m_pVertexArray;
+        SubVertexArray m_StdSubVA;
        
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
