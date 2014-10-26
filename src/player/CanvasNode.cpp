@@ -44,7 +44,7 @@ CanvasNode::CanvasNode(const ArgList& args)
     args.setMembers(this);
     if (getSize() == glm::vec2(0, 0)) {
         throw (Exception(AVG_ERR_OUT_OF_RANGE,
-                "<avg> and <canvas> node width and height attributes are mandatory."));
+                "AVGNode and CanvasNode size must be set."));
     }
 }
 
