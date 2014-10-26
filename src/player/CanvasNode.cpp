@@ -46,6 +46,9 @@ CanvasNode::CanvasNode(const ArgList& args)
         throw (Exception(AVG_ERR_OUT_OF_RANGE,
                 "AVGNode and CanvasNode size must be set."));
     }
+    if (getSize().x < 0 || getSize().y < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for canvas.");
+    }
 }
 
 CanvasNode::~CanvasNode()

@@ -39,6 +39,8 @@ class OffscreenTestCase(AVGTestCase):
             else:
                 self.assertEqual(canvas.getNumDependentCanvases(), 1)
                 self.canvas2 = canvas
+            self.assertRaises(RuntimeError,
+                    lambda: player.createCanvas(id="negativesize", size=(-42,120)))
 
         def unlink():
             self.node = player.getElementByID("imagenode")
