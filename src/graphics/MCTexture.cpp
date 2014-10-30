@@ -28,6 +28,7 @@
 
 #include "GLContext.h"
 #include "GLContextManager.h"
+#include "GLTexture.h"
 #include "TextureMover.h"
 #include "FBO.h"
 

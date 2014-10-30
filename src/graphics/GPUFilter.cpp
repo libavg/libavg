@@ -30,6 +30,7 @@
 #include "BitmapLoader.h"
 #include "MCFBO.h"
 #include "MCTexture.h"
+#include "GLTexture.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
