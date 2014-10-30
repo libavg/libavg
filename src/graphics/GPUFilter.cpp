@@ -228,7 +228,7 @@ MCTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
         int i=0;
         float coeff;
         do {
-            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*PI*stdDev*stdDev))
+            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*M_PI*stdDev*stdDev))
                     *float(opacity);
             tempCoeffs[i] = coeff;
             i++;
