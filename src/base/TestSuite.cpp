@@ -22,6 +22,8 @@
 #include "TestSuite.h"
 #include "Exception.h"
 
+#include <iostream>
+
 using namespace std;
 
 namespace avg {

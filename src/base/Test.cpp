@@ -23,9 +23,6 @@
 
 #include "../base/OSHelper.h"
 
-#include <iostream>
-#include <stdlib.h>
-
 using namespace std;
 
 namespace avg {
