@@ -25,6 +25,8 @@
 #include "GLContext.h"
 #include "GLContextManager.h"
 #include "Filterfliprgb.h"
+#include "FBO.h"
+#include "MCTexture.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
