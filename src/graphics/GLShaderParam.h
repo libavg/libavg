@@ -23,12 +23,10 @@
 #define _GLShaderParam_H_
 
 #include "../api.h"
-#include "OGLHelper.h"
 #include "Pixel32.h"
 #include "GLContext.h"
 
 #include "../base/GLMHelper.h"
-#include "../base/Exception.h"
 
 #include <boost/shared_ptr.hpp>
 

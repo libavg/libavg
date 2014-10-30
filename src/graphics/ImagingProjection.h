@@ -24,15 +24,18 @@
 
 #include "../api.h"
 
-#include "VertexArray.h"
+#include "../base/Rect.h"
+#include "Pixel32.h"
 #include "GLShaderParam.h"
 
-#include "../base/Rect.h"
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
 class OGLShader;
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
+class VertexArray;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
 class AVG_API ImagingProjection
 {

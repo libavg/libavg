@@ -31,6 +31,7 @@
 #include "MCFBO.h"
 #include "MCTexture.h"
 #include "GLTexture.h"
+#include "TextureMover.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"

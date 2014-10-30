@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "TexInfo.h"
 #include "Bitmap.h"
-#include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
