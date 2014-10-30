@@ -20,7 +20,7 @@
 //
 
 #include "ThreadHelper.h"
-#include "OSHelper.h"
+#include "Exception.h"
 
 #ifdef _WIN32
 #include <Windows.h>
