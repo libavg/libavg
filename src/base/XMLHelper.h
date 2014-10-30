@@ -29,8 +29,6 @@
 #include <libxml/xmlschemas.h>
 
 #include <string>
-#include <map>
-#include <sstream>
 
 namespace avg {
 

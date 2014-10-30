@@ -26,8 +26,6 @@
 #include "Command.h"
 #include "Exception.h"
 #include "Logger.h"
-#include "Queue.h"
-#include "ThreadHelper.h"
 #include "ThreadProfiler.h"
 #include "CmdQueue.h"
 
