@@ -21,7 +21,6 @@
 
 #include "GLMHelper.h"
 #include "StringHelper.h"
-#include "MathHelper.h"
 
 #include "../glm/gtx/rotate_vector.hpp"
 

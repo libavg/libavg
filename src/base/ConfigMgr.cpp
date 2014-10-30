@@ -22,7 +22,6 @@
 #include "ConfigMgr.h"
 #include "Logger.h"
 #include "Exception.h"
-#include "OSHelper.h"
 
 #include <libxml/xmlmemory.h>
 

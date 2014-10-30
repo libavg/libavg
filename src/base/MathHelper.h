@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include <vector>
-#include <set>
 
 #include <math.h>
 #ifndef M_PI

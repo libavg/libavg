@@ -29,14 +29,10 @@
 #endif
 #include <stdio.h>
 #include <sys/stat.h>
-#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 
 #include <vector>
-#include <map>
-#include <cstring>
-#include <iostream>
 #include <fstream>
 
 using namespace std;
