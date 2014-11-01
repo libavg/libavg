@@ -27,6 +27,7 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/GLContext.h"
 #include "../graphics/OGLShader.h"
+#include "../graphics/StandardShader.h"
 
 #include "OGLSurface.h"
 

@@ -33,6 +33,7 @@
 #include "../graphics/MCFBO.h"
 #include "../graphics/MCTexture.h"
 #include "../graphics/GLTexture.h"
+#include "../graphics/StandardShader.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"

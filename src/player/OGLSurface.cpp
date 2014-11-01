@@ -29,6 +29,7 @@
 
 #include "../graphics/GLContext.h"
 #include "../graphics/MCTexture.h"
+#include "../graphics/StandardShader.h"
 
 #include <iostream>
 #include <sstream>

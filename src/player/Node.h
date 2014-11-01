@@ -28,7 +28,6 @@
 #include "Event.h"
 #include "Image.h"
 
-#include "../base/Rect.h"
 #include "../graphics/Pixel32.h"
 
 #include <boost/shared_ptr.hpp>
@@ -55,8 +54,6 @@ class CanvasNode;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 class AVGNode;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
-class Image;
-typedef boost::shared_ptr<Image> ImagePtr;
 class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class Canvas;

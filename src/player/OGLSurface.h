@@ -25,19 +25,14 @@
 #include "../api.h"
 
 #include "../base/GLMHelper.h"
+#include "../graphics/PixelFormat.h"
 
-#include "../graphics/Bitmap.h"
-#include "../graphics/OGLHelper.h"
-#include "../graphics/StandardShader.h"
-
-#include <vector>
-#include <string>
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
 class MCTexture;
 typedef boost::shared_ptr<MCTexture> MCTexturePtr;
-
 
 class AVG_API OGLSurface {
 public:
