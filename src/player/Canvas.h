@@ -24,16 +24,16 @@
  
 #include "../api.h"
 
-#include "FontStyle.h"
+#include "ExportedObject.h"
 
 #include "../base/IPlaybackEndListener.h"
 #include "../base/IFrameEndListener.h"
 #include "../base/IPreRenderListener.h"
 #include "../base/Signal.h"
 #include "../base/GLMHelper.h"
+#include "../base/Rect.h"
 
 #include "../graphics/OGLHelper.h"
-#include "../graphics/Bitmap.h"
 #include "../graphics/SubVertexArray.h"
 
 #include <map>
@@ -56,6 +56,7 @@ class MCFBO;
 class VertexArray;
 class SubVertexArray;
 class Window;
+class Bitmap;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::shared_ptr<RasterNode> RasterNodePtr;
@@ -64,6 +65,7 @@ typedef boost::shared_ptr<FBO> FBOPtr;
 typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 typedef boost::shared_ptr<Window> WindowPtr;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;

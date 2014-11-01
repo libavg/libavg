@@ -41,6 +41,7 @@
 
 #include "../graphics/Display.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/GLContext.h"
 
 #include "../video/VideoDecoder.h"
 

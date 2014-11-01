@@ -29,18 +29,13 @@
 #include "../base/GLMHelper.h"
 #include "../base/Rect.h"
 
-#include "../graphics/OGLShader.h"
-
 #include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 
 #include <string>
-#include <map>
 
 namespace avg {
 
 class AreaNode;
-class DivNode;
 class ArgList;
 
 typedef boost::shared_ptr<AreaNode> AreaNodePtr;

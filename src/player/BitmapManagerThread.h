@@ -27,7 +27,6 @@
 #include "BitmapManagerMsg.h"
 
 #include "../base/WorkerThread.h"
-#include "../graphics/Bitmap.h"
 
 #include <boost/thread.hpp>
 
