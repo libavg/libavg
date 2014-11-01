@@ -25,7 +25,6 @@
 #include "../api.h"
 
 #include "FXNode.h"
-#include "../graphics/GPUHueSatFilter.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
@@ -34,6 +33,9 @@
 using namespace std;
 
 namespace avg {
+
+class GPUHueSatFilter;
+typedef boost::shared_ptr<GPUHueSatFilter> GPUHueSatFilterPtr;
 
 class AVG_API HueSatFXNode : public FXNode {
 public:

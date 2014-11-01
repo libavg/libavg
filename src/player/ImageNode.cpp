@@ -34,6 +34,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/MCTexture.h"
+#include "../graphics/Bitmap.h"
 
 #include <iostream>
 #include <sstream>

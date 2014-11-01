@@ -30,6 +30,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #include "SDLWindow.h"
+#include "DisplayParams.h"
 #ifndef AVG_ENABLE_EGL
   #include "SecondaryWindow.h"
 #endif
@@ -41,6 +42,7 @@
 
 #include "../graphics/Display.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/Bitmap.h"
 #include "../graphics/GLContext.h"
 
 #include "../video/VideoDecoder.h"

@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "Contact.h"
 #include "CursorEvent.h"
+#include "InputDevice.h"
 
 #include "../base/Exception.h"
 #include "../base/OSHelper.h"

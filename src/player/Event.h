@@ -96,4 +96,4 @@ struct isEventAfter:std::binary_function<EventPtr, EventPtr, bool> {
 };
 
 }
-#endif //_Event_H_
+#endif

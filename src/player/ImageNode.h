@@ -26,12 +26,14 @@
 #include "RasterNode.h"
 #include "Image.h"
 
-#include "../graphics/Bitmap.h"
 #include "../base/UTF8String.h"
 
 #include <string>
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API ImageNode : public RasterNode
 {
