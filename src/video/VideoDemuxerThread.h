@@ -23,18 +23,18 @@
 #define _VideoDemuxerThread_H_
 
 #include "../api.h"
-#include "FFMpegDemuxer.h"
 #include "VideoMsg.h"
+#include "WrapFFMpeg.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
 
 #include <boost/thread.hpp>
 
-#include <string>
-#include <vector>
-
 namespace avg {
+
+class FFMpegDemuxer;
+typedef boost::shared_ptr<FFMpegDemuxer> FFMpegDemuxerPtr;
 
 class AVG_API VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
     public:

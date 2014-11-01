@@ -24,10 +24,12 @@
 
 #include "../avgconfigwrapper.h"
 #include "VideoDecoder.h"
-#include "FFMpegDemuxer.h"
-#include "FFMpegFrameDecoder.h"
 
 namespace avg {
+
+class FFMpegDemuxer;
+class FFMpegFrameDecoder;
+typedef boost::shared_ptr<FFMpegFrameDecoder> FFMpegFrameDecoderPtr;
 
 class AVG_API SyncVideoDecoder: public VideoDecoder
 {

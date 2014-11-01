@@ -32,6 +32,7 @@
 #include "../base/ObjectCounter.h"
 #include "../base/ProfilingZoneID.h"
 #include "../base/StringHelper.h"
+#include "../graphics/Bitmap.h"
 
 #include <iostream>
 #include <sstream>

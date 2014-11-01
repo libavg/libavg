@@ -26,6 +26,7 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
+#include "../graphics/Bitmap.h"
 #include "../avgconfigwrapper.h"
 
 struct vdpau_render_state;

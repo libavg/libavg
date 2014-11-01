@@ -24,11 +24,14 @@
 
 #include "../avgconfigwrapper.h"
 
-#include "../graphics/Bitmap.h"
-
 #include "WrapFFMpeg.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API FFMpegFrameDecoder
 {

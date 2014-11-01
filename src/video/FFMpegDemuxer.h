@@ -52,7 +52,9 @@ class AVG_API FFMpegDemuxer {
        
         AVFormatContext * m_pFormatContext;
 };
+
 typedef boost::shared_ptr<FFMpegDemuxer> FFMpegDemuxerPtr;
+
 }
 
 #endif
