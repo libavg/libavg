@@ -37,9 +37,6 @@
 
 namespace avg {
 
-class OGLShader;
-typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
-
 class AVG_API MCShaderParam
 {
 public:

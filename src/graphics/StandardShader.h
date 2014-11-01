@@ -23,10 +23,7 @@
 #define _StandardShader_H_
 
 #include "../api.h"
-#include "OGLHelper.h"
-#include "OGLShader.h"
 #include "GLShaderParam.h"
-#include "GLTexture.h"
 
 #include "../base/GLMHelper.h"
 
@@ -38,6 +35,10 @@ namespace avg {
 
 class StandardShader;
 typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
+class OGLShader;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class AVG_API StandardShader {
 public:

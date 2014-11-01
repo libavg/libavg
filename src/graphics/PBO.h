@@ -25,15 +25,16 @@
 #include "../api.h"
 #include "TextureMover.h"
 
-#include "Bitmap.h"
 #include "OGLHelper.h"
-#include "GLTexture.h"
-
-#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class AVG_API PBO: public TextureMover {
 public:

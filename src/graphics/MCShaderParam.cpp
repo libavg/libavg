@@ -22,7 +22,6 @@
 #include "MCShaderParam.h"
 
 #include "ShaderRegistry.h"
-#include "OGLShader.h"
 
 namespace avg {
 
