@@ -25,8 +25,6 @@
 #include "../api.h"
 #include "CanvasNode.h"
 
-#include <string>
-
 namespace avg {
 
 class AVG_API OffscreenCanvasNode : public CanvasNode

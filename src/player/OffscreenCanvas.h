@@ -24,9 +24,6 @@
 
 #include "../api.h"
 #include "Canvas.h"
-#include "OffscreenCanvasNode.h"
-
-#include "CameraNode.h"
 
 #include <string>
 
@@ -37,6 +34,9 @@ class FBO;
 typedef boost::shared_ptr<FBO> FBOPtr;
 class MCFBO;
 typedef boost::shared_ptr<MCFBO> MCFBOPtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
+class CameraNode;
 
 class AVG_API OffscreenCanvas: public Canvas
 {

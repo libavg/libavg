@@ -24,6 +24,7 @@
 #include "TypeDefinition.h"
 #include "OGLSurface.h"
 #include "Player.h"
+#include "OffscreenCanvasNode.h"
 #include "OffscreenCanvas.h"
 
 #include "../base/Logger.h"

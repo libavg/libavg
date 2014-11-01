@@ -24,12 +24,9 @@
 
 #include "../api.h"
 #include "Publisher.h"
-#include "Timeout.h"
-#include "TypeRegistry.h"
 #include "DisplayParams.h"
-#include "CursorState.h"
-#include "TestHelper.h"
 #include "BoostPython.h"
+#include "Event.h"
 
 #include "../audio/AudioParams.h"
 #include "../graphics/GLConfig.h"
@@ -40,7 +37,6 @@
 
 #include <string>
 #include <vector>
-#include <set>
 
 namespace avg {
 
@@ -61,6 +57,12 @@ class CursorEvent;
 class DisplayEngine;
 class Display;
 class GLContextManager;
+class Timeout;
+class CursorState;
+class TestHelper;
+class InputDevice;
+class Bitmap;
+class AVGNode;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -74,6 +76,11 @@ typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
 typedef boost::shared_ptr<Display> DisplayPtr;
 typedef boost::shared_ptr<GLContextManager> GLContextManagerPtr;
+typedef boost::shared_ptr<CursorState> CursorStatePtr;
+typedef boost::shared_ptr<TestHelper> TestHelperPtr;
+typedef boost::shared_ptr<InputDevice> InputDevicePtr;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 
 class AVG_API Player: public Publisher
 {
