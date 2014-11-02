@@ -23,6 +23,7 @@
 #include "Player.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 
 #include "../base/FileHelper.h"
 

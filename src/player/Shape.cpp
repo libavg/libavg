@@ -28,8 +28,10 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/OGLShader.h"
 #include "../graphics/StandardShader.h"
+#include "../graphics/Bitmap.h"
 
 #include "OGLSurface.h"
+#include "Image.h"
 
 #include <iostream>
 #include <sstream>

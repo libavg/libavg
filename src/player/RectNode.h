@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "FilledVectorNode.h"
 
+#include "../base/Rect.h"
 #include "../graphics/Pixel32.h"
 
 namespace avg {

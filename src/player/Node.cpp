@@ -22,6 +22,7 @@
 #include "Node.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Arg.h"
 #include "Canvas.h"
 #include "DivNode.h"

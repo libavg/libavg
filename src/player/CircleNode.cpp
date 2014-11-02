@@ -22,9 +22,11 @@
 #include "CircleNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
+#include "../graphics/VertexData.h"
 
 #include <iostream>
 #include <sstream>

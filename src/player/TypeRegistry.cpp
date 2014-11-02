@@ -23,6 +23,7 @@
 
 #include "TypeRegistry.h"
 #include "TypeDefinition.h"
+#include "ExportedObject.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"

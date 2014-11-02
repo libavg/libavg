@@ -22,10 +22,13 @@
 #include "CurveNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
 #include "../base/BezierCurve.h"
+
+#include "../graphics/VertexData.h"
 
 #include <math.h>
 #include <float.h>

@@ -22,6 +22,7 @@
 #include "CameraNode.h"
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Canvas.h"
 
 #include "../base/Logger.h"

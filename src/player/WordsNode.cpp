@@ -22,6 +22,7 @@
 #include "WordsNode.h"
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "TextEngine.h"
 #include "Canvas.h"
 

@@ -22,6 +22,7 @@
 #include "ImageNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "Player.h"
 #include "OffscreenCanvasNode.h"

@@ -21,11 +21,13 @@
 
 #include "MeshNode.h"
 
+#include "TypeDefinition.h"
+#include "TypeRegistry.h"
+#include "VectorNode.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
-
-#include "TypeDefinition.h"
-#include "VectorNode.h"
+#include "../graphics/VertexData.h"
 
 #include <cstdlib>
 #include <string>

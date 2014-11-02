@@ -25,6 +25,7 @@
 #include "../base/Exception.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Arg.h"
 
 using namespace std;

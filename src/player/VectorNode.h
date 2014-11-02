@@ -24,16 +24,22 @@
 
 #include "../api.h"
 #include "Node.h"
-#include "Shape.h"
 
 #include "../base/UTF8String.h"
 #include "../graphics/Pixel32.h"
-#include "../graphics/VertexArray.h"
 #include "../graphics/GLContext.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
 struct WideLine;
+class VertexArray;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+class VertexData;
+typedef boost::shared_ptr<VertexData> VertexDataPtr;
+class Shape;
+typedef boost::shared_ptr<Shape> ShapePtr;
 
 class AVG_API VectorNode : public Node
 {
