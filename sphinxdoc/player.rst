@@ -68,6 +68,11 @@ Player & Canvas
             Number of samples per pixel to use for multisampling. Setting this to
             1 disables multisampling. Read-only.
 
+        .. py:attribute:: size
+
+            Size of the rendering area (and the :py:class:`CanvasNode`) in pixels. 
+            Read-only.
+
         .. py:method:: getID() -> string
 
             Returns the id of the canvas. This is the same as
