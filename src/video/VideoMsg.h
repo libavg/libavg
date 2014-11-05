@@ -28,6 +28,7 @@
 #include "../audio/AudioMsg.h"
 
 #include <boost/shared_ptr.hpp>
+#include <vector>
 
 struct vdpau_render_state;
 struct AVPacket;
