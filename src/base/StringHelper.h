@@ -27,8 +27,6 @@
 
 #include <string>
 #include <sstream>
-#include <typeinfo>
-#include <iostream>
 #include <vector>
 
 #ifdef __GNUC__

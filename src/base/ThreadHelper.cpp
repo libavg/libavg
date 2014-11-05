@@ -20,6 +20,7 @@
 //
 
 #include "ThreadHelper.h"
+#include "Exception.h"
 #include "OSHelper.h"
 
 #ifdef _WIN32

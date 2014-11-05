@@ -22,8 +22,10 @@
 #include "ImageNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "Player.h"
+#include "OffscreenCanvasNode.h"
 #include "OffscreenCanvas.h"
 
 #include "../base/Logger.h"
@@ -34,6 +36,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/MCTexture.h"
+#include "../graphics/Bitmap.h"
 
 #include <iostream>
 #include <sstream>

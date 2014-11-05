@@ -22,10 +22,12 @@
 #include "PolygonNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 
 #include "../base/Exception.h"
 #include "../base/GeomHelper.h"
 #include "../base/triangulate/Triangulate.h"
+#include "../graphics/VertexData.h"
 
 #include "../glm/gtx/norm.hpp"
 

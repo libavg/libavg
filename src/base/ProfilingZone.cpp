@@ -22,9 +22,6 @@
 #include "ProfilingZone.h"
 #include "ObjectCounter.h"
 
-#include <iostream>
-
-using namespace boost;
 using namespace std;
 
 namespace avg {

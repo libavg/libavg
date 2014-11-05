@@ -22,9 +22,11 @@
 #include "CircleNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
+#include "../graphics/VertexData.h"
 
 #include <iostream>
 #include <sstream>
@@ -278,7 +280,7 @@ void CircleNode::getEigthCirclePoints(vector<glm::vec2>& pts, float radius)
     int numPts = getNumCircumferencePoints();
     for (int i = 0; i <= numPts/8; ++i) {
         float ratio = (float(i)/numPts);
-        float angle = ratio*2*PI;
+        float angle = ratio*2*M_PI;
         pts.push_back(getCirclePt(angle, radius));
     }
 }

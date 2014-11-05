@@ -43,6 +43,7 @@
 #include "TestHelper.h"
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
+#include "OffscreenCanvasNode.h"
 #include "TrackerInputDevice.h"
 #include "DisplayEngine.h"
 #include "MultitouchInputDevice.h"
@@ -61,6 +62,10 @@
 #include "EventDispatcher.h"
 #include "PublisherDefinition.h"
 #include "BitmapManager.h"
+#include "Timeout.h"
+#include "TypeRegistry.h"
+#include "CursorState.h"
+#include "TestHelper.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"

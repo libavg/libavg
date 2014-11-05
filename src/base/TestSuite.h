@@ -25,8 +25,6 @@
 #include "../api.h"
 #include "Test.h"
 
-#include <iostream>
-#include <sstream>
 #include <vector>
 
 namespace avg {

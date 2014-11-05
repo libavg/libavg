@@ -27,7 +27,8 @@
 #include "MaterialInfo.h"
 
 #include "../base/GLMHelper.h"
-#include "../graphics/Bitmap.h"
+
+#include "../graphics/PixelFormat.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -37,6 +38,8 @@ namespace avg {
 class OGLSurface;
 class OffscreenCanvas;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API Image
 {

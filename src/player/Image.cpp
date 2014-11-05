@@ -27,6 +27,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/Bitmap.h"
 #include "../graphics/GLContextManager.h"
 
 #include "OGLSurface.h"

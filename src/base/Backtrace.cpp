@@ -21,8 +21,6 @@
 
 #include "Backtrace.h"
 
-#include "StringHelper.h"
-
 #ifndef _WIN32
 #include <execinfo.h>
 #include <cxxabi.h>

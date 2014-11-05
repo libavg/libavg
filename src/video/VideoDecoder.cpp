@@ -32,6 +32,8 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapLoader.h"
 
+#include "../audio/AudioParams.h"
+
 #include <string>
 
 #include "WrapFFMpeg.h"

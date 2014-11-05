@@ -6,8 +6,6 @@
 
 #include "../base/MathHelper.h"
 
-#include <math.h>
-
 namespace avg {
 
 class ContribDef
@@ -66,7 +64,7 @@ public:
         {
             return 0.0;
         }
-        return float(exp(-dVal * dVal/m_dWidth-1) / sqrt(2*PI));
+        return float(exp(-dVal * dVal/m_dWidth-1) / sqrt(2*M_PI));
     }
 };
 

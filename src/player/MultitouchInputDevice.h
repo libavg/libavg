@@ -26,11 +26,9 @@
 #include "InputDevice.h"
 
 #include "../base/GLMHelper.h"
-#include "../base/ConfigMgr.h"
 
 #include <boost/thread.hpp>
 #include <map>
-#include <set>
 
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
 

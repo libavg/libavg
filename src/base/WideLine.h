@@ -31,14 +31,14 @@
 namespace avg {
    
 struct AVG_API WideLine {
-        WideLine(const glm::vec2& p0, const glm::vec2& p1, float width);
+    WideLine(const glm::vec2& p0, const glm::vec2& p1, float width);
 
-        float getLen() const;
+    float getLen() const;
 
-        glm::vec2 pt0, pt1;
-        glm::vec2 pl0, pl1;
-        glm::vec2 pr0, pr1;
-        glm::vec2 dir;
+    glm::vec2 pt0, pt1;
+    glm::vec2 pl0, pl1;
+    glm::vec2 pr0, pr1;
+    glm::vec2 dir;
 };
 
 std::ostream& operator<<(std::ostream& os, const WideLine& line);

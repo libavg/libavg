@@ -25,7 +25,6 @@
 #include "../api.h"
 
 #include "ArgList.h"
-#include "TypeRegistry.h"
 
 #include <map>
 #include <string>

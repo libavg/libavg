@@ -30,12 +30,12 @@
 #include "../base/GLMHelper.h"
 #include "../base/UTF8String.h"
 #include "../graphics/GLContext.h"
-#include "../graphics/SubVertexArray.h"
 
 #include <string>
 
 namespace avg {
 
+class SubVertexArray;
 class OGLSurface;
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;

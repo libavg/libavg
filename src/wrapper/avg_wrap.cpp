@@ -33,6 +33,7 @@ void export_anim();
 #include "../base/XMLHelper.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
+#include "../player/CameraNode.h"
 #include "../player/DivNode.h"
 #include "../player/TrackerInputDevice.h"
 #include "../player/TouchEvent.h"

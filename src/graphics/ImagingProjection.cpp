@@ -24,6 +24,7 @@
 #include "GLContext.h"
 #include "GLContextManager.h"
 #include "OGLShader.h"
+#include "VertexArray.h"
 
 #include "../base/Exception.h"
 

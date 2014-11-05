@@ -22,8 +22,10 @@
 #include "VectorNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "Image.h"
+#include "Shape.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"

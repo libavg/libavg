@@ -25,10 +25,9 @@
 #include "../api.h"
 
 #include "FBOInfo.h"
-#include "FBO.h"
-#include "MCTexture.h"
 
 #include "../base/GLMHelper.h"
+#include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -36,6 +35,14 @@
 #include <map>
 
 namespace avg {
+
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class GLContext;
 
 class AVG_API MCFBO: public FBOInfo
 {

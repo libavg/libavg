@@ -28,6 +28,7 @@
 #include "../graphics/FBO.h"
 #include "../graphics/GPURGB2YUVFilter.h"
 #include "../graphics/Filterfill.h"
+#include "../graphics/GLContext.h"
 #include "../base/StringHelper.h"
 
 #include <boost/bind.hpp>

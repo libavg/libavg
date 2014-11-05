@@ -22,6 +22,8 @@
 #include "StandardShader.h"
 
 #include "GLContext.h"
+#include "OGLShader.h"
+#include "GLTexture.h"
 #include "ShaderRegistry.h"
 
 #include "../base/Logger.h"

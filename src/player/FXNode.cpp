@@ -24,6 +24,8 @@
 
 #include "../base/ObjectCounter.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/GPUFilter.h"
+
 
 namespace avg {
 

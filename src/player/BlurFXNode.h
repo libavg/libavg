@@ -25,11 +25,13 @@
 #include "../api.h"
 
 #include "FXNode.h"
-#include "../graphics/GPUBlurFilter.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class GPUBlurFilter;
+typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;
 
 class AVG_API BlurFXNode: public FXNode {
 public:

@@ -21,7 +21,7 @@
 
 #include "UTF8String.h"
 
-#include <iostream>
+#include <boost/functional/hash.hpp>
 
 using namespace std;
 

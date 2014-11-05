@@ -22,7 +22,8 @@
 #ifndef _ThreadHelper_H_
 #define _ThreadHelper_H_
 
-#include "Exception.h"
+#include "../api.h"
+
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
 

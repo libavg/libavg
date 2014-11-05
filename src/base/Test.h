@@ -26,7 +26,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 namespace avg {

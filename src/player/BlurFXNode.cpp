@@ -24,6 +24,8 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
+#include "../graphics/GPUBlurFilter.h"
+
 #include <string>
 
 using namespace std;

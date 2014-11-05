@@ -21,7 +21,8 @@
 
 #include "OffscreenCanvas.h"
 
-#include "CanvasNode.h"
+#include "OffscreenCanvasNode.h"
+#include "CameraNode.h"
 #include "Player.h"
 #include "Window.h"
 #include "DisplayEngine.h"

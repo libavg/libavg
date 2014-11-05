@@ -25,8 +25,6 @@
 #include "../api.h"
 #include "DivNode.h"
 
-#include <string>
-
 namespace avg {
 
 class AVG_API CanvasNode : public DivNode

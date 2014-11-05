@@ -25,11 +25,13 @@
 #include "../api.h"
 
 #include "FXNode.h"
-#include "../graphics/GPUNullFilter.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class GPUNullFilter;
+typedef boost::shared_ptr<GPUNullFilter> GPUNullFilterPtr;
 
 class AVG_API NullFXNode: public FXNode {
 public:

@@ -26,7 +26,10 @@
 
 #include "../api.h"
 #include "../base/Queue.h"
-#include "../graphics/Bitmap.h"
+#include "../base/UTF8String.h"
+#include "../base/Exception.h"
+
+#include "../graphics/PixelFormat.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
@@ -34,6 +37,8 @@
 
 namespace avg {
 
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class IBitmapLoadedListener;
 
 class AVG_API BitmapManagerMsg

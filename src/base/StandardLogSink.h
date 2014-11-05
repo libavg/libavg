@@ -23,7 +23,7 @@
 
 #include "ILogSink.h"
 
-namespace avg{
+namespace avg {
 
 class StandardLogSink: public ILogSink
 {

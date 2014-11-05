@@ -22,9 +22,12 @@
 #include "RectNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
+
+#include "../graphics/VertexData.h"
 
 #include <iostream>
 #include <sstream>
@@ -109,7 +112,7 @@ float RectNode::getAngle() const
 
 void RectNode::setAngle(float angle)
 {
-    m_Angle = fmod(angle, 2*PI);
+    m_Angle = fmod(angle, 2*(float)M_PI);
     setDrawNeeded();
 }
 

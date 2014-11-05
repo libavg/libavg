@@ -28,6 +28,9 @@
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
 #include "../base/Queue.h"
+#include "../base/GLMHelper.h"
+
+#include "../graphics/PixelFormat.h"
 
 #include "WrapFFMpeg.h"
 

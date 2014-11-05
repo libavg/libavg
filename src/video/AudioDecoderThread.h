@@ -28,7 +28,6 @@
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"
-#include "../base/Command.h"
 #include "../audio/AudioParams.h"
 
 #include "WrapFFMpeg.h"

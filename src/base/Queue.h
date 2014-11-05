@@ -23,14 +23,12 @@
 #define _Queue_H_
 
 #include "../api.h"
-#include "Exception.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <deque>
-#include <iostream>
 
 namespace avg {
 

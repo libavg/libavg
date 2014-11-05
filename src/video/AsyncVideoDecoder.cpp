@@ -30,6 +30,8 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 
+#include "../audio/AudioParams.h"
+
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 

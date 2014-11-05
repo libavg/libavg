@@ -22,7 +22,6 @@
 #include "OSHelper.h"
 #include "FileHelper.h"
 #include "Logger.h"
-#include "FileHelper.h"
 #include "Exception.h"
 
 #if defined(_WIN32)
@@ -34,6 +33,7 @@
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
 #include <sys/utsname.h>
+#include <unistd.h>
 #elif defined(__linux)
 #include <fstream>
 #include <unistd.h>
@@ -42,6 +42,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 
 using namespace std;

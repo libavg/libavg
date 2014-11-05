@@ -24,11 +24,21 @@
 
 #include "../api.h"
 
-#include "../graphics/GPUFilter.h"
+#include "../base/GLMHelper.h"
+#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
+class GPUFilter;
+typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class AVG_API FXNode {
 public:

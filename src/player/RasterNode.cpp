@@ -22,6 +22,7 @@
 #include "RasterNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "FXNode.h"
 #include "Canvas.h"
@@ -31,6 +32,10 @@
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/GLContextManager.h"
 #include "../graphics/MCFBO.h"
+#include "../graphics/MCTexture.h"
+#include "../graphics/GLTexture.h"
+#include "../graphics/StandardShader.h"
+#include "../graphics/SubVertexArray.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"

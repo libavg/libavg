@@ -26,13 +26,10 @@
 
 #include "../api.h"
 #include "WrapPython.h"
-#include "Node.h"
-#include "ArgList.h"
 #include "TypeDefinition.h"
 
 #include <map>
 #include <string>
-#include <sstream>
 
 namespace avg {
 

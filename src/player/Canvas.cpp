@@ -25,6 +25,7 @@
 #include "AVGNode.h"
 #include "Shape.h"
 #include "OffscreenCanvas.h"
+#include "RasterNode.h"
 #include "Window.h"
 
 #include "../base/Exception.h"

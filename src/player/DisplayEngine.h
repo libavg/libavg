@@ -23,11 +23,9 @@
 #define _DisplayEngine_H_
 
 #include "../api.h"
-#include "DisplayParams.h"
 #include "InputDevice.h"
 
 #include "../graphics/GLConfig.h"
-#include "../graphics/Bitmap.h"
 
 
 #include <boost/shared_ptr.hpp>
@@ -43,7 +41,10 @@ class Window;
 typedef boost::shared_ptr<class Window> WindowPtr;
 class SDLWindow;
 typedef boost::shared_ptr<class SDLWindow> SDLWindowPtr;
+class Bitmap;
+typedef boost::shared_ptr<class Bitmap> BitmapPtr;
 class GLContext;
+class DisplayParams;
 
 class AVG_API DisplayEngine: public InputDevice
 {   

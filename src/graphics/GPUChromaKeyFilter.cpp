@@ -26,6 +26,7 @@
 #include "GLContextManager.h"
 #include "ImagingProjection.h"
 #include "FBO.h"
+#include "GLTexture.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"

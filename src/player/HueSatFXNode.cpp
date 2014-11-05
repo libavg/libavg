@@ -25,7 +25,7 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
 
-#include "../graphics/BitmapLoader.h"
+#include "../graphics/GPUHueSatFilter.h"
 
 #include<sstream>
 

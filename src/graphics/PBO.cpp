@@ -21,6 +21,7 @@
 
 #include "PBO.h"
 #include "GLContext.h"
+#include "GLTexture.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

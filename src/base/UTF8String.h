@@ -23,7 +23,6 @@
 #define _UTF8String_H_
 
 #include "../api.h"
-#include <boost/functional/hash.hpp>
 #include <string>
 
 namespace avg {
