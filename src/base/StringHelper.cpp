@@ -21,6 +21,9 @@
 
 #include "StringHelper.h"
 
+#include <cstdio>
+#include <algorithm>
+
 using namespace std;
 
 namespace avg {
