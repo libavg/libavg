@@ -112,7 +112,7 @@ float RectNode::getAngle() const
 
 void RectNode::setAngle(float angle)
 {
-    m_Angle = fmod(angle, 2*M_PI);
+    m_Angle = fmod(angle, 2*(float)M_PI);
     setDrawNeeded();
 }
 

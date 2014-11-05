@@ -4,6 +4,8 @@
 #ifndef _ContribDefs_h_
 #define _ContribDefs_h_
 
+#include "../base/MathHelper.h"
+
 namespace avg {
 
 class ContribDef

@@ -21,6 +21,7 @@
 
 #include "OSHelper.h"
 #include "FileHelper.h"
+#include "Logger.h"
 #include "Exception.h"
 
 #if defined(_WIN32)
