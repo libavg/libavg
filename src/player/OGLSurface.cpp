@@ -142,6 +142,9 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
     pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
     if (m_pMaskTexture) {
         m_pMaskTexture->activate(GL_TEXTURE4);
+        // The shader maskpos param takes the position in texture coordinates (0..1) of 
+        // the main texture.
+
         // Special case for pot textures: 
         //   The tex coords in the vertex array are scaled to fit the image texture. We 
         //   need to undo this and fit to the mask texture. In the npot case, everything
@@ -154,6 +157,19 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
                 maskTexSize.y/maskImgSize.y);
         glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
         glm::vec2 maskPos = m_MaskPos/maskScale;
+
+        // Correct for Aspect Ratio differences between main and mask texture.
+        float surfaceAspect = texSize.x/texSize.y;
+        float maskAspect = maskTexSize.x/maskTexSize.y;
+        glm::vec2 aspectCorr;
+        if (maskAspect > surfaceAspect) {
+            aspectCorr = glm::vec2(1, maskAspect/surfaceAspect);
+        } else {
+            aspectCorr = glm::vec2(surfaceAspect/maskAspect, 1);
+        }
+        cerr << "aspect: " << aspectCorr << endl;
+        maskPos *= aspectCorr;
+
         // Special case for words nodes.
         if (logicalSize != IntPoint(0,0)) {
             maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 

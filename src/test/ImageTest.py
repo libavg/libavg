@@ -489,6 +489,19 @@ class ImageTestCase(AVGTestCase):
             root.appendChild(node)
             node.maskpos = (32, 32)
 
+        def rectMask():
+            for i in range(1, root.getNumChildren()):
+                root.getChild(1).unlink(True)
+            node = root.getChild(0)
+            node.size = (65, 65)
+            node.maskhref = "mask3.png"
+            node.maskpos = (0, 0)
+            node.masksize = (64, 48)
+
+        def rectMaskPos():
+            node = root.getChild(0)
+            node.maskpos = (0, 16)
+
         root = self.loadEmptyScene()
         createNode((0,0))
         setNoAttach((32,0))
@@ -497,7 +510,11 @@ class ImageTestCase(AVGTestCase):
                 (lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskPos")
+                 lambda: self.compareImage("testImgMaskPos1"),
+                 rectMask,
+                 lambda: self.compareImage("testImgMaskPos2"),
+                 rectMaskPos,
+                 lambda: self.compareImage("testImgMaskPos3"),
                 ))
 
     def testImageMaskSize(self):
