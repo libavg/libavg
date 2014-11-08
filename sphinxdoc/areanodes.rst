@@ -385,8 +385,8 @@ Area Nodes
 
         .. py:attribute:: maskpos
 
-            An offset for the mask image. For images and videos, the offset is
-            given in image or video pixels, respectively. For words nodes, the
+            An offset for the mask image. For images, the offset is given in pixels of the
+            main bitmap, for videos, in video pixels, and for words nodes, the
             offset is given in screen pixels. If portions of the node extend
             outside the mask, the border pixels of the mask are taken. Note that the
             maskpos is an offset from the top left of the node, even for 
@@ -396,9 +396,9 @@ Area Nodes
 
         .. py:attribute:: masksize
 
-            The size of the mask image. For images and videos, the size is
-            given in image or video pixels, respectively. For words nodes, the
-            size is given in screen pixels. If portions of the node extend
+            The size of the mask image. For images, the offset is given in pixels of the
+            main bitmap, for videos, in video pixels, and for words nodes, the
+            offset is given in screen pixels. If portions of the node extend
             outside the mask, the border pixels of the mask are taken.
 
         .. py:attribute:: maxtileheight
