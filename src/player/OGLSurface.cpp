@@ -167,7 +167,6 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
         } else {
             aspectCorr = glm::vec2(surfaceAspect/maskAspect, 1);
         }
-        cerr << "aspect: " << aspectCorr << endl;
         maskPos *= aspectCorr;
 
         // Special case for words nodes.
