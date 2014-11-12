@@ -533,9 +533,10 @@ Player & Canvas
 
             :param shaderUsage: 
             
-                Either :py:const:`FULL`, :py:const:`MINIMAL` or :py:const:`AUTO`. 
-                :py:const:`MINIMAL` restricts shader usage to a subset that doesn't use
-                much GPU power.
+                Either :py:const:`avg.SHADERUSAGE_FULL`,
+                :py:const:`avg.SHADERUSAGE_MINIMAL` or :py:const:`avg.SHADERUSAGE_AUTO`.
+                :py:const:`SHADERUSAGE_MINIMAL` restricts shader usage to a subset that
+                doesn't use much GPU power.
 
             :param useDebugContext:
 
@@ -569,8 +570,8 @@ Player & Canvas
 
             :param int bpp: 
             
-                Number of bits per pixel to use. Valid values are :samp:`15`, :samp:`16`,
-                :samp:`24` and :samp:`32`.
+                Number of bits per pixel to use. Valid values are :py:const:`16` or
+                :py:const:`24`.
 
         .. py:method:: setTimeout(time, pyfunc) -> int
 
