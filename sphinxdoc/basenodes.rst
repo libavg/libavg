@@ -350,10 +350,11 @@ This section describes the base classes for all node classes that libavg provide
             preserved.
 
             If :samp:`kill=True`, textures are not moved back. Event handlers for events
-            routed to this node are reset, all textures are deleted and the href is reset
-            to empty in this case, saving some time and making sure there are no 
-            references to the node left on the libavg side. :py:attr:`kill` should always
-            be set to :py:const:`True` if the node will not be used after the unlink.
+            routed to this node are reset, gesture recognizers disabled, all textures are
+            deleted and the href is reset to empty in this case, saving some time and
+            making sure there are no references to the node left on the libavg side.
+            :py:attr:`kill` should always be set to :py:const:`True` if the node will not
+            be used after the unlink.
     
 
     .. autoclass:: Publisher()
