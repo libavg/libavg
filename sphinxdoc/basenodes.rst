@@ -139,6 +139,25 @@ This section describes the base classes for all node classes that libavg provide
             
                 Emitted whenever a hover cursor leaves the :py:class:`Node`'s area.
 
+            .. py:method:: KILLED()
+
+                Emitted when the node or one of its parents has :samp:`unlink(True)`
+                called.
+
+            .. py:method:: SIZE_CHANGED(newSize)
+            
+                Emitted whenever the size of the node changes. This includes any python
+                calls that change the size. In addition, image loading (for 
+                :py:class:`ImageNode`), opening of video files (for 
+                :py:class:`VideoNode`) and changes in the text displayed (in the case of
+                :py:class:`WordsNode`) can trigger :py:meth:`SIZE_CHANGED` messages. Note
+                that changing the size of a node inside a :py:meth:`SIZE_CHANGED` handler
+                will lead to an additional recursive invocation of 
+                :py:meth:`SIZE_CHANGED`.
+                
+                :py:class:`RectNode` and all classes derived from :py:class:`AreaNode`
+                support this message.
+
             .. py:method:: TANGIBLE_DOWN(tangibleevent)
             
                 Emitted whenever a new tangible cursor is registered.
@@ -158,20 +177,6 @@ This section describes the base classes for all node classes that libavg provide
             .. py:method:: TANGIBLE_OUT(tangibleevent)
             
                 Emitted whenever a tangible cursor leaves the :py:class:`Node`'s area.
-
-            .. py:method:: SIZE_CHANGED(newSize)
-            
-                Emitted whenever the size of the node changes. This includes any python
-                calls that change the size. In addition, image loading (for 
-                :py:class:`ImageNode`), opening of video files (for 
-                :py:class:`VideoNode`) and changes in the text displayed (in the case of
-                :py:class:`WordsNode`) can trigger :py:meth:`SIZE_CHANGED` messages. Note
-                that changing the size of a node inside a :py:meth:`SIZE_CHANGED` handler
-                will lead to an additional recursive invocation of 
-                :py:meth:`SIZE_CHANGED`.
-                
-                :py:class:`RectNode` and all classes derived from :py:class:`AreaNode`
-                support this message.
 
 
         .. py:attribute:: id
