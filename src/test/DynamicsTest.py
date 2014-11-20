@@ -69,8 +69,14 @@ class DynamicsTestCase(AVGTestCase):
             self.node = None
        
         def killNode():
+            def onKill():
+                self.killCalled = True
+
             self.node = player.getElementByID("nodeid1")
+            self.killCalled = False
+            self.node.subscribe(avg.Node.KILLED, onKill)
             self.node.unlink(True)
+            self.assert_(self.killCalled)
             gone = player.getElementByID("nodeid1")
             self.assertEqual(gone, None)
 
