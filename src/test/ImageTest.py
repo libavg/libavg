@@ -370,7 +370,6 @@ class ImageTestCase(AVGTestCase):
             if multithread:
                 avg.BitmapManager.get().setNumThreads(2)
             player.setTimeout(WAIT_TIMEOUT, reportStuck)
-            player.setResolution(0, 0, 0, 0)
             loadValidBitmap()
             player.play()
         avg.BitmapManager.get().setNumThreads(1)
