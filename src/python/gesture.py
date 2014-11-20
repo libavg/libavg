@@ -39,10 +39,9 @@ class Recognizer(avg.Publisher):
             endHandler=None):
         super(Recognizer, self).__init__()
 
-        if node:
-            self.__node = weakref.ref(node)
-        else:
-            self.__node = None
+        assert(node)
+        self.__node = node
+        self.__node.subscribe(avg.Node.KILLED, self.__onNodeGone)
         self.__isContinuous = isContinuous
         self.__maxContacts = maxContacts
 
@@ -164,8 +163,8 @@ class Recognizer(avg.Publisher):
             self.__stateMachine.changeState("IDLE")
         if len(self._contacts) != 0:
             self._disconnectContacts()
-        if self.__node and self.__node():
-            self.__node().unsubscribe(avg.Node.CURSOR_DOWN, self.__downHandlerID)
+        if self.__node:
+            self.__node.unsubscribe(avg.Node.CURSOR_DOWN, self.__downHandlerID)
             self.__downHandlerID = None
 
     def _disconnectContacts(self):
@@ -197,16 +196,19 @@ class Recognizer(avg.Publisher):
             self._handleChange()
             self.__dirty = False
 
+    def __onNodeGone(self):
+        self.enable(False)
+        self.__node = None
+
     def _handleNodeGone(self):
-        if self.__node and not(self.__node()):
-            self.enable(False)
-            return True
-        else:
+        if self.__node:
             return False
+        else:
+            return True
 
     def __setEventHandler(self):
-        if self.__node and self.__node():
-            self.__downHandlerID = self.__node().subscribe(
+        if self.__node:
+            self.__downHandlerID = self.__node.subscribe(
                     avg.Node.CURSOR_DOWN, self.__onDown)
 
 
