@@ -550,7 +550,8 @@ class DragRecognizer(Recognizer):
                     self.__fail(event)
 
     def _handleCoordSysNodeUnlinked(self):
-        if self.__coordSysNode().getParent():
+        if self.__coordSysNode().getParent() or isinstance(
+                self.__coordSysNode(), avg.CanvasNode):
             return False
         else:
             self.abort()
@@ -575,7 +576,10 @@ class DragRecognizer(Recognizer):
             self._setEnd(None)
 
     def __relEventPos(self, event):
-        return self.__coordSysNode().getParent().getRelPos(event.pos)
+        if isinstance(self.__coordSysNode(), avg.CanvasNode):
+            return event.pos
+        else:
+            return self.__coordSysNode().getParent().getRelPos(event.pos)
 
     def __angleFits(self, offset):
         angle = offset.getAngle()
