@@ -1026,7 +1026,18 @@ class GestureTestCase(AVGTestCase):
                         abortDuringUp),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
                 ))
-        
+
+        # Test root node
+        self.__initImageScene()
+        self.__transformRecognizer = gesture.TransformRecognizer(player.getRootNode(),
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 20),
+                 lambda: checkTransform(gesture.Transform((10, 10))),
+                ))
+
 
         # Test second down during inertia.
         self.__initImageScene()
