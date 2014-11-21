@@ -107,8 +107,8 @@ dc1394video_mode_t getCamMode(IntPoint size, PixelFormat pf)
         }
     }
     throw Exception(AVG_ERR_CAMERA_FATAL,
-            "Unsupported or illegal value ("+toString(size.x)+", "+toString(size.y)+
-            "), "+getPixelFormatString(pf)+"\" for camera mode.");
+            "Unsupported or illegal firewire camera mode: (" + 
+            toString(size.x) + ", " + toString(size.y) + "), "+getPixelFormatString(pf));
 }
 
 dc1394framerate_t getFrameRateConst(float frameRate)
