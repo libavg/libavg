@@ -833,7 +833,8 @@ class TransformRecognizer(Recognizer):
 
     def _handleNodeGone(self):
         if ((self.__coordSysNode and not(self.__coordSysNode())) or
-                self.__coordSysNode().getParent() == None):
+                (self.__coordSysNode().getParent() == None and
+                 not isinstance(self.__coordSysNode(), avg.CanvasNode))):
             self.enable(False)
             return True
         else:
@@ -914,7 +915,10 @@ class TransformRecognizer(Recognizer):
             return rawPos
 
     def __relContactPos(self, contact):
-        return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
+        if isinstance(self.__coordSysNode(), avg.CanvasNode):
+            return contact.events[-1].pos
+        else:
+            return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
 
     def __isFiltered(self):
         return TransformRecognizer.FILTER_MIN_CUTOFF != None
