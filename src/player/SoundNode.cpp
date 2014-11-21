@@ -158,6 +158,7 @@ void SoundNode::connectDisplay()
     }
     if (m_State == Paused) {
         m_PauseStartTime = curTime;
+        AudioEngine::get()->pauseSource(m_AudioID);
     } 
 }
 
