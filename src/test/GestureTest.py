@@ -635,6 +635,23 @@ class GestureTestCase(AVGTestCase):
                         [gesture.Recognizer.MOTION]),
                 ))
 
+        # Test recognizer on root node
+        sys.stderr.write("  Root node recognizer\n")
+        self.__initImageScene()
+        dragRecognizer = gesture.DragRecognizer(player.getRootNode(),
+                moveHandler=onMove, upHandler=onUp, friction=-1,
+                minDragDist=0, direction=gesture.DragRecognizer.ANY_DIRECTION)
+        self.messageTester = MessageTester(dragRecognizer, [gesture.Recognizer.POSSIBLE,
+                gesture.Recognizer.DETECTED, gesture.Recognizer.FAILED,
+                gesture.Recognizer.END],
+                self)
+        self.start(False,
+                (self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 30, 30,
+                        [gesture.Recognizer.DETECTED]),
+                 self._genMouseEventFrames(avg.Event.CURSOR_UP, 40, 20,
+                        [gesture.Recognizer.UP, gesture.Recognizer.END]),
+                ))
+
         # Test second down during inertia, constrained recognizer
         sys.stderr.write("  Down during inertia, constrained recognizer\n")
         dragRecognizer, self.messageTester = setupRecognizer(friction=0.01,
@@ -1009,7 +1026,18 @@ class GestureTestCase(AVGTestCase):
                         abortDuringUp),
                  lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 10, 10),
                 ))
-        
+
+        # Test root node
+        self.__initImageScene()
+        self.__transformRecognizer = gesture.TransformRecognizer(player.getRootNode(),
+                detectedHandler=onDetected, moveHandler=onMove, upHandler=onUp)
+        self.start(False,
+                (
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 10, 10),
+                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 20, 20),
+                 lambda: checkTransform(gesture.Transform((10, 10))),
+                ))
+
 
         # Test second down during inertia.
         self.__initImageScene()
