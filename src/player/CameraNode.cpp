@@ -338,33 +338,35 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (m_bAutoUpdateCameraImage) {
-        ScopeTimer Timer(CameraFetchImage);
-        updateToLatestCameraImage();
-    }
-    if (isVisible()) {
-        if (m_bNewBmp) {
-            ScopeTimer Timer(CameraDownloadProfilingZone);
-            m_FrameNum++;
-            GLContextManager::get()->scheduleTexUpload(m_pTex, m_pCurBmp);
-            scheduleFXRender();
-            m_bNewBmp = false;
-        } else if (m_bNewSurface) {
-            BitmapPtr pBmp;
-            PixelFormat pf = getPixelFormat();
-            pBmp = BitmapPtr(new Bitmap(getMediaSize(), pf));
-            if (pf == B8G8R8X8 || pf == B8G8R8A8) {
-                FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
-            } else if (pf == I8) {
-                FilterFill<Pixel8>(0).applyInPlace(pBmp);
-            } 
-            GLContextManager::get()->scheduleTexUpload(m_pTex, pBmp);
-            scheduleFXRender();
+    if (m_bIsPlaying) {
+        if (m_bAutoUpdateCameraImage) {
+            ScopeTimer Timer(CameraFetchImage);
+            updateToLatestCameraImage();
         }
-        m_bNewSurface = false;
-    }
+        if (isVisible()) {
+            if (m_bNewBmp) {
+                ScopeTimer Timer(CameraDownloadProfilingZone);
+                m_FrameNum++;
+                GLContextManager::get()->scheduleTexUpload(m_pTex, m_pCurBmp);
+                scheduleFXRender();
+                m_bNewBmp = false;
+            } else if (m_bNewSurface) {
+                BitmapPtr pBmp;
+                PixelFormat pf = getPixelFormat();
+                pBmp = BitmapPtr(new Bitmap(getMediaSize(), pf));
+                if (pf == B8G8R8X8 || pf == B8G8R8A8) {
+                    FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
+                } else if (pf == I8) {
+                    FilterFill<Pixel8>(0).applyInPlace(pBmp);
+                }
+                GLContextManager::get()->scheduleTexUpload(m_pTex, pBmp);
+                scheduleFXRender();
+            }
+            m_bNewSurface = false;
+        }
 
-    calcVertexArray(pVA);
+        calcVertexArray(pVA);
+    }
 }
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
