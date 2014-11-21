@@ -128,6 +128,9 @@ void VideoNode::connectDisplay()
     }
     if (m_VideoState == Paused) {
         m_PauseStartTime = CurTime;
+        if (m_AudioID != -1) {
+            AudioEngine::get()->pauseSource(m_AudioID);
+        }
     } 
 }
 
