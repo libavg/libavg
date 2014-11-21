@@ -126,9 +126,9 @@ class PlayerTestCase(AVGTestCase):
     def testSetResolution(self):
         root = self.loadEmptyScene()
         avg.ImageNode(href="rgb24-65x65.png", parent=root)
-        player.setResolution(0, 80, 60, 0)
+        player.setResolution(0, 79, 59, 0)
         self.start(False,
-                (lambda: self.compareImage("testsetresolution"),
+                (lambda: self.compareImage("testSetResolution"),
                 ))
 
     def testColorParse(self):
