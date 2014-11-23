@@ -255,16 +255,16 @@ class ScrollingBackground(object):
             self.__imgB.y = self.__imgA.y - self.__imgA.height
 
 
-class LiveCounter(avg.DivNode):
+class LifeCounter(avg.DivNode):
     __NUM_LIVES = 3
 
     def __init__(self, parent=None, **kwargs):
-        super(LiveCounter, self).__init__(**kwargs)
+        super(LifeCounter, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         self.__numLives = 0
         self.__images = []
         x = 0
-        for i in xrange(LiveCounter.__NUM_LIVES):
+        for i in xrange(LifeCounter.__NUM_LIVES):
             avg.ImageNode(href='gui_lives_bg.png', pos=(x, 0), parent=self)
             img = avg.ImageNode(href='gui_lives_fg.png', pos=(x, 0), parent=self)
             self.__images.append(img)
@@ -363,7 +363,7 @@ class FireBirds(app.MainDiv):
 
         bg = avg.ImageNode(href='gui_frame.png', parent=self.__guiDiv)
         self.__guiDiv.pos = (0, self.height - bg.height)
-        self.__liveCounter = LiveCounter(pos=(8, 12), parent=self.__guiDiv)
+        self.__lifeCounter = LifeCounter(pos=(8, 12), parent=self.__guiDiv)
         gunCtrl = GunControl(pos=(300, 54), parent=self.__guiDiv)
         self.__scoreCounter = ScoreCounter(pos=(1142, 54), parent=self.__guiDiv)
 
@@ -401,7 +401,7 @@ class FireBirds(app.MainDiv):
 
     def __start(self):
         assert(not self.__frameHandlerId and not self.__spawnTimeoutId)
-        self.__liveCounter.reset()
+        self.__lifeCounter.reset()
         self.__scoreCounter.reset()
         self.__player.reset()
         self.__frameHandlerId = player.subscribe(player.ON_FRAME, self.__onFrame)
@@ -450,7 +450,7 @@ class FireBirds(app.MainDiv):
                     if self.__player.alive and \
                             self.__playerCollisionDetector.detect(e.pos, self.__player.pos):
                         e.destroy()
-                        if self.__liveCounter.dec():
+                        if self.__lifeCounter.dec():
                             self.__stop()
                             self.__player.destroy()
                 if e.alive: # no player collision
