@@ -49,10 +49,12 @@ bool CollisionDetector::detect(glm::vec2 posA, glm::vec2 posB)
     }
     int width;
     dX = rightB - rightA;
-    if (dX < 0)
+    if (dX < 0) {
         width = std::min(widthA + dX, widthB);
-    else
+    } else {
         width = std::min(widthB - dX, widthA);
+    }
+
     // calculate y overlap
     int dY = posB.y - posA.y;
     if (dY < 0) {
@@ -65,10 +67,11 @@ bool CollisionDetector::detect(glm::vec2 posA, glm::vec2 posB)
     }
     int height;
     dY = bottomB - bottomA;
-    if (dY < 0)
+    if (dY < 0) {
         height = std::min(heightA + dY, heightB);
-    else
+    } else {
         height = std::min(heightB - dY, heightA);
+    }
 
     // test alpha channels
     const unsigned char* pPixStartA = m_pBmpA->getPixels() +

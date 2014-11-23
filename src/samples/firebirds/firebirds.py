@@ -447,8 +447,8 @@ class FireBirds(app.MainDiv):
                             b.destroy()
                             break
                 if e.alive: # no bullet hit
-                    if self.__player.alive and \
-                            self.__playerCollisionDetector.detect(e.pos, self.__player.pos):
+                    if (self.__player.alive and self.__playerCollisionDetector.detect(
+                            e.pos, self.__player.pos)):
                         e.destroy()
                         if self.__lifeCounter.dec():
                             self.__stop()
@@ -459,7 +459,8 @@ class FireBirds(app.MainDiv):
         if self.__player.alive:
             self.__player.update(dt, self.__keyStates)
         elif not self.__player.updateBullets(dt) and not enemiesActive:
-            # player dead, all bullets and enemies left the screen, all destroy videos played
+            # player dead, all bullets and enemies left the screen, all destroy videos
+            # played
             player.unsubscribe(player.ON_FRAME, self.__frameHandlerId)
             self.__frameHandlerId = None
 
