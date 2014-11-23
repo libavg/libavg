@@ -11,14 +11,14 @@ namespace avg {
 class CollisionDetector
 {
 public:
-    CollisionDetector(const Bitmap& bmpA, const Bitmap& bmpB);
+    CollisionDetector(BitmapPtr bmpA, BitmapPtr bmpB);
     ~CollisionDetector();
 
     bool detect(glm::vec2 posA, glm::vec2 posB);
 
 private:
-    Bitmap* m_pBmpA;
-    Bitmap* m_pBmpB;
+    BitmapPtr m_pBmpA;
+    BitmapPtr m_pBmpB;
 };
 
 }

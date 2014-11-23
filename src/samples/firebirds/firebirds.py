@@ -235,8 +235,6 @@ class EnemyAircraft(_Aircraft):
             self.notifySubscribers(EnemyAircraft.ESCAPED, [])
 
 
-### gui elements ###
-
 class ScrollingBackground(object):
     __SCROLL_SPEED = 120.0 # px/s
 
@@ -254,6 +252,8 @@ class ScrollingBackground(object):
         elif self.__imgB.y >= self.__imgA.height:
             self.__imgB.y = self.__imgA.y - self.__imgA.height
 
+
+### gui elements ###
 
 class LifeCounter(avg.DivNode):
     __NUM_LIVES = 3

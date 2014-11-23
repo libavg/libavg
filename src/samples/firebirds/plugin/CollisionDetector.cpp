@@ -5,18 +5,14 @@
 
 namespace avg {
 
-CollisionDetector::CollisionDetector(const Bitmap& bmpA, const Bitmap& bmpB)
+CollisionDetector::CollisionDetector(BitmapPtr bmpA, BitmapPtr bmpB)
+    : m_pBmpA(bmpA),
+      m_pBmpB(bmpB)
 {
-    m_pBmpA = new Bitmap(bmpA.getSize(), B8G8R8A8);
-    m_pBmpA->copyPixels(bmpA);
-    m_pBmpB = new Bitmap(bmpB.getSize(), B8G8R8A8);
-    m_pBmpB->copyPixels(bmpB);
 }
 
 CollisionDetector::~CollisionDetector()
 {
-    delete m_pBmpA;
-    delete m_pBmpB;
 }
 
 static ProfilingZoneID CollisionDetectorProfilingZone("Detect collisions");
@@ -106,7 +102,7 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(collisiondetector)
 {
     class_<avg::CollisionDetector, boost::noncopyable>("CollisionDetector", no_init)
-        .def(init<avg::Bitmap&, avg::Bitmap&>())
+        .def(init<avg::BitmapPtr, avg::BitmapPtr>())
         .def("detect", &avg::CollisionDetector::detect)
         ;
 }
