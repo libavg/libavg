@@ -488,6 +488,9 @@ int main(int nargs, char** args)
         if (GLContextManager::isGLESSupported()) {
             BitmapLoader::init(false);
             bOK &= runTests(true, GLConfig::MINIMAL);
+        } else {
+            cerr << "Skipping GLES test because GLES isn't supported on this machine."
+                    << endl;
         }
     } catch (Exception& ex) {
         if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {

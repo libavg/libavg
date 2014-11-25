@@ -258,7 +258,7 @@ bool GLContextManager::isGLESSupported()
     #ifdef AVG_ENABLE_EGL
     return true;
     #else
-    return SDLGLXContext::haveARBCreateContext();
+    return GLXContext::isGLESSupported();
     #endif
 #else
     return false;
