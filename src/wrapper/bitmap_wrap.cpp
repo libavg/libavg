@@ -109,15 +109,34 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels,
 static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
 {
     Py_buffer bufferView;
+//    PyObject_Print(PyObject_Type(exporter), stderr, 0);
     if (PyObject_CheckBuffer(exporter)) {
         PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
+        const unsigned char* pBuf = reinterpret_cast<unsigned char*>(bufferView.buf);
+        bitmap.setPixels(pBuf);
+        PyBuffer_Release(&bufferView);
+    } else if (PyBuffer_Check(exporter)) {
+        PyTypeObject * pType = exporter->ob_type;
+        PyBufferProcs * pProcs = pType->tp_as_buffer;
+        AVG_ASSERT(pProcs);
+        Py_ssize_t numBytes;
+        Py_ssize_t numSegments = pProcs->bf_getsegcount(exporter, &numBytes);
+        if (numBytes != bitmap.getMemNeeded()) {
+            throw Exception(AVG_ERR_INVALID_ARGS,
+                    "Second parameter to Bitmap.setPixels must fit bitmap size.");
+        }
+        // TODO: check if bitmap size is correct
+        unsigned char* pDestPixels = bitmap.getPixels();
+        for (unsigned i=0; i<numSegments; ++i) {
+            void* pSrcPixels;
+            long bytesInSegment = pProcs->bf_getreadbuffer(exporter, i, &pSrcPixels);
+            memcpy(pDestPixels, pSrcPixels, bytesInSegment);
+            pDestPixels += bytesInSegment;
+        }
     } else {
         throw Exception(AVG_ERR_INVALID_ARGS,
                "Second parameter to Bitmap.setPixels must support the buffer interface.");
     }
-    const unsigned char* cxx_buf = reinterpret_cast<unsigned char*>(bufferView.buf);
-    bitmap.setPixels(cxx_buf);
-    PyBuffer_Release(&bufferView);
 }
 
 ConstVec2 Bitmap_getSize(Bitmap* This)
