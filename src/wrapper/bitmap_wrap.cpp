@@ -119,8 +119,8 @@ static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
         PyTypeObject * pType = exporter->ob_type;
         PyBufferProcs * pProcs = pType->tp_as_buffer;
         AVG_ASSERT(pProcs);
-        long numBytes;
-        unsigned numSegments = pProcs->bf_getsegcount(exporter, &numBytes);
+        Py_ssize_t numBytes;
+        Py_ssize_t numSegments = pProcs->bf_getsegcount(exporter, &numBytes);
         if (numBytes != bitmap.getMemNeeded()) {
             throw Exception(AVG_ERR_INVALID_ARGS,
                     "Second parameter to Bitmap.setPixels must fit bitmap size.");
