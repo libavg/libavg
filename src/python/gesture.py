@@ -633,10 +633,7 @@ class Mat3x3:
         v = self.applyVec([1,0,0])
         rot = avg.Point2D(v[0], v[1]).getAngle()
         node.angle = rot
-        if self.getScale().x < 9999 and self.getScale().y < 9999:
-            node.size = self.getScale()
-        else:
-            node.size = (0,0)
+        node.size = self.getScale()
         node.pivot = node.size/2 
         v = self.applyVec([0,0,1])
         node.pos = (avg.Point2D(v[0], v[1]) + (node.pivot).getRotated(node.angle) - 
