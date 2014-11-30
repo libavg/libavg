@@ -19,7 +19,10 @@ AC_PROG_LIBTOOL
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/avgconfig.h.in])
-AM_INIT_AUTOMAKE([check-news dist-zip])
+AM_INIT_AUTOMAKE(m4_esyscmd([case `automake --version | head -n 1` in 
+                             *1.11*) echo check-news dist-zip;; 
+                             *) echo serial-tests check-news dist-zip;; 
+                             esac]))
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 # Checks for programs.
 AC_PROG_CXX
