@@ -98,8 +98,8 @@ class AVG_API VectorNode : public Node
                 float& TC0, float& TC1);
         int getNumDifferentPts(const std::vector<glm::vec2>& pts);
 
-    protected:
         const glm::mat4& getTransform() const;
+        void setTranslate(const glm::vec2& trans);
 
     private:
         Shape* createDefaultShape() const;
@@ -114,6 +114,7 @@ class AVG_API VectorNode : public Node
         bool m_bVASizeChanged;
 
         glm::mat4 m_Transform;
+        glm::vec2 m_Translate;
         ShapePtr m_pShape;
         GLContext::BlendMode m_BlendMode;
 };

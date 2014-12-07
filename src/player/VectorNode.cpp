@@ -62,7 +62,8 @@ void VectorNode::registerType()
 }
 
 VectorNode::VectorNode(const ArgList& args)
-    : m_Transform(glm::mat4(0))
+    : m_Transform(glm::mat4(0)),
+      m_Translate(glm::vec2(0,0))
 {
     m_pShape = ShapePtr(createDefaultShape());
 
@@ -167,7 +168,8 @@ void VectorNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        m_Transform = parentTransform;
+        glm::vec3 trans(m_Translate.x, m_Translate.y, 0);
+        m_Transform = glm::translate(parentTransform, trans);
         GLContext::getCurrent()->setBlendMode(m_BlendMode);
         render();
     }
@@ -508,6 +510,11 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
 const glm::mat4& VectorNode::getTransform() const
 {
     return m_Transform;
+}
+
+void VectorNode::setTranslate(const glm::vec2& trans)
+{
+    m_Translate = trans;
 }
 
 Shape* VectorNode::createDefaultShape() const

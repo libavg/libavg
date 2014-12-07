@@ -24,10 +24,8 @@
 from libavg import *
 
 import random
-import math
 import time
 
-R = 40.0
 g_Trigger = True
 
 
@@ -93,7 +91,7 @@ class SpeedDiv(app.MainDiv):
         self.__nodes = []
         for i in xrange(self.__optNumObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
-            node = avg.CircleNode(parent=self, pos=pos, r=self.__optRadius, fillopacity=1)
+            node = avg.CircleNode(parent=self, pos=pos, r=self.__optRadius, fillopacity=0)
             self.__nodes.append(node)
         if self.__optCreate:
             player.setTimeout(300, self.__deleteNodes)
