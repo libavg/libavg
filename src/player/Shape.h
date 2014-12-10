@@ -57,8 +57,6 @@ class AVG_API Shape
         void discard();
 
     private:
-        bool isTextured() const;
-
         VertexDataPtr m_pVertexData;
         SubVertexArray m_SubVA;
         OGLSurface * m_pSurface;
