@@ -114,8 +114,6 @@ void CircleNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElemen
 
 void CircleNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
-    // TODO: This gets called whenever the circle position changes and is quite 
-    // expensive. Should be optimized away.
     glm::vec2 firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2);
     glm::vec2 firstPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2);
     int curVertex = 0;
