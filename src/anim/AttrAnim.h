@@ -71,11 +71,11 @@ protected:
 
     void addToMap();
     void removeFromMap();
-    void stopActiveAttrAnim();
 
 private:
     AttrAnim();
     AttrAnim(const AttrAnim&);
+    void stopActiveAttrAnim();
 
     boost::python::object m_Node;
     std::string m_sAttrName;
