@@ -73,6 +73,8 @@ private:
     boost::python::object m_StopCallback;
     bool m_bRunning;
     bool m_bIsRoot;
+    AnimPtr m_This; // Makes sure there is always a reference to the animation
+                    // while it's running.
 };
 
 template<class T>
