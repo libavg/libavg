@@ -46,6 +46,7 @@ class AVG_API DivNode : public AreaNode
 
         unsigned getNumChildren();
         const NodePtr& getChild(unsigned i);
+        const boost::python::list getChildren();
         void appendChild(NodePtr pNewNode);
         void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
         void insertChildAfter(NodePtr pNewNode, NodePtr pOldChild);

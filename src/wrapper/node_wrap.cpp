@@ -169,6 +169,8 @@ void export_node()
         .def("getEffectiveMediaDir", &DivNode::getEffectiveMediaDir)
         .add_property("mediadir", make_function(&DivNode::getMediaDir,
                 return_value_policy<copy_const_reference>()), &DivNode::setMediaDir)
+        .add_property("children", &DivNode::getChildren)
+
     ;
 
     class_<CanvasNode, bases<DivNode> >("CanvasNode",
