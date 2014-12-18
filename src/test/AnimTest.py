@@ -383,7 +383,17 @@ class AnimTestCase(AVGTestCase):
 #            self.anim.setDebug(True)
 
         def killAnim():
+            self.anim.setState("")
             self.anim = None
+
+        def startFireForgetAnim():
+            stateAnim = avg.StateAnim(
+                    [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200,
+                            0, 100, False), "STATE2"),
+                     avg.AnimState("STATE2", avg.WaitAnim(200))
+                    ])
+#            stateAnim.setDebug(True)
+            stateAnim.setState("STATE1")
 
         self.initScene()
         self.__state1StopCallbackCalled = False
@@ -406,6 +416,10 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assertEqual(avg.getNumRunningAnims(), 1),
                  lambda: self.compareImage("testStateAnimC5"),
                  killAnim,
+                 startFireForgetAnim,
+                 lambda: self.delay(200),
+                 lambda: self.compareImage("testStateAnimC6"),
+                 lambda: self.delay(200),
 #                 lambda: player.getTestHelper().dumpObjects()
                 ))
 

@@ -69,6 +69,7 @@ void Anim::start(bool)
                 "Animation playback can only be started when the player is running."));
     }
     m_bRunning = true;
+    m_This = shared_from_this();
     if (m_bIsRoot) {
         Player::get()->registerPreRenderListener(this);
     }
@@ -118,6 +119,7 @@ void Anim::setStopped()
             exit(5);
         }
     }
+    m_This = AnimPtr();
 }
 
 }

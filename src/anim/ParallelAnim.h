@@ -52,8 +52,6 @@ private:
     long long m_MaxAge;
 
     long long m_StartTime;
-    ParallelAnimPtr m_This; // Makes sure there is always a reference to the animation
-                            // while it's running.
 };
 
 }
