@@ -425,21 +425,29 @@ Area Nodes
 
         .. py:method:: getWarpedVertexCoords() -> list
 
-            Returnes the current coordinate of all vertices as a list of lists.
+            Returns the current coordinate of all vertices as a list of lists.
 
         .. py:method:: setEffect(FXNode)
 
             Attaches an :py:class:`FXNode` to the node that modifies how it looks.
 
+        .. py:method:: setMirror(MirrorMode)
+
+            Flips a node's image along its vertical or horizontal axis. 
+            :py:attr:`MirrorMode` must be either :py:const:`RasterNode.HORIZONTAL` or
+            :py:const:`RasterNode.VERTICAL`. Internally, this function calls
+            :py:meth:`setWarpedVertexCoords`.
+
         .. py:method:: setWarpedVertexCoords(grid)
 
             Changes the current coordinates of all vertices. :py:attr:`grid` is a list of
-            lists of coordinate tuples. :py:meth:`setWarpedVertexCoords` can only be called if
-            the node is in a renderable state. This means that :py:meth:`Player.play()` must have
-            been called and the node must be inserted in a Canvas. There must also be something to
-            render (for instance, :py:meth:`play()` must be called before 
-            :py:meth:`setWarpedVertexCoords` in the case of a :py:class:`CameraNode`). The grid
-            submitted is lost if the node loses renderable status.
+            lists of coordinate tuples. :py:meth:`setWarpedVertexCoords` can only be
+            called if the node is in a renderable state. This means that
+            :py:meth:`Player.play()` must have been called and the node must be inserted
+            in a Canvas. There must also be something to render (for instance,
+            :py:meth:`play()` must be called before :py:meth:`setWarpedVertexCoords` in
+            the case of a :py:class:`CameraNode`). The grid submitted is lost if the node
+            loses renderable status.
 
     .. autoclass:: SoundNode([href, loop=False, volume=1.0])
 
@@ -450,7 +458,7 @@ Area Nodes
             To get this message, call :py:meth:`Publisher.subscribe`.
 
             .. py:method:: Node.END_OF_FILE()
-            
+
                 Emitted when the end of the audio stream has been reached.
 
         .. py:attribute:: duration
