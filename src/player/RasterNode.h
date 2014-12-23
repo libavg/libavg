@@ -49,6 +49,10 @@ typedef std::vector<std::vector<glm::vec2> > VertexGrid;
 class AVG_API RasterNode: public AreaNode
 {
     public:
+        enum MirrorType {
+            HORIZONTAL,
+            VERTICAL
+        };
         static void registerType();
         
         virtual ~RasterNode ();
@@ -61,6 +65,7 @@ class AVG_API RasterNode: public AreaNode
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
         void setWarpedVertexCoords(const VertexGrid& Grid);
+        void setMirror(MirrorType mirrorType);
 
         int getMaxTileWidth() const;
         int getMaxTileHeight() const;

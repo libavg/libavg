@@ -40,11 +40,14 @@ char wordsNodeName[] = "words";
 
 void export_raster()
 {
+    scope mainScope;
 
-    class_<RasterNode, bases<AreaNode>, boost::noncopyable>("RasterNode", no_init) 
+    scope rasterScope = class_<RasterNode, bases<AreaNode>, 
+            boost::noncopyable>("RasterNode", no_init) 
         .def("getOrigVertexCoords", &RasterNode::getOrigVertexCoords)
         .def("getWarpedVertexCoords", &RasterNode::getWarpedVertexCoords)
         .def("setWarpedVertexCoords", &RasterNode::setWarpedVertexCoords)
+        .def("setMirror", &RasterNode::setMirror)
         .def("setEffect", &RasterNode::setEffect)
         .add_property("maxtilewidth", &RasterNode::getMaxTileWidth)
         .add_property("maxtileheight", &RasterNode::getMaxTileHeight)
@@ -69,6 +72,14 @@ void export_raster()
         .add_property("intensity", &RasterNode::getIntensity, &RasterNode::setIntensity)
         .add_property("contrast", &RasterNode::getContrast, &RasterNode::setContrast)
     ;
+
+    enum_<RasterNode::MirrorType>("MirrorType")
+        .value("HORIZONTAL", RasterNode::HORIZONTAL)
+        .value("VERTICAL", RasterNode::VERTICAL)
+        .export_values()
+    ;
+
+    scope oldScope1(mainScope);
 
     class_<ImageNode, bases<RasterNode> >("ImageNode", no_init)
         .def("__init__", raw_constructor(createNode<imageNodeName>))

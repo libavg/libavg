@@ -209,6 +209,23 @@ void RasterNode::setWarpedVertexCoords(const VertexGrid& grid)
     m_TileVertices = grid;
 }
 
+void RasterNode::setMirror(MirrorType mirrorType)
+{
+    VertexGrid grid;
+    calcVertexGrid(grid);
+    for (unsigned y = 0; y < grid.size(); y++) {
+        for (unsigned x = 0; x < grid[y].size(); x++) {
+            glm::vec2& pt = grid[y][x];
+            if (mirrorType == HORIZONTAL) {
+                pt.x = 1 - pt.x;
+            } else {
+                pt.y = 1 - pt.y;
+            }
+        }
+    }
+    setWarpedVertexCoords(grid);
+}
+
 int RasterNode::getMaxTileWidth() const
 {
     return m_MaxTileSize.x;

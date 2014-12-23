@@ -617,7 +617,7 @@ class PlayerTestCase(AVGTestCase):
             grid = image.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             image.setWarpedVertexCoords(grid)
-       
+      
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png",
                 maxtilewidth=32, maxtileheight=16, parent=root)
@@ -633,7 +633,11 @@ class PlayerTestCase(AVGTestCase):
                  moveVertex,
                  lambda: self.compareImage("testWarp2"),
                  flip,
-                 lambda: self.compareImage("testWarp3")
+                 lambda: self.compareImage("testWarp3"),
+                 lambda: image.setMirror(avg.RasterNode.HORIZONTAL),
+                 lambda: self.compareImage("testWarp3"),
+                 lambda: image.setMirror(avg.RasterNode.VERTICAL),
+                 lambda: self.compareImage("testWarp4"),
                 ))
 
     def testMediaDir(self):
