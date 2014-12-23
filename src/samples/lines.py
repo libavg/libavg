@@ -30,8 +30,6 @@ class LinesDiv(app.MainDiv):
                 strokewidth=2, texhref=texhref, texcoord1=texcoord1, texcoord2=texcoord2,
                 parent=div)
 
-
-
     def onExit(self):
         pass
     
