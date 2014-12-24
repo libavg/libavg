@@ -23,12 +23,12 @@ bool CollisionDetector::detect(glm::vec2 posA, glm::vec2 posB)
 
     int widthA = m_pBmpA->getSize().x;
     int heightA = m_pBmpA->getSize().y;
-    int rightA = posA.x + widthA;
-    int bottomA = posA.y + heightA;
+    int rightA = int(posA.x) + widthA;
+    int bottomA = int(posA.y) + heightA;
     int widthB = m_pBmpB->getSize().x;
     int heightB = m_pBmpB->getSize().y;
-    int rightB = posB.x + widthB;
-    int bottomB = posB.y + heightB;
+    int rightB = int(posB.x) + widthB;
+    int bottomB = int(posB.y) + heightB;
 
     // bounding box test
     if (rightA <= posB.x || posA.x >= rightB || bottomA <= posB.y || posA.y >= bottomB) {
@@ -38,13 +38,12 @@ bool CollisionDetector::detect(glm::vec2 posA, glm::vec2 posB)
     // pixel level test
 
     // calculate x overlap
-    int dX = posB.x - posA.x;
+    int dX = int(posB.x - posA.x);
     if (dX < 0) {
         posA.x = 0;
-        posB.x = -dX;
-    }
-    else {
-        posA.x = dX;
+        posB.x = float(-dX);
+    } else {
+        posA.x = float(dX);
         posB.x = 0;
     }
     int width;
@@ -56,13 +55,12 @@ bool CollisionDetector::detect(glm::vec2 posA, glm::vec2 posB)
     }
 
     // calculate y overlap
-    int dY = posB.y - posA.y;
+    int dY = int(posB.y - posA.y);
     if (dY < 0) {
         posA.y = 0;
-        posB.y = -dY;
-    }
-    else {
-        posA.y = dY;
+        posB.y = float(-dY);
+    } else {
+        posA.y = float(dY);
         posB.y = 0;
     }
     int height;
