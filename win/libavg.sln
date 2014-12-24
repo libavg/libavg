@@ -95,6 +95,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgpu", "testgpu\testgpu.
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "collisiondetector", "collisiondetector\collisiondetector.vcxproj", "{61EA2D9C-E395-4597-99C5-47ABE8E2B6E8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0AFC225A-A1CF-463E-A516-BF9A0D2F554B} = {0AFC225A-A1CF-463E-A516-BF9A0D2F554B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
