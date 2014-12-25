@@ -116,7 +116,6 @@ data_files_list=[
         ('Lib/site-packages/libavg/test/media/incompleteSkinMedia', test_media_skin_files),
 
         ('Lib/site-packages/libavg/plugin', ('../Release/colorplugin.dll',)),
-        ('Lib/site-packages/libavg/plugin', ('../Release/collisiondetector.dll',)),
         ('Lib/site-packages/libavg', python_files),
         ('Lib/site-packages/libavg/app', python_app_files),
         ('Lib/site-packages/libavg/widget', python_widget_files),

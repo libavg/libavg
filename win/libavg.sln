@@ -94,11 +94,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgpu", "testgpu\testgpu.
 		{4B3614A9-4CF5-4C14-9F71-4254B7988324} = {4B3614A9-4CF5-4C14-9F71-4254B7988324}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "collisiondetector", "collisiondetector\collisiondetector.vcxproj", "{61EA2D9C-E395-4597-99C5-47ABE8E2B6E8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0AFC225A-A1CF-463E-A516-BF9A0D2F554B} = {0AFC225A-A1CF-463E-A516-BF9A0D2F554B}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -177,10 +172,6 @@ Global
 		{C7F16268-E53F-4E2C-A283-0475EA113745}.Debug|Win32.Build.0 = Debug|Win32
 		{C7F16268-E53F-4E2C-A283-0475EA113745}.Release|Win32.ActiveCfg = Release|Win32
 		{C7F16268-E53F-4E2C-A283-0475EA113745}.Release|Win32.Build.0 = Release|Win32
-		{61EA2D9C-E395-4597-99C5-47ABE8E2B6E8}.Debug|Win32.ActiveCfg = Debug|Win32
-		{61EA2D9C-E395-4597-99C5-47ABE8E2B6E8}.Debug|Win32.Build.0 = Debug|Win32
-		{61EA2D9C-E395-4597-99C5-47ABE8E2B6E8}.Release|Win32.ActiveCfg = Release|Win32
-		{61EA2D9C-E395-4597-99C5-47ABE8E2B6E8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
