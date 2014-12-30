@@ -28,6 +28,7 @@
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
+#include "../base/ConfigMgr.h"
 
 using namespace std;
 

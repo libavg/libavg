@@ -24,6 +24,8 @@
 #include "OGLHelper.h"
 #include "GLContext.h"
 #include "Filterfliprgb.h"
+#include "GLTexture.h"
+#include "PBO.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"

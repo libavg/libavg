@@ -29,6 +29,7 @@
 
 #include "../graphics/GLContext.h"
 #include "../graphics/MCTexture.h"
+#include "../graphics/StandardShader.h"
 
 #include <iostream>
 #include <sstream>
@@ -62,7 +63,7 @@ OGLSurface::~OGLSurface()
 }
 
 void OGLSurface::create(PixelFormat pf, MCTexturePtr pTex0, MCTexturePtr pTex1, 
-        MCTexturePtr pTex2, MCTexturePtr pTex3)
+        MCTexturePtr pTex2, MCTexturePtr pTex3, bool bPremultipliedAlpha)
 {
     m_pf = pf;
     m_Size = pTex0->getSize();
@@ -71,6 +72,7 @@ void OGLSurface::create(PixelFormat pf, MCTexturePtr pTex0, MCTexturePtr pTex1,
     m_pTextures[2] = pTex2;
     m_pTextures[3] = pTex3;
     m_bIsDirty = true;
+    m_bPremultipliedAlpha = bPremultipliedAlpha;
 
     // Make sure pixel format and number of textures line up.
     if (pixelFormatIsPlanar(pf)) {
@@ -99,7 +101,7 @@ void OGLSurface::destroy()
     m_pTextures[3] = MCTexturePtr();
 }
 
-void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
+void OGLSurface::activate(const IntPoint& logicalSize) const
 {
     StandardShaderPtr pShader = StandardShader::get();
 
@@ -137,9 +139,12 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     pShader->setGamma(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
                 1./m_AlphaGamma));
 
-    pShader->setPremultipliedAlpha(bPremultipliedAlpha);
+    pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
     if (m_pMaskTexture) {
         m_pMaskTexture->activate(GL_TEXTURE4);
+        // The shader maskpos param takes the position in texture coordinates (0..1) of 
+        // the main texture.
+
         // Special case for pot textures: 
         //   The tex coords in the vertex array are scaled to fit the image texture. We 
         //   need to undo this and fit to the mask texture. In the npot case, everything
@@ -152,6 +157,18 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
                 maskTexSize.y/maskImgSize.y);
         glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
         glm::vec2 maskPos = m_MaskPos/maskScale;
+
+        // Correct for Aspect Ratio differences between main and mask texture.
+        float surfaceAspect = texSize.x/texSize.y;
+        float maskAspect = maskTexSize.x/maskTexSize.y;
+        glm::vec2 aspectCorr;
+        if (maskAspect > surfaceAspect) {
+            aspectCorr = glm::vec2(1, maskAspect/surfaceAspect);
+        } else {
+            aspectCorr = glm::vec2(surfaceAspect/maskAspect, 1);
+        }
+        maskPos *= aspectCorr;
+
         // Special case for words nodes.
         if (logicalSize != IntPoint(0,0)) {
             maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 
@@ -195,6 +212,11 @@ IntPoint OGLSurface::getTextureSize()
 bool OGLSurface::isCreated() const
 {
     return m_pTextures[0];
+}
+
+bool OGLSurface::isPremultipliedAlpha() const
+{
+    return m_bPremultipliedAlpha;
 }
 
 void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,

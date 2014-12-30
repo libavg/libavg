@@ -104,7 +104,6 @@ class AVGTestCase(unittest.TestCase):
 
     def __setupPlayer(self):
         player.setMultiSampleSamples(1)
-#        player.setResolution(0, 0, 0, 0)
     
     @staticmethod
     def setImageResultDirectory(name):
@@ -186,15 +185,6 @@ class AVGTestCase(unittest.TestCase):
         avg = diffBmp.getAvg()
         stdDev = diffBmp.getStdDev()
         return avg <= maxAvg and stdDev <= maxStdDev
-
-    def assertException(self, code):
-        exceptionRaised = False
-        try:
-            code()
-        except:
-            exceptionRaised = True
-        
-        self.assert_(exceptionRaised)
 
     def assertAlmostEqual(self, a, b, epsilon=0.00001):
         if not(almostEqual(a, b, epsilon)):

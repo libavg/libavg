@@ -94,8 +94,12 @@ class ImageTestCase(AVGTestCase):
             return avg.ImageNode(pos=p, href="rgb24-32x32.png", parent=root)
 
         def illegalMove(node):
-            self.assertException(node.pos.x == 23)
-            self.assertException(node.pos.y == 23)
+            def xMove():
+                node.pos.x = 23
+            def yMove():
+                node.pos.x = 23
+            self.assertRaises(AttributeError, xMove)
+            self.assertRaises(AttributeError, yMove)
 
         def addNodes(y):
             xmlNode = createXmlNode((16, y))
@@ -164,7 +168,7 @@ class ImageTestCase(AVGTestCase):
         def testEarlyAccessException():
             node = createNode((16, 16))
             root.appendChild(node)
-            self.assertException(node.getWarpedVertexCoords)
+            self.assertRaises(RuntimeError, node.getWarpedVertexCoords)
             node.unlink()
 
         def addNode():
@@ -221,10 +225,15 @@ class ImageTestCase(AVGTestCase):
         
         def testStringConversion():
             bmp = avg.Bitmap('media/rgb24-65x65.png')
-            s = bmp.getPixels()
-            bmp1 = avg.Bitmap(bmp.getSize(), bmp.getFormat(), "sample")
-            bmp1.setPixels(s)
-            self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
+
+            for isCopy in (False, True):
+                s = bmp.getPixels(isCopy)
+                bmp1 = avg.Bitmap(bmp.getSize(), bmp.getFormat(), "sample")
+                bmp1.setPixels(s)
+                self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
+
+            self.assertRaises(RuntimeError, lambda: bmp1.setPixels(13)),
+
 
         def testCropRect():
             bmp = avg.Bitmap('media/rgb24-65x65.png')
@@ -266,7 +275,7 @@ class ImageTestCase(AVGTestCase):
             bmp = avg.Bitmap('media/greyscale.png')
             self.assertEqual(bmp.getPixel((1,1)), (255,255,255,255))
             self.assertEqual(bmp.getPixel((1,63)), (0,0,0,255))
-            self.assertException(lambda: bmp.getPixel((64,0)))
+            self.assertRaises(RuntimeError, lambda: bmp.getPixel((64,0)))
 
         def setNullBitmap():
             node.setBitmap(None)
@@ -275,7 +284,7 @@ class ImageTestCase(AVGTestCase):
             srcBmp = avg.Bitmap('media/rgb24-32x32.png')
             destBmp = avg.Bitmap(srcBmp, (16,16), (32,32))
             self.assertEqual(srcBmp.getPixel((16,16)), destBmp.getPixel((0,0)))
-            self.assertException(lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
+            self.assertRaises(RuntimeError, lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
 
         node = avg.ImageNode(href="media/rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
@@ -302,7 +311,7 @@ class ImageTestCase(AVGTestCase):
                  testResize,
                  lambda: self.compareImage("testBitmap4"),
                  testGetPixel,
-                 lambda: self.assertException(setNullBitmap),
+                 lambda: self.assertRaises(RuntimeError, setNullBitmap),
                  testSubBitmap,
                 ))
 
@@ -361,7 +370,6 @@ class ImageTestCase(AVGTestCase):
             if multithread:
                 avg.BitmapManager.get().setNumThreads(2)
             player.setTimeout(WAIT_TIMEOUT, reportStuck)
-            player.setResolution(0, 0, 0, 0)
             loadValidBitmap()
             player.play()
         avg.BitmapManager.get().setNumThreads(1)
@@ -372,7 +380,7 @@ class ImageTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         avg.BitmapManager.get().loadBitmap("rgb24alpha-64x64.png", bitmapCb),
-        self.assertException(player.play)
+        self.assertRaises(RuntimeError, player.play)
 
     def testBlendMode(self):
         def isBlendMinMaxSupported():
@@ -480,6 +488,19 @@ class ImageTestCase(AVGTestCase):
             root.appendChild(node)
             node.maskpos = (32, 32)
 
+        def rectMask():
+            for i in range(1, root.getNumChildren()):
+                root.getChild(1).unlink(True)
+            node = root.getChild(0)
+            node.size = (65, 65)
+            node.maskhref = "mask3.png"
+            node.maskpos = (0, 0)
+            node.masksize = (64, 48)
+
+        def rectMaskPos():
+            node = root.getChild(0)
+            node.maskpos = (0, 16)
+
         root = self.loadEmptyScene()
         createNode((0,0))
         setNoAttach((32,0))
@@ -488,7 +509,11 @@ class ImageTestCase(AVGTestCase):
                 (lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskPos")
+                 lambda: self.compareImage("testImgMaskPos1"),
+                 rectMask,
+                 lambda: self.compareImage("testImgMaskPos2"),
+                 rectMaskPos,
+                 lambda: self.compareImage("testImgMaskPos3"),
                 ))
 
     def testImageMaskSize(self):

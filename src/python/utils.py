@@ -22,7 +22,7 @@
 
 import os
 
-from libavg import avg, mathutil, player
+from libavg import avg, player
 
 
 def getMediaDir(_file_=None, subdir='media'):
@@ -44,11 +44,6 @@ def getMediaDirFromNode(node, path=''):
             return getMediaDirFromNode(node.getParent(), path)
     else:
         return path
-
-def createImagePreviewNode(maxSize, absHref):
-    node =  player.createNode('image', {'href': absHref})
-    node.size = mathutil.getScaledDim(node.size, max = maxSize)
-    return node
 
 def initFXCache(numFXNodes):
     nodes = []

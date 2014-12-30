@@ -22,8 +22,10 @@
 #include "FilledVectorNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Image.h"
 #include "DivNode.h"
+#include "Shape.h"
 
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"

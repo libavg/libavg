@@ -23,7 +23,7 @@
 #define _MouseEvent_h_
 
 #include "../api.h"
-#include "Event.h"
+
 #include "CursorEvent.h"
 
 namespace avg {

@@ -24,7 +24,7 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
 
-#include "../graphics/BitmapLoader.h"
+#include "../graphics/GPUInvertFilter.h"
 
 #include <sstream>
 
@@ -45,15 +45,15 @@ InvertFXNode::~InvertFXNode()
 
 void InvertFXNode::disconnect()
 {
-    filterPtr = GPUInvertFilterPtr();
+    m_pFilter = GPUInvertFilterPtr();
     FXNode::disconnect();
 }
 
 GPUFilterPtr InvertFXNode::createFilter(const IntPoint& size)
 {
-    filterPtr = GPUInvertFilterPtr(new GPUInvertFilter(size, true, false));
+    m_pFilter = GPUInvertFilterPtr(new GPUInvertFilter(size, true, false));
     setDirty();
-    return filterPtr;
+    return m_pFilter;
 }
 
 std::string InvertFXNode::toString()

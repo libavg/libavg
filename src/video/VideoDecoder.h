@@ -27,7 +27,6 @@
 
 #include "VideoInfo.h"
 
-#include "../audio/AudioParams.h"
 #include "../graphics/PixelFormat.h"
 
 #include "WrapFFMpeg.h"
@@ -37,13 +36,12 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
-struct vdpau_render_state;
-
 namespace avg {
 
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class VDPAUDecoder;
+struct AudioParams;
 
 enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING

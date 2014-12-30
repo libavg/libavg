@@ -68,6 +68,11 @@ Player & Canvas
             Number of samples per pixel to use for multisampling. Setting this to
             1 disables multisampling. Read-only.
 
+        .. py:attribute:: size
+
+            Size of the rendering area (and the :py:class:`CanvasNode`) in pixels. 
+            Read-only.
+
         .. py:method:: getID() -> string
 
             Returns the id of the canvas. This is the same as
@@ -354,6 +359,13 @@ Player & Canvas
             is the total amount used by all programs. Only available when using NVidia
             drivers.
 
+        .. py:method:: getMemoryUsage() -> int
+
+            Returns the amount of memory used by the application in bytes. More
+            precisely, this function returns the resident set size of the process
+            in bytes. This does not include shared libraries or memory paged out to
+            disk.
+
         .. py:method:: getVideoRefreshRate() -> float
 
             Returns the current hardware video refresh rate in number of
@@ -521,9 +533,10 @@ Player & Canvas
 
             :param shaderUsage: 
             
-                Either :py:const:`FULL`, :py:const:`MINIMAL` or :py:const:`AUTO`. 
-                :py:const:`MINIMAL` restricts shader usage to a subset that doesn't use
-                much GPU power.
+                Either :py:const:`avg.SHADERUSAGE_FULL`,
+                :py:const:`avg.SHADERUSAGE_MINIMAL` or :py:const:`avg.SHADERUSAGE_AUTO`.
+                :py:const:`SHADERUSAGE_MINIMAL` restricts shader usage to a subset that
+                doesn't use much GPU power.
 
             :param useDebugContext:
 
@@ -557,8 +570,8 @@ Player & Canvas
 
             :param int bpp: 
             
-                Number of bits per pixel to use. Valid values are :samp:`15`, :samp:`16`,
-                :samp:`24` and :samp:`32`.
+                Number of bits per pixel to use. Valid values are :py:const:`16` or
+                :py:const:`24`.
 
         .. py:method:: setTimeout(time, pyfunc) -> int
 

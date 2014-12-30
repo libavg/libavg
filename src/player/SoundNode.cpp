@@ -21,6 +21,7 @@
 #include "SoundNode.h"
 #include "Player.h"
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Canvas.h"
 
 #include "../base/Exception.h"
@@ -157,6 +158,7 @@ void SoundNode::connectDisplay()
     }
     if (m_State == Paused) {
         m_PauseStartTime = curTime;
+        AudioEngine::get()->pauseSource(m_AudioID);
     } 
 }
 

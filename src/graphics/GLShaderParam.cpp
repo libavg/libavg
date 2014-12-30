@@ -21,6 +21,9 @@
 
 #include "GLShaderParam.h"
 #include "OGLShader.h"
+
+#include "../base/Exception.h"
+
 #include <iostream>
 
 using namespace std;

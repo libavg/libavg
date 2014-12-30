@@ -24,8 +24,6 @@
 
 #include "../api.h"
 #include "Filter.h"
-#include "Bitmap.h"
-#include "TextureMover.h"
 
 namespace avg {
 
@@ -39,6 +37,10 @@ class MCFBO;
 typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 class MCTexture;
 typedef boost::shared_ptr<MCTexture> MCTexturePtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class TextureMover;
+typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
 
 class AVG_API GPUFilter: public Filter
 {

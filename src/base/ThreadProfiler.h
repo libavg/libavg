@@ -30,12 +30,12 @@
 #include <boost/thread/tss.hpp>
 
 #include <vector>
-#include <map>
 #if defined(_WIN32) || defined(_LIBCPP_VERSION)
 #include <unordered_map>
 #else
 #include <tr1/unordered_map>
 #endif
+
 namespace avg {
 
 class ThreadProfiler;

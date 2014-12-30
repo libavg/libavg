@@ -21,7 +21,6 @@
 
 #include "Exception.h"
 #include "Backtrace.h"
-#include "Logger.h"
 #include "OSHelper.h"
 
 #include <cstdlib>

@@ -26,9 +26,6 @@
 
 #include "GLMHelper.h"
 #include "StringHelper.h"
-#include "../glm/glm.hpp"
-
-#include <algorithm>
 
 namespace avg {
 
@@ -46,7 +43,8 @@ public:
     Rect();
     Rect(NUM left, NUM top, NUM right, NUM bottom);
     Rect(const Vec2& TL, const Vec2& BR);
-    template<typename ORIGNUM, glm::precision origPrecision> Rect(const Rect<ORIGNUM, origPrecision>& rc);
+    template<typename ORIGNUM, glm::precision origPrecision>
+            Rect(const Rect<ORIGNUM, origPrecision>& rc);
 
     bool operator ==(const Rect<NUM, precision>& rect) const;
     bool operator !=(const Rect<NUM, precision>& rect) const;

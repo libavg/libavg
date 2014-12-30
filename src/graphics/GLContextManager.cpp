@@ -57,9 +57,9 @@ GLContextManager* GLContextManager::get()
     return s_pGLContextManager;
 }
 
-bool GLContextManager::exists()
+bool GLContextManager::isActive()
 {
-    return s_pGLContextManager != 0;
+    return s_pGLContextManager != 0 && (s_pGLContextManager->m_pContexts.size() > 0);
 }
 
 GLContextManager::GLContextManager()
@@ -258,7 +258,7 @@ bool GLContextManager::isGLESSupported()
     #ifdef AVG_ENABLE_EGL
     return true;
     #else
-    return SDLGLXContext::haveARBCreateContext();
+    return GLXContext::isGLESSupported();
     #endif
 #else
     return false;

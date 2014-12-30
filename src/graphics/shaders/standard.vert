@@ -30,7 +30,7 @@ varying vec4 v_Color;
 void main(void)
 {
     gl_Position = transform * vec4(a_Pos, 0, 1);
-    v_TexCoord = a_TexCoord/4096.;
+    v_TexCoord = a_TexCoord;
     v_Color = a_Color;
 }
 

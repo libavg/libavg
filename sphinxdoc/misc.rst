@@ -108,11 +108,18 @@ Misc. Classes
             Returns one image pixel as a color tuple. This should only be used
             for single pixels, as it is very slow.
 
-        .. py:method:: getPixels() -> string
+        .. py:method:: getPixels(copyData = True) -> string
 
-            Returns the raw pixel data in the bitmap as a python string. This
-            method can be used to interface to the python imaging library PIL
-            (http://www.pythonware.com/products/pil/).
+            Returns the raw pixel data in the bitmap as a python buffer. This
+            method can be used to interface to external libraries such as the python
+            imaging library PIL (http://www.pythonware.com/products/pil/).
+
+            :param bool copyData:
+            
+                Whether to copy the bitmap data into the returned python buffer or return
+                a view to the memory in the bitmap. Note that the second variant 
+                (``copyData = False``) is dangerous, since referencing the buffer after
+                the bitmap is deleted will cause a crash.
 
         .. py:method:: getResized(newSize) -> Bitmap
 
@@ -177,11 +184,11 @@ Misc. Classes
 
         :param controlpoints:
 
-        A list of 2D coordinates. The x coordinates must be in increasing order.
+            A list of 2D coordinates. The x coordinates must be in increasing order.
 
         .. py:method:: interpolate(x) -> y
 
-        Takes an x coordinate and delivers a corresponding y coordinate. 
+            Takes an x coordinate and delivers a corresponding y coordinate. 
 
     
     .. autoclass:: FontStyle(font="sans", variant="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, letterspacing=0, aagamma=1, hint=True)
@@ -321,6 +328,8 @@ Misc. Classes
                 General libavg playback messages.
             :py:const:`SHADER`
                 Shader compiler messages.
+            :py:const:`VIDEO`
+                Audio/Video related messages.
 
        **Severities**
 
@@ -352,6 +361,12 @@ Misc. Classes
 
         .. py:attribute:: y
 
+        .. py:classmethod:: angle(p1, p2) -> float
+
+            Returns the angle between the two vectors :py:attr:`p1` and :py:attr:`p2`
+            in the range 0 and 2*pi, with 0 being the positive x axis. Angles run
+            clockwise.
+
         .. py:method:: getAngle() -> float
 
             Returns the direction of the vector as an angle between pi and -pi, with
@@ -369,7 +384,7 @@ Misc. Classes
         .. py:method:: getRotated(angle) -> Point2D
 
             Return the position of point rotated around the origin.
-    
+
         .. py:method:: getRotated(angle, pivot) -> Point2D
 
             Return the position of point rotated around :py:attr:`pivot`.
@@ -379,6 +394,13 @@ Misc. Classes
             Converts polar to cartesian coordinates. :py:attr:`angle` is in radians with 0
             being the positive x axis. Angle is clockwise (assuming that y points
             downward).
+
+        .. py:method isInPolygon(poly) -> bool
+
+            Checks if the point is inside a polygon.
+
+            :param poly: List of points which constitute a polygon to check against.
+            :returns: :py:const:`True` if point is inside, :py:const:`False` otherwise.
 
 
     .. autoclass:: SVG(filename, [unescapeIllustratorIDs=False])
@@ -534,21 +556,6 @@ Misc. Classes
             asynchronous to normal playback. If you need to immediately re-open the
             video file (e.g. for playback in a video node), destroy the python object 
             first. This waits for sync.
-
-    .. autofunction:: getMemoryUsage() -> int
-
-        Returns the amount of memory used by the application in bytes. More
-        precisely, this function returns the resident set size of the process
-        in bytes. This does not include shared libraries or memory paged out to
-        disk.
-
-    .. autofunction:: pointInPolygon(point, poly) -> bool
-
-        Checks if a point is inside a polygon.
-
-        :param Point2D point: Point to check.
-        :param poly: List of points which constitute a polygon to check against.
-        :returns: :py:const:`True` if point is inside, :py:const:`False` otherwise.
 
     .. autofunction:: validateXml(xmlString, schemaString, xmlName, schemaName)
 

@@ -26,8 +26,6 @@
 #include "ProfilingZoneID.h"
 #include "TimeSource.h"
 
-#include <boost/shared_ptr.hpp>
-
 namespace avg {
 
 class AVG_API ProfilingZone
@@ -61,8 +59,6 @@ private:
     int m_Indent;
     const ProfilingZoneID& m_ZoneID;
 };
-
-typedef boost::shared_ptr<ProfilingZone> ProfilingZonePtr;
 
 }
 

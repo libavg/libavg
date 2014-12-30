@@ -387,7 +387,7 @@ class VectorTestCase(AVGTestCase):
         
         def repeatTexCoords():
             polyline.pos = [(10,10), (30,10), (30,50), (50,50), (50,70), (70,70)]
-            polyline.texcoords = [1, 2, 3]
+            polyline.texcoords = [0,1]
         
         canvas = self.makeEmptyCanvas()
         polyline = texturePolyLine()
@@ -551,8 +551,8 @@ class VectorTestCase(AVGTestCase):
 
     def testPointInPolygon(self):
         polygon_pos = [(10, 10), (50, 10), (90, 50), (90, 90)]
-        self.assert_(avg.pointInPolygon((50, 20), polygon_pos))
-        self.assert_(avg.pointInPolygon((10, 20), polygon_pos) == False)
+        self.assert_(avg.Point2D(50, 20).isInPolygon(polygon_pos))
+        self.assert_(not avg.Point2D(10, 20).isInPolygon(polygon_pos))
 
     def testCircle(self):
         def addCircle():
@@ -661,9 +661,9 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         mesh = addMesh()
-        self.assertException(setIllegalVertexes)
-        self.assertException(setIllegalTextures)
-        self.assertException(setIllegalIndexes)
+        self.assertRaises(RuntimeError, setIllegalVertexes)
+        self.assertRaises(RuntimeError, setIllegalTextures)
+        self.assertRaises(RuntimeError, setIllegalIndexes)
         self.start(False,
                 (lambda: self.compareImage("testMesh1"),
                  setVertexCoords,

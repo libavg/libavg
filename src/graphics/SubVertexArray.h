@@ -26,7 +26,6 @@
 
 #include "VertexArray.h"
 #include "Pixel32.h"
-#include "OGLHelper.h"
 
 #include "../base/GLMHelper.h"
 

@@ -21,10 +21,8 @@
 
 #include "StringHelper.h"
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <algorithm>
 #include <cstdio>
+#include <algorithm>
 #include <iterator>
 
 using namespace std;

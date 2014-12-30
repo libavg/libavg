@@ -20,6 +20,7 @@
 //
 
 #include "VideoDemuxerThread.h"
+#include "FFMpegDemuxer.h"
 
 #include "../base/TimeSource.h"
 

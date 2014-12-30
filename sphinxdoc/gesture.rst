@@ -137,6 +137,9 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
         and distance limits which can be changed by modifying :file:`avgrc`. The sample
         file under :file:`src/avgrc` contains explanations.
 
+        Gesture Recognizers disable themselves automatically if the node they are attached
+        to is deleted using :samp:`unlink(True)`.
+
         :param Node node: Node to attach to.
 
         :param bool isContinuous: 

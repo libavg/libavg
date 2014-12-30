@@ -40,9 +40,9 @@ class DynamicsTestCase(AVGTestCase):
             node.x = 10
             node.y = 20
             self.root.appendChild(node)
-            self.assertException(setNodeID)
+            self.assertRaises(RuntimeError, setNodeID)
             self.assertEqual(self.root.indexOf(player.getElementByID("nodeid1")), 0)
-            self.assertException(lambda: self.root.indexOf(self.root))
+            self.assertRaises(RuntimeError, lambda: self.root.indexOf(self.root))
 
         def createNode2(useXml):
             node = createFunc(useXml)
@@ -69,8 +69,14 @@ class DynamicsTestCase(AVGTestCase):
             self.node = None
        
         def killNode():
+            def onKill():
+                self.killCalled = True
+
             self.node = player.getElementByID("nodeid1")
+            self.killCalled = False
+            self.node.subscribe(avg.Node.KILLED, onKill)
             self.node.unlink(True)
+            self.assert_(self.killCalled)
             gone = player.getElementByID("nodeid1")
             self.assertEqual(gone, None)
 
@@ -159,11 +165,12 @@ class DynamicsTestCase(AVGTestCase):
     def testDuplicateID(self):
         root = self.loadEmptyScene()
         avg.ImageNode(href="rgb24-64x64.png", id="testdup", parent=root)
-        self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
+        self.assertRaises(RuntimeError, lambda: avg.ImageNode(href="rgb24-64x64.png", 
                 id="testdup", parent=root))
         self.start(False,
-                (self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
-                        id="testdup", parent=root)),
+                (self.assertRaises(RuntimeError,
+                        lambda: avg.ImageNode(href="rgb24-64x64.png", id="testdup",
+                        parent=root)),
                 ))
        
     def testChangeParentError(self):
@@ -173,8 +180,8 @@ class DynamicsTestCase(AVGTestCase):
             root.appendChild(img)
 
         root = self.loadEmptyScene()
-        self.assertException(changeParent)
-        self.start(False, (self.assertException(changeParent),))
+        self.assertRaises(RuntimeError, changeParent)
+        self.start(False, (self.assertRaises(RuntimeError, changeParent),))
 
     def testDynamicEventCapture(self):
         # Tests if deleting a node that has events captured works.
@@ -268,7 +275,7 @@ class DynamicsTestCase(AVGTestCase):
             node.appendChild(imgNode)
             imgNode.id = "imageid"
             root.appendChild(node)
-            self.assertException(lambda: setImageID(imgNode))
+            self.assertRaises(RuntimeError, lambda: setImageID(imgNode))
   
         def removeDiv():
             node = player.getElementByID("divid")
@@ -278,7 +285,7 @@ class DynamicsTestCase(AVGTestCase):
             imgNode.unlink()
             root.appendChild(node)
             node.appendChild(imgNode)
-            self.assertException(lambda: setImageID(imgNode))
+            self.assertRaises(RuntimeError, lambda: setImageID(imgNode))
 
         root = self.loadEmptyScene()
         createDiv()

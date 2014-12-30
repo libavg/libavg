@@ -24,16 +24,19 @@
 
 #include "../api.h"
 #include "../base/Queue.h"
-#include "../graphics/Bitmap.h"
 
 #include "../audio/AudioMsg.h"
 
 #include <boost/shared_ptr.hpp>
+#include <vector>
 
 struct vdpau_render_state;
 struct AVPacket;
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API VideoMsg: public AudioMsg {
 public:

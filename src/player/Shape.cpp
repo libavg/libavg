@@ -27,8 +27,11 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/GLContext.h"
 #include "../graphics/OGLShader.h"
+#include "../graphics/StandardShader.h"
+#include "../graphics/Bitmap.h"
 
 #include "OGLSurface.h"
+#include "Image.h"
 
 #include <iostream>
 #include <sstream>
@@ -41,6 +44,7 @@ Shape::Shape(const MaterialInfo& material)
 {
     m_pSurface = new OGLSurface();
     m_pImage = ImagePtr(new Image(m_pSurface, material));
+    m_pVertexData = VertexDataPtr(new VertexData());
 }
 
 Shape::~Shape()
@@ -50,40 +54,26 @@ Shape::~Shape()
 
 void Shape::setBitmap(BitmapPtr pBmp)
 {
-    Image::State prevState = m_pImage->getState();
     if (pBmp) {
         m_pImage->setBitmap(pBmp);
     } else {
         m_pImage->setEmpty();
-    }
-    if (m_pImage->getState() == Image::GPU) {
-        if (prevState != Image::GPU) {
-            // TODO: This shouldn't happen.
-            m_pVertexData = VertexDataPtr(new VertexData());
-        }
     }
 }
 
 void Shape::moveToGPU()
 {
     m_pImage->moveToGPU();
-    m_pVertexData = VertexDataPtr(new VertexData());
 }
 
 void Shape::moveToCPU()
 {
-    m_pVertexData = VertexDataPtr();
     m_pImage->moveToCPU();
 }
 
 ImagePtr Shape::getImage()
 {
     return m_pImage;
-}
-
-bool Shape::isTextured() const
-{
-    return m_pImage->getSource() != Image::NONE;
 }
 
 VertexDataPtr Shape::getVertexData()
@@ -106,7 +96,7 @@ void Shape::setVertexArray(const VertexArrayPtr& pVA)
 
 void Shape::draw(const glm::mat4& transform, float opacity)
 {
-    bool bIsTextured = isTextured();
+    bool bIsTextured = (m_pImage->getSource() != Image::NONE);
     GLContext* pContext = GLContext::getCurrent();
     StandardShaderPtr pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
@@ -122,7 +112,7 @@ void Shape::draw(const glm::mat4& transform, float opacity)
 
 void Shape::discard()
 {
-    m_pVertexData = VertexDataPtr();
+    m_pVertexData->reset();
     m_pImage->discard();
 }
 

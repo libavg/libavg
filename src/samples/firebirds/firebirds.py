@@ -239,8 +239,6 @@ class EnemyAircraft(_Aircraft):
             self.notifySubscribers(EnemyAircraft.ESCAPED, [])
 
 
-### gui elements ###
-
 class ScrollingBackground(object):
     __SCROLL_SPEED = 120.0 # px/s
 
@@ -259,11 +257,13 @@ class ScrollingBackground(object):
             self.__imgB.y = self.__imgA.y - self.__imgA.height
 
 
-class LiveCounter(avg.DivNode):
+### gui elements ###
+
+class LifeCounter(avg.DivNode):
     __NUM_LIVES = 3
 
     def __init__(self, parent=None, **kwargs):
-        super(LiveCounter, self).__init__(**kwargs)
+        super(LifeCounter, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         self.__numLives = 0
         self.__images = []
@@ -367,7 +367,7 @@ class FireBirds(app.MainDiv):
 
         bg = avg.ImageNode(href='gui_frame.png', parent=self.__guiDiv)
         self.__guiDiv.pos = (0, self.height - bg.height)
-        self.__liveCounter = LiveCounter(pos=(8, 12), parent=self.__guiDiv)
+        self.__lifeCounter = LifeCounter(pos=(8, 12), parent=self.__guiDiv)
         gunCtrl = GunControl(pos=(300, 54), parent=self.__guiDiv)
         self.__scoreCounter = ScoreCounter(pos=(1142, 54), parent=self.__guiDiv)
 
@@ -405,7 +405,7 @@ class FireBirds(app.MainDiv):
 
     def __start(self):
         assert(not self.__frameHandlerId and not self.__spawnTimeoutId)
-        self.__liveCounter.reset()
+        self.__lifeCounter.reset()
         self.__scoreCounter.reset()
         self.__player.reset()
         self.__frameHandlerId = player.subscribe(player.ON_FRAME, self.__onFrame)
@@ -413,9 +413,8 @@ class FireBirds(app.MainDiv):
                 self.__spawnEnemy)
 
     def __stop(self):
-        assert(self.__frameHandlerId and self.__spawnTimeoutId)
-        player.clearInterval(self.__spawnTimeoutId)
-        self.__spawnTimeoutId = None
+        player.unsubscribe(player.ON_FRAME, self.__frameHandlerId)
+        self.__frameHandlerId = None
 
     def __createEnemy(self):
         enemy = EnemyAircraft(self.__shadowDiv, parent=self.__gameDiv)
@@ -451,11 +450,12 @@ class FireBirds(app.MainDiv):
                             b.destroy()
                             break
                 if e.alive: # no bullet hit
-                    if self.__player.alive and \
-                            self.__playerCollisionDetector.detect(e.pos, self.__player.pos):
+                    if (self.__player.alive and self.__playerCollisionDetector.detect(
+                            e.pos, self.__player.pos)):
                         e.destroy()
-                        if self.__liveCounter.dec():
-                            self.__stop()
+                        if self.__lifeCounter.dec():
+                            player.clearInterval(self.__spawnTimeoutId)
+                            self.__spawnTimeoutId = None
                             self.__player.destroy()
                 if e.alive: # no player collision
                     e.update(dt)
@@ -463,9 +463,9 @@ class FireBirds(app.MainDiv):
         if self.__player.alive:
             self.__player.update(dt, self.__keyStates)
         elif not self.__player.updateBullets(dt) and not enemiesActive:
-            # player dead, all bullets and enemies left the screen, all destroy videos played
-            player.unsubscribe(player.ON_FRAME, self.__frameHandlerId)
-            self.__frameHandlerId = None
+            # player dead, all bullets and enemies left the screen, all destroy videos
+            # played
+            self.__stop()
 
 
 if __name__ == '__main__':

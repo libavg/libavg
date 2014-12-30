@@ -23,8 +23,9 @@
 #define _TexInfo_H_
 
 #include "../api.h"
-#include "Bitmap.h"
-#include "OGLHelper.h"
+
+#include "PixelFormat.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 

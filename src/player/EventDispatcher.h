@@ -23,15 +23,17 @@
 #define _EventDispatcher_h_
 
 #include "../api.h"
-#include "InputDevice.h"
 
 #include <vector>
 #include <map>
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
 class Event;
 typedef boost::shared_ptr<class Event> EventPtr;
+class InputDevice;
+typedef boost::shared_ptr<class InputDevice> InputDevicePtr;
 class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
 class Player;

@@ -24,10 +24,7 @@
 
 #include "../api.h"
 #include "VertexData.h"
-#include "Pixel32.h"
 #include "OGLHelper.h"
-
-#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 #include <map>

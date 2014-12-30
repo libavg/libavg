@@ -26,6 +26,7 @@
 #include "../base/Logger.h"
 
 #include "../graphics/GLConfig.h"
+#include "../graphics/GLContext.h"
 
 #include <stdio.h>
 #include <stdlib.h>

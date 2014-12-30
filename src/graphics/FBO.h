@@ -25,10 +25,6 @@
 #include "../api.h"
 
 #include "FBOInfo.h"
-#include "GLTexture.h"
-#ifndef AVG_ENABLE_EGL
-    #include "PBO.h"
-#endif
 
 #include "../base/GLMHelper.h"
 
@@ -37,6 +33,16 @@
 #include <vector>
 
 namespace avg {
+
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+#ifndef AVG_ENABLE_EGL
+class PBO;
+typedef boost::shared_ptr<PBO> PBOPtr;
+#endif
+
 
 class AVG_API FBO: public FBOInfo
 {

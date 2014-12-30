@@ -608,17 +608,17 @@ void Bitmap::setPixelFormat(PixelFormat pf)
     m_PF = pf;
 }
 
-glm::byte * Bitmap::getPixels()
+unsigned char* Bitmap::getPixels()
 {
     return m_pBits;
 }
 
-const glm::byte * Bitmap::getPixels() const
+const unsigned char* Bitmap::getPixels() const
 {
     return m_pBits;
 }
 
-void Bitmap::setPixels(const glm::byte * pPixels)
+void Bitmap::setPixels(const unsigned char* pPixels)
 {
     memcpy(m_pBits, pPixels, getMemNeeded());
 }

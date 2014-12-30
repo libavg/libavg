@@ -22,6 +22,7 @@
 #include "DivNode.h"
 #include "Player.h"
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Canvas.h"
 
 #include "../base/Exception.h"

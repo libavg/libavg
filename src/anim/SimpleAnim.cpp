@@ -82,7 +82,7 @@ object typedLERP(const object& startValue, const object& endValue, float part)
 
 bool SimpleAnim::step()
 {
-    assert(isRunning());
+    AVG_ASSERT(isRunning());
     float t = ((float(Player::get()->getFrameTime())-m_StartTime)
             /m_Duration);
     if (t >= 1.0) {

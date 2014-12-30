@@ -22,6 +22,7 @@
 #include "CameraNode.h"
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Canvas.h"
 
 #include "../base/Logger.h"
@@ -76,7 +77,7 @@ void CameraNode::registerType()
 CameraNode::CameraNode(const ArgList& args)
     : m_bIsPlaying(false),
       m_FrameNum(0),
-      m_bIsAutoUpdateCameraImage(true),
+      m_bAutoUpdateCameraImage(true),
       m_bNewBmp(false),
       m_bNewSurface(false)
 {
@@ -337,38 +338,35 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (isAutoUpdateCameraImage()) {
-        ScopeTimer Timer(CameraFetchImage);
-        updateToLatestCameraImage();
-    }
-    if (isVisible()) {
-        if (m_bNewBmp) {
-            ScopeTimer Timer(CameraDownloadProfilingZone);
-            m_FrameNum++;
-            GLContextManager::get()->scheduleTexUpload(m_pTex, m_pCurBmp);
-            scheduleFXRender();
-            m_bNewBmp = false;
-        } else if (m_bNewSurface) {
-            BitmapPtr pBmp;
-            PixelFormat pf = getPixelFormat();
-            pBmp = BitmapPtr(new Bitmap(getMediaSize(), pf));
-            if (pf == B8G8R8X8 || pf == B8G8R8A8) {
-                FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
-            } else if (pf == I8) {
-                FilterFill<Pixel8>(0).applyInPlace(pBmp);
-            } 
-            GLContextManager::get()->scheduleTexUpload(m_pTex, pBmp);
-            scheduleFXRender();
+    if (m_bIsPlaying) {
+        if (m_bAutoUpdateCameraImage) {
+            ScopeTimer Timer(CameraFetchImage);
+            updateToLatestCameraImage();
         }
-        m_bNewSurface = false;
+        if (isVisible()) {
+            if (m_bNewBmp) {
+                ScopeTimer Timer(CameraDownloadProfilingZone);
+                m_FrameNum++;
+                GLContextManager::get()->scheduleTexUpload(m_pTex, m_pCurBmp);
+                scheduleFXRender();
+                m_bNewBmp = false;
+            } else if (m_bNewSurface) {
+                BitmapPtr pBmp;
+                PixelFormat pf = getPixelFormat();
+                pBmp = BitmapPtr(new Bitmap(getMediaSize(), pf));
+                if (pf == B8G8R8X8 || pf == B8G8R8A8) {
+                    FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
+                } else if (pf == I8) {
+                    FilterFill<Pixel8>(0).applyInPlace(pBmp);
+                }
+                GLContextManager::get()->scheduleTexUpload(m_pTex, pBmp);
+                scheduleFXRender();
+            }
+            m_bNewSurface = false;
+        }
+
+        calcVertexArray(pVA);
     }
-
-    calcVertexArray(pVA);
-}
-
-void CameraNode::renderFX()
-{
-    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
@@ -377,7 +375,7 @@ void CameraNode::render()
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
-        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32();
     }
 }
 
@@ -398,20 +396,14 @@ void CameraNode::updateToLatestCameraImage()
 
 void CameraNode::updateCameraImage()
 {
-    if (!isAutoUpdateCameraImage()) {
+    if (!m_bAutoUpdateCameraImage) {
         m_pCurBmp = m_pCamera->getImage(false);
-        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
     }
-}
-
-bool CameraNode::isAutoUpdateCameraImage() const
-{
-    return m_bIsAutoUpdateCameraImage;
 }
 
 void CameraNode::setAutoUpdateCameraImage(bool bVal)
 {
-    m_bIsAutoUpdateCameraImage = bVal;
+    m_bAutoUpdateCameraImage = bVal;
 }
 
 bool CameraNode::isImageAvailable() const

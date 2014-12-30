@@ -21,6 +21,8 @@
 
 #include "TypeDefinition.h"
 
+#include "TypeRegistry.h"
+
 #include "../base/Logger.h"
 
 using namespace std;

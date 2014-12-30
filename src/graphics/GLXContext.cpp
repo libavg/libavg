@@ -119,6 +119,18 @@ bool GLXContext::haveARBCreateContext()
     return s_bHaveExtension;
 }
 
+bool GLXContext::isGLESSupported()
+{
+    static bool s_bExtensionChecked = false;
+    static bool s_bHaveExtension = false;
+    if (!s_bExtensionChecked) {
+        s_bExtensionChecked = true;
+        s_bHaveExtension = (queryGLXExtension("GLX_EXT_create_context_es2_profile"));
+    }
+    return s_bHaveExtension;
+ 
+}
+
 XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig)
 {
     m_pDisplay = pDisplay;
@@ -146,9 +158,11 @@ XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& gl
         s_bDumpX11ErrorMsg = true;
         if(!m_Context && glConfig.m_bUseDebugContext) {
             //On intel HW ContextCreation with DebugBit fails
-            AVG_LOG_WARNING("Failed to create DEBUG context… falling back to standard context");
+            AVG_LOG_WARNING(
+                    "Failed to create DEBUG context… falling back to standard context");
             s_bX11Error = false;
-            m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, attrsWODebug.get());
+            m_Context = CreateContextAttribsARB(m_pDisplay, fbConfig, 0, 1, 
+                    attrsWODebug.get());
             AVG_ASSERT(m_Context);
         }
     } else {

@@ -35,6 +35,8 @@
 using namespace boost::python;
 using namespace avg;
 
+namespace bp = boost::python;
+
 void export_fx()
 {
 
@@ -42,7 +44,9 @@ void export_fx()
         ;
 
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>,
-            boost::noncopyable>("BlurFXNode", init<optional<float> >())
+            boost::noncopyable>("BlurFXNode", init<optional<float> >(
+                        (bp::arg("radius")=1.f)
+                        ))
         .add_property("radius", &BlurFXNode::getRadius,
                 &BlurFXNode::setRadius)
         ;
@@ -68,8 +72,11 @@ void export_fx()
         ;
 
     class_<HueSatFXNode, bases<FXNode>, boost::shared_ptr<HueSatFXNode>,
-            boost::noncopyable > ("HueSatFXNode", init<optional<float, float, float,
-            bool> >())
+            boost::noncopyable > ("HueSatFXNode",
+                    init<optional<float, float, float, bool> >(
+                        (bp::arg("hue")=0, bp::arg("saturation")=0,
+                         bp::arg("lightness")=0, bp::arg("colorize")=false)
+                    ))
         .add_property("hue", &HueSatFXNode::getHue,
                 &HueSatFXNode::setHue)
         .add_property("saturation", &HueSatFXNode::getSaturation,
@@ -91,7 +98,10 @@ void export_fx()
 
     class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>,
             boost::noncopyable>("ShadowFXNode", 
-            init<optional<glm::vec2, float, float, std::string> >())
+            init<optional<glm::vec2, float, float, std::string> >(
+                (bp::arg("offset")=glm::vec2(0,0), bp::arg("radius")=1.f,
+                 bp::arg("opacity")=1.f, bp::arg("color")=std::string("FFFFFF"))
+            ))
         .add_property("offset", &ShadowFXNode::getOffset, &ShadowFXNode::setOffset)
         .add_property("radius", &ShadowFXNode::getRadius, &ShadowFXNode::setRadius)
         .add_property("opacity", &ShadowFXNode::getOpacity, &ShadowFXNode::setOpacity)

@@ -21,6 +21,7 @@
 
 #include "SyncVideoDecoder.h"
 #include "FFMpegDemuxer.h"
+#include "FFMpegFrameDecoder.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"

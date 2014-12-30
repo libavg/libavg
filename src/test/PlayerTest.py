@@ -90,11 +90,12 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(len(pt), 2)
         self.assertEqual(pt[0], pt.x)
         self.assertEqual(pt[1], pt.y)
-        self.assertException(lambda: pt[2])
+        self.assertRaises(IndexError, lambda: pt[2])
         self.assertAlmostEqual(avg.Point2D(10,0), avg.Point2D.fromPolar(0,10))
-        self.assertException(avg.Point2D(0,0).getNormalized)
-        self.assertException(lambda: avg.Point2D(0,))
-        self.assertException(lambda: avg.Point2D(0,1,2))
+        self.assertRaises(RuntimeError, avg.Point2D(0,0).getNormalized)
+        # boost ArgumentError can't be caught explicitly
+        self.assertRaises(Exception, lambda: avg.Point2D(0,))
+        self.assertRaises(Exception, lambda: avg.Point2D(0,1,2))
         for point in ((10,0), (0,10), (-10,0), (0,-10)):
             pt = avg.Point2D(point)
             angle = pt.getAngle()
@@ -113,7 +114,7 @@ class PlayerTestCase(AVGTestCase):
         player.showCursor(1)
         root = self.loadEmptyScene()
         avg.ImageNode(href="rgb24-65x65.png", parent=root)
-        self.assertException(invalidCreateNode)
+        self.assertRaises(RuntimeError, invalidCreateNode)
         self.start(False,
                 (getFramerate,
                  lambda: self.compareImage("testbasics"), 
@@ -122,16 +123,24 @@ class PlayerTestCase(AVGTestCase):
                  lambda: player.showCursor(1),
                 ))
 
+    def testSetResolution(self):
+        root = self.loadEmptyScene()
+        avg.ImageNode(href="rgb24-65x65.png", parent=root)
+        player.setResolution(0, 79, 59, 0)
+        self.start(False,
+                (lambda: self.compareImage("testSetResolution"),
+                ))
+
     def testColorParse(self):
         def setColor(colorName):
             node.color = colorName
 
         node = avg.LineNode(pos1=(0.5, 0), pos2=(0.5, 50), color="FF0000")
         setColor("ff00ff")
-        self.assertException(lambda: setColor("foo"))
-        self.assertException(lambda: setColor("ff00f"))
-        self.assertException(lambda: setColor("ff00ffx"))
-        self.assertException(lambda: setColor("ff00fx"))
+        self.assertRaises(RuntimeError, lambda: setColor("foo"))
+        self.assertRaises(RuntimeError, lambda: setColor("ff00f"))
+        self.assertRaises(RuntimeError, lambda: setColor("ff00ffx"))
+        self.assertRaises(RuntimeError, lambda: setColor("ff00fx"))
 
     def testFakeTime(self):
         def checkTime():
@@ -312,7 +321,7 @@ class PlayerTestCase(AVGTestCase):
 
     def testInvalidVideoFilename(self):
         def tryplay():
-            assertException(lambda: video.play())
+            assertRaises(SystemError, lambda: video.play())
         
         root = self.loadEmptyScene()
         video = avg.VideoNode(href="filedoesntexist.avi", parent=root)
@@ -338,9 +347,6 @@ class PlayerTestCase(AVGTestCase):
             if self.numOnFramesCalled == 3:
                 player.clearInterval(self.intervalID)
 
-        def wait():
-            pass
-        
         def throwException():
             raise TestException
 
@@ -358,6 +364,7 @@ class PlayerTestCase(AVGTestCase):
         self.numOnFramesCalled = 0
         try:
             self.initDefaultImageScene()
+
             self.start(False,
                     (setupTimeouts,
                      None,
@@ -365,13 +372,39 @@ class PlayerTestCase(AVGTestCase):
                      lambda: self.assert_(not(self.timeout2called)),
                      lambda: self.assert_(self.numOnFramesCalled == 3),
                      lambda: initException(),
-                     lambda: self.delay(10),
+                     lambda: self.delay(10)
                     ))
         except TestException:
             self.__exceptionThrown = True
             
         self.assert_(self.__exceptionThrown)
         player.clearInterval(self.timeout3ID)
+
+
+    def testTimeoutOnFrameHandling(self):
+
+        def onTimeOut():
+            self.callCount += 1
+
+        def onFrame():
+                player.clearInterval(self.longTimeoutId)
+                self.longTimeoutId = None
+                player.setTimeout(0, onTimeOut)
+                player.unsubscribe(player.ON_FRAME, self.onFrameID)
+
+        self.initDefaultImageScene()
+        self.callCount = 0
+        # long running dummy timeout. Will be removed before the timer elapses.
+        self.longTimeoutId = player.setTimeout(10000, lambda: None)
+        self.onFrameID = player.subscribe(player.ON_FRAME, onFrame)
+
+        self.start(False,
+                (None,
+                 None,
+                 None,
+                 lambda: self.assert_(self.callCount == 1),
+                ))
+
 
     def testCallFromThread(self):
 
@@ -400,11 +433,11 @@ class PlayerTestCase(AVGTestCase):
         self.start(False, 
                 (lambda: self.compareImage("testAVGFile"),
                 ))
-        self.assertException(lambda: player.loadFile("filedoesntexist.avg"))
+        self.assertRaises(RuntimeError, lambda: player.loadFile("filedoesntexist.avg"))
 
     def testBroken(self):
         def testBrokenString(string):
-            self.assertException(lambda: player.loadString(string))
+            self.assertRaises(RuntimeError, lambda: player.loadString(string))
         
         # This isn't xml
         testBrokenString("""
@@ -584,15 +617,15 @@ class PlayerTestCase(AVGTestCase):
             grid = image.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             image.setWarpedVertexCoords(grid)
-       
+      
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png",
                 maxtilewidth=32, maxtileheight=16, parent=root)
         video = avg.VideoNode(pos=(40,0), size=(80,80), opacity=0.5, loop=True,
                 href="mpeg1-48x48.mov", threaded=False, fps=30, parent=root)
 
-        self.assertException(image.getOrigVertexCoords)
-        self.assertException(image.getWarpedVertexCoords)
+        self.assertRaises(RuntimeError, image.getOrigVertexCoords)
+        self.assertRaises(RuntimeError, image.getWarpedVertexCoords)
         player.setFakeFPS(30)
         self.start(False,
                 (lambda: video.play(),
@@ -600,7 +633,11 @@ class PlayerTestCase(AVGTestCase):
                  moveVertex,
                  lambda: self.compareImage("testWarp2"),
                  flip,
-                 lambda: self.compareImage("testWarp3")
+                 lambda: self.compareImage("testWarp3"),
+                 lambda: image.setMirror(avg.RasterNode.HORIZONTAL),
+                 lambda: self.compareImage("testWarp3"),
+                 lambda: image.setMirror(avg.RasterNode.VERTICAL),
+                 lambda: self.compareImage("testWarp4"),
                 ))
 
     def testMediaDir(self):
@@ -628,7 +665,7 @@ class PlayerTestCase(AVGTestCase):
                 # Should not find any media here...
                 div.mediadir="/testmediadir"
 
-            self.assertException(absDir)
+            self.assertRaises(RuntimeError, absDir)
         
         def createNode():
             avg.VideoNode(href="mjpeg1-48x48.avi", fps=30)
@@ -650,7 +687,7 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testMemoryQuery(self):
-        self.assertNotEqual(avg.getMemoryUsage(), 0)
+        self.assertNotEqual(player.getMemoryUsage(), 0)
 
     def testStopOnEscape(self):
         def pressEscape():
@@ -726,8 +763,8 @@ class PlayerTestCase(AVGTestCase):
         self.compareBitmapToFile(bmp, "testSvgScaleBmp2")
 
         # error handling
-        self.assertException(lambda: avg.SVG("filedoesntexist.svg", False))
-        self.assertException(lambda: svgFile.renderElement("missing_id"))
+        self.assertRaises(RuntimeError, lambda: avg.SVG("filedoesntexist.svg", False))
+        self.assertRaises(RuntimeError, lambda: svgFile.renderElement("missing_id"))
 
         # unescapeIllustratorIDs
         svgIllustratorFile = avg.SVG("illustratorRect.svg", True)
@@ -748,8 +785,9 @@ class PlayerTestCase(AVGTestCase):
 
     def testGetConfigOption(self):
         self.assert_(len(player.getConfigOption("scr", "bpp")) > 0)
-        self.assertException(lambda: player.getConfigOption("scr", "illegalOption"))
-        self.assertException(lambda:
+        self.assertRaises(RuntimeError, lambda: 
+                player.getConfigOption("scr", "illegalOption"))
+        self.assertRaises(RuntimeError, lambda:
                 player.getConfigOption("illegalGroup", "illegalOption"))
 
     def testValidateXml(self):
@@ -776,11 +814,11 @@ class PlayerTestCase(AVGTestCase):
         avg.validateXml(xmlString, schema, "shiporder.xml", "shiporder.xsd")
        
         brokenSchema = "ff"+schema
-        self.assertException(lambda: avg.validateXml(xmlString, brokenSchema,
+        self.assertRaises(RuntimeError, lambda: avg.validateXml(xmlString, brokenSchema,
                 "shiporder.xml", "shiporder.xsd"))
 
         brokenXml = xmlString+"ff"
-        self.assertException(lambda: avg.validateXml(brokenXml, schema,
+        self.assertRaises(RuntimeError, lambda: avg.validateXml(brokenXml, schema,
                 "shiporder.xml", "shiporder.xsd"))
 
     # Not executed due to bug #145 - hangs with some window managers.
@@ -820,6 +858,7 @@ def playerTestSuite(tests):
     availableTests = (
             "testPoint",
             "testBasics",
+            "testSetResolution",
             "testColorParse",
             "testFakeTime",
             "testDivResize",
@@ -834,6 +873,7 @@ def playerTestSuite(tests):
             "testInvalidImageFilename",
             "testInvalidVideoFilename",
             "testTimeouts",
+            "testTimeoutOnFrameHandling",
             "testCallFromThread",
             "testAVGFile",
             "testBroken",

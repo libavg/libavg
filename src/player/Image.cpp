@@ -27,6 +27,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/BitmapLoader.h"
+#include "../graphics/Bitmap.h"
 #include "../graphics/GLContextManager.h"
 
 #include "OGLSurface.h"
@@ -68,7 +69,8 @@ void Image::moveToGPU()
                 setupSurface();
                 break;
             case SCENE:
-                m_pSurface->create(B8G8R8X8, m_pCanvas->getTex());
+                m_pSurface->create(B8G8R8X8, m_pCanvas->getTex(), MCTexturePtr(),
+                        MCTexturePtr(), MCTexturePtr(), true);
                 break;
             case NONE:
                 break;
@@ -194,7 +196,8 @@ void Image::setCanvas(OffscreenCanvasPtr pCanvas)
     changeSource(SCENE);
     m_pCanvas = pCanvas;
     if (m_State == GPU) {
-        m_pSurface->create(B8G8R8X8, m_pCanvas->getTex());
+        m_pSurface->create(B8G8R8X8, m_pCanvas->getTex(), MCTexturePtr(), MCTexturePtr(),
+                MCTexturePtr(), true);
     }
     assertValid();
 }

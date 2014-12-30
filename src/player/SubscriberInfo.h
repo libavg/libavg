@@ -23,7 +23,6 @@
 #define _SubscriberInfo_H_
 
 #include "../api.h"
-#include "Player.h"
 
 #include "BoostPython.h"
 #include <boost/shared_ptr.hpp>
@@ -31,11 +30,7 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
-#include <vector>
-
-
 namespace avg {
-
 
 class SubscriberInfo {
 public:

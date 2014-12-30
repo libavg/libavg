@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "OGLHelper.h"
 #include "GLShaderParam.h"
-#include "Pixel32.h"
 
 #include "../base/GLMHelper.h"
 

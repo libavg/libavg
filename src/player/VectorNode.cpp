@@ -22,8 +22,10 @@
 #include "VectorNode.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "Image.h"
+#include "Shape.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -60,7 +62,8 @@ void VectorNode::registerType()
 }
 
 VectorNode::VectorNode(const ArgList& args)
-    : m_Transform(glm::mat4(0))
+    : m_Transform(glm::mat4(0)),
+      m_Translate(glm::vec2(0,0))
 {
     m_pShape = ShapePtr(createDefaultShape());
 
@@ -165,7 +168,8 @@ void VectorNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        m_Transform = parentTransform;
+        glm::vec3 trans(m_Translate.x, m_Translate.y, 0);
+        m_Transform = glm::translate(parentTransform, trans);
         GLContext::getCurrent()->setBlendMode(m_BlendMode);
         render();
     }
@@ -290,28 +294,20 @@ void VectorNode::calcEffPolyLineTexCoords(vector<float>& effTC,
         effTC = cumulDist;
     } else if (tc.size() == cumulDist.size()) {
         effTC = tc;
-    } else {
+    } else if (tc.size() == 2) {
+        effTC = vector<float>();
         effTC.reserve(cumulDist.size());
-        effTC = tc;
-        float minGivenTexCoord = tc[0];
-        float maxGivenTexCoord = tc[tc.size()-1];
-        float maxCumulDist = cumulDist[tc.size()-1];
-        int baselineDist = 0;
-        for (unsigned i = tc.size(); i < cumulDist.size(); ++i) {
-            int repeatFactor = int(cumulDist[i]/maxCumulDist);
-            float effCumulDist = fmod(cumulDist[i], maxCumulDist);
-            while (cumulDist[baselineDist+1] < effCumulDist) {
-                baselineDist++;
-            }
-            float ratio = (effCumulDist-cumulDist[baselineDist])/
-                    (cumulDist[baselineDist+1]-cumulDist[baselineDist]);
-            float rawTexCoord = (1-ratio)*tc[baselineDist] +ratio*tc[baselineDist+1];
-            float texCoord = rawTexCoord
-                    +repeatFactor*(maxGivenTexCoord-minGivenTexCoord);
+        float minTexCoord = tc[0];
+        float maxTexCoord = tc[1];
+        float lineLen = cumulDist[cumulDist.size()-1];
+        for (unsigned i = 0; i < cumulDist.size(); ++i) {
+            float ratio = cumulDist[i]/lineLen;
+            float texCoord = minTexCoord + ratio*(maxTexCoord-minTexCoord);
             effTC.push_back(texCoord);
         }
+    } else {
+        AVG_ASSERT(false);
     }
-
 }
 
 void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts, 
@@ -514,6 +510,11 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
 const glm::mat4& VectorNode::getTransform() const
 {
     return m_Transform;
+}
+
+void VectorNode::setTranslate(const glm::vec2& trans)
+{
+    m_Translate = trans;
 }
 
 Shape* VectorNode::createDefaultShape() const

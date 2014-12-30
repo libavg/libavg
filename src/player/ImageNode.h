@@ -26,12 +26,14 @@
 #include "RasterNode.h"
 #include "Image.h"
 
-#include "../graphics/Bitmap.h"
 #include "../base/UTF8String.h"
 
 #include <string>
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API ImageNode : public RasterNode
 {
@@ -52,7 +54,6 @@ class AVG_API ImageNode : public RasterNode
         
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void renderFX();
         virtual void render();
         
         void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);

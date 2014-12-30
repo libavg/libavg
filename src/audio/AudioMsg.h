@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "../base/Queue.h"
+#include "../base/Exception.h"
 
 #include "AudioBuffer.h"
 

@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "TexInfo.h"
-#include "Bitmap.h"
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
@@ -35,6 +34,8 @@ namespace avg {
 class GLContext;
 class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API MCTexture: public TexInfo {
 

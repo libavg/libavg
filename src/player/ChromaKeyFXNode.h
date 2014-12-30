@@ -25,11 +25,15 @@
 #include "../api.h"
 
 #include "FXNode.h"
-#include "../graphics/GPUChromaKeyFilter.h"
+
+#include "../graphics/Pixel32.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class GPUChromaKeyFilter;
+typedef boost::shared_ptr<GPUChromaKeyFilter> GPUChromaKeyFilterPtr;
 
 class AVG_API ChromaKeyFXNode: public FXNode {
 public:

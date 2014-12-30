@@ -23,7 +23,10 @@
 
 #include "OGLHelper.h"
 #include "GLContext.h"
+#include "GLContextManager.h"
 #include "Filterfliprgb.h"
+#include "FBO.h"
+#include "MCTexture.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -52,12 +55,14 @@ MCFBO::MCFBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
 MCFBO::~MCFBO()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
-    FBOMap::iterator it;
-    for (it=m_pFBOs.begin(); it!=m_pFBOs.end(); ++it) {
-        GLContext* pContext = it->first;
-        FBOPtr pFBO = it->second;
-        pContext->activate();
-        m_pFBOs[pContext] = FBOPtr();
+    if (GLContextManager::isActive()) {
+        FBOMap::iterator it;
+        for (it=m_pFBOs.begin(); it!=m_pFBOs.end(); ++it) {
+            GLContext* pContext = it->first;
+            FBOPtr pFBO = it->second;
+            pContext->activate();
+            m_pFBOs[pContext] = FBOPtr();
+        }
     }
 }
 

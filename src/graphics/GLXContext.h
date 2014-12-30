@@ -44,6 +44,7 @@ public:
     void swapBuffers();
 
     static bool haveARBCreateContext();
+    static bool isGLESSupported();
 
 protected:
     XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig);

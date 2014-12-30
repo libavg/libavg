@@ -338,6 +338,10 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
         /* write the compressed frame in the media file */
         ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
         av_free_packet(&packet);
+        if(ret != 0) {
+            AVG_TRACE(Logger::category::VIDEO, Logger::severity::ERROR,
+                    getAVErrorString(ret));
+        }
         AVG_ASSERT(ret == 0);
     }
 

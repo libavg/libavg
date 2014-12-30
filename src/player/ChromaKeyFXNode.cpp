@@ -23,6 +23,8 @@
 
 #include "../base/ObjectCounter.h"
 
+#include "../graphics/GPUChromaKeyFilter.h"
+
 #include <string>
 
 using namespace std;

@@ -39,12 +39,15 @@ class Recognizer(avg.Publisher):
             endHandler=None):
         super(Recognizer, self).__init__()
 
-        if node:
-            self.__node = weakref.ref(node)
-        else:
-            self.__node = None
+        assert(node)
+        self.__node = node
+        self.__node.subscribe(avg.Node.KILLED, self.__onNodeGone)
         self.__isContinuous = isContinuous
         self.__maxContacts = maxContacts
+
+        self.__downHandlerID = None
+        self.__moveHandlerID = {}
+        self.__upHandlerID = {}
 
         self.__setEventHandler() 
         self.__isEnabled = True
@@ -128,8 +131,10 @@ class Recognizer(avg.Publisher):
         if event.contact and not(nodeGone):
             if (self.__maxContacts == None or len(self._contacts) <
                     self.__maxContacts):
-                event.contact.subscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
-                event.contact.subscribe(avg.Contact.CURSOR_UP, self.__onUp)
+                self.__moveHandlerID[event.contact] = event.contact.subscribe(
+                        avg.Contact.CURSOR_MOTION, self.__onMotion)
+                self.__upHandlerID[event.contact] = event.contact.subscribe(
+                        avg.Contact.CURSOR_UP, self.__onUp)
                 self._contacts.add(event.contact)
                 if len(self._contacts) == 1:
                     self.__frameHandlerID = player.subscribe(player.ON_FRAME, 
@@ -153,18 +158,21 @@ class Recognizer(avg.Publisher):
                 self.__frameHandlerID = None
             self._handleUp(event)
 
-    def __abort(self):        
+    def __abort(self):
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
         if len(self._contacts) != 0:
             self._disconnectContacts()
-        if self.__node and self.__node():
-            self.__node().unsubscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+        if self.__node:
+            self.__node.unsubscribe(avg.Node.CURSOR_DOWN, self.__downHandlerID)
+            self.__downHandlerID = None
 
     def _disconnectContacts(self):
         for contact in self._contacts:
-            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__onMotion)
-            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__onUp)
+            contact.unsubscribe(avg.Contact.CURSOR_MOTION, self.__moveHandlerID[contact])
+            contact.unsubscribe(avg.Contact.CURSOR_UP, self.__upHandlerID[contact])
+        self.__moveHandlerID = {}
+        self.__upHandlerID = {}
         self._contacts = set()
         if self.__frameHandlerID:
             player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
@@ -188,16 +196,20 @@ class Recognizer(avg.Publisher):
             self._handleChange()
             self.__dirty = False
 
+    def __onNodeGone(self):
+        self.enable(False)
+        self.__node = None
+
     def _handleNodeGone(self):
-        if self.__node and not(self.__node()):
-            self.enable(False)
-            return True
-        else:
+        if self.__node:
             return False
+        else:
+            return True
 
     def __setEventHandler(self):
-        if self.__node and self.__node():
-            self.__node().subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
+        if self.__node:
+            self.__downHandlerID = self.__node.subscribe(
+                    avg.Node.CURSOR_DOWN, self.__onDown)
 
 
 class TapRecognizer(Recognizer):
@@ -538,7 +550,8 @@ class DragRecognizer(Recognizer):
                     self.__fail(event)
 
     def _handleCoordSysNodeUnlinked(self):
-        if self.__coordSysNode().getParent():
+        if self.__coordSysNode().getParent() or isinstance(
+                self.__coordSysNode(), avg.CanvasNode):
             return False
         else:
             self.abort()
@@ -563,7 +576,10 @@ class DragRecognizer(Recognizer):
             self._setEnd(None)
 
     def __relEventPos(self, event):
-        return self.__coordSysNode().getParent().getRelPos(event.pos)
+        if isinstance(self.__coordSysNode(), avg.CanvasNode):
+            return event.pos
+        else:
+            return self.__coordSysNode().getParent().getRelPos(event.pos)
 
     def __angleFits(self, offset):
         angle = offset.getAngle()
@@ -617,10 +633,7 @@ class Mat3x3:
         v = self.applyVec([1,0,0])
         rot = avg.Point2D(v[0], v[1]).getAngle()
         node.angle = rot
-        if self.getScale().x < 9999 and self.getScale().y < 9999:
-            node.size = self.getScale()
-        else:
-            node.size = (0,0)
+        node.size = self.getScale()
         node.pivot = node.size/2 
         v = self.applyVec([0,0,1])
         node.pos = (avg.Point2D(v[0], v[1]) + (node.pivot).getRotated(node.angle) - 
@@ -800,7 +813,6 @@ class TransformRecognizer(Recognizer):
             contact = event.contact
             transform = Transform(self.__filteredRelContactPos(contact)
                     - self.__lastPosns[0])
-            self.notifySubscribers(Recognizer.UP, [transform]);
             player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
             self.__frameHandlerID = None
             if self.__friction != -1:
@@ -808,6 +820,7 @@ class TransformRecognizer(Recognizer):
                 self.__inertiaHandler.onUp()
             else:
                 self._setEnd(event)
+            self.notifySubscribers(Recognizer.UP, [transform]);
         elif numContacts == 1:
             self.__newPhase()
         else:
@@ -816,7 +829,9 @@ class TransformRecognizer(Recognizer):
             del self.__filters[event.contact]
 
     def _handleNodeGone(self):
-        if self.__coordSysNode and not(self.__coordSysNode()):
+        if ((self.__coordSysNode and not(self.__coordSysNode())) or
+                (self.__coordSysNode().getParent() == None and
+                 not isinstance(self.__coordSysNode(), avg.CanvasNode))):
             self.enable(False)
             return True
         else:
@@ -897,7 +912,10 @@ class TransformRecognizer(Recognizer):
             return rawPos
 
     def __relContactPos(self, contact):
-        return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
+        if isinstance(self.__coordSysNode(), avg.CanvasNode):
+            return contact.events[-1].pos
+        else:
+            return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
 
     def __isFiltered(self):
         return TransformRecognizer.FILTER_MIN_CUTOFF != None

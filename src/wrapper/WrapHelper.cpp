@@ -396,7 +396,7 @@ void exportMessages(object& nodeClass, const string& sClassName)
     }
 };
 
-struct type_info_to_string{
+struct type_info_to_string {
     static PyObject* convert(const std::type_info& info)
     {
         boost::python::object result(ObjectCounter::get()->demangle(info.name()));
@@ -408,7 +408,6 @@ struct type_info_to_string{
 void export_base()
 {
     // Exceptions
-
     translateException<exception>(PyExc_RuntimeError);
     translateException<out_of_range>(PyExc_IndexError);
     translateException<Exception>(PyExc_RuntimeError);

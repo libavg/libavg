@@ -26,8 +26,6 @@
 
 #include "WindowParams.h"
 
-#include "../base/GLMHelper.h"
-
 #include <vector>
 
 namespace avg {

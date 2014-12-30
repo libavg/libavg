@@ -23,17 +23,20 @@
 #define _Shape_H_
 
 #include "../api.h"
-#include "Image.h"
-#include "MaterialInfo.h"
 
 #include "../base/GLMHelper.h"
-#include "../graphics/Bitmap.h"
 #include "../graphics/SubVertexArray.h"
 
 #include <boost/shared_ptr.hpp>
-#include <string>
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class Image;
+typedef boost::shared_ptr<Image> ImagePtr;
+class MaterialInfo;
+class OGLSurface;
 
 class AVG_API Shape
 {
@@ -54,8 +57,6 @@ class AVG_API Shape
         void discard();
 
     private:
-        bool isTextured() const;
-
         VertexDataPtr m_pVertexData;
         SubVertexArray m_SubVA;
         OGLSurface * m_pSurface;

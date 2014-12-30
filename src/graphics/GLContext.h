@@ -23,7 +23,6 @@
 
 #include "../api.h"
 
-#include "OGLHelper.h"
 #include "GLBufferCache.h"
 #include "GLConfig.h"
 

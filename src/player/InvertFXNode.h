@@ -25,7 +25,6 @@
 #include "../api.h"
 
 #include "FXNode.h"
-#include "../graphics/GPUInvertFilter.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
@@ -34,6 +33,9 @@
 using namespace std;
 
 namespace avg {
+
+class GPUInvertFilter;
+typedef boost::shared_ptr<GPUInvertFilter> GPUInvertFilterPtr;
 
 class AVG_API InvertFXNode : public FXNode {
 public:
@@ -46,12 +48,13 @@ public:
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
 
-    GPUInvertFilterPtr filterPtr;
+    GPUInvertFilterPtr m_pFilter;
 
 };
 
 typedef boost::shared_ptr<InvertFXNode> InvertFXNodePtr;
-} //end namespace avg
+
+}
 
 #endif
 

@@ -21,7 +21,7 @@
 
 #include "ObjectCounter.h"
 #include "Exception.h"
-#include "Logger.h"
+#include "ThreadHelper.h"
 
 #include <boost/thread/mutex.hpp>
 

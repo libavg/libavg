@@ -23,8 +23,8 @@
 
 #include "Player.h"
 #include "AVGNode.h"
-#include "Shape.h"
 #include "OffscreenCanvas.h"
+#include "RasterNode.h"
 #include "Window.h"
 
 #include "../base/Exception.h"
@@ -39,6 +39,7 @@
 
 using namespace std;
 using namespace boost;
+using namespace glm;
 
 namespace avg {
         
@@ -238,6 +239,7 @@ void Canvas::preRender()
 {
     ScopeTimer Timer(PreRenderProfilingZone);
     m_pVertexArray->reset();
+    createStdSubVA();
     m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
 }
 
@@ -281,6 +283,11 @@ void Canvas::scheduleFXRender(const RasterNodePtr& pNode)
     m_pScheduledFXNodes.push_back(pNode);
 }
 
+SubVertexArray& Canvas::getStdSubVA()
+{
+    return m_StdSubVA;
+}
+
 void Canvas::renderOutlines(const glm::mat4& transform)
 {
     GLContext* pContext = GLContext::getCurrent();
@@ -296,6 +303,17 @@ void Canvas::renderOutlines(const glm::mat4& transform)
     if (pVA->getNumVerts() != 0) {
         pVA->draw();
     }
+}
+
+void Canvas::createStdSubVA()
+{
+    m_pVertexArray->startSubVA(m_StdSubVA);
+    Pixel32 color(0, 0, 0, 0);
+    m_StdSubVA.appendPos(vec2(0,0), vec2(0,0), color); 
+    m_StdSubVA.appendPos(vec2(1,0), vec2(1,0), color); 
+    m_StdSubVA.appendPos(vec2(1,1), vec2(1,1), color); 
+    m_StdSubVA.appendPos(vec2(0,1), vec2(0,1), color); 
+    m_StdSubVA.appendQuadIndexes(1, 0, 2, 3);
 }
 
 void Canvas::renderFX()

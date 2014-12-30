@@ -19,6 +19,9 @@ Vector Nodes
 
         .. py:attribute:: texcoord2
 
+            floats used as u texture coordinates for the circle border. The coordinates
+            wrap around the circle once.
+
     .. autoclass:: CurveNode([pos1, pos2, pos3, pos4, texcoord1, texcoord2])
 
         A cubic bezier curve (`<http://en.wikipedia.org/wiki/Bezier_curve>`_). 
@@ -47,6 +50,8 @@ Vector Nodes
 
         .. py:attribute:: texcoord2
 
+            floats that signify the u axis texture coordinates.
+    
     .. autoclass:: FilledVectorNode([filltexhref, fillopacity=0, fillcolor="FFFFFF", filltexcoord1=Point2D(0,0), filltexcoord2=Point2D(1,1)])
 
         Base class for vector nodes which have a filled area and a border. The area can
@@ -83,6 +88,8 @@ Vector Nodes
 
         .. py:attribute:: texcoord2
 
+            floats that signify the u axis texture coordinates.
+    
     .. autoclass:: MeshNode([vertexcoords, texcoords, triangles])
 
         This is a generalized mesh of textured triangles. See 
@@ -110,7 +117,10 @@ Vector Nodes
 
         .. py:attribute:: texcoords
 
-            A sequence of float texture coordinates corresponding to the border positions.
+            A sequence of float texture coordinates along the u axis of the texture,
+            used for the polygon border. It can contain either one coordinate per entry
+            in pos (plus an additional one to close the polygon) or two coordinates that
+            are interpolated to wrap around the :py:class:`PolygonNode` once.
             
     .. autoclass:: PolyLineNode([linejoin="bevel", pos, texcoords])
 
@@ -127,7 +137,9 @@ Vector Nodes
 
         .. py:attribute:: texcoords
 
-            A sequence of float texture coordinates corresponding to the border positions.
+            A sequence of float texture coordinates along the u axis of the texture.
+            It can contain either one coordinate per entry in pos or two coordinates,
+            one for either end of the :py:class:`PolyLine`.
             
     .. autoclass:: RectNode([pos, size, angle])
 
@@ -147,12 +159,21 @@ Vector Nodes
 
         .. py:attribute:: texcoords
 
+            A sequence of :py:const:`5` texture coordinates for the border of the
+            rectangle, which wrap around the node.
+
     .. autoclass:: VectorNode([color="FFFFFF", strokewidth=1, texhref, blendmode="blend"])
 
         Base class for all nodes that draw geometrical primitives. All vector nodes 
         support configurable stroke width. Strokes can be filled either with a solid 
         color (:py:attr:`color`) or with a texture loaded from a file 
         (:py:attr:`texhref`) or taken from a bitmap object (:py:meth:`setBitmap`).
+
+        When using textured :py:class:`VectorNodes`, texture coordinates can be set. 
+        Generally, texture bitmaps are mapped to coordinates 
+        :py:const:`(u,v) = (0,0)-(1,1)`, and the texture is repeated for coordinates 
+        outside this range. The :py:const:`u` texture coordinate increases along the
+        stroke, while the :py:const:`v` coordinate increases perpendicular to it.
 
         .. py:attribute:: blendmode
 

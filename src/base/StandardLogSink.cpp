@@ -26,8 +26,7 @@
 
 using namespace std;
 
-namespace avg
-{
+namespace avg {
 
 StandardLogSink::StandardLogSink()
 {

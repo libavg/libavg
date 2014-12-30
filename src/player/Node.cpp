@@ -22,6 +22,7 @@
 #include "Node.h"
 
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Arg.h"
 #include "Canvas.h"
 #include "DivNode.h"
@@ -67,6 +68,7 @@ void Node::registerType()
     pPubDef->addMessage("PEN_OUT");
     pPubDef->addMessage("END_OF_FILE");
     pPubDef->addMessage("SIZE_CHANGED");
+    pPubDef->addMessage("KILLED");
 
     TypeDefinition def = TypeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
@@ -166,6 +168,7 @@ void Node::disconnect(bool bKill)
     setState(NS_UNCONNECTED);
     if (bKill) {
         m_EventHandlerMap.clear();
+        notifySubscribers("KILLED");
     }
 }
 

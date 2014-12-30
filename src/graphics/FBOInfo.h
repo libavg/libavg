@@ -28,8 +28,6 @@
 
 #include "../base/GLMHelper.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <vector>
 
 namespace avg {

@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "OGLSurface.h"
 #include "TypeDefinition.h"
+#include "TypeRegistry.h"
 #include "Canvas.h"
 
 #include "../base/Exception.h"
@@ -127,6 +128,9 @@ void VideoNode::connectDisplay()
     }
     if (m_VideoState == Paused) {
         m_PauseStartTime = CurTime;
+        if (m_AudioID != -1) {
+            AudioEngine::get()->pauseSource(m_AudioID);
+        }
     } 
 }
 
@@ -675,18 +679,13 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     calcVertexArray(pVA);
 }
 
-void VideoNode::renderFX()
-{
-    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
-}
-
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
-        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32();
     }
 }
 
