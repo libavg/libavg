@@ -106,8 +106,7 @@ BOOST_PYTHON_MODULE(avg)
 
         register_ptr_to_python<DivNodePtr>();
         register_ptr_to_python<CanvasNodePtr>();
-        register_ptr_to_python<AVGNodePtr>();
-        register_ptr_to_python<EventPtr>();
+        register_ptr_to_python<AVGNodePtr>(); register_ptr_to_python<EventPtr>();
         register_ptr_to_python<MouseEventPtr>();
         register_ptr_to_python<TouchEventPtr>();
 

@@ -25,6 +25,8 @@
 
 from collections import namedtuple
 
+import six
+
 from libavg import avg, player
 
 IGNORED_KEYMODS = avg.KEYMOD_NUM
@@ -107,7 +109,7 @@ def disable():
     _isEnabled = False
 
 def _bindKey(keystring, handler, help, modifiers, type_):
-    if type(keystring) == unicode:
+    if type(keystring) == six.text_type:
         keystring = keystring.encode('utf8')
 
     avg.logger.info('Binding key <%s> (mod:%s) to handler %s (%s)' % (keystring,
@@ -131,7 +133,7 @@ def _findAndRemoveKeybinding(keystring, modifiers, type, list):
                    break;
 
 def _unbindKey(keystring, modifiers, type_):
-    if type(keystring) == unicode:
+    if type(keystring) == six.text_type:
         keystring = keystring.encode('utf8')
 
     avg.logger.info('Unbinding key <%s> (mod:%s) (%s)' % (keystring,
@@ -169,7 +171,8 @@ def _testMatchString(keyBinding, keyString, type_):
     sameType = keyBinding.type == type_
     patternMatch = _testPatternMatch(keyBinding.keystring, keyString)
     directMatch = keyBinding.keystring == keyString
-
+    if type(keyBinding.keystring) == six.binary_type:
+        directMatch = keyBinding.keystring.decode('utf8') == keyString
     return sameType and (directMatch or patternMatch)
 
 def _testMatchEvent(keyBinding, event, type_):
@@ -181,7 +184,7 @@ def _testMatchEvent(keyBinding, event, type_):
 
     if type_ == avg.KEYDOWN:
         return _testMatchString(keyBinding,
-                unichr(event.unicode).encode('utf8'), type_)
+                six.unichr(event.unicode).encode('utf8'), type_)
     else:
         return False
 

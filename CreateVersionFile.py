@@ -23,6 +23,8 @@
 # The script generates a header file that contains versioning data for
 # the current build.
 
+from __future__ import print_function
+
 import os
 import sys
 import subprocess
@@ -33,6 +35,8 @@ import getpass
 import platform
 import datetime
 import pickle
+
+import six
 
 CHECK_FIELDS = ('releaseVersion', 'revision')
 OUTPUT_TEMPLATE = '''// version.h
@@ -54,7 +58,7 @@ OUTPUT_FILENAME = 'version.h'
 
 
 def err(text):
-    print >>sys.stderr, text
+    print(text, file=sys.stderr)
 
 
 def getCommitHash():
@@ -63,8 +67,8 @@ def getCommitHash():
                 cwd=TOPDIR,
                 stdout=subprocess.PIPE)
         commitHash, discard = process.communicate()
-    except OSError, e:
-        print e, dir(e)
+    except OSError as e:
+        print(e, dir(e))
         if e.errno == errno.ENOENT:
             err('Cannot query current revision number via git rev-parse HEAD: '
                     '"git" executable cannot be found.')
@@ -79,7 +83,7 @@ def getBranchName():
             stdout=subprocess.PIPE)
 
         branch, discard = process.communicate()
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOENT:
             err('Cannot query current branch via git rev-parse --abbrev-ref HEAD: '
                     '"git" executable cannot be found.')
@@ -128,18 +132,18 @@ def assembleVersionInfo(major, minor, micro):
     return locals()
 
 def dumpVersionInfo(versionInfo):
-    for k, v in versionInfo.iteritems():
-        print '  %s: %s' % (k, v)
+    for k, v in six.iteritems(versionInfo):
+        print('  %s: %s' % (k, v))
 
 def hasChanged(versionInfo):
     try:
-        cachef = open(CACHE_FILE)
+        cachef = open(CACHE_FILE, 'rb')
     except IOError:
         return True
     
     try:
         cachedVersionInfo = pickle.load(cachef)
-    except Exception, e:
+    except Exception as e:
         err('Corrupted %s file, forcing rewrite (%s)' % (CACHE_FILE, str(e)))
         cachef.close()
         return True
@@ -154,11 +158,11 @@ def hasChanged(versionInfo):
     
 def writeVersionHeader(versionInfo, originalFile):
     outf = open(originalFile, 'w')
-    outf.write(OUTPUT_TEMPLATE % versionInfo)
+    outf.write(OUTPUT_TEMPLATE.format(**versionInfo))
     outf.close()
     
     try:
-        cachef = open(CACHE_FILE, 'w')
+        cachef = open(CACHE_FILE, 'wb')
     except IOError:
         pass
     else:
@@ -183,4 +187,3 @@ if __name__ == '__main__':
     else:
         err('%s [top build dir]' % sys.argv[0])
         sys.exit(1)
-

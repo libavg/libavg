@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import libavg
 from libavg import app, player
 
@@ -36,7 +38,7 @@ class MyMainDiv(app.MainDiv):
         app.keyboardmanager.bindKeyDown('m', self.__toggleMotion, 'Toggle motion')
 
     def onExit(self):
-        print 'Exiting..'
+        print('Exiting..')
 
     def onFrame(self):
         if self.__shouldMove:

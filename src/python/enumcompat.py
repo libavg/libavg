@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-import avg
+from . import avg
 avg.KEYUP = avg.Event.KEY_UP
 avg.KEYDOWN = avg.Event.KEY_DOWN
 avg.CURSORMOTION = avg.Event.CURSOR_MOTION

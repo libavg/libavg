@@ -121,7 +121,7 @@ private:
     IntPoint m_Size;
     int m_Stride;
     PixelFormat m_PF;
-    unsigned char* m_pBits;
+    glm::byte* m_pBits;
     bool m_bOwnsBits;
     UTF8String m_sName;
 

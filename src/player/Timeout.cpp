@@ -73,7 +73,7 @@ void Timeout::fire(long long curTime)
     PyObject * result = PyEval_CallObject(m_PyFunc, arglist);
     // XXX: After the call to python, this might have been deleted 
     // by a call to clearTimeout()!
-    Py_DECREF(arglist);    
+    Py_DECREF(arglist);
     if (!result) {
         throw py::error_already_set();
     }

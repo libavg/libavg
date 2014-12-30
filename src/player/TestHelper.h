@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "../base/ObjectCounter.h"
+#include "../base/UTF8String.h"
 #include "../graphics/Bitmap.h"
 #include "Event.h"
 #include "InputDevice.h"
@@ -57,7 +58,7 @@ class AVG_API TestHelper : public InputDevice
                 const glm::vec2& pos, const glm::vec2& speed, float orientation);
         void fakeKeyEvent(Event::Type eventType,
                 unsigned char scanCode, int keyCode, 
-                const std::string& keyString, int unicode, int modifiers);
+                const UTF8String& keyString, int unicode, int modifiers);
         void dumpObjects();
         TypeMap getObjectCount();
 

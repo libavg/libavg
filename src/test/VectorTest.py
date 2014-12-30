@@ -19,6 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
+from six.moves import range
 from libavg import avg, player
 from testcase import *
 
@@ -75,7 +76,7 @@ class VectorTestCase(AVGTestCase):
 
     def testLotsOfLines(self):
         def addLines():
-            for i in xrange(500):
+            for i in range(500):
                 y = i+2.5
                 line = avg.LineNode(pos1=(2, y), pos2=(10, y))
                 canvas.appendChild(line)
@@ -469,7 +470,7 @@ class VectorTestCase(AVGTestCase):
             polygon.holes = newHoles
 
         def clearCanvas():
-            for i in xrange(canvas.getNumChildren()-1):
+            for i in range(canvas.getNumChildren()-1):
                 dell = canvas.getChild(i)
                 canvas.removeChild(dell)
 

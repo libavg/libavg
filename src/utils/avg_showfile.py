@@ -21,14 +21,16 @@
 # Current versions can be found at www.libavg.de
 #
 
+from __future__ import print_function
+
 import sys
 from libavg import player
 
 if len(sys.argv) ==1:
     print
-    print "avg_showfile.py displays the contents of an avg file."
+    print("avg_showfile.py displays the contents of an avg file.")
     print
-    print "Usage: avg_showfile.py <avgfile>"
+    print("Usage: avg_showfile.py <avgfile>")
     print
     sys.exit(1)
 

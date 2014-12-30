@@ -63,11 +63,11 @@ void PythonLogSink::logMessage(const tm* pTime, unsigned millis,
     try {
         aquirePyGIL aquireGil;
         PyObject * extra = PyDict_New();
-        PyObject * pyCat = PyString_FromString(category.c_str());
+        PyObject * pyCat = PyUnicode_FromString(category.c_str());
 
         PyDict_SetItemString(extra, "category", pyCat);
 
-        PyObject * pyMsg = PyString_FromString(sMsg.c_str());
+        PyObject * pyMsg = PyUnicode_FromString(sMsg.c_str());
         PyObject * args = PyTuple_New(1);
         PyObject * kwargs = PyDict_New();
         PyDict_SetItemString(kwargs, "extra", extra);

@@ -140,6 +140,8 @@ class AVGTestCase(unittest.TestCase):
         player.assumePixelsPerMM(1)
         player.play()
         self.assert_(player.isPlaying() == 0)
+        import gc
+        gc.collect()
 
     def delay(self, time):
         def timeout():

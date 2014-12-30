@@ -20,6 +20,8 @@
 import math
 import time
 
+from six.moves import range
+
 from libavg import avg, player, Point2D
 
 
@@ -158,7 +160,7 @@ class SlidingGraph(Graph):
         self._lineNode.pos = self._getCoords()
 
     def _getCoords(self):
-        return zip(xrange(0, len(self._values) * self._xSkip, self._xSkip), self._values)
+        return zip(range(0, len(self._values) * self._xSkip, self._xSkip), self._values)
 
 
 class BinBar(avg.DivNode):
@@ -218,7 +220,7 @@ class SlidingBinnedGraph(SlidingGraph):
                 parent=self)
 
     def _appendValue(self, value):
-        for i in xrange(len(self._binsThresholds) - 1, -1, -1):
+        for i in range(len(self._binsThresholds) - 1, -1, -1):
             if value >= self._binsThresholds[i]:
                 self._bins[i] += 1
                 break

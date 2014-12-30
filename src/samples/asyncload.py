@@ -15,6 +15,8 @@ Press 'f' to display the frame time graph, which should show no significant
 glitches while loading
 '''
 
+from __future__ import print_function
+
 import sys
 from libavg import avg, player, app
 
@@ -82,7 +84,7 @@ class AsyncLoadDiv(app.MainDiv):
             self.__spinner.angle += 0.05
 
 if len(sys.argv) == 1:
-    print 'Usage: %s <filename> [<filename> [<filename> [..]]]' % sys.argv[0]
+    print('Usage: {} <filename> [<filename> [<filename> [..]]]'.format(sys.argv[0]))
     sys.exit(1)
     
 app.App().run(AsyncLoadDiv(), app_resolution="640,480")

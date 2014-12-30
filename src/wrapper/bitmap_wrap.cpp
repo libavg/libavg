@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../base/GLMHelper.h"
 #include "WrapHelper.h"
 
 #include "../player/BoostPython.h"
@@ -42,9 +43,8 @@ using namespace avg;
 
 namespace bp = boost::python;
 
-template<class POINT>
-class_<POINT> export_point(const string& sName)
-{
+template <class POINT>
+class_<POINT> export_point(const string& sName) {
     return class_<POINT>(sName.c_str(), no_init)
         .def("__len__", &Vec2Helper::len)
         .def("__getitem__", &Vec2Helper::getItem)
@@ -52,6 +52,8 @@ class_<POINT> export_point(const string& sName)
         .def("__repr__", &Vec2Helper::repr)
         .def("__hash__", &Vec2Helper::getHash)
         .def("getNormalized", &Vec2Helper::safeGetNormalized)
+        /*: TODO: Properly overload operator< (self < self) */
+        .def("__lt__", &Vec2Helper::lt)
         .def("getNorm", &Vec2Helper::getNorm)
         .def("getRotated", &getRotated)
         .def("getRotated", &getRotatedPivot)
@@ -68,134 +70,130 @@ class_<POINT> export_point(const string& sName)
         .def("fromPolar", &fromPolar)
         .staticmethod("fromPolar")
         .def("angle", &Vec2Helper::vecAngle)
-        .staticmethod("angle")
-    ;
+        .staticmethod("angle");
 }
 
-struct Pixel32_to_python_tuple
-{
-    static PyObject* convert (avg::Pixel32 px)
-    {
-        return bp::incref(bp::make_tuple(
-                px.getR(), px.getG(), px.getB(), px.getA()).ptr());
+struct Pixel32_to_python_tuple {
+    static PyObject* convert(avg::Pixel32 px) {
+        return bp::incref(
+            bp::make_tuple(px.getR(), px.getG(), px.getB(), px.getA()).ptr());
     }
 };
 
-static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
-{
+static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData = true) {
     unsigned char* pBuffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
     if (bCopyData) {
+#if PY_MAJOR_VERSION < 3
         bp::object pyBuffer(handle<>(PyBuffer_New(buffSize)));
         void* pTargetBuffer;
-        Py_ssize_t pyBuffSize  = buffSize;
+        Py_ssize_t pyBuffSize = buffSize;
         PyObject_AsWriteBuffer(pyBuffer.ptr(), &pTargetBuffer, &pyBuffSize);
         memcpy(pTargetBuffer, pBuffer, buffSize);
         return pyBuffer;
+#else
+        //[todo] - Check pBuffer ownership
+        PyObject* py_memView =
+            PyMemoryView_FromMemory((char*)pBuffer, buffSize, PyBUF_READ);
+        return bp::object(handle<>(py_memView));
+#endif
     } else {
 #if PY_MAJOR_VERSION < 3
         return bp::object(handle<>(PyBuffer_FromMemory(pBuffer, buffSize)));
 #else
-        // TODO: This returns a memoryview and not a buffer, which will probably break
-        // PIL interoperability.
-        PyObject* py_memView = PyMemoryView_FromMemory((char*)pBuffer,
-                buffSize, PyBUF_READ);
+        PyObject* py_memView =
+            PyMemoryView_FromMemory((char*)pBuffer, buffSize, PyBUF_READ);
         return bp::object(handle<>(py_memView));
 #endif
     }
 }
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels, 
-        1, 2);
+BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels, 1,
+                                2);
 
-
-static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
-{
+static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter) {
     Py_buffer bufferView;
-//    PyObject_Print(PyObject_Type(exporter), stderr, 0);
+    //    PyObject_Print(PyObject_Type(exporter), stderr, 0);
     if (PyObject_CheckBuffer(exporter)) {
         PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
-        const unsigned char* pBuf = reinterpret_cast<unsigned char*>(bufferView.buf);
+        const unsigned char* pBuf =
+            reinterpret_cast<unsigned char*>(bufferView.buf);
         bitmap.setPixels(pBuf);
         PyBuffer_Release(&bufferView);
-    } else if (PyBuffer_Check(exporter)) {
-        PyTypeObject * pType = exporter->ob_type;
-        PyBufferProcs * pProcs = pType->tp_as_buffer;
+#if PY_MAJOR_VERSION < 3
+    }
+    else if (PyBuffer_Check(exporter)) {
+        PyTypeObject* pType = exporter->ob_type;
+        PyBufferProcs* pProcs = pType->tp_as_buffer;
         AVG_ASSERT(pProcs);
         Py_ssize_t numBytes;
         Py_ssize_t numSegments = pProcs->bf_getsegcount(exporter, &numBytes);
         if (numBytes != bitmap.getMemNeeded()) {
-            throw Exception(AVG_ERR_INVALID_ARGS,
-                    "Second parameter to Bitmap.setPixels must fit bitmap size.");
+            throw Exception(
+                AVG_ERR_INVALID_ARGS,
+                "Second parameter to Bitmap.setPixels must fit bitmap size.");
         }
         // TODO: check if bitmap size is correct
         unsigned char* pDestPixels = bitmap.getPixels();
-        for (unsigned i=0; i<numSegments; ++i) {
+        for (unsigned i = 0; i < numSegments; ++i) {
             void* pSrcPixels;
-            long bytesInSegment = pProcs->bf_getreadbuffer(exporter, i, &pSrcPixels);
+            long bytesInSegment =
+                pProcs->bf_getreadbuffer(exporter, i, &pSrcPixels);
             memcpy(pDestPixels, pSrcPixels, bytesInSegment);
             pDestPixels += bytesInSegment;
         }
+#endif
     } else {
         throw Exception(AVG_ERR_INVALID_ARGS,
-               "Second parameter to Bitmap.setPixels must support the buffer interface.");
+                        "Second parameter to Bitmap.setPixels must support the "
+                        "buffer interface.");
     }
 }
 
-ConstVec2 Bitmap_getSize(Bitmap* This)
-{
-    return (glm::vec2)(This->getSize());
-}
+ConstVec2 Bitmap_getSize(Bitmap* This) { return (glm::vec2)(This->getSize()); }
 
-BitmapPtr Bitmap_getResized(BitmapPtr This, const glm::vec2& size)
-{
+BitmapPtr Bitmap_getResized(BitmapPtr This, const glm::vec2& size) {
     return FilterResizeBilinear(IntPoint(size)).apply(This);
 }
 
-glm::vec2* createPoint()
-{
-    return new glm::vec2(0,0);
-}
+glm::vec2* createPoint() { return new glm::vec2(0, 0); }
 
-BitmapPtr createBitmapFromFile(const UTF8String& sFName)
-{
+BitmapPtr createBitmapFromFile(const UTF8String& sFName) {
     return loadBitmap(sFName);
 }
 
-BitmapPtr createBitmapWithRect(BitmapPtr pBmp,
-        const glm::vec2& tlPos, const glm::vec2& brPos)
-{
+BitmapPtr createBitmapWithRect(BitmapPtr pBmp, const glm::vec2& tlPos,
+                               const glm::vec2& brPos) {
     if (tlPos.x >= brPos.x || tlPos.y >= brPos.y) {
-        throw Exception(AVG_ERR_OUT_OF_RANGE, 
-                "Can't create a bitmap with zero or negative width/height.");
+        throw Exception(
+            AVG_ERR_OUT_OF_RANGE,
+            "Can't create a bitmap with zero or negative width/height.");
     }
     IntPoint size = pBmp->getSize();
     if (tlPos.x < 0 || tlPos.y < 0 || brPos.x > size.x || brPos.y > size.y) {
-        throw Exception(AVG_ERR_OUT_OF_RANGE, 
-                "Attempt to create a subbitmap that doesn't fit into the parent bitmap.");
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                        "Attempt to create a subbitmap that doesn't fit into "
+                        "the parent bitmap.");
     }
     IntRect rect = IntRect(IntPoint(tlPos), IntPoint(brPos));
     return BitmapPtr(new Bitmap(*pBmp, rect));
 }
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads, BitmapManager::loadBitmapPy, 
-        2, 3);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads,
+                                       BitmapManager::loadBitmapPy, 2, 3);
 
-void export_bitmap()
-{
+void export_bitmap() {
     export_point<glm::vec2>("Point2D")
         .def("__init__", make_constructor(createPoint))
         .def(init<float, float>())
         .def(init<const glm::vec2&>())
         .def("__setitem__", &Vec2Helper::setItem)
-        .add_property("x", &Vec2Helper::getX, &Vec2Helper::setX,"")
-        .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY,"")
-    ;
+        .add_property("x", &Vec2Helper::getX, &Vec2Helper::setX, "")
+        .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY, "");
 
     export_point<ConstVec2>("ConstPoint2D")
         .add_property("x", &Vec2Helper::getX, "")
-        .add_property("y", &Vec2Helper::getY, "")
-    ;
+        .add_property("y", &Vec2Helper::getY, "");
 
     implicitly_convertible<ConstVec2, glm::vec2>();
     implicitly_convertible<glm::vec2, ConstVec2>();
@@ -252,21 +250,18 @@ void export_bitmap()
         .def("getAvg", &Bitmap::getAvg)
         .def("getChannelAvg", &Bitmap::getChannelAvg)
         .def("getStdDev", &Bitmap::getStdDev)
-        .def("getName", &Bitmap::getName, 
-                return_value_policy<copy_const_reference>())
-    ;
-    
+        .def("getName", &Bitmap::getName,
+             return_value_policy<copy_const_reference>());
+
     class_<BitmapManager>("BitmapManager", no_init)
         .def("get", &BitmapManager::get,
-                return_value_policy<reference_existing_object>())
+             return_value_policy<reference_existing_object>())
         .staticmethod("get")
         .def("loadBitmap", &BitmapManager::loadBitmapPy, loadBitmap_overloads())
-        .def("setNumThreads", &BitmapManager::setNumThreads)
-    ;
+        .def("setNumThreads", &BitmapManager::setNumThreads);
 
     class_<CubicSpline, boost::noncopyable>("CubicSpline", no_init)
         .def(init<const vector<glm::vec2>&>())
         .def(init<const vector<glm::vec2>&, bool>())
-        .def("interpolate", &CubicSpline::interpolate)
-    ;
+        .def("interpolate", &CubicSpline::interpolate);
 }

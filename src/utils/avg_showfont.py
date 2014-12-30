@@ -20,6 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 
+from __future__ import print_function
 from libavg import avg, app
 
 
@@ -35,11 +36,11 @@ class ShowFont(app.MainDiv):
     def onArgvParsed(self, options, args, parser):
         if len(args) == 0:
             fontList = avg.WordsNode.getFontFamilies()
-            print 'Available fonts:'
-            print fontList
-            print
-            print self._usage
-            print '  Option -h or --help gives a full help.'
+            print('Available fonts:')
+            print(fontList)
+            print()
+            print(self._usage)
+            print('  Option -h or --help gives a full help.')
             exit()
 
         self._fontname = args[0]
@@ -50,7 +51,7 @@ class ShowFont(app.MainDiv):
 
     def onInit(self):
         variants = avg.WordsNode.getFontVariants(self._fontname)
-        print variants
+        print(variants)
 
         y = 10
         for variant in variants:

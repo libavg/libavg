@@ -20,6 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 
+from __future__ import print_function
 import time
 from libavg import avg, player
 from libavg import parsecamargs
@@ -54,34 +55,34 @@ class ShowCamera(app.MainDiv):
             infoList = list()
             infoList = avg.CameraNode.getCamerasInfos()
             if (len(infoList) <= 0):
-                print "No camera available!"
+                print("No camera available!")
             for info in infoList:
-                print ""
-                print "##################",info.driver,"##################"
-                print "Device ID:", info.deviceID
-                print ""
-                print "----------------- FORMATS ------------------"
+                print("")
+                print("##################",info.driver,"##################")
+                print("Device ID:", info.deviceID)
+                print("")
+                print("----------------- FORMATS ------------------")
                 formatsList = list()
                 formatsList = info.imageFormats
                 for format in formatsList:
-                    print "++++"
-                    print "Pixelformat:", format.pixelFormat
-                    print "Resolution:", format.size
-                    print "Framerates: |",
+                    print("++++")
+                    print("Pixelformat:", format.pixelFormat)
+                    print("Resolution:", format.size)
+                    print("Framerates: |",)
                     framerateList = list()
                     framerateList = format.framerates
                     for framerate in framerateList:
-                        print framerate, "|",
-                    print ""
-                print ""
-                print "----------------- CONTROLS -----------------"
+                        print(framerate, "|",)
+                    print("")
+                print("")
+                print("----------------- CONTROLS -----------------")
                 controlsList = list()
                 controlsList = info.controls
                 for control in controlsList:
-                    print "++++", control.controlName
-                    print "Min:" , control.min, "| Max:", control.max,
-                    print "| Default:", control.default
-                print ""
+                    print("++++", control.controlName)
+                    print("Min:" , control.min, "| Max:", control.max)
+                    print("| Default:", control.default)
+                print("")
             exit(0)
 
         if options.resetbus:
@@ -93,9 +94,9 @@ class ShowCamera(app.MainDiv):
 
         if options.driver is None and not options.list and not options.resetbus:
             parser.print_help()
-            print
-            print "ERROR: at least '--driver', '--list' or '--resetbus' options " \
-                  "must be specified"
+            print()
+            print("ERROR: at least '--driver', '--list' or '--resetbus' options " \
+                  "must be specified")
             exit(1)
 
         if options.capture:
@@ -115,8 +116,8 @@ class ShowCamera(app.MainDiv):
 
         avg.logger.info("Creating camera:")
         avg.logger.info("driver=%(driver)s device=%(device)s" %self.optdict)
-        avg.logger.info( 
-                "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
+        avg.logger.info(
+                "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s"
                 %self.optdict)
         avg.logger.info("unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
                 %self.optdict)
@@ -167,22 +168,22 @@ class ShowCamera(app.MainDiv):
 
     def setupKeys(self):
         def setWhitebalance():
-            print "Setting whitebalance"
+            print("Setting whitebalance")
             self.camNode.doOneShotWhitebalance()
 
         def addWhitebalance(du = 0, dv = 0):
-            self.camNode.setWhitebalance(self.camNode.getWhitebalanceU() + du, 
+            self.camNode.setWhitebalance(self.camNode.getWhitebalanceU() + du,
                     self.camNode.getWhitebalanceV() + dv)
-            print ("u:", self.camNode.getWhitebalanceU(), "v:",
+            print("u:", self.camNode.getWhitebalanceU(), "v:",
                     self.camNode.getWhitebalanceV())
-        
+
         def addGain(gain):
             self.camNode.gain += gain
-            print "gain:", self.camNode.gain
-        
+            print("gain:", self.camNode.gain)
+
         def addShutter(shutter):
             self.camNode.shutter += shutter
-            print "shutter:", self.camNode.shutter
+            print("shutter:", self.camNode.shutter)
 
         app.keyboardmanager.bindKeyDown(keystring="w",
                 handler=setWhitebalance,

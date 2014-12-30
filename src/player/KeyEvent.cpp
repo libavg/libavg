@@ -30,7 +30,7 @@ using namespace std;
 namespace avg {
 
 KeyEvent::KeyEvent(Type eventType, unsigned char scanCode, int keyCode, 
-                const string& keyString, int unicode, int modifiers)
+                const UTF8String& keyString, int unicode, int modifiers)
     : Event(eventType)
 {
     m_ScanCode = scanCode;
@@ -54,7 +54,7 @@ int KeyEvent::getKeyCode() const
     return m_KeyCode;
 }
 
-const std::string& KeyEvent::getKeyString() const
+const UTF8String& KeyEvent::getKeyString() const
 {
     return m_KeyString;
 }

@@ -22,8 +22,8 @@
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
-from app import App
-from app import MainDiv
+from .app import App
+from .app import MainDiv
 
 instance = None
 

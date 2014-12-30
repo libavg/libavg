@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import print_function
 import sys, os, fnmatch
 
 CopyrightNoticeLines = file("Copyright").read().splitlines()
@@ -9,7 +10,7 @@ for dir in ["base", "conradrelais", "graphics", "parport", "player", "python"]:
     for f in files:
         if fnmatch.fnmatch(f, "*.cpp") or fnmatch.fnmatch(f, "*.h"):
             fname = dir+"/"+f
-            print "Processing " + fname
+            print("Processing ", fname)
             fobj = file(fname, "r+")
             str = fobj.read()
             lines = str.splitlines()

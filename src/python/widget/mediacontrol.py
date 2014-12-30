@@ -33,7 +33,7 @@ class TimeSlider(slider.Slider):
             progressCfg = skinObj.defaultProgressBarCfg["horizontal"]
         else:
             progressCfg = skinObj.defaultProgressBarCfg["vertical"]
-        
+
         thumbUpBmp = progressCfg["thumbUpBmp"]
         thumbDisabledBmp = skin.getBmpFromCfg(progressCfg, "thumbDisabledBmp",
                 "thumbUpBmp")

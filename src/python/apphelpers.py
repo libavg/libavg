@@ -20,9 +20,11 @@
 
 import os
 
+import six
+
 from libavg import avg, player
 
-from app.touchvisualization import *
+from .app.touchvisualization import *
 
 
 class KeysCaptionNode(avg.DivNode):
@@ -73,7 +75,7 @@ class KeysCaptionNode(avg.DivNode):
 
 class KeyBinding(object):
     def __init__(self, key, description, state, callback):
-        if not isinstance(key, unicode) and not isinstance(key, str):
+        if not isinstance(key, six.text_type) and not isinstance(key, str):
             raise TypeError('KeyBinding key should be either a string or unicode object')
 
         self.__key = key
@@ -107,8 +109,8 @@ class KeyBinding(object):
         if self.__state != state:
             return False
 
-        if isinstance(self.__key, unicode):
-            return self.__key == unichr(event.unicode)
+        if isinstance(self.__key, six.text_type):
+            return self.__key == six.unichr(event.unicode)
         else:
             return self.__key == event.keystring
     
@@ -175,11 +177,11 @@ class KeyboardManager(object):
         warnings.warn('libavg.KeyboardManager is deprecated, use '
                 'libavg.app.keyboardmanager instead')
 
-        if isinstance(key, unicode) and state != 'down':
+        if isinstance(key, six.text_type) and state != 'down':
             raise RuntimeError('bindKey() with unicode keys '
                     'can be used only with state=down')
 
-        if key == unichr(self.TOGGLE_HELP_UNICODE):
+        if key == six.unichr(self.TOGGLE_HELP_UNICODE):
             raise RuntimeError('%s key is reserved')
             
         keyObj = self.__findKeyByKeystring(key, state)

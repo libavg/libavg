@@ -20,6 +20,8 @@
 #
 # Current versions can be found at www.libavg.de
 
+from __future__ import print_function
+
 from libavg import avg, app, widget
 from libavg import parsecamargs
 
@@ -33,7 +35,7 @@ class FXSlider(avg.DivNode):
         if parent:
             parent.appendChild(self)
         avg.RectNode(pos=(0,8), size=(280,38), color="808080", strokewidth=2, parent=self)
-        textBgRect = avg.RectNode(pos=(8,2), fillcolor="000000", fillopacity=1, 
+        textBgRect = avg.RectNode(pos=(8,2), fillcolor="000000", fillopacity=1,
                 strokewidth=0, parent=self)
         caption = avg.WordsNode(pos=(10,0), text=caption, parent=self)
         textBgRect.size = caption.getMediaSize() + (4,2)
@@ -70,8 +72,8 @@ class Chromakey(app.MainDiv):
     def onArgvParsed(self, options, args, parser):
         if options.driver is None:
             parser.print_help()
-            print
-            print "ERROR: at least '--driver' must be specified"
+            print()
+            print("ERROR: at least '--driver' must be specified")
             exit(1)
 
         self.__optWidth = options.width
@@ -99,7 +101,7 @@ class Chromakey(app.MainDiv):
         self.__camNode.setEffect(self.__filter)
         self.__filter.color = "0000FF"
         self.__filter.htolerance = 0.05
-        self.__filter.stolerance = 1.0 
+        self.__filter.stolerance = 1.0
         self.__filter.ltolerance = 1.0
         self.__filter.softness = 0.0
 
@@ -110,34 +112,34 @@ class Chromakey(app.MainDiv):
 
         self.__colorWords = avg.WordsNode(pos=(0,14), parent=self.__guiDiv)
         self.__colorWords.text = "Key Color: "+self.__filter.color
-        self.__colorRect = avg.RectNode(pos=(200,12), size=(20, 20), 
-                fillcolor=self.__filter.color, fillopacity=1, 
+        self.__colorRect = avg.RectNode(pos=(200,12), size=(20, 20),
+                fillcolor=self.__filter.color, fillopacity=1,
                 color="FFFFFF", parent=self.__guiDiv)
         self.__camNode.subscribe(avg.Node.CURSOR_DOWN, self.__onColorDown)
 
-        FXSlider(1, 0.0, 1.0, self.__filter, "htolerance", "Hue Tolerance", 
+        FXSlider(1, 0.0, 1.0, self.__filter, "htolerance", "Hue Tolerance",
                 False, parent=self.__guiDiv)
-        FXSlider(2, 0.0, 1.0, self.__filter, "stolerance", "Saturation Tolerance", 
+        FXSlider(2, 0.0, 1.0, self.__filter, "stolerance", "Saturation Tolerance",
                 False, parent=self.__guiDiv)
-        FXSlider(3, 0.0, 1.0, self.__filter, "ltolerance", "Lightness Tolerance", 
+        FXSlider(3, 0.0, 1.0, self.__filter, "ltolerance", "Lightness Tolerance",
                 False, parent=self.__guiDiv)
-        FXSlider(4, 0.0, 1.0, self.__filter, "softness", "Softness", 
+        FXSlider(4, 0.0, 1.0, self.__filter, "softness", "Softness",
                 False, parent=self.__guiDiv)
-        FXSlider(5, 0, 8, self.__filter, "erosion", "Erosion", 
+        FXSlider(5, 0, 8, self.__filter, "erosion", "Erosion",
                 True, parent=self.__guiDiv)
-        FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression", 
+        FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression",
                 False, parent=self.__guiDiv)
 
-        button = widget.TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
+        button = widget.TextButton(pos=(0,332), text="Whitebalance", size=(100,22),
                 parent=self.__guiDiv)
         button.subscribe(button.CLICKED, self.__onWhitebalance)
-        button = widget.TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
+        button = widget.TextButton(pos=(110,332), text="Dump Config", size=(100,22),
                 parent=self.__guiDiv)
         button.subscribe(button.CLICKED, self.__dumpConfig)
 
-        FXSlider(9, 0, 500, self.__camNode, "shutter", "Shutter", 
+        FXSlider(9, 0, 500, self.__camNode, "shutter", "Shutter",
                 True, parent=self.__guiDiv)
-        FXSlider(10, 128, 1023, self.__camNode, "gain", "Gain", 
+        FXSlider(10, 128, 1023, self.__camNode, "gain", "Gain",
                 True, parent=self.__guiDiv)
 
     def __onColorDown(self, event):
@@ -155,21 +157,21 @@ class Chromakey(app.MainDiv):
         self.__camNode.doOneShotWhitebalance()
 
     def __dumpConfig(self):
-        print "Camera:"
-        print "  device=", self.__camNode.device
-        print "  shutter=", self.__camNode.shutter
-        print "  gain=", self.__camNode.gain
-        print "  White Balance: (u=", self.__camNode.getWhitebalanceU(), ", v=", \
-                self.__camNode.getWhitebalanceV()
-        
-        print "Chromakey:"
-        print "  color=", self.__filter.color
-        print "  htolerance=", self.__filter.htolerance
-        print "  stolerance=", self.__filter.stolerance
-        print "  ltolerance=", self.__filter.ltolerance
-        print "  softness=", self.__filter.softness
-        print "  erosion=", self.__filter.erosion
-        print "  spillthreshold=", self.__filter.spillthreshold
+        print("Camera:")
+        print("  device=", self.__camNode.device)
+        print("  shutter=", self.__camNode.shutter)
+        print("  gain=", self.__camNode.gain)
+        print("  White Balance: (u=", self.__camNode.getWhitebalanceU(), ", v=", \
+                self.__camNode.getWhitebalanceV())
+
+        print("Chromakey:")
+        print("  color=", self.__filter.color)
+        print("  htolerance=", self.__filter.htolerance)
+        print("  stolerance=", self.__filter.stolerance)
+        print("  ltolerance=", self.__filter.ltolerance)
+        print("  softness=", self.__filter.softness)
+        print("  erosion=", self.__filter.erosion)
+        print("  spillthreshold=", self.__filter.spillthreshold)
 
 
 usage = """%prog [options]

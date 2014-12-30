@@ -18,7 +18,11 @@
 # Current versions can be found at www.libavg.de
 #
 
-from methodref import methodref
+from __future__ import print_function
+
+import six
+
+from .methodref import methodref
 
 import subprocess
 import os
@@ -45,7 +49,7 @@ class StateMachine(object):
         if self.__initDone:
             raise RuntimeError(
                     "StateMachine: Can't add new states after calling changeState")
-        if self.__states.has_key(state):
+        if state in self.__states:
             raise RuntimeError("StateMachine: Duplicate state " + state + ".")
 
         if isinstance(transitions, (list, tuple)):
@@ -58,7 +62,7 @@ class StateMachine(object):
             self.__doSanityCheck()
 
         if self.__trace:
-            print self.__name, ":", self.__curState, "-->", newState
+            print(self.__name, ":", self.__curState, "-->", newState)
 
         if not(newState in self.__states):
             raise RuntimeError('StateMachine: Attempt to change to nonexistent state '+
@@ -90,12 +94,12 @@ class StateMachine(object):
         return self.__curState
 
     def dump(self):
-        for oldStateName, state in self.__states.iteritems():
-            print oldStateName, ("(enter: " + self.__getNiceFuncName(state.enterFunc)
-                    + ", leave: " + self.__getNiceFuncName(state.leaveFunc) + "):")
-            for newState, func in state.transitions.iteritems():
-                print "  -->", newState, ":", self.__getNiceFuncName(func)
-        print "Current state:", self.__curState
+        for oldStateName, state in six.iteritems(self.__states):
+            print(oldStateName, ("(enter: " + self.__getNiceFuncName(state.enterFunc)
+                    + ", leave: " + self.__getNiceFuncName(state.leaveFunc) + "):"))
+            for newState, func in six.iteritems(state.transitions):
+                print("  -->", newState, ":", self.__getNiceFuncName(func))
+        print("Current state:", self.__curState)
 
     def makeDiagram(self, fName, showMethods=False):
         def writeState(stateName, state):
@@ -122,9 +126,9 @@ class StateMachine(object):
         dotFile.write('    startstate [shape=point, height=0.2, width=0.2, label=""];\n')
         dotFile.write('    { rank=source; "startstate" };\n')
         writeTransition("startstate", self.__startState, None)
-        for stateName, state in self.__states.iteritems():
+        for stateName, state in six.iteritems(self.__states):
             writeState(stateName, state)
-            for destState, func in state.transitions.iteritems():
+            for destState, func in six.iteritems(state.transitions):
                 writeTransition(stateName, destState, func)
         dotFile.write('    "'+self.__curState+'" [style="rounded,bold"];\n')
         dotFile.write('}\n')
@@ -142,8 +146,8 @@ class StateMachine(object):
             return "None"
 
     def __doSanityCheck(self):
-        for stateName, state in self.__states.iteritems():
-            for transitionName in state.transitions.iterkeys():
-                if not(self.__states.has_key(transitionName)):
+        for stateName, state in six.iteritems(self.__states):
+            for transitionName in six.iterkeys(state.transitions):
+                if not(transitionName in self.__states):
                     raise RuntimeError("StateMachine: transition " + stateName + " -> " + 
                             transitionName + " has an unknown destination state.")

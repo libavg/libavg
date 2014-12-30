@@ -133,5 +133,11 @@ template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<float, glm::
         const glm::detail::tvec4<float, glm::highp>& v2);
 template AVG_TEMPLATE_API bool almostEqual(const glm::detail::tvec4<double, glm::highp>& v1,
         const glm::detail::tvec4<double, glm::highp>& v2);
+
 }
+
+namespace glm {
+template AVG_TEMPLATE_API bool operator<(const glm::vec2& lhs, const glm::vec2& rhs);
+}
+
 

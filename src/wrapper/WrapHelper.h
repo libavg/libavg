@@ -208,13 +208,16 @@ struct from_python_sequence
           || PyTuple_Check(obj_ptr)
           || PyIter_Check(obj_ptr)
           || PyRange_Check(obj_ptr)
-          || (   !PyString_Check(obj_ptr)
-              && !PyUnicode_Check(obj_ptr)
-              && (   obj_ptr->ob_type == 0
-                  || obj_ptr->ob_type->ob_type == 0
-                  || obj_ptr->ob_type->ob_type->tp_name == 0
+          || (
+#if PY_MAJOR_VERSION < 3
+              !PyString_Check(obj_ptr)
+              &&
+#endif
+              !PyUnicode_Check(obj_ptr)
+              && (   Py_TYPE(obj_ptr) == 0
+                  || Py_TYPE(obj_ptr)->tp_name == 0
                   || std::strcmp(
-                       obj_ptr->ob_type->ob_type->tp_name,
+                       Py_TYPE(obj_ptr)->tp_name,
                        "Boost.Python.class") != 0)
               && PyObject_HasAttrString(obj_ptr, "__len__")
               && PyObject_HasAttrString(obj_ptr, "__getitem__")))) return 0;
@@ -302,6 +305,7 @@ void deprecatedSet(T& node, float d)
     throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
 }
 
+
 namespace Vec2Helper
 {
     int len(const glm::vec2&);
@@ -318,6 +322,7 @@ namespace Vec2Helper
     glm::vec2 safeGetNormalized(const glm::vec2& pt);
     float getNorm(const glm::vec2& pt);
     float vecAngle(const glm::vec2& pt1, const glm::vec2& pt2);
+    bool lt(const glm::vec2& lhs, const glm::vec2& rhs);
 }
 
 class ConstVec2: public glm::vec2
@@ -325,7 +330,7 @@ class ConstVec2: public glm::vec2
 public:
     ConstVec2();
     ConstVec2(const glm::vec2& other);
-    glm::vec2 toVec2() const;
+
     //operator glm::vec2() const;
 };
 

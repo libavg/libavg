@@ -89,8 +89,8 @@ py::object PluginManager::loadPlugin(const std::string& sPluginName)
         ++referenceCount;
         m_LoadedPlugins[sPluginName] = make_pair(i->second.first, referenceCount);
     }
-    py::object sysModule(py::handle<>(PyImport_ImportModule("sys")));
-    return sysModule.attr("modules")[sPluginName];
+        py::object sysModule(py::handle<>(PyImport_ImportModule("sys")));
+        return sysModule.attr("modules")[sPluginName];
 }
 
 string PluginManager::locateSharedObject(const string& sFilename)

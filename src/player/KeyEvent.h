@@ -23,21 +23,20 @@
 #define _KeyEvent_h_
 
 #include "../api.h"
+#include "../base/UTF8String.h"
 #include "Event.h"
-
-#include <string>
 
 namespace avg {
 
 class AVG_API KeyEvent : public Event {
     public:
         KeyEvent(Type eventType, unsigned char scanCode, int keyCode, 
-                const std::string& keyString, int unicode, int modifiers);
+                const UTF8String& keyString, int unicode, int modifiers);
         virtual ~KeyEvent();
 
         unsigned char getScanCode() const;
         int getKeyCode() const;
-        const std::string& getKeyString() const;
+        const UTF8String& getKeyString() const;
         int getUnicode() const;
         int getModifiers() const;
 
@@ -46,7 +45,7 @@ class AVG_API KeyEvent : public Event {
     private: 
         int m_ScanCode; 
         int m_KeyCode;
-        std::string m_KeyString;
+        UTF8String m_KeyString;
         int m_Unicode;
         int m_Modifiers;
 };
