@@ -444,7 +444,7 @@ class Calibrator(AVGApp):
                 player.clearInterval(self.__notificationTimer)
 
             self.__notificationTimer = player.setTimeout(timeout,
-                                                         self.__clearNotification)
+                    self.__clearNotification)
 
     def displayParams(self):
         i = 0
@@ -453,7 +453,7 @@ class Calibrator(AVGApp):
             path = Param['path']
             val = float(self.tracker.getParam(path))
             node.text = (Param['Name'] + ": "
-                         + ('%(val).' + str(Param['precision']) + 'f') % {'val': val})
+                    + ('%(val).' + str(Param['precision']) + 'f') % {'val': val})
             if self.curParam == i:
                 node.color = "FFFFFF"
             else:
