@@ -22,6 +22,7 @@ from methodref import methodref
 
 import subprocess
 import os
+import avg
 
 class State(object):
     def __init__(self, transitions, enterFunc, leaveFunc):
@@ -43,10 +44,10 @@ class StateMachine(object):
 
     def addState(self, state, transitions, enterFunc=None, leaveFunc=None):
         if self.__initDone:
-            raise RuntimeError(
+            raise avg.Exception(
                     "StateMachine: Can't add new states after calling changeState")
         if self.__states.has_key(state):
-            raise RuntimeError("StateMachine: Duplicate state " + state + ".")
+            raise avg.Exception("StateMachine: Duplicate state " + state + ".")
 
         if isinstance(transitions, (list, tuple)):
             transitions = dict.fromkeys(transitions)
@@ -61,7 +62,7 @@ class StateMachine(object):
             print self.__name, ":", self.__curState, "-->", newState
 
         if not(newState in self.__states):
-            raise RuntimeError('StateMachine: Attempt to change to nonexistent state '+
+            raise avg.Exception('StateMachine: Attempt to change to nonexistent state '+
                     newState+'.')
         assert(self.__curState in self.__states)
         state = self.__states[self.__curState]
@@ -79,7 +80,7 @@ class StateMachine(object):
             if enterFunc != None:
                 enterFunc()
         else:
-            raise RuntimeError('StateMachine: State change from '+self.__curState+' to '+
+            raise avg.Exception('StateMachine: State change from '+self.__curState+' to '+
                     newState+' not allowed.')
 
     def traceChanges(self, trace):
@@ -132,7 +133,7 @@ class StateMachine(object):
         try:
             subprocess.call(["dot", "tmp.dot", "-Tpng", "-o"+fName])
         except OSError:
-            raise RuntimeError("dot executable not found. graphviz needs to be installed for StateMachine.makeDiagram to work.")
+            raise avg.Exception("dot executable not found. graphviz needs to be installed for StateMachine.makeDiagram to work.")
         os.remove("tmp.dot")
 
     def __getNiceFuncName(self, f):
@@ -145,5 +146,5 @@ class StateMachine(object):
         for stateName, state in self.__states.iteritems():
             for transitionName in state.transitions.iterkeys():
                 if not(self.__states.has_key(transitionName)):
-                    raise RuntimeError("StateMachine: transition " + stateName + " -> " + 
+                    raise avg.Exception("StateMachine: transition " + stateName + " -> " +
                             transitionName + " has an unknown destination state.")
