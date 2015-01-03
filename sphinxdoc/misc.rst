@@ -161,8 +161,8 @@ Misc. Classes
         .. py:method:: loadBitmap(fileName, callback, pixelformat=NO_PIXELFORMAT)
         
             Asynchronously loads a file into a Bitmap. The provided callback is invoked
-            with a Bitmap instance as argument in case of a successful load or with a
-            RuntimeError exception instance in case of failure. The optional parameter
+            with a Bitmap instance as argument in case of a successful load or with an
+            :py:class:`avg.Exception` instance in case of failure. The optional parameter
             :py:attr:`pixelformat` can be used to convert the bitmap to a specific format
             asynchronously as well.
 
@@ -609,7 +609,7 @@ Misc. Classes
             state, actually changing the state, calling the transition callback and
             calling the enter callback for the new state.
 
-            Raises a :py:class:`RuntimeError` if :py:attr:`newState` is not a valid state
+            Raises a :py:class:`avg.Exception` if :py:attr:`newState` is not a valid state
             or if there is no transition defined from the current state to 
             :py:attr:`newState`.
 
