@@ -133,12 +133,12 @@ class WordsTestCase(AVGTestCase):
         self.assert_(posAlmostEqual(node.getGlyphPos(3), (22,0)))
         size = node.getGlyphSize(3)
         self.assert_(posAlmostEqual(size, (8, 18)))
-        self.assertRaises(RuntimeError, lambda: node.getGlyphPos(4))
+        self.assertRaises(avg.Exception, lambda: node.getGlyphPos(4))
         node.text=u"föa"
         self.assert_(posAlmostEqual(node.getGlyphPos(1), (4,0)))
 #        print [ node.getGlyphPos(i) for i in range(3)]
         self.assert_(posAlmostEqual(node.getGlyphPos(2), (12,0)))
-        self.assertRaises(RuntimeError, lambda: node.getGlyphPos(3))
+        self.assertRaises(avg.Exception, lambda: node.getGlyphPos(3))
 
     def testParaWords(self):
         root = self.loadEmptyScene()
@@ -198,7 +198,7 @@ class WordsTestCase(AVGTestCase):
         def setMask():
             try:
                 node.maskhref = "mask1.png"
-            except RuntimeError:
+            except avg.Exception:
                 self.skip("no shader support")
                 player.stop()
            
@@ -427,7 +427,7 @@ class WordsTestCase(AVGTestCase):
         def bombIt():
             def cantRun():
                 self.xmldnode.rawtextmode = False
-            self.assertRaises(RuntimeError, cantRun)
+            self.assertRaises(avg.Exception, cantRun)
         
         def assignNewTexts():
             text = u'&ùùààxx>'
@@ -573,9 +573,9 @@ class WordsTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         self.start(True, 
-                (self.assertRaises(RuntimeError, assignInvalidColor1),
-                 self.assertRaises(RuntimeError, assignInvalidColor2),
-                 self.assertRaises(RuntimeError, assignInvalidColor3),
+                (self.assertRaises(avg.Exception, assignInvalidColor1),
+                 self.assertRaises(avg.Exception, assignInvalidColor2),
+                 self.assertRaises(avg.Exception, assignInvalidColor3),
                 ))
 
     def testFontDir(self):
@@ -648,7 +648,7 @@ class WordsTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         text = "42 " * 42 * 20 
         avg.WordsNode(parent=root, text=text)
-        self.assertRaises(RuntimeError, lambda: self.start(True, (None, None)))
+        self.assertRaises(avg.Exception, lambda: self.start(True, (None, None)))
 
     def testWordsGamma(self):
         

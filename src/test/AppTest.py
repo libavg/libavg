@@ -23,7 +23,6 @@
 
 
 import os
-import sys
 import tempfile
 import libavg
 from libavg import player
