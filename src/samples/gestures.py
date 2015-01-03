@@ -220,7 +220,7 @@ class HoldNode(TextRect):
 
         self.recognizer = gesture.HoldRecognizer(node=self, 
                 possibleHandler=self.__onPossible, detectedHandler=self.__onDetected, 
-                failHandler=self.__onFail, stopHandler=self.__onStop)
+                failHandler=self.__onFail, endHandler=self.__onStop)
 
     def __onPossible(self):
         self.rect.fillcolor = "FFFFFF"
