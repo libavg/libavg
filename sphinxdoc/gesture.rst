@@ -111,10 +111,10 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
             Aborts the present recognized gesture and sliding caused by inertia
 
 
-    .. autoclass:: HoldRecognizer(node, [delay=HOLD_DELAY, maxDist=MAX_TAP_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, stopHandler=None])
+    .. autoclass:: HoldRecognizer(node, [delay=HOLD_DELAY, maxDist=MAX_TAP_DIST, initialEvent=None, possibleHandler=None, failHandler=None, detectedHandler=None, endHandler=None])
 
         A :py:class:`HoldRecognizer` detects if a touch is held for a certain amount of 
-        time. Holds are continuous events: the :py:meth:`stopHandler` is called when the
+        time. Holds are continuous events: the :py:meth:`endHandler` is called when the
         contact up event arrives.
 
         :param delay: The amount of time that has to pass before the hold is recognized.

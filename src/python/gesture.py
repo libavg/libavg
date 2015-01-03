@@ -22,6 +22,7 @@
 from libavg import avg, statemachine, player, filter
 
 import weakref
+import warnings
 
 import math
 
@@ -410,7 +411,7 @@ class HoldRecognizer(Recognizer):
 
     def __init__(self, node, delay=None, maxDist=None, initialEvent=None,
             possibleHandler=None, failHandler=None,
-            detectedHandler=None, stopHandler=None):
+            detectedHandler=None, endHandler=None, stopHandler=None):
         if delay == None:
             delay = HoldRecognizer.HOLD_DELAY
         self.__delay = delay
@@ -419,8 +420,12 @@ class HoldRecognizer(Recognizer):
         self.__maxDist = maxDist
 
         self.__lastEvent = None
+        if stopHandler is not None:
+            endHandler = stopHandler
+            warnings.warn(
+                    'HoldRecognizer.stopHandler is deprecated, use endHandler instead')
         super(HoldRecognizer, self).__init__(node, True, 1, initialEvent,
-                possibleHandler, failHandler, detectedHandler, stopHandler)
+                possibleHandler, failHandler, detectedHandler, endHandler)
 
     def _handleDown(self, event):
         self.__lastEvent = event
