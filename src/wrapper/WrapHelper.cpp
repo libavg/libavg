@@ -397,13 +397,29 @@ struct type_info_to_string {
     }
 };
 
+PyObject* createExceptionClass(const char* pszName)
+{
+    string scopeName = extract<string>(scope().attr("__name__"));
+    string qualifiedName0 = scopeName + "." + pszName;
+    char* qualifiedName1 = const_cast<char*>(qualifiedName0.c_str());
+
+    PyObject* typeObj = PyErr_NewException(qualifiedName1, PyExc_RuntimeError, 0);
+    if (!typeObj) {
+        throw_error_already_set();
+    }
+    scope().attr(pszName) = handle<>(borrowed(typeObj));
+    return typeObj;
+}
+
 
 void export_base()
 {
     // Exceptions
+    PyObject* pExceptionTypeObj = createExceptionClass("Exception");
+
     translateException<exception>(PyExc_RuntimeError);
     translateException<out_of_range>(PyExc_IndexError);
-    translateException<Exception>(PyExc_RuntimeError);
+    translateException<Exception>(pExceptionTypeObj);
     to_python_converter< exception, Exception_to_python_exception<exception> >();
     to_python_converter< Exception, Exception_to_python_exception<Exception> >();
    
