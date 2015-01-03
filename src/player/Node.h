@@ -26,7 +26,7 @@
 
 #include "Publisher.h"
 #include "Event.h"
-#include "Image.h"
+#include "GPUImage.h"
 
 #include "../graphics/Pixel32.h"
 
@@ -134,8 +134,8 @@ class AVG_API Node: public Publisher
             
         void setState(NodeState state);
         void initFilename(std::string& sFilename);
-        bool checkReload(const std::string& sHRef, const ImagePtr& pImage,
-                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+        bool checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
+                GPUImage::TextureCompression comp = GPUImage::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
         NodePtr getSharedThis();

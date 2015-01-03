@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Image.h"
+#include "GPUImage.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -40,7 +40,7 @@ using namespace std;
 
 namespace avg {
 
-Image::Image(OGLSurface * pSurface, const MaterialInfo& material)
+GPUImage::GPUImage(OGLSurface * pSurface, const MaterialInfo& material)
     : m_sFilename(""),
       m_pSurface(pSurface),
       m_State(CPU),
@@ -51,7 +51,7 @@ Image::Image(OGLSurface * pSurface, const MaterialInfo& material)
     assertValid();
 }
 
-Image::~Image()
+GPUImage::~GPUImage()
 {
     if (m_State == GPU && m_Source != NONE) {
         m_pSurface->destroy();
@@ -59,7 +59,7 @@ Image::~Image()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
         
-void Image::moveToGPU()
+void GPUImage::moveToGPU()
 {
     assertValid();
     if (m_State == CPU) {
@@ -82,7 +82,7 @@ void Image::moveToGPU()
     assertValid();
 }
 
-void Image::moveToCPU()
+void GPUImage::moveToCPU()
 {
     assertValid();
     if (m_State == GPU) {
@@ -92,7 +92,7 @@ void Image::moveToCPU()
     assertValid();
 }
 
-void Image::discard()
+void GPUImage::discard()
 {
     assertValid();
     setEmpty();
@@ -100,7 +100,7 @@ void Image::discard()
     assertValid();
 }
 
-void Image::setEmpty()
+void GPUImage::setEmpty()
 {
     assertValid();
     if (m_State == GPU) {
@@ -110,7 +110,7 @@ void Image::setEmpty()
     assertValid();
 }
 
-void Image::setFilename(const std::string& sFilename, TextureCompression comp)
+void GPUImage::setFilename(const std::string& sFilename, TextureCompression comp)
 {
     assertValid();
     AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Loading " << sFilename);
@@ -145,7 +145,7 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
     assertValid();
 }
 
-void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
+void GPUImage::setBitmap(BitmapPtr pBmp, TextureCompression comp)
 {
     assertValid();
     if (!pBmp) {
@@ -187,7 +187,7 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
     assertValid();
 }
 
-void Image::setCanvas(OffscreenCanvasPtr pCanvas)
+void GPUImage::setCanvas(OffscreenCanvasPtr pCanvas)
 {
     assertValid();
     if (m_Source == SCENE && pCanvas == m_pCanvas) {
@@ -202,17 +202,17 @@ void Image::setCanvas(OffscreenCanvasPtr pCanvas)
     assertValid();
 }
 
-OffscreenCanvasPtr Image::getCanvas() const
+OffscreenCanvasPtr GPUImage::getCanvas() const
 {
     return m_pCanvas;
 }
 
-const string& Image::getFilename() const
+const string& GPUImage::getFilename() const
 {
     return m_sFilename;
 }
 
-BitmapPtr Image::getBitmap()
+BitmapPtr GPUImage::getBitmap()
 {
     if (m_Source == NONE || m_Source == SCENE) {
         return BitmapPtr();
@@ -221,7 +221,7 @@ BitmapPtr Image::getBitmap()
     }
 }
 
-IntPoint Image::getSize()
+IntPoint GPUImage::getSize()
 {
     if (m_Source == NONE) {
         return IntPoint(0,0);
@@ -242,7 +242,7 @@ IntPoint Image::getSize()
     }
 }
 
-PixelFormat Image::getPixelFormat()
+PixelFormat GPUImage::getPixelFormat()
 {
     PixelFormat pf;
     if (BitmapLoader::get()->isBlueFirst()) {
@@ -265,40 +265,40 @@ PixelFormat Image::getPixelFormat()
     return pf;
 }
 
-OGLSurface* Image::getSurface()
+OGLSurface* GPUImage::getSurface()
 {
     AVG_ASSERT(m_State == GPU);
     return m_pSurface;
 }
 
-Image::State Image::getState()
+GPUImage::State GPUImage::getState()
 {
     return m_State;
 }
 
-Image::Source Image::getSource()
+GPUImage::Source GPUImage::getSource()
 {
     return m_Source;
 }
 
-Image::TextureCompression Image::string2compression(const string& s)
+GPUImage::TextureCompression GPUImage::string2compression(const string& s)
 {
     if (s == "none") {
-        return Image::TEXTURECOMPRESSION_NONE;
+        return GPUImage::TEXTURECOMPRESSION_NONE;
     } else if (s == "B5G6R5") {
-        return Image::TEXTURECOMPRESSION_B5G6R5;
+        return GPUImage::TEXTURECOMPRESSION_B5G6R5;
     } else {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Image compression "+s+" not supported."));
+                "GPUImage compression "+s+" not supported."));
     }
 }
 
-string Image::compression2String(TextureCompression compression)
+string GPUImage::compression2String(TextureCompression compression)
 {
     switch(compression) {
-        case Image::TEXTURECOMPRESSION_NONE:
+        case GPUImage::TEXTURECOMPRESSION_NONE:
             return "none";
-        case Image::TEXTURECOMPRESSION_B5G6R5:
+        case GPUImage::TEXTURECOMPRESSION_B5G6R5:
             return "B5G6R5";
         default:
             AVG_ASSERT(false);
@@ -306,7 +306,7 @@ string Image::compression2String(TextureCompression compression)
     }
 }
 
-void Image::setupSurface()
+void GPUImage::setupSurface()
 {
     PixelFormat pf = m_pBmp->getPixelFormat();
 //    cerr << "setupSurface: " << pf << endl;
@@ -317,7 +317,7 @@ void Image::setupSurface()
     GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
 }
 
-bool Image::changeSource(Source newSource)
+bool GPUImage::changeSource(Source newSource)
 {
     if (newSource != m_Source) {
         switch (m_Source) {
@@ -341,7 +341,7 @@ bool Image::changeSource(Source newSource)
     }
 }
 
-void Image::assertValid() const
+void GPUImage::assertValid() const
 {
     AVG_ASSERT(m_pSurface);
     AVG_ASSERT((m_Source == FILE) == (m_sFilename != ""));

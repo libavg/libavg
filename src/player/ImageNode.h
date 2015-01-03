@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "RasterNode.h"
-#include "Image.h"
+#include "GPUImage.h"
 
 #include "../base/UTF8String.h"
 
@@ -66,8 +66,8 @@ class AVG_API ImageNode : public RasterNode
         void checkCanvasValid(const CanvasPtr& pCanvas);
 
         UTF8String m_href;
-        Image::TextureCompression m_Compression;
-        ImagePtr m_pImage;
+        GPUImage::TextureCompression m_Compression;
+        GPUImagePtr m_pGPUImage;
 };
 
 typedef boost::shared_ptr<ImageNode> ImageNodePtr;

@@ -31,7 +31,7 @@
 #include "../graphics/Bitmap.h"
 
 #include "OGLSurface.h"
-#include "Image.h"
+#include "GPUImage.h"
 
 #include <iostream>
 #include <sstream>
@@ -43,7 +43,7 @@ namespace avg {
 Shape::Shape(const MaterialInfo& material)
 {
     m_pSurface = new OGLSurface();
-    m_pImage = ImagePtr(new Image(m_pSurface, material));
+    m_pGPUImage = GPUImagePtr(new GPUImage(m_pSurface, material));
     m_pVertexData = VertexDataPtr(new VertexData());
 }
 
@@ -55,25 +55,25 @@ Shape::~Shape()
 void Shape::setBitmap(BitmapPtr pBmp)
 {
     if (pBmp) {
-        m_pImage->setBitmap(pBmp);
+        m_pGPUImage->setBitmap(pBmp);
     } else {
-        m_pImage->setEmpty();
+        m_pGPUImage->setEmpty();
     }
 }
 
 void Shape::moveToGPU()
 {
-    m_pImage->moveToGPU();
+    m_pGPUImage->moveToGPU();
 }
 
 void Shape::moveToCPU()
 {
-    m_pImage->moveToCPU();
+    m_pGPUImage->moveToCPU();
 }
 
-ImagePtr Shape::getImage()
+GPUImagePtr Shape::getGPUImage()
 {
-    return m_pImage;
+    return m_pGPUImage;
 }
 
 VertexDataPtr Shape::getVertexData()
@@ -96,7 +96,7 @@ void Shape::setVertexArray(const VertexArrayPtr& pVA)
 
 void Shape::draw(const glm::mat4& transform, float opacity)
 {
-    bool bIsTextured = (m_pImage->getSource() != Image::NONE);
+    bool bIsTextured = (m_pGPUImage->getSource() != GPUImage::NONE);
     GLContext* pContext = GLContext::getCurrent();
     StandardShaderPtr pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
@@ -113,7 +113,7 @@ void Shape::draw(const glm::mat4& transform, float opacity)
 void Shape::discard()
 {
     m_pVertexData->reset();
-    m_pImage->discard();
+    m_pGPUImage->discard();
 }
 
 }

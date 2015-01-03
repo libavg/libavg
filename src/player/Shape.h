@@ -33,8 +33,8 @@ namespace avg {
 
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
-class Image;
-typedef boost::shared_ptr<Image> ImagePtr;
+class GPUImage;
+typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 class MaterialInfo;
 class OGLSurface;
 
@@ -49,7 +49,7 @@ class AVG_API Shape
         virtual void moveToGPU();
         virtual void moveToCPU();
 
-        ImagePtr getImage();
+        GPUImagePtr getGPUImage();
         VertexDataPtr getVertexData();
         void setVertexArray(const VertexArrayPtr& pVA);
         void draw(const glm::mat4& transform, float opacity);
@@ -60,7 +60,7 @@ class AVG_API Shape
         VertexDataPtr m_pVertexData;
         SubVertexArray m_SubVA;
         OGLSurface * m_pSurface;
-        ImagePtr m_pImage;
+        GPUImagePtr m_pGPUImage;
 };
 
 typedef boost::shared_ptr<Shape> ShapePtr;

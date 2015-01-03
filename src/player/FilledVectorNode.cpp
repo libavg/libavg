@@ -23,7 +23,6 @@
 
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
-#include "Image.h"
 #include "DivNode.h"
 #include "Shape.h"
 
@@ -87,7 +86,7 @@ void FilledVectorNode::disconnect(bool bKill)
 
 void FilledVectorNode::checkReload()
 {
-    Node::checkReload(m_FillTexHRef, m_pFillShape->getImage());
+    Node::checkReload(m_FillTexHRef, m_pFillShape->getGPUImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pFillShape->moveToGPU();
         setDrawNeeded();

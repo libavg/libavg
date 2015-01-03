@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Image_H_
-#define _Image_H_
+#ifndef _GPUImage_H_
+#define _GPUImage_H_
 
 #include "../api.h"
 
@@ -41,7 +41,7 @@ typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
-class AVG_API Image
+class AVG_API GPUImage
 {
     public:
         enum State {CPU, GPU};
@@ -51,8 +51,8 @@ class AVG_API Image
             TEXTURECOMPRESSION_B5G6R5
         };
 
-        Image(OGLSurface * pSurface, const MaterialInfo& material);
-        virtual ~Image();
+        GPUImage(OGLSurface * pSurface, const MaterialInfo& material);
+        virtual ~GPUImage();
 
         virtual void moveToGPU();
         virtual void moveToCPU();
@@ -92,7 +92,7 @@ class AVG_API Image
         MaterialInfo m_Material;
 };
 
-typedef boost::shared_ptr<Image> ImagePtr;
+typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 
 }
 

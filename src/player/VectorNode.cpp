@@ -24,7 +24,6 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "OGLSurface.h"
-#include "Image.h"
 #include "Shape.h"
 
 #include "../base/Exception.h"
@@ -106,7 +105,7 @@ void VectorNode::disconnect(bool bKill)
 
 void VectorNode::checkReload()
 {
-    Node::checkReload(m_TexHRef, m_pShape->getImage());
+    Node::checkReload(m_TexHRef, m_pShape->getGPUImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pShape->moveToGPU();
         setDrawNeeded();
