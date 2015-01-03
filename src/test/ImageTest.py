@@ -168,7 +168,7 @@ class ImageTestCase(AVGTestCase):
         def testEarlyAccessException():
             node = createNode((16, 16))
             root.appendChild(node)
-            self.assertRaises(RuntimeError, node.getWarpedVertexCoords)
+            self.assertRaises(avg.Exception, node.getWarpedVertexCoords)
             node.unlink()
 
         def addNode():
@@ -232,7 +232,7 @@ class ImageTestCase(AVGTestCase):
                 bmp1.setPixels(s)
                 self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 
-            self.assertRaises(RuntimeError, lambda: bmp1.setPixels(13)),
+            self.assertRaises(avg.Exception, lambda: bmp1.setPixels(13)),
 
 
         def testCropRect():
@@ -275,7 +275,7 @@ class ImageTestCase(AVGTestCase):
             bmp = avg.Bitmap('media/greyscale.png')
             self.assertEqual(bmp.getPixel((1,1)), (255,255,255,255))
             self.assertEqual(bmp.getPixel((1,63)), (0,0,0,255))
-            self.assertRaises(RuntimeError, lambda: bmp.getPixel((64,0)))
+            self.assertRaises(avg.Exception, lambda: bmp.getPixel((64,0)))
 
         def setNullBitmap():
             node.setBitmap(None)
@@ -284,7 +284,7 @@ class ImageTestCase(AVGTestCase):
             srcBmp = avg.Bitmap('media/rgb24-32x32.png')
             destBmp = avg.Bitmap(srcBmp, (16,16), (32,32))
             self.assertEqual(srcBmp.getPixel((16,16)), destBmp.getPixel((0,0)))
-            self.assertRaises(RuntimeError, lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
+            self.assertRaises(avg.Exception, lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
 
         node = avg.ImageNode(href="media/rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
@@ -311,7 +311,7 @@ class ImageTestCase(AVGTestCase):
                  testResize,
                  lambda: self.compareImage("testBitmap4"),
                  testGetPixel,
-                 lambda: self.assertRaises(RuntimeError, setNullBitmap),
+                 lambda: self.assertRaises(avg.Exception, setNullBitmap),
                  testSubBitmap,
                 ))
 
@@ -387,7 +387,7 @@ class ImageTestCase(AVGTestCase):
             def tryInsertNode():
                 try:
                     avg.ImageNode(href="rgb24-65x65.png", blendmode="min", parent=root)
-                except RuntimeError:
+                except avg.Exception:
                     self.supported = False
             root = self.loadEmptyScene()
             self.supported = True

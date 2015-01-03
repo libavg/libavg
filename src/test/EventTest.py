@@ -283,7 +283,7 @@ class EventTestCase(AVGTestCase):
             self.assert_(not(self.img.isSubscribed(avg.Node.CURSOR_DOWN, onDown)))
             self.assert_(self.img.getNumSubscribers(avg.Node.CURSOR_DOWN) == 0)
             self.downCalled = False
-            self.assertRaises(RuntimeError,
+            self.assertRaises(avg.Exception,
                     lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, onDown))
 
         def initUnsubscribeInEvent(useMessageID):
@@ -293,11 +293,11 @@ class EventTestCase(AVGTestCase):
         def onDownUnsubscribe(event, useMessageID):
             if useMessageID:
                 self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID)
-                self.assertRaises(RuntimeError, lambda: 
+                self.assertRaises(avg.Exception, lambda: 
                         self.img.unsubscribe(avg.Node.CURSOR_DOWN, self.subscriberID))
             else:
                 self.img.unsubscribe(self.subscriberID)
-                self.assertRaises(RuntimeError,
+                self.assertRaises(avg.Exception,
                         lambda: self.img.unsubscribe(self.subscriberID))
             self.downCalled = True
 
@@ -311,9 +311,9 @@ class EventTestCase(AVGTestCase):
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
         self.img.subscribe(avg.Node.CURSOR_DOWN, onDown)
         self.assertRaises(Exception, lambda: self.img.subscribe(23, onDown))
-        self.assertRaises(RuntimeError,
+        self.assertRaises(avg.Exception,
                 lambda: self.img.subscribe(avg.Node.CURSOR_DOWN, 23))
-        self.assertRaises(RuntimeError,
+        self.assertRaises(avg.Exception,
                 lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN, 23))
         self.start(False,
                 (lambda: self.fakeClick(10,10),
@@ -371,7 +371,7 @@ class EventTestCase(AVGTestCase):
                         onUnsubscribeCallableDown))
 
         def onUnsubscribeCallableDown(event):
-            self.assertRaises(RuntimeError,
+            self.assertRaises(avg.Exception,
                     lambda: self.img.unsubscribe(avg.Node.CURSOR_DOWN,
                             onUnsubscribeCallableDown))
             for j in range(0,2):
@@ -593,7 +593,7 @@ class EventTestCase(AVGTestCase):
 
         def releaseTooMuch():
             self.img.releaseEventCapture()
-            self.assertRaises(RuntimeError, self.img.releaseEventCapture)
+            self.assertRaises(avg.Exception, self.img.releaseEventCapture)
 
         self.mouseDownCalled = False
         self.mainMouseDownCalled = False
@@ -945,7 +945,7 @@ class EventTestCase(AVGTestCase):
         def onContactMotion(event):
             contact = event.contact
             contact.unsubscribe(self.contactID)
-            self.assertRaises(RuntimeError, lambda: contact.unsubscribe(self.contactID))
+            self.assertRaises(avg.Exception, lambda: contact.unsubscribe(self.contactID))
             self.numContactCallbacks += 1
        
         root = self.loadEmptyScene()
