@@ -24,8 +24,6 @@
 
 #include "../api.h"
 
-#include "../base/GLMHelper.h"
-
 #include <boost/shared_ptr.hpp>
 #include <string>
 

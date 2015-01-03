@@ -21,7 +21,6 @@
 
 #include "Image.h"
 
-#include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
@@ -40,6 +39,7 @@ Image::Image(const std::string& sFilename)
       m_BmpRefCount(0),
       m_TexRefCount(0)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_sFilename = sFilename;
     m_pBmp = loadBitmap(sFilename);
     incBmpRef();
@@ -51,6 +51,7 @@ Image::Image(const BitmapPtr& pBmp)
       m_BmpRefCount(0),
       m_TexRefCount(0)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_sFilename = "";
     m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pBmp->getPixelFormat(), ""));
     m_pBmp->copyPixels(*pBmp);
@@ -59,6 +60,7 @@ Image::Image(const BitmapPtr& pBmp)
 
 Image::~Image()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
     AVG_ASSERT(m_BmpRefCount == 0);
     AVG_ASSERT(m_TexRefCount == 0);
 }
