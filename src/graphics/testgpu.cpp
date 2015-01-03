@@ -35,6 +35,8 @@
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
+#include "ImageRegistry.h"
+#include "Image.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -429,12 +431,40 @@ private:
 };
 
 
+class ImageRegistryTest: public GraphicsTest {
+public:
+    ImageRegistryTest()
+        : GraphicsTest("ImageRegistryTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        ImageRegistry* pRegistry = ImageRegistry::get();
+        ImagePtr pImage1 = pRegistry->getImage(getTestBmpName("rgb24-65x65"));
+        TEST(pRegistry->getNumImages() == 1);
+        ImagePtr pImage2 = pRegistry->getImage(getTestBmpName("rgb24-65x65"));
+        TEST(pRegistry->getNumImages() == 1);
+        BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
+        BitmapPtr pBmp = pImage2->getBmp();
+        testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
+        ImagePtr pImage3 = pRegistry->getImage(getTestBmpName("rgb24-64x64"));
+        TEST(pRegistry->getNumImages() == 2);
+
+        pImage3->decBmpRef();
+        pImage2->decBmpRef();
+        pImage1->decBmpRef();
+    }
+};
+
+
 class GPUTestSuite: public TestSuite {
 public:
     GPUTestSuite(const string& sVariant) 
         : TestSuite("GPUTestSuite ("+sVariant+")")
     {
         addTest(TestPtr(new TextureMoverTest));
+        addTest(TestPtr(new ImageRegistryTest));
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));

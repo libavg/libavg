@@ -41,6 +41,7 @@ class AVG_API ImageRegistry
         static ImageRegistry* get();
 
         ImagePtr getImage(const std::string& sFilename);
+        void deleteImage(const std::string& sFilename);
         int getNumImages() const;
 
     private:

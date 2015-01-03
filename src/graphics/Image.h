@@ -61,6 +61,8 @@ class AVG_API Image
         static std::string compression2String(TextureCompression compression);
 
     private:
+        void testDelete();
+
         std::string m_sFilename;
         BitmapPtr m_pBmp;
         MCTexturePtr m_pTex;

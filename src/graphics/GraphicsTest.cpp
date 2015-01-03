@@ -56,11 +56,15 @@ void GraphicsTest::createResultImgDir()
     }
 }
 
-BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
+std::string GraphicsTest::getTestBmpName(const string& sFName)
+{ 
+    return getSrcDirName()+"../test/media/"+sFName+".png";
+}
+
+BitmapPtr GraphicsTest::loadTestBmp(const string& sFName, PixelFormat pf)
 {
     try {
-        string sFullName = getSrcDirName()+"../test/media/"+sFName+".png";
-        return loadBitmap(sFullName, pf);
+        return loadBitmap(getTestBmpName(sFName), pf);
     } catch (Exception & ex) {
         cerr << ex.getStr() << endl;
         throw;

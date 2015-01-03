@@ -28,6 +28,7 @@
 #include "Bitmap.h"
 #include "GLContextManager.h"
 #include "MCTexture.h"
+#include "ImageRegistry.h"
 
 using namespace std;
 
@@ -80,7 +81,7 @@ void Image::decBmpRef()
     AVG_ASSERT(m_BmpRefCount >= 1);
     m_BmpRefCount--;
 
-    // TODO: If both refcounts == 0, tell ImageRegistry to remove image.
+    testDelete();
 }
 
 void Image::incTexRef(bool bUseMipmaps, Image::TextureCompression tc)
@@ -102,6 +103,8 @@ void Image::decTexRef()
     if (m_TexRefCount == 0) {
         m_pTex = MCTexturePtr();
     }
+
+    testDelete();
 }
 
 BitmapPtr Image::getBmp()
@@ -141,5 +144,11 @@ string Image::compression2String(TextureCompression compression)
     }
 }
 
+void Image::testDelete()
+{
+    if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
+        ImageRegistry::get()->deleteImage(m_sFilename);
+    }
+}
 
 }

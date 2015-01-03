@@ -21,6 +21,7 @@
 
 #include "ImageRegistry.h"
 
+#include "../base/Exception.h"
 
 #include "Image.h"
 
@@ -51,13 +52,22 @@ ImageRegistry::~ImageRegistry()
 ImagePtr ImageRegistry::getImage(const std::string& sFilename)
 {
     ImageMap::iterator it = m_pImageMap.find(sFilename);
+    ImagePtr pImg;
     if (it == m_pImageMap.end()) {
-        ImagePtr pImg = ImagePtr(new Image(sFilename));
+        pImg = ImagePtr(new Image(sFilename));
         m_pImageMap[sFilename] = pImg;
-        return pImg;
     } else {
-        return it->second;
+        pImg = it->second;
+        pImg->incBmpRef();
     }
+    return pImg;
+}
+
+void ImageRegistry::deleteImage(const std::string& sFilename)
+{
+    ImageMap::iterator it = m_pImageMap.find(sFilename);
+    AVG_ASSERT(it != m_pImageMap.end());
+    m_pImageMap.erase(it);
 }
 
 int ImageRegistry::getNumImages() const
