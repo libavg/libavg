@@ -92,7 +92,8 @@ class KargsExtender(object):
         kaKeyset = set(self.__optionsKargs.keys())
 
         if not optionsKeyset.issuperset(kaKeyset):
-            raise RuntimeError('No such option/s: %s' % list(kaKeyset - optionsKeyset))
+            raise libavg.Exception(
+                    'No such option/s: %s' % list(kaKeyset - optionsKeyset))
             
         for option in optionsList:
             if option.key in self.__optionsKargs:
@@ -167,7 +168,8 @@ class ArgvExtender(object):
     @property
     def parsedArgs(self):
         if self.__parsedArgs is None:
-            raise RuntimeError('Cannot provide parsedArgs before applying the extender')
+            raise libavg.Exception(
+                    'Cannot provide parsedArgs before applying the extender')
 
         return self.__parsedArgs
 
@@ -211,7 +213,7 @@ class Settings(object):
         option = self.__getOptionOrNone(key)
 
         if option is None:
-            raise RuntimeError('Cannot find key %s in the settings' % key)
+            raise libavg.Exception('Cannot find key %s in the settings' % key)
 
         return option
         
@@ -262,7 +264,7 @@ class Settings(object):
             raise TypeError('Must be an instance of Option')
 
         if self.__getOptionOrNone(option.key):
-            raise RuntimeError('Option %s has been already defined' % option.key)
+            raise libavg.Exception('Option %s has been already defined' % option.key)
             
         self.__options.append(option)
 

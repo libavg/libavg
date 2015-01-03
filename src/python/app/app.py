@@ -183,7 +183,7 @@ class App(object):
         import libavg.app
 
         if libavg.app.instance is not None:
-            raise RuntimeError('%s has been already instantiated' %
+            raise avg.Exception('%s has been already instantiated' %
                     self.__class__.__name__)
 
         libavg.app.instance = self
