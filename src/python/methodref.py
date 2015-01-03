@@ -17,7 +17,8 @@
 #
 # Current versions can be found at www.libavg.de
 
-import weakref, new
+import weakref
+import new
 
 class methodref(object):
     # From Python Cookbook
