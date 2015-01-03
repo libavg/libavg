@@ -23,10 +23,9 @@
 
 
 import os
-import sys
 import tempfile
 import libavg
-from libavg import player
+from libavg import avg, player
 from libavg.app import settings
 from libavg.app import keyboardmanager
 from libavg.app.settings import Option
@@ -62,11 +61,11 @@ class AppTestCase(testcase.AVGTestCase):
     def testSettingsOptions(self):
         self.assertRaises(ValueError, lambda: settings.Option('test', 1))
         
-        self.assertRaises(RuntimeError, lambda: settings.Settings(
+        self.assertRaises(avg.Exception, lambda: settings.Settings(
                 [Option('foo', 'bar'), Option('foo', 'bar')]))
 
         s = settings.Settings([Option('foo', 'bar')])
-        self.assertRaises(RuntimeError, lambda: s.addOption(Option('foo', 'baz')))
+        self.assertRaises(avg.Exception, lambda: s.addOption(Option('foo', 'baz')))
         
     def testSettingsTypes(self):
         defaults = [
@@ -132,7 +131,7 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(s.get('foo_bar'), 'baz')
 
         e = settings.KargsExtender({'foo_baxxx': 'baz'})
-        self.assertRaises(RuntimeError, lambda: s.applyExtender(e))
+        self.assertRaises(avg.Exception, lambda: s.applyExtender(e))
 
     def testAppAdditionalSettings(self):
         app = TestApp()
@@ -151,7 +150,7 @@ class AppTestCase(testcase.AVGTestCase):
         
     def testAppRuntimeSettingsFail(self):
         app = TestApp()
-        self.assertRaises(RuntimeError,
+        self.assertRaises(avg.Exception,
                 lambda: app.testRun(runtimeOptions={'foo_bar':'bar'}))
 
     def testAppInstance(self):

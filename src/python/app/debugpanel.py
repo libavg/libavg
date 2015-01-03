@@ -337,7 +337,7 @@ class GPUMemoryGraphWidget(GraphWidget):
     def _createGraph(self):
         try:
             libavg.player.getVideoMemUsed()
-        except RuntimeError:
+        except avg.Exception:
             return avg.WordsNode(parent=self,
                     text='GPU memory graph is not supported on this hardware',
                     color='ff5555')

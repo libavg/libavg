@@ -199,6 +199,6 @@ def _checkDuplicates(keystring, modifiers, type_):
     for keyBinding in _plainKeyBindings + _modifiedKeyBindings:
         if (_testModifiers(keyBinding.modifiers, modifiers) and
                 _testMatchString(keyBinding, keystring, type_)):
-            raise RuntimeError('Key binding keystring=%s modifiers=%s type=%s '
+            raise avg.Exception('Key binding keystring=%s modifiers=%s type=%s '
                     'already defined' % (keystring, modifiers, type_))
 

@@ -39,7 +39,7 @@ class OffscreenTestCase(AVGTestCase):
             else:
                 self.assertEqual(canvas.getNumDependentCanvases(), 1)
                 self.canvas2 = canvas
-            self.assertRaises(RuntimeError,
+            self.assertRaises(avg.Exception,
                     lambda: player.createCanvas(id="negativesize", size=(-42,120)))
 
         def unlink():
@@ -64,12 +64,12 @@ class OffscreenTestCase(AVGTestCase):
             changeHRef("")
             firstNode.href = ""
             player.deleteCanvas("testcanvas1")
-            self.assertRaises(RuntimeError, lambda: changeHRef("canvas:testcanvas1"))
+            self.assertRaises(avg.Exception, lambda: changeHRef("canvas:testcanvas1"))
             changeHRef("canvas:testcanvas2")
-            self.assertRaises(RuntimeError, lambda: player.deleteCanvas("testcanvas2"))
+            self.assertRaises(avg.Exception, lambda: player.deleteCanvas("testcanvas2"))
             changeHRef("")
             player.deleteCanvas("testcanvas2")
-            self.assertRaises(RuntimeError, lambda: player.deleteCanvas("foo"))
+            self.assertRaises(avg.Exception, lambda: player.deleteCanvas("foo"))
 
         root = self.loadEmptyScene()
         root.mediadir = "media"
@@ -124,11 +124,11 @@ class OffscreenTestCase(AVGTestCase):
     def testCanvasErrors(self):
         self.loadEmptyScene()
         # Missing size
-        self.assertRaises(RuntimeError, 
+        self.assertRaises(avg.Exception, 
                 lambda: player.createCanvas(id="foo"))
         # Duplicate canvas id
         player.createCanvas(id="foo", size=(160, 120))
-        self.assertRaises(RuntimeError, 
+        self.assertRaises(avg.Exception, 
                 lambda: player.createCanvas(id="foo", size=(160, 120)))
 
     def testCanvasAPI(self):
@@ -152,8 +152,8 @@ class OffscreenTestCase(AVGTestCase):
         self.assertEqual(offscreenCanvas, player.getCanvas("offscreencanvas"))
         self.assertEqual(offscreenCanvas.getElementByID("test1").href, "rgb24-65x65.png")
         self.assertEqual(offscreenCanvas.getElementByID("missingnode"), None)
-        self.assertRaises(RuntimeError, player.screenshot)
-        self.assertRaises(RuntimeError, createCompressed)
+        self.assertRaises(avg.Exception, player.screenshot)
+        self.assertRaises(avg.Exception, createCompressed)
         self.start(False,
                 (checkMainScreenshot,
                  checkCanvasScreenshot))
@@ -223,7 +223,7 @@ class OffscreenTestCase(AVGTestCase):
             return canvas
 
         def testEarlyScreenshotException():
-            self.assertRaises(RuntimeError, self.__offscreenCanvas.screenshot)
+            self.assertRaises(avg.Exception, self.__offscreenCanvas.screenshot)
 
         def renderCanvas():
             self.__offscreenCanvas.render()
@@ -239,7 +239,7 @@ class OffscreenTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         self.__offscreenCanvas = createCanvas()
-        self.assertRaises(RuntimeError, renderCanvas)
+        self.assertRaises(avg.Exception, renderCanvas)
         self.start(False,
                 (testEarlyScreenshotException,
                  renderCanvas,
@@ -337,7 +337,7 @@ class OffscreenTestCase(AVGTestCase):
                         mediadir="media", multisamplesamples=2)
                 avg.ImageNode(id="test1", href="rgb24-65x65.png", angle=0.1,
                         parent=self.canvas.getRootNode())
-            except RuntimeError:
+            except avg.Exception:
                 self.skip("Offscreen multisampling init failed")
                 player.stop()
                 return
@@ -350,8 +350,8 @@ class OffscreenTestCase(AVGTestCase):
                 (createCanvas,
                  lambda: self.compareImage("testCanvasMultisample"),
                  screenshot,
-                 lambda: self.assertRaises(RuntimeError, lambda: testIllegalSamples(42)),
-                 lambda: self.assertRaises(RuntimeError, lambda: testIllegalSamples(0)),
+                 lambda: self.assertRaises(avg.Exception, lambda: testIllegalSamples(42)),
+                 lambda: self.assertRaises(avg.Exception, lambda: testIllegalSamples(0)),
                 ))
         self.canvas = None
        
@@ -365,7 +365,7 @@ class OffscreenTestCase(AVGTestCase):
         avg.ImageNode(parent=root, size=(40, 30), href="canvas:testcanvas")
         try:
             self.start(False, (lambda: self.compareImage("testCanvasMipmap"),))
-        except RuntimeError:
+        except avg.Exception:
             self.skip("Offscreen mipmap init failed.")
             return
 
@@ -415,9 +415,9 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.compareImage("testCanvasDependencies1"),
                  exchangeCanvases,
                  lambda: self.compareImage("testCanvasDependencies2"),
-                 lambda: self.assertRaises(RuntimeError, makeCircularRef),
-                 lambda: self.assertRaises(RuntimeError, makeSelfRef1),
-                 lambda: self.assertRaises(RuntimeError, makeSelfRef2),
+                 lambda: self.assertRaises(avg.Exception, makeCircularRef),
+                 lambda: self.assertRaises(avg.Exception, makeSelfRef1),
+                 lambda: self.assertRaises(avg.Exception, makeSelfRef2),
                  loadCanvasDepString,
                 ))
 
