@@ -24,11 +24,11 @@
 
 namespace avg {
     
-class AVG_API IPreRenderListener {
-public:
-    virtual ~IPreRenderListener() {};
-    virtual void onPreRender() = 0;
-};
+	class AVG_API IPreRenderListener {
+		public:
+    		virtual ~IPreRenderListener() {};
+    		virtual void onPreRender() = 0;
+	};
 
 }
 
