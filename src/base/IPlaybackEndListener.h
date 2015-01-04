@@ -26,11 +26,11 @@
 
 namespace avg {
 
-class AVG_API IPlaybackEndListener {
-public:
-    virtual ~IPlaybackEndListener() {};
-    virtual void onPlaybackEnd() = 0;
-};
+	class AVG_API IPlaybackEndListener {
+		public:
+    		virtual ~IPlaybackEndListener() {};
+    		virtual void onPlaybackEnd() = 0;
+	};
 
 }
 
