@@ -40,9 +40,9 @@ class CoordCalibrator(object):
         mainNode.active = True
         mainNode.opacity = 1
         mainNode.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH,
-                                 self.__onTouchDown)
+                self.__onTouchDown)
         mainNode.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.TOUCH,
-                                 self.__onTouchMove)
+                self.__onTouchMove)
         mainNode.setEventHandler(avg.Event.CURSOR_UP, avg.Event.TOUCH, self.__onTouchUp)
         self.__crosshair = player.getElementByID("cal_crosshair")
         self.__feedback = player.getElementByID("cal_feedback")
@@ -67,7 +67,7 @@ class CoordCalibrator(object):
         if self.__lastCenter:
             self.__cppCal.setCamPoint(self.__lastCenter)
             self.__addMessage("Using: %(x).2f, %(y).2f" %
-                              {"x": self.__lastCenter[0], "y": self.__lastCenter[1]})
+                    {"x": self.__lastCenter[0], "y": self.__lastCenter[1]})
             self._myCursor = None
             self.__lastCenter = None
 
@@ -89,7 +89,7 @@ class CoordCalibrator(object):
     def __moveMarker(self):
         self.__crosshair.x, self.__crosshair.y = self.__cppCal.getDisplayPoint()
         self.__crosshair.x, self.__crosshair.y = self.__feedback.x, self.__feedback.y = \
-            (self.__crosshair.x - 7, self.__crosshair.y - 7)
+                (self.__crosshair.x - 7, self.__crosshair.y - 7)
         self.__addMessage("Calibrating point " + str(self.__curPointIndex))
 
     def __addMessage(self, text):
@@ -101,7 +101,7 @@ class CoordCalibrator(object):
         else:
             self.__numMessages += 1
         Node = player.createNode(
-            "<words fontsize='10' font='Eurostile' color='00FF00'/>")
+                "<words fontsize='10' font='Eurostile' color='00FF00'/>")
         Node.x = 0
         Node.y = self.__numMessages * 13
         Node.text = text
@@ -116,7 +116,7 @@ class CoordCalibrator(object):
             return
         self.__lastCenter = Event.center
         self.__addMessage("Touch at %(x).2f, %(y).2f" % {
-            "x": Event.center[0], "y": Event.center[1]})
+                "x": Event.center[0], "y": Event.center[1]})
         self.__feedback.opacity = 1
 
     def __onTouchMove(self, Event):
