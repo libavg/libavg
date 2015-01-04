@@ -385,11 +385,11 @@ class SwipeRecognizer(Recognizer):
         if direction == SwipeRecognizer.RIGHT:
             return 0
         elif direction == SwipeRecognizer.DOWN:
-            return math.pi/2
+            return math.pi / 2
         elif direction == SwipeRecognizer.LEFT:
             return math.pi
         elif direction == SwipeRecognizer.UP:
-            return 3*math.pi/2
+            return 3 * math.pi / 2
         else:
             raise RuntimeError("%s is not a valid direction."%direction)
 
@@ -402,7 +402,7 @@ class SwipeRecognizer(Recognizer):
             return angle > minAngle and angle < maxAngle
         else:
             # Valid range spans 0
-            return angle > minAngle+2*math.pi or angle < maxAngle
+            return angle > minAngle + 2*math.pi or angle < maxAngle
 
 
 class HoldRecognizer(Recognizer):
@@ -591,8 +591,8 @@ class DragRecognizer(Recognizer):
         if angle < 0:
             angle = -angle
         if self.__direction == DragRecognizer.VERTICAL:
-            return (angle > math.pi/2-self.__directionTolerance 
-                    and angle < math.pi/2+self.__directionTolerance)
+            return (angle > math.pi / 2 - self.__directionTolerance 
+                    and angle < math.pi / 2 + self.__directionTolerance)
         elif self.__direction == DragRecognizer.HORIZONTAL:
             return (angle < self.__directionTolerance 
                     or angle > math.pi-self.__directionTolerance)
@@ -658,7 +658,7 @@ class Mat3x3:
         m = self.m
         v1 = []
         for i in range(3):
-            v1.append(m[i][0]*v[0] + m[i][1]*v[1] + m[i][2]*v[2])
+            v1.append(m[i][0]*v[0] + m[i][1] * v[1] + m[i][2] * v[2])
         return v1
 
     def applyMat(self, m1):
@@ -667,15 +667,15 @@ class Mat3x3:
         for i in range(3):
             v = []
             for j in range(3):
-                v.append(m0[i][0]*m1.m[0][j] + m0[i][1]*m1.m[1][j] + m0[i][2]*m1.m[2][j])
+                v.append(m0[i][0] * m1.m[0][j] + m0[i][1] * m1.m[1][j] + m0[i][2] * m1.m[2][j])
             result.m[i] = v
         return result
 
     def det(self):
         m = self.m
-        return float( m[0][0] * (m[2][2]*m[1][1]-m[2][1]*m[1][2])
-                     -m[1][0] * (m[2][2]*m[0][1]-m[2][1]*m[0][2])
-                     +m[2][0] * (m[1][2]*m[0][1]-m[1][1]*m[0][2]))
+        return float( m[0][0] * (m[2][2] * m[1][1] - m[2][1] * m[1][2])
+                     -m[1][0] * (m[2][2] * m[0][1] - m[2][1] * m[0][2])
+                     +m[2][0] * (m[1][2] * m[0][1] - m[1][1] * m[0][2]))
 
     def scalarMult(self, s):
         m = self.m
@@ -683,16 +683,16 @@ class Mat3x3:
         for i in range(3):
             v = []
             for j in range(3):
-                v.append(m[i][j]*s)
+                v.append(m[i][j] * s)
             result.m[i] = v
         return result
 
     def inverse(self):
         m = self.m
-        temp = Mat3x3([  m[2][2]*m[1][1]-m[2][1]*m[1][2],  -(m[2][2]*m[0][1]-m[2][1]*m[0][2]),   m[1][2]*m[0][1]-m[1][1]*m[0][2] ],
-                      [-(m[2][2]*m[1][0]-m[2][0]*m[1][2]),   m[2][2]*m[0][0]-m[2][0]*m[0][2] , -(m[1][2]*m[0][0]-m[1][0]*m[0][2])],
-                      [  m[2][1]*m[1][0]-m[2][0]*m[1][1],  -(m[2][1]*m[0][0]-m[2][0]*m[0][1]),   m[1][1]*m[0][0]-m[1][0]*m[0][1] ])
-        return temp.scalarMult(1/self.det())
+        temp = Mat3x3([  m[2][2] * m[1][1] - m[2][1] * m[1][2],  - (m[2][2] * m[0][1] - m[2][1] * m[0][2]),   m[1][2] * m[0][1] - m[1][1] * m[0][2] ],
+                      [- (m[2][2] * m[1][0] - m[2][0] * m[1][2]),   m[2][2] * m[0][0] - m[2][0] * m[0][2] , - (m[1][2] * m[0][0] - m[1][0] * m[0][2])],
+                      [  m[2][1] * m[1][0] - m[2][0] * m[1][1],  - (m[2][1] * m[0][0] - m[2][0] * m[0][1]),   m[1][1] * m[0][0] - m[1][0] * m[0][1] ])
+        return temp.scalarMult(1 / self.det())
 
 
 def getCentroid(indexes, pts):
