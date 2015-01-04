@@ -28,6 +28,8 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/ImageRegistry.h"
+#include "../graphics/Image.h"
 #include "../graphics/GLContextManager.h"
 
 #include "OGLSurface.h"
@@ -55,6 +57,13 @@ GPUImage::~GPUImage()
 {
     if (m_State == GPU && m_Source != NONE) {
         m_pSurface->destroy();
+        if (m_pImage) {
+            m_pImage->decTexRef();
+        }
+    }
+    if (m_pImage) {
+        m_pImage->decBmpRef();
+        m_pImage = ImagePtr();
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
@@ -88,6 +97,9 @@ void GPUImage::moveToCPU()
     if (m_State == GPU) {
         m_State = CPU;
         m_pSurface->destroy();
+        if (m_pImage) {
+            m_pImage->decTexRef();
+        }
     }
     assertValid();
 }
@@ -105,6 +117,13 @@ void GPUImage::setEmpty()
     assertValid();
     if (m_State == GPU) {
         m_pSurface->destroy();
+        if (m_pImage) {
+            m_pImage->decTexRef();
+        }
+    }
+    if (m_pImage) {
+        m_pImage->decBmpRef();
+        m_pImage = ImagePtr();
     }
     changeSource(NONE);
     assertValid();
@@ -113,24 +132,36 @@ void GPUImage::setEmpty()
 void GPUImage::setFilename(const std::string& sFilename, TextureCompression comp)
 {
     assertValid();
+    // TODO: Move trace.
     AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Loading " << sFilename);
-    BitmapPtr pBmp = loadBitmap(sFilename);
+    ImagePtr pImage = ImageRegistry::get()->getImage(sFilename);
+    BitmapPtr pBmp = pImage->getBmp();
     if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+        pImage->decBmpRef();
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
+    if (m_pImage) {
+        if (m_State == GPU) {
+            m_pImage->decTexRef();
+        }
+        m_pImage->decBmpRef();
+    }
+    m_pImage = pImage;
     changeSource(FILE);
-    m_pBmp = pBmp;
 
     m_sFilename = sFilename;
 
     switch (comp) {
         case TEXTURECOMPRESSION_B5G6R5:
+            /*
+             * TODO
             m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
             if (!BitmapLoader::get()->isBlueFirst()) {
                 FilterFlipRGB().applyInPlace(pBmp);
             }
             m_pBmp->copyPixels(*pBmp);
+            */
             break;
         case TEXTURECOMPRESSION_NONE:
             break;
@@ -155,6 +186,13 @@ void GPUImage::setBitmap(BitmapPtr pBmp, TextureCompression comp)
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
+    if (m_pImage) {
+        if (m_State == GPU) {
+            m_pImage->decTexRef();
+            m_pSurface->destroy();
+        }
+        m_pImage->decBmpRef();
+    }
     bool bSourceChanged = changeSource(BITMAP);
     PixelFormat pf;
     switch (comp) {
@@ -170,9 +208,11 @@ void GPUImage::setBitmap(BitmapPtr pBmp, TextureCompression comp)
         default:
             assert(false);
     }
-    m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
-    m_pBmp->copyPixels(*pBmp);
+    m_pImage = ImagePtr(new Image(pBmp));
     if (m_State == GPU) {
+        m_pImage->incTexRef();
+        m_pSurface->create(pf, m_pImage->getTex());
+/*
         MCTexturePtr pTex = m_pSurface->getTex();
         if (bSourceChanged || m_pSurface->getSize() != m_pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
@@ -183,6 +223,7 @@ void GPUImage::setBitmap(BitmapPtr pBmp, TextureCompression comp)
             m_pSurface->create(pf, pTex);
         }
         GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
+*/
     }
     assertValid();
 }
@@ -192,6 +233,13 @@ void GPUImage::setCanvas(OffscreenCanvasPtr pCanvas)
     assertValid();
     if (m_Source == SCENE && pCanvas == m_pCanvas) {
         return;
+    }
+    if (m_pImage) {
+        if (m_State == GPU) {
+            m_pImage->decTexRef();
+            m_pSurface->destroy();
+        }
+        m_pImage->decBmpRef();
     }
     changeSource(SCENE);
     m_pCanvas = pCanvas;
@@ -217,7 +265,7 @@ BitmapPtr GPUImage::getBitmap()
     if (m_Source == NONE || m_Source == SCENE) {
         return BitmapPtr();
     } else {
-        return BitmapPtr(new Bitmap(*m_pBmp));
+        return BitmapPtr(new Bitmap(*m_pImage->getBmp()));
     }
 }
 
@@ -231,7 +279,7 @@ IntPoint GPUImage::getSize()
                 if (m_Source == SCENE) {
                     return m_pCanvas->getSize();
                 } else {
-                    return m_pBmp->getSize();
+                    return m_pImage->getBmp()->getSize();
                 }
             case GPU:
                 return m_pSurface->getSize();
@@ -254,7 +302,7 @@ PixelFormat GPUImage::getPixelFormat()
         switch (m_State) {
             case CPU:
                 if (m_Source != SCENE) {
-                    pf = m_pBmp->getPixelFormat();
+                    pf = m_pImage->getBmp()->getPixelFormat();
                 }
             case GPU:
                 pf = m_pSurface->getPixelFormat();
@@ -308,13 +356,10 @@ string GPUImage::compression2String(TextureCompression compression)
 
 void GPUImage::setupSurface()
 {
-    PixelFormat pf = m_pBmp->getPixelFormat();
-//    cerr << "setupSurface: " << pf << endl;
-    MCTexturePtr pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(), pf, 
-            m_Material.getUseMipmaps(), 
-            m_Material.getWrapSMode(), m_Material.getWrapTMode());
+    PixelFormat pf = m_pImage->getBmp()->getPixelFormat();
+    m_pImage->incTexRef();
+    MCTexturePtr pTex = m_pImage->getTex();
     m_pSurface->create(pf, pTex);
-    GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
 }
 
 bool GPUImage::changeSource(Source newSource)
@@ -325,7 +370,7 @@ bool GPUImage::changeSource(Source newSource)
                 break;
             case FILE:
             case BITMAP:
-                m_pBmp = BitmapPtr();
+//                m_pBmp = BitmapPtr();
                 m_sFilename = "";
                 break;
             case SCENE:
@@ -346,7 +391,7 @@ void GPUImage::assertValid() const
     AVG_ASSERT(m_pSurface);
     AVG_ASSERT((m_Source == FILE) == (m_sFilename != ""));
     AVG_ASSERT((m_Source == SCENE) == bool(m_pCanvas));
-    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
+//    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
     switch (m_State) {
         case CPU:
             AVG_ASSERT(!(m_pSurface->isCreated()));

@@ -146,7 +146,7 @@ string Image::compression2String(TextureCompression compression)
 
 void Image::testDelete()
 {
-    if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
+    if (m_BmpRefCount == 0 && m_TexRefCount == 0 && m_sFilename != "") {
         ImageRegistry::get()->deleteImage(m_sFilename);
     }
 }

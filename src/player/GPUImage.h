@@ -40,6 +40,8 @@ class OffscreenCanvas;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class Image;
+typedef boost::shared_ptr<Image> ImagePtr;
 
 class AVG_API GPUImage
 {
@@ -83,7 +85,7 @@ class AVG_API GPUImage
         void assertValid() const;
 
         std::string m_sFilename;
-        BitmapPtr m_pBmp;
+        ImagePtr m_pImage;
         OGLSurface * m_pSurface;
         OffscreenCanvasPtr m_pCanvas;
 
