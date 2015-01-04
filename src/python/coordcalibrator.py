@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
 # libavg - Media Playback Engine.
 # Copyright (C) 2003-2014 Ulrich von Zadow
 #
@@ -16,6 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
+#
 
 from libavg import avg, player
 
@@ -27,48 +31,47 @@ g_KbManager = apphelpers.KeyboardManager.get()
 class CoordCalibrator(object):
     def __init__(self, calibrationTerminatedCb):
         self.__calibrationTerminatedCb = calibrationTerminatedCb
-        self.__CurPointIndex = 0
-        self.__CPPCal = player.getTracker().startCalibration()
-        self.__LastCenter = None
-        self.__NumMessages = 0
-        self._mycursor = None
+        self.__curPointIndex = 0
+        self.__cppCal = player.getTracker().startCalibration()
+        self.__lastCenter = None
+        self.__numMessages = 0
+        self._myCursor = None
         mainNode = player.getElementByID("cal_coordcalibrator")
         mainNode.active = True
         mainNode.opacity = 1
-        mainNode.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH, 
-                self.__onTouchDown)
-        mainNode.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.TOUCH, 
-                self.__onTouchMove)
+        mainNode.setEventHandler(avg.Event.CURSOR_DOWN, avg.Event.TOUCH,
+                                 self.__onTouchDown)
+        mainNode.setEventHandler(avg.Event.CURSOR_MOTION, avg.Event.TOUCH,
+                                 self.__onTouchMove)
         mainNode.setEventHandler(avg.Event.CURSOR_UP, avg.Event.TOUCH, self.__onTouchUp)
         self.__crosshair = player.getElementByID("cal_crosshair")
         self.__feedback = player.getElementByID("cal_feedback")
         self.__feedback.opacity = 0
         self.__addMessage("Starting calibration.")
         self.__moveMarker()
-        
         g_KbManager.push()
         g_KbManager.bindKey('space', self.__nextPoint, 'sample next point')
         g_KbManager.bindKey('a', self.__abortCalibration, 'abort calibration')
-        
+
     def __endCalibration(self, isSuccessful):
         player.getElementByID("cal_coordcalibrator").active = False
         player.getElementByID("cal_coordcalibrator").opacity = 0
-        MsgsNode = player.getElementByID("cal_messages")
-        for i in range(0, MsgsNode.getNumChildren()):
-            MsgsNode.removeChild(0)
+        msgsNode = player.getElementByID("cal_messages")
+        for i in range(0, msgsNode.getNumChildren()):
+            msgsNode.removeChild(0)
         
         g_KbManager.pop()
         self.__calibrationTerminatedCb(isSuccessful)
     
     def __nextPoint(self):
-        if self.__LastCenter:
-            self.__CPPCal.setCamPoint(self.__LastCenter)
-            self.__addMessage ("  Using: %(x).2f, %(y).2f" %
-                    { "x": self.__LastCenter[0], "y": self.__LastCenter[1]})
-            self._mycursor = None
-            self.__LastCenter = None
-            
-        hasNextPoint = self.__CPPCal.nextPoint()
+        if self.__lastCenter:
+            self.__cppCal.setCamPoint(self.__lastCenter)
+            self.__addMessage("Using: %(x).2f, %(y).2f" %
+                              {"x": self.__lastCenter[0], "y": self.__lastCenter[1]})
+            self._myCursor = None
+            self.__lastCenter = None
+
+        hasNextPoint = self.__cppCal.nextPoint()
 
         if not hasNextPoint:
             # Note: may raise RuntimeError. A rollback doesn't appear to be possible,
@@ -76,58 +79,58 @@ class CoordCalibrator(object):
             player.getTracker().endCalibration()
             self.__endCalibration(True)
         else:
-            self.__CurPointIndex += 1
+            self.__curPointIndex += 1
             self.__moveMarker()
     
     def __abortCalibration(self):
         player.getTracker().abortCalibration()
         self.__endCalibration(False)
-        
+
     def __moveMarker(self):
-        self.__crosshair.x, self.__crosshair.y = self.__CPPCal.getDisplayPoint()
+        self.__crosshair.x, self.__crosshair.y = self.__cppCal.getDisplayPoint()
         self.__crosshair.x, self.__crosshair.y = self.__feedback.x, self.__feedback.y = \
-                (self.__crosshair.x-7, self.__crosshair.y-7)
-        self.__addMessage("Calibrating point "+str(self.__CurPointIndex))
+            (self.__crosshair.x - 7, self.__crosshair.y - 7)
+        self.__addMessage("Calibrating point " + str(self.__curPointIndex))
 
     def __addMessage(self, text):
-        MsgsNode = player.getElementByID("cal_messages")
-        if self.__NumMessages > 38:
-            for i in range(0, MsgsNode.getNumChildren()-1):
-                MsgsNode.getChild(i).text = MsgsNode.getChild(i+1).text
-            MsgsNode.removeChild(MsgsNode.getNumChildren()-1)
+        msgsNode = player.getElementByID("cal_messages")
+        if self.__numMessages > 38:
+            for i in range(0, msgsNode.getNumChildren() - 1):
+                msgsNode.getChild(i).text = msgsNode.getChild(i + 1).text
+            msgsNode.removeChild(msgsNode.getNumChildren() - 1)
         else:
-            self.__NumMessages += 1
+            self.__numMessages += 1
         Node = player.createNode(
-                "<words fontsize='10' font='Eurostile' color='00FF00'/>")
+            "<words fontsize='10' font='Eurostile' color='00FF00'/>")
         Node.x = 0
-        Node.y = self.__NumMessages*13
+        Node.y = self.__numMessages * 13
         Node.text = text
-        MsgsNode.appendChild(Node)
+        msgsNode.appendChild(Node)
 
     def __onTouchDown(self, Event):
         if Event.source != avg.Event.TOUCH:
             return
-        if not self._mycursor:
-            self._mycursor = Event.cursorid
+        if not self._myCursor:
+            self._myCursor = Event.cursorID
         else:
             return
-        self.__LastCenter = Event.center
-        self.__addMessage("  Touch at %(x).2f, %(y).2f" % {
-                "x": Event.center[0], "y": Event.center[1]})
+        self.__lastCenter = Event.center
+        self.__addMessage("Touch at %(x).2f, %(y).2f" % {
+            "x": Event.center[0], "y": Event.center[1]})
         self.__feedback.opacity = 1
 
-    def __onTouchMove(self,Event):
+    def __onTouchMove(self, Event):
         if Event.source != avg.Event.TOUCH:
             return
-        if self._mycursor == Event.cursorid:
-            self.__LastCenter = Event.center
+        if self._myCursor == Event.cursorID:
+            self.__lastCenter = Event.center
 
     def __onTouchUp(self, Event):
         if Event.source != avg.Event.TOUCH:
             return
         self.__addMessage("touchup")
         self.__feedback.opacity = 0
-        if self._mycursor:
-            self._mycursor = None
+        if self._myCursor:
+            self._myCursor = None
         else:
             return
