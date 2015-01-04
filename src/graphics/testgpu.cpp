@@ -440,6 +440,7 @@ public:
 
     void runTests()
     {
+        GLContextManager* pCM = GLContextManager::get();
         ImageRegistry* pRegistry = ImageRegistry::get();
         ImagePtr pImage1 = pRegistry->getImage(getTestBmpName("rgb24-65x65"));
         TEST(pRegistry->getNumImages() == 1);
@@ -453,7 +454,13 @@ public:
 
         pImage3->decBmpRef();
         pImage2->decBmpRef();
+
+        pImage1->incTexRef();
+        pCM->uploadData();
         pImage1->decBmpRef();
+        pImage1->decTexRef();
+        pCM->uploadData();
+        TEST(pRegistry->getNumImages() == 0);
     }
 };
 

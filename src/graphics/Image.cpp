@@ -98,7 +98,7 @@ void Image::incTexRef(bool bUseMipmaps, Image::TextureCompression tc)
 
 void Image::decTexRef()
 {
-    AVG_ASSERT(m_BmpRefCount >= 1);
+    AVG_ASSERT(m_TexRefCount >= 1);
     m_TexRefCount--; 
     if (m_TexRefCount == 0) {
         m_pTex = MCTexturePtr();
