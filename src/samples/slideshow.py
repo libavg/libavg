@@ -87,7 +87,10 @@ class Slide(avg.ImageNode):
         # initial size and position (scaled to screen size and centered)
         self.size = scaleMax(s, self.parent.size)
         self.pos = (self.parent.size - self.size) * 0.5
-        # random final size and position (center moved by (dx, dy) and scaled up accordingly)
+        """ 
+		random final size and position (center moved by (dx, dy) and scaled up 
+		accordingly)
+		"""
         dx = float(randint(-ANIM_MAX_MOVE, ANIM_MAX_MOVE))
         dy = float(randint(-ANIM_MAX_MOVE, ANIM_MAX_MOVE))
         size = scaleMin(s, self.size + avg.Point2D(abs(dx), abs(dy)) * 2.0)
