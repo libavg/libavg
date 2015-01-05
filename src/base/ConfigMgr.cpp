@@ -33,7 +33,7 @@
 #ifndef _WIN32
 #include <unistd.h>
 #else
-#include  <io.h>
+#include <io.h>
 #endif
 
 using namespace std;
@@ -275,7 +275,7 @@ bool ConfigMgr::loadFile(const std::string& sPath)
                     ConfigOptionVector& CurSubsys = getSubsys(sSubsys);
                     while (pOptionNode) {
                         if (xmlStrcmp(pOptionNode->name, (const xmlChar *)"text") &&
-                            xmlStrcmp(pOptionNode->name, (const xmlChar *)"comment"))
+                                xmlStrcmp(pOptionNode->name, (const xmlChar *)"comment"))
                         {
                             setOption(CurSubsys, doc, pOptionNode);
                         }
@@ -343,7 +343,7 @@ void ConfigMgr::dump() const
         const ConfigOptionVector& SubsysOptions = (*it).second;
         for (unsigned int j = 0; j < SubsysOptions.size(); ++j) {
             cerr << "  " << SubsysOptions[j].m_sName << ": " 
-                << SubsysOptions[j].m_sValue << endl;
+                    << SubsysOptions[j].m_sValue << endl;
         }
     }
 }
