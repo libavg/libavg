@@ -255,13 +255,13 @@ class App(object):
         if rotation == 'left':
             angle = -math.pi / 2
             size = (self._resolution.y, self._resolution.x)
-            pos = ((self._resolution.x - self._resolution.y) / 2,
-                    (self._resolution.y - self._resolution.x) / 2)
+            pos = ((self._resolution.x-self._resolution.y)/2,
+                    (self._resolution.y-self._resolution.x)/2)
         elif rotation == 'right':
             angle = math.pi / 2
             size = (self._resolution.y, self._resolution.x)
-            pos = ((self._resolution.x - self._resolution.y) / 2,
-                    (self._resolution.y - self._resolution.x) / 2)
+            pos = ((self._resolution.x-self._resolution.y)/2,
+                    (self._resolution.y-self._resolution.x)/2)
         elif rotation == 'inverted':
             angle = math.pi
         elif rotation != 'normal':
