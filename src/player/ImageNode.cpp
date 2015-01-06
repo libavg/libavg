@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "OffscreenCanvasNode.h"
 #include "OffscreenCanvas.h"
+#include "GPUImage.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -56,11 +57,11 @@ void ImageNode::registerType()
 }
 
 ImageNode::ImageNode(const ArgList& args)
-    : m_Compression(GPUImage::TEXTURECOMPRESSION_NONE)
+    : m_Compression(Image::TEXTURECOMPRESSION_NONE)
 {
     args.setMembers(this);
     m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMaterial()));
-    m_Compression = GPUImage::string2compression(args.getArgVal<string>("compression"));
+    m_Compression = Image::string2compression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -135,7 +136,7 @@ void ImageNode::setHRef(const UTF8String& href)
 
 const string ImageNode::getCompression() const
 {
-    return GPUImage::compression2String(m_Compression);
+    return Image::compression2String(m_Compression);
 }
 
 void ImageNode::setBitmap(BitmapPtr pBmp)
@@ -186,7 +187,7 @@ IntPoint ImageNode::getMediaSize()
 void ImageNode::checkReload()
 {
     if (isCanvasURL(m_href)) {
-        if (m_Compression != GPUImage::TEXTURECOMPRESSION_NONE) {
+        if (m_Compression != Image::TEXTURECOMPRESSION_NONE) {
             throw Exception(AVG_ERR_UNSUPPORTED, 
                     "Texture compression can't be used with canvas hrefs.");
         }

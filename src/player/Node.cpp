@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "CursorEvent.h"
 #include "PublisherDefinition.h"
+#include "GPUImage.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -469,7 +470,7 @@ void Node::initFilename(string& sFilename)
 }
 
 bool Node::checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
-        GPUImage::TextureCompression comp)
+        Image::TextureCompression comp)
 {
     string sLastFilename = pGPUImage->getFilename();
     string sFilename = sHRef;

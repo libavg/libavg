@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "RasterNode.h"
-#include "GPUImage.h"
+#include "../graphics/Image.h"
 
 #include "../base/UTF8String.h"
 
@@ -34,6 +34,8 @@ namespace avg {
 
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class GPUImage;
+typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 
 class AVG_API ImageNode : public RasterNode
 {
@@ -66,7 +68,7 @@ class AVG_API ImageNode : public RasterNode
         void checkCanvasValid(const CanvasPtr& pCanvas);
 
         UTF8String m_href;
-        GPUImage::TextureCompression m_Compression;
+        Image::TextureCompression m_Compression;
         GPUImagePtr m_pGPUImage;
 };
 

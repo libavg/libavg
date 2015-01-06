@@ -29,6 +29,7 @@
 #include "../base/GLMHelper.h"
 
 #include "../graphics/PixelFormat.h"
+#include "../graphics/Image.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -40,18 +41,12 @@ class OffscreenCanvas;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
-class Image;
-typedef boost::shared_ptr<Image> ImagePtr;
 
 class AVG_API GPUImage
 {
     public:
         enum State {CPU, GPU};
         enum Source {NONE, FILE, BITMAP, SCENE};
-        enum TextureCompression {
-            TEXTURECOMPRESSION_NONE,
-            TEXTURECOMPRESSION_B5G6R5
-        };
 
         GPUImage(OGLSurface * pSurface, const MaterialInfo& material);
         virtual ~GPUImage();
@@ -62,9 +57,9 @@ class AVG_API GPUImage
         void discard();
         void setEmpty();
         void setFilename(const std::string& sFilename,
-                TextureCompression comp = TEXTURECOMPRESSION_NONE);
+                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         void setBitmap(BitmapPtr pBmp, 
-                TextureCompression comp = TEXTURECOMPRESSION_NONE);
+                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         void setCanvas(OffscreenCanvasPtr pCanvas);
         OffscreenCanvasPtr getCanvas() const;
         const std::string& getFilename() const;
@@ -75,9 +70,6 @@ class AVG_API GPUImage
         OGLSurface* getSurface();
         State getState();
         Source getSource();
-
-        static TextureCompression string2compression(const std::string& s);
-        static std::string compression2String(TextureCompression compression);
 
     private:
         void setupSurface();

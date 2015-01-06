@@ -128,12 +128,12 @@ void GPUImage::setEmpty()
     assertValid();
 }
 
-void GPUImage::setFilename(const std::string& sFilename, TextureCompression comp)
+void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompression comp)
 {
     assertValid();
     ImagePtr pImage = ImageRegistry::get()->getImage(sFilename);
     BitmapPtr pBmp = pImage->getBmp();
-    if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+    if (comp == Image::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         pImage->decBmpRef();
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
@@ -150,7 +150,7 @@ void GPUImage::setFilename(const std::string& sFilename, TextureCompression comp
     m_sFilename = sFilename;
 
     switch (comp) {
-        case TEXTURECOMPRESSION_B5G6R5:
+        case Image::TEXTURECOMPRESSION_B5G6R5:
             /*
              * TODO
             m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
@@ -160,7 +160,7 @@ void GPUImage::setFilename(const std::string& sFilename, TextureCompression comp
             m_pBmp->copyPixels(*pBmp);
             */
             break;
-        case TEXTURECOMPRESSION_NONE:
+        case Image::TEXTURECOMPRESSION_NONE:
             break;
         default:
             assert(false);
@@ -173,13 +173,13 @@ void GPUImage::setFilename(const std::string& sFilename, TextureCompression comp
     assertValid();
 }
 
-void GPUImage::setBitmap(BitmapPtr pBmp, TextureCompression comp)
+void GPUImage::setBitmap(BitmapPtr pBmp, Image::TextureCompression comp)
 {
     assertValid();
     if (!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
     }
-    if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+    if (comp == Image::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
@@ -193,10 +193,10 @@ void GPUImage::setBitmap(BitmapPtr pBmp, TextureCompression comp)
     bool bSourceChanged = changeSource(BITMAP);
     PixelFormat pf;
     switch (comp) {
-        case TEXTURECOMPRESSION_NONE:
+        case Image::TEXTURECOMPRESSION_NONE:
             pf = pBmp->getPixelFormat();
             break;
-        case TEXTURECOMPRESSION_B5G6R5:
+        case Image::TEXTURECOMPRESSION_B5G6R5:
             pf = B5G6R5;
             if (!BitmapLoader::get()->isBlueFirst()) {
                 FilterFlipRGB().applyInPlace(pBmp);
@@ -324,31 +324,6 @@ GPUImage::State GPUImage::getState()
 GPUImage::Source GPUImage::getSource()
 {
     return m_Source;
-}
-
-GPUImage::TextureCompression GPUImage::string2compression(const string& s)
-{
-    if (s == "none") {
-        return GPUImage::TEXTURECOMPRESSION_NONE;
-    } else if (s == "B5G6R5") {
-        return GPUImage::TEXTURECOMPRESSION_B5G6R5;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "GPUImage compression "+s+" not supported."));
-    }
-}
-
-string GPUImage::compression2String(TextureCompression compression)
-{
-    switch(compression) {
-        case GPUImage::TEXTURECOMPRESSION_NONE:
-            return "none";
-        case GPUImage::TEXTURECOMPRESSION_B5G6R5:
-            return "B5G6R5";
-        default:
-            AVG_ASSERT(false);
-            return 0;
-    }
 }
 
 void GPUImage::setupSurface()

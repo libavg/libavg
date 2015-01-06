@@ -25,6 +25,7 @@
 #include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "Shape.h"
+#include "MaterialInfo.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"

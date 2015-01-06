@@ -25,6 +25,7 @@
 #include "TypeRegistry.h"
 #include "DivNode.h"
 #include "Shape.h"
+#include "MaterialInfo.h"
 
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"
