@@ -56,14 +56,8 @@ GPUImage::~GPUImage()
 {
     if (m_State == GPU && m_Source != NONE) {
         m_pSurface->destroy();
-        if (m_pImage) {
-            m_pImage->decTexRef();
-        }
     }
-    if (m_pImage) {
-        m_pImage->decBmpRef();
-        m_pImage = ImagePtr();
-    }
+    unrefImage();
     ObjectCounter::get()->decRef(&typeid(*this));
 }
         
@@ -116,14 +110,8 @@ void GPUImage::setEmpty()
     assertValid();
     if (m_State == GPU) {
         m_pSurface->destroy();
-        if (m_pImage) {
-            m_pImage->decTexRef();
-        }
     }
-    if (m_pImage) {
-        m_pImage->decBmpRef();
-        m_pImage = ImagePtr();
-    }
+    unrefImage();
     changeSource(NONE);
     assertValid();
 }
@@ -138,12 +126,7 @@ void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompressi
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
-    if (m_pImage) {
-        if (m_State == GPU) {
-            m_pImage->decTexRef();
-        }
-        m_pImage->decBmpRef();
-    }
+    unrefImage();
     m_pImage = pImage;
     changeSource(FILE);
 
@@ -183,13 +166,7 @@ void GPUImage::setBitmap(BitmapPtr pBmp, Image::TextureCompression comp)
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
-    if (m_pImage) {
-        if (m_State == GPU) {
-            m_pImage->decTexRef();
-            m_pSurface->destroy();
-        }
-        m_pImage->decBmpRef();
-    }
+    unrefImage();
     bool bSourceChanged = changeSource(BITMAP);
     PixelFormat pf;
     switch (comp) {
@@ -231,13 +208,7 @@ void GPUImage::setCanvas(OffscreenCanvasPtr pCanvas)
     if (m_Source == SCENE && pCanvas == m_pCanvas) {
         return;
     }
-    if (m_pImage) {
-        if (m_State == GPU) {
-            m_pImage->decTexRef();
-            m_pSurface->destroy();
-        }
-        m_pImage->decBmpRef();
-    }
+    unrefImage();
     changeSource(SCENE);
     m_pCanvas = pCanvas;
     if (m_State == GPU) {
@@ -355,6 +326,19 @@ bool GPUImage::changeSource(Source newSource)
         return true;
     } else {
         return false;
+    }
+}
+
+void GPUImage::unrefImage()
+{
+    // TODO: Better function name, destroy surface.
+    if (m_pImage) {
+        if (m_State == GPU) {
+            m_pImage->decTexRef();
+            m_pSurface->destroy();
+        }
+        m_pImage->decBmpRef();
+        m_pImage = ImagePtr();
     }
 }
 
