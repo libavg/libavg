@@ -21,7 +21,6 @@
 
 #include "GPUImage.h"
 
-#include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
@@ -132,8 +131,6 @@ void GPUImage::setEmpty()
 void GPUImage::setFilename(const std::string& sFilename, TextureCompression comp)
 {
     assertValid();
-    // TODO: Move trace.
-    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Loading " << sFilename);
     ImagePtr pImage = ImageRegistry::get()->getImage(sFilename);
     BitmapPtr pBmp = pImage->getBmp();
     if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {

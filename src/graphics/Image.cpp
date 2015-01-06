@@ -23,6 +23,7 @@
 
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
+#include "../base/Logger.h"
 
 #include "BitmapLoader.h"
 #include "Bitmap.h"
@@ -42,6 +43,7 @@ Image::Image(const std::string& sFilename)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_sFilename = sFilename;
+    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Loading " << sFilename);
     m_pBmp = loadBitmap(sFilename);
     incBmpRef();
 }
