@@ -113,7 +113,7 @@ void Shape::draw(const glm::mat4& transform, float opacity)
 void Shape::discard()
 {
     m_pVertexData->reset();
-    m_pGPUImage->discard();
+    m_pGPUImage->setEmpty();
 }
 
 }

@@ -94,14 +94,6 @@ void GPUImage::moveToCPU()
     assertValid();
 }
 
-void GPUImage::discard()
-{
-    assertValid();
-    setEmpty();
-    m_State = CPU;
-    assertValid();
-}
-
 void GPUImage::setEmpty()
 {
     assertValid();
