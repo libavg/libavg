@@ -54,7 +54,6 @@ class AVG_API GPUImage
         virtual void moveToGPU();
         virtual void moveToCPU();
 
-        void discard();
         void setEmpty();
         void setFilename(const std::string& sFilename,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
@@ -74,7 +73,7 @@ class AVG_API GPUImage
     private:
         void setupSurface();
         bool changeSource(Source newSource);
-        void unrefImage();
+        void unload();
         void assertValid() const;
 
         std::string m_sFilename;
