@@ -200,8 +200,8 @@
     <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
     <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
-    <ClInclude Include="..\..\src\graphics\Image.cpp" />
-    <ClInclude Include="..\..\src\graphics\ImageRegistry.cpp" />
+    <ClCompile Include="..\..\src\graphics\Image.cpp" />
+    <ClCompile Include="..\..\src\graphics\ImageRegistry.cpp" />
     <ClCompile Include="..\..\src\graphics\ImagingProjection.cpp" />
     <ClCompile Include="..\..\src\graphics\MCFBO.cpp" />
     <ClCompile Include="..\..\src\graphics\MCShaderParam.cpp" />
