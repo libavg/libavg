@@ -325,7 +325,7 @@ void GPUImage::unload()
         m_pImage->decBmpRef();
         m_pImage = ImagePtr();
     }
-    if (m_State == GPU) {
+    if (m_State == GPU && m_Source != NONE) {
         m_pSurface->destroy();
     }
 }
