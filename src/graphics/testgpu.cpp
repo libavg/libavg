@@ -442,16 +442,22 @@ public:
     {
         GLContextManager* pCM = GLContextManager::get();
         ImageRegistry* pRegistry = ImageRegistry::get();
-        ImagePtr pImage1 = pRegistry->getImage(getTestBmpName("rgb24-65x65"));
+        ImagePtr pImage1 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
+                Image::TEXTURECOMPRESSION_NONE);
         TEST(pRegistry->getNumImages() == 1);
-        ImagePtr pImage2 = pRegistry->getImage(getTestBmpName("rgb24-65x65"));
+        ImagePtr pImage2 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
+                Image::TEXTURECOMPRESSION_NONE);
         TEST(pRegistry->getNumImages() == 1);
         BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
         BitmapPtr pBmp = pImage2->getBmp();
         testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
-        ImagePtr pImage3 = pRegistry->getImage(getTestBmpName("rgb24-64x64"));
+        ImagePtr pImage3 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
+                Image::TEXTURECOMPRESSION_B5G6R5);
         TEST(pRegistry->getNumImages() == 2);
+        ImagePtr pImage4 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
+                Image::TEXTURECOMPRESSION_NONE);
 
+        pImage4->decBmpRef();
         pImage3->decBmpRef();
         pImage2->decBmpRef();
 

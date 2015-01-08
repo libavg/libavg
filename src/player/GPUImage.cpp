@@ -24,7 +24,6 @@
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
-#include "../graphics/Filterfliprgb.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/ImageRegistry.h"
@@ -105,7 +104,7 @@ void GPUImage::setEmpty()
 void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompression comp)
 {
     assertValid();
-    ImagePtr pImage = ImageRegistry::get()->getImage(sFilename);
+    ImagePtr pImage = ImageRegistry::get()->getImage(sFilename, comp);
     BitmapPtr pBmp = pImage->getBmp();
     if (comp == Image::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         pImage->decBmpRef();
@@ -153,37 +152,10 @@ void GPUImage::setBitmap(BitmapPtr pBmp, Image::TextureCompression comp)
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
     unload();
-    bool bSourceChanged = changeSource(BITMAP);
-    PixelFormat pf;
-    switch (comp) {
-        case Image::TEXTURECOMPRESSION_NONE:
-            pf = pBmp->getPixelFormat();
-            break;
-        case Image::TEXTURECOMPRESSION_B5G6R5:
-            pf = B5G6R5;
-            if (!BitmapLoader::get()->isBlueFirst()) {
-                FilterFlipRGB().applyInPlace(pBmp);
-            }
-            break;
-        default:
-            assert(false);
-    }
-    m_pImage = ImagePtr(new Image(pBmp));
+    changeSource(BITMAP);
+    m_pImage = ImagePtr(new Image(pBmp, comp));
     if (m_State == GPU) {
-        m_pImage->incTexRef(m_Material.getUseMipmaps());
-        m_pSurface->create(pf, m_pImage->getTex());
-/*
-        MCTexturePtr pTex = m_pSurface->getTex();
-        if (bSourceChanged || m_pSurface->getSize() != m_pBmp->getSize() ||
-                m_pSurface->getPixelFormat() != pf)
-        {
-            pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(), pf, 
-                    m_Material.getUseMipmaps(), m_Material.getWrapSMode(), 
-                    m_Material.getWrapTMode());
-            m_pSurface->create(pf, pTex);
-        }
-        GLContextManager::get()->scheduleTexUpload(pTex, m_pBmp);
-*/
+        setupSurface();
     }
     assertValid();
 }

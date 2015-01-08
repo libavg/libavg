@@ -23,8 +23,6 @@
 
 #include "../base/Exception.h"
 
-#include "Image.h"
-
 using namespace std;
 
 namespace avg {
@@ -49,16 +47,17 @@ ImageRegistry::~ImageRegistry()
 {
 }
 
-ImagePtr ImageRegistry::getImage(const std::string& sFilename)
+ImagePtr ImageRegistry::getImage(const std::string& sFilename,
+        Image::TextureCompression compression)
 {
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     ImagePtr pImg;
     if (it == m_pImageMap.end()) {
-        pImg = ImagePtr(new Image(sFilename));
+        pImg = ImagePtr(new Image(sFilename, compression));
         m_pImageMap[sFilename] = pImg;
     } else {
         pImg = it->second;
-        pImg->incBmpRef();
+        pImg->incBmpRef(compression);
     }
     return pImg;
 }

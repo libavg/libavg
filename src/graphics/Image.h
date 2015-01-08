@@ -42,13 +42,13 @@ class AVG_API Image
             TEXTURECOMPRESSION_B5G6R5
         };
 
-        Image(const std::string& sFilename);
-        Image(const BitmapPtr& pBmp);
+        Image(const std::string& sFilename, TextureCompression compression);
+        Image(const BitmapPtr& pBmp, TextureCompression compression);
         virtual ~Image();
 
         std::string getFilename() const;
 
-        void incBmpRef();
+        void incBmpRef(TextureCompression compression);
         void decBmpRef();
         void incTexRef(bool bUseMipmaps);
         void decTexRef();
@@ -60,6 +60,7 @@ class AVG_API Image
         static std::string compression2String(TextureCompression compression);
 
     private:
+        BitmapPtr applyCompression(BitmapPtr pBmp);
         void createTexture();
         void testDelete();
 

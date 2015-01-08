@@ -26,21 +26,21 @@
 
 #include "../base/GLMHelper.h"
 
+#include "Image.h"
+
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <map>
 
 namespace avg {
 
-class Image;
-typedef boost::shared_ptr<Image> ImagePtr;
-
 class AVG_API ImageRegistry
 {
     public:
         static ImageRegistry* get();
 
-        ImagePtr getImage(const std::string& sFilename);
+        ImagePtr getImage(const std::string& sFilename,
+                Image::TextureCompression compression);
         void deleteImage(const std::string& sFilename);
         int getNumImages() const;
 

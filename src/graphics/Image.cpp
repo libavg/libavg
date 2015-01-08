@@ -30,27 +30,29 @@
 #include "GLContextManager.h"
 #include "MCTexture.h"
 #include "ImageRegistry.h"
+#include "Filterfliprgb.h"
 
 using namespace std;
 
 namespace avg {
 
-Image::Image(const std::string& sFilename)
+Image::Image(const std::string& sFilename, TextureCompression compression)
     : m_bUseMipmaps(false),
-      m_Compression(TEXTURECOMPRESSION_NONE),
+      m_Compression(compression),
       m_BmpRefCount(0),
       m_TexRefCount(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_sFilename = sFilename;
     AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Loading " << sFilename);
-    m_pBmp = loadBitmap(sFilename);
-    incBmpRef();
+    BitmapPtr pBmp = loadBitmap(m_sFilename);
+    m_pBmp = applyCompression(pBmp);
+    incBmpRef(m_Compression);
 }
 
-Image::Image(const BitmapPtr& pBmp)
+Image::Image(const BitmapPtr& pBmp, TextureCompression compression)
     : m_bUseMipmaps(false),
-      m_Compression(TEXTURECOMPRESSION_NONE),
+      m_Compression(compression),
       m_BmpRefCount(0),
       m_TexRefCount(0)
 {
@@ -58,7 +60,8 @@ Image::Image(const BitmapPtr& pBmp)
     m_sFilename = "";
     m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pBmp->getPixelFormat(), ""));
     m_pBmp->copyPixels(*pBmp);
-    incBmpRef();
+    m_pBmp = applyCompression(m_pBmp);
+    incBmpRef(m_Compression);
 }
 
 Image::~Image()
@@ -73,9 +76,16 @@ std::string Image::getFilename() const
     return m_sFilename;
 }
 
-void Image::incBmpRef()
+void Image::incBmpRef(TextureCompression compression)
 {
     m_BmpRefCount++;
+    if (compression == TEXTURECOMPRESSION_NONE &&
+            m_Compression == TEXTURECOMPRESSION_B5G6R5)
+    {
+        m_Compression = compression;
+        BitmapPtr pBmp = loadBitmap(m_sFilename);
+        m_pBmp = applyCompression(pBmp);
+    }
 }
 
 void Image::decBmpRef()
@@ -88,7 +98,6 @@ void Image::decBmpRef()
 
 void Image::incTexRef(bool bUseMipmaps)
 {
-    // TODO: Handle mipmaps, wrap modes, compression
     m_TexRefCount++; 
     if (m_TexRefCount == 1) {
         m_bUseMipmaps = bUseMipmaps;
@@ -144,6 +153,20 @@ string Image::compression2String(TextureCompression compression)
         default:
             AVG_ASSERT(false);
             return 0;
+    }
+}
+
+BitmapPtr Image::applyCompression(BitmapPtr pBmp)
+{
+    if (m_Compression == TEXTURECOMPRESSION_B5G6R5) {
+        BitmapPtr pDestBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, m_sFilename));
+        if (!BitmapLoader::get()->isBlueFirst()) {
+            FilterFlipRGB().applyInPlace(pBmp);
+        }
+        pDestBmp->copyPixels(*pBmp);
+        return pDestBmp;
+    } else {
+        return pBmp;
     }
 }
 
