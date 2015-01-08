@@ -74,7 +74,7 @@ class AVG_API GPUImage
     private:
         void setupSurface();
         bool changeSource(Source newSource);
-        void unrefImage();
+        void unload();
         void assertValid() const;
 
         std::string m_sFilename;

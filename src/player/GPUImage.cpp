@@ -54,10 +54,7 @@ GPUImage::GPUImage(OGLSurface * pSurface, const MaterialInfo& material)
 
 GPUImage::~GPUImage()
 {
-    if (m_State == GPU && m_Source != NONE) {
-        m_pSurface->destroy();
-    }
-    unrefImage();
+    unload();
     ObjectCounter::get()->decRef(&typeid(*this));
 }
         
@@ -108,10 +105,7 @@ void GPUImage::discard()
 void GPUImage::setEmpty()
 {
     assertValid();
-    if (m_State == GPU) {
-        m_pSurface->destroy();
-    }
-    unrefImage();
+    unload();
     changeSource(NONE);
     assertValid();
 }
@@ -126,7 +120,7 @@ void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompressi
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
-    unrefImage();
+    unload();
     m_pImage = pImage;
     changeSource(FILE);
 
@@ -166,7 +160,7 @@ void GPUImage::setBitmap(BitmapPtr pBmp, Image::TextureCompression comp)
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
-    unrefImage();
+    unload();
     bool bSourceChanged = changeSource(BITMAP);
     PixelFormat pf;
     switch (comp) {
@@ -208,7 +202,7 @@ void GPUImage::setCanvas(OffscreenCanvasPtr pCanvas)
     if (m_Source == SCENE && pCanvas == m_pCanvas) {
         return;
     }
-    unrefImage();
+    unload();
     changeSource(SCENE);
     m_pCanvas = pCanvas;
     if (m_State == GPU) {
@@ -329,9 +323,8 @@ bool GPUImage::changeSource(Source newSource)
     }
 }
 
-void GPUImage::unrefImage()
+void GPUImage::unload()
 {
-    // TODO: Better function name, destroy surface.
     if (m_pImage) {
         if (m_State == GPU) {
             m_pImage->decTexRef();
@@ -339,6 +332,9 @@ void GPUImage::unrefImage()
         }
         m_pImage->decBmpRef();
         m_pImage = ImagePtr();
+    }
+    if (m_State == GPU) {
+        m_pSurface->destroy();
     }
 }
 
