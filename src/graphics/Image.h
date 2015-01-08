@@ -50,8 +50,7 @@ class AVG_API Image
 
         void incBmpRef();
         void decBmpRef();
-        void incTexRef(bool bUseMipmaps=false,
-                TextureCompression tc=TEXTURECOMPRESSION_NONE);
+        void incTexRef(bool bUseMipmaps);
         void decTexRef();
 
         BitmapPtr getBmp();
@@ -61,6 +60,7 @@ class AVG_API Image
         static std::string compression2String(TextureCompression compression);
 
     private:
+        void createTexture();
         void testDelete();
 
         std::string m_sFilename;

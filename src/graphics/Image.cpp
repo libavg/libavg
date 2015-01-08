@@ -86,15 +86,16 @@ void Image::decBmpRef()
     testDelete();
 }
 
-void Image::incTexRef(bool bUseMipmaps, Image::TextureCompression tc)
+void Image::incTexRef(bool bUseMipmaps)
 {
     // TODO: Handle mipmaps, wrap modes, compression
     m_TexRefCount++; 
     if (m_TexRefCount == 1) {
-        m_pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(), 
-                m_pBmp->getPixelFormat(), m_bUseMipmaps, 
-                GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-        GLContextManager::get()->scheduleTexUpload(m_pTex, m_pBmp);
+        m_bUseMipmaps = bUseMipmaps;
+        createTexture();
+    } else if (bUseMipmaps && !m_bUseMipmaps) {
+        m_bUseMipmaps = true;
+        createTexture();
     }
 }
 
@@ -144,6 +145,14 @@ string Image::compression2String(TextureCompression compression)
             AVG_ASSERT(false);
             return 0;
     }
+}
+
+void Image::createTexture()
+{
+    m_pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(),
+            m_pBmp->getPixelFormat(), m_bUseMipmaps,
+            GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    GLContextManager::get()->scheduleTexUpload(m_pTex, m_pBmp);
 }
 
 void Image::testDelete()

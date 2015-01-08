@@ -455,9 +455,11 @@ public:
         pImage3->decBmpRef();
         pImage2->decBmpRef();
 
-        pImage1->incTexRef();
+        pImage1->incTexRef(false);
+        pImage1->incTexRef(true);
         pCM->uploadData();
         pImage1->decBmpRef();
+        pImage1->decTexRef();
         pImage1->decTexRef();
         pCM->uploadData();
         TEST(pRegistry->getNumImages() == 0);

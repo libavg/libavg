@@ -170,7 +170,7 @@ void GPUImage::setBitmap(BitmapPtr pBmp, Image::TextureCompression comp)
     }
     m_pImage = ImagePtr(new Image(pBmp));
     if (m_State == GPU) {
-        m_pImage->incTexRef();
+        m_pImage->incTexRef(m_Material.getUseMipmaps());
         m_pSurface->create(pf, m_pImage->getTex());
 /*
         MCTexturePtr pTex = m_pSurface->getTex();
@@ -286,7 +286,7 @@ GPUImage::Source GPUImage::getSource()
 void GPUImage::setupSurface()
 {
     PixelFormat pf = m_pImage->getBmp()->getPixelFormat();
-    m_pImage->incTexRef();
+    m_pImage->incTexRef(m_Material.getUseMipmaps());
     MCTexturePtr pTex = m_pImage->getTex();
     m_pSurface->create(pf, pTex);
 }
