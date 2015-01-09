@@ -54,7 +54,7 @@ public:
 
 private:
     bool m_bDeleteTex;
-
+    WrapMode m_WrapMode;
     static unsigned s_LastTexID;
     unsigned m_TexID;
 };
