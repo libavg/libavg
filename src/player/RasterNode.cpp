@@ -361,6 +361,7 @@ void RasterNode::renderFX()
         GLContext* pContext = GLContext::getCurrent();
         StandardShader::get()->setAlpha(1.0f);
         m_pSurface->activate(getMediaSize());
+        StandardShader::get()->activate();
 
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
