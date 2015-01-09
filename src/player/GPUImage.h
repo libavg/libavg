@@ -24,8 +24,6 @@
 
 #include "../api.h"
 
-#include "MaterialInfo.h"
-
 #include "../base/GLMHelper.h"
 
 #include "../graphics/PixelFormat.h"
@@ -48,7 +46,7 @@ class AVG_API GPUImage
         enum State {CPU, GPU};
         enum Source {NONE, FILE, BITMAP, SCENE};
 
-        GPUImage(OGLSurface * pSurface, const MaterialInfo& material);
+        GPUImage(OGLSurface * pSurface, bool bUseMipmaps);
         virtual ~GPUImage();
 
         virtual void moveToGPU();
@@ -83,7 +81,7 @@ class AVG_API GPUImage
 
         State m_State;
         Source m_Source;
-        MaterialInfo m_Material;
+        bool m_bUseMipmaps;
 };
 
 typedef boost::shared_ptr<GPUImage> GPUImagePtr;

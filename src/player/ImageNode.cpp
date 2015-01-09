@@ -60,7 +60,7 @@ ImageNode::ImageNode(const ArgList& args)
     : m_Compression(Image::TEXTURECOMPRESSION_NONE)
 {
     args.setMembers(this);
-    m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMaterial()));
+    m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMaterial().getUseMipmaps()));
     m_Compression = Image::string2compression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -101,7 +101,8 @@ void ImageNode::disconnect(bool bKill)
     }
     if (bKill) {
         RasterNode::disconnect(bKill);
-        m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMaterial()));
+        m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(),
+                getMaterial().getUseMipmaps()));
         m_href = "";
     } else {
         m_pGPUImage->moveToCPU();

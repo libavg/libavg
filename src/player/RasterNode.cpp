@@ -101,7 +101,7 @@ void RasterNode::setArgs(const ArgList& args)
     }
     bool bMipmap = args.getArgVal<bool>("mipmap");
     m_Material = MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bMipmap);
-    m_pSurface = new OGLSurface();
+    m_pSurface = new OGLSurface(WrapMode());
 }
 
 void RasterNode::connectDisplay()
@@ -529,14 +529,9 @@ void RasterNode::setupFX()
         m_bFXDirty = true;
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             PixelFormat pf = BitmapLoader::get()->getDefaultPixelFormat(true);
-#ifdef AVG_ENABLE_EGL
-            unsigned wrapMode = GL_CLAMP_TO_EDGE;
-#else
-            unsigned wrapMode = GL_CLAMP_TO_BORDER;
-#endif
             GLContextManager* pCM = GLContextManager::get();
             m_pFBO = pCM->createFBO(IntPoint(m_pSurface->getSize()), pf, 1, 1, false, 
-                    false, getMipmap(), wrapMode, wrapMode);
+                    false, getMipmap());
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
                     m_pSurface->getSize()));
         }
@@ -554,7 +549,12 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize)
     pShader->setAlpha(opacity);
     if (m_pFXNode) {
         pContext->setBlendMode(m_BlendMode, true);
-        m_pFXNode->getTex()->activate(GL_TEXTURE0);
+#ifdef AVG_ENABLE_EGL
+        WrapMode wrapMode();
+#else
+        WrapMode wrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+#endif
+        m_pFXNode->getTex()->activate(wrapMode, GL_TEXTURE0);
         pShader->setColorModel(0);
         pShader->disableColorspaceMatrix();
         pShader->setGamma(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));

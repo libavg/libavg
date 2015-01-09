@@ -40,12 +40,12 @@ using namespace std;
 
 namespace avg {
 
-GPUImage::GPUImage(OGLSurface * pSurface, const MaterialInfo& material)
+GPUImage::GPUImage(OGLSurface * pSurface, bool bUseMipmaps)
     : m_sFilename(""),
       m_pSurface(pSurface),
       m_State(CPU),
       m_Source(NONE),
-      m_Material(material)
+      m_bUseMipmaps(bUseMipmaps)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     assertValid();
@@ -116,23 +116,6 @@ void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompressi
     changeSource(FILE);
 
     m_sFilename = sFilename;
-
-    switch (comp) {
-        case Image::TEXTURECOMPRESSION_B5G6R5:
-            /*
-             * TODO
-            m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
-            if (!BitmapLoader::get()->isBlueFirst()) {
-                FilterFlipRGB().applyInPlace(pBmp);
-            }
-            m_pBmp->copyPixels(*pBmp);
-            */
-            break;
-        case Image::TEXTURECOMPRESSION_NONE:
-            break;
-        default:
-            assert(false);
-    }
 
     if (m_State == GPU) {
         m_pSurface->destroy();
@@ -258,7 +241,7 @@ GPUImage::Source GPUImage::getSource()
 void GPUImage::setupSurface()
 {
     PixelFormat pf = m_pImage->getBmp()->getPixelFormat();
-    m_pImage->incTexRef(m_Material.getUseMipmaps());
+    m_pImage->incTexRef(m_bUseMipmaps);
     MCTexturePtr pTex = m_pImage->getTex();
     m_pSurface->create(pf, pTex);
 }
