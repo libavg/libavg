@@ -254,7 +254,6 @@ bool GPUImage::changeSource(Source newSource)
                 break;
             case FILE:
             case BITMAP:
-//                m_pBmp = BitmapPtr();
                 m_sFilename = "";
                 break;
             case SCENE:
@@ -290,7 +289,7 @@ void GPUImage::assertValid() const
     AVG_ASSERT(m_pSurface);
     AVG_ASSERT((m_Source == FILE) == (m_sFilename != ""));
     AVG_ASSERT((m_Source == SCENE) == bool(m_pCanvas));
-//    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pBmp));
+    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) == bool(m_pImage));
     switch (m_State) {
         case CPU:
             AVG_ASSERT(!(m_pSurface->isCreated()));
