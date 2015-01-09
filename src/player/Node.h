@@ -26,9 +26,11 @@
 
 #include "Publisher.h"
 #include "Event.h"
-#include "Image.h"
 
 #include "../graphics/Pixel32.h"
+#include "../graphics/Image.h"
+
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -58,6 +60,8 @@ class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
+class GPUImage;
+typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 
 class AVG_API Node: public Publisher
@@ -134,7 +138,7 @@ class AVG_API Node: public Publisher
             
         void setState(NodeState state);
         void initFilename(std::string& sFilename);
-        bool checkReload(const std::string& sHRef, const ImagePtr& pImage,
+        bool checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;

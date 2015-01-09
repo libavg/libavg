@@ -72,7 +72,7 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pLightnessParam->set(m_LightnessOffset);
     m_pColorizeParam->set((int)(m_bColorize));
     m_pTextureParam->set(0);
-    draw(pSrcTex);
+    draw(pSrcTex, WrapMode());
 }
 
 }

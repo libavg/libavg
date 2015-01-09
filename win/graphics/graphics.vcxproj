@@ -124,6 +124,8 @@
     <ClInclude Include="..\..\src\graphics\GPUShadowFilter.h" />
     <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
     <ClInclude Include="..\..\src\graphics\HistoryPreProcessor.h" />
+    <ClInclude Include="..\..\src\graphics\Image.h" />
+    <ClInclude Include="..\..\src\graphics\ImageRegistry.h" />
     <ClInclude Include="..\..\src\graphics\ImagingProjection.h" />
     <ClInclude Include="..\..\src\graphics\MCFBO.h" />
     <ClInclude Include="..\..\src\graphics\MCShaderParam.h" />
@@ -147,6 +149,7 @@
     <ClInclude Include="..\..\src\graphics\VertexData.h" />
     <ClInclude Include="..\..\src\graphics\WGLContext.h" />
     <ClInclude Include="..\..\src\graphics\WinDisplay.h" />
+    <ClInclude Include="..\..\src\graphics\WrapMode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
@@ -198,6 +201,8 @@
     <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
     <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
+    <ClCompile Include="..\..\src\graphics\Image.cpp" />
+    <ClCompile Include="..\..\src\graphics\ImageRegistry.cpp" />
     <ClCompile Include="..\..\src\graphics\ImagingProjection.cpp" />
     <ClCompile Include="..\..\src\graphics\MCFBO.cpp" />
     <ClCompile Include="..\..\src\graphics\MCShaderParam.cpp" />
@@ -216,6 +221,7 @@
     <ClCompile Include="..\..\src\graphics\VertexData.cpp" />
     <ClCompile Include="..\..\src\graphics\WGLContext.cpp" />
     <ClCompile Include="..\..\src\graphics\WinDisplay.cpp" />
+    <ClCompile Include="..\..\src\graphics\WrapMode.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

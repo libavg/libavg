@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "OffscreenCanvasNode.h"
 #include "OffscreenCanvas.h"
+#include "GPUImage.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -59,7 +60,7 @@ ImageNode::ImageNode(const ArgList& args)
     : m_Compression(Image::TEXTURECOMPRESSION_NONE)
 {
     args.setMembers(this);
-    m_pImage = ImagePtr(new Image(getSurface(), getMaterial()));
+    m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMipmap()));
     m_Compression = Image::string2compression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -76,13 +77,13 @@ ImageNode::~ImageNode()
 
 void ImageNode::connectDisplay()
 {
-    if (m_pImage->getSource() == Image::SCENE) {
-        checkCanvasValid(m_pImage->getCanvas());
+    if (m_pGPUImage->getSource() == GPUImage::SCENE) {
+        checkCanvasValid(m_pGPUImage->getCanvas());
     }
-    m_pImage->moveToGPU();
+    m_pGPUImage->moveToGPU();
     RasterNode::connectDisplay();
-    if (m_pImage->getSource() == Image::SCENE) {
-        m_pImage->getCanvas()->addDependentCanvas(getCanvas());
+    if (m_pGPUImage->getSource() == GPUImage::SCENE) {
+        m_pGPUImage->getCanvas()->addDependentCanvas(getCanvas());
     }
 }
 
@@ -94,16 +95,16 @@ void ImageNode::connect(CanvasPtr pCanvas)
 
 void ImageNode::disconnect(bool bKill)
 {
-    OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
+    OffscreenCanvasPtr pCanvas = m_pGPUImage->getCanvas();
     if (pCanvas) {
         pCanvas->removeDependentCanvas(getCanvas());
     }
     if (bKill) {
         RasterNode::disconnect(bKill);
-        m_pImage = ImagePtr(new Image(getSurface(), getMaterial()));
+        m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMipmap()));
         m_href = "";
     } else {
-        m_pImage->moveToCPU();
+        m_pGPUImage->moveToCPU();
         RasterNode::disconnect(bKill);
     }
 }
@@ -116,19 +117,19 @@ const UTF8String& ImageNode::getHRef() const
 void ImageNode::setHRef(const UTF8String& href)
 {
     m_href = href;
-    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER)
+    if (m_pGPUImage->getSource() == GPUImage::SCENE && getState() == Node::NS_CANRENDER)
     {
-        m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
+        m_pGPUImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
     try {
         if (href == "") {
-            m_pImage->setEmpty();
+            m_pGPUImage->setEmpty();
         } else {
             checkReload();
         }
     } catch (const Exception&) {
         m_href = "";
-        m_pImage->setEmpty();
+        m_pGPUImage->setEmpty();
         throw;
     }
 }
@@ -140,10 +141,10 @@ const string ImageNode::getCompression() const
 
 void ImageNode::setBitmap(BitmapPtr pBmp)
 {
-    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER) {
-        m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
+    if (m_pGPUImage->getSource() == GPUImage::SCENE && getState() == Node::NS_CANRENDER) {
+        m_pGPUImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
-    m_pImage->setBitmap(pBmp, m_Compression);
+    m_pGPUImage->setBitmap(pBmp, m_Compression);
     if (getState() == Node::NS_CANRENDER) {
         newSurface();
     }
@@ -158,8 +159,8 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 {
     ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (isVisible() && m_pImage->getSource() != Image::NONE) {
-        if (m_pImage->getCanvas()) {
+    if (isVisible() && m_pGPUImage->getSource() != GPUImage::NONE) {
+        if (m_pGPUImage->getCanvas()) {
             // Force FX render every frame for canvas nodes.
             getSurface()->getTex(0)->setDirty();
         }
@@ -173,14 +174,14 @@ static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 void ImageNode::render()
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_pImage->getSource() != Image::NONE) {
+    if (m_pGPUImage->getSource() != GPUImage::NONE) {
         blt32();
     }
 }
 
 IntPoint ImageNode::getMediaSize()
 {
-    return m_pImage->getSize();
+    return m_pGPUImage->getSize();
 }
 
 void ImageNode::checkReload()
@@ -192,13 +193,13 @@ void ImageNode::checkReload()
         }
         OffscreenCanvasPtr pCanvas = Player::get()->getCanvasFromURL(m_href);
         checkCanvasValid(pCanvas);
-        m_pImage->setCanvas(pCanvas);
+        m_pGPUImage->setCanvas(pCanvas);
         if (getState() == NS_CANRENDER) {
             pCanvas->addDependentCanvas(getCanvas());
         }
         newSurface();
     } else {
-        bool bNewImage = Node::checkReload(m_href, m_pImage, m_Compression);
+        bool bNewImage = Node::checkReload(m_href, m_pGPUImage, m_Compression);
         if (bNewImage) {
             newSurface();
         }
@@ -210,7 +211,7 @@ void ImageNode::checkReload()
 void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     if (reactsToMouseEvents()) {
-        OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
+        OffscreenCanvasPtr pCanvas = m_pGPUImage->getCanvas();
         if (pCanvas && pCanvas->getHandleEvents()) {
             glm::vec2 nodeSize(getSize());
             glm::vec2 canvasSize(pCanvas->getSize());
@@ -225,7 +226,7 @@ void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElement
 
 BitmapPtr ImageNode::getBitmap()
 {
-    return m_pImage->getBitmap();
+    return m_pGPUImage->getBitmap();
 }
 
 bool ImageNode::isCanvasURL(const std::string& sURL)
@@ -237,7 +238,7 @@ void ImageNode::checkCanvasValid(const CanvasPtr& pCanvas)
 {
     if (pCanvas == getCanvas()) {
         m_href = "";
-        m_pImage->setEmpty();
+        m_pGPUImage->setEmpty();
         throw Exception(AVG_ERR_INVALID_ARGS,
                 "Circular dependency between canvases.");
     }

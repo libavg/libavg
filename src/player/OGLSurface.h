@@ -26,6 +26,7 @@
 
 #include "../base/GLMHelper.h"
 #include "../graphics/PixelFormat.h"
+#include "../graphics/WrapMode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -36,7 +37,7 @@ typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
 class AVG_API OGLSurface {
 public:
-    OGLSurface();
+    OGLSurface(const WrapMode& wrapMode);
     virtual ~OGLSurface();
 
     virtual void create(PixelFormat pf, MCTexturePtr pTex0, 
@@ -73,6 +74,7 @@ private:
     glm::vec2 m_MaskPos;
     glm::vec2 m_MaskSize;
     bool m_bPremultipliedAlpha;
+    WrapMode m_WrapMode;
 
     glm::vec3 m_Gamma;
     glm::vec3 m_Brightness;

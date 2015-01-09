@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "CursorEvent.h"
 #include "PublisherDefinition.h"
+#include "GPUImage.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -468,22 +469,22 @@ void Node::initFilename(string& sFilename)
     }
 }
 
-bool Node::checkReload(const std::string& sHRef, const ImagePtr& pImage,
+bool Node::checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
         Image::TextureCompression comp)
 {
-    string sLastFilename = pImage->getFilename();
+    string sLastFilename = pGPUImage->getFilename();
     string sFilename = sHRef;
     initFilename(sFilename);
     if (sLastFilename != sFilename) {
         try {
             sFilename = convertUTF8ToFilename(sFilename);
             if (sHRef == "") {
-                pImage->setEmpty();
+                pGPUImage->setEmpty();
             } else {
-                pImage->setFilename(sFilename, comp);
+                pGPUImage->setFilename(sFilename, comp);
             }
         } catch (Exception& ex) {
-            pImage->setEmpty();
+            pGPUImage->setEmpty();
             logFileNotFoundWarning(ex.getStr());
         }
         return true;

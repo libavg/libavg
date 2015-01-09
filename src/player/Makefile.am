@@ -54,8 +54,8 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         DisplayEngine.h TypeRegistry.h Arg.h ArgBase.h ArgList.h \
         Node.h AreaNode.h DisplayParams.h WindowParams.h TypeDefinition.h TextEngine.h \
-        AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
-        Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
+        AVGNode.h DivNode.h CursorState.h Canvas.h MainCanvas.h \
+        GPUImage.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
@@ -107,7 +107,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp WrapPython.cpp \
         WordsNode.cpp CameraNode.cpp TypeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp WindowParams.cpp CursorState.cpp \
-        MaterialInfo.cpp Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp \
+        GPUImage.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp \
         CursorEvent.cpp MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
         TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
         SoundNode.cpp FontStyle.cpp Window.cpp SDLWindow.cpp \

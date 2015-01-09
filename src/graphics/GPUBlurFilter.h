@@ -41,11 +41,12 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    void setDimensions(IntPoint size, float stdDev, bool bClipBorders);
+    void setDimensions(IntPoint size, float stdDev);
 
     float m_StdDev;
     bool m_bClipBorders;
     bool m_bUseFloatKernel;
+    WrapMode m_WrapMode;
 
     MCTexturePtr m_pGaussCurveTex;
     ImagingProjectionPtr m_pProjection2;

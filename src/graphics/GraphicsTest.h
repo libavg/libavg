@@ -35,6 +35,7 @@ public:
     static void createResultImgDir();
 
 protected:
+    std::string getTestBmpName(const std::string& sFName);
     BitmapPtr loadTestBmp(const std::string& sFName, PixelFormat pf = NO_PIXELFORMAT);
     virtual void testEqual(Bitmap& resultBmp, const std::string& sFName, 
             PixelFormat pf = NO_PIXELFORMAT, float maxAverage=0.01f, 

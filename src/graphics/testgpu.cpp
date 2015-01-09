@@ -35,6 +35,8 @@
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
+#include "ImageRegistry.h"
+#include "Image.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -376,8 +378,7 @@ private:
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             GLContextManager* pCM = GLContextManager::get();
-            MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, false,
-                    GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bPOT, 0);
+            MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, false, bPOT, 0);
             pCM->uploadData();
             BitmapPtr pDestBmp = pTex->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
@@ -429,12 +430,55 @@ private:
 };
 
 
+class ImageRegistryTest: public GraphicsTest {
+public:
+    ImageRegistryTest()
+        : GraphicsTest("ImageRegistryTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        GLContextManager* pCM = GLContextManager::get();
+        ImageRegistry* pRegistry = ImageRegistry::get();
+        ImagePtr pImage1 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
+                Image::TEXTURECOMPRESSION_NONE);
+        TEST(pRegistry->getNumImages() == 1);
+        ImagePtr pImage2 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
+                Image::TEXTURECOMPRESSION_NONE);
+        TEST(pRegistry->getNumImages() == 1);
+        BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
+        BitmapPtr pBmp = pImage2->getBmp();
+        testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
+        ImagePtr pImage3 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
+                Image::TEXTURECOMPRESSION_B5G6R5);
+        TEST(pRegistry->getNumImages() == 2);
+        ImagePtr pImage4 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
+                Image::TEXTURECOMPRESSION_NONE);
+
+        pImage4->decBmpRef();
+        pImage3->decBmpRef();
+        pImage2->decBmpRef();
+
+        pImage1->incTexRef(false);
+        pImage1->incTexRef(true);
+        pCM->uploadData();
+        pImage1->decBmpRef();
+        pImage1->decTexRef();
+        pImage1->decTexRef();
+        pCM->uploadData();
+        TEST(pRegistry->getNumImages() == 0);
+    }
+};
+
+
 class GPUTestSuite: public TestSuite {
 public:
     GPUTestSuite(const string& sVariant) 
         : TestSuite("GPUTestSuite ("+sVariant+")")
     {
         addTest(TestPtr(new TextureMoverTest));
+        addTest(TestPtr(new ImageRegistryTest));
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));

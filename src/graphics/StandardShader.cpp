@@ -135,7 +135,7 @@ void StandardShader::setUntextured()
 {
     // Activate an internal 1x1 A8 texture.
     m_ColorModel = 2;
-    m_pWhiteTex->activate(GL_TEXTURE0);
+    m_pWhiteTex->activate(WrapMode(), GL_TEXTURE0);
     disableColorspaceMatrix();
     setGamma(glm::vec4(1.f,1.f,1.f,1.f));
     setPremultipliedAlpha(false);

@@ -25,6 +25,7 @@
 #include "../api.h"
 
 #include "PixelFormat.h"
+#include "WrapMode.h"
 #include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
@@ -34,11 +35,9 @@ namespace avg {
 class AVG_API TexInfo {
 
 public:
-    TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap,
-            unsigned wrapSMode, unsigned wrapTMode, bool bUsePOT, int potBorderColor);
+    TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap, bool bUsePOT,
+            int potBorderColor);
     virtual ~TexInfo();
-
-    virtual void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
     const IntPoint& getSize() const;
     const IntPoint& getGLSize() const;
@@ -50,12 +49,10 @@ public:
     static int getGLFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
     int getGLInternalFormat() const;
-    
-    void dump(unsigned wrapSMode=-1, unsigned wrapTMode=-1) const;
 
+    void dump() const;
+    
 protected:
-    unsigned getWrapSMode() const;
-    unsigned getWrapTMode() const;
     bool getUseMipmap() const;
     bool getUsePOT() const;
     int getPOTBorderColor() const;
@@ -68,9 +65,6 @@ private:
     PixelFormat m_pf;
     bool m_bMipmap;
 
-    unsigned m_WrapSMode;
-    unsigned m_WrapTMode;
-    
     bool m_bUsePOT;
     int m_POTBorderColor;
 };

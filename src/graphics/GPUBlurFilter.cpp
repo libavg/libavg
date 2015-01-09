@@ -52,8 +52,13 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     ObjectCounter::get()->incRef(&typeid(*this));
 
     GLContext::getCurrent()->ensureFullShaders("GPUBlurFilter");
-
-    setDimensions(size, stdDev, bClipBorders);
+#ifndef AVG_ENABLE_EGL
+    if (!m_bClipBorders) {
+        //TODO: TO_BORDER DOES NOT EXIST IN GLESV2
+        m_WrapMode = WrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+    }
+#endif
+    setDimensions(size, stdDev);
     GLContextManager* pCM = GLContextManager::get();
     pCM->createShader(SHADERID_VERT);
     setStdDev(stdDev);
@@ -78,7 +83,7 @@ void GPUBlurFilter::setStdDev(float stdDev)
 {
     m_StdDev = stdDev;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, 1, m_bUseFloatKernel);
-    setDimensions(getSrcSize(), stdDev, m_bClipBorders);
+    setDimensions(getSrcSize(), stdDev);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
             getDestRect().size(), destRect2));
@@ -93,8 +98,8 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pHorizRadiusParam->set((kernelWidth-1)/2);
     m_pHorizTextureParam->set(0);
     m_pHorizKernelTexParam->set(1);
-    m_pGaussCurveTex->activate(GL_TEXTURE1);
-    draw(pSrcTex);
+    m_pGaussCurveTex->activate(WrapMode(), GL_TEXTURE1);
+    draw(pSrcTex, m_WrapMode);
 
     getFBO(0)->activate();
     OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
@@ -103,23 +108,19 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pVertRadiusParam->set((kernelWidth-1)/2);
     m_pVertTextureParam->set(0);
     m_pVertKernelTexParam->set(1);
-    getDestTex(1)->activate(GL_TEXTURE0);
+    getDestTex(1)->activate(m_WrapMode, GL_TEXTURE0);
     m_pProjection2->draw(pVShader);
 }
 
-void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)
+void GPUBlurFilter::setDimensions(IntPoint size, float stdDev)
 {
-    
-#ifndef AVG_ENABLE_EGL
-    if (bClipBorders) {
+    if (m_bClipBorders) {
         GPUFilter::setDimensions(size);
     } else {
         int radius = getBlurKernelRadius(stdDev);
         IntPoint offset(radius, radius);
-        //TODO: TO_BORDER DOES NOT EXIST IN GLESV2
-        GPUFilter::setDimensions(size, IntRect(-offset, size+offset), GL_CLAMP_TO_BORDER);
+        GPUFilter::setDimensions(size, IntRect(-offset, size+offset));
     }
-#endif
 }
 
 }

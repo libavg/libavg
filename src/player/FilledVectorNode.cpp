@@ -23,13 +23,14 @@
 
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
-#include "Image.h"
 #include "DivNode.h"
 #include "Shape.h"
 
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+
+#include "../graphics/WrapMode.h"
 
 using namespace std;
 using namespace boost;
@@ -55,7 +56,7 @@ void FilledVectorNode::registerType()
 
 FilledVectorNode::FilledVectorNode(const ArgList& args)
     : VectorNode(args),
-      m_pFillShape(new Shape(MaterialInfo(GL_REPEAT, GL_REPEAT, false)))
+      m_pFillShape(new Shape(WrapMode(GL_REPEAT, GL_REPEAT), false))
 {
     m_FillTexHRef = args.getArgVal<UTF8String>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
@@ -87,7 +88,7 @@ void FilledVectorNode::disconnect(bool bKill)
 
 void FilledVectorNode::checkReload()
 {
-    Node::checkReload(m_FillTexHRef, m_pFillShape->getImage());
+    Node::checkReload(m_FillTexHRef, m_pFillShape->getGPUImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pFillShape->moveToGPU();
         setDrawNeeded();

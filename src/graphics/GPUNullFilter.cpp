@@ -56,8 +56,7 @@ void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     getShader()->activate();
     m_pTextureParam->set(0);
-    draw(pSrcTex);
-
+    draw(pSrcTex, WrapMode());
 }
 
 }

@@ -49,6 +49,7 @@ private:
     float m_StdDev;
     float m_Opacity;
     Pixel32 m_Color;
+    WrapMode m_WrapMode;
 
     MCTexturePtr m_pGaussCurveTex;
     ImagingProjectionPtr m_pProjection2;

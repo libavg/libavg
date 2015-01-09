@@ -49,6 +49,9 @@ GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     GLContext::getCurrent()->ensureFullShaders("GPUShadowFilter");
+#ifndef AVG_ENABLE_EGL
+    m_WrapMode = WrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+#endif
 
     setDimensions(size, stdDev, offset);
     GLContextManager* pCM = GLContextManager::get();
@@ -102,8 +105,8 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     IntPoint size = getSrcSize();
     glm::vec2 texOffset(m_Offset.x/size.x, m_Offset.y/size.y);
     m_pHorizOffsetParam->set(texOffset);
-    m_pGaussCurveTex->activate(GL_TEXTURE1);
-    draw(pSrcTex);
+    m_pGaussCurveTex->activate(WrapMode(), GL_TEXTURE1);
+    draw(pSrcTex, m_WrapMode);
 
     getFBO(0)->activate();
     OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
@@ -114,12 +117,14 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pVertKernelTexParam->set(1);
     m_pVertColorParam->set(m_Color);
 
-    pSrcTex->activate(GL_TEXTURE2);
+    pSrcTex->activate(m_WrapMode, GL_TEXTURE2);
     m_pVertOrigTexParam->set(2);
     FRect destRect = getRelDestRect();
     m_pVertDestPosParam->set(destRect.tl);
     m_pVertDestSizeParam->set(destRect.size());
-    getDestTex(1)->activate(GL_TEXTURE0);
+#ifndef AVG_ENABLE_EGL
+    getDestTex(1)->activate(m_WrapMode, GL_TEXTURE0);
+#endif
     m_pProjection2->draw(avg::getShader(SHADERID_VERT));
 }
 
@@ -130,10 +135,7 @@ void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2
     IntPoint intOffset(offset);
     IntRect destRect(intOffset-radiusOffset, intOffset+size+radiusOffset+IntPoint(1,1));
     destRect.expand(IntRect(IntPoint(0,0), size));
-    //TODO FIX OPENGLESV2
-    #ifndef AVG_ENABLE_EGL
-        GPUFilter::setDimensions(size, destRect, GL_CLAMP_TO_BORDER);
-    #endif
+    GPUFilter::setDimensions(size, destRect);
 }
  
 }

@@ -19,29 +19,41 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _MaterialInfo_H_
-#define _MaterialInfo_H_
+#ifndef _ImageRegistry_H_
+#define _ImageRegistry_H_
 
 #include "../api.h"
 
+#include "../base/GLMHelper.h"
+
+#include "Image.h"
+
+#include <boost/shared_ptr.hpp>
+#include <string>
+#include <map>
+
 namespace avg {
 
-class AVG_API MaterialInfo {
-public:
-    MaterialInfo(int wrapSMode, int wrapTMode, bool bUseMipmaps);
-    
-    int getWrapSMode() const;
-    int getWrapTMode() const;
-    bool getUseMipmaps() const;
+class AVG_API ImageRegistry
+{
+    public:
+        static ImageRegistry* get();
 
-private:
-    int m_WrapSMode;
-    int m_WrapTMode;
-    bool m_bUseMipmaps;
+        ImagePtr getImage(const std::string& sFilename,
+                Image::TextureCompression compression);
+        void deleteImage(const std::string& sFilename);
+        int getNumImages() const;
+
+    private:
+        ImageRegistry();
+        virtual ~ImageRegistry();
+        typedef std::map<std::string, ImagePtr> ImageMap;
+        ImageMap m_pImageMap;
+    
+        static ImageRegistry * s_pImageRegistry;
 };
 
 }
 
 #endif
-
 

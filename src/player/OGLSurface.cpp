@@ -46,8 +46,9 @@ static glm::mat4 yuvCoeff(
 
 namespace avg {
 
-OGLSurface::OGLSurface()
+OGLSurface::OGLSurface(const WrapMode& wrapMode)
     : m_Size(-1,-1),
+      m_WrapMode(wrapMode),
       m_Gamma(1,1,1),
       m_Brightness(1,1,1),
       m_Contrast(1,1,1),
@@ -121,13 +122,13 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             pShader->setColorModel(0);
     }
 
-    m_pTextures[0]->activate(GL_TEXTURE0);
+    m_pTextures[0]->activate(m_WrapMode, GL_TEXTURE0);
 
     if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[1]->activate(GL_TEXTURE1);
-        m_pTextures[2]->activate(GL_TEXTURE2);
+        m_pTextures[1]->activate(m_WrapMode, GL_TEXTURE1);
+        m_pTextures[2]->activate(m_WrapMode, GL_TEXTURE2);
         if (m_pf == YCbCrA420p) {
-            m_pTextures[3]->activate(GL_TEXTURE3);
+            m_pTextures[3]->activate(m_WrapMode, GL_TEXTURE3);
         }
     }
     if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
@@ -141,7 +142,7 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
 
     pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
     if (m_pMaskTexture) {
-        m_pMaskTexture->activate(GL_TEXTURE4);
+        m_pMaskTexture->activate(m_WrapMode, GL_TEXTURE4);
         // The shader maskpos param takes the position in texture coordinates (0..1) of 
         // the main texture.
 

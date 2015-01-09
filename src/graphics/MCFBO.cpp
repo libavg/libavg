@@ -41,13 +41,13 @@ namespace avg {
 
 MCFBO::MCFBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
         unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bUseStencil,
-        bool bMipmap, unsigned wrapSMode, unsigned wrapTMode)
+        bool bMipmap)
     : FBOInfo(size, pf, numTextures, multisampleSamples, bUsePackedDepthStencil,
             bUseStencil, bMipmap)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     for (unsigned i=0; i<numTextures; ++i) {
-        MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, wrapSMode, wrapTMode));
+        MCTexturePtr pTex(new MCTexture(size, pf, bMipmap));
         m_pTextures.push_back(pTex);
     }
 }

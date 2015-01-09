@@ -24,7 +24,6 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "OGLSurface.h"
-#include "Image.h"
 #include "Shape.h"
 
 #include "../base/Exception.h"
@@ -38,6 +37,7 @@
 
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/WrapMode.h"
 
 #include "../glm/gtx/norm.hpp"
 
@@ -106,7 +106,7 @@ void VectorNode::disconnect(bool bKill)
 
 void VectorNode::checkReload()
 {
-    Node::checkReload(m_TexHRef, m_pShape->getImage());
+    Node::checkReload(m_TexHRef, m_pShape->getGPUImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pShape->moveToGPU();
         setDrawNeeded();
@@ -519,7 +519,7 @@ void VectorNode::setTranslate(const glm::vec2& trans)
 
 Shape* VectorNode::createDefaultShape() const
 {
-    return new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+    return new Shape(WrapMode(GL_REPEAT, GL_CLAMP_TO_EDGE), false);
 }
 
 }

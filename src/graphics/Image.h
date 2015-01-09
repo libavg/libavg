@@ -24,72 +24,55 @@
 
 #include "../api.h"
 
-#include "MaterialInfo.h"
-
-#include "../base/GLMHelper.h"
-
-#include "../graphics/PixelFormat.h"
-
 #include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
 
-class OGLSurface;
-class OffscreenCanvas;
-typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class MCTexture;
+typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
 class AVG_API Image
 {
     public:
-        enum State {CPU, GPU};
-        enum Source {NONE, FILE, BITMAP, SCENE};
         enum TextureCompression {
             TEXTURECOMPRESSION_NONE,
             TEXTURECOMPRESSION_B5G6R5
         };
 
-        Image(OGLSurface * pSurface, const MaterialInfo& material);
+        Image(const std::string& sFilename, TextureCompression compression);
+        Image(const BitmapPtr& pBmp, TextureCompression compression);
         virtual ~Image();
 
-        virtual void moveToGPU();
-        virtual void moveToCPU();
+        std::string getFilename() const;
 
-        void discard();
-        void setEmpty();
-        void setFilename(const std::string& sFilename,
-                TextureCompression comp = TEXTURECOMPRESSION_NONE);
-        void setBitmap(BitmapPtr pBmp, 
-                TextureCompression comp = TEXTURECOMPRESSION_NONE);
-        void setCanvas(OffscreenCanvasPtr pCanvas);
-        OffscreenCanvasPtr getCanvas() const;
-        const std::string& getFilename() const;
+        void incBmpRef(TextureCompression compression);
+        void decBmpRef();
+        void incTexRef(bool bUseMipmaps);
+        void decTexRef();
 
-        BitmapPtr getBitmap();
-        IntPoint getSize();
-        PixelFormat getPixelFormat();
-        OGLSurface* getSurface();
-        State getState();
-        Source getSource();
+        BitmapPtr getBmp();
+        MCTexturePtr getTex();
 
         static TextureCompression string2compression(const std::string& s);
         static std::string compression2String(TextureCompression compression);
 
     private:
-        void setupSurface();
-        bool changeSource(Source newSource);
-        void assertValid() const;
+        BitmapPtr applyCompression(BitmapPtr pBmp);
+        void createTexture();
+        void testDelete();
 
         std::string m_sFilename;
         BitmapPtr m_pBmp;
-        OGLSurface * m_pSurface;
-        OffscreenCanvasPtr m_pCanvas;
+        MCTexturePtr m_pTex;
 
-        State m_State;
-        Source m_Source;
-        MaterialInfo m_Material;
+        bool m_bUseMipmaps;
+        TextureCompression m_Compression;
+        
+        int m_BmpRefCount;
+        int m_TexRefCount;
 };
 
 typedef boost::shared_ptr<Image> ImagePtr;

@@ -126,21 +126,19 @@ void GLContextManager::unregisterContext(GLContext* pContext)
 }
 
 MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat pf, 
-        bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
-        bool bForcePOT, int potBorderColor)
+        bool bMipmap, bool bForcePOT, int potBorderColor)
 {
-    MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, wrapSMode, wrapTMode, bForcePOT,
-            potBorderColor));
+    MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, bForcePOT, potBorderColor));
     m_pPendingTexCreates.push_back(pTex);
     return pTex;
 }
 
 MCFBOPtr GLContextManager::createFBO(const IntPoint& size, PixelFormat pf, 
         unsigned numTextures, unsigned multisampleSamples, bool bUsePackedDepthStencil,
-        bool bUseStencil, bool bMipmap, unsigned wrapSMode, unsigned wrapTMode)
+        bool bUseStencil, bool bMipmap)
 {
     MCFBOPtr pFBO(new MCFBO(size, pf, numTextures, multisampleSamples, 
-            bUsePackedDepthStencil, bUseStencil, bMipmap, wrapSMode, wrapTMode));
+            bUsePackedDepthStencil, bUseStencil, bMipmap));
     m_pPendingFBOCreates.push_back(pFBO);
     return pFBO;
 }
@@ -161,10 +159,10 @@ void GLContextManager::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
 }
 
 MCTexturePtr GLContextManager::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
+        bool bForcePOT, int potBorderColor)
 {
     MCTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
-            wrapSMode, wrapTMode, bForcePOT, potBorderColor);
+            bForcePOT, potBorderColor);
     scheduleTexUpload(pTex, pBmp);
     return pTex;
 }

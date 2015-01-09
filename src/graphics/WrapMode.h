@@ -19,35 +19,30 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "MaterialInfo.h"
+#ifndef _WrapMode_H_
+#define _WrapMode_H_
 
-#include "../base/Exception.h"
-
-#include <iostream>
-
-using namespace std;
+#include "../api.h"
 
 namespace avg {
 
-MaterialInfo::MaterialInfo(int wrapSMode, int wrapTMode, bool bUseMipmaps)
-    : m_WrapSMode(wrapSMode),
-      m_WrapTMode(wrapTMode),
-      m_bUseMipmaps(bUseMipmaps)
-{}
+class AVG_API WrapMode {
+public:
+    WrapMode();
+    WrapMode(int s, int t);
+    
+    int getS() const;
+    int getT() const;
 
-int MaterialInfo::getWrapSMode() const
-{
-    return m_WrapSMode;
-}
+    void dump() const;
 
-int MaterialInfo::getWrapTMode() const
-{
-    return m_WrapTMode;
-}
-
-bool MaterialInfo::getUseMipmaps() const
-{
-    return m_bUseMipmaps;
-}
+private:
+    int m_S;
+    int m_T;
+};
 
 }
+
+#endif
+
+
