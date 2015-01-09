@@ -149,6 +149,7 @@
     <ClInclude Include="..\..\src\graphics\VertexData.h" />
     <ClInclude Include="..\..\src\graphics\WGLContext.h" />
     <ClInclude Include="..\..\src\graphics\WinDisplay.h" />
+    <ClInclude Include="..\..\src\graphics\WrapMode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
@@ -220,6 +221,7 @@
     <ClCompile Include="..\..\src\graphics\VertexData.cpp" />
     <ClCompile Include="..\..\src\graphics\WGLContext.cpp" />
     <ClCompile Include="..\..\src\graphics\WinDisplay.cpp" />
+    <ClCompile Include="..\..\src\graphics\WrapMode.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
