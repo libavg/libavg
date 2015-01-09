@@ -157,11 +157,10 @@ FRect GPUFilter::getRelDestRect() const
 
 void GPUFilter::setDimensions(const IntPoint& srcSize)
 {
-    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
+    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize));
 }
 
-void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-        unsigned texMode)
+void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect)
 {
     bool bProjectionChanged = false;
     if (destRect != m_DestRect) {
@@ -176,8 +175,7 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
         bProjectionChanged = true;
     }
     if (m_bStandalone && srcSize != m_SrcSize) {
-        m_pSrcTex = GLContextManager::get()->createTexture(srcSize, m_PFSrc, false, 
-                texMode, texMode, 0);
+        m_pSrcTex = GLContextManager::get()->createTexture(srcSize, m_PFSrc, false, 0);
         m_pSrcMover = TextureMover::create(srcSize, m_PFSrc, GL_STREAM_DRAW);
         bProjectionChanged = true;
         m_bIsInitialized = false;
@@ -193,9 +191,9 @@ OGLShaderPtr GPUFilter::getShader() const
     return avg::getShader(m_sShaderID);
 }
 
-void GPUFilter::draw(GLTexturePtr pTex)
+void GPUFilter::draw(GLTexturePtr pTex, const WrapMode& wrapMode)
 {
-    pTex->activate(GL_TEXTURE0);
+    pTex->activate(wrapMode, GL_TEXTURE0);
     m_pProjection->draw(getShader());
 }
 

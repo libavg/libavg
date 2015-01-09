@@ -57,12 +57,10 @@ public:
     void unregisterContext(GLContext* pContext);
 
     MCTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
             bool bForcePOT=false, int potBorderColor=0);
     MCFBOPtr createFBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
             unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
-            bool bUseStencil=false, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+            bool bUseStencil=false, bool bMipmap=false);
     void createShader(const std::string& sID);
     template<class VAL_TYPE>
     boost::shared_ptr<MCShaderParamTemplate<VAL_TYPE> > createShaderParam(
@@ -76,7 +74,6 @@ public:
 
     void scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp);
     MCTexturePtr createTextureFromBmp(BitmapPtr pBmp, bool bMipmap=false, 
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
             bool bForcePOT=false, int potBorderColor=0);
     void deleteTexture(unsigned texID);
 

@@ -40,12 +40,11 @@ public:
     // GLContextManager::createTexture()
     GLTexture(const TexInfo& texInfo);
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
             bool bForcePOT=false, int potBorderColor=0);
     virtual ~GLTexture();
     void init();
 
-    void activate(int textureUnit=GL_TEXTURE0);
+    void activate(const WrapMode& wrapMode, int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
 
     void moveBmpToTexture(BitmapPtr pBmp);

@@ -173,8 +173,7 @@ BitmapPtr Image::applyCompression(BitmapPtr pBmp)
 void Image::createTexture()
 {
     m_pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(),
-            m_pBmp->getPixelFormat(), m_bUseMipmaps,
-            GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+            m_pBmp->getPixelFormat(), m_bUseMipmaps);
     GLContextManager::get()->scheduleTexUpload(m_pTex, m_pBmp);
 }
 

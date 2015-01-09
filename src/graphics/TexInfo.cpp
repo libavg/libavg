@@ -35,13 +35,11 @@ namespace avg {
 
 using namespace std;
 
-TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bUsePOT, int potBorderColor)
+TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap, bool bUsePOT,
+        int potBorderColor)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
-      m_WrapSMode(wrapSMode),
-      m_WrapTMode(wrapTMode),
       m_bUsePOT(bUsePOT),
       m_POTBorderColor(potBorderColor)
 {
@@ -67,12 +65,6 @@ TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap,
 
 TexInfo::~TexInfo()
 {
-}
-
-void TexInfo::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
-{
-    m_WrapSMode = wrapSMode;
-    m_WrapTMode = wrapTMode;
 }
 
 const IntPoint& TexInfo::getSize() const
@@ -228,16 +220,6 @@ void TexInfo::dump(unsigned wrapSMode, unsigned wrapTMode) const
         cerr << "Wrap modes: " << \
                 wrapModeToStr(wrapSMode) << ", " << wrapModeToStr(wrapTMode) << endl;
     }
-}
-
-unsigned TexInfo::getWrapSMode() const
-{
-    return m_WrapSMode;
-}
-
-unsigned TexInfo::getWrapTMode() const
-{
-    return m_WrapTMode;
 }
 
 bool TexInfo::getUseMipmap() const

@@ -39,10 +39,9 @@ namespace avg {
 
 using namespace std;
 
-MCTexture::MCTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
-    : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap),
-            potBorderColor),
+MCTexture::MCTexture(const IntPoint& size, PixelFormat pf, bool bMipmap, bool bForcePOT,
+        int potBorderColor)
+    : TexInfo(size, pf, bMipmap, usePOT(bForcePOT, bMipmap), potBorderColor),
       m_bIsDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -61,9 +60,9 @@ void MCTexture::initForGLContext()
     m_pTextures[pContext] = GLTexturePtr(new GLTexture(*this));
 }
 
-void MCTexture::activate(int textureUnit)
+void MCTexture::activate(const WrapMode& wrapMode, int textureUnit)
 {
-    getCurTex()->activate(textureUnit);
+    getCurTex()->activate(wrapMode, textureUnit);
 }
 
 void MCTexture::generateMipmaps()

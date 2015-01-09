@@ -19,44 +19,28 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GPUNullFilter.h"
-#include "Bitmap.h"
-#include "ShaderRegistry.h"
-#include "OGLShader.h"
-#include "BitmapLoader.h"
-#include "GLContextManager.h"
+#ifndef _WrapMode_H_
+#define _WrapMode_H_
 
-#include "../base/ObjectCounter.h"
-#include "../base/Exception.h"
-
-#include <iostream>
-
-#define SHADERID "null"
-
-using namespace std;
+#include "../api.h"
 
 namespace avg {
 
-GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(SHADERID, true, bStandalone)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
+class AVG_API WrapMode {
+public:
+    WrapMode();
+    WrapMode(int s, int t);
+    
+    int getS() const;
+    int getT() const;
 
-    setDimensions(size);
-    m_pTextureParam = 
-            GLContextManager::get()->createShaderParam<int>(SHADERID, "u_Texture");
-}
-
-GPUNullFilter::~GPUNullFilter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
-{
-    getShader()->activate();
-    m_pTextureParam->set(0);
-    draw(pSrcTex, WrapMode());
-}
+private:
+    int m_S;
+    int m_T;
+};
 
 }
+
+#endif
+
+

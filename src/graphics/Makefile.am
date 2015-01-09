@@ -38,7 +38,8 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextManager.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
         ImagingProjection.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
         GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
-        VertexData.h BitmapLoader.h MCShaderParam.h Image.h ImageRegistry.h $(GL_INCLUDES)
+        VertexData.h BitmapLoader.h MCShaderParam.h Image.h ImageRegistry.h \
+        WrapMode.h $(GL_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         GLContextManager.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
@@ -58,7 +59,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         ImagingProjection.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \
         GPURGB2YUVFilter.cpp GLShaderParam.cpp StandardShader.cpp SubVertexArray.cpp \
         VertexData.cpp BitmapLoader.cpp MCShaderParam.cpp Image.cpp ImageRegistry.cpp \
-        $(GL_SOURCES)
+        WrapMode.cpp $(GL_SOURCES)
 
 if APPLE
     X_LIBS =

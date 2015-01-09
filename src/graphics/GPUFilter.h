@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "Filter.h"
+#include "WrapMode.h"
 
 namespace avg {
 
@@ -64,11 +65,10 @@ public:
     
 protected:
     void setDimensions(const IntPoint& srcSize);
-    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-            unsigned texMode);
+    void setDimensions(const IntPoint& srcSize, const IntRect& destRect);
     OGLShaderPtr getShader() const;
 
-    void draw(GLTexturePtr pTex);
+    void draw(GLTexturePtr pTex, const WrapMode& wrapMode);
     int getBlurKernelRadius(float stdDev) const;
     MCTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
 

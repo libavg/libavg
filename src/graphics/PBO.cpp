@@ -107,7 +107,7 @@ void PBO::moveTextureToPBO(GLTexture& tex, int mipmapLevel)
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_PBOID);
     GLContext::checkError("PBO::moveTextureToPBO BindBuffer()");
 
-    tex.activate(GL_TEXTURE0);
+    tex.activate(WrapMode(), GL_TEXTURE0);
 
     glGetTexImage(GL_TEXTURE_2D, mipmapLevel, GLTexture::getGLFormat(getPF()), 
             GLTexture::getGLType(getPF()), 0);
@@ -168,7 +168,7 @@ void PBO::moveToTexture(GLTexture& tex)
     } 
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     GLContext::checkError("PBO::moveToTexture: glBindBuffer()");
-    tex.activate(GL_TEXTURE0);
+    tex.activate(WrapMode(), GL_TEXTURE0);
 #ifdef __APPLE__
     // See getStride()
     if (getPF() == A8) {

@@ -53,10 +53,9 @@ GLTexture::GLTexture(const TexInfo& texInfo)
 
 }
 
-GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
-    : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap), 
-            potBorderColor),
+GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap, bool bForcePOT,
+        int potBorderColor)
+    : TexInfo(size, pf, bMipmap, usePOT(bForcePOT, bMipmap), potBorderColor),
       m_bDeleteTex(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -79,8 +78,6 @@ void GLTexture::init()
     GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrapSMode());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrapTMode());
     IntPoint size = getGLSize();
     PixelFormat pf = getPF();
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), size.x, size.y, 0,
@@ -108,15 +105,18 @@ void GLTexture::init()
     }
 }
 
-void GLTexture::activate(int textureUnit)
+void GLTexture::activate(const WrapMode& wrapMode, int textureUnit)
 {
     GLContext::getCurrent()->bindTexture(textureUnit, m_TexID);
+    glproc::ActiveTexture(textureUnit);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode.getS());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode.getT());
 }
 
 void GLTexture::generateMipmaps()
 {
     if (getUseMipmap()) {
-        activate();
+        GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
         GLContext::checkError("GLTexture::generateMipmap()");
     }

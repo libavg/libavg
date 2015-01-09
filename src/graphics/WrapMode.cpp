@@ -19,44 +19,30 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GPUNullFilter.h"
-#include "Bitmap.h"
-#include "ShaderRegistry.h"
-#include "OGLShader.h"
-#include "BitmapLoader.h"
-#include "GLContextManager.h"
-
-#include "../base/ObjectCounter.h"
-#include "../base/Exception.h"
-
-#include <iostream>
-
-#define SHADERID "null"
-
-using namespace std;
+#include "WrapMode.h"
+#include "OGLHelper.h"
 
 namespace avg {
-
-GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(SHADERID, true, bStandalone)
+    
+WrapMode::WrapMode()
+    : m_S(GL_CLAMP_TO_EDGE),
+      m_T(GL_CLAMP_TO_EDGE)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
-
-    setDimensions(size);
-    m_pTextureParam = 
-            GLContextManager::get()->createShaderParam<int>(SHADERID, "u_Texture");
 }
 
-GPUNullFilter::~GPUNullFilter()
+WrapMode::WrapMode(int s, int t)
+    : m_S(s),
+      m_T(t)
+{}
+
+int WrapMode::getS() const
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+    return m_S;
 }
 
-void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
+int WrapMode::getT() const
 {
-    getShader()->activate();
-    m_pTextureParam->set(0);
-    draw(pSrcTex, WrapMode());
+    return m_T;
 }
 
 }
