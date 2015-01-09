@@ -101,7 +101,6 @@
     <ClCompile Include="..\..\src\player\KeyEvent.cpp" />
     <ClCompile Include="..\..\src\player\LineNode.cpp" />
     <ClCompile Include="..\..\src\player\MainCanvas.cpp" />
-    <ClCompile Include="..\..\src\player\MaterialInfo.cpp" />
     <ClCompile Include="..\..\src\player\MeshNode.cpp" />
     <ClCompile Include="..\..\src\player\MessageID.cpp" />
     <ClCompile Include="..\..\src\player\MouseEvent.cpp" />
@@ -189,7 +188,6 @@
     <ClInclude Include="..\..\src\player\KeyEvent.h" />
     <ClInclude Include="..\..\src\player\LineNode.h" />
     <ClInclude Include="..\..\src\player\MainCanvas.h" />
-    <ClInclude Include="..\..\src\player\MaterialInfo.h" />
     <ClInclude Include="..\..\src\player\MeshNode.h" />
     <ClInclude Include="..\..\src\player\MessageID.h" />
     <ClInclude Include="..\..\src\player\MouseEvent.h" />
