@@ -31,6 +31,7 @@ void export_anim();
 #include "../base/OSHelper.h"
 #include "../base/GeomHelper.h"
 #include "../base/XMLHelper.h"
+#include "../graphics/ImageRegistry.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/CameraNode.h"
@@ -79,16 +80,23 @@ class SeverityScopeHelper{};
 class CategoryScopeHelper{};
 
 
+int playerGetNumImagesLoaded() 
+{
+    return ImageRegistry::get()->getNumImages();
+}
+
 boost::function<size_t (const bp::tuple& args, const bp::dict& kwargs )>
         playerGetMemoryUsage = boost::bind(getMemoryUsage);
 
 // [todo] - remove after releasing libavg-v2.0.0
-size_t getMemoryUsageDeprecated() {
+size_t getMemoryUsageDeprecated() 
+{
     avgDeprecationWarning("1.9.0", "avg.getMemoryUsage", "player.getMemoryUsage");
     return getMemoryUsage();
 }
 
-bool pointInPolygonDepcrecated(const glm::vec2& pt, const std::vector<glm::vec2>& poly) {
+bool pointInPolygonDepcrecated(const glm::vec2& pt, const std::vector<glm::vec2>& poly) 
+{
     avgDeprecationWarning("1.9.0", "avg.pointInPolygon", "Point2D.isInPolygon");
     return pointInPolygon(pt, poly);
 }
@@ -250,6 +258,8 @@ BOOST_PYTHON_MODULE(avg)
             .def("setVBlankFramerate", &Player::setVBlankFramerate)
             .def("getEffectiveFramerate", &Player::getEffectiveFramerate)
             .def("getMemoryUsage", raw_function(playerGetMemoryUsage))
+            .def("getNumImagesLoaded", playerGetNumImagesLoaded)
+            .staticmethod("getNumImagesLoaded")
             .def("getTestHelper", &Player::getTestHelper,
                     return_value_policy<reference_existing_object>())
             .def("setFakeFPS", &Player::setFakeFPS)
