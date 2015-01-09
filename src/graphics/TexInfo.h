@@ -49,9 +49,9 @@ public:
     static int getGLFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
     int getGLInternalFormat() const;
-    
-    void dump(unsigned wrapSMode=-1, unsigned wrapTMode=-1) const;
 
+    void dump() const;
+    
 protected:
     bool getUseMipmap() const;
     bool getUsePOT() const;

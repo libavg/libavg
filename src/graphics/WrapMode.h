@@ -34,6 +34,8 @@ public:
     int getS() const;
     int getT() const;
 
+    void dump() const;
+
 private:
     int m_S;
     int m_T;

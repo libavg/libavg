@@ -182,44 +182,13 @@ int TexInfo::getGLInternalFormat() const
     }
 }
 
-const string wrapModeToStr(unsigned wrapMode)
-{
-    string sWrapMode;
-    switch (wrapMode) {
-        case GL_CLAMP_TO_EDGE:
-            sWrapMode = "CLAMP_TO_EDGE";
-            break;
-#ifndef AVG_ENABLE_EGL
-        case GL_CLAMP:
-            sWrapMode = "CLAMP";
-            break;
-        case GL_CLAMP_TO_BORDER:
-            sWrapMode = "CLAMP_TO_BORDER";
-            break;
-#endif
-        case GL_REPEAT:
-            sWrapMode = "REPEAT";
-            break;
-        case GL_MIRRORED_REPEAT:
-            sWrapMode = "MIRRORED_REPEAT";
-            break;
-        default:
-            sWrapMode = "unknown";
-    }
-    return sWrapMode;
-}
-
-void TexInfo::dump(unsigned wrapSMode, unsigned wrapTMode) const
+void TexInfo::dump() const
 {
     cerr << "TexInfo" << endl;
     cerr << "m_Size: " << m_Size << endl;
     cerr << "m_GLSize: " << m_GLSize << endl;
     cerr << "m_pf: " << m_pf << endl;
     cerr << "m_bMipmap: " << m_bMipmap << endl;
-    if (wrapSMode != (unsigned)-1) {
-        cerr << "Wrap modes: " << \
-                wrapModeToStr(wrapSMode) << ", " << wrapModeToStr(wrapTMode) << endl;
-    }
 }
 
 bool TexInfo::getUseMipmap() const
