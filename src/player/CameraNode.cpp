@@ -306,9 +306,8 @@ void CameraNode::open()
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
     IntPoint size = getMediaSize();
-    bool bMipmap = getMaterial().getUseMipmaps();
     
-    m_pTex = GLContextManager::get()->createTexture(size, pf, bMipmap);
+    m_pTex = GLContextManager::get()->createTexture(size, pf, getMipmap());
     getSurface()->create(pf, m_pTex);
     m_bNewSurface = true;
     newSurface();

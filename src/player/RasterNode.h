@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "AreaNode.h"
-#include "MaterialInfo.h"
 
 #include "../avgconfigwrapper.h"
 #include "../base/GLMHelper.h"
@@ -106,7 +105,6 @@ class AVG_API RasterNode: public AreaNode
         void blta8(const glm::mat4& transform, const glm::vec2& destSize);
 
         virtual OGLSurface * getSurface();
-        const MaterialInfo& getMaterial() const;
         bool hasMask() const;
         void setMaskCoords();
         void setRenderColor(const Pixel32& color);
@@ -130,7 +128,7 @@ class AVG_API RasterNode: public AreaNode
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
         GLContext::BlendMode m_BlendMode;
-        MaterialInfo m_Material;
+        bool m_bMipmap;
 
         UTF8String m_sMaskHref;
         std::string m_sMaskFilename;

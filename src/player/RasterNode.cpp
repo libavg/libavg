@@ -57,7 +57,8 @@ void RasterNode::registerType()
                 offsetof(RasterNode, m_MaxTileSize.y)))
         .addArg(Arg<string>("blendmode", "blend", false, 
                 offsetof(RasterNode, m_sBlendMode)))
-        .addArg(Arg<bool>("mipmap", false))
+        .addArg(Arg<bool>("mipmap", false, false,
+                offsetof(RasterNode, m_bMipmap)))
         .addArg(Arg<UTF8String>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)))
         .addArg(Arg<glm::vec2>("maskpos", glm::vec2(0,0), false,
                 offsetof(RasterNode, m_MaskPos)))
@@ -74,7 +75,7 @@ void RasterNode::registerType()
 
 RasterNode::RasterNode()
     : m_pSurface(0),
-      m_Material(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false),
+      m_bMipmap(false),
       m_Color(0,0,0,0),
       m_TileSize(-1,-1),
       m_pSubVA(0),
@@ -99,8 +100,6 @@ void RasterNode::setArgs(const ArgList& args)
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
                 "maxtilewidth and maxtileheight must be powers of two.");
     }
-    bool bMipmap = args.getArgVal<bool>("mipmap");
-    m_Material = MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bMipmap);
     m_pSurface = new OGLSurface(WrapMode());
 }
 
@@ -238,7 +237,7 @@ int RasterNode::getMaxTileHeight() const
 
 bool RasterNode::getMipmap() const
 {
-   return m_Material.getUseMipmaps();
+   return m_bMipmap;
 }
 
 const std::string& RasterNode::getBlendModeStr() const
@@ -451,11 +450,6 @@ OGLSurface * RasterNode::getSurface()
     return m_pSurface;
 }
 
-const MaterialInfo& RasterNode::getMaterial() const
-{
-    return m_Material;
-}
-
 bool RasterNode::hasMask() const
 {
     return m_sMaskFilename != "";
@@ -484,7 +478,7 @@ void RasterNode::calcMaskCoords()
 void RasterNode::downloadMask()
 {
     MCTexturePtr pTex = GLContextManager::get()->createTextureFromBmp(m_pMaskBmp,
-            m_Material.getUseMipmaps());
+            m_bMipmap);
     m_pSurface->setMask(pTex);
 }
         

@@ -30,7 +30,6 @@
 #include "../graphics/StandardShader.h"
 #include "../graphics/Bitmap.h"
 
-#include "MaterialInfo.h"
 #include "OGLSurface.h"
 #include "GPUImage.h"
 
@@ -41,11 +40,10 @@ using namespace std;
 
 namespace avg {
 
-Shape::Shape(const MaterialInfo& material)
+Shape::Shape(const WrapMode& wrapMode, bool bUseMipmaps)
 {
-    m_pSurface = new OGLSurface(WrapMode(material.getWrapSMode(),
-            material.getWrapTMode()));
-    m_pGPUImage = GPUImagePtr(new GPUImage(m_pSurface, material.getUseMipmaps()));
+    m_pSurface = new OGLSurface(wrapMode);
+    m_pGPUImage = GPUImagePtr(new GPUImage(m_pSurface, bUseMipmaps));
     m_pVertexData = VertexDataPtr(new VertexData());
 }
 

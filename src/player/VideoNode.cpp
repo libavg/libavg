@@ -513,7 +513,7 @@ void VideoNode::startDecoding()
 void VideoNode::createTextures(IntPoint size)
 {
     PixelFormat pf = getPixelFormat();
-    bool bMipmap = getMaterial().getUseMipmaps();
+    bool bMipmap = getMipmap();
     GLContextManager* pCM = GLContextManager::get();
     if (pixelFormatIsPlanar(pf)) {
         m_pTextures[0] = pCM->createTexture(size, I8, bMipmap);

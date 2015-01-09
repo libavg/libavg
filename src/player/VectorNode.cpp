@@ -25,7 +25,6 @@
 #include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "Shape.h"
-#include "MaterialInfo.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -38,6 +37,7 @@
 
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/WrapMode.h"
 
 #include "../glm/gtx/norm.hpp"
 
@@ -519,7 +519,7 @@ void VectorNode::setTranslate(const glm::vec2& trans)
 
 Shape* VectorNode::createDefaultShape() const
 {
-    return new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+    return new Shape(WrapMode(GL_REPEAT, GL_CLAMP_TO_EDGE), false);
 }
 
 }

@@ -26,6 +26,7 @@
 
 #include "../base/GLMHelper.h"
 #include "../graphics/SubVertexArray.h"
+#include "../graphics/WrapMode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -35,13 +36,12 @@ class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class GPUImage;
 typedef boost::shared_ptr<GPUImage> GPUImagePtr;
-class MaterialInfo;
 class OGLSurface;
 
 class AVG_API Shape
 {
     public:
-        Shape(const MaterialInfo& material);
+        Shape(const WrapMode& wrapMode, bool bUseMipmaps);
         virtual ~Shape();
 
         void setBitmap(BitmapPtr pBmp);
