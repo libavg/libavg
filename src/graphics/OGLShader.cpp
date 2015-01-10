@@ -84,7 +84,7 @@ OGLShader::~OGLShader()
 bool isMountainLion()
 {
 #ifdef __APPLE__
-    return getOSXMajorVersion() >= 12;
+    return getOSXMajorVersion() == 12;
 #else
     return false;
 #endif
