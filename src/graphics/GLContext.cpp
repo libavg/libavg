@@ -126,6 +126,10 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
+    GLContext::setMain(this);
+    if (m_pStandardShader == StandardShaderPtr()) {
+        m_pStandardShader = StandardShaderPtr(new StandardShader());
+    }
 }
 
 void GLContext::deleteObjects()
@@ -163,9 +167,6 @@ ShaderRegistryPtr GLContext::getShaderRegistry() const
 
 StandardShaderPtr GLContext::getStandardShader()
 {
-    if (m_pStandardShader == StandardShaderPtr()) {
-        m_pStandardShader = StandardShaderPtr(new StandardShader());
-    }
     return m_pStandardShader;
 }
 
@@ -468,7 +469,6 @@ void GLContext::setMain(GLContext * pMainContext)
 
 GLContext* GLContext::getMain()
 {
-    AVG_ASSERT(s_pMainContext);
     return s_pMainContext;
 }
 
