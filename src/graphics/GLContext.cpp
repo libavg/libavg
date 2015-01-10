@@ -40,6 +40,7 @@ using namespace std;
 using namespace boost;
 
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+GLContext* GLContext::s_pMainContext = 0;
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
@@ -458,6 +459,17 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
+}
+
+void GLContext::setMain(GLContext * pMainContext)
+{
+    s_pMainContext = pMainContext;
+}
+
+GLContext* GLContext::getMain()
+{
+    AVG_ASSERT(s_pMainContext);
+    return s_pMainContext;
 }
 
 int GLContext::nextMultiSampleValue(int curSamples)

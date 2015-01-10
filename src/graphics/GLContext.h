@@ -90,6 +90,7 @@ public:
 
     static GLContext* getCurrent();
     static void setMain(GLContext * pMainContext);
+    static GLContext* getMain();
 
     static int nextMultiSampleValue(int curSamples);
     static void enableErrorLog(bool bEnable);
@@ -137,6 +138,7 @@ private:
     static bool s_bErrorLogEnabled;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
+    static GLContext* s_pMainContext;
 };
 
 }

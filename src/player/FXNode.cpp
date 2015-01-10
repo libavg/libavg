@@ -70,7 +70,7 @@ void FXNode::setSize(const IntPoint& newSize)
 void FXNode::apply(GLTexturePtr pSrcTex)
 {
     // blt overwrites everything, so no glClear necessary before.
-    GLContext::getCurrent()->setBlendMode(GLContext::BLEND_COPY);
+    GLContext::getMain()->setBlendMode(GLContext::BLEND_COPY);
     m_pFilter->apply(pSrcTex);
 }
 
@@ -112,7 +112,8 @@ void FXNode::setDirty()
 void FXNode::checkGLES() const
 {
     if (!m_bSupportsGLES && GLContext::getCurrent()->isGLES()) {
-        throw Exception(AVG_ERR_UNSUPPORTED, "This effect is unsupported under OpenGL ES.");
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "This effect is unsupported under OpenGL ES.");
     }
 }
 
