@@ -179,7 +179,6 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
     } else {
         pShader->setMask(false);
     }
-    pShader->activate();
     GLContext::checkError("OGLSurface::activate");
 }
 

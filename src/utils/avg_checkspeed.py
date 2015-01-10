@@ -113,13 +113,16 @@ class SpeedDiv(app.MainDiv):
             self.__moveNodes()
 
     def __createTexture(self):
-        size = avg.Point2D(self.__optTexSize, self.__optTexSize)
-        canvas = player.createCanvas(id="canvas", autorender=False, size=size)
-        avg.ImageNode(href=self.mediadir+"/rgb24alpha-64x64.png", size=size,
-                parent=canvas.getRootNode())
-        canvas.render()
-        self.__bmp = canvas.screenshot()
-        player.deleteCanvas("canvas")
+        if self.__optTexSize != 64:
+            size = avg.Point2D(self.__optTexSize, self.__optTexSize)
+            canvas = player.createCanvas(id="canvas", autorender=False, size=size)
+            avg.ImageNode(href=self.mediadir+"/rgb24alpha-64x64.png", size=size,
+                    parent=canvas.getRootNode())
+            canvas.render()
+            self.__bmp = canvas.screenshot()
+            player.deleteCanvas("canvas")
+        else:
+            self.__bmp = None
 
     def __createNodes(self):
         self.__nodes = []
@@ -135,8 +138,12 @@ class SpeedDiv(app.MainDiv):
                         parent=self)
                 node.play()
             else:
-                node = avg.ImageNode(pos=pos, size=size, parent=self)
-                node.setBitmap(self.__bmp)
+                if self.__bmp:
+                    node= avg.ImageNode(pos=pos, size=size, parent=self)
+                    node.setBitmap(self.__bmp)
+                else:
+                    node= avg.ImageNode(pos=pos, size=size,
+                            href=self.mediadir+"/rgb24alpha-64x64.png", parent=self)
             if self.__optUseFX:
                 node.setEffect(avg.NullFXNode())
             if self.__optBlur:

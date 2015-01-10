@@ -247,7 +247,10 @@ static ProfilingZoneID RootRenderProfilingZone("RootNode: render");
 
 void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewport)
 {
-    pWindow->getGLContext()->activate();
+    GLContext* pContext = pWindow->getGLContext();
+    pContext->activate();
+    GLContext::setMain(pContext);
+
     GLContextManager::get()->uploadDataForContext();
     renderFX();
     glm::mat4 projMat;
@@ -290,7 +293,7 @@ SubVertexArray& Canvas::getStdSubVA()
 
 void Canvas::renderOutlines(const glm::mat4& transform)
 {
-    GLContext* pContext = GLContext::getCurrent();
+    GLContext* pContext = GLContext::getMain();
     VertexArrayPtr pVA = GLContextManager::get()->createVertexArray();
     pVA->initForGLContext();
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
@@ -346,7 +349,7 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    StandardShaderPtr pShader = GLContext::getMain()->getStandardShader();
     pShader->setUntextured();
     pShader->setTransform(transform);
     pShader->activate();

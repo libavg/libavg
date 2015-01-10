@@ -530,11 +530,12 @@ bool Player::isStopping()
     return m_bStopping;
 }
 
-void Player::initPlayback(const std::string& sShaderPath)
+void Player::initPlayback()
 {
     m_bIsPlaying = true;
     AVG_TRACE(Logger::category::PLAYER, Logger::severity::INFO, "Playback started.");
-    initGraphics(sShaderPath);
+    initGraphics();
+    GLContext::setMain(GLContext::getCurrent());
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
@@ -1242,7 +1243,7 @@ void Player::initConfig()
     m_DP.setGamma(gamma[0], gamma[1], gamma[2]);
 }
 
-void Player::initGraphics(const string& sShaderPath)
+void Player::initGraphics()
 {
     if (!Display::isInitialized()) {
         ConfigMgr* pMgr = ConfigMgr::get();
@@ -1275,9 +1276,6 @@ void Player::initGraphics(const string& sShaderPath)
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Pixels per mm: " << Display::get()->getPixelsPerMM());
-    if (sShaderPath != "") {
-        ShaderRegistry::get()->setShaderPath(sShaderPath);
-    }
     m_pDisplayEngine->setGamma(1.0, 1.0, 1.0);
     m_GLConfig = GLContext::getCurrent()->getConfig();
 }

@@ -75,7 +75,7 @@ void GLTexture::init()
     s_LastTexID++;
     m_TexID = s_LastTexID;
 
-    GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
+    GLContext::getMain()->bindTexture(GL_TEXTURE0, m_TexID);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     IntPoint size = getGLSize();
@@ -90,6 +90,8 @@ void GLTexture::init()
     } else {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_WrapMode.getS());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_WrapMode.getT());
 
     if (getUsePOT()) {
         // Make sure the texture is transparent and black before loading stuff 
@@ -107,16 +109,19 @@ void GLTexture::init()
 
 void GLTexture::activate(const WrapMode& wrapMode, int textureUnit)
 {
-    GLContext::getCurrent()->bindTexture(textureUnit, m_TexID);
-    glproc::ActiveTexture(textureUnit);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode.getS());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode.getT());
+    GLContext::getMain()->bindTexture(textureUnit, m_TexID);
+    if (wrapMode.getS() != m_WrapMode.getS() || wrapMode.getT() != m_WrapMode.getT()) {
+        glproc::ActiveTexture(textureUnit);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode.getS());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode.getT());
+        m_WrapMode = wrapMode;
+    }
 }
 
 void GLTexture::generateMipmaps()
 {
     if (getUseMipmap()) {
-        GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
+        GLContext::getMain()->bindTexture(GL_TEXTURE0, m_TexID);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
         GLContext::checkError("GLTexture::generateMipmap()");
     }

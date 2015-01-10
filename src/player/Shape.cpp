@@ -97,12 +97,13 @@ void Shape::setVertexArray(const VertexArrayPtr& pVA)
 void Shape::draw(const glm::mat4& transform, float opacity)
 {
     bool bIsTextured = (m_pGPUImage->getSource() != GPUImage::NONE);
-    GLContext* pContext = GLContext::getCurrent();
+    GLContext* pContext = GLContext::getMain();
     StandardShaderPtr pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
     pShader->setAlpha(opacity);
     if (bIsTextured) {
         m_pSurface->activate();
+        pShader->activate();
     } else {
         pShader->setUntextured();
         pShader->activate();

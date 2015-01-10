@@ -40,7 +40,7 @@ namespace avg {
 
 StandardShaderPtr StandardShader::get() 
 {
-    return GLContext::getCurrent()->getStandardShader();
+    return GLContext::getMain()->getStandardShader();
 }
 
 StandardShader::StandardShader()
@@ -207,7 +207,7 @@ void StandardShader::generateWhiteTexture()
 bool StandardShader::useMinimalShader() const
 {
     bool bActivateMinimal = false;
-    if (GLContext::getCurrent()->getShaderUsage() != GLConfig::FULL) {
+    if (GLContext::getMain()->getShaderUsage() != GLConfig::FULL) {
         bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
         if (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask) {
             bActivateMinimal = true;

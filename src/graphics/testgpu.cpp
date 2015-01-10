@@ -498,6 +498,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
     GLContextManager cm;
     GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
+    GLContext::setMain(pContext);
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
             GLConfig::shaderUsageToString(pContext->getShaderUsage());
     cerr << "---------------------------------------------------" << endl;

@@ -170,7 +170,7 @@ void VectorNode::maybeRender(const glm::mat4& parentTransform)
     if (isVisible()) {
         glm::vec3 trans(m_Translate.x, m_Translate.y, 0);
         m_Transform = glm::translate(parentTransform, trans);
-        GLContext::getCurrent()->setBlendMode(m_BlendMode);
+        GLContext::getMain()->setBlendMode(m_BlendMode);
         render();
     }
 }

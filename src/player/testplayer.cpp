@@ -27,6 +27,7 @@
 
 #include "../graphics/GLConfig.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,7 +66,8 @@ public:
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
 #endif
-            player.initPlayback("../graphics/shaders/");
+            ShaderRegistry::setShaderPath("../graphics/shaders/");
+            player.initPlayback();
             player.doFrame(false);
             player.cleanup(false);
         }
