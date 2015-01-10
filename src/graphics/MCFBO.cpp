@@ -115,7 +115,7 @@ MCTexturePtr MCFBO::getTex(int i) const
 
 FBOPtr MCFBO::getCurFBO() const
 {
-    FBOMap::const_iterator it = m_pFBOs.find(GLContext::getCurrent());
+    FBOMap::const_iterator it = m_pFBOs.find(GLContext::getMain());
     AVG_ASSERT(it != m_pFBOs.end());
     return it->second;
 }

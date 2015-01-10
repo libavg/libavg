@@ -72,7 +72,7 @@ public:
 
     void set(const VAL_TYPE& val)
     {
-        typename PARAM_MAP::iterator it = m_pParams.find(GLContext::getCurrent());
+        typename PARAM_MAP::iterator it = m_pParams.find(GLContext::getMain());
         AVG_ASSERT(it != m_pParams.end());
         GL_SHADER_PARAM_TYPE_PTR pParam = it->second;
         pParam->set(val);

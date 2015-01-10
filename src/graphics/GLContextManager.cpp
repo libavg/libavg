@@ -190,9 +190,11 @@ void GLContextManager::uploadData()
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_pContexts.size(); ++i) {
         m_pContexts[i]->activate();
+        GLContext::setMain(m_pContexts[i]);
         uploadDataForContext();
     }
     pContext->activate();
+    GLContext::setMain(pContext);
     reset();
 }
 

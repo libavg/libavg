@@ -279,7 +279,6 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
         m_pRootNode->maybeRender(projMat);
     }
     renderOutlines(projMat);
-    GLContext::setMain(0);
 }
 
 void Canvas::scheduleFXRender(const RasterNodePtr& pNode)

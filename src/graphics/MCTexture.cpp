@@ -103,7 +103,7 @@ void MCTexture::resetDirty()
 
 GLTexturePtr MCTexture::getCurTex() const
 {
-    TexMap::const_iterator it = m_pTextures.find(GLContext::getCurrent());
+    TexMap::const_iterator it = m_pTextures.find(GLContext::getMain());
     AVG_ASSERT(it != m_pTextures.end());
     return it->second;
 }
