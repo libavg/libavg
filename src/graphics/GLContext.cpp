@@ -127,9 +127,8 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
     GLContext::setMain(this);
-    if (m_pStandardShader == StandardShaderPtr()) {
-        m_pStandardShader = StandardShaderPtr(new StandardShader());
-    }
+
+    m_pStandardShader = StandardShaderPtr(new StandardShader());
 }
 
 void GLContext::deleteObjects()
