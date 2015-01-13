@@ -26,7 +26,7 @@
 
 #include "../base/Exception.h"
 #include "../base/GeomHelper.h"
-#include "../base/triangulate/Triangulate.h"
+#include "../base/Triangulate.h"
 #include "../graphics/VertexData.h"
 
 #include "../glm/gtx/norm.hpp"
@@ -203,8 +203,8 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
                 maxCoord.y = pts[i].y;
             }
         }
-        vector<unsigned int> triIndexes;
-        triangulatePolygon(triIndexes, pts, holeIndexes);
+        vector<int> triIndexes;
+        triangulatePolygon(pts, triIndexes);
 
         for (unsigned i = 0; i < pts.size(); ++i) {
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
