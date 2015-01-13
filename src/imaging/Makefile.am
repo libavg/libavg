@@ -37,5 +37,4 @@ libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
 noinst_PROGRAMS = testimaging
 testimaging_SOURCES = testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@

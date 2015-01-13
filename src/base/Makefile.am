@@ -27,7 +27,7 @@ libbase_a_CXXFLAGS = -Wno-format-y2k
 
 noinst_PROGRAMS = testbase
 testbase_SOURCES = testbase.cpp $(ALL_H)
-testbase_LDADD = ./libbase.la ./triangulate/libtriangulate.la \
+testbase_LDADD = ./libbase.la \
         @BOOST_THREAD_LIBS@ @XML2_LIBS@ @PTHREAD_LIBS@
 # -rdynamic needed only for testBacktrace to work under linux.
 testbase_LDFLAGS = -rdynamic
