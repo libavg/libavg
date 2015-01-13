@@ -460,14 +460,6 @@ class VectorTestCase(AVGTestCase):
             polygon.pos = ( (35,0), (55,10), (65,30), (65,50), (55,60), (45,50), (45,30),
                     (35,30), (25,30), (25,50), (15,60), (5,50), (5,30), (15,10) )
 
-        def createOneHole():
-            polygon.holes = ( [(35,10), (40,15), (35,20), (30,15)], )
-
-        def createMoreHoles():
-            newHoles = ( polygon.holes[0], [(20,35), (20,45), (10,40)], 
-                    [(50,35), (50,45), (60,40)], )
-            polygon.holes = newHoles
-
         def clearCanvas():
             for i in xrange(canvas.getNumChildren()-1):
                 dell = canvas.getChild(i)
@@ -500,10 +492,6 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon8"),
                  createBottomOpenPolygon,
                  lambda: self.compareImage("testPolygon9"),
-                 createOneHole,
-                 lambda: self.compareImage("testPolygonHole1"),
-                 createMoreHoles,
-                 lambda: self.compareImage("testPolygonHole2")
                 ))
 
     def testTexturedPolygon(self):
