@@ -359,9 +359,10 @@ void RasterNode::renderFX()
     if (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty()) {
         ScopeTimer Timer(FXProfilingZone);
         GLContext* pContext = GLContext::getMain();
-        StandardShader::get()->setAlpha(1.0f);
+        StandardShader* pSShader = StandardShader::get();
+        pSShader->setAlpha(1.0f);
         m_pSurface->activate(getMediaSize());
-        StandardShader::get()->activate();
+        pSShader->activate();
 
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
@@ -372,7 +373,7 @@ void RasterNode::renderFX()
         }
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
         m_pImagingProjection->setColor(m_Color);
-        m_pImagingProjection->draw(StandardShader::get()->getShader());
+        m_pImagingProjection->draw(pSShader->getShader());
 /*
         static int i=0;
         stringstream ss;
@@ -538,7 +539,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize)
     GLContext* pContext = GLContext::getMain();
     FRect destRect;
     
-    StandardShaderPtr pShader = pContext->getStandardShader();
+    StandardShader* pShader = pContext->getStandardShader();
     float opacity = getEffectiveOpacity();
     pContext->setBlendColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
     pShader->setAlpha(opacity);

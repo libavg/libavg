@@ -38,7 +38,7 @@ using namespace std;
 
 namespace avg {
 
-StandardShaderPtr StandardShader::get() 
+StandardShader* StandardShader::get() 
 {
     return GLContext::getMain()->getStandardShader();
 }

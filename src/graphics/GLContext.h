@@ -40,7 +40,6 @@ typedef boost::shared_ptr<GLContext> GLContextPtr;
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 class StandardShader;
-typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
 class AVG_API GLContext
 {
@@ -50,7 +49,7 @@ public:
 
     virtual void activate()=0;
     ShaderRegistryPtr getShaderRegistry() const;
-    StandardShaderPtr getStandardShader();
+    StandardShader* getStandardShader();
     bool useGPUYUVConversion() const;
     GLConfig::ShaderUsage getShaderUsage() const;
 
@@ -113,7 +112,7 @@ private:
     bool m_bOwnsContext;
     
     ShaderRegistryPtr m_pShaderRegistry;
-    StandardShaderPtr m_pStandardShader;
+    StandardShader* m_pStandardShader;
 
     GLBufferCache m_PBOCache;
     std::vector<unsigned int> m_FBOIDs;

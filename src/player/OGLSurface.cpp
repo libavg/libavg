@@ -104,7 +104,7 @@ void OGLSurface::destroy()
 
 void OGLSurface::activate(const IntPoint& logicalSize) const
 {
-    StandardShaderPtr pShader = StandardShader::get();
+    StandardShader* pShader = StandardShader::get();
 
     GLContext::checkError("OGLSurface::activate()");
     switch (m_pf) {
