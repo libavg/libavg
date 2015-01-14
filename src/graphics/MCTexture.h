@@ -27,7 +27,7 @@
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
-#include <map>
+#include <tr1/unordered_map>
 
 namespace avg {
 
@@ -59,7 +59,7 @@ public:
     void resetDirty();
 
 private:
-    typedef std::map<GLContext*, GLTexturePtr> TexMap;
+    typedef std::tr1::unordered_map<GLContext*, GLTexturePtr> TexMap;
     TexMap m_pTextures;
 
     bool m_bIsDirty;
