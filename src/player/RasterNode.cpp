@@ -411,22 +411,20 @@ void RasterNode::scheduleFXRender()
 
 void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
 {
-    if (isVisible() && m_pSurface->isCreated()) {
-        if (!m_bHasStdVertices) {
-            pVA->startSubVA(*m_pSubVA);
-            for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
-                for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
-                    int curVertex = m_pSubVA->getNumVerts();
-                    m_pSubVA->appendPos(m_TileVertices[y][x], m_TexCoords[y][x], m_Color);
-                    m_pSubVA->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1],
-                            m_Color);
-                    m_pSubVA->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1],
-                            m_Color);
-                    m_pSubVA->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x],
-                            m_Color);
-                    m_pSubVA->appendQuadIndexes(
-                            curVertex+1, curVertex, curVertex+2, curVertex+3);
-                }
+    if (!m_bHasStdVertices && isVisible() && m_pSurface->isCreated()) {
+        pVA->startSubVA(*m_pSubVA);
+        for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
+            for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
+                int curVertex = m_pSubVA->getNumVerts();
+                m_pSubVA->appendPos(m_TileVertices[y][x], m_TexCoords[y][x], m_Color);
+                m_pSubVA->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1],
+                        m_Color);
+                m_pSubVA->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1],
+                        m_Color);
+                m_pSubVA->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x],
+                        m_Color);
+                m_pSubVA->appendQuadIndexes(
+                        curVertex+1, curVertex, curVertex+2, curVertex+3);
             }
         }
     }
