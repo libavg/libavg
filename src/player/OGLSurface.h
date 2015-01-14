@@ -65,7 +65,6 @@ public:
 
 private:
     glm::mat4 calcColorspaceMatrix() const;
-    bool colorIsModified() const;
 
     MCTexturePtr m_pTextures[4];
     IntPoint m_Size;
@@ -76,10 +75,10 @@ private:
     bool m_bPremultipliedAlpha;
     WrapMode m_WrapMode;
 
-    glm::vec3 m_Gamma;
+    glm::vec4 m_Gamma;
+    bool m_bColorIsModified;
     glm::vec3 m_Brightness;
     glm::vec3 m_Contrast;
-    float m_AlphaGamma;
 
     bool m_bIsDirty;
 
