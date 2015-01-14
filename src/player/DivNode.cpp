@@ -307,7 +307,7 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->preRender(pVA, bIsParentActive, getEffectiveOpacity());
+        m_Children[i]->preRender(pVA, bIsParentActive, getEffectiveOpacity());
     }
 }
 
