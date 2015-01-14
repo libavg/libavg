@@ -27,7 +27,11 @@
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
+#ifdef _WIN32 
+#include <unordered_map>
+#else
 #include <tr1/unordered_map>
+#endif
 
 namespace avg {
 
