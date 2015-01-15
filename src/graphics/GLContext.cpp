@@ -128,12 +128,12 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
     checkError("init: glEnable(GL_STENCIL_TEST)");
     GLContext::setMain(this);
 
-    m_pStandardShader = StandardShaderPtr(new StandardShader());
+    m_pStandardShader = new StandardShader();
 }
 
 void GLContext::deleteObjects()
 {
-    m_pStandardShader = StandardShaderPtr();
+    delete m_pStandardShader;
     for (unsigned i=0; i<m_FBOIDs.size(); ++i) {
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
@@ -164,7 +164,7 @@ ShaderRegistryPtr GLContext::getShaderRegistry() const
     return m_pShaderRegistry;
 }
 
-StandardShaderPtr GLContext::getStandardShader()
+StandardShader* GLContext::getStandardShader()
 {
     return m_pStandardShader;
 }

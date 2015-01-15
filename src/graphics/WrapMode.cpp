@@ -40,16 +40,6 @@ WrapMode::WrapMode(int s, int t)
       m_T(t)
 {}
 
-int WrapMode::getS() const
-{
-    return m_S;
-}
-
-int WrapMode::getT() const
-{
-    return m_T;
-}
-
 const string wrapModeToStr(unsigned wrapMode)
 {
     string sWrapMode;

@@ -27,7 +27,11 @@
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
-#include <map>
+#ifdef _WIN32 
+#include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 
 namespace avg {
 
@@ -51,7 +55,7 @@ public:
     void moveBmpToTexture(BitmapPtr pBmp);
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
-    GLTexturePtr getCurTex() const;
+    const GLTexturePtr& getCurTex() const;
     unsigned getID() const;
 
     void setDirty();
@@ -59,7 +63,7 @@ public:
     void resetDirty();
 
 private:
-    typedef std::map<GLContext*, GLTexturePtr> TexMap;
+    typedef std::tr1::unordered_map<GLContext*, GLTexturePtr> TexMap;
     TexMap m_pTextures;
 
     bool m_bIsDirty;

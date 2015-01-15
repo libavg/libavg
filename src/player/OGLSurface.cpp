@@ -49,10 +49,9 @@ namespace avg {
 OGLSurface::OGLSurface(const WrapMode& wrapMode)
     : m_Size(-1,-1),
       m_WrapMode(wrapMode),
-      m_Gamma(1,1,1),
+      m_Gamma(1,1,1,1),
       m_Brightness(1,1,1),
       m_Contrast(1,1,1),
-      m_AlphaGamma(1),
       m_bIsDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -104,7 +103,7 @@ void OGLSurface::destroy()
 
 void OGLSurface::activate(const IntPoint& logicalSize) const
 {
-    StandardShaderPtr pShader = StandardShader::get();
+    StandardShader* pShader = StandardShader::get();
 
     GLContext::checkError("OGLSurface::activate()");
     switch (m_pf) {
@@ -131,14 +130,13 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             m_pTextures[3]->activate(m_WrapMode, GL_TEXTURE3);
         }
     }
-    if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
+    if (pixelFormatIsPlanar(m_pf) || m_bColorIsModified) {
         glm::mat4 mat = calcColorspaceMatrix();
         pShader->setColorspaceMatrix(mat);
     } else {
         pShader->disableColorspaceMatrix();
     }
-    pShader->setGamma(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
-                1./m_AlphaGamma));
+    pShader->setGamma(m_Gamma);
 
     pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
     if (m_pMaskTexture) {
@@ -222,15 +220,19 @@ bool OGLSurface::isPremultipliedAlpha() const
 void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,
             const glm::vec3& contrast)
 {
-    m_Gamma = gamma;
+    m_Gamma = glm::vec4(1.f/gamma.x, 1.f/gamma.y, 1.f/gamma.z, m_Gamma.w);
     m_Brightness = brightness;
     m_Contrast = contrast;
+    m_bColorIsModified = (fabs(m_Brightness.x-1.0) > 0.00001 ||
+            fabs(m_Brightness.y-1.0) > 0.00001 || fabs(m_Brightness.z-1.0) > 0.00001 ||
+            fabs(m_Contrast.x-1.0) > 0.00001 || fabs(m_Contrast.y-1.0) > 0.00001 ||
+            fabs(m_Contrast.z-1.0) > 0.00001);
     m_bIsDirty = true;
 }
 
 void OGLSurface::setAlphaGamma(float gamma)
 {
-    m_AlphaGamma = gamma;
+    m_Gamma.w = 1.f/gamma;
     m_bIsDirty = true;
 }
 
@@ -256,7 +258,7 @@ void OGLSurface::resetDirty()
 glm::mat4 OGLSurface::calcColorspaceMatrix() const
 {
     glm::mat4 mat;
-    if (colorIsModified()) {
+    if (m_bColorIsModified) {
         mat = glm::scale(mat, m_Brightness);
         glm::vec3 contrast = glm::vec3(0.5f, 0.5f, 0.5f) - m_Contrast/2.f;
         mat = glm::translate(mat, contrast);
@@ -272,13 +274,6 @@ glm::mat4 OGLSurface::calcColorspaceMatrix() const
         }
     }
     return mat;
-}
-
-bool OGLSurface::colorIsModified() const
-{
-    return (fabs(m_Brightness.x-1.0) > 0.00001 || fabs(m_Brightness.y-1.0) > 0.00001 ||
-           fabs(m_Brightness.z-1.0) > 0.00001 || fabs(m_Contrast.x-1.0) > 0.00001 ||
-           fabs(m_Contrast.y-1.0) > 0.00001 || fabs(m_Contrast.z-1.0) > 0.00001);
 }
 
 }
