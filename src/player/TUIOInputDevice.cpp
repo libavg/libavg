@@ -250,9 +250,9 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args,
 
 void TUIOInputDevice::processUserID(ReceivedMessageArgumentStream& args)
 {
-    int tuioID;
-    int userID;
-    int jointID;
+    osc::int32 tuioID;
+    osc::int32 userID;
+    osc::int32 jointID;
     args >> tuioID >> userID >> jointID;
 //    cerr << tuioID << ": " << userID << ", " << jointID << endl;
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
