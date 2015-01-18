@@ -162,18 +162,6 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
             } else if (strcmp(cmd, "alive") == 0) {
                 processAlive(args, Event::TANGIBLE);
             } 
-        } else if (strcmp(msg.AddressPattern(), "/tuio/_2Dcur") == 0) {
-            if (strcmp(cmd, "set") == 0) { 
-                processTouchSet(args, true);
-            } else if (strcmp(cmd, "alive") == 0) {
-                processAlive(args, Event::TOUCH);
-            }
-        } else if (strcmp(msg.AddressPattern(), "/tuio/_2Dobj") == 0) {
-            if (strcmp(cmd, "set") == 0) { 
-                processTangibleSet(args, true);
-            } else if (strcmp(cmd, "alive") == 0) {
-                processAlive(args, Event::TANGIBLE);
-            } 
         } 
     } catch (osc::Exception& e) {
         AVG_LOG_WARNING("Error parsing TUIO message: " << e.what()
@@ -181,7 +169,7 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
     }
 }
 
-void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args, bool extended)
+void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args)
 {
     osc::int32 tuioID;
     float xpos, ypos;
@@ -193,38 +181,21 @@ void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args, bool 
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
     IntPoint screenPos = getScreenPos(pos);
     TouchEventPtr pEvent;
-    if (extended) {
-        osc::int32 userID;
-        osc::int32 jointID;
-        args >> userID >> jointID;
-        if (!pTouchStatus) {
-            // Down
-            pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), Event::CURSOR_DOWN, 
-                    screenPos, Event::TOUCH, glm::vec2(0, 0), userID, jointID));
-            addTouchStatus((long)tuioID, pEvent);
-        } else {
-            // Move
-            pEvent = TouchEventPtr(new TouchEvent(0, Event::CURSOR_MOTION, screenPos, 
-                    Event::TOUCH, glm::vec2(0, 0), userID, jointID));
-            pTouchStatus->pushEvent(pEvent);
-        }
-    } else {
-        if (!pTouchStatus) {
-            // Down
-            pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), Event::CURSOR_DOWN, 
+    if (!pTouchStatus) {
+        // Down
+        pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), Event::CURSOR_DOWN, 
                     screenPos, Event::TOUCH));
-            addTouchStatus((long)tuioID, pEvent);
-        } else {
-            // Move
-            pEvent = TouchEventPtr(new TouchEvent(0, Event::CURSOR_MOTION, screenPos, 
+        addTouchStatus((long)tuioID, pEvent);
+    } else {
+        // Move
+        pEvent = TouchEventPtr(new TouchEvent(0, Event::CURSOR_MOTION, screenPos, 
                     Event::TOUCH));
-            pTouchStatus->pushEvent(pEvent);
-        }
+        pTouchStatus->pushEvent(pEvent);
     }
     setEventSpeed(pEvent, speed);
 }
 
-void TUIOInputDevice::processTangibleSet(ReceivedMessageArgumentStream& args, bool extended)
+void TUIOInputDevice::processTangibleSet(ReceivedMessageArgumentStream& args)
 {
     osc::int32 tuioID;
     osc::int32 classID;
@@ -234,40 +205,23 @@ void TUIOInputDevice::processTangibleSet(ReceivedMessageArgumentStream& args, bo
     float angleSpeed;
     float accel;
     float angleAccel;
-    args >> tuioID >> classID >> xpos >> ypos >> angle >> xspeed >> yspeed >> angleSpeed >>
-            accel >> angleAccel;
+    args >> tuioID >> classID >> xpos >> ypos >> angle >> xspeed >> yspeed >> angleSpeed
+            >> accel >> angleAccel;
     glm::vec2 pos(xpos, ypos);
     glm::vec2 speed(xspeed, yspeed);
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
     IntPoint screenPos = getScreenPos(pos);
     TangibleEventPtr pEvent;
-    if (extended) {
-        osc::int32 userID;
-        osc::int32 jointID;
-        args >> userID >> jointID;
-        if (!pTouchStatus) {
-            // Down
-            pEvent = TangibleEventPtr(new TangibleEvent(getNextContactID(), classID, 
-                    Event::CURSOR_DOWN, screenPos, speed, angle, userID, jointID));
-            addTouchStatus((long)tuioID, pEvent);
-        } else {
-            // Move
-            pEvent = TangibleEventPtr(new TangibleEvent(0, classID, Event::CURSOR_MOTION, 
-                    screenPos, speed, angle, userID, jointID));
-            pTouchStatus->pushEvent(pEvent);
-        }
+    if (!pTouchStatus) {
+        // Down
+        pEvent = TangibleEventPtr(new TangibleEvent(getNextContactID(), classID, 
+                Event::CURSOR_DOWN, screenPos, speed, angle));
+        addTouchStatus((long)tuioID, pEvent);
     } else {
-        if (!pTouchStatus) {
-            // Down
-            pEvent = TangibleEventPtr(new TangibleEvent(getNextContactID(), classID, 
-                    Event::CURSOR_DOWN, screenPos, speed, angle));
-            addTouchStatus((long)tuioID, pEvent);
-        } else {
-            // Move
-            pEvent = TangibleEventPtr(new TangibleEvent(0, classID, Event::CURSOR_MOTION, 
-                    screenPos, speed, angle));
-            pTouchStatus->pushEvent(pEvent);
-        }
+        // Move
+        pEvent = TangibleEventPtr(new TangibleEvent(0, classID, Event::CURSOR_MOTION, 
+                screenPos, speed, angle));
+        pTouchStatus->pushEvent(pEvent);
     }
     setEventSpeed(pEvent, speed);
 }

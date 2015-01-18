@@ -48,14 +48,14 @@ class AVG_API TouchEvent: public CursorEvent
                 const glm::vec2& speed, float orientation, float area, 
                 float eccentricity, glm::vec2 majorAxis, glm::vec2 minorAxis);
         TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
-                const glm::vec2& speed=glm::vec2(0, 0), int userID=-1, int jointID=-1);
+                const glm::vec2& speed=glm::vec2(0, 0));
         virtual ~TouchEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
 
         float getOrientation() const;
         float getArea() const;
-		int getUserID() const;
-		int getJointID() const;
+        int getUserID() const;
+        int getJointID() const;
         const glm::vec2 & getCenter() const;
         float getEccentricity() const;
         const glm::vec2 & getMajorAxis() const;
@@ -76,8 +76,8 @@ class AVG_API TouchEvent: public CursorEvent
         BlobPtr m_pBlob;
         float m_Orientation;
         float m_Area;
-		int m_UserID;
-		int m_JointID;
+        int m_UserID;
+        int m_JointID;
         glm::vec2 m_Center;
         float m_Eccentricity;
         glm::vec2 m_MajorAxis;

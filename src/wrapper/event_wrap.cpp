@@ -173,9 +173,9 @@ void export_event()
     ;
 
     class_<TouchEvent, bases<CursorEvent> >("TouchEvent", init<int, Event::Type,
-            const IntPoint&, Event::Source, optional<const glm::vec2&, int, int> >())
-		.add_property("userid", &TouchEvent::getUserID)
-		.add_property("jointid", &TouchEvent::getJointID)
+            const IntPoint&, Event::Source, optional<const glm::vec2&> >())
+        .add_property("userid", &TouchEvent::getUserID)
+        .add_property("jointid", &TouchEvent::getJointID)
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("eccentricity", &TouchEvent::getEccentricity)
@@ -191,10 +191,10 @@ void export_event()
         ;
 
     class_<TangibleEvent, bases<CursorEvent> >("TangibleEvent", init<int, int, 
-            Event::Type, const IntPoint&, const glm::vec2&, float, optional<int, int> >())
+            Event::Type, const IntPoint&, const glm::vec2&, float>())
         .add_property("markerid", &TangibleEvent::getMarkerID)
-		.add_property("userid", &TangibleEvent::getUserID)
-		.add_property("jointid", &TangibleEvent::getJointID)
+        .add_property("userid", &TangibleEvent::getUserID)
+        .add_property("jointid", &TangibleEvent::getJointID)
         .add_property("orientation", &TangibleEvent::getOrientation)
         ;
 

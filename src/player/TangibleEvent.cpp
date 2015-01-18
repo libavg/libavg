@@ -29,11 +29,11 @@ using namespace std;
 namespace avg {
 
 TangibleEvent::TangibleEvent(int id, int markerID, Type eventType, const IntPoint& pos, 
-                const glm::vec2& speed, float orientation, int userID, int jointID)
+                const glm::vec2& speed, float orientation)
     : CursorEvent(id, eventType, pos, Event::TANGIBLE),
       m_MarkerID(markerID),
-	  m_UserID(userID),
-	  m_JointID(jointID),
+      m_UserID(-1),
+      m_JointID(-1),
       m_Orientation(orientation)
 {
     setSpeed(speed);
@@ -76,8 +76,8 @@ void TangibleEvent::trace()
     AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG, "pos: " << getPos() 
             << ", ID: " << getCursorID()
             << ", Marker ID: " << m_MarkerID
-			<< ", User ID: " << m_UserID
-			<< ", Joint ID: " << m_JointID);
+            << ", User ID: " << m_UserID
+            << ", Joint ID: " << m_JointID);
 }
       
 }
