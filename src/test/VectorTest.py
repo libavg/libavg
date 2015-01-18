@@ -472,12 +472,6 @@ class VectorTestCase(AVGTestCase):
                 dell = canvas.getChild(i)
                 canvas.removeChild(dell)
 
-        def createSamePts():
-            avg.PolygonNode(pos=((10,20), (10,20), (10,20)), parent=canvas)
-            avg.PolygonNode(pos=((10,20), (10,20), (20,30)), parent=canvas)
-            avg.PolygonNode(pos=((20,30), (10,20), (10,20)), parent=canvas)
-            avg.PolygonNode(pos=((10,20), (20,30), (10,20)), parent=canvas)
-
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
@@ -504,9 +498,30 @@ class VectorTestCase(AVGTestCase):
                  createUpOpenPolygon,
                  lambda: self.compareImage("testPolygon8"),
                  createBottomOpenPolygon,
-                 lambda: self.compareImage("testPolygon9"),
-                 createSamePts,
+                 lambda: self.compareImage("testPolygon9")
                 ))
+
+    def testBrokenPolygon(self):
+        def createDegenerate():
+            avg.PolygonNode(pos=((10,20), (10,20), (10,20)), parent=canvas)
+            avg.PolygonNode(pos=((10,20), (10,20), (20,30)), parent=canvas)
+            avg.PolygonNode(pos=((20,30), (10,20), (10,20)), parent=canvas)
+            avg.PolygonNode(pos=((10,20), (20,30), (10,20)), parent=canvas)
+            avg.PolygonNode(pos=((10,20), (10,30), (10,40)), parent=canvas)
+            avg.PolygonNode(pos=((20,10), (30,10), (40,10)), parent=canvas)
+            avg.PolygonNode(pos=((0,0), (200,0), (0,0), (0,200)), parent=canvas)
+
+        def createSelfIntersecting():
+            avg.PolygonNode(pos=((0,0), (200,0), (200,100), (0,0), (100,200), (0,200)),
+                    parent=canvas)
+        
+        canvas = self.makeEmptyCanvas()
+        createDegenerate()
+        self.assertRaises(avg.Exception,
+            lambda: self.start(False,
+                    (createSelfIntersecting,
+                    ))
+            )
 
     def testTexturedPolygon(self):
         def texturePolygon():
@@ -727,6 +742,7 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
+            "testBrokenPolygon",
             "testTexturedPolygon",
             "testPointInPolygon",
             "testCircle",
