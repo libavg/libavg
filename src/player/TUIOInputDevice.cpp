@@ -144,17 +144,11 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
         ReceivedMessageArgumentStream args = msg.ArgumentStream();
         const char* cmd;
         args >> cmd;
-
         if (strcmp(msg.AddressPattern(), "/tuio/2Dcur") == 0) {
             if (strcmp(cmd, "set") == 0) { 
                 processTouchSet(args);
             } else if (strcmp(cmd, "alive") == 0) {
                 processAlive(args, Event::TOUCH);
-/*
-            } else if (strcmp(cmd, "fseq") == 0 ) {
-                int32 fseq;
-                args >> fseq;
-*/                
             } 
         } else if (strcmp(msg.AddressPattern(), "/tuio/2Dobj") == 0) {
             if (strcmp(cmd, "set") == 0) { 
@@ -162,7 +156,11 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
             } else if (strcmp(cmd, "alive") == 0) {
                 processAlive(args, Event::TANGIBLE);
             } 
-        } 
+        } else if (strcmp(msg.AddressPattern(), "/tuioext/userid") == 0) {
+            if (strcmp(cmd, "set") == 0) { 
+                processUserID(args);
+            }
+        }
     } catch (osc::Exception& e) {
         AVG_LOG_WARNING("Error parsing TUIO message: " << e.what()
                 << ". Message was " << msg);
@@ -248,6 +246,24 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args,
         pTouchStatus->pushEvent(pUpEvent);
         removeTouchStatus(id);
     }
+}
+
+void TUIOInputDevice::processUserID(ReceivedMessageArgumentStream& args)
+{
+    int tuioID;
+    int userID;
+    int jointID;
+    args >> tuioID >> userID >> jointID;
+//    cerr << tuioID << ": " << userID << ", " << jointID << endl;
+    TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
+    if (!pTouchStatus) {
+        AVG_TRACE(Logger::category::EVENTS, Logger::severity::WARNING,
+                "Received /tuioext/userid, but tuio id " << tuioID <<
+                " doesn't correspond to a contact.");
+        return;
+    }
+    CursorEventPtr pEvent = pTouchStatus->getLastEvent();
+    pEvent->setUserID(userID, jointID);
 }
 
 void TUIOInputDevice::setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed)

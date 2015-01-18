@@ -63,6 +63,7 @@ private:
     void processTangibleSet(osc::ReceivedMessageArgumentStream& args);
     void processAlive(osc::ReceivedMessageArgumentStream& args, 
             Event::Source source);
+    void processUserID(osc::ReceivedMessageArgumentStream& args);
     void setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed);
     void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs, 
             Event::Source source);

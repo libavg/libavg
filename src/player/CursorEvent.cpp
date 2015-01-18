@@ -59,7 +59,6 @@ CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 
 void CursorEvent::setUserID(int userID, int jointID)
 {
-    AVG_ASSERT(m_UserID == -1);
     m_UserID = userID;
     m_JointID = jointID;
 }
