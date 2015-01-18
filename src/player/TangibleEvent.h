@@ -42,16 +42,12 @@ class AVG_API TangibleEvent: public CursorEvent
         virtual CursorEventPtr cloneAs(Type eventType) const;
 
         int getMarkerID() const;
-        int getUserID() const;
-        int getJointID() const;
         float getOrientation() const;
 
         virtual void trace();
 
     private:
         int m_MarkerID;
-        int m_UserID;
-        int m_JointID;
         float m_Orientation;
 };
 

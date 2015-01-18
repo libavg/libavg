@@ -80,8 +80,6 @@ TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source sourc
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
         const glm::vec2& speed)
     : CursorEvent(id, eventType, pos, source),
-      m_UserID(-1),
-      m_JointID(-1),
       m_Orientation(0),
       m_Area(20),
       m_Eccentricity(0),
@@ -100,16 +98,6 @@ CursorEventPtr TouchEvent::cloneAs(Type eventType) const
     TouchEventPtr pClone(new TouchEvent(*this));
     pClone->m_Type = eventType;
     return pClone;
-}
-
-int TouchEvent::getUserID() const
-{
-    return m_UserID;
-}
-
-int TouchEvent::getJointID() const
-{
-    return m_JointID;
 }
 
 float TouchEvent::getOrientation() const 
@@ -203,9 +191,7 @@ void TouchEvent::trace()
     AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG, "pos: " << getPos() 
             << ", ID: " << getCursorID()
             << ", Area: " << m_Area
-            << ", Eccentricity: " << m_Eccentricity
-            << ", User ID: " << m_UserID
-            << ", Joint ID: " << m_JointID);
+            << ", Eccentricity: " << m_Eccentricity);
 }
       
 }

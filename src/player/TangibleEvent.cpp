@@ -32,8 +32,6 @@ TangibleEvent::TangibleEvent(int id, int markerID, Type eventType, const IntPoin
                 const glm::vec2& speed, float orientation)
     : CursorEvent(id, eventType, pos, Event::TANGIBLE),
       m_MarkerID(markerID),
-      m_UserID(-1),
-      m_JointID(-1),
       m_Orientation(orientation)
 {
     setSpeed(speed);
@@ -55,16 +53,6 @@ int TangibleEvent::getMarkerID() const
     return m_MarkerID;
 }
 
-int TangibleEvent::getUserID() const
-{
-    return m_UserID;
-}
-
-int TangibleEvent::getJointID() const
-{
-    return m_JointID;
-}
-
 float TangibleEvent::getOrientation() const 
 {
     return m_Orientation;
@@ -75,9 +63,7 @@ void TangibleEvent::trace()
     CursorEvent::trace();
     AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG, "pos: " << getPos() 
             << ", ID: " << getCursorID()
-            << ", Marker ID: " << m_MarkerID
-            << ", User ID: " << m_UserID
-            << ", Joint ID: " << m_JointID);
+            << ", Marker ID: " << m_MarkerID)
 }
       
 }

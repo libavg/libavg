@@ -40,6 +40,8 @@ CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Sourc
     : Event(eventType, source, when),
       m_Position(position),
       m_ID(id),
+      m_UserID(-1),
+      m_JointID(-1),
       m_Speed(0,0)
 {
 }
@@ -53,6 +55,13 @@ CursorEventPtr CursorEvent::cloneAs(Type eventType) const
     CursorEventPtr pClone(new CursorEvent(*this));
     pClone->m_Type = eventType;
     return pClone;
+}
+
+void CursorEvent::setUserID(int userID, int jointID)
+{
+    AVG_ASSERT(m_UserID == -1);
+    m_UserID = userID;
+    m_JointID = jointID;
 }
 
 void CursorEvent::setPos(const glm::vec2& pos)
@@ -83,6 +92,16 @@ void CursorEvent::setCursorID(int id)
 int CursorEvent::getCursorID() const
 {
     return m_ID;
+}
+
+int CursorEvent::getUserID() const
+{
+    return m_UserID;
+}
+
+int CursorEvent::getJointID() const
+{
+    return m_JointID;
 }
 
 void CursorEvent::setNode(NodePtr pNode)
@@ -123,13 +142,8 @@ bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 
 void CursorEvent::trace()
 {
-    string sType = typeStr();
-    if (!m_pNode) {
-        AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG, sType); 
-    } else {
-        AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG,
-                m_pNode->getID()+", "+sType); 
-    }
+    AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG,
+            typeStr() << ", User ID: " << m_UserID << ", Joint ID: " << m_JointID);
 }
 
 }
