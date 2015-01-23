@@ -351,7 +351,13 @@ class VectorTestCase(AVGTestCase):
             polyline2.linejoin="bevel"
             polyline2.pos = [(50,10), (60,10), (50,11)]
             canvas.removeChild(1)
-        
+
+        def createSamePts():
+            avg.PolyLineNode(pos=((10,20), (10,20), (10,20)), parent=canvas)
+            avg.PolyLineNode(pos=((10,20), (10,20), (20,30)), parent=canvas)
+            avg.PolyLineNode(pos=((20,30), (10,20), (10,20)), parent=canvas)
+            avg.PolyLineNode(pos=((10,20), (20,30), (10,20)), parent=canvas)
+
         canvas = self.makeEmptyCanvas()
         polyline = addPolyLine()
         self.start(False,
@@ -367,7 +373,8 @@ class VectorTestCase(AVGTestCase):
                  testAlmostEmptyPolyLine,
                  lambda: self.compareImage("testPolyLine5"),
                  testAcutePolyLine,
-                 lambda: self.compareImage("testPolyLine6")
+                 lambda: self.compareImage("testPolyLine6"),
+                 createSamePts
                 ))
 
     def testTexturedPolyLine(self):
@@ -473,6 +480,12 @@ class VectorTestCase(AVGTestCase):
                 dell = canvas.getChild(i)
                 canvas.removeChild(dell)
 
+        def createSamePts():
+            avg.PolygonNode(pos=((10,20), (10,20), (10,20)), parent=canvas)
+            avg.PolygonNode(pos=((10,20), (10,20), (20,30)), parent=canvas)
+            avg.PolygonNode(pos=((20,30), (10,20), (10,20)), parent=canvas)
+            avg.PolygonNode(pos=((10,20), (20,30), (10,20)), parent=canvas)
+
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
@@ -503,7 +516,8 @@ class VectorTestCase(AVGTestCase):
                  createOneHole,
                  lambda: self.compareImage("testPolygonHole1"),
                  createMoreHoles,
-                 lambda: self.compareImage("testPolygonHole2")
+                 lambda: self.compareImage("testPolygonHole2"),
+                 createSamePts
                 ))
 
     def testTexturedPolygon(self):
