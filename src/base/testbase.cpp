@@ -848,39 +848,6 @@ public:
 };
 
 
-class PolygonTest: public Test
-{
-public:
-    PolygonTest()
-        : Test("PolygonTest", 2)
-    {
-    }
-
-    void runTests()
-    {
-/*
-        glm::vec2 polyArray[] = {glm::vec2(30,0), glm::vec2(40,20), glm::vec2(60,30),
-                glm::vec2(40,40), glm::vec2(30,60), glm::vec2(20,40), glm::vec2(0,30),
-                glm::vec2(20,20)}; 
-
-        Vec2Vector poly = vectorFromCArray(8, polyArray);
-        vector<unsigned int> triangulation;
-        triangulatePolygon(triangulation, poly);
-
-        TEST(triangulation.size() == 6*3);
-        unsigned int baselineIndexes[] = {6,7,5, 5,7,1, 7,0,1, 5,1,3, 3,1,2, 4,5,3};
-        TEST(triangulation == vectorFromCArray(18, baselineIndexes));
-*/
-/*     
-        for (unsigned int i=0; i<triangulation.size(); i++) {
-            cerr << i << ":" << triangulation[i] << endl;
-        }/
-*/
-    }
-
-};
-
-
 class XmlParserTest: public Test
 {
 public:
@@ -1003,7 +970,6 @@ public:
         addTest(TestPtr(new BezierCurveTest));
         addTest(TestPtr(new SignalTest));
         addTest(TestPtr(new BacktraceTest));
-        addTest(TestPtr(new PolygonTest));
         addTest(TestPtr(new XmlParserTest));
         addTest(TestPtr(new StandardLoggerTest));
     }
