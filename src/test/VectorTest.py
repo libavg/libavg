@@ -505,6 +505,7 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon8"),
                  createBottomOpenPolygon,
                  lambda: self.compareImage("testPolygon9"),
+                 createSamePts,
                 ))
 
     def testTexturedPolygon(self):
