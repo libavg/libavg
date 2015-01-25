@@ -208,7 +208,6 @@ AC_OUTPUT(Makefile
     src/test/Makefile 
     src/test/plugin/Makefile
     src/base/Makefile 
-    src/base/triangulate/Makefile
     src/lmfit/Makefile 
     src/wrapper/Makefile 
     src/player/Makefile 

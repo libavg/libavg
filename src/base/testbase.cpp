@@ -24,7 +24,7 @@
 #include "Command.h"
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
-#include "triangulate/Triangulate.h"
+#include "Triangulate.h"
 #include "GLMHelper.h"
 #include "GeomHelper.h"
 #include "OSHelper.h"
@@ -474,15 +474,15 @@ public:
         tri = Triangle(glm::vec2(0,0), glm::vec2(4,8), glm::vec2(4,4));
         TEST(tri.isInside(glm::vec2(3,4)));
 
-        glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(8,2), glm::vec2(9,0), glm::vec2(9,3), 
-                glm::vec2(1,1), glm::vec2(0,3)}; 
+        glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(8,2), glm::vec2(9,0), 
+                glm::vec2(9,3), glm::vec2(1,1), glm::vec2(0,3)}; 
 
         Vec2Vector poly = vectorFromCArray(6, polyArray);
-        vector<unsigned int> triangulation;
-        triangulatePolygon(triangulation, poly);
+        vector<int> triangulation;
+        triangulatePolygon(poly, triangulation);
 
         TEST(triangulation.size() == 4*3);
-        unsigned int baselineIndexes[] = {5,0,4, 1,4,0, 4,1,3, 1,2,3};
+        int baselineIndexes[] = {1,2,3, 4,5,0, 0,1,3, 3,4,0};
         TEST(triangulation == vectorFromCArray(12, baselineIndexes));
 /*
         for (unsigned int i=0; i<triangulation.size(); i++) {
@@ -848,37 +848,6 @@ public:
 };
 
 
-class PolygonTest: public Test
-{
-public:
-    PolygonTest()
-        : Test("PolygonTest", 2)
-    {
-    }
-
-    void runTests()
-    {
-        glm::vec2 polyArray[] = {glm::vec2(30,0), glm::vec2(40,20), glm::vec2(60,30),
-                glm::vec2(40,40), glm::vec2(30,60), glm::vec2(20,40), glm::vec2(0,30),
-                glm::vec2(20,20)}; 
-
-        Vec2Vector poly = vectorFromCArray(8, polyArray);
-        vector<unsigned int> triangulation;
-        triangulatePolygon(triangulation, poly);
-
-        TEST(triangulation.size() == 6*3);
-        unsigned int baselineIndexes[] = {6,7,5, 5,7,1, 7,0,1, 5,1,3, 3,1,2, 4,5,3};
-        TEST(triangulation == vectorFromCArray(18, baselineIndexes));
-/*     
-        for (unsigned int i=0; i<triangulation.size(); i++) {
-            cerr << i << ":" << triangulation[i] << endl;
-        }/
-*/
-    }
-
-};
-
-
 class XmlParserTest: public Test
 {
 public:
@@ -1001,7 +970,6 @@ public:
         addTest(TestPtr(new BezierCurveTest));
         addTest(TestPtr(new SignalTest));
         addTest(TestPtr(new BacktraceTest));
-        addTest(TestPtr(new PolygonTest));
         addTest(TestPtr(new XmlParserTest));
         addTest(TestPtr(new StandardLoggerTest));
     }

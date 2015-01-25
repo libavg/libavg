@@ -13,5 +13,4 @@ libaudio_la_SOURCES = AudioEngine.cpp AudioBuffer.cpp AudioParams.cpp AudioMsg.c
 
 testlimiter_SOURCES = testlimiter.cpp $(ALL_H)
 testlimiter_LDADD = ./libaudio.la ../base/libbase.la \
-        ../base/triangulate/libtriangulate.la \
         @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@

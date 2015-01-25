@@ -33,7 +33,6 @@ avg_la_LIBADD = ../player/libplayer.la \
                 ../video/libvideo.la \
                 ../graphics/libgraphics.la \
                 ../base/libbase.la \
-                ../base/triangulate/libtriangulate.la \
                 ../imaging/libimaging.la \
                 ../anim/libanim.la \
                 ../lmfit/liblmfit.la \
