@@ -499,6 +499,13 @@ void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2,
 int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
 {
     int numPts = pts.size();
+
+    if (numPts < 2) {
+        return numPts;
+    }
+    if (glm::distance2(pts[0], pts[numPts-1])<0.1) {
+        numPts--;
+    }
     for (unsigned i=1; i<pts.size(); ++i) {
         if (glm::distance2(pts[i], pts[i-1])<0.1) {
             numPts--;
