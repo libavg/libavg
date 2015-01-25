@@ -42,7 +42,7 @@ typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class AVG_API StandardShader {
 public:
-    static StandardShaderPtr get();
+    static StandardShader* get();
     StandardShader();
     virtual ~StandardShader();
 

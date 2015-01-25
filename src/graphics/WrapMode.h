@@ -31,8 +31,15 @@ public:
     WrapMode();
     WrapMode(int s, int t);
     
-    int getS() const;
-    int getT() const;
+    int getS() const
+    {
+        return m_S;
+    };
+
+    int getT() const
+    {
+        return m_T;
+    };
 
     void dump() const;
 
