@@ -89,7 +89,14 @@ bool StateAnim::step()
 
     if (!m_sCurStateName.empty()) {
         const AnimState& curState = m_States[m_sCurStateName];
-        bool bDone = curState.m_pAnim->step();
+        AnimPtr pAnim = curState.m_pAnim;
+        bool bDone;
+        if (pAnim->isRunning()) {
+            bDone = curState.m_pAnim->step();
+        } else {
+            // Special case: AttrAnim stopped because other animation hijacked it.
+            bDone = true;
+        }
         if (bDone) {
             switchToNewState(curState.m_sNextName, false);
         }
