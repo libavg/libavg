@@ -35,7 +35,6 @@ namespace avg {
 
 class Pixel32
 {
-
 public:
     Pixel32();
     Pixel32(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
@@ -85,76 +84,76 @@ inline Pixel32::Pixel32()
 inline Pixel32::Pixel32(unsigned char r, unsigned char g, unsigned char b, 
         unsigned char a)
 {
-  set (r, g, b, a);
+    set(r, g, b, a);
 }
 
 
 inline Pixel32::Pixel32(unsigned char r, unsigned char g, unsigned char b)
 {
-  set (r, g, b, 255);
+    set(r, g, b, 255);
 }
 
 
 inline void Pixel32::set(unsigned char r, unsigned char g, unsigned char b, 
         unsigned char a)
 {
-  m_Data[REDPOS] = r;
-  m_Data[GREENPOS] = g;
-  m_Data[BLUEPOS] = b;
-  m_Data[ALPHAPOS] = a;
+    m_Data[REDPOS] = r;
+    m_Data[GREENPOS] = g;
+    m_Data[BLUEPOS] = b;
+    m_Data[ALPHAPOS] = a;
 }
 
 inline void Pixel32::set(unsigned char r, unsigned char g, unsigned char b)
 {
-  m_Data[REDPOS] = r;
-  m_Data[GREENPOS] = g;
-  m_Data[BLUEPOS] = b;
+    m_Data[REDPOS] = r;
+    m_Data[GREENPOS] = g;
+    m_Data[BLUEPOS] = b;
 }
 
 inline void Pixel32::setR(unsigned char r)
 {
-  m_Data[REDPOS] = r;
+    m_Data[REDPOS] = r;
 }
 
 
 inline void Pixel32::setG(unsigned char g)
 {
-  m_Data[GREENPOS] = g;
+    m_Data[GREENPOS] = g;
 }
 
 
 inline void Pixel32::setB(unsigned char b)
 {
-  m_Data[BLUEPOS] = b;
+    m_Data[BLUEPOS] = b;
 }
 
 inline void Pixel32::setA(unsigned char a)
 {
-  m_Data[ALPHAPOS] = a;
+    m_Data[ALPHAPOS] = a;
 }
 
 
 inline unsigned char Pixel32::getR() const
 {
-  return m_Data[REDPOS];
+    return m_Data[REDPOS];
 }
 
 
 inline unsigned char Pixel32::getG() const
 {
-  return m_Data[GREENPOS];
+    return m_Data[GREENPOS];
 }
 
 
 inline unsigned char Pixel32::getB() const
 {
-  return m_Data[BLUEPOS];
+    return m_Data[BLUEPOS];
 }
 
 
 inline unsigned char Pixel32::getA() const
 {
-  return m_Data[ALPHAPOS];
+    return m_Data[ALPHAPOS];
 }
 
 inline void Pixel32::flipRB() 
@@ -166,40 +165,39 @@ inline void Pixel32::flipRB()
 
 inline int Pixel32::boxDist(const Pixel32 pix) const
 {
-  return (abs ((int)getR()-pix.getR()) +
-          abs ((int)getG()-pix.getG()) +
-          abs ((int)getB()-pix.getB()));
+    return (abs((int)getR()-pix.getR()) +
+            abs((int)getG()-pix.getG()) +
+            abs((int)getB()-pix.getB()));
 }
 
 inline bool Pixel32::operator ==(const Pixel32 pix) const
 {
-  return (*(const int *)this == *(const int*)&pix);
+    return (*(const int *)this == *(const int*)&pix);
 }
 
 inline bool Pixel32::operator !=(const Pixel32 pix) const
 {
-  return (!(*this == pix));
+    return (!(*this == pix));
 }
 
 inline void Pixel32::operator +=(const Pixel32 pix)
 {
-  m_Data[0] += pix.m_Data[0];
-  m_Data[1] += pix.m_Data[1];
-  m_Data[2] += pix.m_Data[2];
+    m_Data[0] += pix.m_Data[0];
+    m_Data[1] += pix.m_Data[1];
+    m_Data[2] += pix.m_Data[2];
 }
 
 inline void Pixel32::operator -=(const Pixel32 pix)
 {
-  m_Data[0] -= pix.m_Data[0];
-  m_Data[1] -= pix.m_Data[1];
-  m_Data[2] -= pix.m_Data[2];
+    m_Data[0] -= pix.m_Data[0];
+    m_Data[1] -= pix.m_Data[1];
+    m_Data[2] -= pix.m_Data[2];
 }
 
 inline Pixel32 Pixel32::operator *(float f) const
 {
-  return Pixel32((unsigned char)(f*getR()), 
-          (unsigned char)(f*getG()), 
-          (unsigned char)(f*getB()));
+    return Pixel32((unsigned char)(f*getR()), (unsigned char)(f*getG()), 
+            (unsigned char)(f*getB()));
 }
 
 

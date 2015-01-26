@@ -32,30 +32,30 @@ namespace avg {
 
 class AVG_API Pixel8
 {
-  public:
-    Pixel8 ();
-    Pixel8 (unsigned char i);
-    void set (unsigned char i);
-    unsigned char get () const;
-    unsigned char getR () const;
-    unsigned char getG () const;
-    unsigned char getB () const;
+public:
+    Pixel8();
+    Pixel8(unsigned char i);
+    void set(unsigned char i);
+    unsigned char get() const;
+    unsigned char getR() const;
+    unsigned char getG() const;
+    unsigned char getB() const;
     void flipRB();
 
     template<class SrcPixel>
-    Pixel8 operator = (const SrcPixel& Pix)
+    Pixel8 operator =(const SrcPixel& Pix)
     {
         set ((Pix.getR()*54+Pix.getG()*183+Pix.getB()*19)/256);
         return *this;
     }
    
-    Pixel8 operator = (const Pixel8& Pix)
+    Pixel8 operator =(const Pixel8& Pix)
     {
-        set (Pix.get());
+        set(Pix.get());
         return *this;
     }
 
-    operator Pixel32 () const;
+    operator Pixel32() const;
 
     bool operator ==(const Pixel8&) const;
     bool operator !=(const Pixel8&) const;
@@ -65,15 +65,15 @@ class AVG_API Pixel8
     // Simple and fast 'distance' between two pixels. Just adds the
     // distances between the color components and treats colors
     // equally.
-    int boxDist (const Pixel8 Pix) const;
+    int boxDist(const Pixel8 Pix) const;
 
     // Returns a weighed average between two pixels. Factor must be 
     // between 0 and 256. Factor=256 means Pix1 is the result, Factor=0 
     // means Pix2 is the result.
-    static Pixel8 Blend (int Factor, const Pixel8 Pix1, 
-                            const Pixel8 Pix2);
+    static Pixel8 blend(int factor, const Pixel8 pix1, 
+                            const Pixel8 pix2);
 
-  private:
+private:
     unsigned char m_i;
 };
 
@@ -83,67 +83,67 @@ inline Pixel8::Pixel8()
 
 inline Pixel8::Pixel8(unsigned char i)
 {
-  set (i);
+    set(i);
 }
 
 inline void Pixel8::set(unsigned char i)
 {
-  m_i = i;
+    m_i = i;
 }
 
 inline unsigned char Pixel8::get() const
 {
-  return m_i;
+    return m_i;
 }
 
 inline unsigned char Pixel8::getR() const
 {
-  return m_i;
+    return m_i;
 }
 
 inline unsigned char Pixel8::getG() const
 {
-  return m_i;
+    return m_i;
 }
 
 inline unsigned char Pixel8::getB() const
 {
-  return m_i;
+    return m_i;
 }
 
-inline int Pixel8::boxDist (const Pixel8 Pix) const
+inline int Pixel8::boxDist(const Pixel8 Pix) const
 {
-  return (abs ((int)get()-Pix.get()));
+    return (abs((int)get()-Pix.get()));
 }
 
-inline Pixel8 Pixel8::Blend (int Factor, const Pixel8 Pix1, const Pixel8 Pix2)
+inline Pixel8 Pixel8::blend(int factor, const Pixel8 pix1, const Pixel8 pix2)
 {
-  return Pixel8 ((Pix1.get()*Factor+Pix2.get()*(256-Factor))>>8);
+    return Pixel8((pix1.get()*factor+pix2.get()*(256-factor))>>8);
 }
 
-inline Pixel8::operator Pixel32 () const
+inline Pixel8::operator Pixel32() const
 {
-  return Pixel32 (m_i, m_i, m_i, 255);
+    return Pixel32(m_i, m_i, m_i, 255);
 }
 
 inline bool Pixel8::operator ==(const Pixel8& Pix) const
 {
-  return (get() == Pix.get());
+    return (get() == Pix.get());
 }
 
 inline bool Pixel8::operator !=(const Pixel8& Pix) const
 {
-  return (!(*this == Pix));
+    return (!(*this == Pix));
 }
 
-inline void Pixel8::operator += (const Pixel8& Pix)
+inline void Pixel8::operator +=(const Pixel8& Pix)
 {
-  m_i += Pix.m_i;
+    m_i += Pix.m_i;
 }
 
-inline void Pixel8::operator -= (const Pixel8& Pix)
+inline void Pixel8::operator -=(const Pixel8& Pix)
 {
-  m_i -= Pix.m_i;
+    m_i -= Pix.m_i;
 }
 
 }
