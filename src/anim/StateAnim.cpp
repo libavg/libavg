@@ -66,6 +66,11 @@ void StateAnim::setState(const std::string& sName, bool bKeepAttr)
     if (m_sCurStateName == sName) {
         return;
     }
+    if (!(Player::get()->isPlaying())) {
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                "Animation playback can only be started when the player is running."));
+    }
+
     if (!m_sCurStateName.empty()) {
         m_States[m_sCurStateName].m_pAnim->abort();
     }
@@ -89,7 +94,14 @@ bool StateAnim::step()
 
     if (!m_sCurStateName.empty()) {
         const AnimState& curState = m_States[m_sCurStateName];
-        bool bDone = curState.m_pAnim->step();
+        AnimPtr pAnim = curState.m_pAnim;
+        bool bDone;
+        if (pAnim->isRunning()) {
+            bDone = curState.m_pAnim->step();
+        } else {
+            // Special case: AttrAnim stopped because other animation hijacked it.
+            bDone = true;
+        }
         if (bDone) {
             switchToNewState(curState.m_sNextName, false);
         }
