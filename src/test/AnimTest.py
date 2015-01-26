@@ -420,7 +420,19 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.delay(200),
                  lambda: self.compareImage("testStateAnimC6"),
                  lambda: self.delay(200),
-#                 lambda: player.getTestHelper().dumpObjects()
+                ))
+
+    def testStateAnimRegistry(self):
+        def startLinearAnim():
+            avg.LinearAnim(self.__node, "x", 300, 100, 0).start()
+
+        self.initScene()
+        stateAnim = avg.StateAnim(
+            [avg.AnimState("S1", avg.LinearAnim(self.__node, "x", 500, 0, 100, False))
+            ])
+        stateAnim.setState("S1")
+        self.start(False,
+                (startLinearAnim,
                 ))
 
     def testNonNodeAttrAnim(self):
@@ -521,6 +533,7 @@ def animTestSuite(tests):
         "testParallelAnim",
         "testParallelAnimRegistry",
         "testStateAnim",
+        "testStateAnimRegistry",
         "testNonNodeAttrAnim"
         )
     return createAVGTestSuite(availableTests, AnimTestCase, tests)
