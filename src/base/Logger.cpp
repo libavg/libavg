@@ -95,7 +95,8 @@ Logger::Logger()
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
         vector<string> sCategories;
-        ba::split(sCategories, sEnvCategories, ba::is_any_of(" "), ba::token_compress_on);
+        ba::split(sCategories, sEnvCategories, ba::is_any_of(" "), 
+                ba::token_compress_on);
         vector<string>::iterator it;
         for(it=sCategories.begin(); it!=sCategories.end(); it++) {
             string::size_type pos = (*it).find(":");

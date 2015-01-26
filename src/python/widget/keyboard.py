@@ -126,7 +126,8 @@ class Key(avg.DivNode):
 
     def __createImage(self, node, bmp, sizeFactor):
         canvas = player.createCanvas(id="keycanvas", size=self.size*sizeFactor)
-        canvasImage = avg.ImageNode(pos=-self.pos*sizeFactor, parent=canvas.getRootNode())
+        canvasImage = avg.ImageNode(pos=-self.pos*sizeFactor, 
+									parent=canvas.getRootNode())
         canvasImage.setBitmap(bmp)
         canvas.render()
         node.setBitmap(canvas.screenshot())
