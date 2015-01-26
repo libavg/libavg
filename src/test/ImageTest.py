@@ -320,7 +320,7 @@ class ImageTestCase(AVGTestCase):
                 ))
 
     def testBitmapManager(self):
-        WAIT_TIMEOUT = 2000
+        WAIT_TIMEOUT = 5000
         def expectException(returnValue, nextAction):
             if isinstance(returnValue, Exception):
                 nextAction()
