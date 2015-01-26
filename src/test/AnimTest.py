@@ -428,11 +428,11 @@ class AnimTestCase(AVGTestCase):
 
         self.initScene()
         stateAnim = avg.StateAnim(
-            [avg.AnimState("S1", avg.LinearAnim(self.__node, "x", 500, 0, 100, False))
+            [avg.AnimState("S1", avg.LinearAnim(self.__node, "x", 500, 0, 100, False)),
             ])
-        stateAnim.setState("S1")
         self.start(False,
-                (startLinearAnim,
+                (lambda: stateAnim.setState("S1"),
+                 startLinearAnim,
                 ))
 
     def testNonNodeAttrAnim(self):
