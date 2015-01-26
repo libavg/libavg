@@ -66,6 +66,11 @@ void StateAnim::setState(const std::string& sName, bool bKeepAttr)
     if (m_sCurStateName == sName) {
         return;
     }
+    if (!(Player::get()->isPlaying())) {
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                "Animation playback can only be started when the player is running."));
+    }
+
     if (!m_sCurStateName.empty()) {
         m_States[m_sCurStateName].m_pAnim->abort();
     }
