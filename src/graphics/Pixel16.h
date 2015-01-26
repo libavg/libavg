@@ -39,10 +39,10 @@ class AVG_API Pixel16
   public:
     Pixel16 ();
     Pixel16 (unsigned char r, unsigned char g, unsigned char b);
-    void Set (unsigned char r, unsigned char g, unsigned char b);
-    void SetR (unsigned char r);
-    void SetG (unsigned char g);
-    void SetB (unsigned char b);
+    void set (unsigned char r, unsigned char g, unsigned char b);
+    void setR (unsigned char r);
+    void setG (unsigned char g);
+    void setB (unsigned char b);
     unsigned char getR () const;
     unsigned char getG () const;
     unsigned char getB () const;
@@ -72,11 +72,11 @@ inline Pixel16::Pixel16()
 
 inline Pixel16::Pixel16(unsigned char r, unsigned char g, unsigned char b)
 {
-  Set (r, g, b);
+  set (r, g, b);
 }
 
 
-inline void Pixel16::Set (unsigned char r, unsigned char g, unsigned char b)
+inline void Pixel16::set (unsigned char r, unsigned char g, unsigned char b)
 {
 #ifdef PIXEL_BGRA_ORDER
   m_Data = ((r&0xF8) << 8) | ((g&0xFC) << 3) | (b>>3);
@@ -85,7 +85,7 @@ inline void Pixel16::Set (unsigned char r, unsigned char g, unsigned char b)
 #endif  
 }
 
-inline void Pixel16::SetR(unsigned char r)
+inline void Pixel16::setR(unsigned char r)
 {
 #ifdef PIXEL_BGRA_ORDER
   m_Data = (m_Data&0x07FF)|((r&0xF8)<<8);
@@ -94,13 +94,13 @@ inline void Pixel16::SetR(unsigned char r)
 #endif
 }
 
-inline void Pixel16::SetG(unsigned char g)
+inline void Pixel16::setG(unsigned char g)
 {
   m_Data = (m_Data&0xF81F)|((g&0xFC)<<3);
 }
 
 
-inline void Pixel16::SetB(unsigned char b)
+inline void Pixel16::setB(unsigned char b)
 {
 #ifdef PIXEL_BGRA_ORDER
   m_Data = (m_Data&0xFFE0)|(b>>3);
@@ -135,7 +135,7 @@ inline unsigned char Pixel16::getB() const
 
 inline Pixel16 Pixel16::operator = (const Pixel32& Pix)
 {
-  Set (Pix.getR(), Pix.getG(), Pix.getB());
+  set (Pix.getR(), Pix.getG(), Pix.getB());
   return *this;
 }
 
@@ -147,7 +147,7 @@ inline Pixel16::operator Pixel32 () const
 
 inline Pixel16 Pixel16::operator = (const Pixel24& Pix)
 {
-  Set (Pix.getR(), Pix.getG(), Pix.getB());
+  set (Pix.getR(), Pix.getG(), Pix.getB());
 
   return *this;
 }
