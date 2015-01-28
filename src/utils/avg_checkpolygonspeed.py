@@ -39,9 +39,6 @@ class SpeedDiv(app.MainDiv):
                 'Displays a frame time graph and executes for 20 secs.'
         parser.set_usage(usage)
 
-        parser.add_option('--hole-polygon', '-y', dest='hole',
-                action='store_true', default=False,
-                help='generate polygons with holes')
         parser.add_option('--create-nodes', '-c', dest='create',
                 action='store_true', default=False,
                 help='destroy and recreate all nodes every 400 ms')
@@ -62,7 +59,6 @@ class SpeedDiv(app.MainDiv):
                 help='enable profiling output, note that profiling makes things slower')
 
     def onArgvParsed(self, options, args, parser):
-        self.__optHole = options.hole
         self.__optCreate = options.create
         self.__optMove = options.move
         self.__optVsync = options.vsync
@@ -103,10 +99,7 @@ class SpeedDiv(app.MainDiv):
         for i in xrange(self.__optNumObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
             polyPos = self.__calPolyCords(pos, R)
-            holes = []
-            if self.__optHole:
-                holes = (self.__calPolyCords(pos, R/2), )
-            node = avg.PolygonNode(parent=self, pos=polyPos, fillopacity=1, holes=holes)
+            node = avg.PolygonNode(parent=self, pos=polyPos, fillopacity=1)
             self.__nodes.append(node)
         if self.__optCreate:
             player.setTimeout(300, self.__deleteNodes)
