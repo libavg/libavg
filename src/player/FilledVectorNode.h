@@ -69,7 +69,7 @@ class AVG_API FilledVectorNode : public VectorNode
         virtual bool isVisible() const;
 
     private:
-        float m_OldOpacity;
+        float m_EffectiveOpacity;
 
         UTF8String m_FillTexHRef;
         glm::vec2 m_FillTexCoord1;

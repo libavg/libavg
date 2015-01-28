@@ -73,7 +73,7 @@ void FilledVectorNode::connectDisplay()
     VectorNode::connectDisplay();
     m_FillColor = colorStringToColor(m_sFillColorName);
     m_pFillShape->moveToGPU();
-    m_OldOpacity = -1;
+    m_EffectiveOpacity = -1;
 }
 
 void FilledVectorNode::disconnect(bool bKill)
@@ -155,11 +155,11 @@ void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive
     float curOpacity = parentEffectiveOpacity*m_FillOpacity;
 
     VertexDataPtr pShapeVD = m_pFillShape->getVertexData();
-    if (isDrawNeeded() || curOpacity != m_OldOpacity) {
+    if (isDrawNeeded() || curOpacity != m_EffectiveOpacity) {
         pShapeVD->reset();
         Pixel32 color = getFillColorVal();
         calcFillVertexes(pShapeVD, color);
-        m_OldOpacity = curOpacity;
+        m_EffectiveOpacity = curOpacity;
     }
     if (isVisible()) {
         m_pFillShape->setVertexArray(pVA);
@@ -172,9 +172,8 @@ static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 void FilledVectorNode::render()
 {
     ScopeTimer Timer(RenderProfilingZone);
-    float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
-    if (curOpacity > 0.01) {
-        m_pFillShape->draw(getTransform(), curOpacity);
+    if (m_EffectiveOpacity > 0.01) {
+        m_pFillShape->draw(getTransform(), m_EffectiveOpacity);
     }
     VectorNode::render();
 }
