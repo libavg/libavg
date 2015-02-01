@@ -311,9 +311,8 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     }
 }
 
-void DivNode::render()
+void DivNode::render(const glm::mat4& transform)
 {
-    const glm::mat4& transform = getTransform();
     if (getCrop() && getSize() != glm::vec2(0,0)) {
         getCanvas()->pushClipRect(transform, m_ClipVA);
     }

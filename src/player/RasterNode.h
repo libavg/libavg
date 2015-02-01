@@ -104,7 +104,7 @@ class AVG_API RasterNode: public AreaNode
         
         void scheduleFXRender();
         void calcVertexArray(const VertexArrayPtr& pVA);
-        void blt32();
+        void blt32(const glm::mat4& transform);
         void blta8(const glm::mat4& transform, const glm::vec2& destSize);
 
         virtual OGLSurface * getSurface();
