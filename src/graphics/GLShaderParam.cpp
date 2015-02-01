@@ -29,6 +29,9 @@
 using namespace std;
 
 namespace avg {
+GLShaderParam::GLShaderParam()
+{
+}
 
 GLShaderParam::GLShaderParam(OGLShader* pShader, const std::string& sName)
     : m_sName(sName)

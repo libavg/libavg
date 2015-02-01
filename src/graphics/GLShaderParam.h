@@ -39,6 +39,8 @@ class OGLShader;
 class AVG_API GLShaderParam
 {
 public:
+    GLShaderParam();
+
     GLShaderParam(OGLShader* pShader, const std::string& sName);
     virtual ~GLShaderParam() {};
     
@@ -57,6 +59,9 @@ template<class VAL_TYPE>
 class AVG_TEMPLATE_API GLShaderParamTemplate: public GLShaderParam
 {
 public:
+    GLShaderParamTemplate()
+    {};
+
     GLShaderParamTemplate(OGLShader* pShader, const std::string& sName)
         : GLShaderParam(pShader, sName),
           m_bValSet(false)

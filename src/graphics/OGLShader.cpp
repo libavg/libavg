@@ -41,15 +41,11 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
       m_sFragProgram(sFragProgram)
 {
     m_hProgram = glproc::CreateProgram();
-    if (sVertProgram == "") {
-        m_hVertexShader = 0;
-    } else {
-        glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
-        glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
-        glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
-        m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sVertPrefix);
-        glproc::AttachShader(m_hProgram, m_hVertexShader);
-    }
+    glproc::BindAttribLocation(m_hProgram, VertexArray::TEX_INDEX, "a_TexCoord");
+    glproc::BindAttribLocation(m_hProgram, VertexArray::COLOR_INDEX, "a_Color");
+    glproc::BindAttribLocation(m_hProgram, VertexArray::POS_INDEX, "a_Pos");
+    m_hVertexShader = compileShader(GL_VERTEX_SHADER, sVertProgram, sVertPrefix);
+    glproc::AttachShader(m_hProgram, m_hVertexShader);
     m_hFragmentShader = compileShader(GL_FRAGMENT_SHADER, sFragProgram, sFragPrefix);
     
     glproc::AttachShader(m_hProgram, m_hFragmentShader);
@@ -72,9 +68,7 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
         dumpInfoLog(m_hProgram, Logger::severity::INFO, true);
     }
     m_pShaderRegistry = &*ShaderRegistry::get();
-    if (m_hVertexShader) {
-        m_pTransformParam = getParam<glm::mat4>("transform");
-    }
+    m_TransformParam = *getParam<glm::mat4>("transform");
 }
 
 OGLShader::~OGLShader()
@@ -114,16 +108,7 @@ const std::string OGLShader::getName() const
 
 void OGLShader::setTransform(const glm::mat4& transform)
 {
-    if (m_hVertexShader) {
-        m_pTransformParam->set(transform);
-    } else {
-#ifdef AVG_ENABLE_EGL
-        // No fixed-function vertex shader in gles
-        AVG_ASSERT(false);
-#else
-        glLoadMatrixf(glm::value_ptr(transform));
-#endif
-    }
+    m_TransformParam.set(transform);
 }
 
 GLuint OGLShader::compileShader(GLenum shaderType, const std::string& sProgram,

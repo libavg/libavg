@@ -125,6 +125,17 @@ void GLContextManager::unregisterContext(GLContext* pContext)
     AVG_ASSERT(false);
 }
 
+int GLContextManager::getContextIndex(GLContext* pContext)
+{
+    for (int i=0; i<int(m_pContexts.size()); ++i) {
+        if (pContext == m_pContexts[i]) {
+            return i;
+        }
+    }
+    AVG_ASSERT(false);
+    return -1;
+}
+
 MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat pf, 
         bool bMipmap, bool bForcePOT, int potBorderColor)
 {
