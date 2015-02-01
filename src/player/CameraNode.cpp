@@ -336,7 +336,7 @@ static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (m_bIsPlaying) {
         if (m_bAutoUpdateCameraImage) {
             ScopeTimer Timer(CameraFetchImage);
