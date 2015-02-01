@@ -86,7 +86,7 @@ class AVG_API OGLShader {
         std::string m_sFragProgram;
 
         std::vector<GLShaderParamPtr> m_pParams;
-        Mat4fGLShaderParamPtr m_pTransformParam;
+        Mat4fGLShaderParam m_TransformParam;
 
         // Dumb pointer for speed reasons.
         ShaderRegistry* m_pShaderRegistry;

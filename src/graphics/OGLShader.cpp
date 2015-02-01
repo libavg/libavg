@@ -73,7 +73,7 @@ OGLShader::OGLShader(const string& sName, const string& sVertProgram,
     }
     m_pShaderRegistry = &*ShaderRegistry::get();
     if (m_hVertexShader) {
-        m_pTransformParam = getParam<glm::mat4>("transform");
+        m_TransformParam = *getParam<glm::mat4>("transform");
     }
 }
 
@@ -115,7 +115,7 @@ const std::string OGLShader::getName() const
 void OGLShader::setTransform(const glm::mat4& transform)
 {
     if (m_hVertexShader) {
-        m_pTransformParam->set(transform);
+        m_TransformParam.set(transform);
     } else {
 #ifdef AVG_ENABLE_EGL
         // No fixed-function vertex shader in gles

@@ -83,22 +83,22 @@ private:
     OGLShaderPtr m_pShader;
     OGLShaderPtr m_pMinimalShader;
 
-    IntGLShaderParamPtr m_pColorModelParam;
-    FloatGLShaderParamPtr m_pAlphaParam;
+    IntGLShaderParam m_ColorModelParam;
+    FloatGLShaderParam m_AlphaParam;
 
-    Vec4fGLShaderParamPtr m_pColorCoeff0Param;
-    Vec4fGLShaderParamPtr m_pColorCoeff1Param;
-    Vec4fGLShaderParamPtr m_pColorCoeff2Param;
-    Vec4fGLShaderParamPtr m_pColorCoeff3Param;
-    Vec4fGLShaderParamPtr m_pGammaParam;
+    Vec4fGLShaderParam m_ColorCoeff0Param;
+    Vec4fGLShaderParam m_ColorCoeff1Param;
+    Vec4fGLShaderParam m_ColorCoeff2Param;
+    Vec4fGLShaderParam m_ColorCoeff3Param;
+    Vec4fGLShaderParam m_GammaParam;
 
-    IntGLShaderParamPtr m_pUseColorCoeffParam;
-    IntGLShaderParamPtr m_pPremultipliedAlphaParam;
-    IntGLShaderParamPtr m_pUseMaskParam;
-    Vec2fGLShaderParamPtr m_pMaskPosParam;
-    Vec2fGLShaderParamPtr m_pMaskSizeParam;
+    IntGLShaderParam m_UseColorCoeffParam;
+    IntGLShaderParam m_PremultipliedAlphaParam;
+    IntGLShaderParam m_UseMaskParam;
+    Vec2fGLShaderParam m_MaskPosParam;
+    Vec2fGLShaderParam m_MaskSizeParam;
 
-    FloatGLShaderParamPtr m_pMinimalAlphaParam;
+    FloatGLShaderParam m_MinimalAlphaParam;
 };
 
 }

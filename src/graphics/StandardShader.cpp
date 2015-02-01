@@ -48,19 +48,19 @@ StandardShader::StandardShader()
     GLContext* pContext = GLContext::getCurrent();
     pContext->getShaderRegistry()->createShader(STANDARD_SHADER);
     m_pShader = avg::getShader(STANDARD_SHADER);
-    m_pColorModelParam = m_pShader->getParam<int>("u_ColorModel");
-    m_pAlphaParam = m_pShader->getParam<float>("u_Alpha");
-    m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff0");
-    m_pColorCoeff1Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff1");
-    m_pColorCoeff2Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff2");
-    m_pColorCoeff3Param = m_pShader->getParam<glm::vec4>("u_ColorCoeff3");
-    m_pGammaParam = m_pShader->getParam<glm::vec4>("u_Gamma");
+    m_ColorModelParam = *m_pShader->getParam<int>("u_ColorModel");
+    m_AlphaParam = *m_pShader->getParam<float>("u_Alpha");
+    m_ColorCoeff0Param = *m_pShader->getParam<glm::vec4>("u_ColorCoeff0");
+    m_ColorCoeff1Param = *m_pShader->getParam<glm::vec4>("u_ColorCoeff1");
+    m_ColorCoeff2Param = *m_pShader->getParam<glm::vec4>("u_ColorCoeff2");
+    m_ColorCoeff3Param = *m_pShader->getParam<glm::vec4>("u_ColorCoeff3");
+    m_GammaParam = *m_pShader->getParam<glm::vec4>("u_Gamma");
  
-    m_pUseColorCoeffParam = m_pShader->getParam<int>("u_bUseColorCoeff");
-    m_pPremultipliedAlphaParam = m_pShader->getParam<int>("u_bPremultipliedAlpha");
-    m_pUseMaskParam = m_pShader->getParam<int>("u_bUseMask");
-    m_pMaskPosParam = m_pShader->getParam<glm::vec2>("u_MaskPos");
-    m_pMaskSizeParam = m_pShader->getParam<glm::vec2>("u_MaskSize");
+    m_UseColorCoeffParam = *m_pShader->getParam<int>("u_bUseColorCoeff");
+    m_PremultipliedAlphaParam = *m_pShader->getParam<int>("u_bPremultipliedAlpha");
+    m_UseMaskParam = *m_pShader->getParam<int>("u_bUseMask");
+    m_MaskPosParam = *m_pShader->getParam<glm::vec2>("u_MaskPos");
+    m_MaskSizeParam = *m_pShader->getParam<glm::vec2>("u_MaskSize");
 
     m_pShader->activate();
     m_pShader->getParam<int>("u_Texture")->set(0);
@@ -76,7 +76,7 @@ StandardShader::StandardShader()
         m_pMinimalShader = avg::getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("u_Texture")->set(0);
-        m_pMinimalAlphaParam = m_pMinimalShader->getParam<float>("u_Alpha");
+        m_MinimalAlphaParam = *m_pMinimalShader->getParam<float>("u_Alpha");
     }
     
     generateWhiteTexture(); 
@@ -91,27 +91,27 @@ void StandardShader::activate()
     if (useMinimalShader()) {
         m_pMinimalShader->activate();
         m_pMinimalShader->setTransform(m_Transform);
-        m_pMinimalAlphaParam->set(m_Alpha);
+        m_MinimalAlphaParam.set(m_Alpha);
     } else {
         m_pShader->activate();
         m_pShader->setTransform(m_Transform);
-        m_pColorModelParam->set(m_ColorModel);
-        m_pAlphaParam->set(m_Alpha);
+        m_ColorModelParam.set(m_ColorModel);
+        m_AlphaParam.set(m_Alpha);
 
-        m_pUseColorCoeffParam->set(m_bUseColorCoeff);
+        m_UseColorCoeffParam.set(m_bUseColorCoeff);
         const glm::mat4& mat = m_ColorMatrix;
-        m_pColorCoeff0Param->set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
-        m_pColorCoeff1Param->set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
-        m_pColorCoeff2Param->set(glm::vec4(mat[2][0], mat[2][1], mat[2][2], 0));
-        m_pColorCoeff3Param->set(glm::vec4(mat[3][0], mat[3][1], mat[3][2], 1));
-        m_pGammaParam->set(m_Gamma);
+        m_ColorCoeff0Param.set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
+        m_ColorCoeff1Param.set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
+        m_ColorCoeff2Param.set(glm::vec4(mat[2][0], mat[2][1], mat[2][2], 0));
+        m_ColorCoeff3Param.set(glm::vec4(mat[3][0], mat[3][1], mat[3][2], 1));
+        m_GammaParam.set(m_Gamma);
 
-        m_pPremultipliedAlphaParam->set(m_bPremultipliedAlpha);
+        m_PremultipliedAlphaParam.set(m_bPremultipliedAlpha);
 
-        m_pUseMaskParam->set(m_bUseMask);
+        m_UseMaskParam.set(m_bUseMask);
         if (m_bUseMask) {
-            m_pMaskPosParam->set(m_MaskPos);
-            m_pMaskSizeParam->set(m_MaskSize);
+            m_MaskPosParam.set(m_MaskPos);
+            m_MaskSizeParam.set(m_MaskSize);
         }
     }
 }
