@@ -41,6 +41,7 @@ using namespace boost;
 
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 GLContext* GLContext::s_pMainContext = 0;
+int GLContext::s_MainContextIndex = 0;
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
@@ -464,11 +465,17 @@ GLContext* GLContext::getCurrent()
 void GLContext::setMain(GLContext * pMainContext)
 {
     s_pMainContext = pMainContext;
+    s_MainContextIndex = GLContextManager::get()->getContextIndex(pMainContext);
 }
 
 GLContext* GLContext::getMain()
 {
     return s_pMainContext;
+}
+
+int GLContext::getMainIndex()
+{
+    return s_MainContextIndex;
 }
 
 int GLContext::nextMultiSampleValue(int curSamples)

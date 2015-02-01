@@ -55,6 +55,7 @@ public:
             const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
     void registerContext(GLContext* pContext);
     void unregisterContext(GLContext* pContext);
+    int getContextIndex(GLContext* pContext);
 
     MCTexturePtr createTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             bool bForcePOT=false, int potBorderColor=0);
