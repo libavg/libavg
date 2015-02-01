@@ -150,13 +150,13 @@ void MeshNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
     }
 }
 
-void MeshNode::render()
+void MeshNode::render(const glm::mat4& transform)
 {
     if (m_bBackfaceCull) {
         glEnable(GL_CULL_FACE);
     }
     
-    VectorNode::render();
+    VectorNode::render(transform);
     
     if (m_bBackfaceCull) {
         glDisable(GL_CULL_FACE);

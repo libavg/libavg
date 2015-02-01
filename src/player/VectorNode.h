@@ -65,7 +65,7 @@ class AVG_API VectorNode : public Node
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
         virtual void maybeRender(const glm::mat4& parentTransform);
-        virtual void render();
+        virtual void render(const glm::mat4& transform);
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 
@@ -98,7 +98,6 @@ class AVG_API VectorNode : public Node
                 float& TC0, float& TC1);
         int getNumDifferentPts(const std::vector<glm::vec2>& pts);
 
-        const glm::mat4& getTransform() const;
         void setTranslate(const glm::vec2& trans);
 
     private:
@@ -113,7 +112,6 @@ class AVG_API VectorNode : public Node
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
 
-        glm::mat4 m_Transform;
         glm::vec2 m_Translate;
         ShapePtr m_pShape;
         GLContext::BlendMode m_BlendMode;

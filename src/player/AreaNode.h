@@ -100,7 +100,6 @@ class AVG_API AreaNode: public Node
 
         virtual IntPoint getMediaSize() 
             { return IntPoint(0,0); };
-        const glm::mat4& getTransform() const;
 
     protected:
         AreaNode();
@@ -118,7 +117,6 @@ class AVG_API AreaNode: public Node
         Pixel32 m_ElementOutlineColor;
         
         glm::vec2 m_UserSize;
-        glm::mat4 m_Transform;
         glm::mat4 m_LocalTransform;
         bool m_bTransformChanged;
 };

@@ -68,7 +68,6 @@ void AreaNode::registerType()
 
 AreaNode::AreaNode()
     : m_RelViewport(0,0,0,0),
-      m_Transform(glm::mat4(0)),
       m_bTransformChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -250,8 +249,7 @@ void AreaNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        m_Transform = parentTransform*m_LocalTransform;
-        render();
+        render(parentTransform*m_LocalTransform);
     }
 }
 
@@ -321,11 +319,6 @@ string AreaNode::dump(int indent)
     dumpStr += sz;
 
     return dumpStr; 
-}
-
-const glm::mat4& AreaNode::getTransform() const
-{
-    return m_Transform;
 }
 
 glm::vec2 AreaNode::getUserSize() const

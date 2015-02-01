@@ -62,8 +62,7 @@ void VectorNode::registerType()
 }
 
 VectorNode::VectorNode(const ArgList& args)
-    : m_Transform(glm::mat4(0)),
-      m_Translate(glm::vec2(0,0))
+    : m_Translate(glm::vec2(0,0))
 {
     m_pShape = ShapePtr(createDefaultShape());
 
@@ -169,20 +168,20 @@ void VectorNode::maybeRender(const glm::mat4& parentTransform)
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
         glm::vec3 trans(m_Translate.x, m_Translate.y, 0);
-        m_Transform = glm::translate(parentTransform, trans);
+        glm::mat4 transform = glm::translate(parentTransform, trans);
         GLContext::getMain()->setBlendMode(m_BlendMode);
-        render();
+        render(transform);
     }
 }
 
 static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
-void VectorNode::render()
+void VectorNode::render(const glm::mat4& transform)
 {
     ScopeTimer timer(RenderProfilingZone);
     float curOpacity = getEffectiveOpacity();
     if (curOpacity > 0.01) {
-        m_pShape->draw(m_Transform, curOpacity);
+        m_pShape->draw(transform, curOpacity);
     }
 }
 
@@ -512,11 +511,6 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
         }
     }
     return numPts;
-}
-
-const glm::mat4& VectorNode::getTransform() const
-{
-    return m_Transform;
 }
 
 void VectorNode::setTranslate(const glm::vec2& trans)

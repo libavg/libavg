@@ -430,9 +430,9 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
     }
 }
 
-void RasterNode::blt32()
+void RasterNode::blt32(const glm::mat4& transform)
 {
-    blt(getTransform(), getSize());
+    blt(transform, getSize());
 }
 
 void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize)

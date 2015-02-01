@@ -708,16 +708,16 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
 
-void WordsNode::render()
+void WordsNode::render(const glm::mat4& transform)
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && isVisible()) {
         IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
-        glm::mat4 transform;
+        glm::mat4 totalTransform;
         if (offset == IntPoint(0,0)) {
-            transform = getTransform();
+            totalTransform = transform;
         } else {
-            transform = glm::translate(getTransform(), glm::vec3(offset.x, offset.y, 0));
+            totalTransform = glm::translate(transform, glm::vec3(offset.x, offset.y, 0));
         }
         blta8(transform, glm::vec2(getSurface()->getSize()));
     }

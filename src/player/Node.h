@@ -118,7 +118,7 @@ class AVG_API Node: public Publisher
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
         virtual void maybeRender(const glm::mat4& parentTransform) {};
-        virtual void render() {};
+        virtual void render(const glm::mat4& transform) {};
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color) {};
 
         float getEffectiveOpacity() const;
