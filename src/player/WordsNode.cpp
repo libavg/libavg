@@ -696,7 +696,7 @@ void WordsNode::renderText()
 void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         renderText();
     }

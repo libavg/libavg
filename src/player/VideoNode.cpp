@@ -645,7 +645,7 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     ScopeTimer timer(PrerenderProfilingZone);
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
             if (m_VideoState == Playing) {

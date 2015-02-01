@@ -296,7 +296,7 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (getCrop() && getSize() != glm::vec2(0,0)) {
         pVA->startSubVA(m_ClipVA);
         glm::vec2 viewport = getSize();

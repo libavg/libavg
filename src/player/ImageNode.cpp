@@ -158,7 +158,7 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     ScopeTimer timer(PrerenderProfilingZone);
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible() && m_pGPUImage->getSource() != GPUImage::NONE) {
         if (m_pGPUImage->getCanvas()) {
             // Force FX render every frame for canvas nodes.

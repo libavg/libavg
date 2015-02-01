@@ -87,6 +87,8 @@ class AVG_API AreaNode: public Node
         virtual void getElementsByPos(const glm::vec2& pos, 
                 std::vector<NodePtr>& pElements);
 
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
+                float parentEffectiveOpacity);
         virtual void maybeRender(const glm::mat4& parentTransform);
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor);
         virtual void setViewport(float x, float y, float width, float height);
