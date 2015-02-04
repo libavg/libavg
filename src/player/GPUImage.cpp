@@ -180,46 +180,31 @@ BitmapPtr GPUImage::getBitmap()
 
 IntPoint GPUImage::getSize()
 {
-    if (m_Source == NONE) {
-        return IntPoint(0,0);
-    } else {
-        switch (m_State) {
-            case CPU:
-                if (m_Source == SCENE) {
-                    return m_pCanvas->getSize();
-                } else {
-                    return m_pImage->getBmp()->getSize();
-                }
-            case GPU:
-                return m_pSurface->getSize();
-            default:
-                AVG_ASSERT(false);
-                return IntPoint(0,0);
-        }
+    switch (m_Source) {
+        case NONE:
+            return IntPoint(0,0);
+        case SCENE:
+            return m_pCanvas->getSize();
+        case FILE:
+        case BITMAP:
+            return m_pImage->getBmp()->getSize();
+        default:
+            AVG_ASSERT(false);
+            return IntPoint(0,0);
     }
 }
 
 PixelFormat GPUImage::getPixelFormat()
 {
-    PixelFormat pf;
-    if (BitmapLoader::get()->isBlueFirst()) {
-        pf = B8G8R8X8;
+    if (m_Source == FILE || m_Source == BITMAP) {
+        return m_pImage->getBmp()->getPixelFormat();
     } else {
-        pf = R8G8B8X8;
-    }
-    if (m_Source != NONE) {
-        switch (m_State) {
-            case CPU:
-                if (m_Source != SCENE) {
-                    pf = m_pImage->getBmp()->getPixelFormat();
-                }
-            case GPU:
-                pf = m_pSurface->getPixelFormat();
-            default:
-                AVG_ASSERT(false);
+        if (BitmapLoader::get()->isBlueFirst()) {
+            return B8G8R8X8;
+        } else {
+            return R8G8B8X8;
         }
     }
-    return pf;
 }
 
 OGLSurface* GPUImage::getSurface()
