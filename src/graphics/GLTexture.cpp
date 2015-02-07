@@ -146,4 +146,9 @@ unsigned GLTexture::getID() const
     return m_TexID;
 }
 
+bool GLTexture::hasContext(GLContext* pContext) const
+{
+    return pContext == m_pContext;
+}
+
 }

@@ -51,6 +51,7 @@ public:
     BitmapPtr moveTextureToBmp(int mipmapLevel=0);
 
     unsigned getID() const;
+    bool hasContext(GLContext* pContext) const;
 
 private:
     GLContext* m_pContext;

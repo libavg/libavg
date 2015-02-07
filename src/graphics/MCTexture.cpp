@@ -54,9 +54,7 @@ MCTexture::~MCTexture()
 
 void MCTexture::initForGLContext(GLContext* pContext)
 {
-    AVG_ASSERT(m_pTextures.count(pContext) == 0);
-    
-    m_pTextures[pContext] = GLTexturePtr(new GLTexture(pContext, *this));
+    m_pTextures.push_back(GLTexturePtr(new GLTexture(pContext, *this)));
 }
 
 void MCTexture::moveBmpToTexture(GLContext* pContext, BitmapPtr pBmp)
@@ -82,8 +80,13 @@ void MCTexture::resetDirty()
 
 const GLTexturePtr& MCTexture::getTex(GLContext* pContext) const
 {
-    TexMap::const_iterator it = m_pTextures.find(pContext);
-    return it->second;
+    for (unsigned i=0; i<m_pTextures.size(); ++i) {
+        if (m_pTextures[i]->hasContext(pContext)) {
+            return m_pTextures[i];
+        }
+    }
+    AVG_ASSERT(false);
+    return m_pTextures[0];
 }
 
 }

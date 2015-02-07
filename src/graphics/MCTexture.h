@@ -27,13 +27,7 @@
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
-#ifdef _WIN32 
-#include <unordered_map>
-#elif defined __APPLE__
-#include <boost/unordered_map.hpp>
-#else
-#include <tr1/unordered_map>
-#endif
+#include <vector>
 
 namespace avg {
 
@@ -61,12 +55,7 @@ public:
     void resetDirty();
 
 private:
-#ifdef __APPLE__
-    typedef boost::unordered_map<GLContext*, GLTexturePtr> TexMap;
-#else
-    typedef std::tr1::unordered_map<GLContext*, GLTexturePtr> TexMap;
-#endif
-    TexMap m_pTextures;
+    std::vector<GLTexturePtr> m_pTextures;
 
     bool m_bIsDirty;
 };
