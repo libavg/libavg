@@ -169,13 +169,13 @@ void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive
 
 static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 
-void FilledVectorNode::render(const glm::mat4& transform)
+void FilledVectorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_EffectiveOpacity > 0.01) {
         m_pFillShape->draw(transform, m_EffectiveOpacity);
     }
-    VectorNode::render(transform);
+    VectorNode::render(pContext, transform);
 }
 
 void FilledVectorNode::setFillColor(const UTF8String& sColor)

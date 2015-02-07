@@ -245,11 +245,11 @@ void AreaNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     }
 }
 
-void AreaNode::maybeRender(const glm::mat4& parentTransform)
+void AreaNode::maybeRender(GLContext* pContext, const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        render(parentTransform*m_LocalTransform);
+        render(pContext, parentTransform*m_LocalTransform);
     }
 }
 

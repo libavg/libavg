@@ -99,7 +99,7 @@ class AVG_API CameraNode : public RasterNode
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void render(const glm::mat4& transform);
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
 
         int getFrameNum() const;
         IntPoint getMediaSize();
