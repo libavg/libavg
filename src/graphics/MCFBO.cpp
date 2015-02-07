@@ -27,6 +27,7 @@
 #include "Filterfliprgb.h"
 #include "FBO.h"
 #include "MCTexture.h"
+#include "GLTexture.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -71,11 +72,12 @@ void MCFBO::initForGLContext()
     GLContext* pContext = GLContext::getCurrent();
     vector<GLTexturePtr> pTextures;
     for (unsigned i=0; i<m_pTextures.size(); ++i) {
-        MCTexturePtr pTex = m_pTextures[i];
-        pTex->initForGLContext(pContext);
+        MCTexturePtr pMCTex = m_pTextures[i];
+        pMCTex->initForGLContext(pContext);
+        GLTexturePtr pTex = pMCTex->getTex(pContext);
         pTex->generateMipmaps();
         GLContext::checkError("MCFBO::initForGLContext: generateMipmaps");
-        pTextures.push_back(pTex->getCurTex());
+        pTextures.push_back(pTex);
     }
 
     AVG_ASSERT(m_pFBOs.count(pContext) == 0);

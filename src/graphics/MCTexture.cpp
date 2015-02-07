@@ -59,30 +59,10 @@ void MCTexture::initForGLContext(GLContext* pContext)
     m_pTextures[pContext] = GLTexturePtr(new GLTexture(pContext, *this));
 }
 
-void MCTexture::activate(const WrapMode& wrapMode, int textureUnit)
+void MCTexture::moveBmpToTexture(GLContext* pContext, BitmapPtr pBmp)
 {
-    getCurTex()->activate(wrapMode, textureUnit);
-}
-
-void MCTexture::generateMipmaps()
-{
-    getCurTex()->generateMipmaps();
-}
-
-void MCTexture::moveBmpToTexture(BitmapPtr pBmp)
-{
-    getCurTex()->moveBmpToTexture(pBmp);
+    getTex(pContext)->moveBmpToTexture(pBmp);
     m_bIsDirty = true;
-}
-
-BitmapPtr MCTexture::moveTextureToBmp(int mipmapLevel)
-{
-    return getCurTex()->moveTextureToBmp(mipmapLevel);
-}
-
-unsigned MCTexture::getID() const
-{
-    return getCurTex()->getID();
 }
 
 void MCTexture::setDirty()
@@ -100,9 +80,9 @@ void MCTexture::resetDirty()
     m_bIsDirty = false;
 }
 
-const GLTexturePtr& MCTexture::getCurTex() const
+const GLTexturePtr& MCTexture::getTex(GLContext* pContext) const
 {
-    TexMap::const_iterator it = m_pTextures.find(GLContext::getMain());
+    TexMap::const_iterator it = m_pTextures.find(pContext);
     return it->second;
 }
 

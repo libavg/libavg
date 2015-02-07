@@ -29,6 +29,7 @@
 
 #include "../graphics/GLContext.h"
 #include "../graphics/MCTexture.h"
+#include "../graphics/GLTexture.h"
 #include "../graphics/StandardShader.h"
 
 #include <iostream>
@@ -121,13 +122,13 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
             pShader->setColorModel(0);
     }
 
-    m_pTextures[0]->activate(m_WrapMode, GL_TEXTURE0);
+    m_pTextures[0]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE0);
 
     if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[1]->activate(m_WrapMode, GL_TEXTURE1);
-        m_pTextures[2]->activate(m_WrapMode, GL_TEXTURE2);
+        m_pTextures[1]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE1);
+        m_pTextures[2]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE2);
         if (m_pf == YCbCrA420p) {
-            m_pTextures[3]->activate(m_WrapMode, GL_TEXTURE3);
+            m_pTextures[3]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE3);
         }
     }
     if (pixelFormatIsPlanar(m_pf) || m_bColorIsModified) {
@@ -140,7 +141,7 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
 
     pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
     if (m_pMaskTexture) {
-        m_pMaskTexture->activate(m_WrapMode, GL_TEXTURE4);
+        m_pMaskTexture->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE4);
         // The shader maskpos param takes the position in texture coordinates (0..1) of 
         // the main texture.
 

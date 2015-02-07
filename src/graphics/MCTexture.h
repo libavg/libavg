@@ -51,14 +51,10 @@ public:
     virtual ~MCTexture();
 
     void initForGLContext(GLContext* pContext);
-    void activate(const WrapMode& wrapMode, int textureUnit=GL_TEXTURE0);
-    void generateMipmaps();
 
-    void moveBmpToTexture(BitmapPtr pBmp);
-    BitmapPtr moveTextureToBmp(int mipmapLevel=0);
+    void moveBmpToTexture(GLContext* pContext, BitmapPtr pBmp);
 
-    const GLTexturePtr& getCurTex() const;
-    unsigned getID() const;
+    const GLTexturePtr& getTex(GLContext* pContext) const;
 
     void setDirty();
     bool isDirty() const;

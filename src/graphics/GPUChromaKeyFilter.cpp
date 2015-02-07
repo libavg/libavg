@@ -138,7 +138,7 @@ void GPUChromaKeyFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
         pShader->activate();
         m_pErosionTextureParam->set(pContext, 0);
         m_pErosionIsLastParam->set(pContext, int(i==m_Erosion-1));
-        getDestTex((curBufferIndex+1)%2)->activate(WrapMode(), GL_TEXTURE0);
+        getDestTex(pContext, (curBufferIndex+1)%2)->activate(WrapMode(), GL_TEXTURE0);
         m_pProjection2->draw(pContext, avg::getShader(SHADERID_EROSION));
     }
 }

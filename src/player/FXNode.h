@@ -52,7 +52,7 @@ public:
 
     virtual void apply(GLContext* pContext, GLTexturePtr pSrcTex);
 
-    GLTexturePtr getTex();
+    GLTexturePtr getTex(GLContext* pContext);
     BitmapPtr getImage(GLContext* pContext);
     FRect getRelDestRect() const;
 

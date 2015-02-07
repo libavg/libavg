@@ -98,7 +98,7 @@ void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pHorizRadiusParam->set(pContext, (kernelWidth-1)/2);
     m_pHorizTextureParam->set(pContext, 0);
     m_pHorizKernelTexParam->set(pContext, 1);
-    m_pGaussCurveTex->activate(WrapMode(), GL_TEXTURE1);
+    m_pGaussCurveTex->getTex(pContext)->activate(WrapMode(), GL_TEXTURE1);
     draw(pContext, pSrcTex, m_WrapMode);
 
     getFBO(pContext, 0)->activate();
@@ -108,7 +108,7 @@ void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pVertRadiusParam->set(pContext, (kernelWidth-1)/2);
     m_pVertTextureParam->set(pContext, 0);
     m_pVertKernelTexParam->set(pContext, 1);
-    getDestTex(1)->activate(m_WrapMode, GL_TEXTURE0);
+    getDestTex(pContext, 1)->activate(m_WrapMode, GL_TEXTURE0);
     m_pProjection2->draw(pContext, pVShader);
 }
 

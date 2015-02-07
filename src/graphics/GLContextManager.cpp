@@ -237,7 +237,7 @@ void GLContextManager::uploadDataForContext()
     for (it=m_pPendingTexUploads.begin(); it!=m_pPendingTexUploads.end(); ++it) {
         MCTexturePtr pTex = it->first;
         BitmapPtr pBmp = it->second;
-        pTex->moveBmpToTexture(pBmp);
+        pTex->moveBmpToTexture(pContext, pBmp);
     }
 
     for (unsigned i=0; i<m_pPendingFBOCreates.size(); ++i) {
