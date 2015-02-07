@@ -91,9 +91,10 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
         GLContextManager::get()->uploadData();
         m_bIsInitialized = true;
     }
+    GLContext* pContext = GLContext::getCurrent();
     m_pSrcMover->moveBmpToTexture(pBmpSource, *(m_pSrcTex->getCurTex()));
-    apply(m_pSrcTex->getCurTex());
-    BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage();
+    apply(pContext, m_pSrcTex->getCurTex());
+    BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage(pContext);
 
     BitmapPtr pTmpBmp;
     if (pixelFormatIsBlueFirst(pFilteredBmp->getPixelFormat()) !=
@@ -116,11 +117,11 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
     return pDestBmp;
 }
 
-void GPUFilter::apply(GLTexturePtr pSrcTex)
+void GPUFilter::apply(GLContext* pContext, GLTexturePtr pSrcTex)
 {
-    m_pFBOs[0]->activate();
-    applyOnGPU(pSrcTex);
-    m_pFBOs[0]->copyToDestTexture();
+    m_pFBOs[0]->activate(pContext);
+    applyOnGPU(pContext, pSrcTex);
+    m_pFBOs[0]->copyToDestTexture(pContext);
 }
 
 GLTexturePtr GPUFilter::getDestTex(int i) const
@@ -128,14 +129,14 @@ GLTexturePtr GPUFilter::getDestTex(int i) const
     return m_pFBOs[i]->getTex()->getCurTex();
 }
 
-BitmapPtr GPUFilter::getImage() const
+BitmapPtr GPUFilter::getImage(GLContext* pContext) const
 {
-    return m_pFBOs[0]->getImage();
+    return m_pFBOs[0]->getImage(pContext);
 }
 
-FBOPtr GPUFilter::getFBO(int i)
+FBOPtr GPUFilter::getFBO(GLContext* pContext, int i)
 {
-    return m_pFBOs[i]->getCurFBO();
+    return m_pFBOs[i]->getCurFBO(pContext);
 }
 
 const IntRect& GPUFilter::getDestRect() const

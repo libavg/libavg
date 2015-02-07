@@ -54,7 +54,7 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUBrightnessFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
     m_pTextureParam->set(0);

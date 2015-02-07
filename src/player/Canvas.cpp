@@ -257,7 +257,7 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
     renderFX(pContext);
     glm::mat4 projMat;
     if (pFBO) {
-        pFBO->activate();
+        pFBO->activate(pContext);
         glm::vec2 size = m_pRootNode->getSize();
         projMat = glm::ortho(0.f, size.x, 0.f, size.y);
         glViewport(0, 0, GLsizei(size.x), GLsizei(size.y));

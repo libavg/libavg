@@ -114,7 +114,8 @@ BitmapPtr OffscreenCanvas::screenshotIgnoreAlpha() const
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
-    BitmapPtr pBmp = m_pFBO->getImage(0);
+    WindowPtr pWindow = getPlayer()->getDisplayEngine()->getWindow(0);
+    BitmapPtr pBmp = m_pFBO->getImage(pWindow->getGLContext(), 0);
     return pBmp;
 }
 
@@ -167,10 +168,10 @@ MCTexturePtr OffscreenCanvas::getTex() const
     return m_pFBO->getTex();
 }
 
-FBOPtr OffscreenCanvas::getFBO()
+FBOPtr OffscreenCanvas::getFBO(GLContext* pContext)
 {
     AVG_ASSERT(isRunning());
-    return m_pFBO->getCurFBO();
+    return m_pFBO->getCurFBO(pContext);
 }
 
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
@@ -284,7 +285,7 @@ void OffscreenCanvas::renderTree()
         pContext->activate();
         IntRect viewport(IntPoint(0,0), IntPoint(getRootNode()->getSize()));
         renderWindow(pWindow, m_pFBO, viewport);
-        m_pFBO->copyToDestTexture();
+        m_pFBO->copyToDestTexture(pContext);
     }
     GLContextManager::get()->reset();
     m_bIsRendered = true;

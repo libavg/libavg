@@ -38,7 +38,7 @@ public:
     virtual ~GPUBlurFilter();
     
     void setStdDev(float stdDev);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
     void setDimensions(IntPoint size, float stdDev);

@@ -64,7 +64,7 @@ void GPUHueSatFilter::setParams(int hue, int saturation,
     m_bColorize = colorize;
 }
 
-void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUHueSatFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
     m_pHueParam->set(m_Hue);

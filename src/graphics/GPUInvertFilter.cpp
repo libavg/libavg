@@ -47,7 +47,7 @@ GPUInvertFilter::~GPUInvertFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUInvertFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUInvertFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
     m_pTextureParam->set(0);

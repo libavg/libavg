@@ -36,7 +36,7 @@ public:
             bool bStandalone=true);
     virtual ~GPUBrightnessFilter();
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
     float m_Alpha;

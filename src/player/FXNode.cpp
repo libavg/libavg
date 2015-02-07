@@ -71,7 +71,7 @@ void FXNode::apply(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     // blt overwrites everything, so no glClear necessary before.
     pContext->setBlendMode(GLContext::BLEND_COPY);
-    m_pFilter->apply(pSrcTex);
+    m_pFilter->apply(pContext, pSrcTex);
 }
 
 GLTexturePtr FXNode::getTex()
@@ -79,9 +79,9 @@ GLTexturePtr FXNode::getTex()
     return m_pFilter->getDestTex();
 }
 
-BitmapPtr FXNode::getImage()
+BitmapPtr FXNode::getImage(GLContext* pContext)
 {
-    return m_pFilter->getImage();
+    return m_pFilter->getImage(pContext);
 }
 
 FRect FXNode::getRelDestRect() const
@@ -99,9 +99,9 @@ void FXNode::resetDirty()
     m_bDirty = false;
 }
 
-FBOPtr FXNode::getFBO()
+FBOPtr FXNode::getFBO(GLContext* pContext)
 {
-    return m_pFilter->getFBO();
+    return m_pFilter->getFBO(pContext);
 }
 
 void FXNode::setDirty()
