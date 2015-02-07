@@ -54,7 +54,9 @@ MCTexture::~MCTexture()
 
 void MCTexture::initForGLContext(GLContext* pContext)
 {
-    m_pTextures.push_back(GLTexturePtr(new GLTexture(pContext, *this)));
+    AVG_ASSERT(m_pTextures.count(pContext) == 0);
+    
+    m_pTextures[pContext] = GLTexturePtr(new GLTexture(pContext, *this));
 }
 
 void MCTexture::activate(const WrapMode& wrapMode, int textureUnit)
@@ -100,7 +102,8 @@ void MCTexture::resetDirty()
 
 const GLTexturePtr& MCTexture::getCurTex() const
 {
-    return m_pTextures[GLContext::getMainIndex()];
+    TexMap::const_iterator it = m_pTextures.find(GLContext::getMain());
+    return it->second;
 }
 
 }
