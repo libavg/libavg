@@ -114,21 +114,21 @@ void GPUChromaKeyFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     int curBufferIndex = m_Erosion%2;
     getFBO(pContext, curBufferIndex)->activate();
     getShader()->activate();
-    m_pTextureParam->set(0);
+    m_pTextureParam->set(pContext, 0);
 
     float h, s, l;
     m_Color.toHSL(h, s, l);
-    m_pHKeyParam->set(h);
-    m_pHToleranceParam->set(m_HTolerance*360);
-    m_pHSoftToleranceParam->set((m_HTolerance+m_Softness)*360.0f);
-    m_pSKeyParam->set(s);
-    m_pSToleranceParam->set(m_STolerance);
-    m_pSSoftToleranceParam->set(m_STolerance+m_Softness);
-    m_pLKeyParam->set(l);
-    m_pLToleranceParam->set(m_LTolerance);
-    m_pLSoftToleranceParam->set(m_LTolerance+m_Softness);
-    m_pSpillThresholdParam->set(m_SpillThreshold*360);
-    m_pIsLastParam->set(int(m_Erosion==0));
+    m_pHKeyParam->set(pContext, h);
+    m_pHToleranceParam->set(pContext, m_HTolerance*360);
+    m_pHSoftToleranceParam->set(pContext, (m_HTolerance+m_Softness)*360.0f);
+    m_pSKeyParam->set(pContext, s);
+    m_pSToleranceParam->set(pContext, m_STolerance);
+    m_pSSoftToleranceParam->set(pContext, m_STolerance+m_Softness);
+    m_pLKeyParam->set(pContext, l);
+    m_pLToleranceParam->set(pContext, m_LTolerance);
+    m_pLSoftToleranceParam->set(pContext, m_LTolerance+m_Softness);
+    m_pSpillThresholdParam->set(pContext, m_SpillThreshold*360);
+    m_pIsLastParam->set(pContext, int(m_Erosion==0));
     draw(pContext, pSrcTex, WrapMode());
 
     for (int i = 0; i < m_Erosion; ++i) {
@@ -136,8 +136,8 @@ void GPUChromaKeyFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
         getFBO(pContext, curBufferIndex)->activate();
         OGLShaderPtr pShader = avg::getShader(SHADERID_EROSION);
         pShader->activate();
-        m_pErosionTextureParam->set(0);
-        m_pErosionIsLastParam->set(int(i==m_Erosion-1));
+        m_pErosionTextureParam->set(pContext, 0);
+        m_pErosionIsLastParam->set(pContext, int(i==m_Erosion-1));
         getDestTex((curBufferIndex+1)%2)->activate(WrapMode(), GL_TEXTURE0);
         m_pProjection2->draw(pContext, avg::getShader(SHADERID_EROSION));
     }

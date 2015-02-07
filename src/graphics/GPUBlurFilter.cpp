@@ -94,20 +94,20 @@ void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     int kernelWidth = m_pGaussCurveTex->getSize().x;
     getFBO(pContext, 1)->activate();
     getShader()->activate();
-    m_pHorizWidthParam->set(float(kernelWidth));
-    m_pHorizRadiusParam->set((kernelWidth-1)/2);
-    m_pHorizTextureParam->set(0);
-    m_pHorizKernelTexParam->set(1);
+    m_pHorizWidthParam->set(pContext, float(kernelWidth));
+    m_pHorizRadiusParam->set(pContext, (kernelWidth-1)/2);
+    m_pHorizTextureParam->set(pContext, 0);
+    m_pHorizKernelTexParam->set(pContext, 1);
     m_pGaussCurveTex->activate(WrapMode(), GL_TEXTURE1);
     draw(pContext, pSrcTex, m_WrapMode);
 
     getFBO(pContext, 0)->activate();
     OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
     pVShader->activate();
-    m_pVertWidthParam->set(float(kernelWidth));
-    m_pVertRadiusParam->set((kernelWidth-1)/2);
-    m_pVertTextureParam->set(0);
-    m_pVertKernelTexParam->set(1);
+    m_pVertWidthParam->set(pContext, float(kernelWidth));
+    m_pVertRadiusParam->set(pContext, (kernelWidth-1)/2);
+    m_pVertTextureParam->set(pContext, 0);
+    m_pVertKernelTexParam->set(pContext, 1);
     getDestTex(1)->activate(m_WrapMode, GL_TEXTURE0);
     m_pProjection2->draw(pContext, pVShader);
 }
