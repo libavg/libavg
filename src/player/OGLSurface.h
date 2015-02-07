@@ -34,6 +34,7 @@ namespace avg {
 
 class MCTexture;
 typedef boost::shared_ptr<MCTexture> MCTexturePtr;
+class GLContext;
 
 class AVG_API OGLSurface {
 public:
@@ -45,7 +46,7 @@ public:
             MCTexturePtr pTex3 = MCTexturePtr(), bool bPremultipliedAlpha = false);
     void setMask(MCTexturePtr pTex);
     virtual void destroy();
-    void activate(const IntPoint& logicalSize = IntPoint(1,1)) const;
+    void activate(GLContext* pContext, const IntPoint& logicalSize = IntPoint(1,1)) const;
     MCTexturePtr getTex(int i=0) const;
 
     void setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize);
