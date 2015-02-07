@@ -680,11 +680,11 @@ void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
-void VideoNode::render(const glm::mat4& transform)
+void VideoNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
-        blt32(transform);
+        blt32(pContext, transform);
     }
 }
 

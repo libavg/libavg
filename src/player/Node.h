@@ -63,6 +63,7 @@ typedef boost::shared_ptr<Canvas> CanvasPtr;
 class GPUImage;
 typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
+class GLContext;
 
 class AVG_API Node: public Publisher
 {
@@ -117,8 +118,9 @@ class AVG_API Node: public Publisher
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void maybeRender(const glm::mat4& parentTransform) {};
-        virtual void render(const glm::mat4& transform) {};
+        virtual void maybeRender(GLContext* pContext, const glm::mat4& parentTransform)
+                {};
+        virtual void render(GLContext* pContext, const glm::mat4& transform) {};
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color) {};
 
         float getEffectiveOpacity() const;

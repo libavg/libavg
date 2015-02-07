@@ -430,14 +430,15 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
     }
 }
 
-void RasterNode::blt32(const glm::mat4& transform)
+void RasterNode::blt32(GLContext* pContext, const glm::mat4& transform)
 {
-    blt(transform, getSize());
+    blt(pContext, transform, getSize());
 }
 
-void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize)
+void RasterNode::blta8(GLContext* pContext, const glm::mat4& transform,
+        const glm::vec2& destSize)
 {
-    blt(transform, destSize);
+    blt(pContext, transform, destSize);
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const
@@ -532,9 +533,9 @@ void RasterNode::setupFX()
     }
 }
 
-void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize)
+void RasterNode::blt(GLContext* pContext, const glm::mat4& transform,
+        const glm::vec2& destSize)
 {
-    GLContext* pContext = GLContext::getMain();
     FRect destRect;
     
     StandardShader* pShader = pContext->getStandardShader();

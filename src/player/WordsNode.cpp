@@ -708,7 +708,7 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
 
-void WordsNode::render(const glm::mat4& transform)
+void WordsNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && isVisible()) {
@@ -719,7 +719,7 @@ void WordsNode::render(const glm::mat4& transform)
         } else {
             totalTransform = glm::translate(transform, glm::vec3(offset.x, offset.y, 0));
         }
-        blta8(transform, glm::vec2(getSurface()->getSize()));
+        blta8(pContext, transform, glm::vec2(getSurface()->getSize()));
     }
 }
 

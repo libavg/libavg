@@ -163,20 +163,20 @@ void VectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     }
 }
 
-void VectorNode::maybeRender(const glm::mat4& parentTransform)
+void VectorNode::maybeRender(GLContext* pContext, const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
         glm::vec3 trans(m_Translate.x, m_Translate.y, 0);
         glm::mat4 transform = glm::translate(parentTransform, trans);
-        GLContext::getMain()->setBlendMode(m_BlendMode);
-        render(transform);
+        pContext->setBlendMode(m_BlendMode);
+        render(pContext, transform);
     }
 }
 
 static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
-void VectorNode::render(const glm::mat4& transform)
+void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer timer(RenderProfilingZone);
     float curOpacity = getEffectiveOpacity();

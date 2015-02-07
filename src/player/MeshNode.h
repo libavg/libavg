@@ -57,7 +57,7 @@ class AVG_API MeshNode : public VectorNode
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
         
-        virtual void render(const glm::mat4& transform);
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
 
     private:
         std::vector<glm::vec2> m_TexCoords;

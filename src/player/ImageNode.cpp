@@ -171,11 +171,11 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 
-void ImageNode::render(const glm::mat4& transform)
+void ImageNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pGPUImage->getSource() != GPUImage::NONE) {
-        blt32(transform);
+        blt32(pContext, transform);
     }
 }
 

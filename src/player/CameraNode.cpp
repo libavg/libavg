@@ -370,11 +370,11 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 
-void CameraNode::render(const glm::mat4& transform)
+void CameraNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
-        blt32(transform);
+        blt32(pContext, transform);
     }
 }
 

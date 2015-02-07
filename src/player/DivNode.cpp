@@ -25,6 +25,8 @@
 #include "TypeRegistry.h"
 #include "Canvas.h"
 
+#include "../graphics/GLContext.h"
+
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/StringHelper.h"
@@ -311,13 +313,13 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     }
 }
 
-void DivNode::render(const glm::mat4& transform)
+void DivNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     if (getCrop() && getSize() != glm::vec2(0,0)) {
         getCanvas()->pushClipRect(transform, m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->maybeRender(transform);
+        getChild(i)->maybeRender(pContext, transform);
     }
     if (getCrop() && getSize() != glm::vec2(0,0)) {
         getCanvas()->popClipRect(transform, m_ClipVA);

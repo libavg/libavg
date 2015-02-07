@@ -56,8 +56,7 @@ public:
     float getFloat() const;
     void setFloat(float f);
 
-    virtual void maybeRender(const glm::mat4& parentTransform);
-    virtual void render();
+    virtual void render(GLContext* pContext, const glm::mat4& transform);
 
 private:
     std::string m_sFillColorName;
@@ -101,13 +100,7 @@ void ColorNode::setFloat(float f)
     m_FloatParam = f;
 }
 
-
-void ColorNode::maybeRender(const glm::mat4& parentTransform)
-{
-    render();
-}
-
-void ColorNode::render()
+void ColorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     glClearColor(m_Color.getR()/255.f, m_Color.getG()/255.f, m_Color.getB()/255.f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT);

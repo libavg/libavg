@@ -276,7 +276,7 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
     m_pVertexArray->activate();
     {
         ScopeTimer timer(RootRenderProfilingZone);
-        m_pRootNode->maybeRender(projMat);
+        m_pRootNode->maybeRender(pContext, projMat);
     }
     renderOutlines(projMat);
 }
