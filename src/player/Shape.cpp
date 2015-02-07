@@ -101,7 +101,7 @@ void Shape::draw(GLContext* pContext, const glm::mat4& transform, float opacity)
     pShader->setTransform(transform);
     pShader->setAlpha(opacity);
     if (bIsTextured) {
-        m_pSurface->activate();
+        m_pSurface->activate(pContext);
         pShader->activate();
     } else {
         pShader->setUntextured();

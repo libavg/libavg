@@ -358,9 +358,9 @@ void RasterNode::renderFX(GLContext* pContext)
 {
     if (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty()) {
         ScopeTimer Timer(FXProfilingZone);
-        StandardShader* pSShader = StandardShader::get();
+        StandardShader* pSShader = pContext->getStandardShader();
         pSShader->setAlpha(1.0f);
-        m_pSurface->activate(getMediaSize());
+        m_pSurface->activate(pContext, getMediaSize());
         pSShader->activate();
 
         m_pFBO->activate();
@@ -559,7 +559,7 @@ void RasterNode::blt(GLContext* pContext, const glm::mat4& transform,
         destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        m_pSurface->activate(getMediaSize());
+        m_pSurface->activate(pContext, getMediaSize());
         pContext->setBlendMode(m_BlendMode, m_pSurface->isPremultipliedAlpha());
         destRect = FRect(glm::vec2(0,0), destSize);
     }

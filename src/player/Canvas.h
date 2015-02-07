@@ -88,8 +88,10 @@ class AVG_API Canvas: public ExportedObject
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
-        virtual void pushClipRect(const glm::mat4& transform, SubVertexArray& va);
-        virtual void popClipRect(const glm::mat4& transform, SubVertexArray& va);
+        virtual void pushClipRect(GLContext* pContext, const glm::mat4& transform,
+                SubVertexArray& va);
+        virtual void popClipRect(GLContext* pContext, const glm::mat4& transform,
+                SubVertexArray& va);
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
@@ -118,7 +120,8 @@ class AVG_API Canvas: public ExportedObject
         void renderOutlines(GLContext* pContext, const glm::mat4& transform);
         void createStdSubVA();
 
-        void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);
+        void clip(GLContext* pContext, const glm::mat4& transform, SubVertexArray& va,
+                GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;

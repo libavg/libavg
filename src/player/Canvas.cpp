@@ -174,20 +174,22 @@ IntPoint Canvas::getSize() const
 }
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-void Canvas::pushClipRect(const glm::mat4& transform, SubVertexArray& va)
+void Canvas::pushClipRect(GLContext* pContext, const glm::mat4& transform,
+        SubVertexArray& va)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
-    clip(transform, va, GL_INCR);
+    clip(pContext, transform, va, GL_INCR);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void Canvas::popClipRect(const glm::mat4& transform, SubVertexArray& va)
+void Canvas::popClipRect(GLContext* pContext, const glm::mat4& transform,
+        SubVertexArray& va)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
-    clip(transform, va, GL_DECR);
+    clip(pContext, transform, va, GL_DECR);
 }
 
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -336,7 +338,8 @@ void Canvas::resetFXSchedule()
 }
 
 
-void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp)
+void Canvas::clip(GLContext* pContext, const glm::mat4& transform, SubVertexArray& va,
+        GLenum stencilOp)
 {
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
@@ -348,7 +351,7 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    StandardShader* pShader = StandardShader::get();
+    StandardShader* pShader = pContext->getStandardShader();
     pShader->setUntextured();
     pShader->setTransform(transform);
     pShader->activate();

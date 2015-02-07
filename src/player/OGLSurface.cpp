@@ -101,9 +101,9 @@ void OGLSurface::destroy()
     m_pTextures[3] = MCTexturePtr();
 }
 
-void OGLSurface::activate(const IntPoint& logicalSize) const
+void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) const
 {
-    StandardShader* pShader = StandardShader::get();
+    StandardShader* pShader = pContext->getStandardShader();
 
     GLContext::checkError("OGLSurface::activate()");
     switch (m_pf) {

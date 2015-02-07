@@ -42,8 +42,7 @@ typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class AVG_API StandardShader {
 public:
-    static StandardShader* get();
-    StandardShader();
+    StandardShader(GLContext* pContext);
     virtual ~StandardShader();
 
     void activate();
@@ -64,9 +63,10 @@ public:
     void dump() const;
 
 private:
-    void generateWhiteTexture(GLContext* pContext);
+    void generateWhiteTexture();
     bool useMinimalShader() const;
 
+    GLContext* m_pContext;
     GLTexturePtr m_pWhiteTex;
 
     glm::mat4 m_Transform;

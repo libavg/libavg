@@ -316,13 +316,13 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 void DivNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     if (getCrop() && getSize() != glm::vec2(0,0)) {
-        getCanvas()->pushClipRect(transform, m_ClipVA);
+        getCanvas()->pushClipRect(pContext, transform, m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getChild(i)->maybeRender(pContext, transform);
     }
     if (getCrop() && getSize() != glm::vec2(0,0)) {
-        getCanvas()->popClipRect(transform, m_ClipVA);
+        getCanvas()->popClipRect(pContext, transform, m_ClipVA);
     }
 }
 
