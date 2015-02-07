@@ -354,11 +354,10 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
 
 static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 
-void RasterNode::renderFX()
+void RasterNode::renderFX(GLContext* pContext)
 {
     if (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty()) {
         ScopeTimer Timer(FXProfilingZone);
-        GLContext* pContext = GLContext::getMain();
         StandardShader* pSShader = StandardShader::get();
         pSShader->setAlpha(1.0f);
         m_pSurface->activate(getMediaSize());

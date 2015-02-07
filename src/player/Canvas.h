@@ -113,7 +113,7 @@ class AVG_API Canvas: public ExportedObject
 
     private:
         virtual void renderTree()=0;
-        void renderFX();
+        void renderFX(GLContext* pContext);
         void resetFXSchedule();
         void renderOutlines(const glm::mat4& transform);
         void createStdSubVA();
