@@ -75,7 +75,7 @@ void GPUBandpassFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pPostScaleParam->set(float(m_PostScale));
     m_pInvertParam->set(m_bInvert);
     m_MaxFilter.getDestTex()->activate(WrapMode(), GL_TEXTURE1);
-    draw(m_MinFilter.getDestTex(), WrapMode());
+    draw(pContext, m_MinFilter.getDestTex(), WrapMode());
 }
 
 }

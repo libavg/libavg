@@ -69,7 +69,7 @@ protected:
     void setDimensions(const IntPoint& srcSize, const IntRect& destRect);
     OGLShaderPtr getShader() const;
 
-    void draw(GLTexturePtr pTex, const WrapMode& wrapMode);
+    void draw(GLContext* pContext, GLTexturePtr pTex, const WrapMode& wrapMode);
     int getBlurKernelRadius(float stdDev) const;
     MCTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
 

@@ -55,7 +55,7 @@ GPURGB2YUVFilter::~GPURGB2YUVFilter()
 void GPURGB2YUVFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
-    draw(pSrcTex, WrapMode());
+    draw(pContext, pSrcTex, WrapMode());
     GLContext::checkError("GPURGB2YUVFilter::applyOnGPU()");
 }
 

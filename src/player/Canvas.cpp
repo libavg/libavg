@@ -270,12 +270,12 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
     }
     {
         ScopeTimer Timer(VATransferProfilingZone);
-        m_pVertexArray->update();
+        m_pVertexArray->update(pContext);
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
             !pFBO);
     GLContext::checkError("Canvas::renderWindow: glViewport()");
-    m_pVertexArray->activate();
+    m_pVertexArray->activate(pContext);
     {
         ScopeTimer timer(RootRenderProfilingZone);
         m_pRootNode->maybeRender(pContext, projMat);
@@ -296,7 +296,7 @@ SubVertexArray& Canvas::getStdSubVA()
 void Canvas::renderOutlines(GLContext* pContext, const glm::mat4& transform)
 {
     VertexArrayPtr pVA = GLContextManager::get()->createVertexArray();
-    pVA->initForGLContext();
+    pVA->initForGLContext(pContext);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShader* pShader = pContext->getStandardShader();
@@ -305,7 +305,7 @@ void Canvas::renderOutlines(GLContext* pContext, const glm::mat4& transform)
     pShader->setAlpha(0.5f);
     pShader->activate();
     if (pVA->getNumVerts() != 0) {
-        pVA->draw();
+        pVA->draw(pContext);
     }
 }
 

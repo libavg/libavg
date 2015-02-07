@@ -51,7 +51,7 @@ void GPUInvertFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
     m_pTextureParam->set(0);
-    draw(pSrcTex, WrapMode());
+    draw(pContext, pSrcTex, WrapMode());
 }
 
 }

@@ -221,7 +221,7 @@ void GLContextManager::uploadDataForContext()
     }
 
     for (unsigned i=0; i<m_pPendingVACreates.size(); ++i) {
-        m_pPendingVACreates[i]->initForGLContext();
+        m_pPendingVACreates[i]->initForGLContext(pContext);
     }
 
     for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {

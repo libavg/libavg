@@ -99,7 +99,7 @@ void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pHorizTextureParam->set(0);
     m_pHorizKernelTexParam->set(1);
     m_pGaussCurveTex->activate(WrapMode(), GL_TEXTURE1);
-    draw(pSrcTex, m_WrapMode);
+    draw(pContext, pSrcTex, m_WrapMode);
 
     getFBO(pContext, 0)->activate();
     OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
@@ -109,7 +109,7 @@ void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pVertTextureParam->set(0);
     m_pVertKernelTexParam->set(1);
     getDestTex(1)->activate(m_WrapMode, GL_TEXTURE0);
-    m_pProjection2->draw(pVShader);
+    m_pProjection2->draw(pContext, pVShader);
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev)
