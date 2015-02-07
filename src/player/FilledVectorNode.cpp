@@ -173,7 +173,7 @@ void FilledVectorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_EffectiveOpacity > 0.01) {
-        m_pFillShape->draw(transform, m_EffectiveOpacity);
+        m_pFillShape->draw(pContext, transform, m_EffectiveOpacity);
     }
     VectorNode::render(pContext, transform);
 }

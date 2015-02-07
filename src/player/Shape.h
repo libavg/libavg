@@ -52,7 +52,7 @@ class AVG_API Shape
         GPUImagePtr getGPUImage();
         VertexDataPtr getVertexData();
         void setVertexArray(const VertexArrayPtr& pVA);
-        void draw(const glm::mat4& transform, float opacity);
+        void draw(GLContext* pContext, const glm::mat4& transform, float opacity);
 
         void discard();
 
