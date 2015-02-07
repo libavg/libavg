@@ -380,7 +380,7 @@ void RasterNode::renderFX(GLContext* pContext)
         BitmapPtr pBmp = m_pFBO->getImage(0);
         pBmp->save(ss.str());
 */  
-        m_pFXNode->apply(m_pFBO->getTex()->getCurTex());
+        m_pFXNode->apply(pContext, m_pFBO->getTex()->getCurTex());
         
 /*        
         stringstream ss1;

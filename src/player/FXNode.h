@@ -39,6 +39,7 @@ class GPUFilter;
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;
 class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class GLContext;
 
 class AVG_API FXNode {
 public:
@@ -49,7 +50,7 @@ public:
     virtual void disconnect();
     virtual void setSize(const IntPoint& newSize);
 
-    virtual void apply(GLTexturePtr pSrcTex);
+    virtual void apply(GLContext* pContext, GLTexturePtr pSrcTex);
 
     GLTexturePtr getTex();
     BitmapPtr getImage();
