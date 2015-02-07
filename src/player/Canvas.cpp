@@ -252,7 +252,7 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
     GLContext::setMain(pContext);
 
     GLContextManager::get()->uploadDataForContext();
-    renderFX();
+    renderFX(pContext);
     glm::mat4 projMat;
     if (pFBO) {
         pFBO->activate();
@@ -319,11 +319,11 @@ void Canvas::createStdSubVA()
     m_StdSubVA.appendQuadIndexes(1, 0, 2, 3);
 }
 
-void Canvas::renderFX()
+void Canvas::renderFX(GLContext* pContext)
 {
     vector<RasterNodePtr>::iterator it;
     for (it=m_pScheduledFXNodes.begin(); it!=m_pScheduledFXNodes.end(); ++it) {
-        (*it)->renderFX();
+        (*it)->renderFX(pContext);
     }
 }
 
