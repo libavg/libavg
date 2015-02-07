@@ -44,7 +44,7 @@ public:
             bool bForcePOT=false, int potBorderColor=0);
     virtual ~MCTexture();
 
-    void initForGLContext();
+    void initForGLContext(GLContext* pContext);
     void activate(const WrapMode& wrapMode, int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
 

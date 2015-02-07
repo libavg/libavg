@@ -79,7 +79,7 @@ StandardShader::StandardShader()
         m_MinimalAlphaParam = *m_pMinimalShader->getParam<float>("u_Alpha");
     }
     
-    generateWhiteTexture(); 
+    generateWhiteTexture(pContext); 
 }
 
 StandardShader::~StandardShader()
@@ -196,11 +196,11 @@ void StandardShader::dump() const
     cerr << endl;
 }
 
-void StandardShader::generateWhiteTexture()
+void StandardShader::generateWhiteTexture(GLContext* pContext)
 {
     BitmapPtr pBmp(new Bitmap(glm::vec2(1,1), I8));
     *(pBmp->getPixels()) = 255;
-    m_pWhiteTex = GLTexturePtr(new GLTexture(IntPoint(1,1), I8));
+    m_pWhiteTex = GLTexturePtr(new GLTexture(pContext, IntPoint(1,1), I8));
     m_pWhiteTex->moveBmpToTexture(pBmp);
 }
 

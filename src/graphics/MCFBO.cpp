@@ -73,7 +73,7 @@ void MCFBO::initForGLContext()
     vector<GLTexturePtr> pTextures;
     for (unsigned i=0; i<m_pTextures.size(); ++i) {
         MCTexturePtr pTex = m_pTextures[i];
-        pTex->initForGLContext();
+        pTex->initForGLContext(pContext);
         pTex->generateMipmaps();
         GLContext::checkError("MCFBO::initForGLContext: generateMipmaps");
         pTextures.push_back(pTex->getCurTex());

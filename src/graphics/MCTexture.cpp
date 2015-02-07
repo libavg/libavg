@@ -52,9 +52,9 @@ MCTexture::~MCTexture()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void MCTexture::initForGLContext()
+void MCTexture::initForGLContext(GLContext* pContext)
 {
-    m_pTextures.push_back(GLTexturePtr(new GLTexture(*this)));
+    m_pTextures.push_back(GLTexturePtr(new GLTexture(pContext, *this)));
 }
 
 void MCTexture::activate(const WrapMode& wrapMode, int textureUnit)

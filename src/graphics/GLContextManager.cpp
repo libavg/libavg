@@ -230,7 +230,7 @@ void GLContextManager::uploadDataForContext()
     }
 
     for (unsigned i=0; i<m_pPendingTexCreates.size(); ++i) {
-        m_pPendingTexCreates[i]->initForGLContext();
+        m_pPendingTexCreates[i]->initForGLContext(pContext);
     }
 
     TexUploadMap::iterator it;
