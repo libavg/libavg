@@ -181,7 +181,7 @@ void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
     ScopeTimer timer(RenderProfilingZone);
     float curOpacity = getEffectiveOpacity();
     if (curOpacity > 0.01) {
-        m_pShape->draw(transform, curOpacity);
+        m_pShape->draw(pContext, transform, curOpacity);
     }
 }
 
