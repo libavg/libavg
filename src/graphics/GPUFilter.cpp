@@ -192,10 +192,10 @@ OGLShaderPtr GPUFilter::getShader() const
     return avg::getShader(m_sShaderID);
 }
 
-void GPUFilter::draw(GLTexturePtr pTex, const WrapMode& wrapMode)
+void GPUFilter::draw(GLContext* pContext, GLTexturePtr pTex, const WrapMode& wrapMode)
 {
     pTex->activate(wrapMode, GL_TEXTURE0);
-    m_pProjection->draw(getShader());
+    m_pProjection->draw(pContext, getShader());
 }
 
 void dumpKernel(int width, float* pKernel)

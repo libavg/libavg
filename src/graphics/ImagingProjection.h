@@ -45,7 +45,7 @@ public:
     virtual ~ImagingProjection();
 
     void setColor(const Pixel32& color);
-    void draw(const OGLShaderPtr& pShader);
+    void draw(GLContext* pContext, const OGLShaderPtr& pShader);
 
 private:
     void init(IntPoint srcSize, IntRect destRect);

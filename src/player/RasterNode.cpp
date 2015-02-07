@@ -372,7 +372,7 @@ void RasterNode::renderFX(GLContext* pContext)
         }
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
         m_pImagingProjection->setColor(m_Color);
-        m_pImagingProjection->draw(pSShader->getShader());
+        m_pImagingProjection->draw(pContext, pSShader->getShader());
 /*
         static int i=0;
         stringstream ss;

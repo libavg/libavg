@@ -64,12 +64,12 @@ void ImagingProjection::setColor(const Pixel32& color)
     }
 }
 
-void ImagingProjection::draw(const OGLShaderPtr& pShader)
+void ImagingProjection::draw(GLContext* pContext, const OGLShaderPtr& pShader)
 {
     IntPoint destSize = m_DestRect.size();
     glViewport(0, 0, destSize.x, destSize.y);
     pShader->setTransform(m_ProjMat); 
-    m_pVA->draw();
+    m_pVA->draw(pContext);
 }
 
 void ImagingProjection::init(IntPoint srcSize, IntRect destRect)

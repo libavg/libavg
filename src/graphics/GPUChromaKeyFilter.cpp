@@ -129,7 +129,7 @@ void GPUChromaKeyFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pLSoftToleranceParam->set(m_LTolerance+m_Softness);
     m_pSpillThresholdParam->set(m_SpillThreshold*360);
     m_pIsLastParam->set(int(m_Erosion==0));
-    draw(pSrcTex, WrapMode());
+    draw(pContext, pSrcTex, WrapMode());
 
     for (int i = 0; i < m_Erosion; ++i) {
         curBufferIndex = (curBufferIndex+1)%2;
@@ -139,7 +139,7 @@ void GPUChromaKeyFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
         m_pErosionTextureParam->set(0);
         m_pErosionIsLastParam->set(int(i==m_Erosion-1));
         getDestTex((curBufferIndex+1)%2)->activate(WrapMode(), GL_TEXTURE0);
-        m_pProjection2->draw(avg::getShader(SHADERID_EROSION));
+        m_pProjection2->draw(pContext, avg::getShader(SHADERID_EROSION));
     }
 }
 

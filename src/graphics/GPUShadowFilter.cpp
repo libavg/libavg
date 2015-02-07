@@ -106,7 +106,7 @@ void GPUShadowFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     glm::vec2 texOffset(m_Offset.x/size.x, m_Offset.y/size.y);
     m_pHorizOffsetParam->set(texOffset);
     m_pGaussCurveTex->activate(WrapMode(), GL_TEXTURE1);
-    draw(pSrcTex, m_WrapMode);
+    draw(pContext, pSrcTex, m_WrapMode);
 
     getFBO(pContext, 0)->activate();
     OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
@@ -125,7 +125,7 @@ void GPUShadowFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 #ifndef AVG_ENABLE_EGL
     getDestTex(1)->activate(m_WrapMode, GL_TEXTURE0);
 #endif
-    m_pProjection2->draw(avg::getShader(SHADERID_VERT));
+    m_pProjection2->draw(pContext, avg::getShader(SHADERID_VERT));
 }
 
 void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2& offset)

@@ -59,7 +59,7 @@ void GPUBrightnessFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     getShader()->activate();
     m_pTextureParam->set(0);
     m_pAlphaParam->set(m_Alpha);
-    draw(pSrcTex, WrapMode());
+    draw(pContext, pSrcTex, WrapMode());
 }
 
 }

@@ -41,12 +41,12 @@ public:
     static const unsigned COLOR_INDEX;
 
     VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
-    void initForGLContext();
+    void initForGLContext(GLContext* pContext);
     virtual ~VertexArray();
 
-    void update();
-    void activate();
-    void draw();
+    void update(GLContext* pContext);
+    void activate(GLContext* pContext);
+    void draw(GLContext* pContext);
     void draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
             unsigned numVertexes);
 
