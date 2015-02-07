@@ -63,12 +63,12 @@ GPUBandpassFilter::~GPUBandpassFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUBandpassFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
-    m_MinFilter.apply(pSrcTex);
-    m_MaxFilter.apply(pSrcTex);
+    m_MinFilter.apply(pContext, pSrcTex);
+    m_MaxFilter.apply(pContext, pSrcTex);
 
-    getFBO()->activate();
+    getFBO(pContext)->activate();
     getShader()->activate();
     m_pMinTexParam->set(0);
     m_pMaxTexParam->set(1);

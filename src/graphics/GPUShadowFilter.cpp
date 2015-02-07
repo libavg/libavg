@@ -93,10 +93,10 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
             getDestRect().size(), destRect2));
 }
 
-void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUShadowFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     int kernelWidth = m_pGaussCurveTex->getSize().x;
-    getFBO(1)->activate();
+    getFBO(pContext, 1)->activate();
     getShader()->activate();
     m_pHorizWidthParam->set(float(kernelWidth));
     m_pHorizRadiusParam->set((kernelWidth-1)/2);
@@ -108,7 +108,7 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pGaussCurveTex->activate(WrapMode(), GL_TEXTURE1);
     draw(pSrcTex, m_WrapMode);
 
-    getFBO(0)->activate();
+    getFBO(pContext, 0)->activate();
     OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
     pVShader->activate();
     m_pVertWidthParam->set(float(kernelWidth));

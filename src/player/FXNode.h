@@ -53,14 +53,14 @@ public:
     virtual void apply(GLContext* pContext, GLTexturePtr pSrcTex);
 
     GLTexturePtr getTex();
-    BitmapPtr getImage();
+    BitmapPtr getImage(GLContext* pContext);
     FRect getRelDestRect() const;
 
     bool isDirty() const;
     void resetDirty();
 
 protected:
-    FBOPtr getFBO();
+    FBOPtr getFBO(GLContext* pContext);
     void setDirty();
 
 private:

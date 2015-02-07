@@ -37,7 +37,7 @@ public:
             float postScale, bool bInvert, bool bStandalone=true);
     virtual ~GPUBandpassFilter();
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
     float m_PostScale;

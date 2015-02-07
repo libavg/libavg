@@ -52,7 +52,7 @@ GPUNullFilter::~GPUNullFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUNullFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
     m_pTextureParam->set(0);

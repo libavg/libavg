@@ -38,7 +38,7 @@ public:
     void setParams(const Pixel32& color, float hTolerance, float sTolerance, 
             float lTolerance, float softness, int erosion, float spillThreshold);
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
     Pixel32 m_Color;

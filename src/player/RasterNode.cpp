@@ -363,7 +363,7 @@ void RasterNode::renderFX(GLContext* pContext)
         m_pSurface->activate(pContext, getMediaSize());
         pSShader->activate();
 
-        m_pFBO->activate();
+        m_pFBO->activate(pContext);
         clearGLBuffers(GL_COLOR_BUFFER_BIT, false);
 
         bool bPremultipliedAlpha = m_pSurface->isPremultipliedAlpha();

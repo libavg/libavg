@@ -42,6 +42,7 @@ class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class TextureMover;
 typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+class GLContext;
 
 class AVG_API GPUFilter: public Filter
 {
@@ -53,11 +54,11 @@ public:
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
-    virtual void apply(GLTexturePtr pSrcTex);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex) = 0;
+    virtual void apply(GLContext* pContext, GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex) = 0;
     GLTexturePtr getDestTex(int i=0) const;
-    BitmapPtr getImage() const;
-    FBOPtr getFBO(int i=0);
+    BitmapPtr getImage(GLContext* pContext) const;
+    FBOPtr getFBO(GLContext* pContext, int i=0);
 
     const IntRect& getDestRect() const;
     const IntPoint& getSrcSize() const;

@@ -307,8 +307,8 @@ public:
         MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
         GPURGB2YUVFilter f(pOrigBmp->getSize());
-        f.apply(pTex->getCurTex());
-        BitmapPtr pResultBmp = f.getResults();
+        f.apply(GLContext::getCurrent(), pTex->getCurTex());
+        BitmapPtr pResultBmp = f.getResults(GLContext::getCurrent());
         pResultBmp = convertYUVX444ToRGB(pResultBmp);
         testEqual(*pResultBmp, *pOrigBmp, "RGB2YUV", 1, 2);
     }
