@@ -47,7 +47,6 @@ public:
     void setMask(MCTexturePtr pTex);
     virtual void destroy();
     void activate(GLContext* pContext, const IntPoint& logicalSize = IntPoint(1,1)) const;
-    MCTexturePtr getTex(int i=0) const;
 
     void setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize);
 
@@ -62,6 +61,7 @@ public:
     void setAlphaGamma(float gamma);
 
     bool isDirty() const;
+    void setDirty();
     void resetDirty();
 
 private:
