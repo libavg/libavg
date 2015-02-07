@@ -105,7 +105,7 @@ class AVG_API RasterNode: public AreaNode
         void scheduleFXRender();
         void calcVertexArray(const VertexArrayPtr& pVA);
         void blt32(GLContext* pContext, const glm::mat4& transform);
-        void blta8(GLContext* pContext, const glm::mat4& transform,
+        void blt(GLContext* pContext, const glm::mat4& transform,
                 const glm::vec2& destSize);
 
         virtual OGLSurface * getSurface();
@@ -120,8 +120,6 @@ class AVG_API RasterNode: public AreaNode
         void downloadMask();
         virtual void calcMaskCoords();
         void checkDisplayAvailable(std::string sMsg);
-        void blt(GLContext* pContext, const glm::mat4& transform,
-                const glm::vec2& destSize);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
