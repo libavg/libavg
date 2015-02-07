@@ -278,7 +278,7 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
         ScopeTimer timer(RootRenderProfilingZone);
         m_pRootNode->maybeRender(pContext, projMat);
     }
-    renderOutlines(projMat);
+    renderOutlines(pContext, projMat);
 }
 
 void Canvas::scheduleFXRender(const RasterNodePtr& pNode)
@@ -291,9 +291,8 @@ SubVertexArray& Canvas::getStdSubVA()
     return m_StdSubVA;
 }
 
-void Canvas::renderOutlines(const glm::mat4& transform)
+void Canvas::renderOutlines(GLContext* pContext, const glm::mat4& transform)
 {
-    GLContext* pContext = GLContext::getMain();
     VertexArrayPtr pVA = GLContextManager::get()->createVertexArray();
     pVA->initForGLContext();
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
