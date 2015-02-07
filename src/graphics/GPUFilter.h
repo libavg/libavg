@@ -56,7 +56,7 @@ public:
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLContext* pContext, GLTexturePtr pSrcTex);
     virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex) = 0;
-    GLTexturePtr getDestTex(int i=0) const;
+    GLTexturePtr getDestTex(GLContext* pContext, int i=0) const;
     BitmapPtr getImage(GLContext* pContext) const;
     FBOPtr getFBO(GLContext* pContext, int i=0);
 

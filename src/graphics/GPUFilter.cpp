@@ -92,8 +92,9 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
         m_bIsInitialized = true;
     }
     GLContext* pContext = GLContext::getCurrent();
-    m_pSrcMover->moveBmpToTexture(pBmpSource, *(m_pSrcTex->getCurTex()));
-    apply(pContext, m_pSrcTex->getCurTex());
+    GLTexturePtr pTex = m_pSrcTex->getTex(pContext);
+    m_pSrcMover->moveBmpToTexture(pBmpSource, *(pTex));
+    apply(pContext, pTex);
     BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage(pContext);
 
     BitmapPtr pTmpBmp;
@@ -124,9 +125,9 @@ void GPUFilter::apply(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pFBOs[0]->copyToDestTexture(pContext);
 }
 
-GLTexturePtr GPUFilter::getDestTex(int i) const
+GLTexturePtr GPUFilter::getDestTex(GLContext* pContext, int i) const
 {
-    return m_pFBOs[i]->getTex()->getCurTex();
+    return m_pFBOs[i]->getTex()->getTex(pContext);
 }
 
 BitmapPtr GPUFilter::getImage(GLContext* pContext) const

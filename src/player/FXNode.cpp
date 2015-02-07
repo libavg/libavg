@@ -74,9 +74,9 @@ void FXNode::apply(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pFilter->apply(pContext, pSrcTex);
 }
 
-GLTexturePtr FXNode::getTex()
+GLTexturePtr FXNode::getTex(GLContext* pContext)
 {
-    return m_pFilter->getDestTex();
+    return m_pFilter->getDestTex(pContext);
 }
 
 BitmapPtr FXNode::getImage(GLContext* pContext)

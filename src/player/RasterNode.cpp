@@ -380,7 +380,7 @@ void RasterNode::renderFX(GLContext* pContext)
         BitmapPtr pBmp = m_pFBO->getImage(0);
         pBmp->save(ss.str());
 */  
-        m_pFXNode->apply(pContext, m_pFBO->getTex()->getCurTex());
+        m_pFXNode->apply(pContext, m_pFBO->getTex()->getTex(pContext));
         
 /*        
         stringstream ss1;
@@ -548,7 +548,7 @@ void RasterNode::blt(GLContext* pContext, const glm::mat4& transform,
 #else
         WrapMode wrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 #endif
-        m_pFXNode->getTex()->activate(wrapMode, GL_TEXTURE0);
+        m_pFXNode->getTex(pContext)->activate(wrapMode, GL_TEXTURE0);
         pShader->setColorModel(0);
         pShader->disableColorspaceMatrix();
         pShader->setGamma(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));

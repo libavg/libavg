@@ -307,8 +307,9 @@ public:
         MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
         GPURGB2YUVFilter f(pOrigBmp->getSize());
-        f.apply(GLContext::getCurrent(), pTex->getCurTex());
-        BitmapPtr pResultBmp = f.getResults(GLContext::getCurrent());
+        GLContext* pContext = GLContext::getCurrent();
+        f.apply(pContext, pTex->getTex(pContext));
+        BitmapPtr pResultBmp = f.getResults(pContext);
         pResultBmp = convertYUVX444ToRGB(pResultBmp);
         testEqual(*pResultBmp, *pOrigBmp, "RGB2YUV", 1, 2);
     }
@@ -378,9 +379,9 @@ private:
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             GLContextManager* pCM = GLContextManager::get();
-            MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, false, bPOT, 0);
+            MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp, false, bPOT, 0);
             pCM->uploadData();
-            BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+            BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getMain())->moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
         }
     }
@@ -391,8 +392,9 @@ private:
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         GLContextManager* pCM = GLContextManager::get();
-        MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, true);
+        MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp, true);
         pCM->uploadData();
+        GLTexturePtr pTex = pMCTex->getTex(GLContext::getMain());
         pTex->generateMipmaps();
 
         if (GLContext::getCurrent()->isGLES()) {
@@ -422,10 +424,10 @@ private:
         BitmapPtr pOrigBmp(new Bitmap(pFileBmp->getSize(), B5G6R5));
         pOrigBmp->copyPixels(*pFileBmp);
         GLContextManager* pCM = GLContextManager::get();
-        MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
+        MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
 
-        BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+        BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getMain())->moveTextureToBmp();
     }
 };
 
