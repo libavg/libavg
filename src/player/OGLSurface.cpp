@@ -205,7 +205,7 @@ IntPoint OGLSurface::getTextureSize()
 
 bool OGLSurface::isCreated() const
 {
-    return (m_pTextures[0] != MCTexturePtr());
+    return (m_pMCTextures[0] != MCTexturePtr());
 }
 
 bool OGLSurface::isPremultipliedAlpha() const
