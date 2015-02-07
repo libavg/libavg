@@ -434,10 +434,44 @@ void RasterNode::blt32(GLContext* pContext, const glm::mat4& transform)
     blt(pContext, transform, getSize());
 }
 
-void RasterNode::blta8(GLContext* pContext, const glm::mat4& transform,
+void RasterNode::blt(GLContext* pContext, const glm::mat4& transform,
         const glm::vec2& destSize)
 {
-    blt(pContext, transform, destSize);
+    FRect destRect;
+
+    StandardShader* pShader = pContext->getStandardShader();
+    float opacity = getEffectiveOpacity();
+    pContext->setBlendColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
+    pShader->setAlpha(opacity);
+    if (m_pFXNode) {
+        pContext->setBlendMode(m_BlendMode, true);
+#ifdef AVG_ENABLE_EGL
+        WrapMode wrapMode();
+#else
+        WrapMode wrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+#endif
+        m_pFXNode->getTex(pContext)->activate(wrapMode, GL_TEXTURE0);
+        pShader->setColorModel(0);
+        pShader->disableColorspaceMatrix();
+        pShader->setGamma(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        pShader->setPremultipliedAlpha(true);
+        pShader->setMask(false);
+
+        FRect relDestRect = m_pFXNode->getRelDestRect();
+        destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
+                relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
+    } else {
+        m_pSurface->activate(pContext, getMediaSize());
+        pContext->setBlendMode(m_BlendMode, m_pSurface->isPremultipliedAlpha());
+        destRect = FRect(glm::vec2(0,0), destSize);
+    }
+    glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);
+    glm::vec3 scaleVec(destRect.size().x, destRect.size().y, 1);
+    glm::mat4 localTransform = glm::translate(transform, pos);
+    localTransform = glm::scale(localTransform, scaleVec);
+    pShader->setTransform(localTransform);
+    pShader->activate();
+    m_pSubVA->draw();
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const
@@ -530,46 +564,6 @@ void RasterNode::setupFX()
                     m_pSurface->getSize()));
         }
     }
-}
-
-void RasterNode::blt(GLContext* pContext, const glm::mat4& transform,
-        const glm::vec2& destSize)
-{
-    FRect destRect;
-    
-    StandardShader* pShader = pContext->getStandardShader();
-    float opacity = getEffectiveOpacity();
-    pContext->setBlendColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
-    pShader->setAlpha(opacity);
-    if (m_pFXNode) {
-        pContext->setBlendMode(m_BlendMode, true);
-#ifdef AVG_ENABLE_EGL
-        WrapMode wrapMode();
-#else
-        WrapMode wrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-#endif
-        m_pFXNode->getTex(pContext)->activate(wrapMode, GL_TEXTURE0);
-        pShader->setColorModel(0);
-        pShader->disableColorspaceMatrix();
-        pShader->setGamma(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        pShader->setPremultipliedAlpha(true);
-        pShader->setMask(false);
-
-        FRect relDestRect = m_pFXNode->getRelDestRect();
-        destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
-                relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
-    } else {
-        m_pSurface->activate(pContext, getMediaSize());
-        pContext->setBlendMode(m_BlendMode, m_pSurface->isPremultipliedAlpha());
-        destRect = FRect(glm::vec2(0,0), destSize);
-    }
-    glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);
-    glm::vec3 scaleVec(destRect.size().x, destRect.size().y, 1);
-    glm::mat4 localTransform = glm::translate(transform, pos);
-    localTransform = glm::scale(localTransform, scaleVec);
-    pShader->setTransform(localTransform);
-    pShader->activate();
-    m_pSubVA->draw();
 }
 
 IntPoint RasterNode::getNumTiles()

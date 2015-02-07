@@ -719,7 +719,7 @@ void WordsNode::render(GLContext* pContext, const glm::mat4& transform)
         } else {
             totalTransform = glm::translate(transform, glm::vec3(offset.x, offset.y, 0));
         }
-        blta8(pContext, transform, glm::vec2(getSurface()->getSize()));
+        blt(pContext, transform, glm::vec2(getSurface()->getSize()));
     }
 }
 
