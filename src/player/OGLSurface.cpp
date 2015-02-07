@@ -181,11 +181,6 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
     GLContext::checkError("OGLSurface::activate");
 }
 
-MCTexturePtr OGLSurface::getTex(int i) const
-{
-    return m_pTextures[i];
-}
-
 void OGLSurface::setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize)
 {
     m_MaskPos = maskPos;
@@ -246,6 +241,11 @@ bool OGLSurface::isDirty() const
         }
     }
     return bIsDirty;
+}
+
+void OGLSurface::setDirty()
+{
+    m_bIsDirty = true;
 }
 
 void OGLSurface::resetDirty()

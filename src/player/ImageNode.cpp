@@ -162,7 +162,7 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     if (isVisible() && m_pGPUImage->getSource() != GPUImage::NONE) {
         if (m_pGPUImage->getCanvas()) {
             // Force FX render every frame for canvas nodes.
-            getSurface()->getTex(0)->setDirty();
+            getSurface()->setDirty();
         }
         scheduleFXRender();
     }
