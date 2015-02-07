@@ -67,10 +67,10 @@ public:
 private:
     glm::mat4 calcColorspaceMatrix() const;
 
-    MCTexturePtr m_pTextures[4];
+    MCTexturePtr m_pMCTextures[4];
     IntPoint m_Size;
     PixelFormat m_pf;
-    MCTexturePtr m_pMaskTexture;
+    MCTexturePtr m_pMaskMCTexture;
     glm::vec2 m_MaskPos;
     glm::vec2 m_MaskSize;
     bool m_bPremultipliedAlpha;
