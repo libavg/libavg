@@ -67,11 +67,11 @@ void GPUHueSatFilter::setParams(int hue, int saturation,
 void GPUHueSatFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
-    m_pHueParam->set(m_Hue);
-    m_pSatParam->set(m_Saturation);
-    m_pLightnessParam->set(m_LightnessOffset);
-    m_pColorizeParam->set((int)(m_bColorize));
-    m_pTextureParam->set(0);
+    m_pHueParam->set(pContext, m_Hue);
+    m_pSatParam->set(pContext, m_Saturation);
+    m_pLightnessParam->set(pContext, m_LightnessOffset);
+    m_pColorizeParam->set(pContext, (int)(m_bColorize));
+    m_pTextureParam->set(pContext, 0);
     draw(pContext, pSrcTex, WrapMode());
 }
 
