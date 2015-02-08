@@ -104,17 +104,23 @@ void MainCanvas::renderTree()
 {
     preRender();
     unsigned numWindows = m_pDisplayEngine->getNumWindows();
-    m_NumThreadsRunning = numWindows;
+    m_NumThreadsRunning = numWindows-1;
     for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(RootRenderProfilingZone);
         WindowPtr pWindow = m_pDisplayEngine->getWindow(i);
         IntRect viewport = pWindow->getViewport();
-        m_pCmdQueues[i]->pushCmd(boost::bind(
-                &RenderThread::render, _1, this, pWindow, viewport));
+        if (i==0) {
+            renderWindow(pWindow, MCFBOPtr(), viewport);
+        } else {
+            m_pCmdQueues[i]->pushCmd(boost::bind(
+                    &RenderThread::render, _1, this, pWindow, viewport));
+        }
     }
-    boost::mutex::scoped_lock lock(m_RenderMutex);
-    while (m_NumThreadsRunning) {
-        m_RenderCondition.wait(lock);
+    if (numWindows > 1) {
+        boost::mutex::scoped_lock lock(m_RenderMutex);
+        while (m_NumThreadsRunning) {
+            m_RenderCondition.wait(lock);
+        }
     }
     GLContextManager::get()->reset();
 }
