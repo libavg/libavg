@@ -55,7 +55,12 @@ MainCanvas::MainCanvas(Player * pPlayer)
 
 MainCanvas::~MainCanvas()
 {
-    // TODO: Kill threads, delete queues.
+    for (unsigned i=0; i<m_pThreads.size(); ++i) {
+        m_pCmdQueues[i]->pushCmd(boost::bind(&RenderThread::stop, _1));
+        m_pThreads[i]->join();
+        delete m_pThreads[i];
+        delete m_pCmdQueues[i];
+    }
 }
 
 void MainCanvas::setRoot(NodePtr pRootNode)
