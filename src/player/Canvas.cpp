@@ -251,7 +251,6 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
 {
     GLContext* pContext = pWindow->getGLContext();
     pContext->activate();
-    GLContext::setMain(pContext);
 
     GLContextManager::get()->uploadDataForContext();
     renderFX(pContext);
