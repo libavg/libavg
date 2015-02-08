@@ -19,49 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _MainCanvas_H_
-#define _MainCanvas_H_
+#ifndef _RenderThread_H_
+#define _RenderThread_H_
 
 #include "../api.h"
-#include "Canvas.h"
-#include "RenderThread.h"
 
-#include <vector>
+#include "../base/WorkerThread.h"
+#include "../base/Rect.h"
+
+#include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
+
+#include <string>
 
 namespace avg {
 
-class DisplayEngine;
-typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
-class GLContext;
-typedef boost::shared_ptr<GLContext> GLContextPtr;
-class GLContextManager;
-typedef boost::shared_ptr<GLContextManager> GLContextManagerPtr;
+class MainCanvas;
+class Window;
+typedef boost::shared_ptr<Window> WindowPtr;
 
-class AVG_API MainCanvas: public Canvas
-{
+class AVG_API RenderThread : public WorkerThread<RenderThread>  {
     public:
-        MainCanvas(Player * pPlayer);
-        virtual ~MainCanvas();
-        virtual void setRoot(NodePtr pRootNode);
-        virtual void initPlayback(const DisplayEnginePtr& pDisplayEngine);
-       
-        virtual BitmapPtr screenshot() const;
+        RenderThread(CQueue& cmdQueue, int idx);
+        virtual ~RenderThread();
 
-        void notifyRenderDone();
+        void render(MainCanvas* pCanvas, WindowPtr pWindow, IntRect viewport);
 
     private:
-        void renderTree();
-        void pollEvents();
-
-        DisplayEnginePtr m_pDisplayEngine;
-        std::vector<boost::thread*> m_pThreads;
-        std::vector<RenderThread::CQueue*> m_pCmdQueues;
-        boost::mutex m_RenderMutex;
-        int m_NumThreadsRunning;
-        boost::condition_variable m_RenderCondition;
+        // Called by base class
+        virtual bool work();
 };
+
+typedef boost::shared_ptr<RenderThread> RenderThreadPtr;
 
 }
 #endif
-

@@ -69,7 +69,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         SVG.h SVGElement.h Publisher.h SubscriberInfo.h PublisherDefinition.h \
         PublisherDefinitionRegistry.h MessageID.h VersionInfo.h \
         PythonLogSink.h BitmapManager.h BitmapManagerThread.h IBitmapLoadedListener.h \
-        BitmapManagerMsg.h \
+        BitmapManagerMsg.h RenderThread.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES) $(SECONDARY_WINDOW_INCLUDES)
 
 TESTS = testcalibrator testplayer
@@ -118,6 +118,6 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         SVG.cpp SVGElement.cpp Publisher.cpp SubscriberInfo.cpp PublisherDefinition.cpp \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
         PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
-        BitmapManagerMsg.cpp \
+        BitmapManagerMsg.cpp RenderThread.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(SECONDARY_WINDOW_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

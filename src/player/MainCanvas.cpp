@@ -25,6 +25,7 @@
 #include "DisplayEngine.h"
 #include "AVGNode.h"
 #include "Window.h"
+#include "RenderThread.h"
 
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
@@ -54,6 +55,7 @@ MainCanvas::MainCanvas(Player * pPlayer)
 
 MainCanvas::~MainCanvas()
 {
+    // TODO: Kill threads, delete queues.
 }
 
 void MainCanvas::setRoot(NodePtr pRootNode)
@@ -69,6 +71,13 @@ void MainCanvas::initPlayback(const DisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
+    unsigned numWindows = m_pDisplayEngine->getNumWindows();
+    for (unsigned i=0; i<numWindows; ++i) {
+        RenderThread::CQueue* pCmdQueue = new RenderThread::CQueue();
+        RenderThread renderer(*pCmdQueue, i);
+        m_pThreads.push_back(new boost::thread(renderer));
+        m_pCmdQueues.push_back(pCmdQueue);
+    }
 }
 
 BitmapPtr MainCanvas::screenshot() const
@@ -80,6 +89,13 @@ BitmapPtr MainCanvas::screenshot() const
     return m_pDisplayEngine->screenshot();
 }
 
+void MainCanvas::notifyRenderDone()
+{
+    boost::mutex::scoped_lock lock(m_RenderMutex);
+    m_NumThreadsRunning--;
+    m_RenderCondition.notify_one();
+}
+
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 static ProfilingZoneID SecondWindowRenderProfilingZone(
         "Render second window");
@@ -87,13 +103,18 @@ static ProfilingZoneID SecondWindowRenderProfilingZone(
 void MainCanvas::renderTree()
 {
     preRender();
-    DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
-    unsigned numWindows = pDisplayEngine->getNumWindows();
+    unsigned numWindows = m_pDisplayEngine->getNumWindows();
+    m_NumThreadsRunning = numWindows;
     for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(RootRenderProfilingZone);
-        WindowPtr pWindow = pDisplayEngine->getWindow(i);
+        WindowPtr pWindow = m_pDisplayEngine->getWindow(i);
         IntRect viewport = pWindow->getViewport();
-        renderWindow(pWindow, MCFBOPtr(), viewport);
+        m_pCmdQueues[i]->pushCmd(boost::bind(
+                &RenderThread::render, _1, this, pWindow, viewport));
+    }
+    boost::mutex::scoped_lock lock(m_RenderMutex);
+    while (m_NumThreadsRunning) {
+        m_RenderCondition.wait(lock);
     }
     GLContextManager::get()->reset();
 }

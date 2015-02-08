@@ -154,6 +154,9 @@ bool GLContext::ownsContext() const
 
 void GLContext::setCurrent()
 {
+    if (s_pCurrentContext.get() == 0) {
+        s_pCurrentContext.reset(new (GLContext*));
+    }
     *s_pCurrentContext = this;
 }
 
