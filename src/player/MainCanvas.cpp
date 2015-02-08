@@ -72,7 +72,9 @@ void MainCanvas::initPlayback(const DisplayEnginePtr& pDisplayEngine)
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
     unsigned numWindows = m_pDisplayEngine->getNumWindows();
-    for (unsigned i=0; i<numWindows; ++i) {
+    // The first window gets rendered in the main thread, all others in separate
+    // threads.
+    for (unsigned i=1; i<numWindows; ++i) {
         RenderThread::CQueue* pCmdQueue = new RenderThread::CQueue();
         RenderThread renderer(*pCmdQueue, i);
         m_pThreads.push_back(new boost::thread(renderer));
@@ -112,7 +114,7 @@ void MainCanvas::renderTree()
         if (i==0) {
             renderWindow(pWindow, MCFBOPtr(), viewport);
         } else {
-            m_pCmdQueues[i]->pushCmd(boost::bind(
+            m_pCmdQueues[i-1]->pushCmd(boost::bind(
                     &RenderThread::render, _1, this, pWindow, viewport));
         }
     }
