@@ -381,7 +381,8 @@ private:
             GLContextManager* pCM = GLContextManager::get();
             MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp, false, bPOT, 0);
             pCM->uploadData();
-            BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getMain())->moveTextureToBmp();
+            BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getCurrent())->
+                    moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
         }
     }
@@ -394,7 +395,7 @@ private:
         GLContextManager* pCM = GLContextManager::get();
         MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp, true);
         pCM->uploadData();
-        GLTexturePtr pTex = pMCTex->getTex(GLContext::getMain());
+        GLTexturePtr pTex = pMCTex->getTex(GLContext::getCurrent());
         pTex->generateMipmaps();
 
         if (GLContext::getCurrent()->isGLES()) {
@@ -427,7 +428,7 @@ private:
         MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
 
-        BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getMain())->moveTextureToBmp();
+        BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getCurrent())->moveTextureToBmp();
     }
 };
 
@@ -528,7 +529,6 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
     GLContextManager cm;
     GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
-    GLContext::setMain(pContext);
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
             GLConfig::shaderUsageToString(pContext->getShaderUsage());
     cerr << "---------------------------------------------------" << endl;

@@ -541,7 +541,6 @@ void Player::initPlayback()
     m_bIsPlaying = true;
     AVG_TRACE(Logger::category::PLAYER, Logger::severity::INFO, "Playback started.");
     initGraphics();
-    GLContext::setMain(GLContext::getCurrent());
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
