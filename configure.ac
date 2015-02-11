@@ -43,7 +43,7 @@ AC_SUBST(OBJCLDFLAGS)
 _AM_DEPENDENCIES([OBJC])
 LDFLAGS="$LDFLAGS -rdynamic"
 if [[ $target_vendor = apple ]]; then
- CXXFLAGS="$CXXFLAGS -Wno-c++11-extensions"
+ CXXFLAGS="$CXXFLAGS -std=c++11"
 else
  CXXFLAGS="$CXXFLAGS -std=c++0x"
 fi
