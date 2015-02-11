@@ -158,7 +158,7 @@ std::string OffscreenCanvas::getID() const
 
 bool OffscreenCanvas::isRunning() const
 {
-    return (m_pFBO);
+    return (m_pFBO != MCFBOPtr());
 }
 
 MCTexturePtr OffscreenCanvas::getTex() const
