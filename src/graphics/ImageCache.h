@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <string>
-#include <vector>
+#include <list>
 #include <map>
 
 #ifdef _WIN32
@@ -65,7 +65,11 @@ class AVG_API ImageCache
 
         typedef std::list<ImagePtr> LRUListType;
         LRUListType m_pLRUList;
+#ifdef __APPLE__
         typedef boost::unordered_map<std::string, LRUListType::iterator> ImageMap;
+#else
+        typedef std::tr1::unordered_map<std::string, LRUListType::iterator> ImageMap;
+#endif
         ImageMap m_pImageMap;
 
         long long m_CPUCacheSize;
