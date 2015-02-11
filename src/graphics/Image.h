@@ -56,6 +56,7 @@ class AVG_API Image
 
         BitmapPtr getBmp();
         MCTexturePtr getTex();
+        bool hasTex() const;
         long long getLRUTime() const;
         int getBmpMemUsed() const;
         int getTexMemUsed() const;

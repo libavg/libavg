@@ -54,7 +54,8 @@ ImageCache::~ImageCache()
 
 void ImageCache::setSize(long long cpuSize, long long gpuSize)
 {
-    
+    m_CPUCacheSize = cpuSize;
+    m_GPUCacheSize = gpuSize;
 }
 
 ImagePtr ImageCache::getImage(const std::string& sFilename,
@@ -108,7 +109,13 @@ int ImageCache::getNumCPUImages() const
 
 int ImageCache::getNumGPUImages() const
 {
-    // TODO: Count images with Tex use count > 0
+    int numGPUImages = 0;
+    for (LRUListType::const_iterator it=m_pLRUList.begin(); it!=m_pLRUList.end(); ++it) {
+        if ((*it)->hasTex()) {
+            numGPUImages++;
+        }
+    }
+    return numGPUImages;
 }
 
 void ImageCache::checkCPUUnload()

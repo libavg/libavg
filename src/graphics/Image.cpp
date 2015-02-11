@@ -149,6 +149,11 @@ MCTexturePtr Image::getTex()
     return m_pTex;
 }
 
+bool Image::hasTex() const
+{
+    return m_pTex != MCTexturePtr();
+}
+
 long long Image::getLRUTime() const
 {
     if (m_BmpRefCount >= 1 || m_TexRefCount >= 1) {

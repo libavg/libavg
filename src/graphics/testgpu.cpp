@@ -439,12 +439,16 @@ public:
 
     void runTests()
     {
+        ImageCache* pCache = ImageCache::get();
         cerr << "    Testing no cache" << endl;
         loadImages();
+        TEST(pCache->getNumCPUImages() == 0);
+        TEST(pCache->getNumGPUImages() == 0);
         cerr << "    Testing cache" << endl;
-        ImageCache* pCache = ImageCache::get();
-        pCache->setSize(20000, 20000);
+        pCache->setSize(20000, 0);
         loadImages();
+        TEST(pCache->getNumCPUImages() == 1);
+        TEST(pCache->getNumGPUImages() == 0);
     }
 
 private:
@@ -478,7 +482,6 @@ private:
         pImage1a->decTexRef();
         pImage1a->decBmpRef();
         pCM->uploadData();
-        TEST(pCache->getNumCPUImages() == 0);
     }
 };
 
