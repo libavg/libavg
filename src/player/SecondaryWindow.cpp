@@ -35,7 +35,7 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
-#ifdef linux
+#ifdef __linux__
 #ifndef AVG_ENABLE_EGL
   #include "../graphics/SecondaryGLXContext.h"
 #endif
@@ -52,7 +52,7 @@ SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
         GLConfig glConfig)
     : Window(wp, bIsFullscreen)
 {
-#ifdef linux
+#ifdef __linux__
     GLContext* pMainContext = GLContext::getCurrent();
     GLContext* pGLContext;
     IntRect windowDimensions(wp.m_Pos, wp.m_Pos+wp.m_Size);

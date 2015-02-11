@@ -63,7 +63,7 @@ DisplayPtr Display::get()
 
 bool Display::isInitialized()
 {
-    return s_pInstance;
+    return (s_pInstance != DisplayPtr());
 }
 
 Display::Display()

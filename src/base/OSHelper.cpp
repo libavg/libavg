@@ -34,7 +34,7 @@
 #include <mach/mach.h>
 #include <sys/utsname.h>
 #include <unistd.h>
-#elif defined(__linux)
+#elif defined(__linux__)
 #include <fstream>
 #include <unistd.h>
 #include <string.h>
@@ -63,7 +63,7 @@ string getWinErrMsg(unsigned err)
 }
 #endif
 
-#if defined(__linux)
+#if defined(__linux__)
 // Adapted from binreloc
 static char *
 _br_find_exe_for_symbol (const void *symbol)

@@ -83,7 +83,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
 
     IntPoint size = wp.m_Size;
     SDL_Surface * pSDLSurface = 0;
-#ifndef linux
+#ifndef __linux__
     if (glConfig.m_bUseDebugContext) {
         glConfig.m_bUseDebugContext = false;
     }
@@ -165,7 +165,7 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - SDL swap buffers");
 void SDLWindow::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
-#ifdef linux    
+#ifdef __linux__    
     getGLContext()->swapBuffers();
 #else
     SDL_GL_SwapBuffers();

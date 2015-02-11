@@ -34,7 +34,7 @@
 
 #ifdef __APPLE__
     #include "CGLContext.h"
-#elif defined linux
+#elif defined __linux__
     #ifdef AVG_ENABLE_EGL
         #include "EGLContext.h"
     #else
@@ -91,7 +91,7 @@ GLContext* GLContextManager::createContext(const GLConfig& glConfig,
     GLContext* pContext;
 #ifdef __APPLE__
     pContext = new CGLContext(glConfig, windowSize, pSDLWMInfo);
-#elif defined linux
+#elif defined __linux__
     #ifdef AVG_ENABLE_EGL
         GLConfig tempConfig = glConfig;
         tempConfig.m_bGLES = true;
@@ -265,7 +265,7 @@ void GLContextManager::reset()
 
 bool GLContextManager::isGLESSupported()
 {
-#if defined linux
+#if defined __linux__
     #ifdef AVG_ENABLE_EGL
     return true;
     #else

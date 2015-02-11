@@ -32,7 +32,7 @@ using namespace std;
 
 namespace avg {
 
-#ifdef linux
+#ifdef __linux__
 void printAffinityMask(cpu_set_t& mask)
 {
     for (int i=0; i<32; ++i) {
@@ -47,7 +47,7 @@ void setAffinityMask(bool bIsMainThread)
     // The main thread gets the first processor to itself. All other threads share the
     // rest of the processors available, unless, of course, there is only one processor
     // in the machine.
-#ifdef linux
+#ifdef __linux__
     static cpu_set_t allProcessors;
     static bool bInitialized = false;
     if (!bInitialized) {
@@ -107,7 +107,7 @@ unsigned getLowestBitSet(unsigned val)
 
 void yield()
 {
-#ifdef linux
+#ifdef __linux__
     sched_yield();
 #else
 #ifdef _WIN32

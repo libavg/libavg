@@ -33,7 +33,7 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/GLTexture.h"
 #include "../graphics/GLContextManager.h"
-#ifdef linux
+#ifdef __linux__
   #ifndef AVG_ENABLE_EGL
   #include "../graphics/SecondaryGLXContext.h"
   #include <X11/Xlib.h>

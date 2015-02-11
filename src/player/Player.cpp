@@ -96,7 +96,7 @@
 
 #include <iostream>
 
-#ifdef __linux
+#ifdef __linux__
 #include <fenv.h>
 #endif
 
@@ -139,7 +139,7 @@ Player::Player()
     }
 #endif
     m_pContextManager = GLContextManagerPtr(new GLContextManager());
-#ifdef __linux
+#ifdef __linux__
 // Turning this on causes fp exceptions in the linux nvidia drivers.
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif

@@ -61,7 +61,7 @@ FWCamera::FWCamera(unsigned long long guid, int unit, bool bFW800, IntPoint size
 
     if (err != DC1394_SUCCESS) {
         AVG_LOG_ERROR("Unable to look for cameras");
-#ifdef linux
+#ifdef __linux__
         AVG_LOG_ERROR("Please check");
         AVG_LOG_ERROR("  - if the kernel modules `ieee1394',`raw1394' and \
                 `ohci1394' are loaded");

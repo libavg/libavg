@@ -81,7 +81,7 @@ void DisplayEngine::initSDL()
         bSDLInitialized = true;
     }
 #endif
-#ifdef linux
+#ifdef __linux__
     // Disable all other video drivers (DirectFB, libcaca, ...) to avoid confusing
     // error messages.
     SDL_putenv((char*)"SDL_VIDEODRIVER=x11");
