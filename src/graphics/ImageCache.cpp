@@ -81,7 +81,7 @@ void ImageCache::onTexLoad(const std::string& sFilename)
 {
     cerr << "          onTexLoad: " << sFilename << endl;
     ImagePtr pImg = *(m_pImageMap[sFilename]);
-    m_GPUCacheSize += pImg->getTexMemUsed();
+    m_GPUCacheUsed += pImg->getTexMemUsed();
     checkGPUUnload();
 }
 
@@ -136,10 +136,35 @@ void ImageCache::checkCPUUnload()
             break;
         }
     }
+    checkGPUUnload();
 }
 
 void ImageCache::checkGPUUnload()
 {
+    cerr << "            checkGPUUnload" << endl;
+    if (m_GPUCacheUsed > m_GPUCacheSize) {
+        cerr << "              unload" << endl;
+        auto it = m_pLRUList.rbegin();
+        // Find first item that actually has a texture loaded.
+        while (it != m_pLRUList.rend() && !((*it)->hasTex())) {
+            it++;
+        }
+        if (it != m_pLRUList.rend()) {
+            while (m_GPUCacheUsed > m_GPUCacheSize) {
+                ImagePtr pImg = *it;
+                if (pImg->getTexRefCount() == 0) {
+                    m_GPUCacheUsed -= pImg->getTexMemUsed();
+                    cerr << "              -> RefCount == 0, used: " << m_GPUCacheUsed
+                            << endl;
+                    pImg->unloadTex();
+                    ++it;
+                } else {
+                    cerr << "              -> RefCount != 0" << endl;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 }

@@ -113,6 +113,9 @@ void Image::incTexRef(bool bUseMipmaps)
     if (m_TexRefCount == 1) {
         m_bUseMipmaps = bUseMipmaps;
         createTexture();
+        if (m_sFilename != "") {
+            ImageCache::get()->onTexLoad(m_sFilename);
+        }
     } else if (bUseMipmaps && !m_bUseMipmaps) {
         m_bUseMipmaps = true;
         createTexture();
@@ -131,7 +134,7 @@ void Image::decTexRef()
     }
 }
 
-void Image::unloadGPU()
+void Image::unloadTex()
 {
     AVG_ASSERT(m_TexRefCount == 0);
     m_pTex = MCTexturePtr();
@@ -232,9 +235,6 @@ void Image::createTexture()
     m_pTex = pCM->createTexture(m_pBmp->getSize(),
             m_pBmp->getPixelFormat(), m_bUseMipmaps);
     pCM->scheduleTexUpload(m_pTex, m_pBmp);
-    if (m_sFilename != "") {
-        ImageCache::get()->onTexLoad(m_sFilename);
-    }
 }
 
 }

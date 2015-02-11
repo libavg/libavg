@@ -52,7 +52,7 @@ class AVG_API Image
         void decBmpRef();
         void incTexRef(bool bUseMipmaps);
         void decTexRef();
-        void unloadGPU();
+        void unloadTex();
 
         BitmapPtr getBmp();
         MCTexturePtr getTex();
