@@ -42,6 +42,11 @@ AC_SUBST(OBJCFLAGS)
 AC_SUBST(OBJCLDFLAGS)
 _AM_DEPENDENCIES([OBJC])
 LDFLAGS="$LDFLAGS -rdynamic"
+if [[ $target_vendor = apple ]]; then
+ CXXFLAGS="$CXXFLAGS -Wno-c++11-extensions"
+else
+ CXXFLAGS="$CXXFLAGS -std=c++0x"
+fi
 
 if [[ $target_vendor = apple ]] && [[ x"`which port`" = x"/opt/local/bin/port" ]]; then
     AC_MSG_RESULT([Macports detected. Adding include and lib search paths])
