@@ -24,12 +24,13 @@
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
+#include "../base/TimeSource.h"
 
 #include "BitmapLoader.h"
 #include "Bitmap.h"
 #include "GLContextManager.h"
 #include "MCTexture.h"
-#include "ImageRegistry.h"
+#include "ImageCache.h"
 #include "Filterfliprgb.h"
 
 using namespace std;
@@ -40,7 +41,8 @@ Image::Image(const std::string& sFilename, TextureCompression compression)
     : m_bUseMipmaps(false),
       m_Compression(compression),
       m_BmpRefCount(0),
-      m_TexRefCount(0)
+      m_TexRefCount(0),
+      m_LRUTime(TimeSource::get()->getCurrentMillisecs())
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_sFilename = sFilename;
@@ -82,9 +84,12 @@ void Image::incBmpRef(TextureCompression compression)
     if (compression == TEXTURECOMPRESSION_NONE &&
             m_Compression == TEXTURECOMPRESSION_B5G6R5)
     {
+        // Reload from disk, making sure the cache knows about the size change
+        int oldSize = m_pBmp->getMemNeeded();
         m_Compression = compression;
         BitmapPtr pBmp = loadBitmap(m_sFilename);
         m_pBmp = applyCompression(pBmp);
+        ImageCache::get()->onSizeChange(m_sFilename, pBmp->getMemNeeded()-oldSize);
     }
 }
 
@@ -92,8 +97,12 @@ void Image::decBmpRef()
 {
     AVG_ASSERT(m_BmpRefCount >= 1);
     m_BmpRefCount--;
-
-    testDelete();
+    if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
+        m_LRUTime= TimeSource::get()->getCurrentMillisecs();
+        if (m_sFilename != "") {
+            ImageCache::get()->onAccess(m_sFilename);
+        }
+    }
 }
 
 void Image::incTexRef(bool bUseMipmaps)
@@ -112,11 +121,18 @@ void Image::decTexRef()
 {
     AVG_ASSERT(m_TexRefCount >= 1);
     m_TexRefCount--; 
-    if (m_TexRefCount == 0) {
-        m_pTex = MCTexturePtr();
+    if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
+        m_LRUTime= TimeSource::get()->getCurrentMillisecs();
+        if (m_sFilename != "") {
+            ImageCache::get()->onAccess(m_sFilename);
+        }
     }
+}
 
-    testDelete();
+void Image::unloadGPU()
+{
+    AVG_ASSERT(m_TexRefCount == 0);
+    m_pTex = MCTexturePtr();
 }
 
 BitmapPtr Image::getBmp()
@@ -129,6 +145,39 @@ MCTexturePtr Image::getTex()
 {
     AVG_ASSERT(m_TexRefCount >= 1);
     return m_pTex;
+}
+
+long long Image::getLRUTime() const
+{
+    if (m_BmpRefCount >= 1 || m_TexRefCount >= 1) {
+        return TimeSource::get()->getCurrentMillisecs();
+    } else {
+        return m_LRUTime;
+    }
+}
+        
+int Image::getBmpMemUsed() const
+{
+    return m_pBmp->getMemNeeded(); 
+}
+
+int Image::getTexMemUsed() const
+{
+    if (m_pTex) {
+        return m_pTex->getMemNeeded();
+    } else {
+        return 0;
+    }
+}
+
+int Image::getBmpRefCount() const
+{
+    return m_BmpRefCount;
+}
+
+int Image::getTexRefCount() const
+{
+    return m_TexRefCount;
 }
 
 Image::TextureCompression Image::string2compression(const string& s)
@@ -172,15 +221,12 @@ BitmapPtr Image::applyCompression(BitmapPtr pBmp)
 
 void Image::createTexture()
 {
-    m_pTex = GLContextManager::get()->createTexture(m_pBmp->getSize(),
+    GLContextManager* pCM = GLContextManager::get();
+    m_pTex = pCM->createTexture(m_pBmp->getSize(),
             m_pBmp->getPixelFormat(), m_bUseMipmaps);
-    GLContextManager::get()->scheduleTexUpload(m_pTex, m_pBmp);
-}
-
-void Image::testDelete()
-{
-    if (m_BmpRefCount == 0 && m_TexRefCount == 0 && m_sFilename != "") {
-        ImageRegistry::get()->deleteImage(m_sFilename);
+    pCM->scheduleTexUpload(m_pTex, m_pBmp);
+    if (m_sFilename != "") {
+        ImageCache::get()->onTexLoad(m_sFilename);
     }
 }
 

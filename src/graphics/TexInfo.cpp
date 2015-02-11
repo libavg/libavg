@@ -81,6 +81,11 @@ PixelFormat TexInfo::getPF() const
 {
     return m_pf;
 }
+    
+int TexInfo::getMemNeeded() const
+{
+    return m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
+}
 
 IntPoint TexInfo::getMipmapSize(int level) const
 {

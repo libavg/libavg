@@ -42,6 +42,7 @@ public:
     const IntPoint& getSize() const;
     const IntPoint& getGLSize() const;
     PixelFormat getPF() const;
+    int getMemNeeded() const;
 
     IntPoint getMipmapSize(int level) const;
 

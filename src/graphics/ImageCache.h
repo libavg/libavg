@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ImageRegistry_H_
-#define _ImageRegistry_H_
+#ifndef _ImageCache_H_
+#define _ImageCache_H_
 
 #include "../api.h"
 
@@ -30,27 +30,50 @@
 
 #include <boost/shared_ptr.hpp>
 #include <string>
+#include <vector>
 #include <map>
+
+#ifdef _WIN32
+#include <unordered_map>
+#elif defined __APPLE__
+#include <boost/unordered_map.hpp>
+#else
+#include <tr1/unordered_map>
+#endif
 
 namespace avg {
 
-class AVG_API ImageRegistry
+class AVG_API ImageCache
 {
     public:
-        static ImageRegistry* get();
+        static ImageCache* get();
 
+        void setSize(long long cpuSize, long long gpuSize);
         ImagePtr getImage(const std::string& sFilename,
                 Image::TextureCompression compression);
-        void deleteImage(const std::string& sFilename);
-        int getNumImages() const;
+        void onTexLoad(const std::string& sFilename);
+        void onAccess(const std::string& sFilename);
+        void onSizeChange(const std::string& sFilename, int sizeDiff);
+        int getNumCPUImages() const;
+        int getNumGPUImages() const;
 
     private:
-        ImageRegistry();
-        virtual ~ImageRegistry();
-        typedef std::map<std::string, ImagePtr> ImageMap;
+        ImageCache();
+        virtual ~ImageCache();
+        void checkCPUUnload();
+        void checkGPUUnload();
+
+        typedef std::list<ImagePtr> LRUListType;
+        LRUListType m_pLRUList;
+        typedef boost::unordered_map<std::string, LRUListType::iterator> ImageMap;
         ImageMap m_pImageMap;
-    
-        static ImageRegistry * s_pImageRegistry;
+
+        long long m_CPUCacheSize;
+        long long m_GPUCacheSize;
+        long long m_CPUCacheUsed;
+        long long m_GPUCacheUsed;
+
+        static ImageCache * s_pImageCache;
 };
 
 }

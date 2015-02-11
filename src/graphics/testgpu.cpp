@@ -35,7 +35,7 @@
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
-#include "ImageRegistry.h"
+#include "ImageCache.h"
 #include "Image.h"
 
 #include "../base/TestSuite.h"
@@ -430,29 +430,29 @@ private:
 };
 
 
-class ImageRegistryTest: public GraphicsTest {
+class ImageCacheTest: public GraphicsTest {
 public:
-    ImageRegistryTest()
-        : GraphicsTest("ImageRegistryTest", 2)
+    ImageCacheTest()
+        : GraphicsTest("ImageCacheTest", 2)
     {
     }
 
     void runTests()
     {
         GLContextManager* pCM = GLContextManager::get();
-        ImageRegistry* pRegistry = ImageRegistry::get();
+        ImageCache* pRegistry = ImageCache::get();
         ImagePtr pImage1 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
                 Image::TEXTURECOMPRESSION_NONE);
-        TEST(pRegistry->getNumImages() == 1);
+        TEST(pRegistry->getNumCPUImages() == 1);
         ImagePtr pImage2 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
                 Image::TEXTURECOMPRESSION_NONE);
-        TEST(pRegistry->getNumImages() == 1);
+        TEST(pRegistry->getNumCPUImages() == 1);
         BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
         BitmapPtr pBmp = pImage2->getBmp();
         testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
         ImagePtr pImage3 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
                 Image::TEXTURECOMPRESSION_B5G6R5);
-        TEST(pRegistry->getNumImages() == 2);
+        TEST(pRegistry->getNumCPUImages() == 2);
         ImagePtr pImage4 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
                 Image::TEXTURECOMPRESSION_NONE);
 
@@ -467,7 +467,7 @@ public:
         pImage1->decTexRef();
         pImage1->decTexRef();
         pCM->uploadData();
-        TEST(pRegistry->getNumImages() == 0);
+        TEST(pRegistry->getNumCPUImages() == 0);
     }
 };
 
@@ -478,7 +478,7 @@ public:
         : TestSuite("GPUTestSuite ("+sVariant+")")
     {
         addTest(TestPtr(new TextureMoverTest));
-        addTest(TestPtr(new ImageRegistryTest));
+        addTest(TestPtr(new ImageCacheTest));
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));
@@ -528,7 +528,7 @@ int main(int nargs, char** args)
 #ifndef AVG_ENABLE_EGL
         BitmapLoader::init(true);
         bOK = runTests(false, GLConfig::AUTO);
-        bOK &= runTests(false, GLConfig::MINIMAL);
+//        bOK &= runTests(false, GLConfig::MINIMAL);
 #endif
         if (GLContextManager::isGLESSupported()) {
             BitmapLoader::init(false);

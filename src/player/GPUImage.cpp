@@ -26,7 +26,7 @@
 
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/Bitmap.h"
-#include "../graphics/ImageRegistry.h"
+#include "../graphics/ImageCache.h"
 #include "../graphics/Image.h"
 #include "../graphics/GLContextManager.h"
 

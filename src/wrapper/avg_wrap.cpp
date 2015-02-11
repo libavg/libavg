@@ -31,7 +31,7 @@ void export_anim();
 #include "../base/OSHelper.h"
 #include "../base/GeomHelper.h"
 #include "../base/XMLHelper.h"
-#include "../graphics/ImageRegistry.h"
+#include "../graphics/ImageCache.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/CameraNode.h"
@@ -82,7 +82,7 @@ class CategoryScopeHelper{};
 
 int playerGetNumImagesLoaded() 
 {
-    return ImageRegistry::get()->getNumImages();
+    return ImageCache::get()->getNumImages();
 }
 
 boost::function<size_t (const bp::tuple& args, const bp::dict& kwargs )>

@@ -52,9 +52,15 @@ class AVG_API Image
         void decBmpRef();
         void incTexRef(bool bUseMipmaps);
         void decTexRef();
+        void unloadGPU();
 
         BitmapPtr getBmp();
         MCTexturePtr getTex();
+        long long getLRUTime() const;
+        int getBmpMemUsed() const;
+        int getTexMemUsed() const;
+        int getBmpRefCount() const;
+        int getTexRefCount() const;
 
         static TextureCompression string2compression(const std::string& s);
         static std::string compression2String(TextureCompression compression);
@@ -73,6 +79,7 @@ class AVG_API Image
         
         int m_BmpRefCount;
         int m_TexRefCount;
+        long long m_LRUTime;
 };
 
 typedef boost::shared_ptr<Image> ImagePtr;
