@@ -60,7 +60,7 @@ void ImageCache::setSize(long long cpuSize, long long gpuSize)
 ImagePtr ImageCache::getImage(const std::string& sFilename,
         Image::TextureCompression compression)
 {
-    cerr << "getImage: " << sFilename << endl;
+    cerr << "          getImage: " << sFilename << endl;
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     ImagePtr pImg;
     if (it == m_pImageMap.end()) {
@@ -78,7 +78,7 @@ ImagePtr ImageCache::getImage(const std::string& sFilename,
 
 void ImageCache::onTexLoad(const std::string& sFilename)
 {
-    cerr << "onTexLoad: " << sFilename << endl;
+    cerr << "          onTexLoad: " << sFilename << endl;
     ImagePtr pImg = *(m_pImageMap[sFilename]);
     m_GPUCacheSize += pImg->getTexMemUsed();
     checkGPUUnload();
@@ -86,7 +86,7 @@ void ImageCache::onTexLoad(const std::string& sFilename)
 
 void ImageCache::onAccess(const std::string& sFilename)
 {
-    cerr << "onAccess: " << sFilename << endl;
+    cerr << "          onAccess: " << sFilename << endl;
     auto it = m_pImageMap.find(sFilename);
     // Move item to front of list
     m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
@@ -113,19 +113,19 @@ int ImageCache::getNumGPUImages() const
 
 void ImageCache::checkCPUUnload()
 {
-    cerr << "checkCPUUnload" << endl;
+    cerr << "            checkCPUUnload" << endl;
     while (m_CPUCacheUsed > m_CPUCacheSize) {
         ImagePtr pImg = *(m_pLRUList.rbegin());
-        cerr << "  unload: " << pImg->getFilename() << endl;
+        cerr << "              unload: " << pImg->getFilename() << endl;
         if (pImg->getBmpRefCount() == 0) {
             m_pImageMap.erase(pImg->getFilename());
             m_pLRUList.pop_back();
             m_CPUCacheUsed -= pImg->getBmpMemUsed();
             m_GPUCacheUsed -= pImg->getTexMemUsed();
-            cerr << "  -> RefCount == 0, used: " << m_CPUCacheUsed << endl;
+            cerr << "              -> RefCount == 0, used: " << m_CPUCacheUsed << endl;
         } else {
             // Cache full, but everything's in use.
-            cerr << "  -> RefCount != 0" << endl;
+            cerr << "              -> RefCount != 0" << endl;
             break;
         }
     }

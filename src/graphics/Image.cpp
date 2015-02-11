@@ -97,6 +97,7 @@ void Image::decBmpRef()
 {
     AVG_ASSERT(m_BmpRefCount >= 1);
     m_BmpRefCount--;
+    AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
         m_LRUTime= TimeSource::get()->getCurrentMillisecs();
         if (m_sFilename != "") {
@@ -107,7 +108,8 @@ void Image::decBmpRef()
 
 void Image::incTexRef(bool bUseMipmaps)
 {
-    m_TexRefCount++; 
+    m_TexRefCount++;
+    AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_TexRefCount == 1) {
         m_bUseMipmaps = bUseMipmaps;
         createTexture();
