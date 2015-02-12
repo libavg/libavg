@@ -32,7 +32,6 @@
 
 #include <boost/shared_ptr.hpp>
 #ifdef _WIN32
-#include <vector>
 #include <unordered_map>
 #else
 #include <boost/unordered_map.hpp>
@@ -86,7 +85,7 @@ private:
     std::string m_sShaderName;
     std::string m_sParamName;
 #ifdef _WIN32
-    #include <tr1/unordered_map>
+    std::tr1::unordered_map<GLContext*, GL_SHADER_PARAM_TYPE_PTR> m_pParams;
 #else
     boost::unordered_map<GLContext*, GL_SHADER_PARAM_TYPE_PTR> m_pParams;
 #endif
