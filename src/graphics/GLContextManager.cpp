@@ -215,6 +215,7 @@ static ProfilingZoneID UploadDataProfilingZone("UploadData");
 
 void GLContextManager::uploadDataForContext()
 {
+    AVG_ASSERT(!m_bRendering);
     ScopeTimer timer(UploadDataProfilingZone);
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_PendingBufferDeletes.size(); ++i) {
