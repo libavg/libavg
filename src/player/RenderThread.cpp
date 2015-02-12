@@ -27,7 +27,9 @@
 
 #include "../base/ProfilingZoneID.h"
 #include "../base/StringHelper.h"
+#ifdef __linux__
 #include "../graphics/GLXContext.h"
+#endif
 
 using namespace std;
 
