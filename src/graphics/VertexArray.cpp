@@ -71,6 +71,8 @@ void VertexArray::update(GLContext* pContext)
 {
     AVG_ASSERT(!m_VertexBufferIDMap.empty());
     if (hasDataChanged()) {
+        AVG_ASSERT(m_VertexBufferIDMap.count(pContext) == 1);
+        AVG_ASSERT(m_IndexBufferIDMap.count(pContext) == 1);
         unsigned vertexBufferID = m_VertexBufferIDMap.at(pContext);
         transferBuffer(GL_ARRAY_BUFFER, vertexBufferID, 
                 getReserveVerts()*sizeof(Vertex), 
@@ -91,7 +93,8 @@ void VertexArray::update(GLContext* pContext)
 
 void VertexArray::activate(GLContext* pContext)
 {
-    AVG_ASSERT(!m_VertexBufferIDMap.empty());
+    AVG_ASSERT(m_VertexBufferIDMap.count(pContext) == 1);
+    AVG_ASSERT(m_IndexBufferIDMap.count(pContext) == 1);
     unsigned vertexBufferID = m_VertexBufferIDMap[pContext];
     unsigned indexBufferID = m_IndexBufferIDMap[pContext];
     glproc::BindBuffer(GL_ARRAY_BUFFER, vertexBufferID);

@@ -371,7 +371,6 @@ void RasterNode::renderFX(GLContext* pContext)
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
-        m_pImagingProjection->setColor(m_Color);
         m_pImagingProjection->draw(pContext, pSShader->getShader());
 /*
         static int i=0;
@@ -519,6 +518,9 @@ void RasterNode::downloadMask()
 void RasterNode::setRenderColor(const Pixel32& color)
 {
     m_Color = color;
+    if (m_pImagingProjection) {
+        m_pImagingProjection->setColor(m_Color);
+    }
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)
@@ -562,6 +564,7 @@ void RasterNode::setupFX()
                     false, getMipmap());
             m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
                     m_pSurface->getSize()));
+            m_pImagingProjection->setColor(m_Color);
         }
     }
 }

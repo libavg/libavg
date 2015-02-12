@@ -278,6 +278,10 @@ void OffscreenCanvas::renderTree()
     preRender();
     DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
     unsigned numWindows = pDisplayEngine->getNumWindows();
+
+    GLContextManager* pCM = GLContextManager::get();
+    pCM->uploadData();
+    pCM->setRenderPhase(true);
     for (unsigned i=0; i<numWindows; ++i) {
         ScopeTimer Timer(OffscreenRenderProfilingZone);
         WindowPtr pWindow = pDisplayEngine->getWindow(i);
@@ -287,6 +291,7 @@ void OffscreenCanvas::renderTree()
         renderWindow(pWindow, m_pFBO, viewport);
         m_pFBO->copyToDestTexture(pContext);
     }
+    pCM->setRenderPhase(false);
     GLContextManager::get()->reset();
     m_bIsRendered = true;
 }

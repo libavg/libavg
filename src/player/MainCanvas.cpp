@@ -111,7 +111,9 @@ void MainCanvas::renderTree()
     unsigned numWindows = m_pDisplayEngine->getNumWindows();
     m_NumThreadsRunning = numWindows-1;
     ScopeTimer Timer(RootRenderProfilingZone);
-    GLContextManager::get()->setRenderPhase(true);
+    GLContextManager* pCM = GLContextManager::get();
+    pCM->uploadData();
+    pCM->setRenderPhase(true);
 
     for (unsigned i=1; i<numWindows; ++i) {
         WindowPtr pWindow = m_pDisplayEngine->getWindow(i);
