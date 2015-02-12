@@ -27,6 +27,7 @@
 
 #include "../base/ProfilingZoneID.h"
 #include "../base/StringHelper.h"
+#include "../graphics/GLXContext.h"
 
 using namespace std;
 
@@ -45,7 +46,10 @@ RenderThread::~RenderThread()
 void RenderThread::render(MainCanvas* pCanvas, WindowPtr pWindow, IntRect viewport)
 {
     pCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
-    glFlush();
+#ifdef __linux__
+    GLXContext* pContext = dynamic_cast<GLXContext*>(pWindow->getGLContext());
+    pContext->deactivate();
+#endif
     pCanvas->notifyRenderDone();
 }
 

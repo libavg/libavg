@@ -70,6 +70,11 @@ void GLXContext::activate()
     setCurrent();
 }
 
+void GLXContext::deactivate()
+{
+    glXMakeCurrent(m_pDisplay, 0, 0);
+}
+
 bool GLXContext::initVBlank(int rate) 
 {
     if (rate > 0) {
