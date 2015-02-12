@@ -71,11 +71,11 @@ void VertexArray::update(GLContext* pContext)
 {
     AVG_ASSERT(!m_VertexBufferIDMap.empty());
     if (hasDataChanged()) {
-        unsigned vertexBufferID = m_VertexBufferIDMap[pContext];
+        unsigned vertexBufferID = m_VertexBufferIDMap.at(pContext);
         transferBuffer(GL_ARRAY_BUFFER, vertexBufferID, 
                 getReserveVerts()*sizeof(Vertex), 
                 getNumVerts()*sizeof(Vertex), getVertexPointer());
-        unsigned indexBufferID = m_IndexBufferIDMap[pContext];
+        unsigned indexBufferID = m_IndexBufferIDMap.at(pContext);
 #ifdef AVG_ENABLE_EGL        
         transferBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID, 
                 getReserveIndexes()*sizeof(unsigned short),
@@ -145,9 +145,12 @@ void VertexArray::transferBuffer(GLenum target, unsigned bufferID, unsigned rese
         unsigned usedSize, const void* pData)
 {
     glproc::BindBuffer(target, bufferID);
+    GLContext::checkError("VertexArray::transferBuffer() BindBuffer");
     if (m_bUseMapBuffer) {
         glproc::BufferData(target, reservedSize, 0, GL_STREAM_DRAW);
+        GLContext::checkError("VertexArray::transferBuffer() BufferData");
         void * pBuffer = glproc::MapBuffer(target, GL_WRITE_ONLY);
+        GLContext::checkError("VertexArray::transferBuffer() MapBuffer");
         memcpy(pBuffer, pData, usedSize);
         glproc::UnmapBuffer(target);
     } else {
