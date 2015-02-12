@@ -68,38 +68,38 @@ void OGLSurface::create(PixelFormat pf, MCTexturePtr pTex0, MCTexturePtr pTex1,
 {
     m_pf = pf;
     m_Size = pTex0->getSize();
-    m_pTextures[0] = pTex0;
-    m_pTextures[1] = pTex1;
-    m_pTextures[2] = pTex2;
-    m_pTextures[3] = pTex3;
+    m_pMCTextures[0] = pTex0;
+    m_pMCTextures[1] = pTex1;
+    m_pMCTextures[2] = pTex2;
+    m_pMCTextures[3] = pTex3;
     m_bIsDirty = true;
     m_bPremultipliedAlpha = bPremultipliedAlpha;
 
     // Make sure pixel format and number of textures line up.
     if (pixelFormatIsPlanar(pf)) {
-        AVG_ASSERT(m_pTextures[2]);
+        AVG_ASSERT(m_pMCTextures[2]);
         if (pixelFormatHasAlpha(m_pf)) {
-            AVG_ASSERT(m_pTextures[3]);
+            AVG_ASSERT(m_pMCTextures[3]);
         } else {
-            AVG_ASSERT(!m_pTextures[3]);
+            AVG_ASSERT(!m_pMCTextures[3]);
         }
     } else {
-        AVG_ASSERT(!m_pTextures[1]);
+        AVG_ASSERT(!m_pMCTextures[1]);
     }
 }
 
 void OGLSurface::setMask(MCTexturePtr pTex)
 {
-    m_pMaskTexture = pTex;
+    m_pMaskMCTexture = pTex;
     m_bIsDirty = true;
 }
 
 void OGLSurface::destroy()
 {
-    m_pTextures[0] = MCTexturePtr();
-    m_pTextures[1] = MCTexturePtr();
-    m_pTextures[2] = MCTexturePtr();
-    m_pTextures[3] = MCTexturePtr();
+    m_pMCTextures[0] = MCTexturePtr();
+    m_pMCTextures[1] = MCTexturePtr();
+    m_pMCTextures[2] = MCTexturePtr();
+    m_pMCTextures[3] = MCTexturePtr();
 }
 
 void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) const
@@ -122,13 +122,13 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
             pShader->setColorModel(0);
     }
 
-    m_pTextures[0]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE0);
+    m_pMCTextures[0]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE0);
 
     if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[1]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE1);
-        m_pTextures[2]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE2);
+        m_pMCTextures[1]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE1);
+        m_pMCTextures[2]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE2);
         if (m_pf == YCbCrA420p) {
-            m_pTextures[3]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE3);
+            m_pMCTextures[3]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE3);
         }
     }
     if (pixelFormatIsPlanar(m_pf) || m_bColorIsModified) {
@@ -140,8 +140,8 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
     pShader->setGamma(m_Gamma);
 
     pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
-    if (m_pMaskTexture) {
-        m_pMaskTexture->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE4);
+    if (m_pMaskMCTexture) {
+        m_pMaskMCTexture->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE4);
         // The shader maskpos param takes the position in texture coordinates (0..1) of 
         // the main texture.
 
@@ -149,10 +149,10 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
         //   The tex coords in the vertex array are scaled to fit the image texture. We 
         //   need to undo this and fit to the mask texture. In the npot case, everything
         //   evaluates to (1,1);
-        glm::vec2 texSize = glm::vec2(m_pTextures[0]->getGLSize());
-        glm::vec2 imgSize = glm::vec2(m_pTextures[0]->getSize());
-        glm::vec2 maskTexSize = glm::vec2(m_pMaskTexture->getGLSize());
-        glm::vec2 maskImgSize = glm::vec2(m_pMaskTexture->getSize());
+        glm::vec2 texSize = glm::vec2(m_pMCTextures[0]->getGLSize());
+        glm::vec2 imgSize = glm::vec2(m_pMCTextures[0]->getSize());
+        glm::vec2 maskTexSize = glm::vec2(m_pMaskMCTexture->getGLSize());
+        glm::vec2 maskImgSize = glm::vec2(m_pMaskMCTexture->getSize());
         glm::vec2 maskScale = glm::vec2(maskTexSize.x/maskImgSize.x, 
                 maskTexSize.y/maskImgSize.y);
         glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
@@ -200,7 +200,7 @@ IntPoint OGLSurface::getSize()
 
 IntPoint OGLSurface::getTextureSize()
 {
-    return m_pTextures[0]->getGLSize();
+    return m_pMCTextures[0]->getGLSize();
 }
 
 bool OGLSurface::isCreated() const
@@ -236,7 +236,7 @@ bool OGLSurface::isDirty() const
 {
     bool bIsDirty = m_bIsDirty;
     for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
-        if (m_pTextures[i]->isDirty()) {
+        if (m_pMCTextures[i]->isDirty()) {
             bIsDirty = true;
         }
     }
@@ -252,7 +252,7 @@ void OGLSurface::resetDirty()
 {
     m_bIsDirty = false;
     for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
-        m_pTextures[i]->resetDirty();
+        m_pMCTextures[i]->resetDirty();
     }
 }
 
