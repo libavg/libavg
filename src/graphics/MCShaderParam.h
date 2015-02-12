@@ -31,6 +31,12 @@
 #include "../base/Exception.h"
 
 #include <boost/shared_ptr.hpp>
+#ifdef _WIN32
+#include <vector>
+#include <unordered_map>
+#else
+#include <boost/unordered_map.hpp>
+#endif
 
 #include <string>
 #include <map>
@@ -79,7 +85,11 @@ private:
     
     std::string m_sShaderName;
     std::string m_sParamName;
-    std::map<GLContext*, GL_SHADER_PARAM_TYPE_PTR> m_pParams;
+#ifdef _WIN32
+    #include <tr1/unordered_map>
+#else
+    boost::unordered_map<GLContext*, GL_SHADER_PARAM_TYPE_PTR> m_pParams;
+#endif
 
 };
 
