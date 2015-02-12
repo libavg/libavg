@@ -72,10 +72,7 @@ public:
 
     void set(GLContext* pContext, const VAL_TYPE& val)
     {
-        typename PARAM_MAP::iterator it = m_pParams.find(pContext);
-        AVG_ASSERT(it != m_pParams.end());
-        GL_SHADER_PARAM_TYPE_PTR pParam = it->second;
-        pParam->set(val);
+        m_pParams.at(pContext)->set(val);
     };
 
 private:
