@@ -86,6 +86,8 @@ public:
     void uploadDataForContext();
     void reset();
 
+    void setRenderPhase(bool bRendering);
+
     static bool isGLESSupported();
 
 private:
@@ -101,6 +103,8 @@ private:
 
     std::vector<VertexArrayPtr> m_pPendingVACreates;
     std::vector<BufferIDMap> m_PendingBufferDeletes;
+
+    bool m_bRendering;
 
     static GLContextManager* s_pGLContextManager;
 };

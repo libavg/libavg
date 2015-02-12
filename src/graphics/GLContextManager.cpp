@@ -63,6 +63,7 @@ bool GLContextManager::isActive()
 }
 
 GLContextManager::GLContextManager()
+    : m_bRendering(false)
 {
 //    AVG_ASSERT(!s_pGLContextManager);
     s_pGLContextManager = this;
@@ -156,6 +157,7 @@ MCFBOPtr GLContextManager::createFBO(const IntPoint& size, PixelFormat pf,
 
 void GLContextManager::createShader(const string& sID)
 {
+    AVG_ASSERT(!m_bRendering);
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_pContexts.size(); ++i) {
         m_pContexts[i]->activate();
@@ -198,6 +200,8 @@ void GLContextManager::deleteBuffers(BufferIDMap& bufferIDs)
 
 void GLContextManager::uploadData()
 {
+    AVG_ASSERT(!m_bRendering);
+
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_pContexts.size(); ++i) {
         m_pContexts[i]->activate();
@@ -207,7 +211,7 @@ void GLContextManager::uploadData()
     reset();
 }
 
-static ProfilingZoneID UploadDataProfilingZone("uploadData");
+static ProfilingZoneID UploadDataProfilingZone("UploadData");
 
 void GLContextManager::uploadDataForContext()
 {
@@ -259,6 +263,11 @@ void GLContextManager::reset()
 
     m_pPendingVACreates.clear();
     m_PendingBufferDeletes.clear();
+}
+
+void GLContextManager::setRenderPhase(bool bRendering)
+{
+    m_bRendering = bRendering;
 }
 
 bool GLContextManager::isGLESSupported()
