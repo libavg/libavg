@@ -45,6 +45,7 @@ RenderThread::~RenderThread()
 void RenderThread::render(MainCanvas* pCanvas, WindowPtr pWindow, IntRect viewport)
 {
     pCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
+    glFlush();
     pCanvas->notifyRenderDone();
 }
 

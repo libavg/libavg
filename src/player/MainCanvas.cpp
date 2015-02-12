@@ -104,8 +104,6 @@ void MainCanvas::notifyRenderDone()
 }
 
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
-static ProfilingZoneID SecondWindowRenderProfilingZone(
-        "Render second window");
 
 void MainCanvas::renderTree()
 {
