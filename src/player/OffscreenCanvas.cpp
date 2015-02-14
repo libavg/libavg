@@ -292,7 +292,7 @@ void OffscreenCanvas::renderTree()
         GLContext* pContext = pWindow->getGLContext();
         pContext->activate();
         IntRect viewport(IntPoint(0,0), IntPoint(getRootNode()->getSize()));
-        renderWindow(&*pWindow, m_pFBO, viewport);
+        renderWindow(pWindow, m_pFBO, viewport);
         m_pFBO->copyToDestTexture(pContext);
     }
     pCM->setRenderPhase(false);

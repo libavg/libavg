@@ -100,7 +100,7 @@ vector<EventPtr> SecondaryWindow::pollEvents()
 void SecondaryWindow::render(Canvas* pCanvas, IntRect viewport, MCFBOPtr pFBO)
 {
     m_CmdQueue.pushCmd(boost::bind(
-            &RenderThread::render, _1, pCanvas, this, pFBO, viewport));
+            &RenderThread::render, _1, pCanvas, shared_from_this(), pFBO, viewport));
 }
 
 }

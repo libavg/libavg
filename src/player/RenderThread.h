@@ -45,7 +45,7 @@ class AVG_API RenderThread : public WorkerThread<RenderThread>  {
         RenderThread(CQueue& cmdQueue, int idx);
         virtual ~RenderThread();
 
-        void render(Canvas* pCanvas, Window* pWindow, MCFBOPtr pFBO, IntRect viewport);
+        void render(Canvas* pCanvas, WindowPtr pWindow, MCFBOPtr pFBO, IntRect viewport);
 
     private:
         // Called by base class

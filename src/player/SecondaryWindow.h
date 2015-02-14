@@ -33,6 +33,7 @@
 #include "RenderThread.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <string>
 
 #include <vector>
@@ -40,7 +41,8 @@
 
 namespace avg {
 
-class AVG_API SecondaryWindow: public Window
+class AVG_API SecondaryWindow: public Window,
+        public boost::enable_shared_from_this<SecondaryWindow>
 {
     public:
         SecondaryWindow(const WindowParams& wp, bool bIsFullscreen, GLConfig glConfig,

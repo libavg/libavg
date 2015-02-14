@@ -27,7 +27,6 @@
 #include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h"

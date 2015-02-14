@@ -863,7 +863,7 @@ BitmapPtr Player::screenshot()
         // The only way we can get at the contents at this point is to rerender them.
         WindowPtr pWindow = m_pDisplayEngine->getSDLWindow();
         IntRect viewport = pWindow->getViewport();
-        m_pMainCanvas->renderWindow(&*pWindow, MCFBOPtr(), viewport);
+        m_pMainCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
         GLContextManager::get()->reset();
     }
     return m_pDisplayEngine->screenshot();

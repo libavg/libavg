@@ -109,7 +109,7 @@ void MainCanvas::renderTree()
     }
     WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
     IntRect viewport = pWindow->getViewport();
-    renderWindow(&*pWindow, MCFBOPtr(), viewport);
+    renderWindow(pWindow, MCFBOPtr(), viewport);
 
     if (numWindows > 1) {
         boost::mutex::scoped_lock lock(m_RenderMutex);

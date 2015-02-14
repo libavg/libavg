@@ -47,7 +47,7 @@ RenderThread::~RenderThread()
 {
 }
 
-void RenderThread::render(Canvas* pCanvas, Window* pWindow, MCFBOPtr pFBO,
+void RenderThread::render(Canvas* pCanvas, WindowPtr pWindow, MCFBOPtr pFBO,
         IntRect viewport)
 {
     pCanvas->renderWindow(pWindow, pFBO, viewport);
