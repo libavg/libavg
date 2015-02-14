@@ -279,6 +279,9 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
         m_pRootNode->maybeRender(pContext, projMat);
     }
     renderOutlines(pContext, projMat);
+    if (pFBO) {
+        pFBO->copyToDestTexture(pContext);
+    }
 }
 
 void Canvas::startRender(int numThreads)

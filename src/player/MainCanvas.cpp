@@ -100,6 +100,7 @@ void MainCanvas::renderTree()
     WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
     IntRect viewport = pWindow->getViewport();
     renderWindow(pWindow, MCFBOPtr(), viewport);
+
     finishRender();
 }
 

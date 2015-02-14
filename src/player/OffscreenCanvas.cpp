@@ -25,6 +25,7 @@
 #include "CameraNode.h"
 #include "Player.h"
 #include "Window.h"
+#include "SecondaryWindow.h"
 #include "DisplayEngine.h"
 
 #include "../base/Exception.h"
@@ -275,24 +276,21 @@ void OffscreenCanvas::renderTree()
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::renderTree(): Player.play() needs to be called before rendering offscreen canvases."));
     }
+    ScopeTimer Timer(OffscreenRenderProfilingZone);
     preRender();
     DisplayEngine* pDisplayEngine = getPlayer()->getDisplayEngine();
     unsigned numWindows = pDisplayEngine->getNumWindows();
 
-    GLContextManager* pCM = GLContextManager::get();
-    pCM->uploadData();
-    pCM->setRenderPhase(true);
-    for (unsigned i=0; i<numWindows; ++i) {
-        ScopeTimer Timer(OffscreenRenderProfilingZone);
+    startRender(numWindows-1);
+    IntRect viewport(IntPoint(0,0), IntPoint(getRootNode()->getSize()));
+    for (unsigned i=1; i<numWindows; ++i) {
         WindowPtr pWindow = pDisplayEngine->getWindow(i);
-        GLContext* pContext = pWindow->getGLContext();
-        pContext->activate();
-        IntRect viewport(IntPoint(0,0), IntPoint(getRootNode()->getSize()));
-        renderWindow(pWindow, m_pFBO, viewport);
-        m_pFBO->copyToDestTexture(pContext);
+        dynamic_pointer_cast<SecondaryWindow>(pWindow)->render(this, viewport, m_pFBO);
     }
-    pCM->setRenderPhase(false);
-    GLContextManager::get()->reset();
+    WindowPtr pWindow = pDisplayEngine->getWindow(0);
+    renderWindow(pWindow, m_pFBO, viewport);
+
+    finishRender();
     m_bIsRendered = true;
 }
 
