@@ -55,7 +55,7 @@ void RenderThread::render(Canvas* pCanvas, WindowPtr pWindow, MCFBOPtr pFBO,
     GLXContext* pContext = dynamic_cast<GLXContext*>(pWindow->getGLContext());
     pContext->deactivate();
 #endif
-    pCanvas->onRenderDone();
+    pCanvas->onWindowRenderDone();
 }
 
 bool RenderThread::work()

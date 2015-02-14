@@ -281,6 +281,32 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
     renderOutlines(pContext, projMat);
 }
 
+void Canvas::startRender(int numThreads)
+{
+    m_NumThreadsRunning = numThreads;
+    GLContextManager* pCM = GLContextManager::get();
+    pCM->uploadData();
+    pCM->setRenderPhase(true);
+}
+
+void Canvas::finishRender()
+{
+    boost::mutex::scoped_lock lock(m_RenderMutex);
+    while (m_NumThreadsRunning) {
+        m_RenderCondition.wait(lock);
+    }
+    GLContextManager::get()->setRenderPhase(false);
+    GLContextManager::get()->reset();
+}
+
+void Canvas::onWindowRenderDone()
+{
+    boost::mutex::scoped_lock lock(m_RenderMutex);
+    m_NumThreadsRunning--;
+    m_RenderCondition.notify_one();
+}
+
+
 void Canvas::scheduleFXRender(const RasterNodePtr& pNode)
 {
     m_pScheduledFXNodes.push_back(pNode);

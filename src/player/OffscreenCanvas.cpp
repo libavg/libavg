@@ -259,10 +259,6 @@ bool OffscreenCanvas::isMultisampleSupported()
     return FBO::isMultisampleFBOSupported();
 }
 
-void OffscreenCanvas::onRenderDone()
-{
-}
-
 void OffscreenCanvas::dump() const
 {
     cerr << "Canvas: " << getRootNode()->getID() << endl;

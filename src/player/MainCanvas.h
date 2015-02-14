@@ -24,10 +24,6 @@
 
 #include "../api.h"
 #include "Canvas.h"
-#include "RenderThread.h"
-
-#include <vector>
-#include <boost/thread.hpp>
 
 namespace avg {
 
@@ -48,16 +44,11 @@ class AVG_API MainCanvas: public Canvas
        
         virtual BitmapPtr screenshot() const;
 
-        void onRenderDone();
-
     private:
         void renderTree();
         void pollEvents();
 
         DisplayEnginePtr m_pDisplayEngine;
-        int m_NumThreadsRunning;
-        boost::mutex m_RenderMutex;
-        boost::condition_variable m_RenderCondition;
 };
 
 }

@@ -82,24 +82,14 @@ BitmapPtr MainCanvas::screenshot() const
     return m_pDisplayEngine->screenshot();
 }
 
-void MainCanvas::onRenderDone()
-{
-    boost::mutex::scoped_lock lock(m_RenderMutex);
-    m_NumThreadsRunning--;
-    m_RenderCondition.notify_one();
-}
-
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 
 void MainCanvas::renderTree()
 {
     preRender();
     unsigned numWindows = m_pDisplayEngine->getNumWindows();
-    m_NumThreadsRunning = numWindows-1;
     ScopeTimer Timer(RootRenderProfilingZone);
-    GLContextManager* pCM = GLContextManager::get();
-    pCM->uploadData();
-    pCM->setRenderPhase(true);
+    startRender(m_pDisplayEngine->getNumWindows()-1);
 
     for (unsigned i=1; i<numWindows; ++i) {
         WindowPtr pWindow = m_pDisplayEngine->getWindow(i);
@@ -110,15 +100,7 @@ void MainCanvas::renderTree()
     WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
     IntRect viewport = pWindow->getViewport();
     renderWindow(pWindow, MCFBOPtr(), viewport);
-
-    if (numWindows > 1) {
-        boost::mutex::scoped_lock lock(m_RenderMutex);
-        while (m_NumThreadsRunning) {
-            m_RenderCondition.wait(lock);
-        }
-    }
-    GLContextManager::get()->setRenderPhase(false);
-    GLContextManager::get()->reset();
+    finishRender();
 }
 
 }

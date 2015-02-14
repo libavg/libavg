@@ -39,6 +39,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/thread.hpp>
 
 namespace avg {
 
@@ -106,7 +107,9 @@ class AVG_API Canvas: public ExportedObject
         void scheduleFXRender(const RasterNodePtr& pNode);
         SubVertexArray& getStdSubVA();
 
-        virtual void onRenderDone() = 0;
+        void startRender(int numThreads);
+        void finishRender();
+        void onWindowRenderDone();
 
     protected:
         Player * getPlayer() const;
@@ -138,6 +141,10 @@ class AVG_API Canvas: public ExportedObject
 
         int m_MultiSampleSamples;
         int m_ClipLevel;
+
+        int m_NumThreadsRunning;
+        boost::mutex m_RenderMutex;
+        boost::condition_variable m_RenderCondition;
 
         std::vector<RasterNodePtr> m_pScheduledFXNodes;
 };
