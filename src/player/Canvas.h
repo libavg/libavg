@@ -102,10 +102,12 @@ class AVG_API Canvas: public ExportedObject
 
         std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
 
-        virtual void renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, 
+        virtual void renderWindow(Window* pWindow, MCFBOPtr pFBO,
                 const IntRect& viewport);
         void scheduleFXRender(const RasterNodePtr& pNode);
         SubVertexArray& getStdSubVA();
+
+        virtual void onRenderDone() = 0;
 
     protected:
         Player * getPlayer() const;

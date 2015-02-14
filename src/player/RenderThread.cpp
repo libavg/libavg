@@ -22,14 +22,16 @@
 
 #include "RenderThread.h"
 
-#include "MainCanvas.h"
+#include "Canvas.h"
 #include "Window.h"
 
 #include "../base/ProfilingZoneID.h"
 #include "../base/StringHelper.h"
+
 #ifdef __linux__
 #include "../graphics/GLXContext.h"
 #endif
+#include "../graphics/MCFBO.h"
 
 using namespace std;
 
@@ -45,14 +47,15 @@ RenderThread::~RenderThread()
 {
 }
 
-void RenderThread::render(MainCanvas* pCanvas, WindowPtr pWindow, IntRect viewport)
+void RenderThread::render(Canvas* pCanvas, Window* pWindow, MCFBOPtr pFBO,
+        IntRect viewport)
 {
-    pCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
+    pCanvas->renderWindow(pWindow, pFBO, viewport);
 #ifdef __linux__
     GLXContext* pContext = dynamic_cast<GLXContext*>(pWindow->getGLContext());
     pContext->deactivate();
 #endif
-    pCanvas->notifyRenderDone();
+    pCanvas->onRenderDone();
 }
 
 bool RenderThread::work()

@@ -30,22 +30,30 @@
 
 #include "../graphics/GLConfig.h"
 
+#include "RenderThread.h"
+
 #include <boost/shared_ptr.hpp>
 #include <string>
+
+#include <vector>
+#include <boost/thread.hpp>
 
 namespace avg {
 
 class AVG_API SecondaryWindow: public Window
 {
     public:
-        SecondaryWindow(const WindowParams& wp, bool bIsFullscreen, GLConfig glConfig);
+        SecondaryWindow(const WindowParams& wp, bool bIsFullscreen, GLConfig glConfig,
+                int index);
         virtual ~SecondaryWindow();
 
         virtual void setTitle(const std::string& sTitle);
-
         virtual std::vector<EventPtr> pollEvents();
+        void render(Canvas* pCanvas, IntRect viewport, MCFBOPtr pFBO);
 
     private:
+        boost::thread* m_pThread;
+        RenderThread::CQueue m_CmdQueue;
 };
 
 typedef boost::shared_ptr<SecondaryWindow> SecondaryWindowPtr;

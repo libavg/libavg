@@ -74,6 +74,8 @@ class AVG_API OffscreenCanvas: public Canvas
 
         static bool isSupported();
         static bool isMultisampleSupported();
+        void onRenderDone();
+
         void dump() const;
  
     protected:

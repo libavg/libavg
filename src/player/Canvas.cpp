@@ -247,7 +247,7 @@ void Canvas::preRender()
 
 static ProfilingZoneID RootRenderProfilingZone("RootNode: render");
 
-void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewport)
+void Canvas::renderWindow(Window* pWindow, MCFBOPtr pFBO, const IntRect& viewport)
 {
     GLContext* pContext = pWindow->getGLContext();
     pContext->activate();

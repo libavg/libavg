@@ -48,17 +48,15 @@ class AVG_API MainCanvas: public Canvas
        
         virtual BitmapPtr screenshot() const;
 
-        void notifyRenderDone();
+        void onRenderDone();
 
     private:
         void renderTree();
         void pollEvents();
 
         DisplayEnginePtr m_pDisplayEngine;
-        std::vector<boost::thread*> m_pThreads;
-        std::vector<RenderThread::CQueue*> m_pCmdQueues;
-        boost::mutex m_RenderMutex;
         int m_NumThreadsRunning;
+        boost::mutex m_RenderMutex;
         boost::condition_variable m_RenderCondition;
 };
 

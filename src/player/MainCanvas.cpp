@@ -26,6 +26,7 @@
 #include "AVGNode.h"
 #include "Window.h"
 #include "RenderThread.h"
+#include "SecondaryWindow.h"
 
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
@@ -55,12 +56,6 @@ MainCanvas::MainCanvas(Player * pPlayer)
 
 MainCanvas::~MainCanvas()
 {
-    for (unsigned i=0; i<m_pThreads.size(); ++i) {
-        m_pCmdQueues[i]->pushCmd(boost::bind(&RenderThread::stop, _1));
-        m_pThreads[i]->join();
-        delete m_pThreads[i];
-        delete m_pCmdQueues[i];
-    }
 }
 
 void MainCanvas::setRoot(NodePtr pRootNode)
@@ -76,15 +71,6 @@ void MainCanvas::initPlayback(const DisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
-    unsigned numWindows = m_pDisplayEngine->getNumWindows();
-    // The first window gets rendered in the main thread, all others in separate
-    // threads.
-    for (unsigned i=1; i<numWindows; ++i) {
-        RenderThread::CQueue* pCmdQueue = new RenderThread::CQueue();
-        RenderThread renderer(*pCmdQueue, i);
-        m_pThreads.push_back(new boost::thread(renderer));
-        m_pCmdQueues.push_back(pCmdQueue);
-    }
 }
 
 BitmapPtr MainCanvas::screenshot() const
@@ -96,7 +82,7 @@ BitmapPtr MainCanvas::screenshot() const
     return m_pDisplayEngine->screenshot();
 }
 
-void MainCanvas::notifyRenderDone()
+void MainCanvas::onRenderDone()
 {
     boost::mutex::scoped_lock lock(m_RenderMutex);
     m_NumThreadsRunning--;
@@ -118,12 +104,12 @@ void MainCanvas::renderTree()
     for (unsigned i=1; i<numWindows; ++i) {
         WindowPtr pWindow = m_pDisplayEngine->getWindow(i);
         IntRect viewport = pWindow->getViewport();
-        m_pCmdQueues[i-1]->pushCmd(boost::bind(
-                &RenderThread::render, _1, this, pWindow, viewport));
+        dynamic_pointer_cast<SecondaryWindow>(pWindow)->
+                render(this, viewport, MCFBOPtr());
     }
     WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
     IntRect viewport = pWindow->getViewport();
-    renderWindow(pWindow, MCFBOPtr(), viewport);
+    renderWindow(&*pWindow, MCFBOPtr(), viewport);
 
     if (numWindows > 1) {
         boost::mutex::scoped_lock lock(m_RenderMutex);

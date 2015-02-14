@@ -49,7 +49,7 @@ using namespace std;
 namespace avg {
 
 SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
-        GLConfig glConfig)
+        GLConfig glConfig, int index)
     : Window(wp, bIsFullscreen)
 {
 #ifdef __linux__
@@ -63,11 +63,16 @@ SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
     
     pMainContext->activate();
 #endif
+
+    RenderThread renderer(m_CmdQueue, index);
+    m_pThread = new boost::thread(renderer);
 }
 
 SecondaryWindow::~SecondaryWindow()
 {
-
+    m_CmdQueue.pushCmd(boost::bind(&RenderThread::stop, _1));
+    m_pThread->join();
+    delete m_pThread;
 }
 
 void SecondaryWindow::setTitle(const std::string& sTitle)
@@ -91,5 +96,11 @@ vector<EventPtr> SecondaryWindow::pollEvents()
 */
 }
 
+
+void SecondaryWindow::render(Canvas* pCanvas, IntRect viewport, MCFBOPtr pFBO)
+{
+    m_CmdQueue.pushCmd(boost::bind(
+            &RenderThread::render, _1, pCanvas, this, pFBO, viewport));
+}
 
 }

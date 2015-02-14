@@ -34,16 +34,18 @@
 
 namespace avg {
 
-class MainCanvas;
+class Canvas;
 class Window;
 typedef boost::shared_ptr<Window> WindowPtr;
+class MCFBO;
+typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 
 class AVG_API RenderThread : public WorkerThread<RenderThread>  {
     public:
         RenderThread(CQueue& cmdQueue, int idx);
         virtual ~RenderThread();
 
-        void render(MainCanvas* pCanvas, WindowPtr pWindow, IntRect viewport);
+        void render(Canvas* pCanvas, Window* pWindow, MCFBOPtr pFBO, IntRect viewport);
 
     private:
         // Called by base class
