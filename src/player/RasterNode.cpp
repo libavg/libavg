@@ -410,7 +410,7 @@ void RasterNode::scheduleFXRender()
 
 void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
 {
-    if (!m_bHasStdVertices && isVisible() && m_pSurface->isCreated()) {
+    if (m_pSurface->isCreated() && !m_bHasStdVertices && isVisible()) {
         pVA->startSubVA(*m_pSubVA);
         for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
             for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
