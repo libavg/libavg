@@ -27,8 +27,7 @@ using namespace std;
 namespace avg {
 
 ProfilingZoneID::ProfilingZoneID(const string& sName)
-    : m_sName(sName),
-      m_pProfiler(0)
+    : m_sName(sName)
 {
 }
 
@@ -39,14 +38,6 @@ ProfilingZoneID::~ProfilingZoneID()
 const string& ProfilingZoneID::getName() const
 {
     return m_sName;
-}
-
-ThreadProfiler* ProfilingZoneID::getProfiler()
-{
-    if (!m_pProfiler) {
-        return ThreadProfiler::get();
-    }
-    return m_pProfiler;
 }
 
 }

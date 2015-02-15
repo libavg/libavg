@@ -37,11 +37,9 @@ public:
     ~ProfilingZoneID();
     
     const std::string& getName() const;
-    ThreadProfiler* getProfiler();
 
 private:
     std::string m_sName;
-    ThreadProfiler* m_pProfiler;
 };
 
 }

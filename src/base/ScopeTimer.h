@@ -34,7 +34,7 @@ public:
     {
         if (s_bTimersEnabled) {
             m_pZoneID = &zoneID;
-            m_pZoneID->getProfiler()->startZone(zoneID);
+            ThreadProfiler::get()->startZone(zoneID);
         } else {
             m_pZoneID = 0;
         }
@@ -43,7 +43,7 @@ public:
     ~ScopeTimer()
     {
         if (m_pZoneID) {
-            m_pZoneID->getProfiler()->stopZone(*m_pZoneID);
+            ThreadProfiler::get()->stopZone(*m_pZoneID);
         }
     };
 
