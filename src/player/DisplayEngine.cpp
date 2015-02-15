@@ -84,6 +84,7 @@ void DisplayEngine::initSDL()
 #ifdef __linux__
     // Disable all other video drivers (DirectFB, libcaca, ...) to avoid confusing
     // error messages.
+    XInitThreads();
     SDL_putenv((char*)"SDL_VIDEODRIVER=x11");
 #endif
     int err = SDL_InitSubSystem(SDL_INIT_VIDEO);
