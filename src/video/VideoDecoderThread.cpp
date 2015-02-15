@@ -76,8 +76,8 @@ void VideoDecoderThread::deinit()
 #endif
 }
 
-static ProfilingZoneID DecoderProfilingZone("Video Decoder Thread", true);
-static ProfilingZoneID PacketWaitProfilingZone("Video wait for packet", true);
+static ProfilingZoneID DecoderProfilingZone("Video Decoder Thread");
+static ProfilingZoneID PacketWaitProfilingZone("Video wait for packet");
 
 bool VideoDecoderThread::work() 
 {
@@ -162,7 +162,7 @@ void VideoDecoderThread::handleSeekDone(VideoMsgPtr pMsg)
     pushMsg(pMsg);
 }
 
-static ProfilingZoneID CopyImageProfilingZone("Copy image", true);
+static ProfilingZoneID CopyImageProfilingZone("Copy image");
 
 void VideoDecoderThread::sendFrame(AVFrame* pFrame)
 {
@@ -212,7 +212,7 @@ BitmapPtr VideoDecoderThread::getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size,
     }
 }
 
-static ProfilingZoneID PushMsgProfilingZone("Push message", true);
+static ProfilingZoneID PushMsgProfilingZone("Push message");
 
 void VideoDecoderThread::pushMsg(VideoMsgPtr pMsg)
 {

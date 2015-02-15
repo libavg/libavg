@@ -53,7 +53,7 @@ VideoWriterThread::~VideoWriterThread()
 {
 }
 
-static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame", true);
+static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame");
 
 void VideoWriterThread::encodeYUVFrame(BitmapPtr pBmp)
 {
@@ -244,7 +244,7 @@ AVFrame* VideoWriterThread::createFrame(AVPixelFormat pixelFormat, IntPoint size
     return pPicture;
 }
 
-static ProfilingZoneID ProfilingZoneConvertImage(" Convert image", true);
+static ProfilingZoneID ProfilingZoneConvertImage(" Convert image");
 
 void VideoWriterThread::convertRGBImage(BitmapPtr pSrcBmp)
 {
@@ -295,7 +295,7 @@ void VideoWriterThread::convertYUVImage(BitmapPtr pSrcBmp)
 //    pUBmp->save("foo"+toString(m_FramesWritten)+".png");
 }
 
-static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame", true);
+static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame");
 
 void VideoWriterThread::writeFrame(AVFrame* pFrame)
 {

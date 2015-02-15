@@ -159,8 +159,8 @@ void SyncVideoDecoder::setFPS(float fps)
     }
 }
 
-static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp", true);
-static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image", true);
+static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp");
+static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
 
 FrameAvailableCode SyncVideoDecoder::getRenderedBmps(vector<BitmapPtr>& pBmps, 
         float timeWanted)
@@ -224,7 +224,7 @@ FrameAvailableCode SyncVideoDecoder::readFrameForTime(AVFrame* pFrame, float tim
     return FA_NEW_FRAME;
 }
 
-static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode", true);
+static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode");
 
 void SyncVideoDecoder::readFrame(AVFrame* pFrame)
 {

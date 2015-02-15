@@ -72,8 +72,8 @@ AudioDecoderThread::~AudioDecoderThread()
     }
 }
 
-static ProfilingZoneID DecoderProfilingZone("Audio Decoder Thread", true);
-static ProfilingZoneID PacketWaitProfilingZone("Audio Wait for packet", true);
+static ProfilingZoneID DecoderProfilingZone("Audio Decoder Thread");
+static ProfilingZoneID PacketWaitProfilingZone("Audio Wait for packet");
 
 bool AudioDecoderThread::work() 
 {

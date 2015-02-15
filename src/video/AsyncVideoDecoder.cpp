@@ -214,7 +214,7 @@ void AsyncVideoDecoder::setFPS(float fps)
     }
 }
 
-static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU", true);
+static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU");
 
 FrameAvailableCode AsyncVideoDecoder::getRenderedBmps(vector<BitmapPtr>& pBmps,
         float timeWanted)

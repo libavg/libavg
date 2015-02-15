@@ -67,7 +67,7 @@ FFMpegFrameDecoder::~FFMpegFrameDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-static ProfilingZoneID DecodePacketProfilingZone("Decode packet", true);
+static ProfilingZoneID DecodePacketProfilingZone("Decode packet");
 
 bool FFMpegFrameDecoder::decodePacket(AVPacket* pPacket, AVFrame* pFrame,
         bool bFrameAfterSeek)
@@ -105,10 +105,10 @@ bool FFMpegFrameDecoder::decodeLastFrame(AVFrame* pFrame)
 
 
 static ProfilingZoneID ConvertImageLibavgProfilingZone(
-        "FFMpeg: colorspace conv (libavg)", true);
+        "FFMpeg: colorspace conv (libavg)");
 static ProfilingZoneID ConvertImageSWSProfilingZone(
-        "FFMpeg: colorspace conv (SWS)", true);
-static ProfilingZoneID SetAlphaProfilingZone("FFMpeg: set alpha channel", true);
+        "FFMpeg: colorspace conv (SWS)");
+static ProfilingZoneID SetAlphaProfilingZone("FFMpeg: set alpha channel");
 
 void FFMpegFrameDecoder::convertFrameToBmp(AVFrame* pFrame, BitmapPtr pBmp)
 {

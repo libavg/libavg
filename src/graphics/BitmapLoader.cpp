@@ -86,9 +86,9 @@ PixelFormat BitmapLoader::getDefaultPixelFormat(bool bAlpha)
     } 
 }
 
-static ProfilingZoneID GDKPixbufProfilingZone("gdk_pixbuf load", true);
-static ProfilingZoneID ConvertProfilingZone("Format conversion", true);
-static ProfilingZoneID RGBFlipProfilingZone("RGB<->BGR flip", true);
+static ProfilingZoneID GDKPixbufProfilingZone("gdk_pixbuf load");
+static ProfilingZoneID ConvertProfilingZone("Format conversion");
+static ProfilingZoneID RGBFlipProfilingZone("RGB<->BGR flip");
 
 BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
 {

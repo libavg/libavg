@@ -55,7 +55,7 @@ void BitmapManagerThread::deinit()
     }
 }
 
-static ProfilingZoneID LoaderProfilingZone("loadBitmap", true);
+static ProfilingZoneID LoaderProfilingZone("loadBitmap");
 
 void BitmapManagerThread::loadBitmap(BitmapManagerMsgPtr pRequest)
 {
