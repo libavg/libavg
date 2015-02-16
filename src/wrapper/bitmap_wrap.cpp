@@ -130,7 +130,7 @@ static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
         }
         // TODO: check if bitmap size is correct
         unsigned char* pDestPixels = bitmap.getPixels();
-        for (unsigned i=0; i<numSegments; ++i) {
+        for (int i=0; i<numSegments; ++i) {
             void* pSrcPixels;
             long bytesInSegment = pProcs->bf_getreadbuffer(exporter, i, &pSrcPixels);
             memcpy(pDestPixels, pSrcPixels, bytesInSegment);
