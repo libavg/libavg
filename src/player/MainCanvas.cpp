@@ -90,6 +90,11 @@ void MainCanvas::renderTree()
     unsigned numWindows = m_pDisplayEngine->getNumWindows();
     ScopeTimer Timer(RootRenderProfilingZone);
     startRender(m_pDisplayEngine->getNumWindows()-1);
+    WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
+#ifdef __linux__
+    GLXContext* pContext = dynamic_cast<GLXContext*>(pWindow->getGLContext());
+    pContext->deactivate();
+#endif
 
     for (unsigned i=1; i<numWindows; ++i) {
         WindowPtr pWindow = m_pDisplayEngine->getWindow(i);
@@ -97,7 +102,6 @@ void MainCanvas::renderTree()
         dynamic_pointer_cast<SecondaryWindow>(pWindow)->
                 render(this, viewport, MCFBOPtr());
     }
-    WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
     IntRect viewport = pWindow->getViewport();
     renderWindow(pWindow, MCFBOPtr(), viewport);
 
