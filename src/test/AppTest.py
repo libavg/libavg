@@ -31,6 +31,7 @@ from libavg.app import keyboardmanager
 from libavg.app.settings import Option
 import testcase
 
+res = player.getScreenResolution()
 
 class TestApp(libavg.app.App):
     CUSTOM_SETTINGS = {'app_resolution': '160x120', 'app_window_size': '160x120'}
@@ -171,6 +172,8 @@ class AppTestCase(testcase.AVGTestCase):
 
     def testAppFullscreen(self):
         app = TestApp()
+        resString = str(res.x) + "x" + str(res.y)
+        app.CUSTOM_SETTINGS = {'app_resolution': resString}
         app.settings.set('app_fullscreen', 'true')
         app.testRun([
                 lambda: self.assert_(player.isFullscreen()),

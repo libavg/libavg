@@ -30,6 +30,7 @@ import testcase
 g_helper = player.getTestHelper()
 
 TEST_RESOLUTION = (160, 120)
+res = player.getScreenResolution()
 
 class TestAppBase(libavg.AVGApp):
     @classmethod
@@ -65,12 +66,11 @@ class AVGAppTestCase(testcase.AVGTestCase):
             def init(self):
                 self.testInstance.assert_(player.isFullscreen())
                 rootNodeSize = player.getRootNode().size
-                self.testInstance.assertEqual(rootNodeSize, resolution)
+                self.testInstance.assertEqual(rootNodeSize, res)
                 self.requestStop()
                 
-        resolution = player.getScreenResolution()
         os.environ['AVG_DEPLOY'] = '1'
-        FullscreenApp.start(resolution=resolution)
+        FullscreenApp.start(resolution=res)
         del os.environ['AVG_DEPLOY']
 
     def testDebugWindowSize(self):

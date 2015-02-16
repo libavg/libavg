@@ -94,9 +94,7 @@ void DisplayEngine::initSDL()
 
 void DisplayEngine::quitSDL()
 {
-#ifndef _WIN32
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
-#endif
 }
 
 DisplayEngine::DisplayEngine()
