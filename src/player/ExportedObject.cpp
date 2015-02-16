@@ -64,11 +64,11 @@ ExportedObjectPtr ExportedObject::getSharedThis()
     // about the python part of the object and cuts it off. Because of this, we remember
     // a pointer to the python object in m_pSelf and use that to create a functioning
     // and complete ExportedObjectPtr if there is a python derived class.
-/*    if (m_pSelf) {
+    if (m_pSelf) {
         return py::extract<ExportedObjectPtr>(m_pSelf);
-    } else {*/
+    } else {
         return shared_from_this();
-//    }
+    }
 }
 
 void ExportedObject::setTypeInfo(const TypeDefinition * pDefinition)

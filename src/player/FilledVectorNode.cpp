@@ -211,7 +211,7 @@ glm::vec2 FilledVectorNode::calcFillTexCoord(const glm::vec2& pt, const glm::vec
 bool FilledVectorNode::isVisible() const
 {
     return getEffectiveActive() && (getEffectiveOpacity() > 0.01 || 
-            getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01);
+            m_EffectiveOpacity > 0.01);
 }
 
 }
