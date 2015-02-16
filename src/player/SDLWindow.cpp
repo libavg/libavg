@@ -55,8 +55,7 @@ vector<long> SDLWindow::s_KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     : Window(dp.getWindowParams(0), dp.isFullscreen()),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0))
+      m_LastMousePos(IntPoint(-1, -1))
 {
     initTranslationTable();
 
@@ -301,19 +300,18 @@ EventPtr SDLWindow::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent
     IntPoint size = getSize();
     x = int((x*viewport.width())/size.x);
     y = int((y*viewport.height())/size.y);
-    glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
     glm::vec2 speed;
-    if (lastMousePos.x == -1) {
+    if (m_LastMousePos.x == -1) {
         speed = glm::vec2(0,0);
     } else {
         float lastFrameTime = 1000/Player::get()->getEffectiveFramerate();
-        speed = glm::vec2(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
+        speed = glm::vec2(x-m_LastMousePos.x, y-m_LastMousePos.y)/lastFrameTime;
     }
     MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
             IntPoint(x, y), button, speed));
 
-    m_pLastMouseEvent = pEvent;
+    m_LastMousePos = pEvent->getPos();
     return pEvent; 
 }
 

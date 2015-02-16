@@ -62,7 +62,7 @@ class AVG_API SDLWindow: public Window
         EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
         
         // Event handling.
-        MouseEventPtr m_pLastMouseEvent;
+        glm::vec2 m_LastMousePos;
         XInputMTInputDevice * m_pXIMTInputDevice;
         static std::vector<long> s_KeyCodeTranslationTable;
 };
