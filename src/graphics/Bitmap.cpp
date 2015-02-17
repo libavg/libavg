@@ -618,8 +618,18 @@ const unsigned char* Bitmap::getPixels() const
     return m_pBits;
 }
 
-void Bitmap::setPixels(const unsigned char* pPixels)
+void Bitmap::setPixels(const unsigned char* pPixels, int stride)
 {
+    if (stride == 0) {
+        stride = m_Stride;
+    }
+    unsigned char* pDestLine = m_pBits;
+    const unsigned char* pSrcLine = pPixels;
+    for (int y=0; y<m_Size.y; y++) {
+        memcpy(pDestLine, pSrcLine, getBytesPerPixel()*m_Size.x);
+        pDestLine += m_Stride;
+        pSrcLine += stride;
+    }
     memcpy(m_pBits, pPixels, getMemNeeded());
 }
 
@@ -838,8 +848,22 @@ BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
     
 void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
 {
-    AVG_ASSERT(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
-    AVG_ASSERT(otherBmp.getBytesPerPixel() == 4 || otherBmp.getBytesPerPixel() == 3);
+    bool bFormatOK;
+    if (getBytesPerPixel() == 1 && otherBmp.getBytesPerPixel() == 1) {
+        bFormatOK = true;
+    } else {
+        bFormatOK = true;
+        if (getBytesPerPixel() != 4 && getBytesPerPixel() != 3) {
+            bFormatOK = false;
+        }
+        if (otherBmp.getBytesPerPixel() != 4 && otherBmp.getBytesPerPixel() != 3) {
+            bFormatOK = false;
+        }
+    }
+    if (!bFormatOK) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                string("Bitmap::blt: Pixel format not supported."));
+    }
     if (pos.x < 0 || pos.y < 0) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::blt: pos < 0 is not supported."));
@@ -853,42 +877,48 @@ void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
                 +size_t(pos.x*getBytesPerPixel());
         const unsigned char * pOtherPixel = otherBmp.getPixels()+
                 size_t(y*otherBmp.getStride());
-        if (getBytesPerPixel() == 4) {
-            if (otherBmp.hasAlpha()) {
-                for (int x = 0; x < destRect.width(); x++) {
-                    int srcAlpha = 255-pOtherPixel[3];
-                    pSrcPixel[0] = 
-                            (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
-                    pSrcPixel[1] = 
-                            (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
-                    pSrcPixel[2] = 
-                            (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
-                    pSrcPixel += 4;
-                    pOtherPixel += 4;
+        switch(getBytesPerPixel()) {
+            case 4:
+                if (otherBmp.hasAlpha()) {
+                    for (int x = 0; x < destRect.width(); x++) {
+                        int srcAlpha = 255-pOtherPixel[3];
+                        pSrcPixel[0] = (srcAlpha*pSrcPixel[0]
+                                + int(pOtherPixel[3])*pOtherPixel[0])/255;
+                        pSrcPixel[1] = (srcAlpha*pSrcPixel[1]
+                                + int(pOtherPixel[3])*pOtherPixel[1])/255;
+                        pSrcPixel[2] = (srcAlpha*pSrcPixel[2]
+                                + int(pOtherPixel[3])*pOtherPixel[2])/255;
+                        pSrcPixel += 4;
+                        pOtherPixel += 4;
+                    }
+                } else {
+                    for (int x = 0; x < destRect.width(); x++) {
+                        *(Pixel32*)pSrcPixel = *(Pixel32*)pOtherPixel;
+                        pSrcPixel[3] = 255;
+                        pSrcPixel += 4;
+                        pOtherPixel += 4;
+                    }
                 }
-            } else {
-                for (int x = 0; x < destRect.width(); x++) {
-                    *(Pixel32*)pSrcPixel = *(Pixel32*)pOtherPixel;
-                    pSrcPixel[3] = 255;
-                    pSrcPixel += 4;
-                    pOtherPixel += 4;
+                break;
+            case 3:
+                if (otherBmp.getBytesPerPixel() == 4) {
+                    // Incomplete: Missing alpha support.
+                    for (int x = 0; x < destRect.width(); x++) {
+                        *(Pixel24*)pSrcPixel = *(Pixel24*)pOtherPixel;
+                        pSrcPixel += 3;
+                        pOtherPixel += 4;
+                    }
+                } else {
+                    for (int x = 0; x < destRect.width(); x++) {
+                        *(Pixel24*)pSrcPixel = *(Pixel24*)pOtherPixel;
+                        pSrcPixel += 3;
+                        pOtherPixel += 3;
+                    }
                 }
-            }
-        } else {
-            if (otherBmp.getBytesPerPixel() == 4) {
-                // Incomplete: Missing alpha support.
-                for (int x = 0; x < destRect.width(); x++) {
-                    *(Pixel24*)pSrcPixel = *(Pixel24*)pOtherPixel;
-                    pSrcPixel += 3;
-                    pOtherPixel += 4;
-                }
-            } else {
-                for (int x = 0; x < destRect.width(); x++) {
-                    *(Pixel24*)pSrcPixel = *(Pixel24*)pOtherPixel;
-                    pSrcPixel += 3;
-                    pOtherPixel += 3;
-                }
-            }
+                break;
+            case 1:
+                memcpy(pSrcPixel, pOtherPixel, destRect.width());
+                break;
         }
     }
 }

@@ -76,7 +76,7 @@ public:
     void setPixelFormat(PixelFormat pf);
     unsigned char* getPixels();
     const unsigned char* getPixels() const;
-    void setPixels(const unsigned char* pPixels);
+    void setPixels(const unsigned char* pPixels, int stride=0);
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;

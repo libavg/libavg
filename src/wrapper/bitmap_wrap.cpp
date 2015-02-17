@@ -105,18 +105,17 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData=true)
     }
 }
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels, 
+BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels,
         1, 2);
 
-
-static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
+static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter, int stride=0)
 {
     Py_buffer bufferView;
 //    PyObject_Print(PyObject_Type(exporter), stderr, 0);
     if (PyObject_CheckBuffer(exporter)) {
         PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
         const unsigned char* pBuf = reinterpret_cast<unsigned char*>(bufferView.buf);
-        bitmap.setPixels(pBuf);
+        bitmap.setPixels(pBuf, stride);
         PyBuffer_Release(&bufferView);
     } else if (PyBuffer_Check(exporter)) {
         PyTypeObject * pType = exporter->ob_type;
@@ -141,6 +140,9 @@ static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter)
                "Second parameter to Bitmap.setPixels must support the buffer interface.");
     }
 }
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_setPixels_overloads, Bitmap_setPixels,
+        2, 3);
 
 ConstVec2 Bitmap_getSize(Bitmap* This)
 {
@@ -246,7 +248,7 @@ void export_bitmap()
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)
         .def("getPixels", &Bitmap_getPixels, Bitmap_getPixels_overloads())
-        .def("setPixels", &Bitmap_setPixels)
+        .def("setPixels", &Bitmap_setPixels, Bitmap_setPixels_overloads())
         .def("getPixel", &Bitmap::getPythonPixel)
         .def("subtract", &Bitmap::subtract)
         .def("getAvg", &Bitmap::getAvg)
