@@ -630,7 +630,6 @@ void Bitmap::setPixels(const unsigned char* pPixels, int stride)
         pDestLine += m_Stride;
         pSrcLine += stride;
     }
-    memcpy(m_pBits, pPixels, getMemNeeded());
 }
 
 const string& Bitmap::getName() const
