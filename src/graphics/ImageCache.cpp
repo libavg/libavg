@@ -88,7 +88,7 @@ void ImageCache::onTexLoad(const std::string& sFilename)
 void ImageCache::onAccess(const std::string& sFilename)
 {
     cerr << "          onAccess: " << sFilename << endl;
-    auto it = m_pImageMap.find(sFilename);
+    ImageMap::iterator it = m_pImageMap.find(sFilename);
     // Move item to front of list
     m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
     ImagePtr pImg = *(it->second);
@@ -97,7 +97,7 @@ void ImageCache::onAccess(const std::string& sFilename)
 
 void ImageCache::onSizeChange(const std::string& sFilename, int sizeDiff)
 {
-    auto it = m_pImageMap.find(sFilename);
+    ImageMap::iterator it = m_pImageMap.find(sFilename);
     ImagePtr pImg = *(it->second);
     m_CPUCacheUsed += sizeDiff;
 }
@@ -144,7 +144,7 @@ void ImageCache::checkGPUUnload()
     cerr << "            checkGPUUnload" << endl;
     if (m_GPUCacheUsed > m_GPUCacheSize) {
         cerr << "              unload" << endl;
-        auto it = m_pLRUList.rbegin();
+        LRUListType::reverse_iterator it = m_pLRUList.rbegin();
         // Find first item that actually has a texture loaded.
         while (it != m_pLRUList.rend() && !((*it)->hasTex())) {
             it++;

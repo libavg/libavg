@@ -82,7 +82,7 @@ class CategoryScopeHelper{};
 
 int playerGetNumImagesLoaded() 
 {
-    return ImageCache::get()->getNumImages();
+    return ImageCache::get()->getNumCPUImages();
 }
 
 boost::function<size_t (const bp::tuple& args, const bp::dict& kwargs )>

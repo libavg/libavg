@@ -104,7 +104,7 @@ void GPUImage::setEmpty()
 void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompression comp)
 {
     assertValid();
-    ImagePtr pImage = ImageRegistry::get()->getImage(sFilename, comp);
+    ImagePtr pImage = ImageCache::get()->getImage(sFilename, comp);
     BitmapPtr pBmp = pImage->getBmp();
     if (comp == Image::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         pImage->decBmpRef();
