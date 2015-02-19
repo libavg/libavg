@@ -254,7 +254,6 @@ void TUIOInputDevice::processUserID(ReceivedMessageArgumentStream& args)
     osc::int32 userID;
     osc::int32 jointID;
     args >> tuioID >> userID >> jointID;
-//    cerr << tuioID << ": " << userID << ", " << jointID << endl;
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
     if (!pTouchStatus) {
         AVG_TRACE(Logger::category::EVENTS, Logger::severity::WARNING,
