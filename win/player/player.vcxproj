@@ -180,7 +180,7 @@
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
     <ClInclude Include="..\..\src\player\FontStyle.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
-    <ClCompile Include="..\..\src\player\GPUImage.cpp" />
+    <ClCompile Include="..\..\src\player\GPUImage.h" />
     <ClInclude Include="..\..\src\player\HueSatFXNode.h" />
     <ClInclude Include="..\..\src\player\InputDevice.h" />
     <ClInclude Include="..\..\src\player\InvertFXNode.h" />
