@@ -54,12 +54,15 @@ class AVG_API CursorEvent: public Event
                 int when=-1);
         virtual ~CursorEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
+        void setUserID(int userID, int jointID);
         void setPos(const glm::vec2& pos);
         glm::vec2 getPos() const;
         int getXPosition() const;
         int getYPosition() const;
         void setCursorID(int id);
         int getCursorID() const;
+        int getUserID() const;
+        int getJointID() const;
         void setNode(NodePtr pNode);
         NodePtr getNode() const;
         void setSpeed(glm::vec2 speed);
@@ -76,6 +79,8 @@ class AVG_API CursorEvent: public Event
         IntPoint m_Position;
         int m_ID;
         ContactWeakPtr m_pContact;
+        int m_UserID;
+        int m_JointID;
         NodePtr m_pNode;
         glm::vec2 m_Speed;
 };

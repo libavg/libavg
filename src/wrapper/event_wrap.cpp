@@ -148,6 +148,8 @@ void export_event()
         .add_property("x", &CursorEvent::getXPosition)
         .add_property("y", &CursorEvent::getYPosition)
         .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
+        .add_property("userid", &TouchEvent::getUserID)
+        .add_property("jointid", &TouchEvent::getJointID)
         .add_property("node", &CursorEvent::getNode)
         .add_property("speed", make_function(&CursorEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))

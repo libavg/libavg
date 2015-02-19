@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+# Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "audio", "audio\audio.vcxproj", "{D0C1A58C-BF0E-4F88-885A-65444A23516E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testlimiter", "testlimiter\testlimiter.vcxproj", "{3D8F042E-55B5-40D9-818A-C51B3D2A6368}"
