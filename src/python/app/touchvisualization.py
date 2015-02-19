@@ -87,12 +87,14 @@ class DebugTouchVisualization(BaseTouchVisualization):
         if event.source == avg.Event.MOUSE:
             text = 'MOUSE'
         elif event.source == avg.Event.TANGIBLE:
-            text = '%s %d %d %d %d' % (event.source, event.cursorid, event.markerid, 
-				event.userid, event.jointid)
+            text = '%s %d %d' % (event.source, event.cursorid, event.markerid)
         elif event.source == avg.Event.TOUCH:
-            text = '%s %d %d %d' % (event.source, event.cursorid, event.userid, event.jointid)
+            text = '%s %d' % (event.source, event.cursorid)
         else:
             text = '%s %d' % (event.source, event.cursorid)
+        if ((event.source == avg.Event.TANGIBLE or event.source == avg.Event.TOUCH) and
+                event.userid != -1):
+            text += '%d %d' % (event.userid, event.jointid)
         avg.WordsNode(pos=fontPos, text=text, fontsize=9, parent=self)
         self.motionPath = avg.PolyLineNode(pos=self.positions,
                 opacity=0.7, color=color, parent=kwargs['parent'])
