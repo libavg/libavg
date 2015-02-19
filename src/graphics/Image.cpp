@@ -112,9 +112,11 @@ void Image::incTexRef(bool bUseMipmaps)
     AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_TexRefCount == 1) {
         m_bUseMipmaps = bUseMipmaps;
-        createTexture();
-        if (m_sFilename != "") {
-            ImageCache::get()->onTexLoad(m_sFilename);
+        if (!m_pTex) {
+            createTexture();
+            if (m_sFilename != "") {
+                ImageCache::get()->onTexLoad(m_sFilename);
+            }
         }
     } else if (bUseMipmaps && !m_bUseMipmaps) {
         m_bUseMipmaps = true;
@@ -137,6 +139,7 @@ void Image::decTexRef()
 void Image::unloadTex()
 {
     AVG_ASSERT(m_TexRefCount == 0);
+    AVG_ASSERT(m_pTex);
     m_pTex = MCTexturePtr();
 }
 
@@ -188,6 +191,12 @@ int Image::getBmpRefCount() const
 int Image::getTexRefCount() const
 {
     return m_TexRefCount;
+}
+
+void Image::dump() const
+{
+    cerr << "  " << m_sFilename << ": " << m_BmpRefCount << ", " << m_TexRefCount
+            << ", " << hasTex() << endl;
 }
 
 Image::TextureCompression Image::string2compression(const string& s)

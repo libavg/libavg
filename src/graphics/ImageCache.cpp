@@ -38,7 +38,6 @@ ImageCache* ImageCache::get()
     return s_pImageCache;
 }
 
-
 ImageCache::ImageCache()
     : m_CPUCacheSize(0),
       m_GPUCacheSize(0),
@@ -61,7 +60,6 @@ void ImageCache::setSize(long long cpuSize, long long gpuSize)
 ImagePtr ImageCache::getImage(const std::string& sFilename,
         Image::TextureCompression compression)
 {
-    cerr << "          getImage: " << sFilename << endl;
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     ImagePtr pImg;
     if (it == m_pImageMap.end()) {
@@ -73,26 +71,36 @@ ImagePtr ImageCache::getImage(const std::string& sFilename,
     } else {
         pImg = *(it->second);
         pImg->incBmpRef(compression);
+        // Move item to front of list
+        if (it != m_pImageMap.end()) {
+            m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
+        }
     }
+    assertValid();
     return pImg;
 }
 
 void ImageCache::onTexLoad(const std::string& sFilename)
 {
-    cerr << "          onTexLoad: " << sFilename << endl;
     ImagePtr pImg = *(m_pImageMap[sFilename]);
     m_GPUCacheUsed += pImg->getTexMemUsed();
+    ImageMap::iterator it = m_pImageMap.find(sFilename);
+    // Move item to front of list
+    if (it != m_pImageMap.end()) {
+        m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
+    }
     checkGPUUnload();
 }
 
 void ImageCache::onAccess(const std::string& sFilename)
 {
-    cerr << "          onAccess: " << sFilename << endl;
+    checkCPUUnload();
+    assertValid();
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     // Move item to front of list
-    m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
-    ImagePtr pImg = *(it->second);
-    checkCPUUnload();
+    if (it != m_pImageMap.end()) {
+        m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
+    }
 }
 
 void ImageCache::onSizeChange(const std::string& sFilename, int sizeDiff)
@@ -100,6 +108,7 @@ void ImageCache::onSizeChange(const std::string& sFilename, int sizeDiff)
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     ImagePtr pImg = *(it->second);
     m_CPUCacheUsed += sizeDiff;
+    assertValid();
 }
 
 int ImageCache::getNumCPUImages() const
@@ -118,32 +127,36 @@ int ImageCache::getNumGPUImages() const
     return numGPUImages;
 }
 
+void ImageCache::dump() const
+{
+    for (LRUListType::const_iterator it=m_pLRUList.begin(); it!=m_pLRUList.end(); ++it) {
+        (*it)->dump();
+    }
+}
+
 void ImageCache::checkCPUUnload()
 {
-    cerr << "            checkCPUUnload" << endl;
     while (m_CPUCacheUsed > m_CPUCacheSize) {
         ImagePtr pImg = *(m_pLRUList.rbegin());
-        cerr << "              unload: " << pImg->getFilename() << endl;
         if (pImg->getBmpRefCount() == 0) {
             m_pImageMap.erase(pImg->getFilename());
             m_pLRUList.pop_back();
             m_CPUCacheUsed -= pImg->getBmpMemUsed();
-            m_GPUCacheUsed -= pImg->getTexMemUsed();
-            cerr << "              -> RefCount == 0, used: " << m_CPUCacheUsed << endl;
+            if (pImg->hasTex()) {
+                m_GPUCacheUsed -= pImg->getTexMemUsed();
+            }
         } else {
             // Cache full, but everything's in use.
-            cerr << "              -> RefCount != 0" << endl;
             break;
         }
     }
+    assertValid();
     checkGPUUnload();
 }
 
 void ImageCache::checkGPUUnload()
 {
-    cerr << "            checkGPUUnload" << endl;
     if (m_GPUCacheUsed > m_GPUCacheSize) {
-        cerr << "              unload" << endl;
         LRUListType::reverse_iterator it = m_pLRUList.rbegin();
         // Find first item that actually has a texture loaded.
         while (it != m_pLRUList.rend() && !((*it)->hasTex())) {
@@ -151,20 +164,34 @@ void ImageCache::checkGPUUnload()
         }
         if (it != m_pLRUList.rend()) {
             while (m_GPUCacheUsed > m_GPUCacheSize) {
+                assertValid();
                 ImagePtr pImg = *it;
                 if (pImg->getTexRefCount() == 0) {
                     m_GPUCacheUsed -= pImg->getTexMemUsed();
-                    cerr << "              -> RefCount == 0, used: " << m_GPUCacheUsed
-                            << endl;
                     pImg->unloadTex();
                     ++it;
                 } else {
-                    cerr << "              -> RefCount != 0" << endl;
                     break;
                 }
             }
         }
     }
+}
+
+void ImageCache::assertValid()
+{
+    if (m_CPUCacheUsed == 0) {
+        AVG_ASSERT(m_pLRUList.size() == 0);
+        AVG_ASSERT(m_pImageMap.size() == 0);
+    }
+    if (m_pLRUList.size() == 0) {
+        AVG_ASSERT(m_CPUCacheUsed == 0);
+        AVG_ASSERT(m_GPUCacheUsed == 0);
+    }
+    if (getNumGPUImages() == 0) {
+        AVG_ASSERT(m_GPUCacheUsed == 0);
+    }
+    AVG_ASSERT(m_pLRUList.size() == m_pImageMap.size());
 }
 
 }

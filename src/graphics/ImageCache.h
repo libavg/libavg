@@ -57,11 +57,15 @@ class AVG_API ImageCache
         int getNumCPUImages() const;
         int getNumGPUImages() const;
 
+        void dump() const;
+
     private:
         ImageCache();
         virtual ~ImageCache();
         void checkCPUUnload();
         void checkGPUUnload();
+
+        void assertValid();
 
         typedef std::list<ImagePtr> LRUListType;
         LRUListType m_pLRUList;

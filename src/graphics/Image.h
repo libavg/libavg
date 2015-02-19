@@ -66,6 +66,8 @@ class AVG_API Image
         static TextureCompression string2compression(const std::string& s);
         static std::string compression2String(TextureCompression compression);
 
+        void dump() const;
+
     private:
         BitmapPtr applyCompression(BitmapPtr pBmp);
         void createTexture();
