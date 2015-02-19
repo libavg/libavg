@@ -63,7 +63,7 @@ void TangibleEvent::trace()
     CursorEvent::trace();
     AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG, "pos: " << getPos() 
             << ", ID: " << getCursorID()
-            << ", Marker ID: " << m_MarkerID);
+            << ", Marker ID: " << m_MarkerID)
 }
       
 }
