@@ -102,6 +102,20 @@ void ImageCache::onAccess(const std::string& sFilename)
     }
 }
 
+void ImageCache::onImageUnused(const std::string& sFilename)
+{
+    // Move image to first pos with use count == 0
+    // This is currently O(n). If that becomes an issue, we need to remember the first
+    // unused image.
+    LRUListType::iterator itOldPos = m_pImageMap.find(sFilename)->second;
+    LRUListType::iterator itNewPos = itOldPos;
+    itNewPos++;
+    while (itNewPos != m_pLRUList.end() && (*itNewPos)->getBmpRefCount() != 0) {
+        itNewPos++;
+    }
+    m_pLRUList.splice(itNewPos, m_pLRUList, itOldPos);
+}
+
 void ImageCache::onSizeChange(const std::string& sFilename, int sizeDiff)
 {
     ImageMap::iterator it = m_pImageMap.find(sFilename);
@@ -181,8 +195,10 @@ void ImageCache::checkGPUUnload()
                 assertValid();
                 ImagePtr pImg = *it;
                 if (pImg->getTexRefCount() == 0) {
-                    m_GPUCacheUsed -= pImg->getTexMemUsed();
-                    pImg->unloadTex();
+                    if (pImg->hasTex()) {
+                        m_GPUCacheUsed -= pImg->getTexMemUsed();
+                        pImg->unloadTex();
+                    }
                     ++it;
                 } else {
                     // Cache full, but everything's in use.

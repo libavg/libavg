@@ -53,6 +53,7 @@ class AVG_API ImageCache
                 Image::TextureCompression compression);
         void onTexLoad(const std::string& sFilename);
         void onAccess(const std::string& sFilename);
+        void onImageUnused(const std::string& sFilename);
         void onSizeChange(const std::string& sFilename, int sizeDiff);
         int getNumCPUImages() const;
         int getNumGPUImages() const;

@@ -100,9 +100,9 @@ void Image::decBmpRef()
     m_BmpRefCount--;
     AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
-        m_LRUTime= TimeSource::get()->getCurrentMillisecs();
+        m_LRUTime = TimeSource::get()->getCurrentMillisecs();
         if (m_sFilename != "") {
-            ImageCache::get()->onAccess(m_sFilename);
+            ImageCache::get()->onImageUnused(m_sFilename);
         }
     }
 }
@@ -128,13 +128,8 @@ void Image::incTexRef(bool bUseMipmaps)
 void Image::decTexRef()
 {
     AVG_ASSERT(m_TexRefCount >= 1);
-    m_TexRefCount--; 
-    if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
-        m_LRUTime= TimeSource::get()->getCurrentMillisecs();
-        if (m_sFilename != "") {
-            ImageCache::get()->onAccess(m_sFilename);
-        }
-    }
+    m_TexRefCount--;
+    // TODO: Re-sort LRU array if texture not referenced.
 }
 
 void Image::unloadTex()
