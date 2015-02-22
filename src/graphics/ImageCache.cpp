@@ -91,16 +91,16 @@ void ImageCache::onTexLoad(const std::string& sFilename)
     checkGPUUnload();
 }
 
-void ImageCache::onImageUnused(const std::string& sFilename)
+void ImageCache::onImageUnused(const std::string& sFilename, Image::StorageType st)
 {
     // Move image to first pos with use count == 0
     // This is currently O(n). If that becomes an issue, we need to remember the first
-    // unused image.
+    // unused image for both CPU and GPU.
     LRUListType::iterator itOldPos = m_pImageMap.find(sFilename)->second;
     LRUListType::iterator itNewPos = itOldPos;
     itNewPos++;
     while (itNewPos != m_pLRUList.end() &&
-            (*itNewPos)->getRefCount(Image::STORAGE_CPU) != 0)
+            (*itNewPos)->getRefCount(st) != 0)
     {
         itNewPos++;
     }

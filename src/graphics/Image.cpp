@@ -96,13 +96,12 @@ void Image::incBmpRef(TextureCompression compression)
 void Image::decBmpRef()
 {
     AVG_ASSERT(m_BmpRefCount >= 1);
-    AVG_ASSERT(m_BmpRefCount > m_TexRefCount);
     m_BmpRefCount--;
     AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
         m_LRUTime = TimeSource::get()->getCurrentMillisecs();
         if (m_sFilename != "") {
-            ImageCache::get()->onImageUnused(m_sFilename);
+            ImageCache::get()->onImageUnused(m_sFilename, STORAGE_CPU);
         }
     }
 }
@@ -129,7 +128,11 @@ void Image::decTexRef()
 {
     AVG_ASSERT(m_TexRefCount >= 1);
     m_TexRefCount--;
-    // TODO: Re-sort LRU array if texture not referenced.
+    if (m_TexRefCount == 0) {
+        if (m_sFilename != "") {
+            ImageCache::get()->onImageUnused(m_sFilename, STORAGE_GPU);
+        }
+    }
 }
 
 void Image::unloadTex()
