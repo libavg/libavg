@@ -43,7 +43,6 @@ ImageCache::ImageCache()
       m_GPUCacheSize(0),
       m_CPUCacheUsed(0),
       m_GPUCacheUsed(0)
-
 {
 }
 
@@ -127,8 +126,22 @@ int ImageCache::getNumGPUImages() const
     return numGPUImages;
 }
 
+void ImageCache::unloadAllTextures()
+{
+    for (LRUListType::const_iterator it=m_pLRUList.begin(); it!=m_pLRUList.end(); ++it) {
+        ImagePtr pImg = *it;
+        AVG_ASSERT(pImg->getTexRefCount() == 0);
+        if (pImg->hasTex()) {
+            pImg->unloadTex();
+        }
+    }
+}
+
 void ImageCache::dump() const
 {
+    cerr << "----------------" << endl;
+    cerr << "ImageCache: " << m_pLRUList.size() << ", CPU used: " << m_CPUCacheUsed <<
+            ", GPU used: " << m_GPUCacheUsed << endl;
     for (LRUListType::const_iterator it=m_pLRUList.begin(); it!=m_pLRUList.end(); ++it) {
         (*it)->dump();
     }
@@ -171,6 +184,7 @@ void ImageCache::checkGPUUnload()
                     pImg->unloadTex();
                     ++it;
                 } else {
+                    // Cache full, but everything's in use.
                     break;
                 }
             }

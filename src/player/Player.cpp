@@ -82,6 +82,7 @@
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/Display.h"
 #include "../graphics/GLContextManager.h"
+#include "../graphics/ImageCache.h"
 
 #include "../imaging/Camera.h"
 
@@ -1106,6 +1107,7 @@ void Player::doFrame(bool bFirstFrame)
         {
             ScopeTimer Timer(MainCanvasProfilingZone);
             m_pMainCanvas->doFrame(m_bPythonAvailable);
+            ImageCache::get()->dump();
         }
         GLContext::mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {

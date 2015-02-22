@@ -96,6 +96,7 @@ void Image::incBmpRef(TextureCompression compression)
 void Image::decBmpRef()
 {
     AVG_ASSERT(m_BmpRefCount >= 1);
+    AVG_ASSERT(m_BmpRefCount > m_TexRefCount);
     m_BmpRefCount--;
     AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_BmpRefCount == 0 && m_TexRefCount == 0) {

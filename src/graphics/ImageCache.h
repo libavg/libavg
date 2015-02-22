@@ -57,6 +57,7 @@ class AVG_API ImageCache
         int getNumCPUImages() const;
         int getNumGPUImages() const;
 
+        void unloadAllTextures();
         void dump() const;
 
     private:

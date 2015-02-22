@@ -35,6 +35,7 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/ImageCache.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
@@ -57,6 +58,7 @@ Window::Window(const WindowParams& wp, bool bIsFullscreen)
 Window::~Window()
 {
     if (m_pGLContext) {
+        ImageCache::get()->unloadAllTextures();
         delete m_pGLContext;
         m_pGLContext = 0;
     }
