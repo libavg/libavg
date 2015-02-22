@@ -52,7 +52,6 @@ class AVG_API ImageCache
         ImagePtr getImage(const std::string& sFilename,
                 Image::TextureCompression compression);
         void onTexLoad(const std::string& sFilename);
-        void onAccess(const std::string& sFilename);
         void onImageUnused(const std::string& sFilename);
         void onSizeChange(const std::string& sFilename, int sizeDiff);
         int getNumCPUImages() const;

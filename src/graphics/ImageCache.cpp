@@ -91,17 +91,6 @@ void ImageCache::onTexLoad(const std::string& sFilename)
     checkGPUUnload();
 }
 
-void ImageCache::onAccess(const std::string& sFilename)
-{
-    checkCPUUnload();
-    assertValid();
-    ImageMap::iterator it = m_pImageMap.find(sFilename);
-    // Move item to front of list
-    if (it != m_pImageMap.end()) {
-        m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
-    }
-}
-
 void ImageCache::onImageUnused(const std::string& sFilename)
 {
     // Move image to first pos with use count == 0
@@ -114,6 +103,7 @@ void ImageCache::onImageUnused(const std::string& sFilename)
         itNewPos++;
     }
     m_pLRUList.splice(itNewPos, m_pLRUList, itOldPos);
+    checkCPUUnload();
 }
 
 void ImageCache::onSizeChange(const std::string& sFilename, int sizeDiff)
