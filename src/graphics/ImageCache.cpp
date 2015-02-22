@@ -132,6 +132,7 @@ void ImageCache::unloadAllTextures()
         ImagePtr pImg = *it;
         AVG_ASSERT(pImg->getTexRefCount() == 0);
         if (pImg->hasTex()) {
+            m_GPUCacheUsed -= pImg->getTexMemUsed();
             pImg->unloadTex();
         }
     }
