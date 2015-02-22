@@ -41,6 +41,10 @@ class AVG_API Image
             TEXTURECOMPRESSION_NONE,
             TEXTURECOMPRESSION_B5G6R5
         };
+        enum StorageType {
+            STORAGE_CPU,
+            STORAGE_GPU
+        };
 
         Image(const std::string& sFilename, TextureCompression compression);
         Image(const BitmapPtr& pBmp, TextureCompression compression);
@@ -58,10 +62,8 @@ class AVG_API Image
         MCTexturePtr getTex();
         bool hasTex() const;
         long long getLRUTime() const;
-        int getBmpMemUsed() const;
-        int getTexMemUsed() const;
-        int getBmpRefCount() const;
-        int getTexRefCount() const;
+        int getMemUsed(StorageType st) const;
+        int getRefCount(StorageType st) const;
 
         static TextureCompression string2compression(const std::string& s);
         static std::string compression2String(TextureCompression compression);

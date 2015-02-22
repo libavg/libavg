@@ -65,7 +65,7 @@ ImagePtr ImageCache::getImage(const std::string& sFilename,
         pImg = ImagePtr(new Image(sFilename, compression));
         m_pLRUList.push_front(pImg);
         m_pImageMap.insert(make_pair(sFilename, m_pLRUList.begin()));
-        m_CPUCacheUsed += pImg->getBmpMemUsed();
+        m_CPUCacheUsed += pImg->getMemUsed(Image::STORAGE_CPU);
         checkCPUUnload();
     } else {
         pImg = *(it->second);
@@ -82,7 +82,7 @@ ImagePtr ImageCache::getImage(const std::string& sFilename,
 void ImageCache::onTexLoad(const std::string& sFilename)
 {
     ImagePtr pImg = *(m_pImageMap[sFilename]);
-    m_GPUCacheUsed += pImg->getTexMemUsed();
+    m_GPUCacheUsed += pImg->getMemUsed(Image::STORAGE_GPU);
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     // Move item to front of list
     if (it != m_pImageMap.end()) {
@@ -99,7 +99,9 @@ void ImageCache::onImageUnused(const std::string& sFilename)
     LRUListType::iterator itOldPos = m_pImageMap.find(sFilename)->second;
     LRUListType::iterator itNewPos = itOldPos;
     itNewPos++;
-    while (itNewPos != m_pLRUList.end() && (*itNewPos)->getBmpRefCount() != 0) {
+    while (itNewPos != m_pLRUList.end() &&
+            (*itNewPos)->getRefCount(Image::STORAGE_CPU) != 0)
+    {
         itNewPos++;
     }
     m_pLRUList.splice(itNewPos, m_pLRUList, itOldPos);
@@ -134,9 +136,9 @@ void ImageCache::unloadAllTextures()
 {
     for (LRUListType::const_iterator it=m_pLRUList.begin(); it!=m_pLRUList.end(); ++it) {
         ImagePtr pImg = *it;
-        AVG_ASSERT(pImg->getTexRefCount() == 0);
+        AVG_ASSERT(pImg->getRefCount(Image::STORAGE_GPU) == 0);
         if (pImg->hasTex()) {
-            m_GPUCacheUsed -= pImg->getTexMemUsed();
+            m_GPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_GPU);
             pImg->unloadTex();
         }
     }
@@ -156,13 +158,11 @@ void ImageCache::checkCPUUnload()
 {
     while (m_CPUCacheUsed > m_CPUCacheSize) {
         ImagePtr pImg = *(m_pLRUList.rbegin());
-        if (pImg->getBmpRefCount() == 0) {
+        if (pImg->getRefCount(Image::STORAGE_CPU) == 0) {
             m_pImageMap.erase(pImg->getFilename());
             m_pLRUList.pop_back();
-            m_CPUCacheUsed -= pImg->getBmpMemUsed();
-            if (pImg->hasTex()) {
-                m_GPUCacheUsed -= pImg->getTexMemUsed();
-            }
+            m_CPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_CPU);
+            m_GPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_GPU);
         } else {
             // Cache full, but everything's in use.
             break;
@@ -184,9 +184,9 @@ void ImageCache::checkGPUUnload()
             while (m_GPUCacheUsed > m_GPUCacheSize) {
                 assertValid();
                 ImagePtr pImg = *it;
-                if (pImg->getTexRefCount() == 0) {
+                if (pImg->getRefCount(Image::STORAGE_GPU) == 0) {
                     if (pImg->hasTex()) {
-                        m_GPUCacheUsed -= pImg->getTexMemUsed();
+                        m_GPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_GPU);
                         pImg->unloadTex();
                     }
                     ++it;

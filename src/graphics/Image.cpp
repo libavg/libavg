@@ -165,28 +165,33 @@ long long Image::getLRUTime() const
     }
 }
         
-int Image::getBmpMemUsed() const
+int Image::getMemUsed(StorageType st) const
 {
-    return m_pBmp->getMemNeeded(); 
-}
-
-int Image::getTexMemUsed() const
-{
-    if (m_pTex) {
-        return m_pTex->getMemNeeded();
-    } else {
-        return 0;
+    switch(st) {
+        case Image::STORAGE_CPU:
+            return m_pBmp->getMemNeeded();
+        case Image::STORAGE_GPU:
+            if (m_pTex) {
+                return m_pTex->getMemNeeded();
+            } else {
+                return 0;
+            }
+        default:
+            AVG_ASSERT(false);
     }
+
 }
 
-int Image::getBmpRefCount() const
+int Image::getRefCount(StorageType st) const
 {
-    return m_BmpRefCount;
-}
-
-int Image::getTexRefCount() const
-{
-    return m_TexRefCount;
+    switch(st) {
+        case Image::STORAGE_CPU:
+            return m_BmpRefCount;
+        case Image::STORAGE_GPU:
+            return m_TexRefCount;
+        default:
+            AVG_ASSERT(false);
+    }
 }
 
 void Image::dump() const
