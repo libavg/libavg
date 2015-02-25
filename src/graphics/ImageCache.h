@@ -69,6 +69,11 @@ class AVG_API ImageCache
         void assertValid();
 
         typedef std::list<ImagePtr> LRUListType;
+        // This is a list of all loaded images in three partitions:
+        // 1) Images that have both CPU and GPU refcounts > 0
+        // 2) Images that have only CPU refcount > 0
+        // 3) Images that are unused but cached.
+        // The third partition is sorted by LRU.
         LRUListType m_pLRUList;
 #ifdef __APPLE__
         typedef boost::unordered_map<std::string, LRUListType::iterator> ImageMap;

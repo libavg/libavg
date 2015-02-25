@@ -71,9 +71,7 @@ ImagePtr ImageCache::getImage(const std::string& sFilename,
         pImg = *(it->second);
         pImg->incBmpRef(compression);
         // Move item to front of list
-        if (it != m_pImageMap.end()) {
-            m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
-        }
+        m_pLRUList.splice(m_pLRUList.begin(), m_pLRUList, it->second);
     }
     assertValid();
     return pImg;
