@@ -41,8 +41,7 @@ Image::Image(const std::string& sFilename, TextureCompression compression)
     : m_bUseMipmaps(false),
       m_Compression(compression),
       m_BmpRefCount(0),
-      m_TexRefCount(0),
-      m_LRUTime(TimeSource::get()->getCurrentMillisecs())
+      m_TexRefCount(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_sFilename = sFilename;
@@ -99,7 +98,6 @@ void Image::decBmpRef()
     m_BmpRefCount--;
     AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
-        m_LRUTime = TimeSource::get()->getCurrentMillisecs();
         if (m_sFilename != "") {
             ImageCache::get()->onImageUnused(m_sFilename, STORAGE_CPU);
         }
@@ -159,15 +157,6 @@ bool Image::hasTex() const
     return m_pTex != MCTexturePtr();
 }
 
-long long Image::getLRUTime() const
-{
-    if (m_BmpRefCount >= 1 || m_TexRefCount >= 1) {
-        return TimeSource::get()->getCurrentMillisecs();
-    } else {
-        return m_LRUTime;
-    }
-}
-        
 int Image::getMemUsed(StorageType st) const
 {
     switch(st) {
@@ -181,6 +170,7 @@ int Image::getMemUsed(StorageType st) const
             }
         default:
             AVG_ASSERT(false);
+            return 0;
     }
 
 }
@@ -194,6 +184,7 @@ int Image::getRefCount(StorageType st) const
             return m_TexRefCount;
         default:
             AVG_ASSERT(false);
+            return 0;
     }
 }
 

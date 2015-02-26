@@ -61,7 +61,6 @@ class AVG_API Image
         BitmapPtr getBmp();
         MCTexturePtr getTex();
         bool hasTex() const;
-        long long getLRUTime() const;
         int getMemUsed(StorageType st) const;
         int getRefCount(StorageType st) const;
 
@@ -84,7 +83,6 @@ class AVG_API Image
         
         int m_BmpRefCount;
         int m_TexRefCount;
-        long long m_LRUTime;
 };
 
 typedef boost::shared_ptr<Image> ImagePtr;
