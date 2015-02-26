@@ -445,12 +445,12 @@ public:
         TEST(pCache->getNumCPUImages() == 0);
         TEST(pCache->getNumGPUImages() == 0);
         cerr << "    Testing CPU cache" << endl;
-        pCache->setSize(20000, 0);
+        pCache->setCapacity(20000, 0);
         loadImages();
         TEST(pCache->getNumCPUImages() == 1);
         TEST(pCache->getNumGPUImages() == 0);
         cerr << "    Testing GPU cache" << endl;
-        pCache->setSize(20000, 20000);
+        pCache->setCapacity(20000, 20000);
         loadImages();
         TEST(pCache->getNumCPUImages() == 1);
         TEST(pCache->getNumGPUImages() == 1);

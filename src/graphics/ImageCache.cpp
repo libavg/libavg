@@ -39,8 +39,8 @@ ImageCache* ImageCache::get()
 }
 
 ImageCache::ImageCache()
-    : m_CPUCacheSize(0),
-      m_GPUCacheSize(0),
+    : m_CPUCacheCapacity(0),
+      m_GPUCacheCapacity(0),
       m_CPUCacheUsed(0),
       m_GPUCacheUsed(0)
 {
@@ -50,10 +50,10 @@ ImageCache::~ImageCache()
 {
 }
 
-void ImageCache::setSize(long long cpuSize, long long gpuSize)
+void ImageCache::setCapacity(long long cpuCapacity, long long gpuCapacity)
 {
-    m_CPUCacheSize = cpuSize;
-    m_GPUCacheSize = gpuSize;
+    m_CPUCacheCapacity = cpuCapacity;
+    m_GPUCacheCapacity = gpuCapacity;
 }
 
 ImagePtr ImageCache::getImage(const std::string& sFilename,
@@ -154,7 +154,7 @@ void ImageCache::dump() const
 
 void ImageCache::checkCPUUnload()
 {
-    while (m_CPUCacheUsed > m_CPUCacheSize) {
+    while (m_CPUCacheUsed > m_CPUCacheCapacity) {
         ImagePtr pImg = *(m_pLRUList.rbegin());
         if (pImg->getRefCount(Image::STORAGE_CPU) == 0) {
             m_pImageMap.erase(pImg->getFilename());
@@ -172,14 +172,14 @@ void ImageCache::checkCPUUnload()
 
 void ImageCache::checkGPUUnload()
 {
-    if (m_GPUCacheUsed > m_GPUCacheSize) {
+    if (m_GPUCacheUsed > m_GPUCacheCapacity) {
         LRUListType::reverse_iterator it = m_pLRUList.rbegin();
         // Find first item that actually has a texture loaded.
         while (it != m_pLRUList.rend() && !((*it)->hasTex())) {
             it++;
         }
         if (it != m_pLRUList.rend()) {
-            while (m_GPUCacheUsed > m_GPUCacheSize) {
+            while (m_GPUCacheUsed > m_GPUCacheCapacity) {
                 assertValid();
                 ImagePtr pImg = *it;
                 if (pImg->getRefCount(Image::STORAGE_GPU) == 0) {
