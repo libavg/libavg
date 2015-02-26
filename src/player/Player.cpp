@@ -82,6 +82,7 @@
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/Display.h"
 #include "../graphics/GLContextManager.h"
+#include "../graphics/ImageCache.h"
 
 #include "../imaging/Camera.h"
 
@@ -323,6 +324,11 @@ glm::vec2 Player::getPhysicalScreenDimensions()
 void Player::assumePixelsPerMM(float ppmm)
 {
     Display::get()->assumePixelsPerMM(ppmm);
+}
+
+ImageCache* Player::getImageCache()
+{
+    return ImageCache::get();
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)

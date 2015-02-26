@@ -47,8 +47,11 @@ class AVG_API ImageCache
 {
     public:
         static ImageCache* get();
+        virtual ~ImageCache();
 
         void setCapacity(long long cpuCapacity, long long gpuCapacity);
+        long long getCapacity(Image::StorageType st);
+        long long getMemUsed(Image::StorageType st);
         ImagePtr getImage(const std::string& sFilename,
                 Image::TextureCompression compression);
         void onTexLoad(const std::string& sFilename);
@@ -62,7 +65,6 @@ class AVG_API ImageCache
 
     private:
         ImageCache();
-        virtual ~ImageCache();
         void checkCPUUnload();
         void checkGPUUnload();
 

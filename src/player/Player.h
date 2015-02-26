@@ -63,6 +63,7 @@ class TestHelper;
 class InputDevice;
 class Bitmap;
 class AVGNode;
+class ImageCache;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -109,6 +110,7 @@ class AVG_API Player: public Publisher
         float getPixelsPerMM();
         glm::vec2 getPhysicalScreenDimensions();
         void assumePixelsPerMM(float ppmm);
+        ImageCache* getImageCache();
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);

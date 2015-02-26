@@ -57,6 +57,24 @@ void ImageCache::setCapacity(long long cpuCapacity, long long gpuCapacity)
     checkCPUUnload();
 }
 
+long long ImageCache::getCapacity(Image::StorageType st)
+{
+    if (st == Image::STORAGE_CPU) {
+        return m_CPUCacheCapacity;
+    } else {
+        return m_GPUCacheCapacity;
+    }
+}
+
+long long ImageCache::getMemUsed(Image::StorageType st)
+{
+    if (st == Image::STORAGE_CPU) {
+        return m_CPUCacheUsed;
+    } else {
+        return m_GPUCacheUsed;
+    }
+}
+
 ImagePtr ImageCache::getImage(const std::string& sFilename,
         Image::TextureCompression compression)
 {
