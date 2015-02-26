@@ -450,10 +450,19 @@ public:
         TEST(pCache->getNumCPUImages() == 1);
         TEST(pCache->getNumGPUImages() == 0);
         cerr << "    Testing GPU cache" << endl;
-        pCache->setCapacity(20000, 20000);
+        if (GLContext::getMain()->isGLES()) {
+            // GLES size is larger because of POT textures.
+            pCache->setCapacity(20000, 80000);
+        } else {
+            pCache->setCapacity(20000, 20000);
+        }
         loadImages();
         TEST(pCache->getNumCPUImages() == 1);
+        cerr << pCache->getNumGPUImages() << endl;
         TEST(pCache->getNumGPUImages() == 1);
+        pCache->setCapacity(0, 0);
+        TEST(pCache->getNumCPUImages() == 0);
+        TEST(pCache->getNumGPUImages() == 0);
     }
 
 private:
@@ -496,9 +505,8 @@ public:
     GPUTestSuite(const string& sVariant) 
         : TestSuite("GPUTestSuite ("+sVariant+")")
     {
-//        addTest(TestPtr(new TextureMoverTest));
+        addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new ImageCacheTest));
-/*        
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));
@@ -510,7 +518,6 @@ public:
                 addTest(TestPtr(new BandpassFilterTest));
             }
         }
-*/        
     }
 };
 
@@ -546,12 +553,13 @@ int main(int nargs, char** args)
 {
     bool bOK = true;
     try {
+/*
 #ifndef AVG_ENABLE_EGL
         BitmapLoader::init(true);
         bOK = runTests(false, GLConfig::AUTO);
-//        bOK &= runTests(false, GLConfig::MINIMAL);
+        bOK &= runTests(false, GLConfig::MINIMAL);
 #endif
-/*
+        */
         if (GLContextManager::isGLESSupported()) {
             BitmapLoader::init(false);
             bOK &= runTests(true, GLConfig::MINIMAL);
@@ -559,7 +567,6 @@ int main(int nargs, char** args)
             cerr << "Skipping GLES test because GLES isn't supported on this machine."
                     << endl;
         }
-*/        
     } catch (Exception& ex) {
         if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
             cerr << ex.getStr() << endl;

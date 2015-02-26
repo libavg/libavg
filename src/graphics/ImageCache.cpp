@@ -54,6 +54,7 @@ void ImageCache::setCapacity(long long cpuCapacity, long long gpuCapacity)
 {
     m_CPUCacheCapacity = cpuCapacity;
     m_GPUCacheCapacity = gpuCapacity;
+    checkCPUUnload();
 }
 
 ImagePtr ImageCache::getImage(const std::string& sFilename,
@@ -106,11 +107,13 @@ void ImageCache::onImageUnused(const std::string& sFilename, Image::StorageType 
     checkCPUUnload();
 }
 
-void ImageCache::onSizeChange(const std::string& sFilename, int sizeDiff)
+void ImageCache::onSizeChange(int sizeDiff, Image::StorageType st)
 {
-    ImageMap::iterator it = m_pImageMap.find(sFilename);
-    ImagePtr pImg = *(it->second);
-    m_CPUCacheUsed += sizeDiff;
+    if (st == Image::STORAGE_CPU) {
+        m_CPUCacheUsed += sizeDiff;
+    } else {
+        m_GPUCacheUsed += sizeDiff;
+    }
     assertValid();
 }
 
@@ -195,6 +198,7 @@ void ImageCache::checkGPUUnload()
             }
         }
     }
+    assertValid();
 }
 
 void ImageCache::assertValid()

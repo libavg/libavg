@@ -88,7 +88,7 @@ void Image::incBmpRef(TextureCompression compression)
         m_Compression = compression;
         BitmapPtr pBmp = loadBitmap(m_sFilename);
         m_pBmp = applyCompression(pBmp);
-        ImageCache::get()->onSizeChange(m_sFilename, pBmp->getMemNeeded()-oldSize);
+        ImageCache::get()->onSizeChange(pBmp->getMemNeeded()-oldSize, STORAGE_CPU);
     }
 }
 
@@ -118,7 +118,9 @@ void Image::incTexRef(bool bUseMipmaps)
         }
     } else if (bUseMipmaps && !m_bUseMipmaps) {
         m_bUseMipmaps = true;
+        int oldSize = m_pTex->getMemNeeded();
         createTexture();
+        ImageCache::get()->onSizeChange(m_pTex->getMemNeeded()-oldSize, STORAGE_GPU);
     }
 }
 
