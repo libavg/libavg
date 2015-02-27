@@ -553,13 +553,11 @@ int main(int nargs, char** args)
 {
     bool bOK = true;
     try {
-/*
 #ifndef AVG_ENABLE_EGL
         BitmapLoader::init(true);
         bOK = runTests(false, GLConfig::AUTO);
         bOK &= runTests(false, GLConfig::MINIMAL);
 #endif
-        */
         if (GLContextManager::isGLESSupported()) {
             BitmapLoader::init(false);
             bOK &= runTests(true, GLConfig::MINIMAL);
