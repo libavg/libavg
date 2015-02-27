@@ -199,6 +199,7 @@ class ImageTestCase(AVGTestCase):
         cache.capacity = (100000, 100000)
         print cache.getNumImages()
         print cache.getMemUsed()
+        cache.capacity = (0, 0)
 
     def testBitmap(self):
         def getBitmap(node):
