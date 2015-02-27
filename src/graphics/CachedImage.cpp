@@ -51,20 +51,6 @@ CachedImage::CachedImage(const std::string& sFilename, TexCompression compressio
     incBmpRef(m_Compression);
 }
 
-CachedImage::CachedImage(const BitmapPtr& pBmp, TexCompression compression)
-    : m_bUseMipmaps(false),
-      m_Compression(compression),
-      m_BmpRefCount(0),
-      m_TexRefCount(0)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-    m_sFilename = "";
-    m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pBmp->getPixelFormat(), ""));
-    m_pBmp->copyPixels(*pBmp);
-    m_pBmp = applyCompression(m_pBmp);
-    incBmpRef(m_Compression);
-}
-
 CachedImage::~CachedImage()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
@@ -98,9 +84,7 @@ void CachedImage::decBmpRef()
     m_BmpRefCount--;
     AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
     if (m_BmpRefCount == 0 && m_TexRefCount == 0) {
-        if (m_sFilename != "") {
-            ImageCache::get()->onImageUnused(m_sFilename, STORAGE_CPU);
-        }
+        ImageCache::get()->onImageUnused(m_sFilename, STORAGE_CPU);
     }
 }
 
@@ -112,9 +96,7 @@ void CachedImage::incTexRef(bool bUseMipmaps)
         m_bUseMipmaps = bUseMipmaps;
         if (!m_pTex) {
             createTexture();
-            if (m_sFilename != "") {
-                ImageCache::get()->onTexLoad(m_sFilename);
-            }
+            ImageCache::get()->onTexLoad(m_sFilename);
         }
     } else if (bUseMipmaps && !m_bUseMipmaps) {
         m_bUseMipmaps = true;
@@ -129,9 +111,7 @@ void CachedImage::decTexRef()
     AVG_ASSERT(m_TexRefCount >= 1);
     m_TexRefCount--;
     if (m_TexRefCount == 0) {
-        if (m_sFilename != "") {
-            ImageCache::get()->onImageUnused(m_sFilename, STORAGE_GPU);
-        }
+        ImageCache::get()->onImageUnused(m_sFilename, STORAGE_GPU);
     }
 }
 
@@ -212,10 +192,7 @@ BitmapPtr CachedImage::applyCompression(BitmapPtr pBmp)
 
 void CachedImage::createTexture()
 {
-    GLContextManager* pCM = GLContextManager::get();
-    m_pTex = pCM->createTexture(m_pBmp->getSize(),
-            m_pBmp->getPixelFormat(), m_bUseMipmaps);
-    pCM->scheduleTexUpload(m_pTex, m_pBmp);
+    m_pTex = GLContextManager::get()->createTextureFromBmp(m_pBmp, m_bUseMipmaps);
 }
 
 }

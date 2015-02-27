@@ -71,7 +71,8 @@ class AVG_API GPUImage
         Source getSource();
 
     private:
-        void setupSurface();
+        void setupImageSurface();
+        void setupBitmapSurface();
         bool changeSource(Source newSource);
         void unload();
         void assertValid() const;
@@ -79,7 +80,9 @@ class AVG_API GPUImage
         std::string m_sFilename;
         CachedImagePtr m_pImage;
         OGLSurface * m_pSurface;
+
         OffscreenCanvasPtr m_pCanvas;
+        BitmapPtr m_pBmp;
 
         State m_State;
         Source m_Source;

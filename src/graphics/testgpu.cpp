@@ -458,7 +458,6 @@ public:
         }
         loadImages();
         TEST(pCache->getNumCPUImages() == 1);
-        cerr << pCache->getNumGPUImages() << endl;
         TEST(pCache->getNumGPUImages() == 1);
         pCache->setCapacity(0, 0);
         TEST(pCache->getNumCPUImages() == 0);

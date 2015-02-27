@@ -45,7 +45,6 @@ class AVG_API CachedImage
         };
 
         CachedImage(const std::string& sFilename, TexCompression compression);
-        CachedImage(const BitmapPtr& pBmp, TexCompression compression);
         virtual ~CachedImage();
 
         std::string getFilename() const;
