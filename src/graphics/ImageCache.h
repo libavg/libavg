@@ -26,7 +26,7 @@
 
 #include "../base/GLMHelper.h"
 
-#include "Image.h"
+#include "CachedImage.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -50,13 +50,13 @@ class AVG_API ImageCache
         virtual ~ImageCache();
 
         void setCapacity(long long cpuCapacity, long long gpuCapacity);
-        long long getCapacity(Image::StorageType st);
-        long long getMemUsed(Image::StorageType st);
-        ImagePtr getImage(const std::string& sFilename,
-                Image::TextureCompression compression);
+        long long getCapacity(CachedImage::StorageType st);
+        long long getMemUsed(CachedImage::StorageType st);
+        CachedImagePtr getImage(const std::string& sFilename,
+                CachedImage::TextureCompression compression);
         void onTexLoad(const std::string& sFilename);
-        void onImageUnused(const std::string& sFilename, Image::StorageType st);
-        void onSizeChange(int sizeDiff, Image::StorageType st);
+        void onImageUnused(const std::string& sFilename, CachedImage::StorageType st);
+        void onSizeChange(int sizeDiff, CachedImage::StorageType st);
         int getNumCPUImages() const;
         int getNumGPUImages() const;
 
@@ -70,7 +70,7 @@ class AVG_API ImageCache
 
         void assertValid();
 
-        typedef std::list<ImagePtr> LRUListType;
+        typedef std::list<CachedImagePtr> LRUListType;
         // This is a list of all loaded images in three partitions:
         // 1) Images that have both CPU and GPU refcounts > 0
         // 2) Images that have only CPU refcount > 0

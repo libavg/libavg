@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Image_H_
-#define _Image_H_
+#ifndef _CachedImage_H_
+#define _CachedImage_H_
 
 #include "../api.h"
 
@@ -34,7 +34,7 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class MCTexture;
 typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
-class AVG_API Image
+class AVG_API CachedImage
 {
     public:
         enum TextureCompression {
@@ -46,9 +46,9 @@ class AVG_API Image
             STORAGE_GPU
         };
 
-        Image(const std::string& sFilename, TextureCompression compression);
-        Image(const BitmapPtr& pBmp, TextureCompression compression);
-        virtual ~Image();
+        CachedImage(const std::string& sFilename, TextureCompression compression);
+        CachedImage(const BitmapPtr& pBmp, TextureCompression compression);
+        virtual ~CachedImage();
 
         std::string getFilename() const;
 
@@ -85,7 +85,7 @@ class AVG_API Image
         int m_TexRefCount;
 };
 
-typedef boost::shared_ptr<Image> ImagePtr;
+typedef boost::shared_ptr<CachedImage> CachedImagePtr;
 
 }
 

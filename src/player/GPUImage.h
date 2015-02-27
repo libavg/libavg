@@ -27,7 +27,7 @@
 #include "../base/GLMHelper.h"
 
 #include "../graphics/PixelFormat.h"
-#include "../graphics/Image.h"
+#include "../graphics/CachedImage.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -54,9 +54,11 @@ class AVG_API GPUImage
 
         void setEmpty();
         void setFilename(const std::string& sFilename,
-                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+                CachedImage::TextureCompression comp =
+                CachedImage::TEXTURECOMPRESSION_NONE);
         void setBitmap(BitmapPtr pBmp, 
-                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+                CachedImage::TextureCompression comp =
+                CachedImage::TEXTURECOMPRESSION_NONE);
         void setCanvas(OffscreenCanvasPtr pCanvas);
         OffscreenCanvasPtr getCanvas() const;
         const std::string& getFilename() const;
@@ -75,7 +77,7 @@ class AVG_API GPUImage
         void assertValid() const;
 
         std::string m_sFilename;
-        ImagePtr m_pImage;
+        CachedImagePtr m_pImage;
         OGLSurface * m_pSurface;
         OffscreenCanvasPtr m_pCanvas;
 

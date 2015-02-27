@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Image.h"
+#include "CachedImage.h"
 
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
@@ -37,7 +37,7 @@ using namespace std;
 
 namespace avg {
 
-Image::Image(const std::string& sFilename, TextureCompression compression)
+CachedImage::CachedImage(const std::string& sFilename, TextureCompression compression)
     : m_bUseMipmaps(false),
       m_Compression(compression),
       m_BmpRefCount(0),
@@ -51,7 +51,7 @@ Image::Image(const std::string& sFilename, TextureCompression compression)
     incBmpRef(m_Compression);
 }
 
-Image::Image(const BitmapPtr& pBmp, TextureCompression compression)
+CachedImage::CachedImage(const BitmapPtr& pBmp, TextureCompression compression)
     : m_bUseMipmaps(false),
       m_Compression(compression),
       m_BmpRefCount(0),
@@ -65,19 +65,19 @@ Image::Image(const BitmapPtr& pBmp, TextureCompression compression)
     incBmpRef(m_Compression);
 }
 
-Image::~Image()
+CachedImage::~CachedImage()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
     AVG_ASSERT(m_BmpRefCount == 0);
     AVG_ASSERT(m_TexRefCount == 0);
 }
 
-std::string Image::getFilename() const
+std::string CachedImage::getFilename() const
 {
     return m_sFilename;
 }
 
-void Image::incBmpRef(TextureCompression compression)
+void CachedImage::incBmpRef(TextureCompression compression)
 {
     m_BmpRefCount++;
     if (compression == TEXTURECOMPRESSION_NONE &&
@@ -92,7 +92,7 @@ void Image::incBmpRef(TextureCompression compression)
     }
 }
 
-void Image::decBmpRef()
+void CachedImage::decBmpRef()
 {
     AVG_ASSERT(m_BmpRefCount >= 1);
     m_BmpRefCount--;
@@ -104,7 +104,7 @@ void Image::decBmpRef()
     }
 }
 
-void Image::incTexRef(bool bUseMipmaps)
+void CachedImage::incTexRef(bool bUseMipmaps)
 {
     m_TexRefCount++;
     AVG_ASSERT(m_TexRefCount <= m_BmpRefCount);
@@ -124,7 +124,7 @@ void Image::incTexRef(bool bUseMipmaps)
     }
 }
 
-void Image::decTexRef()
+void CachedImage::decTexRef()
 {
     AVG_ASSERT(m_TexRefCount >= 1);
     m_TexRefCount--;
@@ -135,36 +135,36 @@ void Image::decTexRef()
     }
 }
 
-void Image::unloadTex()
+void CachedImage::unloadTex()
 {
     AVG_ASSERT(m_TexRefCount == 0);
     AVG_ASSERT(m_pTex);
     m_pTex = MCTexturePtr();
 }
 
-BitmapPtr Image::getBmp()
+BitmapPtr CachedImage::getBmp()
 {
     AVG_ASSERT(m_BmpRefCount >= 1);
     return m_pBmp;
 }
 
-MCTexturePtr Image::getTex()
+MCTexturePtr CachedImage::getTex()
 {
     AVG_ASSERT(m_TexRefCount >= 1);
     return m_pTex;
 }
 
-bool Image::hasTex() const
+bool CachedImage::hasTex() const
 {
     return m_pTex != MCTexturePtr();
 }
 
-int Image::getMemUsed(StorageType st) const
+int CachedImage::getMemUsed(StorageType st) const
 {
     switch(st) {
-        case Image::STORAGE_CPU:
+        case CachedImage::STORAGE_CPU:
             return m_pBmp->getMemNeeded();
-        case Image::STORAGE_GPU:
+        case CachedImage::STORAGE_GPU:
             if (m_pTex) {
                 return m_pTex->getMemNeeded();
             } else {
@@ -177,12 +177,12 @@ int Image::getMemUsed(StorageType st) const
 
 }
 
-int Image::getRefCount(StorageType st) const
+int CachedImage::getRefCount(StorageType st) const
 {
     switch(st) {
-        case Image::STORAGE_CPU:
+        case CachedImage::STORAGE_CPU:
             return m_BmpRefCount;
-        case Image::STORAGE_GPU:
+        case CachedImage::STORAGE_GPU:
             return m_TexRefCount;
         default:
             AVG_ASSERT(false);
@@ -190,30 +190,30 @@ int Image::getRefCount(StorageType st) const
     }
 }
 
-void Image::dump() const
+void CachedImage::dump() const
 {
     cerr << "  " << m_sFilename << ": " << m_BmpRefCount << ", " << m_TexRefCount
             << ", " << hasTex() << endl;
 }
 
-Image::TextureCompression Image::string2compression(const string& s)
+CachedImage::TextureCompression CachedImage::string2compression(const string& s)
 {
     if (s == "none") {
-        return Image::TEXTURECOMPRESSION_NONE;
+        return CachedImage::TEXTURECOMPRESSION_NONE;
     } else if (s == "B5G6R5") {
-        return Image::TEXTURECOMPRESSION_B5G6R5;
+        return CachedImage::TEXTURECOMPRESSION_B5G6R5;
     } else {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "GPUImage compression "+s+" not supported."));
+                "Image compression "+s+" not supported."));
     }
 }
 
-string Image::compression2String(TextureCompression compression)
+string CachedImage::compression2String(TextureCompression compression)
 {
     switch(compression) {
-        case Image::TEXTURECOMPRESSION_NONE:
+        case CachedImage::TEXTURECOMPRESSION_NONE:
             return "none";
-        case Image::TEXTURECOMPRESSION_B5G6R5:
+        case CachedImage::TEXTURECOMPRESSION_B5G6R5:
             return "B5G6R5";
         default:
             AVG_ASSERT(false);
@@ -221,7 +221,7 @@ string Image::compression2String(TextureCompression compression)
     }
 }
 
-BitmapPtr Image::applyCompression(BitmapPtr pBmp)
+BitmapPtr CachedImage::applyCompression(BitmapPtr pBmp)
 {
     if (m_Compression == TEXTURECOMPRESSION_B5G6R5) {
         BitmapPtr pDestBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, m_sFilename));
@@ -235,7 +235,7 @@ BitmapPtr Image::applyCompression(BitmapPtr pBmp)
     }
 }
 
-void Image::createTexture()
+void CachedImage::createTexture()
 {
     GLContextManager* pCM = GLContextManager::get();
     m_pTex = pCM->createTexture(m_pBmp->getSize(),

@@ -186,8 +186,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads, BitmapManager::load
 
 static bp::object ImageCache_GetCapacity(ImageCache* pCache)
 {
-    return bp::make_tuple(pCache->getCapacity(Image::STORAGE_CPU),
-            pCache->getCapacity(Image::STORAGE_GPU));
+    return bp::make_tuple(pCache->getCapacity(CachedImage::STORAGE_CPU),
+            pCache->getCapacity(CachedImage::STORAGE_GPU));
 }
 
 static void ImageCache_SetCapacity(ImageCache* pCache, const bp::tuple& cap)
@@ -204,8 +204,8 @@ static bp::object ImageCache_GetNumImages(ImageCache* pCache)
 
 static bp::object ImageCache_GetMemUsed(ImageCache* pCache)
 {
-    return bp::make_tuple(pCache->getMemUsed(Image::STORAGE_CPU),
-            pCache->getMemUsed(Image::STORAGE_GPU));
+    return bp::make_tuple(pCache->getMemUsed(CachedImage::STORAGE_CPU),
+            pCache->getMemUsed(CachedImage::STORAGE_GPU));
 }
 
 void export_bitmap()

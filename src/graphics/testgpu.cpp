@@ -36,7 +36,7 @@
 #include "BmpTextureMover.h"
 #include "PBO.h"
 #include "ImageCache.h"
-#include "Image.h"
+#include "CachedImage.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -470,20 +470,20 @@ private:
     {
         GLContextManager* pCM = GLContextManager::get();
         ImageCache* pCache = ImageCache::get();
-        ImagePtr pImage1a = pCache->getImage(getTestBmpName("rgb24-65x65"),
-                Image::TEXTURECOMPRESSION_NONE);
+        CachedImagePtr pImage1a = pCache->getImage(getTestBmpName("rgb24-65x65"),
+                CachedImage::TEXTURECOMPRESSION_NONE);
         TEST(pCache->getNumCPUImages() == 1);
-        ImagePtr pImage1b = pCache->getImage(getTestBmpName("rgb24-65x65"),
-                Image::TEXTURECOMPRESSION_NONE);
+        CachedImagePtr pImage1b = pCache->getImage(getTestBmpName("rgb24-65x65"),
+                CachedImage::TEXTURECOMPRESSION_NONE);
         TEST(pCache->getNumCPUImages() == 1);
         BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
         BitmapPtr pBmp = pImage1b->getBmp();
         testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
-        ImagePtr pImage2a = pCache->getImage(getTestBmpName("rgb24-64x64"),
-                Image::TEXTURECOMPRESSION_B5G6R5);
+        CachedImagePtr pImage2a = pCache->getImage(getTestBmpName("rgb24-64x64"),
+                CachedImage::TEXTURECOMPRESSION_B5G6R5);
         TEST(pCache->getNumCPUImages() == 2);
-        ImagePtr pImage2b = pCache->getImage(getTestBmpName("rgb24-64x64"),
-                Image::TEXTURECOMPRESSION_NONE);
+        CachedImagePtr pImage2b = pCache->getImage(getTestBmpName("rgb24-64x64"),
+                CachedImage::TEXTURECOMPRESSION_NONE);
 
         pImage2b->decBmpRef();
         pImage2a->decBmpRef();

@@ -27,7 +27,6 @@
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/ImageCache.h"
-#include "../graphics/Image.h"
 #include "../graphics/GLContextManager.h"
 
 #include "OGLSurface.h"
@@ -101,12 +100,13 @@ void GPUImage::setEmpty()
     assertValid();
 }
 
-void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompression comp)
+void GPUImage::setFilename(const std::string& sFilename,
+        CachedImage::TextureCompression comp)
 {
     assertValid();
-    ImagePtr pImage = ImageCache::get()->getImage(sFilename, comp);
+    CachedImagePtr pImage = ImageCache::get()->getImage(sFilename, comp);
     BitmapPtr pBmp = pImage->getBmp();
-    if (comp == Image::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+    if (comp == CachedImage::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         pImage->decBmpRef();
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
@@ -124,19 +124,19 @@ void GPUImage::setFilename(const std::string& sFilename, Image::TextureCompressi
     assertValid();
 }
 
-void GPUImage::setBitmap(BitmapPtr pBmp, Image::TextureCompression comp)
+void GPUImage::setBitmap(BitmapPtr pBmp, CachedImage::TextureCompression comp)
 {
     assertValid();
     if (!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
     }
-    if (comp == Image::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+    if (comp == CachedImage::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
     unload();
     changeSource(BITMAP);
-    m_pImage = ImagePtr(new Image(pBmp, comp));
+    m_pImage = CachedImagePtr(new CachedImage(pBmp, comp));
     if (m_State == GPU) {
         setupSurface();
     }
@@ -262,7 +262,7 @@ void GPUImage::unload()
             m_pSurface->destroy();
         }
         m_pImage->decBmpRef();
-        m_pImage = ImagePtr();
+        m_pImage = CachedImagePtr();
     }
     if (m_State == GPU && m_Source != NONE) {
         m_pSurface->destroy();

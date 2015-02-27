@@ -57,34 +57,34 @@ void ImageCache::setCapacity(long long cpuCapacity, long long gpuCapacity)
     checkCPUUnload();
 }
 
-long long ImageCache::getCapacity(Image::StorageType st)
+long long ImageCache::getCapacity(CachedImage::StorageType st)
 {
-    if (st == Image::STORAGE_CPU) {
+    if (st == CachedImage::STORAGE_CPU) {
         return m_CPUCacheCapacity;
     } else {
         return m_GPUCacheCapacity;
     }
 }
 
-long long ImageCache::getMemUsed(Image::StorageType st)
+long long ImageCache::getMemUsed(CachedImage::StorageType st)
 {
-    if (st == Image::STORAGE_CPU) {
+    if (st == CachedImage::STORAGE_CPU) {
         return m_CPUCacheUsed;
     } else {
         return m_GPUCacheUsed;
     }
 }
 
-ImagePtr ImageCache::getImage(const std::string& sFilename,
-        Image::TextureCompression compression)
+CachedImagePtr ImageCache::getImage(const std::string& sFilename,
+        CachedImage::TextureCompression compression)
 {
     ImageMap::iterator it = m_pImageMap.find(sFilename);
-    ImagePtr pImg;
+    CachedImagePtr pImg;
     if (it == m_pImageMap.end()) {
-        pImg = ImagePtr(new Image(sFilename, compression));
+        pImg = CachedImagePtr(new CachedImage(sFilename, compression));
         m_pLRUList.push_front(pImg);
         m_pImageMap.insert(make_pair(sFilename, m_pLRUList.begin()));
-        m_CPUCacheUsed += pImg->getMemUsed(Image::STORAGE_CPU);
+        m_CPUCacheUsed += pImg->getMemUsed(CachedImage::STORAGE_CPU);
         checkCPUUnload();
     } else {
         pImg = *(it->second);
@@ -98,8 +98,8 @@ ImagePtr ImageCache::getImage(const std::string& sFilename,
 
 void ImageCache::onTexLoad(const std::string& sFilename)
 {
-    ImagePtr pImg = *(m_pImageMap[sFilename]);
-    m_GPUCacheUsed += pImg->getMemUsed(Image::STORAGE_GPU);
+    CachedImagePtr pImg = *(m_pImageMap[sFilename]);
+    m_GPUCacheUsed += pImg->getMemUsed(CachedImage::STORAGE_GPU);
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     // Move item to front of list
     if (it != m_pImageMap.end()) {
@@ -108,7 +108,7 @@ void ImageCache::onTexLoad(const std::string& sFilename)
     checkGPUUnload();
 }
 
-void ImageCache::onImageUnused(const std::string& sFilename, Image::StorageType st)
+void ImageCache::onImageUnused(const std::string& sFilename, CachedImage::StorageType st)
 {
     // Move image to first pos with use count == 0
     // This is currently O(n). If that becomes an issue, we need to remember the first
@@ -125,9 +125,9 @@ void ImageCache::onImageUnused(const std::string& sFilename, Image::StorageType 
     checkCPUUnload();
 }
 
-void ImageCache::onSizeChange(int sizeDiff, Image::StorageType st)
+void ImageCache::onSizeChange(int sizeDiff, CachedImage::StorageType st)
 {
-    if (st == Image::STORAGE_CPU) {
+    if (st == CachedImage::STORAGE_CPU) {
         m_CPUCacheUsed += sizeDiff;
     } else {
         m_GPUCacheUsed += sizeDiff;
@@ -154,10 +154,10 @@ int ImageCache::getNumGPUImages() const
 void ImageCache::unloadAllTextures()
 {
     for (LRUListType::const_iterator it=m_pLRUList.begin(); it!=m_pLRUList.end(); ++it) {
-        ImagePtr pImg = *it;
-        AVG_ASSERT(pImg->getRefCount(Image::STORAGE_GPU) == 0);
+        CachedImagePtr pImg = *it;
+        AVG_ASSERT(pImg->getRefCount(CachedImage::STORAGE_GPU) == 0);
         if (pImg->hasTex()) {
-            m_GPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_GPU);
+            m_GPUCacheUsed -= pImg->getMemUsed(CachedImage::STORAGE_GPU);
             pImg->unloadTex();
         }
     }
@@ -176,12 +176,12 @@ void ImageCache::dump() const
 void ImageCache::checkCPUUnload()
 {
     while (m_CPUCacheUsed > m_CPUCacheCapacity) {
-        ImagePtr pImg = *(m_pLRUList.rbegin());
-        if (pImg->getRefCount(Image::STORAGE_CPU) == 0) {
+        CachedImagePtr pImg = *(m_pLRUList.rbegin());
+        if (pImg->getRefCount(CachedImage::STORAGE_CPU) == 0) {
             m_pImageMap.erase(pImg->getFilename());
             m_pLRUList.pop_back();
-            m_CPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_CPU);
-            m_GPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_GPU);
+            m_CPUCacheUsed -= pImg->getMemUsed(CachedImage::STORAGE_CPU);
+            m_GPUCacheUsed -= pImg->getMemUsed(CachedImage::STORAGE_GPU);
         } else {
             // Cache full, but everything's in use.
             break;
@@ -202,10 +202,10 @@ void ImageCache::checkGPUUnload()
         if (it != m_pLRUList.rend()) {
             while (m_GPUCacheUsed > m_GPUCacheCapacity) {
                 assertValid();
-                ImagePtr pImg = *it;
-                if (pImg->getRefCount(Image::STORAGE_GPU) == 0) {
+                CachedImagePtr pImg = *it;
+                if (pImg->getRefCount(CachedImage::STORAGE_GPU) == 0) {
                     if (pImg->hasTex()) {
-                        m_GPUCacheUsed -= pImg->getMemUsed(Image::STORAGE_GPU);
+                        m_GPUCacheUsed -= pImg->getMemUsed(CachedImage::STORAGE_GPU);
                         pImg->unloadTex();
                     }
                     ++it;
