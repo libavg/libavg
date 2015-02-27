@@ -47,7 +47,8 @@ public:
     static bool isGLESSupported();
 
 protected:
-    XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig);
+    XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig,
+            bool bOwnsDisplay);
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
@@ -65,6 +66,7 @@ private:
 
     Colormap m_Colormap;
     ::Display* m_pDisplay;
+    bool m_bOwnsDisplay;
     ::GLXContext m_Context;
     GLXDrawable m_Drawable;
 

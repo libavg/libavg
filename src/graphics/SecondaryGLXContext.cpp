@@ -68,7 +68,7 @@ void SecondaryGLXContext::createContext(GLConfig& glConfig, const string& sDispl
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Display '" + sDisplay + "' is not available.");
     }
-    XVisualInfo* pVisualInfo = createDetachedContext(pDisplay, glConfig);
+    XVisualInfo* pVisualInfo = createDetachedContext(pDisplay, glConfig, true);
     
     XSetWindowAttributes swa;
     swa.event_mask = ButtonPressMask;

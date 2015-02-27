@@ -58,7 +58,8 @@ void SDLGLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowS
 {
     Window win = 0;
     setX11ErrorHandler();
-    XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(pSDLWMInfo), glConfig);
+    XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(pSDLWMInfo), glConfig,
+            (pSDLWMInfo == 0));
 
     if (pSDLWMInfo) {
         win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, getColormap());

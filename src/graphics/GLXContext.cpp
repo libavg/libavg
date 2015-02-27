@@ -47,6 +47,7 @@ static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 GLXContext::GLXContext(const IntPoint& windowSize)
     : GLContext(windowSize),
       m_pDisplay(0),
+      m_bOwnsDisplay(false),
       m_Context(0),
       m_bVBlankActive(false)
 {
@@ -61,6 +62,9 @@ GLXContext::~GLXContext()
         glXDestroyContext(m_pDisplay, m_Context);
         m_Context = 0;
         XFreeColormap(m_pDisplay, m_Colormap);
+    }
+    if (m_bOwnsDisplay) {
+        XCloseDisplay(m_pDisplay);
     }
 }
 
@@ -131,9 +135,11 @@ bool GLXContext::isGLESSupported()
  
 }
 
-XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig)
+XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig,
+        bool bOwnsDisplay)
 {
     m_pDisplay = pDisplay;
+    m_bOwnsDisplay = bOwnsDisplay;
     GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig);
     XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
 
