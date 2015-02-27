@@ -57,12 +57,11 @@ void ImageNode::registerType()
 }
 
 ImageNode::ImageNode(const ArgList& args)
-    : m_Compression(CachedImage::TEXTURECOMPRESSION_NONE)
+    : m_Compression(TEXCOMPRESSION_NONE)
 {
     args.setMembers(this);
     m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMipmap()));
-    m_Compression = CachedImage::string2compression(
-            args.getArgVal<string>("compression"));
+    m_Compression = string2TexCompression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -137,7 +136,7 @@ void ImageNode::setHRef(const UTF8String& href)
 
 const string ImageNode::getCompression() const
 {
-    return CachedImage::compression2String(m_Compression);
+    return texCompression2String(m_Compression);
 }
 
 void ImageNode::setBitmap(BitmapPtr pBmp)
@@ -188,7 +187,7 @@ IntPoint ImageNode::getMediaSize()
 void ImageNode::checkReload()
 {
     if (isCanvasURL(m_href)) {
-        if (m_Compression != CachedImage::TEXTURECOMPRESSION_NONE) {
+        if (m_Compression != TEXCOMPRESSION_NONE) {
             throw Exception(AVG_ERR_UNSUPPORTED, 
                     "Texture compression can't be used with canvas hrefs.");
         }

@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "RasterNode.h"
-#include "../graphics/CachedImage.h"
+#include "../graphics/TexInfo.h"
 
 #include "../base/UTF8String.h"
 
@@ -68,7 +68,7 @@ class AVG_API ImageNode : public RasterNode
         void checkCanvasValid(const CanvasPtr& pCanvas);
 
         UTF8String m_href;
-        CachedImage::TextureCompression m_Compression;
+        TexCompression m_Compression;
         GPUImagePtr m_pGPUImage;
 };
 

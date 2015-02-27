@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "TexInfo.h"
+
 #include <boost/shared_ptr.hpp>
 #include <string>
 
@@ -37,22 +39,18 @@ typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 class AVG_API CachedImage
 {
     public:
-        enum TextureCompression {
-            TEXTURECOMPRESSION_NONE,
-            TEXTURECOMPRESSION_B5G6R5
-        };
         enum StorageType {
             STORAGE_CPU,
             STORAGE_GPU
         };
 
-        CachedImage(const std::string& sFilename, TextureCompression compression);
-        CachedImage(const BitmapPtr& pBmp, TextureCompression compression);
+        CachedImage(const std::string& sFilename, TexCompression compression);
+        CachedImage(const BitmapPtr& pBmp, TexCompression compression);
         virtual ~CachedImage();
 
         std::string getFilename() const;
 
-        void incBmpRef(TextureCompression compression);
+        void incBmpRef(TexCompression compression);
         void decBmpRef();
         void incTexRef(bool bUseMipmaps);
         void decTexRef();
@@ -63,9 +61,6 @@ class AVG_API CachedImage
         bool hasTex() const;
         int getMemUsed(StorageType st) const;
         int getRefCount(StorageType st) const;
-
-        static TextureCompression string2compression(const std::string& s);
-        static std::string compression2String(TextureCompression compression);
 
         void dump() const;
 
@@ -79,7 +74,7 @@ class AVG_API CachedImage
         MCTexturePtr m_pTex;
 
         bool m_bUseMipmaps;
-        TextureCompression m_Compression;
+        TexCompression m_Compression;
         
         int m_BmpRefCount;
         int m_TexRefCount;

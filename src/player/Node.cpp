@@ -470,7 +470,7 @@ void Node::initFilename(string& sFilename)
 }
 
 bool Node::checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
-        CachedImage::TextureCompression comp)
+        TexCompression comp)
 {
     string sLastFilename = pGPUImage->getFilename();
     string sFilename = sHRef;

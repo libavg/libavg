@@ -27,6 +27,7 @@
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/ImageCache.h"
+#include "../graphics/CachedImage.h"
 #include "../graphics/GLContextManager.h"
 
 #include "OGLSurface.h"
@@ -100,13 +101,12 @@ void GPUImage::setEmpty()
     assertValid();
 }
 
-void GPUImage::setFilename(const std::string& sFilename,
-        CachedImage::TextureCompression comp)
+void GPUImage::setFilename(const std::string& sFilename, TexCompression comp)
 {
     assertValid();
     CachedImagePtr pImage = ImageCache::get()->getImage(sFilename, comp);
     BitmapPtr pBmp = pImage->getBmp();
-    if (comp == CachedImage::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+    if (comp == TEXCOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         pImage->decBmpRef();
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
@@ -124,13 +124,13 @@ void GPUImage::setFilename(const std::string& sFilename,
     assertValid();
 }
 
-void GPUImage::setBitmap(BitmapPtr pBmp, CachedImage::TextureCompression comp)
+void GPUImage::setBitmap(BitmapPtr pBmp, TexCompression comp)
 {
     assertValid();
     if (!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
     }
-    if (comp == CachedImage::TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+    if (comp == TEXCOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "B5G6R5-compressed textures with an alpha channel are not supported.");
     }

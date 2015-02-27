@@ -28,7 +28,7 @@
 #include "Event.h"
 
 #include "../graphics/Pixel32.h"
-#include "../graphics/CachedImage.h"
+#include "../graphics/TexInfo.h"
 
 #include "../base/GLMHelper.h"
 
@@ -139,8 +139,7 @@ class AVG_API Node: public Publisher
         void setState(NodeState state);
         void initFilename(std::string& sFilename);
         bool checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
-                CachedImage::TextureCompression comp =
-                CachedImage::TEXTURECOMPRESSION_NONE);
+                TexCompression comp=TEXCOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
         NodePtr getSharedThis();

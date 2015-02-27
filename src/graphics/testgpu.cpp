@@ -471,19 +471,19 @@ private:
         GLContextManager* pCM = GLContextManager::get();
         ImageCache* pCache = ImageCache::get();
         CachedImagePtr pImage1a = pCache->getImage(getTestBmpName("rgb24-65x65"),
-                CachedImage::TEXTURECOMPRESSION_NONE);
+                TEXCOMPRESSION_NONE);
         TEST(pCache->getNumCPUImages() == 1);
         CachedImagePtr pImage1b = pCache->getImage(getTestBmpName("rgb24-65x65"),
-                CachedImage::TEXTURECOMPRESSION_NONE);
+                TEXCOMPRESSION_NONE);
         TEST(pCache->getNumCPUImages() == 1);
         BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
         BitmapPtr pBmp = pImage1b->getBmp();
         testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
         CachedImagePtr pImage2a = pCache->getImage(getTestBmpName("rgb24-64x64"),
-                CachedImage::TEXTURECOMPRESSION_B5G6R5);
+                TEXCOMPRESSION_B5G6R5);
         TEST(pCache->getNumCPUImages() == 2);
         CachedImagePtr pImage2b = pCache->getImage(getTestBmpName("rgb24-64x64"),
-                CachedImage::TEXTURECOMPRESSION_NONE);
+                TEXCOMPRESSION_NONE);
 
         pImage2b->decBmpRef();
         pImage2a->decBmpRef();

@@ -76,7 +76,7 @@ long long ImageCache::getMemUsed(CachedImage::StorageType st)
 }
 
 CachedImagePtr ImageCache::getImage(const std::string& sFilename,
-        CachedImage::TextureCompression compression)
+        TexCompression compression)
 {
     ImageMap::iterator it = m_pImageMap.find(sFilename);
     CachedImagePtr pImg;

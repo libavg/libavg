@@ -27,6 +27,7 @@
 #include "../base/GLMHelper.h"
 
 #include "CachedImage.h"
+#include "TexInfo.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -53,7 +54,7 @@ class AVG_API ImageCache
         long long getCapacity(CachedImage::StorageType st);
         long long getMemUsed(CachedImage::StorageType st);
         CachedImagePtr getImage(const std::string& sFilename,
-                CachedImage::TextureCompression compression);
+                TexCompression compression);
         void onTexLoad(const std::string& sFilename);
         void onImageUnused(const std::string& sFilename, CachedImage::StorageType st);
         void onSizeChange(int sizeDiff, CachedImage::StorageType st);

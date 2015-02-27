@@ -37,7 +37,7 @@ using namespace std;
 
 namespace avg {
 
-CachedImage::CachedImage(const std::string& sFilename, TextureCompression compression)
+CachedImage::CachedImage(const std::string& sFilename, TexCompression compression)
     : m_bUseMipmaps(false),
       m_Compression(compression),
       m_BmpRefCount(0),
@@ -51,7 +51,7 @@ CachedImage::CachedImage(const std::string& sFilename, TextureCompression compre
     incBmpRef(m_Compression);
 }
 
-CachedImage::CachedImage(const BitmapPtr& pBmp, TextureCompression compression)
+CachedImage::CachedImage(const BitmapPtr& pBmp, TexCompression compression)
     : m_bUseMipmaps(false),
       m_Compression(compression),
       m_BmpRefCount(0),
@@ -77,11 +77,11 @@ std::string CachedImage::getFilename() const
     return m_sFilename;
 }
 
-void CachedImage::incBmpRef(TextureCompression compression)
+void CachedImage::incBmpRef(TexCompression compression)
 {
     m_BmpRefCount++;
-    if (compression == TEXTURECOMPRESSION_NONE &&
-            m_Compression == TEXTURECOMPRESSION_B5G6R5)
+    if (compression == TEXCOMPRESSION_NONE &&
+            m_Compression == TEXCOMPRESSION_B5G6R5)
     {
         // Reload from disk, making sure the cache knows about the size change
         int oldSize = m_pBmp->getMemNeeded();
@@ -196,34 +196,9 @@ void CachedImage::dump() const
             << ", " << hasTex() << endl;
 }
 
-CachedImage::TextureCompression CachedImage::string2compression(const string& s)
-{
-    if (s == "none") {
-        return CachedImage::TEXTURECOMPRESSION_NONE;
-    } else if (s == "B5G6R5") {
-        return CachedImage::TEXTURECOMPRESSION_B5G6R5;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Image compression "+s+" not supported."));
-    }
-}
-
-string CachedImage::compression2String(TextureCompression compression)
-{
-    switch(compression) {
-        case CachedImage::TEXTURECOMPRESSION_NONE:
-            return "none";
-        case CachedImage::TEXTURECOMPRESSION_B5G6R5:
-            return "B5G6R5";
-        default:
-            AVG_ASSERT(false);
-            return 0;
-    }
-}
-
 BitmapPtr CachedImage::applyCompression(BitmapPtr pBmp)
 {
-    if (m_Compression == TEXTURECOMPRESSION_B5G6R5) {
+    if (m_Compression == TEXCOMPRESSION_B5G6R5) {
         BitmapPtr pDestBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, m_sFilename));
         if (!BitmapLoader::get()->isBlueFirst()) {
             FilterFlipRGB().applyInPlace(pBmp);
