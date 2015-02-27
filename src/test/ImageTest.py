@@ -193,13 +193,14 @@ class ImageTestCase(AVGTestCase):
                 ))
 
     def testImageCache(self):
-#        root = self.loadEmptyScene()
         cache = player.imageCache
-        print cache.capacity
+        oldCapacity = cache.capacity
         cache.capacity = (100000, 100000)
-        print cache.getNumImages()
-        print cache.getMemUsed()
+        self.assert_(cache.capacity == (100000,100000))
         cache.capacity = (0, 0)
+        self.assert_(cache.getNumImages() == (0,0))
+        self.assert_(cache.getMemUsed() == (0,0))
+        cache.capacity = oldCapacity
 
     def testBitmap(self):
         def getBitmap(node):
