@@ -58,7 +58,6 @@ Window::Window(const WindowParams& wp, bool bIsFullscreen)
 Window::~Window()
 {
     if (m_pGLContext) {
-        ImageCache::get()->unloadAllTextures();
         delete m_pGLContext;
         m_pGLContext = 0;
     }

@@ -1772,6 +1772,8 @@ void Player::cleanup(bool bIsAbort)
             m_pDisplayEngine = DisplayEnginePtr();
         }
     }
+
+    ImageCache::get()->unloadAllTextures();
     if (AudioEngine::get()) {
         AudioEngine::get()->teardown();
     }
