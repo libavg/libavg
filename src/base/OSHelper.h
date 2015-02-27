@@ -37,7 +37,7 @@ bool getEnv(const std::string & sName, std::string & sVal);
 void setEnv(const std::string & sName, const std::string & sVal);
 
 size_t getMemoryUsage();
-size_t getPhysMemorySize();
+long long getPhysMemorySize();
 
 // Converts a utf-8-encoded filename to something windows can use.
 // Under other operating systems, returns the input string.

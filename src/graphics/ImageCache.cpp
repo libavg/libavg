@@ -42,7 +42,7 @@ ImageCache::ImageCache()
     : m_CPUCacheUsed(0),
       m_GPUCacheUsed(0)
 {
-    m_CPUCacheCapacity = getPhysMemorySize()/4;
+    m_CPUCacheCapacity = (long long)(getPhysMemorySize())/4;
     m_GPUCacheCapacity = 16*1024*1024;
 }
 

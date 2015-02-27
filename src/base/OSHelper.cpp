@@ -251,26 +251,26 @@ size_t getMemoryUsage()
 #endif
 }
 
-size_t getPhysMemorySize()
+long long getPhysMemorySize()
 {
 #ifdef _WIN32
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx( &status );
-    return (size_t)status.ullTotalPhys;
+    return (long long)status.ullTotalPhys;
 #else
 #ifdef __linux__
     long numPages = sysconf(_SC_PHYS_PAGES);
     long pageSize = sysconf(_SC_PAGE_SIZE);
     AVG_ASSERT(numPages != -1 && pageSize != -1);
-    return size_t(numPages) * size_t(pageSize);
+    return (long long)(numPages) * pageSize;
 #else
 #ifdef __APPLE__
     size_t physMemSize;
     size_t len = sizeof(physMemSize);
     int rc = sysctlbyname("hw.memsize", &physMemSize, &len, 0, 0);
     AVG_ASSERT(rc != -1);
-    return physMemSize;
+    return (long long)physMemSize;
 #endif
 #endif
 #endif
