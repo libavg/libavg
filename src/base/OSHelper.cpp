@@ -250,6 +250,23 @@ size_t getMemoryUsage()
 #endif
 }
 
+size_t getPhysMemorySize()
+{
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx( &status );
+    return (size_t)status.ullTotalPhys;
+#else
+#if defined(__linux__) || defined(__APPLE__)
+    long numPages = sysconf(_SC_PHYS_PAGES);
+    long pageSize = sysconf(_SC_PAGE_SIZE);
+    AVG_ASSERT(numPages != -1 && pageSize != -1);
+    return size_t(numPages) * size_t(pageSize);
+#endif
+#endif
+}
+
 std::string convertUTF8ToFilename(const std::string & sName)
 {
 #ifdef _WIN32

@@ -525,6 +525,8 @@ public:
 #ifdef __APPLE__
         TEST(getMemoryUsage() != 0);
 #endif
+        cerr << "Memory: " << getPhysMemorySize() << endl;
+        TEST(getPhysMemorySize() != 0);
     }
 };
 
