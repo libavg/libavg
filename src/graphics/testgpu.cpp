@@ -441,6 +441,7 @@ public:
     {
         ImageCache* pCache = ImageCache::get();
         cerr << "    Testing no cache" << endl;
+        pCache->setCapacity(0, 0);
         loadImages();
         TEST(pCache->getNumCPUImages() == 0);
         TEST(pCache->getNumGPUImages() == 0);

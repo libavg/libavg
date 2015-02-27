@@ -22,6 +22,7 @@
 #include "ImageCache.h"
 
 #include "../base/Exception.h"
+#include "../base/OSHelper.h"
 
 using namespace std;
 
@@ -31,7 +32,6 @@ ImageCache * ImageCache::s_pImageCache = 0;
     
 ImageCache* ImageCache::get() 
 {
-    
     if (s_pImageCache == 0) {
         s_pImageCache = new ImageCache();
     }
@@ -39,11 +39,11 @@ ImageCache* ImageCache::get()
 }
 
 ImageCache::ImageCache()
-    : m_CPUCacheCapacity(0),
-      m_GPUCacheCapacity(0),
-      m_CPUCacheUsed(0),
+    : m_CPUCacheUsed(0),
       m_GPUCacheUsed(0)
 {
+    m_CPUCacheCapacity = getPhysMemorySize()/4;
+    m_GPUCacheCapacity = 16*1024*1024;
 }
 
 ImageCache::~ImageCache()
