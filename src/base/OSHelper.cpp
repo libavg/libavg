@@ -34,6 +34,7 @@
 #include <mach/mach.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include <sys/sysctl.h>
 #elif defined(__linux__)
 #include <fstream>
 #include <unistd.h>
@@ -258,11 +259,19 @@ size_t getPhysMemorySize()
     GlobalMemoryStatusEx( &status );
     return (size_t)status.ullTotalPhys;
 #else
-#if defined(__linux__) || defined(__APPLE__)
+#ifdef __linux__
     long numPages = sysconf(_SC_PHYS_PAGES);
     long pageSize = sysconf(_SC_PAGE_SIZE);
     AVG_ASSERT(numPages != -1 && pageSize != -1);
     return size_t(numPages) * size_t(pageSize);
+#else
+#ifdef __APPLE__
+    size_t physMemSize;
+    size_t len = sizeof(physMemSize);
+    int rc = sysctlbyname("hw.memsize", &physMemSize, &len, 0, 0);
+    AVG_ASSERT(rc != -1);
+    return physMemSize;
+#endif
 #endif
 #endif
 }
