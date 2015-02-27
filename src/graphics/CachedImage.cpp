@@ -66,8 +66,7 @@ std::string CachedImage::getFilename() const
 void CachedImage::incBmpRef(TexCompression compression)
 {
     m_BmpRefCount++;
-    if (compression == TEXCOMPRESSION_NONE &&
-            m_Compression == TEXCOMPRESSION_B5G6R5)
+    if (compression == TEXCOMPRESSION_NONE && m_Compression == TEXCOMPRESSION_B5G6R5)
     {
         // Reload from disk, making sure the cache knows about the size change
         int oldSize = m_pBmp->getMemNeeded();
