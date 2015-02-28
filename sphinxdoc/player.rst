@@ -109,7 +109,7 @@ Player & Canvas
             To get these messages, call :py:meth:`Publisher.subscribe`.
 
             .. py:method:: KEY_DOWN(keyEvent)
-            
+
                 Called whenever a key is pressed.
             
             .. py:method:: KEY_UP(keyEvent)
@@ -119,6 +119,10 @@ Player & Canvas
             .. py:method:: ON_FRAME()
 
                 Called each frame.
+
+        .. py:attribute:: imageCache
+
+            The global :py:class:`ImageCache` that keeps images in CPU and GPU memory.
 
         .. py:attribute:: pluginPath
 
@@ -140,9 +144,9 @@ Player & Canvas
         .. py:method:: areFullShadersSupported() -> bool
 
             Returns :py:const:`True` if the current OpenGL configuration has full shader
-            support. Platforms without full shader support (this includes OpenGL ES) disable
-            several :py:class:`FXNode` types. Calling this when playback is not running is
-            an error.
+            support. Platforms without full shader support (this includes OpenGL ES)
+            disable several :py:class:`FXNode` types. Calling this when playback is not
+            running is an error.
 
         .. py:method:: assumePixelsPerMM(ppmm)
 
@@ -220,7 +224,7 @@ Player & Canvas
             errors inside libavg.
 
         .. py:method:: enableMouse(enable)
-        
+
             Enables or disable mouse event handling.
             
         .. py:method:: enableMultitouch()
@@ -235,9 +239,6 @@ Player & Canvas
                 events. By default, it listens to events on the default TUIO UDP port
                 3333, but this can be configured using the environment variable 
                 :envvar:`AVG_TUIO_PORT`.
-
-            :samp:`APPLETRACKPAD`:
-                Uses the trackpad built into Mac Book Pros to generate events.
 
             :samp:`LINUXMTDEV`:
                 Uses the linux mtdev library to interface to multitouch devices.

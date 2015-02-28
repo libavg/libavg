@@ -12,13 +12,6 @@ Misc. Classes
         Bitmaps (e.g. width>65536) are supported as long as they fit into memory.
 
         The layout of the pixels in the bitmap is described by its pixel format.
-        The names for pixel format constants are confusing. They try to follow logic,
-        but it's a bit elusive: In many cases, each component is described by a single 
-        letter indicating the component's role in the pixel and a number indicating the 
-        number of bits used for this component.
-        Components are named in the order they appear in memory. In the cases where
-        the name doesn't follow this logic, reasons for the name are usually historical or
-        by convention.
         You can receive a complete list of all supported pixel formats by calling
         :py:func:`avg.getSupportedPixelFormats()`.
         The pixel formats are:
@@ -159,7 +152,7 @@ Misc. Classes
         The instance is accessed by :py:meth:`get`.
 
         .. py:method:: loadBitmap(fileName, callback, pixelformat=NO_PIXELFORMAT)
-        
+
             Asynchronously loads a file into a Bitmap. The provided callback is invoked
             with a Bitmap instance as argument in case of a successful load or with an
             :py:class:`avg.Exception` instance in case of failure. The optional parameter
@@ -175,6 +168,31 @@ Misc. Classes
             Sets the number of threads used to load bitmaps. The default is a single
             thread. This should generally be less than the number of logical cores 
             available.
+
+
+    .. autoclass:: ImageCache
+
+        libavg's global two-level cache of images in CPU (general system) and GPU
+        (graphics card) memory. Access this class using the :samp:`player.cache`
+        property. The cache is used for all images loaded from files in textures,
+        including :py:class:`ImageNode` images, :py:class:`VectorNode` textures and fill
+        textures, and all :py:class:`RasterNode` mask textures. :py:class:`Bitmap`
+        objects are not cached.
+
+        .. py:attribute:: capacity
+
+            The capacity of the cache as a tuple (cpu, gpu) in bytes. The capacity can
+            also be set using :samp:`avgrc`. Default CPU capacity is one-quarter of
+            physical RAM, default GPU capacity is 16 megabytes.
+
+        .. py:method:: getNumImages -> (cpu, gpu)
+
+            Returns the number of images loaded.
+
+        .. py:method:: getMemUsed -> (cpu, gpu)
+
+            Returns the number of bytes used by images.
+
 
     .. autoclass:: CubicSpline(controlpoints)
 
@@ -453,40 +471,40 @@ Misc. Classes
         Exposes version data, including the specs of the builder.
 
         .. py:attribute:: full
-        
+
         Full string containing a compact form of branch and revision number (if the
         build doesn't come from an exported tree)
-        
+
         .. py:attribute:: release
-        
+
         String representation in the form `major.minor.micro`
-        
+
         .. py:attribute:: major
-        
+
         Integer component of the release version (major)
 
         .. py:attribute:: minor
-        
+
         Integer component of the release version (minor)
 
         .. py:attribute:: micro
-        
+
         Integer component of the release version (micro)
-        
+
         .. py:attribute:: revision
-        
+
         Revision number, if applicable, or 0
-        
+
         .. py:attribute:: branchurl
-        
+
         Full URL path that represents the branch root, if applicable, or empty string
-        
+
         .. py:attribute:: builder
-        
+
         String representation in the form of `user@hostname machinespecs`
-        
+
         .. py:attribute:: buildtime
-        
+
         ISO timestamp representation of the build
 
 
@@ -638,10 +656,9 @@ Misc. Classes
         A general purpose persistent object.
         Its state is defined in the :py:attr:`data` attribute and pickled
         from/to a store file.
-        
 
         :param string storeFile:
-        
+
             Full path of the store file that is used to store and retrieve a
             serialized version of the data.
 
@@ -659,7 +676,7 @@ Misc. Classes
         :param bool autoCommit:
 
             If True, the :py:attr:`commit` method is registered as an `atexit` function.
-            
+
         .. py:attribute:: data
 
             State of the persistent object.
