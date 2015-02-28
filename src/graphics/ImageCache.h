@@ -32,7 +32,6 @@
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <list>
-#include <map>
 
 #ifdef _WIN32
 #include <unordered_map>

@@ -177,6 +177,7 @@ void CachedImage::dump() const
 
 BitmapPtr CachedImage::applyCompression(BitmapPtr pBmp)
 {
+    // Duplicated code with GPUImage::setBitmap()
     if (m_Compression == TEXCOMPRESSION_B5G6R5) {
         BitmapPtr pDestBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, m_sFilename));
         if (!BitmapLoader::get()->isBlueFirst()) {

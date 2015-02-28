@@ -23,6 +23,8 @@
 
 #include "../base/Exception.h"
 #include "../base/OSHelper.h"
+#include "../base/ConfigMgr.h"
+#include "../base/Logger.h"
 
 using namespace std;
 
@@ -42,8 +44,20 @@ ImageCache::ImageCache()
     : m_CPUCacheUsed(0),
       m_GPUCacheUsed(0)
 {
-    m_CPUCacheCapacity = (long long)(getPhysMemorySize())/4;
-    m_GPUCacheCapacity = 16*1024*1024;
+    glm::vec2 sizeOpt = ConfigMgr::get()->getSizeOption("scr", "imgcachesize");
+    if (sizeOpt[0] == -1) {
+        m_CPUCacheCapacity = (long long)(getPhysMemorySize())/4;
+    } else {
+        m_CPUCacheCapacity = (long long)(sizeOpt[0])*1024*1024;
+    }
+    if (sizeOpt[1] == -1) {
+        m_GPUCacheCapacity = 16*1024*1024;
+    } else {
+        m_GPUCacheCapacity = (long long)(sizeOpt[1])*1024*1024;
+    }
+    AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+            "Image cache size: CPU=" << m_CPUCacheCapacity/(1024*1024) <<
+            "MB, GPU=" << m_GPUCacheCapacity/(1024*1024) << "MB" << endl);
 }
 
 ImageCache::~ImageCache()

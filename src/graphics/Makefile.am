@@ -1,6 +1,6 @@
 SUBDIRS = shaders
 
-AM_CPPFLAGS = -I.. @GL_CFLAGS@ @GDK_PIXBUF_CFLAGS@
+AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @GL_CFLAGS@ @GDK_PIXBUF_CFLAGS@
 
 if APPLE
     GL_SOURCES = CGLContext.cpp PBO.cpp AppleDisplay.cpp
