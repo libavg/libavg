@@ -35,6 +35,7 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/ImageCache.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>

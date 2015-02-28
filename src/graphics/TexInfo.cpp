@@ -35,6 +35,31 @@ namespace avg {
 
 using namespace std;
 
+TexCompression string2TexCompression(const std::string& s)
+{
+    if (s == "none") {
+        return TEXCOMPRESSION_NONE;
+    } else if (s == "B5G6R5") {
+        return TEXCOMPRESSION_B5G6R5;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, "Texture compression "+s+" not supported."));
+    }
+}
+
+std::string texCompression2String(TexCompression compression)
+{
+    switch(compression) {
+        case TEXCOMPRESSION_NONE:
+            return "none";
+        case TEXCOMPRESSION_B5G6R5:
+            return "B5G6R5";
+        default:
+            AVG_ASSERT(false);
+            return 0;
+    }
+}
+
+
 TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap, bool bUsePOT,
         int potBorderColor)
     : m_Size(size),
@@ -80,6 +105,11 @@ const IntPoint& TexInfo::getGLSize() const
 PixelFormat TexInfo::getPF() const
 {
     return m_pf;
+}
+    
+int TexInfo::getMemNeeded() const
+{
+    return m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
 }
 
 IntPoint TexInfo::getMipmapSize(int level) const

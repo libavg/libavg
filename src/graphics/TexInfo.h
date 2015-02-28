@@ -32,6 +32,14 @@
 
 namespace avg {
 
+enum TexCompression {
+    TEXCOMPRESSION_NONE,
+    TEXCOMPRESSION_B5G6R5
+};
+
+TexCompression string2TexCompression(const std::string& s);
+std::string texCompression2String(TexCompression compression);
+
 class AVG_API TexInfo {
 
 public:
@@ -42,6 +50,7 @@ public:
     const IntPoint& getSize() const;
     const IntPoint& getGLSize() const;
     PixelFormat getPF() const;
+    int getMemNeeded() const;
 
     IntPoint getMipmapSize(int level) const;
 

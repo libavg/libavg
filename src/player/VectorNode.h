@@ -40,6 +40,8 @@ class VertexData;
 typedef boost::shared_ptr<VertexData> VertexDataPtr;
 class Shape;
 typedef boost::shared_ptr<Shape> ShapePtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API VectorNode : public Node
 {

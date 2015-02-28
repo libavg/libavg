@@ -34,6 +34,7 @@
 #include <mach/mach.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include <sys/sysctl.h>
 #elif defined(__linux__)
 #include <fstream>
 #include <unistd.h>
@@ -246,6 +247,31 @@ size_t getMemoryUsage()
     std::ifstream f("/proc/self/statm");
     f >> vmsize >> rssize;
     return rssize*(size_t)(getpagesize());
+#endif
+#endif
+}
+
+long long getPhysMemorySize()
+{
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx( &status );
+    return (long long)status.ullTotalPhys;
+#else
+#ifdef __linux__
+    long numPages = sysconf(_SC_PHYS_PAGES);
+    long pageSize = sysconf(_SC_PAGE_SIZE);
+    AVG_ASSERT(numPages != -1 && pageSize != -1);
+    return (long long)(numPages) * pageSize;
+#else
+#ifdef __APPLE__
+    size_t physMemSize;
+    size_t len = sizeof(physMemSize);
+    int rc = sysctlbyname("hw.memsize", &physMemSize, &len, 0, 0);
+    AVG_ASSERT(rc != -1);
+    return (long long)physMemSize;
+#endif
 #endif
 #endif
 }

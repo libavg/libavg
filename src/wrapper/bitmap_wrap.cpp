@@ -27,6 +27,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/FilterResizeBilinear.h"
+#include "../graphics/ImageCache.h"
 
 #include "../base/CubicSpline.h"
 #include "../base/GeomHelper.h"
@@ -183,6 +184,30 @@ BitmapPtr createBitmapWithRect(BitmapPtr pBmp,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads, BitmapManager::loadBitmapPy, 
         2, 3);
 
+static bp::object ImageCache_GetCapacity(ImageCache* pCache)
+{
+    return bp::make_tuple(pCache->getCapacity(CachedImage::STORAGE_CPU),
+            pCache->getCapacity(CachedImage::STORAGE_GPU));
+}
+
+static void ImageCache_SetCapacity(ImageCache* pCache, const bp::tuple& cap)
+{
+    long long cpuCap = extract<long long>(cap[0]);
+    long long gpuCap = extract<long long>(cap[1]);
+    pCache->setCapacity(cpuCap, gpuCap);
+}
+
+static bp::object ImageCache_GetNumImages(ImageCache* pCache)
+{
+    return bp::make_tuple(pCache->getNumCPUImages(), pCache->getNumGPUImages());
+}
+
+static bp::object ImageCache_GetMemUsed(ImageCache* pCache)
+{
+    return bp::make_tuple(pCache->getMemUsed(CachedImage::STORAGE_CPU),
+            pCache->getMemUsed(CachedImage::STORAGE_GPU));
+}
+
 void export_bitmap()
 {
     export_point<glm::vec2>("Point2D")
@@ -257,7 +282,13 @@ void export_bitmap()
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>())
     ;
-    
+
+    class_<ImageCache>("ImageCache", no_init)
+        .add_property("capacity", ImageCache_GetCapacity, ImageCache_SetCapacity)
+        .def("getNumImages", ImageCache_GetNumImages)
+        .def("getMemUsed", ImageCache_GetMemUsed)
+    ;
+
     class_<BitmapManager>("BitmapManager", no_init)
         .def("get", &BitmapManager::get,
                 return_value_policy<reference_existing_object>())

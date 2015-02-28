@@ -301,7 +301,8 @@ Area Nodes
         A static raster image on the screen. The content of an ImageNode can be loaded
         from a file. It can also come from a :py:class:`Bitmap` object or from an 
         :py:class:`OffscreenCanvas`. Alpha channels of the image files are used as
-        transparency information.
+        transparency information. Images loaded from a file are cached using the
+        :py:class:`ImageCache`.
 
         .. py:attribute:: compression
 

@@ -9,6 +9,7 @@
     <dotspermm>0</dotspermm>
     <shaderusage>auto</shaderusage>
     <videoaccel>true</videoaccel>
+    <imgcachesize>-1,-1</imgcachesize>
   </scr>
   <aud>
     <channels>2</channels>

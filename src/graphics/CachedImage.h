@@ -19,10 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Image_H_
-#define _Image_H_
+#ifndef _CachedImage_H_
+#define _CachedImage_H_
 
 #include "../api.h"
+
+#include "TexInfo.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -34,30 +36,32 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class MCTexture;
 typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 
-class AVG_API Image
+class AVG_API CachedImage
 {
     public:
-        enum TextureCompression {
-            TEXTURECOMPRESSION_NONE,
-            TEXTURECOMPRESSION_B5G6R5
+        enum StorageType {
+            STORAGE_CPU,
+            STORAGE_GPU
         };
 
-        Image(const std::string& sFilename, TextureCompression compression);
-        Image(const BitmapPtr& pBmp, TextureCompression compression);
-        virtual ~Image();
+        CachedImage(const std::string& sFilename, TexCompression compression);
+        virtual ~CachedImage();
 
         std::string getFilename() const;
 
-        void incBmpRef(TextureCompression compression);
+        void incBmpRef(TexCompression compression);
         void decBmpRef();
         void incTexRef(bool bUseMipmaps);
         void decTexRef();
+        void unloadTex();
 
         BitmapPtr getBmp();
         MCTexturePtr getTex();
+        bool hasTex() const;
+        int getMemUsed(StorageType st) const;
+        int getRefCount(StorageType st) const;
 
-        static TextureCompression string2compression(const std::string& s);
-        static std::string compression2String(TextureCompression compression);
+        void dump() const;
 
     private:
         BitmapPtr applyCompression(BitmapPtr pBmp);
@@ -69,13 +73,13 @@ class AVG_API Image
         MCTexturePtr m_pTex;
 
         bool m_bUseMipmaps;
-        TextureCompression m_Compression;
+        TexCompression m_Compression;
         
         int m_BmpRefCount;
         int m_TexRefCount;
 };
 
-typedef boost::shared_ptr<Image> ImagePtr;
+typedef boost::shared_ptr<CachedImage> CachedImagePtr;
 
 }
 

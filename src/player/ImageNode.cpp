@@ -57,11 +57,11 @@ void ImageNode::registerType()
 }
 
 ImageNode::ImageNode(const ArgList& args)
-    : m_Compression(Image::TEXTURECOMPRESSION_NONE)
+    : m_Compression(TEXCOMPRESSION_NONE)
 {
     args.setMembers(this);
     m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMipmap()));
-    m_Compression = Image::string2compression(args.getArgVal<string>("compression"));
+    m_Compression = string2TexCompression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -136,7 +136,7 @@ void ImageNode::setHRef(const UTF8String& href)
 
 const string ImageNode::getCompression() const
 {
-    return Image::compression2String(m_Compression);
+    return texCompression2String(m_Compression);
 }
 
 void ImageNode::setBitmap(BitmapPtr pBmp)
@@ -187,7 +187,7 @@ IntPoint ImageNode::getMediaSize()
 void ImageNode::checkReload()
 {
     if (isCanvasURL(m_href)) {
-        if (m_Compression != Image::TEXTURECOMPRESSION_NONE) {
+        if (m_Compression != TEXCOMPRESSION_NONE) {
             throw Exception(AVG_ERR_UNSUPPORTED, 
                     "Texture compression can't be used with canvas hrefs.");
         }
@@ -239,8 +239,7 @@ void ImageNode::checkCanvasValid(const CanvasPtr& pCanvas)
     if (pCanvas == getCanvas()) {
         m_href = "";
         m_pGPUImage->setEmpty();
-        throw Exception(AVG_ERR_INVALID_ARGS,
-                "Circular dependency between canvases.");
+        throw Exception(AVG_ERR_INVALID_ARGS, "Circular dependency between canvases.");
     }
 }
 

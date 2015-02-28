@@ -35,8 +35,8 @@
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
-#include "ImageRegistry.h"
-#include "Image.h"
+#include "ImageCache.h"
+#include "CachedImage.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -430,44 +430,72 @@ private:
 };
 
 
-class ImageRegistryTest: public GraphicsTest {
+class ImageCacheTest: public GraphicsTest {
 public:
-    ImageRegistryTest()
-        : GraphicsTest("ImageRegistryTest", 2)
+    ImageCacheTest()
+        : GraphicsTest("ImageCacheTest", 2)
     {
     }
 
     void runTests()
     {
+        ImageCache* pCache = ImageCache::get();
+        cerr << "    Testing no cache" << endl;
+        pCache->setCapacity(0, 0);
+        loadImages();
+        TEST(pCache->getNumCPUImages() == 0);
+        TEST(pCache->getNumGPUImages() == 0);
+        cerr << "    Testing CPU cache" << endl;
+        pCache->setCapacity(20000, 0);
+        loadImages();
+        TEST(pCache->getNumCPUImages() == 1);
+        TEST(pCache->getNumGPUImages() == 0);
+        cerr << "    Testing GPU cache" << endl;
+        if (GLContext::getMain()->isGLES()) {
+            // GLES size is larger because of POT textures.
+            pCache->setCapacity(20000, 80000);
+        } else {
+            pCache->setCapacity(20000, 20000);
+        }
+        loadImages();
+        TEST(pCache->getNumCPUImages() == 1);
+        TEST(pCache->getNumGPUImages() == 1);
+        pCache->setCapacity(0, 0);
+        TEST(pCache->getNumCPUImages() == 0);
+        TEST(pCache->getNumGPUImages() == 0);
+    }
+
+private:
+    void loadImages()
+    {
         GLContextManager* pCM = GLContextManager::get();
-        ImageRegistry* pRegistry = ImageRegistry::get();
-        ImagePtr pImage1 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
-                Image::TEXTURECOMPRESSION_NONE);
-        TEST(pRegistry->getNumImages() == 1);
-        ImagePtr pImage2 = pRegistry->getImage(getTestBmpName("rgb24-65x65"),
-                Image::TEXTURECOMPRESSION_NONE);
-        TEST(pRegistry->getNumImages() == 1);
+        ImageCache* pCache = ImageCache::get();
+        CachedImagePtr pImage1a = pCache->getImage(getTestBmpName("rgb24-65x65"),
+                TEXCOMPRESSION_NONE);
+        TEST(pCache->getNumCPUImages() == 1);
+        CachedImagePtr pImage1b = pCache->getImage(getTestBmpName("rgb24-65x65"),
+                TEXCOMPRESSION_NONE);
+        TEST(pCache->getNumCPUImages() == 1);
         BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
-        BitmapPtr pBmp = pImage2->getBmp();
+        BitmapPtr pBmp = pImage1b->getBmp();
         testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
-        ImagePtr pImage3 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
-                Image::TEXTURECOMPRESSION_B5G6R5);
-        TEST(pRegistry->getNumImages() == 2);
-        ImagePtr pImage4 = pRegistry->getImage(getTestBmpName("rgb24-64x64"),
-                Image::TEXTURECOMPRESSION_NONE);
+        CachedImagePtr pImage2a = pCache->getImage(getTestBmpName("rgb24-64x64"),
+                TEXCOMPRESSION_B5G6R5);
+        TEST(pCache->getNumCPUImages() == 2);
+        CachedImagePtr pImage2b = pCache->getImage(getTestBmpName("rgb24-64x64"),
+                TEXCOMPRESSION_NONE);
 
-        pImage4->decBmpRef();
-        pImage3->decBmpRef();
-        pImage2->decBmpRef();
+        pImage2b->decBmpRef();
+        pImage2a->decBmpRef();
 
-        pImage1->incTexRef(false);
-        pImage1->incTexRef(true);
+        pImage1a->incTexRef(false);
+        pImage1a->incTexRef(true);
         pCM->uploadData();
-        pImage1->decBmpRef();
-        pImage1->decTexRef();
-        pImage1->decTexRef();
+        pImage1b->decTexRef();
+        pImage1b->decBmpRef();
+        pImage1a->decTexRef();
+        pImage1a->decBmpRef();
         pCM->uploadData();
-        TEST(pRegistry->getNumImages() == 0);
     }
 };
 
@@ -478,7 +506,7 @@ public:
         : TestSuite("GPUTestSuite ("+sVariant+")")
     {
         addTest(TestPtr(new TextureMoverTest));
-        addTest(TestPtr(new ImageRegistryTest));
+        addTest(TestPtr(new ImageCacheTest));
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));

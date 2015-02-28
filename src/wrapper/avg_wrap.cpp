@@ -31,7 +31,7 @@ void export_anim();
 #include "../base/OSHelper.h"
 #include "../base/GeomHelper.h"
 #include "../base/XMLHelper.h"
-#include "../graphics/ImageRegistry.h"
+#include "../graphics/ImageCache.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/CameraNode.h"
@@ -80,11 +80,6 @@ class SeverityScopeHelper{};
 class CategoryScopeHelper{};
 
 
-int playerGetNumImagesLoaded() 
-{
-    return ImageRegistry::get()->getNumImages();
-}
-
 boost::function<size_t (const bp::tuple& args, const bp::dict& kwargs )>
         playerGetMemoryUsage = boost::bind(getMemoryUsage);
 
@@ -101,7 +96,6 @@ bool pointInPolygonDepcrecated(const glm::vec2& pt, const std::vector<glm::vec2>
     return pointInPolygon(pt, poly);
 }
 // end remove
-
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -258,8 +252,6 @@ BOOST_PYTHON_MODULE(avg)
             .def("setVBlankFramerate", &Player::setVBlankFramerate)
             .def("getEffectiveFramerate", &Player::getEffectiveFramerate)
             .def("getMemoryUsage", raw_function(playerGetMemoryUsage))
-            .def("getNumImagesLoaded", playerGetNumImagesLoaded)
-            .staticmethod("getNumImagesLoaded")
             .def("getTestHelper", &Player::getTestHelper,
                     return_value_policy<reference_existing_object>())
             .def("setFakeFPS", &Player::setFakeFPS)
@@ -303,6 +295,8 @@ BOOST_PYTHON_MODULE(avg)
             .def("areFullShadersSupported", &Player::areFullShadersSupported)
             .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
             .add_property("volume", &Player::getVolume, &Player::setVolume)
+            .add_property("imageCache", make_function(&Player::getImageCache,
+                    return_value_policy<reference_existing_object>()))
         ;
         exportMessages(playerClass, "Player");
         

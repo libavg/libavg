@@ -520,11 +520,11 @@ public:
 
     void runTests()
     {
-        cerr << getAvgLibPath() << endl;
         TEST(getAvgLibPath() != "");
 #ifdef __APPLE__
         TEST(getMemoryUsage() != 0);
 #endif
+        TEST(getPhysMemorySize() != 0);
     }
 };
 

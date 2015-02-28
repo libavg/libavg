@@ -75,15 +75,11 @@ class ImageTestCase(AVGTestCase):
             if self._isCurrentDirWriteable():
                 self.compareImage("testImgHRef3")
 
-        def testNumImagesLoaded():
-            self.assertEqual(player.getNumImagesLoaded(), 2) 
-
         root = self.loadEmptyScene()
         addNodes(16)
         self.start(False,
                 (lambda: self.compareImage("testImgHRef1"),
                  lambda: addNodes(48),
-                 testNumImagesLoaded,
                  lambda: self.compareImage("testImgHRef2"),
                  setUnicodeHref,
                  compareUnicode,
@@ -195,6 +191,16 @@ class ImageTestCase(AVGTestCase):
                  lambda: changeHref(),
                  lambda: self.compareImage("testImgWarp2"),
                 ))
+
+    def testImageCache(self):
+        cache = player.imageCache
+        oldCapacity = cache.capacity
+        cache.capacity = (100000, 100000)
+        self.assert_(cache.capacity == (100000,100000))
+        cache.capacity = (0, 0)
+        self.assert_(cache.getNumImages() == (0,0))
+        self.assert_(cache.getMemUsed() == (0,0))
+        cache.capacity = oldCapacity
 
     def testBitmap(self):
         def getBitmap(node):
@@ -612,6 +618,7 @@ def imageTestSuite(tests):
             "testImagePos",
             "testImageSize",
             "testImageWarp",
+            "testImageCache",
             "testBitmap",
             "testBitmapManager",
             "testBitmapManagerException",

@@ -1,6 +1,6 @@
 SUBDIRS = shaders
 
-AM_CPPFLAGS = -I.. @GL_CFLAGS@ @GDK_PIXBUF_CFLAGS@
+AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @GL_CFLAGS@ @GDK_PIXBUF_CFLAGS@
 
 if APPLE
     GL_SOURCES = CGLContext.cpp PBO.cpp AppleDisplay.cpp
@@ -38,7 +38,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextManager.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
         ImagingProjection.h GLBufferCache.h GLConfig.h BmpTextureMover.h \
         GPURGB2YUVFilter.h GLShaderParam.h StandardShader.h SubVertexArray.h \
-        VertexData.h BitmapLoader.h MCShaderParam.h Image.h ImageRegistry.h \
+        VertexData.h BitmapLoader.h MCShaderParam.h CachedImage.h ImageCache.h \
         WrapMode.h $(GL_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         GLContextManager.cpp \
@@ -58,7 +58,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
         ImagingProjection.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp \
         GPURGB2YUVFilter.cpp GLShaderParam.cpp StandardShader.cpp SubVertexArray.cpp \
-        VertexData.cpp BitmapLoader.cpp MCShaderParam.cpp Image.cpp ImageRegistry.cpp \
+        VertexData.cpp BitmapLoader.cpp MCShaderParam.cpp CachedImage.cpp ImageCache.cpp \
         WrapMode.cpp $(GL_SOURCES)
 
 if APPLE

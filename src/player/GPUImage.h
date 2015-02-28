@@ -27,7 +27,7 @@
 #include "../base/GLMHelper.h"
 
 #include "../graphics/PixelFormat.h"
-#include "../graphics/Image.h"
+#include "../graphics/TexInfo.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -39,6 +39,8 @@ class OffscreenCanvas;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class CachedImage;
+typedef boost::shared_ptr<CachedImage> CachedImagePtr;
 
 class AVG_API GPUImage
 {
@@ -54,9 +56,9 @@ class AVG_API GPUImage
 
         void setEmpty();
         void setFilename(const std::string& sFilename,
-                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+                TexCompression comp = TEXCOMPRESSION_NONE);
         void setBitmap(BitmapPtr pBmp, 
-                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+                TexCompression comp = TEXCOMPRESSION_NONE);
         void setCanvas(OffscreenCanvasPtr pCanvas);
         OffscreenCanvasPtr getCanvas() const;
         const std::string& getFilename() const;
@@ -69,15 +71,18 @@ class AVG_API GPUImage
         Source getSource();
 
     private:
-        void setupSurface();
+        void setupImageSurface();
+        void setupBitmapSurface();
         bool changeSource(Source newSource);
         void unload();
         void assertValid() const;
 
         std::string m_sFilename;
-        ImagePtr m_pImage;
+        CachedImagePtr m_pImage;
         OGLSurface * m_pSurface;
+
         OffscreenCanvasPtr m_pCanvas;
+        BitmapPtr m_pBmp;
 
         State m_State;
         Source m_Source;

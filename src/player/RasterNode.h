@@ -28,6 +28,7 @@
 #include "../avgconfigwrapper.h"
 #include "../base/GLMHelper.h"
 #include "../base/UTF8String.h"
+
 #include "../graphics/GLContext.h"
 
 #include <string>
@@ -42,6 +43,8 @@ class MCFBO;
 typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 typedef std::vector<std::vector<glm::vec2> > VertexGrid;
 
