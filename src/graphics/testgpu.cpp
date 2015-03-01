@@ -454,7 +454,7 @@ public:
         TEST(pCache->getNumCPUImages() == 1);
         TEST(pCache->getNumGPUImages() == 0);
         cerr << "    Testing GPU cache" << endl;
-        if (GLContext::getMain()->isGLES()) {
+        if (GLContext::getCurrent()->isGLES()) {
             // GLES size is larger because of POT textures.
             pCache->setCapacity(20000, 80000);
         } else {
