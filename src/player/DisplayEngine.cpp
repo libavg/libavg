@@ -125,12 +125,12 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
-    #ifndef AVG_ENABLE_EGL
+#ifndef AVG_ENABLE_EGL
     for (int i=1; i<dp.getNumWindows(); ++i) {
         m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
                 dp.isFullscreen(), glConfig)));
     }
-    #endif
+#endif
 
     Display::get()->getRefreshRate();
 

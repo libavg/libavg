@@ -201,11 +201,9 @@ void GLContextManager::uploadData()
     GLContext* pContext = GLContext::getCurrent();
     for (unsigned i=0; i<m_pContexts.size(); ++i) {
         m_pContexts[i]->activate();
-        GLContext::setMain(m_pContexts[i]);
         uploadDataForContext();
     }
     pContext->activate();
-    GLContext::setMain(pContext);
     reset();
 }
 
@@ -221,7 +219,7 @@ void GLContextManager::uploadDataForContext()
     }
 
     for (unsigned i=0; i<m_pPendingVACreates.size(); ++i) {
-        m_pPendingVACreates[i]->initForGLContext();
+        m_pPendingVACreates[i]->initForGLContext(pContext);
     }
 
     for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {
@@ -230,14 +228,14 @@ void GLContextManager::uploadDataForContext()
     }
 
     for (unsigned i=0; i<m_pPendingTexCreates.size(); ++i) {
-        m_pPendingTexCreates[i]->initForGLContext();
+        m_pPendingTexCreates[i]->initForGLContext(pContext);
     }
 
     TexUploadMap::iterator it;
     for (it=m_pPendingTexUploads.begin(); it!=m_pPendingTexUploads.end(); ++it) {
         MCTexturePtr pTex = it->first;
         BitmapPtr pBmp = it->second;
-        pTex->moveBmpToTexture(pBmp);
+        pTex->moveBmpToTexture(pContext, pBmp);
     }
 
     for (unsigned i=0; i<m_pPendingFBOCreates.size(); ++i) {

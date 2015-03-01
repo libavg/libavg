@@ -40,7 +40,7 @@ public:
     
     void setParams(const glm::vec2& offset, float stdDev, float opacity, 
             const Pixel32& color);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
     void setDimensions(IntPoint size, float stdDev, const glm::vec2& offset);

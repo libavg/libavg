@@ -44,8 +44,9 @@ using namespace std;
 // don't overlap.
 unsigned GLTexture::s_LastTexID = 10000000;
 
-GLTexture::GLTexture(const TexInfo& texInfo)
+GLTexture::GLTexture(GLContext* pContext, const TexInfo& texInfo)
     : TexInfo(texInfo),
+      m_pContext(pContext),
       m_bDeleteTex(true)      
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -53,9 +54,10 @@ GLTexture::GLTexture(const TexInfo& texInfo)
 
 }
 
-GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap, bool bForcePOT,
-        int potBorderColor)
+GLTexture::GLTexture(GLContext* pContext, const IntPoint& size, PixelFormat pf,
+        bool bMipmap, bool bForcePOT, int potBorderColor)
     : TexInfo(size, pf, bMipmap, usePOT(bForcePOT, bMipmap), potBorderColor),
+      m_pContext(pContext),
       m_bDeleteTex(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -75,7 +77,7 @@ void GLTexture::init()
     s_LastTexID++;
     m_TexID = s_LastTexID;
 
-    GLContext::getMain()->bindTexture(GL_TEXTURE0, m_TexID);
+    m_pContext->bindTexture(GL_TEXTURE0, m_TexID);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     IntPoint size = getGLSize();
@@ -109,7 +111,7 @@ void GLTexture::init()
 
 void GLTexture::activate(const WrapMode& wrapMode, int textureUnit)
 {
-    GLContext::getMain()->bindTexture(textureUnit, m_TexID);
+    m_pContext->bindTexture(textureUnit, m_TexID);
     if (wrapMode.getS() != m_WrapMode.getS() || wrapMode.getT() != m_WrapMode.getT()) {
         glproc::ActiveTexture(textureUnit);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode.getS());
@@ -121,7 +123,7 @@ void GLTexture::activate(const WrapMode& wrapMode, int textureUnit)
 void GLTexture::generateMipmaps()
 {
     if (getUseMipmap()) {
-        GLContext::getMain()->bindTexture(GL_TEXTURE0, m_TexID);
+        m_pContext->bindTexture(GL_TEXTURE0, m_TexID);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
         GLContext::checkError("GLTexture::generateMipmap()");
     }

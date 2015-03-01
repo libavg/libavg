@@ -336,7 +336,7 @@ static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (m_bIsPlaying) {
         if (m_bAutoUpdateCameraImage) {
             ScopeTimer Timer(CameraFetchImage);
@@ -370,11 +370,11 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 
-void CameraNode::render()
+void CameraNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
-        blt32();
+        blt32(pContext, transform);
     }
 }
 

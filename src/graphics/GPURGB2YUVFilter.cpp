@@ -52,16 +52,16 @@ GPURGB2YUVFilter::~GPURGB2YUVFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPURGB2YUVFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPURGB2YUVFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
-    draw(pSrcTex, WrapMode());
+    draw(pContext, pSrcTex, WrapMode());
     GLContext::checkError("GPURGB2YUVFilter::applyOnGPU()");
 }
 
-BitmapPtr GPURGB2YUVFilter::getResults()
+BitmapPtr GPURGB2YUVFilter::getResults(GLContext* pContext)
 {
-    BitmapPtr pBmp = getFBO()->getImage();
+    BitmapPtr pBmp = getFBO(pContext)->getImage();
 
     return pBmp;
 }

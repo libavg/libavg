@@ -25,6 +25,8 @@
 #include "TypeRegistry.h"
 #include "Canvas.h"
 
+#include "../graphics/GLContext.h"
+
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/StringHelper.h"
@@ -296,7 +298,7 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (getCrop() && getSize() != glm::vec2(0,0)) {
         pVA->startSubVA(m_ClipVA);
         glm::vec2 viewport = getSize();
@@ -311,17 +313,16 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     }
 }
 
-void DivNode::render()
+void DivNode::render(GLContext* pContext, const glm::mat4& transform)
 {
-    const glm::mat4& transform = getTransform();
     if (getCrop() && getSize() != glm::vec2(0,0)) {
-        getCanvas()->pushClipRect(transform, m_ClipVA);
+        getCanvas()->pushClipRect(pContext, transform, m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->maybeRender(transform);
+        getChild(i)->maybeRender(pContext, transform);
     }
     if (getCrop() && getSize() != glm::vec2(0,0)) {
-        getCanvas()->popClipRect(transform, m_ClipVA);
+        getCanvas()->popClipRect(pContext, transform, m_ClipVA);
     }
 }
 

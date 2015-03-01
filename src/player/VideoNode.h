@@ -95,7 +95,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void render();
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
         virtual void onFrameEnd();
         
         virtual IntPoint getMediaSize();

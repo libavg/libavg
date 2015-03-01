@@ -36,7 +36,7 @@ public:
     GPUHueSatFilter(const IntPoint& size, bool bUseAlpha, bool bStandalone=true);
     virtual ~GPUHueSatFilter();
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
     void setParams(int hue, int saturation=1, int lightness_offset=0,
             bool colorize=false);
 

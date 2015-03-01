@@ -40,8 +40,6 @@ using namespace std;
 using namespace boost;
 
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
-GLContext* GLContext::s_pMainContext = 0;
-int GLContext::s_MainContextIndex = 0;
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
@@ -127,9 +125,8 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
-    GLContext::setMain(this);
 
-    m_pStandardShader = new StandardShader();
+    m_pStandardShader = new StandardShader(this);
 }
 
 void GLContext::deleteObjects()
@@ -460,22 +457,6 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
-}
-
-void GLContext::setMain(GLContext * pMainContext)
-{
-    s_pMainContext = pMainContext;
-    s_MainContextIndex = GLContextManager::get()->getContextIndex(pMainContext);
-}
-
-GLContext* GLContext::getMain()
-{
-    return s_pMainContext;
-}
-
-int GLContext::getMainIndex()
-{
-    return s_MainContextIndex;
 }
 
 int GLContext::nextMultiSampleValue(int curSamples)

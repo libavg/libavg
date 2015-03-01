@@ -27,6 +27,7 @@
 #include "Filterfliprgb.h"
 #include "FBO.h"
 #include "MCTexture.h"
+#include "GLTexture.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -69,43 +70,43 @@ MCFBO::~MCFBO()
 void MCFBO::initForGLContext()
 {
     GLContext* pContext = GLContext::getCurrent();
-
     vector<GLTexturePtr> pTextures;
     for (unsigned i=0; i<m_pTextures.size(); ++i) {
-        MCTexturePtr pTex = m_pTextures[i];
-        pTex->initForGLContext();
+        MCTexturePtr pMCTex = m_pTextures[i];
+        pMCTex->initForGLContext(pContext);
+        GLTexturePtr pTex = pMCTex->getTex(pContext);
         pTex->generateMipmaps();
         GLContext::checkError("MCFBO::initForGLContext: generateMipmaps");
-        pTextures.push_back(pTex->getCurTex());
+        pTextures.push_back(pTex);
     }
 
     AVG_ASSERT(m_pFBOs.count(pContext) == 0);
     m_pFBOs[pContext] = FBOPtr(new FBO(*this, pTextures));
 }
 
-void MCFBO::activate() const
+void MCFBO::activate(GLContext* pContext) const
 {
-    getCurFBO()->activate();
+    getCurFBO(pContext)->activate();
 }
 
-void MCFBO::copyToDestTexture() const
+void MCFBO::copyToDestTexture(GLContext* pContext) const
 {
-    getCurFBO()->copyToDestTexture();
+    getCurFBO(pContext)->copyToDestTexture();
 }
 
-BitmapPtr MCFBO::getImage(int i) const
+BitmapPtr MCFBO::getImage(GLContext* pContext, int i) const
 {
-    return getCurFBO()->getImage(i);
+    return getCurFBO(pContext)->getImage(i);
 }
 
-void MCFBO::moveToPBO(int i) const
+void MCFBO::moveToPBO(GLContext* pContext, int i) const
 {
-    getCurFBO()->moveToPBO(i);
+    getCurFBO(pContext)->moveToPBO(i);
 }
  
-BitmapPtr MCFBO::getImageFromPBO() const
+BitmapPtr MCFBO::getImageFromPBO(GLContext* pContext) const
 {
-    return getCurFBO()->getImageFromPBO();
+    return getCurFBO(pContext)->getImageFromPBO();
 }
 
 MCTexturePtr MCFBO::getTex(int i) const
@@ -113,9 +114,9 @@ MCTexturePtr MCFBO::getTex(int i) const
     return m_pTextures[i];
 }
 
-FBOPtr MCFBO::getCurFBO() const
+FBOPtr MCFBO::getCurFBO(GLContext* pContext) const
 {
-    FBOMap::const_iterator it = m_pFBOs.find(GLContext::getMain());
+    FBOMap::const_iterator it = m_pFBOs.find(pContext);
     AVG_ASSERT(it != m_pFBOs.end());
     return it->second;
 }

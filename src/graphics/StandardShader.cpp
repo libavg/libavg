@@ -38,15 +38,10 @@ using namespace std;
 
 namespace avg {
 
-StandardShader* StandardShader::get() 
+StandardShader::StandardShader(GLContext* pContext)
+    : m_pContext(pContext)
 {
-    return GLContext::getMain()->getStandardShader();
-}
-
-StandardShader::StandardShader()
-{
-    GLContext* pContext = GLContext::getCurrent();
-    pContext->getShaderRegistry()->createShader(STANDARD_SHADER);
+    m_pContext->getShaderRegistry()->createShader(STANDARD_SHADER);
     m_pShader = avg::getShader(STANDARD_SHADER);
     m_ColorModelParam = *m_pShader->getParam<int>("u_ColorModel");
     m_AlphaParam = *m_pShader->getParam<float>("u_Alpha");
@@ -64,22 +59,22 @@ StandardShader::StandardShader()
 
     m_pShader->activate();
     m_pShader->getParam<int>("u_Texture")->set(0);
-    if (pContext->useGPUYUVConversion()) {
+    if (m_pContext->useGPUYUVConversion()) {
         m_pShader->getParam<int>("u_CBTexture")->set(1);
         m_pShader->getParam<int>("u_CRTexture")->set(2);
         m_pShader->getParam<int>("u_ATexture")->set(3);
     }
     m_pShader->getParam<int>("u_MaskTexture")->set(4);
 
-    if (pContext->getShaderUsage() != GLConfig::FULL) {
-        pContext->getShaderRegistry()->createShader(MINIMAL_SHADER);
+    if (m_pContext->getShaderUsage() != GLConfig::FULL) {
+        m_pContext->getShaderRegistry()->createShader(MINIMAL_SHADER);
         m_pMinimalShader = avg::getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("u_Texture")->set(0);
         m_MinimalAlphaParam = *m_pMinimalShader->getParam<float>("u_Alpha");
     }
     
-    generateWhiteTexture(); 
+    generateWhiteTexture();
 }
 
 StandardShader::~StandardShader()
@@ -200,14 +195,14 @@ void StandardShader::generateWhiteTexture()
 {
     BitmapPtr pBmp(new Bitmap(glm::vec2(1,1), I8));
     *(pBmp->getPixels()) = 255;
-    m_pWhiteTex = GLTexturePtr(new GLTexture(IntPoint(1,1), I8));
+    m_pWhiteTex = GLTexturePtr(new GLTexture(m_pContext, IntPoint(1,1), I8));
     m_pWhiteTex->moveBmpToTexture(pBmp);
 }
 
 bool StandardShader::useMinimalShader() const
 {
     bool bActivateMinimal = false;
-    if (GLContext::getMain()->getShaderUsage() != GLConfig::FULL) {
+    if (m_pContext->getShaderUsage() != GLConfig::FULL) {
         bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
         if (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask) {
             bActivateMinimal = true;

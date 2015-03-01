@@ -54,12 +54,12 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUBrightnessFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     getShader()->activate();
-    m_pTextureParam->set(0);
-    m_pAlphaParam->set(m_Alpha);
-    draw(pSrcTex, WrapMode());
+    m_pTextureParam->set(pContext, 0);
+    m_pAlphaParam->set(pContext, m_Alpha);
+    draw(pContext, pSrcTex, WrapMode());
 }
 
 }

@@ -158,11 +158,11 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     ScopeTimer timer(PrerenderProfilingZone);
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible() && m_pGPUImage->getSource() != GPUImage::NONE) {
         if (m_pGPUImage->getCanvas()) {
             // Force FX render every frame for canvas nodes.
-            getSurface()->getTex(0)->setDirty();
+            getSurface()->setDirty();
         }
         scheduleFXRender();
     }
@@ -171,11 +171,11 @@ void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 
-void ImageNode::render()
+void ImageNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pGPUImage->getSource() != GPUImage::NONE) {
-        blt32();
+        blt32(pContext, transform);
     }
 }
 

@@ -54,13 +54,13 @@ public:
     virtual ~MCFBO();
     void initForGLContext();
 
-    void activate() const;
-    FBOPtr getCurFBO() const;
+    void activate(GLContext* pContext) const;
+    FBOPtr getCurFBO(GLContext* pContext) const;
 
-    void copyToDestTexture() const;
-    BitmapPtr getImage(int i=0) const;
-    void moveToPBO(int i=0) const;
-    BitmapPtr getImageFromPBO() const;
+    void copyToDestTexture(GLContext* pContext) const;
+    BitmapPtr getImage(GLContext* pContext, int i=0) const;
+    void moveToPBO(GLContext* pContext, int i=0) const;
+    BitmapPtr getImageFromPBO(GLContext* pContext) const;
     MCTexturePtr getTex(int i=0) const;
 
 private:

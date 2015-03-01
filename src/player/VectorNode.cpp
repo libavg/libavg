@@ -62,8 +62,7 @@ void VectorNode::registerType()
 }
 
 VectorNode::VectorNode(const ArgList& args)
-    : m_Transform(glm::mat4(0)),
-      m_Translate(glm::vec2(0,0))
+    : m_Translate(glm::vec2(0,0))
 {
     m_pShape = ShapePtr(createDefaultShape());
 
@@ -164,25 +163,25 @@ void VectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     }
 }
 
-void VectorNode::maybeRender(const glm::mat4& parentTransform)
+void VectorNode::maybeRender(GLContext* pContext, const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
         glm::vec3 trans(m_Translate.x, m_Translate.y, 0);
-        m_Transform = glm::translate(parentTransform, trans);
-        GLContext::getMain()->setBlendMode(m_BlendMode);
-        render();
+        glm::mat4 transform = glm::translate(parentTransform, trans);
+        pContext->setBlendMode(m_BlendMode);
+        render(pContext, transform);
     }
 }
 
 static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
-void VectorNode::render()
+void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer timer(RenderProfilingZone);
     float curOpacity = getEffectiveOpacity();
     if (curOpacity > 0.01) {
-        m_pShape->draw(m_Transform, curOpacity);
+        m_pShape->draw(pContext, transform, curOpacity);
     }
 }
 
@@ -512,11 +511,6 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
         }
     }
     return numPts;
-}
-
-const glm::mat4& VectorNode::getTransform() const
-{
-    return m_Transform;
 }
 
 void VectorNode::setTranslate(const glm::vec2& trans)
