@@ -45,13 +45,13 @@ void export_anim()
     from_python_sequence<std::vector<AnimPtr>, variable_capacity_policy>();
     from_python_sequence<std::vector<AnimState>, variable_capacity_policy>();
     
-    def("getNumRunningAnims", AttrAnim::getNumRunningAnims);
-    
     class_<Anim, boost::shared_ptr<Anim>, boost::noncopyable>("Anim", no_init)
         .def("setStartCallback", &Anim::setStartCallback)
         .def("setStopCallback", &Anim::setStopCallback)
         .def("abort", &Anim::abort)
         .def("isRunning", &Anim::isRunning)
+        .def("getNumRunningAnims", AttrAnim::getNumRunningAnims)
+        .staticmethod("getNumRunningAnims")
         ;
 
     class_<AttrAnim, boost::shared_ptr<AttrAnim>, bases<Anim>, boost::noncopyable>
