@@ -375,7 +375,10 @@ class ImageTestCase(AVGTestCase):
                     "within %dms timeout" % WAIT_TIMEOUT)
             player.stop()
             
+        player.setFakeFPS(-1)
+        sys.stderr.write("\n")
         for multithread in [False, True]:
+            sys.stderr.write("  Multithread: "+str(multithread)+"\n")
             self.loadEmptyScene()
             if multithread:
                 avg.BitmapManager.get().setNumThreads(2)
