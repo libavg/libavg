@@ -37,8 +37,20 @@ namespace bp = boost::python;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(start_overloads, start, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setState_overloads, StateAnim::setState, 1, 2);
-BOOST_PYTHON_FUNCTION_OVERLOADS(fadeIn_overloads, fadeIn, 2, 4);
-BOOST_PYTHON_FUNCTION_OVERLOADS(fadeOut_overloads, fadeOut, 2, 3);
+
+AnimPtr fadeInDeprecated(const bp::object& node, long long duration,
+        float max, const bp::object& stopCallback=bp::object())
+{
+    avgDeprecationWarning("1.9.0", "avg.fadeIn", "avg.Anim.fadeIn");
+    return LinearAnim::fadeIn(node, duration, max, stopCallback);
+}
+
+AnimPtr fadeOutDeprecated(const bp::object& node, long long duration,
+        const bp::object& stopCallback=bp::object())
+{
+    avgDeprecationWarning("1.9.0", "avg.fadeOut", "avg.Anim.fadeOut");
+    return LinearAnim::fadeOut(node, duration, stopCallback);
+}
 
 void export_anim()
 {
@@ -52,6 +64,12 @@ void export_anim()
         .def("isRunning", &Anim::isRunning)
         .def("getNumRunningAnims", AttrAnim::getNumRunningAnims)
         .staticmethod("getNumRunningAnims")
+        .def("fadeIn", LinearAnim::fadeIn, (bp::arg("node"), bp::arg("duration"),
+                bp::arg("max")=1.0, bp::arg("stopCallback")=object()))
+        .staticmethod("fadeIn")
+        .def("fadeOut", LinearAnim::fadeOut, (bp::arg("node"), bp::arg("duration"),
+                bp::arg("stopCallback")=object()))
+        .staticmethod("fadeOut")
         ;
 
     class_<AttrAnim, boost::shared_ptr<AttrAnim>, bases<Anim>, boost::noncopyable>
@@ -122,10 +140,10 @@ void export_anim()
         .def("setDebug", &StateAnim::setDebug) 
         ;
 
-    def("fadeIn", fadeIn, (bp::arg("node"), bp::arg("duration"), bp::arg("max")=1.0, 
-            bp::arg("stopCallback")=object()));
+    def("fadeIn", fadeInDeprecated, (bp::arg("node"), bp::arg("duration"), 
+            bp::arg("max")=1.0, bp::arg("stopCallback")=object()));
 
-    def("fadeOut", fadeOut, (bp::arg("node"), bp::arg("duration"),
+    def("fadeOut", fadeOutDeprecated, (bp::arg("node"), bp::arg("duration"),
             bp::arg("stopCallback")=object()));
 
 }

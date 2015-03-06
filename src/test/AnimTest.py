@@ -115,7 +115,7 @@ class AnimTestCase(AVGTestCase):
         self.__node.opacity=0.5
         self.__onStopCalled = False
         self.start(False,
-                (lambda: avg.fadeIn(self.__node, 200, 1, onStop),
+                (lambda: avg.Anim.fadeIn(self.__node, 200, 1, onStop),
                  lambda: self.compareImage("testFadeIn1"),
                  lambda: self.compareImage("testFadeIn2"),
                  lambda: self.compareImage("testFadeIn3"),
@@ -132,7 +132,7 @@ class AnimTestCase(AVGTestCase):
         self.__node.opacity=0.5
         self.__onStopCalled = False
         self.start(False,
-                (lambda: avg.fadeOut(self.__node, 200, onStop),
+                (lambda: avg.Anim.fadeOut(self.__node, 200, onStop),
                  lambda: self.compareImage("testFadeOut1"),
                  lambda: self.compareImage("testFadeOut2"),
                  lambda: self.compareImage("testFadeOut3"),
