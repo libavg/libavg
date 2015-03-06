@@ -85,6 +85,7 @@ class AVG_API AudioEngine
         bool m_bEnabled;
         AudioSourceMap m_AudioSources;
         float m_Volume;
+        bool m_bInitialized;
         
         static AudioEngine* s_pInstance;
 };

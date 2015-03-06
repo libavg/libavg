@@ -1290,8 +1290,8 @@ void Player::initAudio()
     AudioEngine* pAudioEngine = AudioEngine::get();
     if (!pAudioEngine) {
         pAudioEngine = new AudioEngine();
+        pAudioEngine->init(m_AP, m_Volume);
     }
-    pAudioEngine->init(m_AP, m_Volume);
     pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     pAudioEngine->play();
 }
