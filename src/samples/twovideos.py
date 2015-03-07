@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import libavg
 from libavg import avg, app, player
 
 
@@ -42,9 +41,9 @@ class HDVideo(app.MainDiv):
     def onButtonPressed(self):
         if not(self.isFading):
             if self.runningVideo == 0:
-                avg.fadeIn(self.videoNodes[1], self.__duration)
+                avg.Anim.fadeIn(self.videoNodes[1], self.__duration)
             else:
-                avg.fadeOut(self.videoNodes[1], self.__duration)
+                avg.Anim.fadeOut(self.videoNodes[1], self.__duration)
             player.setTimeout(self.__duration, self.fadeEnd)
             self.runningVideo = (self.runningVideo+1)%2
             self.isFading = True

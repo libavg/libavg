@@ -273,12 +273,12 @@ class LifeCounter(avg.DivNode):
     def reset(self):
         self.__numLives = 3
         for img in self.__images:
-            avg.fadeIn(img, 250)
+            avg.Anim.fadeIn(img, 250)
 
     def dec(self):
         assert(self.__numLives)
         self.__numLives -= 1
-        avg.fadeOut(self.__images[self.__numLives], 250)
+        avg.Anim.fadeOut(self.__images[self.__numLives], 250)
         return not self.__numLives
 
 
