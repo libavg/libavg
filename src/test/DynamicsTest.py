@@ -67,13 +67,13 @@ class DynamicsTestCase(AVGTestCase):
             self.root.appendChild(self.node)
             if isVideo:
                 self.node.play()
-            self.node = None
 
         def reAddNode2():
-            self.root.insertChildAfter(self.node2)
+            self.root.insertChildAfter(self.node2, self.node)
             if isVideo:
                 self.node2.play()
             self.assertEqual(self.root.getChild(1), self.node2)
+            self.node = None
             self.node2 = None
 
        
