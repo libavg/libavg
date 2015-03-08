@@ -114,6 +114,8 @@ class PlayerTestCase(AVGTestCase):
         player.showCursor(1)
         root = self.loadEmptyScene()
         avg.ImageNode(href="rgb24-65x65.png", parent=root)
+        self.assertEqual(root.getChild(0).getParent(), root)
+        self.assertEqual(root.getChild(0).parent, root)
         self.assertRaises(avg.Exception, invalidCreateNode)
         self.start(False,
                 (getFramerate,
