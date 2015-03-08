@@ -106,26 +106,33 @@ class PlayerTestCase(AVGTestCase):
         def getFramerate():
             framerate = player.getEffectiveFramerate()
             self.assert_(framerate > 0)
+            self.assert_(player.getVideoRefreshRate() > 0)
 
         def invalidCreateNode():
             avg.ImageNode(1, 2, 3)
 
         player.showCursor(0)
+        self.assert_(not(player.isCursorShown()))
         player.showCursor(1)
+        self.assert_(player.isCursorShown())
         root = self.loadEmptyScene()
         avg.ImageNode(href="rgb24-65x65.png", parent=root)
+        self.assertEqual(root.getChild(0).getParent(), root)
+        self.assertEqual(root.getChild(0).parent, root)
         self.assertRaises(avg.Exception, invalidCreateNode)
         self.start(False,
                 (getFramerate,
                  lambda: self.compareImage("testbasics"), 
                  lambda: player.setGamma(0.3, 0.3, 0.3),
                  lambda: player.showCursor(0),
+                 lambda: self.assert_(not(player.isCursorShown())),
                  lambda: player.showCursor(1),
                 ))
 
     def testSetResolution(self):
         root = self.loadEmptyScene()
         avg.ImageNode(href="rgb24-65x65.png", parent=root)
+        player.setWindowPos(0, 0)
         player.setResolution(0, 79, 59, 0)
         self.start(False,
                 (lambda: self.compareImage("testSetResolution"),
@@ -412,7 +419,7 @@ class PlayerTestCase(AVGTestCase):
             self.asyncCalled = True
 
         def threadFunc():
-            player.setTimeout(0, onAsyncCall)
+            player.callFromThread(onAsyncCall)
 
         def startThread():
             self.thread = threading.Thread(target=threadFunc)

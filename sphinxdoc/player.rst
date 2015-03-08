@@ -437,14 +437,6 @@ Player & Canvas
 
             Returns the contents of the current screen as a bitmap.
 
-        .. py:method:: setCursor(bitmap, hotspot)
-
-            Sets the mouse cursor to the bitmap given. The bitmap must have a size
-            divisible by 8 and an RGBA pixel format. The cursor generated is
-            binary black and white with a binary transparency channel. hotspot is
-            the relative position of the actual pointing coordinate in the
-            bitmap.
-
         .. py:method:: setEventHook(pyfunc)
 
             Set a callable which will receive all events before the standard event 

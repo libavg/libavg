@@ -164,7 +164,6 @@ class AVG_API Player: public Publisher
         int getKeyModifierState() const;
 
         BitmapPtr screenshot();
-        void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
         bool isCursorShown();
 

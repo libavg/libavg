@@ -77,6 +77,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bUseHardwareAcce
     m_bWasVSeeking = false;
     m_bWasSeeking = false;
     m_CurVideoFrameTime = -1;
+    m_LastAudioFrameTime = 0;
     
     VideoDecoder::open(sFilename, bUseHardwareAcceleration, bEnableSound);
 
@@ -120,8 +121,8 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_pAStatusQ = AudioMsgQueuePtr(new AudioMsgQueue(AUDIO_STATUS_QUEUE_LENGTH));
         VideoMsgQueue& packetQ = *m_PacketQs[getAStreamIndex()];
         m_pADecoderThread = new boost::thread(
-                AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, packetQ, getAudioStream(), *pAP));
-        m_LastAudioFrameTime = 0;
+                AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, packetQ, getAudioStream(),
+                        *pAP));
     }
 }
 
