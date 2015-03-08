@@ -38,6 +38,12 @@ char videoNodeName[] = "video";
 char fontStyleName[] = "fontstyle";
 char wordsNodeName[] = "words";
 
+long long getDurationDeprecated(VideoNode* pNode)
+{
+    avgDeprecationWarning("1.9.0", "VideoNode.getDuration()", "VideoNode.duration");
+    return pNode->getDuration();
+}
+
 void export_raster()
 {
     scope mainScope;
@@ -174,7 +180,7 @@ void export_raster()
         .def("getCurFrame", &VideoNode::getCurFrame)
         .def("seekToFrame", &VideoNode::seekToFrame)
         .def("getStreamPixelFormat", &VideoNode::getStreamPixelFormat)
-        .def("getDuration", &VideoNode::getDuration)
+        .def("getDuration", &getDurationDeprecated)
         .def("getVideoDuration", &VideoNode::getVideoDuration)
         .def("getAudioDuration", &VideoNode::getAudioDuration)
         .def("getBitrate", &VideoNode::getBitrate)
@@ -200,6 +206,7 @@ void export_raster()
         .add_property("volume", &VideoNode::getVolume, &VideoNode::setVolume)
         .add_property("threaded", &VideoNode::isThreaded)
         .add_property("accelerated", &VideoNode::isAccelerated)
+        .add_property("duration", &VideoNode::getDuration)
     ;
 
     class_<FontStyle, bases<ExportedObject> >("FontStyle", no_init)

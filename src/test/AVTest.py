@@ -56,7 +56,7 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getContainerFormat(), "avi")
             self.assertEqual(node.getCurFrame(), 0)
             self.assertEqual(node.getCurTime(), 0)
-            self.assertEqual(node.getDuration(), 1000)
+            self.assertEqual(node.duration, 1000)
             self.assertEqual(node.getBitrate(), 224064)
             self.assertEqual(node.getVideoCodec(), "mpeg4")
             self.assertEqual(node.getStreamPixelFormat(), "yuv420p")
@@ -76,7 +76,6 @@ class AVTestCase(AVGTestCase):
 
         def checkExceptions():
             node = avg.VideoNode(href="mpeg1-48x48.mov", threaded=isThreaded)
-            self.assertRaises(avg.Exception, node.getDuration)
             self.assertRaises(avg.Exception, node.getBitrate)
             self.assertRaises(avg.Exception, node.getVideoCodec)
             self.assertRaises(avg.Exception, node.getStreamPixelFormat)
@@ -495,6 +494,7 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getAudioSampleRate(), 44100)
             self.assertEqual(node.getNumAudioChannels(), 2)
             self.assertEqual(node.getCurTime(), 0)
+            self.assertEqual(node.duration, 2000)
 
         def checkExceptions():
             node = avg.SoundNode(href="44.1kHz_16bit_stereo.wav")
