@@ -111,7 +111,9 @@ class PlayerTestCase(AVGTestCase):
             avg.ImageNode(1, 2, 3)
 
         player.showCursor(0)
+        self.assert_(not(player.isCursorShown()))
         player.showCursor(1)
+        self.assert_(player.isCursorShown())
         root = self.loadEmptyScene()
         avg.ImageNode(href="rgb24-65x65.png", parent=root)
         self.assertEqual(root.getChild(0).getParent(), root)
@@ -122,6 +124,7 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testbasics"), 
                  lambda: player.setGamma(0.3, 0.3, 0.3),
                  lambda: player.showCursor(0),
+                 lambda: self.assert_(not(player.isCursorShown())),
                  lambda: player.showCursor(1),
                 ))
 
