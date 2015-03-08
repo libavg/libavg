@@ -414,7 +414,7 @@ class PlayerTestCase(AVGTestCase):
             self.asyncCalled = True
 
         def threadFunc():
-            player.setTimeout(0, onAsyncCall)
+            player.callFromThread(onAsyncCall)
 
         def startThread():
             self.thread = threading.Thread(target=threadFunc)
