@@ -323,7 +323,7 @@ class AVTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideoFPS")
                 ))
 
-    def testVideoLoop(self):
+    def testLoop(self):
         def onEOF():
             self.eof = True
 
@@ -333,14 +333,21 @@ class AVTestCase(AVGTestCase):
                     self.compareImage("testVideoLoop")
                 player.stop()
 
-        for threaded in [False, True]:
+        for audio, threaded in [(False, False), (False, True), (True, True)]:
             self.eof = False
-            player.setFakeFPS(25)
+            if audio:
+                player.setFakeFPS(-1)
+            else:
+                player.setFakeFPS(25)
             root = self.loadEmptyScene()
-            videoNode = avg.VideoNode(parent=root, loop=True, fps=25, size=(96,96),
+            if audio:
+                node = avg.SoundNode(parent=root, loop=True,
+                        href="48kHz_16bit_mono.wav")
+            else:
+                node = avg.VideoNode(parent=root, loop=True, fps=25, size=(96,96),
                     threaded=threaded, href="mpeg1-48x48.mov")
-            videoNode.subscribe(avg.Node.END_OF_FILE, onEOF)
-            videoNode.play()
+            node.subscribe(avg.Node.END_OF_FILE, onEOF)
+            node.play()
             player.subscribe(player.ON_FRAME, onFrame)
             player.play()
 
@@ -665,7 +672,7 @@ def AVTestSuite(tests):
             "testVideoOpacity",
             "testVideoSeek",
             "testVideoFPS",
-            "testVideoLoop",
+            "testLoop",
             "testVideoMask",
             "testVideoEOF",
             "testVideoSeekAfterEOF",
