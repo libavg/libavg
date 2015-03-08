@@ -24,7 +24,7 @@
 from libavg import avg
 
 validPixFmt = list();
-for formatItem in avg.getSupportedPixelFormats():
+for formatItem in avg.Bitmap.getSupportedPixelFormats():
     validPixFmt.append(formatItem);
 validDrivers = ('firewire', 'video4linux', 'directshow')
 

@@ -208,6 +208,14 @@ static bp::object ImageCache_GetMemUsed(ImageCache* pCache)
             pCache->getMemUsed(CachedImage::STORAGE_GPU));
 }
 
+vector<string> getSupportedPixelFormatsDeprecated()
+{
+    avgDeprecationWarning("1.9.0", "avg.getSupportedPixelFormats",
+            "avg.Bitmap.getSupportedPixelFormats");
+    return getSupportedPixelFormats();
+}
+
+
 void export_bitmap()
 {
     export_point<glm::vec2>("Point2D")
@@ -258,7 +266,7 @@ void export_bitmap()
         .value("I32F", I32F)
         .export_values();
 
-    def("getSupportedPixelFormats", &getSupportedPixelFormats);
+    def("getSupportedPixelFormats", &getSupportedPixelFormatsDeprecated);
 
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 
@@ -281,6 +289,8 @@ void export_bitmap()
         .def("getStdDev", &Bitmap::getStdDev)
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>())
+        .def("getSupportedPixelFormats", &getSupportedPixelFormats)
+        .staticmethod("getSupportedPixelFormats")
     ;
 
     class_<ImageCache>("ImageCache", no_init)
