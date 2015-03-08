@@ -487,6 +487,7 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getAudioCodec(), "pcm_s16le")
             self.assertEqual(node.getAudioSampleRate(), 44100)
             self.assertEqual(node.getNumAudioChannels(), 2)
+            self.assertEqual(node.getCurTime(), 0)
 
         def checkExceptions():
             node = avg.SoundNode(href="44.1kHz_16bit_stereo.wav")
