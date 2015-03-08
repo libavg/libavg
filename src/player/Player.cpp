@@ -888,47 +888,6 @@ bool Player::isCursorShown()
     return m_DP.isCursorVisible();
 }
 
-void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
-{
-    IntPoint size = pBmp->getSize();
-    if (size.x % 8 != 0 || size.y % 8 != 0 || pBmp->getPixelFormat() != R8G8B8A8) {
-        throw Exception(AVG_ERR_INVALID_ARGS,
-                "setCursor: Bitmap size must be divisible by 8 and in RGBA format.");
-    }
-    int i = -1;
-    unsigned char * pData = new unsigned char[size.x*size.y/8];
-    unsigned char * pMask = new unsigned char[size.x*size.y/8];
-    Pixel32 * pLine = (Pixel32*)(pBmp->getPixels());
-    int stride = pBmp->getStride()/4;
-    for (int y = 0; y < size.y; ++y) {
-        Pixel32 * pPixel = pLine;
-        for (int x = 0; x < size.x; ++x) {
-            if (x % 8 == 0) {
-                i++;
-                pData[i] = 0;
-                pMask[i] = 0;
-            } else {
-                pData[i] <<= 1;
-                pMask[i] <<= 1;
-            }
-            if (pPixel->getA() > 127) {
-                pMask[i] |= 0x01;
-                if (pPixel->getR() < 128) {
-                    // Black Pixel
-                    pData[i] |= 0x01;
-                }
-            }
-            pPixel++;
-        }
-        pLine += stride;
-    }
-    SDL_Cursor * pCursor = SDL_CreateCursor(pData, pMask, size.x, size.y,
-            hotSpot.x, hotSpot.y);
-    SDL_SetCursor(pCursor);
-    delete[] pData;
-    delete[] pMask;
-}
-
 NodePtr Player::getElementByID(const std::string& sID)
 {
     if (m_pMainCanvas) {
@@ -1181,7 +1140,6 @@ void Player::setGamma(float red, float green, float blue)
 
 void Player::initConfig()
 {
-    errorIfMultiDisplay("Player.setWindowPos");
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
 
