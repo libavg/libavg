@@ -106,6 +106,7 @@ class PlayerTestCase(AVGTestCase):
         def getFramerate():
             framerate = player.getEffectiveFramerate()
             self.assert_(framerate > 0)
+            self.assert_(player.getVideoRefreshRate() > 0)
 
         def invalidCreateNode():
             avg.ImageNode(1, 2, 3)
