@@ -118,7 +118,7 @@ class AVTestCase(AVGTestCase):
                 self.assertAlmostEqual(node.volume, volume)
 
             def checkImage(filename):
-                if not(isThreaded):
+                if not isThreaded:
                     self.compareImage("testVideo-"+filename+"1")
 
             def testInfo():
@@ -306,10 +306,6 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage("testVideoSeek3")
                     ))
 
-        def checkSeek():
-            seek(26)
-            self.assertNotEqual(videoNode.getCurFrame(), 0)
-
     def testVideoFPS(self):
         player.setFakeFPS(25)
         root = self.loadEmptyScene()
@@ -328,7 +324,7 @@ class AVTestCase(AVGTestCase):
 
         def onFrame():
             if self.eof:
-                if not(threaded):
+                if not threaded:
                     self.compareImage("testVideoLoop")
                 player.stop()
 
@@ -646,6 +642,7 @@ class AVTestCase(AVGTestCase):
         self.start(False,
                 [lambda: self.compareImage("test2VideosAtOnce1"),])
 
+    # noinspection PyArgumentList
     def testVideoAccel(self):
         accelConfig = avg.VideoNode.getVideoAccelConfig()
         video = avg.VideoNode(accelerated=False, href="media/mpeg1-48x48.mov")
