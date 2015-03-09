@@ -20,33 +20,34 @@
 # Current versions can be found at www.libavg.de
 #
 
-'''
+"""
 Runner for libavg unit tests
 
 On autotools-based systems, tests are performed on a local libavg package.
 This package is created by symlinking all the relevant files in a local, temporary
 directory, letting python find it as first instance.
 On windows, instead, tests are always carried on after distutils installs the package.
-'''
+"""
 
 import sys
 import os
 import shutil
 import atexit
 
+
 def cleanup(folder):
     if os.path.isdir(folder):
         sys.stderr.write('Wiping out directory: %s\n' % folder)
         shutil.rmtree(folder)
 
+
 def symtree(src, dest):
     os.mkdir(dest)
     for f in os.listdir(src):
         fpath = os.path.join(src, f)
-        if (f and f[0] != '.' and
-            (os.path.isdir(fpath) or
-            (os.path.isfile(fpath) and os.path.splitext(f)[1] in ('.py', '.glsl')))):
-                os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
+        if (f and f[0] != '.' and (os.path.isdir(fpath) or
+                (os.path.isfile(fpath) and os.path.splitext(f)[1] in ('.py', '.glsl')))):
+            os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
 
 if sys.platform != 'win32':
@@ -55,14 +56,14 @@ if sys.platform != 'win32':
     # '.': make check
     # None: ./Test.py
     # dir name: make distcheck
-    srcDir = os.getenv("srcdir",".")
+    srcDir = os.getenv("srcdir", ".")
     if srcDir == '.':
         # Running make check or ./Test.py
         if os.path.basename(os.getcwd()) != 'test':
             raise RuntimeError('Manual tests must be performed inside directory "test"')
-        
+
         cleanup(tempPackageDir)
-        
+
         try:
             symtree('../python', 'libavg')
             os.symlink('../../graphics/shaders', 'libavg/shaders')
@@ -75,7 +76,7 @@ if sys.platform != 'win32':
 
         # distcheck doesn't want leftovers (.pyc files)
         atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
-    
+
     if os.path.exists('../wrapper/.libs/avg.so'):
         # Normal case: use the local version (not the installed one)
         shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
@@ -95,14 +96,14 @@ if sys.platform != 'win32':
 
 import libavg
 libavg.logger.configureCategory(libavg.Logger.Category.APP, libavg.Logger.Severity.INFO)
-libavg.logger.info("Using libavg from: "+ os.path.dirname(libavg.__file__), 
+libavg.logger.info("Using libavg from: "+ os.path.dirname(libavg.__file__),
         libavg.Logger.Category.APP)
 # Ensure mouse is activated
 libavg.player.enableMouse(True)
 
 import testapp
 
-libavg.Player.get().keepWindowOpen()
+libavg.player.keepWindowOpen()
 
 import PluginTest
 import PlayerTest
