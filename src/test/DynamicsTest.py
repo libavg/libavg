@@ -49,6 +49,7 @@ class DynamicsTestCase(AVGTestCase):
             node.id = "nodeid2"
             oldNode = player.getElementByID("nodeid1")
             self.root.insertChildBefore(node, oldNode)
+            self.assertEqual(self.root.getChild(1), oldNode)
 
         def reorderNode():
             self.root.reorderChild(0, 1)
@@ -58,15 +59,23 @@ class DynamicsTestCase(AVGTestCase):
         def removeNodes():
             self.node = player.getElementByID("nodeid1")
             self.root.removeChild(self.root.indexOf(self.node))
-            node2 = player.getElementByID("nodeid2")
-            self.root.removeChild(node2)
+            self.node2 = player.getElementByID("nodeid2")
+            self.root.removeChild(self.node2)
             self.assertEqual(player.getElementByID("nodeid1"), None)
         
         def reAddNode():
             self.root.appendChild(self.node)
             if isVideo:
                 self.node.play()
+
+        def reAddNode2():
+            self.root.insertChildAfter(self.node2, self.node)
+            if isVideo:
+                self.node2.play()
+            self.assertEqual(self.root.getChild(1), self.node2)
             self.node = None
+            self.node2 = None
+
        
         def killNode():
             def onKill():
@@ -105,6 +114,7 @@ class DynamicsTestCase(AVGTestCase):
                      lambda: self.compareImage(testName+"5"),
                      killNode,
                      reAddNode,
+                     reAddNode2,
                      removeAgain
                     ))
         
