@@ -339,8 +339,7 @@ class ImageTestCase(AVGTestCase):
                 self.assert_(not isinstance(bitmap, Exception))
                 player.setTimeout(0, loadBitmapWithPixelFormat)
 
-            avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
-                    validBitmapCb)
+            bitmapManager.loadBitmap("media/rgb24alpha-64x64.png", validBitmapCb)
 
         def loadBitmapWithPixelFormat():
             def validBitmapCb(bitmap):
@@ -348,11 +347,11 @@ class ImageTestCase(AVGTestCase):
                 self.assert_(bitmap.getFormat() == avg.B5G6R5)
                 player.setTimeout(0, loadUnexistentBitmap)
 
-            avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
+            bitmapManager.loadBitmap("media/rgb24alpha-64x64.png",
                     validBitmapCb, avg.B5G6R5)
 
         def loadUnexistentBitmap():
-            avg.BitmapManager.get().loadBitmap("nonexistent.png",
+            bitmapManager.loadBitmap("nonexistent.png",
                     lambda bmp: expectException(
                             returnValue=bmp,
                             nextAction=lambda: player.setTimeout(0, loadBrokenBitmap)))
@@ -367,21 +366,20 @@ class ImageTestCase(AVGTestCase):
                 os.unlink(tempFileName)
                 expectException(returnValue=returnValue, nextAction=player.stop)
 
-            avg.BitmapManager.get().loadBitmap(tempFileName,
-                    cleanupAndTestReturnValue)
+            bitmapManager.loadBitmap(tempFileName, cleanupAndTestReturnValue)
 
         def reportStuck():
             raise RuntimeError("BitmapManager didn't reply "
                     "within %dms timeout" % WAIT_TIMEOUT)
-            player.stop()
-            
+
         player.setFakeFPS(-1)
         sys.stderr.write("\n")
         for multithread in [False, True]:
+            bitmapManager = avg.BitmapManager.get()
             sys.stderr.write("  Multithread: "+str(multithread)+"\n")
             self.loadEmptyScene()
             if multithread:
-                avg.BitmapManager.get().setNumThreads(2)
+                bitmapManager.setNumThreads(2)
             player.setTimeout(WAIT_TIMEOUT, reportStuck)
             loadValidBitmap()
             player.play()

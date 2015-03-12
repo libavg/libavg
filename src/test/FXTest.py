@@ -99,7 +99,7 @@ class FXTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, text="testtext", font="Bitstream Vera Sans")
         node.setEffect(avg.NullFXNode())
-        node = avg.WordsNode(parent=root, text="testtext", pos=(0,20),
+        avg.WordsNode(parent=root, text="testtext", pos=(0,20),
                 font="Bitstream Vera Sans")
         self.start(True,
                 (lambda: self.compareImage("testWordsNullFX"),

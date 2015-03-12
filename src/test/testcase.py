@@ -35,7 +35,7 @@ def almostEqual(a, b, epsilon):
             if not(almostEqual(a[i], b[i], epsilon)):
                 bOk = False
         return bOk
-    except:
+    except TypeError:
         return math.fabs(a-b) < epsilon
 
 def flatten(l):
@@ -94,8 +94,8 @@ class AVGTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, testFuncName)
 
         player.enableGLErrorChecks(True)
-        logger.configureCategory("MEMORY", logger.Severity.ERR);
-        logger.configureCategory("DEPREC", logger.Severity.ERR);
+        logger.configureCategory("MEMORY", logger.Severity.ERR)
+        logger.configureCategory("DEPREC", logger.Severity.ERR)
         self.__testFuncName = testFuncName
         self.__logger = avg.logger
         self.__skipped = False
@@ -115,20 +115,20 @@ class AVGTestCase(unittest.TestCase):
     
     @staticmethod
     def cleanResultDir():
-        dir = AVGTestCase.getImageResultDir()
+        resultDir = AVGTestCase.getImageResultDir()
         try:
-            files = os.listdir(dir)
-            for file in files:
-                os.remove(dir+"/"+file)
+            files = os.listdir(resultDir)
+            for resultFile in files:
+                os.remove(resultDir+"/"+resultFile)
         except OSError:
             try:
-                os.mkdir(dir)
+                os.mkdir(resultDir)
             except OSError:
                 pass
 
     def start(self, warnOnImageDiff, actions):
         self.__setupPlayer()
-        self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
+        self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") is not None)
         self.__delaying = False
         self.__warnOnImageDiff = warnOnImageDiff
         
@@ -225,27 +225,28 @@ class AVGTestCase(unittest.TestCase):
             player.stop()
             return
 
-    def _sendMouseEvent(self, type, x, y, btn=1):
+    def _sendMouseEvent(self, eventType, x, y, btn=1):
         if not self.__mouseEmulator:
             self.__mouseEmulator = MouseEmulator()
-        self.__mouseEmulator.sendMouseEvent(type, x, y, btn)
+        self.__mouseEmulator.sendMouseEvent(eventType, x, y, btn)
 
-    def _sendTouchEvent(self, id, type, x, y):
+    def _sendTouchEvent(self, eventID, eventType, x, y):
         helper = player.getTestHelper()
-        helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x,y))
+        helper.fakeTouchEvent(eventID, eventType, avg.Event.TOUCH, avg.Point2D(x,y))
 
     def _sendTouchEvents(self, eventData):
         helper = player.getTestHelper()
-        for (id, type, x, y) in eventData:
-            helper.fakeTouchEvent(id, type, avg.Event.TOUCH, avg.Point2D(x,y))
+        for (eventID, eventType, x, y) in eventData:
+            helper.fakeTouchEvent(eventID, eventType, avg.Event.TOUCH, avg.Point2D(x,y))
 
-    def _sendTangibleEvent(self, id, markerid, type, x, y):
+    def _sendTangibleEvent(self, eventID, markerid, eventType, x, y):
         helper = player.getTestHelper()
-        helper.fakeTangibleEvent(id, markerid, type, avg.Point2D(x,y), avg.Point2D(0,0), 0)
+        helper.fakeTangibleEvent(eventID, markerid, eventType, avg.Point2D(x,y),
+                avg.Point2D(0,0), 0)
 
-    def _genMouseEventFrames(self, type, x, y, expectedEvents):
+    def _genMouseEventFrames(self, eventType, x, y, expectedEvents):
         return [
-                 lambda: self._sendMouseEvent(type, x, y),
+                 lambda: self._sendMouseEvent(eventType, x, y),
                  lambda: self.messageTester.assertState(expectedEvents),
                 ]
 

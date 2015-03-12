@@ -31,10 +31,10 @@ class PlayerTestCase(AVGTestCase):
 
     def testPoint(self):
         def testHash():
-            ptMap = {}
-            ptMap[avg.Point2D(0,0)] = 0
-            ptMap[avg.Point2D(1,0)] = 1
-            ptMap[avg.Point2D(0,0)] = 2
+            ptMap = {
+                avg.Point2D(0,0): 0,
+                avg.Point2D(1,0): 1,
+                avg.Point2D(0,0): 2}
             self.assertEqual(len(ptMap), 2)
             self.assertEqual(ptMap[avg.Point2D(0,0)], 2)
         
@@ -738,11 +738,11 @@ class PlayerTestCase(AVGTestCase):
     def testScreenDimensions(self):
         def queryDimensions():
             res = player.getScreenResolution()
-            self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
+            self.assert_(0 < res.x < 10000 and 0 < res.y < 10000)
             ppmm = player.getPixelsPerMM()
-            self.assert_(ppmm > 0 and ppmm < 10000)
+            self.assert_(0 < ppmm < 10000)
             mm = player.getPhysicalScreenDimensions()
-            self.assert_(mm.x > 0 and mm.y > 0 and mm.x < 10000 and mm.y < 10000)
+            self.assert_(0 < mm.x < 10000 and 0 < mm.y < 10000)
             player.assumePixelsPerMM(ppmm)
             newPPMM = player.getPixelsPerMM()
             self.assertAlmostEqual(newPPMM, ppmm)

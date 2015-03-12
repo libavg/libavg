@@ -207,7 +207,7 @@ class OffscreenTestCase(AVGTestCase):
 
         mainCanvas, offscreenCanvas = self.__setupCanvas(True)
         offscreenImage = offscreenCanvas.getElementByID("test1")
-        offscreenImage.subscribe(avg.Node.CURSOR_DOWN, onOffscreenImageDown);
+        offscreenImage.subscribe(avg.Node.CURSOR_DOWN, onOffscreenImageDown)
         self.__offscreenImageDownCalled = False
         offscreenImage.setEventCapture()
         self.start(False,
