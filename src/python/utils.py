@@ -27,16 +27,16 @@ from libavg import avg, player
 
 def getMediaDir(_file_=None, subdir='media'):
     """call with _file_=__file__"""
-    if _file_ == None:
+    if _file_ is None:
         _file_ = __file__
     myDir = os.path.dirname(_file_)
     mediaDir = os.path.join(myDir, subdir)
     return os.path.abspath(mediaDir)
 
 def getMediaDirFromNode(node, path=''):
-    '''
+    """
     Recursively build the mediadir path, starting from the given node.
-    '''
+    """
     if node.getParent():
         if type(node) in (avg.DivNode, avg.AVGNode):
             return getMediaDirFromNode(node.getParent(), os.path.join(node.mediadir, path))

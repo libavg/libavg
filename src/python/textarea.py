@@ -188,7 +188,7 @@ class FocusContext(object):
         elected = 0
         for ob in els:
             if not ob.hasFocus():
-                elected = elected + 1
+                elected += 1
             else:
                 break
 
@@ -197,7 +197,7 @@ class FocusContext(object):
         if elected in (len(els), len(els)-1):
             elected = 0
         else:
-            elected = elected + 1
+            elected += 1
 
         for ob in els:
             ob.setFocus(False)
@@ -250,7 +250,7 @@ class TextArea(avg.DivNode):
 
         textNode = avg.WordsNode(rawtextmode=True)
 
-        if textBackgroundNode != None:
+        if textBackgroundNode is not None:
             self.appendChild(textBackgroundNode)
 
         if not disableMouseFocus:
@@ -289,7 +289,7 @@ class TextArea(avg.DivNode):
             self.__loupeZoomFactor = 0.5
             self.__loupe = avg.DivNode(parent=self, crop=True)
 
-            if loupeBackgroundNode != None:
+            if loupeBackgroundNode is not None:
                 self.__loupe.appendChild(loupeBackgroundNode)
                 self.__loupe.size = loupeBackgroundNode.size
             else:
@@ -557,7 +557,7 @@ class TextArea(avg.DivNode):
 
     def __appendUChar(self, uchar):
         # if maximum number of char is specified, honour the limit
-        if self.__maxLength > -1 and len(self.__data) > self.__maxLength:
+        if -1 < self.__maxLength < len(self.__data):
             return
 
         # Boundary control
@@ -654,8 +654,7 @@ class TextArea(avg.DivNode):
         self.__addLoupe()
         event = player.getCurrentEvent()
         eventPos = self.getRelPos(event.pos)
-        if ( (eventPos[0] >= -1 and eventPos[0] <= self.size[0]) and
-                (eventPos[1] >= 0 and eventPos[1] <= self.size[1]) ):
+        if ((-1 <= eventPos[0] <= self.size[0]) and (0 <= eventPos[1] <= self.size[1])):
             self.__updateCursorPosition(event)
         else:
             self.__upHandler(None)
@@ -678,7 +677,7 @@ class TextArea(avg.DivNode):
         for line in range(textNode.getNumLines()):
             curLine = textNode.getLineExtents(line)
             minMaxHight = (curLine[1] * line,curLine[1] * (line + 1) )
-            if pos[1] >= minMaxHight[0] and pos[1] < minMaxHight[1]:
+            if minMaxHight[0] <= pos[1] < minMaxHight[1]:
                 return line
         return 0
 
@@ -697,12 +696,12 @@ class TextArea(avg.DivNode):
         length = len(self.__data)
         if length > 0:
             index = self.__textNode.getCharIndexFromPos(eventPos) # click on letter
-            if index == None: # click behind line
+            if index is None: # click behind line
                 realLines = self.__textNode.getNumLines() - 1
                 for line in range(realLines + 1):
                     curLine = self.__textNode.getLineExtents(line)
                     minMaxHight = (curLine[1] * line,curLine[1] * (line + 1) )
-                    if eventPos[1] >= minMaxHight[0] and eventPos[1] < minMaxHight[1]:
+                    if minMaxHight[0] <= eventPos[1] < minMaxHight[1]:
                         if curLine[0] != 0: # line with letters
                             correction = 1
                             if self.__textNode.alignment != "left":
@@ -725,11 +724,11 @@ class TextArea(avg.DivNode):
                                     index = char
                                     break
                         break
-            if index == None: # click under text
+            if index is None: # click under text
                 curLine = self.__textNode.getLineExtents(realLines)
                 curLine *= realLines
                 index = self.__textNode.getCharIndexFromPos( (eventPos[0],curLine[1]) )
-            if index == None:
+            if index is None:
                 index = length
             self.__cursorPosition = index
 
