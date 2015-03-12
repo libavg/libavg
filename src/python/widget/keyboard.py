@@ -245,8 +245,7 @@ class Keyboard(avg.DivNode):
         return None
 
     def __isInside(self, pos, node):
-        return (pos.x >= 0 and pos.y >= 0 and 
-                pos.x <= node.size.x and pos.y <= node.size.y)
+        return (0 <= pos.x <= node.size.x and 0 <= pos.y <= node.size.y)
 
     def __switchFeedbackKey(self, newKey):
         if self.__feedbackKey:

@@ -100,7 +100,7 @@ class Skin:
             kwargs = self.__extractArgs(attrs, pyArgNames=pyArgNames, 
                     bmpArgNames=bmpArgNames, fontArgNames=fontArgNames)
             cfgMap[nodeid] = kwargs
-            if defaultCfg == None or nodeid == None:
+            if defaultCfg is None or nodeid is None:
                 defaultCfg = kwargs
         return cfgMap, defaultCfg
 
@@ -133,7 +133,7 @@ class Skin:
         for sliderXmlNode in xmlRoot.findall(typeName):
             (nodeID, bogus) = self.__splitAttrs(sliderXmlNode)
             sliderCfg[nodeID] = {}
-            if defaultSliderCfg == None or nodeID == None:
+            if defaultSliderCfg is None or nodeID is None:
                 defaultSliderCfg = sliderCfg[nodeID]
             for xmlNode in sliderXmlNode.findall("*"):
                 # Loop through orientations (horiz, vert)

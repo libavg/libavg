@@ -49,7 +49,7 @@ class _ButtonBase(avg.DivNode):
             #because the tap recognizer won't keep it
             self.__activeAreaNode = activeAreaNode
         else:
-            if activeAreaNode == None:
+            if activeAreaNode is None:
                 activeAreaNode = self
             else:
                 self.appendChild(activeAreaNode)
@@ -68,7 +68,7 @@ class Button(_ButtonBase):
             enabled=True, fatFingerEnlarge=False, **kwargs):
         super(Button, self).__init__(**kwargs)
 
-        if disabledNode == None:
+        if disabledNode is None:
             disabledNode = upNode
 
         nodeMap = {
@@ -149,7 +149,7 @@ class BmpButton(Button):
     def __init__(self, upSrc, downSrc, disabledSrc=None, **kwargs):
         upNode = avg.ImageNode(href=upSrc)
         downNode = avg.ImageNode(href=downSrc)
-        if disabledSrc != None:
+        if disabledSrc is not None:
             disabledNode = avg.ImageNode(href=disabledSrc)
         else:
             disabledNode = None
@@ -213,9 +213,9 @@ class ToggleButton(_ButtonBase):
             "UNCHECKED_DISABLED": uncheckedDisabledNode, 
             "CHECKED_DISABLED": checkedDisabledNode, 
         }
-        if uncheckedDisabledNode == None:
+        if uncheckedDisabledNode is None:
             nodeMap["UNCHECKED_DISABLED"] = uncheckedUpNode
-        if checkedDisabledNode == None:
+        if checkedDisabledNode is None:
             nodeMap["CHECKED_DISABLED"] = checkedUpNode
         self.__switchNode = SwitchNode(nodeMap=nodeMap, visibleid="UNCHECKED_UP", 
                 parent=self)
@@ -424,11 +424,11 @@ class BmpToggleButton(ToggleButton):
         checkedUpNode = avg.ImageNode(href=checkedUpSrc)
         checkedDownNode = avg.ImageNode(href=checkedDownSrc)
 
-        if uncheckedDisabledSrc != None:
+        if uncheckedDisabledSrc is not None:
             uncheckedDisabledNode = avg.ImageNode(href=uncheckedDisabledSrc)
         else:
             uncheckedDisabledNode = None
-        if checkedDisabledSrc != None:
+        if checkedDisabledSrc is not None:
             checkedDisabledNode = avg.ImageNode(href=checkedDisabledSrc)
         else:
             checkedDisabledNode = None
