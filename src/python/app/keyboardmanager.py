@@ -79,18 +79,18 @@ def unbindAll():
     publisher.notifyUpdate()
 
 def push():
-    '''
+    """
     Push the current non-modified defined key bindings to the stack
-    '''
+    """
     global _plainKeyBindings
     _plainKeyBindingsStack.append(_plainKeyBindings)
     _plainKeyBindings = []
     publisher.notifyUpdate()
 
 def pop():
-    '''
+    """
     Pop from the stack the current non-modified defined key bindings
-    '''
+    """
     global _plainKeyBindings
     _plainKeyBindings = _plainKeyBindingsStack.pop()
     publisher.notifyUpdate()
@@ -122,13 +122,13 @@ def _bindKey(keystring, handler, help, modifiers, type_):
 
     publisher.notifyUpdate()
 
-def _findAndRemoveKeybinding(keystring, modifiers, type, list):
-    for keybinding in list:
+def _findAndRemoveKeybinding(keystring, modifiers, type, bindingList):
+    for keybinding in bindingList:
             if keybinding.keystring == keystring and \
                keybinding.modifiers == modifiers and \
                keybinding.type == type:
-                   list.remove(keybinding)
-                   break;
+                   bindingList.remove(keybinding)
+                   break
 
 def _unbindKey(keystring, modifiers, type_):
     if type(keystring) == unicode:
