@@ -4,7 +4,7 @@ if APPLE
     X_LIBS =
 else
 if ENABLE_RPI
-    X_LIBS = -lX11 -lGLESv2 -lEGL
+    X_LIBS = -lX11 -lbcm_host -lGLESv2 -lEGL
 else
 if ENABLE_EGL
     X_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
