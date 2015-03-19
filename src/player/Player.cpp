@@ -675,7 +675,7 @@ void Player::enableMultitouch()
 #elif defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
         sDriver = "XINPUT";
 #else
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER and TUIO.");
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
 #endif
