@@ -446,7 +446,7 @@ void RasterNode::blt(GLContext* pContext, const glm::mat4& transform,
     if (m_pFXNode) {
         pContext->setBlendMode(m_BlendMode, true);
 #ifdef AVG_ENABLE_EGL
-        WrapMode wrapMode();
+        WrapMode wrapMode;
 #else
         WrapMode wrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 #endif
