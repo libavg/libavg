@@ -407,7 +407,7 @@ class EventTestCase(AVGTestCase):
 
     def testPublisherAutoDelete(self):
        
-        class TestSubscriber():
+        class TestSubscriber(object):
             def __init__(self):
                 self.__downCalled = False
 

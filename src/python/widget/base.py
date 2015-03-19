@@ -20,7 +20,8 @@
 
 from libavg import avg, player
 
-class Orientation():
+
+class Orientation(object):
     VERTICAL = 0
     HORIZONTAL = 1
 
