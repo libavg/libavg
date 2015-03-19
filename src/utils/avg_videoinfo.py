@@ -64,10 +64,10 @@ class OutputHandler(object):
                 if os.path.isfile(arg):
                     filePaths.append(arg)
 
-        for file in filePaths:
+        for fileName in filePaths:
             try:
-                if os.path.isfile(file):
-                    self._node.href = str(file)
+                if os.path.isfile(fileName):
+                    self._node.href = str(fileName)
                     self._node.play()
                     self._fileNameList.append(self._node.href)   
             except RuntimeError, err:
@@ -94,7 +94,7 @@ class ConsoleOutputHandler(OutputHandler):
     
     def __init__(self, args):
         super(ConsoleOutputHandler, self).__init__(args)
-        if self._fileNameList == []:
+        if not self._fileNameList:
             print "No valid video files found."
             printHelp()
 

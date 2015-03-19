@@ -24,14 +24,15 @@ from libavg import avg, app, player, filter, widget
 
 
 class LabledSlider(avg.DivNode):
-    def __init__(self, label, range, formatStr, parent=None, **kwargs):
+    def __init__(self, label, sliderRange, formatStr, parent=None, **kwargs):
         super(LabledSlider, self).__init__(**kwargs)
         self.registerInstance(self, parent)
         self.__formatStr = formatStr
 
         fontStyle = widget.Skin.default.fonts["stdFont"]
         avg.WordsNode(text=label, fontstyle=fontStyle, color="FFFFFF", parent=self)
-        self.__slider = widget.Slider(width=300, range=range, pos=(15,20), parent=self)
+        self.__slider = widget.Slider(width=300, range=sliderRange, pos=(15,20),
+                parent=self)
         self.__slider.subscribe(self.__slider.THUMB_POS_CHANGED, self.__onSliderMove)
         self.__valueDisplay = avg.WordsNode(pos=(320, 18), fontstyle=fontStyle,
                 color="FFFFFF", parent=self)
@@ -54,12 +55,12 @@ class JitterFilter(app.MainDiv):
             self.settings.set("app_resolution", "") # use screen resolution
 
     def onInit(self):
-        self.__minCutoffSlider = LabledSlider(label="Minimum Cutoff", range=(0.3, 8.0),
-                formatStr="%.1f", pos=(10,10), parent=self)
+        self.__minCutoffSlider = LabledSlider(label="Minimum Cutoff",
+                sliderRange=(0.3, 8.0), formatStr="%.1f", pos=(10,10), parent=self)
         self.__minCutoffSlider.subscribe(widget.Slider.THUMB_POS_CHANGED, 
                 self.__onSliderMove)
-        self.__cutoffSlopeSlider = LabledSlider(label="Cutoff Slope", range=(0.0, 0.05),
-                formatStr="%.3f", pos=(10,50), parent=self)
+        self.__cutoffSlopeSlider = LabledSlider(label="Cutoff Slope",
+                sliderRange=(0.0, 0.05), formatStr="%.3f", pos=(10,50), parent=self)
         self.__minCutoffSlider.subscribe(widget.Slider.THUMB_POS_CHANGED, 
                 self.__onSliderMove)
         self.__onSliderMove(avg.Point2D(0,0))
