@@ -102,7 +102,7 @@ class AveragingGraph(Graph):
             del self._usage[0:3600]
             del self._maxUsage[0:3599]
             if self.__numSamples == 604800:
-                self.__numSamples == 0
+                self.__numSamples = 0
 
     def _plotLine(self, data, node, maxy):
         yfactor = (self.size.y - 10.0) / float(maxy)

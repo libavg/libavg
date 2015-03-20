@@ -63,13 +63,13 @@ class ShowCamera(app.MainDiv):
                 print "----------------- FORMATS ------------------"
                 formatsList = list()
                 formatsList = info.imageFormats
-                for format in formatsList:
+                for imageFormat in formatsList:
                     print "++++"
-                    print "Pixelformat:", format.pixelFormat
-                    print "Resolution:", format.size
+                    print "Pixelformat:", imageFormat.pixelFormat
+                    print "Resolution:", imageFormat.size
                     print "Framerates: |",
                     framerateList = list()
-                    framerateList = format.framerates
+                    framerateList = imageFormat.framerates
                     for framerate in framerateList:
                         print framerate, "|",
                     print ""

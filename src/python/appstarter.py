@@ -36,7 +36,7 @@ g_KbManager = apphelpers.KeyboardManager.get()
 
 
 class AppStarter(object):
-    '''Starts an AVGApp'''
+    """Starts an AVGApp"""
     def __init__(self, appClass, resolution=DEFAULT_RESOLUTION,
             debugWindowSize=None, fakeFullscreen=False):
 

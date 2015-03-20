@@ -202,7 +202,7 @@ class PythonTestCase(AVGTestCase):
         os.unlink(testFile)
         
     def testPersistCorrupted(self):
-        logger.configureCategory("APP", logger.Severity.ERR);
+        logger.configureCategory("APP", logger.Severity.ERR)
         testFile = getTempFileName()
         f = open(testFile, 'w')
         f.write('garbage')
@@ -210,17 +210,17 @@ class PythonTestCase(AVGTestCase):
         p = persist.Persist(testFile, {})
         self.assertEqual(p.data, {})
         os.unlink(testFile)
-        logger.configureCategory("APP", logger.Severity.WARN);
+        logger.configureCategory("APP", logger.Severity.WARN)
 
     def testPersistValidation(self):
-        logger.configureCategory("APP", logger.Severity.ERR);
+        logger.configureCategory("APP", logger.Severity.ERR)
         testFile = getTempFileName()
         p = persist.Persist(testFile, {'test': 1})
         p.commit()
         p = persist.Persist(testFile, [], validator=lambda v: isinstance(v, list))
         self.assertEqual(p.data, [])
         os.unlink(testFile)
-        logger.configureCategory("APP", logger.Severity.WARN);
+        logger.configureCategory("APP", logger.Severity.WARN)
 
 
 def pythonTestSuite(tests):

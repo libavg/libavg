@@ -1,7 +1,5 @@
-'''
-libavg is a high-level development platform for media-centric applications.
-https://www.libavg.de
-'''
+# libavg is a high-level development platform for media-centric applications.
+# https://www.libavg.de
 
 # Work around libstdc++ Mesa bug
 # (https://bugs.launchpad.net/ubuntu/+source/mesa/+bug/259219)

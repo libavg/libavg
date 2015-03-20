@@ -192,13 +192,13 @@ class AppTestCase(testcase.AVGTestCase):
                 ['TestApp-001.png', 'TestApp-002.png'])
 
         def removeFiles():
-            for file in expectedFiles:
-                if os.path.exists(file):
-                    os.unlink(file)
+            for screenshotFile in expectedFiles:
+                if os.path.exists(screenshotFile):
+                    os.unlink(screenshotFile)
 
         def testScreenshots():
-            for file in expectedFiles:
-                self.assert_(os.path.exists(file))
+            for screenshotFile in expectedFiles:
+                self.assert_(os.path.exists(screenshotFile))
 
         removeFiles()
         app = TestApp()

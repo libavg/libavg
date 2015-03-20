@@ -130,7 +130,7 @@ class Recognizer(avg.Publisher):
     def __onDown(self, event):
         nodeGone = self._handleNodeGone()
         if event.contact and not(nodeGone):
-            if (self.__maxContacts == None or len(self._contacts) <
+            if (self.__maxContacts is None or len(self._contacts) <
                     self.__maxContacts):
                 self.__moveHandlerID[event.contact] = event.contact.subscribe(
                         avg.Contact.CURSOR_MOTION, self.__onMotion)
@@ -220,7 +220,7 @@ class TapRecognizer(Recognizer):
     def __init__(self, node, maxTime=None, maxDist=None, initialEvent=None,
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
-        if maxDist == None:
+        if maxDist is None:
             maxDist = TapRecognizer.MAX_TAP_DIST
         self.__maxDist = maxDist
         super(TapRecognizer, self).__init__(node, False, 1, initialEvent,
@@ -258,10 +258,10 @@ class DoubletapRecognizer(Recognizer):
 
     def __init__(self, node, maxTime=None, maxDist=None, initialEvent=None,
             possibleHandler=None, failHandler=None, detectedHandler=None):
-        if maxTime == None:
+        if maxTime is None:
             maxTime = DoubletapRecognizer.MAX_DOUBLETAP_TIME
         self.__maxTime = maxTime
-        if maxDist == None:
+        if maxDist is None:
             maxDist = TapRecognizer.MAX_TAP_DIST
         self.__maxDist = maxDist
 
@@ -399,7 +399,7 @@ class SwipeRecognizer(Recognizer):
         minAngle = self.__angleWanted - self.__directionTolerance
         maxAngle = self.__angleWanted + self.__directionTolerance
         if minAngle >= 0:
-            return angle > minAngle and angle < maxAngle
+            return minAngle < angle < maxAngle
         else:
             # Valid range spans 0
             return angle > minAngle+2*math.pi or angle < maxAngle
@@ -412,10 +412,10 @@ class HoldRecognizer(Recognizer):
     def __init__(self, node, delay=None, maxDist=None, initialEvent=None,
             possibleHandler=None, failHandler=None,
             detectedHandler=None, endHandler=None, stopHandler=None):
-        if delay == None:
+        if delay is None:
             delay = HoldRecognizer.HOLD_DELAY
         self.__delay = delay
-        if maxDist == None:
+        if maxDist is None:
             maxDist = TapRecognizer.MAX_TAP_DIST
         self.__maxDist = maxDist
 
@@ -470,14 +470,14 @@ class DragRecognizer(Recognizer):
             possibleHandler=None, failHandler=None, detectedHandler=None,
             moveHandler=None, upHandler=None, endHandler=None):
 
-        if coordSysNode != None:
+        if coordSysNode is not None:
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
         self.__direction = direction
         self.__directionTolerance = directionTolerance
 
-        if minDragDist != None:
+        if minDragDist is not None:
             self.__minDragDist = minDragDist
         else:
             if self.__direction == DragRecognizer.ANY_DIRECTION:
@@ -485,7 +485,7 @@ class DragRecognizer(Recognizer):
             else:
                 self.__minDragDist = DragRecognizer.MIN_DRAG_DIST
 
-        if friction == None:
+        if friction is None:
             self.__friction = DragRecognizer.FRICTION
         else:
             self.__friction = friction
@@ -526,12 +526,12 @@ class DragRecognizer(Recognizer):
                 pos = self.__relEventPos(event)
                 offset = pos - self.__dragStartPos
                 if self.getState() == "RUNNING":
-                    self.notifySubscribers(Recognizer.MOTION, [offset]);
+                    self.notifySubscribers(Recognizer.MOTION, [offset])
                 else:
                     if offset.getNorm() > self.__minDragDist*player.getPixelsPerMM():
                         if self.__angleFits(offset):
                             self._setDetected(event)
-                            self.notifySubscribers(Recognizer.MOTION, [offset]);
+                            self.notifySubscribers(Recognizer.MOTION, [offset])
                         else:
                             self.__fail(event)
                 if self.__inertiaHandler:
@@ -544,7 +544,7 @@ class DragRecognizer(Recognizer):
                 pos = self.__relEventPos(event)
                 if self.getState() == "RUNNING":
                     self.__offset = pos - self.__dragStartPos
-                    self.notifySubscribers(Recognizer.UP, [self.__offset]);
+                    self.notifySubscribers(Recognizer.UP, [self.__offset])
                     if self.__friction != -1:
                         self.__isSliding = True
                         self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -570,7 +570,7 @@ class DragRecognizer(Recognizer):
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        self.notifySubscribers(Recognizer.MOTION, [self.__offset]);
+        self.notifySubscribers(Recognizer.MOTION, [self.__offset])
 
     def __onInertiaStop(self):
         self.__inertiaHandler = None
@@ -591,29 +591,30 @@ class DragRecognizer(Recognizer):
         if angle < 0:
             angle = -angle
         if self.__direction == DragRecognizer.VERTICAL:
-            return (angle > math.pi/2-self.__directionTolerance 
-                    and angle < math.pi/2+self.__directionTolerance)
+            return (math.pi/2-self.__directionTolerance < angle
+                    < math.pi/2+self.__directionTolerance)
         elif self.__direction == DragRecognizer.HORIZONTAL:
             return (angle < self.__directionTolerance 
                     or angle > math.pi-self.__directionTolerance)
         else:
             return True
 
-class Mat3x3:
+
+class Mat3x3(object):
     # Internal class. Will be removed again.
 
-    def __init__(self, row0=(1,0,0), row1=(0,1,0), row2=(0,0,1)):
+    def __init__(self, row0=(1, 0, 0), row1=(0, 1, 0), row2=(0, 0, 1)):
         self.m = [row0, row1, row2]
 
     @classmethod
     def translate(cls, t):
         return Mat3x3([1, 0, t[0]],
-                      [0, 1, t[1]])
+            [0, 1, t[1]])
 
     @classmethod
     def rotate(cls, a):
         return Mat3x3([math.cos(a), -math.sin(a), 0],
-                      [math.sin(a), math.cos(a), 0])
+            [math.sin(a), math.cos(a), 0])
 
     @classmethod
     def pivotRotate(cls, t, a):
@@ -639,9 +640,9 @@ class Mat3x3:
         rot = avg.Point2D(v[0], v[1]).getAngle()
         node.angle = rot
         node.size = self.getScale()
-        node.pivot = node.size/2 
+        node.pivot = node.size/2
         v = self.applyVec([0,0,1])
-        node.pos = (avg.Point2D(v[0], v[1]) + (node.pivot).getRotated(node.angle) - 
+        node.pos = (avg.Point2D(v[0], v[1]) + (node.pivot).getRotated(node.angle) -
                 node.pivot)
 
     def getScale(self):
@@ -663,7 +664,7 @@ class Mat3x3:
 
     def applyMat(self, m1):
         m0 = self.m
-        result = Mat3x3() 
+        result = Mat3x3()
         for i in range(3):
             v = []
             for j in range(3):
@@ -673,7 +674,7 @@ class Mat3x3:
 
     def det(self):
         m = self.m
-        return float( m[0][0] * (m[2][2]*m[1][1]-m[2][1]*m[1][2])
+        return float(m[0][0] * (m[2][2] * m[1][1] - m[2][1] * m[1][2])
                      -m[1][0] * (m[2][2]*m[0][1]-m[2][1]*m[0][2])
                      +m[2][0] * (m[1][2]*m[0][1]-m[1][1]*m[0][2]))
 
@@ -683,7 +684,7 @@ class Mat3x3:
         for i in range(3):
             v = []
             for j in range(3):
-                v.append(m[i][j]*s)
+                v.append(m[i][j] * s)
             result.m[i] = v
         return result
 
@@ -730,7 +731,7 @@ def calcKMeans(pts):
     return l1, l2
 
 
-class Transform():
+class Transform(object):
     def __init__(self, trans, rot=0, scale=1, pivot=(0,0)):
         self.trans = avg.Point2D(trans)
         self.rot = rot
@@ -738,7 +739,7 @@ class Transform():
         self.pivot = avg.Point2D(pivot)
 
     def moveNode(self, node):
-        transMat =  Mat3x3.translate(self.trans)
+        transMat = Mat3x3.translate(self.trans)
         rotMat = Mat3x3.rotate(self.rot)
         scaleMat = Mat3x3.scale((self.scale, self.scale))
         pivotMat = Mat3x3.translate(self.pivot)
@@ -753,7 +754,7 @@ class Transform():
         newTransform.setNodeTransform(node)
 
     def __repr__(self):
-        return "Transform"+str((self.trans, self.rot, self.scale, self.pivot))
+        return "Transform" + str((self.trans, self.rot, self.scale, self.pivot))
 
 
 class TransformRecognizer(Recognizer):
@@ -763,12 +764,12 @@ class TransformRecognizer(Recognizer):
 
     def __init__(self, eventNode, coordSysNode=None, initialEvent=None, friction=None, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
-        if coordSysNode != None:
+        if coordSysNode is not None:
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
         
-        if friction == None:
+        if friction is None:
             self.__friction = DragRecognizer.FRICTION
         else:
             self.__friction = friction
@@ -825,7 +826,7 @@ class TransformRecognizer(Recognizer):
                 self.__inertiaHandler.onUp()
             else:
                 self._setEnd(event)
-            self.notifySubscribers(Recognizer.UP, [transform]);
+            self.notifySubscribers(Recognizer.UP, [transform])
         elif numContacts == 1:
             self.__newPhase()
         else:
@@ -835,7 +836,7 @@ class TransformRecognizer(Recognizer):
 
     def _handleNodeGone(self):
         if ((self.__coordSysNode and not(self.__coordSysNode())) or
-                (self.__coordSysNode().getParent() == None and
+                (self.__coordSysNode().getParent() is None and
                  not isinstance(self.__coordSysNode(), avg.CanvasNode))):
             self.enable(False)
             return True
@@ -855,7 +856,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(contactPosns[0] - self.__lastPosns[0])
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            self.notifySubscribers(Recognizer.MOTION, [transform]);
+            self.notifySubscribers(Recognizer.MOTION, [transform])
             self.__lastPosns = contactPosns
         else:
             if numContacts == 2:
@@ -882,7 +883,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(trans, rot, scale, pivot)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            self.notifySubscribers(Recognizer.MOTION, [transform]);
+            self.notifySubscribers(Recognizer.MOTION, [transform])
             self.__lastPosns = self.__posns
 
     def __newPhase(self):
@@ -901,7 +902,7 @@ class TransformRecognizer(Recognizer):
                         i in range(2)]
 
     def __onInertiaMove(self, transform):
-        self.notifySubscribers(Recognizer.MOTION, [transform]);
+        self.notifySubscribers(Recognizer.MOTION, [transform])
 
     def __onInertiaStop(self):
         self.__inertiaHandler = None
@@ -923,7 +924,7 @@ class TransformRecognizer(Recognizer):
             return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
 
     def __isFiltered(self):
-        return TransformRecognizer.FILTER_MIN_CUTOFF != None
+        return TransformRecognizer.FILTER_MIN_CUTOFF is not None
 
     def __abort(self):
         if self.__frameHandlerID:
@@ -982,7 +983,7 @@ class InertiaHandler(object):
 
         if self.__angVel != 0:
             angSign = self.__angVel/math.fabs(self.__angVel)
-            self.__angVel = self.__angVel - angSign*self.__friction/200
+            self.__angVel -= angSign * self.__friction / 200
             newAngSign = self.__angVel/math.fabs(self.__angVel)
             if newAngSign != angSign:
                 self.__angVel = 0

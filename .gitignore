@@ -74,3 +74,7 @@ __pycache__/
 
 # vim temp files
 *.swp
+
+# PyCharm user specific
+.idea/workspace.xml
+.idea/tasks.xml

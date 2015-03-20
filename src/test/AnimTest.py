@@ -20,7 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, player
 from testcase import *
 
 class AnimTestCase(AVGTestCase):
@@ -99,7 +98,7 @@ class AnimTestCase(AVGTestCase):
         self.__onStopBeforeOnStart = False
         self.start(False,
                 (lambda: anim1.start(),
-                 lambda: self.assert_(not(self.__onStopCalled)),
+                 lambda: self.assert_(not self.__onStopCalled),
                  lambda: anim2.start(),
                  lambda: self.assert_(self.__onStopBeforeOnStart),
                  lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 1)
@@ -311,9 +310,6 @@ class AnimTestCase(AVGTestCase):
         def abortAnim():
             self.anim.abort()
 
-        def deleteAnim():
-            self.anim = None
-
         root = self.loadEmptyScene()
         self.nodes = []
         for i in range(3):
@@ -471,10 +467,10 @@ class AnimTestCase(AVGTestCase):
         self.start(False,
                 (lambda: anim1.start(),
                  lambda: self.assert_(anim1.isRunning()),
-                 lambda: self.assert_(not(self.__onStopCalled)),
+                 lambda: self.assert_(not self.__onStopCalled),
                  lambda: anim2.start(),
                  lambda: self.assert_(self.__onStopBeforeOnStart),
-                 lambda: self.assert_(not(anim1.isRunning())),
+                 lambda: self.assert_(not anim1.isRunning()),
                  lambda: self.assert_(anim2.isRunning()),
                  lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 1),
                  lambda: anim3.start(),

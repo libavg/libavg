@@ -22,9 +22,9 @@
 # Original author of this file is Sebastian Maulbeck
 # <sm (at) archimedes-solutions (dot) de>
 
-'''
+"""
 Multitouch emulation helper, supporting pinch gestures
-'''
+"""
 
 from libavg import avg, Point2D, player
 
@@ -61,9 +61,9 @@ class MTemu(object):
                 self.__releaseTouch(self.__cursorID+1)
 
     def toggleSource(self):
-        '''
+        """
         Switch between avg.Event.TOUCH and avg.Event.TRACK - source
-        '''
+        """
         self.__clearSourceState()
         self.__source = (avg.Event.TOUCH if self.__source == avg.Event.TRACK
                 else avg.Event.TRACK)

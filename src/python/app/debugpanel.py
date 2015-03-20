@@ -645,12 +645,12 @@ class _DebugPanel(avg.DivNode):
         for childID in xrange(0, self.getNumChildren()):
             self.getChild(childID).widget.update()
 
-    def selectWidget(self, id):
-        id = id % self.getNumChildren()
+    def selectWidget(self, idx):
+        idx = idx % self.getNumChildren()
         for childID in xrange(0, self.getNumChildren()):
             self.getChild(childID).unselect()
-        self.getChild(id).select()
-        self.__selectedWidget = id
+        self.getChild(idx).select()
+        self.__selectedWidget = idx
 
     def selectPreviousWidget(self):
         if self.__selectedWidget is None:

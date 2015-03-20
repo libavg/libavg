@@ -23,9 +23,9 @@
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
 
-'''
+"""
 Simple user notification API to report information to the user
-'''
+"""
 
 import libavg
 

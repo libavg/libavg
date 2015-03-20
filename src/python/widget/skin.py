@@ -23,14 +23,14 @@ from libavg import avg
 import os, copy
 import xml.etree.ElementTree as ET
 
-class Skin: 
-   
+
+class Skin(object):
     default = None
 
     def __init__(self, skinXmlFName, mediaDir=""):
         global defaultMediaDir
         self.__mediaDir = defaultMediaDir if mediaDir == "" else mediaDir
-        schemaFName = defaultMediaDir+"skin.xsd"
+        schemaFName = defaultMediaDir + "skin.xsd"
         schemaString = open(schemaFName, "r").read()
         skinPath = os.path.join(self.__mediaDir, skinXmlFName)
         xmlString = open(skinPath, "r").read()
@@ -48,22 +48,22 @@ class Skin:
                 for (key, value) in attrs.iteritems():
                     setattr(font, key, value)
             else:
-                kwargs = self.__extractArgs(attrs, 
+                kwargs = self.__extractArgs(attrs,
                         ("fontsize", "letterspacing", "linespacing"))
                 self.fonts[fontid] = avg.FontStyle(**kwargs)
 
         self.textButtonCfg, self.defaultTextButtonCfg = self.__parseElement(
-                xmlRoot, "textbutton", 
-                bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp", 
+                xmlRoot, "textbutton",
+                bmpArgNames={"upSrc": "upBmp", "downSrc": "downBmp",
                         "disabledSrc": "disabledBmp"},
                 fontArgNames=("font", "downFont", "disabledFont"))
 
         self.checkBoxCfg, self.defaultCheckBoxCfg = self.__parseElement(
                 xmlRoot, "checkbox",
-                bmpArgNames={"uncheckedUpSrc":"uncheckedUpBmp", 
+                bmpArgNames={"uncheckedUpSrc":"uncheckedUpBmp",
                         "uncheckedDownSrc":"uncheckedDownBmp",
                         "uncheckedDisabledSrc":"uncheckedDisabledBmp",
-                        "checkedUpSrc":"checkedUpBmp", 
+                        "checkedUpSrc":"checkedUpBmp",
                         "checkedDownSrc":"checkedDownBmp",
                         "checkedDisabledSrc":"checkedDisabledBmp"},
                 fontArgNames=("font", "downFont", "disabledFont"))
@@ -75,32 +75,32 @@ class Skin:
                 xmlRoot, "progressbar")
 
         self.scrollAreaCfg, self.defaultScrollAreaCfg = self.__parseElement(
-                xmlRoot, "scrollarea", 
+                xmlRoot, "scrollarea",
                 pyArgNames=("friction","borderEndsExtent","margins",
                         "sensitiveScrollBars"),
                 bmpArgNames={"borderSrc":"borderBmp"})
 
         self.mediaControlCfg, self.defaultMediaControlCfg = self.__parseElement(
                 xmlRoot, "mediacontrol",
-                bmpArgNames={"playUpSrc":"playUpBmp", 
+                bmpArgNames={"playUpSrc":"playUpBmp",
                         "playDownSrc":"playDownBmp",
                         "playDisabledSrc":"playDisabledBmp",
-                        "pauseUpSrc":"pauseUpBmp", 
+                        "pauseUpSrc":"pauseUpBmp",
                         "pauseDownSrc":"pauseDownBmp",
                         "pauseDisabledSrc":"pauseDisabledBmp"},
                 pyArgNames=("timePos", "timeLeftPos", "barPos", "barRight"),
                 fontArgNames=("font"))
 
-    def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={}, 
+    def __parseElement(self, xmlRoot, elementName, pyArgNames=(), bmpArgNames={},
             fontArgNames=()):
         cfgMap = {}
         defaultCfg = None
         for node in xmlRoot.findall(elementName):
             nodeid, attrs = self.__splitAttrs(node)
-            kwargs = self.__extractArgs(attrs, pyArgNames=pyArgNames, 
+            kwargs = self.__extractArgs(attrs, pyArgNames=pyArgNames,
                     bmpArgNames=bmpArgNames, fontArgNames=fontArgNames)
             cfgMap[nodeid] = kwargs
-            if defaultCfg == None or nodeid == None:
+            if defaultCfg is None or nodeid is None:
                 defaultCfg = kwargs
         return cfgMap, defaultCfg
 
@@ -133,14 +133,14 @@ class Skin:
         for sliderXmlNode in xmlRoot.findall(typeName):
             (nodeID, bogus) = self.__splitAttrs(sliderXmlNode)
             sliderCfg[nodeID] = {}
-            if defaultSliderCfg == None or nodeID == None:
+            if defaultSliderCfg is None or nodeID is None:
                 defaultSliderCfg = sliderCfg[nodeID]
             for xmlNode in sliderXmlNode.findall("*"):
                 # Loop through orientations (horiz, vert)
                 bogus, attrs = self.__splitAttrs(xmlNode)
                 kwargs = self.__extractArgs(attrs,
                         pyArgNames=("trackEndsExtent", "thumbEndsExtent"),
-                        bmpArgNames={"trackSrc": "trackBmp", 
+                        bmpArgNames={"trackSrc": "trackBmp",
                                 "trackDisabledSrc": "trackDisabledBmp",
                                 "thumbUpSrc": "thumbUpBmp",
                                 "thumbDownSrc": "thumbDownBmp",

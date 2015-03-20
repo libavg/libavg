@@ -67,17 +67,17 @@ class StateMachine(object):
         assert(self.__curState in self.__states)
         state = self.__states[self.__curState]
         if newState in state.transitions:
-            if state.leaveFunc() != None:
+            if state.leaveFunc() is not None:
                 state.leaveFunc()()
             transitionFunc = state.transitions[newState]()
-            if transitionFunc != None:
+            if transitionFunc is not None:
                 try:
                     transitionFunc(self.__curState, newState)
                 except TypeError:
                     transitionFunc()
             self.__curState = newState
             enterFunc = self.__states[self.__curState].enterFunc()
-            if enterFunc != None:
+            if enterFunc is not None:
                 enterFunc()
         else:
             raise avg.Exception('StateMachine: State change from '+self.__curState+' to '+

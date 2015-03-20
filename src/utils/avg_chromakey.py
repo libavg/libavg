@@ -27,8 +27,8 @@ GUI_SIZE=(300, 526)
 
 
 class FXSlider(avg.DivNode):
-    def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, parent=None,
-            **kwargs):
+    def __init__(self, row, minVal, maxVal, fxNode, fxAttrName, caption, isInt,
+            parent=None, **kwargs):
         super(FXSlider, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
@@ -38,7 +38,8 @@ class FXSlider(avg.DivNode):
         caption = avg.WordsNode(pos=(10,0), text=caption, parent=self)
         textBgRect.size = caption.getMediaSize() + (4,2)
         self.__words = avg.WordsNode(pos=(240,23), parent=self)
-        self.__slider = widget.Slider(width=220, range=(min,max), pos=(15,20), parent=self)
+        self.__slider = widget.Slider(width=220, range=(minVal,maxVal), pos=(15,20),
+                parent=self)
         self.__slider.subscribe(self.__slider.THUMB_POS_CHANGED, self.__onSliderMove)
         self.pos = (0, row*46)
         self.__fxNode = fxNode

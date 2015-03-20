@@ -170,7 +170,7 @@ class WidgetTestCase(AVGTestCase):
             while True:
                 self.assert_(len(text) < 20)
                 self.ta2.onKeyDown(ord(u'A'))
-                text = text + 'A'
+                text += 'A'
                 if text != self.ta2.getText():
                     break
 
@@ -770,8 +770,8 @@ class WidgetTestCase(AVGTestCase):
         def setValue(value):
             self.node.value = value
 
-        def setRange(range):
-            self.node.range = range
+        def setRange(barRange):
+            self.node.range = barRange
 
         root = self.loadEmptyScene()
         self.node = widget.ProgressBar(orientation=widget.Orientation.HORIZONTAL,
