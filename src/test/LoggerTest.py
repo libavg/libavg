@@ -44,6 +44,9 @@ class LoggerTestCase(AVGTestCase):
 
     def tearDown(self):
         self.pyLogger.removeHandler(self.hdlr)
+        logger.removeSink(self.pyLogger)
+        self.stream = None
+        self.hdlr = None
 
     def _assertMsg(self):
         self.stream.flush()
