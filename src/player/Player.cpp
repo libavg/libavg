@@ -210,7 +210,7 @@ Player* Player::get()
 {
     if (!s_pPlayer) {
         s_pPlayer = new Player();
-        atexit(deletePlayer);
+        Py_AtExit(deletePlayer);
     }
     return s_pPlayer;
 }
