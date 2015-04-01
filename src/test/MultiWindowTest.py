@@ -155,9 +155,9 @@ def multiWindowTestSuite(tests):
                     )
             return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)
         else:
-            sys.stderr.write("Skipping multi-window tests - only supported under Linux w/GLX")
+            sys.stderr.write("Skipping multi-window tests - only supported under Linux w/GLX.\n")
             return unittest.TestSuite()
     else:
-        sys.stderr.write("Skipping multi-window tests - only supported under Linux.")
+        sys.stderr.write("Skipping multi-window tests - only supported under Linux.\n")
         return unittest.TestSuite()
         
