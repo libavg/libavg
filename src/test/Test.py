@@ -144,8 +144,8 @@ app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
 app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 app.registerSuiteFactory('logger', LoggerTest.loggerTestSuite)
 app.registerSuiteFactory('app', AppTest.appTestSuite)
-app.registerSuiteFactory('multiwindow', MultiWindowTest.multiWindowTestSuite)
 app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
+app.registerSuiteFactory('multiwindow', MultiWindowTest.multiWindowTestSuite)
 
 app.run()
 
