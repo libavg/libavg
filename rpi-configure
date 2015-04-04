@@ -1,6 +1,11 @@
 #!/bin/sh
 export SYSROOT=$HOME/devel/rpi/root/
 export CC=rpi-gcc
+
+export CFLAGS="${CFLAGS} -I${SYSROOT}/usr/include"
+export CXXFLAGS="${CXXFLAGS} -I${SYSROOT}/usr/include"
+export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib"
+
 export PKG_CONFIG_SYSROOT_DIR=$HOME/devel/rpi/root
 export PKG_CONFIG_PATH=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig:${SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig/
 export PKG_CONFIG=arm-linux-gnueabihf-pkg-config
