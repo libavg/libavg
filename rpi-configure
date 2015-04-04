@@ -3,8 +3,8 @@ export SYSROOT=$HOME/devel/rpi/root/
 export CC=rpi-gcc
 
 export CFLAGS="${CFLAGS} -I${SYSROOT}/usr/include"
-export CXXFLAGS="${CXXFLAGS} -I${SYSROOT}/usr/include"
-export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib"
+export CXXFLAGS="${CXXFLAGS} -I${SYSROOT}/usr/include -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor"
+export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib" # -L${SYSROOT}/usr/lib/arm-linux-gnueabihf/"
 
 export PKG_CONFIG_SYSROOT_DIR=$HOME/devel/rpi/root
 export PKG_CONFIG_PATH=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig:${SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig/
@@ -20,5 +20,5 @@ export PYTHON_SITE_PKG=${SYSROOT}/usr/lib/python2.7/dist-packages
 
 export BOOST_PYTHON_LIBS="-L${SYSROOT}usr/lib/python2.7/config/ -lboost_python -lpthread -ldl -lutil -lpython2.7"
 
-./configure --build=i386-linux --host=arm-linux-gnueabihf --with-sysroot=$HOME/devel/rpi/root --prefix=$SYSROOT/../usr --with-xml2-prefix=$SYSROOT/usr --with-freetype-prefix=$SYSROOT/usr
+./configure --build=i386-linux --host=arm-linux-gnueabihf --with-sysroot=$HOME/devel/rpi/root --prefix=$SYSROOT/../usr
 
