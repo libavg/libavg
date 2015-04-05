@@ -3,9 +3,10 @@ export SYSROOT=$HOME/devel/rpi/root/
 export CC=${PWD}/rpi-gcc
 
 export INCLUDE="-I${SYSROOT}/usr/include -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads"
-export RPATH_LINK="-Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/opt/vc/lib"
-export CFLAGS="${CFLAGS} ${INCLUDE} ${RPATH_LINK}"
-export CXXFLAGS="${CXXFLAGS} ${INCLUDE} ${RPATH_LINK} -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor"
+export RPATH_LINK="-Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/pulseaudio -Wl,-rpath-link,${SYSROOT}/opt/vc/lib"
+export CPPFLAGS="$CPPFLAGS ${INCLUDE}"
+export CFLAGS="${CFLAGS} ${RPATH_LINK}"
+export CXXFLAGS="${CXXFLAGS} ${RPATH_LINK} -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor"
 export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -L${SYSROOT}/lib/arm-linux-gnueabihf/ -L${SYSROOT}/opt/vc/lib -lpthread"
 
 export PKG_CONFIG_SYSROOT_DIR=${SYSROOT}
@@ -21,6 +22,8 @@ export PYTHON_NOVERSIONCHECK=1
 export PYTHON_SITE_PKG=${SYSROOT}/usr/lib/python2.7/dist-packages
 
 export BOOST_PYTHON_LIBS="-L${SYSROOT}usr/lib/python2.7/config/ -lboost_python -lpthread -ldl -lutil -lpython2.7"
+
+export GDK_PIXBUF_LIBS="-lgdk_pixbuf-2.0 -lgobject-2.0 -lglib-2.0 -lpcre -lc"
 
 ./configure --enable-rpi --enable-egl --build=i386-linux --host=arm-linux-gnueabihf --with-sysroot=$HOME/devel/rpi/root --prefix=$SYSROOT/../usr --with-xml2-prefix=$SYSROOT/usr --with-sdl-prefix=$SYSROOT/usr
 
