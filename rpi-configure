@@ -2,13 +2,13 @@
 export SYSROOT=$HOME/devel/rpi/root/
 export CC=${PWD}/rpi-gcc
 
-export CFLAGS="${CFLAGS} -I${SYSROOT}/usr/include -Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/"
-export CXXFLAGS="${CXXFLAGS} -I${SYSROOT}/usr/include -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor -Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/"
-export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -L${SYSROOT}/lib/arm-linux-gnueabihf/"
+export CFLAGS="${CFLAGS} -I${SYSROOT}/usr/include -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads -Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/"
+export CXXFLAGS="${CXXFLAGS} -I${SYSROOT}/usr/include -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor -Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/"
+export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -L${SYSROOT}/lib/arm-linux-gnueabihf/ -L${SYSROOT}/opt/vc/lib -lpthread"
 
 export PKG_CONFIG_SYSROOT_DIR=$HOME/devel/rpi/root
 export PKG_CONFIG_PATH=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig:${SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig/
-export PKG_CONFIG=arm-linux-gnueabihf-pkg-config
+export PKG_CONFIG=arm-linux-gnueabihf-pkg-config-real
 export PYTHON=${SYSROOT}usr/bin/python
 export PYTHON_CPPFLAGS="-I${SYSROOT}/usr/include/python2.7"
 export PYTHON_LDFLAGS="-L${SYSROOT}/usr/lib -L${SYSROOT}usr/lib/python2.7/config/ -L/home/uzadow/devel/rpi/rpi-tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/../arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf"
@@ -20,6 +20,6 @@ export PYTHON_SITE_PKG=${SYSROOT}/usr/lib/python2.7/dist-packages
 
 export BOOST_PYTHON_LIBS="-L${SYSROOT}usr/lib/python2.7/config/ -lboost_python -lpthread -ldl -lutil -lpython2.7"
 
-./configure --build=i386-linux --host=arm-linux-gnueabihf --with-sysroot=$HOME/devel/rpi/root --prefix=$SYSROOT/../usr --with-xml2-prefix=$SYSROOT/usr --with-sdl-prefix=$SYSROOT/usr
+./configure --enable-rpi --enable-egl --build=i386-linux --host=arm-linux-gnueabihf --with-sysroot=$HOME/devel/rpi/root --prefix=$SYSROOT/../usr --with-xml2-prefix=$SYSROOT/usr --with-sdl-prefix=$SYSROOT/usr
 
 
