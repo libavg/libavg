@@ -2,11 +2,13 @@
 export SYSROOT=$HOME/devel/rpi/root/
 export CC=${PWD}/rpi-gcc
 
-export CFLAGS="${CFLAGS} -I${SYSROOT}/usr/include -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads -Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/"
-export CXXFLAGS="${CXXFLAGS} -I${SYSROOT}/usr/include -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor -Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/"
+export INCLUDE="-I${SYSROOT}/usr/include -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads"
+export RPATH_LINK="-Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/opt/vc/lib"
+export CFLAGS="${CFLAGS} ${INCLUDE} ${RPATH_LINK}"
+export CXXFLAGS="${CXXFLAGS} ${INCLUDE} ${RPATH_LINK} -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor"
 export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -L${SYSROOT}/lib/arm-linux-gnueabihf/ -L${SYSROOT}/opt/vc/lib -lpthread"
 
-export PKG_CONFIG_SYSROOT_DIR=$HOME/devel/rpi/root
+export PKG_CONFIG_SYSROOT_DIR=${SYSROOT}
 export PKG_CONFIG_PATH=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig:${SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig/
 export PKG_CONFIG=arm-linux-gnueabihf-pkg-config-real
 export PYTHON=${SYSROOT}usr/bin/python
