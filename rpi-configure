@@ -3,7 +3,7 @@ export SYSROOT=$HOME/devel/rpi/root/
 export CC=${PWD}/rpi-gcc
 
 export INCLUDE="-I${SYSROOT}/usr/include -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads"
-export RPATH_LINK="-Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/pulseaudio -Wl,-rpath-link,${SYSROOT}/opt/vc/lib"
+export RPATH_LINK="-Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/pulseaudio -Wl,-rpath-link,${SYSROOT}/opt/vc/lib -Wl,-rpath-link,${SYSROOT}/usr/lib/"
 export CPPFLAGS="$CPPFLAGS ${INCLUDE}"
 export CFLAGS="${CFLAGS} ${RPATH_LINK}"
 export CXXFLAGS="${CXXFLAGS} ${RPATH_LINK} -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor"
