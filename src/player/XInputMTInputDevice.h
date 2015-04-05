@@ -67,7 +67,6 @@ private:
     int m_DeviceID;
 
     int m_OldMasterDeviceID;
-    glm::vec2 m_DisplayScale;
 };
 
 typedef boost::shared_ptr<XInputMTInputDevice> XInputMTInputDevicePtr;
