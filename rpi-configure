@@ -25,6 +25,6 @@ export BOOST_PYTHON_LIBS="-L${SYSROOT}usr/lib/python2.7/config/ -lboost_python -
 
 export GDK_PIXBUF_LIBS="-lgdk_pixbuf-2.0 -lgobject-2.0 -lglib-2.0 -lpcre -lc"
 
-./configure --enable-rpi --enable-egl --build=i386-linux --host=arm-linux-gnueabihf --with-sysroot=$HOME/devel/rpi/root --prefix=$SYSROOT/../usr --with-xml2-prefix=$SYSROOT/usr --with-sdl-prefix=$SYSROOT/usr
+./configure --enable-rpi --enable-egl --build=i386-linux --host=arm-linux-gnueabihf --with-sysroot=$HOME/devel/rpi/root --with-xml2-prefix=$SYSROOT/usr --with-sdl-prefix=$SYSROOT/usr
 
 
