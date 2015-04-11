@@ -211,6 +211,7 @@ AC_OUTPUT(Makefile
     src/test/extrafonts/Makefile
     src/test/testmediadir/Makefile
     src/test/media/Makefile
+    src/test/media/incompleteSkinMedia/Makefile
     src/test/plugin/Makefile
     src/base/Makefile 
     src/lmfit/Makefile 
