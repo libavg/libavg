@@ -80,7 +80,7 @@ TESTS = testgraphics testgpu
 EXTRA_DIST = $(wildcard baseline/*.png)
 
 noinst_LTLIBRARIES = libgraphics.la
-noinst_PROGRAMS = testgraphics testgpu benchmarkgraphics
+test_PROGRAMS = testgraphics testgpu benchmarkgraphics
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 testgraphics_SOURCES = testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = libgraphics.la ../base/libbase.la \
@@ -95,3 +95,4 @@ testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
         @GDK_PIXBUF_LIBS@
+testdir = $(pkgpyexecdir)/avg/bintest

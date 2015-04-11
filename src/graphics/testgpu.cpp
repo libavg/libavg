@@ -42,6 +42,7 @@
 #include "../base/Exception.h"
 #include "../base/Test.h"
 #include "../base/StringHelper.h"
+#include "../base/FileHelper.h"
 
 #include <math.h>
 #include <iostream>
@@ -528,6 +529,11 @@ public:
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
     GLContextManager cm;
+    if (fileExists("./shaders")) {
+        ShaderRegistry::setShaderPath("./shaders");
+    } else {
+        ShaderRegistry::setShaderPath("../../shaders");
+    }
     GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
             GLConfig::shaderUsageToString(pContext->getShaderUsage());
@@ -537,7 +543,6 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
-    ShaderRegistry::get()->setShaderPath("./shaders");
     try {
         GPUTestSuite suite(sVariant);
         suite.runTests();
