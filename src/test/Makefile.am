@@ -1,9 +1,9 @@
-SUBDIRS = plugin
+SUBDIRS = plugin media baseline fonts extrafonts testmediadir
+
+EXTRA_DIST = $(wildcard *.avg) $(wildcard *.xml) $(wildcard *.py) $(wildcard *.svg)
 
 pkgpyexec_PYTHON = testcase.py testapp.py
-
-EXTRA_DIST = $(wildcard *.avg) $(wildcard *.xml) \
-        $(wildcard *.py)  $(wildcard baseline/*.png) $(wildcard testmediadir/*) \
-        $(wildcard extrafonts) $(wildcard fonts) $(wildcard *.svg) $(wildcard media/*)
+testdir = $(pkgpyexecdir)/test
+test_DATA = $(EXTRA_DIST)
 
 TESTS = Test.py

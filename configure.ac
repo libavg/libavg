@@ -206,6 +206,11 @@ AC_CONFIG_HEADERS(src/avgconfig.h)
 AC_OUTPUT(Makefile 
     src/Makefile 
     src/test/Makefile 
+    src/test/baseline/Makefile
+    src/test/fonts/Makefile
+    src/test/extrafonts/Makefile
+    src/test/testmediadir/Makefile
+    src/test/media/Makefile
     src/test/plugin/Makefile
     src/base/Makefile 
     src/lmfit/Makefile 
