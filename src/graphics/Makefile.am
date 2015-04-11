@@ -1,4 +1,4 @@
-SUBDIRS = shaders
+SUBDIRS = shaders baseline
 
 AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @GL_CFLAGS@ @GDK_PIXBUF_CFLAGS@
 
