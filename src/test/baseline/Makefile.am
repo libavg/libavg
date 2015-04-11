@@ -1,3 +1,3 @@
 EXTRA_DIST = $(wildcard *.png)
-datadir = $(pkgpyexecdir)/test/baseline
+datadir = $(pkgpyexecdir)/avg/test/baseline
 data_DATA = $(EXTRA_DIST)
