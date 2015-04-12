@@ -69,12 +69,7 @@ FBO::~FBO()
    
     GLContext* pContext = GLContext::getCurrent();
     if (pContext) {
-        pContext->returnFBOToCache(m_FBO);
         bool bMultisample = (getMultisampleSamples() > 1);
-        if (bMultisample) {
-            glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
-            pContext->returnFBOToCache(m_OutputFBO);
-        }
         if (getUsePackedDepthStencil() && isPackedDepthStencilSupported()) {
             glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
@@ -91,7 +86,11 @@ FBO::~FBO()
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, 0);
         }
-        glproc::BindFramebuffer(GL_FRAMEBUFFER, oldFBOID);
+        pContext->returnFBOToCache(m_FBO);
+        if (bMultisample) {
+            glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
+            pContext->returnFBOToCache(m_OutputFBO);
+        }
         GLContext::checkError("~FBO");
     }
 }
