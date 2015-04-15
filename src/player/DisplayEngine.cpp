@@ -131,6 +131,7 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 dp.isFullscreen(), glConfig)));
     }
 #endif
+    m_Size = dp.getWindowParams(0).m_Viewport.size();
 
     Display::get()->getRefreshRate();
 
