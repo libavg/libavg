@@ -423,6 +423,9 @@ bool DisplayEngine::internalSetGamma(float red, float green, float blue)
             0, 1, 1/green, 0, 1, 1/blue);
     return (err == CGDisplayNoErr);
 #else
+#ifdef _WIN32
+    SDL_SetGamma(float(red), float(green), float(blue));
+#endif
     int err = SDL_SetGamma(float(red), float(green), float(blue));
     return (err != -1);
 #endif
