@@ -229,7 +229,7 @@ class AVTestCase(AVGTestCase):
             self.assertRaises(avg.Exception, node.play)
 
         def testVideoBroken():
-            node = avg.VideoNode(href="rgb24-64x64.png")
+            node = avg.VideoNode(href="SimpleSkin.xml")
             self.assertRaises(avg.Exception, node.play)
 
         root = self.loadEmptyScene()
