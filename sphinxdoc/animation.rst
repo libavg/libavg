@@ -54,6 +54,11 @@ Animation
 
     .. autoclass:: AttrAnim
 
+        .. py:classmethod:: getNumRunningAnims() -> int
+
+             Returns the total number of running attribute-based animations. Useful for
+             debugging memory leaks.
+
     .. autoclass:: ContinuousAnim(node, attrName, startValue, speed, [useInt=False, startCallback=None, stopCallback=None])
 
         Class that animates an attribute of a libavg node continuously and 
@@ -245,8 +250,3 @@ Animation
         :param duration: Length of the fade in milliseconds.
         :param stopCallback: Function to call when the fade is over.
     
-    .. autofunction:: getNumRunningAnims() -> int
-
-         Returns the total number of running attribute-based animations (this
-         includes LinearAnim, EaseInOutAnim and ContinuousAnim). Useful for
-         debugging memory leaks.
