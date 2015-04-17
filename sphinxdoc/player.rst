@@ -569,7 +569,9 @@ Player & Canvas
         .. py:method:: setTimeout(time, pyfunc) -> int
 
             Sets a python callable object that should be executed after a set
-            amount of time. :py:meth:`setTimeout` returns an id that can be used to
+            amount of time. The callable is executed exactly once (use
+            :py:meth:`setInterval` to trigger regular callbacks).
+            :py:meth:`setTimeout` returns an id that can be used to
             call :py:meth:`clearInterval()` to stop the function from being called.
 
             :param int time: Number of milliseconds before the call.
