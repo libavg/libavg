@@ -25,6 +25,7 @@
 #include "../api.h"
 
 #include "FBOInfo.h"
+#include "OGLHelper.h"
 
 #include "../base/GLMHelper.h"
 
@@ -66,7 +67,7 @@ private:
 #ifndef AVG_ENABLE_EGL
     PBOPtr m_pOutputPBO;
 #endif
-    unsigned m_FBO;
+    GLuint m_FBO;
     std::vector<GLTexturePtr> m_pTextures;
     unsigned m_StencilBuffer;
 
