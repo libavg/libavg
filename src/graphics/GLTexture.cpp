@@ -46,8 +46,7 @@ unsigned GLTexture::s_LastTexID = 10000000;
 
 GLTexture::GLTexture(GLContext* pContext, const TexInfo& texInfo)
     : TexInfo(texInfo),
-      m_pContext(pContext),
-      m_bDeleteTex(true)      
+      m_pContext(pContext)      
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
@@ -57,8 +56,7 @@ GLTexture::GLTexture(GLContext* pContext, const TexInfo& texInfo)
 GLTexture::GLTexture(GLContext* pContext, const IntPoint& size, PixelFormat pf,
         bool bMipmap, bool bForcePOT, int potBorderColor)
     : TexInfo(size, pf, bMipmap, usePOT(bForcePOT, bMipmap), potBorderColor),
-      m_pContext(pContext),
-      m_bDeleteTex(true)
+      m_pContext(pContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
@@ -66,7 +64,7 @@ GLTexture::GLTexture(GLContext* pContext, const IntPoint& size, PixelFormat pf,
 
 GLTexture::~GLTexture()
 {
-    if (m_bDeleteTex && GLContextManager::isActive()) {
+    if (GLContextManager::isActive()) {
         GLContextManager::get()->deleteTexture(m_TexID);
     }
     ObjectCounter::get()->decRef(&typeid(*this));
