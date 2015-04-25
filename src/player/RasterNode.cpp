@@ -117,7 +117,6 @@ void RasterNode::connectDisplay()
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
-    setupFX();
 }
 
 void RasterNode::disconnect(bool bKill)

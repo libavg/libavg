@@ -1,0 +1,2 @@
+#!/bin/sh
+exec arm-linux-gnueabihf-gcc --sysroot=$HOME/devel/rpi/root "$@"

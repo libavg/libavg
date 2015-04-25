@@ -185,18 +185,26 @@ GLBufferCache& GLContext::getPBOCache()
 unsigned GLContext::genFBO()
 {
     unsigned fboID;
+#ifdef AVG_ENABLE_RPI
+    glproc::GenFramebuffers(1, &fboID);
+#else
     if (m_FBOIDs.empty()) {
         glproc::GenFramebuffers(1, &fboID);
     } else {
         fboID = m_FBOIDs.back();
         m_FBOIDs.pop_back();
     }
+#endif
     return fboID;
 }
 
 void GLContext::returnFBOToCache(unsigned fboID) 
 {
+#ifdef AVG_ENABLE_RPI
+    glproc::DeleteFramebuffers(1, &fboID);
+#else
     m_FBOIDs.push_back(fboID);
+#endif
 }
 
 void GLContext::setBlendColor(const glm::vec4& color)

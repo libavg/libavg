@@ -135,17 +135,17 @@ variable to configure. See ``configure --help'' for reference.
 	#
 	# Check if you have distutils, else fail
 	#
-	AC_MSG_CHECKING([for the distutils Python package])
-	ac_distutils_result=`$PYTHON -c "import distutils" 2>&1`
-	if test -z "$ac_distutils_result"; then
-		AC_MSG_RESULT([yes])
-	else
-		AC_MSG_RESULT([no])
-		AC_MSG_ERROR([cannot import Python module "distutils".
-Please check your Python installation. The error was:
-$ac_distutils_result])
-		PYTHON_VERSION=""
-	fi
+	#AC_MSG_CHECKING([for the distutils Python package])
+	#ac_distutils_result=`$PYTHON -c "import distutils" 2>&1`
+	#if test -z "$ac_distutils_result"; then
+	#	AC_MSG_RESULT([yes])
+	#else
+	#	AC_MSG_RESULT([no])
+	#	AC_MSG_ERROR([cannot import Python module "distutils".
+#Please check your Python installation. The error was:
+#$ac_distutils_result])
+	#	PYTHON_VERSION=""
+	#fi
 
 	#
 	# Check for Python include path
