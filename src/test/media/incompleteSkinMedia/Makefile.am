@@ -1,3 +1,3 @@
 EXTRA_DIST = $(wildcard *.xml) $(wildcard *.png)
-datadir = $(pkgpyexecdir)/avg/test/media/incompleteSkinMedia
+datadir = $(prefix)/share/python-libavg/test/media/incompleteSkinMedia
 data_DATA = $(EXTRA_DIST)

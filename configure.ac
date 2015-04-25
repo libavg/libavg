@@ -219,7 +219,6 @@ AC_OUTPUT(Makefile
     src/player/Makefile 
     src/graphics/Makefile 
     src/graphics/shaders/Makefile 
-    src/graphics/baseline/Makefile 
     src/python/Makefile
     src/imaging/Makefile 
     src/video/Makefile 

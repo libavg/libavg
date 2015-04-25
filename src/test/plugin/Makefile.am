@@ -14,6 +14,7 @@ endif
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
-pkgpyexec_LTLIBRARIES = colorplugin.la
+pkgplugindir = $(pkgpyexecdir)/plugin
+pkgplugin_LTLIBRARIES = colorplugin.la
 colorplugin_la_SOURCES = ColorNode.cpp
 colorplugin_la_LDFLAGS = $(EXTRA_LDFLAGS) -module
