@@ -23,11 +23,13 @@
 #define _WrapHelper_H_
 
 #include "../api.h"
+
+#include "../player/BoostPython.h"
+
 #include "../base/GLMHelper.h"
 #include "../base/Exception.h"
 #include "../base/ILogSink.h"
 
-#include "../player/BoostPython.h"
 #include "../player/Player.h"
 #include "../player/TypeRegistry.h"
 

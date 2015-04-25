@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "BoostPython.h"
+
 #include <boost/shared_ptr.hpp>
 
 #include <vector>

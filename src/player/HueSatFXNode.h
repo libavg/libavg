@@ -24,10 +24,10 @@
 
 #include "../api.h"
 
+#include "BoostPython.h"
 #include "FXNode.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/python.hpp>
 #include <string>
 
 using namespace std;
