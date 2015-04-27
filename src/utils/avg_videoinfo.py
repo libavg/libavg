@@ -107,7 +107,7 @@ class ConsoleOutputHandler(OutputHandler):
     def __outputSingleFile(self, filename):
         self._node.href = filename
         print "File: " + self._node.href
-        print ("Duration: " + str(self._node.getDuration()/1000.) + " s (" 
+        print ("Duration: " + str(self._node.duration/1000.) + " s (" 
                 + str(self._node.getNumFrames()) + " frames)")
         print "Bitrate: " + str(self._node.getBitrate()) + " b/s"
         print "Video stream: " 
@@ -171,7 +171,7 @@ class ConsoleOutputHandler(OutputHandler):
 
     def __outputTableLine(self, node):
         vFile = node.href.ljust(self.__filenameLen + 1)
-        vDuration = str(node.getDuration()/1000.).ljust(9)
+        vDuration = str(node.duration/1000.).ljust(9)
         vVideoCodec = str(node.getVideoCodec()).ljust(self.__videoCodecLen + 1)
         vVideoSize = str(node.getMediaSize()).ljust(13)
         vPixel = str(node.getStreamPixelFormat()).ljust(self.__videoFormatLen + 1)
@@ -211,7 +211,7 @@ class XMLOutputHandler(OutputHandler):
         node.play()
         videoinfo = self.__doc.createElement("videoinfo")
         videoinfo.setAttribute("file", node.href)
-        videoinfo.setAttribute("duration", str(node.getDuration()/1000.))
+        videoinfo.setAttribute("duration", str(node.duration/1000.))
         videoinfo.setAttribute("bitrate", str(node.getBitrate()))
         self.__rootElement.appendChild(videoinfo)
         videoNode = self.__doc.createElement("video")
@@ -242,7 +242,7 @@ class CSVOutputHandler(OutputHandler):
 
     def __outputNode(self, node):
         s = (str(node.href)+'\t'+
-            str(node.getDuration()/1000.)+'\t' +
+            str(node.duration/1000.)+'\t' +
             str(node.getNumFrames())+"\t" + 
             str(node.getBitrate()) + '\t' +
             str(node.getVideoCodec()) + '\t' +

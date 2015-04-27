@@ -68,7 +68,7 @@ class VideoPlayer(app.MainDiv):
         controlPos = ((self.width-VideoPlayer.CONTROL_WIDTH)/2, self.height-25)
         self.videoControl = widget.MediaControl(pos=controlPos,
                 size=(VideoPlayer.CONTROL_WIDTH, 20),
-                duration=self.node.getDuration(),
+                duration=self.node.duration,
                 parent=self)
         self.videoControl.play()
         self.videoControl.subscribe(widget.MediaControl.PLAY_CLICKED, self.onPlay)
