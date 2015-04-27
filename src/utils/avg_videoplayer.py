@@ -52,7 +52,7 @@ class VideoPlayer(app.MainDiv):
 
         mediaSize = self.node.getMediaSize()
         canvasSize = self.size
-        sizeRatio = min(mediaSize.x/canvasSize.x, mediaSize.y/canvasSize.y)
+        sizeRatio = max(mediaSize.x/canvasSize.x, mediaSize.y/canvasSize.y)
         self.node.size /= sizeRatio
 
         self.node.x = (self.width-self.node.width)/2
