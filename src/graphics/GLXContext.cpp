@@ -26,9 +26,6 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
-
 #include <X11/extensions/xf86vmode.h>
 
 #include <iostream>
