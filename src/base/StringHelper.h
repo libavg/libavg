@@ -110,7 +110,8 @@ template<class T>
 void fromString(const std::string& s, T& result)
 {
     std::stringstream stream(s);
-    bool bOk = (stream >> result) != 0;
+
+    bool bOk = bool(stream >> result) != 0;
     if (bOk) {
         std::string sLeftover;
         stream >> sLeftover;
