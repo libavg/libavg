@@ -162,6 +162,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                     m_InputSampleFormat != AV_SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
             bool bIsPlanar = false;
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)            
             bIsPlanar = av_sample_fmt_is_planar((AVSampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
@@ -173,6 +174,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                 av_free(pPackedData);
                 bNeedsResample = false;
             }
+#endif
             if (bNeedsResample) {
                 pBuffer = resampleAudio(pDecodedData, framesDecoded,
                         m_InputSampleFormat);
