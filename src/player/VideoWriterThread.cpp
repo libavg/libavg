@@ -336,7 +336,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
     }
     bGotOutput = (out_size > 0);
 #endif
-    if (bGotOutput > 0) {
+    if (bGotOutput) {
         /* write the compressed frame in the media file */
         ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
         av_free_packet(&packet);
