@@ -70,7 +70,7 @@
       <AdditionalDependencies>avg.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <AdditionalOptions>/force:multiple %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/force:multiple /SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <CustomBuildStep>
       <Command>python.exe setup.py install</Command>
