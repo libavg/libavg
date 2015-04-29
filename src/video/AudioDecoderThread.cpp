@@ -130,17 +130,11 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
     av_init_packet(pTempPacket);
     pTempPacket->data = pPacket->data;
     pTempPacket->size = pPacket->size;
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
     AVFrame* pDecodedFrame;
     pDecodedFrame = avcodec_alloc_frame();
-#else
-    pDecodedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
-            FF_INPUT_BUFFER_PADDING_SIZE);
-#endif
     while (pTempPacket->size > 0) {
         int gotFrame = 0;
         int bytesDecoded = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
         int bytesConsumed = avcodec_decode_audio4(m_pStream->codec, pDecodedFrame,
                 &gotFrame, pTempPacket);
         if (gotFrame) {
@@ -150,10 +144,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
         } else {
             bytesDecoded = 0;
         }
-#else
-        int bytesConsumed = avcodec_decode_audio3(m_pStream->codec, (short*)pDecodedData,
-                &bytesDecoded, pTempPacket);
-#endif
 //        This is triggered for some strange/broken videos.
 //        AVG_ASSERT(bytesConsumed != 0);
         if (bytesConsumed < 0) {
@@ -169,18 +159,18 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                     getBytesPerSample(m_InputSampleFormat));
             AudioBufferPtr pBuffer;
             bool bNeedsResample = (m_InputSampleRate != m_AP.m_SampleRate ||
-                    m_InputSampleFormat != SAMPLE_FMT_S16 ||
+                    m_InputSampleFormat != AV_SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
             bool bIsPlanar = false;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)
-            bIsPlanar = av_sample_fmt_is_planar((SampleFormat)m_InputSampleFormat);
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)            
+            bIsPlanar = av_sample_fmt_is_planar((AVSampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
                         FF_INPUT_BUFFER_PADDING_SIZE);
                 planarToInterleaved(pPackedData, pDecodedData, m_pStream->codec->channels,
                         m_pStream->codec->frame_size);
                 pBuffer = resampleAudio(pPackedData, framesDecoded,
-                        av_get_packed_sample_fmt((SampleFormat)m_InputSampleFormat));
+                        av_get_packed_sample_fmt((AVSampleFormat)m_InputSampleFormat));
                 av_free(pPackedData);
                 bNeedsResample = false;
             }
@@ -198,10 +188,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
     }
 #if LIBAVCODEC_VERSION_MAJOR > 53
     avcodec_free_frame(&pDecodedFrame);
-#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
     delete pDecodedFrame;
-#else
-    av_free(pDecodedData);
 #endif
     delete pTempPacket;
 }
@@ -255,14 +242,14 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
         av_opt_set_int(m_pResampleContext, "in_sample_rate", m_InputSampleRate, 0);
         av_opt_set_int(m_pResampleContext, "out_sample_rate", m_AP.m_SampleRate, 0);
         av_opt_set_int(m_pResampleContext, "in_sample_fmt",
-                (SampleFormat)currentSampleFormat, 0);
+                (AVSampleFormat)currentSampleFormat, 0);
         av_opt_set_int(m_pResampleContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
         int err = avresample_open(m_pResampleContext);
         AVG_ASSERT(err >= 0);
 #else
         m_pResampleContext = av_audio_resample_init(m_AP.m_Channels, 
                 m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
-                SAMPLE_FMT_S16, (SampleFormat)currentSampleFormat, 16, 10, 0, 0.8);
+                AV_SAMPLE_FMT_S16, (AVSampleFormat)currentSampleFormat, 16, 10, 0, 0.8);
 #endif
         AVG_ASSERT(m_pResampleContext);
     }
@@ -347,22 +334,20 @@ void AudioDecoderThread::pushEOF()
 int AudioDecoderThread::getBytesPerSample(int sampleFormat)
 {
     switch (sampleFormat) {
-        case SAMPLE_FMT_U8:
+        case AV_SAMPLE_FMT_U8:
             return 1;
-        case SAMPLE_FMT_S16:
+        case AV_SAMPLE_FMT_S16:
             return 2;
-        case SAMPLE_FMT_S32:
+        case AV_SAMPLE_FMT_S32:
             return 4;
-        case SAMPLE_FMT_FLT:
+        case AV_SAMPLE_FMT_FLT:
             return 4;
-        case SAMPLE_FMT_DBL:
+        case AV_SAMPLE_FMT_DBL:
             return 8;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(52, 3, 0)
-        case SAMPLE_FMT_S16P:
+        case AV_SAMPLE_FMT_S16P:
             return 2;
-        case SAMPLE_FMT_FLTP:
+        case AV_SAMPLE_FMT_FLTP:
             return 4;
-#endif
         default:
             AVG_LOG_ERROR("Unknown SampleFormat: " << sampleFormat << "\n");
             AVG_ASSERT(false);

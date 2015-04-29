@@ -218,12 +218,7 @@ void VideoDecoder::close()
         m_AStreamIndex = -1;
     }
     if (m_pFormatContext) {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 21, 0)
         avformat_close_input(&m_pFormatContext);
-#else
-        av_close_input_file(m_pFormatContext);
-        m_pFormatContext = 0;
-#endif
     }
     
     m_State = CLOSED;

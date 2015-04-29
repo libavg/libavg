@@ -86,11 +86,7 @@ void VideoWriterThread::close()
         }
 
         if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
             avio_close(m_pOutputFormatContext->pb);
-#else            
-            url_fclose(m_pOutputFormatContext->pb);
-#endif
         }
 
         av_free(m_pOutputFormatContext);
@@ -123,18 +119,10 @@ void VideoWriterThread::open()
 {
     av_register_all(); // TODO: make sure this is only done once. 
 //    av_log_set_level(AV_LOG_DEBUG);
-#if LIBAVFORMAT_VERSION_MAJOR > 52
     m_pOutputFormat = av_guess_format(0, m_sFilename.c_str(), 0);
-#else
-    m_pOutputFormat = guess_format(0, m_sFilename.c_str(), 0);
-#endif
     m_pOutputFormat->video_codec = AV_CODEC_ID_MJPEG;
 
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
     m_pOutputFormatContext = avformat_alloc_context();
-#else
-    m_pOutputFormatContext = av_alloc_format_context();
-#endif
     m_pOutputFormatContext->oformat = m_pOutputFormat;
 
     strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
@@ -143,9 +131,6 @@ void VideoWriterThread::open()
     if (m_pOutputFormat->video_codec != AV_CODEC_ID_NONE) {
         setupVideoStream();
     }
-#if LIBAVFORMAT_VERSION_MAJOR < 52
-    av_set_parameters(m_pOutputFormatContext, NULL);
-#endif
 
     float muxMaxDelay = 0.7;
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
@@ -160,13 +145,8 @@ void VideoWriterThread::open()
     }
 
     if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 8, 0)
         int retVal = avio_open(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
                 URL_WRONLY);
-#else
-        int retVal = url_fopen(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
-                URL_WRONLY);
-#endif
         if (retVal < 0) {
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     string("Could not open output file: '") + m_sFilename + "'");
@@ -179,20 +159,12 @@ void VideoWriterThread::open()
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
 
-#if LIBAVFORMAT_VERSION_MAJOR > 52
     avformat_write_header(m_pOutputFormatContext, 0);
-#else
-    av_write_header(m_pOutputFormatContext);
-#endif
 }
 
 void VideoWriterThread::setupVideoStream()
 {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 21, 0)
     m_pVideoStream = avformat_new_stream(m_pOutputFormatContext, 0);
-#else
-    m_pVideoStream = av_new_stream(m_pOutputFormatContext, 0);
-#endif
 
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     pCodecContext->codec_id = static_cast<AVCodecID>(m_pOutputFormat->video_codec);

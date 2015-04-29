@@ -50,21 +50,6 @@ extern "C" {
 #include <libavutil/mathematics.h>
 #include <libavutil/opt.h>
 #include <libavutil/error.h>
-#if LIBAVFORMAT_VERSION_MAJOR < 53
-#define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
-#define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
-#endif
-
-#if LIBAVFORMAT_VERSION_MAJOR > 52
-  #define SAMPLE_FMT_S16 AV_SAMPLE_FMT_S16
-  #define SAMPLE_FMT_FLT AV_SAMPLE_FMT_FLT
-  #define SAMPLE_FMT_DBL AV_SAMPLE_FMT_DBL
-  #define SAMPLE_FMT_S32 AV_SAMPLE_FMT_S32
-  #define SAMPLE_FMT_U8 AV_SAMPLE_FMT_U8
-  #define SAMPLE_FMT_S16P AV_SAMPLE_FMT_S16P
-  #define SAMPLE_FMT_FLTP AV_SAMPLE_FMT_FLTP
-  #define SampleFormat AVSampleFormat
-#endif
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 00)
   #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO 
