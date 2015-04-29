@@ -61,11 +61,6 @@ extern "C" {
   #define AV_CODEC_ID_NONE CODEC_ID_NONE
 #endif
 
-#ifndef URL_WRONLY
-        #define url_fopen avio_open
-        #define url_fclose avio_close
-        #define URL_WRONLY AVIO_FLAG_WRITE
-#endif
 #ifdef HAVE_LIBAVRESAMPLE_AVRESAMPLE_H
     #include <libavresample/avresample.h>
     #include <libavresample/version.h>
