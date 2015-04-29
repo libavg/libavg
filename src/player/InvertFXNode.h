@@ -23,7 +23,6 @@
 #define _InvertFXNode_H_
 
 #include "../api.h"
-#include "BoostPython.h"
 
 #include "FXNode.h"
 
