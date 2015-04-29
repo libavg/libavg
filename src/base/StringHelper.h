@@ -111,6 +111,9 @@ void fromString(const std::string& s, T& result)
 {
     std::stringstream stream(s);
 
+#ifdef WIN32
+#pragma warning(disable:4800)
+#endif
     bool bOk = bool(stream >> result) != 0;
     if (bOk) {
         std::string sLeftover;
