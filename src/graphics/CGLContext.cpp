@@ -27,8 +27,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
-
 
 #include <iostream>
 
