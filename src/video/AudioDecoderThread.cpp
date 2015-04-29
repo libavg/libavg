@@ -130,17 +130,11 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
     av_init_packet(pTempPacket);
     pTempPacket->data = pPacket->data;
     pTempPacket->size = pPacket->size;
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
     AVFrame* pDecodedFrame;
     pDecodedFrame = avcodec_alloc_frame();
-#else
-    pDecodedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
-            FF_INPUT_BUFFER_PADDING_SIZE);
-#endif
     while (pTempPacket->size > 0) {
         int gotFrame = 0;
         int bytesDecoded = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
         int bytesConsumed = avcodec_decode_audio4(m_pStream->codec, pDecodedFrame,
                 &gotFrame, pTempPacket);
         if (gotFrame) {
@@ -150,10 +144,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
         } else {
             bytesDecoded = 0;
         }
-#else
-        int bytesConsumed = avcodec_decode_audio3(m_pStream->codec, (short*)pDecodedData,
-                &bytesDecoded, pTempPacket);
-#endif
 //        This is triggered for some strange/broken videos.
 //        AVG_ASSERT(bytesConsumed != 0);
         if (bytesConsumed < 0) {
@@ -172,7 +162,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                     m_InputSampleFormat != AV_SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
             bool bIsPlanar = false;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)
             bIsPlanar = av_sample_fmt_is_planar((AVSampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
@@ -184,7 +173,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                 av_free(pPackedData);
                 bNeedsResample = false;
             }
-#endif
             if (bNeedsResample) {
                 pBuffer = resampleAudio(pDecodedData, framesDecoded,
                         m_InputSampleFormat);
@@ -198,10 +186,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
     }
 #if LIBAVCODEC_VERSION_MAJOR > 53
     avcodec_free_frame(&pDecodedFrame);
-#elif LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(53, 25, 0)
     delete pDecodedFrame;
-#else
-    av_free(pDecodedData);
 #endif
     delete pTempPacket;
 }
