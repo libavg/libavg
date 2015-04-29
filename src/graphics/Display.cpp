@@ -34,7 +34,10 @@
 #include "../base/Logger.h"
 
 #include <SDL/SDL.h>
+#ifdef _WIN32
+#undef WIN32_LEAN_AND_MEAN
 #include <SDL/SDL_syswm.h>
+#endif
 
 #include <iostream>
 
