@@ -36,10 +36,8 @@
 #include <xmmintrin.h>
 #endif
 
-#include <stdlib.h>
 #include <string>
 #include <vector>
-#include <algorithm>
 #include <iostream>
 
 namespace avg {

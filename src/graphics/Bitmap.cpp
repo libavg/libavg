@@ -28,10 +28,8 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
-#include "../base/StringHelper.h"
 #include "../base/MathHelper.h"
 #include "../base/FileHelper.h"
-#include "../base/OSHelper.h"
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
