@@ -79,12 +79,16 @@ EGL_DISPMANX_WINDOW_T* createChildWindow(const SDL_SysWMinfo* pSDLWMInfo,
     if (update == DISPMANX_NO_HANDLE) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Failed to start BCM display update.");
     }
+    VC_DISPMANX_ALPHA_T alphaInfo;
+    alphaInfo.flags = DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS;
+    alphaInfo.opacity = 0xFF;
+    alphaInfo.mask = 0;
     // add element to display
     DISPMANX_ELEMENT_HANDLE_T element = vc_dispmanx_element_add(update,
             (DISPMANX_DISPLAY_HANDLE_T)bcmDisplay,
             0 /* layer */, &dstRect, DISPMANX_NO_HANDLE /* src */, &srcRect,
             (DISPMANX_PROTECTION_T) DISPMANX_PROTECTION_NONE,
-            0 /* alpha */, 0 /* clamp */, DISPMANX_NO_ROTATE);
+            &alphaInfo, 0 /* clamp */, DISPMANX_NO_ROTATE);
     if (element == DISPMANX_NO_HANDLE) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Failed to add element to BCM display.");
     }
