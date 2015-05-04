@@ -159,7 +159,7 @@ class TouchVisualization(BaseTouchVisualization):
             self.unlink(True)
             del self
 
-        avg.fadeIn(self.__circle, 100, 1)
+        avg.Anim.fadeIn(self.__circle, 100, 1)
         avg.LinearAnim(self.__circle, "size", 100, self.__circle.size, (4,4)).start()
         avg.LinearAnim(self.__circle, "pos", 100, self.__circle.pos, (-2,-2)).start()
         player.setTimeout(100, lambda: gone(self))
