@@ -45,7 +45,7 @@ IntPoint getX11WindowPosition(const SDL_SysWMinfo* pSDLWMInfo)
     XTranslateCoordinates(pSDLWMInfo->info.x11.display, pSDLWMInfo->info.x11.window,
             wAttribs.root, 0, 0, &x, &y, &dummy);
     pSDLWMInfo->info.x11.unlock_func();
-    return IntPoint(x, y);
+    return IntPoint(x+24, y+16);
 }
 
 DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo)
