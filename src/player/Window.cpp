@@ -66,12 +66,6 @@ BitmapPtr Window::screenshot(int buffer)
 {
     AVG_ASSERT(m_pGLContext);
     m_pGLContext->activate();
-    bool bIsLinuxIntel = false;
-#ifdef __linux__
-    if (isVendor("Intel")) {
-        bIsLinuxIntel = true;
-    }
-#endif
     BitmapPtr pBmp;
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     if (m_pGLContext->isGLES()) {
@@ -81,6 +75,12 @@ BitmapPtr Window::screenshot(int buffer)
         GLContext::checkError("Window::screenshot:glReadPixels()");
     } else {
 #ifndef AVG_ENABLE_EGL
+        bool bIsLinuxIntel = false;
+#ifdef __linux__
+        if (isRenderer("Mesa DRI Intel(R) Sandybridge Mobile")) {
+            bIsLinuxIntel = true;
+        }
+#endif
         pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8X8, "screenshot"));
         string sTmp;
         bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp) || bIsLinuxIntel;
