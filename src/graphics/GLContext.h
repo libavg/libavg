@@ -128,6 +128,7 @@ private:
     bool m_bPremultipliedAlpha;
     unsigned m_BoundTextures[16];
 
+    std::string m_sVendor;
     int m_MajorGLVersion;
     int m_MinorGLVersion;
 

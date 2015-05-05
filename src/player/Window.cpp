@@ -66,6 +66,12 @@ BitmapPtr Window::screenshot(int buffer)
 {
     AVG_ASSERT(m_pGLContext);
     m_pGLContext->activate();
+    bool bIsLinuxIntel = false;
+#ifdef __linux__
+    if (isVendor("Intel")) {
+        bIsLinuxIntel = true;
+    }
+#endif
     BitmapPtr pBmp;
     glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
     if (m_pGLContext->isGLES()) {
@@ -77,7 +83,7 @@ BitmapPtr Window::screenshot(int buffer)
 #ifndef AVG_ENABLE_EGL
         pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8X8, "screenshot"));
         string sTmp;
-        bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
+        bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp) || bIsLinuxIntel;
         GLenum buf = buffer;
         if (!buffer) {
             if (bBroken) {

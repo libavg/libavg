@@ -77,6 +77,7 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
         sscanf(pVersion, "%d.%d", &m_MajorGLVersion, &m_MinorGLVersion);
     }
 
+    m_sVendor = (const char *)glGetString(GL_VENDOR);
     if (m_GLConfig.m_bUseDebugContext) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
@@ -384,8 +385,7 @@ bool GLContext::isGLES() const
 
 bool GLContext::isVendor(const string& sWantedVendor) const
 {
-    string sVendor((const char *)glGetString(GL_VENDOR));
-    return (sVendor.find(sWantedVendor) != string::npos);
+    return (m_sVendor.find(sWantedVendor) != string::npos);
 }
 
 bool GLContext::useDepthBuffer() const
