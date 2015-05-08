@@ -29,6 +29,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
+#include "../base/OSHelper.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -54,6 +55,10 @@ GLContext::GLContext(const IntPoint& windowSize)
 {
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
+    }
+    string sVal;
+    if (getEnv("AVG_ENABLE_GL_ERROR_CHECKS", sVal)) {
+        enableErrorChecks(true);
     }
     GLContextManager::get()->registerContext(this);
 }
