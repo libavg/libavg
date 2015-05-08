@@ -231,7 +231,7 @@ void DisplayEngine::setVBlankRate(int rate)
         bool bOK = pContext->initVBlank(rate);
         m_Framerate = Display::get()->getRefreshRate()/m_VBRate;
         if (!bOK || rate == 0) { 
-            AVG_LOG_WARNING("Using framerate of " << m_Framerate << 
+            AVG_LOG_INFO("Using framerate of " << m_Framerate <<
                     " instead of VBRate of " << m_VBRate);
             m_VBRate = 0;
         }

@@ -70,17 +70,17 @@ float X11Display::queryRefreshRate()
     bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
             &pixelClock, &modeLine);
     if (!bOK) {
-        AVG_LOG_WARNING(
+        AVG_LOG_INFO(
                 "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_LOG_WARNING("Defaulting to 60 Hz refresh rate.");
+        AVG_LOG_INFO("Defaulting to 60 Hz refresh rate.");
         return 60;
     }
     float hSyncRate = (pixelClock * 1000.0) / modeLine.htotal;
     float refreshRate = hSyncRate / modeLine.vtotal;
     XCloseDisplay(pDisplay);
     if ( refreshRate < 20 || refreshRate > 200 || !(boost::math::isnormal(refreshRate))){
-        AVG_LOG_WARNING("Could not get valid refresh rate");
-        AVG_LOG_WARNING("Defaulting to 60 Hz refresh rate.");
+        AVG_LOG_INFO("Could not get valid refresh rate");
+        AVG_LOG_INFO("Defaulting to 60 Hz refresh rate.");
         return 60;
     }
     return refreshRate;
