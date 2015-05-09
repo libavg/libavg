@@ -120,6 +120,20 @@ XYZColor::XYZColor(float X, float Y, float Z)
 {
 }
 
+LabColor::LabColor(float L, float A, float B)
+    : l(L),
+      a(A),
+      b(B)
+{
+}
+
+LchColor::LchColor(float L, float C, float H)
+    : l(L),
+      c(C),
+      h(H)
+{
+}
+
 // Color conversion formulas taken from EasyRGB.com
 XYZColor RGB2XYZ(const Color& rgb)
 {
@@ -173,6 +187,64 @@ Color XYZ2RGB(const XYZColor& xyz)
 
     return Color((unsigned char)(r*255+0.5f), (unsigned char)(g*255+0.5f), 
             (unsigned char)(b*255+0.5f));
+}
+
+LabColor XYZ2Lab(const XYZColor& xyz)
+{
+    float x = xyz.x/95.047f;
+    float y = xyz.y/100.000f;
+    float z = xyz.z/108.883f;
+
+    if (x > 0.008856f) {
+        x = pow(x, 0.333333f);
+    } else {
+        x = (7.787f*x) + (16.f/116.f);
+    }
+    if (y > 0.008856f) {
+        y = pow(y, 0.333333f);
+    } else {
+        y = (7.787f*y) + (16.f/116.f);
+    }
+    if (z > 0.008856f) {
+        z = pow(z, 0.333333f);
+    } else {
+        z = (7.787f*z) + (16.f/116.f);
+    }
+
+    return LabColor((116*y)-16, 500*(x-y), 200*(y-z));
+}
+
+XYZColor Lab2XYZ(const LabColor& lab)
+{
+    float y = (lab.l+16)/116.f;
+    float x = lab.a/500.f + y;
+    float z = y - lab.b/200.f;
+
+    if (pow(y, 3) > 0.008856) {
+        y = pow(y, 3);
+    } else {
+        y = (y-16.f/116.f)/7.787f;
+    }
+    if (pow(x, 3) > 0.008856) {
+        x = pow(x, 3);
+    } else {
+        x = (x-16.f/116.f)/7.787f;
+    }
+    if (pow(z, 3) > 0.008856) {
+        z = pow(z, 3);
+    } else {
+        z = (z-16.f/116.f)/7.787f;
+    }
+
+    return XYZColor(x*95.047f, y*100.000f, z*108.883);
+}
+
+LchColor Lab2Lch(const LabColor& lab)
+{
+}
+
+LabColor Lch2Lab(const LchColor& lch)
+{
 }
 
 }

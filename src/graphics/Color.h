@@ -67,8 +67,30 @@ struct AVG_API XYZColor
     float z; // Range: 0 ... 108.883
 };
 
+struct AVG_API LabColor
+{
+    LabColor(float L, float A, float B);
+
+    float l;
+    float a;
+    float b;
+};
+
+struct AVG_API LchColor
+{
+    LchColor(float L, float C, float H);
+
+    float l;
+    float c;
+    float h;
+};
+
 XYZColor RGB2XYZ(const Color& rgb);
 Color XYZ2RGB(const XYZColor& xyz);
+LabColor XYZ2Lab(const XYZColor& xyz);
+XYZColor Lab2XYZ(const LabColor& lab);
+LchColor Lab2Lch(const LabColor& lab);
+LabColor Lch2Lab(const LchColor& lch);
 
 }
  

@@ -151,9 +151,18 @@ public:
         TEST(c.getB() == 0);
         TEST(c == string("FF8000"));
         TEST_EXCEPTION(Color c1("foo"), Exception);
-        XYZColor xyz = RGB2XYZ(c);
-        Color c1 = XYZ2RGB(xyz);
-        TEST(c == c1);
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            LabColor lab = XYZ2Lab(xyz);
+            xyz = Lab2XYZ(lab);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
     }
 
 };
