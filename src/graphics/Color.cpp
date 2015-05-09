@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <sstream>
 #include <stdio.h>
+#include <math.h>
 
 using namespace std;
 
@@ -241,10 +242,21 @@ XYZColor Lab2XYZ(const LabColor& lab)
 
 LchColor Lab2Lch(const LabColor& lab)
 {
+    float h = atan2(lab.b, lab.a);
+
+    if (h > 0) {
+        h = (h/M_PI)*180;
+    } else {
+        h = 360 - (fabsf(h)/M_PI)*180;
+    }
+
+    return LchColor(lab.l, sqrtf(lab.a*lab.a+lab.b*lab.b), h);
 }
 
 LabColor Lch2Lab(const LchColor& lch)
 {
+    float radH = lch.h*M_PI/180.f;
+    return LabColor(lch.l, cos(radH)*lch.c, sin(radH)*lch.c);
 }
 
 }

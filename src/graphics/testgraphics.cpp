@@ -163,6 +163,15 @@ public:
             Color c1 = XYZ2RGB(xyz);
             TEST(c == c1);
         }
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            LabColor lab = XYZ2Lab(xyz);
+            LchColor lch = Lab2Lch(lab);
+            lab = Lch2Lab(lch);
+            xyz = Lab2XYZ(lab);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
     }
 
 };
