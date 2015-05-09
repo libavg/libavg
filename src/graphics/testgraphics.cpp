@@ -25,6 +25,7 @@
 #include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
+#include "Color.h"
 #include "Filtercolorize.h"
 #include "Filtergrayscale.h"
 #include "Filterfill.h"
@@ -132,6 +133,29 @@ public:
         Pixel32(128, 128, 128).toHSL(h, s, l);
         TEST(s == 0.0f && almostEqual(l, 0.5f, 0.02f));
     }
+};
+
+class ColorTest: public GraphicsTest {
+public:
+    ColorTest()
+      : GraphicsTest("ColorTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        Color c("FF8000");
+        TEST(c == Color(255,128,0));
+        TEST(c.getR() == 255);
+        TEST(c.getG() == 128);
+        TEST(c.getB() == 0);
+        TEST(c == string("FF8000"));
+        TEST_EXCEPTION(Color c1("foo"), Exception);
+        XYZColor xyz = RGB2XYZ(c);
+        Color c1 = XYZ2RGB(xyz);
+        TEST(c == c1);
+    }
+
 };
 
 class BitmapTest: public GraphicsTest {
@@ -1011,6 +1035,7 @@ public:
         : TestSuite("GraphicsTestSuite")
     {
         addTest(TestPtr(new PixelTest));
+        addTest(TestPtr(new ColorTest));
         addTest(TestPtr(new BitmapTest));
         addTest(TestPtr(new Filter3x3Test));
         addTest(TestPtr(new FilterConvolTest));
