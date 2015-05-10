@@ -205,6 +205,9 @@ struct vec2_from_python
         if (PySequence_Size(obj_ptr) != 2) {
             return 0;
         }
+        if (PyString_Check(obj_ptr)) {
+            return 0;
+        }
         return obj_ptr;
     }
 
@@ -243,6 +246,10 @@ struct vec3_from_python
         if (PySequence_Size(obj_ptr) != 3) {
             return 0;
         }
+        if (PyString_Check(obj_ptr)) {
+            return 0;
+        }
+
         return obj_ptr;
     }
 

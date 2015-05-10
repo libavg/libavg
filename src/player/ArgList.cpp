@@ -168,6 +168,7 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
             dynamic_cast<Arg<CollVec2Vector>* >(&*pArg);
     Arg<FontStyle>* pFontStyleArg = dynamic_cast<Arg<FontStyle>* >(&*pArg);
     Arg<FontStylePtr>* pFontStylePtrArg = dynamic_cast<Arg<FontStylePtr>* >(&*pArg);
+    Arg<Color>* pColorArg = dynamic_cast<Arg<Color>* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, value);
     } else if (pUTF8StringArg) {
@@ -198,6 +199,8 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
         avg::setArgValue(pFontStyleArg, sName, value);
     } else if (pFontStylePtrArg) {
         avg::setArgValue(pFontStylePtrArg, sName, value);
+    } else if (pColorArg) {
+        avg::setArgValue(pColorArg, sName, value);
     } else {
         AVG_ASSERT(false);
     }

@@ -35,6 +35,7 @@ namespace avg {
 class AVG_API Color
 {
 public:
+    Color();
     Color(const std::string& s);
     Color(unsigned char r, unsigned char g, unsigned char b);
     Color(const glm::vec3& v);

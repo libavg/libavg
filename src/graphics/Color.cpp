@@ -33,6 +33,10 @@ using namespace std;
 
 namespace avg {
 
+Color::Color()
+{
+}
+
 Color::Color(const std::string& s)
     : m_sOrig(s)
 {

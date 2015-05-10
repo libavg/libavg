@@ -95,7 +95,7 @@ void WordsNode::registerType()
         .addArg(Arg<string>("font", "sans"))
         .addArg(Arg<string>("variant", ""))
         .addArg(Arg<UTF8String>("text", ""))
-        .addArg(Arg<string>("color", "FFFFFF"))
+        .addArg(Arg<Color>("color", Color("FFFFFF")))
         .addArg(Arg<float>("aagamma", 1.0f))
         .addArg(Arg<float>("fontsize", 15))
         .addArg(Arg<int>("indent", 0, false))
@@ -330,14 +330,14 @@ void WordsNode::setText(const UTF8String& sText)
     }
 }
 
-const std::string& WordsNode::getColor() const
+const Color& WordsNode::getColor() const
 {
     return m_FontStyle.getColor();
 }
 
-void WordsNode::setColor(const string& sColor)
+void WordsNode::setColor(const Color& color)
 {
-    m_FontStyle.setColor(sColor);
+    m_FontStyle.setColor(color);
     updateLayout();
 }
 
@@ -682,7 +682,7 @@ void WordsNode::renderText()
                 default:
                     AVG_ASSERT(false);
             }
-            setRenderColor(m_FontStyle.getColorVal());
+            setRenderColor(m_FontStyle.getColor());
 
             GLContextManager* pCM = GLContextManager::get();
             MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);

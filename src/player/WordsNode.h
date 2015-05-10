@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "RasterNode.h"
 #include "FontStyle.h"
-#include "../graphics/Pixel32.h"
 #include "../base/UTF8String.h"
 
 #include <pango/pango.h>
@@ -76,8 +75,8 @@ class AVG_API WordsNode : public RasterNode
         const UTF8String& getText() const; 
         void setText(const UTF8String& sText);
         
-        const std::string& getColor() const;
-        void setColor(const std::string& sColor);
+        const Color& getColor() const;
+        void setColor(const Color& color);
         
         virtual float getAAGamma() const;
         virtual void setAAGamma(float gamma);
