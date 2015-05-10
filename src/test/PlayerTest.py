@@ -102,6 +102,24 @@ class PlayerTestCase(AVGTestCase):
             norm = pt.getNorm()
             self.assertAlmostEqual(pt, avg.Point2D.fromPolar(angle,norm))
 
+    def testColor(self):
+        col = avg.Color("0080FF")
+        self.assertEqual(col, avg.Color(0,128,255))
+        self.assertEqual(col, avg.Color((0,128,255)))
+        self.assertEqual(col, (0,128,255))
+        self.assertEqual(col, "0080FF")
+        self.assertEqual(col.r, 0)
+        self.assertEqual(col.g, 128)
+        self.assertEqual(col.b, 255)
+        self.assertEqual(avg.Color("FF6600"), avg.Color("F60"))
+        col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 1)
+        self.assertEqual(col, avg.Color("FF0000"))
+        col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 0)
+        self.assertEqual(col, avg.Color("0000FF"))
+        self.assertRaises(avg.Exception, lambda: avg.Color("1234567"))
+        self.assertRaises(avg.Exception, lambda: avg.Color("xxx"))
+        self.assertRaises(avg.Exception, lambda: avg.Color("xxxxxx"))
+
     def testBasics(self):
         def getFramerate():
             framerate = player.getEffectiveFramerate()
@@ -864,6 +882,7 @@ class PlayerTestCase(AVGTestCase):
 def playerTestSuite(tests):
     availableTests = (
             "testPoint",
+            "testColor",
             "testBasics",
             "testSetResolution",
             "testColorParse",

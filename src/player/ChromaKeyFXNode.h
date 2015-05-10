@@ -26,7 +26,7 @@
 
 #include "FXNode.h"
 
-#include "../graphics/Pixel32.h"
+#include "../graphics/Color.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -42,8 +42,8 @@ public:
 
     virtual void disconnect();
 
-    void setColor(const std::string& sColorName);
-    const std::string& getColor() const;
+    void setColor(const Color& color);
+    const Color& getColor() const;
     void setHTolerance(float tolerance);
     float getHTolerance() const;
     void setSTolerance(float tolerance);
@@ -63,8 +63,7 @@ private:
 
     GPUChromaKeyFilterPtr m_pFilter;
 
-    std::string m_sColorName;
-    Pixel32 m_Color;
+    Color m_Color;
     float m_HTolerance;
     float m_STolerance;
     float m_LTolerance;

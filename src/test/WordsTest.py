@@ -204,6 +204,9 @@ class WordsTestCase(AVGTestCase):
            
         def setColor():
             node.color = "FFFF00"
+            self.assertEqual(node.color, "FFFF00")
+            node.color = avg.Color(255,255,0)
+            node.color = (255,255,0)
 
         def setOpacity():
             node.opacity = 0.5
@@ -555,29 +558,6 @@ class WordsTestCase(AVGTestCase):
                  lambda: self.assert_(testInside(False)),
                 ))
 
-    def testInvalidColor(self):
-        def testColor(col):
-            avg.WordsNode(color=col)
-        
-        def assignValidColor():
-            testColor('123456')
-        
-        def assignInvalidColor1():
-            testColor('1234567')
-        
-        def assignInvalidColor2():
-            testColor('xxx')
-        
-        def assignInvalidColor3():
-            testColor('xxxxxx')
-
-        self.loadEmptyScene()
-        self.start(True, 
-                (self.assertRaises(avg.Exception, assignInvalidColor1),
-                 self.assertRaises(avg.Exception, assignInvalidColor2),
-                 self.assertRaises(avg.Exception, assignInvalidColor3),
-                ))
-
     def testFontDir(self):
         avg.WordsNode.addFontDir('extrafonts')
         root = self.loadEmptyScene()
@@ -686,7 +666,6 @@ def wordsTestSuite(tests):
             "testWordsBR",
             "testLetterSpacing",
             "testPositioning",
-            "testInvalidColor",
             "testFontDir",
             "testGetNumLines",
             "testGetLineExtents",

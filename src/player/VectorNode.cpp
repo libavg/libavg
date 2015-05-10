@@ -52,7 +52,8 @@ namespace avg {
 void VectorNode::registerType()
 {
     TypeDefinition def = TypeDefinition("vectornode", "node")
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
+        .addArg(Arg<Color>("color", Color("FFFFFF"), false,
+                offsetof(VectorNode, m_Color)))
         .addArg(Arg<float>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
         .addArg(Arg<string>("blendmode", "blend", false, 
@@ -69,8 +70,6 @@ VectorNode::VectorNode(const ArgList& args)
     ObjectCounter::get()->incRef(&typeid(*this));
     m_TexHRef = args.getArgVal<UTF8String>("texhref"); 
     setTexHRef(m_TexHRef);
-    m_sColorName = args.getArgVal<string>("color");
-    m_Color = colorStringToColor(m_sColorName);
 }
 
 VectorNode::~VectorNode()
@@ -81,7 +80,6 @@ VectorNode::~VectorNode()
 void VectorNode::connectDisplay()
 {
     setDrawNeeded();
-    m_Color = colorStringToColor(m_sColorName);
     Node::connectDisplay();
     m_pShape->moveToGPU();
     setBlendModeStr(m_sBlendMode);
@@ -153,8 +151,7 @@ void VectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         VertexDataPtr pShapeVD = m_pShape->getVertexData();
         if (m_bDrawNeeded) {
             pShapeVD->reset();
-            Pixel32 color = getColorVal();
-            calcVertexes(pShapeVD, color);
+            calcVertexes(pShapeVD, m_Color);
             m_bDrawNeeded = false;
         }
         if (isVisible()) {
@@ -185,18 +182,17 @@ void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
     }
 }
 
-void VectorNode::setColor(const string& sColor)
+void VectorNode::setColor(const Color& color)
 {
-    if (m_sColorName != sColor) {
-        m_sColorName = sColor;
-        m_Color = colorStringToColor(m_sColorName);
+    if (m_Color != color) {
+        m_Color = color;
         m_bDrawNeeded = true;
     }
 }
 
-const string& VectorNode::getColor() const
+const Color& VectorNode::getColor() const
 {
-    return m_sColorName;
+    return m_Color;
 }
 
 void VectorNode::setStrokeWidth(float width)
@@ -210,11 +206,6 @@ void VectorNode::setStrokeWidth(float width)
 float VectorNode::getStrokeWidth() const
 {
     return m_StrokeWidth;
-}
-
-Pixel32 VectorNode::getColorVal() const
-{
-    return m_Color;
 }
 
 GLContext::BlendMode VectorNode::getBlendMode() const

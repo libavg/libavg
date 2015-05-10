@@ -710,8 +710,7 @@ Area Nodes
 
         .. py:attribute:: color
 
-            The color of the text in standard html color notation: FF0000 is red, 
-            00FF00 green, etc.
+            The :py:class:`Color` of the text.
 
         .. py:attribute:: font 
 

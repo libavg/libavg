@@ -27,6 +27,7 @@
 
 #include "../base/UTF8String.h"
 #include "../graphics/Pixel32.h"
+#include "../graphics/Color.h"
 #include "../graphics/GLContext.h"
 
 #include <boost/shared_ptr.hpp>
@@ -71,8 +72,8 @@ class AVG_API VectorNode : public Node
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 
-        void setColor(const std::string& sColor);
-        const std::string& getColor() const;
+        void setColor(const Color& color);
+        const Color& getColor() const;
 
         void setStrokeWidth(float width);
         float getStrokeWidth() const;
@@ -81,7 +82,6 @@ class AVG_API VectorNode : public Node
         static std::string lineJoin2String(LineJoin lineJoin);
 
     protected:
-        Pixel32 getColorVal() const;
         GLContext::BlendMode getBlendMode() const;
 
         void setDrawNeeded();
@@ -105,8 +105,7 @@ class AVG_API VectorNode : public Node
     private:
         Shape* createDefaultShape() const;
 
-        std::string m_sColorName;
-        Pixel32 m_Color;
+        Color m_Color;
         float m_StrokeWidth;
         UTF8String m_TexHRef;
         std::string m_sBlendMode;

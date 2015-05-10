@@ -40,7 +40,8 @@ Effect Nodes
 
         .. py:attribute:: color
 
-            The color to key out. Pixels of this and similar colors are made transparent.
+            The :py:class:`Color` to key out. Pixels of this and similar colors are made
+            transparent.
 
         .. py:attribute:: erosion
 
@@ -95,12 +96,12 @@ Effect Nodes
            -180..180, depending on the :py:attr:`colorize` value.
 
         .. py:attribute:: lightness
-           
+
            Set :py:attr:`lightness` offset. Adds a per pixel offset in brightness. Values
            range from -100 to 100, with -100 being very dark and 100 very bright.
 
         .. py:attribute:: saturation
-           
+
            Set :py:attr:`saturation` of Node. In :py:attr:`colorize` mode, this is the
            overall image saturation in the range 0..100, with 0 being greyscale and 100
            very oversaturated. If :py:attr:`colorize` is false, the attribute is an
@@ -135,6 +136,6 @@ Effect Nodes
 
         .. py:attribute:: color
 
-            The shadow color.
+            The shadow :py:class:`Color`.
 
 

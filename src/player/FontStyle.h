@@ -26,7 +26,7 @@
 
 #include "ExportedObject.h"
 
-#include "../graphics/Pixel32.h"
+#include "../graphics/Color.h"
 
 #include <pango/pango.h>
 #include <boost/shared_ptr.hpp>
@@ -55,8 +55,8 @@ class AVG_API FontStyle: public ExportedObject
         const std::string& getFontVariant() const;
         void setFontVariant(const std::string& sVariant);
         
-        const std::string& getColor() const;
-        void setColor(const std::string& sColor);
+        const Color& getColor() const;
+        void setColor(const Color& color);
         
         virtual float getAAGamma() const;
         virtual void setAAGamma(float gamma);
@@ -87,15 +87,13 @@ class AVG_API FontStyle: public ExportedObject
 
         PangoAlignment getAlignmentVal() const;
         PangoWrapMode getWrapModeVal() const;
-        Pixel32 getColorVal() const;
 
     private:
         void applyBaseStyle(const FontStyle& baseStyle, const ArgList& args);
 
         std::string m_sName;
         std::string m_sVariant;
-        std::string m_sColorName;
-        Pixel32 m_Color;
+        Color m_Color;
         float m_AAGamma;
         float m_Size;
         int m_Indent;

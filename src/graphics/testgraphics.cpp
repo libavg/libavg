@@ -25,6 +25,7 @@
 #include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
+#include "Color.h"
 #include "Filtercolorize.h"
 #include "Filtergrayscale.h"
 #include "Filterfill.h"
@@ -102,7 +103,6 @@ BitmapPtr initBmp(PixelFormat pf)
     return pBmp;
 }
 
-// TODO: This is very incomplete!
 class PixelTest: public GraphicsTest {
 public:
     PixelTest()
@@ -132,6 +132,71 @@ public:
         Pixel32(128, 128, 128).toHSL(h, s, l);
         TEST(s == 0.0f && almostEqual(l, 0.5f, 0.02f));
     }
+};
+
+class ColorTest: public GraphicsTest {
+public:
+    ColorTest()
+      : GraphicsTest("ColorTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        Color c("F80");
+        TEST(c == Color(255,136,0));
+        c = Color("FF8000");
+        TEST(c == Color(255,128,0));
+        TEST(c == Color(glm::vec3(255,128,0)));
+        TEST(c.getR() == 255);
+        TEST(c.getG() == 128);
+        TEST(c.getB() == 0);
+        TEST(c == string("FF8000"));
+        TEST_EXCEPTION(Color c1("foo"), Exception);
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            LabColor lab = XYZ2Lab(xyz);
+            xyz = Lab2XYZ(lab);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            LabColor lab = XYZ2Lab(xyz);
+            LchColor lch = Lab2Lch(lab);
+            lab = Lch2Lab(lch);
+            xyz = Lab2XYZ(lab);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
+        {
+            LchColor lch = RGB2Lch(c);
+            Color c1 = Lch2RGB(lch);
+            TEST(c == c1);
+        }
+        {
+            Color c2("4080C0");
+            LchColor lch = RGB2Lch(c2);
+            Color c1 = Lch2RGB(lch);
+            TEST(c2 == c1);
+        }
+        {
+            Color c1("FF0000");
+            Color c2("00FF00");
+            Color mix = Color::mix(c1, c2, 0);
+            TEST(mix == c2);
+            mix = Color::mix(c1, c2, 1);
+            TEST(mix == c1);
+            mix = Color::mix(c1, c2, 0.5);
+            TEST(mix == Color("d7a700"))
+        }
+    }
+
 };
 
 class BitmapTest: public GraphicsTest {
@@ -1011,6 +1076,7 @@ public:
         : TestSuite("GraphicsTestSuite")
     {
         addTest(TestPtr(new PixelTest));
+        addTest(TestPtr(new ColorTest));
         addTest(TestPtr(new BitmapTest));
         addTest(TestPtr(new Filter3x3Test));
         addTest(TestPtr(new FilterConvolTest));

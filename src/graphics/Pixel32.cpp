@@ -75,17 +75,6 @@ std::string Pixel32::getColorString() const
     return s.str();
 }
 
-Pixel32 colorStringToColor(const UTF8String& s)
-{
-    int r, g, b;
-    int numChars;
-    int numItems = sscanf(s.c_str(), "%2x%2x%2x%n", &r, &g, &b, &numChars);
-    if (s.length() != 6 || numChars != 6 || numItems != 3) {
-        throw(Exception (AVG_ERR_INVALID_ARGS, "colorstring cannot be parsed."));
-    }
-    return Pixel32(r, g, b);
-}
-
 void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
 {
     // u = Cb, v = Cr
