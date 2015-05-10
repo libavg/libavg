@@ -30,6 +30,7 @@
 
 #include "../../base/Logger.h"
 #include "../../graphics/OGLHelper.h"
+#include "../../graphics/Color.h"
 #include "../../wrapper/WrapHelper.h"
 #include "../../wrapper/raw_constructor.hpp"
 
@@ -50,8 +51,8 @@ public:
     
     ColorNode(const ArgList& Args);
 
-    void setFillColor(const std::string& sColor);
-    const std::string& getFillColor() const;
+    void setFillColor(const Color& color);
+    const Color& getFillColor() const;
 
     float getFloat() const;
     void setFloat(float f);
@@ -60,7 +61,7 @@ public:
 
 private:
     std::string m_sFillColorName;
-    Pixel32 m_Color;
+    Color m_Color;
     float m_FloatParam;
 };
 
@@ -74,20 +75,18 @@ ColorNode::ColorNode(const ArgList& Args)
     Args.setMembers(this);
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
             "ColorNode constructed with " << m_sFillColorName);   
-    m_Color = colorStringToColor(m_sFillColorName);
 }
 
-void ColorNode::setFillColor(const string& sFillColor)
+void ColorNode::setFillColor(const Color& fillColor)
 {
     AVG_TRACE(Logger::category::PLUGIN,  Logger::severity::INFO,
-            "setFillColor called with " << sFillColor);   
-    m_sFillColorName = sFillColor;
-    m_Color = colorStringToColor(m_sFillColorName);
+            "setFillColor called with " << fillColor);   
+    m_Color = fillColor;
 }
 
-const std::string& ColorNode::getFillColor() const
+const Color& ColorNode::getFillColor() const
 {
-    return m_sFillColorName;
+    return m_Color;
 }
 
 float ColorNode::getFloat() const
@@ -114,8 +113,8 @@ void ColorNode::registerType()
             ExportedObject::buildObject<ColorNode>)
         .addArg(Arg<float>("floatparam", 0.0f, false,
                 offsetof(ColorNode, m_FloatParam)))
-        .addArg(Arg<string>("fillcolor", "0F0F0F", false, 
-                offsetof(ColorNode, m_sFillColorName)));
+        .addArg(Arg<Color>("fillcolor", Color("0F0F0F"), false,
+                offsetof(ColorNode, m_Color)));
     const char* allowedParentNodeNames[] = {"avg", 0};
     avg::TypeRegistry::get()->registerType(def, allowedParentNodeNames);
 }
