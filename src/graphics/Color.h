@@ -24,7 +24,10 @@
 
 #include "../api.h"
 
-#include <Pixel32.h>
+#include "../base/GLMHelper.h"
+#include "Pixel32.h"
+
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
@@ -34,6 +37,7 @@ class AVG_API Color
 public:
     Color(const std::string& s);
     Color(unsigned char r, unsigned char g, unsigned char b);
+    Color(const glm::vec3& v);
     ~Color();
 
     unsigned char getR() const;
@@ -46,6 +50,7 @@ public:
 
     operator Pixel32() const;
     operator std::string() const;
+    operator glm::vec3() const;
     bool operator ==(const Color& c) const;
 
     static Color mix(const Color& c1, const Color& c2, float ratio);
@@ -57,6 +62,8 @@ private:
 
     std::string m_sOrig;
 };
+
+typedef boost::shared_ptr<Color> ColorPtr;
 
 struct AVG_API XYZColor
 {

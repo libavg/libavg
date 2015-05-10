@@ -50,6 +50,13 @@ Color::Color(unsigned char r, unsigned char g, unsigned char b)
 {
 }
 
+Color::Color(const glm::vec3& v)
+    : m_R(v[0]),
+      m_G(v[1]),
+      m_B(v[2])
+{
+}
+
 Color::~Color()
 {
 }
@@ -103,6 +110,11 @@ Color::operator std::string() const
     } else {
         return m_sOrig;
     }
+}
+
+Color::operator glm::vec3() const
+{
+    return glm::vec3(m_R, m_G, m_B);
 }
 
 bool Color::operator ==(const Color& c) const

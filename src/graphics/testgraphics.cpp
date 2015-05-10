@@ -146,6 +146,7 @@ public:
     {
         Color c("FF8000");
         TEST(c == Color(255,128,0));
+        TEST(c == Color(glm::vec3(255,128,0)));
         TEST(c.getR() == 255);
         TEST(c.getG() == 128);
         TEST(c.getB() == 0);
