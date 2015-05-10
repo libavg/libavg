@@ -204,6 +204,9 @@ class WordsTestCase(AVGTestCase):
            
         def setColor():
             node.color = "FFFF00"
+            self.assertEqual(node.color, "FFFF00")
+            node.color = avg.Color(255,255,0)
+            node.color = (255,255,0)
 
         def setOpacity():
             node.opacity = 0.5
