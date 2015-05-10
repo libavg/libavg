@@ -22,6 +22,7 @@
 #include "Color.h"
 
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 #include <iomanip>
@@ -71,9 +72,9 @@ Color::Color(unsigned char r, unsigned char g, unsigned char b)
 }
 
 Color::Color(const glm::vec3& v)
-    : m_R(v[0]),
-      m_G(v[1]),
-      m_B(v[2])
+    : m_R((unsigned char)v[0]),
+      m_G((unsigned char)v[1]),
+      m_B((unsigned char)v[2])
 {
 }
 
@@ -308,7 +309,7 @@ XYZColor Lab2XYZ(const LabColor& lab)
         z = (z-16.f/116.f)/7.787f;
     }
 
-    return XYZColor(x*95.047f, y*100.000f, z*108.883);
+    return XYZColor(x*95.047f, y*100.000f, z*108.883f);
 }
 
 LchColor Lab2Lch(const LabColor& lab)
@@ -316,9 +317,9 @@ LchColor Lab2Lch(const LabColor& lab)
     float h = atan2f(lab.b, lab.a);
 
     if (h > 0) {
-        h = (h/M_PI)*180;
+        h = (h/float(M_PI))*180;
     } else {
-        h = 360 - (fabsf(h)/M_PI)*180;
+        h = 360 - (fabsf(h)/float(M_PI))*180;
     }
 
     return LchColor(lab.l, sqrtf(lab.a*lab.a+lab.b*lab.b), h);
@@ -326,7 +327,7 @@ LchColor Lab2Lch(const LabColor& lab)
 
 LabColor Lch2Lab(const LchColor& lch)
 {
-    float radH = lch.h*M_PI/180.f;
+    float radH = lch.h*float(M_PI)/180.f;
     return LabColor(lch.l, cosf(radH)*lch.c, sinf(radH)*lch.c);
 }
 
