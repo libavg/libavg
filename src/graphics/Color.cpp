@@ -112,6 +112,12 @@ bool Color::operator ==(const Color& c) const
 
 Color Color::mix(const Color& c1, const Color& c2, float ratio)
 {
+    LchColor lch1 = RGB2Lch(c1);
+    LchColor lch2 = RGB2Lch(c2);
+
+    LchColor lchMix(lch1.l*ratio + lch2.l*(1-ratio), lch1.c*ratio + lch2.c*(1-ratio),
+            lch1.h*ratio + lch2.h*(1-ratio));
+    return Lch2RGB(lchMix);
 }
 
 XYZColor::XYZColor(float X, float Y, float Z)
@@ -258,5 +264,20 @@ LabColor Lch2Lab(const LchColor& lch)
     float radH = lch.h*M_PI/180.f;
     return LabColor(lch.l, cos(radH)*lch.c, sin(radH)*lch.c);
 }
+
+LchColor RGB2Lch(const Color& rgb)
+{
+    XYZColor xyz = RGB2XYZ(rgb);
+    LabColor lab = XYZ2Lab(xyz);
+    return Lab2Lch(lab);
+}
+
+Color Lch2RGB(const LchColor& lch)
+{
+    LabColor lab = Lch2Lab(lch);
+    XYZColor xyz = Lab2XYZ(lab);
+    return XYZ2RGB(xyz);
+}
+
 
 }

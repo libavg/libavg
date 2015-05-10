@@ -92,6 +92,9 @@ XYZColor Lab2XYZ(const LabColor& lab);
 LchColor Lab2Lch(const LabColor& lab);
 LabColor Lch2Lab(const LchColor& lch);
 
+LchColor RGB2Lch(const Color& rgb);
+Color Lch2RGB(const LchColor& lch);
+
 }
  
 #endif

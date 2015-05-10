@@ -172,6 +172,21 @@ public:
             Color c1 = XYZ2RGB(xyz);
             TEST(c == c1);
         }
+        {
+            LchColor lch = RGB2Lch(c);
+            Color c1 = Lch2RGB(lch);
+            TEST(c == c1);
+        }
+        {
+            Color c1("FF0000");
+            Color c2("00FF00");
+            Color mix = Color::mix(c1, c2, 0);
+            TEST(mix == c2);
+            mix = Color::mix(c1, c2, 1);
+            TEST(mix == c1);
+            mix = Color::mix(c1, c2, 0.5);
+            TEST(mix == Color("d7a74c"));
+        }
     }
 
 };
