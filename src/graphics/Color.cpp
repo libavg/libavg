@@ -141,6 +141,16 @@ Color Color::mix(const Color& c1, const Color& c2, float ratio)
     return Lch2RGB(lchMix);
 }
 
+std::ostream& operator <<(std::ostream& os, const Color& col)
+{
+    os.fill('0');
+    os << "(" << hex << setw(2) << (int)col.m_R << "," << setw(2) << (int)col.m_G << ","
+            << setw(2) << (int)col.m_B << ")";
+    os.fill('.');
+    return os;
+}
+
+
 XYZColor::XYZColor(float X, float Y, float Z)
     : x(X),
       y(Y),
@@ -202,15 +212,33 @@ Color XYZ2RGB(const XYZColor& xyz)
     } else {
         r = 12.92f*r;
     }
+    if (r < 0) {
+        r = 0;
+    }
+    if (r > 1) {
+        r = 1;
+    }
     if (g > 0.0031308f) {
         g = 1.055f*pow(g, (1/2.4f)) - 0.055f;
     } else {
         g = 12.92f*g;
     }
+    if (g < 0) {
+        g = 0;
+    }
+    if (g > 1) {
+        g = 1;
+    }
     if (b > 0.0031308f) {
         b = 1.055f*pow(b, (1/2.4f)) - 0.055f;
     } else {
         b = 12.92f*b;
+    }
+    if (b < 0) {
+        b = 0;
+    }
+    if (b > 1) {
+        b = 1;
     }
 
     return Color((unsigned char)(r*255+0.5f), (unsigned char)(g*255+0.5f), 
@@ -269,7 +297,7 @@ XYZColor Lab2XYZ(const LabColor& lab)
 
 LchColor Lab2Lch(const LabColor& lab)
 {
-    float h = atan2(lab.b, lab.a);
+    float h = atan2f(lab.b, lab.a);
 
     if (h > 0) {
         h = (h/M_PI)*180;
@@ -283,7 +311,7 @@ LchColor Lab2Lch(const LabColor& lab)
 LabColor Lch2Lab(const LchColor& lch)
 {
     float radH = lch.h*M_PI/180.f;
-    return LabColor(lch.l, cos(radH)*lch.c, sin(radH)*lch.c);
+    return LabColor(lch.l, cosf(radH)*lch.c, sinf(radH)*lch.c);
 }
 
 LchColor RGB2Lch(const Color& rgb)

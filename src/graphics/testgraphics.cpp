@@ -103,7 +103,6 @@ BitmapPtr initBmp(PixelFormat pf)
     return pBmp;
 }
 
-// TODO: This is very incomplete!
 class PixelTest: public GraphicsTest {
 public:
     PixelTest()
@@ -179,6 +178,12 @@ public:
             TEST(c == c1);
         }
         {
+            Color c2("4080C0");
+            LchColor lch = RGB2Lch(c2);
+            Color c1 = Lch2RGB(lch);
+            TEST(c2 == c1);
+        }
+        {
             Color c1("FF0000");
             Color c2("00FF00");
             Color mix = Color::mix(c1, c2, 0);
@@ -186,7 +191,7 @@ public:
             mix = Color::mix(c1, c2, 1);
             TEST(mix == c1);
             mix = Color::mix(c1, c2, 0.5);
-            TEST(mix == Color("d7a74c"));
+            TEST(mix == Color("d7a700"))
         }
     }
 

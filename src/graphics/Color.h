@@ -57,6 +57,8 @@ public:
 
     static Color mix(const Color& c1, const Color& c2, float ratio);
 
+    friend std::ostream& operator <<(std::ostream& os, const Color& col);
+
 private:
     unsigned char m_R;
     unsigned char m_G;
@@ -64,6 +66,8 @@ private:
 
     std::string m_sOrig;
 };
+
+AVG_API std::ostream& operator <<(std::ostream& os, const Color& col);
 
 typedef boost::shared_ptr<Color> ColorPtr;
 
