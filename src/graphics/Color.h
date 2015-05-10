@@ -53,6 +53,7 @@ public:
     operator std::string() const;
     operator glm::vec3() const;
     bool operator ==(const Color& c) const;
+    bool operator !=(const Color& c) const;
 
     static Color mix(const Color& c1, const Color& c2, float ratio);
 

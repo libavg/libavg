@@ -126,6 +126,11 @@ bool Color::operator ==(const Color& c) const
     return m_R == c.m_R && m_G == c.m_G && m_B == c.m_B;
 }
 
+bool Color::operator !=(const Color& c) const
+{
+    return m_R != c.m_R || m_G != c.m_G || m_B != c.m_B;
+}
+
 Color Color::mix(const Color& c1, const Color& c2, float ratio)
 {
     LchColor lch1 = RGB2Lch(c1);

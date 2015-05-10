@@ -225,6 +225,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
             dynamic_cast<Arg<vector<glm::ivec3> >* >(&*pArg);
     Arg<CollVec2Vector>* pCollVec2VectorArg =
             dynamic_cast<Arg<CollVec2Vector>* >(&*pArg);
+    Arg<Color>* pColorArg = dynamic_cast<Arg<Color>* >(&*pArg);
     if (pStringArg) {
         pStringArg->setValue(sValue);
     } else if (pUTF8StringArg) {
@@ -261,6 +262,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         CollVec2Vector v;
         fromString(sValue, v);
         pCollVec2VectorArg->setValue(v);
+    } else if (pColorArg) {
+        pColorArg->setValue(sValue);
     } else {
         AVG_ASSERT(false);
     }   

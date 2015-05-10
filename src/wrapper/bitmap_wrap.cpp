@@ -244,6 +244,7 @@ void export_bitmap()
         .add_property("g", &Color::getG, "")
         .add_property("b", &Color::getB, "")
         .def(self == self)
+        .def(self != self)
         .def("mix", &Color::mix)
         .staticmethod("mix")
     ;
