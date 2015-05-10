@@ -143,7 +143,9 @@ public:
 
     void runTests()
     {
-        Color c("FF8000");
+        Color c("F80");
+        TEST(c == Color(255,136,0));
+        c = Color("FF8000");
         TEST(c == Color(255,128,0));
         TEST(c == Color(glm::vec3(255,128,0)));
         TEST(c.getR() == 255);

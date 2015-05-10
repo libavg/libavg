@@ -111,6 +111,7 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(col.r, 0)
         self.assertEqual(col.g, 128)
         self.assertEqual(col.b, 255)
+        self.assertEqual(avg.Color("FF6600"), avg.Color("F60"))
         col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 1)
         self.assertEqual(col, avg.Color("FF0000"))
         col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 0)

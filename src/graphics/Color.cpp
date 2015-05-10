@@ -41,9 +41,25 @@ Color::Color(const std::string& s)
     : m_sOrig(s)
 {
     int numChars;
-    int numItems = sscanf(s.c_str(), "%2hhx%2hhx%2hhx%n", &m_R, &m_G, &m_B, &numChars);
-    if (s.length() != 6 || numChars != 6 || numItems != 3) {
-        throw(Exception(AVG_ERR_INVALID_ARGS, "colorstring cannot be parsed."));
+    int numItems;
+    switch(s.length()) {
+        case 6:
+            numItems = sscanf(s.c_str(), "%2hhx%2hhx%2hhx%n", &m_R, &m_G, &m_B,
+                    &numChars);
+            break;
+        case 3:
+            // Three-character html-like color codes.
+            numItems = sscanf(s.c_str(), "%1hhx%1hhx%1hhx%n", &m_R, &m_G, &m_B,
+                    &numChars);
+            m_R *= 17;
+            m_G *= 17;
+            m_B *= 17;
+            break;
+        default:
+            numItems = 0;
+    }
+    if (s.length() != (unsigned)numChars || numItems != 3) {
+        throw(Exception(AVG_ERR_INVALID_ARGS, string("Invalid color string '")+s+"'."));
     }
 }
 
