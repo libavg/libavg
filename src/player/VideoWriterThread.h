@@ -75,7 +75,9 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
         SwsContext* m_pFrameConversionContext;
         AVFrame* m_pConvertedFrame;
         unsigned char* m_pPictureBuffer;
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
         unsigned char* m_pVideoBuffer;
+#endif
         int m_FramesWritten;
 };
 
