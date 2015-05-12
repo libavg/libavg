@@ -35,7 +35,10 @@ using namespace std;
 
 namespace avg {
 
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
 const unsigned int VIDEO_BUFFER_SIZE = 400000;
+#endif
+
 const AVPixelFormat STREAM_PIXEL_FORMAT = ::PIX_FMT_YUVJ420P;
 
 VideoWriterThread::VideoWriterThread(CQueue& cmdQueue, const string& sFilename,
@@ -92,7 +95,9 @@ void VideoWriterThread::close()
         }
 
         av_free(m_pOutputFormatContext);
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
         av_free(m_pVideoBuffer);
+#endif
         av_free(m_pConvertedFrame);
         av_free(m_pPictureBuffer);
         sws_freeContext(m_pFrameConversionContext);
@@ -142,10 +147,12 @@ void VideoWriterThread::open()
 
     openVideoCodec();
 
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
     m_pVideoBuffer = NULL;
     if (!(m_pOutputFormatContext->oformat->flags & AVFMT_RAWPICTURE)) {
         m_pVideoBuffer = (unsigned char*)(av_malloc(VIDEO_BUFFER_SIZE));
     }
+#endif
 
     if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
         int retVal = avio_open(&m_pOutputFormatContext->pb, m_sFilename.c_str(),

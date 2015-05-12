@@ -156,6 +156,7 @@
     <ClCompile Include="..\..\src\graphics\BitmapLoader.cpp" />
     <ClCompile Include="..\..\src\graphics\BmpTextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\CachedImage.cpp" />
+    <ClCompile Include="..\..\src\graphics\Color.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />
     <ClCompile Include="..\..\src\graphics\FBOInfo.cpp" />
