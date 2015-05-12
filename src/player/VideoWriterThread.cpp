@@ -25,6 +25,7 @@
 #include "../base/ProfilingZoneID.h"
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
+#include "../video/VideoDecoder.h"
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 18, 102)
     typedef CodecID AVCodecID;
@@ -75,6 +76,7 @@ void VideoWriterThread::close()
 {
     if (m_pOutputFormatContext) {
         av_write_trailer(m_pOutputFormatContext);
+        lock_guard lock(VideoDecoder::s_OpenMutex);
         avcodec_close(m_pVideoStream->codec);
 
         for (unsigned int i=0; i<m_pOutputFormatContext->nb_streams; i++) {
@@ -117,6 +119,7 @@ void VideoWriterThread::deinit()
 
 void VideoWriterThread::open()
 {
+    lock_guard lock(VideoDecoder::s_OpenMutex);
     av_register_all(); // TODO: make sure this is only done once. 
 //    av_log_set_level(AV_LOG_DEBUG);
     m_pOutputFormat = av_guess_format(0, m_sFilename.c_str(), 0);

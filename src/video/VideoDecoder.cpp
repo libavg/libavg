@@ -203,8 +203,9 @@ void VideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 void VideoDecoder::close() 
 {
     lock_guard lock(s_OpenMutex);
-    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Closing " << m_sFilename);
-    
+    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Closing " <<
+            m_sFilename);
+
     // Close audio and video codecs
     if (m_pVStream) {
         avcodec_close(m_pVStream->codec);

@@ -83,6 +83,9 @@ class AVG_API VideoDecoder
 
         static void logConfig();
 
+        // Prevents different decoder instances from executing open/close simultaneously
+        static boost::mutex s_OpenMutex;
+
     protected:
         int getNumFrames() const;
         AVFormatContext* getFormatContext();
@@ -121,8 +124,6 @@ class AVG_API VideoDecoder
         AVStream * m_pAStream;
         
         static bool s_bInitialized;
-        // Prevents different decoder instances from executing open/close simultaneously
-        static boost::mutex s_OpenMutex;   
 };
 
 typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;
