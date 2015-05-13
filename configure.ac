@@ -183,7 +183,8 @@ fi
 AM_CONDITIONAL(ENABLE_EGL, test x"$egl_present" != x)
 AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
-AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
+
+AM_PATH_SDL2(2.0.2,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
 AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
 AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
