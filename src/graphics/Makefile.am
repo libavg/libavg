@@ -24,8 +24,8 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextManager.h \
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
-        HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
-        FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
+        FilterConvol.h FilterHighpass.h \
+        Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
         VertexArray.h GPUNullFilter.h GPUChromaKeyFilter.h Display.h \
@@ -43,8 +43,8 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextManager.h \
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         GLContextManager.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
-        Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
-        FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
+        Filterflipuv.cpp Filter3x3.cpp FilterHighpass.cpp \
+        Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp GPUChromaKeyFilter.cpp \
         Display.cpp \

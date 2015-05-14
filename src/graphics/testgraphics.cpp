@@ -34,9 +34,7 @@
 #include "Filterflipuv.h"
 #include "Filter3x3.h"
 #include "FilterConvol.h"
-#include "HistoryPreProcessor.h"
 #include "FilterHighpass.h"
-#include "FilterFastBandpass.h"
 #include "FilterGauss.h"
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
@@ -727,47 +725,6 @@ private:
     }
 };
     
-class HistoryPreProcessorTest: public GraphicsTest {
-public:
-    HistoryPreProcessorTest()
-        : GraphicsTest("HistoryPreProcessor", 2)
-    {
-    }
-
-    void runTests() 
-    {
-        BitmapPtr pBaseBmp = initBmp(I8);
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(*pBaseBmp));
-        BitmapPtr nullBmp = FilterFill<Pixel8>(0).apply(pBmp);
-        pBmp->copyPixels(*pBaseBmp);
-        HistoryPreProcessor filt(pBaseBmp->getSize(), 1, true);
-        pBmp = filt.apply(pBaseBmp);
-        testEqual(*pBmp, *nullBmp, "HistoryPreprocessor1");
-        for(int i=0;i<1;i++){
-            pBmp = filt.apply(pBaseBmp);
-            testEqual(*pBmp, *nullBmp, "HistoryPreprocessor2");
-        }
-    }
-
-};
-    
-class FilterFastBandpassTest: public GraphicsTest {
-public:
-    FilterFastBandpassTest()
-        : GraphicsTest("FilterFastBandpassTest", 2)
-    {
-    }
-
-    void runTests()
-    {
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
-        FilterFill<Pixel8>(0).applyInPlace(pBmp);
-        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
-        BitmapPtr pDestBmp = FilterFastBandpass().apply(pBmp);
-        testEqual(*pDestBmp, "FastBandpassResult", I8);
-    }
-};
-
 
 class FilterHighpassTest: public GraphicsTest {
 public:
@@ -1064,12 +1021,10 @@ public:
         addTest(TestPtr(new FilterFlipRGBTest));
         addTest(TestPtr(new FilterFlipUVTest));
         addTest(TestPtr(new FilterComboTest));
-        addTest(TestPtr(new HistoryPreProcessorTest));
         addTest(TestPtr(new FilterHighpassTest));
         addTest(TestPtr(new FilterGaussTest));
         addTest(TestPtr(new FilterBlurTest));
         addTest(TestPtr(new FilterBandpassTest));
-        addTest(TestPtr(new FilterFastBandpassTest));
         addTest(TestPtr(new FilterFastDownscaleTest));
         addTest(TestPtr(new FilterMaskTest));
         addTest(TestPtr(new FilterThresholdTest));
