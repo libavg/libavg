@@ -215,9 +215,6 @@ public:
         runPFTests(I8);
         runPFTests(I16);
         runPFTests(YCbCr422);
-        runLineTest(B8G8R8A8, Pixel32(0,0,255,255));
-        runLineTest(B8G8R8, Pixel24(0,0,255));
-        runLineTest(I8, Pixel8(255));
 
         cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
@@ -366,26 +363,6 @@ private:
         testEqual(*pLoadedBmp, *pBmp, "BmpSave");
     }
 
-    template<class PIXEL>
-    void runLineTest(PixelFormat pf, PIXEL color)
-    {
-        cerr << "    Testing line drawing for " << pf << endl;
-        Bitmap bmp(IntPoint(15, 15), pf);
-        memset(bmp.getPixels(), 0, bmp.getStride()*15);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 0, 2), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 0,12), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 2, 0), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 2,14), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(12, 0), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(12,14), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(14,12), color);
-        string sFName = getSrcDirName() + "baseline/LineResult" + getPixelFormatString(pf)
-                + ".png";
-        BitmapPtr pBaselineBmp = loadBitmap(sFName, pf);
-        testEqual(bmp, *pBaselineBmp, "BmpLineDraw");
-    }
-    
     void testCopyToGreyscale(PixelFormat pf)
     {
         cerr << "    Testing copyPixels - " << pf << "->I8." << endl;

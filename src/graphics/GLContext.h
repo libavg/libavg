@@ -134,7 +134,7 @@ private:
     static bool s_bErrorCheckEnabled;
     static bool s_bErrorLogEnabled;
 
-    static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
+    static GLContext* s_pCurrentContext;
 };
 
 }
