@@ -28,12 +28,15 @@
 
 #include <boost/shared_ptr.hpp>
 
+struct SDL_SysWMinfo;
+
 namespace avg {
 
 class AVG_API GLXContext: public GLContext
 {
 public:
-    GLXContext(const IntPoint& windowSize=IntPoint(0,0));
+    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+        const SDL_SysWMinfo* pSDLWMInfo=0);
     virtual ~GLXContext();
 
     void activate();
@@ -44,7 +47,9 @@ public:
     static bool haveARBCreateContext();
     static bool isGLESSupported();
 
-protected:
+private:
+    void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
+            const SDL_SysWMinfo* pSDLWMInfo);
     XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig,
             bool bOwnsDisplay);
     void setX11ErrorHandler();
@@ -56,7 +61,6 @@ protected:
     ::Display* getDisplay() const;
     Colormap getColormap() const;
 
-private:
     GLXFBConfig getFBConfig(::Display* pDisplay, GLConfig& glConfig);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
 

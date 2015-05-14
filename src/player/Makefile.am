@@ -25,14 +25,6 @@ endif
 endif
 endif
 
-if ENABLE_EGL
-    SECONDARY_WINDOW_SOURCES =
-    SECONDARY_WINDOW_INCLUDES =
-else
-    SECONDARY_WINDOW_SOURCES = SecondaryWindow.cpp
-    SECONDARY_WINDOW_INCLUDES = SecondaryWindow.h
-endif
-
 if HAVE_XI2_1
     XINPUT2_SOURCES = XInputMTInputDevice.cpp
     XINPUT2_INCLUDES = XInputMTInputDevice.h

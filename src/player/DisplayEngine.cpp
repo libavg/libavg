@@ -31,9 +31,6 @@
 #include "KeyEvent.h"
 #include "SDLWindow.h"
 #include "DisplayParams.h"
-#ifndef AVG_ENABLE_EGL
-  #include "SecondaryWindow.h"
-#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -127,10 +124,10 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
 #ifndef AVG_ENABLE_EGL
-    for (int i=1; i<dp.getNumWindows(); ++i) {
-        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
-                dp.isFullscreen(), glConfig)));
-    }
+//    for (int i=1; i<dp.getNumWindows(); ++i) {
+//        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
+//                dp.isFullscreen(), glConfig)));
+//    }
 #endif
     m_Size = dp.getWindowParams(0).m_Viewport.size();
 

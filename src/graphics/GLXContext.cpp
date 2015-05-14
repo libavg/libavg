@@ -27,6 +27,7 @@
 #include "../base/Logger.h"
 
 #include <X11/extensions/xf86vmode.h>
+#include <SDL2/SDL_syswm.h>
 
 #include <iostream>
 #include <stdlib.h>
@@ -41,7 +42,8 @@ static bool s_bX11Error;
 static bool s_bDumpX11ErrorMsg;
 static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
-GLXContext::GLXContext(const IntPoint& windowSize)
+GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
+        const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(windowSize),
       m_pDisplay(0),
       m_bOwnsDisplay(false),
@@ -49,6 +51,9 @@ GLXContext::GLXContext(const IntPoint& windowSize)
       m_bVBlankActive(false)
 {
     s_bX11Error = false;
+    GLConfig config = glConfig;
+    createGLXContext(config, windowSize, pSDLWMInfo);
+    init(config, true);
 }
 
 GLXContext::~GLXContext()
@@ -130,6 +135,31 @@ bool GLXContext::isGLESSupported()
     }
     return s_bHaveExtension;
  
+}
+
+void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize,
+        const SDL_SysWMinfo* pSDLWMInfo)
+{
+    Window win = 0;
+    setX11ErrorHandler();
+    XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(pSDLWMInfo), glConfig,
+            (pSDLWMInfo == 0));
+
+    if (pSDLWMInfo) {
+        win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, getColormap());
+        setCurrent();
+        glXMakeCurrent(getDisplay(), win, getGLXContext());
+    } else { 
+        Pixmap pmp = XCreatePixmap(getDisplay(), 
+                RootWindow(getDisplay(), pVisualInfo->screen), 8, 8, pVisualInfo->depth);
+        GLXPixmap pixmap = glXCreateGLXPixmap(getDisplay(), pVisualInfo, pmp);
+
+        glXMakeCurrent(getDisplay(), pixmap, getGLXContext());
+    }
+    resetX11ErrorHandler();
+
+    throwOnXError();
+    initDrawable();
 }
 
 XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig,

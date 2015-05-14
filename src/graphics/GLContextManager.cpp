@@ -38,7 +38,7 @@
     #ifdef AVG_ENABLE_EGL
         #include "EGLContext.h"
     #else
-        #include "SDLGLXContext.h"
+        #include "GLXContext.h"
     #endif
 #elif defined _WIN32
     #include "WGLContext.h"
@@ -97,7 +97,7 @@ GLContext* GLContextManager::createContext(const GLConfig& glConfig,
         tempConfig.m_bGLES = true;
         pContext = new EGLContext(tempConfig, windowSize, pSDLWMInfo);
     #else
-        pContext = new SDLGLXContext(glConfig, windowSize, pSDLWMInfo);
+        pContext = new GLXContext(glConfig, windowSize, pSDLWMInfo);
     #endif
 #elif defined _WIN32
     pContext = new WGLContext(glConfig, windowSize, pSDLWMInfo);
