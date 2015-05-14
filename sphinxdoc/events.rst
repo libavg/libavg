@@ -348,96 +348,11 @@ Input Handling
             Current speed of the touch in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
 
-        .. py:method:: getContour() -> list
-
-            Returns the contour of the blob as a list of points if supported by the 
-            tracker being used.
-
         .. py:method:: getRelatedEvents() -> events
 
-            Only for DI devices and the internal tracker: Returns a python tuple 
+            Only if supported by the hardware: Returns a python tuple 
             containing the events 'related' to this one. For :py:const:`TOUCH` events 
             (fingers), the tuple contains one element: the corresponding 
             :py:const:`TRACK` event (hand). For :py:const:`TRACK` events,
             the tuple contains all :py:const:`TOUCH` events that belong to the same hand.
-
-    .. autoclass:: Tracker
-
-        A class that uses a camera to track moving objects and delivers the movements 
-        as avg events. Create a tracker by using :py:meth:`Player.enableMultitouch()` with
-        :samp:`AVG_MULTITOUCH_DRIVER=TRACKER`. The properties of this class are explained
-        under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
-        
-        .. py:method:: abortCalibration()
-
-            Aborts coordinate calibration session and restores the previous
-            coordinate transformer.
-
-        .. py:method:: endCalibration()
-
-            Ends coordinate calibration session and activates the coordinate
-            transformer generated.
-
-        .. py:method:: getDisplayROIPos()
-
-        .. py:method:: getDisplayROISize()
-
-        .. py:method:: getImage(imageid) -> Bitmap 
-
-            Returns one of the intermediate images necessary for tracking.
-            These images are only available if setDebugImages was called before
-            with appropriate parameters. Possible :py:attr:`imageid` values are 
-            :py:const:`IMG_CAMERA`, :py:const:`IMG_DISTORTED`, :py:const:`IMG_NOHISTORY`,
-            :py:const:`IMG_HISTOGRAM`, :py:const:`IMG_FINGERS` or 
-            :py:const:`IMG_HIGHPASS`.
-
-        .. py:method:: getParam(element) -> value
-
-            Returns a tracker configuration parameter.
-
-        .. py:method:: resetHistory()
-
-            Throws away the current history image and generates a new one from
-            the next second of images.
-
-        .. py:method:: saveConfig()
-
-            Saves the current tracker configuration to the default config file.
-
-        .. py:method:: setDebugImages(img, finger)
-
-            Controls whether debug images of intermediate tracking results
-            and detected finger positions are generated and exported to
-            python. Generating the debug images takes a moderate amount of
-            time, so it is turned off by default.
-
-            :param img: Whether to generate intermediate result images.
-            :param finger: Whether to generate the :py:const:`IMG_FINGERS` result image.
-
-        .. py:method:: setParam(element, value)
-
-            Sets one of the tracker configuration parameters.
-
-        .. py:method:: startCalibration(displayextents) -> TrackerCalibrator
-
-            Starts coordinate calibration session. The returned 
-            :py:class:`TrackerCalibrator` exists until :py:meth:`endCalibration`
-            or :py:meth:`abortCalibration` is called.
-
-            :param displayextents: The width and height of the display area.
-
-    .. autoclass:: TrackerCalibrator
-
-        Generates a mapping of display points to camera points using a set of reference
-        points. Python code should display reference points that the user must
-        touch to establish a mapping. Created by :py:meth:`Tracker.startCalibration`.
-
-        .. py:method:: getDisplayPoint() -> Point2D
-
-        .. py:method:: nextPoint() -> bool
-
-            Advances to the next point. Returns :py:const:`False` and ends calibration if
-            all points have been set.
-
-        .. py:method:: setCamPoint(pos)
 

@@ -246,10 +246,6 @@ Player & Canvas
                 to determine which device file to open. Default is 
                 :samp:`/dev/input/event3`.
 
-            :samp:`TRACKER`:
-                Enables the internal camera-based tracker. Configuring this tracker is
-                described under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
-
             :samp:`WIN7TOUCH`:
                 Enables handling of Windows 7 touch events. This works with all devices
                 which have Windows 7 drivers.
@@ -341,12 +337,7 @@ Player & Canvas
 
             Returns the size in pixels of the current screen.
 
-        .. py:method:: getTestHelper
-
-        .. py:method:: getTracker() -> Tracker
-
-            Returns a tracker previously created using :py:meth:`enableMultitouch` with
-            the internal tracker configured.
+        .. py:method:: getTestHelper()
 
         .. py:method:: getVideoMemInstalled() -> int
 
