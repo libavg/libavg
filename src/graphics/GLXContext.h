@@ -54,7 +54,6 @@ private:
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
-    void initDrawable();
 
     ::GLXContext getGLXContext() const;
     ::Display* getDisplay() const;

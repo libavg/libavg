@@ -160,7 +160,7 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
     }
 
     throwOnXError();
-    initDrawable();
+    m_Drawable = glXGetCurrentDrawable();
 }
 
 XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig)
@@ -225,11 +225,6 @@ void GLXContext::throwOnXError(int code)
     if (s_bX11Error) {
         throw Exception(code, "X error creating OpenGL context.");
     }
-}
-
-void GLXContext::initDrawable()
-{
-    m_Drawable = glXGetCurrentDrawable();
 }
 
 ::GLXContext GLXContext::getGLXContext() const
