@@ -85,7 +85,6 @@
     <ClInclude Include="..\..\src\graphics\FilterConvol.h" />
     <ClInclude Include="..\..\src\graphics\FilterDilation.h" />
     <ClInclude Include="..\..\src\graphics\FilterErosion.h" />
-    <ClInclude Include="..\..\src\graphics\FilterFastBandpass.h" />
     <ClInclude Include="..\..\src\graphics\FilterFastDownscale.h" />
     <ClInclude Include="..\..\src\graphics\Filterfill.h" />
     <ClInclude Include="..\..\src\graphics\Filterfillrect.h" />
@@ -124,7 +123,6 @@
     <ClInclude Include="..\..\src\graphics\GPURGB2YUVFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUShadowFilter.h" />
     <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
-    <ClInclude Include="..\..\src\graphics\HistoryPreProcessor.h" />
     <ClInclude Include="..\..\src\graphics\ImageCache.h" />
     <ClInclude Include="..\..\src\graphics\ImagingProjection.h" />
     <ClInclude Include="..\..\src\graphics\MCFBO.h" />
@@ -167,7 +165,6 @@
     <ClCompile Include="..\..\src\graphics\Filtercolorize.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterDilation.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterErosion.cpp" />
-    <ClCompile Include="..\..\src\graphics\FilterFastBandpass.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterFastDownscale.cpp" />
     <ClCompile Include="..\..\src\graphics\Filterflip.cpp" />
     <ClCompile Include="..\..\src\graphics\Filterfliprgb.cpp" />
@@ -202,7 +199,6 @@
     <ClCompile Include="..\..\src\graphics\GPURGB2YUVFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
-    <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
     <ClCompile Include="..\..\src\graphics\ImageCache.cpp" />
     <ClCompile Include="..\..\src\graphics\ImagingProjection.cpp" />
     <ClCompile Include="..\..\src\graphics\MCFBO.cpp" />
