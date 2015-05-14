@@ -33,7 +33,7 @@
 
 #include "../base/Logger.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <iostream>
 
@@ -118,8 +118,10 @@ glm::vec2 Display::getPhysicalScreenDimensions()
 
 IntPoint Display::queryScreenResolution()
 {
-    const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-    return IntPoint(pInfo->current_w, pInfo->current_h);
+    SDL_DisplayMode mode;
+    int err = SDL_GetCurrentDisplayMode(0, &mode);
+    AVG_ASSERT(err == 0);
+    return IntPoint(mode.w, mode.h);
 }
 
 float Display::getRefreshRate()

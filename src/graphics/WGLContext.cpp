@@ -24,7 +24,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <iostream>
 

@@ -24,8 +24,8 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 #include <boost/math/special_functions/fpclassify.hpp>
 

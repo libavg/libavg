@@ -30,7 +30,7 @@
 #include "AudioBuffer.h"
 #include "IProcessor.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>

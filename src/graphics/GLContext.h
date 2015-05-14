@@ -31,8 +31,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
-struct SDL_SysWMinfo;
-
 namespace avg {
 
 class GLContext;

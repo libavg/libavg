@@ -23,8 +23,8 @@
 
 #include "../base/Exception.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 #include <EGL/eglext_brcm.h>
 

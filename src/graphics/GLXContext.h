@@ -28,8 +28,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-struct SDL_SysWMinfo;
-
 namespace avg {
 
 class AVG_API GLXContext: public GLContext
@@ -61,8 +59,6 @@ protected:
 private:
     GLXFBConfig getFBConfig(::Display* pDisplay, GLConfig& glConfig);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
-    void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
 
     Colormap m_Colormap;
     ::Display* m_pDisplay;
