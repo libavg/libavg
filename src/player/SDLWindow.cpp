@@ -57,6 +57,8 @@ namespace avg {
 
 SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     : Window(dp.getWindowParams(0), dp.isFullscreen()),
+      m_pSDLWindow(0),
+      m_SDLGLContext(0),
       m_LastMousePos(IntPoint(-1, -1))
 {
     initTranslationTable();
@@ -126,15 +128,16 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
                 + SDL_GetError() + ". (size=" + toString(wp.m_Size) + ", bpp=" +
                 toString(dp.getBPP()) + ").");
     }
-/*
+    SDL_GL_MakeCurrent(m_pSDLWindow, m_SDLGLContext);
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
-    int rc = SDL_GetWMInfo(&info);
+    int rc = SDL_GetWindowWMInfo(m_pSDLWindow, &info);
     AVG_ASSERT(rc != -1);
-    GLContext* pGLContext = GLContextManager::get()->createContext(glConfig, wp.m_Size, &info);
+    GLContext* pGLContext = GLContextManager::get()->createContext(glConfig, wp.m_Size,
+            &info);
     setGLContext(pGLContext);
     pGLContext->logConfig();
-*/
+
 /*
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);

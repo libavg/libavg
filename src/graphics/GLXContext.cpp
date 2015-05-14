@@ -46,8 +46,8 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(windowSize),
       m_pDisplay(0),
-      m_bOwnsDisplay(false),
       m_Context(0),
+      m_Drawable(0),
       m_bVBlankActive(false)
 {
     s_bX11Error = false;
@@ -140,34 +140,33 @@ bool GLXContext::isGLESSupported()
 void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
 {
-    Window win = 0;
-    setX11ErrorHandler();
-    XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(pSDLWMInfo), glConfig,
-            (pSDLWMInfo == 0));
-
     if (pSDLWMInfo) {
-        win = createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, getColormap());
+        m_Context = glXGetCurrentContext();
+        m_pDisplay = pSDLWMInfo->info.x11.display;
+        m_bOwnsDisplay = false;
         setCurrent();
-        glXMakeCurrent(getDisplay(), win, getGLXContext());
     } else { 
+        setX11ErrorHandler();
+        XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(0),
+                glConfig);
+        m_bOwnsDisplay = true;
+
         Pixmap pmp = XCreatePixmap(getDisplay(), 
                 RootWindow(getDisplay(), pVisualInfo->screen), 8, 8, pVisualInfo->depth);
         GLXPixmap pixmap = glXCreateGLXPixmap(getDisplay(), pVisualInfo, pmp);
 
         glXMakeCurrent(getDisplay(), pixmap, getGLXContext());
+        resetX11ErrorHandler();
     }
-    resetX11ErrorHandler();
 
     throwOnXError();
     initDrawable();
 }
 
-XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig,
-        bool bOwnsDisplay)
+XVisualInfo* GLXContext::createDetachedContext(::Display* pDisplay, GLConfig& glConfig)
 {
     m_pDisplay = pDisplay;
-    m_bOwnsDisplay = bOwnsDisplay;
-    GLXFBConfig fbConfig = getFBConfig(m_pDisplay, glConfig);
+    GLXFBConfig fbConfig = getFBConfig(glConfig);
     XVisualInfo* pVisualInfo = glXGetVisualFromFBConfig(m_pDisplay, fbConfig);
 
     if (haveARBCreateContext()) {
@@ -248,7 +247,7 @@ Colormap GLXContext::getColormap() const
     return m_Colormap;
 }
 
-GLXFBConfig GLXContext::getFBConfig(::Display* pDisplay, GLConfig& glConfig)
+GLXFBConfig GLXContext::getFBConfig(GLConfig& glConfig)
 {
     GLContextAttribs attrs;
     attrs.append(GLX_X_RENDERABLE, 1);

@@ -50,8 +50,7 @@ public:
 private:
     void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo);
-    XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig,
-            bool bOwnsDisplay);
+    XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig);
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
@@ -61,7 +60,7 @@ private:
     ::Display* getDisplay() const;
     Colormap getColormap() const;
 
-    GLXFBConfig getFBConfig(::Display* pDisplay, GLConfig& glConfig);
+    GLXFBConfig getFBConfig(GLConfig& glConfig);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
 
     Colormap m_Colormap;
