@@ -44,7 +44,6 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "OffscreenCanvasNode.h"
-#include "TrackerInputDevice.h"
 #include "DisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
@@ -653,13 +652,6 @@ float Player::getFrameDuration()
     }
 }
 
-TrackerInputDevice * Player::getTracker()
-{
-    TrackerInputDevice* pTracker = dynamic_cast<TrackerInputDevice*>(
-            m_pMultitouchInputDevice.get());
-    return pTracker;
-}
-
 void Player::enableMultitouch()
 {
     if (!m_bIsPlaying) {
@@ -675,7 +667,7 @@ void Player::enableMultitouch()
 #elif defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
         sDriver = "XINPUT";
 #else
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER and TUIO.");
+        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT and TUIO.");
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
 #endif
@@ -693,10 +685,8 @@ void Player::enableMultitouch()
         throw Exception(AVG_ERR_MT_INIT,
                 "XInput multitouch event source: Support not configured.'");
 #endif
-    } else if (sDriver == "TRACKER") {
-        m_pMultitouchInputDevice = InputDevicePtr(new TrackerInputDevice);
     } else {
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER and TUIO.");
+        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT and TUIO.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }

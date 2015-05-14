@@ -59,8 +59,8 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
-        RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
-        TouchEvent.h Contact.h TouchStatus.h TrackerTouchStatus.h BoostPython.h \
+        RasterNode.h CameraNode.h \
+        TouchEvent.h Contact.h TouchStatus.h BoostPython.h \
         SoundNode.h FontStyle.h Window.h SDLWindow.h TangibleEvent.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
@@ -72,12 +72,12 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         BitmapManagerMsg.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES) $(SECONDARY_WINDOW_INCLUDES)
 
-TESTS = testcalibrator testplayer
+TESTS = testplayer
 
 EXTRA_DIST = SDLMain.h
 
 noinst_LTLIBRARIES = libplayer.la
-noinst_PROGRAMS = testcalibrator testplayer
+noinst_PROGRAMS = testplayer
 testplayer_SOURCES = testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
@@ -90,13 +90,6 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
 
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker $(XGL_LINKFLAGS)
 
-testcalibrator_SOURCES = testcalibrator.cpp
-testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
-        ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_CFLAGS@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ \
-        @GDK_PIXBUF_LIBS@
-
 libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) $(MTDEV_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedObject.cpp \
@@ -107,7 +100,6 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Timeout.cpp Event.cpp DisplayParams.cpp WindowParams.cpp CursorState.cpp \
         GPUImage.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp \
         CursorEvent.cpp MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
-        TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
         SoundNode.cpp FontStyle.cpp Window.cpp SDLWindow.cpp \
         TangibleEvent.cpp InputDevice.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
