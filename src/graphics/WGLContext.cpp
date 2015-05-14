@@ -67,7 +67,7 @@ WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(windowSize)
 {
-        bool bOwnsContext;
+    bool bOwnsContext;
     if (pSDLWMInfo) {
         m_hDC = wglGetCurrentDC();
         m_Context = wglGetCurrentContext();

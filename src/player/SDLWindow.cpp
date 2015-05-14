@@ -42,11 +42,10 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
-#include <SDL/SDL.h>
 #ifdef WIN32
 #undef WIN32_LEAN_AND_MEAN
 #endif
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL_syswm.h>
 
 #include <iostream>
 
@@ -54,7 +53,7 @@ using namespace std;
 
 namespace avg {
 
-vector<long> SDLWindow::s_KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+//vector<long> SDLWindow::s_KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     : Window(dp.getWindowParams(0), dp.isFullscreen()),
@@ -62,33 +61,22 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
 {
     initTranslationTable();
 
-    // This "fixes" the default behaviour of SDL under x11, avoiding it
-    // to report relative mouse coordinates when going fullscreen and
-    // the mouse cursor is hidden (grabbed). So far libavg and apps based
-    // on it don't use relative coordinates.
-    setEnv("SDL_MOUSE_RELATIVE", "0");
     const WindowParams& wp = dp.getWindowParams(0);
 
-    stringstream ss;
     IntPoint pos = getPos();
-    if (pos.x != -1) {
-        ss << pos.x << "," << pos.y;
-        setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
-    }
-    unsigned int flags = 0;
-    if (dp.isFullscreen()) {
-        flags |= SDL_FULLSCREEN;
-    }
-    if (!wp.m_bHasWindowFrame) {
-        flags |= SDL_NOFRAME;
+    if (pos.x == -1) {
+        pos.x = SDL_WINDOWPOS_UNDEFINED;
+        pos.y = SDL_WINDOWPOS_UNDEFINED;
     }
 
-    IntPoint size = wp.m_Size;
-    SDL_Surface * pSDLSurface = 0;
-#ifndef __linux__
-    if (glConfig.m_bUseDebugContext) {
-        glConfig.m_bUseDebugContext = false;
+    unsigned int flags = SDL_WINDOW_OPENGL;
+    if (dp.isFullscreen()) {
+        flags |= SDL_WINDOW_FULLSCREEN;
     }
+    if (!wp.m_bHasWindowFrame) {
+        flags |= SDL_WINDOW_BORDERLESS;
+    }
+
     switch (dp.getBPP()) {
         case 24:
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -110,10 +98,8 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL , 0); 
-    flags |= SDL_OPENGL;
 
-    while (glConfig.m_MultiSampleSamples && !pSDLSurface) {
+    while (glConfig.m_MultiSampleSamples && !m_SDLGLContext) {
         if (glConfig.m_MultiSampleSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,
@@ -122,35 +108,39 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
-        pSDLSurface = SDL_SetVideoMode(size.x, size.y, dp.getBPP(), flags);
-        if (!pSDLSurface) {
+        m_pSDLWindow = SDL_CreateWindow("libavg", pos.x, pos.y, wp.m_Size.x, wp.m_Size.y,
+            flags);
+        m_SDLGLContext = SDL_GL_CreateContext(m_pSDLWindow);
+        if (!m_SDLGLContext) {
             glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
                     glConfig.m_MultiSampleSamples);
         }
     }
-#else
-    // Linux version: Context created manually, not by SDL
-    pSDLSurface = SDL_SetVideoMode(size.x, size.y, dp.getBPP(), flags);
+
+#ifndef __linux__
+    glConfig.m_bUseDebugContext = false;
 #endif
-    if (!pSDLSurface) {
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
-                + SDL_GetError() + ". (size=" + toString(size) + ", bpp=" + 
+
+    if (!m_SDLGLContext) {
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Creating window failed: ")
+                + SDL_GetError() + ". (size=" + toString(wp.m_Size) + ", bpp=" +
                 toString(dp.getBPP()) + ").");
     }
+/*
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
     int rc = SDL_GetWMInfo(&info);
     AVG_ASSERT(rc != -1);
-    GLContext* pGLContext = GLContextManager::get()->createContext(glConfig, size, &info);
+    GLContext* pGLContext = GLContextManager::get()->createContext(glConfig, wp.m_Size, &info);
     setGLContext(pGLContext);
-
+    pGLContext->logConfig();
+*/
+/*
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     m_pXIMTInputDevice = 0;
 #endif
-    SDL_WM_SetCaption("libavg", 0);
-
-    pGLContext->logConfig();
+*/
 }
 
 SDLWindow::~SDLWindow()
@@ -159,7 +149,7 @@ SDLWindow::~SDLWindow()
 
 void SDLWindow::setTitle(const string& sTitle)
 {
-    SDL_WM_SetCaption(sTitle.c_str(), 0);
+    SDL_SetWindowTitle(m_pSDLWindow, sTitle.c_str());
 }
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - SDL swap buffers");
@@ -173,42 +163,6 @@ void SDLWindow::swapBuffers() const
     SDL_GL_SwapBuffers();
 #endif
     GLContext::checkError("swapBuffers()");
-}
-
-const char * getEventTypeName(unsigned char type) 
-{
-    switch (type) {
-            case SDL_ACTIVEEVENT:
-                return "SDL_ACTIVEEVENT";
-            case SDL_KEYDOWN:
-                return "SDL_KEYDOWN";
-            case SDL_KEYUP:
-                return "SDL_KEYUP";
-            case SDL_MOUSEMOTION:
-                return "SDL_MOUSEMOTION";
-            case SDL_MOUSEBUTTONDOWN:
-                return "SDL_MOUSEBUTTONDOWN";
-            case SDL_MOUSEBUTTONUP:
-                return "SDL_MOUSEBUTTONUP";
-            case SDL_JOYAXISMOTION:
-                return "SDL_JOYAXISMOTION";
-            case SDL_JOYBUTTONDOWN:
-                return "SDL_JOYBUTTONDOWN";
-            case SDL_JOYBUTTONUP:
-                return "SDL_JOYBUTTONUP";
-            case SDL_VIDEORESIZE:
-                return "SDL_VIDEORESIZE";
-            case SDL_VIDEOEXPOSE:
-                return "SDL_VIDEOEXPOSE";
-            case SDL_QUIT:
-                return "SDL_QUIT";
-            case SDL_USEREVENT:
-                return "SDL_USEREVENT";
-            case SDL_SYSWMEVENT:
-                return "SDL_SYSWMEVENT";
-            default:
-                return "Unknown SDL event type";
-    }
 }
 
 vector<EventPtr> SDLWindow::pollEvents()
@@ -251,16 +205,15 @@ vector<EventPtr> SDLWindow::pollEvents()
             case SDL_JOYBUTTONUP:
 //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
                 break;
-            case SDL_KEYDOWN:
+/*            case SDL_KEYDOWN:
                 pNewEvent = createKeyEvent(Event::KEY_DOWN, sdlEvent);
                 break;
             case SDL_KEYUP:
                 pNewEvent = createKeyEvent(Event::KEY_UP, sdlEvent);
                 break;
+*/
             case SDL_QUIT:
                 pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
-                break;
-            case SDL_VIDEORESIZE:
                 break;
             case SDL_SYSWMEVENT:
                 {
@@ -268,7 +221,7 @@ vector<EventPtr> SDLWindow::pollEvents()
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
                     AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
                     if (m_pXIMTInputDevice) {
-                        m_pXIMTInputDevice->handleXIEvent(pMsg->event.xevent);
+                        m_pXIMTInputDevice->handleXIEvent(pMsg->msg.x11.event);
                     }
 #endif
                 }
@@ -332,35 +285,16 @@ EventPtr SDLWindow::createMouseButtonEvent(Event::Type type,
         case SDL_BUTTON_RIGHT:
             button = MouseEvent::RIGHT_BUTTON;
             break;
-        case SDL_BUTTON_WHEELUP:
-            button = MouseEvent::WHEELUP_BUTTON;
-            break;
-        case SDL_BUTTON_WHEELDOWN:
-            button = MouseEvent::WHEELDOWN_BUTTON;
-            break;
+        default:
+            AVG_ASSERT(false);
     }
     return createMouseEvent(type, sdlEvent, button);
  
 }
 
-/*
-EventPtr SDLWindow::createAxisEvent(const SDL_Event & sdlEvent)
-{
-    return new AxisEvent(sdlEvent.jaxis.which, sdlEvent.jaxis.axis,
-                sdlEvent.jaxis.value);
-}
-
-
-EventPtr SDLWindow::createButtonEvent
-        (Event::Type type, const SDL_Event & sdlEvent) 
-{
-    return new ButtonEvent(type, sdlEvent.jbutton.which,
-                sdlEvent.jbutton.button));
-}
-*/
-
 EventPtr SDLWindow::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
+/*
     long keyCode = s_KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
     unsigned int modifiers = key::KEYMOD_NONE;
 
@@ -394,10 +328,12 @@ EventPtr SDLWindow::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
             SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode,
                     modifiers));
     return pEvent;
+    */
 }
 
 void SDLWindow::initTranslationTable()
 {
+/*
 #define TRANSLATION_ENTRY(x) s_KeyCodeTranslationTable[SDLK_##x] = key::KEY_##x;
 
     TRANSLATION_ENTRY(UNKNOWN);
@@ -632,6 +568,7 @@ void SDLWindow::initTranslationTable()
     TRANSLATION_ENTRY(POWER);
     TRANSLATION_ENTRY(EURO);
     TRANSLATION_ENTRY(UNDO);
+*/
 }
 
 }

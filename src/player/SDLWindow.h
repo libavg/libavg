@@ -30,6 +30,7 @@
 
 #include "../graphics/GLConfig.h"
 
+#include <SDL2/SDL.h>
 #include <boost/shared_ptr.hpp>
 
 union SDL_Event;
@@ -60,11 +61,14 @@ class AVG_API SDLWindow: public Window
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
         EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        
+
+        SDL_Window* m_pSDLWindow;
+        SDL_GLContext m_SDLGLContext;
+
         // Event handling.
         glm::vec2 m_LastMousePos;
         XInputMTInputDevice * m_pXIMTInputDevice;
-        static std::vector<long> s_KeyCodeTranslationTable;
+//        static std::vector<long> s_KeyCodeTranslationTable;
 };
 
 typedef boost::shared_ptr<SDLWindow> SDLWindowPtr;

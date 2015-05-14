@@ -37,7 +37,7 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/ImageCache.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <iostream>
 

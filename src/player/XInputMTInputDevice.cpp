@@ -34,8 +34,8 @@
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
 
-#include <SDL/SDL_syswm.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL.h>
 
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XInput2.h>
@@ -75,8 +75,8 @@ void XInputMTInputDevice::start()
     glm::vec2 windowSize(pEngine->getWindowSize());
     m_DisplayScale.x = size.x/windowSize.x;
     m_DisplayScale.y = size.y/windowSize.y;
-
     SDL_SysWMinfo info;
+/*
     SDL_VERSION(&info.version);
     int rc = SDL_GetWMInfo(&info);
     AVG_ASSERT(rc != -1);
@@ -85,6 +85,7 @@ void XInputMTInputDevice::start()
     m_SDLUnlockFunc = info.info.x11.unlock_func;
 
     m_SDLLockFunc();
+    */
     // XInput Extension available?
     int event, error;
     bool bOk = XQueryExtension(s_pDisplay, "XInputExtension", &m_XIOpcode, 
@@ -128,7 +129,7 @@ void XInputMTInputDevice::start()
 
     m_SDLUnlockFunc();
 
-    SDL_SetEventFilter(XInputMTInputDevice::filterEvent);
+//    SDL_SetEventFilter(XInputMTInputDevice::filterEvent);
   
     
     XIDetachSlaveInfo detInfo;
@@ -257,7 +258,7 @@ int XInputMTInputDevice::filterEvent(const SDL_Event * pEvent)
     if (pEvent->type == SDL_SYSWMEVENT) {
         SDL_SysWMmsg* pMsg = pEvent->syswm.msg;
         AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-        XEvent* pXEvent = &pMsg->event.xevent;
+        XEvent* pXEvent; // = &pMsg->event.xevent;
         XGenericEventCookie* pCookie = (XGenericEventCookie*)&(pXEvent->xcookie);
 //        cerr << "---- filter xinput event: " << xEventTypeToName(pXEvent->type) << ", "
 //                << cookieTypeToName(pCookie->evtype) << endl;

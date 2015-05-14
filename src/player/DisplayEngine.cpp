@@ -51,7 +51,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
@@ -81,12 +81,13 @@ void DisplayEngine::initSDL()
         bSDLInitialized = true;
     }
 #endif
-#ifdef __linux__
+/*#ifdef __linux__
     // Disable all other video drivers (DirectFB, libcaca, ...) to avoid confusing
     // error messages.
     SDL_putenv((char*)"SDL_VIDEODRIVER=x11");
 #endif
-    int err = SDL_InitSubSystem(SDL_INIT_VIDEO);
+    */
+    int err = SDL_Init(SDL_INIT_VIDEO);
     if (err == -1) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, SDL_GetError());
     }
@@ -142,12 +143,6 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     } else {
         setFramerate(dp.getFramerate());
     }
-
-    // SDL sets up a signal handler we really don't want.
-    signal(SIGSEGV, SIG_DFL);
-    VideoDecoder::logConfig();
-
-    SDL_EnableUNICODE(1);
 }
 
 void DisplayEngine::teardown()
@@ -258,7 +253,7 @@ void DisplayEngine::setGamma(float red, float green, float blue)
 
 void DisplayEngine::setMousePos(const IntPoint& pos)
 {
-    SDL_WarpMouse(pos.x, pos.y);
+    throw Exception(AVG_ERR_UNSUPPORTED, "setMousePos not implemented");
 }
 
 int DisplayEngine::getKeyModifierState() const
@@ -268,7 +263,7 @@ int DisplayEngine::getKeyModifierState() const
 
 void DisplayEngine::setWindowTitle(const string& sTitle)
 {
-    SDL_WM_SetCaption(sTitle.c_str(), 0);
+    throw Exception(AVG_ERR_UNSUPPORTED, "setWindowTitle not implemented");
 }
 
 unsigned DisplayEngine::getNumWindows() const
@@ -417,6 +412,7 @@ vector<EventPtr> DisplayEngine::pollEvents()
 
 bool DisplayEngine::internalSetGamma(float red, float green, float blue)
 {
+/*
 #ifdef __APPLE__
     // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
     CGError err = CGSetDisplayTransferByFormula(kCGDirectMainDisplay, 0, 1, 1/red,
@@ -429,6 +425,7 @@ bool DisplayEngine::internalSetGamma(float red, float green, float blue)
     int err = SDL_SetGamma(float(red), float(green), float(blue));
     return (err != -1);
 #endif
+*/
 }
 
 }
