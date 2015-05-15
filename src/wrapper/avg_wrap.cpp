@@ -36,7 +36,6 @@ void export_anim();
 #include "../player/AVGNode.h"
 #include "../player/CameraNode.h"
 #include "../player/DivNode.h"
-#include "../player/TrackerInputDevice.h"
 #include "../player/TouchEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TestHelper.h"
@@ -262,8 +261,6 @@ BOOST_PYTHON_MODULE(avg)
             .def("enableMultitouch", &Player::enableMultitouch)
             .def("enableMouse", &Player::enableMouse)
             .def("isMultitouchAvailable", &Player::isMultitouchAvailable)
-            .def("getTracker", &Player::getTracker,
-                    return_value_policy<reference_existing_object>())
             .def("setInterval", &Player::setInterval)
             .def("setTimeout", &Player::setTimeout)
             .def("callFromThread", &Player::callFromThread)

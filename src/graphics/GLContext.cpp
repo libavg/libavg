@@ -40,7 +40,7 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
-thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+GLContext* GLContext::s_pCurrentContext;
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
@@ -53,9 +53,6 @@ GLContext::GLContext(const IntPoint& windowSize)
       m_BlendMode(BLEND_ADD),
       m_MajorGLVersion(-1)
 {
-    if (s_pCurrentContext.get() == 0) {
-        s_pCurrentContext.reset(new (GLContext*));
-    }
     string sVal;
     if (getEnv("AVG_ENABLE_GL_ERROR_CHECKS", sVal)) {
         enableErrorChecks(true);
@@ -141,8 +138,8 @@ void GLContext::deleteObjects()
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
     m_FBOIDs.clear();
-    if (*s_pCurrentContext == this) {
-        *s_pCurrentContext = 0;
+    if (s_pCurrentContext == this) {
+        s_pCurrentContext = 0;
     }
 }
 
@@ -159,7 +156,7 @@ bool GLContext::ownsContext() const
 
 void GLContext::setCurrent()
 {
-    *s_pCurrentContext = this;
+    s_pCurrentContext = this;
 }
 
 ShaderRegistryPtr GLContext::getShaderRegistry() const
@@ -469,7 +466,7 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 
 GLContext* GLContext::getCurrent()
 {
-    return *s_pCurrentContext;
+    return s_pCurrentContext;
 }
 
 int GLContext::nextMultiSampleValue(int curSamples)

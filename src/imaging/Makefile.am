@@ -16,25 +16,16 @@ else
     DC1394_INCLUDES =
 endif
 
-ALL_H = Camera.h TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \
-        FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
-        DeDistort.h trackerconfigdtd.h  FilterWipeBorder.h FilterClearBorder.h \
+ALL_H = Camera.h FWCamera.h \
+        FakeCamera.h $(DC1394_INCLUDES) \
         $(V4L2_INCLUDES) CameraInfo.h
-ALL_CPP = Camera.cpp TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp Run.cpp \
-        FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
-        DeDistort.cpp trackerconfigdtd.cpp FilterWipeBorder.cpp FilterClearBorder.cpp \
+ALL_CPP = Camera.cpp FWCamera.cpp \
+        FakeCamera.cpp $(DC1394_SOURCES) \
         $(V4L2_SOURCES) CameraInfo.cpp
 
-TESTS = testimaging
-
-EXTRA_DIST = avgtrackerrc.minimal $(wildcard baseline/*.png) $(wildcard testfiles/*.png) \
+EXTRA_DIST = $(wildcard baseline/*.png) $(wildcard testfiles/*.png) \
         CMUCamera.h CMUCamera.cpp DSCamera.cpp DSCamera.h DSHelper.h DSHelper.cpp \
         DSSampleGrabber.h DSSampleGrabber.cpp CMUCameraUtils.h CMUCameraUtils.cpp
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
-
-noinst_PROGRAMS = testimaging
-testimaging_SOURCES = testimaging.cpp $(ALL_H)
-testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@

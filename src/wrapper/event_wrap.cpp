@@ -26,8 +26,8 @@
 #include "../player/TouchEvent.h"
 #include "../player/TangibleEvent.h"
 #include "../player/Contact.h"
-#include "../player/TrackerInputDevice.h"
 #include "../player/Publisher.h"
+#include "../player/InputDevice.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -79,9 +79,6 @@ void export_event()
     boost::python::to_python_converter<vector<CursorEventPtr>, 
         to_tuple<vector<CursorEventPtr> > >();
 
-    boost::python::to_python_converter<ContourSeq, to_list<ContourSeq> >();    
-   
-    from_python_sequence<ContourSeq, variable_capacity_policy>();
     from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
 
     enum_<int>("KeyModifier")
@@ -187,7 +184,6 @@ void export_event()
                 return_value_policy<copy_const_reference>()))
         .add_property("handorientation", &TouchEvent::getHandOrientation)
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
-        .def("getContour", &TouchEvent::getContour)
         ;
 
     class_<TangibleEvent, bases<CursorEvent> >("TangibleEvent", init<int, int, 
@@ -210,16 +206,6 @@ void export_event()
         ;
     exportMessages(contactClass, "Contact");
 
-    enum_<TrackerImageID>("TrackerImageID")
-        .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
-        .value("IMG_DISTORTED", TRACKER_IMG_DISTORTED)
-        .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
-        .value("IMG_HISTOGRAM", TRACKER_IMG_HISTOGRAM)
-        .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
-        .value("IMG_HIGHPASS", TRACKER_IMG_HIGHPASS)
-        .export_values()
-    ;
-
     class_<InputDevicePtr>("InputDevice")
     ;
 
@@ -235,27 +221,5 @@ void export_event()
         .add_property("eventreceivernode",
                       make_function(&InputDevice::getEventReceiverNode,
                                     return_value_policy<copy_const_reference>()))
-    ;
-
-    class_<TrackerInputDevice, boost::noncopyable>("Tracker", no_init)
-        .def("getImage", &TrackerInputDevice::getImage,
-            return_value_policy<manage_new_object>())
-        .def("getDisplayROIPos", &TrackerInputDevice::getDisplayROIPos)
-        .def("getDisplayROISize", &TrackerInputDevice::getDisplayROISize)
-        .def("saveConfig", &TrackerInputDevice::saveConfig)
-        .def("resetHistory", &TrackerInputDevice::resetHistory)
-        .def("setDebugImages", &TrackerInputDevice::setDebugImages)
-        .def("startCalibration", &TrackerInputDevice::startCalibration,
-            return_value_policy<reference_existing_object>())
-        .def("endCalibration", &TrackerInputDevice::endCalibration)
-        .def("abortCalibration", &TrackerInputDevice::abortCalibration)
-        .def("setParam", &TrackerInputDevice::setParam)
-        .def("getParam", &TrackerInputDevice::getParam)
-    ;
-
-    class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)
-        .def("nextPoint", &TrackerCalibrator::nextPoint)
-        .def("getDisplayPoint", &TrackerCalibrator::getDisplayPoint)
-        .def("setCamPoint", &TrackerCalibrator::setCamPoint)
     ;
 }

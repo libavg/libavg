@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "audio", "audio\audio.vcxproj", "{D0C1A58C-BF0E-4F88-885A-65444A23516E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testlimiter", "testlimiter\testlimiter.vcxproj", "{3D8F042E-55B5-40D9-818A-C51B3D2A6368}"
@@ -12,11 +12,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imaging", "imaging\imaging.vcxproj", "{669BEA02-213C-4387-B384-3B1CE60EA647}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B9F3907-0C54-4FF4-AAF3-8FDA3496DB88} = {9B9F3907-0C54-4FF4-AAF3-8FDA3496DB88}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testimaging", "testimaging\testimaging.vcxproj", "{B2ED4D82-E0C8-482E-93CD-B3546EDC9D56}"
-	ProjectSection(ProjectDependencies) = postProject
-		{669BEA02-213C-4387-B384-3B1CE60EA647} = {669BEA02-213C-4387-B384-3B1CE60EA647}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lmfit", "lmfit\lmfit.vcxproj", "{8B473FDD-CC57-453D-A037-107D8E8C4E8C}"
@@ -112,10 +107,6 @@ Global
 		{669BEA02-213C-4387-B384-3B1CE60EA647}.Debug|Win32.Build.0 = Debug|Win32
 		{669BEA02-213C-4387-B384-3B1CE60EA647}.Release|Win32.ActiveCfg = Release|Win32
 		{669BEA02-213C-4387-B384-3B1CE60EA647}.Release|Win32.Build.0 = Release|Win32
-		{B2ED4D82-E0C8-482E-93CD-B3546EDC9D56}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B2ED4D82-E0C8-482E-93CD-B3546EDC9D56}.Debug|Win32.Build.0 = Debug|Win32
-		{B2ED4D82-E0C8-482E-93CD-B3546EDC9D56}.Release|Win32.ActiveCfg = Release|Win32
-		{B2ED4D82-E0C8-482E-93CD-B3546EDC9D56}.Release|Win32.Build.0 = Release|Win32
 		{8B473FDD-CC57-453D-A037-107D8E8C4E8C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{8B473FDD-CC57-453D-A037-107D8E8C4E8C}.Debug|Win32.Build.0 = Debug|Win32
 		{8B473FDD-CC57-453D-A037-107D8E8C4E8C}.Release|Win32.ActiveCfg = Release|Win32

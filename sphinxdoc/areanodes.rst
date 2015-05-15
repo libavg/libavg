@@ -132,9 +132,7 @@ Area Nodes
 
     .. autoclass:: CameraNode([driver='firewire', device="", unit=-1, fw800=False, framerate=15, capturewidth=640, captureheight=480, pixelformat="RGB", brightness, exposure, sharpness, saturation, camgamma, shutter, gain, strobeduration])
 
-        A node that displays the image of a camera. The attributes correspond to the 
-        camera properties in .avgtrackerrc and are explained under
-        http://www.libavg.de/wiki/ProgrammersGuide/Tracker. An easy way to find the 
+        A node that displays the image of a camera. An easy way to find the 
         appropriate parameters for your camera is to use :command:`avg_showcamera.py`.
 
         CameraNodes open the camera device on construction and set the chosen camera 
