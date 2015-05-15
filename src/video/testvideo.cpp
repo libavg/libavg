@@ -302,7 +302,6 @@ class AudioDecoderTest: public DecoderTest {
 
         void runTests()
         {
-
             testOneFile("22.050Hz_16bit_mono.wav");
 
             testOneFile("44.1kHz_16bit_mono.wav");
