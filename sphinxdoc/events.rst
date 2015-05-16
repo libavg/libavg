@@ -176,9 +176,14 @@ Input Handling
 
         Generated when a key is pressed or released.
 
+        .. py:attribute:: scancode
+
+            A value that represents the physical position of the key on the keyboard.
+            Independent of the keyboard language/layout. Read-only.
+
         .. py:attribute:: keycode
 
-            The keycode of the key according to US keyboard layout. Read-only. 
+            The keycode of the key according to the current keyboard layout. Read-only.
 
         .. py:attribute:: keystring
 
@@ -186,23 +191,19 @@ Input Handling
 
         .. py:attribute:: modifiers
 
-            Any modifier keys pressed, or'ed together. Possible Modifiers are 
+            Any modifier keys pressed, or'ed together. Possible Modifiers are
             :py:const:`KEYMOD_NONE`, :py:const:`KEYMOD_LSHIFT`, :py:const:`KEYMOD_RSHIFT`,
             :py:const:`KEYMOD_LCTRL`, :py:const:`KEYMOD_RCTRL`, :py:const:`KEYMOD_LALT`,
-            :py:const:`KEYMOD_RALT`, :py:const:`KEYMOD_LMETA`, :py:const:`KEYMOD_RMETA`,
-            :py:const:`KEYMOD_NUM`, :py:const:`KEYMOD_CAPS`, :py:const:`KEYMOD_MODE`.
-            Read-only. 
+            :py:const:`KEYMOD_RALT`, :py:const:`KEYMOD_LGUI`, :py:const:`KEYMOD_RGUI`,
+            :py:const:`KEYMOD_NUM`, :py:const:`KEYMOD_CAPS`, :py:const:`KEYMOD_GUI`,
+            :py:const:`KEYMOD_CTRL`, :py:const:`KEYMOD_SHIFT`, and :py:const:`KEYMOD_ALT`.
+            Read-only.
 
         .. py:attribute:: scancode
 
             The untranslated (hardware-dependent) scancode of the key pressed. 
             Read-only.
 
-        .. py:attribute:: unicode
-
-            Unicode index of the character. Takes into account the current keyboard
-            layout and any modifiers pressed. This attribute is only filled in the
-            :py:const:`KEYDOWN` event. Read-only.
 
     .. autoclass:: MouseEvent(type, leftButtonState, middleButtonState, rightButtonState, pos, button, [speed, when])
 
