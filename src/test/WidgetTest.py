@@ -228,12 +228,12 @@ class WidgetTestCase(AVGTestCase):
 
         def writeChar():
             helper = player.getTestHelper()
-            helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, 65, "A", 65, 0)
-            helper.fakeKeyEvent(avg.Event.KEY_UP, 65, 65, "A", 65, 0)
-            helper.fakeKeyEvent(avg.Event.KEY_DOWN, 66, 66, "B", 66, 0)
-            helper.fakeKeyEvent(avg.Event.KEY_UP, 66, 66, "B", 66, 0)
-            helper.fakeKeyEvent(avg.Event.KEY_DOWN, 67, 67, "C", 67, 0)
-            helper.fakeKeyEvent(avg.Event.KEY_UP, 67, 67, "C", 67, 0)
+            helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, 65, "A", 0)
+            helper.fakeKeyEvent(avg.Event.KEY_UP, 65, 65, "A", 0)
+            helper.fakeKeyEvent(avg.Event.KEY_DOWN, 66, 66, "B", 0)
+            helper.fakeKeyEvent(avg.Event.KEY_UP, 66, 66, "B", 0)
+            helper.fakeKeyEvent(avg.Event.KEY_DOWN, 67, 67, "C", 0)
+            helper.fakeKeyEvent(avg.Event.KEY_UP, 67, 67, "C", 0)
 
         def switchFocus():
             self.ctx1.cycleFocus()

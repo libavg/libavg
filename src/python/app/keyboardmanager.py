@@ -179,12 +179,6 @@ def _testMatchEvent(keyBinding, event, type_):
     if _testMatchString(keyBinding, event.keystring, type_):
         return True
 
-    if type_ == avg.KEYDOWN:
-        return _testMatchString(keyBinding,
-                unichr(event.unicode).encode('utf8'), type_)
-    else:
-        return False
-
 def _processEvent(event, type_):
     avg.logger.debug('Processing event keystring=%s '
             'modifiers=%s type=%s' % (event.keystring, event.modifiers, event.type),

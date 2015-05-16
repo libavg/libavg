@@ -57,7 +57,6 @@ class AVG_API SDLWindow: public Window
         bool setGamma(float red, float green, float blue);
 
     private:
-        void initTranslationTable();
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
@@ -69,7 +68,6 @@ class AVG_API SDLWindow: public Window
         // Event handling.
         glm::vec2 m_LastMousePos;
         XInputMTInputDevice * m_pXIMTInputDevice;
-//        static std::vector<long> s_KeyCodeTranslationTable;
 };
 
 typedef boost::shared_ptr<SDLWindow> SDLWindowPtr;

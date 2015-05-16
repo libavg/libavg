@@ -29,6 +29,7 @@
 #include "../player/Publisher.h"
 #include "../player/InputDevice.h"
 
+#include <SDL2/SDL_events.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
 
@@ -47,23 +48,22 @@ void export_event()
     from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
 
     enum_<int>("KeyModifier")
-        .value("KEYMOD_NONE", key::KEYMOD_NONE)
-        .value("KEYMOD_LSHIFT", key::KEYMOD_LSHIFT)
-        .value("KEYMOD_RSHIFT", key::KEYMOD_RSHIFT)
-        .value("KEYMOD_LCTRL", key::KEYMOD_LCTRL)
-        .value("KEYMOD_RCTRL", key::KEYMOD_RCTRL)
-        .value("KEYMOD_LALT", key::KEYMOD_LALT)
-        .value("KEYMOD_RALT", key::KEYMOD_RALT)
-        .value("KEYMOD_LMETA", key::KEYMOD_LMETA)
-        .value("KEYMOD_RMETA", key::KEYMOD_RMETA)
-        .value("KEYMOD_NUM", key::KEYMOD_NUM)
-        .value("KEYMOD_CAPS", key::KEYMOD_CAPS)
-        .value("KEYMOD_MODE", key::KEYMOD_MODE)
-        .value("KEYMOD_RESERVED", key::KEYMOD_RESERVED)
-        .value("KEYMOD_CTRL", key::KEYMOD_CTRL)
-        .value("KEYMOD_SHIFT", key::KEYMOD_SHIFT)
-        .value("KEYMOD_ALT", key::KEYMOD_ALT)
-        .value("KEYMOD_META", key::KEYMOD_META)
+        .value("KEYMOD_NONE", KMOD_NONE)
+        .value("KEYMOD_LSHIFT", KMOD_LSHIFT)
+        .value("KEYMOD_RSHIFT", KMOD_RSHIFT)
+        .value("KEYMOD_LCTRL", KMOD_LCTRL)
+        .value("KEYMOD_RCTRL", KMOD_RCTRL)
+        .value("KEYMOD_LALT", KMOD_LALT)
+        .value("KEYMOD_RALT", KMOD_RALT)
+        .value("KEYMOD_LGUI", KMOD_RALT)
+        .value("KEYMOD_RGUI", KMOD_RALT)
+        .value("KEYMOD_NUM", KMOD_NUM)
+        .value("KEYMOD_CAPS", KMOD_CAPS)
+        .value("KEYMOD_MODE", KMOD_MODE)
+        .value("KEYMOD_CTRL", KMOD_CTRL)
+        .value("KEYMOD_SHIFT", KMOD_SHIFT)
+        .value("KEYMOD_ALT", KMOD_ALT)
+        .value("KEYMOD_GUI", KMOD_GUI)
         .export_values()
     ;
 
@@ -123,7 +123,6 @@ void export_event()
         .add_property("keycode", &KeyEvent::getKeyCode)
         .add_property("keystring", make_function(&KeyEvent::getKeyString, 
                 return_value_policy<copy_const_reference>()))
-        .add_property("unicode", &KeyEvent::getUnicode)
         .add_property("modifiers", &KeyEvent::getModifiers)
     ;    
     

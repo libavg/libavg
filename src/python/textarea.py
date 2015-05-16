@@ -117,17 +117,8 @@ class FocusContext(object):
         @type kchar: string
         @param kchar: a single character (if more than one, the following are ignored)
         """
-        uch = unicode(kchar, 'utf-8')
-        self.keyUCodePressed(ord(uch[0]))
+        keycode = ord(unichr(kchar))
 
-    def keyUCodePressed(self, keycode):
-        """
-        Inject an Unicode code point into the flow
-
-        Shift a character (Unicode keycode) into the active (w/focus) TextArea
-        @type keycode: int
-        @param keycode: unicode code point of the character
-        """
         # TAB key cycles focus through textareas
         if keycode == KEYCODE_TAB:
             self.cycleFocus()
@@ -145,19 +136,19 @@ class FocusContext(object):
         """
         Emulate a backspace character keypress
         """
-        self.keyUCodePressed(KEYCODES_BACKSPACE[0])
+        self.keyCharPressed(KEYCODES_BACKSPACE[0])
 
     def delete(self):
         """
         Emulate a delete character keypress
         """
-        self.keyUCodePressed(KEYCODE_DEL)
+        self.keyCharPressed(KEYCODE_DEL)
 
     def clear(self):
         """
         Clear the active textarea, emulating the press of FF character
         """
-        self.keyUCodePressed(KEYCODE_FORMFEED)
+        self.keyCharPressed(KEYCODE_FORMFEED)
 
     def resetFocuses(self):
         """
@@ -808,20 +799,17 @@ def _onFrame():
     if (g_LastKeyEvent is not None and
         time.time() - g_LastKeyRepeated > g_CharDelay and
         g_FocusContext is not None):
-        g_FocusContext.keyUCodePressed(g_LastKeyEvent.unicode)
+        g_FocusContext.keyCharPressed(g_LastKeyEvent.keycode)
         g_LastKeyRepeated = time.time()
 
 def _onKeyDown(e):
     global g_LastKeyEvent, g_LastKeyRepeated, g_RepeatDelay, g_activityCallback
 
-    if e.unicode == 0:
-        return
-
     g_LastKeyEvent = e
     g_LastKeyRepeated = time.time() + g_RepeatDelay
 
     if g_FocusContext is not None:
-        g_FocusContext.keyUCodePressed(e.unicode)
+        g_FocusContext.keyCharPressed(e.keycode)
 
         if g_activityCallback is not None:
             g_activityCallback(g_FocusContext)

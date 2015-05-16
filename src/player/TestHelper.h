@@ -55,9 +55,8 @@ class AVG_API TestHelper : public InputDevice
                 const glm::vec2& pos, const glm::vec2& speed=glm::vec2(0, 0));
         void fakeTangibleEvent(int id, int markerID, Event::Type eventType, 
                 const glm::vec2& pos, const glm::vec2& speed, float orientation);
-        void fakeKeyEvent(Event::Type eventType,
-                unsigned char scanCode, int keyCode, 
-                const std::string& keyString, int unicode, int modifiers);
+        void fakeKeyEvent(Event::Type eventType, unsigned char scanCode, int keyCode,
+                const std::string& keyString, int modifiers);
         void dumpObjects();
         TypeMap getObjectCount();
 

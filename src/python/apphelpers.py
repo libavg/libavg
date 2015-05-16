@@ -118,7 +118,7 @@ class KeyBinding(object):
 
 class KeyboardManager(object):
     _instance = None
-    TOGGLE_HELP_UNICODE = 63
+    TOGGLE_HELP = 63
     
     def __init__(self):
         if self._instance is not None:
@@ -175,11 +175,7 @@ class KeyboardManager(object):
         warnings.warn('libavg.KeyboardManager is deprecated, use '
                 'libavg.app.keyboardmanager instead')
 
-        if isinstance(key, unicode) and state != 'down':
-            raise RuntimeError('bindKey() with unicode keys '
-                    'can be used only with state=down')
-
-        if key == unichr(self.TOGGLE_HELP_UNICODE):
+        if key == self.TOGGLE_HELP:
             raise RuntimeError('%s key is reserved')
             
         keyObj = self.__findKeyByKeystring(key, state)
@@ -216,7 +212,7 @@ class KeyboardManager(object):
     def __onKeyDown(self, event):
         if self.__onKeyDownCb(event):
             return
-        elif event.unicode == self.TOGGLE_HELP_UNICODE:
+        elif event.keycode == self.TOGGLE_HELP:
             self.__keyCaptionsNode.toggleHelp()
         else:
             keyObj = self.__findKeyByEvent(event, 'down')

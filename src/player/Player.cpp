@@ -1007,7 +1007,7 @@ bool Player::handleEvent(EventPtr pEvent)
         }
         getRootNode()->handleEvent(pKeyEvent);
         if (getStopOnEscape() && pEvent->getType() == Event::KEY_DOWN
-                && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
+                && pKeyEvent->getKeyCode() == SDLK_ESCAPE)
         {
             stop();
         }
