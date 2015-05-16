@@ -88,11 +88,7 @@ class AVG_API DisplayEngine: public InputDevice
         // From InputDevice
         std::vector<EventPtr> pollEvents();
 
-    protected:
-        
     private:
-        bool internalSetGamma(float red, float green, float blue);
-        
         std::vector<WindowPtr> m_pWindows;
         IntPoint m_Size;
 

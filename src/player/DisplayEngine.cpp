@@ -120,11 +120,11 @@ DisplayEngine::~DisplayEngine()
 
 void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
+    m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
-        internalSetGamma(1.0f, 1.0f, 1.0f);
+        m_pWindows[0]->setGamma(1.0f, 1.0f, 1.0f);
     }
 
-    m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
 #ifndef AVG_ENABLE_EGL
 //    for (int i=1; i<dp.getNumWindows(); ++i) {
 //        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
@@ -239,8 +239,11 @@ bool DisplayEngine::wasFrameLate()
 
 void DisplayEngine::setGamma(float red, float green, float blue)
 {
+    if (m_pWindows.empty()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "setGamma needs an open window.");
+    }
     if (red > 0) {
-        bool bOk = internalSetGamma(red, green, blue);
+        bool bOk = m_pWindows[0]->setGamma(red, green, blue);
         m_Gamma[0] = red;
         m_Gamma[1] = green;
         m_Gamma[2] = blue;
@@ -407,24 +410,6 @@ vector<EventPtr> DisplayEngine::pollEvents()
         pEvents.insert(pEvents.end(), pWinEvents.begin(), pWinEvents.end());
     }
     return pEvents;
-}
-
-bool DisplayEngine::internalSetGamma(float red, float green, float blue)
-{
-/*
-#ifdef __APPLE__
-    // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
-    CGError err = CGSetDisplayTransferByFormula(kCGDirectMainDisplay, 0, 1, 1/red,
-            0, 1, 1/green, 0, 1, 1/blue);
-    return (err == CGDisplayNoErr);
-#else
-#ifdef _WIN32
-    SDL_SetGamma(float(red), float(green), float(blue));
-#endif
-    int err = SDL_SetGamma(float(red), float(green), float(blue));
-    return (err != -1);
-#endif
-*/
 }
 
 }

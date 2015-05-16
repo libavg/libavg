@@ -54,6 +54,7 @@ class AVG_API SDLWindow: public Window
 
         std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
+        bool setGamma(float red, float green, float blue);
 
     private:
         void initTranslationTable();

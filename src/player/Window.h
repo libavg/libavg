@@ -54,6 +54,7 @@ class AVG_API Window
         bool isFullscreen() const;
         virtual void swapBuffers() const;
         GLContext* getGLContext() const;
+        virtual bool setGamma(float red, float green, float blue) { return false; };
 
         virtual std::vector<EventPtr> pollEvents() = 0;
 

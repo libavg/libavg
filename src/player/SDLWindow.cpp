@@ -250,6 +250,18 @@ void SDLWindow::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
     m_pXIMTInputDevice = pInputDevice;
 }
 
+bool SDLWindow::setGamma(float red, float green, float blue)
+{
+    Uint16 redRamp[256];
+    Uint16 greenRamp[256];
+    Uint16 blueRamp[256];
+    SDL_CalculateGammaRamp(red, redRamp);
+    SDL_CalculateGammaRamp(green, greenRamp);
+    SDL_CalculateGammaRamp(blue, blueRamp);
+    int rc = SDL_SetWindowGammaRamp(m_pSDLWindow, redRamp, greenRamp, blueRamp);
+    return rc == 0;
+}
+
 EventPtr SDLWindow::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
         long button)
 {
