@@ -148,6 +148,9 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
 
 SDLWindow::~SDLWindow()
 {
+    if (m_pSDLWindow) {
+        SDL_DestroyWindow(m_pSDLWindow);
+    }
 }
 
 void SDLWindow::setTitle(const string& sTitle)
