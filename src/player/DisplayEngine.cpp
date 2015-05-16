@@ -57,6 +57,8 @@
 #ifdef AVG_ENABLE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
+// For _Xdebug
+// #include <X11/Xlib.h>
 
 #include <signal.h>
 #include <iostream>
@@ -104,6 +106,7 @@ DisplayEngine::DisplayEngine()
       m_bInitialized(false),
       m_EffFramerate(0)
 {
+//    _Xdebug = 1;
     initSDL();
 
     m_Gamma[0] = 1.0;
@@ -121,7 +124,6 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         internalSetGamma(1.0f, 1.0f, 1.0f);
     }
 
-    
     m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
 #ifndef AVG_ENABLE_EGL
 //    for (int i=1; i<dp.getNumWindows(); ++i) {

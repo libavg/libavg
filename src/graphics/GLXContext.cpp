@@ -53,7 +53,7 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
     s_bX11Error = false;
     GLConfig config = glConfig;
     createGLXContext(config, windowSize, pSDLWMInfo);
-    init(config, true);
+    init(config, pSDLWMInfo == 0);
 }
 
 GLXContext::~GLXContext()
