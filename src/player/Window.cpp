@@ -98,6 +98,7 @@ Window::Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfi
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    setEnv("DISPLAY", ":0."+toString(wp.m_DisplayServer));
     while (glConfig.m_MultiSampleSamples && !m_SDLGLContext) {
         if (glConfig.m_MultiSampleSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);

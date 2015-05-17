@@ -46,6 +46,7 @@ protected:
     virtual float queryPPMM();
     virtual IntPoint queryScreenResolution();
     virtual float queryRefreshRate();
+    void safeXOpenDisplay();
 };
 
 ::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo);

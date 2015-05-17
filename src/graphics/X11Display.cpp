@@ -42,7 +42,7 @@ X11Display::~X11Display()
  
 float X11Display::queryPPMM()
 {
-    ::Display * pDisplay = XOpenDisplay(0);
+    ::Display * pDisplay = getX11Display(0);
     float ppmm = getScreenResolution().x/float(DisplayWidthMM(pDisplay, 0));
     XCloseDisplay(pDisplay);
     return ppmm;
@@ -52,7 +52,7 @@ IntPoint X11Display::queryScreenResolution()
 {
     IntPoint size;
     // Xinerama query has been removed from here in order to fix #431
-    ::Display * pDisplay = XOpenDisplay(0);
+    ::Display * pDisplay = getX11Display(0);
 
     Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
     AVG_ASSERT(pScreen);
@@ -64,7 +64,7 @@ IntPoint X11Display::queryScreenResolution()
 
 float X11Display::queryRefreshRate()
 {
-    ::Display * pDisplay = XOpenDisplay(0);
+    ::Display * pDisplay = getX11Display(0);
     int pixelClock;
     XF86VidModeModeLine modeLine;
     bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
@@ -96,7 +96,7 @@ float X11Display::queryRefreshRate()
         pDisplay = XOpenDisplay(0);
     }
     if (!pDisplay) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Could not open X11 display.");
     }
     return pDisplay;
 }
