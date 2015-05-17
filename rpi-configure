@@ -2,12 +2,12 @@
 export SYSROOT=$AVG_RPI_ROOT/root
 export CC=${PWD}/rpi-gcc
 
-export INCLUDE="-I${SYSROOT}/usr/include -I${SYSROOT}/usr/include/arm-linux-gnueabihf -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads"
-export RPATH_LINK="-Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/pulseaudio -Wl,-rpath-link,${SYSROOT}/opt/vc/lib -Wl,-rpath-link,${SYSROOT}/usr/lib/"
+export INCLUDE="-I${SYSROOT}/usr/include -I${SYSROOT}/usr/include/arm-linux-gnueabihf -I${SYSROOT}/opt/vc/include -I${SYSROOT}/opt/vc/include/interface/vmcs_host/linux -I${SYSROOT}/opt/vc/include/interface/vcos/pthreads -I${SYSROOT}/usr/local/include"
+export RPATH_LINK="-Wl,-rpath-link,${SYSROOT}/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -Wl,-rpath-link,${SYSROOT}/usr/lib/arm-linux-gnueabihf/pulseaudio -Wl,-rpath-link,${SYSROOT}/opt/vc/lib -Wl,-rpath-link,${SYSROOT}/usr/lib/ -Wl,-rpath,${SYSROOT}/usr/local/lib"
 export CPPFLAGS="$CPPFLAGS ${INCLUDE}"
 export CFLAGS="${CFLAGS} ${RPATH_LINK} ${ARCHFLAGS} --sysroot=${SYSROOT}"
 export CXXFLAGS="${CXXFLAGS} ${RPATH_LINK} ${ARCHFLAGS} -Wno-unused-local-typedefs -Wno-delete-non-virtual-dtor"
-export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -L${SYSROOT}/lib/arm-linux-gnueabihf/ -L${SYSROOT}/opt/vc/lib -lpthread"
+export LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${SYSROOT}/usr/lib/arm-linux-gnueabihf/ -L${SYSROOT}/lib/arm-linux-gnueabihf/ -L${SYSROOT}/usr/local/lib -L${SYSROOT}/opt/vc/lib -lpthread"
 
 export PKG_CONFIG_SYSROOT_DIR=${SYSROOT}
 export PKG_CONFIG_PATH=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig:${SYSROOT}/usr/lib/arm-linux-gnueabihf/pkgconfig/
