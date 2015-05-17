@@ -163,17 +163,11 @@ void Window::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
 #ifdef __linux__    
-    getGLContext()->swapBuffers();
+    m_pGLContext->swapBuffers();
 #else
     SDL_GL_SwapBuffers();
 #endif
     GLContext::checkError("swapBuffers()");
-/*    AVG_ASSERT(m_pGLContext);
-    ScopeTimer timer(SwapBufferProfilingZone);
-    m_pGLContext->activate();
-    m_pGLContext->swapBuffers();
-    GLContext::checkError("swapBuffers()");
-*/    
 }
 
 BitmapPtr Window::screenshot(int buffer)
