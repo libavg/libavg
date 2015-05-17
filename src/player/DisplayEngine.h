@@ -39,8 +39,6 @@ class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class Window;
 typedef boost::shared_ptr<class Window> WindowPtr;
-class SDLWindow;
-typedef boost::shared_ptr<class SDLWindow> SDLWindowPtr;
 class Bitmap;
 typedef boost::shared_ptr<class Bitmap> BitmapPtr;
 class GLContext;
@@ -70,7 +68,6 @@ class AVG_API DisplayEngine: public InputDevice
     
         unsigned getNumWindows() const;
         const WindowPtr getWindow(unsigned i) const;
-        SDLWindowPtr getSDLWindow() const;
 
         void frameWait();
         void swapBuffers();

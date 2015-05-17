@@ -48,7 +48,7 @@
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
-#include "SDLWindow.h"
+#include "Window.h"
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     #include "Win7TouchInputDevice.h"
 #endif
@@ -857,7 +857,7 @@ BitmapPtr Player::screenshot()
     if (GLContext::getCurrent()->isGLES()) {
         // Some GLES implementations invalidate the buffer after eglSwapBuffers.
         // The only way we can get at the contents at this point is to rerender them.
-        WindowPtr pWindow = m_pDisplayEngine->getSDLWindow();
+        WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
         IntRect viewport = pWindow->getViewport();
         m_pMainCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
         GLContextManager::get()->reset();

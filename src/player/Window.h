@@ -25,10 +25,15 @@
 
 #include "../api.h"
 #include "WindowParams.h"
+#include "DisplayParams.h"
 #include "Event.h"
+#include "MouseEvent.h"
+#include "KeyEvent.h"
 
+#include "../graphics/GLConfig.h"
 #include "../base/Rect.h"
 
+#include <SDL2/SDL.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
 
@@ -42,26 +47,35 @@ class GLContext;
 class AVG_API Window
 {
     public:
-        Window(const WindowParams& wp, bool bIsFullscreen);
+        Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfig);
         virtual ~Window();
 
-        virtual void setTitle(const std::string& sTitle) = 0;
+        void setTitle(const std::string& sTitle);
+        void swapBuffers() const;
         BitmapPtr screenshot(int buffer=0);
 
         const IntPoint& getPos() const;
         const IntPoint& getSize() const;
         const IntRect& getViewport() const;
         bool isFullscreen() const;
-        virtual void swapBuffers() const;
         GLContext* getGLContext() const;
-        virtual bool setGamma(float red, float green, float blue) { return false; };
-
-        virtual std::vector<EventPtr> pollEvents() = 0;
-
-    protected:
-        void setGLContext(GLContext* pGLContext);
+        std::vector<EventPtr> pollEvents();
+        void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
+        bool setGamma(float red, float green, float blue);
 
     private:
+        EventPtr createMouseEvent
+                (Event::Type Type, const SDL_Event & SDLEvent, long Button);
+        EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
+
+        SDL_Window* m_pSDLWindow;
+        SDL_GLContext m_SDLGLContext;
+
+        // Event handling.
+        glm::vec2 m_LastMousePos;
+        XInputMTInputDevice * m_pXIMTInputDevice;
+
         bool m_bIsFullscreen;
         IntPoint m_Pos;
         IntPoint m_Size;

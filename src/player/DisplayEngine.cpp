@@ -29,8 +29,8 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#include "SDLWindow.h"
 #include "DisplayParams.h"
+#include "Window.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -116,7 +116,7 @@ DisplayEngine::~DisplayEngine()
 void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     for (int i=0; i<dp.getNumWindows(); ++i) {
-        m_pWindows.push_back(WindowPtr(new SDLWindow(dp, dp.getWindowParams(i),
+        m_pWindows.push_back(WindowPtr(new Window(dp, dp.getWindowParams(i),
                 glConfig)));
     }
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
@@ -268,11 +268,6 @@ unsigned DisplayEngine::getNumWindows() const
 const WindowPtr DisplayEngine::getWindow(unsigned i) const
 {
     return m_pWindows[i];
-}
-
-SDLWindowPtr DisplayEngine::getSDLWindow() const
-{
-    return boost::dynamic_pointer_cast<SDLWindow>(m_pWindows[0]);
 }
 
 static ProfilingZoneID WaitProfilingZone("Render - wait");
