@@ -54,14 +54,12 @@ using namespace std;
 
 namespace avg {
 
-SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
-    : Window(dp.getWindowParams(0), dp.isFullscreen()),
+SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfig)
+    : Window(wp, dp.isFullscreen()),
       m_pSDLWindow(0),
       m_SDLGLContext(0),
       m_LastMousePos(IntPoint(-1, -1))
 {
-    const WindowParams& wp = dp.getWindowParams(0);
-
     IntPoint pos = getPos();
     if (pos.x == -1) {
         pos.x = SDL_WINDOWPOS_UNDEFINED;
@@ -90,8 +88,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, GLConfig glConfig)
             SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
             break;
         default:
-            AVG_LOG_ERROR("Unsupported bpp " << dp.getBPP() <<
-                    "in Window::init()");
+            AVG_LOG_ERROR("Unsupported bpp " << dp.getBPP() << "in Window::init()");
             exit(-1);
     }
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);

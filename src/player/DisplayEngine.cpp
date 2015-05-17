@@ -115,17 +115,14 @@ DisplayEngine::~DisplayEngine()
 
 void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
-    m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
+    for (int i=0; i<dp.getNumWindows(); ++i) {
+        m_pWindows.push_back(WindowPtr(new SDLWindow(dp, dp.getWindowParams(i),
+                glConfig)));
+    }
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         m_pWindows[0]->setGamma(1.0f, 1.0f, 1.0f);
     }
 
-#ifndef AVG_ENABLE_EGL
-//    for (int i=1; i<dp.getNumWindows(); ++i) {
-//        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
-//                dp.isFullscreen(), glConfig)));
-//    }
-#endif
     m_Size = dp.getWindowParams(0).m_Viewport.size();
 
     Display::get()->getRefreshRate();

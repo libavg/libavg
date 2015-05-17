@@ -46,7 +46,7 @@ typedef boost::shared_ptr<class Bitmap> BitmapPtr;
 class AVG_API SDLWindow: public Window
 {
     public:
-        SDLWindow(const DisplayParams& dp, GLConfig glConfig);
+        SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfig);
         ~SDLWindow();
 
         void setTitle(const std::string& sTitle);
