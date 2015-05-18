@@ -42,16 +42,17 @@ public:
     void swapBuffers();
 
 private:
-    void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
-            const SDL_SysWMinfo* pSDLWMInfo);
+    void useSDLContext(const SDL_SysWMinfo* pSDLWMInfo);
+    void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize);
     void checkEGLError(bool bError, const std::string& sMsg);
 
-    void dumpEGLConfig() const;
-    void dumpEGLConfigAttrib(EGLint attrib, const std::string& name) const;
+    void dumpEGLConfig(const EGLConfig& config) const;
+    void dumpEGLConfigAttrib(const EGLConfig& config, EGLint attrib, 
+            const std::string& name) const;
 
+    bool m_bOwnsContext;
     EGLNativeDisplayType m_xDisplay;
     EGLDisplay m_Display;
-    EGLConfig m_Config;
     ::EGLContext m_Context;
     EGLSurface m_Surface;
 };

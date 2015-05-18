@@ -155,7 +155,7 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
                 RootWindow(getDisplay(), pVisualInfo->screen), 8, 8, pVisualInfo->depth);
         GLXPixmap pixmap = glXCreateGLXPixmap(getDisplay(), pVisualInfo, pmp);
 
-        glXMakeCurrent(getDisplay(), pixmap, getGLXContext());
+        glXMakeCurrent(getDisplay(), pixmap, m_Context);
         resetX11ErrorHandler();
     }
 
@@ -225,11 +225,6 @@ void GLXContext::throwOnXError(int code)
     if (s_bX11Error) {
         throw Exception(code, "X error creating OpenGL context.");
     }
-}
-
-::GLXContext GLXContext::getGLXContext() const
-{
-    return m_Context;
 }
 
 ::Display* GLXContext::getDisplay() const

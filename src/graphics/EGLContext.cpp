@@ -30,7 +30,7 @@
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
 
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL_syswm.h>
 #include <EGL/egl.h>
 
 #include <iostream>
@@ -43,7 +43,11 @@ EGLContext::EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(windowSize)
 {
-    createEGLContext(glConfig, windowSize, pSDLWMInfo);
+    if (pSDLWMInfo) {
+        useSDLContext(pSDLWMInfo);
+    } else {
+        createEGLContext(glConfig, windowSize);
+    }
     init(glConfig, true);
 }
 
@@ -51,28 +55,36 @@ EGLContext::~EGLContext()
 {
     getPBOCache().deleteBuffers();
     deleteObjects();
-    eglMakeCurrent(m_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, 0);
-    eglDestroyContext(m_Display, m_Context);
-    eglDestroySurface(m_Display, m_Surface);
-    eglTerminate(m_Display);
-    m_Context = 0;
+    if (m_bOwnsContext) {
+        eglMakeCurrent(m_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, 0);
+        eglDestroyContext(m_Display, m_Context);
+        eglDestroySurface(m_Display, m_Surface);
+        eglTerminate(m_Display);
+        m_Context = 0;
+    }
 }
 
-void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize,
-        const SDL_SysWMinfo* pSDLWMInfo)
+void EGLContext::useSDLContext(const SDL_SysWMinfo* pSDLWMInfo)
 {
-    bool bOk;
+    m_bOwnsContext = false;
+    m_Context = eglGetCurrentContext();
+    m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+}
+
+void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
+{
+    m_bOwnsContext = true;
 
 #ifdef AVG_ENABLE_RPI
-    m_xDisplay = (EGLNativeDisplayType)getBCMDisplay(pSDLWMInfo);
+    m_xDisplay = (EGLNativeDisplayType)getBCMDisplay();
     m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #else
-    m_xDisplay = (EGLNativeDisplayType)getX11Display(pSDLWMInfo);
+    m_xDisplay = (EGLNativeDisplayType)getX11Display(0);
     m_Display = eglGetDisplay(m_xDisplay);
 #endif
     checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
 
-    bOk = eglInitialize(m_Display, NULL, NULL);
+    bool bOk = eglInitialize(m_Display, NULL, NULL);
     checkEGLError(!bOk, "eglInitialize failed");
 
     GLContextAttribs fbAttrs;
@@ -81,43 +93,31 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize,
     fbAttrs.append(EGL_BLUE_SIZE, 1);
     fbAttrs.append(EGL_DEPTH_SIZE, 0);
     fbAttrs.append(EGL_STENCIL_SIZE, 1);
-    int alphaSize = 0;
 #ifdef AVG_ENABLE_RPI
-    if (!pSDLWMInfo) {
-        alphaSize = 1;
-    }
+    int alphaSize = 1;
+#else
+    int alphaSize = 0;
 #endif
     fbAttrs.append(EGL_ALPHA_SIZE, alphaSize);
     fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
     EGLint numFBConfig;
-    bOk = eglChooseConfig(m_Display, fbAttrs.get(), &m_Config, 1, &numFBConfig);
+    EGLConfig config;
+    bOk = eglChooseConfig(m_Display, fbAttrs.get(), &config, 1, &numFBConfig);
     checkEGLError(!bOk, "Failed to choose EGL config");
 
     EGLint vid;
-    bOk = eglGetConfigAttrib(m_Display, m_Config, EGL_NATIVE_VISUAL_ID, &vid);
+    bOk = eglGetConfigAttrib(m_Display, config, EGL_NATIVE_VISUAL_ID, &vid);
     AVG_ASSERT(bOk);
 
 #ifndef AVG_ENABLE_RPI
     XVisualInfo visTemplate;
     visTemplate.visualid = vid;
     int num_visuals;
-    XVisualInfo* pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualIDMask, &visTemplate,
+    XVisualInfo* pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualIDMask,
+            &visTemplate,
             &num_visuals);
     AVG_ASSERT(pVisualInfo);
 #endif
-
-    EGLNativeWindowType xWindow = 0;
-    if (pSDLWMInfo) {
-#ifdef AVG_ENABLE_RPI
-        xWindow = createChildWindow(pSDLWMInfo, m_xDisplay, windowSize);
-#else
-        Colormap colormap = XCreateColormap(m_xDisplay,
-                RootWindow(m_xDisplay, pVisualInfo->screen), pVisualInfo->visual,
-                AllocNone);
-        xWindow = (EGLNativeWindowType)createChildWindow(pSDLWMInfo, pVisualInfo, windowSize, colormap);
-        XFreeColormap(m_xDisplay, colormap);
-#endif
-    }
 
     if (!eglBindAPI(EGL_OPENGL_ES_API)) {
         cerr << "Failed to bind GLES API to EGL\n";
@@ -128,30 +128,29 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize,
         cerr << "Didn't get exactly one config, but " << numFBConfig << endl;
         return;
     }
-    if (xWindow) {
-        m_Surface = eglCreateWindowSurface(m_Display, m_Config, xWindow, NULL);
-    } else {
 #ifdef AVG_ENABLE_RPI
-       m_Surface = createBCMPixmapSurface(m_Display, m_Config);
+    m_Surface = createBCMPixmapSurface(m_Display, config);
 #else
-        XVisualInfo visTemplate, *results;
-        visTemplate.screen = 0;
-        int numVisuals;
-        results = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
-                &visTemplate, & numVisuals);
+    XVisualInfo visTemplate, *results;
+    visTemplate.screen = 0;
+    int numVisuals;
+    results = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
+            &visTemplate, & numVisuals);
 
-        Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay,
-                RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8, results[0].depth);
+    Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay,
+            RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8,
+            results[0].depth);
 
-        m_Surface = eglCreatePixmapSurface(m_Display, m_Config, (EGLNativePixmapType)pmp, NULL);
+    m_Surface = eglCreatePixmapSurface(m_Display, config, (EGLNativePixmapType)pmp,
+            NULL);
 #endif
-    }
-    //dumpEGLConfig();
+    
+    //dumpEGLConfig(config);
     AVG_ASSERT(m_Surface);
 
     GLContextAttribs attrs;
     attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
-    m_Context = eglCreateContext(m_Display, m_Config, NULL, attrs.get());
+    m_Context = eglCreateContext(m_Display, config, NULL, attrs.get());
     checkEGLError(!m_Context, "Unable to create EGL context");
 }
 
@@ -179,22 +178,23 @@ void EGLContext::checkEGLError(bool bError, const std::string& sMsg)
     }
 }
 
-void EGLContext::dumpEGLConfig() const
+void EGLContext::dumpEGLConfig(const EGLConfig& config) const
 {
     cout << "EGL configuration:" << endl;
-    dumpEGLConfigAttrib(EGL_RED_SIZE, "RED_SIZE");
-    dumpEGLConfigAttrib(EGL_GREEN_SIZE, "GREEN_SIZE");
-    dumpEGLConfigAttrib(EGL_BLUE_SIZE, "BLUE_SIZE");
-    dumpEGLConfigAttrib(EGL_ALPHA_SIZE, "ALPHA_SIZE");
-    dumpEGLConfigAttrib(EGL_BUFFER_SIZE, "BUFFER_SIZE");
-    dumpEGLConfigAttrib(EGL_DEPTH_SIZE, "DEPTH_SIZE");
-    dumpEGLConfigAttrib(EGL_STENCIL_SIZE, "STENCIL_SIZE");
+    dumpEGLConfigAttrib(config, EGL_RED_SIZE, "RED_SIZE");
+    dumpEGLConfigAttrib(config, EGL_GREEN_SIZE, "GREEN_SIZE");
+    dumpEGLConfigAttrib(config, EGL_BLUE_SIZE, "BLUE_SIZE");
+    dumpEGLConfigAttrib(config, EGL_ALPHA_SIZE, "ALPHA_SIZE");
+    dumpEGLConfigAttrib(config, EGL_BUFFER_SIZE, "BUFFER_SIZE");
+    dumpEGLConfigAttrib(config, EGL_DEPTH_SIZE, "DEPTH_SIZE");
+    dumpEGLConfigAttrib(config, EGL_STENCIL_SIZE, "STENCIL_SIZE");
 }
 
-void EGLContext::dumpEGLConfigAttrib(EGLint attrib, const string& name) const
+void EGLContext::dumpEGLConfigAttrib(const EGLConfig& config, EGLint attrib,
+        const string& name) const
 {
     EGLint value;
-    if (eglGetConfigAttrib(m_Display, m_Config, attrib, &value)) {
+    if (eglGetConfigAttrib(m_Display, config, attrib, &value)) {
         cout << "  " << name << ": " << value << endl;
     }
     else {

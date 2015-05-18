@@ -97,6 +97,9 @@ Window::Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfi
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    if (glConfig.m_bGLES) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    }
 
     setEnv("DISPLAY", ":0."+toString(wp.m_DisplayServer));
     while (glConfig.m_MultiSampleSamples && !m_SDLGLContext) {
@@ -110,6 +113,7 @@ Window::Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfi
         }
         m_pSDLWindow = SDL_CreateWindow("libavg", m_Pos.x, m_Pos.y, m_Size.x, m_Size.y,
                 flags);
+        cerr << SDL_GetError() << endl;
         m_SDLGLContext = SDL_GL_CreateContext(m_pSDLWindow);
         if (!m_SDLGLContext) {
             glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(

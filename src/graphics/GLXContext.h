@@ -26,6 +26,8 @@
 
 #include "../base/Exception.h"
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <boost/shared_ptr.hpp>
 
 struct SDL_SysWMinfo;
@@ -55,7 +57,6 @@ private:
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
 
-    ::GLXContext getGLXContext() const;
     ::Display* getDisplay() const;
     Colormap getColormap() const;
 

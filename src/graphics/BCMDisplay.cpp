@@ -46,7 +46,7 @@ IntPoint getX11WindowPosition(const SDL_SysWMinfo* pSDLWMInfo)
     return IntPoint(x, y);
 }
 
-DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo)
+DISPMANX_DISPLAY_HANDLE_T getBCMDisplay()
 {
     bcm_host_init();
 

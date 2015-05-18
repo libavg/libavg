@@ -33,7 +33,7 @@ struct SDL_SysWMinfo;
 
 namespace avg {
 
-DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo);
+DISPMANX_DISPLAY_HANDLE_T getBCMDisplay();
 
 EGL_DISPMANX_WINDOW_T* createChildWindow(const SDL_SysWMinfo* pSDLWMInfo,
         EGLNativeDisplayType bcmDisplay, const IntPoint& windowSize);
