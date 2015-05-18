@@ -80,6 +80,11 @@ if sys.platform != 'win32':
     if os.path.exists('../wrapper/.libs/avg.so'):
         # Normal case: use the local version (not the installed one)
         shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
+    elif os.path.exists('../../avg.so'):
+        # Mac version after installer dmg
+        pass
+    else:
+        raise RuntimeError('Compile libavg before running tests or use "make check"')
 
     # The following line prevents the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
