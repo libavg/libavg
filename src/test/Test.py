@@ -80,8 +80,8 @@ if sys.platform != 'win32':
     if os.path.exists('../wrapper/.libs/avg.so'):
         # Normal case: use the local version (not the installed one)
         shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
-    elif os.path.exists('../../avg.so'):
-        # Mac version after installer dmg
+    elif os.path.exists('../../avg.so') or os.path.exists('../avg.so'):
+        # Mac version after installer dmg, linux after make install
         pass
     else:
         raise RuntimeError('Compile libavg before running tests or use "make check"')
