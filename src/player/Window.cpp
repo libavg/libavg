@@ -113,8 +113,11 @@ Window::Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfi
         }
         m_pSDLWindow = SDL_CreateWindow("libavg", m_Pos.x, m_Pos.y, m_Size.x, m_Size.y,
                 flags);
-        cerr << SDL_GetError() << endl;
-        m_SDLGLContext = SDL_GL_CreateContext(m_pSDLWindow);
+        if (m_pSDLWindow) {
+            m_SDLGLContext = SDL_GL_CreateContext(m_pSDLWindow);
+        } else {
+            m_SDLGLContext = 0;
+        }
         if (!m_SDLGLContext) {
             glConfig.m_MultiSampleSamples = GLContext::nextMultiSampleValue(
                     glConfig.m_MultiSampleSamples);
