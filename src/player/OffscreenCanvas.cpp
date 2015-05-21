@@ -114,8 +114,7 @@ BitmapPtr OffscreenCanvas::screenshotIgnoreAlpha() const
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
-    WindowPtr pWindow = getPlayer()->getDisplayEngine()->getWindow(0);
-    BitmapPtr pBmp = m_pFBO->getImage(pWindow->getGLContext(), 0);
+    BitmapPtr pBmp = m_pFBO->getImage(GLContext::getCurrent(), 0);
     return pBmp;
 }
 
