@@ -1499,7 +1499,8 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
                 if (pEvent->getType() != Event::CURSOR_MOTION) {
                     pEvent->trace();
                 }
-                if (pNode->handleEvent(pEvent) == true) {
+                bool bHandled = pNode->handleEvent(pEvent);
+                if (bHandled) {
                     // stop bubbling
                     break;
                 }
