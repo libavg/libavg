@@ -65,7 +65,9 @@ TouchEvent::~TouchEvent()
 CursorEventPtr TouchEvent::cloneAs(Type eventType) const
 {
     TouchEventPtr pClone(new TouchEvent(*this));
-    pClone->m_Type = eventType;
+    if (eventType != UNKNOWN) {
+        pClone->m_Type = eventType;
+    }
     return pClone;
 }
 
