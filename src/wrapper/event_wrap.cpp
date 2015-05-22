@@ -37,41 +37,6 @@ using namespace avg;
 using namespace std;
 
 
-class InputDeviceWrapper : public InputDevice, public wrapper<InputDevice>
-{
-    public:
-        InputDeviceWrapper(const std::string& name,
-                const DivNodePtr& pEventReceiverNode=DivNodePtr())
-            : InputDevice(name, pEventReceiverNode)
-        {
-        }
-
-        InputDeviceWrapper(const InputDevice& inputDevice)
-            : InputDevice(inputDevice)
-        {
-        }
-
-        virtual void start() 
-        {
-            override startMethod = this->get_override("start");
-            if (startMethod) {
-                startMethod();
-            }
-            InputDevice::start();
-        }
-
-        void default_start() 
-        {
-            return this->InputDevice::start();
-        }
-
-        virtual std::vector<EventPtr> pollEvents() 
-        {
-            return this->get_override("pollEvents")();
-        }
-
-};
-
 void export_event()
 {
     boost::python::to_python_converter<vector<TouchEventPtr>, 
@@ -205,21 +170,4 @@ void export_event()
         .def("disconnectListener", &Contact::disconnectListener)
         ;
     exportMessages(contactClass, "Contact");
-
-    class_<InputDevicePtr>("InputDevice")
-    ;
-
-    class_< InputDeviceWrapper,
-            boost::shared_ptr<InputDeviceWrapper>,
-            boost::noncopyable
-    >("InputDevice", init<const std::string&, optional<const DivNodePtr&> >())
-        .def("start", &InputDevice::start, &InputDeviceWrapper::default_start)
-        .def("pollEvents", pure_virtual(&InputDevice::pollEvents))
-        .add_property("name",
-                      make_function(&InputDevice::getName,
-                                    return_value_policy<copy_const_reference>()))
-        .add_property("eventreceivernode",
-                      make_function(&InputDevice::getEventReceiverNode,
-                                    return_value_policy<copy_const_reference>()))
-    ;
 }

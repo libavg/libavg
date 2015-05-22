@@ -112,7 +112,6 @@ import DynamicsTest
 import PythonTest
 import AnimTest
 import EventTest
-import InputDeviceTest
 import AVGAppTest
 import WidgetTest
 import GestureTest
@@ -133,7 +132,6 @@ app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
 app.registerSuiteFactory('fx', FXTest.fxTestSuite)
 app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
-app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
 app.registerSuiteFactory('widget', WidgetTest.widgetTestSuite)
 app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
 app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
