@@ -44,7 +44,9 @@ TangibleEvent::~TangibleEvent()
 CursorEventPtr TangibleEvent::cloneAs(Type eventType) const
 {
     TangibleEventPtr pClone(new TangibleEvent(*this));
-    pClone->m_Type = eventType;
+    if (eventType != UNKNOWN) {
+        pClone->m_Type = eventType;
+    }
     return pClone;
 }
 

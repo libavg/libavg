@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "RasterNode.h"
+#include "GPUImage.h"
 #include "../graphics/TexInfo.h"
 
 #include "../base/UTF8String.h"
@@ -34,8 +35,6 @@ namespace avg {
 
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
-class GPUImage;
-typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 
 class AVG_API ImageNode : public RasterNode
 {
@@ -59,9 +58,11 @@ class AVG_API ImageNode : public RasterNode
         virtual void render(GLContext* pContext, const glm::mat4& transform);
         
         void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
+        glm::vec2 toCanvasPos(const glm::vec2& pos);
 
         virtual BitmapPtr getBitmap();
         virtual IntPoint getMediaSize();
+        GPUImage::Source getSource() const;
 
     private:
         bool isCanvasURL(const std::string& sURL);
