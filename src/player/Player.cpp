@@ -1494,7 +1494,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         // So we keep an array of events that only differ in their pos.
         vector<CursorEventPtr> pLocalEvents(pDestNodes.size());
         CursorEventPtr pCurEvent = pEvent->cloneAs();
-        for (int i=pDestNodes.size()-1; i>=0; --i) {
+        for (unsigned i=pDestNodes.size()-1; i>=0; --i) {
             NodePtr pNode = pDestNodes[i];
             pLocalEvents[i] = pCurEvent;
             ImageNodePtr pImgNode = dynamic_pointer_cast<ImageNode>(pNode);
@@ -1505,7 +1505,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
 
         // Iterate through the nodes and send the event to all of them.
-        for (int i=0; i < pDestNodes.size(); ++i) {
+        for (unsigned i=0; i < pDestNodes.size(); ++i) {
             NodePtr pNode = pDestNodes[i];
             CursorEventPtr pCurEvent = pLocalEvents[i];
             if (pNode->getState() != Node::NS_UNCONNECTED) {
