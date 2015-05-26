@@ -55,7 +55,13 @@ Player & Canvas
         .. py:attribute:: handleevents
 
             :py:const:`True` if events that arrive at an image node that is displaying 
-            this canvas are routed to the offscreen canvas. Read-only.
+            this canvas are routed to the offscreen canvas. Events arrive at the correct
+            node inside the canvas, so a click on a node will trigger an appropriate 
+            :py:const:`CURSOR_DOWN` event. :py:attr:`event.pos` is also adjusted to be
+            relative to the canvas root. There is a limitation, however: Events received
+            through contacts can't have this adjustment done. This means that gestures
+            such as drag - which use contacts internally - won't work correctly if scaling
+            or rotation is involved. Read-only.
 
         .. py:attribute:: mipmap
 
