@@ -69,7 +69,7 @@ Window::Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfi
         m_Pos.y = SDL_WINDOWPOS_UNDEFINED;
     }
 
-    unsigned int flags = SDL_WINDOW_OPENGL;
+    unsigned int flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
     if (dp.isFullscreen()) {
         flags |= SDL_WINDOW_FULLSCREEN;
     }
