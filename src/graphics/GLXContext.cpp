@@ -109,11 +109,6 @@ bool GLXContext::useDepthBuffer() const
     return true;
 }
 
-void GLXContext::swapBuffers()
-{
-    glXSwapBuffers(m_pDisplay, m_Drawable);
-}
-
 bool GLXContext::haveARBCreateContext()
 {
     static bool s_bExtensionChecked = false;
