@@ -161,6 +161,7 @@ class OffscreenTestCase(AVGTestCase):
     def testCanvasEvents(self):
         def onOffscreenImageDown(event):
             self.__offscreenImageDownCalled = True
+            self.__offscreenPos = event.pos
 
         def onMainDown(event):
             self.__mainDownCalled = True
@@ -177,11 +178,16 @@ class OffscreenTestCase(AVGTestCase):
         offscreenImage = offscreenCanvas.getElementByID("test1")
         offscreenImage.subscribe(avg.Node.CURSOR_DOWN, onOffscreenImageDown)
         player.getRootNode().subscribe(avg.Node.CURSOR_DOWN, onMainDown)
+        self.node.pos = (10,10)
         self.__offscreenImageDownCalled = False
         self.__mainDownCalled = False
         self.start(False,
-                (lambda: self.fakeClick(10, 10),
+                (lambda: self.fakeClick(15, 15),
                  lambda: self.assert_(self.__offscreenImageDownCalled),
+                 lambda: self.assert_(self.__offscreenPos == (5,5)),
+                 reset,
+                 lambda: self.fakeClick(5, 5),
+                 lambda: self.assert_(not(self.__offscreenImageDownCalled)),
                  reset,
                  lambda: self.fakeClick(80, 10),
                  lambda: self.assert_(not(self.__offscreenImageDownCalled)),

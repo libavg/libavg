@@ -124,8 +124,10 @@ string Event::typeStr(Event::Type type)
             return "CUSTOM_EVENT";
         case QUIT:
             return "QUIT";
-        default:
+        case UNKNOWN:
             return "UNKNOWN";
+        default:
+            return "undefined event type";
     }
         
 }

@@ -39,7 +39,7 @@ class AVG_API TangibleEvent: public CursorEvent
         TangibleEvent(int id, int markerID, Type eventType, const IntPoint& pos, 
                 const glm::vec2& speed, float orientation);
         virtual ~TangibleEvent();
-        virtual CursorEventPtr cloneAs(Type eventType) const;
+        virtual CursorEventPtr cloneAs(Type eventType=UNKNOWN) const;
 
         int getMarkerID() const;
         float getOrientation() const;
