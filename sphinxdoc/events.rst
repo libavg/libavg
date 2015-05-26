@@ -10,9 +10,6 @@ Input Handling
     .. inheritance-diagram:: Contact
         :parts: 1
 
-    .. inheritance-diagram:: InputDevice
-        :parts: 1
-
     .. autoclass:: Contact
 
         A Contact encapsulates the information of one touch on an input device from
@@ -175,36 +172,6 @@ Input Handling
             The time when the event occured in milliseconds since program start. 
             Read-only.
 
-    .. autoclass:: InputDevice(name, [eventReceiverNode])
-
-        Base class for input devices which feed events to the system. Derived classes can
-        be either user-defined or one of the predefined libavg input devices. User-defined
-        InputDevice objects are registered with the system by calling 
-        :py:meth:`Player.addInputDevice`. After this, the emitted 
-        events are processed like any other events.
-
-        .. py:attribute:: eventreceivernode
-
-            The :py:class:`DivNode` that the input device will deliver events to. By 
-            default, this is the libavg root node. Useful for restricting events to a 
-            part of the total canvas or for sending events directly to an offscreen 
-            canvas. Event bubbling starts at this node and proceeds down the tree from
-            there. Read-only.
-
-        .. py:attribute:: name
-
-            The name of the device. Read-only.
-        
-        .. py:method:: pollEvents() -> list
-
-            Abstract method which returns a list of pending events. Override this method
-            in your derived input device class. After registering 
-            the input device, this method gets called on every frame.
-
-        .. py:method:: start()
-
-            Initializes the input device if needed. By default this is an empty method.
-        
     .. autoclass:: KeyEvent
 
         Generated when a key is pressed or released.
