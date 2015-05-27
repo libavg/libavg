@@ -404,11 +404,6 @@ int GLContext::getMaxTexSize()
 }
 
 
-void GLContext::swapBuffers()
-{
-    AVG_ASSERT(false);
-}
-
 void GLContext::enableErrorChecks(bool bEnable)
 {
     s_bErrorCheckEnabled = bEnable;

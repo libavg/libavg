@@ -39,7 +39,6 @@ public:
 
     void activate();
     bool initVBlank(int rate);
-    void swapBuffers();
 
 private:
     void useSDLContext(const SDL_SysWMinfo* pSDLWMInfo);
