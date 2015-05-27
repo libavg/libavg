@@ -76,6 +76,7 @@ public:
     virtual bool useDepthBuffer() const;
 
     virtual bool initVBlank(int rate)=0;
+    virtual void swapBuffers();
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
