@@ -77,7 +77,7 @@ BitmapPtr Window::screenshot(int buffer)
 #ifndef AVG_ENABLE_EGL
         bool bIsLinuxIntel = false;
 #ifdef __linux__
-        if (isRenderer("Mesa DRI Intel(R) Sandybridge Mobile")) {
+        if (m_pGLContext->isRenderer("Mesa DRI Intel(R) Sandybridge Mobile")) {
             bIsLinuxIntel = true;
         }
 #endif
