@@ -240,7 +240,7 @@ void DisplayEngine::setGamma(float red, float green, float blue)
         m_Gamma[1] = green;
         m_Gamma[2] = blue;
         if (!bOk) {
-            AVG_LOG_WARNING("Unable to set display gamma.");
+            AVG_LOG_INFO("Unable to set display gamma.");
         }
     }
 }
