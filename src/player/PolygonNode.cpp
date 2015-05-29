@@ -54,7 +54,8 @@ void PolygonNode::registerType()
 }
 
 PolygonNode::PolygonNode(const ArgList& args)
-    : FilledVectorNode(args)
+    : FilledVectorNode(args),
+      m_bPtsChanged(true)
 {
     args.setMembers(this);
     if (m_TexCoords.size() > m_Pts.size()+1) {
@@ -63,6 +64,8 @@ PolygonNode::PolygonNode(const ArgList& args)
     }
     setLineJoin(args.getArgVal<string>("linejoin"));
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
+    m_bPtsChanged = true;
+    triangulate();
 }
 
 PolygonNode::~PolygonNode()
@@ -82,6 +85,7 @@ void PolygonNode::setPos(const vector<glm::vec2>& pts)
     m_EffTexCoords.clear();
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
     setDrawNeeded();
+    m_bPtsChanged = true;
 }
         
 const vector<float>& PolygonNode::getTexCoords() const
@@ -131,9 +135,11 @@ void PolygonNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 
 void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
-    if (getNumDifferentPts(m_Pts) < 3) {
+    triangulate();
+    if (m_TriIndexes.empty()) {
         return;
     }
+
     // Remove duplicate points
     Vec2Vector pts;
     pts.reserve(m_Pts.size());
@@ -164,17 +170,40 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
                 maxCoord.y = pts[i].y;
             }
         }
-        vector<int> triIndexes;
-        triangulatePolygon(pts, triIndexes);
 
         for (unsigned i = 0; i < pts.size(); ++i) {
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
             pVertexData->appendPos(pts[i], texCoord, color);
         }
-        for (unsigned i = 0; i < triIndexes.size(); i+=3) {
-            pVertexData->appendTriIndexes(triIndexes[i], triIndexes[i+1], 
-                    triIndexes[i+2]);
+        for (unsigned i = 0; i < m_TriIndexes.size(); i+=3) {
+            pVertexData->appendTriIndexes(m_TriIndexes[i], m_TriIndexes[i+1], 
+                    m_TriIndexes[i+2]);
         }
+    }
+}
+
+void PolygonNode::triangulate()
+{
+    if (m_bPtsChanged) {
+        m_TriIndexes.clear();
+        if (getNumDifferentPts(m_Pts) < 3) {
+            return;
+        }
+        // Remove duplicate points
+        Vec2Vector pts;
+        pts.reserve(m_Pts.size());
+
+        if (glm::distance2(m_Pts[0], m_Pts[m_Pts.size()-1]) > 0.1) {
+            pts.push_back(m_Pts[0]);
+        }
+        for (unsigned i = 1; i < m_Pts.size(); ++i) {
+            if (glm::distance2(m_Pts[i], m_Pts[i-1]) > 0.1) {
+                pts.push_back(m_Pts[i]);
+            }
+        }
+
+        triangulatePolygon(pts, m_TriIndexes);
+        m_bPtsChanged = false;
     }
 }
 
