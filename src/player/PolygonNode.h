@@ -65,6 +65,8 @@ class AVG_API PolygonNode : public FilledVectorNode
         std::vector<float> m_TexCoords;
         std::vector<float> m_EffTexCoords;
         LineJoin m_LineJoin;
+
+        bool m_bPtsChanged;
 };
 
 }

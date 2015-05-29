@@ -54,7 +54,8 @@ void PolygonNode::registerType()
 }
 
 PolygonNode::PolygonNode(const ArgList& args)
-    : FilledVectorNode(args)
+    : FilledVectorNode(args),
+      m_bPtsChanged(true)
 {
     args.setMembers(this);
     if (m_TexCoords.size() > m_Pts.size()+1) {
@@ -63,6 +64,8 @@ PolygonNode::PolygonNode(const ArgList& args)
     }
     setLineJoin(args.getArgVal<string>("linejoin"));
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
+    m_bPtsChanged = true;
+    triangulate();
 }
 
 PolygonNode::~PolygonNode()
@@ -82,6 +85,7 @@ void PolygonNode::setPos(const vector<glm::vec2>& pts)
     m_EffTexCoords.clear();
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
     setDrawNeeded();
+    m_bPtsChanged = true;
 }
         
 const vector<float>& PolygonNode::getTexCoords() const
@@ -180,24 +184,27 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
 
 void PolygonNode::triangulate()
 {
-    m_TriIndexes.clear();
-    if (getNumDifferentPts(m_Pts) < 3) {
-        return;
-    }
-    // Remove duplicate points
-    Vec2Vector pts;
-    pts.reserve(m_Pts.size());
-
-    if (glm::distance2(m_Pts[0], m_Pts[m_Pts.size()-1]) > 0.1) {
-        pts.push_back(m_Pts[0]);
-    }
-    for (unsigned i = 1; i < m_Pts.size(); ++i) {
-        if (glm::distance2(m_Pts[i], m_Pts[i-1]) > 0.1) {
-            pts.push_back(m_Pts[i]);
+    if (m_bPtsChanged) {
+        m_TriIndexes.clear();
+        if (getNumDifferentPts(m_Pts) < 3) {
+            return;
         }
-    }
+        // Remove duplicate points
+        Vec2Vector pts;
+        pts.reserve(m_Pts.size());
 
-    triangulatePolygon(pts, m_TriIndexes);
+        if (glm::distance2(m_Pts[0], m_Pts[m_Pts.size()-1]) > 0.1) {
+            pts.push_back(m_Pts[0]);
+        }
+        for (unsigned i = 1; i < m_Pts.size(); ++i) {
+            if (glm::distance2(m_Pts[i], m_Pts[i-1]) > 0.1) {
+                pts.push_back(m_Pts[i]);
+            }
+        }
+
+        triangulatePolygon(pts, m_TriIndexes);
+        m_bPtsChanged = false;
+    }
 }
 
 }

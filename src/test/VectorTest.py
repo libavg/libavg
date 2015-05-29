@@ -517,6 +517,7 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         createDegenerate()
+        self.assertRaises(avg.Exception, createSelfIntersecting)
         self.assertRaises(avg.Exception,
             lambda: self.start(False,
                     (createSelfIntersecting,
