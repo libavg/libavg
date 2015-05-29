@@ -41,7 +41,7 @@ Color::Color()
 Color::Color(const std::string& s)
     : m_sOrig(s)
 {
-    int numChars;
+    int numChars = 0;
     int numItems;
     switch(s.length()) {
         case 6:
