@@ -160,7 +160,7 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
 
         // Correct for Aspect Ratio differences between main and mask texture.
         float surfaceAspect = texSize.x/texSize.y;
-        float maskAspect = maskTexSize.x/maskTexSize.y;
+        float maskAspect = m_MaskSize.x/m_MaskSize.y;
         glm::vec2 aspectCorr;
         if (maskAspect > surfaceAspect) {
             aspectCorr = glm::vec2(1, maskAspect/surfaceAspect);
