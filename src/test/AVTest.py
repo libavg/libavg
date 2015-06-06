@@ -350,6 +350,7 @@ class AVTestCase(AVGTestCase):
         def testWithFile(filename, testImgName):
             def setMask(href):
                 video.maskhref = href
+                video.masksize = (32,32)
 
             def setOpacity():
                 video.opacity = 0.5
@@ -361,7 +362,7 @@ class AVTestCase(AVGTestCase):
                     parent=root)
             video.play()
             self.start(False,
-                    (lambda: setMask("mask.png"),
+                    (lambda: setMask("mask4.png"),
                      lambda: self.compareImage(testImgName+"1"),
                      lambda: video.seekToFrame(10),
                      lambda: setMask(""),
