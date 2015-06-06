@@ -493,32 +493,18 @@ void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 void WordsNode::calcMaskCoords()
 {
-    // Calculate texture coordinates for the mask texture, normalized to
-    // the extents of the text.
-    glm::vec2 normMaskSize;
-    glm::vec2 normMaskPos;
-    glm::vec2 mediaSize = glm::vec2(getMediaSize());
-    glm::vec2 effMaskPos = getMaskPos()-glm::vec2(m_InkOffset);
-    glm::vec2 maskSize = getMaskSize();
-    
-    if (maskSize == glm::vec2(0,0)) {
-        normMaskSize = glm::vec2(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
-        normMaskPos = glm::vec2(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
+    glm::vec2 maskSize;
+    glm::vec2 nodeSize = getMediaSize();
+    if (getMaskSize() == glm::vec2(0,0)) {
+        glm::vec2 bmpSize = getMaskBmp()->getSize();
+        maskSize = glm::vec2(bmpSize.x/nodeSize.x, bmpSize.y/nodeSize.y);
     } else {
-        normMaskSize = glm::vec2(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
-        normMaskPos = glm::vec2(effMaskPos.x/getMaskSize().x, 
-                effMaskPos.y/getMaskSize().y);
+        maskSize = glm::vec2(getMaskSize().x/nodeSize.x, getMaskSize().y/nodeSize.y);
     }
-/*    
-    cerr << "calcMaskCoords" << endl;
-    cerr << "  mediaSize: " << getMediaSize() << endl;
-    cerr << "  effMaskPos: " << effMaskPos << endl;
-    cerr << "  m_AlignOffset: " << m_AlignOffset << endl;
-    cerr << "  maskSize: " << maskSize << endl;
-    cerr << "  normMaskSize: " << normMaskSize << endl;
-    cerr << "  normMaskPos: " << normMaskPos << endl;
-*/    
-    getSurface()->setMaskCoords(normMaskPos, normMaskSize);
+    glm::vec2 maskPos = getMaskPos() - glm::vec2(m_AlignOffset, 0);
+    maskPos = glm::vec2(maskPos.x/nodeSize.x, maskPos.y/nodeSize.y);
+
+    getSurface()->setMaskCoords(maskPos, maskSize);
 }
 
 static ProfilingZoneID UpdateFontProfilingZone("WordsNode: Update font");
@@ -696,6 +682,9 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         renderText();
+        if (hasMask()) {
+            calcMaskCoords();
+        }
     }
     if (m_sText.length() != 0 && isVisible()) {
         scheduleFXRender();

@@ -488,6 +488,11 @@ bool RasterNode::hasMask() const
     return m_sMaskFilename != "";
 }
 
+const BitmapPtr RasterNode::getMaskBmp() const
+{
+    return m_pMaskBmp;
+}
+
 void RasterNode::setMaskCoords()
 {
     if (m_sMaskFilename != "") {

@@ -144,7 +144,6 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
         m_pMaskMCTexture->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE4);
         // The shader maskpos param takes the position in texture coordinates (0..1) of 
         // the main texture.
-
         glm::vec2 maskPos = m_MaskPos;
         glm::vec2 maskSize = m_MaskSize;
 
@@ -152,26 +151,19 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
         //   The tex coords in the vertex array are scaled to fit the image texture. We 
         //   need to a) undo this and b) adjust for pot mask textures. In the npot case,
         //   everything evaluates to (1,1);
-        glm::vec2 texSize = glm::vec2(m_pMCTextures[0]->getGLSize());
-        glm::vec2 imgSize = glm::vec2(m_pMCTextures[0]->getSize());
+        glm::vec2 texSize = m_pMCTextures[0]->getGLSize();
+        glm::vec2 imgSize = m_pMCTextures[0]->getSize();
         glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
         maskPos = maskPos/imgScale;
         maskSize = maskSize/imgScale;
 
-        glm::vec2 maskTexSize = glm::vec2(m_pMaskMCTexture->getGLSize());
-        glm::vec2 maskImgSize = glm::vec2(m_pMaskMCTexture->getSize());
+        glm::vec2 maskTexSize = m_pMaskMCTexture->getGLSize();
+        glm::vec2 maskImgSize = m_pMaskMCTexture->getSize();
         glm::vec2 maskScale = glm::vec2(maskTexSize.x/maskImgSize.x, 
                 maskTexSize.y/maskImgSize.y);
         maskPos = maskPos*maskScale;
         maskSize = maskSize*maskScale;
-/*
-        // Special case for words nodes.
-        if (logicalSize != IntPoint(0,0)) {
-            maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 
-                    (float)logicalSize.y/m_Size.y);
-        }
-*/    
-        cerr << "shader params: " << maskPos << ", " << maskSize << endl;
+
         pShader->setMask(true, maskPos, maskSize);
     } else {
         pShader->setMask(false);
@@ -182,7 +174,6 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
 void OGLSurface::setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize)
 {
     // Mask coords are normalized to 0..1 over the main image size.
-    cerr << "setMaskCoords: " << maskPos << ", " << maskSize << endl;
     m_MaskPos = maskPos;
     m_MaskSize = maskSize;
     m_bIsDirty = true;
