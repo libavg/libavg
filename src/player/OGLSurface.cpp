@@ -145,6 +145,10 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
         // The shader maskpos param takes the position in texture coordinates (0..1) of 
         // the main texture.
 
+        glm::vec2 maskPos = m_MaskPos;
+        glm::vec2 maskSize = m_MaskSize;
+        cerr << "shader params: " << maskPos << ", " << maskSize << endl;
+/*
         // Special case for pot textures: 
         //   The tex coords in the vertex array are scaled to fit the image texture. We 
         //   need to undo this and fit to the mask texture. In the npot case, everything
@@ -157,9 +161,9 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
                 maskTexSize.y/maskImgSize.y);
         glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
         glm::vec2 maskPos = m_MaskPos/maskScale;
-
+*/
         // Correct for Aspect Ratio differences between main and mask texture.
-        float surfaceAspect = texSize.x/texSize.y;
+/*        float surfaceAspect = texSize.x/texSize.y;
         float maskAspect = m_MaskSize.x/m_MaskSize.y;
         glm::vec2 aspectCorr;
         if (maskAspect > surfaceAspect) {
@@ -168,13 +172,15 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
             aspectCorr = glm::vec2(surfaceAspect/maskAspect, 1);
         }
         maskPos *= aspectCorr;
-
+*/
+/*
         // Special case for words nodes.
         if (logicalSize != IntPoint(0,0)) {
             maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 
                     (float)logicalSize.y/m_Size.y);
         }
-        pShader->setMask(true, maskPos, m_MaskSize*maskScale/imgScale);
+*/    
+        pShader->setMask(true, maskPos, maskSize);
     } else {
         pShader->setMask(false);
     }
@@ -183,6 +189,8 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
 
 void OGLSurface::setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize)
 {
+    // Mask coords are normalized to 0..1 over the main image size.
+    cerr << "setMaskCoords: " << maskPos << ", " << maskSize << endl;
     m_MaskPos = maskPos;
     m_MaskSize = maskSize;
     m_bIsDirty = true;

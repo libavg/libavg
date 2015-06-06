@@ -482,89 +482,48 @@ class ImageTestCase(AVGTestCase):
                 (lambda: self.compareImage("testImgMaskCanvas"),))
 
     def testImageMaskPos(self):
-        def createNode(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), maskpos=(32, 32))
-            root.appendChild(node)
-            
-        def setNoAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
-            node.maskpos = (32, 32)
-            root.appendChild(node)
+        def createMaskPos():
+            self.img1 = avg.ImageNode(href="rgb24-64x64.png", maskhref="mask4.png",
+                    parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x64.png",
+                    maskhref="mask4.png", maskpos=(32,0), parent=root)
 
-        def setAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
-            root.appendChild(node)
-            node.maskpos = (32, 32)
+        def createNodeSize(): 
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(size=(80,80), href="rgb24-64x64.png",
+                    maskhref="mask4.png", parent=root)
+            self.img2 = avg.ImageNode(pos=(80,0), size=(80,80), href="rgb24-64x64.png",
+                    maskhref="mask4.png", maskpos=(40,0), parent=root)
 
-        def rectMask():
-            for i in range(1, root.getNumChildren()):
-                root.getChild(1).unlink(True)
-            node = root.getChild(0)
-            node.size = (65, 65)
-            node.maskhref = "mask3.png"
-            node.maskpos = (0, 0)
-            node.masksize = (64, 48)
+        def createMaskSize():
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(href="rgb24-64x64.png", maskhref="mask4.png",
+                    masksize=(32,32), parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x64.png",
+                    maskhref="mask4.png", maskpos=(32,0), masksize=(32,32), parent=root)
 
-        def rectMaskPos():
-            node = root.getChild(0)
-            node.maskpos = (0, 16)
+        def createNPOT():
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask4.png",
+                    parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), size=(80,80), href="rgb24-65x65.png", 
+                    maskhref="mask4.png", maskpos=(40,0), masksize=(40,40), parent=root)
 
         root = self.loadEmptyScene()
-        createNode((0,0))
-        setNoAttach((32,0))
-        setAttach((64,0))
+        createMaskPos();
         self.start(False,
-                (lambda: createNode((0, 32)),
-                 lambda: setNoAttach((32,32)),
-                 lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskPos1"),
-                 rectMask,
+                (lambda: self.compareImage("testImgMaskPos1"),
+                 createNodeSize,
                  lambda: self.compareImage("testImgMaskPos2"),
-                 rectMaskPos,
+                 createMaskSize,
                  lambda: self.compareImage("testImgMaskPos3"),
+                 createNPOT,
+                 lambda: self.compareImage("testImgMaskPos4")
                 ))
 
-    def testImageMaskSize(self):
-        def createNode(p):
-            avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), masksize=(48, 48), parent=root)
-            
-        def setNoAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
-            node.masksize = (48, 48)
-            root.appendChild(node)
-
-        def setAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), parent=root)
-            node.masksize = (48, 48)
-
-        def setPos():
-            node.maskpos = (16, 16)
-
-        def resetPos():
-            node.maskpos = (0, 0)
-            node.masksize = (0, 0)
-
-        root = self.loadEmptyScene()
-        createNode((0,0))
-        node = root.getChild(0)
-        setNoAttach((32,0))
-        setAttach((64,0))
-        self.start(False,
-                (lambda: createNode((0, 32)),
-                 lambda: setNoAttach((32,32)),
-                 lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskSize1"),
-                 setPos,
-                 lambda: self.compareImage("testImgMaskSize2"),
-                 resetPos,
-                 lambda: self.compareImage("testImgMaskSize3")
-                ))
 
     def testImageMipmap(self):
         root = self.loadEmptyScene()

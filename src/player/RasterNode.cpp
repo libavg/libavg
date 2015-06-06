@@ -498,13 +498,13 @@ void RasterNode::setMaskCoords()
 void RasterNode::calcMaskCoords()
 {
     glm::vec2 maskSize;
-    glm::vec2 mediaSize = glm::vec2(getMediaSize());
     if (m_MaskSize == glm::vec2(0,0)) {
-        maskSize = glm::vec2(1,1);
+        glm::vec2 bmpSize = m_pMaskBmp->getSize();
+        maskSize = glm::vec2(bmpSize.x/getSize().x, bmpSize.y/getSize().y);
     } else {
-        maskSize = glm::vec2(m_MaskSize.x/mediaSize.x, m_MaskSize.y/mediaSize.y);
+        maskSize = glm::vec2(m_MaskSize.x/getSize().x, m_MaskSize.y/getSize().y);
     }
-    glm::vec2 maskPos = glm::vec2(m_MaskPos.x/mediaSize.x, m_MaskPos.y/mediaSize.y);
+    glm::vec2 maskPos = glm::vec2(m_MaskPos.x/getSize().x, m_MaskPos.y/getSize().y);
     m_pSurface->setMaskCoords(maskPos, maskSize);
 }
 
