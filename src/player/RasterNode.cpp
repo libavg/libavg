@@ -535,7 +535,8 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
 void RasterNode::newSurface()
 {
     if (m_pSurface->isCreated()) {
-        m_bHasStdVertices = !(m_pSurface->getPixelFormat() == A8);
+        m_bHasStdVertices = !(m_pSurface->getPixelFormat() == A8) &&
+                !GLContext::getCurrent()->usePOTTextures();
         if (m_bHasStdVertices) {
             m_pSubVA = &(getCanvas()->getStdSubVA());
         } else {
