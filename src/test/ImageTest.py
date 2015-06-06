@@ -520,6 +520,14 @@ class ImageTestCase(AVGTestCase):
             self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x64.png",
                     maskhref="mask3.png", maskpos=(16,0), masksize=(32,32), parent=root)
 
+        def createRectImg():
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(href="rgb24-64x32.png", maskhref="mask4.png",
+                    masksize=(32,32), parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x32.png",
+                    maskhref="mask4.png", maskpos=(16,0), masksize=(32,32), parent=root)
+
 
         root = self.loadEmptyScene()
         createMaskPos();
@@ -532,7 +540,9 @@ class ImageTestCase(AVGTestCase):
                  createNPOT,
                  lambda: self.compareImage("testImgMaskPos4"),
                  createRectMask,
-                 lambda: self.compareImage("testImgMaskPos5")
+                 lambda: self.compareImage("testImgMaskPos5"),
+                 createRectImg,
+                 lambda: self.compareImage("testImgMaskPos6")
                 ))
 
 

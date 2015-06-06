@@ -162,17 +162,6 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
         glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
         glm::vec2 maskPos = m_MaskPos/maskScale;
 */
-        // Correct for Aspect Ratio differences between main and mask texture.
-/*        float surfaceAspect = texSize.x/texSize.y;
-        float maskAspect = m_MaskSize.x/m_MaskSize.y;
-        glm::vec2 aspectCorr;
-        if (maskAspect > surfaceAspect) {
-            aspectCorr = glm::vec2(1, maskAspect/surfaceAspect);
-        } else {
-            aspectCorr = glm::vec2(surfaceAspect/maskAspect, 1);
-        }
-        maskPos *= aspectCorr;
-*/
 /*
         // Special case for words nodes.
         if (logicalSize != IntPoint(0,0)) {
