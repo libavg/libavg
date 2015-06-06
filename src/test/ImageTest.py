@@ -432,19 +432,21 @@ class ImageTestCase(AVGTestCase):
 
     def testImageMask(self):
         def createNode(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
+            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask4.png",
+                    pos=p, size=(32, 32), masksize=(32,32))
             root.appendChild(node)
 
         def setNoAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32))
-            node.maskhref = "mask.png"
+            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
+                    masksize=(32,32))
+            node.maskhref = "mask4.png"
             root.appendChild(node)
 
         def setAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32))
+            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
+                    masksize=(32,32))
             root.appendChild(node)
-            node.maskhref = "mask.png"
+            node.maskhref = "mask4.png"
 
         def changeHRef():
             node.maskhref = "mask2.png" 
@@ -477,7 +479,7 @@ class ImageTestCase(AVGTestCase):
         canvas = player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
         avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
         avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
-        avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
+        avg.ImageNode(href="canvas:testcanvas", maskhref="mask4.png", parent=root)
         self.start(False,
                 (lambda: self.compareImage("testImgMaskCanvas"),))
 
@@ -607,7 +609,6 @@ def imageTestSuite(tests):
             "testImageMask",
             "testImageMaskCanvas",
             "testImageMaskPos",
-            "testImageMaskSize",
             "testImageMipmap",
             "testImageCompression",
             "testSpline",
