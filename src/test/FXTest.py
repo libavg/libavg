@@ -413,13 +413,14 @@ class FXTestCase(AVGTestCase):
             node.href = "colorramp.png"
 
         def addMaskTex():
-            node.maskhref = "mask.png"
+            node.maskhref = "mask4.png"
+            node.masksize = (32,32)
 
         def changeMaskTex():
             node.maskhref = "mask2.png"
 
         def changeMaskPos():
-            node.maskpos = (10, 10)
+            node.maskpos = (32,32)
 
         def changeFX():
             effect.radius = 2
