@@ -110,6 +110,7 @@ class AVG_API RasterNode: public AreaNode
 
         virtual OGLSurface * getSurface();
         bool hasMask() const;
+        const BitmapPtr getMaskBmp() const;
         void setMaskCoords();
         void setRenderColor(const Pixel32& color);
 
