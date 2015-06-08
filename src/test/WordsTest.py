@@ -197,11 +197,19 @@ class WordsTestCase(AVGTestCase):
     def testWordsMask(self):
         def setMask():
             try:
-                node.maskhref = "mask1.png"
+                node.maskhref = "mask4.png"
+                self.rect = avg.RectNode(pos=(0.5, 0.5), size=(64, 64), parent=root)
             except avg.Exception:
                 self.skip("no shader support")
                 player.stop()
-           
+
+        def setPos():
+            self.rect.unlink()
+            node.maskpos = (40, 40)
+            node.masksize = (80, 60)
+            avg.RectNode(pos=(39.5, 39.5), size=(80, 60), parent=root)
+            avg.RectNode(pos=(0.5, 0.5), size=(159, 100), parent=root)
+
         def setColor():
             node.color = "FFFF00"
             self.assertEqual(node.color, "FFFF00")
@@ -211,24 +219,11 @@ class WordsTestCase(AVGTestCase):
         def setOpacity():
             node.opacity = 0.5
 
-        def setSize():
-            rect = avg.RectNode(pos=(39.5, 30.5), size=(80, 60))
-            root.appendChild(rect)
-            node.masksize = (160, 120)
-            node.opacity = 1 
-
-        def setPos():
-            node.pos = (40, 20)
-            node.maskpos = (-40, -20)
-
-        def setDefaultSize():
-            node.masksize = (0,0)
-
         def setCentered():
             node.alignment = "center"
-            node.masksize = (160, 120)
-            node.pos = (80,20)
-            node.maskpos = (0, -20)
+            node.pos = (80, 0)
+            node.maskpos = (-40, 40)
+            node.masksize = (80, 60)
 
         root = self.loadEmptyScene()
         node = avg.WordsNode(fontsize=8, linespacing=-4, font="Bitstream Vera Sans",
@@ -246,18 +241,14 @@ class WordsTestCase(AVGTestCase):
         self.start(True,
                 (setMask,
                  lambda: self.compareImage("testWordsMask1"),
-                 setColor,
-                 lambda: self.compareImage("testWordsMask2"),
-                 setOpacity,
-                 lambda: self.compareImage("testWordsMask3"),
-                 setSize,
-                 lambda: self.compareImage("testWordsMask4"),
                  setPos,
-                 lambda: self.compareImage("testWordsMask5"),
-                 setDefaultSize,
-                 lambda: self.compareImage("testWordsMask6"),
+                 lambda: self.compareImage("testWordsMask2"),
+                 setColor,
+                 lambda: self.compareImage("testWordsMask3"),
+                 setOpacity,
+                 lambda: self.compareImage("testWordsMask4"),
                  setCentered,
-                 lambda: self.compareImage("testWordsMask7"),
+                 lambda: self.compareImage("testWordsMask5"),
                 ))
 
     def testHinting(self):

@@ -144,37 +144,27 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
         m_pMaskMCTexture->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE4);
         // The shader maskpos param takes the position in texture coordinates (0..1) of 
         // the main texture.
+        glm::vec2 maskPos = m_MaskPos;
+        glm::vec2 maskSize = m_MaskSize;
 
         // Special case for pot textures: 
         //   The tex coords in the vertex array are scaled to fit the image texture. We 
-        //   need to undo this and fit to the mask texture. In the npot case, everything
-        //   evaluates to (1,1);
-        glm::vec2 texSize = glm::vec2(m_pMCTextures[0]->getGLSize());
-        glm::vec2 imgSize = glm::vec2(m_pMCTextures[0]->getSize());
-        glm::vec2 maskTexSize = glm::vec2(m_pMaskMCTexture->getGLSize());
-        glm::vec2 maskImgSize = glm::vec2(m_pMaskMCTexture->getSize());
+        //   need to a) undo this and b) adjust for pot mask textures. In the npot case,
+        //   everything evaluates to (1,1);
+        glm::vec2 texSize = m_pMCTextures[0]->getGLSize();
+        glm::vec2 imgSize = m_pMCTextures[0]->getSize();
+        glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
+        maskPos = maskPos/imgScale;
+        maskSize = maskSize/imgScale;
+
+        glm::vec2 maskTexSize = m_pMaskMCTexture->getGLSize();
+        glm::vec2 maskImgSize = m_pMaskMCTexture->getSize();
         glm::vec2 maskScale = glm::vec2(maskTexSize.x/maskImgSize.x, 
                 maskTexSize.y/maskImgSize.y);
-        glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
-        glm::vec2 maskPos = m_MaskPos/maskScale;
+        maskPos = maskPos*maskScale;
+        maskSize = maskSize*maskScale;
 
-        // Correct for Aspect Ratio differences between main and mask texture.
-        float surfaceAspect = texSize.x/texSize.y;
-        float maskAspect = maskTexSize.x/maskTexSize.y;
-        glm::vec2 aspectCorr;
-        if (maskAspect > surfaceAspect) {
-            aspectCorr = glm::vec2(1, maskAspect/surfaceAspect);
-        } else {
-            aspectCorr = glm::vec2(surfaceAspect/maskAspect, 1);
-        }
-        maskPos *= aspectCorr;
-
-        // Special case for words nodes.
-        if (logicalSize != IntPoint(0,0)) {
-            maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 
-                    (float)logicalSize.y/m_Size.y);
-        }
-        pShader->setMask(true, maskPos, m_MaskSize*maskScale/imgScale);
+        pShader->setMask(true, maskPos, maskSize);
     } else {
         pShader->setMask(false);
     }
@@ -183,6 +173,7 @@ void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) cons
 
 void OGLSurface::setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize)
 {
+    // Mask coords are normalized to 0..1 over the main image size.
     m_MaskPos = maskPos;
     m_MaskSize = maskSize;
     m_bIsDirty = true;
