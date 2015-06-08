@@ -36,6 +36,9 @@
 #include "../base/StringHelper.h"
 
 #include "../graphics/GLContext.h"
+#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
+#include "../graphics/GLXContext.h"
+#endif
 #include "../graphics/GLContextManager.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
@@ -171,7 +174,7 @@ void Window::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
 #if defined(__linux__) && !defined(AVG_ENABLE_EGL)
-    m_pGLContext->swapBuffers();
+    dynamic_cast<GLXContext *>(m_pGLContext)->swapBuffers();
 #else
     SDL_GL_SwapWindow(m_pSDLWindow);
 #endif
