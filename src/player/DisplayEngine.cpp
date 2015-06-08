@@ -102,8 +102,6 @@ DisplayEngine::DisplayEngine()
       m_EffFramerate(0)
 {
 //    _Xdebug = 1;
-    initSDL();
-
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
