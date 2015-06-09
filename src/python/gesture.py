@@ -153,6 +153,8 @@ class Recognizer(avg.Publisher):
         nodeGone = self._handleNodeGone()
         if event.contact and not(nodeGone):
             self.__dirty = True
+            del self.__moveHandlerID[event.contact]
+            del self.__upHandlerID[event.contact]
             self._contacts.remove(event.contact)
             if len(self._contacts) == 0:
                 player.unsubscribe(player.ON_FRAME, self.__frameHandlerID)
