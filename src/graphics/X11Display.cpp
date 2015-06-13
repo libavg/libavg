@@ -42,43 +42,20 @@ X11Display::~X11Display()
  
 float X11Display::queryPPMM()
 {
-    ::Display * pDisplay = getX11Display(0);
+    ::Display * pDisplay = getX11Display();
     float ppmm = getScreenResolution().x/float(DisplayWidthMM(pDisplay, 0));
     XCloseDisplay(pDisplay);
     return ppmm;
 }
 
-::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo)
+::Display* getX11Display()
 {
     ::Display* pDisplay;
-    if (pSDLWMInfo) {
-        // SDL window exists, use it.
-        pDisplay = pSDLWMInfo->info.x11.display;
-    } else {
-        pDisplay = XOpenDisplay(0);
-    }
+    pDisplay = XOpenDisplay(0);
     if (!pDisplay) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Could not open X11 display.");
     }
     return pDisplay;
-}
-
-Window createChildWindow(const SDL_SysWMinfo* pSDLWMInfo, XVisualInfo* pVisualInfo,
-        const IntPoint& windowSize, const Colormap& colormap)
-
-{
-    // Create a child window with the required attributes to render into.
-    XSetWindowAttributes swa;
-    ::Display* pDisplay = pSDLWMInfo->info.x11.display;
-    swa.colormap = colormap;
-    swa.background_pixmap = None;
-    swa.event_mask = StructureNotifyMask; 
-    Window win = XCreateWindow(pDisplay, pSDLWMInfo->info.x11.window, 
-            0, 0, windowSize.x, windowSize.y, 0, pVisualInfo->depth, InputOutput, 
-            pVisualInfo->visual, CWColormap|CWEventMask, &swa);
-    AVG_ASSERT(win);
-    XMapWindow(pDisplay, win);
-    return win;
 }
 
 }

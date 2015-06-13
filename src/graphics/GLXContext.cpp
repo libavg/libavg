@@ -147,8 +147,7 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
         setCurrent();
     } else { 
         setX11ErrorHandler();
-        XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(0),
-                glConfig);
+        XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(), glConfig);
         m_bOwnsDisplay = true;
 
         Pixmap pmp = XCreatePixmap(getDisplay(), 

@@ -32,8 +32,6 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/xf86vmode.h>
 
-struct SDL_SysWMinfo;
-
 namespace avg {
 
 class AVG_API X11Display: public Display
@@ -44,13 +42,9 @@ public:
  
 protected:
     virtual float queryPPMM();
-//    virtual IntPoint queryScreenResolution();
 };
 
-::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo);
-
-Window createChildWindow(const SDL_SysWMinfo* pSDLWMInfo, XVisualInfo* pVisualInfo,
-        const IntPoint& windowSize, const Colormap& colormap);
+::Display* getX11Display();
 
 }
 #endif

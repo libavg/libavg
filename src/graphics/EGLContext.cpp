@@ -79,7 +79,7 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     m_xDisplay = (EGLNativeDisplayType)getBCMDisplay();
     m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #else
-    m_xDisplay = (EGLNativeDisplayType)getX11Display(0);
+    m_xDisplay = (EGLNativeDisplayType)getX11Display();
     m_Display = eglGetDisplay(m_xDisplay);
 #endif
     checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
