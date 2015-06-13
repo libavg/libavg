@@ -48,19 +48,6 @@ float BCMDisplay::queryPPMM()
     return 40;
 }
 
-IntPoint BCMDisplay::queryScreenResolution()
-{
-    // TODO: Move to base class?
-    return IntPoint(1920,1080);
-}
-
-float BCMDisplay::queryRefreshRate()
-{
-    // TODO
-    return 60;
-}
-
-
 
 DISPMANX_DISPLAY_HANDLE_T getBCMDisplay()
 {

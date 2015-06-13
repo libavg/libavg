@@ -39,8 +39,6 @@ public:
  
 protected:
     virtual float queryPPMM();
-    virtual IntPoint queryScreenResolution();
-    virtual float queryRefreshRate();
 };
 
 DISPMANX_DISPLAY_HANDLE_T getBCMDisplay();
