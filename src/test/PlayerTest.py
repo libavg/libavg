@@ -846,6 +846,14 @@ class PlayerTestCase(AVGTestCase):
         self.assertRaises(avg.Exception, lambda: avg.validateXml(brokenXml, schema,
                 "shiporder.xml", "shiporder.xsd"))
 
+    def testSetWindowTitle(self):
+        self.__initDefaultScene()
+        player.setWindowTitle("title1")
+        self.start(False,
+                (lambda: self.assertRaises(avg.Exception,
+                        lambda: player.setWindowTitle("title2")),
+                ))
+
     # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):
         def revertWindowFrame():
@@ -914,6 +922,7 @@ def playerTestSuite(tests):
             "testSVG",
             "testGetConfigOption",
             "testValidateXml",
+            "testSetWindowTitle",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

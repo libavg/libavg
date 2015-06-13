@@ -64,7 +64,6 @@ class AVG_API DisplayEngine: public InputDevice
         void setGamma(float Red, float Green, float Blue);
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
-        void setWindowTitle(const std::string& sTitle);
     
         unsigned getNumWindows() const;
         const WindowPtr getWindow(unsigned i) const;
@@ -88,6 +87,7 @@ class AVG_API DisplayEngine: public InputDevice
     private:
         std::vector<WindowPtr> m_pWindows;
         IntPoint m_Size;
+        std::string m_sWindowTitle;
 
         float m_Gamma[3];
         int m_NumFrames;

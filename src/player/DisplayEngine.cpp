@@ -253,11 +253,6 @@ int DisplayEngine::getKeyModifierState() const
     return SDL_GetModState();
 }
 
-void DisplayEngine::setWindowTitle(const string& sTitle)
-{
-    throw Exception(AVG_ERR_UNSUPPORTED, "setWindowTitle not implemented");
-}
-
 unsigned DisplayEngine::getNumWindows() const
 {
     return m_pWindows.size();

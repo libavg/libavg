@@ -41,6 +41,7 @@ struct AVG_API WindowParams {
     IntRect m_Viewport;
     int m_DisplayServer;
     bool m_bHasWindowFrame;
+    std::string m_sTitle;
 };
 
 }

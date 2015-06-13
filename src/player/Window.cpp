@@ -114,8 +114,8 @@ Window::Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfi
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
-        m_pSDLWindow = SDL_CreateWindow("libavg", m_Pos.x, m_Pos.y, m_Size.x, m_Size.y,
-                flags);
+        m_pSDLWindow = SDL_CreateWindow(wp.m_sTitle.c_str(), m_Pos.x, m_Pos.y,
+                m_Size.x, m_Size.y, flags);
         if (m_pSDLWindow) {
             m_SDLGLContext = SDL_GL_CreateContext(m_pSDLWindow);
         } else {

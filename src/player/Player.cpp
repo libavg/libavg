@@ -250,7 +250,9 @@ void Player::setWindowPos(int x, int y)
 
 void Player::setWindowTitle(const string& sTitle)
 {
-    m_pDisplayEngine->setWindowTitle(sTitle);
+    errorIfPlaying("Player.setWindowTitle");
+    WindowParams& wp = m_DP.getWindowParams(0);
+    wp.m_sTitle = sTitle;
 }
 
 void Player::setWindowConfig(const string& sFileName)
