@@ -124,14 +124,6 @@ glm::vec2 Display::getPhysicalScreenDimensions()
     return size;
 }
 
-IntPoint Display::queryScreenResolution()
-{
-    SDL_DisplayMode mode;
-    int err = SDL_GetCurrentDisplayMode(0, &mode);
-    AVG_ASSERT(err == 0);
-    return IntPoint(mode.w, mode.h);
-}
-
 float Display::getRefreshRate()
 {
     if (m_RefreshRate == 0.0) {
@@ -140,6 +132,14 @@ float Display::getRefreshRate()
                 "Vertical Refresh Rate: " << m_RefreshRate);
     }
     return m_RefreshRate;
+}
+
+IntPoint Display::queryScreenResolution()
+{
+    SDL_DisplayMode mode;
+    int err = SDL_GetCurrentDisplayMode(0, &mode);
+    AVG_ASSERT(err == 0);
+    return IntPoint(mode.w, mode.h);
 }
 
 }
