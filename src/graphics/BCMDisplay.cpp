@@ -48,18 +48,6 @@ float BCMDisplay::queryPPMM()
     return 40;
 }
 
-
-DISPMANX_DISPLAY_HANDLE_T getBCMDisplay()
-{
-    bcm_host_init();
-
-    DISPMANX_DISPLAY_HANDLE_T display = vc_dispmanx_display_open(DISPMANX_ID_MAIN_LCD);
-    if (display == DISPMANX_NO_HANDLE) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "No BCM display available.");
-    }
-    return display;
-}
-
 EGLSurface createBCMPixmapSurface(EGLDisplay display, EGLConfig config)
 {
     EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;

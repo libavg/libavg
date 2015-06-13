@@ -76,7 +76,6 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     m_bOwnsContext = true;
 
 #ifdef AVG_ENABLE_RPI
-    m_xDisplay = (EGLNativeDisplayType)getBCMDisplay();
     m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 #else
     m_xDisplay = (EGLNativeDisplayType)getX11Display();
