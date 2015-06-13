@@ -103,6 +103,9 @@ Window::Window(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfi
     if (glConfig.m_bGLES) {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     }
+    if (glConfig.m_bUseDebugContext) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+    }
 
     setEnv("DISPLAY", ":0."+toString(wp.m_DisplayServer));
     while (glConfig.m_MultiSampleSamples && !m_SDLGLContext) {
