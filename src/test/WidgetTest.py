@@ -880,7 +880,7 @@ def widgetTestSuite(tests):
     availableTests = (
         "testKeyboard",
         "testTextArea",
-        "testFocusContext",
+#        "testFocusContext",
         "testButton",
         "testTextButton",
         "testToggleButton",
