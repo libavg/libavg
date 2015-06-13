@@ -48,44 +48,6 @@ float X11Display::queryPPMM()
     return ppmm;
 }
 
-IntPoint X11Display::queryScreenResolution()
-{
-    IntPoint size;
-    // Xinerama query has been removed from here in order to fix #431
-    ::Display * pDisplay = getX11Display(0);
-
-    Screen* pScreen = DefaultScreenOfDisplay(pDisplay);
-    AVG_ASSERT(pScreen);
-    size = IntPoint(pScreen->width, pScreen->height);
-
-    XCloseDisplay(pDisplay);
-    return size;
-}
-
-float X11Display::queryRefreshRate()
-{
-    ::Display * pDisplay = getX11Display(0);
-    int pixelClock;
-    XF86VidModeModeLine modeLine;
-    bool bOK = XF86VidModeGetModeLine(pDisplay, DefaultScreen(pDisplay), 
-            &pixelClock, &modeLine);
-    if (!bOK) {
-        AVG_LOG_INFO(
-                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_LOG_INFO("Defaulting to 60 Hz refresh rate.");
-        return 60;
-    }
-    float hSyncRate = (pixelClock * 1000.0) / modeLine.htotal;
-    float refreshRate = hSyncRate / modeLine.vtotal;
-    XCloseDisplay(pDisplay);
-    if ( refreshRate < 20 || refreshRate > 200 || !(boost::math::isnormal(refreshRate))){
-        AVG_LOG_INFO("Could not get valid refresh rate");
-        AVG_LOG_INFO("Defaulting to 60 Hz refresh rate.");
-        return 60;
-    }
-    return refreshRate;
-}
-
 ::Display* getX11Display(const SDL_SysWMinfo* pSDLWMInfo)
 {
     ::Display* pDisplay;

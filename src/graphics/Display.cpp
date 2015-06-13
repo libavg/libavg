@@ -37,8 +37,6 @@
 
 #include "../base/Logger.h"
 
-#include <SDL2/SDL.h>
-
 #include <iostream>
 
 using namespace std;
@@ -75,7 +73,7 @@ bool Display::isInitialized()
 
 Display::Display()
     : m_bAutoPPMM(true),
-      m_RefreshRate(0.0f)
+      m_RefreshRate(0)
 {
 }
 
@@ -85,13 +83,13 @@ Display::~Display()
 
 void Display::init()
 {
-    m_ScreenResolution = queryScreenResolution();
+    queryScreenResolution();
     m_PPMM = queryPPMM();
 }
 
 void Display::rereadScreenResolution()
 {
-    m_ScreenResolution = queryScreenResolution();
+    queryScreenResolution();
     if (m_bAutoPPMM) {
         m_PPMM = queryPPMM();
     }
@@ -99,7 +97,7 @@ void Display::rereadScreenResolution()
 
 IntPoint Display::getScreenResolution()
 {
-    return m_ScreenResolution;
+    return IntPoint(m_DisplayMode.w, m_DisplayMode.h);
 }
 
 float Display::getPixelsPerMM()
@@ -126,20 +124,25 @@ glm::vec2 Display::getPhysicalScreenDimensions()
 
 float Display::getRefreshRate()
 {
-    if (m_RefreshRate == 0.0) {
-        m_RefreshRate = queryRefreshRate();
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "Vertical Refresh Rate: " << m_RefreshRate);
+    if (m_RefreshRate == 0) {
+        queryScreenResolution();
+        m_RefreshRate = m_DisplayMode.refresh_rate;
+        if (m_RefreshRate == 0) {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Could not get current refresh rate. Defaulting to 60 Hz");
+            m_RefreshRate = 60;
+        } else {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Vertical Refresh Rate: " << m_RefreshRate);
+        }
     }
-    return m_RefreshRate;
+    return m_DisplayMode.refresh_rate;
 }
 
-IntPoint Display::queryScreenResolution()
+void Display::queryScreenResolution()
 {
-    SDL_DisplayMode mode;
-    int err = SDL_GetCurrentDisplayMode(0, &mode);
+    int err = SDL_GetCurrentDisplayMode(0, &m_DisplayMode);
     AVG_ASSERT(err == 0);
-    return IntPoint(mode.w, mode.h);
 }
 
 }
