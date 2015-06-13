@@ -51,11 +51,11 @@ class EventTestCase(AVGTestCase):
 
     def testKeyEvents(self):
         def onKeyDown(event):
-            if event.keystring == 'A' and event.keycode == 65:
+            if event.keystring == 'A' and event.text == "A":
                 self.keyDownCalled = True
         
         def onKeyUp(event):
-            if event.keystring == 'A' and event.keycode == 65:
+            if event.keystring == 'A':
                 self.keyUpCalled = True
        
         def onSubscribeKeyDown(event):
@@ -70,11 +70,11 @@ class EventTestCase(AVGTestCase):
         player.subscribe(avg.Player.KEY_DOWN, onSubscribeKeyDown)
         player.subscribe(avg.Player.KEY_UP, onSubscribeKeyUp)
         self.start(False,
-                (lambda: Helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, 65, "A",
-                        avg.KEYMOD_NONE),
+                (lambda: Helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, "A",
+                        avg.KEYMOD_NONE, "A"),
                  lambda: self.assert_(self.keyDownCalled and self.subscribeKeyDownCalled),
-                 lambda: Helper.fakeKeyEvent(avg.Event.KEY_UP, 65, 65, "A",
-                        avg.KEYMOD_NONE),
+                 lambda: Helper.fakeKeyEvent(avg.Event.KEY_UP, 65, "A",
+                        avg.KEYMOD_NONE, ""),
                  lambda: self.assert_(self.keyUpCalled and self.subscribeKeyUpCalled)
                 ))
 
@@ -821,12 +821,12 @@ class EventTestCase(AVGTestCase):
         self.start(False,
                 (lambda: self.fakeClick(10, 10),
                  lambda: self.assert_(self.ehookMouseEvent),
-                 lambda: Helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, 65, "A", 0),
+                 lambda: Helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, "A", 0, "A"),
                  lambda: self.assert_(self.ehookKeyboardEvent),
                  cleanup,
                  lambda: self.fakeClick(10, 10),
                  lambda: self.assert_(not self.ehookMouseEvent),
-                 lambda: Helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, 65, "A", 0),
+                 lambda: Helper.fakeKeyEvent(avg.Event.KEY_DOWN, 65, "A", 0, "A"),
                  lambda: self.assert_(not self.ehookKeyboardEvent),
                 ))
         

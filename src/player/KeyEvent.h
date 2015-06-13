@@ -31,12 +31,13 @@ namespace avg {
 
 class AVG_API KeyEvent : public Event {
     public:
-        KeyEvent(Type eventType, int scanCode, int keyCode, 
-                const std::string& keyString, int modifiers);
+        KeyEvent(Type eventType, int scanCode, const std::string& sKeyString,
+                int modifiers);
         virtual ~KeyEvent();
 
         unsigned char getScanCode() const;
-        int getKeyCode() const;
+        void setText(const std::string& sText);
+        std::string getText() const;
         const std::string& getKeyString() const;
         int getModifiers() const;
 
@@ -44,8 +45,8 @@ class AVG_API KeyEvent : public Event {
 
     private: 
         int m_ScanCode; 
-        int m_KeyCode;
-        std::string m_KeyString;
+        std::string m_sText;
+        std::string m_sKeyString;
         int m_Modifiers;
 };
 

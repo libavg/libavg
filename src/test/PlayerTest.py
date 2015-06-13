@@ -718,10 +718,10 @@ class PlayerTestCase(AVGTestCase):
         def pressEscape():
             Helper = player.getTestHelper()
             escape = 27
-            Helper.fakeKeyEvent(avg.Event.KEY_DOWN, escape, escape, "escape",
-                    avg.KEYMOD_NONE),
-            Helper.fakeKeyEvent(avg.Event.KEY_UP, escape, escape, "escape",
-                    avg.KEYMOD_NONE),
+            Helper.fakeKeyEvent(avg.Event.KEY_DOWN, escape, "escape",
+                    avg.KEYMOD_NONE, ""),
+            Helper.fakeKeyEvent(avg.Event.KEY_UP, escape, "escape",
+                    avg.KEYMOD_NONE, ""),
         
         def testEscape1():
             player.stopOnEscape(False)

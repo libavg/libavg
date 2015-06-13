@@ -29,13 +29,11 @@ using namespace std;
 
 namespace avg {
 
-KeyEvent::KeyEvent(Type eventType, int scanCode, int keyCode,
-                const string& keyString, int modifiers)
+KeyEvent::KeyEvent(Type eventType, int scanCode, const string& sKeyString, int modifiers)
     : Event(eventType)
 {
     m_ScanCode = scanCode;
-    m_KeyCode = keyCode;
-    m_KeyString = keyString;
+    m_sKeyString = sKeyString;
     m_Modifiers = modifiers;
 }
 
@@ -48,14 +46,20 @@ unsigned char KeyEvent::getScanCode() const
     return m_ScanCode;
 }
 
-int KeyEvent::getKeyCode() const
+void KeyEvent::setText(const string& sText)
 {
-    return m_KeyCode;
+    AVG_ASSERT(getType() == KEY_DOWN);
+    m_sText = sText;
+}
+
+string KeyEvent::getText() const
+{
+    return m_sText;
 }
 
 const std::string& KeyEvent::getKeyString() const
 {
-    return m_KeyString;
+    return m_sKeyString;
 }
 
 int KeyEvent::getModifiers() const
@@ -67,8 +71,8 @@ void KeyEvent::trace()
 {
     Event::trace();
     AVG_TRACE(Logger::category::EVENTS, Logger::severity::DEBUG,
-            "Scancode: " << m_ScanCode << ", Keycode: " << m_KeyCode << ", KeyString: " 
-            << m_KeyString << ", Modifiers: " << m_Modifiers);
+            "Scancode: " << m_ScanCode << ", Text: " << m_sText << ", KeyString: "
+            << m_sKeyString << ", Modifiers: " << m_Modifiers);
 }
 
 }

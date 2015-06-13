@@ -111,7 +111,7 @@ class FocusContext(object):
 
     def keyCharPressed(self, kchar):
         """
-        Inject an utf-8 encoded characted into the flow
+        Inject a utf-8 encoded characted into the flow
 
         Shift a character (Unicode keycode) into the active (w/focus) TextArea
         @type kchar: string

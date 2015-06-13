@@ -212,7 +212,7 @@ class KeyboardManager(object):
     def __onKeyDown(self, event):
         if self.__onKeyDownCb(event):
             return
-        elif event.keycode == self.TOGGLE_HELP:
+        elif event.keysym == self.TOGGLE_HELP:
             self.__keyCaptionsNode.toggleHelp()
         else:
             keyObj = self.__findKeyByEvent(event, 'down')

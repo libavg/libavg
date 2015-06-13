@@ -251,6 +251,7 @@ vector<EventPtr> Window::pollEvents()
 {
     SDL_Event sdlEvent;
     vector<EventPtr> events;
+    KeyEventPtr pPendingKeyEvent;
 
     int numEvents = 0;
     while (SDL_PollEvent(&sdlEvent)) {
@@ -288,10 +289,22 @@ vector<EventPtr> Window::pollEvents()
 //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
                 break;
             case SDL_KEYDOWN:
-                pNewEvent = createKeyEvent(Event::KEY_DOWN, sdlEvent);
+                cerr << "----down----" << endl;
+                if (pPendingKeyEvent) {
+                    events.push_back(pPendingKeyEvent);
+                }
+                pPendingKeyEvent = createKeyEvent(Event::KEY_DOWN, sdlEvent);
                 break;
             case SDL_KEYUP:
+                cerr << "----up----" << endl;
                 pNewEvent = createKeyEvent(Event::KEY_UP, sdlEvent);
+                break;
+            case SDL_TEXTINPUT:
+                cerr << "Text: " << sdlEvent.text.text << endl;
+                AVG_ASSERT(pPendingKeyEvent);
+                pPendingKeyEvent->setText(sdlEvent.text.text);
+                pNewEvent = pPendingKeyEvent;
+                pPendingKeyEvent = KeyEventPtr();
                 break;
             case SDL_QUIT:
                 pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
@@ -314,6 +327,9 @@ vector<EventPtr> Window::pollEvents()
         if (pNewEvent) {
             events.push_back(pNewEvent);
         }
+    }
+    if (pPendingKeyEvent) {
+        events.push_back(pPendingKeyEvent);
     }
     if (numEvents > 124) {
         AVG_TRACE(Logger::category::EVENTS, Logger::severity::WARNING, 
@@ -389,11 +405,15 @@ EventPtr Window::createMouseButtonEvent(Event::Type type, const SDL_Event& sdlEv
  
 }
 
-EventPtr Window::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
+KeyEventPtr Window::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
+    cerr << "scancode: " << sdlEvent.key.keysym.scancode << 
+            ", sym: " << sdlEvent.key.keysym.sym << 
+            ", name: " << SDL_GetKeyName(sdlEvent.key.keysym.sym) <<
+            ", mod: " << sdlEvent.key.keysym.mod << endl;
     KeyEventPtr pEvent(new KeyEvent(type,
-            sdlEvent.key.keysym.scancode, sdlEvent.key.keysym.sym,
-            SDL_GetKeyName(sdlEvent.key.keysym.sym), (unsigned)sdlEvent.key.keysym.mod));
+            sdlEvent.key.keysym.scancode, SDL_GetKeyName(sdlEvent.key.keysym.sym),
+            (unsigned)sdlEvent.key.keysym.mod));
     return pEvent;
 }
 

@@ -86,10 +86,13 @@ void TestHelper::fakeTangibleEvent(int id, int markerID, Event::Type eventType,
 
 }
 
-void TestHelper::fakeKeyEvent(Event::Type eventType, unsigned char scanCode, int keyCode,
-        const string& keyString, int modifiers)
+void TestHelper::fakeKeyEvent(Event::Type eventType, unsigned char scanCode,
+        const string& sKeyString, int modifiers, const string& sText)
 {
-    KeyEventPtr pEvent(new KeyEvent(eventType, scanCode, keyCode, keyString, modifiers));
+    KeyEventPtr pEvent(new KeyEvent(eventType, scanCode, sKeyString, modifiers));
+    if (sText != "") {
+        pEvent->setText(sText);
+    }
     m_Events.push_back(pEvent);
 }
 

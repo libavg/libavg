@@ -266,13 +266,12 @@ class AppTestCase(testcase.AVGTestCase):
                 cleanup,
                 ])
 
-    def __emuKeyPress(self, scanCode, keyCode, keyString, modifiers):
+    def __emuKeyPress(self, scanCode, keyString, modifiers, text):
         helper = libavg.player.getTestHelper()
-        helper.fakeKeyEvent(libavg.avg.Event.KEY_DOWN, scanCode, keyCode, keyString,
-                modifiers)
-        # Note: on up, unicode is always 0
-        helper.fakeKeyEvent(libavg.avg.Event.KEY_UP, scanCode, keyCode, keyString,
-                modifiers)
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_DOWN, scanCode, keyString,
+                modifiers, text)
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_UP, scanCode, keyString,
+                modifiers, "")
 
 
 def appTestSuite(tests):

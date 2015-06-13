@@ -68,7 +68,7 @@ class AVG_API Window
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        KeyEventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
 
         SDL_Window* m_pSDLWindow;
         SDL_GLContext m_SDLGLContext;
