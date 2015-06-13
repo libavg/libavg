@@ -854,14 +854,11 @@ class PlayerTestCase(AVGTestCase):
                         lambda: player.setWindowTitle("title2")),
                 ))
 
-    # Not executed due to bug #145 - hangs with some window managers.
+    # Used to hang with some window managers (#145).
     def testWindowFrame(self):
-        def revertWindowFrame():
-            player.setWindowFrame(True)
-
         player.setWindowFrame(False)
         self.__initDefaultScene()
-        self.start(False, [revertWindowFrame])
+        self.start(False, ())
 
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
@@ -923,6 +920,6 @@ def playerTestSuite(tests):
             "testGetConfigOption",
             "testValidateXml",
             "testSetWindowTitle",
-#            "testWindowFrame",
+            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)
