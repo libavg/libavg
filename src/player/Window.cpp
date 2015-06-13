@@ -337,6 +337,11 @@ bool Window::setGamma(float red, float green, float blue)
     return rc == 0;
 }
 
+void Window::setMousePos(const IntPoint& pos)
+{
+    SDL_WarpMouseInWindow(m_pSDLWindow, pos.x, pos.y);
+}
+
 EventPtr Window::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
         long button)
 {

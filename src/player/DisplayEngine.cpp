@@ -245,7 +245,7 @@ void DisplayEngine::setGamma(float red, float green, float blue)
 
 void DisplayEngine::setMousePos(const IntPoint& pos)
 {
-    throw Exception(AVG_ERR_UNSUPPORTED, "setMousePos not implemented");
+    m_pWindows[0]->setMousePos(pos);
 }
 
 int DisplayEngine::getKeyModifierState() const

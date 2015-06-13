@@ -62,6 +62,7 @@ class AVG_API Window
         std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
         bool setGamma(float red, float green, float blue);
+        void setMousePos(const IntPoint& pos);
 
     private:
         EventPtr createMouseEvent
