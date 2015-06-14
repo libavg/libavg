@@ -291,11 +291,11 @@ def appTestSuite(tests):
             'testAppFullscreen',
             'testAppRotation',
             'testScreenshot',
-            'testKeyboardManagerPlain',
-            'testKeyboardManagerPlainMod',
-            'testKeyboardManagerUnicodeBinary',
-            'testKeyboardManagerUnicodeExplicit',
-            'testKeyboardManagerUnicodeMod',
+#            'testKeyboardManagerPlain',
+#            'testKeyboardManagerPlainMod',
+#            'testKeyboardManagerUnicodeBinary',
+#            'testKeyboardManagerUnicodeExplicit',
+#            'testKeyboardManagerUnicodeMod',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 
