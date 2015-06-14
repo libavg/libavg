@@ -52,9 +52,8 @@ buildglib()
 buildfontconfig()
 {
     echo --------------------------------------------------------------------
-    cd fontconfig-2.7.0
-    automake
-    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cache-dir=~/.fontconfig
+    cd fontconfig-2.11.1
+    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-configdir=/etc/fonts --with-cache-dir=${HOME}/.fontconfig
     make clean
     make -j5
     sudo make install
@@ -115,9 +114,9 @@ clean
 
 cd ../deps
 
-buildLib libtool-2.2.6
-buildLib autoconf-2.63
-buildLib automake-1.11
+buildLib libtool-2.4.6
+buildLib autoconf-2.69
+buildLib automake-1.15
 buildLib nasm-2.10.09
 buildLib libjpeg-turbo-1.3.0 "--host x86_64-apple-darwin --disable-shared NASM=${AVG_PATH}/bin/nasm"
 buildLib tiff-3.8.2 --disable-shared 

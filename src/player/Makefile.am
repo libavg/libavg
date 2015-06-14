@@ -4,7 +4,7 @@ AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         $(MTDEV_CFLAGS)
 
 if APPLE
-    APPLE_LINKFLAGS = -read_only_relocs suppress -F/System/Library/PrivateFrameworks \
+    APPLE_LINKFLAGS = -F/System/Library/PrivateFrameworks \
             -framework MultitouchSupport -framework Cocoa -framework CoreAudio \
             -framework AudioUnit -framework ForceFeedback
     XGL_LIBS =

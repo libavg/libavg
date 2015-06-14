@@ -15,13 +15,9 @@ then
             echo Please source mac/avg_env.sh before calling bootstrap.
             exit 5 
         fi
-        # This uses locally-installed libtoolize and automake since the
-        # apple-supplied one is buggy as of OS X 10.4.7
+        # This uses locally-installed libtoolize
         libtoolize --copy --force
         aclocal -I m4
-        # Patch that fixes 'absolute addressing not allowed in slidable
-        # image' linker error.
-        patch < mac/libtool.m4.patch m4/libtool.m4
     fi
 else
     libtoolize --copy --force
