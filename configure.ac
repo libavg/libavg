@@ -34,13 +34,6 @@ if [[ $host_cpu == i386 ]] || [[ $host_cpu == i686 ]] || [[ $host_cpu == x86_64 
     CXXFLAGS="-msse2 $CXXFLAGS"
     CFLAGS="-msse2 $CFLAGS"
 fi
-OBJC="gcc"
-OBJCFLAGS=""
-OBJCLDFLAGS="-lobjc"
-AC_SUBST(OBJC)
-AC_SUBST(OBJCFLAGS)
-AC_SUBST(OBJCLDFLAGS)
-_AM_DEPENDENCIES([OBJC])
 LDFLAGS="$LDFLAGS -rdynamic"
 
 if [[ $target_vendor = apple ]] && [[ x"`which port`" = x"/opt/local/bin/port" ]]; then
@@ -132,12 +125,6 @@ AM_CONDITIONAL(ENABLE_V4L2, test x$enable_v4l2 = xyes)
 if test "$enable_v4l2" = yes; then
     AC_DEFINE(AVG_ENABLE_V4L2, 1, [Enable Video4Linux2 camera support])
 fi
-
-AC_CHECK_HEADER([linux/ppdev.h], enable_ParPort=yes, enable_ParPort=no)
-AM_CONDITIONAL(ENABLE_PARPORT, test x$enable_ParPort = xyes)
-if test "$enable_ParPort" = yes; then
-    AC_DEFINE(AVG_ENABLE_PARPORT, 1, [Enable parallel port support])
-fi 
 
 AC_ARG_ENABLE(egl,
         AC_HELP_STRING([--enable-egl], [include EGL support [default=no]]),
