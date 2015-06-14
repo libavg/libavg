@@ -117,7 +117,6 @@ import DynamicsTest
 import PythonTest
 import AnimTest
 import EventTest
-import AVGAppTest
 import WidgetTest
 import GestureTest
 import LoggerTest
@@ -139,7 +138,6 @@ app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
 app.registerSuiteFactory('widget', WidgetTest.widgetTestSuite)
 app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
-app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 app.registerSuiteFactory('logger', LoggerTest.loggerTestSuite)
 app.registerSuiteFactory('app', AppTest.appTestSuite)
 app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)

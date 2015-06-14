@@ -17,8 +17,6 @@ from enumcompat import *
 
 import textarea
 import statemachine
-from avgapp import AVGApp
-from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
 import utils, methodref
 import gesture
 import filter
