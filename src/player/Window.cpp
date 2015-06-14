@@ -289,18 +289,18 @@ vector<EventPtr> Window::pollEvents()
 //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
                 break;
             case SDL_KEYDOWN:
-                cerr << "----down----" << endl;
+//                cerr << "----down----" << endl;
                 if (pPendingKeyEvent) {
                     events.push_back(pPendingKeyEvent);
                 }
                 pPendingKeyEvent = createKeyEvent(Event::KEY_DOWN, sdlEvent);
                 break;
             case SDL_KEYUP:
-                cerr << "----up----" << endl;
+//                cerr << "----up----" << endl;
                 pNewEvent = createKeyEvent(Event::KEY_UP, sdlEvent);
                 break;
             case SDL_TEXTINPUT:
-                cerr << "Text: " << sdlEvent.text.text << endl;
+//                cerr << "Text: " << sdlEvent.text.text << endl;
                 AVG_ASSERT(pPendingKeyEvent);
                 pPendingKeyEvent->setText(sdlEvent.text.text);
                 pNewEvent = pPendingKeyEvent;
@@ -407,10 +407,10 @@ EventPtr Window::createMouseButtonEvent(Event::Type type, const SDL_Event& sdlEv
 
 KeyEventPtr Window::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
-    cerr << "scancode: " << sdlEvent.key.keysym.scancode << 
-            ", sym: " << sdlEvent.key.keysym.sym << 
-            ", name: " << SDL_GetKeyName(sdlEvent.key.keysym.sym) <<
-            ", mod: " << sdlEvent.key.keysym.mod << endl;
+//    cerr << "scancode: " << sdlEvent.key.keysym.scancode <<
+//            ", sym: " << sdlEvent.key.keysym.sym <<
+//            ", name: " << SDL_GetKeyName(sdlEvent.key.keysym.sym) <<
+//            ", mod: " << sdlEvent.key.keysym.mod << endl;
     KeyEventPtr pEvent(new KeyEvent(type,
             sdlEvent.key.keysym.scancode, SDL_GetKeyName(sdlEvent.key.keysym.sym),
             (unsigned)sdlEvent.key.keysym.mod));
