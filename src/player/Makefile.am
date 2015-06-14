@@ -4,12 +4,11 @@ AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         $(MTDEV_CFLAGS)
 
 if APPLE
-    APPLE_SOURCES = SDLMain.m
     APPLE_LINKFLAGS = -read_only_relocs suppress -F/System/Library/PrivateFrameworks \
-            -framework MultitouchSupport
+            -framework MultitouchSupport -framework Cocoa -framework CoreAudio \
+            -framework AudioUnit -framework ForceFeedback
     XGL_LIBS =
 else
-    APPLE_SOURCES =
     APPLE_LINKFLAGS =
 if ENABLE_RPI
     XGL_LIBS = -lXxf86vm -lX11 -lbcm_host -lpthread -lGLESv2 -lEGL
@@ -62,7 +61,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         PublisherDefinitionRegistry.h MessageID.h VersionInfo.h \
         PythonLogSink.h BitmapManager.h BitmapManagerThread.h IBitmapLoadedListener.h \
         BitmapManagerMsg.h \
-        $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES) $(SECONDARY_WINDOW_INCLUDES)
+        $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS = testplayer
 
@@ -103,5 +102,5 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
         PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
         BitmapManagerMsg.cpp \
-        $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(SECONDARY_WINDOW_SOURCES) $(ALL_H)
+        $(XINPUT2_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

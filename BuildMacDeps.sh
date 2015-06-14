@@ -117,6 +117,7 @@ buildLib yasm-1.2.0
 buildLib libav-9.9 "--arch=x86_64 --disable-debug --enable-pthreads --enable-runtime-cpudetect"
 
 buildLib SDL-1.2.15 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
+buildLib SDL-2.0.4 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 

@@ -22,10 +22,6 @@
 #include "DisplayEngine.h"
 #include "../avgconfigwrapper.h"
 
-#ifdef __APPLE__
-#include "SDLMain.h"
-#endif
-
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
@@ -73,14 +69,6 @@ namespace avg {
 
 void DisplayEngine::initSDL()
 {
-#ifdef __APPLE__
-    static bool bSDLInitialized = false;
-    if (!bSDLInitialized) {
-        CustomSDLMain();
-        bSDLInitialized = true;
-    }
-#endif
-
     int err = SDL_Init(SDL_INIT_VIDEO);
     if (err == -1) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, SDL_GetError());

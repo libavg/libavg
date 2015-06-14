@@ -7,7 +7,8 @@ ALL_H = WrapHelper.h raw_constructor.hpp
 if APPLE
     XGL_LIBS =
     APPLE_LDFLAGS = -read_only_relocs suppress -F/System/Library/PrivateFrameworks \
-            -framework MultitouchSupport
+            -framework MultitouchSupport -framework Cocoa -framework CoreAudio \
+            -framework AudioUnit -framework ForceFeedback
 else
 if ENABLE_RPI
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
