@@ -53,7 +53,7 @@ buildfontconfig()
 {
     echo --------------------------------------------------------------------
     cd fontconfig-2.11.1
-    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-configdir=/etc/fonts --with-cache-dir=${HOME}/.fontconfig
+    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-configdir=/etc/fonts --with-cache-dir=${HOME}/.fontconfig --disable-docs
     make clean
     make -j5
     sudo make install
@@ -125,7 +125,6 @@ buildLib pkg-config-0.20
 buildLib yasm-1.2.0 
 buildLib libav-9.9 "--arch=x86_64 --disable-debug --enable-pthreads --enable-runtime-cpudetect"
 
-buildLib SDL-1.2.15 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildSDL
 buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
