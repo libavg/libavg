@@ -153,6 +153,15 @@ Color Color::mix(const Color& c1, const Color& c2, float ratio)
     LchColor lch1 = RGB2Lch(c1);
     LchColor lch2 = RGB2Lch(c2);
 
+    // If one of the colors is grey, the hue is random. So, we set the hue to the 
+    // other color's hue to avoid random colors.
+    if (lch1.c < 1) {
+        lch1.h = lch2.h;
+    }
+    if (lch2.c < 1) {
+        lch2.h = lch1.h;
+    }
+
     LchColor lchMix(lch1.l*ratio + lch2.l*(1-ratio), lch1.c*ratio + lch2.c*(1-ratio),
             lch1.h*ratio + lch2.h*(1-ratio));
     return Lch2RGB(lchMix);
