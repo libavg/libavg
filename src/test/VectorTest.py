@@ -631,6 +631,7 @@ class VectorTestCase(AVGTestCase):
                     vertexcoords=((0,0), (64,0), (0,64), (64, 64),(32, 32)),
                     texcoords=((0,0),(1,0),(0,1),(1,1),(0.5,0.5)),
                     triangles=((0,1,4),(1,3,4),(3,2,4),(2,0,4)))
+            mesh.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             div.appendChild(mesh)
             div.x = 50
             div.y = 30
@@ -674,8 +675,15 @@ class VectorTestCase(AVGTestCase):
             mesh.texcoords = ((100,0),(1,0),(0,1),(1,1),(0.5,0.5), (1.0,1.0))
             
         def setIllegalIndexes():
-            mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4)) 
-        
+            mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4))
+
+        def onMouseDown(event):
+            self.__mouseDownCalled = True
+
+        def resetMouseDown():
+            self.__mouseDownCalled = False
+
+        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         mesh = addMesh()
         self.assertRaises(avg.Exception, setIllegalVertexes)
@@ -696,7 +704,19 @@ class VectorTestCase(AVGTestCase):
                  setBackfaceCullTrue,
                  lambda: self.compareImage("testMesh7"),
                  setBackfaceCullFalse,
-                 lambda: self.compareImage("testMesh8")
+                 lambda: self.compareImage("testMesh8"),
+                 setBackfaceCullTrue,
+                 lambda: self.fakeClick(62, 62),
+                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: self.fakeClick(94, 62),
+                 lambda: self.assert_(self.__mouseDownCalled),
+                 setBackfaceCullFalse,
+                 resetMouseDown,
+                 lambda: self.fakeClick(62, 62),
+                 lambda: self.assert_(self.__mouseDownCalled),
+                 resetMouseDown,
+                 lambda: self.fakeClick(94, 62),
+                 lambda: self.assert_(self.__mouseDownCalled)
                 ))
 
     def testInactiveVector(self):
