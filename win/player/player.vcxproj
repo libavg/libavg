@@ -202,7 +202,6 @@
     <ClInclude Include="..\..\src\player\PythonLogSink.h" />
     <ClInclude Include="..\..\src\player\RasterNode.h" />
     <ClInclude Include="..\..\src\player\RectNode.h" />
-    <ClInclude Include="..\..\src\player\SDLMain.h" />
     <ClInclude Include="..\..\src\player\ShadowFXNode.h" />
     <ClInclude Include="..\..\src\player\Shape.h" />
     <ClInclude Include="..\..\src\player\SoundNode.h" />

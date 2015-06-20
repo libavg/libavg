@@ -123,24 +123,12 @@ void WGLContext::activate()
 
 bool WGLContext::initVBlank(int rate) 
 {
-    static bool s_bVBlankActive = false;
-    if (rate > 0) {
-        if (!queryOGLExtension("WGL_EXT_swap_control")
-                && !queryWGLExtension("WGL_EXT_swap_control")) {
-            AVG_LOG_WARNING(
-                    "Windows VBlank setup failed: OpenGL Extension not supported.");
-            s_bVBlankActive = false;
-            return false;
-        }
-        glproc::SwapIntervalEXT(rate);
-        s_bVBlankActive = true;
-        return true;
-    } else {
-        if (s_bVBlankActive) {
-            glproc::SwapIntervalEXT(0);
-            s_bVBlankActive = false;
-        }
+    int rc = SDL_GL_SetSwapInterval(rate);
+    if (rc == -1) {
+        AVG_LOG_WARNING("Windows VBlank setup failed: OpenGL Extension not supported.");
         return false;
+    } else {
+        return true;
     }
 }
 
