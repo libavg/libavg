@@ -136,7 +136,7 @@ float Display::getRefreshRate()
                     "Vertical Refresh Rate: " << m_RefreshRate);
         }
     }
-    return m_DisplayMode.refresh_rate;
+    return (float)m_DisplayMode.refresh_rate;
 }
 
 void Display::queryScreenResolution()

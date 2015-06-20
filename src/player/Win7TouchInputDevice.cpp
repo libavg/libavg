@@ -32,7 +32,7 @@
 #include "../base/Exception.h"
 
 #undef WIN32_LEAN_AND_MEAN
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL_syswm.h>
 
 using namespace std;
 
@@ -73,6 +73,7 @@ void Win7TouchInputDevice::start()
             "CloseTouchInputHandle");
 
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
+/*
     if (multitouchCaps & NID_MULTI_INPUT) {
         MultitouchInputDevice::start();
         SDL_SysWMinfo info;
@@ -87,6 +88,7 @@ void Win7TouchInputDevice::start()
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, "No windows 7 multitouch device connected.");
     }
+    */
 #else
     throw Exception(AVG_ERR_UNSUPPORTED, 
             "Windows multitouch not supported by this version of libavg.");
