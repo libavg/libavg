@@ -30,6 +30,7 @@ import math
 
 import libavg
 from libavg import avg
+from libavg import graph
 from touchvisualization import DebugTouchVisualization
 from touchvisualization import TouchVisualizationOverlay as TouchVisOverlay
 
@@ -317,7 +318,7 @@ class MemoryGraphWidget(GraphWidget):
     CAPTION = 'Memory usage'
 
     def _createGraph(self):
-        return libavg.graph.AveragingGraph(parent=self, size=self.size,
+        return graph.AveragingGraph(parent=self, size=self.size,
                 getValue=libavg.player.getMemoryUsage)
 
 
@@ -325,7 +326,7 @@ class FrametimeGraphWidget(GraphWidget):
     CAPTION = 'Time per frame'
 
     def _createGraph(self):
-         return libavg.graph.SlidingBinnedGraph(parent=self,
+         return graph.SlidingBinnedGraph(parent=self,
                  getValue=libavg.player.getFrameTime,
                  binsThresholds=[0.0, 20.0, 40.0, 80.0, 160.0],
                  size=self.size)
@@ -342,7 +343,7 @@ class GPUMemoryGraphWidget(GraphWidget):
                     text='GPU memory graph is not supported on this hardware',
                     color='ff5555')
         else:
-            return libavg.graph.AveragingGraph(parent=self, size=self.size,
+            return graph.AveragingGraph(parent=self, size=self.size,
                     getValue=libavg.player.getVideoMemUsed)
 
 

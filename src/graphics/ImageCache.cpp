@@ -31,7 +31,12 @@ using namespace std;
 namespace avg {
 
 ImageCache * ImageCache::s_pImageCache = 0;
-    
+
+bool ImageCache::exists()
+{
+    return (s_pImageCache != 0);
+}
+
 ImageCache* ImageCache::get() 
 {
     if (s_pImageCache == 0) {

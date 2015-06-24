@@ -120,6 +120,10 @@ class PlayerTestCase(AVGTestCase):
         self.assertRaises(avg.Exception, lambda: avg.Color("xxx"))
         self.assertRaises(avg.Exception, lambda: avg.Color("xxxxxx"))
 
+        # Test mixing when saturation==0
+        col = avg.Color.mix(avg.Color("FFFFFF"), avg.Color("FF0000"), 0.5)
+        self.assertEqual(col, avg.Color("FF9E81"))
+
     def testBasics(self):
         def getFramerate():
             framerate = player.getEffectiveFramerate()

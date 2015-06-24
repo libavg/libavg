@@ -1737,7 +1737,9 @@ void Player::cleanup(bool bIsAbort)
         }
     }
 
-    ImageCache::get()->unloadAllTextures();
+    if (ImageCache::exists()) {
+        ImageCache::get()->unloadAllTextures();
+    }
     if (AudioEngine::get()) {
         AudioEngine::get()->teardown();
     }

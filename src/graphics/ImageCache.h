@@ -46,6 +46,7 @@ namespace avg {
 class AVG_API ImageCache
 {
     public:
+        static bool exists();
         static ImageCache* get();
         virtual ~ImageCache();
 
