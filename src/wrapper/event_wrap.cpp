@@ -121,7 +121,7 @@ void export_event()
     class_<KeyEvent, bases<Event> >("KeyEvent", no_init)
         .add_property("scancode", &KeyEvent::getScanCode)
         .add_property("text", &KeyEvent::getText)
-        .add_property("keystring", make_function(&KeyEvent::getKeyString, 
+        .add_property("keyname", make_function(&KeyEvent::getName,
                 return_value_policy<copy_const_reference>()))
         .add_property("modifiers", &KeyEvent::getModifiers)
     ;    

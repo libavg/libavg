@@ -51,11 +51,11 @@ class EventTestCase(AVGTestCase):
 
     def testKeyEvents(self):
         def onKeyDown(event):
-            if event.keystring == 'A' and event.text == "A":
+            if event.keyname == 'A' and event.text == "A":
                 self.keyDownCalled = True
         
         def onKeyUp(event):
-            if event.keystring == 'A':
+            if event.keyname == 'A':
                 self.keyUpCalled = True
        
         def onSubscribeKeyDown(event):
