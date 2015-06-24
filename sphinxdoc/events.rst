@@ -176,18 +176,16 @@ Input Handling
 
         Generated when a key is pressed or released.
 
-        .. py:attribute:: scancode
+        .. py:attribute:: keyname
 
-            A value that represents the physical position of the key on the keyboard.
-            Independent of the keyboard language/layout. Read-only.
+            The name of the key according to the current keyboard layout. This can be a
+            character like "a" or a word like "Up" for the up arrow key. Read-only.
 
-        .. py:attribute:: keycode
+        .. py:attribute:: text
 
-            The keycode of the key according to the current keyboard layout. Read-only.
-
-        .. py:attribute:: keystring
-
-            A character or word describing the key pressed. Read-only.
+            The text that the key represents, if any. Handles shifted (i.e., 
+            uppercase) characters and dead key combinations (i.e., "á" if "'" and "a" are
+            pressed in succession).
 
         .. py:attribute:: modifiers
 
@@ -201,8 +199,8 @@ Input Handling
 
         .. py:attribute:: scancode
 
-            The untranslated (hardware-dependent) scancode of the key pressed. 
-            Read-only.
+            A value that represents the physical position of the key on the keyboard.
+            Independent of the keyboard language/layout. Read-only.
 
 
     .. autoclass:: MouseEvent(type, leftButtonState, middleButtonState, rightButtonState, pos, button, [speed, when])
