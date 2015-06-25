@@ -275,7 +275,8 @@ class ObjectDumpWidget(DebugWidget):
 
     def onShow(self):
         self.intervalID = libavg.player.setInterval(1000, self.update)
-        kbmgr.bindKeyDown(keystring='i',
+        kbmgr.bindKeyDown(
+                keyname='i',
                 handler=self.persistColumn,
                 help="Object count snapshot",
                 modifiers=libavg.KEYMOD_CTRL)
@@ -284,7 +285,7 @@ class ObjectDumpWidget(DebugWidget):
         if self.intervalID:
             libavg.player.clearInterval(self.intervalID)
             self.intervalID = None
-        kbmgr.unbindKeyDown(keystring='i', modifiers=libavg.KEYMOD_CTRL)
+        kbmgr.unbindKeyDown(keyname='i', modifiers=libavg.KEYMOD_CTRL)
 
     def kill(self):
         self.onHide()
@@ -469,32 +470,32 @@ class DebugPanel(avg.DivNode):
         self.__touchVisOverlay = None
 
     def setupKeys(self):
-        kbmgr.bindKeyDown(keystring='g',
+        kbmgr.bindKeyDown(keyname='g',
                 handler=lambda: self.toggleWidget(GPUMemoryGraphWidget),
                 help="GPU memory graph",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keystring='m',
+        kbmgr.bindKeyDown(keyname='m',
                 handler=lambda: self.toggleWidget(MemoryGraphWidget),
                 help="Memory graph",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keystring='f',
+        kbmgr.bindKeyDown(keyname='f',
                 handler=lambda: self.toggleWidget(FrametimeGraphWidget),
                 help="Frametime graph",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keystring='?',
+        kbmgr.bindKeyDown(text='?',
                 handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
                 help="Show keyboard bindings",
                 modifiers=kbmgr.KEYMOD_ANY)
 
-        kbmgr.bindKeyDown(keystring='o',
+        kbmgr.bindKeyDown(keyname='o',
                 handler=lambda: self.toggleWidget(ObjectDumpWidget),
                 help="Object count table",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keystring='v', handler=self.toggleTouchVisualization,
+        kbmgr.bindKeyDown(keyname='v', handler=self.toggleTouchVisualization,
                 help="Cursor visualization",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 

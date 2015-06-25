@@ -337,32 +337,32 @@ class App(object):
     def _setupKeyboardManager(self):
         keyboardmanager.init()
         keyboardmanager.bindKeyDown(
-                keystring='d',
+                keyname='d',
                 handler=self._debugPanel.toggleVisibility,
                 help='Show/hide the debug panel',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='h',
+                keyname='h',
                 handler=lambda: libavg.player.showCursor(
                         not libavg.player.isCursorShown()),
                 help='Show/hide cursor',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='p',
+                keyname='p',
                 handler=self.takeScreenshot,
                 help='Take screenshot',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='b',
+                keyname='b',
                 handler=self.dumpTextObjectCount,
                 help='Dump objects count to the console',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='e',
+                keyname='e',
                 handler=self._toggleMtEmulation,
                 help='Toggle multitouch emulation',
                 modifiers=libavg.avg.KEYMOD_CTRL)
@@ -372,18 +372,25 @@ class App(object):
     def _toggleMtEmulation(self):
         if self._mtEmu is None:
             self._mtEmu = mtemu.MTemu()
-            keyboardmanager.bindKeyDown('shift', self._mtEmu.enableDualTouch,
-                    'Enable pinch gesture emulation')
-            keyboardmanager.bindKeyUp('shift', self._mtEmu.disableDualTouch,
-                    'Disable pinch gesture emulation')
+            keyboardmanager.bindKeyDown(
+                    keyname='shift',
+                    handler=self._mtEmu.enableDualTouch,
+                    help='Enable pinch gesture emulation')
+            keyboardmanager.bindKeyUp(
+                    keyname='shift',
+                    handler=self._mtEmu.disableDualTouch,
+                    help='Disable pinch gesture emulation')
 
-            keyboardmanager.bindKeyDown('t', self._mtEmu.toggleSource,
-                    'Toggle source between TOUCH and TRACK', libavg.avg.KEYMOD_CTRL)
+            keyboardmanager.bindKeyDown(
+                    keyname='t',
+                    handler=self._mtEmu.toggleSource,
+                    help='Toggle source between TOUCH and TRACK',
+                    nodifiers=libavg.avg.KEYMOD_CTRL)
         else:
             self._mtEmu.deinit()
-            keyboardmanager.unbindKeyDown('t', libavg.avg.KEYMOD_CTRL)
-            keyboardmanager.unbindKeyDown('shift')
-            keyboardmanager.unbindKeyUp('shift')
+            keyboardmanager.unbindKeyDown(keyname='t', modifiers=libavg.avg.KEYMOD_CTRL)
+            keyboardmanager.unbindKeyDown(keyname='shift')
+            keyboardmanager.unbindKeyUp(keyname='shift')
 
             del self._mtEmu
             self._mtEmu = None

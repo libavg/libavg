@@ -45,58 +45,57 @@ class KeyboardManagerPublisher(avg.Publisher):
 publisher = KeyboardManagerPublisher()
 
 _KeyBinding = namedtuple('_KeyBinding',
-        ['keystring', 'handler', 'help', 'modifiers', 'type'])
+        ['scancode', 'keyname', 'text', 'handler', 'help', 'modifiers', 'type'])
 
 
-_modifiedKeyBindings = []
-_plainKeyBindings = []
-_plainKeyBindingsStack = []
+_keyBindings = []
+_keyBindingsStack = []
 _isEnabled = True
 
 
 def init():
-    player.subscribe(player.KEY_DOWN, _onKeyDown)
-    player.subscribe(player.KEY_UP, _onKeyUp)
+    player.subscribe(player.KEY_DOWN, _onKey)
+    player.subscribe(player.KEY_UP, _onKey)
     avg.logger.debug('Keyboardmanager initialized', LOGCAT)
 
-def bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE):
-    _bindKey(keystring, handler, help, modifiers, avg.KEYDOWN)
+def bindKeyDown(scancode=None, keyname=None, text=None, handler=None, help=None,
+        modifiers=avg.KEYMOD_NONE):
+    _bindKey(scancode, keyname, text, handler, help, modifiers, avg.KEYDOWN)
 
-def bindKeyUp(keystring, handler, help, modifiers=avg.KEYMOD_NONE):
-    _bindKey(keystring, handler, help, modifiers, avg.KEYUP)
+def bindKeyUp(scancode=None, keyname=None, handler=None, help=None,
+        modifiers=avg.KEYMOD_NONE):
+    _bindKey(scancode, keyname, None, handler, help, modifiers, avg.KEYUP)
 
-def unbindKeyUp(keystring, modifiers=avg.KEYMOD_NONE):
-    _unbindKey(keystring, modifiers, avg.KEYUP)
+def unbindKeyDown(scancode=None, keyname=None, text=None, modifiers=avg.KEYMOD_NONE):
+    _unbindKey(scancode, keyname, text, modifiers, avg.KEYDOWN)
 
-def unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE):
-    _unbindKey(keystring, modifiers, avg.KEYDOWN)
+def unbindKeyUp(scancode=None, keyname=None, modifiers=avg.KEYMOD_NONE):
+    _unbindKey(scancode, keyname, None, modifiers, avg.KEYUP)
 
 def unbindAll():
-    global _modifiedKeyBindings, _plainKeyBindings, _plainKeyBindingsStack
-    _modifiedKeyBindings = []
-    _plainKeyBindings = []
-    _plainKeyBindingsStack = []
+    global _keyBindings, _keyBindingsStack
+    _keyBindings = []
+    _keyBindingsStack = []
     publisher.notifyUpdate()
 
 def push():
     """
     Push the current non-modified defined key bindings to the stack
     """
-    global _plainKeyBindings
-    _plainKeyBindingsStack.append(_plainKeyBindings)
-    _plainKeyBindings = []
+    global _keyBindings, _keyBindingsStack
+    _keyBindingsStack.append(_keyBindings)
     publisher.notifyUpdate()
 
 def pop():
     """
     Pop from the stack the current non-modified defined key bindings
     """
-    global _plainKeyBindings
-    _plainKeyBindings = _plainKeyBindingsStack.pop()
+    global _keyBindings, _keyBindingsStack
+    _keyBindings = _keyBindingsStack.pop()
     publisher.notifyUpdate()
 
 def getCurrentBindings():
-    return _modifiedKeyBindings + _plainKeyBindings
+    return _keyBindings
 
 def enable():
     global _isEnabled
@@ -106,50 +105,54 @@ def disable():
     global _isEnabled
     _isEnabled = False
 
-def _bindKey(keystring, handler, help, modifiers, type_):
-    if type(keystring) == unicode:
-        keystring = keystring.encode('utf8')
+def _bindKey(scancode, keyname, text, handler, help, modifiers, type_):
+    err = False
+    if scancode is not None:
+        if keyname is not None or text is not None:
+            err = True
+    if keyname is not None:
+        if scancode is not None or text is not None:
+            err = True
+    if text is not None:
+        if scancode is not None or keyname is not None:
+            err = True
+    if err:
+        raise avg.Exception(
+                "Binding a key requires exactly one of scancode, keyname or text.")
+    keyBinding = _KeyBinding(scancode, keyname, text, handler, help, modifiers, type_)
+    _checkDuplicates(keyBinding)
 
-    avg.logger.info('Binding key <%s> (mod:%s) to handler %s (%s)' % (keystring,
-            modifiers, handler, type), LOGCAT)
-    _checkDuplicates(keystring, modifiers, type_)
-    keyBinding = _KeyBinding(keystring, handler, help, modifiers, type_)
+    _keyBindings.append(keyBinding)
+    publisher.notifyUpdate()
 
-    if modifiers != avg.KEYMOD_NONE:
-        _modifiedKeyBindings.append(keyBinding)
-    else:
-        _plainKeyBindings.append(keyBinding)
+def _unbindKey(scancode, keyname, text, modifiers, type_):
+    for keyBinding in _keyBindings:
+        if (keyBinding.scancode == scancode and keyBinding.keyname == keyname and
+                keyBinding.text == text and keyBinding.modifiers == modifiers and
+                keyBinding.type == type_):
+            _keyBindings.remove(keyBinding)
+            break
 
     publisher.notifyUpdate()
 
-def _findAndRemoveKeybinding(keystring, modifiers, type, bindingList):
-    for keybinding in bindingList:
-            if keybinding.keystring == keystring and \
-               keybinding.modifiers == modifiers and \
-               keybinding.type == type:
-                   bindingList.remove(keybinding)
-                   break
-
-def _unbindKey(keystring, modifiers, type_):
-    if type(keystring) == unicode:
-        keystring = keystring.encode('utf8')
-
-    avg.logger.info('Unbinding key <%s> (mod:%s) (%s)' % (keystring,
-            modifiers, type), LOGCAT)
-    if modifiers != avg.KEYMOD_NONE:
-        _findAndRemoveKeybinding(keystring, modifiers, type_, _modifiedKeyBindings)
-    else:
-        _findAndRemoveKeybinding(keystring, modifiers, type_, _plainKeyBindings)
-
-    publisher.notifyUpdate()
-
-def _onKeyDown(event):
+def _onKey(event):
     if _isEnabled:
-        _processEvent(event, avg.KEYDOWN)
+        _processEvent(event)
 
-def _onKeyUp(event):
-    if _isEnabled:
-        _processEvent(event, avg.KEYUP)
+def _processEvent(event):
+    for keyBinding in _keyBindings:
+        if _testMatchEvent(keyBinding, event):
+            keyBinding.handler()
+            return
+
+def _testMatchEvent(keyBinding, event):
+    if event.type != keyBinding.type:
+        return False
+    if not _testModifiers(event.modifiers, keyBinding.modifiers):
+        return False
+
+    return (keyBinding.scancode == event.scancode or keyBinding.text == event.text or
+            keyBinding.keyname == event.keyname)
 
 def _testModifiers(mod1, mod2):
     if mod1 == KEYMOD_ANY or mod2 == KEYMOD_ANY:
@@ -159,40 +162,14 @@ def _testModifiers(mod1, mod2):
     mod2 &= ~IGNORED_KEYMODS
     return mod1 == mod2 or mod1 & mod2
 
-def _testPatternMatch(pattern, text):
-    if pattern in ('shift', 'alt', 'ctrl', 'meta', 'super'):
-        return pattern in text
-    else:
-        return False
-
-def _testMatchString(keyBinding, keyString, type_):
-    sameType = keyBinding.type == type_
-    patternMatch = _testPatternMatch(keyBinding.keystring, keyString)
-    directMatch = keyBinding.keystring == keyString
-
-    return sameType and (directMatch or patternMatch)
-
-def _testMatchEvent(keyBinding, event, type_):
-    if not _testModifiers(event.modifiers, keyBinding.modifiers):
-        return False
-
-    if _testMatchString(keyBinding, event.keystring, type_):
-        return True
-
-def _processEvent(event, type_):
-    avg.logger.debug('Processing event keystring=%s '
-            'modifiers=%s type=%s' % (event.keystring, event.modifiers, event.type),
-            LOGCAT)
-    for keyBinding in _plainKeyBindings + _modifiedKeyBindings:
-        if _testMatchEvent(keyBinding, event, type_):
-            avg.logger.debug('  Found keyBinding=%s' % (keyBinding,), LOGCAT)
-            keyBinding.handler()
-            return
-
-def _checkDuplicates(keystring, modifiers, type_):
-    for keyBinding in _plainKeyBindings + _modifiedKeyBindings:
-        if (_testModifiers(keyBinding.modifiers, modifiers) and
-                _testMatchString(keyBinding, keystring, type_)):
-            raise avg.Exception('Key binding keystring=%s modifiers=%s type=%s '
-                    'already defined' % (keystring, modifiers, type_))
+def _checkDuplicates(keyBinding):
+    for oldBinding in _keyBindings:
+        if (oldBinding.type == keyBinding.type and
+                oldBinding.scancode == keyBinding.scancode and
+                oldBinding.keyname == keyBinding.keyname and
+                oldBinding.text == keyBinding.text and
+                _testModifiers(oldBinding.modifiers, keyBinding.modifiers)):
+            raise avg.Exception('Key binding scancode=%s keyname=%s text=%s modifiers=%s'
+                    ' already defined' % (keyBinding.scancode, keyBinding.keyname,
+                    keyBinding.text, keyBinding.modifiers))
 
