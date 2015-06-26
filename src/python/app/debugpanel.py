@@ -365,7 +365,10 @@ class KeyboardManagerBindingsShower(DebugWidget):
     def update(self):
         self.clear()
         for binding in kbmgr.getCurrentBindings():
-            keystring = binding.keystring.decode('utf8')
+            if binding.keyname:
+                keystring = binding.keyname
+            else:
+                keystring = binding.text
             modifiersStr = self.__modifiersToString(binding.modifiers)
 
             if modifiersStr is not None:
@@ -470,17 +473,17 @@ class DebugPanel(avg.DivNode):
         self.__touchVisOverlay = None
 
     def setupKeys(self):
-        kbmgr.bindKeyDown(keyname='g',
+        kbmgr.bindKeyDown(keyname='G',
                 handler=lambda: self.toggleWidget(GPUMemoryGraphWidget),
                 help="GPU memory graph",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keyname='m',
+        kbmgr.bindKeyDown(keyname='M',
                 handler=lambda: self.toggleWidget(MemoryGraphWidget),
                 help="Memory graph",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keyname='f',
+        kbmgr.bindKeyDown(keyname='F',
                 handler=lambda: self.toggleWidget(FrametimeGraphWidget),
                 help="Frametime graph",
                 modifiers=libavg.avg.KEYMOD_CTRL)
@@ -490,12 +493,12 @@ class DebugPanel(avg.DivNode):
                 help="Show keyboard bindings",
                 modifiers=kbmgr.KEYMOD_ANY)
 
-        kbmgr.bindKeyDown(keyname='o',
+        kbmgr.bindKeyDown(keyname='O',
                 handler=lambda: self.toggleWidget(ObjectDumpWidget),
                 help="Object count table",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keyname='v', handler=self.toggleTouchVisualization,
+        kbmgr.bindKeyDown(keyname='V', handler=self.toggleTouchVisualization,
                 help="Cursor visualization",
                 modifiers=libavg.avg.KEYMOD_CTRL)
 

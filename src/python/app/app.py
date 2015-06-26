@@ -25,7 +25,6 @@
 
 import os
 import math
-import time
 
 import libavg
 from libavg import avg, Point2D, mtemu, player
@@ -337,32 +336,32 @@ class App(object):
     def _setupKeyboardManager(self):
         keyboardmanager.init()
         keyboardmanager.bindKeyDown(
-                keyname='d',
+                keyname='D',
                 handler=self._debugPanel.toggleVisibility,
                 help='Show/hide the debug panel',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keyname='h',
+                keyname='H',
                 handler=lambda: libavg.player.showCursor(
                         not libavg.player.isCursorShown()),
                 help='Show/hide cursor',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keyname='p',
+                keyname='P',
                 handler=self.takeScreenshot,
                 help='Take screenshot',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keyname='b',
+                keyname='B',
                 handler=self.dumpTextObjectCount,
                 help='Dump objects count to the console',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keyname='e',
+                keyname='E',
                 handler=self._toggleMtEmulation,
                 help='Toggle multitouch emulation',
                 modifiers=libavg.avg.KEYMOD_CTRL)
@@ -382,7 +381,7 @@ class App(object):
                     help='Disable pinch gesture emulation')
 
             keyboardmanager.bindKeyDown(
-                    keyname='t',
+                    keyname='T',
                     handler=self._mtEmu.toggleSource,
                     help='Toggle source between TOUCH and TRACK',
                     nodifiers=libavg.avg.KEYMOD_CTRL)

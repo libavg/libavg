@@ -137,27 +137,22 @@ def _unbindKey(scancode, keyname, text, modifiers, type_):
 
 def _onKey(event):
     if _isEnabled:
-        _processEvent(event)
-
-def _processEvent(event):
-    for keyBinding in _keyBindings:
-        if _testMatchEvent(keyBinding, event):
-            keyBinding.handler()
-            return
+        for keyBinding in _keyBindings:
+            if _testMatchEvent(keyBinding, event):
+                keyBinding.handler()
+                return
 
 def _testMatchEvent(keyBinding, event):
     if event.type != keyBinding.type:
         return False
     if not _testModifiers(event.modifiers, keyBinding.modifiers):
         return False
-
     return (keyBinding.scancode == event.scancode or keyBinding.text == event.text or
             keyBinding.keyname == event.keyname)
 
 def _testModifiers(mod1, mod2):
     if mod1 == KEYMOD_ANY or mod2 == KEYMOD_ANY:
         return True
-
     mod1 &= ~IGNORED_KEYMODS
     mod2 &= ~IGNORED_KEYMODS
     return mod1 == mod2 or mod1 & mod2

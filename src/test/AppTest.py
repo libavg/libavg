@@ -236,7 +236,6 @@ class AppTestCase(testcase.AVGTestCase):
             self.statesRecords[1] = True
 
         def bindKeys():
-            print scancode, keyname, text
             keyboardmanager.bindKeyDown(scancode=scancode, keyname=keyname, text=text,
                     help='', modifiers=modifiers, handler=keyDownPressed)
             if text == None:
