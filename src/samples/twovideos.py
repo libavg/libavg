@@ -35,8 +35,8 @@ class HDVideo(app.MainDiv):
         self.runningVideo = 0
         self.isFading = False
 
-        app.keyboardmanager.bindKeyDown('1', self.onButtonPressed,
-                'Crossfade between videos')
+        app.keyboardmanager.bindKeyDown(keyname='1', handler=self.onButtonPressed,
+                help='Crossfade between videos')
 
     def onButtonPressed(self):
         if not(self.isFading):
