@@ -23,30 +23,6 @@
 # Original author of this module is Marco Fagiolini <mfx at archi-me-des dot de>
 #
 
-"""
-Single/Multi-Line editable text field widget for libavg
-
-textarea module provides two classes:
-
-1. TextArea
-    This is the implementation of the widget. Every instantiated TextArea
-    represents an editable text field, which can be set up with several styles
-    and behaviors.
-    
-2. FocusContext
-    This helps to easily route the events that comes from keyboards to an
-    appropriate TextArea instance, cycling focuses and dispatching events on
-    the selected field.
-
-"""
-
-g_FocusContext = None
-g_LastKeyEvent = None
-g_activityCallback = None
-g_LastKeyRepeated = 0
-g_RepeatDelay = 0.2
-g_CharDelay = 0.1
-
 KEYCODE_TAB = 9
 KEYCODE_LINEFEED = 13
 KEYCODE_SHTAB = 25
@@ -72,146 +48,6 @@ from libavg import avg, player, gesture
 from avg import Point2D
 
 
-class FocusContext(object):
-    """
-    This class helps to group TextArea elements
-
-    TextArea elements that belong to the same FocusContext cycle focus among
-    themselves. There can be several FocusContextes but only one active at once
-    ( using the global function setActiveFocusContext() )
-    """
-    def __init__(self):
-        self.__elements = []
-        self.__isActive = False
-
-    def isActive(self):
-        """
-        Test if this FocusContext is currently active
-        """
-        return self.__isActive
-
-    def register(self, taElement):
-        """
-        Register a floating textarea on this FocusContext
-
-        @param taElement: a TextArea instance
-        """
-        self.__elements.append(taElement)
-
-    def getFocused(self):
-        """
-        Query the TextArea element that currently has focus
-
-        @return: TextArea instance or None
-        """
-        for ob in self.__elements:
-            if ob.hasFocus():
-                return ob
-        return None
-
-    def keyCharPressed(self, kchar):
-        """
-        Inject a utf-8 encoded characted into the flow
-
-        Shift a character (Unicode keycode) into the active (w/focus) TextArea
-        @type kchar: string
-        @param kchar: a single character (if more than one, the following are ignored)
-        """
-        keycode = ord(unichr(kchar))
-
-        # TAB key cycles focus through textareas
-        if keycode == KEYCODE_TAB:
-            self.cycleFocus()
-            return
-        # Shift-TAB key cycles focus through textareas backwards
-        if keycode == KEYCODE_SHTAB:
-            self.cycleFocus(True)
-            return
-
-        for ob in self.__elements:
-            if ob.hasFocus():
-                ob.onKeyDown(keycode)
-
-    def backspace(self):
-        """
-        Emulate a backspace character keypress
-        """
-        self.keyCharPressed(KEYCODES_BACKSPACE[0])
-
-    def delete(self):
-        """
-        Emulate a delete character keypress
-        """
-        self.keyCharPressed(KEYCODE_DEL)
-
-    def clear(self):
-        """
-        Clear the active textarea, emulating the press of FF character
-        """
-        self.keyCharPressed(KEYCODE_FORMFEED)
-
-    def resetFocuses(self):
-        """
-        Blur every TextArea registered within this FocusContext
-        """
-        for ob in self.__elements:
-            ob.clearFocus()
-
-    def cycleFocus(self, backwards=False):
-        """
-        Force a focus cycle among instantiated textareas
-
-        TAB/Sh-TAB keypress is what is translated in a focus cycle.
-        @param backwards: as default, the method cycles following the order
-            that has been followed during the registration of TextArea
-            instances. Setting this to True, the order is inverted.
-        """
-
-        els = []
-        els.extend(self.__elements)
-        
-        if len(els) == 0:
-            return
-
-        if backwards:
-            els.reverse()
-
-        elected = 0
-        for ob in els:
-            if not ob.hasFocus():
-                elected += 1
-            else:
-                break
-
-        # elects the first if no ta are in focus or if the
-        # last one has it
-        if elected in (len(els), len(els)-1):
-            elected = 0
-        else:
-            elected += 1
-
-        for ob in els:
-            ob.setFocus(False)
-
-        els[elected].setFocus(True)
-
-    def getRegistered(self):
-        """
-        Returns a list of TextArea currently registered within this FocusContext
-        @return: a list of registered TextArea instances
-        """
-        return self.__elements
-
-    def _switchActive(self, active):
-        if active:
-            self.resetFocuses()
-            self.cycleFocus()
-        else:
-            self.resetFocuses()
-
-        self.__isActive = active
-
-
 class TextArea(avg.DivNode):
     """
     TextArea class is a libavg widget to create editable text fields
@@ -220,12 +56,11 @@ class TextArea(avg.DivNode):
     focus, keyboard for text input). Can be set as a single line or span to multiple
     lines.
     """
-    def __init__(self, focusContext=None, disableMouseFocus=False, 
+    def __init__(self, disableMouseFocus=False, 
             moveCoursorOnTouch=True, textBackgroundNode=None, loupeBackgroundNode=None,
             parent=None, **kwargs):
         """
         @param parent: parent of the node
-        @param focusContext: FocusContext object which directs focus for TextArea elements
         @param disableMouseFocus: boolean, prevents that mouse can set focus for
             this instance
         @param moveCoursorOnTouch: boolean, activate the coursor motion on touch events
@@ -233,7 +68,6 @@ class TextArea(avg.DivNode):
         super(TextArea, self).__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        self.__focusContext = focusContext
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
         self.__border = 0
         self.__data = []
@@ -262,11 +96,7 @@ class TextArea(avg.DivNode):
 
         self.__loupe = None
 
-        if focusContext is not None:
-            focusContext.register(self)
-            self.setFocus(False)
-        else:
-            self.setFocus(True)
+        self.setFocus(True)
 
         player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
         
@@ -299,17 +129,9 @@ class TextArea(avg.DivNode):
         self.setStyle()
             
     def clearText(self):
-        """
-        Clears the text
-        """
         self.setText(u'')
 
     def setText(self, uString):
-        """
-        Set the text on the TextArea
-
-        @param uString: an unicode string (or an utf-8 encoded string)
-        """
         if not isinstance(uString, unicode):
             uString = unicode(uString, 'utf-8')
 
@@ -321,9 +143,6 @@ class TextArea(avg.DivNode):
         self.__update()
 
     def getText(self):
-        """
-        Get the text stored and displayed on the TextArea
-        """
         return self.__getUnicodeFromData()
 
     def setStyle(self, font='sans', fontsize=12, alignment='left', variant='Regular', 
@@ -455,9 +274,6 @@ class TextArea(avg.DivNode):
 
         @param hasFocus: boolean
         """
-        if self.__focusContext is not None:
-            self.__focusContext.resetFocuses()
-
         if hasFocus:
             self.opacity = 1
             self.__cursorContainer.opacity = 1
@@ -487,9 +303,6 @@ class TextArea(avg.DivNode):
         """
         Inject a keycode into TextArea flow
 
-        Used mainly by FocusContext. It can be used directly, but the best option
-        is always to use a FocusContext helper, which exposes convenience method for
-        injection.
         @param keycode: characted to insert
         @type keycode: int (SDL reference)
         """
@@ -534,11 +347,7 @@ class TextArea(avg.DivNode):
             self.__updateCursors()
 
     def __onClick(self, e):
-        if self.__focusContext is not None:
-            if self.__focusContext.isActive():
-                self.setFocus(True)
-        else:
-            self.setFocus(True)
+        self.setFocus(True)
 
     def __getUnicodeFromData(self):
         return u''.join(self.__data)
@@ -737,84 +546,3 @@ class TextArea(avg.DivNode):
         self.__zoomedImage.pos = - self.getRelPos(event.pos) + self.__loupe.size / 2.0 - \
                 self.getRelPos(event.pos)* self.__loupeZoomFactor + Point2D(0,5)
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
-##################################
-# MODULE FUNCTIONS
-
-def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
-    """
-    Initialization routine for the module
-
-    This method should be called immediately after avg file
-    load (Player.loadFile())
-    @param g_avg: avg package
-    @param catchKeyboard: boolean, if true events from keyboard are catched
-    @param repeatDelay: wait time (seconds) before starting to repeat a key which
-        is held down
-    @param charDelay: delay among character repetition (of an steadily pressed key)
-    """
-    global avg, g_RepeatDelay, g_CharDelay
-    avg = g_avg
-    g_RepeatDelay = repeatDelay
-    g_CharDelay = charDelay
-
-    player.subscribe(player.ON_FRAME, _onFrame)
-
-    if catchKeyboard:
-        player.subscribe(avg.Player.KEY_DOWN, _onKeyDown)
-        player.subscribe(avg.Player.KEY_UP, _onKeyUp)
-
-def setActiveFocusContext(focusContext):
-    """
-    Tell the module what FocusContext is presently active
-
-    Only one FocusContext at once can be set 'active' and therefore
-    prepared to receive the flow of user events from keyboard.
-    @param focusContext: set the active focusContext. If initialization has been
-        made with 'catchKeyboard' == True, the new active focusContext will receive
-        the flow of events from keyboard.
-    """
-    global g_FocusContext
-    
-    if g_FocusContext is not None:
-        g_FocusContext._switchActive(False)
-
-    g_FocusContext = focusContext
-    g_FocusContext._switchActive(True)
-
-def setActivityCallback(pyfunc):
-    """
-    Set a callback that is called at every keyboard's keypress
-
-    If a callback of user interaction is needed (eg: resetting idle timeout)
-    just pass a function to this method, which is going to be called at each
-    user intervention (keydown, keyup).
-    Active focusContext will be passed as argument
-    """
-    global g_activityCallback
-    g_activityCallback = pyfunc
-    
-
-def _onFrame():
-    global g_LastKeyEvent, g_LastKeyRepeated, g_CharDelay
-    if (g_LastKeyEvent is not None and
-        time.time() - g_LastKeyRepeated > g_CharDelay and
-        g_FocusContext is not None):
-        g_FocusContext.keyCharPressed(g_LastKeyEvent.keycode)
-        g_LastKeyRepeated = time.time()
-
-def _onKeyDown(e):
-    global g_LastKeyEvent, g_LastKeyRepeated, g_RepeatDelay, g_activityCallback
-
-    g_LastKeyEvent = e
-    g_LastKeyRepeated = time.time() + g_RepeatDelay
-
-    if g_FocusContext is not None:
-        g_FocusContext.keyCharPressed(e.keycode)
-
-        if g_activityCallback is not None:
-            g_activityCallback(g_FocusContext)
-
-def _onKeyUp(e):
-    global g_LastKeyEvent
-
-    g_LastKeyEvent = None
