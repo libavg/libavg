@@ -40,8 +40,9 @@ namespace avg {
 
 Win7TouchInputDevice* Win7TouchInputDevice::s_pInstance(0);
 
-Win7TouchInputDevice::Win7TouchInputDevice(const DivNodePtr& pEventReceiverNode)
-    : MultitouchInputDevice(pEventReceiverNode)
+Win7TouchInputDevice::Win7TouchInputDevice(HWND hwnd, const DivNodePtr& pEventReceiverNode)
+    : MultitouchInputDevice(pEventReceiverNode),
+      m_Hwnd(hwnd)
 {
     s_pInstance = this;
 }
@@ -73,14 +74,9 @@ void Win7TouchInputDevice::start()
             "CloseTouchInputHandle");
 
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
-/*
+
     if (multitouchCaps & NID_MULTI_INPUT) {
         MultitouchInputDevice::start();
-        SDL_SysWMinfo info;
-        SDL_VERSION(&info.version);
-        int err = SDL_GetWMInfo(&info);
-        AVG_ASSERT(err == 1);
-        m_Hwnd = info.window;
         bool bOk = pRegisterTouchWindowProc(m_Hwnd, TWF_FINETOUCH | TWF_WANTPALM);
         AVG_ASSERT(bOk);
         m_OldWndProc = (WNDPROC)SetWindowLong(m_Hwnd, GWL_WNDPROC, (LONG)touchWndSubclassProc);
@@ -88,7 +84,6 @@ void Win7TouchInputDevice::start()
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, "No windows 7 multitouch device connected.");
     }
-    */
 #else
     throw Exception(AVG_ERR_UNSUPPORTED, 
             "Windows multitouch not supported by this version of libavg.");

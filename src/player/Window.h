@@ -36,6 +36,9 @@
 #include <SDL2/SDL.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 namespace avg {
 
@@ -63,6 +66,9 @@ class AVG_API Window
         void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
         bool setGamma(float red, float green, float blue);
         void setMousePos(const IntPoint& pos);
+#ifdef _WIN32
+        HWND getWinHWnd();
+#endif
 
     private:
         EventPtr createMouseEvent

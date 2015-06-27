@@ -363,6 +363,18 @@ void Window::setMousePos(const IntPoint& pos)
     SDL_WarpMouseInWindow(m_pSDLWindow, pos.x, pos.y);
 }
 
+#ifdef _WIN32
+HWND Window::getWinHWnd()
+{
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    bool bOK = SDL_GetWindowWMInfo(m_pSDLWindow, &info);
+    AVG_ASSERT(bOK);
+    return info.info.win.window;
+
+}
+#endif
+
 EventPtr Window::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
         long button)
 {

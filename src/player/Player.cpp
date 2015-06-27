@@ -678,7 +678,8 @@ void Player::enableMultitouch()
         m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
-        m_pMultitouchInputDevice = InputDevicePtr(new Win7TouchInputDevice);
+        HWND hwnd = m_pDisplayEngine->getWindow(0)->getWinHWnd();
+        m_pMultitouchInputDevice = InputDevicePtr(new Win7TouchInputDevice(hwnd));
 #endif
     } else if (sDriver == "XINPUT" || sDriver == "XINPUT21") {
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
