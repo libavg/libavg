@@ -42,11 +42,7 @@ public:
 
     void activate();
 
-    bool initVBlank(int rate);
-
 private:
-    void initMacVBlank(int rate);
-
     CGLContextObj m_Context;
 };
 
