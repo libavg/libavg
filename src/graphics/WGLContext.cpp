@@ -121,17 +121,6 @@ void WGLContext::activate()
     setCurrent();
 }
 
-bool WGLContext::initVBlank(int rate) 
-{
-    int rc = SDL_GL_SetSwapInterval(rate);
-    if (rc == -1) {
-        AVG_LOG_WARNING("Windows VBlank setup failed: OpenGL Extension not supported.");
-        return false;
-    } else {
-        return true;
-    }
-}
-
 bool WGLContext::queryWGLExtension(const char *extName)
 {
     if (glproc::GetExtensionsStringARB == NULL) {

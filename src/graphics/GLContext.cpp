@@ -31,6 +31,8 @@
 #include "../base/MathHelper.h"
 #include "../base/OSHelper.h"
 
+#include <SDL2/SDL.h>
+
 #include <iostream>
 #include <stdio.h>
 
@@ -393,6 +395,17 @@ bool GLContext::isVendor(const string& sWantedVendor) const
 bool GLContext::useDepthBuffer() const
 {
     return !isGLES();
+}
+
+bool GLContext::initVBlank(int rate) 
+{
+    int rc = SDL_GL_SetSwapInterval(rate);
+    if (rc == -1) {
+        AVG_LOG_WARNING("VBlank setup failed.");
+        return false;
+    } else {
+        return true;
+    }
 }
 
 int GLContext::getMaxTexSize() 

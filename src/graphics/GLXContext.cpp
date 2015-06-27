@@ -76,33 +76,6 @@ void GLXContext::activate()
     setCurrent();
 }
 
-bool GLXContext::initVBlank(int rate) 
-{
-    if (rate > 0) {
-        if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
-            AVG_LOG_WARNING("__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
-            m_bVBlankActive = false;
-            return false;
-        } 
-        if (!queryGLXExtension("GLX_EXT_swap_control")) {
-            AVG_LOG_WARNING("Linux VBlank setup failed: OpenGL Extension not supported.");
-            m_bVBlankActive = false;
-            return false;
-        }
-
-        glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
-        m_bVBlankActive = true;
-        return true;
-
-    } else {
-        if (m_bVBlankActive) {
-            glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, 0);
-            m_bVBlankActive = false;
-        }
-        return false;
-    }
-}
-
 bool GLXContext::useDepthBuffer() const
 {
     // NVidia GLX GLES doesn't allow framebuffer stencil without depth.

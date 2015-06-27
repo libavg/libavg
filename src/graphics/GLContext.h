@@ -75,7 +75,7 @@ public:
     bool isVendor(const std::string& sWantedVendor) const;
     virtual bool useDepthBuffer() const;
 
-    virtual bool initVBlank(int rate)=0;
+    virtual bool initVBlank(int rate);
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);

@@ -42,7 +42,6 @@ public:
     virtual ~GLXContext();
 
     void activate();
-    bool initVBlank(int rate);
     bool useDepthBuffer() const;
     void swapBuffers();
 

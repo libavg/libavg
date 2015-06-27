@@ -39,7 +39,6 @@ public:
 
     void activate();
 
-    bool initVBlank(int rate);
 
 private:
     bool queryWGLExtension(const char* extName);
