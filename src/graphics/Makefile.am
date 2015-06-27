@@ -62,15 +62,22 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         WrapMode.cpp $(GL_SOURCES)
 
 if APPLE
-    X_LIBS =
+    PLATFORM_LDF = -F/System/Library/PrivateFrameworks \
+            -framework MultitouchSupport -framework Cocoa -framework CoreAudio \
+            -framework AudioUnit -framework ForceFeedback -framework CoreVideo \
+            -framework IOKit
+    PLATFORM_LIBS =
 else
 if ENABLE_RPI
-    X_LIBS = -lXxf86vm -lX11 -lbcm_host -lGLESv2 -lEGL
+    PLATFORM_LDF =
+    PLATFORM_LIBS = -lXxf86vm -lX11 -lbcm_host -lGLESv2 -lEGL
 else
 if ENABLE_EGL
-    X_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+    PLATFORM_LDF =
+    PLATFORM_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
 else
-    X_LIBS = -lXxf86vm -lX11
+    PLATFORM_LDF =
+    PLATFORM_LIBS = -lXxf86vm -lX11
 endif
 endif
 endif
@@ -80,11 +87,11 @@ TESTS = testgraphics testgpu
 EXTRA_DIST = $(wildcard baseline/*.png)
 
 noinst_LTLIBRARIES = libgraphics.la
-test_PROGRAMS = testgraphics testgpu benchmarkgraphics
+test_PROGRAMS = testgraphics  testgpu benchmarkgraphics
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 testgraphics_SOURCES = testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS) @GDK_PIXBUF_LIBS@
 
 benchmarkgraphics_SOURCES = benchmarkgraphics.cpp $(ALL_H)
 benchmarkgraphics_LDADD = libgraphics.la ../base/libbase.la \
@@ -92,7 +99,8 @@ benchmarkgraphics_LDADD = libgraphics.la ../base/libbase.la \
 
 testgpu_SOURCES = testgpu.cpp $(ALL_H)
 testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(X_LIBS) \
+        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS) \
         @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
         @GDK_PIXBUF_LIBS@
+testgpu_LDFLAGS = $(PLATFORM_LDF)
 testdir = $(pkgpyexecdir)/bintest
