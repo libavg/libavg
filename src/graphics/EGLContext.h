@@ -38,7 +38,6 @@ public:
     virtual ~EGLContext();
 
     void activate();
-    bool initVBlank(int rate);
 
 private:
     void useSDLContext(const SDL_SysWMinfo* pSDLWMInfo);

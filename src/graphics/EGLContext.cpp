@@ -153,11 +153,6 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     checkEGLError(!m_Context, "Unable to create EGL context");
 }
 
-bool EGLContext::initVBlank(int)
-{
-    return false;
-}
-
 void EGLContext::activate()
 {
     eglMakeCurrent(m_Display, m_Surface, m_Surface, m_Context);
