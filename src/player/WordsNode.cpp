@@ -782,19 +782,38 @@ void WordsNode::setParsedText(const UTF8String& sText)
     updateLayout();
 }
 
+string::size_type findBR(const UTF8String& sText, int& len)
+{
+    string::size_type pos = sText.find("<br");
+    if (pos != string::npos) {
+        len = 5;
+        string::size_type curPos = pos + 3;
+        while (sText[curPos] == ' ') {
+            len++;
+            curPos++;
+        }
+        if (sText.substr(curPos, 2) == "/>") {
+            return pos;
+        }
+    }
+    return string::npos;
+}
+
+
 UTF8String WordsNode::applyBR(const UTF8String& sText)
 {
     UTF8String sResult(sText);
     UTF8String sLowerText = toLowerCase(sResult); 
-    string::size_type pos=sLowerText.find("<br/>");
+    int len;
+    string::size_type pos = findBR(sLowerText, len);
     while (pos != string::npos) {
-        sResult.replace(pos, 5, "\n");
-        sLowerText.replace(pos, 5, "\n");
+        sResult.replace(pos, len, "\n");
+        sLowerText.replace(pos, len, "\n");
         if (sLowerText[pos+1] == ' ') {
             sLowerText.erase(pos+1, 1);
             sResult.erase(pos+1, 1);
         }
-        pos=sLowerText.find("<br/>");
+        pos = findBR(sLowerText, len);
     }
     return sResult;
 }
