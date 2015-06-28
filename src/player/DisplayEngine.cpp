@@ -255,6 +255,17 @@ void DisplayEngine::endFrame()
 {
     frameWait();
     swapBuffers();
+#ifdef __APPLE__
+    // Hack/Workaround for bug #661: When the window is completely occluded, mac
+    // SwapBuffers doesn't wait for VBlank. We detect this condition and wait manually.
+    if (m_VBRate > 0) {
+        long long curIntervalTime = TimeSource::get()->getCurrentMicrosecs()
+                - m_LastFrameTime;
+        if (curIntervalTime < 8000) {
+            TimeSource::get()->sleepUntil(m_TargetTime/1000);
+        }
+    }
+#endif
     checkJitter();
 }
 
