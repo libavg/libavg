@@ -455,11 +455,17 @@ class WordsTestCase(AVGTestCase):
                 ))
 
     def testWordsBR(self):
+        def addSpaces():
+            node.text = "paragraph 1<br  />paragraph 2"
+
         root = self.loadEmptyScene()
-        avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans", variant="roman",
-               text="paragraph 1<br/>paragraph 2", parent=root)
+        node = avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", text="paragraph 1<br/>paragraph 2", parent=root)
         self.start(True, 
-                [lambda: self.compareImage("testWordsBR")])
+                [lambda: self.compareImage("testWordsBR"),
+                 addSpaces,
+                 lambda: self.compareImage("testWordsBR")
+                ])
 
     def testLetterSpacing(self):
         def setSpacing():
