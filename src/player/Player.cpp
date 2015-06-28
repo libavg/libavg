@@ -1068,27 +1068,20 @@ void Player::doFrame(bool bFirstFrame)
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
-                endFrame();
+                m_pDisplayEngine->endFrame();
             } catch(...) {
                 Py_BLOCK_THREADS;
                 throw;
             }
             Py_END_ALLOW_THREADS;
         } else {
-            endFrame();
+            m_pDisplayEngine->endFrame();
         }
     }
     ThreadProfiler::get()->reset();
     if (m_NumFrames == 5) {
         ThreadProfiler::get()->restart();
     }
-}
-
-void Player::endFrame()
-{
-    m_pDisplayEngine->frameWait();
-    m_pDisplayEngine->swapBuffers();
-    m_pDisplayEngine->checkJitter();
 }
 
 float Player::getFramerate()

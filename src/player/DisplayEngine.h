@@ -68,6 +68,7 @@ class AVG_API DisplayEngine: public InputDevice
         unsigned getNumWindows() const;
         const WindowPtr getWindow(unsigned i) const;
 
+        void endFrame();
         void frameWait();
         void swapBuffers();
         void checkJitter();

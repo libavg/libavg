@@ -251,6 +251,13 @@ const WindowPtr DisplayEngine::getWindow(unsigned i) const
     return m_pWindows[i];
 }
 
+void DisplayEngine::endFrame()
+{
+    frameWait();
+    swapBuffers();
+    checkJitter();
+}
+
 static ProfilingZoneID WaitProfilingZone("Render - wait");
 
 void DisplayEngine::frameWait()

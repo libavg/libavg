@@ -225,7 +225,6 @@ class AVG_API Player: public Publisher
                 const xmlNodePtr xmlNode);
         OffscreenCanvasPtr registerOffscreenCanvas(NodePtr pNode);
         OffscreenCanvasPtr findCanvas(const std::string& sID) const;
-        void endFrame();
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type type, NodePtr pNode);
