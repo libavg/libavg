@@ -408,6 +408,12 @@ bool GLContext::initVBlank(int rate)
     }
 }
 
+void GLContext::swapBuffers(SDL_Window* pSDLWindow)
+{
+    SDL_GL_SwapWindow(pSDLWindow);
+    GLContext::checkError("swapBuffers()");
+}
+
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {

@@ -31,6 +31,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
+struct SDL_Window;
+
 namespace avg {
 
 class GLContext;
@@ -76,6 +78,7 @@ public:
     virtual bool useDepthBuffer() const;
 
     virtual bool initVBlank(int rate);
+    virtual void swapBuffers(SDL_Window* pSDLWindow);
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
