@@ -471,7 +471,53 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgMask2"),
                  changeBaseHRef,
                  lambda: self.compareImage("testImgMask3"),
-                 setMaskNotFound
+                 setMaskNotFound,
+                 lambda: self.compareImage("testImgMask4")
+                ))
+
+    def testImageMaskBitmap(self):
+        def createNode(p):
+            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask4.png",
+                    pos=p, size=(32, 32), masksize=(32,32))
+            root.appendChild(node)
+
+        def setNoAttach(p):
+            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
+                    masksize=(32,32))
+            node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
+            root.appendChild(node)
+
+        def setAttach(p):
+            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
+                    masksize=(32,32))
+            root.appendChild(node)
+            node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
+
+        def changeBitmap():
+            node.setMaskBitmap(avg.Bitmap("media/mask2.png"))
+
+        def changeBaseHRef():
+            node.href = "greyscale.png"
+
+        def setNoneBitmap():
+            node.setMaskBitmap(None)
+
+        root = self.loadEmptyScene()
+        createNode((0,0))
+        node = root.getChild(0)
+        setNoAttach((32,0))
+        setAttach((64,0))
+        self.start(False,
+                (lambda: createNode((0, 32)),
+                 lambda: setNoAttach((32,32)),
+                 lambda: setAttach((64,32)),
+                 lambda: self.compareImage("testImgMask1"),
+                 changeBitmap,
+                 lambda: self.compareImage("testImgMask2"),
+                 changeBaseHRef,
+                 lambda: self.compareImage("testImgMask3"),
+                 setNoneBitmap,
+                 lambda: self.compareImage("testImgMask4")
                 ))
 
     def testImageMaskCanvas(self):
@@ -607,6 +653,7 @@ def imageTestSuite(tests):
             "testBitmapManagerException",
             "testBlendMode",
             "testImageMask",
+            "testImageMaskBitmap",
             "testImageMaskCanvas",
             "testImageMaskPos",
             "testImageMipmap",

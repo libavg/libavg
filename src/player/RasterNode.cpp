@@ -268,6 +268,23 @@ void RasterNode::setMaskHRef(const UTF8String& sHref)
     checkReload();
 }
 
+void RasterNode::setMaskBitmap(BitmapPtr pBmp)
+{
+    m_sMaskHref = "";
+    m_sMaskFilename = "";
+    if (pBmp) {
+        m_pMaskBmp = BitmapPtr(new Bitmap(pBmp->getSize(), I8));
+        m_pMaskBmp->copyPixels(*pBmp);
+    } else {
+        m_pMaskBmp = BitmapPtr();
+        getSurface()->setMask(MCTexturePtr());
+    }
+    calcMaskCoords();
+    if (getState() == Node::NS_CANRENDER && m_pMaskBmp) {
+        downloadMask();
+    }
+}
+
 const glm::vec2& RasterNode::getMaskPos() const
 {
     return m_MaskPos;
@@ -485,7 +502,7 @@ OGLSurface * RasterNode::getSurface()
 
 bool RasterNode::hasMask() const
 {
-    return m_sMaskFilename != "";
+    return m_pMaskBmp != BitmapPtr();
 }
 
 const BitmapPtr RasterNode::getMaskBmp() const
