@@ -279,7 +279,7 @@ void RasterNode::setMaskBitmap(BitmapPtr pBmp)
         m_pMaskBmp = BitmapPtr();
         getSurface()->setMask(MCTexturePtr());
     }
-    calcMaskCoords();
+    setMaskCoords();
     if (getState() == Node::NS_CANRENDER && m_pMaskBmp) {
         downloadMask();
     }
@@ -512,7 +512,7 @@ const BitmapPtr RasterNode::getMaskBmp() const
 
 void RasterNode::setMaskCoords()
 {
-    if (m_sMaskFilename != "") {
+    if (m_pMaskBmp != BitmapPtr()) {
         calcMaskCoords();
     }
 }
