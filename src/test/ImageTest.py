@@ -436,89 +436,57 @@ class ImageTestCase(AVGTestCase):
                     pos=p, size=(32, 32), masksize=(32,32))
             root.appendChild(node)
 
-        def setNoAttach(p):
+        def setNoAttach(p, useHRef):
             node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
                     masksize=(32,32))
-            node.maskhref = "mask4.png"
+            if useHRef:
+                node.maskhref = "mask4.png"
+            else:
+                node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
             root.appendChild(node)
 
-        def setAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
-                    masksize=(32,32))
-            root.appendChild(node)
-            node.maskhref = "mask4.png"
-
-        def changeHRef():
-            node.maskhref = "mask2.png" 
-
-        def changeBaseHRef():
-            node.href = "greyscale.png" 
-
-        def setMaskNotFound():
-            node.maskhref = "nonexistentmask.png"        
-            
-        root = self.loadEmptyScene()
-        createNode((0,0))
-        node = root.getChild(0)
-        setNoAttach((32,0))
-        setAttach((64,0))
-        self.start(False,
-                (lambda: createNode((0, 32)),
-                 lambda: setNoAttach((32,32)),
-                 lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMask1"),
-                 changeHRef,
-                 lambda: self.compareImage("testImgMask2"),
-                 changeBaseHRef,
-                 lambda: self.compareImage("testImgMask3"),
-                 setMaskNotFound,
-                 lambda: self.compareImage("testImgMask4")
-                ))
-
-    def testImageMaskBitmap(self):
-        def createNode(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask4.png",
-                    pos=p, size=(32, 32), masksize=(32,32))
-            root.appendChild(node)
-
-        def setNoAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
-                    masksize=(32,32))
-            node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
-            root.appendChild(node)
-
-        def setAttach(p):
+        def setAttach(p, useHRef):
             node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
                     masksize=(32,32))
             root.appendChild(node)
-            node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
+            if useHRef:
+                node.maskhref = "mask4.png"
+            else:
+                node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
 
-        def changeBitmap():
-            node.setMaskBitmap(avg.Bitmap("media/mask2.png"))
+        def changeMask(useHRef):
+            if useHRef:
+                node.maskhref = "mask2.png"
+            else:
+                node.setMaskBitmap(avg.Bitmap("media/mask2.png"))
 
         def changeBaseHRef():
             node.href = "greyscale.png"
 
-        def setNoneBitmap():
-            node.setMaskBitmap(None)
+        def setNoneMask(useHRef):
+            if useHRef:
+                node.maskhref = "nonexistentmask.png"
+            else:
+                node.setMaskBitmap(None)
 
-        root = self.loadEmptyScene()
-        createNode((0,0))
-        node = root.getChild(0)
-        setNoAttach((32,0))
-        setAttach((64,0))
-        self.start(False,
-                (lambda: createNode((0, 32)),
-                 lambda: setNoAttach((32,32)),
-                 lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMask1"),
-                 changeBitmap,
-                 lambda: self.compareImage("testImgMask2"),
-                 changeBaseHRef,
-                 lambda: self.compareImage("testImgMask3"),
-                 setNoneBitmap,
-                 lambda: self.compareImage("testImgMask4")
-                ))
+        for useHRef in (True, False):
+            root = self.loadEmptyScene()
+            createNode((0,0))
+            node = root.getChild(0)
+            setNoAttach((32,0), useHRef)
+            setAttach((64,0), useHRef)
+            self.start(False,
+                    (lambda: createNode((0, 32)),
+                     lambda: setNoAttach((32,32), useHRef),
+                     lambda: setAttach((64,32), useHRef),
+                     lambda: self.compareImage("testImgMask1"),
+                     lambda: changeMask(useHRef),
+                     lambda: self.compareImage("testImgMask2"),
+                     changeBaseHRef,
+                     lambda: self.compareImage("testImgMask3"),
+                     lambda: setNoneMask(useHRef),
+                     lambda: self.compareImage("testImgMask4")
+                    ))
 
     def testImageMaskCanvas(self):
         root = self.loadEmptyScene()
@@ -653,7 +621,6 @@ def imageTestSuite(tests):
             "testBitmapManagerException",
             "testBlendMode",
             "testImageMask",
-            "testImageMaskBitmap",
             "testImageMaskCanvas",
             "testImageMaskPos",
             "testImageMipmap",
