@@ -225,6 +225,9 @@ class WordsTestCase(AVGTestCase):
             node.maskpos = (-40, 40)
             node.masksize = (80, 60)
 
+        def setMaskBitmap():
+            node.setMaskBitmap(avg.Bitmap("media/mask2.png"))
+
         root = self.loadEmptyScene()
         node = avg.WordsNode(fontsize=8, linespacing=-4, font="Bitstream Vera Sans",
                 variant="roman", width=160,
@@ -249,6 +252,8 @@ class WordsTestCase(AVGTestCase):
                  lambda: self.compareImage("testWordsMask4"),
                  setCentered,
                  lambda: self.compareImage("testWordsMask5"),
+                 setMaskBitmap,
+                 lambda: self.compareImage("testWordsMask6"),
                 ))
 
     def testHinting(self):

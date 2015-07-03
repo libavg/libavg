@@ -426,6 +426,10 @@ Area Nodes
 
             Returns the current coordinate of all vertices as a list of lists.
 
+        .. py:method:: setMaskBitmap(bitmap)
+
+            Sets a bitmap to use as alpha channel mask. Sets maskhref to an empty string.
+
         .. py:method:: setEffect(FXNode)
 
             Attaches an :py:class:`FXNode` to the node that modifies how it looks.
