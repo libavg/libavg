@@ -450,7 +450,7 @@ Misc. Classes
             being the positive x axis. Angle is clockwise (assuming that y points
             downward).
 
-        .. py:method isInPolygon(poly) -> bool
+        .. py:method:: isInPolygon(poly) -> bool
 
             Checks if the point is inside a polygon.
 
