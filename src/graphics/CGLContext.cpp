@@ -78,4 +78,11 @@ void CGLContext::activate()
     setCurrent();
 }
 
+void CGLContext::swapBuffers(SDL_Window* pSDLWindow)
+{
+    CGLFlushDrawable(m_Context);
+    GLContext::checkError("swapBuffers()");
+}
+
+
 }

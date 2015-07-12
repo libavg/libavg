@@ -178,6 +178,7 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - SDL swap buffers");
 void Window::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
+    m_pGLContext->activate();
     m_pGLContext->swapBuffers(m_pSDLWindow);
     GLContext::checkError("swapBuffers()");
 }
