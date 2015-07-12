@@ -121,6 +121,12 @@ void WGLContext::activate()
     setCurrent();
 }
 
+void WGLContext::swapBuffers(SDL_Window* pSDLWindow)
+{
+    BOOL bOk = SwapBuffers(m_hDC);
+    checkWinError(bOk, "wglSwapBuffers");
+}
+
 bool WGLContext::queryWGLExtension(const char *extName)
 {
     if (glproc::GetExtensionsStringARB == NULL) {
