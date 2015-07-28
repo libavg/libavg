@@ -29,9 +29,9 @@ class TouchApp(app.MainDiv):
             self.settings.set("app_resolution", "") # use screen resolution
 
     def onInit(self):
+        self.userFrame = avg.ImageNode(href="", size=self.size, parent=self)
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         app.instance.debugPanel.toggleTouchVisualization()
-        self.userFrame = avg.ImageNode(href="", size=self.size, parent=self)
 
     def onFrame(self):
         try:
