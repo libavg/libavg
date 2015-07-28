@@ -151,6 +151,7 @@ class AVG_API Player: public Publisher
         MouseEventPtr getMouseState() const;
         EventPtr getCurrentEvent() const;
         void enableMultitouch();
+        BitmapPtr getTouchUserBmp() const;
         void enableMouse(bool enabled);
         bool isMultitouchAvailable() const;
         void setEventCapture(NodePtr pNode, int cursorID);

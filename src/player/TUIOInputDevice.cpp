@@ -104,6 +104,11 @@ unsigned TUIOInputDevice::getRemoteIP() const
     return m_RemoteIP;
 }
 
+BitmapPtr TUIOInputDevice::getUserBmp() const
+{
+    return m_pUserBmp;
+}
+
 void TUIOInputDevice::ProcessPacket(const char* pData, int size, 
         const IpEndpointName& remoteEndpoint)
 {
@@ -159,6 +164,8 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
         } else if (strcmp(msg.AddressPattern(), "/tuioext/userid") == 0) {
             if (strcmp(cmd, "set") == 0) { 
                 processUserID(args);
+            } else if (strcmp(cmd, "indexframe") == 0) {
+                processIndexFrame(args);
             }
         }
     } catch (osc::Exception& e) {
@@ -263,6 +270,16 @@ void TUIOInputDevice::processUserID(ReceivedMessageArgumentStream& args)
     }
     CursorEventPtr pEvent = pTouchStatus->getLastEvent();
     pEvent->setUserID(userID, jointID);
+}
+
+void TUIOInputDevice::processIndexFrame(osc::ReceivedMessageArgumentStream& args)
+{
+    osc::int32 xsize;
+    osc::int32 ysize;
+    const char* pBitmapString;
+    args >> xsize >> ysize >> pBitmapString >> osc::EndMessage;
+    m_pUserBmp = BitmapPtr(new Bitmap(IntPoint(xsize,ysize), I8,
+            (unsigned char*)pBitmapString, xsize, true));
 }
 
 void TUIOInputDevice::setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed)
