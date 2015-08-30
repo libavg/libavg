@@ -359,9 +359,20 @@ class DynamicsTestCase(AVGTestCase):
             retrievedImage = root.getChild(0)
             self.assertEqual(type(retrievedImage), CustomImageNode)
 
+        def testRegisterInstanceException():
+
+            class BrokenCustomNode(avg.ImageNode):
+                def __init__(self, p, parent=None, **kwargs):
+                    avg.ImageNode.__init__(self, pos=p, href="rgb24-64x64.png", **kwargs)
+                    self.registerInstance(parent, parent)
+
+            self.assertRaises(avg.Exception, lambda: BrokenCustomNode((23,42),
+                    parent=root))
+
         root = self.loadEmptyScene()
         testNodePythonAttribute()
         testNodePythonSubclass()
+        testRegisterInstanceException()
 
     def testDynamicMediaDir(self):
         def attachNode():
