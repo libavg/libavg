@@ -24,7 +24,13 @@ checkConfig()
         echo libavg expects python 2.7. Found version ${PYTHON_VER:7:3}
         exit -1 
     fi
-#    exit -1 
+
+    PYTHON_BITS=$(python -c 'import struct;print( 8 * struct.calcsize("P"))')
+    if [[ ${PYTHON_BITS} != "64" ]]
+    then
+        echo libvg expects a 64-bit version of python. Found a ${PYTHON_BITS}-bit version.
+        exit -1
+    fi
 }
 
 clean()
