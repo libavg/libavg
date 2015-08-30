@@ -3,6 +3,30 @@
 set -e
 set -x
 
+checkConfig()
+{
+    if [[ x"${AVG_PATH}" == "x" ]]
+    then
+        echo ${AVG_PATH}
+        echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
+        exit -1 
+    fi
+
+    if [[ x"${AVG_MAC_ENV_SET}" == "x" ]]
+    then
+        echo Please call 'source mac/avg_env.sh' before calling this script.
+        exit -1 
+    fi
+
+    PYTHON_VER=$(python --version 2>&1)
+    if [[ ${PYTHON_VER:7:3} != "2.7" ]]
+    then
+        echo libavg expects python 2.7. Found version ${PYTHON_VER:7:3}
+        exit -1 
+    fi
+#    exit -1 
+}
+
 clean()
 {
     rm -rf ${AVG_PATH}/bin/
@@ -88,18 +112,8 @@ buildboost()
     rm -f ../lib/libboost_date_time.dylib
     rm -f ../lib/libboost_system.dylib
 }
-if [[ x"${AVG_PATH}" == "x" ]]
-then
-    echo ${AVG_PATH}
-    echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
-    exit -1 
-fi
 
-if [[ x"${AVG_MAC_ENV_SET}" == "x" ]]
-then
-    echo Please call 'source mac/avg_env.sh' before calling this script.
-    exit -1 
-fi
+checkConfig
 
 clean
 
