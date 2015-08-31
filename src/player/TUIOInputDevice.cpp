@@ -73,6 +73,7 @@ TUIOInputDevice::~TUIOInputDevice()
     if (m_pSocket) {
         m_pSocket->Break();
     }
+    delete m_pSocket;
 }
 
 void TUIOInputDevice::start()
