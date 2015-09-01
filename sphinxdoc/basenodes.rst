@@ -289,7 +289,8 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: registerInstance(self, parent)
 
             Needs to be called when deriving from a Node class in python in the derived
-            classes :py:meth:`__init__` method.
+            classes :py:meth:`__init__` method (and *only* there, see `Programmer's
+            Guide <https://www.libavg.de/site/projects/libavg/wiki/Subclassing>`_).
 
         .. py:method:: releaseEventCapture([cursorid])
 

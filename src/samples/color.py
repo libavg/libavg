@@ -15,7 +15,7 @@ def createColorBar(y, startColor, endColor):
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()
-createColorBar(1, avg.Color("0000FF"), avg.Color("FFFF00"))
+createColorBar(1, avg.Color("00A0FF"), avg.Color("FFFF00"))
 createColorBar(21, avg.Color("FFFFFF"), avg.Color("FF0000"))
 
 player.play()

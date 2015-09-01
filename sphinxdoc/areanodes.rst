@@ -271,7 +271,7 @@ Area Nodes
 
         .. py:method:: removeChild(i)
 
-            Removes the child at index :py:attr:`i` from the div. Note that as long a`
+            Removes the child at index :py:attr:`i` from the div. Note that as long as
             other references to the node exist, the node is not deleted.
 
         .. py:method:: reorderChild(oldIndex, newIndex)

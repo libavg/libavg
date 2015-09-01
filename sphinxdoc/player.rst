@@ -246,12 +246,6 @@ Player & Canvas
                 3333, but this can be configured using the environment variable 
                 :envvar:`AVG_TUIO_PORT`.
 
-            :samp:`LINUXMTDEV`:
-                Uses the linux mtdev library to interface to multitouch devices.
-                The environment variable :envvar:`AVG_LINUX_MULTITOUCH_DEVICE` is used
-                to determine which device file to open. Default is 
-                :samp:`/dev/input/event3`.
-
             :samp:`WIN7TOUCH`:
                 Enables handling of Windows 7 touch events. This works with all devices
                 which have Windows 7 drivers.
@@ -262,8 +256,7 @@ Player & Canvas
                 value as well.
 
             If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
-            a plattform-specific one. Under Linux, the default is :samp:`XINPUT` if
-            XInput multitouch is supported on the system, otherwise :samp:`LINUXMTDEV`.
+            a plattform-specific one. Under Linux, the default is :samp:`XINPUT`.
             Under Windows, the default is :samp:`WIN7TOUCH`.
 
             :py:meth:`enableMultitouch` throws an exception if the chosen driver is not

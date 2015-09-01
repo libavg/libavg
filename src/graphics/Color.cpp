@@ -162,6 +162,13 @@ Color Color::mix(const Color& c1, const Color& c2, float ratio)
         lch2.h = lch1.h;
     }
 
+    float hueDist = lch2.h - lch1.h;
+    if (hueDist > 180) {
+        lch2.h -= 360;
+    } else if (hueDist < -180) {
+        lch1.h -= 360;
+    }
+
     LchColor lchMix(lch1.l*ratio + lch2.l*(1-ratio), lch1.c*ratio + lch2.c*(1-ratio),
             lch1.h*ratio + lch2.h*(1-ratio));
     return Lch2RGB(lchMix);
