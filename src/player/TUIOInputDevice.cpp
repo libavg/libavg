@@ -276,10 +276,10 @@ void TUIOInputDevice::processIndexFrame(osc::ReceivedMessageArgumentStream& args
 {
     osc::int32 xsize;
     osc::int32 ysize;
-    const char* pBitmapString;
-    args >> xsize >> ysize >> pBitmapString >> osc::EndMessage;
+    osc::Blob blob;
+    args >> xsize >> ysize >> blob >> osc::EndMessage;
     m_pUserBmp = BitmapPtr(new Bitmap(IntPoint(xsize,ysize), I8,
-            (unsigned char*)pBitmapString, xsize, true));
+            (unsigned char*)blob.data, xsize, true));
 }
 
 void TUIOInputDevice::setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed)
