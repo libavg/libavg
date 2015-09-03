@@ -13,6 +13,9 @@ config.status
 config.sub
 configure
 libtool
+depcomp
+missing
+ltmain.sh
 m4/libtool.m4
 m4/ltoptions.m4
 m4/ltsugar.m4
