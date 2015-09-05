@@ -73,6 +73,7 @@ TUIOInputDevice::~TUIOInputDevice()
     if (m_pSocket) {
         m_pSocket->Break();
     }
+    delete m_pSocket;
 }
 
 void TUIOInputDevice::start()
@@ -102,6 +103,11 @@ void TUIOInputDevice::start()
 unsigned TUIOInputDevice::getRemoteIP() const
 {
     return m_RemoteIP;
+}
+
+BitmapPtr TUIOInputDevice::getUserBmp() const
+{
+    return m_pUserBmp;
 }
 
 void TUIOInputDevice::ProcessPacket(const char* pData, int size, 
@@ -159,6 +165,8 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
         } else if (strcmp(msg.AddressPattern(), "/tuioext/userid") == 0) {
             if (strcmp(cmd, "set") == 0) { 
                 processUserID(args);
+            } else if (strcmp(cmd, "indexframe") == 0) {
+                processIndexFrame(args);
             }
         }
     } catch (osc::Exception& e) {
@@ -263,6 +271,16 @@ void TUIOInputDevice::processUserID(ReceivedMessageArgumentStream& args)
     }
     CursorEventPtr pEvent = pTouchStatus->getLastEvent();
     pEvent->setUserID(userID, jointID);
+}
+
+void TUIOInputDevice::processIndexFrame(osc::ReceivedMessageArgumentStream& args)
+{
+    osc::int32 xsize;
+    osc::int32 ysize;
+    osc::Blob blob;
+    args >> xsize >> ysize >> blob >> osc::EndMessage;
+    m_pUserBmp = BitmapPtr(new Bitmap(IntPoint(xsize,ysize), I8,
+            (unsigned char*)blob.data, xsize, true));
 }
 
 void TUIOInputDevice::setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed)

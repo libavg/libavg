@@ -200,7 +200,6 @@ class App(object):
         self._settings.addOption(Option('multitouch_enabled', 'false'))
         self._settings.addOption(Option('multitouch_driver', ''))
         self._settings.addOption(Option('multitouch_tuio_port', ''))
-        self._settings.addOption(Option('multitouch_mtdev_device', ''))
         self._settings.addOption(Option('log_avg_categories', ''))
 
     def _applySettingsExtenders(self, kargs):
@@ -238,10 +237,6 @@ class App(object):
             tuio_port = self.settings.get('multitouch_tuio_port').upper()
             if tuio_port:
                 os.putenv('AVG_TUIO_PORT', tuio_port)
-
-            mtdev_device = self.settings.get('multitouch_mtdev_device').upper()
-            if mtdev_device:
-                os.putenv('AVG_LINUX_MULTITOUCH_DEVICE', mtdev_device)
 
             libavg.player.enableMultitouch()
 

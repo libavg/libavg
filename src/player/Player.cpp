@@ -704,6 +704,16 @@ void Player::enableMultitouch()
     addInputDevice(m_pMultitouchInputDevice);
 }
 
+BitmapPtr Player::getTouchUserBmp() const
+{
+    TUIOInputDevicePtr pTUIODev = dynamic_pointer_cast<TUIOInputDevice>(
+            m_pMultitouchInputDevice);
+    if (!pTUIODev) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "getTouchUserBmp: No TUIO device present.");
+    }
+    return pTUIODev->getUserBmp();
+}
+
 void Player::enableMouse(bool enabled)
 {
     m_bMouseEnabled = enabled;
