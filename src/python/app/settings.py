@@ -107,6 +107,10 @@ class HelpPrintingOptionParser(optparse.OptionParser):
         self.print_help()
         optparse.OptionParser.error(self, *args, **kargs)
 
+    def print_help(self):
+        optparse.OptionParser.print_help(self)
+        print
+        print "All options can also be set using the App.run() method."
 
 class ArgvExtender(object):
     def __init__(self, appVersionInfo, args=None):
