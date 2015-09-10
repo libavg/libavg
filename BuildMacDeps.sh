@@ -87,6 +87,8 @@ buildfontconfig()
     make clean
     make -j5
     sudo make install
+    # Workaround for fontconfig bug: Install fonts.conf in the correct place.
+    sudo cp ../../etc/fonts/fonts.conf /etc/fonts/fonts.conf
     sudo chown -R `whoami` ~/.fontconfig
     cd ..    
 }
