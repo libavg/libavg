@@ -64,8 +64,6 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
 
 TESTS = testplayer
 
-EXTRA_DIST = SDLMain.h
-
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testplayer
 testplayer_SOURCES = testplayer.cpp
