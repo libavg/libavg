@@ -131,7 +131,7 @@ void XInputMTInputDevice::start()
 
     m_SDLUnlockFunc();
 
-//    SDL_SetEventFilter(XInputMTInputDevice::filterEvent);
+    SDL_SetEventFilter(XInputMTInputDevice::filterEvent, 0);
   
     
     XIDetachSlaveInfo detInfo;
@@ -250,7 +250,7 @@ TouchEventPtr XInputMTInputDevice::createEvent(int id, Event::Type type, IntPoin
     return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH));
 }
 
-int XInputMTInputDevice::filterEvent(const SDL_Event * pEvent)
+int XInputMTInputDevice::filterEvent(void* pUserData, SDL_Event * pEvent)
 {
     // This is a hook into libsdl event processing. Since libsdl doesn't know about
     // XInput 2, it doesn't call XGetEventData either. By the time the event arrives
@@ -260,7 +260,7 @@ int XInputMTInputDevice::filterEvent(const SDL_Event * pEvent)
     if (pEvent->type == SDL_SYSWMEVENT) {
         SDL_SysWMmsg* pMsg = pEvent->syswm.msg;
         AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-        XEvent* pXEvent; // = &pMsg->event.xevent;
+        XEvent* pXEvent = &pMsg->msg.x11.event;
         XGenericEventCookie* pCookie = (XGenericEventCookie*)&(pXEvent->xcookie);
 //        cerr << "---- filter xinput event: " << xEventTypeToName(pXEvent->type) << ", "
 //                << cookieTypeToName(pCookie->evtype) << endl;

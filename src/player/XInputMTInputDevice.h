@@ -55,7 +55,7 @@ private:
     void findMTDevice();
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
 
-    static int filterEvent(const SDL_Event * pEvent);
+    static int filterEvent(void* pUserData, SDL_Event * pEvent);
 
     static ::Display* s_pDisplay;
     void (*m_SDLLockFunc)(void);
