@@ -53,7 +53,7 @@ class AVG_API SDLWindow: public Window
         std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
         void setMousePos(const IntPoint& pos);
-        bool setGamma(float red, float green, float blue);
+        void setGamma(float red, float green, float blue);
 #ifdef _WIN32
         HWND getWinHWnd();
 #endif

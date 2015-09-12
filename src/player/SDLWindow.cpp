@@ -103,9 +103,6 @@ SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig g
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     }
 
-#ifdef __linux__
-    setEnv("DISPLAY", ":0."+toString(wp.m_DisplayServer));
-#endif
     while (glConfig.m_MultiSampleSamples && !m_SDLGLContext) {
         if (glConfig.m_MultiSampleSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -281,7 +278,7 @@ void SDLWindow::setMousePos(const IntPoint& pos)
     SDL_WarpMouseInWindow(m_pSDLWindow, pos.x, pos.y);
 }
 
-bool SDLWindow::setGamma(float red, float green, float blue)
+void SDLWindow::setGamma(float red, float green, float blue)
 {
     Uint16 redRamp[256];
     Uint16 greenRamp[256];
@@ -290,7 +287,9 @@ bool SDLWindow::setGamma(float red, float green, float blue)
     SDL_CalculateGammaRamp(green, greenRamp);
     SDL_CalculateGammaRamp(blue, blueRamp);
     int rc = SDL_SetWindowGammaRamp(m_pSDLWindow, redRamp, greenRamp, blueRamp);
-    return rc == 0;
+    if (rc != 0) {
+        AVG_LOG_INFO("Unable to set display gamma.");
+    }
 }
 
 #ifdef _WIN32

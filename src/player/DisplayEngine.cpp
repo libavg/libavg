@@ -27,6 +27,7 @@
 #include "KeyEvent.h"
 #include "DisplayParams.h"
 #include "SDLWindow.h"
+#include "SecondaryWindow.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -104,8 +105,18 @@ DisplayEngine::~DisplayEngine()
 void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     for (int i=0; i<dp.getNumWindows(); ++i) {
-        m_pWindows.push_back(WindowPtr(new SDLWindow(dp, dp.getWindowParams(i),
-                glConfig)));
+        if (dp.getWindowParams(i).m_DisplayServer == 0) {
+            m_pWindows.push_back(WindowPtr(new SDLWindow(dp, dp.getWindowParams(i),
+                    glConfig)));
+        } else {
+#ifdef __linux__
+            m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
+                    dp.isFullscreen(), glConfig)));
+#else
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                    "Setting DisplayServer != 0 is only valid under linux.");
+#endif
+        }
     }
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
         m_pWindows[0]->setGamma(1.0f, 1.0f, 1.0f);
@@ -223,14 +234,10 @@ void DisplayEngine::setGamma(float red, float green, float blue)
         throw Exception(AVG_ERR_UNSUPPORTED, "setGamma needs an open window.");
     }
     if (red > 0) {
-        bool bOk = dynamic_pointer_cast<SDLWindow>(m_pWindows[0])
-                ->setGamma(red, green, blue);
+        dynamic_pointer_cast<SDLWindow>(m_pWindows[0])->setGamma(red, green, blue);
         m_Gamma[0] = red;
         m_Gamma[1] = green;
         m_Gamma[2] = blue;
-        if (!bOk) {
-            AVG_LOG_INFO("Unable to set display gamma.");
-        }
     }
 }
 

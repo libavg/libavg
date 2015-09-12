@@ -60,7 +60,7 @@ class AVG_API Window
         
         virtual std::vector<EventPtr> pollEvents() = 0;
 
-        virtual bool setGamma(float red, float green, float blue) = 0;
+        virtual void setGamma(float red, float green, float blue) {};
 #ifdef _WIN32
         virtual HWND getWinHWnd() = 0;
 #endif

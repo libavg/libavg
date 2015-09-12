@@ -25,6 +25,7 @@
 #include "GLContext.h"
 
 #include "../base/Exception.h"
+#include "../base/Rect.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -38,7 +39,9 @@ class AVG_API GLXContext: public GLContext
 {
 public:
     GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-        const SDL_SysWMinfo* pSDLWMInfo=0);
+            const SDL_SysWMinfo* pSDLWMInfo=0);
+    GLXContext(const GLConfig& glConfig, const std::string& sDisplay,
+            const IntRect& windowDimensions, bool bHasWindowFrame);
     virtual ~GLXContext();
 
     void activate();
@@ -51,6 +54,8 @@ public:
 private:
     void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
             const SDL_SysWMinfo* pSDLWMInfo);
+    void createContextAndWindow(GLConfig& glConfig, const std::string& sDisplay,
+        const IntRect& windowDimensions, bool bHasWindowFrame);
     XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig);
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
@@ -67,6 +72,8 @@ private:
     bool m_bOwnsDisplay;
     ::GLXContext m_Context;
     GLXDrawable m_Drawable;
+
+    ::Window m_Window; // Only used if window not created by libSDL.
 
     bool m_bVBlankActive;
 };

@@ -46,14 +46,32 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(windowSize),
       m_pDisplay(0),
+      m_bOwnsDisplay(false),
       m_Context(0),
       m_Drawable(0),
+      m_Window(0),
       m_bVBlankActive(false)
 {
     s_bX11Error = false;
     GLConfig config = glConfig;
     createGLXContext(config, windowSize, pSDLWMInfo);
     init(config, pSDLWMInfo == 0);
+}
+
+GLXContext::GLXContext(const GLConfig& glConfig, const string& sDisplay,
+            const IntRect& windowDimensions, bool bHasWindowFrame)
+    : GLContext(windowDimensions.size()),
+      m_pDisplay(0),
+      m_bOwnsDisplay(true),
+      m_Context(0),
+      m_Drawable(0),
+      m_Window(0),
+      m_bVBlankActive(0)
+{
+    s_bX11Error = false;
+    GLConfig config = glConfig;
+    createContextAndWindow(config, sDisplay, windowDimensions, bHasWindowFrame);
+    init(config, 0);
 }
 
 GLXContext::~GLXContext()
@@ -130,6 +148,48 @@ void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize
         glXMakeCurrent(getDisplay(), pixmap, m_Context);
         resetX11ErrorHandler();
     }
+
+    throwOnXError();
+    m_Drawable = glXGetCurrentDrawable();
+}
+void GLXContext::createContextAndWindow(GLConfig& glConfig, const string& sDisplay,
+        const IntRect& windowDimensions, bool bHasWindowFrame)
+{
+    setX11ErrorHandler();
+
+    ::Display* pDisplay = XOpenDisplay(sDisplay.c_str());
+    m_bOwnsDisplay = true;
+    if (!pDisplay) {
+        resetX11ErrorHandler();
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "Display '" + sDisplay + "' is not available.");
+    }
+    XVisualInfo* pVisualInfo = createDetachedContext(pDisplay, glConfig);
+
+    XSetWindowAttributes swa;
+    swa.event_mask = ButtonPressMask;
+    swa.colormap = getColormap();
+    swa.override_redirect = !bHasWindowFrame;
+
+    int borderWidth;
+    if (bHasWindowFrame) {
+        borderWidth = 5;
+    } else {
+        borderWidth = 0;
+    }
+    m_Window = XCreateWindow(getDisplay(), DefaultRootWindow(getDisplay()),
+            0, 0, windowDimensions.width(), windowDimensions.height(), borderWidth,
+            pVisualInfo->depth, InputOutput, pVisualInfo->visual,
+            CWColormap | CWEventMask | CWOverrideRedirect, &swa);
+    AVG_ASSERT(m_Window);
+    XMapWindow(getDisplay(), m_Window);
+    XStoreName(getDisplay(), m_Window, "libavg secondary window");
+    XMoveWindow(getDisplay(), m_Window, windowDimensions.tl.x, windowDimensions.tl.y);
+
+    setCurrent();
+    glXMakeCurrent(getDisplay(), m_Window, m_Context);
+
+    resetX11ErrorHandler();
 
     throwOnXError();
     m_Drawable = glXGetCurrentDrawable();
