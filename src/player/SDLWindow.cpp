@@ -168,11 +168,7 @@ void SDLWindow::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     getGLContext()->activate();
-#ifdef __linux__
     getGLContext()->swapBuffers();
-#else
-    SDL_GL_SwapWindow(m_pSDLWindow);
-#endif
     GLContext::checkError("swapBuffers()");
 }
 
