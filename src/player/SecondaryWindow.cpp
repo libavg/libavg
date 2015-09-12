@@ -32,10 +32,10 @@
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
 
-#include "../graphics/GLXContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 #ifdef __linux__
+#include "../graphics/GLXContext.h"
 #include "../graphics/GLContextManager.h"
 #endif
 
@@ -75,12 +75,12 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
 void SecondaryWindow::swapBuffers() const
 {
+#ifdef __linux__
     ScopeTimer timer(SwapBufferProfilingZone);
     getGLContext()->activate();
-#ifdef __linux__
     getGLContext()->swapBuffers();
-#endif
     GLContext::checkError("swapBuffers()");
+#endif
 }
 
 
