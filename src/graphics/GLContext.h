@@ -78,7 +78,7 @@ public:
     virtual bool useDepthBuffer() const;
 
     virtual bool initVBlank(int rate);
-    virtual void swapBuffers(SDL_Window* pSDLWindow);
+    virtual void swapBuffers(SDL_Window* pSDLWindow) = 0;
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);

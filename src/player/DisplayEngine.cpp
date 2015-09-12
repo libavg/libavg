@@ -26,7 +26,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #include "DisplayParams.h"
-#include "Window.h"
+#include "SDLWindow.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -44,6 +44,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
+#include <boost/pointer_cast.hpp>
 #include <SDL2/SDL.h>
 
 #ifdef __APPLE__
@@ -64,6 +65,7 @@
 #endif
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -102,7 +104,7 @@ DisplayEngine::~DisplayEngine()
 void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
     for (int i=0; i<dp.getNumWindows(); ++i) {
-        m_pWindows.push_back(WindowPtr(new Window(dp, dp.getWindowParams(i),
+        m_pWindows.push_back(WindowPtr(new SDLWindow(dp, dp.getWindowParams(i),
                 glConfig)));
     }
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
@@ -221,7 +223,8 @@ void DisplayEngine::setGamma(float red, float green, float blue)
         throw Exception(AVG_ERR_UNSUPPORTED, "setGamma needs an open window.");
     }
     if (red > 0) {
-        bool bOk = m_pWindows[0]->setGamma(red, green, blue);
+        bool bOk = dynamic_pointer_cast<SDLWindow>(m_pWindows[0])
+                ->setGamma(red, green, blue);
         m_Gamma[0] = red;
         m_Gamma[1] = green;
         m_Gamma[2] = blue;
@@ -233,7 +236,7 @@ void DisplayEngine::setGamma(float red, float green, float blue)
 
 void DisplayEngine::setMousePos(const IntPoint& pos)
 {
-    m_pWindows[0]->setMousePos(pos);
+    dynamic_pointer_cast<SDLWindow>(m_pWindows[0])->setMousePos(pos);
 }
 
 int DisplayEngine::getKeyModifierState() const

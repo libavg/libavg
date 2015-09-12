@@ -26,7 +26,7 @@
 #include "AVGNode.h"
 #include "TouchStatus.h"
 #include "DisplayEngine.h"
-#include "Window.h"
+#include "SDLWindow.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -34,6 +34,7 @@
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
 
+#include <boost/pointer_cast.hpp>
 #include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL.h>
 
@@ -41,6 +42,7 @@
 #include <X11/extensions/XInput2.h>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -137,7 +139,7 @@ void XInputMTInputDevice::start()
     detInfo.deviceid = m_DeviceID;
     XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&detInfo, 1);
 
-    pEngine->getWindow(0)->setXIMTInputDevice(this);
+    dynamic_pointer_cast<SDLWindow>(pEngine->getWindow(0))->setXIMTInputDevice(this);
     MultitouchInputDevice::start();
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "XInput Multitouch event source created.");
