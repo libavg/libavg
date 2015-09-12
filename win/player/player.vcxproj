@@ -96,6 +96,8 @@
     <ClCompile Include="..\..\src\player\PythonLogSink.cpp" />
     <ClCompile Include="..\..\src\player\RasterNode.cpp" />
     <ClCompile Include="..\..\src\player\RectNode.cpp" />
+    <ClCompile Include="..\..\src\player\SDLWindow.cpp" />
+    <ClCompile Include="..\..\src\player\SecondaryWindow.cpp" />
     <ClCompile Include="..\..\src\player\ShadowFXNode.cpp" />
     <ClCompile Include="..\..\src\player\Shape.cpp" />
     <ClCompile Include="..\..\src\player\SoundNode.cpp" />
@@ -178,6 +180,8 @@
     <ClInclude Include="..\..\src\player\PythonLogSink.h" />
     <ClInclude Include="..\..\src\player\RasterNode.h" />
     <ClInclude Include="..\..\src\player\RectNode.h" />
+    <ClInclude Include="..\..\src\player\SDLWindow.h" />
+    <ClInclude Include="..\..\src\player\SecondaryWindow.h" />
     <ClInclude Include="..\..\src\player\ShadowFXNode.h" />
     <ClInclude Include="..\..\src\player\Shape.h" />
     <ClInclude Include="..\..\src\player\SoundNode.h" />
