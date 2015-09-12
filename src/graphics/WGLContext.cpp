@@ -121,7 +121,7 @@ void WGLContext::activate()
     setCurrent();
 }
 
-void WGLContext::swapBuffers(SDL_Window* pSDLWindow)
+void WGLContext::swapBuffers()
 {
     BOOL bOk = SwapBuffers(m_hDC);
     checkWinError(bOk, "wglSwapBuffers");

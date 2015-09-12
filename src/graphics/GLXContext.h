@@ -43,7 +43,7 @@ public:
 
     void activate();
     bool useDepthBuffer() const;
-    void swapBuffers(SDL_Window* pSDLWindow);
+    void swapBuffers();
 
     static bool haveARBCreateContext();
     static bool isGLESSupported();

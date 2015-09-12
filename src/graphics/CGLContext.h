@@ -30,7 +30,6 @@
 #include <boost/shared_ptr.hpp>
 
 struct SDL_SysWMinfo;
-struct SDL_Window;
 
 namespace avg {
 
@@ -42,7 +41,7 @@ public:
     virtual ~CGLContext();
 
     void activate();
-    void swapBuffers(SDL_Window* pSDLWindow);
+    void swapBuffers();
 
 private:
     CGLContextObj m_Context;

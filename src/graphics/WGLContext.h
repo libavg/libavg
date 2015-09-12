@@ -27,7 +27,6 @@
 #include <boost/shared_ptr.hpp>
 
 struct SDL_SysWMinfo;
-struct SDL_Window;
 
 namespace avg {
 
@@ -39,7 +38,7 @@ public:
     virtual ~WGLContext();
 
     void activate();
-    void swapBuffers(SDL_Window* pSDLWindow);
+    void swapBuffers();
 
 private:
     bool queryWGLExtension(const char* extName);

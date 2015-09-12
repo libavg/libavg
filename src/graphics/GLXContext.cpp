@@ -82,7 +82,7 @@ bool GLXContext::useDepthBuffer() const
     return true;
 }
 
-void GLXContext::swapBuffers(SDL_Window* pSDLWindow)
+void GLXContext::swapBuffers()
 {
     glXSwapBuffers(m_pDisplay, m_Drawable);
 }
