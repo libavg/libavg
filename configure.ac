@@ -63,14 +63,12 @@ PKG_CHECK_MODULES([FONTCONFIG], [fontconfig])
 
 PKG_CHECK_MODULES([FFMPEG], [libswscale libavformat libavcodec libavutil], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
 AC_SUBST(LIBFFMPEG)
-AC_CHECK_HEADERS([libavformat/avformat.h])
 if test -z "$FFMPEG_LIBS"; then
   AC_MSG_ERROR([Could not find ffmpeg development libraries.])
 fi
 
 PKG_CHECK_MODULES([AVRESAMPLE], [libavresample], [LIBAVRESAMPLE="$AVRESAMPLE_LIBS"], [:])
 AC_SUBST(LIBAVRESAMPLE)
-AC_CHECK_HEADERS([libavresample/avresample.h])
 
 AM_PATH_PYTHON
 AX_PYTHON_DEVEL
