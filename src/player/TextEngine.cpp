@@ -270,9 +270,7 @@ void TextEngine::initFonts()
     for(std::vector<std::string>::const_iterator it = m_sFontDirs.begin();
             it != m_sFontDirs.end(); ++it)
     {
-        ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
-        checkFontError(ok, string("Font error: FcConfigAppFontAddDir("
-                    + *it + ") failed."));
+        FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
     }
     /*
        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
