@@ -38,6 +38,7 @@ public:
     virtual ~EGLContext();
 
     void activate();
+    void swapBuffers();
 
 private:
     void useSDLContext(const SDL_SysWMinfo* pSDLWMInfo);
