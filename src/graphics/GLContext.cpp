@@ -401,7 +401,9 @@ bool GLContext::initVBlank(int rate)
 {
     int rc = SDL_GL_SetSwapInterval(rate);
     if (rc == -1) {
+#ifndef WIN32
         AVG_LOG_WARNING("VBlank setup failed.");
+#endif
         return false;
     } else {
         return true;
