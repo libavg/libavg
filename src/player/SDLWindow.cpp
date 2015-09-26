@@ -168,7 +168,11 @@ void SDLWindow::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     getGLContext()->activate();
+#ifdef AVG_ENABLE_RPI
+    SDL_GL_SwapWindow(m_pSDLWindow);
+#else
     getGLContext()->swapBuffers();
+#endif
     GLContext::checkError("swapBuffers()");
 }
 

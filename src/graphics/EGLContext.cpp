@@ -161,7 +161,7 @@ void EGLContext::activate()
 
 void EGLContext::swapBuffers()
 {
-    eglSwapBuffers(m_Display, m_Surface);
+    AVG_ASSERT(false);
 }
 
 void EGLContext::checkEGLError(bool bError, const std::string& sMsg)
