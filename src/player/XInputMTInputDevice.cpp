@@ -77,7 +77,7 @@ void XInputMTInputDevice::start()
     m_DisplayScale.x = size.x/windowSize.x;
     m_DisplayScale.y = size.y/windowSize.y;
     
-    s_pDisplay = pEngine->getWindow(0)->getX11Display();
+    s_pDisplay = XOpenDisplay(0);
 
     // XInput Extension available?
     int event, error;
