@@ -57,6 +57,10 @@ class AVG_API SDLWindow: public Window
 #ifdef _WIN32
         HWND getWinHWnd();
 #endif
+#ifdef __linux__
+        virtual ::Display* getX11Display();
+        virtual ::Window getX11Window();
+#endif
 
     private:
         EventPtr createMouseEvent

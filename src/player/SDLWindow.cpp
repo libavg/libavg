@@ -304,6 +304,26 @@ HWND SDLWindow::getWinHWnd()
 }
 #endif
 
+#ifdef __linux__
+::Display* SDLWindow::getX11Display()
+{
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    bool bOk = SDL_GetWindowWMInfo(m_pSDLWindow, &info);
+    AVG_ASSERT(bOk);
+    return info.info.x11.display;
+}
+
+::Window SDLWindow::getX11Window()
+{
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    bool bOk = SDL_GetWindowWMInfo(m_pSDLWindow, &info);
+    AVG_ASSERT(bOk);
+    return info.info.x11.window;
+}
+#endif
+
 EventPtr SDLWindow::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
         long button)
 {

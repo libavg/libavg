@@ -35,6 +35,9 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#ifdef __linux__
+#include <X11/Xlib.h>
+#endif
 
 namespace avg {
 
@@ -63,6 +66,10 @@ class AVG_API Window
         virtual void setGamma(float red, float green, float blue) {};
 #ifdef _WIN32
         virtual HWND getWinHWnd() = 0;
+#endif
+#ifdef __linux__
+        virtual ::Display* getX11Display() { return 0;};
+        virtual ::Window getX11Window() { return 0;};
 #endif
 
     protected:

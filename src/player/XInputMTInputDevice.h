@@ -58,9 +58,6 @@ private:
     static int filterEvent(void* pUserData, SDL_Event * pEvent);
 
     static ::Display* s_pDisplay;
-    void (*m_SDLLockFunc)(void);
-    void (*m_SDLUnlockFunc)(void);
-
     int m_XIOpcode;
 
     std::string m_sDeviceName;
