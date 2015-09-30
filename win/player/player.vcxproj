@@ -118,7 +118,6 @@
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
-    <ClCompile Include="..\..\src\player\Win7TouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Window.cpp" />
     <ClCompile Include="..\..\src\player\WindowParams.cpp" />
     <ClCompile Include="..\..\src\player\WordsNode.cpp" />
@@ -202,7 +201,6 @@
     <ClInclude Include="..\..\src\player\VideoNode.h" />
     <ClInclude Include="..\..\src\player\VideoWriter.h" />
     <ClInclude Include="..\..\src\player\VideoWriterThread.h" />
-    <ClInclude Include="..\..\src\player\Win7TouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Window.h" />
     <ClInclude Include="..\..\src\player\WindowParams.h" />
     <ClInclude Include="..\..\src\player\WordsNode.h" />
