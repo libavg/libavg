@@ -670,16 +670,6 @@ void Player::enableMouse(bool enabled)
     }
 }
 
-bool Player::isMultitouchAvailable() const
-{
-    if (m_bIsPlaying) {
-        return m_pMultitouchInputDevice != 0;
-    } else {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Must call Player.play() before isMultitouchAvailable().");
-    }
-}
-
 void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =

@@ -93,7 +93,6 @@ class EventTestCase(AVGTestCase):
         self.start(False,
                 (# down, getMouseState(), move, up.
                  # events are inside img1 but outside img2.
-                 lambda: self.assert_(not(player.isMultitouchAvailable())),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 10, 10),
                  lambda: handlerTester1.assertState(
                         (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER)),
@@ -115,7 +114,6 @@ class EventTestCase(AVGTestCase):
         
         self.start(False,
                 (# down, move, up.
-                 lambda: self.assert_(not(player.isMultitouchAvailable())),
                  lambda: self._sendTangibleEvent(1, 3, avg.Event.CURSOR_DOWN, 10, 10),
                  lambda: handlerTester1.assertState(
                         (avg.Node.TANGIBLE_DOWN, avg.Node.TANGIBLE_OVER)),

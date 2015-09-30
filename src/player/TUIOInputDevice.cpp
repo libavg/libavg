@@ -178,9 +178,7 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
                 processIndexFrame(args);
             }
         }
-        if (!m_bConnected && !m_Touches.empty() 
-                && strcmp(msg.AddressPattern(), "/tuio") == 0)
-        {
+        if (!m_bConnected && strstr(msg.AddressPattern(), "/tuio") != 0) {
             m_bConnected = true;
             AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                     "Receiving TUIO messages");
