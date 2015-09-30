@@ -63,7 +63,8 @@ bool TUIOInputDevice::isEnabled()
 TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
     : MultitouchInputDevice(pEventReceiverNode),
       m_pSocket(0),
-      m_RemoteIP(0)
+      m_RemoteIP(0),
+      m_bConnected(false)
 {
     if (port != 0) {
         m_Port = port;
@@ -176,6 +177,13 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
             } else if (strcmp(cmd, "indexframe") == 0) {
                 processIndexFrame(args);
             }
+        }
+        if (!m_bConnected && !m_Touches.empty() 
+                && strcmp(msg.AddressPattern(), "/tuio") == 0)
+        {
+            m_bConnected = true;
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Receiving TUIO messages");
         }
     } catch (osc::Exception& e) {
         AVG_LOG_WARNING("Error parsing TUIO message: " << e.what()
