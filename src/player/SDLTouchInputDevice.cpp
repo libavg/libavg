@@ -44,10 +44,8 @@ SDLTouchInputDevice* SDLTouchInputDevice::s_pInstance(0);
 SDLTouchInputDevice::SDLTouchInputDevice(const DivNodePtr& pEventReceiverNode)
     : MultitouchInputDevice(pEventReceiverNode)
 {
-    // TODO: This doesn't look robust.
-    m_ClientAreaOffset = IntPoint(GetSystemMetrics(SM_CYBORDER)+2, GetSystemMetrics(SM_CYCAPTION)+3);
-    s_pInstance = this;
 #ifdef _WIN32
+    s_pInstance = this;
     HWND hwnd = Player::get()->getDisplayEngine()->getWindow(0)->getWinHWnd();
     m_OldWndProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)touchWndSubclassProc);
 #endif
@@ -95,8 +93,6 @@ void SDLTouchInputDevice::onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlE
             || sdlEvent.type == SDL_FINGERUP);
     SDL_TouchFingerEvent fingerEvent = sdlEvent.tfinger;
     glm::vec2 normPos(fingerEvent.x, fingerEvent.y);
-    RECT winRect;
-    bool bOk = GetWindowRect(pWindow->getWinHWnd(), &winRect);
     IntPoint winSize(Player::get()->getRootNode()->getSize());
     IntPoint pos = normPos * glm::vec2(winSize);
     pos.x = min(max(pos.x, 0), winSize.x-1);

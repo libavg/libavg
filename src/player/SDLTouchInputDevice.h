@@ -40,14 +40,13 @@ public:
     void onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlEvent);
 
 private:
-    IntPoint m_ClientAreaOffset;
 #ifdef _WIN32
     static SDLTouchInputDevice* s_pInstance;
     WNDPROC m_OldWndProc;
-#endif
 
     static LRESULT APIENTRY touchWndSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam,
             LPARAM lParam);
+#endif
 };
 
 typedef boost::shared_ptr<SDLTouchInputDevice> SDLTouchInputDevicePtr;
