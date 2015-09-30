@@ -39,7 +39,8 @@
 
 namespace avg {
 
-class XInputMTInputDevice;
+class SDLTouchInputDevice;
+typedef boost::shared_ptr<SDLTouchInputDevice> SDLTouchInputDevicePtr;
 
 class AVG_API SDLWindow: public Window
 {
@@ -47,11 +48,11 @@ class AVG_API SDLWindow: public Window
         SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfig);
         virtual ~SDLWindow();
 
+		void setTouchHandler(SDLTouchInputDevicePtr pInputDevice);
         void setTitle(const std::string& sTitle);
         void swapBuffers() const;
 
         std::vector<EventPtr> pollEvents();
-        void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
         void setMousePos(const IntPoint& pos);
         void setGamma(float red, float green, float blue);
 #ifdef _WIN32
@@ -73,7 +74,7 @@ class AVG_API SDLWindow: public Window
 
         // Event handling.
         glm::vec2 m_LastMousePos;
-        XInputMTInputDevice * m_pXIMTInputDevice;
+        SDLTouchInputDevicePtr m_pTouchInputDevice;
 };
 
 typedef boost::shared_ptr<SDLWindow> SDLWindowPtr;

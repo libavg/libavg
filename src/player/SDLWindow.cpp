@@ -26,9 +26,7 @@
 
 #include "Player.h"
 #include "MouseEvent.h"
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-#include "XInputMTInputDevice.h" 
-#endif
+#include "SDLTouchInputDevice.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -143,11 +141,6 @@ SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig g
             GLContextManager::get()->createContext(glConfig, wp.m_Size, &info);
     setGLContext(pGLContext);
     pGLContext->logConfig();
-
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    m_pXIMTInputDevice = 0;
-#endif
 }
 
 SDLWindow::~SDLWindow()
@@ -155,6 +148,11 @@ SDLWindow::~SDLWindow()
     if (m_pSDLWindow) {
         SDL_DestroyWindow(m_pSDLWindow);
     }
+}
+
+void SDLWindow::setTouchHandler(SDLTouchInputDevicePtr pInputDevice)
+{
+	m_pTouchInputDevice = pInputDevice;
 }
 
 void SDLWindow::setTitle(const string& sTitle)
@@ -238,18 +236,14 @@ vector<EventPtr> SDLWindow::pollEvents()
             case SDL_QUIT:
                 pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                 break;
-            case SDL_SYSWMEVENT:
-                {
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-                    SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
-                    AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-                    if (m_pXIMTInputDevice) {
-                        m_pXIMTInputDevice->handleXIEvent(pMsg->msg.x11.event);
-                    }
-#endif
-                }
-                break;
-            default:
+            case SDL_FINGERMOTION:
+            case SDL_FINGERDOWN:
+            case SDL_FINGERUP:
+            if (m_pTouchInputDevice) {
+                m_pTouchInputDevice->onTouchEvent(this, sdlEvent);
+            }
+            break;
+			default:
                 // Ignore unknown events.
                 break;
         }
@@ -265,12 +259,6 @@ vector<EventPtr> SDLWindow::pollEvents()
                 "SDL Event queue full, dropping events.");
     }
     return events;
-}
-
-void SDLWindow::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
-{
-    AVG_ASSERT(!m_pXIMTInputDevice);
-    m_pXIMTInputDevice = pInputDevice;
 }
 
 void SDLWindow::setMousePos(const IntPoint& pos)

@@ -119,8 +119,8 @@ glm::vec2 MultitouchInputDevice::getTouchArea() const
 
 IntPoint MultitouchInputDevice::getScreenPos(const glm::vec2& pos) const
 {
-        return IntPoint(int(pos.x * m_TouchArea.x + m_TouchOffset.x + 0.5),
-                        int(pos.y * m_TouchArea.y + m_TouchOffset.y) + 0.5);
+    return IntPoint(int(pos.x * m_TouchArea.x + m_TouchOffset.x + 0.5),
+            int(pos.y * m_TouchArea.y + m_TouchOffset.y) + 0.5);
 }
 
 boost::mutex& MultitouchInputDevice::getMutex()

@@ -47,8 +47,10 @@
 #include "DisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
+#include "SDLTouchInputDevice.h"
 #include "OGLSurface.h"
 #include "Window.h"
+#include "SDLWindow.h"
 #include "Contact.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
@@ -95,6 +97,7 @@
 #endif
 
 #include <glib-object.h>
+#include <boost/pointer_cast.hpp>
 #include <typeinfo>
 
 using namespace std;
@@ -554,7 +557,11 @@ void Player::initPlayback()
         m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
         addInputDevice(m_pMultitouchInputDevice);
     } else {
-        m_pMultitouchInputDevice = InputDevicePtr();
+		SDLTouchInputDevicePtr pMultitouchInputDevice =
+				SDLTouchInputDevicePtr(new SDLTouchInputDevice);
+		dynamic_pointer_cast<SDLWindow>(m_pDisplayEngine->getWindow(0))
+				->setTouchHandler(pMultitouchInputDevice);
+        m_pMultitouchInputDevice = pMultitouchInputDevice;
     }
 
     m_pDisplayEngine->initRender();
