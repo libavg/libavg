@@ -49,12 +49,6 @@
 #include "TUIOInputDevice.h"
 #include "OGLSurface.h"
 #include "Window.h"
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-    #include "Win7TouchInputDevice.h"
-#endif
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-    #include "XInputMTInputDevice.h"
-#endif
 #include "Contact.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
@@ -663,31 +657,8 @@ void Player::enableMultitouch()
 
     string sDriver;
     getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
-    if (sDriver == "") {
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-        sDriver = "WIN7TOUCH";
-#elif defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        sDriver = "XINPUT";
-#else
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT and TUIO.");
-        throw Exception(AVG_ERR_MT_INIT,
-                "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
-#endif
-    }
     if (sDriver == "TUIO") {
         m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-    } else if (sDriver == "WIN7TOUCH") {
-        HWND hwnd = m_pDisplayEngine->getWindow(0)->getWinHWnd();
-        m_pMultitouchInputDevice = InputDevicePtr(new Win7TouchInputDevice(hwnd));
-#endif
-    } else if (sDriver == "XINPUT" || sDriver == "XINPUT21") {
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        m_pMultitouchInputDevice =  InputDevicePtr(new XInputMTInputDevice());
-#else
-        throw Exception(AVG_ERR_MT_INIT,
-                "XInput multitouch event source: Support not configured.'");
-#endif
     } else {
         AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT and TUIO.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+

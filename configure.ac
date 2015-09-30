@@ -94,20 +94,6 @@ if test x"$DC1394_2_LIBS" != "x"; then
     AC_DEFINE(AVG_ENABLE_1394_2, 1, [Enable firewire camera support v.2])
 fi
 
-if test $target_vendor = apple; then
-    AM_CONDITIONAL(HAVE_XI2_1, false)
-    AM_CONDITIONAL(HAVE_XI2_2, false)
-else
-    PKG_CHECK_MODULES(XI2_1, [xi >= 1.4.1.99.1] [inputproto >= 2.0.99.1] [inputproto < 2.1.99.5],
-                      HAVE_XI2_1="yes"; AC_DEFINE(HAVE_XI2_1, 1, [XI2_1 available]),
-                      HAVE_XI2_1="no");
-    PKG_CHECK_MODULES(XI2_2, [xi >= 1.5.99.2] [inputproto >= 2.1.99.5],
-                      HAVE_XI2_2="yes"; AC_DEFINE(HAVE_XI2_2, 1, [XI2_2 available]),
-                      HAVE_XI2_2="no");
-    AM_CONDITIONAL(HAVE_XI2_1, [ test "$HAVE_XI2_1" = "yes" ])
-    AM_CONDITIONAL(HAVE_XI2_2, [ test "$HAVE_XI2_2" = "yes" ])
-fi
-
 AC_ARG_ENABLE(v4l2,
           AC_HELP_STRING([--enable-v4l2],
                  [compile support for video4linux v2 video devices]),

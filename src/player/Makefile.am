@@ -23,19 +23,6 @@ endif
 endif
 endif
 
-if HAVE_XI2_1
-    XINPUT2_SOURCES = XInputMTInputDevice.cpp
-    XINPUT2_INCLUDES = XInputMTInputDevice.h
-else
-if HAVE_XI2_2
-    XINPUT2_SOURCES = XInputMTInputDevice.cpp
-    XINPUT2_INCLUDES = XInputMTInputDevice.h
-else
-    XINPUT2_SOURCES =
-    XINPUT2_INCLUDES =
-endif
-endif
-
 GL_SOURCES = OGLSurface.cpp
 GL_INCLUDES = OGLSurface.h
 
@@ -60,7 +47,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         PublisherDefinitionRegistry.h MessageID.h VersionInfo.h \
         PythonLogSink.h BitmapManager.h BitmapManagerThread.h IBitmapLoadedListener.h \
         BitmapManagerMsg.h \
-        $(GL_INCLUDES) $(XINPUT2_INCLUDES)
+        $(GL_INCLUDES)
 
 TESTS = testplayer
 
@@ -72,7 +59,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_CFLAGS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ \
         @LIBRSVG_LIBS@ \
-        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) $(XI2_2_LIBS) \
+        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) \
         @LIBFFMPEG@ @LIBAVRESAMPLE@ $(BOOST_PYTHON_LIBS) $(PYTHON_LDFLAGS) @GDK_PIXBUF_LIBS@ \
         @FONTCONFIG_LIBS@
 
@@ -99,5 +86,5 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
         PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
         BitmapManagerMsg.cpp \
-        $(XINPUT2_SOURCES) $(ALL_H)
+        $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
