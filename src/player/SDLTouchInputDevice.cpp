@@ -48,8 +48,8 @@ SDLTouchInputDevice::SDLTouchInputDevice(const DivNodePtr& pEventReceiverNode)
     m_ClientAreaOffset = IntPoint(GetSystemMetrics(SM_CYBORDER)+2, GetSystemMetrics(SM_CYCAPTION)+3);
     s_pInstance = this;
 #ifdef _WIN32
-	HWND hwnd = Player::get()->getDisplayEngine()->getWindow(0)->getWinHWnd();
-	m_OldWndProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)touchWndSubclassProc);
+    HWND hwnd = Player::get()->getDisplayEngine()->getWindow(0)->getWinHWnd();
+    m_OldWndProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)touchWndSubclassProc);
 #endif
 }
 
@@ -57,7 +57,7 @@ SDLTouchInputDevice::SDLTouchInputDevice(const DivNodePtr& pEventReceiverNode)
 #define MOUSEEVENTF_FROMTOUCH 0xFF515700
 
 LRESULT APIENTRY SDLTouchInputDevice::touchWndSubclassProc(HWND hwnd, UINT uMsg,
-		WPARAM wParam, LPARAM lParam)
+        WPARAM wParam, LPARAM lParam)
 {
     // This is called before SDL event processing and discards all mouse events that have
     // corresponding touch events.
@@ -97,10 +97,10 @@ void SDLTouchInputDevice::onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlE
     glm::vec2 normPos(fingerEvent.x, fingerEvent.y);
     RECT winRect;
     bool bOk = GetWindowRect(pWindow->getWinHWnd(), &winRect);
-	IntPoint winSize(Player::get()->getRootNode()->getSize());
+    IntPoint winSize(Player::get()->getRootNode()->getSize());
     IntPoint pos = normPos * glm::vec2(winSize);
-	pos.x = min(max(pos.x, 0), winSize.x-1);
-	pos.y = min(max(pos.y, 0), winSize.y-1);
+    pos.x = min(max(pos.x, 0), winSize.x-1);
+    pos.y = min(max(pos.y, 0), winSize.y-1);
     switch (sdlEvent.type) {
         case SDL_FINGERDOWN:
             {
@@ -130,10 +130,10 @@ void SDLTouchInputDevice::onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlE
                 pTouchStatus->pushEvent(pEvent);
             }
             break;
-		default:
+        default:
             AVG_ASSERT(false);
             break;
-	}
+    }
 }
 
 }

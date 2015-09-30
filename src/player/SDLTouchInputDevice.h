@@ -37,13 +37,13 @@ class AVG_API SDLTouchInputDevice: public MultitouchInputDevice
 public:
     SDLTouchInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
     
-	void onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlEvent);
+    void onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlEvent);
 
 private:
     IntPoint m_ClientAreaOffset;
 #ifdef _WIN32
     static SDLTouchInputDevice* s_pInstance;
-	WNDPROC m_OldWndProc;
+    WNDPROC m_OldWndProc;
 #endif
 
     static LRESULT APIENTRY touchWndSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam,
