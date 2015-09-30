@@ -550,13 +550,17 @@ void Player::initPlayback()
     m_pEventDispatcher->addInputDevice(
             boost::dynamic_pointer_cast<InputDevice>(m_pDisplayEngine));
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
+    if (TUIOInputDevice::isEnabled()) {
+        m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
+        m_pMultitouchInputDevice->start();
+        addInputDevice(m_pMultitouchInputDevice);
+    } else {
+        m_pMultitouchInputDevice = InputDevicePtr();
+    }
 
     m_pDisplayEngine->initRender();
     Display::get()->rereadScreenResolution();
     m_bStopping = false;
-    if (m_pMultitouchInputDevice) {
-        m_pMultitouchInputDevice->start();
-    }
 
     m_FrameTime = 0;
     m_NumFrames = 0;
@@ -646,33 +650,6 @@ float Player::getFrameDuration()
             return 0;
         }
     }
-}
-
-void Player::enableMultitouch()
-{
-    if (!m_bIsPlaying) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Must call Player.play() before enableMultitouch().");
-    }
-
-    string sDriver;
-    getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
-    if (sDriver == "TUIO") {
-        m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
-    } else {
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT and TUIO.");
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
-                sDriver +"'.");
-    }
-    if (m_bIsPlaying) {
-        try {
-            m_pMultitouchInputDevice->start();
-        } catch (Exception&) {
-            m_pMultitouchInputDevice = InputDevicePtr();
-            throw;
-        }
-    }
-    addInputDevice(m_pMultitouchInputDevice);
 }
 
 BitmapPtr Player::getTouchUserBmp() const

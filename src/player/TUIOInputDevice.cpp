@@ -48,6 +48,18 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
     return 0;
 };
 
+bool TUIOInputDevice::isEnabled()
+{
+    string sEnableTUIO;
+    getEnv("AVG_ENABLE_TUIO", sEnableTUIO);
+    string sDriver;
+    getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
+    if (sDriver != "") {
+        avgDeprecationWarning("1.8", "AVG_MULTITOUCH_DRIVER", "AVG_ENABLE_TUIO");
+    }
+    return (sDriver == "TUIO" || sEnableTUIO != "");
+}
+
 TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
     : MultitouchInputDevice(pEventReceiverNode),
       m_pSocket(0),

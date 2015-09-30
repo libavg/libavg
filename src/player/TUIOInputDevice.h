@@ -42,6 +42,8 @@ namespace avg {
 class AVG_API TUIOInputDevice: public MultitouchInputDevice, PacketListener
 {
 public:
+    static bool isEnabled();
+
     TUIOInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr(), int port=0);
     virtual ~TUIOInputDevice();
     virtual void start();
