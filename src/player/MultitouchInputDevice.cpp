@@ -47,15 +47,11 @@ MultitouchInputDevice::MultitouchInputDevice(const DivNodePtr& pEventReceiverNod
         }
         m_TouchOffset = ConfigMgr::get()->getSizeOption("touch", "offset");
     }
+    m_pMutex = MutexPtr(new boost::mutex);
 }
 
 MultitouchInputDevice::~MultitouchInputDevice()
 {
-}
-
-void MultitouchInputDevice::start()
-{
-    m_pMutex = MutexPtr(new boost::mutex);
 }
 
 vector<EventPtr> MultitouchInputDevice::pollEvents()

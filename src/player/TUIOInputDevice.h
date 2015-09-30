@@ -46,7 +46,6 @@ public:
 
     TUIOInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr(), int port=0);
     virtual ~TUIOInputDevice();
-    virtual void start();
    
     virtual unsigned getRemoteIP() const;
     virtual BitmapPtr getUserBmp() const;

@@ -78,19 +78,7 @@ TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
                     + sPort + "'");
         }
     }
-}
 
-TUIOInputDevice::~TUIOInputDevice()
-{
-    if (m_pSocket) {
-        m_pSocket->Break();
-    }
-    delete m_pSocket;
-}
-
-void TUIOInputDevice::start()
-{
-    MultitouchInputDevice::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
                 IpEndpointName::ANY_ADDRESS, m_Port), this);
@@ -110,6 +98,14 @@ void TUIOInputDevice::start()
     DWORD threadId;
     m_Thread = CreateThread(0, 0, threadFunc, this, 0, &threadId);
 #endif
+}
+
+TUIOInputDevice::~TUIOInputDevice()
+{
+    if (m_pSocket) {
+        m_pSocket->Break();
+    }
+    delete m_pSocket;
 }
 
 unsigned TUIOInputDevice::getRemoteIP() const

@@ -552,7 +552,6 @@ void Player::initPlayback()
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
     if (TUIOInputDevice::isEnabled()) {
         m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
-        m_pMultitouchInputDevice->start();
         addInputDevice(m_pMultitouchInputDevice);
     } else {
         m_pMultitouchInputDevice = InputDevicePtr();
