@@ -555,7 +555,6 @@ void Player::initPlayback()
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
     if (TUIOInputDevice::isEnabled()) {
         m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
-        addInputDevice(m_pMultitouchInputDevice);
     } else {
 		SDLTouchInputDevicePtr pMultitouchInputDevice =
 				SDLTouchInputDevicePtr(new SDLTouchInputDevice);
@@ -563,6 +562,7 @@ void Player::initPlayback()
 				->setTouchHandler(pMultitouchInputDevice);
         m_pMultitouchInputDevice = pMultitouchInputDevice;
     }
+    addInputDevice(m_pMultitouchInputDevice);
 
     m_pDisplayEngine->initRender();
     Display::get()->rereadScreenResolution();
