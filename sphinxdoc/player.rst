@@ -233,37 +233,6 @@ Player & Canvas
 
             Enables or disable mouse event handling.
             
-        .. py:method:: enableMultitouch()
-
-            Enables multitouch event handling. Several drivers are available that 
-            generate multitouch events. To choose a driver, set the environment
-            variable :envvar:`AVG_MULTITOUCH_DRIVER` to the appropriate value:
-
-            :samp:`TUIO`:
-                Listens for TUIO events from a tracker that conforms to the TUIO 
-                protocol (http://www.tuio.org), a de-facto standard for multitouch
-                events. By default, it listens to events on the default TUIO UDP port
-                3333, but this can be configured using the environment variable 
-                :envvar:`AVG_TUIO_PORT`.
-
-            :samp:`WIN7TOUCH`:
-                Enables handling of Windows 7 touch events. This works with all devices
-                which have Windows 7 drivers.
-
-            :samp:`XINPUT`:
-                Uses X11-based multitouch detection. This needs X11 with XInput >= 2.1
-                support. For backwards compatibility reasons, XINPUT21 is supported as 
-                value as well.
-
-            If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
-            a plattform-specific one. Under Linux, the default is :samp:`XINPUT`.
-            Under Windows, the default is :samp:`WIN7TOUCH`.
-
-            :py:meth:`enableMultitouch` throws an exception if the chosen driver is not
-            available or no multitouch device could be found. (Exception: Since there is
-            no way to determine if a TUIO device is available, :py:meth:`enableMultitouch`
-            always appears to succeed in this case.)
-
         .. py:method:: getCanvas(id) -> OffscreenCanvas
 
             Returns the offscreen canvas with the :py:attr:`id` given.
@@ -370,11 +339,6 @@ Player & Canvas
 
             Returns :py:const:`True` if the player is running in fullscreen mode.
             
-        .. py:method:: isMultitouchAvailable() -> bool
-
-            Returns :py:const:`True` if a multitouch device has been configured and is
-            active, :py:const:`False` if not. Must be called after :py:meth:`play()`.
-
         .. py:method:: isPlaying() -> bool
 
             Returns :py:const:`True` if :py:meth:`play()` is currently executing, 

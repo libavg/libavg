@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -18,37 +18,39 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _SecondaryGLXContext_H_
-#define _SecondaryGLXContext_H_
+
+#ifndef _SDLTouchInputDevice_H_
+#define _SDLTouchInputDevice_H_
+
 #include "../api.h"
+#include "MultitouchInputDevice.h"
+#include "SDLWindow.h"
 
-#include "GLXContext.h"
-#include "../base/Rect.h"
-
-#include "../base/Exception.h"
-
-#include <boost/shared_ptr.hpp>
-#include <string>
+#include <SDL2/SDL.h>
 
 namespace avg {
 
-class AVG_API SecondaryGLXContext: public GLXContext
+class SDLWindow;
+
+class AVG_API SDLTouchInputDevice: public MultitouchInputDevice
 {
 public:
-    SecondaryGLXContext(const GLConfig& glConfig, const std::string& sDisplay,
-            const IntRect& windowDimensions, bool bHasWindowFrame);
-    virtual ~SecondaryGLXContext();
+    SDLTouchInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
+    
+    void onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlEvent);
 
 private:
-    void createContext(GLConfig& glConfig, const std::string& sDisplay, 
-            const IntRect& windowDimensions, bool bHasWindowFrame);
+#ifdef _WIN32
+    static SDLTouchInputDevice* s_pInstance;
+    WNDPROC m_OldWndProc;
 
-    ::Window m_Window;
+    static LRESULT APIENTRY touchWndSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+            LPARAM lParam);
+#endif
 };
 
-typedef boost::shared_ptr<SecondaryGLXContext> SecondaryGLXContextPtr;
+typedef boost::shared_ptr<SDLTouchInputDevice> SDLTouchInputDevicePtr;
 
 }
+
 #endif
-
-

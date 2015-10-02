@@ -80,3 +80,16 @@ __pycache__/
 # PyCharm user specific
 .idea/workspace.xml
 .idea/tasks.xml
+
+# MSVC
+*.vcxproj.user
+win/*/Debug/
+win/*/Release/
+win/Debug/
+win/Release/
+win/testplugin/version.txt
+win/testplugin/build/
+win/testplugin/dist/
+*/*sdf
+*/*.suo
+*~

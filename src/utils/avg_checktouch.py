@@ -61,5 +61,5 @@ class TouchApp(app.MainDiv):
 
 
 if __name__ == "__main__":
-    app.App().run(TouchApp(), app_resolution="800x600", multitouch_enabled="true")
+    app.App().run(TouchApp(), app_resolution="800x600")
 

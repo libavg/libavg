@@ -48,10 +48,23 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
     return 0;
 };
 
+bool TUIOInputDevice::isEnabled()
+{
+    string sEnableTUIO;
+    getEnv("AVG_ENABLE_TUIO", sEnableTUIO);
+    string sDriver;
+    getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
+    if (sDriver != "") {
+        avgDeprecationWarning("1.8", "AVG_MULTITOUCH_DRIVER", "AVG_ENABLE_TUIO");
+    }
+    return (sDriver == "TUIO" || sEnableTUIO != "");
+}
+
 TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
     : MultitouchInputDevice(pEventReceiverNode),
       m_pSocket(0),
-      m_RemoteIP(0)
+      m_RemoteIP(0),
+      m_bConnected(false)
 {
     if (port != 0) {
         m_Port = port;
@@ -66,19 +79,7 @@ TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
                     + sPort + "'");
         }
     }
-}
 
-TUIOInputDevice::~TUIOInputDevice()
-{
-    if (m_pSocket) {
-        m_pSocket->Break();
-    }
-    delete m_pSocket;
-}
-
-void TUIOInputDevice::start()
-{
-    MultitouchInputDevice::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
                 IpEndpointName::ANY_ADDRESS, m_Port), this);
@@ -98,6 +99,14 @@ void TUIOInputDevice::start()
     DWORD threadId;
     m_Thread = CreateThread(0, 0, threadFunc, this, 0, &threadId);
 #endif
+}
+
+TUIOInputDevice::~TUIOInputDevice()
+{
+    if (m_pSocket) {
+        m_pSocket->Break();
+    }
+    delete m_pSocket;
 }
 
 unsigned TUIOInputDevice::getRemoteIP() const
@@ -168,6 +177,11 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
             } else if (strcmp(cmd, "indexframe") == 0) {
                 processIndexFrame(args);
             }
+        }
+        if (!m_bConnected && strstr(msg.AddressPattern(), "/tuio") != 0) {
+            m_bConnected = true;
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Receiving TUIO messages");
         }
     } catch (osc::Exception& e) {
         AVG_LOG_WARNING("Error parsing TUIO message: " << e.what()

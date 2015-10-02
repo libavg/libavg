@@ -150,10 +150,8 @@ class AVG_API Player: public Publisher
         void addInputDevice(InputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
         EventPtr getCurrentEvent() const;
-        void enableMultitouch();
         BitmapPtr getTouchUserBmp() const;
         void enableMouse(bool enabled);
-        bool isMultitouchAvailable() const;
         void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
         bool isCaptured(int cursorID);
@@ -226,7 +224,6 @@ class AVG_API Player: public Publisher
                 const xmlNodePtr xmlNode);
         OffscreenCanvasPtr registerOffscreenCanvas(NodePtr pNode);
         OffscreenCanvasPtr findCanvas(const std::string& sID) const;
-        void endFrame();
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type type, NodePtr pNode);
@@ -243,7 +240,7 @@ class AVG_API Player: public Publisher
         DisplayEnginePtr m_pDisplayEngine;
         bool m_bDisplayEngineBroken;
         TestHelperPtr m_pTestHelper;
-       
+
         std::string m_CurDirName;
         bool m_bIsTraversingTree;
         bool m_bStopping;

@@ -47,15 +47,11 @@ MultitouchInputDevice::MultitouchInputDevice(const DivNodePtr& pEventReceiverNod
         }
         m_TouchOffset = ConfigMgr::get()->getSizeOption("touch", "offset");
     }
+    m_pMutex = MutexPtr(new boost::mutex);
 }
 
 MultitouchInputDevice::~MultitouchInputDevice()
 {
-}
-
-void MultitouchInputDevice::start()
-{
-    m_pMutex = MutexPtr(new boost::mutex);
 }
 
 vector<EventPtr> MultitouchInputDevice::pollEvents()
@@ -123,8 +119,8 @@ glm::vec2 MultitouchInputDevice::getTouchArea() const
 
 IntPoint MultitouchInputDevice::getScreenPos(const glm::vec2& pos) const
 {
-        return IntPoint(int(pos.x * m_TouchArea.x + m_TouchOffset.x + 0.5),
-                        int(pos.y * m_TouchArea.y + m_TouchOffset.y) + 0.5);
+    return IntPoint(int(pos.x * m_TouchArea.x + m_TouchOffset.x + 0.5),
+            int(pos.y * m_TouchArea.y + m_TouchOffset.y) + 0.5);
 }
 
 boost::mutex& MultitouchInputDevice::getMutex()

@@ -33,7 +33,8 @@ class MyMainDiv(app.MainDiv):
                 parent=self)
         self.__shouldMove = True
 
-        app.keyboardmanager.bindKeyDown('m', self.__toggleMotion, 'Toggle motion')
+        app.keyboardmanager.bindKeyDown(text='m', handler=self.__toggleMotion,
+                help='Toggle motion')
 
     def onExit(self):
         print 'Exiting..'

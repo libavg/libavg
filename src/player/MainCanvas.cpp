@@ -35,7 +35,6 @@
 #include "../graphics/GLContextManager.h"
 #ifdef __linux__
   #ifndef AVG_ENABLE_EGL
-  #include "../graphics/SecondaryGLXContext.h"
   #include <X11/Xlib.h>
   #endif
 #endif

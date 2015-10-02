@@ -47,14 +47,10 @@
 #include "DisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
+#include "SDLTouchInputDevice.h"
 #include "OGLSurface.h"
+#include "Window.h"
 #include "SDLWindow.h"
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-    #include "Win7TouchInputDevice.h"
-#endif
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-    #include "XInputMTInputDevice.h"
-#endif
 #include "Contact.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
@@ -101,6 +97,7 @@
 #endif
 
 #include <glib-object.h>
+#include <boost/pointer_cast.hpp>
 #include <typeinfo>
 
 using namespace std;
@@ -250,7 +247,9 @@ void Player::setWindowPos(int x, int y)
 
 void Player::setWindowTitle(const string& sTitle)
 {
-    m_pDisplayEngine->setWindowTitle(sTitle);
+    errorIfPlaying("Player.setWindowTitle");
+    WindowParams& wp = m_DP.getWindowParams(0);
+    wp.m_sTitle = sTitle;
 }
 
 void Player::setWindowConfig(const string& sFileName)
@@ -554,13 +553,20 @@ void Player::initPlayback()
     m_pEventDispatcher->addInputDevice(
             boost::dynamic_pointer_cast<InputDevice>(m_pDisplayEngine));
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
+    if (TUIOInputDevice::isEnabled()) {
+        m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
+    } else {
+        SDLTouchInputDevicePtr pMultitouchInputDevice =
+                SDLTouchInputDevicePtr(new SDLTouchInputDevice);
+        dynamic_pointer_cast<SDLWindow>(m_pDisplayEngine->getWindow(0))
+                ->setTouchHandler(pMultitouchInputDevice);
+        m_pMultitouchInputDevice = pMultitouchInputDevice;
+    }
+    addInputDevice(m_pMultitouchInputDevice);
 
     m_pDisplayEngine->initRender();
     Display::get()->rereadScreenResolution();
     m_bStopping = false;
-    if (m_pMultitouchInputDevice) {
-        m_pMultitouchInputDevice->start();
-    }
 
     m_FrameTime = 0;
     m_NumFrames = 0;
@@ -652,55 +658,6 @@ float Player::getFrameDuration()
     }
 }
 
-void Player::enableMultitouch()
-{
-    if (!m_bIsPlaying) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Must call Player.play() before enableMultitouch().");
-    }
-
-    string sDriver;
-    getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
-    if (sDriver == "") {
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-        sDriver = "WIN7TOUCH";
-#elif defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        sDriver = "XINPUT";
-#else
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT and TUIO.");
-        throw Exception(AVG_ERR_MT_INIT,
-                "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
-#endif
-    }
-    if (sDriver == "TUIO") {
-        m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-    } else if (sDriver == "WIN7TOUCH") {
-        m_pMultitouchInputDevice = InputDevicePtr(new Win7TouchInputDevice);
-#endif
-    } else if (sDriver == "XINPUT" || sDriver == "XINPUT21") {
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        m_pMultitouchInputDevice =  InputDevicePtr(new XInputMTInputDevice);
-#else
-        throw Exception(AVG_ERR_MT_INIT,
-                "XInput multitouch event source: Support not configured.'");
-#endif
-    } else {
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT and TUIO.");
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
-                sDriver +"'.");
-    }
-    if (m_bIsPlaying) {
-        try {
-            m_pMultitouchInputDevice->start();
-        } catch (Exception&) {
-            m_pMultitouchInputDevice = InputDevicePtr();
-            throw;
-        }
-    }
-    addInputDevice(m_pMultitouchInputDevice);
-}
-
 BitmapPtr Player::getTouchUserBmp() const
 {
     TUIOInputDevicePtr pTUIODev = dynamic_pointer_cast<TUIOInputDevice>(
@@ -717,16 +674,6 @@ void Player::enableMouse(bool enabled)
     
     if (m_pEventDispatcher) {
         m_pEventDispatcher->enableMouse(enabled);
-    }
-}
-
-bool Player::isMultitouchAvailable() const
-{
-    if (m_bIsPlaying) {
-        return m_pMultitouchInputDevice != 0;
-    } else {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Must call Player.play() before isMultitouchAvailable().");
     }
 }
 
@@ -867,7 +814,7 @@ BitmapPtr Player::screenshot()
     if (GLContext::getCurrent()->isGLES()) {
         // Some GLES implementations invalidate the buffer after eglSwapBuffers.
         // The only way we can get at the contents at this point is to rerender them.
-        WindowPtr pWindow = m_pDisplayEngine->getSDLWindow();
+        WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
         IntRect viewport = pWindow->getViewport();
         m_pMainCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
         GLContextManager::get()->reset();
@@ -1017,7 +964,7 @@ bool Player::handleEvent(EventPtr pEvent)
         }
         getRootNode()->handleEvent(pKeyEvent);
         if (getStopOnEscape() && pEvent->getType() == Event::KEY_DOWN
-                && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
+                && pKeyEvent->getScanCode() == SDL_SCANCODE_ESCAPE)
         {
             stop();
         }
@@ -1075,27 +1022,20 @@ void Player::doFrame(bool bFirstFrame)
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
-                endFrame();
+                m_pDisplayEngine->endFrame();
             } catch(...) {
                 Py_BLOCK_THREADS;
                 throw;
             }
             Py_END_ALLOW_THREADS;
         } else {
-            endFrame();
+            m_pDisplayEngine->endFrame();
         }
     }
     ThreadProfiler::get()->reset();
     if (m_NumFrames == 5) {
         ThreadProfiler::get()->restart();
     }
-}
-
-void Player::endFrame()
-{
-    m_pDisplayEngine->frameWait();
-    m_pDisplayEngine->swapBuffers();
-    m_pDisplayEngine->checkJitter();
 }
 
 float Player::getFramerate()

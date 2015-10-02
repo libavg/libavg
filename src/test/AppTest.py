@@ -67,7 +67,10 @@ class AppTestCase(testcase.AVGTestCase):
 
         s = settings.Settings([Option('foo', 'bar')])
         self.assertRaises(avg.Exception, lambda: s.addOption(Option('foo', 'baz')))
-        
+
+    def tearDown(self):
+        libavg.app.instance = None
+
     def testSettingsTypes(self):
         defaults = [
                 Option('test_boolean', 'True', 'help'),
@@ -209,32 +212,22 @@ class AppTestCase(testcase.AVGTestCase):
                 removeFiles,
                 ])
 
-    def testKeyboardManagerPlain(self):
-        tester = lambda: self.__emuKeyPress(0, 97, 'a', 97, libavg.avg.KEYMOD_NONE)
-        self.__testKeyboardManager('a', libavg.avg.KEYMOD_NONE, tester)
+    def testKeyboardManagerKeyname(self):
+        tester = lambda: self.__emuKeyPress(4, "A", "a", libavg.avg.KEYMOD_NONE)
+        self.__testKeyboardManager(keyname="A", tester=tester)
 
-    def testKeyboardManagerPlainMod(self):
-        tester = lambda: self.__emuKeyPress(0, 97, 'a', 97, libavg.avg.KEYMOD_LSHIFT)
-        self.__testKeyboardManager('a', libavg.avg.KEYMOD_SHIFT, tester)
+    def testKeyboardManagerScancode(self):
+        tester = lambda: self.__emuKeyPress(4, "A", 'A', libavg.avg.KEYMOD_LSHIFT)
+        self.__testKeyboardManager(scancode=4, modifiers=libavg.avg.KEYMOD_SHIFT,
+                tester=tester)
 
-    def testKeyboardManagerUnicodeBinary(self):
-        tester = lambda: self.__emuKeyPress(53, 164, 'ö', 246, libavg.avg.KEYMOD_NONE)
-        self.__testKeyboardManager('ö', libavg.avg.KEYMOD_NONE, tester)
+    def testKeyboardManagerText(self):
+        tester = lambda: self.__emuKeyPress(53, "Ö", 'ö', libavg.avg.KEYMOD_NONE)
+        self.__testKeyboardManager(text=u'ö', modifiers=libavg.avg.KEYMOD_NONE,
+                tester=tester)
 
-    def testKeyboardManagerUnicodeExplicit(self):
-        tester = lambda: self.__emuKeyPress(53, 164, 'ö', 246, libavg.avg.KEYMOD_NONE)
-        self.__testKeyboardManager(u'ö', libavg.avg.KEYMOD_NONE, tester)
-
-    def testKeyboardManagerUnicodeMod(self):
-        tester = lambda: self.__emuKeyPress(0, 65, 'A', 65, libavg.avg.KEYMOD_LSHIFT)
-        self.__testKeyboardManager(u'A', keyboardmanager.KEYMOD_ANY, tester)
-        self.tearDown()
-        self.__testKeyboardManager(u'A', libavg.avg.KEYMOD_SHIFT, tester)
-
-    def tearDown(self):
-        libavg.app.instance = None
-
-    def __testKeyboardManager(self, keyString, modifiers, tester):
+    def __testKeyboardManager(self, scancode=None, keyname=None, text=None,
+            modifiers=libavg.avg.KEYMOD_NONE, tester=None):
         self.statesRecords = [False, False]
         def keyDownPressed():
             self.statesRecords[0] = True
@@ -243,12 +236,20 @@ class AppTestCase(testcase.AVGTestCase):
             self.statesRecords[1] = True
 
         def bindKeys():
-            keyboardmanager.bindKeyDown(keyString, keyDownPressed, '', modifiers)
-            keyboardmanager.bindKeyUp(keyString, keyUpPressed, '', modifiers)
+            keyboardmanager.bindKeyDown(scancode=scancode, keyname=keyname, text=text,
+                    help='', modifiers=modifiers, handler=keyDownPressed)
+            if text == None:
+                keyboardmanager.bindKeyUp(scancode=scancode, keyname=keyname,
+                        modifiers=modifiers, handler=keyUpPressed)
+            else:
+                self.statesRecords[1] = True
 
         def reset():
-            keyboardmanager.unbindKeyDown(keyString, modifiers)
-            keyboardmanager.unbindKeyUp(keyString, modifiers)
+            keyboardmanager.unbindKeyDown(scancode=scancode, keyname=keyname, text=text,
+                    modifiers=modifiers)
+            if text == None:
+                keyboardmanager.unbindKeyUp(scancode=scancode, keyname=keyname,
+                        modifiers=modifiers)
             self.statesRecords = [False, False]
 
         def cleanup():
@@ -265,13 +266,12 @@ class AppTestCase(testcase.AVGTestCase):
                 cleanup,
                 ])
 
-    def __emuKeyPress(self, scanCode, keyCode, keyString, unicode_, modifiers):
+    def __emuKeyPress(self, scanCode, keyName, text, modifiers):
         helper = libavg.player.getTestHelper()
-        helper.fakeKeyEvent(libavg.avg.Event.KEY_DOWN, scanCode, keyCode, keyString,
-                unicode_, modifiers)
-        # Note: on up, unicode is always 0
-        helper.fakeKeyEvent(libavg.avg.Event.KEY_UP, scanCode, keyCode, keyString,
-                0, modifiers)
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_DOWN, scanCode, keyName,
+                modifiers, text)
+        helper.fakeKeyEvent(libavg.avg.Event.KEY_UP, scanCode, keyName,
+                modifiers, "")
 
 
 def appTestSuite(tests):
@@ -291,11 +291,9 @@ def appTestSuite(tests):
             'testAppFullscreen',
             'testAppRotation',
             'testScreenshot',
-            'testKeyboardManagerPlain',
-            'testKeyboardManagerPlainMod',
-            'testKeyboardManagerUnicodeBinary',
-            'testKeyboardManagerUnicodeExplicit',
-            'testKeyboardManagerUnicodeMod',
+            'testKeyboardManagerKeyname',
+            'testKeyboardManagerScancode',
+            'testKeyboardManagerText',
     )
     return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
 

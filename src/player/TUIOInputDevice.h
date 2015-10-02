@@ -42,9 +42,10 @@ namespace avg {
 class AVG_API TUIOInputDevice: public MultitouchInputDevice, PacketListener
 {
 public:
+    static bool isEnabled();
+
     TUIOInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr(), int port=0);
     virtual ~TUIOInputDevice();
-    virtual void start();
    
     virtual unsigned getRemoteIP() const;
     virtual BitmapPtr getUserBmp() const;
@@ -74,6 +75,7 @@ private:
     UdpListeningReceiveSocket* m_pSocket;
     unsigned m_RemoteIP;
     int m_Port;
+    bool m_bConnected;
     BitmapPtr m_pUserBmp;
 #ifndef WIN32
     pthread_t m_Thread;

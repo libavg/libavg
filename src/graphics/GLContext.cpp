@@ -31,6 +31,8 @@
 #include "../base/MathHelper.h"
 #include "../base/OSHelper.h"
 
+#include <SDL2/SDL.h>
+
 #include <iostream>
 #include <stdio.h>
 
@@ -395,6 +397,19 @@ bool GLContext::useDepthBuffer() const
     return !isGLES();
 }
 
+bool GLContext::initVBlank(int rate) 
+{
+    int rc = SDL_GL_SetSwapInterval(rate);
+    if (rc == -1) {
+#ifndef WIN32
+        AVG_LOG_WARNING("VBlank setup failed.");
+#endif
+        return false;
+    } else {
+        return true;
+    }
+}
+
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {
@@ -403,11 +418,6 @@ int GLContext::getMaxTexSize()
     return m_MaxTexSize;
 }
 
-
-void GLContext::swapBuffers()
-{
-    AVG_ASSERT(false);
-}
 
 void GLContext::enableErrorChecks(bool bEnable)
 {

@@ -58,6 +58,16 @@ buildLib()
     cd ..
 }
 
+buildSDL()
+{
+    cd SDL2-2.0.4
+    CXXFLAGS="-mmacosx-version-min=10.6 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050" LDFLAGS="-mmacosx-version-min=10.6" ./configure --disable-shared --disable-video-x11 --without-x --prefix=${AVG_PATH}
+    make clean
+    make -j5
+    make install
+    cd ..
+}
+
 buildglib()
 {
     echo --------------------------------------------------------------------
@@ -72,12 +82,13 @@ buildglib()
 buildfontconfig()
 {
     echo --------------------------------------------------------------------
-    cd fontconfig-2.7.0
-    automake
-    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cache-dir=~/.fontconfig
+    cd fontconfig-2.11.1
+    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-configdir=/etc/fonts --with-cache-dir=${HOME}/.fontconfig --disable-docs
     make clean
     make -j5
     sudo make install
+    # Workaround for fontconfig bug: Install fonts.conf in the correct place.
+    sudo cp ../../etc/fonts/fonts.conf /etc/fonts/fonts.conf
     sudo chown -R `whoami` ~/.fontconfig
     cd ..    
 }
@@ -125,9 +136,9 @@ clean
 
 cd ../deps
 
-buildLib libtool-2.2.6
-buildLib autoconf-2.63
-buildLib automake-1.11
+buildLib libtool-2.4.6
+buildLib autoconf-2.69
+buildLib automake-1.15
 buildLib nasm-2.10.09
 buildLib libjpeg-turbo-1.3.0 "--host x86_64-apple-darwin --disable-shared NASM=${AVG_PATH}/bin/nasm"
 buildLib tiff-3.8.2 --disable-shared 
@@ -136,7 +147,7 @@ buildLib pkg-config-0.20
 buildLib yasm-1.2.0 
 buildLib libav-9.9 "--arch=x86_64 --disable-debug --enable-pthreads --enable-runtime-cpudetect"
 
-buildLib SDL-1.2.15 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
+buildSDL
 buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 

@@ -32,13 +32,10 @@
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
 
-#include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
-#ifdef __linux__
-#ifndef AVG_ENABLE_EGL
-  #include "../graphics/SecondaryGLXContext.h"
-#endif
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#include "../graphics/GLXContext.h"
 #include "../graphics/GLContextManager.h"
 #endif
 
@@ -52,12 +49,12 @@ SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
         GLConfig glConfig)
     : Window(wp, bIsFullscreen)
 {
-#ifdef __linux__
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
     GLContext* pMainContext = GLContext::getCurrent();
     GLContext* pGLContext;
     IntRect windowDimensions(wp.m_Pos, wp.m_Pos+wp.m_Size);
     string sDisplay = ":0." + toString(wp.m_DisplayServer);
-    pGLContext = new SecondaryGLXContext(glConfig, sDisplay, windowDimensions,
+    pGLContext = new GLXContext(glConfig, sDisplay, windowDimensions,
             wp.m_bHasWindowFrame);
     setGLContext(pGLContext);
     
@@ -73,6 +70,19 @@ SecondaryWindow::~SecondaryWindow()
 void SecondaryWindow::setTitle(const std::string& sTitle)
 {
 }
+
+static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
+
+void SecondaryWindow::swapBuffers() const
+{
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+    ScopeTimer timer(SwapBufferProfilingZone);
+    getGLContext()->activate();
+    getGLContext()->swapBuffers();
+    GLContext::checkError("swapBuffers()");
+#endif
+}
+
 
 vector<EventPtr> SecondaryWindow::pollEvents()
 {

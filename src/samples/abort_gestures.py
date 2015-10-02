@@ -88,21 +88,23 @@ class GestureDemoDiv(app.MainDiv):
                 or use the buttons on the right side''',
                 pos=(20, 510), parent=self)
 
-        nodeList.append(gestures.HoldNode(text="HoldRecognizer", pos=(20,20), parent=self))
+        nodeList.append(gestures.HoldNode(text="HoldRecognizer", pos=(20,20),
+                parent=self))
 
-        nodeList.append(gestures.DragNode(text="DragRecognizer<br/>friction",pos=(200,20),
-                friction=0.05, parent=self))
+        nodeList.append(gestures.DragNode(text="DragRecognizer<br/>friction",
+                pos=(200,20), friction=0.05, parent=self))
 
         nodeList.append(gestures.TransformNode(text="TransformRecognizer",
                 ignoreRotation=False, ignoreScale=False, pos=(380,20), parent=self))
 
         self.abortButton = AbortButton(text="Abort all", pos = (630, 490), parent=self)
 
-        self.enableButton = EnableButton(text="Disable all", pos = (630, 540), parent=self)
+        self.enableButton = EnableButton(text="Disable all", pos = (630, 540),
+                parent=self)
 
-        app.keyboardmanager.bindKeyDown(keystring="a", handler=abortAll, 
+        app.keyboardmanager.bindKeyDown(text="a", handler=abortAll,
                 help="abort recognition")
-        app.keyboardmanager.bindKeyDown(keystring="d", handler=self.onEnableKey, 
+        app.keyboardmanager.bindKeyDown(text="d", handler=self.onEnableKey,
                 help="Enable/disable recognition")
 
     def onEnableKey(self):

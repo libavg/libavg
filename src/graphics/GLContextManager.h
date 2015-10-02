@@ -29,6 +29,8 @@
 
 #include <map>
 
+struct SDL_SysWMinfo;
+
 namespace avg {
 
 class GLTexture;

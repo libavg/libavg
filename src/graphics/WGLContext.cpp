@@ -24,7 +24,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <iostream>
 
@@ -67,7 +67,7 @@ WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
     : GLContext(windowSize)
 {
-        bool bOwnsContext;
+    bool bOwnsContext;
     if (pSDLWMInfo) {
         m_hDC = wglGetCurrentDC();
         m_Context = wglGetCurrentContext();
@@ -121,27 +121,10 @@ void WGLContext::activate()
     setCurrent();
 }
 
-bool WGLContext::initVBlank(int rate) 
+void WGLContext::swapBuffers()
 {
-    static bool s_bVBlankActive = false;
-    if (rate > 0) {
-        if (!queryOGLExtension("WGL_EXT_swap_control")
-                && !queryWGLExtension("WGL_EXT_swap_control")) {
-            AVG_LOG_WARNING(
-                    "Windows VBlank setup failed: OpenGL Extension not supported.");
-            s_bVBlankActive = false;
-            return false;
-        }
-        glproc::SwapIntervalEXT(rate);
-        s_bVBlankActive = true;
-        return true;
-    } else {
-        if (s_bVBlankActive) {
-            glproc::SwapIntervalEXT(0);
-            s_bVBlankActive = false;
-        }
-        return false;
-    }
+    BOOL bOk = SwapBuffers(m_hDC);
+    checkWinError(bOk, "wglSwapBuffers");
 }
 
 bool WGLContext::queryWGLExtension(const char *extName)

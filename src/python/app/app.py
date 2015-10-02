@@ -197,8 +197,7 @@ class App(object):
         self._settings.addOption(Option('app_rotation', 'normal'))
         self._settings.addOption(Option('app_panel_fontsize', '10'))
         self._settings.addOption(Option('app_mouse_enabled', 'true'))
-        self._settings.addOption(Option('multitouch_enabled', 'false'))
-        self._settings.addOption(Option('multitouch_driver', ''))
+        self._settings.addOption(Option('tuio_enabled', 'false'))
         self._settings.addOption(Option('multitouch_tuio_port', ''))
         self._settings.addOption(Option('log_avg_categories', ''))
 
@@ -229,16 +228,12 @@ class App(object):
         libavg.player.enableMouse(self.settings.getBoolean('app_mouse_enabled'))
 
     def _setupMultitouch(self):
-        if self.settings.getBoolean('multitouch_enabled'):
-            driver = self.settings.get('multitouch_driver').upper()
-            if driver:
-                os.putenv('AVG_MULTITOUCH_DRIVER', driver)
+        if self.settings.getBoolean('tuio_enabled'):
+            os.putenv('AVG_ENABLE_TUIO', "1")
 
             tuio_port = self.settings.get('multitouch_tuio_port').upper()
             if tuio_port:
                 os.putenv('AVG_TUIO_PORT', tuio_port)
-
-            libavg.player.enableMultitouch()
 
     def _getAppParentGeometry(self):
         rotation = self.settings.get('app_rotation').lower()
@@ -331,32 +326,32 @@ class App(object):
     def _setupKeyboardManager(self):
         keyboardmanager.init()
         keyboardmanager.bindKeyDown(
-                keystring='d',
+                keyname='D',
                 handler=self._debugPanel.toggleVisibility,
                 help='Show/hide the debug panel',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='h',
+                keyname='H',
                 handler=lambda: libavg.player.showCursor(
                         not libavg.player.isCursorShown()),
                 help='Show/hide cursor',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='p',
+                keyname='P',
                 handler=self.takeScreenshot,
                 help='Take screenshot',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='b',
+                keyname='B',
                 handler=self.dumpTextObjectCount,
                 help='Dump objects count to the console',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
-                keystring='e',
+                keyname='E',
                 handler=self._toggleMtEmulation,
                 help='Toggle multitouch emulation',
                 modifiers=libavg.avg.KEYMOD_CTRL)
@@ -366,18 +361,25 @@ class App(object):
     def _toggleMtEmulation(self):
         if self._mtEmu is None:
             self._mtEmu = mtemu.MTemu()
-            keyboardmanager.bindKeyDown('shift', self._mtEmu.enableDualTouch,
-                    'Enable pinch gesture emulation')
-            keyboardmanager.bindKeyUp('shift', self._mtEmu.disableDualTouch,
-                    'Disable pinch gesture emulation')
+            keyboardmanager.bindKeyDown(
+                    keyname='shift',
+                    handler=self._mtEmu.enableDualTouch,
+                    help='Enable pinch gesture emulation')
+            keyboardmanager.bindKeyUp(
+                    keyname='shift',
+                    handler=self._mtEmu.disableDualTouch,
+                    help='Disable pinch gesture emulation')
 
-            keyboardmanager.bindKeyDown('t', self._mtEmu.toggleSource,
-                    'Toggle source between TOUCH and TRACK', libavg.avg.KEYMOD_CTRL)
+            keyboardmanager.bindKeyDown(
+                    keyname='T',
+                    handler=self._mtEmu.toggleSource,
+                    help='Toggle source between TOUCH and TRACK',
+                    nodifiers=libavg.avg.KEYMOD_CTRL)
         else:
             self._mtEmu.deinit()
-            keyboardmanager.unbindKeyDown('t', libavg.avg.KEYMOD_CTRL)
-            keyboardmanager.unbindKeyDown('shift')
-            keyboardmanager.unbindKeyUp('shift')
+            keyboardmanager.unbindKeyDown(keyname='t', modifiers=libavg.avg.KEYMOD_CTRL)
+            keyboardmanager.unbindKeyDown(keyname='shift')
+            keyboardmanager.unbindKeyUp(keyname='shift')
 
             del self._mtEmu
             self._mtEmu = None
@@ -386,12 +388,12 @@ class App(object):
         keyboardmanager.unbindAll()
 
     def _setupOnInit(self):
+        self._setupMultitouch()
         libavg.player.setTimeout(0, self._onInitInternal)
 
     def _runLoop(self):
         libavg.player.play()
 
     def _onInitInternal(self):
-        self._setupMultitouch()
         self.mainDiv.onInit()
         libavg.player.subscribe(libavg.player.ON_FRAME, self.mainDiv.onFrame)

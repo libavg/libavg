@@ -14,7 +14,9 @@ then
             echo Please source mac/avg_env.sh before calling bootstrap.
             exit 5 
         fi
+        # This uses locally-installed libtoolize
         libtoolize --copy --force
+        aclocal -I m4
     fi
 else
     libtoolize --copy --force

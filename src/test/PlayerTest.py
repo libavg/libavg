@@ -721,11 +721,11 @@ class PlayerTestCase(AVGTestCase):
     def testStopOnEscape(self):
         def pressEscape():
             Helper = player.getTestHelper()
-            escape = 27
-            Helper.fakeKeyEvent(avg.Event.KEY_DOWN, escape, escape, "escape", escape, 
-                    avg.KEYMOD_NONE),
-            Helper.fakeKeyEvent(avg.Event.KEY_UP, escape, escape, "escape", escape, 
-                    avg.KEYMOD_NONE),
+            escape = 41
+            Helper.fakeKeyEvent(avg.Event.KEY_DOWN, escape, "Escape",
+                    avg.KEYMOD_NONE, ""),
+            Helper.fakeKeyEvent(avg.Event.KEY_UP, escape, "Escape",
+                    avg.KEYMOD_NONE, ""),
         
         def testEscape1():
             player.stopOnEscape(False)
@@ -850,14 +850,19 @@ class PlayerTestCase(AVGTestCase):
         self.assertRaises(avg.Exception, lambda: avg.validateXml(brokenXml, schema,
                 "shiporder.xml", "shiporder.xsd"))
 
-    # Not executed due to bug #145 - hangs with some window managers.
-    def testWindowFrame(self):
-        def revertWindowFrame():
-            player.setWindowFrame(True)
+    def testSetWindowTitle(self):
+        self.__initDefaultScene()
+        player.setWindowTitle("title1")
+        self.start(False,
+                (lambda: self.assertRaises(avg.Exception,
+                        lambda: player.setWindowTitle("title2")),
+                ))
 
+    # Used to hang with some window managers (#145).
+    def testWindowFrame(self):
         player.setWindowFrame(False)
         self.__initDefaultScene()
-        self.start(False, [revertWindowFrame])
+        self.start(False, ())
 
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
@@ -918,6 +923,7 @@ def playerTestSuite(tests):
             "testSVG",
             "testGetConfigOption",
             "testValidateXml",
-#            "testWindowFrame",
+            "testSetWindowTitle",
+            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

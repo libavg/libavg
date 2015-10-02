@@ -46,7 +46,6 @@ class AVG_API MultitouchInputDevice: public InputDevice
 public:
     MultitouchInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
     virtual ~MultitouchInputDevice() = 0;
-    virtual void start();
 
     std::vector<EventPtr> pollEvents();
 

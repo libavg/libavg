@@ -259,9 +259,6 @@ void AudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
 {
     int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
 
-    if (m_AudioSources.size() == 0) {
-        return;
-    }
     if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
         if (m_pTempBuffer) {
             delete[] m_pMixBuffer;

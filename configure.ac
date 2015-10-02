@@ -34,13 +34,6 @@ if [[ $host_cpu == i386 ]] || [[ $host_cpu == i686 ]] || [[ $host_cpu == x86_64 
     CXXFLAGS="-msse2 $CXXFLAGS"
     CFLAGS="-msse2 $CFLAGS"
 fi
-OBJC="gcc"
-OBJCFLAGS=""
-OBJCLDFLAGS="-lobjc"
-AC_SUBST(OBJC)
-AC_SUBST(OBJCFLAGS)
-AC_SUBST(OBJCLDFLAGS)
-_AM_DEPENDENCIES([OBJC])
 LDFLAGS="$LDFLAGS -rdynamic"
 
 if [[ $target_vendor = apple ]] && [[ x"`which port`" = x"/opt/local/bin/port" ]]; then
@@ -101,20 +94,6 @@ if test x"$DC1394_2_LIBS" != "x"; then
     AC_DEFINE(AVG_ENABLE_1394_2, 1, [Enable firewire camera support v.2])
 fi
 
-if test $target_vendor = apple; then
-    AM_CONDITIONAL(HAVE_XI2_1, false)
-    AM_CONDITIONAL(HAVE_XI2_2, false)
-else
-    PKG_CHECK_MODULES(XI2_1, [xi >= 1.4.1.99.1] [inputproto >= 2.0.99.1] [inputproto < 2.1.99.5],
-                      HAVE_XI2_1="yes"; AC_DEFINE(HAVE_XI2_1, 1, [XI2_1 available]),
-                      HAVE_XI2_1="no");
-    PKG_CHECK_MODULES(XI2_2, [xi >= 1.5.99.2] [inputproto >= 2.1.99.5],
-                      HAVE_XI2_2="yes"; AC_DEFINE(HAVE_XI2_2, 1, [XI2_2 available]),
-                      HAVE_XI2_2="no");
-    AM_CONDITIONAL(HAVE_XI2_1, [ test "$HAVE_XI2_1" = "yes" ])
-    AM_CONDITIONAL(HAVE_XI2_2, [ test "$HAVE_XI2_2" = "yes" ])
-fi
-
 AC_ARG_ENABLE(v4l2,
           AC_HELP_STRING([--enable-v4l2],
                  [compile support for video4linux v2 video devices]),
@@ -130,12 +109,6 @@ AM_CONDITIONAL(ENABLE_V4L2, test x$enable_v4l2 = xyes)
 if test "$enable_v4l2" = yes; then
     AC_DEFINE(AVG_ENABLE_V4L2, 1, [Enable Video4Linux2 camera support])
 fi
-
-AC_CHECK_HEADER([linux/ppdev.h], enable_ParPort=yes, enable_ParPort=no)
-AM_CONDITIONAL(ENABLE_PARPORT, test x$enable_ParPort = xyes)
-if test "$enable_ParPort" = yes; then
-    AC_DEFINE(AVG_ENABLE_PARPORT, 1, [Enable parallel port support])
-fi 
 
 AC_ARG_ENABLE(egl,
         AC_HELP_STRING([--enable-egl], [include EGL support [default=no]]),
@@ -181,7 +154,8 @@ fi
 AM_CONDITIONAL(ENABLE_EGL, test x"$egl_present" != x)
 AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
-AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
+
+AM_PATH_SDL2(2.0.2,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
 AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
 AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
@@ -217,6 +191,7 @@ AC_OUTPUT(Makefile
     src/player/Makefile 
     src/graphics/Makefile 
     src/graphics/shaders/Makefile 
+    src/graphics/baseline/Makefile 
     src/python/Makefile
     src/imaging/Makefile 
     src/video/Makefile 
