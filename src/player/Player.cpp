@@ -556,10 +556,10 @@ void Player::initPlayback()
     if (TUIOInputDevice::isEnabled()) {
         m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
     } else {
-		SDLTouchInputDevicePtr pMultitouchInputDevice =
-				SDLTouchInputDevicePtr(new SDLTouchInputDevice);
-		dynamic_pointer_cast<SDLWindow>(m_pDisplayEngine->getWindow(0))
-				->setTouchHandler(pMultitouchInputDevice);
+        SDLTouchInputDevicePtr pMultitouchInputDevice =
+                SDLTouchInputDevicePtr(new SDLTouchInputDevice);
+        dynamic_pointer_cast<SDLWindow>(m_pDisplayEngine->getWindow(0))
+                ->setTouchHandler(pMultitouchInputDevice);
         m_pMultitouchInputDevice = pMultitouchInputDevice;
     }
     addInputDevice(m_pMultitouchInputDevice);

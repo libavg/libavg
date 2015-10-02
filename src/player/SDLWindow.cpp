@@ -152,7 +152,7 @@ SDLWindow::~SDLWindow()
 
 void SDLWindow::setTouchHandler(SDLTouchInputDevicePtr pInputDevice)
 {
-	m_pTouchInputDevice = pInputDevice;
+    m_pTouchInputDevice = pInputDevice;
 }
 
 void SDLWindow::setTitle(const string& sTitle)
@@ -239,11 +239,11 @@ vector<EventPtr> SDLWindow::pollEvents()
             case SDL_FINGERMOTION:
             case SDL_FINGERDOWN:
             case SDL_FINGERUP:
-            if (m_pTouchInputDevice) {
-                m_pTouchInputDevice->onTouchEvent(this, sdlEvent);
-            }
-            break;
-			default:
+                if (m_pTouchInputDevice) {
+                    m_pTouchInputDevice->onTouchEvent(this, sdlEvent);
+                }
+                break;
+            default:
                 // Ignore unknown events.
                 break;
         }
