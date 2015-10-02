@@ -362,11 +362,11 @@ class App(object):
         if self._mtEmu is None:
             self._mtEmu = mtemu.MTemu()
             keyboardmanager.bindKeyDown(
-                    keyname='shift',
+                    keyname='Shift',
                     handler=self._mtEmu.enableDualTouch,
                     help='Enable pinch gesture emulation')
             keyboardmanager.bindKeyUp(
-                    keyname='shift',
+                    keyname='Shift',
                     handler=self._mtEmu.disableDualTouch,
                     help='Disable pinch gesture emulation')
 
@@ -374,7 +374,7 @@ class App(object):
                     keyname='T',
                     handler=self._mtEmu.toggleSource,
                     help='Toggle source between TOUCH and TRACK',
-                    nodifiers=libavg.avg.KEYMOD_CTRL)
+                    modifiers=libavg.avg.KEYMOD_CTRL)
         else:
             self._mtEmu.deinit()
             keyboardmanager.unbindKeyDown(keyname='t', modifiers=libavg.avg.KEYMOD_CTRL)

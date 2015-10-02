@@ -147,8 +147,10 @@ def _testMatchEvent(keyBinding, event):
         return False
     if not _testModifiers(event.modifiers, keyBinding.modifiers):
         return False
-    return (keyBinding.scancode == event.scancode or keyBinding.text == event.text or
-            keyBinding.keyname == event.keyname)
+    if (keyBinding.keyname is not None and
+            event.keyname.find(keyBinding.keyname) != -1):
+        return True
+    return keyBinding.scancode == event.scancode or keyBinding.text == event.text
 
 def _testModifiers(mod1, mod2):
     if mod1 == KEYMOD_ANY or mod2 == KEYMOD_ANY:
