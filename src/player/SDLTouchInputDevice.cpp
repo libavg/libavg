@@ -94,7 +94,11 @@ void SDLTouchInputDevice::onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlE
     SDL_TouchFingerEvent fingerEvent = sdlEvent.tfinger;
     glm::vec2 normPos(fingerEvent.x, fingerEvent.y);
     IntPoint winSize(Player::get()->getRootNode()->getSize());
+#ifdef _WIN32
     IntPoint pos = normPos * glm::vec2(winSize);
+#else
+    IntPoint pos = normPos;
+#endif
     pos.x = min(max(pos.x, 0), winSize.x-1);
     pos.y = min(max(pos.y, 0), winSize.y-1);
     switch (sdlEvent.type) {
