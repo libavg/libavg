@@ -135,6 +135,8 @@ int TexInfo::getGLFormat(PixelFormat pf)
             return GL_LUMINANCE;
         case A8:
             return GL_ALPHA;
+        case R8:
+            return GL_RED;
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
@@ -160,6 +162,7 @@ int TexInfo::getGLType(PixelFormat pf)
     switch (pf) {
         case I8:
         case A8:
+        case R8:
             return GL_UNSIGNED_BYTE;
         case R8G8B8A8:
         case R8G8B8X8:
@@ -190,6 +193,8 @@ int TexInfo::getGLInternalFormat() const
             return GL_LUMINANCE;
         case A8:
             return GL_ALPHA;
+        case R8:
+            return GL_R8;
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
