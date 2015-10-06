@@ -81,8 +81,10 @@ void OffscreenCanvas::initPlayback()
     }
     GLContextManager* pCM = GLContextManager::get();
     bool bUseDepthBuffer = pDisplayEngine->getWindow(0)->getGLContext()->useDepthBuffer();
-    m_pFBO = pCM->createFBO(getSize(), pf, 1, getMultiSampleSamples(),
-            bUseDepthBuffer, true, m_bUseMipmaps);
+    int numSamples = dynamic_pointer_cast<OffscreenCanvasNode>(
+            getRootNode())->getMultiSampleSamples();
+    m_pFBO = pCM->createFBO(getSize(), pf, 1, numSamples, bUseDepthBuffer, true,
+            m_bUseMipmaps);
     try {
         pCM->uploadData();
     } catch (...) {
@@ -90,7 +92,7 @@ void OffscreenCanvas::initPlayback()
         m_pFBO = MCFBOPtr();
         throw;
     }
-    Canvas::initPlayback(getMultiSampleSamples());
+    Canvas::initPlayback(numSamples);
     m_bIsRendered = false;
 }
 
@@ -121,12 +123,6 @@ BitmapPtr OffscreenCanvas::screenshotIgnoreAlpha() const
 bool OffscreenCanvas::getHandleEvents() const
 {
     return dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->getHandleEvents();
-}
-
-int OffscreenCanvas::getMultiSampleSamples() const
-{
-    return dynamic_pointer_cast<OffscreenCanvasNode>(
-            getRootNode())->getMultiSampleSamples();
 }
 
 bool OffscreenCanvas::getMipmap() const
