@@ -243,6 +243,23 @@ public:
 
 };
 
+// These function templates essentially call functions such as AreaNode::getPos()
+// and return a version of the result that doesn't allow setting of the individual
+// elements of the vec2 returned.
+// Without this stuff, python code like node.pos.x=30 would fail silently. With it,
+// it at least throws an exception.
+template<class CLASS, const glm::vec2& (CLASS::*FUNC)() const>
+ConstVec2 constPointGetterRef(const CLASS& node)
+{
+    return (node.*FUNC)();
+}
+
+template<class CLASS, glm::vec2 (CLASS::*FUNC)() const>
+ConstVec2 constPointGetter(const CLASS& node)
+{
+    return (node.*FUNC)();
+}
+
 template <typename T> void translateException(PyObject* e) {
   ExceptionTranslator<T> my_translator(e);
 }
