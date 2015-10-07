@@ -35,6 +35,32 @@ using namespace avg;
 using namespace std;
 using namespace boost::python;
 
+void* from_python_sequence_base::convertible(PyObject* obj_ptr)
+{
+    if (!(   PyList_Check(obj_ptr)
+          || PyTuple_Check(obj_ptr)
+          || PyIter_Check(obj_ptr)
+          || PyRange_Check(obj_ptr)
+          || (   !PyString_Check(obj_ptr)
+              && !PyUnicode_Check(obj_ptr)
+              && (   obj_ptr->ob_type == 0
+                  || obj_ptr->ob_type->ob_type == 0
+                  || obj_ptr->ob_type->ob_type->tp_name == 0
+                  || std::strcmp(
+                       obj_ptr->ob_type->ob_type->tp_name,
+                       "Boost.Python.class") != 0)
+              && PyObject_HasAttrString(obj_ptr, "__len__")
+              && PyObject_HasAttrString(obj_ptr, "__getitem__")))) return 0;
+    boost::python::handle<> obj_iter(
+      boost::python::allow_null(PyObject_GetIter(obj_ptr)));
+    if (!obj_iter.get()) { // must be convertible to an iterator
+      PyErr_Clear();
+      return 0;
+    }
+    return obj_ptr;
+}
+
+
 namespace Vec2Helper
 {
     int len(const glm::vec2&) 
