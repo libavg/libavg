@@ -49,6 +49,7 @@ class AVG_API SDLWindow: public Window
         virtual ~SDLWindow();
 
 		void setTouchHandler(SDLTouchInputDevicePtr pInputDevice);
+        bool hasTouchHandler() const;
         void setTitle(const std::string& sTitle);
         void swapBuffers() const;
 
