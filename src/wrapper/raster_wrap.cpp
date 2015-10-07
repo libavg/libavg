@@ -134,16 +134,16 @@ void export_raster()
 
     //Wrap std::vector from CameraInfo to Pyhton list
     to_python_converter<CamerasInfosVector, to_list<CamerasInfosVector> >();
-    from_python_sequence<CamerasInfosVector, variable_capacity_policy>();
+    from_python_sequence<CamerasInfosVector>();
 
     to_python_converter<CameraImageFormatsVector, to_list<CameraImageFormatsVector> >();
-    from_python_sequence<CameraImageFormatsVector, variable_capacity_policy>();
+    from_python_sequence<CameraImageFormatsVector>();
 
     to_python_converter<CameraControlsVector, to_list<CameraControlsVector> >();
-    from_python_sequence<CameraControlsVector, variable_capacity_policy>();
+    from_python_sequence<CameraControlsVector>();
 
     to_python_converter<FrameratesVector, to_list<FrameratesVector> >();
-    from_python_sequence<FrameratesVector, variable_capacity_policy>();
+    from_python_sequence<FrameratesVector>();
 
     class_<CameraImageFormat>("CameraImageFormat", no_init)
         .add_property("size", &CameraImageFormat::getSize)

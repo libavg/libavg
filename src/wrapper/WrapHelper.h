@@ -84,114 +84,7 @@ struct to_dict
     static const PyTypeObject* get_pytype() { return &PyDict_Type; }
 };
 
-struct default_policy
-{
-  static bool check_convertibility_per_element() { return false; }
-
-  template <typename ContainerType>
-  static bool check_size(boost::type<ContainerType>, std::size_t /*sz*/)
-  {
-    return true;
-  }
-
-  template <typename ContainerType>
-  static void assert_size(boost::type<ContainerType>, std::size_t /*sz*/) {}
-
-  template <typename ContainerType>
-  static void reserve(ContainerType& a, std::size_t sz) {}
-};
-
-struct fixed_size_policy
-{
-  static bool check_convertibility_per_element() { return true; }
-
-  template <typename ContainerType>
-  static bool check_size(boost::type<ContainerType>, std::size_t sz)
-  {
-    return ContainerType::size() == sz;
-  }
-
-  template <typename ContainerType>
-  static void assert_size(boost::type<ContainerType>, std::size_t sz)
-  {
-    if (!check_size(boost::type<ContainerType>(), sz)) {
-      PyErr_SetString(PyExc_RuntimeError,
-        "Insufficient elements for fixed-size array.");
-      boost::python::throw_error_already_set();
-    }
-  }
-
-  template <typename ContainerType>
-  static void reserve(ContainerType& /*a*/, std::size_t sz)
-  {
-    if (sz > ContainerType::size()) {
-      PyErr_SetString(PyExc_RuntimeError,
-        "Too many elements for fixed-size array.");
-      boost::python::throw_error_already_set();
-    }
-  }
-
-  template <typename ContainerType, typename ValueType>
-  static void set_value(ContainerType& a, std::size_t i, ValueType const& v)
-  {
-    reserve(a, i+1);
-    a[i] = v;
-  }
-};
-   
-struct variable_capacity_policy : default_policy
-{
-  template <typename ContainerType>
-  static void reserve(ContainerType& a, std::size_t sz)
-  {
-    a.reserve(sz);
-  }
-
-  template <typename ContainerType, typename ValueType>
-  static void set_value(
-    ContainerType& a,
-    std::size_t
-#if !defined(NDEBUG)
-    i
-#endif
-    ,
-    ValueType const& v)
-  {
-    assert(a.size() == i);
-    a.push_back(v);
-  }
-};
-
-struct fixed_capacity_policy : variable_capacity_policy
-{
-  template <typename ContainerType>
-  static bool check_size(boost::type<ContainerType>, std::size_t sz)
-  {
-    return ContainerType::max_size() >= sz;
-  }
-};
-
-struct linked_list_policy : default_policy
-{
-  template <typename ContainerType, typename ValueType>
-  static void
-  set_value(ContainerType& a, std::size_t /*i*/, ValueType const& v)
-  {
-    a.push_back(v);
-  }
-};
-
-struct set_policy : default_policy
-{
-  template <typename ContainerType, typename ValueType>
-  static void
-  set_value(ContainerType& a, std::size_t /*i*/, ValueType const& v)
-  {
-    a.insert(v);
-  }
-};
-
-template <typename ContainerType, typename ConversionPolicy>
+template <typename ContainerType>
 struct from_python_sequence
 {
   typedef typename ContainerType::value_type container_element_type;
@@ -225,19 +118,6 @@ struct from_python_sequence
     if (!obj_iter.get()) { // must be convertible to an iterator
       PyErr_Clear();
       return 0;
-    }
-    if (ConversionPolicy::check_convertibility_per_element()) {
-      int obj_size = int(PyObject_Length(obj_ptr));
-      if (obj_size < 0) { // must be a measurable sequence
-        PyErr_Clear();
-        return 0;
-      }
-      if (!ConversionPolicy::check_size(
-        boost::type<ContainerType>(), obj_size)) return 0;
-      bool is_range = PyRange_Check(obj_ptr);
-      std::size_t i=0;
-      if (!all_elements_convertible(obj_iter, is_range, i)) return 0;
-      if (!is_range) assert(i == (std::size_t)obj_size);
     }
     return obj_ptr;
   }
@@ -286,9 +166,8 @@ struct from_python_sequence
       if (!py_elem_hdl.get()) break; // end of iteration
       boost::python::object py_elem_obj(py_elem_hdl);
       boost::python::extract<container_element_type> elem_proxy(py_elem_obj);
-      ConversionPolicy::set_value(result, i, elem_proxy());
+      result.push_back(elem_proxy());
     }
-    ConversionPolicy::assert_size(boost::type<ContainerType>(), i);
   }
 };
 

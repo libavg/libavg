@@ -438,8 +438,8 @@ void export_base()
    
     // vector<vec2>
     to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
-    from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
+    from_python_sequence<vector<IntPoint> >();
+    from_python_sequence<vector<glm::vec2> >();
 
     // vec3
     to_python_converter<glm::ivec3, Vec3_to_python_tuple<glm::ivec3> >();
@@ -456,8 +456,8 @@ void export_base()
     // vector<vec3>
     to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
     to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();    
-    from_python_sequence<vector<glm::ivec3>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::vec3>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::ivec3> >();
+    from_python_sequence<vector<glm::vec3> >();
 
     // string
     to_python_converter<UTF8String, UTF8String_to_unicode>();
@@ -465,10 +465,10 @@ void export_base()
     UTF8String_from_string();
 
     to_python_converter<vector<string>, to_list<vector<string> > >();    
-    from_python_sequence<vector<string>, variable_capacity_policy>();
+    from_python_sequence<vector<string> >();
   
-    from_python_sequence<vector<float>, variable_capacity_policy>();
-    from_python_sequence<vector<int>, variable_capacity_policy>();
+    from_python_sequence<vector<float> >();
+    from_python_sequence<vector<int> >();
 
     to_python_converter<std::type_info, type_info_to_string>();
     //Maps

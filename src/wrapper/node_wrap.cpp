@@ -95,7 +95,7 @@ void export_node()
 {
     // vector< vector<vec2> > PolygonNode
     to_python_converter<VectorVec2Vector, to_list<VectorVec2Vector> >();
-    from_python_sequence<VectorVec2Vector, variable_capacity_policy>();
+    from_python_sequence<VectorVec2Vector>();
 
     object nodeClass = class_<Node, boost::shared_ptr<Node>, bases<Publisher>, 
             boost::noncopyable>("Node", no_init)
