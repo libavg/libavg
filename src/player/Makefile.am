@@ -56,7 +56,7 @@ noinst_PROGRAMS = testplayer
 testplayer_SOURCES = testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
+        ../oscpack/liboscpack.la \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_CFLAGS@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ \
         @LIBRSVG_LIBS@ \
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) \

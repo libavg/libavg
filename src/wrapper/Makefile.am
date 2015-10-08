@@ -36,7 +36,6 @@ avg_la_LIBADD = ../player/libplayer.la \
                 ../base/libbase.la \
                 ../imaging/libimaging.la \
                 ../anim/libanim.la \
-                ../lmfit/liblmfit.la \
                 ../oscpack/liboscpack.la \
                 @PANGOFT2_LIBS@ @LIBRSVG_LIBS@ $(BOOST_PYTHON_LIBS) \
                 @BOOST_THREAD_LIBS@ @XML2_LIBS@ \

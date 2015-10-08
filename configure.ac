@@ -186,7 +186,6 @@ AC_OUTPUT(Makefile
     src/test/media/incompleteSkinMedia/Makefile
     src/test/plugin/Makefile
     src/base/Makefile 
-    src/lmfit/Makefile 
     src/wrapper/Makefile 
     src/player/Makefile 
     src/graphics/Makefile 
