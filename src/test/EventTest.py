@@ -772,17 +772,6 @@ class EventTestCase(AVGTestCase):
                  lambda: player.enableMouse(True),
                 ))
 
-    def testSetMousePos(self):
-        root = self.loadEmptyScene()
-        handlerTester = NodeHandlerTester(self, root)
-
-        self.start(False,
-                (lambda: handlerTester.assertState(()),
-                 lambda: player.setMousePos((10,10)),
-                 lambda: handlerTester.assertState(
-                        (avg.Node.CURSOR_MOTION, avg.Node.CURSOR_OVER)),
-                ))
-
     def testEventErr(self):
         def onErrMouseOver(Event):
             undefinedFunction()
@@ -1122,7 +1111,6 @@ def eventTestSuite(tests):
             "testEventCapture",
             "testMouseOver",
             "testMouseDisable",
-            "testSetMousePos",
             "testEventErr",
             "testEventHook",
             "testException",
