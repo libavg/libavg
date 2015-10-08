@@ -56,8 +56,11 @@
     <ClCompile Include="..\..\src\wrapper\bitmap_wrap.cpp" />
     <ClCompile Include="..\..\src\wrapper\event_wrap.cpp" />
     <ClCompile Include="..\..\src\wrapper\fx_wrap.cpp" />
+    <ClCompile Include="..\..\src\wrapper\misc_wrap.cpp" />
     <ClCompile Include="..\..\src\wrapper\node_wrap.cpp" />
+    <ClCompile Include="..\..\src\wrapper\raster2_wrap.cpp" />
     <ClCompile Include="..\..\src\wrapper\raster_wrap.cpp" />
+    <ClCompile Include="..\..\src\wrapper\vector_wrap.cpp" />
     <ClCompile Include="..\..\src\wrapper\WrapHelper.cpp" />
   </ItemGroup>
   <ItemGroup>

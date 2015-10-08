@@ -35,6 +35,32 @@ using namespace avg;
 using namespace std;
 using namespace boost::python;
 
+void* from_python_sequence_base::convertible(PyObject* obj_ptr)
+{
+    if (!(   PyList_Check(obj_ptr)
+          || PyTuple_Check(obj_ptr)
+          || PyIter_Check(obj_ptr)
+          || PyRange_Check(obj_ptr)
+          || (   !PyString_Check(obj_ptr)
+              && !PyUnicode_Check(obj_ptr)
+              && (   obj_ptr->ob_type == 0
+                  || obj_ptr->ob_type->ob_type == 0
+                  || obj_ptr->ob_type->ob_type->tp_name == 0
+                  || std::strcmp(
+                       obj_ptr->ob_type->ob_type->tp_name,
+                       "Boost.Python.class") != 0)
+              && PyObject_HasAttrString(obj_ptr, "__len__")
+              && PyObject_HasAttrString(obj_ptr, "__getitem__")))) return 0;
+    boost::python::handle<> obj_iter(
+      boost::python::allow_null(PyObject_GetIter(obj_ptr)));
+    if (!obj_iter.get()) { // must be convertible to an iterator
+      PyErr_Clear();
+      return 0;
+    }
+    return obj_ptr;
+}
+
+
 namespace Vec2Helper
 {
     int len(const glm::vec2&) 
@@ -438,8 +464,8 @@ void export_base()
    
     // vector<vec2>
     to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
-    from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
+    from_python_sequence<vector<IntPoint> >();
+    from_python_sequence<vector<glm::vec2> >();
 
     // vec3
     to_python_converter<glm::ivec3, Vec3_to_python_tuple<glm::ivec3> >();
@@ -456,8 +482,8 @@ void export_base()
     // vector<vec3>
     to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
     to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();    
-    from_python_sequence<vector<glm::ivec3>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::vec3>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::ivec3> >();
+    from_python_sequence<vector<glm::vec3> >();
 
     // string
     to_python_converter<UTF8String, UTF8String_to_unicode>();
@@ -465,10 +491,10 @@ void export_base()
     UTF8String_from_string();
 
     to_python_converter<vector<string>, to_list<vector<string> > >();    
-    from_python_sequence<vector<string>, variable_capacity_policy>();
+    from_python_sequence<vector<string> >();
   
-    from_python_sequence<vector<float>, variable_capacity_policy>();
-    from_python_sequence<vector<int>, variable_capacity_policy>();
+    from_python_sequence<vector<float> >();
+    from_python_sequence<vector<int> >();
 
     to_python_converter<std::type_info, type_info_to_string>();
     //Maps
