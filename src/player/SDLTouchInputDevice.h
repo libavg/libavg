@@ -36,7 +36,7 @@ class AVG_API SDLTouchInputDevice: public MultitouchInputDevice
 {
 public:
     SDLTouchInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr());
-    
+
     void onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlEvent);
 
 private:
