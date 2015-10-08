@@ -45,7 +45,7 @@ void export_event()
     boost::python::to_python_converter<vector<CursorEventPtr>, 
         to_tuple<vector<CursorEventPtr> > >();
 
-    from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
+    from_python_sequence<vector<EventPtr> >();
 
     enum_<int>("KeyModifier")
         .value("KEYMOD_NONE", KMOD_NONE)

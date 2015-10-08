@@ -54,8 +54,8 @@ AnimPtr fadeOutDeprecated(const bp::object& node, long long duration,
 
 void export_anim()
 {
-    from_python_sequence<std::vector<AnimPtr>, variable_capacity_policy>();
-    from_python_sequence<std::vector<AnimState>, variable_capacity_policy>();
+    from_python_sequence<std::vector<AnimPtr> >();
+    from_python_sequence<std::vector<AnimState> >();
     
     class_<Anim, boost::shared_ptr<Anim>, boost::noncopyable>("Anim", no_init)
         .def("setStartCallback", &Anim::setStartCallback)

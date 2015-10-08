@@ -558,12 +558,14 @@ void Player::initPlayback()
         addInputDevice(m_pMultitouchInputDevice);
     } else {
 #if defined(_WIN32) || defined(__linux__)
-        SDLTouchInputDevicePtr pMultitouchInputDevice =
-                SDLTouchInputDevicePtr(new SDLTouchInputDevice);
-        dynamic_pointer_cast<SDLWindow>(m_pDisplayEngine->getWindow(0))
-                ->setTouchHandler(pMultitouchInputDevice);
-        m_pMultitouchInputDevice = pMultitouchInputDevice;
-        addInputDevice(m_pMultitouchInputDevice);
+        SDLWindowPtr pWin = dynamic_pointer_cast<SDLWindow>(m_pDisplayEngine->getWindow(0));
+        if (!pWin->hasTouchHandler()) {
+            SDLTouchInputDevicePtr pMultitouchInputDevice =
+                    SDLTouchInputDevicePtr(new SDLTouchInputDevice);
+            pWin->setTouchHandler(pMultitouchInputDevice);
+            m_pMultitouchInputDevice = pMultitouchInputDevice;
+            addInputDevice(m_pMultitouchInputDevice);
+        }
 #endif
     }
 

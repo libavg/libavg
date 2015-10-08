@@ -26,7 +26,7 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp \
-        event_wrap.cpp fx_wrap.cpp \
+        event_wrap.cpp fx_wrap.cpp misc_wrap.cpp vector_wrap.cpp raster2_wrap.cpp \
         bitmap_wrap.cpp anim_wrap.cpp $(ALL_H)
 avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker
 avg_la_LIBADD = ../player/libplayer.la \
@@ -36,7 +36,6 @@ avg_la_LIBADD = ../player/libplayer.la \
                 ../base/libbase.la \
                 ../imaging/libimaging.la \
                 ../anim/libanim.la \
-                ../lmfit/liblmfit.la \
                 ../oscpack/liboscpack.la \
                 @PANGOFT2_LIBS@ @LIBRSVG_LIBS@ $(BOOST_PYTHON_LIBS) \
                 @BOOST_THREAD_LIBS@ @XML2_LIBS@ \
