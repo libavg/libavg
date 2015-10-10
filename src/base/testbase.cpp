@@ -474,21 +474,38 @@ public:
         tri = Triangle(glm::vec2(0,0), glm::vec2(4,8), glm::vec2(4,4));
         TEST(tri.isInside(glm::vec2(3,4)));
 
-        glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(8,2), glm::vec2(9,0), 
-                glm::vec2(9,3), glm::vec2(1,1), glm::vec2(0,3)}; 
+        {
+            glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(8,2), glm::vec2(9,0), 
+                    glm::vec2(9,3), glm::vec2(1,1), glm::vec2(0,3)};
+            int baselineIndexes[] = {0,4,5, 4,0,1, 4,1,3, 3,1,2};        
+            testTriangulation(Polygon(vectorFromCArray(6, polyArray)),
+                    vectorFromCArray(12, baselineIndexes), Vec2Vector());
+        }
+        {
+            // Self-intersecting polygon
+            glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(10,0), glm::vec2(0,10), 
+                    glm::vec2(10,10)};
+            int baselineIndexes[] = {1,4,0, 3,2,4};
+            glm::vec2 baselineExtraPts[] = {glm::vec2(5,5)};
+            testTriangulation(Polygon(vectorFromCArray(4, polyArray)),
+                    vectorFromCArray(6, baselineIndexes), 
+                    vectorFromCArray(1, baselineExtraPts));
+        }
+    }
 
-        Polygon poly(vectorFromCArray(6, polyArray));
+    void testTriangulation(Polygon poly, vector<int> indexes, Vec2Vector baselineExtraPts)
+    {
         vector<int> triangulation;
-        poly.triangulate(triangulation);
-
-        TEST(triangulation.size() == 4*3);
-        int baselineIndexes[] = {0,4,5, 4,0,1, 4,1,3, 3,1,2};
-        TEST(triangulation == vectorFromCArray(12, baselineIndexes));
-/*
+        Vec2Vector extraPts;
+        poly.triangulate(triangulation, extraPts);
+        
+        TEST(triangulation == indexes);
+        TEST(extraPts == baselineExtraPts);
+/*        
         for (unsigned int i=0; i<triangulation.size(); i++) {
             cerr << i << ":" << triangulation[i] << endl;
         }
-*/
+*/        
     }
 
 };

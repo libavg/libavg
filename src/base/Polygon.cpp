@@ -42,10 +42,11 @@ float Polygon::getArea()
     return A*0.5f;
 }
 
-void Polygon::triangulate(std::vector<int>& resultIndexes)
+void Polygon::triangulate(std::vector<int>& resultIndexes, Vec2Vector& extraPts)
 {
     m_pIndexes = &resultIndexes;
     m_pIndexes->clear();
+    m_pExtraPts = &extraPts;
 
     vector<glm::dvec3> coords;
     for (unsigned i=0; i<m_Pts.size(); ++i) {
@@ -55,12 +56,12 @@ void Polygon::triangulate(std::vector<int>& resultIndexes)
     // create tessellator
     GLUtesselator *pTess = gluNewTess();
     gluTessCallback(pTess, GLU_TESS_VERTEX_DATA, (_GLUfuncptr)Polygon::vertexCallback);
+    gluTessCallback(pTess, GLU_TESS_COMBINE_DATA, (_GLUfuncptr)Polygon::combineCallback);
     gluTessCallback(pTess, GLU_TESS_EDGE_FLAG, (_GLUfuncptr)Polygon::edgeCallback);
     gluTessNormal(pTess, 0.0, 0.0, 1.0 );
     gluTessProperty(pTess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_NONZERO);
 
 /*
-    gluTessCallback(pTess, GLU_TESS_COMBINE, combineCB);
     gluTessCallback(pTess, GLU_TESS_ERROR,   errorCB);
 */
     // describe non-convex polygon
@@ -84,9 +85,18 @@ void Polygon::edgeCallback(bool bEdge)
 
 void Polygon::vertexCallback(void* pVertexData, void* pPolygonData)
 {
-    size_t i = (size_t)pVertexData;
     Polygon* pThis = (Polygon *)pPolygonData;
+    size_t i = (size_t)pVertexData;
     pThis->m_pIndexes->push_back(i);
+}
+
+void Polygon::combineCallback(double coords[3], void *vertex_data[4], 
+        float weight[4], void **ppOutData, void *pPolygonData)
+{
+    Polygon* pThis = (Polygon *)pPolygonData;
+    pThis->m_pExtraPts->push_back(glm::vec2(coords[0], coords[1]));
+    size_t numPts = pThis->m_Pts.size() + pThis->m_pExtraPts->size() - 1;
+    *ppOutData = (void*)numPts;
 }
 
 }
