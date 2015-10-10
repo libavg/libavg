@@ -175,6 +175,10 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
             pVertexData->appendPos(pts[i], texCoord, color);
         }
+        for (unsigned i = 0; i < m_ExtraPts.size(); ++i) {
+            glm::vec2 texCoord = calcFillTexCoord(m_ExtraPts[i], minCoord, maxCoord);
+            pVertexData->appendPos(m_ExtraPts[i], texCoord, color);
+        }
         for (unsigned i = 0; i < m_TriIndexes.size(); i+=3) {
             pVertexData->appendTriIndexes(m_TriIndexes[i], m_TriIndexes[i+1], 
                     m_TriIndexes[i+2]);
@@ -202,7 +206,7 @@ void PolygonNode::triangulate()
             }
         }
         Polygon poly(pts);
-        poly.triangulate(m_TriIndexes);
+        poly.triangulate(m_TriIndexes, m_ExtraPts);
         m_bPtsChanged = false;
     }
 }

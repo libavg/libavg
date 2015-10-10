@@ -47,6 +47,7 @@ void Polygon::triangulate(std::vector<int>& resultIndexes, Vec2Vector& extraPts)
     m_pIndexes = &resultIndexes;
     m_pIndexes->clear();
     m_pExtraPts = &extraPts;
+    m_pExtraPts->clear();
 
     vector<glm::dvec3> coords;
     for (unsigned i=0; i<m_Pts.size(); ++i) {
