@@ -42,7 +42,7 @@
 #ifndef __tess_h_
 #define __tess_h_
 
-#include <GL/glu.h>
+#include "glutess.h"
 #include <setjmp.h>
 #include "mesh.h"
 #include "dict.h"

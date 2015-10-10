@@ -4,7 +4,8 @@
 #include "Triangulate.h"
 #include "Exception.h"
 
-#include "../base/Exception.h"
+#include "../tess/glutess.h"
+#include "Exception.h"
 
 #include <stdio.h>
 #include <stdlib.h>
