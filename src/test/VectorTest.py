@@ -470,6 +470,9 @@ class VectorTestCase(AVGTestCase):
         def createSelfIntersectingPolygon():
             polygon.pos = ( (10,10), (50,10), (10,50), (50,50) )
 
+        def createDegeneratePolygon():
+            polygon.pos = ((10,10), (10, 10), (50,10), (90,50), (90, 90))
+
         def clearCanvas():
             for i in xrange(canvas.getNumChildren()-1):
                 dell = canvas.getChild(i)
@@ -503,7 +506,9 @@ class VectorTestCase(AVGTestCase):
                  createBottomOpenPolygon,
                  lambda: self.compareImage("testPolygon9"),
                  createSelfIntersectingPolygon,
-                 lambda: self.compareImage("testPolygon10")
+                 lambda: self.compareImage("testPolygon10"),
+                 createDegeneratePolygon,
+                 lambda: self.compareImage("testPolygon11")
                 ))
 
     def testTexturedPolygon(self):
