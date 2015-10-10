@@ -42,108 +42,51 @@ float Polygon::getArea()
     return A*0.5f;
 }
 
-bool snip(const Vec2Vector &pts,int u,int v,int w,int n,int *V)
-{
-    int p;
-    Triangle tri;
-    tri.p0 = pts[V[u]];
-    tri.p1 = pts[V[v]];
-    tri.p2 = pts[V[w]];
-
-//    float area = tri.getArea();
-
-    if (tri.isClockwise()) {
-        return false;
-    }
-
-    for (p=0; p<n; p++) {
-        if( (p == u) || (p == v) || (p == w) ) {
-            continue;
-        }
-        if (tri.isInside(pts[V[p]])) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void Polygon::triangulate(std::vector<int>& resultIndexes)
 {
-    /* allocate and initialize list of Vertices in polygon */
+    m_pIndexes = &resultIndexes;
+    m_pIndexes->clear();
 
-    int n = m_Pts.size();
-    AVG_ASSERT(n>2);
-
-    int *V = new int[n];
-
-    // we want a counter-clockwise polygon in V. 
-    if (0.0 < getArea()) {
-        for (int v=0; v<n; v++) {
-            V[v] = v;
-        }
-    } else {
-        for(int v=0; v<n; v++) {
-            V[v] = (n-1)-v;
-        }
+    vector<glm::dvec3> coords;
+    for (unsigned i=0; i<m_Pts.size(); ++i) {
+        coords.push_back(glm::dvec3(m_Pts[i].x, m_Pts[i].y, 0));
     }
 
-    int nv = n;
+    // create tessellator
+    GLUtesselator *pTess = gluNewTess();
+    gluTessCallback(pTess, GLU_TESS_VERTEX_DATA, (_GLUfuncptr)Polygon::vertexCallback);
+    gluTessCallback(pTess, GLU_TESS_EDGE_FLAG, (_GLUfuncptr)Polygon::edgeCallback);
+    gluTessNormal(pTess, 0.0, 0.0, 1.0 );
+    gluTessProperty(pTess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_NONZERO);
 
-    /*  remove nv-2 Vertices, creating 1 triangle every time */
-    int count = 2*nv;   /* error detection */
-
-    for(int m=0, v=nv-1; nv>2; )
-    {
-        if (count <= 0) {
-            delete V;
-            throw Exception(AVG_ERR_INVALID_ARGS, 
-                    "Non-simple polygon: Self-intersecting polygons or degenerate polygons are not supported.");
-        }
-        count--;
-
-        /* three consecutive vertices in current polygon, <u,v,w> */
-        int u = v; 
-        if (nv <= u) { 
-            u = 0;     /* previous */
-        }
-        v = u+1;
-        if (nv <= v) {
-            v = 0;
-        }
-        int w = v+1; 
-        if (nv <= w) {
-            w = 0;
-        }
-
-        if (snip(m_Pts,u,v,w,nv,V))
-        {
-            int a,b,c,s,t;
-
-            /* true names of the vertices */
-            a = V[u]; b = V[v]; c = V[w];
-
-            /* output Triangle */
-
-            resultIndexes.push_back(a);
-            resultIndexes.push_back(b);
-            resultIndexes.push_back(c);
-
-            m++;
-
-            /* remove v from remaining polygon */
-            for(s=v,t=v+1; t<nv; s++,t++) {
-                V[s] = V[t]; 
-            }
-            nv--;
-
-            /* resest error detection counter */
-            count = 2*nv;
-
-        }
+/*
+    gluTessCallback(pTess, GLU_TESS_COMBINE, combineCB);
+    gluTessCallback(pTess, GLU_TESS_ERROR,   errorCB);
+*/
+    // describe non-convex polygon
+    gluTessBeginPolygon(pTess, this);
+    // first contour
+    gluTessBeginContour(pTess);
+    for (size_t i=0; i<coords.size(); ++i) {
+        gluTessVertex(pTess, glm::value_ptr(coords[i]), (void*)i);
     }
 
-    delete[] V;
+    gluTessEndContour(pTess);
+    gluTessEndPolygon(pTess);
+
+    gluDeleteTess(pTess);
+}
+
+void Polygon::edgeCallback(bool bEdge)
+{
+    // Only exists to prevent the tesselator from returning fans or strips.
+}
+
+void Polygon::vertexCallback(void* pVertexData, void* pPolygonData)
+{
+    size_t i = (size_t)pVertexData;
+    Polygon* pThis = (Polygon *)pPolygonData;
+    pThis->m_pIndexes->push_back(i);
 }
 
 }

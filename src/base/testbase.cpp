@@ -482,7 +482,7 @@ public:
         poly.triangulate(triangulation);
 
         TEST(triangulation.size() == 4*3);
-        int baselineIndexes[] = {1,2,3, 4,5,0, 0,1,3, 3,4,0};
+        int baselineIndexes[] = {0,4,5, 4,0,1, 4,1,3, 3,1,2};
         TEST(triangulation == vectorFromCArray(12, baselineIndexes));
 /*
         for (unsigned int i=0; i<triangulation.size(); i++) {

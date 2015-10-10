@@ -21,7 +21,11 @@ public:
     void triangulate(std::vector<int>& resultIndexes);
 
 private:
+    static void edgeCallback(bool bEdge); 
+    static void vertexCallback(void* pVertexData, void* pPolygonData); 
+
     Vec2Vector m_Pts;
+    std::vector<int>* m_pIndexes;
 };
 
 // Result type is suitable for use in a Triangle Vertex Array.
