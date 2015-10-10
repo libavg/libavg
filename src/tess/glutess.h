@@ -30,7 +30,26 @@
 #ifndef __glu_h__
 #define __glu_h__
 
-#include <GL/gl.h>
+typedef unsigned int	GLenum;
+typedef unsigned char	GLboolean;
+typedef unsigned int	GLbitfield;
+typedef void		GLvoid;
+typedef signed char	GLbyte;		/* 1-byte signed */
+typedef short		GLshort;	/* 2-byte signed */
+typedef int		GLint;		/* 4-byte signed */
+typedef unsigned char	GLubyte;	/* 1-byte unsigned */
+typedef unsigned short	GLushort;	/* 2-byte unsigned */
+typedef unsigned int	GLuint;		/* 4-byte unsigned */
+typedef int		GLsizei;	/* 4-byte signed */
+typedef float		GLfloat;	/* single precision float */
+typedef float		GLclampf;	/* single precision float in [0,1] */
+typedef double		GLdouble;	/* double precision float */
+typedef double		GLclampd;	/* double precision float in [0,1] */
+
+#define GL_LINE_LOOP				0x0002
+#define GL_TRIANGLES				0x0004
+#define GL_TRIANGLE_STRIP			0x0005
+#define GL_TRIANGLE_FAN				0x0006
 
 #ifdef __cplusplus
 extern "C" {

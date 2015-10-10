@@ -36,6 +36,13 @@
 #include <iostream>
 #include <stdio.h>
 
+#ifndef AVG_ENABLE_EGL
+    #ifdef __APPLE__
+        #include <OpenGL/glu.h>
+    #else
+        #include <GL/glu.h>
+    #endif
+#endif
 
 namespace avg {
 

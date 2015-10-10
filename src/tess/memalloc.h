@@ -42,7 +42,7 @@
 #ifndef __memalloc_simple_h_
 #define __memalloc_simple_h_
 
-#include <malloc.h>
+#include <stdlib.h>
 
 #define memRealloc  realloc
 #define memFree     free
