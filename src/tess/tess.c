@@ -91,7 +91,7 @@ typedef struct {
              MAX(sizeof(GLUvertex),sizeof(GLUface))))
 
 
-GLUtesselator * GLAPI
+GLUtesselator * 
 gluNewTess(void)
 {
     GLUtesselator *tess;
@@ -170,6 +170,8 @@ static void GotoState(GLUtesselator *tess, enum TessState newState)
                 CALL_ERROR_OR_ERROR_DATA(GLU_TESS_MISSING_BEGIN_CONTOUR);
                 gluTessBeginContour(tess);
                 break;
+            default:
+                break;
             }
         } else {
             switch (tess->state) {
@@ -182,13 +184,15 @@ static void GotoState(GLUtesselator *tess, enum TessState newState)
                 /* gluTessEndPolygon( tess ) is too much work! */
                 MakeDormant(tess);
                 break;
+            default:
+                break;
             }
         }
     }
 }
 
 
-void GLAPI
+void 
 gluDeleteTess(GLUtesselator *tess)
 {
     RequireState(tess, T_DORMANT);
@@ -196,7 +200,7 @@ gluDeleteTess(GLUtesselator *tess)
 }
 
 
-void GLAPI
+void 
 gluTessProperty(GLUtesselator *tess, GLenum which, GLdouble value)
 {
     GLenum windingRule;
@@ -239,7 +243,7 @@ gluTessProperty(GLUtesselator *tess, GLenum which, GLdouble value)
 }
 
 /* Returns tessellator property */
-void GLAPI
+void 
 gluGetTessProperty(GLUtesselator *tess, GLenum which, GLdouble *value)
 {
     switch (which) {
@@ -267,7 +271,7 @@ gluGetTessProperty(GLUtesselator *tess, GLenum which, GLdouble *value)
     }
 } /* gluGetTessProperty() */
 
-void GLAPI
+void 
 gluTessNormal(GLUtesselator *tess, GLdouble x, GLdouble y, GLdouble z)
 {
     tess->normal[0] = x;
@@ -275,7 +279,7 @@ gluTessNormal(GLUtesselator *tess, GLdouble x, GLdouble y, GLdouble z)
     tess->normal[2] = z;
 }
 
-void GLAPI
+void 
 gluTessCallback(GLUtesselator *tess, GLenum which, void (*fn)())
 {
     switch (which) {
@@ -424,7 +428,7 @@ static int EmptyCache(GLUtesselator *tess)
 }
 
 
-void GLAPI
+void 
 gluTessVertex(GLUtesselator *tess, GLdouble coords[3], void *data)
 {
     int i, tooLarge = FALSE;
@@ -471,7 +475,7 @@ gluTessVertex(GLUtesselator *tess, GLdouble coords[3], void *data)
 }
 
 
-void GLAPI
+void 
 gluTessBeginPolygon(GLUtesselator *tess, void *data)
 {
     RequireState(tess, T_DORMANT);
@@ -485,7 +489,7 @@ gluTessBeginPolygon(GLUtesselator *tess, void *data)
 }
 
 
-void GLAPI
+void 
 gluTessBeginContour(GLUtesselator *tess)
 {
     RequireState(tess, T_IN_POLYGON);
@@ -502,14 +506,14 @@ gluTessBeginContour(GLUtesselator *tess)
 }
 
 
-void GLAPI
+void 
 gluTessEndContour(GLUtesselator *tess)
 {
     RequireState(tess, T_IN_CONTOUR);
     tess->state = T_IN_POLYGON;
 }
 
-void GLAPI
+void 
 gluTessEndPolygon(GLUtesselator *tess)
 {
     GLUmesh *mesh;
@@ -610,7 +614,7 @@ gluTessEndPolygon(GLUtesselator *tess)
 
 /*XXXblythe unused function*/
 #if 0
-void GLAPI
+void 
 gluDeleteMesh(GLUmesh *mesh)
 {
     __gl_meshDeleteMesh(mesh);
@@ -623,7 +627,7 @@ gluDeleteMesh(GLUmesh *mesh)
 
 /* Obsolete calls -- for backward compatibility */
 
-void GLAPI
+void 
 gluBeginPolygon(GLUtesselator *tess)
 {
     gluTessBeginPolygon(tess, NULL);
@@ -632,7 +636,7 @@ gluBeginPolygon(GLUtesselator *tess)
 
 
 /*ARGSUSED*/
-void GLAPI
+void 
 gluNextContour(GLUtesselator *tess, GLenum type)
 {
     gluTessEndContour(tess);
@@ -640,7 +644,7 @@ gluNextContour(GLUtesselator *tess, GLenum type)
 }
 
 
-void GLAPI
+void 
 gluEndPolygon(GLUtesselator *tess)
 {
     gluTessEndContour(tess);

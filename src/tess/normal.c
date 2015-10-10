@@ -50,6 +50,7 @@
 
 #define Dot(u,v)    (u[0]*v[0] + u[1]*v[1] + u[2]*v[2])
 
+#if defined(FOR_TRITE_TEST_PROGRAM) || defined(TRUE_PROJECT)
 static void Normalize(GLdouble v[3])
 {
     GLdouble len = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
@@ -60,6 +61,7 @@ static void Normalize(GLdouble v[3])
     v[1] /= len;
     v[2] /= len;
 }
+#endif
 
 #define ABS(x)  ((x) < 0 ? -(x) : (x))
 
@@ -215,7 +217,7 @@ extern int RandomSweep;
 void __gl_projectPolygon(GLUtesselator *tess)
 {
     GLUvertex *v, *vHead = &tess->mesh->vHead;
-    GLdouble w, norm[3];
+    GLdouble norm[3];
     GLdouble *sUnit, *tUnit;
     int i, computedNormal = FALSE;
 
@@ -231,6 +233,7 @@ void __gl_projectPolygon(GLUtesselator *tess)
     i = LongAxis(norm);
 
 #if defined(FOR_TRITE_TEST_PROGRAM) || defined(TRUE_PROJECT)
+    GLdouble w;
     /* Choose the initial sUnit vector to be approximately perpendicular
      * to the normal.
      */
