@@ -26,7 +26,7 @@
 
 #include "../base/Exception.h"
 #include "../base/GeomHelper.h"
-#include "../base/Triangulate.h"
+#include "../base/Polygon.h"
 #include "../graphics/VertexData.h"
 
 #include "../glm/gtx/norm.hpp"
@@ -201,8 +201,8 @@ void PolygonNode::triangulate()
                 pts.push_back(m_Pts[i]);
             }
         }
-
-        triangulatePolygon(pts, m_TriIndexes);
+        Polygon poly(pts);
+        poly.triangulate(m_TriIndexes);
         m_bPtsChanged = false;
     }
 }

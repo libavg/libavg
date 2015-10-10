@@ -1,7 +1,7 @@
 // Original code by John W. Ratcliff presumed to be in the public domain. Found 
 // at http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml. 
 
-#include "Triangulate.h"
+#include "Polygon.h"
 #include "Exception.h"
 
 #include "../tess/glutess.h"
@@ -16,26 +16,39 @@ namespace avg {
 
 using namespace std;
 
-float getPolygonArea(const Vec2Vector &contour)
+Polygon::Polygon()
 {
-  int n = contour.size();
-
-  float A = 0.0;
-
-  for (int p=n-1,q=0; q<n; p=q++) {
-    A += contour[p].x*contour[q].y - contour[q].x*contour[p].y;
-  }
-  return A*0.5f;
 }
 
+Polygon::Polygon(const Vec2Vector& pts)
+    : m_Pts(pts)
+{
+}
 
-bool snip(const Vec2Vector &contour,int u,int v,int w,int n,int *V)
+const Vec2Vector& Polygon::getPts() const
+{
+    return m_Pts;
+}
+
+float Polygon::getArea()
+{
+    int n = m_Pts.size();
+
+    float A = 0.0;
+
+    for (int p=n-1,q=0; q<n; p=q++) {
+        A += m_Pts[p].x*m_Pts[q].y - m_Pts[q].x*m_Pts[p].y;
+    }
+    return A*0.5f;
+}
+
+bool snip(const Vec2Vector &pts,int u,int v,int w,int n,int *V)
 {
     int p;
     Triangle tri;
-    tri.p0 = contour[V[u]];
-    tri.p1 = contour[V[v]];
-    tri.p2 = contour[V[w]];
+    tri.p0 = pts[V[u]];
+    tri.p1 = pts[V[v]];
+    tri.p2 = pts[V[w]];
 
 //    float area = tri.getArea();
 
@@ -47,7 +60,7 @@ bool snip(const Vec2Vector &contour,int u,int v,int w,int n,int *V)
         if( (p == u) || (p == v) || (p == w) ) {
             continue;
         }
-        if (tri.isInside(contour[V[p]])) {
+        if (tri.isInside(pts[V[p]])) {
             return false;
         }
     }
@@ -55,20 +68,17 @@ bool snip(const Vec2Vector &contour,int u,int v,int w,int n,int *V)
     return true;
 }
 
-
-// TODO: There's code that's probably faster in Graphics Gems V: 
-// http://tog.acm.org/resources/GraphicsGems/gemsv/ch7-5/
-void triangulatePolygon(const Vec2Vector &contour, vector<int> &resultIndexes)
+void Polygon::triangulate(std::vector<int>& resultIndexes)
 {
     /* allocate and initialize list of Vertices in polygon */
 
-    int n = contour.size();
+    int n = m_Pts.size();
     AVG_ASSERT(n>2);
 
     int *V = new int[n];
 
     // we want a counter-clockwise polygon in V. 
-    if (0.0 < getPolygonArea(contour)) {
+    if (0.0 < getArea()) {
         for (int v=0; v<n; v++) {
             V[v] = v;
         }
@@ -106,7 +116,7 @@ void triangulatePolygon(const Vec2Vector &contour, vector<int> &resultIndexes)
             w = 0;
         }
 
-        if (snip(contour,u,v,w,nv,V))
+        if (snip(m_Pts,u,v,w,nv,V))
         {
             int a,b,c,s,t;
 
