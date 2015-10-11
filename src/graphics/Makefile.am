@@ -100,7 +100,7 @@ benchmarkgraphics_LDADD = libgraphics.la ../base/libbase.la \
 testgpu_SOURCES = testgpu.cpp $(ALL_H)
 testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS) \
-        @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
+        @GL_LIBS@ @SDL_LIBS@ \
         @GDK_PIXBUF_LIBS@
 testgpu_LDFLAGS = $(PLATFORM_LDF)
 testdir = $(pkgpyexecdir)/bintest

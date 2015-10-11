@@ -145,7 +145,6 @@ if test "$enable_egl" = yes; then
     AC_DEFINE(AVG_ENABLE_EGL, 1, [Enable EGL support])
 else
     AX_CHECK_GL
-    AX_CHECK_GLU
     if test x"$GL_LIBS" = x; then
         AC_MSG_ERROR([OpenGL not found. Aborting])
     fi
