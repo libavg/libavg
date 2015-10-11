@@ -135,12 +135,12 @@ void PolygonNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 
 void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
-    triangulate();
-    if (m_TriIndexes.empty()) {
-        return;
-    }
+    if (isFillVisible()) {
+        triangulate();
+        if (m_TriIndexes.empty()) {
+            return;
+        }
 
-    if (color.getA() > 0) {
         glm::vec2 minCoord = m_Pts[0];
         glm::vec2 maxCoord = m_Pts[0];
         for (unsigned i = 1; i < m_Pts.size(); ++i) {
