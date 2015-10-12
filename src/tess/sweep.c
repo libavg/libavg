@@ -258,10 +258,10 @@ static GLboolean IsWindingInside(GLUtesselator *tess, int n)
         return (n < 0);
     case GLU_TESS_WINDING_ABS_GEQ_TWO:
         return (n >= 2) || (n <= -2);
+    default:
+        assert(FALSE);
+        return 0;
     }
-    /*LINTED*/
-    assert(FALSE);
-    /*NOTREACHED*/
 }
 
 
