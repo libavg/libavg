@@ -1,6 +1,7 @@
 AM_CPPFLAGS =
-ALL_H = dict.h geom.h mesh.h priorityq.h priorityq-sort.h sweep.h tessmono.h \
-dict-list.h memalloc.h normal.h render.h tess.h glutess.h
+ALL_H = dict.h geom.h mesh.h priorityq.h priorityq-sort.h priorityq-heap.h sweep.h \
+        tessmono.h dict-list.h memalloc.h normal.h render.h tess.h glutess.h \
+        priorityq-heap.inl
 
 noinst_LTLIBRARIES = libtess.la
 libtess_la_SOURCES = dict.c memalloc.c normal.c sweep.c tessmono.c \
