@@ -48,7 +48,6 @@
     <ClCompile Include="..\..\src\tess\memalloc.c" />
     <ClCompile Include="..\..\src\tess\mesh.c" />
     <ClCompile Include="..\..\src\tess\normal.c" />
-    <ClCompile Include="..\..\src\tess\priorityq-heap.c" />
     <ClCompile Include="..\..\src\tess\priorityq.c" />
     <ClCompile Include="..\..\src\tess\render.c" />
     <ClCompile Include="..\..\src\tess\sweep.c" />
@@ -70,6 +69,9 @@
     <ClInclude Include="..\..\src\tess\sweep.h" />
     <ClInclude Include="..\..\src\tess\tess.h" />
     <ClInclude Include="..\..\src\tess\tessmono.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\tess\priorityq-heap.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
