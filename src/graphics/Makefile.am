@@ -27,7 +27,7 @@ ALL_H = Bitmap.h Filter.h GLContext.h GLContextAttribs.h GLContextManager.h \
         FilterConvol.h FilterHighpass.h \
         Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
-        OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
+        OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glx.h \
         VertexArray.h GPUNullFilter.h GPUChromaKeyFilter.h Display.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GPUShadowFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h GPUHueSatFilter.h GPUInvertFilter.h \
@@ -100,7 +100,7 @@ benchmarkgraphics_LDADD = libgraphics.la ../base/libbase.la \
 testgpu_SOURCES = testgpu.cpp $(ALL_H)
 testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS) \
-        @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
+        @GL_LIBS@ @SDL_LIBS@ \
         @GDK_PIXBUF_LIBS@
 testgpu_LDFLAGS = $(PLATFORM_LDF)
 testdir = $(pkgpyexecdir)/bintest

@@ -66,6 +66,7 @@ class AVG_API FilledVectorNode : public VectorNode
         glm::vec2 calcFillTexCoord(const glm::vec2& pt, const glm::vec2& minPt, 
                 const glm::vec2& maxPt);
         virtual bool isVisible() const;
+        bool isFillVisible() const;
 
     private:
         float m_EffectiveOpacity;

@@ -36,6 +36,13 @@
 #include <iostream>
 #include <stdio.h>
 
+#ifndef AVG_ENABLE_EGL
+    #ifdef __APPLE__
+        #include <OpenGL/glu.h>
+    #else
+        #include <GL/glu.h>
+    #endif
+#endif
 
 namespace avg {
 
@@ -437,7 +444,7 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
     if (err != GL_NO_ERROR) {
         stringstream s;
 #ifndef AVG_ENABLE_EGL
-        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
+        s << "OpenGL error in " << pszWhere <<": " // << gluErrorString(err) 
             << " (#" << err << ") ";
 #else
         s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";

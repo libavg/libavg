@@ -83,6 +83,7 @@
     <ClInclude Include="..\..\src\base\MathHelper.h" />
     <ClInclude Include="..\..\src\base\ObjectCounter.h" />
     <ClInclude Include="..\..\src\base\OSHelper.h" />
+    <ClInclude Include="..\..\src\base\Polygon.h" />
     <ClInclude Include="..\..\src\base\ProfilingZone.h" />
     <ClInclude Include="..\..\src\base\ProfilingZoneID.h" />
     <ClInclude Include="..\..\src\base\Queue.h" />
@@ -96,7 +97,6 @@
     <ClInclude Include="..\..\src\base\ThreadProfiler.h" />
     <ClInclude Include="..\..\src\base\TimeSource.h" />
     <ClInclude Include="..\..\src\base\Triangle.h" />
-    <ClInclude Include="..\..\src\base\Triangulate.h" />
     <ClInclude Include="..\..\src\base\triangulate\Utils.h" />
     <ClInclude Include="..\..\src\base\UTF8String.h" />
     <ClInclude Include="..\..\src\base\WideLine.h" />
@@ -121,6 +121,7 @@
     <ClCompile Include="..\..\src\base\MathHelper.cpp" />
     <ClCompile Include="..\..\src\base\ObjectCounter.cpp" />
     <ClCompile Include="..\..\src\base\OSHelper.cpp" />
+    <ClCompile Include="..\..\src\base\Polygon.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZone.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZoneID.cpp" />
     <ClCompile Include="..\..\src\base\ScopeTimer.cpp" />
@@ -131,7 +132,6 @@
     <ClCompile Include="..\..\src\base\ThreadProfiler.cpp" />
     <ClCompile Include="..\..\src\base\TimeSource.cpp" />
     <ClCompile Include="..\..\src\base\Triangle.cpp" />
-    <ClCompile Include="..\..\src\base\Triangulate.cpp" />
     <ClCompile Include="..\..\src\base\UTF8String.cpp" />
     <ClCompile Include="..\..\src\base\WideLine.cpp" />
     <ClCompile Include="..\..\src\base\ThreadHelper.cpp" />

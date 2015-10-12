@@ -145,7 +145,6 @@ if test "$enable_egl" = yes; then
     AC_DEFINE(AVG_ENABLE_EGL, 1, [Enable EGL support])
 else
     AX_CHECK_GL
-    AX_CHECK_GLU
     if test x"$GL_LIBS" = x; then
         AC_MSG_ERROR([OpenGL not found. Aborting])
     fi
@@ -186,6 +185,7 @@ AC_OUTPUT(Makefile
     src/test/media/incompleteSkinMedia/Makefile
     src/test/plugin/Makefile
     src/base/Makefile 
+    src/tess/Makefile 
     src/wrapper/Makefile 
     src/player/Makefile 
     src/graphics/Makefile 

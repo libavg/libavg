@@ -26,7 +26,7 @@
 
 #include "../base/Exception.h"
 #include "../base/GeomHelper.h"
-#include "../base/Triangulate.h"
+#include "../base/Polygon.h"
 #include "../graphics/VertexData.h"
 
 #include "../glm/gtx/norm.hpp"
@@ -135,45 +135,36 @@ void PolygonNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 
 void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
-    triangulate();
-    if (m_TriIndexes.empty()) {
-        return;
-    }
-
-    // Remove duplicate points
-    Vec2Vector pts;
-    pts.reserve(m_Pts.size());
-
-    if (glm::distance2(m_Pts[0], m_Pts[m_Pts.size()-1]) > 0.1) {
-        pts.push_back(m_Pts[0]);
-    }
-    for (unsigned i = 1; i < m_Pts.size(); ++i) {
-        if (glm::distance2(m_Pts[i], m_Pts[i-1]) > 0.1) {
-            pts.push_back(m_Pts[i]);
+    if (isFillVisible()) {
+        triangulate();
+        if (m_TriIndexes.empty()) {
+            return;
         }
-    }
 
-    if (color.getA() > 0) {
-        glm::vec2 minCoord = pts[0];
-        glm::vec2 maxCoord = pts[0];
-        for (unsigned i = 1; i < pts.size(); ++i) {
-            if (pts[i].x < minCoord.x) {
-                minCoord.x = pts[i].x;
+        glm::vec2 minCoord = m_Pts[0];
+        glm::vec2 maxCoord = m_Pts[0];
+        for (unsigned i = 1; i < m_Pts.size(); ++i) {
+            if (m_Pts[i].x < minCoord.x) {
+                minCoord.x = m_Pts[i].x;
             }
-            if (pts[i].x > maxCoord.x) {
-                maxCoord.x = pts[i].x;
+            if (m_Pts[i].x > maxCoord.x) {
+                maxCoord.x = m_Pts[i].x;
             }
-            if (pts[i].y < minCoord.y) {
-                minCoord.y = pts[i].y;
+            if (m_Pts[i].y < minCoord.y) {
+                minCoord.y = m_Pts[i].y;
             }
-            if (pts[i].y > maxCoord.y) {
-                maxCoord.y = pts[i].y;
+            if (m_Pts[i].y > maxCoord.y) {
+                maxCoord.y = m_Pts[i].y;
             }
         }
 
-        for (unsigned i = 0; i < pts.size(); ++i) {
-            glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
-            pVertexData->appendPos(pts[i], texCoord, color);
+        for (unsigned i = 0; i < m_Pts.size(); ++i) {
+            glm::vec2 texCoord = calcFillTexCoord(m_Pts[i], minCoord, maxCoord);
+            pVertexData->appendPos(m_Pts[i], texCoord, color);
+        }
+        for (unsigned i = 0; i < m_ExtraPts.size(); ++i) {
+            glm::vec2 texCoord = calcFillTexCoord(m_ExtraPts[i], minCoord, maxCoord);
+            pVertexData->appendPos(m_ExtraPts[i], texCoord, color);
         }
         for (unsigned i = 0; i < m_TriIndexes.size(); i+=3) {
             pVertexData->appendTriIndexes(m_TriIndexes[i], m_TriIndexes[i+1], 
@@ -189,20 +180,8 @@ void PolygonNode::triangulate()
         if (getNumDifferentPts(m_Pts) < 3) {
             return;
         }
-        // Remove duplicate points
-        Vec2Vector pts;
-        pts.reserve(m_Pts.size());
-
-        if (glm::distance2(m_Pts[0], m_Pts[m_Pts.size()-1]) > 0.1) {
-            pts.push_back(m_Pts[0]);
-        }
-        for (unsigned i = 1; i < m_Pts.size(); ++i) {
-            if (glm::distance2(m_Pts[i], m_Pts[i-1]) > 0.1) {
-                pts.push_back(m_Pts[i]);
-            }
-        }
-
-        triangulatePolygon(pts, m_TriIndexes);
+        Polygon poly(m_Pts);
+        poly.triangulate(m_TriIndexes, m_ExtraPts);
         m_bPtsChanged = false;
     }
 }
