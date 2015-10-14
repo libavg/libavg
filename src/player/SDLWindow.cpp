@@ -22,7 +22,6 @@
 
 
 #include "SDLWindow.h"
-#include "../avgconfigwrapper.h"
 
 #include "Player.h"
 #include "MouseEvent.h"
@@ -35,13 +34,7 @@
 #include "../base/StringHelper.h"
 
 #include "../graphics/GLContext.h"
-//#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
-//#include "../graphics/GLXContext.h"
-//#endif
 #include "../graphics/GLContextManager.h"
-//#include "../graphics/Filterflip.h"
-//#include "../graphics/Filterfliprgb.h"
-//#include "../graphics/ImageCache.h"
 
 #ifdef WIN32
 #undef WIN32_LEAN_AND_MEAN
@@ -297,7 +290,7 @@ HWND SDLWindow::getWinHWnd()
 }
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
 ::Display* SDLWindow::getX11Display()
 {
     SDL_SysWMinfo info;
