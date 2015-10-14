@@ -24,6 +24,7 @@
 #define _SDLWindow_H_
 
 #include "../api.h"
+#include "../avgconfigwrapper.h"
 #include "Window.h"
 #include "KeyEvent.h"
 
@@ -48,7 +49,7 @@ class AVG_API SDLWindow: public Window
         SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfig);
         virtual ~SDLWindow();
 
-		void setTouchHandler(SDLTouchInputDevicePtr pInputDevice);
+        void setTouchHandler(SDLTouchInputDevicePtr pInputDevice);
         bool hasTouchHandler() const;
         void setTitle(const std::string& sTitle);
         void swapBuffers() const;
@@ -59,7 +60,7 @@ class AVG_API SDLWindow: public Window
 #ifdef _WIN32
         HWND getWinHWnd();
 #endif
-#ifdef __linux__
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
         virtual ::Display* getX11Display();
         virtual ::Window getX11Window();
 #endif

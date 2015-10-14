@@ -135,8 +135,6 @@ int TexInfo::getGLFormat(PixelFormat pf)
             return GL_LUMINANCE;
         case A8:
             return GL_ALPHA;
-        case R8:
-            return GL_RED;
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
@@ -145,6 +143,8 @@ int TexInfo::getGLFormat(PixelFormat pf)
             AVG_ASSERT(!GLContext::getCurrent()->isGLES());
             return GL_BGRA;
 #ifndef AVG_ENABLE_EGL
+        case R8:
+            return GL_RED;
         case R32G32B32A32F:
             return GL_BGRA;
 #endif
@@ -193,8 +193,6 @@ int TexInfo::getGLInternalFormat() const
             return GL_LUMINANCE;
         case A8:
             return GL_ALPHA;
-        case R8:
-            return GL_R8;
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
@@ -203,6 +201,8 @@ int TexInfo::getGLInternalFormat() const
             AVG_ASSERT(!GLContext::getCurrent()->isGLES());
             return GL_RGBA;
 #ifndef AVG_ENABLE_EGL            
+        case R8:
+            return GL_R8;
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
         case I32F:
