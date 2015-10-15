@@ -442,14 +442,36 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        stringstream s;
+        string sErr;
+        switch (err) {
+            case GL_INVALID_ENUM:
+                sErr = "GL_INVALID_ENUM";
+                break;
+            case GL_INVALID_VALUE:
+                sErr = "GL_INVALID_VALUE";
+                break;
+            case GL_INVALID_OPERATION:
+                sErr = "GL_INVALID_OPERATION";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                sErr = "GL_INVALID_FRAMEBUFFER_OPERATION";
+                break;
+            case GL_OUT_OF_MEMORY:
+                sErr = "GL_OUT_OF_MEMORY";
+                break;
 #ifndef AVG_ENABLE_EGL
-        s << "OpenGL error in " << pszWhere <<": " // << gluErrorString(err) 
-            << " (#" << err << ") ";
-#else
-        s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
+            case GL_STACK_UNDERFLOW:
+                sErr = "GL_STACK_UNDERFLOW";
+                break;
+            case GL_STACK_OVERFLOW:
+                sErr = "GL_STACK_OVERFLOW";
+                break;
 #endif
-        AVG_LOG_ERROR(s.str());
+            default:
+                AVG_ASSERT(false);
+        }
+        AVG_LOG_ERROR("OpenGL error in " + string(pszWhere) + ": " + sErr);
+
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
         }
