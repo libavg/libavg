@@ -73,6 +73,7 @@ public:
     OGLMemoryMode getMemoryMode();
     bool isGLES() const;
     bool isVendor(const std::string& sWantedVendor) const;
+    bool isRenderer(const std::string& sWantedRenderer) const;
     virtual bool useDepthBuffer() const;
 
     virtual bool initVBlank(int rate);
@@ -126,6 +127,8 @@ private:
     bool m_bPremultipliedAlpha;
     unsigned m_BoundTextures[16];
 
+    std::string m_sVendor;
+    std::string m_sRenderer;
     int m_MajorGLVersion;
     int m_MinorGLVersion;
 
