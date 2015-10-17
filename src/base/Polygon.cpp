@@ -64,61 +64,7 @@ void Polygon::triangulate(Vec2Vector& resultVertexes, vector<int>& resultIndexes
     }
 
     tessDeleteTess(pTess);
-/*
-    m_pIndexes = &resultIndexes;
-    m_pIndexes->clear();
-    m_pExtraPts = &extraPts;
-    m_pExtraPts->clear();
-
-    vector<glm::dvec3> coords;
-    for (unsigned i=0; i<m_Pts.size(); ++i) {
-        coords.push_back(glm::dvec3(m_Pts[i].x, m_Pts[i].y, 0));
-    }
-
-    // create tessellator
-    GLUtesselator *pTess = gluNewTess();
-    gluTessCallback(pTess, GLU_TESS_VERTEX_DATA, (_GLUfuncptr)Polygon::vertexCallback);
-    gluTessCallback(pTess, GLU_TESS_COMBINE_DATA, (_GLUfuncptr)Polygon::combineCallback);
-    gluTessCallback(pTess, GLU_TESS_EDGE_FLAG, (_GLUfuncptr)Polygon::edgeCallback);
-    gluTessNormal(pTess, 0.0, 0.0, 1.0 );
-    gluTessProperty(pTess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_NONZERO);
-
-    // describe non-convex polygon
-    gluTessBeginPolygon(pTess, this);
-    // first contour
-    gluTessBeginContour(pTess);
-    for (size_t i=0; i<coords.size(); ++i) {
-        gluTessVertex(pTess, glm::value_ptr(coords[i]), (void*)i);
-    }
-
-    gluTessEndContour(pTess);
-    gluTessEndPolygon(pTess);
-
-    gluDeleteTess(pTess);
-*/
 }
 
-/*
-void Polygon::edgeCallback(bool bEdge)
-{
-    // Only exists to prevent the tesselator from returning fans or strips.
-}
-
-void Polygon::vertexCallback(void* pVertexData, void* pPolygonData)
-{
-    Polygon* pThis = (Polygon *)pPolygonData;
-    size_t i = (size_t)pVertexData;
-    pThis->m_pIndexes->push_back(i);
-}
-
-void Polygon::combineCallback(double coords[3], void *vertex_data[4], 
-        float weight[4], void **ppOutData, void *pPolygonData)
-{
-    Polygon* pThis = (Polygon *)pPolygonData;
-    pThis->m_pExtraPts->push_back(glm::vec2(coords[0], coords[1]));
-    size_t numPts = pThis->m_Pts.size() + pThis->m_pExtraPts->size() - 1;
-    *ppOutData = (void*)numPts;
-}
-*/
 }
 
