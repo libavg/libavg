@@ -50,10 +50,11 @@ Area Nodes
 
         .. py:attribute:: size
 
-            The size that the node takes on the canvas. Node types usually have sensible
-            defaults for the size. For media nodes, this is generally the size of the
-            media (so :samp:`size == getMediaSize()`). For DivNodes, the default size is
-            infinite.
+            The size that the node takes on the canvas. The default value for
+            :py:attr:`size` is :samp:`(0,0)`, which causes the node to be rendered at
+            media size. DivNodes with :samp:`size=(0,0)` effectively have infinite
+            size. Note that setting the size to :samp:`(0,0)` also causes this
+            behaviour.
 
         .. py:attribute:: pivot
 
