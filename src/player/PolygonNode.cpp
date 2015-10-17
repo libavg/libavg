@@ -141,30 +141,26 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
             return;
         }
 
-        glm::vec2 minCoord = m_Pts[0];
-        glm::vec2 maxCoord = m_Pts[0];
-        for (unsigned i = 1; i < m_Pts.size(); ++i) {
-            if (m_Pts[i].x < minCoord.x) {
-                minCoord.x = m_Pts[i].x;
+        glm::vec2 minCoord = m_TriPts[0];
+        glm::vec2 maxCoord = m_TriPts[0];
+        for (unsigned i = 1; i < m_TriPts.size(); ++i) {
+            if (m_TriPts[i].x < minCoord.x) {
+                minCoord.x = m_TriPts[i].x;
             }
-            if (m_Pts[i].x > maxCoord.x) {
-                maxCoord.x = m_Pts[i].x;
+            if (m_TriPts[i].x > maxCoord.x) {
+                maxCoord.x = m_TriPts[i].x;
             }
-            if (m_Pts[i].y < minCoord.y) {
-                minCoord.y = m_Pts[i].y;
+            if (m_TriPts[i].y < minCoord.y) {
+                minCoord.y = m_TriPts[i].y;
             }
-            if (m_Pts[i].y > maxCoord.y) {
-                maxCoord.y = m_Pts[i].y;
+            if (m_TriPts[i].y > maxCoord.y) {
+                maxCoord.y = m_TriPts[i].y;
             }
         }
 
-        for (unsigned i = 0; i < m_Pts.size(); ++i) {
-            glm::vec2 texCoord = calcFillTexCoord(m_Pts[i], minCoord, maxCoord);
-            pVertexData->appendPos(m_Pts[i], texCoord, color);
-        }
-        for (unsigned i = 0; i < m_ExtraPts.size(); ++i) {
-            glm::vec2 texCoord = calcFillTexCoord(m_ExtraPts[i], minCoord, maxCoord);
-            pVertexData->appendPos(m_ExtraPts[i], texCoord, color);
+        for (unsigned i = 0; i < m_TriPts.size(); ++i) {
+            glm::vec2 texCoord = calcFillTexCoord(m_TriPts[i], minCoord, maxCoord);
+            pVertexData->appendPos(m_TriPts[i], texCoord, color);
         }
         for (unsigned i = 0; i < m_TriIndexes.size(); i+=3) {
             pVertexData->appendTriIndexes(m_TriIndexes[i], m_TriIndexes[i+1], 
@@ -176,12 +172,13 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
 void PolygonNode::triangulate()
 {
     if (m_bPtsChanged) {
+        m_TriPts.clear();
         m_TriIndexes.clear();
         if (getNumDifferentPts(m_Pts) < 3) {
             return;
         }
         Polygon poly(m_Pts);
-        poly.triangulate(m_TriIndexes, m_ExtraPts);
+        poly.triangulate(m_TriPts, m_TriIndexes);
         m_bPtsChanged = false;
     }
 }

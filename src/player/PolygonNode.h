@@ -60,8 +60,8 @@ class AVG_API PolygonNode : public FilledVectorNode
         void triangulate();
 
         Vec2Vector m_Pts;
+        Vec2Vector m_TriPts;
         std::vector<int> m_TriIndexes;
-        Vec2Vector m_ExtraPts;
 
         std::vector<float> m_CumulDist;
         std::vector<float> m_TexCoords;
