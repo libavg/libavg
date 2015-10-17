@@ -6,6 +6,25 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\tess\bucketalloc.c" />
+    <ClCompile Include="..\..\src\tess\dict.c" />
+    <ClCompile Include="..\..\src\tess\geom.c" />
+    <ClCompile Include="..\..\src\tess\mesh.c" />
+    <ClCompile Include="..\..\src\tess\priorityq.c" />
+    <ClCompile Include="..\..\src\tess\sweep.c" />
+    <ClCompile Include="..\..\src\tess\tess.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\tess\bucketalloc.h" />
+    <ClInclude Include="..\..\src\tess\dict.h" />
+    <ClInclude Include="..\..\src\tess\geom.h" />
+    <ClInclude Include="..\..\src\tess\mesh.h" />
+    <ClInclude Include="..\..\src\tess\priorityq.h" />
+    <ClInclude Include="..\..\src\tess\sweep.h" />
+    <ClInclude Include="..\..\src\tess\tess.h" />
+    <ClInclude Include="..\..\src\tess\tesselator.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{88A1033E-8FB7-4BA9-8321-51EB066BA7FA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -42,37 +61,6 @@
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\tess\dict.c" />
-    <ClCompile Include="..\..\src\tess\geom.c" />
-    <ClCompile Include="..\..\src\tess\memalloc.c" />
-    <ClCompile Include="..\..\src\tess\mesh.c" />
-    <ClCompile Include="..\..\src\tess\normal.c" />
-    <ClCompile Include="..\..\src\tess\priorityq.c" />
-    <ClCompile Include="..\..\src\tess\render.c" />
-    <ClCompile Include="..\..\src\tess\sweep.c" />
-    <ClCompile Include="..\..\src\tess\tess.c" />
-    <ClCompile Include="..\..\src\tess\tessmono.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\src\tess\dict-list.h" />
-    <ClInclude Include="..\..\src\tess\dict.h" />
-    <ClInclude Include="..\..\src\tess\geom.h" />
-    <ClInclude Include="..\..\src\tess\glutess.h" />
-    <ClInclude Include="..\..\src\tess\memalloc.h" />
-    <ClInclude Include="..\..\src\tess\mesh.h" />
-    <ClInclude Include="..\..\src\tess\normal.h" />
-    <ClInclude Include="..\..\src\tess\priorityq-heap.h" />
-    <ClInclude Include="..\..\src\tess\priorityq-sort.h" />
-    <ClInclude Include="..\..\src\tess\priorityq.h" />
-    <ClInclude Include="..\..\src\tess\render.h" />
-    <ClInclude Include="..\..\src\tess\sweep.h" />
-    <ClInclude Include="..\..\src\tess\tess.h" />
-    <ClInclude Include="..\..\src\tess\tessmono.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\src\tess\priorityq-heap.inl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
