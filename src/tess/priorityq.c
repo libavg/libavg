@@ -32,7 +32,7 @@
 //#include "tesos.h"
 #include <stddef.h>
 #include <assert.h>
-#include "../Include/tesselator.h"
+#include "tesselator.h"
 #include "priorityq.h"
 
 
