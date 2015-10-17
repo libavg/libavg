@@ -57,7 +57,6 @@ void Polygon::triangulate(Vec2Vector& resultVertexes, vector<int>& resultIndexes
         resultVertexes.push_back(glm::vec2(pVerts[i*2], pVerts[i*2+1]));
     }
     const int* pTriIndexes = tessGetElements(pTess);
-    const int* pElems = tessGetElements(pTess);
     // We've limited polygon size to 3, so each "Element" is a triangle.
     for (int i=0; i<tessGetElementCount(pTess)*3; ++i) {
         resultIndexes.push_back(pTriIndexes[i]);
