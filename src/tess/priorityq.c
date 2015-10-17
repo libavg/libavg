@@ -1,99 +1,341 @@
 /*
-** License Applicability. Except to the extent portions of this file are
-** made subject to an alternative license as permitted in the SGI Free
-** Software License B, Version 1.1 (the "License"), the contents of this
-** file are subject only to the provisions of the License. You may not use
-** this file except in compliance with the License. You may obtain a copy
-** of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
-** Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
+** SGI FREE SOFTWARE LICENSE B (Version 2.0, Sept. 18, 2008)
+** Copyright (C) [dates of first publication] Silicon Graphics, Inc.
+** All Rights Reserved.
 **
-** http://oss.sgi.com/projects/FreeB
+** Permission is hereby granted, free of charge, to any person obtaining a copy
+** of this software and associated documentation files (the "Software"), to deal
+** in the Software without restriction, including without limitation the rights
+** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+** of the Software, and to permit persons to whom the Software is furnished to do so,
+** subject to the following conditions:
 **
-** Note that, as provided in the License, the Software is distributed on an
-** "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
-** DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
-** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
-** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+** The above copyright notice including the dates of first publication and either this
+** permission notice or a reference to http://oss.sgi.com/projects/FreeB/ shall be
+** included in all copies or substantial portions of the Software.
 **
-** Original Code. The Original Code is: OpenGL Sample Implementation,
-** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
-** Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
-** Copyright in any portions created by third parties is as indicated
-** elsewhere herein. All Rights Reserved.
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+** INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+** PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL SILICON GRAPHICS, INC.
+** BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+** OR OTHER DEALINGS IN THE SOFTWARE.
 **
-** Additional Notice Provisions: The application programming interfaces
-** established by SGI in conjunction with the Original Code are The
-** OpenGL(R) Graphics System: A Specification (Version 1.2.1), released
-** April 1, 1999; The OpenGL(R) Graphics System Utility Library (Version
-** 1.3), released November 4, 1998; and OpenGL(R) Graphics with the X
-** Window System(R) (Version 1.3), released October 19, 1998. This software
-** was created using the OpenGL(R) version 1.2.1 Sample Implementation
-** published by SGI, but has not been independently verified as being
-** compliant with the OpenGL(R) version 1.2.1 Specification.
-**
+** Except as contained in this notice, the name of Silicon Graphics, Inc. shall not
+** be used in advertising or otherwise to promote the sale, use or other dealings in
+** this Software without prior written authorization from Silicon Graphics, Inc.
 */
 /*
 ** Author: Eric Veach, July 1994.
-**
-** $Date$ $Revision$
-** $Header: //depot/main/gfx/lib/glu/libtess/priorityq.c#5 $
 */
 
+//#include "tesos.h"
 #include <stddef.h>
 #include <assert.h>
-#include <limits.h>     /* LONG_MAX */
-#include "memalloc.h"
+#include "../Include/tesselator.h"
+#include "priorityq.h"
+
+
+#define INIT_SIZE   32
+
+#define TRUE 1
+#define FALSE 0
+
+#ifdef FOR_TRITE_TEST_PROGRAM
+#define LEQ(x,y)    (*pq->leq)(x,y)
+#else
+/* Violates modularity, but a little faster */
+#include "geom.h"
+#define LEQ(x,y)    VertLeq((TESSvertex *)x, (TESSvertex *)y)
+#endif
+
 
 /* Include all the code for the regular heap-based queue here. */
 
-#include "priorityq-heap.inl"
+/* The basic operations are insertion of a new key (pqInsert),
+* and examination/extraction of a key whose value is minimum
+* (pqMinimum/pqExtractMin).  Deletion is also allowed (pqDelete);
+* for this purpose pqInsert returns a "handle" which is supplied
+* as the argument.
+*
+* An initial heap may be created efficiently by calling pqInsert
+* repeatedly, then calling pqInit.  In any case pqInit must be called
+* before any operations other than pqInsert are used.
+*
+* If the heap is empty, pqMinimum/pqExtractMin will return a NULL key.
+* This may also be tested with pqIsEmpty.
+*/
 
-/* Now redefine all the function names to map to their "Sort" versions. */
 
-#include "priorityq-sort.h"
+/* Since we support deletion the data structure is a little more
+* complicated than an ordinary heap.  "nodes" is the heap itself;
+* active nodes are stored in the range 1..pq->size.  When the
+* heap exceeds its allocated size (pq->max), its size doubles.
+* The children of node i are nodes 2i and 2i+1.
+*
+* Each node stores an index into an array "handles".  Each handle
+* stores a key, plus a pointer back to the node which currently
+* represents that key (ie. nodes[handles[i].node].handle == i).
+*/
 
-/* really __gl_pqSortNewPriorityQ */
-PriorityQ *pqNewPriorityQ(int (*leq)(PQkey key1, PQkey key2))
+
+#define pqHeapMinimum(pq)   ((pq)->handles[(pq)->nodes[1].handle].key)
+#define pqHeapIsEmpty(pq)   ((pq)->size == 0)
+
+
+
+/* really pqHeapNewPriorityQHeap */
+PriorityQHeap *pqHeapNewPriorityQ(TESSalloc* alloc, int size, int (*leq)(PQkey key1, PQkey key2))
 {
-    PriorityQ *pq = (PriorityQ *)memAlloc(sizeof(PriorityQ));
+    PriorityQHeap *pq = (PriorityQHeap *)alloc->memalloc(alloc->userData, sizeof(PriorityQHeap));
     if (pq == NULL) {
         return NULL;
     }
 
-    pq->heap = __gl_pqHeapNewPriorityQ(leq);
-    if (pq->heap == NULL) {
-        memFree(pq);
+    pq->size = 0;
+    pq->max = size;
+    pq->nodes = (PQnode *)alloc->memalloc(alloc->userData, (size + 1) * sizeof(pq->nodes[0]));
+    if (pq->nodes == NULL) {
+        alloc->memfree(alloc->userData, pq);
         return NULL;
     }
 
-    pq->keys = (PQHeapKey *)memAlloc(INIT_SIZE * sizeof(pq->keys[0]));
+    pq->handles = (PQhandleElem *)alloc->memalloc(alloc->userData, (size + 1) * sizeof(pq->handles[0]));
+    if (pq->handles == NULL) {
+        alloc->memfree(alloc->userData, pq->nodes);
+        alloc->memfree(alloc->userData, pq);
+        return NULL;
+    }
+
+    pq->initialized = FALSE;
+    pq->freeList = 0;
+    pq->leq = leq;
+
+    pq->nodes[1].handle = 1;    /* so that Minimum() returns NULL */
+    pq->handles[1].key = NULL;
+    return pq;
+}
+
+/* really pqHeapDeletePriorityQHeap */
+void pqHeapDeletePriorityQ(TESSalloc* alloc, PriorityQHeap *pq)
+{
+    alloc->memfree(alloc->userData, pq->handles);
+    alloc->memfree(alloc->userData, pq->nodes);
+    alloc->memfree(alloc->userData, pq);
+}
+
+
+static void FloatDown(PriorityQHeap *pq, int curr)
+{
+    PQnode *n = pq->nodes;
+    PQhandleElem *h = pq->handles;
+    PQhandle hCurr, hChild;
+    int child;
+
+    hCurr = n[curr].handle;
+    for (;;) {
+        child = curr << 1;
+        if (child < pq->size && LEQ(h[n[child+1].handle].key,
+                                    h[n[child].handle].key)) {
+            ++child;
+        }
+
+        assert(child <= pq->max);
+
+        hChild = n[child].handle;
+        if (child > pq->size || LEQ(h[hCurr].key, h[hChild].key)) {
+            n[curr].handle = hCurr;
+            h[hCurr].node = curr;
+            break;
+        }
+        n[curr].handle = hChild;
+        h[hChild].node = curr;
+        curr = child;
+    }
+}
+
+
+static void FloatUp(PriorityQHeap *pq, int curr)
+{
+    PQnode *n = pq->nodes;
+    PQhandleElem *h = pq->handles;
+    PQhandle hCurr, hParent;
+    int parent;
+
+    hCurr = n[curr].handle;
+    for (;;) {
+        parent = curr >> 1;
+        hParent = n[parent].handle;
+        if (parent == 0 || LEQ(h[hParent].key, h[hCurr].key)) {
+            n[curr].handle = hCurr;
+            h[hCurr].node = curr;
+            break;
+        }
+        n[curr].handle = hParent;
+        h[hParent].node = curr;
+        curr = parent;
+    }
+}
+
+/* really pqHeapInit */
+void pqHeapInit(PriorityQHeap *pq)
+{
+    int i;
+
+    /* This method of building a heap is O(n), rather than O(n lg n). */
+
+    for (i = pq->size; i >= 1; --i) {
+        FloatDown(pq, i);
+    }
+    pq->initialized = TRUE;
+}
+
+/* really pqHeapInsert */
+/* returns INV_HANDLE iff out of memory */
+PQhandle pqHeapInsert(TESSalloc* alloc, PriorityQHeap *pq, PQkey keyNew)
+{
+    int curr;
+    PQhandle free;
+
+    curr = ++ pq->size;
+    if ((curr*2) > pq->max) {
+        if (!alloc->memrealloc) {
+            return INV_HANDLE;
+        } else {
+            PQnode *saveNodes= pq->nodes;
+            PQhandleElem *saveHandles= pq->handles;
+
+            // If the heap overflows, double its size.
+            pq->max <<= 1;
+            pq->nodes = (PQnode *)alloc->memrealloc(alloc->userData, pq->nodes,
+                                                    (size_t)((pq->max + 1) * sizeof(pq->nodes[0])));
+            if (pq->nodes == NULL) {
+                pq->nodes = saveNodes;  // restore ptr to free upon return
+                return INV_HANDLE;
+            }
+            pq->handles = (PQhandleElem *)alloc->memrealloc(alloc->userData, pq->handles,
+                          (size_t)((pq->max + 1) * sizeof(pq->handles[0])));
+            if (pq->handles == NULL) {
+                pq->handles = saveHandles; // restore ptr to free upon return
+                return INV_HANDLE;
+            }
+        }
+    }
+
+    if (pq->freeList == 0) {
+        free = curr;
+    } else {
+        free = pq->freeList;
+        pq->freeList = pq->handles[free].node;
+    }
+
+    pq->nodes[curr].handle = free;
+    pq->handles[free].node = curr;
+    pq->handles[free].key = keyNew;
+
+    if (pq->initialized) {
+        FloatUp(pq, curr);
+    }
+    assert(free != INV_HANDLE);
+    return free;
+}
+
+/* really pqHeapExtractMin */
+PQkey pqHeapExtractMin(PriorityQHeap *pq)
+{
+    PQnode *n = pq->nodes;
+    PQhandleElem *h = pq->handles;
+    PQhandle hMin = n[1].handle;
+    PQkey min = h[hMin].key;
+
+    if (pq->size > 0) {
+        n[1].handle = n[pq->size].handle;
+        h[n[1].handle].node = 1;
+
+        h[hMin].key = NULL;
+        h[hMin].node = pq->freeList;
+        pq->freeList = hMin;
+
+        if (-- pq->size > 0) {
+            FloatDown(pq, 1);
+        }
+    }
+    return min;
+}
+
+/* really pqHeapDelete */
+void pqHeapDelete(PriorityQHeap *pq, PQhandle hCurr)
+{
+    PQnode *n = pq->nodes;
+    PQhandleElem *h = pq->handles;
+    int curr;
+
+    assert(hCurr >= 1 && hCurr <= pq->max && h[hCurr].key != NULL);
+
+    curr = h[hCurr].node;
+    n[curr].handle = n[pq->size].handle;
+    h[n[curr].handle].node = curr;
+
+    if (curr <= -- pq->size) {
+        if (curr <= 1 || LEQ(h[n[curr>>1].handle].key, h[n[curr].handle].key)) {
+            FloatDown(pq, curr);
+        } else {
+            FloatUp(pq, curr);
+        }
+    }
+    h[hCurr].key = NULL;
+    h[hCurr].node = pq->freeList;
+    pq->freeList = hCurr;
+}
+
+
+
+/* Now redefine all the function names to map to their "Sort" versions. */
+
+/* really tessPqSortNewPriorityQ */
+PriorityQ *pqNewPriorityQ(TESSalloc* alloc, int size, int (*leq)(PQkey key1, PQkey key2))
+{
+    PriorityQ *pq = (PriorityQ *)alloc->memalloc(alloc->userData, sizeof(PriorityQ));
+    if (pq == NULL) {
+        return NULL;
+    }
+
+    pq->heap = pqHeapNewPriorityQ(alloc, size, leq);
+    if (pq->heap == NULL) {
+        alloc->memfree(alloc->userData, pq);
+        return NULL;
+    }
+
+//  pq->keys = (PQkey *)memAlloc( INIT_SIZE * sizeof(pq->keys[0]) );
+    pq->keys = (PQkey *)alloc->memalloc(alloc->userData, size * sizeof(pq->keys[0]));
     if (pq->keys == NULL) {
-        __gl_pqHeapDeletePriorityQ(pq->heap);
-        memFree(pq);
+        pqHeapDeletePriorityQ(alloc, pq->heap);
+        alloc->memfree(alloc->userData, pq);
         return NULL;
     }
 
     pq->size = 0;
-    pq->max = INIT_SIZE;
+    pq->max = size; //INIT_SIZE;
     pq->initialized = FALSE;
     pq->leq = leq;
+
     return pq;
 }
 
-/* really __gl_pqSortDeletePriorityQ */
-void pqDeletePriorityQ(PriorityQ *pq)
+/* really tessPqSortDeletePriorityQ */
+void pqDeletePriorityQ(TESSalloc* alloc, PriorityQ *pq)
 {
     assert(pq != NULL);
     if (pq->heap != NULL) {
-        __gl_pqHeapDeletePriorityQ(pq->heap);
+        pqHeapDeletePriorityQ(alloc, pq->heap);
     }
     if (pq->order != NULL) {
-        memFree(pq->order);
+        alloc->memfree(alloc->userData, pq->order);
     }
     if (pq->keys != NULL) {
-        memFree(pq->keys);
+        alloc->memfree(alloc->userData, pq->keys);
     }
-    memFree(pq);
+    alloc->memfree(alloc->userData, pq);
 }
 
 
@@ -101,24 +343,24 @@ void pqDeletePriorityQ(PriorityQ *pq)
 #define GT(x,y)     (! LEQ(x,y))
 #define Swap(a,b)   if(1){PQkey *tmp = *a; *a = *b; *b = tmp;}else
 
-/* really __gl_pqSortInit */
-int pqInit(PriorityQ *pq)
+/* really tessPqSortInit */
+int pqInit(TESSalloc* alloc, PriorityQ *pq)
 {
     PQkey **p, **r, **i, **j, *piv;
     struct {
         PQkey **p, **r;
     } Stack[50], *top = Stack;
-    unsigned long seed = 2016473283;
+    unsigned int seed = 2016473283;
 
     /* Create an array of indirect pointers to the keys, so that we
-     * the handles we have returned are still valid.
-     */
-    /*
-      pq->order = (PQHeapKey **)memAlloc( (size_t)
-                                      (pq->size * sizeof(pq->order[0])) );
+    * the handles we have returned are still valid.
     */
-    pq->order = (PQHeapKey **)memAlloc((size_t)
-                                       ((pq->size+1) * sizeof(pq->order[0])));
+    /*
+    pq->order = (PQkey **)memAlloc( (size_t)
+    (pq->size * sizeof(pq->order[0])) );
+    */
+    pq->order = (PQkey **)alloc->memalloc(alloc->userData,
+                                          (size_t)((pq->size+1) * sizeof(pq->order[0])));
     /* the previous line is a patch to compensate for the fact that IBM */
     /* machines return a null on a malloc of zero bytes (unlike SGI),   */
     /* so we have to put in this defense to guard against a memory      */
@@ -134,8 +376,8 @@ int pqInit(PriorityQ *pq)
     }
 
     /* Sort the indirect pointers in descending order,
-     * using randomized Quicksort
-     */
+    * using randomized Quicksort
+    */
     top->p = p;
     top->r = r;
     ++top;
@@ -183,7 +425,7 @@ int pqInit(PriorityQ *pq)
     }
     pq->max = pq->size;
     pq->initialized = TRUE;
-    __gl_pqHeapInit(pq->heap);    /* always succeeds */
+    pqHeapInit(pq->heap);    /* always succeeds */
 
 #ifndef NDEBUG
     p = pq->order;
@@ -196,49 +438,51 @@ int pqInit(PriorityQ *pq)
     return 1;
 }
 
-/* really __gl_pqSortInsert */
-/* returns LONG_MAX iff out of memory */
-PQhandle pqInsert(PriorityQ *pq, PQkey keyNew)
+/* really tessPqSortInsert */
+/* returns INV_HANDLE iff out of memory */
+PQhandle pqInsert(TESSalloc* alloc, PriorityQ *pq, PQkey keyNew)
 {
-    long curr;
+    int curr;
 
     if (pq->initialized) {
-        return __gl_pqHeapInsert(pq->heap, keyNew);
+        return pqHeapInsert(alloc, pq->heap, keyNew);
     }
     curr = pq->size;
     if (++ pq->size >= pq->max) {
-        PQkey *saveKey= pq->keys;
-
-        /* If the heap overflows, double its size. */
-        pq->max <<= 1;
-        pq->keys = (PQHeapKey *)memRealloc(pq->keys,
-                                           (size_t)
-                                           (pq->max * sizeof(pq->keys[0])));
-        if (pq->keys == NULL) {
-            pq->keys = saveKey;  /* restore ptr to free upon return */
-            return LONG_MAX;
+        if (!alloc->memrealloc) {
+            return INV_HANDLE;
+        } else {
+            PQkey *saveKey= pq->keys;
+            // If the heap overflows, double its size.
+            pq->max <<= 1;
+            pq->keys = (PQkey *)alloc->memrealloc(alloc->userData, pq->keys,
+                                                  (size_t)(pq->max * sizeof(pq->keys[0])));
+            if (pq->keys == NULL) {
+                pq->keys = saveKey;  // restore ptr to free upon return
+                return INV_HANDLE;
+            }
         }
     }
-    assert(curr != LONG_MAX);
+    assert(curr != INV_HANDLE);
     pq->keys[curr] = keyNew;
 
     /* Negative handles index the sorted array. */
     return -(curr+1);
 }
 
-/* really __gl_pqSortExtractMin */
+/* really tessPqSortExtractMin */
 PQkey pqExtractMin(PriorityQ *pq)
 {
     PQkey sortMin, heapMin;
 
     if (pq->size == 0) {
-        return __gl_pqHeapExtractMin(pq->heap);
+        return pqHeapExtractMin(pq->heap);
     }
     sortMin = *(pq->order[pq->size-1]);
-    if (! __gl_pqHeapIsEmpty(pq->heap)) {
-        heapMin = __gl_pqHeapMinimum(pq->heap);
+    if (! pqHeapIsEmpty(pq->heap)) {
+        heapMin = pqHeapMinimum(pq->heap);
         if (LEQ(heapMin, sortMin)) {
-            return __gl_pqHeapExtractMin(pq->heap);
+            return pqHeapExtractMin(pq->heap);
         }
     }
     do {
@@ -247,17 +491,17 @@ PQkey pqExtractMin(PriorityQ *pq)
     return sortMin;
 }
 
-/* really __gl_pqSortMinimum */
+/* really tessPqSortMinimum */
 PQkey pqMinimum(PriorityQ *pq)
 {
     PQkey sortMin, heapMin;
 
     if (pq->size == 0) {
-        return __gl_pqHeapMinimum(pq->heap);
+        return pqHeapMinimum(pq->heap);
     }
     sortMin = *(pq->order[pq->size-1]);
-    if (! __gl_pqHeapIsEmpty(pq->heap)) {
-        heapMin = __gl_pqHeapMinimum(pq->heap);
+    if (! pqHeapIsEmpty(pq->heap)) {
+        heapMin = pqHeapMinimum(pq->heap);
         if (LEQ(heapMin, sortMin)) {
             return heapMin;
         }
@@ -265,17 +509,17 @@ PQkey pqMinimum(PriorityQ *pq)
     return sortMin;
 }
 
-/* really __gl_pqSortIsEmpty */
+/* really tessPqSortIsEmpty */
 int pqIsEmpty(PriorityQ *pq)
 {
-    return (pq->size == 0) && __gl_pqHeapIsEmpty(pq->heap);
+    return (pq->size == 0) && pqHeapIsEmpty(pq->heap);
 }
 
-/* really __gl_pqSortDelete */
+/* really tessPqSortDelete */
 void pqDelete(PriorityQ *pq, PQhandle curr)
 {
     if (curr >= 0) {
-        __gl_pqHeapDelete(pq->heap, curr);
+        pqHeapDelete(pq->heap, curr);
         return;
     }
     curr = -(curr+1);

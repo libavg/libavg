@@ -1,7 +1,3 @@
-/*
-** $Header: /home/pub/cvs/projects/ogl-sample/main/gfx/lib/glu/libtess/alg-outline,v 1.1 2000/04/26 05:53:59 ljp Exp $
-*/
-
 This is only a very brief overview.  There is quite a bit of
 additional documentation in the source code itself.
 

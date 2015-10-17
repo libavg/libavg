@@ -26,62 +26,23 @@
 ** this Software without prior written authorization from Silicon Graphics, Inc.
 */
 /*
-** Author: Eric Veach, July 1994.
+** Author: Mikko Mononen, July 2009.
 */
 
-#ifndef TESS_H
-#define TESS_H
-
-#include <setjmp.h>
-#include "bucketalloc.h"
-#include "mesh.h"
-#include "dict.h"
-#include "priorityq.h"
-#include "../Include/tesselator.h"
+#ifndef MEMALLOC_H
+#define MEMALLOC_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//typedef struct TESStesselator TESStesselator;
+#include "tesselator.h"
 
-struct TESStesselator {
-
-    /*** state needed for collecting the input data ***/
-    TESSmesh    *mesh;      /* stores the input contours, and eventually
-                        the tessellation itself */
-    int outOfMemory;
-
-    /*** state needed for projecting onto the sweep plane ***/
-
-    TESSreal normal[3]; /* user-specified normal (if provided) */
-    TESSreal sUnit[3];  /* unit vector in s-direction (debugging) */
-    TESSreal tUnit[3];  /* unit vector in t-direction (debugging) */
-
-    TESSreal bmin[2];
-    TESSreal bmax[2];
-
-    /*** state needed for the line sweep ***/
-    int windingRule;    /* rule for determining polygon interior */
-
-    Dict *dict;     /* edge dictionary for sweep line */
-    PriorityQ *pq;      /* priority queue of vertex events */
-    TESSvertex *event;      /* current sweep event being processed */
-
-    struct BucketAlloc* regionPool;
-
-    TESSindex vertexIndexCounter;
-
-    TESSreal *vertices;
-    TESSindex *vertexIndices;
-    int vertexCount;
-    TESSindex *elements;
-    int elementCount;
-
-    TESSalloc alloc;
-
-    jmp_buf env;            /* place to jump to when memAllocs fail */
-};
+struct BucketAlloc *createBucketAlloc(TESSalloc* alloc, const char *name,
+                                      unsigned int itemSize, unsigned int bucketSize);
+void *bucketAlloc(struct BucketAlloc *ba);
+void bucketFree(struct BucketAlloc *ba, void *ptr);
+void deleteBucketAlloc(struct BucketAlloc *ba);
 
 #ifdef __cplusplus
 };

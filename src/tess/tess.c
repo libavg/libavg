@@ -1,652 +1,1018 @@
 /*
-** License Applicability. Except to the extent portions of this file are
-** made subject to an alternative license as permitted in the SGI Free
-** Software License B, Version 1.1 (the "License"), the contents of this
-** file are subject only to the provisions of the License. You may not use
-** this file except in compliance with the License. You may obtain a copy
-** of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
-** Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
+** SGI FREE SOFTWARE LICENSE B (Version 2.0, Sept. 18, 2008)
+** Copyright (C) [dates of first publication] Silicon Graphics, Inc.
+** All Rights Reserved.
 **
-** http://oss.sgi.com/projects/FreeB
+** Permission is hereby granted, free of charge, to any person obtaining a copy
+** of this software and associated documentation files (the "Software"), to deal
+** in the Software without restriction, including without limitation the rights
+** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+** of the Software, and to permit persons to whom the Software is furnished to do so,
+** subject to the following conditions:
 **
-** Note that, as provided in the License, the Software is distributed on an
-** "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
-** DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
-** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
-** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+** The above copyright notice including the dates of first publication and either this
+** permission notice or a reference to http://oss.sgi.com/projects/FreeB/ shall be
+** included in all copies or substantial portions of the Software.
 **
-** Original Code. The Original Code is: OpenGL Sample Implementation,
-** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
-** Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
-** Copyright in any portions created by third parties is as indicated
-** elsewhere herein. All Rights Reserved.
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+** INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+** PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL SILICON GRAPHICS, INC.
+** BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+** OR OTHER DEALINGS IN THE SOFTWARE.
 **
-** Additional Notice Provisions: The application programming interfaces
-** established by SGI in conjunction with the Original Code are The
-** OpenGL(R) Graphics System: A Specification (Version 1.2.1), released
-** April 1, 1999; The OpenGL(R) Graphics System Utility Library (Version
-** 1.3), released November 4, 1998; and OpenGL(R) Graphics with the X
-** Window System(R) (Version 1.3), released October 19, 1998. This software
-** was created using the OpenGL(R) version 1.2.1 Sample Implementation
-** published by SGI, but has not been independently verified as being
-** compliant with the OpenGL(R) version 1.2.1 Specification.
-**
+** Except as contained in this notice, the name of Silicon Graphics, Inc. shall not
+** be used in advertising or otherwise to promote the sale, use or other dealings in
+** this Software without prior written authorization from Silicon Graphics, Inc.
 */
 /*
 ** Author: Eric Veach, July 1994.
-**
-** $Date$ $Revision$
-** $Header: //depot/main/gfx/lib/glu/libtess/tess.c#7 $
 */
 
 #include <stddef.h>
 #include <assert.h>
 #include <setjmp.h>
-#include "memalloc.h"
+#include "bucketalloc.h"
 #include "tess.h"
 #include "mesh.h"
-#include "normal.h"
 #include "sweep.h"
-#include "tessmono.h"
-#include "render.h"
-
-#define GLU_TESS_DEFAULT_TOLERANCE 0.0
-#define GLU_TESS_MESH       100112  /* void (*)(GLUmesh *mesh)      */
+#include "geom.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define TRUE 1
 #define FALSE 0
 
-/*ARGSUSED*/ static void noBegin(GLenum type) {}
-/*ARGSUSED*/ static void noEdgeFlag(GLboolean boundaryEdge) {}
-/*ARGSUSED*/ static void noVertex(void *data) {}
-/*ARGSUSED*/ static void noEnd(void) {}
-/*ARGSUSED*/ static void noError(GLenum errnum) {}
-/*ARGSUSED*/ static void noCombine(GLdouble coords[3], void *data[4],
-                                   GLfloat weight[4], void **dataOut) {}
-/*ARGSUSED*/ static void noMesh(GLUmesh *mesh) {}
+#define Dot(u,v)    (u[0]*v[0] + u[1]*v[1] + u[2]*v[2])
 
-
-/*ARGSUSED*/ void __gl_noBeginData(GLenum type,
-                                   void *polygonData) {}
-/*ARGSUSED*/ void __gl_noEdgeFlagData(GLboolean boundaryEdge,
-                                      void *polygonData) {}
-/*ARGSUSED*/ void __gl_noVertexData(void *data,
-                                    void *polygonData) {}
-/*ARGSUSED*/ void __gl_noEndData(void *polygonData) {}
-/*ARGSUSED*/ void __gl_noErrorData(GLenum errnum,
-                                   void *polygonData) {}
-/*ARGSUSED*/ void __gl_noCombineData(GLdouble coords[3],
-                                     void *data[4],
-                                     GLfloat weight[4],
-                                     void **outData,
-                                     void *polygonData) {}
-
-/* Half-edges are allocated in pairs (see mesh.c) */
-typedef struct {
-    GLUhalfEdge e, eSym;
-} EdgePair;
-
-#define MAX(a,b)    ((a) > (b) ? (a) : (b))
-#define MAX_FAST_ALLOC  (MAX(sizeof(EdgePair), \
-             MAX(sizeof(GLUvertex),sizeof(GLUface))))
-
-
-GLUtesselator * 
-gluNewTess(void)
+#if defined(FOR_TRITE_TEST_PROGRAM) || defined(TRUE_PROJECT)
+static void Normalize(TESSreal v[3])
 {
-    GLUtesselator *tess;
+    TESSreal len = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+
+    assert(len > 0);
+    len = sqrtf(len);
+    v[0] /= len;
+    v[1] /= len;
+    v[2] /= len;
+}
+#endif
+
+#define ABS(x)  ((x) < 0 ? -(x) : (x))
+
+static int LongAxis(TESSreal v[3])
+{
+    int i = 0;
+
+    if (ABS(v[1]) > ABS(v[0])) {
+        i = 1;
+    }
+    if (ABS(v[2]) > ABS(v[i])) {
+        i = 2;
+    }
+    return i;
+}
+
+static int ShortAxis(TESSreal v[3])
+{
+    int i = 0;
+
+    if (ABS(v[1]) < ABS(v[0])) {
+        i = 1;
+    }
+    if (ABS(v[2]) < ABS(v[i])) {
+        i = 2;
+    }
+    return i;
+}
+
+static void ComputeNormal(TESStesselator *tess, TESSreal norm[3])
+{
+    TESSvertex *v, *v1, *v2;
+    TESSreal c, tLen2, maxLen2;
+    TESSreal maxVal[3], minVal[3], d1[3], d2[3], tNorm[3];
+    TESSvertex *maxVert[3], *minVert[3];
+    TESSvertex *vHead = &tess->mesh->vHead;
+    int i;
+
+    v = vHead->next;
+    for (i = 0; i < 3; ++i) {
+        c = v->coords[i];
+        minVal[i] = c;
+        minVert[i] = v;
+        maxVal[i] = c;
+        maxVert[i] = v;
+    }
+
+    for (v = vHead->next; v != vHead; v = v->next) {
+        for (i = 0; i < 3; ++i) {
+            c = v->coords[i];
+            if (c < minVal[i]) {
+                minVal[i] = c;
+                minVert[i] = v;
+            }
+            if (c > maxVal[i]) {
+                maxVal[i] = c;
+                maxVert[i] = v;
+            }
+        }
+    }
+
+    /* Find two vertices separated by at least 1/sqrt(3) of the maximum
+    * distance between any two vertices
+    */
+    i = 0;
+    if (maxVal[1] - minVal[1] > maxVal[0] - minVal[0]) {
+        i = 1;
+    }
+    if (maxVal[2] - minVal[2] > maxVal[i] - minVal[i]) {
+        i = 2;
+    }
+    if (minVal[i] >= maxVal[i]) {
+        /* All vertices are the same -- normal doesn't matter */
+        norm[0] = 0;
+        norm[1] = 0;
+        norm[2] = 1;
+        return;
+    }
+
+    /* Look for a third vertex which forms the triangle with maximum area
+    * (Length of normal == twice the triangle area)
+    */
+    maxLen2 = 0;
+    v1 = minVert[i];
+    v2 = maxVert[i];
+    d1[0] = v1->coords[0] - v2->coords[0];
+    d1[1] = v1->coords[1] - v2->coords[1];
+    d1[2] = v1->coords[2] - v2->coords[2];
+    for (v = vHead->next; v != vHead; v = v->next) {
+        d2[0] = v->coords[0] - v2->coords[0];
+        d2[1] = v->coords[1] - v2->coords[1];
+        d2[2] = v->coords[2] - v2->coords[2];
+        tNorm[0] = d1[1]*d2[2] - d1[2]*d2[1];
+        tNorm[1] = d1[2]*d2[0] - d1[0]*d2[2];
+        tNorm[2] = d1[0]*d2[1] - d1[1]*d2[0];
+        tLen2 = tNorm[0]*tNorm[0] + tNorm[1]*tNorm[1] + tNorm[2]*tNorm[2];
+        if (tLen2 > maxLen2) {
+            maxLen2 = tLen2;
+            norm[0] = tNorm[0];
+            norm[1] = tNorm[1];
+            norm[2] = tNorm[2];
+        }
+    }
+
+    if (maxLen2 <= 0) {
+        /* All points lie on a single line -- any decent normal will do */
+        norm[0] = norm[1] = norm[2] = 0;
+        norm[ShortAxis(d1)] = 1;
+    }
+}
+
+
+static void CheckOrientation(TESStesselator *tess)
+{
+    TESSreal area;
+    TESSface *f, *fHead = &tess->mesh->fHead;
+    TESSvertex *v, *vHead = &tess->mesh->vHead;
+    TESShalfEdge *e;
+
+    /* When we compute the normal automatically, we choose the orientation
+    * so that the the sum of the signed areas of all contours is non-negative.
+    */
+    area = 0;
+    for (f = fHead->next; f != fHead; f = f->next) {
+        e = f->anEdge;
+        if (e->winding <= 0) {
+            continue;
+        }
+        do {
+            area += (e->Org->s - e->Dst->s) * (e->Org->t + e->Dst->t);
+            e = e->Lnext;
+        } while (e != f->anEdge);
+    }
+    if (area < 0) {
+        /* Reverse the orientation by flipping all the t-coordinates */
+        for (v = vHead->next; v != vHead; v = v->next) {
+            v->t = - v->t;
+        }
+        tess->tUnit[0] = - tess->tUnit[0];
+        tess->tUnit[1] = - tess->tUnit[1];
+        tess->tUnit[2] = - tess->tUnit[2];
+    }
+}
+
+#ifdef FOR_TRITE_TEST_PROGRAM
+#include <stdlib.h>
+extern int RandomSweep;
+#define S_UNIT_X    (RandomSweep ? (2*drand48()-1) : 1.0)
+#define S_UNIT_Y    (RandomSweep ? (2*drand48()-1) : 0.0)
+#else
+#if defined(SLANTED_SWEEP)
+/* The "feature merging" is not intended to be complete.  There are
+* special cases where edges are nearly parallel to the sweep line
+* which are not implemented.  The algorithm should still behave
+* robustly (ie. produce a reasonable tesselation) in the presence
+* of such edges, however it may miss features which could have been
+* merged.  We could minimize this effect by choosing the sweep line
+* direction to be something unusual (ie. not parallel to one of the
+* coordinate axes).
+*/
+#define S_UNIT_X    (TESSreal)0.50941539564955385   /* Pre-normalized */
+#define S_UNIT_Y    (TESSreal)0.86052074622010633
+#else
+#define S_UNIT_X    (TESSreal)1.0
+#define S_UNIT_Y    (TESSreal)0.0
+#endif
+#endif
+
+/* Determine the polygon normal and project vertices onto the plane
+* of the polygon.
+*/
+void tessProjectPolygon(TESStesselator *tess)
+{
+    TESSvertex *v, *vHead = &tess->mesh->vHead;
+    TESSreal norm[3];
+    TESSreal *sUnit, *tUnit;
+    int i, first, computedNormal = FALSE;
+
+    norm[0] = tess->normal[0];
+    norm[1] = tess->normal[1];
+    norm[2] = tess->normal[2];
+    if (norm[0] == 0 && norm[1] == 0 && norm[2] == 0) {
+        ComputeNormal(tess, norm);
+        computedNormal = TRUE;
+    }
+    sUnit = tess->sUnit;
+    tUnit = tess->tUnit;
+    i = LongAxis(norm);
+
+#if defined(FOR_TRITE_TEST_PROGRAM) || defined(TRUE_PROJECT)
+    /* Choose the initial sUnit vector to be approximately perpendicular
+    * to the normal.
+    */
+    Normalize(norm);
+
+    sUnit[i] = 0;
+    sUnit[(i+1)%3] = S_UNIT_X;
+    sUnit[(i+2)%3] = S_UNIT_Y;
+
+    /* Now make it exactly perpendicular */
+    w = Dot(sUnit, norm);
+    sUnit[0] -= w * norm[0];
+    sUnit[1] -= w * norm[1];
+    sUnit[2] -= w * norm[2];
+    Normalize(sUnit);
+
+    /* Choose tUnit so that (sUnit,tUnit,norm) form a right-handed frame */
+    tUnit[0] = norm[1]*sUnit[2] - norm[2]*sUnit[1];
+    tUnit[1] = norm[2]*sUnit[0] - norm[0]*sUnit[2];
+    tUnit[2] = norm[0]*sUnit[1] - norm[1]*sUnit[0];
+    Normalize(tUnit);
+#else
+    /* Project perpendicular to a coordinate axis -- better numerically */
+    sUnit[i] = 0;
+    sUnit[(i+1)%3] = S_UNIT_X;
+    sUnit[(i+2)%3] = S_UNIT_Y;
+
+    tUnit[i] = 0;
+    tUnit[(i+1)%3] = (norm[i] > 0) ? -S_UNIT_Y : S_UNIT_Y;
+    tUnit[(i+2)%3] = (norm[i] > 0) ? S_UNIT_X : -S_UNIT_X;
+#endif
+
+    /* Project the vertices onto the sweep plane */
+    for (v = vHead->next; v != vHead; v = v->next) {
+        v->s = Dot(v->coords, sUnit);
+        v->t = Dot(v->coords, tUnit);
+    }
+    if (computedNormal) {
+        CheckOrientation(tess);
+    }
+
+    /* Compute ST bounds. */
+    first = 1;
+    for (v = vHead->next; v != vHead; v = v->next) {
+        if (first) {
+            tess->bmin[0] = tess->bmax[0] = v->s;
+            tess->bmin[1] = tess->bmax[1] = v->t;
+            first = 0;
+        } else {
+            if (v->s < tess->bmin[0]) {
+                tess->bmin[0] = v->s;
+            }
+            if (v->s > tess->bmax[0]) {
+                tess->bmax[0] = v->s;
+            }
+            if (v->t < tess->bmin[1]) {
+                tess->bmin[1] = v->t;
+            }
+            if (v->t > tess->bmax[1]) {
+                tess->bmax[1] = v->t;
+            }
+        }
+    }
+}
+
+#define AddWinding(eDst,eSrc)   (eDst->winding += eSrc->winding, \
+    eDst->Sym->winding += eSrc->Sym->winding)
+
+/* tessMeshTessellateMonoRegion( face ) tessellates a monotone region
+* (what else would it do??)  The region must consist of a single
+* loop of half-edges (see mesh.h) oriented CCW.  "Monotone" in this
+* case means that any vertical line intersects the interior of the
+* region in a single interval.
+*
+* Tessellation consists of adding interior edges (actually pairs of
+* half-edges), to split the region into non-overlapping triangles.
+*
+* The basic idea is explained in Preparata and Shamos (which I don''t
+* have handy right now), although their implementation is more
+* complicated than this one.  The are two edge chains, an upper chain
+* and a lower chain.  We process all vertices from both chains in order,
+* from right to left.
+*
+* The algorithm ensures that the following invariant holds after each
+* vertex is processed: the untessellated region consists of two
+* chains, where one chain (say the upper) is a single edge, and
+* the other chain is concave.  The left vertex of the single edge
+* is always to the left of all vertices in the concave chain.
+*
+* Each step consists of adding the rightmost unprocessed vertex to one
+* of the two chains, and forming a fan of triangles from the rightmost
+* of two chain endpoints.  Determining whether we can add each triangle
+* to the fan is a simple orientation test.  By making the fan as large
+* as possible, we restore the invariant (check it yourself).
+*/
+int tessMeshTessellateMonoRegion(TESSmesh *mesh, TESSface *face)
+{
+    TESShalfEdge *up, *lo;
+
+    /* All edges are oriented CCW around the boundary of the region.
+    * First, find the half-edge whose origin vertex is rightmost.
+    * Since the sweep goes from left to right, face->anEdge should
+    * be close to the edge we want.
+    */
+    up = face->anEdge;
+    assert(up->Lnext != up && up->Lnext->Lnext != up);
+
+    for (; VertLeq(up->Dst, up->Org); up = up->Lprev)
+        ;
+    for (; VertLeq(up->Org, up->Dst); up = up->Lnext)
+        ;
+    lo = up->Lprev;
+
+    while (up->Lnext != lo) {
+        if (VertLeq(up->Dst, lo->Org)) {
+            /* up->Dst is on the left.  It is safe to form triangles from lo->Org.
+            * The EdgeGoesLeft test guarantees progress even when some triangles
+            * are CW, given that the upper and lower chains are truly monotone.
+            */
+            while (lo->Lnext != up && (EdgeGoesLeft(lo->Lnext)
+                                       || EdgeSign(lo->Org, lo->Dst, lo->Lnext->Dst) <= 0)) {
+                TESShalfEdge *tempHalfEdge= tessMeshConnect(mesh, lo->Lnext, lo);
+                if (tempHalfEdge == NULL) {
+                    return 0;
+                }
+                lo = tempHalfEdge->Sym;
+            }
+            lo = lo->Lprev;
+        } else {
+            /* lo->Org is on the left.  We can make CCW triangles from up->Dst. */
+            while (lo->Lnext != up && (EdgeGoesRight(up->Lprev)
+                                       || EdgeSign(up->Dst, up->Org, up->Lprev->Org) >= 0)) {
+                TESShalfEdge *tempHalfEdge= tessMeshConnect(mesh, up, up->Lprev);
+                if (tempHalfEdge == NULL) {
+                    return 0;
+                }
+                up = tempHalfEdge->Sym;
+            }
+            up = up->Lnext;
+        }
+    }
+
+    /* Now lo->Org == up->Dst == the leftmost vertex.  The remaining region
+    * can be tessellated in a fan from this leftmost vertex.
+    */
+    assert(lo->Lnext != up);
+    while (lo->Lnext->Lnext != up) {
+        TESShalfEdge *tempHalfEdge= tessMeshConnect(mesh, lo->Lnext, lo);
+        if (tempHalfEdge == NULL) {
+            return 0;
+        }
+        lo = tempHalfEdge->Sym;
+    }
+
+    return 1;
+}
+
+
+/* tessMeshTessellateInterior( mesh ) tessellates each region of
+* the mesh which is marked "inside" the polygon.  Each such region
+* must be monotone.
+*/
+int tessMeshTessellateInterior(TESSmesh *mesh)
+{
+    TESSface *f, *next;
+
+    /*LINTED*/
+    for (f = mesh->fHead.next; f != &mesh->fHead; f = next) {
+        /* Make sure we don''t try to tessellate the new triangles. */
+        next = f->next;
+        if (f->inside) {
+            if (!tessMeshTessellateMonoRegion(mesh, f)) {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+
+/* tessMeshDiscardExterior( mesh ) zaps (ie. sets to NULL) all faces
+* which are not marked "inside" the polygon.  Since further mesh operations
+* on NULL faces are not allowed, the main purpose is to clean up the
+* mesh so that exterior loops are not represented in the data structure.
+*/
+void tessMeshDiscardExterior(TESSmesh *mesh)
+{
+    TESSface *f, *next;
+
+    /*LINTED*/
+    for (f = mesh->fHead.next; f != &mesh->fHead; f = next) {
+        /* Since f will be destroyed, save its next pointer. */
+        next = f->next;
+        if (! f->inside) {
+            tessMeshZapFace(mesh, f);
+        }
+    }
+}
+
+/* tessMeshSetWindingNumber( mesh, value, keepOnlyBoundary ) resets the
+* winding numbers on all edges so that regions marked "inside" the
+* polygon have a winding number of "value", and regions outside
+* have a winding number of 0.
+*
+* If keepOnlyBoundary is TRUE, it also deletes all edges which do not
+* separate an interior region from an exterior one.
+*/
+int tessMeshSetWindingNumber(TESSmesh *mesh, int value,
+                             int keepOnlyBoundary)
+{
+    TESShalfEdge *e, *eNext;
+
+    for (e = mesh->eHead.next; e != &mesh->eHead; e = eNext) {
+        eNext = e->next;
+        if (e->Rface->inside != e->Lface->inside) {
+
+            /* This is a boundary edge (one side is interior, one is exterior). */
+            e->winding = (e->Lface->inside) ? value : -value;
+        } else {
+
+            /* Both regions are interior, or both are exterior. */
+            if (! keepOnlyBoundary) {
+                e->winding = 0;
+            } else {
+                if (!tessMeshDelete(mesh, e)) {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+void* heapAlloc(void* userData, unsigned int size)
+{
+    TESS_NOTUSED(userData);
+    return malloc(size);
+}
+
+void* heapRealloc(void *userData, void* ptr, unsigned int size)
+{
+    TESS_NOTUSED(userData);
+    return realloc(ptr, size);
+}
+
+void heapFree(void* userData, void* ptr)
+{
+    TESS_NOTUSED(userData);
+    free(ptr);
+}
+
+static TESSalloc defaulAlloc = {
+    heapAlloc,
+    heapRealloc,
+    heapFree,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+
+TESStesselator* tessNewTess(TESSalloc* alloc)
+{
+    TESStesselator* tess;
+
+    if (alloc == NULL) {
+        alloc = &defaulAlloc;
+    }
 
     /* Only initialize fields which can be changed by the api.  Other fields
-     * are initialized where they are used.
-     */
+    * are initialized where they are used.
+    */
 
-    if (memInit(MAX_FAST_ALLOC) == 0) {
-        return 0;          /* out of memory */
-    }
-    tess = (GLUtesselator *)memAlloc(sizeof(GLUtesselator));
+    tess = (TESStesselator *)alloc->memalloc(alloc->userData, sizeof(TESStesselator));
     if (tess == NULL) {
         return 0;          /* out of memory */
     }
-
-    tess->state = T_DORMANT;
+    tess->alloc = *alloc;
+    /* Check and set defaults. */
+    if (tess->alloc.meshEdgeBucketSize == 0) {
+        tess->alloc.meshEdgeBucketSize = 512;
+    }
+    if (tess->alloc.meshVertexBucketSize == 0) {
+        tess->alloc.meshVertexBucketSize = 512;
+    }
+    if (tess->alloc.meshFaceBucketSize == 0) {
+        tess->alloc.meshFaceBucketSize = 256;
+    }
+    if (tess->alloc.dictNodeBucketSize == 0) {
+        tess->alloc.dictNodeBucketSize = 512;
+    }
+    if (tess->alloc.regionBucketSize == 0) {
+        tess->alloc.regionBucketSize = 256;
+    }
 
     tess->normal[0] = 0;
     tess->normal[1] = 0;
     tess->normal[2] = 0;
 
-    tess->relTolerance = GLU_TESS_DEFAULT_TOLERANCE;
-    tess->windingRule = GLU_TESS_WINDING_ODD;
-    tess->flagBoundary = FALSE;
-    tess->boundaryOnly = FALSE;
+    tess->bmin[0] = 0;
+    tess->bmin[1] = 0;
+    tess->bmax[0] = 0;
+    tess->bmax[1] = 0;
 
-    tess->callBegin = &noBegin;
-    tess->callEdgeFlag = &noEdgeFlag;
-    tess->callVertex = &noVertex;
-    tess->callEnd = &noEnd;
+    tess->windingRule = TESS_WINDING_ODD;
 
-    tess->callError = &noError;
-    tess->callCombine = &noCombine;
-    tess->callMesh = &noMesh;
+    if (tess->alloc.regionBucketSize < 16) {
+        tess->alloc.regionBucketSize = 16;
+    }
+    if (tess->alloc.regionBucketSize > 4096) {
+        tess->alloc.regionBucketSize = 4096;
+    }
+    tess->regionPool = createBucketAlloc(&tess->alloc, "Regions",
+                                         sizeof(ActiveRegion), tess->alloc.regionBucketSize);
 
-    tess->callBeginData= &__gl_noBeginData;
-    tess->callEdgeFlagData= &__gl_noEdgeFlagData;
-    tess->callVertexData= &__gl_noVertexData;
-    tess->callEndData= &__gl_noEndData;
-    tess->callErrorData= &__gl_noErrorData;
-    tess->callCombineData= &__gl_noCombineData;
+    // Initialize to begin polygon.
+    tess->mesh = NULL;
 
-    tess->polygonData= NULL;
+    tess->outOfMemory = 0;
+    tess->vertexIndexCounter = 0;
+
+    tess->vertices = 0;
+    tess->vertexIndices = 0;
+    tess->vertexCount = 0;
+    tess->elements = 0;
+    tess->elementCount = 0;
 
     return tess;
 }
 
-static void MakeDormant(GLUtesselator *tess)
+void tessDeleteTess(TESStesselator *tess)
 {
-    /* Return the tessellator to its original dormant state. */
+
+    struct TESSalloc alloc = tess->alloc;
+
+    deleteBucketAlloc(tess->regionPool);
 
     if (tess->mesh != NULL) {
-        __gl_meshDeleteMesh(tess->mesh);
+        tessMeshDeleteMesh(&alloc, tess->mesh);
+        tess->mesh = NULL;
     }
-    tess->state = T_DORMANT;
-    tess->lastEdge = NULL;
-    tess->mesh = NULL;
+    if (tess->vertices != NULL) {
+        alloc.memfree(alloc.userData, tess->vertices);
+        tess->vertices = 0;
+    }
+    if (tess->vertexIndices != NULL) {
+        alloc.memfree(alloc.userData, tess->vertexIndices);
+        tess->vertexIndices = 0;
+    }
+    if (tess->elements != NULL) {
+        alloc.memfree(alloc.userData, tess->elements);
+        tess->elements = 0;
+    }
+
+    alloc.memfree(alloc.userData, tess);
 }
 
-#define RequireState( tess, s )   if( tess->state != s ) GotoState(tess,s)
 
-static void GotoState(GLUtesselator *tess, enum TessState newState)
+static TESSindex GetNeighbourFace(TESShalfEdge* edge)
 {
-    while (tess->state != newState) {
-        /* We change the current state one level at a time, to get to
-         * the desired state.
-         */
-        if (tess->state < newState) {
-            switch (tess->state) {
-            case T_DORMANT:
-                    CALL_ERROR_OR_ERROR_DATA(GLU_TESS_MISSING_BEGIN_POLYGON);
-                gluTessBeginPolygon(tess, NULL);
-                break;
-            case T_IN_POLYGON:
-                CALL_ERROR_OR_ERROR_DATA(GLU_TESS_MISSING_BEGIN_CONTOUR);
-                gluTessBeginContour(tess);
-                break;
-            default:
-                break;
+    if (!edge->Rface) {
+        return TESS_UNDEF;
+    }
+    if (!edge->Rface->inside) {
+        return TESS_UNDEF;
+    }
+    return edge->Rface->n;
+}
+
+void OutputPolymesh(TESStesselator *tess, TESSmesh *mesh, int elementType, int polySize, int vertexSize)
+{
+    TESSvertex* v = 0;
+    TESSface* f = 0;
+    TESShalfEdge* edge = 0;
+    int maxFaceCount = 0;
+    int maxVertexCount = 0;
+    int faceVerts, i;
+    TESSindex *elements = 0;
+    TESSreal *vert;
+
+    // Assume that the input data is triangles now.
+    // Try to merge as many polygons as possible
+    if (polySize > 3) {
+        if (!tessMeshMergeConvexFaces(mesh, polySize)) {
+            tess->outOfMemory = 1;
+            return;
+        }
+    }
+
+    // Mark unused
+    for (v = mesh->vHead.next; v != &mesh->vHead; v = v->next) {
+        v->n = TESS_UNDEF;
+    }
+
+    // Create unique IDs for all vertices and faces.
+    for (f = mesh->fHead.next; f != &mesh->fHead; f = f->next) {
+        f->n = TESS_UNDEF;
+        if (!f->inside) {
+            continue;
+        }
+
+        edge = f->anEdge;
+        faceVerts = 0;
+        do {
+            v = edge->Org;
+            if (v->n == TESS_UNDEF) {
+                v->n = maxVertexCount;
+                maxVertexCount++;
+            }
+            faceVerts++;
+            edge = edge->Lnext;
+        } while (edge != f->anEdge);
+
+        assert(faceVerts <= polySize);
+
+        f->n = maxFaceCount;
+        ++maxFaceCount;
+    }
+
+    tess->elementCount = maxFaceCount;
+    if (elementType == TESS_CONNECTED_POLYGONS) {
+        maxFaceCount *= 2;
+    }
+    tess->elements = (TESSindex*)tess->alloc.memalloc(tess->alloc.userData,
+                     sizeof(TESSindex) * maxFaceCount * polySize);
+    if (!tess->elements) {
+        tess->outOfMemory = 1;
+        return;
+    }
+
+    tess->vertexCount = maxVertexCount;
+    tess->vertices = (TESSreal*)tess->alloc.memalloc(tess->alloc.userData,
+                     sizeof(TESSreal) * tess->vertexCount * vertexSize);
+    if (!tess->vertices) {
+        tess->outOfMemory = 1;
+        return;
+    }
+
+    tess->vertexIndices = (TESSindex*)tess->alloc.memalloc(tess->alloc.userData,
+                          sizeof(TESSindex) * tess->vertexCount);
+    if (!tess->vertexIndices) {
+        tess->outOfMemory = 1;
+        return;
+    }
+
+    // Output vertices.
+    for (v = mesh->vHead.next; v != &mesh->vHead; v = v->next) {
+        if (v->n != TESS_UNDEF) {
+            // Store coordinate
+            vert = &tess->vertices[v->n*vertexSize];
+            vert[0] = v->coords[0];
+            vert[1] = v->coords[1];
+            if (vertexSize > 2) {
+                vert[2] = v->coords[2];
+            }
+            // Store vertex index.
+            tess->vertexIndices[v->n] = v->idx;
+        }
+    }
+
+    // Output indices.
+    elements = tess->elements;
+    for (f = mesh->fHead.next; f != &mesh->fHead; f = f->next) {
+        if (!f->inside) {
+            continue;
+        }
+
+        // Store polygon
+        edge = f->anEdge;
+        faceVerts = 0;
+        do {
+            v = edge->Org;
+            *elements++ = v->n;
+            faceVerts++;
+            edge = edge->Lnext;
+        } while (edge != f->anEdge);
+        // Fill unused.
+        for (i = faceVerts; i < polySize; ++i) {
+            *elements++ = TESS_UNDEF;
+        }
+
+        // Store polygon connectivity
+        if (elementType == TESS_CONNECTED_POLYGONS) {
+            edge = f->anEdge;
+            do {
+                *elements++ = GetNeighbourFace(edge);
+                edge = edge->Lnext;
+            } while (edge != f->anEdge);
+            // Fill unused.
+            for (i = faceVerts; i < polySize; ++i) {
+                *elements++ = TESS_UNDEF;
+            }
+        }
+    }
+}
+
+void OutputContours(TESStesselator *tess, TESSmesh *mesh, int vertexSize)
+{
+    TESSface *f = 0;
+    TESShalfEdge *edge = 0;
+    TESShalfEdge *start = 0;
+    TESSreal *verts = 0;
+    TESSindex *elements = 0;
+    TESSindex *vertInds = 0;
+    int startVert = 0;
+    int vertCount = 0;
+
+    tess->vertexCount = 0;
+    tess->elementCount = 0;
+
+    for (f = mesh->fHead.next; f != &mesh->fHead; f = f->next) {
+        if (!f->inside) {
+            continue;
+        }
+
+        start = edge = f->anEdge;
+        do {
+            ++tess->vertexCount;
+            edge = edge->Lnext;
+        } while (edge != start);
+
+        ++tess->elementCount;
+    }
+
+    tess->elements = (TESSindex*)tess->alloc.memalloc(tess->alloc.userData,
+                     sizeof(TESSindex) * tess->elementCount * 2);
+    if (!tess->elements) {
+        tess->outOfMemory = 1;
+        return;
+    }
+
+    tess->vertices = (TESSreal*)tess->alloc.memalloc(tess->alloc.userData,
+                     sizeof(TESSreal) * tess->vertexCount * vertexSize);
+    if (!tess->vertices) {
+        tess->outOfMemory = 1;
+        return;
+    }
+
+    tess->vertexIndices = (TESSindex*)tess->alloc.memalloc(tess->alloc.userData,
+                          sizeof(TESSindex) * tess->vertexCount);
+    if (!tess->vertexIndices) {
+        tess->outOfMemory = 1;
+        return;
+    }
+
+    verts = tess->vertices;
+    elements = tess->elements;
+    vertInds = tess->vertexIndices;
+
+    startVert = 0;
+
+    for (f = mesh->fHead.next; f != &mesh->fHead; f = f->next) {
+        if (!f->inside) {
+            continue;
+        }
+
+        vertCount = 0;
+        start = edge = f->anEdge;
+        do {
+            *verts++ = edge->Org->coords[0];
+            *verts++ = edge->Org->coords[1];
+            if (vertexSize > 2) {
+                *verts++ = edge->Org->coords[2];
+            }
+            *vertInds++ = edge->Org->idx;
+            ++vertCount;
+            edge = edge->Lnext;
+        } while (edge != start);
+
+        elements[0] = startVert;
+        elements[1] = vertCount;
+        elements += 2;
+
+        startVert += vertCount;
+    }
+}
+
+void tessAddContour(TESStesselator *tess, int size, const void* vertices,
+                    int stride, int numVertices)
+{
+    const unsigned char *src = (const unsigned char*)vertices;
+    TESShalfEdge *e;
+    int i;
+
+    if (tess->mesh == NULL) {
+        tess->mesh = tessMeshNewMesh(&tess->alloc);
+    }
+    if (tess->mesh == NULL) {
+        tess->outOfMemory = 1;
+        return;
+    }
+
+    if (size < 2) {
+        size = 2;
+    }
+    if (size > 3) {
+        size = 3;
+    }
+
+    e = NULL;
+
+    for (i = 0; i < numVertices; ++i) {
+        const TESSreal* coords = (const TESSreal*)src;
+        src += stride;
+
+        if (e == NULL) {
+            /* Make a self-loop (one vertex, one edge). */
+            e = tessMeshMakeEdge(tess->mesh);
+            if (e == NULL) {
+                tess->outOfMemory = 1;
+                return;
+            }
+            if (!tessMeshSplice(tess->mesh, e, e->Sym)) {
+                tess->outOfMemory = 1;
+                return;
             }
         } else {
-            switch (tess->state) {
-            case T_IN_CONTOUR:
-                CALL_ERROR_OR_ERROR_DATA(GLU_TESS_MISSING_END_CONTOUR);
-                gluTessEndContour(tess);
-                break;
-            case T_IN_POLYGON:
-                CALL_ERROR_OR_ERROR_DATA(GLU_TESS_MISSING_END_POLYGON);
-                /* gluTessEndPolygon( tess ) is too much work! */
-                MakeDormant(tess);
-                break;
-            default:
-                break;
+            /* Create a new vertex and edge which immediately follow e
+            * in the ordering around the left face.
+            */
+            if (tessMeshSplitEdge(tess->mesh, e) == NULL) {
+                tess->outOfMemory = 1;
+                return;
             }
+            e = e->Lnext;
         }
+
+        /* The new vertex is now e->Org. */
+        e->Org->coords[0] = coords[0];
+        e->Org->coords[1] = coords[1];
+        if (size > 2) {
+            e->Org->coords[2] = coords[2];
+        } else {
+            e->Org->coords[2] = 0;
+        }
+        /* Store the insertion number so that the vertex can be later recognized. */
+        e->Org->idx = tess->vertexIndexCounter++;
+
+        /* The winding of an edge says how the winding number changes as we
+        * cross from the edge''s right face to its left face.  We add the
+        * vertices in such an order that a CCW contour will add +1 to
+        * the winding number of the region inside the contour.
+        */
+        e->winding = 1;
+        e->Sym->winding = -1;
     }
 }
 
-
-void 
-gluDeleteTess(GLUtesselator *tess)
+int tessTesselate(TESStesselator *tess, int windingRule, int elementType,
+                  int polySize, int vertexSize, const TESSreal* normal)
 {
-    RequireState(tess, T_DORMANT);
-    memFree(tess);
-}
+    TESSmesh *mesh;
+    int rc = 1;
 
-
-void 
-gluTessProperty(GLUtesselator *tess, GLenum which, GLdouble value)
-{
-    GLenum windingRule;
-
-    switch (which) {
-    case GLU_TESS_TOLERANCE:
-        if (value < 0.0 || value > 1.0) {
-            break;
-        }
-        tess->relTolerance = value;
-        return;
-
-    case GLU_TESS_WINDING_RULE:
-        windingRule = (GLenum) value;
-        if (windingRule != value) {
-            break;    /* not an integer */
-        }
-
-        switch (windingRule) {
-        case GLU_TESS_WINDING_ODD:
-        case GLU_TESS_WINDING_NONZERO:
-        case GLU_TESS_WINDING_POSITIVE:
-        case GLU_TESS_WINDING_NEGATIVE:
-        case GLU_TESS_WINDING_ABS_GEQ_TWO:
-            tess->windingRule = windingRule;
-            return;
-        default:
-            break;
-        }
-
-    case GLU_TESS_BOUNDARY_ONLY:
-        tess->boundaryOnly = (value != 0);
-        return;
-
-    default:
-        CALL_ERROR_OR_ERROR_DATA(GLU_INVALID_ENUM);
-        return;
+    if (tess->vertices != NULL) {
+        tess->alloc.memfree(tess->alloc.userData, tess->vertices);
+        tess->vertices = 0;
     }
-    CALL_ERROR_OR_ERROR_DATA(GLU_INVALID_VALUE);
-}
-
-/* Returns tessellator property */
-void 
-gluGetTessProperty(GLUtesselator *tess, GLenum which, GLdouble *value)
-{
-    switch (which) {
-    case GLU_TESS_TOLERANCE:
-        /* tolerance should be in range [0..1] */
-        assert(0.0 <= tess->relTolerance && tess->relTolerance <= 1.0);
-        *value= tess->relTolerance;
-        break;
-    case GLU_TESS_WINDING_RULE:
-        assert(tess->windingRule == GLU_TESS_WINDING_ODD ||
-               tess->windingRule == GLU_TESS_WINDING_NONZERO ||
-               tess->windingRule == GLU_TESS_WINDING_POSITIVE ||
-               tess->windingRule == GLU_TESS_WINDING_NEGATIVE ||
-               tess->windingRule == GLU_TESS_WINDING_ABS_GEQ_TWO);
-        *value= tess->windingRule;
-        break;
-    case GLU_TESS_BOUNDARY_ONLY:
-        assert(tess->boundaryOnly == TRUE || tess->boundaryOnly == FALSE);
-        *value= tess->boundaryOnly;
-        break;
-    default:
-        *value= 0.0;
-        CALL_ERROR_OR_ERROR_DATA(GLU_INVALID_ENUM);
-        break;
+    if (tess->elements != NULL) {
+        tess->alloc.memfree(tess->alloc.userData, tess->elements);
+        tess->elements = 0;
     }
-} /* gluGetTessProperty() */
-
-void 
-gluTessNormal(GLUtesselator *tess, GLdouble x, GLdouble y, GLdouble z)
-{
-    tess->normal[0] = x;
-    tess->normal[1] = y;
-    tess->normal[2] = z;
-}
-
-void 
-gluTessCallback(GLUtesselator *tess, GLenum which, void (*fn)())
-{
-    switch (which) {
-    case GLU_TESS_BEGIN:
-        tess->callBegin = (fn == NULL) ? &noBegin : (void (*)(GLenum)) fn;
-        return;
-    case GLU_TESS_BEGIN_DATA:
-        tess->callBeginData = (fn == NULL) ?
-                              &__gl_noBeginData : (void (*)(GLenum, void *)) fn;
-        return;
-    case GLU_TESS_EDGE_FLAG:
-        tess->callEdgeFlag = (fn == NULL) ? &noEdgeFlag :
-                             (void (*)(GLboolean)) fn;
-        /* If the client wants boundary edges to be flagged,
-         * we render everything as separate triangles (no strips or fans).
-         */
-        tess->flagBoundary = (fn != NULL);
-        return;
-    case GLU_TESS_EDGE_FLAG_DATA:
-        tess->callEdgeFlagData= (fn == NULL) ?
-                                &__gl_noEdgeFlagData : (void (*)(GLboolean, void *)) fn;
-        /* If the client wants boundary edges to be flagged,
-         * we render everything as separate triangles (no strips or fans).
-         */
-        tess->flagBoundary = (fn != NULL);
-        return;
-    case GLU_TESS_VERTEX:
-        tess->callVertex = (fn == NULL) ? &noVertex :
-                           (void (*)(void *)) fn;
-        return;
-    case GLU_TESS_VERTEX_DATA:
-        tess->callVertexData = (fn == NULL) ?
-                               &__gl_noVertexData : (void (*)(void *, void *)) fn;
-        return;
-    case GLU_TESS_END:
-        tess->callEnd = (fn == NULL) ? &noEnd : (void (*)(void)) fn;
-        return;
-    case GLU_TESS_END_DATA:
-        tess->callEndData = (fn == NULL) ? &__gl_noEndData :
-                            (void (*)(void *)) fn;
-        return;
-    case GLU_TESS_ERROR:
-        tess->callError = (fn == NULL) ? &noError : (void (*)(GLenum)) fn;
-        return;
-    case GLU_TESS_ERROR_DATA:
-        tess->callErrorData = (fn == NULL) ?
-                              &__gl_noErrorData : (void (*)(GLenum, void *)) fn;
-        return;
-    case GLU_TESS_COMBINE:
-        tess->callCombine = (fn == NULL) ? &noCombine :
-                            (void (*)(GLdouble [3],void *[4], GLfloat [4], void **)) fn;
-        return;
-    case GLU_TESS_COMBINE_DATA:
-        tess->callCombineData = (fn == NULL) ? &__gl_noCombineData :
-                                (void (*)(GLdouble [3],
-                                          void *[4],
-                                          GLfloat [4],
-                                          void **,
-                                          void *)) fn;
-        return;
-    case GLU_TESS_MESH:
-        tess->callMesh = (fn == NULL) ? &noMesh : (void (*)(GLUmesh *)) fn;
-        return;
-    default:
-        CALL_ERROR_OR_ERROR_DATA(GLU_INVALID_ENUM);
-        return;
-    }
-}
-
-static int AddVertex(GLUtesselator *tess, GLdouble coords[3], void *data)
-{
-    GLUhalfEdge *e;
-
-    e = tess->lastEdge;
-    if (e == NULL) {
-        /* Make a self-loop (one vertex, one edge). */
-
-        e = __gl_meshMakeEdge(tess->mesh);
-        if (e == NULL) {
-            return 0;
-        }
-        if (!__gl_meshSplice(e, e->Sym)) {
-            return 0;
-        }
-    } else {
-        /* Create a new vertex and edge which immediately follow e
-         * in the ordering around the left face.
-         */
-        if (__gl_meshSplitEdge(e) == NULL) {
-            return 0;
-        }
-        e = e->Lnext;
+    if (tess->vertexIndices != NULL) {
+        tess->alloc.memfree(tess->alloc.userData, tess->vertexIndices);
+        tess->vertexIndices = 0;
     }
 
-    /* The new vertex is now e->Org. */
-    e->Org->data = data;
-    e->Org->coords[0] = coords[0];
-    e->Org->coords[1] = coords[1];
-    e->Org->coords[2] = coords[2];
+    tess->vertexIndexCounter = 0;
 
-    /* The winding of an edge says how the winding number changes as we
-     * cross from the edge''s right face to its left face.  We add the
-     * vertices in such an order that a CCW contour will add +1 to
-     * the winding number of the region inside the contour.
-     */
-    e->winding = 1;
-    e->Sym->winding = -1;
-
-    tess->lastEdge = e;
-
-    return 1;
-}
-
-
-static void CacheVertex(GLUtesselator *tess, GLdouble coords[3], void *data)
-{
-    CachedVertex *v = &tess->cache[tess->cacheCount];
-
-    v->data = data;
-    v->coords[0] = coords[0];
-    v->coords[1] = coords[1];
-    v->coords[2] = coords[2];
-    ++tess->cacheCount;
-}
-
-
-static int EmptyCache(GLUtesselator *tess)
-{
-    CachedVertex *v = tess->cache;
-    CachedVertex *vLast;
-
-    tess->mesh = __gl_meshNewMesh();
-    if (tess->mesh == NULL) {
-        return 0;
+    if (normal) {
+        tess->normal[0] = normal[0];
+        tess->normal[1] = normal[1];
+        tess->normal[2] = normal[2];
     }
 
-    for (vLast = v + tess->cacheCount; v < vLast; ++v) {
-        if (!AddVertex(tess, v->coords, v->data)) {
-            return 0;
-        }
+    tess->windingRule = windingRule;
+
+    if (vertexSize < 2) {
+        vertexSize = 2;
     }
-    tess->cacheCount = 0;
-    tess->emptyCache = FALSE;
-
-    return 1;
-}
-
-
-void 
-gluTessVertex(GLUtesselator *tess, GLdouble coords[3], void *data)
-{
-    int i, tooLarge = FALSE;
-    GLdouble x, clamped[3];
-
-    RequireState(tess, T_IN_CONTOUR);
-
-    if (tess->emptyCache) {
-        if (!EmptyCache(tess)) {
-            CALL_ERROR_OR_ERROR_DATA(GLU_OUT_OF_MEMORY);
-            return;
-        }
-        tess->lastEdge = NULL;
+    if (vertexSize > 3) {
+        vertexSize = 3;
     }
-    for (i = 0; i < 3; ++i) {
-        x = coords[i];
-        if (x < - GLU_TESS_MAX_COORD) {
-            x = - GLU_TESS_MAX_COORD;
-            tooLarge = TRUE;
-        }
-        if (x > GLU_TESS_MAX_COORD) {
-            x = GLU_TESS_MAX_COORD;
-            tooLarge = TRUE;
-        }
-        clamped[i] = x;
-    }
-    if (tooLarge) {
-        CALL_ERROR_OR_ERROR_DATA(GLU_TESS_COORD_TOO_LARGE);
-    }
-
-    if (tess->mesh == NULL) {
-        if (tess->cacheCount < TESS_MAX_CACHE) {
-            CacheVertex(tess, clamped, data);
-            return;
-        }
-        if (!EmptyCache(tess)) {
-            CALL_ERROR_OR_ERROR_DATA(GLU_OUT_OF_MEMORY);
-            return;
-        }
-    }
-    if (!AddVertex(tess, clamped, data)) {
-        CALL_ERROR_OR_ERROR_DATA(GLU_OUT_OF_MEMORY);
-    }
-}
-
-
-void 
-gluTessBeginPolygon(GLUtesselator *tess, void *data)
-{
-    RequireState(tess, T_DORMANT);
-
-    tess->state = T_IN_POLYGON;
-    tess->cacheCount = 0;
-    tess->emptyCache = FALSE;
-    tess->mesh = NULL;
-
-    tess->polygonData= data;
-}
-
-
-void 
-gluTessBeginContour(GLUtesselator *tess)
-{
-    RequireState(tess, T_IN_POLYGON);
-
-    tess->state = T_IN_CONTOUR;
-    tess->lastEdge = NULL;
-    if (tess->cacheCount > 0) {
-        /* Just set a flag so we don't get confused by empty contours
-         * -- these can be generated accidentally with the obsolete
-         * NextContour() interface.
-         */
-        tess->emptyCache = TRUE;
-    }
-}
-
-
-void 
-gluTessEndContour(GLUtesselator *tess)
-{
-    RequireState(tess, T_IN_CONTOUR);
-    tess->state = T_IN_POLYGON;
-}
-
-void 
-gluTessEndPolygon(GLUtesselator *tess)
-{
-    GLUmesh *mesh;
 
     if (setjmp(tess->env) != 0) {
         /* come back here if out of memory */
-        CALL_ERROR_OR_ERROR_DATA(GLU_OUT_OF_MEMORY);
-        return;
+        return 0;
     }
 
-    RequireState(tess, T_IN_POLYGON);
-    tess->state = T_DORMANT;
-
-    if (tess->mesh == NULL) {
-        if (! tess->flagBoundary && tess->callMesh == &noMesh) {
-
-            /* Try some special code to make the easy cases go quickly
-             * (eg. convex polygons).  This code does NOT handle multiple contours,
-             * intersections, edge flags, and of course it does not generate
-             * an explicit mesh either.
-             */
-            if (__gl_renderCache(tess)) {
-                tess->polygonData= NULL;
-                return;
-            }
-        }
-        if (!EmptyCache(tess)) {
-            longjmp(tess->env,1);    /* could've used a label*/
-        }
+    if (!tess->mesh) {
+        return 0;
     }
 
     /* Determine the polygon normal and project vertices onto the plane
-     * of the polygon.
-     */
-    __gl_projectPolygon(tess);
+    * of the polygon.
+    */
+    tessProjectPolygon(tess);
 
-    /* __gl_computeInterior( tess ) computes the planar arrangement specified
-     * by the given contours, and further subdivides this arrangement
-     * into regions.  Each region is marked "inside" if it belongs
-     * to the polygon, according to the rule given by tess->windingRule.
-     * Each interior region is guaranteed be monotone.
-     */
-    if (!__gl_computeInterior(tess)) {
+    /* tessComputeInterior( tess ) computes the planar arrangement specified
+    * by the given contours, and further subdivides this arrangement
+    * into regions.  Each region is marked "inside" if it belongs
+    * to the polygon, according to the rule given by tess->windingRule.
+    * Each interior region is guaranteed be monotone.
+    */
+    if (!tessComputeInterior(tess)) {
         longjmp(tess->env,1);  /* could've used a label */
     }
 
     mesh = tess->mesh;
-    if (! tess->fatalError) {
-        int rc = 1;
 
-        /* If the user wants only the boundary contours, we throw away all edges
-         * except those which separate the interior from the exterior.
-         * Otherwise we tessellate all the regions marked "inside".
-         */
-        if (tess->boundaryOnly) {
-            rc = __gl_meshSetWindingNumber(mesh, 1, TRUE);
-        } else {
-            rc = __gl_meshTessellateInterior(mesh);
-        }
-        if (rc == 0) {
-            longjmp(tess->env,1);    /* could've used a label */
-        }
-
-        __gl_meshCheckMesh(mesh);
-
-        if (tess->callBegin != &noBegin || tess->callEnd != &noEnd
-                || tess->callVertex != &noVertex || tess->callEdgeFlag != &noEdgeFlag
-                || tess->callBeginData != &__gl_noBeginData
-                || tess->callEndData != &__gl_noEndData
-                || tess->callVertexData != &__gl_noVertexData
-                || tess->callEdgeFlagData != &__gl_noEdgeFlagData) {
-            if (tess->boundaryOnly) {
-                __gl_renderBoundary(tess, mesh);    /* output boundary contours */
-            } else {
-                __gl_renderMesh(tess, mesh);       /* output strips and fans */
-            }
-        }
-        if (tess->callMesh != &noMesh) {
-
-            /* Throw away the exterior faces, so that all faces are interior.
-             * This way the user doesn't have to check the "inside" flag,
-             * and we don't need to even reveal its existence.  It also leaves
-             * the freedom for an implementation to not generate the exterior
-             * faces in the first place.
-             */
-            __gl_meshDiscardExterior(mesh);
-            (*tess->callMesh)(mesh);          /* user wants the mesh itself */
-            tess->mesh = NULL;
-            tess->polygonData= NULL;
-            return;
-        }
+    /* If the user wants only the boundary contours, we throw away all edges
+    * except those which separate the interior from the exterior.
+    * Otherwise we tessellate all the regions marked "inside".
+    */
+    if (elementType == TESS_BOUNDARY_CONTOURS) {
+        rc = tessMeshSetWindingNumber(mesh, 1, TRUE);
+    } else {
+        rc = tessMeshTessellateInterior(mesh);
     }
-    __gl_meshDeleteMesh(mesh);
-    tess->polygonData= NULL;
+    if (rc == 0) {
+        longjmp(tess->env,1);    /* could've used a label */
+    }
+
+    tessMeshCheckMesh(mesh);
+
+    if (elementType == TESS_BOUNDARY_CONTOURS) {
+        OutputContours(tess, mesh, vertexSize);       /* output contours */
+    } else {
+        OutputPolymesh(tess, mesh, elementType, polySize, vertexSize);       /* output polygons */
+    }
+
+    tessMeshDeleteMesh(&tess->alloc, mesh);
     tess->mesh = NULL;
+
+    if (tess->outOfMemory) {
+        return 0;
+    }
+    return 1;
 }
 
-
-/*XXXblythe unused function*/
-#if 0
-void 
-gluDeleteMesh(GLUmesh *mesh)
+int tessGetVertexCount(TESStesselator *tess)
 {
-    __gl_meshDeleteMesh(mesh);
-}
-#endif
-
-
-
-/*******************************************************/
-
-/* Obsolete calls -- for backward compatibility */
-
-void 
-gluBeginPolygon(GLUtesselator *tess)
-{
-    gluTessBeginPolygon(tess, NULL);
-    gluTessBeginContour(tess);
+    return tess->vertexCount;
 }
 
-
-/*ARGSUSED*/
-void 
-gluNextContour(GLUtesselator *tess, GLenum type)
+const TESSreal* tessGetVertices(TESStesselator *tess)
 {
-    gluTessEndContour(tess);
-    gluTessBeginContour(tess);
+    return tess->vertices;
 }
 
-
-void 
-gluEndPolygon(GLUtesselator *tess)
+const TESSindex* tessGetVertexIndices(TESStesselator *tess)
 {
-    gluTessEndContour(tess);
-    gluTessEndPolygon(tess);
+    return tess->vertexIndices;
+}
+
+int tessGetElementCount(TESStesselator *tess)
+{
+    return tess->elementCount;
+}
+
+const int* tessGetElements(TESStesselator *tess)
+{
+    return tess->elements;
 }
