@@ -49,8 +49,8 @@ class AVG_API FilledVectorNode : public VectorNode
         const glm::vec2& getFillTexCoord2() const;
         void setFillTexCoord2(const glm::vec2& pt);
 
-        void setFillColor(const UTF8String& sColor);
-        const UTF8String& getFillColor() const;
+        void setFillColor(const Color& color);
+        const Color& getFillColor() const;
 
         float getFillOpacity() const;
         void setFillOpacity(float opacity);
@@ -63,10 +63,10 @@ class AVG_API FilledVectorNode : public VectorNode
                 const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 
     protected:
-        Pixel32 getFillColorVal() const;
         glm::vec2 calcFillTexCoord(const glm::vec2& pt, const glm::vec2& minPt, 
                 const glm::vec2& maxPt);
         virtual bool isVisible() const;
+        bool isFillVisible() const;
 
     private:
         float m_EffectiveOpacity;
@@ -76,8 +76,7 @@ class AVG_API FilledVectorNode : public VectorNode
         glm::vec2 m_FillTexCoord2;
         ShapePtr m_pFillShape;
         float m_FillOpacity;
-        UTF8String m_sFillColorName;
-        Pixel32 m_FillColor;
+        Color m_FillColor;
 };
 
 typedef boost::shared_ptr<FilledVectorNode> FilledVectorNodePtr;

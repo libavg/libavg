@@ -132,9 +132,7 @@ Area Nodes
 
     .. autoclass:: CameraNode([driver='firewire', device="", unit=-1, fw800=False, framerate=15, capturewidth=640, captureheight=480, pixelformat="RGB", brightness, exposure, sharpness, saturation, camgamma, shutter, gain, strobeduration])
 
-        A node that displays the image of a camera. The attributes correspond to the 
-        camera properties in .avgtrackerrc and are explained under
-        http://www.libavg.de/wiki/ProgrammersGuide/Tracker. An easy way to find the 
+        A node that displays the image of a camera. An easy way to find the 
         appropriate parameters for your camera is to use :command:`avg_showcamera.py`.
 
         CameraNodes open the camera device on construction and set the chosen camera 
@@ -273,7 +271,7 @@ Area Nodes
 
         .. py:method:: removeChild(i)
 
-            Removes the child at index :py:attr:`i` from the div. Note that as long a`
+            Removes the child at index :py:attr:`i` from the div. Note that as long as
             other references to the node exist, the node is not deleted.
 
         .. py:method:: reorderChild(oldIndex, newIndex)
@@ -386,20 +384,20 @@ Area Nodes
 
         .. py:attribute:: maskpos
 
-            An offset for the mask image. For images, the offset is given in pixels of the
-            main bitmap, for videos, in video pixels, and for words nodes, the
-            offset is given in screen pixels. If portions of the node extend
-            outside the mask, the border pixels of the mask are taken. Note that the
-            maskpos is an offset from the top left of the node, even for 
+            An offset for the mask image. The offset is given in local node
+            coordinates. Unless :py:attr:`size` is set, these will correspond to screen
+            pixels. If portions of the node extend outside the mask, the border pixels of
+            the mask are taken. :py:attr:`maskpos` is an offset from the reference point
+            of the node. Usually, this will be the top left corner, but for 
             :py:class:`WordsNode` objects that have :py:attr:`alignment`
-            :py:const:`Center` or :py:const:`Right`.
-
+            :py:const:`Center` or :py:const:`Right`, the reference point is top center or
+            right, respectively.
 
         .. py:attribute:: masksize
 
-            The size of the mask image. For images, the offset is given in pixels of the
-            main bitmap, for videos, in video pixels, and for words nodes, the
-            offset is given in screen pixels. If portions of the node extend
+            The size of the mask image. The offset is given in local node
+            coordinates. Unless :py:attr:`size` is set, these will correspond to screen
+            pixels. If portions of the node extend
             outside the mask, the border pixels of the mask are taken.
 
         .. py:attribute:: maxtileheight
@@ -427,6 +425,10 @@ Area Nodes
         .. py:method:: getWarpedVertexCoords() -> list
 
             Returns the current coordinate of all vertices as a list of lists.
+
+        .. py:method:: setMaskBitmap(bitmap)
+
+            Sets a bitmap to use as alpha channel mask. Sets maskhref to an empty string.
 
         .. py:method:: setEffect(FXNode)
 
@@ -710,8 +712,7 @@ Area Nodes
 
         .. py:attribute:: color
 
-            The color of the text in standard html color notation: FF0000 is red, 
-            00FF00 green, etc.
+            The :py:class:`Color` of the text.
 
         .. py:attribute:: font 
 

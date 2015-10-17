@@ -80,6 +80,11 @@ if sys.platform != 'win32':
     if os.path.exists('../wrapper/.libs/avg.so'):
         # Normal case: use the local version (not the installed one)
         shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
+    elif os.path.exists('../../avg.so') or os.path.exists('../avg.so'):
+        # Mac version after installer dmg, linux after make install
+        pass
+    else:
+        raise RuntimeError('Compile libavg before running tests or use "make check"')
 
     # The following line prevents the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
@@ -112,8 +117,6 @@ import DynamicsTest
 import PythonTest
 import AnimTest
 import EventTest
-import InputDeviceTest
-import AVGAppTest
 import WidgetTest
 import GestureTest
 import LoggerTest
@@ -133,10 +136,8 @@ app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
 app.registerSuiteFactory('fx', FXTest.fxTestSuite)
 app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
-app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
 app.registerSuiteFactory('widget', WidgetTest.widgetTestSuite)
 app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
-app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 app.registerSuiteFactory('logger', LoggerTest.loggerTestSuite)
 app.registerSuiteFactory('app', AppTest.appTestSuite)
 app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)

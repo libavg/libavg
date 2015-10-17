@@ -30,14 +30,13 @@ using namespace std;
 
 namespace avg {
 
-ShadowFXNode::ShadowFXNode(glm::vec2 offset, float radius, float opacity, string sColor) 
+ShadowFXNode::ShadowFXNode(glm::vec2 offset, float radius, float opacity, Color color)
     : FXNode(false),
       m_Offset(offset),
       m_StdDev(radius),
-      m_Opacity(opacity)
+      m_Opacity(opacity),
+      m_Color(color)
 {
-    m_sColorName = sColor;
-    m_Color = colorStringToColor(sColor);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -90,16 +89,15 @@ float ShadowFXNode::getOpacity() const
     return m_Opacity;
 }
 
-void ShadowFXNode::setColor(const std::string& sColor)
+void ShadowFXNode::setColor(const Color& color)
 {
-    m_sColorName = sColor;
-    m_Color = colorStringToColor(sColor);
+    m_Color = color;
     updateFilter();
 }
 
-std::string ShadowFXNode::getColor() const
+Color ShadowFXNode::getColor() const
 {
-    return m_sColorName;
+    return m_Color;
 }
 
 GPUFilterPtr ShadowFXNode::createFilter(const IntPoint& size)

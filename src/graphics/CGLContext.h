@@ -41,12 +41,9 @@ public:
     virtual ~CGLContext();
 
     void activate();
-
-    bool initVBlank(int rate);
+    void swapBuffers();
 
 private:
-    void initMacVBlank(int rate);
-
     CGLContextObj m_Context;
 };
 

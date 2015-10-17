@@ -350,10 +350,14 @@ class AVTestCase(AVGTestCase):
         def testWithFile(filename, testImgName):
             def setMask(href):
                 video.maskhref = href
+                video.masksize = (32,32)
 
             def setOpacity():
                 video.opacity = 0.5
-            
+
+            def setMaskBitmap():
+                video.setMaskBitmap(avg.Bitmap("media/mask4.png"))
+
             print "  ", filename
             player.setFakeFPS(25)
             root = self.loadEmptyScene()
@@ -361,7 +365,7 @@ class AVTestCase(AVGTestCase):
                     parent=root)
             video.play()
             self.start(False,
-                    (lambda: setMask("mask.png"),
+                    (lambda: setMask("mask4.png"),
                      lambda: self.compareImage(testImgName+"1"),
                      lambda: video.seekToFrame(10),
                      lambda: setMask(""),
@@ -370,8 +374,10 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage(testImgName+"3"),
                      setOpacity,
                      lambda: self.compareImage(testImgName+"4"),
+                     setMaskBitmap,
+                     lambda: self.compareImage(testImgName+"5"),
                     ))
-        
+
         print
         testWithFile("mpeg1-48x48.mov", "testVideoMaskYUV")
         testWithFile("mjpeg-48x48.avi", "testVideoMaskYUVJ")

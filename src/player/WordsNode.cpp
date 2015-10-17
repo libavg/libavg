@@ -95,7 +95,7 @@ void WordsNode::registerType()
         .addArg(Arg<string>("font", "sans"))
         .addArg(Arg<string>("variant", ""))
         .addArg(Arg<UTF8String>("text", ""))
-        .addArg(Arg<string>("color", "FFFFFF"))
+        .addArg(Arg<Color>("color", Color("FFFFFF")))
         .addArg(Arg<float>("aagamma", 1.0f))
         .addArg(Arg<float>("fontsize", 15))
         .addArg(Arg<int>("indent", 0, false))
@@ -330,14 +330,14 @@ void WordsNode::setText(const UTF8String& sText)
     }
 }
 
-const std::string& WordsNode::getColor() const
+const Color& WordsNode::getColor() const
 {
     return m_FontStyle.getColor();
 }
 
-void WordsNode::setColor(const string& sColor)
+void WordsNode::setColor(const Color& color)
 {
-    m_FontStyle.setColor(sColor);
+    m_FontStyle.setColor(color);
     updateLayout();
 }
 
@@ -493,32 +493,18 @@ void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 void WordsNode::calcMaskCoords()
 {
-    // Calculate texture coordinates for the mask texture, normalized to
-    // the extents of the text.
-    glm::vec2 normMaskSize;
-    glm::vec2 normMaskPos;
-    glm::vec2 mediaSize = glm::vec2(getMediaSize());
-    glm::vec2 effMaskPos = getMaskPos()-glm::vec2(m_InkOffset);
-    glm::vec2 maskSize = getMaskSize();
-    
-    if (maskSize == glm::vec2(0,0)) {
-        normMaskSize = glm::vec2(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
-        normMaskPos = glm::vec2(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
+    glm::vec2 maskSize;
+    glm::vec2 nodeSize = getMediaSize();
+    if (getMaskSize() == glm::vec2(0,0)) {
+        glm::vec2 bmpSize = getMaskBmp()->getSize();
+        maskSize = glm::vec2(bmpSize.x/nodeSize.x, bmpSize.y/nodeSize.y);
     } else {
-        normMaskSize = glm::vec2(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
-        normMaskPos = glm::vec2(effMaskPos.x/getMaskSize().x, 
-                effMaskPos.y/getMaskSize().y);
+        maskSize = glm::vec2(getMaskSize().x/nodeSize.x, getMaskSize().y/nodeSize.y);
     }
-/*    
-    cerr << "calcMaskCoords" << endl;
-    cerr << "  mediaSize: " << getMediaSize() << endl;
-    cerr << "  effMaskPos: " << effMaskPos << endl;
-    cerr << "  m_AlignOffset: " << m_AlignOffset << endl;
-    cerr << "  maskSize: " << maskSize << endl;
-    cerr << "  normMaskSize: " << normMaskSize << endl;
-    cerr << "  normMaskPos: " << normMaskPos << endl;
-*/    
-    getSurface()->setMaskCoords(normMaskPos, normMaskSize);
+    glm::vec2 maskPos = getMaskPos() - glm::vec2(m_AlignOffset, 0);
+    maskPos = glm::vec2(maskPos.x/nodeSize.x, maskPos.y/nodeSize.y);
+
+    getSurface()->setMaskCoords(maskPos, maskSize);
 }
 
 static ProfilingZoneID UpdateFontProfilingZone("WordsNode: Update font");
@@ -682,7 +668,7 @@ void WordsNode::renderText()
                 default:
                     AVG_ASSERT(false);
             }
-            setRenderColor(m_FontStyle.getColorVal());
+            setRenderColor(m_FontStyle.getColor());
 
             GLContextManager* pCM = GLContextManager::get();
             MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
@@ -699,6 +685,9 @@ void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         renderText();
+        if (hasMask()) {
+            calcMaskCoords();
+        }
     }
     if (m_sText.length() != 0 && isVisible()) {
         scheduleFXRender();
@@ -793,19 +782,38 @@ void WordsNode::setParsedText(const UTF8String& sText)
     updateLayout();
 }
 
+string::size_type findBR(const UTF8String& sText, int& len)
+{
+    string::size_type pos = sText.find("<br");
+    if (pos != string::npos) {
+        len = 5;
+        string::size_type curPos = pos + 3;
+        while (sText[curPos] == ' ') {
+            len++;
+            curPos++;
+        }
+        if (sText.substr(curPos, 2) == "/>") {
+            return pos;
+        }
+    }
+    return string::npos;
+}
+
+
 UTF8String WordsNode::applyBR(const UTF8String& sText)
 {
     UTF8String sResult(sText);
     UTF8String sLowerText = toLowerCase(sResult); 
-    string::size_type pos=sLowerText.find("<br/>");
+    int len;
+    string::size_type pos = findBR(sLowerText, len);
     while (pos != string::npos) {
-        sResult.replace(pos, 5, "\n");
-        sLowerText.replace(pos, 5, "\n");
+        sResult.replace(pos, len, "\n");
+        sLowerText.replace(pos, len, "\n");
         if (sLowerText[pos+1] == ' ') {
             sLowerText.erase(pos+1, 1);
             sResult.erase(pos+1, 1);
         }
-        pos=sLowerText.find("<br/>");
+        pos = findBR(sLowerText, len);
     }
     return sResult;
 }

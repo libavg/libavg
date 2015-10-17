@@ -25,6 +25,9 @@
 #include "../avgconfigwrapper.h"
 
 #include "Player.h"
+#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
+#include "XInputMTInputDevice.h" 
+#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -33,11 +36,19 @@
 #include "../base/StringHelper.h"
 
 #include "../graphics/GLContext.h"
+#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
+#include "../graphics/GLXContext.h"
+#endif
+#include "../graphics/GLContextManager.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/ImageCache.h"
 
-#include <SDL/SDL.h>
+#ifdef WIN32
+#undef WIN32_LEAN_AND_MEAN
+#endif
+#include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL_events.h>
 
 #include <iostream>
 
@@ -123,17 +134,6 @@ const IntRect& Window::getViewport() const
 bool Window::isFullscreen() const
 {
     return m_bIsFullscreen;
-}
-
-static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
-
-void Window::swapBuffers() const
-{
-    AVG_ASSERT(m_pGLContext);
-    ScopeTimer timer(SwapBufferProfilingZone);
-    m_pGLContext->activate();
-    m_pGLContext->swapBuffers();
-    GLContext::checkError("swapBuffers()");
 }
 
 GLContext* Window::getGLContext() const

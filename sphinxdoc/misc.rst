@@ -170,28 +170,41 @@ Misc. Classes
             available.
 
 
-    .. autoclass:: ImageCache
+    .. autoclass:: Color
 
-        libavg's global two-level cache of images in CPU (general system) and GPU
-        (graphics card) memory. Access this class using the :samp:`player.cache`
-        property. The cache is used for all images loaded from files in textures,
-        including :py:class:`ImageNode` images, :py:class:`VectorNode` textures and fill
-        textures, and all :py:class:`RasterNode` mask textures. :py:class:`Bitmap`
-        objects are not cached.
+        A color in the rgb colorspace. libavg :py:class:`Colors` can be constructed either
+        from tuples or using html-like string syntax. Colors can be animated, and any
+        interpolation between two colors is performed in the CIE-Lch color space for best
+        results (See http://www.stuartdenman.com/improved-color-blending/).
 
-        .. py:attribute:: capacity
+        .. py:method:: __init__(string)
 
-            The capacity of the cache as a tuple (cpu, gpu) in bytes. The capacity can
-            also be set using :samp:`avgrc`. Default CPU capacity is one-quarter of
-            physical RAM, default GPU capacity is 16 megabytes.
+            Constructs a color from a three- or six-character hex code (``F80`` and
+            ``FF8800`` are equivalent colors).
 
-        .. py:method:: getNumImages -> (cpu, gpu)
+        .. py:method:: __init__(r,g,b)
 
-            Returns the number of images loaded.
+            Constructs a color from three channel values in the range 0..255.
 
-        .. py:method:: getMemUsed -> (cpu, gpu)
+        .. py:method:: __init__((r,g,b))
 
-            Returns the number of bytes used by images.
+            Constructs a color from an rgb tuple.
+
+        .. py:attribute:: r
+
+            Red component of the color (ro).
+
+        .. py:attribute:: g
+
+            Green component of the color (ro).
+
+        .. py:attribute:: b
+
+            Blue component of the color (ro).
+
+        .. py:classmethod:: mix(color1, color2, ratio) -> color
+
+            Creates a color that is a mix of the two colors passed as parameters.
 
 
     .. autoclass:: CubicSpline(controlpoints)
@@ -216,6 +229,30 @@ Misc. Classes
         (:py:attr:`font`, :py:attr:`fontsize`, etc.) in one line of code. The attributes
         correspond to the :py:class:`WordsNode` attributes; refer to the 
         :py:class:`WordsNode` reference for descriptions.    
+
+
+    .. autoclass:: ImageCache
+
+        libavg's global two-level cache of images in CPU (general system) and GPU
+        (graphics card) memory. Access this class using the :samp:`player.cache`
+        property. The cache is used for all images loaded from files in textures,
+        including :py:class:`ImageNode` images, :py:class:`VectorNode` textures and fill
+        textures, and all :py:class:`RasterNode` mask textures. :py:class:`Bitmap`
+        objects are not cached.
+
+        .. py:attribute:: capacity
+
+            The capacity of the cache as a tuple (cpu, gpu) in bytes. The capacity can
+            also be set using :samp:`avgrc`. Default CPU capacity is one-quarter of
+            physical RAM, default GPU capacity is 16 megabytes.
+
+        .. py:method:: getNumImages -> (cpu, gpu)
+
+            Returns the number of images loaded.
+
+        .. py:method:: getMemUsed -> (cpu, gpu)
+
+            Returns the number of bytes used by images.
 
 
     .. autoclass:: Logger
@@ -413,7 +450,7 @@ Misc. Classes
             being the positive x axis. Angle is clockwise (assuming that y points
             downward).
 
-        .. py:method isInPolygon(poly) -> bool
+        .. py:method:: isInPolygon(poly) -> bool
 
             Checks if the point is inside a polygon.
 

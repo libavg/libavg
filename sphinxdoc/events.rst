@@ -10,9 +10,6 @@ Input Handling
     .. inheritance-diagram:: Contact
         :parts: 1
 
-    .. inheritance-diagram:: InputDevice
-        :parts: 1
-
     .. autoclass:: Contact
 
         A Contact encapsulates the information of one touch on an input device from
@@ -175,67 +172,36 @@ Input Handling
             The time when the event occured in milliseconds since program start. 
             Read-only.
 
-    .. autoclass:: InputDevice(name, [eventReceiverNode])
-
-        Base class for input devices which feed events to the system. Derived classes can
-        be either user-defined or one of the predefined libavg input devices. User-defined
-        InputDevice objects are registered with the system by calling 
-        :py:meth:`Player.addInputDevice`. After this, the emitted 
-        events are processed like any other events.
-
-        .. py:attribute:: eventreceivernode
-
-            The :py:class:`DivNode` that the input device will deliver events to. By 
-            default, this is the libavg root node. Useful for restricting events to a 
-            part of the total canvas or for sending events directly to an offscreen 
-            canvas. Event bubbling starts at this node and proceeds down the tree from
-            there. Read-only.
-
-        .. py:attribute:: name
-
-            The name of the device. Read-only.
-        
-        .. py:method:: pollEvents() -> list
-
-            Abstract method which returns a list of pending events. Override this method
-            in your derived input device class. After registering 
-            the input device, this method gets called on every frame.
-
-        .. py:method:: start()
-
-            Initializes the input device if needed. By default this is an empty method.
-        
     .. autoclass:: KeyEvent
 
         Generated when a key is pressed or released.
 
-        .. py:attribute:: keycode
+        .. py:attribute:: keyname
 
-            The keycode of the key according to US keyboard layout. Read-only. 
+            The name of the key according to the current keyboard layout. This can be a
+            character like "a" or a word like "Up" for the up arrow key. Read-only.
 
-        .. py:attribute:: keystring
+        .. py:attribute:: text
 
-            A character or word describing the key pressed. Read-only.
+            The text that the key represents, if any. Handles shifted (i.e., 
+            uppercase) characters and dead key combinations (i.e., "á" if "'" and "a" are
+            pressed in succession).
 
         .. py:attribute:: modifiers
 
-            Any modifier keys pressed, or'ed together. Possible Modifiers are 
+            Any modifier keys pressed, or'ed together. Possible Modifiers are
             :py:const:`KEYMOD_NONE`, :py:const:`KEYMOD_LSHIFT`, :py:const:`KEYMOD_RSHIFT`,
             :py:const:`KEYMOD_LCTRL`, :py:const:`KEYMOD_RCTRL`, :py:const:`KEYMOD_LALT`,
-            :py:const:`KEYMOD_RALT`, :py:const:`KEYMOD_LMETA`, :py:const:`KEYMOD_RMETA`,
-            :py:const:`KEYMOD_NUM`, :py:const:`KEYMOD_CAPS`, :py:const:`KEYMOD_MODE`.
-            Read-only. 
+            :py:const:`KEYMOD_RALT`, :py:const:`KEYMOD_LGUI`, :py:const:`KEYMOD_RGUI`,
+            :py:const:`KEYMOD_NUM`, :py:const:`KEYMOD_CAPS`, :py:const:`KEYMOD_GUI`,
+            :py:const:`KEYMOD_CTRL`, :py:const:`KEYMOD_SHIFT`, and :py:const:`KEYMOD_ALT`.
+            Read-only.
 
         .. py:attribute:: scancode
 
-            The untranslated (hardware-dependent) scancode of the key pressed. 
-            Read-only.
+            A value that represents the physical position of the key on the keyboard.
+            Independent of the keyboard language/layout. Read-only.
 
-        .. py:attribute:: unicode
-
-            Unicode index of the character. Takes into account the current keyboard
-            layout and any modifiers pressed. This attribute is only filled in the
-            :py:const:`KEYDOWN` event. Read-only.
 
     .. autoclass:: MouseEvent(type, leftButtonState, middleButtonState, rightButtonState, pos, button, [speed, when])
 
@@ -348,96 +314,11 @@ Input Handling
             Current speed of the touch in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
 
-        .. py:method:: getContour() -> list
-
-            Returns the contour of the blob as a list of points if supported by the 
-            tracker being used.
-
         .. py:method:: getRelatedEvents() -> events
 
-            Only for DI devices and the internal tracker: Returns a python tuple 
+            Only if supported by the hardware: Returns a python tuple 
             containing the events 'related' to this one. For :py:const:`TOUCH` events 
             (fingers), the tuple contains one element: the corresponding 
             :py:const:`TRACK` event (hand). For :py:const:`TRACK` events,
             the tuple contains all :py:const:`TOUCH` events that belong to the same hand.
-
-    .. autoclass:: Tracker
-
-        A class that uses a camera to track moving objects and delivers the movements 
-        as avg events. Create a tracker by using :py:meth:`Player.enableMultitouch()` with
-        :samp:`AVG_MULTITOUCH_DRIVER=TRACKER`. The properties of this class are explained
-        under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
-        
-        .. py:method:: abortCalibration()
-
-            Aborts coordinate calibration session and restores the previous
-            coordinate transformer.
-
-        .. py:method:: endCalibration()
-
-            Ends coordinate calibration session and activates the coordinate
-            transformer generated.
-
-        .. py:method:: getDisplayROIPos()
-
-        .. py:method:: getDisplayROISize()
-
-        .. py:method:: getImage(imageid) -> Bitmap 
-
-            Returns one of the intermediate images necessary for tracking.
-            These images are only available if setDebugImages was called before
-            with appropriate parameters. Possible :py:attr:`imageid` values are 
-            :py:const:`IMG_CAMERA`, :py:const:`IMG_DISTORTED`, :py:const:`IMG_NOHISTORY`,
-            :py:const:`IMG_HISTOGRAM`, :py:const:`IMG_FINGERS` or 
-            :py:const:`IMG_HIGHPASS`.
-
-        .. py:method:: getParam(element) -> value
-
-            Returns a tracker configuration parameter.
-
-        .. py:method:: resetHistory()
-
-            Throws away the current history image and generates a new one from
-            the next second of images.
-
-        .. py:method:: saveConfig()
-
-            Saves the current tracker configuration to the default config file.
-
-        .. py:method:: setDebugImages(img, finger)
-
-            Controls whether debug images of intermediate tracking results
-            and detected finger positions are generated and exported to
-            python. Generating the debug images takes a moderate amount of
-            time, so it is turned off by default.
-
-            :param img: Whether to generate intermediate result images.
-            :param finger: Whether to generate the :py:const:`IMG_FINGERS` result image.
-
-        .. py:method:: setParam(element, value)
-
-            Sets one of the tracker configuration parameters.
-
-        .. py:method:: startCalibration(displayextents) -> TrackerCalibrator
-
-            Starts coordinate calibration session. The returned 
-            :py:class:`TrackerCalibrator` exists until :py:meth:`endCalibration`
-            or :py:meth:`abortCalibration` is called.
-
-            :param displayextents: The width and height of the display area.
-
-    .. autoclass:: TrackerCalibrator
-
-        Generates a mapping of display points to camera points using a set of reference
-        points. Python code should display reference points that the user must
-        touch to establish a mapping. Created by :py:meth:`Tracker.startCalibration`.
-
-        .. py:method:: getDisplayPoint() -> Point2D
-
-        .. py:method:: nextPoint() -> bool
-
-            Advances to the next point. Returns :py:const:`False` and ends calibration if
-            all points have been set.
-
-        .. py:method:: setCamPoint(pos)
 

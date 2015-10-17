@@ -43,6 +43,7 @@ public:
     void setVolume(float volume);
 
     void fillAudioBuffer(AudioBufferPtr pBuffer);
+    void clearQueue();
 
 private:
     bool processNextMsg(bool bWait);

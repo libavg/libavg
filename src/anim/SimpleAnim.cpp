@@ -22,6 +22,7 @@
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
+#include "../graphics/Color.h"
 #include "../player/Player.h"
 
 using namespace boost;
@@ -104,9 +105,14 @@ bool SimpleAnim::step()
                 glm::vec2 pt = extract<glm::vec2>(curValue);
                 curValue = object(glm::vec2(round(pt.x), round(pt.y)));
             }
+        } else if (isPythonType<Color>(m_StartValue)) {
+            Color start = extract<Color>(m_StartValue);
+            Color end = extract<Color>(m_EndValue);
+            Color curColor = Color::mix(start, end, 1-part);
+            curValue = object(curColor);
         } else {
             throw (Exception(AVG_ERR_TYPE, 
-                    "Animated attributes must be either numbers or Point2D."));
+                    "Animated attributes must be numbers, Point2D or Colors."));
         }
         setValue(curValue);
         return false;
@@ -149,7 +155,7 @@ long long SimpleAnim::calcStartTime()
         }
     } else {
         throw (Exception(AVG_ERR_TYPE, 
-                    "Animated attributes must be either numbers or Point2D."));
+                    "anim.start(keepAttr) only valid for numbers or Point2D."));
     }
     return Player::get()->getFrameTime()-(long long)(part*getDuration());
 }

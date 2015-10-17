@@ -27,6 +27,8 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/GeomHelper.h"
+#include "../base/Triangle.h"
 #include "../graphics/VertexData.h"
 
 #include <cstdlib>
@@ -136,6 +138,30 @@ bool MeshNode::getBackfaceCull() const
 void MeshNode::setBackfaceCull(const bool bBackfaceCull)
 {
     m_bBackfaceCull = bBackfaceCull;
+}
+
+void MeshNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+{
+    if (!reactsToMouseEvents()) {
+        return;
+    }
+
+    for (unsigned int i = 0; i < m_Triangles.size(); i++) {
+
+        Triangle tri(
+                m_VertexCoords[m_Triangles[i].x],
+                m_VertexCoords[m_Triangles[i].y],
+                m_VertexCoords[m_Triangles[i].z]);
+
+        if (m_bBackfaceCull && (!tri.isClockwise())) {
+            continue;
+        }
+
+        if (tri.isInside(pos)) {
+            pElements.push_back(getSharedThis());
+            return;
+        }
+    }
 }
 
 void MeshNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)

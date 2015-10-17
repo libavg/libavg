@@ -29,8 +29,16 @@ class TouchApp(app.MainDiv):
             self.settings.set("app_resolution", "") # use screen resolution
 
     def onInit(self):
+        self.userFrame = avg.ImageNode(href="", size=self.size, parent=self)
         self.subscribe(avg.Node.CURSOR_DOWN, self.__onDown)
         app.instance.debugPanel.toggleTouchVisualization()
+
+    def onFrame(self):
+        try:
+            bmp = player.getTouchUserBmp()
+            self.userFrame.setBitmap(bmp)
+        except RuntimeError:
+            pass
 
     def __onDown(self, event):
 #        if event.source == avg.MOUSE:
@@ -53,5 +61,5 @@ class TouchApp(app.MainDiv):
 
 
 if __name__ == "__main__":
-    app.App().run(TouchApp(), app_resolution="800x600", multitouch_enabled="true")
+    app.App().run(TouchApp(), app_resolution="800x600")
 

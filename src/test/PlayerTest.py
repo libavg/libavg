@@ -102,6 +102,28 @@ class PlayerTestCase(AVGTestCase):
             norm = pt.getNorm()
             self.assertAlmostEqual(pt, avg.Point2D.fromPolar(angle,norm))
 
+    def testColor(self):
+        col = avg.Color("0080FF")
+        self.assertEqual(col, avg.Color(0,128,255))
+        self.assertEqual(col, avg.Color((0,128,255)))
+        self.assertEqual(col, (0,128,255))
+        self.assertEqual(col, "0080FF")
+        self.assertEqual(col.r, 0)
+        self.assertEqual(col.g, 128)
+        self.assertEqual(col.b, 255)
+        self.assertEqual(avg.Color("FF6600"), avg.Color("F60"))
+        col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 1)
+        self.assertEqual(col, avg.Color("FF0000"))
+        col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 0)
+        self.assertEqual(col, avg.Color("0000FF"))
+        self.assertRaises(avg.Exception, lambda: avg.Color("1234567"))
+        self.assertRaises(avg.Exception, lambda: avg.Color("xxx"))
+        self.assertRaises(avg.Exception, lambda: avg.Color("xxxxxx"))
+
+        # Test mixing when saturation==0
+        col = avg.Color.mix(avg.Color("FFFFFF"), avg.Color("FF0000"), 0.5)
+        self.assertEqual(col, avg.Color("FF9E81"))
+
     def testBasics(self):
         def getFramerate():
             framerate = player.getEffectiveFramerate()
@@ -699,11 +721,11 @@ class PlayerTestCase(AVGTestCase):
     def testStopOnEscape(self):
         def pressEscape():
             Helper = player.getTestHelper()
-            escape = 27
-            Helper.fakeKeyEvent(avg.Event.KEY_DOWN, escape, escape, "escape", escape, 
-                    avg.KEYMOD_NONE),
-            Helper.fakeKeyEvent(avg.Event.KEY_UP, escape, escape, "escape", escape, 
-                    avg.KEYMOD_NONE),
+            escape = 41
+            Helper.fakeKeyEvent(avg.Event.KEY_DOWN, escape, "Escape",
+                    avg.KEYMOD_NONE, ""),
+            Helper.fakeKeyEvent(avg.Event.KEY_UP, escape, "Escape",
+                    avg.KEYMOD_NONE, ""),
         
         def testEscape1():
             player.stopOnEscape(False)
@@ -828,14 +850,19 @@ class PlayerTestCase(AVGTestCase):
         self.assertRaises(avg.Exception, lambda: avg.validateXml(brokenXml, schema,
                 "shiporder.xml", "shiporder.xsd"))
 
-    # Not executed due to bug #145 - hangs with some window managers.
-    def testWindowFrame(self):
-        def revertWindowFrame():
-            player.setWindowFrame(True)
+    def testSetWindowTitle(self):
+        self.__initDefaultScene()
+        player.setWindowTitle("title1")
+        self.start(False,
+                (lambda: self.assertRaises(avg.Exception,
+                        lambda: player.setWindowTitle("title2")),
+                ))
 
+    # Used to hang with some window managers (#145).
+    def testWindowFrame(self):
         player.setWindowFrame(False)
         self.__initDefaultScene()
-        self.start(False, [revertWindowFrame])
+        self.start(False, ())
 
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
@@ -864,6 +891,7 @@ class PlayerTestCase(AVGTestCase):
 def playerTestSuite(tests):
     availableTests = (
             "testPoint",
+            "testColor",
             "testBasics",
             "testSetResolution",
             "testColorParse",
@@ -895,6 +923,7 @@ def playerTestSuite(tests):
             "testSVG",
             "testGetConfigOption",
             "testValidateXml",
-#            "testWindowFrame",
+            "testSetWindowTitle",
+            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

@@ -34,20 +34,25 @@ class MyScene(app.MainDiv):
         app.flashmessage.FlashMessage('helloworld! this message will disappear in a bit')
 
         # Displayed when the 'v' key is pressed, again a simple flash message
-        app.keyboardmanager.bindKeyDown('v',
-                lambda: app.flashmessage.FlashMessage('v key pressed'), 'Test me')
+        app.keyboardmanager.bindKeyDown(
+                keyname='V',
+                handler=lambda: app.flashmessage.FlashMessage('v key pressed'),
+                help='Test me')
         
         # This message shows the message in a different color and sends the text to
         # the logger as well
-        app.keyboardmanager.bindKeyDown('b',
-                lambda: app.flashmessage.FlashMessage('this is an error', isError=True),
-                'Test me too')
+        app.keyboardmanager.bindKeyDown(
+                keyname='B',
+                handler=lambda: app.flashmessage.FlashMessage(
+                        'this is an error', isError=True),
+                help='Test me too')
         
         # This message disappears when it's acknowledged with a mouse click
-        app.keyboardmanager.bindKeyDown('n',
-                lambda: app.flashmessage.FlashMessage('persistent, click here to dismiss',
-                        acknowledge=True),
-                'Test me too again')
+        app.keyboardmanager.bindKeyDown(
+                keyname='N',
+                handler=lambda: app.flashmessage.FlashMessage(
+                        'persistent, click here to dismiss', acknowledge=True),
+                help='Test me too again')
         
         libavg.avg.WordsNode(parent=self, pos=(10, 50), fontsize=20,
                 text='Press the keys: v, b, n')

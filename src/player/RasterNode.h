@@ -80,6 +80,8 @@ class AVG_API RasterNode: public AreaNode
         const UTF8String& getMaskHRef() const;
         void setMaskHRef(const UTF8String& sHref);
 
+        void setMaskBitmap(BitmapPtr pBmp);
+
         const glm::vec2& getMaskPos() const;
         void setMaskPos(const glm::vec2& pos);
 
@@ -110,6 +112,7 @@ class AVG_API RasterNode: public AreaNode
 
         virtual OGLSurface * getSurface();
         bool hasMask() const;
+        const BitmapPtr getMaskBmp() const;
         void setMaskCoords();
         void setRenderColor(const Pixel32& color);
 

@@ -197,35 +197,36 @@ class WordsTestCase(AVGTestCase):
     def testWordsMask(self):
         def setMask():
             try:
-                node.maskhref = "mask1.png"
+                node.maskhref = "mask4.png"
+                self.rect = avg.RectNode(pos=(0.5, 0.5), size=(64, 64), parent=root)
             except avg.Exception:
                 self.skip("no shader support")
                 player.stop()
-           
+
+        def setPos():
+            self.rect.unlink()
+            node.maskpos = (40, 40)
+            node.masksize = (80, 60)
+            avg.RectNode(pos=(39.5, 39.5), size=(80, 60), parent=root)
+            avg.RectNode(pos=(0.5, 0.5), size=(159, 100), parent=root)
+
         def setColor():
             node.color = "FFFF00"
+            self.assertEqual(node.color, "FFFF00")
+            node.color = avg.Color(255,255,0)
+            node.color = (255,255,0)
 
         def setOpacity():
             node.opacity = 0.5
 
-        def setSize():
-            rect = avg.RectNode(pos=(39.5, 30.5), size=(80, 60))
-            root.appendChild(rect)
-            node.masksize = (160, 120)
-            node.opacity = 1 
-
-        def setPos():
-            node.pos = (40, 20)
-            node.maskpos = (-40, -20)
-
-        def setDefaultSize():
-            node.masksize = (0,0)
-
         def setCentered():
             node.alignment = "center"
-            node.masksize = (160, 120)
-            node.pos = (80,20)
-            node.maskpos = (0, -20)
+            node.pos = (80, 0)
+            node.maskpos = (-40, 40)
+            node.masksize = (80, 60)
+
+        def setMaskBitmap():
+            node.setMaskBitmap(avg.Bitmap("media/mask2.png"))
 
         root = self.loadEmptyScene()
         node = avg.WordsNode(fontsize=8, linespacing=-4, font="Bitstream Vera Sans",
@@ -243,18 +244,16 @@ class WordsTestCase(AVGTestCase):
         self.start(True,
                 (setMask,
                  lambda: self.compareImage("testWordsMask1"),
-                 setColor,
-                 lambda: self.compareImage("testWordsMask2"),
-                 setOpacity,
-                 lambda: self.compareImage("testWordsMask3"),
-                 setSize,
-                 lambda: self.compareImage("testWordsMask4"),
                  setPos,
-                 lambda: self.compareImage("testWordsMask5"),
-                 setDefaultSize,
-                 lambda: self.compareImage("testWordsMask6"),
+                 lambda: self.compareImage("testWordsMask2"),
+                 setColor,
+                 lambda: self.compareImage("testWordsMask3"),
+                 setOpacity,
+                 lambda: self.compareImage("testWordsMask4"),
                  setCentered,
-                 lambda: self.compareImage("testWordsMask7"),
+                 lambda: self.compareImage("testWordsMask5"),
+                 setMaskBitmap,
+                 lambda: self.compareImage("testWordsMask6"),
                 ))
 
     def testHinting(self):
@@ -461,11 +460,17 @@ class WordsTestCase(AVGTestCase):
                 ))
 
     def testWordsBR(self):
+        def addSpaces():
+            node.text = "paragraph 1<br  />paragraph 2"
+
         root = self.loadEmptyScene()
-        avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans", variant="roman",
-               text="paragraph 1<br/>paragraph 2", parent=root)
+        node = avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", text="paragraph 1<br/>paragraph 2", parent=root)
         self.start(True, 
-                [lambda: self.compareImage("testWordsBR")])
+                [lambda: self.compareImage("testWordsBR"),
+                 addSpaces,
+                 lambda: self.compareImage("testWordsBR")
+                ])
 
     def testLetterSpacing(self):
         def setSpacing():
@@ -553,29 +558,6 @@ class WordsTestCase(AVGTestCase):
                  lambda: self.assert_(testInside(True)),
                  lambda: click((156,60)),
                  lambda: self.assert_(testInside(False)),
-                ))
-
-    def testInvalidColor(self):
-        def testColor(col):
-            avg.WordsNode(color=col)
-        
-        def assignValidColor():
-            testColor('123456')
-        
-        def assignInvalidColor1():
-            testColor('1234567')
-        
-        def assignInvalidColor2():
-            testColor('xxx')
-        
-        def assignInvalidColor3():
-            testColor('xxxxxx')
-
-        self.loadEmptyScene()
-        self.start(True, 
-                (self.assertRaises(avg.Exception, assignInvalidColor1),
-                 self.assertRaises(avg.Exception, assignInvalidColor2),
-                 self.assertRaises(avg.Exception, assignInvalidColor3),
                 ))
 
     def testFontDir(self):
@@ -686,7 +668,6 @@ def wordsTestSuite(tests):
             "testWordsBR",
             "testLetterSpacing",
             "testPositioning",
-            "testInvalidColor",
             "testFontDir",
             "testGetNumLines",
             "testGetLineExtents",

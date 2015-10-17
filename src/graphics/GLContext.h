@@ -31,8 +31,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
-struct SDL_SysWMinfo;
-
 namespace avg {
 
 class GLContext;
@@ -78,8 +76,8 @@ public:
     bool isRenderer(const std::string& sWantedRenderer) const;
     virtual bool useDepthBuffer() const;
 
-    virtual bool initVBlank(int rate)=0;
-    virtual void swapBuffers();
+    virtual bool initVBlank(int rate);
+    virtual void swapBuffers() = 0;
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
@@ -137,7 +135,7 @@ private:
     static bool s_bErrorCheckEnabled;
     static bool s_bErrorLogEnabled;
 
-    static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
+    static GLContext* s_pCurrentContext;
 };
 
 }

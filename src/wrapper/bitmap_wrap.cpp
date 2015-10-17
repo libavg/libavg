@@ -28,6 +28,7 @@
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/FilterResizeBilinear.h"
 #include "../graphics/ImageCache.h"
+#include "../graphics/Color.h"
 
 #include "../base/CubicSpline.h"
 #include "../base/GeomHelper.h"
@@ -223,8 +224,8 @@ void export_bitmap()
         .def(init<float, float>())
         .def(init<const glm::vec2&>())
         .def("__setitem__", &Vec2Helper::setItem)
-        .add_property("x", &Vec2Helper::getX, &Vec2Helper::setX,"")
-        .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY,"")
+        .add_property("x", &Vec2Helper::getX, &Vec2Helper::setX, "")
+        .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY, "")
     ;
 
     export_point<ConstVec2>("ConstPoint2D")
@@ -234,6 +235,21 @@ void export_bitmap()
 
     implicitly_convertible<ConstVec2, glm::vec2>();
     implicitly_convertible<glm::vec2, ConstVec2>();
+
+    class_<Color, boost::shared_ptr<Color> >("Color", no_init)
+        .def(init<string>())
+        .def(init<unsigned char, unsigned char, unsigned char>())
+        .def(init<const glm::vec3&>())
+        .add_property("r", &Color::getR, "")
+        .add_property("g", &Color::getG, "")
+        .add_property("b", &Color::getB, "")
+        .def(self == self)
+        .def(self != self)
+        .def("mix", &Color::mix)
+        .staticmethod("mix")
+    ;
+    implicitly_convertible<glm::vec3, Color>();
+    implicitly_convertible<string, Color>();
 
     enum_<PixelFormat>("pixelformat")
         .value("B5G6R5", B5G6R5)

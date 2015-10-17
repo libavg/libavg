@@ -90,7 +90,7 @@ void main(void)
     rgba = max(rgba, vec4(0.,0.,0.,0.));
     rgba = pow(rgba, u_Gamma);
     if (u_bUseMask) {
-        float mask = texture2D(u_MaskTexture, (v_TexCoord/u_MaskSize)-u_MaskPos).r;
+        float mask = texture2D(u_MaskTexture, ((v_TexCoord-u_MaskPos)/u_MaskSize)).r;
         if (u_bPremultipliedAlpha) {
             rgba.rgb *= mask;
         }

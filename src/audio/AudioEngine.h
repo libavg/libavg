@@ -30,9 +30,10 @@
 #include "AudioBuffer.h"
 #include "IProcessor.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <boost/thread/mutex.hpp>
+#include <boost/thread.hpp>
 
 #include <map>
 
@@ -72,6 +73,7 @@ class AVG_API AudioEngine
         
     private:
         void mixAudio(Uint8 *pDestBuffer, int destBufferLen);
+        void consumeBuffers();
         static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
         void addBuffers(float *pDest, AudioBufferPtr pSrc);
         void calcVolume(float *pBuffer, int numSamples, float volume);
@@ -81,6 +83,12 @@ class AVG_API AudioEngine
         float * m_pMixBuffer;
         IProcessor<float>* m_pLimiter;
         boost::mutex m_Mutex;
+
+        // Reads all audio packets when we can't initialize audio so the
+        // queues get flushed.
+        bool m_bFakeAudio;
+        boost::thread* m_pGobblerThread;
+        bool m_bStopGobbler;
 
         bool m_bEnabled;
         AudioSourceMap m_AudioSources;

@@ -210,6 +210,21 @@ class AnimTestCase(AVGTestCase):
                 endPosImgSrc="testYPosPointAnim2",
                 keepAttrPosImgSrc="testYPosPointAnim3")
 
+    def testColorAnim(self):
+        root = self.loadEmptyScene()
+        self.__node = avg.RectNode(pos=(30,30), size=(60,60), fillopacity=1.0,
+                fillcolor="FF0000", strokewidth=0, parent=root)
+        self.__anim = avg.LinearAnim(self.__node, "fillcolor", 1000, "FF0000", "0000FF")
+        player.setFakeFPS(10)
+        self.start(False,
+                (lambda: self.compareImage("testColorAnim1"),
+                 self.__anim.start,
+                 lambda: self.delay(400),
+                 lambda: self.compareImage("testColorAnim2"),
+                 lambda: self.delay(500),
+                 lambda: self.compareImage("testColorAnim3"),
+                ))
+
     def testIntAnim(self):
         self.initScene()
         self.__doubleAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100, True)
@@ -531,6 +546,7 @@ def animTestSuite(tests):
         "testXPosPointAnim",
         "testYPosPointAnim",
         "testEaseInOutAnim",
+        "testColorAnim",
         "testIntAnim",
         "testContinuousAnim",
         "testWaitAnim",

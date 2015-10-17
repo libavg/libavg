@@ -25,6 +25,7 @@
 #include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
+#include "Color.h"
 #include "Filtercolorize.h"
 #include "Filtergrayscale.h"
 #include "Filterfill.h"
@@ -33,9 +34,7 @@
 #include "Filterflipuv.h"
 #include "Filter3x3.h"
 #include "FilterConvol.h"
-#include "HistoryPreProcessor.h"
 #include "FilterHighpass.h"
-#include "FilterFastBandpass.h"
 #include "FilterGauss.h"
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
@@ -102,7 +101,6 @@ BitmapPtr initBmp(PixelFormat pf)
     return pBmp;
 }
 
-// TODO: This is very incomplete!
 class PixelTest: public GraphicsTest {
 public:
     PixelTest()
@@ -134,6 +132,71 @@ public:
     }
 };
 
+class ColorTest: public GraphicsTest {
+public:
+    ColorTest()
+      : GraphicsTest("ColorTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        Color c("F80");
+        TEST(c == Color(255,136,0));
+        c = Color("FF8000");
+        TEST(c == Color(255,128,0));
+        TEST(c == Color(glm::vec3(255,128,0)));
+        TEST(c.getR() == 255);
+        TEST(c.getG() == 128);
+        TEST(c.getB() == 0);
+        TEST(c == string("FF8000"));
+        TEST_EXCEPTION(Color c1("foo"), Exception);
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            LabColor lab = XYZ2Lab(xyz);
+            xyz = Lab2XYZ(lab);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
+        {
+            XYZColor xyz = RGB2XYZ(c);
+            LabColor lab = XYZ2Lab(xyz);
+            LchColor lch = Lab2Lch(lab);
+            lab = Lch2Lab(lch);
+            xyz = Lab2XYZ(lab);
+            Color c1 = XYZ2RGB(xyz);
+            TEST(c == c1);
+        }
+        {
+            LchColor lch = RGB2Lch(c);
+            Color c1 = Lch2RGB(lch);
+            TEST(c == c1);
+        }
+        {
+            Color c2("4080C0");
+            LchColor lch = RGB2Lch(c2);
+            Color c1 = Lch2RGB(lch);
+            TEST(c2 == c1);
+        }
+        {
+            Color c1("FF0000");
+            Color c2("00FF00");
+            Color mix = Color::mix(c1, c2, 0);
+            TEST(mix == c2);
+            mix = Color::mix(c1, c2, 1);
+            TEST(mix == c1);
+            mix = Color::mix(c1, c2, 0.5);
+            TEST(mix == Color("d7a700"))
+        }
+    }
+
+};
+
 class BitmapTest: public GraphicsTest {
 public:
     BitmapTest()
@@ -150,9 +213,6 @@ public:
         runPFTests(I8);
         runPFTests(I16);
         runPFTests(YCbCr422);
-        runLineTest(B8G8R8A8, Pixel32(0,0,255,255));
-        runLineTest(B8G8R8, Pixel24(0,0,255));
-        runLineTest(I8, Pixel8(255));
 
         cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
@@ -301,26 +361,6 @@ private:
         testEqual(*pLoadedBmp, *pBmp, "BmpSave");
     }
 
-    template<class PIXEL>
-    void runLineTest(PixelFormat pf, PIXEL color)
-    {
-        cerr << "    Testing line drawing for " << pf << endl;
-        Bitmap bmp(IntPoint(15, 15), pf);
-        memset(bmp.getPixels(), 0, bmp.getStride()*15);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 0, 2), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 0,12), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 2, 0), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint( 2,14), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(12, 0), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(12,14), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), color);
-        bmp.drawLine(IntPoint(7,7), IntPoint(14,12), color);
-        string sFName = getSrcDirName() + "baseline/LineResult" + getPixelFormatString(pf)
-                + ".png";
-        BitmapPtr pBaselineBmp = loadBitmap(sFName, pf);
-        testEqual(bmp, *pBaselineBmp, "BmpLineDraw");
-    }
-    
     void testCopyToGreyscale(PixelFormat pf)
     {
         cerr << "    Testing copyPixels - " << pf << "->I8." << endl;
@@ -685,47 +725,6 @@ private:
     }
 };
     
-class HistoryPreProcessorTest: public GraphicsTest {
-public:
-    HistoryPreProcessorTest()
-        : GraphicsTest("HistoryPreProcessor", 2)
-    {
-    }
-
-    void runTests() 
-    {
-        BitmapPtr pBaseBmp = initBmp(I8);
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(*pBaseBmp));
-        BitmapPtr nullBmp = FilterFill<Pixel8>(0).apply(pBmp);
-        pBmp->copyPixels(*pBaseBmp);
-        HistoryPreProcessor filt(pBaseBmp->getSize(), 1, true);
-        pBmp = filt.apply(pBaseBmp);
-        testEqual(*pBmp, *nullBmp, "HistoryPreprocessor1");
-        for(int i=0;i<1;i++){
-            pBmp = filt.apply(pBaseBmp);
-            testEqual(*pBmp, *nullBmp, "HistoryPreprocessor2");
-        }
-    }
-
-};
-    
-class FilterFastBandpassTest: public GraphicsTest {
-public:
-    FilterFastBandpassTest()
-        : GraphicsTest("FilterFastBandpassTest", 2)
-    {
-    }
-
-    void runTests()
-    {
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
-        FilterFill<Pixel8>(0).applyInPlace(pBmp);
-        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
-        BitmapPtr pDestBmp = FilterFastBandpass().apply(pBmp);
-        testEqual(*pDestBmp, "FastBandpassResult", I8);
-    }
-};
-
 
 class FilterHighpassTest: public GraphicsTest {
 public:
@@ -1011,6 +1010,7 @@ public:
         : TestSuite("GraphicsTestSuite")
     {
         addTest(TestPtr(new PixelTest));
+        addTest(TestPtr(new ColorTest));
         addTest(TestPtr(new BitmapTest));
         addTest(TestPtr(new Filter3x3Test));
         addTest(TestPtr(new FilterConvolTest));
@@ -1021,12 +1021,10 @@ public:
         addTest(TestPtr(new FilterFlipRGBTest));
         addTest(TestPtr(new FilterFlipUVTest));
         addTest(TestPtr(new FilterComboTest));
-        addTest(TestPtr(new HistoryPreProcessorTest));
         addTest(TestPtr(new FilterHighpassTest));
         addTest(TestPtr(new FilterGaussTest));
         addTest(TestPtr(new FilterBlurTest));
         addTest(TestPtr(new FilterBandpassTest));
-        addTest(TestPtr(new FilterFastBandpassTest));
         addTest(TestPtr(new FilterFastDownscaleTest));
         addTest(TestPtr(new FilterMaskTest));
         addTest(TestPtr(new FilterThresholdTest));

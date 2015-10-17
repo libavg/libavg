@@ -27,6 +27,7 @@
 #include "../graphics/Bitmap.h"
 
 #include <dlfcn.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -92,8 +93,14 @@ VdpDevice getVDPAUDevice()
         return 0;
     }
     VdpStatus status;
+    // Redirect stderr to /dev/null temporarily to prevent libvdpau console spam.
+    int devNullFile = open("/dev/null", O_WRONLY);
+    int stderrFile = dup(fileno(stderr));
+    dup2(devNullFile, STDERR_FILENO);
     status = vdp_device_create_x11(pXDisplay, DefaultScreen(pXDisplay), &vdpDevice, 
             &vdp_get_proc_address);
+    dup2(stderrFile, STDERR_FILENO);
+    close(stderrFile);
     if (status != VDP_STATUS_OK)
     {
         bInitFailed = true;

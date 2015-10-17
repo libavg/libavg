@@ -42,6 +42,7 @@ class AVG_API SecondaryWindow: public Window
         virtual ~SecondaryWindow();
 
         virtual void setTitle(const std::string& sTitle);
+        void swapBuffers() const;
 
         virtual std::vector<EventPtr> pollEvents();
 

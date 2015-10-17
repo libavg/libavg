@@ -37,8 +37,8 @@ class AsyncLoadDiv(app.MainDiv):
         self.__pics = sys.argv[1:]
         self.__currentPic = -1
         player.subscribe(player.ON_FRAME, self.__onFrame)
-        app.keyboardmanager.bindKeyDown(keystring="space", handler=self.__requestNextBitmap,
-                help="Request next bitmap")
+        app.keyboardmanager.bindKeyDown(keyname="Space",
+                handler=self.__requestNextBitmap, help="Request next bitmap")
     
     def __requestNextBitmap(self):
         '''

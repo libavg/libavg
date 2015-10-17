@@ -26,7 +26,7 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <iostream>
 
@@ -78,34 +78,11 @@ void CGLContext::activate()
     setCurrent();
 }
 
-bool CGLContext::initVBlank(int rate) 
+void CGLContext::swapBuffers()
 {
-    if (rate > 0) {
-        initMacVBlank(rate);
-        return true;
-    } else {
-        initMacVBlank(0);
-        return false;
-    }
+    CGLFlushDrawable(m_Context);
+    GLContext::checkError("swapBuffers()");
 }
 
-void CGLContext::initMacVBlank(int rate)
-{
-    CGLContextObj context = CGLGetCurrentContext();
-    AVG_ASSERT (context);
-#if MAC_OS_X_VERSION_10_5
-    GLint l = rate;
-#else
-    long l = rate;
-#endif
-    if (rate > 1) {
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::WARNING,
-                "VBlank rate set to " << rate 
-                << " but Mac OS X only supports 1. Assuming 1.");
-        l = 1;
-    }
-    CGLError err = CGLSetParameter(context, kCGLCPSwapInterval, &l);
-    AVG_ASSERT(!err);
-}
 
 }

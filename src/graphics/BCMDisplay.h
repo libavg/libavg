@@ -21,22 +21,27 @@
 #ifndef _BCMDisplay_H_
 #define _BCMDisplay_H_
 
-#include <bcm_host.h>
-
 #include "../api.h"
 
+#include "Display.h"
 #include "../base/GLMHelper.h"
-
 #include "OGLHelper.h"
 
-struct SDL_SysWMinfo;
+#include <bcm_host.h>
 
 namespace avg {
 
-DISPMANX_DISPLAY_HANDLE_T getBCMDisplay(const SDL_SysWMinfo* pSDLWMInfo);
+class AVG_API BCMDisplay: public Display
+{
+public:
+    BCMDisplay();
+    virtual ~BCMDisplay();
+ 
+protected:
+    virtual float queryPPMM();
+};
 
-EGL_DISPMANX_WINDOW_T* createChildWindow(const SDL_SysWMinfo* pSDLWMInfo,
-        EGLNativeDisplayType bcmDisplay, const IntPoint& windowSize);
+DISPMANX_DISPLAY_HANDLE_T getBCMDisplay();
 
 EGLSurface createBCMPixmapSurface(EGLDisplay display, EGLConfig config);
 

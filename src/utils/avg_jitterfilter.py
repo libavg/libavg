@@ -108,5 +108,5 @@ if __name__ == "__main__":
     app.App().run(JitterFilter(),
             app_resolution="800x600",
             app_show_cursor="true",
-            multitouch_enabled="true")
+            tuio_enabled="true")
 

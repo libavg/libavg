@@ -25,6 +25,7 @@
 #include "../base/ProfilingZoneID.h"
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
+#include "../video/VideoDecoder.h"
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 18, 102)
     typedef CodecID AVCodecID;
@@ -34,7 +35,10 @@ using namespace std;
 
 namespace avg {
 
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
 const unsigned int VIDEO_BUFFER_SIZE = 400000;
+#endif
+
 const AVPixelFormat STREAM_PIXEL_FORMAT = ::PIX_FMT_YUVJ420P;
 
 VideoWriterThread::VideoWriterThread(CQueue& cmdQueue, const string& sFilename,
@@ -75,6 +79,7 @@ void VideoWriterThread::close()
 {
     if (m_pOutputFormatContext) {
         av_write_trailer(m_pOutputFormatContext);
+        lock_guard lock(VideoDecoder::s_OpenMutex);
         avcodec_close(m_pVideoStream->codec);
 
         for (unsigned int i=0; i<m_pOutputFormatContext->nb_streams; i++) {
@@ -90,7 +95,9 @@ void VideoWriterThread::close()
         }
 
         av_free(m_pOutputFormatContext);
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
         av_free(m_pVideoBuffer);
+#endif
         av_free(m_pConvertedFrame);
         av_free(m_pPictureBuffer);
         sws_freeContext(m_pFrameConversionContext);
@@ -117,6 +124,7 @@ void VideoWriterThread::deinit()
 
 void VideoWriterThread::open()
 {
+    lock_guard lock(VideoDecoder::s_OpenMutex);
     av_register_all(); // TODO: make sure this is only done once. 
 //    av_log_set_level(AV_LOG_DEBUG);
     m_pOutputFormat = av_guess_format(0, m_sFilename.c_str(), 0);
@@ -139,10 +147,12 @@ void VideoWriterThread::open()
 
     openVideoCodec();
 
+#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
     m_pVideoBuffer = NULL;
     if (!(m_pOutputFormatContext->oformat->flags & AVFMT_RAWPICTURE)) {
         m_pVideoBuffer = (unsigned char*)(av_malloc(VIDEO_BUFFER_SIZE));
     }
+#endif
 
     if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
         int retVal = avio_open(&m_pOutputFormatContext->pb, m_sFilename.c_str(),

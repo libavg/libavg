@@ -36,6 +36,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/Color.h"
 
 #include <object.h>
 #include <compile.h>
@@ -211,7 +212,7 @@ void AreaNode::setElementOutlineColor(const std::string& sColor)
     if (sColor == "") {
         m_ElementOutlineColor = Pixel32(0,0,0,0);
     } else {
-        m_ElementOutlineColor = colorStringToColor(m_sElementOutlineColor);
+        m_ElementOutlineColor = Color(m_sElementOutlineColor);
     }
 }
 

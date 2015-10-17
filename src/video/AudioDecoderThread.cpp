@@ -134,7 +134,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
     pDecodedFrame = avcodec_alloc_frame();
     while (pTempPacket->size > 0) {
         int gotFrame = 0;
-        int bytesDecoded = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+        int bytesDecoded;
         int bytesConsumed = avcodec_decode_audio4(m_pStream->codec, pDecodedFrame,
                 &gotFrame, pTempPacket);
         if (gotFrame) {
@@ -167,8 +167,8 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
                         FF_INPUT_BUFFER_PADDING_SIZE);
-                planarToInterleaved(pPackedData, pDecodedData, m_pStream->codec->channels,
-                        m_pStream->codec->frame_size);
+                planarToInterleaved(pPackedData, pDecodedFrame, m_pStream->codec->channels,
+                        framesDecoded);
                 pBuffer = resampleAudio(pPackedData, framesDecoded,
                         av_get_packed_sample_fmt((AVSampleFormat)m_InputSampleFormat));
                 av_free(pPackedData);
@@ -278,7 +278,7 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
     return pBuffer;
 }
 
-void AudioDecoderThread::planarToInterleaved(char* pOutput, char* pInput, int numChannels,
+void AudioDecoderThread::planarToInterleaved(char* pOutput, AVFrame* pInputFrame, int numChannels,
         int numSamples)
 {
     AVG_ASSERT(numChannels <= 8);
@@ -291,7 +291,7 @@ void AudioDecoderThread::planarToInterleaved(char* pOutput, char* pInput, int nu
     int bytesPerSample = getBytesPerSample(m_InputSampleFormat);
     char * pPlanes[8] = {};
     for (i=0; i<numChannels; i++) {
-        pPlanes[i] = pInput + i*(numSamples*bytesPerSample);
+        pPlanes[i] = (char*)(pInputFrame->data[i]);
     }
     for (i=0; i<numSamples; i++) {
         for (j=0; j<numChannels; j++) {

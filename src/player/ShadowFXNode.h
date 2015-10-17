@@ -26,6 +26,7 @@
 
 #include "FXNode.h"
 #include "../graphics/GPUShadowFilter.h"
+#include "../graphics/Color.h"
 #include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
@@ -36,7 +37,7 @@ namespace avg {
 class AVG_API ShadowFXNode: public FXNode {
 public:
     ShadowFXNode(glm::vec2 offset=glm::vec2(0,0), float radius=1.f, float opacity=1.f,
-            std::string sColor="FFFFFF");
+            Color color=Color("FFFFFF"));
     virtual ~ShadowFXNode();
 
     virtual void connect();
@@ -48,8 +49,8 @@ public:
     float getRadius() const;
     void setOpacity(float opacity);
     float getOpacity() const;
-    void setColor(const std::string& sColor);
-    std::string getColor() const;
+    void setColor(const Color& sColor);
+    Color getColor() const;
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
@@ -60,8 +61,7 @@ private:
     glm::vec2 m_Offset;
     float m_StdDev;
     float m_Opacity;
-    std::string m_sColorName;
-    Pixel32 m_Color;
+    Color m_Color;
 };
 
 typedef boost::shared_ptr<ShadowFXNode> ShadowFXNodePtr;

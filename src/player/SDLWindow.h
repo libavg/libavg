@@ -24,47 +24,59 @@
 #define _SDLWindow_H_
 
 #include "../api.h"
+#include "../avgconfigwrapper.h"
 #include "Window.h"
-#include "DisplayParams.h"
-#include "Event.h"
+#include "KeyEvent.h"
 
 #include "../graphics/GLConfig.h"
+#include "../base/Rect.h"
 
+#include <SDL2/SDL.h>
 #include <boost/shared_ptr.hpp>
-
-union SDL_Event;
+#include <string>
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 namespace avg {
 
-class XInputMTInputDevice;
-class MouseEvent;
-typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
-class Bitmap;
-typedef boost::shared_ptr<class Bitmap> BitmapPtr;
+class SDLTouchInputDevice;
+typedef boost::shared_ptr<SDLTouchInputDevice> SDLTouchInputDevicePtr;
 
 class AVG_API SDLWindow: public Window
 {
     public:
-        SDLWindow(const DisplayParams& dp, GLConfig glConfig);
-        ~SDLWindow();
+        SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig glConfig);
+        virtual ~SDLWindow();
 
+        void setTouchHandler(SDLTouchInputDevicePtr pInputDevice);
+        bool hasTouchHandler() const;
         void setTitle(const std::string& sTitle);
         void swapBuffers() const;
 
         std::vector<EventPtr> pollEvents();
-        void setXIMTInputDevice(XInputMTInputDevice* pInputDevice);
+        void setMousePos(const IntPoint& pos);
+        void setGamma(float red, float green, float blue);
+#ifdef _WIN32
+        HWND getWinHWnd();
+#endif
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+        virtual ::Display* getX11Display();
+        virtual ::Window getX11Window();
+#endif
 
     private:
-        void initTranslationTable();
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
-        
+        KeyEventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
+
+        SDL_Window* m_pSDLWindow;
+        SDL_GLContext m_SDLGLContext;
+
         // Event handling.
         glm::vec2 m_LastMousePos;
-        XInputMTInputDevice * m_pXIMTInputDevice;
-        static std::vector<long> s_KeyCodeTranslationTable;
+        SDLTouchInputDevicePtr m_pTouchInputDevice;
 };
 
 typedef boost::shared_ptr<SDLWindow> SDLWindowPtr;

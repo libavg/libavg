@@ -57,11 +57,18 @@ class AVG_API PolygonNode : public FilledVectorNode
         virtual void calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
     private:
+        void triangulate();
+
         Vec2Vector m_Pts;
+        std::vector<int> m_TriIndexes;
+        Vec2Vector m_ExtraPts;
+
         std::vector<float> m_CumulDist;
         std::vector<float> m_TexCoords;
         std::vector<float> m_EffTexCoords;
         LineJoin m_LineJoin;
+
+        bool m_bPtsChanged;
 };
 
 }

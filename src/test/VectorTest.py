@@ -467,6 +467,12 @@ class VectorTestCase(AVGTestCase):
             polygon.pos = ( (35,0), (55,10), (65,30), (65,50), (55,60), (45,50), (45,30),
                     (35,30), (25,30), (25,50), (15,60), (5,50), (5,30), (15,10) )
 
+        def createSelfIntersectingPolygon():
+            polygon.pos = ( (10,10), (50,10), (10,50), (50,50) )
+
+        def createDegeneratePolygon():
+            polygon.pos = ((10,10), (10, 10), (50,10), (90,50), (90, 90))
+
         def clearCanvas():
             for i in xrange(canvas.getNumChildren()-1):
                 dell = canvas.getChild(i)
@@ -498,30 +504,12 @@ class VectorTestCase(AVGTestCase):
                  createUpOpenPolygon,
                  lambda: self.compareImage("testPolygon8"),
                  createBottomOpenPolygon,
-                 lambda: self.compareImage("testPolygon9")
+                 lambda: self.compareImage("testPolygon9"),
+                 createSelfIntersectingPolygon,
+                 lambda: self.compareImage("testPolygon10"),
+                 createDegeneratePolygon,
+                 lambda: self.compareImage("testPolygon11")
                 ))
-
-    def testBrokenPolygon(self):
-        def createDegenerate():
-            avg.PolygonNode(pos=((10,20), (10,20), (10,20)), parent=canvas)
-            avg.PolygonNode(pos=((10,20), (10,20), (20,30)), parent=canvas)
-            avg.PolygonNode(pos=((20,30), (10,20), (10,20)), parent=canvas)
-            avg.PolygonNode(pos=((10,20), (20,30), (10,20)), parent=canvas)
-            avg.PolygonNode(pos=((10,20), (10,30), (10,40)), parent=canvas)
-            avg.PolygonNode(pos=((20,10), (30,10), (40,10)), parent=canvas)
-            avg.PolygonNode(pos=((0,0), (200,0), (0,0), (0,200)), parent=canvas)
-
-        def createSelfIntersecting():
-            avg.PolygonNode(pos=((0,0), (200,0), (200,100), (0,0), (100,200), (0,200)),
-                    parent=canvas)
-        
-        canvas = self.makeEmptyCanvas()
-        createDegenerate()
-        self.assertRaises(avg.Exception,
-            lambda: self.start(False,
-                    (createSelfIntersecting,
-                    ))
-            )
 
     def testTexturedPolygon(self):
         def texturePolygon():
@@ -579,7 +567,7 @@ class VectorTestCase(AVGTestCase):
         
         def changeCircle():
             circle.color="FF0000"
-            circle.fillcolor=u"FFFFFF"
+            circle.fillcolor="FFFFFF"
             circle.fillopacity=0.5
             circle.strokewidth=3
         
@@ -630,6 +618,7 @@ class VectorTestCase(AVGTestCase):
                     vertexcoords=((0,0), (64,0), (0,64), (64, 64),(32, 32)),
                     texcoords=((0,0),(1,0),(0,1),(1,1),(0.5,0.5)),
                     triangles=((0,1,4),(1,3,4),(3,2,4),(2,0,4)))
+            mesh.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             div.appendChild(mesh)
             div.x = 50
             div.y = 30
@@ -673,8 +662,15 @@ class VectorTestCase(AVGTestCase):
             mesh.texcoords = ((100,0),(1,0),(0,1),(1,1),(0.5,0.5), (1.0,1.0))
             
         def setIllegalIndexes():
-            mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4)) 
-        
+            mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4))
+
+        def onMouseDown(event):
+            self.__mouseDownCalled = True
+
+        def resetMouseDown():
+            self.__mouseDownCalled = False
+
+        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         mesh = addMesh()
         self.assertRaises(avg.Exception, setIllegalVertexes)
@@ -695,7 +691,19 @@ class VectorTestCase(AVGTestCase):
                  setBackfaceCullTrue,
                  lambda: self.compareImage("testMesh7"),
                  setBackfaceCullFalse,
-                 lambda: self.compareImage("testMesh8")
+                 lambda: self.compareImage("testMesh8"),
+                 setBackfaceCullTrue,
+                 lambda: self.fakeClick(62, 62),
+                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: self.fakeClick(94, 62),
+                 lambda: self.assert_(self.__mouseDownCalled),
+                 setBackfaceCullFalse,
+                 resetMouseDown,
+                 lambda: self.fakeClick(62, 62),
+                 lambda: self.assert_(self.__mouseDownCalled),
+                 resetMouseDown,
+                 lambda: self.fakeClick(94, 62),
+                 lambda: self.assert_(self.__mouseDownCalled)
                 ))
 
     def testInactiveVector(self):
@@ -742,7 +750,6 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
-            "testBrokenPolygon",
             "testTexturedPolygon",
             "testPointInPolygon",
             "testCircle",

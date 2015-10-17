@@ -129,7 +129,12 @@ void GLTexture::generateMipmaps()
 
 void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
-    TextureMoverPtr pMover = TextureMover::create(getSize(), getPF(), GL_DYNAMIC_DRAW);
+    unsigned usage = GL_DYNAMIC_DRAW;
+    if (getPF() == A8 && m_pContext->isVendor("ATI")) {
+        // Workaround for https://github.com/libavg/libavg/issues/687
+        usage = GL_STATIC_DRAW;
+    }
+    TextureMoverPtr pMover = TextureMover::create(getSize(), getPF(), usage);
     pMover->moveBmpToTexture(pBmp, *this);
 }
 

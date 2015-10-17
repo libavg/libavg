@@ -29,17 +29,27 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
+#include "../base/OSHelper.h"
+
+#include <SDL2/SDL.h>
 
 #include <iostream>
 #include <stdio.h>
 
+#ifndef AVG_ENABLE_EGL
+    #ifdef __APPLE__
+        #include <OpenGL/glu.h>
+    #else
+        #include <GL/glu.h>
+    #endif
+#endif
 
 namespace avg {
 
 using namespace std;
 using namespace boost;
 
-thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+GLContext* GLContext::s_pCurrentContext;
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
@@ -52,8 +62,9 @@ GLContext::GLContext(const IntPoint& windowSize)
       m_BlendMode(BLEND_ADD),
       m_MajorGLVersion(-1)
 {
-    if (s_pCurrentContext.get() == 0) {
-        s_pCurrentContext.reset(new (GLContext*));
+    string sVal;
+    if (getEnv("AVG_ENABLE_GL_ERROR_CHECKS", sVal)) {
+        enableErrorChecks(true);
     }
     GLContextManager::get()->registerContext(this);
 }
@@ -138,8 +149,8 @@ void GLContext::deleteObjects()
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
     m_FBOIDs.clear();
-    if (*s_pCurrentContext == this) {
-        *s_pCurrentContext = 0;
+    if (s_pCurrentContext == this) {
+        s_pCurrentContext = 0;
     }
 }
 
@@ -156,7 +167,7 @@ bool GLContext::ownsContext() const
 
 void GLContext::setCurrent()
 {
-    *s_pCurrentContext = this;
+    s_pCurrentContext = this;
 }
 
 ShaderRegistryPtr GLContext::getShaderRegistry() const
@@ -399,6 +410,19 @@ bool GLContext::useDepthBuffer() const
     return !isGLES();
 }
 
+bool GLContext::initVBlank(int rate) 
+{
+    int rc = SDL_GL_SetSwapInterval(rate);
+    if (rc == -1) {
+#ifndef WIN32
+        AVG_LOG_WARNING("VBlank setup failed.");
+#endif
+        return false;
+    } else {
+        return true;
+    }
+}
+
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {
@@ -407,11 +431,6 @@ int GLContext::getMaxTexSize()
     return m_MaxTexSize;
 }
 
-
-void GLContext::swapBuffers()
-{
-    AVG_ASSERT(false);
-}
 
 void GLContext::enableErrorChecks(bool bEnable)
 {
@@ -429,14 +448,36 @@ void GLContext::mandatoryCheckError(const char* pszWhere)
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        stringstream s;
+        string sErr;
+        switch (err) {
+            case GL_INVALID_ENUM:
+                sErr = "GL_INVALID_ENUM";
+                break;
+            case GL_INVALID_VALUE:
+                sErr = "GL_INVALID_VALUE";
+                break;
+            case GL_INVALID_OPERATION:
+                sErr = "GL_INVALID_OPERATION";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                sErr = "GL_INVALID_FRAMEBUFFER_OPERATION";
+                break;
+            case GL_OUT_OF_MEMORY:
+                sErr = "GL_OUT_OF_MEMORY";
+                break;
 #ifndef AVG_ENABLE_EGL
-        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
-            << " (#" << err << ") ";
-#else
-        s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
+            case GL_STACK_UNDERFLOW:
+                sErr = "GL_STACK_UNDERFLOW";
+                break;
+            case GL_STACK_OVERFLOW:
+                sErr = "GL_STACK_OVERFLOW";
+                break;
 #endif
-        AVG_LOG_ERROR(s.str());
+            default:
+                AVG_ASSERT(false);
+        }
+        AVG_LOG_ERROR("OpenGL error in " + string(pszWhere) + ": " + sErr);
+
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
         }
@@ -470,7 +511,7 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 
 GLContext* GLContext::getCurrent()
 {
-    return *s_pCurrentContext;
+    return s_pCurrentContext;
 }
 
 int GLContext::nextMultiSampleValue(int curSamples)

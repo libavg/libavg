@@ -92,6 +92,7 @@ class AVG_API Canvas: public ExportedObject
                 SubVertexArray& va);
         virtual void popClipRect(GLContext* pContext, const glm::mat4& transform,
                 SubVertexArray& va);
+        int getMultiSampleSamples() const;
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);

@@ -69,9 +69,7 @@ Animation
 
         :param node: The libavg node object to animate.
 
-        :param attrName: 
-        
-            The name of the attribute to change.
+        :param attrName: The name of the attribute to change.
 
         :param startValue: Initial value of the attribute.
 
@@ -98,9 +96,7 @@ Animation
 
         :param node: The libavg node object to animate.
 
-        :param attrName:
-
-            The name of the attribute to change.
+        :param attrName: The name of the attribute to change.
 
         :param duration: The length of the animation in milliseconds.
 
@@ -134,9 +130,7 @@ Animation
 
         :param node: The libavg node object to animate.
 
-        :param attrName: 
-        
-            The name of the attribute to change.
+        :param attrName: The name of the attribute to change.
 
         :param duration: The length of the animation in milliseconds.
 
@@ -180,9 +174,7 @@ Animation
             Starts the animation by calling :py:meth:`start` for each of the child 
             animations.
 
-            :param keepAttr: 
-            
-                This parameter is passed to the child animations.
+            :param keepAttr: This parameter is passed to the child animations.
 
     .. autoclass:: SimpleAnim
 

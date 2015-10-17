@@ -184,6 +184,11 @@ IntPoint ImageNode::getMediaSize()
     return m_pGPUImage->getSize();
 }
 
+GPUImage::Source ImageNode::getSource() const
+{
+    return m_pGPUImage->getSource();
+}
+
 void ImageNode::checkReload()
 {
     if (isCanvasURL(m_href)) {
@@ -218,10 +223,20 @@ void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElement
             glm::vec2 localPos(pos.x*(canvasSize.x/nodeSize.x), 
                     pos.y*(canvasSize.y/nodeSize.y));
             pCanvas->getRootNode()->getElementsByPos(localPos, pElements);
-        } else {
-            RasterNode::getElementsByPos(pos, pElements);
         }
+        RasterNode::getElementsByPos(pos, pElements);
     }
+}
+
+glm::vec2 ImageNode::toCanvasPos(const glm::vec2& pos)
+{
+    OffscreenCanvasPtr pCanvas = m_pGPUImage->getCanvas();
+    AVG_ASSERT(pCanvas);
+    glm::vec2 containerPos = getRelPos(pos);
+    glm::vec2 nodeSize(getSize());
+    glm::vec2 canvasSize(pCanvas->getSize());
+    return glm::vec2(containerPos.x*(canvasSize.x/nodeSize.x),
+            containerPos.y*(canvasSize.y/nodeSize.y));
 }
 
 BitmapPtr ImageNode::getBitmap()

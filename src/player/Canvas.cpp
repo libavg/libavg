@@ -192,6 +192,11 @@ void Canvas::popClipRect(GLContext* pContext, const glm::mat4& transform,
     clip(pContext, transform, va, GL_DECR);
 }
 
+int Canvas::getMultiSampleSamples() const
+{
+    return m_MultiSampleSamples;
+}
+
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
 {
     m_PlaybackEndSignal.connect(pListener);

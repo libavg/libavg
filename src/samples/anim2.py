@@ -8,11 +8,12 @@ def startAnim():
 
 canvas = player.createMainCanvas(size=(640,480))
 rootNode = canvas.getRootNode()
-node = avg.WordsNode(pos=(10,10), text="Hello World", parent=rootNode)
+node = avg.RectNode(pos=(10,10), size=(100,100), fillcolor="FF0000", fillopacity=1.0,
+        parent=rootNode)
 
 animObj = ParallelAnim(
-    [LinearAnim(node, "x", 2000, 0, 200),
-     LinearAnim(node, "y", 2000, 0, 10)])
+    [LinearAnim(node, "pos", 2000, (0,0), (200,10)),
+     LinearAnim(node, "fillcolor", 2000, "00FFFF", "FF0000")])
 player.setTimeout(0, startAnim)
 
 player.play()

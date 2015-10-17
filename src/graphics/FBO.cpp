@@ -275,9 +275,14 @@ void FBO::init()
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER, m_StencilBuffer);
             GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
-        } else {
-            AVG_ASSERT_MSG(!getUseStencil(), 
-                "Multisample FBO with stencil & not depth buffers not implemented yet.");
+        } else if (getUseStencil()) {
+            glproc::GenRenderbuffers(1, &m_StencilBuffer);
+            glproc::BindRenderbuffer(GL_RENDERBUFFER, m_StencilBuffer);
+            glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER, numSamples, 
+                    GL_STENCIL_INDEX8, glSize.x, glSize.y);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+                    GL_RENDERBUFFER, m_StencilBuffer);
+            GLContext::checkError("FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
         checkError("init multisample");
         m_OutputFBO = pContext->genFBO();

@@ -44,8 +44,8 @@ void FilledVectorNode::registerType()
                 offsetof(FilledVectorNode, m_FillTexHRef)))
         .addArg(Arg<float>("fillopacity", 0, false, 
                 offsetof(FilledVectorNode, m_FillOpacity)))
-        .addArg(Arg<UTF8String>("fillcolor", "FFFFFF", false, 
-                offsetof(FilledVectorNode, m_sFillColorName)))
+        .addArg(Arg<Color>("fillcolor", Color("FFFFFF"), false,
+                offsetof(FilledVectorNode, m_FillColor)))
         .addArg(Arg<glm::vec2>("filltexcoord1", glm::vec2(0,0), false,
                 offsetof(FilledVectorNode, m_FillTexCoord1)))
         .addArg(Arg<glm::vec2>("filltexcoord2", glm::vec2(1,1), false,
@@ -60,8 +60,6 @@ FilledVectorNode::FilledVectorNode(const ArgList& args)
 {
     m_FillTexHRef = args.getArgVal<UTF8String>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
-    m_sFillColorName = args.getArgVal<UTF8String>("fillcolor");
-    m_FillColor = colorStringToColor(m_sFillColorName);
 }
 
 FilledVectorNode::~FilledVectorNode()
@@ -71,7 +69,6 @@ FilledVectorNode::~FilledVectorNode()
 void FilledVectorNode::connectDisplay()
 {
     VectorNode::connectDisplay();
-    m_FillColor = colorStringToColor(m_sFillColorName);
     m_pFillShape->moveToGPU();
     m_EffectiveOpacity = -1;
 }
@@ -157,9 +154,8 @@ void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive
     VertexDataPtr pShapeVD = m_pFillShape->getVertexData();
     if (isDrawNeeded() || curOpacity != m_EffectiveOpacity) {
         pShapeVD->reset();
-        Pixel32 color = getFillColorVal();
-        calcFillVertexes(pShapeVD, color);
         m_EffectiveOpacity = curOpacity;
+        calcFillVertexes(pShapeVD, m_FillColor);
     }
     if (isVisible()) {
         m_pFillShape->setVertexArray(pVA);
@@ -178,21 +174,15 @@ void FilledVectorNode::render(GLContext* pContext, const glm::mat4& transform)
     VectorNode::render(pContext, transform);
 }
 
-void FilledVectorNode::setFillColor(const UTF8String& sColor)
+void FilledVectorNode::setFillColor(const Color& color)
 {
-    if (m_sFillColorName != sColor) {
-        m_sFillColorName = sColor;
-        m_FillColor = colorStringToColor(m_sFillColorName);
+    if (m_FillColor != color) {
+        m_FillColor = color;
         setDrawNeeded();
     }
 }
 
-const UTF8String& FilledVectorNode::getFillColor() const
-{
-    return m_sFillColorName;
-}
-
-Pixel32 FilledVectorNode::getFillColorVal() const
+const Color& FilledVectorNode::getFillColor() const
 {
     return m_FillColor;
 }
@@ -212,6 +202,11 @@ bool FilledVectorNode::isVisible() const
 {
     return getEffectiveActive() && (getEffectiveOpacity() > 0.01 || 
             getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01);
+}
+
+bool FilledVectorNode::isFillVisible() const
+{
+    return getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01;
 }
 
 }

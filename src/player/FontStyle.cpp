@@ -38,7 +38,8 @@ void FontStyle::registerType()
             ExportedObject::buildObject<FontStyle>)
         .addArg(Arg<string>("font", "sans", false, offsetof(FontStyle, m_sName)))
         .addArg(Arg<string>("variant", "", false, offsetof(FontStyle, m_sVariant)))
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(FontStyle, m_sColorName)))
+        .addArg(Arg<Color>("color", Color("FFFFFF"), false,
+                offsetof(FontStyle, m_Color)))
         .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(FontStyle, m_AAGamma)))
         .addArg(Arg<float>("fontsize", 15, false, offsetof(FontStyle, m_Size)))
         .addArg(Arg<int>("indent", 0, false, offsetof(FontStyle, m_Indent)))
@@ -59,7 +60,6 @@ FontStyle::FontStyle(const ArgList& args)
     args.setMembers(this);
     setAlignment(args.getArgVal<string>("alignment"));
     setWrapMode(args.getArgVal<string>("wrapmode"));
-    m_Color = colorStringToColor(m_sColorName);
     if (args.getArgVal<FontStylePtr>("basestyle") != 0) {
         applyBaseStyle(*(args.getArgVal<FontStylePtr>("basestyle")), args);
     }
@@ -71,7 +71,6 @@ FontStyle::FontStyle()
     args.setMembers(this);
     setAlignment(args.getArgVal<string>("alignment"));
     setWrapMode(args.getArgVal<string>("wrapmode"));
-    m_Color = colorStringToColor(m_sColorName);
 }
 
 FontStyle::~FontStyle()
@@ -91,8 +90,7 @@ void FontStyle::applyBaseStyle(const FontStyle& baseStyle, const ArgList& args)
 {
     setDefaultedAttr(m_sName, "font", args, baseStyle.getFont());
     setDefaultedAttr(m_sVariant, "variant", args, baseStyle.getFontVariant());
-    setDefaultedAttr(m_sColorName, "color", args, baseStyle.getColor());
-    m_Color = colorStringToColor(m_sColorName);
+    setDefaultedAttr(m_Color, "color", args, baseStyle.getColor());
     setDefaultedAttr(m_AAGamma, "aagamma", args, baseStyle.getAAGamma());
     setDefaultedAttr(m_Size, "fontsize", args, baseStyle.getFontSize());
     setDefaultedAttr(m_Indent, "indent", args, baseStyle.getIndent());
@@ -119,8 +117,7 @@ void FontStyle::setDefaultedArgs(const ArgList& args)
     // so the member offsets are wrong.
     setDefaultedArg(m_sName, "font", args);
     setDefaultedArg(m_sVariant, "variant", args);
-    setDefaultedArg(m_sColorName, "color", args);
-    setColor(m_sColorName);
+    setDefaultedArg(m_Color, "color", args);
     setDefaultedArg(m_AAGamma, "aagamma", args);
     setDefaultedArg(m_Size, "fontsize", args);
     setDefaultedArg(m_Indent, "indent", args);
@@ -156,15 +153,14 @@ void FontStyle::setFontVariant(const std::string& sVariant)
     m_sVariant = sVariant;
 }
 
-const std::string& FontStyle::getColor() const
+const Color& FontStyle::getColor() const
 {
-    return m_sColorName;
+    return m_Color;
 }
 
-void FontStyle::setColor(const string& sColor)
+void FontStyle::setColor(const Color& color)
 {
-    m_sColorName = sColor;
-    m_Color = colorStringToColor(m_sColorName);
+    m_Color = color;
 }
 
 float FontStyle::getAAGamma() const
@@ -306,11 +302,6 @@ PangoAlignment FontStyle::getAlignmentVal() const
 PangoWrapMode FontStyle::getWrapModeVal() const
 {
     return m_WrapMode;
-}
-
-Pixel32 FontStyle::getColorVal() const
-{
-    return m_Color;
 }
 
 }
