@@ -221,31 +221,16 @@ void WordsNode::setHint(bool bHint)
     updateLayout();
 }
 
-float WordsNode::getWidth() const
-{
-    return AreaNode::getWidth();
-}
-
 void WordsNode::setWidth(float width)
 {
     AreaNode::setWidth(width);
     updateLayout();
 }
 
-float WordsNode::getHeight() const
-{
-    return AreaNode::getHeight();
-}
-
 void WordsNode::setHeight(float width)
 {
     AreaNode::setHeight(width);
     updateLayout();
-}
-
-glm::vec2 WordsNode::getSize() const
-{
-    return AreaNode::getSize();
 }
 
 void WordsNode::setSize(const glm::vec2& pt)

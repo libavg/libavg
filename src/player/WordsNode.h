@@ -49,13 +49,8 @@ class AVG_API WordsNode : public RasterNode
                 float parentEffectiveOpacity);
         virtual void render(GLContext* pContext, const glm::mat4& transform);
 
-        virtual float getWidth() const;
         virtual void setWidth(float width);
-
-        virtual float getHeight() const;
         virtual void setHeight(float width);
-
-        virtual glm::vec2 getSize() const;
         virtual void setSize(const glm::vec2& pt);
 
         glm::vec2 toLocal(const glm::vec2& globalPos) const;
