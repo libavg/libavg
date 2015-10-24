@@ -150,7 +150,7 @@ void SDLWindow::setTouchHandler(SDLTouchInputDevicePtr pInputDevice)
 
 bool SDLWindow::hasTouchHandler() const
 {
-    return m_pTouchInputDevice;
+    return (m_pTouchInputDevice != SDLTouchInputDevicePtr());
 }
 
 void SDLWindow::setTitle(const string& sTitle)
