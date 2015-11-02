@@ -94,5 +94,5 @@ class FlashMessage(object):
             self.__container = None
             FlashMessage.remove(self)
 
-        libavg.avg.fadeOut(self.__container, 200, finalizeRemoval)
+        libavg.avg.Anim.fadeOut(self.__container, 200, finalizeRemoval)
 

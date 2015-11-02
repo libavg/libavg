@@ -291,13 +291,13 @@ class TextArea(avg.DivNode):
 
     def showCursor(self, show):
         if show:
-            avg.fadeIn(self.__cursorNode, 200)
+            avg.Anim.fadeIn(self.__cursorNode, 200)
             if self.__loupe:
-                avg.fadeIn(self.__loupeCursorNode, 200)
+                avg.Anim.fadeIn(self.__loupeCursorNode, 200)
         else:
-            avg.fadeOut(self.__cursorNode, 200)
+            avg.Anim.fadeOut(self.__cursorNode, 200)
             if self.__loupe:
-                avg.fadeOut(self.__loupeCursorNode, 200)
+                avg.Anim.fadeOut(self.__loupeCursorNode, 200)
 
     def onKeyDown(self, keycode):
         """
