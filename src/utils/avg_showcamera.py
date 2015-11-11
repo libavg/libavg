@@ -184,34 +184,34 @@ class ShowCamera(app.MainDiv):
             self.camNode.shutter += shutter
             print "shutter:", self.camNode.shutter
 
-        app.keyboardmanager.bindKeyDown(keystring="w",
+        app.keyboardmanager.bindKeyDown(keyname="W",
                 handler=setWhitebalance,
                 help="Execute whitebalance")
 
-        app.keyboardmanager.bindKeyDown(keystring="1",
+        app.keyboardmanager.bindKeyDown(keyname="1",
                 handler=lambda: addWhitebalance(du = -1),
                 help="Decrease whitebalance u")
-        app.keyboardmanager.bindKeyDown(keystring="2",
+        app.keyboardmanager.bindKeyDown(keyname="2",
                 handler=lambda: addWhitebalance(du = 1),
                 help="Increase whitebalance u")
-        app.keyboardmanager.bindKeyDown(keystring="3",
+        app.keyboardmanager.bindKeyDown(keyname="3",
                 handler=lambda: addWhitebalance(dv = -1),
                 help="Decrease whitebalance v")
-        app.keyboardmanager.bindKeyDown(keystring="4",
+        app.keyboardmanager.bindKeyDown(keyname="4",
                 handler=lambda: addWhitebalance(dv = 1),
                 help="Increase whitebalance v")
 
-        app.keyboardmanager.bindKeyDown(keystring="left",
+        app.keyboardmanager.bindKeyDown(keyname="Left",
                 handler=lambda: addShutter(shutter = -1),
                 help="Decrease shutter")
-        app.keyboardmanager.bindKeyDown(keystring="right",
+        app.keyboardmanager.bindKeyDown(keyname="Right",
                 handler=lambda: addShutter(shutter = 1),
                 help="Increase shutter")
 
-        app.keyboardmanager.bindKeyDown(keystring="up",
+        app.keyboardmanager.bindKeyDown(keyname="Up",
                 handler=lambda: addGain(gain = 1),
                 help="Increase gain")
-        app.keyboardmanager.bindKeyDown(keystring="down",
+        app.keyboardmanager.bindKeyDown(keyname="Down",
                 handler=lambda: addGain(gain = -1),
                 help="Decrease gain")
 
