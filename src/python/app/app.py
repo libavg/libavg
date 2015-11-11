@@ -377,9 +377,11 @@ class App(object):
                     modifiers=libavg.avg.KEYMOD_CTRL)
         else:
             self._mtEmu.deinit()
-            keyboardmanager.unbindKeyDown(keyname='t', modifiers=libavg.avg.KEYMOD_CTRL)
-            keyboardmanager.unbindKeyDown(keyname='shift')
-            keyboardmanager.unbindKeyUp(keyname='shift')
+            keyboardmanager.unbindKeyDown(
+                    keyname='T',
+                    modifiers=libavg.avg.KEYMOD_CTRL)
+            keyboardmanager.unbindKeyDown(keyname='Shift')
+            keyboardmanager.unbindKeyUp(keyname='Shift')
 
             del self._mtEmu
             self._mtEmu = None
