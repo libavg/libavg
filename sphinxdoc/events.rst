@@ -179,7 +179,7 @@ Input Handling
         .. py:attribute:: keyname
 
             The name of the key according to the current keyboard layout. This can be a
-            character like "a" or a word like "Up" for the up arrow key. Read-only.
+            character like "A" or a word like "Up" for the up arrow key. Read-only.
 
         .. py:attribute:: text
 

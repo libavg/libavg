@@ -3,11 +3,6 @@ app module
 
 .. automodule:: libavg.app
 
-    .. note::
-
-        The app package is experimental. Functionality and interface are still in flux and
-        subject to change.
-
     .. autoclass:: App
 
         This class handles global application affairs. Among these are setting up a root
@@ -133,22 +128,22 @@ keyboardmanager Module
     The keyboardmanager is usually set up by :py:class:`libavg.app.App`.
     :py:class:`libavg.app.App` also reserves all keys modified by :kbd:`CTRL`.
 
-    For all the binding methods, keystring can be a python string or a unicode object.
-    Plain strings are matched to :py:attr:`libavg.avg.KeyEvent.keystring`, while unicode
-    objects are matched to :py:attr:`libavg.avg.KeyEvent.unicode`. The modifiers are
+    The binding methods accept one of :py:attr:`scancode`, a :py:attr:`keyname`, or
+    `text` to match. These are compared to the corresponding fields of
+    :py:attr:`libavg.avg.Keyevent` when a key is pressed. The modifiers are
     described under :py:attr:`libavg.avg.KeyEvent.modifiers`, with the additional modifiers
     :py:const:`KEYMOD_SHIFT`, :py:const:`KEYMOD_CTRL` and :py:const:`KEYMOD_ALT` available
     to simplify checking for left and right modifier keys at one time.
 
-    .. py:function:: bindKeyDown(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: bindKeyDown(scancode=None, keyname=None, text=None, handler=None, help=None, modifiers=avg.KEYMOD_NONE)
 
         Sets up a key handler so that :py:attr:`handler` is called whenever 
-        :py:attr:`keystring` is pressed.
+        the selected key is pressed.
 
-    .. py:function:: bindKeyUp(keystring, handler, help, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: bindKeyUp(scancode=None, keyname=None, handler=None, help=None, modifiers=avg.KEYMOD_NONE)
 
         Sets up a key handler so that :py:attr:`handler` is called whenever 
-        :py:attr:`keystring` is released.
+        the selected key is released.
 
     .. py:function:: disable()
 
@@ -181,11 +176,11 @@ keyboardmanager Module
 
         Removes all the defined key bindings at once.
 
-    .. py:function:: unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: unbindKeyDown(scancode=None, keyname=None, text=None, modifiers=avg.KEYMOD_NONE)
 
         Removes a previously defined key binding for a KEY_DOWN event.
 
-    .. py:function:: unbindKeyDown(keystring, modifiers=avg.KEYMOD_NONE)
+    .. py:function:: unbindKeyDown(scancode=None, keyname=None, modifiers=avg.KEYMOD_NONE)
 
         Removes a previously defined key binding for a KEY_UP event.
 
