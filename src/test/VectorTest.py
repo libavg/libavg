@@ -608,7 +608,7 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCircle2"),
                  textureCircle,
                  lambda: self.compareImage("testCircle3"),
-                 lambda: self.fakeClick(32, 32),
+                 lambda: self.fakeClick(20,20),
                  lambda: handlerTester.assertState(()),
                  lambda: self.fakeClick(67, 50),
                  lambda: handlerTester.assertState(

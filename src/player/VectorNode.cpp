@@ -180,7 +180,7 @@ void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
 void VectorNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     checkRedraw();
-    if (m_pShape->isPtInside(pos)) {
+    if (reactsToMouseEvents() && m_pShape->isPtInside(pos)) {
         pElements.push_back(getSharedThis());
     }
 }
