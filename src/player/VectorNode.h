@@ -90,7 +90,7 @@ class AVG_API VectorNode : public Node
         void calcPolyLineCumulDist(std::vector<float>& cumulDist, 
                 const std::vector<glm::vec2>& pts, bool bIsClosed);
         void calcEffPolyLineTexCoords(std::vector<float>& effTC, 
-        const std::vector<float>& tc, const std::vector<float>& cumulDist);
+                const std::vector<float>& tc, const std::vector<float>& cumulDist);
 
         void calcPolyLine(const std::vector<glm::vec2>& origPts, 
                 const std::vector<float>& origTexCoords, bool bIsClosed, 
