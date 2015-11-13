@@ -50,7 +50,7 @@ class AVG_API Shape
         virtual void moveToCPU();
 
         GPUImagePtr getGPUImage();
-        VertexDataPtr getVertexData();
+        void setVertexData(VertexDataPtr pVertexData);
         void setVertexArray(const VertexArrayPtr& pVA);
         void draw(GLContext* pContext, const glm::mat4& transform, float opacity);
         bool isPtInside(const glm::vec2& pos);

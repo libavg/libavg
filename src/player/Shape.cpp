@@ -77,9 +77,9 @@ GPUImagePtr Shape::getGPUImage()
     return m_pGPUImage;
 }
 
-VertexDataPtr Shape::getVertexData()
+void Shape::setVertexData(VertexDataPtr pVertexData)
 {
-    return m_pVertexData;
+    m_pVertexData = pVertexData;
 }
 
 void Shape::setVertexArray(const VertexArrayPtr& pVA)

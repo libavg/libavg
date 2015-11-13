@@ -151,11 +151,13 @@ void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     float curOpacity = parentEffectiveOpacity*m_FillOpacity;
 
-    VertexDataPtr pShapeVD = m_pFillShape->getVertexData();
     if (isDrawNeeded() || curOpacity != m_EffectiveOpacity) {
+        VertexDataPtr pShapeVD(new VertexData());
         pShapeVD->reset();
         m_EffectiveOpacity = curOpacity;
         calcFillVertexes(pShapeVD, m_FillColor);
+        m_pFillShape->setVertexData(pShapeVD);
+
     }
     if (isVisible()) {
         m_pFillShape->setVertexArray(pVA);

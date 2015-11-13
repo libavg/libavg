@@ -522,11 +522,12 @@ bool VectorNode::isInside(const glm::vec2& pos)
 
 void VectorNode::checkRedraw()
 {
-    VertexDataPtr pShapeVD = m_pShape->getVertexData();
     if (m_bDrawNeeded) {
+        VertexDataPtr pShapeVD(new VertexData());
         pShapeVD->reset();
         calcVertexes(pShapeVD, m_Color);
         m_bDrawNeeded = false;
+        m_pShape->setVertexData(pShapeVD);
     }
 }
 
