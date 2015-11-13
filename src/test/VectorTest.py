@@ -63,6 +63,7 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         addLines()
         line = canvas.getChild(0)
+        handlerTester = NodeHandlerTester(self, line)
         self.start(False,
                 (lambda: self.compareImage("testline1"), 
                  changeLine,
@@ -70,7 +71,12 @@ class VectorTestCase(AVGTestCase):
                  moveLine,
                  lambda: self.compareImage("testline3"),
                  blendMode,
-                 lambda: self.compareImage("testline4")
+                 lambda: self.compareImage("testline4"),
+                 lambda: self.fakeClick(50, 27),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(50,33),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
                 ))
 
     def testLotsOfLines(self):

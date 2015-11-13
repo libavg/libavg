@@ -70,12 +70,12 @@ public:
     void dump(unsigned startVertex, int numVerts, unsigned startIndex, int numIndexes) 
             const;
 
+    const Vertex * getVertexPointer() const;
+    const GL_INDEX_TYPE * getIndexPointer() const;
+
 protected:
     int getReserveVerts() const;
     int getReserveIndexes() const;
-
-    const Vertex * getVertexPointer() const;
-    const GL_INDEX_TYPE * getIndexPointer() const;
 
     static const int MIN_VERTEXES;
     static const int MIN_INDEXES;

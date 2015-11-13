@@ -53,6 +53,7 @@ class AVG_API Shape
         VertexDataPtr getVertexData();
         void setVertexArray(const VertexArrayPtr& pVA);
         void draw(GLContext* pContext, const glm::mat4& transform, float opacity);
+        bool isPtInside(const glm::vec2& pos);
 
         void discard();
 

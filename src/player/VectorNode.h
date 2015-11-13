@@ -70,6 +70,8 @@ class AVG_API VectorNode : public Node
         virtual void maybeRender(GLContext* pContext, const glm::mat4& parentTransform);
         virtual void render(GLContext* pContext, const glm::mat4& transform);
 
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
+
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 
         void setColor(const Color& color);
@@ -103,6 +105,7 @@ class AVG_API VectorNode : public Node
         void setTranslate(const glm::vec2& trans);
 
     private:
+        void checkRedraw();
         Shape* createDefaultShape() const;
 
         Color m_Color;

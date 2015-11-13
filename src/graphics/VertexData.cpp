@@ -223,16 +223,6 @@ void VertexData::grow()
     }
 }
 
-int VertexData::getReserveVerts() const
-{
-    return m_ReserveVerts;
-}
-
-int VertexData::getReserveIndexes() const
-{
-    return m_ReserveIndexes;
-}
-
 const Vertex * VertexData::getVertexPointer() const
 {
     return m_pVertexData;
@@ -241,6 +231,16 @@ const Vertex * VertexData::getVertexPointer() const
 const GL_INDEX_TYPE * VertexData::getIndexPointer() const
 {
     return m_pIndexData;
+}
+
+int VertexData::getReserveVerts() const
+{
+    return m_ReserveVerts;
+}
+
+int VertexData::getReserveIndexes() const
+{
+    return m_ReserveIndexes;
 }
 
 std::ostream& operator<<(std::ostream& os, const Vertex& v)
