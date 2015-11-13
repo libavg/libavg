@@ -152,7 +152,6 @@ class VectorTestCase(AVGTestCase):
             rect = avg.RectNode(pos=(2, 2), size=(50, 30), fillopacity=1, 
                     strokewidth=0)
             canvas.appendChild(rect)
-            rect.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             return rect
         
         def moveRect():
@@ -172,12 +171,9 @@ class VectorTestCase(AVGTestCase):
             rect.color = "FFFF00"
             canvas.insertChild(rect, 0)
         
-        def onMouseDown(event):
-            self.__mouseDownCalled = True
-        
-        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         rect = addRect()
+        handlerTester = NodeHandlerTester(self, rect)
         self.start(False,
                 (lambda: self.compareImage("testRect1"),
                  moveRect,
@@ -187,11 +183,12 @@ class VectorTestCase(AVGTestCase):
                  addRect2,
                  lambda: self.compareImage("testRect4"),
                  lambda: self.fakeClick(100, 100),
-                 lambda: self.assertEqual(self.__mouseDownCalled, False),
+                 lambda: handlerTester.assertState(()),
                  lambda: self.fakeClick(55, 50),
-                 lambda: self.assertEqual(self.__mouseDownCalled, False),
+                 lambda: handlerTester.assertState(()),
                  lambda: self.fakeClick(65, 65),
-                 lambda: self.assert_(self.__mouseDownCalled)
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
                 ))
 
     def testTexturedRect(self):
@@ -411,7 +408,6 @@ class VectorTestCase(AVGTestCase):
         def addPolygon():
             polygon = avg.PolygonNode(strokewidth=2, color="FF00FF",
                     pos=((10,10), (50,10), (90,50), (90, 90)))
-            polygon.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             canvas.appendChild(polygon)
             return polygon
         
@@ -448,9 +444,6 @@ class VectorTestCase(AVGTestCase):
             polygon2 = canvas.getChild(0)
             polygon2.linejoin = "miter"
         
-        def onMouseDown(event):
-            self.__mouseDownCalled = True
-      
         def addEmptyPolygon():
             avg.PolygonNode(parent=canvas, fillopacity=1)
 
@@ -478,9 +471,9 @@ class VectorTestCase(AVGTestCase):
                 dell = canvas.getChild(i)
                 canvas.removeChild(dell)
 
-        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
+        handlerTester = NodeHandlerTester(self, polygon)
         self.start(False,
                 (lambda: self.compareImage("testPolygon1"),
                  changePolygon,
@@ -494,9 +487,10 @@ class VectorTestCase(AVGTestCase):
                  miterPolygons,
                  lambda: self.compareImage("testPolygon6"),
                  lambda: self.fakeClick(50, 50),
-                 lambda: self.assertEqual(self.__mouseDownCalled, False),
+                 lambda: handlerTester.assertState(()),
                  lambda: self.fakeClick(20, 87),
-                 lambda: self.assert_(self.__mouseDownCalled),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
                  addEmptyPolygon,
                  clearCanvas,
                  createLeftOpenPolygon,
@@ -561,7 +555,6 @@ class VectorTestCase(AVGTestCase):
     def testCircle(self):
         def addCircle():
             circle = avg.CircleNode(pos=(30, 30), r=20)
-            circle.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             canvas.appendChild(circle)
             return circle
         
@@ -588,12 +581,9 @@ class VectorTestCase(AVGTestCase):
             circle.filltexcoord1 = (0.5, 0.5)
             circle.filltexcoord2 = (1.5, 1.5)
         
-        def onMouseDown(event):
-            self.__mouseDownCalled = True
-        
-        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         circle = addCircle()
+        handlerTester = NodeHandlerTester(self, circle)
         self.start(False,
                 (lambda: self.compareImage("testCircle1"), 
                  changeCircle,
@@ -605,9 +595,10 @@ class VectorTestCase(AVGTestCase):
                  setFillTexCoords,
                  lambda: self.compareImage("testCircle5"),
                  lambda: self.fakeClick(32, 32),
-                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: handlerTester.assertState(()),
                  lambda: self.fakeClick(67, 50),
-                 lambda: self.assert_(self.__mouseDownCalled)
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP))
                 ))
         
     def testMesh(self):
@@ -618,7 +609,6 @@ class VectorTestCase(AVGTestCase):
                     vertexcoords=((0,0), (64,0), (0,64), (64, 64),(32, 32)),
                     texcoords=((0,0),(1,0),(0,1),(1,1),(0.5,0.5)),
                     triangles=((0,1,4),(1,3,4),(3,2,4),(2,0,4)))
-            mesh.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             div.appendChild(mesh)
             div.x = 50
             div.y = 30
@@ -664,15 +654,9 @@ class VectorTestCase(AVGTestCase):
         def setIllegalIndexes():
             mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4))
 
-        def onMouseDown(event):
-            self.__mouseDownCalled = True
-
-        def resetMouseDown():
-            self.__mouseDownCalled = False
-
-        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         mesh = addMesh()
+        handlerTester = NodeHandlerTester(self, mesh);
         self.assertRaises(avg.Exception, setIllegalVertexes)
         self.assertRaises(avg.Exception, setIllegalTextures)
         self.assertRaises(avg.Exception, setIllegalIndexes)
@@ -694,16 +678,17 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testMesh8"),
                  setBackfaceCullTrue,
                  lambda: self.fakeClick(62, 62),
-                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: handlerTester.assertState(()),
                  lambda: self.fakeClick(94, 62),
-                 lambda: self.assert_(self.__mouseDownCalled),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
                  setBackfaceCullFalse,
-                 resetMouseDown,
                  lambda: self.fakeClick(62, 62),
-                 lambda: self.assert_(self.__mouseDownCalled),
-                 resetMouseDown,
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                  lambda: self.fakeClick(94, 62),
-                 lambda: self.assert_(self.__mouseDownCalled)
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                 ))
 
     def testInactiveVector(self):
