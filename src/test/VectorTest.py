@@ -363,10 +363,19 @@ class VectorTestCase(AVGTestCase):
 
         canvas = self.makeEmptyCanvas()
         polyline = addPolyLine()
+        handlerTester = NodeHandlerTester(self, polyline)
         self.start(False,
                 (lambda: self.compareImage("testPolyLine1"),
                  changePolyLine,
                  lambda: self.compareImage("testPolyLine2"),
+                 lambda: self.fakeClick(25,25),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(30,10),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(70,30),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                  miterPolyLine,
                  lambda: self.compareImage("testPolyLine3"),
                  addPolyLine2,
@@ -497,6 +506,9 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.fakeClick(20, 87),
                  lambda: handlerTester.assertState(
                         (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(5, 10),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                  addEmptyPolygon,
                  clearCanvas,
                  createLeftOpenPolygon,
@@ -596,15 +608,18 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCircle2"),
                  textureCircle,
                  lambda: self.compareImage("testCircle3"),
-                 setFillTex,
-                 lambda: self.compareImage("testCircle4"),
-                 setFillTexCoords,
-                 lambda: self.compareImage("testCircle5"),
                  lambda: self.fakeClick(32, 32),
                  lambda: handlerTester.assertState(()),
                  lambda: self.fakeClick(67, 50),
                  lambda: handlerTester.assertState(
-                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP))
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(77, 50),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
+                 setFillTex,
+                 lambda: self.compareImage("testCircle4"),
+                 setFillTexCoords,
+                 lambda: self.compareImage("testCircle5"),
                 ))
         
     def testMesh(self):
