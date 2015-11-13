@@ -52,10 +52,12 @@ class AVG_API RectNode : public FilledVectorNode
 
         glm::vec2 toLocal(const glm::vec2& globalPos) const;
         glm::vec2 toGlobal(const glm::vec2& localPos) const;
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
         virtual void calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
+
+    protected:
+        virtual bool isInside(const glm::vec2& pos);
 
     private:
         FRect m_Rect;

@@ -115,13 +115,6 @@ void PolygonNode::setLineJoin(const string& s)
     setDrawNeeded();
 }
 
-void PolygonNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
-{
-    if (reactsToMouseEvents() && (isInside(pos) || pointInPolygon(pos, m_Pts))) {
-        pElements.push_back(getSharedThis());
-    }
-}
-
 void PolygonNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     if (getNumDifferentPts(m_Pts) < 3) {
@@ -168,6 +161,12 @@ void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 col
         }
     }
 }
+
+bool PolygonNode::isInside(const glm::vec2& pos)
+{
+    return (FilledVectorNode::isInside(pos) || pointInPolygon(pos, m_Pts));
+}
+
 
 void PolygonNode::triangulate()
 {

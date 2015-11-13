@@ -105,13 +105,6 @@ void CircleNode::setTexCoord2(float tc)
     setDrawNeeded();
 }
 
-void CircleNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
-{
-    if (glm::length(pos-m_Pos) <= m_Radius+getStrokeWidth()/2 && reactsToMouseEvents()) {
-        pElements.push_back(getSharedThis());
-    }
-}
-
 void CircleNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     glm::vec2 firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2);
@@ -244,6 +237,11 @@ void CircleNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 colo
         glm::vec2 curPt = glm::vec2(-it->x, it->y);
         appendFillCirclePoint(pVertexData, curPt, minPt, maxPt, color, curVertex);
     }
+}
+
+bool CircleNode::isInside(const glm::vec2& pos)
+{
+    return (glm::length(pos-m_Pos) <= m_Radius+getStrokeWidth()/2);
 }
 
 void CircleNode::appendCirclePoint(const VertexDataPtr& pVertexData, 

@@ -55,11 +55,12 @@ class AVG_API MeshNode : public VectorNode
         bool getBackfaceCull() const;
         void setBackfaceCull(const bool bBackfaceCull);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
-
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
         
         virtual void render(GLContext* pContext, const glm::mat4& transform);
+
+    protected:
+        virtual bool isInside(const glm::vec2& pos);
 
     private:
         std::vector<glm::vec2> m_TexCoords;
