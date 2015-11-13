@@ -515,7 +515,8 @@ void VectorNode::setTranslate(const glm::vec2& trans)
 bool VectorNode::isInside(const glm::vec2& pos)
 {
     checkRedraw();
-    return m_pShape->isPtInside(pos);
+    glm::vec2 globalPos = toGlobal(pos);
+    return m_pShape->isPtInside(globalPos);
 
 }
 

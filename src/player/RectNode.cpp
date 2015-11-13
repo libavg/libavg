@@ -132,10 +132,13 @@ glm::vec2 RectNode::toGlobal(const glm::vec2& localPos) const
 
 void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
-    if (pos.x >= 0 && pos.y >= 0 && pos.x < m_Rect.size().x && pos.y < m_Rect.size().y 
-            && reactsToMouseEvents())
-    {
-        pElements.push_back(getSharedThis());
+    if (reactsToMouseEvents()) {
+        if (isInside(pos) ||
+            (pos.x >= 0 && pos.y >= 0 && pos.x < m_Rect.size().x &&
+             pos.y < m_Rect.size().y))
+        {
+            pElements.push_back(getSharedThis());
+        }
     }
 }
 

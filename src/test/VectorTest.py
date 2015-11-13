@@ -188,13 +188,22 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testRect3"),
                  addRect2,
                  lambda: self.compareImage("testRect4"),
-                 lambda: self.fakeClick(100, 100),
+                ))
+
+    def testRectEvents(self):
+        canvas = self.makeEmptyCanvas()
+        rect = avg.RectNode(pos=(10, 10), size=(50, 30), fillopacity=1,
+                strokewidth=10, parent=canvas)
+        handlerTester = NodeHandlerTester(self, rect)
+        self.start(False,
+                (lambda: self.fakeClick(70, 10),
                  lambda: handlerTester.assertState(()),
-                 lambda: self.fakeClick(55, 50),
-                 lambda: handlerTester.assertState(()),
-                 lambda: self.fakeClick(65, 65),
+                 lambda: self.fakeClick(20, 20),
                  lambda: handlerTester.assertState(
                         (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(10, 7),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                 ))
 
     def testTexturedRect(self):
@@ -757,6 +766,7 @@ def vectorTestSuite(tests):
             "testLineOpacity",
             "testTexturedLine",
             "testRect",
+            "testRectEvents",
             "testTexturedRect",
             "testCurve",
             "testTexturedCurve",
