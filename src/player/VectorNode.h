@@ -103,6 +103,7 @@ class AVG_API VectorNode : public Node
         int getNumDifferentPts(const std::vector<glm::vec2>& pts);
 
         void setTranslate(const glm::vec2& trans);
+        bool isInside(const glm::vec2& pos);
 
     private:
         void checkRedraw();

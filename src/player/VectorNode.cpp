@@ -179,8 +179,7 @@ void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
 
 void VectorNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
-    checkRedraw();
-    if (reactsToMouseEvents() && m_pShape->isPtInside(pos)) {
+    if (reactsToMouseEvents() && isInside(pos)) {
         pElements.push_back(getSharedThis());
     }
 }
@@ -511,6 +510,13 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
 void VectorNode::setTranslate(const glm::vec2& trans)
 {
     m_Translate = trans;
+}
+
+bool VectorNode::isInside(const glm::vec2& pos)
+{
+    checkRedraw();
+    return m_pShape->isPtInside(pos);
+
 }
 
 void VectorNode::checkRedraw()

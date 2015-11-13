@@ -488,7 +488,6 @@ class VectorTestCase(AVGTestCase):
 
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
-        handlerTester = NodeHandlerTester(self, polygon)
         self.start(False,
                 (lambda: self.compareImage("testPolygon1"),
                  changePolygon,
@@ -501,14 +500,6 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon5"),
                  miterPolygons,
                  lambda: self.compareImage("testPolygon6"),
-                 lambda: self.fakeClick(50, 50),
-                 lambda: handlerTester.assertState(()),
-                 lambda: self.fakeClick(20, 87),
-                 lambda: handlerTester.assertState(
-                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
-                 lambda: self.fakeClick(5, 10),
-                 lambda: handlerTester.assertState(
-                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                  addEmptyPolygon,
                  clearCanvas,
                  createLeftOpenPolygon,
@@ -521,6 +512,22 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon10"),
                  createDegeneratePolygon,
                  lambda: self.compareImage("testPolygon11")
+                ))
+
+    def testPolygonEvents(self):
+        canvas = self.makeEmptyCanvas()
+        polygon = avg.PolygonNode(strokewidth=10, color="FF00FF",
+                    pos=((10,10), (50,10), (90,50), (90, 90)), parent=canvas)
+        handlerTester = NodeHandlerTester(self, polygon)
+        self.start(False,
+                (lambda: self.fakeClick(20, 50),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(70, 50),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(30, 7),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                 ))
 
     def testTexturedPolygon(self):
@@ -756,6 +763,7 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
+            "testPolygonEvents",
             "testTexturedPolygon",
             "testPointInPolygon",
             "testCircle",
