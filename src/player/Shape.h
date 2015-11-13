@@ -62,6 +62,7 @@ class AVG_API Shape
         SubVertexArray m_SubVA;
         OGLSurface * m_pSurface;
         GPUImagePtr m_pGPUImage;
+        FRect m_Bounds;
 };
 
 typedef boost::shared_ptr<Shape> ShapePtr;

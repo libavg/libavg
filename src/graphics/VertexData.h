@@ -28,12 +28,14 @@
 #include "OGLHelper.h"
 
 #include "../base/GLMHelper.h"
+#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
 
 struct Vertex {
+    glm::vec2 posAsVec();
     GLfloat m_Tex[2];
     GLfloat m_Pos[2];
     Pixel32 m_Color;
@@ -63,6 +65,7 @@ public:
     bool hasDataChanged() const;
     void resetDataChanged();
     void reset();
+    FRect calcBoundingRect() const;
 
     int getNumVerts() const;
     int getNumIndexes() const;

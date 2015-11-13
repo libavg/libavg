@@ -24,6 +24,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/Triangle.h"
+#include "../base/Rect.h"
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/GLContext.h"
@@ -80,6 +81,7 @@ GPUImagePtr Shape::getGPUImage()
 void Shape::setVertexData(VertexDataPtr pVertexData)
 {
     m_pVertexData = pVertexData;
+    m_Bounds = m_pVertexData->calcBoundingRect();
 }
 
 void Shape::setVertexArray(const VertexArrayPtr& pVA)
@@ -113,6 +115,9 @@ void Shape::draw(GLContext* pContext, const glm::mat4& transform, float opacity)
 
 bool Shape::isPtInside(const glm::vec2& pos)
 {
+    if (!m_Bounds.contains(pos)) {
+        return false;
+    }
     const Vertex* pVertexes = m_pVertexData->getVertexPointer();
     const GL_INDEX_TYPE* pIndexes = m_pVertexData->getIndexPointer();
     for (int i=0; i<m_pVertexData->getNumIndexes(); i+=3) {
