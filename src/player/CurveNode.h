@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "VectorNode.h"
 
+#include "../base/BezierCurve.h"
 #include "../graphics/Pixel32.h"
 
 namespace avg {
@@ -63,10 +64,7 @@ class AVG_API CurveNode : public VectorNode
     private:
         void updateLines();
         void addLRCurvePoint(const glm::vec2& pos, const glm::vec2& deriv);
-        glm::vec2 m_P1;
-        glm::vec2 m_P2;
-        glm::vec2 m_P3;
-        glm::vec2 m_P4;
+        BezierCurvePtr m_pCurve;
         float m_TC1;
         float m_TC2;
 

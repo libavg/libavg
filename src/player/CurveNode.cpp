@@ -26,7 +26,6 @@
 
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
-#include "../base/BezierCurve.h"
 
 #include "../graphics/VertexData.h"
 
@@ -43,10 +42,10 @@ void CurveNode::registerType()
 {
     TypeDefinition def = TypeDefinition("curve", "vectornode", 
             ExportedObject::buildObject<CurveNode>)
-        .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(CurveNode, m_P1)))
-        .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(CurveNode, m_P2)))
-        .addArg(Arg<glm::vec2>("pos3", glm::vec2(0,0), false, offsetof(CurveNode, m_P3)))
-        .addArg(Arg<glm::vec2>("pos4", glm::vec2(0,0), false, offsetof(CurveNode, m_P4)))
+        .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0)))
+        .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0)))
+        .addArg(Arg<glm::vec2>("pos3", glm::vec2(0,0)))
+        .addArg(Arg<glm::vec2>("pos4", glm::vec2(0,0)))
         .addArg(Arg<float>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
         .addArg(Arg<float>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
     TypeRegistry::get()->registerType(def);
@@ -56,6 +55,11 @@ CurveNode::CurveNode(const ArgList& args)
    : VectorNode(args)
 {
     args.setMembers(this);
+    glm::vec2 p0 = args.getArgVal<glm::vec2>("pos1");
+    glm::vec2 p1 = args.getArgVal<glm::vec2>("pos2");
+    glm::vec2 p2 = args.getArgVal<glm::vec2>("pos3");
+    glm::vec2 p3 = args.getArgVal<glm::vec2>("pos4");
+    m_pCurve = BezierCurvePtr(new BezierCurve(p0, p1, p2, p3));
 }
 
 CurveNode::~CurveNode()
@@ -64,45 +68,45 @@ CurveNode::~CurveNode()
 
 const glm::vec2& CurveNode::getPos1() const 
 {
-    return m_P1;
+    return m_pCurve->getPt(0);
 }
 
 void CurveNode::setPos1(const glm::vec2& pt) 
 {
-    m_P1 = pt;
+    m_pCurve->setPt(0, pt);
     setDrawNeeded();
 }
 
 const glm::vec2& CurveNode::getPos2() const 
 {
-    return m_P2;
+    return m_pCurve->getPt(1);
 }
 
 void CurveNode::setPos2(const glm::vec2& pt) 
 {
-    m_P2 = pt;
+    m_pCurve->setPt(1, pt);
     setDrawNeeded();
 }
 
 const glm::vec2& CurveNode::getPos3() const 
 {
-    return m_P3;
+    return m_pCurve->getPt(2);
 }
 
 void CurveNode::setPos3(const glm::vec2& pt) 
 {
-    m_P3 = pt;
+    m_pCurve->setPt(2, pt);
     setDrawNeeded();
 }
 
 const glm::vec2& CurveNode::getPos4() const 
 {
-    return m_P4;
+    return m_pCurve->getPt(3);
 }
 
 void CurveNode::setPos4(const glm::vec2& pt) 
 {
-    m_P4 = pt;
+    m_pCurve->setPt(3, pt);
     setDrawNeeded();
 }
 
@@ -130,16 +134,12 @@ void CurveNode::setTexCoord2(float tc)
  
 int CurveNode::getCurveLen() const
 {
-    // Calc. upper bound for spline length.
-    float curveLen = glm::length(m_P2-m_P1) + glm::length(m_P3 - m_P2)
-            + glm::length(m_P4-m_P3);
-    return int(curveLen);
+    return int(m_pCurve->estimateLen());
 }
 
 glm::vec2 CurveNode::getPtOnCurve(float t) const
 {
-    BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
-    return curve.interpolate(t);
+    return m_pCurve->interpolate(t);
 }
 
 void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
@@ -159,8 +159,6 @@ void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 
 void CurveNode::updateLines()
 {
-    BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
-    
     float len = float(getCurveLen());
     m_LeftCurve.clear();
     m_RightCurve.clear();
@@ -169,9 +167,9 @@ void CurveNode::updateLines()
 
     for (unsigned i = 0; i < len; ++i) {
         float t = i/len;
-        addLRCurvePoint(curve.interpolate(t), curve.getDeriv(t));
+        addLRCurvePoint(m_pCurve->interpolate(t), m_pCurve->getDeriv(t));
     }
-    addLRCurvePoint(curve.interpolate(1), curve.getDeriv(1));
+    addLRCurvePoint(m_pCurve->interpolate(1), m_pCurve->getDeriv(1));
 }
 
 void CurveNode::addLRCurvePoint(const glm::vec2& pos, const glm::vec2& deriv)

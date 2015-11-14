@@ -38,6 +38,10 @@ public:
 
     glm::vec2 interpolate(float t) const;
     glm::vec2 getDeriv(float t) const;
+    float estimateLen() const;
+
+    const glm::vec2& getPt(int i) const;
+    void setPt(int i, const glm::vec2& pt);
 
 private:
     glm::vec2 m_P0;
