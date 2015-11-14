@@ -307,6 +307,22 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCurve4"),
                 )) 
 
+    def testCurveEvents(self):
+        canvas = self.makeEmptyCanvas()
+        curve = avg.CurveNode(pos1=(10.5, 10), pos2=(10.5, 80), pos3=(80.5, 80), 
+                pos4=(80.5, 10), strokewidth=20, parent=canvas)
+        handlerTester = NodeHandlerTester(self, curve)
+        self.start(False,
+                (lambda: self.fakeClick(40, 20),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(10, 20),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(45, 65),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
+                ))
+
     def testTexturedCurve(self):
         def addCurve():
             curve = avg.CurveNode(pos1=(10.5, 10), pos2=(10.5, 80), pos3=(80.5, 80), 
@@ -769,6 +785,7 @@ def vectorTestSuite(tests):
             "testRectEvents",
             "testTexturedRect",
             "testCurve",
+            "testCurveEvents",
             "testTexturedCurve",
             "testPolyLine",
             "testTexturedPolyLine",
