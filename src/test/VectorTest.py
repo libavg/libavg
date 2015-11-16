@@ -540,9 +540,13 @@ class VectorTestCase(AVGTestCase):
                 ))
 
     def testPolygonEvents(self):
+        def moveNode():
+            div.pos = (40,40)
+
         canvas = self.makeEmptyCanvas()
+        div = avg.DivNode(parent=canvas)
         polygon = avg.PolygonNode(strokewidth=10, color="FF00FF",
-                    pos=((10,10), (50,10), (90,50), (90, 90)), parent=canvas)
+                    pos=((10,10), (50,10), (90,50), (90, 90)), parent=div)
         handlerTester = NodeHandlerTester(self, polygon)
         self.start(False,
                 (lambda: self.fakeClick(20, 50),
@@ -553,6 +557,12 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.fakeClick(30, 7),
                  lambda: handlerTester.assertState(
                         (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
+                 moveNode,
+                 lambda: self.fakeClick(20, 20),
+                 lambda: handlerTester.assertState([avg.Node.CURSOR_OUT]),
+                 lambda: self.fakeClick(50, 50),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
                 ))
 
     def testTexturedPolygon(self):
