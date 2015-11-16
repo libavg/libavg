@@ -223,7 +223,7 @@ void CurveNode::calcBoundingBoxes()
         const glm::vec2& curPt = m_CenterCurve[i*4];
         pCurAABBs->push_back(CurveAABB(curPt, i*4, endIdx));
         CurveAABB& curAABB = pCurAABBs->back();
-        for (unsigned j=startIdx; j<=endIdx; ++j) {
+        for (int j=startIdx; j<=endIdx; ++j) {
             curAABB.expand(m_CenterCurve[j]);
         }
     }
@@ -235,7 +235,7 @@ void CurveNode::calcBoundingBoxes()
         curAABB.br += stroke;
     }
     // Higher levels: combine AABBs of lower levels.
-    int numSections = pCurAABBs->size();
+    unsigned numSections = pCurAABBs->size();
     unsigned level = 0;
     while (numSections > 1) {
         numSections = ceil(float(numSections)/2);
