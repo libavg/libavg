@@ -58,6 +58,7 @@ public:
     bool contains(const Rect<NUM, precision>& rect) const;
     bool intersects(const Rect<NUM, precision>& rect) const;
     void expand(const Rect<NUM, precision>& rect);
+    void expand(const Vec2& pt);
     void intersect(const Rect<NUM, precision>& rect);
     Vec2 size() const;
     Vec2 cropPoint(const Vec2& pt) const;
@@ -198,6 +199,15 @@ void Rect<NUM, precision>::expand(const Rect<NUM, precision>& rect)
         br.x = glm::max(br.x, rect.br.x);
         br.y = glm::max(br.y, rect.br.y);
     }
+}
+
+template<typename NUM, glm::precision precision>
+void Rect<NUM, precision>::expand(const Vec2& pt)
+{
+    tl.x = glm::min(tl.x, pt.x);
+    tl.y = glm::min(tl.y, pt.y);
+    br.x = glm::max(br.x, pt.x);
+    br.y = glm::max(br.y, pt.y);
 }
 
 template<typename NUM, glm::precision precision>

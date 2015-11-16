@@ -25,10 +25,22 @@
 #include "../api.h"
 #include "VectorNode.h"
 
+#include "../base/Rect.h"
 #include "../base/BezierCurve.h"
 #include "../graphics/Pixel32.h"
 
 namespace avg {
+
+// Axis-aligned bounding box.
+class AVG_API CurveAABB: public FRect
+{
+public:
+    CurveAABB(const glm::vec2& pt, int startIDX, int endIDX);
+    int m_StartIdx;
+    int m_EndIdx;
+};
+typedef std::vector<CurveAABB> CurveAABBVector;
+typedef boost::shared_ptr<CurveAABBVector> CurveAABBVectorPtr;
 
 class AVG_API CurveNode : public VectorNode
 {
@@ -63,13 +75,19 @@ class AVG_API CurveNode : public VectorNode
 
     private:
         void updateLines();
-        void addLRCurvePoint(const glm::vec2& pos, const glm::vec2& deriv);
+        void calcBoundingBoxes();
+        void addCurvePoints(const glm::vec2& pos, const glm::vec2& deriv);
         BezierCurvePtr m_pCurve;
         float m_TC1;
         float m_TC2;
 
+        std::vector<glm::vec2> m_CenterCurve;
         std::vector<glm::vec2> m_LeftCurve;
         std::vector<glm::vec2> m_RightCurve;
+
+        // Hierarchial bounding boxes: (Bounding box levels) x (boxes in level).
+        // Bounding boxes are only used for hit test calculation.
+        std::vector<CurveAABBVectorPtr> m_AABBs;
 };
 
 }

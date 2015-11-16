@@ -37,6 +37,12 @@
 using namespace std;
 
 namespace avg {
+CurveAABB::CurveAABB(const glm::vec2& pt, int startIDX, int endIDX)
+    : FRect(pt, pt),
+      m_StartIdx(startIDX),
+      m_EndIdx(endIDX)
+{
+}
 
 void CurveNode::registerType()
 {
@@ -145,7 +151,8 @@ glm::vec2 CurveNode::getPtOnCurve(float t) const
 void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     updateLines();
-    
+    calcBoundingBoxes();
+
     pVertexData->appendPos(m_LeftCurve[0], glm::vec2(m_TC1,1), color);
     pVertexData->appendPos(m_RightCurve[0], glm::vec2(m_TC2,0), color);
     for (unsigned i = 0; i < m_LeftCurve.size()-1; ++i) {
@@ -167,13 +174,56 @@ void CurveNode::updateLines()
 
     for (unsigned i = 0; i < len; ++i) {
         float t = i/len;
-        addLRCurvePoint(m_pCurve->interpolate(t), m_pCurve->getDeriv(t));
+        addCurvePoints(m_pCurve->interpolate(t), m_pCurve->getDeriv(t));
     }
-    addLRCurvePoint(m_pCurve->interpolate(1), m_pCurve->getDeriv(1));
+    addCurvePoints(m_pCurve->interpolate(1), m_pCurve->getDeriv(1));
 }
 
-void CurveNode::addLRCurvePoint(const glm::vec2& pos, const glm::vec2& deriv)
+void CurveNode::calcBoundingBoxes()
 {
+    m_AABBs.clear();
+    m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
+    CurveAABBVectorPtr pCurAABBs = m_AABBs.back();
+    for (unsigned i=0; i<=m_CenterCurve.size()/4; ++i) {
+        int startIdx = i*4;
+        int endIdx = min(i*4+3, unsigned(m_CenterCurve.size()-1));
+        const glm::vec2& curPt = m_CenterCurve[i*4];
+        pCurAABBs->push_back(CurveAABB(curPt, i*4, endIdx));
+        CurveAABB& curAABB = pCurAABBs->back();
+        for (unsigned j=startIdx; j<=endIdx; ++j) {
+            curAABB.expand(m_CenterCurve[j]);
+        }
+    }
+    int numSections = pCurAABBs->size();
+    unsigned level = 0;
+    while (numSections > 1) {
+        numSections = ceil(float(numSections)/2);
+        m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
+        CurveAABBVectorPtr pLastAABBs = m_AABBs[level];
+        pCurAABBs = m_AABBs.back();
+        for (unsigned i=0; i<numSections; ++i) {
+            pCurAABBs->push_back(CurveAABB((*pLastAABBs)[i*2]));
+            CurveAABB& curAABB = pCurAABBs->back();
+            if (i*2+1 < pLastAABBs->size()) {
+                curAABB.expand((*pLastAABBs)[i*2+1]);
+            }
+        }
+        level++;
+    }
+/*
+    for (unsigned i=0; i<m_AABBs.size(); ++i) {
+        cerr << "Level: " << i << " (size: " << m_AABBs[i]->size() << ")" << endl;
+        for (unsigned j=0; j<m_AABBs[i]->size(); ++j) {
+            cerr << (*m_AABBs[i])[j] << " ";
+        }
+        cerr << endl;
+    }
+    */
+}
+
+void CurveNode::addCurvePoints(const glm::vec2& pos, const glm::vec2& deriv)
+{
+    m_CenterCurve.push_back(pos);
     glm::vec2 m = glm::normalize(deriv);
     glm::vec2 w = glm::vec2(m.y, -m.x)*float(getStrokeWidth()/2);
     m_LeftCurve.push_back(pos-w);
