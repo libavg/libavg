@@ -198,8 +198,10 @@ bool CurveNode::isInsideBB(const glm::vec2& pos, unsigned level, unsigned i)
 void CurveNode::updateLines()
 {
     float len = float(getCurveLen());
+    m_CenterCurve.clear();
     m_LeftCurve.clear();
     m_RightCurve.clear();
+    m_CenterCurve.reserve(int(len+1.5f));
     m_LeftCurve.reserve(int(len+1.5f));
     m_RightCurve.reserve(int(len+1.5f));
 
@@ -217,6 +219,7 @@ void CurveNode::calcBoundingBoxes()
     // Lowest level: Generate from curve points.
     m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
     CurveAABBVectorPtr pCurAABBs = m_AABBs.back();
+    glm::vec2 stroke(getStrokeWidth()/2, getStrokeWidth()/2);
     for (unsigned i=0; i<=m_CenterCurve.size()/4; ++i) {
         int startIdx = i*4;
         int endIdx = min(i*4+3, unsigned(m_CenterCurve.size()-1));
@@ -226,11 +229,6 @@ void CurveNode::calcBoundingBoxes()
         for (int j=startIdx; j<=endIdx; ++j) {
             curAABB.expand(m_CenterCurve[j]);
         }
-    }
-    // Expand lowest level to include stroke width.
-    glm::vec2 stroke(getStrokeWidth()/2, getStrokeWidth()/2);
-    for (unsigned i=0; i<=pCurAABBs->size(); ++i) {
-        CurveAABB& curAABB = (*pCurAABBs)[i];
         curAABB.tl -= stroke;
         curAABB.br += stroke;
     }
@@ -238,6 +236,7 @@ void CurveNode::calcBoundingBoxes()
     unsigned numSections = pCurAABBs->size();
     unsigned level = 0;
     while (numSections > 1) {
+//        cerr << "level: " << level << endl;
         numSections = ceil(float(numSections)/2);
         m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
         CurveAABBVectorPtr pLastAABBs = m_AABBs[level];
