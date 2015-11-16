@@ -73,7 +73,11 @@ class AVG_API CurveNode : public VectorNode
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
+    protected:
+        bool isInside(const glm::vec2& pos);
+
     private:
+        bool isInsideBB(const glm::vec2& pos, unsigned level, unsigned i);
         void updateLines();
         void calcBoundingBoxes();
         void addCurvePoints(const glm::vec2& pos, const glm::vec2& deriv);

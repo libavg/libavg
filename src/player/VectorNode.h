@@ -104,9 +104,9 @@ class AVG_API VectorNode : public Node
 
         void setTranslate(const glm::vec2& trans);
         virtual bool isInside(const glm::vec2& pos);
+        virtual void checkRedraw();
 
     private:
-        void checkRedraw();
         Shape* createDefaultShape() const;
 
         Color m_Color;

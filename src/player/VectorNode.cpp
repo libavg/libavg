@@ -179,6 +179,7 @@ void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
 
 void VectorNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
+    checkRedraw();
     if (reactsToMouseEvents() && isInside(pos)) {
         pElements.push_back(getSharedThis());
     }
@@ -514,7 +515,6 @@ void VectorNode::setTranslate(const glm::vec2& trans)
 
 bool VectorNode::isInside(const glm::vec2& pos)
 {
-    checkRedraw();
     glm::vec2 globalPos = toGlobal(pos);
     return m_pShape->isPtInside(globalPos);
 

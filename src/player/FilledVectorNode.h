@@ -67,6 +67,7 @@ class AVG_API FilledVectorNode : public VectorNode
                 const glm::vec2& maxPt);
         virtual bool isVisible() const;
         bool isFillVisible() const;
+        void checkRedraw();
 
     private:
         float m_EffectiveOpacity;

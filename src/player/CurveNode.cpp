@@ -164,6 +164,37 @@ void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
     }
 }
 
+bool CurveNode::isInside(const glm::vec2& pos)
+{
+    glm::vec2 globalPos = toGlobal(pos);
+    return isInsideBB(globalPos, m_AABBs.size()-1, 0);
+}
+
+bool CurveNode::isInsideBB(const glm::vec2& pos, unsigned level, unsigned i)
+{
+    if ((*m_AABBs[level])[i].contains(pos)) {
+        if (level == 0) {
+            // Check individual points
+            const CurveAABB& aabb = (*m_AABBs[level])[i];
+            for (int i=aabb.m_StartIdx; i<=aabb.m_EndIdx; ++i) {
+                if (glm::distance(m_CenterCurve[i], pos) < getStrokeWidth()/2) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            // Recurse to smaller bounding boxes.
+            if (i*2+1 < m_AABBs[level-1]->size()) {
+                return isInsideBB(pos, level-1, i*2) || isInsideBB(pos, level-1, i*2+1);
+            } else {
+                return isInsideBB(pos, level-1, i*2);
+            }
+        }
+    } else {
+        return false;
+    }
+}
+
 void CurveNode::updateLines()
 {
     float len = float(getCurveLen());
@@ -182,6 +213,8 @@ void CurveNode::updateLines()
 void CurveNode::calcBoundingBoxes()
 {
     m_AABBs.clear();
+
+    // Lowest level: Generate from curve points.
     m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
     CurveAABBVectorPtr pCurAABBs = m_AABBs.back();
     for (unsigned i=0; i<=m_CenterCurve.size()/4; ++i) {
@@ -194,6 +227,14 @@ void CurveNode::calcBoundingBoxes()
             curAABB.expand(m_CenterCurve[j]);
         }
     }
+    // Expand lowest level to include stroke width.
+    glm::vec2 stroke(getStrokeWidth()/2, getStrokeWidth()/2);
+    for (unsigned i=0; i<=pCurAABBs->size(); ++i) {
+        CurveAABB& curAABB = (*pCurAABBs)[i];
+        curAABB.tl -= stroke;
+        curAABB.br += stroke;
+    }
+    // Higher levels: combine AABBs of lower levels.
     int numSections = pCurAABBs->size();
     unsigned level = 0;
     while (numSections > 1) {
