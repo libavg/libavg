@@ -219,14 +219,15 @@ void CurveNode::calcBoundingBoxes()
     // Lowest level: Generate from curve points.
     m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
     CurveAABBVectorPtr pCurAABBs = m_AABBs.back();
+    pCurAABBs->reserve(m_CenterCurve.size()/8);
     glm::vec2 stroke(getStrokeWidth()/2, getStrokeWidth()/2);
-    for (unsigned i=0; i<=m_CenterCurve.size()/4; ++i) {
-        int startIdx = i*4;
-        int endIdx = min(i*4+3, unsigned(m_CenterCurve.size()-1));
-        const glm::vec2& curPt = m_CenterCurve[i*4];
-        pCurAABBs->push_back(CurveAABB(curPt, i*4, endIdx));
+    for (unsigned i=0; i<=m_CenterCurve.size()/8; ++i) {
+        int startIdx = i*8;
+        int endIdx = min(i*8+7, unsigned(m_CenterCurve.size()-1));
+        const glm::vec2& curPt = m_CenterCurve[startIdx];
+        pCurAABBs->push_back(CurveAABB(curPt, startIdx, endIdx));
         CurveAABB& curAABB = pCurAABBs->back();
-        for (int j=startIdx; j<=endIdx; ++j) {
+        for (int j=startIdx; j<=endIdx; j+=2) {
             curAABB.expand(m_CenterCurve[j]);
         }
         curAABB.tl -= stroke;
@@ -236,11 +237,11 @@ void CurveNode::calcBoundingBoxes()
     unsigned numSections = pCurAABBs->size();
     unsigned level = 0;
     while (numSections > 1) {
-//        cerr << "level: " << level << endl;
         numSections = ceil(float(numSections)/2);
         m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
         CurveAABBVectorPtr pLastAABBs = m_AABBs[level];
         pCurAABBs = m_AABBs.back();
+        pCurAABBs->reserve(numSections);
         for (unsigned i=0; i<numSections; ++i) {
             pCurAABBs->push_back(CurveAABB((*pLastAABBs)[i*2]));
             CurveAABB& curAABB = pCurAABBs->back();
