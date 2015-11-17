@@ -194,29 +194,29 @@ void Rect<NUM, precision>::expand(const Rect<NUM, precision>& rect)
     if (width() == 0 && height() == 0) {
         *this = rect;
     } else {
-        tl.x = glm::min(tl.x, rect.tl.x);
-        tl.y = glm::min(tl.y, rect.tl.y);
-        br.x = glm::max(br.x, rect.br.x);
-        br.y = glm::max(br.y, rect.br.y);
+        tl.x = std::min(tl.x, rect.tl.x);
+        tl.y = std::min(tl.y, rect.tl.y);
+        br.x = std::max(br.x, rect.br.x);
+        br.y = std::max(br.y, rect.br.y);
     }
 }
 
 template<typename NUM, glm::precision precision>
 void Rect<NUM, precision>::expand(const Vec2& pt)
 {
-    tl.x = glm::min(tl.x, pt.x);
-    tl.y = glm::min(tl.y, pt.y);
-    br.x = glm::max(br.x, pt.x);
-    br.y = glm::max(br.y, pt.y);
+    tl.x = std::min(tl.x, pt.x);
+    tl.y = std::min(tl.y, pt.y);
+    br.x = std::max(br.x, pt.x);
+    br.y = std::max(br.y, pt.y);
 }
 
 template<typename NUM, glm::precision precision>
 void Rect<NUM, precision>::intersect(const Rect<NUM, precision>& rect)
 {
-    tl.x = glm::max(tl.x, rect.tl.x);
-    tl.y = glm::max(tl.y, rect.tl.y);
-    br.x = glm::min(br.x, rect.br.x);
-    br.y = glm::min(br.y, rect.br.y);
+    tl.x = std::max(tl.x, rect.tl.x);
+    tl.y = std::max(tl.y, rect.tl.y);
+    br.x = std::min(br.x, rect.br.x);
+    br.y = std::min(br.y, rect.br.y);
 }
 
 template<typename NUM, glm::precision precision>

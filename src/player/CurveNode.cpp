@@ -197,7 +197,7 @@ bool CurveNode::isInsideBB(const glm::vec2& pos, unsigned level, unsigned i)
 
 void CurveNode::updateLines()
 {
-    int numPts = getCurveLen()/2;
+    unsigned numPts = getCurveLen()/2;
     m_CenterCurve.clear();
     m_LeftCurve.clear();
     m_RightCurve.clear();
@@ -237,7 +237,7 @@ void CurveNode::calcBoundingBoxes()
     unsigned numSections = pCurAABBs->size();
     unsigned level = 0;
     while (numSections > 1) {
-        numSections = ceil(float(numSections)/2);
+        numSections = int(ceil(float(numSections)/2));
         m_AABBs.push_back(CurveAABBVectorPtr(new CurveAABBVector()));
         CurveAABBVectorPtr pLastAABBs = m_AABBs[level];
         pCurAABBs = m_AABBs.back();

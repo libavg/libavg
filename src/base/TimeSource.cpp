@@ -55,7 +55,7 @@ TimeSource * TimeSource::get()
         UINT wTimerRes;
         MMRESULT err = timeGetDevCaps(&tc, sizeof(TIMECAPS));
         AVG_ASSERT(err == TIMERR_NOERROR);
-        wTimerRes = max(tc.wPeriodMin, 1);
+        wTimerRes = max(int(tc.wPeriodMin), 1);
         timeBeginPeriod(wTimerRes);
 #endif
         m_pTimeSource = new TimeSource;
