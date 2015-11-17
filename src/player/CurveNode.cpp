@@ -156,7 +156,7 @@ void CurveNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
     pVertexData->appendPos(m_LeftCurve[0], glm::vec2(m_TC1,1), color);
     pVertexData->appendPos(m_RightCurve[0], glm::vec2(m_TC2,0), color);
     for (unsigned i = 0; i < m_LeftCurve.size()-1; ++i) {
-        float ratio = i/float(m_LeftCurve.size());
+        float ratio = (i+1)/(float(m_LeftCurve.size()));
         float tc = (1-ratio)*m_TC1+ratio*m_TC2;
         pVertexData->appendPos(m_LeftCurve[i+1], glm::vec2(tc,1), color);
         pVertexData->appendPos(m_RightCurve[i+1], glm::vec2(tc,0), color);
@@ -197,16 +197,16 @@ bool CurveNode::isInsideBB(const glm::vec2& pos, unsigned level, unsigned i)
 
 void CurveNode::updateLines()
 {
-    float len = float(getCurveLen());
+    int numPts = getCurveLen()/2;
     m_CenterCurve.clear();
     m_LeftCurve.clear();
     m_RightCurve.clear();
-    m_CenterCurve.reserve(int(len+1.5f));
-    m_LeftCurve.reserve(int(len+1.5f));
-    m_RightCurve.reserve(int(len+1.5f));
+    m_CenterCurve.reserve(numPts + 2);
+    m_LeftCurve.reserve(numPts + 2);
+    m_RightCurve.reserve(numPts + 2);
 
-    for (unsigned i = 0; i < len; ++i) {
-        float t = i/len;
+    for (unsigned i = 0; i < numPts; ++i) {
+        float t = float(i)/numPts;
         addCurvePoints(m_pCurve->interpolate(t), m_pCurve->getDeriv(t));
     }
     addCurvePoints(m_pCurve->interpolate(1), m_pCurve->getDeriv(1));
