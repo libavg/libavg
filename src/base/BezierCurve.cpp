@@ -22,6 +22,7 @@
 #include "BezierCurve.h"
 
 #include "GLMHelper.h"
+#include "Exception.h"
 
 #include <iostream>
 
@@ -51,6 +52,46 @@ glm::vec2 BezierCurve::getDeriv(float t) const
     return 3.f*(m_P1-m_P0)*(1.f-t)*(1.f-t)+
            6.f*(m_P2-m_P1)*(1.f-t)*t+ 
            3.f*(m_P3-m_P2)*t*t;
+}
+
+float BezierCurve::estimateLen() const
+{
+    return glm::length(m_P1-m_P0) + glm::length(m_P2 - m_P1) + glm::length(m_P3-m_P2);
+}
+
+const glm::vec2& BezierCurve::getPt(int i) const
+{
+    switch (i) {
+        case 0:
+            return m_P0;
+        case 1:
+            return m_P1;
+        case 2:
+            return m_P2;
+        case 3:
+            return m_P3;
+        default:
+            AVG_ASSERT(false);
+            return m_P0;
+    }
+}
+
+void BezierCurve::setPt(int i, const glm::vec2& pt)
+{
+    switch(i) {
+        case 0:
+            m_P0 = pt;
+            break;
+        case 1:
+            m_P1 = pt;
+            break;
+        case 2:
+            m_P2 = pt;
+            break;
+        case 3:
+            m_P3 = pt;
+            break;
+    }
 }
 
 }

@@ -150,12 +150,9 @@ void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive
 {
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     float curOpacity = parentEffectiveOpacity*m_FillOpacity;
-
-    VertexDataPtr pShapeVD = m_pFillShape->getVertexData();
     if (isDrawNeeded() || curOpacity != m_EffectiveOpacity) {
-        pShapeVD->reset();
         m_EffectiveOpacity = curOpacity;
-        calcFillVertexes(pShapeVD, m_FillColor);
+        checkRedraw();
     }
     if (isVisible()) {
         m_pFillShape->setVertexArray(pVA);
@@ -207,6 +204,17 @@ bool FilledVectorNode::isVisible() const
 bool FilledVectorNode::isFillVisible() const
 {
     return getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01;
+}
+
+void FilledVectorNode::checkRedraw()
+{
+    if (isDrawNeeded()) {
+        VertexDataPtr pShapeVD(new VertexData());
+        pShapeVD->reset();
+        calcFillVertexes(pShapeVD, m_FillColor);
+        m_pFillShape->setVertexData(pShapeVD);
+    }
+    VectorNode::checkRedraw();
 }
 
 }

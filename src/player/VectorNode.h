@@ -70,6 +70,8 @@ class AVG_API VectorNode : public Node
         virtual void maybeRender(GLContext* pContext, const glm::mat4& parentTransform);
         virtual void render(GLContext* pContext, const glm::mat4& transform);
 
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
+
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 
         void setColor(const Color& color);
@@ -90,7 +92,7 @@ class AVG_API VectorNode : public Node
         void calcPolyLineCumulDist(std::vector<float>& cumulDist, 
                 const std::vector<glm::vec2>& pts, bool bIsClosed);
         void calcEffPolyLineTexCoords(std::vector<float>& effTC, 
-        const std::vector<float>& tc, const std::vector<float>& cumulDist);
+                const std::vector<float>& tc, const std::vector<float>& cumulDist);
 
         void calcPolyLine(const std::vector<glm::vec2>& origPts, 
                 const std::vector<float>& origTexCoords, bool bIsClosed, 
@@ -101,6 +103,8 @@ class AVG_API VectorNode : public Node
         int getNumDifferentPts(const std::vector<glm::vec2>& pts);
 
         void setTranslate(const glm::vec2& trans);
+        virtual bool isInside(const glm::vec2& pos);
+        virtual void checkRedraw();
 
     private:
         Shape* createDefaultShape() const;

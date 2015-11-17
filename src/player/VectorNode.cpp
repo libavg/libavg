@@ -148,12 +148,7 @@ void VectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     {
         ScopeTimer timer(PrerenderProfilingZone);
-        VertexDataPtr pShapeVD = m_pShape->getVertexData();
-        if (m_bDrawNeeded) {
-            pShapeVD->reset();
-            calcVertexes(pShapeVD, m_Color);
-            m_bDrawNeeded = false;
-        }
+        checkRedraw();
         if (isVisible()) {
             m_pShape->setVertexArray(pVA);
         }
@@ -181,6 +176,15 @@ void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
         m_pShape->draw(pContext, transform, curOpacity);
     }
 }
+
+void VectorNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+{
+    checkRedraw();
+    if (reactsToMouseEvents() && isInside(pos)) {
+        pElements.push_back(getSharedThis());
+    }
+}
+
 
 void VectorNode::setColor(const Color& color)
 {
@@ -507,6 +511,24 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
 void VectorNode::setTranslate(const glm::vec2& trans)
 {
     m_Translate = trans;
+}
+
+bool VectorNode::isInside(const glm::vec2& pos)
+{
+    glm::vec2 globalPos = toGlobal(pos);
+    return m_pShape->isPtInside(globalPos);
+
+}
+
+void VectorNode::checkRedraw()
+{
+    if (m_bDrawNeeded) {
+        VertexDataPtr pShapeVD(new VertexData());
+        pShapeVD->reset();
+        calcVertexes(pShapeVD, m_Color);
+        m_bDrawNeeded = false;
+        m_pShape->setVertexData(pShapeVD);
+    }
 }
 
 Shape* VectorNode::createDefaultShape() const
