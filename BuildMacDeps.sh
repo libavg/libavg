@@ -132,9 +132,11 @@ buildboost()
 
 checkConfig
 
-clean
-
 cd ../deps
+tar xjf macdependencies.1.8.0.3.tar.bz2
+../libavg/mac/UnpackDeps.sh
+
+clean
 
 buildLib libtool-2.4.6
 buildLib autoconf-2.69
