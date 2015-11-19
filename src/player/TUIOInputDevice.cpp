@@ -106,6 +106,11 @@ TUIOInputDevice::~TUIOInputDevice()
     if (m_pSocket) {
         m_pSocket->Break();
     }
+#ifndef WIN32
+    pthread_join(m_Thread, 0);
+#else
+    WaitForSingleObject(m_Thread, INFINITE);
+#endif
     delete m_pSocket;
 }
 
