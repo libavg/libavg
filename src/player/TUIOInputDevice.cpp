@@ -104,7 +104,7 @@ TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
 TUIOInputDevice::~TUIOInputDevice()
 {
     if (m_pSocket) {
-        m_pSocket->Break();
+        m_pSocket->AsynchronousBreak();
     }
 #ifndef WIN32
     pthread_join(m_Thread, 0);
