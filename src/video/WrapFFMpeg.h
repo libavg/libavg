@@ -70,6 +70,9 @@ extern "C" {
     #include <libavresample/avresample.h>
     #include <libavresample/version.h>
 #endif
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
+#define av_frame_alloc  avcodec_alloc_frame
+#endif
 }
 
 #ifdef PixelFormat
