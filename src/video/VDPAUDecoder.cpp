@@ -43,7 +43,7 @@ namespace avg {
 VDPAUDecoder::VDPAUDecoder()
     : m_VDPDecoder(VDP_INVALID_HANDLE),
       m_VDPMixer(VDP_INVALID_HANDLE),
-      m_PixFmt(PIX_FMT_NONE),
+      m_PixFmt(AV_PIX_FMT_NONE),
       m_Size(-1,-1)
 {
 }
@@ -132,15 +132,15 @@ AVPixelFormat VDPAUDecoder::getFormat(AVCodecContext* pContext, const AVPixelFor
 {
     switch (pContext->codec_id) {
         case AV_CODEC_ID_H264:
-            return PIX_FMT_VDPAU_H264;
+            return AV_PIX_FMT_VDPAU_H264;
         case AV_CODEC_ID_MPEG1VIDEO:
-            return PIX_FMT_VDPAU_MPEG1;
+            return AV_PIX_FMT_VDPAU_MPEG1;
         case AV_CODEC_ID_MPEG2VIDEO:
-            return PIX_FMT_VDPAU_MPEG2;
+            return AV_PIX_FMT_VDPAU_MPEG2;
         case AV_CODEC_ID_WMV3:
-            return PIX_FMT_VDPAU_WMV3;
+            return AV_PIX_FMT_VDPAU_WMV3;
         case AV_CODEC_ID_VC1:
-            return PIX_FMT_VDPAU_VC1;
+            return AV_PIX_FMT_VDPAU_VC1;
         default:
             return pFmt[0];
     }
@@ -198,19 +198,19 @@ void VDPAUDecoder::setupDecoder(AVCodecContext* pContext)
     // Create new decoder and mixer.
     VdpDecoderProfile profile = 0;
     switch (pContext->pix_fmt) {
-        case PIX_FMT_VDPAU_MPEG1:
+        case AV_PIX_FMT_VDPAU_MPEG1:
             profile = VDP_DECODER_PROFILE_MPEG1;
             break;
-        case PIX_FMT_VDPAU_MPEG2:
+        case AV_PIX_FMT_VDPAU_MPEG2:
             profile = VDP_DECODER_PROFILE_MPEG2_MAIN;
             break;
-        case PIX_FMT_VDPAU_H264:
+        case AV_PIX_FMT_VDPAU_H264:
             profile = VDP_DECODER_PROFILE_H264_HIGH;
             break;
-        case PIX_FMT_VDPAU_WMV3:
+        case AV_PIX_FMT_VDPAU_WMV3:
             profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
             break;
-        case PIX_FMT_VDPAU_VC1:
+        case AV_PIX_FMT_VDPAU_VC1:
             profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
             break;
         default:

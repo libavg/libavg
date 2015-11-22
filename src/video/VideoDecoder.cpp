@@ -435,25 +435,25 @@ PixelFormat VideoDecoder::calcPixelFormat(bool bUseYCbCr)
     AVCodecContext const* pContext = getCodecContext();
     if (bUseYCbCr) {
         switch(pContext->pix_fmt) {
-            case PIX_FMT_YUV420P:
+            case AV_PIX_FMT_YUV420P:
 #ifdef AVG_ENABLE_VDPAU
-            case PIX_FMT_VDPAU_H264:
-            case PIX_FMT_VDPAU_MPEG1:
-            case PIX_FMT_VDPAU_MPEG2:
-            case PIX_FMT_VDPAU_WMV3:
-            case PIX_FMT_VDPAU_VC1:
+            case AV_PIX_FMT_VDPAU_H264:
+            case AV_PIX_FMT_VDPAU_MPEG1:
+            case AV_PIX_FMT_VDPAU_MPEG2:
+            case AV_PIX_FMT_VDPAU_WMV3:
+            case AV_PIX_FMT_VDPAU_VC1:
 #endif
                 return YCbCr420p;
-            case PIX_FMT_YUVJ420P:
+            case AV_PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
-            case PIX_FMT_YUVA420P:
+            case AV_PIX_FMT_YUVA420P:
                 return YCbCrA420p;
             default:
                 break;
         }
     }
-    bool bAlpha = (pContext->pix_fmt == PIX_FMT_BGRA ||
-            pContext->pix_fmt == PIX_FMT_YUVA420P);
+    bool bAlpha = (pContext->pix_fmt == AV_PIX_FMT_BGRA ||
+            pContext->pix_fmt == AV_PIX_FMT_YUVA420P);
     return BitmapLoader::get()->getDefaultPixelFormat(bAlpha);
 }
 

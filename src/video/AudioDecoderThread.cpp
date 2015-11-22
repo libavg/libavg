@@ -131,7 +131,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
     pTempPacket->data = pPacket->data;
     pTempPacket->size = pPacket->size;
     AVFrame* pDecodedFrame;
-    pDecodedFrame = avcodec_alloc_frame();
+    pDecodedFrame = av_frame_alloc();
     while (pTempPacket->size > 0) {
         int gotFrame = 0;
         int bytesDecoded;
