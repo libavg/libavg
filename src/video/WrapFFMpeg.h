@@ -79,6 +79,7 @@ extern "C" {
 #undef PixelFormat
 #else
 #define AVPixelFormat ::PixelFormat
+#define AV_PIX_FMT_ PIX_FMT_
 #endif
 
 namespace avg
