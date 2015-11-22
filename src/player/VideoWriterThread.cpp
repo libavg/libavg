@@ -39,7 +39,7 @@ namespace avg {
 const unsigned int VIDEO_BUFFER_SIZE = 400000;
 #endif
 
-const AVPixelFormat STREAM_PIXEL_FORMAT = ::AV_PIX_FMT_YUVJ420P;
+const AVPixelFormat STREAM_PIXEL_FORMAT = AV_PIX_FMT_YUVJ420P;
 
 VideoWriterThread::VideoWriterThread(CQueue& cmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
@@ -164,7 +164,7 @@ void VideoWriterThread::open()
     }
 
     m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y, 
-            ::AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
+            AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
             SWS_BILINEAR, NULL, NULL, NULL);
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);

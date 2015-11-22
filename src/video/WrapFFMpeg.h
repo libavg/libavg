@@ -78,8 +78,22 @@ extern "C" {
 #ifdef PixelFormat
 #undef PixelFormat
 #else
-#define AVPixelFormat ::PixelFormat
-#define AV_PIX_FMT_ PIX_FMT_
+    #define AVPixelFormat ::PixelFormat
+    #define AV_PIX_FMT_NONE PIX_FMT_NONE
+    #define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+    #define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
+    #define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
+    #define AV_PIX_FMT_RGBA PIX_FMT_RGBA
+    #define AV_PIX_FMT_BGRA PIX_FMT_BGRA
+    #define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+    #define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
+    #define AV_PIX_FMT_YUVA420P PIX_FMT_YUVA420P
+    #define AV_PIX_FMT_YUYV422 PIX_FMT_YUYV422
+    #define AV_PIX_FMT_VDPAU_H264 PIX_FMT_VDPAU_H264
+    #define AV_PIX_FMT_VDPAU_MPEG1 PIX_FMT_VDPAU_MPEG1
+    #define AV_PIX_FMT_VDPAU_MPEG2 PIX_FMT_VDPAU_MPEG2
+    #define AV_PIX_FMT_VDPAU_WMV3 PIX_FMT_VDPAU_WMV3
+    #define AV_PIX_FMT_VDPAU_VC1 PIX_FMT_VDPAU_VC1
 #endif
 
 namespace avg
