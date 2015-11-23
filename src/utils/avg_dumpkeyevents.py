@@ -21,22 +21,26 @@
 # Current versions can be found at www.libavg.de
 
 
-from libavg import avg, app
+from libavg import app, player
 
 
-class VSyncDiv(app.MainDiv):
+class DumpKeyEvents(app.MainDiv):
     def onInit(self):
-        self.__line = avg.LineNode(color='FFFFFF', parent=self)
-        self.__x = 0
+        player.subscribe(player.KEY_DOWN, self.onKeyDown)
+        player.subscribe(player.KEY_UP, self.onKeyUp)
 
-    def onFrame(self):
-        self.__x += 1
-        if self.__x == self.width:
-            self.__x = 0
-        self.__line.pos1 = (self.__x, 0)
-        self.__line.pos2 = (self.__x, self.height)
+    def onKeyDown(self, event):
+        self.__showMsg("KEY_DOWN", event)
 
+    def onKeyUp(self, event):
+        self.__showMsg("KEY_UP", event)
+
+    def __showMsg(self, title, event):
+        msg = (title + ": name='" + event.keyname + "', text='" + event.text +
+                "', scancode=" + str(event.scancode))
+        app.flashmessage.FlashMessage(msg)
+        print msg
 
 if __name__ == '__main__':
-    app.App().run(VSyncDiv(), app_resolution='800x600')
+    app.App().run(DumpKeyEvents(), app_resolution='800x600')
 
