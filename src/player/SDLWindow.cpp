@@ -179,7 +179,6 @@ vector<EventPtr> SDLWindow::pollEvents()
     KeyEventPtr pPendingKeyEvent;
 
     int numEvents = 0;
-    cerr << "----pollEvents----" << endl;
     while (SDL_PollEvent(&sdlEvent)) {
         numEvents++;
         EventPtr pNewEvent;
@@ -215,18 +214,18 @@ vector<EventPtr> SDLWindow::pollEvents()
 //                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
                 break;
             case SDL_KEYDOWN:
-                cerr << "down" << endl;
+//                cerr << "down" << endl;
                 if (pPendingKeyEvent) {
                     events.push_back(pPendingKeyEvent);
                 }
                 pPendingKeyEvent = createKeyEvent(Event::KEY_DOWN, sdlEvent);
                 break;
             case SDL_KEYUP:
-                cerr << "up" << endl;
+//                cerr << "up" << endl;
                 pNewEvent = createKeyEvent(Event::KEY_UP, sdlEvent);
                 break;
             case SDL_TEXTINPUT:
-                cerr << "Text: " << sdlEvent.text.text << endl;
+//                cerr << "Text: " << sdlEvent.text.text << endl;
                 // We ignore repeating keys.
                 if (pPendingKeyEvent) {
                     pPendingKeyEvent->setText(sdlEvent.text.text);
