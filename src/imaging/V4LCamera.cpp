@@ -455,7 +455,7 @@ void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
         frmSizeEnum.index = 0;
         frmSizeEnum.pixel_format = fmtDesc.pixelformat;
         while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
-/*            fprintf(stdout, "  pixelformat  :%c%c%c%c\\n",
+/*            fprintf(stdout, "  pixelformat  :%c%c%c%c\n",
                                 fmtDesc.pixelformat & 0xFF,
                                 (fmtDesc.pixelformat >> 8) & 0xFF,
                                 (fmtDesc.pixelformat >> 16) & 0xFF, 
@@ -464,7 +464,7 @@ void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
             PixelFormat pixFormat = intToPixelFormat(fmtDesc.pixelformat);
             if (pixFormat != NO_PIXELFORMAT) {
                 v4l2_frmivalenum frmIvalEnum;
-                memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
+                memset(&frmIvalEnum, 0, sizeof (frmIvalEnum));
                 frmIvalEnum.index = 0;
                 frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
                 frmIvalEnum.width = frmSizeEnum.discrete.width;
@@ -474,7 +474,13 @@ void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
                 size.y = frmSizeEnum.discrete.height;
                 std::vector<float> framerates;
                 while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
-                    framerates.push_back(frmIvalEnum.discrete.denominator);
+                    float framerate = (float)frmIvalEnum.discrete.denominator
+                                    / (float)frmIvalEnum.discrete.numerator;
+/*                    fprintf(stdout, "    framerate  :(%d, %d) -> %f\n",
+                            frmIvalEnum.discrete.denominator,
+                            frmIvalEnum.discrete.numerator, framerate);
+*/
+                    framerates.push_back(framerate);
                     frmIvalEnum.index++;
                 }
                 CameraImageFormat camImFormat = CameraImageFormat(size, pixFormat,
@@ -633,9 +639,14 @@ void V4LCamera::initDevice()
         StreamParam.parm.capture.timeperframe.numerator = 1;
         StreamParam.parm.capture.timeperframe.denominator = (int)getFrameRate();
         rc = xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam);
-        if (getFrameRate() != StreamParam.parm.capture.timeperframe.denominator ||
-                rc == -1) 
-        {
+/*        fprintf(stdout, "framerate=%f, denominator=%d, numerator=%d\n",
+                getFrameRate(),
+                StreamParam.parm.capture.timeperframe.denominator,
+                StreamParam.parm.capture.timeperframe.numerator);
+*/
+        float framerate = (float)StreamParam.parm.capture.timeperframe.denominator
+                        / (float)StreamParam.parm.capture.timeperframe.numerator;
+        if (getFrameRate() != framerate || rc == -1) {
             throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                         string("Unable to set V4L camera framerate: '")
                         +strerror(errno)
