@@ -303,7 +303,19 @@ class OffscreenTestCase(AVGTestCase):
         avg.ImageNode(parent=root, href="canvas:testcanvas")
         avg.ImageNode(parent=root, x=64, href="rgb24alpha-64x64.png")
         self.start(False, (lambda: self.compareImage("testCanvasAlpha"),))
-    
+
+    def testCanvasBackface(self):
+        root = self.loadEmptyScene()
+        canvas = player.createCanvas(id="testcanvas", size=(80,120))
+        avg.ImageNode(parent=root, pos=(80,0), href="canvas:testcanvas")
+        for parentNode in canvas.getRootNode(), root:
+            avg.MeshNode(vertexcoords=((0,0), (80,0), (80,120), (0,120)),
+                    texcoords=((0,0), (1,0), (1,1), (0,1)),
+                    triangles=((1,0,3), (1,2,3)),
+                    parent=parentNode,
+                    backfacecull=True)
+        self.start(False, (lambda: self.compareImage("testCanvasBackface"),))
+
     def testCanvasBlendModes(self):
         def createBaseCanvas():
             canvas = player.createCanvas(id="testcanvas", size=(64,64), 
@@ -469,6 +481,7 @@ def offscreenTestSuite(tests):
                 "testCanvasAutoRender",
                 "testCanvasCrop",
                 "testCanvasAlpha",
+                "testCanvasBackface",
                 "testCanvasBlendModes",
                 "testCanvasMultisampling",
                 "testCanvasMipmap",
