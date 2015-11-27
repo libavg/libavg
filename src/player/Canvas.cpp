@@ -265,12 +265,14 @@ void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewp
         glm::vec2 size = m_pRootNode->getSize();
         projMat = glm::ortho(0.f, size.x, 0.f, size.y);
         glViewport(0, 0, GLsizei(size.x), GLsizei(size.y));
+        glFrontFace(GL_CW);
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
         projMat = glm::ortho(float(viewport.tl.x), float(viewport.br.x), 
                 float(viewport.br.y), float(viewport.tl.y));
         IntPoint windowSize = pWindow->getSize();
         glViewport(0, 0, windowSize.x, windowSize.y);
+        glFrontFace(GL_CCW);
     }
     {
         ScopeTimer Timer(VATransferProfilingZone);
