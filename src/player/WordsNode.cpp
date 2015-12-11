@@ -742,6 +742,12 @@ PangoRectangle WordsNode::getGlyphRect(int i)
     PangoRectangle rect;
     
     if (m_pLayout) {
+        // For some pango versions (at least 1.36.03), we need to make sure that the
+        // font description is set, otherwise the layout uses the font description of
+        // the wrong font. (See bug #720).
+        TextEngine& engine = TextEngine::get(m_FontStyle.getHint());
+        PangoContext* pContext = engine.getPangoContext();
+        pango_context_set_font_description(pContext, m_pFontDescription);
         pango_layout_index_to_pos(m_pLayout, byteOffset, &rect);
     } else {
         rect.x = 0;
