@@ -119,6 +119,10 @@ This section describes the base classes for all node classes that libavg provide
             
                 Emitted whenever a mouse or a touch leaves the :py:class:`Node`'s area.
 
+            .. py:method:: MOUSE_WHEEL(mousewheelevent)
+            
+                Emitted whenever a mouse wheel is moved.
+
             .. py:method:: HOVER_DOWN(cursorevent)
             
                 Emitted whenever a new hover cursor is registered.
@@ -138,6 +142,46 @@ This section describes the base classes for all node classes that libavg provide
             .. py:method:: HOVER_OUT(cursorevent)
             
                 Emitted whenever a hover cursor leaves the :py:class:`Node`'s area.
+
+            .. py:method:: TANGIBLE_DOWN(cursorevent)
+            
+                Emitted whenever a tangible is placed on the surface.
+
+            .. py:method:: TANGIBLE_MOTION(cursorevent)
+            
+                Emitted whenever a tangible is moved.
+
+            .. py:method:: TANGIBLE_UP(cursorevent)
+            
+                Emitted whenever a tangible leaves the surface.
+
+            .. py:method:: TANGIBLE_OVER(cursorevent)
+            
+                Emitted whenever a tangible enters the :py:class:`Node`'s area.
+
+            .. py:method:: TANGIBLE_OUT(cursorevent)
+            
+                Emitted whenever a tangible leaves the :py:class:`Node`'s area.
+
+            .. py:method:: PEN_DOWN(cursorevent)
+            
+                Emitted whenever a pen is placed on the surface.
+
+            .. py:method:: PEN_MOTION(cursorevent)
+            
+                Emitted whenever a pen is moved.
+
+            .. py:method:: PEN_UP(cursorevent)
+            
+                Emitted whenever a pen leaves the surface.
+
+            .. py:method:: PEN_OVER(cursorevent)
+            
+                Emitted whenever a pen enters the :py:class:`Node`'s area.
+
+            .. py:method:: PEN_OUT(cursorevent)
+            
+                Emitted whenever a pen leaves the :py:class:`Node`'s area.
 
             .. py:method:: KILLED()
 

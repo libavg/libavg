@@ -4,7 +4,7 @@ Input Handling
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: Event CursorEvent MouseEvent TouchEvent KeyEvent TangibleEvent
+    .. inheritance-diagram:: Event CursorEvent MouseEvent MouseWheelEvent TouchEvent KeyEvent TangibleEvent
         :parts: 1
 
     .. inheritance-diagram:: Contact
@@ -237,6 +237,14 @@ Input Handling
             Current speed of the mouse in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
 
+    .. autoclass:: MouseWheelEvent(pos, motion, [when])
+
+        Generated when the mouse wheel is moved.
+
+        .. py:attribute:: motion
+
+            Direction and magnitude of movement as an (x,y) vector.
+
     .. autoclass:: TangibleEvent(id, markerID, type, pos, speed, orientation)
 
         Generated when a tangible event occurs. Tangible events happen when a surface that
@@ -244,9 +252,9 @@ Input Handling
 
         .. py:attribute:: markerID
 
-            The id of the marker. Unlike :py:attr:`cursorid`, :py:attr:`markerID` is persistent
-            and stays the same if a tangible is removed from the surface and re-placed
-            again.
+            The id of the marker. Unlike :py:attr:`cursorid`, :py:attr:`markerID` is
+            persistent and stays the same if a tangible is removed from the surface and
+            re-placed again.
 
         .. py:attribute:: orientation
 
