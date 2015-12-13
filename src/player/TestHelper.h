@@ -51,6 +51,7 @@ class AVG_API TestHelper : public InputDevice
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
                 int xPosition, int yPosition, int button);
+        void fakeMouseWheelEvent(const glm::vec2& pos, const glm::vec2& motion);
         void fakeTouchEvent(int id, Event::Type eventType, Event::Source source,
                 const glm::vec2& pos, const glm::vec2& speed=glm::vec2(0, 0));
         void fakeTangibleEvent(int id, int markerID, Event::Type eventType, 

@@ -322,6 +322,7 @@ class NodeHandlerTester(object):
                 avg.Node.CURSOR_OUT, avg.Node.CURSOR_MOTION,
                 avg.Node.TANGIBLE_DOWN, avg.Node.TANGIBLE_UP, avg.Node.TANGIBLE_OVER, 
                 avg.Node.TANGIBLE_OUT, avg.Node.TANGIBLE_MOTION,
+                avg.Node.MOUSE_WHEEL
                 ]
         for messageID in messageIDs:
             subscriberID = self.__node.subscribe(messageID, 

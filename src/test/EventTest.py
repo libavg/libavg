@@ -772,6 +772,16 @@ class EventTestCase(AVGTestCase):
                  lambda: player.enableMouse(True),
                 ))
 
+    def testMouseWheel(self):
+        helper = player.getTestHelper()
+        root = self.loadEmptyScene()
+        img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        handlerTester = NodeHandlerTester(self, img)
+        self.start(False,
+                (lambda: helper.fakeMouseWheelEvent((10,10), (0,1)),
+                 lambda: handlerTester.assertState((avg.Node.MOUSE_WHEEL,))
+                ))
+
     def testEventErr(self):
         def onErrMouseOver(Event):
             undefinedFunction()
@@ -1111,6 +1121,7 @@ def eventTestSuite(tests):
             "testEventCapture",
             "testMouseOver",
             "testMouseDisable",
+            "testMouseWheel",
             "testEventErr",
             "testEventHook",
             "testException",

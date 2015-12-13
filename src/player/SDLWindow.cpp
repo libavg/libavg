@@ -25,6 +25,7 @@
 
 #include "Player.h"
 #include "MouseEvent.h"
+#include "MouseWheelEvent.h"
 #include "SDLTouchInputDevice.h"
 
 #include "../base/Exception.h"
@@ -203,6 +204,13 @@ vector<EventPtr> SDLWindow::pollEvents()
                 break;
             case SDL_MOUSEBUTTONUP:
                 pNewEvent = createMouseButtonEvent(Event::CURSOR_UP, sdlEvent);
+                break;
+            case SDL_MOUSEWHEEL:
+                {
+                    glm::vec2 motion(sdlEvent.wheel.x, sdlEvent.wheel.y);
+                    pNewEvent = MouseWheelEventPtr(
+                            new MouseWheelEvent(m_LastMousePos, motion));
+                }
                 break;
             case SDL_JOYAXISMOTION:
 //                pNewEvent = createAxisEvent(sdlEvent));

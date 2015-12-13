@@ -47,6 +47,7 @@ class AVG_API Event {
             CURSOR_DOWN,
             CURSOR_OVER,  
             CURSOR_OUT,
+            MOUSE_WHEEL,
             CUSTOM_EVENT,
             QUIT,
             UNKNOWN

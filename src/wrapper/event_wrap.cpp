@@ -23,6 +23,7 @@
 
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
+#include "../player/MouseWheelEvent.h"
 #include "../player/TouchEvent.h"
 #include "../player/TangibleEvent.h"
 #include "../player/Contact.h"
@@ -87,6 +88,7 @@ void export_event()
         .value("CURSOR_DOWN", Event::CURSOR_DOWN)
         .value("CURSOR_OVER", Event::CURSOR_OVER)
         .value("CURSOR_OUT", Event::CURSOR_OUT)
+        .value("MOUSE_WHEEL", Event::MOUSE_WHEEL)
         .value("CUSTOM_EVENT", Event::CUSTOM_EVENT)
         .export_values()
     ;
@@ -133,6 +135,12 @@ void export_event()
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("button", &MouseEvent::getButton)
+    ;
+
+    class_<MouseWheelEvent, bases<CursorEvent> >("MouseWheelEvent",
+            init<const IntPoint&, const glm::vec2&, optional<int> >())
+        .add_property("motion", make_function(&MouseWheelEvent::getMotion,
+                return_value_policy<copy_const_reference>()))
     ;
 
     class_<TouchEvent, bases<CursorEvent> >("TouchEvent", init<int, Event::Type,

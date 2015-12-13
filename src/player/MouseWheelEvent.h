@@ -19,43 +19,31 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _MouseEvent_h_
-#define _MouseEvent_h_
+#ifndef _MouseWheelEvent_h_
+#define _MouseWheelEvent_h_
 
 #include "../api.h"
 
 #include "CursorEvent.h"
 
+#include "../base/GLMHelper.h"
+
 namespace avg {
 
-class AVG_API MouseEvent : public CursorEvent {
+class AVG_API MouseWheelEvent : public CursorEvent {
     public:
-        MouseEvent(Event::Type eventType,
-                bool leftButtonState, bool middleButtonState, bool rightButtonState,
-                const IntPoint& pos, int button, const glm::vec2& speed=glm::vec2(0,0),
-                int when=-1);
-        virtual ~MouseEvent();
+        MouseWheelEvent(const IntPoint& pos, const glm::vec2& motion, int when=-1);
+        virtual ~MouseWheelEvent();
         
-        bool getLeftButtonState() const;
-        bool getMiddleButtonState() const;
-        bool getRightButtonState() const;
-        bool isAnyButtonPressed() const;
-        int getButton() const;
+        const glm::vec2& getMotion() const;
         virtual CursorEventPtr cloneAs(Type eventType=UNKNOWN) const;
         virtual void trace();
-        static const long NO_BUTTON=0;
-        static const long LEFT_BUTTON=1;
-        static const long RIGHT_BUTTON=2;
-        static const long MIDDLE_BUTTON=3;
 
     private:
-        bool m_LeftButtonState;
-        bool m_MiddleButtonState;
-        bool m_RightButtonState;
-        int m_Button;
+        glm::vec2 m_Motion;
 };
 
-typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
+typedef boost::shared_ptr<class MouseWheelEvent> MouseWheelEventPtr;
 
 }
 

@@ -122,6 +122,7 @@ void export_misc()
     
     class_<TestHelper>("TestHelper", no_init)
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent)
+        .def("fakeMouseWheelEvent", &TestHelper::fakeMouseWheelEvent)
         .def("fakeTouchEvent", &TestHelper::fakeTouchEvent,
                 TestHelper_fakeTouchEvent_overloads())
         .def("fakeTangibleEvent", &TestHelper::fakeTangibleEvent)
