@@ -1403,16 +1403,16 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    vector<NodePtr> pLastCursorNodes;
-    {
-        map<int, CursorStatePtr>::iterator it;
-        it = m_pLastCursorStates.find(cursorID);
-        if (it != m_pLastCursorStates.end()) {
-            pLastCursorNodes = it->second->getNodes();
-        }
-    }
-
     if (pEvent->getType() != Event::MOUSE_WHEEL) {
+        vector<NodePtr> pLastCursorNodes;
+        {
+            map<int, CursorStatePtr>::iterator it;
+            it = m_pLastCursorStates.find(cursorID);
+            if (it != m_pLastCursorStates.end()) {
+                pLastCursorNodes = it->second->getNodes();
+            }
+        }
+
         // Send out events.
         vector<NodePtr>::const_iterator itLast;
         vector<NodePtr>::iterator itCur;
