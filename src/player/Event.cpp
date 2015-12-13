@@ -120,6 +120,8 @@ string Event::typeStr(Event::Type type)
             return "CURSOR_OVER";
         case CURSOR_OUT:
             return "CURSOR_OUT";
+        case MOUSE_WHEEL:
+            return "MOUSE_WHEEL";
         case CUSTOM_EVENT:
             return "CUSTOM_EVENT";
         case QUIT:

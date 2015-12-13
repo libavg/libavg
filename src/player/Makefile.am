@@ -33,7 +33,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         Node.h AreaNode.h DisplayParams.h WindowParams.h TypeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h Canvas.h MainCanvas.h \
         GPUImage.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
-        EventDispatcher.h CursorEvent.h MouseEvent.h \
+        EventDispatcher.h CursorEvent.h MouseEvent.h MouseWheelEvent.h \
         Event.h KeyEvent.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h SecondaryWindow.h \
@@ -75,7 +75,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Timeout.cpp Event.cpp DisplayParams.cpp WindowParams.cpp CursorState.cpp \
         GPUImage.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp \
         CursorEvent.cpp MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
-        SoundNode.cpp FontStyle.cpp Window.cpp SDLWindow.cpp \
+        SoundNode.cpp FontStyle.cpp Window.cpp SDLWindow.cpp MouseWheelEvent.cpp \
         TangibleEvent.cpp InputDevice.cpp SecondaryWindow.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \

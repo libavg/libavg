@@ -52,6 +52,7 @@ void Node::registerType()
     pPubDef->addMessage("CURSOR_UP");
     pPubDef->addMessage("CURSOR_OVER");
     pPubDef->addMessage("CURSOR_OUT");
+    pPubDef->addMessage("MOUSE_WHEEL");
     pPubDef->addMessage("HOVER_DOWN");
     pPubDef->addMessage("HOVER_MOTION");
     pPubDef->addMessage("HOVER_UP");
@@ -569,6 +570,8 @@ string Node::getEventMessageID(const EventPtr& pEvent)
                     return "CURSOR_OVER";
                 case Event::CURSOR_OUT:
                     return "CURSOR_OUT";
+                case Event::MOUSE_WHEEL:
+                    return "MOUSE_WHEEL";
                 default:
                     break;
             }

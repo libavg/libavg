@@ -1412,35 +1412,37 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    // Send out events.
-    vector<NodePtr>::const_iterator itLast;
-    vector<NodePtr>::iterator itCur;
-    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
-            ++itLast)
-    {
-        NodePtr pLastNode = *itLast;
-        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-            if (*itCur == pLastNode) {
-                break;
-            }
-        }
-        if (itCur == pCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
-        }
-    }
-
-    // Send over events.
-    for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = *itCur;
+    if (pEvent->getType() != Event::MOUSE_WHEEL) {
+        // Send out events.
+        vector<NodePtr>::const_iterator itLast;
+        vector<NodePtr>::iterator itCur;
         for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
                 ++itLast)
         {
-            if (*itLast == pCurNode) {
-                break;
+            NodePtr pLastNode = *itLast;
+            for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+                if (*itCur == pLastNode) {
+                    break;
+                }
+            }
+            if (itCur == pCursorNodes.end()) {
+                sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
             }
         }
-        if (itLast == pLastCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
+
+        // Send over events.
+        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+            NodePtr pCurNode = *itCur;
+            for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
+                    ++itLast)
+            {
+                if (*itLast == pCurNode) {
+                    break;
+                }
+            }
+            if (itLast == pLastCursorNodes.end()) {
+                sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
+            }
         }
     }
 
