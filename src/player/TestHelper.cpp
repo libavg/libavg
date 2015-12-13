@@ -22,6 +22,7 @@
 #include "TestHelper.h"
 #include "Player.h"
 #include "MouseEvent.h"
+#include "MouseWheelEvent.h"
 #include "TouchEvent.h"
 #include "TangibleEvent.h"
 #include "KeyEvent.h"
@@ -62,6 +63,12 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
     checkEventType(eventType);
     MouseEventPtr pEvent(new MouseEvent(eventType, leftButtonState, 
             middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button));
+    m_Events.push_back(pEvent);
+}
+
+void TestHelper::fakeMouseWheelEvent(const glm::vec2& pos, const glm::vec2& motion)
+{
+    MouseWheelEventPtr pEvent(new MouseWheelEvent(pos, motion));
     m_Events.push_back(pEvent);
 }
 
