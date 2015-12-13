@@ -10,9 +10,6 @@ class MainDiv(app.MainDiv):
         self.node.subscribe(avg.Node.MOUSE_WHEEL, self.onMouseWheel)
 
     def onMouseWheel(self, event):
-        print event.motion.y
-        self.node.pos = (10, 50)
-#        self.node.fontsize += event.motion.y
-#        print self.node.fontsize
+        self.node.fontsize = max(self.node.fontsize + event.motion.y, 4)
 
 app.App().run(MainDiv())
