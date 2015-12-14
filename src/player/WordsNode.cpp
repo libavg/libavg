@@ -404,9 +404,20 @@ glm::vec2 WordsNode::getGlyphSize(int i)
     return glm::vec2(float(rect.width)/PANGO_SCALE, float(rect.height)/PANGO_SCALE);
 }
 
+void setFontDescription(FontStyle fontStyle, PangoFontDescription *fontDescriptor)
+{
+    // For some pango versions (at least 1.36.03), we need to make sure that the
+    // font description is set, otherwise the layout uses the font description of
+    // the wrong font. (See bug #720).
+    TextEngine& engine = TextEngine::get(fontStyle.getHint());
+    PangoContext* pContext = engine.getPangoContext();
+    pango_context_set_font_description(pContext, fontDescriptor);
+}
+
 int WordsNode::getNumLines()
 {
     if(m_sText.length() != 0) {
+        setFontDescription(m_FontStyle, m_pFontDescription);
         return pango_layout_get_line_count(m_pLayout);
     }
     return 0;
@@ -416,6 +427,7 @@ PyObject* WordsNode::getCharIndexFromPos(glm::vec2 p)
 {
     int index;
     int trailing;
+    setFontDescription(m_FontStyle, m_pFontDescription);
     gboolean bXyToIndex = pango_layout_xy_to_index(m_pLayout,
                 int(p.x*PANGO_SCALE), int(p.y*PANGO_SCALE), &index, &trailing);
     if (bXyToIndex) {
@@ -439,6 +451,7 @@ glm::vec2 WordsNode::getLineExtents(int line)
     }
     PangoRectangle logical_rect;
     PangoRectangle ink_rect;
+    setFontDescription(m_FontStyle, m_pFontDescription);
     PangoLayoutLine *layoutLine = pango_layout_get_line_readonly(m_pLayout, line);
     pango_layout_line_get_pixel_extents(layoutLine, &ink_rect, &logical_rect);
     return glm::vec2(float(logical_rect.width), float(logical_rect.height));
@@ -742,12 +755,7 @@ PangoRectangle WordsNode::getGlyphRect(int i)
     PangoRectangle rect;
     
     if (m_pLayout) {
-        // For some pango versions (at least 1.36.03), we need to make sure that the
-        // font description is set, otherwise the layout uses the font description of
-        // the wrong font. (See bug #720).
-        TextEngine& engine = TextEngine::get(m_FontStyle.getHint());
-        PangoContext* pContext = engine.getPangoContext();
-        pango_context_set_font_description(pContext, m_pFontDescription);
+        setFontDescription(m_FontStyle, m_pFontDescription);
         pango_layout_index_to_pos(m_pLayout, byteOffset, &rect);
     } else {
         rect.x = 0;
