@@ -80,6 +80,7 @@
     <ClCompile Include="..\..\src\player\MeshNode.cpp" />
     <ClCompile Include="..\..\src\player\MessageID.cpp" />
     <ClCompile Include="..\..\src\player\MouseEvent.cpp" />
+    <ClCompile Include="..\..\src\player\MouseWheelEvent.cpp" />
     <ClCompile Include="..\..\src\player\MultitouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Node.cpp" />
     <ClCompile Include="..\..\src\player\NullFXNode.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="..\..\src\player\MeshNode.h" />
     <ClInclude Include="..\..\src\player\MessageID.h" />
     <ClInclude Include="..\..\src\player\MouseEvent.h" />
+    <ClInclude Include="..\..\src\player\MouseWheelEvent.h" />
     <ClInclude Include="..\..\src\player\MultitouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Node.h" />
     <ClInclude Include="..\..\src\player\NullFXNode.h" />
