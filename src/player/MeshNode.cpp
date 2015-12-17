@@ -85,7 +85,6 @@ const vector<glm::vec2>& MeshNode::getVertexCoords() const
 
 void MeshNode::setVertexCoords(const vector<glm::vec2>& coords)
 {
-    isValid(coords);
     m_VertexCoords = coords;
     setDrawNeeded();
 }
