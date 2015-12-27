@@ -17,6 +17,9 @@ class MyMainDiv(app.MainDiv):
         image = Image.merge("RGBA", (r,g,b,a))
 
         image.save("foo.jpg")
+        bmp.setPixels(image.tobytes())
+        node = avg.ImageNode(parent=self)
+        node.setBitmap(bmp)
 
     def onExit(self):
         pass
