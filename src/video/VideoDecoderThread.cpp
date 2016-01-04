@@ -69,7 +69,9 @@ bool VideoDecoderThread::init()
         
 void VideoDecoderThread::deinit()
 {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(55, 45,101)
+    av_frame_free(&m_pFrame);
+#elif LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0)
     avcodec_free_frame(&m_pFrame);
 #else
     delete m_pFrame;
