@@ -186,7 +186,9 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
             pushAudioMsg(pBuffer, m_LastFrameTime);
         }
     }
-#if LIBAVCODEC_VERSION_MAJOR > 53
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(55, 45,101)
+    av_frame_free(&pDecodedFrame);
+#elif LIBAVCODEC_VERSION_MAJOR > 53
     avcodec_free_frame(&pDecodedFrame);
     delete pDecodedFrame;
 #endif
