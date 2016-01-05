@@ -720,7 +720,6 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         mesh = addMesh()
         handlerTester = NodeHandlerTester(self, mesh);
-        self.assertRaises(avg.Exception, setIllegalVertexes)
         self.assertRaises(avg.Exception, setIllegalTextures)
         self.assertRaises(avg.Exception, setIllegalIndexes)
         self.start(False,

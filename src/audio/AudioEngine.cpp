@@ -149,8 +149,11 @@ void AudioEngine::teardown()
     } else {
         lock_guard lock(m_Mutex);
         SDL_PauseAudio(1);
-// Optimized away - takes too long.
-//        SDL_CloseAudio();
+#ifdef AVG_ENABLE_RPI
+        // Optimized away for all but Raspberry PI - takes too long.
+        // But: Leaving it away on the RPi causes hangs.
+        SDL_CloseAudio();
+#endif
     }
 
     m_AudioSources.clear();
