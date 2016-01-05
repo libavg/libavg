@@ -216,7 +216,7 @@ AVFrame* VideoWriterThread::createFrame(AVPixelFormat pixelFormat, IntPoint size
 {
     AVFrame* pPicture;
 
-#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54, 0, 0)
     pPicture = av_frame_alloc(); 
 #else
     pPicture = avcodec_alloc_frame();
