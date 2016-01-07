@@ -23,6 +23,7 @@
 #define _PixelFormat_H_
 
 #include "../api.h"
+#include "../avgconfigwrapper.h"
 #include <string>
 #include <vector>
 
@@ -34,19 +35,22 @@ typedef enum {
     I8, I16,
     A8,
     R8,
-    YCbCr411,  
-    YCbCr422,  
-    YUYV422,   
-    YCbCr420p, 
+    YCbCr411,
+    YCbCr422,
+    YUYV422,
+    YCbCr420p,
     YCbCrJ420p,
     YCbCrA420p,
-    BAYER8,    
+    BAYER8,
     BAYER8_RGGB,
     BAYER8_GBRG,
     BAYER8_GRBG,
     BAYER8_BGGR,
     R32G32B32A32F, // 32bit per channel float rgba
     I32F,
+#ifdef AVG_ENABLE_V4L2_JPEG
+    JPEG,
+#endif
     NO_PIXELFORMAT
 } PixelFormat;
 

@@ -280,6 +280,9 @@ void export_bitmap()
         .value("BAYER8_BGGR", BAYER8_BGGR)
         .value("R32G32B32A32F", R32G32B32A32F)
         .value("I32F", I32F)
+#ifdef AVG_ENABLE_V4L2_JPEG
+        .value("JPEG", JPEG)
+#endif
         .export_values();
 
     def("getSupportedPixelFormats", &getSupportedPixelFormatsDeprecated);

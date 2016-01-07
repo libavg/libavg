@@ -68,6 +68,10 @@ private:
     void initMMap();
     virtual void close();
 
+#ifdef AVG_ENABLE_V4L2_JPEG
+    BitmapPtr decrompressJpegFrame(unsigned char* pCaptureBuffer);
+#endif
+
     int getV4LPF(PixelFormat pf);
     static int checkCamera(int j);
     static PixelFormat intToPixelFormat(unsigned int pixelformat);
