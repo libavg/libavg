@@ -37,10 +37,12 @@ void export_anim();
 #include "../player/TouchEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/Canvas.h"
+#include "../player/Contact.h"
 #include "../player/OffscreenCanvas.h"
 #include "../player/VersionInfo.h"
 #include "../player/ExportedObject.h"
 #include "../player/TestHelper.h"
+#include "../anim/Anim.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -84,6 +86,13 @@ BOOST_PYTHON_MODULE(avg)
 
         register_ptr_to_python<DivNodePtr>();
         register_ptr_to_python<CanvasNodePtr>();
+        register_ptr_to_python<NodePtr>();
+        register_ptr_to_python<BitmapPtr>();
+        register_ptr_to_python<AnimPtr>();
+        register_ptr_to_python<ContactPtr>();
+        register_ptr_to_python<CanvasPtr>();
+        register_ptr_to_python<CursorEventPtr>();
+        register_ptr_to_python<OffscreenCanvasPtr>();
         register_ptr_to_python<AVGNodePtr>();
         register_ptr_to_python<EventPtr>();
         register_ptr_to_python<MouseEventPtr>();
@@ -200,15 +209,14 @@ BOOST_PYTHON_MODULE(avg)
         ;
         exportMessages(playerClass, "Player");
         
-        class_<Canvas, boost::shared_ptr<Canvas>, bases<ExportedObject>, 
-                boost::noncopyable>("Canvas", no_init)
+        class_<Canvas, bases<ExportedObject>, boost::noncopyable>("Canvas", no_init)
             .def("getRootNode", &Canvas::getRootNode)
             .def("getElementByID", &Canvas::getElementByID)
             .def("screenshot", &Canvas::screenshot)
         ;
 
-        class_<OffscreenCanvas, boost::shared_ptr<OffscreenCanvas>, bases<Canvas>,
-                boost::noncopyable>("OffscreenCanvas", no_init)
+        class_<OffscreenCanvas, bases<Canvas>, boost::noncopyable>
+                ("OffscreenCanvas", no_init)
             .def("getID", &OffscreenCanvas::getID)
             .def("render", &OffscreenCanvas::manualRender)
             .def("registerCameraNode", &OffscreenCanvas::registerCameraNode)

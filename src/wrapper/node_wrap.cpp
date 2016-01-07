@@ -59,8 +59,7 @@ char soundNodeName[] = "sound";
 
 void export_node()
 {
-    object nodeClass = class_<Node, boost::shared_ptr<Node>, bases<Publisher>, 
-            boost::noncopyable>("Node", no_init)
+    object nodeClass = class_<Node, bases<Publisher>, boost::noncopyable>("Node", no_init)
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID)
         .def("registerInstance", &Node::registerInstance)

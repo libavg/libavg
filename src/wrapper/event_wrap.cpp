@@ -105,8 +105,7 @@ void export_event()
 
     scope oldScope1(mainScope);
 
-    class_<CursorEvent, boost::shared_ptr<CursorEvent>, bases<Event> >("CursorEvent", 
-            no_init)
+    class_<CursorEvent, bases<Event> >("CursorEvent", no_init)
         .add_property("source", &CursorEvent::getSource)
         .add_property("pos", &CursorEvent::getPos)
         .add_property("x", &CursorEvent::getXPosition)
@@ -164,8 +163,7 @@ void export_event()
         .add_property("orientation", &TangibleEvent::getOrientation)
         ;
 
-    object contactClass = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >
-            ("Contact", no_init)
+    object contactClass = class_<Contact, bases<Publisher> >("Contact", no_init)
         .add_property("id", &Contact::getID)
         .add_property("age", &Contact::getAge)
         .add_property("distancefromstart", &Contact::getDistanceFromStart)
