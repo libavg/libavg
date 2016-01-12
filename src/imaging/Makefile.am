@@ -29,3 +29,4 @@ EXTRA_DIST = $(wildcard baseline/*.png) $(wildcard testfiles/*.png) \
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
+libimaging_la_LIBADD = @LIBIMAGING_LDADD@
