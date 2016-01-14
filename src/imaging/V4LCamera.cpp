@@ -215,7 +215,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
     BitmapPtr pDestBmp;
     if (getCamPF() == JPEG) {
-        pDestBmp = decrompressJpegFrame(pCaptureBuffer);
+        pDestBmp = decompressJpegFrame(pCaptureBuffer);
     } else {
         float lineLen;
         switch (getCamPF()) {
@@ -737,7 +737,7 @@ void V4LCamera::initMMap()
     }
 }
 
-BitmapPtr V4LCamera::decrompressJpegFrame(unsigned char* pCaptureBuffer)
+BitmapPtr V4LCamera::decompressJpegFrame(unsigned char* pCaptureBuffer)
 {
     struct jpeg_decompress_struct dinfo;
     struct jpeg_error_mgr err;

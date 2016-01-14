@@ -75,7 +75,7 @@ private:
     static void getCameraImageFormats(int fd, CameraInfo* camInfo);
     static void getCameraControls(int deviceNumber, CameraInfo* camInfo);
 
-    BitmapPtr decrompressJpegFrame(unsigned char* pCaptureBuffer);
+    BitmapPtr decompressJpegFrame(unsigned char* pCaptureBuffer);
 
     void setFeature(V4LCID_t v4lFeature, int value);
     V4LCID_t getFeatureID(CameraFeature feature) const;
