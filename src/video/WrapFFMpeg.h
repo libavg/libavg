@@ -66,7 +66,7 @@ extern "C" {
         #define url_fclose avio_close
         #define URL_WRONLY AVIO_FLAG_WRITE
 #endif
-#ifndef FF_API_AVCODEC_RESAMPLE
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54,28,0)
     #include <libavresample/avresample.h>
     #include <libavresample/version.h>
 #endif
