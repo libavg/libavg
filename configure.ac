@@ -108,6 +108,13 @@ fi
 AM_CONDITIONAL(ENABLE_V4L2, test x$enable_v4l2 = xyes)
 if test "$enable_v4l2" = yes; then
     AC_DEFINE(AVG_ENABLE_V4L2, 1, [Enable Video4Linux2 camera support])
+    AC_CHECK_HEADERS([jpeglib.h],let jpeg_h=1,let jpeg_h=0)
+    if [[ $jpeg_h -eq 1 ]]; then
+        LIBIMAGING_LDADD="-ljpeg"
+    else
+        AC_MSG_ERROR([libjpeg not found. Aborting.])
+    fi
+    AC_SUBST([LIBIMAGING_LDADD])
 fi
 
 AC_ARG_ENABLE(egl,
