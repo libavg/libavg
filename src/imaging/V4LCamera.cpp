@@ -37,6 +37,7 @@
 #include <errno.h>
 
 #include <linux/videodev2.h>
+#include <jpeglib.h>
 
 #include <stdio.h>
 #include <sys/time.h>
@@ -156,6 +157,8 @@ int V4LCamera::getV4LPF(PixelFormat pf)
             return V4L2_PIX_FMT_YUV420;
         case R8G8B8:
             return V4L2_PIX_FMT_BGR24;
+        case JPEG:
+            return V4L2_PIX_FMT_MJPEG;
         default:
             throw Exception(AVG_ERR_INVALID_ARGS,
                     "Unsupported or illegal value for camera pixel format '"
@@ -210,23 +213,27 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
     unsigned char * pCaptureBuffer = (unsigned char*)m_vBuffers[buf.index].start;
 
-    float lineLen;
-    switch (getCamPF()) {
-        case YCbCr411:
-            lineLen = getImgSize().x*1.5f;
-            break;
-        case YCbCr420p:
-            lineLen = getImgSize().x;
-            break;
-        default:
-            lineLen = getImgSize().x*getBytesPerPixel(getCamPF());
+    BitmapPtr pDestBmp;
+    if (getCamPF() == JPEG) {
+        pDestBmp = decrompressJpegFrame(pCaptureBuffer);
+    } else {
+        float lineLen;
+        switch (getCamPF()) {
+            case YCbCr411:
+                lineLen = getImgSize().x*1.5f;
+                break;
+            case YCbCr420p:
+                lineLen = getImgSize().x;
+                break;
+            default:
+                lineLen = getImgSize().x*getBytesPerPixel(getCamPF());
+        }
+        BitmapPtr pCamBmp = BitmapPtr(new Bitmap(getImgSize(), getCamPF(),
+                pCaptureBuffer, lineLen, false, "TempCameraBmp"));
+        pDestBmp = convertCamFrameToDestPF(pCamBmp);
+//        cerr << "CamBmp: " << pCamBmp->getPixelFormat() << ", DestBmp: "
+//                << pDestBmp->getPixelFormat() << endl;
     }
-    BitmapPtr pCamBmp(new Bitmap(getImgSize(), getCamPF(), pCaptureBuffer, lineLen,
-            false, "TempCameraBmp"));
-
-    BitmapPtr pDestBmp = convertCamFrameToDestPF(pCamBmp);
-//    cerr << "CamBmp: " << pCamBmp->getPixelFormat() << ", DestBmp: "
-//            << pDestBmp->getPixelFormat() << endl;
 
     // enqueues free buffer for mmap
     if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &buf)) {
@@ -403,6 +410,8 @@ PixelFormat V4LCamera::intToPixelFormat(unsigned int pixelformat)
             return R8G8B8;
         case v4l2_fourcc('B','G','R','3'):
             return B8G8R8;
+        case v4l2_fourcc('M','J','P','G'):
+            return JPEG;
         default:
             return NO_PIXELFORMAT;
     }
@@ -727,7 +736,32 @@ void V4LCamera::initMMap()
         m_vBuffers.push_back(tmp);
     }
 }
+
+BitmapPtr V4LCamera::decrompressJpegFrame(unsigned char* pCaptureBuffer)
+{
+    struct jpeg_decompress_struct dinfo;
+    struct jpeg_error_mgr err;
+    jpeg_create_decompress(&dinfo);
+    dinfo.err = jpeg_std_error(&err);
+
+    jpeg_mem_src(&dinfo, pCaptureBuffer, getImgSize().x * getImgSize().y);
+    jpeg_read_header(&dinfo, true);
+    dinfo.out_color_space = getDestPF() == B8G8R8X8 ? JCS_EXT_BGRX : JCS_EXT_RGBX;
+    dinfo.dct_method = JDCT_IFAST;
+
+    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(getImgSize(), getDestPF()));
+    unsigned char* pPixels = pDestBmp->getPixels();
+
+    jpeg_start_decompress(&dinfo);
+    while (dinfo.output_scanline < dinfo.output_height) {
+        int numScanlines = jpeg_read_scanlines(&dinfo, &pPixels, 1);
+        pPixels += numScanlines * dinfo.output_width * dinfo.output_components;
+    }
+    jpeg_finish_decompress(&dinfo);
+    jpeg_destroy_decompress(&dinfo);
+
+    return pDestBmp;
 }
 
-
+}
 

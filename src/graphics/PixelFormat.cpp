@@ -98,6 +98,8 @@ string getPixelFormatString(PixelFormat pf)
             return "R32G32B32A32F";
         case I32F:
             return "I32F";
+        case JPEG:
+            return "JPEG";
         case NO_PIXELFORMAT:
             return "NO_PIXELFORMAT";
         default:
@@ -194,6 +196,9 @@ PixelFormat stringToPixelFormat(const string& s)
     if (s == "I32F") {
         return I32F;
     }
+    if (s == "JPEG") {
+        return JPEG;
+    }
     return NO_PIXELFORMAT;
 }
 
@@ -266,6 +271,7 @@ unsigned getBytesPerPixel(PixelFormat pf)
             return 4;
         case R8G8B8:
         case B8G8R8:
+        case JPEG:
             return 3;
         case B5G6R5:
         case R5G6B5:
