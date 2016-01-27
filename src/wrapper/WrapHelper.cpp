@@ -383,14 +383,15 @@ struct UTF8String_from_unicode
     }
 };
 
-struct UTF8String_from_string
+template<class T>
+struct String_from_string
 {
-    UTF8String_from_string()
+    String_from_string()
     {
         boost::python::converter::registry::push_back(
                 &convertible,
                 &construct,
-                boost::python::type_id<UTF8String>());
+                boost::python::type_id<T>());
     }
 
     static void* convertible(PyObject* obj_ptr)
@@ -404,9 +405,9 @@ struct UTF8String_from_string
     {
         const char * psz = PyString_AsString(obj_ptr);
         void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
+                (boost::python::converter::rvalue_from_python_storage<T>*)data)
                         ->storage.bytes;
-        new (storage) UTF8String(psz);
+        new (storage) T(psz);
         data->convertible = storage;
     }
 };
@@ -432,7 +433,7 @@ struct type_info_to_string {
 
 PyObject* createExceptionClass(const char* pszName)
 {
-    string scopeName = extract<string>(scope().attr("__name__"));
+    string scopeName = extract<UTF8String>(scope().attr("__name__"));
     string qualifiedName0 = scopeName + "." + pszName;
     char* qualifiedName1 = const_cast<char*>(qualifiedName0.c_str());
 
@@ -447,6 +448,12 @@ PyObject* createExceptionClass(const char* pszName)
 
 void export_base()
 {
+    // string
+    to_python_converter<UTF8String, UTF8String_to_unicode>();
+    UTF8String_from_unicode();
+    String_from_string<UTF8String>();
+    String_from_string<string>();
+
     // Exceptions
     PyObject* pExceptionTypeObj = createExceptionClass("Exception");
 
@@ -479,16 +486,11 @@ void export_base()
     vec4_from_python<glm::ivec4, int>();
     vec4_from_python<glm::vec4, float>();
     
-    // vector<vec3>
+    // vector<XXX>
     to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
     to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();    
     from_python_sequence<vector<glm::ivec3> >();
     from_python_sequence<vector<glm::vec3> >();
-
-    // string
-    to_python_converter<UTF8String, UTF8String_to_unicode>();
-    UTF8String_from_unicode();
-    UTF8String_from_string();
 
     to_python_converter<vector<string>, to_list<vector<string> > >();    
     from_python_sequence<vector<string> >();

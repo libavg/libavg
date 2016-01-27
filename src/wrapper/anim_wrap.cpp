@@ -57,7 +57,7 @@ void export_anim()
     from_python_sequence<std::vector<AnimPtr> >();
     from_python_sequence<std::vector<AnimState> >();
     
-    class_<Anim, boost::shared_ptr<Anim>, boost::noncopyable>("Anim", no_init)
+    class_<Anim, boost::noncopyable>("Anim", no_init)
         .def("setStartCallback", &Anim::setStartCallback)
         .def("setStopCallback", &Anim::setStopCallback)
         .def("abort", &Anim::abort)
