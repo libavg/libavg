@@ -411,6 +411,7 @@ PixelFormat V4LCamera::intToPixelFormat(unsigned int pixelformat)
         case v4l2_fourcc('B','G','R','3'):
             return B8G8R8;
         case v4l2_fourcc('M','J','P','G'):
+        case v4l2_fourcc('J','P','E','G'):
             return JPEG;
         default:
             return NO_PIXELFORMAT;
