@@ -630,7 +630,9 @@ void V4LCamera::initDevice()
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
     int rc = xioctl(m_Fd, VIDIOC_S_FMT, &fmt);
     if (int(fmt.fmt.pix.width) != getImgSize().x ||
-            int(fmt.fmt.pix.height) != getImgSize().y || rc == -1)
+            int(fmt.fmt.pix.height) != getImgSize().y || 
+            fmt.fmt.pix.pixelformat != m_v4lPF ||
+            rc == -1)
     {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera image format: '")
