@@ -587,20 +587,19 @@ void WordsNode::updateLayout()
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
         pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
-
-        /*        
-                  cerr << getID() << endl;
-                  cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
-                  << ink_rect.width << ", " << ink_rect.height << endl;
-                  cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
-                  << logical_rect.width << ", " << logical_rect.height << endl;
-                  cerr << "User Size: " << getUserSize() << endl;
-                  */        
+/*
+        cerr << getID() << endl;
+        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", "
+            << ink_rect.width << ", " << ink_rect.height << endl;
+        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", "
+            << logical_rect.width << ", " << logical_rect.height << endl;
+        cerr << "User Size: " << getUserSize() << endl;
+*/
         m_InkSize.y = ink_rect.height;
         if (getUserSize().x == 0) {
             m_InkSize.x = ink_rect.width;
         } else {
-            m_InkSize.x = int(getUserSize().x);
+            m_InkSize.x = max(int(getUserSize().x), ink_rect.width);
         }
         if (m_InkSize.x == 0) {
             m_InkSize.x = 1;
@@ -669,7 +668,12 @@ void WordsNode::renderText()
             setRenderColor(m_FontStyle.getColor());
 
             GLContextManager* pCM = GLContextManager::get();
-            MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
+            IntPoint texSize = m_InkSize;
+            if (texSize.x > getUserSize().x && getUserSize().x > 0) {
+                texSize.x = getUserSize().x;
+            }
+            BitmapPtr pTexBmp(new Bitmap(*pBmp, IntRect(IntPoint(0,0), texSize)));
+            MCTexturePtr pTex = pCM->createTextureFromBmp(pTexBmp);
             getSurface()->create(A8, pTex);
             newSurface();
         }
