@@ -648,6 +648,12 @@ Area Nodes
             Returns :py:const:`True` if the video contains an audio stream. Throws an
             exception if the video has not been opened yet.
 
+        .. py:method:: isSeeking() -> bool
+
+            Returns :py:const:`True` if a seek is currently pending, i.e. if
+            :py:meth:`seekToFrame()` or :py:meth:`seekToTime()` has been called and the
+            destination frame has not been displayed.
+
         .. py:method:: pause()
 
             Stops video playback but doesn't close the object. The playback
