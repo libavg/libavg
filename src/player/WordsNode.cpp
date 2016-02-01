@@ -672,7 +672,8 @@ void WordsNode::renderText()
             if (texSize.x > getUserSize().x && getUserSize().x > 0) {
                 texSize.x = getUserSize().x;
             }
-            BitmapPtr pTexBmp(new Bitmap(*pBmp, IntRect(IntPoint(0,0), texSize)));
+            BitmapPtr pTmpBmp(new Bitmap(*pBmp, IntRect(IntPoint(0,0), texSize)));
+            BitmapPtr pTexBmp(new Bitmap(*pTmpBmp, true));
             MCTexturePtr pTex = pCM->createTextureFromBmp(pTexBmp);
             getSurface()->create(A8, pTex);
             newSurface();
