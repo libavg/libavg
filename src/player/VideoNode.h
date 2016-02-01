@@ -73,6 +73,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         int getCurFrame() const;
         int getNumFramesQueued() const;
         void seekToFrame(int frameNum);
+        bool isSeeking() const;
         std::string getStreamPixelFormat() const;
         long long getDuration() const;
         long long getVideoDuration() const;

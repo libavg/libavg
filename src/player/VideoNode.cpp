@@ -202,6 +202,11 @@ void VideoNode::seekToFrame(int frameNum)
     }
 }
 
+bool VideoNode::isSeeking() const
+{
+    return m_bSeekPending;
+}
+
 std::string VideoNode::getStreamPixelFormat() const
 {
     exceptionIfUnloaded("getStreamPixelFormat");
