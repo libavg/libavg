@@ -73,8 +73,9 @@ void RasterNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-RasterNode::RasterNode()
-    : m_pSurface(0),
+RasterNode::RasterNode(const std::string& sPublisherName)
+    : AreaNode(sPublisherName),
+      m_pSurface(0),
       m_bMipmap(false),
       m_Color(0,0,0,0),
       m_TileSize(-1,-1),

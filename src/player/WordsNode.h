@@ -39,7 +39,7 @@ class AVG_API WordsNode : public RasterNode
     public:
         static void registerType();
         
-        WordsNode(const ArgList& args);
+        WordsNode(const ArgList& args, const std::string& sPublisherName = "Node");
         virtual ~WordsNode();
         
         virtual void connectDisplay();
