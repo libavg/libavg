@@ -37,6 +37,7 @@
 using namespace std;
 
 namespace avg {
+
 CurveAABB::CurveAABB(const glm::vec2& pt, int startIDX, int endIDX)
     : FRect(pt, pt),
       m_StartIdx(startIDX),
@@ -57,8 +58,8 @@ void CurveNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CurveNode::CurveNode(const ArgList& args)
-   : VectorNode(args)
+CurveNode::CurveNode(const ArgList& args, const string& sPublisherName)
+   : VectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     glm::vec2 p0 = args.getArgVal<glm::vec2>("pos1");

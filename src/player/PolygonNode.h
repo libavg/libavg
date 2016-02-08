@@ -39,7 +39,7 @@ class AVG_API PolygonNode : public FilledVectorNode
     public:
         static void registerType();
         
-        PolygonNode(const ArgList& args);
+        PolygonNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~PolygonNode();
 
         const std::vector<glm::vec2>& getPos() const;

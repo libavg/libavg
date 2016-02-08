@@ -57,8 +57,9 @@ void SoundNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-SoundNode::SoundNode(const ArgList& args)
-    : m_Filename(""),
+SoundNode::SoundNode(const ArgList& args, const string& sPublisherName)
+    : AreaNode(sPublisherName),
+      m_Filename(""),
       m_pEOFCallback(0),
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),

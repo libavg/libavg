@@ -35,7 +35,7 @@ class AVG_API RectNode : public FilledVectorNode
     public:
         static void registerType();
         
-        RectNode(const ArgList& args);
+        RectNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~RectNode();
 
         const glm::vec2& getPos() const;

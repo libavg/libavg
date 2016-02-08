@@ -62,8 +62,9 @@ void VectorNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-VectorNode::VectorNode(const ArgList& args)
-    : m_Translate(glm::vec2(0,0))
+VectorNode::VectorNode(const ArgList& args, const string& sPublisherName)
+    : Node(sPublisherName), 
+      m_Translate(glm::vec2(0,0))
 {
     m_pShape = ShapePtr(createDefaultShape());
 

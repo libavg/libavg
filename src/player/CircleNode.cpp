@@ -47,8 +47,8 @@ void CircleNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CircleNode::CircleNode(const ArgList& args)
-    : FilledVectorNode(args)
+CircleNode::CircleNode(const ArgList& args, const string& sPublisherName)
+    : FilledVectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     setTranslate(m_Pos);

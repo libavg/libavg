@@ -34,7 +34,7 @@ class AVG_API CircleNode : public FilledVectorNode
     public:
         static void registerType();
         
-        CircleNode(const ArgList& args);
+        CircleNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~CircleNode();
 
         const glm::vec2& getPos() const;
