@@ -39,7 +39,7 @@ void CanvasNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CanvasNode::CanvasNode(const ArgList& args)
+CanvasNode::CanvasNode(const ArgList& args, const std::string& sPublisherName)
     : DivNode(args)
 {
     args.setMembers(this);

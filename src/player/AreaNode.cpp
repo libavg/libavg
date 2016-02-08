@@ -67,8 +67,9 @@ void AreaNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-AreaNode::AreaNode()
-    : m_RelViewport(0,0,0,0),
+AreaNode::AreaNode(const std::string& sPublisherName)
+    : Node(sPublisherName),
+      m_RelViewport(0,0,0,0),
       m_bTransformChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));

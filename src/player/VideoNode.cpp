@@ -74,8 +74,9 @@ void VideoNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-VideoNode::VideoNode(const ArgList& args)
-    : m_VideoState(Unloaded),
+VideoNode::VideoNode(const ArgList& args,const std::string& sPublisherName)
+    : RasterNode(sPublisherName),
+      m_VideoState(Unloaded),
       m_bFrameAvailable(false),
       m_bFirstFrameDecoded(false),
       m_Filename(""),

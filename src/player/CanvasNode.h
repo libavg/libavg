@@ -32,7 +32,7 @@ class AVG_API CanvasNode : public DivNode
     public:
         static void registerType();
         
-        CanvasNode(const ArgList& args);
+        CanvasNode(const ArgList& args, const std::string& sPublisherName = "Node");
         virtual ~CanvasNode();
 
         virtual std::string getEffectiveMediaDir();

@@ -40,7 +40,7 @@ class AVG_API DivNode : public AreaNode
     public:
         static void registerType();
         
-        DivNode(const ArgList& args);
+        DivNode(const ArgList& args, const std::string& sPublisherName = "Node");
         virtual ~DivNode();
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
