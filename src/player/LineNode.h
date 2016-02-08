@@ -34,7 +34,7 @@ class AVG_API LineNode : public VectorNode
     public:
         static void registerType();
         
-        LineNode(const ArgList& args);
+        LineNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~LineNode();
 
         const glm::vec2& getPos1() const;

@@ -56,8 +56,9 @@ void ImageNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-ImageNode::ImageNode(const ArgList& args, const std::string& sPublisherName)
-    : RasterNode(sPublisherName), m_Compression(TEXCOMPRESSION_NONE)
+ImageNode::ImageNode(const ArgList& args, const string& sPublisherName)
+    : RasterNode(sPublisherName),
+      m_Compression(TEXCOMPRESSION_NONE)
 {
     args.setMembers(this);
     m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMipmap()));

@@ -59,8 +59,8 @@ void MeshNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-MeshNode::MeshNode(const ArgList& args)
-    : VectorNode(args)
+MeshNode::MeshNode(const ArgList& args, const string& sPublisherName)
+    : VectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     isValid(m_TexCoords);

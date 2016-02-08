@@ -46,8 +46,8 @@ void LineNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-LineNode::LineNode(const ArgList& args)
-    : VectorNode(args)
+LineNode::LineNode(const ArgList& args, const string& sPublisherName)
+    : VectorNode(args, sPublisherName)
 {
     args.setMembers(this);
 }

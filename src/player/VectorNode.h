@@ -51,7 +51,7 @@ class AVG_API VectorNode : public Node
 
         static void registerType();
         
-        VectorNode(const ArgList& args);
+        VectorNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~VectorNode();
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);

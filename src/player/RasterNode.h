@@ -102,7 +102,7 @@ class AVG_API RasterNode: public AreaNode
         void resetFXDirty();
 
     protected:
-        RasterNode(const std::string& sPublisherName = "Node");
+        RasterNode(const std::string& sPublisherName);
         
         void scheduleFXRender();
         void calcVertexArray(const VertexArrayPtr& pVA);

@@ -74,7 +74,7 @@ void CameraNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CameraNode::CameraNode(const ArgList& args, const std::string& sPublisherName)
+CameraNode::CameraNode(const ArgList& args, const string& sPublisherName)
     : RasterNode(sPublisherName),
       m_bIsPlaying(false),
       m_FrameNum(0),

@@ -112,7 +112,7 @@ void WordsNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-WordsNode::WordsNode(const ArgList& args, const std::string& sPublisherName)
+WordsNode::WordsNode(const ArgList& args, const string& sPublisherName)
     : RasterNode(sPublisherName),
       m_LogicalSize(0,0),
       m_pFontDescription(0),

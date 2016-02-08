@@ -41,7 +41,7 @@ void AVGNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-AVGNode::AVGNode(const ArgList& args, const std::string& sPublisherName)
+AVGNode::AVGNode(const ArgList& args, const string& sPublisherName)
     : CanvasNode(args, sPublisherName)
 {
     args.setMembers(this);

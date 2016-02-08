@@ -32,7 +32,8 @@ class AVG_API OffscreenCanvasNode : public CanvasNode
     public:
         static void registerType();
         
-        OffscreenCanvasNode(const ArgList& args, const std::string& sPublisherName = "Node");
+        OffscreenCanvasNode(const ArgList& args,
+                const std::string& sPublisherName="Node");
         virtual ~OffscreenCanvasNode();
 
         bool getHandleEvents() const;
