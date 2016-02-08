@@ -41,7 +41,7 @@ class AVG_API ImageNode : public RasterNode
     public:
         static void registerType();
         
-        ImageNode(const ArgList& args);
+        ImageNode(const ArgList& args, const std::string& sPublisherName = "Node");
         virtual ~ImageNode();
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);

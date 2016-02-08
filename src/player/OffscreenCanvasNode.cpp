@@ -46,8 +46,8 @@ void OffscreenCanvasNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& args)
-    : CanvasNode(args)
+OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& args, const std::string& sPublisherName)
+    : CanvasNode(args, sPublisherName)
 {
     args.setMembers(this);
 }

@@ -48,7 +48,7 @@ class AVG_API CameraNode : public RasterNode
     public:
         static void registerType();
         
-        CameraNode(const ArgList& args);
+        CameraNode(const ArgList& args, const std::string& sPublisherName = "Node");
         virtual ~CameraNode();
 
         virtual void connectDisplay();

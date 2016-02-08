@@ -102,7 +102,7 @@ class AVG_API AreaNode: public Node
             { return IntPoint(0,0); };
 
     protected:
-        AreaNode();
+        AreaNode(const std::string& sPublisherName="Node");
         glm::vec2 getUserSize() const;
         Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
 
