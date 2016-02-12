@@ -105,7 +105,9 @@ void AreaNode::connectDisplay()
         m_RelViewport.setHeight(float(m_UserSize.y));
     }
     if (m_UserSize.x == 0.0 || m_UserSize.y == 0) {
-        notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
+        if (m_UserSize != m_RelViewport.size()) {
+            notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
+        }
     }
     m_bTransformChanged = true;
     Node::connectDisplay();
