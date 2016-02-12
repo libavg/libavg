@@ -1,0 +1,3 @@
+
+#cmakedefine AVG_ENABLE_EGL
+#cmakedefine AVG_ENABLE_RPI
