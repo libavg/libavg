@@ -24,6 +24,7 @@ pkg_search_module(SDL2 REQUIRED sdl2)
 #pkg_search_module(RSVG REQUIRED librsvg-2.0)
 #pkg_search_module(FONTCONFIG REQUIRED fontconfig)
 pkg_search_module(DC1394_2 libdc1394-2)
+pkg_check_modules(FFMPEG libswscale libavformat libavcodec libavutil)
 
 # V4L2: this is the only dependency
 find_path(VIDEODEV2_FOUND
