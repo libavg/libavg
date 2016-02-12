@@ -101,3 +101,4 @@ win/testplugin/dist/
 *.cmake
 CMakeCache.txt
 CMakeFiles/
+Testing/
