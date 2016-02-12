@@ -17,3 +17,4 @@ target_link_libraries(base
 
 link_libraries(base)
 add_executable(testbase testbase.cpp)
+add_test(NAME testbase COMMAND testbase)

@@ -86,5 +86,6 @@ if(${AVG_ENABLE_RPI})
     pkg_check_module(BCM REQUIRED bcm)
 endif()
 
+enable_testing()
 configure_file(src/avgconfig.h.cmake.in src/avgconfig.h)
 add_subdirectory(src)
