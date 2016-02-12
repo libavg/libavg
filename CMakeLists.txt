@@ -1,4 +1,4 @@
-project(libavg CXX C)
+project(libavg)
 cmake_minimum_required(VERSION 3.2)
 
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
