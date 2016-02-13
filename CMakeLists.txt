@@ -86,7 +86,18 @@ if(${AVG_ENABLE_RPI})
     set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
 endif()
 
-
+if(CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_CXX_FLAGS "-O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CFLAGS "-O3 -ffast-math -Wall -pipe ${CMAKE_C_FLAGS}")
+    if ((${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64") OR
+            (${CMAKE_SYSTEM_PROCESSOR} MATCHES "amd64") OR
+            (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i386") OR
+            (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686"))
+        set(CMAKE_CXX_FLAGS "-msse2 ${CMAKE_CXX_FLAGS}")
+        set(CMAKE_C_FLAGS "-msse2 ${CMAKE_C_FLAGS}")
+    endif()
+endif()
+# TODO: Missing linker flag -rdynamic from autoconf
 
 # feature configuration
 
