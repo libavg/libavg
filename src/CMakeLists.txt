@@ -9,7 +9,8 @@ add_subdirectory(oscpack)
 add_subdirectory(audio)
 add_subdirectory(video)
 add_subdirectory(player)
+add_subdirectory(anim)
 
 # TODO see Makefile.am and
 #   TODO EXTRA_DIST
-# TODO anim wrapper python test utils samples
+# TODO wrapper python test utils samples
