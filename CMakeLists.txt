@@ -1,5 +1,5 @@
 project(libavg)
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 
@@ -13,7 +13,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
     set(PLATFORM_WINDOWS TRUE)
 endif()
 
-find_package(Boost 1.58 REQUIRED system thread python)
+find_package(Boost 1.46 REQUIRED system thread python)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(LIBXML2 REQUIRED libxml-2.0 libxml2)
 pkg_search_module(GDK_PIXBUF REQUIRED gdk-pixbuf-2.0)
@@ -38,9 +38,9 @@ find_path(VIDEODEV2_FOUND
 set(AVG_ENABLE_EGL FALSE CACHE BOOL "include EGL support")
 set(AVG_ENABLE_RPI FALSE CACHE BOOL "configure for RaspberryPi")
 
-if(${DC1394_2_FOUND})
-    set(AVG_ENABLE_1394_2 TRUE CACHE BOOL "compile support for firewire cameras")
-endif()
+#if(${DC1394_2_FOUND})
+#    set(AVG_ENABLE_1394_2 TRUE CACHE BOOL "compile support for firewire cameras")
+#endif()
 if(${VIDEODEV2_FOUND})
     set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "compile support for video4linux v2 video devices")
 endif()

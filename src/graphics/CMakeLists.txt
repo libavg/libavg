@@ -1,4 +1,25 @@
+if(${AVG_ENABLE_GLX_X11})
+    set (GRAPHICS_SOURCES GLXContext.cpp PBO.cpp X11Display.cpp)
+    set (GRAPHICS_LIBS ${GLX_X11_LDFLAGS})
+    set (GRAPHICS_CFLAGS ${GLX_X11_CFLAGS})
+endif()
+
+if(${AVG_ENABLE_CGL_QUARTZ})
+    set (GRAPHICS_SOURCES CGLContext.cpp PBO.cpp AppleDisplay.cpp)
+    set (GRAPHICS_LIBS ${PLATFORM_MACOSX_LDFLAGS})
+    set (GRAPHICS_CFLAGS ${PLATFORM_MACOSX_CFLAGS})
+endif()
+
+if(${AVG_ENABLE_EGL})
+    set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} EGLContext.cpp)
+endif()
+
+if(${AVG_ENABLE_BCM})
+    set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} BCMDisplay.cpp)
+endif()
+
 add_library(graphics
+        ${GRAPHICS_SOURCES}
         Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp  
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp 
         Filterflipuv.cpp Filter3x3.cpp FilterHighpass.cpp 
@@ -20,34 +41,10 @@ add_library(graphics
         CachedImage.cpp ImageCache.cpp WrapMode.cpp
 )
 target_link_libraries(graphics
-    PUBLIC base ${GDK_PIXBUF_LDFLAGS} ${SDL2_LDFLAGS} )
+    PUBLIC base ${GDK_PIXBUF_LDFLAGS} ${SDL2_LDFLAGS} ${GRAPHICS_LIBS})
 target_compile_options(graphics
-    PUBLIC ${GDK_PIXBUF_CFLAGS} ${SDL2_CFLAGS})
+    PUBLIC ${GDK_PIXBUF_CFLAGS} ${SDL2_CFLAGS} ${GRAPHICS_CFLAGS})
 
-if(${AVG_ENABLE_GLX_X11})
-    target_sources(graphics
-        PRIVATE GLXContext.cpp PBO.cpp X11Display.cpp)
-    target_link_libraries(graphics
-        PUBLIC ${GLX_X11_LDFLAGS})
-    target_compile_options(graphics
-        PRIVATE ${GLX_X11_CFLAGS})
-endif()
-if(${AVG_ENABLE_CGL_QUARTZ})
-    target_sources(graphics
-        PRIVATE CGLContext.cpp PBO.cpp AppleDisplay.cpp)
-    target_link_libraries(graphics
-        PUBLIC ${PLATFORM_MACOSX_LDFLAGS})
-    target_compile_options(graphics
-        PUBLIC ${PLATFORM_MACOSX_CFLAGS})
-endif()
-if(${AVG_ENABLE_EGL})
-    target_sources(graphics
-        PRIVATE EGLContext.cpp)
-endif()
-if(${AVG_ENABLE_BCM})
-    target_sources(graphics
-        PRIVATE BCMDisplay.cpp)
-endif()
 
 link_libraries(graphics)
 add_executable(testgraphics testgraphics.cpp)
