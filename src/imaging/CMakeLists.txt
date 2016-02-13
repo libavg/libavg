@@ -10,6 +10,8 @@ endif()
 if(${AVG_ENABLE_1394_2})
     target_sources(imaging
         PRIVATE FWCameraUtils.cpp)
+    target_link_libraries(imaging
+        PUBLIC ${DC1394_2_LDFLAGS})
 endif()
 # TODO these CMU1394 and DSHOW are not mentioned in the Makefile.am
 #      but in EXTRA_DIST. I guess I should add the sources appropriatly.

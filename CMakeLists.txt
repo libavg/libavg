@@ -13,18 +13,17 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
     set(PLATFORM_WINDOWS TRUE)
 endif()
 
-find_package(Boost 1.58 REQUIRED system thread)
+find_package(Boost 1.58 REQUIRED system thread python)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(LIBXML2 REQUIRED libxml-2.0 libxml2)
-#pkg_search_module(GLES glesv2)
-#pkg_search_module(EGL egl)
 pkg_search_module(GDK_PIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_search_module(SDL2 REQUIRED sdl2)
-#pkg_search_module(PANGOFT2 REQUIRED pangoft2)
-#pkg_search_module(RSVG REQUIRED librsvg-2.0)
-#pkg_search_module(FONTCONFIG REQUIRED fontconfig)
 pkg_search_module(DC1394_2 libdc1394-2)
 pkg_check_modules(FFMPEG libswscale libavformat libavcodec libavutil)
+pkg_search_module(PYTHON REQUIRED python2 python-2.7 python)
+pkg_search_module(PANGOFT2 REQUIRED pangoft2)
+pkg_search_module(RSVG REQUIRED librsvg-2.0)
+pkg_search_module(FONTCONFIG REQUIRED fontconfig)
 
 # V4L2: this is the only dependency
 find_path(VIDEODEV2_FOUND
