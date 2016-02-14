@@ -16,6 +16,7 @@ endif()
 find_package(Boost 1.46 REQUIRED system thread python)
 find_package(PkgConfig REQUIRED)
 find_package(LibXml2 REQUIRED)
+set(LIBXML2_INCLUDE_DIR ${LIBXML2_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR}/..)
 pkg_search_module(GDK_PIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(DC1394_2 libdc1394-2)
@@ -65,9 +66,15 @@ if(${PLATFORM_MACOSX})
     # I think this propagates to all other targets,
     #  but isn't the proper way.
     set(AVG_ENABLE_CGL_QUARTZ TRUE)
-    pkg_check_module(PLATFORM_MACOSX REQUIRED
-        MultitouchSupport Cocoa CoreAudio AudioUnit
-        ForceFeedback CoreVideo IOKit)
+    find_library(COCOA Cocoa)
+    find_library(COREAUDIO CoreAudio)
+    find_library(AUDIOUNIT AudioUnit)
+    find_library(FORCEFEEDBACK ForceFeedback)
+    find_library(COREVIDEO CoreVideo)
+    find_library(IOKIT IOKit)
+    SET(PLATFORM_MACOSX_LIBS
+            ${COCOA_LIBRARY} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
+            ${IOKIT})
     list(APPEND PLATFORM_MACOSX_CFLAGS
         "-F/System/Library/PrivateFrameworks ")
     list(APPEND PLATFORM_MACOSX_INCLUDE_DIRS

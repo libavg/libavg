@@ -6,7 +6,7 @@ endif()
 
 if(${AVG_ENABLE_CGL_QUARTZ})
     set (GRAPHICS_SOURCES CGLContext.cpp PBO.cpp AppleDisplay.cpp)
-    set (GRAPHICS_LIBS ${PLATFORM_MACOSX_LDFLAGS})
+    set (GRAPHICS_LIBS ${PLATFORM_MACOSX_LIBS})
     set (GRAPHICS_CFLAGS ${PLATFORM_MACOSX_CFLAGS})
 endif()
 

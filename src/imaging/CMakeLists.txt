@@ -19,5 +19,7 @@ endif()
 add_library(imaging
     ${IMAGING_SOURCES}
     Camera.cpp FWCamera.cpp FakeCamera.cpp CameraInfo.cpp)
+target_include_directories(imaging
+    PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(imaging
     PUBLIC ${IMAGING_LIBS})
