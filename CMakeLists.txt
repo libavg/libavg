@@ -15,7 +15,7 @@ endif()
 
 find_package(Boost 1.46 REQUIRED system thread python)
 find_package(PkgConfig REQUIRED)
-pkg_search_module(LIBXML2 REQUIRED libxml-2.0 libxml2)
+find_library(LIBXML2 libxml2)
 pkg_search_module(GDK_PIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(DC1394_2 libdc1394-2)
