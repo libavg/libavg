@@ -1,5 +1,5 @@
 add_custom_target(version
-    COMMAND ../CreateVersionFile.py .)
+  COMMAND ${CMAKE_SOURCE_DIR}/CreateVersionFile.py .)
 
 add_subdirectory(tess)
 add_subdirectory(base)
