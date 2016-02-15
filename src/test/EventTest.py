@@ -177,12 +177,12 @@ class EventTestCase(AVGTestCase):
                  lambda: imgHandlerTester.assertState((avg.Node.CURSOR_UP,))
                 ))
 
-    def testRasterNodeAutoResizeFromMediaSize(self):
+    def testAreaNodeDeriveSizeFromMediaSize(self):
         root = self.loadEmptyScene()
 
         # If an AreaNode is constructed without a size argument, the node size
-        # is inferred from the underlying media. If the size cannot be
-        # inferred, the default size (0, 0) is kept and not SIZE_CHANGED
+        # is derived from the underlying media. If the size cannot be
+        # derived, the default size (0, 0) is kept and no SIZE_CHANGED
         # signal is emitted.
         div = avg.DivNode(parent=root)
         image = avg.ImageNode(parent=root, href="rgb24-65x65.png")
@@ -213,9 +213,9 @@ class EventTestCase(AVGTestCase):
         video.subscribe(video.SIZE_CHANGED, onVideoSizeChanged)
 
         self.start(False,
-                   (lambda: self.assert_( self.divSizeReceived == avg.Point2D(-1, -1)),
+                   (lambda: self.assert_(self.divSizeReceived == avg.Point2D(-1, -1)),
                     lambda: self.assert_(self.imageSizeReceived == avg.Point2D(65, 65)),
-                    lambda: self.assert_( self.imageNoMediaSizeReceived == avg.Point2D(-1, -1)),
+                    lambda: self.assert_(self.imageNoMediaSizeReceived == avg.Point2D(-1, -1)),
                     lambda: self.assert_(self.videoSizeReceived == avg.Point2D(48, 48))
                    ))
 
@@ -1150,7 +1150,7 @@ def eventTestSuite(tests):
             "testTilted",
             "testWordsClicks",
             "testDivEvents",
-            "testRasterNodeAutoResizeFromMediaSize",
+            "testAreaNodeDeriveSizeFromMediaSize",
             "testDivNegativePos",
             "testUnlinkInHandler",
             "testConnectHandler",
