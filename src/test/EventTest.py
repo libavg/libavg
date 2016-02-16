@@ -177,48 +177,6 @@ class EventTestCase(AVGTestCase):
                  lambda: imgHandlerTester.assertState((avg.Node.CURSOR_UP,))
                 ))
 
-    def testAreaNodeDeriveSizeFromMediaSize(self):
-        root = self.loadEmptyScene()
-
-        # If an AreaNode is constructed without a size argument, the node size
-        # is derived from the underlying media. If the size cannot be
-        # derived, the default size (0, 0) is kept and no SIZE_CHANGED
-        # signal is emitted.
-        div = avg.DivNode(parent=root)
-        image = avg.ImageNode(parent=root, href="rgb24-65x65.png")
-        imageNoMedia = avg.ImageNode(parent=root)
-        video = avg.VideoNode(parent=root, href="rgba-48x48.mov")
-        video.pause()
-
-        self.divSizeReceived = avg.Point2D(-1, -1)
-        self.imageSizeReceived = avg.Point2D(-1, -1)
-        self.imageNoMediaSizeReceived = avg.Point2D(-1, -1)
-        self.videoSizeReceived = avg.Point2D(-1, -1)
-
-        def onDivSizeChanged(size):
-            self.divSizeReceived = size
-
-        def onImageSizeChanged(size):
-            self.imageSizeReceived = size
-
-        def onImageNoMediaSizeChanged(size):
-            self.imageNoMediaSizeReceived = size
-
-        def onVideoSizeChanged(size):
-            self.videoSizeReceived = size
-
-        div.subscribe(div.SIZE_CHANGED, onDivSizeChanged)
-        image.subscribe(image.SIZE_CHANGED, onImageSizeChanged)
-        imageNoMedia.subscribe(imageNoMedia.SIZE_CHANGED, onImageNoMediaSizeChanged)
-        video.subscribe(video.SIZE_CHANGED, onVideoSizeChanged)
-
-        self.start(False,
-                   (lambda: self.assert_(self.divSizeReceived == avg.Point2D(-1, -1)),
-                    lambda: self.assert_(self.imageSizeReceived == avg.Point2D(65, 65)),
-                    lambda: self.assert_(self.imageNoMediaSizeReceived == avg.Point2D(-1, -1)),
-                    lambda: self.assert_(self.videoSizeReceived == avg.Point2D(48, 48))
-                   ))
-
     def testDivNegativePos(self):
         root = self.loadEmptyScene()
         div = avg.DivNode(pos=(10,10), parent=root)
@@ -1140,7 +1098,27 @@ class EventTestCase(AVGTestCase):
         self.rect.subscribe(self.rect.SIZE_CHANGED, onResize)
         self.rect.size=(100,100)
         self.assert_(self.messageReceived)
-        
+
+    def testDivSizeChanged(self):
+
+        def onResize(newSize):
+            self.messageReceived = True
+
+        def setSize():
+            self.div.size = (10,10)
+            self.assert_(self.messageReceived)
+
+        self.messageReceived = False
+        root = self.loadEmptyScene()
+        self.div = avg.DivNode(parent=root)
+        self.div.subscribe(self.div.SIZE_CHANGED, onResize)
+        avg.RectNode(size=(100,100), parent=self.div)
+        self.start(False,
+                (None,
+                 lambda: self.assert_(not(self.messageReceived)),
+                 setSize,
+                ))
+
 
 def eventTestSuite(tests):
     availableTests = (
@@ -1150,7 +1128,6 @@ def eventTestSuite(tests):
             "testTilted",
             "testWordsClicks",
             "testDivEvents",
-            "testAreaNodeDeriveSizeFromMediaSize",
             "testDivNegativePos",
             "testUnlinkInHandler",
             "testConnectHandler",
@@ -1176,6 +1153,7 @@ def eventTestSuite(tests):
             "testWordsSizeChanged",
             "testVideoSizeChanged",
             "testRectSizeChanged",
+            "testDivSizeChanged",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 
