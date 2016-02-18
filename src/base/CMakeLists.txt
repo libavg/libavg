@@ -8,10 +8,12 @@ add_library(base
     Backtrace.cpp ProfilingZoneID.cpp GLMHelper.cpp
     StandardLogSink.cpp ThreadHelper.cpp
 )
+target_compile_options(base
+    PUBLIC ${LIBXML2_CFLAGS})
 target_include_directories(base
-    PUBLIC ${Boost_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
+    PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(base
-    PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LIBRARIES})
+    PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS})
 
 link_libraries(base)
 add_executable(testbase testbase.cpp)
