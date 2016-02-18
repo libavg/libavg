@@ -94,7 +94,7 @@ if(${AVG_ENABLE_RPI})
     set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "-O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -fPIC ${CMAKE_CXX_FLAGS}")
     set(CMAKE_C_FLAGS "-O3 -ffast-math -Wall -pipe -fPIC ${CMAKE_C_FLAGS}")
     if ((${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64") OR
