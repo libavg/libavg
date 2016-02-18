@@ -58,6 +58,7 @@ if(${PLATFORM_LINUX})
 endif()
 
 if(${PLATFORM_MACOSX})
+    set(CMAKE_MACOSX_RPATH 0)
     # TODO In the original automake setup there was no further distinction
     #  besides the frameworks and options listed here.
     # I (payload) decided to postpone the refactoring into features
