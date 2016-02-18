@@ -97,7 +97,7 @@ win/testplugin/dist/
 *~
 
 # cmake
-
+build/
 *.cmake
 CMakeCache.txt
 CMakeFiles/
