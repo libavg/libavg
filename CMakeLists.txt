@@ -95,14 +95,14 @@ if(${AVG_ENABLE_RPI})
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "-O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -fPIC ${CMAKE_CXX_FLAGS}")
-    set(CMAKE_C_FLAGS "-O3 -ffast-math -Wall -pipe -fPIC ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -fPIC")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -ffast-math -Wall -pipe -fPIC")
     if ((${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64") OR
             (${CMAKE_SYSTEM_PROCESSOR} MATCHES "amd64") OR
             (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i386") OR
             (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686"))
-        set(CMAKE_CXX_FLAGS "-msse2 ${CMAKE_CXX_FLAGS}")
-        set(CMAKE_C_FLAGS "-msse2 ${CMAKE_C_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
     endif()
 endif()
 # TODO: Missing linker flag -rdynamic from autoconf
