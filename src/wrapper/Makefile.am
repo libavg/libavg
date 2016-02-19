@@ -40,6 +40,6 @@ avg_la_LIBADD = ../player/libplayer.la \
                 ../tess/libtess.la \
                 @PANGOFT2_LIBS@ @LIBRSVG_LIBS@ $(BOOST_PYTHON_LIBS) \
                 @BOOST_THREAD_LIBS@ @XML2_LIBS@ \
-                @DC1394_2_LIBS@ $(XI2_1_LIBS) $(XI2_2_LIBS) \
+                @DC1394_2_LIBS@ \
                 $(ALL_GL_LIBS) @LIBFFMPEG@ @LIBAVRESAMPLE@ @PTHREAD_LIBS@ \
                 @GDK_PIXBUF_LIBS@ @FONTCONFIG_LIBS@
