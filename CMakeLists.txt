@@ -74,12 +74,10 @@ if(${PLATFORM_MACOSX})
     find_library(IOKIT IOKit)
     find_library(COREFOUNDATION CoreFoundation)
     find_library(OPENGL OpenGL)
+    find_library(CARBON Carbon)
     SET(PLATFORM_MACOSX_LIBS
             ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
-            ${IOKIT} ${COREFOUNDATION} ${OPENGL})
-    # TODO payload: @uzadow, this is a flag in src/wrapper/Makefile.am. Needed?
-    #   -read_only_relocs suppress
-    # add it with   target_link_libraries( ... )
+            ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
 endif()
 
 if(${PLATFORM_WINDOWS})
