@@ -72,13 +72,11 @@ if(${PLATFORM_MACOSX})
     find_library(FORCEFEEDBACK ForceFeedback)
     find_library(COREVIDEO CoreVideo)
     find_library(IOKIT IOKit)
+    find_library(COREFOUNDATION CoreFoundation)
+    find_library(OPENGL OpenGL)
     SET(PLATFORM_MACOSX_LIBS
-            ${COCOA_LIBRARY} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
-            ${IOKIT})
-    list(APPEND PLATFORM_MACOSX_CFLAGS
-        "-F/System/Library/PrivateFrameworks ")
-    list(APPEND PLATFORM_MACOSX_INCLUDE_DIRS
-        "/System/Library/PrivateFrameworks")
+            ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
+            ${IOKIT} ${COREFOUNDATION} ${OPENGL})
     # TODO payload: @uzadow, this is a flag in src/wrapper/Makefile.am. Needed?
     #   -read_only_relocs suppress
     # add it with   target_link_libraries( ... )
