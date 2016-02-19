@@ -53,8 +53,8 @@ void PolygonNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-PolygonNode::PolygonNode(const ArgList& args)
-    : FilledVectorNode(args),
+PolygonNode::PolygonNode(const ArgList& args, const string& sPublisherName)
+    : FilledVectorNode(args, sPublisherName),
       m_bPtsChanged(true)
 {
     args.setMembers(this);

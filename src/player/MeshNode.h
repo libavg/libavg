@@ -38,7 +38,7 @@ class AVG_API MeshNode : public VectorNode
     public:
         static void registerType();
         
-        MeshNode(const ArgList& args);
+        MeshNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~MeshNode();
         
         void isValid(const std::vector<glm::vec2>& coords);

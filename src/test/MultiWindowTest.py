@@ -111,7 +111,8 @@ class MultiWindowTestCase(AVGTestCase):
         node.setEffect(avg.NullFXNode())
         player.setFakeFPS(25)
         self.start(False,
-                (lambda: self.compareImage("testMultiWindowFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: self.compareImage("testMultiWindowFX1"),
                  lambda: setHueSat(node),
                  lambda: self.compareImage("testMultiWindowFX2"),
                  lambda: setBlur(node),

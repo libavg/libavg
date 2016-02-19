@@ -1164,7 +1164,9 @@ void Player::initGraphics()
 
     if (m_bDisplayEngineBroken) {
         m_bDisplayEngineBroken = false;
-        m_pDisplayEngine->teardown();
+        if (m_pDisplayEngine) {
+            m_pDisplayEngine->teardown();
+        }
         m_pDisplayEngine = DisplayEnginePtr();
     }
 

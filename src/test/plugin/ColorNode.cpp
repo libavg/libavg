@@ -49,7 +49,7 @@ class ColorNode : public AreaNode
 public:
     static void registerType();
     
-    ColorNode(const ArgList& Args);
+    ColorNode(const ArgList& Args, const string& sPublisherName="Node");
 
     void setFillColor(const Color& color);
     const Color& getFillColor() const;
@@ -65,8 +65,9 @@ private:
     float m_FloatParam;
 };
 
-ColorNode::ColorNode(const ArgList& Args)
-    : m_sFillColorName("FFFFFF")
+ColorNode::ColorNode(const ArgList& Args, const string& sPublisherName)
+    : AreaNode(sPublisherName),
+      m_sFillColorName("FFFFFF")
 {   
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
             "ColorNode c'tor gets Argument fillcolor= "  << 

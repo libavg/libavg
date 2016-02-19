@@ -134,7 +134,7 @@ class AVG_API Node: public Publisher
         virtual const std::string& getID() const;
     
     protected:
-        Node(const std::string& sPublisherName="Node");
+        Node(const std::string& sPublisherName);
 
         bool reactsToMouseEvents();
             

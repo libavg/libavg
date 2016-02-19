@@ -50,7 +50,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         static void registerType();
         
-        VideoNode(const ArgList& args);
+        VideoNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~VideoNode();
         
         virtual void connectDisplay();
@@ -73,6 +73,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         int getCurFrame() const;
         int getNumFramesQueued() const;
         void seekToFrame(int frameNum);
+        bool isSeeking() const;
         std::string getStreamPixelFormat() const;
         long long getDuration() const;
         long long getVideoDuration() const;

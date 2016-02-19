@@ -148,7 +148,7 @@ def _testMatchEvent(keyBinding, event):
     if not _testModifiers(event.modifiers, keyBinding.modifiers):
         return False
     if (keyBinding.keyname is not None and
-            event.keyname.find(keyBinding.keyname) != -1):
+            _testMatchKeyName(keyBinding.keyname, event.keyname)):
         return True
     return keyBinding.scancode == event.scancode or keyBinding.text == event.text
 
@@ -170,3 +170,14 @@ def _checkDuplicates(keyBinding):
                     ' already defined' % (keyBinding.scancode, keyBinding.keyname,
                     keyBinding.text, keyBinding.modifiers))
 
+def _testMatchKeyName(bindingName, keyPressedName):
+    if bindingName == keyPressedName:
+        return True
+
+    for baseName in ("Shift", "Ctrl", "Option", "Command"):
+        if (bindingName == baseName and
+                (keyPressedName == "Left "+baseName or
+                 keyPressedName == "Right "+baseName)):
+            return True
+
+    return False

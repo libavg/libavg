@@ -34,7 +34,7 @@ class AVG_API FilledVectorNode : public VectorNode
     public:
         static void registerType();
         
-        FilledVectorNode(const ArgList& args);
+        FilledVectorNode(const ArgList& args, const std::string& sPublisherName);
         virtual ~FilledVectorNode();
         virtual void connectDisplay();
         virtual void disconnect(bool bKill);

@@ -34,7 +34,7 @@ class AVG_API AVGNode : public CanvasNode
     public:
         static void registerType();
         
-        AVGNode(const ArgList& args);
+        AVGNode(const ArgList& args, const std::string& sPublisherName = "Node");
         virtual ~AVGNode();
 };
 

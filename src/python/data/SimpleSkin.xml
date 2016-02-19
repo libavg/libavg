@@ -1,5 +1,5 @@
 <skin>
-    <fontdef id="stdFont" font="Bitstream Vera Sans" variant="Roman" fontsize="12" 
+    <fontdef id="stdFont" font="sans" variant="Regular" fontsize="12"
             color="000000" letterspacing="0" linespacing="-1"/>
     <fontdef id="downFont" baseid="stdFont" color="CCCCCC"/>
     <fontdef id="disabledFont" baseid="stdFont" color="444444"/>
