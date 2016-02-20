@@ -75,9 +75,11 @@ if(${PLATFORM_MACOSX})
     find_library(COREFOUNDATION CoreFoundation)
     find_library(OPENGL OpenGL)
     find_library(CARBON Carbon)
-    SET(PLATFORM_MACOSX_LIBS
+    set(PLATFORM_MACOSX_LIBS
             ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
             ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
+    # pkg_check_modules(FFMPEG ...) fails on mac.
+    set(FFMPEG_LDFLAGS "-framework VideoDecodeAcceleration -framework QuartzCore -L/Users/uzadow/devel/libavg/lib -lswscale -lavformat -lavcodec -lbz2 -lz -lavutil -lm")
 endif()
 
 if(${PLATFORM_WINDOWS})
