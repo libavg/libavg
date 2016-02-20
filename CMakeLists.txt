@@ -116,5 +116,8 @@ if(${AVG_ENABLE_RPI})
 endif()
 
 enable_testing()
-configure_file(src/avgconfig.h.cmake.in src/avgconfig.h)
+configure_file(
+    "${PROJECT_SOURCE_DIR}/src/avgconfig.h.cmake.in"
+    "${PROJECT_BINARY_DIR}/src/avgconfig.h")
+include_directories("${PROJECT_BINARY_DIR}/src")
 add_subdirectory(src)

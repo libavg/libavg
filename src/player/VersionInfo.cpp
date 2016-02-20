@@ -20,7 +20,7 @@
 //
 
 #include "VersionInfo.h"
-#include "../version.h"
+#include "version.h"
 
 namespace avg {
 
