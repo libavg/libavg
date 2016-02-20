@@ -78,8 +78,9 @@ if(${PLATFORM_MACOSX})
     set(PLATFORM_MACOSX_LIBS
             ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
             ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
-    # pkg_check_modules(FFMPEG ...) fails on mac.
+    # The following lines work around broken pkg-config scripts on mac.
     set(FFMPEG_LDFLAGS "-framework VideoDecodeAcceleration -framework QuartzCore -L/Users/uzadow/devel/libavg/lib -lswscale -lavformat -lavcodec -lbz2 -lz -lavutil -lm")
+    set(RSVG_STATIC_LDFLAGS "${RSVG_STATIC_LDFLAGS} -lpangocairo-1.0")
 endif()
 
 if(${PLATFORM_WINDOWS})
