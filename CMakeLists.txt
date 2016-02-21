@@ -119,6 +119,17 @@ if(${AVG_ENABLE_RPI})
 endif()
 
 enable_testing()
+
+# Enable make check that dumps test output on failure
+if (CMAKE_CONFIGURATION_TYPES)
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
+        --force-new-ctest-process --output-on-failure 
+        --build-config "$<CONFIGURATION>")
+else()
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
+        --force-new-ctest-process --output-on-failure)
+endif()
+
 configure_file(
     "${PROJECT_SOURCE_DIR}/src/avgconfig.h.cmake.in"
     "${PROJECT_BINARY_DIR}/src/avgconfig.h")
