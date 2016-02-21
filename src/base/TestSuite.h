@@ -31,7 +31,7 @@ namespace avg {
 class AVG_API TestSuite: public Test
 {
 public:
-    TestSuite(const std::string& sName);
+    TestSuite(const std::string& sName, const std::string& sSrcDir="");
     virtual ~TestSuite();
 
     void addTest(TestPtr pNewTest);
