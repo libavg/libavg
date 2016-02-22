@@ -1,7 +1,5 @@
-#add_custom_target(version
-#  COMMAND ${CMAKE_SOURCE_DIR}/CreateVersionFile.py .)
-
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version.h")
+add_custom_target(version
+  COMMAND ${CMAKE_SOURCE_DIR}/CreateVersionFile.py .)
 
 add_subdirectory(tess)
 add_subdirectory(base)
