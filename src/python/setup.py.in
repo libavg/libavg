@@ -1,4 +1,5 @@
 import os
+import glob
 from distutils.core import setup
 from distutils.command.build import build as _build
 
@@ -16,4 +17,5 @@ setup(name='libavg',
     packages=['libavg', 'libavg.app', 'libavg.widget'],
     package_data={'libavg': ['data/*']},
     cmdclass={'build': MyBuild},
+    scripts=glob.glob('scripts/avg_*'),
 )
