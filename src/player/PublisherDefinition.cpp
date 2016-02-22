@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ PublisherDefinition::PublisherDefinition(const string& sName, const string& sBas
     : m_sName(sName)
 {
     if (sBaseName != "") {
-        PublisherDefinitionPtr pBaseDef = 
+        PublisherDefinitionPtr pBaseDef =
                 PublisherDefinitionRegistry::get()->getDefinition(sBaseName);
         m_MessageIDs = pBaseDef->m_MessageIDs;
     }
@@ -43,8 +43,8 @@ PublisherDefinition::~PublisherDefinition()
 {
 }
 
-PublisherDefinitionPtr PublisherDefinition::create(const std::string& sName, 
-            const std::string& sBaseName)
+PublisherDefinitionPtr PublisherDefinition::create( const std::string& sName,
+                                                    const std::string& sBaseName)
 {
     PublisherDefinitionPtr pDef(new PublisherDefinition(sName, sBaseName));
     PublisherDefinitionRegistry::get()->registerDefinition(pDef);
@@ -78,7 +78,7 @@ const std::string& PublisherDefinition::getName() const
 {
     return m_sName;
 }
-    
+
 void PublisherDefinition::dump() const
 {
     cerr << m_sName << endl;

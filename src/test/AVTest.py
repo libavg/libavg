@@ -276,9 +276,11 @@ class AVTestCase(AVGTestCase):
     def testVideoSeek(self):
         def seek(frame):
             videoNode.seekToFrame(frame)
+            self.assert_(videoNode.isSeeking())
 
         def checkCurFrame():
             self.assertEqual(videoNode.getCurFrame(), 26)
+            self.assert_(not(videoNode.isSeeking())),
 
         player.setFakeFPS(25)
         for useCustomFPS in [False, True]:
@@ -291,7 +293,7 @@ class AVTestCase(AVGTestCase):
                         threaded=False, href="mjpeg-48x48.avi")
 
             videoNode.play()
-            seek(26)
+            videoNode.seekToFrame(26)
             self.start(False,
                     (checkCurFrame,
                      lambda: self.compareImage("testVideoSeek0"),

@@ -47,7 +47,7 @@ class AVG_API CurveNode : public VectorNode
     public:
         static void registerType();
         
-        CurveNode(const ArgList& args);
+        CurveNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~CurveNode();
 
         const glm::vec2& getPos1() const;

@@ -84,18 +84,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
                     opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
 
-        if event.source == avg.Event.MOUSE:
-            text = 'MOUSE'
-        elif event.source == avg.Event.TANGIBLE:
-            text = '%s %d %d' % (event.source, event.cursorid, event.markerid)
-        elif event.source == avg.Event.TOUCH:
-            text = '%s %d' % (event.source, event.cursorid)
-        else:
-            text = '%s %d' % (event.source, event.cursorid)
-        if ((event.source == avg.Event.TANGIBLE or event.source == avg.Event.TOUCH) and
-                event.userid != -1):
-            text += ' %d %d' % (event.userid, event.jointid)
-        avg.WordsNode(pos=fontPos, text=text, fontsize=9, parent=self)
+        self.__textNode = avg.WordsNode(pos=fontPos, fontsize=9, parent=self)
         self.motionPath = avg.PolyLineNode(pos=self.positions,
                 opacity=0.7, color=color, parent=kwargs['parent'])
         self.motionVector = avg.LineNode(pos1=(0,0) , pos2=-event.contact.motionvec,
@@ -120,6 +109,21 @@ class DebugTouchVisualization(BaseTouchVisualization):
         if event.source == avg.Event.TOUCH:
             self.__handAxis.pos2 = self.__getHandVector(event)
         self.motionPath.pos = self.positions
+        self.__genText(event)
+
+    def __genText(self, event):
+        if event.source == avg.Event.MOUSE:
+            text = 'MOUSE'
+        elif event.source == avg.Event.TANGIBLE:
+            text = '%s %d %d' % (event.source, event.cursorid, event.markerid)
+        elif event.source == avg.Event.TOUCH:
+            text = '%s %d' % (event.source, event.cursorid)
+        else:
+            text = '%s %d' % (event.source, event.cursorid)
+        if ((event.source == avg.Event.TANGIBLE or event.source == avg.Event.TOUCH) and
+                event.userid != -1):
+            text += ' %d %d' % (event.userid, event.jointid)
+	self.__textNode.text = text
 
     def __getHandVector(self, event):
         return -avg.Point2D.fromPolar(event.handorientation, 30)

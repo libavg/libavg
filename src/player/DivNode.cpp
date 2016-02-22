@@ -59,7 +59,8 @@ void DivNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-DivNode::DivNode(const ArgList& args)
+DivNode::DivNode(const ArgList& args, const string& sPublisherName)
+    : AreaNode(sPublisherName)
 {
     args.setMembers(this);
     ObjectCounter::get()->incRef(&typeid(*this));

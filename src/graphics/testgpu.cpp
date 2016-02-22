@@ -506,8 +506,8 @@ private:
 
 class GPUTestSuite: public TestSuite {
 public:
-    GPUTestSuite(const string& sVariant) 
-        : TestSuite("GPUTestSuite ("+sVariant+")")
+    GPUTestSuite(const string& sVariant, const string& sSrcDir) 
+        : TestSuite("GPUTestSuite ("+sVariant+")", sSrcDir)
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new ImageCacheTest));
@@ -526,12 +526,13 @@ public:
 };
 
 
-bool runTests(bool bGLES, GLConfig::ShaderUsage su)
+bool runTests(bool bGLES, GLConfig::ShaderUsage su, const string& sSrcDir)
 {
     GLContextManager cm;
-    if (fileExists("./shaders")) {
-        ShaderRegistry::setShaderPath("./shaders");
+    if (fileExists(sSrcDir+"/shaders")) {
+        ShaderRegistry::setShaderPath(sSrcDir+"/shaders");
     } else {
+        // TODO: Is this still needed
         ShaderRegistry::setShaderPath("../shaders");
     }
     GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
@@ -544,7 +545,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
     try {
-        GPUTestSuite suite(sVariant);
+        GPUTestSuite suite(sVariant, sSrcDir);
         suite.runTests();
         delete pContext;
         return suite.isOk();
@@ -558,29 +559,24 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 
 int main(int nargs, char** args)
 {
+    assert(nargs == 2);
     bool bOK = true;
     try {
 #ifndef AVG_ENABLE_EGL
         BitmapLoader::init(true);
-        bOK = runTests(false, GLConfig::AUTO);
-        bOK &= runTests(false, GLConfig::MINIMAL);
+        bOK = runTests(false, GLConfig::AUTO, args[1]);
+        bOK &= runTests(false, GLConfig::MINIMAL, args[1]);
 #endif
         if (GLContextManager::isGLESSupported()) {
             BitmapLoader::init(false);
-            bOK &= runTests(true, GLConfig::MINIMAL);
+            bOK &= runTests(true, GLConfig::MINIMAL, args[1]);
         } else {
             cerr << "Skipping GLES test because GLES isn't supported on this machine."
                     << endl;
         }
     } catch (Exception& ex) {
-        if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
-            cerr << ex.getStr() << endl;
-            bOK = false;
-        } else {
-            cerr << "Skipping GPU imaging test." << endl;
-            cerr << "Reason: " << ex.getStr() << endl;
-            bOK = true;
-        }
+        cerr << ex.getStr() << endl;
+        bOK = false;
     }
 
     if (bOK) {

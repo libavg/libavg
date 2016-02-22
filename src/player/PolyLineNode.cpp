@@ -47,8 +47,8 @@ void PolyLineNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-PolyLineNode::PolyLineNode(const ArgList& args)
-    : VectorNode(args)
+PolyLineNode::PolyLineNode(const ArgList& args, const string& sPublisherName)
+    : VectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     if (m_TexCoords.size() > m_Pts.size()) {

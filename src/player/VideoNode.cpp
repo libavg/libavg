@@ -74,8 +74,9 @@ void VideoNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-VideoNode::VideoNode(const ArgList& args)
-    : m_VideoState(Unloaded),
+VideoNode::VideoNode(const ArgList& args,const string& sPublisherName)
+    : RasterNode(sPublisherName),
+      m_VideoState(Unloaded),
       m_bFrameAvailable(false),
       m_bFirstFrameDecoded(false),
       m_Filename(""),
@@ -200,6 +201,11 @@ void VideoNode::seekToFrame(int frameNum)
         long long destTime = (long long)(frameNum*1000.0/m_pDecoder->getStreamFPS());
         seek(destTime);
     }
+}
+
+bool VideoNode::isSeeking() const
+{
+    return m_bSeekPending;
 }
 
 std::string VideoNode::getStreamPixelFormat() const

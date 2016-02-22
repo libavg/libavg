@@ -49,12 +49,14 @@ public:
     virtual void printResults();
 
 protected:
+    static void setSrcDirName(const std::string& sDirName);
     static const std::string& getSrcDirName();
-    static std::string s_sSrcDirName;
 
     int m_IndentLevel;
 
 private:
+    static std::string s_sSrcDirName;
+
     int m_NumSucceeded;
     int m_NumFailed;
     std::string m_sName;

@@ -72,16 +72,15 @@ if(${PLATFORM_MACOSX})
     find_library(FORCEFEEDBACK ForceFeedback)
     find_library(COREVIDEO CoreVideo)
     find_library(IOKIT IOKit)
-    SET(PLATFORM_MACOSX_LIBS
-            ${COCOA_LIBRARY} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
-            ${IOKIT})
-    list(APPEND PLATFORM_MACOSX_CFLAGS
-        "-F/System/Library/PrivateFrameworks ")
-    list(APPEND PLATFORM_MACOSX_INCLUDE_DIRS
-        "/System/Library/PrivateFrameworks")
-    # TODO payload: @uzadow, this is a flag in src/wrapper/Makefile.am. Needed?
-    #   -read_only_relocs suppress
-    # add it with   target_link_libraries( ... )
+    find_library(COREFOUNDATION CoreFoundation)
+    find_library(OPENGL OpenGL)
+    find_library(CARBON Carbon)
+    set(PLATFORM_MACOSX_LIBS
+            ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
+            ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
+    # The following lines work around broken pkg-config scripts on mac.
+    set(FFMPEG_LDFLAGS "-framework VideoDecodeAcceleration -framework QuartzCore -L/Users/uzadow/devel/libavg/lib -lswscale -lavformat -lavcodec -lbz2 -lz -lavutil -lm")
+    set(RSVG_LDFLAGS "${RSVG_LDFLAGS} -lpixman-1 -lpangocairo-1.0")
 endif()
 
 if(${PLATFORM_WINDOWS})
@@ -120,5 +119,19 @@ if(${AVG_ENABLE_RPI})
 endif()
 
 enable_testing()
-configure_file(src/avgconfig.h.cmake.in src/avgconfig.h)
+
+# Enable make check that dumps test output on failure
+if (CMAKE_CONFIGURATION_TYPES)
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
+        --force-new-ctest-process --output-on-failure 
+        --build-config "$<CONFIGURATION>")
+else()
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
+        --force-new-ctest-process --output-on-failure)
+endif()
+
+configure_file(
+    "${PROJECT_SOURCE_DIR}/src/avgconfig.h.cmake.in"
+    "${PROJECT_BINARY_DIR}/src/avgconfig.h")
+include_directories("${PROJECT_BINARY_DIR}/src")
 add_subdirectory(src)

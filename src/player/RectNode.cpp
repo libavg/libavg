@@ -51,8 +51,8 @@ void RectNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-RectNode::RectNode(const ArgList& args)
-    : FilledVectorNode(args)
+RectNode::RectNode(const ArgList& args, const string& sPublisherName)
+    : FilledVectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     setSize(args.getArgVal<glm::vec2>("size"));

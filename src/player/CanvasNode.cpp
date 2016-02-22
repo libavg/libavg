@@ -34,12 +34,11 @@ namespace avg {
 
 void CanvasNode::registerType()
 {
-    TypeDefinition def = TypeDefinition("canvasbase", "div", 
-            ExportedObject::buildObject<CanvasNode>);
+    TypeDefinition def = TypeDefinition("canvasbase", "div");
     TypeRegistry::get()->registerType(def);
 }
 
-CanvasNode::CanvasNode(const ArgList& args)
+CanvasNode::CanvasNode(const ArgList& args, const string& sPublisherName)
     : DivNode(args)
 {
     args.setMembers(this);

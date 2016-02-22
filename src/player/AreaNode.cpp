@@ -67,8 +67,9 @@ void AreaNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-AreaNode::AreaNode()
-    : m_RelViewport(0,0,0,0),
+AreaNode::AreaNode(const string& sPublisherName)
+    : Node(sPublisherName),
+      m_RelViewport(0,0,0,0),
       m_bTransformChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -103,7 +104,9 @@ void AreaNode::connectDisplay()
     } else {
         m_RelViewport.setHeight(float(m_UserSize.y));
     }
-    if (m_UserSize.x == 0.0 || m_UserSize.y == 0) {
+    if ((m_UserSize.x == 0.0 || m_UserSize.y == 0.0) &&
+            m_UserSize != m_RelViewport.size())
+    {
         notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
     }
     m_bTransformChanged = true;

@@ -6,7 +6,8 @@ endif()
 
 if(${AVG_ENABLE_CGL_QUARTZ})
     set (GRAPHICS_SOURCES CGLContext.cpp PBO.cpp AppleDisplay.cpp)
-    set (GRAPHICS_LIBS ${PLATFORM_MACOSX_LIBS})
+    # TODO: Figure out why these libs need to be specified explicitly.
+    set (GRAPHICS_LIBS -lgmodule-2.0 -lgio-2.0 -lresolv ${PLATFORM_MACOSX_LIBS})
     set (GRAPHICS_CFLAGS ${PLATFORM_MACOSX_CFLAGS})
 endif()
 
@@ -50,6 +51,6 @@ link_libraries(graphics)
 add_executable(testgraphics testgraphics.cpp)
 add_executable(benchmarkgraphics benchmarkgraphics.cpp)
 add_executable(testgpu testgpu.cpp)
-add_test(NAME testgraphics COMMAND testgraphics)
-add_test(NAME testgpu COMMAND testgpu)
+add_test(NAME testgraphics COMMAND testgraphics ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME testgpu COMMAND testgpu ${CMAKE_CURRENT_SOURCE_DIR})
 

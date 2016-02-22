@@ -280,13 +280,14 @@ void export_bitmap()
         .value("BAYER8_BGGR", BAYER8_BGGR)
         .value("R32G32B32A32F", R32G32B32A32F)
         .value("I32F", I32F)
+        .value("JPEG", JPEG)
         .export_values();
 
     def("getSupportedPixelFormats", &getSupportedPixelFormatsDeprecated);
 
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 
-    class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
+    class_<Bitmap>("Bitmap", no_init)
         .def(init<glm::vec2, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
         .def("__init__", make_constructor(createBitmapWithRect))
