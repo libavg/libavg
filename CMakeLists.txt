@@ -143,3 +143,5 @@ configure_file(
     "${PROJECT_BINARY_DIR}/src/avgconfig.h")
 include_directories("${PROJECT_BINARY_DIR}/src")
 add_subdirectory(src)
+add_subdirectory(python)
+

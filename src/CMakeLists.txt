@@ -11,7 +11,6 @@ add_subdirectory(video)
 add_subdirectory(player)
 add_subdirectory(anim)
 add_subdirectory(wrapper)
-add_subdirectory(python)
 
 # TODO see Makefile.am and
 #   TODO EXTRA_DIST
