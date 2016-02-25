@@ -276,7 +276,7 @@ class ObjectDumpWidget(DebugWidget):
     def onShow(self):
         self.intervalID = libavg.player.setInterval(1000, self.update)
         kbmgr.bindKeyDown(
-                keyname='i',
+                keyname='I',
                 handler=self.persistColumn,
                 help="Object count snapshot",
                 modifiers=libavg.KEYMOD_CTRL)
@@ -285,7 +285,7 @@ class ObjectDumpWidget(DebugWidget):
         if self.intervalID:
             libavg.player.clearInterval(self.intervalID)
             self.intervalID = None
-        kbmgr.unbindKeyDown(keyname='i', modifiers=libavg.KEYMOD_CTRL)
+        kbmgr.unbindKeyDown(keyname='I', modifiers=libavg.KEYMOD_CTRL)
 
     def kill(self):
         self.onHide()
