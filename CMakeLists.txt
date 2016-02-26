@@ -87,7 +87,7 @@ if(${PLATFORM_MACOSX})
             ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
             ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
     # The following lines work around broken pkg-config scripts on mac.
-    set(FFMPEG_LDFLAGS "-framework VideoDecodeAcceleration -framework QuartzCore -L/Users/uzadow/devel/libavg/lib -lswscale -lavformat -lavcodec -lbz2 -lz -lavutil -lm")
+    string (REPLACE ";" " " FFMPEG_LDFLAGS "${FFMPEG_LDFLAGS}")
     set(RSVG_LDFLAGS "${RSVG_LDFLAGS} -lpixman-1 -lpangocairo-1.0")
 endif()
 
