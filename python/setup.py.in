@@ -6,7 +6,7 @@ from distutils.command.build import build as _build
 class MyBuild(_build):
     def run(self):
         _build.run(self)
-        self.copy_file('${AVG_SO_LOCATION}', os.path.join(self.build_lib, 'libavg'))
+        self.copy_file('$<TARGET_FILE:avg>', os.path.join(self.build_lib, 'libavg'))
 
 
 setup(name='libavg',
