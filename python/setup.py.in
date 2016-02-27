@@ -4,15 +4,25 @@ from distutils.core import setup
 from distutils.command.build import build as _build
 from distutils.command.build_scripts import build_scripts as _build_scripts
 
+
 class MyBuild(_build):
     def run(self):
         _build.run(self)
         self.copy_file('$<TARGET_FILE:avg>', os.path.join(self.build_lib, 'libavg'))
 
+
 class MyBuildScripts(_build_scripts):
+    CUE_FILE = os.path.join('${CMAKE_CURRENT_BINARY_DIR}', 'cuefile')
+
     def finalize_options(self):
         _build_scripts.finalize_options(self)
-        self.force = True
+        
+        # Avoid to force when the python interpreter hasn't changed since last build
+        if (not os.path.exists(self.CUE_FILE) or
+                open(self.CUE_FILE).read() != '${PYTHON_INTERPRETER}'):
+            self.force = True
+            open(self.CUE_FILE, 'w').write('${PYTHON_INTERPRETER}')
+
 
 setup(name='libavg',
     version='${AVG_VERSION_RELEASE}',
