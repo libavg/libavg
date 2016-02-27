@@ -1,3 +1,9 @@
+# A refresh of this search (eg: new virtualenv) can be obtained by running cmake
+# with -UPYTHON_INTERPRETER
+find_program(PYTHON_INTERPRETER python)
+
+message(STATUS "Using python intepreter: ${PYTHON_INTERPRETER}")
+
 set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
 set(SETUP_PY_CF "${CMAKE_CURRENT_BINARY_DIR}/setup.py.cf")
 set(SETUP_PY    "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
@@ -8,9 +14,7 @@ file(GENERATE
      OUTPUT "${SETUP_PY}"
      INPUT "${SETUP_PY_CF}")
 
+add_custom_target(python-package ALL DEPENDS avg
+                  COMMAND ${PYTHON_INTERPRETER} ${SETUP_PY} build)
 
-
-add_custom_target(pybuild ALL DEPENDS avg
-                  COMMAND python ${SETUP_PY} build)
-
-install(CODE "execute_process(COMMAND python ${SETUP_PY} install)")
+install(CODE "execute_process(COMMAND ${PYTHON_INTERPRETER} ${SETUP_PY} install)")
