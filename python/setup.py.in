@@ -1,14 +1,26 @@
 import os
 import glob
 from distutils.core import setup
-from distutils.command.build import build as _build
+from distutils.command.build_py import build_py as _build_py
 from distutils.command.build_scripts import build_scripts as _build_scripts
 
 
-class MyBuild(_build):
-    def run(self):
-        _build.run(self)
+class MyBuildPy(_build_py):
+    # (source path, destination path relative to the top dir)
+    EXTRA_DATA_DIRS = [
+        (os.path.join('${CMAKE_SOURCE_DIR}', 'src', 'graphics', 'shaders'),
+        os.path.join('libavg', 'shaders'))
+    ]
+
+    def build_package_data(self):
+        _build_py.build_package_data(self)
+
         self.copy_file('$<TARGET_FILE:avg>', os.path.join(self.build_lib, 'libavg'))
+
+        # Incorporating data outside the source package
+        # under distutils, package_data cannot be used with absolute paths
+        for extraDir, target in self.EXTRA_DATA_DIRS:
+            self.copy_tree(extraDir, os.path.join(self.build_lib, target))
 
 
 class MyBuildScripts(_build_scripts):
@@ -29,6 +41,6 @@ setup(name='libavg',
     package_dir={'':  '${CMAKE_CURRENT_SOURCE_DIR}'},
     packages=['libavg', 'libavg.app', 'libavg.widget'],
     package_data={'libavg': ['data/*']},
-    cmdclass={'build': MyBuild, 'build_scripts': MyBuildScripts},
+    cmdclass={'build_py': MyBuildPy, 'build_scripts': MyBuildScripts},
     scripts=glob.glob('${CMAKE_CURRENT_SOURCE_DIR}/scripts/avg_*'),
 )
