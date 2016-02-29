@@ -1,6 +1,14 @@
 project(libavg)
 cmake_minimum_required(VERSION 2.8)
 
+# libavg release version
+set(AVG_VERSION_MAJOR 1)
+set(AVG_VERSION_MINOR 8)
+set(AVG_VERSION_MICRO 2)
+set(AVG_VERSION_RELEASE "${AVG_VERSION_MAJOR}.${AVG_VERSION_MINOR}.${AVG_VERSION_MICRO}")
+
+message(STATUS "libavg v${AVG_VERSION_RELEASE}")
+
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES Linux)
@@ -135,3 +143,5 @@ configure_file(
     "${PROJECT_BINARY_DIR}/src/avgconfig.h")
 include_directories("${PROJECT_BINARY_DIR}/src")
 add_subdirectory(src)
+add_subdirectory(python)
+
