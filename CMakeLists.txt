@@ -101,13 +101,22 @@ if(${AVG_ENABLE_RPI})
     set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -fPIC")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -ffast-math -Wall -pipe -fPIC")
-    if ((${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64") OR
-            (${CMAKE_SYSTEM_PROCESSOR} MATCHES "amd64") OR
-            (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i386") OR
-            (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686"))
+# How does RELEASE and DEBUG distinction work?
+# https://cmake.org/cmake/help/v3.0/variable/CMAKE_BUILD_TYPE.html
+if(${CMAKE_COMPILER_IS_GNUCC} OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+        -pipe \
+        -fPIC \
+        -ffast-math \
+        -Wall -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body")
+    set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} \
+        -pipe \
+        -fPIC \
+        -ffast-math \
+        -Wall")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    set(CMAKE_C_FLAGS_RELEASE   "-O3")
+    if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64|amd64|i386|i686")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
     endif()
