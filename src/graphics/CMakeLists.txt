@@ -15,7 +15,7 @@ if(${AVG_ENABLE_EGL})
     set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} EGLContext.cpp)
 endif()
 
-if(${AVG_ENABLE_BCM})
+if(${AVG_ENABLE_RPI})
     set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} BCMDisplay.cpp)
 endif()
 
