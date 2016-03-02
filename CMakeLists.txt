@@ -101,8 +101,12 @@ if(${AVG_ENABLE_RPI})
     set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
 endif()
 
-# How does RELEASE and DEBUG distinction work?
-# https://cmake.org/cmake/help/v3.0/variable/CMAKE_BUILD_TYPE.html
+if(NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+       FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 if(${CMAKE_COMPILER_IS_GNUCC} OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     set(warnings_cxx "-Wall -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -fPIC -ffast-math ${warnings_cxx}")
