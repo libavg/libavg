@@ -46,6 +46,10 @@ find_path(VIDEODEV2_FOUND
 
 set(AVG_ENABLE_EGL FALSE CACHE BOOL "include EGL support")
 set(AVG_ENABLE_RPI FALSE CACHE BOOL "configure for RaspberryPi")
+set(AVG_ENABLE_X11 FALSE CACHE BOOL "use X11 for window and display management")
+set(AVG_ENABLE_BCM FALSE CACHE BOOL "use BCM for display management (RasperryPi)")
+set(AVG_ENABLE_GLX_X11 FALSE CACHE BOOL "use GLX and X11 for display, window and OpenGL management (Desktop Linux)")
+set(AVG_ENABLE_CGL_QUARTZ FALSE CACHE BOOL "use CGL and Quart for display, window and OpenGL management (Mac OS X)")
 
 if(${DC1394_2_FOUND})
     set(AVG_ENABLE_1394_2 TRUE CACHE BOOL "compile support for firewire cameras")
@@ -59,8 +63,19 @@ endif()
 # platform choices
 
 if(${PLATFORM_LINUX})
+    if(${AVG_ENABLE_RPI})
+        set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
+        set(AVG_ENABLE_BCM TRUE)
+    endif()
+    if(${AVG_ENABLE_EGL} AND NOT ${AVG_ENABLE_BCM})
+        set(AVG_ENABLE_X11 TRUE)
+    endif()
     if(NOT ${AVG_ENABLE_EGL})
         set(AVG_ENABLE_GLX_X11 TRUE)
+        set(AVG_ENABLE_X11 TRUE)
+    endif()
+    if(${AVG_ENABLE_BCM} AND NOT ${AVG_ENABLE_EGL})
+        message(FATAL_ERROR "BCM without EGL is not supported.")
     endif()
 endif()
 
@@ -97,10 +112,6 @@ if(${PLATFORM_WINDOWS})
         "Use the prebuilt Vistual Studio file './win/libavg.sln'. ")
 endif()
 
-if(${AVG_ENABLE_RPI})
-    set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
-endif()
-
 # How does RELEASE and DEBUG distinction work?
 # https://cmake.org/cmake/help/v3.0/variable/CMAKE_BUILD_TYPE.html
 if(${CMAKE_COMPILER_IS_GNUCC} OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
@@ -116,6 +127,20 @@ if(${CMAKE_COMPILER_IS_GNUCC} OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
 endif()
 # TODO: Missing linker flag -rdynamic from autoconf
 
+
+
+# feature choice validation
+
+message(STATUS blubb ${AVG_ENABLE_X11})
+if(NOT (${AVG_ENABLE_X11} OR ${AVG_ENABLE_BCM} OR ${AVG_ENABLE_CGL_QUARTZ} OR ${AVG_ENABLE_GLX_X11}))
+    message(FATAL_ERROR "Enable at least one of AVG_ENABLE_X11, AVG_ENABLE_BCM, AVG_ENABLE_CGL_QUARTZ, AVG_ENABLE_GLX_X11.")
+endif()
+if(NOT (${AVG_ENABLE_EGL} OR ${AVG_ENABLE_CGL_QUARTZ} OR ${AVG_ENABLE_GLX_X11}))
+    message(FATAL_ERROR "Enable at least one of AVG_ENABLE_EGL, AVG_ENABLE_CGL_QUARTZ, AVG_ENABLE_GLX_X11.")
+endif()
+
+
+
 # feature configuration
 
 if(${AVG_ENABLE_GLX_X11})
@@ -125,7 +150,13 @@ if(${AVG_ENABLE_EGL})
     pkg_check_modules(EGL REQUIRED egl glesv2)
 endif()
 if(${AVG_ENABLE_RPI})
-    pkg_check_module(BCM REQUIRED bcm)
+
+endif()
+if(${AVG_ENABLE_X11})
+    pkg_check_modules(X11 REQUIRED x11)
+endif()
+if(${AVG_ENABLE_BCM})
+    pkg_check_modules(BCM REQUIRED bcm)
 endif()
 
 enable_testing()

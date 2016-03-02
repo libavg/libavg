@@ -21,9 +21,10 @@
 
 #include "EGLContext.h"
 #include "GLContextAttribs.h"
-#ifdef AVG_ENABLE_RPI
+#ifdef AVG_ENABLE_BCM
     #include "BCMDisplay.h"
-#else
+#endif
+#ifdef AVG_ENABLE_X11
     #include "X11Display.h"
 #endif
 
@@ -34,10 +35,12 @@
 #include <EGL/egl.h>
 
 #include <iostream>
+#include <boost/numeric/conversion/cast.hpp>
 
 namespace avg{
 
 using namespace std;
+using boost::numeric_cast;
 
 EGLContext::EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
         const SDL_SysWMinfo* pSDLWMInfo)
@@ -75,15 +78,16 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
 {
     m_bOwnsContext = true;
 
-#ifdef AVG_ENABLE_RPI
-    m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-#else
-    m_xDisplay = (EGLNativeDisplayType)getX11Display();
-    m_Display = eglGetDisplay(m_xDisplay);
+#ifdef AVG_ENABLE_BCM
+    m_nativeDisplay = EGL_DEFAULT_DISPLAY;
 #endif
+#ifdef AVG_ENABLE_X11
+    m_nativeDisplay = (EGLNativeDisplayType)getX11Display();
+#endif
+    m_Display = eglGetDisplay(m_nativeDisplay);
     checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
 
-    bool bOk = eglInitialize(m_Display, NULL, NULL);
+    EGLBoolean bOk = eglInitialize(m_Display, NULL, NULL);
     checkEGLError(!bOk, "eglInitialize failed");
 
     GLContextAttribs fbAttrs;
@@ -92,9 +96,10 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     fbAttrs.append(EGL_BLUE_SIZE, 1);
     fbAttrs.append(EGL_DEPTH_SIZE, 0);
     fbAttrs.append(EGL_STENCIL_SIZE, 1);
-#ifdef AVG_ENABLE_RPI
+#ifdef AVG_ENABLE_BCM
     int alphaSize = 1;
-#else
+#endif
+#ifdef AVG_ENABLE_X11
     int alphaSize = 0;
 #endif
     fbAttrs.append(EGL_ALPHA_SIZE, alphaSize);
@@ -108,16 +113,6 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     bOk = eglGetConfigAttrib(m_Display, config, EGL_NATIVE_VISUAL_ID, &vid);
     AVG_ASSERT(bOk);
 
-#ifndef AVG_ENABLE_RPI
-    XVisualInfo visTemplate;
-    visTemplate.visualid = vid;
-    int num_visuals;
-    XVisualInfo* pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualIDMask,
-            &visTemplate,
-            &num_visuals);
-    AVG_ASSERT(pVisualInfo);
-#endif
-
     if (!eglBindAPI(EGL_OPENGL_ES_API)) {
         cerr << "Failed to bind GLES API to EGL\n";
         return;
@@ -127,18 +122,23 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
         cerr << "Didn't get exactly one config, but " << numFBConfig << endl;
         return;
     }
-#ifdef AVG_ENABLE_RPI
+
+#ifdef AVG_ENABLE_BCM
     m_Surface = createBCMPixmapSurface(m_Display, config);
-#else
-    XVisualInfo visTemplate, *results;
+#endif
+#ifdef AVG_ENABLE_X11
+    XVisualInfo visTemplate, *pVisualInfo;
     visTemplate.screen = 0;
     int numVisuals;
-    results = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
+    pVisualInfo = XGetVisualInfo((_XDisplay*)m_nativeDisplay, VisualScreenMask,
             &visTemplate, & numVisuals);
+    AVG_ASSERT(pVisualInfo);
 
-    Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay,
-            RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8,
-            results[0].depth);
+    Pixmap pmp = XCreatePixmap(
+            (_XDisplay*)m_nativeDisplay,
+            RootWindow((_XDisplay*)m_nativeDisplay, pVisualInfo[0].screen),
+            8, 8,
+            numeric_cast<unsigned int>(pVisualInfo[0].depth));
 
     m_Surface = eglCreatePixmapSurface(m_Display, config, (EGLNativePixmapType)pmp,
             NULL);
@@ -161,7 +161,7 @@ void EGLContext::activate()
 
 void EGLContext::swapBuffers()
 {
-    AVG_ASSERT(false);
+    eglSwapBuffers(m_Display, m_Surface);
 }
 
 void EGLContext::checkEGLError(bool bError, const std::string& sMsg)
