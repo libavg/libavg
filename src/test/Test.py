@@ -50,6 +50,7 @@ def symtree(src, dest):
             os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
 
+local_avg_so_not_found = False
 if sys.platform != 'win32':
     tempPackageDir = os.path.join(os.getcwd(), 'libavg')
     # Possible values for srcdir:
@@ -84,7 +85,7 @@ if sys.platform != 'win32':
         # Mac version after installer dmg, linux after make install
         pass
     else:
-        raise RuntimeError('Compile libavg before running tests or use "make check"')
+        local_avg_so_not_found = True
 
     # The following line prevents the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
@@ -94,6 +95,9 @@ if sys.platform != 'win32':
     # Meaningful only for distcheck
     os.chdir(srcDir)
 
+if local_avg_so_not_found:
+    print "Could not find locally compiled avg.so."
+    print "Therefor we just try to import libavg and hope."
 import libavg
 libavg.logger.configureCategory(libavg.Logger.Category.APP, libavg.Logger.Severity.INFO)
 libavg.logger.info("Using libavg from: "+ os.path.dirname(libavg.__file__),
