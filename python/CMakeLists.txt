@@ -19,3 +19,15 @@ add_custom_target(python-package ALL DEPENDS avg
 
 install(CODE "execute_process(COMMAND ${PYTHON_INTERPRETER} ${SETUP_PY} install
               WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+
+# How do I get Clion to run an install target?
+#  http://stackoverflow.com/questions/33788729/how-do-i-get-clion-to-run-an-install-target
+#
+# How do I get Clion to install into virtualenv?
+#  Either run clion.sh from an activated virtualenv shell
+#  or change PYTHON_INTERPRETER in CMake Cache to the virtualenv python path.
+#
+add_custom_target(install-for-clion
+        make install
+        DEPENDS python-package
+        COMMENT "Installing libavg via setup.py.")
