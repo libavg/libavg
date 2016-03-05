@@ -14,7 +14,3 @@ target_include_directories(base
     PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(base
     PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS})
-
-link_libraries(base)
-add_executable(testbase testbase.cpp)
-add_test(NAME testbase COMMAND testbase)

@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -20,9 +20,8 @@
 //
 
 #include "../api.h"
-#include "Bitmap.h"
-
 #include "../base/Test.h"
+#include "../graphics/Bitmap.h"
 
 #include <string>
 
@@ -31,15 +30,15 @@ namespace avg {
 class AVG_API GraphicsTest: public Test {
 public:
     GraphicsTest(const std::string& sName, int indentLevel);
-    
+
     static void createResultImgDir();
 
 protected:
     std::string getTestBmpName(const std::string& sFName);
     BitmapPtr loadTestBmp(const std::string& sFName, PixelFormat pf = NO_PIXELFORMAT);
-    virtual void testEqual(Bitmap& resultBmp, const std::string& sFName, 
-            PixelFormat pf = NO_PIXELFORMAT, float maxAverage=0.01f, 
-            float maxStdDev=0.05f); 
+    virtual void testEqual(Bitmap& resultBmp, const std::string& sFName,
+            PixelFormat pf = NO_PIXELFORMAT, float maxAverage=0.01f,
+            float maxStdDev=0.05f);
     virtual void testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
         const std::string& sFName, float maxAverage=0.01f, float maxStdDev=0.05f);
     void testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp, float epsilon);

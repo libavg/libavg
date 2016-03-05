@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Player.h"
+#include "../player/Player.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -48,7 +48,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         Player player;
         player.loadString(
@@ -66,7 +66,8 @@ public:
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
 #endif
-            ShaderRegistry::setShaderPath("../graphics/shaders/");
+            ShaderRegistry::setShaderPath(
+                    getSrcDirName()+"../graphics/shaders");
             player.initPlayback();
             player.doFrame(false);
             player.cleanup(false);
@@ -81,8 +82,8 @@ public:
 
 class PlayerTestSuite: public TestSuite {
 public:
-    PlayerTestSuite() 
-        : TestSuite("PlayerTestSuite")
+    PlayerTestSuite(const std::string& sSrcDir)
+        : TestSuite("PlayerTestSuite", sSrcDir)
     {
         addTest(TestPtr(new PlayerTest));
     }
@@ -91,7 +92,8 @@ public:
 
 int main(int nargs, char** args)
 {
-    PlayerTestSuite suite;
+    assert(nargs == 2);
+    PlayerTestSuite suite(args[1]);
     suite.runTests();
     bool bOK = suite.isOk();
 

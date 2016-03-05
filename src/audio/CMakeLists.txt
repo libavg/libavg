@@ -4,6 +4,3 @@ add_library(audio
 target_link_libraries(audio
     PUBLIC base)
 
-link_libraries(audio)
-add_executable(testlimiter testlimiter.cpp)
-add_test(NAME testlimiter COMMAND testlimiter)

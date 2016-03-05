@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,15 +19,16 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "AsyncVideoDecoder.h"
-#include "SyncVideoDecoder.h"
+#include "GraphicsTest.h"
+
+#include "../video/AsyncVideoDecoder.h"
+#include "../video/SyncVideoDecoder.h"
 #ifdef AVG_ENABLE_VDPAU
-#include "VDPAUDecoder.h"
+#include "../video/VDPAUDecoder.h"
 #endif
 
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
-#include "../graphics/GraphicsTest.h"
 #include "../graphics/BitmapLoader.h"
 
 #include "../base/StringHelper.h"
@@ -50,7 +51,7 @@ using namespace boost;
 
 class DecoderTest: public GraphicsTest {
     public:
-        DecoderTest(const string& sClassName, bool bThreaded, 
+        DecoderTest(const string& sClassName, bool bThreaded,
                 bool bUseHardwareAcceleration)
           : GraphicsTest(sClassName+getDecoderName(bThreaded, bUseHardwareAcceleration),
                 2),
@@ -59,7 +60,7 @@ class DecoderTest: public GraphicsTest {
         {}
 
     protected:
-        bool isThreaded() 
+        bool isThreaded()
         {
             return m_bThreaded;
         }
@@ -69,7 +70,7 @@ class DecoderTest: public GraphicsTest {
             return m_bUseHardwareAcceleration;
         }
 
-        VideoDecoderPtr createDecoder() 
+        VideoDecoderPtr createDecoder()
         {
             VideoDecoderPtr pDecoder;
             if (m_bThreaded) {
@@ -125,7 +126,7 @@ class DecoderTest: public GraphicsTest {
             }
         }
 
-        virtual void testEqual(Bitmap& resultBmp, const std::string& sFName, 
+        virtual void testEqual(Bitmap& resultBmp, const std::string& sFName,
                 avg::PixelFormat pf = NO_PIXELFORMAT, float maxAverage=1.0,
                 float maxStdDev=1.0)
         {
@@ -135,13 +136,13 @@ class DecoderTest: public GraphicsTest {
         void testEqual(Bitmap& resultBmp, Bitmap& BaselineBmp,
                 const std::string& sFName, float maxAverage=1.0f, float maxStdDev=1.0f)
         {
-            GraphicsTest::testEqual(resultBmp, BaselineBmp, sFName, 
+            GraphicsTest::testEqual(resultBmp, BaselineBmp, sFName,
                     maxAverage, maxStdDev);
         }
 
         string getMediaLoc(const string& sFilename)
         {
-            return getSrcDirName()+"../test/media/"+sFilename;
+            return getSrcDirName()+"media/"+sFilename;
         }
 
     private:
@@ -183,7 +184,7 @@ class VideoDecoderTest: public DecoderTest {
         }
 
     private:
-        void basicFileTest(const string& sFilename, int expectedNumFrames) 
+        void basicFileTest(const string& sFilename, int expectedNumFrames)
         {
             try {
                 cerr << "    Testing " << sFilename << endl;
@@ -202,17 +203,17 @@ class VideoDecoderTest: public DecoderTest {
                 // Test first two frames.
                 BitmapPtr pBmp;
                 pDecoder->getRenderedBmp(pBmp, -1);
-                testEqual(*pBmp, sFilename+"_1", B8G8R8X8);
+                testEqual(*pBmp, std::string("video/")+sFilename+"_1", B8G8R8X8);
                 TEST(pDecoder->getCurFrame() == 0);
                 TEST(pDecoder->getCurTime() == 0);
 
                 pDecoder->getRenderedBmp(pBmp, -1);
-                testEqual(*pBmp, sFilename+"_2", B8G8R8X8);
+                testEqual(*pBmp, std::string("video/")+sFilename+"_2", B8G8R8X8);
                 pDecoder->close();
-                
-                readWholeFile(sFilename, 1, expectedNumFrames); 
-                readWholeFile(sFilename, 0.5, expectedNumFrames); 
-                readWholeFile(sFilename, 2, expectedNumFrames/2); 
+
+                readWholeFile(sFilename, 1, expectedNumFrames);
+                readWholeFile(sFilename, 0.5, expectedNumFrames);
+                readWholeFile(sFilename, 2, expectedNumFrames/2);
             } catch (Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.getStr() << endl;
                 throw;
@@ -242,11 +243,11 @@ class VideoDecoderTest: public DecoderTest {
             BitmapPtr pBmp;
             pDecoder->seek(float(frameNum)/pDecoder->getStreamFPS());
             pDecoder->getRenderedBmp(pBmp, -1);
-            testEqual(*pBmp, sFilename+"_"+toString(frameNum), B8G8R8X8);
+            testEqual(*pBmp, std::string("video/")+sFilename+"_"+toString(frameNum), B8G8R8X8);
 
         }
 
-        void readWholeFile(const string& sFilename, float speedFactor, 
+        void readWholeFile(const string& sFilename, float speedFactor,
                 int expectedNumFrames)
         {
             // Read whole file, test last image.
@@ -261,33 +262,33 @@ class VideoDecoderTest: public DecoderTest {
             while (!pDecoder->isEOF()) {
                 FrameAvailableCode frameAvailable = pDecoder->getRenderedBmp(pBmp, curTime);
                 if (frameAvailable == FA_NEW_FRAME) {
-/*                    
+/*
                     stringstream ss;
                     ss << "resultimages/" << sFilename << numFrames << ".png";
                     pBmp->save(ss.str());
-*/                    
+*/
                     numFrames++;
                 } else {
                     msleep(0);
                 }
                 if (frameAvailable == FA_NEW_FRAME || frameAvailable == FA_USE_LAST_FRAME)
-                { 
+                {
                     curTime += timePerFrame;
                 }
             }
-//            cerr << "numFrames: " << numFrames << 
+//            cerr << "numFrames: " << numFrames <<
 //                    ", expectedNumFrames: " << expectedNumFrames << endl;
             TEST(numFrames == expectedNumFrames);
             if (speedFactor == 1 && !useHardwareAcceleration()) {
                 // The last frame is broken with VDPAU sometimes. Not sure why this is,
                 // possibly a libav bug.
-                testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
+                testEqual(*pBmp, std::string("video/")+sFilename+"_end", B8G8R8X8);
             }
-            
+
             // Test loop.
             pDecoder->loop();
             pDecoder->getRenderedBmp(pBmp, -1);
-            testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
+            testEqual(*pBmp, std::string("video/")+sFilename+"_loop", B8G8R8X8);
 
             pDecoder->close();
         }
@@ -323,10 +324,10 @@ class AudioDecoderTest: public DecoderTest {
         {
             try {
                 cerr << "    Testing " << sFilename << endl;
-                
+
                 {
                     cerr << "      Reading complete file." << endl;
-                    AsyncVideoDecoderPtr pDecoder = 
+                    AsyncVideoDecoderPtr pDecoder =
                             dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
                     pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
                     TEST(pDecoder->getVideoInfo().m_bHasAudio);
@@ -344,7 +345,7 @@ class AudioDecoderTest: public DecoderTest {
                 }
                 {
                     cerr << "      Seek test." << endl;
-                    AsyncVideoDecoderPtr pDecoder = 
+                    AsyncVideoDecoderPtr pDecoder =
                             dynamic_pointer_cast<AsyncVideoDecoder>(createDecoder());
                     pDecoder->open(getMediaLoc(sFilename), useHardwareAcceleration(), true);
                     float duration = pDecoder->getVideoInfo().m_Duration;
@@ -360,7 +361,7 @@ class AudioDecoderTest: public DecoderTest {
                         // Check if we've decoded half the file.
                         // TODO: Find out why there are problems with this
                         // for mp3 files.
-                        int framesInDuration = 
+                        int framesInDuration =
                                 int(pDecoder->getVideoInfo().m_Duration*44100);
 //                        cerr << "framesDecoded: " << totalFramesDecoded << endl;
 //                        cerr << "framesInDuration: " << framesInDuration << endl;
@@ -374,9 +375,9 @@ class AudioDecoderTest: public DecoderTest {
             }
         }
 
-        void readAudioToEOF(AsyncVideoDecoderPtr pDecoder, AudioMsgQueuePtr pMsgQ, 
+        void readAudioToEOF(AsyncVideoDecoderPtr pDecoder, AudioMsgQueuePtr pMsgQ,
                 AudioMsgQueuePtr pStatusQ, int& totalFramesDecoded,
-                bool bCheckTimestamps) 
+                bool bCheckTimestamps)
         {
             int numWrongTimestamps = 0;
             while (!pDecoder->isEOF()) {
@@ -423,17 +424,17 @@ class AVDecoderTest: public DecoderTest {
             pDecoder->startDecoding(false, getAudioParams());
             AudioMsgQueuePtr pMsgQ;
             AudioMsgQueuePtr pStatusQ;
-            
+
             pMsgQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder) ->getAudioMsgQ();
             pStatusQ = dynamic_pointer_cast<AsyncVideoDecoder>(pDecoder)
                 ->getAudioStatusQ();
             TEST(pDecoder->getVideoInfo().m_bHasAudio);
-            
+
             BitmapPtr pBmp;
             int numFrames = 0;
             int totalFramesDecoded = 0;
             float curTime = 0;
-            
+
             while (!pDecoder->isEOF()) {
                 FrameAvailableCode frameAvailable;
                 do {
@@ -459,13 +460,13 @@ class AVDecoderTest: public DecoderTest {
             }
             TEST(pDecoder->isEOF());
             TEST(numFrames == expectedNumFrames);
-            testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
+            testEqual(*pBmp, std::string("video/")+sFilename+"_end", B8G8R8X8);
 
             // Test loop.
             pDecoder->seek(0);
             processAudioSeek(pMsgQ, pStatusQ);
             pDecoder->getRenderedBmp(pBmp, -1);
-            testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
+            testEqual(*pBmp, std::string("video/")+sFilename+"_loop", B8G8R8X8);
 
             pDecoder->close();
         }
@@ -474,12 +475,12 @@ class AVDecoderTest: public DecoderTest {
 
 class VideoTestSuite: public TestSuite {
 public:
-    VideoTestSuite(const string& sSrcDir) 
+    VideoTestSuite(const string& sSrcDir)
         : TestSuite("VideoTestSuite", sSrcDir)
     {
         addAudioTests();
         addVideoTests(false);
-        
+
 #ifdef AVG_ENABLE_VDPAU
         if (VDPAUDecoder::isAvailable()) {
             addVideoTests(true);
@@ -518,19 +519,9 @@ int main(int nargs, char** args)
     BitmapLoader::init(true);
     VideoTestSuite suite(args[1]);
     bool bOk;
-    
+
     suite.runTests();
     bOk = suite.isOk();
-/*    
-    for (int i=0; i<300; ++i) {
-//    while(true) {
-        suite.runTests();
-        bOk = suite.isOk();
-        if (!bOk) {
-            return 1;
-        }
-    }
-*/    
     if (bOk) {
         return 0;
     } else {

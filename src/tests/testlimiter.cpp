@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Dynamics.h"
+#include "../audio/Dynamics.h"
 
 #include "../base/TestSuite.h"
 #include "../base/MathHelper.h"
@@ -77,7 +77,7 @@ public:
                 }
                 if (fabs(pSamples[j*CHANNELS+i]-pSamples[(j-1)*CHANNELS+i]) > 0.05f) {
                     bDiscontinuities = true;
-//                    cerr << j << ": " << outSamples[j*OUT_CHANNELS+i] << ", " << 
+//                    cerr << j << ": " << outSamples[j*OUT_CHANNELS+i] << ", " <<
 //                            outSamples[(j-1)*OUT_CHANNELS+i] << endl;
                 }
             }

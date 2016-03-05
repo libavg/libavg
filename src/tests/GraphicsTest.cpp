@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -20,10 +20,11 @@
 //
 
 #include "GraphicsTest.h"
-#include "Bitmap.h"
-#include "BitmapLoader.h"
-#include "Filterfliprgb.h"
-#include "Filtergrayscale.h"
+
+#include "../graphics/Bitmap.h"
+#include "../graphics/BitmapLoader.h"
+#include "../graphics/Filterfliprgb.h"
+#include "../graphics/Filtergrayscale.h"
 
 #include "../base/Directory.h"
 #include "../base/Exception.h"
@@ -57,8 +58,8 @@ void GraphicsTest::createResultImgDir()
 }
 
 std::string GraphicsTest::getTestBmpName(const string& sFName)
-{ 
-    return getSrcDirName()+"../test/media/"+sFName+".png";
+{
+    return getSrcDirName()+"media/"+sFName+".png";
 }
 
 BitmapPtr GraphicsTest::loadTestBmp(const string& sFName, PixelFormat pf)
@@ -71,8 +72,8 @@ BitmapPtr GraphicsTest::loadTestBmp(const string& sFName, PixelFormat pf)
     }
 }
 
-void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelFormat pf, 
-        float maxAverage, float maxStdDev) 
+void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelFormat pf,
+        float maxAverage, float maxStdDev)
 {
     BitmapPtr pBaselineBmp;
     try {
@@ -86,7 +87,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
     testEqual(resultBmp, *pBaselineBmp, sFName, maxAverage, maxStdDev);
 }
 
-void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp, 
+void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
         const string& sFName, float maxAverage, float maxStdDev)
 {
     BitmapPtr pDiffBmp;
@@ -102,7 +103,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
         float average = pDiffBmp->getAvg();
         float stdDev = pDiffBmp->getStdDev();
         if (average > maxAverage || stdDev > maxStdDev) {
-            TEST_FAILED("Error: Decoded image differs from baseline '" << 
+            TEST_FAILED("Error: Decoded image differs from baseline '" <<
                     sFName << "'. average=" << average << ", stdDev=" << stdDev);
     //        resultBmp.dump();
     //        baselineBmp.dump();
@@ -115,13 +116,13 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
     }
 }
 
-void GraphicsTest::testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp, 
+void GraphicsTest::testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp,
         float epsilon)
 {
     float diff = fabs(resultBmp.getAvg()-baselineBmp.getAvg());
     if (diff >= epsilon) {
         TEST_FAILED("Error: Baseline brightness: " << baselineBmp.getAvg()
-                << ", Result brightness: " << resultBmp.getAvg() << ", difference: " 
+                << ", Result brightness: " << resultBmp.getAvg() << ", difference: "
                 << diff);
     }
 }
@@ -133,7 +134,7 @@ int GraphicsTest::sumPixels(Bitmap& bmp)
     IntPoint size = bmp.getSize();
     for (int y = 0; y < size.y; y++) {
         unsigned char * pLine = bmp.getPixels()+y*bmp.getStride();
-        for (int x = 0; x < size.x; x++) { 
+        for (int x = 0; x < size.x; x++) {
             sum += pLine[x*4];
             sum += pLine[x*4+1];
             sum += pLine[x*4+2];

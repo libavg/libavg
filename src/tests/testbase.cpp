@@ -19,29 +19,29 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DAG.h"
-#include "Queue.h"
-#include "Command.h"
-#include "WorkerThread.h"
-#include "ObjectCounter.h"
-#include "Polygon.h"
-#include "GLMHelper.h"
-#include "GeomHelper.h"
-#include "OSHelper.h"
-#include "FileHelper.h"
-#include "StringHelper.h"
-#include "MathHelper.h"
-#include "CubicSpline.h"
-#include "BezierCurve.h"
-#include "Signal.h"
-#include "Backtrace.h"
-#include "WideLine.h"
-#include "Rect.h"
-#include "Triangle.h"
-#include "TestSuite.h"
-#include "TimeSource.h"
-#include "XMLHelper.h"
-#include "Logger.h"
+#include "../base/DAG.h"
+#include "../base/Queue.h"
+#include "../base/Command.h"
+#include "../base/WorkerThread.h"
+#include "../base/ObjectCounter.h"
+#include "../base/Polygon.h"
+#include "../base/GLMHelper.h"
+#include "../base/GeomHelper.h"
+#include "../base/OSHelper.h"
+#include "../base/FileHelper.h"
+#include "../base/StringHelper.h"
+#include "../base/MathHelper.h"
+#include "../base/CubicSpline.h"
+#include "../base/BezierCurve.h"
+#include "../base/Signal.h"
+#include "../base/Backtrace.h"
+#include "../base/WideLine.h"
+#include "../base/Rect.h"
+#include "../base/Triangle.h"
+#include "../base/TestSuite.h"
+#include "../base/TimeSource.h"
+#include "../base/XMLHelper.h"
+#include "../base/Logger.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -64,7 +64,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         {
             DAG dag;
@@ -72,7 +72,7 @@ public:
             dag.addNode(1, set<long>());
             long outgoing2[] = {1};
             dag.addNode(0, makeOutgoing(1, outgoing2));
-            
+
             long expected[] = {0, 1};
             checkResults(&dag, expected);
         }
@@ -160,7 +160,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runSingleThreadTests();
         runMultiThreadTests();
@@ -168,7 +168,7 @@ public:
 
 private:
     typedef Queue<int>::QElementPtr ElemPtr;
-    
+
     void runSingleThreadTests()
     {
         Queue<string> q;
@@ -263,7 +263,7 @@ private:
 class TestWorkerThread: public WorkerThread<TestWorkerThread>
 {
 public:
-    TestWorkerThread(CQueue& cmdQ, int* pNumFuncCalls, int* pIntParam, 
+    TestWorkerThread(CQueue& cmdQ, int* pNumFuncCalls, int* pIntParam,
             string* pStringParam)
         : WorkerThread<TestWorkerThread>("Thread1", cmdQ),
           m_pNumFuncCalls(pNumFuncCalls),
@@ -272,7 +272,7 @@ public:
     {
     }
 
-    bool init() 
+    bool init()
     {
         (*m_pNumFuncCalls)++;
         return true;
@@ -311,7 +311,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         TestWorkerThread::CQueue cmdQ;
         boost::thread* pTestThread;
@@ -355,7 +355,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         TEST(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
         {
@@ -382,7 +382,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         // TODO: Move to a separate math test once we're done here.
         TEST(almostEqual(invSqrt(1), 1));
@@ -433,13 +433,13 @@ public:
             glm::vec2 v2(glm::vec2(1,0));
             TEST(getLineLineIntersection(p1, v1, p2, v2) == glm::vec2(1,1));
         }
-        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI, glm::vec2(15,5)), 
+        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI, glm::vec2(15,5)),
                 glm::vec2(20,10)));
         TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*0.5, glm::vec2(15,5)),
                 glm::vec2(20,0)));
-        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*1.5, glm::vec2(15,5)), 
+        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*1.5, glm::vec2(15,5)),
                 glm::vec2(10,10)));
-        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*2, glm::vec2(15,5)), 
+        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*2, glm::vec2(15,5)),
                 glm::vec2(10,0)));
         TEST(almostEqual(getRotatedPivot(glm::vec2(23,0), M_PI*0.5), glm::vec2(0,23)));
 
@@ -475,24 +475,24 @@ public:
         TEST(tri.isInside(glm::vec2(3,4)));
 
         {
-            glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(8,2), glm::vec2(9,0), 
+            glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(8,2), glm::vec2(9,0),
                     glm::vec2(9,3), glm::vec2(1,1), glm::vec2(0,3)};
-            glm::vec2 baselineArray[] = {glm::vec2(9,3), glm::vec2(8,2), glm::vec2(9,0), 
+            glm::vec2 baselineArray[] = {glm::vec2(9,3), glm::vec2(8,2), glm::vec2(9,0),
                     glm::vec2(1,1), glm::vec2(0,0), glm::vec2(0,3)};
-            int baselineIndexes[] = {0,1,2, 3,1,0, 3,4,1, 4,3,5};        
+            int baselineIndexes[] = {0,1,2, 3,1,0, 3,4,1, 4,3,5};
             testTriangulation(Polygon(vectorFromCArray(6, polyArray)),
                     vectorFromCArray(12, baselineIndexes),
                     vectorFromCArray(6, baselineArray));
         }
         {
             // Self-intersecting polygon
-            glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(10,0), glm::vec2(0,10), 
+            glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(10,0), glm::vec2(0,10),
                     glm::vec2(10,10)};
             glm::vec2 baselineArray[] = {glm::vec2(10,0), glm::vec2(0,0), glm::vec2(5,5),
                     glm::vec2(10,10), glm::vec2(0,10)};
             int baselineIndexes[] = {0,1,2, 3,2,4};
             testTriangulation(Polygon(vectorFromCArray(4, polyArray)),
-                    vectorFromCArray(6, baselineIndexes), 
+                    vectorFromCArray(6, baselineIndexes),
                     vectorFromCArray(5, baselineArray));
         }
     }
@@ -502,10 +502,10 @@ public:
         vector<int> triangulation;
         Vec2Vector triPts;
         poly.triangulate(triPts, triangulation);
-        
+
         TEST(triangulation == indexes);
         TEST(triPts == baselineTriPts);
-/* 
+/*
         for (unsigned int i=0; i<triPts.size(); i++) {
             cerr << i << ":" << triPts[i] << endl;
         }
@@ -978,7 +978,7 @@ public:
 class BaseTestSuite: public TestSuite
 {
 public:
-    BaseTestSuite() 
+    BaseTestSuite()
         : TestSuite("BaseTestSuite")
     {
         addTest(TestPtr(new DAGTest));
