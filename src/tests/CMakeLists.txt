@@ -1,3 +1,5 @@
+add_subdirectory(plugin)
+
 add_executable(testbase testbase.cpp)
 target_link_libraries(testbase base)
 add_test(NAME testbase COMMAND testbase)

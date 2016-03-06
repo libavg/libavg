@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -43,12 +43,12 @@ using namespace std;
 using namespace boost::python;
 
 namespace avg {
-    
-class ColorNode : public AreaNode 
+
+class ColorNode : public AreaNode
 {
 public:
     static void registerType();
-    
+
     ColorNode(const ArgList& Args, const string& sPublisherName="Node");
 
     void setFillColor(const Color& color);
@@ -68,20 +68,20 @@ private:
 ColorNode::ColorNode(const ArgList& Args, const string& sPublisherName)
     : AreaNode(sPublisherName),
       m_sFillColorName("FFFFFF")
-{   
+{
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
-            "ColorNode c'tor gets Argument fillcolor= "  << 
-            Args.getArgVal<string>("fillcolor")); 
-    
+            "ColorNode c'tor gets Argument fillcolor= "  <<
+            Args.getArgVal<string>("fillcolor"));
+
     Args.setMembers(this);
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
-            "ColorNode constructed with " << m_sFillColorName);   
+            "ColorNode constructed with " << m_sFillColorName);
 }
 
 void ColorNode::setFillColor(const Color& fillColor)
 {
     AVG_TRACE(Logger::category::PLUGIN,  Logger::severity::INFO,
-            "setFillColor called with " << fillColor);   
+            "setFillColor called with " << fillColor);
     m_Color = fillColor;
 }
 
@@ -102,7 +102,7 @@ void ColorNode::setFloat(float f)
 
 void ColorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
-    glClearColor(m_Color.getR()/255.f, m_Color.getG()/255.f, m_Color.getB()/255.f, 1.0f); 
+    glClearColor(m_Color.getR()/255.f, m_Color.getG()/255.f, m_Color.getB()/255.f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -110,7 +110,7 @@ char colorNodeName[] = "colornode";
 
 void ColorNode::registerType()
 {
-    avg::TypeDefinition def = avg::TypeDefinition("colornode", "areanode", 
+    avg::TypeDefinition def = avg::TypeDefinition("colornode", "areanode",
             ExportedObject::buildObject<ColorNode>)
         .addArg(Arg<float>("floatparam", 0.0f, false,
                 offsetof(ColorNode, m_FloatParam)))
@@ -119,7 +119,7 @@ void ColorNode::registerType()
     const char* allowedParentNodeNames[] = {"avg", 0};
     avg::TypeRegistry::get()->registerType(def, allowedParentNodeNames);
 }
- 
+
 }
 
 using namespace avg;
