@@ -32,10 +32,4 @@ target_include_directories(player
 target_compile_options(player
     PUBLIC ${PANGOFT2_CFLAGS} ${RSVG_CFLAGS})
 
-
-
-link_libraries(player)
-add_executable(testplayer testplayer.cpp)
-add_test(NAME testplayer COMMAND testplayer)
-
 # testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker $(XGL_LINKFLAGS)

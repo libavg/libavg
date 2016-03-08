@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -20,33 +20,34 @@
 //
 
 #include "GraphicsTest.h"
-#include "Bitmap.h"
-#include "BitmapLoader.h"
-#include "Pixel32.h"
-#include "Pixel24.h"
-#include "Pixel16.h"
-#include "Color.h"
-#include "Filtercolorize.h"
-#include "Filtergrayscale.h"
-#include "Filterfill.h"
-#include "Filterflip.h"
-#include "Filterfliprgb.h"
-#include "Filterflipuv.h"
-#include "Filter3x3.h"
-#include "FilterConvol.h"
-#include "FilterHighpass.h"
-#include "FilterGauss.h"
-#include "FilterBlur.h"
-#include "FilterBandpass.h"
-#include "FilterFastDownscale.h"
-#include "FilterMask.h"
-#include "FilterThreshold.h"
-#include "FilterFloodfill.h"
-#include "FilterDilation.h"
-#include "FilterErosion.h"
-#include "FilterGetAlpha.h"
-#include "FilterResizeBilinear.h"
-#include "FilterUnmultiplyAlpha.h"
+
+#include "../graphics/Bitmap.h"
+#include "../graphics/BitmapLoader.h"
+#include "../graphics/Pixel32.h"
+#include "../graphics/Pixel24.h"
+#include "../graphics/Pixel16.h"
+#include "../graphics/Color.h"
+#include "../graphics/Filtercolorize.h"
+#include "../graphics/Filtergrayscale.h"
+#include "../graphics/Filterfill.h"
+#include "../graphics/Filterflip.h"
+#include "../graphics/Filterfliprgb.h"
+#include "../graphics/Filterflipuv.h"
+#include "../graphics/Filter3x3.h"
+#include "../graphics/FilterConvol.h"
+#include "../graphics/FilterHighpass.h"
+#include "../graphics/FilterGauss.h"
+#include "../graphics/FilterBlur.h"
+#include "../graphics/FilterBandpass.h"
+#include "../graphics/FilterFastDownscale.h"
+#include "../graphics/FilterMask.h"
+#include "../graphics/FilterThreshold.h"
+#include "../graphics/FilterFloodfill.h"
+#include "../graphics/FilterDilation.h"
+#include "../graphics/FilterErosion.h"
+#include "../graphics/FilterGetAlpha.h"
+#include "../graphics/FilterResizeBilinear.h"
+#include "../graphics/FilterUnmultiplyAlpha.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -83,7 +84,7 @@ BitmapPtr initBmp(PixelFormat pf)
     int bpp = pBmp->getBytesPerPixel();
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < 4; ++x) {
-            unsigned char * pPixel = 
+            unsigned char * pPixel =
                     pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
             *(pPixel) = x;
             if (bpp > 1) {
@@ -204,7 +205,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests(B8G8R8A8);
         runPFTests(R8G8B8A8);
@@ -287,13 +288,13 @@ public:
             cerr << "      I8" << endl;
             testStatistics(I8, Pixel8(0), Pixel8(0), Pixel8(2), Pixel8(2));
             cerr << "      R8G8B8A8" << endl;
-            testStatistics(R8G8B8A8, Pixel32(0,0,0,0), Pixel32(0,0,0,0), 
+            testStatistics(R8G8B8A8, Pixel32(0,0,0,0), Pixel32(0,0,0,0),
                     Pixel32(255,255,255,255), Pixel32(255,255,255,255), 127.5, 90.1561);
             cerr << "      R8G8B8X8" << endl;
-            testStatistics(R8G8B8X8, Pixel32(0,0,0,255), Pixel32(0,0,0,255), 
+            testStatistics(R8G8B8X8, Pixel32(0,0,0,255), Pixel32(0,0,0,255),
                     Pixel32(2,2,2,255), Pixel32(2,2,2,255));
             cerr << "      R8G8B8" << endl;
-            testStatistics(R8G8B8, Pixel24(0,0,0), Pixel24(0,0,0), 
+            testStatistics(R8G8B8, Pixel24(0,0,0), Pixel24(0,0,0),
                     Pixel24(2,2,2), Pixel24(2,2,2));
             cerr << "      ChannelAvg" << endl;
             testChannelAvg();
@@ -305,7 +306,7 @@ public:
         runSaveTest(B8G8R8A8);
         runSaveTest(B8G8R8X8);
     }
-    
+
 private:
     void runPFTests(PixelFormat pf)
     {
@@ -347,7 +348,7 @@ private:
                     bOk = ((*pHist)[i] == 0);
                 }
             }
-            TEST(bOk);   
+            TEST(bOk);
         }
     }
 
@@ -367,7 +368,7 @@ private:
         BitmapPtr pBmp(new Bitmap(IntPoint(4,4), pf));
         for (int y=0; y<4; ++y) {
             for (int x=0; x<4; ++x) {
-                unsigned char * pPixel = 
+                unsigned char * pPixel =
                     pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
                 pPixel[0] = x*64;
                 pPixel[1] = 128;
@@ -377,10 +378,10 @@ private:
         }
         BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,4), I8));
         pCopyBmp->copyPixels(*pBmp);
-        testEqual(*pCopyBmp, string("copyPixels_")+getPixelFormatString(pf)+"_I8",
+        testEqual(*pCopyBmp, string("graphics/copyPixels_")+getPixelFormatString(pf)+"_I8",
                 I8, 0.5, 0.5);
     }
-   
+
     void testSubtract()
     {
         BitmapPtr pBmp1(new Bitmap(IntPoint(4,1), I8));
@@ -437,7 +438,7 @@ private:
         BitmapPtr pRGBBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), B8G8R8X8));
         FilterFill<Pixel32>(Pixel32(255,0,0,255)).applyInPlace(pRGBBmp);
         pRGBBmp->copyYUVPixels(*pYBmp, *pUBmp, *pVBmp, false);
-        testEqual(*pRGBBmp, "YUV2RGBResult1", B8G8R8X8, 0.5, 0.5);
+        testEqual(*pRGBBmp, "graphics/YUV2RGBResult1", B8G8R8X8, 0.5, 0.5);
     }
 
 };
@@ -449,13 +450,13 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests(R8G8B8A8);
         runPFTests(R8G8B8);
     }
 
-private:    
+private:
     void runPFTests(PixelFormat pf) {
         BitmapPtr pBmp = initBmp(pf);
         FilterColorize(15, 0).applyInPlace(pBmp);
@@ -471,7 +472,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests(R8G8B8A8);
         runPFTests(R8G8B8);
@@ -492,7 +493,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests<Pixel32>(R8G8B8A8, Pixel32(255,80,0,255));
         runPFTests<Pixel24>(R8G8B8, Pixel24(255,80,0));
@@ -513,7 +514,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests(R8G8B8A8);
         runPFTests(B8G8R8X8);
@@ -530,7 +531,7 @@ private:
             TEST(*pBmp == *pBmp2);
         }
         pBmp = initBmp(pf);
-        { 
+        {
             Bitmap baselineBmp = *pBmp;
             FilterFlip().applyInPlace(pBmp);
             FilterFlip().applyInPlace(pBmp);
@@ -546,7 +547,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests(B8G8R8A8);
         runPFTests(R8G8B8A8);
@@ -561,7 +562,7 @@ private:
             BitmapPtr pBmp2 = FilterFlipRGB().apply(pBmp1);
             TEST(*pBmp == *pBmp2);
         }
-        { 
+        {
             Bitmap baselineBmp = *pBmp;
             FilterFlipRGB().applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
@@ -577,7 +578,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         BitmapPtr pBmp = initBmp(YCbCr422);
         {
@@ -585,7 +586,7 @@ public:
             BitmapPtr pBmp2 = FilterFlipUV().apply(pBmp1);
             TEST(*pBmp == *pBmp2);
         }
-        { 
+        {
             Bitmap baselineBmp = *pBmp;
             FilterFlipUV().applyInPlace(pBmp);
             FilterFlipUV().applyInPlace(pBmp);
@@ -601,7 +602,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         try {
             char * pSrcDir = getenv("srcdir");
@@ -635,7 +636,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests<Pixel24>(R8G8B8);
         runPFTests<Pixel32>(R8G8B8X8);
@@ -648,7 +649,7 @@ private:
     {
         BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), pf));
         initBmp<PIXEL>(pBmp);
-        float mat[9] = 
+        float mat[9] =
                 {1,0,2,
                  0,1,0,
                  3,0,4};
@@ -660,11 +661,11 @@ private:
         unsigned char * pLine1 = pNewBmp->getPixels()+pNewBmp->getStride();
         TEST(*(PIXEL*)(pLine1) == PIXEL(0,0,9));
         TEST(*((PIXEL*)(pLine1)+1) == PIXEL(0,0,16));
-        
+
     }
-    
+
     template<class PIXEL>
-    void initBmp(BitmapPtr pBmp) 
+    void initBmp(BitmapPtr pBmp)
     {
         PIXEL * pPixels = (PIXEL *)(pBmp->getPixels());
         PIXEL color = PIXEL(0,0,0);
@@ -684,7 +685,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runPFTests<Pixel24>(R8G8B8);
         runPFTests<Pixel32>(R8G8B8X8);
@@ -696,7 +697,7 @@ private:
     {
         BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), pf));
         initBmp<PIXEL>(pBmp);
-        float mat[3][3] = 
+        float mat[3][3] =
                 {{1,0,2},
                  {0,1,0},
                  {3,0,4}};
@@ -708,11 +709,11 @@ private:
         unsigned char * pLine1 = pNewBmp->getPixels()+pNewBmp->getStride();
         TEST(*(PIXEL*)(pLine1) == PIXEL(0,0,9));
         TEST(*((PIXEL*)(pLine1)+1) == PIXEL(0,0,16));
-        
+
     }
-    
+
     template<class PIXEL>
-    void initBmp(BitmapPtr pBmp) 
+    void initBmp(BitmapPtr pBmp)
     {
         PIXEL * pPixels = (PIXEL *)(pBmp->getPixels());
         PIXEL color = PIXEL(0,0,0);
@@ -724,7 +725,7 @@ private:
         pPixels[3] = PIXEL(0,0,4);
     }
 };
-    
+
 
 class FilterHighpassTest: public GraphicsTest {
 public:
@@ -739,7 +740,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
-        testEqual(*pDestBmp, "HighpassResult", I8);
+        testEqual(*pDestBmp, "graphics/HighpassResult", I8);
     }
 };
 
@@ -757,13 +758,13 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
-        testEqual(*pDestBmp, "Gauss3Result", I8);
+        testEqual(*pDestBmp, "graphics/Gauss3Result", I8);
         pDestBmp = FilterGauss(1).apply(pBmp);
-        testEqual(*pDestBmp, "Gauss1Result", I8);
+        testEqual(*pDestBmp, "graphics/Gauss1Result", I8);
         pDestBmp = FilterGauss(1.5).apply(pBmp);
-        testEqual(*pDestBmp, "Gauss15Result", I8);
+        testEqual(*pDestBmp, "graphics/Gauss15Result", I8);
         pDestBmp = FilterGauss(5).apply(pBmp);
-        testEqual(*pDestBmp, "Gauss5Result", I8);
+        testEqual(*pDestBmp, "graphics/Gauss5Result", I8);
     }
 };
 
@@ -781,7 +782,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterBlur().apply(pBmp);
-        testEqual(*pDestBmp, "BlurResult", I8);
+        testEqual(*pDestBmp, "graphics/BlurResult", I8);
     }
 };
 
@@ -798,9 +799,9 @@ public:
         BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
-        
+
         BitmapPtr pDestBmp = FilterBandpass(1.9,3).apply(pBmp);
-        testEqual(*pDestBmp, "BandpassResult", I8);
+        testEqual(*pDestBmp, "graphics/BandpassResult", I8);
     }
 };
 
@@ -818,7 +819,7 @@ public:
         *(pBmp->getPixels()+pBmp->getStride()*3+3) = 252;
 
         BitmapPtr pDestBmp = FilterFastDownscale(2).apply(pBmp);
-        testEqual(*pDestBmp, "FastDownscaleResult", I8);
+        testEqual(*pDestBmp, "graphics/FastDownscaleResult", I8);
     }
 };
 
@@ -848,7 +849,7 @@ private:
         }
 
         BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
-        string sFName = string("baseline/MaskResult")+sName+".png";
+        string sFName = string("baseline/graphics/MaskResult")+sName+".png";
 //        pDestBmp->save(sFName);
         sFName = getSrcDirName()+sFName;
         BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
@@ -867,7 +868,7 @@ public:
     {
         BitmapPtr pBmp(initBmp(I8));
         BitmapPtr pDestBmp = FilterThreshold(1).apply(pBmp);
-        string sFName = "baseline/ThresholdResult.png";
+        string sFName = "baseline/graphics/ThresholdResult.png";
 //        pDestBmp->save(sFName);
         sFName = getSrcDirName()+sFName;
         BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
@@ -887,7 +888,7 @@ public:
         BitmapPtr pBmp = loadTestBmp("floodfill");
         BitmapPtr pDestBmp = FilterFloodfill<ColorTester>(
                 ColorTester(Pixel32(255,255,255,255)), IntPoint(4,3)).apply(pBmp);
-        testEqual(*pDestBmp, "FloodfillResult", B8G8R8A8, 0, 0);
+        testEqual(*pDestBmp, "graphics/FloodfillResult", B8G8R8A8, 0, 0);
     }
 
 };
@@ -903,7 +904,7 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("dilation", I8);
         BitmapPtr pDestBmp = FilterDilation().apply(pBmp);
-        testEqual(*pDestBmp, "DilationResult", I8, 0, 0);
+        testEqual(*pDestBmp, "graphics/DilationResult", I8, 0, 0);
     }
 
 };
@@ -919,7 +920,7 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("erosion", I8);
         BitmapPtr pDestBmp = FilterErosion().apply(pBmp);
-        testEqual(*pDestBmp, "ErosionResult", I8, 0, 0);
+        testEqual(*pDestBmp, "graphics/ErosionResult", I8, 0, 0);
     }
 
 };
@@ -935,10 +936,10 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("rgb24alpha-64x64", R8G8B8A8);
         BitmapPtr pAlphaBmp = FilterGetAlpha().apply(pBmp);
-        testEqual(*pAlphaBmp, "GetAlphaResult", I8, 0, 0);
+        testEqual(*pAlphaBmp, "graphics/GetAlphaResult", I8, 0, 0);
         BitmapPtr pDestBmp(new Bitmap(*pBmp));
         pDestBmp->setAlpha(*pAlphaBmp);
-        testEqual(*pDestBmp, *pBmp, "SetAlphaResult", 0, 0);
+        testEqual(*pDestBmp, *pBmp, "graphics/SetAlphaResult", 0, 0);
     }
 
 };
@@ -964,7 +965,7 @@ private:
     void runTestWithBitmap(BitmapPtr pBmp)
     {
         BitmapPtr pDestBmp = FilterResizeBilinear(IntPoint(32,32)).apply(pBmp);
-        string sName = string("ResizeBilinearResult")
+        string sName = string("graphics/ResizeBilinearResult")
                 +getPixelFormatString(pBmp->getPixelFormat());
         testEqual(*pDestBmp, sName, pBmp->getPixelFormat());
     }
@@ -1006,7 +1007,7 @@ private:
 
 class GraphicsTestSuite: public TestSuite {
 public:
-    GraphicsTestSuite(const string& sSrcDir) 
+    GraphicsTestSuite(const string& sSrcDir)
         : TestSuite("GraphicsTestSuite", sSrcDir)
     {
         addTest(TestPtr(new PixelTest));

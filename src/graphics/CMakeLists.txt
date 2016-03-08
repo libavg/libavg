@@ -29,7 +29,7 @@ add_library(graphics
         OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp GPUChromaKeyFilter.cpp 
         Display.cpp GPUHueSatFilter.cpp GPUInvertFilter.cpp VertexArray.cpp
         GLContextAttribs.cpp GPUBrightnessFilter.cpp GPUBlurFilter.cpp
-        GPUShadowFilter.cpp GraphicsTest.cpp 
+        GPUShadowFilter.cpp
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp GLContext.cpp 
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp 
         FilterGetAlpha.cpp FBO.cpp GLTexture.cpp TexInfo.cpp TextureMover.cpp 
@@ -48,9 +48,4 @@ target_compile_options(graphics
 
 
 link_libraries(graphics)
-add_executable(testgraphics testgraphics.cpp)
 add_executable(benchmarkgraphics benchmarkgraphics.cpp)
-add_executable(testgpu testgpu.cpp)
-add_test(NAME testgraphics COMMAND testgraphics ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME testgpu COMMAND testgpu ${CMAKE_CURRENT_SOURCE_DIR})
-

@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -20,23 +20,24 @@
 //
 
 #include "GraphicsTest.h"
-#include "GLTexture.h"
-#include "BitmapLoader.h"
-#include "GPUBrightnessFilter.h"
-#include "GPUBlurFilter.h"
-#include "GPUBandpassFilter.h"
-#include "GPUChromaKeyFilter.h"
-#include "GPUHueSatFilter.h"
-#include "GPUInvertFilter.h"
-#include "GPURGB2YUVFilter.h"
-#include "FilterResizeBilinear.h"
-#include "GLContext.h"
-#include "GLContextManager.h"
-#include "ShaderRegistry.h"
-#include "BmpTextureMover.h"
-#include "PBO.h"
-#include "ImageCache.h"
-#include "CachedImage.h"
+
+#include "../graphics/GLTexture.h"
+#include "../graphics/BitmapLoader.h"
+#include "../graphics/GPUBrightnessFilter.h"
+#include "../graphics/GPUBlurFilter.h"
+#include "../graphics/GPUBandpassFilter.h"
+#include "../graphics/GPUChromaKeyFilter.h"
+#include "../graphics/GPUHueSatFilter.h"
+#include "../graphics/GPUInvertFilter.h"
+#include "../graphics/GPURGB2YUVFilter.h"
+#include "../graphics/FilterResizeBilinear.h"
+#include "../graphics/GLContext.h"
+#include "../graphics/GLContextManager.h"
+#include "../graphics/ShaderRegistry.h"
+#include "../graphics/BmpTextureMover.h"
+#include "../graphics/PBO.h"
+#include "../graphics/ImageCache.h"
+#include "../graphics/CachedImage.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -60,7 +61,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runImageTests("spike", B8G8R8X8);
         runImageTests("i8-64x64", I8);
@@ -74,7 +75,7 @@ private:
         GPUBandpassFilter f(pBmp->getSize(), pf, 0.5, 1.5, 1, false);
         BitmapPtr pDestBmp = f.apply(pBmp);
         TEST(fabs(pDestBmp->getAvg() -128) < 0.06);
-        testEqual(*pDestBmp, "bandpass_"+sFName, pf, 0.2, 0.5);
+        testEqual(*pDestBmp, "graphics/bandpass_"+sFName, pf, 0.2, 0.5);
         TEST(pDestBmp->getPixelFormat() == pf);
     }
 };
@@ -87,7 +88,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
 /*
         // This has the effect of printing out all the brightness differences for
@@ -118,16 +119,16 @@ private:
         } else {
             destPF = B8G8R8A8;
         }
-        pFilter = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(), 
+        pFilter = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(),
                 pBmp->getPixelFormat(), destPF, 0.5f, false));
-        runImageTest(pBmp, pFilter, 0.5f, "blur05_spike");
-        runImageTest(pBmp, pFilter, 1, "blur1_spike");
-        runImageTest(pBmp, pFilter, 3, "blur3_spike");
+        runImageTest(pBmp, pFilter, 0.5f, "graphics/blur05_spike");
+        runImageTest(pBmp, pFilter, 1, "graphics/blur1_spike");
+        runImageTest(pBmp, pFilter, 3, "graphics/blur3_spike");
 
         pBmp = loadTestBmp("flat");
-        pFilter = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(), 
+        pFilter = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(),
                 pBmp->getPixelFormat(), destPF, 5, false));
-        runImageTest(pBmp, pFilter, 5, "blur05_flat", true);
+        runImageTest(pBmp, pFilter, 5, "graphics/blur05_flat", true);
 
         runImageTest("rgb24-64x64", destPF);
         runImageTest("rgb24alpha-64x64", destPF);
@@ -137,12 +138,12 @@ private:
     void runImageTest(const string& sFName, PixelFormat destPF)
     {
         BitmapPtr pBmp = loadTestBmp(sFName);
-        GPUBlurFilterPtr pFilter(new GPUBlurFilter(pBmp->getSize(), 
+        GPUBlurFilterPtr pFilter(new GPUBlurFilter(pBmp->getSize(),
                 pBmp->getPixelFormat(), destPF, 2, false));
-        runImageTest(pBmp, pFilter, 2, string("blur_")+sFName, true);
+        runImageTest(pBmp, pFilter, 2, string("graphics/blur_")+sFName, true);
     }
 
-    void runImageTest(BitmapPtr pBmp, GPUBlurFilterPtr pFilter, float stdDev, 
+    void runImageTest(BitmapPtr pBmp, GPUBlurFilterPtr pFilter, float stdDev,
             string sBmpName, bool bIgnoreBrightness = false)
     {
         cerr << "    Testing " << sBmpName << ", stddev " << stdDev << endl;
@@ -164,7 +165,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runImageTests("rgb24-64x64");
         runImageTests("rgb24alpha-64x64");
@@ -210,23 +211,23 @@ public:
         for (int erosion = 0; erosion < 3; ++erosion) {
             filter.setParams(Pixel32(0,255,0), 0.1, 0.2, 0.1, 0.1, erosion, 0);
             pDestBmp = filter.apply(pBmp);
-            testEqual(*pDestBmp, "ChromaKeyResult"+toString(erosion), B8G8R8A8, 0.3, 
+            testEqual(*pDestBmp, "graphics/ChromaKeyResult"+toString(erosion), B8G8R8A8, 0.3,
                     0.7);
         }
         filter.setParams(Pixel32(0,255,0), 0.0, 0.0, 0.0, 0.0, 0, 0.1);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeySpillResult1", B8G8R8A8, 0.3, 0.7);
+        testEqual(*pDestBmp, "graphics/ChromaKeySpillResult1", B8G8R8A8, 0.3, 0.7);
         filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.1);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeySpillResult2", B8G8R8A8, 0.3, 0.7);
+        testEqual(*pDestBmp, "graphics/ChromaKeySpillResult2", B8G8R8A8, 0.3, 0.7);
         filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.2);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeySpillResult3", B8G8R8A8, 0.3, 0.7);
+        testEqual(*pDestBmp, "graphics/ChromaKeySpillResult3", B8G8R8A8, 0.3, 0.7);
 
         pBmp = loadTestBmp("chromakey-median");
         filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.0);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeyMedianResult", B8G8R8A8, 1, 6);
+        testEqual(*pDestBmp, "graphics/ChromaKeyMedianResult", B8G8R8A8, 1, 6);
     }
 };
 
@@ -247,13 +248,15 @@ public:
         for (int run = 0; run < 3; run++) {
             filter.setParams(run*90);
             pDestBmp = filter.apply(pBmp);
-            testEqual(*pDestBmp, "HslHueResult"+toString(run), NO_PIXELFORMAT, 0, 0);
+            testEqual(*pDestBmp, "graphics/HslHueResult"+toString(run),
+                    NO_PIXELFORMAT, 0, 0);
         }
         //Test colorize functionality
         for (int run = 0; run < 3; run++) {
             filter.setParams(run*90, 1, 0, true);
             pDestBmp = filter.apply(pBmp);
-            testEqual(*pDestBmp, "HslColorizeResult"+toString(run), NO_PIXELFORMAT, 0, 0);
+            testEqual(*pDestBmp, "graphics/HslColorizeResult"+toString(run),
+                    NO_PIXELFORMAT, 0, 0);
         }
     }
 };
@@ -266,7 +269,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         runImageTests("rgb24-64x64");
     }
@@ -288,8 +291,8 @@ private:
             maxAverage = 0.0;
             maxStdDev = 0.0;
         }
-        testEqual(*pDestBmp, string("invert_")+sFName, pBmp->getPixelFormat(),
-                maxAverage, maxStdDev);
+        testEqual(*pDestBmp, string("graphics/invert_")+sFName,
+                pBmp->getPixelFormat(), maxAverage, maxStdDev);
     }
 };
 
@@ -301,7 +304,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
         GLContextManager* pCM = GLContextManager::get();
@@ -314,7 +317,7 @@ public:
         pResultBmp = convertYUVX444ToRGB(pResultBmp);
         testEqual(*pResultBmp, *pOrigBmp, "RGB2YUV", 1, 2);
     }
-    
+
     BitmapPtr convertYUVX444ToRGB(const BitmapPtr& pYUVBmp)
     {
         // This is a weird pixel format that's not used anywhere else, so support
@@ -345,7 +348,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         for (int i=1; i<2; ++i) {
             bool bPOT = (i==1);
@@ -390,7 +393,7 @@ private:
 
     void runMipmapTest(OGLMemoryMode memoryMode, const string& sFName)
     {
-        cerr << "    Testing mipmap support, " << sFName << ", " << 
+        cerr << "    Testing mipmap support, " << sFName << ", " <<
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         GLContextManager* pCM = GLContextManager::get();
@@ -420,7 +423,7 @@ private:
 
     void runCompressionTest(OGLMemoryMode memoryMode, const string& sFName)
     {
-        cerr << "    Testing B5G6R5 compression, " << sFName << ", " << 
+        cerr << "    Testing B5G6R5 compression, " << sFName << ", " <<
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pFileBmp = loadTestBmp(sFName);
         BitmapPtr pOrigBmp(new Bitmap(pFileBmp->getSize(), B5G6R5));
@@ -506,7 +509,7 @@ private:
 
 class GPUTestSuite: public TestSuite {
 public:
-    GPUTestSuite(const string& sVariant, const string& sSrcDir) 
+    GPUTestSuite(const string& sVariant, const string& sSrcDir)
         : TestSuite("GPUTestSuite ("+sVariant+")", sSrcDir)
     {
         addTest(TestPtr(new TextureMoverTest));
@@ -529,8 +532,8 @@ public:
 bool runTests(bool bGLES, GLConfig::ShaderUsage su, const string& sSrcDir)
 {
     GLContextManager cm;
-    if (fileExists(sSrcDir+"/shaders")) {
-        ShaderRegistry::setShaderPath(sSrcDir+"/shaders");
+    if (fileExists(sSrcDir+"/../graphics/shaders")) {
+        ShaderRegistry::setShaderPath(sSrcDir+"/../graphics/shaders");
     } else {
         // TODO: Is this still needed
         ShaderRegistry::setShaderPath("../shaders");
@@ -539,7 +542,7 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su, const string& sSrcDir)
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
             GLConfig::shaderUsageToString(pContext->getShaderUsage());
     cerr << "---------------------------------------------------" << endl;
-    cerr << sVariant << endl; 
+    cerr << sVariant << endl;
     cerr << "---------------------------------------------------" << endl;
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
