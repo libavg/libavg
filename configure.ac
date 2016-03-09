@@ -28,9 +28,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
-
 AX_CXX_COMPILE_STDCXX_11([noext],[mandatory])
-
 CXXFLAGS="-O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body $CXXFLAGS"
 # Silence boost warnings with gcc 4.8
 CXXFLAGS="$CXXFLAGS -Wno-unknown-warning-option -Wno-unused-local-typedef"
