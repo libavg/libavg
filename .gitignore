@@ -95,3 +95,6 @@ win/testplugin/dist/
 */*sdf
 */*.suo
 *~
+
+# hidden files and directories
+.*
