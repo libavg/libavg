@@ -53,3 +53,4 @@ add_executable(benchmarkgraphics benchmarkgraphics.cpp)
 add_executable(testgpu testgpu.cpp)
 add_test(NAME testgraphics COMMAND testgraphics)
 add_test(NAME testgpu COMMAND testgpu)
+
