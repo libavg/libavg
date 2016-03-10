@@ -141,7 +141,7 @@ class DecoderTest: public GraphicsTest {
 
         string getMediaLoc(const string& sFilename)
         {
-            return getSrcDirName()+"../test/media/"+sFilename;
+            return getSrcDir()+"../test/media/"+sFilename;
         }
 
     private:
@@ -477,6 +477,7 @@ public:
     VideoTestSuite() 
         : TestSuite("VideoTestSuite")
     {
+        Test::setRelSrcDir("libavg/src/video/");
         addAudioTests();
         addVideoTests(false);
         

@@ -21,13 +21,15 @@
 
 #include "Test.h"
 
-#include "../base/OSHelper.h"
+#include "OSHelper.h"
+#include "Exception.h"
 
 using namespace std;
 
 namespace avg {
 
-string Test::s_sSrcDirName;
+string Test::s_sRelSrcDir;
+string Test::s_sAvgPath;
 
 Test::Test(const string & sName, int indentLevel)
     : m_IndentLevel(indentLevel),
@@ -94,17 +96,21 @@ void Test::printResults()
     }
         
 }
-
-const string& Test::getSrcDirName()
+    
+const void Test::setRelSrcDir(const string& sRelSrcDir)
 {
-    if (s_sSrcDirName == "") {
-        bool bInEnviron = getEnv("srcdir", s_sSrcDirName);
+    s_sRelSrcDir = sRelSrcDir;
+}
+
+string Test::getSrcDir()
+{
+    if (s_sAvgPath == "") {
+        bool bInEnviron = getEnv("AVG_PATH", s_sAvgPath);
         if (!bInEnviron) {
-            s_sSrcDirName = ".";
+            s_sAvgPath = ".";
         }
-        s_sSrcDirName += "/";
     }
-    return s_sSrcDirName;
+    return s_sAvgPath + "/" + s_sRelSrcDir;
 }
 
 }

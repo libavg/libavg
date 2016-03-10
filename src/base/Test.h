@@ -49,8 +49,10 @@ public:
     virtual void printResults();
 
 protected:
-    static const std::string& getSrcDirName();
-    static std::string s_sSrcDirName;
+    static const void setRelSrcDir(const std::string& sRelDir);
+    static std::string getSrcDir();
+    static std::string s_sRelSrcDir;
+    static std::string s_sAvgPath;
 
     int m_IndentLevel;
 
