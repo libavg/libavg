@@ -95,13 +95,15 @@ void Test::printResults()
         
 }
 
-void Test::setSrcDirName(const string& sDirName)
-{
-    s_sSrcDirName = sDirName;
-}
-
 const string& Test::getSrcDirName()
 {
+    if (s_sSrcDirName == "") {
+        bool bInEnviron = getEnv("srcdir", s_sSrcDirName);
+        if (!bInEnviron) {
+            s_sSrcDirName = ".";
+        }
+        s_sSrcDirName += "/";
+    }
     return s_sSrcDirName;
 }
 

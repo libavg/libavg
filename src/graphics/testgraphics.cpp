@@ -609,7 +609,7 @@ public:
             if (pSrcDir) {
                 sFilename = (string)pSrcDir+"/";
             }
-            sFilename += getTestBmpName("rgb24-64x64");
+            sFilename += "../test/media/rgb24-64x64.png";
             BitmapPtr pBmp = loadBitmap(sFilename, R8G8B8);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
@@ -1006,8 +1006,8 @@ private:
 
 class GraphicsTestSuite: public TestSuite {
 public:
-    GraphicsTestSuite(const string& sSrcDir) 
-        : TestSuite("GraphicsTestSuite", sSrcDir)
+    GraphicsTestSuite() 
+        : TestSuite("GraphicsTestSuite")
     {
         addTest(TestPtr(new PixelTest));
         addTest(TestPtr(new ColorTest));
@@ -1040,10 +1040,9 @@ public:
 
 int main(int nargs, char** args)
 {
-    assert(nargs == 2);
     BitmapLoader::init(true);
     GraphicsTest::createResultImgDir();
-    GraphicsTestSuite suite(args[1]);
+    GraphicsTestSuite suite;
     suite.runTests();
     bool bOK = suite.isOk();
 

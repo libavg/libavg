@@ -28,10 +28,9 @@ using namespace std;
 
 namespace avg {
 
-TestSuite::TestSuite(const string& sName, const string& sSrcDir)
+TestSuite::TestSuite(const string& sName)
     : Test(sName, 0)
 {
-    setSrcDirName(sSrcDir+"/");
 }
 
 TestSuite::~TestSuite()
