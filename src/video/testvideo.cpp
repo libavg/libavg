@@ -474,8 +474,8 @@ class AVDecoderTest: public DecoderTest {
 
 class VideoTestSuite: public TestSuite {
 public:
-    VideoTestSuite(const string& sSrcDir) 
-        : TestSuite("VideoTestSuite", sSrcDir)
+    VideoTestSuite() 
+        : TestSuite("VideoTestSuite")
     {
         addAudioTests();
         addVideoTests(false);
@@ -509,14 +509,13 @@ private:
 
 int main(int nargs, char** args)
 {
-    assert(nargs == 2);
     ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
 
     GraphicsTest::createResultImgDir();
 
     BitmapLoader::init(true);
-    VideoTestSuite suite(args[1]);
+    VideoTestSuite suite;
     bool bOk;
     
     suite.runTests();

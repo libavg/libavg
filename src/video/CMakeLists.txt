@@ -19,6 +19,6 @@ endif()
 
 link_libraries(video)
 add_executable(testvideo testvideo.cpp)
-add_test(NAME testvideo COMMAND testvideo ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME testvideo COMMAND testvideo)
 
 # TODO EXTRA_DIST
