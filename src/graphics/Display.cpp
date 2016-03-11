@@ -110,6 +110,8 @@ void Display::assumePixelsPerMM(float ppmm)
     if (ppmm != 0) {
         m_PPMM = ppmm;
         m_bAutoPPMM = false;
+    } else {
+        m_PPMM = 40; // XXX Gilbert: 0 will lead to assertion violation
     }
 }
 
