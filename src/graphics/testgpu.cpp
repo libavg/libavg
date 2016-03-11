@@ -43,11 +43,14 @@
 #include "../base/Test.h"
 #include "../base/StringHelper.h"
 #include "../base/FileHelper.h"
+#include "../base/Logger.h"
 
 #include <math.h>
 #include <iostream>
 
 #include <glib-object.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 using namespace avg;
 using namespace std;
@@ -528,14 +531,122 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
-    /*
+    // Note Gilbert:
+    // normal graphics subsystem setup in LibAVG consists of the calls
+    //   DisplayEngine::initSDL
+    //   Display::get
+    //   Window::Window
+    //   SDLWindow::SDLWindow
+    //
+    // Here I use only
+    // DisplayEngine::initSDL ...
+    int err = SDL_Init(SDL_INIT_VIDEO);
+    if (err == -1) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, SDL_GetError());
+    }
+    // ... and SDLWindow::SDLWindow because
+    // the other calls are not needed for this case.
+    // Display::get could make some relevant calls, but not specifically for testgpu.
+    //   Normally it is relevant.
+    // Window::Window sets only some attributes which get used later on by SDLWindow.
+    // Here I copied the SDLWindow::SDLWindow code for local use.
+    //   I use local constants (bpp, ...) keep this code structurally similar to SDLWindow.
+    // Factoring SDLWindow out of player/ and isolate its different concerns
+    //   is too hairy right now.
+    // Its concerns right now are windowing, context creation and event handling, at least.
+    IntPoint pos(-1, -1);
+    IntPoint size(32, 32);
+    bool fullscreen = false;
+    bool has_window_frame = false;
+    int bpp = 24;
+    bool use_debug_context = true;
+    int multisample_samples = 8;
+    const char *title = "testgpu";
+
+    if (pos.x == -1) {
+        pos.x = SDL_WINDOWPOS_UNDEFINED;
+        pos.y = SDL_WINDOWPOS_UNDEFINED;
+    }
+    unsigned int flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
+    if (fullscreen) {
+        flags |= SDL_WINDOW_FULLSCREEN;
+    }
+    if (!has_window_frame) {
+        flags |= SDL_WINDOW_BORDERLESS;
+    }
+
+    switch (bpp) {
+        case 24:
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 24);
+            break;
+        case 16:
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
+            break;
+        default:
+            AVG_LOG_ERROR("Unsupported bpp " << bpp << "in SDLWindow::init()");
+            exit(-1);
+    }
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    if (bGLES) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    }
+    if (use_debug_context && !bGLES) {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+    }
+
+    SDL_Window *sdl_window;
+    void *sdl_gl_context = nullptr;
+    while (multisample_samples && !sdl_gl_context) {
+        if (multisample_samples > 1) {
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, multisample_samples);
+        } else {
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+        }
+        sdl_window = SDL_CreateWindow(title, pos.x, pos.y, size.x, size.y, flags);
+        if (sdl_window) {
+            sdl_gl_context = SDL_GL_CreateContext(sdl_window);
+        }
+        if (!sdl_gl_context) {
+            multisample_samples =
+                    GLContext::nextMultiSampleValue(multisample_samples);
+        }
+    }
+
+#ifndef __linux__
+    use_debug_context = false;
+#endif
+
+    if (!sdl_gl_context) {
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Creating window failed: ")
+                + SDL_GetError() + ". (size=" + toString(size) + ", bpp=" +
+                toString(bpp) + ").");
+    }
+    SDL_GL_MakeCurrent(sdl_window, sdl_gl_context);
+    SDL_SysWMinfo wm_info;
+    SDL_VERSION(&wm_info.version);
+    int rc = SDL_GetWindowWMInfo(sdl_window, &wm_info);
+    AVG_ASSERT(rc != -1);
+
     GLContextManager cm;
     if (fileExists("./shaders")) {
         ShaderRegistry::setShaderPath("./shaders");
     } else {
         ShaderRegistry::setShaderPath("../shaders");
     }
-    GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
+    GLContext* pContext = cm.createContext(
+            GLConfig(bGLES, false, true, 1, su, true),
+            IntPoint(32,32),
+            wm_info);
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
             GLConfig::shaderUsageToString(pContext->getShaderUsage());
     cerr << "---------------------------------------------------" << endl;
@@ -554,8 +665,6 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
         delete pContext;
         return false;
     }
-    */
-    return false;
 }
 
 
