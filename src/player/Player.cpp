@@ -149,6 +149,7 @@ Player::Player()
     pProfiler->setName("main");
 
     DisplayEngine::initSDL();
+    Display::get();
     initConfig();
 
     FontStyle::registerType();
