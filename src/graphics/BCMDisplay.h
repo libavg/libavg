@@ -41,10 +41,6 @@ protected:
     virtual float queryPPMM();
 };
 
-DISPMANX_DISPLAY_HANDLE_T getBCMDisplay();
-
-EGLSurface createBCMPixmapSurface(EGLDisplay display, EGLConfig config);
-
 }
 
 #endif
