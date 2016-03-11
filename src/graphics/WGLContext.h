@@ -33,7 +33,7 @@ namespace avg {
 class AVG_API WGLContext: public GLContext
 {
 public:
-    WGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+    WGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
             const SDL_SysWMinfo& pSDLWMInfo);
     virtual ~WGLContext();
 
