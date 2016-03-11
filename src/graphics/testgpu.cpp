@@ -528,6 +528,7 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
+    /*
     GLContextManager cm;
     if (fileExists("./shaders")) {
         ShaderRegistry::setShaderPath("./shaders");
@@ -553,6 +554,8 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
         delete pContext;
         return false;
     }
+    */
+    return false;
 }
 
 

@@ -64,43 +64,14 @@ void registerWindowClass()
 }
 
 WGLContext::WGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo)
+        const SDL_SysWMinfo& pSDLWMInfo)
     : GLContext(windowSize)
 {
     bool bOwnsContext;
-    if (pSDLWMInfo) {
-        m_hDC = wglGetCurrentDC();
-        m_Context = wglGetCurrentContext();
-        setCurrent();
-        bOwnsContext = false;
-    } else {
-        registerWindowClass();
-        m_hwnd = CreateWindow("GL", "GL",
-                WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
-        checkWinError(m_hwnd != 0, "CreateWindow");
-
-        m_hDC = GetDC(m_hwnd);
-        checkWinError(m_hDC != 0, "GetDC");
-
-        PIXELFORMATDESCRIPTOR pfd;
-        ZeroMemory(&pfd, sizeof(pfd));
-        pfd.nSize = sizeof(pfd);
-        pfd.nVersion = 1;
-        pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-        pfd.iPixelType = PFD_TYPE_RGBA;
-        pfd.cColorBits = 32;
-        pfd.cDepthBits = 32;
-        pfd.iLayerType = PFD_MAIN_PLANE;
-
-        int iFormat = ChoosePixelFormat(m_hDC, &pfd);
-        checkWinError(iFormat != 0, "ChoosePixelFormat");
-        SetPixelFormat(m_hDC, iFormat, &pfd);
-        m_Context = wglCreateContext(m_hDC);
-        checkWinError(m_Context != 0, "wglCreateContext");
-        bOwnsContext = true;
-    }
-
+    m_hDC = wglGetCurrentDC();
+    m_Context = wglGetCurrentContext();
+    setCurrent();
+    bOwnsContext = false;
     init(glConfig, bOwnsContext);
 }
 

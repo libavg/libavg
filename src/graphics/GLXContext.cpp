@@ -43,7 +43,7 @@ static bool s_bDumpX11ErrorMsg;
 static int (*s_DefaultErrorHandler) (::Display *, XErrorEvent *);
 
 GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo)
+        const SDL_SysWMinfo& pSDLWMInfo)
     : GLContext(windowSize),
       m_pDisplay(0),
       m_bOwnsDisplay(false),
@@ -55,7 +55,7 @@ GLXContext::GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
     s_bX11Error = false;
     GLConfig config = glConfig;
     createGLXContext(config, windowSize, pSDLWMInfo);
-    init(config, pSDLWMInfo == 0);
+    init(config, false);
 }
 
 GLXContext::GLXContext(const GLConfig& glConfig, const string& sDisplay,
@@ -129,26 +129,12 @@ bool GLXContext::isGLESSupported()
 }
 
 void GLXContext::createGLXContext(GLConfig& glConfig, const IntPoint& windowSize,
-        const SDL_SysWMinfo* pSDLWMInfo)
+        const SDL_SysWMinfo& pSDLWMInfo)
 {
-    if (pSDLWMInfo) {
-        m_Context = glXGetCurrentContext();
-        m_pDisplay = pSDLWMInfo->info.x11.display;
-        m_bOwnsDisplay = false;
-        setCurrent();
-    } else { 
-        setX11ErrorHandler();
-        XVisualInfo* pVisualInfo = createDetachedContext(getX11Display(), glConfig);
-        m_bOwnsDisplay = true;
-
-        Pixmap pmp = XCreatePixmap(getDisplay(), 
-                RootWindow(getDisplay(), pVisualInfo->screen), 8, 8, pVisualInfo->depth);
-        GLXPixmap pixmap = glXCreateGLXPixmap(getDisplay(), pVisualInfo, pmp);
-
-        glXMakeCurrent(getDisplay(), pixmap, m_Context);
-        resetX11ErrorHandler();
-    }
-
+    m_Context = glXGetCurrentContext();
+    m_pDisplay = pSDLWMInfo.info.x11.display;
+    m_bOwnsDisplay = false;
+    setCurrent();
     throwOnXError();
     m_Drawable = glXGetCurrentDrawable();
 }

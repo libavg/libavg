@@ -40,14 +40,10 @@ namespace avg{
 using namespace std;
 
 EGLContext::EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
-        const SDL_SysWMinfo* pSDLWMInfo)
+        const SDL_SysWMinfo& pSDLWMInfo)
     : GLContext(windowSize)
 {
-    if (pSDLWMInfo) {
-        useSDLContext(pSDLWMInfo);
-    } else {
-        createEGLContext(glConfig, windowSize);
-    }
+    useSDLContext(pSDLWMInfo);
     init(glConfig, true);
 }
 
@@ -64,93 +60,11 @@ EGLContext::~EGLContext()
     }
 }
 
-void EGLContext::useSDLContext(const SDL_SysWMinfo* pSDLWMInfo)
+void EGLContext::useSDLContext(const SDL_SysWMinfo& pSDLWMInfo)
 {
     m_bOwnsContext = false;
     m_Context = eglGetCurrentContext();
     m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-}
-
-void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
-{
-    m_bOwnsContext = true;
-
-#ifdef AVG_ENABLE_RPI
-    m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-#else
-    m_xDisplay = (EGLNativeDisplayType)getX11Display();
-    m_Display = eglGetDisplay(m_xDisplay);
-#endif
-    checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
-
-    bool bOk = eglInitialize(m_Display, NULL, NULL);
-    checkEGLError(!bOk, "eglInitialize failed");
-
-    GLContextAttribs fbAttrs;
-    fbAttrs.append(EGL_RED_SIZE, 1);
-    fbAttrs.append(EGL_GREEN_SIZE, 1);
-    fbAttrs.append(EGL_BLUE_SIZE, 1);
-    fbAttrs.append(EGL_DEPTH_SIZE, 0);
-    fbAttrs.append(EGL_STENCIL_SIZE, 1);
-#ifdef AVG_ENABLE_RPI
-    int alphaSize = 1;
-#else
-    int alphaSize = 0;
-#endif
-    fbAttrs.append(EGL_ALPHA_SIZE, alphaSize);
-    fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
-    EGLint numFBConfig;
-    EGLConfig config;
-    bOk = eglChooseConfig(m_Display, fbAttrs.get(), &config, 1, &numFBConfig);
-    checkEGLError(!bOk, "Failed to choose EGL config");
-
-    EGLint vid;
-    bOk = eglGetConfigAttrib(m_Display, config, EGL_NATIVE_VISUAL_ID, &vid);
-    AVG_ASSERT(bOk);
-
-#ifndef AVG_ENABLE_RPI
-    XVisualInfo visTemplate;
-    visTemplate.visualid = vid;
-    int num_visuals;
-    XVisualInfo* pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualIDMask,
-            &visTemplate,
-            &num_visuals);
-    AVG_ASSERT(pVisualInfo);
-#endif
-
-    if (!eglBindAPI(EGL_OPENGL_ES_API)) {
-        cerr << "Failed to bind GLES API to EGL\n";
-        return;
-    }
-
-    if (numFBConfig != 1) {
-        cerr << "Didn't get exactly one config, but " << numFBConfig << endl;
-        return;
-    }
-#ifdef AVG_ENABLE_RPI
-    m_Surface = createBCMPixmapSurface(m_Display, config);
-#else
-    XVisualInfo visTemplate, *results;
-    visTemplate.screen = 0;
-    int numVisuals;
-    results = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
-            &visTemplate, & numVisuals);
-
-    Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay,
-            RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8,
-            results[0].depth);
-
-    m_Surface = eglCreatePixmapSurface(m_Display, config, (EGLNativePixmapType)pmp,
-            NULL);
-#endif
-    
-    //dumpEGLConfig(config);
-    AVG_ASSERT(m_Surface);
-
-    GLContextAttribs attrs;
-    attrs.append(EGL_CONTEXT_CLIENT_VERSION, 2);
-    m_Context = eglCreateContext(m_Display, config, NULL, attrs.get());
-    checkEGLError(!m_Context, "Unable to create EGL context");
 }
 
 void EGLContext::activate()

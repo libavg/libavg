@@ -37,28 +37,13 @@ using namespace std;
 using namespace boost;
 
 CGLContext::CGLContext(const GLConfig& glConfig, const IntPoint& windowSize, 
-        const SDL_SysWMinfo* pSDLWMInfo)
+        const SDL_SysWMinfo& pSDLWMInfo)
     : GLContext(windowSize)
 {
-    if (pSDLWMInfo) {
-        m_Context = CGLGetCurrentContext();
-        AVG_ASSERT(m_Context);
-        setCurrent();
-    } else {
-        CGLPixelFormatObj pixelFormatObj;
-        GLint numPixelFormats;
-
-        CGLPixelFormatAttribute attribs[] = {(CGLPixelFormatAttribute)NULL};
-        CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
-
-        CGLError err = CGLCreateContext(pixelFormatObj, 0, &m_Context);
-        if (err) {
-            cerr << CGLErrorString(err) << endl;
-            AVG_ASSERT(false);
-        }
-        CGLDestroyPixelFormat(pixelFormatObj);
-    }
-    init(glConfig, !pSDLWMInfo);
+    m_Context = CGLGetCurrentContext();
+    AVG_ASSERT(m_Context);
+    setCurrent();
+    init(glConfig, false);
 }
 
 CGLContext::~CGLContext()

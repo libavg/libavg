@@ -33,16 +33,15 @@ namespace avg {
 class AVG_API EGLContext: public GLContext
 {
 public:
-    EGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0),
-            const SDL_SysWMinfo* pSDLWMInfo=0);
+    EGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
+            const SDL_SysWMinfo& pSDLWMInfo);
     virtual ~EGLContext();
 
     void activate();
     void swapBuffers();
 
 private:
-    void useSDLContext(const SDL_SysWMinfo* pSDLWMInfo);
-    void createEGLContext(const GLConfig& glConfig, const IntPoint& windowSize);
+    void useSDLContext(const SDL_SysWMinfo& pSDLWMInfo);
     void checkEGLError(bool bError, const std::string& sMsg);
 
     void dumpEGLConfig(const EGLConfig& config) const;

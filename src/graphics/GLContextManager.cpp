@@ -83,7 +83,7 @@ GLContextManager::~GLContextManager()
 }
 
 GLContext* GLContextManager::createContext(const GLConfig& glConfig, 
-            const IntPoint& windowSize, const SDL_SysWMinfo* pSDLWMInfo)
+            const IntPoint& windowSize, const SDL_SysWMinfo& pSDLWMInfo)
 {
     if (glConfig.m_bGLES) {
         AVG_ASSERT(isGLESSupported());

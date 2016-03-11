@@ -132,7 +132,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig g
     int rc = SDL_GetWindowWMInfo(m_pSDLWindow, &info);
     AVG_ASSERT(rc != -1);
     GLContext* pGLContext = 
-            GLContextManager::get()->createContext(glConfig, wp.m_Size, &info);
+            GLContextManager::get()->createContext(glConfig, wp.m_Size, info);
     setGLContext(pGLContext);
     pGLContext->logConfig();
 }

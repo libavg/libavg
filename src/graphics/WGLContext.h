@@ -34,7 +34,7 @@ class AVG_API WGLContext: public GLContext
 {
 public:
     WGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-            const SDL_SysWMinfo* pSDLWMInfo=0);
+            const SDL_SysWMinfo& pSDLWMInfo);
     virtual ~WGLContext();
 
     void activate();

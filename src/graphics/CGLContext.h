@@ -36,8 +36,8 @@ namespace avg {
 class AVG_API CGLContext: public GLContext
 {
 public:
-    CGLContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-            const SDL_SysWMinfo* pSDLWMInfo=0);
+    CGLContext(const GLConfig& glConfig, const IntPoint& windowSize,
+            const SDL_SysWMinfo& pSDLWMInfo);
     virtual ~CGLContext();
 
     void activate();

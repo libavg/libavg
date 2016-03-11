@@ -54,7 +54,7 @@ public:
     virtual ~GLContextManager();
 
     GLContext* createContext(const GLConfig& glConfig, 
-            const IntPoint& windowSize=IntPoint(0,0), const SDL_SysWMinfo* pSDLWMInfo=0);
+            const IntPoint& windowSize, const SDL_SysWMinfo& pSDLWMInfo);
     void registerContext(GLContext* pContext);
     void unregisterContext(GLContext* pContext);
     int getContextIndex(GLContext* pContext);

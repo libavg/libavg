@@ -38,8 +38,8 @@ namespace avg {
 class AVG_API GLXContext: public GLContext
 {
 public:
-    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
-            const SDL_SysWMinfo* pSDLWMInfo=0);
+    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize,
+            const SDL_SysWMinfo& pSDLWMInfo);
     GLXContext(const GLConfig& glConfig, const std::string& sDisplay,
             const IntRect& windowDimensions, bool bHasWindowFrame);
     virtual ~GLXContext();
@@ -53,7 +53,7 @@ public:
 
 private:
     void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
+            const SDL_SysWMinfo& pSDLWMInfo);
     void createContextAndWindow(GLConfig& glConfig, const std::string& sDisplay,
         const IntRect& windowDimensions, bool bHasWindowFrame);
     XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig);
