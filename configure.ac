@@ -31,10 +31,10 @@ AC_PROG_CPP
 
 AX_CXX_COMPILE_STDCXX_11([noext],[mandatory])
 
-CXXFLAGS="-O3 -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body $CXXFLAGS"
+CXXFLAGS="-g -ffast-math -Wall -pipe -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body $CXXFLAGS"
 # Silence boost warnings with gcc 4.8
 CXXFLAGS="$CXXFLAGS -Wno-unknown-warning-option -Wno-unused-local-typedef"
-CFLAGS="-O3 -ffast-math -Wall -pipe $CFLAGS"
+CFLAGS="-g -ffast-math -Wall -pipe $CFLAGS"
 if [[ $host_cpu == i386 ]] || [[ $host_cpu == i686 ]] || [[ $host_cpu == x86_64 ]]; then
     CXXFLAGS="-msse2 $CXXFLAGS"
     CFLAGS="-msse2 $CFLAGS"
