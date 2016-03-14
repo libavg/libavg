@@ -154,9 +154,9 @@ m4_define([_AX_CXX_COMPILE_STDCXX_testbody_new_in_11], [[
 
 #error "This is not a C++ compiler"
 
-#elif __cplusplus < 201103L
+//#elif __cplusplus < 201103Li
 
-#error "This is not a C++11 compiler"
+//#error "This is not a C++11 compiler"
 
 #else
 
@@ -165,18 +165,16 @@ namespace cxx11
 
   namespace test_static_assert
   {
-
     template <typename T>
     struct check
     {
       static_assert(sizeof(int) <= sizeof(T), "not big enough");
     };
-
   }
 
   namespace test_final_override
   {
-
+/*
     struct Base
     {
       virtual void f() {}
@@ -186,7 +184,7 @@ namespace cxx11
     {
       virtual void f() override {}
     };
-
+*/
   }
 
   namespace test_double_right_angle_brackets
@@ -204,7 +202,7 @@ namespace cxx11
 
   namespace test_decltype
   {
-
+/*
     int
     f()
     {
@@ -212,7 +210,7 @@ namespace cxx11
       decltype(a) b = 2;
       return a + b;
     }
-
+*/
   }
 
   namespace test_type_deduction
@@ -305,6 +303,7 @@ namespace cxx11
     answer<2> f(const int&) { return answer<2>(); }
     answer<3> f(int&&)      { return answer<3>(); }
 
+    /*
     void
     test()
     {
@@ -314,9 +313,11 @@ namespace cxx11
       static_assert(decltype(f(c))::value == 2, "");
       static_assert(decltype(f(0))::value == 3, "");
     }
+    */
 
   }
 
+  /*
   namespace test_uniform_initialization
   {
 
@@ -330,6 +331,7 @@ namespace cxx11
     static_assert(test::one == 1, "");
 
   }
+  */
 
   namespace test_lambdas
   {
@@ -359,6 +361,7 @@ namespace cxx11
       return a + b + c + d + e;
     }
 
+    /*
     int
     test3()
     {
@@ -372,11 +375,13 @@ namespace cxx11
       };
       return higher1st(nullary) + higher2nd(nullary)(unary);
     }
+    */
 
   }
 
   namespace test_variadic_templates
   {
+/*
 
     template <int...>
     struct sum;
@@ -399,7 +404,7 @@ namespace cxx11
     static_assert(sum<1, 2>::value == 3, "");
     static_assert(sum<5, 5, 11>::value == 21, "");
     static_assert(sum<2, 3, 5, 7, 11, 13>::value == 41, "");
-
+*/
   }
 
   // http://stackoverflow.com/questions/13728184/template-aliases-and-sfinae
@@ -407,7 +412,7 @@ namespace cxx11
   // because of this.
   namespace test_template_alias_sfinae
   {
-
+/*
     struct foo {};
 
     template<typename T>
@@ -422,7 +427,7 @@ namespace cxx11
     void test();
 
     void test() { func<foo>(0); }
-
+*/
   }
 
 }  // namespace cxx11
