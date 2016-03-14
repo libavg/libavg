@@ -179,6 +179,7 @@ class SliderBase(avg.DivNode):
 
         self._range = range
         self._thumbPos = thumbPos
+        self.setThumbPos(thumbPos)
 
         self.subscribe(self.SIZE_CHANGED, lambda newSize: self._positionNodes())
         if orientation == Orientation.HORIZONTAL:
