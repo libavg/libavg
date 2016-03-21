@@ -39,7 +39,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/GLContext.h"
 
-#include "../video/VideoDecoder.h"
+//#include "../video/VideoDecoder.h"
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>

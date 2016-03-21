@@ -35,7 +35,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#ifdef __linux__
+#if defined(__linux__) && !defined(__ANDROID__)
 #include <X11/Xlib.h>
 #endif
 
@@ -67,7 +67,7 @@ class AVG_API Window
 #ifdef _WIN32
         virtual HWND getWinHWnd() = 0;
 #endif
-#ifdef __linux__
+#if defined(__linux__) && !defined(__ANDROID__)
         virtual ::Display* getX11Display() { return 0;};
         virtual ::Window getX11Window() { return 0;};
 #endif

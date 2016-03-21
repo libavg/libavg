@@ -1,6 +1,6 @@
 SUBDIRS = shaders baseline
 
-AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @GL_CFLAGS@ @GDK_PIXBUF_CFLAGS@
+AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @GL_CFLAGS@
 
 if APPLE
     GL_SOURCES = CGLContext.cpp PBO.cpp AppleDisplay.cpp
@@ -11,8 +11,8 @@ if ENABLE_RPI
     GL_INCLUDES = EGLContext.h BCMDisplay.h
 else
 if ENABLE_EGL
-    GL_SOURCES = EGLContext.cpp X11Display.cpp
-    GL_INCLUDES = EGLContext.h X11Display.h
+    GL_SOURCES = EGLContext.cpp
+    GL_INCLUDES = EGLContext.h
 else
     GL_SOURCES = GLXContext.cpp PBO.cpp X11Display.cpp
     GL_INCLUDES = GLXContext.h PBO.h X11Display.h
@@ -74,7 +74,7 @@ if ENABLE_RPI
 else
 if ENABLE_EGL
     PLATFORM_LDF =
-    PLATFORM_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+    PLATFORM_LIBS = -lGLESv2 -lEGL -lSDL2
 else
     PLATFORM_LDF =
     PLATFORM_LIBS = -lXxf86vm -lX11
@@ -82,25 +82,39 @@ endif
 endif
 endif
 
-TESTS = testgraphics testgpu
+if !ANDROID
+#TESTS = testgraphics testgpu
+#
+#EXTRA_DIST = $(wildcard baseline/*.png)
+#
+#noinst_LTLIBRARIES = libgraphics.la
+#test_PROGRAMS = testgraphics  testgpu benchmarkgraphics
+#libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
+#testgraphics_SOURCES = testgraphics.cpp $(ALL_H)
+#testgraphics_LDADD = libgraphics.la ../base/libbase.la \
+#        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS)
+#
+#benchmarkgraphics_SOURCES = benchmarkgraphics.cpp $(ALL_H)
+#benchmarkgraphics_LDADD = libgraphics.la ../base/libbase.la \
+#        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@
+#
+#testgpu_SOURCES = testgpu.cpp $(ALL_H)
+#testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
+#        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS) \
+#        @GL_LIBS@ @SDL_LIBS@
+#testgpu_LDFLAGS = $(PLATFORM_LDF)
+#testdir = $(pkgpyexecdir)/bintest
+endif
 
+if ANDROID
 EXTRA_DIST = $(wildcard baseline/*.png)
+noinst_LTLIBRARIES = libgraphics.la libtestgpu.la
 
-noinst_LTLIBRARIES = libgraphics.la
-test_PROGRAMS = testgraphics  testgpu benchmarkgraphics
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
-testgraphics_SOURCES = testgraphics.cpp $(ALL_H)
-testgraphics_LDADD = libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS) @GDK_PIXBUF_LIBS@
 
-benchmarkgraphics_SOURCES = benchmarkgraphics.cpp $(ALL_H)
-benchmarkgraphics_LDADD = libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
-
-testgpu_SOURCES = testgpu.cpp $(ALL_H)
-testgpu_LDADD = libgraphics.la ../base/libbase.la -ldl \
+libtestgpu_la_SOURCES = testgpu.cpp SDL_android_main.c $(ALL_H)
+libtestgpu_la_LIBADD = libgraphics.la ../base/libbase.la -ldl \
         @XML2_LIBS@ @BOOST_THREAD_LIBS@ @PTHREAD_LIBS@ $(PLATFORM_LIBS) \
-        @GL_LIBS@ @SDL_LIBS@ \
-        @GDK_PIXBUF_LIBS@
-testgpu_LDFLAGS = $(PLATFORM_LDF)
-testdir = $(pkgpyexecdir)/bintest
+        @GL_LIBS@ @SDL_LIBS@
+libtestgpu_la_LDFLAGS = $(PLATFORM_LDF)
+endif

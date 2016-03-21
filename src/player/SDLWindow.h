@@ -60,7 +60,7 @@ class AVG_API SDLWindow: public Window
 #ifdef _WIN32
         HWND getWinHWnd();
 #endif
-#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI) && !defined(__ANDROID__)
         virtual ::Display* getX11Display();
         virtual ::Window getX11Window();
 #endif

@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -I. -I../player \
         @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_CPPFLAGS@ \
-        @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@ @FFMPEG_CFLAGS@
+        @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@
 
 ALL_H = WrapHelper.h raw_constructor.hpp
 
@@ -14,7 +14,7 @@ if ENABLE_RPI
     XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
 else
 if ENABLE_EGL
-    XGL_LIBS = -lXxf86vm -lX11 -lGLESv2 -lEGL
+    XGL_LIBS = -lGLESv2 -lEGL
 else
     XGL_LIBS = -lXxf86vm -lX11
 endif
@@ -31,7 +31,6 @@ avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp \
 avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker
 avg_la_LIBADD = ../player/libplayer.la \
                 ../audio/libaudio.la \
-                ../video/libvideo.la \
                 ../graphics/libgraphics.la \
                 ../base/libbase.la \
                 ../imaging/libimaging.la \
@@ -41,5 +40,5 @@ avg_la_LIBADD = ../player/libplayer.la \
                 @PANGOFT2_LIBS@ @LIBRSVG_LIBS@ $(BOOST_PYTHON_LIBS) \
                 @BOOST_THREAD_LIBS@ @XML2_LIBS@ \
                 @DC1394_2_LIBS@ \
-                $(ALL_GL_LIBS) @LIBFFMPEG@ @LIBAVRESAMPLE@ @PTHREAD_LIBS@ \
+                $(ALL_GL_LIBS) @PTHREAD_LIBS@ \
                 @GDK_PIXBUF_LIBS@ @FONTCONFIG_LIBS@

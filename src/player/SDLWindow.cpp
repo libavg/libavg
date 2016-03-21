@@ -301,7 +301,7 @@ HWND SDLWindow::getWinHWnd()
 }
 #endif
 
-#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI) && !defined(__ANDROID__)
 ::Display* SDLWindow::getX11Display()
 {
     SDL_SysWMinfo info;

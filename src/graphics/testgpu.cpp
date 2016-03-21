@@ -48,7 +48,6 @@
 #include <math.h>
 #include <iostream>
 
-#include <glib-object.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 

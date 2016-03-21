@@ -1,18 +1,20 @@
-
+#
 AC_PREREQ(2.53)
 
 dnl Use this file to bump version on release
 m4_include([m4/avg_version.m4])
 
-AC_INIT(libavg, [VERSION_MAJOR.VERSION_MINOR.VERSION_MICRO], uzadow@libavg.de)
+AC_INIT(libavg, 2.0.0, uzadow@libavg.de)
 
-dnl Hack to detect virtualenv
+# Hack to detect virtualenv
 if [[ x"$VIRTUAL_ENV" != "x" ]] && [[ $prefix = NONE ]]; then
     prefix=$VIRTUAL_ENV
     AC_MSG_RESULT([Virtualenv detected, setting prefix to $prefix])
 fi
 
 AC_CANONICAL_TARGET
+
+AM_CONDITIONAL(ANDROID, test "$host" = "arm-unknown-linux-androideabi")
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
@@ -59,14 +61,14 @@ PKG_CHECK_MODULES([GDK_PIXBUF], [gdk-pixbuf-2.0])
 PKG_CHECK_MODULES([LIBRSVG], [librsvg-2.0])
 PKG_CHECK_MODULES([FONTCONFIG], [fontconfig])
 
-PKG_CHECK_MODULES([FFMPEG], [libswscale libavformat libavcodec libavutil], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
-AC_SUBST(LIBFFMPEG)
-if test -z "$FFMPEG_LIBS"; then
-  AC_MSG_ERROR([Could not find ffmpeg development libraries.])
-fi
+#PKG_CHECK_MODULES([FFMPEG], [libswscale libavformat libavcodec libavutil], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
+#AC_SUBST(LIBFFMPEG)
+#if test -z "$FFMPEG_LIBS"; then
+  #AC_MSG_ERROR([Could not find ffmpeg development libraries.])
+#fi
 
-PKG_CHECK_MODULES([AVRESAMPLE], [libavresample], [LIBAVRESAMPLE="$AVRESAMPLE_LIBS"], [:])
-AC_SUBST(LIBAVRESAMPLE)
+#PKG_CHECK_MODULES([AVRESAMPLE], [libavresample], [LIBAVRESAMPLE="$AVRESAMPLE_LIBS"], [:])
+#AC_SUBST(LIBAVRESAMPLE)
 
 AM_PATH_PYTHON
 AX_PYTHON_DEVEL
@@ -155,6 +157,7 @@ if test "$enable_egl" = yes; then
         AC_MSG_ERROR([EGL not found. Aborting])
     fi
     AC_DEFINE(AVG_ENABLE_EGL, 1, [Enable EGL support])
+    AC_SUBST([SDL_PATH])
 else
     AX_CHECK_GL
     if test x"$GL_LIBS" = x; then
@@ -168,18 +171,18 @@ AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
 AM_PATH_SDL2(2.0.2,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
-AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
-AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
-AC_CHECK_HEADERS([vdpau/vdpau.h],let vdpau_h2=1,let vdpau_h2=0)
-if [[ $vdpau_lib -eq 1 ]] && [[ $vdpau_h1 -eq 1 ]] && [[ $vdpau_h2 -eq 1 ]]; then
-  AC_DEFINE(AVG_ENABLE_VDPAU, 1, [Enable VDPAU support])
-  LIBVIDEO_LDADD="-lvdpau"
-  AM_CONDITIONAL(USE_VDPAU_SRC, true)
-else
-  LIBVIDEO_LDADD=""
-  AM_CONDITIONAL(USE_VDPAU_SRC, false)
-fi
-AC_SUBST([LIBVIDEO_LDADD])
+#AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
+#AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
+#AC_CHECK_HEADERS([vdpau/vdpau.h],let vdpau_h2=1,let vdpau_h2=0)
+#if [[ $vdpau_lib -eq 1 ]] && [[ $vdpau_h1 -eq 1 ]] && [[ $vdpau_h2 -eq 1 ]]; then
+#  AC_DEFINE(AVG_ENABLE_VDPAU, 1, [Enable VDPAU support])
+#  LIBVIDEO_LDADD="-lvdpau"
+#  AM_CONDITIONAL(USE_VDPAU_SRC, true)
+#else
+#  LIBVIDEO_LDADD=""
+#  AM_CONDITIONAL(USE_VDPAU_SRC, false)
+#fi
+#AC_SUBST([LIBVIDEO_LDADD])
 
 AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 
@@ -187,34 +190,16 @@ PREFIX=$prefix
 AC_SUBST(PREFIX)
 AC_CONFIG_HEADERS(src/avgconfig.h)
 AC_OUTPUT(Makefile 
-    src/Makefile 
-    src/test/Makefile 
-    src/test/baseline/Makefile
-    src/test/fonts/Makefile
-    src/test/extrafonts/Makefile
-    src/test/testmediadir/Makefile
-    src/test/media/Makefile
-    src/test/media/incompleteSkinMedia/Makefile
-    src/test/plugin/Makefile
+    src/Makefile
     src/base/Makefile 
     src/tess/Makefile 
-    src/wrapper/Makefile 
-    src/player/Makefile 
     src/graphics/Makefile 
     src/graphics/shaders/Makefile 
-    src/graphics/baseline/Makefile 
-    src/python/Makefile
-    src/imaging/Makefile 
-    src/video/Makefile 
-    src/audio/Makefile 
-    src/utils/Makefile 
-    src/anim/Makefile 
-    src/python/data/Makefile 
-    src/samples/Makefile 
-    src/samples/firebirds/Makefile
-    src/samples/firebirds/plugin/Makefile
-    src/samples/firebirds/media/Makefile
-    src/python/widget/Makefile 
-    src/python/app/Makefile 
-    src/oscpack/Makefile 
-    man/Makefile)
+    src/graphics/baseline/Makefile
+    src/oscpack/Makefile
+    src/audio/Makefile
+    src/anim/Makefile
+    src/imaging/Makefile
+    src/player/Makefile
+    src/wrapper/Makefile
+)

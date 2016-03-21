@@ -32,6 +32,7 @@
 #include <cmath>
 #include <limits>
 #include <memory.h>
+#include <string.h>
 
 #define LOOKAHEAD 64
 #define AVG1 27

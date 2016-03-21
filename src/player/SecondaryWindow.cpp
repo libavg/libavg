@@ -34,7 +34,7 @@
 
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
-#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI) && !defined(__ANDROID__)
 #include "../graphics/GLXContext.h"
 #include "../graphics/GLContextManager.h"
 #endif
@@ -49,7 +49,7 @@ SecondaryWindow::SecondaryWindow(const WindowParams& wp, bool bIsFullscreen,
         GLConfig glConfig)
     : Window(wp, bIsFullscreen)
 {
-#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI) && !defined(__ANDROID__)
     GLContext* pMainContext = GLContext::getCurrent();
     GLContext* pGLContext;
     IntRect windowDimensions(wp.m_Pos, wp.m_Pos+wp.m_Size);
@@ -75,7 +75,7 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
 void SecondaryWindow::swapBuffers() const
 {
-#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#if defined(__linux__) && !defined(AVG_ENABLE_RPI) && !defined(__ANDROID__)
     ScopeTimer timer(SwapBufferProfilingZone);
     getGLContext()->activate();
     getGLContext()->swapBuffers();

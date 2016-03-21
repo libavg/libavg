@@ -26,10 +26,10 @@
 #include "AVGNode.h"
 #include "DivNode.h"
 #include "WordsNode.h"
-#include "VideoNode.h"
+//#include "VideoNode.h"
 #include "CameraNode.h"
 #include "ImageNode.h"
-#include "SoundNode.h"
+//#include "SoundNode.h"
 #include "LineNode.h"
 #include "RectNode.h"
 #include "CurveNode.h"
@@ -165,9 +165,9 @@ Player::Player()
     AVGNode::registerType();
     ImageNode::registerType();
     WordsNode::registerType();
-    VideoNode::registerType();
+    //VideoNode::registerType();
     CameraNode::registerType();
-    SoundNode::registerType();
+    //SoundNode::registerType();
     LineNode::registerType();
     RectNode::registerType();
     CurveNode::registerType();

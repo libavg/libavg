@@ -31,8 +31,6 @@
 #include "../base/MathHelper.h"
 #include "../base/FileHelper.h"
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
-
 #include <cstring>
 #include <iostream>
 #include <iomanip>
@@ -564,6 +562,8 @@ void Bitmap::save(const UTF8String& sFilename)
             }
             pTempBmp->copyPixels(*this);
     }
+
+    /*
     GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_data(pTempBmp->getPixels(), 
             GDK_COLORSPACE_RGB, pTempBmp->hasAlpha(), 8, m_Size.x, m_Size.y, 
             pTempBmp->getStride(), 0, 0);
@@ -582,6 +582,7 @@ void Bitmap::save(const UTF8String& sFilename)
         g_error_free(pError);
         throw Exception(AVG_ERR_FILEIO, sErr);
     }
+    */
 
     delete pTempBmp;
 }

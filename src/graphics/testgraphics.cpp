@@ -65,8 +65,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <glib-object.h>
-
 using namespace avg;
 using namespace std;
 

@@ -23,8 +23,10 @@
 #ifdef __linux__
     #ifdef AVG_ENABLE_RPI
     #include "BCMDisplay.h"
-    #else
+    #elif !defined(__ANDROID__)
     #include "X11Display.h"
+    #elif defined(__ANDROID__)
+    // ANDROID
     #endif
 #endif
 #ifdef __APPLE__
@@ -51,8 +53,10 @@ DisplayPtr Display::get()
 #ifdef __linux__
     #ifdef AVG_ENABLE_RPI
         s_pInstance = DisplayPtr(new BCMDisplay());
-    #else
+    #elif !defined(__ANDROID__)
         s_pInstance = DisplayPtr(new X11Display());
+    #else
+        s_pInstance = DisplayPtr(new Display());
     #endif
 #elif defined __APPLE__
         s_pInstance = DisplayPtr(new AppleDisplay());
@@ -93,6 +97,10 @@ void Display::rereadScreenResolution()
     if (m_bAutoPPMM) {
         m_PPMM = queryPPMM();
     }
+}
+
+float Display::queryPPMM() {
+    return 30.0f;
 }
 
 IntPoint Display::getScreenResolution()

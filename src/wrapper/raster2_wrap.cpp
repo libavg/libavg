@@ -23,20 +23,22 @@
 #include "raw_constructor.hpp"
 
 #include "../player/CameraNode.h"
-#include "../player/VideoNode.h"
+//#include "../player/VideoNode.h"
 
 using namespace boost::python;
 using namespace avg;
 using namespace std;
 
 char cameraNodeName[] = "camera";
-char videoNodeName[] = "video";
+//char videoNodeName[] = "video";
 
+/*
 long long getDurationDeprecated(VideoNode* pNode)
 {
     avgDeprecationWarning("1.9.0", "VideoNode.getDuration()", "VideoNode.duration");
     return pNode->getDuration();
 }
+*/
 
 void export_raster2()
 {
@@ -104,6 +106,7 @@ void export_raster2()
         .add_property("controls", &CameraInfo::getControls)
     ;
         
+    /*
     enum_<VideoNode::VideoAccelType>("VideoAccelType")
         .value("NO_ACCELERATION", VideoNode::NONE)
         .value("VDPAU", VideoNode::VDPAU)
@@ -149,4 +152,5 @@ void export_raster2()
         .add_property("accelerated", &VideoNode::isAccelerated)
         .add_property("duration", &VideoNode::getDuration)
     ;
+    */
 }

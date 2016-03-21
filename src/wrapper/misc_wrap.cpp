@@ -27,7 +27,7 @@
 #include "../base/Logger.h"
 #include "../player/MessageID.h"
 #include "../player/TestHelper.h"
-#include "../player/VideoWriter.h"
+//#include "../player/VideoWriter.h"
 #include "../player/SVG.h"
 
 using namespace boost::python;
@@ -131,6 +131,7 @@ void export_misc()
         .def("getObjectCount", &TestHelper::getObjectCount)
     ;
 
+    /*
     class_<VideoWriter, boost::shared_ptr<VideoWriter>, boost::noncopyable>
             ("VideoWriter", no_init)
         .def(init<CanvasPtr, const std::string&, int, int, int, bool>())
@@ -143,7 +144,7 @@ void export_misc()
         .add_property("framerate", &VideoWriter::getFramerate)
         .add_property("qmin", &VideoWriter::getQMin)
         .add_property("qmax", &VideoWriter::getQMax)
-    ;
+    ;*/
 
     BitmapPtr (SVG::*renderElement1)(const UTF8String&) = &SVG::renderElement;
     BitmapPtr (SVG::*renderElement2)(const UTF8String&, const glm::vec2&) = 

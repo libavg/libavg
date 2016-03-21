@@ -1,6 +1,6 @@
 #SUBDIRS = tess base graphics imaging oscpack audio video player \
 #        anim wrapper python test utils samples
-SUBDIRS = tess base graphics
+SUBDIRS = tess base graphics oscpack audio anim imaging player wrapper
 
 EXTRA_DIST = avgrc avgconfigwrapper.h api.h avgconfig_win.h version.h \
         $(wildcard glm/*.hpp) $(wildcard glm/core/*.hpp) $(wildcard glm/core/*.inl) \

@@ -21,7 +21,7 @@
 
 #include "Backtrace.h"
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__ANDROID__)
 #include <execinfo.h>
 #include <cxxabi.h>
 #endif
@@ -76,7 +76,7 @@ void consolidateRepeatedLines(vector<string>& sFuncs, unsigned& i, unsigned numS
 
 void getBacktrace(vector<string>& sFuncs)
 {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__ANDROID__)
     void* callstack[128];
     int numFrames = backtrace(callstack, 128);
     char** ppszLines = backtrace_symbols(callstack, numFrames);

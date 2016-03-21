@@ -21,11 +21,6 @@
 
 #include "EGLContext.h"
 #include "GLContextAttribs.h"
-#ifdef AVG_ENABLE_RPI
-    #include "BCMDisplay.h"
-#else
-    #include "X11Display.h"
-#endif
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"

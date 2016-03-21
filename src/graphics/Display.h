@@ -54,7 +54,7 @@ public:
 protected:
     Display();
     
-    virtual float queryPPMM()=0;
+    virtual float queryPPMM();
     virtual void queryScreenResolution();
 
 private:

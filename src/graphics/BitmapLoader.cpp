@@ -27,8 +27,8 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace boost;
@@ -39,10 +39,7 @@ BitmapLoader * BitmapLoader::s_pBitmapLoader = 0;
     
 void BitmapLoader::init(bool bBlueFirst) 
 {
-#if (GLIB_MAJOR_VERSION <= 2 && GLIB_MINOR_VERSION < 36)
-    g_type_init();
-#endif
-//    cerr << "BitmapLoader::init(" << bBlueFirst << ")" << endl;
+    //    cerr << "BitmapLoader::init(" << bBlueFirst << ")" << endl;
     if (s_pBitmapLoader != 0) {
         delete s_pBitmapLoader;
     }
@@ -92,23 +89,11 @@ static ProfilingZoneID RGBFlipProfilingZone("RGB<->BGR flip", true);
 
 BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
 {
-    AVG_ASSERT(s_pBitmapLoader != 0);
-    GError* pError = 0;
-    GdkPixbuf* pPixBuf;
-    {
-        ScopeTimer timer(GDKPixbufProfilingZone);
-        pPixBuf = gdk_pixbuf_new_from_file(sFName.c_str(), &pError);
-    }
-    if (!pPixBuf) {
-        string sErr = pError->message;
-        g_error_free(pError);
-        throw Exception(AVG_ERR_FILEIO, sErr);
-    }
-    IntPoint size = IntPoint(gdk_pixbuf_get_width(pPixBuf), 
-            gdk_pixbuf_get_height(pPixBuf));
+    IntPoint size = IntPoint(128, 128);
     
     PixelFormat srcPF;
-    if (gdk_pixbuf_get_has_alpha(pPixBuf)) {
+    bool src_has_alpha = false;
+    if (src_has_alpha) {
         srcPF = R8G8B8A8;
     } else {
         srcPF = R8G8B8;
@@ -128,13 +113,14 @@ BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
             }
         }
     }
+
     BitmapPtr pBmp(new Bitmap(size, pf, sFName));
     {
         ScopeTimer timer(ConvertProfilingZone);
 
-        int stride = gdk_pixbuf_get_rowstride(pPixBuf);
-        guchar* pSrc = gdk_pixbuf_get_pixels(pPixBuf);
-        BitmapPtr pSrcBmp(new Bitmap(size, srcPF, pSrc, stride, false));
+        int stride = 4 * size.x;
+        unique_ptr<uint8_t[]> src(new uint8_t[4 * size.x * size.y]);
+        BitmapPtr pSrcBmp(new Bitmap(size, srcPF, src.get(), stride, false));
         {
             ScopeTimer timer(RGBFlipProfilingZone);
             if (pixelFormatIsBlueFirst(pf) != pixelFormatIsBlueFirst(srcPF)) {
@@ -143,7 +129,6 @@ BitmapPtr BitmapLoader::load(const UTF8String& sFName, PixelFormat pf) const
         }
         pBmp->copyPixels(*pSrcBmp);
     }
-    g_object_unref(pPixBuf);
     return pBmp;
 }
 
