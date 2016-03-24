@@ -293,7 +293,7 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         curve = addCurve()
-        self.assertAlmostEqual(curve.length, 210)
+        self.assertAlmostEqual(curve.length, 210, epsilon=0.001)
         self.assertAlmostEqual(curve.getPtOnCurve(0), (10.5,10))
         self.assertAlmostEqual(curve.getPtOnCurve(1), (80.5,10))
         self.assertAlmostEqual(curve.getPtOnCurve(0.5), (45.5,62.5))
