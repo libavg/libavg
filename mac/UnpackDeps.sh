@@ -33,4 +33,7 @@ cd ../..
 cd libdc1394-2.2.1
 patch -p1 < ../../libavg/mac/dc1394_mavericks.patch
 cd ..
+cd SDL2-2.0.4
+patch -p1 < ../../libavg/mac/libsdl_elcapitan.patch
+cd ..
 echo "Done"

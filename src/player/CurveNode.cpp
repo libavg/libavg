@@ -139,9 +139,9 @@ void CurveNode::setTexCoord2(float tc)
     setDrawNeeded();
 }
  
-int CurveNode::getCurveLen() const
+float CurveNode::getCurveLen() const
 {
-    return int(m_pCurve->estimateLen());
+    return m_pCurve->estimateLen();
 }
 
 glm::vec2 CurveNode::getPtOnCurve(float t) const

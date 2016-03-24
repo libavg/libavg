@@ -382,11 +382,11 @@ void Bitmap::copyYUVPixels(const Bitmap& yBmp, const Bitmap& uBmp, const Bitmap&
     const unsigned char   * ptru;
     const unsigned char   * ptrv;
 
-    register __m64    *o;
-    register __m64    y, ylo, yhi;
-    register __m64    zero, ut, vt, imm;
-    register __m64    r, g, b;
-    register __m64    tmp, tmp2;
+    __m64    *o;
+    __m64    y, ylo, yhi;
+    __m64    zero, ut, vt, imm;
+    __m64    r, g, b;
+    __m64    tmp, tmp2;
 
     zero = _mm_setzero_si64(); 
 
