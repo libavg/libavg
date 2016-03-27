@@ -604,12 +604,7 @@ public:
     void runTests() 
     {
         try {
-            char * pSrcDir = getenv("srcdir");
-            string sFilename;
-            if (pSrcDir) {
-                sFilename = (string)pSrcDir+"/";
-            }
-            sFilename += getTestBmpName("rgb24-64x64");
+            string sFilename = getSrcDir() + "../test/media/rgb24-64x64.png";
             BitmapPtr pBmp = loadBitmap(sFilename, R8G8B8);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
@@ -850,7 +845,7 @@ private:
         BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
         string sFName = string("baseline/MaskResult")+sName+".png";
 //        pDestBmp->save(sFName);
-        sFName = getSrcDirName()+sFName;
+        sFName = getSrcDir()+sFName;
         BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
@@ -869,7 +864,7 @@ public:
         BitmapPtr pDestBmp = FilterThreshold(1).apply(pBmp);
         string sFName = "baseline/ThresholdResult.png";
 //        pDestBmp->save(sFName);
-        sFName = getSrcDirName()+sFName;
+        sFName = getSrcDir()+sFName;
         BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
@@ -1006,9 +1001,10 @@ private:
 
 class GraphicsTestSuite: public TestSuite {
 public:
-    GraphicsTestSuite(const string& sSrcDir) 
-        : TestSuite("GraphicsTestSuite", sSrcDir)
+    GraphicsTestSuite() 
+        : TestSuite("GraphicsTestSuite")
     {
+        Test::setRelSrcDir("libavg/src/graphics/");
         addTest(TestPtr(new PixelTest));
         addTest(TestPtr(new ColorTest));
         addTest(TestPtr(new BitmapTest));
@@ -1040,10 +1036,9 @@ public:
 
 int main(int nargs, char** args)
 {
-    assert(nargs == 2);
     BitmapLoader::init(true);
     GraphicsTest::createResultImgDir();
-    GraphicsTestSuite suite(args[1]);
+    GraphicsTestSuite suite;
     suite.runTests();
     bool bOK = suite.isOk();
 

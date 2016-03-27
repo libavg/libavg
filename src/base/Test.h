@@ -49,14 +49,14 @@ public:
     virtual void printResults();
 
 protected:
-    static void setSrcDirName(const std::string& sDirName);
-    static const std::string& getSrcDirName();
+    static const void setRelSrcDir(const std::string& sRelDir);
+    static std::string getSrcDir();
+    static std::string s_sRelSrcDir;
+    static std::string s_sAvgPath;
 
     int m_IndentLevel;
 
 private:
-    static std::string s_sSrcDirName;
-
     int m_NumSucceeded;
     int m_NumFailed;
     std::string m_sName;
