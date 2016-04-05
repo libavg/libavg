@@ -119,6 +119,18 @@ const NodePtr& DivNode::getChild(unsigned i)
     return m_Children[i];
 }
 
+const boost::python::list DivNode::getChildren()
+{
+    boost::python::list list;
+
+    for (unsigned i = 0; i < getNumChildren(); ++i) {
+        list.append<NodePtr>(getChild(i));
+    }
+
+    return list;
+}
+
+
 void DivNode::appendChild(NodePtr pNewNode)
 {
     insertChild(pNewNode, unsigned(m_Children.size()));
