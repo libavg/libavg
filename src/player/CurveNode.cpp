@@ -198,7 +198,7 @@ bool CurveNode::isInsideBB(const glm::vec2& pos, unsigned level, unsigned i)
 
 void CurveNode::updateLines()
 {
-    unsigned numPts = getCurveLen()/2;
+    unsigned numPts = unsigned(getCurveLen()/2);
     m_CenterCurve.clear();
     m_LeftCurve.clear();
     m_RightCurve.clear();
