@@ -23,7 +23,7 @@ import os
 import time
 import tempfile
 
-from libavg import geom, statemachine, persist
+from libavg import geom, statemachine, persist, sprites
 
 from testcase import *
 
@@ -222,6 +222,57 @@ class PythonTestCase(AVGTestCase):
         os.unlink(testFile)
         logger.configureCategory("APP", logger.Severity.WARN)
 
+    def testSprite(self):
+        root = self.loadEmptyScene()
+        # - EOF callback
+        # - loop
+        # - Error in spriteName 
+        # - Error in spritesheet xml
+        # - Error finding image
+
+        def checkAttrs():
+            self.assert_(self.sprite.size == (53,54))
+            self.assert_(self.sprite.fps == 30)
+            self.assert_(self.sprite.numFrames == 30)
+            self.assert_(self.sprite.curFrameNum == 0)
+            self.assert_(not self.sprite.loop)
+            self.assert_(not self.sprite.isPlaying())
+
+        def setFrame():
+            self.sprite.curFrameNum = 27
+
+        def setSlower():
+            self.assert_(self.sprite.curFrameNum == 27)
+            self.sprite.fps = 10
+            self.sprite.play()
+    
+        def checkEOF():
+            self.assert_(self.sprite.curFrameNum == 29)
+            self.assert_(not self.sprite.isPlaying())
+
+        player.setFakeFPS(10)
+        self.spritesheet = sprites.Spritesheet("media/spritesheet.xml")
+        self.sprite = sprites.AnimatedSprite(self.spritesheet, "Ball ", pos=(10,10),
+                parent=root)
+
+        self.start(False,
+                (lambda: self.compareImage("testSprite1"),
+                 checkAttrs,
+                 self.sprite.play,
+                 None,
+                 lambda: self.compareImage("testSprite2"),
+                 self.sprite.pause,
+                 lambda: self.compareImage("testSprite3"),
+                 setFrame,
+                 lambda: self.compareImage("testSprite4"),
+                 setSlower,
+                 None,
+                 lambda: self.compareImage("testSprite5"),
+                 None,
+                 checkEOF,
+                ))
+        
+
 
 def pythonTestSuite(tests):
     availableTests = (
@@ -233,6 +284,7 @@ def pythonTestSuite(tests):
         "testPersistStore",
         "testPersistCorrupted",
         "testPersistValidation",
+        "testSprite",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)

@@ -20,8 +20,11 @@
 #
 # Current versions can be found at www.libavg.de
 
+import os
 import xml.dom.minidom as dom
-from libavg import avg, player, Point2D
+
+from libavg import avg, player
+
 
 class SpriteInfo(object):
     def __init__(self, xmlNode):
@@ -38,7 +41,8 @@ class Spritesheet(object):
 
         xml_tree = dom.parse(atlasFName)
         self.__textureFName = xml_tree.firstChild.attributes["imagePath"].value
-        self.__texture = avg.Bitmap(self.__textureFName)
+        absTextureFName = os.path.join(os.path.dirname(atlasFName), self.__textureFName)
+        self.__texture = avg.Bitmap(absTextureFName)
 
         for entry in xml_tree.firstChild.childNodes:
             if entry.nodeName == "SubTexture":
@@ -79,7 +83,8 @@ class Sprite(avg.DivNode):
 class AnimatedSprite(Sprite):
     END_OF_ANIMATION = avg.Publisher.genMessageID()
 
-    def __init__(self, spritesheet, spriteName, loop=False, fps=30, parent=None, **kwargs):
+    def __init__(self, spritesheet, spriteName, loop=False, fps=30, parent=None,
+            **kwargs):
         super(AnimatedSprite, self).__init__(spritesheet, spriteName, parent, **kwargs)
         self.publish(self.END_OF_ANIMATION)
 
@@ -95,6 +100,7 @@ class AnimatedSprite(Sprite):
     def __onDelete(self):
         if self.__frameHandlerID:
             player.unsubscribe(self.__frameHandlerID)
+            self.__frameHandlerID = None
 
     @property
     def fps(self):
@@ -138,20 +144,16 @@ class AnimatedSprite(Sprite):
         if self.__playing:
             self.__playing = False
             player.unsubscribe(self.__frameHandlerID)
-
-    @property
-    def spritesheet(self):
-        return self._spritesheet
+            self.__frameHandlerID = None
 
     def __onFrame(self):
-        if not self.play:
-            return
         delta = player.getFrameDuration()
 
         oldCurFrame = self.__curFrameNum
-        self.__curFrameNum += (delta * self.__fps) / 1000
+        self.__curFrameNum += (delta * self.__fps) / 1000.
+        print self.__curFrameNum
         if int(oldCurFrame) != int (self.__curFrameNum):
-            if self.__curFrameNum > len(self._info):
+            if self.__curFrameNum > len(self._info)-1:
                 if self.__loop:
                     self.__curFrameNum = 0
                 else:
