@@ -35,13 +35,13 @@ class SpriteInfo(object):
 
 
 class Spritesheet(object):
-    def __init__(self, atlasFName):
-        self.__atlasFName = atlasFName
+    def __init__(self, dataFName):
+        self.__dataFName = dataFName
         self.__spriteInfos = {}
 
-        xml_tree = dom.parse(atlasFName)
+        xml_tree = dom.parse(dataFName)
         self.__textureFName = xml_tree.firstChild.attributes["imagePath"].value
-        absTextureFName = os.path.join(os.path.dirname(atlasFName), self.__textureFName)
+        absTextureFName = os.path.join(os.path.dirname(dataFName), self.__textureFName)
         # Load bitmap and discard it just to see if the file exists.
         avg.Bitmap(absTextureFName)
 
