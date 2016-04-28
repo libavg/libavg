@@ -42,7 +42,8 @@ class Spritesheet(object):
         xml_tree = dom.parse(atlasFName)
         self.__textureFName = xml_tree.firstChild.attributes["imagePath"].value
         absTextureFName = os.path.join(os.path.dirname(atlasFName), self.__textureFName)
-        self.__texture = avg.Bitmap(absTextureFName)
+        # Load bitmap and discard it just to see if the file exists.
+        avg.Bitmap(absTextureFName)
 
         for entry in xml_tree.firstChild.childNodes:
             if entry.nodeName == "SubTexture":
@@ -55,8 +56,8 @@ class Spritesheet(object):
                 self.__spriteInfos[name].append(spriteInfo)
 
     @property
-    def texture(self):
-        return self.__texture
+    def textureName(self):
+        return self.__textureFName
 
     def getSpriteInfos(self, name):
         return self.__spriteInfos[name]
@@ -70,8 +71,7 @@ class Sprite(avg.DivNode):
         self.__spritesheet = spritesheet
         self._info = spritesheet.getSpriteInfos(spriteName)
 
-        self.__imageNode = avg.ImageNode(parent=self)
-        self.__imageNode.setBitmap(self.__spritesheet.texture)
+        self.__imageNode = avg.ImageNode(href=self.__spritesheet.textureName, parent=self)
         self._selectSprite(0)
 
     def _selectSprite(self, i):
