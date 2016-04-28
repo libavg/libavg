@@ -223,10 +223,6 @@ class PythonTestCase(AVGTestCase):
         logger.configureCategory("APP", logger.Severity.WARN)
 
     def testSprite(self):
-        root = self.loadEmptyScene()
-        # - Error in spriteName 
-        # - Error in spritesheet xml
-        # - Error finding image
 
         def checkAttrs():
             self.assert_(self.sprite.size == (53,54))
@@ -263,7 +259,14 @@ class PythonTestCase(AVGTestCase):
             self.assert_(self.sprite.isPlaying())
             self.assert_(self.eoaCalled)
 
+        def addSprite():
+            self.sprite2 = sprites.AnimatedSprite(self.spritesheet, "Ball2 ", pos=(50,10),
+                parent=root)
+            self.sprite2.play()
+
+        root = self.loadEmptyScene()
         player.setFakeFPS(10)
+
         self.spritesheet = sprites.Spritesheet("media/spritesheet.xml")
         self.sprite = sprites.AnimatedSprite(self.spritesheet, "Ball ", pos=(10,10),
                 parent=root)
@@ -288,8 +291,20 @@ class PythonTestCase(AVGTestCase):
                  setLoop,
                  None,
                  checkLoop,
+                 addSprite,
+                 lambda: self.compareImage("testSprite6"),
                 ))
-        
+        player.setFakeFPS(-1)
+
+    def testSpriteErrors(self):
+        root = self.loadEmptyScene()
+        self.assertRaises(IOError,
+                lambda: sprites.Spritesheet("media/file_doesnt_exist.xml"))
+        self.spritesheet = sprites.Spritesheet("media/spritesheet.xml")
+        self.assertRaises(KeyError,
+                lambda: sprites.AnimatedSprite(self.spritesheet, "SpriteDoesntExist"))
+        self.assertRaises(avg.Exception,
+                lambda: sprites.Spritesheet("media/spritesheet_broken.xml"))
 
 
 def pythonTestSuite(tests):
@@ -303,6 +318,7 @@ def pythonTestSuite(tests):
         "testPersistCorrupted",
         "testPersistValidation",
         "testSprite",
+        "testSpriteErrors",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
