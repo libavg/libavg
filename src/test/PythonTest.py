@@ -224,8 +224,6 @@ class PythonTestCase(AVGTestCase):
 
     def testSprite(self):
         root = self.loadEmptyScene()
-        # - EOF callback
-        # - loop
         # - Error in spriteName 
         # - Error in spritesheet xml
         # - Error finding image
@@ -246,14 +244,31 @@ class PythonTestCase(AVGTestCase):
             self.sprite.fps = 10
             self.sprite.play()
     
-        def checkEOF():
+        def checkEOA():
             self.assert_(self.sprite.curFrameNum == 29)
             self.assert_(not self.sprite.isPlaying())
+            self.assert_(self.eoaCalled)
+
+        def onEOA():
+            self.eoaCalled = True
+
+        def setLoop():
+            self.sprite.loop = True
+            self.sprite.curFrameNum = 28
+            self.eoaCalled = False
+            self.sprite.play()
+
+        def checkLoop():
+            self.assert_(self.sprite.curFrameNum == 0)
+            self.assert_(self.sprite.isPlaying())
+            self.assert_(self.eoaCalled)
 
         player.setFakeFPS(10)
         self.spritesheet = sprites.Spritesheet("media/spritesheet.xml")
         self.sprite = sprites.AnimatedSprite(self.spritesheet, "Ball ", pos=(10,10),
                 parent=root)
+        self.eoaCalled = False
+        self.sprite.subscribe(sprites.AnimatedSprite.END_OF_ANIMATION, onEOA)
 
         self.start(False,
                 (lambda: self.compareImage("testSprite1"),
@@ -269,7 +284,10 @@ class PythonTestCase(AVGTestCase):
                  None,
                  lambda: self.compareImage("testSprite5"),
                  None,
-                 checkEOF,
+                 checkEOA,
+                 setLoop,
+                 None,
+                 checkLoop,
                 ))
         
 

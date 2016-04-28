@@ -151,7 +151,6 @@ class AnimatedSprite(Sprite):
 
         oldCurFrame = self.__curFrameNum
         self.__curFrameNum += (delta * self.__fps) / 1000.
-        print self.__curFrameNum
         if int(oldCurFrame) != int (self.__curFrameNum):
             if self.__curFrameNum > len(self._info)-1:
                 if self.__loop:
