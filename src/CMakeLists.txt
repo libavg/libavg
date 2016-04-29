@@ -2,6 +2,7 @@ add_custom_target(version
   COMMAND ${CMAKE_SOURCE_DIR}/CreateVersionFile.py .)
 
 add_subdirectory(tess)
+add_subdirectory(test)
 add_subdirectory(base)
 add_subdirectory(graphics)
 add_subdirectory(imaging)

@@ -38,4 +38,7 @@ link_libraries(player)
 add_executable(testplayer testplayer.cpp)
 add_test(NAME testplayer COMMAND testplayer)
 
+include(testhelper)
+addTestToLibavgPythonPackage(testplayer)
+
 # testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker $(XGL_LINKFLAGS)

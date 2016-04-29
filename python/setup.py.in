@@ -1,9 +1,40 @@
 import glob
+import os
 from distutils.core import setup
+
+
+def listDataFiles(dirPath):
+    ignoreList = ['.git']
+    dataFiles = []
+
+    head, tail = os.path.split(os.path.normpath(dirPath))
+
+    for root, _, files in os.walk(dirPath):
+        if root in ignoreList:
+            continue
+
+        for file_ in files:
+            fullPath = os.path.join(root, file_)
+            subPath = fullPath.replace('{}{}'.format(head, os.path.sep), '')
+            if '~' not in subPath:
+                dataFiles.append(subPath)
+
+    return dataFiles
+
 
 setup(name='libavg',
     version='${AVG_VERSION_RELEASE}',
-    packages=['libavg', 'libavg.app', 'libavg.widget'],
-    package_data={'libavg': ['data/*', 'shaders/*', 'avg.so']},
+    packages=[
+        'libavg',
+        'libavg.app',
+        'libavg.widget',
+    ],
+    package_data={
+        '': listDataFiles(os.path.join('libavg', 'data')) +
+            listDataFiles(os.path.join('libavg', 'shaders')) +
+            listDataFiles(os.path.join('libavg', 'test')) +
+            ['avg.so', ]
+    },
     scripts=glob.glob('scripts/avg_*'),
 )
+

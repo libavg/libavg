@@ -21,4 +21,7 @@ link_libraries(video)
 add_executable(testvideo testvideo.cpp)
 add_test(NAME testvideo COMMAND testvideo)
 
+include(testhelper)
+addTestToLibavgPythonPackage(testvideo)
+
 # TODO EXTRA_DIST
