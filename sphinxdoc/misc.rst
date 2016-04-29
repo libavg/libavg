@@ -744,3 +744,65 @@ Misc. Classes
         
             Name of the file store file. `.pkl` will be added as extension.
 
+
+.. automodule:: libavg.sprites
+    :no-members:
+
+    .. autoclass:: Spritesheet(dataFName)
+
+        A sprite sheet is a collection of (possibly animated) images all loaded from one
+        large image file (the 'atlas'). A sample can be found at `src/samples/sprite.py`.
+
+        :param string dataFName:
+
+            Name of an xml file that stores sprite information such as the name of the
+            aggregate image and the locations of the individual sprites in the atlas.
+            libavg expects files in Starling format.
+
+    .. autoclass:: Sprite(spritesheet, spriteName)
+
+        A single-image sprite generated from a sprite sheet.
+
+        :param string spriteName:
+
+            Name of the entry in the data file that specifies where in the atlas the
+            sprite is located.
+
+
+    .. autoclass:: AnimatedSprite(spritesheet, spriteName[, loop=False, fps=30])
+
+        A multi-frame sprite generated from a sprite sheet. An :py:class:`AnimatedSprite`
+        can be used like a small high-performance video, with playback, pause and seek
+        functionality.
+
+        :param string spriteName:
+
+            Prefix string for the data file entries that correspond to the individual
+            sprite frames. Any entries that consist of this prefix followed by numbers
+            digits are added to this sprite.
+
+        .. py:attribute:: curFrameNum
+
+            Number of the frame currently shown. To display a different frane, set this
+            attribute.
+
+        .. py:attribute:: fps
+
+            Speed in frames per second that the sprite should use for playback.
+
+        .. py:attribute:: loop
+
+            :py:const:`True` if the sprite should loop endlessly, :py:const:`False`
+            otherwise.
+
+        .. py:attribute:: numFrames
+
+            Number of frames in the sprite. Read-only.
+
+        .. py:method:: play()
+
+            Starts playback.
+
+        .. py:method:: pause()
+
+            Stops playback.
