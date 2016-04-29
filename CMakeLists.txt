@@ -147,6 +147,8 @@ else()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
         --force-new-ctest-process --output-on-failure)
 endif()
+# Run copy_python_test custom target before make check to ease development
+add_dependencies(check copy_python_tests)
 
 configure_file(
     "${PROJECT_SOURCE_DIR}/src/avgconfig.h.cmake.in"
