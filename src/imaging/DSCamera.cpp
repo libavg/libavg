@@ -37,6 +37,8 @@
 
 #include <sstream>
 
+int (WINAPIV * __vsnprintf)(char *, size_t, const char*, va_list) = _vsnprintf;
+
 namespace avg {
 
 using namespace std;
