@@ -23,6 +23,11 @@ def makeExecutable(file_):
     os.chmod(file_, st.st_mode | stat.S_IEXEC)
 
 
+def exitOnError(returnCode):
+    if returnCode != 0:
+        sys.exit(returnCode)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--python', action='store_true',
@@ -38,12 +43,14 @@ if __name__ == '__main__':
             if os.path.isfile(file_):
                 cppTest = os.path.abspath(file_)
                 makeExecutable(cppTest)
-                subprocess.call(cppTest, shell=True)
+                ret = subprocess.call(cppTest, shell=True)
+                exitOnError(ret)
 
     os.chdir(os.path.join(libavgPackagePath, 'test'))
     testRunner = os.path.abspath('Test.py')
     makeExecutable(testRunner)
-    subprocess.call(testRunner, shell=True)
+    ret = subprocess.call(testRunner, shell=True)
+    exitOnError(ret)
 
     os.chdir(initialWorkingDir)
 
