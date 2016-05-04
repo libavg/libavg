@@ -21,7 +21,6 @@
 
 #include "Test.h"
 
-#include "OSHelper.h"
 #include "Exception.h"
 
 using namespace std;
@@ -29,7 +28,6 @@ using namespace std;
 namespace avg {
 
 string Test::s_sRelSrcDir;
-string Test::s_sAvgPath;
 
 Test::Test(const string & sName, int indentLevel)
     : m_IndentLevel(indentLevel),
@@ -97,20 +95,24 @@ void Test::printResults()
         
 }
     
-const void Test::setRelSrcDir(const string& sRelSrcDir)
+void Test::setRelSrcDir(const string& sRelSrcDir)
 {
     s_sRelSrcDir = sRelSrcDir;
 }
 
 string Test::getSrcDir()
 {
-    if (s_sAvgPath == "") {
-        bool bInEnviron = getEnv("AVG_PATH", s_sAvgPath);
-        if (!bInEnviron) {
-            s_sAvgPath = ".";
-        }
-    }
-    return s_sAvgPath + "/" + s_sRelSrcDir;
+    return s_sRelSrcDir.empty() ? "." : s_sRelSrcDir;
+}
+
+string Test::getMediaDir() const
+{
+   return getSrcDir() + "/../media";
+}
+
+string Test::getBaselineDir() const
+{
+    return getSrcDir() + "/baseline";
 }
 
 }

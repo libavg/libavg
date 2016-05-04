@@ -6,6 +6,14 @@ macro(addTestToLibavgPythonPackage testTarget)
         "${CMAKE_CURRENT_BINARY_DIR}/${testTarget}"
         "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest"
         )
+
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/baseline")
+        add_custom_command(TARGET copy_${testTarget}
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/baseline"
+            "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/baseline"
+            )
+    endif()
 endmacro()
 
 macro(addPluginToLibavgPythonPackage plugin)

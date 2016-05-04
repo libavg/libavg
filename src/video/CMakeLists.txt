@@ -19,7 +19,9 @@ endif()
 
 link_libraries(video)
 add_executable(testvideo testvideo.cpp)
-add_test(NAME testvideo COMMAND testvideo)
+add_test(NAME testvideo
+    COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testvideo
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
 addTestToLibavgPythonPackage(testvideo)

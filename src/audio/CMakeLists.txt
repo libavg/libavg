@@ -6,4 +6,9 @@ target_link_libraries(audio
 
 link_libraries(audio)
 add_executable(testlimiter testlimiter.cpp)
-add_test(NAME testlimiter COMMAND testlimiter)
+add_test(NAME testlimiter
+    COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testlimiter
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
+
+include(testhelper)
+addTestToLibavgPythonPackage(testlimiter)

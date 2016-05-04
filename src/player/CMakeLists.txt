@@ -36,7 +36,9 @@ target_compile_options(player
 
 link_libraries(player)
 add_executable(testplayer testplayer.cpp)
-add_test(NAME testplayer COMMAND testplayer)
+add_test(NAME testplayer
+    COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testplayer
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
 addTestToLibavgPythonPackage(testplayer)

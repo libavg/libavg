@@ -17,7 +17,9 @@ target_link_libraries(base
 
 link_libraries(base)
 add_executable(testbase testbase.cpp)
-add_test(NAME testbase COMMAND testbase)
+add_test(NAME testbase
+    COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testbase
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
 addTestToLibavgPythonPackage(testbase)
