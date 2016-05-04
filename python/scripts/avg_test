@@ -15,14 +15,6 @@ import subprocess
 import libavg
 
 
-def makeExecutable(file_):
-    # Note: Setting the permissions is a hack to add +x bit which is removed by
-    # distutils from the original files. Setting this permission only works on
-    # *NIX
-    st = os.stat(file_)
-    os.chmod(file_, st.st_mode | stat.S_IEXEC)
-
-
 def exitOnError(returnCode):
     if returnCode != 0:
         sys.exit(returnCode)
@@ -42,13 +34,11 @@ if __name__ == '__main__':
         for file_ in os.listdir(os.getcwd()):
             if os.path.isfile(file_):
                 cppTest = os.path.abspath(file_)
-                makeExecutable(cppTest)
                 ret = subprocess.call(cppTest, shell=True)
                 exitOnError(ret)
 
     os.chdir(os.path.join(libavgPackagePath, 'test'))
     testRunner = os.path.abspath('Test.py')
-    makeExecutable(testRunner)
     ret = subprocess.call(testRunner, shell=True)
     exitOnError(ret)
 

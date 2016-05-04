@@ -35,7 +35,6 @@ set(test_directories
     testmediadir
     )
 
-
 set(python_test_package_dir "${CMAKE_BINARY_DIR}/python/libavg/test")
 file(MAKE_DIRECTORY ${python_test_package_dir})
 file(MAKE_DIRECTORY "${python_test_package_dir}/cpptest")
@@ -64,8 +63,8 @@ endforeach()
 
 
 add_test(NAME python_test
-    COMMAND ${PYTHON_EXECUTABLE} avg_test --python
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/python/scripts"
+    COMMAND ${PYTHON_EXECUTABLE} Test.py
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/python/libavg/test"
     )
 
 add_subdirectory(plugin)

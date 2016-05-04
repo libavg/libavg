@@ -1,5 +1,8 @@
 import glob
 import os
+import re
+
+import distutils.command.install_lib
 from distutils.core import setup
 
 
@@ -22,6 +25,21 @@ def listDataFiles(dirPath):
     return dataFiles
 
 
+# see: http://stackoverflow.com/questions/11594905/how-do-i-correctly-pass-cmake-list-semicolon-sep-of-flags-to-set-target-proper
+class my_install_lib(distutils.command.install_lib.install_lib):
+    def run(self):
+        testBinaryRegex =  re.compile(r'^test\w+$')
+
+        distutils.command.install_lib.install_lib.run(self)
+
+        for fn in self.get_outputs():
+            # Hack to set executable bit for libavg cpptest
+            basename = os.path.basename(fn)
+            if testBinaryRegex.match(basename) or basename == 'Test.py':
+                mode = ((os.stat(fn).st_mode) | 0555) & 07777
+                os.chmod(fn, mode)
+
+
 setup(name='libavg',
     version='${AVG_VERSION_RELEASE}',
     packages=[
@@ -34,6 +52,9 @@ setup(name='libavg',
             listDataFiles(os.path.join('libavg', 'shaders')) +
             listDataFiles(os.path.join('libavg', 'test')) +
             ['avg.so', ]
+    },
+    cmdclass={
+        'install_lib': my_install_lib
     },
     scripts=glob.glob('scripts/avg_*'),
 )
