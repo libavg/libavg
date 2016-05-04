@@ -1,5 +1,6 @@
 macro(addTestToLibavgPythonPackage testTarget)
     add_custom_target(copy_${testTarget} ALL)
+    add_dependencies(copy_${testTarget} ${testTarget})
     add_custom_command(TARGET copy_${testTarget}
         COMMAND ${CMAKE_COMMAND} -E copy
         "${CMAKE_CURRENT_BINARY_DIR}/${testTarget}"
@@ -17,6 +18,7 @@ endmacro()
 
 macro(addPluginToLibavgPythonPackage plugin)
     add_custom_target(copy_${plugin} ALL)
+    add_dependencies(copy_${plugin} ${plugin})
     add_custom_command(TARGET copy_${plugin}
         COMMAND ${CMAKE_COMMAND} -E copy
         "${CMAKE_CURRENT_BINARY_DIR}/${plugin}${CMAKE_SHARED_MODULE_SUFFIX}"
