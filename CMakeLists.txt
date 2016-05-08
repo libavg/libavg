@@ -127,7 +127,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
-    set(warnings_cxx "-Wall -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body")
+    set(warnings_cxx "-Wall -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -Wno-unused-local-typedefs")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -fPIC -ffast-math ${warnings_cxx}")
     set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pipe -fPIC -ffast-math -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
