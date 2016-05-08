@@ -35,6 +35,7 @@ src/player/testplayer
 src/stamp-h1
 src/version.h
 src/video/testvideo
+src/test/tmp.dot
 test-driver
 *.orig
 
