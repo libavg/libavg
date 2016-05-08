@@ -95,7 +95,7 @@ void ObjectCounter::incRef(const std::type_info* pType)
 void ObjectCounter::decRef(const std::type_info* pType)
 {
 #ifdef DEBUG_ALLOC
-    if (!this) {
+    if (s_bDeleted) {
         // This happens if there are counted static objects that are deleted after 
         // s_pObjectCounter has been deleted.
         return;

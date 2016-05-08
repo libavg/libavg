@@ -187,26 +187,16 @@ Player::Player()
     }
 }
 
-void deletePlayer()
-{
-    delete Player::s_pPlayer;
-    Player::s_pPlayer = 0;
-}
-
 Player::~Player()
 {
-    m_pMainCanvas = MainCanvasPtr();
-    if (m_pDisplayEngine) {
-        m_pDisplayEngine->teardown();
-    }
-    DisplayEngine::quitSDL();
+    // Never called, since python doesn't give us a safe place to call it.
 }
 
 Player* Player::get()
 {
     if (!s_pPlayer) {
         s_pPlayer = new Player();
-        Py_AtExit(deletePlayer);
+        Py_AtExit(DisplayEngine::quitSDL);
     }
     return s_pPlayer;
 }

@@ -23,7 +23,7 @@ import os
 import time
 import tempfile
 
-from libavg import geom, statemachine, persist
+from libavg import geom, statemachine, persist, sprites
 
 from testcase import *
 
@@ -222,6 +222,90 @@ class PythonTestCase(AVGTestCase):
         os.unlink(testFile)
         logger.configureCategory("APP", logger.Severity.WARN)
 
+    def testSprite(self):
+
+        def checkAttrs():
+            self.assert_(self.sprite.size == (53,54))
+            self.assert_(self.sprite.fps == 30)
+            self.assert_(self.sprite.numFrames == 30)
+            self.assert_(self.sprite.curFrameNum == 0)
+            self.assert_(not self.sprite.loop)
+            self.assert_(not self.sprite.isPlaying())
+
+        def setFrame():
+            self.sprite.curFrameNum = 27
+
+        def setSlower():
+            self.assert_(self.sprite.curFrameNum == 27)
+            self.sprite.fps = 10
+            self.sprite.play()
+    
+        def checkEOA():
+            self.assert_(self.sprite.curFrameNum == 29)
+            self.assert_(not self.sprite.isPlaying())
+            self.assert_(self.eoaCalled)
+
+        def onEOA():
+            self.eoaCalled = True
+
+        def setLoop():
+            self.sprite.loop = True
+            self.sprite.curFrameNum = 28
+            self.eoaCalled = False
+            self.sprite.play()
+
+        def checkLoop():
+            self.assert_(self.sprite.curFrameNum == 0)
+            self.assert_(self.sprite.isPlaying())
+            self.assert_(self.eoaCalled)
+
+        def addSprite():
+            self.sprite2 = sprites.AnimatedSprite(self.spritesheet, "Ball2 ", pos=(50,10),
+                parent=root)
+            self.sprite2.play()
+
+        root = self.loadEmptyScene()
+        player.setFakeFPS(10)
+
+        self.spritesheet = sprites.Spritesheet("media/spritesheet.xml")
+        self.sprite = sprites.AnimatedSprite(self.spritesheet, "Ball ", pos=(10,10),
+                parent=root)
+        self.eoaCalled = False
+        self.sprite.subscribe(sprites.AnimatedSprite.END_OF_ANIMATION, onEOA)
+
+        self.start(False,
+                (lambda: self.compareImage("testSprite1"),
+                 checkAttrs,
+                 self.sprite.play,
+                 None,
+                 lambda: self.compareImage("testSprite2"),
+                 self.sprite.pause,
+                 lambda: self.compareImage("testSprite3"),
+                 setFrame,
+                 lambda: self.compareImage("testSprite4"),
+                 setSlower,
+                 None,
+                 lambda: self.compareImage("testSprite5"),
+                 None,
+                 checkEOA,
+                 setLoop,
+                 None,
+                 checkLoop,
+                 addSprite,
+                 lambda: self.compareImage("testSprite6"),
+                ))
+        player.setFakeFPS(-1)
+
+    def testSpriteErrors(self):
+        root = self.loadEmptyScene()
+        self.assertRaises(IOError,
+                lambda: sprites.Spritesheet("media/file_doesnt_exist.xml"))
+        self.spritesheet = sprites.Spritesheet("media/spritesheet.xml")
+        self.assertRaises(KeyError,
+                lambda: sprites.AnimatedSprite(self.spritesheet, "SpriteDoesntExist"))
+        self.assertRaises(avg.Exception,
+                lambda: sprites.Spritesheet("media/spritesheet_broken.xml"))
+
 
 def pythonTestSuite(tests):
     availableTests = (
@@ -233,6 +317,8 @@ def pythonTestSuite(tests):
         "testPersistStore",
         "testPersistCorrupted",
         "testPersistValidation",
+        "testSprite",
+        "testSpriteErrors",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
