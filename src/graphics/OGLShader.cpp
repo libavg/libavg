@@ -117,8 +117,9 @@ GLuint OGLShader::compileShader(GLenum shaderType, const std::string& sProgram,
     const char * pProgramStrs[2];
     pProgramStrs[0] = sPrefix.c_str();
     pProgramStrs[1] = sProgram.c_str();
+    GLint pLengths[] = {int(sPrefix.size()), int(sProgram.size())};
     GLuint hShader = glproc::CreateShader(shaderType);
-    glproc::ShaderSource(hShader, 2, pProgramStrs, 0);
+    glproc::ShaderSource(hShader, 2, pProgramStrs, pLengths);
     glproc::CompileShader(hShader);
     GLContext::checkError("OGLShader::compileShader()");
     return hShader;
