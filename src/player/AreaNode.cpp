@@ -29,6 +29,7 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "BoostPython.h"
+#include "NodeChain.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -231,12 +232,12 @@ glm::vec2 AreaNode::toGlobal(const glm::vec2& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void AreaNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        pElements.push_back(getSharedThis());
+        pElements->append(getSharedThis());
     }
 }
 

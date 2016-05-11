@@ -214,7 +214,7 @@ void ImageNode::checkReload()
     RasterNode::checkReload();
 }
 
-void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void ImageNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     if (reactsToMouseEvents()) {
         OffscreenCanvasPtr pCanvas = m_pGPUImage->getCanvas();
