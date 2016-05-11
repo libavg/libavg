@@ -64,13 +64,13 @@ class AVG_API CursorEvent: public Event
         int getUserID() const;
         int getJointID() const;
         void setNode(NodePtr pNode);
+        void clearNodeData();
         NodePtr getNode() const;
         void setSpeed(glm::vec2 speed);
         virtual const glm::vec2& getSpeed() const;
 
         void setContact(ContactPtr pContact);
         ContactPtr getContact() const;
-        virtual void removeBlob() {};
 
         friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
         virtual void trace();
