@@ -55,8 +55,8 @@ class AVG_API CursorEvent: public Event
         virtual ~CursorEvent();
         virtual CursorEventPtr copy() const;
         virtual CursorEventPtr cloneAs(Type eventType=UNKNOWN) const;
+        virtual CursorEventPtr cloneAs(Type eventType, const glm::vec2& pos) const;
         void setUserID(int userID, int jointID);
-        void setPos(const glm::vec2& pos);
         glm::vec2 getPos() const;
         int getXPosition() const;
         int getYPosition() const;

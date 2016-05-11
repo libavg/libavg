@@ -64,15 +64,17 @@ CursorEventPtr CursorEvent::cloneAs(Type eventType) const
     return pClone;
 }
 
+CursorEventPtr CursorEvent::cloneAs(Type eventType, const glm::vec2& pos) const
+{
+    CursorEventPtr pClone = cloneAs(eventType);
+    pClone->m_Position = IntPoint(pos);
+    return pClone;
+}
+
 void CursorEvent::setUserID(int userID, int jointID)
 {
     m_UserID = userID;
     m_JointID = jointID;
-}
-
-void CursorEvent::setPos(const glm::vec2& pos)
-{
-    m_Position = IntPoint(pos);
 }
 
 glm::vec2 CursorEvent::getPos() const
