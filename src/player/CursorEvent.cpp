@@ -50,9 +50,14 @@ CursorEvent::~CursorEvent()
 {
 }
 
+CursorEventPtr CursorEvent::copy() const
+{
+    return CursorEventPtr(new CursorEvent(*this));
+}
+
 CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 {
-    CursorEventPtr pClone(new CursorEvent(*this));
+    CursorEventPtr pClone = copy();
     if (eventType != UNKNOWN) {
         pClone->m_Type = eventType;
     }
