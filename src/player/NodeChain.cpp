@@ -21,6 +21,8 @@
 
 #include "NodeChain.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
 
 using namespace std;
@@ -36,7 +38,7 @@ void NodeChain::append(const NodePtr& pNode)
     m_pNodes.push_back(pNode);
 }
 
-NodePtr NodeChain::getNode(int i) const
+NodePtr NodeChain::getNode(unsigned i) const
 {
     return m_pNodes[i];
 }
@@ -55,7 +57,7 @@ bool NodeChain::empty() const
     return m_pNodes.empty();
 }
 
-int NodeChain::getSize() const
+unsigned NodeChain::getSize() const
 {
     return m_pNodes.size();
 }
@@ -63,6 +65,16 @@ int NodeChain::getSize() const
 bool NodeChain::contains(const NodePtr& pNode) const
 {
     return (std::find(m_pNodes.begin(), m_pNodes.end(), pNode) != m_pNodes.end());
+}
+
+NodeChainPtr NodeChain::createPartialChain(unsigned leafIndex) const
+{
+    AVG_ASSERT(leafIndex < m_pNodes.size());
+    NodeChainPtr pPartialChain(new NodeChain());
+    for (unsigned i=leafIndex; i<m_pNodes.size(); ++i) {
+        pPartialChain->append(m_pNodes[i]);
+    }
+    return pPartialChain;
 }
 
 glm::vec2 NodeChain::getCanvasPos(const glm::vec2& pos) const

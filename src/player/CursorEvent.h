@@ -47,6 +47,9 @@ class Node;
 typedef boost::shared_ptr<class Node> NodePtr;
 typedef boost::weak_ptr<class Node> NodeWeakPtr;
 
+class NodeChain;
+typedef boost::shared_ptr<class NodeChain> NodeChainPtr;
+
 class AVG_API CursorEvent: public Event 
 {
     public:
@@ -64,7 +67,7 @@ class AVG_API CursorEvent: public Event
         int getCursorID() const;
         int getUserID() const;
         int getJointID() const;
-        void setNode(NodePtr pNode);
+        void setNodeChain(NodeChainPtr pChain);
         void clearNodeData();
         NodePtr getNode() const;
         void setSpeed(glm::vec2 speed);
@@ -82,7 +85,7 @@ class AVG_API CursorEvent: public Event
         ContactWeakPtr m_pContact;
         int m_UserID;
         int m_JointID;
-        NodePtr m_pNode;
+        NodeChainPtr m_pNodeChain;
         glm::vec2 m_Speed;
 };
 

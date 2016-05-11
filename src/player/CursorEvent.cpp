@@ -25,6 +25,7 @@
 
 #include "Node.h"
 #include "Contact.h"
+#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -112,19 +113,19 @@ int CursorEvent::getJointID() const
     return m_JointID;
 }
 
-void CursorEvent::setNode(NodePtr pNode)
+void CursorEvent::setNodeChain(NodeChainPtr pChain)
 {
-    m_pNode = pNode;
+    m_pNodeChain = pChain;
 }
 
 void CursorEvent::clearNodeData()
 {
-    m_pNode = NodePtr();
+    m_pNodeChain = NodeChainPtr();
 }
 
 NodePtr CursorEvent::getNode() const
 {
-    return m_pNode;
+    return m_pNodeChain->getLeaf();
 }
         
 void CursorEvent::setSpeed(glm::vec2 speed)

@@ -63,6 +63,7 @@ class InputDevice;
 class Bitmap;
 class AVGNode;
 class ImageCache;
+class NodeChain;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -81,6 +82,7 @@ typedef boost::shared_ptr<TestHelper> TestHelperPtr;
 typedef boost::shared_ptr<InputDevice> InputDevicePtr;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
+typedef boost::shared_ptr<NodeChain> NodeChainPtr;
 
 class AVG_API Player: public Publisher
 {
@@ -226,7 +228,7 @@ class AVG_API Player: public Publisher
         OffscreenCanvasPtr findCanvas(const std::string& sID) const;
 
         void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type type, NodePtr pNode);
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type type, NodeChainPtr pChain);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
