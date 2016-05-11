@@ -110,6 +110,11 @@ void CursorEvent::setNode(NodePtr pNode)
     m_pNode = pNode;
 }
 
+void CursorEvent::clearNodeData()
+{
+    m_pNode = NodePtr();
+}
+
 NodePtr CursorEvent::getNode() const
 {
     return m_pNode;
