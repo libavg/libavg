@@ -62,13 +62,9 @@ TouchEvent::~TouchEvent()
 {
 }
 
-CursorEventPtr TouchEvent::cloneAs(Type eventType) const
+CursorEventPtr TouchEvent::copy() const
 {
-    TouchEventPtr pClone(new TouchEvent(*this));
-    if (eventType != UNKNOWN) {
-        pClone->m_Type = eventType;
-    }
-    return pClone;
+    return TouchEventPtr(new TouchEvent(*this));
 }
 
 float TouchEvent::getOrientation() const 
