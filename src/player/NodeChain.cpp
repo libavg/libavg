@@ -41,14 +41,28 @@ NodePtr NodeChain::getNode(int i) const
     return m_pNodes[i];
 }
 
-NodePtr NodeChain::getLeafNode() const
+NodePtr NodeChain::getLeaf() const
 {
-    return m_pNodes.front();
+    if (m_pNodes.empty()) {
+        return NodePtr();
+    } else {
+        return m_pNodes.front();
+    }
+}
+
+bool NodeChain::empty() const
+{
+    return m_pNodes.empty();
 }
 
 int NodeChain::getSize() const
 {
     return m_pNodes.size();
+}
+
+bool NodeChain::contains(const NodePtr& pNode) const
+{
+    return (std::find(m_pNodes.begin(), m_pNodes.end(), pNode) != m_pNodes.end());
 }
 
 glm::vec2 NodeChain::getCanvasPos(const glm::vec2& pos) const
