@@ -83,6 +83,7 @@
     <ClCompile Include="..\..\src\player\MouseWheelEvent.cpp" />
     <ClCompile Include="..\..\src\player\MultitouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Node.cpp" />
+    <ClCompile Include="..\..\src\player\NodeChain.cpp" />
     <ClCompile Include="..\..\src\player\NullFXNode.cpp" />
     <ClCompile Include="..\..\src\player\OffscreenCanvas.cpp" />
     <ClCompile Include="..\..\src\player\OffscreenCanvasNode.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="..\..\src\player\MouseWheelEvent.h" />
     <ClInclude Include="..\..\src\player\MultitouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Node.h" />
+    <ClInclude Include="..\..\src\player\NodeChain.h" />
     <ClInclude Include="..\..\src\player\NullFXNode.h" />
     <ClInclude Include="..\..\src\player\OffscreenCanvas.h" />
     <ClInclude Include="..\..\src\player\OffscreenCanvasNode.h" />

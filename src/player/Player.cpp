@@ -1433,7 +1433,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             ImageNodePtr pImgNode = dynamic_pointer_cast<ImageNode>(pNode);
             if (pImgNode && pImgNode->getSource() == GPUImage::SCENE) {
                 glm::vec2 localPos = pImgNode->toCanvasPos(pCurEvent->getPos());
-                pCurEvent = pCurEvent->cloneAs(Event::Type::UNKNOWN, localPos);
+                pCurEvent = pCurEvent->cloneAs(Event::UNKNOWN, localPos);
             }
         }
 

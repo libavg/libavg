@@ -72,7 +72,13 @@ glm::vec2 NodeChain::getCanvasPos(const glm::vec2& pos) const
     return pos;
 }
 
-
+void NodeChain::dump() const
+{
+    for (unsigned i=0; i<m_pNodes.size(); ++i) {
+        cerr << m_pNodes[i]->getTypeStr() << " ";
+    }
+    cerr << endl;
+}
 
 
 }
