@@ -50,7 +50,7 @@ typedef boost::weak_ptr<class Node> NodeWeakPtr;
 class AVG_API CursorEvent: public Event 
 {
     public:
-        CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+        CursorEvent(int id, Type eventType, const IntPoint& pos, Source source,
                 int when=-1);
         virtual ~CursorEvent();
         virtual CursorEventPtr copy() const;
@@ -77,7 +77,7 @@ class AVG_API CursorEvent: public Event
         virtual void trace();
 
     private:
-        IntPoint m_Position;
+        IntPoint m_Pos;
         int m_ID;
         ContactWeakPtr m_pContact;
         int m_UserID;

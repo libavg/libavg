@@ -35,10 +35,10 @@ using namespace std;
 
 namespace avg {
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& pos, Source source,
         int when)
     : Event(eventType, source, when),
-      m_Position(position),
+      m_Pos(pos),
       m_ID(id),
       m_UserID(-1),
       m_JointID(-1),
@@ -67,7 +67,7 @@ CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 CursorEventPtr CursorEvent::cloneAs(Type eventType, const glm::vec2& pos) const
 {
     CursorEventPtr pClone = cloneAs(eventType);
-    pClone->m_Position = IntPoint(pos);
+    pClone->m_Pos = IntPoint(pos);
     return pClone;
 }
 
@@ -79,17 +79,17 @@ void CursorEvent::setUserID(int userID, int jointID)
 
 glm::vec2 CursorEvent::getPos() const
 {
-    return glm::vec2(m_Position);
+    return glm::vec2(m_Pos);
 }
 
 int CursorEvent::getXPosition() const
 {
-    return m_Position.x;
+    return m_Pos.x;
 }
 
 int CursorEvent::getYPosition() const
 {
-    return m_Position.y;
+    return m_Pos.y;
 }
 
 void CursorEvent::setCursorID(int id)
@@ -149,7 +149,7 @@ ContactPtr CursorEvent::getContact() const
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
-    return (event1.m_Position == event2.m_Position && 
+    return (event1.m_Pos == event2.m_Pos && 
             event1.getWhen() == event2.getWhen()); 
 }
 
