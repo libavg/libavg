@@ -1432,7 +1432,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             pLocalEvents[i] = pCurEvent;
             ImageNodePtr pImgNode = dynamic_pointer_cast<ImageNode>(pNode);
             if (pImgNode && pImgNode->getSource() == GPUImage::SCENE) {
-                pCurEvent = pCurEvent->cloneAs(Event::Type::UNKNOWN);
+                pCurEvent = pCurEvent->cloneAs(Event::UNKNOWN);
                 pCurEvent->setNodeChain(pDestNodes->createPartialChain(i));
             }
         }
