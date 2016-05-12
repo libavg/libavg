@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,36 +19,43 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _TangibleEvent_H_
-#define _TangibleEvent_H_
+#ifndef _NodeChain_h_
+#define _NodeChain_h_
 
 #include "../api.h"
-#include "CursorEvent.h"
+#include "Node.h"
 
+#include "../base/GLMHelper.h"
+
+#include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+
+#include <vector>
 
 namespace avg {
 
-class AVG_API TangibleEvent: public CursorEvent 
+class AVG_API NodeChain
 {
     public:
-        TangibleEvent(int id, int markerID, Type eventType, const IntPoint& pos, 
-                const glm::vec2& speed, float orientation);
-        virtual ~TangibleEvent();
-        virtual CursorEventPtr copy() const;
+        NodeChain();
 
-        int getMarkerID() const;
-        float getOrientation() const;
+        void append(const NodePtr& pNode);
+        NodePtr getNode(unsigned i) const;
+        NodePtr getLeaf() const;
+        bool empty() const;
+        unsigned getSize() const;
+        bool contains(const NodePtr& pNode) const;
+        NodeChainPtr createPartialChain(unsigned i) const;
+        glm::vec2 getCanvasPos(const glm::vec2& pos) const;
 
-        virtual void trace();
+        void dump() const;
 
     private:
-        int m_MarkerID;
-        float m_Orientation;
+        std::vector<NodePtr> m_pNodes; // Stored leaf-first
 };
 
-typedef boost::shared_ptr<class TangibleEvent> TangibleEventPtr;
-typedef boost::weak_ptr<class TangibleEvent> TangibleEventWeakPtr;
+typedef boost::shared_ptr<class NodeChain> NodeChainPtr;
 
 }
+
 #endif

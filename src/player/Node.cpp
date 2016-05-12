@@ -30,6 +30,7 @@
 #include "CursorEvent.h"
 #include "PublisherDefinition.h"
 #include "GPUImage.h"
+#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -140,15 +141,15 @@ DivNodePtr Node::getParent() const
     }
 }
 
-vector<NodePtr> Node::getParentChain()
+NodeChainPtr Node::getParentChain()
 {
-    vector<NodePtr> pNodes;
+    NodeChainPtr pChain(new NodeChain);
     NodePtr pCurNode = getSharedThis();
     while (pCurNode) {
-        pNodes.push_back(pCurNode);
+        pChain->append(pCurNode);
         pCurNode = pCurNode->getParent();
     }
-    return pNodes;
+    return pChain;
 }
 
 void Node::connectDisplay()
@@ -358,16 +359,12 @@ glm::vec2 Node::toGlobal(const glm::vec2& localPos) const
 
 NodePtr Node::getElementByPos(const glm::vec2& pos)
 {
-    vector<NodePtr> elements;
-    getElementsByPos(pos, elements);
-    if (elements.empty()) {
-        return NodePtr();
-    } else {
-        return elements[0];
-    }
+    NodeChainPtr pElements(new NodeChain);
+    getElementsByPos(pos, pElements);
+    return pElements->getLeaf();
 }
 
-void Node::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void Node::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
 }
 
