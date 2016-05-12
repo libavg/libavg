@@ -46,8 +46,9 @@ class AVG_API NodeChain
         unsigned getSize() const;
         bool contains(const NodePtr& pNode) const;
         NodeChainPtr createPartialChain(unsigned i) const;
-//        std::vector<NodeWeakPtr> getWeakChain() const;
         glm::vec2 getCanvasPos(const glm::vec2& pos) const;
+
+        void dump() const;
 
     private:
         std::vector<NodePtr> m_pNodes; // Stored leaf-first

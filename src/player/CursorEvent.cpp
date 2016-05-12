@@ -39,6 +39,7 @@ namespace avg {
 CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& pos, Source source,
         int when)
     : Event(eventType, source, when),
+      m_AbsPos(pos),
       m_Pos(pos),
       m_ID(id),
       m_UserID(-1),
@@ -62,13 +63,6 @@ CursorEventPtr CursorEvent::cloneAs(Type eventType) const
     if (eventType != UNKNOWN) {
         pClone->m_Type = eventType;
     }
-    return pClone;
-}
-
-CursorEventPtr CursorEvent::cloneAs(Type eventType, const glm::vec2& pos) const
-{
-    CursorEventPtr pClone = cloneAs(eventType);
-    pClone->m_Pos = IntPoint(pos);
     return pClone;
 }
 
@@ -116,6 +110,7 @@ int CursorEvent::getJointID() const
 void CursorEvent::setNodeChain(NodeChainPtr pChain)
 {
     m_pNodeChain = pChain;
+    m_Pos = m_pNodeChain->getCanvasPos(m_AbsPos);
 }
 
 void CursorEvent::clearNodeData()
@@ -150,8 +145,7 @@ ContactPtr CursorEvent::getContact() const
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
-    return (event1.m_Pos == event2.m_Pos && 
-            event1.getWhen() == event2.getWhen()); 
+    return (event1.m_Pos == event2.m_Pos && event1.getWhen() == event2.getWhen());
 }
 
 void CursorEvent::trace()

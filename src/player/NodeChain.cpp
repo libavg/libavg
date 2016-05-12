@@ -20,6 +20,7 @@
 //
 
 #include "NodeChain.h"
+#include "ImageNode.h"
 
 #include "../base/Exception.h"
 
@@ -80,11 +81,37 @@ NodeChainPtr NodeChain::createPartialChain(unsigned leafIndex) const
 glm::vec2 NodeChain::getCanvasPos(const glm::vec2& pos) const
 {
     // Find bottom canvas node in chain
-    // apply transforms from root to bottom canvas node.
-    return pos;
+    unsigned i=0;
+    bool bIsCanvas = false;
+    while (!bIsCanvas && i<m_pNodes.size()) {
+        ImageNodePtr pNode = dynamic_pointer_cast<ImageNode>(m_pNodes[i]);
+        if (pNode && pNode->getSource() == GPUImage::SCENE) {
+            bIsCanvas = true;
+        } else {
+            i++;
+        }
+    }
+    unsigned lastCanvasNode = i;
+
+    // Recursively apply transforms from root to bottom canvas node.
+    glm::vec2 localPos = pos;
+    for (int j=int(m_pNodes.size()-1); j>=int(lastCanvasNode); --j) {
+        ImageNodePtr pImageNode = dynamic_pointer_cast<ImageNode>(m_pNodes[j]);
+        if (pImageNode && pImageNode->getSource() == GPUImage::SCENE) {
+            localPos = pImageNode->toCanvasPos(localPos);
+        }
+    }
+
+    return localPos;
 }
 
-
+void NodeChain::dump() const
+{
+    for (NodePtr pNode: m_pNodes) {
+        cerr << pNode->getTypeStr() << " ";
+    }
+    cerr << endl;
+}
 
 
 }
