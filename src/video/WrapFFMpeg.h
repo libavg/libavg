@@ -75,10 +75,17 @@ extern "C" {
 #endif
 }
 
+// Old ffmpeg has PixelFormat, new ffmpeg uses AVPixelFormat.
+// Intermediate versions define PixelFormat in terms of AVPixelFormat for compatibility.
+// libavg also defines avg::PixelFormat.
 #ifdef PixelFormat
+    // In this case, PixelFormat is #defined and collides with avg::PixelFormat.
+    // AVPixelFormat is also defined.
     #undef PixelFormat
 #endif
 #ifndef AV_PIX_FMT_NE
+    // Old version, no AVPixelFormat defined.
+    // ::PixelFormat is a typedef, so no collision with avg::PixelFormat.
     #define AVPixelFormat ::PixelFormat
     #define AV_PIX_FMT_NONE PIX_FMT_NONE
     #define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
