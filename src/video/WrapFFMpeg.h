@@ -76,9 +76,9 @@ extern "C" {
 }
 
 #ifdef PixelFormat
-#undef PixelFormat
-#else
-    #define AVPixelFormat ::PixelFormat
+    #undef PixelFormat
+#endif
+#ifndef AV_PIX_FMT_NE
     #define AV_PIX_FMT_NONE PIX_FMT_NONE
     #define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
     #define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
