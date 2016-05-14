@@ -250,9 +250,11 @@ void GLContextManager::uploadDataForContext()
 
 void GLContextManager::reset()
 {
+    // Tex deletes are cleared first, because clearing the creates/uploads can actually
+    // cause texture deletes to be scheduled!
+    m_PendingTexDeletes.clear();
     m_pPendingTexCreates.clear();
     m_pPendingTexUploads.clear();
-    m_PendingTexDeletes.clear();
 
     m_pPendingFBOCreates.clear();
     m_pPendingShaderParamCreates.clear();
