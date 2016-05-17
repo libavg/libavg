@@ -95,7 +95,7 @@ ArgBase* Arg<T>::createCopy() const
 }
 
 #ifdef AVG_PLUGIN
-#ifdef LINUX_PLATFORM
+#ifdef __linux__
 // Under Linux, templates used by plugins need to be instantiated explicitly if
 // RTTI is needed. Templates instantiated implicitly get instantiated again in the
 // plugin with a different typeid. 
