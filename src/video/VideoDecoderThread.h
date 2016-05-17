@@ -47,7 +47,7 @@ typedef boost::shared_ptr<FFMpegFrameDecoder> FFMpegFrameDecoderPtr;
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
         VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, VideoMsgQueue& packetQ, 
-                AVStream* pStream, const IntPoint& size, PixelFormat pf, bool bUseVDPAU);
+                AVStream* pStream, const IntPoint& size, PixelFormat pf);
         virtual ~VideoDecoderThread();
         virtual bool init();
         virtual void deinit();
@@ -74,7 +74,6 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         
         IntPoint m_Size;
         PixelFormat m_PF;
-        bool m_bUseVDPAU;
 
         bool m_bSeekDone;
         bool m_bProcessingLastFrames;

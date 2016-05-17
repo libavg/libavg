@@ -19,10 +19,6 @@ ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h VideoDecoder.h \
         AsyncVideoDecoder.h VideoDecoderThread.h SyncVideoDecoder.h \
         VideoInfo.h WrapFFMpeg.h
 
-if USE_VDPAU_SRC
-    ALL_H += VDPAUDecoder.h VDPAUHelper.h
-endif
-
 TESTS = testvideo
 
 EXTRA_DIST = $(wildcard baseline/*.png)
@@ -35,10 +31,6 @@ libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp VideoDecoder.cpp 
         AsyncVideoDecoder.cpp VideoInfo.cpp SyncVideoDecoder.cpp \
         FFMpegFrameDecoder.cpp WrapFFMpeg.cpp \
         $(ALL_H)
-
-if USE_VDPAU_SRC
-    libvideo_la_SOURCES += VDPAUDecoder.cpp VDPAUHelper.cpp
-endif
 
 libvideo_la_LIBADD = @LIBVIDEO_LDADD@
 

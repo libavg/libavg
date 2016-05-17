@@ -297,7 +297,7 @@ void SoundNode::seek(long long destTime)
 
 void SoundNode::open()
 {
-    m_pDecoder->open(m_Filename, false, true);
+    m_pDecoder->open(m_Filename, true);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 

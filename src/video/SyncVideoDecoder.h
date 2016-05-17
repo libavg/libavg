@@ -36,8 +36,7 @@ class AVG_API SyncVideoDecoder: public VideoDecoder
     public:
         SyncVideoDecoder();
         virtual ~SyncVideoDecoder();
-        virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
-                bool bEnableSound);
+        virtual void open(const std::string& sFilename, bool bEnableSound);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
 
