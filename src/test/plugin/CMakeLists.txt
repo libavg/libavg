@@ -19,9 +19,7 @@ target_include_directories(colorplugin PUBLIC ${PLUGIN_INCLUDES})
 set_target_properties(${PLUGIN_NAME} PROPERTIES PREFIX "")
 target_compile_options(${PLUGIN_NAME} PUBLIC -Wall -pedantic -std=c++11)
 if (${PLATFORM_LINUX})
-    target_link_libraries(${PLUGIN_NAME} ${PLUGIN_LIBS}
-        ${CMAKE_BINARY_DIR}/src/wrapper/avg.so
-        )
+    target_link_libraries(${PLUGIN_NAME} ${PLUGIN_LIBS} avg)
 
 elseif (${PLATFORM_MACOSX})
     target_link_libraries(${PLUGIN_NAME} -bundle -flat_namespace "-undefined suppress")
