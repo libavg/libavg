@@ -1,9 +1,10 @@
 if(${AVG_ENABLE_V4L2})
     set(IMAGING_SOURCES V4LCamera.cpp)
+    set (IMAGING_LIBS ${JPEG_LIBRARIES})
 endif()
 if(${AVG_ENABLE_1394_2})
     set(IMAGING_SOURCES ${IMAGING_SOURCES} FWCameraUtils.cpp)
-    set (IMAGING_LIBS ${DC1394_2_LDFLAGS})
+    set (IMAGING_LIBS ${IMAGING_LIBS} ${DC1394_2_LDFLAGS})
 endif()
 
 # TODO these CMU1394 and DSHOW are not mentioned in the Makefile.am
@@ -20,6 +21,6 @@ add_library(imaging
     ${IMAGING_SOURCES}
     Camera.cpp FWCamera.cpp FakeCamera.cpp CameraInfo.cpp)
 target_include_directories(imaging
-    PUBLIC ${Boost_INCLUDE_DIRS})
+    PUBLIC ${Boost_INCLUDE_DIRS} ${JPEG_INCLUDE_DIRS})
 target_link_libraries(imaging
     PUBLIC ${IMAGING_LIBS})

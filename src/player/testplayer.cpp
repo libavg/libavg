@@ -66,7 +66,7 @@ public:
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
 #endif
-            ShaderRegistry::setShaderPath(Test::getSrcDir()+"../graphics/shaders/");
+            ShaderRegistry::setShaderPath(Test::getSrcDir()+"/../..//shaders");
             player.initPlayback();
             player.doFrame(false);
             player.cleanup(false);
@@ -84,7 +84,7 @@ public:
     PlayerTestSuite() 
         : TestSuite("PlayerTestSuite")
     {
-        Test::setRelSrcDir("libavg/src/player/");
+        Test::setRelSrcDir(".");
         addTest(TestPtr(new PlayerTest));
     }
 };

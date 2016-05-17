@@ -51,6 +51,13 @@ link_libraries(graphics)
 add_executable(testgraphics testgraphics.cpp)
 add_executable(benchmarkgraphics benchmarkgraphics.cpp)
 add_executable(testgpu testgpu.cpp)
-add_test(NAME testgraphics COMMAND testgraphics)
-add_test(NAME testgpu COMMAND testgpu)
+add_test(NAME testgraphics
+    COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testgraphics
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
+add_test(NAME testgpu
+    COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testgpu
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
+include(testhelper)
+addTestToLibavgPythonPackage(testgpu)
+addTestToLibavgPythonPackage(testgraphics)

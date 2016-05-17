@@ -16,6 +16,7 @@ endfunction(set_cxx_version)
 
 project(libavg)
 cmake_minimum_required(VERSION 2.8)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 # libavg release version
 set(AVG_VERSION_MAJOR 1)
@@ -59,8 +60,6 @@ find_path(VIDEODEV2_FOUND
     PATH_SUFFIXES linux
     DOC "Video for Linux Two header file include directory")
 
-
-
 # options
 
 set(AVG_ENABLE_EGL FALSE CACHE BOOL "include EGL support")
@@ -69,8 +68,9 @@ set(AVG_ENABLE_RPI FALSE CACHE BOOL "configure for RaspberryPi")
 if(${DC1394_2_FOUND})
     set(AVG_ENABLE_1394_2 TRUE CACHE BOOL "compile support for firewire cameras")
 endif()
-if(${VIDEODEV2_FOUND})
-    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "compile support for video4linux v2 video devices")
+if(VIDEODEV2_FOUND)
+    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "Compile support for video4linux v2 video devices")
+    find_package(JPEG REQUIRED)
 endif()
 
 
@@ -163,6 +163,8 @@ else()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
         --force-new-ctest-process --output-on-failure)
 endif()
+# Run copy_python_test custom target before make check to ease development
+add_dependencies(check copy_python_tests)
 
 configure_file(
     "${PROJECT_SOURCE_DIR}/src/avgconfig.h.cmake.in"

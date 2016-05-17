@@ -1,46 +1,61 @@
-import os
 import glob
+import os
+import re
+
+import distutils.command.install_lib
 from distutils.core import setup
-from distutils.command.build_py import build_py as _build_py
-from distutils.command.build_scripts import build_scripts as _build_scripts
 
 
-class MyBuildPy(_build_py):
-    # (source path, destination path relative to the top dir)
-    EXTRA_DATA_DIRS = [
-        (os.path.join('${CMAKE_SOURCE_DIR}', 'src', 'graphics', 'shaders'),
-        os.path.join('libavg', 'shaders'))
-    ]
+def listDataFiles(dirPath):
+    ignoreList = ['.git']
+    dataFiles = []
 
-    def build_package_data(self):
-        _build_py.build_package_data(self)
+    head, tail = os.path.split(os.path.normpath(dirPath))
 
-        self.copy_file('$<TARGET_FILE:avg>', os.path.join(self.build_lib, 'libavg'))
+    for root, _, files in os.walk(dirPath):
+        if root in ignoreList:
+            continue
 
-        # Incorporating data outside the source package
-        # under distutils, package_data cannot be used with absolute paths
-        for extraDir, target in self.EXTRA_DATA_DIRS:
-            self.copy_tree(extraDir, os.path.join(self.build_lib, target))
+        for file_ in files:
+            fullPath = os.path.join(root, file_)
+            subPath = fullPath.replace('{}{}'.format(head, os.path.sep), '')
+            if '~' not in subPath:
+                dataFiles.append(subPath)
+
+    return dataFiles
 
 
-class MyBuildScripts(_build_scripts):
-    CUE_FILE = os.path.join('${CMAKE_CURRENT_BINARY_DIR}', 'cuefile')
+# see: http://stackoverflow.com/questions/11594905/how-do-i-correctly-pass-cmake-list-semicolon-sep-of-flags-to-set-target-proper
+class my_install_lib(distutils.command.install_lib.install_lib):
+    def run(self):
+        testBinaryRegex =  re.compile(r'^test\w+$')
 
-    def finalize_options(self):
-        _build_scripts.finalize_options(self)
-        
-        # Avoid to force when the python interpreter hasn't changed since last build
-        if (not os.path.exists(self.CUE_FILE) or
-                open(self.CUE_FILE).read() != '${PYTHON_INTERPRETER}'):
-            self.force = True
-            open(self.CUE_FILE, 'w').write('${PYTHON_INTERPRETER}')
+        distutils.command.install_lib.install_lib.run(self)
+
+        for fn in self.get_outputs():
+            # Hack to set executable bit for libavg cpptest
+            basename = os.path.basename(fn)
+            if testBinaryRegex.match(basename) or basename == 'Test.py':
+                mode = ((os.stat(fn).st_mode) | 0555) & 07777
+                os.chmod(fn, mode)
 
 
 setup(name='libavg',
     version='${AVG_VERSION_RELEASE}',
-    package_dir={'':  '${CMAKE_CURRENT_SOURCE_DIR}'},
-    packages=['libavg', 'libavg.app', 'libavg.widget'],
-    package_data={'libavg': ['data/*']},
-    cmdclass={'build_py': MyBuildPy, 'build_scripts': MyBuildScripts},
-    scripts=glob.glob('${CMAKE_CURRENT_SOURCE_DIR}/scripts/avg_*'),
+    packages=[
+        'libavg',
+        'libavg.app',
+        'libavg.widget',
+    ],
+    package_data={
+        '': listDataFiles(os.path.join('libavg', 'data')) +
+            listDataFiles(os.path.join('libavg', 'shaders')) +
+            listDataFiles(os.path.join('libavg', 'test')) +
+            ['avg.so', ]
+    },
+    cmdclass={
+        'install_lib': my_install_lib
+    },
+    scripts=glob.glob('scripts/avg_*'),
 )
+

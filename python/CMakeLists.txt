@@ -4,20 +4,26 @@ find_program(PYTHON_INTERPRETER python)
 
 message(STATUS "Using python intepreter: ${PYTHON_INTERPRETER}")
 
-set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
-set(SETUP_PY_CF "${CMAKE_CURRENT_BINARY_DIR}/setup.py.cf")
-set(SETUP_PY    "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+# Out of source build requires a copy of package, setup.py and scripts
+if(NOT CMAKE_CURRENT_SOURCE_DIR EQUAL CMAKE_CURRENT_BINARY_DIR)
+    message(STATUS "Copying python package to build directory")
 
-configure_file("${SETUP_PY_IN}" "${SETUP_PY_CF}")
+    file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/libavg"
+            "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
+         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
 
-file(GENERATE
-     OUTPUT "${SETUP_PY}"
-     INPUT "${SETUP_PY_CF}")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in" "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
 
-add_custom_target(python-package ALL DEPENDS avg
-                  COMMAND ${PYTHON_INTERPRETER} ${SETUP_PY} build)
+file(COPY "${CMAKE_SOURCE_DIR}/src/graphics/shaders"
+     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/libavg")
 
-install(CODE "execute_process(COMMAND ${PYTHON_INTERPRETER} ${SETUP_PY} install
+add_custom_target(python-build ALL DEPENDS avg
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:avg>"
+            "${CMAKE_CURRENT_BINARY_DIR}/libavg/"
+    COMMAND ${PYTHON_INTERPRETER} setup.py build)
+
+install(CODE "execute_process(COMMAND ${PYTHON_INTERPRETER} setup.py install
               WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
 # How do I get Clion to run an install target?
