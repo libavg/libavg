@@ -44,8 +44,6 @@ find_path(VIDEODEV2_FOUND
     PATH_SUFFIXES linux
     DOC "Video for Linux Two header file include directory")
 
-
-
 # options
 
 set(AVG_ENABLE_EGL FALSE CACHE BOOL "include EGL support")
@@ -54,8 +52,9 @@ set(AVG_ENABLE_RPI FALSE CACHE BOOL "configure for RaspberryPi")
 if(${DC1394_2_FOUND})
     set(AVG_ENABLE_1394_2 TRUE CACHE BOOL "compile support for firewire cameras")
 endif()
-if(${VIDEODEV2_FOUND})
-    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "compile support for video4linux v2 video devices")
+if(VIDEODEV2_FOUND)
+    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "Compile support for video4linux v2 video devices")
+    find_package(JPEG REQUIRED)
 endif()
 
 
