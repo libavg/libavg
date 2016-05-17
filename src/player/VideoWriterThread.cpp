@@ -216,7 +216,7 @@ AVFrame* VideoWriterThread::createFrame(AVPixelFormat pixelFormat, IntPoint size
 {
     AVFrame* pPicture;
 
-    pPicture = avcodec_alloc_frame();
+    pPicture = av_frame_alloc();
 
     int memNeeded = avpicture_get_size(pixelFormat, size.x, size.y);
     m_pPictureBuffer = static_cast<unsigned char*>(av_malloc(memNeeded));
