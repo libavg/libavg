@@ -209,6 +209,11 @@ class Recognizer(avg.Publisher):
         else:
             return True
 
+    def _relEventPos(self, node, event):
+        if not(isinstance(node, avg.CanvasNode)):
+            node = node.getParent()
+        return event.contact.getRelPos(node, event.pos)
+
     def __setEventHandler(self):
         if self.__node:
             self.__downHandlerID = self.__node.subscribe(
@@ -518,14 +523,14 @@ class DragRecognizer(Recognizer):
                 self._setDetected(event)
             else:
                 self._setPossible(event)
-            pos = self.__relEventPos(event)
+            pos = self._relEventPos(self.__coordSysNode(), event)
             self.__dragStartPos = pos
             self.__lastPos = pos
 
     def _handleMove(self, event):
         if not self._handleCoordSysNodeUnlinked():
             if self.getState() != "IDLE":
-                pos = self.__relEventPos(event)
+                pos = self._relEventPos(self.__coordSysNode(), event)
                 offset = pos - self.__dragStartPos
                 if self.getState() == "RUNNING":
                     self.notifySubscribers(Recognizer.MOTION, [offset])
@@ -543,7 +548,7 @@ class DragRecognizer(Recognizer):
     def _handleUp(self, event):
         if not self._handleCoordSysNodeUnlinked():
             if self.getState() != "IDLE":
-                pos = self.__relEventPos(event)
+                pos = self._relEventPos(self.__coordSysNode(), event)
                 if self.getState() == "RUNNING":
                     self.__offset = pos - self.__dragStartPos
                     self.notifySubscribers(Recognizer.UP, [self.__offset])
@@ -581,13 +586,6 @@ class DragRecognizer(Recognizer):
             self._setFail(None)
         else:
             self._setEnd(None)
-
-    def __relEventPos(self, event):
-        if isinstance(self.__coordSysNode(), avg.CanvasNode):
-            node = self.__coordSysNode()
-        else:
-            node = self.__coordSysNode().getParent()
-        return event.contact.getRelPos(node, event.pos)
 
     def __angleFits(self, offset):
         angle = offset.getAngle()
@@ -921,10 +919,7 @@ class TransformRecognizer(Recognizer):
             return rawPos
 
     def __relContactPos(self, contact):
-        if isinstance(self.__coordSysNode(), avg.CanvasNode):
-            return contact.events[-1].pos
-        else:
-            return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
+        return self._relEventPos(self.__coordSysNode(), contact.events[-1])
 
     def __isFiltered(self):
         return TransformRecognizer.FILTER_MIN_CUTOFF is not None
