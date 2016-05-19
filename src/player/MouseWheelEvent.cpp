@@ -46,9 +46,10 @@ const glm::vec2& MouseWheelEvent::getMotion() const
     return m_Motion;
 }
 
-CursorEventPtr MouseWheelEvent::copy() const
+CursorEventPtr MouseWheelEvent::cloneAs(Type eventType) const
 {
-    return MouseWheelEventPtr(new MouseWheelEvent(*this));
+    MouseWheelEventPtr pClone(new MouseWheelEvent(*this));
+    return pClone;
 }
 
 void MouseWheelEvent::trace()

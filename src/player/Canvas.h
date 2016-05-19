@@ -101,6 +101,8 @@ class AVG_API Canvas: public ExportedObject
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
+        std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
+
         virtual void renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, 
                 const IntRect& viewport);
         void scheduleFXRender(const RasterNodePtr& pNode);

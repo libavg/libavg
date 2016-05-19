@@ -84,7 +84,8 @@ class AVG_API AreaNode: public Node
         virtual glm::vec2 toLocal(const glm::vec2& globalPos) const;
         virtual glm::vec2 toGlobal(const glm::vec2& localPos) const;
         
-        virtual void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
+        virtual void getElementsByPos(const glm::vec2& pos, 
+                std::vector<NodePtr>& pElements);
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
                 float parentEffectiveOpacity);

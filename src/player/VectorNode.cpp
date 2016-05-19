@@ -25,7 +25,6 @@
 #include "TypeRegistry.h"
 #include "OGLSurface.h"
 #include "Shape.h"
-#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -179,11 +178,11 @@ void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
     }
 }
 
-void VectorNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
+void VectorNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 {
     checkRedraw();
     if (reactsToMouseEvents() && isInside(pos)) {
-        pElements->append(getSharedThis());
+        pElements.push_back(getSharedThis());
     }
 }
 

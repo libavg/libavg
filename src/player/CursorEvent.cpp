@@ -25,7 +25,6 @@
 
 #include "Node.h"
 #include "Contact.h"
-#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -36,11 +35,10 @@ using namespace std;
 
 namespace avg {
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& pos, Source source,
+CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
         int when)
     : Event(eventType, source, when),
-      m_AbsPos(pos),
-      m_Pos(pos),
+      m_Position(position),
       m_ID(id),
       m_UserID(-1),
       m_JointID(-1),
@@ -52,14 +50,9 @@ CursorEvent::~CursorEvent()
 {
 }
 
-CursorEventPtr CursorEvent::copy() const
-{
-    return CursorEventPtr(new CursorEvent(*this));
-}
-
 CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 {
-    CursorEventPtr pClone = copy();
+    CursorEventPtr pClone(new CursorEvent(*this));
     if (eventType != UNKNOWN) {
         pClone->m_Type = eventType;
     }
@@ -72,19 +65,24 @@ void CursorEvent::setUserID(int userID, int jointID)
     m_JointID = jointID;
 }
 
+void CursorEvent::setPos(const glm::vec2& pos)
+{
+    m_Position = IntPoint(pos);
+}
+
 glm::vec2 CursorEvent::getPos() const
 {
-    return glm::vec2(m_Pos);
+    return glm::vec2(m_Position);
 }
 
 int CursorEvent::getXPosition() const
 {
-    return m_Pos.x;
+    return m_Position.x;
 }
 
 int CursorEvent::getYPosition() const
 {
-    return m_Pos.y;
+    return m_Position.y;
 }
 
 void CursorEvent::setCursorID(int id)
@@ -107,20 +105,14 @@ int CursorEvent::getJointID() const
     return m_JointID;
 }
 
-void CursorEvent::setNodeChain(NodeChainPtr pChain)
+void CursorEvent::setNode(NodePtr pNode)
 {
-    m_pNodeChain = pChain;
-    m_Pos = m_pNodeChain->getCanvasPos(m_AbsPos);
-}
-
-void CursorEvent::clearNodeData()
-{
-    m_pNodeChain = NodeChainPtr();
+    m_pNode = pNode;
 }
 
 NodePtr CursorEvent::getNode() const
 {
-    return m_pNodeChain->getLeaf();
+    return m_pNode;
 }
         
 void CursorEvent::setSpeed(glm::vec2 speed)
@@ -145,7 +137,8 @@ ContactPtr CursorEvent::getContact() const
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
-    return (event1.m_Pos == event2.m_Pos && event1.getWhen() == event2.getWhen());
+    return (event1.m_Position == event2.m_Position && 
+            event1.getWhen() == event2.getWhen()); 
 }
 
 void CursorEvent::trace()

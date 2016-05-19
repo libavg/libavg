@@ -46,7 +46,7 @@ ALL_H = Player.h PluginManager.h InputDevice.h VideoNode.h ExportedObject.h \
         SVG.h SVGElement.h Publisher.h SubscriberInfo.h PublisherDefinition.h \
         PublisherDefinitionRegistry.h MessageID.h VersionInfo.h \
         PythonLogSink.h BitmapManager.h BitmapManagerThread.h IBitmapLoadedListener.h \
-        BitmapManagerMsg.h SDLTouchInputDevice.h NodeChain.h \
+        BitmapManagerMsg.h SDLTouchInputDevice.h \
         $(GL_INCLUDES)
 
 TESTS = testplayer
@@ -85,6 +85,6 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         SVG.cpp SVGElement.cpp Publisher.cpp SubscriberInfo.cpp PublisherDefinition.cpp \
         PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp \
         PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp \
-        BitmapManagerMsg.cpp SDLTouchInputDevice.cpp NodeChain.cpp \
+        BitmapManagerMsg.cpp SDLTouchInputDevice.cpp \
         $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

@@ -41,9 +41,13 @@ TangibleEvent::~TangibleEvent()
 {
 }
 
-CursorEventPtr TangibleEvent::copy() const
+CursorEventPtr TangibleEvent::cloneAs(Type eventType) const
 {
-    return TangibleEventPtr(new TangibleEvent(*this));
+    TangibleEventPtr pClone(new TangibleEvent(*this));
+    if (eventType != UNKNOWN) {
+        pClone->m_Type = eventType;
+    }
+    return pClone;
 }
 
 int TangibleEvent::getMarkerID() const

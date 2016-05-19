@@ -126,7 +126,8 @@ void Contact::addEvent(CursorEventPtr pEvent)
     pEvent->setContact(boost::dynamic_pointer_cast<Contact>(shared_from_this()));
     calcSpeed(pEvent, m_Events.back());
     updateDistanceTravelled(m_Events.back(), pEvent);
-    m_Events.back()->clearNodeData();
+    m_Events.back()->removeBlob();
+    m_Events.back()->setNode(NodePtr());
     m_Events.push_back(pEvent);
 }
 

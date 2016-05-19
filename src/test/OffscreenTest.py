@@ -207,38 +207,6 @@ class OffscreenTestCase(AVGTestCase):
                         self.__mainDownCalled),
                 ))
 
-    def testCanvasContactEvents(self):
-        def onDown(event):
-            contact = event.contact
-            self.assert_(event.pos == (5,5))
-            contact.subscribe(avg.Contact.CURSOR_MOTION, onMotion)
-            contact.subscribe(avg.Contact.CURSOR_UP, onUp)
-            self.downCalled = True
-
-        def onMotion(event):
-            self.assert_(event.pos == (4,4))
-            self.motionCalled = True
-
-        def onUp(event):
-            self.assert_(event.pos == (3,3))
-            self.upCalled = True
-
-        self.downCalled = False
-        self.motionCalled = False
-        self.upCalled = False
-        mainCanvas, offscreenCanvas = self.__setupCanvas(True)
-        offscreenImage = offscreenCanvas.getElementByID("test1")
-        offscreenImage.subscribe(avg.Node.CURSOR_DOWN, onDown)
-        self.node.pos = (10,10)
-        self.start(False,
-                (lambda: self._sendTouchEvent(1, avg.Event.CURSOR_DOWN, 15, 15),
-                 lambda: self.assert_(self.downCalled),
-                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_MOTION, 14, 14),
-                 lambda: self.assert_(self.motionCalled),
-                 lambda: self._sendTouchEvent(1, avg.Event.CURSOR_UP, 13, 13),
-                 lambda: self.assert_(self.upCalled),
-                ))
-
     def testCanvasEventCapture(self):
         def onOffscreenImageDown(event):
             self.__offscreenImageDownCalled = True
@@ -508,7 +476,6 @@ def offscreenTestSuite(tests):
                 "testCanvasErrors",
                 "testCanvasAPI",
                 "testCanvasEvents",
-                "testCanvasContactEvents",
                 "testCanvasEventCapture",
                 "testCanvasRender",
                 "testCanvasAutoRender",

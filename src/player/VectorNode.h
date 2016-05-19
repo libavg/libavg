@@ -70,7 +70,7 @@ class AVG_API VectorNode : public Node
         virtual void maybeRender(GLContext* pContext, const glm::mat4& parentTransform);
         virtual void render(GLContext* pContext, const glm::mat4& transform);
 
-        void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 

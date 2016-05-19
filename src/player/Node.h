@@ -60,8 +60,6 @@ class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
-class NodeChain;
-typedef boost::shared_ptr<NodeChain> NodeChainPtr;
 class GPUImage;
 typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
@@ -81,7 +79,7 @@ class AVG_API Node: public Publisher
         virtual void removeParent();
         void checkSetParentError(DivNode* pParent);
         DivNodePtr getParent() const;
-        NodeChainPtr getParentChain();
+        std::vector<NodePtr> getParentChain();
 
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
@@ -115,7 +113,8 @@ class AVG_API Node: public Publisher
         virtual glm::vec2 toLocal(const glm::vec2& pos) const;
         virtual glm::vec2 toGlobal(const glm::vec2& pos) const;
         NodePtr getElementByPos(const glm::vec2& pos);
-        virtual void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
+        virtual void getElementsByPos(const glm::vec2& pos, 
+                std::vector<NodePtr>& pElements);
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);

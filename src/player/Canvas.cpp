@@ -232,6 +232,13 @@ Player* Canvas::getPlayer() const
     return m_pPlayer;
 }
 
+vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
+{
+    vector<NodePtr> elements;
+    m_pRootNode->getElementsByPos(pos, elements);
+    return elements;
+}
+
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
 static ProfilingZoneID VATransferProfilingZone("VA Transfer");
 

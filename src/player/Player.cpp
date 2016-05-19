@@ -61,7 +61,6 @@
 #include "TypeRegistry.h"
 #include "CursorState.h"
 #include "TestHelper.h"
-#include "NodeChain.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -1355,11 +1354,11 @@ void Player::sendFakeEvents()
 }
 
 void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
-        NodeChainPtr pChain)
+        NodePtr pNode)
 {
-    if (!pChain->empty()) {
+    if (pNode) {
         CursorEventPtr pNewEvent = pOtherEvent->cloneAs(type);
-        pNewEvent->setNodeChain(pChain);
+        pNewEvent->setNode(pNode);
         m_pEventDispatcher->sendEvent(pNewEvent);
     }
 }
@@ -1367,7 +1366,7 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
 void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     // Find all nodes under the cursor.
-    NodeChainPtr pCursorNodes(new NodeChain);
+    vector<NodePtr> pCursorNodes;
     DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
     if (!pEventReceiverNode) {
         pEventReceiverNode = getRootNode();
@@ -1375,8 +1374,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
     ContactPtr pContact = pEvent->getContact();
     if (pContact && !bOnlyCheckCursorOver) {
-        if (!pCursorNodes->empty()) {
-            pEvent->setNodeChain(pCursorNodes);
+        if (!pCursorNodes.empty()) {
+            NodePtr pNode = *(pCursorNodes.begin());
+            pEvent->setNode(pNode);
         }
         pContact->sendEventToListeners(pEvent);
     }
@@ -1384,9 +1384,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     int cursorID = pEvent->getCursorID();
 
     // Determine the nodes the event should be sent to.
-    NodeChainPtr pDestNodes = pCursorNodes;
+    vector<NodePtr> pDestNodes = pCursorNodes;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
-        NodeWeakPtr pEventCaptureNode = m_EventCaptureInfoMap[cursorID]->m_pNode;
+        NodeWeakPtr pEventCaptureNode = 
+                m_EventCaptureInfoMap[cursorID]->m_pNode;
         if (pEventCaptureNode.expired()) {
             m_EventCaptureInfoMap.erase(cursorID);
         } else {
@@ -1395,7 +1396,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     if (pEvent->getType() != Event::MOUSE_WHEEL) {
-        NodeChainPtr pLastCursorNodes(new NodeChain);
+        vector<NodePtr> pLastCursorNodes;
         {
             map<int, CursorStatePtr>::iterator it;
             it = m_pLastCursorStates.find(cursorID);
@@ -1405,19 +1406,34 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
 
         // Send out events.
-        for (unsigned i=0; i<pLastCursorNodes->getSize(); ++i) {
-            NodePtr pLastNode = pLastCursorNodes->getNode(i);
-            if (!pCursorNodes->contains(pLastNode)) {
-                sendOver(pEvent, Event::CURSOR_OUT,
-                        pLastCursorNodes->createPartialChain(i));
+        vector<NodePtr>::const_iterator itLast;
+        vector<NodePtr>::iterator itCur;
+        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
+                ++itLast)
+        {
+            NodePtr pLastNode = *itLast;
+            for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+                if (*itCur == pLastNode) {
+                    break;
+                }
+            }
+            if (itCur == pCursorNodes.end()) {
+                sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
             }
         }
 
         // Send over events.
-        for (unsigned i=0; i<pCursorNodes->getSize(); ++i) {
-            NodePtr pCurNode = pCursorNodes->getNode(i);
-            if (!pLastCursorNodes->contains(pCurNode)) {
-                sendOver(pEvent, Event::CURSOR_OVER, pCursorNodes->createPartialChain(i));
+        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+            NodePtr pCurNode = *itCur;
+            for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
+                    ++itLast)
+            {
+                if (*itLast == pCurNode) {
+                    break;
+                }
+            }
+            if (itLast == pLastCursorNodes.end()) {
+                sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
             }
         }
     }
@@ -1425,24 +1441,24 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     if (!bOnlyCheckCursorOver) {
         // Events that pass through canvases need to have their pos transformed.
         // So we keep an array of events that only differ in their pos.
-        vector<CursorEventPtr> pLocalEvents(pDestNodes->getSize());
+        vector<CursorEventPtr> pLocalEvents(pDestNodes.size());
         CursorEventPtr pCurEvent = pEvent->cloneAs();
-        for (int i=pDestNodes->getSize()-1; i>=0; --i) {
-            NodePtr pNode = pDestNodes->getNode(i);
+        for (int i=pDestNodes.size()-1; i>=0; --i) {
+            NodePtr pNode = pDestNodes[i];
             pLocalEvents[i] = pCurEvent;
             ImageNodePtr pImgNode = dynamic_pointer_cast<ImageNode>(pNode);
             if (pImgNode && pImgNode->getSource() == GPUImage::SCENE) {
-                pCurEvent = pCurEvent->cloneAs(Event::UNKNOWN);
-                pCurEvent->setNodeChain(pDestNodes->createPartialChain(i));
+                pCurEvent = pCurEvent->cloneAs();
+                pCurEvent->setPos(pImgNode->toCanvasPos(pCurEvent->getPos()));
             }
         }
 
         // Iterate through the nodes and send the event to all of them.
-        for (unsigned i=0; i<pDestNodes->getSize(); ++i) {
-            NodePtr pNode = pDestNodes->getNode(i);
+        for (unsigned i=0; i<pDestNodes.size(); ++i) {
+            NodePtr pNode = pDestNodes[i];
             CursorEventPtr pCurEvent = pLocalEvents[i];
             if (pNode->getState() != Node::NS_UNCONNECTED) {
-                pCurEvent->setNodeChain(pDestNodes->createPartialChain(i));
+                pCurEvent->setNode(pNode);
                 if (pCurEvent->getType() != Event::CURSOR_MOTION) {
                     pCurEvent->trace();
                 }
@@ -1457,8 +1473,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (pEvent->getType() == Event::CURSOR_UP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
-        for (unsigned i=0; i<pCursorNodes->getSize(); ++i) {
-            sendOver(pEvent, Event::CURSOR_OUT, pCursorNodes->createPartialChain(i));
+        vector<NodePtr>::iterator it;
+        for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
+            NodePtr pNode = *it;
+            sendOver(pEvent, Event::CURSOR_OUT, pNode);
         }
         m_pLastCursorStates.erase(cursorID);
     } else {
