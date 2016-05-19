@@ -1377,6 +1377,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent)
     // Send event to contacts.
     ContactPtr pContact = pEvent->getContact();
     if (pContact) {
+        if (pEvent->getType() == Event::CURSOR_DOWN) {
+            pContact->setNodeChain(pCursorNodes);
+        }
         if (!pCursorNodes->empty()) {
             NodePtr pNode = pCursorNodes->getLeaf();
             pEvent->setNode(pNode);

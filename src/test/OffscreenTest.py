@@ -161,7 +161,9 @@ class OffscreenTestCase(AVGTestCase):
     def testCanvasEvents(self):
         def onOffscreenImageDown(event):
             self.__offscreenImageDownCalled = True
-            self.__offscreenPos = event.pos
+            self.__offscreenRelPos = event.contact.getRelPos(offscreenImage, event.pos)
+            self.__offscreenAbsPos = event.contact.getRelPos(
+                    player.getRootNode(), event.pos)
 
         def onMainDown(event):
             self.__mainDownCalled = True
@@ -184,7 +186,8 @@ class OffscreenTestCase(AVGTestCase):
         self.start(False,
                 (lambda: self.fakeClick(15, 15),
                  lambda: self.assert_(self.__offscreenImageDownCalled),
-                 lambda: self.assert_(self.__offscreenPos == (5,5)),
+                 lambda: self.assert_(self.__offscreenRelPos == (5,5)),
+                 lambda: self.assert_(self.__offscreenAbsPos == (15,15)),
                  reset,
                  lambda: self.fakeClick(5, 5),
                  lambda: self.assert_(not(self.__offscreenImageDownCalled)),
@@ -475,7 +478,7 @@ def offscreenTestSuite(tests):
                 "testCanvasResize",
                 "testCanvasErrors",
                 "testCanvasAPI",
-#                "testCanvasEvents",
+                "testCanvasEvents",
                 "testCanvasEventCapture",
                 "testCanvasRender",
                 "testCanvasAutoRender",

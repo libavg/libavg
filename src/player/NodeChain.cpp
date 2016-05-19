@@ -21,6 +21,8 @@
 
 #include "NodeChain.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
 
 using namespace std;
@@ -65,10 +67,25 @@ bool NodeChain::contains(const NodePtr& pNode) const
     return (std::find(m_pNodes.begin(), m_pNodes.end(), pNode) != m_pNodes.end());
 }
 
-glm::vec2 NodeChain::getCanvasPos(const glm::vec2& pos) const
+glm::vec2 NodeChain::getRelPos(NodePtr pNode, const glm::vec2& absPos) const
 {
-    // Find bottom canvas node in chain
-    // apply transforms from root to bottom canvas node.
+    int nodeIndex;
+    bool bFound = false;
+    for (unsigned i=0; i<m_pNodes.size(); ++i) {
+        if (m_pNodes[i] == pNode) {
+            bFound = true;
+            nodeIndex = int(i);
+            break;
+        }
+    }
+    if (!bFound) {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "getRelPos: Node is not in contact's chain of parent nodes.");
+    }
+    glm::vec2 pos = absPos;
+    for (int i=int(m_pNodes.size())-1; i>=nodeIndex; --i) {
+        pos = m_pNodes[i]->toLocal(pos);
+    }
     return pos;
 }
 
