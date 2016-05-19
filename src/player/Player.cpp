@@ -1423,30 +1423,15 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     if (!bOnlyCheckCursorOver) {
-        // Events that pass through canvases need to have their pos transformed.
-        // So we keep an array of events that only differ in their pos.
-        vector<CursorEventPtr> pLocalEvents(pDestNodes->getSize());
-        CursorEventPtr pCurEvent = pEvent->cloneAs();
-        for (int i=pDestNodes->getSize()-1; i>=0; --i) {
-            NodePtr pNode = pDestNodes->getNode(i);
-            pLocalEvents[i] = pCurEvent;
-            ImageNodePtr pImgNode = dynamic_pointer_cast<ImageNode>(pNode);
-            if (pImgNode && pImgNode->getSource() == GPUImage::SCENE) {
-                glm::vec2 localPos = pImgNode->toCanvasPos(pCurEvent->getPos());
-                pCurEvent = pCurEvent->cloneAs(Event::UNKNOWN, localPos);
-            }
-        }
-
         // Iterate through the nodes and send the event to all of them.
         for (int i=0; i<pDestNodes->getSize(); ++i) {
             NodePtr pNode = pDestNodes->getNode(i);
-            CursorEventPtr pCurEvent = pLocalEvents[i];
             if (pNode->getState() != Node::NS_UNCONNECTED) {
-                pCurEvent->setNode(pNode);
-                if (pCurEvent->getType() != Event::CURSOR_MOTION) {
-                    pCurEvent->trace();
+                pEvent->setNode(pNode);
+                if (pEvent->getType() != Event::CURSOR_MOTION) {
+                    pEvent->trace();
                 }
-                bool bHandled = pNode->handleEvent(pCurEvent);
+                bool bHandled = pNode->handleEvent(pEvent);
                 if (bHandled) {
                     // stop bubbling
                     break;

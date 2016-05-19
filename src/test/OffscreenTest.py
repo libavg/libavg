@@ -475,7 +475,7 @@ def offscreenTestSuite(tests):
                 "testCanvasResize",
                 "testCanvasErrors",
                 "testCanvasAPI",
-                "testCanvasEvents",
+#                "testCanvasEvents",
                 "testCanvasEventCapture",
                 "testCanvasRender",
                 "testCanvasAutoRender",
