@@ -308,7 +308,8 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: getAbsPos(relpos) -> Point2D
 
             Transforms a position in coordinates relative to the node to a
-            position in window coordinates.
+            position in window (or canvas, if the node is in an
+            :py:class:`OffscreenCanvas`) coordinates.
 
         .. py:method:: getElementByPos(pos) -> Node
 
@@ -327,8 +328,10 @@ This section describes the base classes for all node classes that libavg provide
 
         .. py:method:: getRelPos(abspos) -> Point2D
 
-            Transforms a position in window coordinates to a position
-            in coordinates relative to the node.
+            Transforms a position in absolute coordinates to a position
+            in coordinates relative to the node. More precisely, absolute coordinates
+            are in canvas coordinates. Thus, for nodes in the main canvas,
+            :py:attr:`abspos` is a window coordinate.
 
         .. py:method:: registerInstance(self, parent)
 
