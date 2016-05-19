@@ -229,9 +229,10 @@ class AVG_API Player: public Publisher
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type type, NodePtr pNode);
-        void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
+        void handleCursorEvent(CursorEventPtr pEvent);
         NodeChainPtr getNodesUnderCursor(CursorEventPtr pEvent) const;
         void generateOverEvents(CursorEventPtr pEvent, NodeChainPtr pCursorNodes);
+        void updateCursorState(CursorEventPtr pEvent, NodeChainPtr pCursorNodes);
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
 

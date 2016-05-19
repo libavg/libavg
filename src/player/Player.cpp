@@ -1347,10 +1347,16 @@ OffscreenCanvasPtr Player::findCanvas(const string& sID) const
 
 void Player::sendFakeEvents()
 {
+    // Generate over and out events for unmoving cursors.
+    // This happens if the node constellation changes: A node moves so it's underneath
+    // the cursor, is deleted, etc.
     std::map<int, CursorStatePtr>::iterator it;
     for (it = m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
         CursorStatePtr pState = it->second;
-        handleCursorEvent(pState->getLastEvent(), true);
+        CursorEventPtr pEvent = pState->getLastEvent();
+        NodeChainPtr pCursorNodes = getNodesUnderCursor(pEvent);
+        generateOverEvents(pEvent, pCursorNodes);
+        updateCursorState(pEvent, pCursorNodes);
     }
 }
 
@@ -1364,13 +1370,13 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
     }
 }
 
-void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
+void Player::handleCursorEvent(CursorEventPtr pEvent)
 {
     NodeChainPtr pCursorNodes = getNodesUnderCursor(pEvent);
 
     // Send event to contacts.
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && !bOnlyCheckCursorOver) {
+    if (pContact) {
         if (!pCursorNodes->empty()) {
             NodePtr pNode = pCursorNodes->getLeaf();
             pEvent->setNode(pNode);
@@ -1378,9 +1384,8 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         pContact->sendEventToListeners(pEvent);
     }
         
-    int cursorID = pEvent->getCursorID();
-
     // Handle event capture.
+    int cursorID = pEvent->getCursorID();
     NodeChainPtr pDestNodes = pCursorNodes;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
         NodeWeakPtr pEventCaptureNode = m_EventCaptureInfoMap[cursorID]->m_pNode;
@@ -1393,20 +1398,18 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     generateOverEvents(pEvent, pCursorNodes);
 
-    if (!bOnlyCheckCursorOver) {
-        // Iterate through the nodes and send the event to all of them.
-        for (int i=0; i<pDestNodes->getSize(); ++i) {
-            NodePtr pNode = pDestNodes->getNode(i);
-            if (pNode->getState() != Node::NS_UNCONNECTED) {
-                pEvent->setNode(pNode);
-                if (pEvent->getType() != Event::CURSOR_MOTION) {
-                    pEvent->trace();
-                }
-                bool bHandled = pNode->handleEvent(pEvent);
-                if (bHandled) {
-                    // stop bubbling
-                    break;
-                }
+    // Iterate through the nodes and send the event to all of them.
+    for (int i=0; i<pDestNodes->getSize(); ++i) {
+        NodePtr pNode = pDestNodes->getNode(i);
+        if (pNode->getState() != Node::NS_UNCONNECTED) {
+            pEvent->setNode(pNode);
+            if (pEvent->getType() != Event::CURSOR_MOTION) {
+                pEvent->trace();
+            }
+            bool bHandled = pNode->handleEvent(pEvent);
+            if (bHandled) {
+                // stop bubbling
+                break;
             }
         }
     }
@@ -1419,9 +1422,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
         m_pLastCursorStates.erase(cursorID);
     } else {
-        // Update list of nodes under cursor
-        m_pLastCursorStates[cursorID] =
-                    CursorStatePtr(new CursorState(pEvent, pCursorNodes));
+        updateCursorState(pEvent, pCursorNodes);
     }
 }
 
@@ -1465,6 +1466,12 @@ void Player::generateOverEvents(CursorEventPtr pEvent, NodeChainPtr pCursorNodes
             }
         }
     }
+}
+
+void Player::updateCursorState(CursorEventPtr pEvent, NodeChainPtr pCursorNodes)
+{
+    int cursorID = pEvent->getCursorID();
+    m_pLastCursorStates[cursorID] = CursorStatePtr(new CursorState(pEvent, pCursorNodes));
 }
 
 void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
