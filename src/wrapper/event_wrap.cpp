@@ -173,6 +173,7 @@ void export_event()
         .add_property("events", &Contact::getEvents)
         .def("connectListener", &Contact::connectListener)
         .def("disconnectListener", &Contact::disconnectListener)
+        .def("getRelPos", &Contact::getRelPos)
         ;
     exportMessages(contactClass, "Contact");
 }

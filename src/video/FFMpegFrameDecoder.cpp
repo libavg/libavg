@@ -22,9 +22,6 @@
 #include "FFMpegFrameDecoder.h"
 #include "FFMpegDemuxer.h"
 #include "VideoInfo.h"
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUDecoder.h"
-#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"

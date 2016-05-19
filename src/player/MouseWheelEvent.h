@@ -36,7 +36,7 @@ class AVG_API MouseWheelEvent : public CursorEvent {
         virtual ~MouseWheelEvent();
         
         const glm::vec2& getMotion() const;
-        virtual CursorEventPtr cloneAs(Type eventType=UNKNOWN) const;
+        virtual CursorEventPtr copy() const;
         virtual void trace();
 
     private:

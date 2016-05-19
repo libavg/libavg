@@ -24,6 +24,7 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "Canvas.h"
+#include "NodeChain.h"
 
 #include "../graphics/GLContext.h"
 
@@ -273,7 +274,7 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void DivNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     if (reactsToMouseEvents() &&
             ((getSize() == glm::vec2(0,0) ||
@@ -283,15 +284,15 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
             NodePtr pCurChild = getChild(i);
             glm::vec2 relPos = pCurChild->toLocal(pos);
             pCurChild->getElementsByPos(relPos, pElements);
-            if (!pElements.empty()) {
-                pElements.push_back(getSharedThis());
+            if (!pElements->empty()) {
+                pElements->append(getSharedThis());
                 return;
             }
         }
         // pos isn't in any of the children.
         if (getSize() != glm::vec2(0,0)) {
             // Explicit width/height given for div - div reacts on its own.
-            pElements.push_back(getSharedThis());
+            pElements->append(getSharedThis());
         }
     }
 }

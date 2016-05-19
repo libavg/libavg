@@ -19,51 +19,42 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _VideoInfo_H_
-#define _VideoInfo_H_
+#ifndef _NodeChain_h_
+#define _NodeChain_h_
 
 #include "../api.h"
-
-#include "WrapFFMpeg.h"
+#include "Node.h"
 
 #include "../base/GLMHelper.h"
 
-#include <string>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
+#include <vector>
 
 namespace avg {
 
-struct AVG_API VideoInfo
+class AVG_API NodeChain
 {
-    VideoInfo();
-    VideoInfo(std::string sContainerFormat, float duration, int bitrate, bool bHasVideo,
-            bool bHasAudio);
-    void setVideoData(const IntPoint& size, const std::string& sPixelFormat,
-            int numFrames, float streamFPS, const std::string& sVCodec, float duration);
+    public:
+        NodeChain();
 
-    void setAudioData(const std::string& sACodec, int sampleRate, int numAudioChannels,
-            float duration);
+        void append(const NodePtr& pNode);
+        NodePtr getNode(int i) const;
+        NodePtr getLeaf() const;
+        bool empty() const;
+        int getSize() const;
+        bool contains(const NodePtr& pNode) const;
+        glm::vec2 getRelPos(NodePtr pNode, const glm::vec2& absPos) const;
 
-    std::string m_sContainerFormat;
-    float m_Duration;
-    int m_Bitrate;
+        void dump() const;
 
-    bool m_bHasVideo;
-    IntPoint m_Size;
-    std::string m_sPixelFormat;
-    int m_NumFrames;
-    float m_StreamFPS;
-    std::string m_sVCodec;
-    float m_VideoDuration;
-
-    bool m_bHasAudio;
-    std::string m_sACodec;
-    int m_SampleRate;
-    int m_NumAudioChannels;
-    float m_AudioDuration;
+    private:
+        std::vector<NodePtr> m_pNodes; // Stored leaf-first
 };
 
-float getStreamFPS(AVStream* pStream);
+typedef boost::shared_ptr<class NodeChain> NodeChainPtr;
 
 }
-#endif 
 
+#endif

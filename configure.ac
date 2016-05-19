@@ -168,19 +168,6 @@ AM_CONDITIONAL(ENABLE_OPENGL, test x"$GL_LIBS" != x)
 
 AM_PATH_SDL2(2.0.2,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
-AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
-AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
-AC_CHECK_HEADERS([vdpau/vdpau.h],let vdpau_h2=1,let vdpau_h2=0)
-if [[ $vdpau_lib -eq 1 ]] && [[ $vdpau_h1 -eq 1 ]] && [[ $vdpau_h2 -eq 1 ]]; then
-  AC_DEFINE(AVG_ENABLE_VDPAU, 1, [Enable VDPAU support])
-  LIBVIDEO_LDADD="-lvdpau"
-  AM_CONDITIONAL(USE_VDPAU_SRC, true)
-else
-  LIBVIDEO_LDADD=""
-  AM_CONDITIONAL(USE_VDPAU_SRC, false)
-fi
-AC_SUBST([LIBVIDEO_LDADD])
-
 AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 
 PREFIX=$prefix
