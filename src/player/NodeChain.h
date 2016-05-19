@@ -49,6 +49,8 @@ class AVG_API NodeChain
 //        std::vector<NodeWeakPtr> getWeakChain() const;
         glm::vec2 getCanvasPos(const glm::vec2& pos) const;
 
+        void dump() const;
+
     private:
         std::vector<NodePtr> m_pNodes; // Stored leaf-first
 };
