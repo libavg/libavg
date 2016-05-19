@@ -1373,6 +1373,8 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         pEventReceiverNode = getRootNode();
     }
     pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
+
+    // Send event to contacts.
     ContactPtr pContact = pEvent->getContact();
     if (pContact && !bOnlyCheckCursorOver) {
         if (!pCursorNodes->empty()) {
@@ -1395,6 +1397,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
+    // Create over and out events for nodes left and entered by the contact.
     if (pEvent->getType() != Event::MOUSE_WHEEL) {
         NodeChainPtr pLastCursorNodes(new NodeChain);
         {
@@ -1449,12 +1452,8 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         m_pLastCursorStates.erase(cursorID);
     } else {
         // Update list of nodes under cursor
-        if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
-            m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
-        } else {
-            m_pLastCursorStates[cursorID] =
+        m_pLastCursorStates[cursorID] =
                     CursorStatePtr(new CursorState(pEvent, pCursorNodes));
-        }
     }
 }
 

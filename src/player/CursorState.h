@@ -41,7 +41,6 @@ public:
     CursorState(const CursorEventPtr pEvent, NodeChainPtr pNodes);
     ~CursorState();
 
-    void setInfo(const CursorEventPtr pEvent, NodeChainPtr pNodes);
     const NodeChainPtr& getNodes() const;
     CursorEventPtr getLastEvent() const;
 
