@@ -36,12 +36,6 @@ CursorState::~CursorState()
 {
 }
 
-void CursorState::setInfo(const CursorEventPtr pEvent, NodeChainPtr pNodes)
-{
-    m_pLastEvent = pEvent;
-    m_pNodes = pNodes;
-}
-
 const NodeChainPtr& CursorState::getNodes() const
 {
     return m_pNodes;

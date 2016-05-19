@@ -47,9 +47,6 @@ class Node;
 typedef boost::shared_ptr<class Node> NodePtr;
 typedef boost::weak_ptr<class Node> NodeWeakPtr;
 
-class NodeChain;
-typedef boost::shared_ptr<class NodeChain> NodeChainPtr;
-
 class AVG_API CursorEvent: public Event 
 {
     public:
@@ -58,6 +55,7 @@ class AVG_API CursorEvent: public Event
         virtual ~CursorEvent();
         virtual CursorEventPtr copy() const;
         virtual CursorEventPtr cloneAs(Type eventType=UNKNOWN) const;
+        virtual CursorEventPtr cloneAs(Type eventType, const glm::vec2& pos) const;
         void setUserID(int userID, int jointID);
         glm::vec2 getPos() const;
         int getXPosition() const;
@@ -66,7 +64,7 @@ class AVG_API CursorEvent: public Event
         int getCursorID() const;
         int getUserID() const;
         int getJointID() const;
-        void setNodeChain(NodeChainPtr pChain);
+        void setNode(NodePtr pNode);
         void clearNodeData();
         NodePtr getNode() const;
         void setSpeed(glm::vec2 speed);
@@ -79,13 +77,12 @@ class AVG_API CursorEvent: public Event
         virtual void trace();
 
     private:
-        IntPoint m_AbsPos; // Position in global (mouse/touch) coordinates
-        IntPoint m_Pos;    // Canvas-local coordinates
+        IntPoint m_Pos;
         int m_ID;
         ContactWeakPtr m_pContact;
         int m_UserID;
         int m_JointID;
-        NodeChainPtr m_pNodeChain;
+        NodePtr m_pNode;
         glm::vec2 m_Speed;
 };
 

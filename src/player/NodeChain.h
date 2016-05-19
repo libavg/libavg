@@ -40,13 +40,12 @@ class AVG_API NodeChain
         NodeChain();
 
         void append(const NodePtr& pNode);
-        NodePtr getNode(unsigned i) const;
+        NodePtr getNode(int i) const;
         NodePtr getLeaf() const;
         bool empty() const;
-        unsigned getSize() const;
+        int getSize() const;
         bool contains(const NodePtr& pNode) const;
-        NodeChainPtr createPartialChain(unsigned i) const;
-        glm::vec2 getCanvasPos(const glm::vec2& pos) const;
+        glm::vec2 getRelPos(NodePtr pNode, const glm::vec2& absPos) const;
 
         void dump() const;
 

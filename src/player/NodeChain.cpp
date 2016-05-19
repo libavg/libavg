@@ -20,7 +20,6 @@
 //
 
 #include "NodeChain.h"
-#include "ImageNode.h"
 
 #include "../base/Exception.h"
 
@@ -39,7 +38,7 @@ void NodeChain::append(const NodePtr& pNode)
     m_pNodes.push_back(pNode);
 }
 
-NodePtr NodeChain::getNode(unsigned i) const
+NodePtr NodeChain::getNode(int i) const
 {
     return m_pNodes[i];
 }
@@ -58,7 +57,7 @@ bool NodeChain::empty() const
     return m_pNodes.empty();
 }
 
-unsigned NodeChain::getSize() const
+int NodeChain::getSize() const
 {
     return m_pNodes.size();
 }
@@ -68,41 +67,26 @@ bool NodeChain::contains(const NodePtr& pNode) const
     return (std::find(m_pNodes.begin(), m_pNodes.end(), pNode) != m_pNodes.end());
 }
 
-NodeChainPtr NodeChain::createPartialChain(unsigned leafIndex) const
+glm::vec2 NodeChain::getRelPos(NodePtr pNode, const glm::vec2& absPos) const
 {
-    AVG_ASSERT(leafIndex < m_pNodes.size());
-    NodeChainPtr pPartialChain(new NodeChain());
-    for (unsigned i=leafIndex; i<m_pNodes.size(); ++i) {
-        pPartialChain->append(m_pNodes[i]);
-    }
-    return pPartialChain;
-}
-
-glm::vec2 NodeChain::getCanvasPos(const glm::vec2& pos) const
-{
-    // Find bottom canvas node in chain
-    unsigned i=0;
-    bool bIsCanvas = false;
-    while (!bIsCanvas && i<m_pNodes.size()) {
-        ImageNodePtr pNode = dynamic_pointer_cast<ImageNode>(m_pNodes[i]);
-        if (pNode && pNode->getSource() == GPUImage::SCENE) {
-            bIsCanvas = true;
-        } else {
-            i++;
+    int nodeIndex;
+    bool bFound = false;
+    for (unsigned i=0; i<m_pNodes.size(); ++i) {
+        if (m_pNodes[i] == pNode) {
+            bFound = true;
+            nodeIndex = int(i);
+            break;
         }
     }
-    unsigned lastCanvasNode = i;
-
-    // Recursively apply transforms from root to bottom canvas node.
-    glm::vec2 localPos = pos;
-    for (int j=int(m_pNodes.size()-1); j>=int(lastCanvasNode); --j) {
-        ImageNodePtr pImageNode = dynamic_pointer_cast<ImageNode>(m_pNodes[j]);
-        if (pImageNode && pImageNode->getSource() == GPUImage::SCENE) {
-            localPos = pImageNode->toCanvasPos(localPos);
-        }
+    if (!bFound) {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "getRelPos: Node is not in contact's chain of parent nodes.");
     }
-
-    return localPos;
+    glm::vec2 pos = absPos;
+    for (int i=int(m_pNodes.size())-1; i>=nodeIndex; --i) {
+        pos = m_pNodes[i]->toLocal(pos);
+    }
+    return pos;
 }
 
 void NodeChain::dump() const

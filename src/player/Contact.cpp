@@ -25,6 +25,7 @@
 #include "BoostPython.h"
 #include "Player.h"
 #include "PublisherDefinition.h"
+#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -176,6 +177,16 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         }
     }
     m_bSendingEvents = false;
+}
+
+void Contact::setNodeChain(NodeChainPtr pNodeChain)
+{
+    m_pNodeChain = pNodeChain;
+}
+
+glm::vec2 Contact::getRelPos(NodePtr pNode, const glm::vec2& pos) const
+{
+    return m_pNodeChain->getRelPos(pNode, pos);
 }
 
 int Contact::getID() const
