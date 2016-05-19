@@ -164,6 +164,9 @@ class OffscreenTestCase(AVGTestCase):
             self.__offscreenRelPos = event.contact.getRelPos(offscreenImage, event.pos)
             self.__offscreenAbsPos = event.contact.getRelPos(
                     player.getRootNode(), event.pos)
+            tempNode = avg.ImageNode(href="rgb24-64x64.png")
+            self.assertRaises(avg.Exception,
+                    lambda: event.contact.getRelPos(tempNode, event.pos))
 
         def onMainDown(event):
             self.__mainDownCalled = True
