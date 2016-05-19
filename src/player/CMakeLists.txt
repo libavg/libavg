@@ -21,7 +21,7 @@ add_library(player
     SVG.cpp SVGElement.cpp Publisher.cpp SubscriberInfo.cpp PublisherDefinition.cpp
     PublisherDefinitionRegistry.cpp MessageID.cpp VersionInfo.cpp
     PythonLogSink.cpp BitmapManager.cpp BitmapManagerThread.cpp
-    BitmapManagerMsg.cpp SDLTouchInputDevice.cpp
+    BitmapManagerMsg.cpp SDLTouchInputDevice.cpp NodeChain.cpp
     OGLSurface.cpp)
 add_dependencies(player version)
 target_link_libraries(player
