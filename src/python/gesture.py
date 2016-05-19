@@ -584,9 +584,10 @@ class DragRecognizer(Recognizer):
 
     def __relEventPos(self, event):
         if isinstance(self.__coordSysNode(), avg.CanvasNode):
-            return event.pos
+            node = self.__coordSysNode()
         else:
-            return self.__coordSysNode().getParent().getRelPos(event.pos)
+            node = self.__coordSysNode().getParent()
+        return event.contact.getRelPos(node, event.pos)
 
     def __angleFits(self, offset):
         angle = offset.getAngle()
