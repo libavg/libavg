@@ -41,6 +41,6 @@ add_test(NAME testplayer
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
-addTestToLibavgPythonPackage(testplayer)
+addTestTargetToLibavgPythonPackage(testplayer)
 
 # testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker $(XGL_LINKFLAGS)

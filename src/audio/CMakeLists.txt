@@ -11,4 +11,4 @@ add_test(NAME testlimiter
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
-addTestToLibavgPythonPackage(testlimiter)
+addTestTargetToLibavgPythonPackage(testlimiter)

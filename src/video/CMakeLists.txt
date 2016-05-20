@@ -24,6 +24,7 @@ add_test(NAME testvideo
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
-addTestToLibavgPythonPackage(testvideo)
+addTestTargetToLibavgPythonPackage(testvideo)
+addTestDataToLibavgPythonPackage(testvideo baseline)
 
 # TODO EXTRA_DIST

@@ -22,4 +22,4 @@ add_test(NAME testbase
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
-addTestToLibavgPythonPackage(testbase)
+addTestTargetToLibavgPythonPackage(testbase)
