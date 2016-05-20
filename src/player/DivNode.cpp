@@ -234,6 +234,10 @@ void DivNode::removeChild(unsigned i)
 
 void DivNode::removeChild(NodePtr pChild, bool bKill)
 {
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+          getID()+"::removeChild called without a node.");
+    }
     pChild->removeParent();
     if (pChild->getState() != NS_UNCONNECTED) {
         pChild->disconnect(bKill);
