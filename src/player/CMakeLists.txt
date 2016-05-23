@@ -28,7 +28,7 @@ target_link_libraries(player
     PUBLIC video imaging graphics oscpack
         ${PYTHON_LIBRARIES} ${PANGOFT2_LDFLAGS} ${RSVG_LDFLAGS} ${FONTCONFIG_STATIC_LDFLAGS})
 target_include_directories(player
-    PUBLIC ${PYTHON_INCLUDE_DIRS})
+    PUBLIC SYSTEM ${PYTHON_INCLUDE_DIRS})
 target_compile_options(player
     PUBLIC ${PANGOFT2_CFLAGS} ${RSVG_CFLAGS})
 

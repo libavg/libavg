@@ -4,4 +4,4 @@ add_library(anim
 target_link_libraries(anim
     PUBLIC base ${PYTHON_LIBRARIES})
 target_include_directories(anim
-    PUBLIC ${PYTHON_INCLUDE_DIRS})
+    PUBLIC SYSTEM ${PYTHON_INCLUDE_DIRS})
