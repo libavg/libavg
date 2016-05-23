@@ -1,4 +1,4 @@
-macro(addTestTargetToLibavgPythonPackage testTarget)
+function(addTestTargetToLibavgPythonPackage testTarget)
     add_custom_target(copy_${testTarget} ALL)
     add_dependencies(copy_${testTarget} ${testTarget})
     add_custom_command(TARGET copy_${testTarget}
@@ -6,19 +6,19 @@ macro(addTestTargetToLibavgPythonPackage testTarget)
         "${CMAKE_CURRENT_BINARY_DIR}/${testTarget}"
         "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest"
         )
-endmacro()
+endfunction()
 
 
-macro(addTestDataToLibavgPythonPackage testTarget dataDir)
+function(addTestDataToLibavgPythonPackage testTarget dataDir)
     add_custom_command(TARGET copy_${testTarget}
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/${dataDir}"
         "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/baseline"
         )
-endmacro()
+endfunction()
 
 
-macro(addPluginToLibavgPythonPackage plugin)
+function(addPluginToLibavgPythonPackage plugin)
     add_custom_target(copy_${plugin} ALL)
     add_dependencies(copy_${plugin} ${plugin})
     add_custom_command(TARGET copy_${plugin}
@@ -26,4 +26,4 @@ macro(addPluginToLibavgPythonPackage plugin)
         "${CMAKE_CURRENT_BINARY_DIR}/${plugin}${CMAKE_SHARED_MODULE_SUFFIX}"
         "${CMAKE_BINARY_DIR}/python/libavg/test/plugin"
         )
-endmacro()
+endfunction()
