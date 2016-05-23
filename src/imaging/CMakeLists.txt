@@ -7,9 +7,7 @@ if(${AVG_ENABLE_1394_2})
     set (IMAGING_LIBS ${IMAGING_LIBS} ${DC1394_2_LDFLAGS})
 endif()
 
-# TODO these CMU1394 and DSHOW are not mentioned in the Makefile.am
-#      but in EXTRA_DIST. I guess I should add the sources appropriatly.
-#      This needs testing on intended platforms. Windows, I guess.
+# TODO Untested, windows-specific.
 if(${AVG_ENABLE_CMU1394})
     set(IMAGING_SOURCES ${IMAGING_SOURCES} CMUCamera.cpp CMUCameraUtils.cpp)
 endif()

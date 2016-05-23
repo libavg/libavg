@@ -12,7 +12,3 @@ add_subdirectory(video)
 add_subdirectory(player)
 add_subdirectory(anim)
 add_subdirectory(wrapper)
-
-# TODO see Makefile.am and
-#   TODO EXTRA_DIST
-# TODO python test utils samples

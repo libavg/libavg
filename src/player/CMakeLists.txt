@@ -1,7 +1,3 @@
-#AM_CPPFLAGS = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ @FFMPEG_CFLAGS@ \
-#        @PANGOFT2_CFLAGS@ @PYTHON_CPPFLAGS@ @GL_CFLAGS@ \
-#        @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@
-
 add_library(player
     Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedObject.cpp
     Player.cpp PluginManager.cpp TypeRegistry.cpp ArgBase.cpp ArgList.cpp
@@ -42,5 +38,3 @@ add_test(NAME testplayer
 
 include(testhelper)
 addTestTargetToLibavgPythonPackage(testplayer)
-
-# testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker $(XGL_LINKFLAGS)

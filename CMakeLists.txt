@@ -38,6 +38,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
     set(PLATFORM_WINDOWS TRUE)
 endif()
 
+
+# Find dependencies
 find_package(Boost 1.46 REQUIRED system thread python)
 find_package(PkgConfig REQUIRED)
 if(${PLATFORM_MACOSX})
@@ -54,14 +56,13 @@ pkg_search_module(PANGOFT2 REQUIRED pangoft2)
 pkg_search_module(RSVG REQUIRED librsvg-2.0)
 pkg_search_module(FONTCONFIG REQUIRED fontconfig)
 
-# V4L2: this is the only dependency
 find_path(VIDEODEV2_FOUND
     NAMES videodev2.h
     PATH_SUFFIXES linux
-    DOC "Video for Linux Two header file include directory")
+    DOC "Video4Linux2 header file include directory")
 
-# options
 
+# Options
 set(AVG_ENABLE_EGL FALSE CACHE BOOL "include EGL support")
 set(AVG_ENABLE_RPI FALSE CACHE BOOL "configure for RaspberryPi")
 
@@ -74,9 +75,7 @@ if(VIDEODEV2_FOUND)
 endif()
 
 
-
-# platform choices
-
+# Platform-specific configuration
 if(${PLATFORM_LINUX})
     if(NOT ${AVG_ENABLE_EGL})
         set(AVG_ENABLE_GLX_X11 TRUE)
@@ -133,10 +132,9 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
     endif()
     set_cxx_version()
 endif()
-# TODO: Missing linker flag -rdynamic from autoconf
 
-# feature configuration
 
+# Feature configuration
 if(${AVG_ENABLE_GLX_X11})
     pkg_check_modules(GLX_X11 REQUIRED x11 gl)
 endif()
@@ -149,6 +147,7 @@ endif()
 
 enable_testing()
 
+
 # Enable make check that dumps test output on failure
 if (CMAKE_CONFIGURATION_TYPES)
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
@@ -158,6 +157,8 @@ else()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
         --force-new-ctest-process --output-on-failure)
 endif()
+
+
 # Run copy_python_test custom target before make check to ease development
 add_dependencies(check copy_python_tests)
 
