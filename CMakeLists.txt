@@ -85,13 +85,6 @@ endif()
 
 if(${PLATFORM_MACOSX})
     set(CMAKE_MACOSX_RPATH 0)
-    # TODO In the original automake setup there was no further distinction
-    #  besides the frameworks and options listed here.
-    # I (payload) decided to postpone the refactoring into features
-    #  until later™.
-    # PLATFORM_MACOSX_* is currently only added in target graphics.
-    # I think this propagates to all other targets,
-    #  but isn't the proper way.
     set(AVG_ENABLE_CGL_QUARTZ TRUE)
     find_library(COCOA Cocoa)
     find_library(COREAUDIO CoreAudio)
@@ -109,6 +102,7 @@ if(${PLATFORM_MACOSX})
     string (REPLACE ";" " " FFMPEG_LDFLAGS "${FFMPEG_LDFLAGS}")
     set(RSVG_LDFLAGS "${RSVG_LDFLAGS} -lpixman-1 -lpangocairo-1.0")
     set(GDK_PIXBUF_LDFLAGS "${GDK_PIXBUF_LDFLAGS} -lgmodule-2.0 -lgio-2.0 -lresolv")
+    link_libraries(${PLATFORM_MACOSX_LIBS})
 endif()
 
 if(${PLATFORM_WINDOWS})
