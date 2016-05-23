@@ -32,6 +32,7 @@ set(test_directories
     fonts
     extrafonts
     media
+    media/incompleteSkinMedia
     testmediadir
     )
 
@@ -40,7 +41,7 @@ file(MAKE_DIRECTORY ${python_test_package_dir})
 file(MAKE_DIRECTORY "${python_test_package_dir}/cpptest")
 file(MAKE_DIRECTORY "${python_test_package_dir}/plugin")
 
-foreach(dir ${directories})
+foreach(dir ${test_directories})
     file(MAKE_DIRECTORY "${python_test_package_dir}/${dir}")
 endforeach(dir)
 
@@ -54,11 +55,23 @@ foreach(res ${test_files})
 endforeach()
 
 foreach(res ${test_directories})
-    add_custom_command(TARGET copy_python_tests
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_CURRENT_SOURCE_DIR}/${res}"
-        "${python_test_package_dir}/${res}"
-        )
+    file(GLOB test_files
+            RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/${res}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/${res}/*")
+#    message ("Directory: " ${res})
+#    message ("Files: " "${test_files}")
+    foreach(cur_file ${test_files})
+        add_custom_command(TARGET copy_python_tests
+            COMMAND ${CMAKE_COMMAND}
+            ARGS -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${res}/${cur_file}"
+                    "${python_test_package_dir}/${res}/${cur_file}"
+            )
+#    add_custom_command(TARGET copy_python_tests
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory
+#        "${CMAKE_CURRENT_SOURCE_DIR}/${res}"
+#        "${python_test_package_dir}/${res}"
+#        )
+    endforeach()
 endforeach()
 
 
