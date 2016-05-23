@@ -6,8 +6,7 @@ endif()
 
 if(${AVG_ENABLE_CGL_QUARTZ})
     set (GRAPHICS_SOURCES CGLContext.cpp PBO.cpp AppleDisplay.cpp)
-    # TODO: Figure out why these libs need to be specified explicitly.
-    set (GRAPHICS_LIBS -lgmodule-2.0 -lgio-2.0 -lresolv ${PLATFORM_MACOSX_LIBS})
+    set (GRAPHICS_LIBS ${PLATFORM_MACOSX_LIBS})
     set (GRAPHICS_CFLAGS ${PLATFORM_MACOSX_CFLAGS})
 endif()
 
