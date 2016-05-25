@@ -499,6 +499,10 @@ class DragRecognizer(Recognizer):
 
         self.__isSliding = False
         self.__inertiaHandler = None
+        if initialEvent is not None:
+            if not(initialEvent.contact.isNodeInTargets(self.__coordSysNode())):
+                raise avg.Exception("Gestures with an initialEvent must have coordSysNode set to a node under the event.")
+
         super(DragRecognizer, self).__init__(eventNode, True, 1, 
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
