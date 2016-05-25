@@ -189,6 +189,11 @@ glm::vec2 Contact::getRelPos(NodePtr pNode, const glm::vec2& pos) const
     return m_pNodeChain->getRelPos(pNode, pos);
 }
 
+bool Contact::isNodeInTargets(NodePtr pNode) const
+{
+    return m_pNodeChain->contains(pNode);
+}
+
 int Contact::getID() const
 {
     return m_CursorID;

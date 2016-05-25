@@ -174,6 +174,7 @@ void export_event()
         .def("connectListener", &Contact::connectListener)
         .def("disconnectListener", &Contact::disconnectListener)
         .def("getRelPos", &Contact::getRelPos)
+        .def("isNodeInTargets", &Contact::isNodeInTargets)
         ;
     exportMessages(contactClass, "Contact");
 }
