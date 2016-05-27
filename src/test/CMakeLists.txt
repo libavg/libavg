@@ -1,3 +1,5 @@
+include(testhelper)
+
 set(test_files
     AVTest.py
     AnimTest.py
@@ -50,18 +52,8 @@ foreach(res ${test_files})
         )
 endforeach()
 
-foreach(res ${test_directories})
-    file(MAKE_DIRECTORY "${python_test_package_dir}/${dir}")
-    file(GLOB test_files
-            RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/${res}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/${res}/*")
-    foreach(cur_file ${test_files})
-        add_custom_command(TARGET copy_python_tests
-            COMMAND ${CMAKE_COMMAND}
-            ARGS -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${res}/${cur_file}"
-                    "${python_test_package_dir}/${res}/${cur_file}"
-            )
-    endforeach()
+foreach(dir ${test_directories})
+    copyToStaging(${dir})
 endforeach()
 
 
