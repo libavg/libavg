@@ -16,14 +16,3 @@ function(addTestDataToLibavgPythonPackage testTarget dataDir)
         "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/baseline"
         )
 endfunction()
-
-
-function(addPluginToLibavgPythonPackage plugin)
-    add_custom_target(copy_${plugin} ALL)
-    add_dependencies(copy_${plugin} ${plugin})
-    add_custom_command(TARGET copy_${plugin}
-        COMMAND ${CMAKE_COMMAND} -E copy
-        "${CMAKE_CURRENT_BINARY_DIR}/${plugin}${CMAKE_SHARED_MODULE_SUFFIX}"
-        "${CMAKE_BINARY_DIR}/python/libavg/test/plugin"
-        )
-endfunction()

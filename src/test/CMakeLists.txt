@@ -41,10 +41,6 @@ file(MAKE_DIRECTORY ${python_test_package_dir})
 file(MAKE_DIRECTORY "${python_test_package_dir}/cpptest")
 file(MAKE_DIRECTORY "${python_test_package_dir}/plugin")
 
-foreach(dir ${test_directories})
-    file(MAKE_DIRECTORY "${python_test_package_dir}/${dir}")
-endforeach(dir)
-
 add_custom_target(copy_python_tests ALL)
 
 foreach(res ${test_files})
@@ -55,6 +51,7 @@ foreach(res ${test_files})
 endforeach()
 
 foreach(res ${test_directories})
+    file(MAKE_DIRECTORY "${python_test_package_dir}/${dir}")
     file(GLOB test_files
             RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/${res}"
             "${CMAKE_CURRENT_SOURCE_DIR}/${res}/*")
