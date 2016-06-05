@@ -206,7 +206,7 @@ avg::NodePtr createNode(const boost::python::tuple &args,
 {
     checkEmptyArgs(args);
     return avg::Player::get()->createNode(pszType, attrs, args[0]);
-};
+}
 
 template <typename T>struct Exception_to_python_exception
 {
