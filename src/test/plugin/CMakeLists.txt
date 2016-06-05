@@ -18,21 +18,18 @@ target_include_directories(colorplugin PUBLIC ${PLUGIN_INCLUDES})
 
 set_target_properties(${PLUGIN_NAME} PROPERTIES PREFIX "")
 target_compile_options(${PLUGIN_NAME} PUBLIC -Wall -pedantic -std=c++11)
+
 if (${PLATFORM_LINUX})
     target_link_libraries(${PLUGIN_NAME} ${PLUGIN_LIBS} avg)
-
 elseif (${PLATFORM_MACOSX})
     target_link_libraries(${PLUGIN_NAME} -bundle -flat_namespace "-undefined suppress")
     target_link_libraries(${PLUGIN_NAME} ${LIBXML2_LDFLAGS} ${PLUGIN_LIBS})
-
-elseif (${PLATFORM_WINDOWS})
-    target_compile_definitions(${PLUGIN_NAME} PUBLIC __WINDOWS__ BOOST_ALL_NO_LIB)
-    target_link_libraries(${PLUGIN_NAME}
-        ${PLUGIN_LIBS} ${CMAKE_BINARY_DIR}/libavg/win/Release/avg.lib
-        )
 endif()
 
 
-include(testhelper)
-addPluginToLibavgPythonPackage(colorplugin)
+add_custom_command(TARGET colorplugin POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_BINARY_DIR}/colorplugin${CMAKE_SHARED_MODULE_SUFFIX}"
+            "${CMAKE_BINARY_DIR}/python/libavg/test/plugin"
+    )
 
