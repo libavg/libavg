@@ -646,6 +646,12 @@ class PlayerTestCase(AVGTestCase):
             grid = image.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             image.setWarpedVertexCoords(grid)
+
+        def changeHref():
+            image.href = "rgb24-65x65.png"
+            grid = image.getWarpedVertexCoords()
+            self.assert_(len(grid) == 6)
+            self.assert_(len(grid[0]) == 4)
       
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png",
@@ -663,10 +669,12 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testWarp2"),
                  flip,
                  lambda: self.compareImage("testWarp3"),
-                 lambda: image.setMirror(avg.RasterNode.HORIZONTAL),
-                 lambda: self.compareImage("testWarp3"),
-                 lambda: image.setMirror(avg.RasterNode.VERTICAL),
+                 changeHref,
                  lambda: self.compareImage("testWarp4"),
+                 lambda: image.setMirror(avg.RasterNode.HORIZONTAL),
+                 lambda: self.compareImage("testWarp5"),
+                 lambda: image.setMirror(avg.RasterNode.VERTICAL),
+                 lambda: self.compareImage("testWarp6"),
                 ))
 
     def testMediaDir(self):
