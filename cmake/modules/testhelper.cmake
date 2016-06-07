@@ -1,9 +1,11 @@
 function(addTestTargetToLibavgPythonPackage testTarget)
     add_custom_target(copy_${testTarget} ALL)
     add_dependencies(copy_${testTarget} ${testTarget})
-    copyDirIfDifferent("copy_${testTarget}"
-            "${CMAKE_CURRENT_BINARY_DIR}/${testTarget}"
-            "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest")
+    add_custom_command(TARGET "copy_${testTarget}"
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/${testTarget}"
+            "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest"
+        )
 endfunction()
 
 
