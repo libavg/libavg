@@ -17,7 +17,6 @@ target_include_directories(colorplugin PUBLIC ${PLUGIN_INCLUDES})
 #target_compile_definitions(${PLUGIN_NAME} PUBLIC AVG_PLUGIN)
 
 set_target_properties(${PLUGIN_NAME} PROPERTIES PREFIX "")
-target_compile_options(${PLUGIN_NAME} PUBLIC -Wall -pedantic -std=c++11)
 
 if (${PLATFORM_LINUX})
     target_link_libraries(${PLUGIN_NAME} ${PLUGIN_LIBS} avg)
