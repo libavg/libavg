@@ -159,10 +159,6 @@ else()
         --force-new-ctest-process --output-on-failure)
 endif()
 
-
-# Run copy_python_test custom target before make check to ease development
-add_dependencies(check copy_python_tests)
-
 configure_file(
     "${PROJECT_SOURCE_DIR}/src/avgconfig.h.cmake.in"
     "${PROJECT_BINARY_DIR}/src/avgconfig.h")
