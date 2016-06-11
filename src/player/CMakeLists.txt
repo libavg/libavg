@@ -37,4 +37,4 @@ add_test(NAME testplayer
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
-addTestTargetToLibavgPythonPackage(testplayer)
+copyTestToStaging(testplayer)

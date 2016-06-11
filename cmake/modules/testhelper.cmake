@@ -1,4 +1,4 @@
-function(addTestTargetToLibavgPythonPackage testTarget)
+function(copyTestToStaging testTarget)
     add_custom_target(copy_${testTarget} ALL)
     add_dependencies(copy_${testTarget} ${testTarget})
     add_custom_command(TARGET "copy_${testTarget}"
@@ -9,7 +9,7 @@ function(addTestTargetToLibavgPythonPackage testTarget)
 endfunction()
 
 
-function(addTestDataToLibavgPythonPackage testTarget dataDir)
+function(copyTestDataToStaging testTarget dataDir)
     copyDirIfDifferent("copy_${testTarget}"
             "${CMAKE_CURRENT_SOURCE_DIR}/${dataDir}"
             "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/baseline")

@@ -57,6 +57,6 @@ add_test(NAME testgpu
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)
 
 include(testhelper)
-addTestTargetToLibavgPythonPackage(testgpu)
-addTestDataToLibavgPythonPackage(testgpu baseline)
-addTestTargetToLibavgPythonPackage(testgraphics)
+copyTestToStaging(testgpu)
+copyTestDataToStaging(testgpu baseline)
+copyTestToStaging(testgraphics)
