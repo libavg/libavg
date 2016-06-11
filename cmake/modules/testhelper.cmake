@@ -24,6 +24,7 @@ endfunction()
 
 function(copyDirIfDifferent target src_dir dest_dir)
     add_custom_command(TARGET ${target}
+        PRE_BUILD
         COMMAND ${CMAKE_COMMAND}
                 ARGS -E make_directory "${dest_dir}"
         )
@@ -31,6 +32,7 @@ function(copyDirIfDifferent target src_dir dest_dir)
             RELATIVE "${src_dir}" "${src_dir}/*")
     foreach(cur_file ${filelist})
         add_custom_command(TARGET ${target}
+            PRE_BUILD
             COMMAND ${CMAKE_COMMAND}
             ARGS -E copy_if_different "${src_dir}/${cur_file}" "${dest_dir}/${cur_file}"
             )

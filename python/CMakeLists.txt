@@ -1,27 +1,38 @@
+include(testhelper)
+
 # A refresh of this search (eg: new virtualenv) can be obtained by running cmake
 # with -UPYTHON_INTERPRETER
 find_program(PYTHON_INTERPRETER python)
 
 message(STATUS "Using python intepreter: ${PYTHON_INTERPRETER}")
 
-# Out of source build requires a copy of package, setup.py and scripts
-if(NOT CMAKE_CURRENT_SOURCE_DIR EQUAL CMAKE_CURRENT_BINARY_DIR)
-    message(STATUS "Copying python package to build directory")
-
-    file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/libavg"
-            "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
-         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
-
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in" "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
-
-file(COPY "${CMAKE_SOURCE_DIR}/src/graphics/shaders"
-     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/libavg")
 
 add_custom_target(python-build ALL DEPENDS avg
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:avg>"
-            "${CMAKE_CURRENT_BINARY_DIR}/libavg/"
-    COMMAND ${PYTHON_INTERPRETER} setup.py build)
+            "${CMAKE_CURRENT_BINARY_DIR}/libavg/")
+
+# TODO: Copying graphics/shaders doesn't really belong in this file.
+copyDirIfDifferent(python-build
+        "${CMAKE_SOURCE_DIR}/src/graphics/shaders"
+        "${CMAKE_CURRENT_BINARY_DIR}/libavg/shaders")
+copyDirIfDifferent(python-build
+        "${CMAKE_CURRENT_SOURCE_DIR}/libavg"
+        "${CMAKE_CURRENT_BINARY_DIR}/libavg")
+copyDirIfDifferent(python-build
+        "${CMAKE_CURRENT_SOURCE_DIR}/libavg/data"
+        "${CMAKE_CURRENT_BINARY_DIR}/libavg/data")
+copyDirIfDifferent(python-build
+        "${CMAKE_CURRENT_SOURCE_DIR}/libavg/app"
+        "${CMAKE_CURRENT_BINARY_DIR}/libavg/app")
+copyDirIfDifferent(python-build
+        "${CMAKE_CURRENT_SOURCE_DIR}/libavg/widget"
+        "${CMAKE_CURRENT_BINARY_DIR}/libavg/widget")
+copyDirIfDifferent(python-build
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
+        "${CMAKE_CURRENT_BINARY_DIR}/scripts")
+add_custom_command(TARGET python-build
+        COMMAND ${PYTHON_INTERPRETER} setup.py build)
 
 install(CODE "execute_process(COMMAND ${PYTHON_INTERPRETER} setup.py install
               WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
