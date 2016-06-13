@@ -1,7 +1,6 @@
 function(copyTestToStaging testTarget)
-    add_custom_target(copy_${testTarget} ALL)
-    add_dependencies(copy_${testTarget} ${testTarget})
-    add_custom_command(TARGET "copy_${testTarget}"
+    add_custom_command(TARGET "${testTarget}"
+        POST_BUILD
         COMMAND ${CMAKE_COMMAND}
         ARGS -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/${testTarget}"
             "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest"
@@ -10,7 +9,7 @@ endfunction()
 
 
 function(copyTestDataToStaging testTarget dataDir)
-    copyDirIfDifferent("copy_${testTarget}" POST_BUILD
+    copyDirIfDifferent("${testTarget}" POST_BUILD
             "${CMAKE_CURRENT_SOURCE_DIR}/${dataDir}"
             "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/baseline")
 endfunction()
