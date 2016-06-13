@@ -10,21 +10,21 @@ endfunction()
 
 
 function(copyTestDataToStaging testTarget dataDir)
-    copyDirIfDifferent("copy_${testTarget}"
+    copyDirIfDifferent("copy_${testTarget}" POST_BUILD
             "${CMAKE_CURRENT_SOURCE_DIR}/${dataDir}"
             "${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/baseline")
 endfunction()
 
 function(copyToStaging dir)
     set(python_test_package_dir "${CMAKE_BINARY_DIR}/python/libavg/test")
-    copyDirIfDifferent(copy_python_tests
+    copyDirIfDifferent(copy_python_tests POST_BUILD
             "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
             "${python_test_package_dir}/${dir}")
 endfunction()
 
-function(copyDirIfDifferent target src_dir dest_dir)
+function(copyDirIfDifferent target stage src_dir dest_dir)
     add_custom_command(TARGET ${target}
-        PRE_BUILD
+        ${stage}
         COMMAND ${CMAKE_COMMAND}
                 ARGS -E make_directory "${dest_dir}"
         )
@@ -32,7 +32,7 @@ function(copyDirIfDifferent target src_dir dest_dir)
             RELATIVE "${src_dir}" "${src_dir}/*")
     foreach(cur_file ${filelist})
         add_custom_command(TARGET ${target}
-            PRE_BUILD
+            ${stage}
             COMMAND ${CMAKE_COMMAND}
             ARGS -E copy_if_different "${src_dir}/${cur_file}" "${dest_dir}/${cur_file}"
             )

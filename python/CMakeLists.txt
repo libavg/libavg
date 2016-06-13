@@ -1,5 +1,11 @@
 include(testhelper)
 
+function(copyPythonToStaging dirname)
+    copyDirIfDifferent(python-build PRE_BUILD
+            "${CMAKE_CURRENT_SOURCE_DIR}/${dirname}"
+            "${CMAKE_CURRENT_BINARY_DIR}/${dirname}")
+endfunction()
+
 # A refresh of this search (eg: new virtualenv) can be obtained by running cmake
 # with -UPYTHON_INTERPRETER
 find_program(PYTHON_INTERPRETER python)
@@ -12,25 +18,14 @@ add_custom_target(python-build ALL DEPENDS avg
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:avg>"
             "${CMAKE_CURRENT_BINARY_DIR}/libavg/")
 
-# TODO: Copying graphics/shaders doesn't really belong in this file.
-copyDirIfDifferent(python-build
+copyDirIfDifferent(python-build PRE_BUILD
         "${CMAKE_SOURCE_DIR}/src/graphics/shaders"
         "${CMAKE_CURRENT_BINARY_DIR}/libavg/shaders")
-copyDirIfDifferent(python-build
-        "${CMAKE_CURRENT_SOURCE_DIR}/libavg"
-        "${CMAKE_CURRENT_BINARY_DIR}/libavg")
-copyDirIfDifferent(python-build
-        "${CMAKE_CURRENT_SOURCE_DIR}/libavg/data"
-        "${CMAKE_CURRENT_BINARY_DIR}/libavg/data")
-copyDirIfDifferent(python-build
-        "${CMAKE_CURRENT_SOURCE_DIR}/libavg/app"
-        "${CMAKE_CURRENT_BINARY_DIR}/libavg/app")
-copyDirIfDifferent(python-build
-        "${CMAKE_CURRENT_SOURCE_DIR}/libavg/widget"
-        "${CMAKE_CURRENT_BINARY_DIR}/libavg/widget")
-copyDirIfDifferent(python-build
-        "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
-        "${CMAKE_CURRENT_BINARY_DIR}/scripts")
+copyPythonToStaging("libavg")
+copyPythonToStaging("libavg/data")
+copyPythonToStaging("libavg/app")
+copyPythonToStaging("libavg/widget")
+copyPythonToStaging("libavg/scripts")
 add_custom_command(TARGET python-build
         COMMAND ${PYTHON_INTERPRETER} setup.py build)
 
