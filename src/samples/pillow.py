@@ -9,17 +9,19 @@ from PIL import Image
 class MyMainDiv(app.MainDiv):
     def onInit(self):
         self.toggleTouchVisualization()
-        bmp = avg.Bitmap("rgb24-64x64.png")
-        pixels = bmp.getPixels(False)
+        srcbmp = avg.Bitmap("rgb24-64x64.png")
+        pixels = srcbmp.getPixels(False)
         image = Image.frombytes("RGBA", (64,64), pixels)
         # Need to swap red and blue.
         b,g,r,a = image.split()
         image = Image.merge("RGBA", (r,g,b,a))
 
         image.save("foo.jpg")
-        bmp.setPixels(image.tobytes())
+
+        destbmp = avg.Bitmap((64,64), avg.B8G8R8A8, "")
+        destbmp.setPixels(image.tobytes())
         node = avg.ImageNode(parent=self)
-        node.setBitmap(bmp)
+        node.setBitmap(destbmp)
 
     def onExit(self):
         pass
