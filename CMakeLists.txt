@@ -108,7 +108,7 @@ endif()
 if(${PLATFORM_WINDOWS})
     message(FATAL_ERROR
         "Windows is not supported by the CMake build setup right now. "
-        "Use the prebuilt Vistual Studio file './win/libavg.sln'. ")
+        "Use the prebuilt Visual Studio file './win/libavg.sln'. ")
 endif()
 
 if(${AVG_ENABLE_RPI})
