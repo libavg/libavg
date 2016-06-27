@@ -33,8 +33,8 @@ set(test_directories
     baseline
     fonts
     extrafonts
-    media
     media/incompleteSkinMedia
+    media
     testmediadir
     )
 

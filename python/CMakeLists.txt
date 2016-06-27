@@ -21,11 +21,11 @@ add_custom_target(python-build ALL DEPENDS avg
 copyDirIfDifferent(python-build PRE_BUILD
         "${CMAKE_SOURCE_DIR}/src/graphics/shaders"
         "${CMAKE_CURRENT_BINARY_DIR}/libavg/shaders")
-copyPythonToStaging("libavg")
 copyPythonToStaging("libavg/data")
 copyPythonToStaging("libavg/app")
 copyPythonToStaging("libavg/widget")
 copyPythonToStaging("libavg/scripts")
+copyPythonToStaging("libavg")
 add_custom_command(TARGET python-build
         COMMAND ${PYTHON_INTERPRETER} setup.py build)
 

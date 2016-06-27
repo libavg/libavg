@@ -21,6 +21,13 @@ function(copyToStaging dir)
             "${python_test_package_dir}/${dir}")
 endfunction()
 
+# Copies all changed files from src_dir to dest_dir.
+#
+# Unfortunately, under cmake 2.8.12.2, this function also creates an empty file for every
+# subdir that src_dir has. (Background: file(GLOB ...) also lists directories. The 
+# subsequent copy_if_different then creates an empty file).
+#
+# Workaround: Call copyDirIfDifferent for subdirs first.
 function(copyDirIfDifferent target stage src_dir dest_dir)
     add_custom_command(TARGET ${target}
         ${stage}
