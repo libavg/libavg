@@ -41,7 +41,6 @@ set(test_directories
 set(python_test_package_dir "${CMAKE_BINARY_DIR}/python/libavg/test")
 file(MAKE_DIRECTORY ${python_test_package_dir})
 file(MAKE_DIRECTORY "${python_test_package_dir}/cpptest")
-file(MAKE_DIRECTORY "${python_test_package_dir}/plugin")
 
 add_custom_target(copy_python_tests ALL)
 
