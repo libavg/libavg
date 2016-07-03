@@ -3,6 +3,12 @@ add_custom_target(version
 
 install(DIRECTORY ./
         DESTINATION include/libavg
+        FILES_MATCHING PATTERN *.inl)
+install(DIRECTORY ./
+        DESTINATION include/libavg
+        FILES_MATCHING PATTERN *.hpp)
+install(DIRECTORY ./
+        DESTINATION include/libavg
         FILES_MATCHING PATTERN *.h)
 install(FILES ${CMAKE_BINARY_DIR}/src/avgconfig.h ${CMAKE_BINARY_DIR}/src/version.h
         DESTINATION include/libavg)
