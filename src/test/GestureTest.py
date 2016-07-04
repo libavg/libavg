@@ -712,7 +712,14 @@ class GestureTestCase(AVGTestCase):
 
     def testDragRecognizerInitialEvent(self):
 
+        def createIllegalCoordSysNode():
+            gesture.DragRecognizer(self.err_image, 
+                    detectedHandler=onDragStart, moveHandler=onDrag, 
+                    initialEvent=player.getCurrentEvent())
+
         def onMotion(offset):
+            self.assertRaises(avg.Exception, createIllegalCoordSysNode)
+
             gesture.DragRecognizer(self.image, 
                     detectedHandler=onDragStart, moveHandler=onDrag, 
                     initialEvent=player.getCurrentEvent())
@@ -725,6 +732,8 @@ class GestureTestCase(AVGTestCase):
             self.assertEqual(offset, (10,0))
 
         self.__initImageScene()
+        self.err_image = avg.ImageNode(href="rgb24-64x64.png", pos=(200,200), 
+                parent=self.root)
         self.image.subscribe(avg.Node.CURSOR_MOTION, onMotion)
         self.__dragStartCalled = False
         self.start(False,
@@ -1109,8 +1118,8 @@ class GestureTestCase(AVGTestCase):
                 ))
 
     def __initImageScene(self):
-        root = self.loadEmptyScene()
-        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.root = self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=self.root, href="rgb24-64x64.png")
 
     def __killImageNode(self):
         self.image.unlink(True)

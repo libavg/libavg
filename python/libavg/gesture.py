@@ -214,6 +214,11 @@ class Recognizer(avg.Publisher):
             node = node.getParent()
         return event.contact.getRelPos(node, event.pos)
 
+    def _verifyInitialEvent(self, initialEvent, coordSysNode):
+        if initialEvent is not None:
+            if not(initialEvent.contact.isNodeInTargets(coordSysNode)):
+                raise avg.Exception("Gestures with an initialEvent must have coordSysNode set to a node under the event.")
+
     def __setEventHandler(self):
         if self.__node:
             self.__downHandlerID = self.__node.subscribe(
@@ -481,6 +486,8 @@ class DragRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
+        self._verifyInitialEvent(initialEvent, self.__coordSysNode())
+
         self.__direction = direction
         self.__directionTolerance = directionTolerance
 
@@ -499,6 +506,7 @@ class DragRecognizer(Recognizer):
 
         self.__isSliding = False
         self.__inertiaHandler = None
+
         super(DragRecognizer, self).__init__(eventNode, True, 1, 
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
@@ -769,6 +777,7 @@ class TransformRecognizer(Recognizer):
             self.__coordSysNode = weakref.ref(coordSysNode)
         else:
             self.__coordSysNode = weakref.ref(eventNode)
+        self._verifyInitialEvent(initialEvent, self.__coordSysNode())
         
         if friction is None:
             self.__friction = DragRecognizer.FRICTION
@@ -781,6 +790,7 @@ class TransformRecognizer(Recognizer):
         self.__inertiaHandler = None
         self.__filters = {}
         self.__frameHandlerID = None
+
         super(TransformRecognizer, self).__init__(eventNode, True, None, 
                 initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
         self.subscribe(Recognizer.MOTION, moveHandler)

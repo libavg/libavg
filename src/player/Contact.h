@@ -67,6 +67,7 @@ public:
 
     void setNodeChain(NodeChainPtr pNodeChain);
     glm::vec2 getRelPos(NodePtr pNode, const glm::vec2& pos) const;
+    bool isNodeInTargets(NodePtr pNode) const;
 
     int getID() const;
     
