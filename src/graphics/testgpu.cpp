@@ -529,7 +529,11 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
+#ifdef WIN32
+    ShaderRegistry::setShaderPath("./shaders");
+#else
     ShaderRegistry::setShaderPath("./../../shaders");
+#endif
 
     GLContextManager cm;
     GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));

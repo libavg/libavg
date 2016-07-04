@@ -107,7 +107,11 @@ string Test::getSrcDir()
 
 string Test::getMediaDir() const
 {
+#ifdef WIN32
+   return getSrcDir() + "/../test/media";
+#else
    return getSrcDir() + "/../media";
+#endif
 }
 
 string Test::getBaselineDir() const
