@@ -25,10 +25,13 @@ elseif (${PLATFORM_MACOSX})
     target_link_libraries(${PLUGIN_NAME} ${LIBXML2_LDFLAGS} ${PLUGIN_LIBS})
 endif()
 
-
+set(staging_dir "${CMAKE_BINARY_DIR}/python/libavg/test/plugin/")
+add_custom_command(TARGET colorplugin POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${staging_dir}"
+    )
 add_custom_command(TARGET colorplugin POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_BINARY_DIR}/colorplugin${CMAKE_SHARED_MODULE_SUFFIX}"
-            "${CMAKE_BINARY_DIR}/python/libavg/test/plugin"
+            "${staging_dir}"
     )
 
