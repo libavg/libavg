@@ -66,7 +66,11 @@ public:
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
 #endif
-            ShaderRegistry::setShaderPath(Test::getSrcDir()+"/../..//shaders");
+#ifdef WIN32
+            ShaderRegistry::setShaderPath("../graphics/shaders");
+#else
+            ShaderRegistry::setShaderPath("./../../shaders");
+#endif
             player.initPlayback();
             player.doFrame(false);
             player.cleanup(false);
