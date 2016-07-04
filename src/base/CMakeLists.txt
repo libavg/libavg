@@ -11,9 +11,9 @@ add_library(base
 target_compile_options(base
     PUBLIC ${LIBXML2_CFLAGS})
 target_include_directories(base
-    PUBLIC SYSTEM ${Boost_INCLUDE_DIRS})
+    PUBLIC SYSTEM ${Boost_INCLUDE_DIRS} ${RT_INCLUDE_DIR})
 target_link_libraries(base
-    PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS})
+    PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS} ${RT_LIBRARY})
 
 link_libraries(base)
 add_executable(testbase testbase.cpp)

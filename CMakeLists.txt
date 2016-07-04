@@ -1,3 +1,4 @@
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules" )
 include(CheckCXXCompilerFlag)
 
 function(set_cxx_version)
@@ -56,6 +57,7 @@ find_package(PythonLibs REQUIRED)
 pkg_search_module(PANGOFT2 REQUIRED pangoft2)
 pkg_search_module(RSVG REQUIRED librsvg-2.0)
 pkg_search_module(FONTCONFIG REQUIRED fontconfig)
+find_package(RT REQUIRED)
 
 find_path(VIDEODEV2_FOUND
     NAMES videodev2.h
@@ -133,7 +135,6 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
     endif()
     set_cxx_version()
 endif()
-
 
 # Feature configuration
 if(${AVG_ENABLE_GLX_X11})
