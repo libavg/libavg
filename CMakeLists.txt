@@ -77,6 +77,12 @@ if(VIDEODEV2_FOUND)
     find_package(JPEG REQUIRED)
 endif()
 
+# Python virtualenv handling: If a virtualenv is active, install everything there.
+set(virtual_env $ENV{VIRTUAL_ENV})
+if (virtual_env)
+    message(STATUS "Python virtualenv in use, setting install prefix to ${virtual_env}.")
+    set(CMAKE_INSTALL_PREFIX ${virtual_env})
+endif()
 
 # Platform-specific configuration
 if(${PLATFORM_LINUX})
