@@ -96,3 +96,10 @@ win/testplugin/dist/
 */*sdf
 */*.suo
 *~
+
+# cmake
+build/
+*.cmake
+CMakeCache.txt
+CMakeFiles/
+Testing/

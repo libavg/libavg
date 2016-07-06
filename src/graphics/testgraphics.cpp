@@ -604,12 +604,7 @@ public:
     void runTests() 
     {
         try {
-            char * pSrcDir = getenv("srcdir");
-            string sFilename;
-            if (pSrcDir) {
-                sFilename = (string)pSrcDir+"/";
-            }
-            sFilename += "../test/media/rgb24-64x64.png";
+            string sFilename = getMediaDir() + "/rgb24-64x64.png";
             BitmapPtr pBmp = loadBitmap(sFilename, R8G8B8);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
@@ -848,9 +843,8 @@ private:
         }
 
         BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
-        string sFName = string("baseline/MaskResult")+sName+".png";
+        string sFName = getBaselineDir() + "/MaskResult"+sName+".png";
 //        pDestBmp->save(sFName);
-        sFName = getSrcDirName()+sFName;
         BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
@@ -867,9 +861,8 @@ public:
     {
         BitmapPtr pBmp(initBmp(I8));
         BitmapPtr pDestBmp = FilterThreshold(1).apply(pBmp);
-        string sFName = "baseline/ThresholdResult.png";
+        string sFName = getBaselineDir() + "/ThresholdResult.png";
 //        pDestBmp->save(sFName);
-        sFName = getSrcDirName()+sFName;
         BitmapPtr pBaselineBmp = loadBitmap(sFName, pBmp->getPixelFormat());
         TEST(*pDestBmp == *pBaselineBmp);
     }
@@ -1009,6 +1002,7 @@ public:
     GraphicsTestSuite() 
         : TestSuite("GraphicsTestSuite")
     {
+        Test::setRelSrcDir(".");
         addTest(TestPtr(new PixelTest));
         addTest(TestPtr(new ColorTest));
         addTest(TestPtr(new BitmapTest));

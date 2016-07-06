@@ -1,0 +1,8 @@
+
+#cmakedefine AVG_ENABLE_EGL
+#cmakedefine AVG_ENABLE_RPI
+
+#cmakedefine AVG_ENABLE_DSHOW
+#cmakedefine AVG_ENABLE_V4L2
+#cmakedefine AVG_ENABLE_1394_2
+#cmakedefine AVG_ENABLE_CMU1394

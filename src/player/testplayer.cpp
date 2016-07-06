@@ -66,7 +66,11 @@ public:
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
 #endif
-            ShaderRegistry::setShaderPath("../graphics/shaders/");
+#ifdef WIN32
+            ShaderRegistry::setShaderPath("../graphics/shaders");
+#else
+            ShaderRegistry::setShaderPath("./../../shaders");
+#endif
             player.initPlayback();
             player.doFrame(false);
             player.cleanup(false);
@@ -84,6 +88,7 @@ public:
     PlayerTestSuite() 
         : TestSuite("PlayerTestSuite")
     {
+        Test::setRelSrcDir(".");
         addTest(TestPtr(new PlayerTest));
     }
 };

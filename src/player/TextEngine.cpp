@@ -250,6 +250,7 @@ void TextEngine::initFonts()
     fontConfPathPrefixList.push_back("/opt/local/");
 #endif
     fontConfPathPrefixList.push_back(getAvgLibPath());
+    fontConfPathPrefixList.push_back("../../");
 
     std::string sFontConfPath;
     for (size_t i = 0; i < fontConfPathPrefixList.size(); ++i) {

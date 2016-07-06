@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
+
+import sys
+# Add libavg to path
+sys.path.insert(0, '..')
+
+import argparse
+import os
+import stat
+import subprocess
+
+import libavg
+
+
+def exitOnError(returnCode):
+    if returnCode != 0:
+        sys.exit(returnCode)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--python', action='store_true',
+                        help='Run python unittests only')
+    args = parser.parse_args()
+
+    initialWorkingDir = os.getcwd()
+    libavgPackagePath = os.path.abspath(os.path.dirname(libavg.__file__))
+
+    if not args.python:
+        os.chdir(os.path.join(libavgPackagePath, 'test', 'cpptest'))
+        for file_ in os.listdir(os.getcwd()):
+            if os.path.isfile(file_):
+                cppTest = os.path.abspath(file_)
+                ret = subprocess.call(cppTest, shell=True)
+                exitOnError(ret)
+
+    os.chdir(os.path.join(libavgPackagePath, 'test'))
+    testRunner = os.path.abspath('Test.py')
+    ret = subprocess.call(testRunner, shell=True)
+    exitOnError(ret)
+
+    os.chdir(initialWorkingDir)
+

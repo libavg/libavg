@@ -49,8 +49,13 @@ public:
     virtual void printResults();
 
 protected:
-    static const std::string& getSrcDirName();
-    static std::string s_sSrcDirName;
+    static void setRelSrcDir(const std::string& sRelDir);
+    static std::string getSrcDir();
+
+    std::string getMediaDir() const;
+    std::string getBaselineDir() const;
+
+    static std::string s_sRelSrcDir;
 
     int m_IndentLevel;
 
