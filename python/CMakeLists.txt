@@ -24,8 +24,8 @@ copyDirIfDifferent(python-build PRE_BUILD
 copyPythonToStaging("libavg/data")
 copyPythonToStaging("libavg/app")
 copyPythonToStaging("libavg/widget")
-copyPythonToStaging("libavg/scripts")
 copyPythonToStaging("libavg")
+copyPythonToStaging("scripts")
 add_custom_command(TARGET python-build
         COMMAND ${PYTHON_INTERPRETER} setup.py build)
 
