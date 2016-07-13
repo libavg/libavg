@@ -91,10 +91,6 @@ test_media_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/media/')
 test_media_skin_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/media/incompleteSkinMedia')
 
 python_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/')
-python_files += [
-        LIBAVG_SRC_DIR+'test/testcase.py',
-        LIBAVG_SRC_DIR+'test/testapp.py',
-        ]
 python_app_files = gatherFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/app/')
 python_widget_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/widget/')
 python_data_files = gatherFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/data/')
