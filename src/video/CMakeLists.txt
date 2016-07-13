@@ -4,9 +4,9 @@ add_library(video
     AsyncVideoDecoder.cpp VideoInfo.cpp SyncVideoDecoder.cpp
     FFMpegFrameDecoder.cpp WrapFFMpeg.cpp)
 target_link_libraries(video
-    PUBLIC base audio graphics ${FFMPEG_LDFLAGS})
+    PUBLIC base audio graphics ${FFMPEG_LDFLAGS} ${FFMPEG_AVRESAMPLE_LDFLAGS})
 target_compile_options(video
-    PUBLIC ${FFMPEG_CFLAGS})
+    PUBLIC ${FFMPEG_CFLAGS} ${FFMPEG_AVRESAMPLE_CFLAGS})
 
 
 
