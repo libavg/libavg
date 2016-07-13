@@ -109,6 +109,7 @@ if(${PLATFORM_MACOSX})
             ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
     # The following lines work around broken pkg-config scripts on mac.
     string (REPLACE ";" " " FFMPEG_LDFLAGS "${FFMPEG_LDFLAGS}")
+    string (REPLACE ";" " " FFMPEG_AVRESAMPLE_LDFLAGS "${FFMPEG_AVRESAMPLE_LDFLAGS}")
     set(RSVG_LDFLAGS "${RSVG_LDFLAGS} -lpixman-1 -lpangocairo-1.0")
     set(GDK_PIXBUF_LDFLAGS "${GDK_PIXBUF_LDFLAGS} -lgmodule-2.0 -lgio-2.0 -lresolv")
     link_libraries(${PLATFORM_MACOSX_LIBS})
