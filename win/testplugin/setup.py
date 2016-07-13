@@ -149,7 +149,7 @@ else:
     if match and match.groups:
         revision = 'r' + match.groups()[0]
 
-scripts = glob.glob(os.path.join(LIBAVG_SRC_DIR, 'utils', 'avg_*.py'))
+scripts = glob.glob(os.path.join(LIBAVG_SRC_DIR, '../python/scripts', 'avg_*'))
 batches = []
 
 f = open('batch_template.txt')
@@ -157,7 +157,7 @@ batchTemplate = f.read(1024)
 f.close()
 
 for py in map(os.path.basename, scripts):
-    batch = os.path.splitext(py)[0] + '.bat'
+    batch = py + '.bat'
     fw = open(batch, 'w')
     fw.write(batchTemplate.replace('#$#PYSCRIPT#$#', py))
     fw.close()
