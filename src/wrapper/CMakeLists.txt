@@ -5,8 +5,4 @@ add_library(avg SHARED
 # Make sure we don't generate a .dylib on mac.
 set_target_properties(avg PROPERTIES PREFIX "")
 set_target_properties(avg PROPERTIES SUFFIX ".so")
-target_link_libraries(avg PUBLIC
-        "-Wl,--whole-archive"
-        player anim oscpack
-        "-Wl,--no-whole-archive"
-        )
+target_link_libraries(avg PUBLIC player anim)
