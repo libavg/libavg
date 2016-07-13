@@ -41,7 +41,7 @@ libavg.logger.info("Using libavg from: "+ os.path.dirname(libavg.__file__),
 # Ensure mouse is activated
 libavg.player.enableMouse(True)
 
-import testapp
+from libavg import testapp
 
 libavg.player.keepWindowOpen()
 

@@ -21,7 +21,7 @@
 #
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class DynamicsTestCase(AVGTestCase):
     def __init__(self, testFuncName):

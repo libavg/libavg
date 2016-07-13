@@ -24,7 +24,7 @@
 import shutil
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):

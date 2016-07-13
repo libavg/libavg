@@ -24,8 +24,8 @@ import time
 import tempfile
 
 from libavg import geom, statemachine, persist, sprites
+from libavg.testcase import *
 
-from testcase import *
 
 def getTempFileName():
     return os.path.join(tempfile.gettempdir(), 'libavg.%d' % time.time())

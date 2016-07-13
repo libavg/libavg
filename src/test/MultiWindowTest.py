@@ -22,7 +22,7 @@
 
 import libavg
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 import AppTest
 
 class MultiWindowTestCase(AVGTestCase):

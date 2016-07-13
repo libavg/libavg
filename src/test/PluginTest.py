@@ -23,7 +23,7 @@
 import platform
 
 from libavg import player
-from testcase import *
+from libavg.testcase import *
 
 class PluginTestCase(AVGTestCase):
     def __init__(self, testFuncName):

@@ -29,7 +29,7 @@ from libavg import avg, player
 from libavg.app import settings
 from libavg.app import keyboardmanager
 from libavg.app.settings import Option
-import testcase
+from libavg.testcase import *
 
 res = player.getScreenResolution()
 
@@ -58,7 +58,7 @@ class TestApp(libavg.app.App):
             player.stop()
 
 
-class AppTestCase(testcase.AVGTestCase):
+class AppTestCase(AVGTestCase):
     def testSettingsOptions(self):
         self.assertRaises(ValueError, lambda: settings.Option('test', 1))
         
@@ -125,7 +125,7 @@ class AppTestCase(testcase.AVGTestCase):
         self.assertEquals(e.parsedArgs[1], ['foo'])
 
         e = settings.ArgvExtender('', args=['foo', '--foo-baxxx', 'baz'])
-        with testcase.SuppressOutput():
+        with SuppressOutput():
             self.assertRaises(SystemExit, lambda: s.applyExtender(e))
 
     def testSettingsKargsExtender(self):
@@ -295,5 +295,5 @@ def appTestSuite(tests):
             'testKeyboardManagerScancode',
             'testKeyboardManagerText',
     )
-    return testcase.createAVGTestSuite(availableTests, AppTestCase, tests)
+    return createAVGTestSuite(availableTests, AppTestCase, tests)
 

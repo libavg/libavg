@@ -20,7 +20,7 @@
 #
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 def dumpMouseEvent(Event):
     print Event

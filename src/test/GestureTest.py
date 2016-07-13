@@ -22,7 +22,7 @@
 from libavg import avg, gesture, player
 
 import math
-from testcase import *
+from libavg.testcase import *
 
 class GestureTestCase(AVGTestCase):
 

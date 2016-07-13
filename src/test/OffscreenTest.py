@@ -20,7 +20,7 @@
 #
 
 from libavg import avg, player, gesture
-from testcase import *
+from libavg.testcase import *
 import gc
 
 class OffscreenTestCase(AVGTestCase):

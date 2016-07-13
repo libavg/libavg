@@ -20,7 +20,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from testcase import *
+from libavg.testcase import *
 
 class AnimTestCase(AVGTestCase):
     def __init__(self, testFuncName):

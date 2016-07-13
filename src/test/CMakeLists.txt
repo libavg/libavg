@@ -22,8 +22,6 @@ set(test_files
     camcfgs.py
     checkcamera.py
     checkpoly.py
-    testapp.py
-    testcase.py
     avgwindowconfig.xml
     image.avg
     illustratorRect.svg

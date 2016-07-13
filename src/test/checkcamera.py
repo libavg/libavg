@@ -26,7 +26,7 @@ from libavg import *
 import camcfgs
 import optparse
 
-from testcase import *
+from libavg.testcase import *
 
 def parseCmdLine():
     global g_TestParams
