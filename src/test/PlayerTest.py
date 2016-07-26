@@ -123,6 +123,7 @@ class PlayerTestCase(AVGTestCase):
         # Test mixing when saturation==0
         col = avg.Color.mix(avg.Color("FFFFFF"), avg.Color("FF0000"), 0.5)
         self.assertEqual(col, avg.Color("FF9E81"))
+        self.assertEqual(str(col), "FF9E81")
 
     def testBasics(self):
         def getFramerate():
