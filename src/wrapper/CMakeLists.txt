@@ -6,19 +6,18 @@ add_library(avg SHARED
 set_target_properties(avg PROPERTIES PREFIX "")
 set_target_properties(avg PROPERTIES SUFFIX ".so")
 
-# If these flags aren't passed to the linker under linux, oscpack's global variables
+target_link_libraries(avg PUBLIC player anim)
+
+# If these flags aren't passed to the linker, oscpack's global variables
 # don't get exported to plugins.
 if(${PLATFORM_LINUX})
-    set(LINK_EXPORT_ALL_FLAG "-Wl,--whole-archive")
-    set(LINK_UNEXPORT_ALL_FLAG "-Wl,--no-whole-archive")
-else()
-    set(LINK_EXPORT_ALL_FLAG "")
-    set(LINK_UNEXPORT_ALL_FLAG "")
-endif()
-
-
 target_link_libraries(avg PUBLIC
-        ${LINK_EXPORT_ALL_FLAG}
-        player anim oscpack
-        ${LINK_UNEXPORT_ALL_FLAG}
+        -Wl,--whole-archive
+        oscpack
+        -Wl,--no-whole-archive
         )
+else()
+target_link_libraries(avg PUBLIC
+        -Wl,-force_load oscpack
+        )
+endif()
