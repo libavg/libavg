@@ -206,6 +206,10 @@ Misc. Classes
 
             Creates a color that is a mix of the two colors passed as parameters.
 
+        .. py:classmethod:: fromLch(l, c, h) -> color
+
+            Creates a color from values in Lch color space.
+
 
     .. autoclass:: CubicSpline(controlpoints)
 

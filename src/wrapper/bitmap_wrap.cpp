@@ -248,6 +248,8 @@ void export_bitmap()
         .def(self_ns::str(self))
         .def("mix", &Color::mix)
         .staticmethod("mix")
+        .def("fromLch", &Color::fromLch)
+        .staticmethod("fromLch")
     ;
     implicitly_convertible<glm::vec3, Color>();
     implicitly_convertible<string, Color>();

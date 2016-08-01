@@ -175,6 +175,12 @@ Color Color::mix(const Color& c1, const Color& c2, float ratio)
     return Lch2RGB(lchMix);
 }
 
+Color Color::fromLch(float L, float C, float H)
+{
+    LchColor lch(L, C, H);
+    return Lch2RGB(lch);
+}
+
 std::ostream& operator <<(std::ostream& os, const Color& col)
 {
     os << string(col);
