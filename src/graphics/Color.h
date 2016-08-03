@@ -56,6 +56,7 @@ public:
     bool operator !=(const Color& c) const;
 
     static Color mix(const Color& c1, const Color& c2, float ratio);
+    static Color fromLch(float L, float C, float H);
 
     friend AVG_API std::ostream& operator <<(std::ostream& os, const Color& col);
 
