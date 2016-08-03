@@ -116,6 +116,8 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(col, avg.Color("FF0000"))
         col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 0)
         self.assertEqual(col, avg.Color("0000FF"))
+        col = avg.Color.fromLch(60,74,126)
+        self.assertEqual(col, "5CA20D")
         self.assertRaises(avg.Exception, lambda: avg.Color("1234567"))
         self.assertRaises(avg.Exception, lambda: avg.Color("xxx"))
         self.assertRaises(avg.Exception, lambda: avg.Color("xxxxxx"))
