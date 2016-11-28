@@ -138,6 +138,11 @@ Input Handling
 
             y position in the global coordinate system. Read-only.
 
+        .. py:attribute:: userid
+
+            If the input source supports user identification, this is the id of the user
+            that touched.
+
 
     .. autoclass:: Event(type, source, [when])
 
