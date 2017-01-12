@@ -539,6 +539,26 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon11")
                 ))
 
+    def testPolygonInDiv(self):
+        def createPolygonInInivisbleDiv():
+            canvas = self.makeEmptyCanvas()
+            div = avg.DivNode(parent=canvas, opacity=0)
+            avg.PolygonNode(strokewidth=2, color="FF00FF",
+                            parent=div, fillopacity=1, fillcolor="00FF00",
+                            pos=((10, 10), (50, 10), (90, 50), (90, 90)))
+            return div
+
+        def makeDivVisible():
+            div.opacity = 1
+
+        div = createPolygonInInivisbleDiv()
+
+        self.start(False,
+                   (lambda: self.compareImage("testPolygonDiv1"),
+                    makeDivVisible,
+                    lambda: self.compareImage("testPolygonDiv2")
+                    ))
+
     def testPolygonEvents(self):
         def moveNode():
             div.pos = (40,40)
@@ -799,6 +819,7 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
+            "testPolygonInDiv",
             "testPolygonEvents",
             "testTexturedPolygon",
             "testPointInPolygon",
