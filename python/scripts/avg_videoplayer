@@ -38,7 +38,7 @@ class VideoPlayer(app.MainDiv):
             parser.print_help()
             sys.exit(1)
 
-        self.node = avg.VideoNode(href=args[0], accelerated=not(options.disableAccel))
+        self.node = avg.VideoNode(href=args[0])
         self.node.pause()
 
         mediaSize = self.node.getMediaSize()
