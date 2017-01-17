@@ -552,12 +552,19 @@ class VectorTestCase(AVGTestCase):
         def makeDivVisible():
             div.opacity = 1
 
+        def makeDivInvisible():
+            div.opacity = 0
+
         div = createPolygonInInivisbleDiv()
 
         self.start(False,
                 (lambda: self.compareImage("testPolygonDiv1"),
                  makeDivVisible,
-                 lambda: self.compareImage("testPolygonDiv2")
+                 lambda: self.compareImage("testPolygonDiv2"),
+                 makeDivInvisible,
+                 lambda: self.compareImage("testPolygonDiv1"),
+                 makeDivVisible,
+                 lambda: self.compareImage("testPolygonDiv2"),
                 ))
 
     def testPolygonEvents(self):
