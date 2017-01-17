@@ -543,9 +543,10 @@ class VectorTestCase(AVGTestCase):
         def createPolygonInInivisbleDiv():
             canvas = self.makeEmptyCanvas()
             div = avg.DivNode(parent=canvas, opacity=0)
-            avg.PolygonNode(strokewidth=2, color="FF00FF",
-                            parent=div, fillopacity=1, fillcolor="00FF00",
-                            pos=((10, 10), (50, 10), (90, 50), (90, 90)))
+            avg.PolygonNode(parent=div,
+                    strokewidth=2, color="FF00FF",
+                    fillopacity=1, fillcolor="00FF00",
+                    pos=((10, 10), (50, 10), (90, 50), (90, 90)))
             return div
 
         def makeDivVisible():
@@ -554,10 +555,10 @@ class VectorTestCase(AVGTestCase):
         div = createPolygonInInivisbleDiv()
 
         self.start(False,
-                   (lambda: self.compareImage("testPolygonDiv1"),
-                    makeDivVisible,
-                    lambda: self.compareImage("testPolygonDiv2")
-                    ))
+                (lambda: self.compareImage("testPolygonDiv1"),
+                 makeDivVisible,
+                 lambda: self.compareImage("testPolygonDiv2")
+                ))
 
     def testPolygonEvents(self):
         def moveNode():
