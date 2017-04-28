@@ -143,6 +143,7 @@ const vector<string>& TextEngine::getFontVariants(const string& sFontName)
     int numFaces;
     pango_font_family_list_faces (pCurFamily, &ppFaces, &numFaces);
     static vector<string> sVariants;
+    sVariants.clear();
     for (int i = 0; i < numFaces; ++i) {
         sVariants.push_back(pango_font_face_get_face_name(ppFaces[i]));
     }
@@ -250,6 +251,7 @@ void TextEngine::initFonts()
     fontConfPathPrefixList.push_back("/opt/local/");
 #endif
     fontConfPathPrefixList.push_back(getAvgLibPath());
+    fontConfPathPrefixList.push_back("../../");
 
     std::string sFontConfPath;
     for (size_t i = 0; i < fontConfPathPrefixList.size(); ++i) {

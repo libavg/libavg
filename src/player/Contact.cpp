@@ -25,6 +25,7 @@
 #include "BoostPython.h"
 #include "Player.h"
 #include "PublisherDefinition.h"
+#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -126,8 +127,7 @@ void Contact::addEvent(CursorEventPtr pEvent)
     pEvent->setContact(boost::dynamic_pointer_cast<Contact>(shared_from_this()));
     calcSpeed(pEvent, m_Events.back());
     updateDistanceTravelled(m_Events.back(), pEvent);
-    m_Events.back()->removeBlob();
-    m_Events.back()->setNode(NodePtr());
+    m_Events.back()->clearNodeData();
     m_Events.push_back(pEvent);
 }
 
@@ -177,6 +177,21 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         }
     }
     m_bSendingEvents = false;
+}
+
+void Contact::setNodeChain(NodeChainPtr pNodeChain)
+{
+    m_pNodeChain = pNodeChain;
+}
+
+glm::vec2 Contact::getRelPos(NodePtr pNode, const glm::vec2& pos) const
+{
+    return m_pNodeChain->getRelPos(pNode, pos);
+}
+
+bool Contact::isNodeInTargets(NodePtr pNode) const
+{
+    return m_pNodeChain->contains(pNode);
 }
 
 int Contact::getID() const

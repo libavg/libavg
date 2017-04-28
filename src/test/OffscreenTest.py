@@ -19,8 +19,8 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, player
-from testcase import *
+from libavg import avg, player, gesture
+from libavg.testcase import *
 import gc
 
 class OffscreenTestCase(AVGTestCase):
@@ -161,7 +161,12 @@ class OffscreenTestCase(AVGTestCase):
     def testCanvasEvents(self):
         def onOffscreenImageDown(event):
             self.__offscreenImageDownCalled = True
-            self.__offscreenPos = event.pos
+            self.__offscreenRelPos = event.contact.getRelPos(offscreenImage, event.pos)
+            self.__offscreenAbsPos = event.contact.getRelPos(
+                    player.getRootNode(), event.pos)
+            tempNode = avg.ImageNode(href="rgb24-64x64.png")
+            self.assertRaises(avg.Exception,
+                    lambda: event.contact.getRelPos(tempNode, event.pos))
 
         def onMainDown(event):
             self.__mainDownCalled = True
@@ -184,7 +189,8 @@ class OffscreenTestCase(AVGTestCase):
         self.start(False,
                 (lambda: self.fakeClick(15, 15),
                  lambda: self.assert_(self.__offscreenImageDownCalled),
-                 lambda: self.assert_(self.__offscreenPos == (5,5)),
+                 lambda: self.assert_(self.__offscreenRelPos == (5,5)),
+                 lambda: self.assert_(self.__offscreenAbsPos == (15,15)),
                  reset,
                  lambda: self.fakeClick(5, 5),
                  lambda: self.assert_(not(self.__offscreenImageDownCalled)),
@@ -206,6 +212,26 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.assert_(not(self.__offscreenImageDownCalled) and 
                         self.__mainDownCalled),
                 ))
+
+    def testCanvasDrag(self):
+        def onDrag(offset):
+            self.assertAlmostEqual(offset, (-40,-40))
+            self.__onDragCalled = True
+
+        player.setFakeFPS(100)
+        self.__onDragCalled = False
+        mainCanvas, offscreenCanvas = self.__setupCanvas(True)
+        self.node.angle = math.pi
+        image = avg.ImageNode(parent=offscreenCanvas.getRootNode(), size=(160,120),
+                href="rgb24-64x64.png")
+        dragRecognizer = gesture.DragRecognizer(image, moveHandler=onDrag,
+                friction=-1)
+        self.start(False,
+                (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
+                ))
+        player.setFakeFPS(-1)
+        self.assert_(self.__onDragCalled)
 
     def testCanvasEventCapture(self):
         def onOffscreenImageDown(event):
@@ -476,6 +502,7 @@ def offscreenTestSuite(tests):
                 "testCanvasErrors",
                 "testCanvasAPI",
                 "testCanvasEvents",
+                "testCanvasDrag",
                 "testCanvasEventCapture",
                 "testCanvasRender",
                 "testCanvasAutoRender",

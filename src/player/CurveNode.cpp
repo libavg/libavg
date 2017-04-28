@@ -37,6 +37,7 @@
 using namespace std;
 
 namespace avg {
+
 CurveAABB::CurveAABB(const glm::vec2& pt, int startIDX, int endIDX)
     : FRect(pt, pt),
       m_StartIdx(startIDX),
@@ -57,8 +58,8 @@ void CurveNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CurveNode::CurveNode(const ArgList& args)
-   : VectorNode(args)
+CurveNode::CurveNode(const ArgList& args, const string& sPublisherName)
+   : VectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     glm::vec2 p0 = args.getArgVal<glm::vec2>("pos1");
@@ -138,9 +139,9 @@ void CurveNode::setTexCoord2(float tc)
     setDrawNeeded();
 }
  
-int CurveNode::getCurveLen() const
+float CurveNode::getCurveLen() const
 {
-    return int(m_pCurve->estimateLen());
+    return m_pCurve->estimateLen();
 }
 
 glm::vec2 CurveNode::getPtOnCurve(float t) const
@@ -197,7 +198,7 @@ bool CurveNode::isInsideBB(const glm::vec2& pos, unsigned level, unsigned i)
 
 void CurveNode::updateLines()
 {
-    unsigned numPts = getCurveLen()/2;
+    unsigned numPts = unsigned(getCurveLen()/2);
     m_CenterCurve.clear();
     m_LeftCurve.clear();
     m_RightCurve.clear();

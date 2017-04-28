@@ -20,8 +20,8 @@
 #
 
 from libavg import avg, textarea, widget, player
+from libavg.testcase import *
 
-from testcase import *
 
 class WidgetTestCase(AVGTestCase):
     def __init__(self, testFuncName):

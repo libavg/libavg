@@ -39,9 +39,6 @@
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/SyncVideoDecoder.h"
-#ifdef AVG_ENABLE_VDPAU
-#include "../video/VDPAUDecoder.h"
-#endif
 
 #include <iostream>
 #include <sstream>
@@ -66,16 +63,15 @@ void VideoNode::registerType()
         .addArg(Arg<int>("queuelength", 8, false, 
                 offsetof(VideoNode, m_QueueLength)))
         .addArg(Arg<float>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
-        .addArg(Arg<bool>("accelerated", false, false,
-                offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         .addArg(Arg<bool>("enablesound", true, false,
                 offsetof(VideoNode, m_bEnableSound)))
         ;
     TypeRegistry::get()->registerType(def);
 }
 
-VideoNode::VideoNode(const ArgList& args)
-    : m_VideoState(Unloaded),
+VideoNode::VideoNode(const ArgList& args,const string& sPublisherName)
+    : RasterNode(sPublisherName),
+      m_VideoState(Unloaded),
       m_bFrameAvailable(false),
       m_bFirstFrameDecoded(false),
       m_Filename(""),
@@ -86,7 +82,6 @@ VideoNode::VideoNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_bUsesHardwareAcceleration(false),
       m_bEnableSound(true),
       m_AudioID(-1)
 {
@@ -333,12 +328,6 @@ void VideoNode::setEOFCallback(PyObject * pEOFCallback)
     }
 }
 
-bool VideoNode::isAccelerated() const
-{
-    exceptionIfUnloaded("isAccelerated");
-    return m_bUsesHardwareAcceleration;
-}
-
 const UTF8String& VideoNode::getHRef() const
 {
     return m_href;
@@ -464,7 +453,7 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bUsesHardwareAcceleration, m_bEnableSound);
+    m_pDecoder->open(m_Filename, m_bEnableSound);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
         m_pDecoder->close();
@@ -478,7 +467,6 @@ void VideoNode::open()
     m_bSeekPending = false;
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
-    m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
     setViewport(-32767, -32767, -32767, -32767);
 }
 
@@ -691,16 +679,6 @@ void VideoNode::render(GLContext* pContext, const glm::mat4& transform)
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
         blt32(pContext, transform);
     }
-}
-
-VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
-{
-#ifdef AVG_ENABLE_VDPAU
-    if (VDPAUDecoder::isAvailable()) {
-        return VDPAU;
-    }
-#endif
-    return NONE;
 }
 
 bool VideoNode::renderFrame()

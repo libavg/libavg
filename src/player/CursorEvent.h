@@ -50,12 +50,13 @@ typedef boost::weak_ptr<class Node> NodeWeakPtr;
 class AVG_API CursorEvent: public Event 
 {
     public:
-        CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+        CursorEvent(int id, Type eventType, const IntPoint& pos, Source source,
                 int when=-1);
         virtual ~CursorEvent();
+        virtual CursorEventPtr copy() const;
         virtual CursorEventPtr cloneAs(Type eventType=UNKNOWN) const;
+        virtual CursorEventPtr cloneAs(Type eventType, const glm::vec2& pos) const;
         void setUserID(int userID, int jointID);
-        void setPos(const glm::vec2& pos);
         glm::vec2 getPos() const;
         int getXPosition() const;
         int getYPosition() const;
@@ -64,19 +65,19 @@ class AVG_API CursorEvent: public Event
         int getUserID() const;
         int getJointID() const;
         void setNode(NodePtr pNode);
+        void clearNodeData();
         NodePtr getNode() const;
         void setSpeed(glm::vec2 speed);
         virtual const glm::vec2& getSpeed() const;
 
         void setContact(ContactPtr pContact);
         ContactPtr getContact() const;
-        virtual void removeBlob() {};
 
         friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
         virtual void trace();
 
     private:
-        IntPoint m_Position;
+        IntPoint m_Pos;
         int m_ID;
         ContactWeakPtr m_pContact;
         int m_UserID;

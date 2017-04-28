@@ -54,8 +54,8 @@ void FilledVectorNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-FilledVectorNode::FilledVectorNode(const ArgList& args)
-    : VectorNode(args),
+FilledVectorNode::FilledVectorNode(const ArgList& args, const string& sPublisherName)
+    : VectorNode(args, sPublisherName),
       m_pFillShape(new Shape(WrapMode(GL_REPEAT, GL_REPEAT), false))
 {
     m_FillTexHRef = args.getArgVal<UTF8String>("filltexhref"); 
@@ -151,6 +151,9 @@ void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     float curOpacity = parentEffectiveOpacity*m_FillOpacity;
     if (isDrawNeeded() || curOpacity != m_EffectiveOpacity) {
+        if ((m_EffectiveOpacity <= 0.01) && (curOpacity > 0.01)) {
+            setDrawNeeded();
+        }
         m_EffectiveOpacity = curOpacity;
         checkRedraw();
     }

@@ -26,6 +26,7 @@
 #include "OGLSurface.h"
 #include "FXNode.h"
 #include "Canvas.h"
+#include "NodeChain.h"
 
 #include "../graphics/ImagingProjection.h"
 #include "../graphics/ShaderRegistry.h"
@@ -73,8 +74,9 @@ void RasterNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-RasterNode::RasterNode()
-    : m_pSurface(0),
+RasterNode::RasterNode(const string& sPublisherName)
+    : AreaNode(sPublisherName),
+      m_pSurface(0),
       m_bMipmap(false),
       m_Color(0,0,0,0),
       m_TileSize(-1,-1),
@@ -307,7 +309,7 @@ void RasterNode::setMaskSize(const glm::vec2& size)
     setMaskCoords();
 }
 
-void RasterNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void RasterNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {

@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libxml2
+Description: 
+Version: 2.9
+Libs: -lxml2
+Cflags: -I${includedir}/libxml2
+

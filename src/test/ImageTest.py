@@ -24,7 +24,7 @@
 import shutil
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -155,43 +155,6 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgSize2"),
                 ))
        
-    def testImageWarp(self):
-        def createNode(p):
-            return avg.ImageNode(pos=p, href="rgb24-32x32.png",
-                    maxtilewidth=16, maxtileheight=8) 
-
-        def moveVertex(node):
-            grid = node.getWarpedVertexCoords()
-            grid[0][1] = (grid[0][1][0]+0.25, grid[0][1][1]+0.25)
-            node.setWarpedVertexCoords(grid)
-
-        def testEarlyAccessException():
-            node = createNode((16, 16))
-            root.appendChild(node)
-            self.assertRaises(avg.Exception, node.getWarpedVertexCoords)
-            node.unlink()
-
-        def addNode():
-            self.node = createNode((16, 16))
-            root.appendChild(self.node)
-            moveVertex(self.node)
-       
-        def changeHref():
-            self.node.href = "rgb24-65x65.png"
-            grid = self.node.getWarpedVertexCoords()
-            self.assert_(len(grid) == 10)
-            self.assert_(len(grid[0]) == 6)
-            
-
-        root = self.loadEmptyScene()
-        testEarlyAccessException()
-        self.start(False,
-                (lambda: addNode(),
-                 lambda: self.compareImage("testImgWarp1"),
-                 lambda: changeHref(),
-                 lambda: self.compareImage("testImgWarp2"),
-                ))
-
     def testImageCache(self):
         cache = player.imageCache
         oldCapacity = cache.capacity
@@ -614,7 +577,6 @@ def imageTestSuite(tests):
             "testImageHRef",
             "testImagePos",
             "testImageSize",
-            "testImageWarp",
             "testImageCache",
             "testBitmap",
             "testBitmapManager",

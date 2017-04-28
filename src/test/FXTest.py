@@ -21,7 +21,7 @@
 #
 
 from libavg import avg, utils, player
-from testcase import *
+from libavg.testcase import *
 
 
 class FXTestCase(AVGTestCase):

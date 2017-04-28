@@ -20,7 +20,7 @@
 #
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class VectorTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -293,7 +293,7 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         curve = addCurve()
-        self.assertAlmostEqual(curve.length, 210)
+        self.assertAlmostEqual(curve.length, 210, epsilon=0.001)
         self.assertAlmostEqual(curve.getPtOnCurve(0), (10.5,10))
         self.assertAlmostEqual(curve.getPtOnCurve(1), (80.5,10))
         self.assertAlmostEqual(curve.getPtOnCurve(0.5), (45.5,62.5))
@@ -537,6 +537,34 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon10"),
                  createDegeneratePolygon,
                  lambda: self.compareImage("testPolygon11")
+                ))
+
+    def testPolygonInDiv(self):
+        def createPolygonInInivisbleDiv():
+            canvas = self.makeEmptyCanvas()
+            div = avg.DivNode(parent=canvas, opacity=0)
+            avg.PolygonNode(parent=div,
+                    strokewidth=2, color="FF00FF",
+                    fillopacity=1, fillcolor="00FF00",
+                    pos=((10, 10), (50, 10), (90, 50), (90, 90)))
+            return div
+
+        def makeDivVisible():
+            div.opacity = 1
+
+        def makeDivInvisible():
+            div.opacity = 0
+
+        div = createPolygonInInivisbleDiv()
+
+        self.start(False,
+                (lambda: self.compareImage("testPolygonDiv1"),
+                 makeDivVisible,
+                 lambda: self.compareImage("testPolygonDiv2"),
+                 makeDivInvisible,
+                 lambda: self.compareImage("testPolygonDiv1"),
+                 makeDivVisible,
+                 lambda: self.compareImage("testPolygonDiv2"),
                 ))
 
     def testPolygonEvents(self):
@@ -799,6 +827,7 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
+            "testPolygonInDiv",
             "testPolygonEvents",
             "testTexturedPolygon",
             "testPointInPolygon",

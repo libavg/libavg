@@ -56,8 +56,9 @@ void ImageNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-ImageNode::ImageNode(const ArgList& args)
-    : m_Compression(TEXCOMPRESSION_NONE)
+ImageNode::ImageNode(const ArgList& args, const string& sPublisherName)
+    : RasterNode(sPublisherName),
+      m_Compression(TEXCOMPRESSION_NONE)
 {
     args.setMembers(this);
     m_pGPUImage = GPUImagePtr(new GPUImage(getSurface(), getMipmap()));
@@ -213,7 +214,7 @@ void ImageNode::checkReload()
     RasterNode::checkReload();
 }
 
-void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void ImageNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     if (reactsToMouseEvents()) {
         OffscreenCanvasPtr pCanvas = m_pGPUImage->getCanvas();

@@ -95,7 +95,7 @@ private:
     std::string m_sModelName;
     std::vector<Buffer> m_vBuffers;
     bool m_bCameraAvailable;
-    int m_v4lPF;
+    unsigned m_v4lPF;
 };
 
 }

@@ -91,6 +91,15 @@ Input Handling
             :py:meth:`connectListener`. It is an error to call 
             :py:meth:`disconnectListener` with an invalid id.
 
+        .. py:method:: getRelPos(node, abspos) -> relpos
+
+            Transforms a position in window coordinates to a position in coordinates
+            relative to :py:attr:`node`. :py:attr:`node` must be one of the nodes
+            the original down event of the :py:class:`Contact` was over.
+            In contrast to :py:meth:`Node.getRelPos`, this method transforms window
+            coordinates even if the node is inside a canvas.
+
+
     .. autoclass:: CursorEvent
 
         Base class for all events which contain a position in the global coordinate
@@ -128,6 +137,11 @@ Input Handling
         .. py:attribute:: y
 
             y position in the global coordinate system. Read-only.
+
+        .. py:attribute:: userid
+
+            If the input source supports user identification, this is the id of the user
+            that touched.
 
 
     .. autoclass:: Event(type, source, [when])

@@ -23,7 +23,7 @@
 import platform
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class WordsTestCase(AVGTestCase):
     def __init__(self, testFuncName):

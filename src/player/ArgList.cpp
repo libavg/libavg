@@ -166,6 +166,7 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
             dynamic_cast<Arg<vector<glm::ivec3> >* >(&*pArg);
     Arg<CollVec2Vector>* pCollVec2VectorArg =
             dynamic_cast<Arg<CollVec2Vector>* >(&*pArg);
+    Arg<vector<string> >* pStrVectorArg = dynamic_cast<Arg<vector<string> >* >(&*pArg);
     Arg<FontStyle>* pFontStyleArg = dynamic_cast<Arg<FontStyle>* >(&*pArg);
     Arg<FontStylePtr>* pFontStylePtrArg = dynamic_cast<Arg<FontStylePtr>* >(&*pArg);
     Arg<Color>* pColorArg = dynamic_cast<Arg<Color>* >(&*pArg);
@@ -195,6 +196,8 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
         avg::setArgValue(pIVec3VectorArg, sName, value);
     } else if (pCollVec2VectorArg) {
         avg::setArgValue(pCollVec2VectorArg, sName, value);
+    } else if (pStrVectorArg) {
+        avg::setArgValue(pStrVectorArg, sName, value);
     } else if (pFontStyleArg) {
         avg::setArgValue(pFontStyleArg, sName, value);
     } else if (pFontStylePtrArg) {

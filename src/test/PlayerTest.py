@@ -23,7 +23,7 @@ import math
 import threading
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -116,6 +116,8 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(col, avg.Color("FF0000"))
         col = avg.Color.mix(avg.Color("FF0000"), avg.Color("0000FF"), 0)
         self.assertEqual(col, avg.Color("0000FF"))
+        col = avg.Color.fromLch(60,74,126)
+        self.assertEqual(col, "5CA20D")
         self.assertRaises(avg.Exception, lambda: avg.Color("1234567"))
         self.assertRaises(avg.Exception, lambda: avg.Color("xxx"))
         self.assertRaises(avg.Exception, lambda: avg.Color("xxxxxx"))
@@ -123,6 +125,7 @@ class PlayerTestCase(AVGTestCase):
         # Test mixing when saturation==0
         col = avg.Color.mix(avg.Color("FFFFFF"), avg.Color("FF0000"), 0.5)
         self.assertEqual(col, avg.Color("FF9E81"))
+        self.assertEqual(str(col), "FF9E81")
 
     def testBasics(self):
         def getFramerate():
@@ -646,6 +649,12 @@ class PlayerTestCase(AVGTestCase):
             grid = image.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             image.setWarpedVertexCoords(grid)
+
+        def changeHref():
+            image.href = "rgb24-65x65.png"
+            grid = image.getWarpedVertexCoords()
+            self.assert_(len(grid) == 6)
+            self.assert_(len(grid[0]) == 4)
       
         root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png",
@@ -663,10 +672,12 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testWarp2"),
                  flip,
                  lambda: self.compareImage("testWarp3"),
-                 lambda: image.setMirror(avg.RasterNode.HORIZONTAL),
-                 lambda: self.compareImage("testWarp3"),
-                 lambda: image.setMirror(avg.RasterNode.VERTICAL),
+                 changeHref,
                  lambda: self.compareImage("testWarp4"),
+                 lambda: image.setMirror(avg.RasterNode.HORIZONTAL),
+                 lambda: self.compareImage("testWarp5"),
+                 lambda: image.setMirror(avg.RasterNode.VERTICAL),
+                 lambda: self.compareImage("testWarp6"),
                 ))
 
     def testMediaDir(self):

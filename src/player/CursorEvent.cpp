@@ -35,10 +35,10 @@ using namespace std;
 
 namespace avg {
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& pos, Source source,
         int when)
     : Event(eventType, source, when),
-      m_Position(position),
+      m_Pos(pos),
       m_ID(id),
       m_UserID(-1),
       m_JointID(-1),
@@ -50,12 +50,24 @@ CursorEvent::~CursorEvent()
 {
 }
 
+CursorEventPtr CursorEvent::copy() const
+{
+    return CursorEventPtr(new CursorEvent(*this));
+}
+
 CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 {
-    CursorEventPtr pClone(new CursorEvent(*this));
+    CursorEventPtr pClone = copy();
     if (eventType != UNKNOWN) {
         pClone->m_Type = eventType;
     }
+    return pClone;
+}
+
+CursorEventPtr CursorEvent::cloneAs(Type eventType, const glm::vec2& pos) const
+{
+    CursorEventPtr pClone = cloneAs(eventType);
+    pClone->m_Pos = IntPoint(pos);
     return pClone;
 }
 
@@ -65,24 +77,19 @@ void CursorEvent::setUserID(int userID, int jointID)
     m_JointID = jointID;
 }
 
-void CursorEvent::setPos(const glm::vec2& pos)
-{
-    m_Position = IntPoint(pos);
-}
-
 glm::vec2 CursorEvent::getPos() const
 {
-    return glm::vec2(m_Position);
+    return glm::vec2(m_Pos);
 }
 
 int CursorEvent::getXPosition() const
 {
-    return m_Position.x;
+    return m_Pos.x;
 }
 
 int CursorEvent::getYPosition() const
 {
-    return m_Position.y;
+    return m_Pos.y;
 }
 
 void CursorEvent::setCursorID(int id)
@@ -108,6 +115,11 @@ int CursorEvent::getJointID() const
 void CursorEvent::setNode(NodePtr pNode)
 {
     m_pNode = pNode;
+}
+
+void CursorEvent::clearNodeData()
+{
+    m_pNode = NodePtr();
 }
 
 NodePtr CursorEvent::getNode() const
@@ -137,7 +149,7 @@ ContactPtr CursorEvent::getContact() const
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
-    return (event1.m_Position == event2.m_Position && 
+    return (event1.m_Pos == event2.m_Pos && 
             event1.getWhen() == event2.getWhen()); 
 }
 

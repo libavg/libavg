@@ -51,7 +51,7 @@ class AVG_API VectorNode : public Node
 
         static void registerType();
         
-        VectorNode(const ArgList& args);
+        VectorNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~VectorNode();
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
@@ -70,7 +70,7 @@ class AVG_API VectorNode : public Node
         virtual void maybeRender(GLContext* pContext, const glm::mat4& parentTransform);
         virtual void render(GLContext* pContext, const glm::mat4& transform);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 

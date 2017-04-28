@@ -53,7 +53,7 @@
       </Outputs>
     </CustomBuildStep>
     <PreBuildEvent>
-      <Command>python.exe ..\..\CreateVersionFile.py ..\..\src</Command>
+      <Command>%PYTHON_ROOT%\python.exe ..\..\CreateVersionFile.py ..\..\src</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Generating version.h</Message>

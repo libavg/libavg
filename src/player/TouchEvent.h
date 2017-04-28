@@ -47,7 +47,7 @@ class AVG_API TouchEvent: public CursorEvent
         TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
                 const glm::vec2& speed=glm::vec2(0, 0));
         virtual ~TouchEvent();
-        virtual CursorEventPtr cloneAs(Type eventType=UNKNOWN) const;
+        virtual CursorEventPtr copy() const;
 
         float getOrientation() const;
         float getArea() const;

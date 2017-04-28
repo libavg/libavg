@@ -43,6 +43,7 @@
 #include "../base/Test.h"
 #include "../base/StringHelper.h"
 #include "../base/FileHelper.h"
+#include "../base/OSHelper.h"
 
 #include <math.h>
 #include <iostream>
@@ -528,12 +529,13 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
+#ifdef WIN32
+    ShaderRegistry::setShaderPath("./shaders");
+#else
+    ShaderRegistry::setShaderPath("./../../shaders");
+#endif
+
     GLContextManager cm;
-    if (fileExists("./shaders")) {
-        ShaderRegistry::setShaderPath("./shaders");
-    } else {
-        ShaderRegistry::setShaderPath("../shaders");
-    }
     GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
             GLConfig::shaderUsageToString(pContext->getShaderUsage());

@@ -46,11 +46,9 @@ typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 class AVG_API VideoNode: public RasterNode, IFrameEndListener
 {
     public:
-        enum VideoAccelType {NONE, VDPAU};
-
         static void registerType();
         
-        VideoNode(const ArgList& args);
+        VideoNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~VideoNode();
         
         virtual void connectDisplay();
@@ -92,7 +90,6 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         bool hasAudio() const;
         bool hasAlpha() const;
         void setEOFCallback(PyObject * pEOFCallback);
-        bool isAccelerated() const;
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
@@ -100,8 +97,6 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         virtual void onFrameEnd();
         
         virtual IntPoint getMediaSize();
-
-        static VideoAccelType getVideoAccelConfig();
 
     private:
         bool renderFrame();
@@ -148,7 +143,6 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         VideoDecoder * m_pDecoder;
         float m_Volume;
-        bool m_bUsesHardwareAcceleration;
         bool m_bEnableSound;
         int m_AudioID;
 

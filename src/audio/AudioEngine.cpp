@@ -147,7 +147,6 @@ void AudioEngine::teardown()
             m_pGobblerThread = 0;
         }
     } else {
-        lock_guard lock(m_Mutex);
         SDL_PauseAudio(1);
 #ifdef AVG_ENABLE_RPI
         // Optimized away for all but Raspberry PI - takes too long.

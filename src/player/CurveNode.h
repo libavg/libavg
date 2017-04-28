@@ -47,7 +47,7 @@ class AVG_API CurveNode : public VectorNode
     public:
         static void registerType();
         
-        CurveNode(const ArgList& args);
+        CurveNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~CurveNode();
 
         const glm::vec2& getPos1() const;
@@ -68,7 +68,7 @@ class AVG_API CurveNode : public VectorNode
         float getTexCoord2() const;
         void setTexCoord2(float tc);
 
-        int getCurveLen() const;
+        float getCurveLen() const;
         glm::vec2 getPtOnCurve(float t) const;
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);

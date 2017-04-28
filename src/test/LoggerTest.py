@@ -23,8 +23,7 @@ import StringIO
 import logging
 
 from libavg import logger
-
-from testcase import *
+from libavg.testcase import *
 
 
 class LoggerTestCase(AVGTestCase):

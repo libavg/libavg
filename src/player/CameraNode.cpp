@@ -62,7 +62,7 @@ void CameraNode::registerType()
         .addArg(Arg<float>("framerate", 15))
         .addArg(Arg<int>("capturewidth", 640))
         .addArg(Arg<int>("captureheight", 480))
-        .addArg(Arg<string>("pixelformat", "RGB"))
+        .addArg(Arg<string>("pixelformat", "R8G8B8"))
         .addArg(Arg<int>("brightness", -1))
         .addArg(Arg<int>("exposure", -1))
         .addArg(Arg<int>("sharpness", -1))
@@ -74,8 +74,9 @@ void CameraNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CameraNode::CameraNode(const ArgList& args)
-    : m_bIsPlaying(false),
+CameraNode::CameraNode(const ArgList& args, const string& sPublisherName)
+    : RasterNode(sPublisherName),
+      m_bIsPlaying(false),
       m_FrameNum(0),
       m_bAutoUpdateCameraImage(true),
       m_bNewBmp(false),

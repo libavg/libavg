@@ -29,6 +29,7 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "BoostPython.h"
+#include "NodeChain.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -67,8 +68,9 @@ void AreaNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-AreaNode::AreaNode()
-    : m_RelViewport(0,0,0,0),
+AreaNode::AreaNode(const string& sPublisherName)
+    : Node(sPublisherName),
+      m_RelViewport(0,0,0,0),
       m_bTransformChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -103,7 +105,9 @@ void AreaNode::connectDisplay()
     } else {
         m_RelViewport.setHeight(float(m_UserSize.y));
     }
-    if (m_UserSize.x == 0.0 || m_UserSize.y == 0) {
+    if ((m_UserSize.x == 0.0 || m_UserSize.y == 0.0) &&
+            m_UserSize != m_RelViewport.size())
+    {
         notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
     }
     m_bTransformChanged = true;
@@ -228,12 +232,12 @@ glm::vec2 AreaNode::toGlobal(const glm::vec2& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void AreaNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        pElements.push_back(getSharedThis());
+        pElements->append(getSharedThis());
     }
 }
 

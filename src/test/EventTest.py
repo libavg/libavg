@@ -20,7 +20,7 @@
 #
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 def dumpMouseEvent(Event):
     print Event
@@ -1098,7 +1098,27 @@ class EventTestCase(AVGTestCase):
         self.rect.subscribe(self.rect.SIZE_CHANGED, onResize)
         self.rect.size=(100,100)
         self.assert_(self.messageReceived)
-        
+
+    def testDivSizeChanged(self):
+
+        def onResize(newSize):
+            self.messageReceived = True
+
+        def setSize():
+            self.div.size = (10,10)
+            self.assert_(self.messageReceived)
+
+        self.messageReceived = False
+        root = self.loadEmptyScene()
+        self.div = avg.DivNode(parent=root)
+        self.div.subscribe(self.div.SIZE_CHANGED, onResize)
+        avg.RectNode(size=(100,100), parent=self.div)
+        self.start(False,
+                (None,
+                 lambda: self.assert_(not(self.messageReceived)),
+                 setSize,
+                ))
+
 
 def eventTestSuite(tests):
     availableTests = (
@@ -1133,6 +1153,7 @@ def eventTestSuite(tests):
             "testWordsSizeChanged",
             "testVideoSizeChanged",
             "testRectSizeChanged",
+            "testDivSizeChanged",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 

@@ -121,12 +121,13 @@ Color::operator Pixel32() const
     return Pixel32(m_R, m_G, m_B);
 }
 
-Color::operator std::string() const
+Color::operator string() const
 {
     if (m_sOrig == "") {
         stringstream s;
         s.fill('0');
-        s << hex << setw(2) << m_R << setw(2) << m_G << setw(2) << m_B;
+        s << hex << std::uppercase << setw(2) << int(m_R) << setw(2) << int(m_G)
+                << setw(2) << int(m_B);
         return s.str();
     } else {
         return m_sOrig;
@@ -174,12 +175,15 @@ Color Color::mix(const Color& c1, const Color& c2, float ratio)
     return Lch2RGB(lchMix);
 }
 
+Color Color::fromLch(float L, float C, float H)
+{
+    LchColor lch(L, C, H);
+    return Lch2RGB(lch);
+}
+
 std::ostream& operator <<(std::ostream& os, const Color& col)
 {
-    os.fill('0');
-    os << "(" << hex << setw(2) << (int)col.m_R << "," << setw(2) << (int)col.m_G << ","
-            << setw(2) << (int)col.m_B << ")";
-    os.fill('.');
+    os << string(col);
     return os;
 }
 

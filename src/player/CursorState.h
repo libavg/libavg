@@ -31,22 +31,23 @@ namespace avg {
 
 class Node;
 typedef boost::shared_ptr<Node> NodePtr;
+class NodeChain;
+typedef boost::shared_ptr<NodeChain> NodeChainPtr;
 class CursorEvent;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 
 class AVG_API CursorState {
 public:
-    CursorState(const CursorEventPtr pEvent, const std::vector<NodePtr>& pNodes);
+    CursorState(const CursorEventPtr pEvent, NodeChainPtr pNodes);
     ~CursorState();
 
-    void setInfo(const CursorEventPtr pEvent, const std::vector<NodePtr>& pNodes);
-    const std::vector<NodePtr>& getNodes() const;
+    const NodeChainPtr& getNodes() const;
     CursorEventPtr getLastEvent() const;
 
 private:
     CursorState(const CursorState&);
 
-    std::vector<NodePtr> m_pNodes;
+    NodeChainPtr m_pNodes;
     CursorEventPtr m_pLastEvent;
 };
 

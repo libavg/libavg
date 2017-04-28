@@ -61,6 +61,7 @@
 #include "TypeRegistry.h"
 #include "CursorState.h"
 #include "TestHelper.h"
+#include "NodeChain.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -187,26 +188,16 @@ Player::Player()
     }
 }
 
-void deletePlayer()
-{
-    delete Player::s_pPlayer;
-    Player::s_pPlayer = 0;
-}
-
 Player::~Player()
 {
-    m_pMainCanvas = MainCanvasPtr();
-    if (m_pDisplayEngine) {
-        m_pDisplayEngine->teardown();
-    }
-    DisplayEngine::quitSDL();
+    // Never called, since python doesn't give us a safe place to call it.
 }
 
 Player* Player::get()
 {
     if (!s_pPlayer) {
         s_pPlayer = new Player();
-        Py_AtExit(deletePlayer);
+        Py_AtExit(DisplayEngine::quitSDL);
     }
     return s_pPlayer;
 }
@@ -849,7 +840,7 @@ NodePtr Player::getElementByID(const std::string& sID)
     }
 }
 
-AVGNodePtr Player::getRootNode()
+AVGNodePtr Player::getRootNode() const
 {
     if (m_pMainCanvas) {
         return dynamic_pointer_cast<AVGNode>(m_pMainCanvas->getRootNode());
@@ -1356,10 +1347,16 @@ OffscreenCanvasPtr Player::findCanvas(const string& sID) const
 
 void Player::sendFakeEvents()
 {
+    // Generate over and out events for unmoving cursors.
+    // This happens if the node constellation changes: A node moves so it's underneath
+    // the cursor, is deleted, etc.
     std::map<int, CursorStatePtr>::iterator it;
     for (it = m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
         CursorStatePtr pState = it->second;
-        handleCursorEvent(pState->getLastEvent(), true);
+        CursorEventPtr pEvent = pState->getLastEvent();
+        NodeChainPtr pCursorNodes = getNodesUnderCursor(pEvent);
+        generateOverEvents(pEvent, pCursorNodes);
+        updateCursorState(pEvent, pCursorNodes);
     }
 }
 
@@ -1373,31 +1370,28 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
     }
 }
 
-void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
+void Player::handleCursorEvent(CursorEventPtr pEvent)
 {
-    // Find all nodes under the cursor.
-    vector<NodePtr> pCursorNodes;
-    DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
-    if (!pEventReceiverNode) {
-        pEventReceiverNode = getRootNode();
-    }
-    pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
+    NodeChainPtr pCursorNodes = getNodesUnderCursor(pEvent);
+
+    // Send event to contacts.
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && !bOnlyCheckCursorOver) {
-        if (!pCursorNodes.empty()) {
-            NodePtr pNode = *(pCursorNodes.begin());
+    if (pContact) {
+        if (pEvent->getType() == Event::CURSOR_DOWN) {
+            pContact->setNodeChain(pCursorNodes);
+        }
+        if (!pCursorNodes->empty()) {
+            NodePtr pNode = pCursorNodes->getLeaf();
             pEvent->setNode(pNode);
         }
         pContact->sendEventToListeners(pEvent);
     }
         
+    // Handle event capture.
     int cursorID = pEvent->getCursorID();
-
-    // Determine the nodes the event should be sent to.
-    vector<NodePtr> pDestNodes = pCursorNodes;
+    NodeChainPtr pDestNodes = pCursorNodes;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
-        NodeWeakPtr pEventCaptureNode = 
-                m_EventCaptureInfoMap[cursorID]->m_pNode;
+        NodeWeakPtr pEventCaptureNode = m_EventCaptureInfoMap[cursorID]->m_pNode;
         if (pEventCaptureNode.expired()) {
             m_EventCaptureInfoMap.erase(cursorID);
         } else {
@@ -1405,10 +1399,54 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
+    generateOverEvents(pEvent, pCursorNodes);
+
+    // Iterate through the nodes and send the event to all of them.
+    for (int i=0; i<pDestNodes->getSize(); ++i) {
+        NodePtr pNode = pDestNodes->getNode(i);
+        if (pNode->getState() != Node::NS_UNCONNECTED) {
+            pEvent->setNode(pNode);
+            if (pEvent->getType() != Event::CURSOR_MOTION) {
+                pEvent->trace();
+            }
+            bool bHandled = pNode->handleEvent(pEvent);
+            if (bHandled) {
+                // stop bubbling
+                break;
+            }
+        }
+    }
+
+    if (pEvent->getType() == Event::CURSOR_UP && pEvent->getSource() != Event::MOUSE) {
+        // Cursor has disappeared: send out events.
+        for (int i=0; i<pCursorNodes->getSize(); ++i) {
+            NodePtr pNode = pCursorNodes->getNode(i);
+            sendOver(pEvent, Event::CURSOR_OUT, pNode);
+        }
+        m_pLastCursorStates.erase(cursorID);
+    } else {
+        updateCursorState(pEvent, pCursorNodes);
+    }
+}
+
+NodeChainPtr Player::getNodesUnderCursor(CursorEventPtr pEvent) const
+{
+    NodeChainPtr pCursorNodes(new NodeChain);
+    DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
+    if (!pEventReceiverNode) {
+        pEventReceiverNode = getRootNode();
+    }
+    pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
+    return pCursorNodes;
+}
+
+void Player::generateOverEvents(CursorEventPtr pEvent, NodeChainPtr pCursorNodes)
+{
     if (pEvent->getType() != Event::MOUSE_WHEEL) {
-        vector<NodePtr> pLastCursorNodes;
+        NodeChainPtr pLastCursorNodes(new NodeChain);
         {
             map<int, CursorStatePtr>::iterator it;
+            int cursorID = pEvent->getCursorID();
             it = m_pLastCursorStates.find(cursorID);
             if (it != m_pLastCursorStates.end()) {
                 pLastCursorNodes = it->second->getNodes();
@@ -1416,88 +1454,27 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
 
         // Send out events.
-        vector<NodePtr>::const_iterator itLast;
-        vector<NodePtr>::iterator itCur;
-        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
-                ++itLast)
-        {
-            NodePtr pLastNode = *itLast;
-            for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-                if (*itCur == pLastNode) {
-                    break;
-                }
-            }
-            if (itCur == pCursorNodes.end()) {
+        for (int i=0; i<pLastCursorNodes->getSize(); ++i) {
+            NodePtr pLastNode = pLastCursorNodes->getNode(i);
+            if (!pCursorNodes->contains(pLastNode)) {
                 sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
             }
         }
 
         // Send over events.
-        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-            NodePtr pCurNode = *itCur;
-            for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
-                    ++itLast)
-            {
-                if (*itLast == pCurNode) {
-                    break;
-                }
-            }
-            if (itLast == pLastCursorNodes.end()) {
+        for (int i=0; i<pCursorNodes->getSize(); ++i) {
+            NodePtr pCurNode = pCursorNodes->getNode(i);
+            if (!pLastCursorNodes->contains(pCurNode)) {
                 sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
             }
         }
     }
+}
 
-    if (!bOnlyCheckCursorOver) {
-        // Events that pass through canvases need to have their pos transformed.
-        // So we keep an array of events that only differ in their pos.
-        vector<CursorEventPtr> pLocalEvents(pDestNodes.size());
-        CursorEventPtr pCurEvent = pEvent->cloneAs();
-        for (int i=pDestNodes.size()-1; i>=0; --i) {
-            NodePtr pNode = pDestNodes[i];
-            pLocalEvents[i] = pCurEvent;
-            ImageNodePtr pImgNode = dynamic_pointer_cast<ImageNode>(pNode);
-            if (pImgNode && pImgNode->getSource() == GPUImage::SCENE) {
-                pCurEvent = pCurEvent->cloneAs();
-                pCurEvent->setPos(pImgNode->toCanvasPos(pCurEvent->getPos()));
-            }
-        }
-
-        // Iterate through the nodes and send the event to all of them.
-        for (unsigned i=0; i<pDestNodes.size(); ++i) {
-            NodePtr pNode = pDestNodes[i];
-            CursorEventPtr pCurEvent = pLocalEvents[i];
-            if (pNode->getState() != Node::NS_UNCONNECTED) {
-                pCurEvent->setNode(pNode);
-                if (pCurEvent->getType() != Event::CURSOR_MOTION) {
-                    pCurEvent->trace();
-                }
-                bool bHandled = pNode->handleEvent(pCurEvent);
-                if (bHandled) {
-                    // stop bubbling
-                    break;
-                }
-            }
-        }
-    }
-
-    if (pEvent->getType() == Event::CURSOR_UP && pEvent->getSource() != Event::MOUSE) {
-        // Cursor has disappeared: send out events.
-        vector<NodePtr>::iterator it;
-        for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-            NodePtr pNode = *it;
-            sendOver(pEvent, Event::CURSOR_OUT, pNode);
-        }
-        m_pLastCursorStates.erase(cursorID);
-    } else {
-        // Update list of nodes under cursor
-        if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
-            m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
-        } else {
-            m_pLastCursorStates[cursorID] =
-                    CursorStatePtr(new CursorState(pEvent, pCursorNodes));
-        }
-    }
+void Player::updateCursorState(CursorEventPtr pEvent, NodeChainPtr pCursorNodes)
+{
+    int cursorID = pEvent->getCursorID();
+    m_pLastCursorStates[cursorID] = CursorStatePtr(new CursorState(pEvent, pCursorNodes));
 }
 
 void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
