@@ -18,6 +18,9 @@ endif()
 
 
 link_libraries(video)
+if(${AVG_ENABLE_RPI})
+    link_libraries(${PYTHON_LIBRARIES})
+endif()
 add_executable(testvideo testvideo.cpp)
 add_test(NAME testvideo
     COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testvideo

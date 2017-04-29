@@ -122,7 +122,7 @@ if(${PLATFORM_WINDOWS})
 endif()
 
 if(${AVG_ENABLE_RPI})
-    set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
+    set(ENV{PKG_CONFIG_PATH} ${CMAKE_SOURCE_DIR}/pkg-config/rpi)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -152,7 +152,7 @@ if(${AVG_ENABLE_EGL})
     pkg_check_modules(EGL REQUIRED egl glesv2)
 endif()
 if(${AVG_ENABLE_RPI})
-    pkg_check_module(BCM REQUIRED bcm)
+    pkg_check_modules(BCM REQUIRED bcm_host)
 endif()
 
 enable_testing()

@@ -5,6 +5,9 @@ target_link_libraries(audio
     PUBLIC base)
 
 link_libraries(audio)
+if(${AVG_ENABLE_RPI})
+    link_libraries(${PYTHON_LIBRARIES})
+endif()
 add_executable(testlimiter testlimiter.cpp)
 add_test(NAME testlimiter
     COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testlimiter

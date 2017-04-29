@@ -22,6 +22,9 @@ if (RT_LIBRARY)
 endif()
 
 link_libraries(base)
+if(${AVG_ENABLE_RPI})
+    link_libraries(${PYTHON_LIBRARIES})
+endif()
 add_executable(testbase testbase.cpp)
 add_test(NAME testbase
     COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testbase

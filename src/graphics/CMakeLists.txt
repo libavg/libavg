@@ -11,6 +11,8 @@ endif()
 
 if(${AVG_ENABLE_EGL})
     set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} EGLContext.cpp)
+    set (GRAPHICS_LIBS ${EGL_LDFLAGS})
+    set (GRAPHICS_CFLAGS ${EGL_CFLAGS})
 endif()
 
 if(${AVG_ENABLE_RPI})
@@ -46,6 +48,9 @@ target_compile_options(graphics
 
 
 link_libraries(graphics)
+if(${AVG_ENABLE_RPI})
+    link_libraries(${PYTHON_LIBRARIES})
+endif()
 add_executable(testgraphics testgraphics.cpp)
 add_executable(benchmarkgraphics benchmarkgraphics.cpp)
 add_executable(testgpu testgpu.cpp)
