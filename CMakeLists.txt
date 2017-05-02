@@ -123,6 +123,9 @@ endif()
 
 if(${AVG_ENABLE_RPI})
     set(ENV{PKG_CONFIG_PATH} ${CMAKE_SOURCE_DIR}/pkg-config/rpi)
+    set(AVG_RPI_ARCHFLAGS "" CACHE STRING "architecture flags for RaspberryPi")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${AVG_RPI_ARCHFLAGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${AVG_RPI_ARCHFLAGS}")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
