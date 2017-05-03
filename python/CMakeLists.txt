@@ -30,6 +30,7 @@ add_custom_command(TARGET python-build
         COMMAND ${PYTHON_INTERPRETER} setup.py build)
 
 install(CODE "execute_process(COMMAND ${PYTHON_INTERPRETER} setup.py install
+              ${PYTHON_CUSTOM_INSTALL_OPTIONS}
               WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
 # How do I get Clion to run an install target?
