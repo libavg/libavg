@@ -417,7 +417,7 @@ float Node::getEffectiveOpacity() const
 string Node::dump(int indent)
 {
     string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + getID() +
-            "m_Opacity=" + toString(m_Opacity);
+            ", m_Opacity=" + toString(m_Opacity);
     return dumpStr; 
 }
 

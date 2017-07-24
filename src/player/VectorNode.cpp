@@ -244,6 +244,12 @@ string VectorNode::lineJoin2String(LineJoin lineJoin)
     }
 }
 
+string VectorNode::dump(int indent)
+{
+    string dumpStr = Node::dump(indent) + "\n";
+    return dumpStr;
+}
+
 void VectorNode::setDrawNeeded()
 {
     m_bDrawNeeded = true;

@@ -379,10 +379,9 @@ void DivNode::checkReload()
 
 string DivNode::dump(int indent)
 {
-    string dumpStr = AreaNode::dump () + "\n";
-    vector<NodePtr>::iterator it;
+    string dumpStr = AreaNode::dump(indent);
     for(unsigned i = 0; i < getNumChildren(); ++i) {
-        getChild(i)->dump(indent+2)+"\n";
+        dumpStr += getChild(i)->dump(indent+2);
     }
     return dumpStr;
 }

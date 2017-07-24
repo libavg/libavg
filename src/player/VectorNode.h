@@ -83,6 +83,8 @@ class AVG_API VectorNode : public Node
         static LineJoin string2LineJoin(const std::string& s);
         static std::string lineJoin2String(LineJoin lineJoin);
 
+        virtual std::string dump(int indent = 0);
+
     protected:
         GLContext::BlendMode getBlendMode() const;
 
