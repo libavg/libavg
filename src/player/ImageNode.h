@@ -64,6 +64,8 @@ class AVG_API ImageNode : public RasterNode
         virtual IntPoint getMediaSize();
         GPUImage::Source getSource() const;
 
+        virtual std::string dump(int indent = 0);
+
     private:
         bool isCanvasURL(const std::string& sURL);
         void checkCanvasValid(const CanvasPtr& pCanvas);

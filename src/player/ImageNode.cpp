@@ -190,6 +190,16 @@ GPUImage::Source ImageNode::getSource() const
     return m_pGPUImage->getSource();
 }
 
+string ImageNode::dump(int indent)
+{
+    string dumpStr = AreaNode::dump(indent);
+    if (m_pGPUImage->getSource() == GPUImage::SCENE) {
+        OffscreenCanvasPtr pCanvas = m_pGPUImage->getCanvas();
+        dumpStr += pCanvas->getRootNode()->dump(indent+2);
+    }
+    return dumpStr;
+}
+
 void ImageNode::checkReload()
 {
     if (isCanvasURL(m_href)) {
