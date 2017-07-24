@@ -47,6 +47,7 @@ using namespace std;
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(disconnectEventHandler_overloads, 
         Node::disconnectEventHandler, 1, 2);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(dumpNodeTree_overloads, DivNode::dump, 0, 1);
 
 ConstVec2 AreaNode_getMediaSize(AreaNode* This)
 {
@@ -129,6 +130,7 @@ void export_node()
                 (&DivNode::reorderChild))
         .def("indexOf", &DivNode::indexOf)
         .def("getEffectiveMediaDir", &DivNode::getEffectiveMediaDir)
+        .def("dumpNodeTree", &DivNode::dump, dumpNodeTree_overloads(args("indent")))
         .add_property("mediadir", make_function(&DivNode::getMediaDir,
                 return_value_policy<copy_const_reference>()), &DivNode::setMediaDir)
     ;

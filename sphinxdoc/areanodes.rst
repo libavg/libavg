@@ -295,6 +295,10 @@ Area Nodes
             Returns the node's effective mediadir by traversing the node
             hierarchy up to the root node.
 
+        .. py:method:: dumpNodeTree([indent=0]) -> string
+
+            Returns a dump of the node hierarchy tree (for debugging purposes).
+
     .. autoclass:: ImageNode([href, compression])
 
         A static raster image on the screen. The content of an ImageNode can be loaded
