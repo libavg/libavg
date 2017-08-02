@@ -7,7 +7,7 @@ class MyMainDiv(app.MainDiv):
     def onInit(self):
         self.offscreenCanvas = player.createCanvas(id="foo", size=(640, 480),
                 handleevents=True)
-        self.img=avg.ImageNode(href="volcano.jpg", pos=(160,120), size=(320,240),
+        self.img=avg.ImageNode(href="rgb24-64x64.png", pos=(160,120), size=(320,320),
                 parent=self.offscreenCanvas.getRootNode())
         avg.ImageNode(href="canvas:foo", parent=self, pos=(160,120), size=(320,240))
 
