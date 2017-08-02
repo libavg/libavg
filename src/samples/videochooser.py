@@ -77,7 +77,7 @@ class VideoChooser(app.MainDiv):
 
     def removeBigVideo(self):
         oldVideoNode = self.bigVideoNode
-        avg.fadeOut(oldVideoNode, self.__duration, lambda: oldVideoNode.unlink(True))
+        avg.Anim.fadeOut(oldVideoNode, self.__duration, lambda: oldVideoNode.unlink(True))
 
     def getTotalWidth(self):
         return (self.__thumbWidth+20)*len(self.videoNodes)
