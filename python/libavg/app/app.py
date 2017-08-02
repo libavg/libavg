@@ -101,6 +101,7 @@ class App(object):
 
         self._setupResolution()
         self._setupRootNode()
+        self._setupMultisampling()
         self._setupMouse()
         pos, size, angle = self._getAppParentGeometry()
         self._setupAppParent(pos, size, angle)
@@ -193,6 +194,7 @@ class App(object):
         self._settings.addOption(Option('app_resolution', '640x480'))
         self._settings.addOption(Option('app_window_size', ''))
         self._settings.addOption(Option('app_fullscreen', 'false'))
+        self._settings.addOption(Option('app_multisample_samples', '8'))
         self._settings.addOption(Option('app_show_cursor', 'true'))
         self._settings.addOption(Option('app_rotation', 'normal'))
         self._settings.addOption(Option('app_panel_fontsize', '10'))
@@ -223,6 +225,10 @@ class App(object):
         <!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
         <avg width="%s" height="%s">
         </avg>''' % tuple(self._resolution))
+
+    def _setupMultisampling(self):
+        samples = self.settings.getInt('app_multisample_samples')
+        libavg.player.setMultiSampleSamples(samples)
 
     def _setupMouse(self):
         libavg.player.enableMouse(self.settings.getBoolean('app_mouse_enabled'))
