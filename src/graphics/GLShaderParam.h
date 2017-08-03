@@ -27,6 +27,7 @@
 #include "GLContext.h"
 
 #include "../base/GLMHelper.h"
+#include "../base/Exception.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -81,7 +82,7 @@ private:
     void uniformSet(unsigned location, const VAL_TYPE& val) 
     {
         AVG_ASSERT_MSG(false, 
-                getName()+"GLShaderParam::uniformSet() called for unsupported type.");
+                (getName()+"GLShaderParam::uniformSet() called for unsupported type.").c_str());
     };
 
     bool m_bValSet;
