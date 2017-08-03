@@ -7,7 +7,7 @@ import sys
 class VideoPlayer(app.MainDiv):
 
     def onArgvParserCreated(self, parser):
-        parser.set_usage("%prog <video>")
+        parser.set_usage("%prog [options] <video>")
 
     def onArgvParsed(self, options, args, parser):
         if len(args) != 1:
