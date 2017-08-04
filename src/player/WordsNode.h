@@ -61,11 +61,11 @@ class AVG_API WordsNode : public RasterNode
         const FontStyle& getFontStyle() const;
         void setFontStyle(const FontStyle& fontStyle);
 
-        const std::string& getFont() const;
-        void setFont(const std::string& sName);
+        const UTF8String& getFont() const;
+        void setFont(const UTF8String& sName);
 
-        const std::string& getFontVariant() const;
-        void setFontVariant(const std::string& sVariant);
+        const UTF8String& getFontVariant() const;
+        void setFontVariant(const UTF8String& sVariant);
 
         const UTF8String& getText() const; 
         void setText(const UTF8String& sText);
@@ -88,11 +88,11 @@ class AVG_API WordsNode : public RasterNode
         bool getRawTextMode() const;
         void setRawTextMode(bool rawTextMode);
         
-        std::string getAlignment() const;
-        void setAlignment(const std::string& sAlignment);
+        UTF8String getAlignment() const;
+        void setAlignment(const UTF8String& sAlignment);
  
-        std::string getWrapMode() const;
-        void setWrapMode(const std::string& sWrapMode);
+        UTF8String getWrapMode() const;
+        void setWrapMode(const UTF8String& sWrapMode);
 
         bool getJustify() const;
         void setJustify(bool bJustify);

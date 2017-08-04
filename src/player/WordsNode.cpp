@@ -92,16 +92,16 @@ void WordsNode::registerType()
             ExportedObject::buildObject<WordsNode>)
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
-        .addArg(Arg<string>("font", "sans"))
-        .addArg(Arg<string>("variant", ""))
+        .addArg(Arg<UTF8String>("font", "sans"))
+        .addArg(Arg<UTF8String>("variant", ""))
         .addArg(Arg<UTF8String>("text", ""))
         .addArg(Arg<Color>("color", Color("FFFFFF")))
         .addArg(Arg<float>("aagamma", 1.0f))
         .addArg(Arg<float>("fontsize", 15))
         .addArg(Arg<int>("indent", 0, false))
         .addArg(Arg<float>("linespacing", 0))
-        .addArg(Arg<string>("alignment", "left"))
-        .addArg(Arg<string>("wrapmode", "word"))
+        .addArg(Arg<UTF8String>("alignment", "left"))
+        .addArg(Arg<UTF8String>("wrapmode", "word"))
         .addArg(Arg<bool>("justify", false))
         .addArg(Arg<bool>("rawtextmode", false, false, 
                 offsetof(WordsNode, m_bRawTextMode)))
@@ -178,12 +178,12 @@ void WordsNode::disconnect(bool bKill)
     RasterNode::disconnect(bKill);
 }
 
-string WordsNode::getAlignment() const
+UTF8String WordsNode::getAlignment() const
 {
     return m_FontStyle.getAlignment();
 }
 
-void WordsNode::setAlignment(const string& sAlign)
+void WordsNode::setAlignment(const UTF8String& sAlign)
 {
     m_FontStyle.setAlignment(sAlign);
     updateLayout();
@@ -264,18 +264,18 @@ void WordsNode::setFontStyle(const FontStyle& fontStyle)
     updateFont();
 }
 
-const std::string& WordsNode::getFont() const
+const UTF8String& WordsNode::getFont() const
 {
     return m_FontStyle.getFont();
 }
 
-void WordsNode::setFont(const std::string& sName)
+void WordsNode::setFont(const UTF8String& sName)
 {
     m_FontStyle.setFont(sName);
     updateFont();
 }
 
-const std::string& WordsNode::getFontVariant() const
+const UTF8String& WordsNode::getFontVariant() const
 {
     return m_FontStyle.getFontVariant();
 }
@@ -286,7 +286,7 @@ void WordsNode::addFontDir(const std::string& sDir)
     TextEngine::get(false).addFontDir(sDir);
 }
 
-void WordsNode::setFontVariant(const std::string& sVariant)
+void WordsNode::setFontVariant(const UTF8String& sVariant)
 {
     m_FontStyle.setFontVariant(sVariant);
     updateFont();
@@ -458,13 +458,13 @@ glm::vec2 WordsNode::getLineExtents(int line)
     return glm::vec2(float(logical_rect.width), float(logical_rect.height));
 }
 
-void WordsNode::setWrapMode(const string& sWrapMode)
+void WordsNode::setWrapMode(const UTF8String& sWrapMode)
 {
     m_FontStyle.setWrapMode(sWrapMode);
     updateLayout();
 }
 
-string WordsNode::getWrapMode() const
+UTF8String WordsNode::getWrapMode() const
 {
     return m_FontStyle.getWrapMode();
 }
