@@ -106,10 +106,18 @@ buildgdkpixbuf()
 
 buildlibrsvg()
 {
+    # Taken from: https://stackoverflow.com/a/37939589
+    function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+
     echo --------------------------------------------------------------------
     cd librsvg-2.34.0
     autoreconf --force --install
-    LDFLAGS=`xml2-config --libs` CPPFLAGS=`xml2-config --cflags` ./configure --prefix=${AVG_PATH} --disable-shared --disable-gtk-theme --disable-tools
+    VAR=`xcrun --sdk macosx --show-sdk-version`
+    if [ $(version $VAR) -ge $(version "10.13") ]; then
+        LDFLAGS="`xml2-config --libs` -isysroot `xcrun --sdk macosx --show-sdk-path`" CPPFLAGS=`xml2-config --cflags` ./configure --prefix=${AVG_PATH} --disable-shared --disable-gtk-theme --disable-tools
+    else
+        LDFLAGS=`xml2-config --libs` CPPFLAGS=`xml2-config --cflags` ./configure --prefix=${AVG_PATH} --disable-shared --disable-gtk-theme --disable-tools
+    fi
     make clean
     make -j5
     make install
