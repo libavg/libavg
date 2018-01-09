@@ -647,7 +647,7 @@ class WordsTestCase(AVGTestCase):
         
     def testTooWide(self):
         root = self.loadEmptyScene()
-        text = "42 " * 42 * 20 
+        text = "42 " * 42 * 42
         avg.WordsNode(parent=root, text=text)
         self.assertRaises(avg.Exception, lambda: self.start(True, (None, None)))
 
