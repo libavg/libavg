@@ -305,17 +305,19 @@ void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (getCrop() && getSize() != glm::vec2(0,0)) {
-        pVA->startSubVA(m_ClipVA);
-        glm::vec2 viewport = getSize();
-        m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
-    }
-    for (unsigned i = 0; i < getNumChildren(); i++) {
-        m_Children[i]->preRender(pVA, bIsParentActive, getEffectiveOpacity());
+    if (getActive()) {
+        if (getCrop() && getSize() != glm::vec2(0,0)) {
+            pVA->startSubVA(m_ClipVA);
+            glm::vec2 viewport = getSize();
+            m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
+        }
+        for (unsigned i = 0; i < getNumChildren(); i++) {
+            m_Children[i]->preRender(pVA, bIsParentActive, getEffectiveOpacity());
+        }
     }
 }
 

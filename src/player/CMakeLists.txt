@@ -1,5 +1,5 @@
 add_library(player
-    Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedObject.cpp
+    AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp ExportedObject.cpp
     Player.cpp PluginManager.cpp TypeRegistry.cpp ArgBase.cpp ArgList.cpp
     DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp
     MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp WrapPython.cpp

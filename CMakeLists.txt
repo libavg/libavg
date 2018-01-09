@@ -42,6 +42,9 @@ endif()
 
 
 # Find dependencies
+if(${PLATFORM_MACOSX})
+    set(BOOST_ROOT "$ENV{AVG_PATH}")
+endif()
 find_package(Boost 1.46 REQUIRED system thread python)
 find_package(PkgConfig REQUIRED)
 if(${PLATFORM_MACOSX})

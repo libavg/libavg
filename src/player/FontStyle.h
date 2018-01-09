@@ -28,6 +28,8 @@
 
 #include "../graphics/Color.h"
 
+#include "../base/UTF8String.h"
+
 #include <pango/pango.h>
 #include <boost/shared_ptr.hpp>
 
@@ -49,11 +51,11 @@ class AVG_API FontStyle: public ExportedObject
 
         void setDefaultedArgs(const ArgList& args);
 
-        const std::string& getFont() const;
-        void setFont(const std::string& sName);
+        const UTF8String& getFont() const;
+        void setFont(const UTF8String& sName);
 
-        const std::string& getFontVariant() const;
-        void setFontVariant(const std::string& sVariant);
+        const UTF8String& getFontVariant() const;
+        void setFontVariant(const UTF8String& sVariant);
         
         const Color& getColor() const;
         void setColor(const Color& color);
@@ -70,11 +72,11 @@ class AVG_API FontStyle: public ExportedObject
         float getLineSpacing() const;
         void setLineSpacing(float lineSpacing);
         
-        std::string getAlignment() const;
-        void setAlignment(const std::string& sAlignment);
+        UTF8String getAlignment() const;
+        void setAlignment(const UTF8String& sAlignment);
  
-        std::string getWrapMode() const;
-        void setWrapMode(const std::string& sWrapMode);
+        UTF8String getWrapMode() const;
+        void setWrapMode(const UTF8String& sWrapMode);
 
         bool getJustify() const;
         void setJustify(bool bJustify);
@@ -91,8 +93,8 @@ class AVG_API FontStyle: public ExportedObject
     private:
         void applyBaseStyle(const FontStyle& baseStyle, const ArgList& args);
 
-        std::string m_sName;
-        std::string m_sVariant;
+        UTF8String m_sName;
+        UTF8String m_sVariant;
         Color m_Color;
         float m_AAGamma;
         float m_Size;

@@ -84,6 +84,7 @@ def push():
     """
     global _keyBindings, _keyBindingsStack
     _keyBindingsStack.append(_keyBindings)
+    _keyBindings = []
     publisher.notifyUpdate()
 
 def pop():

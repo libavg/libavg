@@ -51,6 +51,9 @@ CircleNode::CircleNode(const ArgList& args, const string& sPublisherName)
     : FilledVectorNode(args, sPublisherName)
 {
     args.setMembers(this);
+    if (m_Radius < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must not be negative.");
+    }
     setTranslate(m_Pos);
 }
 
@@ -76,8 +79,8 @@ float CircleNode::getR() const
 
 void CircleNode::setR(float r) 
 {
-    if (int(r) <= 0) {
-        throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must be a positive number.");
+    if (r < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must not be negative.");
     }
     m_Radius = r;
     setDrawNeeded();

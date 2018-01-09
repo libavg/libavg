@@ -100,6 +100,25 @@ class WordsTestCase(AVGTestCase):
                  lambda: self.compareImage("testFontStyle2"),
                 ))
 
+    def testUnicodeAttributes(self):
+
+        try:
+            fontStyle = avg.FontStyle(font=u"Bitstream Vera Sans", variant=u"Roman",
+                    alignment=u"left", wrapmode=u"word")
+            self.assert_(fontStyle.font == "Bitstream Vera Sans")
+            avg.WordsNode(fontstyle=fontStyle, text="Bitstream Vera Sans")
+
+        except avg.Exception as e:
+            msg = "Failed to create FontStyle object by using unicode strings as parameters"
+            self.fail(msg)
+
+        try:
+            avg.WordsNode(font=u"Bitstream Vera Sans", variant=u"Roman",
+                    text=u"Bold", alignment=u"left", wrapmode=u"word")
+        except avg.Exception:
+            msg = "Failed to create WordsNode object by using unicode strings as parameters"
+            self.fail(msg)
+
     def testBaseStyle(self):
         attrs = {"font": "Bitstream Vera Sans",
                  "variant": "Bold",
@@ -654,6 +673,7 @@ def wordsTestSuite(tests):
             "testSimpleWords",
             "testRedrawOnDemand",
             "testFontStyle",
+            "testUnicodeAttributes",
             "testBaseStyle",
             "testGlyphPos",
             "testParaWords",
