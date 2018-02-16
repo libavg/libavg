@@ -23,7 +23,6 @@
 #define _TextEngine_H_
 
 #include <pango/pango.h>
-#include <pango/pangoft2.h>
 #include <fontconfig/fontconfig.h>
 
 #include <vector>
@@ -46,7 +45,6 @@ public:
 
     PangoFontDescription * getFontDescription(const std::string& sFamily, 
             const std::string& sVariant);
-    void FT2SubstituteFunc(FcPattern *pattern, gpointer data);
 
 private:
     TextEngine(bool bHint);
@@ -59,7 +57,7 @@ private:
 
     bool m_bHint;
     PangoContext * m_pPangoContext;
-    PangoFT2FontMap * m_pFontMap;
+    PangoFontMap * m_pFontMap;
     std::set<std::string> m_sFontsNotFound;
     std::set<std::pair<std::string, std::string> > m_VariantsNotFound;
     int m_NumFontFamilies;
