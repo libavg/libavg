@@ -65,7 +65,7 @@ void TextEngine::init()
     pango_cairo_font_map_set_resolution((PangoCairoFontMap*)m_pFontMap, 72.0);
 
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,22,0)
-    m_pPangoContext = pango_font_map_create_context(PANGO_FONT_MAP(m_pFontMap));
+    m_pPangoContext = pango_font_map_create_context(m_pFontMap);
 #else
     m_pPangoContext = pango_cairo_font_map_create_context((PangoCairoFontMap*)m_pFontMap);
 #endif
@@ -92,7 +92,7 @@ void TextEngine::init()
     string sOldLang = "";
     getEnv("LC_CTYPE", sOldLang);
     setEnv("LC_CTYPE", "en-us");
-    pango_font_map_list_families(PANGO_FONT_MAP(m_pFontMap), &m_ppFontFamilies, 
+    pango_font_map_list_families(m_pFontMap, &m_ppFontFamilies,
             &m_NumFontFamilies);
     setEnv("LC_CTYPE", sOldLang);
     for (int i = 0; i < m_NumFontFamilies; ++i) {
