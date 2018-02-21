@@ -62,12 +62,12 @@ TextEngine::~TextEngine()
 void TextEngine::init()
 {
     m_pFontMap = pango_cairo_font_map_new();
-    pango_cairo_font_map_set_resolution((PangoCairoFontMap*)m_pFontMap, 72.0);
+    pango_cairo_font_map_set_resolution(PANGO_CAIRO_FONT_MAP(m_pFontMap), 72.0);
 
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,22,0)
     m_pPangoContext = pango_font_map_create_context(m_pFontMap);
 #else
-    m_pPangoContext = pango_cairo_font_map_create_context((PangoCairoFontMap*)m_pFontMap);
+    m_pPangoContext = pango_cairo_font_map_create_context(PANGO_CAIRO_FONT_MAP(m_pFontMap));
 #endif
 
     cairo_font_options_t *pFontOptions;
