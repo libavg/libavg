@@ -61,7 +61,7 @@ TextEngine::~TextEngine()
 
 void TextEngine::init()
 {
-    m_pFontMap = pango_cairo_font_map_new();
+    m_pFontMap = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
     pango_cairo_font_map_set_resolution(PANGO_CAIRO_FONT_MAP(m_pFontMap), 72.0);
 
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,22,0)
@@ -75,11 +75,12 @@ void TextEngine::init()
     cairo_font_options_set_antialias(pFontOptions, CAIRO_ANTIALIAS_DEFAULT);
     if (m_bHint) {
         cairo_font_options_set_hint_style(pFontOptions,
-                CAIRO_HINT_STYLE_MEDIUM);
+                CAIRO_HINT_STYLE_SLIGHT);
     } else {
         cairo_font_options_set_hint_style(pFontOptions,
                 CAIRO_HINT_STYLE_NONE);
     }
+    cairo_font_options_set_hint_metrics(pFontOptions, CAIRO_HINT_METRICS_ON);
     pango_cairo_context_set_font_options(m_pPangoContext, pFontOptions);
     cairo_font_options_destroy(pFontOptions);
 
