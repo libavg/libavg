@@ -166,7 +166,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
             bIsPlanar = av_sample_fmt_is_planar((AVSampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
-                        FF_INPUT_BUFFER_PADDING_SIZE);
+                        AV_INPUT_BUFFER_PADDING_SIZE);
                 planarToInterleaved(pPackedData, pDecodedFrame, m_pStream->codec->channels,
                         framesDecoded);
                 pBuffer = resampleAudio(pPackedData, framesDecoded,
