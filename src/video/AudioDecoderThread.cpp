@@ -62,7 +62,7 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
 AudioDecoderThread::~AudioDecoderThread()
 {
     if (m_pResampleContext) {
-#ifdef LIBAVRESAMPLE_VERSION
+#ifdef FFMPEG_AVRESAMPLE_FOUND
         avresample_close(m_pResampleContext);
         avresample_free(&m_pResampleContext);
 #else
@@ -236,7 +236,7 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
         int currentSampleFormat)
 {
     if (!m_pResampleContext) {
-#ifdef LIBAVRESAMPLE_VERSION
+#ifdef FFMPEG_AVRESAMPLE_FOUND
         m_pResampleContext = avresample_alloc_context();
         av_opt_set_int(m_pResampleContext, "in_channel_layout",
                 av_get_default_channel_layout(m_pStream->codec->channels), 0);
@@ -255,7 +255,7 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
 #endif
         AVG_ASSERT(m_pResampleContext);
     }
-#ifdef LIBAVRESAMPLE_VERSION
+#ifdef FFMPEG_AVRESAMPLE_FOUND
     uint8_t *pResampledData;
     int leftoverSamples = avresample_available(m_pResampleContext);
     int framesAvailable = leftoverSamples +

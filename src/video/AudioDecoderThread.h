@@ -68,7 +68,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
 
         int m_InputSampleRate;
         int m_InputSampleFormat;
-#ifdef LIBAVRESAMPLE_VERSION
+#ifdef FFMPEG_AVRESAMPLE_FOUND
         AVAudioResampleContext * m_pResampleContext;
 #else
         ReSampleContext * m_pResampleContext;

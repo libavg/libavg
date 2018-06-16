@@ -66,7 +66,7 @@ extern "C" {
         #define url_fclose avio_close
         #define URL_WRONLY AVIO_FLAG_WRITE
 #endif
-#ifdef HAVE_LIBAVRESAMPLE_AVRESAMPLE_H
+#ifdef FFMPEG_AVRESAMPLE_FOUND
     #include <libavresample/avresample.h>
     #include <libavresample/version.h>
 #endif

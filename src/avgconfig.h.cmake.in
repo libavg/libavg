@@ -6,3 +6,5 @@
 #cmakedefine AVG_ENABLE_V4L2
 #cmakedefine AVG_ENABLE_1394_2
 #cmakedefine AVG_ENABLE_CMU1394
+
+#cmakedefine FFMPEG_AVRESAMPLE_FOUND
