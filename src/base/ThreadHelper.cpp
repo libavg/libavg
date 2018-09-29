@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include <iostream>
 #include "ThreadHelper.h"
 #include "Exception.h"
 #include "OSHelper.h"
