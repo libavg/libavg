@@ -35,12 +35,15 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfill.h"
+#include "../graphics/Filterfliprgb.h"
+#include "../graphics/FilterUnmultiplyAlpha.h"
+#include "../graphics/BitmapLoader.h"
 #include "../graphics/GLContext.h"
 #include "../graphics/GLContextManager.h"
 #include "../graphics/GLTexture.h"
 #include "../graphics/TextureMover.h"
 
-#include <pango/pangoft2.h>
+#include <pango/pangocairo.h>
 
 #include <iostream>
 #include <algorithm>
@@ -544,6 +547,8 @@ void WordsNode::updateLayout()
         }
         m_pLayout = pango_layout_new(pContext);
 
+        pango_layout_set_font_description(m_pLayout, m_pFontDescription);
+
         PangoAttrList * pAttrList = 0;
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
         PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
@@ -639,21 +644,26 @@ void WordsNode::renderText()
                         + toString(m_InkSize) + ", max=" + toString(maxTexSize) + ")");
             }
 
-            BitmapPtr pBmp(new Bitmap(m_InkSize, A8));
-            FilterFill<unsigned char>(0).applyInPlace(pBmp);
-            FT_Bitmap bitmap;
-            bitmap.rows = m_InkSize.y;
-            bitmap.width = m_InkSize.x;
-            unsigned char * pLines = pBmp->getPixels();
-            bitmap.pitch = pBmp->getStride();
-            bitmap.buffer = pLines;
-            bitmap.num_grays = 256;
-            bitmap.pixel_mode = ft_pixel_mode_grays;
+            BitmapPtr pBmp(new Bitmap(m_InkSize, B8G8R8A8));
+            FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(pBmp);
+
+            cairo_surface_t* pSurface;
+            pSurface = cairo_image_surface_create_for_data(pBmp->getPixels(),
+                    CAIRO_FORMAT_ARGB32, m_InkSize.x, m_InkSize.y,
+                    pBmp->getStride());
+            cairo_t* pCairo = cairo_create(pSurface);
 
             PangoRectangle logical_rect;
             PangoRectangle ink_rect;
             pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
-            pango_ft2_render_layout(&bitmap, m_pLayout, -ink_rect.x, -ink_rect.y);
+            Color color = m_FontStyle.getColor();
+            cairo_set_source_rgb(pCairo,
+                    color.getR() / 255.0,
+                    color.getG() / 255.0,
+                    color.getB() / 255.0);
+            cairo_translate(pCairo, -m_InkOffset.x, -m_InkOffset.y);
+            pango_cairo_show_layout (pCairo, m_pLayout);
+
             switch (m_FontStyle.getAlignmentVal()) {
                 case PANGO_ALIGN_LEFT:
                     m_AlignOffset = 0;
@@ -667,12 +677,19 @@ void WordsNode::renderText()
                 default:
                     AVG_ASSERT(false);
             }
-            setRenderColor(m_FontStyle.getColor());
+
+            FilterUnmultiplyAlpha().applyInPlace(pBmp);
+            if (!BitmapLoader::get()->isBlueFirst()) {
+                FilterFlipRGB().applyInPlace(pBmp);
+            }
 
             GLContextManager* pCM = GLContextManager::get();
             MCTexturePtr pTex = pCM->createTextureFromBmp(pBmp);
-            getSurface()->create(A8, pTex);
+            getSurface()->create(B8G8R8A8, pTex);
             newSurface();
+
+            cairo_destroy(pCairo);
+            cairo_surface_destroy(pSurface);
         }
         m_bRenderNeeded = false;
     }

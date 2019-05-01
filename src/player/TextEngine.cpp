@@ -28,29 +28,12 @@
 #include "../base/StringHelper.h"
 
 #include <algorithm>
+#include <cairo.h>
+#include <pango/pangocairo.h>
 
 namespace avg {
 
 using namespace std;
-
-static void
-text_subst_func_hint(FcPattern *pattern, gpointer data)
-{
-    FcPatternAddBool(pattern, FC_HINTING, true);
-    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
-    FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
-    FcPatternAddBool(pattern, FC_ANTIALIAS, true);
-}
-
-static void
-text_subst_func_nohint(FcPattern *pattern, gpointer data)
-{
-    FcPatternAddBool(pattern, FC_HINTING, false);
-    FcPatternAddBool(pattern, FC_AUTOHINT, false);
-    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_NONE);
-    FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
-    FcPatternAddBool(pattern, FC_ANTIALIAS, true);
-}
 
 TextEngine& TextEngine::get(bool bHint) 
 {
@@ -78,20 +61,28 @@ TextEngine::~TextEngine()
 
 void TextEngine::init()
 {
-    m_pFontMap = PANGO_FT2_FONT_MAP(pango_ft2_font_map_new());
-    pango_ft2_font_map_set_resolution(m_pFontMap, 72, 72);
-    if (m_bHint) {
-        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_hint, 
-                0, 0);
-    } else {
-        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_nohint, 
-                0, 0);
-    }
+    m_pFontMap = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    pango_cairo_font_map_set_resolution(PANGO_CAIRO_FONT_MAP(m_pFontMap), 72.0);
+
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,22,0)
-    m_pPangoContext = pango_font_map_create_context(PANGO_FONT_MAP(m_pFontMap));
+    m_pPangoContext = pango_font_map_create_context(m_pFontMap);
 #else
-    m_pPangoContext = pango_ft2_font_map_create_context(m_pFontMap);
+    m_pPangoContext = pango_cairo_font_map_create_context(PANGO_CAIRO_FONT_MAP(m_pFontMap));
 #endif
+
+    cairo_font_options_t *pFontOptions;
+    pFontOptions = cairo_font_options_create();
+    cairo_font_options_set_antialias(pFontOptions, CAIRO_ANTIALIAS_DEFAULT);
+    if (m_bHint) {
+        cairo_font_options_set_hint_style(pFontOptions,
+                CAIRO_HINT_STYLE_SLIGHT);
+    } else {
+        cairo_font_options_set_hint_style(pFontOptions,
+                CAIRO_HINT_STYLE_NONE);
+    }
+    cairo_font_options_set_hint_metrics(pFontOptions, CAIRO_HINT_METRICS_ON);
+    pango_cairo_context_set_font_options(m_pPangoContext, pFontOptions);
+    cairo_font_options_destroy(pFontOptions);
 
     pango_context_set_language(m_pPangoContext,
             pango_language_from_string ("en_US"));
@@ -102,7 +93,7 @@ void TextEngine::init()
     string sOldLang = "";
     getEnv("LC_CTYPE", sOldLang);
     setEnv("LC_CTYPE", "en-us");
-    pango_font_map_list_families(PANGO_FONT_MAP(m_pFontMap), &m_ppFontFamilies, 
+    pango_font_map_list_families(m_pFontMap, &m_ppFontFamilies,
             &m_NumFontFamilies);
     setEnv("LC_CTYPE", sOldLang);
     for (int i = 0; i < m_NumFontFamilies; ++i) {

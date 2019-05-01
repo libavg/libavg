@@ -282,13 +282,13 @@ class WordsTestCase(AVGTestCase):
 #                print node0.getGlyphPos(i)
             noHint = root.getChild(0)
             hint = root.getChild(1)
-            posNoHint = noHint.getGlyphPos(6)
-            posHint = hint.getGlyphPos(6)
+            posNoHint = noHint.getGlyphPos(16)
+            posHint = hint.getGlyphPos(16)
             self.assertNotEqual(posNoHint, posHint)
             noHint.hint = True
             hint.hint = False
-            self.assertEqual(posNoHint, hint.getGlyphPos(6))
-            self.assertEqual(posHint, noHint.getGlyphPos(6))
+            self.assertEqual(posNoHint, hint.getGlyphPos(16))
+            self.assertEqual(posHint, noHint.getGlyphPos(16))
 
         if platform.system() == "Linux":
             self.skip("Linux support requires modified font config")
@@ -562,9 +562,9 @@ class WordsTestCase(AVGTestCase):
                 
                  lambda: click((81-centerWidth/2,80)),
                  lambda: self.assert_(testInside(True)),
-                 lambda: click((80-centerWidth/2,80)),
+                 lambda: click((79-centerWidth/2,80)),
                  lambda: self.assert_(testInside(False)),
-                 lambda: click((80+centerWidth/2,80)),
+                 lambda: click((79+centerWidth/2,80)),
                  lambda: self.assert_(testInside(True)),
                  lambda: click((81+centerWidth/2,80)),
                  lambda: self.assert_(testInside(False)),
