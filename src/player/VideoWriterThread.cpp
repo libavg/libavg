@@ -198,7 +198,7 @@ void VideoWriterThread::setupVideoStream()
     pCodecContext->qmax = m_QMax;
     // some formats want stream headers to be separate
     if (m_pOutputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
-        pCodecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        pCodecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
     }
     m_FramesWritten = 0;
 }

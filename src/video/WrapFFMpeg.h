@@ -66,7 +66,7 @@ extern "C" {
         #define url_fclose avio_close
         #define URL_WRONLY AVIO_FLAG_WRITE
 #endif
-#ifdef HAVE_LIBAVRESAMPLE_AVRESAMPLE_H
+#ifdef FFMPEG_AVRESAMPLE_FOUND
     #include <libavresample/avresample.h>
     #include <libavresample/version.h>
 #endif
@@ -97,6 +97,14 @@ extern "C" {
     #define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
     #define AV_PIX_FMT_YUVA420P PIX_FMT_YUVA420P
     #define AV_PIX_FMT_YUYV422 PIX_FMT_YUYV422
+#endif
+
+// Defines renamed in libav 12 / FFmpeg 2.8
+#ifndef AV_INPUT_BUFFER_PADDING_SIZE
+  #define AV_INPUT_BUFFER_PADDING_SIZE FF_INPUT_BUFFER_PADDING_SIZE
+#endif
+#ifndef AV_CODEC_FLAG_GLOBAL_HEADER
+  #define AV_CODEC_FLAG_GLOBAL_HEADER CODEC_FLAG_GLOBAL_HEADER
 #endif
 
 namespace avg
