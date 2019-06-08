@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ namespace avg {
 
 void WordsNode::registerType()
 {
-    static const string sDTDElements = 
+    static const string sDTDElements =
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ATTLIST span\n"
         "  font_desc CDATA #IMPLIED\n"
@@ -84,11 +84,11 @@ void WordsNode::registerType()
         "<!ELEMENT u (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ELEMENT br (#PCDATA)*>\n";
 
-    string sChildArray[] = {"#PCDATA", "span", "b", "big", "i", "s", "sup", "sub", 
+    string sChildArray[] = {"#PCDATA", "span", "b", "big", "i", "s", "sup", "sub",
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
-            sChildArray); 
-    TypeDefinition def = TypeDefinition("words", "rasternode", 
+            sChildArray);
+    TypeDefinition def = TypeDefinition("words", "rasternode",
             ExportedObject::buildObject<WordsNode>)
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
@@ -103,7 +103,7 @@ void WordsNode::registerType()
         .addArg(Arg<UTF8String>("alignment", "left"))
         .addArg(Arg<UTF8String>("wrapmode", "word"))
         .addArg(Arg<bool>("justify", false))
-        .addArg(Arg<bool>("rawtextmode", false, false, 
+        .addArg(Arg<bool>("rawtextmode", false, false,
                 offsetof(WordsNode, m_bRawTextMode)))
         .addArg(Arg<float>("letterspacing", 0))
         .addArg(Arg<bool>("hint", true))
@@ -132,7 +132,7 @@ WordsNode::WordsNode(const ArgList& args, const string& sPublisherName)
 #endif
     updateFont();
     setText(args.getArgVal<UTF8String>("text"));
-    
+
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -292,7 +292,7 @@ void WordsNode::setFontVariant(const UTF8String& sVariant)
     updateFont();
 }
 
-const UTF8String& WordsNode::getText() const 
+const UTF8String& WordsNode::getText() const
 {
     return m_sRawText;
 }
@@ -300,8 +300,8 @@ const UTF8String& WordsNode::getText() const
 void WordsNode::setText(const UTF8String& sText)
 {
     if (sText.length() > 32767) {
-        throw(Exception(AVG_ERR_INVALID_ARGS, 
-                string("WordsNode::setText: string too long (") 
+        throw(Exception(AVG_ERR_INVALID_ARGS,
+                string("WordsNode::setText: string too long (")
                         + toString(sText.length()) + ")"));
     }
     if (m_sRawText != sText) {
@@ -474,7 +474,7 @@ void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
     UTF8String sTextWithoutBreaks = applyBR(m_sText);
     bool bOk;
     GError * pError = 0;
-    bOk = (pango_parse_markup(sTextWithoutBreaks.c_str(), 
+    bOk = (pango_parse_markup(sTextWithoutBreaks.c_str(),
             int(sTextWithoutBreaks.length()), 0,
             ppAttrList, ppText, 0, &pError) != 0);
     if (!bOk) {
@@ -517,7 +517,7 @@ void WordsNode::updateFont()
             pango_font_description_free(m_pFontDescription);
         }
         TextEngine& engine = TextEngine::get(m_FontStyle.getHint());
-        m_pFontDescription = engine.getFontDescription(m_FontStyle.getFont(), 
+        m_pFontDescription = engine.getFontDescription(m_FontStyle.getFont(),
                 m_FontStyle.getFontVariant());
         pango_font_description_set_absolute_size(m_pFontDescription,
                 (int)(m_FontStyle.getFontSize() * PANGO_SCALE));
@@ -545,22 +545,22 @@ void WordsNode::updateLayout()
         m_pLayout = pango_layout_new(pContext);
 
         PangoAttrList * pAttrList = 0;
-#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2)
         PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
             (int(m_FontStyle.getLetterSpacing()*1024));
 #endif
         if (m_bParsedText) {
             char * pText = 0;
             parseString(&pAttrList, &pText);
-#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2)
             // Workaround for pango bug.
             pango_attr_list_insert_before(pAttrList, pLetterSpacing);
-#endif            
+#endif
             pango_layout_set_text(m_pLayout, pText, -1);
             g_free(pText);
         } else {
             pAttrList = pango_attr_list_new();
-#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2)
             pango_attr_list_insert_before(pAttrList, pLetterSpacing);
 #endif
             pango_layout_set_text(m_pLayout, m_sText.c_str(), -1);
@@ -583,20 +583,20 @@ void WordsNode::updateLayout()
             pango_layout_set_tabs(m_pLayout, pTabs);
             pango_tab_array_free(pTabs);
         }
-        pango_layout_set_spacing(m_pLayout, 
+        pango_layout_set_spacing(m_pLayout,
                 (int)(m_FontStyle.getLineSpacing()*PANGO_SCALE));
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
         pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
 
-        /*        
+        /*
                   cerr << getID() << endl;
-                  cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
+                  cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", "
                   << ink_rect.width << ", " << ink_rect.height << endl;
-                  cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
+                  cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", "
                   << logical_rect.width << ", " << logical_rect.height << endl;
                   cerr << "User Size: " << getUserSize() << endl;
-                  */        
+                  */
         m_InkSize.y = ink_rect.height;
         if (getUserSize().x == 0) {
             m_InkSize.x = ink_rect.width;
@@ -634,8 +634,8 @@ void WordsNode::renderText()
             pango_context_set_font_description(pContext, m_pFontDescription);
             int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
-                throw Exception(AVG_ERR_UNSUPPORTED, 
-                        "WordsNode size exceeded maximum (Size=" 
+                throw Exception(AVG_ERR_UNSUPPORTED,
+                        "WordsNode size exceeded maximum (Size="
                         + toString(m_InkSize) + ", max=" + toString(maxTexSize) + ")");
             }
 
@@ -678,7 +678,7 @@ void WordsNode::renderText()
     }
 }
 
-void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
         float parentEffectiveOpacity)
 {
     AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
@@ -742,19 +742,19 @@ string WordsNode::removeExcessSpaces(const string & sText)
     }
     return s;
 }
-        
+
 PangoRectangle WordsNode::getGlyphRect(int i)
 {
-    
+
     if (i >= int(g_utf8_strlen(m_sText.c_str(), -1)) || i < 0) {
-        throw(Exception(AVG_ERR_INVALID_ARGS, 
+        throw(Exception(AVG_ERR_INVALID_ARGS,
                 string("getGlyphRect: Index ") + toString(i) + " out of range."));
     }
     const char* pText = pango_layout_get_text(m_pLayout);
     char * pChar = g_utf8_offset_to_pointer(pText, i);
     int byteOffset = pChar-pText;
     PangoRectangle rect;
-    
+
     if (m_pLayout) {
         setFontDescription(m_FontStyle, m_pFontDescription);
         pango_layout_index_to_pos(m_pLayout, byteOffset, &rect);
@@ -803,7 +803,7 @@ string::size_type findBR(const UTF8String& sText, int& len)
 UTF8String WordsNode::applyBR(const UTF8String& sText)
 {
     UTF8String sResult(sText);
-    UTF8String sLowerText = toLowerCase(sResult); 
+    UTF8String sLowerText = toLowerCase(sResult);
     int len;
     string::size_type pos = findBR(sLowerText, len);
     while (pos != string::npos) {

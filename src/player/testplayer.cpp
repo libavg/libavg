@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         Player player;
         player.loadString(
@@ -85,7 +85,7 @@ public:
 
 class PlayerTestSuite: public TestSuite {
 public:
-    PlayerTestSuite() 
+    PlayerTestSuite()
         : TestSuite("PlayerTestSuite")
     {
         Test::setRelSrcDir(".");

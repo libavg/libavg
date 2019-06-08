@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -124,7 +124,7 @@ Player::Player()
       m_FrameTime(0),
       m_Volume(1),
       m_bPythonAvailable(true),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
+      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false,
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None),
       m_bMouseEnabled(true)
@@ -258,7 +258,7 @@ void Player::useGLES(bool bGLES)
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 }
 
-void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
+void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
         int multiSampleSamples, GLConfig::ShaderUsage shaderUsage,
         bool bUseDebugContext)
 {
@@ -294,7 +294,7 @@ void Player::enableGLErrorChecks(bool bEnable)
 {
     GLContext::enableErrorChecks(bEnable);
 }
-        
+
 glm::vec2 Player::getScreenResolution()
 {
     return glm::vec2(Display::get()->getScreenResolution());
@@ -329,7 +329,7 @@ CanvasPtr Player::loadFile(const string& sFilename)
     }
 
     initMainCanvas(pNode);
-    
+
     return m_pMainCanvas;
 }
 
@@ -667,7 +667,7 @@ BitmapPtr Player::getTouchUserBmp() const
 void Player::enableMouse(bool enabled)
 {
     m_bMouseEnabled = enabled;
-    
+
     if (m_pEventDispatcher) {
         m_pEventDispatcher->enableMouse(enabled);
     }
@@ -699,7 +699,7 @@ void Player::releaseEventCapture(int cursorID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
-    if (it == m_EventCaptureInfoMap.end() || 
+    if (it == m_EventCaptureInfoMap.end() ||
             (it->second->m_pNode->getState() == Node::NS_UNCONNECTED))
     {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
@@ -743,7 +743,7 @@ int Player::setTimeout(int time, PyObject * pyfunc)
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
 {
-    avgDeprecationWarning("1.8", "Player.setOnFrameHandler", 
+    avgDeprecationWarning("1.8", "Player.setOnFrameHandler",
             "Player.subscribe(Player.ON_FRAME)");
     return internalSetTimeout(0, pyfunc, true);
 }
@@ -1170,7 +1170,7 @@ void Player::initGraphics()
     m_DP.calcWindowSizes();
     if (m_DP.getNumWindows() > 1 ||
             m_pDisplayEngine->getWindowSize() != m_DP.getWindowParams(0).m_Size ||
-            m_pDisplayEngine->isFullscreen() != m_DP.isFullscreen()) 
+            m_pDisplayEngine->isFullscreen() != m_DP.isFullscreen())
     {
         m_pDisplayEngine->teardown();
         m_pDisplayEngine->init(m_DP, m_GLConfig);
@@ -1198,7 +1198,7 @@ void Player::initMainCanvas(NodePtr pRootNode)
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
     if (m_DP.getNumWindows() == 1) {
-        m_DP.getWindowParams(0).m_Viewport = 
+        m_DP.getWindowParams(0).m_Viewport =
                 IntRect(IntPoint(0,0), m_pMainCanvas->getSize());
     }
     registerFrameEndListener(BitmapManager::get());
@@ -1245,10 +1245,10 @@ NodePtr Player::createNode(const string& sType,
     // python derived class that's being constructed and we can't set parent here.
     string sSelfClassName = py::extract<string>(
             self.attr("__class__").attr("__name__"));
-    py::object pythonClassName = 
+    py::object pythonClassName =
             (py::object(pNode).attr("__class__").attr("__name__"));
     string sThisClassName = py::extract<string>(pythonClassName);
-    bool bHasDerivedClass = sSelfClassName != sThisClassName && 
+    bool bHasDerivedClass = sSelfClassName != sThisClassName &&
             sSelfClassName != "NoneType";
     if (bHasDerivedClass) {
         if (pParentNode) {
@@ -1258,7 +1258,7 @@ NodePtr Player::createNode(const string& sType,
         pNode->registerInstance(self.ptr(), pParentNode);
     } else {
         pNode->registerInstance(0, pParentNode);
-    } 
+    }
     if (parent) {
         attrs["parent"] = parent;
     }
@@ -1386,7 +1386,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent)
         }
         pContact->sendEventToListeners(pEvent);
     }
-        
+
     // Handle event capture.
     int cursorID = pEvent->getCursorID();
     NodeChainPtr pDestNodes = pCursorNodes;
@@ -1540,9 +1540,9 @@ void Player::handleTimers()
         addTimeout(*it);
     }
     m_NewTimeouts.clear();
-    
+
     notifySubscribers("ON_FRAME");
-    
+
     m_bInHandleTimers = false;
 
     if (m_bPythonAvailable) {
@@ -1678,7 +1678,7 @@ void Player::cleanup(bool bIsAbort)
         AudioEngine::get()->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
-    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSOR_MOTION, false, false, 
+    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSOR_MOTION, false, false,
             false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0));
 
     m_FrameTime = 0;
