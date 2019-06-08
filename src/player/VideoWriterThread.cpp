@@ -1,6 +1,6 @@
 
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -125,7 +125,7 @@ void VideoWriterThread::deinit()
 void VideoWriterThread::open()
 {
     lock_guard lock(VideoDecoder::s_OpenMutex);
-    av_register_all(); // TODO: make sure this is only done once. 
+    av_register_all(); // TODO: make sure this is only done once.
 //    av_log_set_level(AV_LOG_DEBUG);
     m_pOutputFormat = av_guess_format(0, m_sFilename.c_str(), 0);
     m_pOutputFormat->video_codec = AV_CODEC_ID_MJPEG;
@@ -158,13 +158,13 @@ void VideoWriterThread::open()
         int retVal = avio_open(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
                 URL_WRONLY);
         if (retVal < 0) {
-            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
                     string("Could not open output file: '") + m_sFilename + "'");
         }
     }
 
-    m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y, 
-            AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
+    m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y,
+            AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT,
             SWS_BILINEAR, NULL, NULL, NULL);
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
@@ -198,7 +198,7 @@ void VideoWriterThread::setupVideoStream()
     pCodecContext->qmax = m_QMax;
     // some formats want stream headers to be separate
     if (m_pOutputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
-        pCodecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        pCodecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
     }
     m_FramesWritten = 0;
 }
@@ -242,11 +242,11 @@ void VideoWriterThread::convertYUVImage(BitmapPtr pSrcBmp)
 {
     ScopeTimer timer(ProfilingZoneConvertImage);
     IntPoint size = pSrcBmp->getSize();
-    BitmapPtr pYBmp(new Bitmap(size, I8, m_pConvertedFrame->data[0], 
+    BitmapPtr pYBmp(new Bitmap(size, I8, m_pConvertedFrame->data[0],
             m_pConvertedFrame->linesize[0], false));
-    BitmapPtr pUBmp(new Bitmap(size/2, I8, m_pConvertedFrame->data[1], 
+    BitmapPtr pUBmp(new Bitmap(size/2, I8, m_pConvertedFrame->data[1],
             m_pConvertedFrame->linesize[1], false));
-    BitmapPtr pVBmp(new Bitmap(size/2, I8, m_pConvertedFrame->data[2], 
+    BitmapPtr pVBmp(new Bitmap(size/2, I8, m_pConvertedFrame->data[2],
             m_pConvertedFrame->linesize[2], false));
     for (int y=0; y<size.y/2; ++y) {
         int srcStride = pSrcBmp->getStride();
@@ -261,11 +261,11 @@ void VideoWriterThread::convertYUVImage(BitmapPtr pSrcBmp)
             *(pYDest+yStride) = *(pSrc+srcStride);
             *(pYDest+yStride+1) = *(pSrc+srcStride+4);
 
-            *pUDest = ((int)*(pSrc+1) + *(pSrc+5) + 
-                       *(pSrc+srcStride+1) + *(pSrc+srcStride+5) + 2)/4; 
+            *pUDest = ((int)*(pSrc+1) + *(pSrc+5) +
+                       *(pSrc+srcStride+1) + *(pSrc+srcStride+5) + 2)/4;
 
-            *pVDest = ((int)*(pSrc+2) + *(pSrc+6) + 
-                       *(pSrc+srcStride+2) + *(pSrc+srcStride+6) + 2)/4; 
+            *pVDest = ((int)*(pSrc+2) + *(pSrc+6) +
+                       *(pSrc+srcStride+2) + *(pSrc+srcStride+6) + 2)/4;
 
             pSrc += 8;
             pYDest += 2;
