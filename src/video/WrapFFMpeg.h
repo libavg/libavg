@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ extern "C" {
 #include <libavutil/error.h>
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 00)
-  #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO 
+  #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO
   #define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
   #define AV_CODEC_ID_H264 CODEC_ID_H264
   #define AV_CODEC_ID_WMV3 CODEC_ID_WMV3
@@ -66,10 +66,8 @@ extern "C" {
         #define url_fclose avio_close
         #define URL_WRONLY AVIO_FLAG_WRITE
 #endif
-#ifdef HAVE_LIBAVRESAMPLE_AVRESAMPLE_H
-    #include <libavresample/avresample.h>
-    #include <libavresample/version.h>
-#endif
+#include <libswresample/swresample.h>
+#include <libswresample/version.h>
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
 #define av_frame_alloc  avcodec_alloc_frame
 #endif

@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -40,10 +40,10 @@ namespace avg {
 
 class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
-        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, VideoMsgQueue& packetQ, 
+        AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, VideoMsgQueue& packetQ,
                 AVStream* pStream, const AudioParams& ap);
         virtual ~AudioDecoderThread();
-        
+
         bool work();
 
     private:
@@ -53,7 +53,7 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         AudioBufferPtr resampleAudio(char* pDecodedData, int framesDecoded,
                 int currentSampleFormat);
         void insertSilence(float duration);
-        void planarToInterleaved(char* pOutput, AVFrame* pInputFrame, int numChannels, 
+        void planarToInterleaved(char* pOutput, AVFrame* pInputFrame, int numChannels,
                 int numSamples);
         void pushAudioMsg(AudioBufferPtr pBuffer, float time);
         void pushSeekDone(float time, int seqNum);
@@ -68,14 +68,11 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
 
         int m_InputSampleRate;
         int m_InputSampleFormat;
-#ifdef LIBAVRESAMPLE_VERSION
-        AVAudioResampleContext * m_pResampleContext;
-#else
-        ReSampleContext * m_pResampleContext;
-#endif
+        SwrContext * m_pResampleContext;
+
         float m_AudioStartTimestamp;
         float m_LastFrameTime;
-    
+
         enum State {DECODING, SEEK_DONE, DISCARDING};
         State m_State;
         int m_SeekSeqNum;
@@ -83,5 +80,5 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
 };
 
 }
-#endif 
+#endif
 

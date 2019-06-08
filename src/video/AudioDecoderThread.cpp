@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ using namespace std;
 
 namespace avg {
 
-AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ, 
+AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
         VideoMsgQueue& packetQ, AVStream* pStream, const AudioParams& ap)
     : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), cmdQ),
       m_MsgQ(msgQ),
@@ -62,12 +62,9 @@ AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, AudioMsgQueue& msgQ,
 AudioDecoderThread::~AudioDecoderThread()
 {
     if (m_pResampleContext) {
-#ifdef LIBAVRESAMPLE_VERSION
-        avresample_close(m_pResampleContext);
-        avresample_free(&m_pResampleContext);
-#else
-        audio_resample_close(m_pResampleContext);
-#endif
+        swr_close(m_pResampleContext);
+        swr_free(&m_pResampleContext);
+
         m_pResampleContext = 0;
     }
 }
@@ -75,7 +72,7 @@ AudioDecoderThread::~AudioDecoderThread()
 static ProfilingZoneID DecoderProfilingZone("Audio Decoder Thread", true);
 static ProfilingZoneID PacketWaitProfilingZone("Audio Wait for packet", true);
 
-bool AudioDecoderThread::work() 
+bool AudioDecoderThread::work()
 {
     ScopeTimer timer(DecoderProfilingZone);
     VideoMsgPtr pMsg;
@@ -162,11 +159,11 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                     m_InputSampleFormat != AV_SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
             bool bIsPlanar = false;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)            
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)
             bIsPlanar = av_sample_fmt_is_planar((AVSampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
-                        FF_INPUT_BUFFER_PADDING_SIZE);
+                        AV_INPUT_BUFFER_PADDING_SIZE);
                 planarToInterleaved(pPackedData, pDecodedFrame, m_pStream->codec->channels,
                         framesDecoded);
                 pBuffer = resampleAudio(pPackedData, framesDecoded,
@@ -211,7 +208,7 @@ void AudioDecoderThread::handleSeekDone(AVPacket* pPacket)
             // until the time is correct.
             m_State = DISCARDING;
         } else {
-            // Received frame that's too late, so insert a buffer of silence to 
+            // Received frame that's too late, so insert a buffer of silence to
             // compensate.
             insertSilence(m_LastFrameTime - m_SeekTime);
             m_LastFrameTime = m_SeekTime;
@@ -236,8 +233,7 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
         int currentSampleFormat)
 {
     if (!m_pResampleContext) {
-#ifdef LIBAVRESAMPLE_VERSION
-        m_pResampleContext = avresample_alloc_context();
+        m_pResampleContext = swr_alloc();
         av_opt_set_int(m_pResampleContext, "in_channel_layout",
                 av_get_default_channel_layout(m_pStream->codec->channels), 0);
         av_opt_set_int(m_pResampleContext, "out_channel_layout", AV_CH_LAYOUT_STEREO, 0);
@@ -246,37 +242,23 @@ AudioBufferPtr AudioDecoderThread::resampleAudio(char* pDecodedData, int framesD
         av_opt_set_int(m_pResampleContext, "in_sample_fmt",
                 (AVSampleFormat)currentSampleFormat, 0);
         av_opt_set_int(m_pResampleContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
-        int err = avresample_open(m_pResampleContext);
+        int err = swr_init(m_pResampleContext);
         AVG_ASSERT(err >= 0);
-#else
-        m_pResampleContext = av_audio_resample_init(m_AP.m_Channels, 
-                m_pStream->codec->channels, m_AP.m_SampleRate, m_InputSampleRate,
-                AV_SAMPLE_FMT_S16, (AVSampleFormat)currentSampleFormat, 16, 10, 0, 0.8);
-#endif
         AVG_ASSERT(m_pResampleContext);
     }
-#ifdef LIBAVRESAMPLE_VERSION
+
     uint8_t *pResampledData;
-    int leftoverSamples = avresample_available(m_pResampleContext);
-    int framesAvailable = leftoverSamples +
-            av_rescale_rnd(avresample_get_delay(m_pResampleContext) +
+    int framesAvailable = av_rescale_rnd(swr_get_delay(m_pResampleContext, m_InputSampleRate) +
                     framesDecoded, m_AP.m_SampleRate, m_InputSampleRate, AV_ROUND_UP);
     av_samples_alloc(&pResampledData, 0, 2, framesAvailable,
             AV_SAMPLE_FMT_S16, 0);
-    int framesResampled = avresample_convert(m_pResampleContext, &pResampledData, 0, 
-            framesAvailable, (uint8_t**)&pDecodedData, 0, framesDecoded);
+    int framesResampled = swr_convert(m_pResampleContext, &pResampledData,
+            framesAvailable, (const uint8_t**)&pDecodedData, framesDecoded);
     AudioBufferPtr pBuffer(new AudioBuffer(framesResampled, m_AP));
-    memcpy(pBuffer->getData(), pResampledData, 
+    memcpy(pBuffer->getData(), pResampledData,
             framesResampled*m_AP.m_Channels*sizeof(short));
     av_freep(&pResampledData);
-#else
-    short pResampledData[AVCODEC_MAX_AUDIO_FRAME_SIZE/2];
-    int framesResampled = audio_resample(m_pResampleContext, pResampledData,
-            (short*)pDecodedData, framesDecoded);
-    AudioBufferPtr pBuffer(new AudioBuffer(framesResampled, m_AP));
-    memcpy(pBuffer->getData(), pResampledData, 
-            framesResampled*m_AP.m_Channels*sizeof(short));
-#endif
+
     return pBuffer;
 }
 
